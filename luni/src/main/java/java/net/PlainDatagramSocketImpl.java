@@ -200,9 +200,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void connect(InetAddress inetAddr, int port) throws SocketException {
-        Platform.NETWORK.connect(fd, inetAddr, port, 0);
-
-        // if we get here then we are connected at the native level
+        IoUtils.connect(fd, inetAddr, port); // Throws on failure.
         try {
             connectedAddress = InetAddress.getByAddress(inetAddr.getAddress());
         } catch (UnknownHostException e) {

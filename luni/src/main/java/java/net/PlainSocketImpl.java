@@ -171,10 +171,10 @@ public class PlainSocketImpl extends SocketImpl {
             if (streaming && usingSocks()) {
                 socksConnect(anAddr, aPort, 0);
             } else {
-                Platform.NETWORK.connect(fd, normalAddr, aPort, timeout);
+                IoUtils.connect(fd, normalAddr, aPort, timeout);
             }
         } catch (ConnectException e) {
-            throw new ConnectException(anAddr + ":" + aPort + " - " + e.getMessage());
+            throw new ConnectException(anAddr + " (port " + aPort + "): " + e.getMessage());
         }
         super.address = normalAddr;
         super.port = aPort;
@@ -304,12 +304,11 @@ public class PlainSocketImpl extends SocketImpl {
     /**
      * Connect using a SOCKS server.
      */
-    private void socksConnect(InetAddress applicationServerAddress,
-            int applicationServerPort, int timeout) throws IOException {
+    private void socksConnect(InetAddress applicationServerAddress, int applicationServerPort, int timeout) throws IOException {
         try {
-            Platform.NETWORK.connect(fd, socksGetServerAddress(), socksGetServerPort(), timeout);
+            IoUtils.connect(fd, socksGetServerAddress(), socksGetServerPort(), timeout);
         } catch (Exception e) {
-            throw new SocketException("SOCKS connection failed: " + e);
+            throw new SocketException("SOCKS connection failed", e);
         }
 
         socksRequestConnection(applicationServerAddress, applicationServerPort);
@@ -372,13 +371,12 @@ public class PlainSocketImpl extends SocketImpl {
      */
     private void socksBind() throws IOException {
         try {
-            Platform.NETWORK.connect(fd, socksGetServerAddress(), socksGetServerPort(), 0);
+            IoUtils.connect(fd, socksGetServerAddress(), socksGetServerPort());
         } catch (Exception e) {
-            throw new IOException("Unable to connect to SOCKS server: " + e);
+            throw new IOException("Unable to connect to SOCKS server", e);
         }
 
-        // There must be a connection to an application host for the bind to
-        // work.
+        // There must be a connection to an application host for the bind to work.
         if (lastConnectedAddress == null) {
             throw new SocketException("Invalid SOCKS client");
         }

@@ -88,8 +88,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
      */
     @Override
     synchronized public final SelectionKey keyFor(Selector selector) {
-        for (int i = 0; i < keyList.size(); i++) {
-            SelectionKey key = keyList.get(i);
+        for (SelectionKey key : keyList) {
             if (key != null && key.selector() == selector) {
                 return key;
             }
@@ -173,8 +172,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
     @Override
     synchronized protected final void implCloseChannel() throws IOException {
         implCloseSelectableChannel();
-        for (int i = 0; i < keyList.size(); i++) {
-            SelectionKey key = keyList.get(i);
+        for (SelectionKey key : keyList) {
             if (key != null) {
                 key.cancel();
             }
@@ -235,20 +233,20 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
      */
     @Override
     public final SelectableChannel configureBlocking(boolean blockingMode) throws IOException {
-        if (isOpen()) {
-            synchronized (blockingLock) {
-                if (isBlocking == blockingMode) {
-                    return this;
-                }
-                if (blockingMode && containsValidKeys()) {
-                    throw new IllegalBlockingModeException();
-                }
-                implConfigureBlocking(blockingMode);
-                isBlocking = blockingMode;
-            }
-            return this;
+        if (!isOpen()) {
+            throw new ClosedChannelException();
         }
-        throw new ClosedChannelException();
+        synchronized (blockingLock) {
+            if (isBlocking == blockingMode) {
+                return this;
+            }
+            if (blockingMode && containsValidKeys()) {
+                throw new IllegalBlockingModeException();
+            }
+            implConfigureBlocking(blockingMode);
+            isBlocking = blockingMode;
+        }
+        return this;
     }
 
     /**
@@ -260,8 +258,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
      * @throws IOException
      *             if an I/O error occurs.
      */
-    protected abstract void implConfigureBlocking(boolean blockingMode)
-            throws IOException;
+    protected abstract void implConfigureBlocking(boolean blockingMode) throws IOException;
 
     /*
      * package private for deregister method in AbstractSelector.
@@ -277,8 +274,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
      * otherwise.
      */
     private synchronized boolean containsValidKeys() {
-        for (int i = 0; i < keyList.size(); i++) {
-            SelectionKey key = keyList.get(i);
+        for (SelectionKey key : keyList) {
             if (key != null && key.isValid()) {
                 return true;
             }

@@ -785,7 +785,7 @@ public class InetAddress implements Serializable {
             if (source != null) {
                 Platform.NETWORK.bind(fd, source, 0);
             }
-            Platform.NETWORK.connect(fd, destination, 7, timeout);
+            IoUtils.connect(fd, destination, 7, timeout);
             reached = true;
         } catch (IOException e) {
             if (ERRMSG_CONNECTION_REFUSED.equals(e.getMessage())) {
