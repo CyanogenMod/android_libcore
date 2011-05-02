@@ -333,7 +333,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             return;
         }
 
-        CacheHeader cacheRequestHeader = new CacheHeader(requestHeader);
+        CacheHeader cacheRequestHeader = new CacheHeader(uri, requestHeader);
         initResponseSourceRaw(cacheRequestHeader);
 
         /*
@@ -378,7 +378,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         HttpHeaders headers = HttpHeaders.fromMultimap(responseHeaders  );
-        CacheHeader cacheResponseHeader = new CacheHeader(headers);
+        CacheHeader cacheResponseHeader = new CacheHeader(uri, headers);
         long now = System.currentTimeMillis();
         this.responseSource = cacheResponseHeader.chooseResponseSource(now, cacheRequestHeader);
         if (responseSource == ResponseSource.CACHE) {
@@ -426,10 +426,14 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         if (!useCaches || responseCache == null) {
             return;
         }
-        // Should we cache this particular response code?
-        if (!CacheHeader.isCacheable(responseCode)) {
+
+        // Should we cache this response for this request?
+        CacheHeader requestCacheHeader = new CacheHeader(uri, requestHeader);
+        CacheHeader responseCacheHeader = new CacheHeader(uri, responseHeader);
+        if (!responseCacheHeader.isCacheable(requestCacheHeader)) {
             return;
         }
+
         // Offer this request to the cache.
         cacheRequest = responseCache.put(uri, getConnectionForCaching());
     }
@@ -1158,7 +1162,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         responseHeader.add(CacheHeader.RECEIVED_MILLIS, Long.toString(receivedResponseMillis));
 
         if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
-            if (responseHeaderToValidate.validate(requestHeader, responseHeader)) {
+            if (responseHeaderToValidate.validate(new CacheHeader(uri, responseHeader))) {
                 // discard the network response
                 discardResponseBody(getTransferStream());
 

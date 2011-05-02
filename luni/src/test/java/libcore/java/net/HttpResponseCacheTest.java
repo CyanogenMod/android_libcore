@@ -457,14 +457,40 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals(1, cache.getSuccessCount());
     }
 
-    public void testLastModifiedHeaderInThePast() throws Exception {
-        // TODO: firefox uses a +10% heuristic in this case.
-        // For example, this should be validated after 12 minutes (10% of two hours)
-        String lastModifiedDate = formatDate(-2, TimeUnit.HOURS);
+    public void testDefaultExpirationDateFullyCached() throws Exception {
+        //      last modified: 105 seconds ago
+        //             served:   5 seconds ago
+        //   default lifetime: (105 - 5) / 10 = 10 seconds
+        //            expires:  10 seconds from served date = 5 seconds from now
+        assertFullyCached(new MockResponse()
+                .addHeader("Last-Modified: " + formatDate(-105, TimeUnit.SECONDS))
+                .addHeader("Date: " + formatDate(-5, TimeUnit.SECONDS)));
+    }
+
+    public void testDefaultExpirationDateConditionallyCached() throws Exception {
+        //      last modified: 115 seconds ago
+        //             served:  15 seconds ago
+        //   default lifetime: (115 - 15) / 10 = 10 seconds
+        //            expires:  10 seconds from served date = 5 seconds ago
+        String lastModifiedDate = formatDate(-115, TimeUnit.SECONDS);
         RecordedRequest conditionalRequest = assertConditionallyCached(new MockResponse()
-                .addHeader("Last-Modified: " + lastModifiedDate));
+                .addHeader("Last-Modified: " + lastModifiedDate)
+                .addHeader("Date: " + formatDate(-15, TimeUnit.SECONDS)));
         List<String> headers = conditionalRequest.getHeaders();
         assertTrue(headers.contains("If-Modified-Since: " + lastModifiedDate));
+    }
+
+    public void testNoDefaultExpirationForUrlsWithQueryString() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Last-Modified: " + formatDate(-105, TimeUnit.SECONDS))
+                .addHeader("Date: " + formatDate(-5, TimeUnit.SECONDS))
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/?foo=bar");
+        assertEquals("A", readAscii(url.openConnection()));
+        assertEquals("B", readAscii(url.openConnection()));
     }
 
     public void testExpirationDateInThePastWithLastModifiedHeader() throws Exception {
@@ -534,6 +560,20 @@ public final class HttpResponseCacheTest extends TestCase {
         assertFullyCached(new MockResponse()
                 .addHeader("Last-Modified: " + formatDate(-120, TimeUnit.SECONDS))
                 .addHeader("Date: " + formatDate(0, TimeUnit.SECONDS))
+                .addHeader("Cache-Control: max-age=60"));
+    }
+
+    public void testMaxAgePreferredOverLowerSharedMaxAge() throws Exception {
+        assertFullyCached(new MockResponse()
+                .addHeader("Date: " + formatDate(-2, TimeUnit.MINUTES))
+                .addHeader("Cache-Control: s-maxage=60")
+                .addHeader("Cache-Control: max-age=180"));
+    }
+
+    public void testMaxAgePreferredOverHigherMaxAge() throws Exception {
+        assertNotCached(new MockResponse()
+                .addHeader("Date: " + formatDate(-2, TimeUnit.MINUTES))
+                .addHeader("Cache-Control: s-maxage=180")
                 .addHeader("Cache-Control: max-age=60"));
     }
 
@@ -928,6 +968,54 @@ public final class HttpResponseCacheTest extends TestCase {
         connection.addRequestProperty("If-Modified-Since", clientIfModifiedSince);
         assertEquals(HttpURLConnection.HTTP_NOT_MODIFIED, connection.getResponseCode());
         assertEquals("", readAscii(connection));
+    }
+
+    public void testAuthorizationRequestHeaderPreventsCaching() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Last-Modified: " + formatDate(-2, TimeUnit.MINUTES))
+                .addHeader("Cache-Control: max-age=60")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.addRequestProperty("Authorization", "password");
+        assertEquals("A", readAscii(connection));
+        assertEquals("B", readAscii(url.openConnection()));
+    }
+
+    public void testAuthorizationResponseCachedWithSMaxAge() throws Exception {
+        assertAuthorizationRequestFullyCached(new MockResponse()
+                .addHeader("Cache-Control: s-maxage=60"));
+    }
+
+    public void testAuthorizationResponseCachedWithPublic() throws Exception {
+        assertAuthorizationRequestFullyCached(new MockResponse()
+                .addHeader("Cache-Control: public"));
+    }
+
+    public void testAuthorizationResponseCachedWithMustRevalidate() throws Exception {
+        assertAuthorizationRequestFullyCached(new MockResponse()
+                .addHeader("Cache-Control: must-revalidate"));
+    }
+
+    public void assertAuthorizationRequestFullyCached(MockResponse response) throws Exception {
+        server.enqueue(response
+                .addHeader("Cache-Control: max-age=60")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.addRequestProperty("Authorization", "password");
+        assertEquals("A", readAscii(connection));
+        assertEquals("A", readAscii(url.openConnection()));
+    }
+
+    public void testCacheControlMustRevalidate() throws Exception {
+        fail("Cache-Control: must-revalidate"); // TODO
     }
 
     /**

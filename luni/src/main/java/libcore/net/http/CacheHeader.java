@@ -17,6 +17,7 @@
 package libcore.net.http;
 
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +32,7 @@ final class CacheHeader {
     /** HTTP header name for the local time when the response was received. */
     public static final String RECEIVED_MILLIS = "X-Android-Received-Millis";
 
+    final URI uri;
     final HttpHeaders headers;
     int responseCode;
     Date servedDate;
@@ -48,6 +50,13 @@ final class CacheHeader {
     int maxAgeSeconds = -1;
     int maxStaleSeconds = -1;
     int minFreshSeconds = -1;
+
+    /**
+     * The "s-maxage" directive is the max age for shared caches. Not to be
+     * confused with "max-age" for non-shared caches, As in Firefox and Chrome,
+     * this directive is not honored by this cache.
+     */
+    int sMaxAgeSeconds = -1;
     boolean noTransform;
 
     /**
@@ -64,20 +73,27 @@ final class CacheHeader {
     String noCacheField;
     boolean mustRevalidate;
     boolean proxyRevalidate;
-    int sMaxAgeSeconds;
     String etag;
     int ageSeconds = -1;
     long sentRequestMillis;
     long receivedResponseMillis;
 
     /**
-     * True if request headers contains conditions to prevent the server from
+     * True if a request header contains conditions to prevent the server from
      * sending a response that the client has locally. When the caller adds
      * conditions, this cache won't participate in the request.
      */
     boolean hasConditions;
 
-    public CacheHeader(HttpHeaders headers) {
+    /**
+     * True if a request header contains an authorization field. Although this
+     * isn't necessarily a shared cache, it follows the spec's strict
+     * requirements for shared caches.
+     */
+    boolean hasAuthorization;
+
+    public CacheHeader(URI uri, HttpHeaders headers) {
+        this.uri = uri;
         this.headers = headers;
         this.responseCode = headers.getResponseCode();
         for (int i = 0; i < headers.length(); i++) {
@@ -103,6 +119,8 @@ final class CacheHeader {
                 hasConditions = true;
             } else if ("If-Modified-Since".equalsIgnoreCase(key)) {
                 hasConditions = true;
+            } else if ("Authorization".equalsIgnoreCase(key)) {
+                hasAuthorization = true;
             } else if (SENT_MILLIS.equalsIgnoreCase(key)) {
                 sentRequestMillis = Long.parseLong(value);
             } else if (RECEIVED_MILLIS.equalsIgnoreCase(key)) {
@@ -187,7 +205,7 @@ final class CacheHeader {
             noStore = true;
         } else if (directive.equalsIgnoreCase("max-age")) {
             maxAgeSeconds = parseSeconds(parameter);
-        } else if (directive.equalsIgnoreCase("s-max-age")) {
+        } else if (directive.equalsIgnoreCase("s-maxage")) {
             sMaxAgeSeconds = parseSeconds(parameter);
         } else if (directive.equalsIgnoreCase("max-stale")) {
             maxStaleSeconds = parseSeconds(parameter);
@@ -247,35 +265,75 @@ final class CacheHeader {
     private long computeFreshnessLifetime() {
         if (maxAgeSeconds != -1) {
             return TimeUnit.SECONDS.toMillis(maxAgeSeconds);
-        }
-        if (expires != null) {
+        } else if (expires != null) {
             long servedMillis = servedDate != null ? servedDate.getTime() : receivedResponseMillis;
             long delta = expires.getTime() - servedMillis;
             return delta > 0 ? delta : 0;
+        } else if (lastModified != null && uri.getRawQuery() == null) {
+            /*
+             * As recommended by the HTTP RFC and implemented in Firefox, the
+             * max age of a document should be defaulted to 10% of the
+             * document's age at the time it was served. Default expiration
+             * dates aren't used for URIs containing a query.
+             */
+            long servedMillis = servedDate != null ? servedDate.getTime() : sentRequestMillis;
+            long delta = servedMillis - lastModified.getTime();
+            return delta > 0 ? (delta / 10) : 0;
         }
         return 0;
     }
 
     /**
-     * Always go to network for uncacheable response codes (RFC 2616, 13.4),
-     * This implementation doesn't support caching partial content.
+     * Returns true if this response can be stored to later serve another
+     * request.
+     *
+     * @param requestCacheHeader the request that resulted in this response.
      */
-    public static boolean isCacheable(int responseCode) {
-        return responseCode == HttpURLConnection.HTTP_OK
-                || responseCode == HttpURLConnection.HTTP_NOT_AUTHORITATIVE
-                || responseCode == HttpURLConnection.HTTP_MULT_CHOICE
-                || responseCode == HttpURLConnection.HTTP_MOVED_PERM
-                || responseCode == HttpURLConnection.HTTP_GONE;
+    public boolean isCacheable(CacheHeader requestCacheHeader) {
+        /*
+         * Always go to network for uncacheable response codes (RFC 2616, 13.4),
+         * This implementation doesn't support caching partial content.
+         */
+        if (responseCode != HttpURLConnection.HTTP_OK
+                && responseCode != HttpURLConnection.HTTP_NOT_AUTHORITATIVE
+                && responseCode != HttpURLConnection.HTTP_MULT_CHOICE
+                && responseCode != HttpURLConnection.HTTP_MOVED_PERM
+                && responseCode != HttpURLConnection.HTTP_GONE) {
+            return false;
+        }
+
+        /*
+         * Responses to authorized requests aren't cacheable unless they include
+         * a 'public', 'must-revalidate' or 's-maxage' directive.
+         */
+        if (requestCacheHeader.hasAuthorization
+                && !isPublic
+                && !mustRevalidate
+                && sMaxAgeSeconds == -1) {
+            return false;
+        }
+
+        if (noStore) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
      * Returns the source to satisfy {@code request} given this cached response.
      */
     public ResponseSource chooseResponseSource(long nowMillis, CacheHeader requestCacheHeader) {
-        if (noStore
-                || requestCacheHeader.noCache
-                || requestCacheHeader.hasConditions
-                || !isCacheable(responseCode)) {
+        /*
+         * If this response shouldn't have been stored, it should never be used
+         * as a response source. This check should be redundant as long as the
+         * persistence store is well-behaved and the rules are constant.
+         */
+        if (!isCacheable(requestCacheHeader)) {
+            return ResponseSource.NETWORK;
+        }
+
+        if (requestCacheHeader.noCache || requestCacheHeader.hasConditions) {
             return ResponseSource.NETWORK;
         }
 
@@ -324,8 +382,8 @@ final class CacheHeader {
      * Returns true if this cached response should be used; false if the
      * network response should be used.
      */
-    public boolean validate(HttpHeaders request, HttpHeaders response) {
-        if (response.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
+    public boolean validate(CacheHeader networkResponseHeader) {
+        if (networkResponseHeader.responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
             return true;
         }
 
@@ -334,12 +392,10 @@ final class CacheHeader {
          * cached response, we may return the cache's response. Like Chrome (but
          * unlike Firefox), this client prefers to return the newer response.
          */
-        if (lastModified != null) {
-            CacheHeader responseCacheHeader = new CacheHeader(response);
-            if (responseCacheHeader.lastModified != null
-                    && responseCacheHeader.lastModified.getTime() < lastModified.getTime()) {
-                return true;
-            }
+        if (lastModified != null
+                && networkResponseHeader.lastModified != null
+                && networkResponseHeader.lastModified.getTime() < lastModified.getTime()) {
+            return true;
         }
 
         return false;

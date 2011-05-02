@@ -122,7 +122,7 @@ public final class CacheHeaderTest extends TestCase {
         headers.add("Cache-Control", "NO-CACHE");
         headers.add("Cache-Control", "NO-STORE");
         headers.add("Cache-Control", "MAX-AGE=60");
-        headers.add("Cache-Control", "S-MAX-AGE=70");
+        headers.add("Cache-Control", "S-MAXAGE=70");
         headers.add("Cache-Control", "MAX-STALE=80");
         headers.add("Cache-Control", "MIN-FRESH=90");
         headers.add("Cache-Control", "NO-TRANSFORM");
