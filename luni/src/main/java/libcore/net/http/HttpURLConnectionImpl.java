@@ -427,10 +427,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
             return;
         }
         // Should we cache this particular response code?
-        // TODO: cache response code 300 HTTP_MULT_CHOICE ?
-        if (responseCode != HTTP_OK && responseCode != HTTP_NOT_AUTHORITATIVE &&
-                responseCode != HTTP_PARTIAL && responseCode != HTTP_MOVED_PERM &&
-                responseCode != HTTP_GONE) {
+        if (!CacheHeader.isCacheable(responseCode)) {
             return;
         }
         // Offer this request to the cache.
@@ -530,6 +527,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      */
     @Override
     public final InputStream getErrorStream() {
+        // TODO: force retrieve response() ?
+
         if (connected && method != HEAD && responseCode >= HTTP_BAD_REQUEST) {
             return responseBodyIn;
         }

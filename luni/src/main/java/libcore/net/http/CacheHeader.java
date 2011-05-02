@@ -70,30 +70,43 @@ final class CacheHeader {
     long sentRequestMillis;
     long receivedResponseMillis;
 
+    /**
+     * True if request headers contains conditions to prevent the server from
+     * sending a response that the client has locally. When the caller adds
+     * conditions, this cache won't participate in the request.
+     */
+    boolean hasConditions;
+
     public CacheHeader(HttpHeaders headers) {
         this.headers = headers;
         this.responseCode = headers.getResponseCode();
         for (int i = 0; i < headers.length(); i++) {
-            if ("Cache-Control".equalsIgnoreCase(headers.getKey(i))) {
-                parseCacheControl(headers.getValue(i));
-            } else if ("Date".equalsIgnoreCase(headers.getKey(i))) {
-                servedDate = HttpDate.parse(headers.getValue(i));
-            } else if ("Expires".equalsIgnoreCase(headers.getKey(i))) {
-                expires = HttpDate.parse(headers.getValue(i));
-            } else if ("Last-Modified".equalsIgnoreCase(headers.getKey(i))) {
-                lastModified = HttpDate.parse(headers.getValue(i));
-            } else if ("ETag".equalsIgnoreCase(headers.getKey(i))) {
-                etag = headers.getValue(i);
-            } else if ("Pragma".equalsIgnoreCase(headers.getKey(i))) {
-                if (headers.getValue(i).equalsIgnoreCase("no-cache")) {
+            String key = headers.getKey(i);
+            String value = headers.getValue(i);
+            if ("Cache-Control".equalsIgnoreCase(key)) {
+                parseCacheControl(value);
+            } else if ("Date".equalsIgnoreCase(key)) {
+                servedDate = HttpDate.parse(value);
+            } else if ("Expires".equalsIgnoreCase(key)) {
+                expires = HttpDate.parse(value);
+            } else if ("Last-Modified".equalsIgnoreCase(key)) {
+                lastModified = HttpDate.parse(value);
+            } else if ("ETag".equalsIgnoreCase(key)) {
+                etag = value;
+            } else if ("Pragma".equalsIgnoreCase(key)) {
+                if (value.equalsIgnoreCase("no-cache")) {
                     noCache = true;
                 }
-            } else if ("Age".equalsIgnoreCase(headers.getKey(i))) {
-                ageSeconds = parseSeconds(headers.getValue(i));
-            } else if (SENT_MILLIS.equalsIgnoreCase(headers.getKey(i))) {
-                sentRequestMillis = Long.parseLong(headers.getValue(i));
-            } else if (RECEIVED_MILLIS.equalsIgnoreCase(headers.getKey(i))) {
-                receivedResponseMillis = Long.parseLong(headers.getValue(i));
+            } else if ("Age".equalsIgnoreCase(key)) {
+                ageSeconds = parseSeconds(value);
+            } else if ("If-None-Match".equalsIgnoreCase(key)) {
+                hasConditions = true;
+            } else if ("If-Modified-Since".equalsIgnoreCase(key)) {
+                hasConditions = true;
+            } else if (SENT_MILLIS.equalsIgnoreCase(key)) {
+                sentRequestMillis = Long.parseLong(value);
+            } else if (RECEIVED_MILLIS.equalsIgnoreCase(key)) {
+                receivedResponseMillis = Long.parseLong(value);
             }
         }
     }
@@ -244,20 +257,25 @@ final class CacheHeader {
     }
 
     /**
+     * Always go to network for uncacheable response codes (RFC 2616, 13.4),
+     * This implementation doesn't support caching partial content.
+     */
+    public static boolean isCacheable(int responseCode) {
+        return responseCode == HttpURLConnection.HTTP_OK
+                || responseCode == HttpURLConnection.HTTP_NOT_AUTHORITATIVE
+                || responseCode == HttpURLConnection.HTTP_MULT_CHOICE
+                || responseCode == HttpURLConnection.HTTP_MOVED_PERM
+                || responseCode == HttpURLConnection.HTTP_GONE;
+    }
+
+    /**
      * Returns the source to satisfy {@code request} given this cached response.
      */
     public ResponseSource chooseResponseSource(long nowMillis, CacheHeader requestCacheHeader) {
-        boolean hasConditions = false;
-
-        // TODO: if a "If-Modified-Since" or "If-None-Match" request header exists, assume the user
-        // knows better and just return CONDITIONAL_CACHE
-
-        if (noStore) {
-            return ResponseSource.NETWORK;
-        }
-
-        if (responseCode == HttpURLConnection.HTTP_PARTIAL) {
-            // TODO: whitelist cacheable responses rather than blacklisting invalid ones
+        if (noStore
+                || requestCacheHeader.noCache
+                || requestCacheHeader.hasConditions
+                || !isCacheable(responseCode)) {
             return ResponseSource.NETWORK;
         }
 
@@ -285,19 +303,19 @@ final class CacheHeader {
         }
 
         if (lastModified != null) {
-            requestCacheHeader.headers.set("If-Modified-Since", HttpDate.format(lastModified));
-            hasConditions = true;
+            requestCacheHeader.headers.add("If-Modified-Since", HttpDate.format(lastModified));
+            requestCacheHeader.hasConditions = true;
         } else if (servedDate != null) {
-            requestCacheHeader.headers.set("If-Modified-Since", HttpDate.format(servedDate));
-            hasConditions = true;
+            requestCacheHeader.headers.add("If-Modified-Since", HttpDate.format(servedDate));
+            requestCacheHeader.hasConditions = true;
         }
 
         if (etag != null) {
-            requestCacheHeader.headers.set("If-None-Match", etag);
-            hasConditions = true;
+            requestCacheHeader.headers.add("If-None-Match", etag);
+            requestCacheHeader.hasConditions = true;
         }
 
-        return hasConditions
+        return requestCacheHeader.hasConditions
                 ? ResponseSource.CONDITIONAL_CACHE
                 : ResponseSource.NETWORK;
     }
