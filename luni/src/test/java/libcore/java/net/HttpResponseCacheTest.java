@@ -75,7 +75,7 @@ public final class HttpResponseCacheTest extends TestCase {
      * Test that response caching is consistent with the RI and the spec.
      * http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.4
      */
-    public void test_responseCaching() throws Exception {
+    public void testResponseCachingByResponseCode() throws Exception {
         // Test each documented HTTP/1.1 code, plus the first unused value in each range.
         // http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 
@@ -91,7 +91,7 @@ public final class HttpResponseCacheTest extends TestCase {
         assertCached(false, 205);
         assertCached(true,  206);
         assertCached(false, 207);
-        // (See test_responseCaching_300.)
+        assertCached(true,  300);
         assertCached(true,  301);
         for (int i = 302; i <= 308; ++i) {
             assertCached(false, i);
@@ -109,11 +109,6 @@ public final class HttpResponseCacheTest extends TestCase {
         for (int i = 500; i <= 506; ++i) {
             assertCached(false, i);
         }
-    }
-
-    public void test_responseCaching_300() throws Exception {
-        // TODO: fix this for android
-        assertCached(false, 300);
     }
 
     /**
@@ -135,7 +130,7 @@ public final class HttpResponseCacheTest extends TestCase {
 
     public void test_responseCaching_410() throws Exception {
         // the HTTP spec permits caching 410s, but the RI doesn't.
-        assertCached(false, 410);
+        assertCached(true, 410);
     }
 
     private void assertCached(boolean shouldPut, int responseCode) throws Exception {
@@ -153,13 +148,7 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals(responseCode, conn.getResponseCode());
 
         // exhaust the content stream
-        try {
-            // TODO: remove special case once testUnauthorizedResponseHandling() is fixed
-            if (responseCode != 401) {
-                readAscii(conn);
-            }
-        } catch (IOException expected) {
-        }
+        readAscii(conn);
 
         Set<URI> expectedCachedUris = shouldPut
                 ? Collections.singleton(url.toURI())
@@ -463,7 +452,7 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals(1, cache.getAbortCount());
         assertEquals(0, cache.getSuccessCount());
         connection = server.getUrl("/").openConnection();
-        assertEquals("Request #2", readAscii(connection, Integer.MAX_VALUE));
+        assertEquals("Request #2", readAscii(connection));
         assertEquals(1, cache.getAbortCount());
         assertEquals(1, cache.getSuccessCount());
     }
@@ -515,8 +504,10 @@ public final class HttpResponseCacheTest extends TestCase {
     }
 
     public void testMaxAgeInThePastWithDateHeaderButNoLastModifiedHeader() throws Exception {
-        // TODO: this is bogus; we interpret 'max-age' relative to the server's clock;
-        //       But Chrome uses the local clock
+        /*
+         * Chrome interprets max-age relative to the local clock. Both our cache
+         * and Firefox both use the earlier of the local and server's clock.
+         */
         assertNotCached(new MockResponse()
                 .addHeader("Date: " + formatDate(-120, TimeUnit.SECONDS))
                 .addHeader("Cache-Control: max-age=60"));
@@ -529,7 +520,6 @@ public final class HttpResponseCacheTest extends TestCase {
     }
 
     public void testMaxAgeInTheFutureWithNoDateHeader() throws Exception {
-        // TODO: this is failing until we default 'Date:' to the request date
         assertFullyCached(new MockResponse()
                 .addHeader("Cache-Control: max-age=60"));
     }
@@ -853,7 +843,92 @@ public final class HttpResponseCacheTest extends TestCase {
         assertBadGateway(connection);
     }
 
-    // TODO: honor the no-cache request header
+    public void testRequestCacheControlNoCache() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Last-Modified: " + formatDate(-120, TimeUnit.SECONDS))
+                .addHeader("Date: " + formatDate(0, TimeUnit.SECONDS))
+                .addHeader("Cache-Control: max-age=60")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        assertEquals("A", readAscii(url.openConnection()));
+        URLConnection connection = url.openConnection();
+        connection.setRequestProperty("Cache-Control", "no-cache");
+        assertEquals("B", readAscii(connection));
+    }
+
+    public void testRequestPragmaNoCache() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Last-Modified: " + formatDate(-120, TimeUnit.SECONDS))
+                .addHeader("Date: " + formatDate(0, TimeUnit.SECONDS))
+                .addHeader("Cache-Control: max-age=60")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        assertEquals("A", readAscii(url.openConnection()));
+        URLConnection connection = url.openConnection();
+        connection.setRequestProperty("Pragma", "no-cache");
+        assertEquals("B", readAscii(connection));
+    }
+
+    public void testClientSuppliedIfModifiedSinceWithCachedResult() throws Exception {
+        MockResponse response = new MockResponse()
+                .addHeader("ETag: v3")
+                .addHeader("Cache-Control: max-age=0");
+        String ifModifiedSinceDate = formatDate(-24, TimeUnit.HOURS);
+        RecordedRequest request = assertClientSuppliedCondition(
+                response, "If-Modified-Since", ifModifiedSinceDate);
+        List<String> headers = request.getHeaders();
+        assertTrue(headers.contains("If-Modified-Since: " + ifModifiedSinceDate));
+        assertFalse(headers.contains("If-None-Match: v3"));
+    }
+
+    public void testClientSuppliedIfNoneMatchSinceWithCachedResult() throws Exception {
+        String lastModifiedDate = formatDate(-3, TimeUnit.MINUTES);
+        MockResponse response = new MockResponse()
+                .addHeader("Last-Modified: " + lastModifiedDate)
+                .addHeader("Date: " + formatDate(-2, TimeUnit.MINUTES))
+                .addHeader("Cache-Control: max-age=0");
+        RecordedRequest request = assertClientSuppliedCondition(
+                response, "If-None-Match", "v1");
+        List<String> headers = request.getHeaders();
+        assertTrue(headers.contains("If-None-Match: v1"));
+        assertFalse(headers.contains("If-Modified-Since: " + lastModifiedDate));
+    }
+
+    private RecordedRequest assertClientSuppliedCondition(MockResponse seed, String conditionName,
+            String conditionValue) throws Exception {
+        server.enqueue(seed.setBody("A"));
+        server.enqueue(new MockResponse().setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
+        server.play();
+
+        URL url = server.getUrl("/");
+        assertEquals("A", readAscii(url.openConnection()));
+
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.addRequestProperty(conditionName, conditionValue);
+        assertEquals(HttpURLConnection.HTTP_NOT_MODIFIED, connection.getResponseCode());
+        assertEquals("", readAscii(connection));
+
+        server.takeRequest(); // seed
+        return server.takeRequest();
+    }
+
+    public void testClientSuppliedConditionWithoutCachedResult() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
+        server.play();
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        String clientIfModifiedSince = formatDate(-24, TimeUnit.HOURS);
+        connection.addRequestProperty("If-Modified-Since", clientIfModifiedSince);
+        assertEquals(HttpURLConnection.HTTP_NOT_MODIFIED, connection.getResponseCode());
+        assertEquals("", readAscii(connection));
+    }
 
     /**
      * @param delta the offset from the current date to use. Negative
@@ -940,7 +1015,10 @@ public final class HttpResponseCacheTest extends TestCase {
      * characters are returned and the stream is closed.
      */
     private String readAscii(URLConnection connection, int count) throws IOException {
-        InputStream in = connection.getInputStream();
+        HttpURLConnection httpConnection = (HttpURLConnection) connection;
+        InputStream in = httpConnection.getResponseCode() < HttpURLConnection.HTTP_BAD_REQUEST
+                ? connection.getInputStream()
+                : httpConnection.getErrorStream();
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < count; i++) {
             int value = in.read();
