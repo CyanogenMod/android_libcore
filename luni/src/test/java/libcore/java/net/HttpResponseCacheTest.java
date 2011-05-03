@@ -34,14 +34,18 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.Principal;
 import java.security.cert.Certificate;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -49,7 +53,6 @@ import java.util.zip.GZIPOutputStream;
 import javax.net.ssl.HttpsURLConnection;
 import junit.framework.TestCase;
 import libcore.javax.net.ssl.TestSSLContext;
-import libcore.net.http.HttpDate;
 import libcore.net.http.HttpResponseCache;
 import tests.http.MockResponse;
 import tests.http.MockWebServer;
@@ -179,6 +182,16 @@ public final class HttpResponseCacheTest extends TestCase {
             }
             @Override public CacheRequest put(URI uri, URLConnection conn) throws IOException {
                 HttpURLConnection httpConnection = (HttpURLConnection) conn;
+                try {
+                    httpConnection.getRequestProperties();
+                    fail();
+                } catch (IllegalStateException expected) {
+                }
+                try {
+                    httpConnection.addRequestProperty("K", "V");
+                    fail();
+                } catch (IllegalStateException expected) {
+                }
                 assertEquals("HTTP/1.1 200 Fantastic", httpConnection.getHeaderField(null));
                 assertEquals(Arrays.asList("HTTP/1.1 200 Fantastic"),
                         httpConnection.getHeaderFields().get(null));
@@ -197,7 +210,7 @@ public final class HttpResponseCacheTest extends TestCase {
         });
 
         URL url = server.getUrl("/");
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        URLConnection connection = url.openConnection();
         assertEquals(body, readAscii(connection));
         assertEquals(1, cacheCount.get());
     }
@@ -318,10 +331,10 @@ public final class HttpResponseCacheTest extends TestCase {
         server.enqueue(new MockResponse().setBody("DEF"));
         server.play();
 
-        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        URLConnection connection = server.getUrl("/").openConnection();
         assertEquals("ABC", readAscii(connection));
 
-        connection = (HttpURLConnection) server.getUrl("/").openConnection(); // cached!
+        connection = server.getUrl("/").openConnection(); // cached!
         assertEquals("ABC", readAscii(connection));
 
         assertEquals(2, cache.getMissCount()); // 1 redirect + 1 final response = 2
@@ -457,14 +470,22 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals(1, cache.getSuccessCount());
     }
 
-    public void testDefaultExpirationDateFullyCached() throws Exception {
+    public void testDefaultExpirationDateFullyCachedForLessThan24Hours() throws Exception {
         //      last modified: 105 seconds ago
         //             served:   5 seconds ago
         //   default lifetime: (105 - 5) / 10 = 10 seconds
         //            expires:  10 seconds from served date = 5 seconds from now
-        assertFullyCached(new MockResponse()
+        server.enqueue(new MockResponse()
                 .addHeader("Last-Modified: " + formatDate(-105, TimeUnit.SECONDS))
-                .addHeader("Date: " + formatDate(-5, TimeUnit.SECONDS)));
+                .addHeader("Date: " + formatDate(-5, TimeUnit.SECONDS))
+                .setBody("A"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        assertEquals("A", readAscii(url.openConnection()));
+        URLConnection connection = url.openConnection();
+        assertEquals("A", readAscii(connection));
+        assertNull(connection.getHeaderField("Warning"));
     }
 
     public void testDefaultExpirationDateConditionallyCached() throws Exception {
@@ -478,6 +499,24 @@ public final class HttpResponseCacheTest extends TestCase {
                 .addHeader("Date: " + formatDate(-15, TimeUnit.SECONDS)));
         List<String> headers = conditionalRequest.getHeaders();
         assertTrue(headers.contains("If-Modified-Since: " + lastModifiedDate));
+    }
+
+    public void testDefaultExpirationDateFullyCachedForMoreThan24Hours() throws Exception {
+        //      last modified: 105 days ago
+        //             served:   5 days ago
+        //   default lifetime: (105 - 5) / 10 = 10 days
+        //            expires:  10 days from served date = 5 days from now
+        server.enqueue(new MockResponse()
+                .addHeader("Last-Modified: " + formatDate(-105, TimeUnit.DAYS))
+                .addHeader("Date: " + formatDate(-5, TimeUnit.DAYS))
+                .setBody("A"));
+        server.play();
+
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        URLConnection connection = server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection));
+        assertEquals("113 HttpURLConnection \"Heuristic expiration\"",
+                connection.getHeaderField("Warning"));
     }
 
     public void testNoDefaultExpirationForUrlsWithQueryString() throws Exception {
@@ -626,7 +665,7 @@ public final class HttpResponseCacheTest extends TestCase {
         addRequestBodyIfNecessary(requestMethod, request1);
         assertEquals("1", request1.getHeaderField("X-Response-ID"));
 
-        HttpURLConnection request2 = (HttpURLConnection) url.openConnection();
+        URLConnection request2 = url.openConnection();
         if (expectCached) {
             assertEquals("1", request1.getHeaderField("X-Response-ID"));
         } else {
@@ -838,13 +877,15 @@ public final class HttpResponseCacheTest extends TestCase {
         URLConnection connection = server.getUrl("/").openConnection();
         connection.addRequestProperty("Cache-Control", "max-stale=180");
         assertEquals("A", readAscii(connection));
+        assertEquals("110 HttpURLConnection \"Response is stale\"",
+                connection.getHeaderField("Warning"));
     }
 
     public void testRequestOnlyIfCachedWithNoResponseCached() throws IOException {
         // (no responses enqueued)
         server.play();
 
-        URLConnection connection = server.getUrl("/").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
         connection.addRequestProperty("Cache-Control", "only-if-cached");
         assertBadGateway(connection);
     }
@@ -868,7 +909,7 @@ public final class HttpResponseCacheTest extends TestCase {
         server.play();
 
         assertEquals("A", readAscii(server.getUrl("/").openConnection()));
-        URLConnection connection = server.getUrl("/").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
         connection.addRequestProperty("Cache-Control", "only-if-cached");
         assertBadGateway(connection);
     }
@@ -878,7 +919,7 @@ public final class HttpResponseCacheTest extends TestCase {
         server.play();
 
         assertEquals("A", readAscii(server.getUrl("/").openConnection()));
-        URLConnection connection = server.getUrl("/").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
         connection.addRequestProperty("Cache-Control", "only-if-cached");
         assertBadGateway(connection);
     }
@@ -979,7 +1020,7 @@ public final class HttpResponseCacheTest extends TestCase {
         server.play();
 
         URL url = server.getUrl("/");
-        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        URLConnection connection = url.openConnection();
         connection.addRequestProperty("Authorization", "password");
         assertEquals("A", readAscii(connection));
         assertEquals("B", readAscii(url.openConnection()));
@@ -1008,7 +1049,7 @@ public final class HttpResponseCacheTest extends TestCase {
         server.play();
 
         URL url = server.getUrl("/");
-        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        URLConnection connection = url.openConnection();
         connection.addRequestProperty("Authorization", "password");
         assertEquals("A", readAscii(connection));
         assertEquals("A", readAscii(url.openConnection()));
@@ -1018,13 +1059,46 @@ public final class HttpResponseCacheTest extends TestCase {
         fail("Cache-Control: must-revalidate"); // TODO
     }
 
+    public void testVaryResponsesAreNotSupported() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Vary: Accept-Language")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        URLConnection connection1 = url.openConnection();
+        connection1.addRequestProperty("Accept-Language", "fr-CA");
+        assertEquals("A", readAscii(connection1));
+
+        URLConnection connection2 = url.openConnection();
+        connection2.addRequestProperty("Accept-Language", "fr-CA");
+        assertEquals("B", readAscii(connection2));
+    }
+
+    public void testContentLocationDoesNotPopulateCache() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Content-Location: /bar")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        assertEquals("A", readAscii(server.getUrl("/foo").openConnection()));
+        assertEquals("B", readAscii(server.getUrl("/bar").openConnection()));
+    }
+
     /**
      * @param delta the offset from the current date to use. Negative
      *     values yield dates in the past; positive values yield dates in the
      *     future.
      */
-    public String formatDate(long delta, TimeUnit timeUnit) {
-        return HttpDate.format(new Date(System.currentTimeMillis() + timeUnit.toMillis(delta)));
+    private String formatDate(long delta, TimeUnit timeUnit) {
+        Date date = new Date(System.currentTimeMillis() + timeUnit.toMillis(delta));
+        DateFormat rfc1123 = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+        rfc1123.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return rfc1123.format(date);
     }
 
     private void addRequestBodyIfNecessary(String requestMethod, HttpURLConnection invalidate)
@@ -1129,14 +1203,14 @@ public final class HttpResponseCacheTest extends TestCase {
         }
     }
 
-    private void assertBadGateway(URLConnection connection) throws IOException {
+    private void assertBadGateway(HttpURLConnection connection) throws IOException {
         try {
             connection.getInputStream();
             fail();
         } catch (FileNotFoundException expected) {
         }
-        assertEquals(HttpURLConnection.HTTP_BAD_GATEWAY,
-                ((HttpURLConnection) connection).getResponseCode());
+        assertEquals(HttpURLConnection.HTTP_BAD_GATEWAY, connection.getResponseCode());
+        assertEquals(-1, connection.getErrorStream().read());
     }
 
     enum TransferKind {

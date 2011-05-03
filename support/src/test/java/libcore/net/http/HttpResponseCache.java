@@ -38,10 +38,6 @@ import java.util.List;
 import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLPeerUnverifiedException;
-import static libcore.net.http.HttpURLConnectionImpl.DELETE;
-import static libcore.net.http.HttpURLConnectionImpl.GET;
-import static libcore.net.http.HttpURLConnectionImpl.POST;
-import static libcore.net.http.HttpURLConnectionImpl.PUT;
 
 /**
  * Cache all responses in memory by URI.
@@ -68,7 +64,7 @@ public final class HttpResponseCache extends ResponseCache {
             return null;
         }
 
-        // HttpHeaders headers = HttpHeaders.fromMultimap(entry.responseHeaders);
+        // RawHeaders headers = RawHeaders.fromMultimap(entry.responseHeaders);
 
         hitCount++;
         return entry.asResponse();
@@ -84,8 +80,8 @@ public final class HttpResponseCache extends ResponseCache {
         String requestMethod = httpConnection.getRequestMethod();
 
         // Invalidate the cache on POST, PUT and DELETE.
-        if (requestMethod.equals(POST) || requestMethod.equals(PUT)
-                || requestMethod.equals(DELETE)) {
+        if (requestMethod.equals("POST") || requestMethod.equals("PUT")
+                || requestMethod.equals("DELETE")) {
             entries.remove(uri);
         }
 
@@ -94,7 +90,12 @@ public final class HttpResponseCache extends ResponseCache {
          * HEAD requests and some POST requests, but the complexity of doing so
          * is high and the benefit is low.
          */
-        if (!requestMethod.equals(GET)) {
+        if (!requestMethod.equals("GET")) {
+            return null;
+        }
+
+        // For implementation simplicity, don't  cache responses that have a Vary field.
+        if (httpConnection.getHeaderField("Vary") != null) {
             return null;
         }
 

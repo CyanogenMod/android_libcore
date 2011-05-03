@@ -33,7 +33,7 @@ final class ResponseHeaders {
     public static final String RECEIVED_MILLIS = "X-Android-Received-Millis";
 
     final URI uri;
-    final HttpHeaders headers;
+    final RawHeaders headers;
 
     /** The server's time when this response was served, if known. */
     Date servedDate;
@@ -96,7 +96,7 @@ final class ResponseHeaders {
     String etag;
     int ageSeconds = -1;
 
-    public ResponseHeaders(URI uri, HttpHeaders headers) {
+    public ResponseHeaders(URI uri, RawHeaders headers) {
         this.uri = uri;
         this.headers = headers;
 
@@ -189,6 +189,15 @@ final class ResponseHeaders {
     }
 
     /**
+     * Returns true if computeFreshnessLifetime used a heuristic. If we used a
+     * heuristic to serve a cached response older than 24 hours, we are required
+     * to attach a warning.
+     */
+    private boolean isFreshnessLifetimeHeuristic() {
+        return maxAgeSeconds == -1 && expires == null;
+    }
+
+    /**
      * Returns true if this response can be stored to later serve another
      * request.
      */
@@ -260,7 +269,14 @@ final class ResponseHeaders {
         }
 
         if (!noCache && ageMillis + minFreshMillis < freshMillis + maxStaleMillis) {
-            // TODO: attach a warning if the response is stale
+            if (ageMillis + minFreshMillis >= freshMillis) {
+                // TODO: this should be RESPONSE headers
+                request.headers.add("Warning", "110 HttpURLConnection \"Response is stale\"");
+            }
+            if (ageMillis > TimeUnit.HOURS.toMillis(24) && isFreshnessLifetimeHeuristic()) {
+                // TODO: this should be RESPONSE headers
+                request.headers.add("Warning", "113 HttpURLConnection \"Heuristic expiration\"");
+            }
             return ResponseSource.CACHE;
         }
 

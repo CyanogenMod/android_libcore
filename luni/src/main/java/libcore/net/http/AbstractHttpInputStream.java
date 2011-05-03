@@ -34,15 +34,15 @@ import libcore.io.Streams;
  */
 abstract class AbstractHttpInputStream extends InputStream {
     protected final InputStream in;
-    protected final HttpURLConnectionImpl httpURLConnection;
+    protected final HttpEngine httpEngine;
     private final CacheRequest cacheRequest;
     private final OutputStream cacheBody;
     protected boolean closed;
 
-    AbstractHttpInputStream(InputStream in, HttpURLConnectionImpl httpURLConnection,
+    AbstractHttpInputStream(InputStream in, HttpEngine httpEngine,
             CacheRequest cacheRequest) throws IOException {
         this.in = in;
-        this.httpURLConnection = httpURLConnection;
+        this.httpEngine = httpEngine;
 
         OutputStream cacheBody = cacheRequest != null ? cacheRequest.getBody() : null;
 
@@ -83,7 +83,7 @@ abstract class AbstractHttpInputStream extends InputStream {
         if (cacheRequest != null) {
             cacheBody.close();
         }
-        httpURLConnection.releaseSocket(reuseSocket);
+        httpEngine.releaseSocket(reuseSocket);
     }
 
     /**
@@ -102,6 +102,6 @@ abstract class AbstractHttpInputStream extends InputStream {
         if (cacheRequest != null) {
             cacheRequest.abort();
         }
-        httpURLConnection.releaseSocket(false);
+        httpEngine.releaseSocket(false);
     }
 }

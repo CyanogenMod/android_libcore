@@ -647,6 +647,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         MockResponse response = new MockResponse();
         transferKind.setBody(response, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 1024);
         server.enqueue(response);
+        server.enqueue(response);
         server.play();
 
         InputStream in = server.getUrl("/").openConnection().getInputStream();

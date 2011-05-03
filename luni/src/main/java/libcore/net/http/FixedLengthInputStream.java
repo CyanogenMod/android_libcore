@@ -28,8 +28,8 @@ final class FixedLengthInputStream extends AbstractHttpInputStream {
     private int bytesRemaining;
 
     public FixedLengthInputStream(InputStream is, CacheRequest cacheRequest,
-            HttpURLConnectionImpl httpURLConnection, int length) throws IOException {
-        super(is, httpURLConnection, cacheRequest);
+            HttpEngine httpEngine, int length) throws IOException {
+        super(is, httpEngine, cacheRequest);
         bytesRemaining = length;
         if (bytesRemaining == 0) {
             endOfInput(true);

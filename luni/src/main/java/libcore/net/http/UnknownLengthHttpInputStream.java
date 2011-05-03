@@ -28,8 +28,8 @@ final class UnknownLengthHttpInputStream extends AbstractHttpInputStream {
     private boolean inputExhausted;
 
     UnknownLengthHttpInputStream(InputStream is, CacheRequest cacheRequest,
-            HttpURLConnectionImpl httpURLConnection) throws IOException {
-        super(is, httpURLConnection, cacheRequest);
+            HttpEngine httpEngine) throws IOException {
+        super(is, httpEngine, cacheRequest);
     }
 
     @Override public int read(byte[] buffer, int offset, int count) throws IOException {

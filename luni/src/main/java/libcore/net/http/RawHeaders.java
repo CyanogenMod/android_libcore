@@ -26,8 +26,10 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 /**
- * The HTTP status and header fields of a single HTTP message. This class
- * maintains the order of the header fields within the HTTP message.
+ * The HTTP status and unparsed header fields of a single HTTP message. Values
+ * are represented as uninterpreted strings; use {@link RequestHeaders} and
+ * {@link ResponseHeaders} for interpreted headers. This class maintains the
+ * order of the header fields within the HTTP message.
  *
  * <p>This class tracks fields line-by-line. A field with multiple comma-
  * separated values on the same line will be treated as a field with a single
@@ -39,7 +41,7 @@ import java.util.TreeMap;
  * <p>This class trims whitespace from values. It never returns values with
  * leading or trailing whitespace.
  */
-final class HttpHeaders implements Cloneable {
+final class RawHeaders implements Cloneable {
 
     private static final Comparator<String> FIELD_NAME_COMPARATOR = new Comparator<String>() {
         @Override public int compare(String a, String b) {
@@ -61,9 +63,9 @@ final class HttpHeaders implements Cloneable {
     private int responseCode = -1;
     private String responseMessage;
 
-    public HttpHeaders() {}
+    public RawHeaders() {}
 
-    public HttpHeaders(HttpHeaders copyFrom) {
+    public RawHeaders(RawHeaders copyFrom) {
         namesAndValues.addAll(copyFrom.namesAndValues);
         statusLine = copyFrom.statusLine;
         httpMinorVersion = copyFrom.httpMinorVersion;
@@ -71,10 +73,13 @@ final class HttpHeaders implements Cloneable {
         responseMessage = copyFrom.responseMessage;
     }
 
+    /**
+     * Sets the response status line (like "HTTP/1.0 200 OK") or request line
+     * (like "GET / HTTP/1.1").
+     */
     public void setStatusLine(String statusLine) {
         this.statusLine = statusLine;
 
-        // Status line sample: "HTTP/1.0 200 OK"
         if (statusLine == null || !statusLine.startsWith("HTTP/")) {
             return;
         }
@@ -253,8 +258,8 @@ final class HttpHeaders implements Cloneable {
      * present, the null field's last element will be used to set the status
      * line.
      */
-    public static HttpHeaders fromMultimap(Map<String, List<String>> map) {
-        HttpHeaders result = new HttpHeaders();
+    public static RawHeaders fromMultimap(Map<String, List<String>> map) {
+        RawHeaders result = new RawHeaders();
         for (Entry<String, List<String>> entry : map.entrySet()) {
             String fieldName = entry.getKey();
             List<String> values = entry.getValue();

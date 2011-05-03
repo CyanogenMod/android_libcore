@@ -38,378 +38,391 @@ import javax.net.ssl.SSLSocket;
 
 final class HttpsURLConnectionImpl extends HttpsURLConnection {
 
-    /**
-     * HttpsEngine that allows reuse of HttpURLConnectionImpl
-     */
-    private final HttpsEngine httpsEngine;
-
-    /**
-     * Local stash of HttpsEngine.connection.sslSocket for answering
-     * queries such as getCipherSuite even after
-     * httpsEngine.Connection has been recycled. It's presence is also
-     * used to tell if the HttpsURLConnection is considered connected,
-     * as opposed to the connected field of URLConnection or the a
-     * non-null connect in HttpURLConnectionImpl
-    */
-    private SSLSocket sslSocket;
+    /** HttpUrlConnectionDelegate allows reuse of HttpURLConnectionImpl */
+    private final HttpUrlConnectionDelegate delegate;
 
     protected HttpsURLConnectionImpl(URL url, int port) {
         super(url);
-        httpsEngine = new HttpsEngine(url, port);
+        delegate = new HttpUrlConnectionDelegate(url, port);
     }
 
     protected HttpsURLConnectionImpl(URL url, int port, Proxy proxy) {
         super(url);
-        httpsEngine = new HttpsEngine(url, port, proxy);
+        delegate = new HttpUrlConnectionDelegate(url, port, proxy);
     }
 
     private void checkConnected() {
-        if (sslSocket == null) {
+        if (delegate.getSSLSocket() == null) {
             throw new IllegalStateException("Connection has not yet been established");
         }
     }
 
     @Override
     public String getCipherSuite() {
-        SecureCacheResponse cacheResponse = httpsEngine.getCacheResponse();
+        SecureCacheResponse cacheResponse = delegate.getCacheResponse();
         if (cacheResponse != null) {
             return cacheResponse.getCipherSuite();
         }
         checkConnected();
-        return sslSocket.getSession().getCipherSuite();
+        return delegate.getSSLSocket().getSession().getCipherSuite();
     }
 
     @Override
     public Certificate[] getLocalCertificates() {
-        SecureCacheResponse cacheResponse = httpsEngine.getCacheResponse();
+        SecureCacheResponse cacheResponse = delegate.getCacheResponse();
         if (cacheResponse != null) {
             List<Certificate> result = cacheResponse.getLocalCertificateChain();
             return result != null ? result.toArray(new Certificate[result.size()]) : null;
         }
         checkConnected();
-        return sslSocket.getSession().getLocalCertificates();
+        return delegate.getSSLSocket().getSession().getLocalCertificates();
     }
 
     @Override
     public Certificate[] getServerCertificates() throws SSLPeerUnverifiedException {
-        SecureCacheResponse cacheResponse = httpsEngine.getCacheResponse();
+        SecureCacheResponse cacheResponse = delegate.getCacheResponse();
         if (cacheResponse != null) {
             List<Certificate> result = cacheResponse.getServerCertificateChain();
             return result != null ? result.toArray(new Certificate[result.size()]) : null;
         }
         checkConnected();
-        return sslSocket.getSession().getPeerCertificates();
+        return delegate.getSSLSocket().getSession().getPeerCertificates();
     }
 
     @Override
     public Principal getPeerPrincipal() throws SSLPeerUnverifiedException {
-        SecureCacheResponse cacheResponse = httpsEngine.getCacheResponse();
+        SecureCacheResponse cacheResponse = delegate.getCacheResponse();
         if (cacheResponse != null) {
             return cacheResponse.getPeerPrincipal();
         }
         checkConnected();
-        return sslSocket.getSession().getPeerPrincipal();
+        return delegate.getSSLSocket().getSession().getPeerPrincipal();
     }
 
     @Override
     public Principal getLocalPrincipal() {
-        SecureCacheResponse cacheResponse = httpsEngine.getCacheResponse();
+        SecureCacheResponse cacheResponse = delegate.getCacheResponse();
         if (cacheResponse != null) {
             return cacheResponse.getLocalPrincipal();
         }
         checkConnected();
-        return sslSocket.getSession().getLocalPrincipal();
+        return delegate.getSSLSocket().getSession().getLocalPrincipal();
     }
 
     @Override
     public void disconnect() {
-        httpsEngine.disconnect();
+        delegate.disconnect();
     }
 
     @Override
     public InputStream getErrorStream() {
-        return httpsEngine.getErrorStream();
+        return delegate.getErrorStream();
     }
 
     @Override
     public String getRequestMethod() {
-        return httpsEngine.getRequestMethod();
+        return delegate.getRequestMethod();
     }
 
     @Override
     public int getResponseCode() throws IOException {
-        return httpsEngine.getResponseCode();
+        return delegate.getResponseCode();
     }
 
     @Override
     public String getResponseMessage() throws IOException {
-        return httpsEngine.getResponseMessage();
+        return delegate.getResponseMessage();
     }
 
     @Override
     public void setRequestMethod(String method) throws ProtocolException {
-        httpsEngine.setRequestMethod(method);
+        delegate.setRequestMethod(method);
     }
 
     @Override
     public boolean usingProxy() {
-        return httpsEngine.usingProxy();
+        return delegate.usingProxy();
     }
 
     @Override
     public boolean getInstanceFollowRedirects() {
-        return httpsEngine.getInstanceFollowRedirects();
+        return delegate.getInstanceFollowRedirects();
     }
 
     @Override
     public void setInstanceFollowRedirects(boolean followRedirects) {
-        httpsEngine.setInstanceFollowRedirects(followRedirects);
+        delegate.setInstanceFollowRedirects(followRedirects);
     }
 
     @Override
     public void connect() throws IOException {
         connected = true;
-        httpsEngine.connect();
+        delegate.connect();
     }
 
     @Override
     public boolean getAllowUserInteraction() {
-        return httpsEngine.getAllowUserInteraction();
+        return delegate.getAllowUserInteraction();
     }
 
     @Override
     public Object getContent() throws IOException {
-        return httpsEngine.getContent();
+        return delegate.getContent();
     }
 
     @SuppressWarnings("unchecked") // Spec does not generify
     @Override
     public Object getContent(Class[] types) throws IOException {
-        return httpsEngine.getContent(types);
+        return delegate.getContent(types);
     }
 
     @Override
     public String getContentEncoding() {
-        return httpsEngine.getContentEncoding();
+        return delegate.getContentEncoding();
     }
 
     @Override
     public int getContentLength() {
-        return httpsEngine.getContentLength();
+        return delegate.getContentLength();
     }
 
     @Override
     public String getContentType() {
-        return httpsEngine.getContentType();
+        return delegate.getContentType();
     }
 
     @Override
     public long getDate() {
-        return httpsEngine.getDate();
+        return delegate.getDate();
     }
 
     @Override
     public boolean getDefaultUseCaches() {
-        return httpsEngine.getDefaultUseCaches();
+        return delegate.getDefaultUseCaches();
     }
 
     @Override
     public boolean getDoInput() {
-        return httpsEngine.getDoInput();
+        return delegate.getDoInput();
     }
 
     @Override
     public boolean getDoOutput() {
-        return httpsEngine.getDoOutput();
+        return delegate.getDoOutput();
     }
 
     @Override
     public long getExpiration() {
-        return httpsEngine.getExpiration();
+        return delegate.getExpiration();
     }
 
     @Override
     public String getHeaderField(int pos) {
-        return httpsEngine.getHeaderField(pos);
+        return delegate.getHeaderField(pos);
     }
 
     @Override
     public Map<String, List<String>> getHeaderFields() {
-        return httpsEngine.getHeaderFields();
+        return delegate.getHeaderFields();
     }
 
     @Override
     public Map<String, List<String>> getRequestProperties() {
-        return httpsEngine.getRequestProperties();
+        return delegate.getRequestProperties();
     }
 
     @Override
     public void addRequestProperty(String field, String newValue) {
-        httpsEngine.addRequestProperty(field, newValue);
+        delegate.addRequestProperty(field, newValue);
     }
 
     @Override
     public String getHeaderField(String key) {
-        return httpsEngine.getHeaderField(key);
+        return delegate.getHeaderField(key);
     }
 
     @Override
     public long getHeaderFieldDate(String field, long defaultValue) {
-        return httpsEngine.getHeaderFieldDate(field, defaultValue);
+        return delegate.getHeaderFieldDate(field, defaultValue);
     }
 
     @Override
     public int getHeaderFieldInt(String field, int defaultValue) {
-        return httpsEngine.getHeaderFieldInt(field, defaultValue);
+        return delegate.getHeaderFieldInt(field, defaultValue);
     }
 
     @Override
     public String getHeaderFieldKey(int posn) {
-        return httpsEngine.getHeaderFieldKey(posn);
+        return delegate.getHeaderFieldKey(posn);
     }
 
     @Override
     public long getIfModifiedSince() {
-        return httpsEngine.getIfModifiedSince();
+        return delegate.getIfModifiedSince();
     }
 
     @Override
     public InputStream getInputStream() throws IOException {
-        return httpsEngine.getInputStream();
+        return delegate.getInputStream();
     }
 
     @Override
     public long getLastModified() {
-        return httpsEngine.getLastModified();
+        return delegate.getLastModified();
     }
 
     @Override
     public OutputStream getOutputStream() throws IOException {
-        return httpsEngine.getOutputStream();
+        return delegate.getOutputStream();
     }
 
     @Override
     public Permission getPermission() throws IOException {
-        return httpsEngine.getPermission();
+        return delegate.getPermission();
     }
 
     @Override
     public String getRequestProperty(String field) {
-        return httpsEngine.getRequestProperty(field);
+        return delegate.getRequestProperty(field);
     }
 
     @Override
     public URL getURL() {
-        return httpsEngine.getURL();
+        return delegate.getURL();
     }
 
     @Override
     public boolean getUseCaches() {
-        return httpsEngine.getUseCaches();
+        return delegate.getUseCaches();
     }
 
     @Override
     public void setAllowUserInteraction(boolean newValue) {
-        httpsEngine.setAllowUserInteraction(newValue);
+        delegate.setAllowUserInteraction(newValue);
     }
 
     @Override
     public void setDefaultUseCaches(boolean newValue) {
-        httpsEngine.setDefaultUseCaches(newValue);
+        delegate.setDefaultUseCaches(newValue);
     }
 
     @Override
     public void setDoInput(boolean newValue) {
-        httpsEngine.setDoInput(newValue);
+        delegate.setDoInput(newValue);
     }
 
     @Override
     public void setDoOutput(boolean newValue) {
-        httpsEngine.setDoOutput(newValue);
+        delegate.setDoOutput(newValue);
     }
 
     @Override
     public void setIfModifiedSince(long newValue) {
-        httpsEngine.setIfModifiedSince(newValue);
+        delegate.setIfModifiedSince(newValue);
     }
 
     @Override
     public void setRequestProperty(String field, String newValue) {
-        httpsEngine.setRequestProperty(field, newValue);
+        delegate.setRequestProperty(field, newValue);
     }
 
     @Override
     public void setUseCaches(boolean newValue) {
-        httpsEngine.setUseCaches(newValue);
+        delegate.setUseCaches(newValue);
     }
 
     @Override
     public void setConnectTimeout(int timeout) {
-        httpsEngine.setConnectTimeout(timeout);
+        delegate.setConnectTimeout(timeout);
     }
 
     @Override
     public int getConnectTimeout() {
-        return httpsEngine.getConnectTimeout();
+        return delegate.getConnectTimeout();
     }
 
     @Override
     public void setReadTimeout(int timeout) {
-        httpsEngine.setReadTimeout(timeout);
+        delegate.setReadTimeout(timeout);
     }
 
     @Override
     public int getReadTimeout() {
-        return httpsEngine.getReadTimeout();
+        return delegate.getReadTimeout();
     }
 
     @Override
     public String toString() {
-        return httpsEngine.toString();
+        return delegate.toString();
     }
 
     @Override
     public void setFixedLengthStreamingMode(int contentLength) {
-        httpsEngine.setFixedLengthStreamingMode(contentLength);
+        delegate.setFixedLengthStreamingMode(contentLength);
     }
 
     @Override
     public void setChunkedStreamingMode(int chunkLength) {
-        httpsEngine.setChunkedStreamingMode(chunkLength);
+        delegate.setChunkedStreamingMode(chunkLength);
     }
 
-    private final class HttpsEngine extends HttpURLConnectionImpl {
-
-        protected HttpsEngine(URL url, int port) {
+    private final class HttpUrlConnectionDelegate extends HttpURLConnectionImpl {
+        private HttpUrlConnectionDelegate(URL url, int port) {
             super(url, port);
         }
 
-        protected HttpsEngine(URL url, int port, Proxy proxy) {
+        private HttpUrlConnectionDelegate(URL url, int port, Proxy proxy) {
             super(url, port, proxy);
         }
 
-        @Override public void makeConnection() throws IOException {
-            connected = true;
+        @Override protected HttpEngine newHttpEngine(String method, RawHeaders requestHeaders,
+                HttpConnection connection, RetryableOutputStream requestBody) throws IOException {
+            return new HttpsEngine(this, method, requestHeaders, connection, requestBody,
+                    HttpsURLConnectionImpl.this);
+        }
 
-            if (connection != null || responseBodyIn != null) {
-                return;
-            }
+        public SecureCacheResponse getCacheResponse() {
+            return (SecureCacheResponse) httpEngine.getCacheResponse();
+        }
 
-            /*
-             * Short-circuit a reentrant call. The first step in doing SSL with
-             * an HTTP proxy requires calling retrieveResponse() which calls
-             * back into makeConnection(). We can return immediately because the
-             * unencrypted connection is already valid.
-             */
-            if (method == CONNECT) {
-                return;
-            }
+        public SSLSocket getSSLSocket() {
+            HttpsEngine engine = (HttpsEngine) httpEngine;
+            return engine != null ? engine.sslSocket : null;
+        }
+    }
 
-            boolean connectionReused;
+    private static class HttpsEngine extends HttpEngine {
+
+        /**
+         * Local stash of HttpsEngine.connection.sslSocket for answering
+         * queries such as getCipherSuite even after
+         * httpsEngine.Connection has been recycled. It's presence is also
+         * used to tell if the HttpsURLConnection is considered connected,
+         * as opposed to the connected field of URLConnection or the a
+         * non-null connect in HttpURLConnectionImpl
+         */
+        private SSLSocket sslSocket;
+
+        private final HttpsURLConnectionImpl enclosing;
+
+        /**
+         * @param policy the HttpURLConnectionImpl with connection configuration
+         * @param enclosing the HttpsURLConnection with HTTPS features
+         */
+        private HttpsEngine(HttpURLConnectionImpl policy, String method, RawHeaders requestHeaders,
+                HttpConnection connection, RetryableOutputStream requestBody,
+                HttpsURLConnectionImpl enclosing) throws IOException {
+            super(policy, method, requestHeaders, connection, requestBody);
+            this.sslSocket = connection != null ? connection.getSecureSocketIfConnected() : null;
+            this.enclosing = enclosing;
+        }
+
+        @Override protected void connect() throws IOException {
             // first try an SSL connection with compression and
             // various TLS extensions enabled, if it fails (and its
             // not unheard of that it will) fallback to a more
             // barebones connections
+            boolean connectionReused;
             try {
                 connectionReused = makeSslConnection(true);
             } catch (IOException e) {
@@ -424,9 +437,8 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
             }
 
             if (!connectionReused) {
-                sslSocket = connection.verifySecureSocketHostname(getHostnameVerifier());
+                sslSocket = connection.verifySecureSocketHostname(enclosing.getHostnameVerifier());
             }
-            setUpTransportIO(connection);
         }
 
         /**
@@ -438,12 +450,12 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
          * an SSL3 only fallback mode without compression.
          */
         private boolean makeSslConnection(boolean tlsTolerant) throws IOException {
-
-            super.makeConnection();
-
-            // if we got a response from the cache, we're done
-            if (cacheResponse != null) {
-                return true;
+            // make an SSL Tunnel on the first message pair of each SSL + proxy connection
+            if (connection == null) {
+                connection = openSocketConnection();
+                if (connection.getAddress().getProxy() != null) {
+                    makeTunnel(policy, connection, getRequestHeaders());
+                }
             }
 
             // if super.makeConnection returned a connection from the
@@ -457,63 +469,78 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
                 return true;
             }
 
-            // make SSL Tunnel
-            if (requiresTunnel()) {
-                String originalMethod = method;
-                method = CONNECT;
-                intermediateResponse = true;
-                try {
-                    retrieveResponse();
-                    discardIntermediateResponse();
-                } finally {
-                    method = originalMethod;
-                    intermediateResponse = false;
-                }
-            }
-
-            connection.setupSecureSocket(getSSLSocketFactory(), tlsTolerant);
+            connection.setupSecureSocket(enclosing.getSSLSocketFactory(), tlsTolerant);
             return false;
         }
 
-        public SecureCacheResponse getCacheResponse() {
-            return (SecureCacheResponse) cacheResponse;
-        }
-
-        @Override protected void setUpTransportIO(HttpConnection connection) throws IOException {
-            if (!requiresTunnel() && sslSocket == null) {
-                return; // don't initialize streams that won't be used
-            }
-            super.setUpTransportIO(connection);
-        }
-
-        @Override protected boolean requiresTunnel() {
-            return usingProxy();
-        }
-
-        @Override protected HttpURLConnection getConnectionForCaching() {
-            return HttpsURLConnectionImpl.this;
+        private void makeTunnel(HttpURLConnectionImpl policy, HttpConnection connection,
+                RawHeaders requestHeaders) throws IOException {
+            HttpEngine connect = new ProxyConnectEngine(policy, requestHeaders, connection);
+            connect.sendRequest();
+            connect.readResponse();
         }
 
         @Override protected boolean acceptCacheResponseType(CacheResponse cacheResponse) {
             return cacheResponse instanceof SecureCacheResponse;
         }
 
-        @Override protected String requestString() {
-            if (!usingProxy()) {
-                return super.requestString();
+        @Override protected boolean includeAuthorityInRequestLine() {
+            // Even if there is a proxy, it isn't involved. Always request just the file.
+            return false;
+        }
 
-            } else if (method == CONNECT) {
-                // SSL tunnels require host:port for the origin server
-                return url.getHost() + ":" + url.getEffectivePort();
+        @Override protected HttpURLConnection getHttpConnectionToCache() {
+            return enclosing;
+        }
+    }
 
-            } else {
-                // we has made SSL Tunneling, return /requested.data
-                String file = url.getFile();
-                if (file == null || file.length() == 0) {
-                    file = "/";
-                }
-                return file;
+    private static class ProxyConnectEngine extends HttpEngine {
+        public ProxyConnectEngine(HttpURLConnectionImpl policy, RawHeaders requestHeaders,
+                HttpConnection connection) throws IOException {
+            super(policy, HttpEngine.CONNECT, requestHeaders, null, null);
+            this.connection = connection;
+        }
+
+        /**
+         * If we're establishing an HTTPS tunnel with CONNECT (RFC 2817 5.2), send
+         * only the minimum set of headers. This avoids sending potentially
+         * sensitive data like HTTP cookies to the proxy unencrypted.
+         */
+        @Override protected RawHeaders getNetworkRequestHeaders() throws IOException {
+            RawHeaders privateHeaders = getRequestHeaders();
+            URL url = policy.getURL();
+
+            RawHeaders result = new RawHeaders();
+            result.setStatusLine("CONNECT " + url.getHost() + ":" + url.getEffectivePort()
+                    + " HTTP/1.1");
+
+            // Always set Host and User-Agent.
+            String host = privateHeaders.get("Host");
+            if (host == null) {
+                host = getOriginAddress(url);
             }
+            result.set("Host", host);
+
+            String userAgent = privateHeaders.get("User-Agent");
+            if (userAgent == null) {
+                userAgent = getDefaultUserAgent();
+            }
+            result.set("User-Agent", userAgent);
+
+            // Copy over the Proxy-Authorization header if it exists.
+            String proxyAuthorization = privateHeaders.get("Proxy-Authorization");
+            if (proxyAuthorization != null) {
+                result.set("Proxy-Authorization", proxyAuthorization);
+            }
+
+            // Always set the Proxy-Connection to Keep-Alive for the benefit of
+            // HTTP/1.0 proxies like Squid.
+            result.set("Proxy-Connection", "Keep-Alive");
+            return result;
+        }
+
+        @Override protected boolean requiresTunnel() {
+            return true;
         }
     }
 }
