@@ -234,6 +234,7 @@ public class BufferTest extends TestCase {
         assertEquals(ByteOrder.BIG_ENDIAN, b.asIntBuffer().order());
         assertEquals(ByteOrder.BIG_ENDIAN, b.asLongBuffer().order());
         assertEquals(ByteOrder.BIG_ENDIAN, b.asShortBuffer().order());
+        assertEquals(ByteOrder.BIG_ENDIAN, b.asReadOnlyBuffer().order());
         b.order(ByteOrder.LITTLE_ENDIAN);
         assertEquals(ByteOrder.LITTLE_ENDIAN, b.asCharBuffer().order());
         assertEquals(ByteOrder.LITTLE_ENDIAN, b.asDoubleBuffer().order());
@@ -241,6 +242,8 @@ public class BufferTest extends TestCase {
         assertEquals(ByteOrder.LITTLE_ENDIAN, b.asIntBuffer().order());
         assertEquals(ByteOrder.LITTLE_ENDIAN, b.asLongBuffer().order());
         assertEquals(ByteOrder.LITTLE_ENDIAN, b.asShortBuffer().order());
+        // ...except for asReadOnlyBuffer, which always returns a big-endian buffer.
+        assertEquals(ByteOrder.BIG_ENDIAN, b.asReadOnlyBuffer().order());
     }
 
     public void testCharBufferByteOrder() throws Exception {
@@ -255,6 +258,12 @@ public class BufferTest extends TestCase {
         assertEquals(ByteOrder.nativeOrder(), b.wrap(new char[10]).order());
         assertEquals(ByteOrder.nativeOrder(), b.duplicate().order());
         assertEquals(ByteOrder.nativeOrder(), b.slice().order());
+        // ...except for asReadOnlyBuffer, which returns a current-endian buffer.
+        ByteBuffer bb = ByteBuffer.allocate(10);
+        bb.order(ByteOrder.BIG_ENDIAN);
+        assertEquals(ByteOrder.BIG_ENDIAN, bb.asCharBuffer().asReadOnlyBuffer().order());
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        assertEquals(ByteOrder.LITTLE_ENDIAN, bb.asCharBuffer().asReadOnlyBuffer().order());
     }
 
     public void testDoubleBufferByteOrder() throws Exception {
@@ -269,6 +278,12 @@ public class BufferTest extends TestCase {
         assertEquals(ByteOrder.nativeOrder(), b.wrap(new double[10]).order());
         assertEquals(ByteOrder.nativeOrder(), b.duplicate().order());
         assertEquals(ByteOrder.nativeOrder(), b.slice().order());
+        // ...except for asReadOnlyBuffer, which returns a current-endian buffer.
+        ByteBuffer bb = ByteBuffer.allocate(10);
+        bb.order(ByteOrder.BIG_ENDIAN);
+        assertEquals(ByteOrder.BIG_ENDIAN, bb.asDoubleBuffer().asReadOnlyBuffer().order());
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        assertEquals(ByteOrder.LITTLE_ENDIAN, bb.asDoubleBuffer().asReadOnlyBuffer().order());
     }
 
     public void testFloatBufferByteOrder() throws Exception {
@@ -283,6 +298,12 @@ public class BufferTest extends TestCase {
         assertEquals(ByteOrder.nativeOrder(), b.wrap(new float[10]).order());
         assertEquals(ByteOrder.nativeOrder(), b.duplicate().order());
         assertEquals(ByteOrder.nativeOrder(), b.slice().order());
+        // ...except for asReadOnlyBuffer, which returns a current-endian buffer.
+        ByteBuffer bb = ByteBuffer.allocate(10);
+        bb.order(ByteOrder.BIG_ENDIAN);
+        assertEquals(ByteOrder.BIG_ENDIAN, bb.asFloatBuffer().asReadOnlyBuffer().order());
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        assertEquals(ByteOrder.LITTLE_ENDIAN, bb.asFloatBuffer().asReadOnlyBuffer().order());
     }
 
     public void testIntBufferByteOrder() throws Exception {
@@ -297,6 +318,12 @@ public class BufferTest extends TestCase {
         assertEquals(ByteOrder.nativeOrder(), b.wrap(new int[10]).order());
         assertEquals(ByteOrder.nativeOrder(), b.duplicate().order());
         assertEquals(ByteOrder.nativeOrder(), b.slice().order());
+        // ...except for asReadOnlyBuffer, which returns a current-endian buffer.
+        ByteBuffer bb = ByteBuffer.allocate(10);
+        bb.order(ByteOrder.BIG_ENDIAN);
+        assertEquals(ByteOrder.BIG_ENDIAN, bb.asIntBuffer().asReadOnlyBuffer().order());
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        assertEquals(ByteOrder.LITTLE_ENDIAN, bb.asIntBuffer().asReadOnlyBuffer().order());
     }
 
     public void testLongBufferByteOrder() throws Exception {
@@ -311,6 +338,12 @@ public class BufferTest extends TestCase {
         assertEquals(ByteOrder.nativeOrder(), b.wrap(new long[10]).order());
         assertEquals(ByteOrder.nativeOrder(), b.duplicate().order());
         assertEquals(ByteOrder.nativeOrder(), b.slice().order());
+        // ...except for asReadOnlyBuffer, which returns a current-endian buffer.
+        ByteBuffer bb = ByteBuffer.allocate(10);
+        bb.order(ByteOrder.BIG_ENDIAN);
+        assertEquals(ByteOrder.BIG_ENDIAN, bb.asLongBuffer().asReadOnlyBuffer().order());
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        assertEquals(ByteOrder.LITTLE_ENDIAN, bb.asLongBuffer().asReadOnlyBuffer().order());
     }
 
     public void testShortBufferByteOrder() throws Exception {
@@ -325,6 +358,12 @@ public class BufferTest extends TestCase {
         assertEquals(ByteOrder.nativeOrder(), b.wrap(new short[10]).order());
         assertEquals(ByteOrder.nativeOrder(), b.duplicate().order());
         assertEquals(ByteOrder.nativeOrder(), b.slice().order());
+        // ...except for asReadOnlyBuffer, which returns a current-endian buffer.
+        ByteBuffer bb = ByteBuffer.allocate(10);
+        bb.order(ByteOrder.BIG_ENDIAN);
+        assertEquals(ByteOrder.BIG_ENDIAN, bb.asShortBuffer().asReadOnlyBuffer().order());
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        assertEquals(ByteOrder.LITTLE_ENDIAN, bb.asShortBuffer().asReadOnlyBuffer().order());
     }
 
     public void testRelativePositionsHeap() throws Exception {
