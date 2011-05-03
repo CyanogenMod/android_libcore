@@ -75,7 +75,8 @@ final class CharToByteBufferAdapter extends CharBuffer {
 
     @Override
     public CharBuffer duplicate() {
-        CharToByteBufferAdapter buf = new CharToByteBufferAdapter(byteBuffer.duplicate());
+        ByteBuffer bb = byteBuffer.duplicate().order(byteBuffer.order());
+        CharToByteBufferAdapter buf = new CharToByteBufferAdapter(bb);
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -172,7 +173,8 @@ final class CharToByteBufferAdapter extends CharBuffer {
     public CharBuffer slice() {
         byteBuffer.limit(limit * SizeOf.CHAR);
         byteBuffer.position(position * SizeOf.CHAR);
-        CharBuffer result = new CharToByteBufferAdapter(byteBuffer.slice());
+        ByteBuffer bb = byteBuffer.slice().order(byteBuffer.order());
+        CharBuffer result = new CharToByteBufferAdapter(bb);
         byteBuffer.clear();
         return result;
     }
