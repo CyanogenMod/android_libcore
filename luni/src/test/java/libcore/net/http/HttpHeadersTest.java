@@ -18,7 +18,6 @@ package libcore.net.http;
 
 import java.util.Arrays;
 import junit.framework.TestCase;
-import libcore.net.http.HttpHeaders;
 
 public class HttpHeadersTest extends TestCase {
     // http://code.google.com/p/android/issues/detail?id=6684
@@ -47,9 +46,9 @@ public class HttpHeadersTest extends TestCase {
         h1.add("key", "value2");
         HttpHeaders h2 = HttpHeaders.fromMultimap(h1.toMultimap());
         assertEquals(2, h2.length());
-        assertEquals("key", h2.getKey(0));
+        assertEquals("key", h2.getFieldName(0));
         assertEquals("value1", h2.getValue(0));
-        assertEquals("key", h2.getKey(1));
+        assertEquals("key", h2.getFieldName(1));
         assertEquals("value2", h2.getValue(1));
     }
 }

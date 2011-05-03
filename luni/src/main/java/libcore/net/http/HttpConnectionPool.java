@@ -36,7 +36,7 @@ import java.util.List;
  * are changed. This assumes that the applications that set these parameters do
  * so before making HTTP connections, and that this class is initialized lazily.
  */
-public final class HttpConnectionPool {
+final class HttpConnectionPool {
 
     public static final HttpConnectionPool INSTANCE = new HttpConnectionPool();
 

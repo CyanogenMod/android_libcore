@@ -45,7 +45,7 @@ import org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl;
  * <p>Do not confuse this class with the misnamed {@code HttpURLConnection},
  * which isn't so much a connection as a single request/response pair.
  */
-public final class HttpConnection {
+final class HttpConnection {
     private final Address address;
 
     private final Socket socket;

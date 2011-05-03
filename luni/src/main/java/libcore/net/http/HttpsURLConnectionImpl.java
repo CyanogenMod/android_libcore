@@ -36,10 +36,7 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSocket;
 
-/**
- * HttpsURLConnection implementation.
- */
-public class HttpsURLConnectionImpl extends HttpsURLConnection {
+final class HttpsURLConnectionImpl extends HttpsURLConnection {
 
     /**
      * HttpsEngine that allows reuse of HttpURLConnectionImpl
@@ -49,7 +46,7 @@ public class HttpsURLConnectionImpl extends HttpsURLConnection {
     /**
      * Local stash of HttpsEngine.connection.sslSocket for answering
      * queries such as getCipherSuite even after
-     * httpsEngine.Connection has been recycled. It's presense is also
+     * httpsEngine.Connection has been recycled. It's presence is also
      * used to tell if the HttpsURLConnection is considered connected,
      * as opposed to the connected field of URLConnection or the a
      * non-null connect in HttpURLConnectionImpl
