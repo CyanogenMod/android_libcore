@@ -199,9 +199,9 @@ public final class IoUtils {
      * Connects socket 'fd' to 'inetAddress' on 'port', with no timeout. The lack of a timeout
      * means this method won't throw SocketTimeoutException.
      */
-    public static void connect(FileDescriptor fd, InetAddress inetAddress, int port) throws SocketException {
+    public static boolean connect(FileDescriptor fd, InetAddress inetAddress, int port) throws SocketException {
         try {
-            IoUtils.connect(fd, inetAddress, port, 0);
+            return IoUtils.connect(fd, inetAddress, port, 0);
         } catch (SocketTimeoutException ex) {
             throw new AssertionError(ex); // Can't happen for a connect without a timeout.
         }
@@ -211,9 +211,9 @@ public final class IoUtils {
      * Connects socket 'fd' to 'inetAddress' on 'port', with a the given 'timeoutMs'.
      * Use timeoutMs == 0 for a blocking connect with no timeout.
      */
-    public static void connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws SocketException, SocketTimeoutException {
+    public static boolean connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws SocketException, SocketTimeoutException {
         try {
-            connectErrno(fd, inetAddress, port, timeoutMs);
+            return connectErrno(fd, inetAddress, port, timeoutMs);
         } catch (SocketException ex) {
             throw ex; // We don't want to doubly wrap these.
         } catch (SocketTimeoutException ex) {
@@ -224,11 +224,10 @@ public final class IoUtils {
     }
 
     // TODO: this is the wrong name now, but when this gets rewritten without Platform.NETWORK...
-    private static void connectErrno(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws IOException {
+    private static boolean connectErrno(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws IOException {
         // With no timeout, just call connect(2) directly.
         if (timeoutMs == 0) {
-            Platform.NETWORK.connect(fd, inetAddress, port);
-            return;
+            return Platform.NETWORK.connect(fd, inetAddress, port);
         }
 
         // With a timeout, we set the socket to non-blocking, connect(2), and then loop
@@ -238,7 +237,7 @@ public final class IoUtils {
         IoUtils.setBlocking(fd, false);
         try {
             if (Platform.NETWORK.connect(fd, inetAddress, port)) {
-                return;
+                return true;
             }
             int remainingTimeoutMs;
             do {
@@ -251,6 +250,7 @@ public final class IoUtils {
                     throw new SocketTimeoutException(detail);
                 }
             } while (!Platform.NETWORK.isConnected(fd, remainingTimeoutMs));
+            return true; // Or we'd have thrown.
         } finally {
             IoUtils.setBlocking(fd, true);
         }

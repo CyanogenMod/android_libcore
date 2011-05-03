@@ -110,111 +110,18 @@ static timeval toTimeval(long ms) {
     return tv;
 }
 
-/**
- * Establish a connection to a peer with a timeout.  The member functions are called
- * repeatedly in order to carry out the connect and to allow other tasks to
- * proceed on certain platforms. The caller must first call ConnectHelper::start.
- * if the result is -EINPROGRESS it will then
- * call ConnectHelper::isConnected until either another error or 0 is returned to
- * indicate the connect is complete.  Each time the function should sleep for no
- * more than 'timeout' milliseconds.  If the connect succeeds or an error occurs,
- * the caller must always end the process by calling ConnectHelper::done.
- *
- * Member functions return 0 if no errors occur, otherwise -errno. TODO: use +errno.
- */
-class ConnectHelper {
-public:
-    ConnectHelper(JNIEnv* env) : mEnv(env) {
+static void throwConnectException(JNIEnv* env, int error) {
+    if (error == ECONNRESET || error == ECONNREFUSED || error == EADDRNOTAVAIL ||
+            error == EADDRINUSE || error == ENETUNREACH) {
+        jniThrowExceptionWithErrno(env, "java/net/ConnectException", error);
+    } else if (error == EACCES) {
+        jniThrowExceptionWithErrno(env, "java/lang/SecurityException", error);
+    } else if (error == ETIMEDOUT) {
+        jniThrowSocketTimeoutException(env, error);
+    } else {
+        jniThrowSocketException(env, error);
     }
-
-    int start(NetFd& fd, jobject inetAddr, jint port) {
-        sockaddr_storage ss;
-        if (!inetAddressToSocketAddress(mEnv, inetAddr, port, &ss)) {
-            return -EINVAL; // Bogus, but clearly a failure, and we've already thrown.
-        }
-
-        // Initiate a connection attempt...
-        const CompatibleSocketAddress compatibleAddress(ss, true);
-        int rc = connect(fd.get(), compatibleAddress.get(), sizeof(sockaddr_storage));
-
-        // Did we get interrupted?
-        if (fd.isClosed()) {
-            return -EINVAL; // Bogus, but clearly a failure, and we've already thrown.
-        }
-
-        // Did we fail to connect?
-        if (rc == -1) {
-            if (errno != EINPROGRESS) {
-                didFail(-errno); // Permanent failure, so throw.
-            }
-            return -errno;
-        }
-
-        // We connected straight away!
-        return 0;
-    }
-
-    // Returns 0 if we're connected; -EINPROGRESS if we're still hopeful, -errno if we've failed.
-    // 'timeout' the timeout in milliseconds. If timeout is negative, perform a blocking operation.
-    int isConnected(int fd, int timeout) {
-        timeval passedTimeout(toTimeval(timeout));
-
-        // Initialize the fd sets for the select.
-        fd_set readSet;
-        fd_set writeSet;
-        FD_ZERO(&readSet);
-        FD_ZERO(&writeSet);
-        FD_SET(fd, &readSet);
-        FD_SET(fd, &writeSet);
-
-        int nfds = fd + 1;
-        timeval* tp = timeout >= 0 ? &passedTimeout : NULL;
-        int rc = select(nfds, &readSet, &writeSet, NULL, tp);
-        if (rc == -1) {
-            if (errno == EINTR) {
-                // We can't trivially retry a select with TEMP_FAILURE_RETRY, so punt and ask the
-                // caller to try again.
-                return -EINPROGRESS;
-            }
-            return -errno;
-        }
-
-        // If the fd is just in the write set, we're connected.
-        if (FD_ISSET(fd, &writeSet) && !FD_ISSET(fd, &readSet)) {
-            return 0;
-        }
-
-        // If the fd is in both the read and write set, there was an error.
-        if (FD_ISSET(fd, &readSet) || FD_ISSET(fd, &writeSet)) {
-            // Get the pending error.
-            int error = 0;
-            socklen_t errorLen = sizeof(error);
-            if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errorLen) == -1) {
-                return -errno; // Couldn't get the real error, so report why not.
-            }
-            return -error;
-        }
-
-        // Timeout expired.
-        return -EINPROGRESS;
-    }
-
-    void didFail(int result) {
-        if (result == -ECONNRESET || result == -ECONNREFUSED || result == -EADDRNOTAVAIL ||
-                result == -EADDRINUSE || result == -ENETUNREACH) {
-            jniThrowExceptionWithErrno(mEnv, "java/net/ConnectException", -result);
-        } else if (result == -EACCES) {
-            jniThrowExceptionWithErrno(mEnv, "java/lang/SecurityException", -result);
-        } else if (result == -ETIMEDOUT) {
-            jniThrowSocketTimeoutException(mEnv, -result);
-        } else {
-            jniThrowSocketException(mEnv, -result);
-        }
-    }
-
-private:
-    JNIEnv* mEnv;
-};
+}
 
 static jint OSNetworkSystem_writeDirect(JNIEnv* env, jobject,
         jobject fileDescriptor, jint address, jint offset, jint count) {
@@ -269,27 +176,79 @@ static jboolean OSNetworkSystem_connect(JNIEnv* env, jobject, jobject fileDescri
         return JNI_FALSE;
     }
 
-    ConnectHelper context(env);
-    return context.start(fd, inetAddr, port) == 0;
-}
+    sockaddr_storage ss;
+    if (!inetAddressToSocketAddress(env, inetAddr, port, &ss)) {
+        return JNI_FALSE;
+    }
 
-static jboolean OSNetworkSystem_isConnected(JNIEnv* env, jobject, jobject fileDescriptor, jint timeout) {
-    NetFd fd(env, fileDescriptor);
+    // Initiate a connection attempt...
+    const CompatibleSocketAddress compatibleAddress(ss, true);
+    int rc = connect(fd.get(), compatibleAddress.get(), sizeof(sockaddr_storage));
+    int connectErrno = errno;
+
+    // Did we get interrupted?
     if (fd.isClosed()) {
         return JNI_FALSE;
     }
 
-    ConnectHelper context(env);
-    int result = context.isConnected(fd.get(), timeout);
-    if (result == 0) {
-        return JNI_TRUE;
-    } else if (result == -EINPROGRESS) {
-        // Not yet connected, but not yet denied either... Try again later.
-        return JNI_FALSE;
-    } else {
-        context.didFail(result);
+    // Did we fail to connect?
+    if (rc == -1) {
+        if (connectErrno != EINPROGRESS) {
+            throwConnectException(env, connectErrno); // Permanent failure, so throw.
+        }
         return JNI_FALSE;
     }
+
+    // We connected straight away!
+    return JNI_TRUE;
+}
+
+static jboolean OSNetworkSystem_isConnected(JNIEnv* env, jobject, jobject fileDescriptor, jint timeout) {
+    NetFd netFd(env, fileDescriptor);
+    if (netFd.isClosed()) {
+        return JNI_FALSE;
+    }
+
+    // Initialize the fd sets and call select.
+    int fd = netFd.get();
+    int nfds = fd + 1;
+    fd_set readSet;
+    fd_set writeSet;
+    FD_ZERO(&readSet);
+    FD_ZERO(&writeSet);
+    FD_SET(fd, &readSet);
+    FD_SET(fd, &writeSet);
+    timeval passedTimeout(toTimeval(timeout));
+    int rc = select(nfds, &readSet, &writeSet, NULL, &passedTimeout);
+    if (rc == -1) {
+        if (errno == EINTR) {
+            // We can't trivially retry a select with TEMP_FAILURE_RETRY, so punt and ask the
+            // caller to try again.
+        } else {
+            throwConnectException(env, errno);
+        }
+        return JNI_FALSE;
+    }
+
+    // If the fd is just in the write set, we're connected.
+    if (FD_ISSET(fd, &writeSet) && !FD_ISSET(fd, &readSet)) {
+        return JNI_TRUE;
+    }
+
+    // If the fd is in both the read and write set, there was an error.
+    if (FD_ISSET(fd, &readSet) || FD_ISSET(fd, &writeSet)) {
+        // Get the pending error.
+        int error = 0;
+        socklen_t errorLen = sizeof(error);
+        if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errorLen) == -1) {
+            error = errno; // Couldn't get the real error, so report why getsockopt failed.
+        }
+        throwConnectException(env, error);
+        return JNI_FALSE;
+    }
+
+    // Timeout expired.
+    return JNI_FALSE;
 }
 
 static void OSNetworkSystem_bind(JNIEnv* env, jobject, jobject fileDescriptor,

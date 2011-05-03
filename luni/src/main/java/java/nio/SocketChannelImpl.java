@@ -169,19 +169,13 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
             normalAddr = InetAddress.getLocalHost();
         }
 
-        // connect result
-        int result = EOF;
         boolean finished = false;
-
         try {
             if (isBlocking()) {
                 begin();
-                IoUtils.connect(fd, normalAddr, port);
-            } else {
-                IoUtils.connect(fd, normalAddr, port, 0);
             }
-            finished = true; // Or we'd have thrown an exception.
-            isBound = true;
+            finished = IoUtils.connect(fd, normalAddr, port);
+            isBound = finished;
         } catch (IOException e) {
             if (e instanceof ConnectException && !isBlocking()) {
                 status = SOCKET_STATUS_PENDING;
@@ -227,7 +221,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
 
     @Override
     public boolean finishConnect() throws IOException {
-        // status check
         synchronized (this) {
             if (!isOpen()) {
                 throw new ClosedChannelException();
@@ -243,11 +236,8 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         boolean finished = false;
         try {
             begin();
-            final int WAIT_FOREVER = -1;
-            final int POLL = 0;
-            finished = Platform.NETWORK.isConnected(fd, isBlocking() ? WAIT_FOREVER : POLL);
+            finished = Platform.NETWORK.isConnected(fd, 0);
             isBound = finished;
-            initLocalAddressAndPort();
         } catch (ConnectException e) {
             if (isOpen()) {
                 close();
