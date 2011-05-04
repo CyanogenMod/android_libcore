@@ -54,9 +54,13 @@ public final class GaiException extends RuntimeException {
         return functionName + " failed: " + gaiName + " (" + description + ")";
     }
 
-    public UnknownHostException rethrowAsUnknownHostException() throws UnknownHostException {
-        UnknownHostException newException = new UnknownHostException(getMessage());
+    public UnknownHostException rethrowAsUnknownHostException(String detailMessage) throws UnknownHostException {
+        UnknownHostException newException = new UnknownHostException(detailMessage);
         newException.initCause(this);
         throw newException;
+    }
+
+    public UnknownHostException rethrowAsUnknownHostException() throws UnknownHostException {
+        throw rethrowAsUnknownHostException(getMessage());
     }
 }

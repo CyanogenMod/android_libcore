@@ -16,8 +16,6 @@
 
 package libcore.io;
 
-import static libcore.io.OsConstants.*;
-
 /**
  * File information returned by fstat(2), lstat(2), and stat(2). Corresponds to C's
  * {@code struct stat} from

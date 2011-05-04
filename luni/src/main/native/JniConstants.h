@@ -71,6 +71,7 @@ struct JniConstants {
     static jclass socketImplClass;
     static jclass stringArrayClass;
     static jclass stringClass;
+    static jclass structAddrinfoClass;
     static jclass structFlockClass;
     static jclass structGroupReqClass;
     static jclass structLingerClass;

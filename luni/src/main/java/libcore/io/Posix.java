@@ -40,6 +40,7 @@ public final class Posix implements Os {
     public native void fsync(FileDescriptor fd) throws ErrnoException;
     public native void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public native String gai_strerror(int error);
+    public native InetAddress[] getaddrinfo(String node, StructAddrinfo hints) throws GaiException;
     public native String getenv(String name);
     public native String getnameinfo(InetAddress address, int flags) throws GaiException;
     public native SocketAddress getsockname(FileDescriptor fd) throws ErrnoException;
@@ -48,6 +49,7 @@ public final class Posix implements Os {
     public native int getsockoptInt(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException;
+    public native InetAddress inet_aton(String address);
     public native String if_indextoname(int index);
     public native InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException;
     public native int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException;

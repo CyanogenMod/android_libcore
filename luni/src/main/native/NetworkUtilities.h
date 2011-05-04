@@ -28,8 +28,3 @@ bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int port, sock
 // Changes 'fd' to be blocking/non-blocking. Returns false and sets errno on failure.
 // @Deprecated - use IoUtils.setBlocking
 bool setBlocking(int fd, bool blocking);
-
-// Convert from byte[] to InetAddress. @Deprecated - use InetAddress rather than byte[].
-jobject byteArrayToInetAddress(JNIEnv* env, jbyteArray byteArray);
-// Convert from sockaddr_storage to byte[]. @Deprecated - use InetAddress rather than byte[].
-jbyteArray socketAddressToByteArray(JNIEnv* env, const sockaddr_storage* ss);

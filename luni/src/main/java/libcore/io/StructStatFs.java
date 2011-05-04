@@ -16,8 +16,6 @@
 
 package libcore.io;
 
-import static libcore.io.OsConstants.*;
-
 /**
  * File information returned by fstatfs(2) and statfs(2).
  *

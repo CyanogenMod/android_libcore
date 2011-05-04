@@ -35,6 +35,7 @@ import libcore.io.GaiException;
 import libcore.io.Libcore;
 import libcore.io.IoUtils;
 import libcore.io.Memory;
+import libcore.io.StructAddrinfo;
 import org.apache.harmony.luni.platform.Platform;
 import static libcore.io.OsConstants.*;
 
@@ -248,12 +249,12 @@ public class InetAddress implements Serializable {
         }
 
         // Is it a numeric address?
-        byte[] bytes = ipStringToByteArray(host);
-        if (bytes != null) {
-            return new InetAddress[] { makeInetAddress(bytes, null) };
+        InetAddress result = parseNumericAddressNoThrow(host);
+        if (result != null) {
+            return new InetAddress[] { result };
         }
 
-        return lookupHostByName(host);
+        return lookupHostByName(host).clone();
     }
 
     private static InetAddress makeInetAddress(byte[] bytes, String hostName) throws UnknownHostException {
@@ -266,7 +267,27 @@ public class InetAddress implements Serializable {
         }
     }
 
-    static native byte[] ipStringToByteArray(String address);
+    private static InetAddress parseNumericAddressNoThrow(String address) {
+        // Accept IPv6 addresses (only) in square brackets for compatibility.
+        if (address.startsWith("[") && address.endsWith("]") && address.indexOf(':') != -1) {
+            address = address.substring(1, address.length() - 1);
+        }
+        StructAddrinfo hints = new StructAddrinfo();
+        hints.ai_flags = AI_NUMERICHOST;
+        InetAddress[] addresses = null;
+        try {
+            addresses = Libcore.os.getaddrinfo(address, hints);
+        } catch (GaiException ignored) {
+        }
+        if (addresses == null) {
+            // For backwards compatibility, deal with address formats that
+            // getaddrinfo does not support. For example, 1.2.3, 1.3, and even 3 are
+            // valid IPv4 addresses according to the Java API. If getaddrinfo fails,
+            // try to use inet_aton.
+            return Libcore.os.inet_aton(address);
+        }
+        return addresses[0];
+    }
 
     /**
      * Returns the address of a host according to the given host string name
@@ -402,16 +423,31 @@ public class InetAddress implements Serializable {
             }
         }
         try {
-            InetAddress[] addresses = bytesToInetAddresses(getaddrinfo(host), host);
+            StructAddrinfo hints = new StructAddrinfo();
+            hints.ai_flags = AI_ADDRCONFIG;
+            hints.ai_family = AF_UNSPEC;
+            // If we don't specify a socket type, every address will appear twice, once
+            // for SOCK_STREAM and one for SOCK_DGRAM. Since we do not return the family
+            // anyway, just pick one.
+            hints.ai_socktype = SOCK_STREAM;
+            InetAddress[] addresses = Libcore.os.getaddrinfo(host, hints);
+            // TODO: should getaddrinfo set the hostname of the InetAddresses it returns?
+            for (InetAddress address : addresses) {
+                address.hostName = host;
+            }
             addressCache.put(host, addresses);
             return addresses;
-        } catch (UnknownHostException e) {
-            String detailMessage = e.getMessage();
+        } catch (GaiException gaiException) {
+            // TODO: bionic currently returns EAI_NODATA, which is indistinguishable from a real
+            // failure. We need to fix bionic before we can report a more useful error.
+            // if (gaiException.error == EAI_SYSTEM) {
+            //    throw new SecurityException("Permission denied (missing INTERNET permission?)");
+            // }
+            String detailMessage = "Unable to resolve host \"" + host + "\": " + Libcore.os.gai_strerror(gaiException.error);
             addressCache.putUnknownHost(host, detailMessage);
-            throw new UnknownHostException(detailMessage);
+            throw gaiException.rethrowAsUnknownHostException(detailMessage);
         }
     }
-    private static native byte[][] getaddrinfo(String name) throws UnknownHostException;
 
     /**
      * Removes all entries from the VM's DNS cache. This does not affect the C library's DNS
@@ -451,7 +487,7 @@ public class InetAddress implements Serializable {
      * @hide used by frameworks/base to ensure that a getAllByName won't cause a DNS lookup.
      */
     public static boolean isNumeric(String address) {
-        return ipStringToByteArray(address) != null;
+        return parseNumericAddressNoThrow(address) != null;
     }
 
     /**
@@ -466,16 +502,11 @@ public class InetAddress implements Serializable {
         if (numericAddress == null || numericAddress.isEmpty()) {
             return Inet6Address.LOOPBACK;
         }
-        byte[] bytes = ipStringToByteArray(numericAddress);
-        if (bytes == null) {
+        InetAddress result = parseNumericAddressNoThrow(numericAddress);
+        if (result == null) {
             throw new IllegalArgumentException("Not a numeric address: " + numericAddress);
         }
-        try {
-            return makeInetAddress(bytes, null);
-        } catch (UnknownHostException ex) {
-            // UnknownHostException can't be thrown if you pass null to makeInetAddress.
-            throw new AssertionError(ex);
-        }
+        return result;
     }
 
     private static InetAddress[] loopbackAddresses() {

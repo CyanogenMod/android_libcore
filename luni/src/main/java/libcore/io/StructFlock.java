@@ -16,8 +16,6 @@
 
 package libcore.io;
 
-import static libcore.io.OsConstants.*;
-
 /**
  * Information returned/taken by fcntl(2) F_GETFL and F_SETFL. Corresponds to C's
  * {@code struct flock} from

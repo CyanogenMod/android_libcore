@@ -24,18 +24,22 @@
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
 #include "StaticAssert.h"
+#include "UniquePtr.h"
 #include "toStringArray.h"
 
+#include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <net/if.h>
 #include <netdb.h>
+#include <netinet/in.h>
 #include <netinet/in.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/sendfile.h>
+#include <sys/socket.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -44,6 +48,14 @@
 #include <sys/utsname.h>
 #include <sys/vfs.h> // Bionic doesn't have <sys/statvfs.h>
 #include <unistd.h>
+
+struct addrinfo_deleter {
+    void operator()(addrinfo* p) const {
+        if (p != NULL) { // bionic's freeaddrinfo(3) crashes when passed NULL.
+            freeaddrinfo(p);
+        }
+    }
+};
 
 static void throwException(JNIEnv* env, jclass exceptionClass, jmethodID ctor3, jmethodID ctor2,
         const char* functionName, int error) {
@@ -376,6 +388,72 @@ static jstring Posix_gai_strerror(JNIEnv* env, jobject, jint error) {
     return env->NewStringUTF(gai_strerror(error));
 }
 
+static jobjectArray Posix_getaddrinfo(JNIEnv* env, jobject, jstring javaNode, jobject javaHints) {
+    ScopedUtfChars node(env, javaNode);
+    if (node.c_str() == NULL) {
+        return NULL;
+    }
+
+    static jfieldID flagsFid = env->GetFieldID(JniConstants::structAddrinfoClass, "ai_flags", "I");
+    static jfieldID familyFid = env->GetFieldID(JniConstants::structAddrinfoClass, "ai_family", "I");
+    static jfieldID socktypeFid = env->GetFieldID(JniConstants::structAddrinfoClass, "ai_socktype", "I");
+    static jfieldID protocolFid = env->GetFieldID(JniConstants::structAddrinfoClass, "ai_protocol", "I");
+
+    addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_flags = env->GetIntField(javaHints, flagsFid);
+    hints.ai_family = env->GetIntField(javaHints, familyFid);
+    hints.ai_socktype = env->GetIntField(javaHints, socktypeFid);
+    hints.ai_protocol = env->GetIntField(javaHints, protocolFid);
+
+    addrinfo* addressList = NULL;
+    int rc = getaddrinfo(node.c_str(), NULL, &hints, &addressList);
+    UniquePtr<addrinfo, addrinfo_deleter> addressListDeleter(addressList);
+    if (rc != 0) {
+        throwGaiException(env, "getaddrinfo", rc);
+        return NULL;
+    }
+
+    // Count results so we know how to size the output array.
+    int addressCount = 0;
+    for (addrinfo* ai = addressList; ai != NULL; ai = ai->ai_next) {
+        if (ai->ai_family == AF_INET || ai->ai_family == AF_INET6) {
+            ++addressCount;
+        } else {
+            LOGE("getaddrinfo unexpected ai_family %i", ai->ai_family);
+        }
+    }
+    if (addressCount == 0) {
+        return NULL;
+    }
+
+    // Prepare output array.
+    jobjectArray result = env->NewObjectArray(addressCount, JniConstants::inetAddressClass, NULL);
+    if (result == NULL) {
+        return NULL;
+    }
+
+    // Examine returned addresses one by one, save them in the output array.
+    int index = 0;
+    for (addrinfo* ai = addressList; ai != NULL; ai = ai->ai_next) {
+        if (ai->ai_family != AF_INET && ai->ai_family != AF_INET6) {
+            // Unknown address family. Skip this address.
+            LOGE("getaddrinfo unexpected ai_family %i", ai->ai_family);
+            continue;
+        }
+
+        // Convert each IP address into a Java byte array.
+        sockaddr_storage* address = reinterpret_cast<sockaddr_storage*>(ai->ai_addr);
+        ScopedLocalRef<jobject> inetAddress(env, socketAddressToInetAddress(env, address));
+        if (inetAddress.get() == NULL) {
+            return NULL;
+        }
+        env->SetObjectArrayElement(result, index, inetAddress.get());
+        ++index;
+    }
+    return result;
+}
+
 static jstring Posix_getenv(JNIEnv* env, jobject, jstring javaName) {
     ScopedUtfChars name(env, javaName);
     if (name.c_str() == NULL) {
@@ -480,6 +558,21 @@ static jstring Posix_if_indextoname(JNIEnv* env, jobject, jint index) {
     // if_indextoname(3) returns NULL on failure, which will come out of NewStringUTF unscathed.
     // There's no useful information in errno, so we don't bother throwing. Callers can null-check.
     return env->NewStringUTF(name);
+}
+
+static jobject Posix_inet_aton(JNIEnv* env, jobject, jstring javaName) {
+    ScopedUtfChars name(env, javaName);
+    if (name.c_str() == NULL) {
+        return NULL;
+    }
+    sockaddr_storage ss;
+    memset(&ss, 0, sizeof(ss));
+    sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(&ss);
+    if (inet_aton(name.c_str(), &sin->sin_addr) == 0) {
+        return NULL;
+    }
+    sin->sin_family = AF_INET; // inet_aton only supports IPv4.
+    return socketAddressToInetAddress(env, &ss);
 }
 
 static jobject Posix_ioctlInetAddress(JNIEnv* env, jobject, jobject javaFd, jint cmd, jstring javaInterfaceName) {
@@ -838,6 +931,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, fsync, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, ftruncate, "(Ljava/io/FileDescriptor;J)V"),
     NATIVE_METHOD(Posix, gai_strerror, "(I)Ljava/lang/String;"),
+    NATIVE_METHOD(Posix, getaddrinfo, "(Ljava/lang/String;Llibcore/io/StructAddrinfo;)[Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, getenv, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, getnameinfo, "(Ljava/net/InetAddress;I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, getsockname, "(Ljava/io/FileDescriptor;)Ljava/net/SocketAddress;"),
@@ -847,6 +941,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, getsockoptLinger, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructLinger;"),
     NATIVE_METHOD(Posix, getsockoptTimeval, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructTimeval;"),
     NATIVE_METHOD(Posix, if_indextoname, "(I)Ljava/lang/String;"),
+    NATIVE_METHOD(Posix, inet_aton, "(Ljava/lang/String;)Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, ioctlInetAddress, "(Ljava/io/FileDescriptor;ILjava/lang/String;)Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, ioctlInt, "(Ljava/io/FileDescriptor;ILlibcore/util/MutableInt;)I"),
     NATIVE_METHOD(Posix, isatty, "(Ljava/io/FileDescriptor;)Z"),

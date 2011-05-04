@@ -45,6 +45,13 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "AF_INET6", AF_INET6);
     initConstant(env, c, "AF_UNIX", AF_UNIX);
     initConstant(env, c, "AF_UNSPEC", AF_UNSPEC);
+    initConstant(env, c, "AI_ADDRCONFIG", AI_ADDRCONFIG);
+    initConstant(env, c, "AI_ALL", AI_ALL);
+    initConstant(env, c, "AI_CANONNAME", AI_CANONNAME);
+    initConstant(env, c, "AI_NUMERICHOST", AI_NUMERICHOST);
+    initConstant(env, c, "AI_NUMERICSERV", AI_NUMERICSERV);
+    initConstant(env, c, "AI_PASSIVE", AI_PASSIVE);
+    initConstant(env, c, "AI_V4MAPPED", AI_V4MAPPED);
     initConstant(env, c, "E2BIG", E2BIG);
     initConstant(env, c, "EACCES", EACCES);
     initConstant(env, c, "EADDRINUSE", EADDRINUSE);

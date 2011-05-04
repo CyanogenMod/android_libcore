@@ -49,6 +49,7 @@ jclass JniConstants::socketClass;
 jclass JniConstants::socketImplClass;
 jclass JniConstants::stringArrayClass;
 jclass JniConstants::stringClass;
+jclass JniConstants::structAddrinfoClass;
 jclass JniConstants::structFlockClass;
 jclass JniConstants::structGroupReqClass;
 jclass JniConstants::structLingerClass;
@@ -98,6 +99,7 @@ void JniConstants::init(JNIEnv* env) {
     socketImplClass = findClass(env, "java/net/SocketImpl");
     stringArrayClass = findClass(env, "[Ljava/lang/String;");
     stringClass = findClass(env, "java/lang/String");
+    structAddrinfoClass = findClass(env, "libcore/io/StructAddrinfo");
     structFlockClass = findClass(env, "libcore/io/StructFlock");
     structGroupReqClass = findClass(env, "libcore/io/StructGroupReq");
     structLingerClass = findClass(env, "libcore/io/StructLinger");

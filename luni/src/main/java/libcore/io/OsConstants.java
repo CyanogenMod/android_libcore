@@ -39,6 +39,13 @@ public final class OsConstants {
     public static final int AF_INET6 = placeholder();
     public static final int AF_UNIX = placeholder();
     public static final int AF_UNSPEC = placeholder();
+    public static final int AI_ADDRCONFIG = placeholder();
+    public static final int AI_ALL = placeholder();
+    public static final int AI_CANONNAME = placeholder();
+    public static final int AI_NUMERICHOST = placeholder();
+    public static final int AI_NUMERICSERV = placeholder();
+    public static final int AI_PASSIVE = placeholder();
+    public static final int AI_V4MAPPED = placeholder();
     public static final int E2BIG = placeholder();
     public static final int EACCES = placeholder();
     public static final int EADDRINUSE = placeholder();

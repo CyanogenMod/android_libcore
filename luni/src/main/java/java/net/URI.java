@@ -573,13 +573,9 @@ public final class URI implements Comparable<URI>, Serializable {
                 throw new URISyntaxException(host,
                         "Expected a closing square bracket for IPv6 address", 0);
             }
-            byte[] bytes = InetAddress.ipStringToByteArray(host);
-            /*
-             * The native IP parser may return 4 bytes for addresses like
-             * "[::FFFF:127.0.0.1]". This is allowed, but we must not accept
-             * IPv4-formatted addresses in square braces like "[127.0.0.1]".
-             */
-            if (bytes != null && (bytes.length == 16 || bytes.length == 4 && host.contains(":"))) {
+            if (InetAddress.isNumeric(host)) {
+                // If it's numeric, the presence of square brackets guarantees
+                // that it's a numeric IPv6 address.
                 return true;
             }
             throw new URISyntaxException(host, "Malformed IPv6 address");
@@ -604,10 +600,13 @@ public final class URI implements Comparable<URI>, Serializable {
             return false;
         }
 
-        // IPv4 address
-        byte[] bytes = InetAddress.ipStringToByteArray(host);
-        if (bytes != null && bytes.length == 4) {
-            return true;
+        // IPv4 address?
+        try {
+            InetAddress ia = InetAddress.parseNumericAddress(host);
+            if (ia instanceof Inet4Address) {
+                return true;
+            }
+        } catch (IllegalArgumentException ex) {
         }
 
         if (forceServer) {
