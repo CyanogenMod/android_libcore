@@ -174,7 +174,7 @@ final class HttpConnection {
         return inputStream;
     }
 
-    private Socket getSocket() {
+    protected Socket getSocket() {
         return sslSocket != null ? sslSocket : socket;
     }
 

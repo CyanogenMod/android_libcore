@@ -18,6 +18,7 @@ package libcore.io;
 
 import dalvik.system.BlockGuard;
 import java.io.FileDescriptor;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import static libcore.io.OsConstants.*;
 
@@ -29,21 +30,25 @@ public class BlockGuardOs extends ForwardingOs {
         super(os);
     }
 
+    @Override
     public void fdatasync(FileDescriptor fd) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         os.fdatasync(fd);
     }
 
+    @Override
     public void fsync(FileDescriptor fd) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         os.fsync(fd);
     }
 
+    @Override
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         os.ftruncate(fd, length);
     }
 
+    @Override
     public FileDescriptor open(String path, int flags, int mode) throws ErrnoException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         if ((mode & O_ACCMODE) != O_RDONLY) {
@@ -52,31 +57,48 @@ public class BlockGuardOs extends ForwardingOs {
         return os.open(path, flags, mode);
     }
 
+    @Override
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.read(fd, buffer);
     }
 
+    @Override
     public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.read(fd, bytes, byteOffset, byteCount);
     }
 
+    @Override
     public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.readv(fd, buffers, offsets, byteCounts);
     }
 
+    @Override
+    public FileDescriptor socket(int domain, int type, int protocol) throws ErrnoException {
+        final FileDescriptor fd = os.socket(domain, type, protocol);
+        try {
+            BlockGuard.tagSocketFd(fd);
+        } catch (SocketException e) {
+            throw new ErrnoException("socket", EINVAL, e);
+        }
+        return fd;
+    }
+
+    @Override
     public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         return os.write(fd, buffer);
     }
 
+    @Override
     public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         return os.write(fd, bytes, byteOffset, byteCount);
     }
 
+    @Override
     public int writev(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         return os.writev(fd, buffers, offsets, byteCounts);
