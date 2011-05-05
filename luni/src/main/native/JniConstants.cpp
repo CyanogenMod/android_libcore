@@ -33,6 +33,7 @@ jclass JniConstants::fieldClass;
 jclass JniConstants::fieldPositionIteratorClass;
 jclass JniConstants::fileDescriptorClass;
 jclass JniConstants::gaiExceptionClass;
+jclass JniConstants::inet6AddressClass;
 jclass JniConstants::inetAddressClass;
 jclass JniConstants::inetSocketAddressClass;
 jclass JniConstants::inflaterClass;
@@ -83,6 +84,7 @@ void JniConstants::init(JNIEnv* env) {
     fieldPositionIteratorClass = findClass(env, "libcore/icu/NativeDecimalFormat$FieldPositionIterator");
     fileDescriptorClass = findClass(env, "java/io/FileDescriptor");
     gaiExceptionClass = findClass(env, "libcore/io/GaiException");
+    inet6AddressClass = findClass(env, "java/net/Inet6Address");
     inetAddressClass = findClass(env, "java/net/InetAddress");
     inetSocketAddressClass = findClass(env, "java/net/InetSocketAddress");
     inflaterClass = findClass(env, "java/util/zip/Inflater");
