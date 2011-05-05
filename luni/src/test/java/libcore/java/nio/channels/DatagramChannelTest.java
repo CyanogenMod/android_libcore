@@ -42,4 +42,17 @@ public class DatagramChannelTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException expected) {
         }
     }
+
+    // http://code.google.com/p/android/issues/detail?id=16579
+    public void testNonBlockingRecv() throws Exception {
+        DatagramChannel dc = DatagramChannel.open();
+        try {
+            dc.configureBlocking(false);
+            dc.socket().bind(null);
+            // Should return immediately, since we're non-blocking.
+            assertNull(dc.receive(ByteBuffer.allocate(2048)));
+        } finally {
+            dc.close();
+        }
+    }
 }
