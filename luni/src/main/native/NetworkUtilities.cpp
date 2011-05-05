@@ -26,40 +26,6 @@
 #include <string.h>
 #include <sys/socket.h>
 
-static bool byteArrayToSocketAddress(JNIEnv* env, jbyteArray byteArray, int port, sockaddr_storage* ss) {
-    if (byteArray == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        return false;
-    }
-
-    // Convert the IP address bytes to the proper IP address type.
-    size_t addressLength = env->GetArrayLength(byteArray);
-    memset(ss, 0, sizeof(*ss));
-    if (addressLength == 4) {
-        // IPv4 address.
-        sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ss);
-        sin->sin_family = AF_INET;
-        sin->sin_port = htons(port);
-        jbyte* dst = reinterpret_cast<jbyte*>(&sin->sin_addr.s_addr);
-        env->GetByteArrayRegion(byteArray, 0, 4, dst);
-    } else if (addressLength == 16) {
-        // IPv6 address.
-        sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(ss);
-        sin6->sin6_family = AF_INET6;
-        sin6->sin6_port = htons(port);
-        jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr);
-        env->GetByteArrayRegion(byteArray, 0, 16, dst);
-    } else {
-        // We can't throw SocketException. We aren't meant to see bad addresses, so seeing one
-        // really does imply an internal error.
-        // TODO: fix the code (native and Java) so we don't paint ourselves into this corner.
-        jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
-                "byteArrayToSocketAddress bad array length (%i)", addressLength);
-        return false;
-    }
-    return true;
-}
-
 static jbyteArray socketAddressToByteArray(JNIEnv* env, const sockaddr_storage* ss) {
     // Convert IPv4-mapped addresses to IPv4 addresses.
     // The RI states "Java will never return an IPv4-mapped address".
@@ -123,6 +89,8 @@ jobject socketAddressToInetAddress(JNIEnv* env, const sockaddr_storage* ss) {
 }
 
 bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
+    memset(ss, 0, sizeof(*ss));
+
     // Get the byte array that stores the IP address bytes in the InetAddress.
     if (inetAddress == NULL) {
         jniThrowNullPointerException(env, NULL);
@@ -130,7 +98,38 @@ bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int port, sock
     }
     static jfieldID fid = env->GetFieldID(JniConstants::inetAddressClass, "ipaddress", "[B");
     jbyteArray addressBytes = reinterpret_cast<jbyteArray>(env->GetObjectField(inetAddress, fid));
-    return byteArrayToSocketAddress(env, addressBytes, port, ss);
+    if (addressBytes == NULL) {
+        jniThrowNullPointerException(env, NULL);
+        return false;
+    }
+
+    // Convert the IP address bytes to the appropriate kind of sockaddr.
+    size_t addressLength = env->GetArrayLength(addressBytes);
+    if (addressLength == 4) {
+        // IPv4 address.
+        sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ss);
+        sin->sin_family = AF_INET;
+        sin->sin_port = htons(port);
+        jbyte* dst = reinterpret_cast<jbyte*>(&sin->sin_addr.s_addr);
+        env->GetByteArrayRegion(addressBytes, 0, 4, dst);
+        return true;
+    } else if (addressLength == 16) {
+        // IPv6 address.
+        sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(ss);
+        sin6->sin6_family = AF_INET6;
+        sin6->sin6_port = htons(port);
+        jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr);
+        env->GetByteArrayRegion(addressBytes, 0, 16, dst);
+        static jfieldID fid = env->GetFieldID(JniConstants::inet6AddressClass, "scope_id", "I");
+        sin6->sin6_scope_id = env->GetIntField(inetAddress, fid);
+        return true;
+    }
+
+    // We can't throw SocketException. We aren't meant to see bad addresses, so seeing one
+    // really does imply an internal error.
+    // TODO: fix the code (native and Java) so we don't paint ourselves into this corner.
+    jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException", "inetAddressToSocketAddress bad array length (%i)", addressLength);
+    return false;
 }
 
 bool setBlocking(int fd, bool blocking) {
