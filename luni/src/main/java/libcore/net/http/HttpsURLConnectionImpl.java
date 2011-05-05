@@ -474,11 +474,36 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
             return false;
         }
 
+        /**
+         * To make an HTTPS connection over an HTTP proxy, send an unencrypted
+         * CONNECT request to create the proxy connection. This may need to be
+         * retried if the proxy requires authorization.
+         */
         private void makeTunnel(HttpURLConnectionImpl policy, HttpConnection connection,
                 RawHeaders requestHeaders) throws IOException {
-            HttpEngine connect = new ProxyConnectEngine(policy, requestHeaders, connection);
-            connect.sendRequest();
-            connect.readResponse();
+            while (true) {
+                HttpEngine connect = new ProxyConnectEngine(policy, requestHeaders, connection);
+                connect.sendRequest();
+                connect.readResponse();
+                RawHeaders connectResponseHeaders = connect.getResponseHeaders();
+
+                int responseCode = connectResponseHeaders.getResponseCode();
+                switch (responseCode) {
+                case HTTP_OK:
+                    return;
+                case HTTP_PROXY_AUTH:
+                    requestHeaders = new RawHeaders(requestHeaders);
+                    boolean credentialsFound = policy.processAuthHeader(HTTP_PROXY_AUTH,
+                            connectResponseHeaders, requestHeaders);
+                    if (credentialsFound) {
+                        continue;
+                    } else {
+                        throw new IOException("Failed to authenticate with proxy");
+                    }
+                default:
+                    throw new IOException("Unexpected response code for CONNECT: " + responseCode);
+                }
+            }
         }
 
         @Override protected boolean acceptCacheResponseType(CacheResponse cacheResponse) {

@@ -332,15 +332,16 @@ class HttpURLConnectionImpl extends HttpURLConnection {
      */
     private Retry processResponseHeaders() throws IOException {
         switch (getResponseCode()) {
-        case HTTP_PROXY_AUTH: // proxy authorization failed ?
+        case HTTP_PROXY_AUTH:
             if (!usingProxy()) {
                 throw new IOException(
                         "Received HTTP_PROXY_AUTH (407) code while not using proxy");
             }
-            return processAuthHeader("Proxy-Authenticate", "Proxy-Authorization");
-
-        case HTTP_UNAUTHORIZED: // HTTP authorization failed ?
-            return processAuthHeader("WWW-Authenticate", "Authorization");
+            // fall-through
+        case HTTP_UNAUTHORIZED:
+            boolean credentialsFound = processAuthHeader(getResponseCode(),
+                    httpEngine.getResponseHeaders(), rawRequestHeaders);
+            return credentialsFound ? Retry.SAME_CONNECTION : Retry.NONE;
 
         case HTTP_MULT_CHOICE:
         case HTTP_MOVED_PERM:
@@ -377,20 +378,36 @@ class HttpURLConnectionImpl extends HttpURLConnection {
 
     /**
      * React to a failed authorization response by looking up new credentials.
+     *
+     * @return true if credentials have been added to successorRequestHeaders
+     *     and another request should be attempted.
      */
-    private Retry processAuthHeader(String fieldName, String value) throws IOException {
+    final boolean processAuthHeader(int responseCode, RawHeaders response,
+            RawHeaders successorRequestHeaders) throws IOException {
+        String responseField;
+        String requestField;
+        if (responseCode == HTTP_PROXY_AUTH) {
+            responseField = "Proxy-Authenticate";
+            requestField = "Proxy-Authorization";
+        } else if (responseCode == HTTP_UNAUTHORIZED) {
+            responseField = "WWW-Authenticate";
+            requestField = "Authorization";
+        } else {
+            throw new IllegalArgumentException();
+        }
+
         // keep asking for username/password until authorized
-        String challenge = httpEngine.getResponseHeaders().get(fieldName);
+        String challenge = response.get(responseField);
         if (challenge == null) {
             throw new IOException("Received authentication challenge is null");
         }
         String credentials = getAuthorizationCredentials(challenge);
         if (credentials == null) {
-            return Retry.NONE; // could not find credentials, end request cycle
+            return false; // could not find credentials, end request cycle
         }
         // add authorization credentials, bypassing the already-connected check
-        rawRequestHeaders.set(value, credentials);
-        return Retry.SAME_CONNECTION;
+        successorRequestHeaders.set(requestField, credentials);
+        return true;
     }
 
     /**

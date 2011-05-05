@@ -19,6 +19,7 @@ package libcore.net.http;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -537,14 +538,15 @@ public class HttpEngine {
     }
 
     /**
-     * Returns the characters up to but not including the next "\r\n", "\n", or
-     * the end of the stream, consuming the end of line delimiter.
+     * Returns the characters up to but not including the next "\r\n", or "\n".
      */
     static String readLine(InputStream is) throws IOException {
         StringBuilder result = new StringBuilder(80);
         while (true) {
             int c = is.read();
-            if (c == -1 || c == '\n') {
+            if (c == -1) {
+                throw new EOFException();
+            } else if (c == '\n') {
                 break;
             }
 
