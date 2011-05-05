@@ -382,7 +382,8 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
         }
 
         public SecureCacheResponse getCacheResponse() {
-            return (SecureCacheResponse) httpEngine.getCacheResponse();
+            HttpsEngine engine = (HttpsEngine) httpEngine;
+            return engine != null ? (SecureCacheResponse) engine.getCacheResponse() : null;
         }
 
         public SSLSocket getSSLSocket() {

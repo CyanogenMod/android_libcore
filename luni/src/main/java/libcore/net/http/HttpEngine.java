@@ -26,7 +26,6 @@ import java.net.CacheRequest;
 import java.net.CacheResponse;
 import java.net.CookieHandler;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.Proxy;
 import java.net.ResponseCache;
 import java.net.URI;
@@ -460,7 +459,7 @@ public class HttpEngine {
      * Releases this connection so that it may be either reused or closed.
      */
     public final void releaseSocket(boolean reusable) {
-        if (released) {
+        if (released || connection == null) {
             return;
         }
         released = true;

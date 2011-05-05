@@ -187,7 +187,15 @@ class HttpURLConnectionImpl extends HttpURLConnection {
 
     @Override public final OutputStream getOutputStream() throws IOException {
         connect();
-        return httpEngine.getRequestBody();
+
+        OutputStream result = httpEngine.getRequestBody();
+        if (result == null) {
+            throw new ProtocolException("method does not support a request body: " + method);
+        } else if (httpEngine.hasResponse()) {
+            throw new ProtocolException("cannot write request body after response has been read");
+        }
+
+        return result;
     }
 
     @Override public final Permission getPermission() throws IOException {

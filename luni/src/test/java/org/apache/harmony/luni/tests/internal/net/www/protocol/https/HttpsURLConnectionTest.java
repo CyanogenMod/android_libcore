@@ -973,7 +973,7 @@ public class HttpsURLConnectionTest extends TestCase {
                         log("Authentication required...");
                         // send Authentication Request
                         os.write(respAuthenticationRequired.getBytes());
-                        // read response
+                        // read request
                         num = is.read(buff);
                         if (num == -1) {
                             // this connection was closed,
@@ -990,8 +990,8 @@ public class HttpsURLConnectionTest extends TestCase {
                         log("Got authenticated request:\n" + message);
                         log("------------------");
                         // check provided authorization credentials
-                        assertTrue("Received message does not contain authorization credentials",
-                                   message.toLowerCase().indexOf("proxy-authorization:") > 0);
+                        assertTrue("no proxy-authorization credentials: " + message,
+                                   message.toLowerCase().indexOf("proxy-authorization:") != -1);
                     }
 
                     assertTrue(message.startsWith("CONNECT"));
