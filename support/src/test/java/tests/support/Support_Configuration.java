@@ -46,8 +46,6 @@ public class Support_Configuration {
 
     public static String HomeAddressSoftware = "Jetty(6.0.x)";
 
-    public static String ProxyServerTestHost = "jcltest.apache.org";
-
     public static String SocksServerTestHost = "jcltest.apache.org";
 
     public static int SocksServerTestPort = 1080;
@@ -75,15 +73,7 @@ public class Support_Configuration {
 
     public static byte[] InetTestCaddr = { 9, 26, -56, -111 };
 
-    public static final String HomeAddress6 = "jcltest6.apache.org";
-
-    public static String IPv6GlobalAddressJcl4 = "FE80:0000:0000:0000:020D:60FF:FE0F:A776%4"; // this
-
-    public static String ProxyServerTestHostIPv6 = "jcltest6.apache.org";
-
-    public static String InetTestIP6 = "fe80::20d:60ff:fe24:7410";
-
-    public static String InetTestIP6LO = "::1";
+    public static String IPv6GlobalAddressJcl4 = "2001:4860:8004::67"; // ipv6.google.com
 
     // ip address that resolves to a host that is not present on the local
     // network
@@ -131,12 +121,6 @@ public class Support_Configuration {
 
     public static long URLConnectionDate = 929106872000L;
 
-    public static boolean RunCommTests = false;
-
-    public static String Port1 = "COM1";
-
-    public static String Port2 = "COM2";
-
     static Hashtable<String, String> props = null;
     static {
         loadProperties();
@@ -149,9 +133,6 @@ public class Support_Configuration {
         Hashtable<String, String> props = new Hashtable<String, String>();
 
         String iniName = System.getProperty("test.ini.file", "JCLAuto.ini");
-        if (System.getProperty("test.comm") != null) {
-            RunCommTests = true;
-        }
 
         try {
             in = new FileInputStream(iniName);
@@ -202,11 +183,6 @@ public class Support_Configuration {
         value = props.get("HomeAddressSoftware");
         if (value != null) {
             HomeAddressSoftware = value;
-        }
-
-        value = props.get("ProxyServerTestHost");
-        if (value != null) {
-            ProxyServerTestHost = value;
         }
 
         value = props.get("SocksServerTestHost");
@@ -311,31 +287,6 @@ public class Support_Configuration {
         value = props.get("URLConnectionDate");
         if (value != null) {
             URLConnectionDate = Long.parseLong(value);
-        }
-
-        value = props.get("Port1");
-        if (value != null) {
-            Port1 = value;
-        }
-
-        value = props.get("Port2");
-        if (value != null) {
-            Port2 = value;
-        }
-
-        value = props.get("InetTestIP6");
-        if (value != null) {
-            InetTestIP6 = value;
-        }
-
-        value = props.get("InetTestIP6LO");
-        if (value != null) {
-            InetTestIP6LO = value;
-        }
-
-        value = props.get("ProxyServerTestHostIPv6");
-        if (value != null) {
-            ProxyServerTestHostIPv6 = value;
         }
 
         value = props.get("ResolvedNotExistingHost");

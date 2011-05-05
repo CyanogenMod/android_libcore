@@ -360,8 +360,8 @@ public class InetAddressTest extends junit.framework.TestCase {
 
     public void test_hashCode() {
         int hashCode = getHashCode(Support_Configuration.InetTestIP);
-        int ip6HashCode = getHashCode(Support_Configuration.InetTestIP6);
-        int ip6LOHashCode = getHashCode(Support_Configuration.InetTestIP6LO);
+        int ip6HashCode = getHashCode("fe80::20d:60ff:fe24:7410");
+        int ip6LOHashCode = getHashCode("::1");
         assertFalse("Hash collision", hashCode == ip6HashCode);
         assertFalse("Hash collision", ip6HashCode == ip6LOHashCode);
         assertFalse("Hash collision", hashCode == ip6LOHashCode);
