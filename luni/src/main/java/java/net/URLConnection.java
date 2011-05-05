@@ -535,7 +535,7 @@ public abstract class URLConnection {
             return defaultValue;
         }
         try {
-            return Date.parse(date);
+            return Date.parse(date); // TODO: use HttpDate.parse()
         } catch (Exception e) {
             return defaultValue;
         }

@@ -20,7 +20,7 @@ package java.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import libcore.net.http.HttpURLConnectionImpl;
+import libcore.net.http.HttpEngine;
 
 /**
  * An {@link URLConnection} for HTTP (<a
@@ -250,10 +250,25 @@ import libcore.net.http.HttpURLConnectionImpl;
 public abstract class HttpURLConnection extends URLConnection {
 
     /**
+     * The subset of HTTP methods that the user may select via {@link
+     * libcore.net.http.HttpURLConnectionImpl#setRequestMethod(String)}.
+     */
+    private static final String[] PERMITTED_USER_METHODS = {
+            HttpEngine.OPTIONS,
+            HttpEngine.GET,
+            HttpEngine.HEAD,
+            HttpEngine.POST,
+            HttpEngine.PUT,
+            HttpEngine.DELETE,
+            HttpEngine.TRACE
+            // Note: we don't allow users to specify "CONNECT"
+    };
+
+    /**
      * The HTTP request method of this {@code HttpURLConnection}. The default
      * value is {@code "GET"}.
      */
-    protected String method = HttpURLConnectionImpl.GET;
+    protected String method = HttpEngine.GET;
 
     /**
      * The status code of the response obtained from the HTTP request. The
@@ -634,7 +649,7 @@ public abstract class HttpURLConnection extends URLConnection {
         if (connected) {
             throw new ProtocolException("Connection already established");
         }
-        for (String permittedUserMethod : HttpURLConnectionImpl.PERMITTED_USER_METHODS) {
+        for (String permittedUserMethod : PERMITTED_USER_METHODS) {
             if (permittedUserMethod.equals(method)) {
                 // if there is a supported method that matches the desired
                 // method, then set the current method and return
@@ -644,7 +659,7 @@ public abstract class HttpURLConnection extends URLConnection {
         }
         // if none matches, then throw ProtocolException
         throw new ProtocolException("Unknown method '" + method + "'; must be one of " +
-                Arrays.toString(HttpURLConnectionImpl.PERMITTED_USER_METHODS));
+                Arrays.toString(PERMITTED_USER_METHODS));
     }
 
     /**
@@ -756,7 +771,7 @@ public abstract class HttpURLConnection extends URLConnection {
             throw new IllegalStateException("Already in fixed-length mode");
         }
         if (chunkLength <= 0) {
-            this.chunkLength = HttpURLConnectionImpl.DEFAULT_CHUNK_LENGTH;
+            this.chunkLength = HttpEngine.DEFAULT_CHUNK_LENGTH;
         } else {
             this.chunkLength = chunkLength;
         }

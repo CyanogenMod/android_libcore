@@ -23,7 +23,7 @@ import java.net.URI;
  */
 final class RequestHeaders {
     final URI uri;
-    final HttpHeaders headers;
+    final RawHeaders headers;
 
     /** Don't use a cache to satisfy this request. */
     boolean noCache;
@@ -55,7 +55,7 @@ final class RequestHeaders {
      */
     boolean hasAuthorization;
 
-    public RequestHeaders(URI uri, HttpHeaders headers) {
+    public RequestHeaders(URI uri, RawHeaders headers) {
         this.uri = uri;
         this.headers = headers;
 

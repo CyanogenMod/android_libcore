@@ -19,10 +19,10 @@ package libcore.net.http;
 import java.util.Arrays;
 import junit.framework.TestCase;
 
-public class HttpHeadersTest extends TestCase {
+public class RawHeadersTest extends TestCase {
     // http://code.google.com/p/android/issues/detail?id=6684
     public void test_caseInsensitiveButCasePreserving() {
-        HttpHeaders h = new HttpHeaders();
+        RawHeaders h = new RawHeaders();
         h.add("Content-Type", "text/plain");
         // Case-insensitive:
         assertEquals("text/plain", h.get("Content-Type"));
@@ -41,10 +41,10 @@ public class HttpHeadersTest extends TestCase {
     // The copy constructor used to be broken for headers with multiple values.
     // http://code.google.com/p/android/issues/detail?id=6722
     public void test_copyConstructor() {
-        HttpHeaders h1 = new HttpHeaders();
+        RawHeaders h1 = new RawHeaders();
         h1.add("key", "value1");
         h1.add("key", "value2");
-        HttpHeaders h2 = HttpHeaders.fromMultimap(h1.toMultimap());
+        RawHeaders h2 = RawHeaders.fromMultimap(h1.toMultimap());
         assertEquals(2, h2.length());
         assertEquals("key", h2.getFieldName(0));
         assertEquals("value1", h2.getValue(0));
