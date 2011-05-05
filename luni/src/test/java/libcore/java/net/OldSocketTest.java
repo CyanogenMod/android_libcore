@@ -104,13 +104,8 @@ public class OldSocketTest extends OldSocketTestCase {
         try {
             socket = new Socket(InetAddress.getByName(null), sport);
             InetAddress address = socket.getLocalAddress();
-            if (Boolean.getBoolean("java.net.preferIPv6Addresses")) {
-                assertTrue(
-                    address.equals(InetAddress.getByName("::1")) ||
+            assertTrue(address.equals(InetAddress.getByName("::1")) ||
                     address.equals(InetAddress.getByName("0:0:0:0:0:0:0:1")));
-            } else {
-                assertEquals(address, InetAddress.getByName("127.0.0.1"));
-            }
         } finally {
             try {
                 socket.close();
@@ -118,8 +113,7 @@ public class OldSocketTest extends OldSocketTestCase {
         }
     }
 
-    public void test_ConstructorLjava_lang_StringILjava_net_InetAddressI()
-            throws IOException {
+    public void test_ConstructorLjava_lang_StringILjava_net_InetAddressI() throws IOException {
         // Test for method java.net.Socket(java.lang.String, int,
         // java.net.InetAddress, int)
         int sport = startServer("Cons String,I,InetAddress,I");
@@ -128,102 +122,23 @@ public class OldSocketTest extends OldSocketTestCase {
                 InetAddress.getLocalHost(), portNumber);
         assertTrue("Failed to create socket", s.getPort() == sport);
 
-        if (("true".equals(System.getProperty("java.net.preferIPv6Addresses")))
-                && !("true".equals(System
-                        .getProperty("java.net.preferIPv4Stack")))) {
-
-            // ALTERNATE IPv6 TEST
-            if ("true".equals(System.getProperty("run.ipv6tests"))) {
-                System.out
-                        .println("Running testConstructorLjava_lang_StringILjava_net_InetAddressI(OldSocketTest) with IPv6GlobalAddressJcl4: "
-                                + Support_Configuration.IPv6GlobalAddressJcl4);
-                int testPort = Support_PortManager.getNextPort();
-                Socket s1 = null, s2 = null;
-                try {
-                    s1 = new Socket(
-                            Support_Configuration.IPv6GlobalAddressJcl4, 80,
-                            InetAddress.getLocalHost(), testPort);
-                } catch (IOException e) {
-                    // check here if InetAddress.getLocalHost() is returning the
-                    // loopback address.
-                    // if so that is likely the cause of the failure
-                    String warning = "";
-                    try {
-                        InetAddress returnedLocalHost = InetAddress
-                                .getLocalHost();
-                        // don't use isLoopbackAddress for some configurations
-                        // as they do not have it
-                        if (returnedLocalHost.isLoopbackAddress()) {
-                            warning = " - WARNING RETURNED LOCAL HOST IS THE LOOPBACK ADDRESS - MACHINE IS LIKELY NOT CONFIGURED CORRECTLY - THIS LIKELY CAUSED THE FAILURE";
-
-                        }
-                    } catch (Exception ex) {
-                        warning = " - WARNING COULD NOT GET LOCAL HOST - " + ex;
-                    }
-
-                    fail("Exception creating 1st socket" + warning + ": " + e);
-                }
-                boolean exception = false;
-                try {
-                    s2 = new Socket(
-                            Support_Configuration.IPv6GlobalAddressJcl4, 80,
-                            InetAddress.getLocalHost(), testPort);
-                } catch (IOException e) {
-                    exception = true;
-                }
-                try {
-                    s1.close();
-                    if (!exception)
-                        s2.close();
-                } catch (IOException e) {
-                }
-                assertTrue("Was able to create two sockets on same port",
-                        exception);
-            }
-
-        } else {
-            int testPort = Support_PortManager.getNextPort();
-            Socket s1 = null, s2 = null;
-            int serverPort = ss.getLocalPort();
-            try {
-                s1 = new Socket("127.0.0.1", serverPort, InetAddress
-                        .getLocalHost(), testPort);
-            } catch (IOException e) {
-                e.printStackTrace();
-
-                // check here if InetAddress.getLocalHost() is returning the
-                // loopback address.
-                // if so that is likely the cause of the failure
-                String warning = "";
-                try {
-                    InetAddress returnedLocalHost = InetAddress.getLocalHost();
-                    // don't use isLoopbackAddress for some configurations as
-                    // they do not have it
-                    if (returnedLocalHost.isLoopbackAddress()) {
-                        warning = " - WARNING RETURNED LOCAL HOST IS THE LOOPBACK ADDRESS - MACHINE IS LIKELY NOT CONFIGURED CORRECTLY - THIS LIKELY CAUSED THE FAILURE";
-
-                    }
-                } catch (Exception ex) {
-                    warning = " - WARNING COULD NOT GET LOCAL HOST - " + ex;
-                }
-
-                fail("Exception creating 1st socket" + warning + ": " + e);
-            }
-            boolean exception = false;
-            try {
-                s2 = new Socket("127.0.0.1", serverPort, InetAddress
-                        .getLocalHost(), testPort);
-            } catch (IOException e) {
-                exception = true;
-            }
-            try {
-                s1.close();
-                if (!exception)
-                    s2.close();
-            } catch (IOException e) {
-            }
-            assertTrue("Was able to create two sockets on same port", exception);
+        int testPort = Support_PortManager.getNextPort();
+        Socket s1 = new Socket("www.google.com", 80, InetAddress.getLocalHost(), testPort);
+        boolean exception = false;
+        Socket s2 = null;
+        try {
+            s2 = new Socket("www.google.com", 80, InetAddress.getLocalHost(), testPort);
+        } catch (IOException e) {
+            exception = true;
         }
+        try {
+            s1.close();
+            if (!exception) {
+                s2.close();
+            }
+        } catch (IOException e) {
+        }
+        assertTrue("Was able to create two sockets on same port", exception);
     }
 
     public void test_ConstructorLjava_lang_StringIZ() throws IOException {
@@ -344,31 +259,13 @@ public class OldSocketTest extends OldSocketTestCase {
         assertEquals("Returned incorrect InetAddress",
                 InetAddress.getLocalHost(), s.getLocalAddress());
 
-        // now validate that behaviour when the any address is returned
-        String preferIPv4StackValue = System
-                .getProperty("java.net.preferIPv4Stack");
-        String preferIPv6AddressesValue = System
-                .getProperty("java.net.preferIPv6Addresses");
-
+        // now check behavior when the ANY address is returned
         s = new Socket();
         s.bind(new InetSocketAddress(InetAddress.getByName("0.0.0.0"), 0));
 
-        if (((preferIPv4StackValue == null) || preferIPv4StackValue
-                .equalsIgnoreCase("false"))
-                && (preferIPv6AddressesValue != null)
-                && (preferIPv6AddressesValue.equals("true"))) {
-            assertTrue(
-                    "ANY address not returned correctly (getLocalAddress) with preferIPv6Addresses=true, preferIPv4Stack=false "
-                            + s.getLocalSocketAddress(),
+        assertTrue("ANY address not IPv6: " + s.getLocalSocketAddress(),
                     s.getLocalAddress() instanceof Inet6Address);
-        } else {
-            assertTrue(
-                    "ANY address not returned correctly (getLocalAddress) with preferIPv6Addresses=true, preferIPv4Stack=true "
-                            + s.getLocalSocketAddress(),
-                    s.getLocalAddress() instanceof Inet4Address);
-        }
         s.close();
-
     }
 
     public void test_getLocalPort() throws IOException {
@@ -865,47 +762,15 @@ public class OldSocketTest extends OldSocketTestCase {
         s = new Socket();
         s.bind(new InetSocketAddress(InetAddress.getByName("0.0.0.0"), 0));
 
-        String preferIPv4StackValue = System
-                .getProperty("java.net.preferIPv4Stack");
-        String preferIPv6AddressesValue = System
-                .getProperty("java.net.preferIPv6Addresses");
-        if (((preferIPv4StackValue == null) || preferIPv4StackValue
-                .equalsIgnoreCase("false"))
-                && (preferIPv6AddressesValue != null)
-                && (preferIPv6AddressesValue.equals("true"))) {
-            assertTrue(
-                    "ANY address not returned correctly with preferIPv6Addresses=true, preferIPv4Stack=false "
-                            + s.getLocalSocketAddress(),
-                    ((InetSocketAddress) s.getLocalSocketAddress())
-                            .getAddress() instanceof Inet6Address);
-        } else {
-            assertTrue(
-                    "ANY address not returned correctly with preferIPv6Addresses=true, preferIPv4Stack=true "
-                            + s.getLocalSocketAddress(),
-                    ((InetSocketAddress) s.getLocalSocketAddress())
-                            .getAddress() instanceof Inet4Address);
-        }
+        assertTrue("ANY address not IPv6: " + s.getLocalSocketAddress(),
+                ((InetSocketAddress) s.getLocalSocketAddress()).getAddress() instanceof Inet6Address);
         s.close();
 
         // now validate the same for getLocalAddress
         s = new Socket();
         s.bind(new InetSocketAddress(InetAddress.getByName("0.0.0.0"), 0));
-        if (((preferIPv4StackValue == null) || preferIPv4StackValue
-                .equalsIgnoreCase("false"))
-                && (preferIPv6AddressesValue != null)
-                && (preferIPv6AddressesValue.equals("true"))) {
-            assertTrue(
-                    "ANY address not returned correctly with preferIPv6Addresses=true, preferIPv4Stack=false "
-                            + s.getLocalSocketAddress(),
-                    ((InetSocketAddress) s.getLocalSocketAddress())
-                            .getAddress() instanceof Inet6Address);
-        } else {
-            assertTrue(
-                    "ANY address not returned correctly with preferIPv6Addresses=true, preferIPv4Stack=true "
-                            + s.getLocalSocketAddress(),
-                    ((InetSocketAddress) s.getLocalSocketAddress())
-                            .getAddress() instanceof Inet4Address);
-        }
+        assertTrue("ANY address not IPv6: " + s.getLocalSocketAddress(),
+                ((InetSocketAddress) s.getLocalSocketAddress()).getAddress() instanceof Inet6Address);
         s.close();
     }
 

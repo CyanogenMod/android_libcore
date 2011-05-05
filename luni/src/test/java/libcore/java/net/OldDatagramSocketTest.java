@@ -267,7 +267,6 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
             fail("Exception during test : " + e.getMessage());
         }
 
-        if ("true".equals(System.getProperty("run.ipv6tests"))) {
             System.out
                     .println("Running test_connectLjava_net_InetAddressI" +
                             "(DatagramSocketTest) with IPv6GlobalAddressJcl4: "
@@ -285,7 +284,6 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
             } catch (Exception e) {
                 fail("Exception during test : " + e.getMessage());
             }
-        }
 
         try {
             // Create a connected datagram socket to test
@@ -627,7 +625,6 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
                             + e.toString());
         }
 
-        if ("true".equals(System.getProperty("run.ipv6tests"))) {
             System.out
                     .println("Running test_connectLjava_net_InetAddressI(DatagramSocketTest) with IPv6 address");
             try {
@@ -643,7 +640,6 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
                         "Unexcpected exception when trying to connect at native level with bad IPv6 address for signature with no exception to be returned: "
                                 + e.toString());
             }
-        }
     }
 
     public void test_disconnect() {
@@ -659,7 +655,6 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
             fail("Exception during test : " + e.getMessage());
         }
 
-        if ("true".equals(System.getProperty("run.ipv6tests"))) {
             System.out
                     .println("Running test_disconnect(DatagramSocketTest) with IPv6GlobalAddressJcl4: "
                             + Support_Configuration.IPv6GlobalAddressJcl4);
@@ -675,8 +670,6 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
             } catch (Exception e) {
                 fail("Exception during test : " + e.getMessage());
             }
-        }
-
     }
 
     public void test_getInetAddress() {
@@ -735,26 +728,10 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
                     InetAddress.getLocalHost().getHostName()).equals(
                     ds.getLocalAddress()));
 
-            // now validate thet behaviour when the any address is returned
-            String preferIPv4StackValue = System
-                    .getProperty("java.net.preferIPv4Stack");
-            String preferIPv6AddressesValue = System
-                    .getProperty("java.net.preferIPv6Addresses");
+            // now check behavior when the ANY address is returned
             DatagramSocket s = new DatagramSocket(0);
-            if (((preferIPv4StackValue == null) || preferIPv4StackValue
-                    .equalsIgnoreCase("false"))
-                    && (preferIPv6AddressesValue != null)
-                    && (preferIPv6AddressesValue.equals("true"))) {
-                assertTrue(
-                        "ANY address not returned correctly (getLocalAddress) with preferIPv6Addresses=true, preferIPv4Stack=false "
-                                + s.getLocalSocketAddress(), s
-                                .getLocalAddress() instanceof Inet6Address);
-            } else {
-                assertTrue(
-                        "ANY address not returned correctly (getLocalAddress) with preferIPv6Addresses=true, preferIPv4Stack=true "
-                                + s.getLocalSocketAddress(), s
-                                .getLocalAddress() instanceof Inet4Address);
-            }
+            assertTrue("ANY address not IPv6: " + s.getLocalSocketAddress(),
+                    s.getLocalAddress() instanceof Inet6Address);
             s.close();
         } catch (Exception e) {
             fail(
@@ -1922,29 +1899,10 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
                                 portNumber)));
         theSocket.close();
 
-        // now validate thet behaviour when the any address is returned
+        // now check behavior when the ANY address is returned
         s = new DatagramSocket(0);
-
-        String preferIPv4StackValue = System
-                .getProperty("java.net.preferIPv4Stack");
-        String preferIPv6AddressesValue = System
-                .getProperty("java.net.preferIPv6Addresses");
-        if (((preferIPv4StackValue == null) || preferIPv4StackValue
-                .equalsIgnoreCase("false"))
-                && (preferIPv6AddressesValue != null)
-                && (preferIPv6AddressesValue.equals("true"))) {
-            assertTrue(
-                    "ANY address not returned correctly with preferIPv6Addresses=true, preferIPv4Stack=false "
-                            + s.getLocalSocketAddress(),
-                    ((InetSocketAddress) s.getLocalSocketAddress())
-                            .getAddress() instanceof Inet6Address);
-        } else {
-            assertTrue(
-                    "ANY address not returned correctly with preferIPv6Addresses=true, preferIPv4Stack=true "
-                            + s.getLocalSocketAddress(),
-                    ((InetSocketAddress) s.getLocalSocketAddress())
-                            .getAddress() instanceof Inet4Address);
-        }
+        assertTrue("ANY address not IPv6: " + s.getLocalSocketAddress(),
+                ((InetSocketAddress) s.getLocalSocketAddress()).getAddress() instanceof Inet6Address);
         s.close();
     }
 
