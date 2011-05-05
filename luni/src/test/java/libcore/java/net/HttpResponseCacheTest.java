@@ -1118,6 +1118,48 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals("B", readAscii(server.getUrl("/bar").openConnection()));
     }
 
+    public void testUseCachesFalseDoesNotWriteToCache() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .setBody("A").setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URLConnection connection = server.getUrl("/").openConnection();
+        connection.setUseCaches(false);
+        assertEquals("A", readAscii(connection));
+        assertEquals("B", readAscii(server.getUrl("/").openConnection()));
+    }
+
+    public void testUseCachesFalseDoesNotReadFromCache() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .setBody("A").setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        URLConnection connection = server.getUrl("/").openConnection();
+        connection.setUseCaches(false);
+        assertEquals("B", readAscii(connection));
+    }
+
+    public void testDefaultUseCachesSetsInitialValueOnly() throws Exception {
+        URL url = new URL("http://localhost/");
+        URLConnection c1 = url.openConnection();
+        URLConnection c2 = url.openConnection();
+        assertTrue(c1.getDefaultUseCaches());
+        c1.setDefaultUseCaches(false);
+        try {
+            assertTrue(c1.getUseCaches());
+            assertTrue(c2.getUseCaches());
+            URLConnection c3 = url.openConnection();
+            assertFalse(c3.getUseCaches());
+        } finally {
+            c1.setDefaultUseCaches(true);
+        }
+    }
+
     /**
      * @param delta the offset from the current date to use. Negative
      *     values yield dates in the past; positive values yield dates in the
