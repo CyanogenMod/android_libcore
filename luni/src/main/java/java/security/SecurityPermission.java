@@ -18,8 +18,7 @@
 package java.security;
 
 /**
- * {@code SecurityPermission} objects guard access to the mechanisms which
- * implement security. Security permissions have names, but not actions.
+ * Legacy security code; this class exists for compatibility only.
  */
 public final class SecurityPermission extends BasicPermission {
 

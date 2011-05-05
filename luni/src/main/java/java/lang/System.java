@@ -108,7 +108,7 @@ public final class System {
      *            the user defined output stream to set as the standard output
      *            stream.
      */
-    public static void setOut(java.io.PrintStream newOut) {
+    public static void setOut(PrintStream newOut) {
         setFieldImpl("out", "Ljava/io/PrintStream;", newOut);
     }
 
@@ -120,7 +120,7 @@ public final class System {
      *            the user defined output stream to set as the standard error
      *            output stream.
      */
-    public static void setErr(java.io.PrintStream newErr) {
+    public static void setErr(PrintStream newErr) {
         setFieldImpl("err", "Ljava/io/PrintStream;", newErr);
     }
 
@@ -280,8 +280,6 @@ public final class System {
 
         p.put("java.io.tmpdir", "/tmp");
         p.put("java.library.path", getenv("LD_LIBRARY_PATH"));
-
-        p.put("java.net.preferIPv6Addresses", "true");
 
         p.put("java.specification.name", "Dalvik Core Library");
         p.put("java.specification.vendor", projectName);

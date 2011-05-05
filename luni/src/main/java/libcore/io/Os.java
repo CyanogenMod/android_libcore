@@ -36,15 +36,23 @@ public interface Os {
     public StructStatFs fstatfs(FileDescriptor fd) throws ErrnoException;
     public void fsync(FileDescriptor fd) throws ErrnoException;
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
+    public String gai_strerror(int error);
+    public InetAddress[] getaddrinfo(String node, StructAddrinfo hints) throws GaiException;
     public String getenv(String name);
+    /* TODO: break into getnameinfoHost and getnameinfoService? */
+    public String getnameinfo(InetAddress address, int flags) throws GaiException;
     public SocketAddress getsockname(FileDescriptor fd) throws ErrnoException;
     public int getsockoptByte(FileDescriptor fd, int level, int option) throws ErrnoException;
     public InetAddress getsockoptInAddr(FileDescriptor fd, int level, int option) throws ErrnoException;
     public int getsockoptInt(FileDescriptor fd, int level, int option) throws ErrnoException;
     public StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException;
     public StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException;
+    public String if_indextoname(int index);
+    public InetAddress inet_aton(String address);
+    public InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException;
     public int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException;
     public boolean isatty(FileDescriptor fd);
+    public void kill(int pid, int signal) throws ErrnoException;
     public void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
     public void mincore(long address, long byteCount, byte[] vector) throws ErrnoException;
@@ -63,7 +71,13 @@ public interface Os {
     public void remove(String path) throws ErrnoException;
     public void rename(String oldPath, String newPath) throws ErrnoException;
     public long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException;
+    public void setsockoptByte(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
+    public void setsockoptIfreq(FileDescriptor fd, int level, int option, String value) throws ErrnoException;
     public void setsockoptInt(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
+    public void setsockoptIpMreqn(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
+    public void setsockoptGroupReq(FileDescriptor fd, int level, int option, StructGroupReq value) throws ErrnoException;
+    public void setsockoptLinger(FileDescriptor fd, int level, int option, StructLinger value) throws ErrnoException;
+    public void setsockoptTimeval(FileDescriptor fd, int level, int option, StructTimeval value) throws ErrnoException;
     public void shutdown(FileDescriptor fd, int how) throws ErrnoException;
     public FileDescriptor socket(int domain, int type, int protocol) throws ErrnoException;
     public StructStat stat(String path) throws ErrnoException;

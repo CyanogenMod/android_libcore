@@ -74,7 +74,8 @@ public final class FinalizerThread extends Thread {
         try {
             obj.finalize();
         } catch (Throwable ex) {
-            // TODO: print a warning
+            // The RI silently swallows these, but Android has always logged.
+            System.logE("Uncaught exception thrown by finalizer", ex);
         }
     }
 

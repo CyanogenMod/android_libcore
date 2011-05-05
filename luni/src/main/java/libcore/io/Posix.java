@@ -39,15 +39,22 @@ public final class Posix implements Os {
     public native StructStatFs fstatfs(FileDescriptor fd) throws ErrnoException;
     public native void fsync(FileDescriptor fd) throws ErrnoException;
     public native void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
+    public native String gai_strerror(int error);
+    public native InetAddress[] getaddrinfo(String node, StructAddrinfo hints) throws GaiException;
     public native String getenv(String name);
+    public native String getnameinfo(InetAddress address, int flags) throws GaiException;
     public native SocketAddress getsockname(FileDescriptor fd) throws ErrnoException;
     public native int getsockoptByte(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native InetAddress getsockoptInAddr(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native int getsockoptInt(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException;
+    public native InetAddress inet_aton(String address);
+    public native String if_indextoname(int index);
+    public native InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException;
     public native int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException;
     public native boolean isatty(FileDescriptor fd);
+    public native void kill(int pid, int signal) throws ErrnoException;
     public native void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public native long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
     public native void mincore(long address, long byteCount, byte[] vector) throws ErrnoException;
@@ -62,17 +69,27 @@ public final class Posix implements Os {
     public native StructStat lstat(String path) throws ErrnoException;
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
         if (buffer.isDirect()) {
-            return readDirectBuffer(fd, buffer, buffer.position(), buffer.remaining());
+            return readBytes(fd, buffer, buffer.position(), buffer.remaining());
+        } else {
+            return readBytes(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining());
         }
-        return read(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining());
     }
-    private native int readDirectBuffer(FileDescriptor fd, ByteBuffer buffer, int position, int remaining) throws ErrnoException;
-    public native int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
+    public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException {
+        // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
+        return readBytes(fd, bytes, byteOffset, byteCount);
+    }
+    private native int readBytes(FileDescriptor fd, Object buffer, int offset, int byteCount) throws ErrnoException;
     public native int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
     public native void remove(String path) throws ErrnoException;
     public native void rename(String oldPath, String newPath) throws ErrnoException;
     public native long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException;
+    public native void setsockoptByte(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
+    public native void setsockoptIfreq(FileDescriptor fd, int level, int option, String value) throws ErrnoException;
     public native void setsockoptInt(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
+    public native void setsockoptIpMreqn(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
+    public native void setsockoptGroupReq(FileDescriptor fd, int level, int option, StructGroupReq value) throws ErrnoException;
+    public native void setsockoptLinger(FileDescriptor fd, int level, int option, StructLinger value) throws ErrnoException;
+    public native void setsockoptTimeval(FileDescriptor fd, int level, int option, StructTimeval value) throws ErrnoException;
     public native void shutdown(FileDescriptor fd, int how) throws ErrnoException;
     public native FileDescriptor socket(int domain, int type, int protocol) throws ErrnoException;
     public native StructStat stat(String path) throws ErrnoException;
@@ -83,11 +100,15 @@ public final class Posix implements Os {
     public native StructUtsname uname() throws ErrnoException;
     public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
         if (buffer.isDirect()) {
-            return writeDirectBuffer(fd, buffer, buffer.position(), buffer.remaining());
+            return writeBytes(fd, buffer, buffer.position(), buffer.remaining());
+        } else {
+            return writeBytes(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining());
         }
-        return write(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining());
     }
-    private native int writeDirectBuffer(FileDescriptor fd, ByteBuffer buffer, int position, int remaining) throws ErrnoException;
-    public native int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
+    public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException {
+        // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
+        return writeBytes(fd, bytes, byteOffset, byteCount);
+    }
+    private native int writeBytes(FileDescriptor fd, Object buffer, int offset, int byteCount) throws ErrnoException;
     public native int writev(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
 }

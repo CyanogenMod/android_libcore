@@ -23,26 +23,20 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
-/**
- * Handler for HttpsURLConnection implementation.
- */
-public class HttpsHandler extends URLStreamHandler {
+public final class HttpsHandler extends URLStreamHandler {
 
-    @Override
-    protected URLConnection openConnection(URL url) throws IOException {
+    @Override protected URLConnection openConnection(URL url) throws IOException {
         return new HttpsURLConnectionImpl(url, getDefaultPort());
     }
 
-    @Override
-    protected URLConnection openConnection(URL url, Proxy proxy) throws IOException {
+    @Override protected URLConnection openConnection(URL url, Proxy proxy) throws IOException {
         if (url == null || proxy == null) {
             throw new IllegalArgumentException("url == null || proxy == null");
         }
         return new HttpsURLConnectionImpl(url, getDefaultPort(), proxy);
     }
 
-    @Override
-    protected int getDefaultPort() {
+    @Override protected int getDefaultPort() {
         return 443;
     }
 }

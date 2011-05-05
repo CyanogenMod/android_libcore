@@ -48,7 +48,7 @@ import java.util.Map;
  * The CookiePolicy and CookieStore used are customized. Third, use the
  * customized CookiePolicy and the CookieStore.
  *
- * This implementation conforms to RFC 2965, section 3.3.
+ * This implementation conforms to <a href="http://www.ietf.org/rfc/rfc2965.txt">RFC 2965</a> section 3.3.
  *
  * @since 1.6
  */

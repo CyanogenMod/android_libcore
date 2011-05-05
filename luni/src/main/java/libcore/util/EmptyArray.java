@@ -28,4 +28,5 @@ public final class EmptyArray {
     public static final Class<?>[] CLASS = new Class[0];
     public static final Object[] OBJECT = new Object[0];
     public static final String[] STRING = new String[0];
+    public static final Throwable[] THROWABLE = new Throwable[0];
 }

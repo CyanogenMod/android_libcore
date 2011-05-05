@@ -81,7 +81,7 @@ import java.util.Map;
  * statement is executed again, or the same statement's next {@code ResultSet}
  * is retrieved (if the statement returned of multiple results).
  */
-public interface ResultSet extends Wrapper {
+public interface ResultSet extends Wrapper, AutoCloseable {
 
     /**
      * A constant used to indicate that a {@code ResultSet} object must be

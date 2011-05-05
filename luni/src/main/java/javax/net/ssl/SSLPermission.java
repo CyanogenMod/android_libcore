@@ -20,15 +20,7 @@ package javax.net.ssl;
 import java.security.BasicPermission;
 
 /**
- * The class representing a network permission.
- * <p>
- * The following permissions are defined, allowing the specified action:
- * <dl>
- * <dt> {@code "setHostnameVerifier"} </dt>
- * <dd> setting a callback object for additional verification of a hostname mismatch.</dd>
- * <dt> {@code "getSSLSessionContext"} </dt>
- * <dd> getting the {@code SSLSessionContext} of an {@code SSLSession}.</dd>
- * </dl>
+ * Legacy security code; this class exists for compatibility only.
  */
 public final class SSLPermission extends BasicPermission {
 

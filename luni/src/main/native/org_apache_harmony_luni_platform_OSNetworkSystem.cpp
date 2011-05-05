@@ -40,28 +40,14 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#define JAVASOCKOPT_IP_MULTICAST_IF 16
-#define JAVASOCKOPT_IP_MULTICAST_IF2 31
-#define JAVASOCKOPT_IP_MULTICAST_LOOP 18
-#define JAVASOCKOPT_IP_TOS 3
-#define JAVASOCKOPT_MCAST_JOIN_GROUP 19
-#define JAVASOCKOPT_MCAST_LEAVE_GROUP 20
-#define JAVASOCKOPT_MULTICAST_TTL 17
-#define JAVASOCKOPT_SO_BROADCAST 32
-#define JAVASOCKOPT_SO_KEEPALIVE 8
-#define JAVASOCKOPT_SO_LINGER 128
-#define JAVASOCKOPT_SO_OOBINLINE  4099
-#define JAVASOCKOPT_SO_RCVBUF 4098
-#define JAVASOCKOPT_SO_TIMEOUT  4102
-#define JAVASOCKOPT_SO_REUSEADDR 4
-#define JAVASOCKOPT_SO_SNDBUF 4097
-#define JAVASOCKOPT_SO_BINDTODEVICE 8192
-#define JAVASOCKOPT_TCP_NODELAY 1
-
 /* constants for OSNetworkSystem_selectImpl */
 #define SOCKET_OP_NONE 0
 #define SOCKET_OP_READ 1
 #define SOCKET_OP_WRITE 2
+
+static void jniThrowSocketTimeoutException(JNIEnv* env, int error) {
+    jniThrowExceptionWithErrno(env, "java/net/SocketTimeoutException", error);
+}
 
 /**
  * Returns the port number in a sockaddr_storage structure.
@@ -81,80 +67,33 @@ static int getSocketAddressPort(sockaddr_storage* ss) {
     }
 }
 
-/**
- * Obtain the socket address family from an existing socket.
- *
- * @param socket the file descriptor of the socket to examine
- * @return an integer, the address family of the socket
- */
-static int getSocketAddressFamily(int socket) {
-    sockaddr_storage ss;
-    socklen_t namelen = sizeof(ss);
-    int ret = getsockname(socket, reinterpret_cast<sockaddr*>(&ss), &namelen);
-    if (ret != 0) {
-        return AF_UNSPEC;
-    } else {
-        return ss.ss_family;
-    }
-}
-
-// Handles translating between IPv4 and IPv6 addresses so -- where possible --
-// we can use either class of address with either an IPv4 or IPv6 socket.
+// Creates mapped addresses.
+// TODO: can this move to inetAddressToSocketAddress?
 class CompatibleSocketAddress {
 public:
-    // Constructs an address corresponding to 'ss' that's compatible with 'fd'.
-    CompatibleSocketAddress(int fd, const sockaddr_storage& ss, bool mapUnspecified) {
-        const int desiredFamily = getSocketAddressFamily(fd);
-        if (ss.ss_family == AF_INET6) {
-            if (desiredFamily == AF_INET6) {
-                // Nothing to do.
-                mCompatibleAddress = reinterpret_cast<const sockaddr*>(&ss);
-            } else {
-                sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(&mTmp);
-                const sockaddr_in6* sin6 = reinterpret_cast<const sockaddr_in6*>(&ss);
-                memset(sin, 0, sizeof(*sin));
-                sin->sin_family = AF_INET;
-                sin->sin_port = sin6->sin6_port;
-                if (IN6_IS_ADDR_V4COMPAT(&sin6->sin6_addr)) {
-                    // We have an IPv6-mapped IPv4 address, but need plain old IPv4.
-                    // Unmap the mapped address in ss into an IPv6 address in mTmp.
-                    memcpy(&sin->sin_addr.s_addr, &sin6->sin6_addr.s6_addr[12], 4);
-                    mCompatibleAddress = reinterpret_cast<const sockaddr*>(&mTmp);
-                } else if (IN6_IS_ADDR_LOOPBACK(&sin6->sin6_addr)) {
-                    // Translate the IPv6 loopback address to the IPv4 one.
-                    sin->sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-                    mCompatibleAddress = reinterpret_cast<const sockaddr*>(&mTmp);
-                } else {
-                    // We can't help you. We return what you gave us, and assume you'll
-                    // get a sensible error when you use the address.
-                    mCompatibleAddress = reinterpret_cast<const sockaddr*>(&ss);
-                }
+    CompatibleSocketAddress(const sockaddr_storage& ss, bool mapUnspecified) {
+        mCompatibleAddress = reinterpret_cast<const sockaddr*>(&ss);
+        if (ss.ss_family == AF_INET) {
+            // Map the IPv4 address in ss into an IPv6 address in mTmp.
+            const sockaddr_in* sin = reinterpret_cast<const sockaddr_in*>(&ss);
+            sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(&mTmp);
+            memset(sin6, 0, sizeof(*sin6));
+            sin6->sin6_family = AF_INET6;
+            sin6->sin6_port = sin->sin_port;
+            // TODO: mapUnspecified was introduced because kernels < 2.6.31 don't allow
+            // you to bind to ::ffff:0.0.0.0. When we move to something >= 2.6.31, we
+            // should make the code behave as if mapUnspecified were always true, and
+            // remove the parameter.
+            // TODO: this code still appears to be necessary on 2.6.32, so there's something
+            // wrong in the above comment.
+            if (sin->sin_addr.s_addr != 0 || mapUnspecified) {
+                memset(&(sin6->sin6_addr.s6_addr[10]), 0xff, 2);
             }
-        } else /* ss.ss_family == AF_INET */ {
-            if (desiredFamily == AF_INET) {
-                // Nothing to do.
-                mCompatibleAddress = reinterpret_cast<const sockaddr*>(&ss);
-            } else {
-                // We have IPv4 and need IPv6.
-                // Map the IPv4 address in ss into an IPv6 address in mTmp.
-                const sockaddr_in* sin = reinterpret_cast<const sockaddr_in*>(&ss);
-                sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(&mTmp);
-                memset(sin6, 0, sizeof(*sin6));
-                sin6->sin6_family = AF_INET6;
-                sin6->sin6_port = sin->sin_port;
-                // TODO: mapUnspecified was introduced because kernels < 2.6.31 don't allow
-                // you to bind to ::ffff:0.0.0.0. When we move to something >= 2.6.31, we
-                // should make the code behave as if mapUnspecified were always true, and
-                // remove the parameter.
-                if (sin->sin_addr.s_addr != 0 || mapUnspecified) {
-                    memset(&(sin6->sin6_addr.s6_addr[10]), 0xff, 2);
-                }
-                memcpy(&sin6->sin6_addr.s6_addr[12], &sin->sin_addr.s_addr, 4);
-                mCompatibleAddress = reinterpret_cast<const sockaddr*>(&mTmp);
-            }
+            memcpy(&sin6->sin6_addr.s6_addr[12], &sin->sin_addr.s_addr, 4);
+            mCompatibleAddress = reinterpret_cast<const sockaddr*>(&mTmp);
         }
     }
-    // Returns a pointer to an address compatible with the socket.
+    // Returns a pointer to an IPv6 address.
     const sockaddr* get() const {
         return mCompatibleAddress;
     }
@@ -171,174 +110,16 @@ static timeval toTimeval(long ms) {
     return tv;
 }
 
-/**
- * Query OS for timestamp.
- * Retrieve the current value of system clock and convert to milliseconds.
- *
- * @param[in] portLibrary The port library.
- *
- * @return 0 on failure, time value in milliseconds on success.
- * @deprecated Use @ref time_hires_clock and @ref time_hires_delta
- *
- * technically, this should return uint64_t since both timeval.tv_sec and
- * timeval.tv_usec are long
- */
-static int time_msec_clock() {
-    timeval tv;
-    struct timezone tzp;
-    gettimeofday(&tv, &tzp);
-    return tv.tv_sec * 1000 + tv.tv_usec / 1000;
-}
-
-/**
- * Establish a connection to a peer with a timeout.  The member functions are called
- * repeatedly in order to carry out the connect and to allow other tasks to
- * proceed on certain platforms. The caller must first call ConnectHelper::start.
- * if the result is -EINPROGRESS it will then
- * call ConnectHelper::isConnected until either another error or 0 is returned to
- * indicate the connect is complete.  Each time the function should sleep for no
- * more than 'timeout' milliseconds.  If the connect succeeds or an error occurs,
- * the caller must always end the process by calling ConnectHelper::done.
- *
- * Member functions return 0 if no errors occur, otherwise -errno. TODO: use +errno.
- */
-class ConnectHelper {
-public:
-    ConnectHelper(JNIEnv* env) : mEnv(env) {
-    }
-
-    int start(NetFd& fd, jobject inetAddr, jint port) {
-        sockaddr_storage ss;
-        if (!inetAddressToSocketAddress(mEnv, inetAddr, port, &ss)) {
-            return -EINVAL; // Bogus, but clearly a failure, and we've already thrown.
-        }
-
-        // Set the socket to non-blocking and initiate a connection attempt...
-        const CompatibleSocketAddress compatibleAddress(fd.get(), ss, true);
-        if (!setBlocking(fd.get(), false) ||
-                connect(fd.get(), compatibleAddress.get(), sizeof(sockaddr_storage)) == -1) {
-            if (fd.isClosed()) {
-                return -EINVAL; // Bogus, but clearly a failure, and we've already thrown.
-            }
-            if (errno != EINPROGRESS) {
-                didFail(fd.get(), -errno);
-            }
-            return -errno;
-        }
-        // We connected straight away!
-        didConnect(fd.get());
-        return 0;
-    }
-
-    // Returns 0 if we're connected; -EINPROGRESS if we're still hopeful, -errno if we've failed.
-    // 'timeout' the timeout in milliseconds. If timeout is negative, perform a blocking operation.
-    int isConnected(int fd, int timeout) {
-        timeval passedTimeout(toTimeval(timeout));
-
-        // Initialize the fd sets for the select.
-        fd_set readSet;
-        fd_set writeSet;
-        FD_ZERO(&readSet);
-        FD_ZERO(&writeSet);
-        FD_SET(fd, &readSet);
-        FD_SET(fd, &writeSet);
-
-        int nfds = fd + 1;
-        timeval* tp = timeout >= 0 ? &passedTimeout : NULL;
-        int rc = select(nfds, &readSet, &writeSet, NULL, tp);
-        if (rc == -1) {
-            if (errno == EINTR) {
-                // We can't trivially retry a select with TEMP_FAILURE_RETRY, so punt and ask the
-                // caller to try again.
-                return -EINPROGRESS;
-            }
-            return -errno;
-        }
-
-        // If the fd is just in the write set, we're connected.
-        if (FD_ISSET(fd, &writeSet) && !FD_ISSET(fd, &readSet)) {
-            return 0;
-        }
-
-        // If the fd is in both the read and write set, there was an error.
-        if (FD_ISSET(fd, &readSet) || FD_ISSET(fd, &writeSet)) {
-            // Get the pending error.
-            int error = 0;
-            socklen_t errorLen = sizeof(error);
-            if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errorLen) == -1) {
-                return -errno; // Couldn't get the real error, so report why not.
-            }
-            return -error;
-        }
-
-        // Timeout expired.
-        return -EINPROGRESS;
-    }
-
-    void didConnect(int fd) {
-        if (fd != -1) {
-            setBlocking(fd, true);
-        }
-    }
-
-    void didFail(int fd, int result) {
-        if (fd != -1) {
-            setBlocking(fd, true);
-        }
-
-        if (result == -ECONNRESET || result == -ECONNREFUSED || result == -EADDRNOTAVAIL ||
-                result == -EADDRINUSE || result == -ENETUNREACH) {
-            jniThrowConnectException(mEnv, -result);
-        } else if (result == -EACCES) {
-            jniThrowSecurityException(mEnv, -result);
-        } else if (result == -ETIMEDOUT) {
-            jniThrowSocketTimeoutException(mEnv, -result);
-        } else {
-            jniThrowSocketException(mEnv, -result);
-        }
-    }
-
-private:
-    JNIEnv* mEnv;
-};
-
-static void mcastJoinLeaveGroup(JNIEnv* env, int fd, jobject javaGroupRequest, bool join) {
-    group_req groupRequest;
-
-    // Get the IPv4 or IPv6 multicast address to join or leave.
-    static jfieldID grGroupFid = env->GetFieldID(JniConstants::multicastGroupRequestClass,
-            "gr_group", "Ljava/net/InetAddress;");
-    jobject group = env->GetObjectField(javaGroupRequest, grGroupFid);
-    if (!inetAddressToSocketAddress(env, group, 0, &groupRequest.gr_group)) {
-        return;
-    }
-
-    // Get the interface index to use (or 0 for "whatever").
-    static jfieldID grInterfaceFid =
-            env->GetFieldID(JniConstants::multicastGroupRequestClass, "gr_interface", "I");
-    groupRequest.gr_interface = env->GetIntField(javaGroupRequest, grInterfaceFid);
-
-    // Decide exactly what we're trying to do...
-    int level = groupRequest.gr_group.ss_family == AF_INET ? IPPROTO_IP : IPPROTO_IPV6;
-    int option = join ? MCAST_JOIN_GROUP : MCAST_LEAVE_GROUP;
-
-    int rc = setsockopt(fd, level, option, &groupRequest, sizeof(groupRequest));
-    if (rc == -1 && errno == EINVAL) {
-        // Maybe we're a 32-bit binary talking to a 64-bit kernel?
-        // glibc doesn't automatically handle this.
-        struct GCC_HIDDEN group_req64 {
-            uint32_t gr_interface;
-            uint32_t my_padding;
-            sockaddr_storage gr_group;
-        };
-        group_req64 groupRequest64;
-        groupRequest64.gr_interface = groupRequest.gr_interface;
-        memcpy(&groupRequest64.gr_group, &groupRequest.gr_group, sizeof(groupRequest.gr_group));
-        rc = setsockopt(fd, level, option, &groupRequest64, sizeof(groupRequest64));
-    }
-    if (rc == -1) {
-        jniThrowSocketException(env, errno);
-        return;
+static void throwConnectException(JNIEnv* env, int error) {
+    if (error == ECONNRESET || error == ECONNREFUSED || error == EADDRNOTAVAIL ||
+            error == EADDRINUSE || error == ENETUNREACH) {
+        jniThrowExceptionWithErrno(env, "java/net/ConnectException", error);
+    } else if (error == EACCES) {
+        jniThrowExceptionWithErrno(env, "java/lang/SecurityException", error);
+    } else if (error == ETIMEDOUT) {
+        jniThrowSocketTimeoutException(env, error);
+    } else {
+        jniThrowSocketException(env, error);
     }
 }
 
@@ -389,89 +170,91 @@ static jint OSNetworkSystem_write(JNIEnv* env, jobject,
     return result;
 }
 
-static jboolean OSNetworkSystem_connectNonBlocking(JNIEnv* env, jobject, jobject fileDescriptor, jobject inetAddr, jint port) {
+static jboolean OSNetworkSystem_connect(JNIEnv* env, jobject, jobject fileDescriptor, jobject inetAddr, jint port) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
         return JNI_FALSE;
     }
 
-    ConnectHelper context(env);
-    return context.start(fd, inetAddr, port) == 0;
+    sockaddr_storage ss;
+    if (!inetAddressToSocketAddress(env, inetAddr, port, &ss)) {
+        return JNI_FALSE;
+    }
+
+    // Initiate a connection attempt...
+    const CompatibleSocketAddress compatibleAddress(ss, true);
+    int rc = connect(fd.get(), compatibleAddress.get(), sizeof(sockaddr_storage));
+    int connectErrno = errno;
+
+    // Did we get interrupted?
+    if (fd.isClosed()) {
+        return JNI_FALSE;
+    }
+
+    // Did we fail to connect?
+    if (rc == -1) {
+        if (connectErrno != EINPROGRESS) {
+            throwConnectException(env, connectErrno); // Permanent failure, so throw.
+        }
+        return JNI_FALSE;
+    }
+
+    // We connected straight away!
+    return JNI_TRUE;
 }
 
 static jboolean OSNetworkSystem_isConnected(JNIEnv* env, jobject, jobject fileDescriptor, jint timeout) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
+    NetFd netFd(env, fileDescriptor);
+    if (netFd.isClosed()) {
         return JNI_FALSE;
     }
 
-    ConnectHelper context(env);
-    int result = context.isConnected(fd.get(), timeout);
-    if (result == 0) {
-        context.didConnect(fd.get());
-        return JNI_TRUE;
-    } else if (result == -EINPROGRESS) {
-        // Not yet connected, but not yet denied either... Try again later.
-        return JNI_FALSE;
-    } else {
-        context.didFail(fd.get(), result);
-        return JNI_FALSE;
-    }
-}
-
-// TODO: move this into Java, using connectNonBlocking and isConnected!
-static void OSNetworkSystem_connect(JNIEnv* env, jobject, jobject fileDescriptor,
-        jobject inetAddr, jint port, jint timeout) {
-
-    /* if a timeout was specified calculate the finish time value */
-    bool hasTimeout = timeout > 0;
-    int finishTime = 0;
-    if (hasTimeout)  {
-        finishTime = time_msec_clock() + (int) timeout;
-    }
-
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return;
-    }
-
-    ConnectHelper context(env);
-    int result = context.start(fd, inetAddr, port);
-    int remainingTimeout = timeout;
-    while (result == -EINPROGRESS) {
-        /*
-         * ok now try and connect. Depending on the platform this may sleep
-         * for up to passedTimeout milliseconds
-         */
-        result = context.isConnected(fd.get(), remainingTimeout);
-        if (fd.isClosed()) {
-            return;
-        }
-        if (result == 0) {
-            context.didConnect(fd.get());
-            return;
-        } else if (result != -EINPROGRESS) {
-            context.didFail(fd.get(), result);
-            return;
-        }
-
-        /* check if the timeout has expired */
-        if (hasTimeout) {
-            remainingTimeout = finishTime - time_msec_clock();
-            if (remainingTimeout <= 0) {
-                context.didFail(fd.get(), -ETIMEDOUT);
-                return;
-            }
+    // Initialize the fd sets and call select.
+    int fd = netFd.get();
+    int nfds = fd + 1;
+    fd_set readSet;
+    fd_set writeSet;
+    FD_ZERO(&readSet);
+    FD_ZERO(&writeSet);
+    FD_SET(fd, &readSet);
+    FD_SET(fd, &writeSet);
+    timeval passedTimeout(toTimeval(timeout));
+    int rc = select(nfds, &readSet, &writeSet, NULL, &passedTimeout);
+    if (rc == -1) {
+        if (errno == EINTR) {
+            // We can't trivially retry a select with TEMP_FAILURE_RETRY, so punt and ask the
+            // caller to try again.
         } else {
-            remainingTimeout = 100;
+            throwConnectException(env, errno);
         }
+        return JNI_FALSE;
     }
+
+    // If the fd is just in the write set, we're connected.
+    if (FD_ISSET(fd, &writeSet) && !FD_ISSET(fd, &readSet)) {
+        return JNI_TRUE;
+    }
+
+    // If the fd is in both the read and write set, there was an error.
+    if (FD_ISSET(fd, &readSet) || FD_ISSET(fd, &writeSet)) {
+        // Get the pending error.
+        int error = 0;
+        socklen_t errorLen = sizeof(error);
+        if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errorLen) == -1) {
+            error = errno; // Couldn't get the real error, so report why getsockopt failed.
+        }
+        throwConnectException(env, error);
+        return JNI_FALSE;
+    }
+
+    // Timeout expired.
+    return JNI_FALSE;
 }
 
 static void OSNetworkSystem_bind(JNIEnv* env, jobject, jobject fileDescriptor,
         jobject inetAddress, jint port) {
-    sockaddr_storage socketAddress;
-    if (!inetAddressToSocketAddress(env, inetAddress, port, &socketAddress)) {
+    sockaddr_storage ss;
+    if (!inetAddressToSocketAddress(env, inetAddress, port, &ss)) {
         return;
     }
 
@@ -480,10 +263,10 @@ static void OSNetworkSystem_bind(JNIEnv* env, jobject, jobject fileDescriptor,
         return;
     }
 
-    const CompatibleSocketAddress compatibleAddress(fd.get(), socketAddress, false);
+    const CompatibleSocketAddress compatibleAddress(ss, false);
     int rc = TEMP_FAILURE_RETRY(bind(fd.get(), compatibleAddress.get(), sizeof(sockaddr_storage)));
     if (rc == -1) {
-        jniThrowBindException(env, errno);
+        jniThrowExceptionWithErrno(env, "java/net/BindException", errno);
     }
 }
 
@@ -682,15 +465,11 @@ static jint OSNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescrip
     if (packet != NULL) {
         env->SetIntField(packet, lengthFid, bytesReceived);
         if (!connected) {
-            jbyteArray addr = socketAddressToByteArray(env, &ss);
-            if (addr == NULL) {
-                return 0;
-            }
-            int port = getSocketAddressPort(&ss);
-            jobject sender = byteArrayToInetAddress(env, addr);
+            jobject sender = socketAddressToInetAddress(env, &ss);
             if (sender == NULL) {
                 return 0;
             }
+            int port = getSocketAddressPort(&ss);
             env->SetObjectField(packet, addressFid, sender);
             env->SetIntField(packet, portFid, port);
         }
@@ -866,170 +645,6 @@ static jboolean OSNetworkSystem_selectImpl(JNIEnv* env, jclass,
             translateFdSet(env, writeFDArray, countWriteC, writeFds, flagArray.get(), countReadC, SOCKET_OP_WRITE);
 }
 
-template <typename T>
-static void setSocketOption(JNIEnv* env, const NetFd& fd, int level, int option, T* value) {
-    int rc = setsockopt(fd.get(), level, option, value, sizeof(*value));
-    if (rc == -1) {
-        LOGE("setSocketOption(fd=%i, level=%i, option=%i) failed: %s (errno=%i)",
-                fd.get(), level, option, strerror(errno), errno);
-        jniThrowSocketException(env, errno);
-    }
-}
-
-static void OSNetworkSystem_setSocketOption(JNIEnv* env, jobject, jobject fileDescriptor, jint option, jobject optVal) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return;
-    }
-
-    int intVal;
-    bool wasBoolean = false;
-    if (env->IsInstanceOf(optVal, JniConstants::integerClass)) {
-        intVal = intValue(env, optVal);
-    } else if (env->IsInstanceOf(optVal, JniConstants::booleanClass)) {
-        intVal = (int) booleanValue(env, optVal);
-        wasBoolean = true;
-    } else if (env->IsInstanceOf(optVal, JniConstants::inetAddressClass)) {
-        // We use optVal directly as an InetAddress for IP_MULTICAST_IF.
-    } else if (env->IsInstanceOf(optVal, JniConstants::multicastGroupRequestClass)) {
-        // We use optVal directly as a MulticastGroupRequest for MCAST_JOIN_GROUP/MCAST_LEAVE_GROUP.
-    } else {
-        jniThrowSocketException(env, EINVAL);
-        return;
-    }
-
-    int family = getSocketAddressFamily(fd.get());
-    if (family != AF_INET && family != AF_INET6) {
-        jniThrowSocketException(env, EAFNOSUPPORT);
-        return;
-    }
-
-    // Since we expect to have a AF_INET6 socket even if we're communicating via IPv4, we always
-    // set the IPPROTO_IP options. As long as we fall back to creating IPv4 sockets if creating
-    // an IPv6 socket fails, we need to make setting the IPPROTO_IPV6 options conditional.
-    switch (option) {
-    case JAVASOCKOPT_IP_TOS:
-        setSocketOption(env, fd, IPPROTO_IP, IP_TOS, &intVal);
-        if (family == AF_INET6) {
-            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_TCLASS, &intVal);
-        }
-        return;
-    case JAVASOCKOPT_SO_BROADCAST:
-        setSocketOption(env, fd, SOL_SOCKET, SO_BROADCAST, &intVal);
-        return;
-    case JAVASOCKOPT_SO_KEEPALIVE:
-        setSocketOption(env, fd, SOL_SOCKET, SO_KEEPALIVE, &intVal);
-        return;
-    case JAVASOCKOPT_SO_LINGER:
-        {
-            linger l;
-            l.l_onoff = !wasBoolean;
-            l.l_linger = intVal <= 65535 ? intVal : 65535;
-            setSocketOption(env, fd, SOL_SOCKET, SO_LINGER, &l);
-            return;
-        }
-    case JAVASOCKOPT_SO_OOBINLINE:
-        setSocketOption(env, fd, SOL_SOCKET, SO_OOBINLINE, &intVal);
-        return;
-    case JAVASOCKOPT_SO_RCVBUF:
-        setSocketOption(env, fd, SOL_SOCKET, SO_RCVBUF, &intVal);
-        return;
-    case JAVASOCKOPT_SO_REUSEADDR:
-        setSocketOption(env, fd, SOL_SOCKET, SO_REUSEADDR, &intVal);
-        return;
-    case JAVASOCKOPT_SO_SNDBUF:
-        setSocketOption(env, fd, SOL_SOCKET, SO_SNDBUF, &intVal);
-        return;
-    case JAVASOCKOPT_SO_BINDTODEVICE: {
-          // intVal contains the interface index
-          char ifname[IF_NAMESIZE];
-
-          if (if_indextoname(intVal, ifname) == NULL) {
-              jniThrowSocketException(env, ENODEV);
-          } else {
-              ifreq ifr;
-
-              memset(&ifr, 0, sizeof(ifr));
-              strncpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name));
-              ifr.ifr_name[sizeof(ifr.ifr_name) - 1] = '\0';
-              setSocketOption(env, fd, SOL_SOCKET, SO_BINDTODEVICE, &ifr);
-          }
-          return;
-        }
-    case JAVASOCKOPT_SO_TIMEOUT:
-        {
-            timeval timeout(toTimeval(intVal));
-            setSocketOption(env, fd, SOL_SOCKET, SO_RCVTIMEO, &timeout);
-            return;
-        }
-    case JAVASOCKOPT_TCP_NODELAY:
-        setSocketOption(env, fd, IPPROTO_TCP, TCP_NODELAY, &intVal);
-        return;
-    case JAVASOCKOPT_MCAST_JOIN_GROUP:
-        mcastJoinLeaveGroup(env, fd.get(), optVal, true);
-        return;
-    case JAVASOCKOPT_MCAST_LEAVE_GROUP:
-        mcastJoinLeaveGroup(env, fd.get(), optVal, false);
-        return;
-    case JAVASOCKOPT_IP_MULTICAST_IF:
-        {
-            sockaddr_storage sockVal;
-            if (!env->IsInstanceOf(optVal, JniConstants::inetAddressClass) ||
-                    !inetAddressToSocketAddress(env, optVal, 0, &sockVal)) {
-                return;
-            }
-            // This call is IPv4 only. The socket may be IPv6, but the address
-            // that identifies the interface to join must be an IPv4 address.
-            if (sockVal.ss_family != AF_INET) {
-                jniThrowSocketException(env, EAFNOSUPPORT);
-                return;
-            }
-            ip_mreqn mcast_req;
-            memset(&mcast_req, 0, sizeof(mcast_req));
-            mcast_req.imr_address = reinterpret_cast<sockaddr_in*>(&sockVal)->sin_addr;
-            setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &mcast_req);
-            return;
-        }
-    case JAVASOCKOPT_IP_MULTICAST_IF2:
-        // TODO: is this right? should we unconditionally set the IPPROTO_IP state in case
-        // we have an IPv6 socket communicating via IPv4?
-        if (family == AF_INET) {
-            // IP_MULTICAST_IF expects a pointer to an ip_mreqn struct.
-            ip_mreqn multicastRequest;
-            memset(&multicastRequest, 0, sizeof(multicastRequest));
-            multicastRequest.imr_ifindex = intVal;
-            setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_IF, &multicastRequest);
-        } else {
-            // IPV6_MULTICAST_IF expects a pointer to an integer.
-            setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, &intVal);
-        }
-        return;
-    case JAVASOCKOPT_MULTICAST_TTL:
-        {
-            // Although IPv6 was cleaned up to use int, and IPv4 non-multicast TTL uses int,
-            // IPv4 multicast TTL uses a byte.
-            u_char ttl = intVal;
-            setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_TTL, &ttl);
-            if (family == AF_INET6) {
-                setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &intVal);
-            }
-            return;
-        }
-    case JAVASOCKOPT_IP_MULTICAST_LOOP:
-        {
-            // Although IPv6 was cleaned up to use int, IPv4 multicast loopback uses a byte.
-            u_char loopback = intVal;
-            setSocketOption(env, fd, IPPROTO_IP, IP_MULTICAST_LOOP, &loopback);
-            if (family == AF_INET6) {
-                setSocketOption(env, fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, &intVal);
-            }
-            return;
-        }
-    default:
-        jniThrowSocketException(env, ENOPROTOOPT);
-    }
-}
-
 static void OSNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
@@ -1048,8 +663,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, accept, "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(OSNetworkSystem, bind, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
     NATIVE_METHOD(OSNetworkSystem, close, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(OSNetworkSystem, connectNonBlocking, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)Z"),
-    NATIVE_METHOD(OSNetworkSystem, connect, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;II)V"),
+    NATIVE_METHOD(OSNetworkSystem, connect, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)Z"),
     NATIVE_METHOD(OSNetworkSystem, disconnectDatagram, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(OSNetworkSystem, isConnected, "(Ljava/io/FileDescriptor;I)Z"),
     NATIVE_METHOD(OSNetworkSystem, read, "(Ljava/io/FileDescriptor;[BII)I"),
@@ -1060,7 +674,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, send, "(Ljava/io/FileDescriptor;[BIIILjava/net/InetAddress;)I"),
     NATIVE_METHOD(OSNetworkSystem, sendDirect, "(Ljava/io/FileDescriptor;IIIILjava/net/InetAddress;)I"),
     NATIVE_METHOD(OSNetworkSystem, sendUrgentData, "(Ljava/io/FileDescriptor;B)V"),
-    NATIVE_METHOD(OSNetworkSystem, setSocketOption, "(Ljava/io/FileDescriptor;ILjava/lang/Object;)V"),
     NATIVE_METHOD(OSNetworkSystem, write, "(Ljava/io/FileDescriptor;[BII)I"),
     NATIVE_METHOD(OSNetworkSystem, writeDirect, "(Ljava/io/FileDescriptor;III)I"),
 };

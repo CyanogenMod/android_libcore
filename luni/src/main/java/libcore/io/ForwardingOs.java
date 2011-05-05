@@ -45,15 +45,22 @@ public class ForwardingOs implements Os {
     public StructStatFs fstatfs(FileDescriptor fd) throws ErrnoException { return os.fstatfs(fd); }
     public void fsync(FileDescriptor fd) throws ErrnoException { os.fsync(fd); }
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException { os.ftruncate(fd, length); }
+    public String gai_strerror(int error) { return os.gai_strerror(error); }
+    public InetAddress[] getaddrinfo(String node, StructAddrinfo hints) throws GaiException { return os.getaddrinfo(node, hints); }
     public String getenv(String name) { return os.getenv(name); }
+    public String getnameinfo(InetAddress address, int flags) throws GaiException { return os.getnameinfo(address, flags); }
     public SocketAddress getsockname(FileDescriptor fd) throws ErrnoException { return os.getsockname(fd); }
     public int getsockoptByte(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptByte(fd, level, option); }
     public InetAddress getsockoptInAddr(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptInAddr(fd, level, option); }
     public int getsockoptInt(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptInt(fd, level, option); }
     public StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptLinger(fd, level, option); }
     public StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptTimeval(fd, level, option); }
+    public String if_indextoname(int index) { return os.if_indextoname(index); }
+    public InetAddress inet_aton(String address) { return os.inet_aton(address); }
+    public InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException { return os.ioctlInetAddress(fd, cmd, interfaceName); }
     public int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException { return os.ioctlInt(fd, cmd, arg); }
     public boolean isatty(FileDescriptor fd) { return os.isatty(fd); }
+    public void kill(int pid, int signal) throws ErrnoException { os.kill(pid, signal); }
     public void listen(FileDescriptor fd, int backlog) throws ErrnoException { os.listen(fd, backlog); }
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException { return os.lseek(fd, offset, whence); }
     public StructStat lstat(String path) throws ErrnoException { return os.lstat(path); }
@@ -72,7 +79,13 @@ public class ForwardingOs implements Os {
     public void remove(String path) throws ErrnoException { os.remove(path); }
     public void rename(String oldPath, String newPath) throws ErrnoException { os.rename(oldPath, newPath); }
     public long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException { return os.sendfile(outFd, inFd, inOffset, byteCount); }
+    public void setsockoptByte(FileDescriptor fd, int level, int option, int value) throws ErrnoException { os.setsockoptByte(fd, level, option, value); }
+    public void setsockoptIfreq(FileDescriptor fd, int level, int option, String value) throws ErrnoException { os.setsockoptIfreq(fd, level, option, value); }
     public void setsockoptInt(FileDescriptor fd, int level, int option, int value) throws ErrnoException { os.setsockoptInt(fd, level, option, value); }
+    public void setsockoptIpMreqn(FileDescriptor fd, int level, int option, int value) throws ErrnoException { os.setsockoptIpMreqn(fd, level, option, value); }
+    public void setsockoptGroupReq(FileDescriptor fd, int level, int option, StructGroupReq value) throws ErrnoException { os.setsockoptGroupReq(fd, level, option, value); }
+    public void setsockoptLinger(FileDescriptor fd, int level, int option, StructLinger value) throws ErrnoException { os.setsockoptLinger(fd, level, option, value); }
+    public void setsockoptTimeval(FileDescriptor fd, int level, int option, StructTimeval value) throws ErrnoException { os.setsockoptTimeval(fd, level, option, value); }
     public void shutdown(FileDescriptor fd, int how) throws ErrnoException { os.shutdown(fd, how); }
     public FileDescriptor socket(int domain, int type, int protocol) throws ErrnoException { return os.socket(domain, type, protocol); }
     public StructStat stat(String path) throws ErrnoException { return os.stat(path); }

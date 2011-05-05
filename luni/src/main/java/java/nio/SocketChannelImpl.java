@@ -164,27 +164,17 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         InetAddress normalAddr = inetSocketAddress.getAddress();
         int port = inetSocketAddress.getPort();
 
-        // When connecting, map ANY address to Localhost
+        // When connecting, map ANY address to localhost
         if (normalAddr.isAnyLocalAddress()) {
             normalAddr = InetAddress.getLocalHost();
         }
 
-        // connect result
-        int result = EOF;
         boolean finished = false;
-
         try {
             if (isBlocking()) {
                 begin();
-                Platform.NETWORK.connect(fd, normalAddr, port, 0);
-                finished = true; // Or we'd have thrown an exception.
-            } else {
-                finished = Platform.NETWORK.connectNonBlocking(fd, normalAddr, port);
-                // set back to nonblocking to work around with a bug in portlib
-                if (!isBlocking()) {
-                    IoUtils.setBlocking(fd, false);
-                }
             }
+            finished = IoUtils.connect(fd, normalAddr, port);
             isBound = finished;
         } catch (IOException e) {
             if (e instanceof ConnectException && !isBlocking()) {
@@ -231,7 +221,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
 
     @Override
     public boolean finishConnect() throws IOException {
-        // status check
         synchronized (this) {
             if (!isOpen()) {
                 throw new ClosedChannelException();
@@ -247,11 +236,8 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         boolean finished = false;
         try {
             begin();
-            final int WAIT_FOREVER = -1;
-            final int POLL = 0;
-            finished = Platform.NETWORK.isConnected(fd, isBlocking() ? WAIT_FOREVER : POLL);
+            finished = Platform.NETWORK.isConnected(fd, 0);
             isBound = finished;
-            initLocalAddressAndPort();
         } catch (ConnectException e) {
             if (isOpen()) {
                 close();
@@ -265,8 +251,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         synchronized (this) {
             status = (finished ? SOCKET_STATUS_CONNECTED : status);
             isBound = finished;
-            // TPE: Workaround for bug that turns socket back to blocking
-            if (!isBlocking()) implConfigureBlocking(false);
         }
         return finished;
     }

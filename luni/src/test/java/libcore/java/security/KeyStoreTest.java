@@ -154,6 +154,11 @@ public class KeyStoreTest extends TestCase {
         return (ks.getType().equals("PKCS12") && ks.getProvider().getName().equals("BC"));
     }
 
+    private static boolean isLoadStoreParameterSupported(KeyStore ks) {
+        // BouncyCastle's PKCS12 allows a JDKPKCS12StoreParameter
+        return (ks.getType().equals("PKCS12") && ks.getProvider().getName().equals("BC"));
+    }
+
     private static boolean isSetKeyByteArrayUnimplemented(KeyStore ks) {
         // All of BouncyCastle's
         // KeyStore.setKeyEntry(String,byte[],char[]) implementations
@@ -1556,6 +1561,10 @@ public class KeyStoreTest extends TestCase {
                 keyStore.store(null);
                 fail();
             } catch (UnsupportedOperationException expected) {
+                assertFalse(isLoadStoreParameterSupported(keyStore));
+            } catch (IllegalArgumentException expected) {
+                // its supported, but null causes an exception
+                assertTrue(isLoadStoreParameterSupported(keyStore));
             }
         }
     }

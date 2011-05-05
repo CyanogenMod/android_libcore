@@ -131,10 +131,10 @@ public class Socket {
      * Creates a new streaming socket connected to the target host specified by
      * the parameters {@code dstName} and {@code dstPort}. The socket is bound
      * to any available port on the local host.
-     * <p><strong>Implementation note:</strong> this implementation tries each
-     * IP address for the given hostname until it either connects successfully
-     * or it exhausts the set. It will try both IPv4 and IPv6 addresses in the
-     * order specified by the system property {@code "java.net.preferIPv6Addresses"}.
+     *
+     * <p>This implementation tries each IP address for the given hostname (in
+     * <a href="http://www.ietf.org/rfc/rfc3484.txt">RFC 3484</a> order)
+     * until it either connects successfully or it exhausts the set.
      *
      * @param dstName
      *            the target host name or IP address to connect to.
@@ -153,13 +153,11 @@ public class Socket {
      * Creates a new streaming socket connected to the target host specified by
      * the parameters {@code dstName} and {@code dstPort}. On the local endpoint
      * the socket is bound to the given address {@code localAddress} on port
-     * {@code localPort}.
+     * {@code localPort}. If {@code host} is {@code null} a loopback address is used to connect to.
      *
-     * If {@code host} is {@code null} a loopback address is used to connect to.
-     * <p><strong>Implementation note:</strong> this implementation tries each
-     * IP address for the given hostname until it either connects successfully
-     * or it exhausts the set. It will try both IPv4 and IPv6 addresses in the
-     * order specified by the system property {@code "java.net.preferIPv6Addresses"}.
+     * <p>This implementation tries each IP address for the given hostname (in
+     * <a href="http://www.ietf.org/rfc/rfc3484.txt">RFC 3484</a> order)
+     * until it either connects successfully or it exhausts the set.
      *
      * @param dstName
      *            the target host name or IP address to connect to.
@@ -183,10 +181,10 @@ public class Socket {
      * Creates a new streaming or datagram socket connected to the target host
      * specified by the parameters {@code hostName} and {@code port}. The socket
      * is bound to any available port on the local host.
-     * <p><strong>Implementation note:</strong> this implementation tries each
-     * IP address for the given hostname until it either connects successfully
-     * or it exhausts the set. It will try both IPv4 and IPv6 addresses in the
-     * order specified by the system property {@code "java.net.preferIPv6Addresses"}.
+     *
+     * <p>This implementation tries each IP address for the given hostname (in
+     * <a href="http://www.ietf.org/rfc/rfc3484.txt">RFC 3484</a> order)
+     * until it either connects successfully or it exhausts the set.
      *
      * @param hostName
      *            the target host name or IP address to connect to.

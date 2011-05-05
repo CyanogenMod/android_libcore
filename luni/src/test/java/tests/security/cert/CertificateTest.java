@@ -434,8 +434,8 @@ public class MyModifiablePublicKey implements PublicKey {
      * serialization/deserialization compatibility with RI.
      */
     public void testSerializationCompatibility() throws Exception {
-        //create test file (once)
-//        SerializationTest.createGoldenFile("device/dalvik/libcore/security/src/test/resources/serialization", this, TestUtils.rootCertificateSS);
+        // create test file (once)
+        // SerializationTest.createGoldenFile("/sdcard", this, TestUtils.rootCertificateSS);
         TestUtils.initCertPathSSCertChain();
 
         SerializationTest.verifyGolden(this, TestUtils.rootCertificateSS);

@@ -54,15 +54,14 @@ struct JniConstants {
     static jclass fieldClass;
     static jclass fieldPositionIteratorClass;
     static jclass fileDescriptorClass;
+    static jclass gaiExceptionClass;
     static jclass inetAddressClass;
     static jclass inetSocketAddressClass;
     static jclass inflaterClass;
     static jclass integerClass;
-    static jclass interfaceAddressClass;
     static jclass localeDataClass;
     static jclass longClass;
     static jclass methodClass;
-    static jclass multicastGroupRequestClass;
     static jclass mutableIntClass;
     static jclass mutableLongClass;
     static jclass parsePositionClass;
@@ -72,7 +71,9 @@ struct JniConstants {
     static jclass socketImplClass;
     static jclass stringArrayClass;
     static jclass stringClass;
+    static jclass structAddrinfoClass;
     static jclass structFlockClass;
+    static jclass structGroupReqClass;
     static jclass structLingerClass;
     static jclass structStatClass;
     static jclass structStatFsClass;

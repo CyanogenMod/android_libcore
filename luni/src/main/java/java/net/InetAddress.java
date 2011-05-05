@@ -31,10 +31,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import libcore.io.GaiException;
 import libcore.io.Libcore;
 import libcore.io.IoUtils;
 import libcore.io.Memory;
+import libcore.io.StructAddrinfo;
 import org.apache.harmony.luni.platform.Platform;
+import static libcore.io.OsConstants.*;
 
 /**
  * An Internet Protocol (IP) address. This can be either an IPv4 address or an IPv6 address, and
@@ -144,20 +147,17 @@ public class InetAddress implements Serializable {
 
     private static final long serialVersionUID = 3286316764910316507L;
 
-    String hostName;
-
-    private static class WaitReachable {
-    }
-
-    private transient Object waitReachable = new WaitReachable();
+    private transient Object waitReachable = new Object();
 
     private boolean reached;
 
     private int addrCount;
 
-    int family = 0;
+    private int family;
 
     byte[] ipaddress;
+
+    String hostName;
 
     /**
      * Constructs an {@code InetAddress}.
@@ -171,7 +171,11 @@ public class InetAddress implements Serializable {
      * InetAddresses (e.g., getByAddress). That is why the API does not have
      * public constructors for any of these classes.
      */
-    InetAddress() {}
+    InetAddress(int family, byte[] ipaddress, String hostName) {
+        this.family = family;
+        this.ipaddress = ipaddress;
+        this.hostName = hostName;
+    }
 
     /**
      * Compares this {@code InetAddress} instance against the specified address
@@ -201,30 +205,16 @@ public class InetAddress implements Serializable {
         return ipaddress.clone();
     }
 
-    static final Comparator<byte[]> SHORTEST_FIRST = new Comparator<byte[]>() {
-        public int compare(byte[] a1, byte[] a2) {
-            return a1.length - a2.length;
-        }
-    };
-
     /**
      * Converts an array of byte arrays representing raw IP addresses of a host
-     * to an array of InetAddress objects, sorting to respect the value of the
-     * system property {@code "java.net.preferIPv6Addresses"}.
+     * to an array of InetAddress objects.
      *
      * @param rawAddresses the raw addresses to convert.
      * @param hostName the hostname corresponding to the IP address.
      * @return the corresponding InetAddresses, appropriately sorted.
      */
-    static InetAddress[] bytesToInetAddresses(byte[][] rawAddresses, String hostName)
+    private static InetAddress[] bytesToInetAddresses(byte[][] rawAddresses, String hostName)
             throws UnknownHostException {
-        // If we prefer IPv4, ignore the RFC3484 ordering we get from getaddrinfo(3)
-        // and always put IPv4 addresses first. Arrays.sort() is stable, so the
-        // internal ordering will not be changed.
-        if (!preferIPv6Addresses()) {
-            Arrays.sort(rawAddresses, SHORTEST_FIRST);
-        }
-
         // Convert the byte arrays to InetAddresses.
         InetAddress[] returnedAddresses = new InetAddress[rawAddresses.length];
         for (int i = 0; i < rawAddresses.length; i++) {
@@ -253,23 +243,18 @@ public class InetAddress implements Serializable {
      * Returns the InetAddresses for {@code host}. The returned array is shared
      * and must be cloned before it is returned to application code.
      */
-    static InetAddress[] getAllByNameImpl(String host) throws UnknownHostException {
+    private static InetAddress[] getAllByNameImpl(String host) throws UnknownHostException {
         if (host == null || host.isEmpty()) {
             return loopbackAddresses();
         }
 
-        // Special-case "0" for legacy IPv4 applications.
-        if (host.equals("0")) {
-            return new InetAddress[] { Inet4Address.ANY };
-        }
-
         // Is it a numeric address?
-        byte[] bytes = ipStringToByteArray(host);
-        if (bytes != null) {
-            return new InetAddress[] { makeInetAddress(bytes, null) };
+        InetAddress result = parseNumericAddressNoThrow(host);
+        if (result != null) {
+            return new InetAddress[] { result };
         }
 
-        return lookupHostByName(host);
+        return lookupHostByName(host).clone();
     }
 
     private static InetAddress makeInetAddress(byte[] bytes, String hostName) throws UnknownHostException {
@@ -282,13 +267,26 @@ public class InetAddress implements Serializable {
         }
     }
 
-    private static native String byteArrayToIpString(byte[] address);
-
-    static native byte[] ipStringToByteArray(String address);
-
-    static boolean preferIPv6Addresses() {
-        String propertyValue = System.getProperty("java.net.preferIPv6Addresses");
-        return Boolean.parseBoolean(propertyValue);
+    private static InetAddress parseNumericAddressNoThrow(String address) {
+        // Accept IPv6 addresses (only) in square brackets for compatibility.
+        if (address.startsWith("[") && address.endsWith("]") && address.indexOf(':') != -1) {
+            address = address.substring(1, address.length() - 1);
+        }
+        StructAddrinfo hints = new StructAddrinfo();
+        hints.ai_flags = AI_NUMERICHOST;
+        InetAddress[] addresses = null;
+        try {
+            addresses = Libcore.os.getaddrinfo(address, hints);
+        } catch (GaiException ignored) {
+        }
+        if (addresses == null) {
+            // For backwards compatibility, deal with address formats that
+            // getaddrinfo does not support. For example, 1.2.3, 1.3, and even 3 are
+            // valid IPv4 addresses according to the Java API. If getaddrinfo fails,
+            // try to use inet_aton.
+            return Libcore.os.inet_aton(address);
+        }
+        return addresses[0];
     }
 
     /**
@@ -309,62 +307,37 @@ public class InetAddress implements Serializable {
     }
 
     /**
-     * Gets the textual representation of this IP address.
-     *
-     * @return the textual representation of host's IP address.
+     * Returns the numeric representation of this IP address (such as "127.0.0.1").
      */
     public String getHostAddress() {
-        return byteArrayToIpString(ipaddress);
+        return Libcore.os.getnameinfo(this, NI_NUMERICHOST); // Can't throw.
     }
 
     /**
-     * Gets the host name of this IP address. If the IP address could not be
-     * resolved, the textual representation in a dotted-quad-notation is
-     * returned.
-     *
-     * @return the corresponding string name of this IP address.
+     * Returns the host name corresponding to this IP address. This may or may not be a
+     * fully-qualified name. If the IP address could not be resolved, the numeric representation
+     * is returned instead (see {@link #getHostAddress}).
      */
     public String getHostName() {
-        try {
-            if (hostName == null) {
-                int address = 0;
-                if (ipaddress.length == 4) {
-                    address = Memory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
-                    if (address == 0) {
-                        return hostName = byteArrayToIpString(ipaddress);
-                    }
-                }
-                hostName = getHostByAddrImpl(ipaddress).hostName;
-                if (hostName.equals("localhost") && ipaddress.length == 4
-                        && address != 0x7f000001) {
-                    return hostName = byteArrayToIpString(ipaddress);
-                }
+        if (hostName == null) {
+            try {
+                hostName = getHostByAddrImpl(this).hostName;
+            } catch (UnknownHostException ex) {
+                hostName = getHostAddress();
             }
-        } catch (UnknownHostException e) {
-            return hostName = byteArrayToIpString(ipaddress);
         }
         return hostName;
     }
 
     /**
-     * Returns the fully qualified domain name for the host associated with this IP
-     * address.
+     * Returns the fully qualified hostname corresponding to this IP address.
      */
     public String getCanonicalHostName() {
-        String canonicalName;
         try {
-            int address = 0;
-            if (ipaddress.length == 4) {
-                address = Memory.peekInt(ipaddress, 0, ByteOrder.BIG_ENDIAN);
-                if (address == 0) {
-                    return byteArrayToIpString(ipaddress);
-                }
-            }
-            canonicalName = getHostByAddrImpl(ipaddress).hostName;
-        } catch (UnknownHostException e) {
-            return byteArrayToIpString(ipaddress);
+            return getHostByAddrImpl(this).hostName;
+        } catch (UnknownHostException ex) {
+            return getHostAddress();
         }
-        return canonicalName;
     }
 
     /**
@@ -450,16 +423,31 @@ public class InetAddress implements Serializable {
             }
         }
         try {
-            InetAddress[] addresses = bytesToInetAddresses(getaddrinfo(host), host);
+            StructAddrinfo hints = new StructAddrinfo();
+            hints.ai_flags = AI_ADDRCONFIG;
+            hints.ai_family = AF_UNSPEC;
+            // If we don't specify a socket type, every address will appear twice, once
+            // for SOCK_STREAM and one for SOCK_DGRAM. Since we do not return the family
+            // anyway, just pick one.
+            hints.ai_socktype = SOCK_STREAM;
+            InetAddress[] addresses = Libcore.os.getaddrinfo(host, hints);
+            // TODO: should getaddrinfo set the hostname of the InetAddresses it returns?
+            for (InetAddress address : addresses) {
+                address.hostName = host;
+            }
             addressCache.put(host, addresses);
             return addresses;
-        } catch (UnknownHostException e) {
-            String detailMessage = e.getMessage();
+        } catch (GaiException gaiException) {
+            // TODO: bionic currently returns EAI_NODATA, which is indistinguishable from a real
+            // failure. We need to fix bionic before we can report a more useful error.
+            // if (gaiException.error == EAI_SYSTEM) {
+            //    throw new SecurityException("Permission denied (missing INTERNET permission?)");
+            // }
+            String detailMessage = "Unable to resolve host \"" + host + "\": " + Libcore.os.gai_strerror(gaiException.error);
             addressCache.putUnknownHost(host, detailMessage);
-            throw new UnknownHostException(detailMessage);
+            throw gaiException.rethrowAsUnknownHostException(detailMessage);
         }
     }
-    private static native byte[][] getaddrinfo(String name) throws UnknownHostException;
 
     /**
      * Removes all entries from the VM's DNS cache. This does not affect the C library's DNS
@@ -470,32 +458,14 @@ public class InetAddress implements Serializable {
         addressCache.clear();
     }
 
-    /**
-     * Query the IP stack for the host address. The host is in address form.
-     *
-     * @param addr
-     *            the host address to lookup.
-     * @throws UnknownHostException
-     *             if an error occurs during lookup.
-     */
-    static InetAddress getHostByAddrImpl(byte[] addr) throws UnknownHostException {
+    private static InetAddress getHostByAddrImpl(InetAddress address) throws UnknownHostException {
         BlockGuard.getThreadPolicy().onNetwork();
-        return makeInetAddress(addr, getnameinfo(addr));
-    }
-
-    /**
-     * Resolves an IP address to a hostname. Thread safe.
-     */
-    private static native String getnameinfo(byte[] addr);
-
-    static String getHostNameInternal(String host) throws UnknownHostException {
-        if (host == null || host.isEmpty()) {
-            return Inet4Address.LOOPBACK.getHostAddress();
+        try {
+            String hostname = Libcore.os.getnameinfo(address, NI_NAMEREQD);
+            return makeInetAddress(address.ipaddress.clone(), hostname);
+        } catch (GaiException gaiException) {
+            throw gaiException.rethrowAsUnknownHostException();
         }
-        if (!isNumeric(host)) {
-            return lookupHostByName(host)[0].getHostAddress();
-        }
-        return host;
     }
 
     /**
@@ -517,7 +487,7 @@ public class InetAddress implements Serializable {
      * @hide used by frameworks/base to ensure that a getAllByName won't cause a DNS lookup.
      */
     public static boolean isNumeric(String address) {
-        return ipStringToByteArray(address) != null;
+        return parseNumericAddressNoThrow(address) != null;
     }
 
     /**
@@ -530,26 +500,17 @@ public class InetAddress implements Serializable {
      */
     public static InetAddress parseNumericAddress(String numericAddress) {
         if (numericAddress == null || numericAddress.isEmpty()) {
-            return loopbackAddresses()[0];
+            return Inet6Address.LOOPBACK;
         }
-        byte[] bytes = ipStringToByteArray(numericAddress);
-        if (bytes == null) {
+        InetAddress result = parseNumericAddressNoThrow(numericAddress);
+        if (result == null) {
             throw new IllegalArgumentException("Not a numeric address: " + numericAddress);
         }
-        try {
-            return makeInetAddress(bytes, null);
-        } catch (UnknownHostException ex) {
-            // UnknownHostException can't be thrown if you pass null to makeInetAddress.
-            throw new AssertionError(ex);
-        }
+        return result;
     }
 
     private static InetAddress[] loopbackAddresses() {
-        if (preferIPv6Addresses()) {
-            return new InetAddress[] { Inet6Address.LOOPBACK, Inet4Address.LOOPBACK };
-        } else {
-            return new InetAddress[] { Inet4Address.LOOPBACK, Inet6Address.LOOPBACK };
-        }
+        return new InetAddress[] { Inet6Address.LOOPBACK, Inet4Address.LOOPBACK };
     }
 
     /**
@@ -558,7 +519,7 @@ public class InetAddress implements Serializable {
      * @hide 1.7
      */
     public static InetAddress getLoopbackAddress() {
-        return loopbackAddresses()[0];
+        return Inet6Address.LOOPBACK;
     }
 
     /**
@@ -855,7 +816,7 @@ public class InetAddress implements Serializable {
             if (source != null) {
                 Platform.NETWORK.bind(fd, source, 0);
             }
-            Platform.NETWORK.connect(fd, destination, 7, timeout);
+            IoUtils.connect(fd, destination, 7, timeout);
             reached = true;
         } catch (IOException e) {
             if (ERRMSG_CONNECTION_REFUSED.equals(e.getMessage())) {
@@ -878,17 +839,6 @@ public class InetAddress implements Serializable {
      */
     public static InetAddress getByAddress(byte[] ipAddress) throws UnknownHostException {
         return getByAddressInternal(null, ipAddress, 0);
-    }
-
-    /**
-     * Equivalent to {@code getByAddress(null, ipAddress, scopeId)}. Handy for IPv6 addresses
-     * with no associated hostname.
-     *
-     * <p>(Note that numeric addresses such as {@code "127.0.0.1"} are names for the
-     * purposes of this API. Most callers probably want {@link #getAllByName} instead.)
-     */
-    static InetAddress getByAddress(byte[] ipAddress, int scopeId) throws UnknownHostException {
-        return getByAddressInternal(null, ipAddress, scopeId);
     }
 
     /**
@@ -918,7 +868,7 @@ public class InetAddress implements Serializable {
      *
      * @throws UnknownHostException if {@code ipAddress} is null or the wrong length.
      */
-    static InetAddress getByAddressInternal(String hostName, byte[] ipAddress, int scopeId)
+    private static InetAddress getByAddressInternal(String hostName, byte[] ipAddress, int scopeId)
             throws UnknownHostException {
         if (ipAddress == null) {
             throw new UnknownHostException("ipAddress == null");
@@ -999,7 +949,7 @@ public class InetAddress implements Serializable {
 
     /*
      * The spec requires that if we encounter a generic InetAddress in
-     * serialized form then we should interpret it as an Inet4 address.
+     * serialized form then we should interpret it as an Inet4Address.
      */
     private Object readResolve() throws ObjectStreamException {
         return new Inet4Address(ipaddress, hostName);

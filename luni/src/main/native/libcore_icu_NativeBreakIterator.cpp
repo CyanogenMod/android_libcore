@@ -18,7 +18,6 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
-#include "ErrorCode.h"
 #include "JniException.h"
 #include "ScopedUtfChars.h"
 #include "unicode/ubrk.h"
@@ -56,14 +55,14 @@ public:
         size_t charCount = env->GetStringLength(mString);
         UErrorCode status = U_ZERO_ERROR;
         ubrk_setText(mIt, mChars, charCount, &status);
-        icu4jni_error(env, status);
+        maybeThrowIcuException(env, status);
     }
 
     BreakIteratorPeer* clone(JNIEnv* env) {
         UErrorCode status = U_ZERO_ERROR;
         jint bufferSize = U_BRK_SAFECLONE_BUFFERSIZE;
         UBreakIterator* it = ubrk_safeClone(mIt, NULL, &bufferSize, &status);
-        if (icu4jni_error(env, status)) {
+        if (maybeThrowIcuException(env, status)) {
             return NULL;
         }
         BreakIteratorPeer* result = new BreakIteratorPeer(it);
@@ -121,7 +120,7 @@ static jint makeIterator(JNIEnv* env, jstring locale, UBreakIteratorType type) {
         return 0;
     }
     UBreakIterator* it = ubrk_open(type, localeChars.c_str(), NULL, 0, &status);
-    if (icu4jni_error(env, status)) {
+    if (maybeThrowIcuException(env, status)) {
         return NULL;
     }
     return (new BreakIteratorPeer(it))->toAddress();

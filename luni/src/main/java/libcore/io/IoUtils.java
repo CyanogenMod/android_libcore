@@ -28,11 +28,16 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketOptions;
+import java.net.SocketTimeoutException;
+import java.nio.charset.Charsets;
 import java.util.Arrays;
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
 import libcore.util.MutableInt;
 import static libcore.io.OsConstants.*;
+
+// TODO: kill this!
+import org.apache.harmony.luni.platform.Platform;
 
 public final class IoUtils {
     private IoUtils() {
@@ -191,6 +196,67 @@ public final class IoUtils {
     }
 
     /**
+     * Connects socket 'fd' to 'inetAddress' on 'port', with no timeout. The lack of a timeout
+     * means this method won't throw SocketTimeoutException.
+     */
+    public static boolean connect(FileDescriptor fd, InetAddress inetAddress, int port) throws SocketException {
+        try {
+            return IoUtils.connect(fd, inetAddress, port, 0);
+        } catch (SocketTimeoutException ex) {
+            throw new AssertionError(ex); // Can't happen for a connect without a timeout.
+        }
+    }
+
+    /**
+     * Connects socket 'fd' to 'inetAddress' on 'port', with a the given 'timeoutMs'.
+     * Use timeoutMs == 0 for a blocking connect with no timeout.
+     */
+    public static boolean connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws SocketException, SocketTimeoutException {
+        try {
+            return connectErrno(fd, inetAddress, port, timeoutMs);
+        } catch (SocketException ex) {
+            throw ex; // We don't want to doubly wrap these.
+        } catch (SocketTimeoutException ex) {
+            throw ex; // We don't want to doubly wrap these.
+        } catch (IOException ex) {
+            throw new SocketException(ex);
+        }
+    }
+
+    // TODO: this is the wrong name now, but when this gets rewritten without Platform.NETWORK...
+    private static boolean connectErrno(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws IOException {
+        // With no timeout, just call connect(2) directly.
+        if (timeoutMs == 0) {
+            return Platform.NETWORK.connect(fd, inetAddress, port);
+        }
+
+        // With a timeout, we set the socket to non-blocking, connect(2), and then loop
+        // using select(2) to decide whether we're connected, whether we should keep waiting,
+        // or whether we've seen a permanent failure and should give up.
+        long finishTimeMs = System.currentTimeMillis() + timeoutMs;
+        IoUtils.setBlocking(fd, false);
+        try {
+            if (Platform.NETWORK.connect(fd, inetAddress, port)) {
+                return true;
+            }
+            int remainingTimeoutMs;
+            do {
+                remainingTimeoutMs = (int) (finishTimeMs - System.currentTimeMillis());
+                if (remainingTimeoutMs <= 0) {
+                    String detail = "failed to connect to " + inetAddress + " (port " + port + ")";
+                    if (timeoutMs > 0) {
+                        detail += " after " + timeoutMs + "ms";
+                    }
+                    throw new SocketTimeoutException(detail);
+                }
+            } while (!Platform.NETWORK.isConnected(fd, remainingTimeoutMs));
+            return true; // Or we'd have thrown.
+        } finally {
+            IoUtils.setBlocking(fd, true);
+        }
+    }
+
+    /**
      * Sets 'fd' to be blocking or non-blocking, according to the state of 'blocking'.
      */
     public static void setBlocking(FileDescriptor fd, boolean blocking) throws IOException {
@@ -229,6 +295,11 @@ public final class IoUtils {
         }
     }
 
+    // Socket options used by java.net but not exposed in SocketOptions.
+    public static final int JAVA_MCAST_JOIN_GROUP = 19;
+    public static final int JAVA_MCAST_LEAVE_GROUP = 20;
+    public static final int JAVA_IP_MULTICAST_TTL = 17;
+
     /**
      * java.net has its own socket options similar to the underlying Unix ones. We paper over the
      * differences here.
@@ -241,45 +312,26 @@ public final class IoUtils {
         }
     }
 
-    // Socket options used by java.net but not exposed in SocketOptions.
-    public static final int MCAST_JOIN_GROUP = 19;
-    public static final int MCAST_LEAVE_GROUP = 20;
-    public static final int IP_MULTICAST_TTL = 17;
-
     private static Object getSocketOptionErrno(FileDescriptor fd, int option) throws SocketException {
         switch (option) {
-        case SocketOptions.IP_MULTICAST_IF2:
-            if (boundIPv4(fd)) {
-                // The caller's asking for an interface index, but that's not how IPv4 works.
-                // Our Java should never get here, because we'll try IP_MULTICAST_IF first and
-                // that will satisfy us.
-                throw new SocketException("no interface index for IPv4");
-            } else {
-                return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF);
-            }
         case SocketOptions.IP_MULTICAST_IF:
+            // This is IPv4-only.
             return Libcore.os.getsockoptInAddr(fd, IPPROTO_IP, IP_MULTICAST_IF);
+        case SocketOptions.IP_MULTICAST_IF2:
+            // This is IPv6-only.
+            return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF);
         case SocketOptions.IP_MULTICAST_LOOP:
-            if (boundIPv4(fd)) {
-                // Although IPv6 was cleaned up to use int, and IPv4 non-multicast TTL uses int,
-                // IPv4 multicast TTL uses a byte.
-                return booleanFromInt(Libcore.os.getsockoptByte(fd, IPPROTO_IP, IP_MULTICAST_LOOP));
-            } else {
-                return booleanFromInt(Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP));
-            }
-        case IoUtils.IP_MULTICAST_TTL:
-            if (boundIPv4(fd)) {
-                // Although IPv6 was cleaned up to use int, IPv4 multicast loopback uses a byte.
-                return Libcore.os.getsockoptByte(fd, IPPROTO_IP, IP_MULTICAST_TTL);
-            } else {
-                return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS);
-            }
+            // Since setting this from java.net always sets IPv4 and IPv6 to the same value,
+            // it doesn't matter which we return.
+            return booleanFromInt(Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP));
+        case IoUtils.JAVA_IP_MULTICAST_TTL:
+            // Since setting this from java.net always sets IPv4 and IPv6 to the same value,
+            // it doesn't matter which we return.
+            return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS);
         case SocketOptions.IP_TOS:
-            if (boundIPv4(fd)) {
-                return Libcore.os.getsockoptInt(fd, IPPROTO_IP, IP_TOS);
-            } else {
-                return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_TCLASS);
-            }
+            // Since setting this from java.net always sets IPv4 and IPv6 to the same value,
+            // it doesn't matter which we return.
+            return Libcore.os.getsockoptInt(fd, IPPROTO_IPV6, IPV6_TCLASS);
         case SocketOptions.SO_BROADCAST:
             return booleanFromInt(Libcore.os.getsockoptInt(fd, SOL_SOCKET, SO_BROADCAST));
         case SocketOptions.SO_KEEPALIVE:
@@ -303,21 +355,100 @@ public final class IoUtils {
         case SocketOptions.TCP_NODELAY:
             return booleanFromInt(Libcore.os.getsockoptInt(fd, IPPROTO_TCP, TCP_NODELAY));
         default:
-            throw new SocketException("unknown socket option " + option);
+            throw new SocketException("Unknown socket option: " + option);
         }
-    }
-
-    private static boolean boundIPv4(FileDescriptor fd) {
-        SocketAddress sa = Libcore.os.getsockname(fd);
-        if (!(sa instanceof InetSocketAddress)) {
-            return false;
-        }
-        InetSocketAddress isa = (InetSocketAddress) sa;
-        return (isa.getAddress() instanceof Inet4Address);
     }
 
     private static boolean booleanFromInt(int i) {
         return (i != 0);
+    }
+
+    private static int booleanToInt(boolean b) {
+        return b ? 1 : 0;
+    }
+
+    /**
+     * java.net has its own socket options similar to the underlying Unix ones. We paper over the
+     * differences here.
+     */
+    public static void setSocketOption(FileDescriptor fd, int option, Object value) throws SocketException {
+        try {
+            setSocketOptionErrno(fd, option, value);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsSocketException();
+        }
+    }
+
+    private static void setSocketOptionErrno(FileDescriptor fd, int option, Object value) throws SocketException {
+        switch (option) {
+        case SocketOptions.IP_MULTICAST_IF:
+            throw new UnsupportedOperationException("Use IP_MULTICAST_IF2 on Android");
+        case SocketOptions.IP_MULTICAST_IF2:
+            // Although IPv6 was cleaned up to use int, IPv4 uses an ip_mreqn containing an int.
+            Libcore.os.setsockoptIpMreqn(fd, IPPROTO_IP, IP_MULTICAST_IF, (Integer) value);
+            Libcore.os.setsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, (Integer) value);
+            return;
+        case SocketOptions.IP_MULTICAST_LOOP:
+            // Although IPv6 was cleaned up to use int, IPv4 multicast loopback uses a byte.
+            Libcore.os.setsockoptByte(fd, IPPROTO_IP, IP_MULTICAST_LOOP, booleanToInt((Boolean) value));
+            Libcore.os.setsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, booleanToInt((Boolean) value));
+            return;
+        case IoUtils.JAVA_IP_MULTICAST_TTL:
+            // Although IPv6 was cleaned up to use int, and IPv4 non-multicast TTL uses int,
+            // IPv4 multicast TTL uses a byte.
+            Libcore.os.setsockoptByte(fd, IPPROTO_IP, IP_MULTICAST_TTL, (Integer) value);
+            Libcore.os.setsockoptInt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, (Integer) value);
+            return;
+        case SocketOptions.IP_TOS:
+            Libcore.os.setsockoptInt(fd, IPPROTO_IP, IP_TOS, (Integer) value);
+            Libcore.os.setsockoptInt(fd, IPPROTO_IPV6, IPV6_TCLASS, (Integer) value);
+            return;
+        case SocketOptions.SO_BROADCAST:
+            Libcore.os.setsockoptInt(fd, SOL_SOCKET, SO_BROADCAST, booleanToInt((Boolean) value));
+            return;
+        case SocketOptions.SO_KEEPALIVE:
+            Libcore.os.setsockoptInt(fd, SOL_SOCKET, SO_KEEPALIVE, booleanToInt((Boolean) value));
+            return;
+        case SocketOptions.SO_LINGER:
+            boolean on = false;
+            int seconds = 0;
+            if (value instanceof Integer) {
+                on = true;
+                seconds = Math.min((Integer) value, 65535);
+            }
+            StructLinger linger = new StructLinger(booleanToInt(on), seconds);
+            Libcore.os.setsockoptLinger(fd, SOL_SOCKET, SO_LINGER, linger);
+            return;
+        case SocketOptions.SO_OOBINLINE:
+            Libcore.os.setsockoptInt(fd, SOL_SOCKET, SO_OOBINLINE, booleanToInt((Boolean) value));
+            return;
+        case SocketOptions.SO_RCVBUF:
+            Libcore.os.setsockoptInt(fd, SOL_SOCKET, SO_RCVBUF, (Integer) value);
+            return;
+        case SocketOptions.SO_REUSEADDR:
+            Libcore.os.setsockoptInt(fd, SOL_SOCKET, SO_REUSEADDR, booleanToInt((Boolean) value));
+            return;
+        case SocketOptions.SO_SNDBUF:
+            Libcore.os.setsockoptInt(fd, SOL_SOCKET, SO_SNDBUF, (Integer) value);
+            return;
+        case SocketOptions.SO_TIMEOUT:
+            int millis = (Integer) value;
+            StructTimeval tv = StructTimeval.fromMillis(millis);
+            Libcore.os.setsockoptTimeval(fd, SOL_SOCKET, SO_RCVTIMEO, tv);
+            return;
+        case SocketOptions.TCP_NODELAY:
+            Libcore.os.setsockoptInt(fd, IPPROTO_TCP, TCP_NODELAY, booleanToInt((Boolean) value));
+            return;
+        case IoUtils.JAVA_MCAST_JOIN_GROUP:
+        case IoUtils.JAVA_MCAST_LEAVE_GROUP:
+            StructGroupReq groupReq = (StructGroupReq) value;
+            int level = (groupReq.gr_group instanceof Inet4Address) ? IPPROTO_IP : IPPROTO_IPV6;
+            int op = (option == JAVA_MCAST_JOIN_GROUP) ? MCAST_JOIN_GROUP : MCAST_LEAVE_GROUP;
+            Libcore.os.setsockoptGroupReq(fd, level, op, groupReq);
+            return;
+        default:
+            throw new SocketException("Unknown socket option: " + option);
+        }
     }
 
     public static InetAddress getSocketLocalAddress(FileDescriptor fd) {
@@ -336,12 +467,29 @@ public final class IoUtils {
      * Returns the contents of 'path' as a byte array.
      */
     public static byte[] readFileAsByteArray(String path) throws IOException {
+        return readFileAsBytes(path).toByteArray();
+    }
+
+    /**
+     * Returns the contents of 'path' as a string. The contents are assumed to be UTF-8.
+     */
+    public static String readFileAsString(String path) throws IOException {
+        return readFileAsBytes(path).toString(Charsets.UTF_8);
+    }
+
+    private static UnsafeByteSequence readFileAsBytes(String path) throws IOException {
         RandomAccessFile f = null;
         try {
             f = new RandomAccessFile(path, "r");
-            byte[] buf = new byte[(int) f.length()];
-            f.readFully(buf);
-            return buf;
+            UnsafeByteSequence bytes = new UnsafeByteSequence((int) f.length());
+            byte[] buffer = new byte[8192];
+            while (true) {
+                int byteCount = f.read(buffer);
+                if (byteCount == -1) {
+                    return bytes;
+                }
+                bytes.write(buffer, 0, byteCount);
+            }
         } finally {
             IoUtils.closeQuietly(f);
         }

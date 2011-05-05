@@ -20,9 +20,9 @@
 #include "JniConstants.h"
 #include "JniException.h"
 #include "LocalArray.h"
-#include "ScopedJavaUnicodeString.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
+#include "ScopedStringChars.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 #include "jni.h"
@@ -1040,11 +1040,13 @@ static void ExpatParser_appendChars(JNIEnv* env, jobject object, jint pointer,
     append(env, object, pointer, bytes, byteOffset, byteCount, XML_FALSE);
 }
 
-static void ExpatParser_appendString(JNIEnv* env, jobject object, jint pointer,
-        jstring javaXml, jboolean isFinal) {
-    ScopedJavaUnicodeString xml(env, javaXml);
-    const char* bytes = reinterpret_cast<const char*>(xml.unicodeString().getBuffer());
-    size_t byteCount = 2 * xml.unicodeString().length();
+static void ExpatParser_appendString(JNIEnv* env, jobject object, jint pointer, jstring javaXml, jboolean isFinal) {
+    ScopedStringChars xml(env, javaXml);
+    if (xml.get() == NULL) {
+        return;
+    }
+    const char* bytes = reinterpret_cast<const char*>(xml.get());
+    size_t byteCount = 2 * xml.size();
     append(env, object, pointer, bytes, 0, byteCount, isFinal);
 }
 

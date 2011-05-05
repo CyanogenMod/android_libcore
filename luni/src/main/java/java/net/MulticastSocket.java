@@ -19,6 +19,7 @@ package java.net;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import libcore.io.IoUtils;
 
 /**
  * This class implements a multicast socket for sending and receiving IP
@@ -27,133 +28,95 @@ import java.util.Enumeration;
  * @see DatagramSocket
  */
 public class MulticastSocket extends DatagramSocket {
-    private static final int NO_INTERFACE_INDEX = 0;
-    private static final int UNSET_INTERFACE_INDEX = -1;
-
-    private InetAddress interfaceSet;
+    /**
+     * Stores the address supplied to setInterface so we can return it from getInterface. The
+     * translation to an interface index is lossy because an interface can have multiple addresses.
+     */
+    private InetAddress setAddress;
 
     /**
      * Constructs a multicast socket, bound to any available port on the
-     * localhost.
+     * local host.
      *
-     * @throws IOException
-     *             if an error occurs creating or binding the socket.
+     * @throws IOException if an error occurs.
      */
     public MulticastSocket() throws IOException {
         setReuseAddress(true);
     }
 
     /**
-     * Constructs a multicast socket, bound to the specified port on the
-     * localhost.
+     * Constructs a multicast socket, bound to the specified {@code port} on the
+     * local host.
      *
-     * @param aPort
-     *            the port to bind on the localhost.
-     * @throws IOException
-     *             if an error occurs creating or binding the socket.
+     * @throws IOException if an error occurs.
      */
-    public MulticastSocket(int aPort) throws IOException {
-        super(aPort);
+    public MulticastSocket(int port) throws IOException {
+        super(port);
         setReuseAddress(true);
     }
 
     /**
-     * Gets the network address used by this socket. This is useful on
-     * multihomed machines.
+     * Constructs a {@code MulticastSocket} bound to the address and port specified by
+     * {@code localAddress}, or an unbound {@code MulticastSocket} if {@code localAddress == null}.
      *
-     * @return the address of the network interface through which the datagram
-     *         packets are sent or received.
-     * @throws SocketException
-     *                if an error occurs while getting the interface address.
+     * @throws IllegalArgumentException if {@code localAddress} is not supported (because it's not
+     * an {@code InetSocketAddress}, say).
+     * @throws IOException if an error occurs.
+     */
+    public MulticastSocket(SocketAddress localAddress) throws IOException {
+        super(localAddress);
+        setReuseAddress(true);
+    }
+
+    /**
+     * Returns an address of the outgoing network interface used by this socket. To avoid
+     * inherent unpredictability, new code should use {@link #getNetworkInterface} instead.
+     *
+     * @throws SocketException if an error occurs.
      */
     public InetAddress getInterface() throws SocketException {
         checkClosedAndBind(false);
-        if (interfaceSet == null) {
-            InetAddress ipvXaddress = (InetAddress) impl
-                    .getOption(SocketOptions.IP_MULTICAST_IF);
-            if (ipvXaddress.isAnyLocalAddress()) {
-                // the address was not set at the IPv4 level so check the IPv6
-                // level
-                NetworkInterface theInterface = getNetworkInterface();
-                if (theInterface != null) {
-                    Enumeration<InetAddress> addresses = theInterface
-                            .getInetAddresses();
-                    if (addresses != null) {
-                        while (addresses.hasMoreElements()) {
-                            InetAddress nextAddress = addresses.nextElement();
-                            if (nextAddress instanceof Inet6Address) {
-                                return nextAddress;
-                            }
+        if (setAddress != null) {
+            return setAddress;
+        }
+        InetAddress ipvXaddress = (InetAddress) impl.getOption(SocketOptions.IP_MULTICAST_IF);
+        if (ipvXaddress.isAnyLocalAddress()) {
+            // the address was not set at the IPv4 level so check the IPv6
+            // level
+            NetworkInterface theInterface = getNetworkInterface();
+            if (theInterface != null) {
+                Enumeration<InetAddress> addresses = theInterface.getInetAddresses();
+                if (addresses != null) {
+                    while (addresses.hasMoreElements()) {
+                        InetAddress nextAddress = addresses.nextElement();
+                        if (nextAddress instanceof Inet6Address) {
+                            return nextAddress;
                         }
                     }
                 }
             }
-            return ipvXaddress;
         }
-        return interfaceSet;
+        return ipvXaddress;
     }
 
     /**
-     * Gets the network interface used by this socket. This is useful on
-     * multihomed machines.
+     * Returns the outgoing network interface used by this socket.
      *
-     * @return the network interface used by this socket or {@code null} if no
-     *         interface is set.
-     * @throws SocketException
-     *                if an error occurs while getting the interface.
-     * @since 1.4
+     * @throws SocketException if an error occurs.
      */
     public NetworkInterface getNetworkInterface() throws SocketException {
         checkClosedAndBind(false);
-
-        // check if it is set at the IPv6 level. If so then use that. Otherwise
-        // do it at the IPv4 level
-        Integer theIndex = Integer.valueOf(0);
-        try {
-            theIndex = (Integer) impl.getOption(SocketOptions.IP_MULTICAST_IF2);
-        } catch (SocketException e) {
-            // we may get an exception if IPv6 is not enabled.
+        int index = (Integer) impl.getOption(SocketOptions.IP_MULTICAST_IF2);
+        if (index != 0) {
+            return NetworkInterface.getByIndex(index);
         }
-
-        if (theIndex.intValue() != 0) {
-            Enumeration<NetworkInterface> theInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (theInterfaces.hasMoreElements()) {
-                NetworkInterface nextInterface = theInterfaces.nextElement();
-                if (nextInterface.getIndex() == theIndex.intValue()) {
-                    return nextInterface;
-                }
-            }
-        }
-
-        // ok it was not set at the IPv6 level so try at the IPv4 level
-        InetAddress theAddress = (InetAddress) impl.getOption(SocketOptions.IP_MULTICAST_IF);
-        if (theAddress != null) {
-            if (!theAddress.isAnyLocalAddress()) {
-                return NetworkInterface.getByInetAddress(theAddress);
-            }
-
-            // not set as we got the any address so return a dummy network
-            // interface with only the any address. We do this to be
-            // compatible
-            InetAddress theAddresses[] = new InetAddress[1];
-            if (InetAddress.preferIPv6Addresses()) {
-                theAddresses[0] = Inet6Address.ANY;
-            } else {
-                theAddresses[0] = Inet4Address.ANY;
-            }
-            return new NetworkInterface(null, null, theAddresses, UNSET_INTERFACE_INDEX);
-        }
-
-        // ok not set at all so return null
-        return null;
+        return NetworkInterface.forUnboundMulticastSocket();
     }
 
     /**
-     * Gets the time-to-live (TTL) for multicast packets sent on this socket.
+     * Returns the time-to-live (TTL) for multicast packets sent on this socket.
      *
-     * @return the default value for the time-to-life field.
-     * @throws IOException
-     *                if an error occurs reading the default value.
+     * @throws IOException if an error occurs.
      */
     public int getTimeToLive() throws IOException {
         checkClosedAndBind(false);
@@ -161,13 +124,10 @@ public class MulticastSocket extends DatagramSocket {
     }
 
     /**
-     * Gets the time-to-live (TTL) for multicast packets sent on this socket.
+     * Returns the time-to-live (TTL) for multicast packets sent on this socket.
      *
-     * @return the default value for the time-to-life field.
-     * @throws IOException
-     *                if an error occurs reading the default value.
+     * @throws IOException if an error occurs.
      * @deprecated Replaced by {@link #getTimeToLive}
-     * @see #getTimeToLive()
      */
     @Deprecated
     public byte getTTL() throws IOException {
@@ -182,8 +142,7 @@ public class MulticastSocket extends DatagramSocket {
      *
      * @param groupAddr
      *            the multicast group to be joined.
-     * @throws IOException
-     *                if an error occurs while joining a group.
+     * @throws IOException if an error occurs.
      */
     public void joinGroup(InetAddress groupAddr) throws IOException {
         checkJoinOrLeave(groupAddr);
@@ -204,7 +163,6 @@ public class MulticastSocket extends DatagramSocket {
      *                if the specified address is not a multicast address.
      * @throws IllegalArgumentException
      *                if no multicast group is specified.
-     * @since 1.4
      */
     public void joinGroup(SocketAddress groupAddress, NetworkInterface netInterface) throws IOException {
         checkJoinOrLeave(groupAddress, netInterface);
@@ -238,7 +196,6 @@ public class MulticastSocket extends DatagramSocket {
      *                if the specified group address is not a multicast address.
      * @throws IllegalArgumentException
      *                if {@code groupAddress} is {@code null}.
-     * @since 1.4
      */
     public void leaveGroup(SocketAddress groupAddress, NetworkInterface netInterface) throws IOException {
         checkJoinOrLeave(groupAddress, netInterface);
@@ -251,7 +208,7 @@ public class MulticastSocket extends DatagramSocket {
             throw new IllegalArgumentException("groupAddress == null");
         }
 
-        if ((netInterface != null) && (netInterface.getFirstAddress() == null)) {
+        if (netInterface != null && !netInterface.getInetAddresses().hasMoreElements()) {
             throw new SocketException("No address associated with interface: " + netInterface);
         }
 
@@ -278,182 +235,71 @@ public class MulticastSocket extends DatagramSocket {
     }
 
     /**
-     * Send the packet on this socket. The packet must satisfy the security
-     * policy before it may be sent.
+     * Sends the given {@code packet} on this socket, using the given {@code ttl}. This method is
+     * deprecated because it modifies the TTL socket option for this socket twice on each call.
      *
-     * @param pack
-     *            the {@code DatagramPacket} to send
-     * @param ttl
-     *            the TTL setting for this transmission, overriding the socket
-     *            default
-     * @throws IOException
-     *                if an error occurs while sending data or setting options.
+     * @throws IOException if an error occurs.
      * @deprecated use {@link #setTimeToLive}.
      */
     @Deprecated
-    public void send(DatagramPacket pack, byte ttl) throws IOException {
+    public void send(DatagramPacket packet, byte ttl) throws IOException {
         checkClosedAndBind(false);
-        InetAddress packAddr = pack.getAddress();
+        InetAddress packAddr = packet.getAddress();
         int currTTL = getTimeToLive();
         if (packAddr.isMulticastAddress() && (byte) currTTL != ttl) {
             try {
                 setTimeToLive(ttl & 0xff);
-                impl.send(pack);
+                impl.send(packet);
             } finally {
                 setTimeToLive(currTTL);
             }
         } else {
-            impl.send(pack);
+            impl.send(packet);
         }
     }
 
     /**
-     * Sets the interface address used by this socket. This allows to send
-     * multicast packets on a different interface than the default interface of
-     * the local system. This is useful on multihomed machines.
+     * Sets the outgoing network interface used by this socket. The interface used is the first
+     * interface found to have the given {@code address}. To avoid inherent unpredictability,
+     * new code should use {@link #getNetworkInterface} instead.
      *
-     * @param addr
-     *            the multicast interface network address to set.
-     * @throws SocketException
-     *                if an error occurs while setting the network interface
-     *                address option.
+     * @throws SocketException if an error occurs.
      */
-    public void setInterface(InetAddress addr) throws SocketException {
+    public void setInterface(InetAddress address) throws SocketException {
         checkClosedAndBind(false);
-        if (addr == null) {
-            throw new NullPointerException();
-        }
-        if (addr.isAnyLocalAddress()) {
-            impl.setOption(SocketOptions.IP_MULTICAST_IF, Inet4Address.ANY);
-        } else if (addr instanceof Inet4Address) {
-            impl.setOption(SocketOptions.IP_MULTICAST_IF, addr);
-            // keep the address used to do the set as we must return the same
-            // value and for IPv6 we may not be able to get it back uniquely
-            interfaceSet = addr;
+        if (address == null) {
+            throw new NullPointerException("address == null");
         }
 
-        /*
-         * now we should also make sure this works for IPv6 get the network
-         * interface for the address and set the interface using its index
-         * however if IPv6 is not enabled then we may get an exception. if IPv6
-         * is not enabled
-         */
-        NetworkInterface theInterface = NetworkInterface.getByInetAddress(addr);
-        if ((theInterface != null) && (theInterface.getIndex() != 0)) {
-            try {
-                impl.setOption(SocketOptions.IP_MULTICAST_IF2, Integer
-                        .valueOf(theInterface.getIndex()));
-            } catch (SocketException e) {
-                // Ignored
-            }
-        } else if (addr.isAnyLocalAddress()) {
-            try {
-                impl.setOption(SocketOptions.IP_MULTICAST_IF2, Integer
-                        .valueOf(0));
-            } catch (SocketException e) {
-                // Ignored
-            }
-        } else if (addr instanceof Inet6Address) {
-            throw new SocketException("Address not associated with an interface: " + addr);
+        NetworkInterface networkInterface = NetworkInterface.getByInetAddress(address);
+        if (networkInterface == null) {
+            throw new SocketException("Address not associated with an interface: " + address);
         }
+        impl.setOption(SocketOptions.IP_MULTICAST_IF2, networkInterface.getIndex());
+        this.setAddress = address;
     }
 
     /**
-     * Sets the network interface used by this socket. This is useful for
-     * multihomed machines.
+     * Sets the outgoing network interface used by this socket to the given
+     * {@code networkInterface}.
      *
-     * @param netInterface
-     *            the multicast network interface to set.
-     * @throws SocketException
-     *                if an error occurs while setting the network interface
-     *                option.
-     * @since 1.4
+     * @throws SocketException if an error occurs.
      */
-    public void setNetworkInterface(NetworkInterface netInterface) throws SocketException {
+    public void setNetworkInterface(NetworkInterface networkInterface) throws SocketException {
         checkClosedAndBind(false);
-
-        if (netInterface == null) {
-            // throw a socket exception indicating that we do not support this
-            throw new SocketException("netInterface == null");
+        if (networkInterface == null) {
+            throw new SocketException("networkInterface == null");
         }
 
-        InetAddress firstAddress = netInterface.getFirstAddress();
-        if (firstAddress == null) {
-            throw new SocketException("No address associated with interface: " + netInterface);
-        }
-
-        if (netInterface.getIndex() == UNSET_INTERFACE_INDEX) {
-            // set the address using IP_MULTICAST_IF to make sure this
-            // works for both IPv4 and IPv6
-            impl.setOption(SocketOptions.IP_MULTICAST_IF, Inet4Address.ANY);
-
-            try {
-                // we have the index so now we pass set the interface
-                // using IP_MULTICAST_IF2. This is what is used to set
-                // the interface on systems which support IPv6
-                impl.setOption(SocketOptions.IP_MULTICAST_IF2, Integer.valueOf(NO_INTERFACE_INDEX));
-            } catch (SocketException e) {
-                // for now just do this, -- could be narrowed?
-            }
-        }
-
-        /*
-         * Now try to set using IPv4 way. However, if interface passed in has no
-         * IP addresses associated with it then we cannot do it. first we have
-         * to make sure there is an IPv4 address that we can use to call set
-         * interface otherwise we will not set it
-         */
-        Enumeration<InetAddress> theAddresses = netInterface.getInetAddresses();
-        boolean found = false;
-        firstAddress = null;
-        while ((theAddresses.hasMoreElements()) && (found != true)) {
-            InetAddress theAddress = theAddresses.nextElement();
-            if (theAddress instanceof Inet4Address) {
-                firstAddress = theAddress;
-                found = true;
-            }
-        }
-        if (netInterface.getIndex() == NO_INTERFACE_INDEX) {
-            // the system does not support IPv6 and does not provide
-            // indexes for the network interfaces. Just pass in the
-            // first address for the network interface
-            if (firstAddress != null) {
-                impl.setOption(SocketOptions.IP_MULTICAST_IF, firstAddress);
-            } else {
-                /*
-                 * we should never get here as there should not be any network
-                 * interfaces which have no IPv4 address and which does not have
-                 * the network interface index not set correctly
-                 */
-                throw new SocketException("No address associated with interface: " + netInterface);
-            }
-        } else {
-            // set the address using IP_MULTICAST_IF to make sure this
-            // works for both IPv4 and IPv6
-            if (firstAddress != null) {
-                impl.setOption(SocketOptions.IP_MULTICAST_IF, firstAddress);
-            }
-
-            try {
-                // we have the index so now we pass set the interface
-                // using IP_MULTICAST_IF2. This is what is used to set
-                // the interface on systems which support IPv6
-                impl.setOption(SocketOptions.IP_MULTICAST_IF2, Integer
-                        .valueOf(netInterface.getIndex()));
-            } catch (SocketException e) {
-                // for now just do this -- could be narrowed?
-            }
-        }
-
-        interfaceSet = null;
+        impl.setOption(SocketOptions.IP_MULTICAST_IF2, networkInterface.getIndex());
+        this.setAddress = null;
     }
 
     /**
      * Sets the time-to-live (TTL) for multicast packets sent on this socket.
      * Valid TTL values are between 0 and 255 inclusive.
      *
-     * @throws IOException
-     *                if an error occurs while setting the TTL option value.
+     * @throws IOException if an error occurs.
      */
     public void setTimeToLive(int ttl) throws IOException {
         checkClosedAndBind(false);
@@ -467,10 +313,8 @@ public class MulticastSocket extends DatagramSocket {
      * Sets the time-to-live (TTL) for multicast packets sent on this socket.
      * Valid TTL values are between 0 and 255 inclusive.
      *
-     * @throws IOException
-     *                if an error occurs while setting the TTL option value.
+     * @throws IOException if an error occurs.
      * @deprecated Replaced by {@link #setTimeToLive}
-     * @see #setTimeToLive(int)
      */
     @Deprecated
     public void setTTL(byte ttl) throws IOException {
@@ -480,8 +324,7 @@ public class MulticastSocket extends DatagramSocket {
 
     @Override
     synchronized void createSocket(int aPort, InetAddress addr) throws SocketException {
-        impl = factory != null ? factory.createDatagramSocketImpl()
-                : new PlainDatagramSocketImpl();
+        impl = factory != null ? factory.createDatagramSocketImpl() : new PlainDatagramSocketImpl();
         impl.create();
         try {
             impl.setOption(SocketOptions.SO_REUSEADDR, Boolean.TRUE);
@@ -494,46 +337,23 @@ public class MulticastSocket extends DatagramSocket {
     }
 
     /**
-     * Constructs a {@code MulticastSocket} bound to the host/port specified by
-     * the {@code SocketAddress}, or an unbound {@code DatagramSocket} if the
-     * {@code SocketAddress} is {@code null}.
+     * Returns true if multicast loopback is <i>disabled</i>.
+     * See {@link SocketOptions#IP_MULTICAST_LOOP}, and note that the sense of this is the
+     * opposite of the underlying Unix {@code IP_MULTICAST_LOOP}.
      *
-     * @param localAddr
-     *            the local machine address and port to bind to.
-     * @throws IllegalArgumentException
-     *             if the {@code SocketAddress} is not supported.
-     * @throws IOException
-     *             if an error occurs creating or binding the socket.
-     * @since 1.4
-     */
-    public MulticastSocket(SocketAddress localAddr) throws IOException {
-        super(localAddr);
-        setReuseAddress(true);
-    }
-
-    /**
-     * Gets the state of the {@code SocketOptions.IP_MULTICAST_LOOP}.
-     *
-     * @return {@code true} if the IP multicast loop is enabled, {@code false}
-     *         otherwise.
-     * @throws SocketException
-     *             if the socket is closed or the option is invalid.
-     * @since 1.4
+     * @throws SocketException if an error occurs.
      */
     public boolean getLoopbackMode() throws SocketException {
         checkClosedAndBind(false);
-        return !((Boolean) impl.getOption(SocketOptions.IP_MULTICAST_LOOP))
-                .booleanValue();
+        return !((Boolean) impl.getOption(SocketOptions.IP_MULTICAST_LOOP)).booleanValue();
     }
 
     /**
-     * Sets the {@link SocketOptions#IP_MULTICAST_LOOP}.
+     * Disables multicast loopback if {@code disable == true}.
+     * See {@link SocketOptions#IP_MULTICAST_LOOP}, and note that the sense of this is the
+     * opposite of the underlying Unix {@code IP_MULTICAST_LOOP}.
      *
-     * @param disable
-     *            true to <i>disable</i> loopback
-     * @throws SocketException
-     *             if the socket is closed or the option is invalid.
-     * @since 1.4
+     * @throws SocketException if an error occurs.
      */
     public void setLoopbackMode(boolean disable) throws SocketException {
         checkClosedAndBind(false);

@@ -19,9 +19,7 @@ package java.security;
 
 
 /**
- * {@code AllPermission} represents the permission to perform any operation.
- * Since its {@link #implies(Permission)} method always returns {@code true},
- * granting this permission is equivalent to disabling security.
+ * Legacy security code; this class exists for compatibility only.
  */
 public final class AllPermission extends Permission {
 

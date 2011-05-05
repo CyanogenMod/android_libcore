@@ -62,8 +62,7 @@ final class ReadWriteDirectByteBuffer extends DirectByteBuffer {
 
     @Override
     public ByteBuffer compact() {
-        int addr = effectiveDirectAddress;
-        Memory.memmove(addr, addr + position, remaining());
+        Memory.memmove(this, 0, this, position, remaining());
         position = limit - position;
         limit = capacity;
         mark = UNSET_MARK;

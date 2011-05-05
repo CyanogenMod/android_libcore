@@ -16,11 +16,12 @@
 
 #define LOG_TAG "NativeDecimalFormat"
 
-#include "ErrorCode.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedPrimitiveArray.h"
+#include "ScopedStringChars.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 #include "cutils/log.h"
@@ -110,7 +111,7 @@ static jint NativeDecimalFormat_open(JNIEnv* env, jclass, jstring pattern0,
     if (fmt == NULL) {
         delete symbols;
     }
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(fmt));
 }
 
@@ -125,12 +126,14 @@ static void NativeDecimalFormat_setRoundingMode(JNIEnv*, jclass, jint addr, jint
 }
 
 static void NativeDecimalFormat_setSymbol(JNIEnv* env, jclass, jint addr, jint javaSymbol, jstring javaValue) {
-    ScopedJavaUnicodeString value(env, javaValue);
-    UnicodeString& s(value.unicodeString());
+    ScopedStringChars value(env, javaValue);
+    if (value.get() == NULL) {
+        return;
+    }
     UErrorCode status = U_ZERO_ERROR;
     UNumberFormatSymbol symbol = static_cast<UNumberFormatSymbol>(javaSymbol);
-    unum_setSymbol(toUNumberFormat(addr), symbol, s.getBuffer(), s.length(), &status);
-    icu4jni_error(env, status);
+    unum_setSymbol(toUNumberFormat(addr), symbol, value.get(), value.size(), &status);
+    maybeThrowIcuException(env, status);
 }
 
 static void NativeDecimalFormat_setAttribute(JNIEnv*, jclass, jint addr, jint javaAttr, jint value) {
@@ -144,12 +147,14 @@ static jint NativeDecimalFormat_getAttribute(JNIEnv*, jclass, jint addr, jint ja
 }
 
 static void NativeDecimalFormat_setTextAttribute(JNIEnv* env, jclass, jint addr, jint javaAttr, jstring javaValue) {
-    ScopedJavaUnicodeString value(env, javaValue);
-    UnicodeString& s(value.unicodeString());
+    ScopedStringChars value(env, javaValue);
+    if (value.get() == NULL) {
+        return;
+    }
     UErrorCode status = U_ZERO_ERROR;
     UNumberFormatTextAttribute attr = static_cast<UNumberFormatTextAttribute>(javaAttr);
-    unum_setTextAttribute(toUNumberFormat(addr), attr, s.getBuffer(), s.length(), &status);
-    icu4jni_error(env, status);
+    unum_setTextAttribute(toUNumberFormat(addr), attr, value.get(), value.size(), &status);
+    maybeThrowIcuException(env, status);
 }
 
 static jstring NativeDecimalFormat_getTextAttribute(JNIEnv* env, jclass, jint addr, jint javaAttr) {
@@ -168,7 +173,7 @@ static jstring NativeDecimalFormat_getTextAttribute(JNIEnv* env, jclass, jint ad
         chars.reset(new UChar[charCount]);
         charCount = unum_getTextAttribute(fmt, attr, chars.get(), charCount, &status);
     }
-    return icu4jni_error(env, status) ? NULL : env->NewString(chars.get(), charCount);
+    return maybeThrowIcuException(env, status) ? NULL : env->NewString(chars.get(), charCount);
 }
 
 static void NativeDecimalFormat_applyPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized, jstring pattern0) {
@@ -184,7 +189,7 @@ static void NativeDecimalFormat_applyPatternImpl(JNIEnv* env, jclass, jint addr,
     } else {
         fmt->applyPattern(pattern.unicodeString(), status);
     }
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
 }
 
 static jstring NativeDecimalFormat_toPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized) {

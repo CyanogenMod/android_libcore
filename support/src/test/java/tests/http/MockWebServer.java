@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -37,7 +38,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -138,7 +138,7 @@ public final class MockWebServer {
     }
 
     public void enqueue(MockResponse response) {
-        responseQueue.add(response);
+        responseQueue.add(response.clone());
     }
 
     /**
@@ -155,15 +155,26 @@ public final class MockWebServer {
     }
 
     /**
-     * Starts the server, serves all enqueued requests, and shuts the server
-     * down.
+     * Equivalent to {@code play(0)}.
      */
     public void play() throws IOException {
+        play(0);
+    }
+
+    /**
+     * Starts the server, serves all enqueued requests, and shuts the server
+     * down.
+     *
+     * @param port the port to listen to, or 0 for any available port.
+     *     Automated tests should always use port 0 to avoid flakiness when a
+     *     specific port is unavailable.
+     */
+    public void play(int port) throws IOException {
         executor = Executors.newCachedThreadPool();
-        serverSocket = new ServerSocket(0);
+        serverSocket = new ServerSocket(port);
         serverSocket.setReuseAddress(true);
 
-        port = serverSocket.getLocalPort();
+        this.port = serverSocket.getLocalPort();
         executor.execute(namedRunnable("MockWebServer-accept-" + port, new Runnable() {
             public void run() {
                 try {
@@ -347,13 +358,15 @@ public final class MockWebServer {
             }
         }
 
-        if (request.startsWith("GET ") || request.startsWith("CONNECT ")) {
+        if (request.startsWith("OPTIONS ") || request.startsWith("GET ")
+                || request.startsWith("HEAD ") || request.startsWith("DELETE ")
+                || request .startsWith("TRACE ") || request.startsWith("CONNECT ")) {
             if (hasBody) {
-                throw new IllegalArgumentException("GET requests should not have a body!");
+                throw new IllegalArgumentException("Request must not have a body: " + request);
             }
-        } else if (request.startsWith("POST ")) {
+        } else if (request.startsWith("POST ") || request.startsWith("PUT ")) {
             if (!hasBody) {
-                throw new IllegalArgumentException("POST requests must have a body!");
+                throw new IllegalArgumentException("Request must have a body: " + request);
             }
         } else {
             throw new UnsupportedOperationException("Unexpected method: " + request);
@@ -369,6 +382,13 @@ public final class MockWebServer {
     private MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         if (responseQueue.isEmpty()) {
             throw new IllegalStateException("Unexpected request: " + request);
+        }
+
+        // to permit interactive/browser testing, ignore requests for favicons
+        if (request.getRequestLine().equals("GET /favicon.ico HTTP/1.1")) {
+            System.out.println("served " + request.getRequestLine());
+            return new MockResponse()
+                        .setResponseCode(HttpURLConnection.HTTP_NOT_FOUND);
         }
 
         if (singleResponse) {

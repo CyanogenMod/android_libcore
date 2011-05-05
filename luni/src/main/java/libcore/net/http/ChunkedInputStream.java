@@ -31,8 +31,8 @@ final class ChunkedInputStream extends AbstractHttpInputStream {
     private boolean hasMoreChunks = true;
 
     ChunkedInputStream(InputStream is, CacheRequest cacheRequest,
-            HttpURLConnectionImpl httpURLConnection) throws IOException {
-        super(is, httpURLConnection, cacheRequest);
+            HttpEngine httpEngine) throws IOException {
+        super(is, httpEngine, cacheRequest);
     }
 
     @Override public int read(byte[] buffer, int offset, int count) throws IOException {
@@ -73,9 +73,9 @@ final class ChunkedInputStream extends AbstractHttpInputStream {
     private void readChunkSize() throws IOException {
         // read the suffix of the previous chunk
         if (bytesRemainingInChunk != NO_CHUNK_YET) {
-            HttpURLConnectionImpl.readLine(in);
+            HttpEngine.readLine(in);
         }
-        String chunkSizeString = HttpURLConnectionImpl.readLine(in);
+        String chunkSizeString = HttpEngine.readLine(in);
         int index = chunkSizeString.indexOf(";");
         if (index != -1) {
             chunkSizeString = chunkSizeString.substring(0, index);
@@ -87,7 +87,7 @@ final class ChunkedInputStream extends AbstractHttpInputStream {
         }
         if (bytesRemainingInChunk == 0) {
             hasMoreChunks = false;
-            httpURLConnection.readHeaders(); // actually trailers!
+            httpEngine.readTrailers();
             endOfInput(true);
         }
     }

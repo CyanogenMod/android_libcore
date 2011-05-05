@@ -18,10 +18,7 @@
 package java.security.acl;
 
 /**
- * The interface that represents a permission.
- * <p>
- * It can be granted or denied to a {@link java.security.Principal Principal}
- * using an {@link Acl}.
+ * Legacy security code; this class exists for compatibility only.
  */
 public interface Permission {
 

@@ -22,8 +22,11 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <net/if.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -42,12 +45,30 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "AF_INET6", AF_INET6);
     initConstant(env, c, "AF_UNIX", AF_UNIX);
     initConstant(env, c, "AF_UNSPEC", AF_UNSPEC);
+    initConstant(env, c, "AI_ADDRCONFIG", AI_ADDRCONFIG);
+    initConstant(env, c, "AI_ALL", AI_ALL);
+    initConstant(env, c, "AI_CANONNAME", AI_CANONNAME);
+    initConstant(env, c, "AI_NUMERICHOST", AI_NUMERICHOST);
+    initConstant(env, c, "AI_NUMERICSERV", AI_NUMERICSERV);
+    initConstant(env, c, "AI_PASSIVE", AI_PASSIVE);
+    initConstant(env, c, "AI_V4MAPPED", AI_V4MAPPED);
     initConstant(env, c, "E2BIG", E2BIG);
     initConstant(env, c, "EACCES", EACCES);
     initConstant(env, c, "EADDRINUSE", EADDRINUSE);
     initConstant(env, c, "EADDRNOTAVAIL", EADDRNOTAVAIL);
     initConstant(env, c, "EAFNOSUPPORT", EAFNOSUPPORT);
     initConstant(env, c, "EAGAIN", EAGAIN);
+    initConstant(env, c, "EAI_AGAIN", EAI_AGAIN);
+    initConstant(env, c, "EAI_BADFLAGS", EAI_BADFLAGS);
+    initConstant(env, c, "EAI_FAIL", EAI_FAIL);
+    initConstant(env, c, "EAI_FAMILY", EAI_FAMILY);
+    initConstant(env, c, "EAI_MEMORY", EAI_MEMORY);
+    initConstant(env, c, "EAI_NODATA", EAI_NODATA);
+    initConstant(env, c, "EAI_NONAME", EAI_NONAME);
+    initConstant(env, c, "EAI_OVERFLOW", EAI_OVERFLOW);
+    initConstant(env, c, "EAI_SERVICE", EAI_SERVICE);
+    initConstant(env, c, "EAI_SOCKTYPE", EAI_SOCKTYPE);
+    initConstant(env, c, "EAI_SYSTEM", EAI_SYSTEM);
     initConstant(env, c, "EALREADY", EALREADY);
     initConstant(env, c, "EBADF", EBADF);
     initConstant(env, c, "EBADMSG", EBADMSG);
@@ -142,6 +163,22 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "F_SETOWN", F_SETOWN);
     initConstant(env, c, "F_UNLCK", F_UNLCK);
     initConstant(env, c, "F_WRLCK", F_WRLCK);
+    initConstant(env, c, "IFF_ALLMULTI", IFF_ALLMULTI);
+    initConstant(env, c, "IFF_AUTOMEDIA", IFF_AUTOMEDIA);
+    initConstant(env, c, "IFF_BROADCAST", IFF_BROADCAST);
+    initConstant(env, c, "IFF_DEBUG", IFF_DEBUG);
+    initConstant(env, c, "IFF_DYNAMIC", IFF_DYNAMIC);
+    initConstant(env, c, "IFF_LOOPBACK", IFF_LOOPBACK);
+    initConstant(env, c, "IFF_MASTER", IFF_MASTER);
+    initConstant(env, c, "IFF_MULTICAST", IFF_MULTICAST);
+    initConstant(env, c, "IFF_NOARP", IFF_NOARP);
+    initConstant(env, c, "IFF_NOTRAILERS", IFF_NOTRAILERS);
+    initConstant(env, c, "IFF_POINTOPOINT", IFF_POINTOPOINT);
+    initConstant(env, c, "IFF_PORTSEL", IFF_PORTSEL);
+    initConstant(env, c, "IFF_PROMISC", IFF_PROMISC);
+    initConstant(env, c, "IFF_RUNNING", IFF_RUNNING);
+    initConstant(env, c, "IFF_SLAVE", IFF_SLAVE);
+    initConstant(env, c, "IFF_UP", IFF_UP);
     initConstant(env, c, "IPPROTO_ICMP", IPPROTO_ICMP);
     initConstant(env, c, "IPPROTO_IP", IPPROTO_IP);
     initConstant(env, c, "IPPROTO_IPV6", IPPROTO_IPV6);
@@ -183,6 +220,11 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "MS_ASYNC", MS_ASYNC);
     initConstant(env, c, "MS_INVALIDATE", MS_INVALIDATE);
     initConstant(env, c, "MS_SYNC", MS_SYNC);
+    initConstant(env, c, "NI_DGRAM", NI_DGRAM);
+    initConstant(env, c, "NI_NAMEREQD", NI_NAMEREQD);
+    initConstant(env, c, "NI_NOFQDN", NI_NOFQDN);
+    initConstant(env, c, "NI_NUMERICHOST", NI_NUMERICHOST);
+    initConstant(env, c, "NI_NUMERICSERV", NI_NUMERICSERV);
     initConstant(env, c, "O_ACCMODE", O_ACCMODE);
     initConstant(env, c, "O_APPEND", O_APPEND);
     initConstant(env, c, "O_CREAT", O_CREAT);
@@ -205,11 +247,49 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "SHUT_RD", SHUT_RD);
     initConstant(env, c, "SHUT_RDWR", SHUT_RDWR);
     initConstant(env, c, "SHUT_WR", SHUT_WR);
+    initConstant(env, c, "SIGABRT", SIGABRT);
+    initConstant(env, c, "SIGALRM", SIGALRM);
+    initConstant(env, c, "SIGBUS", SIGBUS);
+    initConstant(env, c, "SIGCHLD", SIGCHLD);
+    initConstant(env, c, "SIGCONT", SIGCONT);
+    initConstant(env, c, "SIGFPE", SIGFPE);
+    initConstant(env, c, "SIGHUP", SIGHUP);
+    initConstant(env, c, "SIGILL", SIGILL);
+    initConstant(env, c, "SIGINT", SIGINT);
+    initConstant(env, c, "SIGIO", SIGIO);
+    initConstant(env, c, "SIGKILL", SIGKILL);
+    initConstant(env, c, "SIGPIPE", SIGPIPE);
+    initConstant(env, c, "SIGPROF", SIGPROF);
+    initConstant(env, c, "SIGPWR", SIGPWR);
+    initConstant(env, c, "SIGQUIT", SIGQUIT);
+    initConstant(env, c, "SIGRTMAX", SIGRTMAX);
+    initConstant(env, c, "SIGRTMIN", SIGRTMIN);
+    initConstant(env, c, "SIGSEGV", SIGSEGV);
+    initConstant(env, c, "SIGSTKFLT", SIGSTKFLT);
+    initConstant(env, c, "SIGSTOP", SIGSTOP);
+    initConstant(env, c, "SIGSYS", SIGSYS);
+    initConstant(env, c, "SIGTERM", SIGTERM);
+    initConstant(env, c, "SIGTRAP", SIGTRAP);
+    initConstant(env, c, "SIGTSTP", SIGTSTP);
+    initConstant(env, c, "SIGTTIN", SIGTTIN);
+    initConstant(env, c, "SIGTTOU", SIGTTOU);
+    initConstant(env, c, "SIGURG", SIGURG);
+    initConstant(env, c, "SIGUSR1", SIGUSR1);
+    initConstant(env, c, "SIGUSR2", SIGUSR2);
+    initConstant(env, c, "SIGVTALRM", SIGVTALRM);
+    initConstant(env, c, "SIGWINCH", SIGWINCH);
+    initConstant(env, c, "SIGXCPU", SIGXCPU);
+    initConstant(env, c, "SIGXFSZ", SIGXFSZ);
+    initConstant(env, c, "SIOCGIFADDR", SIOCGIFADDR);
+    initConstant(env, c, "SIOCGIFBRDADDR", SIOCGIFBRDADDR);
+    initConstant(env, c, "SIOCGIFDSTADDR", SIOCGIFDSTADDR);
+    initConstant(env, c, "SIOCGIFNETMASK", SIOCGIFNETMASK);
     initConstant(env, c, "SOCK_DGRAM", SOCK_DGRAM);
     initConstant(env, c, "SOCK_RAW", SOCK_RAW);
     initConstant(env, c, "SOCK_SEQPACKET", SOCK_SEQPACKET);
     initConstant(env, c, "SOCK_STREAM", SOCK_STREAM);
     initConstant(env, c, "SOL_SOCKET", SOL_SOCKET);
+    initConstant(env, c, "SO_BINDTODEVICE", SO_BINDTODEVICE);
     initConstant(env, c, "SO_BROADCAST", SO_BROADCAST);
     initConstant(env, c, "SO_DEBUG", SO_DEBUG);
     initConstant(env, c, "SO_DONTROUTE", SO_DONTROUTE);

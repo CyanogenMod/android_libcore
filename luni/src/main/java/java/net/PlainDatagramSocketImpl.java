@@ -24,12 +24,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocketImpl;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.MulticastGroupRequest;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import libcore.io.IoUtils;
+import libcore.io.StructGroupReq;
 import libcore.util.EmptyArray;
 import org.apache.harmony.luni.platform.Platform;
 
@@ -108,7 +108,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public int getTimeToLive() throws IOException {
-        return (Integer) getOption(IoUtils.IP_MULTICAST_TTL);
+        return (Integer) getOption(IoUtils.JAVA_IP_MULTICAST_TTL);
     }
 
     @Override
@@ -116,29 +116,34 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         return (byte) getTimeToLive();
     }
 
+    private static StructGroupReq makeGroupReq(InetAddress gr_group, NetworkInterface networkInterface) {
+        int gr_interface = (networkInterface != null) ? networkInterface.getIndex() : 0;
+        return new StructGroupReq(gr_interface, gr_group);
+    }
+
     @Override
     public void join(InetAddress addr) throws IOException {
-        setOption(IoUtils.MCAST_JOIN_GROUP, new MulticastGroupRequest(addr, null));
+        setOption(IoUtils.JAVA_MCAST_JOIN_GROUP, makeGroupReq(addr, null));
     }
 
     @Override
     public void joinGroup(SocketAddress addr, NetworkInterface netInterface) throws IOException {
         if (addr instanceof InetSocketAddress) {
             InetAddress groupAddr = ((InetSocketAddress) addr).getAddress();
-            setOption(IoUtils.MCAST_JOIN_GROUP, new MulticastGroupRequest(groupAddr, netInterface));
+            setOption(IoUtils.JAVA_MCAST_JOIN_GROUP, makeGroupReq(groupAddr, netInterface));
         }
     }
 
     @Override
     public void leave(InetAddress addr) throws IOException {
-        setOption(IoUtils.MCAST_LEAVE_GROUP, new MulticastGroupRequest(addr, null));
+        setOption(IoUtils.JAVA_MCAST_LEAVE_GROUP, makeGroupReq(addr, null));
     }
 
     @Override
     public void leaveGroup(SocketAddress addr, NetworkInterface netInterface) throws IOException {
         if (addr instanceof InetSocketAddress) {
             InetAddress groupAddr = ((InetSocketAddress) addr).getAddress();
-            setOption(IoUtils.MCAST_LEAVE_GROUP, new MulticastGroupRequest(groupAddr, netInterface));
+            setOption(IoUtils.JAVA_MCAST_LEAVE_GROUP, makeGroupReq(groupAddr, netInterface));
         }
     }
 
@@ -179,13 +184,13 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
                               port, address);
     }
 
-    public void setOption(int optID, Object val) throws SocketException {
-        Platform.NETWORK.setSocketOption(fd, optID, val);
+    public void setOption(int option, Object value) throws SocketException {
+        IoUtils.setSocketOption(fd, option, value);
     }
 
     @Override
     public void setTimeToLive(int ttl) throws IOException {
-        setOption(IoUtils.IP_MULTICAST_TTL, Integer.valueOf(ttl));
+        setOption(IoUtils.JAVA_IP_MULTICAST_TTL, Integer.valueOf(ttl));
     }
 
     @Override
@@ -195,9 +200,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void connect(InetAddress inetAddr, int port) throws SocketException {
-        Platform.NETWORK.connect(fd, inetAddr, port, 0);
-
-        // if we get here then we are connected at the native level
+        IoUtils.connect(fd, inetAddr, port); // Throws on failure.
         try {
             connectedAddress = InetAddress.getByAddress(inetAddr.getAddress());
         } catch (UnknownHostException e) {

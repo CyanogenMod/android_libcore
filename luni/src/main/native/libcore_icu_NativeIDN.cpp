@@ -16,10 +16,9 @@
 
 #define LOG_TAG "NativeIDN"
 
-#include "ErrorCode.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
-#include "ScopedJavaUnicodeString.h"
+#include "ScopedStringChars.h"
 #include "unicode/uidna.h"
 
 static bool isLabelSeparator(const UChar ch) {
@@ -33,15 +32,16 @@ static bool isLabelSeparator(const UChar ch) {
     }
 }
 
-static jstring NativeIDN_convertImpl(JNIEnv* env, jclass, jstring s, jint flags, jboolean toAscii) {
-    ScopedJavaUnicodeString sus(env, s);
-    const UChar* src = sus.unicodeString().getBuffer();
-    const size_t srcLength = sus.unicodeString().length();
+static jstring NativeIDN_convertImpl(JNIEnv* env, jclass, jstring javaSrc, jint flags, jboolean toAscii) {
+    ScopedStringChars src(env, javaSrc);
+    if (src.get() == NULL) {
+        return NULL;
+    }
     UChar dst[256];
     UErrorCode status = U_ZERO_ERROR;
     size_t resultLength = toAscii
-            ? uidna_IDNToASCII(src, srcLength, &dst[0], sizeof(dst), flags, NULL, &status)
-            : uidna_IDNToUnicode(src, srcLength, &dst[0], sizeof(dst), flags, NULL, &status);
+        ? uidna_IDNToASCII(src.get(), src.size(), &dst[0], sizeof(dst), flags, NULL, &status)
+        : uidna_IDNToUnicode(src.get(), src.size(), &dst[0], sizeof(dst), flags, NULL, &status);
     if (U_FAILURE(status)) {
         jniThrowException(env, "java/lang/IllegalArgumentException", u_errorName(status));
         return NULL;

@@ -30,17 +30,13 @@ public class MalformedURLException extends IOException {
     private static final long serialVersionUID = -182787522200415866L;
 
     /**
-     * Constructs a new instance of this class with its walkback filled in.
+     * Constructs a new instance with the current stack trace.
      */
     public MalformedURLException() {
     }
 
     /**
-     * Constructs a new instance of this class with its walkback and message
-     * filled in.
-     *
-     * @param detailMessage
-     *            the detail message for this exception instance.
+     * Constructs a new instance with the current stack trace and given detail message.
      */
     public MalformedURLException(String detailMessage) {
         super(detailMessage);

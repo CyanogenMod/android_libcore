@@ -35,7 +35,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import junit.framework.TestCase;
 
-public class KeyStoreTest extends TestCase {
+public abstract class KeyStoreTest extends TestCase {
 
     private final String algorithmName;
     private final byte[] keyStoreData;

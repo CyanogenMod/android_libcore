@@ -15,17 +15,7 @@
  */
 
 #include "jni.h"
-
 #include <sys/socket.h>
-
-// Convert from byte[] to InetAddress.
-jobject byteArrayToInetAddress(JNIEnv* env, jbyteArray byteArray);
-
-// Convert from byte[] to sockaddr_storage.
-bool byteArrayToSocketAddress(JNIEnv* env, jclass, jbyteArray byteArray, int port, sockaddr_storage* ss);
-
-// Convert from sockaddr_storage to byte[].
-jbyteArray socketAddressToByteArray(JNIEnv* env, const sockaddr_storage* ss);
 
 // Convert from sockaddr_storage to InetAddress.
 jobject socketAddressToInetAddress(JNIEnv* env, const sockaddr_storage* ss);
@@ -34,5 +24,7 @@ jobject socketAddressToInetAddress(JNIEnv* env, const sockaddr_storage* ss);
 bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss);
 
 
+
 // Changes 'fd' to be blocking/non-blocking. Returns false and sets errno on failure.
+// @Deprecated - use IoUtils.setBlocking
 bool setBlocking(int fd, bool blocking);

@@ -19,9 +19,9 @@
 #include <map>
 #include <vector>
 
-#include "ErrorCode.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
@@ -43,16 +43,14 @@ static jobjectArray TimeZones_forCountryCode(JNIEnv* env, jclass, jstring countr
     }
     UErrorCode status = U_ZERO_ERROR;
     int32_t idCount = ids->count(status);
-    if (U_FAILURE(status)) {
-        icu4jni_error(env, status);
+    if (maybeThrowIcuException(env, status)) {
         return NULL;
     }
 
     jobjectArray result = env->NewObjectArray(idCount, JniConstants::stringClass, NULL);
     for (int32_t i = 0; i < idCount; ++i) {
         const UnicodeString* id = ids->snext(status);
-        if (U_FAILURE(status)) {
-            icu4jni_error(env, status);
+        if (maybeThrowIcuException(env, status)) {
             return NULL;
         }
         ScopedLocalRef<jstring> idString(env, env->NewString(id->getBuffer(), id->length()));

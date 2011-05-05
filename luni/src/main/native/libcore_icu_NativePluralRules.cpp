@@ -16,9 +16,9 @@
 
 #define LOG_TAG "NativePluralRules"
 
-#include "ErrorCode.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "JniException.h"
 #include "ScopedUtfChars.h"
 #include "unicode/plurrule.h"
 
@@ -34,7 +34,7 @@ static jint NativePluralRules_forLocaleImpl(JNIEnv* env, jclass, jstring localeN
     Locale locale = Locale::createFromName(ScopedUtfChars(env, localeName).c_str());
     UErrorCode status = U_ZERO_ERROR;
     PluralRules* result = PluralRules::forLocale(locale, status);
-    icu4jni_error(env, status);
+    maybeThrowIcuException(env, status);
     return reinterpret_cast<uintptr_t>(result);
 }
 

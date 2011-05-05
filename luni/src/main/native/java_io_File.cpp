@@ -20,7 +20,6 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
-#include "ScopedFd.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
 #include "readlink.h"

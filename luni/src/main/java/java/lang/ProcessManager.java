@@ -28,7 +28,10 @@ import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
+import libcore.io.Libcore;
+import static libcore.io.OsConstants.*;
 
 /**
  * Manages child processes.
@@ -54,14 +57,6 @@ final class ProcessManager {
     private static final int WAIT_STATUS_STRANGE_ERRNO = -3;
 
     /**
-     * Initializes native static state.
-     */
-    static native void staticInitialize();
-    static {
-        staticInitialize();
-    }
-
-    /**
      * Map from pid to Process. We keep weak references to the Process objects
      * and clean up the entries when no more external references are left. The
      * process objects themselves don't require much memory, but file
@@ -77,9 +72,8 @@ final class ProcessManager {
     private ProcessManager() {
         // Spawn a thread to listen for signals from child processes.
         Thread processThread = new Thread(ProcessManager.class.getName()) {
-            @Override
-            public void run() {
-                watchChildren();
+            @Override public void run() {
+                watchChildren(ProcessManager.this);
             }
         };
         processThread.setDaemon(true);
@@ -87,17 +81,10 @@ final class ProcessManager {
     }
 
     /**
-     * Kills the process with the given ID.
-     *
-     * @parm pid ID of process to kill
-     */
-    private static native void kill(int pid) throws IOException;
-
-    /**
      * Cleans up after garbage collected processes. Requires the lock on the
      * map.
      */
-    void cleanUp() {
+    private void cleanUp() {
         ProcessReference reference;
         while ((reference = referenceQueue.poll()) != null) {
             synchronized (processReferences) {
@@ -110,7 +97,7 @@ final class ProcessManager {
      * Listens for signals from processes and calls back to
      * {@link #onExit(int,int)}.
      */
-    native void watchChildren();
+    private static native void watchChildren(ProcessManager manager);
 
     /**
      * Called by {@link #watchChildren()} when a child process exits.
@@ -118,7 +105,7 @@ final class ProcessManager {
      * @param pid ID of process that exited
      * @param exitValue value the process returned upon exit
      */
-    void onExit(int pid, int exitValue) {
+    private void onExit(int pid, int exitValue) {
         ProcessReference processReference = null;
 
         synchronized (processReferences) {
@@ -164,14 +151,14 @@ final class ProcessManager {
      * Executes a native process. Fills in in, out, and err and returns the
      * new process ID upon success.
      */
-    static native int exec(String[] command, String[] environment,
+    private static native int exec(String[] command, String[] environment,
             String workingDirectory, FileDescriptor in, FileDescriptor out,
             FileDescriptor err, boolean redirectErrorStream) throws IOException;
 
     /**
      * Executes a process and returns an object representing it.
      */
-    Process exec(String[] taintedCommand, String[] taintedEnvironment, File workingDirectory,
+    public Process exec(String[] taintedCommand, String[] taintedEnvironment, File workingDirectory,
             boolean redirectErrorStream) throws IOException {
         // Make sure we throw the same exceptions as the RI.
         if (taintedCommand == null) {
@@ -223,8 +210,7 @@ final class ProcessManager {
                 throw wrapper;
             }
             ProcessImpl process = new ProcessImpl(pid, in, out, err);
-            ProcessReference processReference
-                    = new ProcessReference(process, referenceQueue);
+            ProcessReference processReference = new ProcessReference(process, referenceQueue);
             processReferences.put(pid, processReference);
 
             /*
@@ -238,25 +224,22 @@ final class ProcessManager {
     }
 
     static class ProcessImpl extends Process {
+        private final int pid;
 
-        /** Process ID. */
-        final int id;
-
-        final InputStream errorStream;
+        private final InputStream errorStream;
 
         /** Reads output from process. */
-        final InputStream inputStream;
+        private final InputStream inputStream;
 
         /** Sends output to process. */
-        final OutputStream outputStream;
+        private final OutputStream outputStream;
 
         /** The process's exit value. */
-        Integer exitValue = null;
-        final Object exitValueMutex = new Object();
+        private Integer exitValue = null;
+        private final Object exitValueMutex = new Object();
 
-        ProcessImpl(int id, FileDescriptor in, FileDescriptor out,
-                FileDescriptor err) {
-            this.id = id;
+        ProcessImpl(int pid, FileDescriptor in, FileDescriptor out, FileDescriptor err) {
+            this.pid = pid;
 
             this.errorStream = new ProcessInputStream(err);
             this.inputStream = new ProcessInputStream(in);
@@ -265,9 +248,9 @@ final class ProcessManager {
 
         public void destroy() {
             try {
-                kill(this.id);
-            } catch (IOException e) {
-                System.logI("Failed to destroy process " + id, e);
+                Libcore.os.kill(pid, SIGKILL);
+            } catch (ErrnoException e) {
+                System.logI("Failed to destroy process " + pid, e);
             }
             IoUtils.closeQuietly(inputStream);
             IoUtils.closeQuietly(errorStream);
@@ -315,7 +298,7 @@ final class ProcessManager {
 
         @Override
         public String toString() {
-            return "Process[id=" + id + "]";
+            return "Process[pid=" + pid + "]";
         }
     }
 
@@ -323,10 +306,9 @@ final class ProcessManager {
 
         final int processId;
 
-        public ProcessReference(ProcessImpl referent,
-                ProcessReferenceQueue referenceQueue) {
+        public ProcessReference(ProcessImpl referent, ProcessReferenceQueue referenceQueue) {
             super(referent, referenceQueue);
-            this.processId = referent.id;
+            this.processId = referent.pid;
         }
     }
 
@@ -340,10 +322,10 @@ final class ProcessManager {
         }
     }
 
-    static final ProcessManager instance = new ProcessManager();
+    private static final ProcessManager instance = new ProcessManager();
 
     /** Gets the process manager. */
-    static ProcessManager getInstance() {
+    public static ProcessManager getInstance() {
         return instance;
     }
 

@@ -25,21 +25,9 @@ package java.net;
  */
 public class InterfaceAddress {
     /**
-     * The kernel's interface index for the network interface this address
-     * is currently assigned to. Values start at 1, because 0 means "unknown"
-     * or "any", depending on context.
-     */
-    final int index;
-
-    /**
-     * The network interface's name. "lo" or "eth0", for example.
-     */
-    final String name;
-
-    /**
      * An IPv4 or IPv6 address.
      */
-    final InetAddress address;
+    private final InetAddress address;
 
     /**
      * The IPv4 broadcast address, or null for IPv6.
@@ -48,31 +36,25 @@ public class InterfaceAddress {
 
     private final short prefixLength;
 
-    InterfaceAddress(int index, String name, InetAddress address, InetAddress mask) {
-        assert ((address instanceof Inet4Address) == (mask instanceof Inet4Address));
-        this.index = index;
-        this.name = name;
+    /**
+     * For IPv4.
+     */
+    InterfaceAddress(Inet4Address address, Inet4Address broadcastAddress, Inet4Address mask) {
         this.address = address;
-        this.broadcastAddress = makeBroadcastAddress(address, mask);
+        this.broadcastAddress = broadcastAddress;
         this.prefixLength = countPrefixLength(mask);
     }
 
-    private static InetAddress makeBroadcastAddress(InetAddress address, InetAddress mask) {
-        if (!(address instanceof Inet4Address)) {
-            return null;
-        }
-        byte[] broadcast = new byte[4];
-        byte[] maskBytes = mask.ipaddress;
-        byte[] addrBytes = address.ipaddress;
-        if (maskBytes[0] != 0) {
-            for (int i = 0; i < broadcast.length; ++i) {
-                broadcast[i] = (byte) (addrBytes[i] | ~maskBytes[i]);
-            }
-        }
-        return new Inet4Address(broadcast, null);
+    /**
+     * For IPv6.
+     */
+    InterfaceAddress(Inet6Address address, short prefixLength) {
+        this.address = address;
+        this.broadcastAddress = null;
+        this.prefixLength = prefixLength;
     }
 
-    private static short countPrefixLength(InetAddress mask) {
+    private static short countPrefixLength(Inet4Address mask) {
         short count = 0;
         for (byte b : mask.ipaddress) {
             for (int i = 0; i < 8; ++i) {

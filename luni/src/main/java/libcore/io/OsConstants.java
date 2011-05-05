@@ -39,12 +39,30 @@ public final class OsConstants {
     public static final int AF_INET6 = placeholder();
     public static final int AF_UNIX = placeholder();
     public static final int AF_UNSPEC = placeholder();
+    public static final int AI_ADDRCONFIG = placeholder();
+    public static final int AI_ALL = placeholder();
+    public static final int AI_CANONNAME = placeholder();
+    public static final int AI_NUMERICHOST = placeholder();
+    public static final int AI_NUMERICSERV = placeholder();
+    public static final int AI_PASSIVE = placeholder();
+    public static final int AI_V4MAPPED = placeholder();
     public static final int E2BIG = placeholder();
     public static final int EACCES = placeholder();
     public static final int EADDRINUSE = placeholder();
     public static final int EADDRNOTAVAIL = placeholder();
     public static final int EAFNOSUPPORT = placeholder();
     public static final int EAGAIN = placeholder();
+    public static final int EAI_AGAIN = placeholder();
+    public static final int EAI_BADFLAGS = placeholder();
+    public static final int EAI_FAIL = placeholder();
+    public static final int EAI_FAMILY = placeholder();
+    public static final int EAI_MEMORY = placeholder();
+    public static final int EAI_NODATA = placeholder();
+    public static final int EAI_NONAME = placeholder();
+    public static final int EAI_OVERFLOW = placeholder();
+    public static final int EAI_SERVICE = placeholder();
+    public static final int EAI_SOCKTYPE = placeholder();
+    public static final int EAI_SYSTEM = placeholder();
     public static final int EALREADY = placeholder();
     public static final int EBADF = placeholder();
     public static final int EBADMSG = placeholder();
@@ -139,6 +157,22 @@ public final class OsConstants {
     public static final int F_SETOWN = placeholder();
     public static final int F_UNLCK = placeholder();
     public static final int F_WRLCK = placeholder();
+    public static final int IFF_ALLMULTI = placeholder();
+    public static final int IFF_AUTOMEDIA = placeholder();
+    public static final int IFF_BROADCAST = placeholder();
+    public static final int IFF_DEBUG = placeholder();
+    public static final int IFF_DYNAMIC = placeholder();
+    public static final int IFF_LOOPBACK = placeholder();
+    public static final int IFF_MASTER = placeholder();
+    public static final int IFF_MULTICAST = placeholder();
+    public static final int IFF_NOARP = placeholder();
+    public static final int IFF_NOTRAILERS = placeholder();
+    public static final int IFF_POINTOPOINT = placeholder();
+    public static final int IFF_PORTSEL = placeholder();
+    public static final int IFF_PROMISC = placeholder();
+    public static final int IFF_RUNNING = placeholder();
+    public static final int IFF_SLAVE = placeholder();
+    public static final int IFF_UP = placeholder();
     public static final int IPPROTO_ICMP = placeholder();
     public static final int IPPROTO_IP = placeholder();
     public static final int IPPROTO_IPV6 = placeholder();
@@ -180,6 +214,11 @@ public final class OsConstants {
     public static final int MS_ASYNC = placeholder();
     public static final int MS_INVALIDATE = placeholder();
     public static final int MS_SYNC = placeholder();
+    public static final int NI_DGRAM = placeholder();
+    public static final int NI_NAMEREQD = placeholder();
+    public static final int NI_NOFQDN = placeholder();
+    public static final int NI_NUMERICHOST = placeholder();
+    public static final int NI_NUMERICSERV = placeholder();
     public static final int O_ACCMODE = placeholder();
     public static final int O_APPEND = placeholder();
     public static final int O_CREAT = placeholder();
@@ -202,11 +241,49 @@ public final class OsConstants {
     public static final int SHUT_RD = placeholder();
     public static final int SHUT_RDWR = placeholder();
     public static final int SHUT_WR = placeholder();
+    public static final int SIGABRT = placeholder();
+    public static final int SIGALRM = placeholder();
+    public static final int SIGBUS = placeholder();
+    public static final int SIGCHLD = placeholder();
+    public static final int SIGCONT = placeholder();
+    public static final int SIGFPE = placeholder();
+    public static final int SIGHUP = placeholder();
+    public static final int SIGILL = placeholder();
+    public static final int SIGINT = placeholder();
+    public static final int SIGIO = placeholder();
+    public static final int SIGKILL = placeholder();
+    public static final int SIGPIPE = placeholder();
+    public static final int SIGPROF = placeholder();
+    public static final int SIGPWR = placeholder();
+    public static final int SIGQUIT = placeholder();
+    public static final int SIGRTMAX = placeholder();
+    public static final int SIGRTMIN = placeholder();
+    public static final int SIGSEGV = placeholder();
+    public static final int SIGSTKFLT = placeholder();
+    public static final int SIGSTOP = placeholder();
+    public static final int SIGSYS = placeholder();
+    public static final int SIGTERM = placeholder();
+    public static final int SIGTRAP = placeholder();
+    public static final int SIGTSTP = placeholder();
+    public static final int SIGTTIN = placeholder();
+    public static final int SIGTTOU = placeholder();
+    public static final int SIGURG = placeholder();
+    public static final int SIGUSR1 = placeholder();
+    public static final int SIGUSR2 = placeholder();
+    public static final int SIGVTALRM = placeholder();
+    public static final int SIGWINCH = placeholder();
+    public static final int SIGXCPU = placeholder();
+    public static final int SIGXFSZ = placeholder();
+    public static final int SIOCGIFADDR = placeholder();
+    public static final int SIOCGIFBRDADDR = placeholder();
+    public static final int SIOCGIFDSTADDR = placeholder();
+    public static final int SIOCGIFNETMASK = placeholder();
     public static final int SOCK_DGRAM = placeholder();
     public static final int SOCK_RAW = placeholder();
     public static final int SOCK_SEQPACKET = placeholder();
     public static final int SOCK_STREAM = placeholder();
     public static final int SOL_SOCKET = placeholder();
+    public static final int SO_BINDTODEVICE = placeholder();
     public static final int SO_BROADCAST = placeholder();
     public static final int SO_DEBUG = placeholder();
     public static final int SO_DONTROUTE = placeholder();
@@ -347,6 +424,43 @@ public final class OsConstants {
     public static final int _SC_XOPEN_UNIX = placeholder();
     public static final int _SC_XOPEN_VERSION = placeholder();
     public static final int _SC_XOPEN_XCU_VERSION = placeholder();
+
+    public static String gaiName(int error) {
+        if (error == EAI_AGAIN) {
+            return "EAI_AGAIN";
+        }
+        if (error == EAI_BADFLAGS) {
+            return "EAI_BADFLAGS";
+        }
+        if (error == EAI_FAIL) {
+            return "EAI_FAIL";
+        }
+        if (error == EAI_FAMILY) {
+            return "EAI_FAMILY";
+        }
+        if (error == EAI_MEMORY) {
+            return "EAI_MEMORY";
+        }
+        if (error == EAI_NODATA) {
+            return "EAI_NODATA";
+        }
+        if (error == EAI_NONAME) {
+            return "EAI_NONAME";
+        }
+        if (error == EAI_OVERFLOW) {
+            return "EAI_OVERFLOW";
+        }
+        if (error == EAI_SERVICE) {
+            return "EAI_SERVICE";
+        }
+        if (error == EAI_SOCKTYPE) {
+            return "EAI_SOCKTYPE";
+        }
+        if (error == EAI_SYSTEM) {
+            return "EAI_SYSTEM";
+        }
+        return null;
+    }
 
     public static String errnoName(int errno) {
         if (errno == E2BIG) {

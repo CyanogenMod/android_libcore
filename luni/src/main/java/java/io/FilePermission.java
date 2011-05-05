@@ -24,26 +24,7 @@ import java.util.Locale;
 import libcore.util.Objects;
 
 /**
- * A permission for accessing a file or directory. The FilePermission is made up
- * of a pathname and a set of actions which are valid for the pathname.
- * <p>
- * The {@code File.separatorChar} must be used in all pathnames when
- * constructing a FilePermission. The following descriptions will assume the
- * char is {@code /}. A pathname that ends in {@code /*} includes all the files
- * and directories contained in that directory. If the pathname
- * ends in {@code /-}, it includes all the files and directories in that
- * directory <i>recursively</i>. The following pathnames have a special meaning:
- * <ul>
- *   <li>
- *     "*": all files in the current directory;
- *   </li>
- *   <li>
- *     "-": recursively all files and directories in the current directory;
- *   </li>
- *   <li>
- *     "&lt;&lt;ALL FILES&gt;&gt;": any file and directory in the file system.
- *   </li>
- * </ul>
+ * Legacy security code; this class exists for compatibility only.
  */
 public final class FilePermission extends Permission implements Serializable {
 
@@ -52,9 +33,7 @@ public final class FilePermission extends Permission implements Serializable {
     // canonical path of this permission
     private transient String canonPath;
 
-    // list of actions permitted for socket permission in order
-    private static final String[] actionList = { "read", "write", "execute",
-            "delete" };
+    private static final String[] actionList = { "read", "write", "execute", "delete" };
 
     // "canonicalized" action list
     private String actions;

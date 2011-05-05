@@ -31,16 +31,6 @@
 #include "JniConstants.h"
 #include "utils/Log.h"
 
-/** Environment variables. */
-extern char **environ;
-
-static jmethodID onExitMethod = NULL;
-
-#ifdef ANDROID
-// Keeps track of the system properties fd so we don't close it.
-static int androidSystemPropertiesFd = -1;
-#endif
-
 /*
  * These are constants shared with the higher level code in
  * ProcessManager.java.
@@ -50,28 +40,17 @@ static int androidSystemPropertiesFd = -1;
 #define WAIT_STATUS_STRANGE_ERRNO (-3) // observed an undocumented errno
 
 /**
- * Kills process with the given ID.
- */
-static void ProcessManager_kill(JNIEnv* env, jclass, jint pid) {
-    int result = kill((pid_t) pid, SIGKILL);
-    if (result == -1) {
-        jniThrowIOException(env, errno);
-    }
-}
-
-/**
  * Loops indefinitely and calls ProcessManager.onExit() when children exit.
  */
-static void ProcessManager_watchChildren(JNIEnv* env, jobject o) {
+static void ProcessManager_watchChildren(JNIEnv* env, jclass processManagerClass, jobject processManager) {
+    static jmethodID onExitMethod = env->GetMethodID(processManagerClass, "onExit", "(II)V");
     if (onExitMethod == NULL) {
-        jniThrowException(env, "java/lang/IllegalStateException",
-                "staticInitialize() must run first.");
+        return;
     }
 
-    while (1) {
+    while (true) {
+        // Wait for children in our process group.
         int status;
-
-        /* wait for children in our process group */
         pid_t pid = waitpid(0, &status, 0);
 
         if (pid >= 0) {
@@ -116,15 +95,14 @@ static void ProcessManager_watchChildren(JNIEnv* env, jobject o) {
                      * wait() other than the two that are handled
                      * immediately above.
                      */
-                    LOGE("Error %d calling wait(): %s", errno,
-                            strerror(errno));
+                    LOGE("Error %d calling wait(): %s", errno, strerror(errno));
                     status = WAIT_STATUS_STRANGE_ERRNO;
                     break;
                 }
             }
         }
 
-        env->CallVoidMethod(o, onExitMethod, pid, status);
+        env->CallVoidMethod(processManager, onExitMethod, pid, status);
         if (env->ExceptionOccurred()) {
             /*
              * The callback threw, so break out of the loop and return,
@@ -136,17 +114,13 @@ static void ProcessManager_watchChildren(JNIEnv* env, jobject o) {
 }
 
 /** Close all open fds > 2 (i.e. everything but stdin/out/err), != skipFd. */
-static void closeNonStandardFds(int skipFd) {
+static void closeNonStandardFds(int skipFd1, int skipFd2) {
     // TODO: rather than close all these non-open files, we could look in /proc/self/fd.
     rlimit rlimit;
     getrlimit(RLIMIT_NOFILE, &rlimit);
     const int max_fd = rlimit.rlim_max;
     for (int fd = 3; fd < max_fd; ++fd) {
-        if (fd != skipFd
-#ifdef ANDROID
-                && fd != androidSystemPropertiesFd
-#endif
-                ) {
+        if (fd != skipFd1 && fd != skipFd2) {
             close(fd);
         }
     }
@@ -156,8 +130,7 @@ static void closeNonStandardFds(int skipFd) {
 
 /** Closes all pipes in the given array. */
 static void closePipes(int pipes[], int skipFd) {
-    int i;
-    for (i = 0; i < PIPE_COUNT * 2; i++) {
+    for (int i = 0; i < PIPE_COUNT * 2; i++) {
         int fd = pipes[i];
         if (fd == -1) {
             return;
@@ -173,11 +146,17 @@ static pid_t executeProcess(JNIEnv* env, char** commands, char** environment,
         const char* workingDirectory, jobject inDescriptor,
         jobject outDescriptor, jobject errDescriptor,
         jboolean redirectErrorStream) {
-    int i, result, error;
+
+    // Keep track of the system properties fd so we don't close it.
+    int androidSystemPropertiesFd = -1;
+    char* fdString = getenv("ANDROID_PROPERTY_WORKSPACE");
+    if (fdString) {
+        androidSystemPropertiesFd = atoi(fdString);
+    }
 
     // Create 4 pipes: stdin, stdout, stderr, and an exec() status pipe.
     int pipes[PIPE_COUNT * 2] = { -1, -1, -1, -1, -1, -1, -1, -1 };
-    for (i = 0; i < PIPE_COUNT; i++) {
+    for (int i = 0; i < PIPE_COUNT; i++) {
         if (pipe(pipes + i * 2) == -1) {
             jniThrowIOException(env, errno);
             closePipes(pipes, -1);
@@ -225,8 +204,8 @@ static pid_t executeProcess(JNIEnv* env, char** commands, char** environment,
         // Make statusOut automatically close if execvp() succeeds.
         fcntl(statusOut, F_SETFD, FD_CLOEXEC);
 
-        // Close remaining open fds with the exception of statusOut.
-        closeNonStandardFds(statusOut);
+        // Close remaining unwanted open fds.
+        closeNonStandardFds(statusOut, androidSystemPropertiesFd);
 
         // Switch to working directory.
         if (workingDirectory != NULL) {
@@ -237,6 +216,7 @@ static pid_t executeProcess(JNIEnv* env, char** commands, char** environment,
 
         // Set up environment.
         if (environment != NULL) {
+            extern char** environ; // Standard, but not in any header file.
             environ = environment;
         }
 
@@ -247,7 +227,7 @@ static pid_t executeProcess(JNIEnv* env, char** commands, char** environment,
 
         // If we got here, execvp() failed or the working dir was invalid.
         execFailed:
-            error = errno;
+            int error = errno;
             write(statusOut, &error, sizeof(int));
             close(statusOut);
             exit(error);
@@ -264,6 +244,7 @@ static pid_t executeProcess(JNIEnv* env, char** commands, char** environment,
     // Check status pipe for an error code. If execvp() succeeds, the other
     // end of the pipe should automatically close, in which case, we'll read
     // nothing.
+    int result;
     int count = read(statusIn, &result, sizeof(int));
     close(statusIn);
     if (count > 0) {
@@ -321,8 +302,7 @@ static void freeStrings(JNIEnv* env, jobjectArray javaArray, char** array) {
 /**
  * Converts Java String[] to char** and delegates to executeProcess().
  */
-static pid_t ProcessManager_exec(
-        JNIEnv* env, jclass, jobjectArray javaCommands,
+static pid_t ProcessManager_exec(JNIEnv* env, jclass, jobjectArray javaCommands,
         jobjectArray javaEnvironment, jstring javaWorkingDirectory,
         jobject inDescriptor, jobject outDescriptor, jobject errDescriptor,
         jboolean redirectErrorStream) {
@@ -339,8 +319,7 @@ static pid_t ProcessManager_exec(
     // Convert environment array.
     char** environment = convertStrings(env, javaEnvironment);
 
-    pid_t result = executeProcess(
-            env, commands, environment, workingDirectory,
+    pid_t result = executeProcess(env, commands, environment, workingDirectory,
             inDescriptor, outDescriptor, errDescriptor, redirectErrorStream);
 
     // Temporarily clear exception so we can clean up.
@@ -366,28 +345,8 @@ static pid_t ProcessManager_exec(
     return result;
 }
 
-/**
- * Looks up Java members.
- */
-static void ProcessManager_staticInitialize(JNIEnv* env,
-        jclass clazz) {
-#ifdef ANDROID
-    char* fdString = getenv("ANDROID_PROPERTY_WORKSPACE");
-    if (fdString) {
-        androidSystemPropertiesFd = atoi(fdString);
-    }
-#endif
-
-    onExitMethod = env->GetMethodID(clazz, "onExit", "(II)V");
-    if (onExitMethod == NULL) {
-        return;
-    }
-}
-
 static JNINativeMethod methods[] = {
-    NATIVE_METHOD(ProcessManager, kill, "(I)V"),
-    NATIVE_METHOD(ProcessManager, staticInitialize, "()V"),
-    NATIVE_METHOD(ProcessManager, watchChildren, "()V"),
+    NATIVE_METHOD(ProcessManager, watchChildren, "(Ljava/lang/ProcessManager;)V"),
     NATIVE_METHOD(ProcessManager, exec, "([Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Z)I"),
 };
 int register_java_lang_ProcessManager(JNIEnv* env) {

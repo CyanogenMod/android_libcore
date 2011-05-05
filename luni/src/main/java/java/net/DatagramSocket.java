@@ -19,6 +19,9 @@ package java.net;
 
 import java.io.IOException;
 import java.nio.channels.DatagramChannel;
+import libcore.io.ErrnoException;
+import libcore.io.Libcore;
+import static libcore.io.OsConstants.*;
 
 /**
  * This class implements a UDP socket for sending and receiving {@code
@@ -377,17 +380,19 @@ public class DatagramSocket {
      * via this socket are transmitted via the specified interface.  Any
      * packets received by this socket will come from the specified
      * interface.  Broadcast datagrams received on this interface will
-     * be processed by this socket. {@see SocketOptions#SO_BINDTODEVICE}
+     * be processed by this socket. This corresponds to Linux's SO_BINDTODEVICE.
      *
-     * @hide
+     * @hide used by GoogleTV for DHCP
      */
     public void setNetworkInterface(NetworkInterface netInterface) throws SocketException {
         if (netInterface == null) {
             throw new NullPointerException("networkInterface == null");
         }
-
-        impl.setOption(SocketOptions.SO_BINDTODEVICE,
-            Integer.valueOf(netInterface.getIndex()));
+        try {
+            Libcore.os.setsockoptIfreq(impl.fd, SOL_SOCKET, SO_BINDTODEVICE, netInterface.getName());
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsSocketException();
+        }
     }
 
     /**

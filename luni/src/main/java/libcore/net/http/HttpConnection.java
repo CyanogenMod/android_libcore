@@ -24,11 +24,13 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.ProxySelector;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.util.List;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -45,7 +47,7 @@ import org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl;
  * <p>Do not confuse this class with the misnamed {@code HttpURLConnection},
  * which isn't so much a connection as a single request/response pair.
  */
-public final class HttpConnection {
+final class HttpConnection {
     private final Address address;
 
     private final Socket socket;
@@ -83,6 +85,47 @@ public final class HttpConnection {
         }
 
         this.socket = socketCandidate;
+    }
+
+    public static HttpConnection connect(URI uri, Proxy proxy, boolean requiresTunnel,
+            int connectTimeout) throws IOException {
+        /*
+         * Try an explicitly-specified proxy.
+         */
+        if (proxy != null) {
+            Address address = (proxy.type() == Proxy.Type.DIRECT)
+                    ? new Address(uri)
+                    : new Address(uri, proxy, requiresTunnel);
+            return HttpConnectionPool.INSTANCE.get(address, connectTimeout);
+        }
+
+        /*
+         * Try connecting to each of the proxies provided by the ProxySelector
+         * until a connection succeeds.
+         */
+        ProxySelector selector = ProxySelector.getDefault();
+        List<Proxy> proxyList = selector.select(uri);
+        if (proxyList != null) {
+            for (Proxy selectedProxy : proxyList) {
+                if (selectedProxy.type() == Proxy.Type.DIRECT) {
+                    // the same as NO_PROXY
+                    // TODO: if the selector recommends a direct connection, attempt that?
+                    continue;
+                }
+                try {
+                    Address address = new Address(uri, selectedProxy, requiresTunnel);
+                    return HttpConnectionPool.INSTANCE.get(address, connectTimeout);
+                } catch (IOException e) {
+                    // failed to connect, tell it to the selector
+                    selector.connectFailed(uri, selectedProxy.address(), e);
+                }
+            }
+        }
+
+        /*
+         * Try a direct connection. If this fails, this method will throw.
+         */
+        return HttpConnectionPool.INSTANCE.get(new Address(uri), connectTimeout);
     }
 
     public void closeSocketAndStreams() {
@@ -278,6 +321,10 @@ public final class HttpConnection {
             InetSocketAddress proxySocketAddress = (InetSocketAddress) proxyAddress;
             this.socketHost = proxySocketAddress.getHostName();
             this.socketPort = proxySocketAddress.getPort();
+        }
+
+        public Proxy getProxy() {
+            return proxy;
         }
 
         @Override public boolean equals(Object other) {

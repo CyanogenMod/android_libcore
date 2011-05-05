@@ -20,7 +20,7 @@ package java.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import libcore.net.http.HttpURLConnectionImpl;
+import libcore.net.http.HttpEngine;
 
 /**
  * An {@link URLConnection} for HTTP (<a
@@ -65,12 +65,18 @@ import libcore.net.http.HttpURLConnectionImpl;
  * }</pre>
  *
  * <h3>Secure Communication with HTTPS</h3>
- * Calling {@link URL#openConnection()} on a URL with the "https" scheme will
- * return an {@link javax.net.ssl.HttpsURLConnection HttpsURLConnection}.
- *
- * <p>This class attempts to create secure connections using common TLS
- * extensions and SSL deflate compression. Should that fail, the connection
- * will be retried with SSL3 only.
+
+ * Calling {@link URL#openConnection()} on a URL with the "https"
+ * scheme will return an {@code HttpsURLConnection}, which allows for
+ * overriding the default {@link javax.net.ssl.HostnameVerifier
+ * HostnameVerifier} and {@link javax.net.ssl.SSLSocketFactory
+ * SSLSocketFactory}. An application-supplied {@code SSLSocketFactory}
+ * created from an {@link javax.net.ssl.SSLContext SSLContext} can
+ * provide a custom {@link javax.net.ssl.X509TrustManager
+ * X509TrustManager} for verifying certificate chains and a custom
+ * {@link javax.net.ssl.X509KeyManager X509KeyManager} for supplying
+ * client certificates. See {@link javax.net.ssl.HttpsURLConnection
+ * HttpsURLConnection} for more details.
  *
  * <h3>Response Handling</h3>
  * {@code HttpURLConnection} will follow up to five HTTP redirects. It will
@@ -244,10 +250,25 @@ import libcore.net.http.HttpURLConnectionImpl;
 public abstract class HttpURLConnection extends URLConnection {
 
     /**
+     * The subset of HTTP methods that the user may select via {@link
+     * libcore.net.http.HttpURLConnectionImpl#setRequestMethod(String)}.
+     */
+    private static final String[] PERMITTED_USER_METHODS = {
+            HttpEngine.OPTIONS,
+            HttpEngine.GET,
+            HttpEngine.HEAD,
+            HttpEngine.POST,
+            HttpEngine.PUT,
+            HttpEngine.DELETE,
+            HttpEngine.TRACE
+            // Note: we don't allow users to specify "CONNECT"
+    };
+
+    /**
      * The HTTP request method of this {@code HttpURLConnection}. The default
      * value is {@code "GET"}.
      */
-    protected String method = HttpURLConnectionImpl.GET;
+    protected String method = HttpEngine.GET;
 
     /**
      * The status code of the response obtained from the HTTP request. The
@@ -628,7 +649,7 @@ public abstract class HttpURLConnection extends URLConnection {
         if (connected) {
             throw new ProtocolException("Connection already established");
         }
-        for (String permittedUserMethod : HttpURLConnectionImpl.PERMITTED_USER_METHODS) {
+        for (String permittedUserMethod : PERMITTED_USER_METHODS) {
             if (permittedUserMethod.equals(method)) {
                 // if there is a supported method that matches the desired
                 // method, then set the current method and return
@@ -638,7 +659,7 @@ public abstract class HttpURLConnection extends URLConnection {
         }
         // if none matches, then throw ProtocolException
         throw new ProtocolException("Unknown method '" + method + "'; must be one of " +
-                Arrays.toString(HttpURLConnectionImpl.PERMITTED_USER_METHODS));
+                Arrays.toString(PERMITTED_USER_METHODS));
     }
 
     /**
@@ -708,7 +729,7 @@ public abstract class HttpURLConnection extends URLConnection {
      * @param contentLength
      *            the fixed length of the HTTP request body.
      * @throws IllegalStateException
-     *             if already connected or an other mode already set.
+     *             if already connected or another mode already set.
      * @throws IllegalArgumentException
      *             if {@code contentLength} is less than zero.
      */
@@ -750,7 +771,7 @@ public abstract class HttpURLConnection extends URLConnection {
             throw new IllegalStateException("Already in fixed-length mode");
         }
         if (chunkLength <= 0) {
-            this.chunkLength = HttpURLConnectionImpl.DEFAULT_CHUNK_LENGTH;
+            this.chunkLength = HttpEngine.DEFAULT_CHUNK_LENGTH;
         } else {
             this.chunkLength = chunkLength;
         }

@@ -41,8 +41,7 @@ public interface INetworkSystem {
 
     public int writeDirect(FileDescriptor fd, int address, int offset, int count) throws IOException;
 
-    public boolean connectNonBlocking(FileDescriptor fd, InetAddress inetAddress, int port)
-            throws IOException;
+    public boolean connect(FileDescriptor fd, InetAddress inetAddress, int port) throws IOException;
     public boolean isConnected(FileDescriptor fd, int timeout) throws IOException;
 
     public int send(FileDescriptor fd, byte[] data, int offset, int length,
@@ -58,9 +57,6 @@ public interface INetworkSystem {
     public void disconnectDatagram(FileDescriptor fd) throws SocketException;
 
     public void sendUrgentData(FileDescriptor fd, byte value);
-
-    public void connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeout)
-            throws SocketException;
 
     /**
      * Select the given file descriptors for read and write operations.
@@ -94,17 +90,6 @@ public interface INetworkSystem {
      */
     public boolean select(FileDescriptor[] readFDs, FileDescriptor[] writeFDs,
             int numReadable, int numWritable, long timeout, int[] flags)
-            throws SocketException;
-
-    /*
-     * Set the nominated socket option in the IP stack.
-     *
-     * @param fd the socket descriptor @param opt the option selector @param
-     * optVal the nominated option value
-     *
-     * @throws SocketException if the option is invalid or cannot be set
-     */
-    public void setSocketOption(FileDescriptor fd, int opt, Object optVal)
             throws SocketException;
 
     /**

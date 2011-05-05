@@ -330,11 +330,11 @@ public final class StandardNames extends Assert {
             unprovide("TrustManagerFactory", "PKIX");
             provide("TrustManagerFactory", "X509");
 
-            // different names: ARCFOUR vs ARC4/RC$
+            // different names: ARCFOUR vs ARC4
             unprovide("Cipher", "ARCFOUR");
             provide("Cipher", "ARC4");
             unprovide("KeyGenerator", "ARCFOUR");
-            provide("KeyGenerator", "RC4");
+            provide("KeyGenerator", "ARC4");
 
             // different case names: Blowfish vs BLOWFISH
             unprovide("AlgorithmParameters", "Blowfish");

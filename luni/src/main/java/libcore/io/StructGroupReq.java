@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 The Android Open Source Project
+ * Copyright (C) 2011 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package java.net;
+package libcore.io;
+
+import java.net.InetAddress;
 
 /**
- * Used to pass an interface index and multicast address to native code.
- *
- * @hide PlainDatagramSocketImpl use only
+ * Corresponds to C's {@code struct group_req}.
  */
-public final class MulticastGroupRequest {
-    private final int gr_interface;
-    private final InetAddress gr_group;
+public final class StructGroupReq {
+    public final int gr_interface;
+    public final InetAddress gr_group;
 
-    public MulticastGroupRequest(InetAddress groupAddress, NetworkInterface networkInterface) {
-        gr_group = groupAddress;
-        gr_interface = (networkInterface != null) ? networkInterface.getIndex() : 0;
+    public StructGroupReq(int gr_interface, InetAddress gr_group) {
+        this.gr_interface = gr_interface;
+        this.gr_group = gr_group;
+    }
+
+    @Override public String toString() {
+        return "StructGroupReq[gr_interface=" + gr_interface + ",gr_group=" + gr_group + "]";
     }
 }

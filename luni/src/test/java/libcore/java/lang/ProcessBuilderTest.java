@@ -33,7 +33,7 @@ public class ProcessBuilderTest extends junit.framework.TestCase {
         return new File(deviceSh).exists() ? deviceSh : desktopSh;
     }
 
-    public void testRedirectErrorStream(boolean doRedirect,
+    private static void assertRedirectErrorStream(boolean doRedirect,
             String expectedOut, String expectedErr) throws Exception {
         ProcessBuilder pb = new ProcessBuilder(shell(), "-c", "echo out; echo err 1>&2");
         pb.redirectErrorStream(doRedirect);
@@ -41,11 +41,11 @@ public class ProcessBuilderTest extends junit.framework.TestCase {
     }
 
     public void test_redirectErrorStream_true() throws Exception {
-        testRedirectErrorStream(true, "out\nerr\n", "");
+        assertRedirectErrorStream(true, "out\nerr\n", "");
     }
 
     public void test_redirectErrorStream_false() throws Exception {
-        testRedirectErrorStream(false, "out\n", "err\n");
+        assertRedirectErrorStream(false, "out\n", "err\n");
     }
 
     public void testEnvironment() throws Exception {

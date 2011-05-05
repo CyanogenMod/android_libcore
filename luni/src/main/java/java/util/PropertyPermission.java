@@ -26,17 +26,7 @@ import java.security.Permission;
 import java.security.PermissionCollection;
 
 /**
- * {@code PropertyPermission} objects represent a permission to access system
- * properties.
- * <p>
- * A permission is one of the possible permission strings like "user.name" or
- * "java.version". It's also possible to use a wildcard to define the permission
- * to several properties at once. For example "user.*" will define the
- * permission for "user.home", "user.name", "user.dir", ... "*" defines the
- * permission for all available properties.
- * <p>
- * There are two possible permission action types: read and write. Possible
- * actions are "read", "write", or "read,write"/"write,read".
+ * Legacy security code; this class exists for compatibility only.
  */
 public final class PropertyPermission extends BasicPermission {
     private static final long serialVersionUID = 885438825399942851L;

@@ -28,6 +28,16 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertEquals("/1.2.0.3", InetAddress.parseNumericAddress("1.2.3").toString());
         assertEquals("/1.0.0.2", InetAddress.parseNumericAddress("1.2").toString());
         assertEquals("/0.0.0.1", InetAddress.parseNumericAddress("1").toString());
+        assertEquals("/0.0.4.210", InetAddress.parseNumericAddress("1234").toString());
+        // Optional square brackets around IPv6 addresses, including mapped IPv4.
+        assertEquals("/2001:4860:800d::68", InetAddress.parseNumericAddress("[2001:4860:800d::68]").toString());
+        assertEquals("/127.0.0.1", InetAddress.parseNumericAddress("[::ffff:127.0.0.1]").toString());
+        try {
+            // Actual IPv4 addresses may not be surrounded by square brackets.
+            assertEquals("/127.0.0.1", InetAddress.parseNumericAddress("[127.0.0.1]").toString());
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
         try {
             // Almost numeric but invalid...
             InetAddress.parseNumericAddress("1.");
@@ -47,5 +57,10 @@ public class InetAddressTest extends junit.framework.TestCase {
 
     public void test_getLoopbackAddress() throws Exception {
         assertTrue(InetAddress.getLoopbackAddress().isLoopbackAddress());
+    }
+
+    public void test_0() throws Exception {
+        // The RI special-cases "0" for legacy IPv4 applications.
+        assertTrue(InetAddress.getByName("0").isAnyLocalAddress());
     }
 }

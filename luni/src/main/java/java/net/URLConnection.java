@@ -58,8 +58,8 @@ import java.util.Map;
  *      Resources from the local file system can be loaded using {@code file:}
  *      URIs. File connections can only be used for input.
  *   <li><strong>FTP</strong><br>
- *      File Transfer Protocol (<a href="http://www.ietf.org/rfc/rfc959.txt">RFC
- *      959</a>) is supported, but with no public subclass. FTP connections can
+ *      File Transfer Protocol (<a href="http://www.ietf.org/rfc/rfc959.txt">RFC 959</a>)
+ *      is supported, but with no public subclass. FTP connections can
  *      be used for input or output but not both.
  *      <p>By default, FTP connections will be made using {@code anonymous} as
  *      the username and the empty string as the password. Specify alternate
@@ -444,7 +444,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Returns an unchangeable map of the response-header fields and values. The
+     * Returns an unmodifiable map of the response-header fields and values. The
      * response-header field names are the key values of the map. The map values
      * are lists of header field values associated with a particular key name.
      *
@@ -460,7 +460,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Returns an unchangeable map of general request properties used by this
+     * Returns an unmodifiable map of general request properties used by this
      * connection. The request property names are the key values of the map. The
      * map values are lists of property values of the corresponding key name.
      *
@@ -535,7 +535,7 @@ public abstract class URLConnection {
             return defaultValue;
         }
         try {
-            return Date.parse(date);
+            return Date.parse(date); // TODO: use HttpDate.parse()
         } catch (Exception e) {
             return defaultValue;
         }

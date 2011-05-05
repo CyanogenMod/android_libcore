@@ -19,6 +19,7 @@ package libcore.io;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
@@ -137,7 +138,17 @@ public final class Memory {
         }
     }
 
-    public static native void memmove(int destAddress, int srcAddress, long byteCount);
+    /**
+     * Copies 'byteCount' bytes from the source to the destination. The objects are either
+     * instances of DirectByteBuffer or byte[]. The offsets in the byte[] case must include
+     * the Buffer.arrayOffset if the array came from a Buffer.array call. We could make this
+     * private and provide the four type-safe variants, but then ByteBuffer.put(ByteBuffer)
+     * would need to work out which to call based on whether the source and destination buffers
+     * are direct or not.
+     *
+     * @hide make type-safe before making public?
+     */
+    public static native void memmove(Object dstObject, int dstOffset, Object srcObject, int srcOffset, long byteCount);
 
     public static native byte peekByte(int address);
     public static native int peekInt(int address, boolean swap);

@@ -27,17 +27,13 @@ public class ProtocolException extends java.io.IOException {
     private static final long serialVersionUID = -6098449442062388080L;
 
     /**
-     * Constructs a new instance of this class with its walkback filled in.
+     * Constructs a new instance with the current stack trace.
      */
     public ProtocolException() {
     }
 
     /**
-     * Constructs a new instance of this class with its walkback and message
-     * filled in.
-     *
-     * @param detailMessage
-     *            the detail message for this exception.
+     * Constructs a new instance with the current stack trace and given detail message.
      */
     public ProtocolException(String detailMessage) {
         super(detailMessage);

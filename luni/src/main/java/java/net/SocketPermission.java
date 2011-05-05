@@ -26,39 +26,7 @@ import java.security.PermissionCollection;
 import java.util.Locale;
 
 /**
- * Regulates the access to network operations available through sockets through
- * permissions. A permission consists of a target (a host), and an associated
- * action list. The target should identify the host by either indicating the
- * (possibly wildcarded (eg. {@code .company.com})) DNS style name of the host
- * or its IP address in standard {@code nn.nn.nn.nn} ("dot") notation. The
- * action list can be made up of one or more of the following actions separated
- * by a comma:
- * <dl>
- * <dt>connect</dt>
- * <dd>requests permission to connect to the host</dd>
- * <dt>listen</dt>
- * <dd>requests permission to listen for connections from the host</dd>
- * <dt>accept</dt>
- * <dd>requests permission to accept connections from the host</dd>
- * <dt>resolve</dt>
- * <dd>requests permission to resolve the hostname</dd>
- * </dl>
- * Note that {@code resolve} is implied when any (or none) of the others are
- * present.
- * <p>
- * Access to a particular port can be requested by appending a colon and a
- * single digit to the name (eg. {@code .company.com:7000}). A range of port
- * numbers can also be specified, by appending a pattern of the form
- * <i>LOW-HIGH</i> where <i>LOW</i> and <i>HIGH</i> are valid port numbers. If
- * either <i>LOW</i> or <i>HIGH</i> is omitted it is equivalent to entering the
- * lowest or highest possible value respectively. For example:
- *
- * <pre>
- * {@code SocketPermission("www.company.com:7000-", "connect,accept")}
- * </pre>
- *
- * represents the permission to connect to and accept connections from {@code
- * www.company.com} on ports in the range {@code 7000} to {@code 65535}.
+ * Legacy security code; this class exists for compatibility only.
  */
 public final class SocketPermission extends Permission implements Serializable {
 
@@ -376,13 +344,12 @@ public final class SocketPermission extends Permission implements Serializable {
     private String getIPString(boolean isCheck) {
         if (!resolved) {
             try {
-                ipString = InetAddress.getHostNameInternal(hostName);
-            } catch (UnknownHostException e) {
-                // ignore
+                return InetAddress.getAllByName(hostName)[0].getHostAddress();
+            } catch (UnknownHostException ignored) {
             }
             resolved = true;
         }
-        return ipString;
+        return null;
     }
 
     /**
