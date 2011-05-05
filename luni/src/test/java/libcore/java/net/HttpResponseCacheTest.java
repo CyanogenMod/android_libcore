@@ -368,8 +368,6 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals(2, request3.getSequenceNumber());
     }
 
-    // TODO: test connection is returned to pool after conditional success
-
     public void testSecureResponseCachingAndRedirects() throws IOException {
         TestSSLContext testSSLContext = TestSSLContext.create();
         server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
@@ -910,6 +908,20 @@ public final class HttpResponseCacheTest extends TestCase {
                 connection.getHeaderField("Warning"));
     }
 
+    public void testRequestMaxStaleNotHonoredWithMustRevalidate() throws IOException {
+        server.enqueue(new MockResponse().setBody("A")
+                .addHeader("Cache-Control: max-age=120, must-revalidate")
+                .addHeader("Date: " + formatDate(-4, TimeUnit.MINUTES)));
+        server.enqueue(new MockResponse().setBody("B"));
+
+        server.play();
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+
+        URLConnection connection = server.getUrl("/").openConnection();
+        connection.addRequestProperty("Cache-Control", "max-stale=180");
+        assertEquals("B", readAscii(connection));
+    }
+
     public void testRequestOnlyIfCachedWithNoResponseCached() throws IOException {
         // (no responses enqueued)
         server.play();
@@ -1084,10 +1096,6 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals("A", readAscii(url.openConnection()));
     }
 
-    public void testCacheControlMustRevalidate() throws Exception {
-        fail("Cache-Control: must-revalidate"); // TODO
-    }
-
     public void testVaryResponsesAreNotSupported() throws Exception {
         server.enqueue(new MockResponse()
                 .addHeader("Cache-Control: max-age=60")
@@ -1158,6 +1166,24 @@ public final class HttpResponseCacheTest extends TestCase {
         } finally {
             c1.setDefaultUseCaches(true);
         }
+    }
+
+    public void testConnectionIsReturnedToPoolAfterConditionalSuccess() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Last-Modified: " + formatDate(-1, TimeUnit.HOURS))
+                .addHeader("Cache-Control: max-age=0")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        assertEquals("A", readAscii(server.getUrl("/a").openConnection()));
+        assertEquals("A", readAscii(server.getUrl("/a").openConnection()));
+        assertEquals("B", readAscii(server.getUrl("/b").openConnection()));
+
+        assertEquals(0, server.takeRequest().getSequenceNumber());
+        assertEquals(1, server.takeRequest().getSequenceNumber());
+        assertEquals(2, server.takeRequest().getSequenceNumber());
     }
 
     /**

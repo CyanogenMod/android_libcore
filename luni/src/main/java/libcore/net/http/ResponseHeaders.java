@@ -264,7 +264,7 @@ final class ResponseHeaders {
         }
 
         long maxStaleMillis = 0;
-        if (request.maxStaleSeconds != -1) {
+        if (!mustRevalidate && request.maxStaleSeconds != -1) {
             maxStaleMillis = TimeUnit.SECONDS.toMillis(request.maxStaleSeconds);
         }
 
