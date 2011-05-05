@@ -613,6 +613,22 @@ public class URLConnectionTest extends junit.framework.TestCase {
         }
     }
 
+    public void testDisconnectBeforeConnect() throws IOException {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.disconnect();
+
+        assertContent("A", connection);
+        assertEquals(200, connection.getResponseCode());
+    }
+
+    public void testDefaultRequestProperty() throws Exception {
+        URLConnection.setDefaultRequestProperty("X-testSetDefaultRequestProperty", "A");
+        assertNull(URLConnection.getDefaultRequestProperty("X-setDefaultRequestProperty"));
+    }
+
     /**
      * Reads {@code count} characters from the stream. If the stream is
      * exhausted before {@code count} characters can be read, the remaining
@@ -1087,6 +1103,66 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals("Expected connection reuse", 1, third.getSequenceNumber());
 
         server2.shutdown();
+    }
+
+    public void testResponse300MultipleChoiceWithPost() throws Exception {
+        // Chrome doesn't follow the redirect, but Firefox and the RI both do
+        testResponseRedirectedWithPost(HttpURLConnection.HTTP_MULT_CHOICE);
+    }
+
+    public void testResponse301MovedPermanentlyWithPost() throws Exception {
+        testResponseRedirectedWithPost(HttpURLConnection.HTTP_MOVED_PERM);
+    }
+
+    public void testResponse302MovedTemporarilyWithPost() throws Exception {
+        testResponseRedirectedWithPost(HttpURLConnection.HTTP_MOVED_TEMP);
+    }
+
+    public void testResponse303SeeOtherWithPost() throws Exception {
+        testResponseRedirectedWithPost(HttpURLConnection.HTTP_SEE_OTHER);
+    }
+
+    private void testResponseRedirectedWithPost(int redirectCode) throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(redirectCode)
+                .addHeader("Location: /page2")
+                .setBody("This page has moved!"));
+        server.enqueue(new MockResponse().setBody("Page 2"));
+        server.play();
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/page1").openConnection();
+        connection.setDoOutput(true);
+        byte[] requestBody = { 'A', 'B', 'C', 'D' };
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(requestBody);
+        outputStream.close();
+        assertEquals("Page 2", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+        assertTrue(connection.getDoOutput());
+
+        RecordedRequest page1 = server.takeRequest();
+        assertEquals("POST /page1 HTTP/1.1", page1.getRequestLine());
+        assertEquals(Arrays.toString(requestBody), Arrays.toString(page1.getBody()));
+
+        RecordedRequest page2 = server.takeRequest();
+        assertEquals("GET /page2 HTTP/1.1", page2.getRequestLine());
+    }
+
+    public void testResponse305UseProxy() throws Exception {
+        server.play();
+        server.enqueue(new MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_USE_PROXY)
+                .addHeader("Location: " + server.getUrl("/"))
+                .setBody("This page has moved!"));
+        server.enqueue(new MockResponse().setBody("Proxy Response"));
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/foo").openConnection();
+        // Fails on the RI, which gets "Proxy Response"
+        assertEquals("This page has moved!",
+                readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        RecordedRequest page1 = server.takeRequest();
+        assertEquals("GET /foo HTTP/1.1", page1.getRequestLine());
+        assertEquals(1, server.getRequestCount());
     }
 
     public void testHttpsWithCustomTrustManager() throws Exception {

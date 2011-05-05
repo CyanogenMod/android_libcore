@@ -182,16 +182,6 @@ public class HttpEngine {
      */
     public HttpEngine(HttpURLConnectionImpl policy, String method, RawHeaders requestHeaders,
             HttpConnection connection, RetryableOutputStream requestBodyOut) throws IOException {
-        if (policy.getDoOutput()) {
-            if (method == GET) {
-                // they are requesting a stream to write to. This implies a POST method
-                method = POST;
-            } else if (method != PUT && method != POST) {
-                // If the request method is neither PUT or POST, then you're not writing
-                throw new ProtocolException(method + " does not support writing");
-            }
-        }
-
         this.policy = policy;
         this.method = method;
         this.rawRequestHeaders = new RawHeaders(requestHeaders);
@@ -298,7 +288,7 @@ public class HttpEngine {
         requestOut = socketOut;
         socketIn = connection.getInputStream();
 
-        if (policy.getDoOutput() && method != CONNECT) {
+        if (method == PUT || method == POST) {
             initRequestBodyOut();
         }
     }

@@ -52,16 +52,13 @@ import org.apache.harmony.luni.util.Base64;
  * connection} field on this class for null/non-null to determine of an instance
  * is currently connected to a server.
  */
-public class HttpURLConnectionImpl extends HttpURLConnection {
+class HttpURLConnectionImpl extends HttpURLConnection {
 
     private final int defaultPort;
 
     private Proxy proxy;
 
-    // TODO: should these be set by URLConnection.setDefaultRequestProperty ?
-    private static RawHeaders defaultRequestHeaders = new RawHeaders();
-
-    protected RawHeaders rawRequestHeaders = new RawHeaders(defaultRequestHeaders);
+    private final RawHeaders rawRequestHeaders = new RawHeaders();
 
     private int redirectionCount;
 
@@ -88,11 +85,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
     }
 
-    /**
-     * Close the socket connection to the remote origin server or proxy.
-     */
     @Override public final void disconnect() {
-        // TODO: what happens if they call disconnect() before connect?
+        // Calling disconnect() before a connection exists should have no effect.
         if (httpEngine != null) {
             httpEngine.releaseSocket(false);
         }
@@ -230,6 +224,15 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
         connected = true;
         try {
+            if (doOutput) {
+                if (method == HttpEngine.GET) {
+                    // they are requesting a stream to write to. This implies a POST method
+                    method = HttpEngine.POST;
+                } else if (method != HttpEngine.PUT && method != HttpEngine.POST) {
+                    // If the request method is neither PUT or POST, then you're not writing
+                    throw new ProtocolException(method + " does not support writing");
+                }
+            }
             httpEngine = newHttpEngine(method, rawRequestHeaders, null, null);
         } catch (IOException e) {
             httpEngineFailure = e;
@@ -272,7 +275,21 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                 /*
                  * The first request was insufficient. Prepare for another...
                  */
+                String retryMethod = method;
                 OutputStream requestBody = httpEngine.getRequestBody();
+
+                /*
+                 * Although RFC 2616 10.3.2 specifies that a HTTP_MOVED_PERM
+                 * redirect should keep the same method, Chrome, Firefox and the
+                 * RI all issue GETs when following any redirect.
+                 */
+                int responseCode = getResponseCode();
+                if (responseCode == HTTP_MULT_CHOICE || responseCode == HTTP_MOVED_PERM
+                        || responseCode == HTTP_MOVED_TEMP || responseCode == HTTP_SEE_OTHER) {
+                    retryMethod = HttpEngine.GET;
+                    requestBody = null;
+                }
+
                 if (requestBody != null && !(requestBody instanceof RetryableOutputStream)) {
                     throw new HttpRetryException("Cannot retry streamed HTTP body",
                             httpEngine.getResponseHeaders().getResponseCode());
@@ -284,8 +301,8 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
                 httpEngine.releaseSocket(true);
 
-                httpEngine = newHttpEngine(method, rawRequestHeaders, httpEngine.getConnection(),
-                        (RetryableOutputStream) requestBody);
+                httpEngine = newHttpEngine(retryMethod, rawRequestHeaders,
+                        httpEngine.getConnection(), (RetryableOutputStream) requestBody);
             }
             return httpEngine;
         } catch (IOException e) {
@@ -306,9 +323,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * prepare for a follow up request.
      */
     private Retry processResponseHeaders() throws IOException {
-        RawHeaders responseHeaders = httpEngine.getResponseHeaders();
-        int responseCode = responseHeaders.getResponseCode();
-        switch (responseCode) {
+        switch (getResponseCode()) {
         case HTTP_PROXY_AUTH: // proxy authorization failed ?
             if (!usingProxy()) {
                 throw new IOException(
@@ -323,31 +338,15 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         case HTTP_MOVED_PERM:
         case HTTP_MOVED_TEMP:
         case HTTP_SEE_OTHER:
-        case HTTP_USE_PROXY:
             if (!getInstanceFollowRedirects()) {
-                return Retry.NONE;
-            }
-            if (httpEngine.getRequestBody() != null) {
-                // TODO: follow redirects for retryable output streams...
                 return Retry.NONE;
             }
             if (++redirectionCount > HttpEngine.MAX_REDIRECTS) {
                 throw new ProtocolException("Too many redirects");
             }
-            String location = responseHeaders.get("Location");
+            String location = getHeaderField("Location");
             if (location == null) {
                 return Retry.NONE;
-            }
-            if (responseCode == HTTP_USE_PROXY) {
-                int start = 0;
-                if (location.startsWith(url.getProtocol() + ':')) {
-                    start = url.getProtocol().length() + 1;
-                }
-                if (location.startsWith("//", start)) {
-                    start += 2;
-                }
-                setProxy(location.substring(start));
-                return Retry.DIFFERENT_CONNECTION;
             }
             URL previousUrl = url;
             url = new URL(previousUrl, location);
@@ -366,21 +365,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         default:
             return Retry.NONE;
         }
-    }
-
-    private void setProxy(String proxy) {
-        // TODO: convert IllegalArgumentException etc. to ProtocolException?
-        int colon = proxy.indexOf(':');
-        String host;
-        int port;
-        if (colon != -1) {
-            host = proxy.substring(0, colon);
-            port = Integer.parseInt(proxy.substring(colon + 1));
-        } else {
-            host = proxy;
-            port = getDefaultPort();
-        }
-        this.proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
     }
 
     /**
@@ -458,7 +442,6 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     final void setProxy(Proxy proxy) {
         this.proxy = proxy;
     }
-
 
     @Override public final boolean usingProxy() {
         return (proxy != null && proxy.type() != Proxy.Type.DIRECT);
