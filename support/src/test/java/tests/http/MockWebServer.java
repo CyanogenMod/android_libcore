@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Proxy;
@@ -251,9 +250,7 @@ public final class MockWebServer {
                 Socket socket;
                 if (sslSocketFactory != null) {
                     if (tunnelProxy) {
-                        if (!processOneRequest(raw.getInputStream(), raw.getOutputStream(), raw)) {
-                            throw new IllegalStateException("Tunnel without any CONNECT!");
-                        }
+                        createTunnel();
                     }
                     socket = sslSocketFactory.createSocket(
                             raw, raw.getInetAddress().getHostAddress(), raw.getPort(), true);
@@ -280,6 +277,22 @@ public final class MockWebServer {
                     shutdown();
                 }
                 openClientSockets.remove(socket);
+            }
+
+            /**
+             * Respond to CONNECT requests until a SWITCH_TO_SSL_AT_END response
+             * is dispatched.
+             */
+            private void createTunnel() throws IOException, InterruptedException {
+                while (true) {
+                    MockResponse connect = responseQueue.peek();
+                    if (!processOneRequest(raw.getInputStream(), raw.getOutputStream(), raw)) {
+                        throw new IllegalStateException("Tunnel without any CONNECT!");
+                    }
+                    if (connect.getSocketPolicy() == SocketPolicy.UPGRADE_TO_SSL_AT_END) {
+                        return;
+                    }
+                }
             }
 
             /**

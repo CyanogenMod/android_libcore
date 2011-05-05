@@ -77,6 +77,9 @@ public class URLConnectionTest extends junit.framework.TestCase {
         }
     };
 
+    /** base64("username:password") */
+    private static final String BASE_64_CREDENTIALS = "dXNlcm5hbWU6cGFzc3dvcmQ=";
+
     private MockWebServer server = new MockWebServer();
     private String hostName;
 
@@ -541,7 +544,9 @@ public class URLConnectionTest extends junit.framework.TestCase {
         RecordingHostnameVerifier hostnameVerifier = new RecordingHostnameVerifier();
 
         server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
-        server.enqueue(new MockResponse().clearHeaders()); // for CONNECT
+        server.enqueue(new MockResponse()
+                .setSocketPolicy(SocketPolicy.UPGRADE_TO_SSL_AT_END)
+                .clearHeaders());
         server.enqueue(new MockResponse().setBody("this response comes via a secure proxy"));
         server.play();
 
@@ -572,7 +577,9 @@ public class URLConnectionTest extends junit.framework.TestCase {
         TestSSLContext testSSLContext = TestSSLContext.create();
 
         server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
-        server.enqueue(new MockResponse().clearHeaders()); // for CONNECT
+        server.enqueue(new MockResponse()
+                .setSocketPolicy(SocketPolicy.UPGRADE_TO_SSL_AT_END)
+                .clearHeaders());
         server.enqueue(new MockResponse().setBody("encrypted response from the origin server"));
         server.play();
 
@@ -596,6 +603,39 @@ public class URLConnectionTest extends junit.framework.TestCase {
         RecordedRequest get = server.takeRequest();
         assertContains(get.getHeaders(), "Private: Secret");
         assertEquals(Arrays.asList("verify android.com"), hostnameVerifier.calls);
+    }
+
+    public void testProxyAuthenticateOnConnect() throws Exception {
+        Authenticator.setDefault(SIMPLE_AUTHENTICATOR);
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
+        server.enqueue(new MockResponse()
+                .setResponseCode(407)
+                .addHeader("Proxy-Authenticate: Basic realm=\"localhost\""));
+        server.enqueue(new MockResponse()
+                .setSocketPolicy(SocketPolicy.UPGRADE_TO_SSL_AT_END)
+                .clearHeaders());
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+
+        URL url = new URL("https://android.com/foo");
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(
+                server.toProxyAddress());
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        connection.setHostnameVerifier(new RecordingHostnameVerifier());
+        assertContent("A", connection);
+
+        RecordedRequest connect1 = server.takeRequest();
+        assertEquals("CONNECT android.com:443 HTTP/1.1", connect1.getRequestLine());
+        assertContainsNoneMatching(connect1.getHeaders(), "Proxy\\-Authorization.*");
+
+        RecordedRequest connect2 = server.takeRequest();
+        assertEquals("CONNECT android.com:443 HTTP/1.1", connect2.getRequestLine());
+        assertContains(connect2.getHeaders(), "Proxy-Authorization: Basic " + BASE_64_CREDENTIALS);
+
+        RecordedRequest get = server.takeRequest();
+        assertEquals("GET /foo HTTP/1.1", get.getRequestLine());
+        assertContainsNoneMatching(get.getHeaders(), "Proxy\\-Authorization.*");
     }
 
     public void testDisconnectedConnection() throws IOException {
@@ -955,8 +995,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         for (int i = 0; i < 3; i++) {
             request = server.takeRequest();
             assertEquals("POST / HTTP/1.1", request.getRequestLine());
-            assertContains(request.getHeaders(), "Authorization: Basic "
-                    + "dXNlcm5hbWU6cGFzc3dvcmQ="); // "dXNl..." == base64("username:password")
+            assertContains(request.getHeaders(), "Authorization: Basic " + BASE_64_CREDENTIALS);
             assertEquals(Arrays.toString(requestBody), Arrays.toString(request.getBody()));
         }
     }
@@ -986,8 +1025,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         for (int i = 0; i < 3; i++) {
             request = server.takeRequest();
             assertEquals("GET / HTTP/1.1", request.getRequestLine());
-            assertContains(request.getHeaders(), "Authorization: Basic "
-                    + "dXNlcm5hbWU6cGFzc3dvcmQ="); // "dXNl..." == base64("username:password")
+            assertContains(request.getHeaders(), "Authorization: Basic " + BASE_64_CREDENTIALS);
         }
     }
 
