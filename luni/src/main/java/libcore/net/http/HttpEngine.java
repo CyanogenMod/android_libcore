@@ -61,9 +61,9 @@ import libcore.util.EmptyArray;
  * network, or by both in the event of a conditional GET.
  *
  * <p>This class may hold a socket connection that needs to be released or
- * recycled. By default, this socket connection is released to the pool when the
- * last byte of the response is consumed. To prevent the connection from being
- * released to the pool, use {@link #dontReleaseSocketToPool()}.
+ * recycled. By default, this socket connection is held when the last byte of
+ * the response is consumed. To release the connection when it is no longer
+ * required, use {@link #automaticallyReleaseConnectionToPool()}.
  */
 public class HttpEngine {
     private static final CacheResponse BAD_GATEWAY_RESPONSE = new CacheResponse() {
@@ -169,7 +169,10 @@ public class HttpEngine {
      * True if the socket connection should be released to the connection pool
      * when the response has been fully read.
      */
-    private boolean dontReleaseSocketToPool;
+    private boolean automaticallyReleaseConnectionToPool;
+
+    /** True if the socket connection is no longer needed by this engine. */
+    private boolean released;
 
     /**
      * @param connection the connection used for an intermediate response
@@ -200,10 +203,6 @@ public class HttpEngine {
         } catch (URISyntaxException e) {
             throw new IOException(e);
         }
-    }
-
-    public final void dontReleaseSocketToPool() {
-        this.dontReleaseSocketToPool = true;
     }
 
     /**
@@ -239,8 +238,9 @@ public class HttpEngine {
 
         if (responseSource.requiresConnection()) {
             sendSocketRequest();
-        } else {
-            // TODO: release 'connection' if it is non-null
+        } else if (connection != null) {
+            HttpConnectionPool.INSTANCE.recycle(connection);
+            connection = null;
         }
     }
 
@@ -454,56 +454,56 @@ public class HttpEngine {
     }
 
     /**
-     * Releases this connection so that it may be either reused or closed.
+     * Cause the socket connection to be released to the connection pool when
+     * it is no longer needed. If it is already unneeded, it will be pooled
+     * immediately.
      */
-    public final void releaseSocket(boolean reuseSocket) {
-        // we cannot recycle sockets that have incomplete output.
-        if (requestBodyOut != null && !requestBodyOut.closed) {
-            reuseSocket = false;
-        }
-
-        // if the headers specify that the connection shouldn't be reused, don't reuse it
-        if (hasConnectionCloseHeaders()) {
-            reuseSocket = false;
-        }
-
-        /*
-         * Don't return the socket to the connection pool if this is an
-         * intermediate response; we're going to use it again right away.
-         */
-        if (dontReleaseSocketToPool && reuseSocket) {
-            return;
-        }
-
-        if (connection != null) {
-            if (reuseSocket) {
-                HttpConnectionPool.INSTANCE.recycle(connection);
-            } else {
-                connection.closeSocketAndStreams();
-            }
+    public final void automaticallyReleaseConnectionToPool() {
+        automaticallyReleaseConnectionToPool = true;
+        if (connection != null && released) {
+            HttpConnectionPool.INSTANCE.recycle(connection);
             connection = null;
         }
-
-        /*
-         * Ensure that no further I/O attempts from this instance make their way
-         * to the underlying connection (which may get recycled).
-         */
-        socketOut = null;
-        socketIn = null;
-        requestOut = null;
     }
 
     /**
-     * Consume the response body so the socket connection can be used for new
-     * message pairs.
+     * Releases this connection so that it may be either reused or closed.
      */
-    public final void discardResponseBody() throws IOException {
-        if (responseBodyIn != null) {
-            if (!(responseBodyIn instanceof UnknownLengthHttpInputStream)) {
-                // skip the response so that the connection may be reused for the retry
+    public final void releaseSocket(boolean reusable) {
+        if (released) {
+            return;
+        }
+        released = true;
+
+        // We cannot reuse sockets that have incomplete output.
+        if (requestBodyOut != null && !requestBodyOut.closed) {
+            reusable = false;
+        }
+
+        // If the headers specify that the connection shouldn't be reused, don't reuse it.
+        if (hasConnectionCloseHeaders()) {
+            reusable = false;
+        }
+
+        if (responseBodyIn instanceof UnknownLengthHttpInputStream) {
+            reusable = false;
+        }
+
+        if (reusable && responseBodyIn != null) {
+            // We must discard the response body before the connection can be reused.
+            try {
                 Streams.skipAll(responseBodyIn);
+            } catch (IOException e) {
+                reusable = false;
             }
-            responseBodyIn.close();
+        }
+
+        if (!reusable) {
+            connection.closeSocketAndStreams();
+            connection = null;
+        } else if (automaticallyReleaseConnectionToPool) {
+            HttpConnectionPool.INSTANCE.recycle(connection);
+            connection = null;
         }
     }
 
@@ -769,7 +769,7 @@ public class HttpEngine {
         return agent != null ? agent : ("Java" + System.getProperty("java.version"));
     }
 
-    public final boolean hasConnectionCloseHeaders() {
+    private boolean hasConnectionCloseHeaders() {
         return (rawResponseHeaders != null
                 && "close".equalsIgnoreCase(rawResponseHeaders.get("Connection")))
                 || ("close".equalsIgnoreCase(rawRequestHeaders.get("Connection")));
@@ -830,7 +830,7 @@ public class HttpEngine {
         if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
             if (responseHeadersToValidate.validate(new ResponseHeaders(uri, rawResponseHeaders))) {
                 // discard the network response
-                discardResponseBody();
+                releaseSocket(true);
 
                 // use the cache response
                 setResponse(responseHeadersToValidate.headers, responseBodyToValidate);

@@ -265,6 +265,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
                 Retry retry = processResponseHeaders();
                 if (retry == Retry.NONE) {
+                    httpEngine.automaticallyReleaseConnectionToPool();
                     break;
                 }
 
@@ -277,21 +278,13 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                             httpEngine.getResponseHeaders().getResponseCode());
                 }
 
-                if (retry == Retry.SAME_CONNECTION && httpEngine.hasConnectionCloseHeaders()) {
-                    retry = Retry.NEW_CONNECTION;
+                if (retry == Retry.DIFFERENT_CONNECTION) {
+                    httpEngine.automaticallyReleaseConnectionToPool();
                 }
 
-                HttpConnection connection = null;
-                if (retry == Retry.NEW_CONNECTION) {
-                    httpEngine.discardResponseBody();
-                    httpEngine.releaseSocket(true);
-                } else {
-                    httpEngine.dontReleaseSocketToPool();
-                    httpEngine.discardResponseBody();
-                    connection = httpEngine.getConnection();
-                }
+                httpEngine.releaseSocket(true);
 
-                httpEngine = newHttpEngine(method, rawRequestHeaders, connection,
+                httpEngine = newHttpEngine(method, rawRequestHeaders, httpEngine.getConnection(),
                         (RetryableOutputStream) requestBody);
             }
             return httpEngine;
@@ -304,7 +297,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
     enum Retry {
         NONE,
         SAME_CONNECTION,
-        NEW_CONNECTION
+        DIFFERENT_CONNECTION
     }
 
     /**
@@ -354,7 +347,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                     start += 2;
                 }
                 setProxy(location.substring(start));
-                return Retry.NEW_CONNECTION;
+                return Retry.DIFFERENT_CONNECTION;
             }
             URL previousUrl = url;
             url = new URL(previousUrl, location);
@@ -365,9 +358,9 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                     && previousUrl.getEffectivePort() == url.getEffectivePort()) {
                 return Retry.SAME_CONNECTION;
             } else {
-                // TODO: strip cookies?
+                // TODO: test for strip cookies?
                 rawRequestHeaders.removeAll("Host");
-                return Retry.NEW_CONNECTION;
+                return Retry.DIFFERENT_CONNECTION;
             }
 
         default:
