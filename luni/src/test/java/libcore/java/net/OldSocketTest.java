@@ -20,6 +20,7 @@ package libcore.java.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.BindException;
 import java.net.ConnectException;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -104,8 +105,7 @@ public class OldSocketTest extends OldSocketTestCase {
         try {
             socket = new Socket(InetAddress.getByName(null), sport);
             InetAddress address = socket.getLocalAddress();
-            assertTrue(address.equals(InetAddress.getByName("::1")) ||
-                    address.equals(InetAddress.getByName("0:0:0:0:0:0:0:1")));
+            assertTrue(address.isLoopbackAddress());
         } finally {
             try {
                 socket.close();
@@ -113,32 +113,32 @@ public class OldSocketTest extends OldSocketTestCase {
         }
     }
 
-    public void test_ConstructorLjava_lang_StringILjava_net_InetAddressI() throws IOException {
-        // Test for method java.net.Socket(java.lang.String, int,
-        // java.net.InetAddress, int)
+    public void test_ConstructorLjava_lang_StringILjava_net_InetAddressI1() throws IOException {
         int sport = startServer("Cons String,I,InetAddress,I");
         int portNumber = Support_PortManager.getNextPort();
         s = new Socket(InetAddress.getLocalHost().getHostName(), sport,
                 InetAddress.getLocalHost(), portNumber);
         assertTrue("Failed to create socket", s.getPort() == sport);
+    }
 
+    public void test_ConstructorLjava_lang_StringILjava_net_InetAddressI2() throws IOException {
         int testPort = Support_PortManager.getNextPort();
-        Socket s1 = new Socket("www.google.com", 80, InetAddress.getLocalHost(), testPort);
-        boolean exception = false;
-        Socket s2 = null;
+        Socket s1 = new Socket("www.google.com", 80, null, testPort);
         try {
-            s2 = new Socket("www.google.com", 80, InetAddress.getLocalHost(), testPort);
-        } catch (IOException e) {
-            exception = true;
-        }
-        try {
-            s1.close();
-            if (!exception) {
+            Socket s2 = new Socket("www.google.com", 80, null, testPort);
+            try {
                 s2.close();
+            } catch (IOException ignored) {
             }
-        } catch (IOException e) {
+            fail("second connect should have failed with EADDRINUSE");
+        } catch (BindException expected) {
+            // success!
+        } finally {
+            try {
+                s1.close();
+            } catch (IOException ignored) {
+            }
         }
-        assertTrue("Was able to create two sockets on same port", exception);
     }
 
     public void test_ConstructorLjava_lang_StringIZ() throws IOException {
