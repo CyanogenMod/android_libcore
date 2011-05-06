@@ -268,6 +268,39 @@ public class CookiesTest extends TestCase {
                 + "b=\"banana\";$Path=\"/\";$Domain=\".local\"");
     }
 
+    public void testRedirectsDoNotIncludeTooManyCookies() throws Exception {
+        MockWebServer redirectTarget = new MockWebServer();
+        redirectTarget.enqueue(new MockResponse().setBody("A"));
+        redirectTarget.play();
+
+        MockWebServer redirectSource = new MockWebServer();
+        redirectSource.enqueue(new MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
+                .addHeader("Location: " + redirectTarget.getUrl("/")));
+        redirectSource.play();
+
+        CookieManager cookieManager = new CookieManager(null, ACCEPT_ORIGINAL_SERVER);
+        HttpCookie cookie = new HttpCookie("c", "cookie");
+        cookie.setDomain(".local");
+        cookie.setPath("/");
+        String portList = Integer.toString(redirectSource.getPort());
+        cookie.setPortlist(portList);
+        cookieManager.getCookieStore().add(redirectSource.getUrl("/").toURI(), cookie);
+        CookieHandler.setDefault(cookieManager);
+
+        get(redirectSource, "/");
+        RecordedRequest request = redirectSource.takeRequest();
+
+        assertContains(request.getHeaders(), "Cookie: $Version=\"1\"; "
+                + "c=\"cookie\";$Path=\"/\";$Domain=\".local\";$Port=\"" + portList + "\"");
+
+        for (String header : redirectTarget.takeRequest().getHeaders()) {
+            if (header.startsWith("Cookie")) {
+                fail(header);
+            }
+        }
+    }
+
     /**
      * Test which headers show up where. The cookie manager should be notified of both
      * user-specified and derived headers like {@code Content-Length}. Headers named {@code Cookie}

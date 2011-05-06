@@ -34,6 +34,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charsets;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,6 @@ public class HttpEngine {
         @Override public Map<String, List<String>> getHeaders() throws IOException {
             Map<String, List<String>> result = new HashMap<String, List<String>>();
             result.put(null, Collections.singletonList("HTTP/1.1 502 Bad Gateway"));
-            // TODO: other required fields?
             return result;
         }
         @Override public InputStream getBody() throws IOException {
@@ -288,7 +288,7 @@ public class HttpEngine {
         requestOut = socketOut;
         socketIn = connection.getInputStream();
 
-        if (method == PUT || method == POST) {
+        if (hasRequestBody()) {
             initRequestBodyOut();
         }
     }
@@ -368,6 +368,10 @@ public class HttpEngine {
         if (body != null) {
             initContentStream(body);
         }
+    }
+
+    private boolean hasRequestBody() {
+        return method == POST || method == PUT;
     }
 
     /**
@@ -679,10 +683,6 @@ public class HttpEngine {
             rawRequestHeaders.addIfAbsent("Content-Length", Integer.toString(size));
         }
 
-        if (requestBodyOut != null) {
-            rawRequestHeaders.addIfAbsent("Content-Type", "application/x-www-form-urlencoded");
-        }
-
         return rawRequestHeaders;
     }
 
@@ -709,7 +709,16 @@ public class HttpEngine {
 
         if (rawRequestHeaders.get("Accept-Encoding") == null) {
             transparentGzip = true;
-            rawRequestHeaders.set("Accept-Encoding", "gzip");
+            rawRequestHeaders.add("Accept-Encoding", "gzip");
+        }
+
+        if (hasRequestBody()) {
+            rawRequestHeaders.addIfAbsent("Content-Type", "application/x-www-form-urlencoded");
+        }
+
+        long ifModifiedSince = policy.getIfModifiedSince();
+        if (ifModifiedSince != 0) {
+            rawRequestHeaders.add("If-Modified-Since", HttpDate.format(new Date(ifModifiedSince)));
         }
 
         CookieHandler cookieHandler = CookieHandler.getDefault();

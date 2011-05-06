@@ -1040,6 +1040,19 @@ public final class HttpResponseCacheTest extends TestCase {
         return server.takeRequest();
     }
 
+    public void testSetIfModifiedSince() throws Exception {
+        Date since = new Date();
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        URLConnection connection = url.openConnection();
+        connection.setIfModifiedSince(since.getTime());
+        assertEquals("A", readAscii(connection));
+        RecordedRequest request = server.takeRequest();
+        assertTrue(request.getHeaders().contains("If-Modified-Since: " + formatDate(since)));
+    }
+
     public void testClientSuppliedConditionWithoutCachedResult() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
@@ -1192,7 +1205,10 @@ public final class HttpResponseCacheTest extends TestCase {
      *     future.
      */
     private String formatDate(long delta, TimeUnit timeUnit) {
-        Date date = new Date(System.currentTimeMillis() + timeUnit.toMillis(delta));
+        return formatDate(new Date(System.currentTimeMillis() + timeUnit.toMillis(delta)));
+    }
+
+    private String formatDate(Date date) {
         DateFormat rfc1123 = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
         rfc1123.setTimeZone(TimeZone.getTimeZone("UTC"));
         return rfc1123.format(date);
