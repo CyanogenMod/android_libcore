@@ -142,6 +142,13 @@ public abstract class SocketImpl implements SocketOptions {
     }
 
     /**
+     * @hide used by java.nio
+     */
+    public FileDescriptor getFD$() {
+        return fd;
+    }
+
+    /**
      * Gets the remote address this socket is connected to.
      *
      * @return the remote address of this socket.

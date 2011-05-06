@@ -26,8 +26,8 @@ import java.net.SocketOptions;
  * @hide used in java.nio.
  */
 public class PlainServerSocketImpl extends PlainSocketImpl {
-
-    public PlainServerSocketImpl() {}
+    public PlainServerSocketImpl() {
+    }
 
     public PlainServerSocketImpl(FileDescriptor fd) {
         super(fd);

@@ -494,11 +494,10 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         }
     }
 
-    @Override
-    protected void implConfigureBlocking(boolean blockingMode) throws IOException {
-        // Do nothing here. For real read/write operation in nonblocking mode,
-        // it uses select system call. Whether a channel is blocking can be
-        // decided by isBlocking() method.
+    @Override protected void implConfigureBlocking(boolean blocking) throws IOException {
+        synchronized (blockingLock()) {
+            IoUtils.setBlocking(fd, blocking);
+        }
     }
 
     /*

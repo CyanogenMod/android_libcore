@@ -250,15 +250,13 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
     }
 
     /**
-     * Implements the setting of the blocking mode.
+     * Implements the configuration of blocking/non-blocking mode.
      *
-     * @param blockingMode
-     *            {@code true} for setting this channel's mode to blocking,
-     *            {@code false} to set it to non-blocking.
+     * @param blocking true for blocking, false for non-blocking.
      * @throws IOException
      *             if an I/O error occurs.
      */
-    protected abstract void implConfigureBlocking(boolean blockingMode) throws IOException;
+    protected abstract void implConfigureBlocking(boolean blocking) throws IOException;
 
     /*
      * package private for deregister method in AbstractSelector.
