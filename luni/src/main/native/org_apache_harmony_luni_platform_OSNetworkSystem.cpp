@@ -308,21 +308,12 @@ static void OSNetworkSystem_accept(JNIEnv* env, jobject, jobject serverFileDescr
         return;
     }
 
-    // Reset the inherited read timeout to the Java-specified default of 0.
-    timeval timeout(toTimeval(0));
-    int rc = setsockopt(clientFd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
-    if (rc == -1) {
-        LOGE("couldn't reset SO_RCVTIMEO on accepted socket fd %i: %s", clientFd, strerror(errno));
-        jniThrowSocketException(env, errno);
-    }
-
     /*
      * For network sockets, put the peer address and port in instance variables.
      * We don't bother to do this for UNIX domain sockets, since most peers are
      * anonymous anyway.
      */
     if (ss.ss_family == AF_INET || ss.ss_family == AF_INET6) {
-        // Remote address and port.
         jobject remoteAddress = socketAddressToInetAddress(env, &ss);
         if (remoteAddress == NULL) {
             close(clientFd);
@@ -330,22 +321,10 @@ static void OSNetworkSystem_accept(JNIEnv* env, jobject, jobject serverFileDescr
         }
         int remotePort = getSocketAddressPort(&ss);
 
-        // Local port.
-        memset(&ss, 0, addrLen);
-        int rc = getsockname(clientFd, sa, &addrLen);
-        if (rc == -1) {
-            close(clientFd);
-            jniThrowSocketException(env, errno);
-            return;
-        }
-        int localPort = getSocketAddressPort(&ss);
-
         static jfieldID addressFid = env->GetFieldID(JniConstants::socketImplClass, "address", "Ljava/net/InetAddress;");
-        static jfieldID localPortFid = env->GetFieldID(JniConstants::socketImplClass, "localport", "I");
         static jfieldID portFid = env->GetFieldID(JniConstants::socketImplClass, "port", "I");
         env->SetObjectField(newSocket, addressFid, remoteAddress);
         env->SetIntField(newSocket, portFid, remotePort);
-        env->SetIntField(newSocket, localPortFid, localPort);
     }
 
     jniSetFileDescriptorOfFD(env, clientFileDescriptor, clientFd);

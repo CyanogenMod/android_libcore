@@ -52,44 +52,35 @@ import static libcore.io.OsConstants.*;
  * The default implementation class of java.nio.channels.SocketChannel.
  */
 class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
-
-    private static final int EOF = -1;
-
-    // Status un-init, not initialized.
-    static final int SOCKET_STATUS_UNINIT = EOF;
+    private static final int SOCKET_STATUS_UNINITIALIZED = -1;
 
     // Status before connect.
-    static final int SOCKET_STATUS_UNCONNECTED = 0;
+    private static final int SOCKET_STATUS_UNCONNECTED = 0;
 
     // Status connection pending.
-    static final int SOCKET_STATUS_PENDING = 1;
+    private static final int SOCKET_STATUS_PENDING = 1;
 
     // Status after connection success.
-    static final int SOCKET_STATUS_CONNECTED = 2;
+    private static final int SOCKET_STATUS_CONNECTED = 2;
 
     // Status closed.
-    static final int SOCKET_STATUS_CLOSED = 3;
+    private static final int SOCKET_STATUS_CLOSED = 3;
 
-    // The descriptor to interact with native code.
-    final FileDescriptor fd;
+    private final FileDescriptor fd;
 
     // Our internal Socket.
     private SocketAdapter socket = null;
 
     // The address to be connected.
-    InetSocketAddress connectAddress = null;
+    private InetSocketAddress connectAddress = null;
 
-    // Local address of the this socket (package private for adapter).
-    InetAddress localAddress = null;
+    private InetAddress localAddress = null;
+    private int localPort;
 
-    // Local port number.
-    int localPort;
-
-    // At first, uninitialized.
-    int status = SOCKET_STATUS_UNINIT;
+    private int status = SOCKET_STATUS_UNINITIALIZED;
 
     // Whether the socket is bound.
-    volatile boolean isBound = false;
+    private volatile boolean isBound = false;
 
     private final Object readLock = new Object();
 

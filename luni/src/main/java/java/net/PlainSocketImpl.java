@@ -94,6 +94,11 @@ public class PlainSocketImpl extends SocketImpl {
             return;
         }
         Platform.NETWORK.accept(fd, newImpl, newImpl.getFileDescriptor());
+
+        // Reset the client's inherited read timeout to the Java-specified default of 0.
+        newImpl.setOption(SocketOptions.SO_TIMEOUT, Integer.valueOf(0));
+
+        newImpl.localport = IoUtils.getSocketLocalPort(newImpl.fd);
     }
 
     private boolean usingSocks() {

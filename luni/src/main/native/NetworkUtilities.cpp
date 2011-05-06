@@ -26,7 +26,7 @@
 #include <string.h>
 #include <sys/socket.h>
 
-static jbyteArray socketAddressToByteArray(JNIEnv* env, const sockaddr_storage* ss) {
+jobject socketAddressToInetAddress(JNIEnv* env, const sockaddr_storage* ss) {
     // Convert IPv4-mapped addresses to IPv4 addresses.
     // The RI states "Java will never return an IPv4-mapped address".
     sockaddr_storage tmp;
@@ -57,9 +57,8 @@ static jbyteArray socketAddressToByteArray(JNIEnv* env, const sockaddr_storage* 
     } else {
         // We can't throw SocketException. We aren't meant to see bad addresses, so seeing one
         // really does imply an internal error.
-        // TODO: fix the code (native and Java) so we don't paint ourselves into this corner.
         jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
-                "socketAddressToByteArray bad ss_family (%i)", ss->ss_family);
+                "socketAddressToInetAddress bad ss_family: %i", ss->ss_family);
         return NULL;
     }
 
@@ -68,24 +67,13 @@ static jbyteArray socketAddressToByteArray(JNIEnv* env, const sockaddr_storage* 
         return NULL;
     }
     env->SetByteArrayRegion(byteArray, 0, addressLength, reinterpret_cast<const jbyte*>(rawAddress));
-    return byteArray;
-}
 
-static jobject byteArrayToInetAddress(JNIEnv* env, jbyteArray byteArray) {
-    if (byteArray == NULL) {
-        return NULL;
-    }
-    jmethodID getByAddressMethod = env->GetStaticMethodID(JniConstants::inetAddressClass,
+    static jmethodID getByAddressMethod = env->GetStaticMethodID(JniConstants::inetAddressClass,
             "getByAddress", "([B)Ljava/net/InetAddress;");
     if (getByAddressMethod == NULL) {
         return NULL;
     }
     return env->CallStaticObjectMethod(JniConstants::inetAddressClass, getByAddressMethod, byteArray);
-}
-
-jobject socketAddressToInetAddress(JNIEnv* env, const sockaddr_storage* ss) {
-    jbyteArray byteArray = socketAddressToByteArray(env, ss);
-    return byteArrayToInetAddress(env, byteArray);
 }
 
 bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
@@ -127,8 +115,8 @@ bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int port, sock
 
     // We can't throw SocketException. We aren't meant to see bad addresses, so seeing one
     // really does imply an internal error.
-    // TODO: fix the code (native and Java) so we don't paint ourselves into this corner.
-    jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException", "inetAddressToSocketAddress bad array length (%i)", addressLength);
+    jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
+            "inetAddressToSocketAddress bad array length: %i", addressLength);
     return false;
 }
 
