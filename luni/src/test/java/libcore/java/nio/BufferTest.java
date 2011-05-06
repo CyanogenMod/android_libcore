@@ -638,4 +638,20 @@ public class BufferTest extends TestCase {
         } catch (BufferOverflowException expected) {
         }
     }
+
+    public void testCharBufferSubSequence() throws Exception {
+        ByteBuffer b = ByteBuffer.allocateDirect(10).order(ByteOrder.nativeOrder());
+        b.putChar('H');
+        b.putChar('e');
+        b.putChar('l');
+        b.putChar('l');
+        b.putChar('o');
+        b.flip();
+
+        assertEquals("Hello", b.asCharBuffer().toString());
+
+        CharBuffer cb = b.asCharBuffer();
+        CharSequence cs = cb.subSequence(0, cb.length());
+        assertEquals("Hello", cs.toString());
+    }
 }
