@@ -33,7 +33,6 @@ import java.net.SocketPermission;
 import java.net.URL;
 import java.nio.charset.Charsets;
 import java.security.Permission;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.harmony.luni.util.Base64;
@@ -236,8 +235,8 @@ class HttpURLConnectionImpl extends HttpURLConnection {
                 if (method == HttpEngine.GET) {
                     // they are requesting a stream to write to. This implies a POST method
                     method = HttpEngine.POST;
-                } else if (method != HttpEngine.PUT && method != HttpEngine.POST) {
-                    // If the request method is neither PUT or POST, then you're not writing
+                } else if (method != HttpEngine.POST && method != HttpEngine.PUT) {
+                    // If the request method is neither POST nor PUT, then you're not writing
                     throw new ProtocolException(method + " does not support writing");
                 }
             }
@@ -366,8 +365,6 @@ class HttpURLConnectionImpl extends HttpURLConnection {
                     && previousUrl.getEffectivePort() == url.getEffectivePort()) {
                 return Retry.SAME_CONNECTION;
             } else {
-                // TODO: test for strip cookies?
-                rawRequestHeaders.removeAll("Host");
                 return Retry.DIFFERENT_CONNECTION;
             }
 
@@ -478,12 +475,6 @@ class HttpURLConnectionImpl extends HttpURLConnection {
 
     @Override public final int getResponseCode() throws IOException {
         return getResponse().getResponseHeaders().getResponseCode();
-    }
-
-    @Override public final void setIfModifiedSince(long newValue) {
-        // TODO: set this lazily in prepareRequestHeaders()
-        super.setIfModifiedSince(newValue);
-        rawRequestHeaders.add("If-Modified-Since", HttpDate.format(new Date(newValue)));
     }
 
     @Override public final void setRequestProperty(String field, String newValue) {
