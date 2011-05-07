@@ -464,7 +464,7 @@ static jstring Posix_getenv(JNIEnv* env, jobject, jstring javaName) {
 
 static jstring Posix_getnameinfo(JNIEnv* env, jobject, jobject javaAddress, jint flags) {
     sockaddr_storage ss;
-    if (!inetAddressToSocketAddress(env, javaAddress, 0, &ss)) {
+    if (!inetAddressToSocketAddressAny(env, javaAddress, 0, &ss)) {
         return NULL;
     }
     // TODO: bionic's getnameinfo(3) seems to want its length parameter to be exactly
@@ -793,7 +793,7 @@ static void Posix_setsockoptGroupReq(JNIEnv* env, jobject, jobject javaFd, jint 
     // Get the IPv4 or IPv6 multicast address to join or leave.
     static jfieldID grGroupFid = env->GetFieldID(JniConstants::structGroupReqClass, "gr_group", "Ljava/net/InetAddress;");
     jobject javaGroup = env->GetObjectField(javaGroupReq, grGroupFid);
-    if (!inetAddressToSocketAddress(env, javaGroup, 0, &value.gr_group)) {
+    if (!inetAddressToSocketAddress6(env, javaGroup, 0, &value.gr_group)) {
         return;
     }
 

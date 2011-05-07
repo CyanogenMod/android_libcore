@@ -67,44 +67,6 @@ static int getSocketAddressPort(sockaddr_storage* ss) {
     }
 }
 
-// Creates mapped addresses.
-// TODO: can this move to inetAddressToSocketAddress?
-class CompatibleSocketAddress {
-public:
-    CompatibleSocketAddress(const sockaddr_storage& ss, bool mapUnspecified) {
-        mCompatibleAddress = reinterpret_cast<const sockaddr*>(&ss);
-        if (ss.ss_family == AF_INET) {
-            // Map the IPv4 address in ss into an IPv6 address in mTmp.
-            const sockaddr_in* sin = reinterpret_cast<const sockaddr_in*>(&ss);
-            sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(&mTmp);
-            memset(sin6, 0, sizeof(*sin6));
-            sin6->sin6_family = AF_INET6;
-            sin6->sin6_port = sin->sin_port;
-            // TODO: mapUnspecified was introduced because kernels < 2.6.31 don't allow
-            // you to bind to ::ffff:0.0.0.0. When we move to something >= 2.6.31, we
-            // should make the code behave as if mapUnspecified were always true, and
-            // remove the parameter.
-            // TODO: this code still appears to be necessary on 2.6.32, so there's something
-            // wrong in the above comment.
-            if (sin->sin_addr.s_addr != 0 || mapUnspecified) {
-                memset(&(sin6->sin6_addr.s6_addr[10]), 0xff, 2);
-            }
-            memcpy(&sin6->sin6_addr.s6_addr[12], &sin->sin_addr.s_addr, 4);
-            mCompatibleAddress = reinterpret_cast<const sockaddr*>(&mTmp);
-        }
-    }
-    // Returns a pointer to an IPv6 address.
-    const sockaddr* get() const {
-        return mCompatibleAddress;
-    }
-    socklen_t size() const {
-        return (mTmp.ss_family == AF_INET) ? sizeof(sockaddr_in) : sizeof(sockaddr_in6);
-    }
-private:
-    const sockaddr* mCompatibleAddress;
-    sockaddr_storage mTmp;
-};
-
 // Converts a number of milliseconds to a timeval.
 static timeval toTimeval(long ms) {
     timeval tv;
@@ -180,13 +142,12 @@ static jboolean OSNetworkSystem_connect(JNIEnv* env, jobject, jobject fileDescri
     }
 
     sockaddr_storage ss;
-    if (!inetAddressToSocketAddress(env, inetAddr, port, &ss)) {
+    if (!inetAddressToSocketAddress6(env, inetAddr, port, &ss)) {
         return JNI_FALSE;
     }
 
     // Initiate a connection attempt...
-    const CompatibleSocketAddress compatibleAddress(ss, true);
-    int rc = connect(fd.get(), compatibleAddress.get(), compatibleAddress.size());
+    int rc = connect(fd.get(), reinterpret_cast<const sockaddr*>(&ss), sizeof(sockaddr_storage));
     int connectErrno = errno;
 
     // Did we get interrupted?
@@ -257,7 +218,7 @@ static jboolean OSNetworkSystem_isConnected(JNIEnv* env, jobject, jobject fileDe
 static void OSNetworkSystem_bindImpl(JNIEnv* env, jobject, jobject fileDescriptor,
         jobject inetAddress, jint port) {
     sockaddr_storage ss;
-    if (!inetAddressToSocketAddress(env, inetAddress, port, &ss)) {
+    if (!inetAddressToSocketAddress6(env, inetAddress, port, &ss)) {
         return;
     }
 
@@ -266,8 +227,7 @@ static void OSNetworkSystem_bindImpl(JNIEnv* env, jobject, jobject fileDescripto
         return;
     }
 
-    const CompatibleSocketAddress compatibleAddress(ss, false);
-    int rc = TEMP_FAILURE_RETRY(bind(fd.get(), compatibleAddress.get(), compatibleAddress.size()));
+    int rc = TEMP_FAILURE_RETRY(bind(fd.get(), reinterpret_cast<const sockaddr*>(&ss), sizeof(sockaddr_storage)));
     if (rc == -1) {
         jniThrowExceptionWithErrno(env, "java/net/BindException", errno);
     }
@@ -484,7 +444,7 @@ static jint OSNetworkSystem_sendDirect(JNIEnv* env, jobject, jobject fileDescrip
     }
 
     sockaddr_storage receiver;
-    if (inetAddress != NULL && !inetAddressToSocketAddress(env, inetAddress, port, &receiver)) {
+    if (inetAddress != NULL && !inetAddressToSocketAddress6(env, inetAddress, port, &receiver)) {
         return -1;
     }
 
