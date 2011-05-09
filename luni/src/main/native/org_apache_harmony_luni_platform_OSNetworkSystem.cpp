@@ -37,7 +37,6 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/time.h>
-#include <sys/un.h>
 #include <unistd.h>
 
 /* constants for OSNetworkSystem_selectImpl */
@@ -142,7 +141,7 @@ static jboolean OSNetworkSystem_connect(JNIEnv* env, jobject, jobject fileDescri
     }
 
     sockaddr_storage ss;
-    if (!inetAddressToSocketAddress6(env, inetAddr, port, &ss)) {
+    if (!inetAddressToSockaddr(env, inetAddr, port, &ss)) {
         return JNI_FALSE;
     }
 
@@ -213,24 +212,6 @@ static jboolean OSNetworkSystem_isConnected(JNIEnv* env, jobject, jobject fileDe
 
     // Timeout expired.
     return JNI_FALSE;
-}
-
-static void OSNetworkSystem_bindImpl(JNIEnv* env, jobject, jobject fileDescriptor,
-        jobject inetAddress, jint port) {
-    sockaddr_storage ss;
-    if (!inetAddressToSocketAddress6(env, inetAddress, port, &ss)) {
-        return;
-    }
-
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return;
-    }
-
-    int rc = TEMP_FAILURE_RETRY(bind(fd.get(), reinterpret_cast<const sockaddr*>(&ss), sizeof(sockaddr_storage)));
-    if (rc == -1) {
-        jniThrowExceptionWithErrno(env, "java/net/BindException", errno);
-    }
 }
 
 static void OSNetworkSystem_accept(JNIEnv* env, jobject, jobject serverFileDescriptor,
@@ -444,7 +425,7 @@ static jint OSNetworkSystem_sendDirect(JNIEnv* env, jobject, jobject fileDescrip
     }
 
     sockaddr_storage receiver;
-    if (inetAddress != NULL && !inetAddressToSocketAddress6(env, inetAddress, port, &receiver)) {
+    if (inetAddress != NULL && !inetAddressToSockaddr(env, inetAddress, port, &receiver)) {
         return -1;
     }
 
@@ -603,7 +584,6 @@ static void OSNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) 
 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, accept, "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(OSNetworkSystem, bindImpl, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
     NATIVE_METHOD(OSNetworkSystem, close, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(OSNetworkSystem, connect, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)Z"),
     NATIVE_METHOD(OSNetworkSystem, disconnectDatagram, "(Ljava/io/FileDescriptor;)V"),

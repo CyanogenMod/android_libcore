@@ -28,6 +28,7 @@ public final class Posix implements Os {
     Posix() { }
 
     public native boolean access(String path, int mode) throws ErrnoException;
+    public native void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException;
     public native void chmod(String path, int mode) throws ErrnoException;
     public native void close(FileDescriptor fd) throws ErrnoException;
     public native String[] environ();

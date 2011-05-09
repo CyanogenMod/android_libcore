@@ -44,23 +44,6 @@ final class OSNetworkSystem implements INetworkSystem {
     public native void accept(FileDescriptor serverFd, SocketImpl newSocket,
             FileDescriptor clientFd) throws IOException;
 
-    public void bind(FileDescriptor fd, InetAddress inetAddress, int port) throws SocketException {
-        if (inetAddress instanceof Inet6Address && ((Inet6Address) inetAddress).getScopeId() == 0) {
-            // Linux won't let you bind a link-local address without a scope id. Find one.
-            NetworkInterface nif = NetworkInterface.getByInetAddress(inetAddress);
-            if (nif == null) {
-                throw new SocketException("Can't bind to a link-local address without a scope id: " + inetAddress);
-            }
-            try {
-                inetAddress = Inet6Address.getByAddress(inetAddress.getHostName(), inetAddress.getAddress(), nif.getIndex());
-            } catch (UnknownHostException ex) {
-                throw new AssertionError(ex); // Can't happen.
-            }
-        }
-        bindImpl(fd, inetAddress, port);
-    }
-    private native void bindImpl(FileDescriptor fd, InetAddress inetAddress, int port) throws SocketException;
-
     public native boolean connect(FileDescriptor fd, InetAddress inetAddress, int port) throws IOException;
     public native boolean isConnected(FileDescriptor fd, int timeout) throws IOException;
 

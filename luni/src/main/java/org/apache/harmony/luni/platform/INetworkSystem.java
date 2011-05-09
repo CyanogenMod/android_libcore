@@ -31,8 +31,6 @@ public interface INetworkSystem {
     public void accept(FileDescriptor serverFd, SocketImpl newSocket, FileDescriptor clientFd)
             throws IOException;
 
-    public void bind(FileDescriptor fd, InetAddress inetAddress, int port) throws SocketException;
-
     public int read(FileDescriptor fd, byte[] data, int offset, int count) throws IOException;
 
     public int readDirect(FileDescriptor fd, int address, int count) throws IOException;

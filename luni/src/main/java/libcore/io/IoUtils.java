@@ -21,14 +21,18 @@ import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.BindException;
 import java.net.InetAddress;
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketOptions;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.nio.charset.Charsets;
 import java.util.Arrays;
 import libcore.io.ErrnoException;
@@ -144,6 +148,26 @@ public final class IoUtils {
             }
         } catch (ErrnoException errnoException) {
             throw errnoException.rethrowAsIOException();
+        }
+    }
+
+    public static void bind(FileDescriptor fd, InetAddress address, int port) throws SocketException {
+        if (address instanceof Inet6Address && ((Inet6Address) address).getScopeId() == 0) {
+            // Linux won't let you bind a link-local address without a scope id. Find one.
+            NetworkInterface nif = NetworkInterface.getByInetAddress(address);
+            if (nif == null) {
+                throw new SocketException("Can't bind to a link-local address without a scope id: " + address);
+            }
+            try {
+                address = Inet6Address.getByAddress(address.getHostName(), address.getAddress(), nif.getIndex());
+            } catch (UnknownHostException ex) {
+                throw new AssertionError(ex); // Can't happen.
+            }
+        }
+        try {
+            Libcore.os.bind(fd, address, port);
+        } catch (ErrnoException errnoException) {
+            throw new BindException(errnoException.getMessage(), errnoException);
         }
     }
 

@@ -135,11 +135,11 @@ static bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int por
     return false;
 }
 
-bool inetAddressToSocketAddressAny(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
+bool inetAddressToSockaddr_getnameinfo(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
     return inetAddressToSocketAddress(env, inetAddress, port, ss, false);
 }
 
-bool inetAddressToSocketAddress6(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
+bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
     return inetAddressToSocketAddress(env, inetAddress, port, ss, true);
 }
 

@@ -26,15 +26,23 @@ public class BindException extends SocketException {
     private static final long serialVersionUID = -5945005768251722951L;
 
     /**
-     * Constructs a new instance with the current stack trace.
+     * Constructs a new instance.
      */
     public BindException() {
     }
 
     /**
-     * Constructs a new instance with the current stack trace and given detail message.
+     * Constructs a new instance with the given detail message.
      */
     public BindException(String detailMessage) {
+        super(detailMessage);
+    }
+
+    /**
+     * Constructs a new instance with the given detail message and cause.
+     * @hide
+     */
+    public BindException(String detailMessage, Throwable cause) {
         super(detailMessage);
     }
 }

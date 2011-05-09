@@ -173,12 +173,6 @@ public final class BlockGuard {
             mNetwork.accept(serverFd, newSocket, clientFd);
         }
 
-
-        public void bind(FileDescriptor aFD, InetAddress inetAddress, int port)
-                throws SocketException {
-            mNetwork.bind(aFD, inetAddress, port);
-        }
-
         public int read(FileDescriptor aFD, byte[] data, int offset, int count) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
             return mNetwork.read(aFD, data, offset, count);
