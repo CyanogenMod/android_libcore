@@ -814,7 +814,7 @@ public class InetAddress implements Serializable {
         boolean reached = false;
         try {
             if (source != null) {
-                Platform.NETWORK.bind(fd, source, 0);
+                IoUtils.bind(fd, source, 0);
             }
             IoUtils.connect(fd, destination, 7, timeout);
             reached = true;

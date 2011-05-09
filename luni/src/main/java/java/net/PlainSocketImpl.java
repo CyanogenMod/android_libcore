@@ -133,7 +133,7 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     protected void bind(InetAddress address, int port) throws IOException {
-        Platform.NETWORK.bind(fd, address, port);
+        IoUtils.bind(fd, address, port);
         this.address = address;
         if (port != 0) {
             this.localport = port;

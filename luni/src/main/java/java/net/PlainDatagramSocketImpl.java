@@ -63,14 +63,13 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     }
 
     @Override
-    public void bind(int port, InetAddress addr) throws SocketException {
-        Platform.NETWORK.bind(fd, addr, port);
+    public void bind(int port, InetAddress address) throws SocketException {
+        IoUtils.bind(fd, address, port);
         if (port != 0) {
             localPort = port;
         } else {
             localPort = IoUtils.getSocketLocalPort(fd);
         }
-
         try {
             setOption(SocketOptions.SO_BROADCAST, Boolean.TRUE);
         } catch (IOException ignored) {

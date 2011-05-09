@@ -285,6 +285,16 @@ static jboolean Posix_access(JNIEnv* env, jobject, jstring javaPath, jint mode) 
     return (rc == 0);
 }
 
+static void Posix_bind(JNIEnv* env, jobject, jobject javaFd, jobject javaAddress, jint port) {
+    sockaddr_storage ss;
+    if (!inetAddressToSockaddr(env, javaAddress, port, &ss)) {
+        return;
+    }
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    const sockaddr* sa = reinterpret_cast<const sockaddr*>(&ss);
+    throwIfMinusOne(env, "bind", TEMP_FAILURE_RETRY(bind(fd, sa, sizeof(sockaddr_storage))));
+}
+
 static void Posix_chmod(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -464,7 +474,7 @@ static jstring Posix_getenv(JNIEnv* env, jobject, jstring javaName) {
 
 static jstring Posix_getnameinfo(JNIEnv* env, jobject, jobject javaAddress, jint flags) {
     sockaddr_storage ss;
-    if (!inetAddressToSocketAddressAny(env, javaAddress, 0, &ss)) {
+    if (!inetAddressToSockaddr_getnameinfo(env, javaAddress, 0, &ss)) {
         return NULL;
     }
     // TODO: bionic's getnameinfo(3) seems to want its length parameter to be exactly
@@ -793,7 +803,7 @@ static void Posix_setsockoptGroupReq(JNIEnv* env, jobject, jobject javaFd, jint 
     // Get the IPv4 or IPv6 multicast address to join or leave.
     static jfieldID grGroupFid = env->GetFieldID(JniConstants::structGroupReqClass, "gr_group", "Ljava/net/InetAddress;");
     jobject javaGroup = env->GetObjectField(javaGroupReq, grGroupFid);
-    if (!inetAddressToSocketAddress6(env, javaGroup, 0, &value.gr_group)) {
+    if (!inetAddressToSockaddr(env, javaGroup, 0, &value.gr_group)) {
         return;
     }
 
@@ -919,6 +929,7 @@ static jint Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buff
 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, access, "(Ljava/lang/String;I)Z"),
+    NATIVE_METHOD(Posix, bind, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
     NATIVE_METHOD(Posix, chmod, "(Ljava/lang/String;I)V"),
     NATIVE_METHOD(Posix, close, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, environ, "()[Ljava/lang/String;"),

@@ -25,6 +25,7 @@ import libcore.util.MutableLong;
 
 public interface Os {
     public boolean access(String path, int mode) throws ErrnoException;
+    public void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException;
     public void chmod(String path, int mode) throws ErrnoException;
     public void close(FileDescriptor fd) throws ErrnoException;
     public String[] environ();
