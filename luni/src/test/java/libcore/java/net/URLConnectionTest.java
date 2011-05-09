@@ -1495,24 +1495,6 @@ public class URLConnectionTest extends junit.framework.TestCase {
     }
 
     /**
-     * http://code.google.com/p/android/issues/detail?id=14562
-     */
-    public void testReadAfterLastByte() throws Exception {
-        server.enqueue(new MockResponse()
-                .setBody("ABC")
-                .clearHeaders()
-                .addHeader("Connection: close")
-                .setSocketPolicy(SocketPolicy.DISCONNECT_AT_END));
-        server.play();
-
-        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
-        InputStream in = connection.getInputStream();
-        assertEquals("ABC", readAscii(in, 3));
-        assertEquals(-1, in.read());
-        assertEquals(-1, in.read()); // throws IOException in Gingerbread
-    }
-
-    /**
      * Returns a gzipped copy of {@code bytes}.
      */
     public byte[] gzip(byte[] bytes) throws IOException {
