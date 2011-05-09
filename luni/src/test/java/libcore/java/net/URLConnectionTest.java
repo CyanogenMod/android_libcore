@@ -1475,6 +1475,25 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertFalse(aborted.get()); // The best behavior is ambiguous, but RI 6 doesn't abort here
     }
 
+
+    /**
+     * http://code.google.com/p/android/issues/detail?id=14562
+     */
+    public void testReadAfterLastByte() throws Exception {
+        server.enqueue(new MockResponse()
+                .setBody("ABC")
+                .clearHeaders()
+                .addHeader("Connection: close")
+                .setSocketPolicy(SocketPolicy.DISCONNECT_AT_END));
+        server.play();
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        InputStream in = connection.getInputStream();
+        assertEquals("ABC", readAscii(in, 3));
+        assertEquals(-1, in.read());
+        assertEquals(-1, in.read()); // throws IOException in Gingerbread
+    }
+
     /**
      * http://code.google.com/p/android/issues/detail?id=14562
      */
