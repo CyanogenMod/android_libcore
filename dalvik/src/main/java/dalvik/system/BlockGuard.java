@@ -229,10 +229,6 @@ public final class BlockGuard {
             return mNetwork.recvDirect(fd, packet, address, offset, length, peek, connected);
         }
 
-        public void disconnectDatagram(FileDescriptor aFD) throws SocketException {
-            mNetwork.disconnectDatagram(aFD);
-        }
-
         public void sendUrgentData(FileDescriptor fd, byte value) {
             mNetwork.sendUrgentData(fd, value);
         }

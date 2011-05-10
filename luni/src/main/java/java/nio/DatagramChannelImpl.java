@@ -36,7 +36,9 @@ import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Arrays;
+import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
+import libcore.io.Libcore;
 import libcore.util.EmptyArray;
 import org.apache.harmony.luni.platform.Platform;
 
@@ -150,7 +152,11 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         }
         connected = false;
         connectAddress = null;
-        Platform.NETWORK.disconnectDatagram(fd);
+        try {
+            Libcore.os.connect(fd, InetAddress.UNSPECIFIED, 0);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
         if (socket != null) {
             socket.disconnect();
         }

@@ -79,13 +79,28 @@ jobject socketAddressToInetAddress(JNIEnv* env, const sockaddr_storage* ss) {
 static bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss, bool map) {
     memset(ss, 0, sizeof(*ss));
 
-    // Get the byte array that stores the IP address bytes in the InetAddress.
     if (inetAddress == NULL) {
         jniThrowNullPointerException(env, NULL);
         return false;
     }
-    static jfieldID fid = env->GetFieldID(JniConstants::inetAddressClass, "ipaddress", "[B");
-    jbyteArray addressBytes = reinterpret_cast<jbyteArray>(env->GetObjectField(inetAddress, fid));
+
+    // Get the address family.
+    static jfieldID familyFid = env->GetFieldID(JniConstants::inetAddressClass, "family", "I");
+    ss->ss_family = env->GetIntField(inetAddress, familyFid);
+    if (ss->ss_family == AF_UNSPEC) {
+        return true; // Job done!
+    }
+
+    // Check this is an address family we support.
+    if (ss->ss_family != AF_INET && ss->ss_family != AF_INET6) {
+        jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
+                "inetAddressToSocketAddress bad family: %i", ss->ss_family);
+        return false;
+    }
+
+    // Get the byte array that stores the IP address bytes in the InetAddress.
+    static jfieldID bytesFid = env->GetFieldID(JniConstants::inetAddressClass, "ipaddress", "[B");
+    jbyteArray addressBytes = reinterpret_cast<jbyteArray>(env->GetObjectField(inetAddress, bytesFid));
     if (addressBytes == NULL) {
         jniThrowNullPointerException(env, NULL);
         return false;
@@ -93,46 +108,38 @@ static bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int por
 
     // We use AF_INET6 sockets, so we want an IPv6 address (which may be a IPv4-mapped address).
     sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(ss);
-    sin6->sin6_family = AF_INET6;
     sin6->sin6_port = htons(port);
-
-    // Convert the IP address bytes to the appropriate kind of sockaddr.
-    size_t addressLength = env->GetArrayLength(addressBytes);
-    if (addressLength == 4) {
-        if (map) {
-            // We should represent this IPv4 address as an IPv4-mapped IPv6 sockaddr_in6.
-            // Copy the bytes...
-            jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr[12]);
-            env->GetByteArrayRegion(addressBytes, 0, 4, dst);
-            // INADDR_ANY and in6addr_any are both all-zeros...
-            if (!IN6_IS_ADDR_UNSPECIFIED(&sin6->sin6_addr)) {
-                // ...but all other IPv4-mapped addresses are ::ffff:a.b.c.d, so insert the ffff...
-                memset(&(sin6->sin6_addr.s6_addr[10]), 0xff, 2);
-            }
-        } else {
-            // We should represent this IPv4 address as an IPv4 sockaddr_in.
-            sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ss);
-            sin->sin_family = AF_INET;
-            sin->sin_port = htons(port);
-            jbyte* dst = reinterpret_cast<jbyte*>(&sin->sin_addr.s_addr);
-            env->GetByteArrayRegion(addressBytes, 0, 4, dst);
-        }
-        return true;
-    } else if (addressLength == 16) {
+    if (ss->ss_family == AF_INET6) {
         // IPv6 address. Copy the bytes...
         jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr);
         env->GetByteArrayRegion(addressBytes, 0, 16, dst);
         // ...and set the scope id...
-        static jfieldID fid = env->GetFieldID(JniConstants::inet6AddressClass, "scope_id", "I");
-        sin6->sin6_scope_id = env->GetIntField(inetAddress, fid);
+        static jfieldID scopeFid = env->GetFieldID(JniConstants::inet6AddressClass, "scope_id", "I");
+        sin6->sin6_scope_id = env->GetIntField(inetAddress, scopeFid);
         return true;
     }
 
-    // We can't throw SocketException. We aren't meant to see bad addresses, so seeing one
-    // really does imply an internal error.
-    jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
-            "inetAddressToSocketAddress bad array length: %i", addressLength);
-    return false;
+    // Deal with Inet4Address instances.
+    if (map) {
+        // We should represent this Inet4Address as an IPv4-mapped IPv6 sockaddr_in6.
+        // Change the family...
+        sin6->sin6_family = AF_INET6;
+        // Copy the bytes...
+        jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr[12]);
+        env->GetByteArrayRegion(addressBytes, 0, 4, dst);
+        // INADDR_ANY and in6addr_any are both all-zeros...
+        if (!IN6_IS_ADDR_UNSPECIFIED(&sin6->sin6_addr)) {
+            // ...but all other IPv4-mapped addresses are ::ffff:a.b.c.d, so insert the ffff...
+            memset(&(sin6->sin6_addr.s6_addr[10]), 0xff, 2);
+        }
+    } else {
+        // We should represent this Inet4Address as an IPv4 sockaddr_in.
+        sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ss);
+        sin->sin_port = htons(port);
+        jbyte* dst = reinterpret_cast<jbyte*>(&sin->sin_addr.s_addr);
+        env->GetByteArrayRegion(addressBytes, 0, 4, dst);
+    }
+    return true;
 }
 
 bool inetAddressToSockaddr_getnameinfo(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {

@@ -51,8 +51,6 @@ public interface INetworkSystem {
     public int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset,
             int length, boolean peek, boolean connected) throws IOException;
 
-    public void disconnectDatagram(FileDescriptor fd) throws SocketException;
-
     public void sendUrgentData(FileDescriptor fd, byte value);
 
     /**

@@ -29,6 +29,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import libcore.io.IoUtils;
+import libcore.io.Libcore;
 import libcore.io.StructGroupReq;
 import libcore.util.EmptyArray;
 import org.apache.harmony.luni.platform.Platform;
@@ -213,10 +214,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void disconnect() {
-        try {
-            Platform.NETWORK.disconnectDatagram(fd);
-        } catch (Exception ignored) {
-        }
+        Libcore.os.connect(fd, InetAddress.UNSPECIFIED, 0);
         connectedPort = -1;
         connectedAddress = null;
         isNativeConnected = false;

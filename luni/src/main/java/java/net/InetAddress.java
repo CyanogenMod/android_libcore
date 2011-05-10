@@ -160,16 +160,15 @@ public class InetAddress implements Serializable {
     String hostName;
 
     /**
+     * Used by the DatagramSocket.disconnect implementation.
+     * @hide internal use only
+     */
+    public static final InetAddress UNSPECIFIED = new InetAddress(AF_UNSPEC, null, null);
+
+    /**
      * Constructs an {@code InetAddress}.
      *
-     * Note: this constructor should not be used. Creating an InetAddress
-     * without specifying whether it's an IPv4 or IPv6 address does not make
-     * sense, because subsequent code cannot know which of of the subclasses'
-     * methods need to be called to implement a given InetAddress method. The
-     * proper way to create an InetAddress is to call new Inet4Address or
-     * Inet6Address or to use one of the static methods that return
-     * InetAddresses (e.g., getByAddress). That is why the API does not have
-     * public constructors for any of these classes.
+     * Note: this constructor is for subclasses only.
      */
     InetAddress(int family, byte[] ipaddress, String hostName) {
         this.family = family;

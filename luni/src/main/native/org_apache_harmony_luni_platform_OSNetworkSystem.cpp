@@ -252,24 +252,6 @@ static void OSNetworkSystem_sendUrgentData(JNIEnv* env, jobject,
     }
 }
 
-static void OSNetworkSystem_disconnectDatagram(JNIEnv* env, jobject, jobject fileDescriptor) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return;
-    }
-
-    // To disconnect a datagram socket, we connect to a bogus address with
-    // the family AF_UNSPEC.
-    sockaddr_storage ss;
-    memset(&ss, 0, sizeof(ss));
-    ss.ss_family = AF_UNSPEC;
-    const sockaddr* sa = reinterpret_cast<const sockaddr*>(&ss);
-    int rc = TEMP_FAILURE_RETRY(connect(fd.get(), sa, sizeof(ss)));
-    if (rc == -1) {
-        jniThrowSocketException(env, errno);
-    }
-}
-
 // TODO: can we merge this with recvDirect?
 static jint OSNetworkSystem_readDirect(JNIEnv* env, jobject, jobject fileDescriptor,
         jint address, jint count) {
@@ -553,7 +535,6 @@ static void OSNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, accept, "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(OSNetworkSystem, close, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(OSNetworkSystem, disconnectDatagram, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(OSNetworkSystem, isConnected, "(Ljava/io/FileDescriptor;I)Z"),
     NATIVE_METHOD(OSNetworkSystem, read, "(Ljava/io/FileDescriptor;[BII)I"),
     NATIVE_METHOD(OSNetworkSystem, readDirect, "(Ljava/io/FileDescriptor;II)I"),

@@ -20,6 +20,7 @@ package java.net;
 import java.io.ObjectStreamException;
 import java.nio.ByteOrder;
 import libcore.io.Memory;
+import static libcore.io.OsConstants.*;
 
 /**
  * An IPv4 address. See {@link InetAddress}.
@@ -27,8 +28,6 @@ import libcore.io.Memory;
 public final class Inet4Address extends InetAddress {
 
     private static final long serialVersionUID = 3286316764910316507L;
-
-    private static final int AF_INET = 2;
 
     /**
      * @hide
