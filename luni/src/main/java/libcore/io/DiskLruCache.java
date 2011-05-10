@@ -16,13 +16,13 @@
 
 package libcore.io;
 
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.Closeable;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,12 +83,12 @@ public final class DiskLruCache implements Closeable {
      *     1
      *     2
      *
-     *     CLEAN 3400330d1dfc7f3f7f4b8d4d803dfcf6 00000832 00021054
+     *     CLEAN 3400330d1dfc7f3f7f4b8d4d803dfcf6 832 21054
      *     DIRTY 335c4c6028171cfddfbaae1a9c313c52
-     *     CLEAN 335c4c6028171cfddfbaae1a9c313c52 00003F34 00002342
+     *     CLEAN 335c4c6028171cfddfbaae1a9c313c52 3934 2342
      *     REMOVE 335c4c6028171cfddfbaae1a9c313c52
      *     DIRTY 1ab96a171faeeee38496d8b330771a7a
-     *     CLEAN 1ab96a171faeeee38496d8b330771a7a 00000A00 00000234
+     *     CLEAN 1ab96a171faeeee38496d8b330771a7a 1600 234
      *     READ 335c4c6028171cfddfbaae1a9c313c52
      *     READ 3400330d1dfc7f3f7f4b8d4d803dfcf6
      *
@@ -105,7 +105,7 @@ public final class DiskLruCache implements Closeable {
      *     temporary files may need to be deleted.
      *   o CLEAN lines track a cache entry that has been successfully published
      *     and may be read. A publish line is followed by the lengths of each of
-     *     its values in 8-character hexadecimal.
+     *     its values.
      *   o READ lines track accesses for LRU.
      *   o REMOVE lines track entries that have been deleted.
      *
@@ -152,8 +152,7 @@ public final class DiskLruCache implements Closeable {
             } catch (IOException journalIsCorrupt) {
                 System.logW("DiskLruCache " + directory + " is corrupt: "
                         + journalIsCorrupt.getMessage() + ", removing");
-                IoUtils.closeQuietly(cache);
-                deleteContents(directory);
+                cache.delete();
             }
         }
 
@@ -164,12 +163,12 @@ public final class DiskLruCache implements Closeable {
     }
 
     private void readJournal() throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(journalFile));
+        InputStream in = new BufferedInputStream(new FileInputStream(journalFile));
         try {
-            String magic = reader.readLine();
-            String version = reader.readLine();
-            String valueCountString = reader.readLine();
-            String blank = reader.readLine();
+            String magic = IoUtils.readLine(in);
+            String version = IoUtils.readLine(in);
+            String valueCountString = IoUtils.readLine(in);
+            String blank = IoUtils.readLine(in);
             if (!MAGIC.equals(magic)
                     || !VERSION_1.equals(version)
                     || valueCountString == null
@@ -187,12 +186,15 @@ public final class DiskLruCache implements Closeable {
                         + " but was " + valueCountString);
             }
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                readJournalLine(line);
+            while (true) {
+                try {
+                    readJournalLine(IoUtils.readLine(in));
+                } catch (EOFException endOfJournal) {
+                    break;
+                }
             }
         } finally {
-            IoUtils.closeQuietly(reader);
+            IoUtils.closeQuietly(in);
         }
     }
 
@@ -285,20 +287,6 @@ public final class DiskLruCache implements Closeable {
         } catch (ErrnoException e) {
             if (e.errno != OsConstants.ENOENT) {
                 throw e;
-            }
-        }
-    }
-
-    /**
-     * Recursively delete everything in directory.
-     */
-    private static void deleteContents(File dir) throws IOException {
-        for (File file : dir.listFiles()) {
-            if (file.isDirectory()) {
-                deleteContents(file);
-            }
-            if (!file.delete()) {
-                throw new IOException("failed to delete file: " + file);
             }
         }
     }
@@ -437,6 +425,16 @@ public final class DiskLruCache implements Closeable {
         journalWriter = null;
     }
 
+    /**
+     * Closes the cache and deletes all of its stored contents. This will delete
+     * all files in the cache directory including files that weren't created by
+     * the cache.
+     */
+    public void delete() throws IOException {
+        close();
+        IoUtils.deleteContents(directory);
+    }
+
     private void validateKey(String key) {
         if (key.contains(" ") || key.contains("\n") || key.contains("\r")) {
             throw new IllegalArgumentException(
@@ -536,7 +534,7 @@ public final class DiskLruCache implements Closeable {
         private final String key;
 
         /** Lengths of this entry's files. */
-        private final int[] lengths;
+        private final long[] lengths;
 
         /** True if this entry has ever been published */
         private boolean readable;
@@ -546,19 +544,19 @@ public final class DiskLruCache implements Closeable {
 
         private Entry(String key) {
             this.key = key;
-            this.lengths = new int[valueCount];
+            this.lengths = new long[valueCount];
         }
 
         public String getLengths() throws IOException {
             StringBuilder result = new StringBuilder();
-            for (int size : lengths) {
-                result.append(String.format(" %08x", size));
+            for (long size : lengths) {
+                result.append(' ').append(size);
             }
             return result.toString();
         }
 
         /**
-         * Set lengths using 8-character hexadecimal numbers like "0000A123".
+         * Set lengths using decimal numbers like "10123".
          */
         private void setLengths(String[] strings) throws IOException {
             if (strings.length != valueCount) {
@@ -567,10 +565,7 @@ public final class DiskLruCache implements Closeable {
 
             try {
                 for (int i = 0; i < strings.length; i++) {
-                    if (strings[i].length() != 8) {
-                        throw invalidLengths(strings);
-                    }
-                    lengths[i] = Integer.parseInt(strings[i]);
+                    lengths[i] = Long.parseLong(strings[i]);
                 }
             } catch (NumberFormatException e) {
                 throw invalidLengths(strings);

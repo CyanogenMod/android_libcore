@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.CacheRequest;
 import java.util.Arrays;
+import libcore.io.IoUtils;
 
 /**
  * An HTTP body with alternating chunk sizes and chunk bodies.
@@ -73,9 +74,9 @@ final class ChunkedInputStream extends AbstractHttpInputStream {
     private void readChunkSize() throws IOException {
         // read the suffix of the previous chunk
         if (bytesRemainingInChunk != NO_CHUNK_YET) {
-            HttpEngine.readLine(in);
+            IoUtils.readLine(in);
         }
-        String chunkSizeString = HttpEngine.readLine(in);
+        String chunkSizeString = IoUtils.readLine(in);
         int index = chunkSizeString.indexOf(";");
         if (index != -1) {
             chunkSizeString = chunkSizeString.substring(0, index);

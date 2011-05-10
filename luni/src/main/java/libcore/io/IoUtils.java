@@ -17,9 +17,12 @@
 package libcore.io;
 
 import java.io.Closeable;
+import java.io.EOFException;
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.BindException;
 import java.net.ConnectException;
@@ -28,7 +31,9 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.net.BindException;
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -546,5 +551,47 @@ public final class IoUtils {
         } finally {
             IoUtils.closeQuietly(f);
         }
+    }
+
+    /**
+     * Recursively delete everything in {@code dir}.
+     */
+    public static void deleteContents(File dir) throws IOException {
+        for (File file : dir.listFiles()) {
+            if (file.isDirectory()) {
+                deleteContents(file);
+            }
+            if (!file.delete()) {
+                throw new IOException("failed to delete file: " + file);
+            }
+        }
+    }
+
+    /**
+     * Returns the ASCII characters up to but not including the next "\r\n", or
+     * "\n".
+     *
+     * @throws EOFException if the stream is exhausted before the next newline
+     *     character.
+     */
+    public static String readLine(InputStream in) throws IOException {
+        // TODO: support UTF-8 here instead
+
+        StringBuilder result = new StringBuilder(80);
+        while (true) {
+            int c = in.read();
+            if (c == -1) {
+                throw new EOFException();
+            } else if (c == '\n') {
+                break;
+            }
+
+            result.append((char) c);
+        }
+        int length = result.length();
+        if (length > 0 && result.charAt(length - 1) == '\r') {
+            result.setLength(length - 1);
+        }
+        return result.toString();
     }
 }
