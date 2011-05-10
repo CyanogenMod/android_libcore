@@ -18,7 +18,7 @@ package tests.api.javax.net.ssl;
 
 import junit.framework.TestCase;
 
-import org.apache.harmony.luni.util.Base64;
+import libcore.io.Base64;
 
 import tests.support.Support_PortManager;
 

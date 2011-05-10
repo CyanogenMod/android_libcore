@@ -19,16 +19,16 @@
 * @author Alexander Y. Kleymenov
 */
 
-package org.apache.harmony.luni.util;
+package libcore.io;
 
-import java.nio.charset.Charset;
+import java.nio.charset.Charsets;
 import libcore.util.EmptyArray;
 
 /**
- * This class implements Base64 encoding/decoding functionality
- * as specified in RFC 2045 (http://www.ietf.org/rfc/rfc2045.txt).
+ * <a href="http://www.ietf.org/rfc/rfc2045.txt">Base64</a> encoder/decoder.
+ * In violation of the RFC, this encoder doesn't wrap lines at 76 columns.
  */
-public class Base64 {
+public final class Base64 {
     private Base64() {
     }
 
@@ -132,22 +132,15 @@ public class Base64 {
          'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3',
          '4', '5', '6', '7', '8', '9', '+', '/'};
 
-    public static String encode(byte[] in, Charset charset) {
-        int length = in.length * 4 / 3;
-        length += length / 76 + 3; // for crlr
+    public static String encode(byte[] in) {
+        int length = (in.length + 2) * 4 / 3;
         byte[] out = new byte[length];
-        int index = 0, i, crlr = 0, end = in.length - in.length%3;
-        for (i=0; i<end; i+=3) {
+        int index = 0, end = in.length - in.length % 3;
+        for (int i = 0; i < end; i += 3) {
             out[index++] = map[(in[i] & 0xff) >> 2];
             out[index++] = map[((in[i] & 0x03) << 4) | ((in[i+1] & 0xff) >> 4)];
             out[index++] = map[((in[i+1] & 0x0f) << 2) | ((in[i+2] & 0xff) >> 6)];
             out[index++] = map[(in[i+2] & 0x3f)];
-            if (((index - crlr)%76 == 0) && (index != 0)) {
-                out[index++] = '\n';
-                crlr++;
-                //out[index++] = '\r';
-                //crlr++;
-            }
         }
         switch (in.length % 3) {
             case 1:
@@ -163,6 +156,6 @@ public class Base64 {
                 out[index++] = '=';
                 break;
         }
-        return new String(out, 0, index, charset);
+        return new String(out, 0, index, Charsets.US_ASCII);
     }
 }

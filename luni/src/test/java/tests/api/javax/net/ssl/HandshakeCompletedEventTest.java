@@ -40,7 +40,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.security.cert.X509Certificate;
 import junit.framework.TestCase;
-import org.apache.harmony.luni.util.Base64;
+import libcore.io.Base64;
 import org.apache.harmony.xnet.tests.support.mySSLSession;
 import tests.support.Support_PortManager;
 

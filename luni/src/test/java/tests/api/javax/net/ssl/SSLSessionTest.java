@@ -36,7 +36,7 @@ import javax.net.ssl.SSLSessionBindingListener;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import junit.framework.TestCase;
-import org.apache.harmony.luni.util.Base64;
+import libcore.io.Base64;
 import tests.api.javax.net.ssl.HandshakeCompletedEventTest.MyHandshakeListener;
 import tests.api.javax.net.ssl.HandshakeCompletedEventTest.TestTrustManager;
 import tests.support.Support_PortManager;
