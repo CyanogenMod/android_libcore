@@ -25,6 +25,10 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
@@ -35,8 +39,6 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.charset.Charsets;
 import java.util.Arrays;
-import libcore.io.ErrnoException;
-import libcore.io.Libcore;
 import libcore.util.MutableInt;
 import static libcore.io.OsConstants.*;
 
@@ -499,6 +501,20 @@ public final class IoUtils {
      */
     public static String readFileAsString(String path) throws IOException {
         return readFileAsBytes(path).toString(Charsets.UTF_8);
+    }
+
+    /**
+     * Returns the remainder of 'reader' as a string, closing it when done.
+     */
+    public static String readReaderAsString(Reader reader) throws IOException {
+        StringWriter writer = new StringWriter();
+        char[] buffer = new char[8192];
+        int count;
+        while ((count = reader.read(buffer)) != -1) {
+            writer.write(buffer, 0, count);
+        }
+        reader.close();
+        return writer.toString();
     }
 
     private static UnsafeByteSequence readFileAsBytes(String path) throws IOException {
