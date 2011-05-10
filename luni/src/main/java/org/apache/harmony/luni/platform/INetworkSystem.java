@@ -39,7 +39,6 @@ public interface INetworkSystem {
 
     public int writeDirect(FileDescriptor fd, int address, int offset, int count) throws IOException;
 
-    public boolean connect(FileDescriptor fd, InetAddress inetAddress, int port) throws IOException;
     public boolean isConnected(FileDescriptor fd, int timeout) throws IOException;
 
     public int send(FileDescriptor fd, byte[] data, int offset, int length,

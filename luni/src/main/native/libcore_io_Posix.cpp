@@ -16,6 +16,7 @@
 
 #define LOG_TAG "Posix"
 
+#include "AsynchronousSocketCloseMonitor.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
@@ -56,6 +57,43 @@ struct addrinfo_deleter {
         }
     }
 };
+
+/**
+ * Used to retry syscalls that can return EINTR. This differs from TEMP_FAILURE_RETRY in that
+ * it also considers the case where the reason for failure is that another thread called
+ * Socket.close.
+ *
+ * Assumes 'JNIEnv* env' and 'jobject javaFd' (which is a java.io.FileDescriptor) are in scope.
+ *
+ * Returns the result of 'exp', though a Java exception will be pending if the result is -1.
+ *
+ * Correct usage looks like this:
+ *
+ * void Posix_syscall(JNIEnv* env, jobject javaFd, ...) {
+ *     ...
+ *     int fd;
+ *     NET_FAILURE_RETRY("syscall", syscall(fd, ...)); // Throws on error.
+ * }
+ */
+#define NET_FAILURE_RETRY(syscall_name, exp) ({ \
+    typeof (exp) _rc = -1; \
+    do { \
+        { \
+            fd = jniGetFDFromFileDescriptor(env, javaFd); \
+            AsynchronousSocketCloseMonitor monitor(fd); \
+            _rc = (exp); \
+        } \
+        if (_rc == -1) { \
+            if (jniGetFDFromFileDescriptor(env, javaFd) == -1) { \
+                jniThrowException(env, "java/net/SocketException", "Socket closed"); \
+                break; \
+            } else if (errno != EINTR) { \
+                throwErrnoException(env, syscall_name); \
+                break; \
+            } \
+        } \
+    } while (_rc == -1); \
+    _rc; })
 
 static void throwException(JNIEnv* env, jclass exceptionClass, jmethodID ctor3, jmethodID ctor2,
         const char* functionName, int error) {
@@ -290,9 +328,9 @@ static void Posix_bind(JNIEnv* env, jobject, jobject javaFd, jobject javaAddress
     if (!inetAddressToSockaddr(env, javaAddress, port, &ss)) {
         return;
     }
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    int fd;
     const sockaddr* sa = reinterpret_cast<const sockaddr*>(&ss);
-    throwIfMinusOne(env, "bind", TEMP_FAILURE_RETRY(bind(fd, sa, sizeof(sockaddr_storage))));
+    NET_FAILURE_RETRY("bind", bind(fd, sa, sizeof(sockaddr_storage)));
 }
 
 static void Posix_chmod(JNIEnv* env, jobject, jstring javaPath, jint mode) {
@@ -313,6 +351,16 @@ static void Posix_close(JNIEnv* env, jobject, jobject javaFd) {
     // Using TEMP_FAILURE_RETRY will either lead to EBADF or closing someone else's fd.
     // http://lkml.indiana.edu/hypermail/linux/kernel/0509.1/0877.html
     throwIfMinusOne(env, "close", close(fd));
+}
+
+static void Posix_connect(JNIEnv* env, jobject, jobject javaFd, jobject javaAddress, jint port) {
+    sockaddr_storage ss;
+    if (!inetAddressToSockaddr(env, javaAddress, port, &ss)) {
+        return;
+    }
+    int fd;
+    const sockaddr* sa = reinterpret_cast<const sockaddr*>(&ss);
+    NET_FAILURE_RETRY("connect", connect(fd, sa, sizeof(sockaddr_storage)));
 }
 
 static jobjectArray Posix_environ(JNIEnv* env, jobject) {
@@ -932,6 +980,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, bind, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
     NATIVE_METHOD(Posix, chmod, "(Ljava/lang/String;I)V"),
     NATIVE_METHOD(Posix, close, "(Ljava/io/FileDescriptor;)V"),
+    NATIVE_METHOD(Posix, connect, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
     NATIVE_METHOD(Posix, environ, "()[Ljava/lang/String;"),
     NATIVE_METHOD(Posix, fcntlVoid, "(Ljava/io/FileDescriptor;I)I"),
     NATIVE_METHOD(Posix, fcntlLong, "(Ljava/io/FileDescriptor;IJ)I"),

@@ -28,6 +28,7 @@ public interface Os {
     public void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException;
     public void chmod(String path, int mode) throws ErrnoException;
     public void close(FileDescriptor fd) throws ErrnoException;
+    public void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException;
     public String[] environ();
     public int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException;
     public int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException;

@@ -37,6 +37,7 @@ public class ForwardingOs implements Os {
     public void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException { os.bind(fd, address, port); }
     public void chmod(String path, int mode) throws ErrnoException { os.chmod(path, mode); }
     public void close(FileDescriptor fd) throws ErrnoException { os.close(fd); }
+    public void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException { os.connect(fd, address, port); }
     public String[] environ() { return os.environ(); }
     public int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException { return os.fcntlVoid(fd, cmd); }
     public int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException { return os.fcntlLong(fd, cmd, arg); }

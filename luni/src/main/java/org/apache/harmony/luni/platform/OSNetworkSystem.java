@@ -44,7 +44,6 @@ final class OSNetworkSystem implements INetworkSystem {
     public native void accept(FileDescriptor serverFd, SocketImpl newSocket,
             FileDescriptor clientFd) throws IOException;
 
-    public native boolean connect(FileDescriptor fd, InetAddress inetAddress, int port) throws IOException;
     public native boolean isConnected(FileDescriptor fd, int timeout) throws IOException;
 
     public native void disconnectDatagram(FileDescriptor fd) throws SocketException;

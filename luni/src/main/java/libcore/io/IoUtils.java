@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.BindException;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -238,6 +239,8 @@ public final class IoUtils {
     public static boolean connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws SocketException, SocketTimeoutException {
         try {
             return connectErrno(fd, inetAddress, port, timeoutMs);
+        } catch (ErrnoException errnoException) {
+            throw new ConnectException(connectDetail(inetAddress, port, timeoutMs) + ": " + errnoException.getMessage(), errnoException);
         } catch (SocketException ex) {
             throw ex; // We don't want to doubly wrap these.
         } catch (SocketTimeoutException ex) {
@@ -247,11 +250,11 @@ public final class IoUtils {
         }
     }
 
-    // TODO: this is the wrong name now, but when this gets rewritten without Platform.NETWORK...
     private static boolean connectErrno(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws IOException {
         // With no timeout, just call connect(2) directly.
         if (timeoutMs == 0) {
-            return Platform.NETWORK.connect(fd, inetAddress, port);
+            Libcore.os.connect(fd, inetAddress, port);
+            return true;
         }
 
         // With a timeout, we set the socket to non-blocking, connect(2), and then loop
@@ -260,24 +263,34 @@ public final class IoUtils {
         long finishTimeMs = System.currentTimeMillis() + timeoutMs;
         IoUtils.setBlocking(fd, false);
         try {
-            if (Platform.NETWORK.connect(fd, inetAddress, port)) {
-                return true;
+            try {
+                Libcore.os.connect(fd, inetAddress, port);
+                return true; // We connected immediately.
+            } catch (ErrnoException errnoException) {
+                if (errnoException.errno != EINPROGRESS) {
+                    throw errnoException;
+                }
+                // EINPROGRESS means we should keep trying...
             }
             int remainingTimeoutMs;
             do {
                 remainingTimeoutMs = (int) (finishTimeMs - System.currentTimeMillis());
                 if (remainingTimeoutMs <= 0) {
-                    String detail = "failed to connect to " + inetAddress + " (port " + port + ")";
-                    if (timeoutMs > 0) {
-                        detail += " after " + timeoutMs + "ms";
-                    }
-                    throw new SocketTimeoutException(detail);
+                    throw new SocketTimeoutException(connectDetail(inetAddress, port, timeoutMs));
                 }
             } while (!Platform.NETWORK.isConnected(fd, remainingTimeoutMs));
             return true; // Or we'd have thrown.
         } finally {
             IoUtils.setBlocking(fd, true);
         }
+    }
+
+    private static String connectDetail(InetAddress inetAddress, int port, int timeoutMs) {
+        String detail = "failed to connect to " + inetAddress + " (port " + port + ")";
+        if (timeoutMs > 0) {
+            detail += " after " + timeoutMs + "ms";
+        }
+        return detail;
     }
 
     /**

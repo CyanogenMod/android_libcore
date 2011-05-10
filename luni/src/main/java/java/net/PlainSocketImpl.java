@@ -172,14 +172,10 @@ public class PlainSocketImpl extends SocketImpl {
      */
     private void connect(InetAddress anAddr, int aPort, int timeout) throws IOException {
         InetAddress normalAddr = anAddr.isAnyLocalAddress() ? InetAddress.getLocalHost() : anAddr;
-        try {
-            if (streaming && usingSocks()) {
-                socksConnect(anAddr, aPort, 0);
-            } else {
-                IoUtils.connect(fd, normalAddr, aPort, timeout);
-            }
-        } catch (ConnectException e) {
-            throw new ConnectException(anAddr + " (port " + aPort + "): " + e.getMessage());
+        if (streaming && usingSocks()) {
+            socksConnect(anAddr, aPort, 0);
+        } else {
+            IoUtils.connect(fd, normalAddr, aPort, timeout);
         }
         super.address = normalAddr;
         super.port = aPort;

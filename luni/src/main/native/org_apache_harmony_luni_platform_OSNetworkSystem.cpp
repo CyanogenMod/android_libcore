@@ -134,38 +134,6 @@ static jint OSNetworkSystem_write(JNIEnv* env, jobject,
     return result;
 }
 
-static jboolean OSNetworkSystem_connect(JNIEnv* env, jobject, jobject fileDescriptor, jobject inetAddr, jint port) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return JNI_FALSE;
-    }
-
-    sockaddr_storage ss;
-    if (!inetAddressToSockaddr(env, inetAddr, port, &ss)) {
-        return JNI_FALSE;
-    }
-
-    // Initiate a connection attempt...
-    int rc = connect(fd.get(), reinterpret_cast<const sockaddr*>(&ss), sizeof(sockaddr_storage));
-    int connectErrno = errno;
-
-    // Did we get interrupted?
-    if (fd.isClosed()) {
-        return JNI_FALSE;
-    }
-
-    // Did we fail to connect?
-    if (rc == -1) {
-        if (connectErrno != EINPROGRESS) {
-            throwConnectException(env, connectErrno); // Permanent failure, so throw.
-        }
-        return JNI_FALSE;
-    }
-
-    // We connected straight away!
-    return JNI_TRUE;
-}
-
 static jboolean OSNetworkSystem_isConnected(JNIEnv* env, jobject, jobject fileDescriptor, jint timeout) {
     NetFd netFd(env, fileDescriptor);
     if (netFd.isClosed()) {
@@ -585,7 +553,6 @@ static void OSNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, accept, "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(OSNetworkSystem, close, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(OSNetworkSystem, connect, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)Z"),
     NATIVE_METHOD(OSNetworkSystem, disconnectDatagram, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(OSNetworkSystem, isConnected, "(Ljava/io/FileDescriptor;I)Z"),
     NATIVE_METHOD(OSNetworkSystem, read, "(Ljava/io/FileDescriptor;[BII)I"),
