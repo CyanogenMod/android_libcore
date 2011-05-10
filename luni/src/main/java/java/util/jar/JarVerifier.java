@@ -33,7 +33,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import org.apache.harmony.luni.util.Base64;
+import libcore.io.Base64;
 import org.apache.harmony.security.utils.JarUtils;
 
 /**
