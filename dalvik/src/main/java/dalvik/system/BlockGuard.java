@@ -195,11 +195,6 @@ public final class BlockGuard {
             return mNetwork.writeDirect(fd, address, offset, count);
         }
 
-        public boolean connect(FileDescriptor fd, InetAddress inetAddress, int port) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.connect(fd, inetAddress, port);
-        }
-
         public boolean isConnected(FileDescriptor fd, int timeout) throws IOException {
             if (timeout != 0) {
                 // Greater than 0 is a timeout, but zero means "poll and return immediately".

@@ -18,6 +18,7 @@ package libcore.io;
 
 import dalvik.system.BlockGuard;
 import java.io.FileDescriptor;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import static libcore.io.OsConstants.*;
 
@@ -27,6 +28,11 @@ import static libcore.io.OsConstants.*;
 public class BlockGuardOs extends ForwardingOs {
     public BlockGuardOs(Os os) {
         super(os);
+    }
+
+    public void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onNetwork();
+        os.connect(fd, address, port);
     }
 
     public void fdatasync(FileDescriptor fd) throws ErrnoException {
