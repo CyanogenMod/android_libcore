@@ -18,6 +18,7 @@ package libcore.java.net;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,8 +45,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -61,16 +62,22 @@ import static tests.http.SocketPolicy.DISCONNECT_AT_END;
 
 public final class HttpResponseCacheTest extends TestCase {
     private MockWebServer server = new MockWebServer();
-    private HttpResponseCache cache = new HttpResponseCache();
+    private HttpResponseCache cache;
 
     @Override protected void setUp() throws Exception {
         super.setUp();
+
+        String tmp = System.getProperty("java.io.tmpdir");
+        File cacheDir = new File(tmp, "HttpCache-" + UUID.randomUUID());
+        cacheDir.mkdir();
+        cache = new HttpResponseCache(cacheDir, Integer.MAX_VALUE);
         ResponseCache.setDefault(cache);
     }
 
     @Override protected void tearDown() throws Exception {
-        ResponseCache.setDefault(null);
         server.shutdown();
+        ResponseCache.setDefault(null);
+        cache.delete();
         super.tearDown();
     }
 
@@ -153,11 +160,14 @@ public final class HttpResponseCacheTest extends TestCase {
         // exhaust the content stream
         readAscii(conn);
 
-        Set<URI> expectedCachedUris = shouldPut
-                ? Collections.singleton(url.toURI())
-                : Collections.<URI>emptySet();
-        assertEquals(Integer.toString(responseCode),
-                expectedCachedUris, cache.getContents().keySet());
+        CacheResponse cached = cache.get(url.toURI(), "GET",
+                Collections.<String, List<String>>emptyMap());
+        if (shouldPut) {
+            assertNotNull(Integer.toString(responseCode), cached);
+            cached.getBody().close();
+        } else {
+            assertNull(Integer.toString(responseCode), cached);
+        }
         server.shutdown(); // tearDown() isn't sufficient; this test starts multiple servers
     }
 
@@ -260,6 +270,7 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals("Fantastic", urlConnection.getResponseMessage());
 
         assertEquals(-1, in.read());
+        in.close();
         assertEquals(1, cache.getMissCount());
         assertEquals(1, cache.getHitCount());
         assertEquals(1, cache.getSuccessCount());
@@ -450,6 +461,8 @@ public final class HttpResponseCacheTest extends TestCase {
             reader.readLine();
             fail("This implementation silently ignored a truncated HTTP body.");
         } catch (IOException expected) {
+        } finally {
+            reader.close();
         }
 
         assertEquals(1, cache.getAbortCount());
@@ -1374,16 +1387,14 @@ public final class HttpResponseCacheTest extends TestCase {
         return bytesOut.toByteArray();
     }
 
-    private static class InsecureResponseCache extends ResponseCache {
-        private final HttpResponseCache delegate = new HttpResponseCache();
-
+    private class InsecureResponseCache extends ResponseCache {
         @Override public CacheRequest put(URI uri, URLConnection connection) throws IOException {
-            return delegate.put(uri, connection);
+            return cache.put(uri, connection);
         }
 
         @Override public CacheResponse get(URI uri, String requestMethod,
                 Map<String, List<String>> requestHeaders) throws IOException {
-            final CacheResponse response = delegate.get(uri, requestMethod, requestHeaders);
+            final CacheResponse response = cache.get(uri, requestMethod, requestHeaders);
             if (response instanceof SecureCacheResponse) {
                 return new CacheResponse() {
                     @Override public InputStream getBody() throws IOException {

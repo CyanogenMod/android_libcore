@@ -31,4 +31,11 @@ public final class IntegralToStringTest extends TestCase {
 
         assertEquals("ffffffff", IntegralToString.intToHexString(-1, false, 0));
     }
+
+    public void testBytesToHexString() {
+        assertEquals("abcdef", IntegralToString.bytesToHexString(
+                new byte[] { (byte) 0xab, (byte) 0xcd, (byte) 0xef }, false));
+        assertEquals("ABCDEF", IntegralToString.bytesToHexString(
+                new byte[] { (byte) 0xab, (byte) 0xcd, (byte) 0xef }, true));
+    }
 }

@@ -19,7 +19,6 @@ package libcore.net.http;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -245,15 +244,14 @@ public class HttpEngine {
         }
 
         CacheResponse candidate = responseCache.get(uri, method, rawRequestHeaders.toMultimap());
-        if (candidate == null || !acceptCacheResponseType(candidate)) {
+        if (candidate == null) {
             return;
         }
+
         Map<String, List<String>> responseHeaders = candidate.getHeaders();
-        if (responseHeaders == null) {
-            return;
-        }
-        InputStream cacheBodyIn = candidate.getBody(); // must be closed
-        if (cacheBodyIn == null) {
+        InputStream cacheBodyIn = candidate.getBody();
+        if (!acceptCacheResponseType(candidate) || responseHeaders == null || cacheBodyIn == null) {
+            IoUtils.closeQuietly(cacheBodyIn);
             return;
         }
 
@@ -541,33 +539,11 @@ public class HttpEngine {
         return new UnknownLengthHttpInputStream(socketIn, cacheRequest, this);
     }
 
-    /**
-     * Returns the characters up to but not including the next "\r\n", or "\n".
-     */
-    static String readLine(InputStream is) throws IOException {
-        StringBuilder result = new StringBuilder(80);
-        while (true) {
-            int c = is.read();
-            if (c == -1) {
-                throw new EOFException();
-            } else if (c == '\n') {
-                break;
-            }
-
-            result.append((char) c);
-        }
-        int length = result.length();
-        if (length > 0 && result.charAt(length - 1) == '\r') {
-            result.setLength(length - 1);
-        }
-        return result.toString();
-    }
-
     private void readResponseHeaders() throws IOException {
         RawHeaders headers;
         do {
             headers = new RawHeaders();
-            headers.setStatusLine(readLine(socketIn).trim());
+            headers.setStatusLine(IoUtils.readLine(socketIn));
             readHeaders(headers);
             setResponse(headers, null);
         } while (headers.getResponseCode() == HTTP_CONTINUE);
@@ -614,14 +590,8 @@ public class HttpEngine {
     private void readHeaders(RawHeaders headers) throws IOException {
         // parse the result headers until the first blank line
         String line;
-        while ((line = readLine(socketIn)).length() > 1) {
-            // Header parsing
-            int index = line.indexOf(":");
-            if (index == -1) {
-                headers.add("", line);
-            } else {
-                headers.add(line.substring(0, index), line.substring(index + 1));
-            }
+        while ((line = IoUtils.readLine(socketIn)).length() > 1) {
+            headers.addLine(line);
         }
 
         CookieHandler cookieHandler = CookieHandler.getDefault();

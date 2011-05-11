@@ -78,6 +78,7 @@ final class RawHeaders implements Cloneable {
      * (like "GET / HTTP/1.1").
      */
     public void setStatusLine(String statusLine) {
+        statusLine = statusLine.trim();
         this.statusLine = statusLine;
 
         if (statusLine == null || !statusLine.startsWith("HTTP/")) {
@@ -125,6 +126,19 @@ final class RawHeaders implements Cloneable {
      */
     public String getResponseMessage() {
         return responseMessage;
+    }
+
+    /**
+     * Add an HTTP header line containing a field name, a literal colon, and a
+     * value.
+     */
+    public void addLine(String line) {
+        int index = line.indexOf(":");
+        if (index == -1) {
+            add("", line);
+        } else {
+            add(line.substring(0, index), line.substring(index + 1));
+        }
     }
 
     /**
