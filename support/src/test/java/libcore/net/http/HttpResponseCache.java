@@ -51,14 +51,19 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import libcore.io.Base64;
 import libcore.io.DiskLruCache;
 import libcore.io.IoUtils;
+import libcore.io.Streams;
 
 /**
- * Cache all responses in memory by URI.
+ * Cache responses in a cache directory.
  *
- * TODO: disk storage, tuning knobs, LRU
+ * TODO: tuning knobs, LRU
  * TODO: move this class to android.util
  */
 public final class HttpResponseCache extends ResponseCache implements Closeable {
+    private static final int ENTRY_METADATA = 0;
+    private static final int ENTRY_BODY = 1;
+    private static final int ENTRY_COUNT = 2;
+
     private final DiskLruCache cache;
     private int abortCount;
     private int successCount;
@@ -66,7 +71,7 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
     private int missCount;
 
     public HttpResponseCache(File directory, int maxSize) throws IOException {
-        cache = DiskLruCache.open(directory, 2, maxSize);
+        cache = DiskLruCache.open(directory, ENTRY_COUNT, maxSize);
     }
 
     private String uriToKey(URI uri) {
@@ -75,7 +80,7 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
             byte[] md5bytes = messageDigest.digest(uri.toString().getBytes(Charsets.UTF_8));
             return IntegralToString.bytesToHexString(md5bytes, false);
         } catch (NoSuchAlgorithmException e) {
-            throw new AssertionError();
+            throw new AssertionError(e);
         }
     }
 
@@ -89,7 +94,7 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
             return null;
         }
 
-        Entry entry = new Entry(new BufferedInputStream(snapshot.getInputStream(0)));
+        Entry entry = new Entry(new BufferedInputStream(snapshot.getInputStream(ENTRY_METADATA)));
         if (!entry.matches(uri, requestMethod)) {
             snapshot.close();
             missCount++;
@@ -141,6 +146,9 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
 
     // TODO: add APIs to iterate the cache
 
+    /**
+     * Closes this cache. Stored contents will remain on the filesystem.
+     */
     public void close() throws IOException {
         cache.close();
     }
@@ -188,7 +196,7 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
 
         public CacheRequestImpl(final DiskLruCache.Editor editor) throws IOException {
             this.editor = editor;
-            this.cacheOut = editor.newOutputStream(1);
+            this.cacheOut = editor.newOutputStream(ENTRY_BODY);
             this.body = new FilterOutputStream(cacheOut) {
                 @Override public void close() throws IOException {
                     if (done) {
@@ -269,21 +277,21 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
          */
         public Entry(InputStream in) throws IOException {
             try {
-                uri = IoUtils.readLine(in);
-                requestMethod = IoUtils.readLine(in);
+                uri = Streams.readAsciiLine(in);
+                requestMethod = Streams.readAsciiLine(in);
                 responseHeaders = new RawHeaders();
-                responseHeaders.setStatusLine(IoUtils.readLine(in));
+                responseHeaders.setStatusLine(Streams.readAsciiLine(in));
                 int headerCount = readInt(in);
                 for (int i = 0; i < headerCount; i++) {
-                    responseHeaders.addLine(IoUtils.readLine(in));
+                    responseHeaders.addLine(Streams.readAsciiLine(in));
                 }
 
                 if (isHttps()) {
-                    String blank = IoUtils.readLine(in);
+                    String blank = Streams.readAsciiLine(in);
                     if (!blank.isEmpty()) {
                         throw new IOException("expected \"\" but was \"" + blank + "\"");
                     }
-                    cipherSuite = IoUtils.readLine(in);
+                    cipherSuite = Streams.readAsciiLine(in);
                     peerCertificates = readCertArray(in);
                     localCertificates = readCertArray(in);
                 } else {
@@ -343,7 +351,7 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
         }
 
         private int readInt(InputStream in) throws IOException {
-            String intString = IoUtils.readLine(in);
+            String intString = Streams.readAsciiLine(in);
             try {
                 return Integer.parseInt(intString);
             } catch (NumberFormatException e) {
@@ -360,7 +368,7 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
                 CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
                 Certificate[] result = new Certificate[length];
                 for (int i = 0; i < result.length; i++) {
-                    String line = IoUtils.readLine(in);
+                    String line = Streams.readAsciiLine(in);
                     byte[] bytes = Base64.decode(line.getBytes(Charsets.US_ASCII));
                     result[i] = certificateFactory.generateCertificate(
                             new ByteArrayInputStream(bytes));

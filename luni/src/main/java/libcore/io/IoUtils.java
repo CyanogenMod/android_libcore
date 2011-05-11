@@ -17,21 +17,13 @@
 package libcore.io;
 
 import java.io.Closeable;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.BindException;
 import java.net.ConnectException;
-import java.net.InetAddress;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.net.BindException;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -521,20 +513,6 @@ public final class IoUtils {
         return readFileAsBytes(path).toString(Charsets.UTF_8);
     }
 
-    /**
-     * Returns the remainder of 'reader' as a string, closing it when done.
-     */
-    public static String readReaderAsString(Reader reader) throws IOException {
-        StringWriter writer = new StringWriter();
-        char[] buffer = new char[8192];
-        int count;
-        while ((count = reader.read(buffer)) != -1) {
-            writer.write(buffer, 0, count);
-        }
-        reader.close();
-        return writer.toString();
-    }
-
     private static UnsafeByteSequence readFileAsBytes(String path) throws IOException {
         RandomAccessFile f = null;
         try {
@@ -556,8 +534,13 @@ public final class IoUtils {
     /**
      * Recursively delete everything in {@code dir}.
      */
+    // TODO: this should specify paths as Strings rather than as Files
     public static void deleteContents(File dir) throws IOException {
-        for (File file : dir.listFiles()) {
+        File[] files = dir.listFiles();
+        if (files == null) {
+            throw new IllegalArgumentException("not a directory: " + dir);
+        }
+        for (File file : files) {
             if (file.isDirectory()) {
                 deleteContents(file);
             }
@@ -565,33 +548,5 @@ public final class IoUtils {
                 throw new IOException("failed to delete file: " + file);
             }
         }
-    }
-
-    /**
-     * Returns the ASCII characters up to but not including the next "\r\n", or
-     * "\n".
-     *
-     * @throws EOFException if the stream is exhausted before the next newline
-     *     character.
-     */
-    public static String readLine(InputStream in) throws IOException {
-        // TODO: support UTF-8 here instead
-
-        StringBuilder result = new StringBuilder(80);
-        while (true) {
-            int c = in.read();
-            if (c == -1) {
-                throw new EOFException();
-            } else if (c == '\n') {
-                break;
-            }
-
-            result.append((char) c);
-        }
-        int length = result.length();
-        if (length > 0 && result.charAt(length - 1) == '\r') {
-            result.setLength(length - 1);
-        }
-        return result.toString();
     }
 }

@@ -174,13 +174,11 @@ public class URLClassLoader extends SecureClassLoader {
             if (is == null) {
                 return null;
             }
-            byte[] clBuf = null;
+            byte[] clBuf;
             try {
-                clBuf = getBytes(is);
+                clBuf = Streams.readFully(is);
             } catch (IOException e) {
                 return null;
-            } finally {
-                IoUtils.closeQuietly(is);
             }
             if (packageName != null) {
                 String packageDotName = packageName.replace('/', '.');
@@ -329,15 +327,12 @@ public class URLClassLoader extends SecureClassLoader {
         }
 
         private Class<?> createClass(JarEntry entry, Manifest manifest, String packageName, String origName) {
-            InputStream is = null;
-            byte[] clBuf = null;
+            byte[] clBuf;
             try {
-                is = jf.getInputStream(entry);
-                clBuf = getBytes(is);
+                InputStream is = jf.getInputStream(entry);
+                clBuf = Streams.readFully(is);
             } catch (IOException e) {
                 return null;
-            } finally {
-                IoUtils.closeQuietly(is);
             }
             if (packageName != null) {
                 String packageDotName = packageName.replace('/', '.');
@@ -597,17 +592,6 @@ public class URLClassLoader extends SecureClassLoader {
             handler.findResources(name, result);
         }
         return Collections.enumeration(result);
-    }
-
-    /**
-     * Converts an input stream into a byte array.
-     *
-     * @param is
-     *            the input stream
-     * @return byte[] the byte array
-     */
-    private static byte[] getBytes(InputStream is) throws IOException {
-        return Streams.readFully(is);
     }
 
     /**

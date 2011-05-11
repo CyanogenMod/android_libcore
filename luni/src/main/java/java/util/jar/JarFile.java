@@ -289,11 +289,7 @@ public class JarFile extends ZipFile {
         try {
             InputStream is = super.getInputStream(manifestEntry);
             if (verifier != null) {
-                try {
-                    verifier.addMetaEntry(manifestEntry.getName(), Streams.readFully(is));
-                } finally {
-                    is.close();
-                }
+                verifier.addMetaEntry(manifestEntry.getName(), Streams.readFully(is));
                 is = super.getInputStream(manifestEntry);
             }
             try {
@@ -344,11 +340,7 @@ public class JarFile extends ZipFile {
                                 || endsWithIgnoreCase(entryName, ".RSA"))) {
                     signed = true;
                     InputStream is = super.getInputStream(entry);
-                    try {
-                        verifier.addMetaEntry(entryName, Streams.readFully(is));
-                    } finally {
-                        is.close();
-                    }
+                    verifier.addMetaEntry(entryName, Streams.readFully(is));
                 }
             }
         }
