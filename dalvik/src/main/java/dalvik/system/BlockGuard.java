@@ -233,11 +233,9 @@ public final class BlockGuard {
             mNetwork.sendUrgentData(fd, value);
         }
 
-        public boolean select(FileDescriptor[] readFDs, FileDescriptor[] writeFDs,
-                int numReadable, int numWritable, long timeout, int[] flags)
-                throws SocketException {
+        public int select(FileDescriptor[] readFDs, FileDescriptor[] writeFDs, long timeout, int[] flags) throws SocketException {
             BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.select(readFDs, writeFDs, numReadable, numWritable, timeout, flags);
+            return mNetwork.select(readFDs, writeFDs, timeout, flags);
         }
 
         public void close(FileDescriptor aFD) throws IOException {

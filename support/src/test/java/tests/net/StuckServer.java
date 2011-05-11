@@ -40,6 +40,24 @@ public final class StuckServer {
         }
     }
 
+    public void unblockAfterMs(final int ms) {
+        Thread t = new Thread(new Runnable() {
+            @Override public void run() {
+                try {
+                    Thread.sleep(ms);
+                    for (Socket client : clients) {
+                        client.close();
+                    }
+                    clients.clear();
+                    clients.add(serverSocket.accept());
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        t.start();
+    }
+
     public InetSocketAddress getLocalSocketAddress() {
         return (InetSocketAddress) serverSocket.getLocalSocketAddress();
     }

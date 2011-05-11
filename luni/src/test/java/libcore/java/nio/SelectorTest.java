@@ -27,6 +27,7 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import junit.framework.TestCase;
+import tests.net.StuckServer;
 
 public class SelectorTest extends TestCase {
 
@@ -55,52 +56,31 @@ public class SelectorTest extends TestCase {
         super.tearDown();
     }
 
-    // http://code.google.com/p/android/issues/detail?id=6309
-    public void test_connectFinish_fails() throws Exception {
-        final SocketChannel channel = SocketChannel.open();
-        channel.configureBlocking(false);
-        channel.register(selector, SelectionKey.OP_CONNECT);
-        final Boolean[] fail = new Boolean[1];
-        new Thread() {
-            public void run() {
-                try {
-                    while (selector.isOpen()) {
-                        if (selector.select() != 0) {
-                            for (SelectionKey key : selector.selectedKeys()) {
-                                if (key.isValid() && key.isConnectable()) {
-                                    try {
-                                        channel.finishConnect();
-                                        synchronized (fail) {
-                                            fail[0] = Boolean.FALSE;
-                                            fail.notify();
-                                        }
-                                    } catch (NoConnectionPendingException _) {
-                                        synchronized (fail) {
-                                            fail[0] = Boolean.TRUE;
-                                            fail.notify();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception _) {}
-            }
-        }.start();
+    public void testNonBlockingConnect_immediate() throws Exception {
+        // Test the case where we [probably] connect immediately.
+        SocketChannel sc = SocketChannel.open();
+        sc.configureBlocking(false);
+        sc.connect(ssc.socket().getLocalSocketAddress());
+        SelectionKey key = sc.register(selector, SelectionKey.OP_CONNECT);
+        assertEquals(1, selector.select());
+        assertEquals(SelectionKey.OP_CONNECT, key.readyOps());
+        sc.finishConnect();
+    }
 
-        final int WAIT_TIME_MS = 100;
-        Thread.sleep(WAIT_TIME_MS);
-        channel.connect(ssc.socket().getLocalSocketAddress());
-        long time = System.currentTimeMillis();
-        synchronized (fail) {
-            while (System.currentTimeMillis() - time < WAIT_TIME_MS || fail[0] == null) {
-                fail.wait(WAIT_TIME_MS);
-            }
-        }
-        if (fail[0] == null) {
-            fail("test does not work");
-        } else if (fail[0].booleanValue()) {
-            fail();
+    public void testNonBlockingConnect_slow() throws Exception {
+        // Test the case where we have to wait for the connection.
+        StuckServer ss = new StuckServer();
+        try {
+            SocketChannel sc = SocketChannel.open();
+            sc.configureBlocking(false);
+            ss.unblockAfterMs(2000);
+            sc.connect(ss.getLocalSocketAddress());
+            SelectionKey key = sc.register(selector, SelectionKey.OP_CONNECT);
+            assertEquals(1, selector.select());
+            assertEquals(SelectionKey.OP_CONNECT, key.readyOps());
+            sc.finishConnect();
+        } finally {
+            ss.close();
         }
     }
 

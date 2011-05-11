@@ -41,55 +41,22 @@ final class OSNetworkSystem implements INetworkSystem {
     private OSNetworkSystem() {
     }
 
-    public native void accept(FileDescriptor serverFd, SocketImpl newSocket,
-            FileDescriptor clientFd) throws IOException;
-
-    public native boolean isConnected(FileDescriptor fd, int timeout) throws IOException;
-
-    public native int read(FileDescriptor fd, byte[] data, int offset, int count)
-            throws IOException;
-
-    public native int readDirect(FileDescriptor fd, int address, int count) throws IOException;
-
-    public native int recv(FileDescriptor fd, DatagramPacket packet,
-            byte[] data, int offset, int length,
-            boolean peek, boolean connected) throws IOException;
-
-    public native int recvDirect(FileDescriptor fd, DatagramPacket packet,
-            int address, int offset, int length,
-            boolean peek, boolean connected) throws IOException;
-
-    public boolean select(FileDescriptor[] readFDs, FileDescriptor[] writeFDs,
-            int numReadable, int numWritable, long timeout, int[] flags)
-            throws SocketException {
-        if (numReadable < 0 || numWritable < 0) {
-            throw new IllegalArgumentException();
-        }
-
-        int total = numReadable + numWritable;
-        if (total == 0) {
-            return true;
-        }
-
-        return selectImpl(readFDs, writeFDs, numReadable, numWritable, flags, timeout);
-    }
-
-    static native boolean selectImpl(FileDescriptor[] readfd,
-            FileDescriptor[] writefd, int cread, int cwirte, int[] flags,
-            long timeout);
-
-    public native int send(FileDescriptor fd, byte[] data, int offset, int length,
-            int port, InetAddress inetAddress) throws IOException;
-    public native int sendDirect(FileDescriptor fd, int address, int offset, int length,
-            int port, InetAddress inetAddress) throws IOException;
-
-    public native void sendUrgentData(FileDescriptor fd, byte value);
+    public native void accept(FileDescriptor serverFd, SocketImpl newSocket, FileDescriptor clientFd) throws IOException;
 
     public native void close(FileDescriptor fd) throws IOException;
 
-    public native int write(FileDescriptor fd, byte[] data, int offset, int count)
-            throws IOException;
+    public native int read(FileDescriptor fd, byte[] data, int offset, int count) throws IOException;
+    public native int readDirect(FileDescriptor fd, int address, int count) throws IOException;
+    public native int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset, int length, boolean peek, boolean connected) throws IOException;
+    public native int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset, int length, boolean peek, boolean connected) throws IOException;
 
-    public native int writeDirect(FileDescriptor fd, int address, int offset, int count)
-            throws IOException;
+    public native boolean isConnected(FileDescriptor fd, int timeout) throws IOException;
+
+    public native int select(FileDescriptor[] readFds, FileDescriptor[] writeFds, long timeout, int[] flags);
+
+    public native int send(FileDescriptor fd, byte[] data, int offset, int length, int port, InetAddress inetAddress) throws IOException;
+    public native int sendDirect(FileDescriptor fd, int address, int offset, int length, int port, InetAddress inetAddress) throws IOException;
+    public native void sendUrgentData(FileDescriptor fd, byte value);
+    public native int write(FileDescriptor fd, byte[] data, int offset, int count) throws IOException;
+    public native int writeDirect(FileDescriptor fd, int address, int offset, int count) throws IOException;
 }

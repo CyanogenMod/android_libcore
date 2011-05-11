@@ -45,14 +45,10 @@ import org.apache.harmony.luni.platform.Platform;
  */
 final class SelectorImpl extends AbstractSelector {
 
-    static final FileDescriptor[] EMPTY_FILE_DESCRIPTORS_ARRAY = new FileDescriptor[0];
+    private static final FileDescriptor[] EMPTY_FILE_DESCRIPTORS_ARRAY = new FileDescriptor[0];
 
     private static final SelectionKeyImpl[] EMPTY_SELECTION_KEY_IMPLS_ARRAY
             = new SelectionKeyImpl[0];
-
-    private static final int CONNECT_OR_WRITE = OP_CONNECT | OP_WRITE;
-
-    private static final int ACCEPT_OR_READ = OP_ACCEPT | OP_READ;
 
     private static final int NA = 0;
 
@@ -206,25 +202,24 @@ final class SelectorImpl extends AbstractSelector {
                     boolean isBlock = (SELECT_NOW != timeout);
                     int readableKeysCount = 1; // first is always the wakeup channel
                     int writableKeysCount = 0;
+                    boolean success;
                     synchronized (keysLock) {
                         for (SelectionKeyImpl key : mutableKeys) {
                             int ops = key.interestOpsNoCheck();
-                            if ((ACCEPT_OR_READ & ops) != 0) {
+                            if (((OP_ACCEPT | OP_READ) & ops) != 0) {
                                 readableKeysCount++;
                             }
-                            if ((CONNECT_OR_WRITE & ops) != 0) {
+                            if (((OP_CONNECT | OP_WRITE) & ops) != 0) {
                                 writableKeysCount++;
                             }
                         }
                         prepareChannels(readableKeysCount, writableKeysCount);
                     }
-                    boolean success;
                     try {
                         if (isBlock) {
                             begin();
                         }
-                        success = Platform.NETWORK.select(readableFDs, writableFDs,
-                                readableKeysCount, writableKeysCount, timeout, flags);
+                        success = (Platform.NETWORK.select(readableFDs, writableFDs, timeout, flags) > 0);
                     } finally {
                         if (isBlock) {
                             end();
@@ -246,15 +241,9 @@ final class SelectorImpl extends AbstractSelector {
         }
     }
 
-    private int getReadyOps(SelectionKeyImpl key) {
-        SelectableChannel channel = key.channel();
-        return ((channel instanceof SocketChannel) && !((SocketChannel) channel).isConnectionPending()) ?
-                OP_WRITE : CONNECT_OR_WRITE;
-    }
-
     /**
      * Prepare the readableFDs, writableFDs, readyKeys and flags arrays in
-     * preparation for a call to {@code INetworkSystem#select()}. After they're
+     * preparation for a call to select(2). After they're
      * used, the array elements must be cleared.
      */
     private void prepareChannels(int numReadable, int numWritable) {
@@ -281,12 +270,12 @@ final class SelectorImpl extends AbstractSelector {
         int w = 0;
         for (SelectionKeyImpl key : mutableKeys) {
             int interestOps = key.interestOpsNoCheck();
-            if ((ACCEPT_OR_READ & interestOps) != 0) {
+            if (((OP_ACCEPT | OP_READ) & interestOps) != 0) {
                 readableFDs[r] = ((FileDescriptorChannel) key.channel()).getFD();
                 readyKeys[r] = key;
                 r++;
             }
-            if ((getReadyOps(key) & interestOps) != 0) {
+            if (((OP_CONNECT | OP_WRITE) & interestOps) != 0) {
                 writableFDs[w] = ((FileDescriptorChannel) key.channel()).getFD();
                 readyKeys[w + numReadable] = key;
                 w++;
@@ -318,7 +307,7 @@ final class SelectorImpl extends AbstractSelector {
 
             switch (flags[i]) {
                 case READABLE:
-                    selectedOp = ACCEPT_OR_READ & ops;
+                    selectedOp = (OP_ACCEPT | OP_READ) & ops;
                     break;
                 case WRITABLE:
                     if (key.isConnected()) {

@@ -39,7 +39,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-/* constants for OSNetworkSystem_selectImpl */
+/* constants for OSNetworkSystem_select */
 #define SOCKET_OP_NONE 0
 #define SOCKET_OP_READ 1
 #define SOCKET_OP_WRITE 2
@@ -286,7 +286,7 @@ static jint OSNetworkSystem_readDirect(JNIEnv* env, jobject, jobject fileDescrip
     }
 }
 
-static jint OSNetworkSystem_read(JNIEnv* env, jclass, jobject fileDescriptor,
+static jint OSNetworkSystem_read(JNIEnv* env, jobject, jobject fileDescriptor,
         jbyteArray byteArray, jint offset, jint count) {
     ScopedByteArrayRW bytes(env, byteArray);
     if (bytes.get() == NULL) {
@@ -425,16 +425,17 @@ static bool isValidFd(int fd) {
     return fd >= 0 && fd < FD_SETSIZE;
 }
 
-static bool initFdSet(JNIEnv* env, jobjectArray fdArray, jint count, fd_set* fdSet, int* maxFd) {
-    for (int i = 0; i < count; ++i) {
+static size_t initFdSet(JNIEnv* env, jobjectArray fdArray, fd_set* fdSet, int* maxFd) {
+    size_t length = env->GetArrayLength(fdArray);
+    for (size_t i = 0; i < length; ++i) {
         jobject fileDescriptor = env->GetObjectArrayElement(fdArray, i);
         if (fileDescriptor == NULL) {
-            return false;
+            return i;
         }
 
         const int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
         if (!isValidFd(fd)) {
-            LOGE("selectImpl: ignoring invalid fd %i", fd);
+            LOGE("select: ignoring invalid fd %i", fd);
             continue;
         }
 
@@ -444,7 +445,7 @@ static bool initFdSet(JNIEnv* env, jobjectArray fdArray, jint count, fd_set* fdS
             *maxFd = fd;
         }
     }
-    return true;
+    return length;
 }
 
 /*
@@ -453,11 +454,12 @@ static bool initFdSet(JNIEnv* env, jobjectArray fdArray, jint count, fd_set* fdS
  * side here:
  *   http://www.opengroup.org/onlinepubs/000095399/functions/select.html
  */
-static bool translateFdSet(JNIEnv* env, jobjectArray fdArray, jint count, fd_set& fdSet, jint* flagArray, size_t offset, jint op) {
-    for (int i = 0; i < count; ++i) {
+static void translateFdSet(JNIEnv* env, jobjectArray fdArray, fd_set& fdSet, jint* flagArray, size_t offset, jint op) {
+    size_t length = env->GetArrayLength(fdArray);
+    for (size_t i = 0; i < length; ++i) {
         jobject fileDescriptor = env->GetObjectArrayElement(fdArray, i);
         if (fileDescriptor == NULL) {
-            return false;
+            return;
         }
 
         const int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
@@ -467,12 +469,10 @@ static bool translateFdSet(JNIEnv* env, jobjectArray fdArray, jint count, fd_set
             flagArray[i + offset] = SOCKET_OP_NONE;
         }
     }
-    return true;
 }
 
-static jboolean OSNetworkSystem_selectImpl(JNIEnv* env, jclass,
-        jobjectArray readFDArray, jobjectArray writeFDArray, jint countReadC,
-        jint countWriteC, jintArray outFlags, jlong timeoutMs) {
+static jint OSNetworkSystem_select(JNIEnv* env, jobject,
+        jobjectArray readFDArray, jobjectArray writeFDArray, jlong timeoutMs, jintArray outFlags) {
 
     // Initialize the fd_sets.
     int maxFd = -1;
@@ -480,11 +480,8 @@ static jboolean OSNetworkSystem_selectImpl(JNIEnv* env, jclass,
     fd_set writeFds;
     FD_ZERO(&readFds);
     FD_ZERO(&writeFds);
-    bool initialized = initFdSet(env, readFDArray, countReadC, &readFds, &maxFd) &&
-                       initFdSet(env, writeFDArray, countWriteC, &writeFds, &maxFd);
-    if (!initialized) {
-        return -1;
-    }
+    size_t readFdCount = initFdSet(env, readFDArray, &readFds, &maxFd);
+    initFdSet(env, writeFDArray, &writeFds, &maxFd);
 
     // Initialize the timeout, if any.
     timeval tv;
@@ -498,24 +495,23 @@ static jboolean OSNetworkSystem_selectImpl(JNIEnv* env, jclass,
     int result = select(maxFd + 1, &readFds, &writeFds, NULL, tvp);
     if (result == 0) {
         // Timeout.
-        return JNI_FALSE;
+        return 0;
     } else if (result == -1) {
         // Error.
-        if (errno == EINTR) {
-            return JNI_FALSE;
-        } else {
+        if (errno != EINTR) {
             jniThrowSocketException(env, errno);
-            return JNI_FALSE;
         }
+        return -1;
     }
 
     // Translate the result into the int[] we're supposed to fill in.
     ScopedIntArrayRW flagArray(env, outFlags);
     if (flagArray.get() == NULL) {
-        return JNI_FALSE;
+        return -1;
     }
-    return translateFdSet(env, readFDArray, countReadC, readFds, flagArray.get(), 0, SOCKET_OP_READ) &&
-            translateFdSet(env, writeFDArray, countWriteC, writeFds, flagArray.get(), countReadC, SOCKET_OP_WRITE);
+    translateFdSet(env, readFDArray, readFds, flagArray.get(), 0, SOCKET_OP_READ);
+    translateFdSet(env, writeFDArray, writeFds, flagArray.get(), readFdCount, SOCKET_OP_WRITE);
+    return result;
 }
 
 static void OSNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) {
@@ -540,7 +536,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, readDirect, "(Ljava/io/FileDescriptor;II)I"),
     NATIVE_METHOD(OSNetworkSystem, recv, "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIZZ)I"),
     NATIVE_METHOD(OSNetworkSystem, recvDirect, "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIZZ)I"),
-    NATIVE_METHOD(OSNetworkSystem, selectImpl, "([Ljava/io/FileDescriptor;[Ljava/io/FileDescriptor;II[IJ)Z"),
+    NATIVE_METHOD(OSNetworkSystem, select, "([Ljava/io/FileDescriptor;[Ljava/io/FileDescriptor;J[I)I"),
     NATIVE_METHOD(OSNetworkSystem, send, "(Ljava/io/FileDescriptor;[BIIILjava/net/InetAddress;)I"),
     NATIVE_METHOD(OSNetworkSystem, sendDirect, "(Ljava/io/FileDescriptor;IIIILjava/net/InetAddress;)I"),
     NATIVE_METHOD(OSNetworkSystem, sendUrgentData, "(Ljava/io/FileDescriptor;B)V"),
