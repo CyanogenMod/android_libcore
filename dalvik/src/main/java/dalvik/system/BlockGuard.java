@@ -233,11 +233,6 @@ public final class BlockGuard {
             mNetwork.sendUrgentData(fd, value);
         }
 
-        public int select(FileDescriptor[] readFDs, FileDescriptor[] writeFDs, long timeout, int[] flags) throws SocketException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.select(readFDs, writeFDs, timeout, flags);
-        }
-
         public void close(FileDescriptor aFD) throws IOException {
             // We exclude sockets without SO_LINGER so that apps can close their network connections
             // in methods like onDestroy, which will run on the UI thread, without jumping through

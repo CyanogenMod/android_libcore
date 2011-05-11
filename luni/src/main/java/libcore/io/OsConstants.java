@@ -230,6 +230,16 @@ public final class OsConstants {
     public static final int O_SYNC = placeholder();
     public static final int O_TRUNC = placeholder();
     public static final int O_WRONLY = placeholder();
+    public static final int POLLERR = placeholder();
+    public static final int POLLHUP = placeholder();
+    public static final int POLLIN = placeholder();
+    public static final int POLLNVAL = placeholder();
+    public static final int POLLOUT = placeholder();
+    public static final int POLLPRI = placeholder();
+    public static final int POLLRDBAND = placeholder();
+    public static final int POLLRDNORM = placeholder();
+    public static final int POLLWRBAND = placeholder();
+    public static final int POLLWRNORM = placeholder();
     public static final int PROT_EXEC = placeholder();
     public static final int PROT_NONE = placeholder();
     public static final int PROT_READ = placeholder();

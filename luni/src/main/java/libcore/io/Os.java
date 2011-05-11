@@ -66,6 +66,8 @@ public interface Os {
     public void munmap(long address, long byteCount) throws ErrnoException;
     public FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
     public FileDescriptor[] pipe() throws ErrnoException;
+    /* TODO: if we used the non-standard ppoll(2) behind the scenes, we could take a long timeout. */
+    public int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException;
     public StructStat lstat(String path) throws ErrnoException;
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException;
     public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;

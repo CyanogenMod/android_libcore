@@ -25,6 +25,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <poll.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -235,6 +236,16 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "O_SYNC", O_SYNC);
     initConstant(env, c, "O_TRUNC", O_TRUNC);
     initConstant(env, c, "O_WRONLY", O_WRONLY);
+    initConstant(env, c, "POLLERR", POLLERR);
+    initConstant(env, c, "POLLHUP", POLLHUP);
+    initConstant(env, c, "POLLIN", POLLIN);
+    initConstant(env, c, "POLLNVAL", POLLNVAL);
+    initConstant(env, c, "POLLOUT", POLLOUT);
+    initConstant(env, c, "POLLPRI", POLLPRI);
+    initConstant(env, c, "POLLRDBAND", POLLRDBAND);
+    initConstant(env, c, "POLLRDNORM", POLLRDNORM);
+    initConstant(env, c, "POLLWRBAND", POLLWRBAND);
+    initConstant(env, c, "POLLWRNORM", POLLWRNORM);
     initConstant(env, c, "PROT_EXEC", PROT_EXEC);
     initConstant(env, c, "PROT_NONE", PROT_NONE);
     initConstant(env, c, "PROT_READ", PROT_READ);

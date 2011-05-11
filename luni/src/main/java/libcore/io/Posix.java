@@ -68,6 +68,7 @@ public final class Posix implements Os {
     public native void munmap(long address, long byteCount) throws ErrnoException;
     public native FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
     public native FileDescriptor[] pipe() throws ErrnoException;
+    public native int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException;
     public native StructStat lstat(String path) throws ErrnoException;
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
         if (buffer.isDirect()) {
