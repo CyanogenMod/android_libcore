@@ -165,10 +165,10 @@ public final class DiskLruCache implements Closeable {
     private void readJournal() throws IOException {
         InputStream in = new BufferedInputStream(new FileInputStream(journalFile));
         try {
-            String magic = IoUtils.readLine(in);
-            String version = IoUtils.readLine(in);
-            String valueCountString = IoUtils.readLine(in);
-            String blank = IoUtils.readLine(in);
+            String magic = Streams.readAsciiLine(in);
+            String version = Streams.readAsciiLine(in);
+            String valueCountString = Streams.readAsciiLine(in);
+            String blank = Streams.readAsciiLine(in);
             if (!MAGIC.equals(magic)
                     || !VERSION_1.equals(version)
                     || valueCountString == null
@@ -188,7 +188,7 @@ public final class DiskLruCache implements Closeable {
 
             while (true) {
                 try {
-                    readJournalLine(IoUtils.readLine(in));
+                    readJournalLine(Streams.readAsciiLine(in));
                 } catch (EOFException endOfJournal) {
                     break;
                 }
@@ -443,7 +443,7 @@ public final class DiskLruCache implements Closeable {
     }
 
     private static String inputStreamToString(InputStream in) throws IOException {
-        return IoUtils.readReaderAsString(new InputStreamReader(in, Charsets.UTF_8));
+        return Streams.readFully(new InputStreamReader(in, Charsets.UTF_8));
     }
 
     public static final class Snapshot implements Closeable {

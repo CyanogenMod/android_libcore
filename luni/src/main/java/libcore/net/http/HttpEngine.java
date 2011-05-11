@@ -543,7 +543,7 @@ public class HttpEngine {
         RawHeaders headers;
         do {
             headers = new RawHeaders();
-            headers.setStatusLine(IoUtils.readLine(socketIn));
+            headers.setStatusLine(Streams.readAsciiLine(socketIn));
             readHeaders(headers);
             setResponse(headers, null);
         } while (headers.getResponseCode() == HTTP_CONTINUE);
@@ -590,7 +590,7 @@ public class HttpEngine {
     private void readHeaders(RawHeaders headers) throws IOException {
         // parse the result headers until the first blank line
         String line;
-        while ((line = IoUtils.readLine(socketIn)).length() > 1) {
+        while (!(line = Streams.readAsciiLine(socketIn)).isEmpty()) {
             headers.addLine(line);
         }
 

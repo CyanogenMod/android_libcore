@@ -21,6 +21,8 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -86,18 +88,36 @@ public final class Streams {
     }
 
     /**
-     * Returns a new byte[] containing the entire contents of the given InputStream.
-     * Useful when you don't know in advance how much data there is to be read.
+     * Returns a byte[] containing the remainder of 'in', closing it when done.
      */
     public static byte[] readFully(InputStream in) throws IOException {
-        byte[] buffer = new byte[1024];
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        while (true) {
-            int byteCount = in.read(buffer);
-            if (byteCount == -1) {
-                return bytes.toByteArray();
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int count;
+            while ((count = in.read(buffer)) != -1) {
+                bytes.write(buffer, 0, count);
             }
-            bytes.write(buffer, 0, byteCount);
+            return bytes.toByteArray();
+        } finally {
+            in.close();
+        }
+    }
+
+    /**
+     * Returns the remainder of 'reader' as a string, closing it when done.
+     */
+    public static String readFully(Reader reader) throws IOException {
+        try {
+            StringWriter writer = new StringWriter();
+            char[] buffer = new char[1024];
+            int count;
+            while ((count = reader.read(buffer)) != -1) {
+                writer.write(buffer, 0, count);
+            }
+            return writer.toString();
+        } finally {
+            reader.close();
         }
     }
 
@@ -157,5 +177,33 @@ public final class Streams {
             out.write(buffer, 0, c);
         }
         return total;
+    }
+
+    /**
+     * Returns the ASCII characters up to but not including the next "\r\n", or
+     * "\n".
+     *
+     * @throws java.io.EOFException if the stream is exhausted before the next newline
+     *     character.
+     */
+    public static String readAsciiLine(InputStream in) throws IOException {
+        // TODO: support UTF-8 here instead
+
+        StringBuilder result = new StringBuilder(80);
+        while (true) {
+            int c = in.read();
+            if (c == -1) {
+                throw new EOFException();
+            } else if (c == '\n') {
+                break;
+            }
+
+            result.append((char) c);
+        }
+        int length = result.length();
+        if (length > 0 && result.charAt(length - 1) == '\r') {
+            result.setLength(length - 1);
+        }
+        return result.toString();
     }
 }
