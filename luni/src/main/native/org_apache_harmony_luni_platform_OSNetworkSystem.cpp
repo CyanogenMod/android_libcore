@@ -22,6 +22,7 @@
 #include "JniException.h"
 #include "NetFd.h"
 #include "NetworkUtilities.h"
+#include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 #include "jni.h"
 #include "valueOf.h"
@@ -428,12 +429,12 @@ static bool isValidFd(int fd) {
 static size_t initFdSet(JNIEnv* env, jobjectArray fdArray, fd_set* fdSet, int* maxFd) {
     size_t length = env->GetArrayLength(fdArray);
     for (size_t i = 0; i < length; ++i) {
-        jobject fileDescriptor = env->GetObjectArrayElement(fdArray, i);
-        if (fileDescriptor == NULL) {
+        ScopedLocalRef<jobject> fileDescriptor(env, env->GetObjectArrayElement(fdArray, i));
+        if (fileDescriptor.get() == NULL) {
             return i;
         }
 
-        const int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
+        const int fd = jniGetFDFromFileDescriptor(env, fileDescriptor.get());
         if (!isValidFd(fd)) {
             LOGE("select: ignoring invalid fd %i", fd);
             continue;
@@ -457,12 +458,12 @@ static size_t initFdSet(JNIEnv* env, jobjectArray fdArray, fd_set* fdSet, int* m
 static void translateFdSet(JNIEnv* env, jobjectArray fdArray, fd_set& fdSet, jint* flagArray, size_t offset, jint op) {
     size_t length = env->GetArrayLength(fdArray);
     for (size_t i = 0; i < length; ++i) {
-        jobject fileDescriptor = env->GetObjectArrayElement(fdArray, i);
-        if (fileDescriptor == NULL) {
+        ScopedLocalRef<jobject> fileDescriptor(env, env->GetObjectArrayElement(fdArray, i));
+        if (fileDescriptor.get() == NULL) {
             return;
         }
 
-        const int fd = jniGetFDFromFileDescriptor(env, fileDescriptor);
+        const int fd = jniGetFDFromFileDescriptor(env, fileDescriptor.get());
         if (isValidFd(fd) && FD_ISSET(fd, &fdSet)) {
             flagArray[i + offset] = op;
         } else {

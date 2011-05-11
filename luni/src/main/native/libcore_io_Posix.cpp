@@ -22,6 +22,7 @@
 #include "JniException.h"
 #include "NetworkUtilities.h"
 #include "ScopedBytes.h"
+#include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
 #include "StaticAssert.h"
@@ -171,7 +172,7 @@ public:
         }
         // TODO: Linux actually has a 1024 buffer limit. glibc works around this, and we should too.
         for (size_t i = 0; i < mBufferCount; ++i) {
-            jobject buffer = mEnv->GetObjectArrayElement(javaBuffers, i);
+            jobject buffer = mEnv->GetObjectArrayElement(javaBuffers, i); // We keep this local ref.
             mScopedBuffers.push_back(new ScopedT(mEnv, buffer));
             jbyte* ptr = const_cast<jbyte*>(mScopedBuffers.back()->get());
             if (ptr == NULL) {
@@ -850,8 +851,8 @@ static void Posix_setsockoptGroupReq(JNIEnv* env, jobject, jobject javaFd, jint 
     value.gr_interface = env->GetIntField(javaGroupReq, grInterfaceFid);
     // Get the IPv4 or IPv6 multicast address to join or leave.
     static jfieldID grGroupFid = env->GetFieldID(JniConstants::structGroupReqClass, "gr_group", "Ljava/net/InetAddress;");
-    jobject javaGroup = env->GetObjectField(javaGroupReq, grGroupFid);
-    if (!inetAddressToSockaddr(env, javaGroup, 0, &value.gr_group)) {
+    ScopedLocalRef<jobject> javaGroup(env, env->GetObjectField(javaGroupReq, grGroupFid));
+    if (!inetAddressToSockaddr(env, javaGroup.get(), 0, &value.gr_group)) {
         return;
     }
 

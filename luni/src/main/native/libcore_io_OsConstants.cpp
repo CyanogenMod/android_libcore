@@ -18,7 +18,6 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
-#include "ScopedLocalRef.h"
 
 #include <errno.h>
 #include <fcntl.h>

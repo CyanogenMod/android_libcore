@@ -29,6 +29,7 @@
 #include "jni.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "ScopedLocalRef.h"
 #include "utils/Log.h"
 
 /*
@@ -274,11 +275,11 @@ static char** convertStrings(JNIEnv* env, jobjectArray javaArray) {
     jsize length = env->GetArrayLength(javaArray);
     char** array = new char*[length + 1];
     array[length] = 0;
-    for (jsize index = 0; index < length; index++) {
-        jstring javaEntry = (jstring) env->GetObjectArrayElement(javaArray, index);
+    for (jsize i = 0; i < length; ++i) {
+        ScopedLocalRef<jstring> javaEntry(env, reinterpret_cast<jstring>(env->GetObjectArrayElement(javaArray, i)));
         // We need to pass these strings to const-unfriendly code.
-        char* entry = const_cast<char*>(env->GetStringUTFChars(javaEntry, NULL));
-        array[index] = entry;
+        char* entry = const_cast<char*>(env->GetStringUTFChars(javaEntry.get(), NULL));
+        array[i] = entry;
     }
 
     return array;
@@ -291,9 +292,9 @@ static void freeStrings(JNIEnv* env, jobjectArray javaArray, char** array) {
     }
 
     jsize length = env->GetArrayLength(javaArray);
-    for (jsize index = 0; index < length; index++) {
-        jstring javaEntry = reinterpret_cast<jstring>(env->GetObjectArrayElement(javaArray, index));
-        env->ReleaseStringUTFChars(javaEntry, array[index]);
+    for (jsize i = 0; i < length; ++i) {
+        ScopedLocalRef<jstring> javaEntry(env, reinterpret_cast<jstring>(env->GetObjectArrayElement(javaArray, i)));
+        env->ReleaseStringUTFChars(javaEntry.get(), array[i]);
     }
 
     delete[] array;

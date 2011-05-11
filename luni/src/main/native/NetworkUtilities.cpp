@@ -19,6 +19,7 @@
 #include "NetworkUtilities.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "ScopedLocalRef.h"
 
 #include <arpa/inet.h>
 #include <fcntl.h>
@@ -100,8 +101,8 @@ static bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int por
 
     // Get the byte array that stores the IP address bytes in the InetAddress.
     static jfieldID bytesFid = env->GetFieldID(JniConstants::inetAddressClass, "ipaddress", "[B");
-    jbyteArray addressBytes = reinterpret_cast<jbyteArray>(env->GetObjectField(inetAddress, bytesFid));
-    if (addressBytes == NULL) {
+    ScopedLocalRef<jbyteArray> addressBytes(env, reinterpret_cast<jbyteArray>(env->GetObjectField(inetAddress, bytesFid)));
+    if (addressBytes.get() == NULL) {
         jniThrowNullPointerException(env, NULL);
         return false;
     }
@@ -112,7 +113,7 @@ static bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int por
     if (ss->ss_family == AF_INET6) {
         // IPv6 address. Copy the bytes...
         jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr);
-        env->GetByteArrayRegion(addressBytes, 0, 16, dst);
+        env->GetByteArrayRegion(addressBytes.get(), 0, 16, dst);
         // ...and set the scope id...
         static jfieldID scopeFid = env->GetFieldID(JniConstants::inet6AddressClass, "scope_id", "I");
         sin6->sin6_scope_id = env->GetIntField(inetAddress, scopeFid);
@@ -126,7 +127,7 @@ static bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int por
         sin6->sin6_family = AF_INET6;
         // Copy the bytes...
         jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr[12]);
-        env->GetByteArrayRegion(addressBytes, 0, 4, dst);
+        env->GetByteArrayRegion(addressBytes.get(), 0, 4, dst);
         // INADDR_ANY and in6addr_any are both all-zeros...
         if (!IN6_IS_ADDR_UNSPECIFIED(&sin6->sin6_addr)) {
             // ...but all other IPv4-mapped addresses are ::ffff:a.b.c.d, so insert the ffff...
@@ -137,7 +138,7 @@ static bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int por
         sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ss);
         sin->sin_port = htons(port);
         jbyte* dst = reinterpret_cast<jbyte*>(&sin->sin_addr.s_addr);
-        env->GetByteArrayRegion(addressBytes, 0, 4, dst);
+        env->GetByteArrayRegion(addressBytes.get(), 0, 4, dst);
     }
     return true;
 }
