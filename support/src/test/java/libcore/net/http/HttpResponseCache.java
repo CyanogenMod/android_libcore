@@ -55,11 +55,13 @@ import libcore.io.Streams;
 
 /**
  * Cache responses in a cache directory.
- *
- * TODO: tuning knobs, LRU
- * TODO: move this class to android.util
  */
 public final class HttpResponseCache extends ResponseCache implements Closeable {
+    // TODO: tuning knobs
+    // TODO: better statistics
+    // TODO: application cache version on disk
+    // TODO: move this class to android.util
+
     private static final int ENTRY_METADATA = 0;
     private static final int ENTRY_BODY = 1;
     private static final int ENTRY_COUNT = 2;
@@ -87,7 +89,7 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
     @Override public synchronized CacheResponse get(URI uri, String requestMethod,
             Map<String, List<String>> requestHeaders) throws IOException {
         String key = uriToKey(uri);
-        DiskLruCache.Snapshot snapshot = cache.read(key);
+        DiskLruCache.Snapshot snapshot = cache.get(key);
 
         if (snapshot == null) {
             missCount++;
