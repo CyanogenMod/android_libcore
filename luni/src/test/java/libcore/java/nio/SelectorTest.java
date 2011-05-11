@@ -27,24 +27,17 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import junit.framework.TestCase;
-import tests.support.Support_PortManager;
 
 public class SelectorTest extends TestCase {
-    private static final int WAIT_TIME = 100;
-    private static final int PORT = Support_PortManager.getNextPort();
-    private static final InetSocketAddress LOCAL_ADDRESS = new InetSocketAddress(
-            "127.0.0.1", PORT);
 
-    Selector selector;
-    ServerSocketChannel ssc;
+    private Selector selector;
+    private ServerSocketChannel ssc;
 
     protected void setUp() throws Exception {
         super.setUp();
         ssc = ServerSocketChannel.open();
         ssc.configureBlocking(false);
-        ServerSocket ss = ssc.socket();
-        InetSocketAddress address = new InetSocketAddress(PORT);
-        ss.bind(address);
+        ssc.socket().bind(null);
         selector = Selector.open();
     }
 
@@ -62,7 +55,7 @@ public class SelectorTest extends TestCase {
         super.tearDown();
     }
 
-    // http://code.google.com/p/android/issues/detail?id=4237
+    // http://code.google.com/p/android/issues/detail?id=6309
     public void test_connectFinish_fails() throws Exception {
         final SocketChannel channel = SocketChannel.open();
         channel.configureBlocking(false);
@@ -81,8 +74,7 @@ public class SelectorTest extends TestCase {
                                             fail[0] = Boolean.FALSE;
                                             fail.notify();
                                         }
-                                    }
-                                    catch (NoConnectionPendingException _) {
+                                    } catch (NoConnectionPendingException _) {
                                         synchronized (fail) {
                                             fail[0] = Boolean.TRUE;
                                             fail.notify();
@@ -95,12 +87,14 @@ public class SelectorTest extends TestCase {
                 } catch (Exception _) {}
             }
         }.start();
-        Thread.sleep(WAIT_TIME);
-        channel.connect(LOCAL_ADDRESS);
+
+        final int WAIT_TIME_MS = 100;
+        Thread.sleep(WAIT_TIME_MS);
+        channel.connect(ssc.socket().getLocalSocketAddress());
         long time = System.currentTimeMillis();
         synchronized (fail) {
-            while (System.currentTimeMillis() - time < WAIT_TIME || fail[0] == null) {
-                fail.wait(WAIT_TIME);
+            while (System.currentTimeMillis() - time < WAIT_TIME_MS || fail[0] == null) {
+                fail.wait(WAIT_TIME_MS);
             }
         }
         if (fail[0] == null) {
@@ -140,4 +134,3 @@ public class SelectorTest extends TestCase {
         assertFalse(selectReturned.await(500, TimeUnit.MILLISECONDS));
     }
 }
-
