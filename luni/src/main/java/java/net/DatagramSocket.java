@@ -17,6 +17,7 @@
 
 package java.net;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.channels.DatagramChannel;
 import libcore.io.ErrnoException;
@@ -740,5 +741,12 @@ public class DatagramSocket {
      */
     public DatagramChannel getChannel() {
         return null;
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public final FileDescriptor getFileDescriptor$() {
+        return impl.fd;
     }
 }
