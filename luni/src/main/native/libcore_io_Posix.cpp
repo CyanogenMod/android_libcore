@@ -36,6 +36,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/in.h>
+#include <poll.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -760,6 +761,44 @@ static jobjectArray Posix_pipe(JNIEnv* env, jobject) {
     return result;
 }
 
+static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint timeoutMs) {
+    static jfieldID fdFid = env->GetFieldID(JniConstants::structPollfdClass, "fd", "Ljava/io/FileDescriptor;");
+    static jfieldID eventsFid = env->GetFieldID(JniConstants::structPollfdClass, "events", "S");
+    static jfieldID reventsFid = env->GetFieldID(JniConstants::structPollfdClass, "revents", "S");
+
+    // Turn the Java libcore.io.StructPollfd[] into a C++ struct pollfd[].
+    size_t arrayLength = env->GetArrayLength(javaStructs);
+    UniquePtr<struct pollfd[]> fds(new struct pollfd[arrayLength]);
+    memset(fds.get(), 0, sizeof(struct pollfd) * arrayLength);
+    size_t count = 0; // Some trailing array elements may be irrelevant. (See below.)
+    for (size_t i = 0; i < arrayLength; ++i) {
+        ScopedLocalRef<jobject> javaStruct(env, env->GetObjectArrayElement(javaStructs, i));
+        if (javaStruct.get() == NULL) {
+            break; // We allow trailing nulls in the array for caller convenience.
+        }
+        ScopedLocalRef<jobject> javaFd(env, env->GetObjectField(javaStruct.get(), fdFid));
+        if (javaFd.get() == NULL) {
+            break; // We also allow callers to just clear the fd field (this is what Selector does).
+        }
+        fds[count].fd = jniGetFDFromFileDescriptor(env, javaFd.get());
+        fds[count].events = env->GetShortField(javaStruct.get(), eventsFid);
+        ++count;
+    }
+
+    int rc = TEMP_FAILURE_RETRY(poll(fds.get(), count, timeoutMs));
+    if (rc == -1) {
+        throwErrnoException(env, "poll");
+        return -1;
+    }
+
+    // Update the revents fields in the Java libcore.io.StructPollfd[].
+    for (size_t i = 0; i < arrayLength; ++i) {
+        ScopedLocalRef<jobject> javaStruct(env, env->GetObjectArrayElement(javaStructs, i));
+        env->SetShortField(javaStruct.get(), reventsFid, fds[i].revents);
+    }
+    return rc;
+}
+
 static jint Posix_readBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount) {
     ScopedBytesRW bytes(env, javaBytes);
     if (bytes.get() == NULL) {
@@ -1019,6 +1058,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, munmap, "(JJ)V"),
     NATIVE_METHOD(Posix, open, "(Ljava/lang/String;II)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, pipe, "()[Ljava/io/FileDescriptor;"),
+    NATIVE_METHOD(Posix, poll, "([Llibcore/io/StructPollfd;I)I"),
     NATIVE_METHOD(Posix, readBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
     NATIVE_METHOD(Posix, readv, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
     NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),

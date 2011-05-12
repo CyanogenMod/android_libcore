@@ -40,11 +40,6 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-/* constants for OSNetworkSystem_select */
-#define SOCKET_OP_NONE 0
-#define SOCKET_OP_READ 1
-#define SOCKET_OP_WRITE 2
-
 static void jniThrowSocketTimeoutException(JNIEnv* env, int error) {
     jniThrowExceptionWithErrno(env, "java/net/SocketTimeoutException", error);
 }
@@ -415,106 +410,6 @@ static jint OSNetworkSystem_send(JNIEnv* env, jobject, jobject fd,
             reinterpret_cast<uintptr_t>(bytes.get()), offset, length, port, inetAddress);
 }
 
-
-
-
-
-
-
-
-static bool isValidFd(int fd) {
-    return fd >= 0 && fd < FD_SETSIZE;
-}
-
-static size_t initFdSet(JNIEnv* env, jobjectArray fdArray, fd_set* fdSet, int* maxFd) {
-    size_t length = env->GetArrayLength(fdArray);
-    for (size_t i = 0; i < length; ++i) {
-        ScopedLocalRef<jobject> fileDescriptor(env, env->GetObjectArrayElement(fdArray, i));
-        if (fileDescriptor.get() == NULL) {
-            return i;
-        }
-
-        const int fd = jniGetFDFromFileDescriptor(env, fileDescriptor.get());
-        if (!isValidFd(fd)) {
-            LOGE("select: ignoring invalid fd %i", fd);
-            continue;
-        }
-
-        FD_SET(fd, fdSet);
-
-        if (fd > *maxFd) {
-            *maxFd = fd;
-        }
-    }
-    return length;
-}
-
-/*
- * Note: fdSet has to be non-const because although on Linux FD_ISSET() is sane
- * and takes a const fd_set*, it takes fd_set* on Mac OS. POSIX is not on our
- * side here:
- *   http://www.opengroup.org/onlinepubs/000095399/functions/select.html
- */
-static void translateFdSet(JNIEnv* env, jobjectArray fdArray, fd_set& fdSet, jint* flagArray, size_t offset, jint op) {
-    size_t length = env->GetArrayLength(fdArray);
-    for (size_t i = 0; i < length; ++i) {
-        ScopedLocalRef<jobject> fileDescriptor(env, env->GetObjectArrayElement(fdArray, i));
-        if (fileDescriptor.get() == NULL) {
-            return;
-        }
-
-        const int fd = jniGetFDFromFileDescriptor(env, fileDescriptor.get());
-        if (isValidFd(fd) && FD_ISSET(fd, &fdSet)) {
-            flagArray[i + offset] = op;
-        } else {
-            flagArray[i + offset] = SOCKET_OP_NONE;
-        }
-    }
-}
-
-static jint OSNetworkSystem_select(JNIEnv* env, jobject,
-        jobjectArray readFDArray, jobjectArray writeFDArray, jlong timeoutMs, jintArray outFlags) {
-
-    // Initialize the fd_sets.
-    int maxFd = -1;
-    fd_set readFds;
-    fd_set writeFds;
-    FD_ZERO(&readFds);
-    FD_ZERO(&writeFds);
-    size_t readFdCount = initFdSet(env, readFDArray, &readFds, &maxFd);
-    initFdSet(env, writeFDArray, &writeFds, &maxFd);
-
-    // Initialize the timeout, if any.
-    timeval tv;
-    timeval* tvp = NULL;
-    if (timeoutMs >= 0) {
-        tv = toTimeval(timeoutMs);
-        tvp = &tv;
-    }
-
-    // Perform the select.
-    int result = select(maxFd + 1, &readFds, &writeFds, NULL, tvp);
-    if (result == 0) {
-        // Timeout.
-        return 0;
-    } else if (result == -1) {
-        // Error.
-        if (errno != EINTR) {
-            jniThrowSocketException(env, errno);
-        }
-        return -1;
-    }
-
-    // Translate the result into the int[] we're supposed to fill in.
-    ScopedIntArrayRW flagArray(env, outFlags);
-    if (flagArray.get() == NULL) {
-        return -1;
-    }
-    translateFdSet(env, readFDArray, readFds, flagArray.get(), 0, SOCKET_OP_READ);
-    translateFdSet(env, writeFDArray, writeFds, flagArray.get(), readFdCount, SOCKET_OP_WRITE);
-    return result;
-}
-
 static void OSNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
@@ -537,7 +432,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, readDirect, "(Ljava/io/FileDescriptor;II)I"),
     NATIVE_METHOD(OSNetworkSystem, recv, "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIZZ)I"),
     NATIVE_METHOD(OSNetworkSystem, recvDirect, "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIZZ)I"),
-    NATIVE_METHOD(OSNetworkSystem, select, "([Ljava/io/FileDescriptor;[Ljava/io/FileDescriptor;J[I)I"),
     NATIVE_METHOD(OSNetworkSystem, send, "(Ljava/io/FileDescriptor;[BIIILjava/net/InetAddress;)I"),
     NATIVE_METHOD(OSNetworkSystem, sendDirect, "(Ljava/io/FileDescriptor;IIIILjava/net/InetAddress;)I"),
     NATIVE_METHOD(OSNetworkSystem, sendUrgentData, "(Ljava/io/FileDescriptor;B)V"),

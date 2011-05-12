@@ -30,27 +30,27 @@ public class BlockGuardOs extends ForwardingOs {
         super(os);
     }
 
-    public void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException {
+    @Override public void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException {
         BlockGuard.getThreadPolicy().onNetwork();
         os.connect(fd, address, port);
     }
 
-    public void fdatasync(FileDescriptor fd) throws ErrnoException {
+    @Override public void fdatasync(FileDescriptor fd) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         os.fdatasync(fd);
     }
 
-    public void fsync(FileDescriptor fd) throws ErrnoException {
+    @Override public void fsync(FileDescriptor fd) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         os.fsync(fd);
     }
 
-    public void ftruncate(FileDescriptor fd, long length) throws ErrnoException {
+    @Override public void ftruncate(FileDescriptor fd, long length) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         os.ftruncate(fd, length);
     }
 
-    public FileDescriptor open(String path, int flags, int mode) throws ErrnoException {
+    @Override public FileDescriptor open(String path, int flags, int mode) throws ErrnoException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         if ((mode & O_ACCMODE) != O_RDONLY) {
             BlockGuard.getThreadPolicy().onWriteToDisk();
@@ -58,32 +58,37 @@ public class BlockGuardOs extends ForwardingOs {
         return os.open(path, flags, mode);
     }
 
-    public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
+    @Override public int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onNetwork();
+        return os.poll(fds, timeoutMs);
+    }
+
+    @Override public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.read(fd, buffer);
     }
 
-    public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException {
+    @Override public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.read(fd, bytes, byteOffset, byteCount);
     }
 
-    public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException {
+    @Override public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.readv(fd, buffers, offsets, byteCounts);
     }
 
-    public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
+    @Override public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         return os.write(fd, buffer);
     }
 
-    public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException {
+    @Override public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         return os.write(fd, bytes, byteOffset, byteCount);
     }
 
-    public int writev(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException {
+    @Override public int writev(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         return os.writev(fd, buffers, offsets, byteCounts);
     }

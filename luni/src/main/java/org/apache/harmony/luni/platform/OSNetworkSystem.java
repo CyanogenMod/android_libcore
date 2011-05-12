@@ -52,8 +52,6 @@ final class OSNetworkSystem implements INetworkSystem {
 
     public native boolean isConnected(FileDescriptor fd, int timeout) throws IOException;
 
-    public native int select(FileDescriptor[] readFds, FileDescriptor[] writeFds, long timeout, int[] flags);
-
     public native int send(FileDescriptor fd, byte[] data, int offset, int length, int port, InetAddress inetAddress) throws IOException;
     public native int sendDirect(FileDescriptor fd, int address, int offset, int length, int port, InetAddress inetAddress) throws IOException;
     public native void sendUrgentData(FileDescriptor fd, byte value);
