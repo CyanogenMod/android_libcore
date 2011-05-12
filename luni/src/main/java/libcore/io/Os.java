@@ -29,6 +29,8 @@ public interface Os {
     public void chmod(String path, int mode) throws ErrnoException;
     public void close(FileDescriptor fd) throws ErrnoException;
     public void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException;
+    public FileDescriptor dup(FileDescriptor oldFd) throws ErrnoException;
+    public FileDescriptor dup2(FileDescriptor oldFd, int newFd) throws ErrnoException;
     public String[] environ();
     public int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException;
     public int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException;
@@ -40,15 +42,21 @@ public interface Os {
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public String gai_strerror(int error);
     public InetAddress[] getaddrinfo(String node, StructAddrinfo hints) throws GaiException;
+    public int getegid();
+    public int geteuid();
+    public int getgid();
     public String getenv(String name);
     /* TODO: break into getnameinfoHost and getnameinfoService? */
     public String getnameinfo(InetAddress address, int flags) throws GaiException;
+    public int getpid();
+    public int getppid();
     public SocketAddress getsockname(FileDescriptor fd) throws ErrnoException;
     public int getsockoptByte(FileDescriptor fd, int level, int option) throws ErrnoException;
     public InetAddress getsockoptInAddr(FileDescriptor fd, int level, int option) throws ErrnoException;
     public int getsockoptInt(FileDescriptor fd, int level, int option) throws ErrnoException;
     public StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException;
     public StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException;
+    public int getuid();
     public String if_indextoname(int index);
     public InetAddress inet_aton(String address);
     public InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException;
@@ -75,6 +83,9 @@ public interface Os {
     public void remove(String path) throws ErrnoException;
     public void rename(String oldPath, String newPath) throws ErrnoException;
     public long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException;
+    public void setegid(int egid) throws ErrnoException;
+    public void seteuid(int euid) throws ErrnoException;
+    public void setgid(int gid) throws ErrnoException;
     public void setsockoptByte(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
     public void setsockoptIfreq(FileDescriptor fd, int level, int option, String value) throws ErrnoException;
     public void setsockoptInt(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
@@ -82,6 +93,7 @@ public interface Os {
     public void setsockoptGroupReq(FileDescriptor fd, int level, int option, StructGroupReq value) throws ErrnoException;
     public void setsockoptLinger(FileDescriptor fd, int level, int option, StructLinger value) throws ErrnoException;
     public void setsockoptTimeval(FileDescriptor fd, int level, int option, StructTimeval value) throws ErrnoException;
+    public void setuid(int uid) throws ErrnoException;
     public void shutdown(FileDescriptor fd, int how) throws ErrnoException;
     public FileDescriptor socket(int domain, int type, int protocol) throws ErrnoException;
     public StructStat stat(String path) throws ErrnoException;
