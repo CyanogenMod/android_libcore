@@ -59,9 +59,9 @@ import tests.http.MockWebServer;
 import tests.http.RecordedRequest;
 import static tests.http.SocketPolicy.DISCONNECT_AT_END;
 
-public final class DiskResponseCacheTest extends TestCase {
+public final class HttpResponseCacheTest extends TestCase {
     private MockWebServer server = new MockWebServer();
-    private DiskResponseCache cache;
+    private HttpResponseCache cache;
 
     @Override protected void setUp() throws Exception {
         super.setUp();
@@ -69,7 +69,7 @@ public final class DiskResponseCacheTest extends TestCase {
         String tmp = System.getProperty("java.io.tmpdir");
         File cacheDir = new File(tmp, "HttpCache-" + UUID.randomUUID());
         cacheDir.mkdir();
-        cache = new DiskResponseCache(cacheDir, Integer.MAX_VALUE);
+        cache = new HttpResponseCache(cacheDir, Integer.MAX_VALUE);
         ResponseCache.setDefault(cache);
     }
 

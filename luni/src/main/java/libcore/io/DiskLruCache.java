@@ -83,7 +83,6 @@ import static libcore.io.OsConstants.O_RDONLY;
  * removals after the call do not impact ongoing reads.
  */
 public final class DiskLruCache implements Closeable {
-    // TODO: at read time capture a FileDescriptor rather than an input stream
     // TODO: call rebuildJournal()
     // TODO: test with fault injection
 
@@ -101,6 +100,7 @@ public final class DiskLruCache implements Closeable {
      * looks like this:
      *     libcore.io.DiskLruCache
      *     1
+     *     100
      *     2
      *
      *     CLEAN 3400330d1dfc7f3f7f4b8d4d803dfcf6 832 21054
@@ -112,9 +112,9 @@ public final class DiskLruCache implements Closeable {
      *     READ 335c4c6028171cfddfbaae1a9c313c52
      *     READ 3400330d1dfc7f3f7f4b8d4d803dfcf6
      *
-     * The first four lines of the journal form its header. They are the
-     * constant string "libcore.io.DiskLruCache", an opaque version string, the
-     * value count, and a blank line.
+     * The first five lines of the journal form its header. They are the
+     * constant string "libcore.io.DiskLruCache", the disk cache's version,
+     * the application's version, the value count, and a blank line.
      *
      * Each of the subsequent lines in the file is a record of the state of a
      * cache entry. Each line contains space-separated values: a state, a key,
@@ -138,6 +138,7 @@ public final class DiskLruCache implements Closeable {
     private final File directory;
     private final File journalFile;
     private final File journalFileTmp;
+    private final int appVersion;
     private final long maxSize;
     private final int valueCount;
     private long size = 0;
@@ -160,8 +161,9 @@ public final class DiskLruCache implements Closeable {
         }
     };
 
-    private DiskLruCache(File directory, int valueCount, int maxSize) {
+    private DiskLruCache(File directory, int appVersion, int valueCount, int maxSize) {
         this.directory = directory;
+        this.appVersion = appVersion;
         this.journalFile = new File(directory, JOURNAL_FILE);
         this.journalFileTmp = new File(directory, JOURNAL_FILE_TMP);
         this.valueCount = valueCount;
@@ -173,11 +175,11 @@ public final class DiskLruCache implements Closeable {
      * there.
      *
      * @param directory a writable directory
+     * @param appVersion
      * @param valueCount the number of values per cache entry. Must be positive.
      * @param maxSize the maximum number of bytes this cache should use to store
-     *     its values.
      */
-    public static DiskLruCache open(File directory, int valueCount, int maxSize)
+    public static DiskLruCache open(File directory, int appVersion, int valueCount, int maxSize)
             throws IOException {
         if (maxSize <= 0) {
             throw new IllegalArgumentException("maxSize <= 0");
@@ -187,7 +189,7 @@ public final class DiskLruCache implements Closeable {
         }
 
         // prefer to pick up where we left off
-        DiskLruCache cache = new DiskLruCache(directory, valueCount, maxSize);
+        DiskLruCache cache = new DiskLruCache(directory, appVersion, valueCount, maxSize);
         if (cache.journalFile.exists()) {
             try {
                 cache.readJournal();
@@ -202,7 +204,7 @@ public final class DiskLruCache implements Closeable {
         }
 
         // create a new empty cache
-        cache = new DiskLruCache(directory, valueCount, maxSize);
+        cache = new DiskLruCache(directory, appVersion, valueCount, maxSize);
         cache.rebuildJournal();
         return cache;
     }
@@ -212,23 +214,16 @@ public final class DiskLruCache implements Closeable {
         try {
             String magic = Streams.readAsciiLine(in);
             String version = Streams.readAsciiLine(in);
+            String appVersionString = Streams.readAsciiLine(in);
             String valueCountString = Streams.readAsciiLine(in);
             String blank = Streams.readAsciiLine(in);
             if (!MAGIC.equals(magic)
                     || !VERSION_1.equals(version)
-                    || valueCountString == null
+                    || !Integer.toString(appVersion).equals(appVersionString)
+                    || !Integer.toString(valueCount).equals(valueCountString)
                     || !"".equals(blank)) {
                 throw new IOException("unexpected journal header: ["
                         + magic + ", " + version + ", " + valueCountString + ", " + blank + "]");
-            }
-
-            try {
-                if (valueCount != Integer.parseInt(valueCountString)) {
-                    throw new NumberFormatException();
-                }
-            } catch (NumberFormatException e) {
-                throw new IOException("expected value count: " + valueCount
-                        + " but was " + valueCountString);
             }
 
             while (true) {
@@ -310,6 +305,8 @@ public final class DiskLruCache implements Closeable {
         writer.write(MAGIC);
         writer.write("\n");
         writer.write(VERSION_1);
+        writer.write("\n");
+        writer.write(Integer.toString(appVersion));
         writer.write("\n");
         writer.write(Integer.toString(valueCount));
         writer.write("\n");

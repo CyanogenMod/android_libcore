@@ -207,8 +207,8 @@ public class HttpEngine {
         prepareRawRequestHeaders();
         RequestHeaders cacheRequestHeaders = new RequestHeaders(uri, rawRequestHeaders);
         initResponseSource(cacheRequestHeaders);
-        if (responseCache instanceof DiskResponseCache) {
-            ((DiskResponseCache) responseCache).trackResponse(responseSource);
+        if (responseCache instanceof HttpResponseCache) {
+            ((HttpResponseCache) responseCache).trackResponse(responseSource);
         }
 
         /*
@@ -805,8 +805,8 @@ public class HttpEngine {
 
         if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
             if (cachedResponseHeaders.validate(new ResponseHeaders(uri, rawResponseHeaders))) {
-                if (responseCache instanceof DiskResponseCache) {
-                    ((DiskResponseCache) responseCache).trackConditionalCacheHit();
+                if (responseCache instanceof HttpResponseCache) {
+                    ((HttpResponseCache) responseCache).trackConditionalCacheHit();
                 }
                 // discard the network response and use the cache response
                 release(true);
