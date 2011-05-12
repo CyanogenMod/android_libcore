@@ -59,7 +59,11 @@ public class BlockGuardOs extends ForwardingOs {
     }
 
     @Override public int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException {
-        BlockGuard.getThreadPolicy().onNetwork();
+        // Greater than 0 is a timeout in milliseconds and -1 means "block forever",
+        // but 0 means "poll and return immediately", which shouldn't be subject to BlockGuard.
+        if (timeoutMs != 0) {
+            BlockGuard.getThreadPolicy().onNetwork();
+        }
         return os.poll(fds, timeoutMs);
     }
 

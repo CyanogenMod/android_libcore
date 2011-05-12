@@ -50,8 +50,6 @@ final class OSNetworkSystem implements INetworkSystem {
     public native int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset, int length, boolean peek, boolean connected) throws IOException;
     public native int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset, int length, boolean peek, boolean connected) throws IOException;
 
-    public native boolean isConnected(FileDescriptor fd, int timeout) throws IOException;
-
     public native int send(FileDescriptor fd, byte[] data, int offset, int length, int port, InetAddress inetAddress) throws IOException;
     public native int sendDirect(FileDescriptor fd, int address, int offset, int length, int port, InetAddress inetAddress) throws IOException;
     public native void sendUrgentData(FileDescriptor fd, byte value);

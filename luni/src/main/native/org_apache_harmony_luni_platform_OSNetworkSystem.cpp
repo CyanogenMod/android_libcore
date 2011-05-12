@@ -62,27 +62,6 @@ static int getSocketAddressPort(sockaddr_storage* ss) {
     }
 }
 
-// Converts a number of milliseconds to a timeval.
-static timeval toTimeval(long ms) {
-    timeval tv;
-    tv.tv_sec = ms / 1000;
-    tv.tv_usec = (ms - tv.tv_sec*1000) * 1000;
-    return tv;
-}
-
-static void throwConnectException(JNIEnv* env, int error) {
-    if (error == ECONNRESET || error == ECONNREFUSED || error == EADDRNOTAVAIL ||
-            error == EADDRINUSE || error == ENETUNREACH) {
-        jniThrowExceptionWithErrno(env, "java/net/ConnectException", error);
-    } else if (error == EACCES) {
-        jniThrowExceptionWithErrno(env, "java/lang/SecurityException", error);
-    } else if (error == ETIMEDOUT) {
-        jniThrowSocketTimeoutException(env, error);
-    } else {
-        jniThrowSocketException(env, error);
-    }
-}
-
 static jint OSNetworkSystem_writeDirect(JNIEnv* env, jobject,
         jobject fileDescriptor, jint address, jint offset, jint count) {
     if (count <= 0) {
@@ -128,54 +107,6 @@ static jint OSNetworkSystem_write(JNIEnv* env, jobject,
     jint address = static_cast<jint>(reinterpret_cast<uintptr_t>(bytes.get()));
     int result = OSNetworkSystem_writeDirect(env, NULL, fileDescriptor, address, offset, count);
     return result;
-}
-
-static jboolean OSNetworkSystem_isConnected(JNIEnv* env, jobject, jobject fileDescriptor, jint timeout) {
-    NetFd netFd(env, fileDescriptor);
-    if (netFd.isClosed()) {
-        return JNI_FALSE;
-    }
-
-    // Initialize the fd sets and call select.
-    int fd = netFd.get();
-    int nfds = fd + 1;
-    fd_set readSet;
-    fd_set writeSet;
-    FD_ZERO(&readSet);
-    FD_ZERO(&writeSet);
-    FD_SET(fd, &readSet);
-    FD_SET(fd, &writeSet);
-    timeval passedTimeout(toTimeval(timeout));
-    int rc = select(nfds, &readSet, &writeSet, NULL, &passedTimeout);
-    if (rc == -1) {
-        if (errno == EINTR) {
-            // We can't trivially retry a select with TEMP_FAILURE_RETRY, so punt and ask the
-            // caller to try again.
-        } else {
-            throwConnectException(env, errno);
-        }
-        return JNI_FALSE;
-    }
-
-    // If the fd is just in the write set, we're connected.
-    if (FD_ISSET(fd, &writeSet) && !FD_ISSET(fd, &readSet)) {
-        return JNI_TRUE;
-    }
-
-    // If the fd is in both the read and write set, there was an error.
-    if (FD_ISSET(fd, &readSet) || FD_ISSET(fd, &writeSet)) {
-        // Get the pending error.
-        int error = 0;
-        socklen_t errorLen = sizeof(error);
-        if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &errorLen) == -1) {
-            error = errno; // Couldn't get the real error, so report why getsockopt failed.
-        }
-        throwConnectException(env, error);
-        return JNI_FALSE;
-    }
-
-    // Timeout expired.
-    return JNI_FALSE;
 }
 
 static void OSNetworkSystem_accept(JNIEnv* env, jobject, jobject serverFileDescriptor,
@@ -427,7 +358,6 @@ static void OSNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, accept, "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(OSNetworkSystem, close, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(OSNetworkSystem, isConnected, "(Ljava/io/FileDescriptor;I)Z"),
     NATIVE_METHOD(OSNetworkSystem, read, "(Ljava/io/FileDescriptor;[BII)I"),
     NATIVE_METHOD(OSNetworkSystem, readDirect, "(Ljava/io/FileDescriptor;II)I"),
     NATIVE_METHOD(OSNetworkSystem, recv, "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIZZ)I"),

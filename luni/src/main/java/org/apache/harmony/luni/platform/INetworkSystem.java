@@ -32,8 +32,6 @@ public interface INetworkSystem {
 
     public void close(FileDescriptor fd) throws IOException;
 
-    public boolean isConnected(FileDescriptor fd, int timeout) throws IOException;
-
     public int read(FileDescriptor fd, byte[] data, int offset, int count) throws IOException;
     public int readDirect(FileDescriptor fd, int address, int count) throws IOException;
     public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset, int length, boolean peek, boolean connected) throws IOException;
