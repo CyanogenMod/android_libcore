@@ -792,8 +792,11 @@ static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint time
     }
 
     // Update the revents fields in the Java libcore.io.StructPollfd[].
-    for (size_t i = 0; i < arrayLength; ++i) {
+    for (size_t i = 0; i < count; ++i) {
         ScopedLocalRef<jobject> javaStruct(env, env->GetObjectArrayElement(javaStructs, i));
+        if (javaStruct.get() == NULL) {
+            return -1;
+        }
         env->SetShortField(javaStruct.get(), reventsFid, fds[i].revents);
     }
     return rc;
