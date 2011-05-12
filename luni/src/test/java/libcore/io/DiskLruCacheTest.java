@@ -520,6 +520,43 @@ public final class DiskLruCacheTest extends TestCase {
         snapshot.close();
     }
 
+    public void testRebuildJournalOnRepeatedReads() throws Exception {
+        set("A", "a", "a");
+        set("B", "b", "b");
+        long lastJournalLength = 0;
+        while (true) {
+            long journalLength = journalFile.length();
+            assertValue("A", "a", "a");
+            assertValue("B", "b", "b");
+            System.out.println(journalLength);
+            if (journalLength < lastJournalLength) {
+                System.out.printf("Journal compacted from %s bytes to %s bytes\n",
+                        lastJournalLength, journalLength);
+                break; // test passed!
+            }
+            lastJournalLength = journalLength;
+        }
+    }
+
+    public void testRebuildJournalOnRepeatedEdits() throws Exception {
+        long lastJournalLength = 0;
+        while (true) {
+            long journalLength = journalFile.length();
+            set("A", "a", "a");
+            set("B", "b", "b");
+            if (journalLength < lastJournalLength) {
+                System.out.printf("Journal compacted from %s bytes to %s bytes\n",
+                        lastJournalLength, journalLength);
+                break;
+            }
+            lastJournalLength = journalLength;
+        }
+
+        // sanity check that a rebuilt journal behaves normally
+        assertValue("A", "a", "a");
+        assertValue("B", "b", "b");
+    }
+
     private void assertJournalEquals(String... expectedBodyLines) throws Exception {
         List<String> expectedLines = new ArrayList<String>();
         expectedLines.add(MAGIC);

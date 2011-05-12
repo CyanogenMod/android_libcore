@@ -83,7 +83,6 @@ import static libcore.io.OsConstants.O_RDONLY;
  * removals after the call do not impact ongoing reads.
  */
 public final class DiskLruCache implements Closeable {
-    // TODO: call rebuildJournal()
     // TODO: test with fault injection
 
     static final String JOURNAL_FILE = "journal";
@@ -145,17 +144,22 @@ public final class DiskLruCache implements Closeable {
     private Writer journalWriter;
     private final LinkedHashMap<String, Entry> lruEntries
             = new LinkedHashMap<String, Entry>(0, 0.75f, true);
+    private int redundantOpCount;
 
     /** This cache uses a single background thread to evict entries. */
     private final ExecutorService executorService = new ThreadPoolExecutor(0, 1,
             60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-    private final Callable<Void> trimToSizeCallable = new Callable<Void>() {
+    private final Callable<Void> cleanupCallable = new Callable<Void>() {
         @Override public Void call() throws Exception {
             synchronized (DiskLruCache.this) {
                 if (journalWriter == null) {
                     return null; // closed
                 }
                 trimToSize();
+                if (journalRebuildRequired()) {
+                    rebuildJournal();
+                    redundantOpCount = 0;
+                }
             }
             return null;
         }
@@ -352,6 +356,7 @@ public final class DiskLruCache implements Closeable {
             return null;
         }
 
+        redundantOpCount++;
         journalWriter.append(READ + ' ' + key + '\n');
 
         /*
@@ -363,6 +368,11 @@ public final class DiskLruCache implements Closeable {
         for (int i = 0; i < valueCount; i++) {
             fds[i] = IoUtils.open(entry.getCleanFile(i).getAbsolutePath(), O_RDONLY);
         }
+
+        if (journalRebuildRequired()) {
+            executorService.submit(cleanupCallable);
+        }
+
         return new Snapshot(fds);
     }
 
@@ -431,6 +441,7 @@ public final class DiskLruCache implements Closeable {
             }
         }
 
+        redundantOpCount++;
         entry.currentEditor = null;
         if (entry.readable | success) {
             entry.readable = true;
@@ -440,9 +451,19 @@ public final class DiskLruCache implements Closeable {
             journalWriter.write(REMOVE + ' ' + entry.key + '\n');
         }
 
-        if (size > maxSize) {
-            executorService.submit(trimToSizeCallable);
+        if (size > maxSize || journalRebuildRequired()) {
+            executorService.submit(cleanupCallable);
         }
+    }
+
+    /**
+     * We only rebuild the journal when it will halve the size of the journal
+     * and eliminate at least 2000 ops.
+     */
+    private boolean journalRebuildRequired() {
+        final int REDUNDANT_OP_COMPACT_THRESHOLD = 2000;
+        return redundantOpCount >= REDUNDANT_OP_COMPACT_THRESHOLD
+                && redundantOpCount >= lruEntries.size();
     }
 
     /**
@@ -468,8 +489,14 @@ public final class DiskLruCache implements Closeable {
             entry.lengths[i] = 0;
         }
 
+        redundantOpCount++;
         journalWriter.append(REMOVE + ' ' + key + '\n');
         lruEntries.remove(key);
+
+        if (journalRebuildRequired()) {
+            executorService.submit(cleanupCallable);
+        }
+
         return true;
     }
 
