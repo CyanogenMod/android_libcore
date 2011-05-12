@@ -239,7 +239,7 @@ public final class IoUtils {
         try {
             return connectErrno(fd, inetAddress, port, timeoutMs);
         } catch (ErrnoException errnoException) {
-            throw new ConnectException(connectDetail(inetAddress, port, timeoutMs) + ": " + errnoException.getMessage(), errnoException);
+            throw new ConnectException(connectDetail(inetAddress, port, timeoutMs, errnoException), errnoException);
         } catch (SocketException ex) {
             throw ex; // We don't want to doubly wrap these.
         } catch (SocketTimeoutException ex) {
@@ -257,7 +257,7 @@ public final class IoUtils {
         }
 
         // With a timeout, we set the socket to non-blocking, connect(2), and then loop
-        // using select(2) to decide whether we're connected, whether we should keep waiting,
+        // using poll(2) to decide whether we're connected, whether we should keep waiting,
         // or whether we've seen a permanent failure and should give up.
         long finishTimeMs = System.currentTimeMillis() + timeoutMs;
         IoUtils.setBlocking(fd, false);
@@ -275,21 +275,60 @@ public final class IoUtils {
             do {
                 remainingTimeoutMs = (int) (finishTimeMs - System.currentTimeMillis());
                 if (remainingTimeoutMs <= 0) {
-                    throw new SocketTimeoutException(connectDetail(inetAddress, port, timeoutMs));
+                    throw new SocketTimeoutException(connectDetail(inetAddress, port, timeoutMs, null));
                 }
-            } while (!Platform.NETWORK.isConnected(fd, remainingTimeoutMs));
+            } while (!IoUtils.isConnected(fd, inetAddress, port, timeoutMs, remainingTimeoutMs));
             return true; // Or we'd have thrown.
         } finally {
             IoUtils.setBlocking(fd, true);
         }
     }
 
-    private static String connectDetail(InetAddress inetAddress, int port, int timeoutMs) {
+    private static String connectDetail(InetAddress inetAddress, int port, int timeoutMs, ErrnoException cause) {
         String detail = "failed to connect to " + inetAddress + " (port " + port + ")";
         if (timeoutMs > 0) {
             detail += " after " + timeoutMs + "ms";
         }
+        if (cause != null) {
+            detail += ": " + cause.getMessage();
+        }
         return detail;
+    }
+
+    public static boolean isConnected(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs, int remainingTimeoutMs) throws IOException {
+        ErrnoException cause = null;
+        try {
+            StructPollfd[] pollFds = new StructPollfd[] { new StructPollfd() };
+            pollFds[0].fd = fd;
+            pollFds[0].events = (short) POLLOUT;
+            int rc = Libcore.os.poll(pollFds, remainingTimeoutMs);
+            if (rc == 0) {
+                return false; // Timeout.
+            }
+            int connectError = Libcore.os.getsockoptInt(fd, SOL_SOCKET, SO_ERROR);
+            if (connectError == 0) {
+                return true; // Success!
+            }
+            throw new ErrnoException("isConnected", connectError); // The connect(2) failed.
+        } catch (ErrnoException errnoException) {
+            if (errnoException.errno == EINTR) {
+                return false; // Punt and ask the caller to try again.
+            } else {
+                cause = errnoException;
+            }
+        }
+        // TODO: is it really helpful/necessary to throw so many different exceptions?
+        String detail = connectDetail(inetAddress, port, timeoutMs, cause);
+        if (cause.errno == ECONNRESET || cause.errno == ECONNREFUSED ||
+                cause.errno == EADDRNOTAVAIL || cause.errno == EADDRINUSE ||
+                cause.errno == ENETUNREACH) {
+            throw new ConnectException(detail, cause);
+        } else if (cause.errno == EACCES) {
+            throw new SecurityException(detail, cause);
+        } else if (cause.errno == ETIMEDOUT) {
+            throw new SocketTimeoutException(detail, cause);
+        }
+        throw new SocketException(detail, cause);
     }
 
     /**

@@ -27,15 +27,23 @@ public class ProtocolException extends java.io.IOException {
     private static final long serialVersionUID = -6098449442062388080L;
 
     /**
-     * Constructs a new instance with the current stack trace.
+     * Constructs a new instance.
      */
     public ProtocolException() {
     }
 
     /**
-     * Constructs a new instance with the current stack trace and given detail message.
+     * Constructs a new instance with the given detail message.
      */
     public ProtocolException(String detailMessage) {
         super(detailMessage);
+    }
+
+    /**
+     * Constructs a new instance with given detail message and cause.
+     * @hide internal use only
+     */
+    public ProtocolException(String detailMessage, Throwable cause) {
+        super(detailMessage, cause);
     }
 }

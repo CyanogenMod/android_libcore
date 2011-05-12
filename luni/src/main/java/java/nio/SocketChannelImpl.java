@@ -227,7 +227,9 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         boolean finished = false;
         try {
             begin();
-            finished = Platform.NETWORK.isConnected(fd, 0);
+            InetAddress inetAddress = connectAddress.getAddress();
+            int port = connectAddress.getPort();
+            finished = IoUtils.isConnected(fd, inetAddress, port, 0, 0); // Return immediately.
             isBound = finished;
         } catch (ConnectException e) {
             if (isOpen()) {

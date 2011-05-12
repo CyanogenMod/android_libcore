@@ -28,15 +28,23 @@ public class SocketTimeoutException extends InterruptedIOException {
     private static final long serialVersionUID = -8846654841826352300L;
 
     /**
-     * Constructs a new instance with the current stack trace.
+     * Constructs a new instance.
      */
     public SocketTimeoutException() {
     }
 
     /**
-     * Constructs a new instance with the current stack trace and given detail message.
+     * Constructs a new instance with the given detail message.
      */
     public SocketTimeoutException(String detailMessage) {
         super(detailMessage);
+    }
+
+    /**
+     * Constructs a new instance with given detail message and cause.
+     * @hide internal use only
+     */
+    public SocketTimeoutException(String detailMessage, Throwable cause) {
+        super(detailMessage, cause);
     }
 }
