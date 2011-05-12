@@ -59,9 +59,9 @@ import tests.http.MockWebServer;
 import tests.http.RecordedRequest;
 import static tests.http.SocketPolicy.DISCONNECT_AT_END;
 
-public final class HttpResponseCacheTest extends TestCase {
+public final class DiskResponseCacheTest extends TestCase {
     private MockWebServer server = new MockWebServer();
-    private HttpResponseCache cache;
+    private DiskResponseCache cache;
 
     @Override protected void setUp() throws Exception {
         super.setUp();
@@ -69,7 +69,7 @@ public final class HttpResponseCacheTest extends TestCase {
         String tmp = System.getProperty("java.io.tmpdir");
         File cacheDir = new File(tmp, "HttpCache-" + UUID.randomUUID());
         cacheDir.mkdir();
-        cache = new HttpResponseCache(cacheDir, Integer.MAX_VALUE);
+        cache = new DiskResponseCache(cacheDir, Integer.MAX_VALUE);
         ResponseCache.setDefault(cache);
     }
 
@@ -258,8 +258,8 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals("spiders", readAscii(urlConnection, "spiders".length()));
         assertEquals(-1, in.read());
         in.close();
-        assertEquals(1, cache.getSuccessCount());
-        assertEquals(0, cache.getAbortCount());
+        assertEquals(1, cache.getWriteSuccessCount());
+        assertEquals(0, cache.getWriteAbortCount());
 
         urlConnection = (HttpURLConnection) server.getUrl("/").openConnection(); // cached!
         in = urlConnection.getInputStream();
@@ -270,10 +270,10 @@ public final class HttpResponseCacheTest extends TestCase {
 
         assertEquals(-1, in.read());
         in.close();
-        assertEquals(1, cache.getMissCount());
-        assertEquals(1, cache.getHeadersHitCount());
-        assertEquals(1, cache.getSuccessCount());
-        assertEquals(0, cache.getAbortCount());
+        assertEquals(1, cache.getWriteSuccessCount());
+        assertEquals(0, cache.getWriteAbortCount());
+        assertEquals(2, cache.getRequestCount());
+        assertEquals(1, cache.getHitCount());
     }
 
     public void testSecureResponseCaching() throws IOException {
@@ -300,8 +300,9 @@ public final class HttpResponseCacheTest extends TestCase {
         connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
         assertEquals("ABC", readAscii(connection));
 
-        assertEquals(1, cache.getMissCount());
-        assertEquals(1, cache.getHeadersHitCount());
+        assertEquals(2, cache.getRequestCount());
+        assertEquals(1, cache.getNetworkCount());
+        assertEquals(1, cache.getHitCount());
 
         assertEquals(suite, connection.getCipherSuite());
         assertEquals(localCerts, toListOrNull(connection.getLocalCertificates()));
@@ -347,8 +348,9 @@ public final class HttpResponseCacheTest extends TestCase {
         connection = server.getUrl("/").openConnection(); // cached!
         assertEquals("ABC", readAscii(connection));
 
-        assertEquals(2, cache.getMissCount()); // 1 redirect + 1 final response = 2
-        assertEquals(2, cache.getHeadersHitCount());
+        assertEquals(4, cache.getRequestCount()); // 2 requests + 2 redirects
+        assertEquals(2, cache.getNetworkCount());
+        assertEquals(2, cache.getHitCount());
     }
 
     public void testRedirectToCachedResult() throws Exception {
@@ -401,8 +403,8 @@ public final class HttpResponseCacheTest extends TestCase {
         connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
         assertEquals("ABC", readAscii(connection));
 
-        assertEquals(2, cache.getMissCount()); // 1 redirect + 1 final response = 2
-        assertEquals(2, cache.getHeadersHitCount());
+        assertEquals(4, cache.getRequestCount()); // 2 direct + 2 redirect = 4
+        assertEquals(2, cache.getHitCount());
     }
 
     public void testResponseCacheRequestHeaders() throws IOException, URISyntaxException {
@@ -464,12 +466,12 @@ public final class HttpResponseCacheTest extends TestCase {
             reader.close();
         }
 
-        assertEquals(1, cache.getAbortCount());
-        assertEquals(0, cache.getSuccessCount());
+        assertEquals(1, cache.getWriteAbortCount());
+        assertEquals(0, cache.getWriteSuccessCount());
         URLConnection connection = server.getUrl("/").openConnection();
         assertEquals("Request #2", readAscii(connection));
-        assertEquals(1, cache.getAbortCount());
-        assertEquals(1, cache.getSuccessCount());
+        assertEquals(1, cache.getWriteAbortCount());
+        assertEquals(1, cache.getWriteSuccessCount());
     }
 
     public void testClientPrematureDisconnectWithContentLengthHeader() throws IOException {
@@ -501,12 +503,12 @@ public final class HttpResponseCacheTest extends TestCase {
         } catch (IOException expected) {
         }
 
-        assertEquals(1, cache.getAbortCount());
-        assertEquals(0, cache.getSuccessCount());
+        assertEquals(1, cache.getWriteAbortCount());
+        assertEquals(0, cache.getWriteSuccessCount());
         connection = server.getUrl("/").openConnection();
         assertEquals("Request #2", readAscii(connection));
-        assertEquals(1, cache.getAbortCount());
-        assertEquals(1, cache.getSuccessCount());
+        assertEquals(1, cache.getWriteAbortCount());
+        assertEquals(1, cache.getWriteSuccessCount());
     }
 
     public void testDefaultExpirationDateFullyCachedForLessThan24Hours() throws Exception {
@@ -1221,14 +1223,14 @@ public final class HttpResponseCacheTest extends TestCase {
         server.play();
 
         assertEquals("A", readAscii(server.getUrl("/").openConnection()));
-        assertEquals(1, cache.getMissCount());
-        assertEquals(0, cache.getHeadersHitCount());
-        assertEquals(0, cache.getBodyHitCount());
+        assertEquals(1, cache.getRequestCount());
+        assertEquals(1, cache.getNetworkCount());
+        assertEquals(0, cache.getHitCount());
         assertEquals("B", readAscii(server.getUrl("/").openConnection()));
         assertEquals("C", readAscii(server.getUrl("/").openConnection()));
-        assertEquals(1, cache.getMissCount());
-        assertEquals(2, cache.getHeadersHitCount());
-        assertEquals(0, cache.getBodyHitCount());
+        assertEquals(3, cache.getRequestCount());
+        assertEquals(3, cache.getNetworkCount());
+        assertEquals(0, cache.getHitCount());
     }
 
     public void testStatisticsConditionalCacheHit() throws Exception {
@@ -1241,14 +1243,14 @@ public final class HttpResponseCacheTest extends TestCase {
         server.play();
 
         assertEquals("A", readAscii(server.getUrl("/").openConnection()));
-        assertEquals(1, cache.getMissCount());
-        assertEquals(0, cache.getHeadersHitCount());
-        assertEquals(0, cache.getBodyHitCount());
+        assertEquals(1, cache.getRequestCount());
+        assertEquals(1, cache.getNetworkCount());
+        assertEquals(0, cache.getHitCount());
         assertEquals("A", readAscii(server.getUrl("/").openConnection()));
         assertEquals("A", readAscii(server.getUrl("/").openConnection()));
-        assertEquals(1, cache.getMissCount());
-        assertEquals(2, cache.getHeadersHitCount());
-        assertEquals(2, cache.getBodyHitCount());
+        assertEquals(3, cache.getRequestCount());
+        assertEquals(3, cache.getNetworkCount());
+        assertEquals(2, cache.getHitCount());
     }
 
     public void testStatisticsFullCacheHit() throws Exception {
@@ -1258,14 +1260,14 @@ public final class HttpResponseCacheTest extends TestCase {
         server.play();
 
         assertEquals("A", readAscii(server.getUrl("/").openConnection()));
-        assertEquals(1, cache.getMissCount());
-        assertEquals(0, cache.getHeadersHitCount());
-        assertEquals(0, cache.getBodyHitCount());
+        assertEquals(1, cache.getRequestCount());
+        assertEquals(1, cache.getNetworkCount());
+        assertEquals(0, cache.getHitCount());
         assertEquals("A", readAscii(server.getUrl("/").openConnection()));
         assertEquals("A", readAscii(server.getUrl("/").openConnection()));
-        assertEquals(1, cache.getMissCount());
-        assertEquals(2, cache.getHeadersHitCount());
-        assertEquals(2, cache.getBodyHitCount());
+        assertEquals(3, cache.getRequestCount());
+        assertEquals(1, cache.getNetworkCount());
+        assertEquals(2, cache.getHitCount());
     }
 
     /**

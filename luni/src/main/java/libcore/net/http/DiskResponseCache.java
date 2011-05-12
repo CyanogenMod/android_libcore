@@ -57,7 +57,7 @@ import libcore.io.Streams;
 /**
  * Cache responses in a cache directory.
  */
-public final class HttpResponseCache extends ResponseCache implements Closeable {
+public final class DiskResponseCache extends ResponseCache implements Closeable {
     // TODO: tuning knobs
     // TODO: better statistics
     // TODO: application cache version on disk
@@ -71,13 +71,13 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
     private final DiskLruCache cache;
 
     /* read and write statistics, all guarded by 'this' */
-    private int abortCount;
-    private int successCount;
-    private int missCount;
-    private int headersHitCount;
-    private int bodyHitCount;
+    private int writeSuccessCount;
+    private int writeAbortCount;
+    private int networkCount;
+    private int hitCount;
+    private int requestCount;
 
-    public HttpResponseCache(File directory, int maxSize) throws IOException {
+    public DiskResponseCache(File directory, int maxSize) throws IOException {
         cache = DiskLruCache.open(directory, ENTRY_COUNT, maxSize);
     }
 
@@ -91,24 +91,21 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
         }
     }
 
-    @Override public synchronized CacheResponse get(URI uri, String requestMethod,
+    @Override public CacheResponse get(URI uri, String requestMethod,
             Map<String, List<String>> requestHeaders) throws IOException {
         String key = uriToKey(uri);
         DiskLruCache.Snapshot snapshot = cache.get(key);
 
         if (snapshot == null) {
-            missCount++;
             return null;
         }
 
         Entry entry = new Entry(new BufferedInputStream(snapshot.newInputStream(ENTRY_METADATA)));
         if (!entry.matches(uri, requestMethod)) {
             snapshot.close();
-            missCount++;
             return null;
         }
 
-        headersHitCount++;
         InputStream body = newBodyInputStream(snapshot);
         return entry.isHttps()
                 ? entry.newSecureCacheResponse(body)
@@ -121,27 +118,6 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
      */
     private InputStream newBodyInputStream(final DiskLruCache.Snapshot snapshot) {
         return new FilterInputStream(snapshot.newInputStream(ENTRY_BODY)) {
-            private boolean hitCountIncremented;
-
-            @Override public int read() throws IOException {
-                incrementHitCount();
-                return super.read();
-            }
-
-            @Override public int read(byte[] buffer, int offset, int count) throws IOException {
-                incrementHitCount();
-                return super.read(buffer, offset, count);
-            }
-
-            private void incrementHitCount() {
-                synchronized (HttpResponseCache.this) {
-                    if (!hitCountIncremented) {
-                        hitCountIncremented = true;
-                        bodyHitCount++;
-                    }
-                }
-            }
-
             @Override public void close() throws IOException {
                 snapshot.close();
                 super.close();
@@ -202,43 +178,59 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
      * Returns the number of responses that were aborted before they were
      * stored.
      */
-    synchronized int getAbortCount() {
-        return abortCount;
+    synchronized int getWriteAbortCount() {
+        return writeAbortCount;
     }
 
     /**
      * Returns the number of responses that were stored successfully.
      */
-    synchronized int getSuccessCount() {
-        return successCount;
+    synchronized int getWriteSuccessCount() {
+        return writeSuccessCount;
     }
 
     /**
-     * Returns the number of times that {@link #get} returned null.
+     * Returns the number of HTTP requests that required the network to either
+     * supply a response or validate a locally cached response.
      */
-    public synchronized int getMissCount() {
-        return missCount;
+    public synchronized int getNetworkCount() {
+        return networkCount;
     }
 
     /**
-     * Returns the number of times {@link #get} returned a non-null response.
-     * Even though a request may result in a cache hit, that cached response
-     * will not necessarily be used to satisfy the request. Cache responses may
-     * be stale, fail validation, or be otherwise inappropriate for the request,
-     * Use {@link #getBodyHitCount} to lookup the number of cache responses that
-     * were used to satisfy requests.
+     * Returns the number of HTTP requests whose response was provided by the
+     * cache. This may include conditional {@code GET} requests that were
+     * validated over the network.
      */
-    public synchronized int getHeadersHitCount() {
-        return headersHitCount;
+    public synchronized int getHitCount() {
+        return hitCount;
     }
 
     /**
-     * Returns the number of cache hits whose response bodies that were read
-     * from before they were closed. This count is less than or equal to the
-     * {@link #getHeadersHitCount() URL hit count}.
+     * Returns the total number of HTTP requests that were made. This includes
+     * both client requests and requests that were made on the client's behalf
+     * to handle a redirects and retries.
      */
-    public synchronized int getBodyHitCount() {
-        return bodyHitCount;
+    public synchronized int getRequestCount() {
+        return requestCount;
+    }
+
+    synchronized void trackResponse(ResponseSource source) {
+        requestCount++;
+
+        switch (source) {
+        case CACHE:
+            hitCount++;
+            break;
+        case CONDITIONAL_CACHE:
+        case NETWORK:
+            networkCount++;
+            break;
+        }
+    }
+
+    synchronized void trackConditionalCacheHit() {
+        hitCount++;
     }
 
     private final class CacheRequestImpl extends CacheRequest {
@@ -252,12 +244,12 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
             this.cacheOut = editor.newOutputStream(ENTRY_BODY);
             this.body = new FilterOutputStream(cacheOut) {
                 @Override public void close() throws IOException {
-                    synchronized (HttpResponseCache.this) {
+                    synchronized (DiskResponseCache.this) {
                         if (done) {
                             return;
                         }
                         done = true;
-                        successCount++;
+                        writeSuccessCount++;
                     }
                     super.close();
                     editor.commit();
@@ -266,12 +258,12 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
         }
 
         @Override public void abort() {
-            synchronized (HttpResponseCache.this) {
+            synchronized (DiskResponseCache.this) {
                 if (done) {
                     return;
                 }
                 done = true;
-                abortCount++;
+                writeAbortCount++;
             }
             IoUtils.closeQuietly(cacheOut);
             try {
