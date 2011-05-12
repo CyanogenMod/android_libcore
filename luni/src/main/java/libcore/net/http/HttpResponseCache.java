@@ -57,13 +57,13 @@ import libcore.io.Streams;
 /**
  * Cache responses in a cache directory.
  */
-public final class DiskResponseCache extends ResponseCache implements Closeable {
-    // TODO: tuning knobs
-    // TODO: better statistics
-    // TODO: application cache version on disk
+public final class HttpResponseCache extends ResponseCache implements Closeable {
+    // TODO: default max size
+    // TODO: default cache directory for android apps
     // TODO: move this class to android.util
     // TODO: add APIs to iterate the cache
 
+    private static final int VERSION = 201105;
     private static final int ENTRY_METADATA = 0;
     private static final int ENTRY_BODY = 1;
     private static final int ENTRY_COUNT = 2;
@@ -77,8 +77,8 @@ public final class DiskResponseCache extends ResponseCache implements Closeable 
     private int hitCount;
     private int requestCount;
 
-    public DiskResponseCache(File directory, int maxSize) throws IOException {
-        cache = DiskLruCache.open(directory, ENTRY_COUNT, maxSize);
+    public HttpResponseCache(File directory, int maxSize) throws IOException {
+        cache = DiskLruCache.open(directory, VERSION, ENTRY_COUNT, maxSize);
     }
 
     private String uriToKey(URI uri) {
@@ -244,7 +244,7 @@ public final class DiskResponseCache extends ResponseCache implements Closeable 
             this.cacheOut = editor.newOutputStream(ENTRY_BODY);
             this.body = new FilterOutputStream(cacheOut) {
                 @Override public void close() throws IOException {
-                    synchronized (DiskResponseCache.this) {
+                    synchronized (HttpResponseCache.this) {
                         if (done) {
                             return;
                         }
@@ -258,7 +258,7 @@ public final class DiskResponseCache extends ResponseCache implements Closeable 
         }
 
         @Override public void abort() {
-            synchronized (DiskResponseCache.this) {
+            synchronized (HttpResponseCache.this) {
                 if (done) {
                     return;
                 }
