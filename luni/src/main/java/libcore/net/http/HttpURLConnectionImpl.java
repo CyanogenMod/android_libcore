@@ -87,7 +87,7 @@ class HttpURLConnectionImpl extends HttpURLConnection {
     @Override public final void disconnect() {
         // Calling disconnect() before a connection exists should have no effect.
         if (httpEngine != null) {
-            httpEngine.releaseSocket(false);
+            httpEngine.release(false);
         }
     }
 
@@ -306,7 +306,7 @@ class HttpURLConnectionImpl extends HttpURLConnection {
                     httpEngine.automaticallyReleaseConnectionToPool();
                 }
 
-                httpEngine.releaseSocket(true);
+                httpEngine.release(true);
 
                 httpEngine = newHttpEngine(retryMethod, rawRequestHeaders,
                         httpEngine.getConnection(), (RetryableOutputStream) requestBody);

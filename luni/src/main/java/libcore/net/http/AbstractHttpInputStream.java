@@ -83,7 +83,7 @@ abstract class AbstractHttpInputStream extends InputStream {
         if (cacheRequest != null) {
             cacheBody.close();
         }
-        httpEngine.releaseSocket(reuseSocket);
+        httpEngine.release(reuseSocket);
     }
 
     /**
@@ -102,6 +102,6 @@ abstract class AbstractHttpInputStream extends InputStream {
         if (cacheRequest != null) {
             cacheRequest.abort();
         }
-        httpEngine.releaseSocket(false);
+        httpEngine.release(false);
     }
 }

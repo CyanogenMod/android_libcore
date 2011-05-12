@@ -84,6 +84,7 @@ public final class DiskLruCacheTest extends TestCase {
         DiskLruCache.Snapshot snapshot = cache.get("k1");
         assertEquals("A", snapshot.getString(0));
         assertEquals("B", snapshot.getString(1));
+        snapshot.close();
     }
 
     public void testJournalWithEditAndPublish() throws Exception {
@@ -177,7 +178,7 @@ public final class DiskLruCacheTest extends TestCase {
         v1Creator.commit();
 
         DiskLruCache.Snapshot snapshot1 = cache.get("k1");
-        InputStream inV1 = snapshot1.getInputStream(0);
+        InputStream inV1 = snapshot1.newInputStream(0);
         assertEquals('A', inV1.read());
         assertEquals('A', inV1.read());
 
@@ -494,6 +495,20 @@ public final class DiskLruCacheTest extends TestCase {
 
     public void testRemoveAbsentElement() throws Exception {
         cache.remove("A");
+    }
+
+    public void testReadingTheSameStreamMultipleTimes() throws Exception {
+        set("A", "a", "b");
+        DiskLruCache.Snapshot snapshot = cache.get("A");
+        InputStream in1 = snapshot.newInputStream(0);
+        assertEquals('a', in1.read());
+        assertEquals(-1, in1.read());
+        in1.close();
+
+        InputStream in2 = snapshot.newInputStream(0);
+        assertEquals('a', in2.read());
+        assertEquals(-1, in2.read());
+        in2.close();
     }
 
     private void assertJournalEquals(String... expectedBodyLines) throws Exception {

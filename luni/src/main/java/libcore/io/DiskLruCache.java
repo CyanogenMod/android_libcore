@@ -16,11 +16,13 @@
 
 package libcore.io;
 
+import dalvik.system.CloseGuard;
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -41,6 +43,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import static libcore.io.OsConstants.O_RDONLY;
 
 /**
  * A cache that uses a bounded amount of space on a file system. Each cache
@@ -359,11 +362,11 @@ public final class DiskLruCache implements Closeable {
          * snapshot. If we opened streams lazily then the streams could come
          * from different edits.
          */
-        InputStream[] ins = new InputStream[valueCount];
+        FileDescriptor[] fds = new FileDescriptor[valueCount];
         for (int i = 0; i < valueCount; i++) {
-            ins[i] = new FileInputStream(entry.getCleanFile(i));
+            fds[i] = IoUtils.open(entry.getCleanFile(i).getAbsolutePath(), O_RDONLY);
         }
-        return new Snapshot(ins);
+        return new Snapshot(fds);
     }
 
     /**
@@ -537,32 +540,43 @@ public final class DiskLruCache implements Closeable {
      * A snapshot of the values for an entry.
      */
     public static final class Snapshot implements Closeable {
-        private final InputStream[] ins;
+        private final CloseGuard guard = CloseGuard.get();
+        private final FileDescriptor[] fds;
 
-        private Snapshot(InputStream[] ins) {
-            this.ins = ins;
+        private Snapshot(FileDescriptor[] fds) {
+            this.fds = fds;
+            this.guard.open("close");
         }
 
         /**
-         * Returns an unbuffered stream with the value for {@code index}.
+         * Returns a new unbuffered stream with the value for {@code index}.
          */
-        public InputStream getInputStream(int index) {
-            return ins[index];
+        public InputStream newInputStream(int index) {
+            return new FileInputStream(fds[index]);
         }
 
         /**
          * Returns the string value for {@code index}.
          */
         public String getString(int index) throws IOException {
-            return inputStreamToString(ins[index]);
+            return inputStreamToString(newInputStream(index));
         }
 
         @Override public void close() {
-            for (InputStream in : ins) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
+            guard.close();
+            for (FileDescriptor fd : fds) {
+                IoUtils.closeQuietly(fd);
+            }
+        }
+
+        @Override protected void finalize() throws Throwable {
+            try {
+                if (guard != null) {
+                    guard.warnIfOpen();
                 }
+                close();
+            } finally {
+                super.finalize();
             }
         }
     }

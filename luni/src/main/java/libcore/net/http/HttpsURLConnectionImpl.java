@@ -433,7 +433,7 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
                         && e.getCause() instanceof CertificateException) {
                     throw e;
                 }
-                releaseSocket(false);
+                release(false);
                 connectionReused = makeSslConnection(false);
             }
 
@@ -523,8 +523,7 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
     private static class ProxyConnectEngine extends HttpEngine {
         public ProxyConnectEngine(HttpURLConnectionImpl policy, RawHeaders requestHeaders,
                 HttpConnection connection) throws IOException {
-            super(policy, HttpEngine.CONNECT, requestHeaders, null, null);
-            this.connection = connection;
+            super(policy, HttpEngine.CONNECT, requestHeaders, connection, null);
         }
 
         /**

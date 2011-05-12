@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package libcore.java.net;
+package libcore.net.http;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -54,7 +54,6 @@ import java.util.zip.GZIPOutputStream;
 import javax.net.ssl.HttpsURLConnection;
 import junit.framework.TestCase;
 import libcore.javax.net.ssl.TestSSLContext;
-import libcore.net.http.HttpResponseCache;
 import tests.http.MockResponse;
 import tests.http.MockWebServer;
 import tests.http.RecordedRequest;
@@ -272,7 +271,7 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals(-1, in.read());
         in.close();
         assertEquals(1, cache.getMissCount());
-        assertEquals(1, cache.getHitCount());
+        assertEquals(1, cache.getHeadersHitCount());
         assertEquals(1, cache.getSuccessCount());
         assertEquals(0, cache.getAbortCount());
     }
@@ -302,7 +301,7 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals("ABC", readAscii(connection));
 
         assertEquals(1, cache.getMissCount());
-        assertEquals(1, cache.getHitCount());
+        assertEquals(1, cache.getHeadersHitCount());
 
         assertEquals(suite, connection.getCipherSuite());
         assertEquals(localCerts, toListOrNull(connection.getLocalCertificates()));
@@ -349,7 +348,7 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals("ABC", readAscii(connection));
 
         assertEquals(2, cache.getMissCount()); // 1 redirect + 1 final response = 2
-        assertEquals(2, cache.getHitCount());
+        assertEquals(2, cache.getHeadersHitCount());
     }
 
     public void testRedirectToCachedResult() throws Exception {
@@ -403,7 +402,7 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals("ABC", readAscii(connection));
 
         assertEquals(2, cache.getMissCount()); // 1 redirect + 1 final response = 2
-        assertEquals(2, cache.getHitCount());
+        assertEquals(2, cache.getHeadersHitCount());
     }
 
     public void testResponseCacheRequestHeaders() throws IOException, URISyntaxException {
@@ -1210,6 +1209,63 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals(0, server.takeRequest().getSequenceNumber());
         assertEquals(1, server.takeRequest().getSequenceNumber());
         assertEquals(2, server.takeRequest().getSequenceNumber());
+    }
+
+    public void testStatisticsConditionalCacheMiss() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Last-Modified: " + formatDate(-1, TimeUnit.HOURS))
+                .addHeader("Cache-Control: max-age=0")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.enqueue(new MockResponse().setBody("C"));
+        server.play();
+
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        assertEquals(1, cache.getMissCount());
+        assertEquals(0, cache.getHeadersHitCount());
+        assertEquals(0, cache.getBodyHitCount());
+        assertEquals("B", readAscii(server.getUrl("/").openConnection()));
+        assertEquals("C", readAscii(server.getUrl("/").openConnection()));
+        assertEquals(1, cache.getMissCount());
+        assertEquals(2, cache.getHeadersHitCount());
+        assertEquals(0, cache.getBodyHitCount());
+    }
+
+    public void testStatisticsConditionalCacheHit() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Last-Modified: " + formatDate(-1, TimeUnit.HOURS))
+                .addHeader("Cache-Control: max-age=0")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
+        server.enqueue(new MockResponse().setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
+        server.play();
+
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        assertEquals(1, cache.getMissCount());
+        assertEquals(0, cache.getHeadersHitCount());
+        assertEquals(0, cache.getBodyHitCount());
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        assertEquals(1, cache.getMissCount());
+        assertEquals(2, cache.getHeadersHitCount());
+        assertEquals(2, cache.getBodyHitCount());
+    }
+
+    public void testStatisticsFullCacheHit() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .setBody("A"));
+        server.play();
+
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        assertEquals(1, cache.getMissCount());
+        assertEquals(0, cache.getHeadersHitCount());
+        assertEquals(0, cache.getBodyHitCount());
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        assertEquals(1, cache.getMissCount());
+        assertEquals(2, cache.getHeadersHitCount());
+        assertEquals(2, cache.getBodyHitCount());
     }
 
     /**

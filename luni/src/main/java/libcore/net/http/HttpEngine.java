@@ -161,8 +161,8 @@ public class HttpEngine {
      * conditional get succeeds, these will be used for the response headers and
      * body. If it fails, these be closed and set to null.
      */
-    private ResponseHeaders responseHeadersToValidate;
-    private InputStream responseBodyToValidate;
+    private ResponseHeaders cachedResponseHeaders;
+    private InputStream cachedResponseBody;
 
     /**
      * True if the socket connection should be released to the connection pool
@@ -171,7 +171,7 @@ public class HttpEngine {
     private boolean automaticallyReleaseConnectionToPool;
 
     /** True if the socket connection is no longer needed by this engine. */
-    private boolean released;
+    private boolean connectionReleased;
 
     /**
      * @param connection the connection used for an intermediate response
@@ -215,9 +215,7 @@ public class HttpEngine {
          */
         if (cacheRequestHeaders.onlyIfCached && responseSource.requiresConnection()) {
             if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
-                this.responseHeadersToValidate = null;
-                IoUtils.closeQuietly(responseBodyToValidate);
-                this.responseBodyToValidate = null;
+                IoUtils.closeQuietly(cachedResponseBody);
             }
             this.responseSource = ResponseSource.CACHE;
             this.cacheResponse = BAD_GATEWAY_RESPONSE;
@@ -248,26 +246,26 @@ public class HttpEngine {
             return;
         }
 
-        Map<String, List<String>> responseHeaders = candidate.getHeaders();
-        InputStream cacheBodyIn = candidate.getBody();
-        if (!acceptCacheResponseType(candidate) || responseHeaders == null || cacheBodyIn == null) {
-            IoUtils.closeQuietly(cacheBodyIn);
+        Map<String, List<String>> responseHeadersMap = candidate.getHeaders();
+        cachedResponseBody = candidate.getBody();
+        if (!acceptCacheResponseType(candidate)
+                || responseHeadersMap == null
+                || cachedResponseBody == null) {
+            IoUtils.closeQuietly(cachedResponseBody);
             return;
         }
 
-        RawHeaders headers = RawHeaders.fromMultimap(responseHeaders);
-        ResponseHeaders cacheResponseHeaders = new ResponseHeaders(uri, headers);
+        RawHeaders rawHeaders = RawHeaders.fromMultimap(responseHeadersMap);
+        cachedResponseHeaders = new ResponseHeaders(uri, rawHeaders);
         long now = System.currentTimeMillis();
-        this.responseSource = cacheResponseHeaders.chooseResponseSource(now, cacheRequestHeaders);
+        this.responseSource = cachedResponseHeaders.chooseResponseSource(now, cacheRequestHeaders);
         if (responseSource == ResponseSource.CACHE) {
             this.cacheResponse = candidate;
-            setResponse(headers, cacheBodyIn);
+            setResponse(rawHeaders, cachedResponseBody);
         } else if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
             this.cacheResponse = candidate;
-            this.responseHeadersToValidate = cacheResponseHeaders;
-            this.responseBodyToValidate = cacheBodyIn;
         } else if (responseSource == ResponseSource.NETWORK) {
-            IoUtils.closeQuietly(cacheBodyIn);
+            IoUtils.closeQuietly(cachedResponseBody);
         } else {
             throw new AssertionError();
         }
@@ -452,50 +450,55 @@ public class HttpEngine {
      */
     public final void automaticallyReleaseConnectionToPool() {
         automaticallyReleaseConnectionToPool = true;
-        if (connection != null && released) {
+        if (connection != null && connectionReleased) {
             HttpConnectionPool.INSTANCE.recycle(connection);
             connection = null;
         }
     }
 
     /**
-     * Releases this connection so that it may be either reused or closed.
+     * Releases this engine so that its resources may be either reused or
+     * closed.
      */
-    public final void releaseSocket(boolean reusable) {
-        if (released || connection == null) {
-            return;
-        }
-        released = true;
-
-        // We cannot reuse sockets that have incomplete output.
-        if (requestBodyOut != null && !requestBodyOut.closed) {
-            reusable = false;
+    public final void release(boolean reusable) {
+        // If the response body comes from the cache, close it.
+        if (responseBodyIn == cachedResponseBody) {
+            IoUtils.closeQuietly(responseBodyIn);
         }
 
-        // If the headers specify that the connection shouldn't be reused, don't reuse it.
-        if (hasConnectionCloseHeaders()) {
-            reusable = false;
-        }
+        if (!connectionReleased && connection != null) {
+            connectionReleased = true;
 
-        if (responseBodyIn instanceof UnknownLengthHttpInputStream) {
-            reusable = false;
-        }
-
-        if (reusable && responseBodyIn != null) {
-            // We must discard the response body before the connection can be reused.
-            try {
-                Streams.skipAll(responseBodyIn);
-            } catch (IOException e) {
+            // We cannot reuse sockets that have incomplete output.
+            if (requestBodyOut != null && !requestBodyOut.closed) {
                 reusable = false;
             }
-        }
 
-        if (!reusable) {
-            connection.closeSocketAndStreams();
-            connection = null;
-        } else if (automaticallyReleaseConnectionToPool) {
-            HttpConnectionPool.INSTANCE.recycle(connection);
-            connection = null;
+            // If the headers specify that the connection shouldn't be reused, don't reuse it.
+            if (hasConnectionCloseHeaders()) {
+                reusable = false;
+            }
+
+            if (responseBodyIn instanceof UnknownLengthHttpInputStream) {
+                reusable = false;
+            }
+
+            if (reusable && responseBodyIn != null) {
+                // We must discard the response body before the connection can be reused.
+                try {
+                    Streams.skipAll(responseBodyIn);
+                } catch (IOException e) {
+                    reusable = false;
+                }
+            }
+
+            if (!reusable) {
+                connection.closeSocketAndStreams();
+                connection = null;
+            } else if (automaticallyReleaseConnectionToPool) {
+                HttpConnectionPool.INSTANCE.recycle(connection);
+                connection = null;
+            }
         }
     }
 
@@ -798,18 +801,15 @@ public class HttpEngine {
                 Long.toString(System.currentTimeMillis()));
 
         if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
-            if (responseHeadersToValidate.validate(new ResponseHeaders(uri, rawResponseHeaders))) {
+            if (cachedResponseHeaders.validate(new ResponseHeaders(uri, rawResponseHeaders))) {
                 // discard the network response
-                releaseSocket(true);
+                release(true);
 
                 // use the cache response
-                setResponse(responseHeadersToValidate.headers, responseBodyToValidate);
-                responseBodyToValidate = null;
+                setResponse(cachedResponseHeaders.headers, cachedResponseBody);
                 return;
             } else {
-                IoUtils.closeQuietly(responseBodyToValidate);
-                responseBodyToValidate = null;
-                responseHeadersToValidate = null;
+                IoUtils.closeQuietly(cachedResponseBody);
             }
         }
 
