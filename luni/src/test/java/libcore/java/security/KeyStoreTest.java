@@ -54,16 +54,10 @@ import libcore.io.IoUtils;
 
 public class KeyStoreTest extends TestCase {
 
-    private static final PrivateKeyEntry PRIVATE_KEY;
-    private static final PrivateKeyEntry PRIVATE_KEY_2;
-    static {
-        try {
-            PRIVATE_KEY = TestKeyStore.getServer().getPrivateKey("RSA", "RSA");
-            PRIVATE_KEY_2 = TestKeyStore.getClientCertificate().getPrivateKey("RSA", "RSA");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private static final PrivateKeyEntry PRIVATE_KEY
+            = TestKeyStore.getServer().getPrivateKey("RSA", "RSA");
+    private static final PrivateKeyEntry PRIVATE_KEY_2
+            = TestKeyStore.getClientCertificate().getPrivateKey("RSA", "RSA");
 
     private static final SecretKey SECRET_KEY = generateSecretKey();
     private static final SecretKey SECRET_KEY_2 = generateSecretKey();

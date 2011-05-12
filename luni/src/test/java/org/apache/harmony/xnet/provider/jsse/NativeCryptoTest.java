@@ -24,8 +24,7 @@ import java.net.SocketTimeoutException;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
-import libcore.java.security.StandardNames;
-import libcore.java.security.TestKeyStore;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -42,6 +41,8 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLProtocolException;
 import javax.security.auth.x500.X500Principal;
 import junit.framework.TestCase;
+import libcore.java.security.StandardNames;
+import libcore.java.security.TestKeyStore;
 import org.apache.harmony.xnet.provider.jsse.CipherSuite;
 import org.apache.harmony.xnet.provider.jsse.NativeCrypto.SSLHandshakeCallbacks;
 
@@ -107,28 +108,23 @@ public class NativeCryptoTest extends TestCase {
         NativeCrypto.SSL_CTX_free(c);
     }
 
-    private static final PrivateKeyEntry SERVER_PRIVATE_KEY_ENTRY;
-    private static final byte[] SERVER_PRIVATE_KEY;
-    private static final byte[][] SERVER_CERTIFICATES;
-    private static final PrivateKeyEntry CLIENT_PRIVATE_KEY_ENTRY;
-    private static final byte[] CLIENT_PRIVATE_KEY;
-    private static final byte[][] CLIENT_CERTIFICATES;
+    private static final PrivateKeyEntry SERVER_PRIVATE_KEY_ENTRY
+            = TestKeyStore.getServer().getPrivateKey("RSA", "RSA");
+    private static final byte[] SERVER_PRIVATE_KEY
+            = SERVER_PRIVATE_KEY_ENTRY.getPrivateKey().getEncoded();
+    private static final byte[][] SERVER_CERTIFICATES
+            = encodeCertificates(SERVER_PRIVATE_KEY_ENTRY.getCertificateChain());
+    private static final PrivateKeyEntry CLIENT_PRIVATE_KEY_ENTRY
+            = TestKeyStore.getClientCertificate().getPrivateKey("RSA", "RSA");
+    private static final byte[] CLIENT_PRIVATE_KEY
+            = CLIENT_PRIVATE_KEY_ENTRY.getPrivateKey().getEncoded();
+    private static final byte[][] CLIENT_CERTIFICATES
+            = encodeCertificates(CLIENT_PRIVATE_KEY_ENTRY.getCertificateChain());
 
-    static {
+    private static byte[][] encodeCertificates (Certificate[] certificates) {
         try {
-            SERVER_PRIVATE_KEY_ENTRY
-                    = TestKeyStore.getServer().getPrivateKey("RSA", "RSA");
-            SERVER_PRIVATE_KEY
-                    = SERVER_PRIVATE_KEY_ENTRY.getPrivateKey().getEncoded();
-            SERVER_CERTIFICATES = NativeCrypto.encodeCertificates(
-                    SERVER_PRIVATE_KEY_ENTRY.getCertificateChain());
-            CLIENT_PRIVATE_KEY_ENTRY
-                    = TestKeyStore.getClientCertificate().getPrivateKey("RSA", "RSA");
-            CLIENT_PRIVATE_KEY
-                    = CLIENT_PRIVATE_KEY_ENTRY.getPrivateKey().getEncoded();
-            CLIENT_CERTIFICATES = NativeCrypto.encodeCertificates(
-                    CLIENT_PRIVATE_KEY_ENTRY.getCertificateChain());
-        } catch (Exception e) {
+            return NativeCrypto.encodeCertificates(certificates);
+        } catch (CertificateEncodingException e) {
             throw new RuntimeException(e);
         }
     }
@@ -1785,5 +1781,14 @@ public class NativeCryptoTest extends TestCase {
         assertEquals(NULL, NativeCrypto.d2i_SSL_SESSION(new byte[1]));
 
         // positively testing by test_i2d_SSL_SESSION
+    }
+
+    public void test_X509_NAME_hashes() {
+        // ensure these hash functions are stable over time since the
+        // /system/etc/security/cacerts CA filenames have to be
+        // consistent with the output.
+        X500Principal name = new X500Principal("CN=localhost");
+        assertEquals(-1372642656, NativeCrypto.X509_NAME_hash(name)); // SHA1
+        assertEquals(-1626170662, NativeCrypto.X509_NAME_hash_old(name)); // MD5
     }
 }
