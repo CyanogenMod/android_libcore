@@ -52,6 +52,8 @@ public final class Posix implements Os {
     public native String getnameinfo(InetAddress address, int flags) throws GaiException;
     public native int getpid();
     public native int getppid();
+    public native StructPasswd getpwnam(String name) throws ErrnoException;
+    public native StructPasswd getpwuid(int uid) throws ErrnoException;
     public native SocketAddress getsockname(FileDescriptor fd) throws ErrnoException;
     public native int getsockoptByte(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native InetAddress getsockoptInAddr(FileDescriptor fd, int level, int option) throws ErrnoException;
