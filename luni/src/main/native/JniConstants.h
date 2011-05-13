@@ -76,6 +76,7 @@ struct JniConstants {
     static jclass structFlockClass;
     static jclass structGroupReqClass;
     static jclass structLingerClass;
+    static jclass structPasswdClass;
     static jclass structPollfdClass;
     static jclass structStatClass;
     static jclass structStatFsClass;

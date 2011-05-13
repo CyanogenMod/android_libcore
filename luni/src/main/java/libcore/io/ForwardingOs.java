@@ -58,6 +58,8 @@ public class ForwardingOs implements Os {
     public String getnameinfo(InetAddress address, int flags) throws GaiException { return os.getnameinfo(address, flags); }
     public int getpid() { return os.getpid(); }
     public int getppid() { return os.getppid(); }
+    public StructPasswd getpwnam(String name) throws ErrnoException { return os.getpwnam(name); }
+    public StructPasswd getpwuid(int uid) throws ErrnoException { return os.getpwuid(uid); }
     public SocketAddress getsockname(FileDescriptor fd) throws ErrnoException { return os.getsockname(fd); }
     public int getsockoptByte(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptByte(fd, level, option); }
     public InetAddress getsockoptInAddr(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptInAddr(fd, level, option); }

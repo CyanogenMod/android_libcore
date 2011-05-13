@@ -37,6 +37,7 @@
 #include <netinet/in.h>
 #include <netinet/in.h>
 #include <poll.h>
+#include <pwd.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -51,6 +52,10 @@
 #include <sys/utsname.h>
 #include <sys/vfs.h> // Bionic doesn't have <sys/statvfs.h>
 #include <unistd.h>
+
+#define TO_JAVA_STRING(NAME, EXP) \
+        jstring NAME = env->NewStringUTF(EXP); \
+        if (NAME == NULL) return NULL;
 
 struct addrinfo_deleter {
     void operator()(addrinfo* p) const {
@@ -172,6 +177,7 @@ public:
             return false;
         }
         // TODO: Linux actually has a 1024 buffer limit. glibc works around this, and we should too.
+        // TODO: you can query the limit at runtime with sysconf(_SC_IOV_MAX).
         for (size_t i = 0; i < mBufferCount; ++i) {
             jobject buffer = mEnv->GetObjectArrayElement(javaBuffers, i); // We keep this local ref.
             mScopedBuffers.push_back(new ScopedT(mEnv, buffer));
@@ -231,6 +237,16 @@ static jobject makeSocketAddress(JNIEnv* env, const sockaddr_storage* ss) {
     return NULL;
 }
 
+static jobject makeStructPasswd(JNIEnv* env, const struct passwd& pw) {
+    TO_JAVA_STRING(pw_name, pw.pw_name);
+    TO_JAVA_STRING(pw_dir, pw.pw_dir);
+    TO_JAVA_STRING(pw_shell, pw.pw_shell);
+    static jmethodID ctor = env->GetMethodID(JniConstants::structPasswdClass, "<init>",
+            "(Ljava/lang/String;IILjava/lang/String;Ljava/lang/String;)V");
+    return env->NewObject(JniConstants::structPasswdClass, ctor,
+            pw_name, static_cast<jint>(pw.pw_uid), static_cast<jint>(pw.pw_gid), pw_dir, pw_shell);
+}
+
 static jobject makeStructStat(JNIEnv* env, const struct stat& sb) {
     static jmethodID ctor = env->GetMethodID(JniConstants::structStatClass, "<init>",
             "(JJIJIIJJJJJJJ)V");
@@ -270,17 +286,11 @@ static jobject makeStructTimeval(JNIEnv* env, const struct timeval& tv) {
 }
 
 static jobject makeStructUtsname(JNIEnv* env, const struct utsname& buf) {
-#define TO_JAVA_STRING(NAME) \
-        jstring NAME = env->NewStringUTF(buf. NAME); \
-        if (NAME == NULL) return NULL;
-
-    TO_JAVA_STRING(sysname);
-    TO_JAVA_STRING(nodename);
-    TO_JAVA_STRING(release);
-    TO_JAVA_STRING(version);
-    TO_JAVA_STRING(machine);
-#undef TO_JAVA_STRING
-
+    TO_JAVA_STRING(sysname, buf.sysname);
+    TO_JAVA_STRING(nodename, buf.nodename);
+    TO_JAVA_STRING(release, buf.release);
+    TO_JAVA_STRING(version, buf.version);
+    TO_JAVA_STRING(machine, buf.machine);
     static jmethodID ctor = env->GetMethodID(JniConstants::structUtsnameClass, "<init>",
             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
     return env->NewObject(JniConstants::structUtsnameClass, ctor,
@@ -312,6 +322,47 @@ static jobject doStat(JNIEnv* env, jstring javaPath, bool isLstat) {
     }
     return makeStructStat(env, sb);
 }
+
+class Passwd {
+public:
+    Passwd(JNIEnv* env) : mEnv(env), mResult(NULL) {
+        mBufferSize = sysconf(_SC_GETPW_R_SIZE_MAX);
+        if (mBufferSize == -1UL) {
+            // We're probably on bionic, where 1KiB should be enough for anyone.
+            // TODO: fix bionic to return 1024 like glibc.
+            mBufferSize = 1024;
+        }
+        mBuffer.reset(new char[mBufferSize]);
+    }
+
+    jobject getpwnam(const char* name) {
+        return process("getpwnam_r", getpwnam_r(name, &mPwd, mBuffer.get(), mBufferSize, &mResult));
+    }
+
+    jobject getpwuid(uid_t uid) {
+        return process("getpwuid_r", getpwuid_r(uid, &mPwd, mBuffer.get(), mBufferSize, &mResult));
+    }
+
+    struct passwd* get() {
+        return mResult;
+    }
+
+private:
+    jobject process(const char* syscall, int error) {
+        if (mResult == NULL) {
+            errno = error;
+            throwErrnoException(mEnv, syscall);
+            return NULL;
+        }
+        return makeStructPasswd(mEnv, *mResult);
+    }
+
+    JNIEnv* mEnv;
+    UniquePtr<char[]> mBuffer;
+    size_t mBufferSize;
+    struct passwd mPwd;
+    struct passwd* mResult;
+};
 
 static jboolean Posix_access(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     ScopedUtfChars path(env, javaPath);
@@ -571,6 +622,18 @@ static jint Posix_getpid(JNIEnv*, jobject) {
 
 static jint Posix_getppid(JNIEnv*, jobject) {
     return getppid();
+}
+
+static jobject Posix_getpwnam(JNIEnv* env, jobject, jstring javaName) {
+    ScopedUtfChars name(env, javaName);
+    if (name.c_str() == NULL) {
+        return NULL;
+    }
+    return Passwd(env).getpwnam(name.c_str());
+}
+
+static jobject Posix_getpwuid(JNIEnv* env, jobject, jint uid) {
+    return Passwd(env).getpwuid(uid);
 }
 
 static jobject Posix_getsockname(JNIEnv* env, jobject, jobject javaFd) {
@@ -1096,6 +1159,8 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, getnameinfo, "(Ljava/net/InetAddress;I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, getpid, "()I"),
     NATIVE_METHOD(Posix, getppid, "()I"),
+    NATIVE_METHOD(Posix, getpwnam, "(Ljava/lang/String;)Llibcore/io/StructPasswd;"),
+    NATIVE_METHOD(Posix, getpwuid, "(I)Llibcore/io/StructPasswd;"),
     NATIVE_METHOD(Posix, getsockname, "(Ljava/io/FileDescriptor;)Ljava/net/SocketAddress;"),
     NATIVE_METHOD(Posix, getsockoptByte, "(Ljava/io/FileDescriptor;II)I"),
     NATIVE_METHOD(Posix, getsockoptInAddr, "(Ljava/io/FileDescriptor;II)Ljava/net/InetAddress;"),

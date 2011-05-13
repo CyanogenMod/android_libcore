@@ -50,6 +50,8 @@ public interface Os {
     public String getnameinfo(InetAddress address, int flags) throws GaiException;
     public int getpid();
     public int getppid();
+    public StructPasswd getpwnam(String name) throws ErrnoException;
+    public StructPasswd getpwuid(int uid) throws ErrnoException;
     public SocketAddress getsockname(FileDescriptor fd) throws ErrnoException;
     public int getsockoptByte(FileDescriptor fd, int level, int option) throws ErrnoException;
     public InetAddress getsockoptInAddr(FileDescriptor fd, int level, int option) throws ErrnoException;
