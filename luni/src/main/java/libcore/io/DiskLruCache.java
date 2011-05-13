@@ -84,6 +84,8 @@ import static libcore.io.OsConstants.O_RDONLY;
  */
 public final class DiskLruCache implements Closeable {
     // TODO: test with fault injection
+    // TODO: a full disk should fail quietly!
+    // TODO: missing individual files should fail quietly
 
     static final String JOURNAL_FILE = "journal";
     static final String JOURNAL_FILE_TMP = "journal.tmp";
@@ -165,7 +167,7 @@ public final class DiskLruCache implements Closeable {
         }
     };
 
-    private DiskLruCache(File directory, int appVersion, int valueCount, int maxSize) {
+    private DiskLruCache(File directory, int appVersion, int valueCount, long maxSize) {
         this.directory = directory;
         this.appVersion = appVersion;
         this.journalFile = new File(directory, JOURNAL_FILE);
@@ -182,8 +184,9 @@ public final class DiskLruCache implements Closeable {
      * @param appVersion
      * @param valueCount the number of values per cache entry. Must be positive.
      * @param maxSize the maximum number of bytes this cache should use to store
+     * @throws IOException if reading or writing the cache directory fails
      */
-    public static DiskLruCache open(File directory, int appVersion, int valueCount, int maxSize)
+    public static DiskLruCache open(File directory, int appVersion, int valueCount, long maxSize)
             throws IOException {
         if (maxSize <= 0) {
             throw new IllegalArgumentException("maxSize <= 0");
@@ -208,6 +211,7 @@ public final class DiskLruCache implements Closeable {
         }
 
         // create a new empty cache
+        directory.mkdirs();
         cache = new DiskLruCache(directory, appVersion, valueCount, maxSize);
         cache.rebuildJournal();
         return cache;
@@ -401,6 +405,21 @@ public final class DiskLruCache implements Closeable {
     }
 
     /**
+     * Returns the directory where this cache stores its data.
+     */
+    public File getDirectory() {
+        return directory;
+    }
+
+    /**
+     * Returns the maximum number of bytes that this cache should use to store
+     * its data.
+     */
+    public long maxSize() {
+        return maxSize;
+    }
+
+    /**
      * Returns the number of bytes currently being used to store the values in
      * this cache. This may be greater than the max size if a background
      * deletion is pending.
@@ -500,6 +519,13 @@ public final class DiskLruCache implements Closeable {
         return true;
     }
 
+    /**
+     * Returns true if this cache has been closed.
+     */
+    public boolean isClosed() {
+        return journalWriter == null;
+    }
+
     private void checkNotClosed() {
         if (journalWriter == null) {
             throw new IllegalStateException("cache is closed");
@@ -507,7 +533,7 @@ public final class DiskLruCache implements Closeable {
     }
 
     /**
-     * Force all buffered and pending operations to the file system.
+     * Force buffered operations to the file system.
      */
     public synchronized void flush() throws IOException {
         checkNotClosed();

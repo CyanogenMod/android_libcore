@@ -60,6 +60,10 @@ import tests.http.RecordedRequest;
 import static tests.http.SocketPolicy.DISCONNECT_AT_END;
 
 public final class HttpResponseCacheTest extends TestCase {
+
+    // TODO: test cache + cookies
+    // TODO: test cache + user-provided Range header
+
     private MockWebServer server = new MockWebServer();
     private HttpResponseCache cache;
 
@@ -68,7 +72,6 @@ public final class HttpResponseCacheTest extends TestCase {
 
         String tmp = System.getProperty("java.io.tmpdir");
         File cacheDir = new File(tmp, "HttpCache-" + UUID.randomUUID());
-        cacheDir.mkdir();
         cache = new HttpResponseCache(cacheDir, Integer.MAX_VALUE);
         ResponseCache.setDefault(cache);
     }
@@ -76,7 +79,7 @@ public final class HttpResponseCacheTest extends TestCase {
     @Override protected void tearDown() throws Exception {
         server.shutdown();
         ResponseCache.setDefault(null);
-        cache.delete();
+        cache.getCache().delete();
         super.tearDown();
     }
 

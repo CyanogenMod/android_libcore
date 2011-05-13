@@ -465,9 +465,10 @@ public final class IntegralToString {
     public static String bytesToHexString(byte[] bytes, boolean upperCase) {
         char[] digits = upperCase ? UPPER_CASE_DIGITS : DIGITS;
         char[] buf = new char[bytes.length * 2];
+        int c = 0;
         for (byte b : bytes) {
-            buf[0] = digits[(b >> 4) & 0xf];
-            buf[1] = digits[b & 0xf];
+            buf[c++] = digits[(b >> 4) & 0xf];
+            buf[c++] = digits[b & 0xf];
         }
         return new String(buf);
     }

@@ -34,13 +34,15 @@ import static libcore.io.DiskLruCache.VERSION_1;
 
 public final class DiskLruCacheTest extends TestCase {
     private final int appVersion = 100;
+    private String javaTmpDir;
     private File cacheDir;
     private File journalFile;
     private DiskLruCache cache;
 
     @Override public void setUp() throws Exception {
         super.setUp();
-        cacheDir = new File(System.getProperty("java.io.tmpdir"), "DiskLruCacheTest");
+        javaTmpDir = System.getProperty("java.io.tmpdir");
+        cacheDir = new File(javaTmpDir, "DiskLruCacheTest");
         cacheDir.mkdir();
         journalFile = new File(cacheDir, JOURNAL_FILE);
         for (File file : cacheDir.listFiles()) {
@@ -555,6 +557,16 @@ public final class DiskLruCacheTest extends TestCase {
         // sanity check that a rebuilt journal behaves normally
         assertValue("A", "a", "a");
         assertValue("B", "b", "b");
+    }
+
+    public void testOpenCreatesDirectoryIfNecessary() throws Exception {
+        cache.close();
+        File dir = new File(javaTmpDir, "testOpenCreatesDirectoryIfNecessary");
+        cache = DiskLruCache.open(dir, appVersion, 2, Integer.MAX_VALUE);
+        set("A", "a", "a");
+        assertTrue(new File(dir, "A.0").exists());
+        assertTrue(new File(dir, "A.1").exists());
+        assertTrue(new File(dir, "journal").exists());
     }
 
     private void assertJournalEquals(String... expectedBodyLines) throws Exception {
