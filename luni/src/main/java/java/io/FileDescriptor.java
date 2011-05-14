@@ -83,6 +83,24 @@ public final class FileDescriptor {
         return descriptor != -1;
     }
 
+    /**
+     * Returns the int fd. It's highly unlikely you should be calling this. Please discuss
+     * your needs with a libcore maintainer before using this method.
+     * @hide internal use only
+     */
+    public final int getInt$() {
+        return descriptor;
+    }
+
+    /**
+     * Sets the int fd. It's highly unlikely you should be calling this. Please discuss
+     * your needs with a libcore maintainer before using this method.
+     * @hide internal use only
+     */
+    public final void setInt$(int fd) {
+        this.descriptor = fd;
+    }
+
     @Override public String toString() {
         return "FileDescriptor[" + descriptor + "]";
     }
