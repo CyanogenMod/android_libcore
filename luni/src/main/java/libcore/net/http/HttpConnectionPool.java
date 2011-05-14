@@ -17,7 +17,11 @@
 
 package libcore.net.http;
 
+import dalvik.system.BlockGuard;
+
 import java.io.IOException;
+import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,6 +70,9 @@ final class HttpConnectionPool {
                 while (!connections.isEmpty()) {
                     HttpConnection connection = connections.remove(connections.size() - 1);
                     if (!connection.isStale()) { // TODO: this op does I/O!
+                        // Since Socket is recycled, re-tag before using
+                        final Socket socket = connection.getSocket();
+                        BlockGuard.tagSocketFd(socket.getFileDescriptor$());
                         return connection;
                     }
                 }
@@ -81,6 +88,16 @@ final class HttpConnectionPool {
     }
 
     public void recycle(HttpConnection connection) {
+        final Socket socket = connection.getSocket();
+        try {
+            BlockGuard.untagSocketFd(socket.getFileDescriptor$());
+        } catch (SocketException e) {
+            // When unable to remove tagging, skip recycling and close
+            System.logW("Unable to untagSocket(): " + e);
+            connection.closeSocketAndStreams();
+            return;
+        }
+
         if (maxConnections > 0 && connection.isEligibleForRecycling()) {
             HttpConnection.Address address = connection.getAddress();
             synchronized (connectionPool) {

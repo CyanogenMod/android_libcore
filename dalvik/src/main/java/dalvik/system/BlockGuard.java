@@ -16,17 +16,21 @@
 
 package dalvik.system;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
-import java.net.SocketOptions;
+
+import libcore.io.ErrnoException;
 import libcore.io.Libcore;
 import libcore.io.StructLinger;
 import org.apache.harmony.luni.platform.INetworkSystem;
+
 import static libcore.io.OsConstants.*;
 
 /**
@@ -43,6 +47,15 @@ import static libcore.io.OsConstants.*;
  * @hide
  */
 public final class BlockGuard {
+
+    private static final boolean LOGI = true;
+    private static final boolean TAG_SOCKETS = false;
+
+    // TODO: refactor class name to something more generic, since its scope is
+    // growing beyond just blocking/logging.
+
+    private static final byte TAG_HEADER = 't';
+    private static final byte TAG_SEPARATOR = '\0';
 
     public static final int DISALLOW_DISK_WRITE = 0x01;
     public static final int DISALLOW_DISK_READ = 0x02;
@@ -75,6 +88,11 @@ public final class BlockGuard {
          * PENALTY_* constants.
          */
         int getPolicyMask();
+    }
+
+    public static class SocketTags {
+        public String statsTag = null;
+        public int statsUid = -1;
     }
 
     public static class BlockGuardPolicyException extends RuntimeException {
@@ -132,6 +150,13 @@ public final class BlockGuard {
         }
     };
 
+    private static ThreadLocal<SocketTags> threadSocketTags = new ThreadLocal<SocketTags>() {
+        @Override
+        protected SocketTags initialValue() {
+            return new SocketTags();
+        }
+    };
+
     /**
      * Get the current thread's policy.
      *
@@ -140,6 +165,14 @@ public final class BlockGuard {
      */
     public static Policy getThreadPolicy() {
         return threadPolicy.get();
+    }
+
+    public static void setThreadSocketStatsTag(String tag) {
+        threadSocketTags.get().statsTag = tag;
+    }
+
+    public static void setThreadSocketStatsUid(int uid) {
+        threadSocketTags.get().statsUid = uid;
     }
 
     /**
@@ -153,6 +186,61 @@ public final class BlockGuard {
             throw new NullPointerException("policy == null");
         }
         threadPolicy.set(policy);
+    }
+
+    public static void tagSocketFd(FileDescriptor fd) throws SocketException {
+        final SocketTags options = threadSocketTags.get();
+        if (LOGI) {
+            System.logI("tagSocket(" + fd.getInt$() + ") with statsTag="
+                    + options.statsTag + ", statsUid=" + options.statsUid);
+        }
+
+        try {
+            // TODO: skip tagging when options would be no-op
+            internalTagSocketFd(fd, options.statsTag, options.statsUid);
+        } catch (IOException e) {
+            throw new SocketException("Problem tagging socket", e);
+        }
+    }
+
+    public static void untagSocketFd(FileDescriptor fd) throws SocketException {
+        if (LOGI) {
+            System.logI("untagSocket(" + fd.getInt$() + ")");
+        }
+
+        try {
+            internalTagSocketFd(fd, null, -1);
+        } catch (IOException e) {
+            throw new SocketException("Problem untagging socket", e);
+        }
+    }
+
+    private static void internalTagSocketFd(FileDescriptor fd, String tag, int uid)
+            throws IOException {
+        if (!TAG_SOCKETS) return;
+
+        final byte[] tagBytes = tag != null ? tag.getBytes() : new byte[0];
+        final byte[] uidBytes = uid != -1 ? Integer.toString(uid).getBytes() : new byte[0];
+
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream(
+                4 + tagBytes.length + uidBytes.length);
+
+        buffer.write(TAG_HEADER);
+        buffer.write(TAG_SEPARATOR);
+        buffer.write(tagBytes);
+        buffer.write(TAG_SEPARATOR);
+        buffer.write(uidBytes);
+        buffer.write(TAG_SEPARATOR);
+        buffer.close();
+
+        final byte[] bufferBytes = buffer.toByteArray();
+
+        final FileOutputStream procOut = new FileOutputStream("/proc/net/qtaguid");
+        try {
+            procOut.write(bufferBytes);
+        } finally {
+            procOut.close();
+        }
     }
 
     private BlockGuard() {}
@@ -171,6 +259,7 @@ public final class BlockGuard {
                 FileDescriptor clientFd) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
             mNetwork.accept(serverFd, newSocket, clientFd);
+            tagSocketFd(clientFd);
         }
 
         public int read(FileDescriptor aFD, byte[] data, int offset, int count) throws IOException {
@@ -235,7 +324,7 @@ public final class BlockGuard {
             mNetwork.close(aFD);
         }
 
-        private boolean isLingerSocket(FileDescriptor fd) throws SocketException {
+        private boolean isLingerSocket(FileDescriptor fd) {
             try {
                 StructLinger linger = Libcore.os.getsockoptLinger(fd, SOL_SOCKET, SO_LINGER);
                 return linger.isOn() && linger.l_linger > 0;
