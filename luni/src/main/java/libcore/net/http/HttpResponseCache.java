@@ -19,7 +19,6 @@ package libcore.net.http;
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FilterInputStream;
 import java.io.FilterOutputStream;
@@ -55,12 +54,11 @@ import libcore.io.IoUtils;
 import libcore.io.Streams;
 
 /**
- * Cache responses in a cache directory.
+ * Cache responses in a directory on the file system. Most clients should use
+ * {@code android.net.HttpResponseCache}, the stable, documented front end for
+ * this.
  */
-public final class HttpResponseCache extends ResponseCache implements Closeable {
-    // TODO: default max size
-    // TODO: default cache directory for android apps
-    // TODO: move this class to android.util
+public final class HttpResponseCache extends ResponseCache {
     // TODO: add APIs to iterate the cache
 
     private static final int VERSION = 201105;
@@ -77,7 +75,7 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
     private int hitCount;
     private int requestCount;
 
-    public HttpResponseCache(File directory, int maxSize) throws IOException {
+    public HttpResponseCache(File directory, long maxSize) throws IOException {
         cache = DiskLruCache.open(directory, VERSION, ENTRY_COUNT, maxSize);
     }
 
@@ -160,59 +158,16 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
         return new CacheRequestImpl(editor);
     }
 
-    /**
-     * Closes this cache. Stored contents will remain on the filesystem.
-     */
-    public void close() throws IOException {
-        cache.close();
+    public DiskLruCache getCache() {
+        return cache;
     }
 
-    /**
-     * Closes this cache and deletes all of its stored contents.
-     */
-    public void delete() throws IOException {
-        cache.delete();
-    }
-
-    /**
-     * Returns the number of responses that were aborted before they were
-     * stored.
-     */
     synchronized int getWriteAbortCount() {
         return writeAbortCount;
     }
 
-    /**
-     * Returns the number of responses that were stored successfully.
-     */
     synchronized int getWriteSuccessCount() {
         return writeSuccessCount;
-    }
-
-    /**
-     * Returns the number of HTTP requests that required the network to either
-     * supply a response or validate a locally cached response.
-     */
-    public synchronized int getNetworkCount() {
-        return networkCount;
-    }
-
-    /**
-     * Returns the number of HTTP requests whose response was provided by the
-     * cache. This may include conditional {@code GET} requests that were
-     * validated over the network.
-     */
-    public synchronized int getHitCount() {
-        return hitCount;
-    }
-
-    /**
-     * Returns the total number of HTTP requests that were made. This includes
-     * both client requests and requests that were made on the client's behalf
-     * to handle a redirects and retries.
-     */
-    public synchronized int getRequestCount() {
-        return requestCount;
     }
 
     synchronized void trackResponse(ResponseSource source) {
@@ -231,6 +186,18 @@ public final class HttpResponseCache extends ResponseCache implements Closeable 
 
     synchronized void trackConditionalCacheHit() {
         hitCount++;
+    }
+
+    public synchronized int getNetworkCount() {
+        return networkCount;
+    }
+
+    public synchronized int getHitCount() {
+        return hitCount;
+    }
+
+    public synchronized int getRequestCount() {
+        return requestCount;
     }
 
     private final class CacheRequestImpl extends CacheRequest {
