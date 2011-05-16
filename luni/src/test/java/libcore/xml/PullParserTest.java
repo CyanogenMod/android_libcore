@@ -17,7 +17,6 @@
 package libcore.xml;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.StringReader;
 import junit.framework.TestCase;
 import org.xmlpull.v1.XmlPullParser;
@@ -693,6 +692,32 @@ public abstract class PullParserTest extends TestCase {
 
     public void testTextNoDocumentElement() throws Exception {
         assertParseFailure("not xml");
+    }
+
+    public void testBomAndByteInput() throws Exception {
+        byte[] xml = "\ufeff<?xml version='1.0'?><input/>".getBytes("UTF-8");
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new ByteArrayInputStream(xml), null);
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("input", parser.getName());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals("input", parser.getName());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
+    }
+
+    public void testBomAndByteInputWithExplicitCharset() throws Exception {
+        byte[] xml = "\ufeff<?xml version='1.0'?><input/>".getBytes("UTF-8");
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new ByteArrayInputStream(xml), "UTF-8");
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("input", parser.getName());
+        assertEquals(XmlPullParser.END_TAG, parser.next());
+        assertEquals("input", parser.getName());
+        assertEquals(XmlPullParser.END_DOCUMENT, parser.next());
+    }
+
+    public void testBomAndCharacterInput() throws Exception {
+        assertParseFailure("\ufeff<?xml version='1.0'?><input/>");
     }
 
     private void assertParseFailure(String xml) throws Exception {
