@@ -34,10 +34,4 @@ public interface INetworkSystem {
     public int readDirect(FileDescriptor fd, int address, int count) throws IOException;
     public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset, int length, boolean peek, boolean connected) throws IOException;
     public int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset, int length, boolean peek, boolean connected) throws IOException;
-
-    public int send(FileDescriptor fd, byte[] data, int offset, int length, int port, InetAddress inetAddress) throws IOException;
-    public int sendDirect(FileDescriptor fd, int address, int offset, int length, int port, InetAddress inetAddress) throws IOException;
-    public void sendUrgentData(FileDescriptor fd, byte value);
-    public int write(FileDescriptor fd, byte[] data, int offset, int count) throws IOException;
-    public int writeDirect(FileDescriptor fd, int address, int offset, int count) throws IOException;
 }

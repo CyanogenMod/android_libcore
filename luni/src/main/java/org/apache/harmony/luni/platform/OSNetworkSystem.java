@@ -47,10 +47,4 @@ final class OSNetworkSystem implements INetworkSystem {
     public native int readDirect(FileDescriptor fd, int address, int count) throws IOException;
     public native int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset, int length, boolean peek, boolean connected) throws IOException;
     public native int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset, int length, boolean peek, boolean connected) throws IOException;
-
-    public native int send(FileDescriptor fd, byte[] data, int offset, int length, int port, InetAddress inetAddress) throws IOException;
-    public native int sendDirect(FileDescriptor fd, int address, int offset, int length, int port, InetAddress inetAddress) throws IOException;
-    public native void sendUrgentData(FileDescriptor fd, byte value);
-    public native int write(FileDescriptor fd, byte[] data, int offset, int count) throws IOException;
-    public native int writeDirect(FileDescriptor fd, int address, int offset, int count) throws IOException;
 }

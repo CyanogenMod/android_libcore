@@ -92,6 +92,8 @@ public class ForwardingOs implements Os {
     public void remove(String path) throws ErrnoException { os.remove(path); }
     public void rename(String oldPath, String newPath) throws ErrnoException { os.rename(oldPath, newPath); }
     public long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException { return os.sendfile(outFd, inFd, inOffset, byteCount); }
+    public int sendto(FileDescriptor fd, ByteBuffer buffer, int flags, InetAddress inetAddress, int port) throws ErrnoException { return os.sendto(fd, buffer, flags, inetAddress, port); }
+    public int sendto(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException { return os.sendto(fd, bytes, byteOffset, byteCount, flags, inetAddress, port); }
     public void setegid(int egid) throws ErrnoException { os.setegid(egid); }
     public void seteuid(int euid) throws ErrnoException { os.seteuid(euid); }
     public void setgid(int gid) throws ErrnoException { os.setgid(gid); }

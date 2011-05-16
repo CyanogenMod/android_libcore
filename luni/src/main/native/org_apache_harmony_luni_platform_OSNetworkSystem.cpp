@@ -62,53 +62,6 @@ static int getSocketAddressPort(sockaddr_storage* ss) {
     }
 }
 
-static jint OSNetworkSystem_writeDirect(JNIEnv* env, jobject,
-        jobject fileDescriptor, jint address, jint offset, jint count) {
-    if (count <= 0) {
-        return 0;
-    }
-
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return 0;
-    }
-
-    jbyte* src = reinterpret_cast<jbyte*>(static_cast<uintptr_t>(address + offset));
-
-    ssize_t bytesSent;
-    {
-        int intFd = fd.get();
-        AsynchronousSocketCloseMonitor monitor(intFd);
-        bytesSent = NET_FAILURE_RETRY(fd, write(intFd, src, count));
-    }
-    if (env->ExceptionOccurred()) {
-        return -1;
-    }
-
-    if (bytesSent == -1) {
-        if (errno == EAGAIN || errno == EWOULDBLOCK) {
-            // We were asked to write to a non-blocking socket, but were told
-            // it would block, so report "no bytes written".
-            return 0;
-        } else {
-            jniThrowSocketException(env, errno);
-            return 0;
-        }
-    }
-    return bytesSent;
-}
-
-static jint OSNetworkSystem_write(JNIEnv* env, jobject,
-        jobject fileDescriptor, jbyteArray byteArray, jint offset, jint count) {
-    ScopedByteArrayRW bytes(env, byteArray);
-    if (bytes.get() == NULL) {
-        return -1;
-    }
-    jint address = static_cast<jint>(reinterpret_cast<uintptr_t>(bytes.get()));
-    int result = OSNetworkSystem_writeDirect(env, NULL, fileDescriptor, address, offset, count);
-    return result;
-}
-
 static void OSNetworkSystem_accept(JNIEnv* env, jobject, jobject serverFileDescriptor,
         jobject newSocket, jobject clientFileDescriptor) {
 
@@ -166,22 +119,10 @@ static void OSNetworkSystem_accept(JNIEnv* env, jobject, jobject serverFileDescr
     jniSetFileDescriptorOfFD(env, clientFileDescriptor, clientFd);
 }
 
-static void OSNetworkSystem_sendUrgentData(JNIEnv* env, jobject,
-        jobject fileDescriptor, jbyte value) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return;
-    }
 
-    int rc = send(fd.get(), &value, 1, MSG_OOB);
-    if (rc == -1) {
-        jniThrowSocketException(env, errno);
-    }
-}
 
-// TODO: can we merge this with recvDirect?
-static jint OSNetworkSystem_readDirect(JNIEnv* env, jobject, jobject fileDescriptor,
-        jint address, jint count) {
+
+static jint OSNetworkSystem_readDirect(JNIEnv* env, jobject, jobject fileDescriptor, jint address, jint count) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
         return 0;
@@ -213,8 +154,7 @@ static jint OSNetworkSystem_readDirect(JNIEnv* env, jobject, jobject fileDescrip
     }
 }
 
-static jint OSNetworkSystem_read(JNIEnv* env, jobject, jobject fileDescriptor,
-        jbyteArray byteArray, jint offset, jint count) {
+static jint OSNetworkSystem_read(JNIEnv* env, jobject, jobject fileDescriptor, jbyteArray byteArray, jint offset, jint count) {
     ScopedByteArrayRW bytes(env, byteArray);
     if (bytes.get() == NULL) {
         return -1;
@@ -223,9 +163,7 @@ static jint OSNetworkSystem_read(JNIEnv* env, jobject, jobject fileDescriptor,
     return OSNetworkSystem_readDirect(env, NULL, fileDescriptor, address, count);
 }
 
-// TODO: can we merge this with readDirect?
-static jint OSNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescriptor, jobject packet,
-        jint address, jint offset, jint length, jboolean peek, jboolean connected) {
+static jint OSNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescriptor, jobject packet, jint address, jint offset, jint length, jboolean peek, jboolean connected) {
     NetFd fd(env, fileDescriptor);
     if (fd.isClosed()) {
         return 0;
@@ -277,68 +215,13 @@ static jint OSNetworkSystem_recvDirect(JNIEnv* env, jobject, jobject fileDescrip
     return bytesReceived;
 }
 
-static jint OSNetworkSystem_recv(JNIEnv* env, jobject, jobject fd, jobject packet,
-        jbyteArray javaBytes, jint offset, jint length, jboolean peek, jboolean connected) {
+static jint OSNetworkSystem_recv(JNIEnv* env, jobject, jobject fd, jobject packet, jbyteArray javaBytes, jint offset, jint length, jboolean peek, jboolean connected) {
     ScopedByteArrayRW bytes(env, javaBytes);
     if (bytes.get() == NULL) {
         return -1;
     }
     uintptr_t address = reinterpret_cast<uintptr_t>(bytes.get());
-    return OSNetworkSystem_recvDirect(env, NULL, fd, packet, address, offset, length, peek,
-            connected);
-}
-
-
-
-
-
-
-
-
-static jint OSNetworkSystem_sendDirect(JNIEnv* env, jobject, jobject fileDescriptor, jint address, jint offset, jint length, jint port, jobject inetAddress) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        return -1;
-    }
-
-    sockaddr_storage receiver;
-    if (inetAddress != NULL && !inetAddressToSockaddr(env, inetAddress, port, &receiver)) {
-        return -1;
-    }
-
-    int flags = 0;
-    char* buf = reinterpret_cast<char*>(static_cast<uintptr_t>(address + offset));
-    sockaddr* to = inetAddress ? reinterpret_cast<sockaddr*>(&receiver) : NULL;
-    socklen_t toLength = inetAddress ? sizeof(receiver) : 0;
-
-    ssize_t bytesSent;
-    {
-        int intFd = fd.get();
-        AsynchronousSocketCloseMonitor monitor(intFd);
-        bytesSent = NET_FAILURE_RETRY(fd, sendto(intFd, buf, length, flags, to, toLength));
-    }
-    if (env->ExceptionOccurred()) {
-        return -1;
-    }
-    if (bytesSent == -1) {
-        if (errno == ECONNRESET || errno == ECONNREFUSED) {
-            return 0;
-        } else {
-            jniThrowSocketException(env, errno);
-        }
-    }
-    return bytesSent;
-}
-
-static jint OSNetworkSystem_send(JNIEnv* env, jobject, jobject fd,
-        jbyteArray data, jint offset, jint length,
-        jint port, jobject inetAddress) {
-    ScopedByteArrayRO bytes(env, data);
-    if (bytes.get() == NULL) {
-        return -1;
-    }
-    return OSNetworkSystem_sendDirect(env, NULL, fd,
-            reinterpret_cast<uintptr_t>(bytes.get()), offset, length, port, inetAddress);
+    return OSNetworkSystem_recvDirect(env, NULL, fd, packet, address, offset, length, peek, connected);
 }
 
 static JNINativeMethod gMethods[] = {
@@ -347,11 +230,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, readDirect, "(Ljava/io/FileDescriptor;II)I"),
     NATIVE_METHOD(OSNetworkSystem, recv, "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIZZ)I"),
     NATIVE_METHOD(OSNetworkSystem, recvDirect, "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;IIIZZ)I"),
-    NATIVE_METHOD(OSNetworkSystem, send, "(Ljava/io/FileDescriptor;[BIIILjava/net/InetAddress;)I"),
-    NATIVE_METHOD(OSNetworkSystem, sendDirect, "(Ljava/io/FileDescriptor;IIIILjava/net/InetAddress;)I"),
-    NATIVE_METHOD(OSNetworkSystem, sendUrgentData, "(Ljava/io/FileDescriptor;B)V"),
-    NATIVE_METHOD(OSNetworkSystem, write, "(Ljava/io/FileDescriptor;[BII)I"),
-    NATIVE_METHOD(OSNetworkSystem, writeDirect, "(Ljava/io/FileDescriptor;III)I"),
 };
 
 int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env) {

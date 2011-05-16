@@ -35,6 +35,7 @@ import java.net.SocketException;
 import java.net.SocketOptions;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charsets;
 import java.util.Arrays;
 import libcore.util.MutableInt;
@@ -149,6 +150,49 @@ public final class IoUtils {
         } catch (ErrnoException errnoException) {
             throw errnoException.rethrowAsIOException();
         }
+    }
+
+    public static int sendto(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws IOException {
+        boolean isDatagram = (inetAddress != null);
+        if (!isDatagram && byteCount <= 0) {
+            return 0;
+        }
+        int result;
+        try {
+            result = Libcore.os.sendto(fd, bytes, byteOffset, byteCount, flags, inetAddress, port);
+        } catch (ErrnoException errnoException) {
+            result = maybeThrowAfterSendto(isDatagram, errnoException);
+        }
+        return result;
+    }
+
+    public static int sendto(FileDescriptor fd, ByteBuffer buffer, int flags, InetAddress inetAddress, int port) throws IOException {
+        boolean isDatagram = (inetAddress != null);
+        if (!isDatagram && buffer.remaining() == 0) {
+            return 0;
+        }
+        int result;
+        try {
+            result = Libcore.os.sendto(fd, buffer, flags, inetAddress, port);
+        } catch (ErrnoException errnoException) {
+            result = maybeThrowAfterSendto(isDatagram, errnoException);
+        }
+        return result;
+    }
+
+    private static int maybeThrowAfterSendto(boolean isDatagram, ErrnoException errnoException) throws SocketException {
+        if (isDatagram) {
+            if (errnoException.errno == ECONNRESET || errnoException.errno == ECONNREFUSED) {
+                return 0;
+            }
+        } else {
+            if (errnoException.errno == EAGAIN || errnoException.errno == EWOULDBLOCK) {
+                // We were asked to write to a non-blocking socket, but were told
+                // it would block, so report "no bytes written".
+                return 0;
+            }
+        }
+        throw errnoException.rethrowAsSocketException();
     }
 
     public static void bind(FileDescriptor fd, InetAddress address, int port) throws SocketException {

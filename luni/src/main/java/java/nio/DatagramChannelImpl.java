@@ -257,12 +257,9 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
      */
     @Override
     public int send(ByteBuffer source, SocketAddress socketAddress) throws IOException {
-        // must not null
         checkNotNull(source);
-        // must open
         checkOpen();
 
-        // transfer socketAddress
         InetSocketAddress isa = (InetSocketAddress) socketAddress;
         if (isa.getAddress() == null) {
             throw new IOException();
@@ -272,38 +269,17 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
             throw new IllegalArgumentException();
         }
 
-        // the return value.
-        int sendCount = 0;
-        try {
-            begin();
-            byte[] array = null;
-            int length = source.remaining();
-            int oldposition = source.position();
-            int start = oldposition;
-            if (source.isDirect()) {
-                synchronized (writeLock) {
-                    int address = NioUtils.getDirectBufferAddress(source);
-                    sendCount = Platform.NETWORK.sendDirect(fd, address, start, length,
-                            isa.getPort(), isa.getAddress());
-                }
-            } else {
-                if (source.hasArray()) {
-                    array = source.array();
-                    start += source.arrayOffset();
-                } else {
-                    array = new byte[length];
-                    source.get(array);
-                    start = 0;
-                }
-                synchronized (writeLock) {
-                    sendCount = Platform.NETWORK.send(fd, array, start, length,
-                            isa.getPort(), isa.getAddress());
-                }
+        synchronized (writeLock) {
+            int sendCount = 0;
+            try {
+                begin();
+                int oldPosition = source.position();
+                sendCount = IoUtils.sendto(fd, source, 0, isa.getAddress(), isa.getPort());
+                source.position(oldPosition + sendCount);
+            } finally {
+                end(sendCount >= 0);
             }
-            source.position(oldposition + sendCount);
             return sendCount;
-        } finally {
-            end(sendCount >= 0);
         }
     }
 
@@ -461,37 +437,20 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         return written;
     }
 
-    /*
-     * Write the source. Return the count of bytes written.
-     */
     private int writeImpl(ByteBuffer buf) throws IOException {
         synchronized (writeLock) {
             int result = 0;
             try {
                 begin();
-                int length = buf.remaining();
-                int start = buf.position();
-
-                if (buf.isDirect()) {
-                    int address = NioUtils.getDirectBufferAddress(buf);
-                    result = Platform.NETWORK.sendDirect(fd, address, start, length, 0, null);
-                } else {
-                    // buf is assured to have array.
-                    start += buf.arrayOffset();
-                    result = Platform.NETWORK.send(fd, buf.array(), start, length, 0, null);
-                }
-                return result;
+                result = IoUtils.sendto(fd, buf, 0, null, 0);
             } finally {
                 end(result > 0);
             }
+            return result;
         }
     }
 
-    /*
-     * Do really closing action here.
-     */
-    @Override
-    protected synchronized void implCloseSelectableChannel() throws IOException {
+    @Override protected synchronized void implCloseSelectableChannel() throws IOException {
         connected = false;
         if (socket != null && !socket.isClosed()) {
             socket.close();

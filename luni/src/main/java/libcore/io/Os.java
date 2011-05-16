@@ -84,6 +84,8 @@ public interface Os {
     public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
     public void remove(String path) throws ErrnoException;
     public void rename(String oldPath, String newPath) throws ErrnoException;
+    public int sendto(FileDescriptor fd, ByteBuffer buffer, int flags, InetAddress inetAddress, int port) throws ErrnoException;
+    public int sendto(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException;
     public long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException;
     public void setegid(int egid) throws ErrnoException;
     public void seteuid(int euid) throws ErrnoException;
