@@ -48,7 +48,7 @@ import static libcore.io.OsConstants.*;
  */
 public final class BlockGuard {
 
-    private static final boolean LOGI = true;
+    private static final boolean LOGI = false;
     private static final boolean TAG_SOCKETS = false;
 
     // TODO: refactor class name to something more generic, since its scope is
