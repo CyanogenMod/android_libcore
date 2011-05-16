@@ -145,7 +145,7 @@ public class PlainSocketImpl extends SocketImpl {
     @Override
     protected synchronized void close() throws IOException {
         guard.close();
-        Platform.NETWORK.close(fd);
+        IoUtils.closeSocket(fd);
     }
 
     @Override

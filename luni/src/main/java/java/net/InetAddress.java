@@ -824,7 +824,7 @@ public class InetAddress implements Serializable {
             }
         }
 
-        Platform.NETWORK.close(fd);
+        IoUtils.closeSocket(fd);
 
         return reached;
     }

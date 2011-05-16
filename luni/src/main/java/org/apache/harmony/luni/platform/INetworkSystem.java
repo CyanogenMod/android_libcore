@@ -30,8 +30,6 @@ import java.net.SocketImpl;
 public interface INetworkSystem {
     public void accept(FileDescriptor serverFd, SocketImpl newSocket, FileDescriptor clientFd) throws IOException;
 
-    public void close(FileDescriptor fd) throws IOException;
-
     public int read(FileDescriptor fd, byte[] data, int offset, int count) throws IOException;
     public int readDirect(FileDescriptor fd, int address, int count) throws IOException;
     public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset, int length, boolean peek, boolean connected) throws IOException;

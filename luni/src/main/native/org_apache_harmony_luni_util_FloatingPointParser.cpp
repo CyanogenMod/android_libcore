@@ -1009,7 +1009,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(FloatingPointParser, parseFltImpl, "(Ljava/lang/String;I)F"),
     NATIVE_METHOD(FloatingPointParser, parseDblImpl, "(Ljava/lang/String;I)D"),
 };
-int register_org_apache_harmony_luni_util_fltparse(JNIEnv* env) {
+int register_org_apache_harmony_luni_util_FloatingPointParser(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "org/apache/harmony/luni/util/FloatingPointParser",
                 gMethods, NELEM(gMethods));
 }

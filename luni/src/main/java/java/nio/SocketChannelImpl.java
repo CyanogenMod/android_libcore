@@ -479,7 +479,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
             if (socket != null && !socket.isClosed()) {
                 socket.close();
             } else {
-                Platform.NETWORK.close(fd);
+                IoUtils.closeSocket(fd);
             }
         }
     }

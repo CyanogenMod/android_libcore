@@ -81,7 +81,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     public synchronized void close() {
         guard.close();
         try {
-            Platform.NETWORK.close(fd);
+            IoUtils.closeSocket(fd);
         } catch (IOException ignored) {
         }
     }

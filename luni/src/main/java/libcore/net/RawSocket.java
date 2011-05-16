@@ -22,6 +22,7 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.Arrays;
+import libcore.io.IoUtils;
 import org.apache.harmony.luni.platform.Platform;
 
 /**
@@ -111,7 +112,7 @@ public class RawSocket implements Closeable {
      */
     public void close() throws IOException {
         guard.close();
-        Platform.NETWORK.close(fd);
+        IoUtils.closeSocket(fd);
     }
 
     @Override protected void finalize() throws Throwable {

@@ -38,6 +38,7 @@ LOCAL_SRC_FILES := \
 	libcore_icu_NativeNormalizer.cpp \
 	libcore_icu_NativePluralRules.cpp \
 	libcore_icu_TimeZones.cpp \
+	libcore_io_AsynchronousCloseMonitor.cpp \
 	libcore_io_Memory.cpp \
 	libcore_io_OsConstants.cpp \
 	libcore_io_Posix.cpp \

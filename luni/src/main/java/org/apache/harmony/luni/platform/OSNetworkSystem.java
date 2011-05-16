@@ -43,8 +43,6 @@ final class OSNetworkSystem implements INetworkSystem {
 
     public native void accept(FileDescriptor serverFd, SocketImpl newSocket, FileDescriptor clientFd) throws IOException;
 
-    public native void close(FileDescriptor fd) throws IOException;
-
     public native int read(FileDescriptor fd, byte[] data, int offset, int count) throws IOException;
     public native int readDirect(FileDescriptor fd, int address, int count) throws IOException;
     public native int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset, int length, boolean peek, boolean connected) throws IOException;

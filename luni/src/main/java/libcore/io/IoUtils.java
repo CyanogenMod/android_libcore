@@ -219,6 +219,23 @@ public final class IoUtils {
         }
     }
 
+    public static void closeSocket(FileDescriptor fd) throws IOException {
+        if (!fd.valid()) {
+            // Socket.close doesn't throw if you try to close an already-closed socket.
+            return;
+        }
+        int intFd = fd.getInt$();
+        fd.setInt$(-1);
+        FileDescriptor oldFd = new FileDescriptor();
+        oldFd.setInt$(intFd);
+        AsynchronousCloseMonitor.signalBlockedThreads(oldFd);
+        try {
+            Libcore.os.close(oldFd);
+        } catch (ErrnoException errnoException) {
+            // TODO: are there any cases in which we should throw?
+        }
+    }
+
     /**
      * Connects socket 'fd' to 'inetAddress' on 'port', with no timeout. The lack of a timeout
      * means this method won't throw SocketTimeoutException.

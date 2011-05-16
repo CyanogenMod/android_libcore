@@ -341,23 +341,8 @@ static jint OSNetworkSystem_send(JNIEnv* env, jobject, jobject fd,
             reinterpret_cast<uintptr_t>(bytes.get()), offset, length, port, inetAddress);
 }
 
-static void OSNetworkSystem_close(JNIEnv* env, jobject, jobject fileDescriptor) {
-    NetFd fd(env, fileDescriptor);
-    if (fd.isClosed()) {
-        // Socket.close doesn't throw if you try to close an already-closed socket.
-        env->ExceptionClear();
-        return;
-    }
-
-    int oldFd = fd.get();
-    jniSetFileDescriptorOfFD(env, fileDescriptor, -1);
-    AsynchronousSocketCloseMonitor::signalBlockedThreads(oldFd);
-    close(oldFd);
-}
-
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OSNetworkSystem, accept, "(Ljava/io/FileDescriptor;Ljava/net/SocketImpl;Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(OSNetworkSystem, close, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(OSNetworkSystem, read, "(Ljava/io/FileDescriptor;[BII)I"),
     NATIVE_METHOD(OSNetworkSystem, readDirect, "(Ljava/io/FileDescriptor;II)I"),
     NATIVE_METHOD(OSNetworkSystem, recv, "(Ljava/io/FileDescriptor;Ljava/net/DatagramPacket;[BIIZZ)I"),
@@ -370,6 +355,5 @@ static JNINativeMethod gMethods[] = {
 };
 
 int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env) {
-    AsynchronousSocketCloseMonitor::init();
     return jniRegisterNativeMethods(env, "org/apache/harmony/luni/platform/OSNetworkSystem", gMethods, NELEM(gMethods));
 }

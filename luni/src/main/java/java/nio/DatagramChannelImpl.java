@@ -496,7 +496,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         if (socket != null && !socket.isClosed()) {
             socket.close();
         } else {
-            Platform.NETWORK.close(fd);
+            IoUtils.closeSocket(fd);
         }
     }
 
