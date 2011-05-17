@@ -1606,17 +1606,17 @@ public class KXmlParser implements XmlPullParser, Closeable {
         documentEntities = null;
     }
 
-    public void setInput(InputStream is, String _enc) throws XmlPullParserException {
+    public void setInput(InputStream is, String charset) throws XmlPullParserException {
         position = 0;
         limit = 0;
-        String enc = _enc;
+        boolean detectCharset = (charset == null);
 
         if (is == null) {
             throw new IllegalArgumentException();
         }
 
         try {
-            if (enc == null) {
+            if (detectCharset) {
                 // read the four bytes looking for an indication of the encoding in use
                 int firstFourBytes = 0;
                 while (limit < 4) {
@@ -1630,93 +1630,102 @@ public class KXmlParser implements XmlPullParser, Closeable {
 
                 if (limit == 4) {
                     switch (firstFourBytes) {
-                        case 0x00000FEFF: // UTF-32BE BOM
-                            enc = "UTF-32BE";
-                            limit = 0;
-                            break;
+                    case 0x00000FEFF: // UTF-32BE BOM
+                        charset = "UTF-32BE";
+                        limit = 0;
+                        break;
 
-                        case 0x0FFFE0000: // UTF-32LE BOM
-                            enc = "UTF-32LE";
-                            limit = 0;
-                            break;
+                    case 0x0FFFE0000: // UTF-32LE BOM
+                        charset = "UTF-32LE";
+                        limit = 0;
+                        break;
 
-                        case 0x0000003c: // '>' in UTF-32BE
-                            enc = "UTF-32BE";
-                            buffer[0] = '<';
-                            limit = 1;
-                            break;
+                    case 0x0000003c: // '<' in UTF-32BE
+                        charset = "UTF-32BE";
+                        buffer[0] = '<';
+                        limit = 1;
+                        break;
 
-                        case 0x03c000000: // '<' in UTF-32LE
-                            enc = "UTF-32LE";
-                            buffer[0] = '<';
-                            limit = 1;
-                            break;
+                    case 0x03c000000: // '<' in UTF-32LE
+                        charset = "UTF-32LE";
+                        buffer[0] = '<';
+                        limit = 1;
+                        break;
 
-                        case 0x0003c003f: // "<?" in UTF-16BE
-                            enc = "UTF-16BE";
-                            buffer[0] = '<';
-                            buffer[1] = '?';
-                            limit = 2;
-                            break;
+                    case 0x0003c003f: // "<?" in UTF-16BE
+                        charset = "UTF-16BE";
+                        buffer[0] = '<';
+                        buffer[1] = '?';
+                        limit = 2;
+                        break;
 
-                        case 0x03c003f00: // "<?" in UTF-16LE
-                            enc = "UTF-16LE";
-                            buffer[0] = '<';
-                            buffer[1] = '?';
-                            limit = 2;
-                            break;
+                    case 0x03c003f00: // "<?" in UTF-16LE
+                        charset = "UTF-16LE";
+                        buffer[0] = '<';
+                        buffer[1] = '?';
+                        limit = 2;
+                        break;
 
-                        case 0x03c3f786d: // "<?xm" in ASCII etc.
-                            while (true) {
-                                int i = is.read();
-                                if (i == -1) {
-                                    break;
-                                }
-                                buffer[limit++] = (char) i;
-                                if (i == '>') {
-                                    String s = new String(buffer, 0, limit);
-                                    int i0 = s.indexOf("encoding");
-                                    if (i0 != -1) {
-                                        while (s.charAt(i0) != '"'
-                                                && s.charAt(i0) != '\'') {
-                                            i0++;
-                                        }
-                                        char deli = s.charAt(i0++);
-                                        int i1 = s.indexOf(deli, i0);
-                                        enc = s.substring(i0, i1);
+                    case 0x03c3f786d: // "<?xm" in ASCII etc.
+                        while (true) {
+                            int i = is.read();
+                            if (i == -1) {
+                                break;
+                            }
+                            buffer[limit++] = (char) i;
+                            if (i == '>') {
+                                String s = new String(buffer, 0, limit);
+                                int i0 = s.indexOf("encoding");
+                                if (i0 != -1) {
+                                    while (s.charAt(i0) != '"' && s.charAt(i0) != '\'') {
+                                        i0++;
                                     }
-                                    break;
+                                    char deli = s.charAt(i0++);
+                                    int i1 = s.indexOf(deli, i0);
+                                    charset = s.substring(i0, i1);
                                 }
+                                break;
                             }
-                            break;
+                        }
+                        break;
 
-                        default:
-                            // handle a byte order mark followed by something other than <?
-                            if ((firstFourBytes & 0x0ffff0000) == 0x0FEFF0000) {
-                                enc = "UTF-16BE";
-                                buffer[0] = (char) ((buffer[2] << 8) | buffer[3]);
-                                limit = 1;
-                            } else if ((firstFourBytes & 0x0ffff0000) == 0x0fffe0000) {
-                                enc = "UTF-16LE";
-                                buffer[0] = (char) ((buffer[3] << 8) | buffer[2]);
-                                limit = 1;
-                            } else if ((firstFourBytes & 0x0ffffff00) == 0x0EFBBBF00) {
-                                enc = "UTF-8";
-                                buffer[0] = buffer[3];
-                                limit = 1;
-                            }
+                    default:
+                        // handle a byte order mark followed by something other than <?
+                        if ((firstFourBytes & 0x0ffff0000) == 0x0feff0000) {
+                            charset = "UTF-16BE";
+                            buffer[0] = (char) ((buffer[2] << 8) | buffer[3]);
+                            limit = 1;
+                        } else if ((firstFourBytes & 0x0ffff0000) == 0x0fffe0000) {
+                            charset = "UTF-16LE";
+                            buffer[0] = (char) ((buffer[3] << 8) | buffer[2]);
+                            limit = 1;
+                        } else if ((firstFourBytes & 0x0ffffff00) == 0x0efbbbf00) {
+                            charset = "UTF-8";
+                            buffer[0] = buffer[3];
+                            limit = 1;
+                        }
                     }
                 }
             }
 
-            if (enc == null) {
-                enc = "UTF-8";
+            if (charset == null) {
+                charset = "UTF-8";
             }
 
-            int sc = limit;
-            setInput(new InputStreamReader(is, enc));
-            encoding = _enc;
-            limit = sc;
+            int savedLimit = limit;
+            setInput(new InputStreamReader(is, charset));
+            encoding = charset;
+            limit = savedLimit;
+
+            /*
+             * Skip the optional BOM if we didn't above. This decrements limit
+             * rather than incrementing position so that <?xml version='1.0'?>
+             * is still at character 0.
+             */
+            if (!detectCharset && peekCharacter() == 0xfeff) {
+                limit--;
+                System.arraycopy(buffer, 1, buffer, 0, limit);
+            }
         } catch (Exception e) {
             throw new XmlPullParserException("Invalid stream or encoding: " + e, this, e);
         }
