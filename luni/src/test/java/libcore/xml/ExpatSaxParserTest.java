@@ -16,6 +16,16 @@
 
 package libcore.xml;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.harmony.xml.ExpatReader;
@@ -27,20 +37,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.DefaultHandler2;
 import org.xml.sax.helpers.DefaultHandler;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.net.ServerSocket;
-import java.net.Socket;
+import tests.http.MockResponse;
+import tests.http.MockWebServer;
 
 public class ExpatSaxParserTest extends TestCase {
 
@@ -586,77 +584,29 @@ public class ExpatSaxParserTest extends TestCase {
     }
 
     public void testExternalEntityDownload() throws IOException, SAXException {
-        class Server implements Runnable {
-
-            private final ServerSocket serverSocket;
-
-            Server() throws IOException {
-                serverSocket = new ServerSocket(8080);
-            }
-
-            public void run() {
-                try {
-                    Socket socket = serverSocket.accept();
-
-                    final InputStream in = socket.getInputStream();
-                    Thread inputThread = new Thread() {
-                        public void run() {
-                            try {
-                                byte[] buffer = new byte[1024];
-                                while (in.read(buffer) > -1) { /* ignore */ }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    };
-                    inputThread.setDaemon(true);
-                    inputThread.start();
-
-                    OutputStream out = socket.getOutputStream();
-
-                    String body = "<bar></bar>";
-                    String response = "HTTP/1.0 200 OK\n"
-                        + "Content-Length: " + body.length() + "\n"
-                        + "\n"
-                        + body;
-
-                    out.write(response.getBytes("UTF-8"));
-                    out.close();
-                    serverSocket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        final MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse().setBody("<bar></bar>"));
+        server.play();
 
         class Handler extends DefaultHandler {
+            final List<String> elementNames = new ArrayList<String>();
 
-            List<String> elementNames = new ArrayList<String>();
-
-            public InputSource resolveEntity(String publicId, String systemId)
-                    throws IOException, SAXException {
+            @Override public InputSource resolveEntity(String publicId, String systemId)
+                    throws IOException {
                 // The parser should have resolved the systemId.
-                assertEquals("http://localhost:8080/systemBar", systemId);
+                assertEquals(server.getUrl("/systemBar").toString(), systemId);
                 return new InputSource(systemId);
             }
 
-            @Override
-            public void startElement(String uri, String localName, String qName,
-                    Attributes attributes) throws SAXException {
+            @Override public void startElement(String uri, String localName, String qName,
+                    Attributes attributes) {
                 elementNames.add(localName);
             }
 
-            @Override
-            public void endElement(String uri, String localName, String qName)
-                    throws SAXException {
+            @Override public void endElement(String uri, String localName, String qName) {
                 elementNames.add("/" + localName);
             }
         }
-
-        // Start server to serve up the XML for 'systemBar'.
-        Thread serverThread = new Thread(new Server());
-        serverThread.setDaemon(true);
-        serverThread.start();
 
         // 'systemBar', the external entity, is relative to 'systemFoo':
         Reader in = new StringReader("<?xml version=\"1.0\"?>\n"
@@ -664,20 +614,14 @@ public class ExpatSaxParserTest extends TestCase {
             + "  <!ENTITY bar SYSTEM 'systemBar'>\n"
             + "]>\n"
             + "<foo>&bar;</foo>");
-
         ExpatReader reader = new ExpatReader();
-
         Handler handler = new Handler();
-
         reader.setContentHandler(handler);
         reader.setEntityResolver(handler);
-
         InputSource source = new InputSource(in);
-        source.setSystemId("http://localhost:8080/systemFoo");
+        source.setSystemId(server.getUrl("/systemFoo").toString());
         reader.parse(source);
-
-        assertEquals(Arrays.asList("foo", "bar", "/bar", "/foo"),
-                handler.elementNames);
+        assertEquals(Arrays.asList("foo", "bar", "/bar", "/foo"), handler.elementNames);
     }
 
     /**

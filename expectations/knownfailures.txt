@@ -11,6 +11,11 @@
   bug: 3483365
 },
 {
+  description: "Expat uses an unbounded number of global references",
+  name: "libcore.xml.ExpatSaxParserTest#testGlobalReferenceTableOverflow",
+  bug: 2772628
+},
+{
   description: "Test fails, Intermediate certificate lacks BasicConstraints",
   name: "com.android.org.bouncycastle.jce.provider.PKIXCertPathValidatorSpiTest#testTrustAndRemoteCertificatesWithDifferentEncodings",
   bug: 3474648
