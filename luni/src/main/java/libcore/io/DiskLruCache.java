@@ -16,16 +16,16 @@
 
 package libcore.io;
 
-import dalvik.system.CloseGuard;
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -43,24 +43,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import static libcore.io.OsConstants.O_RDONLY;
 
 /**
- * A cache that uses a bounded amount of space on a file system. Each cache
+ * A cache that uses a bounded amount of space on a filesystem. Each cache
  * entry has a string key and a fixed number of values. Values are byte
  * sequences, accessible as streams or files. Each value must be between {@code
  * 0} and {@code Integer.MAX_VALUE} bytes in length.
  *
- * <p>The cache stores its data in a directory on the file system. This
+ * <p>The cache stores its data in a directory on the filesystem. This
  * directory must be exclusive to the cache; the cache may delete or overwrite
  * files from its directory. It is an error for multiple processes to use the
  * same cache directory at the same time.
  *
- * <p>This cache limits the number of bytes that it will store on the file
- * system. When the number of stored bytes exceeds the limit, the cache will
+ * <p>This cache limits the number of bytes that it will store on the
+ * filesystem. When the number of stored bytes exceeds the limit, the cache will
  * remove entries in the background until the limit is satisfied. The limit is
  * not strict: the cache may temporarily exceed it while waiting for files to be
- * deleted. The limit does not include file system overhead or the cache
+ * deleted. The limit does not include filesystem overhead or the cache
  * journal so space-sensitive applications should set a conservative limit.
  *
  * <p>Clients call {@link #edit} to create or update the values of an entry. An
@@ -360,24 +359,28 @@ public final class DiskLruCache implements Closeable {
             return null;
         }
 
-        redundantOpCount++;
-        journalWriter.append(READ + ' ' + key + '\n');
-
         /*
          * Open all streams eagerly to guarantee that we see a single published
          * snapshot. If we opened streams lazily then the streams could come
          * from different edits.
          */
-        FileDescriptor[] fds = new FileDescriptor[valueCount];
-        for (int i = 0; i < valueCount; i++) {
-            fds[i] = IoUtils.open(entry.getCleanFile(i).getAbsolutePath(), O_RDONLY);
+        InputStream[] ins = new InputStream[valueCount];
+        try {
+            for (int i = 0; i < valueCount; i++) {
+                ins[i] = new FileInputStream(entry.getCleanFile(i));
+            }
+        } catch (FileNotFoundException e) {
+            // a file must have been deleted manually!
+            return null;
         }
 
+        redundantOpCount++;
+        journalWriter.append(READ + ' ' + key + '\n');
         if (journalRebuildRequired()) {
             executorService.submit(cleanupCallable);
         }
 
-        return new Snapshot(fds);
+        return new Snapshot(ins);
     }
 
     /**
@@ -533,7 +536,7 @@ public final class DiskLruCache implements Closeable {
     }
 
     /**
-     * Force buffered operations to the file system.
+     * Force buffered operations to the filesystem.
      */
     public synchronized void flush() throws IOException {
         checkNotClosed();
@@ -590,43 +593,29 @@ public final class DiskLruCache implements Closeable {
      * A snapshot of the values for an entry.
      */
     public static final class Snapshot implements Closeable {
-        private final CloseGuard guard = CloseGuard.get();
-        private final FileDescriptor[] fds;
+        private final InputStream[] ins;
 
-        private Snapshot(FileDescriptor[] fds) {
-            this.fds = fds;
-            this.guard.open("close");
+        private Snapshot(InputStream[] ins) {
+            this.ins = ins;
         }
 
         /**
-         * Returns a new unbuffered stream with the value for {@code index}.
+         * Returns the unbuffered stream with the value for {@code index}.
          */
-        public InputStream newInputStream(int index) {
-            return new FileInputStream(fds[index]);
+        public InputStream getInputStream(int index) {
+            return ins[index];
         }
 
         /**
          * Returns the string value for {@code index}.
          */
         public String getString(int index) throws IOException {
-            return inputStreamToString(newInputStream(index));
+            return inputStreamToString(getInputStream(index));
         }
 
         @Override public void close() {
-            guard.close();
-            for (FileDescriptor fd : fds) {
-                IoUtils.closeQuietly(fd);
-            }
-        }
-
-        @Override protected void finalize() throws Throwable {
-            try {
-                if (guard != null) {
-                    guard.warnIfOpen();
-                }
-                close();
-            } finally {
-                super.finalize();
+            for (InputStream in : ins) {
+                IoUtils.closeQuietly(in);
             }
         }
     }
@@ -636,6 +625,7 @@ public final class DiskLruCache implements Closeable {
      */
     public final class Editor {
         private final Entry entry;
+        private boolean hasErrors;
 
         private Editor(Entry entry) {
             this.entry = entry;
@@ -668,14 +658,17 @@ public final class DiskLruCache implements Closeable {
 
         /**
          * Returns a new unbuffered output stream to write the value at
-         * {@code index}.
+         * {@code index}. If the underlying output stream encounters errors
+         * when writing to the filesystem, this edit will be aborted when
+         * {@link #commit} is called. The returned output stream does not throw
+         * IOExceptions.
          */
         public OutputStream newOutputStream(int index) throws IOException {
             synchronized (DiskLruCache.this) {
                 if (entry.currentEditor != this) {
                     throw new IllegalStateException();
                 }
-                return new FileOutputStream(entry.getDirtyFile(index));
+                return new FaultHidingOutputStream(new FileOutputStream(entry.getDirtyFile(index)));
             }
         }
 
@@ -697,7 +690,12 @@ public final class DiskLruCache implements Closeable {
          * edit lock so another edit may be started on the same key.
          */
         public void commit() throws IOException {
-            completeEdit(this, true);
+            if (hasErrors) {
+                completeEdit(this, false);
+                remove(entry.key); // the previous entry is stale
+            } else {
+                completeEdit(this, true);
+            }
         }
 
         /**
@@ -706,6 +704,44 @@ public final class DiskLruCache implements Closeable {
          */
         public void abort() throws IOException {
             completeEdit(this, false);
+        }
+
+        private class FaultHidingOutputStream extends FilterOutputStream {
+            private FaultHidingOutputStream(OutputStream out) {
+                super(out);
+            }
+
+            @Override public void write(int oneByte) {
+                try {
+                    super.write(oneByte);
+                } catch (IOException e) {
+                    hasErrors = true;
+                }
+            }
+
+            @Override public void write(byte[] buffer, int offset, int length) {
+                try {
+                    super.write(buffer, offset, length);
+                } catch (IOException e) {
+                    hasErrors = true;
+                }
+            }
+
+            @Override public void close() {
+                try {
+                    super.close();
+                } catch (IOException e) {
+                    hasErrors = true;
+                }
+            }
+
+            @Override public void flush() {
+                try {
+                    super.flush();
+                } catch (IOException e) {
+                    hasErrors = true;
+                }
+            }
         }
     }
 
