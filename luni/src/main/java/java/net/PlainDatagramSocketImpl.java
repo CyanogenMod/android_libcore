@@ -180,8 +180,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     public void send(DatagramPacket packet) throws IOException {
         int port = isNativeConnected ? 0 : packet.getPort();
         InetAddress address = isNativeConnected ? null : packet.getAddress();
-        Platform.NETWORK.send(fd, packet.getData(), packet.getOffset(), packet.getLength(),
-                              port, address);
+        IoUtils.sendto(fd, packet.getData(), packet.getOffset(), packet.getLength(), 0, address, port);
     }
 
     public void setOption(int option, Object value) throws SocketException {

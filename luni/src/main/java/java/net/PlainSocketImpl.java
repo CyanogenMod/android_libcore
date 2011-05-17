@@ -452,7 +452,12 @@ public class PlainSocketImpl extends SocketImpl {
 
     @Override
     protected void sendUrgentData(int value) throws IOException {
-        Platform.NETWORK.sendUrgentData(fd, (byte) value);
+        try {
+            byte[] buffer = new byte[] { (byte) value };
+            Libcore.os.sendto(fd, buffer, 0, 1, MSG_OOB, null, 0);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsSocketException();
+        }
     }
 
     /**
@@ -485,7 +490,7 @@ public class PlainSocketImpl extends SocketImpl {
         Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
         if (streaming) {
             while (byteCount > 0) {
-                int bytesWritten = Platform.NETWORK.write(fd, buffer, offset, byteCount);
+                int bytesWritten = IoUtils.sendto(fd, buffer, offset, byteCount, 0, null, 0);
                 byteCount -= bytesWritten;
                 offset += bytesWritten;
             }
@@ -493,7 +498,7 @@ public class PlainSocketImpl extends SocketImpl {
             // Unlike writes to a streaming socket, writes to a datagram
             // socket are all-or-nothing, so we don't need a loop here.
             // http://code.google.com/p/android/issues/detail?id=15304
-            Platform.NETWORK.send(fd, buffer, offset, byteCount, port, address);
+            IoUtils.sendto(fd, buffer, offset, byteCount, 0, address, port);
         }
     }
 }

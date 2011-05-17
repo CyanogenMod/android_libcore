@@ -272,32 +272,6 @@ public final class BlockGuard {
             return mNetwork.readDirect(aFD, address, count);
         }
 
-        public int write(FileDescriptor fd, byte[] data, int offset, int count)
-                throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.write(fd, data, offset, count);
-        }
-
-        public int writeDirect(FileDescriptor fd, int address, int offset, int count)
-                throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.writeDirect(fd, address, offset, count);
-        }
-
-        public int send(FileDescriptor fd, byte[] data, int offset, int length,
-                int port, InetAddress inetAddress) throws IOException {
-            // Note: no BlockGuard violation.  We permit datagrams
-            // without hostname lookups.  (short, bounded amount of time)
-            return mNetwork.send(fd, data, offset, length, port, inetAddress);
-        }
-
-        public int sendDirect(FileDescriptor fd, int address, int offset, int length,
-                int port, InetAddress inetAddress) throws IOException {
-            // Note: no BlockGuard violation.  We permit datagrams
-            // without hostname lookups.  (short, bounded amount of time)
-            return mNetwork.sendDirect(fd, address, offset, length, port, inetAddress);
-        }
-
         public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset,
                 int length, boolean peek, boolean connected) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
@@ -308,10 +282,6 @@ public final class BlockGuard {
                 int length, boolean peek, boolean connected) throws IOException {
             BlockGuard.getThreadPolicy().onNetwork();
             return mNetwork.recvDirect(fd, packet, address, offset, length, peek, connected);
-        }
-
-        public void sendUrgentData(FileDescriptor fd, byte value) {
-            mNetwork.sendUrgentData(fd, value);
         }
     }
 }

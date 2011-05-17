@@ -391,23 +391,12 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
             }
             int writeCount = 0;
             try {
-                int pos = source.position();
-                int length = source.remaining();
                 if (isBlocking()) {
                     begin();
                 }
-                if (source.isDirect()) {
-                    int address = NioUtils.getDirectBufferAddress(source);
-                    writeCount = Platform.NETWORK.writeDirect(fd, address, pos, length);
-                } else if (source.hasArray()) {
-                    pos += source.arrayOffset();
-                    writeCount = Platform.NETWORK.write(fd, source.array(), pos, length);
-                } else {
-                    byte[] array = new byte[length];
-                    source.get(array);
-                    writeCount = Platform.NETWORK.write(fd, array, 0, length);
-                }
-                source.position(pos + writeCount);
+                int oldPosition = source.position();
+                writeCount = IoUtils.sendto(fd, source, 0, null, 0);
+                source.position(oldPosition + writeCount);
             } finally {
                 if (isBlocking()) {
                     end(writeCount >= 0);
