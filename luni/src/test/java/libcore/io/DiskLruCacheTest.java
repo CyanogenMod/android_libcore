@@ -20,7 +20,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -31,6 +33,7 @@ import junit.framework.TestCase;
 import static libcore.io.DiskLruCache.JOURNAL_FILE;
 import static libcore.io.DiskLruCache.MAGIC;
 import static libcore.io.DiskLruCache.VERSION_1;
+import tests.io.MockOs;
 
 public final class DiskLruCacheTest extends TestCase {
     private final int appVersion = 100;
@@ -38,6 +41,7 @@ public final class DiskLruCacheTest extends TestCase {
     private File cacheDir;
     private File journalFile;
     private DiskLruCache cache;
+    private final MockOs mockOs = new MockOs();
 
     @Override public void setUp() throws Exception {
         super.setUp();
@@ -49,9 +53,11 @@ public final class DiskLruCacheTest extends TestCase {
             file.delete();
         }
         cache = DiskLruCache.open(cacheDir, appVersion, 2, Integer.MAX_VALUE);
+        mockOs.install();
     }
 
     @Override protected void tearDown() throws Exception {
+        mockOs.uninstall();
         cache.close();
         super.tearDown();
     }
@@ -181,7 +187,7 @@ public final class DiskLruCacheTest extends TestCase {
         v1Creator.commit();
 
         DiskLruCache.Snapshot snapshot1 = cache.get("k1");
-        InputStream inV1 = snapshot1.newInputStream(0);
+        InputStream inV1 = snapshot1.getInputStream(0);
         assertEquals('A', inV1.read());
         assertEquals('A', inV1.read());
 
@@ -511,14 +517,7 @@ public final class DiskLruCacheTest extends TestCase {
     public void testReadingTheSameStreamMultipleTimes() throws Exception {
         set("A", "a", "b");
         DiskLruCache.Snapshot snapshot = cache.get("A");
-        InputStream in1 = snapshot.newInputStream(0);
-        assertEquals('a', in1.read());
-        assertEquals(-1, in1.read());
-        in1.close();
-        InputStream in2 = snapshot.newInputStream(0);
-        assertEquals('a', in2.read());
-        assertEquals(-1, in2.read());
-        in2.close();
+        assertSame(snapshot.getInputStream(0), snapshot.getInputStream(0));
         snapshot.close();
     }
 
@@ -530,7 +529,6 @@ public final class DiskLruCacheTest extends TestCase {
             long journalLength = journalFile.length();
             assertValue("A", "a", "a");
             assertValue("B", "b", "b");
-            System.out.println(journalLength);
             if (journalLength < lastJournalLength) {
                 System.out.printf("Journal compacted from %s bytes to %s bytes\n",
                         lastJournalLength, journalLength);
@@ -567,6 +565,41 @@ public final class DiskLruCacheTest extends TestCase {
         assertTrue(new File(dir, "A.0").exists());
         assertTrue(new File(dir, "A.1").exists());
         assertTrue(new File(dir, "journal").exists());
+    }
+
+    public void testFileDeletedExternally() throws Exception {
+        set("A", "a", "a");
+        getCleanFile("A", 1).delete();
+        assertNull(cache.get("A"));
+    }
+
+    public void testFileBecomesInaccessibleDuringReadResultsInIoException() throws Exception {
+        set("A", "aaaaa", "a");
+        DiskLruCache.Snapshot snapshot = cache.get("A");
+        InputStream in = snapshot.getInputStream(0);
+        assertEquals('a', in.read());
+        mockOs.enqueueFault("read");
+        try {
+            in.read();
+            fail();
+        } catch (IOException expected) {
+        }
+        snapshot.close();
+    }
+
+    public void testFileBecomesInaccessibleDuringWriteIsSilentlyDiscarded() throws Exception {
+        set("A", "a", "a");
+        DiskLruCache.Editor editor = cache.edit("A");
+        OutputStream out0 = editor.newOutputStream(0);
+        out0.write('b');
+        out0.close();
+        OutputStream out1 = editor.newOutputStream(1);
+        out1.write('c');
+        mockOs.enqueueFault("write");
+        out1.write('c'); // this doesn't throw...
+        out1.close();
+        editor.commit(); // ... but this will abort
+        assertAbsent("A");
     }
 
     private void assertJournalEquals(String... expectedBodyLines) throws Exception {

@@ -98,7 +98,7 @@ public final class HttpResponseCache extends ResponseCache {
             return null;
         }
 
-        Entry entry = new Entry(new BufferedInputStream(snapshot.newInputStream(ENTRY_METADATA)));
+        Entry entry = new Entry(new BufferedInputStream(snapshot.getInputStream(ENTRY_METADATA)));
         if (!entry.matches(uri, requestMethod)) {
             snapshot.close();
             return null;
@@ -115,7 +115,7 @@ public final class HttpResponseCache extends ResponseCache {
      * snapshot when the stream is closed.
      */
     private InputStream newBodyInputStream(final DiskLruCache.Snapshot snapshot) {
-        return new FilterInputStream(snapshot.newInputStream(ENTRY_BODY)) {
+        return new FilterInputStream(snapshot.getInputStream(ENTRY_BODY)) {
             @Override public void close() throws IOException {
                 snapshot.close();
                 super.close();
