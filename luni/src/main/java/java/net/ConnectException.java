@@ -43,6 +43,6 @@ public class ConnectException extends SocketException {
      * @hide
      */
     public ConnectException(String detailMessage, Throwable cause) {
-        super(detailMessage);
+        super(detailMessage, cause);
     }
 }

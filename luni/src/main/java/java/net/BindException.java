@@ -43,6 +43,6 @@ public class BindException extends SocketException {
      * @hide
      */
     public BindException(String detailMessage, Throwable cause) {
-        super(detailMessage);
+        super(detailMessage, cause);
     }
 }

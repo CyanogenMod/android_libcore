@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import libcore.io.ErrnoException;
 import libcore.io.GaiException;
 import libcore.io.Libcore;
 import libcore.io.IoUtils;
@@ -142,8 +143,6 @@ import static libcore.io.OsConstants.*;
 public class InetAddress implements Serializable {
     /** Our Java-side DNS cache. */
     private static final AddressCache addressCache = new AddressCache();
-
-    private static final String ERRMSG_CONNECTION_REFUSED = "Connection refused";
 
     private static final long serialVersionUID = 3286316764910316507L;
 
@@ -818,9 +817,9 @@ public class InetAddress implements Serializable {
             IoUtils.connect(fd, destination, 7, timeout);
             reached = true;
         } catch (IOException e) {
-            if (ERRMSG_CONNECTION_REFUSED.equals(e.getMessage())) {
-                // Connection refused means the IP is reachable
-                reached = true;
+            if (e.getCause() instanceof ErrnoException) {
+                // "Connection refused" means the IP address was reachable.
+                reached = (((ErrnoException) e.getCause()).errno == ECONNREFUSED);
             }
         }
 
