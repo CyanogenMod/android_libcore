@@ -128,7 +128,7 @@ public final class X500Principal implements Serializable, Principal {
         try {
             dn = new Name(name);
         } catch (IOException e) {
-            throw incorrectInputName(e);
+            throw incorrectInputName(e, name);
         }
     }
 
@@ -139,12 +139,12 @@ public final class X500Principal implements Serializable, Principal {
         try {
             dn = new Name(substituteNameFromMap(name, keywordMap));
         } catch (IOException e) {
-            throw incorrectInputName(e);
+            throw incorrectInputName(e, name);
         }
     }
 
-    private IllegalArgumentException incorrectInputName(IOException e) {
-        IllegalArgumentException iae = new IllegalArgumentException("Incorrect input name");
+    private IllegalArgumentException incorrectInputName(IOException e, String name) {
+        IllegalArgumentException iae = new IllegalArgumentException("Incorrect input name:" + name);
         iae.initCause(e);
         throw iae;
     }
@@ -277,7 +277,7 @@ public final class X500Principal implements Serializable, Principal {
             }
             return resultName.toString();
         } else {
-            throw new IllegalArgumentException("invalid format specified");
+            throw new IllegalArgumentException("invalid format specified: " + format);
         }
     }
 

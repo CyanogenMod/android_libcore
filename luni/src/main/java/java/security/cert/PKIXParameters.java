@@ -68,6 +68,11 @@ public class PKIXParameters implements CertPathParameters {
     private boolean policyQualifiersRejected = true;
 
     /**
+     * @hide For use by IndexedPKIXParameters which lazily discovers TrustAnchors
+     */
+    protected PKIXParameters() {}
+
+    /**
      * Creates a new {@code PKIXParameters} instance with the specified set of
      * <i>trusted</i> certificate authorities.
      *
