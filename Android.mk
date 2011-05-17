@@ -54,5 +54,18 @@ endif
 
 ifeq ($(WITH_HOST_DALVIK),true)
     .PHONY: dalvik-host
-    dalvik-host: dalvik $(HOST_OUT)/bin/dalvikvm $(HOST_OUT)/bin/dexopt $(HOST_OUT)/lib/libsqlite.so cacerts-host $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.dat $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.idx $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.version core-hostdex bouncycastle-hostdex apache-xml-hostdex $(call intermediates-dir-for,JAVA_LIBRARIES,core-tests,,COMMON)/classes.jar
+    dalvik-host: \
+        dalvik \
+        $(HOST_OUT)/bin/dalvikvm \
+        $(HOST_OUT)/bin/dexopt \
+        $(HOST_OUT)/lib/libsqlite.so \
+        cacerts-host \
+        $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.dat \
+        $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.idx \
+        $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.version \
+        core-hostdex \
+        bouncycastle-hostdex \
+        apache-xml-hostdex \
+        apache-harmony-tests-hostdex \
+        $(call intermediates-dir-for,JAVA_LIBRARIES,core-tests,,COMMON)/classes.jar
 endif
