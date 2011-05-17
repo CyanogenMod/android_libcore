@@ -17,6 +17,7 @@
 package libcore.xml;
 
 import dalvik.annotation.KnownFailure;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -1654,6 +1655,36 @@ public class DomTest extends TestCase {
         Text text = (Text) documentElement.getFirstChild();
         assertEquals("abc&def&ghi", text.getTextContent());
         assertNull(text.getNextSibling());
+    }
+
+    public void testBomAndByteInput() throws Exception {
+        byte[] xml = {
+                (byte) 0xef, (byte) 0xbb, (byte) 0xbf,
+                '<', 'i', 'n', 'p', 'u', 't', '/', '>'
+        };
+        document = builder.parse(new InputSource(new ByteArrayInputStream(xml)));
+        assertEquals("input", document.getDocumentElement().getNodeName());
+    }
+
+    public void testBomAndByteInputWithExplicitCharset() throws Exception {
+        byte[] xml = {
+                (byte) 0xef, (byte) 0xbb, (byte) 0xbf,
+                '<', 'i', 'n', 'p', 'u', 't', '/', '>'
+        };
+        InputSource inputSource = new InputSource(new ByteArrayInputStream(xml));
+        inputSource.setEncoding("UTF-8");
+        document = builder.parse(inputSource);
+        assertEquals("input", document.getDocumentElement().getNodeName());
+    }
+
+    public void testBomAndCharacterInput() throws Exception {
+        InputSource inputSource = new InputSource(new StringReader("\ufeff<input/>"));
+        inputSource.setEncoding("UTF-8");
+        try {
+            builder.parse(inputSource);
+            fail();
+        } catch (SAXException expected) {
+        }
     }
 
     private class RecordingHandler implements UserDataHandler {
