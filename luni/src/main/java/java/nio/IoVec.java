@@ -22,7 +22,7 @@ import libcore.io.Libcore;
 import libcore.io.ErrnoException;
 
 /**
- * Used to implement java.nio read(ByteBuffer[])/write(ByteBuffer[]) operations to POSIX readv(2)
+ * Used to implement java.nio read(ByteBuffer[])/write(ByteBuffer[]) operations as POSIX readv(2)
  * and writev(2) calls.
  */
 final class IoVec {
