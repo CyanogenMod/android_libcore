@@ -183,4 +183,31 @@ public class Zygote {
     native public static int nativeForkSystemServer(int uid, int gid,
             int[] gids, int debugFlags, int[][] rlimits,
             long permittedCapabilities, long effectiveCapabilities);
+
+    /**
+     * Executes "/system/bin/sh -c &lt;command&gt;" using the exec() system call.
+     * This method never returns.
+     *
+     * @param command The shell command to execute.
+     */
+    public static void execShell(String command) {
+        nativeExecShell(command);
+    }
+
+    /**
+     * Appends quotes shell arguments to the specified string builder.
+     * The arguments are quoted using single-quotes, escaped if necessary,
+     * prefixed with a space, and appended to the command.
+     *
+     * @param command A string builder for the shell command being constructed.
+     * @param args An array of argument strings to be quoted and appended to the command.
+     * @see #execShell(String)
+     */
+    public static void appendQuotedShellArgs(StringBuilder command, String[] args) {
+        for (String arg : args) {
+            command.append(" '").append(arg.replace("'", "'\\''")).append("'");
+        }
+    }
+
+    native private static void nativeExecShell(String command);
 }
