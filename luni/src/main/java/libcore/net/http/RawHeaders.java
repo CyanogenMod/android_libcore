@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -230,6 +231,20 @@ final class RawHeaders implements Cloneable {
             }
         }
         return null;
+    }
+
+    /**
+     * @param fieldNames a case-insensitive set of HTTP header field names.
+     */
+    public RawHeaders getAll(Set<String> fieldNames) {
+        RawHeaders result = new RawHeaders();
+        for (int i = 0; i < namesAndValues.size(); i += 2) {
+            String fieldName = namesAndValues.get(i);
+            if (fieldNames.contains(fieldName)) {
+                result.add(fieldName, namesAndValues.get(i + 1));
+            }
+        }
+        return result;
     }
 
     public String toHeaderString() {

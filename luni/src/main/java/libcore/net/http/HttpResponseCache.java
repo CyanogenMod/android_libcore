@@ -99,7 +99,7 @@ public final class HttpResponseCache extends ResponseCache {
         }
 
         Entry entry = new Entry(new BufferedInputStream(snapshot.getInputStream(ENTRY_METADATA)));
-        if (!entry.matches(uri, requestMethod)) {
+        if (!entry.matches(uri, requestMethod, requestHeaders)) {
             snapshot.close();
             return null;
         }
@@ -148,14 +148,32 @@ public final class HttpResponseCache extends ResponseCache {
             return null;
         }
 
-        // For implementation simplicity, don't  cache responses that have a Vary field.
-        if (httpConnection.getHeaderField("Vary") != null) {
+        HttpEngine httpEngine = getHttpEngine(httpConnection);
+        if (httpEngine == null) {
+            // Don't cache unless the HTTP implementation is ours.
+            return null;
+        }
+
+        ResponseHeaders response = new ResponseHeaders(uri, httpEngine.getResponseHeaders());
+        if (response.hasVaryAll()) {
             return null;
         }
 
         DiskLruCache.Editor editor = cache.edit(key);
-        new Entry(uri, httpConnection).writeTo(editor);
+        RawHeaders varyHeaders = httpEngine.getRequestHeaders().getAll(response.varyFields);
+        Entry entry = new Entry(uri, varyHeaders, httpConnection);
+        entry.writeTo(editor);
         return new CacheRequestImpl(editor);
+    }
+
+    private HttpEngine getHttpEngine(HttpURLConnection httpConnection) {
+        if (httpConnection instanceof HttpURLConnectionImpl) {
+            return ((HttpURLConnectionImpl) httpConnection).getHttpEngine();
+        } else if (httpConnection instanceof HttpsURLConnectionImpl) {
+            return ((HttpsURLConnectionImpl) httpConnection).getHttpEngine();
+        } else {
+            return null;
+        }
     }
 
     public DiskLruCache getCache() {
@@ -246,6 +264,7 @@ public final class HttpResponseCache extends ResponseCache {
 
     private static final class Entry {
         private final String uri;
+        private final RawHeaders varyHeaders;
         private final String requestMethod;
         private final RawHeaders responseHeaders;
         private final String cipherSuite;
@@ -256,6 +275,9 @@ public final class HttpResponseCache extends ResponseCache {
          * Reads an entry from an input stream. A typical entry looks like this:
          *   http://google.com/foo
          *   GET
+         *   2
+         *   Accept-Language: fr-CA
+         *   Accept-Charset: UTF-8
          *   HTTP/1.1 200 OK
          *   3
          *   Content-Type: image/png
@@ -265,6 +287,9 @@ public final class HttpResponseCache extends ResponseCache {
          * A typical HTTPS file looks like this:
          *   https://google.com/foo
          *   GET
+         *   2
+         *   Accept-Language: fr-CA
+         *   Accept-Charset: UTF-8
          *   HTTP/1.1 200 OK
          *   3
          *   Content-Type: image/png
@@ -277,11 +302,12 @@ public final class HttpResponseCache extends ResponseCache {
          *   base64-encoded peerCertificate[1]
          *   -1
          *
-         * The file is newline separated. The first three lines are the URL, the
-         * request method and the response status line.
+         * The file is newline separated. The first two lines are the URL and
+         * the request method. Next is the number of HTTP Vary request header
+         * lines, followed by those lines.
          *
-         * The next line contains the number of HTTP response header lines. It
-         * is followed by that number of header lines.
+         * Next is the response status line, followed by the number of HTTP
+         * response header lines, followed by those lines.
          *
          * HTTPS responses also contain SSL session information. This begins
          * with a blank line, and then a line containing the cipher suite. Next
@@ -295,10 +321,16 @@ public final class HttpResponseCache extends ResponseCache {
             try {
                 uri = Streams.readAsciiLine(in);
                 requestMethod = Streams.readAsciiLine(in);
+                varyHeaders = new RawHeaders();
+                int varyRequestHeaderLineCount = readInt(in);
+                for (int i = 0; i < varyRequestHeaderLineCount; i++) {
+                    varyHeaders.addLine(Streams.readAsciiLine(in));
+                }
+
                 responseHeaders = new RawHeaders();
                 responseHeaders.setStatusLine(Streams.readAsciiLine(in));
-                int headerCount = readInt(in);
-                for (int i = 0; i < headerCount; i++) {
+                int responseHeaderLineCount = readInt(in);
+                for (int i = 0; i < responseHeaderLineCount; i++) {
                     responseHeaders.addLine(Streams.readAsciiLine(in));
                 }
 
@@ -320,8 +352,9 @@ public final class HttpResponseCache extends ResponseCache {
             }
         }
 
-        public Entry(URI uri, HttpURLConnection httpConnection) {
+        public Entry(URI uri, RawHeaders varyHeaders, HttpURLConnection httpConnection) {
             this.uri = uri.toString();
+            this.varyHeaders = varyHeaders;
             this.requestMethod = httpConnection.getRequestMethod();
             this.responseHeaders = RawHeaders.fromMultimap(httpConnection.getHeaderFields());
 
@@ -345,14 +378,22 @@ public final class HttpResponseCache extends ResponseCache {
         public void writeTo(DiskLruCache.Editor editor) throws IOException {
             OutputStream out = editor.newOutputStream(0);
             Writer writer = new BufferedWriter(new OutputStreamWriter(out, Charsets.UTF_8));
+
             writer.write(uri + '\n');
             writer.write(requestMethod + '\n');
+            writer.write(Integer.toString(varyHeaders.length()) + '\n');
+            for (int i = 0; i < varyHeaders.length(); i++) {
+                writer.write(varyHeaders.getFieldName(i) + ": "
+                        + varyHeaders.getValue(i) + '\n');
+            }
+
             writer.write(responseHeaders.getStatusLine() + '\n');
             writer.write(Integer.toString(responseHeaders.length()) + '\n');
             for (int i = 0; i < responseHeaders.length(); i++) {
                 writer.write(responseHeaders.getFieldName(i) + ": "
                         + responseHeaders.getValue(i) + '\n');
             }
+
             if (isHttps()) {
                 writer.write('\n');
                 writer.write(cipherSuite + '\n');
@@ -412,8 +453,12 @@ public final class HttpResponseCache extends ResponseCache {
             }
         }
 
-        public boolean matches(URI uri, String requestMethod) {
-            return this.uri.equals(uri.toString()) && this.requestMethod.equals(requestMethod);
+        public boolean matches(URI uri, String requestMethod,
+                Map<String, List<String>> requestHeaders) {
+            return this.uri.equals(uri.toString())
+                    && this.requestMethod.equals(requestMethod)
+                    && new ResponseHeaders(uri, responseHeaders)
+                            .varyMatches(varyHeaders.toMultimap(), requestHeaders);
         }
 
         public CacheResponse newCacheResponse(final InputStream in) {

@@ -18,8 +18,14 @@ package libcore.net.http;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
+import libcore.util.Objects;
 
 /**
  * Parsed HTTP response headers.
@@ -96,6 +102,9 @@ final class ResponseHeaders {
     String etag;
     int ageSeconds = -1;
 
+    /** Case-insensitive set of field names. */
+    Set<String> varyFields = Collections.emptySet();
+
     public ResponseHeaders(URI uri, RawHeaders headers) {
         this.uri = uri;
         this.headers = headers;
@@ -139,6 +148,14 @@ final class ResponseHeaders {
                 }
             } else if ("Age".equalsIgnoreCase(fieldName)) {
                 ageSeconds = HeaderParser.parseSeconds(value);
+            } else if ("Vary".equalsIgnoreCase(fieldName)) {
+                // Replace the immutable empty set with something we can mutate
+                if (varyFields.isEmpty()) {
+                    varyFields = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+                }
+                for (String varyField : value.split(",")) {
+                    varyFields.add(varyField.trim());
+                }
             } else if (SENT_MILLIS.equalsIgnoreCase(fieldName)) {
                 sentRequestMillis = Long.parseLong(value);
             } else if (RECEIVED_MILLIS.equalsIgnoreCase(fieldName)) {
@@ -230,6 +247,28 @@ final class ResponseHeaders {
             return false;
         }
 
+        return true;
+    }
+
+    /**
+     * Returns true if a Vary header contains an asterisk. Such responses cannot
+     * be cached.
+     */
+    public boolean hasVaryAll() {
+        return varyFields.contains("*");
+    }
+
+    /**
+     * Returns true if none of the Vary headers on this response have changed
+     * between {@code cachedRequest} and {@code newRequest}.
+     */
+    public boolean varyMatches(Map<String, List<String>> cachedRequest,
+            Map<String, List<String>> newRequest) {
+        for (String field : varyFields) {
+            if (!Objects.equal(cachedRequest.get(field), newRequest.get(field))) {
+                return false;
+            }
+        }
         return true;
     }
 

@@ -57,6 +57,10 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
         }
     }
 
+    HttpEngine getHttpEngine() {
+        return delegate.getHttpEngine();
+    }
+
     @Override
     public String getCipherSuite() {
         SecureCacheResponse cacheResponse = delegate.getCacheResponse();

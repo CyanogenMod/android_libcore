@@ -318,6 +318,10 @@ class HttpURLConnectionImpl extends HttpURLConnection {
         }
     }
 
+    HttpEngine getHttpEngine() {
+        return httpEngine;
+    }
+
     enum Retry {
         NONE,
         SAME_CONNECTION,

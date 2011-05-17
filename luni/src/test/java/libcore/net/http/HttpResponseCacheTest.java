@@ -1126,24 +1126,6 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals("A", readAscii(url.openConnection()));
     }
 
-    public void testVaryResponsesAreNotSupported() throws Exception {
-        server.enqueue(new MockResponse()
-                .addHeader("Cache-Control: max-age=60")
-                .addHeader("Vary: Accept-Language")
-                .setBody("A"));
-        server.enqueue(new MockResponse().setBody("B"));
-        server.play();
-
-        URL url = server.getUrl("/");
-        URLConnection connection1 = url.openConnection();
-        connection1.addRequestProperty("Accept-Language", "fr-CA");
-        assertEquals("A", readAscii(connection1));
-
-        URLConnection connection2 = url.openConnection();
-        connection2.addRequestProperty("Accept-Language", "fr-CA");
-        assertEquals("B", readAscii(connection2));
-    }
-
     public void testContentLocationDoesNotPopulateCache() throws Exception {
         server.enqueue(new MockResponse()
                 .addHeader("Cache-Control: max-age=60")
@@ -1271,6 +1253,216 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals(3, cache.getRequestCount());
         assertEquals(1, cache.getNetworkCount());
         assertEquals(2, cache.getHitCount());
+    }
+
+    public void testVaryMatchesChangedRequestHeaderField() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Vary: Accept-Language")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        HttpURLConnection frConnection = (HttpURLConnection) url.openConnection();
+        frConnection.addRequestProperty("Accept-Language", "fr-CA");
+        assertEquals("A", readAscii(frConnection));
+
+        HttpURLConnection enConnection = (HttpURLConnection) url.openConnection();
+        enConnection.addRequestProperty("Accept-Language", "en-US");
+        assertEquals("B", readAscii(enConnection));
+    }
+
+    public void testVaryMatchesUnchangedRequestHeaderField() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Vary: Accept-Language")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        URLConnection connection1 = url.openConnection();
+        connection1.addRequestProperty("Accept-Language", "fr-CA");
+        assertEquals("A", readAscii(connection1));
+        URLConnection connection2 = url.openConnection();
+        connection2.addRequestProperty("Accept-Language", "fr-CA");
+        assertEquals("A", readAscii(connection2));
+    }
+
+    public void testVaryMatchesAbsentRequestHeaderField() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Vary: Foo")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+    }
+
+    public void testVaryMatchesAddedRequestHeaderField() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Vary: Foo")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        URLConnection fooConnection = server.getUrl("/").openConnection();
+        fooConnection.addRequestProperty("Foo", "bar");
+        assertEquals("B", readAscii(fooConnection));
+    }
+
+    public void testVaryMatchesRemovedRequestHeaderField() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Vary: Foo")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URLConnection fooConnection = server.getUrl("/").openConnection();
+        fooConnection.addRequestProperty("Foo", "bar");
+        assertEquals("A", readAscii(fooConnection));
+        assertEquals("B", readAscii(server.getUrl("/").openConnection()));
+    }
+
+    public void testVaryFieldsAreCaseInsensitive() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Vary: ACCEPT-LANGUAGE")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        URLConnection connection1 = url.openConnection();
+        connection1.addRequestProperty("Accept-Language", "fr-CA");
+        assertEquals("A", readAscii(connection1));
+        URLConnection connection2 = url.openConnection();
+        connection2.addRequestProperty("accept-language", "fr-CA");
+        assertEquals("A", readAscii(connection2));
+    }
+
+    public void testVaryMultipleFieldsWithMatch() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Vary: Accept-Language, Accept-Charset")
+                .addHeader("Vary: Accept-Encoding")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        URLConnection connection1 = url.openConnection();
+        connection1.addRequestProperty("Accept-Language", "fr-CA");
+        connection1.addRequestProperty("Accept-Charset", "UTF-8");
+        connection1.addRequestProperty("Accept-Encoding", "identity");
+        assertEquals("A", readAscii(connection1));
+        URLConnection connection2 = url.openConnection();
+        connection2.addRequestProperty("Accept-Language", "fr-CA");
+        connection2.addRequestProperty("Accept-Charset", "UTF-8");
+        connection2.addRequestProperty("Accept-Encoding", "identity");
+        assertEquals("A", readAscii(connection2));
+    }
+
+    public void testVaryMultipleFieldsWithNoMatch() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Vary: Accept-Language, Accept-Charset")
+                .addHeader("Vary: Accept-Encoding")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        URLConnection frConnection = url.openConnection();
+        frConnection.addRequestProperty("Accept-Language", "fr-CA");
+        frConnection.addRequestProperty("Accept-Charset", "UTF-8");
+        frConnection.addRequestProperty("Accept-Encoding", "identity");
+        assertEquals("A", readAscii(frConnection));
+        URLConnection enConnection = url.openConnection();
+        enConnection.addRequestProperty("Accept-Language", "en-CA");
+        enConnection.addRequestProperty("Accept-Charset", "UTF-8");
+        enConnection.addRequestProperty("Accept-Encoding", "identity");
+        assertEquals("B", readAscii(enConnection));
+    }
+
+    public void testVaryMultipleFieldValuesWithMatch() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Vary: Accept-Language")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        URLConnection connection1 = url.openConnection();
+        connection1.addRequestProperty("Accept-Language", "fr-CA, fr-FR");
+        connection1.addRequestProperty("Accept-Language", "en-US");
+        assertEquals("A", readAscii(connection1));
+
+        URLConnection connection2 = url.openConnection();
+        connection2.addRequestProperty("Accept-Language", "fr-CA, fr-FR");
+        connection2.addRequestProperty("Accept-Language", "en-US");
+        assertEquals("A", readAscii(connection2));
+    }
+
+    public void testVaryMultipleFieldValuesWithNoMatch() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Vary: Accept-Language")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        URLConnection connection1 = url.openConnection();
+        connection1.addRequestProperty("Accept-Language", "fr-CA, fr-FR");
+        connection1.addRequestProperty("Accept-Language", "en-US");
+        assertEquals("A", readAscii(connection1));
+
+        URLConnection connection2 = url.openConnection();
+        connection2.addRequestProperty("Accept-Language", "fr-CA");
+        connection2.addRequestProperty("Accept-Language", "en-US");
+        assertEquals("B", readAscii(connection2));
+    }
+
+    public void testVaryAsterisk() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Vary: *")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        assertEquals("A", readAscii(server.getUrl("/").openConnection()));
+        assertEquals("B", readAscii(server.getUrl("/").openConnection()));
+    }
+
+    public void testVaryAndHttps() throws Exception {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .addHeader("Vary: Accept-Language")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/");
+        HttpsURLConnection connection1 = (HttpsURLConnection) url.openConnection();
+        connection1.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        connection1.addRequestProperty("Accept-Language", "en-US");
+        assertEquals("A", readAscii(connection1));
+
+        HttpsURLConnection connection2 = (HttpsURLConnection) url.openConnection();
+        connection2.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        connection2.addRequestProperty("Accept-Language", "en-US");
+        assertEquals("A", readAscii(connection2));
     }
 
     /**

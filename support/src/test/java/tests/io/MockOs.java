@@ -66,7 +66,7 @@ public final class MockOs {
 
     public void install() {
         if (delegate != null) {
-            throw new IllegalStateException("MockOS already installed!");
+            throw new IllegalStateException("MockOs already installed!");
         }
         delegate = Libcore.os;
         Libcore.os = mockOs;
@@ -74,7 +74,7 @@ public final class MockOs {
 
     public void uninstall() {
         if (delegate == null) {
-            throw new IllegalStateException("MockOS not installed!");
+            throw new IllegalStateException("MockOs not installed!");
         }
         Libcore.os = delegate;
     }
