@@ -45,11 +45,11 @@ public final class Inet6Address extends InetAddress {
             new Inet6Address(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
                     "localhost", 0);
 
-    boolean scope_id_set;
-    int scope_id;
+    private boolean scope_id_set;
+    private int scope_id;
 
-    boolean scope_ifname_set;
-    String ifname;
+    private boolean scope_ifname_set;
+    private String ifname;
 
     /**
      * Constructs an {@code InetAddress} representing the {@code address} and
@@ -268,7 +268,7 @@ public final class Inet6Address extends InetAddress {
      */
     public NetworkInterface getScopedInterface() {
         try {
-            return scope_ifname_set ? NetworkInterface.getByName(ifname) : null;
+            return (scope_ifname_set && ifname != null) ? NetworkInterface.getByName(ifname) : null;
         } catch (SocketException ex) {
             return null;
         }
