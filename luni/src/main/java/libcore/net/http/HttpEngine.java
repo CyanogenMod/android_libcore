@@ -153,7 +153,7 @@ public class HttpEngine {
     private final RawHeaders rawRequestHeaders;
 
     /** Null until a response is received from the network or the cache */
-    private RawHeaders rawResponseHeaders;
+    private ResponseHeaders responseHeaders;
 
     /*
      * The cache response currently being validated on a conditional get. Null
@@ -222,8 +222,8 @@ public class HttpEngine {
             }
             this.responseSource = ResponseSource.CACHE;
             this.cacheResponse = BAD_GATEWAY_RESPONSE;
-            setResponse(RawHeaders.fromMultimap(cacheResponse.getHeaders()),
-                    cacheResponse.getBody());
+            RawHeaders rawResponseHeaders = RawHeaders.fromMultimap(cacheResponse.getHeaders());
+            setResponse(new ResponseHeaders(uri, rawResponseHeaders), cacheResponse.getBody());
         }
 
         if (responseSource.requiresConnection()) {
@@ -258,13 +258,13 @@ public class HttpEngine {
             return;
         }
 
-        RawHeaders rawHeaders = RawHeaders.fromMultimap(responseHeadersMap);
-        cachedResponseHeaders = new ResponseHeaders(uri, rawHeaders);
+        RawHeaders rawResponseHeaders = RawHeaders.fromMultimap(responseHeadersMap);
+        cachedResponseHeaders = new ResponseHeaders(uri, rawResponseHeaders);
         long now = System.currentTimeMillis();
         this.responseSource = cachedResponseHeaders.chooseResponseSource(now, cacheRequestHeaders);
         if (responseSource == ResponseSource.CACHE) {
             this.cacheResponse = candidate;
-            setResponse(rawHeaders, cachedResponseBody);
+            setResponse(cachedResponseHeaders, cachedResponseBody);
         } else if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
             this.cacheResponse = candidate;
         } else if (responseSource == ResponseSource.NETWORK) {
@@ -358,12 +358,12 @@ public class HttpEngine {
      * @param body the response body, or null if it doesn't exist or isn't
      *     available.
      */
-    private void setResponse(RawHeaders headers, InputStream body) throws IOException {
+    private void setResponse(ResponseHeaders headers, InputStream body) throws IOException {
         if (this.responseBodyIn != null) {
             throw new IllegalStateException();
         }
-        this.rawResponseHeaders = headers;
-        this.httpMinorVersion = rawResponseHeaders.getHttpMinorVersion();
+        this.responseHeaders = headers;
+        this.httpMinorVersion = responseHeaders.headers.getHttpMinorVersion();
         if (body != null) {
             initContentStream(body);
         }
@@ -384,29 +384,36 @@ public class HttpEngine {
     }
 
     public final boolean hasResponse() {
-        return rawResponseHeaders != null;
+        return responseHeaders != null;
     }
 
     public final RawHeaders getRequestHeaders() {
         return rawRequestHeaders;
     }
 
-    public final RawHeaders getResponseHeaders() {
-        if (rawResponseHeaders == null) {
+    public final ResponseHeaders getResponseHeaders() {
+        if (responseHeaders == null) {
             throw new IllegalStateException();
         }
-        return rawResponseHeaders;
+        return responseHeaders;
+    }
+
+    public final int getResponseCode() {
+        if (responseHeaders == null) {
+            throw new IllegalStateException();
+        }
+        return responseHeaders.headers.getResponseCode();
     }
 
     public final InputStream getResponseBody() {
-        if (rawResponseHeaders == null) {
+        if (responseHeaders == null) {
             throw new IllegalStateException();
         }
         return responseBodyIn;
     }
 
     public final CacheResponse getCacheResponse() {
-        if (rawResponseHeaders == null) {
+        if (responseHeaders == null) {
             throw new IllegalStateException();
         }
         return cacheResponse;
@@ -433,8 +440,7 @@ public class HttpEngine {
 
         // Should we cache this response for this request?
         RequestHeaders requestCacheHeaders = new RequestHeaders(uri, rawRequestHeaders);
-        ResponseHeaders responseCacheHeaders = new ResponseHeaders(uri, rawResponseHeaders);
-        if (!responseCacheHeaders.isCacheable(requestCacheHeaders)) {
+        if (!responseHeaders.isCacheable(requestCacheHeaders)) {
             return;
         }
 
@@ -506,13 +512,12 @@ public class HttpEngine {
     }
 
     private void initContentStream(InputStream transferStream) throws IOException {
-        if (transparentGzip
-                && "gzip".equalsIgnoreCase(rawResponseHeaders.get("Content-Encoding"))) {
+        if (transparentGzip && responseHeaders.isContentEncodingGzip()) {
             /*
              * If the response was transparently gzipped, remove the gzip header field
              * so clients don't double decompress. http://b/3009828
              */
-            rawResponseHeaders.removeAll("Content-Encoding");
+            responseHeaders.stripContentEncoding();
             responseBodyIn = new GZIPInputStream(transferStream);
         } else {
             responseBodyIn = transferStream;
@@ -524,17 +529,13 @@ public class HttpEngine {
             return new FixedLengthInputStream(socketIn, cacheRequest, this, 0);
         }
 
-        if ("chunked".equalsIgnoreCase(rawResponseHeaders.get("Transfer-Encoding"))) {
+        if (responseHeaders.isChunked()) {
             return new ChunkedInputStream(socketIn, cacheRequest, this);
         }
 
-        String contentLength = rawResponseHeaders.get("Content-Length");
-        if (contentLength != null) {
-            try {
-                int length = Integer.parseInt(contentLength);
-                return new FixedLengthInputStream(socketIn, cacheRequest, this, length);
-            } catch (NumberFormatException ignored) {
-            }
+        if (responseHeaders.contentLength != -1) {
+            return new FixedLengthInputStream(socketIn, cacheRequest, this,
+                    responseHeaders.contentLength);
         }
 
         /*
@@ -551,8 +552,8 @@ public class HttpEngine {
             headers = new RawHeaders();
             headers.setStatusLine(Streams.readAsciiLine(socketIn));
             readHeaders(headers);
-            setResponse(headers, null);
         } while (headers.getResponseCode() == HTTP_CONTINUE);
+        setResponse(new ResponseHeaders(uri, headers), null);
     }
 
     /**
@@ -560,7 +561,7 @@ public class HttpEngine {
      * See RFC 2616 section 4.3.
      */
     public final boolean hasResponseBody() {
-        int responseCode = rawResponseHeaders.getResponseCode();
+        int responseCode = responseHeaders.headers.getResponseCode();
         if (method != HEAD
                 && method != CONNECT
                 && (responseCode < HTTP_CONTINUE || responseCode >= 200)
@@ -574,11 +575,7 @@ public class HttpEngine {
          * response code, the response is malformed. For best compatibility, we
          * honor the headers.
          */
-        String contentLength = rawResponseHeaders.get("Content-Length");
-        if (contentLength != null && Integer.parseInt(contentLength) > 0) {
-            return true;
-        }
-        if ("chunked".equalsIgnoreCase(rawResponseHeaders.get("Transfer-Encoding"))) {
+        if (responseHeaders.contentLength != -1 || responseHeaders.isChunked()) {
             return true;
         }
 
@@ -590,7 +587,7 @@ public class HttpEngine {
      * with chunked encoding.
      */
     final void readTrailers() throws IOException {
-        readHeaders(rawResponseHeaders);
+        readHeaders(responseHeaders.headers);
     }
 
     private void readHeaders(RawHeaders headers) throws IOException {
@@ -746,9 +743,8 @@ public class HttpEngine {
     }
 
     private boolean hasConnectionCloseHeaders() {
-        return (rawResponseHeaders != null
-                && "close".equalsIgnoreCase(rawResponseHeaders.get("Connection")))
-                || ("close".equalsIgnoreCase(rawRequestHeaders.get("Connection")));
+        return (responseHeaders != null && responseHeaders.hasConnectionClose())
+                || "close".equalsIgnoreCase(rawRequestHeaders.get("Connection"));
     }
 
     protected final String getOriginAddress(URL url) {
@@ -799,18 +795,16 @@ public class HttpEngine {
         requestOut = socketOut;
 
         readResponseHeaders();
-        rawResponseHeaders.add(ResponseHeaders.SENT_MILLIS, Long.toString(sentRequestMillis));
-        rawResponseHeaders.add(ResponseHeaders.RECEIVED_MILLIS,
-                Long.toString(System.currentTimeMillis()));
+        responseHeaders.setLocalTimestamps(sentRequestMillis, System.currentTimeMillis());
 
         if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
-            if (cachedResponseHeaders.validate(new ResponseHeaders(uri, rawResponseHeaders))) {
+            if (cachedResponseHeaders.validate(responseHeaders)) {
                 if (responseCache instanceof HttpResponseCache) {
                     ((HttpResponseCache) responseCache).trackConditionalCacheHit();
                 }
                 // discard the network response and use the cache response
                 release(true);
-                setResponse(cachedResponseHeaders.headers, cachedResponseBody);
+                setResponse(cachedResponseHeaders, cachedResponseBody);
                 return;
             } else {
                 IoUtils.closeQuietly(cachedResponseBody);

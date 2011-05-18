@@ -154,7 +154,7 @@ public final class HttpResponseCache extends ResponseCache {
             return null;
         }
 
-        ResponseHeaders response = new ResponseHeaders(uri, httpEngine.getResponseHeaders());
+        ResponseHeaders response = httpEngine.getResponseHeaders();
         if (response.hasVaryAll()) {
             return null;
         }

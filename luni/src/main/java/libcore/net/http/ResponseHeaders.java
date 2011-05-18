@@ -33,10 +33,10 @@ import libcore.util.Objects;
 final class ResponseHeaders {
 
     /** HTTP header name for the local time when the request was sent. */
-    public static final String SENT_MILLIS = "X-Android-Sent-Millis";
+    private static final String SENT_MILLIS = "X-Android-Sent-Millis";
 
     /** HTTP header name for the local time when the response was received. */
-    public static final String RECEIVED_MILLIS = "X-Android-Received-Millis";
+    private static final String RECEIVED_MILLIS = "X-Android-Received-Millis";
 
     final URI uri;
     final RawHeaders headers;
@@ -105,6 +105,11 @@ final class ResponseHeaders {
     /** Case-insensitive set of field names. */
     Set<String> varyFields = Collections.emptySet();
 
+    String contentEncoding;
+    String transferEncoding;
+    int contentLength = -1;
+    String connection;
+
     public ResponseHeaders(URI uri, RawHeaders headers) {
         this.uri = uri;
         this.headers = headers;
@@ -149,19 +154,54 @@ final class ResponseHeaders {
             } else if ("Age".equalsIgnoreCase(fieldName)) {
                 ageSeconds = HeaderParser.parseSeconds(value);
             } else if ("Vary".equalsIgnoreCase(fieldName)) {
-                // Replace the immutable empty set with something we can mutate
+                // Replace the immutable empty set with something we can mutate.
                 if (varyFields.isEmpty()) {
                     varyFields = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
                 }
                 for (String varyField : value.split(",")) {
                     varyFields.add(varyField.trim());
                 }
+            } else if ("Content-Encoding".equalsIgnoreCase(fieldName)) {
+                contentEncoding = value;
+            } else if ("Transfer-Encoding".equalsIgnoreCase(fieldName)) {
+                transferEncoding = value;
+            } else if ("Content-Length".equalsIgnoreCase(fieldName)) {
+                try {
+                    contentLength = Integer.parseInt(value);
+                } catch (NumberFormatException ignored) {
+                }
+            } else if ("Connection".equalsIgnoreCase(fieldName)) {
+                connection = value;
             } else if (SENT_MILLIS.equalsIgnoreCase(fieldName)) {
                 sentRequestMillis = Long.parseLong(value);
             } else if (RECEIVED_MILLIS.equalsIgnoreCase(fieldName)) {
                 receivedResponseMillis = Long.parseLong(value);
             }
         }
+    }
+
+    public boolean isContentEncodingGzip() {
+        return "gzip".equalsIgnoreCase(contentEncoding);
+    }
+
+    public void stripContentEncoding() {
+        contentEncoding = null;
+        headers.removeAll("Content-Encoding");
+    }
+
+    public boolean isChunked() {
+        return "chunked".equalsIgnoreCase(transferEncoding);
+    }
+
+    public boolean hasConnectionClose() {
+        return "close".equalsIgnoreCase(connection);
+    }
+
+    public void setLocalTimestamps(long sentRequestMillis, long receivedResponseMillis) {
+        this.sentRequestMillis = sentRequestMillis;
+        headers.add(SENT_MILLIS, Long.toString(sentRequestMillis));
+        this.receivedResponseMillis = receivedResponseMillis;
+        headers.add(RECEIVED_MILLIS, Long.toString(receivedResponseMillis));
     }
 
     /**

@@ -99,7 +99,7 @@ class HttpURLConnectionImpl extends HttpURLConnection {
         try {
             HttpEngine response = getResponse();
             if (response.hasResponseBody()
-                    && response.getResponseHeaders().getResponseCode() >= HTTP_BAD_REQUEST) {
+                    && response.getResponseCode() >= HTTP_BAD_REQUEST) {
                 return response.getResponseBody();
             }
             return null;
@@ -114,7 +114,7 @@ class HttpURLConnectionImpl extends HttpURLConnection {
      */
     @Override public final String getHeaderField(int position) {
         try {
-            return getResponse().getResponseHeaders().getValue(position);
+            return getResponse().getResponseHeaders().headers.getValue(position);
         } catch (IOException e) {
             return null;
         }
@@ -127,10 +127,10 @@ class HttpURLConnectionImpl extends HttpURLConnection {
      */
     @Override public final String getHeaderField(String fieldName) {
         try {
-            RawHeaders responseHeaders = getResponse().getResponseHeaders();
+            RawHeaders rawHeaders = getResponse().getResponseHeaders().headers;
             return fieldName == null
-                    ? responseHeaders.getStatusLine()
-                    : responseHeaders.get(fieldName);
+                    ? rawHeaders.getStatusLine()
+                    : rawHeaders.get(fieldName);
         } catch (IOException e) {
             return null;
         }
@@ -138,7 +138,7 @@ class HttpURLConnectionImpl extends HttpURLConnection {
 
     @Override public final String getHeaderFieldKey(int position) {
         try {
-            return getResponse().getResponseHeaders().getFieldName(position);
+            return getResponse().getResponseHeaders().headers.getFieldName(position);
         } catch (IOException e) {
             return null;
         }
@@ -146,7 +146,7 @@ class HttpURLConnectionImpl extends HttpURLConnection {
 
     @Override public final Map<String, List<String>> getHeaderFields() {
         try {
-            return getResponse().getResponseHeaders().toMultimap();
+            return getResponse().getResponseHeaders().headers.toMultimap();
         } catch (IOException e) {
             return null;
         }
@@ -299,7 +299,7 @@ class HttpURLConnectionImpl extends HttpURLConnection {
 
                 if (requestBody != null && !(requestBody instanceof RetryableOutputStream)) {
                     throw new HttpRetryException("Cannot retry streamed HTTP body",
-                            httpEngine.getResponseHeaders().getResponseCode());
+                            httpEngine.getResponseCode());
                 }
 
                 if (retry == Retry.DIFFERENT_CONNECTION) {
@@ -383,7 +383,7 @@ class HttpURLConnectionImpl extends HttpURLConnection {
      * @return true if credentials have been added to successorRequestHeaders
      *     and another request should be attempted.
      */
-    final boolean processAuthHeader(int responseCode, RawHeaders response,
+    final boolean processAuthHeader(int responseCode, ResponseHeaders response,
             RawHeaders successorRequestHeaders) throws IOException {
         String responseField;
         String requestField;
@@ -398,7 +398,7 @@ class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         // keep asking for username/password until authorized
-        String challenge = response.get(responseField);
+        String challenge = response.headers.get(responseField);
         if (challenge == null) {
             throw new IOException("Received authentication challenge is null");
         }
@@ -474,11 +474,11 @@ class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     @Override public String getResponseMessage() throws IOException {
-        return getResponse().getResponseHeaders().getResponseMessage();
+        return getResponse().getResponseHeaders().headers.getResponseMessage();
     }
 
     @Override public final int getResponseCode() throws IOException {
-        return getResponse().getResponseHeaders().getResponseCode();
+        return getResponse().getResponseCode();
     }
 
     @Override public final void setRequestProperty(String field, String newValue) {

@@ -489,16 +489,15 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
                 HttpEngine connect = new ProxyConnectEngine(policy, requestHeaders, connection);
                 connect.sendRequest();
                 connect.readResponse();
-                RawHeaders connectResponseHeaders = connect.getResponseHeaders();
 
-                int responseCode = connectResponseHeaders.getResponseCode();
-                switch (responseCode) {
+                int responseCode = connect.getResponseCode();
+                switch (connect.getResponseCode()) {
                 case HTTP_OK:
                     return;
                 case HTTP_PROXY_AUTH:
                     requestHeaders = new RawHeaders(requestHeaders);
                     boolean credentialsFound = policy.processAuthHeader(HTTP_PROXY_AUTH,
-                            connectResponseHeaders, requestHeaders);
+                            connect.getResponseHeaders(), requestHeaders);
                     if (credentialsFound) {
                         continue;
                     } else {
