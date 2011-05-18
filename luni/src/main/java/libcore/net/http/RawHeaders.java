@@ -177,12 +177,6 @@ final class RawHeaders implements Cloneable {
         }
     }
 
-    public void addIfAbsent(String fieldName, String value) {
-        if (get(fieldName) == null) {
-            add(fieldName, value);
-        }
-    }
-
     /**
      * Set a field with the specified value. If the field is not found, it is
      * added. If the field is found, the existing values are replaced.

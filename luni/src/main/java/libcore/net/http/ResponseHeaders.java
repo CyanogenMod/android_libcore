@@ -109,6 +109,8 @@ final class ResponseHeaders {
     String transferEncoding;
     int contentLength = -1;
     String connection;
+    String proxyAuthenticate;
+    String wwwAuthenticate;
 
     public ResponseHeaders(URI uri, RawHeaders headers) {
         this.uri = uri;
@@ -172,6 +174,10 @@ final class ResponseHeaders {
                 }
             } else if ("Connection".equalsIgnoreCase(fieldName)) {
                 connection = value;
+            } else if ("Proxy-Authenticate".equalsIgnoreCase(fieldName)) {
+                proxyAuthenticate = value;
+            } else if ("WWW-Authenticate".equalsIgnoreCase(fieldName)) {
+                wwwAuthenticate = value;
             } else if (SENT_MILLIS.equalsIgnoreCase(fieldName)) {
                 sentRequestMillis = Long.parseLong(value);
             } else if (RECEIVED_MILLIS.equalsIgnoreCase(fieldName)) {
@@ -325,7 +331,7 @@ final class ResponseHeaders {
             return ResponseSource.NETWORK;
         }
 
-        if (request.noCache || request.hasConditions) {
+        if (request.noCache || request.hasConditions()) {
             return ResponseSource.NETWORK;
         }
 
@@ -358,19 +364,16 @@ final class ResponseHeaders {
         }
 
         if (lastModified != null) {
-            request.headers.add("If-Modified-Since", HttpDate.format(lastModified));
-            request.hasConditions = true;
+            request.setIfModifiedSince(lastModified);
         } else if (servedDate != null) {
-            request.headers.add("If-Modified-Since", HttpDate.format(servedDate));
-            request.hasConditions = true;
+            request.setIfModifiedSince(servedDate);
         }
 
         if (etag != null) {
-            request.headers.add("If-None-Match", etag);
-            request.hasConditions = true;
+            request.setIfNoneMatch(etag);
         }
 
-        return request.hasConditions
+        return request.hasConditions()
                 ? ResponseSource.CONDITIONAL_CACHE
                 : ResponseSource.NETWORK;
     }

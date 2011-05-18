@@ -150,7 +150,7 @@ public class HttpEngine {
 
     private final URI uri;
 
-    private final RawHeaders rawRequestHeaders;
+    private final RequestHeaders requestHeaders;
 
     /** Null until a response is received from the network or the cache */
     private ResponseHeaders responseHeaders;
@@ -174,6 +174,8 @@ public class HttpEngine {
     private boolean connectionReleased;
 
     /**
+     * @param requestHeaders the client's supplied request headers. This class
+     *     creates a private copy that it can mutate.
      * @param connection the connection used for an intermediate response
      *     immediately prior to this request/response pair, such as a same-host
      *     redirect. This engine assumes ownership of the connection and must
@@ -183,7 +185,6 @@ public class HttpEngine {
             HttpConnection connection, RetryableOutputStream requestBodyOut) throws IOException {
         this.policy = policy;
         this.method = method;
-        this.rawRequestHeaders = new RawHeaders(requestHeaders);
         this.connection = connection;
         this.requestBodyOut = requestBodyOut;
 
@@ -192,6 +193,8 @@ public class HttpEngine {
         } catch (URISyntaxException e) {
             throw new IOException(e);
         }
+
+        this.requestHeaders = new RequestHeaders(uri, new RawHeaders(requestHeaders));
     }
 
     /**
@@ -205,8 +208,7 @@ public class HttpEngine {
         }
 
         prepareRawRequestHeaders();
-        RequestHeaders cacheRequestHeaders = new RequestHeaders(uri, rawRequestHeaders);
-        initResponseSource(cacheRequestHeaders);
+        initResponseSource();
         if (responseCache instanceof HttpResponseCache) {
             ((HttpResponseCache) responseCache).trackResponse(responseSource);
         }
@@ -216,7 +218,7 @@ public class HttpEngine {
          * headers may forbid network use. In that case, dispose of the network
          * response and use a BAD_GATEWAY response instead.
          */
-        if (cacheRequestHeaders.onlyIfCached && responseSource.requiresConnection()) {
+        if (requestHeaders.onlyIfCached && responseSource.requiresConnection()) {
             if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
                 IoUtils.closeQuietly(cachedResponseBody);
             }
@@ -238,13 +240,14 @@ public class HttpEngine {
      * Initialize the source for this response. It may be corrected later if the
      * request headers forbids network use.
      */
-    private void initResponseSource(RequestHeaders cacheRequestHeaders) throws IOException {
+    private void initResponseSource() throws IOException {
         responseSource = ResponseSource.NETWORK;
         if (!policy.getUseCaches() || responseCache == null) {
             return;
         }
 
-        CacheResponse candidate = responseCache.get(uri, method, rawRequestHeaders.toMultimap());
+        CacheResponse candidate = responseCache.get(uri, method,
+                requestHeaders.headers.toMultimap());
         if (candidate == null) {
             return;
         }
@@ -261,7 +264,7 @@ public class HttpEngine {
         RawHeaders rawResponseHeaders = RawHeaders.fromMultimap(responseHeadersMap);
         cachedResponseHeaders = new ResponseHeaders(uri, rawResponseHeaders);
         long now = System.currentTimeMillis();
-        this.responseSource = cachedResponseHeaders.chooseResponseSource(now, cacheRequestHeaders);
+        this.responseSource = cachedResponseHeaders.chooseResponseSource(now, requestHeaders);
         if (responseSource == ResponseSource.CACHE) {
             this.cacheResponse = candidate;
             setResponse(cachedResponseHeaders, cachedResponseBody);
@@ -313,17 +316,9 @@ public class HttpEngine {
     }
 
     protected void initRequestBodyOut() throws IOException {
-        int contentLength = -1;
-        String contentLengthString = rawRequestHeaders.get("Content-Length");
-        if (contentLengthString != null) {
-            contentLength = Integer.parseInt(contentLengthString);
-        }
-
-        String encoding = rawRequestHeaders.get("Transfer-Encoding");
         int chunkLength = policy.getChunkLength();
-        if (chunkLength > 0 || "chunked".equalsIgnoreCase(encoding)) {
+        if (chunkLength > 0 || requestHeaders.isChunked()) {
             sendChunked = true;
-            contentLength = -1;
             if (chunkLength == -1) {
                 chunkLength = DEFAULT_CHUNK_LENGTH;
             }
@@ -346,9 +341,9 @@ public class HttpEngine {
         } else if (sendChunked) {
             writeRequestHeaders(-1);
             requestBodyOut = new ChunkedOutputStream(requestOut, chunkLength);
-        } else if (contentLength != -1) {
-            writeRequestHeaders(contentLength);
-            requestBodyOut = new RetryableOutputStream(contentLength);
+        } else if (requestHeaders.contentLength != -1) {
+            writeRequestHeaders(requestHeaders.contentLength);
+            requestBodyOut = new RetryableOutputStream(requestHeaders.contentLength);
         } else {
             requestBodyOut = new RetryableOutputStream();
         }
@@ -387,8 +382,8 @@ public class HttpEngine {
         return responseHeaders != null;
     }
 
-    public final RawHeaders getRequestHeaders() {
-        return rawRequestHeaders;
+    public final RequestHeaders getRequestHeaders() {
+        return requestHeaders;
     }
 
     public final ResponseHeaders getResponseHeaders() {
@@ -439,8 +434,7 @@ public class HttpEngine {
         }
 
         // Should we cache this response for this request?
-        RequestHeaders requestCacheHeaders = new RequestHeaders(uri, rawRequestHeaders);
-        if (!responseHeaders.isCacheable(requestCacheHeaders)) {
+        if (!responseHeaders.isCacheable(requestHeaders)) {
             return;
         }
 
@@ -484,7 +478,7 @@ public class HttpEngine {
             }
 
             // If the headers specify that the connection shouldn't be reused, don't reuse it.
-            if (hasConnectionCloseHeaders()) {
+            if (hasConnectionCloseHeader()) {
                 reusable = false;
             }
 
@@ -644,19 +638,19 @@ public class HttpEngine {
      * the connection is using a proxy.
      */
     protected RawHeaders getNetworkRequestHeaders() throws IOException {
-        rawRequestHeaders.setStatusLine(getRequestLine());
+        requestHeaders.headers.setStatusLine(getRequestLine());
 
         int fixedContentLength = policy.getFixedContentLength();
         if (fixedContentLength != -1) {
-            rawRequestHeaders.addIfAbsent("Content-Length", Integer.toString(fixedContentLength));
+            requestHeaders.setContentLength(fixedContentLength);
         } else if (sendChunked) {
-            rawRequestHeaders.addIfAbsent("Transfer-Encoding", "chunked");
+            requestHeaders.setChunked();
         } else if (requestBodyOut instanceof RetryableOutputStream) {
-            int size = ((RetryableOutputStream) requestBodyOut).contentLength();
-            rawRequestHeaders.addIfAbsent("Content-Length", Integer.toString(size));
+            int contentLength = ((RetryableOutputStream) requestBodyOut).contentLength();
+            requestHeaders.setContentLength(contentLength);
         }
 
-        return rawRequestHeaders;
+        return requestHeaders.headers;
     }
 
     /**
@@ -666,44 +660,37 @@ public class HttpEngine {
      * doesn't know what content types the application is interested in.
      */
     private void prepareRawRequestHeaders() throws IOException {
-        rawRequestHeaders.setStatusLine(getRequestLine());
+        requestHeaders.headers.setStatusLine(getRequestLine());
 
-        if (rawRequestHeaders.get("User-Agent") == null) {
-            rawRequestHeaders.add("User-Agent", getDefaultUserAgent());
+        if (requestHeaders.userAgent == null) {
+            requestHeaders.setUserAgent(getDefaultUserAgent());
         }
 
-        if (rawRequestHeaders.get("Host") == null) {
-            rawRequestHeaders.add("Host", getOriginAddress(policy.getURL()));
+        if (requestHeaders.host == null) {
+            requestHeaders.setHost(getOriginAddress(policy.getURL()));
         }
 
-        if (httpMinorVersion > 0) {
-            rawRequestHeaders.addIfAbsent("Connection", "Keep-Alive");
+        if (httpMinorVersion > 0 && requestHeaders.connection == null) {
+            requestHeaders.setConnection("Keep-Alive");
         }
 
-        if (rawRequestHeaders.get("Accept-Encoding") == null) {
+        if (requestHeaders.acceptEncoding == null) {
             transparentGzip = true;
-            rawRequestHeaders.add("Accept-Encoding", "gzip");
+            requestHeaders.setAcceptEncoding("gzip");
         }
 
-        if (hasRequestBody()) {
-            rawRequestHeaders.addIfAbsent("Content-Type", "application/x-www-form-urlencoded");
+        if (hasRequestBody() && requestHeaders.contentType == null) {
+            requestHeaders.setContentType("application/x-www-form-urlencoded");
         }
 
         long ifModifiedSince = policy.getIfModifiedSince();
         if (ifModifiedSince != 0) {
-            rawRequestHeaders.add("If-Modified-Since", HttpDate.format(new Date(ifModifiedSince)));
+            requestHeaders.setIfModifiedSince(new Date(ifModifiedSince));
         }
 
         CookieHandler cookieHandler = CookieHandler.getDefault();
         if (cookieHandler != null) {
-            Map<String, List<String>> allCookieHeaders
-                    = cookieHandler.get(uri, rawRequestHeaders.toMultimap());
-            for (Map.Entry<String, List<String>> entry : allCookieHeaders.entrySet()) {
-                String key = entry.getKey();
-                if ("Cookie".equalsIgnoreCase(key) || "Cookie2".equalsIgnoreCase(key)) {
-                    rawRequestHeaders.addAll(key, entry.getValue());
-                }
-            }
+            requestHeaders.addCookies(cookieHandler.get(uri, requestHeaders.headers.toMultimap()));
         }
     }
 
@@ -742,9 +729,9 @@ public class HttpEngine {
         return agent != null ? agent : ("Java" + System.getProperty("java.version"));
     }
 
-    private boolean hasConnectionCloseHeaders() {
+    private boolean hasConnectionCloseHeader() {
         return (responseHeaders != null && responseHeaders.hasConnectionClose())
-                || "close".equalsIgnoreCase(rawRequestHeaders.get("Connection"));
+                || requestHeaders.hasConnectionClose();
     }
 
     protected final String getOriginAddress(URL url) {

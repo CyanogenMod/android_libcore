@@ -385,20 +385,14 @@ class HttpURLConnectionImpl extends HttpURLConnection {
      */
     final boolean processAuthHeader(int responseCode, ResponseHeaders response,
             RawHeaders successorRequestHeaders) throws IOException {
-        String responseField;
-        String requestField;
-        if (responseCode == HTTP_PROXY_AUTH) {
-            responseField = "Proxy-Authenticate";
-            requestField = "Proxy-Authorization";
-        } else if (responseCode == HTTP_UNAUTHORIZED) {
-            responseField = "WWW-Authenticate";
-            requestField = "Authorization";
-        } else {
+        if (responseCode != HTTP_PROXY_AUTH && responseCode != HTTP_UNAUTHORIZED) {
             throw new IllegalArgumentException();
         }
 
         // keep asking for username/password until authorized
-        String challenge = response.headers.get(responseField);
+        String challenge = responseCode == HTTP_PROXY_AUTH
+                ? response.proxyAuthenticate
+                : response.wwwAuthenticate;
         if (challenge == null) {
             throw new IOException("Received authentication challenge is null");
         }
@@ -406,8 +400,12 @@ class HttpURLConnectionImpl extends HttpURLConnection {
         if (credentials == null) {
             return false; // could not find credentials, end request cycle
         }
+
         // add authorization credentials, bypassing the already-connected check
-        successorRequestHeaders.set(requestField, credentials);
+        String fieldName = responseCode == HTTP_PROXY_AUTH
+                ? "Proxy-Authorization"
+                : "Authorization";
+        successorRequestHeaders.set(fieldName, credentials);
         return true;
     }
 

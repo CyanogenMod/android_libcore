@@ -484,9 +484,10 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
          * retried if the proxy requires authorization.
          */
         private void makeTunnel(HttpURLConnectionImpl policy, HttpConnection connection,
-                RawHeaders requestHeaders) throws IOException {
+                RequestHeaders requestHeaders) throws IOException {
+            RawHeaders rawRequestHeaders = requestHeaders.headers;
             while (true) {
-                HttpEngine connect = new ProxyConnectEngine(policy, requestHeaders, connection);
+                HttpEngine connect = new ProxyConnectEngine(policy, rawRequestHeaders, connection);
                 connect.sendRequest();
                 connect.readResponse();
 
@@ -495,9 +496,9 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
                 case HTTP_OK:
                     return;
                 case HTTP_PROXY_AUTH:
-                    requestHeaders = new RawHeaders(requestHeaders);
+                    rawRequestHeaders = new RawHeaders(rawRequestHeaders);
                     boolean credentialsFound = policy.processAuthHeader(HTTP_PROXY_AUTH,
-                            connect.getResponseHeaders(), requestHeaders);
+                            connect.getResponseHeaders(), rawRequestHeaders);
                     if (credentialsFound) {
                         continue;
                     } else {
@@ -535,7 +536,7 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
          * sensitive data like HTTP cookies to the proxy unencrypted.
          */
         @Override protected RawHeaders getNetworkRequestHeaders() throws IOException {
-            RawHeaders privateHeaders = getRequestHeaders();
+            RequestHeaders privateHeaders = getRequestHeaders();
             URL url = policy.getURL();
 
             RawHeaders result = new RawHeaders();
@@ -543,20 +544,20 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
                     + " HTTP/1.1");
 
             // Always set Host and User-Agent.
-            String host = privateHeaders.get("Host");
+            String host = privateHeaders.host;
             if (host == null) {
                 host = getOriginAddress(url);
             }
             result.set("Host", host);
 
-            String userAgent = privateHeaders.get("User-Agent");
+            String userAgent = privateHeaders.userAgent;
             if (userAgent == null) {
                 userAgent = getDefaultUserAgent();
             }
             result.set("User-Agent", userAgent);
 
             // Copy over the Proxy-Authorization header if it exists.
-            String proxyAuthorization = privateHeaders.get("Proxy-Authorization");
+            String proxyAuthorization = privateHeaders.proxyAuthorization;
             if (proxyAuthorization != null) {
                 result.set("Proxy-Authorization", proxyAuthorization);
             }

@@ -160,7 +160,7 @@ public final class HttpResponseCache extends ResponseCache {
         }
 
         DiskLruCache.Editor editor = cache.edit(key);
-        RawHeaders varyHeaders = httpEngine.getRequestHeaders().getAll(response.varyFields);
+        RawHeaders varyHeaders = httpEngine.getRequestHeaders().headers.getAll(response.varyFields);
         Entry entry = new Entry(uri, varyHeaders, httpConnection);
         entry.writeTo(editor);
         return new CacheRequestImpl(editor);
