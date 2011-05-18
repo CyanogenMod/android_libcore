@@ -80,12 +80,14 @@ import java.util.concurrent.TimeUnit;
  * <p>Clients call {@link #get} to read a snapshot of an entry. The read will
  * observe the value at the time that {@link #get} was called. Updates and
  * removals after the call do not impact ongoing reads.
+ *
+ * <p>This class is tolerant of some I/O errors. If files are missing from the
+ * filesystem, the corresponding entries will be dropped from the cache. If
+ * an error occurs while writing a cache value, the edit will fail silently.
+ * Callers should handle other problems by catching {@code IOException} and
+ * responding appropriately.
  */
 public final class DiskLruCache implements Closeable {
-    // TODO: test with fault injection
-    // TODO: a full disk should fail quietly!
-    // TODO: missing individual files should fail quietly
-
     static final String JOURNAL_FILE = "journal";
     static final String JOURNAL_FILE_TMP = "journal.tmp";
     static final String MAGIC = "libcore.io.DiskLruCache";
@@ -713,7 +715,7 @@ public final class DiskLruCache implements Closeable {
 
             @Override public void write(int oneByte) {
                 try {
-                    super.write(oneByte);
+                    out.write(oneByte);
                 } catch (IOException e) {
                     hasErrors = true;
                 }
@@ -721,7 +723,7 @@ public final class DiskLruCache implements Closeable {
 
             @Override public void write(byte[] buffer, int offset, int length) {
                 try {
-                    super.write(buffer, offset, length);
+                    out.write(buffer, offset, length);
                 } catch (IOException e) {
                     hasErrors = true;
                 }
@@ -729,7 +731,7 @@ public final class DiskLruCache implements Closeable {
 
             @Override public void close() {
                 try {
-                    super.close();
+                    out.close();
                 } catch (IOException e) {
                     hasErrors = true;
                 }
@@ -737,7 +739,7 @@ public final class DiskLruCache implements Closeable {
 
             @Override public void flush() {
                 try {
-                    super.flush();
+                    out.flush();
                 } catch (IOException e) {
                     hasErrors = true;
                 }

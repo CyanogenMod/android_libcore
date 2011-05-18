@@ -59,8 +59,7 @@ import libcore.io.Streams;
  * this.
  */
 public final class HttpResponseCache extends ResponseCache {
-    // TODO: add APIs to iterate the cache
-
+    // TODO: add APIs to iterate the cache?
     private static final int VERSION = 201105;
     private static final int ENTRY_METADATA = 0;
     private static final int ENTRY_BODY = 1;
@@ -90,15 +89,21 @@ public final class HttpResponseCache extends ResponseCache {
     }
 
     @Override public CacheResponse get(URI uri, String requestMethod,
-            Map<String, List<String>> requestHeaders) throws IOException {
+            Map<String, List<String>> requestHeaders) {
         String key = uriToKey(uri);
-        DiskLruCache.Snapshot snapshot = cache.get(key);
-
-        if (snapshot == null) {
+        DiskLruCache.Snapshot snapshot;
+        Entry entry;
+        try {
+            snapshot = cache.get(key);
+            if (snapshot == null) {
+                return null;
+            }
+            entry = new Entry(new BufferedInputStream(snapshot.getInputStream(ENTRY_METADATA)));
+        } catch (IOException e) {
+            // Give up because the cache cannot be read.
             return null;
         }
 
-        Entry entry = new Entry(new BufferedInputStream(snapshot.getInputStream(ENTRY_METADATA)));
         if (!entry.matches(uri, requestMethod, requestHeaders)) {
             snapshot.close();
             return null;
@@ -132,19 +137,21 @@ public final class HttpResponseCache extends ResponseCache {
         String requestMethod = httpConnection.getRequestMethod();
         String key = uriToKey(uri);
 
-        // Invalidate the cache on POST, PUT and DELETE.
         if (requestMethod.equals(HttpEngine.POST)
                 || requestMethod.equals(HttpEngine.PUT)
                 || requestMethod.equals(HttpEngine.DELETE)) {
-            cache.remove(key);
-        }
-
-        /*
-         * Don't cache non-GET responses. We're technically allowed to cache
-         * HEAD requests and some POST requests, but the complexity of doing so
-         * is high and the benefit is low.
-         */
-        if (!requestMethod.equals(HttpEngine.GET)) {
+            try {
+                cache.remove(key);
+            } catch (IOException ignored) {
+                // The cache cannot be written.
+            }
+            return null;
+        } else if (!requestMethod.equals(HttpEngine.GET)) {
+            /*
+             * Don't cache non-GET responses. We're technically allowed to cache
+             * HEAD requests and some POST requests, but the complexity of doing
+             * so is high and the benefit is low.
+             */
             return null;
         }
 
@@ -159,11 +166,26 @@ public final class HttpResponseCache extends ResponseCache {
             return null;
         }
 
-        DiskLruCache.Editor editor = cache.edit(key);
         RawHeaders varyHeaders = httpEngine.getRequestHeaders().headers.getAll(response.varyFields);
         Entry entry = new Entry(uri, varyHeaders, httpConnection);
-        entry.writeTo(editor);
-        return new CacheRequestImpl(editor);
+        DiskLruCache.Editor editor = null;
+        try {
+            editor = cache.edit(key);
+            if (editor == null) {
+                return null;
+            }
+            entry.writeTo(editor);
+            return new CacheRequestImpl(editor);
+        } catch (IOException e) {
+            // Give up because the cache cannot be written.
+            try {
+                if (editor != null) {
+                    editor.abort();
+                }
+            } catch (IOException ignored) {
+            }
+            return null;
+        }
     }
 
     private HttpEngine getHttpEngine(HttpURLConnection httpConnection) {
@@ -252,7 +274,7 @@ public final class HttpResponseCache extends ResponseCache {
             }
             IoUtils.closeQuietly(cacheOut);
             try {
-                editor.abort(); // TODO: fix abort() to not throw?
+                editor.abort();
             } catch (IOException ignored) {
             }
         }

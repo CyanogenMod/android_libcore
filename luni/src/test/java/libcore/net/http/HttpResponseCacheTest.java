@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationHandler;
 import java.net.CacheRequest;
 import java.net.CacheResponse;
 import java.net.HttpURLConnection;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -58,6 +60,7 @@ import tests.http.MockResponse;
 import tests.http.MockWebServer;
 import tests.http.RecordedRequest;
 import static tests.http.SocketPolicy.DISCONNECT_AT_END;
+import tests.io.MockOs;
 
 public final class HttpResponseCacheTest extends TestCase {
 
@@ -66,6 +69,7 @@ public final class HttpResponseCacheTest extends TestCase {
 
     private MockWebServer server = new MockWebServer();
     private HttpResponseCache cache;
+    final MockOs mockOs = new MockOs();
 
     @Override protected void setUp() throws Exception {
         super.setUp();
@@ -74,9 +78,11 @@ public final class HttpResponseCacheTest extends TestCase {
         File cacheDir = new File(tmp, "HttpCache-" + UUID.randomUUID());
         cache = new HttpResponseCache(cacheDir, Integer.MAX_VALUE);
         ResponseCache.setDefault(cache);
+        mockOs.install();
     }
 
     @Override protected void tearDown() throws Exception {
+        mockOs.uninstall();
         server.shutdown();
         ResponseCache.setDefault(null);
         cache.getCache().delete();
@@ -1465,6 +1471,34 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals("A", readAscii(connection2));
     }
 
+    public void testDiskWriteFailureCacheDegradation() throws Exception {
+        Deque<InvocationHandler> writeHandlers = mockOs.getHandlers("write");
+        int i = 0;
+        boolean hasMoreScenarios = true;
+        while (hasMoreScenarios) {
+            mockOs.enqueueNormal("write", i++);
+            mockOs.enqueueFault("write");
+            exercisePossiblyFaultyCache(false);
+            hasMoreScenarios = writeHandlers.isEmpty();
+            writeHandlers.clear();
+        }
+        System.out.println("Exercising the cache performs " + (i - 1) + " writes.");
+    }
+
+    public void testDiskReadFailureCacheDegradation() throws Exception {
+        Deque<InvocationHandler> readHandlers = mockOs.getHandlers("read");
+        int i = 0;
+        boolean hasMoreScenarios = true;
+        while (hasMoreScenarios) {
+            mockOs.enqueueNormal("read", i++);
+            mockOs.enqueueFault("read");
+            exercisePossiblyFaultyCache(true);
+            hasMoreScenarios = readHandlers.isEmpty();
+            readHandlers.clear();
+        }
+        System.out.println("Exercising the cache performs " + (i - 1) + " reads.");
+    }
+
     /**
      * @param delta the offset from the current date to use. Negative
      *     values yield dates in the past; positive values yield dates in the
@@ -1498,6 +1532,31 @@ public final class HttpResponseCacheTest extends TestCase {
         URL url = server.getUrl("/");
         assertEquals("A", readAscii(url.openConnection()));
         assertEquals("B", readAscii(url.openConnection()));
+    }
+
+    private void exercisePossiblyFaultyCache(boolean permitReadBodyFailures) throws Exception {
+        server.shutdown();
+        server = new MockWebServer();
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=60")
+                .setBody("A"));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        URL url = server.getUrl("/" + UUID.randomUUID());
+        assertEquals("A", readAscii(url.openConnection()));
+
+        URLConnection connection = url.openConnection();
+        InputStream in = connection.getInputStream();
+        try {
+            int bodyChar = in.read();
+            assertTrue(bodyChar == 'A' || bodyChar == 'B');
+            assertEquals(-1, in.read());
+        } catch (IOException e) {
+            if (!permitReadBodyFailures) {
+                throw e;
+            }
+        }
     }
 
     /**

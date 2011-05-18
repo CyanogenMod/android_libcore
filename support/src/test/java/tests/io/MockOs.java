@@ -20,9 +20,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
@@ -34,35 +34,37 @@ import libcore.io.OsConstants;
  * be useful to test otherwise hard-to-test scenarios such as a full disk.
  */
 public final class MockOs {
-    private final InheritableThreadLocal<Map<String, List<Fault>>> faults
-            = new InheritableThreadLocal<Map<String, List<Fault>>>() {
-        @Override protected Map<String, List<Fault>> initialValue() {
-            return new HashMap<String, List<Fault>>();
+    private final InheritableThreadLocal<Map<String, Deque<InvocationHandler>>> handlers
+            = new InheritableThreadLocal<Map<String, Deque<InvocationHandler>>>() {
+        @Override protected Map<String, Deque<InvocationHandler>> initialValue() {
+            return new HashMap<String, Deque<InvocationHandler>>();
+        }
+    };
+
+    private Os delegate;
+    private final InvocationHandler delegateHandler = new InvocationHandler() {
+        @Override public Object invoke(Object o, Method method, Object[] args) throws Throwable {
+            try {
+                return method.invoke(delegate, args);
+            } catch (InvocationTargetException e) {
+                throw e.getCause();
+            }
         }
     };
 
     private final InvocationHandler invocationHandler = new InvocationHandler() {
         @Override public Object invoke(Object proxy, Method method, Object[] args)
                 throws Throwable {
-            Map<String, List<Fault>> threadFaults = faults.get();
-            List<Fault> methodFaults = threadFaults.get(method.getName());
-            if (methodFaults == null || methodFaults.isEmpty()) {
-                try {
-                    return method.invoke(delegate, args);
-                } catch (InvocationTargetException e) {
-                    throw e.getCause();
-                }
+            InvocationHandler handler = getHandlers(method.getName()).poll();
+            if (handler == null) {
+                handler = delegateHandler;
             }
-
-            Fault fault = methodFaults.remove(0);
-            fault.trigger(method);
-            return null;
+            return handler.invoke(proxy, method, args);
         }
     };
 
     private final Os mockOs = (Os) Proxy.newProxyInstance(MockOs.class.getClassLoader(),
             new Class[] { Os.class }, invocationHandler);
-    private Os delegate;
 
     public void install() {
         if (delegate != null) {
@@ -79,28 +81,40 @@ public final class MockOs {
         Libcore.os = delegate;
     }
 
+    /**
+     * Returns the invocation handlers to handle upcoming invocations of
+     * {@code methodName}. If empty, calls will be handled by the delegate.
+     */
+    public Deque<InvocationHandler> getHandlers(String methodName) {
+        Map<String, Deque<InvocationHandler>> threadFaults = handlers.get();
+        Deque<InvocationHandler> result = threadFaults.get(methodName);
+        if (result == null) {
+            result = new ArrayDeque<InvocationHandler>();
+            threadFaults.put(methodName, result);
+        }
+        return result;
+    }
+
+    /**
+     * Enqueues the specified number of normal operations. Useful to delay
+     * faults.
+     */
+    public void enqueueNormal(String methodName, int count) {
+        Deque<InvocationHandler> handlers = getHandlers(methodName);
+        for (int i = 0; i < count; i++) {
+            handlers.add(delegateHandler);
+        }
+    }
+
     public void enqueueFault(String methodName) {
         enqueueFault(methodName, OsConstants.EIO);
     }
 
-    public void enqueueFault(String methodName, int errno) {
-        Map<String, List<Fault>> threadFaults = faults.get();
-        List<Fault> methodFaults = threadFaults.get(methodName);
-        if (methodFaults == null) {
-            methodFaults = new ArrayList<Fault>();
-            threadFaults.put(methodName, methodFaults);
-        }
-        methodFaults.add(new Fault(errno));
-    }
-
-    private static class Fault {
-        private final int errno;
-        public Fault(int errno) {
-            this.errno = errno;
-        }
-
-        public void trigger(Method method) {
-            throw new ErrnoException(method.getName(), errno);
-        }
+    public void enqueueFault(String methodName, final int errno) {
+        getHandlers(methodName).add(new InvocationHandler() {
+            @Override public Object invoke(Object proxy, Method method, Object[] args) {
+                throw new ErrnoException(method.getName(), errno);
+            }
+        });
     }
 }
