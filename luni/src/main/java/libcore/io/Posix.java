@@ -18,6 +18,7 @@ package libcore.io;
 
 import java.io.FileDescriptor;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.NioUtils;
@@ -93,6 +94,18 @@ public final class Posix implements Os {
     }
     private native int readBytes(FileDescriptor fd, Object buffer, int offset, int byteCount) throws ErrnoException;
     public native int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
+    public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress inetSocketAddress) throws ErrnoException {
+        if (buffer.isDirect()) {
+            return recvfromBytes(fd, buffer, buffer.position(), buffer.remaining(), flags, inetSocketAddress);
+        } else {
+            return recvfromBytes(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining(), flags, inetSocketAddress);
+        }
+    }
+    public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress inetSocketAddress) throws ErrnoException {
+        // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
+        return recvfromBytes(fd, bytes, byteOffset, byteCount, flags, inetSocketAddress);
+    }
+    private native int recvfromBytes(FileDescriptor fd, Object buffer, int byteOffset, int byteCount, int flags, InetSocketAddress inetSocketAddress) throws ErrnoException;
     public native void remove(String path) throws ErrnoException;
     public native void rename(String oldPath, String newPath) throws ErrnoException;
     public native long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException;

@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.util.Arrays;
 import libcore.io.IoUtils;
-import org.apache.harmony.luni.platform.Platform;
 
 /**
  * This class allows raw L2 packets to be sent and received via the

@@ -32,7 +32,6 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import libcore.io.IoUtils;
-import org.apache.harmony.luni.platform.Platform;
 
 /**
  * The default ServerSocketChannel.

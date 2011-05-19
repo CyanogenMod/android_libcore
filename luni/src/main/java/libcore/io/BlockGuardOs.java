@@ -19,6 +19,7 @@ package libcore.io;
 import dalvik.system.BlockGuard;
 import java.io.FileDescriptor;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import static libcore.io.OsConstants.*;
@@ -105,6 +106,16 @@ public class BlockGuardOs extends ForwardingOs {
     @Override public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.readv(fd, buffers, offsets, byteCounts);
+    }
+
+    @Override public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress inetSocketAddress) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onNetwork();
+        return os.recvfrom(fd, buffer, flags, inetSocketAddress);
+    }
+
+    @Override public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress inetSocketAddress) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onNetwork();
+        return os.recvfrom(fd, bytes, byteOffset, byteCount, flags, inetSocketAddress);
     }
 
     @Override public int sendto(FileDescriptor fd, ByteBuffer buffer, int flags, InetAddress inetAddress, int port) throws ErrnoException {

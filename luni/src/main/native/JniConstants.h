@@ -47,7 +47,6 @@ struct JniConstants {
     static jclass byteClass;
     static jclass charsetICUClass;
     static jclass constructorClass;
-    static jclass datagramPacketClass;
     static jclass deflaterClass;
     static jclass doubleClass;
     static jclass errnoExceptionClass;

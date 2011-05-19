@@ -34,6 +34,16 @@ public class InetSocketAddress extends SocketAddress {
     private final int port;
 
     /**
+     * @hide internal use only
+     */
+    public InetSocketAddress() {
+        // These will be filled in the native implementation of recvfrom.
+        this.addr = null;
+        this.hostname = null;
+        this.port = -1;
+    }
+
+    /**
      * Creates a socket endpoint with the given port number {@code port} and
      * no specified address. The range for valid port numbers is between 0 and
      * 65535 inclusive.

@@ -1291,148 +1291,92 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
     }
 
     public void test_bindLjava_net_SocketAddress() throws Exception {
-        class mySocketAddress extends SocketAddress {
+        int[] ports = Support_PortManager.getNextPortsForUDP(3);
+        int serverPortNumber = ports[1];
 
-            public mySocketAddress() {
-            }
-        }
+        // now create a socket that is not bound and then bind it
+        InetAddress localHost = InetAddress.getLocalHost();
+        InetSocketAddress localAddress1 = new InetSocketAddress(localHost, ports[0]);
+        DatagramSocket theSocket = new DatagramSocket(localAddress1);
 
-        DatagramServer server = null;
-        try {
-            // now create a socket that is not bound and then bind it
-            int[] ports = Support_PortManager.getNextPortsForUDP(3);
-            int portNumber = ports[0];
-            int serverPortNumber = ports[1];
-            DatagramSocket theSocket = new DatagramSocket(
-                    new InetSocketAddress(InetAddress.getLocalHost(),
-                            portNumber));
+        // validate that the localSocketAddress reflects the address we bound to
+        assertEquals(localAddress1, theSocket.getLocalSocketAddress());
 
-            // validate that the localSocketAddress reflects the address we
-            // bound to
-            assertTrue("Local address not correct after bind:"
-                    + theSocket.getLocalSocketAddress().toString()
-                    + "Expected: "
-                    + (new InetSocketAddress(InetAddress.getLocalHost(),
-                            portNumber)).toString(), theSocket
-                    .getLocalSocketAddress().equals(
-                            new InetSocketAddress(InetAddress.getLocalHost(),
-                                    portNumber)));
+        // now make sure that datagrams sent from this socket appear to come
+        // from the address we bound to
+        InetSocketAddress localAddress2 = new InetSocketAddress(localHost, ports[2]);
+        DatagramSocket ds = new DatagramSocket((SocketAddress) null);
+        ds.bind(localAddress2);
 
-            // now make sure that datagrams sent from this socket appear to come
-            // from the address we bound to
-            InetAddress localHost = InetAddress.getLocalHost();
-            portNumber = ports[2];
-            DatagramSocket ds = new DatagramSocket((SocketAddress) null);
-            ds.bind(new InetSocketAddress(localHost, portNumber));
+        DatagramServer server = new DatagramServer(serverPortNumber, localHost);
+        server.start();
+        Thread.sleep(1000);
 
-            try {
-                server = new DatagramServer(serverPortNumber, localHost);
-                server.start();
-                Thread.sleep(1000);
-            } catch (Exception e) {
-                fail(
-                        "Failed to set up datagram server for bin datagram socket test ");
-            }
+        ds.connect(new InetSocketAddress(localHost, serverPortNumber));
 
-            ds.connect(new InetSocketAddress(localHost, serverPortNumber));
-
-            byte[] sendBytes = { 'T', 'e', 's', 't', 0 };
-            DatagramPacket send = new DatagramPacket(sendBytes,
-                    sendBytes.length);
-            ds.send(send);
-            Thread.sleep(1000);
-            ds.close();
-            assertTrue(
-                    "Address in packet sent does not match address bound to:"
-                            + server.rdp.getAddress() + ":"
-                            + server.rdp.getPort() + ":" + localHost + ":"
-                            + portNumber, (server.rdp.getAddress()
-                            .equals(localHost))
-                            && (server.rdp.getPort() == portNumber));
-
-            // validate if we pass in null that it picks an address for us and
-            // all is ok
-            theSocket = new DatagramSocket((SocketAddress) null);
-            theSocket.bind(null);
-            assertNotNull("Bind with null did not work", theSocket
-                    .getLocalSocketAddress());
-            theSocket.close();
-
-            // now check the error conditions
-
-            // Address we cannot bind to
-            theSocket = new DatagramSocket((SocketAddress) null);
-            try {
-                theSocket
-                        .bind(new InetSocketAddress(
-                                InetAddress
-                                        .getByAddress(Support_Configuration.nonLocalAddressBytes),
-                                Support_PortManager.getNextPortForUDP()));
-                fail("No exception when binding to bad address");
-            } catch (SocketException ex) {
-            }
-            theSocket.close();
-
-            // Address that we have allready bound to
-            ports = Support_PortManager.getNextPortsForUDP(2);
-            theSocket = new DatagramSocket((SocketAddress) null);
-            DatagramSocket theSocket2 = new DatagramSocket(ports[0]);
-            try {
-                InetSocketAddress theAddress = new InetSocketAddress(
-                        InetAddress.getLocalHost(), ports[1]);
-                theSocket.bind(theAddress);
-                theSocket2.bind(theAddress);
-                fail("No exception binding to address that is not available");
-            } catch (SocketException ex) {
-                //expected
-            }
-            theSocket.close();
-            theSocket2.close();
-
-            /*
-            SecurityManager sm = new SecurityManager() {
-
-                public void checkPermission(Permission perm) {
-                }
-
-                public void checkListen(int port) {
-                    throw new SecurityException();
-                }
-            };
-
-            ports = Support_PortManager.getNextPortsForUDP(2);
-            ds = new DatagramSocket(null);
-            SecurityManager oldSm = System.getSecurityManager();
-            System.setSecurityManager(sm);
-            try {
-
-                ds.bind(new InetSocketAddress(localHost, ports[0]));
-                fail("SecurityException should be thrown.");
-            } catch (SecurityException e) {
-                // expected
-            } catch (SocketException e) {
-                fail("SocketException was thrown.");
-            } finally {
-                System.setSecurityManager(oldSm);
-            }
-            */
-
-            // unsupported SocketAddress subclass
-            theSocket = new DatagramSocket((SocketAddress) null);
-            try {
-                theSocket.bind(new mySocketAddress());
-                fail("No exception when binding using unsupported SocketAddress subclass");
-            } catch (IllegalArgumentException ex) {
-            }
-            theSocket.close();
-
-        } catch (Exception e) {
-            fail("Unexpected exception during bind test : " + e.getMessage());
-        }
+        byte[] sendBytes = { 'T', 'e', 's', 't', 0 };
+        DatagramPacket send = new DatagramPacket(sendBytes, sendBytes.length);
+        ds.send(send);
+        Thread.sleep(1000);
+        ds.close();
+        // Check that the address in the packet matches the bound address.
+        assertEquals(localAddress2, server.rdp.getSocketAddress());
 
         if (server != null) {
             server.stopServer();
         }
+    }
+
+    public void test_bindLjava_net_SocketAddress_null() throws Exception {
+        // validate if we pass in null that it picks an address for us.
+        DatagramSocket theSocket = new DatagramSocket((SocketAddress) null);
+        theSocket.bind(null);
+        assertNotNull(theSocket.getLocalSocketAddress());
+        theSocket.close();
+    }
+
+    public void test_bindLjava_net_SocketAddress_bad_address() throws Exception {
+        // Address we cannot bind to
+        DatagramSocket theSocket = new DatagramSocket((SocketAddress) null);
+        try {
+            InetAddress badAddress = InetAddress.getByAddress(Support_Configuration.nonLocalAddressBytes);
+            theSocket.bind(new InetSocketAddress(badAddress, Support_PortManager.getNextPortForUDP()));
+            fail("No exception when binding to bad address");
+        } catch (SocketException expected) {
+        }
+        theSocket.close();
+    }
+
+    public void test_bindLjava_net_SocketAddress_address_in_use() throws Exception {
+        // Address that we have already bound to
+        int[] ports = Support_PortManager.getNextPortsForUDP(2);
+        DatagramSocket theSocket1 = new DatagramSocket((SocketAddress) null);
+        DatagramSocket theSocket2 = new DatagramSocket(ports[0]);
+        try {
+            InetSocketAddress theAddress = new InetSocketAddress(InetAddress.getLocalHost(), ports[1]);
+            theSocket1.bind(theAddress);
+            theSocket2.bind(theAddress);
+            fail("No exception binding to address that is not available");
+        } catch (SocketException expected) {
+        }
+        theSocket1.close();
+        theSocket2.close();
+    }
+
+    public void test_bindLjava_net_SocketAddress_unsupported_address_type() throws Exception {
+        class mySocketAddress extends SocketAddress {
+            public mySocketAddress() {
+            }
+        }
+
+        // unsupported SocketAddress subclass
+        DatagramSocket theSocket = new DatagramSocket((SocketAddress) null);
+        try {
+            theSocket.bind(new mySocketAddress());
+            fail("No exception when binding using unsupported SocketAddress subclass");
+        } catch (IllegalArgumentException expected) {
+        }
+        theSocket.close();
     }
 
     public void test_connectLjava_net_SocketAddress() {
@@ -2156,6 +2100,7 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
         DatagramChannel channel = DatagramChannel.open();
         DatagramSocket socket = channel.socket();
         assertEquals(channel, socket.getChannel());
+        socket.close();
     }
 
     class TestDatagramSocketImplFactory implements DatagramSocketImplFactory {

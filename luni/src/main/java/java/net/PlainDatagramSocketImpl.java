@@ -32,7 +32,7 @@ import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.io.StructGroupReq;
 import libcore.util.EmptyArray;
-import org.apache.harmony.luni.platform.Platform;
+import static libcore.io.OsConstants.*;
 
 /**
  * @hide used in java.nio.
@@ -152,14 +152,13 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         // We don't actually want the data: we just want the DatagramPacket's filled-in address.
         DatagramPacket packet = new DatagramPacket(EmptyArray.BYTE, 0);
         int result = peekData(packet);
-        // TODO: maybe recv should do this?
+        // Note: evil side-effect on InetAddress! This method should have returned InetSocketAddress!
         sender.ipaddress = packet.getAddress().getAddress();
         return result;
     }
 
-    private void doRecv(DatagramPacket pack, boolean peek) throws IOException {
-        Platform.NETWORK.recv(fd, pack, pack.getData(), pack.getOffset(), pack.getLength(), peek,
-                isNativeConnected);
+    private void doRecv(DatagramPacket pack, int flags) throws IOException {
+        IoUtils.recvfrom(false, fd, pack.getData(), pack.getOffset(), pack.getLength(), flags, pack, isNativeConnected);
         if (isNativeConnected) {
             updatePacketRecvAddress(pack);
         }
@@ -167,12 +166,12 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void receive(DatagramPacket pack) throws IOException {
-        doRecv(pack, false);
+        doRecv(pack, 0);
     }
 
     @Override
     public int peekData(DatagramPacket pack) throws IOException {
-        doRecv(pack, true);
+        doRecv(pack, MSG_PEEK);
         return pack.getPort();
     }
 

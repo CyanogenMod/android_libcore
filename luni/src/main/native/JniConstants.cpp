@@ -25,7 +25,6 @@ jclass JniConstants::byteArrayClass;
 jclass JniConstants::byteClass;
 jclass JniConstants::charsetICUClass;
 jclass JniConstants::constructorClass;
-jclass JniConstants::datagramPacketClass;
 jclass JniConstants::deflaterClass;
 jclass JniConstants::doubleClass;
 jclass JniConstants::errnoExceptionClass;
@@ -78,7 +77,6 @@ void JniConstants::init(JNIEnv* env) {
     byteArrayClass = findClass(env, "[B");
     charsetICUClass = findClass(env, "java/nio/charset/CharsetICU");
     constructorClass = findClass(env, "java/lang/reflect/Constructor");
-    datagramPacketClass = findClass(env, "java/net/DatagramPacket");
     deflaterClass = findClass(env, "java/util/zip/Deflater");
     doubleClass = findClass(env, "java/lang/Double");
     errnoExceptionClass = findClass(env, "libcore/io/ErrnoException");

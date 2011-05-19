@@ -471,16 +471,16 @@ public class PlainSocketImpl extends SocketImpl {
         if (shutdownInput) {
             return -1;
         }
-        int read = Platform.NETWORK.read(fd, buffer, offset, byteCount);
+        int readCount = IoUtils.recvfrom(true, fd, buffer, offset, byteCount, 0, null, false);
         // Return of zero bytes for a blocking socket means a timeout occurred
-        if (read == 0) {
+        if (readCount == 0) {
             throw new SocketTimeoutException();
         }
         // Return of -1 indicates the peer was closed
-        if (read == -1) {
+        if (readCount == -1) {
             shutdownInput = true;
         }
-        return read;
+        return readCount;
     }
 
     /**

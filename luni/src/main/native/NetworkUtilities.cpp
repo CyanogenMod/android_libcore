@@ -27,7 +27,7 @@
 #include <string.h>
 #include <sys/socket.h>
 
-jobject socketAddressToInetAddress(JNIEnv* env, const sockaddr_storage* ss) {
+jobject sockaddrToInetAddress(JNIEnv* env, const sockaddr_storage* ss, jint* port) {
     // Convert IPv4-mapped IPv6 addresses to IPv4 addresses.
     // The RI states "Java will never return an IPv4-mapped address".
     sockaddr_storage tmp;
@@ -47,20 +47,26 @@ jobject socketAddressToInetAddress(JNIEnv* env, const sockaddr_storage* ss) {
 
     const void* rawAddress;
     size_t addressLength;
+    int sockaddrPort;
     if (ss->ss_family == AF_INET) {
         const sockaddr_in* sin = reinterpret_cast<const sockaddr_in*>(ss);
         rawAddress = &sin->sin_addr.s_addr;
         addressLength = 4;
+        sockaddrPort = ntohs(sin->sin_port);
     } else if (ss->ss_family == AF_INET6) {
         const sockaddr_in6* sin6 = reinterpret_cast<const sockaddr_in6*>(ss);
         rawAddress = &sin6->sin6_addr.s6_addr;
         addressLength = 16;
+        sockaddrPort = ntohs(sin6->sin6_port);
     } else {
         // We can't throw SocketException. We aren't meant to see bad addresses, so seeing one
         // really does imply an internal error.
         jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
-                "socketAddressToInetAddress bad ss_family: %i", ss->ss_family);
+                "sockaddrToInetAddress bad ss_family: %i", ss->ss_family);
         return NULL;
+    }
+    if (port != NULL) {
+        *port = sockaddrPort;
     }
 
     jbyteArray byteArray = env->NewByteArray(addressLength);
