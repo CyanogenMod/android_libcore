@@ -789,9 +789,9 @@ public class HttpEngine {
                 if (responseCache instanceof HttpResponseCache) {
                     ((HttpResponseCache) responseCache).trackConditionalCacheHit();
                 }
-                // discard the network response and use the cache response
+                // Discard the network response body. Combine the headers.
                 release(true);
-                setResponse(cachedResponseHeaders, cachedResponseBody);
+                setResponse(cachedResponseHeaders.combine(responseHeaders), cachedResponseBody);
                 return;
             } else {
                 IoUtils.closeQuietly(cachedResponseBody);
