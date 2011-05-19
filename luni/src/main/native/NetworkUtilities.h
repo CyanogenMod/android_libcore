@@ -17,8 +17,8 @@
 #include "jni.h"
 #include <sys/socket.h>
 
-// Convert from sockaddr_storage to InetAddress.
-jobject socketAddressToInetAddress(JNIEnv* env, const sockaddr_storage* ss);
+// Convert from sockaddr_storage to InetAddress and an optional int port.
+jobject sockaddrToInetAddress(JNIEnv* env, const sockaddr_storage* ss, int* port);
 
 // Convert from InetAddress to sockaddr_storage. An Inet4Address will be converted to
 // an IPv4-mapped AF_INET6 sockaddr_in6. This is what you want if you're about to perform an

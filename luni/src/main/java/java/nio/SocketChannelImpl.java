@@ -45,7 +45,6 @@ import java.util.Arrays;
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
 import libcore.io.IoUtils;
-import org.apache.harmony.luni.platform.Platform;
 import static libcore.io.OsConstants.*;
 
 /*
@@ -253,30 +252,13 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
     }
 
     @Override
-    public int read(ByteBuffer target) throws IOException {
-        FileChannelImpl.checkWritable(target);
+    public int read(ByteBuffer dst) throws IOException {
+        FileChannelImpl.checkWritable(dst);
         checkOpenConnected();
-        if (!target.hasRemaining()) {
+        if (!dst.hasRemaining()) {
             return 0;
         }
-
-        int readCount;
-        if (target.isDirect() || target.hasArray()) {
-            readCount = readImpl(target);
-            if (readCount > 0) {
-                target.position(target.position() + readCount);
-            }
-        } else {
-            ByteBuffer readBuffer = null;
-            byte[] readArray = null;
-            readArray = new byte[target.remaining()];
-            readBuffer = ByteBuffer.wrap(readArray);
-            readCount = readImpl(readBuffer);
-            if (readCount > 0) {
-                target.put(readArray, 0, readCount);
-            }
-        }
-        return readCount;
+        return readImpl(dst);
     }
 
     @Override
@@ -290,9 +272,9 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         byte[] readArray = new byte[totalCount];
         ByteBuffer readBuffer = ByteBuffer.wrap(readArray);
         int readCount;
-        // read data to readBuffer, and then transfer data from readBuffer to
-        // targets.
+        // read data to readBuffer, and then transfer data from readBuffer to targets.
         readCount = readImpl(readBuffer);
+        readBuffer.flip();
         if (readCount > 0) {
             int left = readCount;
             int index = offset;
@@ -307,49 +289,34 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         return readCount;
     }
 
-    /**
-     * Read from channel, and store the result in the target.
-     *
-     * @param target
-     *            output parameter
-     */
-    private int readImpl(ByteBuffer target) throws IOException {
+    private int readImpl(ByteBuffer dst) throws IOException {
         synchronized (readLock) {
             int readCount = 0;
             try {
                 if (isBlocking()) {
                     begin();
                 }
-                int offset = target.position();
-                int length = target.remaining();
-                if (target.isDirect()) {
-                    int address = NioUtils.getDirectBufferAddress(target);
-                    readCount = Platform.NETWORK.readDirect(fd, address + offset, length);
-                } else {
-                    // target is assured to have array.
-                    byte[] array = target.array();
-                    offset += target.arrayOffset();
-                    readCount = Platform.NETWORK.read(fd, array, offset, length);
-                }
-                return readCount;
+                readCount = IoUtils.recvfrom(true, fd, dst, 0, null, false);
+                dst.position(dst.position() + readCount);
             } finally {
                 if (isBlocking()) {
                     end(readCount > 0);
                 }
             }
+            return readCount;
         }
     }
 
     @Override
-    public int write(ByteBuffer source) throws IOException {
-        if (source == null) {
+    public int write(ByteBuffer src) throws IOException {
+        if (src == null) {
             throw new NullPointerException();
         }
         checkOpenConnected();
-        if (!source.hasRemaining()) {
+        if (!src.hasRemaining()) {
             return 0;
         }
-        return writeImpl(source);
+        return writeImpl(src);
     }
 
     @Override
@@ -381,12 +348,9 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         return written;
     }
 
-    /*
-     * Write the source. return the count of bytes written.
-     */
-    private int writeImpl(ByteBuffer source) throws IOException {
+    private int writeImpl(ByteBuffer src) throws IOException {
         synchronized (writeLock) {
-            if (!source.hasRemaining()) {
+            if (!src.hasRemaining()) {
                 return 0;
             }
             int writeCount = 0;
@@ -394,9 +358,8 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
                 if (isBlocking()) {
                     begin();
                 }
-                int oldPosition = source.position();
-                writeCount = IoUtils.sendto(fd, source, 0, null, 0);
-                source.position(oldPosition + writeCount);
+                writeCount = IoUtils.sendto(fd, src, 0, null, 0);
+                src.position(src.position() + writeCount);
             } finally {
                 if (isBlocking()) {
                     end(writeCount >= 0);

@@ -40,7 +40,6 @@ import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.util.EmptyArray;
-import org.apache.harmony.luni.platform.Platform;
 
 /*
  * The default implementation class of java.nio.channels.DatagramChannel.
@@ -199,21 +198,15 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         DatagramPacket receivePacket;
         int oldposition = target.position();
         int received = 0;
+        // TODO: disallow mapped buffers and lose this conditional?
         if (target.hasArray()) {
-            receivePacket = new DatagramPacket(target.array(), target
-                    .position()
-                    + target.arrayOffset(), target.remaining());
+            receivePacket = new DatagramPacket(target.array(), target.position() + target.arrayOffset(), target.remaining());
         } else {
-            receivePacket = new DatagramPacket(new byte[target.remaining()],
-                    target.remaining());
+            receivePacket = new DatagramPacket(new byte[target.remaining()], target.remaining());
         }
         do {
-            received = Platform.NETWORK.recv(fd, receivePacket,
-                    receivePacket.getData(), receivePacket.getOffset(), receivePacket.getLength(),
-                    false, isConnected());
-
+            received = IoUtils.recvfrom(false, fd, receivePacket.getData(), receivePacket.getOffset(), receivePacket.getLength(), 0, receivePacket, isConnected());
             if (receivePacket != null && receivePacket.getAddress() != null) {
-
                 if (received > 0) {
                     if (target.hasArray()) {
                         target.position(oldposition + received);
@@ -235,10 +228,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         int oldposition = target.position();
         int received = 0;
         do {
-            int address = NioUtils.getDirectBufferAddress(target);
-            received = Platform.NETWORK.recvDirect(fd, receivePacket, address,
-                    target.position(), target.remaining(), false, isConnected());
-
+            received = IoUtils.recvfrom(false, fd, target, 0, receivePacket, isConnected());
             if (receivePacket != null && receivePacket.getAddress() != null) {
                 // copy the data of received packet
                 if (received > 0) {
@@ -251,10 +241,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         return retAddr;
     }
 
-    /**
-     * @see java.nio.channels.DatagramChannel#send(java.nio.ByteBuffer,
-     *      java.net.SocketAddress)
-     */
     @Override
     public int send(ByteBuffer source, SocketAddress socketAddress) throws IOException {
         checkNotNull(source);
@@ -342,64 +328,32 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
     /*
      * read from channel, and store the result in the target.
      */
-    private int readImpl(ByteBuffer readBuffer) throws IOException {
+    private int readImpl(ByteBuffer dst) throws IOException {
         synchronized (readLock) {
             int readCount = 0;
             try {
                 begin();
-                int start = readBuffer.position();
-                int length = readBuffer.remaining();
-                if (readBuffer.isDirect()) {
-                    int address = NioUtils.getDirectBufferAddress(readBuffer);
-                    readCount = Platform.NETWORK.recvDirect(fd, null, address, start, length,
-                            false, isConnected());
-                } else {
-                    // the target is assured to have array.
-                    byte[] target = readBuffer.array();
-                    start += readBuffer.arrayOffset();
-                    readCount = Platform.NETWORK.recv(fd, null, target, start, length, false,
-                            isConnected());
-                }
-                return readCount;
+                readCount = IoUtils.recvfrom(false, fd, dst, 0, null, isConnected());
             } catch (InterruptedIOException e) {
                 // InterruptedIOException will be thrown when timeout.
                 return 0;
             } finally {
                 end(readCount > 0);
             }
+            return readCount;
         }
     }
 
-    /**
-     * @see java.nio.channels.DatagramChannel#write(java.nio.ByteBuffer)
-     */
-    @Override
-    public int write(ByteBuffer source) throws IOException {
-        // source buffer must be not null
-        checkNotNull(source);
-        // status must be open and connected
+    @Override public int write(ByteBuffer src) throws IOException {
+        checkNotNull(src);
         checkOpenConnected();
-        // return immediately if source is full
-        if (!source.hasRemaining()) {
+        if (!src.hasRemaining()) {
             return 0;
         }
 
-        ByteBuffer writeBuffer = null;
-        byte[] writeArray = null;
-        int oldposition = source.position();
-        int result;
-        if (source.isDirect() || source.hasArray()) {
-            writeBuffer = source;
-        } else {
-            writeArray = new byte[source.remaining()];
-            source.get(writeArray);
-            writeBuffer = ByteBuffer.wrap(writeArray);
-        }
-        result = writeImpl(writeBuffer);
-        if (result > 0) {
-            source.position(oldposition + result);
-        }
-        return result;
+        int writeCount = writeImpl(src);
+        src.position(src.position() + writeCount);
+        return writeCount;
     }
 
     /**

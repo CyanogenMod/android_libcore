@@ -19,9 +19,6 @@ package org.apache.harmony.luni.platform;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.SocketException;
 import java.net.SocketImpl;
 
 /*
@@ -29,9 +26,4 @@ import java.net.SocketImpl;
  */
 public interface INetworkSystem {
     public void accept(FileDescriptor serverFd, SocketImpl newSocket, FileDescriptor clientFd) throws IOException;
-
-    public int read(FileDescriptor fd, byte[] data, int offset, int count) throws IOException;
-    public int readDirect(FileDescriptor fd, int address, int count) throws IOException;
-    public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset, int length, boolean peek, boolean connected) throws IOException;
-    public int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset, int length, boolean peek, boolean connected) throws IOException;
 }

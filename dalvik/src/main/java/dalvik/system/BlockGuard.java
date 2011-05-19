@@ -25,12 +25,11 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
-
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
 import libcore.io.StructLinger;
+import libcore.util.EmptyArray;
 import org.apache.harmony.luni.platform.INetworkSystem;
-
 import static libcore.io.OsConstants.*;
 
 /**
@@ -219,8 +218,8 @@ public final class BlockGuard {
             throws IOException {
         if (!TAG_SOCKETS) return;
 
-        final byte[] tagBytes = tag != null ? tag.getBytes() : new byte[0];
-        final byte[] uidBytes = uid != -1 ? Integer.toString(uid).getBytes() : new byte[0];
+        final byte[] tagBytes = tag != null ? tag.getBytes() : EmptyArray.BYTE;
+        final byte[] uidBytes = uid != -1 ? Integer.toString(uid).getBytes() : EmptyArray.BYTE;
 
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream(
                 4 + tagBytes.length + uidBytes.length);
@@ -260,28 +259,6 @@ public final class BlockGuard {
             BlockGuard.getThreadPolicy().onNetwork();
             mNetwork.accept(serverFd, newSocket, clientFd);
             tagSocketFd(clientFd);
-        }
-
-        public int read(FileDescriptor aFD, byte[] data, int offset, int count) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.read(aFD, data, offset, count);
-        }
-
-        public int readDirect(FileDescriptor aFD, int address, int count) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.readDirect(aFD, address, count);
-        }
-
-        public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset,
-                int length, boolean peek, boolean connected) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.recv(fd, packet, data, offset, length, peek, connected);
-        }
-
-        public int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset,
-                int length, boolean peek, boolean connected) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.recvDirect(fd, packet, address, offset, length, peek, connected);
         }
     }
 }

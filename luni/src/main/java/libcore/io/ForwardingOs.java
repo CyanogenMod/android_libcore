@@ -18,6 +18,7 @@ package libcore.io;
 
 import java.io.FileDescriptor;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import libcore.util.MutableInt;
@@ -89,6 +90,8 @@ public class ForwardingOs implements Os {
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException { return os.read(fd, buffer); }
     public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException { return os.read(fd, bytes, byteOffset, byteCount); }
     public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException { return os.readv(fd, buffers, offsets, byteCounts); }
+    public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress inetSocketAddress) throws ErrnoException { return os.recvfrom(fd, buffer, flags, inetSocketAddress); }
+    public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress inetSocketAddress) throws ErrnoException { return os.recvfrom(fd, bytes, byteOffset, byteCount, flags, inetSocketAddress); }
     public void remove(String path) throws ErrnoException { os.remove(path); }
     public void rename(String oldPath, String newPath) throws ErrnoException { os.rename(oldPath, newPath); }
     public long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException { return os.sendfile(outFd, inFd, inOffset, byteCount); }

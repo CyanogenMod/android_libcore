@@ -24,11 +24,13 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.BindException;
 import java.net.ConnectException;
+import java.net.DatagramPacket;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.PortUnreachableException;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -40,9 +42,6 @@ import java.nio.charset.Charsets;
 import java.util.Arrays;
 import libcore.util.MutableInt;
 import static libcore.io.OsConstants.*;
-
-// TODO: kill this!
-import org.apache.harmony.luni.platform.Platform;
 
 public final class IoUtils {
     private IoUtils() {
@@ -193,6 +192,62 @@ public final class IoUtils {
             }
         }
         throw errnoException.rethrowAsSocketException();
+    }
+
+    public static int recvfrom(boolean isRead, FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, DatagramPacket packet, boolean isConnected) throws IOException {
+        int result;
+        try {
+            InetSocketAddress isa = (packet != null && !isConnected) ? new InetSocketAddress() : null;
+            result = Libcore.os.recvfrom(fd, bytes, byteOffset, byteCount, flags, isa);
+            result = postRecvfrom(isRead, packet, isConnected, isa, result);
+        } catch (ErrnoException errnoException) {
+            result = maybeThrowAfterRecvfrom(isRead, isConnected, errnoException);
+        }
+        return result;
+    }
+
+    public static int recvfrom(boolean isRead, FileDescriptor fd, ByteBuffer buffer, int flags, DatagramPacket packet, boolean isConnected) throws IOException {
+        int result;
+        try {
+            InetSocketAddress isa = (packet != null && !isConnected) ? new InetSocketAddress() : null;
+            result = Libcore.os.recvfrom(fd, buffer, flags, isa);
+            result = postRecvfrom(isRead, packet, isConnected, isa, result);
+        } catch (ErrnoException errnoException) {
+            result = maybeThrowAfterRecvfrom(isRead, isConnected, errnoException);
+        }
+        return result;
+    }
+
+    private static int postRecvfrom(boolean isRead, DatagramPacket packet, boolean isConnected, InetSocketAddress isa, int byteCount) {
+        if (isRead && byteCount == 0) {
+            return -1;
+        }
+        if (packet != null) {
+            packet.setLength(byteCount);
+            if (!isConnected) {
+                packet.setAddress(isa.getAddress());
+                packet.setPort(isa.getPort());
+            }
+        }
+        return byteCount;
+    }
+
+    private static int maybeThrowAfterRecvfrom(boolean isRead, boolean isConnected, ErrnoException errnoException) throws SocketException, SocketTimeoutException {
+        if (isRead) {
+            if (errnoException.errno == EAGAIN || errnoException.errno == EWOULDBLOCK) {
+                return 0;
+            } else {
+                throw errnoException.rethrowAsSocketException();
+            }
+        } else {
+            if (isConnected && errnoException.errno == ECONNREFUSED) {
+                throw new PortUnreachableException("", errnoException);
+            } else if (errnoException.errno == EAGAIN || errnoException.errno == EWOULDBLOCK) {
+                throw new SocketTimeoutException("", errnoException);
+            } else {
+                throw errnoException.rethrowAsSocketException();
+            }
+        }
     }
 
     public static void bind(FileDescriptor fd, InetAddress address, int port) throws SocketException {

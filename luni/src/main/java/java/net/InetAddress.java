@@ -37,7 +37,6 @@ import libcore.io.Libcore;
 import libcore.io.IoUtils;
 import libcore.io.Memory;
 import libcore.io.StructAddrinfo;
-import org.apache.harmony.luni.platform.Platform;
 import static libcore.io.OsConstants.*;
 
 /**

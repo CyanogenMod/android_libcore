@@ -215,26 +215,16 @@ private:
     std::vector<ScopedT*> mScopedBuffers;
 };
 
-static jobject makeInetSocketAddress(JNIEnv* env, const sockaddr_storage* ss, int port) {
-    jobject inetAddress = socketAddressToInetAddress(env, ss);
+static jobject makeSocketAddress(JNIEnv* env, const sockaddr_storage* ss) {
+    // TODO: support AF_UNIX and AF_UNSPEC (and other families?)
+    jint port;
+    jobject inetAddress = sockaddrToInetAddress(env, ss, &port);
     if (inetAddress == NULL) {
         return NULL;
     }
     static jmethodID ctor = env->GetMethodID(JniConstants::inetSocketAddressClass, "<init>",
             "(Ljava/net/InetAddress;I)V");
     return env->NewObject(JniConstants::inetSocketAddressClass, ctor, inetAddress, port);
-}
-
-static jobject makeSocketAddress(JNIEnv* env, const sockaddr_storage* ss) {
-    if (ss->ss_family == AF_INET) {
-        int port = ntohs(reinterpret_cast<const sockaddr_in*>(ss)->sin_port);
-        return makeInetSocketAddress(env, ss, port);
-    } else if (ss->ss_family == AF_INET6) {
-        int port = ntohs(reinterpret_cast<const sockaddr_in6*>(ss)->sin6_port);
-        return makeInetSocketAddress(env, ss, port);
-    }
-    // TODO: support AF_UNIX and AF_UNSPEC, and have some other behavior for other families
-    return NULL;
 }
 
 static jobject makeStructPasswd(JNIEnv* env, const struct passwd& pw) {
@@ -567,7 +557,7 @@ static jobjectArray Posix_getaddrinfo(JNIEnv* env, jobject, jstring javaNode, jo
 
         // Convert each IP address into a Java byte array.
         sockaddr_storage* address = reinterpret_cast<sockaddr_storage*>(ai->ai_addr);
-        ScopedLocalRef<jobject> inetAddress(env, socketAddressToInetAddress(env, address));
+        ScopedLocalRef<jobject> inetAddress(env, sockaddrToInetAddress(env, address, NULL));
         if (inetAddress.get() == NULL) {
             return NULL;
         }
@@ -670,7 +660,7 @@ static jobject Posix_getsockoptInAddr(JNIEnv* env, jobject, jobject javaFd, jint
         throwErrnoException(env, "getsockopt");
         return NULL;
     }
-    return socketAddressToInetAddress(env, &ss);
+    return sockaddrToInetAddress(env, &ss, NULL);
 }
 
 static jint Posix_getsockoptInt(JNIEnv* env, jobject, jobject javaFd, jint level, jint option) {
@@ -731,7 +721,7 @@ static jobject Posix_inet_aton(JNIEnv* env, jobject, jstring javaName) {
         return NULL;
     }
     sin->sin_family = AF_INET; // inet_aton only supports IPv4.
-    return socketAddressToInetAddress(env, &ss);
+    return sockaddrToInetAddress(env, &ss, NULL);
 }
 
 static jobject Posix_ioctlInetAddress(JNIEnv* env, jobject, jobject javaFd, jint cmd, jstring javaInterfaceName) {
@@ -744,7 +734,7 @@ static jobject Posix_ioctlInetAddress(JNIEnv* env, jobject, jobject javaFd, jint
     if (rc == -1) {
         return NULL;
     }
-    return socketAddressToInetAddress(env, reinterpret_cast<sockaddr_storage*>(&req.ifr_addr));
+    return sockaddrToInetAddress(env, reinterpret_cast<sockaddr_storage*>(&req.ifr_addr), NULL);
 }
 
 static jint Posix_ioctlInt(JNIEnv* env, jobject, jobject javaFd, jint cmd, jobject javaArg) {
@@ -917,6 +907,33 @@ static jint Posix_readv(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffe
     }
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     return throwIfMinusOne(env, "readv", TEMP_FAILURE_RETRY(readv(fd, ioVec.get(), ioVec.size())));
+}
+
+static jint Posix_recvfromBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jint flags, jobject javaInetSocketAddress) {
+    ScopedBytesRW bytes(env, javaBytes);
+    if (bytes.get() == NULL) {
+        return -1;
+    }
+    sockaddr_storage ss;
+    socklen_t sl = sizeof(ss);
+    memset(&ss, 0, sizeof(ss));
+    int fd;
+    sockaddr* from = (javaInetSocketAddress != NULL) ? reinterpret_cast<sockaddr*>(&ss) : NULL;
+    socklen_t* fromLength = (javaInetSocketAddress != NULL) ? &sl : 0;
+    jint recvCount = NET_FAILURE_RETRY("recvfrom", recvfrom(fd, bytes.get() + byteOffset, byteCount, flags, from, fromLength));
+    if (recvCount != -1 && javaInetSocketAddress != NULL) {
+        // Fill out the passed-in InetSocketAddress with the sender's IP address and port number.
+        jint port;
+        jobject sender = sockaddrToInetAddress(env, &ss, &port);
+        if (sender == NULL) {
+            return -1;
+        }
+        static jfieldID addressFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "addr", "Ljava/net/InetAddress;");
+        static jfieldID portFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "port", "I");
+        env->SetObjectField(javaInetSocketAddress, addressFid, sender);
+        env->SetIntField(javaInetSocketAddress, portFid, port);
+    }
+    return recvCount;
 }
 
 static void Posix_remove(JNIEnv* env, jobject, jstring javaPath) {
@@ -1204,6 +1221,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, poll, "([Llibcore/io/StructPollfd;I)I"),
     NATIVE_METHOD(Posix, readBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
     NATIVE_METHOD(Posix, readv, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
+    NATIVE_METHOD(Posix, recvfromBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetSocketAddress;)I"),
     NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, rename, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sendfile, "(Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Llibcore/util/MutableLong;J)J"),
