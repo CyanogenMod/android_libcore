@@ -400,4 +400,47 @@ final class ResponseHeaders {
 
         return false;
     }
+
+    /**
+     * Combines this cached header with a network header as defined by RFC 2616,
+     * 13.5.3.
+     */
+    public ResponseHeaders combine(ResponseHeaders network) {
+        RawHeaders result = new RawHeaders();
+
+        for (int i = 0; i < headers.length(); i++) {
+            String fieldName = headers.getFieldName(i);
+            String value = headers.getValue(i);
+            if (fieldName.equals("Warning") && value.startsWith("1")) {
+                continue; // drop 100-level freshness warnings
+            }
+            if (!isEndToEnd(fieldName) || network.headers.get(fieldName) == null) {
+                result.add(fieldName, value);
+            }
+        }
+
+        for (int i = 0; i < network.headers.length(); i++) {
+            String fieldName = network.headers.getFieldName(i);
+            if (isEndToEnd(fieldName)) {
+                result.add(fieldName, network.headers.getValue(i));
+            }
+        }
+
+        return new ResponseHeaders(uri, result);
+    }
+
+    /**
+     * Returns true if {@code fieldName} is an end-to-end HTTP header, as
+     * defined by RFC 2616, 13.5.1.
+     */
+    private static boolean isEndToEnd(String fieldName) {
+        return !fieldName.equalsIgnoreCase("Connection")
+                && !fieldName.equalsIgnoreCase("Keep-Alive")
+                && !fieldName.equalsIgnoreCase("Proxy-Authenticate")
+                && !fieldName.equalsIgnoreCase("Proxy-Authorization")
+                && !fieldName.equalsIgnoreCase("TE")
+                && !fieldName.equalsIgnoreCase("Trailers")
+                && !fieldName.equalsIgnoreCase("Transfer-Encoding")
+                && !fieldName.equalsIgnoreCase("Upgrade");
+    }
 }

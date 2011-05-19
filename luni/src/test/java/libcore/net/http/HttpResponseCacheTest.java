@@ -27,6 +27,9 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.net.CacheRequest;
 import java.net.CacheResponse;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.ResponseCache;
 import java.net.SecureCacheResponse;
@@ -63,13 +66,10 @@ import static tests.http.SocketPolicy.DISCONNECT_AT_END;
 import tests.io.MockOs;
 
 public final class HttpResponseCacheTest extends TestCase {
-
-    // TODO: test cache + cookies
-    // TODO: test cache + user-provided Range header
-
     private MockWebServer server = new MockWebServer();
     private HttpResponseCache cache;
-    final MockOs mockOs = new MockOs();
+    private final MockOs mockOs = new MockOs();
+    private final CookieManager cookieManager = new CookieManager();
 
     @Override protected void setUp() throws Exception {
         super.setUp();
@@ -79,6 +79,7 @@ public final class HttpResponseCacheTest extends TestCase {
         cache = new HttpResponseCache(cacheDir, Integer.MAX_VALUE);
         ResponseCache.setDefault(cache);
         mockOs.install();
+        CookieHandler.setDefault(cookieManager);
     }
 
     @Override protected void tearDown() throws Exception {
@@ -86,6 +87,7 @@ public final class HttpResponseCacheTest extends TestCase {
         server.shutdown();
         ResponseCache.setDefault(null);
         cache.getCache().delete();
+        CookieHandler.setDefault(null);
         super.tearDown();
     }
 
@@ -1497,6 +1499,118 @@ public final class HttpResponseCacheTest extends TestCase {
             readHandlers.clear();
         }
         System.out.println("Exercising the cache performs " + (i - 1) + " reads.");
+    }
+
+    public void testCachePlusCookies() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Set-Cookie: a=FIRST; domain=.local;")
+                .addHeader("Last-Modified: " + formatDate(-1, TimeUnit.HOURS))
+                .addHeader("Cache-Control: max-age=0")
+                .setBody("A"));
+        server.enqueue(new MockResponse()
+                .addHeader("Set-Cookie: a=SECOND; domain=.local;")
+                .setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
+        server.play();
+
+        URL url = server.getUrl("/");
+        assertEquals("A", readAscii(url.openConnection()));
+        assertCookies(url, "a=FIRST");
+        assertEquals("A", readAscii(url.openConnection()));
+        assertCookies(url, "a=SECOND");
+    }
+
+    public void testGetHeadersReturnsNetworkEndToEndHeaders() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Allow: GET, HEAD")
+                .addHeader("Last-Modified: " + formatDate(-1, TimeUnit.HOURS))
+                .addHeader("Cache-Control: max-age=0")
+                .setBody("A"));
+        server.enqueue(new MockResponse()
+                .addHeader("Allow: GET, HEAD, PUT")
+                .setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
+        server.play();
+
+        URLConnection connection1 = server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection1));
+        assertEquals("GET, HEAD", connection1.getHeaderField("Allow"));
+
+        URLConnection connection2 = server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection2));
+        assertEquals("GET, HEAD, PUT", connection2.getHeaderField("Allow"));
+    }
+
+    public void testGetHeadersReturnsCachedHopByHopHeaders() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Transfer-Encoding: identity")
+                .addHeader("Last-Modified: " + formatDate(-1, TimeUnit.HOURS))
+                .addHeader("Cache-Control: max-age=0")
+                .setBody("A"));
+        server.enqueue(new MockResponse()
+                .addHeader("Transfer-Encoding: none")
+                .setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
+        server.play();
+
+        URLConnection connection1 = server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection1));
+        assertEquals("identity", connection1.getHeaderField("Transfer-Encoding"));
+
+        URLConnection connection2 = server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection2));
+        assertEquals("identity", connection2.getHeaderField("Transfer-Encoding"));
+    }
+
+    public void testGetHeadersDeletesCached100LevelWarnings() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Warning: 199 test danger")
+                .addHeader("Last-Modified: " + formatDate(-1, TimeUnit.HOURS))
+                .addHeader("Cache-Control: max-age=0")
+                .setBody("A"));
+        server.enqueue(new MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
+        server.play();
+
+        URLConnection connection1 = server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection1));
+        assertEquals("199 test danger", connection1.getHeaderField("Warning"));
+
+        URLConnection connection2 = server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection2));
+        assertEquals(null, connection2.getHeaderField("Warning"));
+    }
+
+    public void testGetHeadersRetainsCached200LevelWarnings() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Warning: 299 test danger")
+                .addHeader("Last-Modified: " + formatDate(-1, TimeUnit.HOURS))
+                .addHeader("Cache-Control: max-age=0")
+                .setBody("A"));
+        server.enqueue(new MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
+        server.play();
+
+        URLConnection connection1 = server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection1));
+        assertEquals("299 test danger", connection1.getHeaderField("Warning"));
+
+        URLConnection connection2 = server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection2));
+        assertEquals("299 test danger", connection2.getHeaderField("Warning"));
+    }
+
+    public void assertCookies(URL url, String... expectedCookies) throws Exception {
+        List<String> actualCookies = new ArrayList<String>();
+        for (HttpCookie cookie : cookieManager.getCookieStore().get(url.toURI())) {
+            actualCookies.add(cookie.toString());
+        }
+        assertEquals(Arrays.asList(expectedCookies), actualCookies);
+    }
+
+    public void testCachePlusRange() throws Exception {
+        assertNotCached(new MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_PARTIAL)
+                .addHeader("Date: " + formatDate(0, TimeUnit.HOURS))
+                .addHeader("Content-Range: bytes 100-100/200")
+                .addHeader("Cache-Control: max-age=60"));
     }
 
     /**
