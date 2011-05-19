@@ -34,6 +34,7 @@ public class ForwardingOs implements Os {
         this.os = os;
     }
 
+    public FileDescriptor accept(FileDescriptor fd, InetSocketAddress peerAddress) throws ErrnoException { return os.accept(fd, peerAddress); }
     public boolean access(String path, int mode) throws ErrnoException { return os.access(path, mode); }
     public void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException { os.bind(fd, address, port); }
     public void chmod(String path, int mode) throws ErrnoException { os.chmod(path, mode); }
@@ -90,8 +91,8 @@ public class ForwardingOs implements Os {
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException { return os.read(fd, buffer); }
     public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException { return os.read(fd, bytes, byteOffset, byteCount); }
     public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException { return os.readv(fd, buffers, offsets, byteCounts); }
-    public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress inetSocketAddress) throws ErrnoException { return os.recvfrom(fd, buffer, flags, inetSocketAddress); }
-    public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress inetSocketAddress) throws ErrnoException { return os.recvfrom(fd, bytes, byteOffset, byteCount, flags, inetSocketAddress); }
+    public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress srcAddress) throws ErrnoException { return os.recvfrom(fd, buffer, flags, srcAddress); }
+    public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException { return os.recvfrom(fd, bytes, byteOffset, byteCount, flags, srcAddress); }
     public void remove(String path) throws ErrnoException { os.remove(path); }
     public void rename(String oldPath, String newPath) throws ErrnoException { os.rename(oldPath, newPath); }
     public long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException { return os.sendfile(outFd, inFd, inOffset, byteCount); }

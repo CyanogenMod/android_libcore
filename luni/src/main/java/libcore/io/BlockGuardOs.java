@@ -32,6 +32,20 @@ public class BlockGuardOs extends ForwardingOs {
         super(os);
     }
 
+    private FileDescriptor tagSocket(FileDescriptor fd) {
+        try {
+            BlockGuard.tagSocketFd(fd);
+            return fd;
+        } catch (SocketException e) {
+            throw new ErrnoException("socket", EINVAL, e);
+        }
+    }
+
+    @Override public FileDescriptor accept(FileDescriptor fd, InetSocketAddress peerAddress) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onNetwork();
+        return tagSocket(os.accept(fd, peerAddress));
+    }
+
     @Override public void close(FileDescriptor fd) throws ErrnoException {
         // TODO: is there a way to avoid calling getsockopt(2) on non-socket fds?
         if (isLingerSocket(fd)) {
@@ -108,14 +122,14 @@ public class BlockGuardOs extends ForwardingOs {
         return os.readv(fd, buffers, offsets, byteCounts);
     }
 
-    @Override public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress inetSocketAddress) throws ErrnoException {
+    @Override public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress srcAddress) throws ErrnoException {
         BlockGuard.getThreadPolicy().onNetwork();
-        return os.recvfrom(fd, buffer, flags, inetSocketAddress);
+        return os.recvfrom(fd, buffer, flags, srcAddress);
     }
 
-    @Override public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress inetSocketAddress) throws ErrnoException {
+    @Override public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException {
         BlockGuard.getThreadPolicy().onNetwork();
-        return os.recvfrom(fd, bytes, byteOffset, byteCount, flags, inetSocketAddress);
+        return os.recvfrom(fd, bytes, byteOffset, byteCount, flags, srcAddress);
     }
 
     @Override public int sendto(FileDescriptor fd, ByteBuffer buffer, int flags, InetAddress inetAddress, int port) throws ErrnoException {
@@ -132,13 +146,7 @@ public class BlockGuardOs extends ForwardingOs {
     }
 
     @Override public FileDescriptor socket(int domain, int type, int protocol) throws ErrnoException {
-        final FileDescriptor fd = os.socket(domain, type, protocol);
-        try {
-            BlockGuard.tagSocketFd(fd);
-        } catch (SocketException e) {
-            throw new ErrnoException("socket", EINVAL, e);
-        }
-        return fd;
+        return tagSocket(os.socket(domain, type, protocol));
     }
 
     @Override public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {

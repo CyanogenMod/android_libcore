@@ -25,6 +25,7 @@ import libcore.util.MutableInt;
 import libcore.util.MutableLong;
 
 public interface Os {
+    public FileDescriptor accept(FileDescriptor fd, InetSocketAddress peerAddress) throws ErrnoException;
     public boolean access(String path, int mode) throws ErrnoException;
     public void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException;
     public void chmod(String path, int mode) throws ErrnoException;
@@ -83,8 +84,8 @@ public interface Os {
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException;
     public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
     public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
-    public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress inetSocketAddress) throws ErrnoException;
-    public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress inetSocketAddress) throws ErrnoException;
+    public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress srcAddress) throws ErrnoException;
+    public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException;
     public void remove(String path) throws ErrnoException;
     public void rename(String oldPath, String newPath) throws ErrnoException;
     public int sendto(FileDescriptor fd, ByteBuffer buffer, int flags, InetAddress inetAddress, int port) throws ErrnoException;

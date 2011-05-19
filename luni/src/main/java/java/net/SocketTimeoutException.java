@@ -41,6 +41,14 @@ public class SocketTimeoutException extends InterruptedIOException {
     }
 
     /**
+     * Constructs a new instance with given cause.
+     * @hide internal use only
+     */
+    public SocketTimeoutException(Throwable cause) {
+        super(null, cause);
+    }
+
+    /**
      * Constructs a new instance with given detail message and cause.
      * @hide internal use only
      */
