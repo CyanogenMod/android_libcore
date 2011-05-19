@@ -828,32 +828,18 @@ public class InetAddress implements Serializable {
     }
 
     /**
-     * Equivalent to {@code getByAddress(null, ipAddress, 0)}. Handy for IPv4 addresses with
+     * Equivalent to {@code getByAddress(null, ipAddress)}. Handy for addresses with
      * no associated hostname.
-     *
-     * <p>(Note that numeric addresses such as {@code "127.0.0.1"} are names for the
-     * purposes of this API. Most callers probably want {@link #getAllByName} instead.)
      */
     public static InetAddress getByAddress(byte[] ipAddress) throws UnknownHostException {
-        return getByAddressInternal(null, ipAddress, 0);
-    }
-
-    /**
-     * Equivalent to {@code getByAddress(hostName, ipAddress, 0)}. Handy for IPv4 addresses
-     * with an associated hostname.
-     *
-     * <p>(Note that numeric addresses such as {@code "127.0.0.1"} are names for the
-     * purposes of this API. Most callers probably want {@link #getAllByName} instead.)
-     */
-    public static InetAddress getByAddress(String hostName, byte[] ipAddress) throws UnknownHostException {
-        return getByAddressInternal(hostName, ipAddress, 0);
+        return getByAddress(null, ipAddress, 0);
     }
 
     /**
      * Returns an {@code InetAddress} corresponding to the given network-order
      * bytes {@code ipAddress} and {@code scopeId}.
      *
-     * <p>For an IPv4 address, the byte array must be of length 4, and the scopeId is ignored.
+     * <p>For an IPv4 address, the byte array must be of length 4.
      * For IPv6, the byte array must be of length 16. Any other length will cause an {@code
      * UnknownHostException}.
      *
@@ -865,8 +851,11 @@ public class InetAddress implements Serializable {
      *
      * @throws UnknownHostException if {@code ipAddress} is null or the wrong length.
      */
-    private static InetAddress getByAddressInternal(String hostName, byte[] ipAddress, int scopeId)
-            throws UnknownHostException {
+    public static InetAddress getByAddress(String hostName, byte[] ipAddress) throws UnknownHostException {
+        return getByAddress(hostName, ipAddress, 0);
+    }
+
+    private static InetAddress getByAddress(String hostName, byte[] ipAddress, int scopeId) throws UnknownHostException {
         if (ipAddress == null) {
             throw new UnknownHostException("ipAddress == null");
         }

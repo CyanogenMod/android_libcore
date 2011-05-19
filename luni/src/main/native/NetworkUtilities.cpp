@@ -47,17 +47,19 @@ jobject sockaddrToInetAddress(JNIEnv* env, const sockaddr_storage* ss, jint* por
 
     const void* rawAddress;
     size_t addressLength;
-    int sockaddrPort;
+    int sin_port;
+    int scope_id = 0;
     if (ss->ss_family == AF_INET) {
         const sockaddr_in* sin = reinterpret_cast<const sockaddr_in*>(ss);
         rawAddress = &sin->sin_addr.s_addr;
         addressLength = 4;
-        sockaddrPort = ntohs(sin->sin_port);
+        sin_port = ntohs(sin->sin_port);
     } else if (ss->ss_family == AF_INET6) {
         const sockaddr_in6* sin6 = reinterpret_cast<const sockaddr_in6*>(ss);
         rawAddress = &sin6->sin6_addr.s6_addr;
         addressLength = 16;
-        sockaddrPort = ntohs(sin6->sin6_port);
+        sin_port = ntohs(sin6->sin6_port);
+        scope_id = sin6->sin6_scope_id;
     } else {
         // We can't throw SocketException. We aren't meant to see bad addresses, so seeing one
         // really does imply an internal error.
@@ -66,7 +68,7 @@ jobject sockaddrToInetAddress(JNIEnv* env, const sockaddr_storage* ss, jint* por
         return NULL;
     }
     if (port != NULL) {
-        *port = sockaddrPort;
+        *port = sin_port;
     }
 
     jbyteArray byteArray = env->NewByteArray(addressLength);
@@ -76,14 +78,15 @@ jobject sockaddrToInetAddress(JNIEnv* env, const sockaddr_storage* ss, jint* por
     env->SetByteArrayRegion(byteArray, 0, addressLength, reinterpret_cast<const jbyte*>(rawAddress));
 
     static jmethodID getByAddressMethod = env->GetStaticMethodID(JniConstants::inetAddressClass,
-            "getByAddress", "([B)Ljava/net/InetAddress;");
+            "getByAddress", "(Ljava/lang/String;[BI)Ljava/net/InetAddress;");
     if (getByAddressMethod == NULL) {
         return NULL;
     }
-    return env->CallStaticObjectMethod(JniConstants::inetAddressClass, getByAddressMethod, byteArray);
+    return env->CallStaticObjectMethod(JniConstants::inetAddressClass, getByAddressMethod,
+            NULL, byteArray, scope_id);
 }
 
-static bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss, bool map) {
+static bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss, bool map) {
     memset(ss, 0, sizeof(*ss));
 
     if (inetAddress == NULL) {
@@ -101,7 +104,7 @@ static bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int por
     // Check this is an address family we support.
     if (ss->ss_family != AF_INET && ss->ss_family != AF_INET6) {
         jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
-                "inetAddressToSocketAddress bad family: %i", ss->ss_family);
+                "inetAddressToSockaddr bad family: %i", ss->ss_family);
         return false;
     }
 
@@ -150,11 +153,11 @@ static bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int por
 }
 
 bool inetAddressToSockaddr_getnameinfo(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
-    return inetAddressToSocketAddress(env, inetAddress, port, ss, false);
+    return inetAddressToSockaddr(env, inetAddress, port, ss, false);
 }
 
 bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
-    return inetAddressToSocketAddress(env, inetAddress, port, ss, true);
+    return inetAddressToSockaddr(env, inetAddress, port, ss, true);
 }
 
 bool setBlocking(int fd, bool blocking) {
