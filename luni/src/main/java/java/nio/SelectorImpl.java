@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.UnsafeArrayList;
 import libcore.io.ErrnoException;
+import libcore.io.IoBridge;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.io.StructPollfd;
@@ -227,7 +228,7 @@ final class SelectorImpl extends AbstractSelector {
         if (pollFds.get(0).revents == POLLIN) {
             // Read bytes from the wakeup pipe until the pipe is empty.
             byte[] buffer = new byte[8];
-            while (IoUtils.read(wakeupIn, buffer, 0, 1) > 0) {
+            while (IoBridge.read(wakeupIn, buffer, 0, 1) > 0) {
             }
         }
 

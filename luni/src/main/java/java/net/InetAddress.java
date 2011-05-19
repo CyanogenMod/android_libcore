@@ -34,7 +34,7 @@ import java.util.List;
 import libcore.io.ErrnoException;
 import libcore.io.GaiException;
 import libcore.io.Libcore;
-import libcore.io.IoUtils;
+import libcore.io.IoBridge;
 import libcore.io.Memory;
 import libcore.io.StructAddrinfo;
 import static libcore.io.OsConstants.*;
@@ -807,13 +807,13 @@ public class InetAddress implements Serializable {
     }
 
     private boolean isReachableByTCP(InetAddress destination, InetAddress source, int timeout) throws IOException {
-        FileDescriptor fd = IoUtils.socket(true);
+        FileDescriptor fd = IoBridge.socket(true);
         boolean reached = false;
         try {
             if (source != null) {
-                IoUtils.bind(fd, source, 0);
+                IoBridge.bind(fd, source, 0);
             }
-            IoUtils.connect(fd, destination, 7, timeout);
+            IoBridge.connect(fd, destination, 7, timeout);
             reached = true;
         } catch (IOException e) {
             if (e.getCause() instanceof ErrnoException) {
@@ -822,7 +822,7 @@ public class InetAddress implements Serializable {
             }
         }
 
-        IoUtils.closeSocket(fd);
+        IoBridge.closeSocket(fd);
 
         return reached;
     }

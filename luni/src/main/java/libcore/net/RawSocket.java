@@ -22,7 +22,7 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.Arrays;
-import libcore.io.IoUtils;
+import libcore.io.IoBridge;
 
 /**
  * This class allows raw L2 packets to be sent and received via the
@@ -111,7 +111,7 @@ public class RawSocket implements Closeable {
      */
     public void close() throws IOException {
         guard.close();
-        IoUtils.closeSocket(fd);
+        IoBridge.closeSocket(fd);
     }
 
     @Override protected void finalize() throws Throwable {

@@ -23,6 +23,7 @@ import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import libcore.io.ErrnoException;
+import libcore.io.IoBridge;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.io.Streams;
@@ -76,7 +77,7 @@ public class FileInputStream extends InputStream implements Closeable {
         if (file == null) {
             throw new NullPointerException("file == null");
         }
-        this.fd = IoUtils.open(file.getAbsolutePath(), O_RDONLY);
+        this.fd = IoBridge.open(file.getAbsolutePath(), O_RDONLY);
         this.ownedFd = fd;
         guard.open("close");
     }
@@ -108,7 +109,7 @@ public class FileInputStream extends InputStream implements Closeable {
 
     @Override
     public int available() throws IOException {
-        return IoUtils.available(fd);
+        return IoBridge.available(fd);
     }
 
     @Override
@@ -171,7 +172,7 @@ public class FileInputStream extends InputStream implements Closeable {
     }
 
     @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-        return IoUtils.read(fd, buffer, byteOffset, byteCount);
+        return IoBridge.read(fd, buffer, byteOffset, byteCount);
     }
 
     @Override

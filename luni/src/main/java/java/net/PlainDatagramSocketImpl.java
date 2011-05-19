@@ -28,7 +28,7 @@ import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import libcore.io.IoUtils;
+import libcore.io.IoBridge;
 import libcore.io.Libcore;
 import libcore.io.StructGroupReq;
 import libcore.util.EmptyArray;
@@ -63,13 +63,12 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         fd = new FileDescriptor();
     }
 
-    @Override
-    public void bind(int port, InetAddress address) throws SocketException {
-        IoUtils.bind(fd, address, port);
+    @Override public void bind(int port, InetAddress address) throws SocketException {
+        IoBridge.bind(fd, address, port);
         if (port != 0) {
             localPort = port;
         } else {
-            localPort = IoUtils.getSocketLocalPort(fd);
+            localPort = IoBridge.getSocketLocalPort(fd);
         }
         try {
             setOption(SocketOptions.SO_BROADCAST, Boolean.TRUE);
@@ -81,14 +80,14 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     public synchronized void close() {
         guard.close();
         try {
-            IoUtils.closeSocket(fd);
+            IoBridge.closeSocket(fd);
         } catch (IOException ignored) {
         }
     }
 
     @Override
     public void create() throws SocketException {
-        this.fd = IoUtils.socket(false);
+        this.fd = IoBridge.socket(false);
     }
 
     @Override protected void finalize() throws Throwable {
@@ -103,12 +102,12 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     }
 
     @Override public Object getOption(int option) throws SocketException {
-        return IoUtils.getSocketOption(fd, option);
+        return IoBridge.getSocketOption(fd, option);
     }
 
     @Override
     public int getTimeToLive() throws IOException {
-        return (Integer) getOption(IoUtils.JAVA_IP_MULTICAST_TTL);
+        return (Integer) getOption(IoBridge.JAVA_IP_MULTICAST_TTL);
     }
 
     @Override
@@ -123,27 +122,27 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void join(InetAddress addr) throws IOException {
-        setOption(IoUtils.JAVA_MCAST_JOIN_GROUP, makeGroupReq(addr, null));
+        setOption(IoBridge.JAVA_MCAST_JOIN_GROUP, makeGroupReq(addr, null));
     }
 
     @Override
     public void joinGroup(SocketAddress addr, NetworkInterface netInterface) throws IOException {
         if (addr instanceof InetSocketAddress) {
             InetAddress groupAddr = ((InetSocketAddress) addr).getAddress();
-            setOption(IoUtils.JAVA_MCAST_JOIN_GROUP, makeGroupReq(groupAddr, netInterface));
+            setOption(IoBridge.JAVA_MCAST_JOIN_GROUP, makeGroupReq(groupAddr, netInterface));
         }
     }
 
     @Override
     public void leave(InetAddress addr) throws IOException {
-        setOption(IoUtils.JAVA_MCAST_LEAVE_GROUP, makeGroupReq(addr, null));
+        setOption(IoBridge.JAVA_MCAST_LEAVE_GROUP, makeGroupReq(addr, null));
     }
 
     @Override
     public void leaveGroup(SocketAddress addr, NetworkInterface netInterface) throws IOException {
         if (addr instanceof InetSocketAddress) {
             InetAddress groupAddr = ((InetSocketAddress) addr).getAddress();
-            setOption(IoUtils.JAVA_MCAST_LEAVE_GROUP, makeGroupReq(groupAddr, netInterface));
+            setOption(IoBridge.JAVA_MCAST_LEAVE_GROUP, makeGroupReq(groupAddr, netInterface));
         }
     }
 
@@ -158,7 +157,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     }
 
     private void doRecv(DatagramPacket pack, int flags) throws IOException {
-        IoUtils.recvfrom(false, fd, pack.getData(), pack.getOffset(), pack.getLength(), flags, pack, isNativeConnected);
+        IoBridge.recvfrom(false, fd, pack.getData(), pack.getOffset(), pack.getLength(), flags, pack, isNativeConnected);
         if (isNativeConnected) {
             updatePacketRecvAddress(pack);
         }
@@ -179,16 +178,16 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     public void send(DatagramPacket packet) throws IOException {
         int port = isNativeConnected ? 0 : packet.getPort();
         InetAddress address = isNativeConnected ? null : packet.getAddress();
-        IoUtils.sendto(fd, packet.getData(), packet.getOffset(), packet.getLength(), 0, address, port);
+        IoBridge.sendto(fd, packet.getData(), packet.getOffset(), packet.getLength(), 0, address, port);
     }
 
     public void setOption(int option, Object value) throws SocketException {
-        IoUtils.setSocketOption(fd, option, value);
+        IoBridge.setSocketOption(fd, option, value);
     }
 
     @Override
     public void setTimeToLive(int ttl) throws IOException {
-        setOption(IoUtils.JAVA_IP_MULTICAST_TTL, Integer.valueOf(ttl));
+        setOption(IoBridge.JAVA_IP_MULTICAST_TTL, Integer.valueOf(ttl));
     }
 
     @Override
@@ -198,7 +197,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void connect(InetAddress inetAddr, int port) throws SocketException {
-        IoUtils.connect(fd, inetAddr, port); // Throws on failure.
+        IoBridge.connect(fd, inetAddr, port); // Throws on failure.
         try {
             connectedAddress = InetAddress.getByAddress(inetAddr.getAddress());
         } catch (UnknownHostException e) {
