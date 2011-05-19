@@ -111,6 +111,7 @@ public interface Os {
     public void symlink(String oldPath, String newPath) throws ErrnoException;
     public long sysconf(int name);
     public StructUtsname uname() throws ErrnoException;
+    public int waitpid(int pid, MutableInt status, int options) throws ErrnoException;
     public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException;
     public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
     public int writev(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;

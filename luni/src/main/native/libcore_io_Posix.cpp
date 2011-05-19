@@ -51,6 +51,7 @@
 #include <sys/uio.h>
 #include <sys/utsname.h>
 #include <sys/vfs.h> // Bionic doesn't have <sys/statvfs.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #define TO_JAVA_STRING(NAME, EXP) \
@@ -1168,6 +1169,16 @@ static jobject Posix_uname(JNIEnv* env, jobject) {
     return makeStructUtsname(env, buf);
 }
 
+static jint Posix_waitpid(JNIEnv* env, jobject, jint pid, jobject javaStatus, jint options) {
+    int status;
+    int rc = throwIfMinusOne(env, "waitpid", TEMP_FAILURE_RETRY(waitpid(pid, &status, options)));
+    if (rc != -1) {
+        static jfieldID valueFid = env->GetFieldID(JniConstants::mutableIntClass, "value", "I");
+        env->SetIntField(javaStatus, valueFid, status);
+    }
+    return rc;
+}
+
 static jint Posix_writeBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray javaBytes, jint byteOffset, jint byteCount) {
     ScopedBytesRO bytes(env, javaBytes);
     if (bytes.get() == NULL) {
@@ -1267,6 +1278,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sysconf, "(I)J"),
     NATIVE_METHOD(Posix, uname, "()Llibcore/io/StructUtsname;"),
+    NATIVE_METHOD(Posix, waitpid, "(ILlibcore/util/MutableInt;I)I"),
     NATIVE_METHOD(Posix, writeBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
     NATIVE_METHOD(Posix, writev, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
 };
