@@ -44,6 +44,7 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.Arrays;
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
+import libcore.io.IoBridge;
 import libcore.io.IoUtils;
 import static libcore.io.OsConstants.*;
 
@@ -98,7 +99,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
     public SocketChannelImpl(SelectorProvider selectorProvider, boolean connect) throws IOException {
         super(selectorProvider);
         status = SOCKET_STATUS_UNCONNECTED;
-        fd = (connect ? IoUtils.socket(true) : new FileDescriptor());
+        fd = (connect ? IoBridge.socket(true) : new FileDescriptor());
     }
 
     /*
@@ -164,7 +165,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
             if (isBlocking()) {
                 begin();
             }
-            finished = IoUtils.connect(fd, normalAddr, port);
+            finished = IoBridge.connect(fd, normalAddr, port);
             isBound = finished;
         } catch (IOException e) {
             if (e instanceof ConnectException && !isBlocking()) {
@@ -228,7 +229,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
             begin();
             InetAddress inetAddress = connectAddress.getAddress();
             int port = connectAddress.getPort();
-            finished = IoUtils.isConnected(fd, inetAddress, port, 0, 0); // Return immediately.
+            finished = IoBridge.isConnected(fd, inetAddress, port, 0, 0); // Return immediately.
             isBound = finished;
         } catch (ConnectException e) {
             if (isOpen()) {
@@ -296,7 +297,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
                 if (isBlocking()) {
                     begin();
                 }
-                readCount = IoUtils.recvfrom(true, fd, dst, 0, null, false);
+                readCount = IoBridge.recvfrom(true, fd, dst, 0, null, false);
                 dst.position(dst.position() + readCount);
             } finally {
                 if (isBlocking()) {
@@ -358,7 +359,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
                 if (isBlocking()) {
                     begin();
                 }
-                writeCount = IoUtils.sendto(fd, src, 0, null, 0);
+                writeCount = IoBridge.sendto(fd, src, 0, null, 0);
                 src.position(src.position() + writeCount);
             } finally {
                 if (isBlocking()) {
@@ -431,7 +432,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
             if (socket != null && !socket.isClosed()) {
                 socket.close();
             } else {
-                IoUtils.closeSocket(fd);
+                IoBridge.closeSocket(fd);
             }
         }
     }
