@@ -197,9 +197,9 @@ public final class IoUtils {
     public static int recvfrom(boolean isRead, FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, DatagramPacket packet, boolean isConnected) throws IOException {
         int result;
         try {
-            InetSocketAddress isa = (packet != null && !isConnected) ? new InetSocketAddress() : null;
-            result = Libcore.os.recvfrom(fd, bytes, byteOffset, byteCount, flags, isa);
-            result = postRecvfrom(isRead, packet, isConnected, isa, result);
+            InetSocketAddress srcAddress = (packet != null && !isConnected) ? new InetSocketAddress() : null;
+            result = Libcore.os.recvfrom(fd, bytes, byteOffset, byteCount, flags, srcAddress);
+            result = postRecvfrom(isRead, packet, isConnected, srcAddress, result);
         } catch (ErrnoException errnoException) {
             result = maybeThrowAfterRecvfrom(isRead, isConnected, errnoException);
         }
@@ -209,24 +209,24 @@ public final class IoUtils {
     public static int recvfrom(boolean isRead, FileDescriptor fd, ByteBuffer buffer, int flags, DatagramPacket packet, boolean isConnected) throws IOException {
         int result;
         try {
-            InetSocketAddress isa = (packet != null && !isConnected) ? new InetSocketAddress() : null;
-            result = Libcore.os.recvfrom(fd, buffer, flags, isa);
-            result = postRecvfrom(isRead, packet, isConnected, isa, result);
+            InetSocketAddress srcAddress = (packet != null && !isConnected) ? new InetSocketAddress() : null;
+            result = Libcore.os.recvfrom(fd, buffer, flags, srcAddress);
+            result = postRecvfrom(isRead, packet, isConnected, srcAddress, result);
         } catch (ErrnoException errnoException) {
             result = maybeThrowAfterRecvfrom(isRead, isConnected, errnoException);
         }
         return result;
     }
 
-    private static int postRecvfrom(boolean isRead, DatagramPacket packet, boolean isConnected, InetSocketAddress isa, int byteCount) {
+    private static int postRecvfrom(boolean isRead, DatagramPacket packet, boolean isConnected, InetSocketAddress srcAddress, int byteCount) {
         if (isRead && byteCount == 0) {
             return -1;
         }
         if (packet != null) {
             packet.setLength(byteCount);
             if (!isConnected) {
-                packet.setAddress(isa.getAddress());
-                packet.setPort(isa.getPort());
+                packet.setAddress(srcAddress.getAddress());
+                packet.setPort(srcAddress.getPort());
             }
         }
         return byteCount;
@@ -243,7 +243,7 @@ public final class IoUtils {
             if (isConnected && errnoException.errno == ECONNREFUSED) {
                 throw new PortUnreachableException("", errnoException);
             } else if (errnoException.errno == EAGAIN || errnoException.errno == EWOULDBLOCK) {
-                throw new SocketTimeoutException("", errnoException);
+                throw new SocketTimeoutException(errnoException);
             } else {
                 throw errnoException.rethrowAsSocketException();
             }

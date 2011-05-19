@@ -55,7 +55,6 @@ extern int register_libcore_io_OsConstants(JNIEnv* env);
 extern int register_libcore_io_Posix(JNIEnv* env);
 extern int register_libcore_net_RawSocket(JNIEnv* env);
 extern int register_org_apache_harmony_dalvik_NativeTestTarget(JNIEnv* env);
-extern int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env);
 extern int register_org_apache_harmony_luni_util_FloatingPointParser(JNIEnv* env);
 extern int register_org_apache_harmony_xml_ExpatParser(JNIEnv* env);
 extern int register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env);
@@ -101,7 +100,6 @@ int registerCoreLibrariesJni(JNIEnv* env) {
             register_libcore_io_Posix(env) != -1 &&
             register_libcore_net_RawSocket(env) != -1 &&
             register_org_apache_harmony_dalvik_NativeTestTarget(env) != -1 &&
-            register_org_apache_harmony_luni_platform_OSNetworkSystem(env) != -1 &&
             register_org_apache_harmony_luni_util_FloatingPointParser(env) != -1 &&
             register_org_apache_harmony_xml_ExpatParser(env) != -1 &&
             register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(env) != -1 &&

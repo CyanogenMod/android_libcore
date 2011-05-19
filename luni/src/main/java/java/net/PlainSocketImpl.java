@@ -38,7 +38,6 @@ import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.io.Memory;
 import libcore.io.Streams;
-import org.apache.harmony.luni.platform.Platform;
 import static libcore.io.OsConstants.*;
 
 /**
@@ -93,7 +92,23 @@ public class PlainSocketImpl extends SocketImpl {
             ((PlainSocketImpl) newImpl).socksAccept();
             return;
         }
-        Platform.NETWORK.accept(fd, newImpl, newImpl.getFileDescriptor());
+
+        try {
+            InetSocketAddress peerAddress = new InetSocketAddress();
+            FileDescriptor clientFd = Libcore.os.accept(fd, peerAddress);
+
+            // TODO: we can't just set newImpl.fd to clientFd because a nio SocketChannel may
+            // be sharing the FileDescriptor. http://b//4452981.
+            newImpl.fd.setInt$(clientFd.getInt$());
+
+            newImpl.address = peerAddress.getAddress();
+            newImpl.port = peerAddress.getPort();
+        } catch (ErrnoException errnoException) {
+            if (errnoException.errno == EAGAIN || errnoException.errno == EWOULDBLOCK) {
+                throw new SocketTimeoutException(errnoException);
+            }
+            throw errnoException.rethrowAsSocketException();
+        }
 
         // Reset the client's inherited read timeout to the Java-specified default of 0.
         newImpl.setOption(SocketOptions.SO_TIMEOUT, Integer.valueOf(0));

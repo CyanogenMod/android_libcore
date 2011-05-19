@@ -298,6 +298,23 @@ static bool fillIfreq(JNIEnv* env, jstring javaInterfaceName, struct ifreq& req)
     return true;
 }
 
+static bool fillInetSocketAddress(JNIEnv* env, jint rc, jobject javaInetSocketAddress, const sockaddr_storage* ss) {
+    if (rc == -1 || javaInetSocketAddress == NULL) {
+        return true;
+    }
+    // Fill out the passed-in InetSocketAddress with the sender's IP address and port number.
+    jint port;
+    jobject sender = sockaddrToInetAddress(env, ss, &port);
+    if (sender == NULL) {
+        return false;
+    }
+    static jfieldID addressFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "addr", "Ljava/net/InetAddress;");
+    static jfieldID portFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "port", "I");
+    env->SetObjectField(javaInetSocketAddress, addressFid, sender);
+    env->SetIntField(javaInetSocketAddress, portFid, port);
+    return true;
+}
+
 static jobject doStat(JNIEnv* env, jstring javaPath, bool isLstat) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -353,6 +370,21 @@ private:
     struct passwd mPwd;
     struct passwd* mResult;
 };
+
+static jobject Posix_accept(JNIEnv* env, jobject, jobject javaFd, jobject javaInetSocketAddress) {
+    sockaddr_storage ss;
+    socklen_t sl = sizeof(ss);
+    memset(&ss, 0, sizeof(ss));
+    int fd;
+    sockaddr* peer = (javaInetSocketAddress != NULL) ? reinterpret_cast<sockaddr*>(&ss) : NULL;
+    socklen_t* peerLength = (javaInetSocketAddress != NULL) ? &sl : 0;
+    jint clientFd = NET_FAILURE_RETRY("accept", accept(fd, peer, peerLength));
+    if (clientFd == -1 || !fillInetSocketAddress(env, clientFd, javaInetSocketAddress, &ss)) {
+        close(clientFd);
+        return NULL;
+    }
+    return (clientFd != -1) ? jniCreateFileDescriptor(env, clientFd) : NULL;
+}
 
 static jboolean Posix_access(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     ScopedUtfChars path(env, javaPath);
@@ -921,18 +953,7 @@ static jint Posix_recvfromBytes(JNIEnv* env, jobject, jobject javaFd, jobject ja
     sockaddr* from = (javaInetSocketAddress != NULL) ? reinterpret_cast<sockaddr*>(&ss) : NULL;
     socklen_t* fromLength = (javaInetSocketAddress != NULL) ? &sl : 0;
     jint recvCount = NET_FAILURE_RETRY("recvfrom", recvfrom(fd, bytes.get() + byteOffset, byteCount, flags, from, fromLength));
-    if (recvCount != -1 && javaInetSocketAddress != NULL) {
-        // Fill out the passed-in InetSocketAddress with the sender's IP address and port number.
-        jint port;
-        jobject sender = sockaddrToInetAddress(env, &ss, &port);
-        if (sender == NULL) {
-            return -1;
-        }
-        static jfieldID addressFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "addr", "Ljava/net/InetAddress;");
-        static jfieldID portFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "port", "I");
-        env->SetObjectField(javaInetSocketAddress, addressFid, sender);
-        env->SetIntField(javaInetSocketAddress, portFid, port);
-    }
+    fillInetSocketAddress(env, recvCount, javaInetSocketAddress, &ss);
     return recvCount;
 }
 
@@ -1166,6 +1187,7 @@ static jint Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buff
 }
 
 static JNINativeMethod gMethods[] = {
+    NATIVE_METHOD(Posix, accept, "(Ljava/io/FileDescriptor;Ljava/net/InetSocketAddress;)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, access, "(Ljava/lang/String;I)Z"),
     NATIVE_METHOD(Posix, bind, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
     NATIVE_METHOD(Posix, chmod, "(Ljava/lang/String;I)V"),

@@ -29,7 +29,6 @@ import libcore.io.ErrnoException;
 import libcore.io.Libcore;
 import libcore.io.StructLinger;
 import libcore.util.EmptyArray;
-import org.apache.harmony.luni.platform.INetworkSystem;
 import static libcore.io.OsConstants.*;
 
 /**
@@ -243,22 +242,4 @@ public final class BlockGuard {
     }
 
     private BlockGuard() {}
-
-    /**
-     * A network wrapper that calls the policy check functions.
-     */
-    public static class WrappedNetworkSystem implements INetworkSystem {
-        private final INetworkSystem mNetwork;
-
-        public WrappedNetworkSystem(INetworkSystem network) {
-            mNetwork = network;
-        }
-
-        public void accept(FileDescriptor serverFd, SocketImpl newSocket,
-                FileDescriptor clientFd) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.accept(serverFd, newSocket, clientFd);
-            tagSocketFd(clientFd);
-        }
-    }
 }
