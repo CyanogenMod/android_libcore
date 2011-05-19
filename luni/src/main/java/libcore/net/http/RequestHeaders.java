@@ -42,7 +42,6 @@ final class RequestHeaders {
      * header is set.
      */
     boolean onlyIfCached;
-    String noCacheField;
 
     /**
      * True if the request contains an authorization field. Although this isn't
@@ -70,7 +69,6 @@ final class RequestHeaders {
             @Override public void handle(String directive, String parameter) {
                 if (directive.equalsIgnoreCase("no-cache")) {
                     noCache = true;
-                    noCacheField = parameter;
                 } else if (directive.equalsIgnoreCase("max-age")) {
                     maxAgeSeconds = HeaderParser.parseSeconds(parameter);
                 } else if (directive.equalsIgnoreCase("max-stale")) {

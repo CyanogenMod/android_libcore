@@ -57,16 +57,15 @@ public final class ParsedHeadersTest extends TestCase {
 
     public void testQuotedFieldName() {
         RawHeaders headers = new RawHeaders();
-        headers.add("Cache-Control", "private=\"Set-Cookie\"");
+        headers.add("Cache-Control", "private=\"Set-Cookie\", no-store");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
-        assertEquals("Set-Cookie", parsedHeaders.privateField);
+        assertTrue(parsedHeaders.noStore);
     }
 
     public void testUnquotedValue() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "private=Set-Cookie, no-store");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
-        assertEquals("Set-Cookie", parsedHeaders.privateField);
         assertTrue(parsedHeaders.noStore);
     }
 
@@ -74,7 +73,6 @@ public final class ParsedHeadersTest extends TestCase {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "private=\" a, no-cache, c \", no-store");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
-        assertEquals(" a, no-cache, c ", parsedHeaders.privateField);
         assertTrue(parsedHeaders.noStore);
         assertFalse(parsedHeaders.noCache);
     }
@@ -83,7 +81,6 @@ public final class ParsedHeadersTest extends TestCase {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "private=\"a, no-cache, c");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
-        assertEquals("a, no-cache, c", parsedHeaders.privateField);
         assertFalse(parsedHeaders.noCache);
     }
 
@@ -92,14 +89,12 @@ public final class ParsedHeadersTest extends TestCase {
         headers.add("Cache-Control", "public,");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
         assertTrue(parsedHeaders.isPublic);
-        assertNull(parsedHeaders.privateField);
     }
 
     public void testTrailingEquals() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "private=");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
-        assertEquals("", parsedHeaders.privateField);
     }
 
     public void testSpaceBeforeEquals() {
@@ -145,7 +140,6 @@ public final class ParsedHeadersTest extends TestCase {
         headers.add("Cache-Control", "MAX-AGE=60");
         headers.add("Cache-Control", "S-MAXAGE=70");
         headers.add("Cache-Control", "PUBLIC");
-        headers.add("Cache-Control", "PRIVATE=a");
         headers.add("Cache-Control", "MUST-REVALIDATE");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
         assertTrue(parsedHeaders.noCache);
@@ -153,7 +147,6 @@ public final class ParsedHeadersTest extends TestCase {
         assertEquals(60, parsedHeaders.maxAgeSeconds);
         assertEquals(70, parsedHeaders.sMaxAgeSeconds);
         assertTrue(parsedHeaders.isPublic);
-        assertEquals("a", parsedHeaders.privateField);
         assertTrue(parsedHeaders.mustRevalidate);
     }
 

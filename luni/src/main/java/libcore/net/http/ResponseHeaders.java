@@ -97,7 +97,6 @@ final class ResponseHeaders {
      * not permitted if this header is set.
      */
     boolean isPublic;
-    String privateField;
     boolean mustRevalidate;
     String etag;
     int ageSeconds = -1;
@@ -128,8 +127,6 @@ final class ResponseHeaders {
                     sMaxAgeSeconds = HeaderParser.parseSeconds(parameter);
                 } else if (directive.equalsIgnoreCase("public")) {
                     isPublic = true;
-                } else if (directive.equalsIgnoreCase("private")) {
-                    privateField = parameter;
                 } else if (directive.equalsIgnoreCase("must-revalidate")) {
                     mustRevalidate = true;
                 }
