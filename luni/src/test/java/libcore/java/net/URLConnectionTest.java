@@ -57,6 +57,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import junit.framework.TestCase;
 import libcore.java.security.TestKeyStore;
 import libcore.javax.net.ssl.TestSSLContext;
 import tests.http.MockResponse;
@@ -69,7 +70,7 @@ import static tests.http.SocketPolicy.SHUTDOWN_INPUT_AT_END;
 import static tests.http.SocketPolicy.SHUTDOWN_OUTPUT_AT_END;
 import tests.net.StuckServer;
 
-public class URLConnectionTest extends junit.framework.TestCase {
+public final class URLConnectionTest extends TestCase {
 
     private static final Authenticator SIMPLE_AUTHENTICATOR = new Authenticator() {
         protected PasswordAuthentication getPasswordAuthentication() {
@@ -108,8 +109,11 @@ public class URLConnectionTest extends junit.framework.TestCase {
         HttpURLConnection urlConnection = (HttpURLConnection) server.getUrl("/").openConnection();
         urlConnection.addRequestProperty("D", "e");
         urlConnection.addRequestProperty("D", "f");
+        assertEquals("f", urlConnection.getRequestProperty("D"));
+        assertEquals("f", urlConnection.getRequestProperty("d"));
         Map<String, List<String>> requestHeaders = urlConnection.getRequestProperties();
         assertEquals(newSet("e", "f"), new HashSet<String>(requestHeaders.get("D")));
+        assertEquals(newSet("e", "f"), new HashSet<String>(requestHeaders.get("d")));
         try {
             requestHeaders.put("G", Arrays.asList("h"));
             fail("Modified an unmodifiable view.");
@@ -131,7 +135,9 @@ public class URLConnectionTest extends junit.framework.TestCase {
         } catch (NullPointerException expected) {
         }
         urlConnection.setRequestProperty("NullValue", null); // should fail silently!
+        assertNull(urlConnection.getRequestProperty("NullValue"));
         urlConnection.addRequestProperty("AnotherNullValue", null);  // should fail silently!
+        assertNull(urlConnection.getRequestProperty("AnotherNullValue"));
 
         urlConnection.getResponseCode();
         RecordedRequest request = server.takeRequest();
@@ -152,13 +158,27 @@ public class URLConnectionTest extends junit.framework.TestCase {
             fail("Set header after connect");
         } catch (IllegalStateException expected) {
         }
+        try {
+            urlConnection.getRequestProperties();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    public void testGetRequestPropertyReturnsLastValue() throws Exception {
+        server.play();
+        HttpURLConnection urlConnection = (HttpURLConnection) server.getUrl("/").openConnection();
+        urlConnection.addRequestProperty("A", "value1");
+        urlConnection.addRequestProperty("A", "value2");
+        assertEquals("value2", urlConnection.getRequestProperty("A"));
     }
 
     public void testResponseHeaders() throws IOException, InterruptedException {
         server.enqueue(new MockResponse()
                 .setStatus("HTTP/1.0 200 Fantastic")
-                .addHeader("A: b")
                 .addHeader("A: c")
+                .addHeader("B: d")
+                .addHeader("A: e")
                 .setChunkedBody("ABCDE\nFGHIJ\nKLMNO\nPQR", 8));
         server.play();
 
@@ -168,17 +188,38 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals("HTTP/1.0 200 Fantastic", urlConnection.getHeaderField(null));
         Map<String, List<String>> responseHeaders = urlConnection.getHeaderFields();
         assertEquals(Arrays.asList("HTTP/1.0 200 Fantastic"), responseHeaders.get(null));
-        assertEquals(newSet("b", "c"), new HashSet<String>(responseHeaders.get("A")));
+        assertEquals(newSet("c", "e"), new HashSet<String>(responseHeaders.get("A")));
+        assertEquals(newSet("c", "e"), new HashSet<String>(responseHeaders.get("a")));
         try {
             responseHeaders.put("N", Arrays.asList("o"));
             fail("Modified an unmodifiable view.");
         } catch (UnsupportedOperationException expected) {
         }
         try {
-            responseHeaders.get("A").add("d");
+            responseHeaders.get("A").add("f");
             fail("Modified an unmodifiable view.");
         } catch (UnsupportedOperationException expected) {
         }
+        assertEquals("A", urlConnection.getHeaderFieldKey(0));
+        assertEquals("c", urlConnection.getHeaderField(0));
+        assertEquals("B", urlConnection.getHeaderFieldKey(1));
+        assertEquals("d", urlConnection.getHeaderField(1));
+        assertEquals("A", urlConnection.getHeaderFieldKey(2));
+        assertEquals("e", urlConnection.getHeaderField(2));
+    }
+
+    public void testGetErrorStreamOnSuccessfulRequest() throws Exception {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertNull(connection.getErrorStream());
+    }
+
+    public void testGetErrorStreamOnUnsuccessfulRequest() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(404).setBody("A"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection.getErrorStream(), Integer.MAX_VALUE));
     }
 
     // Check that if we don't read to the end of a response, the next request on the
@@ -919,6 +960,104 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(Arrays.toString(requestBody), Arrays.toString(request.getBody()));
     }
 
+    public void testSetValidRequestMethod() throws Exception {
+        server.play();
+        assertValidRequestMethod("GET");
+        assertValidRequestMethod("DELETE");
+        assertValidRequestMethod("HEAD");
+        assertValidRequestMethod("OPTIONS");
+        assertValidRequestMethod("POST");
+        assertValidRequestMethod("PUT");
+        assertValidRequestMethod("TRACE");
+    }
+
+    private void assertValidRequestMethod(String requestMethod) throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setRequestMethod(requestMethod);
+        assertEquals(requestMethod, connection.getRequestMethod());
+    }
+
+    public void testSetInvalidRequestMethodLowercase() throws Exception {
+        server.play();
+        assertInvalidRequestMethod("get");
+    }
+
+    public void testSetInvalidRequestMethodConnect() throws Exception {
+        server.play();
+        assertInvalidRequestMethod("CONNECT");
+    }
+
+    private void assertInvalidRequestMethod(String requestMethod) throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        try {
+            connection.setRequestMethod(requestMethod);
+            fail();
+        } catch (ProtocolException expected) {
+        }
+    }
+
+    public void testCannotSetNegativeFixedLengthStreamingMode() throws Exception {
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        try {
+            connection.setFixedLengthStreamingMode(-2);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    public void testCanSetNegativeChunkedStreamingMode() throws Exception {
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setChunkedStreamingMode(-2);
+    }
+
+    public void testCannotSetFixedLengthStreamingModeAfterConnect() throws Exception {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+        try {
+            connection.setFixedLengthStreamingMode(1);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    public void testCannotSetChunkedStreamingModeAfterConnect() throws Exception {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+        try {
+            connection.setChunkedStreamingMode(1);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    public void testCannotSetFixedLengthStreamingModeAfterChunkedStreamingMode() throws Exception {
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setChunkedStreamingMode(1);
+        try {
+            connection.setFixedLengthStreamingMode(1);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    public void testCannotSetChunkedStreamingModeAfterFixedLengthStreamingMode() throws Exception {
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setFixedLengthStreamingMode(1);
+        try {
+            connection.setChunkedStreamingMode(1);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
     public void testSecureFixedLengthStreaming() throws Exception {
         testSecureStreamingPost(StreamingMode.FIXED_LENGTH);
     }
@@ -1606,6 +1745,115 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals("ABC", readAscii(in, 3));
         assertEquals(-1, in.read());
         assertEquals(-1, in.read()); // throws IOException in Gingerbread
+    }
+
+    public void testGetContent() throws Exception {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        InputStream in = (InputStream) connection.getContent();
+        assertEquals("A", readAscii(in, Integer.MAX_VALUE));
+    }
+
+    public void testGetContentOfType() throws Exception {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        try {
+            connection.getContent(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        try {
+            connection.getContent(new Class[] { null });
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        assertNull(connection.getContent(new Class[] { getClass() }));
+        connection.disconnect();
+    }
+
+    public void testGetOutputStreamOnGetFails() throws Exception {
+        server.enqueue(new MockResponse());
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        try {
+            connection.getOutputStream();
+            fail();
+        } catch (ProtocolException expected) {
+        }
+    }
+
+    public void testGetOutputAfterGetInputStreamFails() throws Exception {
+        server.enqueue(new MockResponse());
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setDoOutput(true);
+        try {
+            connection.getInputStream();
+            connection.getOutputStream();
+            fail();
+        } catch (ProtocolException expected) {
+        }
+    }
+
+    public void testSetDoOutputOrDoInputAfterConnectFails() throws Exception {
+        server.enqueue(new MockResponse());
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.connect();
+        try {
+            connection.setDoOutput(true);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            connection.setDoInput(true);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        connection.disconnect();
+    }
+
+    public void testClientSendsContentLength() throws Exception {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setDoOutput(true);
+        OutputStream out = connection.getOutputStream();
+        out.write(new byte[] { 'A', 'B', 'C' });
+        out.close();
+        assertEquals("A", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+        RecordedRequest request = server.takeRequest();
+        assertContains(request.getHeaders(), "Content-Length: 3");
+    }
+
+    public void testGetContentLengthConnects() throws Exception {
+        server.enqueue(new MockResponse().setBody("ABC"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals(3, connection.getContentLength());
+        connection.disconnect();
+    }
+
+    public void testGetContentTypeConnects() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Content-Type: text/plain")
+                .setBody("ABC"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("text/plain", connection.getContentType());
+        connection.disconnect();
+    }
+
+    public void testGetContentEncodingConnects() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Content-Encoding: identity")
+                .setBody("ABC"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("identity", connection.getContentEncoding());
+        connection.disconnect();
     }
 
     /**
