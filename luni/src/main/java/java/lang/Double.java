@@ -166,31 +166,18 @@ public final class Double extends Number implements Comparable<Double> {
     }
 
     /**
-     * Converts the specified double value to a binary representation conforming
-     * to the IEEE 754 floating-point double precision bit layout. All
-     * <em>Not-a-Number (NaN)</em> values are converted to a single NaN
-     * representation ({@code 0x7ff8000000000000L}).
-     *
-     * @param value
-     *            the double value to convert.
-     * @return the IEEE 754 floating-point double precision representation of
-     *         {@code value}.
-     * @see #doubleToRawLongBits(double)
-     * @see #longBitsToDouble(long)
+     * Returns an integer corresponding to the bits of the given
+     * <a href="http://en.wikipedia.org/wiki/IEEE_754-1985">IEEE 754</a> double precision
+     * {@code value}. All <em>Not-a-Number (NaN)</em> values are converted to a single NaN
+     * representation ({@code 0x7ff8000000000000L}) (compare to {@link #doubleToRawLongBits}).
      */
     public static native long doubleToLongBits(double value);
 
     /**
-     * Converts the specified double value to a binary representation conforming
-     * to the IEEE 754 floating-point double precision bit layout.
-     * <em>Not-a-Number (NaN)</em> values are preserved.
-     *
-     * @param value
-     *            the double value to convert.
-     * @return the IEEE 754 floating-point double precision representation of
-     *         {@code value}.
-     * @see #doubleToLongBits(double)
-     * @see #longBitsToDouble(long)
+     * Returns an integer corresponding to the bits of the given
+     * <a href="http://en.wikipedia.org/wiki/IEEE_754-1985">IEEE 754</a> double precision
+     * {@code value}. <em>Not-a-Number (NaN)</em> values are preserved (compare
+     * to {@link #doubleToLongBits}).
      */
     public static native long doubleToRawLongBits(double value);
 
@@ -286,15 +273,8 @@ public final class Double extends Number implements Comparable<Double> {
     }
 
     /**
-     * Converts the specified IEEE 754 floating-point double precision bit
-     * pattern to a Java double value.
-     *
-     * @param bits
-     *            the IEEE 754 floating-point double precision representation of
-     *            a double value.
-     * @return the double value converted from {@code bits}.
-     * @see #doubleToLongBits(double)
-     * @see #doubleToRawLongBits(double)
+     * Returns the <a href="http://en.wikipedia.org/wiki/IEEE_754-1985">IEEE 754</a>
+     * double precision float corresponding to the given {@code bits}.
      */
     public static native double longBitsToDouble(long bits);
 
@@ -313,7 +293,7 @@ public final class Double extends Number implements Comparable<Double> {
      *             if {@code string} cannot be parsed as a double value.
      */
     public static double parseDouble(String string) throws NumberFormatException {
-        return org.apache.harmony.luni.util.FloatingPointParser.parseDouble(string);
+        return StringToReal.parseDouble(string);
     }
 
     @Override
@@ -421,7 +401,7 @@ public final class Double extends Number implements Comparable<Double> {
      */
     public static String toHexString(double d) {
         /*
-         * Reference: http://en.wikipedia.org/wiki/IEEE_754
+         * Reference: http://en.wikipedia.org/wiki/IEEE_754-1985
          */
         if (d != d) {
             return "NaN";

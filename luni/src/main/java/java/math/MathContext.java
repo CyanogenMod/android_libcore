@@ -30,21 +30,21 @@ public final class MathContext implements Serializable {
     private static final long serialVersionUID = 5579720004786848255L;
 
     /**
-     * A {@code MathContext} which corresponds to the IEEE 754r quadruple
+     * A {@code MathContext} which corresponds to the <a href="http://en.wikipedia.org/wiki/IEEE_754-1985">IEEE 754</a> quadruple
      * decimal precision format: 34 digit precision and
      * {@link RoundingMode#HALF_EVEN} rounding.
      */
     public static final MathContext DECIMAL128 = new MathContext(34, RoundingMode.HALF_EVEN);
 
     /**
-     * A {@code MathContext} which corresponds to the IEEE 754r single decimal
+     * A {@code MathContext} which corresponds to the <a href="http://en.wikipedia.org/wiki/IEEE_754-1985">IEEE 754</a> single decimal
      * precision format: 7 digit precision and {@link RoundingMode#HALF_EVEN}
      * rounding.
      */
     public static final MathContext DECIMAL32 = new MathContext(7, RoundingMode.HALF_EVEN);
 
     /**
-     * A {@code MathContext} which corresponds to the IEEE 754r double decimal
+     * A {@code MathContext} which corresponds to the <a href="http://en.wikipedia.org/wiki/IEEE_754-1985">IEEE 754</a> double decimal
      * precision format: 16 digit precision and {@link RoundingMode#HALF_EVEN}
      * rounding.
      */

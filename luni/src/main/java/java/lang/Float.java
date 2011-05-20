@@ -195,31 +195,18 @@ public final class Float extends Number implements Comparable<Float> {
     }
 
     /**
-     * Converts the specified float value to a binary representation conforming
-     * to the IEEE 754 floating-point single precision bit layout. All
-     * <em>Not-a-Number (NaN)</em> values are converted to a single NaN
-     * representation ({@code 0x7fc00000}).
-     *
-     * @param value
-     *            the float value to convert.
-     * @return the IEEE 754 floating-point single precision representation of
-     *         {@code value}.
-     * @see #floatToRawIntBits(float)
-     * @see #intBitsToFloat(int)
+     * Returns an integer corresponding to the bits of the given
+     * <a href="http://en.wikipedia.org/wiki/IEEE_754-1985">IEEE 754</a> single precision
+     * float {@code value}. All <em>Not-a-Number (NaN)</em> values are converted to a single NaN
+     * representation ({@code 0x7fc00000}) (compare to {@link #floatToRawIntBits}).
      */
     public static native int floatToIntBits(float value);
 
     /**
-     * Converts the specified float value to a binary representation conforming
-     * to the IEEE 754 floating-point single precision bit layout.
-     * <em>Not-a-Number (NaN)</em> values are preserved.
-     *
-     * @param value
-     *            the float value to convert.
-     * @return the IEEE 754 floating-point single precision representation of
-     *         {@code value}.
-     * @see #floatToIntBits(float)
-     * @see #intBitsToFloat(int)
+     * Returns an integer corresponding to the bits of the given
+     * <a href="http://en.wikipedia.org/wiki/IEEE_754-1985">IEEE 754</a> single precision
+     * float {@code value}. <em>Not-a-Number (NaN)</em> values are preserved (compare
+     * to {@link #floatToIntBits}).
      */
     public static native int floatToRawIntBits(float value);
 
@@ -239,15 +226,8 @@ public final class Float extends Number implements Comparable<Float> {
     }
 
     /**
-     * Converts the specified IEEE 754 floating-point single precision bit
-     * pattern to a Java float value.
-     *
-     * @param bits
-     *            the IEEE 754 floating-point single precision representation of
-     *            a float value.
-     * @return the float value converted from {@code bits}.
-     * @see #floatToIntBits(float)
-     * @see #floatToRawIntBits(float)
+     * Returns the <a href="http://en.wikipedia.org/wiki/IEEE_754-1985">IEEE 754</a>
+     * single precision float corresponding to the given {@code bits}.
      */
     public static native float intBitsToFloat(int bits);
 
@@ -318,8 +298,7 @@ public final class Float extends Number implements Comparable<Float> {
      * @since 1.2
      */
     public static float parseFloat(String string) throws NumberFormatException {
-        return org.apache.harmony.luni.util.FloatingPointParser
-                .parseFloat(string);
+        return StringToReal.parseFloat(string);
     }
 
     @Override
@@ -429,7 +408,7 @@ public final class Float extends Number implements Comparable<Float> {
      */
     public static String toHexString(float f) {
         /*
-         * Reference: http://en.wikipedia.org/wiki/IEEE_754
+         * Reference: http://en.wikipedia.org/wiki/IEEE_754-1985
          */
         if (f != f) {
             return "NaN";
