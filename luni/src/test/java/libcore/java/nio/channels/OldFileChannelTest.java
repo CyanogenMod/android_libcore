@@ -156,11 +156,13 @@ public final class OldFileChannelTest extends TestCase {
 
         writeOnlyFileChannel.write(writeBuffer);
         writeOnlyFileChannel.force(false);
+        fis.close();
 
         readBuffer = new byte[CONTENT_AS_BYTES_LENGTH];
         fis = new FileInputStream(fileOfWriteOnlyFileChannel);
         fis.read(readBuffer);
         assertTrue(Arrays.equals(CONTENT_AS_BYTES, readBuffer));
+        fis.close();
     }
 
 

@@ -92,6 +92,22 @@ public class FileChannelTest extends junit.framework.TestCase {
         assertEquals(8, fc.write(buffers));
         fc.close();
         assertEquals(8, tmp.length());
-        assertEquals("abcdABCD", new String(IoUtils.readFileAsByteArray(tmp.getPath()), "US-ASCII"));
+        assertEquals("abcdABCD", new String(IoUtils.readFileAsString(tmp.getPath())));
+    }
+
+    public void test_append() throws Exception {
+        File tmp = File.createTempFile("FileChannelTest", "tmp");
+        FileOutputStream fos = new FileOutputStream(tmp, true);
+        FileChannel fc = fos.getChannel();
+
+        fc.write(ByteBuffer.wrap("hello".getBytes("US-ASCII")));
+        fc.position(0);
+        // The RI reports whatever position you set...
+        assertEquals(0, fc.position());
+        // ...but writes to the end of the file.
+        fc.write(ByteBuffer.wrap(" world".getBytes("US-ASCII")));
+        fos.close();
+
+        assertEquals("hello world", new String(IoUtils.readFileAsString(tmp.getPath())));
     }
 }

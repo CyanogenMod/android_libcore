@@ -238,9 +238,6 @@ final class FileChannelImpl extends FileChannel {
 
     public long position() throws IOException {
         checkOpen();
-        if ((mode & O_APPEND) != 0) {
-            return size();
-        }
         try {
             return Libcore.os.lseek(fd, 0L, SEEK_CUR);
         } catch (ErrnoException errnoException) {
@@ -482,9 +479,6 @@ final class FileChannelImpl extends FileChannel {
     public int write(ByteBuffer buffer) throws IOException {
         checkOpen();
         checkWritable();
-        if ((mode & O_APPEND) != 0) {
-            position(size());
-        }
         return writeImpl(buffer);
     }
 
