@@ -189,9 +189,8 @@ public final class Float extends Number implements Comparable<Float> {
      */
     @Override
     public boolean equals(Object object) {
-        return (object == this)
-                || (object instanceof Float)
-                && (floatToIntBits(this.value) == floatToIntBits(((Float) object).value));
+        return (object instanceof Float) &&
+                (floatToIntBits(this.value) == floatToIntBits(((Float) object).value));
     }
 
     /**

@@ -490,7 +490,7 @@ public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>,
                 (Comparator<? super E>) stream.readObject());
         int size = stream.readInt();
         if (size > 0) {
-            for(int i=0; i<size; i++) {
+            for (int i=0; i<size; i++) {
                 E elem = (E)stream.readObject();
                 map.put(elem, Boolean.TRUE);
             }

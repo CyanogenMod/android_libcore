@@ -67,6 +67,7 @@ public final class FinalizerThread extends Thread {
         }
     }
 
+    @FindBugsSuppressWarnings("FI_EXPLICIT_INVOCATION")
     private void doFinalize(FinalizerReference<Object> reference) {
         FinalizerReference.remove(reference);
         Object obj = reference.get();

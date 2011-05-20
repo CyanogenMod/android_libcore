@@ -23,6 +23,7 @@ package java.lang;
  * @see java.lang.Number
  * @since 1.1
  */
+@FindBugsSuppressWarnings("DM_NUMBER_CTOR")
 public final class Short extends Number implements Comparable<Short> {
 
     private static final long serialVersionUID = 7515723908773894738L;
@@ -156,8 +157,7 @@ public final class Short extends Number implements Comparable<Short> {
      */
     @Override
     public boolean equals(Object object) {
-        return (object instanceof Short)
-                && (value == ((Short) object).value);
+        return (object instanceof Short) && (((Short) object).value == value);
     }
 
     @Override
@@ -314,7 +314,7 @@ public final class Short extends Number implements Comparable<Short> {
     private static final Short[] SMALL_VALUES = new Short[256];
 
     static {
-        for(int i = -128; i < 128; i++) {
+        for (int i = -128; i < 128; i++) {
             SMALL_VALUES[i + 128] = new Short((short) i);
         }
     }

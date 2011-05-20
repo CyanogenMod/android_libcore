@@ -350,7 +350,7 @@ class Conversion {
             if (exponent >= 0) {
                 // special case 1
                 int insertPoint = currentChar + (int) exponent ;
-                for(int j=resLengthInChars-1; j>=insertPoint; j--) {
+                for (int j=resLengthInChars-1; j>=insertPoint; j--) {
                     result[j+1] = result[j];
                 }
                 result[++insertPoint]='.';
