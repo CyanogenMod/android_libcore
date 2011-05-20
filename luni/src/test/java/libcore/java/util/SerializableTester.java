@@ -78,20 +78,20 @@ public class SerializableTester<T> {
         }
     }
 
-    private byte[] serialize(Object object) throws IOException {
+    private static byte[] serialize(Object object) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         new ObjectOutputStream(out).writeObject(object);
         return out.toByteArray();
     }
 
-    private Object deserialize(byte[] bytes) throws IOException, ClassNotFoundException {
+    private static Object deserialize(byte[] bytes) throws IOException, ClassNotFoundException {
         ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes));
         Object result = in.readObject();
         assertEquals(-1, in.read());
         return result;
     }
 
-    private String hexEncode(byte[] bytes) {
+    private static String hexEncode(byte[] bytes) {
         StringBuilder result = new StringBuilder(bytes.length * 2);
         for (byte b : bytes) {
             result.append(String.format("%02x", b));
@@ -99,12 +99,19 @@ public class SerializableTester<T> {
         return result.toString();
     }
 
-    private byte[] hexDecode(String s) {
+    private static byte[] hexDecode(String s) {
         byte[] result = new byte[s.length() / 2];
         for (int i = 0; i < result.length; i++) {
             result[i] = (byte) Integer.parseInt(s.substring(i*2, i*2 + 2), 16);
         }
         return result;
     }
-}
 
+    public static String serializeHex(Object object) throws IOException {
+        return hexEncode(serialize(object));
+    }
+
+    public static Object deserializeHex(String hex) throws IOException, ClassNotFoundException {
+        return deserialize(hexDecode(hex));
+    }
+}
