@@ -18,10 +18,28 @@ package libcore.java.net;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URL;
 import junit.framework.TestCase;
+import libcore.java.util.SerializableTester;
 
 public class URLTest extends TestCase {
+
+    public void testUrlParts() throws Exception {
+        URL url = new URL("http://username:password@host:8080/directory/file?query#ref");
+        assertEquals("http", url.getProtocol());
+        assertEquals("username:password@host:8080", url.getAuthority());
+        assertEquals("/directory/file", url.getPath());
+        assertEquals("ref", url.getRef());
+
+        assertEquals("username:password", url.getUserInfo());
+        assertEquals("host", url.getHost());
+        assertEquals(8080, url.getPort());
+        assertEquals("/directory/file?query", url.getFile());
+        assertEquals("query", url.getQuery());
+
+        assertEquals(80, url.getDefaultPort());
+    }
     // http://code.google.com/p/android/issues/detail?id=12724
     public void testExplicitPort() throws Exception {
         URL url = new URL("http://www.google.com:80/example?language[id]=2");
@@ -78,4 +96,44 @@ public class URLTest extends TestCase {
         assertFalse(new URL("file", null, -1, "/a/").equals(new URL("file:/a/")));
         assertFalse(new URL("http", null, 80, "/a/").equals(new URL("http:/a/")));
     }
+
+    public void testUrlSerialization() throws Exception {
+        String s = "aced00057372000c6a6176612e6e65742e55524c962537361afce472030006490004706f72744c0"
+                + "009617574686f726974797400124c6a6176612f6c616e672f537472696e673b4c000466696c65710"
+                + "07e00014c0004686f737471007e00014c000870726f746f636f6c71007e00014c000372656671007"
+                + "e00017870ffffffff74000e757365723a7061737340686f73747400102f706174682f66696c653f7"
+                + "175657279740004686f7374740004687474707400046861736878";
+        URL url = new URL("http://user:pass@host/path/file?query#hash");
+        new SerializableTester<URL>(url, s).test();
+    }
+
+    /**
+     * The serialized form of a URL includes its hash code. But the hash code
+     * is not documented. Check that we don't return a deserialized hash code
+     * from a deserialized value.
+     */
+    public void testUrlSerializationWithHashCode() throws Exception {
+        String s = "aced00057372000c6a6176612e6e65742e55524c962537361afce47203000749000868617368436"
+                + "f6465490004706f72744c0009617574686f726974797400124c6a6176612f6c616e672f537472696"
+                + "e673b4c000466696c6571007e00014c0004686f737471007e00014c000870726f746f636f6c71007"
+                + "e00014c000372656671007e00017870cdf0efacffffffff74000e757365723a7061737340686f737"
+                + "47400102f706174682f66696c653f7175657279740004686f7374740004687474707400046861736"
+                + "878";
+        final URL url = new URL("http://user:pass@host/path/file?query#hash");
+        new SerializableTester<URL>(url, s) {
+            @Override protected void verify(URL deserialized) {
+                assertEquals(url.hashCode(), deserialized.hashCode());
+            }
+        }.test();
+    }
+
+    public void testOnlySupportedProtocols() {
+        try {
+            new URL("abcd://host");
+            fail();
+        } catch (MalformedURLException expected) {
+        }
+    }
+
+    // TODO: test resolve relative URL
 }

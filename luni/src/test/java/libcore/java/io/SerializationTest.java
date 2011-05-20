@@ -24,6 +24,7 @@ public final class SerializationTest extends TestCase {
 
     // http://b/4471249
     public void testSerializeFieldMadeTransient() throws Exception {
+        // this was created by serializing a FieldMadeTransient with a non-0 transientInt
         String s = "aced0005737200346c6962636f72652e6a6176612e696f2e53657269616c697a6174696f6e54657"
                 + "374244669656c644d6164655472616e7369656e74000000000000000002000149000c7472616e736"
                 + "9656e74496e747870abababab";

@@ -90,7 +90,7 @@ public abstract class URLStreamHandler {
             throw new StringIndexOutOfBoundsException(end - 2 - start);
         }
         if (end < start) {
-            if (this != u.strmHandler) {
+            if (this != u.streamHandler) {
                 throw new SecurityException();
             }
             return;
@@ -251,7 +251,7 @@ public abstract class URLStreamHandler {
     @Deprecated
     protected void setURL(URL u, String protocol, String host, int port,
             String file, String ref) {
-        if (this != u.strmHandler) {
+        if (this != u.streamHandler) {
             throw new SecurityException();
         }
         u.set(protocol, host, port, file, ref);
@@ -283,7 +283,7 @@ public abstract class URLStreamHandler {
     protected void setURL(URL u, String protocol, String host, int port,
             String authority, String userInfo, String file, String query,
             String ref) {
-        if (this != u.strmHandler) {
+        if (this != u.streamHandler) {
             throw new SecurityException();
         }
         u.set(protocol, host, port, authority, userInfo, file, query, ref);
