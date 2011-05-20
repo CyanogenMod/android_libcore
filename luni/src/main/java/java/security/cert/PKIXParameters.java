@@ -68,11 +68,6 @@ public class PKIXParameters implements CertPathParameters {
     private boolean policyQualifiersRejected = true;
 
     /**
-     * @hide For use by IndexedPKIXParameters which lazily discovers TrustAnchors
-     */
-    protected PKIXParameters() {}
-
-    /**
      * Creates a new {@code PKIXParameters} instance with the specified set of
      * <i>trusted</i> certificate authorities.
      *
@@ -581,16 +576,14 @@ public class PKIXParameters implements CertPathParameters {
         return sb.toString();
     }
 
-    //
-    // Private stuff
-    //
-
-    //
-    // Checks that 'trustAnchors' contains
-    // only TrustAnchor instances.
-    // Throws InvalidAlgorithmParameterException if trustAnchors set is empty.
-    //
-    private void checkTrustAnchors(Set<TrustAnchor> trustAnchors) throws InvalidAlgorithmParameterException {
+    /**
+     * Checks that {@code trustAnchors} contains only {@code
+     * TrustAnchor} instances.
+     *
+     * @throws InvalidAlgorithmParameterException if trustAnchors set is empty.
+     */
+    private void checkTrustAnchors(Set<TrustAnchor> trustAnchors)
+            throws InvalidAlgorithmParameterException {
         if (trustAnchors.isEmpty()) {
             throw new InvalidAlgorithmParameterException("trustAnchors.isEmpty()");
         }
