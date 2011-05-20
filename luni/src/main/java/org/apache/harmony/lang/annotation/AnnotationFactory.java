@@ -68,7 +68,7 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
             Method[] m = annotationType.getDeclaredMethods();
             desc = new AnnotationMember[m.length];
             int idx = 0;
-            for(Method element : m) {
+            for (Method element : m) {
                 String name = element.getName();
                 Class<?> type = element.getReturnType();
                 try {
@@ -260,7 +260,7 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
         result.append('@');
         result.append(klazz.getName());
         result.append('(');
-        for(int i = 0; i < elements.length; ++i) {
+        for (int i = 0; i < elements.length; ++i) {
             if (i != 0) {
                 result.append(", ");
             }

@@ -571,7 +571,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
         StringBuilder result = new StringBuilder();
 
         result.append('(');
-        for(int i = 0; i < parameterTypes.length; i++) {
+        for (int i = 0; i < parameterTypes.length; i++) {
             result.append(getSignature(parameterTypes[i]));
         }
         result.append(')');

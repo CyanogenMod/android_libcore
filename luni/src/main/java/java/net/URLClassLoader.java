@@ -51,6 +51,7 @@ import libcore.io.Streams;
  * loaded by this {@code URLClassLoader} are granted permission to access the
  * URLs contained in the URL search list.
  */
+@FindBugsSuppressWarnings({ "DMI_COLLECTION_OF_URLS", "DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED" })
 public class URLClassLoader extends SecureClassLoader {
 
     ArrayList<URL> originalUrls;

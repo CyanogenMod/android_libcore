@@ -344,7 +344,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
         StringBuilder result = new StringBuilder();
 
         result.append('(');
-        for(int i = 0; i < parameterTypes.length; i++) {
+        for (int i = 0; i < parameterTypes.length; i++) {
             result.append(getSignature(parameterTypes[i]));
         }
         result.append(")V");

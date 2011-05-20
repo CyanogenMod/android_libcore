@@ -207,7 +207,7 @@ class Logical {
             resDigits[i] = longer.digits[i] | shorter.digits[i];
         }
         // shorter has only the remaining virtual sign bits
-        for( ; i < longer.numberLength; i++){
+        for ( ; i < longer.numberLength; i++){
             resDigits[i] = longer.digits[i];
         }
 
@@ -533,7 +533,7 @@ class Logical {
             i = iPos;
             resDigits[i] = -positive.digits[i];
             limit = Math.min(positive.numberLength, iNeg);
-            for(i++; i < limit; i++ ) {
+            for (i++; i < limit; i++ ) {
                 resDigits[i] = ~positive.digits[i];
             }
             if (i != positive.numberLength) {
@@ -558,7 +558,7 @@ class Logical {
             // resDigits[i] = ~(~negative.digits[i] | positive.digits[i] );
             resDigits[i] = negative.digits[i] & ~positive.digits[i];
         }
-        for( ; i < negative.numberLength; i++) {
+        for ( ; i < negative.numberLength; i++) {
             resDigits[i] = negative.digits[i];
         }
 
@@ -611,7 +611,7 @@ class Logical {
         for ( ; i < shorter.numberLength; i++) {
             resDigits[i] = longer.digits[i] ^ shorter.digits[i];
         }
-        for( ; i < longer.numberLength; i++ ){
+        for ( ; i < longer.numberLength; i++ ){
             resDigits[i] = longer.digits[i];
         }
 

@@ -1226,8 +1226,8 @@ public class KeyStore {
             // clone chain - this.chain = (Certificate[])chain.clone();
             boolean isAllX509Certificates = true;
             // assert chain length > 0
-            for(Certificate cert: chain){
-                if(!(cert instanceof X509Certificate)){
+            for (Certificate cert: chain) {
+                if (!(cert instanceof X509Certificate)) {
                     isAllX509Certificates = false;
                     break;
                 }

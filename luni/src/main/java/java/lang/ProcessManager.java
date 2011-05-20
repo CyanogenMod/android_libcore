@@ -134,11 +134,8 @@ final class ProcessManager {
     private void waitForMoreChildren() {
         synchronized (processReferences) {
             if (processReferences.isEmpty()) {
-                /*
-                 * There are no eligible children; wait for one to be
-                 * added. The wait() will return due to the
-                 * notifyAll() call below.
-                 */
+                // There are no eligible children; wait for one to be added.
+                // This wait will return because of the notifyAll call in exec.
                 try {
                     processReferences.wait();
                 } catch (InterruptedException ex) {

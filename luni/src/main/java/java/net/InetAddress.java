@@ -899,7 +899,7 @@ public class InetAddress implements Serializable {
 
     private static byte[] ipv4MappedToIPv4(byte[] mappedAddress) {
         byte[] ipv4Address = new byte[4];
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             ipv4Address[i] = mappedAddress[12 + i];
         }
         return ipv4Address;

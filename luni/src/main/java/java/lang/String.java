@@ -136,6 +136,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      * Converts the byte array to a string using the system's
      * {@link java.nio.charset.Charset#defaultCharset default charset}.
      */
+    @FindBugsSuppressWarnings("DM_DEFAULT_ENCODING")
     public String(byte[] data) {
         this(data, 0, data.length);
     }
@@ -762,6 +763,7 @@ outer:
      * @return {@code true} if the specified string is equal to this string,
      *         {@code false} otherwise.
      */
+    @FindBugsSuppressWarnings("ES_COMPARING_PARAMETER_STRING_WITH_EQ")
     public boolean equalsIgnoreCase(String string) {
         if (string == this) {
             return true;
@@ -2020,6 +2022,7 @@ outer:
      * where the needle is a constant string, may compute the values cache, md2
      * and lastChar, and change the call to the following method.
      */
+    @FindBugsSuppressWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     @SuppressWarnings("unused")
     private static int indexOf(String haystackString, String needleString,
             int cache, int md2, char lastChar) {
