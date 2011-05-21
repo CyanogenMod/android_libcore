@@ -298,7 +298,9 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
                     begin();
                 }
                 readCount = IoBridge.recvfrom(true, fd, dst, 0, null, false);
-                dst.position(dst.position() + readCount);
+                if (readCount > 0) {
+                    dst.position(dst.position() + readCount);
+                }
             } finally {
                 if (isBlocking()) {
                     end(readCount > 0);
@@ -360,7 +362,9 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
                     begin();
                 }
                 writeCount = IoBridge.sendto(fd, src, 0, null, 0);
-                src.position(src.position() + writeCount);
+                if (writeCount > 0) {
+                    src.position(src.position() + writeCount);
+                }
             } finally {
                 if (isBlocking()) {
                     end(writeCount >= 0);

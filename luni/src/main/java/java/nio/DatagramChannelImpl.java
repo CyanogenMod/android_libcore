@@ -262,7 +262,9 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
                 begin();
                 int oldPosition = source.position();
                 sendCount = IoBridge.sendto(fd, source, 0, isa.getAddress(), isa.getPort());
-                source.position(oldPosition + sendCount);
+                if (sendCount > 0) {
+                    source.position(oldPosition + sendCount);
+                }
             } finally {
                 end(sendCount >= 0);
             }
@@ -353,7 +355,9 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         }
 
         int writeCount = writeImpl(src);
-        src.position(src.position() + writeCount);
+        if (writeCount > 0) {
+            src.position(src.position() + writeCount);
+        }
         return writeCount;
     }
 

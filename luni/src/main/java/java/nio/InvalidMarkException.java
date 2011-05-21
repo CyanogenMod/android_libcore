@@ -29,4 +29,12 @@ public class InvalidMarkException extends IllegalStateException {
      */
     public InvalidMarkException() {
     }
+
+    /**
+     * Constructs an {@code InvalidMarkException} with the given detail message.
+     * @hide
+     */
+    public InvalidMarkException(String detailMessage) {
+        super(detailMessage);
+    }
 }
