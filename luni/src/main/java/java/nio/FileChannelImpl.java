@@ -385,12 +385,12 @@ final class FileChannelImpl extends FileChannel {
         }
     }
 
-    public long transferTo(long position, long count, WritableByteChannel target)
-            throws IOException {
+    public long transferTo(long position, long count, WritableByteChannel target) throws IOException {
         checkOpen();
         if (!target.isOpen()) {
             throw new ClosedChannelException();
         }
+        checkReadable();
         if (target instanceof FileChannelImpl) {
             ((FileChannelImpl) target).checkWritable();
         }
