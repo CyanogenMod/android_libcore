@@ -470,13 +470,13 @@ public class SSLServerSocketTest extends TestCase {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(keyManagers, null, null);
         for (int i = 0; i < 2048; ++i) {
-            sslContext.getServerSocketFactory().createServerSocket();
+            sslContext.getServerSocketFactory().createServerSocket().close();
         }
 
         // Test the other codepath, which copies a seed from a byte[].
         sslContext.init(keyManagers, null, new SecureRandom());
         for (int i = 0; i < 2048; ++i) {
-            sslContext.getServerSocketFactory().createServerSocket();
+            sslContext.getServerSocketFactory().createServerSocket().close();
         }
     }
 }
