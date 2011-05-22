@@ -90,10 +90,6 @@ public final class X509CertImpl extends X509Certificate {
     // encoding of the certificate
     private volatile byte[] encoding;
 
-    //
-    // ---------------------- Constructors -------------------------------
-    //
-
     /**
      * Constructs the instance on the base of ASN.1 encoded
      * form of X.509 certificate provided via stream parameter.
@@ -132,10 +128,6 @@ public final class X509CertImpl extends X509Certificate {
     public X509CertImpl(byte[] encoding) throws IOException {
         this((Certificate) Certificate.ASN1.decode(encoding));
     }
-
-    //
-    // ----------------- Public methods implementations ------------------
-    //
 
     public void checkValidity()
             throws CertificateExpiredException, CertificateNotYetValidException {
@@ -351,11 +343,7 @@ public final class X509CertImpl extends X509Certificate {
         }
     }
 
-    //
-    // ----- java.security.cert.Certificate methods implementations ------
-    //
-
-    public byte[] getEncoded() throws CertificateEncodingException {
+    @Override public byte[] getEncoded() throws CertificateEncodingException {
         return getEncodedInternal().clone();
     }
     private byte[] getEncodedInternal() throws CertificateEncodingException {
@@ -366,7 +354,7 @@ public final class X509CertImpl extends X509Certificate {
         return result;
     }
 
-    public PublicKey getPublicKey() {
+    @Override public PublicKey getPublicKey() {
         PublicKey result = publicKey;
         if (result == null) {
             publicKey = result = tbsCert.getSubjectPublicKeyInfo().getPublicKey();
@@ -374,15 +362,14 @@ public final class X509CertImpl extends X509Certificate {
         return result;
     }
 
-    public String toString() {
+    @Override public String toString() {
         return certificate.toString();
     }
 
-    public void verify(PublicKey key)
-                         throws CertificateException, NoSuchAlgorithmException,
-                                InvalidKeyException, NoSuchProviderException,
-                                SignatureException {
-        if (getSigAlgName().endsWith("withRSA")) {
+    @Override public void verify(PublicKey key)
+            throws CertificateException, NoSuchAlgorithmException, InvalidKeyException,
+            NoSuchProviderException, SignatureException {
+        if (getSigAlgName().endsWith("withRSA") || getSigAlgName().endsWith("WithRSAEncryption")) {
             fastVerify(key);
             return;
         }
@@ -398,11 +385,11 @@ public final class X509CertImpl extends X509Certificate {
         }
     }
 
-    public void verify(PublicKey key, String sigProvider)
-                         throws CertificateException, NoSuchAlgorithmException,
-                                InvalidKeyException, NoSuchProviderException,
-                                SignatureException {
-        if (getSigAlgName().endsWith("withRSA") && sigProvider == null) {
+    @Override public void verify(PublicKey key, String sigProvider)
+            throws CertificateException, NoSuchAlgorithmException, InvalidKeyException,
+            NoSuchProviderException, SignatureException {
+        if ((getSigAlgName().endsWith("withRSA") || getSigAlgName().endsWith("WithRSAEncryption"))
+                && sigProvider == null) {
             fastVerify(key);
             return;
         }
@@ -457,11 +444,7 @@ public final class X509CertImpl extends X509Certificate {
         }
     }
 
-    //
-    // ----- java.security.cert.X509Extension methods implementations ----
-    //
-
-    public Set<String> getNonCriticalExtensionOIDs() {
+    @Override public Set<String> getNonCriticalExtensionOIDs() {
         if (extensions == null) {
             return null;
         }
@@ -469,7 +452,7 @@ public final class X509CertImpl extends X509Certificate {
         return extensions.getNonCriticalExtensions();
     }
 
-    public Set<String> getCriticalExtensionOIDs() {
+    @Override public Set<String> getCriticalExtensionOIDs() {
         if (extensions == null) {
             return null;
         }
@@ -477,7 +460,7 @@ public final class X509CertImpl extends X509Certificate {
         return extensions.getCriticalExtensions();
     }
 
-    public byte[] getExtensionValue(String oid) {
+    @Override public byte[] getExtensionValue(String oid) {
         if (extensions == null) {
             return null;
         }
@@ -486,7 +469,7 @@ public final class X509CertImpl extends X509Certificate {
         return (ext == null) ? null : ext.getRawExtnValue();
     }
 
-    public boolean hasUnsupportedCriticalExtension() {
+    @Override public boolean hasUnsupportedCriticalExtension() {
         if (extensions == null) {
             return false;
         }
