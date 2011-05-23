@@ -303,7 +303,7 @@ public abstract class Buffer {
      */
     void limitImpl(int newLimit) {
         if (newLimit < 0 || newLimit > capacity) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad limit (capacity " + capacity + "): " + newLimit);
         }
 
         limit = newLimit;
@@ -355,7 +355,7 @@ public abstract class Buffer {
 
     void positionImpl(int newPosition) {
         if (newPosition < 0 || newPosition > limit) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad position (limit " + limit + "): " + newPosition);
         }
 
         position = newPosition;
@@ -383,7 +383,7 @@ public abstract class Buffer {
      */
     public final Buffer reset() {
         if (mark == UNSET_MARK) {
-            throw new InvalidMarkException();
+            throw new InvalidMarkException("Mark not set");
         }
         position = mark;
         return this;
