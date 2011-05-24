@@ -810,7 +810,7 @@ public class ObjectStreamClass implements Serializable {
         return loadFields == null ? fields().clone() : loadFields.clone();
     }
 
-    private volatile List<ObjectStreamClass> cachedHierarchy;
+    private transient volatile List<ObjectStreamClass> cachedHierarchy;
 
     List<ObjectStreamClass> getHierarchy() {
         List<ObjectStreamClass> result = cachedHierarchy;
