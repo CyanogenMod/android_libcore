@@ -705,8 +705,10 @@ public class HttpEngine {
             return url.toString();
         } else {
             String fileOnly = url.getFile();
-            if (fileOnly == null || fileOnly.isEmpty()) {
+            if (fileOnly == null) {
                 fileOnly = "/";
+            } else if (!fileOnly.startsWith("/")) {
+                fileOnly = "/" + fileOnly;
             }
             return fileOnly;
         }

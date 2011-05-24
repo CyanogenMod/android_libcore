@@ -23,13 +23,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.jar.JarFile;
 import libcore.net.http.HttpHandler;
 import libcore.net.http.HttpsHandler;
 import libcore.net.url.FileHandler;
 import libcore.net.url.FtpHandler;
 import libcore.net.url.JarHandler;
+import libcore.net.url.UrlUtils;
 
 /**
  * A Uniform Resource Locator that identifies the location of an Internet
@@ -150,81 +150,34 @@ public final class URL implements Serializable {
      *     be parsed as a URL or an invalid protocol has been found.
      */
     public URL(URL context, String spec, URLStreamHandler handler) throws MalformedURLException {
-        if (handler != null) {
-            streamHandler = handler;
-        }
-
         if (spec == null) {
             throw new MalformedURLException();
         }
+        if (handler != null) {
+            streamHandler = handler;
+        }
         spec = spec.trim();
 
-        // The spec includes a protocol if it includes a colon character
-        // before the first occurrence of a slash character. Note that,
-        // "protocol" is the field which holds this URLs protocol.
-        int index = spec.indexOf(':');
-        int startIpv6Address = spec.indexOf('[');
-        if (index >= 0) {
-            if ((startIpv6Address == -1) || (index < startIpv6Address)) {
-                protocol = spec.substring(0, index);
-                // According to RFC 2396 scheme part should match
-                // the following expression:
-                // alpha *( alpha | digit | "+" | "-" | "." )
-                char c = protocol.charAt(0);
-                boolean valid = ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
-                for (int i = 1; valid && (i < protocol.length()); i++) {
-                    c = protocol.charAt(i);
-                    valid = ('a' <= c && c <= 'z') ||
-                            ('A' <= c && c <= 'Z') ||
-                            ('0' <= c && c <= '9') ||
-                            (c == '+') ||
-                            (c == '-') ||
-                            (c == '.');
-                }
-                if (!valid) {
-                    protocol = null;
-                    index = -1;
-                } else {
-                    // Ignore case in protocol names. Scheme is defined by ASCII characters.
-                    protocol = protocol.toLowerCase(Locale.US);
-                }
-            }
+        protocol = UrlUtils.getSchemePrefix(spec);
+        int schemeSpecificPartStart = protocol != null ? (protocol.length() + 1) : 0;
+
+        // If the context URL has a different protocol, discard it because we can't use it.
+        if (protocol != null && context != null && !protocol.equals(context.protocol)) {
+            context = null;
         }
 
-        if (protocol != null) {
-            // If the context was specified, and it had the same protocol
-            // as the spec, then fill in the receiver's slots from the values
-            // in the context but still allow them to be over-ridden later
-            // by the values in the spec.
-            if (context != null && protocol.equals(context.getProtocol())) {
-                String cPath = context.getPath();
-                if (cPath != null && cPath.startsWith("/")) {
-                    set(protocol, context.getHost(), context.getPort(), context
-                            .getAuthority(), context.getUserInfo(), cPath,
-                            context.getQuery(), null);
-                }
-                if (streamHandler == null) {
-                    streamHandler = context.streamHandler;
-                }
-            }
-        } else {
-            // If the spec did not include a protocol, then the context
-            // *must* be specified. Fill in the receiver's slots from the
-            // values in the context, but still allow them to be over-ridden
-            // by the values in the ("relative") spec.
-            if (context == null) {
-                throw new MalformedURLException("Protocol not found: " + spec);
-            }
-            set(context.getProtocol(), context.getHost(), context.getPort(),
-                    context.getAuthority(), context.getUserInfo(), context
-                            .getPath(), context.getQuery(), null);
+        // Inherit from the context URL if it exists.
+        if (context != null) {
+            set(context.protocol, context.getHost(), context.getPort(), context.getAuthority(),
+                    context.getUserInfo(), context.getPath(), context.getQuery(),
+                    context.getRef());
             if (streamHandler == null) {
                 streamHandler = context.streamHandler;
             }
+        } else if (protocol == null) {
+            throw new MalformedURLException("Protocol not found: " + spec);
         }
 
-        // If the stream handler has not been determined, set it
-        // to the default for the specified protocol.
         if (streamHandler == null) {
             setupStreamHandler();
             if (streamHandler == null) {
@@ -232,22 +185,11 @@ public final class URL implements Serializable {
             }
         }
 
-        // Let the handler parse the URL. If the handler throws
-        // any exception, throw MalformedURLException instead.
-        //
-        // Note: We want "index" to be the index of the start of the scheme
-        // specific part of the URL. At this point, it will be either
-        // -1 or the index of the colon after the protocol, so we
-        // increment it to point at either character 0 or the character
-        // after the colon.
+        // Parse the URL. If the handler throws any exception, throw MalformedURLException instead.
         try {
-            streamHandler.parseURL(this, spec, ++index, spec.length());
+            streamHandler.parseURL(this, spec, schemeSpecificPartStart, spec.length());
         } catch (Exception e) {
             throw new MalformedURLException(e.toString());
-        }
-
-        if (port < -1) {
-            throw new MalformedURLException("Port out of range: " + port);
         }
     }
 
@@ -291,26 +233,33 @@ public final class URL implements Serializable {
     public URL(String protocol, String host, int port, String file,
             URLStreamHandler handler) throws MalformedURLException {
         if (port < -1) {
-            throw new MalformedURLException("Port out of range: " + port);
+            throw new MalformedURLException("port < -1: " + port);
+        }
+        if (protocol == null) {
+            throw new NullPointerException("protocol == null");
         }
 
+        // Wrap IPv6 addresses in square brackets if they aren't already.
         if (host != null && host.contains(":") && host.charAt(0) != '[') {
             host = "[" + host + "]";
-        }
-
-        if (protocol == null) {
-            throw new NullPointerException("Unknown protocol: null");
         }
 
         this.protocol = protocol;
         this.host = host;
         this.port = port;
 
+        /*
+         * Force the path to start with a '/' if this URL has an authority.
+         * Otherwise they blend together like http://android.comindex.html.
+         */
+        if (host != null && !host.isEmpty() && !file.startsWith("/")) {
+            file = "/" + file;
+        }
+
         // Set the fields from the arguments. Handle the case where the
         // passed in "file" includes both a file and a reference part.
-        int index = -1;
-        index = file.indexOf("#", file.lastIndexOf("/"));
-        if (index >= 0) {
+        int index = file.indexOf("#", file.lastIndexOf("/"));
+        if (index != -1) {
             this.file = file.substring(0, index);
             ref = file.substring(index + 1);
         } else {
@@ -496,7 +445,7 @@ public final class URL implements Serializable {
 
     /**
      * Returns the content of the resource which is referred by this URL. By
-     * default, this returns an {@code InputStream} or null if the content type
+     * default this returns an {@code InputStream}, or null if the content type
      * of the response is unknown.
      */
     public final Object getContent() throws IOException {
@@ -631,14 +580,15 @@ public final class URL implements Serializable {
     }
 
     /**
-     * Returns the authority part of this URL.
+     * Returns the authority part of this URL, or null if this URL has no
+     * authority.
      */
     public String getAuthority() {
         return authority;
     }
 
     /**
-     * Returns the user-info part of this URL.
+     * Returns the user info of this URL, or null if this URL has no user info.
      */
     public String getUserInfo() {
         return userInfo;
@@ -652,7 +602,7 @@ public final class URL implements Serializable {
     }
 
     /**
-     * Returns the port number of this URL, or {@code -1} if this URL has no
+     * Returns the port number of this URL or {@code -1} if this URL has no
      * explicit port.
      *
      * <p>If this URL has no explicit port, connections opened using this URL
@@ -674,7 +624,7 @@ public final class URL implements Serializable {
     }
 
     /**
-     * Returns the file of this URL, or an empty string if the file is not set.
+     * Returns the file of this URL.
      */
     public String getFile() {
         return file;
@@ -688,15 +638,15 @@ public final class URL implements Serializable {
     }
 
     /**
-     * Returns the query part of this URL.
+     * Returns the query part of this URL, or null if this URL has no query.
      */
     public String getQuery() {
         return query;
     }
 
     /**
-     * Returns the value of the reference part of this URL. This is also known
-     * as the fragment.
+     * Returns the value of the reference part of this URL, or null if this URL
+     * has no reference part. This is also known as the fragment.
      */
     public String getRef() {
         return ref;
@@ -709,15 +659,11 @@ public final class URL implements Serializable {
      */
     protected void set(String protocol, String host, int port, String authority, String userInfo,
             String path, String query, String ref) {
-        String filePart = path;
+        String file = path;
         if (query != null && !query.isEmpty()) {
-            if (filePart != null) {
-                filePart = filePart + "?" + query;
-            } else {
-                filePart = "?" + query;
-            }
+            file += "?" + query;
         }
-        set(protocol, host, port, filePart, ref);
+        set(protocol, host, port, file, ref);
         this.authority = authority;
         this.userInfo = userInfo;
         this.path = path;

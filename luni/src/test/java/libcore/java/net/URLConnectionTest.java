@@ -1856,6 +1856,16 @@ public final class URLConnectionTest extends TestCase {
         connection.disconnect();
     }
 
+    // http://b/4361656
+    public void testUrlContainsQueryButNoPath() throws Exception {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+        URL url = new URL("http", server.getHostName(), server.getPort(), "?query");
+        assertEquals("A", readAscii(url.openConnection().getInputStream(), Integer.MAX_VALUE));
+        RecordedRequest request = server.takeRequest();
+        assertEquals("GET /?query HTTP/1.1", request.getRequestLine());
+    }
+
     /**
      * Returns a gzipped copy of {@code bytes}.
      */

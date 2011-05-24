@@ -22,7 +22,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
-import org.apache.harmony.luni.util.URLUtil;
 
 public class JarHandler extends URLStreamHandler {
     /**
@@ -76,7 +75,7 @@ public class JarHandler extends URLStreamHandler {
             int idx = file.indexOf('!');
             String tmpFile = file.substring(idx + 1, file.lastIndexOf('/') + 1)
                     + spec;
-            tmpFile = URLUtil.canonicalizePath(tmpFile);
+            tmpFile = UrlUtils.canonicalizePath(tmpFile);
             file = file.substring(0, idx + 1) + tmpFile;
         }
         try {

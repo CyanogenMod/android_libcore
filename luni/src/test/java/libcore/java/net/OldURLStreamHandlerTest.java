@@ -201,8 +201,8 @@ public class OldURLStreamHandlerTest extends TestCase {
             return super.openConnection(u, p);
         }
 
-        @Override public void parseURL(URL u, String spec, int start, int limit) {
-            super.parseURL(u, spec, start, limit);
+        @Override public void parseURL(URL url, String spec, int start, int limit) {
+            super.parseURL(url, spec, start, limit);
         }
 
         @Override public boolean sameFile(URL a, URL b) {
