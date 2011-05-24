@@ -712,33 +712,6 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
 
     }
 
-    public void test_getLocalAddress() {
-        // Test for method java.net.InetAddress
-        // java.net.DatagramSocket.getLocalAddress()
-        InetAddress local = null;
-        try {
-            int portNumber = Support_PortManager.getNextPortForUDP();
-            local = InetAddress.getLocalHost();
-            ds = new java.net.DatagramSocket(portNumber, local);
-            assertTrue("Returned incorrect address. Got:"
-                    + ds.getLocalAddress()
-                    + " wanted: "
-                    + InetAddress.getByName(InetAddress.getLocalHost()
-                            .getHostName()), InetAddress.getByName(
-                    InetAddress.getLocalHost().getHostName()).equals(
-                    ds.getLocalAddress()));
-
-            // now check behavior when the ANY address is returned
-            DatagramSocket s = new DatagramSocket(0);
-            assertTrue("ANY address not IPv6: " + s.getLocalSocketAddress(),
-                    s.getLocalAddress() instanceof Inet6Address);
-            s.close();
-        } catch (Exception e) {
-            fail(
-                    "Exception during getLocalAddress: " + local + " - " + e);
-        }
-    }
-
     public void test_getLocalPort() {
         // Test for method int java.net.DatagramSocket.getLocalPort()
         try {
@@ -1803,51 +1776,6 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
         } catch (Exception e) {
             fail("Exception during getRemoteSocketAddress test: " + e);
         }
-    }
-
-    public void test_getLocalSocketAddress() throws Exception {
-        int portNumber = Support_PortManager.getNextPortForUDP();
-        DatagramSocket s = new DatagramSocket(new InetSocketAddress(
-                InetAddress.getLocalHost(), portNumber));
-        assertTrue("Returned incorrect InetSocketAddress(1):"
-                + s.getLocalSocketAddress().toString()
-                + "Expected: "
-                + (new InetSocketAddress(InetAddress.getLocalHost(),
-                        portNumber)).toString(), s.getLocalSocketAddress()
-                .equals(
-                        new InetSocketAddress(InetAddress.getLocalHost(),
-                                portNumber)));
-        s.close();
-
-        InetSocketAddress remoteAddress = (InetSocketAddress) s
-                .getRemoteSocketAddress();
-
-        // now create a socket that is not bound and validate we get the
-        // right answer
-        DatagramSocket theSocket = new DatagramSocket((SocketAddress) null);
-        assertNull(
-                "Returned incorrect InetSocketAddress -unbound socket- Expected null",
-                theSocket.getLocalSocketAddress());
-
-        // now bind the socket and make sure we get the right answer
-        portNumber = Support_PortManager.getNextPortForUDP();
-        theSocket.bind(new InetSocketAddress(InetAddress.getLocalHost(),
-                portNumber));
-        assertTrue("Returned incorrect InetSocketAddress(2):"
-                + theSocket.getLocalSocketAddress().toString()
-                + "Expected: "
-                + (new InetSocketAddress(InetAddress.getLocalHost(),
-                        portNumber)).toString(), theSocket
-                .getLocalSocketAddress().equals(
-                        new InetSocketAddress(InetAddress.getLocalHost(),
-                                portNumber)));
-        theSocket.close();
-
-        // now check behavior when the ANY address is returned
-        s = new DatagramSocket(0);
-        assertTrue("ANY address not IPv6: " + s.getLocalSocketAddress(),
-                ((InetSocketAddress) s.getLocalSocketAddress()).getAddress() instanceof Inet6Address);
-        s.close();
     }
 
     public void test_setReuseAddressZ() throws Exception {

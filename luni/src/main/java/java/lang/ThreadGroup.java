@@ -75,7 +75,6 @@ public class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * @param name the name
      * @see Thread#currentThread
      */
-
     public ThreadGroup(String name) {
         this(Thread.currentThread().getThreadGroup(), name);
     }
