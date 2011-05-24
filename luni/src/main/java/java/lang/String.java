@@ -805,6 +805,7 @@ outer:
      */
     @Deprecated
     public void getBytes(int start, int end, byte[] data, int index) {
+        // Note: last character not copied!
         if (start >= 0 && start <= end && end <= count) {
             end += offset;
             try {
@@ -814,8 +815,9 @@ outer:
             } catch (ArrayIndexOutOfBoundsException ignored) {
                 throw failedBoundsCheck(data.length, index, end - start);
             }
+        } else {
+            throw startEndAndLength(start, end);
         }
-        throw startEndAndLength(start, end);
     }
 
     /**
@@ -892,7 +894,7 @@ outer:
      *             index}
      */
     public void getChars(int start, int end, char[] buffer, int index) {
-        // NOTE last character not copied!
+        // Note: last character not copied!
         if (start >= 0 && start <= end && end <= count) {
             System.arraycopy(value, start + offset, buffer, index, end - start);
         } else {
