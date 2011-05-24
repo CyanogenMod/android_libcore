@@ -23,22 +23,28 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.security.Principal;
+import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLProtocolException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509KeyManager;
 import junit.framework.TestCase;
 import libcore.java.security.StandardNames;
 import libcore.java.security.TestKeyStore;
@@ -118,6 +124,7 @@ public class SSLSocketTest extends TestCase {
         }
 
         for (String cipherSuite : cipherSuites) {
+            boolean errorExpected = StandardNames.IS_RI && cipherSuite.endsWith("_SHA256");
             try {
                 /*
                  * TLS_EMPTY_RENEGOTIATION_INFO_SCSV cannot be used on
@@ -165,11 +172,14 @@ public class SSLSocketTest extends TestCase {
                 assertEquals(serverToClientString, new String(clientFromServer, 0, readFromServer));
                 client.close();
                 server.close();
-            } catch (Exception e) {
-                throw new Exception("Problem trying to connect cipher suite " + cipherSuite
-                                    + " client=" + clientProvider
-                                    + " server=" + serverProvider,
-                                    e);
+                assertFalse(errorExpected);
+            } catch (Exception maybeExpected) {
+                if (!errorExpected) {
+                    throw new Exception("Problem trying to connect cipher suite " + cipherSuite
+                                        + " client=" + clientProvider
+                                        + " server=" + serverProvider,
+                                        maybeExpected);
+                }
             }
         }
         c.close();
@@ -308,10 +318,35 @@ public class SSLSocketTest extends TestCase {
                                                  SSLContext.getDefault(), SSLContext.getDefault());
         SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
                                                                                        c.port);
-        try {
-            c.serverSocket.accept();
-            fail();
-        } catch (SSLException expected) {
+        // RI used to throw SSLException on accept, now throws on startHandshake
+        if (StandardNames.IS_RI) {
+            final SSLSocket server = (SSLSocket) c.serverSocket.accept();
+            Thread thread = new Thread(new Runnable () {
+                public void run() {
+                    try {
+                        server.startHandshake();
+                    } catch (SSLHandshakeException expected) {
+                    } catch (RuntimeException e) {
+                        throw e;
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+            thread.start();
+            try {
+                client.startHandshake();
+                fail();
+            } catch (SSLHandshakeException expected) {
+            }
+            thread.join();
+            server.close();
+        } else {
+            try {
+                c.serverSocket.accept();
+                fail();
+            } catch (SSLException expected) {
+            }
         }
         client.close();
         c.close();
@@ -503,6 +538,9 @@ public class SSLSocketTest extends TestCase {
             test_SSLSocket_setUseClientMode(true, true);
             fail();
         } catch (SSLProtocolException expected) {
+            assertTrue(StandardNames.IS_RI);
+        } catch (SSLHandshakeException expected) {
+            assertFalse(StandardNames.IS_RI);
         }
 
         // both are server
@@ -537,7 +575,7 @@ public class SSLSocketTest extends TestCase {
                                                                                        c.port);
         final SSLSocket server = (SSLSocket) c.serverSocket.accept();
 
-        final SSLProtocolException[] sslProtocolException = new SSLProtocolException[1];
+        final SSLHandshakeException[] sslHandshakeException = new SSLHandshakeException[1];
         final SocketTimeoutException[] socketTimeoutException = new SocketTimeoutException[1];
         Thread thread = new Thread(new Runnable () {
             public void run() {
@@ -547,8 +585,8 @@ public class SSLSocketTest extends TestCase {
                     }
                     server.setUseClientMode(serverClientMode);
                     server.startHandshake();
-                } catch (SSLProtocolException e) {
-                    sslProtocolException[0] = e;
+                } catch (SSLHandshakeException e) {
+                    sslHandshakeException[0] = e;
                 } catch (SocketTimeoutException e) {
                     socketTimeoutException[0] = e;
                 } catch (RuntimeException e) {
@@ -565,8 +603,8 @@ public class SSLSocketTest extends TestCase {
         client.setUseClientMode(clientClientMode);
         client.startHandshake();
         thread.join();
-        if (sslProtocolException[0] != null) {
-            throw sslProtocolException[0];
+        if (sslHandshakeException[0] != null) {
+            throw sslHandshakeException[0];
         }
         if (socketTimeoutException[0] != null) {
             throw socketTimeoutException[0];
@@ -586,6 +624,7 @@ public class SSLSocketTest extends TestCase {
             public void run() {
                 try {
                     server.startHandshake();
+                } catch (SSLHandshakeException expected) {
                 } catch (RuntimeException e) {
                     throw e;
                 } catch (Exception e) {
@@ -647,6 +686,70 @@ public class SSLSocketTest extends TestCase {
         TestKeyStore.assertChainLength(client.getSession().getLocalCertificates());
         TestSSLContext.assertClientCertificateChain(c.clientTrustManager,
                                                     client.getSession().getLocalCertificates());
+        thread.join();
+        client.close();
+        server.close();
+        c.close();
+    }
+
+    public void test_SSLSocket_clientAuth_bogusAlias() throws Exception {
+        TestSSLContext c = TestSSLContext.create();
+        SSLContext clientContext = SSLContext.getInstance("TLS");
+        X509KeyManager keyManager = new X509KeyManager() {
+            @Override public String chooseClientAlias(String[] keyType,
+                                                      Principal[] issuers,
+                                                      Socket socket) {
+                return "bogus";
+            }
+            @Override public String chooseServerAlias(String keyType,
+                                                      Principal[] issuers,
+                                                      Socket socket) {
+                throw new AssertionError();
+            }
+            @Override public X509Certificate[] getCertificateChain(String alias) {
+                // return null for "bogus" alias
+                return null;
+            }
+            @Override public String[] getClientAliases(String keyType, Principal[] issuers) {
+                throw new AssertionError();
+            }
+            @Override public String[] getServerAliases(String keyType, Principal[] issuers) {
+                throw new AssertionError();
+            }
+            @Override public PrivateKey getPrivateKey(String alias) {
+                // return null for "bogus" alias
+                return null;
+            }
+        };
+        clientContext.init(new KeyManager[] { keyManager },
+                           new TrustManager[] { c.clientTrustManager },
+                           null);
+        SSLSocket client = (SSLSocket) clientContext.getSocketFactory().createSocket(c.host,
+                                                                                     c.port);
+        final SSLSocket server = (SSLSocket) c.serverSocket.accept();
+        Thread thread = new Thread(new Runnable () {
+            public void run() {
+                try {
+                    server.setNeedClientAuth(true);
+                    server.startHandshake();
+                    fail();
+                } catch (SSLHandshakeException expected) {
+                } catch (RuntimeException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        thread.start();
+        try {
+            client.startHandshake();
+            fail();
+        } catch (SSLHandshakeException expected) {
+            // before we would get a NullPointerException from passing
+            // due to the null PrivateKey return by the X509KeyManager.
+        }
         thread.join();
         client.close();
         server.close();
@@ -867,7 +970,10 @@ public class SSLSocketTest extends TestCase {
         try {
             input.read(null, -1, -1);
             fail();
+        } catch (NullPointerException expected) {
+            assertTrue(StandardNames.IS_RI);
         } catch (SocketException expected) {
+            assertFalse(StandardNames.IS_RI);
         }
         try {
             output.write(-1);
@@ -877,7 +983,10 @@ public class SSLSocketTest extends TestCase {
         try {
             output.write(null, -1, -1);
             fail();
+        } catch (NullPointerException expected) {
+            assertTrue(StandardNames.IS_RI);
         } catch (SocketException expected) {
+            assertFalse(StandardNames.IS_RI);
         }
 
         // ... and one gives IllegalArgumentException

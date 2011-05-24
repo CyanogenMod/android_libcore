@@ -85,6 +85,7 @@ public class SSLEngineTest extends TestCase {
         TestSSLContext c = TestSSLContext.create(testKeyStore, testKeyStore);
         String[] cipherSuites = c.clientContext.createSSLEngine().getSupportedCipherSuites();
         for (String cipherSuite : cipherSuites) {
+            boolean errorExpected = StandardNames.IS_RI && cipherSuite.endsWith("_SHA256");
             try {
                 /*
                  * TLS_EMPTY_RENEGOTIATION_INFO_SCSV cannot be used on
@@ -115,8 +116,12 @@ public class SSLEngineTest extends TestCase {
                             server.setEnabledCipherSuites(cipherSuiteArray);
                         }
                     }));
-            } catch (Exception e) {
-                throw new Exception("Problem trying to connect cipher suite " + cipherSuite, e);
+                assertFalse(errorExpected);
+            } catch (Exception maybeExpected) {
+                if (!errorExpected) {
+                    throw new Exception("Problem trying to connect cipher suite " + cipherSuite,
+                                        maybeExpected);
+                }
             }
         }
         c.close();

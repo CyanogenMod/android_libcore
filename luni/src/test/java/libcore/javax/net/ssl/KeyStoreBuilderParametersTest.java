@@ -26,19 +26,17 @@ import libcore.java.security.TestKeyStore;
 
 public class KeyStoreBuilderParametersTest extends TestCase {
     public void test_init_Builder_null() {
-        // RI document claims they throw NullPointerException but they do not
-        test_init_Builder(null);
+        try {
+            new KeyStoreBuilderParameters((Builder) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
     }
 
     public void test_init_Builder() {
         TestKeyStore testKeyStore = TestKeyStore.getClient();
         Builder builder = Builder.newInstance(testKeyStore.keyStore,
                                               new PasswordProtection(testKeyStore.storePassword));
-        test_init_Builder(builder);
-    }
-
-    private void test_init_Builder(Builder builder) {
-
         KeyStoreBuilderParameters ksbp = new KeyStoreBuilderParameters(builder);
         assertNotNull(ksbp);
         assertNotNull(ksbp.getParameters());
