@@ -92,7 +92,7 @@ final class IoVec {
                 b.position(b.limit());
                 byteCount -= byteCounts[i];
             } else {
-                b.position((direction == Direction.WRITEV ? b.position() : 0) + byteCounts[i]);
+                b.position((direction == Direction.WRITEV ? b.position() : 0) + byteCount);
                 byteCount = 0;
             }
         }
