@@ -228,7 +228,13 @@ final class FileChannelImpl extends FileChannel {
             throw new NonReadableChannelException();
         }
         if (position + size > size()) {
-            truncate(position + size);
+            // We can't defer to FileChannel.truncate because that will only make a file shorter,
+            // and we only care about making our backing file longer here.
+            try {
+                Libcore.os.ftruncate(fd, position + size);
+            } catch (ErrnoException errnoException) {
+                throw errnoException.rethrowAsIOException();
+            }
         }
         long alignment = position - position % Libcore.os.sysconf(_SC_PAGE_SIZE);
         int offset = (int) (position - alignment);
