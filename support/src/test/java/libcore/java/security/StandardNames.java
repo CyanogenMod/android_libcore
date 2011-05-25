@@ -48,12 +48,12 @@ import junit.framework.Assert;
  * </a>.
  *
  * Updated based on the
- * <a href="http://java.sun.com/javase/6/docs/technotes/guides/security/SunProviders.html">
- * Java &trade; Cryptography Architecture Sun Providers Documentation
- * for Java &trade; Platform Standard Edition 6
+ * <a href="http://download.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html">
+ * Java &trade; Cryptography Architecture Oracle Providers Documentation
+ * for Java &trade; Platform Standard Edition 7
  * </a>.
  * See also the
- * <a href="http://java.sun.com/javase/6/docs/technotes/guides/security/StandardNames.html">
+ * <a href="http://download.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html">
  * Java &trade; Cryptography Architecture Standard Algorithm Name Documentation
  * </a>.
  *
@@ -474,6 +474,9 @@ public final class StandardNames extends Assert {
              * do to disable general use of SSLv2.
              */
             SSL_SOCKET_PROTOCOLS.add("SSLv2Hello");
+
+            SSL_SOCKET_PROTOCOLS.add("TLSv1.1");
+            SSL_SOCKET_PROTOCOLS.add("TLSv1.2");
         }
     }
 
@@ -539,62 +542,81 @@ public final class StandardNames extends Assert {
     }
 
     static {
-        // Note these are added in priority order as defined by RI 6 documentation.
-        addBoth(   "SSL_RSA_WITH_RC4_128_MD5");
-        addBoth(   "SSL_RSA_WITH_RC4_128_SHA");
-        addBoth(   "TLS_RSA_WITH_AES_128_CBC_SHA");
-        addBoth(   "TLS_RSA_WITH_AES_256_CBC_SHA");
-        addBoth(   "TLS_ECDH_ECDSA_WITH_RC4_128_SHA");
-        addBoth(   "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
-        addBoth(   "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
-        addBoth(   "TLS_ECDH_RSA_WITH_RC4_128_SHA");
-        addBoth(   "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA");
-        addBoth(   "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
-        addBoth(   "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA");
+        // Note these are added in priority order as defined by RI 7 documentation.
+        // defaultCipherSuites
+        addNeither("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384");
+        addNeither("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384");
+        addNeither("TLS_RSA_WITH_AES_256_CBC_SHA256");
+        addNeither("TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384");
+        addNeither("TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384");
+        addNeither("TLS_DHE_RSA_WITH_AES_256_CBC_SHA256");
+        addNeither("TLS_DHE_DSS_WITH_AES_256_CBC_SHA256");
+        addOpenSsl("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
+        addOpenSsl("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
+        addOpenSsl("TLS_RSA_WITH_AES_256_CBC_SHA");
+        addOpenSsl("TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
+        addOpenSsl("TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
+        addOpenSsl("TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
+        addOpenSsl("TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
+        addRi(     "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256");
+        addRi(     "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
+        addRi(     "TLS_RSA_WITH_AES_128_CBC_SHA256");
+        addRi(     "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256");
+        addRi(     "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256");
+        addRi(     "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256");
+        addRi(     "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256");
         addBoth(   "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA");
-        addBoth(   "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
-        addBoth(   "TLS_ECDHE_RSA_WITH_RC4_128_SHA");
         addBoth(   "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
-        addBoth(   "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_RSA_WITH_AES_128_CBC_SHA");
+        addBoth(   "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
+        addBoth(   "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_DHE_RSA_WITH_AES_128_CBC_SHA");
-        addBoth(   "TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
-        addBoth(   "TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA");
+        addBoth(   "TLS_ECDHE_RSA_WITH_RC4_128_SHA");
+        addBoth(   "SSL_RSA_WITH_RC4_128_SHA");
+        addBoth(   "TLS_ECDH_ECDSA_WITH_RC4_128_SHA");
+        addBoth(   "TLS_ECDH_RSA_WITH_RC4_128_SHA");
+        addBoth(   "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA");
+        addBoth(   "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "SSL_RSA_WITH_DES_CBC_SHA");
-        addBoth(   "SSL_DHE_RSA_WITH_DES_CBC_SHA");
-        addBoth(   "SSL_DHE_DSS_WITH_DES_CBC_SHA");
-        addBoth(   "SSL_RSA_EXPORT_WITH_RC4_40_MD5");
-        addBoth(   "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA");
-        addBoth(   "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA");
-        addBoth(   "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA");
-        addBoth(   "SSL_RSA_WITH_NULL_MD5");
+        addBoth(   "SSL_RSA_WITH_RC4_128_MD5");
+        // RFC 5746's Signaling Cipher Suite Value to indicate a request for secure renegotiation
+        addBoth(CIPHER_SUITE_SECURE_RENEGOTIATION);
+
+        // non-defaultCipherSuites
+        addNeither("TLS_DH_anon_WITH_AES_256_CBC_SHA256");
+        addOpenSsl("TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
+        addOpenSsl("TLS_DH_anon_WITH_AES_256_CBC_SHA");
+        addRi(     "TLS_DH_anon_WITH_AES_128_CBC_SHA256");
+        addBoth(   "TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
+        addBoth(   "TLS_DH_anon_WITH_AES_128_CBC_SHA");
+        addBoth(   "TLS_ECDH_anon_WITH_RC4_128_SHA");
+        addBoth(   "SSL_DH_anon_WITH_RC4_128_MD5");
+        addBoth(   "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA");
+        addBoth(   "SSL_DH_anon_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "TLS_RSA_WITH_NULL_SHA256");
+        addBoth(   "TLS_ECDHE_ECDSA_WITH_NULL_SHA");
+        addBoth(   "TLS_ECDHE_RSA_WITH_NULL_SHA");
         addBoth(   "SSL_RSA_WITH_NULL_SHA");
         addBoth(   "TLS_ECDH_ECDSA_WITH_NULL_SHA");
         addBoth(   "TLS_ECDH_RSA_WITH_NULL_SHA");
-        addBoth(   "TLS_ECDHE_ECDSA_WITH_NULL_SHA");
-        addBoth(   "TLS_ECDHE_RSA_WITH_NULL_SHA");
-        addBoth(   "SSL_DH_anon_WITH_RC4_128_MD5");
-        addBoth(   "TLS_DH_anon_WITH_AES_128_CBC_SHA");
-        addBoth(   "TLS_DH_anon_WITH_AES_256_CBC_SHA");
-        addBoth(   "SSL_DH_anon_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "SSL_DH_anon_WITH_DES_CBC_SHA");
-        addBoth(   "TLS_ECDH_anon_WITH_RC4_128_SHA");
-        addBoth(   "TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
-        addBoth(   "TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
-        addBoth(   "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5");
-        addBoth(   "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA");
         addBoth(   "TLS_ECDH_anon_WITH_NULL_SHA");
-
-        // RFC 5746's Signaling Cipher Suite Value to indicate a request for secure renegotiation
-        addBoth(CIPHER_SUITE_SECURE_RENEGOTIATION);
+        addBoth(   "SSL_RSA_WITH_NULL_MD5");
+        addBoth(   "SSL_RSA_WITH_DES_CBC_SHA");
+        addBoth(   "SSL_DHE_RSA_WITH_DES_CBC_SHA");
+        addBoth(   "SSL_DHE_DSS_WITH_DES_CBC_SHA");
+        addBoth(   "SSL_DH_anon_WITH_DES_CBC_SHA");
+        addBoth(   "SSL_RSA_EXPORT_WITH_RC4_40_MD5");
+        addBoth(   "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5");
+        addBoth(   "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA");
+        addBoth(   "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA");
+        addBoth(   "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA");
+        addBoth(   "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA");
 
         // Android does not have Keberos support
         addRi(     "TLS_KRB5_WITH_RC4_128_SHA");
@@ -624,42 +646,63 @@ public final class StandardNames extends Assert {
         CIPHER_SUITES = (IS_RI) ? CIPHER_SUITES_RI : CIPHER_SUITES_OPENSSL;
     }
 
-    public static final List<String> CIPHER_SUITES_DEFAULT = Arrays.asList(
-        "SSL_RSA_WITH_RC4_128_MD5",
-        "SSL_RSA_WITH_RC4_128_SHA",
-        "TLS_RSA_WITH_AES_128_CBC_SHA",
-        "TLS_RSA_WITH_AES_256_CBC_SHA",
-        "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
-        "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
-        "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
-        "TLS_ECDH_RSA_WITH_RC4_128_SHA",
-        "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
-        "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA",
-        "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
-        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
-        "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
-        "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
-        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-        "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
-        "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
-        "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
-        "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
-        "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
-        "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
-        "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
-        "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
-        "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
-        "SSL_RSA_WITH_DES_CBC_SHA",
-        "SSL_DHE_RSA_WITH_DES_CBC_SHA",
-        "SSL_DHE_DSS_WITH_DES_CBC_SHA",
-        "SSL_RSA_EXPORT_WITH_RC4_40_MD5",
-        "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
-        "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA",
-        "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA",
-        CIPHER_SUITE_SECURE_RENEGOTIATION);
+    public static final List<String> CIPHER_SUITES_DEFAULT = (IS_RI)
+            ? Arrays.asList("TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                            "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
+                            "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
+                            "SSL_RSA_WITH_RC4_128_SHA",
+                            "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
+                            "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+                            "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
+                            "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
+                            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                            "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
+                            "TLS_ECDH_RSA_WITH_RC4_128_SHA",
+                            "TLS_EMPTY_RENEGOTIATION_INFO_SCSV",
+                            "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
+                            "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
+                            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+                            "TLS_RSA_WITH_AES_128_CBC_SHA",
+                            "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
+                            "SSL_RSA_WITH_RC4_128_MD5",
+                            "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+                            "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
+                            "SSL_RSA_WITH_3DES_EDE_CBC_SHA")
+            : Arrays.asList("SSL_RSA_WITH_RC4_128_MD5",
+                            "SSL_RSA_WITH_RC4_128_SHA",
+                            "TLS_RSA_WITH_AES_128_CBC_SHA",
+                            "TLS_RSA_WITH_AES_256_CBC_SHA",
+                            "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
+                            "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
+                            "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
+                            "TLS_ECDH_RSA_WITH_RC4_128_SHA",
+                            "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
+                            "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA",
+                            "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
+                            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+                            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+                            "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+                            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                            "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                            "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+                            "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+                            "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+                            "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+                            "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
+                            "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
+                            "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
+                            "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
+                            "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
+                            "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
+                            "SSL_RSA_WITH_DES_CBC_SHA",
+                            "SSL_DHE_RSA_WITH_DES_CBC_SHA",
+                            "SSL_DHE_DSS_WITH_DES_CBC_SHA",
+                            "SSL_RSA_EXPORT_WITH_RC4_40_MD5",
+                            "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
+                            "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA",
+                            "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA",
+                            CIPHER_SUITE_SECURE_RENEGOTIATION);
 
     public static final Set<String> CIPHER_SUITES_SSLENGINE = new HashSet<String>(CIPHER_SUITES);
     static {
@@ -674,7 +717,7 @@ public final class StandardNames extends Assert {
             }
         }
     }
-    
+
     public static final Map<String, Class<? extends KeySpec>> PRIVATE_KEY_SPEC_CLASSES;
     public static final Map<String, Class<? extends KeySpec>> PUBLIC_KEY_SPEC_CLASSES;
     public static final Map<String, Integer> MINIMUM_KEY_SIZE;
@@ -695,7 +738,7 @@ public final class StandardNames extends Assert {
         PUBLIC_KEY_SPEC_CLASSES.put("EC", ECPublicKeySpec.class);
         MINIMUM_KEY_SIZE.put("EC", 256);
     }
-    
+
     public static Class<? extends KeySpec> getPrivateKeySpecClass(String algName) {
         return PRIVATE_KEY_SPEC_CLASSES.get(algName);
     }
