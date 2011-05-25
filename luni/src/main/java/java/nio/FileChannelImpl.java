@@ -297,6 +297,9 @@ final class FileChannelImpl extends FileChannel {
                 begin();
                 try {
                     bytesRead = Libcore.os.read(fd, buffer);
+                    if (bytesRead == 0) {
+                        bytesRead = -1;
+                    }
                 } catch (ErrnoException errnoException) {
                     if (errnoException.errno == EAGAIN) {
                         // We don't throw if we try to read from an empty non-blocking pipe.
