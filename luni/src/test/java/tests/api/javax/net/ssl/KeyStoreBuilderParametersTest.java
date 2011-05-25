@@ -29,26 +29,19 @@ public class KeyStoreBuilderParametersTest extends TestCase {
      * javax.net.ssl.KeyStoreBuilderParameters#KeyStoreBuilderParameters(KeyStore.Builder builder)
      */
     public void test_Constructor01() {
-        KeyStore.Builder bld = null;
-
-        //Null parameter
+        // Null parameter
         try {
-            KeyStoreBuilderParameters ksp = new KeyStoreBuilderParameters(bld);
-            assertNotNull(ksp.getParameters());
-        } catch (NullPointerException npe) {
-            fail("NullPointerException should not be thrown");
+            new KeyStoreBuilderParameters((KeyStore.Builder) null);
+            fail();
+        } catch (NullPointerException expected) {
         }
 
-        //Not null parameter
+        // Not null parameter
         KeyStore.ProtectionParameter pp = new ProtectionParameterImpl();
-        bld = KeyStore.Builder.newInstance("testType", null, pp);
+        KeyStore.Builder bld = KeyStore.Builder.newInstance("testType", null, pp);
         assertNotNull("Null object KeyStore.Builder", bld);
-        try {
-            KeyStoreBuilderParameters ksp = new KeyStoreBuilderParameters(bld);
-            assertNotNull(ksp.getParameters());
-        } catch (Exception e) {
-            fail("Unexpected exception was thrown");
-        }
+        KeyStoreBuilderParameters ksp = new KeyStoreBuilderParameters(bld);
+        assertNotNull(ksp.getParameters());
     }
 
     /**
@@ -56,34 +49,26 @@ public class KeyStoreBuilderParametersTest extends TestCase {
      */
     public void test_Constructor02() {
 
-        //Null parameter
+        // Null parameter
         try {
             KeyStoreBuilderParameters ksp = new KeyStoreBuilderParameters((List) null);
-            fail("NullPointerException should be thrown");
-        } catch (NullPointerException npe) {
-            //expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
-        //Empty parameter
+        // Empty parameter
         List lsEmpty = new ArrayList<String>();
         try {
             KeyStoreBuilderParameters ksp = new KeyStoreBuilderParameters(lsEmpty);
-            fail("IllegalArgumentException should be thrown");
-        } catch (IllegalArgumentException iae) {
-            //expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
 
-        //Not null parameter
+        // Not null parameter
         List lsFiled = new ArrayList<String>();
         lsFiled.add("Parameter1");
         lsFiled.add("Parameter2");
-        try {
-            KeyStoreBuilderParameters ksp = new KeyStoreBuilderParameters(lsFiled);
-            assertTrue("Not instanceof KeyStoreBuilderParameters object",
-                       ksp instanceof KeyStoreBuilderParameters);
-        } catch (Exception e) {
-            fail("Unexpected exception was thrown");
-        }
+        new KeyStoreBuilderParameters(lsFiled);
     }
 
     /**
@@ -96,30 +81,21 @@ public class KeyStoreBuilderParametersTest extends TestCase {
             ls.add(param[i]);
         }
         KeyStoreBuilderParameters ksp = new KeyStoreBuilderParameters(ls);
+        List res_list = ksp.getParameters();
         try {
-            List res_list = ksp.getParameters();
-            try {
-                res_list.add("test");
-            } catch (UnsupportedOperationException e) {
-                // expected
-            }
-            Object[] res = res_list.toArray();
-            if (res.length == param.length) {
-                for (int i = 0; i < res.length; i++) {
-                    if (!param[i].equals(res[i])) {
-                        fail("Parameters not equal");
-                    }
-                }
-            } else {
-                fail("Incorrect number of parameters");
-            }
-        } catch (Exception e) {
-            fail("Unexpected exception was thrown");
+            res_list.add("test");
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+        Object[] res = res_list.toArray();
+        assertEquals(res.length, param.length);
+        for (int i = 0; i < res.length; i++) {
+            assertEquals(param[i], res[i]);
         }
     }
 
-    class ProtectionParameterImpl implements KeyStore.ProtectionParameter {
-        ProtectionParameterImpl(){}
+    private static class ProtectionParameterImpl implements KeyStore.ProtectionParameter {
+        private ProtectionParameterImpl() {}
     }
 }
 
