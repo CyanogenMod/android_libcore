@@ -26,10 +26,17 @@ public final class UrlUtils {
      * Returns the path will relative path segments like ".." and "." resolved.
      * The returned path will not necessarily start with a "/" character. This
      * handles ".." and "." segments at both the beginning and end of the path.
+     *
+     * @param discardRelativePrefix true to remove leading ".." segments from
+     *     the path. This is appropriate for paths that are known to be
+     *     absolute.
      */
-    public static String canonicalizePath(String path) {
+    public static String canonicalizePath(String path, boolean discardRelativePrefix) {
         // the first character of the current path segment
         int segmentStart = 0;
+
+        // the number of segments seen thus far that can be erased by sequences of '..'.
+        int deletableSegments = 0;
 
         for (int i = 0; i <= path.length(); ) {
             int nextSegmentStart;
@@ -52,11 +59,21 @@ public final class UrlUtils {
                 path = path.substring(0, segmentStart) + path.substring(nextSegmentStart);
                 i = segmentStart;
             } else if (i == segmentStart + 2 && path.regionMatches(segmentStart, "..", 0, 2)) {
-                // Given "abc/def/../ghi", remove "def/../" to get "abc/ghi".
-                int prevSegmentStart = path.lastIndexOf('/', segmentStart - 2) + 1;
-                path = path.substring(0, prevSegmentStart) + path.substring(nextSegmentStart);
-                i = segmentStart = prevSegmentStart;
+                if (deletableSegments > 0 || discardRelativePrefix) {
+                    // Given "abc/def/../ghi", remove "def/../" to get "abc/ghi".
+                    deletableSegments--;
+                    int prevSegmentStart = path.lastIndexOf('/', segmentStart - 2) + 1;
+                    path = path.substring(0, prevSegmentStart) + path.substring(nextSegmentStart);
+                    i = segmentStart = prevSegmentStart;
+                } else {
+                    // There's no segment to delete; this ".." segment must be retained.
+                    i++;
+                    segmentStart = i;
+                }
             } else {
+                if (i > 0) {
+                    deletableSegments++;
+                }
                 i++;
                 segmentStart = i;
             }

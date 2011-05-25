@@ -211,10 +211,10 @@ public abstract class URLStreamHandler {
      */
     private static String relativePath(String base, String path) {
         if (path.startsWith("/")) {
-            return UrlUtils.canonicalizePath(path);
+            return UrlUtils.canonicalizePath(path, true);
         } else if (base != null) {
             String combined = base.substring(0, base.lastIndexOf('/') + 1) + path;
-            return UrlUtils.canonicalizePath(combined);
+            return UrlUtils.canonicalizePath(combined, true);
         } else {
             return path;
         }

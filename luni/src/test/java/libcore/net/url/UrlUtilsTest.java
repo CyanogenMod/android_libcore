@@ -20,37 +20,37 @@ import junit.framework.TestCase;
 
 public final class UrlUtilsTest extends TestCase {
     public void testCanonicalizePath() {
-        assertEquals("",        UrlUtils.canonicalizePath(""));
-        assertEquals("",        UrlUtils.canonicalizePath("."));
-        assertEquals("",        UrlUtils.canonicalizePath(".."));
-        assertEquals("...",     UrlUtils.canonicalizePath("..."));
-        assertEquals("",        UrlUtils.canonicalizePath("./"));
-        assertEquals("",        UrlUtils.canonicalizePath("../"));
-        assertEquals("a",       UrlUtils.canonicalizePath("../a"));
-        assertEquals("a",       UrlUtils.canonicalizePath("a"));
-        assertEquals("a/",      UrlUtils.canonicalizePath("a/"));
-        assertEquals("a/",      UrlUtils.canonicalizePath("a/."));
-        assertEquals("a/b",     UrlUtils.canonicalizePath("a/./b"));
-        assertEquals("",        UrlUtils.canonicalizePath("a/.."));
-        assertEquals("b",       UrlUtils.canonicalizePath("a/../b"));
-        assertEquals("a/.../b", UrlUtils.canonicalizePath("a/.../b"));
-        assertEquals("a/b",     UrlUtils.canonicalizePath("a/b"));
-        assertEquals("a/b/",    UrlUtils.canonicalizePath("a/b/."));
-        assertEquals("a/b/",    UrlUtils.canonicalizePath("a/b/./"));
-        assertEquals("a/b/c",   UrlUtils.canonicalizePath("a/b/./c"));
-        assertEquals("a/",      UrlUtils.canonicalizePath("a/b/.."));
-        assertEquals("a/",      UrlUtils.canonicalizePath("a/b/../"));
-        assertEquals("a//",     UrlUtils.canonicalizePath("a/b/..//"));
-        assertEquals("a/c",     UrlUtils.canonicalizePath("a/b/../c"));
-        assertEquals("a//c",    UrlUtils.canonicalizePath("a/b/..//c"));
-        assertEquals("c",       UrlUtils.canonicalizePath("a/b/../../c"));
-        assertEquals("/",       UrlUtils.canonicalizePath("/"));
-        assertEquals("//",      UrlUtils.canonicalizePath("//"));
-        assertEquals("/",       UrlUtils.canonicalizePath("/."));
-        assertEquals("/",       UrlUtils.canonicalizePath("/./"));
-        assertEquals("",        UrlUtils.canonicalizePath("/.."));
-        assertEquals("c",       UrlUtils.canonicalizePath("/../c"));
-        assertEquals("/a/b/c",  UrlUtils.canonicalizePath("/a/b/c"));
+        assertEquals("", UrlUtils.canonicalizePath("", true));
+        assertEquals("", UrlUtils.canonicalizePath(".", true));
+        assertEquals("", UrlUtils.canonicalizePath("..", true));
+        assertEquals("...", UrlUtils.canonicalizePath("...", true));
+        assertEquals("", UrlUtils.canonicalizePath("./", true));
+        assertEquals("", UrlUtils.canonicalizePath("../", true));
+        assertEquals("a", UrlUtils.canonicalizePath("../a", true));
+        assertEquals("a", UrlUtils.canonicalizePath("a", true));
+        assertEquals("a/", UrlUtils.canonicalizePath("a/", true));
+        assertEquals("a/", UrlUtils.canonicalizePath("a/.", true));
+        assertEquals("a/b", UrlUtils.canonicalizePath("a/./b", true));
+        assertEquals("", UrlUtils.canonicalizePath("a/..", true));
+        assertEquals("b", UrlUtils.canonicalizePath("a/../b", true));
+        assertEquals("a/.../b", UrlUtils.canonicalizePath("a/.../b", true));
+        assertEquals("a/b", UrlUtils.canonicalizePath("a/b", true));
+        assertEquals("a/b/", UrlUtils.canonicalizePath("a/b/.", true));
+        assertEquals("a/b/", UrlUtils.canonicalizePath("a/b/./", true));
+        assertEquals("a/b/c", UrlUtils.canonicalizePath("a/b/./c", true));
+        assertEquals("a/", UrlUtils.canonicalizePath("a/b/..", true));
+        assertEquals("a/", UrlUtils.canonicalizePath("a/b/../", true));
+        assertEquals("a//", UrlUtils.canonicalizePath("a/b/..//", true));
+        assertEquals("a/c", UrlUtils.canonicalizePath("a/b/../c", true));
+        assertEquals("a//c", UrlUtils.canonicalizePath("a/b/..//c", true));
+        assertEquals("c", UrlUtils.canonicalizePath("a/b/../../c", true));
+        assertEquals("/", UrlUtils.canonicalizePath("/", true));
+        assertEquals("//", UrlUtils.canonicalizePath("//", true));
+        assertEquals("/", UrlUtils.canonicalizePath("/.", true));
+        assertEquals("/", UrlUtils.canonicalizePath("/./", true));
+        assertEquals("", UrlUtils.canonicalizePath("/..", true));
+        assertEquals("c", UrlUtils.canonicalizePath("/../c", true));
+        assertEquals("/a/b/c", UrlUtils.canonicalizePath("/a/b/c", true));
     }
 
     public void testGetProtocolPrefix() {

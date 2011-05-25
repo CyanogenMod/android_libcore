@@ -23,6 +23,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Locale;
 import libcore.net.UriCodec;
+import libcore.net.url.UrlUtils;
 
 /**
  * This class represents an instance of a URI as defined by
@@ -1134,89 +1135,21 @@ public final class URI implements Comparable<URI>, Serializable {
      * normalize path, and return the resulting string
      */
     private String normalize(String path) {
-        // count the number of '/'s, to determine number of segments
-        int index = -1;
-        int pathLength = path.length();
-        int size = 0;
-        if (pathLength > 0 && path.charAt(0) != '/') {
-            size++;
-        }
-        while ((index = path.indexOf('/', index + 1)) != -1) {
-            if (index + 1 < pathLength && path.charAt(index + 1) != '/') {
-                size++;
+        path = UrlUtils.canonicalizePath(path, false);
+
+        /*
+         * If the path contains a colon before the first colon, prepend
+         * "./" to differentiate the path from a scheme prefix.
+         */
+        int colon = path.indexOf(':');
+        if (colon != -1) {
+            int slash = path.indexOf('/');
+            if (slash == -1 || colon < slash) {
+                path = "./" + path;
             }
         }
 
-        String[] segList = new String[size];
-        boolean[] include = new boolean[size];
-
-        // break the path into segments and store in the list
-        int current = 0;
-        int index2;
-        index = (pathLength > 0 && path.charAt(0) == '/') ? 1 : 0;
-        while ((index2 = path.indexOf('/', index + 1)) != -1) {
-            segList[current++] = path.substring(index, index2);
-            index = index2 + 1;
-        }
-
-        // if current==size, then the last character was a slash
-        // and there are no more segments
-        if (current < size) {
-            segList[current] = path.substring(index);
-        }
-
-        // determine which segments get included in the normalized path
-        for (int i = 0; i < size; i++) {
-            include[i] = true;
-            if (segList[i].equals("..")) {
-                int remove = i - 1;
-                // search back to find a segment to remove, if possible
-                while (remove > -1 && !include[remove]) {
-                    remove--;
-                }
-                // if we find a segment to remove, remove it and the ".."
-                // segment
-                if (remove > -1 && !segList[remove].equals("..")) {
-                    include[remove] = false;
-                    include[i] = false;
-                }
-            } else if (segList[i].equals(".")) {
-                include[i] = false;
-            }
-        }
-
-        // put the path back together
-        StringBuilder newPath = new StringBuilder();
-        if (path.startsWith("/")) {
-            newPath.append('/');
-        }
-
-        for (int i = 0; i < segList.length; i++) {
-            if (include[i]) {
-                newPath.append(segList[i]);
-                newPath.append('/');
-            }
-        }
-
-        // if we used at least one segment and the path previously ended with
-        // a slash and the last segment is still used, then delete the extra
-        // trailing '/'
-        if (!path.endsWith("/") && segList.length > 0
-                && include[segList.length - 1]) {
-            newPath.deleteCharAt(newPath.length() - 1);
-        }
-
-        String result = newPath.toString();
-
-        // check for a ':' in the first segment if one exists,
-        // prepend "./" to normalize
-        index = result.indexOf(':');
-        index2 = result.indexOf('/');
-        if (index != -1 && (index < index2 || index2 == -1)) {
-            newPath.insert(0, "./");
-            result = newPath.toString();
-        }
-        return result;
+        return path;
     }
 
     /**
@@ -1361,8 +1294,7 @@ public final class URI implements Comparable<URI>, Serializable {
             } else {
                 // resolve a relative reference
                 int endIndex = path.lastIndexOf('/') + 1;
-                result.path = normalize(path.substring(0, endIndex)
-                        + relative.path);
+                result.path = normalize(path.substring(0, endIndex) + relative.path);
             }
             // re-calculate the scheme specific part since
             // query and path of the resolved URI is different from this URI.
