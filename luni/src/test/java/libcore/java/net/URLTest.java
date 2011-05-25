@@ -462,14 +462,14 @@ public final class URLTest extends TestCase {
 
     public void testRfc1808AbnormalExampleTooManyDotDotSequences() throws Exception {
         URL base = new URL("http://a/b/c/d;p?q");
-        assertEquals("http://a/g", new URL(base, "../../../g").toString()); // fails on RI
-        assertEquals("http://a/g", new URL(base, "../../../../g").toString()); // fails on RI
+        assertEquals("http://a/g", new URL(base, "../../../g").toString()); // RI doesn't normalize
+        assertEquals("http://a/g", new URL(base, "../../../../g").toString());
     }
 
     public void testRfc1808AbnormalExampleRemoveDotSegments() throws Exception {
         URL base = new URL("http://a/b/c/d;p?q");
-        assertEquals("http://a/g", new URL(base, "/./g").toString()); // fails on RI
-        assertEquals("http://a/g", new URL(base, "/../g").toString()); // fails on RI
+        assertEquals("http://a/g", new URL(base, "/./g").toString()); // RI doesn't normalize
+        assertEquals("http://a/g", new URL(base, "/../g").toString()); // RI doesn't normalize
         assertEquals("http://a/b/c/g.", new URL(base, "g.").toString());
         assertEquals("http://a/b/c/.g", new URL(base, ".g").toString());
         assertEquals("http://a/b/c/g..", new URL(base, "g..").toString());
@@ -526,7 +526,7 @@ public final class URLTest extends TestCase {
 
     public void testFileUrlExtraLeadingSlashes() throws Exception {
         URL url = new URL("file:////foo");
-        assertEquals("", url.getAuthority());
+        assertEquals("", url.getAuthority()); // RI returns null
         assertEquals("//foo", url.getPath());
         assertEquals("file:////foo", url.toString());
     }
@@ -547,12 +547,12 @@ public final class URLTest extends TestCase {
         URL url = new URL("http:///foo");
         assertEquals("", url.getAuthority());
         assertEquals("/foo", url.getPath());
-        assertEquals("http:///foo", url.toString());
+        assertEquals("http:///foo", url.toString()); // RI drops '//'
     }
 
     public void testHttpUrlExtraLeadingSlashes() throws Exception {
         URL url = new URL("http:////foo");
-        assertEquals("", url.getAuthority());
+        assertEquals("", url.getAuthority()); // RI returns null
         assertEquals("//foo", url.getPath());
         assertEquals("http:////foo", url.toString());
     }
@@ -567,4 +567,40 @@ public final class URLTest extends TestCase {
         assertEquals("../a/b", url.getPath());
         assertEquals("file:../a/b", url.toString());
     }
+
+    public void testParsingDotAsHostname() throws Exception {
+        URL url = new URL("http://./");
+        assertEquals(".", url.getAuthority());
+        assertEquals(".", url.getHost());
+    }
+
+    public void testSquareBracketsWithIPv4() throws Exception {
+        try {
+            new URL("http://[192.168.0.1]/");
+            fail();
+        } catch (MalformedURLException expected) {
+        }
+    }
+
+    public void testSquareBracketsWithHostname() throws Exception {
+        try {
+            new URL("http://[www.android.com]/");
+            fail();
+        } catch (MalformedURLException expected) {
+        }
+    }
+
+    public void testIPv6WithoutSquareBrackets() throws Exception {
+        try {
+            new URL("http://fe80::1234/");
+            fail();
+        } catch (MalformedURLException expected) {
+        }
+    }
+
+    public void testEqualityWithNoPath() throws Exception {
+        assertFalse(new URL("http://android.com").equals(new URL("http://android.com/")));
+    }
+
+    // Adding a new test? Consider adding an equivalent test to URITest.java
 }
