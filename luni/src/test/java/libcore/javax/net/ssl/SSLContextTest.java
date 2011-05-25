@@ -216,7 +216,8 @@ public class SSLContextTest extends TestCase {
             SSLSessionContext sessionContext = sslContext.getServerSessionContext();
             assertNotNull(sessionContext);
 
-            if (protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+            if (!StandardNames.IS_RI &&
+                    protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
                 assertSame(SSLContext.getInstance(protocol).getServerSessionContext(),
                            sessionContext);
             } else {
@@ -232,7 +233,8 @@ public class SSLContextTest extends TestCase {
             SSLSessionContext sessionContext = sslContext.getClientSessionContext();
             assertNotNull(sessionContext);
 
-            if (protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+            if (!StandardNames.IS_RI &&
+                    protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
                 assertSame(SSLContext.getInstance(protocol).getClientSessionContext(),
                            sessionContext);
             } else {
