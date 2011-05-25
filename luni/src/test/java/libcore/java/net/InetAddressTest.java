@@ -84,11 +84,15 @@ public class InetAddressTest extends junit.framework.TestCase {
 
         InetAddress addr3 = InetAddress.getByName("127.0.0");
         assertFalse(loopback6().equals(addr3));
+
+        assertTrue(Inet4Address.LOOPBACK.equals(Inet4Address.LOOPBACK));
     }
 
     public void test_getHostAddress() throws Exception {
         assertEquals("::1", localhost6().getHostAddress());
         assertEquals("::1", InetAddress.getByName("::1").getHostAddress());
+
+        assertEquals("127.0.0.1", Inet4Address.LOOPBACK.getHostAddress());
 
         InetAddress aAddr = InetAddress.getByName("224.0.0.0");
         assertEquals("224.0.0.0", aAddr.getHostAddress());
