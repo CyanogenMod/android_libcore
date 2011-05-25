@@ -18,8 +18,8 @@
 package java.net;
 
 import java.io.IOException;
+import libcore.net.url.UrlUtils;
 import libcore.util.Objects;
-import org.apache.harmony.luni.util.URLUtil;
 
 /**
  * The abstract class {@code URLStreamHandler} is the base for all classes which
@@ -71,9 +71,9 @@ public abstract class URLStreamHandler {
      * The string is parsed in HTTP format. If the protocol has a different URL
      * format this method must be overridden.
      *
-     * @param u
+     * @param url
      *            the URL to fill in the parsed clear text URL parts.
-     * @param str
+     * @param spec
      *            the URL string that is to be parsed.
      * @param start
      *            the string position from where to begin parsing.
@@ -82,151 +82,142 @@ public abstract class URLStreamHandler {
      * @see #toExternalForm
      * @see URL
      */
-    protected void parseURL(URL u, String str, int start, int end) {
-        // For compatibility, refer to Harmony-2941
-        if (str.startsWith("//", start)
-                && str.indexOf('/', start + 2) == -1
-                && end <= Integer.MIN_VALUE + 1) {
-            throw new StringIndexOutOfBoundsException(end - 2 - start);
+    protected void parseURL(URL url, String spec, int start, int end) {
+        if (this != url.streamHandler) {
+            throw new SecurityException("Only a URL's stream handler is permitted to mutate it");
         }
         if (end < start) {
-            if (this != u.streamHandler) {
-                throw new SecurityException();
-            }
-            return;
+            throw new StringIndexOutOfBoundsException(spec, start, end - start);
         }
-        String parseString = "";
-        if (start < end) {
-            parseString = str.substring(start, end);
-        }
-        end -= start;
-        int fileIdx = 0;
 
-        // Default is to use info from context
-        String host = u.getHost();
-        int port = u.getPort();
-        String ref = u.getRef();
-        String file = u.getPath();
-        String query = u.getQuery();
-        String authority = u.getAuthority();
-        String userInfo = u.getUserInfo();
-
-        int refIdx = parseString.indexOf('#', 0);
-        if (parseString.startsWith("//")) {
-            int hostIdx = 2;
-            port = -1;
-            fileIdx = parseString.indexOf('/', hostIdx);
-            int questionMarkIndex = parseString.indexOf('?', hostIdx);
-            if (questionMarkIndex != -1 && (fileIdx == -1 || fileIdx > questionMarkIndex)) {
-                fileIdx = questionMarkIndex;
-            }
-            if (fileIdx == -1) {
-                fileIdx = end;
-                // Use default
-                file = "";
-            }
-            int hostEnd = fileIdx;
-            if (refIdx != -1 && refIdx < fileIdx) {
-                hostEnd = refIdx;
-                fileIdx = refIdx;
-                file = "";
-            }
-            int userIdx = parseString.lastIndexOf('@', hostEnd);
-            authority = parseString.substring(hostIdx, hostEnd);
-            if (userIdx != -1) {
-                userInfo = parseString.substring(hostIdx, userIdx);
-                hostIdx = userIdx + 1;
-            }
-
-            int endOfIPv6Addr = parseString.indexOf(']', hostIdx);
-            if (endOfIPv6Addr >= hostEnd) {
-                endOfIPv6Addr = -1;
-            }
-
-            // the port separator must be immediately after an IPv6 address "http://[::1]:80/"
-            int portIdx = -1;
-            if (endOfIPv6Addr != -1) {
-                int maybeColon = endOfIPv6Addr + 1;
-                if (maybeColon < hostEnd && parseString.charAt(maybeColon) == ':') {
-                    portIdx = maybeColon;
-                }
+        int fileStart;
+        String authority;
+        String userInfo;
+        String host;
+        int port = -1;
+        String path;
+        String query;
+        String ref;
+        if (spec.regionMatches(start, "//", 0, 2)) {
+            // Parse the authority from the spec.
+            int authorityStart = start + 2;
+            fileStart = findFirstOf(spec, "/?#", authorityStart, end);
+            authority = spec.substring(authorityStart, fileStart);
+            int userInfoEnd = findFirstOf(spec, "@", authorityStart, fileStart);
+            int hostStart;
+            if (userInfoEnd != fileStart) {
+                userInfo = spec.substring(authorityStart, userInfoEnd);
+                hostStart = userInfoEnd + 1;
             } else {
-                portIdx = parseString.indexOf(':', hostIdx);
+                userInfo = null;
+                hostStart = authorityStart;
             }
 
-            if (portIdx == -1 || portIdx > hostEnd) {
-                host = parseString.substring(hostIdx, hostEnd);
-            } else {
-                host = parseString.substring(hostIdx, portIdx);
-                String portString = parseString.substring(portIdx + 1, hostEnd);
-                if (portString.length() == 0) {
-                    port = -1;
-                } else {
-                    port = Integer.parseInt(portString);
+            /*
+             * Extract the host and port. The host may be an IPv6 address with
+             * colons like "[::1]", in which case we look for the port delimiter
+             * colon after the ']' character.
+             */
+            int ipv6End = findFirstOf(spec, "]", hostStart, fileStart);
+            int colonSearchFrom = (ipv6End != fileStart) ? ipv6End : hostStart;
+            int hostEnd = findFirstOf(spec, ":", colonSearchFrom, fileStart);
+            host = spec.substring(hostStart, hostEnd);
+            int portStart = hostEnd + 1;
+            if (portStart < fileStart) {
+                port = Integer.parseInt(spec.substring(portStart, fileStart));
+                if (port < 0) {
+                    throw new IllegalArgumentException("port < 0: " + port);
                 }
             }
-        }
-
-        if (refIdx > -1) {
-            ref = parseString.substring(refIdx + 1, end);
-        }
-        int fileEnd = (refIdx == -1 ? end : refIdx);
-
-        int queryIdx = parseString.lastIndexOf('?', fileEnd);
-        boolean canonicalize = false;
-        if (queryIdx > -1) {
-            query = parseString.substring(queryIdx + 1, fileEnd);
-            if (queryIdx == 0 && file != null) {
-                if (file.isEmpty()) {
-                    file = "/";
-                } else if (file.startsWith("/")) {
-                    canonicalize = true;
-                }
-                int last = file.lastIndexOf('/') + 1;
-                file = file.substring(0, last);
-            }
-            fileEnd = queryIdx;
-        } else
-        // Don't inherit query unless only the ref is changed
-        if (refIdx != 0) {
+            path = null;
             query = null;
+            ref = null;
+        } else {
+            // Get the authority from the context URL.
+            fileStart = start;
+            authority = url.getAuthority();
+            userInfo = url.getUserInfo();
+            host = url.getHost();
+            if (host == null) {
+                host = "";
+            }
+            port = url.getPort();
+            path = url.getPath();
+            query = url.getQuery();
+            ref = url.getRef();
         }
 
-        if (fileIdx > -1) {
-            if (fileIdx < end && parseString.charAt(fileIdx) == '/') {
-                file = parseString.substring(fileIdx, fileEnd);
-            } else if (fileEnd > fileIdx) {
-                if (file == null) {
-                    file = "";
-                } else if (file.isEmpty()) {
-                    file = "/";
-                } else if (file.startsWith("/")) {
-                    canonicalize = true;
-                }
-                int last = file.lastIndexOf('/') + 1;
-                if (last == 0) {
-                    file = parseString.substring(fileIdx, fileEnd);
-                } else {
-                    file = file.substring(0, last)
-                            + parseString.substring(fileIdx, fileEnd);
-                }
+        /*
+         * Extract the path, query and fragment. Each part has its own leading
+         * delimiter character. The query can contain slashes and the fragment
+         * can contain slashes and question marks.
+         *    / path ? query # fragment
+         */
+        int pos = fileStart;
+        while (pos < end) {
+            int nextPos;
+            switch (spec.charAt(pos)) {
+            case '#':
+                nextPos = end;
+                ref = spec.substring(pos + 1, nextPos);
+                break;
+            case '?':
+                nextPos = findFirstOf(spec, "#", pos, end);
+                query = spec.substring(pos + 1, nextPos);
+                ref = null;
+                break;
+            default:
+                nextPos = findFirstOf(spec, "?#", pos, end);
+                path = relativePath(path, spec.substring(pos, nextPos));
+                query = null;
+                ref = null;
+                break;
+            }
+            pos = nextPos;
+        }
+
+        if (path == null) {
+            path = "";
+        }
+
+        /*
+         * Force the path to start with a '/' if this URL has an authority.
+         * Otherwise they run together like http://android.comindex.html.
+         */
+        if (authority != null && !authority.isEmpty() && !path.startsWith("/") && !path.isEmpty()) {
+            path = "/" + path;
+        }
+
+        setURL(url, url.getProtocol(), host, port, authority, userInfo, path, query, ref);
+    }
+
+    /**
+     * Returns the index of the first char of {@code chars} in {@code string}
+     * bounded between {@code start} and {@code end}. This returns {@code end}
+     * if none of the characters exist in the requested range.
+     */
+    private static int findFirstOf(String string, String chars, int start, int end) {
+        for (int i = start; i < end; i++) {
+            char c = string.charAt(i);
+            if (chars.indexOf(c) != -1) {
+                return i;
             }
         }
-        if (file == null) {
-            file = "";
-        }
+        return end;
+    }
 
-        if (host == null) {
-            host = "";
+    /**
+     * Returns a new path by resolving {@code path} relative to {@code base}.
+     */
+    private static String relativePath(String base, String path) {
+        if (path.startsWith("/")) {
+            return UrlUtils.canonicalizePath(path);
+        } else if (base != null) {
+            String combined = base.substring(0, base.lastIndexOf('/') + 1) + path;
+            return UrlUtils.canonicalizePath(combined);
+        } else {
+            return path;
         }
-
-        if (canonicalize) {
-            // modify file if there's any relative referencing
-            file = URLUtil.canonicalizePath(file);
-        }
-
-        setURL(u, u.getProtocol(), host, port, authority, userInfo, file,
-                query, ref);
     }
 
     /**
@@ -260,33 +251,14 @@ public abstract class URLStreamHandler {
     /**
      * Sets the fields of the URL {@code u} to the values of the supplied
      * arguments.
-     *
-     * @param u
-     *            the non-null URL object to be set.
-     * @param protocol
-     *            the protocol.
-     * @param host
-     *            the host name.
-     * @param port
-     *            the port number.
-     * @param authority
-     *            the authority.
-     * @param userInfo
-     *            the user info.
-     * @param file
-     *            the file component.
-     * @param query
-     *            the query.
-     * @param ref
-     *            the reference.
      */
     protected void setURL(URL u, String protocol, String host, int port,
-            String authority, String userInfo, String file, String query,
+            String authority, String userInfo, String path, String query,
             String ref) {
         if (this != u.streamHandler) {
             throw new SecurityException();
         }
-        u.set(protocol, host, port, authority, userInfo, file, query, ref);
+        u.set(protocol, host, port, authority, userInfo, path, query, ref);
     }
 
     /**
@@ -308,7 +280,7 @@ public abstract class URLStreamHandler {
         result.append(':');
 
         String authority = url.getAuthority();
-        if (authority != null && !authority.isEmpty()) {
+        if (authority != null) {
             result.append("//");
             if (escapeIllegalCharacters) {
                 URI.AUTHORITY_ENCODER.appendPartiallyEncoded(result, authority);
@@ -384,9 +356,9 @@ public abstract class URLStreamHandler {
      */
     protected boolean hostsEqual(URL a, URL b) {
         // URLs with the same case-insensitive host name have equal hosts
-        String aHost = getHost(a);
-        String bHost = getHost(b);
-        return aHost != null && aHost.equalsIgnoreCase(bHost);
+        String aHost = a.getHost();
+        String bHost = b.getHost();
+        return (aHost == bHost) || aHost != null && aHost.equalsIgnoreCase(bHost);
     }
 
     /**
@@ -398,13 +370,5 @@ public abstract class URLStreamHandler {
                 && hostsEqual(a, b)
                 && a.getEffectivePort() == b.getEffectivePort()
                 && Objects.equal(a.getFile(), b.getFile());
-    }
-
-    private static String getHost(URL url) {
-        String host = url.getHost();
-        if ("file".equals(url.getProtocol()) && host != null && host.isEmpty()) {
-            host = "localhost";
-        }
-        return host;
     }
 }

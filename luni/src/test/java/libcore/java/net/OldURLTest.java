@@ -70,7 +70,7 @@ public class OldURLTest extends TestCase {
         assertEquals("Assert 0: wrong protocol", "http", testURL.getProtocol());
         assertEquals("Assert 1: wrong host", "[www.apache.org:8082]", testURL.getHost());
         assertEquals("Assert 2: wrong port", -1, testURL.getPort());
-        assertEquals("Assert 3: wrong file", "test.html", testURL.getFile());
+        assertEquals("Assert 3: wrong file", "/test.html", testURL.getFile());
         assertEquals("Assert 4: wrong anchor", "anch", testURL.getRef());
 
         try {
@@ -225,7 +225,7 @@ public class OldURLTest extends TestCase {
         assertFalse("Assert 1: error in equals: not same", testURL1.equals(wrongPort));
         assertFalse("Assert 2: error in equals: not same", testURL1.equals(wrongHost));
         assertFalse("Assert 3: error in equals: not same", testURL1.equals(wrongRef));
-        assertFalse("Assert 4: error in equals: not same", testURL1.equals(testURL2));
+        assertEquals(testURL1, testURL2);
 
         URL testURL3 = new URL("http", "www.apache.org", "/test.html");
         URL testURL4 = new URL("http://www.apache.org/test.html");
@@ -658,7 +658,7 @@ public class OldURLTest extends TestCase {
         assertEquals("SSISH1 returns a wrong host", "www.yahoo.com", u
                 .getHost());
         assertEquals("SSISH1 returns a wrong port", 8080, u.getPort());
-        assertEquals("SSISH1 returns a wrong file", "test.html", u.getFile());
+        assertEquals("SSISH1 returns a wrong file", "/test.html", u.getFile());
         assertTrue("SSISH1 returns a wrong anchor: " + u.getRef(), u.getRef()
                 .equals("foo"));
 
@@ -668,7 +668,7 @@ public class OldURLTest extends TestCase {
         assertEquals("SSISH2 returns a wrong host", "www.yahoo.com", u
                 .getHost());
         assertEquals("SSISH2 returns a wrong port", 8080, u.getPort());
-        assertEquals("SSISH2 returns a wrong file", "test.html", u.getFile());
+        assertEquals("SSISH2 returns a wrong file", "/test.html", u.getFile());
         assertTrue("SSISH2 returns a wrong anchor: " + u.getRef(), u.getRef()
                 .equals("foo"));
 
@@ -748,8 +748,7 @@ public class OldURLTest extends TestCase {
         assertEquals("3 returns a wrong protocol", "http", u1.getProtocol());
         assertEquals("3 returns a wrong host", "www.yahoo.com", u1.getHost());
         assertEquals("3 returns a wrong port", -1, u1.getPort());
-        assertEquals("3 returns a wrong file", "/dir1/dir2/../file.java", u1
-                .getFile());
+        assertEquals("3 returns a wrong file", "/dir1/file.java", u1.getFile());
         assertNull("3 returns a wrong anchor", u1.getRef());
 
         // test for question mark processing
@@ -762,7 +761,7 @@ public class OldURLTest extends TestCase {
 
         // test for absolute and relative file processing
         u1 = new URL(u, "/../dir1/dir2/../file.java", null);
-        assertEquals("B) returns a wrong file", "/../dir1/dir2/../file.java",
+        assertEquals("B) returns a wrong file", "/dir1/file.java",
                 u1.getFile());
 
         URL one;
@@ -785,7 +784,7 @@ public class OldURLTest extends TestCase {
         String strURL = "http://a/b/c/d;p?q";
         String ref = "?y";
         URL url = new URL(new URL(strURL), ref);
-        assertEquals("http://a/b/c/?y", url.toExternalForm());
+        assertEquals("http://a/b/c/d;p?y", url.toExternalForm());
     }
 
     public void test_toExternalForm_Absolute() throws MalformedURLException {
