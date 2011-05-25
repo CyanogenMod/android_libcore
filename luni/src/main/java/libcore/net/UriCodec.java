@@ -39,7 +39,7 @@ public abstract class UriCodec {
     /**
      * Throws if {@code s} is invalid according to this encoder.
      */
-    public void validate(String s) throws URISyntaxException {
+    public final void validate(String s) throws URISyntaxException {
         for (int i = 0; i < s.length();) {
             char ch = s.charAt(i);
             if ((ch >= 'a' && ch <= 'z')
@@ -124,18 +124,18 @@ public abstract class UriCodec {
         }
     }
 
-    public String encode(String s, Charset charset) {
+    public final String encode(String s, Charset charset) {
         // Guess a bit larger for encoded form
         StringBuilder builder = new StringBuilder(s.length() + 16);
         appendEncoded(builder, s, charset, false);
         return builder.toString();
     }
 
-    public void appendEncoded(StringBuilder builder, String s) {
+    public final void appendEncoded(StringBuilder builder, String s) {
         appendEncoded(builder, s, Charsets.UTF_8, false);
     }
 
-    public void appendPartiallyEncoded(StringBuilder builder, String s) {
+    public final void appendPartiallyEncoded(StringBuilder builder, String s) {
         appendEncoded(builder, s, Charsets.UTF_8, true);
     }
 
