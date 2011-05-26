@@ -39,36 +39,39 @@ public abstract class UriCodec {
     /**
      * Throws if {@code s} is invalid according to this encoder.
      */
-    public final void validate(String s) throws URISyntaxException {
-        for (int i = 0; i < s.length();) {
-            char ch = s.charAt(i);
+    public final String validate(String uri, int start, int end, String name)
+            throws URISyntaxException {
+        for (int i = start; i < end; ) {
+            char ch = uri.charAt(i);
             if ((ch >= 'a' && ch <= 'z')
                     || (ch >= 'A' && ch <= 'Z')
                     || (ch >= '0' && ch <= '9')
                     || isRetained(ch)) {
                 i++;
             } else if (ch == '%') {
-                if (i + 2 >= s.length()) {
-                    throw new URISyntaxException(s, "Incomplete % sequence", i);
+                if (i + 2 >= end) {
+                    throw new URISyntaxException(uri, "Incomplete % sequence in " + name, i);
                 }
-                int d1 = hexToInt(s.charAt(i + 1));
-                int d2 = hexToInt(s.charAt(i + 2));
+                int d1 = hexToInt(uri.charAt(i + 1));
+                int d2 = hexToInt(uri.charAt(i + 2));
                 if (d1 == -1 || d2 == -1) {
-                    throw new URISyntaxException(s, "Invalid % sequence: " +
-                            s.substring(i, i + 3), i);
+                    throw new URISyntaxException(uri, "Invalid % sequence: "
+                            + uri.substring(i, i + 3) + " in " + name, i);
                 }
                 i += 3;
             } else {
-                throw new URISyntaxException(s, "Illegal character", i);
+                throw new URISyntaxException(uri, "Illegal character in " + name, i);
             }
         }
+        return uri.substring(start, end);
     }
 
     /**
      * Throws if {@code s} contains characters that are not letters, digits or
      * in {@code legal}.
      */
-    public static void validateSimple(String s, String legal) throws URISyntaxException {
+    public static void validateSimple(String s, String legal)
+            throws URISyntaxException {
         for (int i = 0; i < s.length(); i++) {
             char ch = s.charAt(i);
             if (!((ch >= 'a' && ch <= 'z')
