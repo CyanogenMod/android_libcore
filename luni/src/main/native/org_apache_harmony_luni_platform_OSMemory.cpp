@@ -20,6 +20,7 @@
 #include "JniConstants.h"
 #include "UniquePtr.h"
 
+#include <byteswap.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -98,29 +99,31 @@ static void OSMemory_setByteArray(JNIEnv* env, jclass,
     env->GetByteArrayRegion(src, offset, length, cast<jbyte*>(dstAddress));
 }
 
-static void swapShorts(jshort* shorts, int count) {
-    jbyte* src = reinterpret_cast<jbyte*>(shorts);
-    jbyte* dst = src;
-    for (int i = 0; i < count; ++i) {
-        jbyte b0 = *src++;
-        jbyte b1 = *src++;
-        *dst++ = b1;
-        *dst++ = b0;
+static inline void swapShorts(jshort* shorts, int count) {
+    jbyte *srcShorts = reinterpret_cast<jbyte*>(shorts);
+    jbyte *dstShorts = srcShorts;
+    // Do 32-bit swaps as long as possible...
+    jint* dst = reinterpret_cast<jint*>(dstShorts);
+    const jint* src = reinterpret_cast<const jint*>(srcShorts);
+    for (int i = 0; i < count / 2; ++i) {
+        jint v = *src++;                            // v=ABCD
+        v = bswap_32(v);                            // v=DCBA
+        jint v2 = (v << 16) | ((v >> 16) & 0xffff); // v=BADC
+        *dst++ = v2;
+    }
+    // ...with one last 16-bit swap if necessary.
+    if ((count % 2) != 0) {
+        jshort v = *reinterpret_cast<const jshort*>(src);
+        *reinterpret_cast<jshort*>(dst) = bswap_16(v);
     }
 }
 
 static void swapInts(jint* ints, int count) {
-    jbyte* src = reinterpret_cast<jbyte*>(ints);
-    jbyte* dst = src;
+    jint* src = ints;
+    jint* dst = src;
     for (int i = 0; i < count; ++i) {
-        jbyte b0 = *src++;
-        jbyte b1 = *src++;
-        jbyte b2 = *src++;
-        jbyte b3 = *src++;
-        *dst++ = b3;
-        *dst++ = b2;
-        *dst++ = b1;
-        *dst++ = b0;
+	jint v = *src++;
+	*dst++ = bswap_32(v);
     }
 }
 
