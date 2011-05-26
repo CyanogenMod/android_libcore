@@ -180,13 +180,7 @@ public abstract class URLStreamHandler {
             path = "";
         }
 
-        /*
-         * Force the path to start with a '/' if this URL has an authority.
-         * Otherwise they run together like http://android.comindex.html.
-         */
-        if (authority != null && !authority.isEmpty() && !path.startsWith("/") && !path.isEmpty()) {
-            path = "/" + path;
-        }
+        path = UrlUtils.authoritySafePath(authority, path);
 
         setURL(url, url.getProtocol(), host, port, authority, userInfo, path, query, ref);
     }

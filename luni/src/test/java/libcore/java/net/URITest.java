@@ -366,7 +366,7 @@ public final class URITest extends TestCase {
         assertEquals("http://a/b/c/g/", base.resolve("g/").toString());
         assertEquals("http://a/g", base.resolve("/g").toString());
         assertEquals("http://g", base.resolve("//g").toString());
-//        assertEquals("http://a/b/c/d;p?y", base.resolve("?y").toString()); // fails on RI
+        assertEquals("http://a/b/c/d;p?y", base.resolve("?y").toString()); // fails on RI
         assertEquals("http://a/b/c/g?y", base.resolve("g?y").toString());
         assertEquals("http://a/b/c/d;p?q#s", base.resolve("#s").toString());
         assertEquals("http://a/b/c/g#s", base.resolve("g#s").toString());
@@ -374,7 +374,7 @@ public final class URITest extends TestCase {
         assertEquals("http://a/b/c/;x", base.resolve(";x").toString());
         assertEquals("http://a/b/c/g;x", base.resolve("g;x").toString());
         assertEquals("http://a/b/c/g;x?y#s", base.resolve("g;x?y#s").toString());
-//        assertEquals("http://a/b/c/d;p?q", base.resolve("").toString()); RI returns http://a/b/c/
+        assertEquals("http://a/b/c/d;p?q", base.resolve("").toString()); // RI returns http://a/b/c/
         assertEquals("http://a/b/c/", base.resolve(".").toString());
         assertEquals("http://a/b/c/", base.resolve("./").toString());
         assertEquals("http://a/b/", base.resolve("..").toString());
@@ -387,14 +387,14 @@ public final class URITest extends TestCase {
 
     public void testRfc1808AbnormalExampleTooManyDotDotSequences() throws Exception {
         URI base = new URI("http://a/b/c/d;p?q");
-//        assertEquals("http://a/g", base.resolve("../../../g").toString()); // fails on RI
-//        assertEquals("http://a/g", base.resolve("../../../../g").toString()); // fails on RI
+        assertEquals("http://a/g", base.resolve("../../../g").toString()); // fails on RI
+        assertEquals("http://a/g", base.resolve("../../../../g").toString()); // fails on RI
     }
 
     public void testRfc1808AbnormalExampleRemoveDotSegments() throws Exception {
         URI base = new URI("http://a/b/c/d;p?q");
-//        assertEquals("http://a/g", base.resolve("/./g").toString()); // fails on RI
-//        assertEquals("http://a/g", base.resolve("/../g").toString()); // fails on RI
+        assertEquals("http://a/g", base.resolve("/./g").toString()); // fails on RI
+        assertEquals("http://a/g", base.resolve("/../g").toString()); // fails on RI
         assertEquals("http://a/b/c/g.", base.resolve("g.").toString());
         assertEquals("http://a/b/c/.g", base.resolve(".g").toString());
         assertEquals("http://a/b/c/g..", base.resolve("g..").toString());
@@ -413,8 +413,10 @@ public final class URITest extends TestCase {
 
     public void testRfc1808AbnormalExampleRelativeScheme() throws Exception {
         URI base = new URI("http://a/b/c/d;p?q");
-        // this result is permitted; strict parsers prefer "http:g"
-//        assertEquals("http://a/b/c/g", base.resolve("http:g").toString()); // RI yields strict result
+        URI uri = base.resolve("http:g");
+        assertEquals("http:g", uri.toString()); // this is an opaque URI
+        assertEquals(true, uri.isOpaque());
+        assertEquals(true, uri.isAbsolute());
     }
 
     public void testRfc1808AbnormalExampleQueryOrFragmentDots() throws Exception {
@@ -462,14 +464,14 @@ public final class URITest extends TestCase {
     }
 
     public void testFileUrlRelativePath() throws Exception {
-        URI base = new URI("file:a/b/c");
-//        assertEquals("file:a/b/d", base.resolve("d").toString()); // fails on RI
+        URI base = new URI("file:/a/b/c");
+        assertEquals("file:/a/b/d", base.resolve("d").toString());
     }
 
     public void testFileUrlDottedPath() throws Exception {
         URI url = new URI("file:../a/b");
-//        assertEquals("../a/b", url.getPath()); // fails on RI
-        assertEquals("file:../a/b", url.toString());
+        assertTrue(url.isOpaque());
+        assertNull(url.getPath());
     }
 
     /**
@@ -506,7 +508,27 @@ public final class URITest extends TestCase {
     public void testRelativize() throws Exception {
         URI a = new URI("http://host/a/b");
         URI b = new URI("http://host/a/b/c");
-//        assertEquals("b/c", a.relativize(b).toString()); // fails on both the RI and libcore
+        assertEquals("b/c", a.relativize(b).toString()); // fails on both the RI and libcore
+    }
+
+    public void testParseServerAuthorityInvalidAuthority() throws Exception {
+        URI uri = new URI("http://host:-2/");
+        assertEquals("host:-2", uri.getAuthority());
+        assertNull(uri.getHost());
+        assertEquals(-1, uri.getPort());
+        try {
+            uri.parseServerAuthority();
+            fail();
+        } catch (URISyntaxException expected) {
+        }
+    }
+
+    public void testParseServerAuthorityOmittedAuthority() throws Exception {
+        URI uri = new URI("http:file");
+        uri.parseServerAuthority(); // does nothing!
+        assertNull(uri.getAuthority());
+        assertNull(uri.getHost());
+        assertEquals(-1, uri.getPort());
     }
 
     // Adding a new test? Consider adding an equivalent test to URLTest.java

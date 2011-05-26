@@ -1131,11 +1131,11 @@ public final class URI implements Comparable<URI>, Serializable {
         return opaque;
     }
 
-    /*
-     * normalize path, and return the resulting string
+    /**
+     * Returns the normalized path.
      */
-    private String normalize(String path) {
-        path = UrlUtils.canonicalizePath(path, false);
+    private String normalize(String path, boolean discardRelativePrefix) {
+        path = UrlUtils.canonicalizePath(path, discardRelativePrefix);
 
         /*
          * If the path contains a colon before the first colon, prepend
@@ -1162,7 +1162,7 @@ public final class URI implements Comparable<URI>, Serializable {
         if (opaque) {
             return this;
         }
-        String normalizedPath = normalize(path);
+        String normalizedPath = normalize(path, false);
         // if the path is already normalized, return this
         if (path.equals(normalizedPath)) {
             return this;
@@ -1216,18 +1216,17 @@ public final class URI implements Comparable<URI>, Serializable {
         }
 
         // normalize both paths
-        String thisPath = normalize(path);
-        String relativePath = normalize(relative.path);
+        String thisPath = normalize(path, false);
+        String relativePath = normalize(relative.path, false);
 
         /*
          * if the paths aren't equal, then we need to determine if this URI's
          * path is a parent path (begins with) the relative URI's path
          */
         if (!thisPath.equals(relativePath)) {
-            // if this URI's path doesn't end in a '/', add one
-            if (!thisPath.endsWith("/")) {
-                thisPath = thisPath + '/';
-            }
+            // drop everything after the last slash in this path
+            thisPath = thisPath.substring(0, thisPath.lastIndexOf('/') + 1);
+
             /*
              * if the relative URI's path doesn't start with this URI's path,
              * then just return the relative URI; the URIs have nothing in
@@ -1260,46 +1259,39 @@ public final class URI implements Comparable<URI>, Serializable {
             return relative;
         }
 
-        URI result;
-        if (relative.path.isEmpty() && relative.scheme == null
-                && relative.authority == null && relative.query == null
-                && relative.fragment != null) {
-            // if the relative URI only consists of fragment,
-            // the resolved URI is very similar to this URI,
-            // except that it has the fragment from the relative URI.
-            result = duplicate();
-            result.fragment = relative.fragment;
-            // no need to re-calculate the scheme specific part,
-            // since fragment is not part of scheme specific part.
+        if (relative.authority != null) {
+            // If the relative URI has an authority, the result is the relative
+            // with this URI's scheme.
+            URI result = relative.duplicate();
+            result.scheme = scheme;
+            result.absolute = absolute;
             return result;
         }
 
-        if (relative.authority != null) {
-            // if the relative URI has authority,
-            // the resolved URI is almost the same as the relative URI,
-            // except that it has the scheme of this URI.
-            result = relative.duplicate();
-            result.scheme = scheme;
-            result.absolute = absolute;
-        } else {
-            // since relative URI has no authority,
-            // the resolved URI is very similar to this URI,
-            // except that it has the query and fragment of the relative URI,
-            // and the path is different.
-            result = duplicate();
+        if (relative.path.isEmpty() && relative.scheme == null && relative.query == null) {
+            // if the relative URI only consists of at most a fragment,
+            URI result = duplicate();
             result.fragment = relative.fragment;
-            result.query = relative.query;
-            if (relative.path.startsWith("/")) {
-                result.path = relative.path;
-            } else {
-                // resolve a relative reference
-                int endIndex = path.lastIndexOf('/') + 1;
-                result.path = normalize(path.substring(0, endIndex) + relative.path);
-            }
-            // re-calculate the scheme specific part since
-            // query and path of the resolved URI is different from this URI.
-            result.setSchemeSpecificPart();
+            return result;
         }
+
+        URI result = duplicate();
+        result.fragment = relative.fragment;
+        result.query = relative.query;
+        String resolvedPath;
+        if (relative.path.startsWith("/")) {
+            // The relative URI has an absolute path; use it.
+            resolvedPath = relative.path;
+        } else if (relative.path.isEmpty()) {
+            // The relative URI has no path; use the base path.
+            resolvedPath = path;
+        } else {
+            // The relative URI has a relative path; combine the paths.
+            int endIndex = path.lastIndexOf('/') + 1;
+            resolvedPath = path.substring(0, endIndex) + relative.path;
+        }
+        result.path = UrlUtils.authoritySafePath(result.authority, normalize(resolvedPath, true));
+        result.setSchemeSpecificPart();
         return result;
     }
 

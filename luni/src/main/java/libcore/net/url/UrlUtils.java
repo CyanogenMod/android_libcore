@@ -82,6 +82,18 @@ public final class UrlUtils {
     }
 
     /**
+     * Returns a path that can be safely concatenated with {@code authority}. If
+     * the authority is null or empty, this can be any path. Otherwise the paths
+     * run together like {@code http://android.comindex.html}.
+     */
+    public static String authoritySafePath(String authority, String path) {
+        if (authority != null && !authority.isEmpty() && !path.isEmpty() && !path.startsWith("/")) {
+            return "/" + path;
+        }
+        return path;
+    }
+
+    /**
      * Returns the scheme prefix like "http" from the URL spec, or null if the
      * spec doesn't start with a scheme. Scheme prefixes match this pattern:
      * {@code alpha ( alpha | digit | '+' | '-' | '.' )* ':'}
