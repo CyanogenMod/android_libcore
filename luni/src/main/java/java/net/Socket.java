@@ -752,7 +752,7 @@ public class Socket {
             }
             InetSocketAddress inetAddr = (InetSocketAddress) localAddr;
             if ((addr = inetAddr.getAddress()) == null) {
-                throw new SocketException("Host is unresolved: " + inetAddr.getHostName());
+                throw new UnknownHostException("Host is unresolved: " + inetAddr.getHostName());
             }
             port = inetAddr.getPort();
         }
@@ -822,7 +822,7 @@ public class Socket {
         InetSocketAddress inetAddr = (InetSocketAddress) remoteAddr;
         InetAddress addr;
         if ((addr = inetAddr.getAddress()) == null) {
-            throw new SocketException("Host is unresolved: " + inetAddr.getHostName());
+            throw new UnknownHostException("Host is unresolved: " + inetAddr.getHostName());
         }
         int port = inetAddr.getPort();
 
