@@ -152,7 +152,7 @@ static bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, so
     return true;
 }
 
-bool inetAddressToSockaddr_getnameinfo(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
+bool inetAddressToSockaddrVerbatim(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
     return inetAddressToSockaddr(env, inetAddress, port, ss, false);
 }
 
