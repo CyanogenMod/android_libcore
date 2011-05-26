@@ -29,8 +29,8 @@ bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, sockaddr_
 // a sockaddr_in6 while an Inet4Address will be converted to a sockaddr_in. This is
 // probably only useful for getnameinfo(2), where we'll be presenting the result to
 // the user and the user may actually care whether the original address was pure IPv4
-// or an IPv4-mapped IPv6 address.
-bool inetAddressToSockaddr_getnameinfo(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss);
+// or an IPv4-mapped IPv6 address, and for the MCAST_JOIN_GROUP socket option.
+bool inetAddressToSockaddrVerbatim(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss);
 
 
 

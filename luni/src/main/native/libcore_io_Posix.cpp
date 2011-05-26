@@ -622,7 +622,7 @@ static jstring Posix_getenv(JNIEnv* env, jobject, jstring javaName) {
 
 static jstring Posix_getnameinfo(JNIEnv* env, jobject, jobject javaAddress, jint flags) {
     sockaddr_storage ss;
-    if (!inetAddressToSockaddr_getnameinfo(env, javaAddress, 0, &ss)) {
+    if (!inetAddressToSockaddrVerbatim(env, javaAddress, 0, &ss)) {
         return NULL;
     }
     // TODO: bionic's getnameinfo(3) seems to want its length parameter to be exactly
@@ -1052,19 +1052,20 @@ static void Posix_setsockoptIpMreqn(JNIEnv* env, jobject, jobject javaFd, jint l
 }
 
 static void Posix_setsockoptGroupReq(JNIEnv* env, jobject, jobject javaFd, jint level, jint option, jobject javaGroupReq) {
-    struct group_req value;
+    struct group_req req;
+    memset(&req, 0, sizeof(req));
 
     static jfieldID grInterfaceFid = env->GetFieldID(JniConstants::structGroupReqClass, "gr_interface", "I");
-    value.gr_interface = env->GetIntField(javaGroupReq, grInterfaceFid);
+    req.gr_interface = env->GetIntField(javaGroupReq, grInterfaceFid);
     // Get the IPv4 or IPv6 multicast address to join or leave.
     static jfieldID grGroupFid = env->GetFieldID(JniConstants::structGroupReqClass, "gr_group", "Ljava/net/InetAddress;");
     ScopedLocalRef<jobject> javaGroup(env, env->GetObjectField(javaGroupReq, grGroupFid));
-    if (!inetAddressToSockaddr(env, javaGroup.get(), 0, &value.gr_group)) {
+    if (!inetAddressToSockaddrVerbatim(env, javaGroup.get(), 0, &req.gr_group)) {
         return;
     }
 
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    int rc = TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &value, sizeof(value)));
+    int rc = TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &req, sizeof(req)));
     if (rc == -1 && errno == EINVAL) {
         // Maybe we're a 32-bit binary talking to a 64-bit kernel?
         // glibc doesn't automatically handle this.
@@ -1073,10 +1074,10 @@ static void Posix_setsockoptGroupReq(JNIEnv* env, jobject, jobject javaFd, jint 
             uint32_t my_padding;
             sockaddr_storage gr_group;
         };
-        group_req64 value64;
-        value64.gr_interface = value.gr_interface;
-        memcpy(&value64.gr_group, &value.gr_group, sizeof(value.gr_group));
-        rc = TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &value64, sizeof(value64)));
+        group_req64 req64;
+        req64.gr_interface = req.gr_interface;
+        memcpy(&req64.gr_group, &req.gr_group, sizeof(req.gr_group));
+        rc = TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &req64, sizeof(req64)));
     }
     throwIfMinusOne(env, "setsockopt", rc);
 }
