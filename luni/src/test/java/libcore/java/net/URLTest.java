@@ -19,6 +19,8 @@ package libcore.java.net;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import junit.framework.TestCase;
 import libcore.java.util.SerializableTester;
@@ -59,7 +61,7 @@ public final class URLTest extends TestCase {
             URL urlByHostName = new URL("http://localhost/foo?bar=baz#quux");
             URL urlByAddress = new URL("http://" + address + "/foo?bar=baz#quux");
             assertFalse("Expected " + urlByHostName + " to not equal " + urlByAddress,
-                    urlByHostName.equals(urlByAddress)); // fails on RI
+                    urlByHostName.equals(urlByAddress)); // fails on RI, which does DNS
         }
     }
 
@@ -321,6 +323,13 @@ public final class URLTest extends TestCase {
         assertEquals("fragment/path", url.getRef());
     }
 
+    public void testSlashInFragmentCombiningConstructor() throws Exception {
+        URL url = new URL("http", "host", "/file#fragment/path");
+        assertEquals("/file", url.getFile());
+        assertEquals("/file", url.getPath());
+        assertEquals("fragment/path", url.getRef());
+    }
+
     public void testHashInFragment() throws Exception {
         URL url = new URL("http://host/file#fragment#another");
         assertEquals("/file", url.getFile());
@@ -426,7 +435,7 @@ public final class URLTest extends TestCase {
 
     public void testMalformedUrlsRefusedByFirefoxAndChrome() throws Exception {
         URL base = new URL("http://host/a/b/c");
-        assertEquals("http://", new URL(base, "http://").toString()); // fails on RI
+        assertEquals("http://", new URL(base, "http://").toString()); // fails on RI; path retained
         assertEquals("http://", new URL(base, "//").toString()); // fails on RI
         assertEquals("https:", new URL(base, "https:").toString());
         assertEquals("https:/", new URL(base, "https:/").toString());
@@ -441,7 +450,7 @@ public final class URLTest extends TestCase {
         assertEquals("http://a/b/c/g/", new URL(base, "g/").toString());
         assertEquals("http://a/g", new URL(base, "/g").toString());
         assertEquals("http://g", new URL(base, "//g").toString());
-        assertEquals("http://a/b/c/d;p?y", new URL(base, "?y").toString()); // fails on RI
+        assertEquals("http://a/b/c/d;p?y", new URL(base, "?y").toString()); // RI fails; file lost
         assertEquals("http://a/b/c/g?y", new URL(base, "g?y").toString());
         assertEquals("http://a/b/c/d;p?q#s", new URL(base, "#s").toString());
         assertEquals("http://a/b/c/g#s", new URL(base, "g#s").toString());
@@ -511,7 +520,7 @@ public final class URLTest extends TestCase {
         assertEquals("http", url.getProtocol());
         assertEquals("host", url.getAuthority());
         assertEquals("host", url.getHost());
-        assertEquals("/a", url.getFile()); // fails on RI
+        assertEquals("/a", url.getFile()); // RI fails; doesn't insert '/' separator
         assertEquals("http://host/a", url.toString()); // fails on RI
     }
 
@@ -600,6 +609,53 @@ public final class URLTest extends TestCase {
 
     public void testEqualityWithNoPath() throws Exception {
         assertFalse(new URL("http://android.com").equals(new URL("http://android.com/")));
+    }
+
+    public void testUrlDoesNotEncodeParts() throws Exception {
+        URL url = new URL("http", "host", 80, "/doc|search?q=green robots#over 6\"");
+        assertEquals("http", url.getProtocol());
+        assertEquals("host:80", url.getAuthority());
+        assertEquals("/doc|search", url.getPath());
+        assertEquals("q=green robots", url.getQuery());
+        assertEquals("over 6\"", url.getRef());
+        assertEquals("http://host:80/doc|search?q=green robots#over 6\"", url.toString());
+    }
+
+    public void testSchemeCaseIsCanonicalized() throws Exception {
+        URL url = new URL("HTTP://host/path");
+        assertEquals("http", url.getProtocol());
+    }
+
+    public void testEmptyAuthorityWithPath() throws Exception {
+        URL url = new URL("http:///path");
+        assertEquals("", url.getAuthority());
+        assertEquals("/path", url.getPath());
+    }
+
+    public void testEmptyAuthorityWithQuery() throws Exception {
+        URL url = new URL("http://?query");
+        assertEquals("", url.getAuthority());
+        assertEquals("", url.getPath());
+        assertEquals("query", url.getQuery());
+    }
+
+    public void testEmptyAuthorityWithFragment() throws Exception {
+        URL url = new URL("http://#fragment");
+        assertEquals("", url.getAuthority());
+        assertEquals("", url.getPath());
+        assertEquals("fragment", url.getRef());
+    }
+
+    public void testCombiningConstructorsMakeRelativePathsAbsolute() throws Exception {
+        assertEquals("/relative", new URL("http", "host", "relative").getPath());
+        assertEquals("/relative", new URL("http", "host", -1, "relative").getPath());
+        assertEquals("/relative", new URL("http", "host", -1, "relative", null).getPath());
+    }
+
+    public void testCombiningConstructorsDoNotMakeEmptyPathsAbsolute() throws Exception {
+        assertEquals("", new URL("http", "host", "").getPath());
+        assertEquals("", new URL("http", "host", -1, "").getPath());
+        assertEquals("", new URL("http", "host", -1, "", null).getPath());
     }
 
     // Adding a new test? Consider adding an equivalent test to URITest.java

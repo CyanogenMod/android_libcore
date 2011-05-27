@@ -366,7 +366,7 @@ public final class URITest extends TestCase {
         assertEquals("http://a/b/c/g/", base.resolve("g/").toString());
         assertEquals("http://a/g", base.resolve("/g").toString());
         assertEquals("http://g", base.resolve("//g").toString());
-        assertEquals("http://a/b/c/d;p?y", base.resolve("?y").toString()); // fails on RI
+        assertEquals("http://a/b/c/d;p?y", base.resolve("?y").toString()); // RI fails; loses file
         assertEquals("http://a/b/c/g?y", base.resolve("g?y").toString());
         assertEquals("http://a/b/c/d;p?q#s", base.resolve("#s").toString());
         assertEquals("http://a/b/c/g#s", base.resolve("g#s").toString());
@@ -387,13 +387,13 @@ public final class URITest extends TestCase {
 
     public void testRfc1808AbnormalExampleTooManyDotDotSequences() throws Exception {
         URI base = new URI("http://a/b/c/d;p?q");
-        assertEquals("http://a/g", base.resolve("../../../g").toString()); // fails on RI
+        assertEquals("http://a/g", base.resolve("../../../g").toString()); // RI doesn't normalize
         assertEquals("http://a/g", base.resolve("../../../../g").toString()); // fails on RI
     }
 
     public void testRfc1808AbnormalExampleRemoveDotSegments() throws Exception {
         URI base = new URI("http://a/b/c/d;p?q");
-        assertEquals("http://a/g", base.resolve("/./g").toString()); // fails on RI
+        assertEquals("http://a/g", base.resolve("/./g").toString()); // RI doesn't normalize
         assertEquals("http://a/g", base.resolve("/../g").toString()); // fails on RI
         assertEquals("http://a/b/c/g.", base.resolve("g.").toString());
         assertEquals("http://a/b/c/.g", base.resolve(".g").toString());
@@ -508,7 +508,7 @@ public final class URITest extends TestCase {
     public void testRelativize() throws Exception {
         URI a = new URI("http://host/a/b");
         URI b = new URI("http://host/a/b/c");
-        assertEquals("b/c", a.relativize(b).toString()); // fails on both the RI and libcore
+        assertEquals("b/c", a.relativize(b).toString()); // RI assumes a directory
     }
 
     public void testParseServerAuthorityInvalidAuthority() throws Exception {
@@ -531,9 +531,76 @@ public final class URITest extends TestCase {
         assertEquals(-1, uri.getPort());
     }
 
-    // TODO: test http://#fragment
-    // TODO: test http://?query
-    // TODO: test http:///path
+    public void testEncodingParts() throws Exception {
+        URI uri = new URI("http", "user:pa55w?rd", "host", 80, "/doc|search",
+                "q=green robots", "over 6\"");
+        assertEquals("http", uri.getScheme());
+        assertEquals("user:pa55w?rd@host:80", uri.getAuthority());
+        assertEquals("user:pa55w%3Frd@host:80", uri.getRawAuthority());
+        assertEquals("user:pa55w?rd", uri.getUserInfo());
+        assertEquals("user:pa55w%3Frd", uri.getRawUserInfo());
+        assertEquals("/doc|search", uri.getPath());
+        assertEquals("/doc%7Csearch", uri.getRawPath());
+        assertEquals("q=green robots", uri.getQuery());
+        assertEquals("q=green%20robots", uri.getRawQuery());
+        assertEquals("over 6\"", uri.getFragment());
+        assertEquals("over%206%22", uri.getRawFragment());
+        assertEquals("//user:pa55w?rd@host:80/doc|search?q=green robots",
+                uri.getSchemeSpecificPart());
+        assertEquals("//user:pa55w%3Frd@host:80/doc%7Csearch?q=green%20robots",
+                uri.getRawSchemeSpecificPart());
+        assertEquals("http://user:pa55w%3Frd@host:80/doc%7Csearch?q=green%20robots#over%206%22",
+                uri.toString());
+    }
+
+    public void testSchemeCaseIsNotCanonicalized() throws Exception {
+        URI uri = new URI("HTTP://host/path");
+        assertEquals("HTTP", uri.getScheme());
+    }
+
+    public void testEmptyAuthorityWithPath() throws Exception {
+        URI uri = new URI("http:///path");
+        assertEquals(null, uri.getAuthority());
+        assertEquals("/path", uri.getPath());
+    }
+
+    public void testEmptyAuthorityWithQuery() throws Exception {
+        URI uri = new URI("http://?query");
+        assertEquals(null, uri.getAuthority());
+        assertEquals("", uri.getPath());
+        assertEquals("query", uri.getQuery());
+    }
+
+    public void testEmptyAuthorityWithFragment() throws Exception {
+        URI uri = new URI("http://#fragment");
+        assertEquals(null, uri.getAuthority());
+        assertEquals("", uri.getPath());
+        assertEquals("fragment", uri.getFragment());
+    }
+
+    public void testEncodingConstructorsRefuseRelativePath() throws Exception {
+        try {
+            new URI("http", "host", "relative", null);
+            fail();
+        } catch (URISyntaxException expected) {
+        }
+        try {
+            new URI("http", "host", "relative", null, null);
+            fail();
+        } catch (URISyntaxException expected) {
+        }
+        try {
+            new URI("http", null, "host", -1, "relative", null, null);
+            fail();
+        } catch (URISyntaxException expected) {
+        }
+    }
+
+    public void testEncodingConstructorsAcceptEmptyPath() throws Exception {
+        assertEquals("", new URI("http", "host", "", null).getPath());
+        assertEquals("", new URI("http", "host", "", null, null).getPath());
+        assertEquals("", new URI("http", null, "host", -1, "", null, null).getPath());
+    }
 
     // Adding a new test? Consider adding an equivalent test to URLTest.java
 }
