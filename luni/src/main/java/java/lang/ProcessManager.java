@@ -31,31 +31,13 @@ import java.util.Map;
 import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
+import libcore.util.MutableInt;
 import static libcore.io.OsConstants.*;
 
 /**
  * Manages child processes.
  */
 final class ProcessManager {
-
-    /**
-     * constant communicated from native code indicating that a
-     * child died, but it was unable to determine the status
-     */
-    private static final int WAIT_STATUS_UNKNOWN = -1;
-
-    /**
-     * constant communicated from native code indicating that there
-     * are currently no children to wait for
-     */
-    private static final int WAIT_STATUS_NO_CHILDREN = -2;
-
-    /**
-     * constant communicated from native code indicating that a wait()
-     * call returned -1 and set an undocumented (and hence unexpected) errno
-     */
-    private static final int WAIT_STATUS_STRANGE_ERRNO = -3;
-
     /**
      * Map from pid to Process. We keep weak references to the Process objects
      * and clean up the entries when no more external references are left. The
@@ -71,13 +53,13 @@ final class ProcessManager {
 
     private ProcessManager() {
         // Spawn a thread to listen for signals from child processes.
-        Thread processThread = new Thread(ProcessManager.class.getName()) {
+        Thread reaperThread = new Thread(ProcessManager.class.getName()) {
             @Override public void run() {
-                watchChildren(ProcessManager.this);
+                watchChildren();
             }
         };
-        processThread.setDaemon(true);
-        processThread.start();
+        reaperThread.setDaemon(true);
+        reaperThread.start();
     }
 
     /**
@@ -94,10 +76,40 @@ final class ProcessManager {
     }
 
     /**
-     * Listens for signals from processes and calls back to
-     * {@link #onExit(int,int)}.
+     * Loops indefinitely and calls ProcessManager.onExit() when children exit.
      */
-    private static native void watchChildren(ProcessManager manager);
+    private void watchChildren() {
+        MutableInt status = new MutableInt(-1);
+        while (true) {
+            try {
+                // Wait for children in our process group.
+                int pid = Libcore.os.waitpid(0, status, 0);
+
+                // Work out what onExit wants to hear.
+                int exitValue;
+                if (WIFEXITED(status.value)) {
+                    exitValue = WEXITSTATUS(status.value);
+                } else if (WIFSIGNALED(status.value)) {
+                    exitValue = WTERMSIG(status.value);
+                } else if (WIFSTOPPED(status.value)) {
+                    exitValue = WSTOPSIG(status.value);
+                } else {
+                    throw new AssertionError("unexpected status from waitpid: " + status.value);
+                }
+
+                onExit(pid, exitValue);
+            } catch (ErrnoException errnoException) {
+                if (errnoException.errno == ECHILD) {
+                    // Expected errno: there are no children to wait for.
+                    // onExit will sleep until it is informed of another child coming to life.
+                    waitForMoreChildren();
+                    continue;
+                } else {
+                    throw errnoException;
+                }
+            }
+        }
+    }
 
     /**
      * Called by {@link #watchChildren()} when a child process exits.
@@ -107,42 +119,36 @@ final class ProcessManager {
      */
     private void onExit(int pid, int exitValue) {
         ProcessReference processReference = null;
-
         synchronized (processReferences) {
             cleanUp();
-            if (pid >= 0) {
-                processReference = processReferences.remove(pid);
-            } else if (exitValue == WAIT_STATUS_NO_CHILDREN) {
-                if (processReferences.isEmpty()) {
-                    /*
-                     * There are no eligible children; wait for one to be
-                     * added. The wait() will return due to the
-                     * notifyAll() call below.
-                     */
-                    try {
-                        processReferences.wait();
-                    } catch (InterruptedException ex) {
-                        // This should never happen.
-                        throw new AssertionError("unexpected interrupt");
-                    }
-                } else {
-                    /*
-                     * A new child was spawned just before we entered
-                     * the synchronized block. We can just fall through
-                     * without doing anything special and land back in
-                     * the native wait().
-                     */
-                }
-            } else {
-                // Something weird is happening; abort!
-                throw new AssertionError("unexpected wait() behavior");
-            }
+            processReference = processReferences.remove(pid);
         }
-
         if (processReference != null) {
             ProcessImpl process = processReference.get();
             if (process != null) {
                 process.setExitValue(exitValue);
+            }
+        }
+    }
+
+    private void waitForMoreChildren() {
+        synchronized (processReferences) {
+            if (processReferences.isEmpty()) {
+                // There are no eligible children; wait for one to be added.
+                // This wait will return because of the notifyAll call in exec.
+                try {
+                    processReferences.wait();
+                } catch (InterruptedException ex) {
+                    // This should never happen.
+                    throw new AssertionError("unexpected interrupt");
+                }
+            } else {
+                /*
+                 * A new child was spawned just before we entered
+                 * the synchronized block. We can just fall through
+                 * without doing anything special and land back in
+                 * the native waitpid().
+                 */
             }
         }
     }

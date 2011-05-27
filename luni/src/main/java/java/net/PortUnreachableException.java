@@ -26,15 +26,23 @@ public class PortUnreachableException extends SocketException {
     private static final long serialVersionUID = 8462541992376507323L;
 
     /**
-     * Constructs a new instance with the current stack trace.
+     * Constructs a new instance.
      */
     public PortUnreachableException() {
     }
 
     /**
-     * Constructs a new instance with the current stack trace and given detail message.
+     * Constructs a new instance with the given detail message.
      */
     public PortUnreachableException(String detailMessage) {
         super(detailMessage);
+    }
+
+    /**
+     * Constructs a new instance with given detail message and cause.
+     * @hide internal use only
+     */
+    public PortUnreachableException(String detailMessage, Throwable cause) {
+        super(detailMessage, cause);
     }
 }

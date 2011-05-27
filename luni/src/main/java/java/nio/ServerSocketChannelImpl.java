@@ -31,16 +31,15 @@ import java.nio.channels.NotYetBoundException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
-import org.apache.harmony.luni.platform.Platform;
+import libcore.io.IoUtils;
 
 /**
  * The default ServerSocketChannel.
  */
 final class ServerSocketChannelImpl extends ServerSocketChannel implements FileDescriptorChannel {
 
-    private final FileDescriptor fd = new FileDescriptor();
-    private final SocketImpl impl = new PlainServerSocketImpl(fd);
-    private final ServerSocketAdapter socket = new ServerSocketAdapter(impl, this);
+    private final ServerSocketAdapter socket;
+    private final SocketImpl impl;
 
     private boolean isBound = false;
 
@@ -48,12 +47,8 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
 
     public ServerSocketChannelImpl(SelectorProvider sp) throws IOException {
         super(sp);
-    }
-
-    // for native call
-    @SuppressWarnings("unused")
-    private ServerSocketChannelImpl() throws IOException {
-        this(SelectorProvider.provider());
+        this.socket = new ServerSocketAdapter(this);
+        this.impl = socket.getImpl$();
     }
 
     @Override public ServerSocket socket() {
@@ -68,47 +63,35 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
             throw new NotYetBoundException();
         }
 
-        // TODO: pass in the SelectorProvider used to create this ServerSocketChannelImpl?
         // Create an empty socket channel. This will be populated by ServerSocketAdapter.accept.
-        SocketChannelImpl result = new SocketChannelImpl(SelectorProvider.provider(), false);
-        Socket resultSocket = result.socket();
-
+        SocketChannelImpl result = new SocketChannelImpl(provider(), false);
+        boolean connected = false;
         try {
             begin();
             synchronized (acceptLock) {
                 synchronized (blockingLock()) {
-                    boolean isBlocking = isBlocking();
-                    if (!isBlocking) {
-                        int[] tryResult = new int[1];
-                        boolean success = Platform.NETWORK.select(new FileDescriptor[] { fd },
-                                SelectorImpl.EMPTY_FILE_DESCRIPTORS_ARRAY, 1, 0, 0, tryResult);
-                        if (!success || tryResult[0] == 0) {
-                            // no pending connections, returns immediately.
-                            return null;
-                        }
-                    }
-                    // do accept.
                     do {
                         try {
-                            socket.accept(resultSocket, result);
+                            socket.implAccept(result);
                             // select successfully, break out immediately.
                             break;
                         } catch (SocketTimeoutException e) {
                             // continue to accept if the channel is in blocking mode.
+                            // TODO: does this make sense? why does blocking imply no timeouts?
                         }
-                    } while (isBlocking);
+                    } while (isBlocking());
                 }
             }
         } finally {
-            end(resultSocket.isConnected());
+            end(result.socket().isConnected());
         }
-        return result;
+        return result.socket().isConnected() ? result : null;
     }
 
-    protected void implConfigureBlocking(boolean blockingMode) throws IOException {
-        // Do nothing here. For real accept() operation in non-blocking mode,
-        // it uses INetworkSystem.select. Whether a channel is blocking can be
-        // decided by isBlocking() method.
+    @Override protected void implConfigureBlocking(boolean blocking) throws IOException {
+        synchronized (blockingLock()) {
+            IoUtils.setBlocking(impl.getFD$(), blocking);
+        }
     }
 
     synchronized protected void implCloseSelectableChannel() throws IOException {
@@ -118,14 +101,13 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
     }
 
     public FileDescriptor getFD() {
-        return fd;
+        return impl.getFD$();
     }
 
     private static class ServerSocketAdapter extends ServerSocket {
         private final ServerSocketChannelImpl channelImpl;
 
-        ServerSocketAdapter(SocketImpl impl, ServerSocketChannelImpl aChannelImpl) {
-            super(impl);
+        ServerSocketAdapter(ServerSocketChannelImpl aChannelImpl) throws IOException {
             this.channelImpl = aChannelImpl;
         }
 
@@ -145,22 +127,23 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
             return sc.socket();
         }
 
-        private Socket accept(Socket socket, SocketChannelImpl sockChannel) throws IOException {
+        public Socket implAccept(SocketChannelImpl clientSocketChannel) throws IOException {
+            Socket clientSocket = clientSocketChannel.socket();
             boolean connectOK = false;
             try {
                 synchronized (this) {
-                    super.implAccept(socket);
-                    sockChannel.setConnected();
-                    sockChannel.setBound(true);
-                    sockChannel.finishAccept();
+                    super.implAccept(clientSocket);
+                    clientSocketChannel.setConnected();
+                    clientSocketChannel.setBound(true);
+                    clientSocketChannel.finishAccept();
                 }
                 connectOK = true;
             } finally {
                 if (!connectOK) {
-                    socket.close();
+                    clientSocket.close();
                 }
             }
-            return socket;
+            return clientSocket;
         }
 
         @Override public ServerSocketChannel getChannel() {

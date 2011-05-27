@@ -31,12 +31,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import libcore.io.ErrnoException;
 import libcore.io.GaiException;
 import libcore.io.Libcore;
-import libcore.io.IoUtils;
+import libcore.io.IoBridge;
 import libcore.io.Memory;
 import libcore.io.StructAddrinfo;
-import org.apache.harmony.luni.platform.Platform;
 import static libcore.io.OsConstants.*;
 
 /**
@@ -143,8 +143,6 @@ public class InetAddress implements Serializable {
     /** Our Java-side DNS cache. */
     private static final AddressCache addressCache = new AddressCache();
 
-    private static final String ERRMSG_CONNECTION_REFUSED = "Connection refused";
-
     private static final long serialVersionUID = 3286316764910316507L;
 
     private transient Object waitReachable = new Object();
@@ -160,16 +158,15 @@ public class InetAddress implements Serializable {
     String hostName;
 
     /**
+     * Used by the DatagramSocket.disconnect implementation.
+     * @hide internal use only
+     */
+    public static final InetAddress UNSPECIFIED = new InetAddress(AF_UNSPEC, null, null);
+
+    /**
      * Constructs an {@code InetAddress}.
      *
-     * Note: this constructor should not be used. Creating an InetAddress
-     * without specifying whether it's an IPv4 or IPv6 address does not make
-     * sense, because subsequent code cannot know which of of the subclasses'
-     * methods need to be called to implement a given InetAddress method. The
-     * proper way to create an InetAddress is to call new Inet4Address or
-     * Inet6Address or to use one of the static methods that return
-     * InetAddresses (e.g., getByAddress). That is why the API does not have
-     * public constructors for any of these classes.
+     * Note: this constructor is for subclasses only.
      */
     InetAddress(int family, byte[] ipaddress, String hostName) {
         this.family = family;
@@ -810,53 +807,39 @@ public class InetAddress implements Serializable {
     }
 
     private boolean isReachableByTCP(InetAddress destination, InetAddress source, int timeout) throws IOException {
-        FileDescriptor fd = IoUtils.socket(true);
+        FileDescriptor fd = IoBridge.socket(true);
         boolean reached = false;
         try {
             if (source != null) {
-                Platform.NETWORK.bind(fd, source, 0);
+                IoBridge.bind(fd, source, 0);
             }
-            IoUtils.connect(fd, destination, 7, timeout);
+            IoBridge.connect(fd, destination, 7, timeout);
             reached = true;
         } catch (IOException e) {
-            if (ERRMSG_CONNECTION_REFUSED.equals(e.getMessage())) {
-                // Connection refused means the IP is reachable
-                reached = true;
+            if (e.getCause() instanceof ErrnoException) {
+                // "Connection refused" means the IP address was reachable.
+                reached = (((ErrnoException) e.getCause()).errno == ECONNREFUSED);
             }
         }
 
-        Platform.NETWORK.close(fd);
+        IoBridge.closeSocket(fd);
 
         return reached;
     }
 
     /**
-     * Equivalent to {@code getByAddress(null, ipAddress, 0)}. Handy for IPv4 addresses with
+     * Equivalent to {@code getByAddress(null, ipAddress)}. Handy for addresses with
      * no associated hostname.
-     *
-     * <p>(Note that numeric addresses such as {@code "127.0.0.1"} are names for the
-     * purposes of this API. Most callers probably want {@link #getAllByName} instead.)
      */
     public static InetAddress getByAddress(byte[] ipAddress) throws UnknownHostException {
-        return getByAddressInternal(null, ipAddress, 0);
-    }
-
-    /**
-     * Equivalent to {@code getByAddress(hostName, ipAddress, 0)}. Handy for IPv4 addresses
-     * with an associated hostname.
-     *
-     * <p>(Note that numeric addresses such as {@code "127.0.0.1"} are names for the
-     * purposes of this API. Most callers probably want {@link #getAllByName} instead.)
-     */
-    public static InetAddress getByAddress(String hostName, byte[] ipAddress) throws UnknownHostException {
-        return getByAddressInternal(hostName, ipAddress, 0);
+        return getByAddress(null, ipAddress, 0);
     }
 
     /**
      * Returns an {@code InetAddress} corresponding to the given network-order
      * bytes {@code ipAddress} and {@code scopeId}.
      *
-     * <p>For an IPv4 address, the byte array must be of length 4, and the scopeId is ignored.
+     * <p>For an IPv4 address, the byte array must be of length 4.
      * For IPv6, the byte array must be of length 16. Any other length will cause an {@code
      * UnknownHostException}.
      *
@@ -868,8 +851,11 @@ public class InetAddress implements Serializable {
      *
      * @throws UnknownHostException if {@code ipAddress} is null or the wrong length.
      */
-    private static InetAddress getByAddressInternal(String hostName, byte[] ipAddress, int scopeId)
-            throws UnknownHostException {
+    public static InetAddress getByAddress(String hostName, byte[] ipAddress) throws UnknownHostException {
+        return getByAddress(hostName, ipAddress, 0);
+    }
+
+    private static InetAddress getByAddress(String hostName, byte[] ipAddress, int scopeId) throws UnknownHostException {
         if (ipAddress == null) {
             throw new UnknownHostException("ipAddress == null");
         }
@@ -913,7 +899,7 @@ public class InetAddress implements Serializable {
 
     private static byte[] ipv4MappedToIPv4(byte[] mappedAddress) {
         byte[] ipv4Address = new byte[4];
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             ipv4Address[i] = mappedAddress[12 + i];
         }
         return ipv4Address;

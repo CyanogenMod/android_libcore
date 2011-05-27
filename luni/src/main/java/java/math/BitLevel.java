@@ -113,7 +113,7 @@ class BitLevel {
 
     static void shiftLeftOneBit(int[] result, int[] source, int srcLen) {
         int carry = 0;
-        for(int i = 0; i < srcLen; i++) {
+        for (int i = 0; i < srcLen; i++) {
             int val = source[i];
             result[i] = (val << 1) | carry;
             carry = val >>> 31;

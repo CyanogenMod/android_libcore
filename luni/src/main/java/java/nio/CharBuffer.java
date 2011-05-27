@@ -630,8 +630,6 @@ public abstract class CharBuffer extends Buffer implements
 
     /**
      * Returns a string representing the current remaining chars of this buffer.
-     *
-     * @return a string representing the current remaining chars of this buffer.
      */
     @Override
     public String toString() {

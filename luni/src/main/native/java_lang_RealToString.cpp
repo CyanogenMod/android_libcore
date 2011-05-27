@@ -23,6 +23,7 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 #include "cbigint.h"
 
@@ -168,8 +169,8 @@ void RealToString_bigIntDigitGenerator(JNIEnv* env, jobject obj, jlong f, jint e
     }
 
   static jfieldID digitsFid = env->GetFieldID(JniConstants::realToStringClass, "digits", "[I");
-  jintArray javaDigits = reinterpret_cast<jintArray>(env->GetObjectField(obj, digitsFid));
-  ScopedIntArrayRW digits(env, javaDigits);
+  ScopedLocalRef<jintArray> javaDigits(env, reinterpret_cast<jintArray>(env->GetObjectField(obj, digitsFid)));
+  ScopedIntArrayRW digits(env, javaDigits.get());
   if (digits.get() == NULL) {
     return;
   }

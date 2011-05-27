@@ -747,6 +747,7 @@ class BootClassLoader extends ClassLoader {
 
     private static BootClassLoader instance;
 
+    @FindBugsSuppressWarnings("DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED")
     public static synchronized BootClassLoader getInstance() {
         if (instance == null) {
             instance = new BootClassLoader();

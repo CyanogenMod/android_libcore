@@ -57,6 +57,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import junit.framework.TestCase;
 import libcore.java.security.TestKeyStore;
 import libcore.javax.net.ssl.TestSSLContext;
 import tests.http.MockResponse;
@@ -69,13 +70,16 @@ import static tests.http.SocketPolicy.SHUTDOWN_INPUT_AT_END;
 import static tests.http.SocketPolicy.SHUTDOWN_OUTPUT_AT_END;
 import tests.net.StuckServer;
 
-public class URLConnectionTest extends junit.framework.TestCase {
+public final class URLConnectionTest extends TestCase {
 
     private static final Authenticator SIMPLE_AUTHENTICATOR = new Authenticator() {
         protected PasswordAuthentication getPasswordAuthentication() {
             return new PasswordAuthentication("username", "password".toCharArray());
         }
     };
+
+    /** base64("username:password") */
+    private static final String BASE_64_CREDENTIALS = "dXNlcm5hbWU6cGFzc3dvcmQ=";
 
     private MockWebServer server = new MockWebServer();
     private String hostName;
@@ -105,8 +109,11 @@ public class URLConnectionTest extends junit.framework.TestCase {
         HttpURLConnection urlConnection = (HttpURLConnection) server.getUrl("/").openConnection();
         urlConnection.addRequestProperty("D", "e");
         urlConnection.addRequestProperty("D", "f");
+        assertEquals("f", urlConnection.getRequestProperty("D"));
+        assertEquals("f", urlConnection.getRequestProperty("d"));
         Map<String, List<String>> requestHeaders = urlConnection.getRequestProperties();
         assertEquals(newSet("e", "f"), new HashSet<String>(requestHeaders.get("D")));
+        assertEquals(newSet("e", "f"), new HashSet<String>(requestHeaders.get("d")));
         try {
             requestHeaders.put("G", Arrays.asList("h"));
             fail("Modified an unmodifiable view.");
@@ -128,7 +135,9 @@ public class URLConnectionTest extends junit.framework.TestCase {
         } catch (NullPointerException expected) {
         }
         urlConnection.setRequestProperty("NullValue", null); // should fail silently!
+        assertNull(urlConnection.getRequestProperty("NullValue"));
         urlConnection.addRequestProperty("AnotherNullValue", null);  // should fail silently!
+        assertNull(urlConnection.getRequestProperty("AnotherNullValue"));
 
         urlConnection.getResponseCode();
         RecordedRequest request = server.takeRequest();
@@ -149,13 +158,27 @@ public class URLConnectionTest extends junit.framework.TestCase {
             fail("Set header after connect");
         } catch (IllegalStateException expected) {
         }
+        try {
+            urlConnection.getRequestProperties();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    public void testGetRequestPropertyReturnsLastValue() throws Exception {
+        server.play();
+        HttpURLConnection urlConnection = (HttpURLConnection) server.getUrl("/").openConnection();
+        urlConnection.addRequestProperty("A", "value1");
+        urlConnection.addRequestProperty("A", "value2");
+        assertEquals("value2", urlConnection.getRequestProperty("A"));
     }
 
     public void testResponseHeaders() throws IOException, InterruptedException {
         server.enqueue(new MockResponse()
                 .setStatus("HTTP/1.0 200 Fantastic")
-                .addHeader("A: b")
                 .addHeader("A: c")
+                .addHeader("B: d")
+                .addHeader("A: e")
                 .setChunkedBody("ABCDE\nFGHIJ\nKLMNO\nPQR", 8));
         server.play();
 
@@ -165,17 +188,38 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals("HTTP/1.0 200 Fantastic", urlConnection.getHeaderField(null));
         Map<String, List<String>> responseHeaders = urlConnection.getHeaderFields();
         assertEquals(Arrays.asList("HTTP/1.0 200 Fantastic"), responseHeaders.get(null));
-        assertEquals(newSet("b", "c"), new HashSet<String>(responseHeaders.get("A")));
+        assertEquals(newSet("c", "e"), new HashSet<String>(responseHeaders.get("A")));
+        assertEquals(newSet("c", "e"), new HashSet<String>(responseHeaders.get("a")));
         try {
             responseHeaders.put("N", Arrays.asList("o"));
             fail("Modified an unmodifiable view.");
         } catch (UnsupportedOperationException expected) {
         }
         try {
-            responseHeaders.get("A").add("d");
+            responseHeaders.get("A").add("f");
             fail("Modified an unmodifiable view.");
         } catch (UnsupportedOperationException expected) {
         }
+        assertEquals("A", urlConnection.getHeaderFieldKey(0));
+        assertEquals("c", urlConnection.getHeaderField(0));
+        assertEquals("B", urlConnection.getHeaderFieldKey(1));
+        assertEquals("d", urlConnection.getHeaderField(1));
+        assertEquals("A", urlConnection.getHeaderFieldKey(2));
+        assertEquals("e", urlConnection.getHeaderField(2));
+    }
+
+    public void testGetErrorStreamOnSuccessfulRequest() throws Exception {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertNull(connection.getErrorStream());
+    }
+
+    public void testGetErrorStreamOnUnsuccessfulRequest() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(404).setBody("A"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection.getErrorStream(), Integer.MAX_VALUE));
     }
 
     // Check that if we don't read to the end of a response, the next request on the
@@ -541,7 +585,9 @@ public class URLConnectionTest extends junit.framework.TestCase {
         RecordingHostnameVerifier hostnameVerifier = new RecordingHostnameVerifier();
 
         server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
-        server.enqueue(new MockResponse().clearHeaders()); // for CONNECT
+        server.enqueue(new MockResponse()
+                .setSocketPolicy(SocketPolicy.UPGRADE_TO_SSL_AT_END)
+                .clearHeaders());
         server.enqueue(new MockResponse().setBody("this response comes via a secure proxy"));
         server.play();
 
@@ -572,7 +618,9 @@ public class URLConnectionTest extends junit.framework.TestCase {
         TestSSLContext testSSLContext = TestSSLContext.create();
 
         server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
-        server.enqueue(new MockResponse().clearHeaders()); // for CONNECT
+        server.enqueue(new MockResponse()
+                .setSocketPolicy(SocketPolicy.UPGRADE_TO_SSL_AT_END)
+                .clearHeaders());
         server.enqueue(new MockResponse().setBody("encrypted response from the origin server"));
         server.play();
 
@@ -598,6 +646,39 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(Arrays.asList("verify android.com"), hostnameVerifier.calls);
     }
 
+    public void testProxyAuthenticateOnConnect() throws Exception {
+        Authenticator.setDefault(SIMPLE_AUTHENTICATOR);
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
+        server.enqueue(new MockResponse()
+                .setResponseCode(407)
+                .addHeader("Proxy-Authenticate: Basic realm=\"localhost\""));
+        server.enqueue(new MockResponse()
+                .setSocketPolicy(SocketPolicy.UPGRADE_TO_SSL_AT_END)
+                .clearHeaders());
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+
+        URL url = new URL("https://android.com/foo");
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(
+                server.toProxyAddress());
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        connection.setHostnameVerifier(new RecordingHostnameVerifier());
+        assertContent("A", connection);
+
+        RecordedRequest connect1 = server.takeRequest();
+        assertEquals("CONNECT android.com:443 HTTP/1.1", connect1.getRequestLine());
+        assertContainsNoneMatching(connect1.getHeaders(), "Proxy\\-Authorization.*");
+
+        RecordedRequest connect2 = server.takeRequest();
+        assertEquals("CONNECT android.com:443 HTTP/1.1", connect2.getRequestLine());
+        assertContains(connect2.getHeaders(), "Proxy-Authorization: Basic " + BASE_64_CREDENTIALS);
+
+        RecordedRequest get = server.takeRequest();
+        assertEquals("GET /foo HTTP/1.1", get.getRequestLine());
+        assertContainsNoneMatching(get.getHeaders(), "Proxy\\-Authorization.*");
+    }
+
     public void testDisconnectedConnection() throws IOException {
         server.enqueue(new MockResponse().setBody("ABCDEFGHIJKLMNOPQR"));
         server.play();
@@ -611,6 +692,22 @@ public class URLConnectionTest extends junit.framework.TestCase {
             fail("Expected a connection closed exception");
         } catch (IOException expected) {
         }
+    }
+
+    public void testDisconnectBeforeConnect() throws IOException {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.disconnect();
+
+        assertContent("A", connection);
+        assertEquals(200, connection.getResponseCode());
+    }
+
+    public void testDefaultRequestProperty() throws Exception {
+        URLConnection.setDefaultRequestProperty("X-testSetDefaultRequestProperty", "A");
+        assertNull(URLConnection.getDefaultRequestProperty("X-setDefaultRequestProperty"));
     }
 
     /**
@@ -863,6 +960,104 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals(Arrays.toString(requestBody), Arrays.toString(request.getBody()));
     }
 
+    public void testSetValidRequestMethod() throws Exception {
+        server.play();
+        assertValidRequestMethod("GET");
+        assertValidRequestMethod("DELETE");
+        assertValidRequestMethod("HEAD");
+        assertValidRequestMethod("OPTIONS");
+        assertValidRequestMethod("POST");
+        assertValidRequestMethod("PUT");
+        assertValidRequestMethod("TRACE");
+    }
+
+    private void assertValidRequestMethod(String requestMethod) throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setRequestMethod(requestMethod);
+        assertEquals(requestMethod, connection.getRequestMethod());
+    }
+
+    public void testSetInvalidRequestMethodLowercase() throws Exception {
+        server.play();
+        assertInvalidRequestMethod("get");
+    }
+
+    public void testSetInvalidRequestMethodConnect() throws Exception {
+        server.play();
+        assertInvalidRequestMethod("CONNECT");
+    }
+
+    private void assertInvalidRequestMethod(String requestMethod) throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        try {
+            connection.setRequestMethod(requestMethod);
+            fail();
+        } catch (ProtocolException expected) {
+        }
+    }
+
+    public void testCannotSetNegativeFixedLengthStreamingMode() throws Exception {
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        try {
+            connection.setFixedLengthStreamingMode(-2);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    public void testCanSetNegativeChunkedStreamingMode() throws Exception {
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setChunkedStreamingMode(-2);
+    }
+
+    public void testCannotSetFixedLengthStreamingModeAfterConnect() throws Exception {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+        try {
+            connection.setFixedLengthStreamingMode(1);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    public void testCannotSetChunkedStreamingModeAfterConnect() throws Exception {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+        try {
+            connection.setChunkedStreamingMode(1);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    public void testCannotSetFixedLengthStreamingModeAfterChunkedStreamingMode() throws Exception {
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setChunkedStreamingMode(1);
+        try {
+            connection.setFixedLengthStreamingMode(1);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    public void testCannotSetChunkedStreamingModeAfterFixedLengthStreamingMode() throws Exception {
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setFixedLengthStreamingMode(1);
+        try {
+            connection.setChunkedStreamingMode(1);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
     public void testSecureFixedLengthStreaming() throws Exception {
         testSecureStreamingPost(StreamingMode.FIXED_LENGTH);
     }
@@ -939,8 +1134,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         for (int i = 0; i < 3; i++) {
             request = server.takeRequest();
             assertEquals("POST / HTTP/1.1", request.getRequestLine());
-            assertContains(request.getHeaders(), "Authorization: Basic "
-                    + "dXNlcm5hbWU6cGFzc3dvcmQ="); // "dXNl..." == base64("username:password")
+            assertContains(request.getHeaders(), "Authorization: Basic " + BASE_64_CREDENTIALS);
             assertEquals(Arrays.toString(requestBody), Arrays.toString(request.getBody()));
         }
     }
@@ -970,8 +1164,7 @@ public class URLConnectionTest extends junit.framework.TestCase {
         for (int i = 0; i < 3; i++) {
             request = server.takeRequest();
             assertEquals("GET / HTTP/1.1", request.getRequestLine());
-            assertContains(request.getHeaders(), "Authorization: Basic "
-                    + "dXNlcm5hbWU6cGFzc3dvcmQ="); // "dXNl..." == base64("username:password")
+            assertContains(request.getHeaders(), "Authorization: Basic " + BASE_64_CREDENTIALS);
         }
     }
 
@@ -1087,6 +1280,66 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals("Expected connection reuse", 1, third.getSequenceNumber());
 
         server2.shutdown();
+    }
+
+    public void testResponse300MultipleChoiceWithPost() throws Exception {
+        // Chrome doesn't follow the redirect, but Firefox and the RI both do
+        testResponseRedirectedWithPost(HttpURLConnection.HTTP_MULT_CHOICE);
+    }
+
+    public void testResponse301MovedPermanentlyWithPost() throws Exception {
+        testResponseRedirectedWithPost(HttpURLConnection.HTTP_MOVED_PERM);
+    }
+
+    public void testResponse302MovedTemporarilyWithPost() throws Exception {
+        testResponseRedirectedWithPost(HttpURLConnection.HTTP_MOVED_TEMP);
+    }
+
+    public void testResponse303SeeOtherWithPost() throws Exception {
+        testResponseRedirectedWithPost(HttpURLConnection.HTTP_SEE_OTHER);
+    }
+
+    private void testResponseRedirectedWithPost(int redirectCode) throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(redirectCode)
+                .addHeader("Location: /page2")
+                .setBody("This page has moved!"));
+        server.enqueue(new MockResponse().setBody("Page 2"));
+        server.play();
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/page1").openConnection();
+        connection.setDoOutput(true);
+        byte[] requestBody = { 'A', 'B', 'C', 'D' };
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(requestBody);
+        outputStream.close();
+        assertEquals("Page 2", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+        assertTrue(connection.getDoOutput());
+
+        RecordedRequest page1 = server.takeRequest();
+        assertEquals("POST /page1 HTTP/1.1", page1.getRequestLine());
+        assertEquals(Arrays.toString(requestBody), Arrays.toString(page1.getBody()));
+
+        RecordedRequest page2 = server.takeRequest();
+        assertEquals("GET /page2 HTTP/1.1", page2.getRequestLine());
+    }
+
+    public void testResponse305UseProxy() throws Exception {
+        server.play();
+        server.enqueue(new MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_USE_PROXY)
+                .addHeader("Location: " + server.getUrl("/"))
+                .setBody("This page has moved!"));
+        server.enqueue(new MockResponse().setBody("Proxy Response"));
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/foo").openConnection();
+        // Fails on the RI, which gets "Proxy Response"
+        assertEquals("This page has moved!",
+                readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        RecordedRequest page1 = server.takeRequest();
+        assertEquals("GET /foo HTTP/1.1", page1.getRequestLine());
+        assertEquals(1, server.getRequestCount());
     }
 
     public void testHttpsWithCustomTrustManager() throws Exception {
@@ -1492,6 +1745,125 @@ public class URLConnectionTest extends junit.framework.TestCase {
         assertEquals("ABC", readAscii(in, 3));
         assertEquals(-1, in.read());
         assertEquals(-1, in.read()); // throws IOException in Gingerbread
+    }
+
+    public void testGetContent() throws Exception {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        InputStream in = (InputStream) connection.getContent();
+        assertEquals("A", readAscii(in, Integer.MAX_VALUE));
+    }
+
+    public void testGetContentOfType() throws Exception {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        try {
+            connection.getContent(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        try {
+            connection.getContent(new Class[] { null });
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        assertNull(connection.getContent(new Class[] { getClass() }));
+        connection.disconnect();
+    }
+
+    public void testGetOutputStreamOnGetFails() throws Exception {
+        server.enqueue(new MockResponse());
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        try {
+            connection.getOutputStream();
+            fail();
+        } catch (ProtocolException expected) {
+        }
+    }
+
+    public void testGetOutputAfterGetInputStreamFails() throws Exception {
+        server.enqueue(new MockResponse());
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setDoOutput(true);
+        try {
+            connection.getInputStream();
+            connection.getOutputStream();
+            fail();
+        } catch (ProtocolException expected) {
+        }
+    }
+
+    public void testSetDoOutputOrDoInputAfterConnectFails() throws Exception {
+        server.enqueue(new MockResponse());
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.connect();
+        try {
+            connection.setDoOutput(true);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            connection.setDoInput(true);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        connection.disconnect();
+    }
+
+    public void testClientSendsContentLength() throws Exception {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.setDoOutput(true);
+        OutputStream out = connection.getOutputStream();
+        out.write(new byte[] { 'A', 'B', 'C' });
+        out.close();
+        assertEquals("A", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+        RecordedRequest request = server.takeRequest();
+        assertContains(request.getHeaders(), "Content-Length: 3");
+    }
+
+    public void testGetContentLengthConnects() throws Exception {
+        server.enqueue(new MockResponse().setBody("ABC"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals(3, connection.getContentLength());
+        connection.disconnect();
+    }
+
+    public void testGetContentTypeConnects() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Content-Type: text/plain")
+                .setBody("ABC"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("text/plain", connection.getContentType());
+        connection.disconnect();
+    }
+
+    public void testGetContentEncodingConnects() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Content-Encoding: identity")
+                .setBody("ABC"));
+        server.play();
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("identity", connection.getContentEncoding());
+        connection.disconnect();
+    }
+
+    // http://b/4361656
+    public void testUrlContainsQueryButNoPath() throws Exception {
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+        URL url = new URL("http", server.getHostName(), server.getPort(), "?query");
+        assertEquals("A", readAscii(url.openConnection().getInputStream(), Integer.MAX_VALUE));
+        RecordedRequest request = server.takeRequest();
+        assertEquals("GET /?query HTTP/1.1", request.getRequestLine());
     }
 
     /**

@@ -15,14 +15,14 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.util;
-
+package java.lang;
 
 /**
  * Used to parse a string and return either a single or double precision
  * floating point number.
+ * @hide
  */
-public final class FloatingPointParser {
+final class StringToReal {
 
     private static final class StringExponentPair {
         String s;

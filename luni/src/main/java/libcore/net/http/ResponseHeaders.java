@@ -18,8 +18,14 @@ package libcore.net.http;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
+import libcore.util.Objects;
 
 /**
  * Parsed HTTP response headers.
@@ -27,10 +33,10 @@ import java.util.concurrent.TimeUnit;
 final class ResponseHeaders {
 
     /** HTTP header name for the local time when the request was sent. */
-    public static final String SENT_MILLIS = "X-Android-Sent-Millis";
+    private static final String SENT_MILLIS = "X-Android-Sent-Millis";
 
     /** HTTP header name for the local time when the response was received. */
-    public static final String RECEIVED_MILLIS = "X-Android-Received-Millis";
+    private static final String RECEIVED_MILLIS = "X-Android-Received-Millis";
 
     final URI uri;
     final RawHeaders headers;
@@ -91,10 +97,19 @@ final class ResponseHeaders {
      * not permitted if this header is set.
      */
     boolean isPublic;
-    String privateField;
     boolean mustRevalidate;
     String etag;
     int ageSeconds = -1;
+
+    /** Case-insensitive set of field names. */
+    Set<String> varyFields = Collections.emptySet();
+
+    String contentEncoding;
+    String transferEncoding;
+    int contentLength = -1;
+    String connection;
+    String proxyAuthenticate;
+    String wwwAuthenticate;
 
     public ResponseHeaders(URI uri, RawHeaders headers) {
         this.uri = uri;
@@ -112,8 +127,6 @@ final class ResponseHeaders {
                     sMaxAgeSeconds = HeaderParser.parseSeconds(parameter);
                 } else if (directive.equalsIgnoreCase("public")) {
                     isPublic = true;
-                } else if (directive.equalsIgnoreCase("private")) {
-                    privateField = parameter;
                 } else if (directive.equalsIgnoreCase("must-revalidate")) {
                     mustRevalidate = true;
                 }
@@ -139,12 +152,59 @@ final class ResponseHeaders {
                 }
             } else if ("Age".equalsIgnoreCase(fieldName)) {
                 ageSeconds = HeaderParser.parseSeconds(value);
+            } else if ("Vary".equalsIgnoreCase(fieldName)) {
+                // Replace the immutable empty set with something we can mutate.
+                if (varyFields.isEmpty()) {
+                    varyFields = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+                }
+                for (String varyField : value.split(",")) {
+                    varyFields.add(varyField.trim());
+                }
+            } else if ("Content-Encoding".equalsIgnoreCase(fieldName)) {
+                contentEncoding = value;
+            } else if ("Transfer-Encoding".equalsIgnoreCase(fieldName)) {
+                transferEncoding = value;
+            } else if ("Content-Length".equalsIgnoreCase(fieldName)) {
+                try {
+                    contentLength = Integer.parseInt(value);
+                } catch (NumberFormatException ignored) {
+                }
+            } else if ("Connection".equalsIgnoreCase(fieldName)) {
+                connection = value;
+            } else if ("Proxy-Authenticate".equalsIgnoreCase(fieldName)) {
+                proxyAuthenticate = value;
+            } else if ("WWW-Authenticate".equalsIgnoreCase(fieldName)) {
+                wwwAuthenticate = value;
             } else if (SENT_MILLIS.equalsIgnoreCase(fieldName)) {
                 sentRequestMillis = Long.parseLong(value);
             } else if (RECEIVED_MILLIS.equalsIgnoreCase(fieldName)) {
                 receivedResponseMillis = Long.parseLong(value);
             }
         }
+    }
+
+    public boolean isContentEncodingGzip() {
+        return "gzip".equalsIgnoreCase(contentEncoding);
+    }
+
+    public void stripContentEncoding() {
+        contentEncoding = null;
+        headers.removeAll("Content-Encoding");
+    }
+
+    public boolean isChunked() {
+        return "chunked".equalsIgnoreCase(transferEncoding);
+    }
+
+    public boolean hasConnectionClose() {
+        return "close".equalsIgnoreCase(connection);
+    }
+
+    public void setLocalTimestamps(long sentRequestMillis, long receivedResponseMillis) {
+        this.sentRequestMillis = sentRequestMillis;
+        headers.add(SENT_MILLIS, Long.toString(sentRequestMillis));
+        this.receivedResponseMillis = receivedResponseMillis;
+        headers.add(RECEIVED_MILLIS, Long.toString(receivedResponseMillis));
     }
 
     /**
@@ -234,6 +294,28 @@ final class ResponseHeaders {
     }
 
     /**
+     * Returns true if a Vary header contains an asterisk. Such responses cannot
+     * be cached.
+     */
+    public boolean hasVaryAll() {
+        return varyFields.contains("*");
+    }
+
+    /**
+     * Returns true if none of the Vary headers on this response have changed
+     * between {@code cachedRequest} and {@code newRequest}.
+     */
+    public boolean varyMatches(Map<String, List<String>> cachedRequest,
+            Map<String, List<String>> newRequest) {
+        for (String field : varyFields) {
+            if (!Objects.equal(cachedRequest.get(field), newRequest.get(field))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Returns the source to satisfy {@code request} given this cached response.
      */
     public ResponseSource chooseResponseSource(long nowMillis, RequestHeaders request) {
@@ -246,7 +328,7 @@ final class ResponseHeaders {
             return ResponseSource.NETWORK;
         }
 
-        if (request.noCache || request.hasConditions) {
+        if (request.noCache || request.hasConditions()) {
             return ResponseSource.NETWORK;
         }
 
@@ -264,36 +346,31 @@ final class ResponseHeaders {
         }
 
         long maxStaleMillis = 0;
-        if (request.maxStaleSeconds != -1) {
+        if (!mustRevalidate && request.maxStaleSeconds != -1) {
             maxStaleMillis = TimeUnit.SECONDS.toMillis(request.maxStaleSeconds);
         }
 
         if (!noCache && ageMillis + minFreshMillis < freshMillis + maxStaleMillis) {
             if (ageMillis + minFreshMillis >= freshMillis) {
-                // TODO: this should be RESPONSE headers
-                request.headers.add("Warning", "110 HttpURLConnection \"Response is stale\"");
+                headers.add("Warning", "110 HttpURLConnection \"Response is stale\"");
             }
             if (ageMillis > TimeUnit.HOURS.toMillis(24) && isFreshnessLifetimeHeuristic()) {
-                // TODO: this should be RESPONSE headers
-                request.headers.add("Warning", "113 HttpURLConnection \"Heuristic expiration\"");
+                headers.add("Warning", "113 HttpURLConnection \"Heuristic expiration\"");
             }
             return ResponseSource.CACHE;
         }
 
         if (lastModified != null) {
-            request.headers.add("If-Modified-Since", HttpDate.format(lastModified));
-            request.hasConditions = true;
+            request.setIfModifiedSince(lastModified);
         } else if (servedDate != null) {
-            request.headers.add("If-Modified-Since", HttpDate.format(servedDate));
-            request.hasConditions = true;
+            request.setIfModifiedSince(servedDate);
         }
 
         if (etag != null) {
-            request.headers.add("If-None-Match", etag);
-            request.hasConditions = true;
+            request.setIfNoneMatch(etag);
         }
 
-        return request.hasConditions
+        return request.hasConditions()
                 ? ResponseSource.CONDITIONAL_CACHE
                 : ResponseSource.NETWORK;
     }
@@ -319,5 +396,48 @@ final class ResponseHeaders {
         }
 
         return false;
+    }
+
+    /**
+     * Combines this cached header with a network header as defined by RFC 2616,
+     * 13.5.3.
+     */
+    public ResponseHeaders combine(ResponseHeaders network) {
+        RawHeaders result = new RawHeaders();
+
+        for (int i = 0; i < headers.length(); i++) {
+            String fieldName = headers.getFieldName(i);
+            String value = headers.getValue(i);
+            if (fieldName.equals("Warning") && value.startsWith("1")) {
+                continue; // drop 100-level freshness warnings
+            }
+            if (!isEndToEnd(fieldName) || network.headers.get(fieldName) == null) {
+                result.add(fieldName, value);
+            }
+        }
+
+        for (int i = 0; i < network.headers.length(); i++) {
+            String fieldName = network.headers.getFieldName(i);
+            if (isEndToEnd(fieldName)) {
+                result.add(fieldName, network.headers.getValue(i));
+            }
+        }
+
+        return new ResponseHeaders(uri, result);
+    }
+
+    /**
+     * Returns true if {@code fieldName} is an end-to-end HTTP header, as
+     * defined by RFC 2616, 13.5.1.
+     */
+    private static boolean isEndToEnd(String fieldName) {
+        return !fieldName.equalsIgnoreCase("Connection")
+                && !fieldName.equalsIgnoreCase("Keep-Alive")
+                && !fieldName.equalsIgnoreCase("Proxy-Authenticate")
+                && !fieldName.equalsIgnoreCase("Proxy-Authorization")
+                && !fieldName.equalsIgnoreCase("TE")
+                && !fieldName.equalsIgnoreCase("Trailers")
+                && !fieldName.equalsIgnoreCase("Transfer-Encoding")
+                && !fieldName.equalsIgnoreCase("Upgrade");
     }
 }

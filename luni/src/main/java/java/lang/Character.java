@@ -96,6 +96,7 @@ import java.util.Arrays;
  *
  * @since 1.0
  */
+@FindBugsSuppressWarnings("DM_NUMBER_CTOR")
 public final class Character implements Serializable, Comparable<Character> {
     private static final long serialVersionUID = 3786198910865385080L;
 
@@ -1641,7 +1642,7 @@ public final class Character implements Serializable, Comparable<Character> {
     private static final Character[] SMALL_VALUES = new Character[128];
 
     static {
-        for(int i = 0; i < 128; i++) {
+        for (int i = 0; i < 128; i++) {
             SMALL_VALUES[i] = new Character((char) i);
         }
     }
@@ -2405,7 +2406,7 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     @Override
     public boolean equals(Object object) {
-        return (object instanceof Character) && (value == ((Character) object).value);
+        return (object instanceof Character) && (((Character) object).value == value);
     }
 
     /**

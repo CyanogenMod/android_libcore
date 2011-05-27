@@ -23,6 +23,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Locale;
 import libcore.net.UriCodec;
+import libcore.net.url.UrlUtils;
 
 /**
  * This class represents an instance of a URI as defined by
@@ -312,171 +313,100 @@ public final class URI implements Comparable<URI>, Serializable {
         parseURI(uri.toString(), false);
     }
 
+    /**
+     * Breaks uri into its component parts. This first splits URI into scheme,
+     * scheme-specific part and fragment:
+     *   [scheme:][scheme-specific part][#fragment]
+     *
+     * Then it breaks the scheme-specific part into authority, path and query:
+     *   [//authority][path][?query]
+     *
+     * Finally it delegates to parseAuthority to break the authority into user
+     * info, host and port:
+     *   [user-info@][host][:port]
+     */
     private void parseURI(String uri, boolean forceServer) throws URISyntaxException {
-        String temp = uri;
-        // assign uri string to the input value per spec
         string = uri;
-        int index, index1, index2, index3;
-        // parse into Fragment, Scheme, and SchemeSpecificPart
-        // then parse SchemeSpecificPart if necessary
 
-        // Fragment
-        index = temp.indexOf('#');
-        if (index != -1) {
-            // remove the fragment from the end
-            fragment = temp.substring(index + 1);
-            validateFragment(uri, fragment, index + 1);
-            temp = temp.substring(0, index);
+        // "#fragment"
+        int fragmentStart = UrlUtils.findFirstOf(uri, "#", 0, uri.length());
+        if (fragmentStart < uri.length()) {
+            fragment = ALL_LEGAL_ENCODER.validate(uri, fragmentStart + 1, uri.length(), "fragment");
         }
 
-        // Scheme and SchemeSpecificPart
-        index = index1 = temp.indexOf(':');
-        index2 = temp.indexOf('/');
-        index3 = temp.indexOf('?');
-
-        // if a '/' or '?' occurs before the first ':' the uri has no
-        // specified scheme, and is therefore not absolute
-        if (index != -1 && (index2 >= index || index2 == -1)
-                && (index3 >= index || index3 == -1)) {
-            // the characters up to the first ':' comprise the scheme
+        // scheme:
+        int start;
+        int colon = UrlUtils.findFirstOf(uri, ":", 0, fragmentStart);
+        if (colon < UrlUtils.findFirstOf(uri, "/?#", 0, fragmentStart)) {
             absolute = true;
-            scheme = temp.substring(0, index);
-            if (scheme.length() == 0) {
-                throw new URISyntaxException(uri, "Scheme expected", index);
+            scheme = validateScheme(uri, colon);
+            start = colon + 1;
+
+            if (start == fragmentStart) {
+                throw new URISyntaxException(uri, "Scheme-specific part expected", start);
             }
-            validateScheme(uri, scheme, 0);
-            schemeSpecificPart = temp.substring(index + 1);
-            if (schemeSpecificPart.length() == 0) {
-                throw new URISyntaxException(uri, "Scheme-specific part expected", index + 1);
+
+            // URIs with schemes followed by a non-/ char are opaque and need no further parsing.
+            if (!uri.regionMatches(start, "/", 0, 1)) {
+                opaque = true;
+                schemeSpecificPart = ALL_LEGAL_ENCODER.validate(
+                        uri, start, fragmentStart, "scheme specific part");
+                return;
             }
         } else {
             absolute = false;
-            schemeSpecificPart = temp;
+            start = 0;
         }
 
-        if (scheme == null || schemeSpecificPart.length() > 0
-                && schemeSpecificPart.charAt(0) == '/') {
-            opaque = false;
-            // the URI is hierarchical
+        opaque = false;
+        schemeSpecificPart = uri.substring(start, fragmentStart);
 
-            // Query
-            temp = schemeSpecificPart;
-            index = temp.indexOf('?');
-            if (index != -1) {
-                query = temp.substring(index + 1);
-                temp = temp.substring(0, index);
-                validateQuery(uri, query, index2 + 1 + index);
+        // "//authority"
+        int fileStart;
+        if (uri.regionMatches(start, "//", 0, 2)) {
+            int authorityStart = start + 2;
+            fileStart = UrlUtils.findFirstOf(uri, "/?", authorityStart, fragmentStart);
+            if (authorityStart == uri.length()) {
+                throw new URISyntaxException(uri, "Authority expected", uri.length());
             }
-
-            // Authority and Path
-            if (temp.startsWith("//")) {
-                index = temp.indexOf('/', 2);
-                if (index != -1) {
-                    authority = temp.substring(2, index);
-                    path = temp.substring(index);
-                } else {
-                    authority = temp.substring(2);
-                    if (authority.length() == 0 && query == null
-                            && fragment == null) {
-                        throw new URISyntaxException(uri, "Authority expected", uri.length());
-                    }
-
-                    path = "";
-                    // nothing left, so path is empty (not null, path should
-                    // never be null)
-                }
-
-                if (authority.length() == 0) {
-                    authority = null;
-                } else {
-                    validateAuthority(uri, authority, index1 + 3);
-                }
-            } else { // no authority specified
-                path = temp;
+            if (authorityStart < fileStart) {
+                authority = AUTHORITY_ENCODER.validate(uri, authorityStart, fileStart, "authority");
             }
+        } else {
+            fileStart = start;
+        }
 
-            int pathIndex = 0;
-            if (index2 > -1) {
-                pathIndex += index2;
-            }
-            if (index > -1) {
-                pathIndex += index;
-            }
-            validatePath(uri, path, pathIndex);
-        } else { // if not hierarchical, URI is opaque
-            opaque = true;
-            validateSsp(uri, schemeSpecificPart, index2 + 2 + index);
+        // "path"
+        int queryStart = UrlUtils.findFirstOf(uri, "?", fileStart, fragmentStart);
+        path = PATH_ENCODER.validate(uri, fileStart, queryStart, "path");
+
+        // "?query"
+        if (queryStart < fragmentStart) {
+            query = ALL_LEGAL_ENCODER.validate(uri, queryStart + 1, fragmentStart, "query");
         }
 
         parseAuthority(forceServer);
     }
 
-    private void validateScheme(String uri, String scheme, int index)
-            throws URISyntaxException {
-        // first char needs to be an alpha char
-        char ch = scheme.charAt(0);
-        if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))) {
-            throw new URISyntaxException(uri, "Illegal character in scheme", 0);
+    private String validateScheme(String uri, int end) throws URISyntaxException {
+        if (end == 0) {
+            throw new URISyntaxException(uri, "Scheme expected", 0);
         }
 
-        try {
-            UriCodec.validateSimple(scheme, "+-.");
-        } catch (URISyntaxException e) {
-            throw new URISyntaxException(uri, "Illegal character in scheme", index + e.getIndex());
+        for (int i = 0; i < end; i++) {
+            if (!UrlUtils.isValidSchemeChar(i, uri.charAt(i))) {
+                throw new URISyntaxException(uri, "Illegal character in scheme", 0);
+            }
         }
-    }
 
-    private void validateSsp(String uri, String ssp, int index)
-            throws URISyntaxException {
-        try {
-            ALL_LEGAL_ENCODER.validate(ssp);
-        } catch (URISyntaxException e) {
-            throw new URISyntaxException(uri,
-                    e.getReason() + " in schemeSpecificPart", index + e.getIndex());
-        }
-    }
-
-    private void validateAuthority(String uri, String authority, int index)
-            throws URISyntaxException {
-        try {
-            AUTHORITY_ENCODER.validate(authority);
-        } catch (URISyntaxException e) {
-            throw new URISyntaxException(uri, e.getReason() + " in authority", index + e.getIndex());
-        }
-    }
-
-    private void validatePath(String uri, String path, int index)
-            throws URISyntaxException {
-        try {
-            PATH_ENCODER.validate(path);
-        } catch (URISyntaxException e) {
-            throw new URISyntaxException(uri, e.getReason() + " in path", index + e.getIndex());
-        }
-    }
-
-    private void validateQuery(String uri, String query, int index)
-            throws URISyntaxException {
-        try {
-            ALL_LEGAL_ENCODER.validate(query);
-        } catch (URISyntaxException e) {
-            throw new URISyntaxException(uri, e.getReason() + " in query", index + e.getIndex());
-
-        }
-    }
-
-    private void validateFragment(String uri, String fragment, int index)
-            throws URISyntaxException {
-        try {
-            ALL_LEGAL_ENCODER.validate(fragment);
-        } catch (URISyntaxException e) {
-            throw new URISyntaxException(uri, e.getReason() + " in fragment", index + e.getIndex());
-        }
+        return uri.substring(0, end);
     }
 
     /**
-     * Parse the authority string into its component parts: user info,
-     * host, and port. This operation doesn't apply to registry URIs, and
-     * calling it on such <i>may</i> result in a syntax exception.
+     * Breaks this URI's authority into user info, host and port parts.
+     *   [user-info@][host][:port]
+     * If any part of this fails this method will give up and potentially leave
+     * these fields with their default values.
      *
      * @param forceServer true to always throw if the authority cannot be
      *     parsed. If false, this method may still throw for some kinds of
@@ -606,7 +536,7 @@ public final class URI implements Comparable<URI>, Serializable {
             if (ia instanceof Inet4Address) {
                 return true;
             }
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ignored) {
         }
 
         if (forceServer) {
@@ -1130,93 +1060,25 @@ public final class URI implements Comparable<URI>, Serializable {
         return opaque;
     }
 
-    /*
-     * normalize path, and return the resulting string
+    /**
+     * Returns the normalized path.
      */
-    private String normalize(String path) {
-        // count the number of '/'s, to determine number of segments
-        int index = -1;
-        int pathLength = path.length();
-        int size = 0;
-        if (pathLength > 0 && path.charAt(0) != '/') {
-            size++;
-        }
-        while ((index = path.indexOf('/', index + 1)) != -1) {
-            if (index + 1 < pathLength && path.charAt(index + 1) != '/') {
-                size++;
+    private String normalize(String path, boolean discardRelativePrefix) {
+        path = UrlUtils.canonicalizePath(path, discardRelativePrefix);
+
+        /*
+         * If the path contains a colon before the first colon, prepend
+         * "./" to differentiate the path from a scheme prefix.
+         */
+        int colon = path.indexOf(':');
+        if (colon != -1) {
+            int slash = path.indexOf('/');
+            if (slash == -1 || colon < slash) {
+                path = "./" + path;
             }
         }
 
-        String[] segList = new String[size];
-        boolean[] include = new boolean[size];
-
-        // break the path into segments and store in the list
-        int current = 0;
-        int index2;
-        index = (pathLength > 0 && path.charAt(0) == '/') ? 1 : 0;
-        while ((index2 = path.indexOf('/', index + 1)) != -1) {
-            segList[current++] = path.substring(index, index2);
-            index = index2 + 1;
-        }
-
-        // if current==size, then the last character was a slash
-        // and there are no more segments
-        if (current < size) {
-            segList[current] = path.substring(index);
-        }
-
-        // determine which segments get included in the normalized path
-        for (int i = 0; i < size; i++) {
-            include[i] = true;
-            if (segList[i].equals("..")) {
-                int remove = i - 1;
-                // search back to find a segment to remove, if possible
-                while (remove > -1 && !include[remove]) {
-                    remove--;
-                }
-                // if we find a segment to remove, remove it and the ".."
-                // segment
-                if (remove > -1 && !segList[remove].equals("..")) {
-                    include[remove] = false;
-                    include[i] = false;
-                }
-            } else if (segList[i].equals(".")) {
-                include[i] = false;
-            }
-        }
-
-        // put the path back together
-        StringBuilder newPath = new StringBuilder();
-        if (path.startsWith("/")) {
-            newPath.append('/');
-        }
-
-        for (int i = 0; i < segList.length; i++) {
-            if (include[i]) {
-                newPath.append(segList[i]);
-                newPath.append('/');
-            }
-        }
-
-        // if we used at least one segment and the path previously ended with
-        // a slash and the last segment is still used, then delete the extra
-        // trailing '/'
-        if (!path.endsWith("/") && segList.length > 0
-                && include[segList.length - 1]) {
-            newPath.deleteCharAt(newPath.length() - 1);
-        }
-
-        String result = newPath.toString();
-
-        // check for a ':' in the first segment if one exists,
-        // prepend "./" to normalize
-        index = result.indexOf(':');
-        index2 = result.indexOf('/');
-        if (index != -1 && (index < index2 || index2 == -1)) {
-            newPath.insert(0, "./");
-            result = newPath.toString();
-        }
-        return result;
+        return path;
     }
 
     /**
@@ -1229,7 +1091,7 @@ public final class URI implements Comparable<URI>, Serializable {
         if (opaque) {
             return this;
         }
-        String normalizedPath = normalize(path);
+        String normalizedPath = normalize(path, false);
         // if the path is already normalized, return this
         if (path.equals(normalizedPath)) {
             return this;
@@ -1283,18 +1145,17 @@ public final class URI implements Comparable<URI>, Serializable {
         }
 
         // normalize both paths
-        String thisPath = normalize(path);
-        String relativePath = normalize(relative.path);
+        String thisPath = normalize(path, false);
+        String relativePath = normalize(relative.path, false);
 
         /*
          * if the paths aren't equal, then we need to determine if this URI's
          * path is a parent path (begins with) the relative URI's path
          */
         if (!thisPath.equals(relativePath)) {
-            // if this URI's path doesn't end in a '/', add one
-            if (!thisPath.endsWith("/")) {
-                thisPath = thisPath + '/';
-            }
+            // drop everything after the last slash in this path
+            thisPath = thisPath.substring(0, thisPath.lastIndexOf('/') + 1);
+
             /*
              * if the relative URI's path doesn't start with this URI's path,
              * then just return the relative URI; the URIs have nothing in
@@ -1327,47 +1188,39 @@ public final class URI implements Comparable<URI>, Serializable {
             return relative;
         }
 
-        URI result;
-        if (relative.path.isEmpty() && relative.scheme == null
-                && relative.authority == null && relative.query == null
-                && relative.fragment != null) {
-            // if the relative URI only consists of fragment,
-            // the resolved URI is very similar to this URI,
-            // except that it has the fragment from the relative URI.
-            result = duplicate();
-            result.fragment = relative.fragment;
-            // no need to re-calculate the scheme specific part,
-            // since fragment is not part of scheme specific part.
+        if (relative.authority != null) {
+            // If the relative URI has an authority, the result is the relative
+            // with this URI's scheme.
+            URI result = relative.duplicate();
+            result.scheme = scheme;
+            result.absolute = absolute;
             return result;
         }
 
-        if (relative.authority != null) {
-            // if the relative URI has authority,
-            // the resolved URI is almost the same as the relative URI,
-            // except that it has the scheme of this URI.
-            result = relative.duplicate();
-            result.scheme = scheme;
-            result.absolute = absolute;
-        } else {
-            // since relative URI has no authority,
-            // the resolved URI is very similar to this URI,
-            // except that it has the query and fragment of the relative URI,
-            // and the path is different.
-            result = duplicate();
+        if (relative.path.isEmpty() && relative.scheme == null && relative.query == null) {
+            // if the relative URI only consists of at most a fragment,
+            URI result = duplicate();
             result.fragment = relative.fragment;
-            result.query = relative.query;
-            if (relative.path.startsWith("/")) {
-                result.path = relative.path;
-            } else {
-                // resolve a relative reference
-                int endIndex = path.lastIndexOf('/') + 1;
-                result.path = normalize(path.substring(0, endIndex)
-                        + relative.path);
-            }
-            // re-calculate the scheme specific part since
-            // query and path of the resolved URI is different from this URI.
-            result.setSchemeSpecificPart();
+            return result;
         }
+
+        URI result = duplicate();
+        result.fragment = relative.fragment;
+        result.query = relative.query;
+        String resolvedPath;
+        if (relative.path.startsWith("/")) {
+            // The relative URI has an absolute path; use it.
+            resolvedPath = relative.path;
+        } else if (relative.path.isEmpty()) {
+            // The relative URI has no path; use the base path.
+            resolvedPath = path;
+        } else {
+            // The relative URI has a relative path; combine the paths.
+            int endIndex = path.lastIndexOf('/') + 1;
+            resolvedPath = path.substring(0, endIndex) + relative.path;
+        }
+        result.path = UrlUtils.authoritySafePath(result.authority, normalize(resolvedPath, true));
+        result.setSchemeSpecificPart();
         return result;
     }
 

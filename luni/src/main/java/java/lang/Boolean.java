@@ -101,9 +101,9 @@ public final class Boolean implements Serializable, Comparable<Boolean> {
      *         {@code Boolean}; {@code false} otherwise.
      */
     @Override
+    @FindBugsSuppressWarnings("RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN")
     public boolean equals(Object o) {
-        return (o == this)
-                || ((o instanceof Boolean) && (value == ((Boolean) o).value));
+        return (o == this) || ((o instanceof Boolean) && (((Boolean) o).value == value));
     }
 
     /**

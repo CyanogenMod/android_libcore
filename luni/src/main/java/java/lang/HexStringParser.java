@@ -15,13 +15,17 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.util;
+package java.lang;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /*
  * Parses hex string to a single or double precision floating point number.
+ *
+ * TODO: rewrite this!
+ *
+ * @hide
  */
 final class HexStringParser {
 

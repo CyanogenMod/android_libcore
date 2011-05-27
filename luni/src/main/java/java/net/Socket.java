@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.SocketChannel;
-import libcore.io.IoUtils;
+import libcore.io.IoBridge;
 
 /**
  * Provides a client-side TCP socket.
@@ -752,7 +752,7 @@ public class Socket {
             }
             InetSocketAddress inetAddr = (InetSocketAddress) localAddr;
             if ((addr = inetAddr.getAddress()) == null) {
-                throw new SocketException("Host is unresolved: " + inetAddr.getHostName());
+                throw new UnknownHostException("Host is unresolved: " + inetAddr.getHostName());
             }
             port = inetAddr.getPort();
         }
@@ -822,7 +822,7 @@ public class Socket {
         InetSocketAddress inetAddr = (InetSocketAddress) remoteAddr;
         InetAddress addr;
         if ((addr = inetAddr.getAddress()) == null) {
-            throw new SocketException("Host is unresolved: " + inetAddr.getHostName());
+            throw new UnknownHostException("Host is unresolved: " + inetAddr.getHostName());
         }
         int port = inetAddr.getPort();
 
@@ -947,7 +947,7 @@ public class Socket {
     }
 
     private void cacheLocalAddress() {
-        this.localAddress = IoUtils.getSocketLocalAddress(impl.fd);
+        this.localAddress = IoBridge.getSocketLocalAddress(impl.fd);
     }
 
     /**

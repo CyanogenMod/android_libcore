@@ -405,7 +405,7 @@ class XMLParser {
         NodeList childNodes = documentElement.getChildNodes();
 
         if(path[0].equals("entry") || path[0].equals("node")) {
-            for(int i = 0; i < childNodes.getLength(); i++) {
+            for (int i = 0; i < childNodes.getLength(); i++) {
                 Object next = childNodes.item(i);
                 if(next instanceof Element) {
                     if(((Element) next).getNodeName().equals(path[0])) {
@@ -414,12 +414,12 @@ class XMLParser {
                 }
             }
         } else if(path[0].equals("map") && path[1].equals("entry")) {
-            for(int i = 0; i < childNodes.getLength(); i++) {
+            for (int i = 0; i < childNodes.getLength(); i++) {
                 Object next = childNodes.item(i);
                 if(next instanceof Element) {
                     if(((Element) next).getNodeName().equals(path[0])) {
                         NodeList nextChildNodes = ((Node)next).getChildNodes();
-                        for(int j = 0; j < nextChildNodes.getLength(); j++) {
+                        for (int j = 0; j < nextChildNodes.getLength(); j++) {
                             Object subnext = nextChildNodes.item(j);
                             if(subnext instanceof Element) {
                                 if(((Element)subnext).getNodeName().equals(path[1])) {

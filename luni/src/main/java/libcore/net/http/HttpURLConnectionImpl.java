@@ -33,10 +33,9 @@ import java.net.SocketPermission;
 import java.net.URL;
 import java.nio.charset.Charsets;
 import java.security.Permission;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.apache.harmony.luni.util.Base64;
+import libcore.io.Base64;
 
 /**
  * This implementation uses HttpEngine to send requests and receive responses.
@@ -52,16 +51,13 @@ import org.apache.harmony.luni.util.Base64;
  * connection} field on this class for null/non-null to determine of an instance
  * is currently connected to a server.
  */
-public class HttpURLConnectionImpl extends HttpURLConnection {
+class HttpURLConnectionImpl extends HttpURLConnection {
 
     private final int defaultPort;
 
     private Proxy proxy;
 
-    // TODO: should these be set by URLConnection.setDefaultRequestProperty ?
-    private static RawHeaders defaultRequestHeaders = new RawHeaders();
-
-    protected RawHeaders rawRequestHeaders = new RawHeaders(defaultRequestHeaders);
+    private final RawHeaders rawRequestHeaders = new RawHeaders();
 
     private int redirectionCount;
 
@@ -88,13 +84,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
     }
 
-    /**
-     * Close the socket connection to the remote origin server or proxy.
-     */
     @Override public final void disconnect() {
-        // TODO: what happens if they call disconnect() before connect?
+        // Calling disconnect() before a connection exists should have no effect.
         if (httpEngine != null) {
-            httpEngine.releaseSocket(false);
+            httpEngine.release(false);
         }
     }
 
@@ -106,7 +99,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         try {
             HttpEngine response = getResponse();
             if (response.hasResponseBody()
-                    && response.getResponseHeaders().getResponseCode() >= HTTP_BAD_REQUEST) {
+                    && response.getResponseCode() >= HTTP_BAD_REQUEST) {
                 return response.getResponseBody();
             }
             return null;
@@ -121,7 +114,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      */
     @Override public final String getHeaderField(int position) {
         try {
-            return getResponse().getResponseHeaders().getValue(position);
+            return getResponse().getResponseHeaders().headers.getValue(position);
         } catch (IOException e) {
             return null;
         }
@@ -134,10 +127,10 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      */
     @Override public final String getHeaderField(String fieldName) {
         try {
-            RawHeaders responseHeaders = getResponse().getResponseHeaders();
+            RawHeaders rawHeaders = getResponse().getResponseHeaders().headers;
             return fieldName == null
-                    ? responseHeaders.getStatusLine()
-                    : responseHeaders.get(fieldName);
+                    ? rawHeaders.getStatusLine()
+                    : rawHeaders.get(fieldName);
         } catch (IOException e) {
             return null;
         }
@@ -145,7 +138,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     @Override public final String getHeaderFieldKey(int position) {
         try {
-            return getResponse().getResponseHeaders().getFieldName(position);
+            return getResponse().getResponseHeaders().headers.getFieldName(position);
         } catch (IOException e) {
             return null;
         }
@@ -153,7 +146,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     @Override public final Map<String, List<String>> getHeaderFields() {
         try {
-            return getResponse().getResponseHeaders().toMultimap();
+            return getResponse().getResponseHeaders().headers.toMultimap();
         } catch (IOException e) {
             return null;
         }
@@ -193,7 +186,15 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
     @Override public final OutputStream getOutputStream() throws IOException {
         connect();
-        return httpEngine.getRequestBody();
+
+        OutputStream result = httpEngine.getRequestBody();
+        if (result == null) {
+            throw new ProtocolException("method does not support a request body: " + method);
+        } else if (httpEngine.hasResponse()) {
+            throw new ProtocolException("cannot write request body after response has been read");
+        }
+
+        return result;
     }
 
     @Override public final Permission getPermission() throws IOException {
@@ -230,6 +231,15 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
         connected = true;
         try {
+            if (doOutput) {
+                if (method == HttpEngine.GET) {
+                    // they are requesting a stream to write to. This implies a POST method
+                    method = HttpEngine.POST;
+                } else if (method != HttpEngine.POST && method != HttpEngine.PUT) {
+                    // If the request method is neither POST nor PUT, then you're not writing
+                    throw new ProtocolException(method + " does not support writing");
+                }
+            }
             httpEngine = newHttpEngine(method, rawRequestHeaders, null, null);
         } catch (IOException e) {
             httpEngineFailure = e;
@@ -265,34 +275,41 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
 
                 Retry retry = processResponseHeaders();
                 if (retry == Retry.NONE) {
+                    httpEngine.automaticallyReleaseConnectionToPool();
                     break;
                 }
 
                 /*
                  * The first request was insufficient. Prepare for another...
                  */
+                String retryMethod = method;
                 OutputStream requestBody = httpEngine.getRequestBody();
+
+                /*
+                 * Although RFC 2616 10.3.2 specifies that a HTTP_MOVED_PERM
+                 * redirect should keep the same method, Chrome, Firefox and the
+                 * RI all issue GETs when following any redirect.
+                 */
+                int responseCode = getResponseCode();
+                if (responseCode == HTTP_MULT_CHOICE || responseCode == HTTP_MOVED_PERM
+                        || responseCode == HTTP_MOVED_TEMP || responseCode == HTTP_SEE_OTHER) {
+                    retryMethod = HttpEngine.GET;
+                    requestBody = null;
+                }
+
                 if (requestBody != null && !(requestBody instanceof RetryableOutputStream)) {
                     throw new HttpRetryException("Cannot retry streamed HTTP body",
-                            httpEngine.getResponseHeaders().getResponseCode());
+                            httpEngine.getResponseCode());
                 }
 
-                if (retry == Retry.SAME_CONNECTION && httpEngine.hasConnectionCloseHeaders()) {
-                    retry = Retry.NEW_CONNECTION;
+                if (retry == Retry.DIFFERENT_CONNECTION) {
+                    httpEngine.automaticallyReleaseConnectionToPool();
                 }
 
-                HttpConnection connection = null;
-                if (retry == Retry.NEW_CONNECTION) {
-                    httpEngine.discardResponseBody();
-                    httpEngine.releaseSocket(true);
-                } else {
-                    httpEngine.dontReleaseSocketToPool();
-                    httpEngine.discardResponseBody();
-                    connection = httpEngine.getConnection();
-                }
+                httpEngine.release(true);
 
-                httpEngine = newHttpEngine(method, rawRequestHeaders, connection,
-                        (RetryableOutputStream) requestBody);
+                httpEngine = newHttpEngine(retryMethod, rawRequestHeaders,
+                        httpEngine.getConnection(), (RetryableOutputStream) requestBody);
             }
             return httpEngine;
         } catch (IOException e) {
@@ -301,10 +318,14 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
     }
 
+    HttpEngine getHttpEngine() {
+        return httpEngine;
+    }
+
     enum Retry {
         NONE,
         SAME_CONNECTION,
-        NEW_CONNECTION
+        DIFFERENT_CONNECTION
     }
 
     /**
@@ -313,48 +334,31 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
      * prepare for a follow up request.
      */
     private Retry processResponseHeaders() throws IOException {
-        RawHeaders responseHeaders = httpEngine.getResponseHeaders();
-        int responseCode = responseHeaders.getResponseCode();
-        switch (responseCode) {
-        case HTTP_PROXY_AUTH: // proxy authorization failed ?
+        switch (getResponseCode()) {
+        case HTTP_PROXY_AUTH:
             if (!usingProxy()) {
                 throw new IOException(
                         "Received HTTP_PROXY_AUTH (407) code while not using proxy");
             }
-            return processAuthHeader("Proxy-Authenticate", "Proxy-Authorization");
-
-        case HTTP_UNAUTHORIZED: // HTTP authorization failed ?
-            return processAuthHeader("WWW-Authenticate", "Authorization");
+            // fall-through
+        case HTTP_UNAUTHORIZED:
+            boolean credentialsFound = processAuthHeader(getResponseCode(),
+                    httpEngine.getResponseHeaders(), rawRequestHeaders);
+            return credentialsFound ? Retry.SAME_CONNECTION : Retry.NONE;
 
         case HTTP_MULT_CHOICE:
         case HTTP_MOVED_PERM:
         case HTTP_MOVED_TEMP:
         case HTTP_SEE_OTHER:
-        case HTTP_USE_PROXY:
             if (!getInstanceFollowRedirects()) {
-                return Retry.NONE;
-            }
-            if (httpEngine.getRequestBody() != null) {
-                // TODO: follow redirects for retryable output streams...
                 return Retry.NONE;
             }
             if (++redirectionCount > HttpEngine.MAX_REDIRECTS) {
                 throw new ProtocolException("Too many redirects");
             }
-            String location = responseHeaders.get("Location");
+            String location = getHeaderField("Location");
             if (location == null) {
                 return Retry.NONE;
-            }
-            if (responseCode == HTTP_USE_PROXY) {
-                int start = 0;
-                if (location.startsWith(url.getProtocol() + ':')) {
-                    start = url.getProtocol().length() + 1;
-                }
-                if (location.startsWith("//", start)) {
-                    start += 2;
-                }
-                setProxy(location.substring(start));
-                return Retry.NEW_CONNECTION;
             }
             URL previousUrl = url;
             url = new URL(previousUrl, location);
@@ -365,9 +369,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
                     && previousUrl.getEffectivePort() == url.getEffectivePort()) {
                 return Retry.SAME_CONNECTION;
             } else {
-                // TODO: strip cookies?
-                rawRequestHeaders.removeAll("Host");
-                return Retry.NEW_CONNECTION;
+                return Retry.DIFFERENT_CONNECTION;
             }
 
         default:
@@ -375,37 +377,36 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         }
     }
 
-    private void setProxy(String proxy) {
-        // TODO: convert IllegalArgumentException etc. to ProtocolException?
-        int colon = proxy.indexOf(':');
-        String host;
-        int port;
-        if (colon != -1) {
-            host = proxy.substring(0, colon);
-            port = Integer.parseInt(proxy.substring(colon + 1));
-        } else {
-            host = proxy;
-            port = getDefaultPort();
-        }
-        this.proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
-    }
-
     /**
      * React to a failed authorization response by looking up new credentials.
+     *
+     * @return true if credentials have been added to successorRequestHeaders
+     *     and another request should be attempted.
      */
-    private Retry processAuthHeader(String fieldName, String value) throws IOException {
+    final boolean processAuthHeader(int responseCode, ResponseHeaders response,
+            RawHeaders successorRequestHeaders) throws IOException {
+        if (responseCode != HTTP_PROXY_AUTH && responseCode != HTTP_UNAUTHORIZED) {
+            throw new IllegalArgumentException();
+        }
+
         // keep asking for username/password until authorized
-        String challenge = httpEngine.getResponseHeaders().get(fieldName);
+        String challenge = responseCode == HTTP_PROXY_AUTH
+                ? response.proxyAuthenticate
+                : response.wwwAuthenticate;
         if (challenge == null) {
             throw new IOException("Received authentication challenge is null");
         }
         String credentials = getAuthorizationCredentials(challenge);
         if (credentials == null) {
-            return Retry.NONE; // could not find credentials, end request cycle
+            return false; // could not find credentials, end request cycle
         }
+
         // add authorization credentials, bypassing the already-connected check
-        rawRequestHeaders.set(value, credentials);
-        return Retry.SAME_CONNECTION;
+        String fieldName = responseCode == HTTP_PROXY_AUTH
+                ? "Proxy-Authorization"
+                : "Authorization";
+        successorRequestHeaders.set(fieldName, credentials);
+        return true;
     }
 
     /**
@@ -434,7 +435,7 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         // base64 encode the username and password
         String usernameAndPassword = pa.getUserName() + ":" + new String(pa.getPassword());
         byte[] bytes = usernameAndPassword.getBytes(Charsets.ISO_8859_1);
-        String encoded = Base64.encode(bytes, Charsets.ISO_8859_1);
+        String encoded = Base64.encode(bytes);
         return scheme + " " + encoded;
     }
 
@@ -466,23 +467,16 @@ public class HttpURLConnectionImpl extends HttpURLConnection {
         this.proxy = proxy;
     }
 
-
     @Override public final boolean usingProxy() {
         return (proxy != null && proxy.type() != Proxy.Type.DIRECT);
     }
 
     @Override public String getResponseMessage() throws IOException {
-        return getResponse().getResponseHeaders().getResponseMessage();
+        return getResponse().getResponseHeaders().headers.getResponseMessage();
     }
 
     @Override public final int getResponseCode() throws IOException {
-        return getResponse().getResponseHeaders().getResponseCode();
-    }
-
-    @Override public final void setIfModifiedSince(long newValue) {
-        // TODO: set this lazily in prepareRequestHeaders()
-        super.setIfModifiedSince(newValue);
-        rawRequestHeaders.add("If-Modified-Since", HttpDate.format(new Date(newValue)));
+        return getResponse().getResponseCode();
     }
 
     @Override public final void setRequestProperty(String field, String newValue) {

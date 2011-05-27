@@ -219,6 +219,7 @@ public class Object {
      *
      * See <i>Effective Java</i> Item 7, "Avoid finalizers" for more.
      */
+    @FindBugsSuppressWarnings("FI_EMPTY")
     protected void finalize() throws Throwable {
     }
 

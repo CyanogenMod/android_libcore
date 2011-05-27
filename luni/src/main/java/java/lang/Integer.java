@@ -29,6 +29,7 @@ package java.lang;
  * @see java.lang.Long
  * @since 1.0
  */
+@FindBugsSuppressWarnings("DM_NUMBER_CTOR")
 public final class Integer extends Number implements Comparable<Integer> {
 
     private static final long serialVersionUID = 1360826667806852920L;
@@ -205,7 +206,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      */
     @Override
     public boolean equals(Object o) {
-        return o instanceof Integer && ((Integer) o).value == value;
+        return (o instanceof Integer) && (((Integer) o).value == value);
     }
 
     @Override
@@ -712,7 +713,7 @@ public final class Integer extends Number implements Comparable<Integer> {
     private static final Integer[] SMALL_VALUES = new Integer[256];
 
     static {
-        for(int i = -128; i < 128; i++) {
+        for (int i = -128; i < 128; i++) {
             SMALL_VALUES[i + 128] = new Integer(i);
         }
     }

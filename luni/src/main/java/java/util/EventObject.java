@@ -30,9 +30,7 @@ public class EventObject implements Serializable {
 
     private static final long serialVersionUID = 5516075349620653480L;
 
-    /**
-     * The event source.
-     */
+    @FindBugsSuppressWarnings("SE_TRANSIENT_FIELD_NOT_RESTORED")
     protected transient Object source;
 
     /**
@@ -42,17 +40,14 @@ public class EventObject implements Serializable {
      *            the object which fired the event.
      */
     public EventObject(Object source) {
-        if (source != null) {
-            this.source = source;
-        } else {
+        if (source == null) {
             throw new IllegalArgumentException();
         }
+        this.source = source;
     }
 
     /**
-     * Returns the event source.
-     *
-     * @return the object which fired the event.
+     * Returns the object which fired the event.
      */
     public Object getSource() {
         return source;
@@ -60,11 +55,8 @@ public class EventObject implements Serializable {
 
     /**
      * Returns the string representation of this {@code EventObject}.
-     *
-     * @return the string representation of this {@code EventObject}.
      */
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return getClass().getName() + "[source=" + source + ']';
     }
 }

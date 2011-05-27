@@ -132,6 +132,16 @@ public class TimeZoneTest extends junit.framework.TestCase {
         }
     }
 
+    // http://code.google.com/p/android/issues/detail?id=16608
+    public void testHelsinkiOverflow() throws Exception {
+        long time = 2147483648000L;// Tue, 19 Jan 2038 03:14:08 GMT
+        TimeZone timeZone = TimeZone.getTimeZone("Europe/Helsinki");
+        long offset = timeZone.getOffset(time);
+        // This might cause us trouble if Europe/Helsinki changes its rules. See the bug for
+        // details of the intent of this test.
+        assertEquals(7200000, offset);
+    }
+
     // http://code.google.com/p/android/issues/detail?id=11918
     public void testHasSameRules() throws Exception {
         TimeZone denver = TimeZone.getTimeZone ("America/Denver") ;

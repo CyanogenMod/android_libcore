@@ -22,6 +22,7 @@ package java.lang;
  *
  * @since 1.1
  */
+@FindBugsSuppressWarnings("DM_NUMBER_CTOR")
 public final class Byte extends Number implements Comparable<Byte> {
 
     private static final long serialVersionUID = -7183698231559129828L;
@@ -155,9 +156,9 @@ public final class Byte extends Number implements Comparable<Byte> {
      *         {@code Byte}; {@code false} otherwise.
      */
     @Override
+    @FindBugsSuppressWarnings("RC_REF_COMPARISON")
     public boolean equals(Object object) {
-        return (object == this) || (object instanceof Byte)
-                && (value == ((Byte) object).value);
+        return (object == this) || ((object instanceof Byte) && (((Byte) object).value == value));
     }
 
     @Override

@@ -19,6 +19,7 @@
 #include "NetworkUtilities.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "ScopedLocalRef.h"
 
 #include <arpa/inet.h>
 #include <fcntl.h>
@@ -26,42 +27,8 @@
 #include <string.h>
 #include <sys/socket.h>
 
-static bool byteArrayToSocketAddress(JNIEnv* env, jbyteArray byteArray, int port, sockaddr_storage* ss) {
-    if (byteArray == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        return false;
-    }
-
-    // Convert the IP address bytes to the proper IP address type.
-    size_t addressLength = env->GetArrayLength(byteArray);
-    memset(ss, 0, sizeof(*ss));
-    if (addressLength == 4) {
-        // IPv4 address.
-        sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ss);
-        sin->sin_family = AF_INET;
-        sin->sin_port = htons(port);
-        jbyte* dst = reinterpret_cast<jbyte*>(&sin->sin_addr.s_addr);
-        env->GetByteArrayRegion(byteArray, 0, 4, dst);
-    } else if (addressLength == 16) {
-        // IPv6 address.
-        sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(ss);
-        sin6->sin6_family = AF_INET6;
-        sin6->sin6_port = htons(port);
-        jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr);
-        env->GetByteArrayRegion(byteArray, 0, 16, dst);
-    } else {
-        // We can't throw SocketException. We aren't meant to see bad addresses, so seeing one
-        // really does imply an internal error.
-        // TODO: fix the code (native and Java) so we don't paint ourselves into this corner.
-        jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
-                "byteArrayToSocketAddress bad array length (%i)", addressLength);
-        return false;
-    }
-    return true;
-}
-
-static jbyteArray socketAddressToByteArray(JNIEnv* env, const sockaddr_storage* ss) {
-    // Convert IPv4-mapped addresses to IPv4 addresses.
+jobject sockaddrToInetAddress(JNIEnv* env, const sockaddr_storage* ss, jint* port) {
+    // Convert IPv4-mapped IPv6 addresses to IPv4 addresses.
     // The RI states "Java will never return an IPv4-mapped address".
     sockaddr_storage tmp;
     memset(&tmp, 0, sizeof(tmp));
@@ -80,21 +47,28 @@ static jbyteArray socketAddressToByteArray(JNIEnv* env, const sockaddr_storage* 
 
     const void* rawAddress;
     size_t addressLength;
+    int sin_port;
+    int scope_id = 0;
     if (ss->ss_family == AF_INET) {
         const sockaddr_in* sin = reinterpret_cast<const sockaddr_in*>(ss);
         rawAddress = &sin->sin_addr.s_addr;
         addressLength = 4;
+        sin_port = ntohs(sin->sin_port);
     } else if (ss->ss_family == AF_INET6) {
         const sockaddr_in6* sin6 = reinterpret_cast<const sockaddr_in6*>(ss);
         rawAddress = &sin6->sin6_addr.s6_addr;
         addressLength = 16;
+        sin_port = ntohs(sin6->sin6_port);
+        scope_id = sin6->sin6_scope_id;
     } else {
         // We can't throw SocketException. We aren't meant to see bad addresses, so seeing one
         // really does imply an internal error.
-        // TODO: fix the code (native and Java) so we don't paint ourselves into this corner.
         jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
-                "socketAddressToByteArray bad ss_family (%i)", ss->ss_family);
+                "sockaddrToInetAddress bad ss_family: %i", ss->ss_family);
         return NULL;
+    }
+    if (port != NULL) {
+        *port = sin_port;
     }
 
     jbyteArray byteArray = env->NewByteArray(addressLength);
@@ -102,35 +76,88 @@ static jbyteArray socketAddressToByteArray(JNIEnv* env, const sockaddr_storage* 
         return NULL;
     }
     env->SetByteArrayRegion(byteArray, 0, addressLength, reinterpret_cast<const jbyte*>(rawAddress));
-    return byteArray;
-}
 
-static jobject byteArrayToInetAddress(JNIEnv* env, jbyteArray byteArray) {
-    if (byteArray == NULL) {
-        return NULL;
-    }
-    jmethodID getByAddressMethod = env->GetStaticMethodID(JniConstants::inetAddressClass,
-            "getByAddress", "([B)Ljava/net/InetAddress;");
+    static jmethodID getByAddressMethod = env->GetStaticMethodID(JniConstants::inetAddressClass,
+            "getByAddress", "(Ljava/lang/String;[BI)Ljava/net/InetAddress;");
     if (getByAddressMethod == NULL) {
         return NULL;
     }
-    return env->CallStaticObjectMethod(JniConstants::inetAddressClass, getByAddressMethod, byteArray);
+    return env->CallStaticObjectMethod(JniConstants::inetAddressClass, getByAddressMethod,
+            NULL, byteArray, scope_id);
 }
 
-jobject socketAddressToInetAddress(JNIEnv* env, const sockaddr_storage* ss) {
-    jbyteArray byteArray = socketAddressToByteArray(env, ss);
-    return byteArrayToInetAddress(env, byteArray);
-}
+static bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss, bool map) {
+    memset(ss, 0, sizeof(*ss));
 
-bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
-    // Get the byte array that stores the IP address bytes in the InetAddress.
     if (inetAddress == NULL) {
         jniThrowNullPointerException(env, NULL);
         return false;
     }
-    static jfieldID fid = env->GetFieldID(JniConstants::inetAddressClass, "ipaddress", "[B");
-    jbyteArray addressBytes = reinterpret_cast<jbyteArray>(env->GetObjectField(inetAddress, fid));
-    return byteArrayToSocketAddress(env, addressBytes, port, ss);
+
+    // Get the address family.
+    static jfieldID familyFid = env->GetFieldID(JniConstants::inetAddressClass, "family", "I");
+    ss->ss_family = env->GetIntField(inetAddress, familyFid);
+    if (ss->ss_family == AF_UNSPEC) {
+        return true; // Job done!
+    }
+
+    // Check this is an address family we support.
+    if (ss->ss_family != AF_INET && ss->ss_family != AF_INET6) {
+        jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException",
+                "inetAddressToSockaddr bad family: %i", ss->ss_family);
+        return false;
+    }
+
+    // Get the byte array that stores the IP address bytes in the InetAddress.
+    static jfieldID bytesFid = env->GetFieldID(JniConstants::inetAddressClass, "ipaddress", "[B");
+    ScopedLocalRef<jbyteArray> addressBytes(env, reinterpret_cast<jbyteArray>(env->GetObjectField(inetAddress, bytesFid)));
+    if (addressBytes.get() == NULL) {
+        jniThrowNullPointerException(env, NULL);
+        return false;
+    }
+
+    // We use AF_INET6 sockets, so we want an IPv6 address (which may be a IPv4-mapped address).
+    sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(ss);
+    sin6->sin6_port = htons(port);
+    if (ss->ss_family == AF_INET6) {
+        // IPv6 address. Copy the bytes...
+        jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr);
+        env->GetByteArrayRegion(addressBytes.get(), 0, 16, dst);
+        // ...and set the scope id...
+        static jfieldID scopeFid = env->GetFieldID(JniConstants::inet6AddressClass, "scope_id", "I");
+        sin6->sin6_scope_id = env->GetIntField(inetAddress, scopeFid);
+        return true;
+    }
+
+    // Deal with Inet4Address instances.
+    if (map) {
+        // We should represent this Inet4Address as an IPv4-mapped IPv6 sockaddr_in6.
+        // Change the family...
+        sin6->sin6_family = AF_INET6;
+        // Copy the bytes...
+        jbyte* dst = reinterpret_cast<jbyte*>(&sin6->sin6_addr.s6_addr[12]);
+        env->GetByteArrayRegion(addressBytes.get(), 0, 4, dst);
+        // INADDR_ANY and in6addr_any are both all-zeros...
+        if (!IN6_IS_ADDR_UNSPECIFIED(&sin6->sin6_addr)) {
+            // ...but all other IPv4-mapped addresses are ::ffff:a.b.c.d, so insert the ffff...
+            memset(&(sin6->sin6_addr.s6_addr[10]), 0xff, 2);
+        }
+    } else {
+        // We should represent this Inet4Address as an IPv4 sockaddr_in.
+        sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ss);
+        sin->sin_port = htons(port);
+        jbyte* dst = reinterpret_cast<jbyte*>(&sin->sin_addr.s_addr);
+        env->GetByteArrayRegion(addressBytes.get(), 0, 4, dst);
+    }
+    return true;
+}
+
+bool inetAddressToSockaddrVerbatim(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
+    return inetAddressToSockaddr(env, inetAddress, port, ss, false);
+}
+
+bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss) {
+    return inetAddressToSockaddr(env, inetAddress, port, ss, true);
 }
 
 bool setBlocking(int fd, bool blocking) {

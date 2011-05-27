@@ -989,7 +989,7 @@ OutOfMemory:
   return z;
 }
 
-static jfloat FloatingPointParser_parseFltImpl(JNIEnv* env, jclass, jstring s, jint e) {
+static jfloat StringToReal_parseFltImpl(JNIEnv* env, jclass, jstring s, jint e) {
     ScopedUtfChars str(env, s);
     if (str.c_str() == NULL) {
         return 0.0;
@@ -997,7 +997,7 @@ static jfloat FloatingPointParser_parseFltImpl(JNIEnv* env, jclass, jstring s, j
     return createFloat(env, str.c_str(), e);
 }
 
-static jdouble FloatingPointParser_parseDblImpl(JNIEnv* env, jclass, jstring s, jint e) {
+static jdouble StringToReal_parseDblImpl(JNIEnv* env, jclass, jstring s, jint e) {
     ScopedUtfChars str(env, s);
     if (str.c_str() == NULL) {
         return 0.0;
@@ -1006,10 +1006,9 @@ static jdouble FloatingPointParser_parseDblImpl(JNIEnv* env, jclass, jstring s, 
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(FloatingPointParser, parseFltImpl, "(Ljava/lang/String;I)F"),
-    NATIVE_METHOD(FloatingPointParser, parseDblImpl, "(Ljava/lang/String;I)D"),
+    NATIVE_METHOD(StringToReal, parseFltImpl, "(Ljava/lang/String;I)F"),
+    NATIVE_METHOD(StringToReal, parseDblImpl, "(Ljava/lang/String;I)D"),
 };
-int register_org_apache_harmony_luni_util_fltparse(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "org/apache/harmony/luni/util/FloatingPointParser",
-                gMethods, NELEM(gMethods));
+int register_java_lang_StringToReal(JNIEnv* env) {
+    return jniRegisterNativeMethods(env, "java/lang/StringToReal", gMethods, NELEM(gMethods));
 }

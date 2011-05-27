@@ -53,7 +53,7 @@ public class SocketTest extends junit.framework.TestCase {
         try {
             // Bind to an ephemeral local port.
             s.bind(new InetSocketAddress("localhost", 0));
-            assertTrue(s.getLocalAddress().isLoopbackAddress());
+            assertTrue(s.getLocalAddress().toString(), s.getLocalAddress().isLoopbackAddress());
             // What local port did we get?
             int localPort = s.getLocalPort();
             assertTrue(localPort > 0);

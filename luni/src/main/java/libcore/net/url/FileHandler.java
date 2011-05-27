@@ -81,9 +81,9 @@ public class FileHandler extends URLStreamHandler {
      * already have the context properties. The string generally have the
      * following format: <code><center>/c:/windows/win.ini</center></code>.
      *
-     * @param u
+     * @param url
      *            The URL object that's parsed into
-     * @param str
+     * @param spec
      *            The string equivalent of the specification URL
      * @param start
      *            The index in the spec string from which to begin parsing
@@ -94,14 +94,14 @@ public class FileHandler extends URLStreamHandler {
      * @see java.net.URL
      */
     @Override
-    protected void parseURL(URL u, String str, int start, int end) {
+    protected void parseURL(URL url, String spec, int start, int end) {
         if (end < start) {
             return;
         }
         String parseString = "";
         if (start < end) {
-            parseString = str.substring(start, end).replace('\\', '/');
+            parseString = spec.substring(start, end).replace('\\', '/');
         }
-        super.parseURL(u, parseString, 0, parseString.length());
+        super.parseURL(url, parseString, 0, parseString.length());
     }
 }

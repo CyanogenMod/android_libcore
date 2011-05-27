@@ -17,11 +17,20 @@
 #include "jni.h"
 #include <sys/socket.h>
 
-// Convert from sockaddr_storage to InetAddress.
-jobject socketAddressToInetAddress(JNIEnv* env, const sockaddr_storage* ss);
+// Convert from sockaddr_storage to InetAddress and an optional int port.
+jobject sockaddrToInetAddress(JNIEnv* env, const sockaddr_storage* ss, int* port);
 
-// Convert from InetAddress to sockaddr_storage.
-bool inetAddressToSocketAddress(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss);
+// Convert from InetAddress to sockaddr_storage. An Inet4Address will be converted to
+// an IPv4-mapped AF_INET6 sockaddr_in6. This is what you want if you're about to perform an
+// operation on a socket, since all our sockets are AF_INET6.
+bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss);
+
+// Convert from InetAddress to sockaddr_storage. An Inet6Address will be converted to
+// a sockaddr_in6 while an Inet4Address will be converted to a sockaddr_in. This is
+// probably only useful for getnameinfo(2), where we'll be presenting the result to
+// the user and the user may actually care whether the original address was pure IPv4
+// or an IPv4-mapped IPv6 address, and for the MCAST_JOIN_GROUP socket option.
+bool inetAddressToSockaddrVerbatim(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss);
 
 
 

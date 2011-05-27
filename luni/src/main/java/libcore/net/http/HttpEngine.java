@@ -26,7 +26,6 @@ import java.net.CacheRequest;
 import java.net.CacheResponse;
 import java.net.CookieHandler;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.Proxy;
 import java.net.ResponseCache;
 import java.net.URI;
@@ -34,6 +33,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charsets;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,16 +61,15 @@ import libcore.util.EmptyArray;
  * network, or by both in the event of a conditional GET.
  *
  * <p>This class may hold a socket connection that needs to be released or
- * recycled. By default, this socket connection is released to the pool when the
- * last byte of the response is consumed. To prevent the connection from being
- * released to the pool, use {@link #dontReleaseSocketToPool()}.
+ * recycled. By default, this socket connection is held when the last byte of
+ * the response is consumed. To release the connection when it is no longer
+ * required, use {@link #automaticallyReleaseConnectionToPool()}.
  */
 public class HttpEngine {
     private static final CacheResponse BAD_GATEWAY_RESPONSE = new CacheResponse() {
         @Override public Map<String, List<String>> getHeaders() throws IOException {
             Map<String, List<String>> result = new HashMap<String, List<String>>();
             result.put(null, Collections.singletonList("HTTP/1.1 502 Bad Gateway"));
-            // TODO: other required fields?
             return result;
         }
         @Override public InputStream getBody() throws IOException {
@@ -151,10 +150,10 @@ public class HttpEngine {
 
     private final URI uri;
 
-    private final RawHeaders rawRequestHeaders;
+    private final RequestHeaders requestHeaders;
 
     /** Null until a response is received from the network or the cache */
-    private RawHeaders rawResponseHeaders;
+    private ResponseHeaders responseHeaders;
 
     /*
      * The cache response currently being validated on a conditional get. Null
@@ -162,16 +161,21 @@ public class HttpEngine {
      * conditional get succeeds, these will be used for the response headers and
      * body. If it fails, these be closed and set to null.
      */
-    private ResponseHeaders responseHeadersToValidate;
-    private InputStream responseBodyToValidate;
+    private ResponseHeaders cachedResponseHeaders;
+    private InputStream cachedResponseBody;
 
     /**
      * True if the socket connection should be released to the connection pool
      * when the response has been fully read.
      */
-    private boolean dontReleaseSocketToPool;
+    private boolean automaticallyReleaseConnectionToPool;
+
+    /** True if the socket connection is no longer needed by this engine. */
+    private boolean connectionReleased;
 
     /**
+     * @param requestHeaders the client's supplied request headers. This class
+     *     creates a private copy that it can mutate.
      * @param connection the connection used for an intermediate response
      *     immediately prior to this request/response pair, such as a same-host
      *     redirect. This engine assumes ownership of the connection and must
@@ -179,19 +183,8 @@ public class HttpEngine {
      */
     public HttpEngine(HttpURLConnectionImpl policy, String method, RawHeaders requestHeaders,
             HttpConnection connection, RetryableOutputStream requestBodyOut) throws IOException {
-        if (policy.getDoOutput()) {
-            if (method == GET) {
-                // they are requesting a stream to write to. This implies a POST method
-                method = POST;
-            } else if (method != PUT && method != POST) {
-                // If the request method is neither PUT or POST, then you're not writing
-                throw new ProtocolException(method + " does not support writing");
-            }
-        }
-
         this.policy = policy;
         this.method = method;
-        this.rawRequestHeaders = new RawHeaders(requestHeaders);
         this.connection = connection;
         this.requestBodyOut = requestBodyOut;
 
@@ -200,10 +193,8 @@ public class HttpEngine {
         } catch (URISyntaxException e) {
             throw new IOException(e);
         }
-    }
 
-    public final void dontReleaseSocketToPool() {
-        this.dontReleaseSocketToPool = true;
+        this.requestHeaders = new RequestHeaders(uri, new RawHeaders(requestHeaders));
     }
 
     /**
@@ -217,30 +208,31 @@ public class HttpEngine {
         }
 
         prepareRawRequestHeaders();
-        RequestHeaders cacheRequestHeaders = new RequestHeaders(uri, rawRequestHeaders);
-        initResponseSource(cacheRequestHeaders);
+        initResponseSource();
+        if (responseCache instanceof HttpResponseCache) {
+            ((HttpResponseCache) responseCache).trackResponse(responseSource);
+        }
 
         /*
          * The raw response source may require the network, but the request
          * headers may forbid network use. In that case, dispose of the network
          * response and use a BAD_GATEWAY response instead.
          */
-        if (cacheRequestHeaders.onlyIfCached && responseSource.requiresConnection()) {
+        if (requestHeaders.onlyIfCached && responseSource.requiresConnection()) {
             if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
-                this.responseHeadersToValidate = null;
-                IoUtils.closeQuietly(responseBodyToValidate);
-                this.responseBodyToValidate = null;
+                IoUtils.closeQuietly(cachedResponseBody);
             }
             this.responseSource = ResponseSource.CACHE;
             this.cacheResponse = BAD_GATEWAY_RESPONSE;
-            setResponse(RawHeaders.fromMultimap(cacheResponse.getHeaders()),
-                    cacheResponse.getBody());
+            RawHeaders rawResponseHeaders = RawHeaders.fromMultimap(cacheResponse.getHeaders());
+            setResponse(new ResponseHeaders(uri, rawResponseHeaders), cacheResponse.getBody());
         }
 
         if (responseSource.requiresConnection()) {
             sendSocketRequest();
-        } else {
-            // TODO: release 'connection' if it is non-null
+        } else if (connection != null) {
+            HttpConnectionPool.INSTANCE.recycle(connection);
+            connection = null;
         }
     }
 
@@ -248,38 +240,38 @@ public class HttpEngine {
      * Initialize the source for this response. It may be corrected later if the
      * request headers forbids network use.
      */
-    private void initResponseSource(RequestHeaders cacheRequestHeaders) throws IOException {
+    private void initResponseSource() throws IOException {
         responseSource = ResponseSource.NETWORK;
         if (!policy.getUseCaches() || responseCache == null) {
             return;
         }
 
-        CacheResponse candidate = responseCache.get(uri, method, rawRequestHeaders.toMultimap());
-        if (candidate == null || !acceptCacheResponseType(candidate)) {
-            return;
-        }
-        Map<String, List<String>> responseHeaders = candidate.getHeaders();
-        if (responseHeaders == null) {
-            return;
-        }
-        InputStream cacheBodyIn = candidate.getBody(); // must be closed
-        if (cacheBodyIn == null) {
+        CacheResponse candidate = responseCache.get(uri, method,
+                requestHeaders.headers.toMultimap());
+        if (candidate == null) {
             return;
         }
 
-        RawHeaders headers = RawHeaders.fromMultimap(responseHeaders);
-        ResponseHeaders cacheResponseHeaders = new ResponseHeaders(uri, headers);
+        Map<String, List<String>> responseHeadersMap = candidate.getHeaders();
+        cachedResponseBody = candidate.getBody();
+        if (!acceptCacheResponseType(candidate)
+                || responseHeadersMap == null
+                || cachedResponseBody == null) {
+            IoUtils.closeQuietly(cachedResponseBody);
+            return;
+        }
+
+        RawHeaders rawResponseHeaders = RawHeaders.fromMultimap(responseHeadersMap);
+        cachedResponseHeaders = new ResponseHeaders(uri, rawResponseHeaders);
         long now = System.currentTimeMillis();
-        this.responseSource = cacheResponseHeaders.chooseResponseSource(now, cacheRequestHeaders);
+        this.responseSource = cachedResponseHeaders.chooseResponseSource(now, requestHeaders);
         if (responseSource == ResponseSource.CACHE) {
             this.cacheResponse = candidate;
-            setResponse(headers, cacheBodyIn);
+            setResponse(cachedResponseHeaders, cachedResponseBody);
         } else if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
             this.cacheResponse = candidate;
-            this.responseHeadersToValidate = cacheResponseHeaders;
-            this.responseBodyToValidate = cacheBodyIn;
         } else if (responseSource == ResponseSource.NETWORK) {
-            IoUtils.closeQuietly(cacheBodyIn);
+            IoUtils.closeQuietly(cachedResponseBody);
         } else {
             throw new AssertionError();
         }
@@ -298,7 +290,7 @@ public class HttpEngine {
         requestOut = socketOut;
         socketIn = connection.getInputStream();
 
-        if (policy.getDoOutput() && method != CONNECT) {
+        if (hasRequestBody()) {
             initRequestBodyOut();
         }
     }
@@ -324,17 +316,9 @@ public class HttpEngine {
     }
 
     protected void initRequestBodyOut() throws IOException {
-        int contentLength = -1;
-        String contentLengthString = rawRequestHeaders.get("Content-Length");
-        if (contentLengthString != null) {
-            contentLength = Integer.parseInt(contentLengthString);
-        }
-
-        String encoding = rawRequestHeaders.get("Transfer-Encoding");
         int chunkLength = policy.getChunkLength();
-        if (chunkLength > 0 || "chunked".equalsIgnoreCase(encoding)) {
+        if (chunkLength > 0 || requestHeaders.isChunked()) {
             sendChunked = true;
-            contentLength = -1;
             if (chunkLength == -1) {
                 chunkLength = DEFAULT_CHUNK_LENGTH;
             }
@@ -357,9 +341,9 @@ public class HttpEngine {
         } else if (sendChunked) {
             writeRequestHeaders(-1);
             requestBodyOut = new ChunkedOutputStream(requestOut, chunkLength);
-        } else if (contentLength != -1) {
-            writeRequestHeaders(contentLength);
-            requestBodyOut = new RetryableOutputStream(contentLength);
+        } else if (requestHeaders.contentLength != -1) {
+            writeRequestHeaders(requestHeaders.contentLength);
+            requestBodyOut = new RetryableOutputStream(requestHeaders.contentLength);
         } else {
             requestBodyOut = new RetryableOutputStream();
         }
@@ -369,15 +353,19 @@ public class HttpEngine {
      * @param body the response body, or null if it doesn't exist or isn't
      *     available.
      */
-    private void setResponse(RawHeaders headers, InputStream body) throws IOException {
+    private void setResponse(ResponseHeaders headers, InputStream body) throws IOException {
         if (this.responseBodyIn != null) {
             throw new IllegalStateException();
         }
-        this.rawResponseHeaders = headers;
-        this.httpMinorVersion = rawResponseHeaders.getHttpMinorVersion();
+        this.responseHeaders = headers;
+        this.httpMinorVersion = responseHeaders.headers.getHttpMinorVersion();
         if (body != null) {
             initContentStream(body);
         }
+    }
+
+    private boolean hasRequestBody() {
+        return method == POST || method == PUT;
     }
 
     /**
@@ -391,29 +379,36 @@ public class HttpEngine {
     }
 
     public final boolean hasResponse() {
-        return rawResponseHeaders != null;
+        return responseHeaders != null;
     }
 
-    public final RawHeaders getRequestHeaders() {
-        return rawRequestHeaders;
+    public final RequestHeaders getRequestHeaders() {
+        return requestHeaders;
     }
 
-    public final RawHeaders getResponseHeaders() {
-        if (rawResponseHeaders == null) {
+    public final ResponseHeaders getResponseHeaders() {
+        if (responseHeaders == null) {
             throw new IllegalStateException();
         }
-        return rawResponseHeaders;
+        return responseHeaders;
+    }
+
+    public final int getResponseCode() {
+        if (responseHeaders == null) {
+            throw new IllegalStateException();
+        }
+        return responseHeaders.headers.getResponseCode();
     }
 
     public final InputStream getResponseBody() {
-        if (rawResponseHeaders == null) {
+        if (responseHeaders == null) {
             throw new IllegalStateException();
         }
         return responseBodyIn;
     }
 
     public final CacheResponse getCacheResponse() {
-        if (rawResponseHeaders == null) {
+        if (responseHeaders == null) {
             throw new IllegalStateException();
         }
         return cacheResponse;
@@ -439,9 +434,7 @@ public class HttpEngine {
         }
 
         // Should we cache this response for this request?
-        RequestHeaders requestCacheHeaders = new RequestHeaders(uri, rawRequestHeaders);
-        ResponseHeaders responseCacheHeaders = new ResponseHeaders(uri, rawResponseHeaders);
-        if (!responseCacheHeaders.isCacheable(requestCacheHeaders)) {
+        if (!responseHeaders.isCacheable(requestHeaders)) {
             return;
         }
 
@@ -454,67 +447,71 @@ public class HttpEngine {
     }
 
     /**
-     * Releases this connection so that it may be either reused or closed.
+     * Cause the socket connection to be released to the connection pool when
+     * it is no longer needed. If it is already unneeded, it will be pooled
+     * immediately.
      */
-    public final void releaseSocket(boolean reuseSocket) {
-        // we cannot recycle sockets that have incomplete output.
-        if (requestBodyOut != null && !requestBodyOut.closed) {
-            reuseSocket = false;
-        }
-
-        // if the headers specify that the connection shouldn't be reused, don't reuse it
-        if (hasConnectionCloseHeaders()) {
-            reuseSocket = false;
-        }
-
-        /*
-         * Don't return the socket to the connection pool if this is an
-         * intermediate response; we're going to use it again right away.
-         */
-        if (dontReleaseSocketToPool && reuseSocket) {
-            return;
-        }
-
-        if (connection != null) {
-            if (reuseSocket) {
-                HttpConnectionPool.INSTANCE.recycle(connection);
-            } else {
-                connection.closeSocketAndStreams();
-            }
+    public final void automaticallyReleaseConnectionToPool() {
+        automaticallyReleaseConnectionToPool = true;
+        if (connection != null && connectionReleased) {
+            HttpConnectionPool.INSTANCE.recycle(connection);
             connection = null;
         }
-
-        /*
-         * Ensure that no further I/O attempts from this instance make their way
-         * to the underlying connection (which may get recycled).
-         */
-        socketOut = null;
-        socketIn = null;
-        requestOut = null;
     }
 
     /**
-     * Consume the response body so the socket connection can be used for new
-     * message pairs.
+     * Releases this engine so that its resources may be either reused or
+     * closed.
      */
-    public final void discardResponseBody() throws IOException {
-        if (responseBodyIn != null) {
-            if (!(responseBodyIn instanceof UnknownLengthHttpInputStream)) {
-                // skip the response so that the connection may be reused for the retry
-                Streams.skipAll(responseBodyIn);
+    public final void release(boolean reusable) {
+        // If the response body comes from the cache, close it.
+        if (responseBodyIn == cachedResponseBody) {
+            IoUtils.closeQuietly(responseBodyIn);
+        }
+
+        if (!connectionReleased && connection != null) {
+            connectionReleased = true;
+
+            // We cannot reuse sockets that have incomplete output.
+            if (requestBodyOut != null && !requestBodyOut.closed) {
+                reusable = false;
             }
-            responseBodyIn.close();
+
+            // If the headers specify that the connection shouldn't be reused, don't reuse it.
+            if (hasConnectionCloseHeader()) {
+                reusable = false;
+            }
+
+            if (responseBodyIn instanceof UnknownLengthHttpInputStream) {
+                reusable = false;
+            }
+
+            if (reusable && responseBodyIn != null) {
+                // We must discard the response body before the connection can be reused.
+                try {
+                    Streams.skipAll(responseBodyIn);
+                } catch (IOException e) {
+                    reusable = false;
+                }
+            }
+
+            if (!reusable) {
+                connection.closeSocketAndStreams();
+                connection = null;
+            } else if (automaticallyReleaseConnectionToPool) {
+                HttpConnectionPool.INSTANCE.recycle(connection);
+                connection = null;
+            }
         }
     }
 
     private void initContentStream(InputStream transferStream) throws IOException {
-        if (transparentGzip
-                && "gzip".equalsIgnoreCase(rawResponseHeaders.get("Content-Encoding"))) {
+        if (transparentGzip && responseHeaders.isContentEncodingGzip()) {
             /*
              * If the response was transparently gzipped, remove the gzip header field
              * so clients don't double decompress. http://b/3009828
              */
-            rawResponseHeaders.removeAll("Content-Encoding");
+            responseHeaders.stripContentEncoding();
             responseBodyIn = new GZIPInputStream(transferStream);
         } else {
             responseBodyIn = transferStream;
@@ -526,17 +523,13 @@ public class HttpEngine {
             return new FixedLengthInputStream(socketIn, cacheRequest, this, 0);
         }
 
-        if ("chunked".equalsIgnoreCase(rawResponseHeaders.get("Transfer-Encoding"))) {
+        if (responseHeaders.isChunked()) {
             return new ChunkedInputStream(socketIn, cacheRequest, this);
         }
 
-        String contentLength = rawResponseHeaders.get("Content-Length");
-        if (contentLength != null) {
-            try {
-                int length = Integer.parseInt(contentLength);
-                return new FixedLengthInputStream(socketIn, cacheRequest, this, length);
-            } catch (NumberFormatException ignored) {
-            }
+        if (responseHeaders.contentLength != -1) {
+            return new FixedLengthInputStream(socketIn, cacheRequest, this,
+                    responseHeaders.contentLength);
         }
 
         /*
@@ -547,35 +540,14 @@ public class HttpEngine {
         return new UnknownLengthHttpInputStream(socketIn, cacheRequest, this);
     }
 
-    /**
-     * Returns the characters up to but not including the next "\r\n", "\n", or
-     * the end of the stream, consuming the end of line delimiter.
-     */
-    static String readLine(InputStream is) throws IOException {
-        StringBuilder result = new StringBuilder(80);
-        while (true) {
-            int c = is.read();
-            if (c == -1 || c == '\n') {
-                break;
-            }
-
-            result.append((char) c);
-        }
-        int length = result.length();
-        if (length > 0 && result.charAt(length - 1) == '\r') {
-            result.setLength(length - 1);
-        }
-        return result.toString();
-    }
-
     private void readResponseHeaders() throws IOException {
         RawHeaders headers;
         do {
             headers = new RawHeaders();
-            headers.setStatusLine(readLine(socketIn).trim());
+            headers.setStatusLine(Streams.readAsciiLine(socketIn));
             readHeaders(headers);
-            setResponse(headers, null);
         } while (headers.getResponseCode() == HTTP_CONTINUE);
+        setResponse(new ResponseHeaders(uri, headers), null);
     }
 
     /**
@@ -583,7 +555,7 @@ public class HttpEngine {
      * See RFC 2616 section 4.3.
      */
     public final boolean hasResponseBody() {
-        int responseCode = rawResponseHeaders.getResponseCode();
+        int responseCode = responseHeaders.headers.getResponseCode();
         if (method != HEAD
                 && method != CONNECT
                 && (responseCode < HTTP_CONTINUE || responseCode >= 200)
@@ -597,11 +569,7 @@ public class HttpEngine {
          * response code, the response is malformed. For best compatibility, we
          * honor the headers.
          */
-        String contentLength = rawResponseHeaders.get("Content-Length");
-        if (contentLength != null && Integer.parseInt(contentLength) > 0) {
-            return true;
-        }
-        if ("chunked".equalsIgnoreCase(rawResponseHeaders.get("Transfer-Encoding"))) {
+        if (responseHeaders.contentLength != -1 || responseHeaders.isChunked()) {
             return true;
         }
 
@@ -613,20 +581,14 @@ public class HttpEngine {
      * with chunked encoding.
      */
     final void readTrailers() throws IOException {
-        readHeaders(rawResponseHeaders);
+        readHeaders(responseHeaders.headers);
     }
 
     private void readHeaders(RawHeaders headers) throws IOException {
         // parse the result headers until the first blank line
         String line;
-        while ((line = readLine(socketIn)).length() > 1) {
-            // Header parsing
-            int index = line.indexOf(":");
-            if (index == -1) {
-                headers.add("", line);
-            } else {
-                headers.add(line.substring(0, index), line.substring(index + 1));
-            }
+        while (!(line = Streams.readAsciiLine(socketIn)).isEmpty()) {
+            headers.addLine(line);
         }
 
         CookieHandler cookieHandler = CookieHandler.getDefault();
@@ -676,23 +638,19 @@ public class HttpEngine {
      * the connection is using a proxy.
      */
     protected RawHeaders getNetworkRequestHeaders() throws IOException {
-        rawRequestHeaders.setStatusLine(getRequestLine());
+        requestHeaders.headers.setStatusLine(getRequestLine());
 
         int fixedContentLength = policy.getFixedContentLength();
         if (fixedContentLength != -1) {
-            rawRequestHeaders.addIfAbsent("Content-Length", Integer.toString(fixedContentLength));
+            requestHeaders.setContentLength(fixedContentLength);
         } else if (sendChunked) {
-            rawRequestHeaders.addIfAbsent("Transfer-Encoding", "chunked");
+            requestHeaders.setChunked();
         } else if (requestBodyOut instanceof RetryableOutputStream) {
-            int size = ((RetryableOutputStream) requestBodyOut).contentLength();
-            rawRequestHeaders.addIfAbsent("Content-Length", Integer.toString(size));
+            int contentLength = ((RetryableOutputStream) requestBodyOut).contentLength();
+            requestHeaders.setContentLength(contentLength);
         }
 
-        if (requestBodyOut != null) {
-            rawRequestHeaders.addIfAbsent("Content-Type", "application/x-www-form-urlencoded");
-        }
-
-        return rawRequestHeaders;
+        return requestHeaders.headers;
     }
 
     /**
@@ -702,35 +660,37 @@ public class HttpEngine {
      * doesn't know what content types the application is interested in.
      */
     private void prepareRawRequestHeaders() throws IOException {
-        rawRequestHeaders.setStatusLine(getRequestLine());
+        requestHeaders.headers.setStatusLine(getRequestLine());
 
-        if (rawRequestHeaders.get("User-Agent") == null) {
-            rawRequestHeaders.add("User-Agent", getDefaultUserAgent());
+        if (requestHeaders.userAgent == null) {
+            requestHeaders.setUserAgent(getDefaultUserAgent());
         }
 
-        if (rawRequestHeaders.get("Host") == null) {
-            rawRequestHeaders.add("Host", getOriginAddress(policy.getURL()));
+        if (requestHeaders.host == null) {
+            requestHeaders.setHost(getOriginAddress(policy.getURL()));
         }
 
-        if (httpMinorVersion > 0) {
-            rawRequestHeaders.addIfAbsent("Connection", "Keep-Alive");
+        if (httpMinorVersion > 0 && requestHeaders.connection == null) {
+            requestHeaders.setConnection("Keep-Alive");
         }
 
-        if (rawRequestHeaders.get("Accept-Encoding") == null) {
+        if (requestHeaders.acceptEncoding == null) {
             transparentGzip = true;
-            rawRequestHeaders.set("Accept-Encoding", "gzip");
+            requestHeaders.setAcceptEncoding("gzip");
+        }
+
+        if (hasRequestBody() && requestHeaders.contentType == null) {
+            requestHeaders.setContentType("application/x-www-form-urlencoded");
+        }
+
+        long ifModifiedSince = policy.getIfModifiedSince();
+        if (ifModifiedSince != 0) {
+            requestHeaders.setIfModifiedSince(new Date(ifModifiedSince));
         }
 
         CookieHandler cookieHandler = CookieHandler.getDefault();
         if (cookieHandler != null) {
-            Map<String, List<String>> allCookieHeaders
-                    = cookieHandler.get(uri, rawRequestHeaders.toMultimap());
-            for (Map.Entry<String, List<String>> entry : allCookieHeaders.entrySet()) {
-                String key = entry.getKey();
-                if ("Cookie".equalsIgnoreCase(key) || "Cookie2".equalsIgnoreCase(key)) {
-                    rawRequestHeaders.addAll(key, entry.getValue());
-                }
-            }
+            requestHeaders.addCookies(cookieHandler.get(uri, requestHeaders.headers.toMultimap()));
         }
     }
 
@@ -745,8 +705,10 @@ public class HttpEngine {
             return url.toString();
         } else {
             String fileOnly = url.getFile();
-            if (fileOnly == null || fileOnly.isEmpty()) {
+            if (fileOnly == null) {
                 fileOnly = "/";
+            } else if (!fileOnly.startsWith("/")) {
+                fileOnly = "/" + fileOnly;
             }
             return fileOnly;
         }
@@ -769,10 +731,9 @@ public class HttpEngine {
         return agent != null ? agent : ("Java" + System.getProperty("java.version"));
     }
 
-    public final boolean hasConnectionCloseHeaders() {
-        return (rawResponseHeaders != null
-                && "close".equalsIgnoreCase(rawResponseHeaders.get("Connection")))
-                || ("close".equalsIgnoreCase(rawRequestHeaders.get("Connection")));
+    private boolean hasConnectionCloseHeader() {
+        return (responseHeaders != null && responseHeaders.hasConnectionClose())
+                || requestHeaders.hasConnectionClose();
     }
 
     protected final String getOriginAddress(URL url) {
@@ -823,23 +784,19 @@ public class HttpEngine {
         requestOut = socketOut;
 
         readResponseHeaders();
-        rawResponseHeaders.add(ResponseHeaders.SENT_MILLIS, Long.toString(sentRequestMillis));
-        rawResponseHeaders.add(ResponseHeaders.RECEIVED_MILLIS,
-                Long.toString(System.currentTimeMillis()));
+        responseHeaders.setLocalTimestamps(sentRequestMillis, System.currentTimeMillis());
 
         if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
-            if (responseHeadersToValidate.validate(new ResponseHeaders(uri, rawResponseHeaders))) {
-                // discard the network response
-                discardResponseBody();
-
-                // use the cache response
-                setResponse(responseHeadersToValidate.headers, responseBodyToValidate);
-                responseBodyToValidate = null;
+            if (cachedResponseHeaders.validate(responseHeaders)) {
+                if (responseCache instanceof HttpResponseCache) {
+                    ((HttpResponseCache) responseCache).trackConditionalCacheHit();
+                }
+                // Discard the network response body. Combine the headers.
+                release(true);
+                setResponse(cachedResponseHeaders.combine(responseHeaders), cachedResponseBody);
                 return;
             } else {
-                IoUtils.closeQuietly(responseBodyToValidate);
-                responseBodyToValidate = null;
-                responseHeadersToValidate = null;
+                IoUtils.closeQuietly(cachedResponseBody);
             }
         }
 

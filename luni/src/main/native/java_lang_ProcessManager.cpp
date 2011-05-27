@@ -18,10 +18,8 @@
 
 #include <sys/resource.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -29,89 +27,8 @@
 #include "jni.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "ScopedLocalRef.h"
 #include "utils/Log.h"
-
-/*
- * These are constants shared with the higher level code in
- * ProcessManager.java.
- */
-#define WAIT_STATUS_UNKNOWN (-1)       // unknown child status
-#define WAIT_STATUS_NO_CHILDREN (-2)   // no children to wait for
-#define WAIT_STATUS_STRANGE_ERRNO (-3) // observed an undocumented errno
-
-/**
- * Loops indefinitely and calls ProcessManager.onExit() when children exit.
- */
-static void ProcessManager_watchChildren(JNIEnv* env, jclass processManagerClass, jobject processManager) {
-    static jmethodID onExitMethod = env->GetMethodID(processManagerClass, "onExit", "(II)V");
-    if (onExitMethod == NULL) {
-        return;
-    }
-
-    while (true) {
-        // Wait for children in our process group.
-        int status;
-        pid_t pid = waitpid(0, &status, 0);
-
-        if (pid >= 0) {
-            // Extract real status.
-            if (WIFEXITED(status)) {
-                status = WEXITSTATUS(status);
-            } else if (WIFSIGNALED(status)) {
-                status = WTERMSIG(status);
-            } else if (WIFSTOPPED(status)) {
-                status = WSTOPSIG(status);
-            } else {
-                status = WAIT_STATUS_UNKNOWN;
-            }
-        } else {
-            /*
-             * The pid should be -1 already, but force it here just in case
-             * we somehow end up with some other negative value.
-             */
-            pid = -1;
-
-            switch (errno) {
-                case ECHILD: {
-                    /*
-                     * Expected errno: There are no children to wait()
-                     * for. The callback will sleep until it is
-                     * informed of another child coming to life.
-                     */
-                    status = WAIT_STATUS_NO_CHILDREN;
-                    break;
-                }
-                case EINTR: {
-                    /*
-                     * An unblocked signal came in while waiting; just
-                     * retry the wait().
-                     */
-                    continue;
-                }
-                default: {
-                    /*
-                     * Unexpected errno, so squawk! Note: Per the
-                     * Linux docs, there are no errnos defined for
-                     * wait() other than the two that are handled
-                     * immediately above.
-                     */
-                    LOGE("Error %d calling wait(): %s", errno, strerror(errno));
-                    status = WAIT_STATUS_STRANGE_ERRNO;
-                    break;
-                }
-            }
-        }
-
-        env->CallVoidMethod(processManager, onExitMethod, pid, status);
-        if (env->ExceptionOccurred()) {
-            /*
-             * The callback threw, so break out of the loop and return,
-             * letting the exception percolate up.
-             */
-            break;
-        }
-    }
-}
 
 /** Close all open fds > 2 (i.e. everything but stdin/out/err), != skipFd. */
 static void closeNonStandardFds(int skipFd1, int skipFd2) {
@@ -274,11 +191,11 @@ static char** convertStrings(JNIEnv* env, jobjectArray javaArray) {
     jsize length = env->GetArrayLength(javaArray);
     char** array = new char*[length + 1];
     array[length] = 0;
-    for (jsize index = 0; index < length; index++) {
-        jstring javaEntry = (jstring) env->GetObjectArrayElement(javaArray, index);
+    for (jsize i = 0; i < length; ++i) {
+        ScopedLocalRef<jstring> javaEntry(env, reinterpret_cast<jstring>(env->GetObjectArrayElement(javaArray, i)));
         // We need to pass these strings to const-unfriendly code.
-        char* entry = const_cast<char*>(env->GetStringUTFChars(javaEntry, NULL));
-        array[index] = entry;
+        char* entry = const_cast<char*>(env->GetStringUTFChars(javaEntry.get(), NULL));
+        array[i] = entry;
     }
 
     return array;
@@ -291,9 +208,9 @@ static void freeStrings(JNIEnv* env, jobjectArray javaArray, char** array) {
     }
 
     jsize length = env->GetArrayLength(javaArray);
-    for (jsize index = 0; index < length; index++) {
-        jstring javaEntry = reinterpret_cast<jstring>(env->GetObjectArrayElement(javaArray, index));
-        env->ReleaseStringUTFChars(javaEntry, array[index]);
+    for (jsize i = 0; i < length; ++i) {
+        ScopedLocalRef<jstring> javaEntry(env, reinterpret_cast<jstring>(env->GetObjectArrayElement(javaArray, i)));
+        env->ReleaseStringUTFChars(javaEntry.get(), array[i]);
     }
 
     delete[] array;
@@ -346,7 +263,6 @@ static pid_t ProcessManager_exec(JNIEnv* env, jclass, jobjectArray javaCommands,
 }
 
 static JNINativeMethod methods[] = {
-    NATIVE_METHOD(ProcessManager, watchChildren, "(Ljava/lang/ProcessManager;)V"),
     NATIVE_METHOD(ProcessManager, exec, "([Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Z)I"),
 };
 int register_java_lang_ProcessManager(JNIEnv* env) {

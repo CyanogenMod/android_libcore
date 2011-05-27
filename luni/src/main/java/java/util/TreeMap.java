@@ -1094,11 +1094,11 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
      * A map with optional limits on its range.
      */
     final class BoundedMap extends AbstractMap<K, V> implements NavigableMap<K, V>, Serializable {
-        private final boolean ascending;
-        private final K from;
-        private final Bound fromBound;
-        private final K to;
-        private final Bound toBound;
+        private final transient boolean ascending;
+        private final transient K from;
+        private final transient Bound fromBound;
+        private final transient K to;
+        private final transient Bound toBound;
 
         BoundedMap(boolean ascending, K from, Bound fromBound, K to, Bound toBound) {
             /*
@@ -1375,8 +1375,8 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
          * View factory methods.
          */
 
-        private BoundedEntrySet entrySet;
-        private BoundedKeySet keySet;
+        private transient BoundedEntrySet entrySet;
+        private transient BoundedKeySet keySet;
 
         @Override public Set<Entry<K, V>> entrySet() {
             BoundedEntrySet result = entrySet;

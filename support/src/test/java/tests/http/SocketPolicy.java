@@ -34,6 +34,12 @@ public enum SocketPolicy {
     DISCONNECT_AT_END,
 
     /**
+     * Wrap the socket with SSL at the completion of this request/response
+     * pair. Used for CONNECT messages to tunnel SSL over an HTTP proxy.
+     */
+    UPGRADE_TO_SSL_AT_END,
+
+    /**
      * Request immediate close of connection without even reading the
      * request.
      *

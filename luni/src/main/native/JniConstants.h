@@ -47,7 +47,6 @@ struct JniConstants {
     static jclass byteClass;
     static jclass charsetICUClass;
     static jclass constructorClass;
-    static jclass datagramPacketClass;
     static jclass deflaterClass;
     static jclass doubleClass;
     static jclass errnoExceptionClass;
@@ -55,6 +54,7 @@ struct JniConstants {
     static jclass fieldPositionIteratorClass;
     static jclass fileDescriptorClass;
     static jclass gaiExceptionClass;
+    static jclass inet6AddressClass;
     static jclass inetAddressClass;
     static jclass inetSocketAddressClass;
     static jclass inflaterClass;
@@ -75,6 +75,8 @@ struct JniConstants {
     static jclass structFlockClass;
     static jclass structGroupReqClass;
     static jclass structLingerClass;
+    static jclass structPasswdClass;
+    static jclass structPollfdClass;
     static jclass structStatClass;
     static jclass structStatFsClass;
     static jclass structTimevalClass;

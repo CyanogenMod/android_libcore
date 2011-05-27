@@ -353,13 +353,8 @@ public abstract class URLConnection {
     }
 
     /**
-     * Returns the default value for the specified request {@code field} or {@code
-     * null} if the field could not be found. The base implementation of this
-     * method returns always {@code null}.
+     * Returns null.
      *
-     * @param field
-     *            the request field whose default value shall be returned.
-     * @return the default value for the given field.
      * @deprecated Use {@link #getRequestProperty}
      */
     @Deprecated
@@ -856,16 +851,9 @@ public abstract class URLConnection {
     }
 
     /**
-     * Sets the default value of the specified request header field. This value
-     * will be used for the specific field of every newly created connection.
-     * The base implementation of this method does nothing.
+     * Does nothing.
      *
-     * @param field
-     *            the request header field to be set.
-     * @param value
-     *            the default value to be used.
-     * @deprecated Use {@link #setRequestProperty} of an existing {@code
-     *             URLConnection} instance.
+     * @deprecated Use {@link URLConnection#setRequestProperty(String, String)}.
      */
     @Deprecated
     public static void setDefaultRequestProperty(String field, String value) {

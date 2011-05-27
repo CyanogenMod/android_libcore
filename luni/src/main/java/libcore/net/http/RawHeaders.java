@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -41,9 +42,9 @@ import java.util.TreeMap;
  * <p>This class trims whitespace from values. It never returns values with
  * leading or trailing whitespace.
  */
-final class RawHeaders implements Cloneable {
-
+final class RawHeaders {
     private static final Comparator<String> FIELD_NAME_COMPARATOR = new Comparator<String>() {
+        @FindBugsSuppressWarnings("ES_COMPARING_PARAMETER_STRING_WITH_EQ")
         @Override public int compare(String a, String b) {
             if (a == b) {
                 return 0;
@@ -78,6 +79,7 @@ final class RawHeaders implements Cloneable {
      * (like "GET / HTTP/1.1").
      */
     public void setStatusLine(String statusLine) {
+        statusLine = statusLine.trim();
         this.statusLine = statusLine;
 
         if (statusLine == null || !statusLine.startsWith("HTTP/")) {
@@ -128,6 +130,19 @@ final class RawHeaders implements Cloneable {
     }
 
     /**
+     * Add an HTTP header line containing a field name, a literal colon, and a
+     * value.
+     */
+    public void addLine(String line) {
+        int index = line.indexOf(":");
+        if (index == -1) {
+            add("", line);
+        } else {
+            add(line.substring(0, index), line.substring(index + 1));
+        }
+    }
+
+    /**
      * Add a field with the specified value.
      */
     public void add(String fieldName, String value) {
@@ -158,12 +173,6 @@ final class RawHeaders implements Cloneable {
 
     public void addAll(String fieldName, List<String> headerFields) {
         for (String value : headerFields) {
-            add(fieldName, value);
-        }
-    }
-
-    public void addIfAbsent(String fieldName, String value) {
-        if (get(fieldName) == null) {
             add(fieldName, value);
         }
     }
@@ -216,6 +225,20 @@ final class RawHeaders implements Cloneable {
             }
         }
         return null;
+    }
+
+    /**
+     * @param fieldNames a case-insensitive set of HTTP header field names.
+     */
+    public RawHeaders getAll(Set<String> fieldNames) {
+        RawHeaders result = new RawHeaders();
+        for (int i = 0; i < namesAndValues.size(); i += 2) {
+            String fieldName = namesAndValues.get(i);
+            if (fieldNames.contains(fieldName)) {
+                result.add(fieldName, namesAndValues.get(i + 1));
+            }
+        }
+        return result;
     }
 
     public String toHeaderString() {

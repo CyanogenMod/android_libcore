@@ -26,18 +26,23 @@ public class ConnectException extends SocketException {
     private static final long serialVersionUID = 3831404271622369215L;
 
     /**
-     * This implementation does nothing.
+     * Constructs a new instance.
      */
     public ConnectException() {
     }
 
     /**
-     * This implementation does nothing.
-     *
-     * @param detailMessage
-     *            detail message of the exception.
+     * Constructs a new instance with the given detail message.
      */
     public ConnectException(String detailMessage) {
         super(detailMessage);
+    }
+
+    /**
+     * Constructs a new instance with the given detail message and cause.
+     * @hide
+     */
+    public ConnectException(String detailMessage, Throwable cause) {
+        super(detailMessage, cause);
     }
 }

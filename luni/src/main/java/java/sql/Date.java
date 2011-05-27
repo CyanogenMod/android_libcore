@@ -32,6 +32,7 @@ package java.sql;
  * java.sql.Date} class are "normalized" to the time 00:00:00.000 GMT on the
  * date implied by the time value.
  */
+@FindBugsSuppressWarnings("NM_SAME_SIMPLE_NAME_AS_SUPERCLASS")
 public class Date extends java.util.Date {
 
     private static final long serialVersionUID = 1511598038487230103L;

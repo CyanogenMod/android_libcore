@@ -136,6 +136,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      * Converts the byte array to a string using the system's
      * {@link java.nio.charset.Charset#defaultCharset default charset}.
      */
+    @FindBugsSuppressWarnings("DM_DEFAULT_ENCODING")
     public String(byte[] data) {
         this(data, 0, data.length);
     }
@@ -762,6 +763,7 @@ outer:
      * @return {@code true} if the specified string is equal to this string,
      *         {@code false} otherwise.
      */
+    @FindBugsSuppressWarnings("ES_COMPARING_PARAMETER_STRING_WITH_EQ")
     public boolean equalsIgnoreCase(String string) {
         if (string == this) {
             return true;
@@ -803,6 +805,7 @@ outer:
      */
     @Deprecated
     public void getBytes(int start, int end, byte[] data, int index) {
+        // Note: last character not copied!
         if (start >= 0 && start <= end && end <= count) {
             end += offset;
             try {
@@ -812,8 +815,9 @@ outer:
             } catch (ArrayIndexOutOfBoundsException ignored) {
                 throw failedBoundsCheck(data.length, index, end - start);
             }
+        } else {
+            throw startEndAndLength(start, end);
         }
-        throw startEndAndLength(start, end);
     }
 
     /**
@@ -890,7 +894,7 @@ outer:
      *             index}
      */
     public void getChars(int start, int end, char[] buffer, int index) {
-        // NOTE last character not copied!
+        // Note: last character not copied!
         if (start >= 0 && start <= end && end <= count) {
             System.arraycopy(value, start + offset, buffer, index, end - start);
         } else {
@@ -2020,6 +2024,7 @@ outer:
      * where the needle is a constant string, may compute the values cache, md2
      * and lastChar, and change the call to the following method.
      */
+    @FindBugsSuppressWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     @SuppressWarnings("unused")
     private static int indexOf(String haystackString, String needleString,
             int cache, int md2, char lastChar) {

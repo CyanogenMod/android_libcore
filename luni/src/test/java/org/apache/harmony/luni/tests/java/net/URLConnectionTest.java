@@ -71,23 +71,7 @@ public class URLConnectionTest extends TestCase {
 
     private JarURLConnection jarURLCon;
 
-    private URL jarURL;
-
     private URLConnection gifURLCon;
-
-    private URL gifURL;
-
-    public boolean isGetCalled;
-
-    public boolean isPutCalled;
-
-    private Map<String, List<String>> mockHeaderMap;
-
-    private InputStream mockIs = new MockInputStream();
-
-    public boolean isCacheWriteCalled;
-
-    public boolean isAbortCalled;
 
     /**
      * {@link java.net.URLConnection#addRequestProperty(String, String)}
@@ -220,106 +204,7 @@ public class URLConnectionTest extends TestCase {
         }
     }
 
-    class MockCachedResponseCache extends ResponseCache {
-
-        public CacheResponse get(URI arg0, String arg1, Map arg2)
-                throws IOException {
-            if (null == arg0 || null == arg1 || null == arg2) {
-                throw new NullPointerException();
-            }
-            isGetCalled = true;
-            return new MockCacheResponse();
-        }
-
-        public CacheRequest put(URI arg0, URLConnection arg1)
-                throws IOException {
-            if (null == arg0 || null == arg1) {
-                throw new NullPointerException();
-            }
-            isPutCalled = true;
-            return new MockCacheRequest();
-        }
-    }
-
-    class MockNonCachedResponseCache extends ResponseCache {
-
-        public CacheResponse get(URI arg0, String arg1, Map arg2)
-                throws IOException {
-            isGetCalled = true;
-            return null;
-        }
-
-        public CacheRequest put(URI arg0, URLConnection arg1)
-                throws IOException {
-            isPutCalled = true;
-            return new MockCacheRequest();
-        }
-    }
-
-    class MockCacheRequest extends CacheRequest {
-
-        public OutputStream getBody() throws IOException {
-            isCacheWriteCalled = true;
-            return new MockOutputStream();
-        }
-
-        public void abort() {
-            isAbortCalled = true;
-        }
-
-    }
-
-    class MockInputStream extends InputStream {
-
-        public int read() throws IOException {
-            return 4711;
-        }
-
-        public int read(byte[] arg0, int arg1, int arg2) throws IOException {
-            return 1;
-        }
-
-        public int read(byte[] arg0) throws IOException {
-            return 1;
-        }
-
-    }
-
-    class MockOutputStream extends OutputStream {
-
-        public void write(int b) throws IOException {
-            isCacheWriteCalled = true;
-        }
-
-        public void write(byte[] b, int off, int len) throws IOException {
-            isCacheWriteCalled = true;
-        }
-
-        public void write(byte[] b) throws IOException {
-            isCacheWriteCalled = true;
-        }
-    }
-
-    class MockCacheResponse extends CacheResponse {
-
-        public Map<String, List<String>> getHeaders() throws IOException {
-            return mockHeaderMap;
-        }
-
-        public InputStream getBody() throws IOException {
-            return mockIs;
-        }
-    }
-
-
     private static int port;
-
-    static String getContentType(String fileName) throws IOException {
-        String resourceName = "org/apache/harmony/luni/tests/" + fileName;
-        URL url = ClassLoader.getSystemClassLoader().getResource(resourceName);
-        assertNotNull("Cannot find test resource " + resourceName, url);
-        return url.openConnection().getContentType();
-    }
 
     URL url;
 
@@ -349,10 +234,7 @@ public class URLConnectionTest extends TestCase {
         fileURLCon = fileURL.openConnection();
 
         jarURLCon = openJarURLConnection();
-        jarURL = jarURLCon.getURL();
-
         gifURLCon = openGifURLConnection();
-        gifURL = gifURLCon.getURL();
     }
 
     @Override
@@ -679,7 +561,7 @@ public class URLConnectionTest extends TestCase {
     public void test_getDate() {
         // should be greater than 930000000000L which represents the past
         assertTrue("getDate gave wrong date: " + uc.getDate(),
-                    uc.getDate() > 930000000000L);
+                uc.getDate() > 930000000000L);
     }
 
     /**
@@ -718,65 +600,6 @@ public class URLConnectionTest extends TestCase {
                 URLConnection.getDefaultRequestProperty("Kapow"));
 
         URLConnection.setDefaultRequestProperty("Shmoo", null);
-    }
-
-    /**
-     * @throws IOException
-     * {@link  java.net.URLConnection#getDefaultUseCaches()}
-     */
-    public void test_getDefaultUseCaches_CachedRC() throws IOException {
-        boolean oldSetting = uc.getDefaultUseCaches();
-
-        ResponseCache old = ResponseCache.getDefault();
-        ResponseCache rc = new MockCachedResponseCache();
-        ResponseCache.setDefault(rc);
-
-        // Recreate the connection so that we get the cache from ResponseCache.
-        uc2 = url2.openConnection();
-
-        uc2.setUseCaches(true);
-
-        uc.setDefaultUseCaches(false);
-
-        // uc unaffected
-        assertTrue(uc.getUseCaches());
-        // uc2 unaffected
-        assertTrue(uc2.getUseCaches());
-
-        //test get
-        assertFalse("getDefaultUseCaches should have returned false", uc
-                .getDefaultUseCaches());
-
-        // subsequent connections should have default value
-        URL url3 =  new URL("http://localhost:" + port + "/test2");
-        URLConnection uc3 = url3.openConnection();
-        assertFalse(uc3.getUseCaches());
-
-        // test if uc does not cache but uc2 does
-        isGetCalled = false;
-        isPutCalled = false;
-
-        // test uc
-        uc.setDoOutput(true);
-        assertFalse(isGetCalled);
-        uc.connect();
-        assertFalse(isGetCalled);
-        assertFalse(isPutCalled);
-        OutputStream os = uc.getOutputStream();
-        assertFalse(isPutCalled);
-        assertFalse(isGetCalled);
-
-        os.close();
-
-        //uc2 should be unaffected
-        uc2.setDoOutput(true);
-        assertFalse(isGetCalled);
-        uc2.connect();
-        assertTrue(isGetCalled);
-        assertFalse(isPutCalled);
-
-        uc.setDefaultUseCaches(oldSetting);
-        ResponseCache.setDefault(null);
     }
 
     /**

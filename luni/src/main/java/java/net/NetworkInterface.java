@@ -184,6 +184,7 @@ public final class NetworkInterface extends Object {
         }
     }
 
+    @FindBugsSuppressWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
     private static boolean isValidInterfaceName(String interfaceName) {
         // Don't just stat because a crafty user might have / or .. in the supposed interface name.
         for (String validName : new File("/sys/class/net").list()) {
@@ -261,6 +262,7 @@ public final class NetworkInterface extends Object {
         return Collections.enumeration(getNetworkInterfacesList());
     }
 
+    @FindBugsSuppressWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
     private static List<NetworkInterface> getNetworkInterfacesList() throws SocketException {
         String[] interfaceNames = new File("/sys/class/net").list();
         NetworkInterface[] interfaces = new NetworkInterface[interfaceNames.length];

@@ -40,4 +40,31 @@ public class FileOutputStreamTest extends TestCase {
         } catch (IOException expected) {
         }
     }
+
+    public void testClose() throws Exception {
+        FileOutputStream fos = new FileOutputStream(File.createTempFile("FileOutputStreamTest", "tmp"));
+
+        // Closing an already-closed stream is a no-op...
+        fos.close();
+        // ...as is flushing...
+        fos.flush();
+
+        // ...but any explicit write is an error.
+        byte[] bytes = "hello".getBytes();
+        try {
+            fos.write(bytes);
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            fos.write(bytes, 0, 2);
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            fos.write(42);
+            fail();
+        } catch (IOException expected) {
+        }
+    }
 }

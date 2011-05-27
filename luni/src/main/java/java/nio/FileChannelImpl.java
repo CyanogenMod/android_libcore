@@ -228,7 +228,13 @@ final class FileChannelImpl extends FileChannel {
             throw new NonReadableChannelException();
         }
         if (position + size > size()) {
-            truncate(position + size);
+            // We can't defer to FileChannel.truncate because that will only make a file shorter,
+            // and we only care about making our backing file longer here.
+            try {
+                Libcore.os.ftruncate(fd, position + size);
+            } catch (ErrnoException errnoException) {
+                throw errnoException.rethrowAsIOException();
+            }
         }
         long alignment = position - position % Libcore.os.sysconf(_SC_PAGE_SIZE);
         int offset = (int) (position - alignment);
@@ -238,9 +244,6 @@ final class FileChannelImpl extends FileChannel {
 
     public long position() throws IOException {
         checkOpen();
-        if ((mode & O_APPEND) != 0) {
-            return size();
-        }
         try {
             return Libcore.os.lseek(fd, 0L, SEEK_CUR);
         } catch (ErrnoException errnoException) {
@@ -300,6 +303,9 @@ final class FileChannelImpl extends FileChannel {
                 begin();
                 try {
                     bytesRead = Libcore.os.read(fd, buffer);
+                    if (bytesRead == 0) {
+                        bytesRead = -1;
+                    }
                 } catch (ErrnoException errnoException) {
                     if (errnoException.errno == EAGAIN) {
                         // We don't throw if we try to read from an empty non-blocking pipe.
@@ -388,12 +394,12 @@ final class FileChannelImpl extends FileChannel {
         }
     }
 
-    public long transferTo(long position, long count, WritableByteChannel target)
-            throws IOException {
+    public long transferTo(long position, long count, WritableByteChannel target) throws IOException {
         checkOpen();
         if (!target.isOpen()) {
             throw new ClosedChannelException();
         }
+        checkReadable();
         if (target instanceof FileChannelImpl) {
             ((FileChannelImpl) target).checkWritable();
         }
@@ -482,9 +488,6 @@ final class FileChannelImpl extends FileChannel {
     public int write(ByteBuffer buffer) throws IOException {
         checkOpen();
         checkWritable();
-        if ((mode & O_APPEND) != 0) {
-            position(size());
-        }
         return writeImpl(buffer);
     }
 

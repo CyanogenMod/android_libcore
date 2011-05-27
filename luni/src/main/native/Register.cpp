@@ -29,6 +29,7 @@ extern int register_java_lang_Math(JNIEnv* env);
 extern int register_java_lang_ProcessManager(JNIEnv* env);
 extern int register_java_lang_RealToString(JNIEnv* env);
 extern int register_java_lang_StrictMath(JNIEnv* env);
+extern int register_java_lang_StringToReal(JNIEnv* env);
 extern int register_java_lang_System(JNIEnv* env);
 extern int register_java_math_NativeBN(JNIEnv* env);
 extern int register_java_nio_ByteOrder(JNIEnv* env);
@@ -49,13 +50,12 @@ extern int register_libcore_icu_NativeIDN(JNIEnv* env);
 extern int register_libcore_icu_NativeNormalizer(JNIEnv* env);
 extern int register_libcore_icu_NativePluralRules(JNIEnv* env);
 extern int register_libcore_icu_TimeZones(JNIEnv* env);
+extern int register_libcore_io_AsynchronousCloseMonitor(JNIEnv* env);
 extern int register_libcore_io_Memory(JNIEnv* env);
 extern int register_libcore_io_OsConstants(JNIEnv* env);
 extern int register_libcore_io_Posix(JNIEnv* env);
 extern int register_libcore_net_RawSocket(JNIEnv* env);
 extern int register_org_apache_harmony_dalvik_NativeTestTarget(JNIEnv* env);
-extern int register_org_apache_harmony_luni_platform_OSNetworkSystem(JNIEnv* env);
-extern int register_org_apache_harmony_luni_util_fltparse(JNIEnv* env);
 extern int register_org_apache_harmony_xml_ExpatParser(JNIEnv* env);
 extern int register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env);
 
@@ -74,6 +74,7 @@ int registerCoreLibrariesJni(JNIEnv* env) {
             register_java_lang_ProcessManager(env) != -1 &&
             register_java_lang_RealToString(env) != -1 &&
             register_java_lang_StrictMath(env) != -1 &&
+            register_java_lang_StringToReal(env) != -1 &&
             register_java_lang_System(env) != -1 &&
             register_java_math_NativeBN(env) != -1 &&
             register_java_nio_ByteOrder(env) != -1 &&
@@ -94,13 +95,12 @@ int registerCoreLibrariesJni(JNIEnv* env) {
             register_libcore_icu_NativeNormalizer(env) != -1 &&
             register_libcore_icu_NativePluralRules(env) != -1 &&
             register_libcore_icu_TimeZones(env) != -1 &&
+            register_libcore_io_AsynchronousCloseMonitor(env) != -1 &&
             register_libcore_io_Memory(env) != -1 &&
             register_libcore_io_OsConstants(env) != -1 &&
             register_libcore_io_Posix(env) != -1 &&
             register_libcore_net_RawSocket(env) != -1 &&
             register_org_apache_harmony_dalvik_NativeTestTarget(env) != -1 &&
-            register_org_apache_harmony_luni_platform_OSNetworkSystem(env) != -1 &&
-            register_org_apache_harmony_luni_util_fltparse(env) != -1 &&
             register_org_apache_harmony_xml_ExpatParser(env) != -1 &&
             register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(env) != -1 &&
             true;

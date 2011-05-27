@@ -24,6 +24,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.ModifiedUtf8;
 import java.util.Arrays;
 import libcore.io.ErrnoException;
+import libcore.io.IoBridge;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.io.Memory;
@@ -114,7 +115,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             throw new IllegalArgumentException("Invalid mode: " + mode);
         }
         this.mode = flags;
-        this.fd = IoUtils.open(file.getAbsolutePath(), flags);
+        this.fd = IoBridge.open(file.getAbsolutePath(), flags);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
@@ -286,7 +287,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             if this file is closed or another I/O error occurs.
      */
     public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-        return IoUtils.read(fd, buffer, byteOffset, byteCount);
+        return IoBridge.read(fd, buffer, byteOffset, byteCount);
     }
 
     /**
@@ -688,7 +689,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      *             if an I/O error occurs while writing to this file.
      */
     public void write(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-        IoUtils.write(fd, buffer, byteOffset, byteCount);
+        IoBridge.write(fd, buffer, byteOffset, byteCount);
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {
             fd.sync();

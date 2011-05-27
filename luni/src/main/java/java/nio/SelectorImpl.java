@@ -34,35 +34,19 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.UnsafeArrayList;
 import libcore.io.ErrnoException;
+import libcore.io.IoBridge;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
+import libcore.io.StructPollfd;
 import libcore.util.EmptyArray;
-import org.apache.harmony.luni.platform.Platform;
+import static libcore.io.OsConstants.*;
 
 /*
  * Default implementation of java.nio.channels.Selector
  */
 final class SelectorImpl extends AbstractSelector {
-
-    static final FileDescriptor[] EMPTY_FILE_DESCRIPTORS_ARRAY = new FileDescriptor[0];
-
-    private static final SelectionKeyImpl[] EMPTY_SELECTION_KEY_IMPLS_ARRAY
-            = new SelectionKeyImpl[0];
-
-    private static final int CONNECT_OR_WRITE = OP_CONNECT | OP_WRITE;
-
-    private static final int ACCEPT_OR_READ = OP_ACCEPT | OP_READ;
-
-    private static final int NA = 0;
-
-    private static final int READABLE = 1;
-
-    private static final int WRITABLE = 2;
-
-    private static final int SELECT_BLOCK = -1;
-
-    private static final int SELECT_NOW = 0;
 
     /**
      * Used to synchronize when a key's interest ops change.
@@ -94,33 +78,7 @@ final class SelectorImpl extends AbstractSelector {
     private final FileDescriptor wakeupIn;
     private final FileDescriptor wakeupOut;
 
-    /**
-     * File descriptors we're interested in reading from. When actively
-     * selecting, the first element is always the wakeup channel's file
-     * descriptor, and the other elements are user-specified file descriptors.
-     * Otherwise, all elements are null.
-     */
-    private FileDescriptor[] readableFDs = EMPTY_FILE_DESCRIPTORS_ARRAY;
-
-    /**
-     * File descriptors we're interested in writing from. May be empty. When not
-     * actively selecting, all elements are null.
-     */
-    private FileDescriptor[] writableFDs = EMPTY_FILE_DESCRIPTORS_ARRAY;
-
-    /**
-     * Selection keys that correspond to the concatenation of readableFDs and
-     * writableFDs. This is used to interpret the results returned by select().
-     * When not actively selecting, all elements are null.
-     */
-    private SelectionKeyImpl[] readyKeys = EMPTY_SELECTION_KEY_IMPLS_ARRAY;
-
-    /**
-     * Selection flags that define the ready ops on the ready keys. When not
-     * actively selecting, all elements are 0. Corresponds to the ready keys
-     * set.
-     */
-    private int[] flags = EmptyArray.INT;
+    private final UnsafeArrayList<StructPollfd> pollFds = new UnsafeArrayList<StructPollfd>(StructPollfd.class, 8);
 
     public SelectorImpl(SelectorProvider selectorProvider) throws IOException {
         super(selectorProvider);
@@ -135,6 +93,8 @@ final class SelectorImpl extends AbstractSelector {
             wakeupIn = pipeFds[0];
             wakeupOut = pipeFds[1];
             IoUtils.setBlocking(wakeupIn, false);
+            pollFds.add(new StructPollfd());
+            setPollFd(0, wakeupIn, POLLIN, null);
         } catch (ErrnoException errnoException) {
             throw errnoException.rethrowAsIOException();
         }
@@ -163,9 +123,10 @@ final class SelectorImpl extends AbstractSelector {
         }
         synchronized (this) {
             synchronized (unmodifiableKeys) {
-                SelectionKeyImpl selectionKey = new SelectionKeyImpl(
-                        channel, operations, attachment, this);
+                SelectionKeyImpl selectionKey = new SelectionKeyImpl(channel, operations,
+                        attachment, this);
                 mutableKeys.add(selectionKey);
+                ensurePollFdsCapacity();
                 return selectionKey;
             }
         }
@@ -183,18 +144,20 @@ final class SelectorImpl extends AbstractSelector {
     }
 
     @Override public int select() throws IOException {
-        return selectInternal(SELECT_BLOCK);
+        // Blocks until some fd is ready.
+        return selectInternal(-1);
     }
 
     @Override public int select(long timeout) throws IOException {
         if (timeout < 0) {
             throw new IllegalArgumentException();
         }
-        return selectInternal((timeout == 0) ? SELECT_BLOCK : timeout);
+        // Our timeout is interpreted differently to Unix's --- 0 means block. See selectNow.
+        return selectInternal((timeout == 0) ? -1 : timeout);
     }
 
     @Override public int selectNow() throws IOException {
-        return selectInternal(SELECT_NOW);
+        return selectInternal(0);
     }
 
     private int selectInternal(long timeout) throws IOException {
@@ -203,146 +166,113 @@ final class SelectorImpl extends AbstractSelector {
             synchronized (unmodifiableKeys) {
                 synchronized (selectedKeys) {
                     doCancel();
-                    boolean isBlock = (SELECT_NOW != timeout);
-                    int readableKeysCount = 1; // first is always the wakeup channel
-                    int writableKeysCount = 0;
+                    boolean isBlock = (timeout != 0);
                     synchronized (keysLock) {
-                        for (SelectionKeyImpl key : mutableKeys) {
-                            int ops = key.interestOpsNoCheck();
-                            if ((ACCEPT_OR_READ & ops) != 0) {
-                                readableKeysCount++;
-                            }
-                            if ((CONNECT_OR_WRITE & ops) != 0) {
-                                writableKeysCount++;
-                            }
-                        }
-                        prepareChannels(readableKeysCount, writableKeysCount);
+                        preparePollFds();
                     }
-                    boolean success;
+                    int rc;
                     try {
                         if (isBlock) {
                             begin();
                         }
-                        success = Platform.NETWORK.select(readableFDs, writableFDs,
-                                readableKeysCount, writableKeysCount, timeout, flags);
+                        rc = Libcore.os.poll(pollFds.array(), (int) timeout);
                     } finally {
                         if (isBlock) {
                             end();
                         }
                     }
 
-                    int selected = success ? processSelectResult() : 0;
-
-                    Arrays.fill(readableFDs, null);
-                    Arrays.fill(writableFDs, null);
-                    Arrays.fill(readyKeys, null);
-                    Arrays.fill(flags, 0);
-
-                    selected -= doCancel();
-
-                    return selected;
+                    int readyCount = (rc > 0) ? processPollFds() : 0;
+                    readyCount -= doCancel();
+                    return readyCount;
                 }
             }
         }
     }
 
-    private int getReadyOps(SelectionKeyImpl key) {
-        SelectableChannel channel = key.channel();
-        return ((channel instanceof SocketChannel) && !((SocketChannel) channel).isConnectionPending()) ?
-                OP_WRITE : CONNECT_OR_WRITE;
+    private void setPollFd(int i, FileDescriptor fd, int events, Object object) {
+        StructPollfd pollFd = pollFds.get(i);
+        pollFd.fd = fd;
+        pollFd.events = (short) events;
+        pollFd.userData = object;
     }
 
-    /**
-     * Prepare the readableFDs, writableFDs, readyKeys and flags arrays in
-     * preparation for a call to {@code INetworkSystem#select()}. After they're
-     * used, the array elements must be cleared.
-     */
-    private void prepareChannels(int numReadable, int numWritable) {
-        // grow each array to sufficient capacity. Always grow to at least 1.5x
-        // to avoid growing too frequently
-        if (readableFDs.length < numReadable) {
-            int newSize = Math.max((int) (readableFDs.length * 1.5f), numReadable);
-            readableFDs = new FileDescriptor[newSize];
-        }
-        if (writableFDs.length < numWritable) {
-            int newSize = Math.max((int) (writableFDs.length * 1.5f), numWritable);
-            writableFDs = new FileDescriptor[newSize];
-        }
-        int total = numReadable + numWritable;
-        if (readyKeys.length < total) {
-            int newSize = Math.max((int) (readyKeys.length * 1.5f), total);
-            readyKeys = new SelectionKeyImpl[newSize];
-            flags = new int[newSize];
-        }
-
-        // populate the FDs, including the wakeup channel
-        readableFDs[0] = wakeupIn;
-        int r = 1;
-        int w = 0;
+    private void preparePollFds() {
+        int i = 1; // Our wakeup pipe comes before all the user's fds.
         for (SelectionKeyImpl key : mutableKeys) {
             int interestOps = key.interestOpsNoCheck();
-            if ((ACCEPT_OR_READ & interestOps) != 0) {
-                readableFDs[r] = ((FileDescriptorChannel) key.channel()).getFD();
-                readyKeys[r] = key;
-                r++;
+            short eventMask = 0;
+            if (((OP_ACCEPT | OP_READ) & interestOps) != 0) {
+                eventMask |= POLLIN;
             }
-            if ((getReadyOps(key) & interestOps) != 0) {
-                writableFDs[w] = ((FileDescriptorChannel) key.channel()).getFD();
-                readyKeys[w + numReadable] = key;
-                w++;
+            if (((OP_CONNECT | OP_WRITE) & interestOps) != 0) {
+                eventMask |= POLLOUT;
+            }
+            if (eventMask != 0) {
+                setPollFd(i++, ((FileDescriptorChannel) key.channel()).getFD(), eventMask, key);
             }
         }
     }
 
+    private void ensurePollFdsCapacity() {
+        // We need one slot for each element of mutableKeys, plus one for the wakeup pipe.
+        while (pollFds.size() < mutableKeys.size() + 1) {
+            pollFds.add(new StructPollfd());
+        }
+    }
+
     /**
-     * Updates the key ready ops and selected key set with data from the flags
-     * array.
+     * Updates the key ready ops and selected key set.
      */
-    private int processSelectResult() throws IOException {
-        if (flags[0] == READABLE) {
+    private int processPollFds() throws IOException {
+        if (pollFds.get(0).revents == POLLIN) {
             // Read bytes from the wakeup pipe until the pipe is empty.
             byte[] buffer = new byte[8];
-            while (IoUtils.read(wakeupIn, buffer, 0, 1) > 0) {
+            while (IoBridge.read(wakeupIn, buffer, 0, 1) > 0) {
             }
         }
 
-        int selected = 0;
-        for (int i = 1; i < flags.length; i++) {
-            if (flags[i] == NA) {
+        int readyKeyCount = 0;
+        for (int i = 1; i < pollFds.size(); ++i) {
+            StructPollfd pollFd = pollFds.get(i);
+            if (pollFd.revents == 0) {
                 continue;
             }
+            if (pollFd.fd == null) {
+                break;
+            }
 
-            SelectionKeyImpl key = readyKeys[i];
+            SelectionKeyImpl key = (SelectionKeyImpl) pollFd.userData;
+
+            pollFd.fd = null;
+            pollFd.userData = null;
+
             int ops = key.interestOpsNoCheck();
             int selectedOp = 0;
-
-            switch (flags[i]) {
-                case READABLE:
-                    selectedOp = ACCEPT_OR_READ & ops;
-                    break;
-                case WRITABLE:
-                    if (key.isConnected()) {
-                        selectedOp = OP_WRITE & ops;
-                    } else {
-                        selectedOp = OP_CONNECT & ops;
-                    }
-                    break;
+            if ((pollFd.revents & POLLIN) != 0) {
+                selectedOp = ops & (OP_ACCEPT | OP_READ);
+            } else if ((pollFd.revents & POLLOUT) != 0) {
+                if (key.isConnected()) {
+                    selectedOp = ops & OP_WRITE;
+                } else {
+                    selectedOp = ops & OP_CONNECT;
+                }
             }
 
             if (selectedOp != 0) {
                 boolean wasSelected = mutableSelectedKeys.contains(key);
                 if (wasSelected && key.readyOps() != selectedOp) {
                     key.setReadyOps(key.readyOps() | selectedOp);
-                    selected++;
+                    ++readyKeyCount;
                 } else if (!wasSelected) {
                     key.setReadyOps(selectedOp);
                     mutableSelectedKeys.add(key);
-                    selected++;
+                    ++readyKeyCount;
                 }
             }
         }
 
-        return selected;
+        return readyKeyCount;
     }
 
     @Override public synchronized Set<SelectionKey> selectedKeys() {

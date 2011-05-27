@@ -28,19 +28,19 @@ public class SocketException extends IOException {
     private static final long serialVersionUID = -5935874303556886934L;
 
     /**
-     * Constructs a new instance with the current stack trace.
+     * Constructs a new instance.
      */
     public SocketException() {
     }
 
     /**
-     * Constructs a new instance with the current stack trace and given detail message.
+     * Constructs a new instance with the given detail message.
      */
     public SocketException(String detailMessage) {
         super(detailMessage);
     }
     /**
-     * Constructs a new instance with the current stack trace and given cause.
+     * Constructs a new instance with the given cause.
      * @hide internal use only
      */
     public SocketException(Throwable cause) {
@@ -48,7 +48,7 @@ public class SocketException extends IOException {
     }
 
     /**
-     * Constructs a new instance with the current stack trace, given detail message and given cause.
+     * Constructs a new instance with given detail message and cause.
      * @hide internal use only
      */
     public SocketException(String detailMessage, Throwable cause) {

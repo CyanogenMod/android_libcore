@@ -251,7 +251,7 @@ public abstract class HttpURLConnection extends URLConnection {
 
     /**
      * The subset of HTTP methods that the user may select via {@link
-     * libcore.net.http.HttpURLConnectionImpl#setRequestMethod(String)}.
+     * #setRequestMethod(String)}.
      */
     private static final String[] PERMITTED_USER_METHODS = {
             HttpEngine.OPTIONS,
@@ -472,7 +472,11 @@ public abstract class HttpURLConnection extends URLConnection {
     public static final int HTTP_SERVER_ERROR = 500;
 
     /**
-     * Numeric status code, 305: Use proxy
+     * Numeric status code, 305: Use proxy.
+     *
+     * <p>Like Firefox and Chrome, this class doesn't honor this response code.
+     * Other implementations respond to this status code by retrying the request
+     * using the HTTP proxy named by the response's Location header field.
      */
     public static final int HTTP_USE_PROXY = 305;
 

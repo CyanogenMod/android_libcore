@@ -25,12 +25,10 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
-
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
 import libcore.io.StructLinger;
-import org.apache.harmony.luni.platform.INetworkSystem;
-
+import libcore.util.EmptyArray;
 import static libcore.io.OsConstants.*;
 
 /**
@@ -219,8 +217,8 @@ public final class BlockGuard {
             throws IOException {
         if (!TAG_SOCKETS) return;
 
-        final byte[] tagBytes = tag != null ? tag.getBytes() : new byte[0];
-        final byte[] uidBytes = uid != -1 ? Integer.toString(uid).getBytes() : new byte[0];
+        final byte[] tagBytes = tag != null ? tag.getBytes() : EmptyArray.BYTE;
+        final byte[] uidBytes = uid != -1 ? Integer.toString(uid).getBytes() : EmptyArray.BYTE;
 
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream(
                 4 + tagBytes.length + uidBytes.length);
@@ -244,125 +242,4 @@ public final class BlockGuard {
     }
 
     private BlockGuard() {}
-
-    /**
-     * A network wrapper that calls the policy check functions.
-     */
-    public static class WrappedNetworkSystem implements INetworkSystem {
-        private final INetworkSystem mNetwork;
-
-        public WrappedNetworkSystem(INetworkSystem network) {
-            mNetwork = network;
-        }
-
-        public void accept(FileDescriptor serverFd, SocketImpl newSocket,
-                FileDescriptor clientFd) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            mNetwork.accept(serverFd, newSocket, clientFd);
-            tagSocketFd(clientFd);
-        }
-
-        public void bind(FileDescriptor aFD, InetAddress inetAddress, int port)
-                throws SocketException {
-            mNetwork.bind(aFD, inetAddress, port);
-        }
-
-        public int read(FileDescriptor aFD, byte[] data, int offset, int count) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.read(aFD, data, offset, count);
-        }
-
-        public int readDirect(FileDescriptor aFD, int address, int count) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.readDirect(aFD, address, count);
-        }
-
-        public int write(FileDescriptor fd, byte[] data, int offset, int count)
-                throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.write(fd, data, offset, count);
-        }
-
-        public int writeDirect(FileDescriptor fd, int address, int offset, int count)
-                throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.writeDirect(fd, address, offset, count);
-        }
-
-        public boolean connect(FileDescriptor fd, InetAddress inetAddress, int port) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.connect(fd, inetAddress, port);
-        }
-
-        public boolean isConnected(FileDescriptor fd, int timeout) throws IOException {
-            if (timeout != 0) {
-                // Greater than 0 is a timeout, but zero means "poll and return immediately".
-                BlockGuard.getThreadPolicy().onNetwork();
-            }
-            return mNetwork.isConnected(fd, timeout);
-        }
-
-        public int send(FileDescriptor fd, byte[] data, int offset, int length,
-                int port, InetAddress inetAddress) throws IOException {
-            // Note: no BlockGuard violation.  We permit datagrams
-            // without hostname lookups.  (short, bounded amount of time)
-            return mNetwork.send(fd, data, offset, length, port, inetAddress);
-        }
-
-        public int sendDirect(FileDescriptor fd, int address, int offset, int length,
-                int port, InetAddress inetAddress) throws IOException {
-            // Note: no BlockGuard violation.  We permit datagrams
-            // without hostname lookups.  (short, bounded amount of time)
-            return mNetwork.sendDirect(fd, address, offset, length, port, inetAddress);
-        }
-
-        public int recv(FileDescriptor fd, DatagramPacket packet, byte[] data, int offset,
-                int length, boolean peek, boolean connected) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.recv(fd, packet, data, offset, length, peek, connected);
-        }
-
-        public int recvDirect(FileDescriptor fd, DatagramPacket packet, int address, int offset,
-                int length, boolean peek, boolean connected) throws IOException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.recvDirect(fd, packet, address, offset, length, peek, connected);
-        }
-
-        public void disconnectDatagram(FileDescriptor aFD) throws SocketException {
-            mNetwork.disconnectDatagram(aFD);
-        }
-
-        public void sendUrgentData(FileDescriptor fd, byte value) {
-            mNetwork.sendUrgentData(fd, value);
-        }
-
-        public boolean select(FileDescriptor[] readFDs, FileDescriptor[] writeFDs,
-                int numReadable, int numWritable, long timeout, int[] flags)
-                throws SocketException {
-            BlockGuard.getThreadPolicy().onNetwork();
-            return mNetwork.select(readFDs, writeFDs, numReadable, numWritable, timeout, flags);
-        }
-
-        public void close(FileDescriptor aFD) throws IOException {
-            // We exclude sockets without SO_LINGER so that apps can close their network connections
-            // in methods like onDestroy, which will run on the UI thread, without jumping through
-            // extra hoops.
-            if (isLingerSocket(aFD)) {
-                BlockGuard.getThreadPolicy().onNetwork();
-            }
-            mNetwork.close(aFD);
-        }
-
-        private boolean isLingerSocket(FileDescriptor fd) {
-            try {
-                StructLinger linger = Libcore.os.getsockoptLinger(fd, SOL_SOCKET, SO_LINGER);
-                return linger.isOn() && linger.l_linger > 0;
-            } catch (Exception ignored) {
-                // We're called via Socket.close (which doesn't ask for us to be called), so we
-                // must not throw here, because Socket.close must not throw if asked to close an
-                // already-closed socket.
-                return false;
-            }
-        }
-    }
 }

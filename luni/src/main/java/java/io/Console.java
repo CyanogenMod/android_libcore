@@ -47,15 +47,15 @@ public final class Console implements Flushable {
             return null;
         }
         try {
-            return new Console();
+            return new Console(System.in, System.out);
         } catch (IOException ex) {
             throw new AssertionError(ex);
         }
     }
 
-    private Console() throws IOException {
-        this.reader = new ConsoleReader(System.in);
-        this.writer = new ConsoleWriter(System.out);
+    private Console(InputStream in, OutputStream out) throws IOException {
+        this.reader = new ConsoleReader(in);
+        this.writer = new ConsoleWriter(out);
     }
 
     public void flush() {

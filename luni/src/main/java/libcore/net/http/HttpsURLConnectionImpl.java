@@ -57,6 +57,10 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
         }
     }
 
+    HttpEngine getHttpEngine() {
+        return delegate.getHttpEngine();
+    }
+
     @Override
     public String getCipherSuite() {
         SecureCacheResponse cacheResponse = delegate.getCacheResponse();
@@ -382,7 +386,8 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
         }
 
         public SecureCacheResponse getCacheResponse() {
-            return (SecureCacheResponse) httpEngine.getCacheResponse();
+            HttpsEngine engine = (HttpsEngine) httpEngine;
+            return engine != null ? (SecureCacheResponse) engine.getCacheResponse() : null;
         }
 
         public SSLSocket getSSLSocket() {
@@ -432,7 +437,7 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
                         && e.getCause() instanceof CertificateException) {
                     throw e;
                 }
-                releaseSocket(false);
+                release(false);
                 connectionReused = makeSslConnection(false);
             }
 
@@ -473,11 +478,36 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
             return false;
         }
 
+        /**
+         * To make an HTTPS connection over an HTTP proxy, send an unencrypted
+         * CONNECT request to create the proxy connection. This may need to be
+         * retried if the proxy requires authorization.
+         */
         private void makeTunnel(HttpURLConnectionImpl policy, HttpConnection connection,
-                RawHeaders requestHeaders) throws IOException {
-            HttpEngine connect = new ProxyConnectEngine(policy, requestHeaders, connection);
-            connect.sendRequest();
-            connect.readResponse();
+                RequestHeaders requestHeaders) throws IOException {
+            RawHeaders rawRequestHeaders = requestHeaders.headers;
+            while (true) {
+                HttpEngine connect = new ProxyConnectEngine(policy, rawRequestHeaders, connection);
+                connect.sendRequest();
+                connect.readResponse();
+
+                int responseCode = connect.getResponseCode();
+                switch (connect.getResponseCode()) {
+                case HTTP_OK:
+                    return;
+                case HTTP_PROXY_AUTH:
+                    rawRequestHeaders = new RawHeaders(rawRequestHeaders);
+                    boolean credentialsFound = policy.processAuthHeader(HTTP_PROXY_AUTH,
+                            connect.getResponseHeaders(), rawRequestHeaders);
+                    if (credentialsFound) {
+                        continue;
+                    } else {
+                        throw new IOException("Failed to authenticate with proxy");
+                    }
+                default:
+                    throw new IOException("Unexpected response code for CONNECT: " + responseCode);
+                }
+            }
         }
 
         @Override protected boolean acceptCacheResponseType(CacheResponse cacheResponse) {
@@ -497,8 +527,7 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
     private static class ProxyConnectEngine extends HttpEngine {
         public ProxyConnectEngine(HttpURLConnectionImpl policy, RawHeaders requestHeaders,
                 HttpConnection connection) throws IOException {
-            super(policy, HttpEngine.CONNECT, requestHeaders, null, null);
-            this.connection = connection;
+            super(policy, HttpEngine.CONNECT, requestHeaders, connection, null);
         }
 
         /**
@@ -507,7 +536,7 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
          * sensitive data like HTTP cookies to the proxy unencrypted.
          */
         @Override protected RawHeaders getNetworkRequestHeaders() throws IOException {
-            RawHeaders privateHeaders = getRequestHeaders();
+            RequestHeaders privateHeaders = getRequestHeaders();
             URL url = policy.getURL();
 
             RawHeaders result = new RawHeaders();
@@ -515,20 +544,20 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
                     + " HTTP/1.1");
 
             // Always set Host and User-Agent.
-            String host = privateHeaders.get("Host");
+            String host = privateHeaders.host;
             if (host == null) {
                 host = getOriginAddress(url);
             }
             result.set("Host", host);
 
-            String userAgent = privateHeaders.get("User-Agent");
+            String userAgent = privateHeaders.userAgent;
             if (userAgent == null) {
                 userAgent = getDefaultUserAgent();
             }
             result.set("User-Agent", userAgent);
 
             // Copy over the Proxy-Authorization header if it exists.
-            String proxyAuthorization = privateHeaders.get("Proxy-Authorization");
+            String proxyAuthorization = privateHeaders.proxyAuthorization;
             if (proxyAuthorization != null) {
                 result.set("Proxy-Authorization", proxyAuthorization);
             }

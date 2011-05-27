@@ -44,52 +44,43 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.Arrays;
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
+import libcore.io.IoBridge;
 import libcore.io.IoUtils;
-import org.apache.harmony.luni.platform.Platform;
 import static libcore.io.OsConstants.*;
 
 /*
  * The default implementation class of java.nio.channels.SocketChannel.
  */
 class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
-
-    private static final int EOF = -1;
-
-    // Status un-init, not initialized.
-    static final int SOCKET_STATUS_UNINIT = EOF;
+    private static final int SOCKET_STATUS_UNINITIALIZED = -1;
 
     // Status before connect.
-    static final int SOCKET_STATUS_UNCONNECTED = 0;
+    private static final int SOCKET_STATUS_UNCONNECTED = 0;
 
     // Status connection pending.
-    static final int SOCKET_STATUS_PENDING = 1;
+    private static final int SOCKET_STATUS_PENDING = 1;
 
     // Status after connection success.
-    static final int SOCKET_STATUS_CONNECTED = 2;
+    private static final int SOCKET_STATUS_CONNECTED = 2;
 
     // Status closed.
-    static final int SOCKET_STATUS_CLOSED = 3;
+    private static final int SOCKET_STATUS_CLOSED = 3;
 
-    // The descriptor to interact with native code.
-    final FileDescriptor fd;
+    private final FileDescriptor fd;
 
     // Our internal Socket.
     private SocketAdapter socket = null;
 
     // The address to be connected.
-    InetSocketAddress connectAddress = null;
+    private InetSocketAddress connectAddress = null;
 
-    // Local address of the this socket (package private for adapter).
-    InetAddress localAddress = null;
+    private InetAddress localAddress = null;
+    private int localPort;
 
-    // Local port number.
-    int localPort;
-
-    // At first, uninitialized.
-    int status = SOCKET_STATUS_UNINIT;
+    private int status = SOCKET_STATUS_UNINITIALIZED;
 
     // Whether the socket is bound.
-    volatile boolean isBound = false;
+    private volatile boolean isBound = false;
 
     private final Object readLock = new Object();
 
@@ -108,7 +99,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
     public SocketChannelImpl(SelectorProvider selectorProvider, boolean connect) throws IOException {
         super(selectorProvider);
         status = SOCKET_STATUS_UNCONNECTED;
-        fd = (connect ? IoUtils.socket(true) : new FileDescriptor());
+        fd = (connect ? IoBridge.socket(true) : new FileDescriptor());
     }
 
     /*
@@ -174,7 +165,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
             if (isBlocking()) {
                 begin();
             }
-            finished = IoUtils.connect(fd, normalAddr, port);
+            finished = IoBridge.connect(fd, normalAddr, port);
             isBound = finished;
         } catch (IOException e) {
             if (e instanceof ConnectException && !isBlocking()) {
@@ -236,7 +227,9 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         boolean finished = false;
         try {
             begin();
-            finished = Platform.NETWORK.isConnected(fd, 0);
+            InetAddress inetAddress = connectAddress.getAddress();
+            int port = connectAddress.getPort();
+            finished = IoBridge.isConnected(fd, inetAddress, port, 0, 0); // Return immediately.
             isBound = finished;
         } catch (ConnectException e) {
             if (isOpen()) {
@@ -260,30 +253,13 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
     }
 
     @Override
-    public int read(ByteBuffer target) throws IOException {
-        FileChannelImpl.checkWritable(target);
+    public int read(ByteBuffer dst) throws IOException {
+        FileChannelImpl.checkWritable(dst);
         checkOpenConnected();
-        if (!target.hasRemaining()) {
+        if (!dst.hasRemaining()) {
             return 0;
         }
-
-        int readCount;
-        if (target.isDirect() || target.hasArray()) {
-            readCount = readImpl(target);
-            if (readCount > 0) {
-                target.position(target.position() + readCount);
-            }
-        } else {
-            ByteBuffer readBuffer = null;
-            byte[] readArray = null;
-            readArray = new byte[target.remaining()];
-            readBuffer = ByteBuffer.wrap(readArray);
-            readCount = readImpl(readBuffer);
-            if (readCount > 0) {
-                target.put(readArray, 0, readCount);
-            }
-        }
-        return readCount;
+        return readImpl(dst);
     }
 
     @Override
@@ -297,9 +273,9 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         byte[] readArray = new byte[totalCount];
         ByteBuffer readBuffer = ByteBuffer.wrap(readArray);
         int readCount;
-        // read data to readBuffer, and then transfer data from readBuffer to
-        // targets.
+        // read data to readBuffer, and then transfer data from readBuffer to targets.
         readCount = readImpl(readBuffer);
+        readBuffer.flip();
         if (readCount > 0) {
             int left = readCount;
             int index = offset;
@@ -314,49 +290,36 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         return readCount;
     }
 
-    /**
-     * Read from channel, and store the result in the target.
-     *
-     * @param target
-     *            output parameter
-     */
-    private int readImpl(ByteBuffer target) throws IOException {
+    private int readImpl(ByteBuffer dst) throws IOException {
         synchronized (readLock) {
             int readCount = 0;
             try {
                 if (isBlocking()) {
                     begin();
                 }
-                int offset = target.position();
-                int length = target.remaining();
-                if (target.isDirect()) {
-                    int address = NioUtils.getDirectBufferAddress(target);
-                    readCount = Platform.NETWORK.readDirect(fd, address + offset, length);
-                } else {
-                    // target is assured to have array.
-                    byte[] array = target.array();
-                    offset += target.arrayOffset();
-                    readCount = Platform.NETWORK.read(fd, array, offset, length);
+                readCount = IoBridge.recvfrom(true, fd, dst, 0, null, false);
+                if (readCount > 0) {
+                    dst.position(dst.position() + readCount);
                 }
-                return readCount;
             } finally {
                 if (isBlocking()) {
                     end(readCount > 0);
                 }
             }
+            return readCount;
         }
     }
 
     @Override
-    public int write(ByteBuffer source) throws IOException {
-        if (source == null) {
+    public int write(ByteBuffer src) throws IOException {
+        if (src == null) {
             throw new NullPointerException();
         }
         checkOpenConnected();
-        if (!source.hasRemaining()) {
+        if (!src.hasRemaining()) {
             return 0;
         }
-        return writeImpl(source);
+        return writeImpl(src);
     }
 
     @Override
@@ -388,33 +351,20 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         return written;
     }
 
-    /*
-     * Write the source. return the count of bytes written.
-     */
-    private int writeImpl(ByteBuffer source) throws IOException {
+    private int writeImpl(ByteBuffer src) throws IOException {
         synchronized (writeLock) {
-            if (!source.hasRemaining()) {
+            if (!src.hasRemaining()) {
                 return 0;
             }
             int writeCount = 0;
             try {
-                int pos = source.position();
-                int length = source.remaining();
                 if (isBlocking()) {
                     begin();
                 }
-                if (source.isDirect()) {
-                    int address = NioUtils.getDirectBufferAddress(source);
-                    writeCount = Platform.NETWORK.writeDirect(fd, address, pos, length);
-                } else if (source.hasArray()) {
-                    pos += source.arrayOffset();
-                    writeCount = Platform.NETWORK.write(fd, source.array(), pos, length);
-                } else {
-                    byte[] array = new byte[length];
-                    source.get(array);
-                    writeCount = Platform.NETWORK.write(fd, array, 0, length);
+                writeCount = IoBridge.sendto(fd, src, 0, null, 0);
+                if (writeCount > 0) {
+                    src.position(src.position() + writeCount);
                 }
-                source.position(pos + writeCount);
             } finally {
                 if (isBlocking()) {
                     end(writeCount >= 0);
@@ -486,15 +436,14 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
             if (socket != null && !socket.isClosed()) {
                 socket.close();
             } else {
-                Platform.NETWORK.close(fd);
+                IoBridge.closeSocket(fd);
             }
         }
     }
 
-    @Override
-    protected void implConfigureBlocking(boolean blockMode) throws IOException {
+    @Override protected void implConfigureBlocking(boolean blocking) throws IOException {
         synchronized (blockingLock()) {
-            IoUtils.setBlocking(fd, blockMode);
+            IoUtils.setBlocking(fd, blocking);
         }
     }
 

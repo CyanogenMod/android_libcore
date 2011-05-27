@@ -272,9 +272,13 @@ public final class System {
         p.put("java.boot.class.path", runtime.bootClassPath());
         p.put("java.class.path", runtime.classPath());
 
-        p.put("java.class.version", "46.0");
+        // None of these four are meaningful on Android, but these keys are guaranteed
+        // to be present for System.getProperty. For java.class.version, we use the maximum
+        // class file version that dx currently supports.
+        p.put("java.class.version", "50.0");
         p.put("java.compiler", "");
         p.put("java.ext.dirs", "");
+        p.put("java.version", "0");
 
         p.put("java.home", getenv("JAVA_HOME", "/system"));
 
@@ -287,7 +291,6 @@ public final class System {
 
         p.put("java.vendor", projectName);
         p.put("java.vendor.url", projectUrl);
-        p.put("java.version", "0");
         p.put("java.vm.name", "Dalvik");
         p.put("java.vm.specification.name", "Dalvik Virtual Machine Specification");
         p.put("java.vm.specification.vendor", projectName);
@@ -358,7 +361,7 @@ public final class System {
      * <tr><td>file.separator</td>     <td>{@link java.io.File#separator}</td>    <td>{@code /}</td></tr>
      *
      * <tr><td>java.class.path</td>    <td>System class path</td>                 <td>{@code .}</td></tr>
-     * <tr><td>java.class.version</td> <td>Maximum supported .class file version</td> <td>{@code 46.0}</td></tr>
+     * <tr><td>java.class.version</td> <td>(Not useful on Android)</td>           <td>{@code 50.0}</td></tr>
      * <tr><td>java.compiler</td>      <td>(Not useful on Android)</td>           <td>Empty</td></tr>
      * <tr><td>java.ext.dirs</td>      <td>(Not useful on Android)</td>           <td>Empty</td></tr>
      * <tr><td>java.home</td>          <td>Location of the VM on the file system</td> <td>{@code /system}</td></tr>

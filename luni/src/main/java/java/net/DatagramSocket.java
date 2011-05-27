@@ -161,8 +161,7 @@ public class DatagramSocket {
         isConnected = false;
     }
 
-    synchronized void createSocket(int aPort, InetAddress addr)
-            throws SocketException {
+    synchronized void createSocket(int aPort, InetAddress addr) throws SocketException {
         impl = factory != null ? factory.createDatagramSocketImpl()
                 : new PlainDatagramSocketImpl();
         impl.create();

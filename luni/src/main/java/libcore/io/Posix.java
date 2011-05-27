@@ -18,6 +18,7 @@ package libcore.io;
 
 import java.io.FileDescriptor;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.NioUtils;
@@ -27,9 +28,14 @@ import libcore.util.MutableLong;
 public final class Posix implements Os {
     Posix() { }
 
+    public native FileDescriptor accept(FileDescriptor fd, InetSocketAddress peerAddress) throws ErrnoException;
     public native boolean access(String path, int mode) throws ErrnoException;
+    public native void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException;
     public native void chmod(String path, int mode) throws ErrnoException;
     public native void close(FileDescriptor fd) throws ErrnoException;
+    public native void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException;
+    public native FileDescriptor dup(FileDescriptor oldFd) throws ErrnoException;
+    public native FileDescriptor dup2(FileDescriptor oldFd, int newFd) throws ErrnoException;
     public native String[] environ();
     public native int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException;
     public native int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException;
@@ -41,16 +47,24 @@ public final class Posix implements Os {
     public native void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public native String gai_strerror(int error);
     public native InetAddress[] getaddrinfo(String node, StructAddrinfo hints) throws GaiException;
+    public native int getegid();
+    public native int geteuid();
+    public native int getgid();
     public native String getenv(String name);
     public native String getnameinfo(InetAddress address, int flags) throws GaiException;
+    public native int getpid();
+    public native int getppid();
+    public native StructPasswd getpwnam(String name) throws ErrnoException;
+    public native StructPasswd getpwuid(int uid) throws ErrnoException;
     public native SocketAddress getsockname(FileDescriptor fd) throws ErrnoException;
     public native int getsockoptByte(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native InetAddress getsockoptInAddr(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native int getsockoptInt(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException;
-    public native InetAddress inet_aton(String address);
+    public native int getuid();
     public native String if_indextoname(int index);
+    public native InetAddress inet_aton(String address);
     public native InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException;
     public native int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException;
     public native boolean isatty(FileDescriptor fd);
@@ -66,6 +80,7 @@ public final class Posix implements Os {
     public native void munmap(long address, long byteCount) throws ErrnoException;
     public native FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
     public native FileDescriptor[] pipe() throws ErrnoException;
+    public native int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException;
     public native StructStat lstat(String path) throws ErrnoException;
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
         if (buffer.isDirect()) {
@@ -80,9 +95,36 @@ public final class Posix implements Os {
     }
     private native int readBytes(FileDescriptor fd, Object buffer, int offset, int byteCount) throws ErrnoException;
     public native int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
+    public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress srcAddress) throws ErrnoException {
+        if (buffer.isDirect()) {
+            return recvfromBytes(fd, buffer, buffer.position(), buffer.remaining(), flags, srcAddress);
+        } else {
+            return recvfromBytes(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining(), flags, srcAddress);
+        }
+    }
+    public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException {
+        // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
+        return recvfromBytes(fd, bytes, byteOffset, byteCount, flags, srcAddress);
+    }
+    private native int recvfromBytes(FileDescriptor fd, Object buffer, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException;
     public native void remove(String path) throws ErrnoException;
     public native void rename(String oldPath, String newPath) throws ErrnoException;
     public native long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException;
+    public int sendto(FileDescriptor fd, ByteBuffer buffer, int flags, InetAddress inetAddress, int port) throws ErrnoException {
+        if (buffer.isDirect()) {
+            return sendtoBytes(fd, buffer, buffer.position(), buffer.remaining(), flags, inetAddress, port);
+        } else {
+            return sendtoBytes(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining(), flags, inetAddress, port);
+        }
+    }
+    public int sendto(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException {
+        // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
+        return sendtoBytes(fd, bytes, byteOffset, byteCount, flags, inetAddress, port);
+    }
+    private native int sendtoBytes(FileDescriptor fd, Object buffer, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException;
+    public native void setegid(int egid) throws ErrnoException;
+    public native void seteuid(int euid) throws ErrnoException;
+    public native void setgid(int gid) throws ErrnoException;
     public native void setsockoptByte(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
     public native void setsockoptIfreq(FileDescriptor fd, int level, int option, String value) throws ErrnoException;
     public native void setsockoptInt(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
@@ -90,6 +132,7 @@ public final class Posix implements Os {
     public native void setsockoptGroupReq(FileDescriptor fd, int level, int option, StructGroupReq value) throws ErrnoException;
     public native void setsockoptLinger(FileDescriptor fd, int level, int option, StructLinger value) throws ErrnoException;
     public native void setsockoptTimeval(FileDescriptor fd, int level, int option, StructTimeval value) throws ErrnoException;
+    public native void setuid(int uid) throws ErrnoException;
     public native void shutdown(FileDescriptor fd, int how) throws ErrnoException;
     public native FileDescriptor socket(int domain, int type, int protocol) throws ErrnoException;
     public native StructStat stat(String path) throws ErrnoException;
@@ -98,6 +141,7 @@ public final class Posix implements Os {
     public native void symlink(String oldPath, String newPath) throws ErrnoException;
     public native long sysconf(int name);
     public native StructUtsname uname() throws ErrnoException;
+    public native int waitpid(int pid, MutableInt status, int options) throws ErrnoException;
     public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
         if (buffer.isDirect()) {
             return writeBytes(fd, buffer, buffer.position(), buffer.remaining());

@@ -21,6 +21,7 @@ import dalvik.system.CloseGuard;
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
+import libcore.io.IoBridge;
 import libcore.io.IoUtils;
 import static libcore.io.OsConstants.*;
 
@@ -88,7 +89,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
             throw new NullPointerException("file == null");
         }
         this.mode = O_WRONLY | O_CREAT | (append ? O_APPEND : O_TRUNC);
-        this.fd = IoUtils.open(file.getAbsolutePath(), mode);
+        this.fd = IoBridge.open(file.getAbsolutePath(), mode);
         this.ownedFd = fd;
         this.guard.open("close");
     }
@@ -175,7 +176,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
 
     @Override
     public void write(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-        IoUtils.write(fd, buffer, byteOffset, byteCount);
+        IoBridge.write(fd, buffer, byteOffset, byteCount);
     }
 
     @Override
