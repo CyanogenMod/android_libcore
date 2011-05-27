@@ -118,13 +118,18 @@ final class FileChannelImpl extends FileChannel {
         flock.l_whence = (short) SEEK_SET;
         flock.l_start = position;
         flock.l_len = translateLockLength(size);
-        if (Libcore.os.fcntlFlock(fd, wait ? F_SETLKW64 : F_SETLK64, flock) == -1) {
-            // Lock acquisition failed.
-            removeLock(pendingLock);
-            return null;
-        }
 
-        return pendingLock;
+        boolean success = false;
+        try {
+            success = (Libcore.os.fcntlFlock(fd, wait ? F_SETLKW64 : F_SETLK64, flock) != -1);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        } finally {
+            if (!success) {
+                removeLock(pendingLock);
+            }
+        }
+        return success ? pendingLock : null;
     }
 
     private static long translateLockLength(long byteCount) {

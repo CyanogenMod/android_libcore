@@ -105,7 +105,7 @@ final class ProcessManager {
                     waitForMoreChildren();
                     continue;
                 } else {
-                    throw errnoException;
+                    throw new AssertionError(errnoException);
                 }
             }
         }

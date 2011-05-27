@@ -201,7 +201,12 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
     }
 
     private void initLocalAddressAndPort() {
-        SocketAddress sa = Libcore.os.getsockname(fd);
+        SocketAddress sa;
+        try {
+            sa = Libcore.os.getsockname(fd);
+        } catch (ErrnoException errnoException) {
+            throw new AssertionError(errnoException);
+        }
         InetSocketAddress isa = (InetSocketAddress) sa;
         localAddress = isa.getAddress();
         localPort = isa.getPort();
