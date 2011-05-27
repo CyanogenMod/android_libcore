@@ -48,12 +48,62 @@ import libcore.net.url.UrlUtils;
  * <tr><td>{@link #getFragment() Fragment}                      </td><td>{@code fragment}                                                   </td><td>ref</td></tr>
  * </table>
  *
+ * <h3>Absolute vs. Relative URIs</h3>
+ * URIs are either {@link #isAbsolute() absolute or relative}.
+ * <ul>
+ *     <li><strong>Absolute:</strong> {@code http://android.com/robots.txt}
+ *     <li><strong>Relative:</strong> {@code robots.txt}
+ * </ul>
+ *
+ * <p>Absolute URIs always have a scheme. If its scheme is supported by {@link
+ * URL}, you can use {@link #toURL} to convert an absolute URI to a URL.
+ *
+ * <p>Relative URIs do not have a scheme and cannot be converted to URLs. If you
+ * have the absolute URI that a relative URI is relative to, you can use {@link
+ * #resolve} to compute the referenced absolute URI. Symmetrically, you can use
+ * {@link #relativize} to compute the relative URI from one URI to another.
+ * <pre>   {@code
+ *   URI absolute = new URI("http://android.com/");
+ *   URI relative = new URI("robots.txt");
+ *   URI resolved = new URI("http://android.com/robots.txt");
+ *
+ *   // print "http://android.com/robots.txt"
+ *   System.out.println(absolute.resolve(relative));
+ *
+ *   // print "robots.txt"
+ *   System.out.println(absolute.relativize(resolved));
+ * }</pre>
+ *
+ * <h3>Opaque vs. Hierarchical URIs</h3>
+ * Absolute URIs are either {@link #isOpaque() opaque or hierarchical}. Relative
+ * URIs are always hierarchical.
+ * <ul>
+ *     <li><strong>Hierarchical:</strong> {@code http://android.com/robots.txt}
+ *     <li><strong>Opaque:</strong> {@code mailto:robots@example.com}
+ * </ul>
+ *
+ * <p>Opaque URIs have both a scheme and a scheme-specific part that does not
+ * begin with the slash character: {@code /}. The contents of the
+ * scheme-specific part of an opaque URI is not parsed so an opaque URI never
+ * has an authority, user info, host, port, path or query. An opaque URIs may
+ * have a fragment, however. A typical opaque URI is
+ * {@code mailto:robots@example.com}.
+ * <table>
+ * <tr><th>Component           </th><th>Example value             </th></tr>
+ * <tr><td>Scheme              </td><td>{@code mailto}            </td></tr>
+ * <tr><td>Scheme-specific part</td><td>{@code robots@example.com}</td></tr>
+ * <tr><td>Fragment            </td><td>                          </td></tr>
+ * </table>
+ * <p>Hierarchical URIs may have values for any URL component. They always
+ * have a non-null path, though that path may be the empty string.
+ *
  * <h3>Encoding and Decoding URI Components</h3>
  * Each component of a URI permits a limited set of legal characters. Other
  * characters must first be <i>encoded</i> before they can be embedded in a URI.
  * To recover the original characters from a URI, they may be <i>decoded</i>.
- * This class refers to encoded strings as <string>raw</string> strings. For
- * example, consider how this URI is decoded:
+ * <strong>Contrary to what you might expect,</strong> this class uses the
+ * term <i>raw</i> to refer to encoded strings. The non-<i>raw</i> accessors
+ * return decoded strings. For example, consider how this URI is decoded:
  * {@code http://user:pa55w%3Frd@host:80/doc%7Csearch?q=green%20robots#over%206%22}
  * <table>
  * <tr><th>Component           </th><th>Legal Characters                                                    </th><th>Other Constraints                                  </th><th>Raw Value                                                      </th><th>Value</th></tr>
@@ -74,14 +124,11 @@ import libcore.net.url.UrlUtils;
  * class. These constructors accept your original strings and encode them into
  * their raw form.
  *
- * <p>To decode a URI, invoke the single-string constructor, and then the
- * appropriate <code>get<i>Component()</i></code> methods to get the decoded
- * components.
+ * <p>To decode a URI, invoke the single-string constructor, and then use the
+ * appropriate accessor methods to get the decoded components.
  *
  * <p>The {@link URL} class can be used to retrieve resources by their URI.
  */
-// TODO: document relative URIs
-// TODO: document opaque URIs
 public final class URI implements Comparable<URI>, Serializable {
 
     private static final long serialVersionUID = -6052424284110960213l;
@@ -932,7 +979,7 @@ public final class URI implements Comparable<URI>, Serializable {
     }
 
     /**
-     * Gets the encoded path of this URI, or null if this URI has no path.
+     * Returns the encoded path of this URI, or null if this URI has no path.
      */
     public String getRawPath() {
         return path;

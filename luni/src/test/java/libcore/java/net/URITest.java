@@ -602,5 +602,24 @@ public final class URITest extends TestCase {
         assertEquals("", new URI("http", null, "host", -1, "", null, null).getPath());
     }
 
+    public void testResolveRelativeAndAbsolute() throws Exception {
+        URI absolute = new URI("http://android.com/");
+        URI relative = new URI("robots.txt");
+        assertEquals(absolute, absolute.resolve(absolute));
+        assertEquals(new URI("http://android.com/robots.txt"), absolute.resolve(relative));
+        assertEquals(absolute, relative.resolve(absolute));
+        assertEquals(relative, relative.resolve(relative));
+    }
+
+    public void testRelativizeRelativeAndAbsolute() throws Exception {
+        URI absolute = new URI("http://android.com/");
+        URI relative = new URI("robots.txt");
+        assertEquals(relative, absolute.relativize(new URI("http://android.com/robots.txt")));
+        assertEquals(new URI(""), absolute.relativize(absolute));
+        assertEquals(relative, absolute.relativize(relative));
+        assertEquals(absolute, relative.relativize(absolute));
+        assertEquals(new URI(""), relative.relativize(relative));
+    }
+
     // Adding a new test? Consider adding an equivalent test to URLTest.java
 }
