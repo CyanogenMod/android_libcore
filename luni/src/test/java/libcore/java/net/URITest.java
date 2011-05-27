@@ -531,5 +531,9 @@ public final class URITest extends TestCase {
         assertEquals(-1, uri.getPort());
     }
 
+    // TODO: test http://#fragment
+    // TODO: test http://?query
+    // TODO: test http:///path
+
     // Adding a new test? Consider adding an equivalent test to URLTest.java
 }

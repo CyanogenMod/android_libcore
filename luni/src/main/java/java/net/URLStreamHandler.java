@@ -101,9 +101,9 @@ public abstract class URLStreamHandler {
         if (spec.regionMatches(start, "//", 0, 2)) {
             // Parse the authority from the spec.
             int authorityStart = start + 2;
-            fileStart = findFirstOf(spec, "/?#", authorityStart, end);
+            fileStart = UrlUtils.findFirstOf(spec, "/?#", authorityStart, end);
             authority = spec.substring(authorityStart, fileStart);
-            int userInfoEnd = findFirstOf(spec, "@", authorityStart, fileStart);
+            int userInfoEnd = UrlUtils.findFirstOf(spec, "@", authorityStart, fileStart);
             int hostStart;
             if (userInfoEnd != fileStart) {
                 userInfo = spec.substring(authorityStart, userInfoEnd);
@@ -118,9 +118,9 @@ public abstract class URLStreamHandler {
              * colons like "[::1]", in which case we look for the port delimiter
              * colon after the ']' character.
              */
-            int ipv6End = findFirstOf(spec, "]", hostStart, fileStart);
+            int ipv6End = UrlUtils.findFirstOf(spec, "]", hostStart, fileStart);
             int colonSearchFrom = (ipv6End != fileStart) ? ipv6End : hostStart;
-            int hostEnd = findFirstOf(spec, ":", colonSearchFrom, fileStart);
+            int hostEnd = UrlUtils.findFirstOf(spec, ":", colonSearchFrom, fileStart);
             host = spec.substring(hostStart, hostEnd);
             int portStart = hostEnd + 1;
             if (portStart < fileStart) {
@@ -162,12 +162,12 @@ public abstract class URLStreamHandler {
                 ref = spec.substring(pos + 1, nextPos);
                 break;
             case '?':
-                nextPos = findFirstOf(spec, "#", pos, end);
+                nextPos = UrlUtils.findFirstOf(spec, "#", pos, end);
                 query = spec.substring(pos + 1, nextPos);
                 ref = null;
                 break;
             default:
-                nextPos = findFirstOf(spec, "?#", pos, end);
+                nextPos = UrlUtils.findFirstOf(spec, "?#", pos, end);
                 path = relativePath(path, spec.substring(pos, nextPos));
                 query = null;
                 ref = null;
@@ -183,21 +183,6 @@ public abstract class URLStreamHandler {
         path = UrlUtils.authoritySafePath(authority, path);
 
         setURL(url, url.getProtocol(), host, port, authority, userInfo, path, query, ref);
-    }
-
-    /**
-     * Returns the index of the first char of {@code chars} in {@code string}
-     * bounded between {@code start} and {@code end}. This returns {@code end}
-     * if none of the characters exist in the requested range.
-     */
-    private static int findFirstOf(String string, String chars, int start, int end) {
-        for (int i = start; i < end; i++) {
-            char c = string.charAt(i);
-            if (chars.indexOf(c) != -1) {
-                return i;
-            }
-        }
-        return end;
     }
 
     /**

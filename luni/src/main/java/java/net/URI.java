@@ -313,171 +313,100 @@ public final class URI implements Comparable<URI>, Serializable {
         parseURI(uri.toString(), false);
     }
 
+    /**
+     * Breaks uri into its component parts. This first splits URI into scheme,
+     * scheme-specific part and fragment:
+     *   [scheme:][scheme-specific part][#fragment]
+     *
+     * Then it breaks the scheme-specific part into authority, path and query:
+     *   [//authority][path][?query]
+     *
+     * Finally it delegates to parseAuthority to break the authority into user
+     * info, host and port:
+     *   [user-info@][host][:port]
+     */
     private void parseURI(String uri, boolean forceServer) throws URISyntaxException {
-        String temp = uri;
-        // assign uri string to the input value per spec
         string = uri;
-        int index, index1, index2, index3;
-        // parse into Fragment, Scheme, and SchemeSpecificPart
-        // then parse SchemeSpecificPart if necessary
 
-        // Fragment
-        index = temp.indexOf('#');
-        if (index != -1) {
-            // remove the fragment from the end
-            fragment = temp.substring(index + 1);
-            validateFragment(uri, fragment, index + 1);
-            temp = temp.substring(0, index);
+        // "#fragment"
+        int fragmentStart = UrlUtils.findFirstOf(uri, "#", 0, uri.length());
+        if (fragmentStart < uri.length()) {
+            fragment = ALL_LEGAL_ENCODER.validate(uri, fragmentStart + 1, uri.length(), "fragment");
         }
 
-        // Scheme and SchemeSpecificPart
-        index = index1 = temp.indexOf(':');
-        index2 = temp.indexOf('/');
-        index3 = temp.indexOf('?');
-
-        // if a '/' or '?' occurs before the first ':' the uri has no
-        // specified scheme, and is therefore not absolute
-        if (index != -1 && (index2 >= index || index2 == -1)
-                && (index3 >= index || index3 == -1)) {
-            // the characters up to the first ':' comprise the scheme
+        // scheme:
+        int start;
+        int colon = UrlUtils.findFirstOf(uri, ":", 0, fragmentStart);
+        if (colon < UrlUtils.findFirstOf(uri, "/?#", 0, fragmentStart)) {
             absolute = true;
-            scheme = temp.substring(0, index);
-            if (scheme.length() == 0) {
-                throw new URISyntaxException(uri, "Scheme expected", index);
+            scheme = validateScheme(uri, colon);
+            start = colon + 1;
+
+            if (start == fragmentStart) {
+                throw new URISyntaxException(uri, "Scheme-specific part expected", start);
             }
-            validateScheme(uri, scheme, 0);
-            schemeSpecificPart = temp.substring(index + 1);
-            if (schemeSpecificPart.length() == 0) {
-                throw new URISyntaxException(uri, "Scheme-specific part expected", index + 1);
+
+            // URIs with schemes followed by a non-/ char are opaque and need no further parsing.
+            if (!uri.regionMatches(start, "/", 0, 1)) {
+                opaque = true;
+                schemeSpecificPart = ALL_LEGAL_ENCODER.validate(
+                        uri, start, fragmentStart, "scheme specific part");
+                return;
             }
         } else {
             absolute = false;
-            schemeSpecificPart = temp;
+            start = 0;
         }
 
-        if (scheme == null || schemeSpecificPart.length() > 0
-                && schemeSpecificPart.charAt(0) == '/') {
-            opaque = false;
-            // the URI is hierarchical
+        opaque = false;
+        schemeSpecificPart = uri.substring(start, fragmentStart);
 
-            // Query
-            temp = schemeSpecificPart;
-            index = temp.indexOf('?');
-            if (index != -1) {
-                query = temp.substring(index + 1);
-                temp = temp.substring(0, index);
-                validateQuery(uri, query, index2 + 1 + index);
+        // "//authority"
+        int fileStart;
+        if (uri.regionMatches(start, "//", 0, 2)) {
+            int authorityStart = start + 2;
+            fileStart = UrlUtils.findFirstOf(uri, "/?", authorityStart, fragmentStart);
+            if (authorityStart == uri.length()) {
+                throw new URISyntaxException(uri, "Authority expected", uri.length());
             }
-
-            // Authority and Path
-            if (temp.startsWith("//")) {
-                index = temp.indexOf('/', 2);
-                if (index != -1) {
-                    authority = temp.substring(2, index);
-                    path = temp.substring(index);
-                } else {
-                    authority = temp.substring(2);
-                    if (authority.length() == 0 && query == null
-                            && fragment == null) {
-                        throw new URISyntaxException(uri, "Authority expected", uri.length());
-                    }
-
-                    path = "";
-                    // nothing left, so path is empty (not null, path should
-                    // never be null)
-                }
-
-                if (authority.length() == 0) {
-                    authority = null;
-                } else {
-                    validateAuthority(uri, authority, index1 + 3);
-                }
-            } else { // no authority specified
-                path = temp;
+            if (authorityStart < fileStart) {
+                authority = AUTHORITY_ENCODER.validate(uri, authorityStart, fileStart, "authority");
             }
+        } else {
+            fileStart = start;
+        }
 
-            int pathIndex = 0;
-            if (index2 > -1) {
-                pathIndex += index2;
-            }
-            if (index > -1) {
-                pathIndex += index;
-            }
-            validatePath(uri, path, pathIndex);
-        } else { // if not hierarchical, URI is opaque
-            opaque = true;
-            validateSsp(uri, schemeSpecificPart, index2 + 2 + index);
+        // "path"
+        int queryStart = UrlUtils.findFirstOf(uri, "?", fileStart, fragmentStart);
+        path = PATH_ENCODER.validate(uri, fileStart, queryStart, "path");
+
+        // "?query"
+        if (queryStart < fragmentStart) {
+            query = ALL_LEGAL_ENCODER.validate(uri, queryStart + 1, fragmentStart, "query");
         }
 
         parseAuthority(forceServer);
     }
 
-    private void validateScheme(String uri, String scheme, int index)
-            throws URISyntaxException {
-        // first char needs to be an alpha char
-        char ch = scheme.charAt(0);
-        if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'))) {
-            throw new URISyntaxException(uri, "Illegal character in scheme", 0);
+    private String validateScheme(String uri, int end) throws URISyntaxException {
+        if (end == 0) {
+            throw new URISyntaxException(uri, "Scheme expected", 0);
         }
 
-        try {
-            UriCodec.validateSimple(scheme, "+-.");
-        } catch (URISyntaxException e) {
-            throw new URISyntaxException(uri, "Illegal character in scheme", index + e.getIndex());
+        for (int i = 0; i < end; i++) {
+            if (!UrlUtils.isValidSchemeChar(i, uri.charAt(i))) {
+                throw new URISyntaxException(uri, "Illegal character in scheme", 0);
+            }
         }
-    }
 
-    private void validateSsp(String uri, String ssp, int index)
-            throws URISyntaxException {
-        try {
-            ALL_LEGAL_ENCODER.validate(ssp);
-        } catch (URISyntaxException e) {
-            throw new URISyntaxException(uri,
-                    e.getReason() + " in schemeSpecificPart", index + e.getIndex());
-        }
-    }
-
-    private void validateAuthority(String uri, String authority, int index)
-            throws URISyntaxException {
-        try {
-            AUTHORITY_ENCODER.validate(authority);
-        } catch (URISyntaxException e) {
-            throw new URISyntaxException(uri, e.getReason() + " in authority", index + e.getIndex());
-        }
-    }
-
-    private void validatePath(String uri, String path, int index)
-            throws URISyntaxException {
-        try {
-            PATH_ENCODER.validate(path);
-        } catch (URISyntaxException e) {
-            throw new URISyntaxException(uri, e.getReason() + " in path", index + e.getIndex());
-        }
-    }
-
-    private void validateQuery(String uri, String query, int index)
-            throws URISyntaxException {
-        try {
-            ALL_LEGAL_ENCODER.validate(query);
-        } catch (URISyntaxException e) {
-            throw new URISyntaxException(uri, e.getReason() + " in query", index + e.getIndex());
-
-        }
-    }
-
-    private void validateFragment(String uri, String fragment, int index)
-            throws URISyntaxException {
-        try {
-            ALL_LEGAL_ENCODER.validate(fragment);
-        } catch (URISyntaxException e) {
-            throw new URISyntaxException(uri, e.getReason() + " in fragment", index + e.getIndex());
-        }
+        return uri.substring(0, end);
     }
 
     /**
-     * Parse the authority string into its component parts: user info,
-     * host, and port. This operation doesn't apply to registry URIs, and
-     * calling it on such <i>may</i> result in a syntax exception.
+     * Breaks this URI's authority into user info, host and port parts.
+     *   [user-info@][host][:port]
+     * If any part of this fails this method will give up and potentially leave
+     * these fields with their default values.
      *
      * @param forceServer true to always throw if the authority cannot be
      *     parsed. If false, this method may still throw for some kinds of
@@ -607,7 +536,7 @@ public final class URI implements Comparable<URI>, Serializable {
             if (ia instanceof Inet4Address) {
                 return true;
             }
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ignored) {
         }
 
         if (forceServer) {

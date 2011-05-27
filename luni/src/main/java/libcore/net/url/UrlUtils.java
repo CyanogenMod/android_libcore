@@ -115,7 +115,7 @@ public final class UrlUtils {
         return spec.substring(0, colon).toLowerCase(Locale.US);
     }
 
-    private static boolean isValidSchemeChar(int index, char c) {
+    public static boolean isValidSchemeChar(int index, char c) {
         if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
             return true;
         }
@@ -123,5 +123,20 @@ public final class UrlUtils {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Returns the index of the first char of {@code chars} in {@code string}
+     * bounded between {@code start} and {@code end}. This returns {@code end}
+     * if none of the characters exist in the requested range.
+     */
+    public static int findFirstOf(String string, String chars, int start, int end) {
+        for (int i = start; i < end; i++) {
+            char c = string.charAt(i);
+            if (chars.indexOf(c) != -1) {
+                return i;
+            }
+        }
+        return end;
     }
 }
