@@ -66,9 +66,9 @@ public class FileOutputStream extends OutputStream implements Closeable {
     private final CloseGuard guard = CloseGuard.get();
 
     /**
-     * Constructs a new {@code FileOutputStream} that writes to {@code file}.
+     * Constructs a new {@code FileOutputStream} that writes to {@code file}. The file will be
+     * truncated if it exists, and created if it doesn't exist.
      *
-     * @param file the file to which this stream writes.
      * @throws FileNotFoundException if file cannot be opened for writing.
      */
     public FileOutputStream(File file) throws FileNotFoundException {
@@ -76,12 +76,10 @@ public class FileOutputStream extends OutputStream implements Closeable {
     }
 
     /**
-     * Constructs a new {@code FileOutputStream} that writes to {@code file},
-     * creating it if necessary. If {@code append} is true and the file already
-     * exists, it will be appended to. Otherwise a new file will be created.
+     * Constructs a new {@code FileOutputStream} that writes to {@code file}.
+     * If {@code append} is true and the file already exists, it will be appended to; otherwise
+     * it will be truncated. The file will be created if it does not exist.
      *
-     * @param file the file to which this stream writes.
-     * @param append true to append to an existing file.
      * @throws FileNotFoundException if the file cannot be opened for writing.
      */
     public FileOutputStream(File file, boolean append) throws FileNotFoundException {
@@ -97,7 +95,6 @@ public class FileOutputStream extends OutputStream implements Closeable {
     /**
      * Constructs a new {@code FileOutputStream} that writes to {@code fd}.
      *
-     * @param fd the FileDescriptor to which this stream writes.
      * @throws NullPointerException if {@code fd} is null.
      */
     public FileOutputStream(FileDescriptor fd) {
@@ -113,14 +110,21 @@ public class FileOutputStream extends OutputStream implements Closeable {
     }
 
     /**
-     * Equivalent to {@code new FileOutputStream(new File(path), false)}.
+     * Constructs a new {@code FileOutputStream} that writes to {@code path}. The file will be
+     * truncated if it exists, and created if it doesn't exist.
+     *
+     * @throws FileNotFoundException if file cannot be opened for writing.
      */
     public FileOutputStream(String path) throws FileNotFoundException {
         this(path, false);
     }
 
     /**
-     * Equivalent to {@code new FileOutputStream(new File(path), append)}.
+     * Constructs a new {@code FileOutputStream} that writes to {@code path}.
+     * If {@code append} is true and the file already exists, it will be appended to; otherwise
+     * it will be truncated. The file will be created if it does not exist.
+     *
+     * @throws FileNotFoundException if the file cannot be opened for writing.
      */
     public FileOutputStream(String path, boolean append) throws FileNotFoundException {
         this(new File(path), append);
