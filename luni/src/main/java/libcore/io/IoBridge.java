@@ -124,7 +124,7 @@ public final class IoBridge {
         }
     }
 
-    private static boolean connectErrno(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws IOException {
+    private static boolean connectErrno(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws ErrnoException, IOException {
         // With no timeout, just call connect(2) directly.
         if (timeoutMs == 0) {
             Libcore.os.connect(fd, inetAddress, port);
@@ -240,7 +240,7 @@ public final class IoBridge {
         }
     }
 
-    private static Object getSocketOptionErrno(FileDescriptor fd, int option) throws SocketException {
+    private static Object getSocketOptionErrno(FileDescriptor fd, int option) throws ErrnoException, SocketException {
         switch (option) {
         case SocketOptions.IP_MULTICAST_IF:
             // This is IPv4-only.
@@ -307,7 +307,7 @@ public final class IoBridge {
         }
     }
 
-    private static void setSocketOptionErrno(FileDescriptor fd, int option, Object value) throws SocketException {
+    private static void setSocketOptionErrno(FileDescriptor fd, int option, Object value) throws ErrnoException, SocketException {
         switch (option) {
         case SocketOptions.IP_MULTICAST_IF:
             throw new UnsupportedOperationException("Use IP_MULTICAST_IF2 on Android");
@@ -579,15 +579,22 @@ public final class IoBridge {
     }
 
     public static InetAddress getSocketLocalAddress(FileDescriptor fd) {
-        SocketAddress sa = Libcore.os.getsockname(fd);
-        InetSocketAddress isa = (InetSocketAddress) sa;
-        return isa.getAddress();
+        try {
+            SocketAddress sa = Libcore.os.getsockname(fd);
+            InetSocketAddress isa = (InetSocketAddress) sa;
+            return isa.getAddress();
+        } catch (ErrnoException errnoException) {
+            throw new AssertionError(errnoException);
+        }
     }
 
     public static int getSocketLocalPort(FileDescriptor fd) {
-        SocketAddress sa = Libcore.os.getsockname(fd);
-        InetSocketAddress isa = (InetSocketAddress) sa;
-        return isa.getPort();
+        try {
+            SocketAddress sa = Libcore.os.getsockname(fd);
+            InetSocketAddress isa = (InetSocketAddress) sa;
+            return isa.getPort();
+        } catch (ErrnoException errnoException) {
+            throw new AssertionError(errnoException);
+        }
     }
-
 }

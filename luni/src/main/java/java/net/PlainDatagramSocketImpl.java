@@ -28,6 +28,7 @@ import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import libcore.io.ErrnoException;
 import libcore.io.IoBridge;
 import libcore.io.Libcore;
 import libcore.io.StructGroupReq;
@@ -211,7 +212,11 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
 
     @Override
     public void disconnect() {
-        Libcore.os.connect(fd, InetAddress.UNSPECIFIED, 0);
+        try {
+            Libcore.os.connect(fd, InetAddress.UNSPECIFIED, 0);
+        } catch (ErrnoException errnoException) {
+            throw new AssertionError(errnoException);
+        }
         connectedPort = -1;
         connectedAddress = null;
         isNativeConnected = false;

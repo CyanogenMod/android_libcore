@@ -32,7 +32,7 @@ public class BlockGuardOs extends ForwardingOs {
         super(os);
     }
 
-    private FileDescriptor tagSocket(FileDescriptor fd) {
+    private FileDescriptor tagSocket(FileDescriptor fd) throws ErrnoException {
         try {
             BlockGuard.tagSocketFd(fd);
             return fd;

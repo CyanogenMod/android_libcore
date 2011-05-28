@@ -110,7 +110,7 @@ public interface Os {
     public String strerror(int errno);
     public void symlink(String oldPath, String newPath) throws ErrnoException;
     public long sysconf(int name);
-    public StructUtsname uname() throws ErrnoException;
+    public StructUtsname uname();
     public int waitpid(int pid, MutableInt status, int options) throws ErrnoException;
     public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException;
     public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;

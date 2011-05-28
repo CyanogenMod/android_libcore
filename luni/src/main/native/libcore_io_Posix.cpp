@@ -1164,8 +1164,8 @@ static jlong Posix_sysconf(JNIEnv* env, jobject, jint name) {
 
 static jobject Posix_uname(JNIEnv* env, jobject) {
     struct utsname buf;
-    if (throwIfMinusOne(env, "uname", TEMP_FAILURE_RETRY(uname(&buf))) == -1) {
-        return NULL;
+    if (TEMP_FAILURE_RETRY(uname(&buf)) == -1) {
+        return NULL; // Can't happen.
     }
     return makeStructUtsname(env, buf);
 }

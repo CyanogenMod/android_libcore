@@ -16,7 +16,6 @@
 
 package libcore.io;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -44,13 +43,15 @@ public final class IoUtils {
     }
 
     /**
-     * Closes 'closeable', ignoring any exceptions. Does nothing if 'closeable' is null.
+     * Closes 'closeable', ignoring any checked exceptions. Does nothing if 'closeable' is null.
      */
-    public static void closeQuietly(Closeable closeable) {
+    public static void closeQuietly(AutoCloseable closeable) {
         if (closeable != null) {
             try {
                 closeable.close();
-            } catch (IOException ignored) {
+            } catch (RuntimeException rethrown) {
+                throw rethrown;
+            } catch (Exception ignored) {
             }
         }
     }

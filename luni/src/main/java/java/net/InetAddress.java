@@ -375,7 +375,7 @@ public class InetAddress implements Serializable {
      *             if the address lookup fails.
      */
     public static InetAddress getLocalHost() throws UnknownHostException {
-        String host = Libcore.os.uname().nodename; // Can only throw EFAULT (which can't happen).
+        String host = Libcore.os.uname().nodename;
         return lookupHostByName(host)[0];
     }
 
