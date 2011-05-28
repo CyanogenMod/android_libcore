@@ -112,7 +112,7 @@ public final class MockOs {
 
     public void enqueueFault(String methodName, final int errno) {
         getHandlers(methodName).add(new InvocationHandler() {
-            @Override public Object invoke(Object proxy, Method method, Object[] args) {
+            @Override public Object invoke(Object proxy, Method method, Object[] args) throws ErrnoException {
                 throw new ErrnoException(method.getName(), errno);
             }
         });

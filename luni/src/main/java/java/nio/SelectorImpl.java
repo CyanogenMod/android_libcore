@@ -175,7 +175,11 @@ final class SelectorImpl extends AbstractSelector {
                         if (isBlock) {
                             begin();
                         }
-                        rc = Libcore.os.poll(pollFds.array(), (int) timeout);
+                        try {
+                            rc = Libcore.os.poll(pollFds.array(), (int) timeout);
+                        } catch (ErrnoException errnoException) {
+                            throw errnoException.rethrowAsIOException();
+                        }
                     } finally {
                         if (isBlock) {
                             end();

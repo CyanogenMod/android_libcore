@@ -16,13 +16,13 @@
 
 package libcore.io;
 
-import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
+import libcore.io.ErrnoException;
 import libcore.io.Libcore;
 import libcore.io.Memory;
 import static libcore.io.OsConstants.*;
@@ -32,7 +32,7 @@ import static libcore.io.OsConstants.*;
  * and either {@link #bigEndianIterator} or {@link #littleEndianIterator} to get a seekable
  * {@link BufferIterator} over the mapped data.
  */
-public final class MemoryMappedFile implements Closeable {
+public final class MemoryMappedFile implements AutoCloseable {
     private long address;
     private final long size;
 
@@ -47,7 +47,7 @@ public final class MemoryMappedFile implements Closeable {
     /**
      * Use this to mmap the whole file read-only.
      */
-    public static MemoryMappedFile mmapRO(String path) {
+    public static MemoryMappedFile mmapRO(String path) throws ErrnoException {
         FileDescriptor fd = Libcore.os.open(path, O_RDONLY, 0);
         long size = Libcore.os.fstat(fd).st_size;
         long address = Libcore.os.mmap(0L, size, PROT_READ, MAP_SHARED, fd, 0);
@@ -63,7 +63,7 @@ public final class MemoryMappedFile implements Closeable {
      * Calling this method invalidates any iterators over this {@code MemoryMappedFile}. It is an
      * error to use such an iterator after calling {@code close}.
      */
-    public synchronized void close() {
+    public synchronized void close() throws ErrnoException {
         if (address != 0) {
             Libcore.os.munmap(address, size);
             address = 0;

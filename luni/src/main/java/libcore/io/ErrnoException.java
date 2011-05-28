@@ -21,11 +21,11 @@ import java.net.SocketException;
 import libcore.io.OsConstants;
 
 /**
- * An unchecked exception thrown when {@link Os} methods fail. This exception contains the native
+ * A checked exception thrown when {@link Os} methods fail. This exception contains the native
  * errno value, for comparison against the constants in {@link OsConstants}, should sophisticated
  * callers need to adjust their behavior based on the exact failure.
  */
-public final class ErrnoException extends RuntimeException {
+public final class ErrnoException extends Exception {
     private final String functionName;
     public final int errno;
 

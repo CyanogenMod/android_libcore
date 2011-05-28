@@ -337,9 +337,9 @@ public final class DiskLruCache implements Closeable {
     private static void deleteIfExists(File file) throws IOException {
         try {
             Libcore.os.remove(file.getPath());
-        } catch (ErrnoException e) {
-            if (e.errno != OsConstants.ENOENT) {
-                throw e;
+        } catch (ErrnoException errnoException) {
+            if (errnoException.errno != OsConstants.ENOENT) {
+                throw errnoException.rethrowAsIOException();
             }
         }
     }

@@ -182,11 +182,11 @@ public class FileTest extends junit.framework.TestCase {
         assertEquals(target.getCanonicalPath(), linkName.getCanonicalPath());
     }
 
-    private static void ln_s(File target, File linkName) {
+    private static void ln_s(File target, File linkName) throws Exception {
         ln_s(target.toString(), linkName.toString());
     }
 
-    private static void ln_s(String target, String linkName) {
+    private static void ln_s(String target, String linkName) throws Exception {
         Libcore.os.symlink(target, linkName);
     }
 

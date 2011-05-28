@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 import libcore.io.BufferIterator;
+import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.MemoryMappedFile;
 
@@ -65,6 +66,15 @@ public final class ZoneInfoDB {
     private static final String VERSION = readVersion();
 
     /**
+     * Rather than open, read, and close the big data file each time we look up a time zone,
+     * we map the big data file during startup, and then just use the MemoryMappedFile.
+     *
+     * At the moment, this "big" data file is about 500 KiB. At some point, that will be small
+     * enough that we'll just keep the byte[] in memory.
+     */
+    private static final MemoryMappedFile ALL_ZONE_DATA = mapData();
+
+    /**
      * The 'ids' array contains time zone ids sorted alphabetically, for binary searching.
      * The other two arrays are in the same order. 'byteOffsets' gives the byte offset
      * into "zoneinfo.dat" of each time zone, and 'rawUtcOffsets' gives the time zone's
@@ -77,16 +87,8 @@ public final class ZoneInfoDB {
         readIndex();
     }
 
-    /**
-     * Rather than open, read, and close the big data file each time we look up a time zone,
-     * we map the big data file during startup, and then just use the MemoryMappedFile.
-     *
-     * At the moment, this "big" data file is about 500 KiB. At some point, that will be small
-     * enough that we'll just keep the byte[] in memory.
-     */
-    private static final MemoryMappedFile allZoneData = MemoryMappedFile.mmapRO(ZONE_FILE_NAME);
-
-    private ZoneInfoDB() {}
+    private ZoneInfoDB() {
+    }
 
     /**
      * Reads the file indicating the database version in use.
@@ -97,6 +99,14 @@ public final class ZoneInfoDB {
             return new String(bytes, 0, bytes.length, Charsets.ISO_8859_1).trim();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
+        }
+    }
+
+    private static MemoryMappedFile mapData() {
+        try {
+            return MemoryMappedFile.mmapRO(ZONE_FILE_NAME);
+        } catch (ErrnoException errnoException) {
+            throw new AssertionError(errnoException);
         }
     }
 
@@ -111,17 +121,18 @@ public final class ZoneInfoDB {
      * All this code assumes strings are US-ASCII.
      */
     private static void readIndex() {
-        MemoryMappedFile mappedFile = MemoryMappedFile.mmapRO(INDEX_FILE_NAME);
+        MemoryMappedFile mappedFile = null;
         try {
+            mappedFile = MemoryMappedFile.mmapRO(INDEX_FILE_NAME);
             readIndex(mappedFile);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+        } catch (Exception ex) {
+            throw new AssertionError(ex);
         } finally {
             IoUtils.closeQuietly(mappedFile);
         }
     }
 
-    private static void readIndex(MemoryMappedFile mappedFile) throws IOException {
+    private static void readIndex(MemoryMappedFile mappedFile) throws ErrnoException, IOException {
         BufferIterator it = mappedFile.bigEndianIterator();
 
         // The database reserves 40 bytes for each id.
@@ -176,7 +187,7 @@ public final class ZoneInfoDB {
             return null;
         }
 
-        BufferIterator data = allZoneData.bigEndianIterator();
+        BufferIterator data = ALL_ZONE_DATA.bigEndianIterator();
         data.skip(byteOffsets[index]);
 
         // Variable names beginning tzh_ correspond to those in "tzfile.h".
