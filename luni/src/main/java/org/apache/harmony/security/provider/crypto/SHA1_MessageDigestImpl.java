@@ -42,7 +42,7 @@ public class SHA1_MessageDigestImpl extends MessageDigestSpi implements Cloneabl
     private byte[] oneByte;      // one byte buffer needed to use in engineUpdate(byte)
                                  // having buffer as private field is just optimization
 
-    private int messageLength;   // total length of bytes supplied by user
+    private long messageLength;   // total length of bytes supplied by user
 
 
     /**
