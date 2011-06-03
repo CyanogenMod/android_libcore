@@ -70,7 +70,7 @@ public class ForwardingOs implements Os {
     public StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptTimeval(fd, level, option); }
     public int getuid() { return os.getuid(); }
     public String if_indextoname(int index) { return os.if_indextoname(index); }
-    public InetAddress inet_aton(String address) { return os.inet_aton(address); }
+    public InetAddress inet_pton(int family, String address) { return os.inet_pton(family, address); }
     public InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException { return os.ioctlInetAddress(fd, cmd, interfaceName); }
     public int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException { return os.ioctlInt(fd, cmd, arg); }
     public boolean isatty(FileDescriptor fd) { return os.isatty(fd); }

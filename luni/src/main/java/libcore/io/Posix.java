@@ -64,7 +64,7 @@ public final class Posix implements Os {
     public native StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native int getuid();
     public native String if_indextoname(int index);
-    public native InetAddress inet_aton(String address);
+    public native InetAddress inet_pton(int family, String address);
     public native InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException;
     public native int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException;
     public native boolean isatty(FileDescriptor fd);

@@ -742,18 +742,19 @@ static jstring Posix_if_indextoname(JNIEnv* env, jobject, jint index) {
     return env->NewStringUTF(name);
 }
 
-static jobject Posix_inet_aton(JNIEnv* env, jobject, jstring javaName) {
+static jobject Posix_inet_pton(JNIEnv* env, jobject, jint family, jstring javaName) {
     ScopedUtfChars name(env, javaName);
     if (name.c_str() == NULL) {
         return NULL;
     }
     sockaddr_storage ss;
     memset(&ss, 0, sizeof(ss));
-    sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(&ss);
-    if (inet_aton(name.c_str(), &sin->sin_addr) == 0) {
+    // sockaddr_in and sockaddr_in6 are at the same address, so we can use either here.
+    void* dst = &reinterpret_cast<sockaddr_in*>(&ss)->sin_addr;
+    if (inet_pton(family, name.c_str(), dst) != 1) {
         return NULL;
     }
-    sin->sin_family = AF_INET; // inet_aton only supports IPv4.
+    ss.ss_family = family;
     return sockaddrToInetAddress(env, &ss, NULL);
 }
 
@@ -1235,7 +1236,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, getsockoptTimeval, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructTimeval;"),
     NATIVE_METHOD(Posix, getuid, "()I"),
     NATIVE_METHOD(Posix, if_indextoname, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(Posix, inet_aton, "(Ljava/lang/String;)Ljava/net/InetAddress;"),
+    NATIVE_METHOD(Posix, inet_pton, "(ILjava/lang/String;)Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, ioctlInetAddress, "(Ljava/io/FileDescriptor;ILjava/lang/String;)Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, ioctlInt, "(Ljava/io/FileDescriptor;ILlibcore/util/MutableInt;)I"),
     NATIVE_METHOD(Posix, isatty, "(Ljava/io/FileDescriptor;)Z"),

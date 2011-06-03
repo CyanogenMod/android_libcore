@@ -62,7 +62,7 @@ public interface Os {
     public StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException;
     public int getuid();
     public String if_indextoname(int index);
-    public InetAddress inet_aton(String address);
+    public InetAddress inet_pton(int family, String address);
     public InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException;
     public int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException;
     public boolean isatty(FileDescriptor fd);
