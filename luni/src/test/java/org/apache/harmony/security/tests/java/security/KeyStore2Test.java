@@ -33,10 +33,8 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.Security;
 import java.security.SignatureException;
-import java.security.UnrecoverableEntryException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
@@ -45,7 +43,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.spec.DSAPrivateKeySpec;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Enumeration;
@@ -54,18 +51,17 @@ import java.util.Set;
 import tests.support.Support_TestProvider;
 
 public class KeyStore2Test extends junit.framework.TestCase {
-    static PrivateKey privateKey;
-    static {
-        try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
 
-            SecureRandom secureRandom = new SecureRandom();
-            keyPairGenerator.initialize(1024, secureRandom);
+    private static PrivateKey PRIVATE_KEY;
+
+    private static PrivateKey getPrivateKey() throws Exception {
+        if (PRIVATE_KEY == null) {
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
+            keyPairGenerator.initialize(1024, null);
             KeyPair keyPair = keyPairGenerator.genKeyPair();
-            privateKey = keyPair.getPrivate();
-        } catch (Exception e) {
-            fail("initialization failed: " + e);
+            PRIVATE_KEY = keyPair.getPrivate();
         }
+        return PRIVATE_KEY;
     }
 
     final char[] pssWord = { 'a', 'b', 'c' };
@@ -148,7 +144,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
         keyTest.setCertificateEntry("alias1", cert[0]);
 
         // alias 2
-        keyTest.setKeyEntry("alias2", privateKey, pssWord, cert);
+        keyTest.setKeyEntry("alias2", getPrivateKey(), pssWord, cert);
 
         // alias 3
         keyTest.setCertificateEntry("alias3", cert[1]);
@@ -175,9 +171,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         try {
             keyTest.aliases();
-            fail("expected KeyStoreException");
-        } catch (KeyStoreException e) {
-            // ok
+            fail();
+        } catch (KeyStoreException expected) {
         }
 
         keyTest.load(null, null);
@@ -221,9 +216,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         try {
             keyTest.containsAlias("alias1");
-            fail("expected KeyStoreException");
-        } catch (KeyStoreException e) {
-            // ok
+            fail();
+        } catch (KeyStoreException expected) {
         }
 
         keyTest.load(null, null);
@@ -240,9 +234,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         try {
             keyTest.containsAlias(null);
-            fail("expected NullPointerException");
-        } catch (NullPointerException e) {
-            // ok
+            fail();
+        } catch (NullPointerException expected) {
         }
     }
 
@@ -260,9 +253,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         try {
             keyTest.getCertificate("anAlias");
-            fail("expected KeyStoreException");
-        } catch (KeyStoreException e) {
-            // ok
+            fail();
+        } catch (KeyStoreException expected) {
         }
 
         keyTest.load(null, null);
@@ -308,7 +300,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         // key entry
 
-        keyTest.setKeyEntry("alias2", privateKey, pssWord, cert);
+        keyTest.setKeyEntry("alias2", getPrivateKey(), pssWord, cert);
         alias = keyTest.getCertificateAlias(cert[0]);
         assertEquals("key entry - the alias returned for this certificate was wrong",
                      "alias2", alias);
@@ -334,9 +326,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         try {
             keyTest.getCertificateChain("anAlias");
-            fail("expected KeyStoreException");
-        } catch (KeyStoreException e) {
-            // ok
+            fail();
+        } catch (KeyStoreException expected) {
         }
 
         keyTest.load(null, null);
@@ -345,7 +336,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
         keyTest.setCertificateEntry("alias1", cert[0]);
 
         // alias 2
-        keyTest.setKeyEntry("alias2", privateKey, pssWord, cert);
+        keyTest.setKeyEntry("alias2", getPrivateKey(), pssWord, cert);
 
         Certificate[] certRes = keyTest.getCertificateChain("alias2");
         assertEquals("there are more than two certificate returned from getCertificateChain",
@@ -360,9 +351,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         try {
             keyTest.getCertificateChain(null);
-            fail("expected NullPointerException");
-        } catch (NullPointerException e) {
-            // ok
+            fail();
+        } catch (NullPointerException expected) {
         }
 
     }
@@ -393,19 +383,18 @@ public class KeyStore2Test extends junit.framework.TestCase {
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
         keyTest.load(null, null);
 
-        keyTest.setKeyEntry("alias2", privateKey, pssWord, cert);
+        keyTest.setKeyEntry("alias2", getPrivateKey(), pssWord, cert);
         PrivateKey returnedKey = (PrivateKey) keyTest.getKey("alias2", pssWord);
         byte[] retB = returnedKey.getEncoded();
-        byte[] priB = privateKey.getEncoded();
+        byte[] priB = getPrivateKey().getEncoded();
         assertTrue(Arrays.equals(retB, priB));
-        assertEquals(privateKey.getAlgorithm(), returnedKey.getAlgorithm());
-        assertEquals(privateKey.getFormat(), returnedKey.getFormat());
+        assertEquals(getPrivateKey().getAlgorithm(), returnedKey.getAlgorithm());
+        assertEquals(getPrivateKey().getFormat(), returnedKey.getFormat());
 
         try {
             keyTest.getKey("alias2", "wrong".toCharArray());
-            fail("Should have thrown UnrecoverableKeyException");
-        } catch (UnrecoverableKeyException e) {
-            // expected
+            fail();
+        } catch (UnrecoverableKeyException expected) {
         }
 
         keyTest.setCertificateEntry("alias1", cert[1]);
@@ -428,9 +417,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         try {
             keyTest.isCertificateEntry("alias");
-            fail("expected KeyStoreException");
-        } catch (KeyStoreException e) {
-            // ok
+            fail();
+        } catch (KeyStoreException expected) {
         }
 
         keyTest.load(null, null);
@@ -438,7 +426,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
         keyTest.setCertificateEntry("alias1", cert[0]);
 
         // alias 2
-        keyTest.setKeyEntry("alias2", privateKey, pssWord, cert);
+        keyTest.setKeyEntry("alias2", getPrivateKey(), pssWord, cert);
 
         assertTrue("isCertificateEntry method returns false for a certificate",
                    keyTest.isCertificateEntry("alias1"));
@@ -460,9 +448,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         try {
             keyTest.isKeyEntry("alias");
-            fail("expected KeyStoreException");
-        } catch (KeyStoreException e) {
-            // ok
+            fail();
+        } catch (KeyStoreException expected) {
         }
 
         keyTest.load(null, null);
@@ -470,7 +457,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
         keyTest.setCertificateEntry("alias1", cert[0]);
 
         // alias 2
-        keyTest.setKeyEntry("alias2", privateKey, pssWord, cert);
+        keyTest.setKeyEntry("alias2", getPrivateKey(), pssWord, cert);
 
         assertTrue("isKeyEntry method returns false for a certificate",
                    keyTest.isKeyEntry("alias2"));
@@ -507,17 +494,10 @@ public class KeyStore2Test extends junit.framework.TestCase {
     /**
      * java.security.KeyStore#load(KeyStore.LoadStoreParameter param)
      */
-    public void test_loadLjava_security_KeyStoreLoadStoreParameter() {
-        try {
-            KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyTest.load(null);
-
-        } catch (Exception e ) {
-            fail("Unexpected Exception " + e);
-        }
-
-
+    public void test_loadLjava_security_KeyStoreLoadStoreParameter() throws Exception {
+        KeyStore.getInstance(KeyStore.getDefaultType()).load(null);
     }
+
     /**
      * java.security.KeyStore#setCertificateEntry(java.lang.String,
      *        java.security.cert.Certificate)
@@ -533,9 +513,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         try {
             keyTest.setCertificateEntry("alias", cert);
-            fail("expected KeyStoreException");
-        } catch (KeyStoreException e) {
-            // ok
+            fail();
+        } catch (KeyStoreException expected) {
         }
 
         keyTest.load(null, null);
@@ -570,23 +549,21 @@ public class KeyStore2Test extends junit.framework.TestCase {
         KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
 
         try {
-            keyTest.setKeyEntry("alias3", privateKey, pssWord, cert);
-            fail("expected KeyStoreException");
-        } catch (KeyStoreException e) {
-            // ok
+            keyTest.setKeyEntry("alias3", getPrivateKey(), pssWord, cert);
+            fail();
+        } catch (KeyStoreException expected) {
         }
 
         keyTest.load(null, null);
 
-        keyTest.setKeyEntry("alias3", privateKey, pssWord, cert);
+        keyTest.setKeyEntry("alias3", getPrivateKey(), pssWord, cert);
         assertTrue("the entry specified by the alias alias3 is not a keyEntry",
                    keyTest.isKeyEntry("alias3"));
 
         try {
-            keyTest.setKeyEntry("alias4", privateKey, pssWord, new Certificate[] {});
-            fail("expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // ok
+            keyTest.setKeyEntry("alias4", getPrivateKey(), pssWord, new Certificate[] {});
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
 
     }
@@ -605,9 +582,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         try {
             keyTest.size();
-            fail("expected KeyStoreException");
-        } catch (KeyStoreException e) {
-            // ok
+            fail();
+        } catch (KeyStoreException expected) {
         }
 
         keyTest.load(null, null);
@@ -615,7 +591,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
         keyTest.setCertificateEntry("alias1", cert[0]);
 
         // alias 2
-        keyTest.setKeyEntry("alias2", privateKey, pssWord, cert);
+        keyTest.setKeyEntry("alias2", getPrivateKey(), pssWord, cert);
 
         // alias 3
         keyTest.setCertificateEntry("alias3", cert[1]);
@@ -623,66 +599,41 @@ public class KeyStore2Test extends junit.framework.TestCase {
         assertEquals("the size of the keyStore is not 3", 3, keyTest.size());
     }
 
-    public void test_deleteEmptyEntry() {
-        try {
-            KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyTest.load(null, null);
-            keyTest.deleteEntry("");
-        } catch (Exception e) {
-            fail("Unexpected Exception " + e);
-        }
+    public void test_deleteEmptyEntryEmptyAlias() throws Exception {
+        KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyTest.load(null, null);
+        keyTest.deleteEntry("");
+    }
 
-        try {
-            KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyTest.load(null, null);
-            keyTest.deleteEntry("entry");
-        } catch (Exception e) {
-            fail("Unexpected Exception " + e);
-        }
+    public void test_deleteEmptyEntryBogusAlias() throws Exception {
+        KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyTest.load(null, null);
+        keyTest.deleteEntry("bogus");
     }
 
     /**
      * java.security.KeyStore#deleteEntry(String)
      */
-    public void test_deleteEntry() {
+    public void test_deleteEntry() throws Exception {
         try {
             KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
             keyTest.load(null, null);
             keyTest.deleteEntry(null);
-            fail("NullPointerException expected");
-        } catch (NullPointerException e) {
-            // expected
-        } catch (Exception e) {
-            fail("Unexpected Exception " + e);
+            fail();
+        } catch (NullPointerException expected) {
         }
 
-        try {
-            KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyTest.load(null, "password".toCharArray());
+        KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyTest.load(null, "password".toCharArray());
 
-            KeyStore.PasswordProtection pp = new KeyStore.PasswordProtection(
-                    pssWord);
-            Certificate[] chain = { new MyCertificate("DSA", testEncoding),
-                    new MyCertificate("DSA", testEncoding) };
-            KeyStore.PrivateKeyEntry pkEntry = new KeyStore.PrivateKeyEntry(
-                    privateKey, chain);
+        KeyStore.PasswordProtection pp = new KeyStore.PasswordProtection(pssWord);
+        Certificate[] chain = { new MyCertificate("DSA", testEncoding),
+                                new MyCertificate("DSA", testEncoding) };
+        KeyStore.PrivateKeyEntry pkEntry = new KeyStore.PrivateKeyEntry(getPrivateKey(), chain);
 
-            keyTest.setEntry("symKey", pkEntry, pp);
+        keyTest.setEntry("symKey", pkEntry, pp);
 
-            keyTest.deleteEntry("symKey");
-
-        } catch (KeyStoreException e) {
-            fail("Unexpected KeyStoreException " + e.getMessage());
-        } catch (IOException e) {
-            fail("Unexpected IOException " + e.getMessage());
-        } catch (NoSuchAlgorithmException e) {
-            fail("Unexpected NoSuchAlgorithmException " + e.getMessage());
-        } catch (CertificateException e) {
-            fail("Unexpected CertificateException " + e.getMessage());
-        } catch (Exception e) {
-            fail("Unexpected Exception " + e);
-        }
-
+        keyTest.deleteEntry("symKey");
     }
 
     /**
@@ -695,9 +646,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         try {
             keyTest.getCreationDate("anAlias");
-            fail("expected KeyStoreException");
-        } catch (KeyStoreException e) {
-            // ok
+            fail();
+        } catch (KeyStoreException expected) {
         }
 
         keyTest.load(null, pssWord);
@@ -705,9 +655,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
         assertNull(keyTest.getCreationDate(""));
         try {
             keyTest.getCreationDate(null);
-            fail("NullPointerException expected");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         Certificate[] chain = { new MyCertificate(type, testEncoding),
@@ -718,7 +667,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         KeyStore.PasswordProtection pp = new KeyStore.PasswordProtection(
                 pssWord);
-        KeyStore.PrivateKeyEntry pke = new KeyStore.PrivateKeyEntry(privateKey,
+        KeyStore.PrivateKeyEntry pke = new KeyStore.PrivateKeyEntry(getPrivateKey(),
                 chain);
         KeyStore.PrivateKeyEntry pke1 = new KeyStore.PrivateKeyEntry(
                 privateKey1, chain);
@@ -733,8 +682,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
         int hourExpected = Calendar.getInstance().get(Calendar.HOUR);
         int minuteExpected = Calendar.getInstance().get(Calendar.MINUTE);
 
-        Calendar.getInstance().setTimeInMillis(
-                keyTest.getCreationDate("alias1").getTime());
+        Calendar.getInstance().setTimeInMillis(keyTest.getCreationDate("alias1").getTime());
         int dayActual1 = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
         int monthActual1 = Calendar.getInstance().get(Calendar.MONTH);
         int yearActual1 = Calendar.getInstance().get(Calendar.YEAR);
@@ -763,9 +711,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         try {
             keyTest.getCreationDate(null);
-            fail("expected NullPointerException");
-        } catch (NullPointerException e) {
-            // ok
+            fail();
+        } catch (NullPointerException expected) {
         }
     }
 
@@ -773,268 +720,145 @@ public class KeyStore2Test extends junit.framework.TestCase {
      * java.security.KeyStore#getEntry(String,
      *        KeyStore.ProtectionParameter)
      */
-    public void test_getEntry() {
+    public void test_getEntry() throws Exception {
         String type = "DSA";
-        KeyStore keyTest = null;
-        KeyStore.PasswordProtection pp = null;
 
-            try {
-                keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-            } catch (KeyStoreException e) {
-                fail("unexpected exception: " + e);
-            }
+        KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
 
-            try {
-                keyTest.getEntry("anAlias", new KeyStore.PasswordProtection(new char[] {}));
-                fail("expected KeyStoreException");
-            } catch (KeyStoreException e) {
-                // ok
-            } catch (NoSuchAlgorithmException e) {
-                fail("unexpected exception: " + e);
-            } catch (UnrecoverableEntryException e) {
-                fail("unexpected exception: " + e);
-            }
+        try {
+            keyTest.getEntry("anAlias", new KeyStore.PasswordProtection(new char[] {}));
+            fail();
+        } catch (KeyStoreException expected) {
+        }
 
-            try {
-                keyTest.load(null, pssWord);
-            } catch (NoSuchAlgorithmException e) {
-                fail("unexpected exception: " + e);
-            } catch (CertificateException e) {
-                fail("unexpected exception: " + e);
-            } catch (IOException e) {
-                fail("unexpected exception: " + e);
-            }
+        keyTest.load(null, pssWord);
 
-            try {
-                keyTest.getEntry(null, new KeyStore.PasswordProtection(new char[] {}));
-                fail("expected NullPointerException");
-            } catch (NullPointerException e) {
-                // ok
-            } catch (NoSuchAlgorithmException e) {
-                fail("unexpected exception: " + e);
-            } catch (UnrecoverableEntryException e) {
-                fail("unexpected exception: " + e);
-            } catch (KeyStoreException e) {
-                fail("unexpected exception: " + e);
-            }
+        try {
+            keyTest.getEntry(null, new KeyStore.PasswordProtection(new char[] {}));
+            fail();
+        } catch (NullPointerException expected) {
+        }
 
-            try {
-                keyTest.getEntry("anAlias", null);
-            } catch (NullPointerException e) {
-                fail("unexpected exception: " + e);
-            } catch (NoSuchAlgorithmException e) {
-                fail("unexpected exception: " + e);
-            } catch (UnrecoverableEntryException e) {
-                fail("unexpected exception: " + e);
-            } catch (KeyStoreException e) {
-                fail("unexpected exception: " + e);
-            }
+        keyTest.getEntry("anAlias", null);
 
-            try {
-                keyTest.getEntry(null, null);
-                fail("expected NullPointerException");
-            } catch (NullPointerException e) {
-                // ok
-            } catch (NoSuchAlgorithmException e) {
-                fail("unexpected exception: " + e);
-            } catch (UnrecoverableEntryException e) {
-                fail("unexpected exception: " + e);
-            } catch (KeyStoreException e) {
-                fail("unexpected exception: " + e);
-            }
+        try {
+            keyTest.getEntry(null, null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
 
 
-            try {
-                assertNull(keyTest.getEntry("alias", pp));
-            } catch (NoSuchAlgorithmException e) {
-                fail("unexpected exception: " + e);
-            } catch (UnrecoverableEntryException e) {
-                fail("unexpected exception: " + e);
-            } catch (KeyStoreException e) {
-                fail("unexpected exception: " + e);
-            }
+        assertNull(keyTest.getEntry("alias", null));
 
-            Certificate[] chain = { new MyCertificate(type, testEncoding),
-                    new MyCertificate(type, testEncoding) };
+        Certificate[] chain = { new MyCertificate(type, testEncoding),
+                                new MyCertificate(type, testEncoding) };
 
-            DSAPrivateKey privateKey1 = null;
-            try {
-                privateKey1 = (DSAPrivateKey) KeyFactory.getInstance(type)
-                        .generatePrivate(
-                                new DSAPrivateKeySpec(new BigInteger("1"),
-                                        new BigInteger("2"), new BigInteger("3"),
-                                        new BigInteger("4")));
-            } catch (InvalidKeySpecException e) {
-                fail("unexpected exception: " + e);
-            } catch (NoSuchAlgorithmException e) {
-                fail("unexpected exception: " + e);
-            }
+        DSAPrivateKey privateKey1 = (DSAPrivateKey)
+                KeyFactory.getInstance(type).generatePrivate(
+                        new DSAPrivateKeySpec(new BigInteger("1"),
+                                              new BigInteger("2"),
+                                              new BigInteger("3"),
+                                              new BigInteger("4")));
 
-            pp = new KeyStore.PasswordProtection(pssWord);
+        KeyStore.PasswordProtection pp = new KeyStore.PasswordProtection(pssWord);
+        assertNull(keyTest.getEntry("alias", pp));
 
-            try {
-                assertNull(keyTest.getEntry("alias", pp));
-            } catch (NoSuchAlgorithmException e) {
-                fail("unexpected exception: " + e);
-            } catch (UnrecoverableEntryException e) {
-                fail("unexpected exception: " + e);
-            } catch (KeyStoreException e) {
-                fail("unexpected exception: " + e);
-            }
+        KeyStore.PrivateKeyEntry pke1 = new KeyStore.PrivateKeyEntry(getPrivateKey(), chain);
+        KeyStore.PrivateKeyEntry pke2 = new KeyStore.PrivateKeyEntry(privateKey1, chain);
 
-            KeyStore.PrivateKeyEntry pke1 = new KeyStore.PrivateKeyEntry(
-                    privateKey, chain);
-            KeyStore.PrivateKeyEntry pke2 = new KeyStore.PrivateKeyEntry(
-                    privateKey1, chain);
+        keyTest.setEntry("alias1", pke1, pp);
+        keyTest.setEntry("alias2", pke2, pp);
 
-            try {
-                keyTest.setEntry("alias1", pke1, pp);
-            } catch (KeyStoreException e) {
-                fail("unexpected exception: " + e);
-            }
-            try {
-                keyTest.setEntry("alias2", pke2, pp);
-            } catch (KeyStoreException e) {
-                fail("unexpected exception: " + e);
-            }
+        assertNull(keyTest.getEntry("alias", pp));
+        KeyStore.PrivateKeyEntry pkeActual1 = (KeyStore.PrivateKeyEntry) keyTest.getEntry("alias1",
+                                                                                          pp);
+        KeyStore.PrivateKeyEntry pkeActual2 = (KeyStore.PrivateKeyEntry) keyTest.getEntry("alias2",
+                                                                                          pp);
 
-            try {
-                assertNull(keyTest.getEntry("alias", pp));
-            } catch (NoSuchAlgorithmException e) {
-                fail("unexpected exception: " + e);
-            } catch (UnrecoverableEntryException e) {
-                fail("unexpected exception: " + e);
-            } catch (KeyStoreException e) {
-                fail("unexpected exception: " + e);
-            }
-            KeyStore.PrivateKeyEntry pkeActual1 = null;
-            try {
-                pkeActual1 = (KeyStore.PrivateKeyEntry) keyTest.getEntry("alias1", pp);
-            } catch (NoSuchAlgorithmException e) {
-                fail("unexpected exception: " + e);
-            } catch (UnrecoverableEntryException e) {
-                fail("unexpected exception: " + e);
-            } catch (KeyStoreException e) {
-                fail("unexpected exception: " + e);
-            }
-            KeyStore.PrivateKeyEntry pkeActual2 = null;
-            try {
-                pkeActual2 = (KeyStore.PrivateKeyEntry) keyTest.getEntry("alias2", pp);
-            } catch (NoSuchAlgorithmException e) {
-                fail("unexpected exception: " + e);
-            } catch (UnrecoverableEntryException e) {
-                fail("unexpected exception: " + e);
-            } catch (KeyStoreException e) {
-                fail("unexpected exception: " + e);
-            }
+        assertTrue(Arrays.equals(chain, pkeActual1.getCertificateChain()));
+        assertEquals(getPrivateKey(), pkeActual1.getPrivateKey());
+        assertEquals(new MyCertificate(type, testEncoding), pkeActual1.getCertificate());
+        assertTrue(keyTest.entryInstanceOf("alias1", KeyStore.PrivateKeyEntry.class));
 
-            assertTrue(Arrays.equals(chain, pkeActual1.getCertificateChain()));
-            assertEquals(privateKey, pkeActual1.getPrivateKey());
-            assertEquals(new MyCertificate(type, testEncoding), pkeActual1.getCertificate());
-            try {
-                assertTrue(keyTest.entryInstanceOf("alias1", KeyStore.PrivateKeyEntry.class));
-            } catch (KeyStoreException e) {
-                fail("unexpected exception: " + e);
-            }
+        assertTrue(Arrays.equals(chain, pkeActual2.getCertificateChain()));
+        DSAPrivateKey entryPrivateKey = (DSAPrivateKey) pkeActual2.getPrivateKey();
+        assertEquals(privateKey1.getX(), entryPrivateKey.getX());
+        assertEquals(privateKey1.getParams().getG(), entryPrivateKey.getParams().getG());
+        assertEquals(privateKey1.getParams().getP(), entryPrivateKey.getParams().getP());
+        assertEquals(privateKey1.getParams().getQ(), entryPrivateKey.getParams().getQ());
 
-            assertTrue(Arrays.equals(chain, pkeActual2.getCertificateChain()));
-            DSAPrivateKey entryPrivateKey = (DSAPrivateKey) pkeActual2.getPrivateKey();
-            assertEquals(privateKey1.getX(), entryPrivateKey.getX());
-            assertEquals(privateKey1.getParams().getG(), entryPrivateKey.getParams().getG());
-            assertEquals(privateKey1.getParams().getP(), entryPrivateKey.getParams().getP());
-            assertEquals(privateKey1.getParams().getQ(), entryPrivateKey.getParams().getQ());
-
-            assertEquals(new MyCertificate(type, testEncoding), pkeActual2.getCertificate());
-            try {
-                assertTrue(keyTest.entryInstanceOf("alias2", KeyStore.PrivateKeyEntry.class));
-            } catch (KeyStoreException e) {
-                fail("unexpected exception: " + e);
-            }
-
-
-
+        assertEquals(new MyCertificate(type, testEncoding), pkeActual2.getCertificate());
+        assertTrue(keyTest.entryInstanceOf("alias2", KeyStore.PrivateKeyEntry.class));
     }
 
     /**
      * java.security.KeyStore#setEntry(String, KeyStore.Entry,
      *        KeyStore.ProtectionParameter)
      */
-    public void test_setEntry() {
+    public void test_setEntry() throws Exception {
         String type = "DSA";
-        KeyStore keyTest = null;
-        KeyStore.PasswordProtection pp = null;
+
+        KeyStore keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyTest.load(null, pssWord);
+
+        Certificate[] chain = { new MyCertificate(type, testEncoding),
+                                new MyCertificate(type, testEncoding) };
+        DSAPrivateKey privateKey1 = (DSAPrivateKey)
+                KeyFactory.getInstance(type).generatePrivate(
+                        new DSAPrivateKeySpec(new BigInteger("1"),
+                                              new BigInteger("2"),
+                                              new BigInteger("3"),
+                                              new BigInteger("4")));
+
+        KeyStore.PasswordProtection pp = new KeyStore.PasswordProtection(pssWord);
+        KeyStore.PrivateKeyEntry pke = new KeyStore.PrivateKeyEntry(getPrivateKey(), chain);
+        KeyStore.PrivateKeyEntry pke1 = new KeyStore.PrivateKeyEntry(privateKey1, chain);
 
         try {
-            keyTest = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyTest.load(null, pssWord);
-
-            Certificate[] chain = { new MyCertificate(type, testEncoding),
-                    new MyCertificate(type, testEncoding) };
-            DSAPrivateKey privateKey1 = (DSAPrivateKey) KeyFactory.getInstance(type)
-                    .generatePrivate(
-                            new DSAPrivateKeySpec(new BigInteger("1"),
-                                    new BigInteger("2"), new BigInteger("3"),
-                                    new BigInteger("4")));
-
-            pp = new KeyStore.PasswordProtection(pssWord);
-            KeyStore.PrivateKeyEntry pke = new KeyStore.PrivateKeyEntry(privateKey, chain);
-            KeyStore.PrivateKeyEntry pke1 = new KeyStore.PrivateKeyEntry(privateKey1, chain);
-
-            try {
-                keyTest.setEntry("alias", pke, null);
-                fail("Exception expected");
-            } catch (Exception e) {
-                // expected
-            }
-
-            keyTest.setEntry("alias", pke, pp);
-
-            KeyStore.PrivateKeyEntry pkeActual = (KeyStore.PrivateKeyEntry)
-                    keyTest.getEntry("alias",pp);
-
-            assertTrue(Arrays.equals(chain, pkeActual.getCertificateChain()));
-            assertEquals(privateKey, pkeActual.getPrivateKey());
-            assertEquals(new MyCertificate(type, testEncoding), pkeActual.getCertificate());
-            assertTrue(keyTest.entryInstanceOf("alias", KeyStore.PrivateKeyEntry.class));
-
-            keyTest.setEntry("alias", pke1, pp);
-            pkeActual = (KeyStore.PrivateKeyEntry) keyTest.getEntry("alias", pp);
-
-            assertTrue(Arrays.equals(chain, pkeActual.getCertificateChain()));
-            DSAPrivateKey actualPrivateKey = (DSAPrivateKey) pkeActual.getPrivateKey();
-            assertEquals(privateKey1.getX(), actualPrivateKey.getX());
-            assertEquals(privateKey1.getParams().getG(), actualPrivateKey.getParams().getG());
-            assertEquals(privateKey1.getParams().getP(), actualPrivateKey.getParams().getP());
-            assertEquals(privateKey1.getParams().getQ(), actualPrivateKey.getParams().getQ());
-            assertEquals(new MyCertificate(type, testEncoding), pkeActual.getCertificate());
-            assertTrue(keyTest.entryInstanceOf("alias", KeyStore.PrivateKeyEntry.class));
-
-            keyTest.setEntry("alias2", pke1, pp);
-            pkeActual = (KeyStore.PrivateKeyEntry) keyTest.getEntry("alias2", pp);
-
-            assertTrue(Arrays.equals(chain, pkeActual.getCertificateChain()));
-            actualPrivateKey = (DSAPrivateKey) pkeActual.getPrivateKey();
-            assertEquals(privateKey1.getX(), actualPrivateKey.getX());
-            assertEquals(privateKey1.getParams().getG(), actualPrivateKey.getParams().getG());
-            assertEquals(privateKey1.getParams().getP(), actualPrivateKey.getParams().getP());
-            assertEquals(privateKey1.getParams().getQ(), actualPrivateKey.getParams().getQ());
-            assertEquals(new MyCertificate(type, testEncoding), pkeActual.getCertificate());
-            assertTrue(keyTest.entryInstanceOf("alias2", KeyStore.PrivateKeyEntry.class));
-
-        } catch (Exception e) {
-            fail("Unexpected Exception " + e);
+            keyTest.setEntry("alias", pke, null);
+            fail();
+        } catch (Exception expected) {
         }
 
+        keyTest.setEntry("alias", pke, pp);
+
+        KeyStore.PrivateKeyEntry pkeActual = (KeyStore.PrivateKeyEntry)
+                keyTest.getEntry("alias",pp);
+
+        assertTrue(Arrays.equals(chain, pkeActual.getCertificateChain()));
+        assertEquals(getPrivateKey(), pkeActual.getPrivateKey());
+        assertEquals(new MyCertificate(type, testEncoding), pkeActual.getCertificate());
+        assertTrue(keyTest.entryInstanceOf("alias", KeyStore.PrivateKeyEntry.class));
+
+        keyTest.setEntry("alias", pke1, pp);
+        pkeActual = (KeyStore.PrivateKeyEntry) keyTest.getEntry("alias", pp);
+
+        assertTrue(Arrays.equals(chain, pkeActual.getCertificateChain()));
+        DSAPrivateKey actualPrivateKey = (DSAPrivateKey) pkeActual.getPrivateKey();
+        assertEquals(privateKey1.getX(), actualPrivateKey.getX());
+        assertEquals(privateKey1.getParams().getG(), actualPrivateKey.getParams().getG());
+        assertEquals(privateKey1.getParams().getP(), actualPrivateKey.getParams().getP());
+        assertEquals(privateKey1.getParams().getQ(), actualPrivateKey.getParams().getQ());
+        assertEquals(new MyCertificate(type, testEncoding), pkeActual.getCertificate());
+        assertTrue(keyTest.entryInstanceOf("alias", KeyStore.PrivateKeyEntry.class));
+
+        keyTest.setEntry("alias2", pke1, pp);
+        pkeActual = (KeyStore.PrivateKeyEntry) keyTest.getEntry("alias2", pp);
+
+        assertTrue(Arrays.equals(chain, pkeActual.getCertificateChain()));
+        actualPrivateKey = (DSAPrivateKey) pkeActual.getPrivateKey();
+        assertEquals(privateKey1.getX(), actualPrivateKey.getX());
+        assertEquals(privateKey1.getParams().getG(), actualPrivateKey.getParams().getG());
+        assertEquals(privateKey1.getParams().getP(), actualPrivateKey.getParams().getP());
+        assertEquals(privateKey1.getParams().getQ(), actualPrivateKey.getParams().getQ());
+        assertEquals(new MyCertificate(type, testEncoding), pkeActual.getCertificate());
+        assertTrue(keyTest.entryInstanceOf("alias2", KeyStore.PrivateKeyEntry.class));
 
         try {
             keyTest.setEntry(null, null, null);
-            fail("NullPointerException expected");
-        } catch (NullPointerException e) {
-            // expected
-        } catch (Exception e) {
-            fail("Unexpected exception");
+            fail();
+        } catch (NullPointerException expected) {
         }
-
     }
 
     /*
@@ -1047,9 +871,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         try {
             keyStore.entryInstanceOf("anAlias", KeyStore.SecretKeyEntry.class);
-            fail("expected KeyStoreException");
-        } catch (KeyStoreException e) {
-            // ok
+            fail();
+        } catch (KeyStoreException expected) {
         }
 
         keyStore.load(null, "pwd".toCharArray());
@@ -1059,23 +882,20 @@ public class KeyStore2Test extends junit.framework.TestCase {
         Certificate[] chain = { new MyCertificate("DSA", testEncoding),
                 new MyCertificate("DSA", testEncoding) };
 
-        keyStore.setKeyEntry(alias, privateKey, "pwd".toCharArray(), chain);
+        keyStore.setKeyEntry(alias, getPrivateKey(), "pwd".toCharArray(), chain);
         assertTrue(keyStore.entryInstanceOf(alias, KeyStore.PrivateKeyEntry.class));
         assertFalse(keyStore.entryInstanceOf(alias, KeyStore.SecretKeyEntry.class));
         assertFalse(keyStore.entryInstanceOf(alias, KeyStore.TrustedCertificateEntry.class));
 
         try {
             keyStore.entryInstanceOf(null, KeyStore.SecretKeyEntry.class);
-            fail("expected NullPointerException");
-        } catch (NullPointerException e) {
-            // ok
+        } catch (NullPointerException expected) {
         }
 
         try {
             keyStore.entryInstanceOf("anAlias", null);
-            fail("expected NullPointerException");
-        } catch (NullPointerException e) {
-            // ok
+            fail();
+        } catch (NullPointerException expected) {
         }
     }
 
@@ -1088,9 +908,8 @@ public class KeyStore2Test extends junit.framework.TestCase {
         keyStore.load(null, "pwd".toCharArray());
         try {
             keyStore.store(null);
-            fail("UnsupportedOperationException expected");
-        } catch (UnsupportedOperationException e) {
-            // expected
+            fail();
+        } catch (UnsupportedOperationException expected) {
         }
     }
 
@@ -1102,21 +921,15 @@ public class KeyStore2Test extends junit.framework.TestCase {
 
         try {
             keyStore.store(new ByteArrayOutputStream(), "pwd".toCharArray());
-            fail("expected KeyStoreException");
-        } catch (KeyStoreException e) {
-            // ok
+        } catch (KeyStoreException expected) {
         }
 
         keyStore.load(null, "pwd".toCharArray());
         try {
             keyStore.store(null, "pwd".toCharArray());
-            fail("NullPointerException or IOException expected");
-        } catch (NullPointerException e) {
-            // expected
-        } catch (IOException e) {
-            // also ok
-        } catch (Exception e) {
-            fail("Unexpected Exception " + e);
+            fail();
+        } catch (NullPointerException expected) {
+        } catch (IOException expected) {
         }
     }
 

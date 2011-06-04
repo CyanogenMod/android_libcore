@@ -39,18 +39,17 @@ import libcore.java.security.TestKeyStore;
 
 public class KeyManagerFactoryTest extends TestCase {
 
-    // note the rare usage of DSA keys here in addition to RSA
-    private static final TestKeyStore TEST_KEY_STORE;
+    private static TestKeyStore TEST_KEY_STORE;
 
-    static {
-        try {
+    // note the rare usage of DSA keys here in addition to RSA
+    private static TestKeyStore getTestKeyStore() throws Exception {
+        if (TEST_KEY_STORE == null) {
             TEST_KEY_STORE = new TestKeyStore.Builder()
                     .keyAlgorithms("RSA", "DSA", "EC", "EC_RSA")
                     .aliasPrefix("rsa-dsa-ec")
                     .build();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
+        return TEST_KEY_STORE;
     }
 
     public void test_KeyManagerFactory_getDefaultAlgorithm() throws Exception {
@@ -102,8 +101,8 @@ public class KeyManagerFactoryTest extends TestCase {
         }
 
         // init with KeyStoreBuilderParameters ManagerFactoryParameters
-        PasswordProtection pp = new PasswordProtection(TEST_KEY_STORE.storePassword);
-        Builder builder = Builder.newInstance(TEST_KEY_STORE.keyStore, pp);
+        PasswordProtection pp = new PasswordProtection(getTestKeyStore().storePassword);
+        Builder builder = Builder.newInstance(getTestKeyStore().keyStore, pp);
         KeyStoreBuilderParameters ksbp = new KeyStoreBuilderParameters(builder);
         if (supportsManagerFactoryParameters(kmf.getAlgorithm())) {
             kmf.init(ksbp);
@@ -121,7 +120,7 @@ public class KeyManagerFactoryTest extends TestCase {
         test_KeyManagerFactory_getKeyManagers(kmf, true);
 
         // init with specific key store and password
-        kmf.init(TEST_KEY_STORE.keyStore, TEST_KEY_STORE.storePassword);
+        kmf.init(getTestKeyStore().keyStore, getTestKeyStore().storePassword);
         test_KeyManagerFactory_getKeyManagers(kmf, false);
     }
 
@@ -252,7 +251,7 @@ public class KeyManagerFactoryTest extends TestCase {
             }
         }
 
-        PrivateKeyEntry privateKeyEntry = TEST_KEY_STORE.getPrivateKey(keyAlgName, sigAlgName);
+        PrivateKeyEntry privateKeyEntry = getTestKeyStore().getPrivateKey(keyAlgName, sigAlgName);
         if (!"EC".equals(keyAlgName)) {
             assertEquals(keyType,
                          Arrays.<Certificate>asList(privateKeyEntry.getCertificateChain()),

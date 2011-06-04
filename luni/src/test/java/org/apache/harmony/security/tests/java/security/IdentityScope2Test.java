@@ -30,13 +30,12 @@ import org.apache.harmony.security.tests.java.security.Identity2Test.IdentitySub
 @SuppressWarnings("deprecation")
 public class IdentityScope2Test extends junit.framework.TestCase {
 
-    static PublicKey pubKey;
-    static {
-        try {
-            pubKey = KeyPairGenerator.getInstance("DSA").genKeyPair().getPublic();
-        } catch (Exception e) {
-            fail(e.toString());
+    private static PublicKey PUB_KEY;
+    private static PublicKey getPubKey() throws Exception {
+        if (PUB_KEY == null) {
+            PUB_KEY = KeyPairGenerator.getInstance("DSA").genKeyPair().getPublic();
         }
+        return PUB_KEY;
     }
 
     public static class IdentityScopeSubclass extends IdentityScope {
@@ -181,52 +180,50 @@ public class IdentityScope2Test extends junit.framework.TestCase {
      * java.security.IdentityScope#addIdentity(java.security.Identity)
      */
     public void test_addIdentityLjava_security_Identity() throws Exception {
-               IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
-                       new IdentityScopeSubclass());
-               Identity id = new IdentitySubclass("id1");
-               id.setPublicKey(pubKey);
-               sub.addIdentity(id);
-               try {
-                   Identity id2 = new IdentitySubclass("id2");
-                   id2.setPublicKey(pubKey);
-                   sub.addIdentity(id2);
-                   fail("KeyManagementException should have been thrown");
-               } catch (KeyManagementException e) {
-                   // Expected
-               }
+        IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
+                                                              new IdentityScopeSubclass());
+        Identity id = new IdentitySubclass("id1");
+        id.setPublicKey(getPubKey());
+        sub.addIdentity(id);
+        try {
+            Identity id2 = new IdentitySubclass("id2");
+            id2.setPublicKey(getPubKey());
+            sub.addIdentity(id2);
+            fail("KeyManagementException should have been thrown");
+        } catch (KeyManagementException e) {
+            // Expected
+        }
     }
 
     /**
      * java.security.IdentityScope#removeIdentity(java.security.Identity)
      */
     public void test_removeIdentityLjava_security_Identity() throws Exception {
-               IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
-                       new IdentityScopeSubclass());
-               Identity id = new IdentitySubclass();
-               id.setPublicKey(pubKey);
-               sub.addIdentity(id);
-               sub.removeIdentity(id);
-               try {
-                   sub.removeIdentity(id);
-                   fail("KeyManagementException should have been thrown");
-               } catch (KeyManagementException e) {
-                   // expected
-               }
+        IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
+                                                              new IdentityScopeSubclass());
+        Identity id = new IdentitySubclass();
+        id.setPublicKey(getPubKey());
+        sub.addIdentity(id);
+        sub.removeIdentity(id);
+        try {
+            sub.removeIdentity(id);
+            fail("KeyManagementException should have been thrown");
+        } catch (KeyManagementException expected) {
+        }
     }
 
     /**
      * java.security.IdentityScope#identities()
      */
     public void test_identities() throws Exception {
-               IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
-                       new IdentityScopeSubclass());
-               Identity id = new IdentitySubclass();
-               id.setPublicKey(pubKey);
-               sub.addIdentity(id);
-               Enumeration<Identity> en = sub.identities();
-               assertTrue("Wrong object contained in identities", en.nextElement()
-                       .equals(id));
-               assertTrue("Contains too many elements", !en.hasMoreElements());
+        IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
+                                                              new IdentityScopeSubclass());
+        Identity id = new IdentitySubclass();
+        id.setPublicKey(getPubKey());
+        sub.addIdentity(id);
+        Enumeration<Identity> en = sub.identities();
+        assertEquals("Wrong object contained in identities", en.nextElement(), id);
+        assertFalse("Contains too many elements", en.hasMoreElements());
     }
 
     /**
@@ -234,33 +231,29 @@ public class IdentityScope2Test extends junit.framework.TestCase {
      */
     public void test_getIdentityLjava_security_Principal() throws Exception {
         Identity id = new IdentitySubclass("principal name");
-        id.setPublicKey(pubKey);
+        id.setPublicKey(getPubKey());
         IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
                 new IdentityScopeSubclass());
 
         try {
             sub.getIdentity((java.security.Principal) null);
             fail("Test 1: NullPointerException expected.");
-        } catch (NullPointerException e) {
-            // Expected.
+        } catch (NullPointerException expected) {
         }
 
         sub.addIdentity(id);
         Identity returnedId = sub.getIdentity(id);
-        assertEquals("Test 2: Returned Identity not the same as the added one;",
-                id, returnedId);
+        assertEquals("Test 2: Returned Identity not the same as the added one;", id, returnedId);
 
         Identity id2 = new IdentitySubclass("Another identity");
-        id2.setPublicKey(pubKey);
+        id2.setPublicKey(getPubKey());
 
-        assertNull("Test 3: Null value expected.",
-                sub.getIdentity(id2));
+        assertNull("Test 3: Null value expected.", sub.getIdentity(id2));
 
         try {
             sub.getIdentity((java.security.Principal) null);
             fail("Test 4: NullPointerException expected.");
-        } catch (NullPointerException e) {
-            // Expected.
+        } catch (NullPointerException expected) {
         }
 
     }
@@ -272,18 +265,15 @@ public class IdentityScope2Test extends junit.framework.TestCase {
         IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
                 new IdentityScopeSubclass());
         Identity id = new IdentitySubclass();
-        id.setPublicKey(pubKey);
+        id.setPublicKey(getPubKey());
         sub.addIdentity(id);
-        Identity returnedId = sub.getIdentity(pubKey);
-        assertEquals("Test 1: Returned Identity not the same as the added one;",
-                id, returnedId);
+        Identity returnedId = sub.getIdentity(getPubKey());
+        assertEquals("Test 1: Returned Identity not the same as the added one;", id, returnedId);
 
-        assertNull("Test 2: Null value expected.",
-                sub.getIdentity((PublicKey) null));
+        assertNull("Test 2: Null value expected.", sub.getIdentity((PublicKey) null));
 
         PublicKey anotherKey = KeyPairGenerator.getInstance("DSA").genKeyPair().getPublic();
-        assertNull("Test 3: Null value expected.",
-                sub.getIdentity(anotherKey));
+        assertNull("Test 3: Null value expected.", sub.getIdentity(anotherKey));
     }
 
     /**
@@ -293,36 +283,35 @@ public class IdentityScope2Test extends junit.framework.TestCase {
                IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
                        new IdentityScopeSubclass());
                Identity id = new IdentitySubclass("test");
-               id.setPublicKey(pubKey);
+               id.setPublicKey(getPubKey());
                sub.addIdentity(id);
                Identity returnedId = sub.getIdentity("test");
-               assertEquals("Returned Identity not the same as the added one", id,
-                       returnedId);
+               assertEquals("Returned Identity not the same as the added one", id, returnedId);
     }
 
     /**
      * java.security.IdentityScope#size()
      */
     public void test_size() throws Exception {
-               IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
-                       new IdentityScopeSubclass());
-               Identity id = new IdentitySubclass();
-               id.setPublicKey(pubKey);
-               sub.addIdentity(id);
-               assertEquals("Wrong size", 1, sub.size());
+        IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
+                                                              new IdentityScopeSubclass());
+        Identity id = new IdentitySubclass();
+        id.setPublicKey(getPubKey());
+        sub.addIdentity(id);
+        assertEquals("Wrong size", 1, sub.size());
     }
 
     /**
      * java.security.IdentityScope#toString()
      */
     public void test_toString() throws Exception {
-            IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
-                    new IdentityScopeSubclass());
-            Identity id = new IdentitySubclass();
-            id.setPublicKey(pubKey);
-            sub.addIdentity(id);
-            assertNotNull("toString returned a null", sub.toString());
-            assertTrue("Not a valid String ", sub.toString().length() > 0);
+        IdentityScopeSubclass sub = new IdentityScopeSubclass("test",
+                                                              new IdentityScopeSubclass());
+        Identity id = new IdentitySubclass();
+        id.setPublicKey(getPubKey());
+        sub.addIdentity(id);
+        assertNotNull("toString returned a null", sub.toString());
+        assertTrue("Not a valid String ", sub.toString().length() > 0);
     }
 
     public void test_getIdentity() throws Exception {
@@ -330,7 +319,8 @@ public class IdentityScope2Test extends junit.framework.TestCase {
         IdentityScope scope = IdentityScope.getSystemScope();
         try {
             scope.getIdentity((String) null);
-            fail("NPE expected");
-        } catch (NullPointerException npe) {}
+            fail();
+        } catch (NullPointerException expected) {
+        }
     }
 }
