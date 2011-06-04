@@ -18,34 +18,17 @@
 package java.lang;
 
 import java.security.BasicPermission;
+import java.security.Permission;
 
 /**
- * Legacy security code; this class exists for compatibility only.
+ * Legacy security code; do not use.
  */
 public final class RuntimePermission extends BasicPermission {
+    public RuntimePermission(String permissionName) { super(""); }
 
-    private static final long serialVersionUID = 7399184964622342223L;
+    public RuntimePermission(String name, String actions) { super("", ""); }
 
-    /**
-     * Creates an instance of {@code RuntimePermission} with the specified name.
-     *
-     * @param permissionName
-     *            the name of the new permission.
-     */
-    public RuntimePermission(String permissionName) {
-        super(permissionName);
-    }
+    @Override public String getActions() { return null; }
 
-    /**
-     * Creates an instance of {@code RuntimePermission} with the specified name
-     * and action list. The action list is ignored.
-     *
-     * @param name
-     *            the name of the new permission.
-     * @param actions
-     *            ignored.
-     */
-    public RuntimePermission(String name, String actions) {
-        super(name, actions);
-    }
+    @Override public boolean implies(Permission permission) { return true; }
 }

@@ -18,7 +18,7 @@
 package java.security;
 
 /**
- * Legacy security code; this class exists for compatibility only.
+ * Legacy security code; do not use.
  */
 public interface DomainCombiner {
 

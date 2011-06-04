@@ -18,34 +18,14 @@
 package java.security;
 
 /**
- * Legacy security code; this class exists for compatibility only.
+ * Legacy security code; do not use.
  */
 public final class SecurityPermission extends BasicPermission {
+    public SecurityPermission(String name) { super(""); }
 
-    private static final long serialVersionUID = 5236109936224050470L;
+    public SecurityPermission(String name, String action) { super("", ""); }
 
-    /**
-     * Constructs a new instance of {@code SecurityPermission} with the given
-     * name.
-     *
-     * @param name
-     *            the name of the permission.
-     */
-    public SecurityPermission(String name) {
-        super(name);
-    }
+    @Override public String getActions() { return null; }
 
-    /**
-     * Constructs a new instance of {@code SecurityPermission} with the given
-     * {@code name} and {@code action} list. The action list is ignored - it is
-     * existing for compatibility reasons only.
-     *
-     * @param name
-     *            the name of the permission.
-     * @param action
-     *            ignored.
-     */
-    public SecurityPermission(String name, String action) {
-        super(name, action);
-    }
+    @Override public boolean implies(Permission permission) { return true; }
 }
