@@ -20,25 +20,15 @@ package java.util.logging;
 import java.io.Serializable;
 import java.security.BasicPermission;
 import java.security.Guard;
+import java.security.Permission;
 
 /**
- * Legacy security code; this class exists for compatibility only.
+ * Legacy security code; do not use.
  */
 public final class LoggingPermission extends BasicPermission implements Guard, Serializable {
+    public LoggingPermission(String name, String actions) { super("", ""); }
 
-    // for serialization compatibility with J2SE 1.4.2
-    private static final long serialVersionUID = 63564341580231582L;
+    @Override public String getActions() { return null; }
 
-    /**
-     * Legacy security code; this class exists for compatibility only.
-     */
-    public LoggingPermission(String name, String actions) {
-        super(name, actions);
-        if (!"control".equals(name)) {
-            throw new IllegalArgumentException("name must be \"control\"");
-        }
-        if (actions != null && !actions.isEmpty()) {
-            throw new IllegalArgumentException("actions != null && !actions.isEmpty()");
-        }
-    }
+    @Override public boolean implies(Permission permission) { return true; }
 }

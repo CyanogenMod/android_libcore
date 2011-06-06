@@ -18,12 +18,12 @@
 package org.apache.harmony.security.tests.support;
 
 import java.security.BasicPermission;
+import java.security.Permission;
 
 public class MyBasicPermission extends BasicPermission {
+    public MyBasicPermission(String name) { super(""); }
 
-    private static final long serialVersionUID = -4220730623258019258L;
+    @Override public String getActions() { return null; }
 
-    public MyBasicPermission(String name) {
-        super(name);
-    }
+    @Override public boolean implies(Permission permission) { return true; }
 }

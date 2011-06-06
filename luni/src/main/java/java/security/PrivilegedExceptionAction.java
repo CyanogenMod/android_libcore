@@ -18,11 +18,8 @@
 package java.security;
 
 /**
- * Legacy security code; this class exists for compatibility only.
+ * Legacy security code; do not use.
  */
 public interface PrivilegedExceptionAction<T> {
-    /**
-     * Returns the result of running the action.
-     */
     T run() throws Exception;
 }

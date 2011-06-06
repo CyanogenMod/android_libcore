@@ -18,33 +18,17 @@
 package javax.net.ssl;
 
 import java.security.BasicPermission;
+import java.security.Permission;
 
 /**
- * Legacy security code; this class exists for compatibility only.
+ * Legacy security code; do not use.
  */
 public final class SSLPermission extends BasicPermission {
+    public SSLPermission(String name) { super(""); }
 
-    private static final long serialVersionUID = -3456898025505876775L;
+    public SSLPermission(String name, String actions) { super("", ""); }
 
-    /**
-     * Creates a new {@code SSLPermission} with the specified name.
-     *
-     * @param name
-     *            the permission name.
-     */
-    public SSLPermission(String name) {
-        super(name);
-    }
+    @Override public String getActions() { return null; }
 
-    /**
-     * Creates a new {@code SSLPermission} with the specified name.
-     *
-     * @param name
-     *            the permission name.
-     * @param actions
-     *            is ignored and should be {@code null}.
-     */
-    public SSLPermission(String name, String actions) {
-        super(name, actions);
-    }
+    @Override public boolean implies(Permission permission) { return true; }
 }

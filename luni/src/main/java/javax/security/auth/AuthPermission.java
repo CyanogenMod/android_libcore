@@ -18,49 +18,17 @@
 package javax.security.auth;
 
 import java.security.BasicPermission;
+import java.security.Permission;
 
 /**
- * Legacy security code; this class exists for compatibility only.
+ * Legacy security code; do not use.
  */
 public final class AuthPermission extends BasicPermission {
+    public AuthPermission(String name) { super(""); }
 
-    private static final long serialVersionUID = 5806031445061587174L;
+    public AuthPermission(String name, String actions) { super("", ""); }
 
-    private static final String CREATE_LOGIN_CONTEXT = "createLoginContext";
+    @Override public String getActions() { return null; }
 
-    private static final String CREATE_LOGIN_CONTEXT_ANY = "createLoginContext.*";
-
-    // inits permission name.
-    private static String init(String name) {
-        if (name == null) {
-            throw new NullPointerException("name == null");
-        }
-
-        if (CREATE_LOGIN_CONTEXT.equals(name)) {
-            return CREATE_LOGIN_CONTEXT_ANY;
-        }
-        return name;
-    }
-
-    /**
-     * Creates an authentication permission with the specified target name.
-     *
-     * @param name
-     *            the target name of this authentication permission.
-     */
-    public AuthPermission(String name) {
-        super(init(name));
-    }
-
-    /**
-     * Creates an authentication permission with the specified target name.
-     *
-     * @param name
-     *            the target name of this authentication permission.
-     * @param actions
-     *            this parameter is ignored and should be {@code null}.
-     */
-    public AuthPermission(String name, String actions) {
-        super(init(name), actions);
-    }
+    @Override public boolean implies(Permission permission) { return true; }
 }
