@@ -150,21 +150,6 @@ public class OldURLClassLoaderTest extends junit.framework.TestCase {
         }
     }
 
-    public void test_getPermissions() throws MalformedURLException {
-        URL url = new URL("http://" + Support_Configuration.SpecialInetTestAddress);
-        Certificate[] chain = TestCertUtils.getCertChain();
-        CodeSource cs = new CodeSource(url, chain);
-        TestURLClassLoader cl = new TestURLClassLoader(new URL[] {url});
-        PermissionCollection permCol = cl.getPermissions(cs);
-        assertNotNull(permCol);
-
-        URL url1 = new URL("file://foo/foo.c");
-        TestURLClassLoader cl1 = new TestURLClassLoader(new URL[] {url});
-        CodeSource cs1 = new CodeSource(url1, chain);
-        PermissionCollection permCol1 = cl1.getPermissions(cs1);
-        assertNotNull(permCol1);
-    }
-
     public void test_definePackage() throws MalformedURLException {
         Manifest manifest = new Manifest();
         URL[] u = new URL[0];
