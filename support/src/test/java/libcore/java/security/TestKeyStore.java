@@ -442,7 +442,7 @@ public final class TestKeyStore extends Assert {
         }
     }
 
-    public static X509Certificate createCA(PublicKey publicKey,
+    public static X509Certificate createCa(PublicKey publicKey,
                                            PrivateKey privateKey,
                                            String subject)  {
         try {

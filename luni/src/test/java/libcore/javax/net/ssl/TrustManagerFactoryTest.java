@@ -39,18 +39,18 @@ import libcore.java.security.TestKeyStore;
 public class TrustManagerFactoryTest extends TestCase {
 
     private static final String [] KEY_TYPES = new String[] { "RSA", "DSA", "EC", "EC_RSA" };
+
+    private static TestKeyStore TEST_KEY_STORE;
+
     // note the rare usage of DSA keys here in addition to RSA
-    private static final TestKeyStore TEST_KEY_STORE;
-    static {
-        try {
+    private static TestKeyStore getTestKeyStore() throws Exception {
+        if (TEST_KEY_STORE == null) {
             TEST_KEY_STORE = new TestKeyStore.Builder()
                     .keyAlgorithms(KEY_TYPES)
                     .aliasPrefix("rsa-dsa-ec")
-                    .ca(true)
                     .build();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
+        return TEST_KEY_STORE;
     }
 
     public void test_TrustManagerFactory_getDefaultAlgorithm() throws Exception {
@@ -92,7 +92,7 @@ public class TrustManagerFactoryTest extends TestCase {
 
         // init with PKIXParameters ManagerFactoryParameters
         try {
-            PKIXParameters pp = new PKIXParameters(TEST_KEY_STORE.keyStore);
+            PKIXParameters pp = new PKIXParameters(getTestKeyStore().keyStore);
             CertPathTrustManagerParameters cptmp = new CertPathTrustManagerParameters(pp);
             tmf.init(cptmp);
             fail();
@@ -101,7 +101,7 @@ public class TrustManagerFactoryTest extends TestCase {
 
         // init with PKIXBuilderParameters ManagerFactoryParameters
         X509CertSelector xcs = new X509CertSelector();
-        PKIXBuilderParameters pbp = new PKIXBuilderParameters(TEST_KEY_STORE.keyStore, xcs);
+        PKIXBuilderParameters pbp = new PKIXBuilderParameters(getTestKeyStore().keyStore, xcs);
         CertPathTrustManagerParameters cptmp = new CertPathTrustManagerParameters(pbp);
         if (supportsManagerFactoryParameters) {
             tmf.init(cptmp);
@@ -119,7 +119,7 @@ public class TrustManagerFactoryTest extends TestCase {
         test_TrustManagerFactory_getTrustManagers(tmf);
 
         // init with specific key store
-        tmf.init(TEST_KEY_STORE.keyStore);
+        tmf.init(getTestKeyStore().keyStore);
         test_TrustManagerFactory_getTrustManagers(tmf);
     }
 
@@ -148,7 +148,7 @@ public class TrustManagerFactoryTest extends TestCase {
 
             String keyAlgName = TestKeyStore.keyAlgorithm(keyType);
             String sigAlgName = TestKeyStore.signatureAlgorithm(keyType);
-            PrivateKeyEntry pke = TEST_KEY_STORE.getPrivateKey(keyAlgName, sigAlgName);
+            PrivateKeyEntry pke = getTestKeyStore().getPrivateKey(keyAlgName, sigAlgName);
             X509Certificate[] chain = (X509Certificate[]) pke.getCertificateChain();
             if (defaultTrustManager) {
                 try {
@@ -245,7 +245,7 @@ public class TrustManagerFactoryTest extends TestCase {
         // create a KeyStore containing only a private key with chain.
         // unlike PKIXParameters(KeyStore), the cert chain of the key should be trusted.
         KeyStore ks = TestKeyStore.createKeyStore();
-        KeyStore.PrivateKeyEntry pke = TEST_KEY_STORE.getPrivateKey("RSA", "RSA");
+        KeyStore.PrivateKeyEntry pke = getTestKeyStore().getPrivateKey("RSA", "RSA");
         ks.setKeyEntry("key", pke.getPrivateKey(), "pw".toCharArray(), pke.getCertificateChain());
 
         String algorithm = TrustManagerFactory.getDefaultAlgorithm();

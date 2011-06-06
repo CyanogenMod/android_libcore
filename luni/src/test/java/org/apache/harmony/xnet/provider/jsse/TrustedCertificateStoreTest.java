@@ -41,40 +41,151 @@ public class TrustedCertificateStoreTest extends TestCase {
     private static final File DIR_ADDED = new File(DIR_TEST, "added");
     private static final File DIR_DELETED = new File(DIR_TEST, "removed");
 
-    private static final X509Certificate CA1 = TestKeyStore.getClient().getRootCertificate("RSA");
-    private static final X509Certificate CA2
-            = TestKeyStore.getClientCA2().getRootCertificate("RSA");
+    private static X509Certificate CA1;
+    private static X509Certificate CA2;
 
-    private static final KeyStore.PrivateKeyEntry PRIVATE
-            = TestKeyStore.getServer().getPrivateKey("RSA", "RSA");
-    private static final X509Certificate[] CHAIN = (X509Certificate[])PRIVATE.getCertificateChain();
+    private static KeyStore.PrivateKeyEntry PRIVATE;
+    private static X509Certificate[] CHAIN;
 
-    private static final X509Certificate CA3_WITH_CA1_SUBJECT
-            = new TestKeyStore.Builder()
-                .aliasPrefix("unused")
-                .subject(CA1.getSubjectX500Principal())
-                .ca(true)
-                .build().getRootCertificate("RSA");
+    private static X509Certificate CA3_WITH_CA1_SUBJECT;
+    private static String ALIAS_SYSTEM_CA1;
+    private static String ALIAS_SYSTEM_CA2;
+    private static String ALIAS_USER_CA1;
+    private static String ALIAS_USER_CA2;
+
+    private static String ALIAS_SYSTEM_CHAIN0;
+    private static String ALIAS_SYSTEM_CHAIN1;
+    private static String ALIAS_SYSTEM_CHAIN2;
+    private static String ALIAS_USER_CHAIN0;
+    private static String ALIAS_USER_CHAIN1;
+    private static String ALIAS_USER_CHAIN2;
+
+    private static String ALIAS_SYSTEM_CA3;
+    private static String ALIAS_SYSTEM_CA3_COLLISION;
+    private static String ALIAS_USER_CA3;
+    private static String ALIAS_USER_CA3_COLLISION;
+
+    private static X509Certificate getCa1() {
+        initCerts();
+        return CA1;
+    }
+    private static X509Certificate getCa2() {
+        initCerts();
+        return CA2;
+    }
+
+    private static KeyStore.PrivateKeyEntry getPrivate() {
+        initCerts();
+        return PRIVATE;
+    }
+    private static X509Certificate[] getChain() {
+        initCerts();
+        return CHAIN;
+    }
+
+    private static X509Certificate getCa3WithCa1Subject() {
+        initCerts();
+        return CA3_WITH_CA1_SUBJECT;
+    }
+
+    private static String getAliasSystemCa1() {
+        initCerts();
+        return ALIAS_SYSTEM_CA1;
+    }
+    private static String getAliasSystemCa2() {
+        initCerts();
+        return ALIAS_SYSTEM_CA2;
+    }
+    private static String getAliasUserCa1() {
+        initCerts();
+        return ALIAS_USER_CA1;
+    }
+    private static String getAliasUserCa2() {
+        initCerts();
+        return ALIAS_USER_CA2;
+    }
+
+    private static String getAliasSystemChain0() {
+        initCerts();
+        return ALIAS_SYSTEM_CHAIN0;
+    }
+    private static String getAliasSystemChain1() {
+        initCerts();
+        return ALIAS_SYSTEM_CHAIN1;
+    }
+    private static String getAliasSystemChain2() {
+        initCerts();
+        return ALIAS_SYSTEM_CHAIN2;
+    }
+    private static String getAliasUserChain0() {
+        initCerts();
+        return ALIAS_USER_CHAIN0;
+    }
+    private static String getAliasUserChain1() {
+        initCerts();
+        return ALIAS_USER_CHAIN1;
+    }
+    private static String getAliasUserChain2() {
+        initCerts();
+        return ALIAS_USER_CHAIN2;
+    }
+
+    private static String getAliasSystemCa3() {
+        initCerts();
+        return ALIAS_SYSTEM_CA3;
+    }
+    private static String getAliasSystemCa3Collision() {
+        initCerts();
+        return ALIAS_SYSTEM_CA3_COLLISION;
+    }
+    private static String getAliasUserCa3() {
+        initCerts();
+        return ALIAS_USER_CA3;
+    }
+    private static String getAliasUserCa3Collision() {
+        initCerts();
+        return ALIAS_USER_CA3_COLLISION;
+    }
+
+    /**
+     * Lazily create shared test certificates.
+     */
+    private static synchronized void initCerts() {
+        if (CA1 != null) {
+            return;
+        }
+        try {
+            CA1 = TestKeyStore.getClient().getRootCertificate("RSA");
+            CA2 = TestKeyStore.getClientCA2().getRootCertificate("RSA");
+            PRIVATE = TestKeyStore.getServer().getPrivateKey("RSA", "RSA");
+            CHAIN = (X509Certificate[]) PRIVATE.getCertificateChain();
+            CA3_WITH_CA1_SUBJECT = new TestKeyStore.Builder()
+                    .aliasPrefix("unused")
+                    .subject(CA1.getSubjectX500Principal())
+                    .ca(true)
+                    .build().getRootCertificate("RSA");
 
 
-    private static final String ALIAS_SYSTEM_CA1 = alias(false, CA1, 0);
-    private static final String ALIAS_SYSTEM_CA2 = alias(false, CA2, 0);
-    private static final String ALIAS_USER_CA1 = alias(true, CA1, 0);
-    private static final String ALIAS_USER_CA2 = alias(true, CA2, 0);
+            ALIAS_SYSTEM_CA1 = alias(false, CA1, 0);
+            ALIAS_SYSTEM_CA2 = alias(false, CA2, 0);
+            ALIAS_USER_CA1 = alias(true, CA1, 0);
+            ALIAS_USER_CA2 = alias(true, CA2, 0);
 
-    private static final String ALIAS_SYSTEM_CHAIN0 = alias(false, CHAIN[0], 0);
-    private static final String ALIAS_SYSTEM_CHAIN1 = alias(false, CHAIN[1], 0);
-    private static final String ALIAS_SYSTEM_CHAIN2 = alias(false, CHAIN[2], 0);
-    private static final String ALIAS_USER_CHAIN0 = alias(true, CHAIN[0], 0);
-    private static final String ALIAS_USER_CHAIN1 = alias(true, CHAIN[1], 0);
-    private static final String ALIAS_USER_CHAIN2 = alias(true, CHAIN[2], 0);
+            ALIAS_SYSTEM_CHAIN0 = alias(false, getChain()[0], 0);
+            ALIAS_SYSTEM_CHAIN1 = alias(false, getChain()[1], 0);
+            ALIAS_SYSTEM_CHAIN2 = alias(false, getChain()[2], 0);
+            ALIAS_USER_CHAIN0 = alias(true, getChain()[0], 0);
+            ALIAS_USER_CHAIN1 = alias(true, getChain()[1], 0);
+            ALIAS_USER_CHAIN2 = alias(true, getChain()[2], 0);
 
-    private static final String ALIAS_SYSTEM_CA3 = alias(false, CA3_WITH_CA1_SUBJECT, 0);
-    private static final String ALIAS_SYSTEM_CA3_COLLISION
-            = alias(false, CA3_WITH_CA1_SUBJECT, 1);
-    private static final String ALIAS_USER_CA3 = alias(true, CA3_WITH_CA1_SUBJECT, 0);
-    private static final String ALIAS_USER_CA3_COLLISION
-            = alias(true, CA3_WITH_CA1_SUBJECT, 1);
+            ALIAS_SYSTEM_CA3 = alias(false, CA3_WITH_CA1_SUBJECT, 0);
+            ALIAS_SYSTEM_CA3_COLLISION = alias(false, CA3_WITH_CA1_SUBJECT, 1);
+            ALIAS_USER_CA3 = alias(true, CA3_WITH_CA1_SUBJECT, 0);
+            ALIAS_USER_CA3_COLLISION = alias(true, CA3_WITH_CA1_SUBJECT, 1);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private TrustedCertificateStore store;
 
@@ -118,24 +229,24 @@ public class TrustedCertificateStoreTest extends TestCase {
     }
 
     public void testOneSystemOneDeleted() throws Exception {
-        install(CA1, ALIAS_SYSTEM_CA1);
-        store.deleteCertificateEntry(ALIAS_SYSTEM_CA1);
+        install(getCa1(), getAliasSystemCa1());
+        store.deleteCertificateEntry(getAliasSystemCa1());
         assertEmpty();
-        assertDeleted(CA1, ALIAS_SYSTEM_CA1);
+        assertDeleted(getCa1(), getAliasSystemCa1());
     }
 
     public void testTwoSystemTwoDeleted() throws Exception {
-        install(CA1, ALIAS_SYSTEM_CA1);
-        store.deleteCertificateEntry(ALIAS_SYSTEM_CA1);
-        install(CA2, ALIAS_SYSTEM_CA2);
-        store.deleteCertificateEntry(ALIAS_SYSTEM_CA2);
+        install(getCa1(), getAliasSystemCa1());
+        store.deleteCertificateEntry(getAliasSystemCa1());
+        install(getCa2(), getAliasSystemCa2());
+        store.deleteCertificateEntry(getAliasSystemCa2());
         assertEmpty();
-        assertDeleted(CA1, ALIAS_SYSTEM_CA1);
-        assertDeleted(CA2, ALIAS_SYSTEM_CA2);
+        assertDeleted(getCa1(), getAliasSystemCa1());
+        assertDeleted(getCa2(), getAliasSystemCa2());
     }
 
     public void testPartialFileIsIgnored() throws Exception {
-        File file = file(ALIAS_SYSTEM_CA1);
+        File file = file(getAliasSystemCa1());
         OutputStream os = new FileOutputStream(file);
         os.write(0);
         os.close();
@@ -172,21 +283,21 @@ public class TrustedCertificateStoreTest extends TestCase {
         assertFalse(store.containsAlias(""));
 
         assertNull(store.getCertificateAlias(null));
-        assertNull(store.getCertificateAlias(CA1));
+        assertNull(store.getCertificateAlias(getCa1()));
 
         try {
             store.isTrustAnchor(null);
             fail();
         } catch (NullPointerException expected) {
         }
-        assertFalse(store.isTrustAnchor(CA1));
+        assertFalse(store.isTrustAnchor(getCa1()));
 
         try {
             store.findIssuer(null);
             fail();
         } catch (NullPointerException expected) {
         }
-        assertNull(store.findIssuer(CA1));
+        assertNull(store.findIssuer(getCa1()));
 
         try {
             store.installCertificate(null);
@@ -202,100 +313,100 @@ public class TrustedCertificateStoreTest extends TestCase {
     }
 
     public void testTwoSystem() throws Exception {
-        testTwo(CA1, ALIAS_SYSTEM_CA1,
-                CA2, ALIAS_SYSTEM_CA2);
+        testTwo(getCa1(), getAliasSystemCa1(),
+                getCa2(), getAliasSystemCa2());
     }
 
     public void testTwoUser() throws Exception {
-        testTwo(CA1, ALIAS_USER_CA1,
-                CA2, ALIAS_USER_CA2);
+        testTwo(getCa1(), getAliasUserCa1(),
+                getCa2(), getAliasUserCa2());
     }
 
     public void testOneSystemOneUser() throws Exception {
-        testTwo(CA1, ALIAS_SYSTEM_CA1,
-                CA2, ALIAS_USER_CA2);
+        testTwo(getCa1(), getAliasSystemCa1(),
+                getCa2(), getAliasUserCa2());
     }
 
     public void testTwoSystemSameSubject() throws Exception {
-        testTwo(CA1, ALIAS_SYSTEM_CA1,
-                CA3_WITH_CA1_SUBJECT, ALIAS_SYSTEM_CA3_COLLISION);
+        testTwo(getCa1(), getAliasSystemCa1(),
+                getCa3WithCa1Subject(), getAliasSystemCa3Collision());
     }
 
     public void testTwoUserSameSubject() throws Exception {
-        testTwo(CA1, ALIAS_USER_CA1,
-                CA3_WITH_CA1_SUBJECT, ALIAS_USER_CA3_COLLISION);
+        testTwo(getCa1(), getAliasUserCa1(),
+                getCa3WithCa1Subject(), getAliasUserCa3Collision());
 
-        store.deleteCertificateEntry(ALIAS_USER_CA1);
-        assertDeleted(CA1, ALIAS_USER_CA1);
-        assertTombstone(ALIAS_USER_CA1);
-        assertRootCA(CA3_WITH_CA1_SUBJECT, ALIAS_USER_CA3_COLLISION);
-        assertAliases(ALIAS_USER_CA3_COLLISION);
+        store.deleteCertificateEntry(getAliasUserCa1());
+        assertDeleted(getCa1(), getAliasUserCa1());
+        assertTombstone(getAliasUserCa1());
+        assertRootCa(getCa3WithCa1Subject(), getAliasUserCa3Collision());
+        assertAliases(getAliasUserCa3Collision());
 
-        store.deleteCertificateEntry(ALIAS_USER_CA3_COLLISION);
-        assertDeleted(CA3_WITH_CA1_SUBJECT, ALIAS_USER_CA3_COLLISION);
-        assertNoTombstone(ALIAS_USER_CA3_COLLISION);
-        assertNoTombstone(ALIAS_USER_CA1);
+        store.deleteCertificateEntry(getAliasUserCa3Collision());
+        assertDeleted(getCa3WithCa1Subject(), getAliasUserCa3Collision());
+        assertNoTombstone(getAliasUserCa3Collision());
+        assertNoTombstone(getAliasUserCa1());
         assertEmpty();
     }
 
     public void testOneSystemOneUserSameSubject() throws Exception {
-        testTwo(CA1, ALIAS_SYSTEM_CA1,
-                CA3_WITH_CA1_SUBJECT, ALIAS_USER_CA3);
-        testTwo(CA1, ALIAS_USER_CA1,
-                CA3_WITH_CA1_SUBJECT, ALIAS_SYSTEM_CA3);
+        testTwo(getCa1(), getAliasSystemCa1(),
+                getCa3WithCa1Subject(), getAliasUserCa3());
+        testTwo(getCa1(), getAliasUserCa1(),
+                getCa3WithCa1Subject(), getAliasSystemCa3());
     }
 
     private void testTwo(X509Certificate x1, String alias1,
                          X509Certificate x2, String alias2) {
         install(x1, alias1);
         install(x2, alias2);
-        assertRootCA(x1, alias1);
-        assertRootCA(x2, alias2);
+        assertRootCa(x1, alias1);
+        assertRootCa(x2, alias2);
         assertAliases(alias1, alias2);
     }
 
 
     public void testOneSystemOneUserOneDeleted() throws Exception {
-        install(CA1, ALIAS_SYSTEM_CA1);
-        store.installCertificate(CA2);
-        store.deleteCertificateEntry(ALIAS_SYSTEM_CA1);
-        assertDeleted(CA1, ALIAS_SYSTEM_CA1);
-        assertRootCA(CA2, ALIAS_USER_CA2);
-        assertAliases(ALIAS_USER_CA2);
+        install(getCa1(), getAliasSystemCa1());
+        store.installCertificate(getCa2());
+        store.deleteCertificateEntry(getAliasSystemCa1());
+        assertDeleted(getCa1(), getAliasSystemCa1());
+        assertRootCa(getCa2(), getAliasUserCa2());
+        assertAliases(getAliasUserCa2());
     }
 
     public void testOneSystemOneUserOneDeletedSameSubject() throws Exception {
-        install(CA1, ALIAS_SYSTEM_CA1);
-        store.installCertificate(CA3_WITH_CA1_SUBJECT);
-        store.deleteCertificateEntry(ALIAS_SYSTEM_CA1);
-        assertDeleted(CA1, ALIAS_SYSTEM_CA1);
-        assertRootCA(CA3_WITH_CA1_SUBJECT, ALIAS_USER_CA3);
-        assertAliases(ALIAS_USER_CA3);
+        install(getCa1(), getAliasSystemCa1());
+        store.installCertificate(getCa3WithCa1Subject());
+        store.deleteCertificateEntry(getAliasSystemCa1());
+        assertDeleted(getCa1(), getAliasSystemCa1());
+        assertRootCa(getCa3WithCa1Subject(), getAliasUserCa3());
+        assertAliases(getAliasUserCa3());
     }
 
     public void testUserMaskingSystem() throws Exception {
-        install(CA1, ALIAS_SYSTEM_CA1);
-        install(CA1, ALIAS_USER_CA1);
-        assertMasked(CA1, ALIAS_SYSTEM_CA1);
-        assertRootCA(CA1, ALIAS_USER_CA1);
-        assertAliases(ALIAS_SYSTEM_CA1, ALIAS_USER_CA1);
+        install(getCa1(), getAliasSystemCa1());
+        install(getCa1(), getAliasUserCa1());
+        assertMasked(getCa1(), getAliasSystemCa1());
+        assertRootCa(getCa1(), getAliasUserCa1());
+        assertAliases(getAliasSystemCa1(), getAliasUserCa1());
     }
 
     public void testChain() throws Exception {
-        testChain(ALIAS_SYSTEM_CHAIN1, ALIAS_SYSTEM_CHAIN2);
-        testChain(ALIAS_SYSTEM_CHAIN1, ALIAS_USER_CHAIN2);
-        testChain(ALIAS_USER_CHAIN1, ALIAS_SYSTEM_CA1);
-        testChain(ALIAS_USER_CHAIN1, ALIAS_USER_CHAIN2);
+        testChain(getAliasSystemChain1(), getAliasSystemChain2());
+        testChain(getAliasSystemChain1(), getAliasUserChain2());
+        testChain(getAliasUserChain1(), getAliasSystemCa1());
+        testChain(getAliasUserChain1(), getAliasUserChain2());
     }
 
     private void testChain(String alias1, String alias2) throws Exception {
-        install(CHAIN[1], alias1);
-        install(CHAIN[2], alias2);
-        assertIntermediateCA(CHAIN[1], alias1);
-        assertRootCA(CHAIN[2], alias2);
+        install(getChain()[1], alias1);
+        install(getChain()[2], alias2);
+        assertIntermediateCa(getChain()[1], alias1);
+        assertRootCa(getChain()[2], alias2);
         assertAliases(alias1, alias2);
-        assertEquals(CHAIN[2], store.findIssuer(CHAIN[1]));
-        assertEquals(CHAIN[1], store.findIssuer(CHAIN[0]));
+        assertEquals(getChain()[2], store.findIssuer(getChain()[1]));
+        assertEquals(getChain()[1], store.findIssuer(getChain()[0]));
         resetStore();
     }
 
@@ -311,104 +422,104 @@ public class TrustedCertificateStoreTest extends TestCase {
     public void testWithExistingUserDirectories() throws Exception {
         DIR_ADDED.mkdirs();
         DIR_DELETED.mkdirs();
-        install(CA1, ALIAS_SYSTEM_CA1);
-        assertRootCA(CA1, ALIAS_SYSTEM_CA1);
-        assertAliases(ALIAS_SYSTEM_CA1);
+        install(getCa1(), getAliasSystemCa1());
+        assertRootCa(getCa1(), getAliasSystemCa1());
+        assertAliases(getAliasSystemCa1());
     }
 
-    public void testIsTrustAnchorWithReissuedCA() throws Exception {
-        PublicKey publicKey = PRIVATE.getCertificate().getPublicKey();
-        PrivateKey privateKey = PRIVATE.getPrivateKey();
+    public void testIsTrustAnchorWithReissuedgetCa() throws Exception {
+        PublicKey publicKey = getPrivate().getCertificate().getPublicKey();
+        PrivateKey privateKey = getPrivate().getPrivateKey();
         String name = "CN=CA4";
-        X509Certificate ca1 = TestKeyStore.createCA(publicKey, privateKey, name);
+        X509Certificate ca1 = TestKeyStore.createCa(publicKey, privateKey, name);
         Thread.sleep(1 * 1000); // wait to ensure CAs vary by expiration
-        X509Certificate ca2 = TestKeyStore.createCA(publicKey, privateKey, name);
+        X509Certificate ca2 = TestKeyStore.createCa(publicKey, privateKey, name);
         assertFalse(ca1.equals(ca2));
 
         String systemAlias = alias(false, ca1, 0);
         install(ca1, systemAlias);
-        assertRootCA(ca1, systemAlias);
+        assertRootCa(ca1, systemAlias);
         assertTrue(store.isTrustAnchor(ca2));
         assertEquals(ca1, store.findIssuer(ca2));
         resetStore();
 
         String userAlias = alias(true, ca1, 0);
         store.installCertificate(ca1);
-        assertRootCA(ca1, userAlias);
+        assertRootCa(ca1, userAlias);
         assertTrue(store.isTrustAnchor(ca2));
         assertEquals(ca1, store.findIssuer(ca2));
         resetStore();
     }
 
     public void testInstallEmpty() throws Exception {
-        store.installCertificate(CA1);
-        assertRootCA(CA1, ALIAS_USER_CA1);
-        assertAliases(ALIAS_USER_CA1);
+        store.installCertificate(getCa1());
+        assertRootCa(getCa1(), getAliasUserCa1());
+        assertAliases(getAliasUserCa1());
 
         // reinstalling should not change anything
-        store.installCertificate(CA1);
-        assertRootCA(CA1, ALIAS_USER_CA1);
-        assertAliases(ALIAS_USER_CA1);
+        store.installCertificate(getCa1());
+        assertRootCa(getCa1(), getAliasUserCa1());
+        assertAliases(getAliasUserCa1());
     }
 
     public void testInstallEmptySystemExists() throws Exception {
-        install(CA1, ALIAS_SYSTEM_CA1);
-        assertRootCA(CA1, ALIAS_SYSTEM_CA1);
-        assertAliases(ALIAS_SYSTEM_CA1);
+        install(getCa1(), getAliasSystemCa1());
+        assertRootCa(getCa1(), getAliasSystemCa1());
+        assertAliases(getAliasSystemCa1());
 
         // reinstalling should not affect system CA
-        store.installCertificate(CA1);
-        assertRootCA(CA1, ALIAS_SYSTEM_CA1);
-        assertAliases(ALIAS_SYSTEM_CA1);
+        store.installCertificate(getCa1());
+        assertRootCa(getCa1(), getAliasSystemCa1());
+        assertAliases(getAliasSystemCa1());
 
     }
 
     public void testInstallEmptyDeletedSystemExists() throws Exception {
-        install(CA1, ALIAS_SYSTEM_CA1);
-        store.deleteCertificateEntry(ALIAS_SYSTEM_CA1);
+        install(getCa1(), getAliasSystemCa1());
+        store.deleteCertificateEntry(getAliasSystemCa1());
         assertEmpty();
-        assertDeleted(CA1, ALIAS_SYSTEM_CA1);
+        assertDeleted(getCa1(), getAliasSystemCa1());
 
         // installing should restore deleted system CA
-        store.installCertificate(CA1);
-        assertRootCA(CA1, ALIAS_SYSTEM_CA1);
-        assertAliases(ALIAS_SYSTEM_CA1);
+        store.installCertificate(getCa1());
+        assertRootCa(getCa1(), getAliasSystemCa1());
+        assertAliases(getAliasSystemCa1());
     }
 
     public void testDeleteEmpty() throws Exception {
-        store.deleteCertificateEntry(ALIAS_SYSTEM_CA1);
+        store.deleteCertificateEntry(getAliasSystemCa1());
         assertEmpty();
-        assertDeleted(CA1, ALIAS_SYSTEM_CA1);
+        assertDeleted(getCa1(), getAliasSystemCa1());
     }
 
     public void testDeleteUser() throws Exception {
-        store.installCertificate(CA1);
-        assertRootCA(CA1, ALIAS_USER_CA1);
-        assertAliases(ALIAS_USER_CA1);
+        store.installCertificate(getCa1());
+        assertRootCa(getCa1(), getAliasUserCa1());
+        assertAliases(getAliasUserCa1());
 
-        store.deleteCertificateEntry(ALIAS_USER_CA1);
+        store.deleteCertificateEntry(getAliasUserCa1());
         assertEmpty();
-        assertDeleted(CA1, ALIAS_USER_CA1);
-        assertNoTombstone(ALIAS_USER_CA1);
+        assertDeleted(getCa1(), getAliasUserCa1());
+        assertNoTombstone(getAliasUserCa1());
     }
 
     public void testDeleteSystem() throws Exception {
-        install(CA1, ALIAS_SYSTEM_CA1);
-        assertRootCA(CA1, ALIAS_SYSTEM_CA1);
-        assertAliases(ALIAS_SYSTEM_CA1);
+        install(getCa1(), getAliasSystemCa1());
+        assertRootCa(getCa1(), getAliasSystemCa1());
+        assertAliases(getAliasSystemCa1());
 
-        store.deleteCertificateEntry(ALIAS_SYSTEM_CA1);
+        store.deleteCertificateEntry(getAliasSystemCa1());
         assertEmpty();
-        assertDeleted(CA1, ALIAS_SYSTEM_CA1);
+        assertDeleted(getCa1(), getAliasSystemCa1());
 
         // deleting again should not change anything
-        store.deleteCertificateEntry(ALIAS_SYSTEM_CA1);
+        store.deleteCertificateEntry(getAliasSystemCa1());
         assertEmpty();
-        assertDeleted(CA1, ALIAS_SYSTEM_CA1);
+        assertDeleted(getCa1(), getAliasSystemCa1());
     }
 
-    private void assertRootCA(X509Certificate x, String alias) {
-        assertIntermediateCA(x, alias);
+    private void assertRootCa(X509Certificate x, String alias) {
+        assertIntermediateCa(x, alias);
         assertEquals(x, store.findIssuer(x));
     }
 
@@ -419,7 +530,7 @@ public class TrustedCertificateStoreTest extends TestCase {
         assertTrue(store.isTrustAnchor(x));
     }
 
-    private void assertIntermediateCA(X509Certificate x, String alias) {
+    private void assertIntermediateCa(X509Certificate x, String alias) {
         assertTrusted(x, alias);
         assertEquals(alias, store.getCertificateAlias(x));
     }
