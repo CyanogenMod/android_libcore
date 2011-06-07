@@ -17,6 +17,7 @@
 package org.apache.harmony.luni.tests.java.lang;
 
 import java.io.Serializable;
+import java.nio.charset.Charset;
 
 import junit.framework.TestCase;
 
@@ -97,10 +98,12 @@ public class StringBufferTest extends TestCase {
 
         buffer.append("abcde");
         assertEquals("abcde", buffer.toString());
-        buffer.setLength(1000);
-        byte[] bytes = buffer.toString().getBytes("GB18030");
-        for (int i = 5; i < bytes.length; i++) {
-            assertEquals(0, bytes[i]);
+        if (Charset.isSupported("GB18030")) {
+            buffer.setLength(1000);
+            byte[] bytes = buffer.toString().getBytes("GB18030");
+            for (int i = 5; i < bytes.length; i++) {
+                assertEquals(0, bytes[i]);
+            }
         }
 
         buffer.setLength(5);
