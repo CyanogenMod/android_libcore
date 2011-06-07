@@ -204,7 +204,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
      * @tests java.text.DateFormat#parse(String)
      */
     public void test_parseLString() {
-        DateFormat format = DateFormat.getInstance();
+        DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.US);
 
         try {
             format.parse("not a Date");
@@ -247,7 +247,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
             //expected
         }
 
-        format = DateFormat.getDateInstance();
+        format = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.US);
         try {
             Date date = format.parse(format.format(current).toString());
             assertEquals(current.getDate(), date.getDate());
@@ -275,7 +275,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
             //expected
         }
 
-        format = DateFormat.getDateInstance(DateFormat.LONG);
+        format = DateFormat.getDateInstance(DateFormat.LONG, Locale.US);
         try {
             Date date = format.parse(format.format(current).toString());
             assertEquals(current.getDate(), date.getDate());
@@ -289,7 +289,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
             fail("ParseException was thrown for current Date.");
         }
 
-        format = DateFormat.getDateInstance(DateFormat.MEDIUM);
+        format = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.US);
         try {
             Date date = format.parse(format.format(current).toString());
             assertEquals(current.getDate(), date.getDate());
@@ -303,7 +303,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
             fail("ParseException was thrown for current Date.");
         }
 
-        format = DateFormat.getTimeInstance();
+        format = DateFormat.getTimeInstance(DateFormat.DEFAULT, Locale.US);
         try {
             Date date = format.parse(format.format(current).toString());
             assertEquals(1, date.getDate());
@@ -322,7 +322,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
             //expected
         }
 
-        format = DateFormat.getDateTimeInstance();
+        format = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT, Locale.US);
         try {
             Date date = format.parse(format.format(current).toString());
             assertEquals(current.getDate(), date.getDate());
@@ -349,7 +349,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
             //expected
         }
 
-        format = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
+        format = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.US);
         try {
             Date date = format.parse(format.format(current).toString());
             assertEquals(current.getDate(), date.getDate());
