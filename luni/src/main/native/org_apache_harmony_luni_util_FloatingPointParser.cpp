@@ -507,7 +507,6 @@ OutOfMemory:
   if (x && x != f)
       free(x);
   free(y);
-  free(y);
   free(D);
   free(D2);
   jniThrowException(env, "java/lang/OutOfMemoryError", NULL);
