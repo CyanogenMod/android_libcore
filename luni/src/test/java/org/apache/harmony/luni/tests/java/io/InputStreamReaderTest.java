@@ -423,14 +423,14 @@ public class InputStreamReaderTest extends TestCase {
                 "tests/api/java/io/testfile.txt");
         try {
             reader = new InputStreamReader(in, "gb18030");
+            while ((c = reader.read()) != -1) {
+                sb.append((char) c);
+            }
+            assertEquals(source, sb.toString());
         } catch (UnsupportedEncodingException e) {
             System.out
                     .println("GB18030 is not supported, abort test InputStreamReaderTest.testSpecialCharsetReading().");
         }
-        while ((c = reader.read()) != -1) {
-            sb.append((char) c);
-        }
-        assertEquals(source, sb.toString());
     }
 
     /**

@@ -19,7 +19,7 @@ package org.apache.harmony.luni.tests.java.lang;
 
 import java.io.Serializable;
 import java.util.Arrays;
-
+import java.nio.charset.Charset;
 import junit.framework.TestCase;
 
 import org.apache.harmony.testframework.serialization.SerializationTest;
@@ -1912,10 +1912,12 @@ public class StringBuilderTest extends TestCase {
         sb.setLength(0);
         sb.append("abcde");
         assertEquals("abcde", sb.toString());
-        sb.setLength(1000);
-        byte[] bytes = sb.toString().getBytes("GB18030");
-        for (int i = 5; i < bytes.length; i++) {
-            assertEquals(0, bytes[i]);
+        if (Charset.isSupported("GB18030")) {
+            sb.setLength(1000);
+            byte[] bytes = sb.toString().getBytes("GB18030");
+            for (int i = 5; i < bytes.length; i++) {
+                assertEquals(0, bytes[i]);
+            }
         }
 
         sb.setLength(5);
