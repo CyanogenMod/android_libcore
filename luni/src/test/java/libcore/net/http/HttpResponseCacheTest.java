@@ -16,6 +16,10 @@
 
 package libcore.net.http;
 
+import com.google.mockwebserver.MockResponse;
+import com.google.mockwebserver.MockWebServer;
+import com.google.mockwebserver.RecordedRequest;
+import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_END;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -59,10 +63,6 @@ import java.util.zip.GZIPOutputStream;
 import javax.net.ssl.HttpsURLConnection;
 import junit.framework.TestCase;
 import libcore.javax.net.ssl.TestSSLContext;
-import tests.http.MockResponse;
-import tests.http.MockWebServer;
-import tests.http.RecordedRequest;
-import static tests.http.SocketPolicy.DISCONNECT_AT_END;
 import tests.io.MockOs;
 
 public final class HttpResponseCacheTest extends TestCase {

@@ -104,7 +104,7 @@ LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik dom json luni support
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit
-LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc
+LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc mockwebserver
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests
@@ -170,7 +170,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
     LOCAL_NO_STANDARD_LIBRARIES := true
     LOCAL_JAVA_LIBRARIES := bouncycastle-hostdex core-hostdex core-junit-hostdex
-    LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc-host
+    LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc-host mockwebserver-hostdex
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_MODULE_TAGS := tests
     LOCAL_MODULE := core-tests-hostdex
