@@ -16,6 +16,9 @@
 
 package libcore.java.net;
 
+import com.google.mockwebserver.MockResponse;
+import com.google.mockwebserver.MockWebServer;
+import com.google.mockwebserver.RecordedRequest;
 import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -36,9 +39,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import junit.framework.TestCase;
-import tests.http.MockResponse;
-import tests.http.MockWebServer;
-import tests.http.RecordedRequest;
 
 public class CookiesTest extends TestCase {
 

@@ -16,6 +16,8 @@
 
 package libcore.xml;
 
+import com.google.mockwebserver.MockResponse;
+import com.google.mockwebserver.MockWebServer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,8 +39,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.DefaultHandler2;
 import org.xml.sax.helpers.DefaultHandler;
-import tests.http.MockResponse;
-import tests.http.MockWebServer;
 
 public class ExpatSaxParserTest extends TestCase {
 
