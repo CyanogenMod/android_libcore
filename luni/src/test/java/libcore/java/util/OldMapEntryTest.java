@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.tests.java.util;
+package libcore.java.util;
 
 import junit.framework.TestCase;
 
@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class MapEntryTest extends TestCase {
+public class OldMapEntryTest extends TestCase {
     Map.Entry me = null;
     HashMap   hm = null;
     Iterator  i  = null;

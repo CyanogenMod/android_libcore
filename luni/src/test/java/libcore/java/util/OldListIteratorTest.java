@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.tests.java.util;
+package libcore.java.util;
 
 import junit.framework.TestCase;
 
@@ -22,7 +22,7 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-public class ListIteratorTest extends TestCase {
+public class OldListIteratorTest extends TestCase {
 
     ListIterator<Integer> l = null;
 

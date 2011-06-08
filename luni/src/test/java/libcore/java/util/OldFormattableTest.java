@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.tests.java.util;
+package libcore.java.util;
 
 import junit.framework.TestCase;
 
 import java.util.Formattable;
 import java.util.Formatter;
 
-public class FormattableTest extends TestCase {
+public class OldFormattableTest extends TestCase {
 
     class Mock_Formattable implements Formattable {
         boolean flag = false;

@@ -15,7 +15,7 @@
  * the License.
  */
 
-package org.apache.harmony.luni.tests.java.util;
+package libcore.java.util;
 
 import junit.framework.TestCase;
 
@@ -44,7 +44,7 @@ import org.apache.harmony.testframework.serialization.SerializationTest.Serializ
 
 import tests.util.SerializationTester;
 
-public class CollectionsTest extends TestCase {
+public class OldCollectionsTest extends TestCase {
 
     private static final SerializableAssert comparator = new SerializableAssert() {
         public void assertDeserialized(Serializable reference, Serializable test) {
