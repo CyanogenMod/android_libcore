@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.tests.java.util;
-
-import junit.framework.TestCase;
+package libcore.java.util;
 
 import java.util.Observable;
 import java.util.Observer;
+import junit.framework.TestCase;
 
-public class ObserverTest extends TestCase {
+public class OldObserverTest extends TestCase {
 
     class Mock_Observer implements Observer {
         int updateCount = 0;
@@ -39,10 +38,6 @@ public class ObserverTest extends TestCase {
         public void doChange() {
             setChanged();
         }
-
-        public void clearChange() {
-            clearChanged();
-        }
     }
 
     public void testUpdate() {
@@ -50,9 +45,9 @@ public class ObserverTest extends TestCase {
         Mock_Observer observer = null;
         observable.addObserver(observer = new Mock_Observer());
         observable.notifyObservers();
-        assertEquals("Notified when unchnaged", 0, observer.getUpdateCount());
+        assertEquals(0, observer.getUpdateCount());
         observable.doChange();
         observable.notifyObservers();
-        assertEquals("Failed to notify", 1, observer.getUpdateCount());
+        assertEquals(1, observer.getUpdateCount());
     }
 }
