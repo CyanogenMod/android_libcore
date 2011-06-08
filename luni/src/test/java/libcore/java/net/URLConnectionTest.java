@@ -16,6 +16,14 @@
 
 package libcore.java.net;
 
+import com.google.mockwebserver.MockResponse;
+import com.google.mockwebserver.MockWebServer;
+import com.google.mockwebserver.RecordedRequest;
+import com.google.mockwebserver.SocketPolicy;
+import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_END;
+import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_START;
+import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_INPUT_AT_END;
+import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_OUTPUT_AT_END;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,14 +68,6 @@ import javax.net.ssl.X509TrustManager;
 import junit.framework.TestCase;
 import libcore.java.security.TestKeyStore;
 import libcore.javax.net.ssl.TestSSLContext;
-import tests.http.MockResponse;
-import tests.http.MockWebServer;
-import tests.http.RecordedRequest;
-import tests.http.SocketPolicy;
-import static tests.http.SocketPolicy.DISCONNECT_AT_END;
-import static tests.http.SocketPolicy.DISCONNECT_AT_START;
-import static tests.http.SocketPolicy.SHUTDOWN_INPUT_AT_END;
-import static tests.http.SocketPolicy.SHUTDOWN_OUTPUT_AT_END;
 import tests.net.StuckServer;
 
 public final class URLConnectionTest extends TestCase {
