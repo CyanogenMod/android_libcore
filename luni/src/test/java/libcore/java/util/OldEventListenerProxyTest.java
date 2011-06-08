@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.tests.java.util;
+package libcore.java.util;
 
 import junit.framework.TestCase;
 
 import java.util.EventListener;
 import java.util.EventListenerProxy;
 
-public class EventListenerProxyTest extends TestCase {
+public class OldEventListenerProxyTest extends TestCase {
 
     class Mock_EventListener implements EventListener {
-
     }
 
     class Mock_EventListenerProxy extends EventListenerProxy {
-
         public Mock_EventListenerProxy(EventListener listener) {
             super(listener);
         }
-
     }
 
     public void testEventListenerProxy() {
@@ -46,5 +43,4 @@ public class EventListenerProxyTest extends TestCase {
 
         assertSame(el, elp.getListener());
     }
-
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.tests.java.util;
+package libcore.java.util;
 
 import junit.framework.TestCase;
 
@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
 
-public class AbstractSetTest extends TestCase {
+public class OldAbstractSetTest extends TestCase {
 
     class Mock_AbstractSet extends AbstractSet{
 
