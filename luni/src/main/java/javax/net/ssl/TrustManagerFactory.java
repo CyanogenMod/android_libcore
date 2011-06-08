@@ -95,7 +95,7 @@ public class TrustManagerFactory {
     public static final TrustManagerFactory getInstance(String algorithm, String provider)
             throws NoSuchAlgorithmException, NoSuchProviderException {
         if ((provider == null) || (provider.length() == 0)) {
-            throw new IllegalArgumentException("Provider is null oe empty");
+            throw new IllegalArgumentException("Provider is null or empty");
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
