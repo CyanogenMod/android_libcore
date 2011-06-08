@@ -19,7 +19,7 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "ScopedUtfChars.h"
-#include "android/log.h"
+#include "cutils/log.h"
 #include "openssl/opensslv.h"
 #include "toStringArray.h"
 #include "zlib.h"

@@ -24,7 +24,6 @@
 #include "ScopedPrimitiveArray.h"
 
 #include "jni.h"
-#include <utils/misc.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
