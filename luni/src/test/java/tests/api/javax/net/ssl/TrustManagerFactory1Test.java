@@ -74,7 +74,7 @@ public class TrustManagerFactory1Test extends TestCase {
         init();
         return VALID_VALUES;
     }
-    
+
     private static synchronized void init() {
         if (DEFAULT_ALGORITHM != null) {
             return;
@@ -262,6 +262,9 @@ public class TrustManagerFactory1Test extends TestCase {
                             .concat(validValue).concat(" provider: ")
                             .concat(invalidValue).concat(")"));
                 } catch (NoSuchProviderException expected) {
+                    assertFalse("".equals(invalidValue));
+                } catch (IllegalArgumentException expected) {
+                    assertEquals("", invalidValue);
                 }
             }
         }
@@ -274,7 +277,8 @@ public class TrustManagerFactory1Test extends TestCase {
      */
     public void test_getInstanceLjava_lang_StringLjava_lang_String04() throws Exception {
         for (String validValue : getValidValues()) {
-            TrustManagerFactory trustMF = TrustManagerFactory.getInstance(validValue, getDefaultProviderName());
+            TrustManagerFactory trustMF = TrustManagerFactory.getInstance(validValue,
+                                                                          getDefaultProviderName());
             assertTrue("Not TrustManagerFactory object",
                        trustMF instanceof TrustManagerFactory);
             assertEquals("Invalid algorithm", trustMF.getAlgorithm(), validValue);
