@@ -42,6 +42,7 @@
 #include "unicode/ucol.h"
 #include "unicode/ucurr.h"
 #include "unicode/udat.h"
+#include "unicode/uloc.h"
 #include "unicode/ustring.h"
 #include "ureslocs.h"
 #include "valueOf.h"
@@ -83,6 +84,17 @@ private:
 
 Locale getLocale(JNIEnv* env, jstring localeName) {
     return Locale::createFromName(ScopedUtfChars(env, localeName).c_str());
+}
+
+static jstring ICU_addLikelySubtags(JNIEnv* env, jclass, jstring javaLocale) {
+    UErrorCode status = U_ZERO_ERROR;
+    ScopedUtfChars localeID(env, javaLocale);
+    char maximizedLocaleID[ULOC_FULLNAME_CAPACITY];
+    uloc_addLikelySubtags(localeID.c_str(), maximizedLocaleID, sizeof(maximizedLocaleID), &status);
+    if (U_FAILURE(status)) {
+        return javaLocale;
+    }
+    return env->NewStringUTF(maximizedLocaleID);
 }
 
 static jint ICU_getCurrencyFractionDigits(JNIEnv* env, jclass, jstring javaCurrencyCode) {
@@ -693,6 +705,7 @@ static jobject ICU_getAvailableCurrencyCodes(JNIEnv* env, jclass) {
 }
 
 static JNINativeMethod gMethods[] = {
+    NATIVE_METHOD(ICU, addLikelySubtags, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getAvailableBreakIteratorLocalesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getAvailableCalendarLocalesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getAvailableCollatorLocalesNative, "()[Ljava/lang/String;"),
