@@ -34,6 +34,7 @@ import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.PublicKey;
 import java.security.Security;
+import java.security.SecureRandom;
 import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
@@ -57,7 +58,7 @@ public class KeyStore2Test extends junit.framework.TestCase {
     private static PrivateKey getPrivateKey() throws Exception {
         if (PRIVATE_KEY == null) {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
-            keyPairGenerator.initialize(1024, null);
+            keyPairGenerator.initialize(1024, new SecureRandom());
             KeyPair keyPair = keyPairGenerator.genKeyPair();
             PRIVATE_KEY = keyPair.getPrivate();
         }
