@@ -18,6 +18,7 @@ package dalvik.system;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -47,13 +48,9 @@ import static libcore.io.OsConstants.*;
 public final class BlockGuard {
 
     private static final boolean LOGI = false;
-    private static final boolean TAG_SOCKETS = false;
 
     // TODO: refactor class name to something more generic, since its scope is
     // growing beyond just blocking/logging.
-
-    private static final byte TAG_HEADER = 't';
-    private static final byte TAG_SEPARATOR = '\0';
 
     public static final int DISALLOW_DISK_WRITE = 0x01;
     public static final int DISALLOW_DISK_READ = 0x02;
@@ -192,7 +189,6 @@ public final class BlockGuard {
             System.logI("tagSocket(" + fd.getInt$() + ") with statsTag="
                     + options.statsTag + ", statsUid=" + options.statsUid);
         }
-
         try {
             // TODO: skip tagging when options would be no-op
             internalTagSocketFd(fd, options.statsTag, options.statsUid);
@@ -205,9 +201,8 @@ public final class BlockGuard {
         if (LOGI) {
             System.logI("untagSocket(" + fd.getInt$() + ")");
         }
-
         try {
-            internalTagSocketFd(fd, null, -1);
+            internalUnTagSocketFd(fd);
         } catch (IOException e) {
             throw new SocketException("Problem untagging socket", e);
         }
@@ -215,27 +210,46 @@ public final class BlockGuard {
 
     private static void internalTagSocketFd(FileDescriptor fd, String tag, int uid)
             throws IOException {
-        if (!TAG_SOCKETS) return;
+        int fdNum = fd.getInt$();
+        if (fdNum == -1 || (tag == null && uid == -1)) return;
 
-        final byte[] tagBytes = tag != null ? tag.getBytes() : EmptyArray.BYTE;
-        final byte[] uidBytes = uid != -1 ? Integer.toString(uid).getBytes() : EmptyArray.BYTE;
+        String cmd = "t " + fdNum;
+        if (tag == null) {
+            // Case where just the uid needs adjusting. But probaly the caller
+            // will want to track his own name here, just in case.
+            cmd += " 0";
+        } else {
+            cmd += " " + ((long)tag.replace(' ', '_').hashCode() << 32);
+        }
+        if (uid != -1) {
+            cmd += " " + uid;
+        }
+        internalModuleCtrl(cmd);
+    }
 
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream(
-                4 + tagBytes.length + uidBytes.length);
+    private static void internalUnTagSocketFd(FileDescriptor fd)
+            throws IOException {
+      int fdNum = fd.getInt$();
+      if (fdNum == -1) return;
+      String cmd = "u " + fdNum;
+      internalModuleCtrl(cmd);
+    }
 
-        buffer.write(TAG_HEADER);
-        buffer.write(TAG_SEPARATOR);
-        buffer.write(tagBytes);
-        buffer.write(TAG_SEPARATOR);
-        buffer.write(uidBytes);
-        buffer.write(TAG_SEPARATOR);
-        buffer.close();
-
-        final byte[] bufferBytes = buffer.toByteArray();
-
-        final FileOutputStream procOut = new FileOutputStream("/proc/net/qtaguid");
+    private static void internalModuleCtrl(String cmd) throws IOException {
+        final FileOutputStream procOut;
+        // TODO: Use something like
+        //  android.os.SystemProperties.getInt("persist.bandwidth.enable", 0)
+        // to see if tagging should happen or not.
         try {
-            procOut.write(bufferBytes);
+            procOut = new FileOutputStream("/proc/net/xt_qtaguid/ctrl");
+        } catch (FileNotFoundException e) {
+            if (LOGI) {
+                System.logI("Can't talk to kernel module:" + e);
+            }
+            return;
+        }
+        try {
+            procOut.write(cmd.getBytes());
         } finally {
             procOut.close();
         }
