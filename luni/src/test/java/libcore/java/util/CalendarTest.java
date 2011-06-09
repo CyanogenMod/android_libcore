@@ -17,10 +17,14 @@
 package libcore.java.util;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
 public class CalendarTest extends junit.framework.TestCase {
+
+    private static final TimeZone AMERICA_SAO_PAULO = TimeZone.getTimeZone("America/Sao_Paulo");
+
     // http://code.google.com/p/android/issues/detail?id=6184
     public void test_setTimeZone() {
         // The specific time zones don't matter; they just have to be different so we can see that
@@ -30,5 +34,60 @@ public class CalendarTest extends junit.framework.TestCase {
         TimeZone tz = java.util.TimeZone.getTimeZone("GMT+7");
         cal.setTimeZone(tz);
         assertEquals(25200000, cal.get(Calendar.ZONE_OFFSET));
+    }
+
+    public void testAddOneDayOverDstForwardAdds23HoursAt0100() {
+        Calendar calendar = new GregorianCalendar(AMERICA_SAO_PAULO);
+        calendar.set(2011, 9, 15, 1, 0); // 01:00
+        long hoursSinceEpoch = hoursSinceEpoch(calendar);
+        calendar.add(Calendar.DATE, 1);
+        assertEquals(23, hoursSinceEpoch(calendar) - hoursSinceEpoch);
+        assertCalendarEquals(calendar, 2011, 9, 16, 1); // 01:00; +23 hours
+    }
+
+    /**
+     * At their daylight savings time switch, Sao Paulo changes from
+     * "00:00 GMT-3" to "01:00 GMT-2". When adding time across this boundary,
+     * drop an hour to keep the hour+minute constant unless that prevents the
+     * date field from being incremented.
+     * http://code.google.com/p/android/issues/detail?id=17502
+     */
+    public void testAddOneDayOverDstForwardAdds24HoursAt0000() {
+        Calendar calendar = new GregorianCalendar(AMERICA_SAO_PAULO);
+        calendar.set(2011, 9, 15, 0, 0); // 00:00
+        long hoursSinceEpoch = hoursSinceEpoch(calendar);
+        calendar.add(Calendar.DATE, 1);
+        assertEquals(24, hoursSinceEpoch(calendar) - hoursSinceEpoch);
+        assertCalendarEquals(calendar, 2011, 9, 16, 1); // 01:00; +24 hours
+    }
+
+    public void testAddOneDayOverDstBackAdds25HoursAt0000() {
+        Calendar calendar = new GregorianCalendar(AMERICA_SAO_PAULO);
+        calendar.set(2011, 1, 19, 0, 0); // 00:00
+        long hoursSinceEpoch = hoursSinceEpoch(calendar);
+        calendar.add(Calendar.DATE, 1);
+        assertEquals(25, hoursSinceEpoch(calendar) - hoursSinceEpoch);
+        assertCalendarEquals(calendar, 2011, 1, 20, 0); // 00:00; +25 hours
+    }
+
+    public void testAddOneDayOverDstBackAdds25HoursAt0100() {
+        Calendar calendar = new GregorianCalendar(AMERICA_SAO_PAULO);
+        calendar.set(2011, 1, 19, 1, 0); // 00:00
+        long hoursSinceEpoch = hoursSinceEpoch(calendar);
+        calendar.add(Calendar.DATE, 1);
+        assertEquals(25, hoursSinceEpoch(calendar) - hoursSinceEpoch);
+        assertCalendarEquals(calendar, 2011, 1, 20, 1); // 00:00; +25 hours
+    }
+
+    private void assertCalendarEquals(Calendar calendar, int year, int month, int day, int hour) {
+        assertEquals(year, calendar.get(Calendar.YEAR));
+        assertEquals(month, calendar.get(Calendar.MONTH));
+        assertEquals(day, calendar.get(Calendar.DATE));
+        assertEquals(hour, calendar.get(Calendar.HOUR_OF_DAY));
+    }
+
+    private static long hoursSinceEpoch(Calendar c) {
+        long ONE_HOUR = 3600L * 1000L;
+        return c.getTimeInMillis() / ONE_HOUR;
     }
 }
