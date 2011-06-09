@@ -26,12 +26,12 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
+import java.nio.charset.Charsets;
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
 import libcore.io.StructLinger;
 import libcore.util.EmptyArray;
 import static libcore.io.OsConstants.*;
-
 /**
  * Mechanism to let threads set restrictions on what code is allowed
  * to do in their thread.
@@ -219,7 +219,8 @@ public final class BlockGuard {
             // will want to track his own name here, just in case.
             cmd += " 0";
         } else {
-            cmd += " " + ((long)tag.replace(' ', '_').hashCode() << 32);
+            // TODO: See about supporting strings, or assume always acct_tag (1..2^32-1)
+            cmd += " " + ((long)tag.hashCode() << 32);
         }
         if (uid != -1) {
             cmd += " " + uid;
@@ -235,6 +236,25 @@ public final class BlockGuard {
       internalModuleCtrl(cmd);
     }
 
+    /**
+     * Sends commands to the kernel netfilter module.
+     *
+     * @param cmd command string for the qtaguid netfilter module. May not be null.
+     *   <p>Supports:
+     *     <ul><li>tag a socket:<br>
+     *        <code>t <i>sock_fd</i> <i>acct_tag</i> [<i>uid_in_case_caller_is_acting_on_behalf_of</i>]</code><br>
+     *     <code>*_tag</code> defaults to default_policy_tag_from_uid(uid_of_caller)<br>
+     *     <code>acct_tag</code> is either 0 or greater that 2^32.<br>
+     *     <code>uid_*</code> is only settable by priviledged UIDs (DownloadManager,...)
+     *     </li>
+     *     <li>untag a socket, preserving counters:<br>
+     *       <code>u <i>sock_fd</i></code>
+     *     </li></ul>
+     *   <p>Notes:<br>
+     *   <ul><li><i>sock_fd</i> is withing the callers process space.</li>
+     *   <li><i>*_tag</i> are 64bit values</li></ul>
+     *
+     */
     private static void internalModuleCtrl(String cmd) throws IOException {
         final FileOutputStream procOut;
         // TODO: Use something like
@@ -249,7 +269,7 @@ public final class BlockGuard {
             return;
         }
         try {
-            procOut.write(cmd.getBytes());
+            procOut.write(cmd.getBytes(Charsets.US_ASCII));
         } finally {
             procOut.close();
         }
