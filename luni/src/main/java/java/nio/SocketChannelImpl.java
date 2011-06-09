@@ -259,7 +259,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
 
     @Override
     public int read(ByteBuffer dst) throws IOException {
-        FileChannelImpl.checkWritable(dst);
+        dst.checkWritable();
         checkOpenConnected();
         if (!dst.hasRemaining()) {
             return 0;

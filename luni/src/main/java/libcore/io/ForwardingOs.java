@@ -88,6 +88,10 @@ public class ForwardingOs implements Os {
     public FileDescriptor open(String path, int flags, int mode) throws ErrnoException { return os.open(path, flags, mode); }
     public FileDescriptor[] pipe() throws ErrnoException { return os.pipe(); }
     public int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException { return os.poll(fds, timeoutMs); }
+    public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException { return os.pread(fd, buffer, offset); }
+    public int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException { return os.pread(fd, bytes, byteOffset, byteCount, offset); }
+    public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException { return os.pwrite(fd, buffer, offset); }
+    public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException { return os.pwrite(fd, bytes, byteOffset, byteCount, offset); }
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException { return os.read(fd, buffer); }
     public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException { return os.read(fd, bytes, byteOffset, byteCount); }
     public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException { return os.readv(fd, buffers, offsets, byteCounts); }

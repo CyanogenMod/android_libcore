@@ -925,6 +925,24 @@ static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint time
     return rc;
 }
 
+static jint Posix_preadBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jlong offset) {
+    ScopedBytesRW bytes(env, javaBytes);
+    if (bytes.get() == NULL) {
+        return -1;
+    }
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    return throwIfMinusOne(env, "pread", TEMP_FAILURE_RETRY(pread64(fd, bytes.get() + byteOffset, byteCount, offset)));
+}
+
+static jint Posix_pwriteBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray javaBytes, jint byteOffset, jint byteCount, jlong offset) {
+    ScopedBytesRO bytes(env, javaBytes);
+    if (bytes.get() == NULL) {
+        return -1;
+    }
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    return throwIfMinusOne(env, "pwrite", TEMP_FAILURE_RETRY(pwrite64(fd, bytes.get() + byteOffset, byteCount, offset)));
+}
+
 static jint Posix_readBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount) {
     ScopedBytesRW bytes(env, javaBytes);
     if (bytes.get() == NULL) {
@@ -1254,6 +1272,8 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, open, "(Ljava/lang/String;II)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, pipe, "()[Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, poll, "([Llibcore/io/StructPollfd;I)I"),
+    NATIVE_METHOD(Posix, preadBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIJ)I"),
+    NATIVE_METHOD(Posix, pwriteBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIJ)I"),
     NATIVE_METHOD(Posix, readBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
     NATIVE_METHOD(Posix, readv, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
     NATIVE_METHOD(Posix, recvfromBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetSocketAddress;)I"),

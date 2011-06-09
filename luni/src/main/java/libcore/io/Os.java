@@ -69,6 +69,7 @@ public interface Os {
     public void kill(int pid, int signal) throws ErrnoException;
     public void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
+    public StructStat lstat(String path) throws ErrnoException;
     public void mincore(long address, long byteCount, byte[] vector) throws ErrnoException;
     public void mkdir(String path, int mode) throws ErrnoException;
     public void mlock(long address, long byteCount) throws ErrnoException;
@@ -80,7 +81,10 @@ public interface Os {
     public FileDescriptor[] pipe() throws ErrnoException;
     /* TODO: if we used the non-standard ppoll(2) behind the scenes, we could take a long timeout. */
     public int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException;
-    public StructStat lstat(String path) throws ErrnoException;
+    public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException;
+    public int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException;
+    public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException;
+    public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException;
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException;
     public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
     public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
