@@ -269,6 +269,12 @@ public abstract class Buffer {
      */
     public abstract boolean isReadOnly();
 
+    final void checkWritable() {
+        if (isReadOnly()) {
+            throw new IllegalArgumentException("read-only buffer");
+        }
+    }
+
     /**
      * Returns the limit of this buffer.
      *

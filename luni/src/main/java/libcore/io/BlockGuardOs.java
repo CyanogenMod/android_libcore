@@ -107,6 +107,26 @@ public class BlockGuardOs extends ForwardingOs {
         return os.poll(fds, timeoutMs);
     }
 
+    @Override public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onReadFromDisk();
+        return os.pread(fd, buffer, offset);
+    }
+
+    @Override public int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onReadFromDisk();
+        return os.pread(fd, bytes, byteOffset, byteCount, offset);
+    }
+
+    @Override public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        return os.pwrite(fd, buffer, offset);
+    }
+
+    @Override public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        return os.pwrite(fd, bytes, byteOffset, byteCount, offset);
+    }
+
     @Override public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.read(fd, buffer);

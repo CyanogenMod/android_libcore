@@ -165,7 +165,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
 
     @Override
     public SocketAddress receive(ByteBuffer target) throws IOException {
-        FileChannelImpl.checkWritable(target);
+        target.checkWritable();
         checkOpen();
 
         if (!isBound) {
@@ -274,7 +274,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
 
     @Override
     public int read(ByteBuffer target) throws IOException {
-        FileChannelImpl.checkWritable(target);
+        target.checkWritable();
         checkOpenConnected();
 
         if (!target.hasRemaining()) {
