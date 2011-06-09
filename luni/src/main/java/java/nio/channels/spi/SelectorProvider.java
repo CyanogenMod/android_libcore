@@ -76,7 +76,7 @@ public abstract class SelectorProvider {
     }
 
     private static SelectorProvider loadProviderByJar() {
-        for (SelectorProvider provider : ServiceLoader.load(SelectorProvider.class, null)) {
+        for (SelectorProvider provider : ServiceLoader.load(SelectorProvider.class)) {
             return provider;
         }
         return null;

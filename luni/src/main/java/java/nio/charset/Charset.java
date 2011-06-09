@@ -221,7 +221,7 @@ public abstract class Charset implements Comparable<Charset> {
         }
 
         // Add all charsets provided by all charset providers...
-        for (CharsetProvider charsetProvider : ServiceLoader.load(CharsetProvider.class, null)) {
+        for (CharsetProvider charsetProvider : ServiceLoader.load(CharsetProvider.class)) {
             Iterator<Charset> it = charsetProvider.charsets();
             while (it.hasNext()) {
                 Charset cs = it.next();
@@ -293,7 +293,7 @@ public abstract class Charset implements Comparable<Charset> {
         }
 
         // Does a configured CharsetProvider have this charset?
-        for (CharsetProvider charsetProvider : ServiceLoader.load(CharsetProvider.class, null)) {
+        for (CharsetProvider charsetProvider : ServiceLoader.load(CharsetProvider.class)) {
             cs = charsetProvider.charsetForName(charsetName);
             if (cs != null) {
                 return cacheCharset(charsetName, cs);
