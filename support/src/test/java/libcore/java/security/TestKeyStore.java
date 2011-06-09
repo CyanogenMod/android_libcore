@@ -30,13 +30,14 @@ import java.io.ByteArrayInputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.KeyStore;
 import java.security.KeyStore.PasswordProtection;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.KeyStore.TrustedCertificateEntry;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
@@ -438,7 +439,11 @@ public final class TestKeyStore extends Assert {
         }
 
         private X500Principal localhost() {
-            return new X500Principal("CN=" + InetAddress.getLoopbackAddress().getHostName());
+            try {
+                return new X500Principal("CN=" + InetAddress.getLocalHost().getHostName());
+            } catch (UnknownHostException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
