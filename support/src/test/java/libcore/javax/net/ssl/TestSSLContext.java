@@ -18,7 +18,6 @@ package libcore.javax.net.ssl;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.KeyStore;
@@ -176,9 +175,8 @@ public final class TestSSLContext extends Assert {
         try {
             SSLServerSocket serverSocket = (SSLServerSocket)
                 serverContext.getServerSocketFactory().createServerSocket(0);
-            InetSocketAddress sa = (InetSocketAddress) serverSocket.getLocalSocketAddress();
-            InetAddress host = sa.getAddress();
-            int port = sa.getPort();
+            InetAddress host = InetAddress.getLocalHost();
+            int port = serverSocket.getLocalPort();
 
             return new TestSSLContext(clientKeyStore, clientStorePassword,
                                       serverKeyStore, serverStorePassword,
