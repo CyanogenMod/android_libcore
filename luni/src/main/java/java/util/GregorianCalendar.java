@@ -435,16 +435,35 @@ public class GregorianCalendar extends Calendar {
                 multiplier = 604800000L;
                 break;
         }
-        if (multiplier > 0) {
-            int zoneOffset = getTimeZone().getRawOffset();
-            int offset = getOffset(time + zoneOffset);
-            time += value * multiplier;
-            int newOffset = getOffset(time + zoneOffset);
-            // Adjust for moving over a DST boundary
-            if (newOffset != offset) {
-                time += offset - newOffset;
-            }
+
+        if (multiplier == 0) {
+            areFieldsSet = false;
+            complete();
+            return;
         }
+
+        long delta = value * multiplier;
+
+        /*
+         * Attempt to keep the hour and minute constant when we've crossed a DST
+         * boundary and the user's units are AM_PM or larger. The typical
+         * consequence is that calls to add(DATE, 1) will add 23, 24 or 25 hours
+         * depending on whether the DST goes forward, constant, or backward.
+         *
+         * We know we've crossed a DST boundary if the new time will have a
+         * different timezone offset. Adjust by adding the difference of the two
+         * offsets. We don't adjust when doing so prevents the change from
+         * crossing the boundary.
+         */
+        int zoneOffset = getTimeZone().getRawOffset();
+        int offsetBefore = getOffset(time + zoneOffset);
+        int offsetAfter = getOffset(time + zoneOffset + delta);
+        int dstDelta = offsetBefore - offsetAfter;
+        if (getOffset(time + zoneOffset + delta + dstDelta) == offsetAfter) {
+            delta += dstDelta;
+        }
+
+        time += delta;
         areFieldsSet = false;
         complete();
     }
