@@ -19,9 +19,9 @@ package libcore.java.nio.charset;
 public class OldCharset_SingleByte_ISO_8859_11 extends OldCharset_SingleByteAbstractTest {
 
     protected void setUp() throws Exception {
-//        charsetName = "ISO-8859-11";
-        charsetName = "x-iso-8859_11-2001";
-
+        // "x-iso-8859_11-2001" was the canonical name in ICU4.4 but not in ICU4.6
+        // "x-iso-8859-11" is the new canonical name.
+        charsetName = "x-iso-8859-11";
         allChars = theseChars(new int[]{
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
             16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,

@@ -363,15 +363,168 @@ static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, URes
     }
 }
 
-static void setCharField(JNIEnv* env, jobject obj, const char* fieldName, UResourceBundle* bundle, int index) {
+static bool setStringField(JNIEnv* env, jobject obj, const char* key, const char* fieldName, UResourceBundle* bundle) {
+    if (bundle == NULL) {
+        return false;
+    }
     UErrorCode status = U_ZERO_ERROR;
     int charCount;
-    const UChar* chars = ures_getStringByIndex(bundle, index, &charCount, &status);
+    const UChar* chars = ures_getStringByKey(bundle, key, &charCount, &status);
+    if (U_SUCCESS(status)) {
+        setStringField(env, obj, fieldName, env->NewString(chars, charCount));
+        return true;
+    } else {
+        // Missing item in current resource bundle but not an error.
+        return false;
+    }
+}
+
+static void setStringField(JNIEnv* env, jobject obj, const char* key, const char* fieldName,
+    UResourceBundle* bundle, UResourceBundle* fallbackBundle) {
+    if (!setStringField(env, obj, key, fieldName, bundle) && fallbackBundle != NULL) {
+        setStringField(env, obj, key, fieldName, fallbackBundle);
+    }
+}
+
+static bool setCharField(JNIEnv* env, jobject obj, const char* key, const char* fieldName,
+    UResourceBundle* bundle) {
+    if (bundle == NULL) {
+        return false;
+    }
+    UErrorCode status = U_ZERO_ERROR;
+    int charCount;
+    const UChar* chars = ures_getStringByKey(bundle, key, &charCount, &status);
     if (U_SUCCESS(status)) {
         jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, fieldName, "C");
         env->SetCharField(obj, fid, chars[0]);
+        return true;
     } else {
-        LOGE("Error setting char field %s from ICU resource: %s", fieldName, u_errorName(status));
+        // Missing item in current resource bundle but not an error.
+        return false;
+    }
+}
+
+static void setCharField(JNIEnv* env, jobject obj, const char* key, const char* fieldName,
+    UResourceBundle* bundle, UResourceBundle* fallbackBundle) {
+    if (!setCharField(env, obj, key, fieldName, bundle) && fallbackBundle != NULL) {
+        setCharField(env, obj, key, fieldName, fallbackBundle);
+    }
+}
+
+static void setNumberSymbols(JNIEnv* env, jobject obj, UResourceBundle* numberSymbols,
+    UResourceBundle* fallbackNumberSymbols) {
+    setCharField(env, obj, "decimal", "decimalSeparator", numberSymbols, fallbackNumberSymbols);
+    setCharField(env, obj, "group", "groupingSeparator", numberSymbols, fallbackNumberSymbols);
+    setCharField(env, obj, "list", "patternSeparator", numberSymbols, fallbackNumberSymbols);
+    setCharField(env, obj, "percentSign", "percent", numberSymbols, fallbackNumberSymbols);
+    setCharField(env, obj, "perMille", "perMill", numberSymbols, fallbackNumberSymbols);
+    setCharField(env, obj, "decimal", "monetarySeparator", numberSymbols, fallbackNumberSymbols);
+    setCharField(env, obj, "minusSign", "minusSign", numberSymbols, fallbackNumberSymbols);
+    setStringField(env, obj, "exponential", "exponentSeparator", numberSymbols, fallbackNumberSymbols);
+    setStringField(env, obj, "infinity", "infinity", numberSymbols, fallbackNumberSymbols);
+    setStringField(env, obj, "nan", "NaN", numberSymbols, fallbackNumberSymbols);
+    // TODO: Digit field is removed in ICU4.6 release.
+    jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, "digit", "C");
+    env->SetCharField(obj, fid, '#');
+}
+
+static void setZeroDigitToDefault(JNIEnv* env, jobject obj) {
+    jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, "zeroDigit", "C");
+    env->SetCharField(obj, fid, '0');
+}
+
+static void setZeroDigit(JNIEnv* env, jobject obj, bool isLatn, char* buffer) {
+    if (isLatn || buffer == NULL || buffer[0] == '\0') {
+        return setZeroDigitToDefault(env, obj);
+    }
+    UErrorCode status = U_ZERO_ERROR;
+    ScopedResourceBundle numSystemRoot(ures_openDirect(NULL, "numberingSystems", &status));
+    if (U_FAILURE(status)) {
+        return setZeroDigitToDefault(env, obj);
+    }
+    ScopedResourceBundle numSystem(ures_getByKey(numSystemRoot.get(), "numberingSystems", NULL, &status));
+    if (U_FAILURE(status)) {
+        return setZeroDigitToDefault(env, obj);
+    }
+    ScopedResourceBundle nonLatnSystem(ures_getByKey(numSystem.get(), buffer, NULL, &status));
+    if (U_FAILURE(status)) {
+        return setZeroDigitToDefault(env, obj);
+    }
+    int32_t charCount = 0;
+    const UChar* chars = ures_getStringByKey(nonLatnSystem.get(), "desc", &charCount, &status);
+    if (charCount == 0) {
+        setZeroDigitToDefault(env, obj);
+    } else {
+        jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, "zeroDigit", "C");
+        env->SetCharField(obj, fid, chars[0]);
+    }
+}
+
+static void setNumberElements(JNIEnv* env, jobject obj, UResourceBundle* numberElements) {
+    UErrorCode status = U_ZERO_ERROR;
+    ScopedResourceBundle latnNumberRB(ures_getByKey(numberElements, "latn", NULL, &status));
+    if (U_FAILURE(status)) {
+        LOGW("Error getting ICU latn number elements system value: %s", u_errorName(status));
+        return;
+    }
+    ScopedResourceBundle patternsRB(ures_getByKey(latnNumberRB.get(), "patterns", NULL, &status));
+    if (U_FAILURE(status)) {
+        LOGW("Error getting ICU latn number patterns value: %s", u_errorName(status));
+        return;
+    }
+    // Get the patterns from the 'latn' numberElements
+    // This is a temporary workaround for ICU ticket#8611.
+    UResourceBundle* bundle = patternsRB.get();
+    setStringField(env, obj, "currencyFormat", "currencyPattern", bundle);
+    setStringField(env, obj, "decimalFormat", "numberPattern", bundle);
+    setStringField(env, obj, "percentFormat", "percentPattern", bundle);
+    // setStringField(env, obj, "scientificFormat", "???", bundle);
+
+    status = U_ZERO_ERROR;
+    bool isLatn = false;
+    char buffer[256];
+    buffer[0] = '\0';
+    ScopedResourceBundle defaultNumberElem(ures_getByKey(numberElements, "default", NULL, &status));
+    if (U_SUCCESS(status)) {
+        int32_t charCount = 256;
+        ures_getUTF8String(defaultNumberElem.get(), buffer, &charCount, true, &status);
+        buffer[charCount] = '\0';
+        if (U_FAILURE(status)) {
+            LOGW("Error getting ICU default number element system value: %s", u_errorName(status));
+            // Use latn number symbols instead.
+            isLatn = true;
+        } else {
+            isLatn = (strcmp(buffer, "latn") == 0);
+        }
+    } else {
+        // Not default data, fallback to latn number elements.
+        isLatn = true;
+    }
+
+    status = U_ZERO_ERROR;
+    setZeroDigit(env, obj, isLatn, buffer);
+    if (isLatn) {
+        ScopedResourceBundle symbolsRB(ures_getByKey(latnNumberRB.get(), "symbols", NULL, &status));
+        if (U_SUCCESS(status)) {
+            setNumberSymbols(env, obj, symbolsRB.get(), NULL);
+        } else {
+            LOGW("Missing ICU latn symbols system value: %s", u_errorName(status));
+        }
+    } else {
+        // Get every symbol item from default numbering system first. If it does not
+        // exist, get the symbol from latn numbering system.
+        ScopedResourceBundle defaultNumberRB(ures_getByKey(numberElements, (const char*)buffer, NULL, &status));
+        ScopedResourceBundle defaultSymbolsRB(ures_getByKey(defaultNumberRB.get(), "symbols", NULL, &status));
+        if (U_FAILURE(status)) {
+            LOGW("Missing ICU %s symbols system value: %s", buffer, u_errorName(status));
+            isLatn = true;  // Fallback to latn symbols.
+            status = U_ZERO_ERROR;
+        }
+        ScopedResourceBundle latnSymbolsRB(ures_getByKey(latnNumberRB.get(), "symbols", NULL, &status));
+        if (isLatn && U_FAILURE(status)) {
+            return;
+        }
+        setNumberSymbols(env, obj, defaultSymbolsRB.get(), latnSymbolsRB.get());
     }
 }
 
@@ -457,20 +610,10 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobj
     }
     status = U_ZERO_ERROR;
 
+    // For numberPatterns and symbols.
     ScopedResourceBundle numberElements(ures_getByKey(root.get(), "NumberElements", NULL, &status));
-    if (U_SUCCESS(status) && ures_getSize(numberElements.get()) >= 11) {
-        setCharField(env, localeData, "zeroDigit", numberElements.get(), 4);
-        setCharField(env, localeData, "digit", numberElements.get(), 5);
-        setCharField(env, localeData, "decimalSeparator", numberElements.get(), 0);
-        setCharField(env, localeData, "groupingSeparator", numberElements.get(), 1);
-        setCharField(env, localeData, "patternSeparator", numberElements.get(), 2);
-        setCharField(env, localeData, "percent", numberElements.get(), 3);
-        setCharField(env, localeData, "perMill", numberElements.get(), 8);
-        setCharField(env, localeData, "monetarySeparator", numberElements.get(), 0);
-        setCharField(env, localeData, "minusSign", numberElements.get(), 6);
-        setStringField(env, localeData, "exponentSeparator", numberElements.get(), 7);
-        setStringField(env, localeData, "infinity", numberElements.get(), 9);
-        setStringField(env, localeData, "NaN", numberElements.get(), 10);
+    if (U_SUCCESS(status)) {
+        setNumberElements(env, localeData, numberElements.get());
     }
     status = U_ZERO_ERROR;
 
@@ -488,13 +631,6 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobj
     }
     setStringField(env, localeData, "currencySymbol", currencySymbol);
     setStringField(env, localeData, "internationalCurrencySymbol", internationalCurrencySymbol);
-
-    ScopedResourceBundle numberPatterns(ures_getByKey(root.get(), "NumberPatterns", NULL, &status));
-    if (U_SUCCESS(status) && ures_getSize(numberPatterns.get()) >= 3) {
-        setStringField(env, localeData, "numberPattern", numberPatterns.get(), 0);
-        setStringField(env, localeData, "currencyPattern", numberPatterns.get(), 1);
-        setStringField(env, localeData, "percentPattern", numberPatterns.get(), 2);
-    }
 
     return JNI_TRUE;
 }
