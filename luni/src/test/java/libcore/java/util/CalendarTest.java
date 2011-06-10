@@ -24,6 +24,7 @@ import java.util.TimeZone;
 public class CalendarTest extends junit.framework.TestCase {
 
     private static final TimeZone AMERICA_SAO_PAULO = TimeZone.getTimeZone("America/Sao_Paulo");
+    private static final TimeZone AUSTRALIA_LORD_HOWE = TimeZone.getTimeZone("Australia/Lord_Howe");
 
     // http://code.google.com/p/android/issues/detail?id=6184
     public void test_setTimeZone() {
@@ -39,10 +40,10 @@ public class CalendarTest extends junit.framework.TestCase {
     public void testAddOneDayOverDstForwardAdds23HoursAt0100() {
         Calendar calendar = new GregorianCalendar(AMERICA_SAO_PAULO);
         calendar.set(2011, 9, 15, 1, 0); // 01:00 GMT-3
-        long hoursSinceEpoch = hoursSinceEpoch(calendar);
+        double hoursSinceEpoch = hoursSinceEpoch(calendar);
         calendar.add(Calendar.DATE, 1);
-        assertEquals(23, hoursSinceEpoch(calendar) - hoursSinceEpoch);
-        assertCalendarEquals(calendar, 2011, 9, 16, 1); // 01:00 GMT-2; +23 hours
+        assertEquals(23.0, hoursSinceEpoch(calendar) - hoursSinceEpoch);
+        assertCalendarEquals(calendar, 2011, 9, 16, 1, 0); // 01:00 GMT-2; +23 hours
     }
 
     /**
@@ -55,57 +56,79 @@ public class CalendarTest extends junit.framework.TestCase {
     public void testAddOneDayOverDstForwardAdds24HoursAt0000() {
         Calendar calendar = new GregorianCalendar(AMERICA_SAO_PAULO);
         calendar.set(2011, 9, 15, 0, 0); // 00:00 GMT-3
-        long hoursSinceEpoch = hoursSinceEpoch(calendar);
+        double hoursSinceEpoch = hoursSinceEpoch(calendar);
         calendar.add(Calendar.DATE, 1);
-        assertEquals(24, hoursSinceEpoch(calendar) - hoursSinceEpoch);
-        assertCalendarEquals(calendar, 2011, 9, 16, 1); // 01:00 GMT-2; +24 hours
+        assertEquals(24.0, hoursSinceEpoch(calendar) - hoursSinceEpoch);
+        assertCalendarEquals(calendar, 2011, 9, 16, 1, 0); // 01:00 GMT-2; +24 hours
     }
 
     public void testAddOneDayOverDstBackAdds25HoursAt0000() {
         Calendar calendar = new GregorianCalendar(AMERICA_SAO_PAULO);
         calendar.set(2011, 1, 19, 0, 0); // 00:00 GMT-2
-        long hoursSinceEpoch = hoursSinceEpoch(calendar);
+        double hoursSinceEpoch = hoursSinceEpoch(calendar);
         calendar.add(Calendar.DATE, 1);
-        assertEquals(25, hoursSinceEpoch(calendar) - hoursSinceEpoch);
-        assertCalendarEquals(calendar, 2011, 1, 20, 0); // 00:00 GMT-3; +25 hours
+        assertEquals(25.0, hoursSinceEpoch(calendar) - hoursSinceEpoch);
+        assertCalendarEquals(calendar, 2011, 1, 20, 0, 0); // 00:00 GMT-3; +25 hours
     }
 
     public void testAddOneDayOverDstBackAdds25HoursAt0100() {
         Calendar calendar = new GregorianCalendar(AMERICA_SAO_PAULO);
         calendar.set(2011, 1, 19, 1, 0); // 00:00 GMT-2
-        long hoursSinceEpoch = hoursSinceEpoch(calendar);
+        double hoursSinceEpoch = hoursSinceEpoch(calendar);
         calendar.add(Calendar.DATE, 1);
-        assertEquals(25, hoursSinceEpoch(calendar) - hoursSinceEpoch);
-        assertCalendarEquals(calendar, 2011, 1, 20, 1); // 00:00 GMT-3; +25 hours
+        assertEquals(25.0, hoursSinceEpoch(calendar) - hoursSinceEpoch);
+        assertCalendarEquals(calendar, 2011, 1, 20, 1, 0); // 00:00 GMT-3; +25 hours
     }
 
     public void testAddTwoHalfDaysOverDstForwardAdds23HoursAt0100() {
         Calendar calendar = new GregorianCalendar(AMERICA_SAO_PAULO);
         calendar.set(2011, 9, 15, 1, 0); // 01:00 GMT-3
-        long hoursSinceEpoch = hoursSinceEpoch(calendar);
+        double hoursSinceEpoch = hoursSinceEpoch(calendar);
         calendar.add(Calendar.AM_PM, 2);
-        assertEquals(23, hoursSinceEpoch(calendar) - hoursSinceEpoch);
-        assertCalendarEquals(calendar, 2011, 9, 16, 1); // 01:00 GMT-2; +23 hours
+        assertEquals(23.0, hoursSinceEpoch(calendar) - hoursSinceEpoch);
+        assertCalendarEquals(calendar, 2011, 9, 16, 1, 0); // 01:00 GMT-2; +23 hours
     }
 
     public void testAdd24HoursOverDstForwardAdds24Hours() {
         Calendar calendar = new GregorianCalendar(AMERICA_SAO_PAULO);
         calendar.set(2011, 9, 15, 1, 0); // 01:00 GMT-3
-        long hoursSinceEpoch = hoursSinceEpoch(calendar);
+        double hoursSinceEpoch = hoursSinceEpoch(calendar);
         calendar.add(Calendar.HOUR, 24);
-        assertEquals(24, hoursSinceEpoch(calendar) - hoursSinceEpoch);
-        assertCalendarEquals(calendar, 2011, 9, 16, 2); // 02:00 GMT-2; +24 hours
+        assertEquals(24.0, hoursSinceEpoch(calendar) - hoursSinceEpoch);
+        assertCalendarEquals(calendar, 2011, 9, 16, 2, 0); // 02:00 GMT-2; +24 hours
     }
 
-    private void assertCalendarEquals(Calendar calendar, int year, int month, int day, int hour) {
+    public void testAddOneDayAndOneDayOver30MinuteDstForwardAdds48Hours() {
+        Calendar calendar = new GregorianCalendar(AUSTRALIA_LORD_HOWE);
+        calendar.set(2011, 9, 1, 2, 10); // 02:10 GMT+10:30
+        double hoursSinceEpoch = hoursSinceEpoch(calendar);
+        calendar.add(Calendar.DATE, 1);
+        calendar.add(Calendar.DATE, 1);
+        // The RI fails this test by returning 47.0. It adjusts for DST on both of the add() calls!
+        assertEquals(48.0, hoursSinceEpoch(calendar) - hoursSinceEpoch);
+        assertCalendarEquals(calendar, 2011, 9, 3, 2, 40); // 02:40 GMT+11:00; +48.0 hours
+    }
+
+    public void testAddTwoDaysOver30MinuteDstForwardAdds47AndAHalfHours() {
+        Calendar calendar = new GregorianCalendar(AUSTRALIA_LORD_HOWE);
+        calendar.set(2011, 9, 1, 2, 10); // 02:10 GMT+10:30
+        double hoursSinceEpoch = hoursSinceEpoch(calendar);
+        calendar.add(Calendar.DATE, 2);
+        assertEquals(47.5, hoursSinceEpoch(calendar) - hoursSinceEpoch);
+        assertCalendarEquals(calendar, 2011, 9, 3, 2, 10); // 02:10 GMT+11:00; +47.5 hours
+    }
+
+    private void assertCalendarEquals(Calendar calendar,
+            int year, int month, int day, int hour, int minute) {
         assertEquals(year, calendar.get(Calendar.YEAR));
         assertEquals(month, calendar.get(Calendar.MONTH));
         assertEquals(day, calendar.get(Calendar.DATE));
         assertEquals(hour, calendar.get(Calendar.HOUR_OF_DAY));
+        assertEquals(minute, calendar.get(Calendar.MINUTE));
     }
 
-    private static long hoursSinceEpoch(Calendar c) {
-        long ONE_HOUR = 3600L * 1000L;
+    private static double hoursSinceEpoch(Calendar c) {
+        double ONE_HOUR = 3600d * 1000d;
         return c.getTimeInMillis() / ONE_HOUR;
     }
 }
