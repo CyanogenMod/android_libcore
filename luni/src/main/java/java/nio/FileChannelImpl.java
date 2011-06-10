@@ -362,25 +362,31 @@ final class FileChannelImpl extends FileChannel {
             return 0;
         }
 
-        ByteBuffer buffer = null;
+        // Although sendfile(2) originally supported writing to a regular file.
+        // In Linux 2.6 and later, it only supports writing to sockets.
 
-        try {
-            if (src instanceof FileChannel) {
-                FileChannel fileSrc = (FileChannel) src;
-                long size = fileSrc.size();
-                long filePosition = fileSrc.position();
-                count = Math.min(count, size - filePosition);
-                buffer = fileSrc.map(MapMode.READ_ONLY, filePosition, count);
+        // If our source is a regular file, mmap(2) rather than reading.
+        // Callers should only be using transferFrom for large transfers,
+        // so the mmap(2) overhead isn't a concern.
+        if (src instanceof FileChannel) {
+            FileChannel fileSrc = (FileChannel) src;
+            long size = fileSrc.size();
+            long filePosition = fileSrc.position();
+            count = Math.min(count, size - filePosition);
+            ByteBuffer buffer = fileSrc.map(MapMode.READ_ONLY, filePosition, count);
+            try {
                 fileSrc.position(filePosition + count);
-            } else {
-                buffer = ByteBuffer.allocateDirect((int) count);
-                src.read(buffer);
-                buffer.flip();
+                return write(buffer, position);
+            } finally {
+                NioUtils.freeDirectBuffer(buffer);
             }
-            return write(buffer, position);
-        } finally {
-            NioUtils.freeDirectBuffer(buffer);
         }
+
+        // For non-file channels, all we can do is read and write via userspace.
+        ByteBuffer buffer = ByteBuffer.allocate((int) count);
+        src.read(buffer);
+        buffer.flip();
+        return write(buffer, position);
     }
 
     public long transferTo(long position, long count, WritableByteChannel target) throws IOException {
