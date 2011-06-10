@@ -306,16 +306,6 @@ public final class OldFileChannelTest extends TestCase {
         }
     }
 
-
-    public void test_read$LByteBuffer() throws Exception {
-        FileChannel mockChannel = new MockFileChannel();
-        ByteBuffer[] buffers = new ByteBuffer[2];
-        mockChannel.read(buffers);
-        // Verify that calling read(ByteBuffer[] dsts) leads to the method
-        // read(dsts, 0, dsts.length)
-        assertTrue(((MockFileChannel)mockChannel).isReadCalled);
-    }
-
     public void test_read$LByteBufferII_Null() throws Exception {
 
         try {
@@ -1083,112 +1073,6 @@ public final class OldFileChannelTest extends TestCase {
             readWriteFileChannel.tryLock(position, size, false);
             fail();
         } catch (OverlappingFileLockException expected) {
-        }
-    }
-
-    private class MockFileChannel extends FileChannel {
-
-        private boolean isLockCalled = false;
-
-        private boolean isTryLockCalled = false;
-
-        private boolean isReadCalled = false;
-
-        private boolean isWriteCalled = false;
-
-        public void force(boolean arg0) throws IOException {
-            // do nothing
-        }
-
-        public FileLock lock(long position, long size, boolean shared)
-                throws IOException {
-            // verify that calling lock() leads to the method
-            // lock(0, Long.MAX_VALUE, false).
-            if (0 == position && Long.MAX_VALUE == size && false == shared) {
-                isLockCalled = true;
-            }
-            return null;
-        }
-
-        public MappedByteBuffer map(MapMode arg0, long arg1, long arg2)
-                throws IOException {
-            return null;
-        }
-
-        public long position() throws IOException {
-            return 0;
-        }
-
-        public FileChannel position(long arg0) throws IOException {
-            return null;
-        }
-
-        public int read(ByteBuffer arg0) throws IOException {
-            return 0;
-        }
-
-        public int read(ByteBuffer arg0, long arg1) throws IOException {
-            return 0;
-        }
-
-        public long read(ByteBuffer[] srcs, int offset, int length)
-                throws IOException {
-            // verify that calling read(ByteBuffer[] srcs) leads to the method
-            // read(srcs, 0, srcs.length)
-            if (0 == offset && length == srcs.length) {
-                isReadCalled = true;
-            }
-            return 0;
-        }
-
-        public long size() throws IOException {
-            return 0;
-        }
-
-        public long transferFrom(ReadableByteChannel arg0, long arg1, long arg2)
-                throws IOException {
-            return 0;
-        }
-
-        public long transferTo(long arg0, long arg1, WritableByteChannel arg2)
-                throws IOException {
-            return 0;
-        }
-
-        public FileChannel truncate(long arg0) throws IOException {
-            return null;
-        }
-
-        public FileLock tryLock(long position, long size, boolean shared)
-                throws IOException {
-            // verify that calling tryLock() leads to the method
-            // tryLock(0, Long.MAX_VALUE, false).
-            if (0 == position && Long.MAX_VALUE == size && false == shared) {
-                isTryLockCalled = true;
-            }
-            return null;
-        }
-
-        public int write(ByteBuffer arg0) throws IOException {
-            return 0;
-        }
-
-        public int write(ByteBuffer arg0, long arg1) throws IOException {
-            return 0;
-        }
-
-        public long write(ByteBuffer[] srcs, int offset, int length)
-                throws IOException {
-            // verify that calling write(ByteBuffer[] srcs) leads to the method
-            // write(srcs, 0, srcs.length)
-            if(0 == offset && length == srcs.length){
-                isWriteCalled = true;
-            }
-            return 0;
-        }
-
-        protected void implCloseChannel() throws IOException {
-
         }
     }
 }
