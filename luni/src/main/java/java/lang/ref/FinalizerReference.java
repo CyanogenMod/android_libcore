@@ -66,7 +66,7 @@ public final class FinalizerReference<T> extends Reference<T> {
             if (prev != null) {
                 prev.next = next;
             } else {
-                head = reference;
+                head = next;
             }
             if (next != null) {
                 next.prev = prev;
