@@ -862,7 +862,7 @@ public class Pattern2Test extends TestCase {
         testCategory("Lo", "\u05E2");
         testCategory("Lt", "\u01C5");
         testCategory("Mc", "\u0903");
-        testCategory("Me", "\u06DE");
+        testCategory("Me", "\u0488");
         testCategory("Mn", "\u0300");
         testCategory("Nd", "\u0030");
         testCategory("Nl", "\u2164");
