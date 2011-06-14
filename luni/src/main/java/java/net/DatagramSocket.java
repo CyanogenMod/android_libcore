@@ -46,6 +46,8 @@ public class DatagramSocket {
 
     private boolean isConnected = false;
 
+    private SocketException pendingConnectException;
+
     private boolean isClosed = false;
 
     private Object lock = new Object();
@@ -107,44 +109,6 @@ public class DatagramSocket {
     public void close() {
         isClosed = true;
         impl.close();
-    }
-
-    /**
-     * Connects this UDP datagram socket to the specific target host with the
-     * address {@code anAdress} on port {@code aPort}. The host and port are
-     * validated, thereafter the only validation on {@code send()} and {@code
-     * receive()} is to check whether the packet address/port matches the
-     * connected target.
-     *
-     * @param anAddress
-     *            the target address of this socket.
-     * @param aPort
-     *            the target port of this socket.
-     */
-    public void connect(InetAddress anAddress, int aPort) {
-        if (anAddress == null || aPort < 0 || aPort > 65535) {
-            throw new IllegalArgumentException("Address null or destination port out of range");
-        }
-
-        synchronized (lock) {
-            if (isClosed()) {
-                return;
-            }
-            try {
-                checkClosedAndBind(true);
-            } catch (SocketException e) {
-                // Ignored
-            }
-
-            try {
-                impl.connect(anAddress, aPort);
-            } catch (SocketException e) {
-                // not connected at the native level just do what we did before
-            }
-            address = anAddress;
-            port = aPort;
-            isConnected = true;
-        }
     }
 
     /**
@@ -241,7 +205,7 @@ public class DatagramSocket {
      * Returns this socket's {@link SocketOptions#SO_RCVBUF receive buffer size}.
      */
     public synchronized int getReceiveBufferSize() throws SocketException {
-        checkClosedAndBind(false);
+        checkOpen();
         return ((Integer) impl.getOption(SocketOptions.SO_RCVBUF)).intValue();
     }
 
@@ -249,7 +213,7 @@ public class DatagramSocket {
      * Returns this socket's {@link SocketOptions#SO_SNDBUF send buffer size}.
      */
     public synchronized int getSendBufferSize() throws SocketException {
-        checkClosedAndBind(false);
+        checkOpen();
         return ((Integer) impl.getOption(SocketOptions.SO_SNDBUF)).intValue();
     }
 
@@ -260,7 +224,7 @@ public class DatagramSocket {
      *                if an error occurs while getting the option value.
      */
     public synchronized int getSoTimeout() throws SocketException {
-        checkClosedAndBind(false);
+        checkOpen();
         return ((Integer) impl.getOption(SocketOptions.SO_TIMEOUT)).intValue();
     }
 
@@ -277,72 +241,19 @@ public class DatagramSocket {
      *                if an error occurs while receiving the packet.
      */
     public synchronized void receive(DatagramPacket pack) throws IOException {
-        checkClosedAndBind(true);
-
-        InetAddress senderAddr;
-        int senderPort;
-        DatagramPacket tempPack = new DatagramPacket(new byte[1], 1);
-
-        // means that we have received the packet into the temporary buffer
-        boolean copy = false;
-
-        if (address != null) {
-            // The socket is connected.
-            // Check pack before peeking
-            if (pack == null) {
-                throw new NullPointerException();
-            }
-
-            // iterate over incoming packets
-            while (true) {
-                copy = false;
-
-                // let's get sender's address and port
-                try {
-                    senderPort = impl.peekData(tempPack);
-                    senderAddr = tempPack.getAddress();
-                } catch (SocketException e) {
-                    if (e.getMessage().equals(
-                            "The socket does not support the operation")) {
-                        // receive packet to temporary buffer
-                        tempPack = new DatagramPacket(new byte[pack.getCapacity()],
-                                pack.getCapacity());
-                        impl.receive(tempPack);
-                        // tempPack's length field is now updated, capacity is unchanged
-                        // let's extract address & port
-                        senderAddr = tempPack.getAddress();
-                        senderPort = tempPack.getPort();
-                        copy = true;
-                    } else {
-                        throw e;
-                    }
-                }
-
-                if (port == senderPort && address.equals(senderAddr)) {
-                    // we are connected and the packet came
-                    // from the address & port we are connected to
-                    break;
-                } else if (!copy) {
-                    // drop packet and continue
-                    impl.receive(tempPack);
-                }
-            }
+        checkOpen();
+        ensureBound();
+        if (pack == null) {
+            throw new NullPointerException();
+        }
+        if (pendingConnectException != null) {
+            throw new SocketException("Pending connect failure", pendingConnectException);
         }
 
-        if (copy) {
-            System.arraycopy(tempPack.getData(), 0, pack.getData(), pack.getOffset(),
-                    tempPack.getLength());
-            // we shouldn't update the pack's capacity field in order to be
-            // compatible with RI
-            pack.setLengthOnly(tempPack.getLength());
-            pack.setAddress(tempPack.getAddress());
-            pack.setPort(tempPack.getPort());
-        } else {
-            pack.setLength(pack.getCapacity());
-            impl.receive(pack);
-            // pack's length field is now updated by native code call;
-            // pack's capacity field is unchanged
-        }
+        pack.setLength(pack.getCapacity());
+        impl.receive(pack);
+        // pack's length field is now updated by native code call;
+        // pack's capacity field is unchanged
     }
 
     /**
@@ -354,7 +265,8 @@ public class DatagramSocket {
      *                if an error occurs while sending the packet.
      */
     public void send(DatagramPacket pack) throws IOException {
-        checkClosedAndBind(true);
+        checkOpen();
+        ensureBound();
 
         InetAddress packAddr = pack.getAddress();
         if (address != null) { // The socket is connected
@@ -402,7 +314,7 @@ public class DatagramSocket {
         if (size < 1) {
             throw new IllegalArgumentException("size < 1");
         }
-        checkClosedAndBind(false);
+        checkOpen();
         impl.setOption(SocketOptions.SO_SNDBUF, Integer.valueOf(size));
     }
 
@@ -413,7 +325,7 @@ public class DatagramSocket {
         if (size < 1) {
             throw new IllegalArgumentException("size < 1");
         }
-        checkClosedAndBind(false);
+        checkOpen();
         impl.setOption(SocketOptions.SO_RCVBUF, Integer.valueOf(size));
     }
 
@@ -432,7 +344,7 @@ public class DatagramSocket {
         if (timeout < 0) {
             throw new IllegalArgumentException("timeout < 0");
         }
-        checkClosedAndBind(false);
+        checkOpen();
         impl.setOption(SocketOptions.SO_TIMEOUT, Integer.valueOf(timeout));
     }
 
@@ -505,11 +417,14 @@ public class DatagramSocket {
         setBroadcast(true);
     }
 
-    void checkClosedAndBind(boolean bind) throws SocketException {
+    void checkOpen() throws SocketException {
         if (isClosed()) {
             throw new SocketException("Socket is closed");
         }
-        if (bind && !isBound()) {
+    }
+
+    private void ensureBound() throws SocketException {
+        if (!isBound()) {
             impl.bind(0, Inet4Address.ANY);
             isBound = true;
         }
@@ -529,7 +444,7 @@ public class DatagramSocket {
      *             binding.
      */
     public void bind(SocketAddress localAddr) throws SocketException {
-        checkClosedAndBind(false);
+        checkOpen();
         int localPort = 0;
         InetAddress addr = Inet4Address.ANY;
         if (localAddr != null) {
@@ -550,74 +465,75 @@ public class DatagramSocket {
     }
 
     /**
-     * Connects this datagram socket to the remote host and port specified by
-     * {@code remoteAddr}. The host and port are validated, thereafter the only
-     * validation on {@code send()} and {@code receive()} is that the packet
-     * address/port matches the connected target.
+     * Connects this datagram socket to the address and port specified by {@code peer}.
+     * Future calls to {@link #send} will use this as the default target, and {@link #receive}
+     * will only accept packets from this source.
      *
-     * @param remoteAddr
-     *            the address and port of the target host.
-     * @throws SocketException
-     *                if an error occurs during connecting.
+     * @throws SocketException if an error occurs.
      */
-    public void connect(SocketAddress remoteAddr) throws SocketException {
-        if (remoteAddr == null) {
-            throw new IllegalArgumentException("remoteAddr == null");
+    public void connect(SocketAddress peer) throws SocketException {
+        if (peer == null) {
+            throw new IllegalArgumentException("peer == null");
         }
 
-        if (!(remoteAddr instanceof InetSocketAddress)) {
-            throw new IllegalArgumentException("Remote address not an InetSocketAddress: " +
-                    remoteAddr.getClass());
+        if (!(peer instanceof InetSocketAddress)) {
+            throw new IllegalArgumentException("peer not an InetSocketAddress: " + peer.getClass());
         }
 
-        InetSocketAddress inetAddr = (InetSocketAddress) remoteAddr;
-        if (inetAddr.getAddress() == null) {
-            throw new SocketException("Host is unresolved: " + inetAddr.getHostName());
+        InetSocketAddress isa = (InetSocketAddress) peer;
+        if (isa.getAddress() == null) {
+            throw new SocketException("Host is unresolved: " + isa.getHostName());
         }
 
         synchronized (lock) {
-            // make sure the socket is open
-            checkClosedAndBind(true);
+            checkOpen();
+            ensureBound();
 
-            // now try to do the connection at the native level. To be
-            // compatible for the case when the address is inaddr_any we just
-            // eat the exception an act as if we are connected at the java level
-            try {
-                impl.connect(inetAddr.getAddress(), inetAddr.getPort());
-            } catch (Exception e) {
-                // not connected at the native level just do what we did before
-            }
+            this.address = isa.getAddress();
+            this.port = isa.getPort();
+            this.isConnected = true;
 
-            // if we get here then we connected ok
-            address = inetAddr.getAddress();
-            port = inetAddr.getPort();
-            isConnected = true;
+            impl.connect(address, port);
         }
     }
 
     /**
-     * Determines whether the socket is bound to an address or not.
+     * Connects this datagram socket to the specific {@code address} and {@code port}.
+     * Future calls to {@link #send} will use this as the default target, and {@link #receive}
+     * will only accept packets from this source.
      *
-     * @return {@code true} if the socket is bound, {@code false} otherwise.
+     * <p>Beware: because it can't throw, this method silently ignores failures.
+     * Use {@link #connect(SocketAddress)} instead.
+     */
+    public void connect(InetAddress address, int port) {
+        if (address == null) {
+            throw new IllegalArgumentException("address == null");
+        }
+        try {
+            connect(new InetSocketAddress(address, port));
+        } catch (SocketException connectException) {
+            // TODO: or just use SneakyThrow? There's a clear API bug here.
+            pendingConnectException = connectException;
+        }
+    }
+
+    /**
+     * Returns true if this socket is bound to a local address. See {@link #bind}.
      */
     public boolean isBound() {
         return isBound;
     }
 
     /**
-     * Determines whether the socket is connected to a target host.
-     *
-     * @return {@code true} if the socket is connected, {@code false} otherwise.
+     * Returns true if this datagram socket is connected to a remote address. See {@link #connect}.
      */
     public boolean isConnected() {
         return isConnected;
     }
 
     /**
-     * Gets the address and port of the connected remote host. If this socket is
-     * not connected yet, {@code null} is returned.
-     *
-     * @return the remote socket address.
+     * Returns the {@code SocketAddress} this socket is connected to, or null for an unconnected
+     * socket.
      */
     public SocketAddress getRemoteSocketAddress() {
         if (!isConnected()) {
@@ -627,10 +543,7 @@ public class DatagramSocket {
     }
 
     /**
-     * Gets the bound local address and port of this socket. If the socket is
-     * unbound, {@code null} is returned.
-     *
-     * @return the local socket address.
+     * Returns the {@code SocketAddress} this socket is bound to, or null for an unbound socket.
      */
     public SocketAddress getLocalSocketAddress() {
         if (!isBound()) {
@@ -653,7 +566,7 @@ public class DatagramSocket {
      *             if the socket is closed or the option could not be set.
      */
     public void setReuseAddress(boolean reuse) throws SocketException {
-        checkClosedAndBind(false);
+        checkOpen();
         impl.setOption(SocketOptions.SO_REUSEADDR, Boolean.valueOf(reuse));
     }
 
@@ -665,9 +578,8 @@ public class DatagramSocket {
      *             if the socket is closed or the option is invalid.
      */
     public boolean getReuseAddress() throws SocketException {
-        checkClosedAndBind(false);
-        return ((Boolean) impl.getOption(SocketOptions.SO_REUSEADDR))
-                .booleanValue();
+        checkOpen();
+        return ((Boolean) impl.getOption(SocketOptions.SO_REUSEADDR)).booleanValue();
     }
 
     /**
@@ -680,7 +592,7 @@ public class DatagramSocket {
      *             if the socket is closed or the option could not be set.
      */
     public void setBroadcast(boolean broadcast) throws SocketException {
-        checkClosedAndBind(false);
+        checkOpen();
         impl.setOption(SocketOptions.SO_BROADCAST, Boolean.valueOf(broadcast));
     }
 
@@ -692,9 +604,8 @@ public class DatagramSocket {
      *             if the socket is closed or the option is invalid.
      */
     public boolean getBroadcast() throws SocketException {
-        checkClosedAndBind(false);
-        return ((Boolean) impl.getOption(SocketOptions.SO_BROADCAST))
-                .booleanValue();
+        checkOpen();
+        return ((Boolean) impl.getOption(SocketOptions.SO_BROADCAST)).booleanValue();
     }
 
     /**
@@ -704,7 +615,7 @@ public class DatagramSocket {
      *             if the socket is closed or the option could not be set.
      */
     public void setTrafficClass(int value) throws SocketException {
-        checkClosedAndBind(false);
+        checkOpen();
         if (value < 0 || value > 255) {
             throw new IllegalArgumentException();
         }
@@ -718,7 +629,7 @@ public class DatagramSocket {
      *             if the socket is closed or the option is invalid.
      */
     public int getTrafficClass() throws SocketException {
-        checkClosedAndBind(false);
+        checkOpen();
         return (Integer) impl.getOption(SocketOptions.IP_TOS);
     }
 
