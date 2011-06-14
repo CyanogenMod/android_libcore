@@ -24,7 +24,16 @@ import java.util.TimeZone;
 public class CalendarTest extends junit.framework.TestCase {
 
     private static final TimeZone AMERICA_SAO_PAULO = TimeZone.getTimeZone("America/Sao_Paulo");
+
+    /** This zone's DST offset is only 30 minutes. */
     private static final TimeZone AUSTRALIA_LORD_HOWE = TimeZone.getTimeZone("Australia/Lord_Howe");
+
+    /**
+     * This zone had once used DST but doesn't currently. Any code that uses
+     * TimeZone.useDaylightTime() as an optimization will probably be broken
+     * for this zone.
+     */
+    private static final TimeZone ASIA_KUALA_LUMPUR = TimeZone.getTimeZone("Asia/Kuala_Lumpur");
 
     // http://code.google.com/p/android/issues/detail?id=6184
     public void test_setTimeZone() {
@@ -116,6 +125,15 @@ public class CalendarTest extends junit.framework.TestCase {
         calendar.add(Calendar.DATE, 2);
         assertEquals(47.5, hoursSinceEpoch(calendar) - hoursSinceEpoch);
         assertCalendarEquals(calendar, 2011, 9, 3, 2, 10); // 02:10 GMT+11:00; +47.5 hours
+    }
+
+    public void testSetTimeInZoneWhereDstIsNoLongerUsed() throws Exception {
+        Calendar calendar = new GregorianCalendar(ASIA_KUALA_LUMPUR, Locale.US);
+        calendar.clear();
+        calendar.set(Calendar.HOUR, 2);
+        calendar.set(Calendar.MINUTE, 0);
+        assertEquals(2, calendar.get(Calendar.HOUR));
+        assertEquals(0, calendar.get(Calendar.MINUTE));
     }
 
     private void assertCalendarEquals(Calendar calendar,

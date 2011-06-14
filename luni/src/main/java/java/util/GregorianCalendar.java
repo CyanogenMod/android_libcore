@@ -1177,9 +1177,6 @@ public class GregorianCalendar extends Calendar {
 
     private int getOffset(long localTime) {
         TimeZone timeZone = getTimeZone();
-        if (!timeZone.useDaylightTime()) {
-            return timeZone.getRawOffset();
-        }
 
         long dayCount = localTime / 86400000;
         int millis = (int) (localTime % 86400000);
