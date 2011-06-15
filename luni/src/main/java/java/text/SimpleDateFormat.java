@@ -1166,14 +1166,14 @@ public class SimpleDateFormat extends DateFormat {
         }
         String[][] zones = formatData.internalZoneStrings();
         for (String[] element : zones) {
-            for (int j = 1; j < 5; j++) {
+            for (int j = TimeZones.LONG_NAME; j < TimeZones.NAME_COUNT; j++) {
                 if (string.regionMatches(true, offset, element[j], 0, element[j].length())) {
-                    TimeZone zone = TimeZone.getTimeZone(element[0]);
+                    TimeZone zone = TimeZone.getTimeZone(element[TimeZones.OLSON_NAME]);
                     if (zone == null) {
                         return -offset - 1;
                     }
                     int raw = zone.getRawOffset();
-                    if (j >= 3 && zone.useDaylightTime()) {
+                    if (j == TimeZones.LONG_NAME_DST || j == TimeZones.SHORT_NAME_DST) {
                         raw += 3600000;
                     }
                     calendar.setTimeZone(new SimpleTimeZone(raw, ""));

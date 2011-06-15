@@ -319,11 +319,15 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * Each row is an array of five strings:
      * <ul>
      * <li>The time zone ID, for example "America/Los_Angeles".
-     * This is not localized, and is used as a key into the table.
+     *     This is not localized, and is used as a key into the table.
      * <li>The long display name, for example "Pacific Standard Time".
      * <li>The short display name, for example "PST".
      * <li>The long display name for DST, for example "Pacific Daylight Time".
-     * <li>The short display name for DST, for example "PDT".
+     *     This is the non-DST long name for zones that have never had DST, for
+     *     example "Central Standard Time" for "Canada/Saskatchewan".
+     * <li>The short display name for DST, for example "PDT". This is the
+     *     non-DST short name for zones that have never had DST, for example
+     *     "CST" for "Canada/Saskatchewan".
      * </ul>
      */
     public String[][] getZoneStrings() {

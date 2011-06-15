@@ -165,6 +165,17 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         assertEquals("2010-07-08T02:44:48+0000", sdf.format(date));
     }
 
+    /**
+     * Africa/Cairo standard time is EET and daylight time is EEST. They no
+     * longer use their DST zone but we should continue to parse it properly.
+     */
+    public void testObsoleteDstZoneName() throws Exception {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz");
+        Date normal = format.parse("1970-01-01T00:00 EET");
+        Date dst = format.parse("1970-01-01T00:00 EEST");
+        assertEquals(60 * 60 * 1000, normal.getTime() - dst.getTime());
+    }
+
     public void testLocales() throws Exception {
         // Just run through them all. Handy as a poor man's benchmark, and a sanity check.
         for (Locale l : Locale.getAvailableLocales()) {

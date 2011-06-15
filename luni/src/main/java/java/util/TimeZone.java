@@ -420,16 +420,21 @@ public abstract class TimeZone implements Serializable, Cloneable {
     public abstract void setRawOffset(int offsetMillis);
 
     /**
-     * Returns true if this time zone has a daylight savings time period. More
-     * specifically, this method returns true to indicate that there's at least
-     * one known future transition to or from daylight savings. This means that,
-     * say, Taiwan will return false because its historical use of daylight
-     * savings doesn't count. A hypothetical country that has never observed
-     * daylight savings before but plans to start next year would return true.
+     * Returns true if this time zone has a future transition to or from
+     * daylight savings time.
      *
-     * <p>If this method returns true, that only tells you that this
-     * {@code TimeZone} sometimes observes daylight savings. You need to call
-     * {@code inDaylightTime} to find out whether daylight savings is in effect.
+     * <p><strong>Warning:</strong> this returns false for time zones like
+     * {@code Asia/Kuala_Lumpur} that have previously used DST but do not
+     * currently. A hypothetical country that has never observed daylight
+     * savings before but plans to start next year would return true.
+     *
+     * <p><strong>Warning:</strong> this returns true for time zones that use
+     * DST, even when it is not active.
+     *
+     * <p>Use {@link #inDaylightTime} to find out whether daylight savings is
+     * in effect at a specific time.
+     *
+     * <p>Most applications should not use this method.
      */
     public abstract boolean useDaylightTime();
 }
