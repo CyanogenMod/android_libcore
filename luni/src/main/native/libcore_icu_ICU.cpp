@@ -332,7 +332,8 @@ static jobjectArray getNames(JNIEnv* env, UResourceBundle* namesBundle, bool mon
     int count = ures_getSize(valuesBundle.get());
     int offset = months ? 0 : 1;
     jobjectArray result = toStringArray(env, valuesBundle.get(), count, count + 1, offset);
-    env->SetObjectArrayElement(result, months ? count : 0, env->NewStringUTF(""));
+    ScopedLocalRef<jstring> emptyString(env, env->NewStringUTF(""));
+    env->SetObjectArrayElement(result, months ? count : 0, emptyString.get());
     return result;
 }
 
@@ -345,6 +346,7 @@ static void setIntegerField(JNIEnv* env, jobject obj, const char* fieldName, int
 static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, jstring value) {
     jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, fieldName, "Ljava/lang/String;");
     env->SetObjectField(obj, fid, value);
+    env->DeleteLocalRef(value);
 }
 
 static void setStringArrayField(JNIEnv* env, jobject obj, const char* fieldName, jobjectArray value) {
@@ -411,8 +413,7 @@ static void setCharField(JNIEnv* env, jobject obj, const char* key, const char* 
     }
 }
 
-static void setNumberSymbols(JNIEnv* env, jobject obj, UResourceBundle* numberSymbols,
-    UResourceBundle* fallbackNumberSymbols) {
+static void setNumberSymbols(JNIEnv* env, jobject obj, UResourceBundle* numberSymbols, UResourceBundle* fallbackNumberSymbols) {
     setCharField(env, obj, "decimal", "decimalSeparator", numberSymbols, fallbackNumberSymbols);
     setCharField(env, obj, "group", "groupingSeparator", numberSymbols, fallbackNumberSymbols);
     setCharField(env, obj, "list", "patternSeparator", numberSymbols, fallbackNumberSymbols);
@@ -423,13 +424,10 @@ static void setNumberSymbols(JNIEnv* env, jobject obj, UResourceBundle* numberSy
     setStringField(env, obj, "exponential", "exponentSeparator", numberSymbols, fallbackNumberSymbols);
     setStringField(env, obj, "infinity", "infinity", numberSymbols, fallbackNumberSymbols);
     setStringField(env, obj, "nan", "NaN", numberSymbols, fallbackNumberSymbols);
-    // TODO: Digit field is removed in ICU4.6 release.
-    jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, "digit", "C");
-    env->SetCharField(obj, fid, '#');
 }
 
 static void setZeroDigitToDefault(JNIEnv* env, jobject obj) {
-    jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, "zeroDigit", "C");
+    static jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, "zeroDigit", "C");
     env->SetCharField(obj, fid, '0');
 }
 
@@ -455,7 +453,7 @@ static void setZeroDigit(JNIEnv* env, jobject obj, bool isLatn, char* buffer) {
     if (charCount == 0) {
         setZeroDigitToDefault(env, obj);
     } else {
-        jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, "zeroDigit", "C");
+        static jfieldID fid = env->GetFieldID(JniConstants::localeDataClass, "zeroDigit", "C");
         env->SetCharField(obj, fid, chars[0]);
     }
 }
@@ -478,7 +476,6 @@ static void setNumberElements(JNIEnv* env, jobject obj, UResourceBundle* numberE
     setStringField(env, obj, "currencyFormat", "currencyPattern", bundle);
     setStringField(env, obj, "decimalFormat", "numberPattern", bundle);
     setStringField(env, obj, "percentFormat", "percentPattern", bundle);
-    // setStringField(env, obj, "scientificFormat", "???", bundle);
 
     status = U_ZERO_ERROR;
     bool isLatn = false;
@@ -530,11 +527,14 @@ static void setNumberElements(JNIEnv* env, jobject obj, UResourceBundle* numberE
 
 static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobject localeData) {
     ScopedUtfChars localeName(env, locale);
+    if (localeName.c_str() == NULL) {
+        return JNI_FALSE;
+    }
+
     UErrorCode status = U_ZERO_ERROR;
     ScopedResourceBundle root(ures_open(NULL, localeName.c_str(), &status));
     if (U_FAILURE(status)) {
         LOGE("Error getting ICU resource bundle: %s", u_errorName(status));
-        status = U_ZERO_ERROR;
         return JNI_FALSE;
     }
 
@@ -556,8 +556,13 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobj
         setIntegerField(env, localeData, "minimalDaysInFirstWeek", firstDayVals[1]);
     }
 
-    setStringArrayField(env, localeData, "amPm", getAmPmMarkers(env, gregorian.get()));
-    setStringArrayField(env, localeData, "eras", getEras(env, gregorian.get()));
+    jobjectArray amPmMarkers = getAmPmMarkers(env, gregorian.get());
+    setStringArrayField(env, localeData, "amPm", amPmMarkers);
+    env->DeleteLocalRef(amPmMarkers);
+
+    jobjectArray eras = getEras(env, gregorian.get());
+    setStringArrayField(env, localeData, "eras", eras);
+    env->DeleteLocalRef(eras);
 
     ScopedResourceBundle dayNames(ures_getByKey(gregorian.get(), "dayNames", NULL, &status));
     ScopedResourceBundle monthNames(ures_getByKey(gregorian.get(), "monthNames", NULL, &status));
@@ -619,6 +624,9 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobj
 
     jstring countryCode = env->NewStringUTF(Locale::createFromName(localeName.c_str()).getCountry());
     jstring internationalCurrencySymbol = ICU_getCurrencyCode(env, NULL, countryCode);
+    env->DeleteLocalRef(countryCode);
+    countryCode = NULL;
+
     jstring currencySymbol = NULL;
     if (internationalCurrencySymbol != NULL) {
         currencySymbol = ICU_getCurrencySymbol(env, NULL, locale, internationalCurrencySymbol);

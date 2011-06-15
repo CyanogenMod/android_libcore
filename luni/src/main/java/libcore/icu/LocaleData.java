@@ -31,6 +31,15 @@ import java.util.Locale;
 public final class LocaleData {
     // A cache for the locale-specific data.
     private static final HashMap<String, LocaleData> localeDataCache = new HashMap<String, LocaleData>();
+    static {
+        // Ensure that we pull in the locale data for the root locale, en_US, and the
+        // user's default locale. (All devices must support the root locale and en_US,
+        // and they're used for various system things like HTTP headers.) Pre-populating
+        // the cache is especially useful on Android because we'll share this via the Zygote.
+        get(Locale.ROOT);
+        get(Locale.US);
+        get(Locale.getDefault());
+    }
 
     // Used by Calendar.
     public Integer firstDayOfWeek;
@@ -62,7 +71,6 @@ public final class LocaleData {
 
     // Used by DecimalFormatSymbols.
     public char zeroDigit;
-    public char digit;
     public char decimalSeparator;
     public char groupingSeparator;
     public char patternSeparator;
@@ -152,7 +160,6 @@ public final class LocaleData {
                 "mediumDateFormat=" + mediumDateFormat + "," +
                 "shortDateFormat=" + shortDateFormat + "," +
                 "zeroDigit=" + zeroDigit + "," +
-                "digit=" + digit + "," +
                 "decimalSeparator=" + decimalSeparator + "," +
                 "groupingSeparator=" + groupingSeparator + "," +
                 "patternSeparator=" + patternSeparator + "," +
@@ -234,9 +241,6 @@ public final class LocaleData {
         }
         if (overrides.zeroDigit != '\0') {
             zeroDigit = overrides.zeroDigit;
-        }
-        if (overrides.digit != '\0') {
-            digit = overrides.digit;
         }
         if (overrides.decimalSeparator != '\0') {
             decimalSeparator = overrides.decimalSeparator;
