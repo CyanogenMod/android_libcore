@@ -137,7 +137,7 @@ public final class NativeDecimalFormat {
     // Used so java.util.Formatter doesn't need to allocate DecimalFormatSymbols instances.
     public NativeDecimalFormat(String pattern, LocaleData data) {
         this.address = open(pattern, data.currencySymbol,
-                data.decimalSeparator, data.digit, data.exponentSeparator, data.groupingSeparator,
+                data.decimalSeparator, '#', data.exponentSeparator, data.groupingSeparator,
                 data.infinity, data.internationalCurrencySymbol, data.minusSign,
                 data.monetarySeparator, data.NaN, data.patternSeparator,
                 data.percent, data.perMill, data.zeroDigit);
@@ -222,7 +222,7 @@ public final class NativeDecimalFormat {
 
     public void setDecimalFormatSymbols(final LocaleData localeData) {
         setDecimalFormatSymbols(this.address, localeData.currencySymbol, localeData.decimalSeparator,
-                localeData.digit, localeData.exponentSeparator, localeData.groupingSeparator,
+                '#', localeData.exponentSeparator, localeData.groupingSeparator,
                 localeData.infinity, localeData.internationalCurrencySymbol, localeData.minusSign,
                 localeData.monetarySeparator, localeData.NaN, localeData.patternSeparator,
                 localeData.percent, localeData.perMill, localeData.zeroDigit);
