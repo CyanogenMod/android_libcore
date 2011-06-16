@@ -97,6 +97,17 @@ static jstring ICU_addLikelySubtags(JNIEnv* env, jclass, jstring javaLocale) {
     return env->NewStringUTF(maximizedLocaleID);
 }
 
+static jstring ICU_getScript(JNIEnv* env, jclass, jstring javaLocale) {
+    UErrorCode status = U_ZERO_ERROR;
+    ScopedUtfChars localeID(env, javaLocale);
+    char script[ULOC_SCRIPT_CAPACITY];
+    uloc_getScript(localeID.c_str(), script, sizeof(script), &status);
+    if (U_FAILURE(status)) {
+        return NULL;
+    }
+    return env->NewStringUTF(script);
+}
+
 static jint ICU_getCurrencyFractionDigits(JNIEnv* env, jclass, jstring javaCurrencyCode) {
     ScopedJavaUnicodeString currencyCode(env, javaCurrencyCode);
     UnicodeString icuCurrencyCode(currencyCode.unicodeString());
@@ -733,6 +744,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, getISOCountriesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getISOLanguagesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getIcuVersion, "()Ljava/lang/String;"),
+    NATIVE_METHOD(ICU, getScript, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getUnicodeVersion, "()Ljava/lang/String;"),
     NATIVE_METHOD(ICU, initLocaleDataImpl, "(Ljava/lang/String;Llibcore/icu/LocaleData;)Z"),
     NATIVE_METHOD(ICU, toLowerCase, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
