@@ -165,6 +165,7 @@ public final class ICU {
     public static native String getISO3LanguageNative(String locale);
 
     public static native String addLikelySubtags(String locale);
+    public static native String getScript(String locale);
 
     private static native String[] getISOLanguagesNative();
     private static native String[] getISOCountriesNative();
