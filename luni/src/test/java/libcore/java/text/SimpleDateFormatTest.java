@@ -21,10 +21,15 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
 public class SimpleDateFormatTest extends junit.framework.TestCase {
+
+    private static final TimeZone AMERICA_LOS_ANGELES = TimeZone.getTimeZone("America/Los_Angeles");
+    private static final TimeZone AUSTRALIA_LORD_HOWE = TimeZone.getTimeZone("Australia/Lord_Howe");
+
     // The RI fails this test.
     public void test2DigitYearStartIsCloned() throws Exception {
         // Test that get2DigitYearStart returns a clone.
@@ -137,7 +142,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         // We should see something appropriate to America/Chicago...
         assertEquals("1969-12-31 18:00:00 -0600", sdf.format(epoch));
         // We can set any TimeZone we want:
-        sdf.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+        sdf.setTimeZone(AMERICA_LOS_ANGELES);
         assertEquals("1969-12-31 16:00:00 -0800", sdf.format(epoch));
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         assertEquals("1970-01-01 00:00:00 +0000", sdf.format(epoch));
@@ -149,7 +154,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         // ...so our time zone here is "America/Chicago":
         assertEquals("1969-12-31 18:00:00 -0600", sdf.format(epoch));
         // We can set any TimeZone we want:
-        sdf.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+        sdf.setTimeZone(AMERICA_LOS_ANGELES);
         assertEquals("1969-12-31 16:00:00 -0800", sdf.format(epoch));
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         assertEquals("1970-01-01 00:00:00 +0000", sdf.format(epoch));
@@ -159,7 +164,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         Date date = sdf.parse("2010-07-08 02:44:48");
         assertEquals(1278557088000L, date.getTime());
         sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        sdf.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+        sdf.setTimeZone(AMERICA_LOS_ANGELES);
         assertEquals("2010-07-07T19:44:48-0700", sdf.format(date));
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         assertEquals("2010-07-08T02:44:48+0000", sdf.format(date));
@@ -174,6 +179,39 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         Date normal = format.parse("1970-01-01T00:00 EET");
         Date dst = format.parse("1970-01-01T00:00 EEST");
         assertEquals(60 * 60 * 1000, normal.getTime() - dst.getTime());
+    }
+
+    public void testDstZoneNameWithNonDstTimestamp() throws Exception {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz");
+        Calendar calendar = new GregorianCalendar(AMERICA_LOS_ANGELES);
+        calendar.setTime(format.parse("2011-06-21T10:00 Pacific Standard Time")); // 18:00 GMT-8
+        assertEquals(11, calendar.get(Calendar.HOUR_OF_DAY)); // 18:00 GMT-7
+        assertEquals(0, calendar.get(Calendar.MINUTE));
+    }
+
+    public void testNonDstZoneNameWithDstTimestamp() throws Exception {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz");
+        Calendar calendar = new GregorianCalendar(AMERICA_LOS_ANGELES);
+        calendar.setTime(format.parse("2010-12-21T10:00 Pacific Daylight Time")); // 17:00 GMT-7
+        assertEquals(9, calendar.get(Calendar.HOUR_OF_DAY)); // 17:00 GMT-8
+        assertEquals(0, calendar.get(Calendar.MINUTE));
+    }
+
+    // http://b/4723412
+    public void testDstZoneWithNonDstTimestampForNonHourDstZone() throws Exception {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz");
+        Calendar calendar = new GregorianCalendar(AUSTRALIA_LORD_HOWE);
+        calendar.setTime(format.parse("2011-06-21T20:00 Lord Howe Daylight Time")); // 9:00 GMT+11
+        assertEquals(19, calendar.get(Calendar.HOUR_OF_DAY)); // 9:00 GMT+10:30
+        assertEquals(30, calendar.get(Calendar.MINUTE));
+    }
+
+    public void testNonDstZoneWithDstTimestampForNonHourDstZone() throws Exception {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz");
+        Calendar calendar = new GregorianCalendar(AUSTRALIA_LORD_HOWE);
+        calendar.setTime(format.parse("2010-12-21T19:30 Lord Howe Standard Time")); //9:00 GMT+10:30
+        assertEquals(20, calendar.get(Calendar.HOUR_OF_DAY)); // 9:00 GMT+11:00
+        assertEquals(0, calendar.get(Calendar.MINUTE));
     }
 
     public void testLocales() throws Exception {

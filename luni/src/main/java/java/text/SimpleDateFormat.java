@@ -1174,6 +1174,13 @@ public class SimpleDateFormat extends DateFormat {
                     }
                     int raw = zone.getRawOffset();
                     if (j == TimeZones.LONG_NAME_DST || j == TimeZones.SHORT_NAME_DST) {
+                        /*
+                         * TODO, http://b/4723412
+                         * We can't use TimeZone#getDSTSavings here because that
+                         * will return 0 if the zone no longer uses DST. We
+                         * should change this to use TimeZone.getOffset(long),
+                         * which requires the complete date to be parsed first.
+                         */
                         raw += 3600000;
                     }
                     calendar.setTimeZone(new SimpleTimeZone(raw, ""));

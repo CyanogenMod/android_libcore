@@ -35,6 +35,8 @@ public class CalendarTest extends junit.framework.TestCase {
      */
     private static final TimeZone ASIA_KUALA_LUMPUR = TimeZone.getTimeZone("Asia/Kuala_Lumpur");
 
+    private static final TimeZone ASIA_SEOUL = TimeZone.getTimeZone("Asia/Seoul");
+
     // http://code.google.com/p/android/issues/detail?id=6184
     public void test_setTimeZone() {
         // The specific time zones don't matter; they just have to be different so we can see that
@@ -127,13 +129,30 @@ public class CalendarTest extends junit.framework.TestCase {
         assertCalendarEquals(calendar, 2011, 9, 3, 2, 10); // 02:10 GMT+11:00; +47.5 hours
     }
 
+    // http://code.google.com/p/android/issues/detail?id=17741
+    public void testNewCalendarKoreaIsSelfConsistent() {
+        testSetSelfConsistent(ASIA_SEOUL, 1921, 0, 1);
+        testSetSelfConsistent(ASIA_SEOUL, 1955, 0, 1);
+        testSetSelfConsistent(ASIA_SEOUL, 1962, 0, 1);
+        testSetSelfConsistent(ASIA_SEOUL, 2065, 0, 1);
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=15629
     public void testSetTimeInZoneWhereDstIsNoLongerUsed() throws Exception {
-        Calendar calendar = new GregorianCalendar(ASIA_KUALA_LUMPUR, Locale.US);
+        testSetSelfConsistent(ASIA_KUALA_LUMPUR, 1970, 0, 1);
+    }
+
+    private void testSetSelfConsistent(TimeZone timeZone, int year, int month, int day) {
+        int hour = 0;
+        int minute = 0;
+        Calendar calendar = new GregorianCalendar(timeZone);
         calendar.clear();
-        calendar.set(Calendar.HOUR, 2);
-        calendar.set(Calendar.MINUTE, 0);
-        assertEquals(2, calendar.get(Calendar.HOUR));
-        assertEquals(0, calendar.get(Calendar.MINUTE));
+        calendar.set(year, month, day, hour, minute);
+        assertEquals(year, calendar.get(Calendar.YEAR));
+        assertEquals(month, calendar.get(Calendar.MONTH));
+        assertEquals(day, calendar.get(Calendar.DAY_OF_MONTH));
+        assertEquals(hour, calendar.get(Calendar.HOUR_OF_DAY));
+        assertEquals(minute, calendar.get(Calendar.MINUTE));
     }
 
     private void assertCalendarEquals(Calendar calendar,
