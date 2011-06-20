@@ -71,8 +71,10 @@ public abstract class Reference<T> {
      * singly linked list of reference objects discovered by the
      * garbage collector and awaiting processing by the reference
      * queue thread.
+     *
+     * @hide
      */
-    volatile Reference<?> pendingNext;
+    public volatile Reference<?> pendingNext;
 
     /**
      * Constructs a new instance of this class.
@@ -98,8 +100,10 @@ public abstract class Reference<T> {
      *
      * @return {@code true} if this call has caused the {@code Reference} to
      * become enqueued, or {@code false} otherwise
+     *
+     * @hide
      */
-    final synchronized boolean enqueueInternal() {
+    public final synchronized boolean enqueueInternal() {
         if (queue != null && queueNext == null) {
             queue.enqueue(this);
             queue = null;

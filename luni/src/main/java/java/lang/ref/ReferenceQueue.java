@@ -131,7 +131,8 @@ public class ReferenceQueue<T> {
         notify();
     }
 
-    static Reference unenqueued = null;
+    /** @hide */
+    public static Reference unenqueued = null;
 
     static void add(Reference<?> list) {
         synchronized (ReferenceQueue.class) {

@@ -16,6 +16,7 @@
 
 package libcore.java.lang.ref;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.TestCase;
 
@@ -80,5 +81,30 @@ public final class FinalizeTest extends TestCase {
             new AssertionError("finalize() called, even though constructor failed!")
                     .printStackTrace();
         }
+    }
+
+    /**
+     * The finalizer watch dog exits the VM if any object takes more than 10 s
+     * to finalize. Check that objects near that limit are okay.
+     */
+    public void testWatchdogDoesNotFailForObjectsThatAreNearTheDeadline() throws Exception {
+        CountDownLatch latch = new CountDownLatch(5);
+        createSlowFinalizer(   1, latch);
+        createSlowFinalizer(1000, latch);
+        createSlowFinalizer(2000, latch);
+        createSlowFinalizer(4000, latch);
+        createSlowFinalizer(8000, latch);
+        induceFinalization();
+        latch.await();
+    }
+
+    public void createSlowFinalizer(final long millis, final CountDownLatch latch) {
+        new Object() {
+            @Override protected void finalize() throws Throwable {
+                System.out.println("finalize sleeping " + millis + " ms");
+                Thread.sleep(millis);
+                latch.countDown();
+            }
+        };
     }
 }

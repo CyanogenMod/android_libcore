@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import libcore.util.EmptyArray;
 
 /**
  * A {@code Thread} is a concurrent unit of execution. It has its own call stack
@@ -69,8 +70,6 @@ import java.util.Map;
  *
  */
 public class Thread implements Runnable {
-    private static final StackTraceElement[] EMPTY_STACK_TRACE = new StackTraceElement[0];
-
     private static final int NANOS_PER_MILLI = 1000000;
 
     /** Park states */
@@ -590,7 +589,7 @@ public class Thread implements Runnable {
      */
     public StackTraceElement[] getStackTrace() {
         StackTraceElement ste[] = VMStack.getThreadStackTrace(this);
-        return ste != null ? ste : EMPTY_STACK_TRACE;
+        return ste != null ? ste : EmptyArray.STACK_TRACE_ELEMENT;
     }
 
     /**
