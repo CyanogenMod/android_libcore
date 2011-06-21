@@ -402,7 +402,7 @@ public class Runtime {
      */
     public void runFinalization() {
         try {
-            FinalizerThread.waitUntilFinalizerIsIdle();
+            Daemons.waitUntilFinalizerIsIdle();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

@@ -203,4 +203,9 @@ public final class VMRuntime {
      * up to the maximum heap size.
      */
     public native void clearGrowthLimit();
+
+    /**
+     * Returns true if either a Java debugger or native debugger is active.
+     */
+    public native boolean isDebuggerActive();
 }

@@ -16,12 +16,12 @@
 
 package java.lang.ref;
 
-import java.lang.FinalizerThread;
-
 /**
  * @hide
  */
 public final class FinalizerReference<T> extends Reference<T> {
+    public static final ReferenceQueue<Object> queue = new ReferenceQueue<Object>();
+
     private static FinalizerReference head = null;
 
     private T zombie;
@@ -45,7 +45,6 @@ public final class FinalizerReference<T> extends Reference<T> {
     }
 
     static void add(Object referent) {
-        ReferenceQueue<Object> queue = FinalizerThread.queue;
         FinalizerReference<?> reference = new FinalizerReference<Object>(referent, queue);
         synchronized (FinalizerReference.class) {
             reference.prev = null;
