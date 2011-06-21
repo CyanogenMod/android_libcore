@@ -40,6 +40,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.lang.ref.FinalizerReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -402,7 +403,7 @@ public class Runtime {
      */
     public void runFinalization() {
         try {
-            Daemons.waitUntilFinalizerIsIdle();
+            FinalizerReference.finalizeAllEnqueued();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

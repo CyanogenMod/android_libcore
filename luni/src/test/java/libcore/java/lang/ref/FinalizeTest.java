@@ -18,6 +18,7 @@ package libcore.java.lang.ref;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.TestCase;
 
 public final class FinalizeTest extends TestCase {
@@ -66,7 +67,16 @@ public final class FinalizeTest extends TestCase {
 
     private void induceFinalization() throws Exception {
         System.gc();
+        enqueueReferences();
         System.runFinalization();
+    }
+
+    /**
+     * Hack. We don't have a programmatic way to wait for the reference queue
+     * daemon to move references to the appropriate queues.
+     */
+    private void enqueueReferences() throws InterruptedException {
+        Thread.sleep(100);
     }
 
     static class ConstructionFails {
@@ -104,6 +114,33 @@ public final class FinalizeTest extends TestCase {
                 System.out.println("finalize sleeping " + millis + " ms");
                 Thread.sleep(millis);
                 latch.countDown();
+            }
+        };
+    }
+
+    /**
+     * Make sure that System.runFinalization() returns even if the finalization
+     * queue is never completely empty. http://b/4193517
+     */
+    public void testSystemRunFinalizationReturnsEvenIfQueueIsNonEmpty() throws Exception {
+        AtomicInteger count = new AtomicInteger();
+        AtomicBoolean keepGoing = new AtomicBoolean(true);
+        createChainedFinalizer(count, keepGoing);
+        induceFinalization();
+        keepGoing.set(false);
+        assertTrue(count.get() > 0);
+    }
+
+    public void createChainedFinalizer(final AtomicInteger counter, final AtomicBoolean keepGoing) {
+        new Object() {
+            @Override protected void finalize() throws Throwable {
+                int count = counter.incrementAndGet();
+                System.out.println(count);
+                if (keepGoing.get()) {
+                    createChainedFinalizer(counter, keepGoing); // recursive!
+                }
+                System.gc();
+                enqueueReferences();
             }
         };
     }

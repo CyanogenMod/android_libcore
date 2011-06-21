@@ -72,4 +72,36 @@ public final class FinalizerReference<T> extends Reference<T> {
             }
         }
     }
+
+    /**
+     * Returns once all currently-enqueued references have been finalized.
+     */
+    public static void finalizeAllEnqueued() throws InterruptedException {
+        Sentinel sentinel = new Sentinel();
+        FinalizerReference<Object> reference = new FinalizerReference<Object>(null, queue);
+        reference.zombie = sentinel;
+        reference.enqueueInternal();
+        sentinel.awaitFinalization();
+    }
+
+    /**
+     * A marker object that we can immediately enqueue. When this object's
+     * finalize() method is called, we know all previously-enqueued finalizable
+     * references have been finalized.
+     *
+     * <p>Each instance of this class will be finalized twice as it is enqueued
+     * directly and by the garbage collector.
+     */
+    private static class Sentinel {
+        boolean finalized = false;
+        @Override protected synchronized void finalize() throws Throwable {
+            finalized = true;
+            notifyAll();
+        }
+        synchronized void awaitFinalization() throws InterruptedException {
+            while (!finalized) {
+                wait();
+            }
+        }
+    }
 }
