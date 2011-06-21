@@ -71,11 +71,12 @@ jobject sockaddrToInetAddress(JNIEnv* env, const sockaddr_storage* ss, jint* por
         *port = sin_port;
     }
 
-    jbyteArray byteArray = env->NewByteArray(addressLength);
-    if (byteArray == NULL) {
+    ScopedLocalRef<jbyteArray> byteArray(env, env->NewByteArray(addressLength));
+    if (byteArray.get() == NULL) {
         return NULL;
     }
-    env->SetByteArrayRegion(byteArray, 0, addressLength, reinterpret_cast<const jbyte*>(rawAddress));
+    env->SetByteArrayRegion(byteArray.get(), 0, addressLength,
+            reinterpret_cast<const jbyte*>(rawAddress));
 
     static jmethodID getByAddressMethod = env->GetStaticMethodID(JniConstants::inetAddressClass,
             "getByAddress", "(Ljava/lang/String;[BI)Ljava/net/InetAddress;");
@@ -83,7 +84,7 @@ jobject sockaddrToInetAddress(JNIEnv* env, const sockaddr_storage* ss, jint* por
         return NULL;
     }
     return env->CallStaticObjectMethod(JniConstants::inetAddressClass, getByAddressMethod,
-            NULL, byteArray, scope_id);
+            NULL, byteArray.get(), scope_id);
 }
 
 static bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, sockaddr_storage* ss, bool map) {
