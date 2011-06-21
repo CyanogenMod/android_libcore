@@ -34,10 +34,6 @@ public final class Daemons {
     private static final int NANOS_PER_MILLI = 1000000;
     private static final long MAX_FINALIZE_MILLIS = 10L * 1000L; // 10 seconds
 
-    public static void waitUntilFinalizerIsIdle() throws InterruptedException {
-        FinalizerDaemon.INSTANCE.waitUntilFinalizerIsIdle();
-    }
-
     public static void start() {
         ReferenceQueueDaemon.INSTANCE.start();
         FinalizerDaemon.INSTANCE.start();
@@ -162,67 +158,33 @@ public final class Daemons {
     private static class FinalizerDaemon extends Daemon {
         private static final FinalizerDaemon INSTANCE = new FinalizerDaemon();
         private final ReferenceQueue<Object> queue = FinalizerReference.queue;
-        private boolean idle;
         private volatile Object finalizingObject;
         private volatile long finalizingStartedNanos;
 
         @Override public void run() {
             while (isRunning()) {
                 // Take a reference, blocking until one is ready or the thread should stop
-                FinalizerReference<Object> reference;
                 try {
-                    reference = (FinalizerReference<Object>) queue.remove();
-                } catch (InterruptedException e) {
-                    reference = (FinalizerReference<Object>) queue.poll();
-                }
-                synchronized (this) {
-                    idle = false;
-                }
-
-                // Finalize references until the queue is empty.
-                while (reference != null) {
-                    doFinalize(reference);
-                    reference = (FinalizerReference<Object>) queue.poll();
-                }
-
-                // Mark this thread as idle until queue.remove() returns.
-                synchronized (this) {
-                    idle = true;
-                    notifyAll();
+                    doFinalize((FinalizerReference<?>) queue.remove());
+                } catch (InterruptedException ignored) {
                 }
             }
         }
 
         @FindBugsSuppressWarnings("FI_EXPLICIT_INVOCATION")
-        private void doFinalize(FinalizerReference<Object> reference) {
+        private void doFinalize(FinalizerReference<?> reference) {
             FinalizerReference.remove(reference);
-            Object obj = reference.get();
+            Object object = reference.get();
             reference.clear();
             try {
                 finalizingStartedNanos = System.nanoTime();
-                finalizingObject = obj;
-                obj.finalize();
+                finalizingObject = object;
+                object.finalize();
             } catch (Throwable ex) {
                 // The RI silently swallows these, but Android has always logged.
                 System.logE("Uncaught exception thrown by finalizer", ex);
             } finally {
                 finalizingObject = null;
-            }
-        }
-
-        /**
-         * Awakens the finalizer thread if necessary and then wait for it to
-         * become idle again. When that happens, all finalizable references enqueued
-         * at the time of this method call will have been finalized.
-         *
-         * TODO: return as soon as the currently-enqueued references are finalized;
-         *     this currently waits until the queue is empty. http://b/4193517
-         */
-        public synchronized void waitUntilFinalizerIsIdle() throws InterruptedException {
-            idle = false;
-            interrupt();
-            while (!idle) {
-                wait();
             }
         }
     }
