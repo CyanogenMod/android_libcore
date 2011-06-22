@@ -175,6 +175,14 @@ struct sk_X509_NAME_Delete {
 typedef UniquePtr<STACK_OF(X509_NAME), sk_X509_NAME_Delete> Unique_sk_X509_NAME;
 
 /**
+ * Many OpenSSL APIs take ownership of an argument on success but don't free the argument
+ * on failure. This means we need to tell our scoped pointers when we've transferred ownership,
+ * without triggering a warning by not using the result of release().
+ */
+#define OWNERSHIP_TRANSFERRED(obj) \
+    typeof (obj.release()) _dummy __attribute__((unused)) = obj.release()
+
+/**
  * Frees the SSL error state.
  *
  * OpenSSL keeps an "error stack" per thread, and given that this code
@@ -531,7 +539,7 @@ static EVP_PKEY* NativeCrypto_EVP_PKEY_new_DSA(JNIEnv* env, jclass,
         jniThrowRuntimeException(env, "EVP_PKEY_assign_DSA failed");
         return NULL;
     }
-    dsa.release();
+    OWNERSHIP_TRANSFERRED(dsa);
     JNI_TRACE("EVP_PKEY_new_DSA(p=%p, q=%p, g=%p, pub_key=%p, priv_key=%p) => %p",
               p, q, g, pub_key, priv_key, pkey.get());
     return pkey.release();
@@ -587,7 +595,7 @@ static EVP_PKEY* NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
         jniThrowRuntimeException(env, "EVP_PKEY_new failed");
         return NULL;
     }
-    rsa.release();
+    OWNERSHIP_TRANSFERRED(rsa);
     JNI_TRACE("EVP_PKEY_new_RSA(n=%p, e=%p, d=%p, p=%p, q=%p) => %p", n, e, d, p, q, pkey.get());
     return pkey.release();
 }
@@ -1857,7 +1865,7 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
               ssl, EVP_PKEY_type(privatekeyevp.get()->type));
     int ret = SSL_use_PrivateKey(ssl, privatekeyevp.get());
     if (ret == 1) {
-        privatekeyevp.release();
+        OWNERSHIP_TRANSFERRED(privatekeyevp);
     } else {
         LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
         throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting private key");
@@ -1920,7 +1928,7 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
 
     int ret = SSL_use_certificate(ssl, certificatesX509[0].get());
     if (ret == 1) {
-        certificatesX509[0].release();
+        OWNERSHIP_TRANSFERRED(certificatesX509[0]);
     } else {
         LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
         throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting certificate");
@@ -1949,7 +1957,7 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
                   ssl);
         return;
     } else {
-        chain.release();
+        OWNERSHIP_TRANSFERRED(chain);
     }
 
     JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => ok", ssl);
@@ -2187,7 +2195,7 @@ static void NativeCrypto_SSL_set_cipher_lists(JNIEnv* env, jclass,
         jniThrowException(env, "java/lang/IllegalArgumentException",
                           "Illegal cipher suite strings.");
     } else {
-        cipherstack.release();
+        OWNERSHIP_TRANSFERRED(cipherstack);
     }
 }
 

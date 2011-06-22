@@ -248,20 +248,14 @@ public final class URL implements Serializable {
         this.host = host;
         this.port = port;
 
-        /*
-         * Force the path to start with a '/' if this URL has an authority.
-         * Otherwise they blend together like http://android.comindex.html.
-         */
-        if (host != null && !host.isEmpty() && !file.startsWith("/")) {
-            file = "/" + file;
-        }
+        file = UrlUtils.authoritySafePath(host, file);
 
         // Set the fields from the arguments. Handle the case where the
         // passed in "file" includes both a file and a reference part.
-        int index = file.indexOf("#", file.lastIndexOf("/"));
-        if (index != -1) {
-            this.file = file.substring(0, index);
-            ref = file.substring(index + 1);
+        int hash = file.indexOf("#");
+        if (hash != -1) {
+            this.file = file.substring(0, hash);
+            this.ref = file.substring(hash + 1);
         } else {
             this.file = file;
         }

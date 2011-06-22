@@ -49,22 +49,10 @@ import static libcore.io.OsConstants.*;
  * depending on how the {@code InetAddress} was created.
  *
  * <h4>IPv4 numeric address formats</h4>
- * <p>The {@code getAllByName} method accepts IPv4 addresses in the following forms:
+ * <p>The {@code getAllByName} method accepts IPv4 addresses in the "decimal-dotted-quad" form only:
  * <ul>
  * <li>{@code "1.2.3.4"} - 1.2.3.4
- * <li>{@code "1.2.3"} - 1.2.0.3
- * <li>{@code "1.2"} - 1.0.0.2
- * <li>{@code "16909060"} - 1.2.3.4
  * </ul>
- * <p>In the first three cases, each number is treated as an 8-bit value between 0 and 255.
- * In the fourth case, the single number is treated as a 32-bit value representing the entire
- * address.
- * <p>Note that each numeric part can be expressed in decimal (as above) or hex. For example,
- * {@code "0x01020304"} is equivalent to 1.2.3.4 and {@code "0xa.0xb.0xc.0xd"} is equivalent
- * to 10.11.12.13.
- *
- * <p>Typically, only the four-dot decimal form ({@code "1.2.3.4"}) is ever used. Any method that
- * <i>returns</i> a textual numeric address will use four-dot decimal form.
  *
  * <h4>IPv6 numeric address formats</h4>
  * <p>The {@code getAllByName} method accepts IPv6 addresses in the following forms (this text
@@ -248,6 +236,10 @@ public class InetAddress implements Serializable {
         // Is it a numeric address?
         InetAddress result = parseNumericAddressNoThrow(host);
         if (result != null) {
+            result = disallowDeprecatedFormats(host, result);
+            if (result == null) {
+                throw new UnknownHostException("Deprecated IPv4 address format: " + host);
+            }
             return new InetAddress[] { result };
         }
 
@@ -264,6 +256,17 @@ public class InetAddress implements Serializable {
         }
     }
 
+    private static InetAddress disallowDeprecatedFormats(String address, InetAddress inetAddress) {
+        // Only IPv4 addresses are problematic.
+        if (!(inetAddress instanceof Inet4Address) || address.indexOf(':') != -1) {
+            return inetAddress;
+        }
+        // If inet_pton(3) can't parse it, it must have been a deprecated format.
+        // We need to return inet_pton(3)'s result to ensure that numbers assumed to be octal
+        // by getaddrinfo(3) are reinterpreted by inet_pton(3) as decimal.
+        return Libcore.os.inet_pton(AF_INET, address);
+    }
+
     private static InetAddress parseNumericAddressNoThrow(String address) {
         // Accept IPv6 addresses (only) in square brackets for compatibility.
         if (address.startsWith("[") && address.endsWith("]") && address.indexOf(':') != -1) {
@@ -276,14 +279,7 @@ public class InetAddress implements Serializable {
             addresses = Libcore.os.getaddrinfo(address, hints);
         } catch (GaiException ignored) {
         }
-        if (addresses == null) {
-            // For backwards compatibility, deal with address formats that
-            // getaddrinfo does not support. For example, 1.2.3, 1.3, and even 3 are
-            // valid IPv4 addresses according to the Java API. If getaddrinfo fails,
-            // try to use inet_aton.
-            return Libcore.os.inet_aton(address);
-        }
-        return addresses[0];
+        return (addresses != null) ? addresses[0] : null;
     }
 
     /**
@@ -484,7 +480,8 @@ public class InetAddress implements Serializable {
      * @hide used by frameworks/base to ensure that a getAllByName won't cause a DNS lookup.
      */
     public static boolean isNumeric(String address) {
-        return parseNumericAddressNoThrow(address) != null;
+        InetAddress inetAddress = parseNumericAddressNoThrow(address);
+        return inetAddress != null && disallowDeprecatedFormats(address, inetAddress) != null;
     }
 
     /**
@@ -500,6 +497,7 @@ public class InetAddress implements Serializable {
             return Inet6Address.LOOPBACK;
         }
         InetAddress result = parseNumericAddressNoThrow(numericAddress);
+        result = disallowDeprecatedFormats(numericAddress, result);
         if (result == null) {
             throw new IllegalArgumentException("Not a numeric address: " + numericAddress);
         }

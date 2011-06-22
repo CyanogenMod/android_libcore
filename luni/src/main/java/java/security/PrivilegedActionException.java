@@ -18,61 +18,17 @@
 package java.security;
 
 /**
- * Legacy security code; this class exists for compatibility only.
+ * Legacy security code; do not use.
  */
 public class PrivilegedActionException extends Exception {
 
     private static final long serialVersionUID = 4724086851538908602l;
 
-    private Exception exception;
-
-    /**
-     * Constructs a new instance of {@code PrivilegedActionException} with the
-     * cause.
-     *
-     * @param ex
-     *            the exception which is the cause for this exception.
-     */
     public PrivilegedActionException(Exception ex) {
         super(ex);
-        this.exception = ex;
     }
 
-    /**
-     * Returns the exception that was thrown by a
-     * {@code PrivilegedExceptionAction}.
-     *
-     * @return the exception that was thrown by a
-     *         {@code PrivilegedExceptionAction}.
-     */
     public Exception getException() {
-        return exception; // return ( getCause() instanceof Exception ) ?
-        // getCause() : null;
+        return null;
     }
-
-    /**
-     * Returns the exception that was thrown by a
-     * {@code PrivilegedExceptionAction}.
-     *
-     * @return the exception that was thrown by a
-     *         {@code PrivilegedExceptionAction}.
-     */
-    @Override
-    public Throwable getCause() {
-        return exception;
-    }
-
-    /**
-     * Returns a string containing a concise, human-readable description of this
-     * {@code PrivilegedActionException}.
-     *
-     * @return a printable representation for this {@code
-     *         PrivilegedActionException}.
-     */
-    @Override
-    public String toString() {
-        String s = getClass().getName();
-        return exception == null ? s : s + ": " + exception;
-    }
-
 }

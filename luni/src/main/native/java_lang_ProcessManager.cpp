@@ -28,7 +28,7 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "ScopedLocalRef.h"
-#include "utils/Log.h"
+#include "cutils/log.h"
 
 /** Close all open fds > 2 (i.e. everything but stdin/out/err), != skipFd. */
 static void closeNonStandardFds(int skipFd1, int skipFd2) {

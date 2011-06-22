@@ -1166,14 +1166,21 @@ public class SimpleDateFormat extends DateFormat {
         }
         String[][] zones = formatData.internalZoneStrings();
         for (String[] element : zones) {
-            for (int j = 1; j < 5; j++) {
+            for (int j = TimeZones.LONG_NAME; j < TimeZones.NAME_COUNT; j++) {
                 if (string.regionMatches(true, offset, element[j], 0, element[j].length())) {
-                    TimeZone zone = TimeZone.getTimeZone(element[0]);
+                    TimeZone zone = TimeZone.getTimeZone(element[TimeZones.OLSON_NAME]);
                     if (zone == null) {
                         return -offset - 1;
                     }
                     int raw = zone.getRawOffset();
-                    if (j >= 3 && zone.useDaylightTime()) {
+                    if (j == TimeZones.LONG_NAME_DST || j == TimeZones.SHORT_NAME_DST) {
+                        /*
+                         * TODO, http://b/4723412
+                         * We can't use TimeZone#getDSTSavings here because that
+                         * will return 0 if the zone no longer uses DST. We
+                         * should change this to use TimeZone.getOffset(long),
+                         * which requires the complete date to be parsed first.
+                         */
                         raw += 3600000;
                     }
                     calendar.setTimeZone(new SimpleTimeZone(raw, ""));

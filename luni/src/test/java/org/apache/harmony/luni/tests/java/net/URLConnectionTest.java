@@ -958,58 +958,6 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * {@link java.net.URLConnection#getPermission()}
-     */
-    public void test_getPermission() throws Exception {
-        java.security.Permission p = uc.getPermission();
-        assertTrue("Permission of wrong type: " + p.toString(),
-                p instanceof java.net.SocketPermission);
-        assertTrue("Permission has wrong name: " + p.getName(), p.getName()
-                .contains("localhost:" + port));
-
-        URL fileUrl = new URL("file:myfile");
-        Permission perm = new FilePermission("myfile", "read");
-        Permission result = fileUrl.openConnection().getPermission();
-        assertTrue("Wrong file: permission 1:" + perm + " , " + result, result
-                .equals(perm));
-
-        fileUrl = new URL("file:/myfile/");
-        perm = new FilePermission("/myfile", "read");
-        result = fileUrl.openConnection().getPermission();
-        assertTrue("Wrong file: permission 2:" + perm + " , " + result, result
-                .equals(perm));
-
-        fileUrl = new URL("file:///host/volume/file");
-        perm = new FilePermission("/host/volume/file", "read");
-        result = fileUrl.openConnection().getPermission();
-        assertTrue("Wrong file: permission 3:" + perm + " , " + result, result
-                .equals(perm));
-
-        URL httpUrl = new URL("http://home/myfile/");
-        assertTrue("Wrong http: permission", httpUrl.openConnection()
-                .getPermission().equals(
-                        new SocketPermission("home:80", "connect")));
-        httpUrl = new URL("http://home2:8080/myfile/");
-        assertTrue("Wrong http: permission", httpUrl.openConnection()
-                .getPermission().equals(
-                        new SocketPermission("home2:8080", "connect")));
-        URL ftpUrl = new URL("ftp://home/myfile/");
-        assertTrue("Wrong ftp: permission", ftpUrl.openConnection()
-                .getPermission().equals(
-                        new SocketPermission("home:21", "connect")));
-        ftpUrl = new URL("ftp://home2:22/myfile/");
-        assertTrue("Wrong ftp: permission", ftpUrl.openConnection()
-                .getPermission().equals(
-                        new SocketPermission("home2:22", "connect")));
-
-        URL jarUrl = new URL("jar:file:myfile!/");
-        perm = new FilePermission("myfile", "read");
-        result = jarUrl.openConnection().getPermission();
-        assertTrue("Wrong jar: permission:" + perm + " , " + result, result
-                .equals(new FilePermission("myfile", "read")));
-    }
-
-    /**
      * {@link java.net.URLConnection#getRequestProperties()}
      */
     public void test_getRequestProperties() {

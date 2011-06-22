@@ -33,12 +33,10 @@
 package java.security;
 
 /**
- * Legacy security code; this class exists for compatibility only.
+ * Legacy security code; do not use.
  */
 public final class AccessController {
-
-    private AccessController() {
-    }
+    private AccessController() { }
 
     /**
      * Calls {@code action.run()}.
@@ -88,24 +86,7 @@ public final class AccessController {
         return doPrivileged(action);
     }
 
-    /**
-     * Does nothing.
-     */
-    public static void checkPermission(Permission permission) throws AccessControlException {
-    }
+    public static void checkPermission(Permission permission) throws AccessControlException { }
 
-    /**
-     * Returns the {@code AccessControlContext} for the current {@code Thread}
-     * including the inherited access control context of the thread that spawned
-     * the current thread (recursively).
-     *
-     * <p>The returned context may be used to perform access checks at a later
-     * point in time, possibly by another thread.
-     *
-     * @return the {@code AccessControlContext} for the current {@code Thread}
-     * @see Thread#currentThread
-     */
-    public static AccessControlContext getContext() {
-        return new AccessControlContext(new ProtectionDomain[0]);
-    }
+    public static AccessControlContext getContext() { return new AccessControlContext(null); }
 }

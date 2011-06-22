@@ -108,7 +108,7 @@ public abstract class Preferences {
             return result;
         }
         // Then use ServiceLoader for META-INF/services/...
-        for (PreferencesFactory impl : ServiceLoader.load(PreferencesFactory.class, null)) {
+        for (PreferencesFactory impl : ServiceLoader.load(PreferencesFactory.class)) {
             return impl;
         }
         // Finally return a default...

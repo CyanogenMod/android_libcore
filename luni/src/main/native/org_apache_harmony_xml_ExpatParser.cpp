@@ -26,12 +26,11 @@
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 #include "jni.h"
-#include "utils/Log.h"
+#include "cutils/log.h"
+#include "cutils/jstring.h" // for strcpylen8to16
 
 #include <string.h>
-#include <utils/misc.h>
 #include <expat.h>
-#include <cutils/jstring.h>
 
 #define BUCKET_COUNT 128
 

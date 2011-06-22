@@ -20,123 +20,20 @@ package java.security;
 import java.io.Serializable;
 
 /**
- * Legacy security code; this class exists for compatibility only.
+ * Legacy security code; do not use.
  */
 public abstract class Permission implements Guard, Serializable {
+    public Permission(String name) { }
 
-    private static final long serialVersionUID = -5636570222231596674L;
+    public final String getName() { return null; }
 
-    private final String name;
+    public void checkGuard(Object obj) throws SecurityException { }
 
-    /**
-     * Compares the specified object with this {@code Permission} for equality
-     * and returns {@code true} if the specified object is equal, {@code false}
-     * otherwise.
-     * <p>
-     * The {@link #implies(Permission)} method should be used for making access
-     * control checks.
-     *
-     * @param obj
-     *            object to be compared for equality with this {@code
-     *            Permission}.
-     * @return {@code true} if the specified object is equal to this {@code
-     *         Permission}, otherwise {@code false}.
-     */
-    @Override
-    public abstract boolean equals(Object obj);
+    public PermissionCollection newPermissionCollection() {
+        return new AllPermissionCollection();
+    }
 
-    /**
-     * Returns the hash code value for this {@code Permission}. Returns the same
-     * hash code for {@code Permission}s that are equal to each other as
-     * required by the general contract of {@link Object#hashCode}.
-     *
-     * @return the hash code value for this {@code Permission}.
-     * @see Object#equals(Object)
-     * @see Permission#equals(Object)
-     */
-    @Override
-    public abstract int hashCode();
-
-    /**
-     * Returns a comma separated string identifying the actions associated with
-     * this permission. The returned actions are in canonical form. For example:
-     *
-     * <pre>
-     * sp0 = new SocketPermission(&quot;www.example.com&quot;, &quot;connect,resolve&quot;)
-     * sp1 = new SocketPermission(&quot;www.example.com&quot;, &quot;resolve,connect&quot;)
-     * sp0.getActions().equals(sp1.getActions()) //yields true
-     * </pre>
-     *
-     * Both permissions return "connect,resolve" (in that order) if {@code
-     * #getActions()} is invoked. Returns an empty String, if no actions are
-     * associated with this permission.
-     *
-     * @return the actions associated with this permission or an empty string if
-     *         no actions are associated with this permission.
-     */
     public abstract String getActions();
 
-    /**
-     * Indicates whether the specified permission is implied by this permission.
-     *
-     * @param permission
-     *            the permission to check against this permission.
-     * @return {@code true} if the specified permission is implied by this
-     *         permission, {@code false} otherwise.
-     */
     public abstract boolean implies(Permission permission);
-
-    /**
-     * Constructs a new instance of {@code Permission} with its name.
-     *
-     * @param name
-     *            the name of the permission.
-     */
-    public Permission(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Returns the name of this permission.
-     *
-     * @return the name of this permission.
-     */
-    public final String getName() {
-        return name;
-    }
-
-    /**
-     * Does nothing.
-     */
-    public void checkGuard(Object obj) throws SecurityException {
-    }
-
-    /**
-     * Returns a specific {@link PermissionCollection} container for permissions
-     * of this type. Returns {@code null} if any permission collection can be
-     * used.
-     * <p>
-     * Subclasses may override this method to return an appropriate collection
-     * for the specific permissions they implement.
-     *
-     * @return an empty {@link PermissionCollection} or {@code null} if any
-     *         permission collection can be used.
-     */
-    public PermissionCollection newPermissionCollection() {
-        return null;
-    }
-
-    /**
-     * Returns a string containing a concise, human-readable description of the
-     * this {@code Permission} including its name and its actions.
-     *
-     * @return a printable representation for this {@code Permission}.
-     */
-    @Override
-    public String toString() {
-        String actions = getActions();
-        actions = (actions == null || actions.length() == 0) ? "" : " "
-                + getActions();
-        return "(" + getClass().getName() + " " + getName() + actions + ")";
-    }
 }

@@ -83,7 +83,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
     public DecimalFormatSymbols(Locale locale) {
         LocaleData localeData = LocaleData.get(locale);
         this.zeroDigit = localeData.zeroDigit;
-        this.digit = localeData.digit;
+        this.digit = '#';
         this.decimalSeparator = localeData.decimalSeparator;
         this.groupingSeparator = localeData.groupingSeparator;
         this.patternSeparator = localeData.patternSeparator;

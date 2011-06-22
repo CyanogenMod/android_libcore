@@ -58,8 +58,6 @@ final class FileChannelImpl extends FileChannel {
     // The set of acquired and pending locks.
     private final SortedSet<FileLock> locks = new TreeSet<FileLock>(LOCK_COMPARATOR);
 
-    private final Object repositioningLock = new Object();
-
     /**
      * Create a new file channel implementation class that wraps the given
      * fd and operates in the specified mode.
@@ -261,73 +259,61 @@ final class FileChannelImpl extends FileChannel {
         if (newPosition < 0) {
             throw new IllegalArgumentException("position: " + newPosition);
         }
-        synchronized (repositioningLock) {
-            try {
-                Libcore.os.lseek(fd, newPosition, SEEK_SET);
-            } catch (ErrnoException errnoException) {
-                throw errnoException.rethrowAsIOException();
-            }
+        try {
+            Libcore.os.lseek(fd, newPosition, SEEK_SET);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
         }
         return this;
     }
 
     public int read(ByteBuffer buffer, long position) throws IOException {
-        FileChannelImpl.checkWritable(buffer);
         if (position < 0) {
             throw new IllegalArgumentException("position: " + position);
         }
-        checkOpen();
-        checkReadable();
-        if (!buffer.hasRemaining()) {
-            return 0;
-        }
-        synchronized (repositioningLock) {
-            int bytesRead = 0;
-            long preReadPosition = position();
-            position(position);
-            try {
-                bytesRead = read(buffer);
-            } finally {
-                position(preReadPosition);
-            }
-            return bytesRead;
-        }
+        return readImpl(buffer, position);
     }
 
     public int read(ByteBuffer buffer) throws IOException {
-        FileChannelImpl.checkWritable(buffer);
+        return readImpl(buffer, -1);
+    }
+
+    private int readImpl(ByteBuffer buffer, long position) throws IOException {
+        buffer.checkWritable();
         checkOpen();
         checkReadable();
         if (!buffer.hasRemaining()) {
             return 0;
         }
-        synchronized (repositioningLock) {
-            int bytesRead = 0;
-            boolean completed = false;
+        int bytesRead = 0;
+        boolean completed = false;
+        try {
+            begin();
             try {
-                begin();
-                try {
+                if (position == -1) {
                     bytesRead = Libcore.os.read(fd, buffer);
-                    if (bytesRead == 0) {
-                        bytesRead = -1;
-                    }
-                } catch (ErrnoException errnoException) {
-                    if (errnoException.errno == EAGAIN) {
-                        // We don't throw if we try to read from an empty non-blocking pipe.
-                        bytesRead = 0;
-                    } else {
-                        throw errnoException.rethrowAsIOException();
-                    }
+                } else {
+                    bytesRead = Libcore.os.pread(fd, buffer, position);
                 }
-                completed = true;
-            } finally {
-                end(completed && bytesRead >= 0);
+                if (bytesRead == 0) {
+                    bytesRead = -1;
+                }
+            } catch (ErrnoException errnoException) {
+                if (errnoException.errno == EAGAIN) {
+                    // We don't throw if we try to read from an empty non-blocking pipe.
+                    bytesRead = 0;
+                } else {
+                    throw errnoException.rethrowAsIOException();
+                }
             }
-            if (bytesRead > 0) {
-                buffer.position(buffer.position() + bytesRead);
-            }
-            return bytesRead;
+            completed = true;
+        } finally {
+            end(completed && bytesRead >= 0);
         }
+        if (bytesRead > 0) {
+            buffer.position(buffer.position() + bytesRead);
+        }
+        return bytesRead;
     }
 
     private int transferIoVec(IoVec ioVec) throws IOException {
@@ -338,9 +324,7 @@ final class FileChannelImpl extends FileChannel {
         boolean completed = false;
         try {
             begin();
-            synchronized (repositioningLock) {
-                bytesTransferred = ioVec.doTransfer(fd);
-            }
+            bytesTransferred = ioVec.doTransfer(fd);
             completed = true;
         } finally {
             end(completed);
@@ -378,25 +362,31 @@ final class FileChannelImpl extends FileChannel {
             return 0;
         }
 
-        ByteBuffer buffer = null;
+        // Although sendfile(2) originally supported writing to a regular file.
+        // In Linux 2.6 and later, it only supports writing to sockets.
 
-        try {
-            if (src instanceof FileChannel) {
-                FileChannel fileSrc = (FileChannel) src;
-                long size = fileSrc.size();
-                long filePosition = fileSrc.position();
-                count = Math.min(count, size - filePosition);
-                buffer = fileSrc.map(MapMode.READ_ONLY, filePosition, count);
+        // If our source is a regular file, mmap(2) rather than reading.
+        // Callers should only be using transferFrom for large transfers,
+        // so the mmap(2) overhead isn't a concern.
+        if (src instanceof FileChannel) {
+            FileChannel fileSrc = (FileChannel) src;
+            long size = fileSrc.size();
+            long filePosition = fileSrc.position();
+            count = Math.min(count, size - filePosition);
+            ByteBuffer buffer = fileSrc.map(MapMode.READ_ONLY, filePosition, count);
+            try {
                 fileSrc.position(filePosition + count);
-            } else {
-                buffer = ByteBuffer.allocateDirect((int) count);
-                src.read(buffer);
-                buffer.flip();
+                return write(buffer, position);
+            } finally {
+                NioUtils.freeDirectBuffer(buffer);
             }
-            return write(buffer, position);
-        } finally {
-            NioUtils.freeDirectBuffer(buffer);
         }
+
+        // For non-file channels, all we can do is read and write via userspace.
+        ByteBuffer buffer = ByteBuffer.allocate((int) count);
+        src.read(buffer);
+        buffer.flip();
+        return write(buffer, position);
     }
 
     public long transferTo(long position, long count, WritableByteChannel target) throws IOException {
@@ -466,56 +456,46 @@ final class FileChannelImpl extends FileChannel {
     }
 
     public int write(ByteBuffer buffer, long position) throws IOException {
-        if (buffer == null) {
-            throw new NullPointerException("buffer == null");
-        }
         if (position < 0) {
             throw new IllegalArgumentException("position: " + position);
         }
+        return writeImpl(buffer, position);
+    }
+
+    public int write(ByteBuffer buffer) throws IOException {
+        return writeImpl(buffer, -1);
+    }
+
+    private int writeImpl(ByteBuffer buffer, long position) throws IOException {
         checkOpen();
         checkWritable();
+        if (buffer == null) {
+            throw new NullPointerException("buffer == null");
+        }
         if (!buffer.hasRemaining()) {
             return 0;
         }
         int bytesWritten = 0;
-        synchronized (repositioningLock) {
-            long preWritePosition = position();
-            position(position);
+        boolean completed = false;
+        try {
+            begin();
             try {
-                bytesWritten = writeImpl(buffer);
-            } finally {
-                position(preWritePosition);
+                if (position == -1) {
+                    bytesWritten = Libcore.os.write(fd, buffer);
+                } else {
+                    bytesWritten = Libcore.os.pwrite(fd, buffer, position);
+                }
+            } catch (ErrnoException errnoException) {
+                throw errnoException.rethrowAsIOException();
             }
+            completed = true;
+        } finally {
+            end(completed);
+        }
+        if (bytesWritten > 0) {
+            buffer.position(buffer.position() + bytesWritten);
         }
         return bytesWritten;
-    }
-
-    public int write(ByteBuffer buffer) throws IOException {
-        checkOpen();
-        checkWritable();
-        return writeImpl(buffer);
-    }
-
-    private int writeImpl(ByteBuffer buffer) throws IOException {
-        synchronized (repositioningLock) {
-            int bytesWritten = 0;
-            boolean completed = false;
-            try {
-                begin();
-                try {
-                    bytesWritten = Libcore.os.write(fd, buffer);
-                } catch (ErrnoException errnoException) {
-                    throw errnoException.rethrowAsIOException();
-                }
-                completed = true;
-            } finally {
-                end(completed);
-            }
-            if (bytesWritten > 0) {
-                buffer.position(buffer.position() + bytesWritten);
-            }
-            return bytesWritten;
-        }
     }
 
     public long write(ByteBuffer[] buffers, int offset, int length) throws IOException {
@@ -523,12 +503,6 @@ final class FileChannelImpl extends FileChannel {
         checkOpen();
         checkWritable();
         return transferIoVec(new IoVec(buffers, offset, length, IoVec.Direction.WRITEV));
-    }
-
-    static void checkWritable(ByteBuffer buffer) {
-        if (buffer.isReadOnly()) {
-            throw new IllegalArgumentException("read-only buffer");
-        }
     }
 
     /**
@@ -541,7 +515,7 @@ final class FileChannelImpl extends FileChannel {
         for (int i = offset; i < offset + length; ++i) {
             count += buffers[i].remaining();
             if (copyingIn) {
-                checkWritable(buffers[i]);
+                buffers[i].checkWritable();
             }
         }
         return count;

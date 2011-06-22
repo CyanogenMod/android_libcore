@@ -78,6 +78,7 @@ public:
         if (mRawArray != NULL) {
             memcpy(newRawArray, mRawArray, mOffset);
             mEnv->ReleaseByteArrayElements(mJavaArray, mRawArray, JNI_ABORT);
+            mEnv->DeleteLocalRef(mJavaArray);
         }
 
         // Point ourselves at the new array.

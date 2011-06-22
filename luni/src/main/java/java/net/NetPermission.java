@@ -17,33 +17,18 @@
 
 package java.net;
 
+import java.security.BasicPermission;
+import java.security.Permission;
+
 /**
- * Legacy security code; this class exists for compatibility only.
+ * Legacy security code; do not use.
  */
-public final class NetPermission extends java.security.BasicPermission {
+public final class NetPermission extends BasicPermission {
+    public NetPermission(String name) { super(""); }
 
-    private static final long serialVersionUID = -8343910153355041693L;
+    public NetPermission(String name, String actions) { super("", ""); }
 
-    /**
-     * Creates an instance of this class with the given name.
-     *
-     * @param name
-     *            the name of the new NetPermission instance.
-     */
-    public NetPermission(String name) {
-        super(name);
-    }
+    @Override public String getActions() { return null; }
 
-    /**
-     * Creates an instance of this class with the given name and an action list.
-     * The action list is ignored and should be {@code null}.
-     *
-     * @param name
-     *            the name of the new {@code NetPermission} instance.
-     * @param actions
-     *            the ignored action string.
-     */
-    public NetPermission(String name, String actions) {
-        super(name, actions);
-    }
+    @Override public boolean implies(Permission permission) { return true; }
 }

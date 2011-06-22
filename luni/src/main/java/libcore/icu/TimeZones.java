@@ -29,11 +29,23 @@ import libcore.util.BasicLruCache;
 public final class TimeZones {
     private static final String[] availableTimeZones = TimeZone.getAvailableIDs();
 
+    /*
+     * Offsets into the arrays returned by DateFormatSymbols.getZoneStrings.
+     */
+    public static final int OLSON_NAME = 0;
+    public static final int LONG_NAME = 1;
+    public static final int SHORT_NAME = 2;
+    public static final int LONG_NAME_DST = 3;
+    public static final int SHORT_NAME_DST = 4;
+    public static final int NAME_COUNT = 5;
+
     private static final ZoneStringsCache cachedZoneStrings = new ZoneStringsCache();
     static {
-        // Ensure that we pull in the zone strings for en_US and the user's default locale.
-        // (All devices must support Locale.US, and it's used for things like HTTP headers.)
-        // This is especially useful on Android because we'll share this via the Zygote.
+        // Ensure that we pull in the zone strings for the root locale, en_US, and the
+        // user's default locale. (All devices must support the root locale and en_US,
+        // and they're used for various system things like HTTP headers.) Pre-populating
+        // the cache is especially useful on Android because we'll share this via the Zygote.
+        cachedZoneStrings.get(Locale.ROOT);
         cachedZoneStrings.get(Locale.US);
         cachedZoneStrings.get(Locale.getDefault());
     }
@@ -69,7 +81,7 @@ public final class TimeZones {
 
         private synchronized void internStrings(String[][] result) {
             for (int i = 0; i < result.length; ++i) {
-                for (int j = 1; j <= 4; ++j) {
+                for (int j = 1; j < NAME_COUNT; ++j) {
                     String original = result[i][j];
                     String nonDuplicate = internTable.get(original);
                     if (nonDuplicate == null) {
@@ -84,7 +96,7 @@ public final class TimeZones {
 
     private static final Comparator<String[]> ZONE_STRINGS_COMPARATOR = new Comparator<String[]>() {
         public int compare(String[] lhs, String[] rhs) {
-            return lhs[0].compareTo(rhs[0]);
+            return lhs[OLSON_NAME].compareTo(rhs[OLSON_NAME]);
         }
     };
 
@@ -99,9 +111,9 @@ public final class TimeZones {
         if (index >= 0) {
             String[] row = zoneStrings[index];
             if (daylight) {
-                return (style == TimeZone.LONG) ? row[3] : row[4];
+                return (style == TimeZone.LONG) ? row[LONG_NAME_DST] : row[SHORT_NAME_DST];
             } else {
-                return (style == TimeZone.LONG) ? row[1] : row[2];
+                return (style == TimeZone.LONG) ? row[LONG_NAME] : row[SHORT_NAME];
             }
         }
         return null;

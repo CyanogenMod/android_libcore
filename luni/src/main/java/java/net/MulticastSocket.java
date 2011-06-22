@@ -75,7 +75,7 @@ public class MulticastSocket extends DatagramSocket {
      * @throws SocketException if an error occurs.
      */
     public InetAddress getInterface() throws SocketException {
-        checkClosedAndBind(false);
+        checkOpen();
         if (setAddress != null) {
             return setAddress;
         }
@@ -105,7 +105,7 @@ public class MulticastSocket extends DatagramSocket {
      * @throws SocketException if an error occurs.
      */
     public NetworkInterface getNetworkInterface() throws SocketException {
-        checkClosedAndBind(false);
+        checkOpen();
         int index = (Integer) impl.getOption(SocketOptions.IP_MULTICAST_IF2);
         if (index != 0) {
             return NetworkInterface.getByIndex(index);
@@ -119,7 +119,7 @@ public class MulticastSocket extends DatagramSocket {
      * @throws IOException if an error occurs.
      */
     public int getTimeToLive() throws IOException {
-        checkClosedAndBind(false);
+        checkOpen();
         return impl.getTimeToLive();
     }
 
@@ -131,7 +131,7 @@ public class MulticastSocket extends DatagramSocket {
      */
     @Deprecated
     public byte getTTL() throws IOException {
-        checkClosedAndBind(false);
+        checkOpen();
         return impl.getTTL();
     }
 
@@ -203,7 +203,7 @@ public class MulticastSocket extends DatagramSocket {
     }
 
     private void checkJoinOrLeave(SocketAddress groupAddress, NetworkInterface netInterface) throws IOException {
-        checkClosedAndBind(false);
+        checkOpen();
         if (groupAddress == null) {
             throw new IllegalArgumentException("groupAddress == null");
         }
@@ -228,7 +228,7 @@ public class MulticastSocket extends DatagramSocket {
     }
 
     private void checkJoinOrLeave(InetAddress groupAddr) throws IOException {
-        checkClosedAndBind(false);
+        checkOpen();
         if (!groupAddr.isMulticastAddress()) {
             throw new IOException("Not a multicast group: " + groupAddr);
         }
@@ -243,7 +243,7 @@ public class MulticastSocket extends DatagramSocket {
      */
     @Deprecated
     public void send(DatagramPacket packet, byte ttl) throws IOException {
-        checkClosedAndBind(false);
+        checkOpen();
         InetAddress packAddr = packet.getAddress();
         int currTTL = getTimeToLive();
         if (packAddr.isMulticastAddress() && (byte) currTTL != ttl) {
@@ -266,7 +266,7 @@ public class MulticastSocket extends DatagramSocket {
      * @throws SocketException if an error occurs.
      */
     public void setInterface(InetAddress address) throws SocketException {
-        checkClosedAndBind(false);
+        checkOpen();
         if (address == null) {
             throw new NullPointerException("address == null");
         }
@@ -286,7 +286,7 @@ public class MulticastSocket extends DatagramSocket {
      * @throws SocketException if an error occurs.
      */
     public void setNetworkInterface(NetworkInterface networkInterface) throws SocketException {
-        checkClosedAndBind(false);
+        checkOpen();
         if (networkInterface == null) {
             throw new SocketException("networkInterface == null");
         }
@@ -302,7 +302,7 @@ public class MulticastSocket extends DatagramSocket {
      * @throws IOException if an error occurs.
      */
     public void setTimeToLive(int ttl) throws IOException {
-        checkClosedAndBind(false);
+        checkOpen();
         if (ttl < 0 || ttl > 255) {
             throw new IllegalArgumentException("TimeToLive out of bounds: " + ttl);
         }
@@ -318,7 +318,7 @@ public class MulticastSocket extends DatagramSocket {
      */
     @Deprecated
     public void setTTL(byte ttl) throws IOException {
-        checkClosedAndBind(false);
+        checkOpen();
         impl.setTTL(ttl);
     }
 
@@ -344,7 +344,7 @@ public class MulticastSocket extends DatagramSocket {
      * @throws SocketException if an error occurs.
      */
     public boolean getLoopbackMode() throws SocketException {
-        checkClosedAndBind(false);
+        checkOpen();
         return !((Boolean) impl.getOption(SocketOptions.IP_MULTICAST_LOOP)).booleanValue();
     }
 
@@ -356,7 +356,7 @@ public class MulticastSocket extends DatagramSocket {
      * @throws SocketException if an error occurs.
      */
     public void setLoopbackMode(boolean disable) throws SocketException {
-        checkClosedAndBind(false);
+        checkOpen();
         impl.setOption(SocketOptions.IP_MULTICAST_LOOP, Boolean.valueOf(!disable));
     }
 }

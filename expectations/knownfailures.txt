@@ -3,6 +3,11 @@
  */
 [
 {
+  description: "SimpleDateFormat assumes DST always uses 60 minute offset; this fails for zones like Lord Howe Daylight Time",
+  name: "libcore.java.text.SimpleDateFormatTest#testDstZoneWithNonDstTimestampForNonHourDstZone",
+  bug: 4723412
+},
+{
   description: "Encoded bytes don't match for EC elliptic curve keys created through KeyFactory.generatePrivate()",
   names: [
     "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_generatePrivateLjava_security_spec_KeySpec",

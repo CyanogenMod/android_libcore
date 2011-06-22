@@ -18,25 +18,9 @@
 package java.security.acl;
 
 /**
- * Legacy security code; this class exists for compatibility only.
+ * Legacy security code; do not use.
  */
 public interface Permission {
-
-
-    /**
-     * Checks whether the specified object equals this permission.
-     *
-     * @param another
-     *            the permission object to compare to this permission.
-     * @return true if the specified permission object is equal to this, false
-     *         if not.
-     */
     boolean equals(Object another);
-
-    /**
-     * Returns the string representation of this permission.
-     *
-     * @return the string representation of this permission.
-     */
     String toString();
 }

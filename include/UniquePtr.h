@@ -64,7 +64,7 @@ public:
 
     // Returns the raw pointer and hands over ownership to the caller.
     // The pointer will not be deleted by UniquePtr.
-    T* release() {
+    T* release() __attribute__((warn_unused_result)) {
         T* result = mPtr;
         mPtr = NULL;
         return result;
@@ -110,7 +110,7 @@ public:
     }
     T* get() const { return mPtr; }
 
-    T* release() {
+    T* release() __attribute__((warn_unused_result)) {
         T* result = mPtr;
         mPtr = NULL;
         return result;

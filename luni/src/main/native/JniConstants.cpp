@@ -15,6 +15,7 @@
  */
 
 #include "JniConstants.h"
+#include "ScopedLocalRef.h"
 
 #include <stdlib.h>
 
@@ -61,7 +62,8 @@ jclass JniConstants::structTimevalClass;
 jclass JniConstants::structUtsnameClass;
 
 static jclass findClass(JNIEnv* env, const char* name) {
-    jclass result = reinterpret_cast<jclass>(env->NewGlobalRef(env->FindClass(name)));
+    ScopedLocalRef<jclass> localClass(env, env->FindClass(name));
+    jclass result = reinterpret_cast<jclass>(env->NewGlobalRef(localClass.get()));
     if (result == NULL) {
         LOGE("failed to find class '%s'", name);
         abort();

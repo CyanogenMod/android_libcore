@@ -53,7 +53,7 @@ final class IoVec {
         for (int i = 0; i < bufferCount; ++i) {
             ByteBuffer b = byteBuffers[i + offset];
             if (direction == Direction.READV) {
-                FileChannelImpl.checkWritable(b);
+                b.checkWritable();
             }
             int remaining = b.remaining();
             if (b.isDirect()) {

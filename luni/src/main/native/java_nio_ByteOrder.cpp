@@ -25,7 +25,7 @@ static jboolean ByteOrder_isLittleEndian(JNIEnv*, jclass) {
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(ByteOrder, isLittleEndian, "()Z"),
+    NATIVE_METHOD(ByteOrder, isLittleEndian, "!()Z"),
 };
 int register_java_nio_ByteOrder(JNIEnv* env) {
     return jniRegisterNativeMethods(env, "java/nio/ByteOrder", gMethods, NELEM(gMethods));

@@ -19,9 +19,47 @@ package libcore.java.net;
 import java.net.InetAddress;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
+import java.net.UnknownHostException;
 
 public class InetAddressTest extends junit.framework.TestCase {
     private static final byte[] LOOPBACK6_BYTES = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
+
+    private static final String[] INVALID_IPv4_NUMERIC_ADDRESSES = new String[] {
+        // IPv4 addresses may not be surrounded by square brackets.
+        "[127.0.0.1]",
+
+        // Trailing dots are not allowed.
+        "1.2.3.4.",
+        // Nor is any kind of trailing junk.
+        "1.2.3.4hello",
+
+        // Out of range.
+        "256.2.3.4",
+        "1.256.3.4",
+        "1.2.256.4",
+        "1.2.3.256",
+
+        // Deprecated.
+        "1.2.3",
+        "1.2",
+        "1",
+        "1234",
+        "0", // Single out the deprecated form of the ANY address.
+
+        // Hex.
+        "0x1.0x2.0x3.0x4",
+        "0x7f.0x00.0x00.0x01",
+        "7f.0.0.1",
+
+        // Octal.
+        "0177.00.00.01", // Historically, this would have been interpreted as 127.0.0.1.
+
+        // Negative numbers.
+        "-1.0.0.1",
+        "1.-1.0.1",
+        "1.0.-1.1",
+        "1.0.0.-1",
+    };
 
     private static Inet6Address loopback6() throws Exception {
         return (Inet6Address) InetAddress.getByAddress(LOOPBACK6_BYTES);
@@ -36,44 +74,52 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertEquals("/1.2.3.4", InetAddress.parseNumericAddress("1.2.3.4").toString());
         // Regular IPv6.
         assertEquals("/2001:4860:800d::68", InetAddress.parseNumericAddress("2001:4860:800d::68").toString());
-        // Weird IPv4 special cases.
-        assertEquals("/1.2.0.3", InetAddress.parseNumericAddress("1.2.3").toString());
-        assertEquals("/1.0.0.2", InetAddress.parseNumericAddress("1.2").toString());
-        assertEquals("/0.0.0.1", InetAddress.parseNumericAddress("1").toString());
-        assertEquals("/0.0.4.210", InetAddress.parseNumericAddress("1234").toString());
         // Optional square brackets around IPv6 addresses, including mapped IPv4.
         assertEquals("/2001:4860:800d::68", InetAddress.parseNumericAddress("[2001:4860:800d::68]").toString());
         assertEquals("/127.0.0.1", InetAddress.parseNumericAddress("[::ffff:127.0.0.1]").toString());
+
         try {
-            // Actual IPv4 addresses may not be surrounded by square brackets.
-            assertEquals("/127.0.0.1", InetAddress.parseNumericAddress("[127.0.0.1]").toString());
+            InetAddress.parseNumericAddress("example.com"); // Not numeric.
             fail();
         } catch (IllegalArgumentException expected) {
         }
-        try {
-            // Almost numeric but invalid...
-            InetAddress.parseNumericAddress("1.");
-            fail();
-        } catch (IllegalArgumentException expected) {
+
+        for (String invalid : INVALID_IPv4_NUMERIC_ADDRESSES) {
+            try {
+                InetAddress.parseNumericAddress(invalid);
+                fail(invalid);
+            } catch (IllegalArgumentException expected) {
+            }
         }
-        try {
-            // Not even close to numeric...
-            InetAddress.parseNumericAddress("www.google.com");
-            fail();
-        } catch (IllegalArgumentException expected) {
-        }
+
         // Strange special cases, for compatibility with InetAddress.getByName.
         assertTrue(InetAddress.parseNumericAddress(null).isLoopbackAddress());
         assertTrue(InetAddress.parseNumericAddress("").isLoopbackAddress());
     }
 
-    public void test_getLoopbackAddress() throws Exception {
-        assertTrue(InetAddress.getLoopbackAddress().isLoopbackAddress());
+    public void test_isNumeric() throws Exception {
+        assertTrue(InetAddress.isNumeric("1.2.3.4"));
+        assertTrue(InetAddress.isNumeric("127.0.0.1"));
+
+        assertFalse(InetAddress.isNumeric("example.com"));
+
+        for (String invalid : INVALID_IPv4_NUMERIC_ADDRESSES) {
+            assertFalse(invalid, InetAddress.isNumeric(invalid));
+        }
     }
 
-    public void test_0() throws Exception {
-        // The RI special-cases "0" for legacy IPv4 applications.
-        assertTrue(InetAddress.getByName("0").isAnyLocalAddress());
+    public void test_getByName() throws Exception {
+        for (String invalid : INVALID_IPv4_NUMERIC_ADDRESSES) {
+            try {
+                InetAddress.getByName(invalid);
+                fail(invalid);
+            } catch (UnknownHostException expected) {
+            }
+        }
+    }
+
+    public void test_getLoopbackAddress() throws Exception {
+        assertTrue(InetAddress.getLoopbackAddress().isLoopbackAddress());
     }
 
     public void test_equals() throws Exception {
@@ -82,10 +128,11 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertTrue(loopback6().equals(localhost6()));
         assertFalse(addr.equals(loopback6()));
 
-        InetAddress addr3 = InetAddress.getByName("127.0.0");
-        assertFalse(loopback6().equals(addr3));
-
         assertTrue(Inet4Address.LOOPBACK.equals(Inet4Address.LOOPBACK));
+
+        // http://b/4328294 - the scope id isn't included when comparing Inet6Address instances.
+        byte[] bs = new byte[16];
+        assertEquals(Inet6Address.getByAddress("1", bs, 1), Inet6Address.getByAddress("2", bs, 2));
     }
 
     public void test_getHostAddress() throws Exception {
@@ -97,14 +144,12 @@ public class InetAddressTest extends junit.framework.TestCase {
         InetAddress aAddr = InetAddress.getByName("224.0.0.0");
         assertEquals("224.0.0.0", aAddr.getHostAddress());
 
-        aAddr = InetAddress.getByName("1");
-        assertEquals("0.0.0.1", aAddr.getHostAddress());
 
-        aAddr = InetAddress.getByName("1.1");
-        assertEquals("1.0.0.1", aAddr.getHostAddress());
-
-        aAddr = InetAddress.getByName("1.1.1");
-        assertEquals("1.1.0.1", aAddr.getHostAddress());
+        try {
+            InetAddress.getByName("1");
+            fail();
+        } catch (UnknownHostException expected) {
+        }
 
         byte[] bAddr = {
             (byte) 0xFE, (byte) 0x80, (byte) 0x00, (byte) 0x00,
@@ -155,11 +200,8 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     public void test_hashCode() throws Exception {
-        InetAddress addr1 = InetAddress.getByName("1.1");
-        InetAddress addr2 = InetAddress.getByName("1.1.1");
-        assertFalse(addr1.hashCode() == addr2.hashCode());
-
-        addr2 = InetAddress.getByName("1.0.0.1");
+        InetAddress addr1 = InetAddress.getByName("1.0.0.1");
+        InetAddress addr2 = InetAddress.getByName("1.0.0.1");
         assertTrue(addr1.hashCode() == addr2.hashCode());
 
         assertTrue(loopback6().hashCode() == localhost6().hashCode());
@@ -167,17 +209,15 @@ public class InetAddressTest extends junit.framework.TestCase {
 
     public void test_toString() throws Exception {
         String validIPAddresses[] = {
-            "::1.2.3.4", "::", "::", "1::0", "1::",
-            "::1", "0", /* jdk1.5 accepts 0 as valid */
+            "::1.2.3.4", "::", "::", "1::0", "1::", "::1",
             "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF",
             "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:255.255.255.255",
             "0:0:0:0:0:0:0:0", "0:0:0:0:0:0:0.0.0.0"
         };
 
         String [] resultStrings = {
-            "/::1.2.3.4", "/::", "/::", "/1::", "/1::",
-            "/::1",
-            "/0.0.0.0", "/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+            "/::1.2.3.4", "/::", "/::", "/1::", "/1::", "/::1",
+            "/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
             "/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", "/::",
             "/::"
         };

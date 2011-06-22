@@ -64,13 +64,14 @@ public final class Posix implements Os {
     public native StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native int getuid();
     public native String if_indextoname(int index);
-    public native InetAddress inet_aton(String address);
+    public native InetAddress inet_pton(int family, String address);
     public native InetAddress ioctlInetAddress(FileDescriptor fd, int cmd, String interfaceName) throws ErrnoException;
     public native int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException;
     public native boolean isatty(FileDescriptor fd);
     public native void kill(int pid, int signal) throws ErrnoException;
     public native void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public native long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
+    public native StructStat lstat(String path) throws ErrnoException;
     public native void mincore(long address, long byteCount, byte[] vector) throws ErrnoException;
     public native void mkdir(String path, int mode) throws ErrnoException;
     public native void mlock(long address, long byteCount) throws ErrnoException;
@@ -81,7 +82,30 @@ public final class Posix implements Os {
     public native FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
     public native FileDescriptor[] pipe() throws ErrnoException;
     public native int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException;
-    public native StructStat lstat(String path) throws ErrnoException;
+    public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException {
+        if (buffer.isDirect()) {
+            return preadBytes(fd, buffer, buffer.position(), buffer.remaining(), offset);
+        } else {
+            return preadBytes(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining(), offset);
+        }
+    }
+    public int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException {
+        // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
+        return preadBytes(fd, bytes, byteOffset, byteCount, offset);
+    }
+    private native int preadBytes(FileDescriptor fd, Object buffer, int bufferOffset, int byteCount, long offset) throws ErrnoException;
+    public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException {
+        if (buffer.isDirect()) {
+            return pwriteBytes(fd, buffer, buffer.position(), buffer.remaining(), offset);
+        } else {
+            return pwriteBytes(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining(), offset);
+        }
+    }
+    public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException {
+        // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
+        return pwriteBytes(fd, bytes, byteOffset, byteCount, offset);
+    }
+    private native int pwriteBytes(FileDescriptor fd, Object buffer, int bufferOffset, int byteCount, long offset) throws ErrnoException;
     public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
         if (buffer.isDirect()) {
             return readBytes(fd, buffer, buffer.position(), buffer.remaining());
