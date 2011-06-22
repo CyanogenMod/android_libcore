@@ -877,8 +877,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
         return getTimeInMillis() == cal.getTimeInMillis()
                 && isLenient() == cal.isLenient()
                 && getFirstDayOfWeek() == cal.getFirstDayOfWeek()
-                && getMinimalDaysInFirstWeek() == cal
-                        .getMinimalDaysInFirstWeek()
+                && getMinimalDaysInFirstWeek() == cal.getMinimalDaysInFirstWeek()
                 && getTimeZone().equals(cal.getTimeZone());
     }
 
@@ -903,11 +902,8 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
     }
 
     /**
-     * Gets the maximum value of the specified field for the current date.
-     *
-     * @param field
-     *            the field.
-     * @return the maximum value of the specified field.
+     * Returns the maximum value of the specified field for the current date.
+     * For example, the maximum number of days in the current month.
      */
     public int getActualMaximum(int field) {
         int value, next;
