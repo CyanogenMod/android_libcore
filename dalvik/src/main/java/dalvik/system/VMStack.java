@@ -32,14 +32,6 @@ public final class VMStack {
     native public static ClassLoader getCallingClassLoader();
 
     /**
-     * Returns the defining class loader of the caller's caller's caller.
-     *
-     * @return the requested class loader, or {@code null} if this is the
-     *         bootstrap class loader.
-     */
-    native public static ClassLoader getCallingClassLoader2();
-
-    /**
      * Returns the class of the caller's caller's caller.
      *
      * @return the requested class, or {@code null}.
