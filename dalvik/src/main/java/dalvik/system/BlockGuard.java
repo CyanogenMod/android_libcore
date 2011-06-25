@@ -16,22 +16,14 @@
 
 package dalvik.system;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
+import java.math.BigInteger;
 import java.net.SocketException;
-import java.net.SocketImpl;
 import java.nio.charset.Charsets;
-import libcore.io.ErrnoException;
-import libcore.io.Libcore;
-import libcore.io.StructLinger;
-import libcore.util.EmptyArray;
-import static libcore.io.OsConstants.*;
+
 /**
  * Mechanism to let threads set restrictions on what code is allowed
  * to do in their thread.
@@ -86,7 +78,7 @@ public final class BlockGuard {
     }
 
     public static class SocketTags {
-        public String statsTag = null;
+        public int statsTag = -1;
         public int statsUid = -1;
     }
 
@@ -162,7 +154,7 @@ public final class BlockGuard {
         return threadPolicy.get();
     }
 
-    public static void setThreadSocketStatsTag(String tag) {
+    public static void setThreadSocketStatsTag(int tag) {
         threadSocketTags.get().statsTag = tag;
     }
 
@@ -208,19 +200,18 @@ public final class BlockGuard {
         }
     }
 
-    private static void internalTagSocketFd(FileDescriptor fd, String tag, int uid)
+    private static void internalTagSocketFd(FileDescriptor fd, int tag, int uid)
             throws IOException {
-        int fdNum = fd.getInt$();
-        if (fdNum == -1 || (tag == null && uid == -1)) return;
+        final int fdNum = fd.getInt$();
+        if (fdNum == -1 || (tag == -1 && uid == -1)) return;
 
         String cmd = "t " + fdNum;
-        if (tag == null) {
+        if (tag == -1) {
             // Case where just the uid needs adjusting. But probaly the caller
             // will want to track his own name here, just in case.
             cmd += " 0";
         } else {
-            // TODO: See about supporting strings, or assume always acct_tag (1..2^32-1)
-            cmd += " " + ((long)tag.hashCode() << 32);
+            cmd += " " + tagToKernel(tag);
         }
         if (uid != -1) {
             cmd += " " + uid;
@@ -228,12 +219,11 @@ public final class BlockGuard {
         internalModuleCtrl(cmd);
     }
 
-    private static void internalUnTagSocketFd(FileDescriptor fd)
-            throws IOException {
-      int fdNum = fd.getInt$();
-      if (fdNum == -1) return;
-      String cmd = "u " + fdNum;
-      internalModuleCtrl(cmd);
+    private static void internalUnTagSocketFd(FileDescriptor fd) throws IOException {
+        final int fdNum = fd.getInt$();
+        if (fdNum == -1) return;
+        String cmd = "u " + fdNum;
+        internalModuleCtrl(cmd);
     }
 
     /**
@@ -273,6 +263,26 @@ public final class BlockGuard {
         } finally {
             procOut.close();
         }
+    }
+
+    /**
+     * Convert {@link Integer} tag to {@code /proc/} format. Assumes unsigned
+     * base-10 format like {@code 2147483647}. Currently strips signed bit to
+     * avoid using {@link BigInteger}.
+     */
+    public static String tagToKernel(int tag) {
+        // TODO: eventually write in hex, since thats what proc exports
+        // TODO: migrate to direct integer instead of odd shifting
+        return Long.toString((((long) tag) << 32) & 0x7FFFFFFF00000000L);
+    }
+
+    /**
+     * Convert {@code /proc/} tag format to {@link Integer}. Assumes incoming
+     * format like {@code 0x7fffffff00000000}.
+     */
+    public static int kernelToTag(String string) {
+        // TODO: migrate to direct integer instead of odd shifting
+        return (int) (Long.decode(string) >> 32);
     }
 
     private BlockGuard() {}
