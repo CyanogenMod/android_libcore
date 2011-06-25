@@ -1478,11 +1478,18 @@ public class DomTest extends TestCase {
         assertEquals(2, elements.getLength());
     }
 
-    public void testGetElementsByTagName() {
+    public void testGetElementsByTagNameWithNamespacePrefix() {
         NodeList elements = item.getElementsByTagName("a:option");
         assertEquals(option1, elements.item(0));
         assertEquals(option2, elements.item(1));
         assertEquals(2, elements.getLength());
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=17907
+    public void testGetElementsByTagNameWithoutNamespacePrefix() {
+        NodeList elements = item.getElementsByTagName("nutrition");
+        assertEquals(nutrition, elements.item(0));
+        assertEquals(1, elements.getLength());
     }
 
     public void testGetElementsByTagNameWithWildcard() {
