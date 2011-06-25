@@ -685,13 +685,13 @@ static int NativeCrypto_EVP_DigestInit(JNIEnv* env, jclass, EVP_MD* evp_md) {
 
     if (evp_md == NULL) {
         jniThrowNullPointerException(env, NULL);
-        return NULL;
+        return 0;
     }
 
     Unique_EVP_MD_CTX ctx(EVP_MD_CTX_create());
     if (ctx.get() == NULL) {
         jniThrowOutOfMemoryError(env, "Unable to allocate EVP_MD_CTX");
-        return NULL;
+        return 0;
     }
     JNI_TRACE("NativeCrypto_EVP_DigestInit ctx=%p", ctx.get());
 
@@ -699,7 +699,7 @@ static int NativeCrypto_EVP_DigestInit(JNIEnv* env, jclass, EVP_MD* evp_md) {
     if (ok == 0) {
         bool exception = throwExceptionIfNecessary(env, "NativeCrypto_EVP_DigestInit");
         if (exception) {
-            return NULL;
+            return 0;
         }
     }
     return (jint) ctx.release();
@@ -718,14 +718,14 @@ static jint NativeCrypto_EVP_get_digestbyname(JNIEnv* env, jclass, jstring algor
 
     ScopedUtfChars algorithmChars(env, algorithm);
     if (algorithmChars.c_str() == NULL) {
-        return NULL;
+        return 0;
     }
     JNI_TRACE("NativeCrypto_EVP_get_digestbyname(%s)", algorithmChars.c_str());
 
     const EVP_MD* evp_md = EVP_get_digestbyname(algorithmChars.c_str());
     if (evp_md == NULL) {
         jniThrowRuntimeException(env, "Hash algorithm not found");
-        return NULL;
+        return 0;
     }
 
     JNI_TRACE("NativeCrypto_EVP_get_digestbyname(%s) => %p", algorithmChars.c_str(), evp_md);
@@ -801,33 +801,33 @@ static jint NativeCrypto_EVP_VerifyInit(JNIEnv* env, jclass, jstring algorithm) 
 
     if (algorithm == NULL) {
         jniThrowNullPointerException(env, NULL);
-        return NULL;
+        return 0;
     }
 
     Unique_EVP_MD_CTX ctx(EVP_MD_CTX_create());
     if (ctx.get() == NULL) {
         jniThrowOutOfMemoryError(env, "Unable to allocate EVP_MD_CTX");
-        return NULL;
+        return 0;
     }
     JNI_TRACE("NativeCrypto_EVP_VerifyInit ctx=%p", ctx.get());
 
     ScopedUtfChars algorithmChars(env, algorithm);
     if (algorithmChars.c_str() == NULL) {
-        return NULL;
+        return 0;
     }
     JNI_TRACE("NativeCrypto_EVP_VerifyInit algorithmChars=%s", algorithmChars.c_str());
 
     const EVP_MD* digest = EVP_get_digestbynid(OBJ_txt2nid(algorithmChars.c_str()));
     if (digest == NULL) {
         jniThrowRuntimeException(env, "Hash algorithm not found");
-        return NULL;
+        return 0;
     }
 
     int ok = EVP_VerifyInit(ctx.get(), digest);
     if (ok == 0) {
         bool exception = throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyInit");
         if (exception) {
-            return NULL;
+            return 0;
         }
     }
     return (jint) ctx.release();
