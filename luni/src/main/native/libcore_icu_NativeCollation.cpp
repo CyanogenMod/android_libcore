@@ -38,11 +38,11 @@ static void NativeCollation_closeElements(JNIEnv*, jclass, jint address) {
 static jint NativeCollation_compare(JNIEnv* env, jclass, jint address, jstring javaLhs, jstring javaRhs) {
     ScopedStringChars lhs(env, javaLhs);
     if (lhs.get() == NULL) {
-        return NULL;
+        return 0;
     }
     ScopedStringChars rhs(env, javaRhs);
     if (rhs.get() == NULL) {
-        return NULL;
+        return 0;
     }
     return ucol_strcoll(toCollator(address), lhs.get(), lhs.size(), rhs.get(), rhs.size());
 }

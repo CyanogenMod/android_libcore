@@ -121,7 +121,7 @@ static jint makeIterator(JNIEnv* env, jstring locale, UBreakIteratorType type) {
     }
     UBreakIterator* it = ubrk_open(type, localeChars.c_str(), NULL, 0, &status);
     if (maybeThrowIcuException(env, status)) {
-        return NULL;
+        return 0;
     }
     return (new BreakIteratorPeer(it))->toAddress();
 }
