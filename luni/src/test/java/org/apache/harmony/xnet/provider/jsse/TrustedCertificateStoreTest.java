@@ -275,6 +275,10 @@ public class TrustedCertificateStoreTest extends TestCase {
         assertTrue(s.isEmpty());
         assertAliases();
 
+        Set<String> u = store.userAliases();
+        assertNotNull(u);
+        assertTrue(u.isEmpty());
+
         try {
             store.containsAlias(null);
             fail();
@@ -410,13 +414,10 @@ public class TrustedCertificateStoreTest extends TestCase {
         resetStore();
     }
 
-    public void testMissingSystemDirectory() {
+    public void testMissingSystemDirectory() throws Exception {
         cleanStore();
-        try {
-            createStore();
-            fail();
-        } catch (IllegalStateException expected) {
-        }
+        createStore();
+        assertEmpty();
     }
 
     public void testWithExistingUserDirectories() throws Exception {
@@ -545,6 +546,8 @@ public class TrustedCertificateStoreTest extends TestCase {
         assertFalse(store.containsAlias(alias));
         assertNull(store.getCertificateAlias(x));
         assertFalse(store.isTrustAnchor(x));
+        assertEquals(store.allSystemAliases().contains(alias),
+                     store.getCertificate(alias, true) != null);
     }
 
     private void assertTombstone(String alias) {
@@ -563,7 +566,11 @@ public class TrustedCertificateStoreTest extends TestCase {
         Set<String> expected = new HashSet<String>(Arrays.asList(aliases));
         Set<String> actual = new HashSet<String>();
         for (String alias : store.aliases()) {
-            if (TrustedCertificateStore.isSystem(alias) || TrustedCertificateStore.isUser(alias)) {
+            boolean system = TrustedCertificateStore.isSystem(alias);
+            boolean user = TrustedCertificateStore.isUser(alias);
+            if (system || user) {
+                assertEquals(system, store.allSystemAliases().contains(alias));
+                assertEquals(user, store.userAliases().contains(alias));
                 actual.add(alias);
             } else {
                 throw new AssertionError(alias);
