@@ -170,6 +170,9 @@ public class Package implements AnnotatedElement {
      */
     public static Package getPackage(String packageName) {
         ClassLoader classloader = VMStack.getCallingClassLoader();
+        if (classloader == null) {
+            classloader = ClassLoader.getSystemClassLoader();
+        }
         return classloader.getPackage(packageName);
     }
 
@@ -181,6 +184,9 @@ public class Package implements AnnotatedElement {
      */
     public static Package[] getPackages() {
         ClassLoader classloader = VMStack.getCallingClassLoader();
+        if (classloader == null) {
+            classloader = ClassLoader.getSystemClassLoader();
+        }
         return classloader.getPackages();
     }
 

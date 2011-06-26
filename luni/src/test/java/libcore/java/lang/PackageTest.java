@@ -16,10 +16,25 @@
 
 package libcore.java.lang;
 
-public class PackageTest extends junit.framework.TestCase {
+import java.util.Arrays;
+import java.util.List;
+import junit.framework.TestCase;
+
+public final class PackageTest extends TestCase {
     public void test_getAnnotations() throws Exception {
         // Package annotations aren't supported, but pre-ICS we crashed.
         assertEquals(0, getClass().getPackage().getAnnotations().length);
         assertEquals(0, getClass().getPackage().getDeclaredAnnotations().length);
+    }
+
+    public void testGetPackage() {
+        Package libcoreJavaLang = Package.getPackage("libcore.java.lang");
+        assertEquals("libcore.java.lang", libcoreJavaLang.getName());
+        assertEquals(getClass().getPackage(), libcoreJavaLang);
+    }
+
+    public void testGetPackages() {
+        List<Package> packages = Arrays.asList(Package.getPackages());
+        assertTrue(packages.contains(getClass().getPackage()));
     }
 }
