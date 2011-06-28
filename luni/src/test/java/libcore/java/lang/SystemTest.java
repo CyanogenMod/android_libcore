@@ -103,4 +103,19 @@ public class SystemTest extends TestCase {
             assertEquals("source[2] of type java.lang.String cannot be stored in destination array of type java.lang.Integer[]", e.getMessage());
         }
     }
+
+    public void testArrayCopyNull() {
+        try {
+            System.arraycopy(null, 0, new char[5], 0, 3);
+            fail();
+        } catch (NullPointerException e) {
+            assertEquals("src == null", e.getMessage());
+        }
+        try {
+            System.arraycopy(new char[5], 0, null, 0, 3);
+            fail();
+        } catch (NullPointerException e) {
+            assertEquals("dst == null", e.getMessage());
+        }
+    }
 }
