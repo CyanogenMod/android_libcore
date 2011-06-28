@@ -755,6 +755,65 @@ public class NativeCryptoTest extends TestCase {
         }
     }
 
+    /**
+     * Usually if a RuntimeException is thrown by the
+     * clientCertificateRequestedCalled callback, the caller sees it
+     * during the call to NativeCrypto_SSL_do_handshake.  However, IIS
+     * does not request client certs until after the initial
+     * handshake. It does an SSL renegotiation, which means we need to
+     * be able to deliver the callback's exception in cases like
+     * SSL_read, SSL_write, and SSL_shutdown.
+     */
+    public void test_SSL_do_handshake_clientCertificateRequested_throws_after_renegotiate()
+            throws Exception {
+        final ServerSocket listener = new ServerSocket(0);
+
+        Hooks cHooks = new Hooks() {
+            @Override
+            public int beforeHandshake(int context) throws SSLException {
+                int s = super.beforeHandshake(context);
+                NativeCrypto.SSL_clear_mode(s, NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH);
+                return s;
+            }
+            @Override
+            public void afterHandshake(int session, int s, int c,
+                                       Socket sock, FileDescriptor fd,
+                                       SSLHandshakeCallbacks callback)
+                    throws Exception {
+                NativeCrypto.SSL_read(s, fd, callback, new byte[1], 0, 1, 0);
+                fail();
+                super.afterHandshake(session, s, c, sock, fd, callback);
+            }
+            @Override
+            public void clientCertificateRequested(int s) {
+                super.clientCertificateRequested(s);
+                throw new RuntimeException("expected");
+            }
+        };
+        Hooks sHooks = new ServerHooks(getServerPrivateKey(), getServerCertificates()) {
+            @Override
+            public void afterHandshake(int session, int s, int c,
+                                       Socket sock, FileDescriptor fd,
+                                       SSLHandshakeCallbacks callback)
+                    throws Exception {
+                NativeCrypto.SSL_set_verify(s, NativeCrypto.SSL_VERIFY_PEER);
+                NativeCrypto.SSL_renegotiate(s);
+                NativeCrypto.SSL_write(s, fd, callback, new byte[] { 42 }, 0, 1);
+                super.afterHandshake(session, s, c, sock, fd, callback);
+            }
+        };
+        Future<TestSSLHandshakeCallbacks> client = handshake(listener, 0, true, cHooks);
+        Future<TestSSLHandshakeCallbacks> server = handshake(listener, 0, false, sHooks);
+        server.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        try {
+            client.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        } catch (ExecutionException e) {
+            if (!"expected".equals(e.getCause().getMessage())) {
+                throw e;
+            }
+        }
+    }
+
     public void test_SSL_do_handshake_client_timeout() throws Exception {
         // client timeout
         final ServerSocket listener = new ServerSocket(0);
@@ -1041,7 +1100,9 @@ public class NativeCryptoTest extends TestCase {
                                        Socket sock, FileDescriptor fd,
                                        SSLHandshakeCallbacks callback)
                     throws Exception {
-                assertEquals(42, NativeCrypto.SSL_read_byte(s, fd, callback, 0));
+                byte[] buffer = new byte[1];
+                NativeCrypto.SSL_read(s, fd, callback, buffer, 0, 1, 0);
+                assertEquals(42, buffer[0]);
                 super.afterHandshake(session, s, c, sock, fd, callback);
             }
         };
@@ -1052,7 +1113,7 @@ public class NativeCryptoTest extends TestCase {
                                        SSLHandshakeCallbacks callback)
                 throws Exception {
                 NativeCrypto.SSL_renegotiate(s);
-                NativeCrypto.SSL_write_byte(s, fd, callback, 42);
+                NativeCrypto.SSL_write(s, fd, callback, new byte[] { 42 }, 0, 1);
                 super.afterHandshake(session, s, c, sock, fd, callback);
             }
         };
@@ -1123,113 +1184,6 @@ public class NativeCryptoTest extends TestCase {
         Future<TestSSLHandshakeCallbacks> server = handshake(listener, 0, false, sHooks);
         client.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         server.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-    }
-
-    public void test_SSL_read_byte() throws Exception {
-        try {
-            NativeCrypto.SSL_read_byte(NULL, null, null, 0);
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // null FileDescriptor
-        {
-            int c = NativeCrypto.SSL_CTX_new();
-            int s = NativeCrypto.SSL_new(c);
-            try {
-                NativeCrypto.SSL_read_byte(s, null, DUMMY_CB, 0);
-                fail();
-            } catch (NullPointerException expected) {
-            }
-            NativeCrypto.SSL_free(s);
-            NativeCrypto.SSL_CTX_free(c);
-        }
-
-        // null SSLHandshakeCallbacks
-        {
-            int c = NativeCrypto.SSL_CTX_new();
-            int s = NativeCrypto.SSL_new(c);
-            try {
-                NativeCrypto.SSL_read_byte(s, INVALID_FD, null, 0);
-                fail();
-            } catch (NullPointerException expected) {
-            }
-            NativeCrypto.SSL_free(s);
-            NativeCrypto.SSL_CTX_free(c);
-        }
-
-        // handshaking not yet performed
-        {
-            int c = NativeCrypto.SSL_CTX_new();
-            int s = NativeCrypto.SSL_new(c);
-            try {
-                NativeCrypto.SSL_read_byte(s, INVALID_FD, DUMMY_CB, 0);
-                fail();
-            } catch (SSLException expected) {
-            }
-            NativeCrypto.SSL_free(s);
-            NativeCrypto.SSL_CTX_free(c);
-        }
-
-        final ServerSocket listener = new ServerSocket(0);
-
-        // normal case
-        {
-            Hooks cHooks = new Hooks() {
-                @Override
-                public void afterHandshake(int session, int s, int c,
-                                           Socket sock, FileDescriptor fd,
-                                           SSLHandshakeCallbacks callback)
-                        throws Exception {
-                    assertEquals(37, NativeCrypto.SSL_read_byte(s, fd, callback, 0));
-                    super.afterHandshake(session, s, c, sock, fd, callback);
-                }
-            };
-            Hooks sHooks = new ServerHooks(getServerPrivateKey(), getServerCertificates()) {
-                @Override
-                public void afterHandshake(int session, int s, int c,
-                                           Socket sock, FileDescriptor fd,
-                                           SSLHandshakeCallbacks callback)
-                        throws Exception {
-                    NativeCrypto.SSL_write_byte(s, fd, callback, 37);
-                    super.afterHandshake(session, s, c, sock, fd, callback);
-                }
-            };
-            Future<TestSSLHandshakeCallbacks> client = handshake(listener, 0, true, cHooks);
-            Future<TestSSLHandshakeCallbacks> server = handshake(listener, 0, false, sHooks);
-            client.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            server.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        }
-
-        // timeout case
-        try {
-            Hooks cHooks = new Hooks() {
-                @Override
-                public void afterHandshake(int session, int s, int c,
-                                           Socket sock, FileDescriptor fd,
-                                           SSLHandshakeCallbacks callback)
-                        throws Exception {
-                    NativeCrypto.SSL_read_byte(s, fd, callback, 1);
-                    fail();
-                }
-            };
-            Hooks sHooks = new ServerHooks(getServerPrivateKey(), getServerCertificates()) {
-                @Override
-                public void afterHandshake(int session, int s, int c,
-                                           Socket sock, FileDescriptor fd,
-                                           SSLHandshakeCallbacks callback)
-                        throws Exception {
-                    NativeCrypto.SSL_read_byte(s, fd, callback, 0);
-                    super.afterHandshake(session, s, c, sock, fd, callback);
-                }
-            };
-            Future<TestSSLHandshakeCallbacks> client = handshake(listener, 0, true, cHooks);
-            Future<TestSSLHandshakeCallbacks> server = handshake(listener, 0, false, sHooks);
-            client.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            fail();
-        } catch (ExecutionException expected) {
-            assertEquals(SocketTimeoutException.class, expected.getCause().getClass());
-        }
     }
 
     final byte[] BYTES = new byte[] { 2, -3, 5, 127, 0, -128 };
@@ -1354,7 +1308,7 @@ public class NativeCryptoTest extends TestCase {
                                            Socket sock, FileDescriptor fd,
                                            SSLHandshakeCallbacks callback)
                         throws Exception {
-                    NativeCrypto.SSL_read_byte(s, fd, callback, 0);
+                    NativeCrypto.SSL_read(s, fd, callback, new byte[1], 0, 1, 0);
                     super.afterHandshake(session, s, c, sock, fd, callback);
                 }
             };
@@ -1365,55 +1319,6 @@ public class NativeCryptoTest extends TestCase {
         } catch (ExecutionException expected) {
             assertEquals(SocketTimeoutException.class, expected.getCause().getClass());
         }
-    }
-
-    public void test_SSL_write_byte() throws Exception {
-        try {
-            NativeCrypto.SSL_write_byte(NULL, null, null, 0);
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // null FileDescriptor
-        {
-            int c = NativeCrypto.SSL_CTX_new();
-            int s = NativeCrypto.SSL_new(c);
-            try {
-                NativeCrypto.SSL_write_byte(s, null, DUMMY_CB, 0);
-                fail();
-            } catch (NullPointerException expected) {
-            }
-            NativeCrypto.SSL_free(s);
-            NativeCrypto.SSL_CTX_free(c);
-        }
-
-        // null SSLHandshakeCallbacks
-        {
-            int c = NativeCrypto.SSL_CTX_new();
-            int s = NativeCrypto.SSL_new(c);
-            try {
-                NativeCrypto.SSL_write_byte(s, INVALID_FD, null, 0);
-                fail();
-            } catch (NullPointerException expected) {
-            }
-            NativeCrypto.SSL_free(s);
-            NativeCrypto.SSL_CTX_free(c);
-        }
-
-        // handshaking not yet performed
-        {
-            int c = NativeCrypto.SSL_CTX_new();
-            int s = NativeCrypto.SSL_new(c);
-            try {
-                NativeCrypto.SSL_write_byte(s, INVALID_FD, DUMMY_CB, 0);
-                fail();
-            } catch (SSLException expected) {
-            }
-            NativeCrypto.SSL_free(s);
-            NativeCrypto.SSL_CTX_free(c);
-        }
-
-        // tested by test_SSL_read_byte
     }
 
     public void test_SSL_write() throws Exception {
@@ -1499,8 +1404,7 @@ public class NativeCryptoTest extends TestCase {
                                        Socket sock, FileDescriptor fd,
                                        SSLHandshakeCallbacks callback)
                     throws Exception {
-                byte[] in = new byte[256];
-                NativeCrypto.SSL_read_byte(s, fd, callback, 0);
+                NativeCrypto.SSL_read(s, fd, callback, new byte[1], 0, 1, 0);
                 super.afterHandshake(session, s, c, sock, fd, callback);
             }
         };
@@ -1519,7 +1423,7 @@ public class NativeCryptoTest extends TestCase {
                         }
                     }
                 }.start();
-                assertEquals(-1, NativeCrypto.SSL_read_byte(s, fd, callback, 0));
+                assertEquals(-1, NativeCrypto.SSL_read(s, fd, callback, new byte[1], 0, 1, 0));
                 super.afterHandshake(session, s, c, sock, fd, callback);
             }
         };
