@@ -17,6 +17,7 @@
 package libcore.io;
 
 import dalvik.system.BlockGuard;
+import dalvik.system.SocketTagger;
 import java.io.FileDescriptor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -34,7 +35,7 @@ public class BlockGuardOs extends ForwardingOs {
 
     private FileDescriptor tagSocket(FileDescriptor fd) throws ErrnoException {
         try {
-            BlockGuard.tagSocketFd(fd);
+            SocketTagger.get().tag(fd);
             return fd;
         } catch (SocketException e) {
             throw new ErrnoException("socket", EINVAL, e);
