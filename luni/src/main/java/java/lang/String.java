@@ -1719,23 +1719,6 @@ outer:
     }
 
     /**
-     * Equivalent to {@code equals(new String(chars, offset, length))}.
-     *
-     * @hide
-     */
-    public boolean contentEquals(char[] chars, int offset, int length) {
-        if (count != length) {
-            return false;
-        }
-        for (int i = 0; i < length; i++) {
-            if (chars[offset + i] != value[this.offset + i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * Compares a {@code CharSequence} to this {@code String} to determine if
      * their contents are equal.
      *
