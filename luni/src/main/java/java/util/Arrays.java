@@ -63,7 +63,7 @@ public class Arrays {
             try {
                 return a[location];
             } catch (ArrayIndexOutOfBoundsException e) {
-                throw new IndexOutOfBoundsException();
+                throw java.util.ArrayList.throwIndexOutOfBoundsException(location, a.length);
             }
         }
 
