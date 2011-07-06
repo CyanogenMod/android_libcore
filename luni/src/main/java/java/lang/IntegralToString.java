@@ -454,6 +454,13 @@ public final class IntegralToString {
         return new String(cursor, bufLen - cursor, buf);
     }
 
+    public static StringBuilder appendByteAsHex(StringBuilder sb, byte b, boolean upperCase) {
+        char[] digits = upperCase ? UPPER_CASE_DIGITS : DIGITS;
+        sb.append(digits[(b >> 4) & 0xf]);
+        sb.append(digits[b & 0xf]);
+        return sb;
+    }
+
     public static String byteToHexString(byte b, boolean upperCase) {
         char[] digits = upperCase ? UPPER_CASE_DIGITS : DIGITS;
         char[] buf = new char[2]; // We always want two digits.
