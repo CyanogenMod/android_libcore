@@ -23,15 +23,19 @@ import java.net.URL;
 import java.util.zip.ZipFile;
 
 /**
- * Provides a simple {@link ClassLoader} implementation that operates on a
- * list of jar/apk files with classes.dex entries.  The directory that
- * holds the optimized form of the files is specified explicitly.  This
- * can be used to execute code not installed as part of an application.
+ * A class loader that loads classes from {@code .jar} and {@code .apk} files
+ * containing a {@code classes.dex} entry. This can be used to execute code not
+ * installed as part of an application.
  *
- * The best place to put the optimized DEX files is in app-specific
- * storage, so that removal of the app will automatically remove the
- * optimized DEX files.  If other storage is used (e.g. /sdcard), the
- * app may not have an opportunity to remove them.
+ * <p>This class loader requires an application-private, writable directory to
+ * cache optimized classes. Use {@code Context.getDir(String, int)} to create
+ * such a directory: <pre>   {@code
+ *   File dexOutputDir = context.getDir("dex", 0);
+ * }</pre>
+ *
+ * <p><strong>Do not cache optimized classes on external storage.</strong>
+ * External storage does not provide access controls necessary to protect your
+ * application from code injection attacks.
  */
 public class DexClassLoader extends ClassLoader {
     // TODO: Factor out commonality between this class and PathClassLoader.
@@ -63,17 +67,15 @@ public class DexClassLoader extends ClassLoader {
      * code.  Interpreted classes are found in a set of DEX files contained
      * in Jar or APK files.
      *
-     * The path lists are separated using the character specified by
-     * the "path.separator" system property, which defaults to ":".
+     * <p>The path lists are separated using the character specified by the
+     * {@code path.separator} system property, which defaults to {@code :}.
      *
-     * @param dexPath
-     *  the list of jar/apk files containing classes and resources
-     * @param dexOutputDir
-     *  directory where optimized DEX files should be written
-     * @param libPath
-     *  the list of directories containing native libraries; may be null
-     * @param parent
-     *  the parent class loader
+     * @param dexPath the list of jar/apk files containing classes and resources
+     * @param dexOutputDir directory where optimized DEX files should be
+     *     written. This should be an application-private, writable directory.
+     * @param libPath the list of directories containing native libraries; may
+     *     be null
+     * @param parent the parent class loader
      */
     public DexClassLoader(String dexPath, String dexOutputDir, String libPath,
             ClassLoader parent) {
