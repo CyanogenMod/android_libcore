@@ -343,7 +343,7 @@ class DocumentBuilderImpl extends DocumentBuilder {
             Node lastChild = parent.getLastChild();
             if (lastChild != null && lastChild.getNodeType() == Node.TEXT_NODE) {
                 Text textNode = (Text) lastChild;
-                textNode.setData(textNode.getNodeValue() + text);
+                textNode.appendData(text);
                 return;
             }
         }
