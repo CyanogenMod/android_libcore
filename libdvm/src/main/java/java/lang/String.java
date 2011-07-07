@@ -573,7 +573,12 @@ outer:
      * @throws IndexOutOfBoundsException
      *             if {@code index < 0} or {@code index >= length()}.
      */
-    public native char charAt(int index);
+    public char charAt(int index) {
+        if (index < 0 || index >= count) {
+            throw indexAndLength(index);
+        }
+        return value[offset + index];
+    }
 
     private StringIndexOutOfBoundsException indexAndLength(int index) {
         throw new StringIndexOutOfBoundsException(this, index);
@@ -1077,7 +1082,9 @@ outer:
      *
      * @since 1.6
      */
-    public native boolean isEmpty();
+    public boolean isEmpty() {
+        return count == 0;
+    }
 
     /**
      * Returns the last index of the code point {@code c}, or -1.
@@ -1197,11 +1204,11 @@ outer:
     }
 
     /**
-     * Returns the size of this string.
-     *
-     * @return the number of characters in this string.
+     * Returns the number of characters in this string.
      */
-    public native int length();
+    public int length() {
+        return count;
+    }
 
     /**
      * Compares the specified string to this string and compares the specified
