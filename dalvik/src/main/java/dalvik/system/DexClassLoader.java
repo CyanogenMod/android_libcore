@@ -19,30 +19,37 @@ package dalvik.system;
 import java.io.File;
 
 /**
- * Provides a simple {@link ClassLoader} implementation that operates on a
- * list of jar/apk files with classes.dex entries.  The directory that
- * holds the optimized form of the files is specified explicitly.  This
- * can be used to execute code not installed as part of an application.
+ * A class loader that loads classes from {@code .jar} and {@code .apk} files
+ * containing a {@code classes.dex} entry. This can be used to execute code not
+ * installed as part of an application.
  *
- * The best place to put the optimized dex files is in app-specific
- * storage, so that removal of the app will automatically remove the
- * optimized dex files.  If other storage is used (e.g. /sdcard), the
- * app may not have an opportunity to remove them.
+ * <p>This class loader requires an application-private, writable directory to
+ * cache optimized classes. Use {@code Context.getDir(String, int)} to create
+ * such a directory: <pre>   {@code
+ *   File dexOutputDir = context.getDir("dex", 0);
+ * }</pre>
+ *
+ * <p><strong>Do not cache optimized classes on external storage.</strong>
+ * External storage does not provide access controls necessary to protect your
+ * application from code injection attacks.
  */
 public class DexClassLoader extends BaseDexClassLoader {
     /**
      * Creates a {@code DexClassLoader} that finds interpreted and native
-     * code.  Interpreted classes are found in a set of dex files contained
-     * in jar or apk files.
+     * code.  Interpreted classes are found in a set of DEX files contained
+     * in Jar or APK files.
+     *
+     * <p>The path lists are separated using the character specified by the
+     * {@code path.separator} system property, which defaults to {@code :}.
      *
      * @param dexPath the list of jar/apk files containing classes and
-     * resources, delimited by {@code File.pathSeparator}, which
-     * defaults to {@code ":"} on Android
+     *     resources, delimited by {@code File.pathSeparator}, which
+     *     defaults to {@code ":"} on Android
      * @param optimizedDirectory directory where optimized dex files
-     * should be written; must not be {@code null}
+     *     should be written; must not be {@code null}
      * @param libraryPath the list of directories containing native
-     * libraries, delimited by {@code File.pathSeparator}; may be
-     * {@code null}
+     *     libraries, delimited by {@code File.pathSeparator}; may be
+     *     {@code null}
      * @param parent the parent class loader
      */
     public DexClassLoader(String dexPath, String optimizedDirectory,
