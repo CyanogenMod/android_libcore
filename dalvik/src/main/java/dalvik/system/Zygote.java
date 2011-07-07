@@ -38,6 +38,8 @@ public class Zygote {
     public static final int DEBUG_ENABLE_ASSERT     = 1 << 2;
     /** disable the JIT compiler */
     public static final int DEBUG_ENABLE_SAFEMODE   = 1 << 3;
+    /** Enable logging of third-party JNI activity. */
+    public static final int DEBUG_ENABLE_JNI_LOGGING = 1 << 4;
 
     /**
      * When set by the system server, all subsequent apps will be launched in
