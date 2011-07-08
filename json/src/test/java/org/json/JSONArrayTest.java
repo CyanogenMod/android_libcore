@@ -121,6 +121,19 @@ public class JSONArrayTest extends TestCase {
         assertEquals(false, other.getBoolean(3));
     }
 
+    // http://code.google.com/p/android/issues/detail?id=16411
+    public void testCoerceStringToBoolean() throws JSONException {
+        JSONArray array = new JSONArray();
+        array.put("maybe");
+        try {
+            array.getBoolean(0);
+            fail();
+        } catch (JSONException expected) {
+        }
+        assertEquals(false, array.optBoolean(0));
+        assertEquals(true, array.optBoolean(0, true));
+    }
+
     public void testNulls() throws JSONException {
         JSONArray array = new JSONArray();
         array.put(3, null);

@@ -243,6 +243,19 @@ public class JSONObjectTest extends TestCase {
         assertEquals(false, object.optBoolean("bar", false));
     }
 
+    // http://code.google.com/p/android/issues/detail?id=16411
+    public void testCoerceStringToBoolean() throws JSONException {
+        JSONObject object = new JSONObject();
+        object.put("foo", "maybe");
+        try {
+            object.getBoolean("foo");
+            fail();
+        } catch (JSONException expected) {
+        }
+        assertEquals(false, object.optBoolean("foo"));
+        assertEquals(true, object.optBoolean("foo", true));
+    }
+
     public void testNumbers() throws JSONException {
         JSONObject object = new JSONObject();
         object.put("foo", Double.MIN_VALUE);

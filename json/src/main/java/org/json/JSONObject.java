@@ -32,8 +32,8 @@ import java.util.Map;
  *
  * <p>This class can coerce values to another type when requested.
  * <ul>
- *   <li>When the requested type is a boolean, strings will be coerced
- *       using {@link Boolean#valueOf(String)}.
+ *   <li>When the requested type is a boolean, strings will be coerced using a
+ *       case-insensitive comparison to "true" and "false".
  *   <li>When the requested type is a double, other {@link Number} types will
  *       be coerced using {@link Number#doubleValue() doubleValue}. Strings
  *       that can be coerced using {@link Double#valueOf(String)} will be.
@@ -71,7 +71,7 @@ import java.util.Map;
  *
  * <p>Instances of this class are not thread safe. Although this class is
  * nonfinal, it was not designed for inheritance and should not be subclassed.
- * In particular, self-use by overridable methods is not specified. See
+ * In particular, self-use by overrideable methods is not specified. See
  * <i>Effective Java</i> Item 17, "Design and Document or inheritance or else
  * prohibit it" for further information.
  */

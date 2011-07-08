@@ -25,7 +25,7 @@ package org.json;
  *   <li>Use of null as a name
  *   <li>Use of numeric types not available to JSON, such as {@link
  *       Double#isNaN() NaNs} or {@link Double#isInfinite() infinities}.
- *   <li>Lookups using an out of range index or nonexistant name
+ *   <li>Lookups using an out of range index or nonexistent name
  *   <li>Type mismatches on lookups
  * </ul>
  *

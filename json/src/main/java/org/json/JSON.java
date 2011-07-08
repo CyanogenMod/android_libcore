@@ -18,7 +18,7 @@ package org.json;
 
 class JSON {
     /**
-     * Returns the input if it is a JSON-permissable value; throws otherwise.
+     * Returns the input if it is a JSON-permissible value; throws otherwise.
      */
     static double checkDouble(double d) throws JSONException {
         if (Double.isInfinite(d) || Double.isNaN(d)) {
@@ -31,10 +31,14 @@ class JSON {
         if (value instanceof Boolean) {
             return (Boolean) value;
         } else if (value instanceof String) {
-            return Boolean.valueOf(((String) value));
-        } else {
-            return null;
+            String stringValue = (String) value;
+            if ("true".equalsIgnoreCase(stringValue)) {
+                return true;
+            } else if ("false".equalsIgnoreCase(stringValue)) {
+                return false;
+            }
         }
+        return null;
     }
 
     static Double toDouble(Object value) {
@@ -45,7 +49,7 @@ class JSON {
         } else if (value instanceof String) {
             try {
                 return Double.valueOf((String) value);
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
             }
         }
         return null;
@@ -59,7 +63,7 @@ class JSON {
         } else if (value instanceof String) {
             try {
                 return (int) Double.parseDouble((String) value);
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
             }
         }
         return null;
@@ -73,7 +77,7 @@ class JSON {
         } else if (value instanceof String) {
             try {
                 return (long) Double.parseDouble((String) value);
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
             }
         }
         return null;
