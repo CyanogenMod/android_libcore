@@ -107,6 +107,13 @@ public final class VMRuntime {
     }
 
     /**
+     * Sets the target SDK version. Should only be called before the
+     * app starts to run, because it may change the VM's behavior in
+     * dangerous ways.
+     */
+    public native void setTargetSdkVersion(int targetSdkVersion);
+
+    /**
      * This method exists for binary compatibility.  It was part of a
      * heap sizing API which was removed in Honeycomb.
      */
