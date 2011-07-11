@@ -109,7 +109,9 @@ public final class VMRuntime {
     /**
      * Sets the target SDK version. Should only be called before the
      * app starts to run, because it may change the VM's behavior in
-     * dangerous ways.
+     * dangerous ways. Use 0 to mean "current" (since callers won't
+     * necessarily know the actual current SDK version, and the
+     * allocated version numbers start at 1).
      */
     public native void setTargetSdkVersion(int targetSdkVersion);
 
