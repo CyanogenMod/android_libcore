@@ -795,8 +795,8 @@ public class BigInteger extends Number
             return hashCode;
         }
         prepareJavaRepresentation();
-        for (int digit : digits) {
-            hashCode = hashCode * 33 + digit;
+        for (int i = 0; i < numberLength; ++i) {
+            hashCode = hashCode * 33 + digits[i];
         }
         hashCode = hashCode * sign;
         return hashCode;
