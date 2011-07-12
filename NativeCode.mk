@@ -103,10 +103,8 @@ LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacore
 
-ifneq ($(TARGET_SIMULATOR),true)
 LOCAL_C_INCLUDES += external/stlport/stlport bionic/ bionic/libstdc++/include
 LOCAL_SHARED_LIBRARIES += libstlport
-endif
 
 include $(BUILD_STATIC_LIBRARY)
 
