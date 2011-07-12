@@ -19,6 +19,16 @@ package libcore.java.math;
 import java.math.BigInteger;
 
 public class BigIntegerTest extends junit.framework.TestCase {
+    // http://code.google.com/p/android/issues/detail?id=18452
+    public void test_hashCode() {
+        BigInteger firstBig  = new BigInteger("30003543667898318853");
+        BigInteger secondBig = new BigInteger("3298535022597");
+        BigInteger andedBigs = firstBig.and(secondBig);
+        BigInteger toCompareBig = BigInteger.valueOf(andedBigs.longValue());
+        assertEquals(andedBigs, toCompareBig);
+        assertEquals(andedBigs.hashCode(), toCompareBig.hashCode());
+    }
+
     // http://b/2981072 - off-by-one error in BigInteger.valueOf
     public void test_valueOf() {
         // I assume here that we'll never cache more than 1024 values.
