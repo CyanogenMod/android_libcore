@@ -145,7 +145,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Math, tan, "!(D)D"),
     NATIVE_METHOD(Math, tanh, "!(D)D"),
 };
-
 void register_java_lang_Math(JNIEnv* env) {
     jniRegisterNativeMethods(env, "java/lang/Math", gMethods, NELEM(gMethods));
 }

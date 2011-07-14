@@ -44,6 +44,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Float, floatToRawIntBits, "(F)I"),
     NATIVE_METHOD(Float, intBitsToFloat, "(I)F"),
 };
-int register_java_lang_Float(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/lang/Float", gMethods, NELEM(gMethods));
+void register_java_lang_Float(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/lang/Float", gMethods, NELEM(gMethods));
 }

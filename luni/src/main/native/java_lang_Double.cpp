@@ -45,6 +45,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Double, doubleToRawLongBits, "(D)J"),
     NATIVE_METHOD(Double, longBitsToDouble, "(J)D"),
 };
-int register_java_lang_Double(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/lang/Double", gMethods, NELEM(gMethods));
+void register_java_lang_Double(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/lang/Double", gMethods, NELEM(gMethods));
 }
