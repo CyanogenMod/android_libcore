@@ -190,7 +190,7 @@ typedef UniquePtr<STACK_OF(X509_NAME), sk_X509_NAME_Delete> Unique_sk_X509_NAME;
  * we err on the side of freeing the error state promptly (instead of,
  * say, at thread death).
  */
-static void freeSslErrorState(void) {
+static void freeOpenSslErrorState(void) {
     ERR_clear_error();
     ERR_remove_state(0);
 }
@@ -213,7 +213,7 @@ static bool throwExceptionIfNecessary(JNIEnv* env, const char* location  __attri
         result = true;
     }
 
-    freeSslErrorState();
+    freeOpenSslErrorState();
     return result;
 }
 
@@ -302,7 +302,7 @@ static void throwSSLExceptionWithSslErrors(
         // problem with asprintf, just throw argument message, log everything
         throwSSLExceptionStr(env, message);
         LOGV("%s: ssl=%p: %s", message, ssl, sslErrorStr);
-        freeSslErrorState();
+        freeOpenSslErrorState();
         return;
     }
 
@@ -361,7 +361,7 @@ static void throwSSLExceptionWithSslErrors(
 
     LOGV("%s", allocStr);
     free(allocStr);
-    freeSslErrorState();
+    freeOpenSslErrorState();
 }
 
 /**
@@ -888,131 +888,8 @@ static int NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass, EVP_MD_CTX* ctx, jb
 }
 
 /**
- * Helper function that creates an RSA public key from two buffers containing
- * the big-endian bit representation of the modulus and the public exponent.
- *
- * @param mod The data of the modulus
- * @param modLen The length of the modulus data
- * @param exp The data of the exponent
- * @param expLen The length of the exponent data
- *
- * @return A pointer to the new RSA structure, or NULL on error
- */
-static RSA* rsaCreateKey(const jbyte* mod, int modLen, const jbyte* exp, int expLen) {
-    JNI_TRACE("rsaCreateKey(..., %d, ..., %d)", modLen, expLen);
-
-    Unique_RSA rsa(RSA_new());
-    if (rsa.get() == NULL) {
-        return NULL;
-    }
-
-    rsa->n = BN_bin2bn(reinterpret_cast<const unsigned char*>(mod), modLen, NULL);
-    rsa->e = BN_bin2bn(reinterpret_cast<const unsigned char*>(exp), expLen, NULL);
-
-    if (rsa->n == NULL || rsa->e == NULL) {
-        return NULL;
-    }
-
-    JNI_TRACE("rsaCreateKey(..., %d, ..., %d) => %p", modLen, expLen, rsa.get());
-    return rsa.release();
-}
-
-/**
- * Helper function that verifies a given RSA signature for a given message.
- *
- * @param msg The message to verify
- * @param msgLen The length of the message
- * @param sig The signature to verify
- * @param sigLen The length of the signature
- * @param algorithm The name of the hash/sign algorithm to use, e.g. "RSA-SHA1"
- * @param rsa The RSA public key to use
- *
- * @return 1 on success, 0 on failure, -1 on error (check SSL errors then)
- *
- */
-static int rsaVerify(const jbyte* msg, unsigned int msgLen, const jbyte* sig,
-                     unsigned int sigLen, const char* algorithm, RSA* rsa) {
-
-    JNI_TRACE("rsaVerify(%p, %d, %p, %d, %s, %p)",
-              msg, msgLen, sig, sigLen, algorithm, rsa);
-
-    Unique_EVP_PKEY pkey(EVP_PKEY_new());
-    if (pkey.get() == NULL) {
-        return -1;
-    }
-    EVP_PKEY_set1_RSA(pkey.get(), rsa);
-
-    const EVP_MD* type = EVP_get_digestbyname(algorithm);
-    if (type == NULL) {
-        return -1;
-    }
-
-    EVP_MD_CTX ctx;
-    EVP_MD_CTX_init(&ctx);
-    if (EVP_VerifyInit_ex(&ctx, type, NULL) == 0) {
-        return -1;
-    }
-
-    EVP_VerifyUpdate(&ctx, msg, msgLen);
-    int result = EVP_VerifyFinal(&ctx, reinterpret_cast<const unsigned char*>(sig), sigLen,
-            pkey.get());
-    EVP_MD_CTX_cleanup(&ctx);
-
-    JNI_TRACE("rsaVerify(%p, %d, %p, %d, %s, %p) => %d",
-              msg, msgLen, sig, sigLen, algorithm, rsa, result);
-    return result;
-}
-
-/**
  * Verifies an RSA signature.
  */
-static int NativeCrypto_verifySignature(JNIEnv* env, jclass,
-        jbyteArray msg, jbyteArray sig, jstring algorithm, jbyteArray mod, jbyteArray exp) {
-
-    JNI_TRACE("NativeCrypto_verifySignature msg=%p sig=%p algorithm=%p mod=%p exp%p",
-              msg, sig, algorithm, mod, exp);
-
-    ScopedByteArrayRO msgBytes(env, msg);
-    if (msgBytes.get() == NULL) {
-        return -1;
-    }
-    ScopedByteArrayRO sigBytes(env, sig);
-    if (sigBytes.get() == NULL) {
-        return -1;
-    }
-    ScopedByteArrayRO modBytes(env, mod);
-    if (modBytes.get() == NULL) {
-        return -1;
-    }
-    ScopedByteArrayRO expBytes(env, exp);
-    if (expBytes.get() == NULL) {
-        return -1;
-    }
-
-    ScopedUtfChars algorithmChars(env, algorithm);
-    if (algorithmChars.c_str() == NULL) {
-        return -1;
-    }
-    JNI_TRACE("NativeCrypto_verifySignature algorithmChars=%s", algorithmChars.c_str());
-
-    Unique_RSA rsa(rsaCreateKey(modBytes.get(), modBytes.size(), expBytes.get(), expBytes.size()));
-    int ok = -1;
-    if (rsa.get() != NULL) {
-        ok = rsaVerify(msgBytes.get(), msgBytes.size(), sigBytes.get(), sigBytes.size(),
-                algorithmChars.c_str(), rsa.get());
-    }
-
-    if (ok == -1 || ok == 0) {
-        if (!throwExceptionIfNecessary(env, "NativeCrypto_verifySignature")) {
-            jniThrowRuntimeException(env, "Internal error during verification");
-        }
-    }
-
-    int result = ok == 1;
-    JNI_TRACE("NativeCrypto_verifySignature => %d", result);
-    return result;
-}
-
 static void NativeCrypto_RAND_seed(JNIEnv* env, jclass, jbyteArray seed) {
     JNI_TRACE("NativeCrypto_RAND_seed seed=%p", seed);
     ScopedByteArrayRO randseed(env, seed);
@@ -2191,7 +2068,7 @@ static void NativeCrypto_SSL_set_cipher_lists(JNIEnv* env, jclass,
 
     int rc = SSL_set_cipher_lists(ssl, cipherstack.get());
     if (rc == 0) {
-        freeSslErrorState();
+        freeOpenSslErrorState();
         jniThrowException(env, "java/lang/IllegalArgumentException",
                           "Illegal cipher suite strings.");
     } else {
@@ -2423,7 +2300,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
             if (selectResult == 0) {
                 throwSocketTimeoutException(env, "SSL handshake timed out");
                 SSL_clear(ssl);
-                freeSslErrorState();
+                freeOpenSslErrorState();
                 JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake selectResult == 0 => 0", ssl);
                 return 0;
             }
@@ -2624,7 +2501,7 @@ static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* b
         int sslError = SSL_ERROR_NONE;
         if (result <= 0) {
             sslError = SSL_get_error(ssl, result);
-            freeSslErrorState();
+            freeOpenSslErrorState();
         }
         JNI_TRACE("ssl=%p sslRead SSL_read result=%d sslError=%d", ssl, result, sslError);
 #ifdef WITH_JNI_TRACE_DATA
@@ -2825,7 +2702,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
         int sslError = SSL_ERROR_NONE;
         if (result <= 0) {
             sslError = SSL_get_error(ssl, result);
-            freeSslErrorState();
+            freeOpenSslErrorState();
         }
         JNI_TRACE("ssl=%p sslWrite SSL_write result=%d sslError=%d", ssl, result, sslError);
 #ifdef WITH_JNI_TRACE_DATA
@@ -3016,7 +2893,7 @@ static void NativeCrypto_SSL_shutdown(JNIEnv* env, jclass, jint ssl_address,
         if (!appData->setCallbackState(env, shc, fdObject)) {
             // SocketException thrown by NetFd.isClosed
             SSL_clear(ssl);
-            freeSslErrorState();
+            freeOpenSslErrorState();
             return;
         }
 
@@ -3067,7 +2944,7 @@ static void NativeCrypto_SSL_shutdown(JNIEnv* env, jclass, jint ssl_address,
     }
 
     SSL_clear(ssl);
-    freeSslErrorState();
+    freeOpenSslErrorState();
 }
 
 /**
@@ -3275,7 +3152,6 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, EVP_VerifyInit, "(Ljava/lang/String;)I"),
     NATIVE_METHOD(NativeCrypto, EVP_VerifyUpdate, "(I[BII)V"),
     NATIVE_METHOD(NativeCrypto, EVP_VerifyFinal, "(I[BIII)I"),
-    NATIVE_METHOD(NativeCrypto, verifySignature, "([B[BLjava/lang/String;[B[B)I"),
     NATIVE_METHOD(NativeCrypto, RAND_seed, "([B)V"),
     NATIVE_METHOD(NativeCrypto, RAND_load_file, "(Ljava/lang/String;J)I"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_new, "()I"),
