@@ -49,7 +49,7 @@ import org.apache.harmony.security.x509.Certificate;
 import org.apache.harmony.security.x509.Extension;
 import org.apache.harmony.security.x509.Extensions;
 import org.apache.harmony.security.x509.TBSCertificate;
-import org.apache.harmony.xnet.provider.jsse.NativeCrypto;
+import org.apache.harmony.xnet.provider.jsse.OpenSSLSignature;
 
 /**
  * This class is an implementation of X509Certificate. It wraps
@@ -369,12 +369,13 @@ public final class X509CertImpl extends X509Certificate {
     @Override public void verify(PublicKey key)
             throws CertificateException, NoSuchAlgorithmException, InvalidKeyException,
             NoSuchProviderException, SignatureException {
-        if (getSigAlgName().endsWith("withRSA") || getSigAlgName().endsWith("WithRSAEncryption")) {
-            fastVerify(key);
-            return;
-        }
 
-        Signature signature = Signature.getInstance(getSigAlgName());
+        Signature signature;
+        try {
+            signature = OpenSSLSignature.getInstance(getSigAlgName());
+        } catch (NoSuchAlgorithmException ignored) {
+            signature = Signature.getInstance(getSigAlgName());
+        }
         signature.initVerify(key);
         // retrieve the encoding of the TBSCertificate structure
         byte[] tbsCertificateLocal = getTbsCertificateInternal();
@@ -388,58 +389,23 @@ public final class X509CertImpl extends X509Certificate {
     @Override public void verify(PublicKey key, String sigProvider)
             throws CertificateException, NoSuchAlgorithmException, InvalidKeyException,
             NoSuchProviderException, SignatureException {
-        if ((getSigAlgName().endsWith("withRSA") || getSigAlgName().endsWith("WithRSAEncryption"))
-                && sigProvider == null) {
-            fastVerify(key);
-            return;
-        }
 
-        Signature signature =
-            Signature.getInstance(getSigAlgName(), sigProvider);
+        Signature signature;
+        try {
+            if (sigProvider == null) {
+                signature = OpenSSLSignature.getInstance(getSigAlgName());
+            } else {
+                signature = Signature.getInstance(getSigAlgName(), sigProvider);
+            }
+        } catch (NoSuchAlgorithmException ignored) {
+            signature = Signature.getInstance(getSigAlgName(), sigProvider);
+        }
         signature.initVerify(key);
         // retrieve the encoding of the TBSCertificate structure
         byte[] tbsCertificateLocal = getTbsCertificateInternal();
         // compute and verify the signature
         signature.update(tbsCertificateLocal, 0, tbsCertificateLocal.length);
         if (!signature.verify(certificate.getSignatureValue())) {
-            throw new SignatureException("Signature was not verified");
-        }
-    }
-
-    /**
-     * Implements a faster RSA verification method that delegates to OpenSSL
-     * native code. In all other aspects it behaves just like the ordinary
-     * {@link #verify} method.
-     *
-     * @param key The RSA public key to use
-     *
-     * @throws SignatureException If the verification fails.
-     * @throws InvalidKeyException
-     */
-    private void fastVerify(PublicKey key) throws SignatureException,
-            InvalidKeyException, NoSuchAlgorithmException {
-        if (!(key instanceof RSAPublicKey)) {
-            throw new InvalidKeyException("key is not an instance of RSAPublicKey");
-        }
-        RSAPublicKey rsaKey = (RSAPublicKey) key;
-
-        String algorithm = getSigAlgName();
-
-        // We don't support MD2 anymore. This needs to also check for aliases
-        // and OIDs.
-        if ("MD2withRSA".equalsIgnoreCase(algorithm) ||
-                "MD2withRSAEncryption".equalsIgnoreCase(algorithm) ||
-                "1.2.840.113549.1.1.2".equalsIgnoreCase(algorithm) ||
-                "MD2/RSA".equalsIgnoreCase(algorithm)) {
-            throw new NoSuchAlgorithmException(algorithm);
-        }
-
-        int i = algorithm.indexOf("with");
-        algorithm = algorithm.substring(i + 4) + "-" + algorithm.substring(0, i);
-
-        byte[] tbsCertificateLocal = getTbsCertificateInternal();
-        byte[] sig = certificate.getSignatureValue();
-        if (!NativeCrypto.verifySignature(tbsCertificateLocal, sig, algorithm, rsaKey)) {
             throw new SignatureException("Signature was not verified");
         }
     }
