@@ -16,16 +16,15 @@
 
 package libcore.java.security;
 
-import java.security.Key;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.Signature;
 import java.security.Provider;
-import java.security.SecureRandom;
+import java.security.PublicKey;
 import java.security.Security;
-import java.util.ArrayList;
+import java.security.Signature;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import junit.framework.TestCase;
@@ -109,5 +108,55 @@ public class SignatureTest extends TestCase {
         sig.initVerify(keyPair.getPublic());
         sig.update(DATA);
         assertTrue(sig.verify(signature));
+    }
+
+    private static final byte[] PK_BYTES = hexToBytes(
+            "30819f300d06092a864886f70d010101050003818d0030818902818100cd769d178f61475fce3001"
+            + "2604218320c77a427121d3b41dd76756c8fc0c428cd15cb754adc85466f47547b1c85623d9c17fc6"
+            + "4f202fca21099caf99460c824ad657caa8c2db34996838d32623c4f23c8b6a4e6698603901262619"
+            + "4840e0896b1a6ec4f6652484aad04569bb6a885b822a10d700224359c632dc7324520cbb3d020301"
+            + "0001");
+    private static final byte[] CONTENT = hexToBytes(
+            "f2fa9d73656e00fa01edc12e73656e2e7670632e6432004867268c46dd95030b93ce7260423e5c00"
+            + "fabd4d656d6265727300fa018dc12e73656e2e7670632e643100d7c258dc00fabd44657669636573"
+            + "00faa54b65797300fa02b5c12e4d2e4b009471968cc68835f8a68dde10f53d19693d480de767e5fb"
+            + "976f3562324006372300fabdfd04e1f51ef3aa00fa8d00000001a203e202859471968cc68835f8a6"
+            + "8dde10f53d19693d480de767e5fb976f356232400637230002bab504e1f51ef5810002c29d28463f"
+            + "0003da8d000001e201eaf2fa9d73656e00fa01edc12e73656e2e7670632e6432004867268c46dd95"
+            + "030b93ce7260423e5c00fabd4d656d6265727300fa018dc12e73656e2e7670632e643100d7c258dc"
+            + "00fabd4465766963657300faa54b65797300fa02b5c12e4d2e4b009471968cc68835f8a68dde10f5"
+            + "3d19693d480de767e5fb976f3562324006372300fabdfd04e1f51ef3aa000003e202859471968cc6"
+            + "8835f8a68dde10f53d19693d480de767e5fb976f3562324006372300000000019a0a9530819f300d"
+            + "06092a864886f70d010101050003818d0030818902818100cd769d178f61475fce30012604218320"
+            + "c77a427121d3b41dd76756c8fc0c428cd15cb754adc85466f47547b1c85623d9c17fc64f202fca21"
+            + "099caf99460c824ad657caa8c2db34996838d32623c4f23c8b6a4e66986039012626194840e0896b"
+            + "1a6ec4f6652484aad04569bb6a885b822a10d700224359c632dc7324520cbb3d020301000100");
+    private static final byte[] SIGNATURE = hexToBytes(
+            "b4016456148cd2e9f580470aad63d19c1fee52b38c9dcb5b4d61a7ca369a7277497775d106d86394"
+            + "a69229184333b5a3e6261d5bcebdb02530ca9909f4d790199eae7c140f7db39dee2232191bdf0bfb"
+            + "34fdadc44326b9b3f3fa828652bab07f0362ac141c8c3784ebdec44e0b156a5e7bccdc81a56fe954"
+            + "56ac8c0e4ae12d97");
+
+    private static byte[] hexToBytes(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                                  + Character.digit(s.charAt(i+1), 16));
+        }
+        return data;
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=18566
+    // http://b/5038554
+    public void test18566() throws Exception {
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(PK_BYTES);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PublicKey pk = keyFactory.generatePublic(keySpec);
+
+        Signature sig = Signature.getInstance("SHA256withRSA");
+        sig.initVerify(pk);
+        sig.update(CONTENT);
+        assertTrue(sig.verify(SIGNATURE));
     }
 }
