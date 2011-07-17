@@ -64,6 +64,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
         $(HOST_OUT)/bin/dexopt \
         $(HOST_OUT)/lib/libjavacore.so \
         $(HOST_OUT)/lib/libjavacrypto.so \
+        $(HOST_OUT)/lib/libjavacoretests.so \
         cacerts-host \
         core-hostdex \
         conscrypt-hostdex \
