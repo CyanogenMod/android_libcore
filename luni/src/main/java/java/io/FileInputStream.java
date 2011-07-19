@@ -55,10 +55,8 @@ import static libcore.io.OsConstants.*;
  */
 public class FileInputStream extends InputStream implements Closeable {
 
-    private final FileDescriptor fd;
-
-    /** The same as 'fd' if we own the file descriptor, null otherwise. */
-    private final FileDescriptor ownedFd;
+    private FileDescriptor fd;
+    private final boolean shouldClose;
 
     /** The unique file channel. Lazily initialized because it's rarely needed. */
     private FileChannel channel;
@@ -78,7 +76,7 @@ public class FileInputStream extends InputStream implements Closeable {
             throw new NullPointerException("file == null");
         }
         this.fd = IoBridge.open(file.getAbsolutePath(), O_RDONLY);
-        this.ownedFd = fd;
+        this.shouldClose = true;
         guard.open("close");
     }
 
@@ -95,7 +93,7 @@ public class FileInputStream extends InputStream implements Closeable {
             throw new NullPointerException("fd == null");
         }
         this.fd = fd;
-        this.ownedFd = null;
+        this.shouldClose = false;
         // Note that we do not call guard.open here because the
         // FileDescriptor is not owned by the stream.
     }
@@ -119,7 +117,13 @@ public class FileInputStream extends InputStream implements Closeable {
             if (channel != null) {
                 channel.close();
             }
-            IoUtils.close(ownedFd);
+            if (shouldClose) {
+                IoUtils.close(fd);
+            } else {
+                // An owned fd has been invalidated by IoUtils.close, but
+                // we need to explicitly stop using an unowned fd (http://b/4361076).
+                fd = new FileDescriptor();
+            }
         }
     }
 
@@ -177,9 +181,6 @@ public class FileInputStream extends InputStream implements Closeable {
 
     @Override
     public long skip(long byteCount) throws IOException {
-        if (byteCount == 0) {
-            return 0;
-        }
         if (byteCount < 0) {
             throw new IOException("byteCount < 0: " + byteCount);
         }

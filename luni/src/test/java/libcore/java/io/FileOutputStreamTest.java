@@ -29,13 +29,31 @@ public class FileOutputStreamTest extends TestCase {
         File tmp = File.createTempFile("FileOutputStreamTest", "tmp");
         FileOutputStream fos1 = new FileOutputStream(tmp);
         FileOutputStream fos2 = new FileOutputStream(fos1.getFD());
+
+        // Close the second FileDescriptor and check we can't use it...
         fos2.close();
-        // The underlying FileDescriptor shouldn't be closed, so this should succeed.
+        try {
+            fos2.write(1);
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            fos2.write(new byte[1], 0, 1);
+            fail();
+        } catch (IOException expected) {
+        }
+        // ...but that we can still use the first.
         fos1.write(1);
+
+        // Close the first FileDescriptor and check we can't use it...
         fos1.close();
         try {
-            // This should fail.
             fos1.write(1);
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            fos1.write(new byte[1], 0, 1);
             fail();
         } catch (IOException expected) {
         }
@@ -45,6 +63,7 @@ public class FileOutputStreamTest extends TestCase {
         FileOutputStream fos = new FileOutputStream(File.createTempFile("FileOutputStreamTest", "tmp"));
 
         // Closing an already-closed stream is a no-op...
+        fos.close();
         fos.close();
         // ...as is flushing...
         fos.flush();
@@ -66,5 +85,8 @@ public class FileOutputStreamTest extends TestCase {
             fail();
         } catch (IOException expected) {
         }
+
+        // ...except a 0-byte write.
+        fos.write(new byte[0], 0, 0);
     }
 }

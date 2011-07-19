@@ -52,10 +52,8 @@ import static libcore.io.OsConstants.*;
  */
 public class FileOutputStream extends OutputStream implements Closeable {
 
-    private final FileDescriptor fd;
-
-    /** The same as 'fd' if we own the file descriptor, null otherwise. */
-    private final FileDescriptor ownedFd;
+    private FileDescriptor fd;
+    private final boolean shouldClose;
 
     /** The unique file channel. Lazily initialized because it's rarely needed. */
     private FileChannel channel;
@@ -88,7 +86,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
         }
         this.mode = O_WRONLY | O_CREAT | (append ? O_APPEND : O_TRUNC);
         this.fd = IoBridge.open(file.getAbsolutePath(), mode);
-        this.ownedFd = fd;
+        this.shouldClose = true;
         this.guard.open("close");
     }
 
@@ -102,7 +100,7 @@ public class FileOutputStream extends OutputStream implements Closeable {
             throw new NullPointerException("fd == null");
         }
         this.fd = fd;
-        this.ownedFd = null;
+        this.shouldClose = false;
         this.mode = O_WRONLY;
         this.channel = NioUtils.newFileChannel(this, fd, mode);
         // Note that we do not call guard.open here because the
@@ -137,7 +135,13 @@ public class FileOutputStream extends OutputStream implements Closeable {
             if (channel != null) {
                 channel.close();
             }
-            IoUtils.close(ownedFd);
+            if (shouldClose) {
+                IoUtils.close(fd);
+            } else {
+                // An owned fd has been invalidated by IoUtils.close, but
+                // we need to explicitly stop using an unowned fd (http://b/4361076).
+                fd = new FileDescriptor();
+            }
         }
     }
 

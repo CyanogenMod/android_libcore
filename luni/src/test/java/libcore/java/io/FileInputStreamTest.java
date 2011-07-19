@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import junit.framework.TestCase;
+
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
 
@@ -89,24 +90,106 @@ public final class FileInputStreamTest extends TestCase {
         }
     }
 
-    public void testFileDescriptorOwnership() throws Exception {
+    private File makeFile() throws Exception {
         File tmp = File.createTempFile("FileOutputStreamTest", "tmp");
         FileOutputStream fos = new FileOutputStream(tmp);
         fos.write(1);
         fos.write(1);
         fos.close();
+        return tmp;
+    }
+
+    public void testFileDescriptorOwnership() throws Exception {
+        File tmp = makeFile();
 
         FileInputStream fis1 = new FileInputStream(tmp);
         FileInputStream fis2 = new FileInputStream(fis1.getFD());
+
+        // Close the second FileDescriptor and check we can't use it...
         fis2.close();
-        // The underlying FileDescriptor shouldn't be closed, so this should succeed.
+        try {
+            fis2.available();
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            fis2.read();
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            fis2.read(new byte[1], 0, 1);
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            fis2.skip(1);
+            fail();
+        } catch (IOException expected) {
+        }
+        // ...but that we can still use the first.
         assertFalse(fis1.read() == -1);
+
+        // Close the first FileDescriptor and check we can't use it...
         fis1.close();
         try {
-            // This should fail.
+            fis1.available();
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
             fis1.read();
             fail();
         } catch (IOException expected) {
         }
+        try {
+            fis1.read(new byte[1], 0, 1);
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            fis1.skip(1);
+            fail();
+        } catch (IOException expected) {
+        }
+    }
+
+    public void testClose() throws Exception {
+        File tmp = makeFile();
+        FileInputStream fis = new FileInputStream(tmp);
+
+        // Closing an already-closed stream is a no-op...
+        fis.close();
+        fis.close();
+
+        // But any explicit activity is an error.
+        try {
+            fis.available();
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            fis.read();
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            fis.read(new byte[1], 0, 1);
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            fis.skip(1);
+            fail();
+        } catch (IOException expected) {
+        }
+        // Including 0-byte skips...
+        try {
+            fis.skip(0);
+            fail();
+        } catch (IOException expected) {
+        }
+        // ...but not 0-byte reads...
+        fis.read(new byte[0], 0, 0);
     }
 }
