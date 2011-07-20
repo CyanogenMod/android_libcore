@@ -574,6 +574,18 @@ public class JSONTokenerTest extends TestCase {
         assertEquals("skipTo shouldn't stop when it sees '\\0'", 'F', tokener.next());
     }
 
+    public void testBomIgnoredAsFirstCharacterOfDocument() throws JSONException {
+        JSONTokener tokener = new JSONTokener("\ufeff[]");
+        JSONArray array = (JSONArray) tokener.nextValue();
+        assertEquals(0, array.length());
+    }
+
+    public void testBomTreatedAsCharacterInRestOfDocument() throws JSONException {
+        JSONTokener tokener = new JSONTokener("[\ufeff]");
+        JSONArray array = (JSONArray) tokener.nextValue();
+        assertEquals(1, array.length());
+    }
+
     public void testDehexchar() {
         assertEquals( 0, JSONTokener.dehexchar('0'));
         assertEquals( 1, JSONTokener.dehexchar('1'));

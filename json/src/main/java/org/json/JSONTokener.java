@@ -76,6 +76,10 @@ public class JSONTokener {
      *     called.
      */
     public JSONTokener(String in) {
+        // consume an optional byte order mark (BOM) if it exists
+        if (in != null && in.startsWith("\ufeff")) {
+            in = in.substring(1);
+        }
         this.in = in;
     }
 
