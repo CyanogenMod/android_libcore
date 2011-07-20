@@ -17,7 +17,7 @@
 #define LOG_TAG "NativeTestTarget"
 
 #include "JNIHelp.h"
-#include "../../../../luni/src/main/native/JniConstants.h"
+#include "JniConstants.h"
 
 static void NativeTestTarget_emptyJniMethod0(JNIEnv*, jobject) { }
 static void NativeTestTarget_emptyJniMethod6(JNIEnv*, jclass, int, int, int, int, int, int) { }
