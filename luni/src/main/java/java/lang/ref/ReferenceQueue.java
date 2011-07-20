@@ -25,6 +25,7 @@ package java.lang.ref;
  * @since 1.2
  */
 public class ReferenceQueue<T> {
+    private static final int NANOS_PER_MILLI = 1000000;
 
     private Reference<? extends T> head;
 
@@ -66,10 +67,7 @@ public class ReferenceQueue<T> {
      * Returns the next available reference from the queue, removing it in the
      * process. Waits indefinitely for a reference to become available.
      *
-     * @return the next available reference
-     *
-     * @throws InterruptedException
-     *             if the blocking call was interrupted for some reason
+     * @throws InterruptedException if the blocking call was interrupted
      */
     public Reference<? extends T> remove() throws InterruptedException {
         return remove(0L);
@@ -80,36 +78,51 @@ public class ReferenceQueue<T> {
      * process. Waits for a reference to become available or the given timeout
      * period to elapse, whichever happens first.
      *
-     * @param timeout
-     *            maximum time (in ms) to spend waiting for a reference object
-     *            to become available. A value of zero results in the method
-     *            waiting indefinitely.
+     * @param timeoutMillis maximum time to spend waiting for a reference object
+     *     to become available. A value of {@code 0} results in the method
+     *     waiting indefinitely.
      * @return the next available reference, or {@code null} if no reference
-     *         becomes available within the timeout period
-     * @throws IllegalArgumentException
-     *             if the wait period is negative.
-     * @throws InterruptedException
-     *             if the blocking call was interrupted for some reason
+     *     becomes available within the timeout period
+     * @throws IllegalArgumentException if {@code timeoutMillis < 0}.
+     * @throws InterruptedException if the blocking call was interrupted
      */
-    public synchronized Reference<? extends T> remove(long timeout) throws IllegalArgumentException,
-            InterruptedException {
-        if (timeout < 0) {
-            throw new IllegalArgumentException();
+    public synchronized Reference<? extends T> remove(long timeoutMillis)
+            throws InterruptedException {
+        if (timeoutMillis < 0) {
+            throw new IllegalArgumentException("timeout < 0: " + timeoutMillis);
         }
 
-        if (timeout == 0L) {
-            while (head == null) {
-                wait(0L);
-            }
-        } else {
-            long now = System.currentTimeMillis();
-            long wakeupTime = now + timeout + 1L;
-            while (head == null && now < wakeupTime) {
-                wait(wakeupTime - now);
-                now = System.currentTimeMillis();
-            }
+        if (head != null) {
+            return poll();
         }
 
+        // avoid overflow: if total > 292 years, just wait forever
+        if (timeoutMillis == 0 || (timeoutMillis > Long.MAX_VALUE / NANOS_PER_MILLI)) {
+            do {
+                wait(0);
+            } while (head == null);
+            return poll();
+        }
+
+        // guaranteed to not overflow
+        long nanosToWait = timeoutMillis * NANOS_PER_MILLI;
+        int timeoutNanos = 0;
+
+        // wait until notified or the timeout has elapsed
+        long startTime = System.nanoTime();
+        while (true) {
+            wait(timeoutMillis, timeoutNanos);
+            if (head != null) {
+                break;
+            }
+            long nanosElapsed = System.nanoTime() - startTime;
+            long nanosRemaining = nanosToWait - nanosElapsed;
+            if (nanosRemaining <= 0) {
+                break;
+            }
+            timeoutMillis = nanosRemaining / NANOS_PER_MILLI;
+            timeoutNanos = (int) (nanosRemaining - timeoutMillis * NANOS_PER_MILLI);
+        }
         return poll();
     }
 
