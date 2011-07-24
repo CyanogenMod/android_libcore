@@ -302,12 +302,13 @@ public class CookiesTest extends TestCase {
     }
 
     /**
-     * Test which headers show up where. The cookie manager should be notified of both
-     * user-specified and derived headers like {@code Content-Length}. Headers named {@code Cookie}
-     * or {@code Cookie2} that are returned by the cookie manager should show up in the request and
-     * in {@code getRequestProperties}.
+     * Test which headers show up where. The cookie manager should be notified
+     * of both user-specified and derived headers like {@code Host}. Headers
+     * named {@code Cookie} or {@code Cookie2} that are returned by the cookie
+     * manager should show up in the request and in {@code
+     * getRequestProperties}.
      */
-    public void testHeadersSentToCookieHandler() throws IOException, InterruptedException {
+    public void     testHeadersSentToCookieHandler() throws IOException, InterruptedException {
         final Map<String, List<String>> cookieHandlerHeaders = new HashMap<String, List<String>>();
         CookieHandler.setDefault(new CookieManager() {
             @Override public Map<String, List<String>> get(URI uri,
@@ -338,7 +339,7 @@ public class CookiesTest extends TestCase {
 
         assertContainsAll(cookieHandlerHeaders.keySet(), "Foo");
         assertContainsAll(cookieHandlerHeaders.keySet(),
-                "Content-Type", "Content-Length", "User-Agent", "Connection", "Host");
+                "Content-Type", "User-Agent", "Connection", "Host");
         assertFalse(cookieHandlerHeaders.containsKey("Cookie"));
 
         /*
@@ -370,7 +371,7 @@ public class CookiesTest extends TestCase {
             }
         });
         MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse());
+        server. enqueue(new MockResponse());
         server.play();
 
         get(server, "/");
