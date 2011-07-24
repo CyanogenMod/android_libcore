@@ -3,6 +3,14 @@
  */
 [
 {
+  description: "Investigate InterruptedIOException + InputStream.read(), OutputStream.write()",
+  names: [
+    "libcore.java.io.InterruptedStreamTest#testInterruptSocketInputStream",
+    "libcore.java.io.InterruptedStreamTest#testInterruptSocketOutputStream"
+  ],
+  bug: 4181738
+},
+{
   description: "SimpleDateFormat assumes DST always uses 60 minute offset; this fails for zones like Lord Howe Daylight Time",
   name: "libcore.java.text.SimpleDateFormatTest#testDstZoneWithNonDstTimestampForNonHourDstZone",
   bug: 4723412
