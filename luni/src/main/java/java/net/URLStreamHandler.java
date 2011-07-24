@@ -118,8 +118,15 @@ public abstract class URLStreamHandler {
              * colons like "[::1]", in which case we look for the port delimiter
              * colon after the ']' character.
              */
+            int colonSearchFrom = hostStart;
             int ipv6End = UrlUtils.findFirstOf(spec, "]", hostStart, fileStart);
-            int colonSearchFrom = (ipv6End != fileStart) ? ipv6End : hostStart;
+            if (ipv6End != fileStart) {
+                if (UrlUtils.findFirstOf(spec, ":", hostStart, ipv6End) == ipv6End) {
+                    throw new IllegalArgumentException("Expected an IPv6 address: "
+                            + spec.substring(hostStart, ipv6End + 1));
+                }
+                colonSearchFrom = ipv6End;
+            }
             int hostEnd = UrlUtils.findFirstOf(spec, ":", colonSearchFrom, fileStart);
             host = spec.substring(hostStart, hostEnd);
             int portStart = hostEnd + 1;

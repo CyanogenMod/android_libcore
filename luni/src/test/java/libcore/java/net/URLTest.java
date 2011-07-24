@@ -19,8 +19,6 @@ package libcore.java.net;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import junit.framework.TestCase;
 import libcore.java.util.SerializableTester;
@@ -589,6 +587,8 @@ public final class URLTest extends TestCase {
             fail();
         } catch (MalformedURLException expected) {
         }
+        URL url = new URL("http", "[192.168.0.1]", "/");
+        assertEquals("[192.168.0.1]", url.getHost());
     }
 
     public void testSquareBracketsWithHostname() throws Exception {
@@ -597,6 +597,8 @@ public final class URLTest extends TestCase {
             fail();
         } catch (MalformedURLException expected) {
         }
+        URL url = new URL("http", "[www.android.com]", "/");
+        assertEquals("[www.android.com]", url.getHost());
     }
 
     public void testIPv6WithoutSquareBrackets() throws Exception {
@@ -605,6 +607,14 @@ public final class URLTest extends TestCase {
             fail();
         } catch (MalformedURLException expected) {
         }
+        URL url = new URL("http", "fe80::1234", "/");
+        assertEquals("[fe80::1234]", url.getHost());
+    }
+
+    public void testIpv6WithSquareBrackets() throws Exception {
+        URL url = new URL("http://[::1]:2/");
+        assertEquals("[::1]", url.getHost());
+        assertEquals(2, url.getPort());
     }
 
     public void testEqualityWithNoPath() throws Exception {
