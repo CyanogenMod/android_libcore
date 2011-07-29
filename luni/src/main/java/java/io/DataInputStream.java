@@ -54,6 +54,11 @@ public class DataInputStream extends FilterInputStream implements DataInput {
         super(in);
     }
 
+    // overridden to add 'final'
+    @Override public final int read(byte[] buffer) throws IOException {
+        return super.read(buffer);
+    }
+
     /**
      * Reads at most {@code length} bytes from this stream and stores them in
      * the byte array {@code buffer} starting at {@code offset}. Returns the
