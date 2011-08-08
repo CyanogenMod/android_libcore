@@ -28,7 +28,6 @@ subdir_makefiles := $(call all-named-subdir-makefiles,$(subdirs))
 
 include $(LOCAL_PATH)/JavaLibrary.mk
 
-
 #
 # Include the definitions to build the native code.
 #
