@@ -58,8 +58,8 @@ import java.util.Arrays;
  * <tr> <td> Cn </td> <td> Unassigned </td>  <td>{@link #UNASSIGNED}</td> </tr>
  * <tr> <td> Cc </td> <td> Control </td>     <td>{@link #CONTROL}</td> </tr>
  * <tr> <td> Cf </td> <td> Format </td>      <td>{@link #FORMAT}</td> </tr>
- * <tr> <td> Cf </td> <td> Private use </td> <td>{@link #PRIVATE_USE}</td> </tr>
- * <tr> <td> Cf </td> <td> Surrogate </td>   <td>{@link #SURROGATE}</td> </tr>
+ * <tr> <td> Co </td> <td> Private use </td> <td>{@link #PRIVATE_USE}</td> </tr>
+ * <tr> <td> Cs </td> <td> Surrogate </td>   <td>{@link #SURROGATE}</td> </tr>
  * <tr> <td><br></td> </tr>
  * <tr> <td> Lu </td> <td> Uppercase letter </td> <td>{@link #UPPERCASE_LETTER}</td> </tr>
  * <tr> <td> Ll </td> <td> Lowercase letter </td> <td>{@link #LOWERCASE_LETTER}</td> </tr>
