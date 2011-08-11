@@ -48,8 +48,7 @@ public class BlockGuardOs extends ForwardingOs {
     }
 
     @Override public void close(FileDescriptor fd) throws ErrnoException {
-        // TODO: is there a way to avoid calling getsockopt(2) on non-socket fds?
-        if (isLingerSocket(fd)) {
+        if (S_ISSOCK(Libcore.os.fstat(fd).st_mode) && isLingerSocket(fd)) {
             // If the fd is a socket with SO_LINGER set, we might block indefinitely.
             // We allow non-linger sockets so that apps can close their network connections in
             // methods like onDestroy which will run on the UI thread.
