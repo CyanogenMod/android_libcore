@@ -403,11 +403,12 @@ public final class URL implements Serializable {
         // Check if there is a list of packages which can provide handlers.
         // If so, then walk this list looking for an applicable one.
         String packageList = System.getProperty("java.protocol.handler.pkgs");
-        if (packageList != null) {
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        if (packageList != null && contextClassLoader != null) {
             for (String packageName : packageList.split("\\|")) {
                 String className = packageName + "." + protocol + ".Handler";
                 try {
-                    Class<?> c = Class.forName(className, true, ClassLoader.getSystemClassLoader());
+                    Class<?> c = contextClassLoader.loadClass(className);
                     streamHandler = (URLStreamHandler) c.newInstance();
                     if (streamHandler != null) {
                         streamHandlers.put(protocol, streamHandler);
