@@ -163,6 +163,7 @@ public class OldThreadGroupTest extends TestCase implements Thread.UncaughtExcep
 
     public void test_enumerateLThreadGroupArray() {
         int numGroupThreads = initialThreadGroup.activeGroupCount();
+        assertTrue(initialThreadGroup.toString(), numGroupThreads > 0);
         ThreadGroup[] listOfGroups = new ThreadGroup[numGroupThreads];
 
         int countGroupThread = initialThreadGroup.enumerate(listOfGroups);
