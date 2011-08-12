@@ -3,6 +3,11 @@
  */
 [
 {
+  description: "Deserialization shouldn't set transient fields",
+  name: "libcore.java.io.SerializationTest#testSerializeFieldMadeTransient",
+  bug: 4471249
+},
+{
   description: "Investigate InterruptedIOException + InputStream.read(), OutputStream.write()",
   names: [
     "libcore.java.io.InterruptedStreamTest#testInterruptSocketInputStream",

@@ -49,9 +49,7 @@ public final class FinalizeTest extends TestCase {
 
     static class X {}
 
-    /**
-     * http://b/issue?id=2136462
-     */
+    // http://b/issue?id=2136462
     public void testBackFromTheDead() throws Exception {
         try {
             new ConstructionFails();
@@ -59,10 +57,7 @@ public final class FinalizeTest extends TestCase {
         }
 
         induceFinalization();
-
-        if (ConstructionFails.INSTANCE != null) {
-            fail("finalize() called, even though constructor failed!");
-        }
+        assertTrue("object whose constructor threw was not finalized", ConstructionFails.finalized);
     }
 
     private void induceFinalization() throws Exception {
@@ -80,16 +75,14 @@ public final class FinalizeTest extends TestCase {
     }
 
     static class ConstructionFails {
-        private static ConstructionFails INSTANCE;
+        private static boolean finalized;
 
         ConstructionFails() {
             throw new AssertionError();
         }
 
         @Override protected void finalize() throws Throwable {
-            INSTANCE = this;
-            new AssertionError("finalize() called, even though constructor failed!")
-                    .printStackTrace();
+            finalized = true;
         }
     }
 
