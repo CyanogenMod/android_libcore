@@ -102,7 +102,7 @@ public final class ClassLoaderBuilder {
 
         try {
             // first try to create a PathClassLoader for a dalvik VM...
-            String classPath = System.getProperty("java.class.path");
+            String classPath = getApplicationClassPath();
             return (ClassLoader) Class.forName("dalvik.system.PathClassLoader")
                     .getConstructor(String.class, ClassLoader.class)
                     .newInstance(classPath, bridge);
@@ -114,6 +114,25 @@ public final class ClassLoaderBuilder {
         classpath.addAll(classpathToUrls("java.class.path"));
         classpath.addAll(classpathToUrls("sun.boot.class.path"));
         return new URLClassLoader(classpath.toArray(new URL[classpath.size()]), bridge);
+    }
+
+    /**
+     * Returns a path containing the application's classes. When running in the
+     * Android framework this will be the APK file; otherwise it's the runtime's
+     * reported class path.
+     */
+    private String getApplicationClassPath() {
+        String manifestFile = "AndroidManifest.xml";
+        String suffix = "!/" + manifestFile;
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        URL manifest = classLoader.getResource(manifestFile);
+        if (manifest != null) {
+            String manifestString = manifest.toString();
+            if (manifestString.endsWith(suffix)) {
+                return manifestString.substring(0, manifestString.length() - suffix.length());
+            }
+        }
+        return System.getProperty("java.class.path");
     }
 
     private List<URL> classpathToUrls(String propertyName) {
