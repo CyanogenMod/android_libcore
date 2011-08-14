@@ -44,6 +44,8 @@ public final class OldAbstractPreferencesTest extends TestCase {
         parent = (AbstractPreferences) Preferences.userNodeForPackage(this.getClass());
 
         pref = (AbstractPreferences) parent.node(nodeName);
+        assertEquals(0, pref.childrenNames().length);
+        assertEquals(0, pref.keys().length);
     }
 
     public void testToString() {
@@ -861,109 +863,97 @@ public final class OldAbstractPreferencesTest extends TestCase {
     class MockPreferenceChangeListener implements PreferenceChangeListener {
         private boolean flagChange = false;
 
-        public void preferenceChange(PreferenceChangeEvent arg0) {
+        public synchronized void preferenceChange(PreferenceChangeEvent arg0) {
             flagChange = true;
+            notifyAll();
         }
 
-        public boolean isChanged () {
-            boolean retVal = flagChange;
+        public synchronized void assertChanged(boolean expected) throws InterruptedException {
+            wait(100);
+            assertEquals(expected, flagChange);
             flagChange = false;
-            return retVal;
         }
     }
 
-    public void testAddPreferenceChangeListener() throws BackingStoreException {
+    public void testAddPreferenceChangeListener() throws Exception {
         MockPreferenceChangeListener mpcl = new MockPreferenceChangeListener();
         parent.addPreferenceChangeListener(mpcl);
-        assertFalse(mpcl.isChanged());
+        mpcl.assertChanged(false);
         pref.node("new node");
-        pref.flush();
-        parent.flush();
-        assertFalse(mpcl.isChanged());
+        mpcl.assertChanged(false);
         parent.node("new node");
-        parent.flush();
-        assertFalse(mpcl.isChanged());
+        mpcl.assertChanged(false);
         parent.putInt("IntValue", 33);
-        parent.flush();
-        parent.flush();
-        assertTrue(mpcl.isChanged());
+        mpcl.assertChanged(true);
         assertEquals(33, parent.getInt("IntValue", 22));
-        parent.flush();
-        assertFalse(mpcl.isChanged());
+        mpcl.assertChanged(false);
         assertEquals(22, parent.getInt("Missed Value", 22));
-        parent.flush();
-        assertFalse(mpcl.isChanged());
+        mpcl.assertChanged(false);
     }
 
-    public void testRemovePreferenceChangeListener() throws BackingStoreException {
+    public void testRemovePreferenceChangeListener() throws Exception {
         MockPreferenceChangeListener mpcl = new MockPreferenceChangeListener();
         parent.addPreferenceChangeListener(mpcl);
-        assertFalse(mpcl.isChanged());
+        mpcl.assertChanged(false);
         parent.putInt("IntValue", 33);
-        parent.flush();
-        assertTrue(mpcl.isChanged());
+        mpcl.assertChanged(true);
         parent.removePreferenceChangeListener(mpcl);
         parent.putInt("IntValue", 33);
-        parent.flush();
-        assertFalse(mpcl.isChanged());
+        mpcl.assertChanged(false);
     }
 
     class MockNodeChangeListener implements NodeChangeListener {
         private boolean flagAdded = false;
         private boolean flagRemoved = false;
 
-        public void childAdded(NodeChangeEvent arg0) {
+        public synchronized void childAdded(NodeChangeEvent arg0) {
             flagAdded = true;
+            notifyAll();
         }
 
-        public void childRemoved(NodeChangeEvent arg0) {
+        public synchronized void childRemoved(NodeChangeEvent arg0) {
             flagRemoved = true;
+            notifyAll();
         }
 
-        public boolean isAdded() {
-            return flagAdded;
+        public synchronized void assertAdded(boolean expected) throws InterruptedException {
+            wait(100);
+            assertEquals(expected, flagAdded);
         }
 
-        public boolean isRemoved() {
-            return flagRemoved;
+        public synchronized void assertRemoved(boolean expected) throws InterruptedException {
+            wait(100);
+            assertEquals(expected, flagRemoved);
         }
     }
 
-    public void testAddNodeChangeListener() throws BackingStoreException {
+    public void testAddNodeChangeListener() throws Exception {
         MockNodeChangeListener mncl = new MockNodeChangeListener();
         parent.addNodeChangeListener(mncl);
         pref.node("test");
-        pref.flush();
-        parent.flush();
-        assertFalse(mncl.isAdded());
-        assertFalse(mncl.isRemoved());
+        mncl.assertAdded(false);
+        mncl.assertRemoved(false);
         pref.removeNode();
-        parent.flush();
-        assertFalse(mncl.isAdded());
-        assertTrue(mncl.isRemoved());
+        mncl.assertAdded(false);
+        mncl.assertRemoved(true);
         parent.node("new node");
-        parent.flush();
-        assertTrue(mncl.isAdded());
-        assertTrue(mncl.isRemoved());
+        mncl.assertAdded(true);
+        mncl.assertRemoved(true);
     }
 
-    public void testRemoveNodeChangeListener() throws BackingStoreException {
+    public void testRemoveNodeChangeListener() throws BackingStoreException, InterruptedException {
         MockNodeChangeListener mncl = new MockNodeChangeListener();
         parent.addNodeChangeListener(mncl);
         pref.node("test");
-        pref.flush();
-        parent.flush();
-        assertFalse(mncl.isAdded());
-        assertFalse(mncl.isRemoved());
+        mncl.assertAdded(false);
+        mncl.assertRemoved(false);
         parent.removeNodeChangeListener(mncl);
         pref.removeNode();
-        parent.flush();
-        assertFalse(mncl.isAdded());
-        assertFalse(mncl.isRemoved());
+        mncl.assertAdded(false);
+        mncl.assertRemoved(false);
         parent.node("new node");
-        parent.flush();
-        assertFalse(mncl.isAdded());
-        assertFalse(mncl.isRemoved());
+        mncl.assertAdded(false);
+        mncl.assertRemoved(false);
     }
 
     public void testExportNode() throws BackingStoreException, IOException, InvalidPreferencesFormatException {
