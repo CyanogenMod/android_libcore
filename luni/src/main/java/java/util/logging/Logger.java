@@ -270,10 +270,9 @@ public class Logger {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl != null) {
             try {
-                return ResourceBundle.getBundle(resourceBundleName, Locale
-                        .getDefault(), cl);
-            } catch (MissingResourceException e) {
-                // Failed to load using context classloader, ignore
+                return ResourceBundle.getBundle(resourceBundleName, Locale.getDefault(), cl);
+            } catch (MissingResourceException ignored) {
+                // Failed to load using context class loader, ignore
             }
         }
         // try system class loader to load the resource
@@ -281,23 +280,8 @@ public class Logger {
         if (cl != null) {
             try {
                 return ResourceBundle.getBundle(resourceBundleName, Locale.getDefault(), cl);
-            } catch (MissingResourceException e) {
-                // Failed to load using system classloader, ignore
-            }
-        }
-        // try all class loaders up the class stack
-        final Class<?>[] classes = new PrivateSecurityManager().privateGetClassContext();
-        // the first class, which is PrivateSecurityManager, is skipped
-        for (int i = 1; i < classes.length; i++) {
-            final int index = i;
-            try {
-                cl = classes[index].getClassLoader();
-                if (cl == null) {
-                    continue;
-                }
-                return ResourceBundle.getBundle(resourceBundleName, Locale.getDefault(), cl);
-            } catch (MissingResourceException e) {
-                // Failed to load using the current class's classloader, ignore
+            } catch (MissingResourceException ignored) {
+                // Failed to load using system class loader, ignore
             }
         }
         throw new MissingResourceException("Failed to load the specified resource bundle \"" +
@@ -1333,15 +1317,6 @@ public class Logger {
         record.setSourceMethodName(sourceMethod);
         record.setThrown(thrown);
         log(record);
-    }
-
-    /*
-     * This security manager is used to access the class context.
-     */
-    static class PrivateSecurityManager extends SecurityManager {
-        public Class<?>[] privateGetClassContext() {
-            return super.getClassContext();
-        }
     }
 
     void reset() {
