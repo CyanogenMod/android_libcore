@@ -51,7 +51,7 @@ public final class MethodTest extends TestCase {
             m.invoke(null); // Null for 'this'.
             fail();
         } catch (NullPointerException npe) {
-            assertEquals("expected receiver of type java.lang.String, but got (null)",
+            assertEquals("expected receiver of type java.lang.String, but got null",
                     npe.getMessage());
         }
     }
