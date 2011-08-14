@@ -1116,8 +1116,8 @@ static void Posix_setsockoptTimeval(JNIEnv* env, jobject, jobject javaFd, jint l
     static jfieldID tvUsecFid = env->GetFieldID(JniConstants::structTimevalClass, "tv_usec", "J");
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     struct timeval value;
-    value.tv_sec = env->GetIntField(javaTimeval, tvSecFid);
-    value.tv_usec = env->GetIntField(javaTimeval, tvUsecFid);
+    value.tv_sec = env->GetLongField(javaTimeval, tvSecFid);
+    value.tv_usec = env->GetLongField(javaTimeval, tvUsecFid);
     throwIfMinusOne(env, "setsockopt", TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &value, sizeof(value))));
 }
 
