@@ -38,84 +38,84 @@ public final class ParsedHeadersTest extends TestCase {
         headers.add("ETAG", "v1");
         headers.add("PRAGMA", "no-cache");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
-        assertTrue(parsedHeaders.noStore);
-        assertEquals(new Date(1000), parsedHeaders.servedDate);
-        assertEquals(new Date(2000), parsedHeaders.expires);
-        assertEquals(new Date(3000), parsedHeaders.lastModified);
-        assertEquals("v1", parsedHeaders.etag);
-        assertTrue(parsedHeaders.noCache);
+        assertTrue(parsedHeaders.isNoStore());
+        assertEquals(new Date(1000), parsedHeaders.getServedDate());
+        assertEquals(new Date(2000), parsedHeaders.getExpires());
+        assertEquals(new Date(3000), parsedHeaders.getLastModified());
+        assertEquals("v1", parsedHeaders.getEtag());
+        assertTrue(parsedHeaders.isNoCache());
     }
 
     public void testCommaSeparatedCacheControlHeaders() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "no-store, max-age=60, public");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
-        assertTrue(parsedHeaders.noStore);
-        assertEquals(60, parsedHeaders.maxAgeSeconds);
-        assertTrue(parsedHeaders.isPublic);
+        assertTrue(parsedHeaders.isNoStore());
+        assertEquals(60, parsedHeaders.getMaxAgeSeconds());
+        assertTrue(parsedHeaders.isPublic());
     }
 
     public void testQuotedFieldName() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "private=\"Set-Cookie\", no-store");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
-        assertTrue(parsedHeaders.noStore);
+        assertTrue(parsedHeaders.isNoStore());
     }
 
     public void testUnquotedValue() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "private=Set-Cookie, no-store");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
-        assertTrue(parsedHeaders.noStore);
+        assertTrue(parsedHeaders.isNoStore());
     }
 
     public void testQuotedValue() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "private=\" a, no-cache, c \", no-store");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
-        assertTrue(parsedHeaders.noStore);
-        assertFalse(parsedHeaders.noCache);
+        assertTrue(parsedHeaders.isNoStore());
+        assertFalse(parsedHeaders.isNoCache());
     }
 
     public void testDanglingQuote() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "private=\"a, no-cache, c");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
-        assertFalse(parsedHeaders.noCache);
+        assertFalse(parsedHeaders.isNoCache());
     }
 
     public void testTrailingComma() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "public,");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
-        assertTrue(parsedHeaders.isPublic);
+        assertTrue(parsedHeaders.isPublic());
     }
 
     public void testTrailingEquals() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "private=");
-        ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
+        new ResponseHeaders(uri, headers);
     }
 
     public void testSpaceBeforeEquals() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "max-age =60");
         RequestHeaders parsedHeaders = new RequestHeaders(uri, headers);
-        assertEquals(60, parsedHeaders.maxAgeSeconds);
+        assertEquals(60, parsedHeaders.getMaxAgeSeconds());
     }
 
     public void testSpaceAfterEqualsWithQuotes() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "max-age= \"60\"");
         RequestHeaders parsedHeaders = new RequestHeaders(uri, headers);
-        assertEquals(60, parsedHeaders.maxAgeSeconds);
+        assertEquals(60, parsedHeaders.getMaxAgeSeconds());
     }
 
     public void testSpaceAfterEqualsWithoutQuotes() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "max-age= 60");
         RequestHeaders parsedHeaders = new RequestHeaders(uri, headers);
-        assertEquals(60, parsedHeaders.maxAgeSeconds);
+        assertEquals(60, parsedHeaders.getMaxAgeSeconds());
     }
 
     public void testCacheControlRequestDirectivesAreCaseInsensitive() {
@@ -126,11 +126,11 @@ public final class ParsedHeadersTest extends TestCase {
         headers.add("Cache-Control", "MIN-FRESH=80");
         headers.add("Cache-Control", "ONLY-IF-CACHED");
         RequestHeaders parsedHeaders = new RequestHeaders(uri, headers);
-        assertTrue(parsedHeaders.noCache);
-        assertEquals(60, parsedHeaders.maxAgeSeconds);
-        assertEquals(70, parsedHeaders.maxStaleSeconds);
-        assertEquals(80, parsedHeaders.minFreshSeconds);
-        assertTrue(parsedHeaders.onlyIfCached);
+        assertTrue(parsedHeaders.isNoCache());
+        assertEquals(60, parsedHeaders.getMaxAgeSeconds());
+        assertEquals(70, parsedHeaders.getMaxStaleSeconds());
+        assertEquals(80, parsedHeaders.getMinFreshSeconds());
+        assertTrue(parsedHeaders.isOnlyIfCached());
     }
 
     public void testCacheControlResponseDirectivesAreCaseInsensitive() {
@@ -142,46 +142,46 @@ public final class ParsedHeadersTest extends TestCase {
         headers.add("Cache-Control", "PUBLIC");
         headers.add("Cache-Control", "MUST-REVALIDATE");
         ResponseHeaders parsedHeaders = new ResponseHeaders(uri, headers);
-        assertTrue(parsedHeaders.noCache);
-        assertTrue(parsedHeaders.noStore);
-        assertEquals(60, parsedHeaders.maxAgeSeconds);
-        assertEquals(70, parsedHeaders.sMaxAgeSeconds);
-        assertTrue(parsedHeaders.isPublic);
-        assertTrue(parsedHeaders.mustRevalidate);
+        assertTrue(parsedHeaders.isNoCache());
+        assertTrue(parsedHeaders.isNoStore());
+        assertEquals(60, parsedHeaders.getMaxAgeSeconds());
+        assertEquals(70, parsedHeaders.getSMaxAgeSeconds());
+        assertTrue(parsedHeaders.isPublic());
+        assertTrue(parsedHeaders.isMustRevalidate());
     }
 
     public void testPragmaDirectivesAreCaseInsensitive() {
         RawHeaders headers = new RawHeaders();
         headers.add("Pragma", "NO-CACHE");
         RequestHeaders parsedHeaders = new RequestHeaders(uri, headers);
-        assertTrue(parsedHeaders.noCache);
+        assertTrue(parsedHeaders.isNoCache());
     }
 
     public void testMissingInteger() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "max-age");
         RequestHeaders parsedHeaders = new RequestHeaders(uri, headers);
-        assertEquals(-1, parsedHeaders.maxAgeSeconds);
+        assertEquals(-1, parsedHeaders.getMaxAgeSeconds());
     }
 
     public void testInvalidInteger() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "MAX-AGE=pi");
         RequestHeaders requestHeaders = new RequestHeaders(uri, headers);
-        assertEquals(-1, requestHeaders.maxAgeSeconds);
+        assertEquals(-1, requestHeaders.getMaxAgeSeconds());
     }
 
     public void testVeryLargeInteger() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "MAX-AGE=" + (Integer.MAX_VALUE + 1L));
         RequestHeaders parsedHeaders = new RequestHeaders(uri, headers);
-        assertEquals(Integer.MAX_VALUE, parsedHeaders.maxAgeSeconds);
+        assertEquals(Integer.MAX_VALUE, parsedHeaders.getMaxAgeSeconds());
     }
 
     public void testNegativeInteger() {
         RawHeaders headers = new RawHeaders();
         headers.add("Cache-Control", "MAX-AGE=-2");
         RequestHeaders parsedHeaders = new RequestHeaders(uri, headers);
-        assertEquals(0, parsedHeaders.maxAgeSeconds);
+        assertEquals(0, parsedHeaders.getMaxAgeSeconds());
     }
 }

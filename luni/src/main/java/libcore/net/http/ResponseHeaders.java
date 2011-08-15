@@ -30,7 +30,7 @@ import libcore.util.Objects;
 /**
  * Parsed HTTP response headers.
  */
-final class ResponseHeaders {
+public final class ResponseHeaders {
 
     /** HTTP header name for the local time when the request was sent. */
     private static final String SENT_MILLIS = "X-Android-Sent-Millis";
@@ -38,32 +38,32 @@ final class ResponseHeaders {
     /** HTTP header name for the local time when the response was received. */
     private static final String RECEIVED_MILLIS = "X-Android-Received-Millis";
 
-    final URI uri;
-    final RawHeaders headers;
+    private final URI uri;
+    private final RawHeaders headers;
 
     /** The server's time when this response was served, if known. */
-    Date servedDate;
+    private Date servedDate;
 
     /** The last modified date of the response, if known. */
-    Date lastModified;
+    private Date lastModified;
 
     /**
      * The expiration date of the response, if known. If both this field and the
      * max age are set, the max age is preferred.
      */
-    Date expires;
+    private Date expires;
 
     /**
      * Extension header set by HttpURLConnectionImpl specifying the timestamp
      * when the HTTP request was first initiated.
      */
-    long sentRequestMillis;
+    private long sentRequestMillis;
 
     /**
      * Extension header set by HttpURLConnectionImpl specifying the timestamp
      * when the HTTP response was first received.
      */
-    long receivedResponseMillis;
+    private long receivedResponseMillis;
 
     /**
      * In the response, this field's name "no-cache" is misleading. It doesn't
@@ -71,23 +71,23 @@ final class ResponseHeaders {
      * the response with the origin server before returning it. We can do this
      * with a conditional get.
      */
-    boolean noCache;
+    private boolean noCache;
 
     /** If true, this response should not be cached. */
-    boolean noStore;
+    private boolean noStore;
 
     /**
      * The duration past the response's served date that it can be served
      * without validation.
      */
-    int maxAgeSeconds = -1;
+    private int maxAgeSeconds = -1;
 
     /**
      * The "s-maxage" directive is the max age for shared caches. Not to be
      * confused with "max-age" for non-shared caches, As in Firefox and Chrome,
      * this directive is not honored by this cache.
      */
-    int sMaxAgeSeconds = -1;
+    private int sMaxAgeSeconds = -1;
 
     /**
      * This request header field's name "only-if-cached" is misleading. It
@@ -96,20 +96,20 @@ final class ResponseHeaders {
      * Cached responses that would require validation (ie. conditional gets) are
      * not permitted if this header is set.
      */
-    boolean isPublic;
-    boolean mustRevalidate;
-    String etag;
-    int ageSeconds = -1;
+    private boolean isPublic;
+    private boolean mustRevalidate;
+    private String etag;
+    private int ageSeconds = -1;
 
     /** Case-insensitive set of field names. */
-    Set<String> varyFields = Collections.emptySet();
+    private Set<String> varyFields = Collections.emptySet();
 
-    String contentEncoding;
-    String transferEncoding;
-    int contentLength = -1;
-    String connection;
-    String proxyAuthenticate;
-    String wwwAuthenticate;
+    private String contentEncoding;
+    private String transferEncoding;
+    private int contentLength = -1;
+    private String connection;
+    private String proxyAuthenticate;
+    private String wwwAuthenticate;
 
     public ResponseHeaders(URI uri, RawHeaders headers) {
         this.uri = uri;
@@ -200,6 +200,78 @@ final class ResponseHeaders {
         return "close".equalsIgnoreCase(connection);
     }
 
+    public URI getUri() {
+        return uri;
+    }
+
+    public RawHeaders getHeaders() {
+        return headers;
+    }
+
+    public Date getServedDate() {
+        return servedDate;
+    }
+
+    public Date getLastModified() {
+        return lastModified;
+    }
+
+    public Date getExpires() {
+        return expires;
+    }
+
+    public boolean isNoCache() {
+        return noCache;
+    }
+
+    public boolean isNoStore() {
+        return noStore;
+    }
+
+    public int getMaxAgeSeconds() {
+        return maxAgeSeconds;
+    }
+
+    public int getSMaxAgeSeconds() {
+        return sMaxAgeSeconds;
+    }
+
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    public boolean isMustRevalidate() {
+        return mustRevalidate;
+    }
+
+    public String getEtag() {
+        return etag;
+    }
+
+    public Set<String> getVaryFields() {
+        return varyFields;
+    }
+
+    public String getContentEncoding() {
+        return contentEncoding;
+    }
+
+    public int getContentLength() {
+        return contentLength;
+    }
+
+    public String getConnection() {
+        return connection;
+    }
+
+    public String getProxyAuthenticate() {
+        return proxyAuthenticate;
+    }
+
+    public String getWwwAuthenticate() {
+        return wwwAuthenticate;
+    }
+
     public void setLocalTimestamps(long sentRequestMillis, long receivedResponseMillis) {
         this.sentRequestMillis = sentRequestMillis;
         headers.add(SENT_MILLIS, Long.toString(sentRequestMillis));
@@ -279,7 +351,7 @@ final class ResponseHeaders {
          * Responses to authorized requests aren't cacheable unless they include
          * a 'public', 'must-revalidate' or 's-maxage' directive.
          */
-        if (request.hasAuthorization
+        if (request.hasAuthorization()
                 && !isPublic
                 && !mustRevalidate
                 && sMaxAgeSeconds == -1) {
@@ -328,26 +400,26 @@ final class ResponseHeaders {
             return ResponseSource.NETWORK;
         }
 
-        if (request.noCache || request.hasConditions()) {
+        if (request.isNoCache() || request.hasConditions()) {
             return ResponseSource.NETWORK;
         }
 
         long ageMillis = computeAge(nowMillis);
         long freshMillis = computeFreshnessLifetime();
 
-        if (request.maxAgeSeconds != -1) {
+        if (request.getMaxAgeSeconds() != -1) {
             freshMillis = Math.min(freshMillis,
-                    TimeUnit.SECONDS.toMillis(request.maxAgeSeconds));
+                    TimeUnit.SECONDS.toMillis(request.getMaxAgeSeconds()));
         }
 
         long minFreshMillis = 0;
-        if (request.minFreshSeconds != -1) {
-            minFreshMillis = TimeUnit.SECONDS.toMillis(request.minFreshSeconds);
+        if (request.getMinFreshSeconds() != -1) {
+            minFreshMillis = TimeUnit.SECONDS.toMillis(request.getMinFreshSeconds());
         }
 
         long maxStaleMillis = 0;
-        if (!mustRevalidate && request.maxStaleSeconds != -1) {
-            maxStaleMillis = TimeUnit.SECONDS.toMillis(request.maxStaleSeconds);
+        if (!mustRevalidate && request.getMaxStaleSeconds() != -1) {
+            maxStaleMillis = TimeUnit.SECONDS.toMillis(request.getMaxStaleSeconds());
         }
 
         if (!noCache && ageMillis + minFreshMillis < freshMillis + maxStaleMillis) {

@@ -166,7 +166,8 @@ public final class HttpResponseCache extends ResponseCache {
             return null;
         }
 
-        RawHeaders varyHeaders = httpEngine.getRequestHeaders().headers.getAll(response.varyFields);
+        RawHeaders varyHeaders = httpEngine.getRequestHeaders().getHeaders().getAll(
+                response.getVaryFields());
         Entry entry = new Entry(uri, varyHeaders, httpConnection);
         DiskLruCache.Editor editor = null;
         try {
@@ -202,11 +203,11 @@ public final class HttpResponseCache extends ResponseCache {
         return cache;
     }
 
-    synchronized int getWriteAbortCount() {
+    public synchronized int getWriteAbortCount() {
         return writeAbortCount;
     }
 
-    synchronized int getWriteSuccessCount() {
+    public synchronized int getWriteSuccessCount() {
         return writeSuccessCount;
     }
 

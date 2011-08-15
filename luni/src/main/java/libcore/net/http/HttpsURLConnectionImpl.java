@@ -485,7 +485,7 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
          */
         private void makeTunnel(HttpURLConnectionImpl policy, HttpConnection connection,
                 RequestHeaders requestHeaders) throws IOException {
-            RawHeaders rawRequestHeaders = requestHeaders.headers;
+            RawHeaders rawRequestHeaders = requestHeaders.getHeaders();
             while (true) {
                 HttpEngine connect = new ProxyConnectEngine(policy, rawRequestHeaders, connection);
                 connect.sendRequest();
@@ -544,20 +544,20 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
                     + " HTTP/1.1");
 
             // Always set Host and User-Agent.
-            String host = privateHeaders.host;
+            String host = privateHeaders.getHost();
             if (host == null) {
                 host = getOriginAddress(url);
             }
             result.set("Host", host);
 
-            String userAgent = privateHeaders.userAgent;
+            String userAgent = privateHeaders.getUserAgent();
             if (userAgent == null) {
                 userAgent = getDefaultUserAgent();
             }
             result.set("User-Agent", userAgent);
 
             // Copy over the Proxy-Authorization header if it exists.
-            String proxyAuthorization = privateHeaders.proxyAuthorization;
+            String proxyAuthorization = privateHeaders.getProxyAuthorization();
             if (proxyAuthorization != null) {
                 result.set("Proxy-Authorization", proxyAuthorization);
             }

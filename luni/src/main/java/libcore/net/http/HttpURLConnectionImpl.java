@@ -114,7 +114,7 @@ class HttpURLConnectionImpl extends HttpURLConnection {
      */
     @Override public final String getHeaderField(int position) {
         try {
-            return getResponse().getResponseHeaders().headers.getValue(position);
+            return getResponse().getResponseHeaders().getHeaders().getValue(position);
         } catch (IOException e) {
             return null;
         }
@@ -127,7 +127,7 @@ class HttpURLConnectionImpl extends HttpURLConnection {
      */
     @Override public final String getHeaderField(String fieldName) {
         try {
-            RawHeaders rawHeaders = getResponse().getResponseHeaders().headers;
+            RawHeaders rawHeaders = getResponse().getResponseHeaders().getHeaders();
             return fieldName == null
                     ? rawHeaders.getStatusLine()
                     : rawHeaders.get(fieldName);
@@ -138,7 +138,7 @@ class HttpURLConnectionImpl extends HttpURLConnection {
 
     @Override public final String getHeaderFieldKey(int position) {
         try {
-            return getResponse().getResponseHeaders().headers.getFieldName(position);
+            return getResponse().getResponseHeaders().getHeaders().getFieldName(position);
         } catch (IOException e) {
             return null;
         }
@@ -146,7 +146,7 @@ class HttpURLConnectionImpl extends HttpURLConnection {
 
     @Override public final Map<String, List<String>> getHeaderFields() {
         try {
-            return getResponse().getResponseHeaders().headers.toMultimap();
+            return getResponse().getResponseHeaders().getHeaders().toMultimap();
         } catch (IOException e) {
             return null;
         }
@@ -391,8 +391,8 @@ class HttpURLConnectionImpl extends HttpURLConnection {
 
         // keep asking for username/password until authorized
         String challenge = responseCode == HTTP_PROXY_AUTH
-                ? response.proxyAuthenticate
-                : response.wwwAuthenticate;
+                ? response.getProxyAuthenticate()
+                : response.getWwwAuthenticate();
         if (challenge == null) {
             throw new IOException("Received authentication challenge is null");
         }
@@ -472,7 +472,7 @@ class HttpURLConnectionImpl extends HttpURLConnection {
     }
 
     @Override public String getResponseMessage() throws IOException {
-        return getResponse().getResponseHeaders().headers.getResponseMessage();
+        return getResponse().getResponseHeaders().getHeaders().getResponseMessage();
     }
 
     @Override public final int getResponseCode() throws IOException {
