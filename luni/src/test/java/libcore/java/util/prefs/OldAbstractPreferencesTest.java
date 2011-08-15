@@ -41,11 +41,13 @@ public final class OldAbstractPreferencesTest extends TestCase {
         super.setUp();
 
         root = (AbstractPreferences) Preferences.userRoot();
-        parent = (AbstractPreferences) Preferences.userNodeForPackage(this.getClass());
+        for (String child : root.childrenNames()) {
+            root.node(child).removeNode();
+        }
+        root.clear();
 
+        parent = (AbstractPreferences) Preferences.userNodeForPackage(getClass());
         pref = (AbstractPreferences) parent.node(nodeName);
-        assertEquals(0, pref.childrenNames().length);
-        assertEquals(0, pref.keys().length);
     }
 
     public void testToString() {
