@@ -18,7 +18,6 @@ package libcore.sqlite;
 
 import SQLite.Constants;
 import SQLite.Database;
-import SQLite.Exception;
 import SQLite.Stmt;
 import SQLite.TableResult;
 import java.sql.Connection;
@@ -27,56 +26,54 @@ import tests.support.Support_SQL;
 
 public class OldStmtTest extends OldSQLiteTest {
 
-    private static Database db = null;
-    private static Stmt st = null;
+    private Database db;
+    private Stmt st;
 
-    private static final String createAllTypes = "create table type (" +
+    private static final String CREATE_ALL_TYPES = "create table type ("
+            + " BoolVal BOOLEAN,"
+            + " IntVal INT,"
+            + " LongVal LONG,"
+            + " Bint BIGINT,"
+            + " Tint TINYINT,"
+            + " Sint SMALLINT,"
+            + " Mint MEDIUMINT,"
+            + " IntegerVal INTEGER,"
+            + " RealVal REAL,"
+            + " DoubleVal DOUBLE,"
+            + " FloatVal FLOAT,"
+            + " DecVal DECIMAL,"
+            + " NumVal NUMERIC,"
+            + " charStr CHAR(20),"
+            + " dateVal DATE,"
+            + " timeVal TIME,"
+            + " TS TIMESTAMP,"
+            + " DT DATETIME,"
+            + " TBlob TINYBLOB,"
+            + " BlobVal BLOB,"
+            + " MBlob MEDIUMBLOB,"
+            + " LBlob LONGBLOB,"
+            + " TText TINYTEXT,"
+            + " TextVal TEXT,"
+            + " MText MEDIUMTEXT,"
+            + " LText LONGTEXT,"
+            + " MaxLongVal BIGINT,"
+            + " MinLongVal BIGINT,"
+            + " validURL URL,"
+            + " invalidURL URL);";
 
-    " BoolVal BOOLEAN," + " IntVal INT," + " LongVal LONG,"
-            + " Bint BIGINT," + " Tint TINYINT," + " Sint SMALLINT,"
-            + " Mint MEDIUMINT, " +
+    static final String INSERT_ALL_TYPES = "insert into type ("
+            + "BoolVal, IntVal, LongVal, Bint, Tint, Sint, Mint,IntegerVal, RealVal, DoubleVal, "
+            + "FloatVal, DecVal,NumVal, charStr, dateVal, timeVal, TS,DT, TBlob, BlobVal, MBlob, "
+            + "LBlob,TText, TextVal, MText, LText, MaxLongVal, MinLongVal, validURL, invalidURL) "
+            + "values (1, -1, 22, 2, 33,3, 1, 2, 3.9, 23.2, 33.3, 44,5, 'test string', '1799-05-26',"
+            + "'12:35:45', '2007-10-09 14:28:02.0','1221-09-22 10:11:55', 1, 2, 3, 4,"
+            + "'Test text message tiny', 'Test text', 'Test text message medium',"
+            + "'Test text message long', " + Long.MAX_VALUE + ", " + Long.MIN_VALUE + ","
+            + "null, null);";
 
-            " IntegerVal INTEGER, " + " RealVal REAL, "
-            + " DoubleVal DOUBLE, " + " FloatVal FLOAT, "
-            + " DecVal DECIMAL, " +
+    static final String ALL_TYPES_TABLE = "type";
 
-            " NumVal NUMERIC, " + " charStr CHAR(20), "
-            + " dateVal DATE, " + " timeVal TIME, " + " TS TIMESTAMP, "
-            +
-
-            " DT DATETIME, " + " TBlob TINYBLOB, " + " BlobVal BLOB, "
-            + " MBlob MEDIUMBLOB, " + " LBlob LONGBLOB, " +
-
-            " TText TINYTEXT, " + " TextVal TEXT, "
-            + " MText MEDIUMTEXT, " + " LText LONGTEXT, " +
-
-            " MaxLongVal BIGINT, MinLongVal BIGINT, "+
-
-            " validURL URL, invalidURL URL "+
-
-            ");";
-
-    static final String insertAllTypes =
-        "insert into type (BoolVal, IntVal, LongVal, Bint, Tint, Sint, Mint,"
-        + "IntegerVal, RealVal, DoubleVal, FloatVal, DecVal,"
-        + "NumVal, charStr, dateVal, timeVal, TS,"
-        + "DT, TBlob, BlobVal, MBlob, LBlob,"
-        + "TText, TextVal, MText, LText, MaxLongVal, MinLongVal,"
-        + " validURL, invalidURL"
-        + ") "
-        + "values (1, -1, 22, 2, 33,"
-        + "3, 1, 2, 3.9, 23.2, 33.3, 44,"
-        + "5, 'test string', '1799-05-26', '12:35:45', '2007-10-09 14:28:02.0',"
-        + "'1221-09-22 10:11:55', 1, 2, 3, 4,"
-        + "'Test text message tiny', 'Test text',"
-        + " 'Test text message medium', 'Test text message long', "
-        + Long.MAX_VALUE+", "+Long.MIN_VALUE+", "
-        + "null, null "+
-        ");";
-
-    static final String allTypesTable = "type";
-
-    @Override public void setUp() throws java.lang.Exception {
+    @Override public void setUp() throws Exception {
         super.setUp();
         Support_SQL.loadDriver();
         db = new Database();
@@ -84,9 +81,10 @@ public class OldStmtTest extends OldSQLiteTest {
         db.exec(DatabaseCreator.CREATE_TABLE_SIMPLE1, null);
         DatabaseCreator.fillSimpleTable1(conn);
 
+        st = new Stmt();
     }
 
-    @Override public void tearDown() throws java.lang.Exception {
+    @Override public void tearDown() throws Exception {
         if (st != null) {
             try {
                 st.close();
@@ -100,16 +98,12 @@ public class OldStmtTest extends OldSQLiteTest {
     }
 
     public void testStmt() throws Exception {
-        Stmt st = new Stmt();
-        assertNotNull(st);
-        Stmt actual = db.prepare("");
-        assertNotNull(st);
+        db.prepare("");
 
         try {
             st.step();
             fail("Cannot execute non prepared Stmt");
-        } catch (Exception e) {
-            //ok
+        } catch (SQLite.Exception expected) {
         }
     }
 
@@ -118,8 +112,8 @@ public class OldStmtTest extends OldSQLiteTest {
             st = db.prepare("");
             st.prepare();
             fail("statement is closed");
-        } catch (Exception e) {
-            assertEquals("stmt already closed", e.getMessage());
+        } catch (SQLite.Exception expected) {
+            assertEquals("stmt already closed", expected.getMessage());
         }
 
         st = new Stmt();
@@ -151,8 +145,8 @@ public class OldStmtTest extends OldSQLiteTest {
         try {
             st.step();
             fail("Exception expected");
-        } catch (Exception e) {
-            assertEquals("stmt already closed", e.getMessage());
+        } catch (SQLite.Exception expected) {
+            assertEquals("stmt already closed", expected.getMessage());
         }
 
         st = new Stmt();
@@ -168,8 +162,8 @@ public class OldStmtTest extends OldSQLiteTest {
         try {
             st.step();
             fail("Test fails");
-        } catch (Exception e) {
-            assertEquals("stmt already closed", e.getMessage());
+        } catch (SQLite.Exception expected) {
+            assertEquals("stmt already closed", expected.getMessage());
         }
     }
 
@@ -194,8 +188,8 @@ public class OldStmtTest extends OldSQLiteTest {
     public void testClear_bindings() {
         try {
             st.clear_bindings();
-        } catch (Exception e) {
-            assertEquals("unsupported", e.getMessage());
+        } catch (SQLite.Exception expected) {
+            assertEquals("unsupported", expected.getMessage());
         }
     }
 
@@ -232,8 +226,7 @@ public class OldStmtTest extends OldSQLiteTest {
             st.close();
             st.bind(1,Integer.MIN_VALUE);
             fail("Exception expected");
-        } catch (Exception e) {
-            //ok
+        } catch (SQLite.Exception expected) {
         }
     }
 
@@ -270,8 +263,7 @@ public class OldStmtTest extends OldSQLiteTest {
             st.close();
             st.bind(1,Long.MIN_VALUE);
             fail("Exception expected");
-        } catch (Exception e) {
-            //ok
+        } catch (SQLite.Exception expected) {
         }
     }
 
@@ -337,8 +329,7 @@ public class OldStmtTest extends OldSQLiteTest {
             st.close();
             st.bind(1,0.0);
             fail("Exception expected");
-        } catch (Exception e) {
-            //ok
+        } catch (SQLite.Exception expected) {
         }
     }
 
@@ -370,8 +361,7 @@ public class OldStmtTest extends OldSQLiteTest {
             st.close();
             st.bind(1,name.getBytes());
             fail("Exception expected");
-        } catch (Exception e) {
-            //ok
+        } catch (SQLite.Exception expected) {
         }
     }
 
@@ -393,8 +383,7 @@ public class OldStmtTest extends OldSQLiteTest {
             st.close();
             st.bind(1,name);
             fail("Exception expected");
-        } catch (Exception e) {
-            //ok
+        } catch (SQLite.Exception expected) {
         }
     }
 
@@ -407,10 +396,10 @@ public class OldStmtTest extends OldSQLiteTest {
             st.bind(2, 10);
             st.bind(3, 30);
             st.step();
-            fail("Test failes");
-        } catch (Exception e) {
+            fail();
+        } catch (SQLite.Exception expected) {
             // What happens if null is bound to non existing variable position
-            assertEquals("parameter position out of bounds" , e.getMessage());
+            assertEquals("parameter position out of bounds", expected.getMessage());
         }
 
         // functional tests
@@ -421,10 +410,10 @@ public class OldStmtTest extends OldSQLiteTest {
             st.bind(2, 10);
             st.bind(3, 30);
             st.step();
-            fail("Test failes");
-        } catch (Exception e) {
+            fail();
+        } catch (SQLite.Exception expected) {
             // What happens if null is bound to NON NULL field
-            assertEquals("SQL logic error or missing database", e.getMessage());
+            assertEquals("SQL logic error or missing database", expected.getMessage());
         }
 
         st.reset();
@@ -437,16 +426,18 @@ public class OldStmtTest extends OldSQLiteTest {
     public void testBind_zeroblob() {
         try {
             st.bind_zeroblob(1, 128);
-        } catch (Exception e) {
-            assertEquals("unsupported", e.getMessage());
+            fail();
+        } catch (SQLite.Exception expected) {
+            assertEquals("unsupported", expected.getMessage());
         }
     }
 
     public void testBind_parameter_count() throws Exception {
         try {
             st.bind_parameter_count();
-        } catch (Exception e) {
-            assertEquals("stmt already closed", e.getMessage());
+            fail();
+        } catch (SQLite.Exception expected) {
+            assertEquals("stmt already closed", expected.getMessage());
         }
 
         st = db.prepare("insert into " + DatabaseCreator.SIMPLE_TABLE1
@@ -464,8 +455,7 @@ public class OldStmtTest extends OldSQLiteTest {
             st.close();
             st.bind_parameter_count();
             fail("Exception expected");
-        } catch (Exception e) {
-            //ok
+        } catch (SQLite.Exception expected) {
         }
 
     }
@@ -474,8 +464,8 @@ public class OldStmtTest extends OldSQLiteTest {
         try {
             st.bind_parameter_name(1);
             fail("Exception expected");
-        } catch (Exception e) {
-            assertEquals("stmt already closed", e.getMessage());
+        } catch (SQLite.Exception expected) {
+            assertEquals("stmt already closed", expected.getMessage());
         }
 
         try {
@@ -486,8 +476,8 @@ public class OldStmtTest extends OldSQLiteTest {
             assertEquals(":three", st.bind_parameter_name(3));
             st.bind_parameter_name(4);
             fail();
-        } catch (Exception e) {
-            assertEquals("parameter position out of bounds",e.getMessage());
+        } catch (SQLite.Exception expected) {
+            assertEquals("parameter position out of bounds", expected.getMessage());
         }
     }
 
@@ -495,8 +485,8 @@ public class OldStmtTest extends OldSQLiteTest {
         try {
             st.bind_parameter_index("");
             fail("Exception expected");
-        } catch (Exception e) {
-            assertEquals("stmt already closed", e.getMessage());
+        } catch (SQLite.Exception expected) {
+            assertEquals("stmt already closed", expected.getMessage());
         }
 
         st = db.prepare("insert into " + DatabaseCreator.SIMPLE_TABLE1
@@ -513,12 +503,11 @@ public class OldStmtTest extends OldSQLiteTest {
     }
 
     public void testColumn_int() throws Exception {
-        db.exec(createAllTypes, null);
-        db.exec(insertAllTypes, null);
+        db.exec(CREATE_ALL_TYPES, null);
+        db.exec(INSERT_ALL_TYPES, null);
 
-        int columnObjectCastFromLong;
-        Object columnObject  = null;
-        int intColumn = 0;
+        Object columnObject;
+        int intColumn;
         String selectStmt = "select * from "+DatabaseCreator.SIMPLE_TABLE1;
 
         st = db.prepare(selectStmt);
@@ -534,22 +523,16 @@ public class OldStmtTest extends OldSQLiteTest {
         assertEquals( intColumn, stSpeed);
         assertEquals(10,stSpeed);
 
-        selectStmt = "select TextVal from "+allTypesTable;
+        selectStmt = "select TextVal from "+ ALL_TYPES_TABLE;
 
         st = db.prepare(selectStmt);
         st.step();
-        // select double value
-        try {
-            st.column_int(0);
-        } catch (Exception e) {
-            //ok
-        }
+        st.column_int(0);
     }
 
     public void testColumn_long() throws Exception {
-        Object columnObject  = null;
-        int columnObjectCastFromLong;
-        long longColumn = 0;
+        Object columnObject;
+        long longColumn;
         String selectStmt = "select * from "+DatabaseCreator.SIMPLE_TABLE1;
         st = db.prepare(selectStmt);
         st.step();
@@ -565,26 +548,25 @@ public class OldStmtTest extends OldSQLiteTest {
         try {
             st.column_long(4);
             fail("Exception expected");
-        } catch (Exception e) {
-            assertEquals( "column out of bounds" , e.getMessage());
+        } catch (SQLite.Exception expected) {
+            assertEquals("column out of bounds", expected.getMessage());
         }
 
         try {
             st.column_long(-1);
             fail("Exception expected");
-        } catch (Exception e) {
-            assertEquals( "column out of bounds" , e.getMessage());
+        } catch (SQLite.Exception expected) {
+            assertEquals("column out of bounds", expected.getMessage());
         }
     }
 
     public void testColumn_double() throws Exception {
-        db.exec(createAllTypes, null);
-        db.exec(insertAllTypes, null);
+        db.exec(CREATE_ALL_TYPES, null);
+        db.exec(INSERT_ALL_TYPES, null);
 
-        Object columnObject  = null;
-        double doubleColumn = 0;
+        double doubleColumn;
         double actualVal = 23.2;
-        String selectStmt = "select DoubleVal from "+allTypesTable;
+        String selectStmt = "select DoubleVal from "+ ALL_TYPES_TABLE;
 
         st = db.prepare(selectStmt);
         st.step();
@@ -597,16 +579,12 @@ public class OldStmtTest extends OldSQLiteTest {
         assertEquals( actualVal, doubleColumn);
 
         // Exception test
-        selectStmt = "select dateVal from "+allTypesTable;
+        selectStmt = "select dateVal from "+ ALL_TYPES_TABLE;
 
         st = db.prepare(selectStmt);
         st.step();
         // select double value
-        try {
-            st.column_double(0);
-        } catch (Exception e) {
-            //ok
-        }
+        st.column_double(0);
     }
 
     public void testColumn_bytes() throws Exception {
@@ -614,21 +592,16 @@ public class OldStmtTest extends OldSQLiteTest {
         db.exec("insert into B values(1, zeroblob(128))", null);
         st = db.prepare("select val from B where id = 1");
         assertTrue(st.step());
-        try {
-            st.column_bytes(0);
-        } catch (Exception e) {
-            assertEquals("unsupported", e.getMessage());
-        }
+        st.column_bytes(0);
     }
 
     public void testColumn_string() throws Exception {
-        db.exec(createAllTypes, null);
-        db.exec(insertAllTypes, null);
+        db.exec(CREATE_ALL_TYPES, null);
+        db.exec(INSERT_ALL_TYPES, null);
 
-        Object columnObject  = null;
-        String stringColumn = "";
+        String stringColumn;
         String actualVal = "test string";
-        String selectStmt = "select charStr from "+allTypesTable;
+        String selectStmt = "select charStr from "+ ALL_TYPES_TABLE;
 
         st = db.prepare(selectStmt);
         st.step();
@@ -641,29 +614,24 @@ public class OldStmtTest extends OldSQLiteTest {
         assertEquals( actualVal, stringColumn);
 
         // Exception test
-        selectStmt = "select DoubleVal from "+allTypesTable;
+        selectStmt = "select DoubleVal from "+ ALL_TYPES_TABLE;
 
         st = db.prepare(selectStmt);
         st.step();
-        // select double value
-        try {
-            st.column_string(0);
-        } catch (Exception e) {
-            //ok
-        }
+        st.column_string(0);
     }
 
     public void testColumn_type() throws Exception {
-        db.exec(createAllTypes, null);
-        db.exec(insertAllTypes, null);
-        st = db.prepare("select * from " + allTypesTable);
+        db.exec(CREATE_ALL_TYPES, null);
+        db.exec(INSERT_ALL_TYPES, null);
+        st = db.prepare("select * from " + ALL_TYPES_TABLE);
         st.step();
 
         // Exception test
         try {
             st.column_type(100);
-        } catch (Exception e) {
-            // ok
+            fail();
+        } catch (SQLite.Exception expected) {
         }
 
         /*
@@ -733,11 +701,10 @@ public class OldStmtTest extends OldSQLiteTest {
     }
 
     public void testColumn() throws Exception {
-        Object columnObject  = null;
-        int columnObjectCastFromLong;
-        int intColumn = 0;
+        Object columnObject;
+        int intColumn;
         String selectStmt = "select * from "+DatabaseCreator.SIMPLE_TABLE1;
-        TableResult res = db.get_table(selectStmt);
+        db.get_table(selectStmt);
         st = db.prepare(selectStmt);
         st.step();
         columnObject = st.column(1);
@@ -750,23 +717,23 @@ public class OldStmtTest extends OldSQLiteTest {
 
         try {
             assertNotNull(columnObject);
-            int dummy = ((Integer) columnObject).intValue();
+            ((Integer) columnObject).intValue();
             fail("Cast to Integer should fail");
-        } catch (ClassCastException e) {
+        } catch (ClassCastException expected) {
         }
 
         try {
             st.column(4);
             fail("Exception expected");
-        } catch (Exception e) {
-            assertEquals( "column out of bounds" , e.getMessage());
+        } catch (SQLite.Exception expected) {
+            assertEquals("column out of bounds", expected.getMessage());
         }
 
         try {
             st.column(-1);
             fail("Exception expected");
-        } catch (Exception e) {
-            assertEquals( "column out of bounds" , e.getMessage());
+        } catch (SQLite.Exception expected) {
+            assertEquals("column out of bounds", expected.getMessage());
         }
     }
 
@@ -775,8 +742,8 @@ public class OldStmtTest extends OldSQLiteTest {
             st = db.prepare("select * from " + DatabaseCreator.SIMPLE_TABLE1);
             st.column_table_name(1);
             fail("Function is now supported.");
-        } catch (Exception e) {
-            assertEquals("unsupported", e.getMessage());
+        } catch (SQLite.Exception expected) {
+            assertEquals("unsupported", expected.getMessage());
         }
     }
 
@@ -786,22 +753,22 @@ public class OldStmtTest extends OldSQLiteTest {
                     + " values (:one,:two,:three)");
             st.column_database_name(1);
             fail("Function is now supported.");
-        } catch (Exception e) {
-            assertEquals("unsupported", e.getMessage());
+        } catch (SQLite.Exception expected) {
+            assertEquals("unsupported", expected.getMessage());
         }
     }
 
     public void testColumn_decltype() throws Exception {
-        db.exec(createAllTypes, null);
-        db.exec(insertAllTypes, null);
-        st = db.prepare("select * from " + allTypesTable);
+        db.exec(CREATE_ALL_TYPES, null);
+        db.exec(INSERT_ALL_TYPES, null);
+        st = db.prepare("select * from " + ALL_TYPES_TABLE);
         st.step();
 
         // Exception test
         try {
             st.column_decltype(100);
-        } catch (Exception e) {
-            // ok
+            fail();
+        } catch (SQLite.Exception expected) {
         }
 
         assertTrue(st.column_decltype(0), "BOOLEAN".equalsIgnoreCase(st
@@ -849,8 +816,8 @@ public class OldStmtTest extends OldSQLiteTest {
             st = db.prepare("select * from " + DatabaseCreator.SIMPLE_TABLE1);
             st.column_origin_name(1);
             fail("Function is now supported.");
-        } catch (Exception e) {
-            assertEquals("unsupported", e.getMessage());
+        } catch (SQLite.Exception expected) {
+            assertEquals("unsupported", expected.getMessage());
         }
     }
 }
