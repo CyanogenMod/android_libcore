@@ -21,6 +21,9 @@ import java.util.List;
 import junit.framework.TestCase;
 
 public final class PackageTest extends TestCase {
+    /** assign packages immediately so that Class.getPackage() calls cannot side-effect it */
+    private static final List<Package> packages = Arrays.asList(Package.getPackages());
+
     public void test_getAnnotations() throws Exception {
         // Package annotations aren't supported, but pre-ICS we crashed.
         assertEquals(0, getClass().getPackage().getAnnotations().length);
@@ -33,8 +36,8 @@ public final class PackageTest extends TestCase {
         assertEquals(getClass().getPackage(), libcoreJavaLang);
     }
 
+    // http://b/5171136
     public void testGetPackages() {
-        List<Package> packages = Arrays.asList(Package.getPackages());
         assertTrue(packages.contains(getClass().getPackage()));
     }
 }
