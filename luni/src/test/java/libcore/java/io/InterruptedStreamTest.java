@@ -51,6 +51,7 @@ public final class InterruptedStreamTest extends TestCase {
             sockets[0].close();
             sockets[1].close();
         }
+        Thread.interrupted(); // clear interrupted bit
         super.tearDown();
     }
 
