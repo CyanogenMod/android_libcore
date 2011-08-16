@@ -3,6 +3,11 @@
  */
 [
 {
+  description: "Package.getPackages(), ClassLoader.getPackages() both omit results",
+  name: "libcore.java.lang.PackageTest#testGetPackages",
+  bug: 5171136
+},
+{
   description: "Deserialization shouldn't set transient fields",
   name: "libcore.java.io.SerializationTest#testSerializeFieldMadeTransient",
   bug: 4471249
