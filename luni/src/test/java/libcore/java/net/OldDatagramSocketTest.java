@@ -794,9 +794,8 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
 
         class TestDGRcv implements Runnable {
             public void run() {
-                InetAddress localHost = null;
                 try {
-                    localHost = InetAddress.getLocalHost();
+                    InetAddress localHost = InetAddress.getLocalHost();
                     Thread.sleep(1000);
                     DatagramSocket sds = new DatagramSocket(ports[1]);
                     DatagramPacket rdp = new DatagramPacket("Test String"
@@ -817,9 +816,8 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
             DatagramPacket rdp = new DatagramPacket(rbuf, rbuf.length);
             ds.receive(rdp);
             ds.close();
-            assertTrue("Send/Receive failed to return correct data: "
-                    + new String(rbuf, 0, 11), new String(rbuf, 0, 11)
-                    .equals("Test String"));
+            assertEquals("Send/Receive failed to return correct data: "
+                    + new String(rbuf, 0, 11), "Test String", new String(rbuf, 0, 11));
         } finally {
             ds.close();
         }
@@ -827,14 +825,12 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
         try {
             byte rbuf[] = new byte[1000];
             DatagramPacket rdp = new DatagramPacket(rbuf, rbuf.length);
-            SocketAddress address = new InetSocketAddress(portNumber);
             DatagramChannel channel = DatagramChannel.open();
             channel.configureBlocking(false);
             socket = channel.socket();
             socket.receive(rdp);
             fail("IllegalBlockingModeException was not thrown.");
-        } catch(IllegalBlockingModeException ibme) {
-            //expected
+        } catch(IllegalBlockingModeException expected) {
         } finally {
             socket.close();
         }
@@ -846,109 +842,89 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
             DatagramPacket rdp = new DatagramPacket(rbuf, rbuf.length);
             ds.receive(rdp);
             fail("SocketTimeoutException was not thrown.");
-        } catch(SocketTimeoutException te) {
-            //expected
+        } catch(SocketTimeoutException expected) {
         } finally {
             ds.close();
         }
 
+        interrupted = false;
+        final DatagramSocket ds = new DatagramSocket();
+        ds.setSoTimeout(12000);
+        Runnable runnable = new Runnable() {
+            public void run() {
+                try {
+                    ds.receive(new DatagramPacket(new byte[1], 1));
+                } catch (InterruptedIOException e) {
+                    interrupted = true;
+                } catch (IOException ignored) {
+                }
+            }
+        };
+        Thread thread = new Thread(runnable, "DatagramSocket.receive1");
+        thread.start();
+        do {
+            Thread.sleep(500);
+        } while (!thread.isAlive());
+        ds.close();
+        int c = 0;
+        do {
+            Thread.sleep(500);
+            if (interrupted) {
+                fail("received interrupt");
+            }
+            if (++c > 4) {
+                fail("read call did not exit");
+            }
+        } while (thread.isAlive());
 
-
+        interrupted = false;
+        final int portNum = ports[0];
+        final DatagramSocket ds2 = new DatagramSocket(ports[1]);
+        ds2.setSoTimeout(12000);
+        Runnable runnable2 = new Runnable() {
+            public void run() {
+                try {
+                    ds2.receive(new DatagramPacket(new byte[1], 1,
+                            InetAddress.getLocalHost(), portNum));
+                } catch (InterruptedIOException e) {
+                    interrupted = true;
+                } catch (IOException ignored) {
+                }
+            }
+        };
+        Thread thread2 = new Thread(runnable2, "DatagramSocket.receive2");
+        thread2.start();
         try {
-            interrupted = false;
-            final DatagramSocket ds = new DatagramSocket();
-            ds.setSoTimeout(12000);
-            Runnable runnable = new Runnable() {
-                public void run() {
-                    try {
-                        ds.receive(new DatagramPacket(new byte[1], 1));
-                    } catch (InterruptedIOException e) {
-                        interrupted = true;
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            };
-            Thread thread = new Thread(runnable, "DatagramSocket.receive1");
-            thread.start();
-            try {
-                do {
-                    Thread.sleep(500);
-                } while (!thread.isAlive());
-            } catch (InterruptedException e) {
-            }
-            ds.close();
-            int c = 0;
             do {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                }
-                if (interrupted) {
-                    fail("received interrupt");
-                }
-                if (++c > 4) {
-                    fail("read call did not exit");
-                }
-            } while (thread.isAlive());
-
-            interrupted = false;
-            int[] ports1 = Support_PortManager.getNextPortsForUDP(2);
-            final int portNum = ports[0];
-            final DatagramSocket ds2 = new DatagramSocket(ports[1]);
-            ds2.setSoTimeout(12000);
-            Runnable runnable2 = new Runnable() {
-                public void run() {
-                    try {
-                        ds2.receive(new DatagramPacket(new byte[1], 1,
-                                InetAddress.getLocalHost(), portNum));
-                    } catch (InterruptedIOException e) {
-                        interrupted = true;
-                    } catch (IOException e) {
-                    }
-                }
-            };
-            Thread thread2 = new Thread(runnable2, "DatagramSocket.receive2");
-            thread2.start();
-            try {
-                do {
-                    Thread.sleep(500);
-                } while (!thread2.isAlive());
-            } catch (InterruptedException e) {
-            }
-            ds2.close();
-            int c2 = 0;
-            do {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                }
-                if (interrupted) {
-                    fail("receive2 was interrupted");
-                }
-                if (++c2 > 4) {
-                    fail("read2 call did not exit");
-                }
-            } while (thread2.isAlive());
-
-            interrupted = false;
-            DatagramSocket ds3 = new DatagramSocket();
-            ds3.setSoTimeout(500);
-            Date start = new Date();
-            try {
-                ds3.receive(new DatagramPacket(new byte[1], 1));
-            } catch (InterruptedIOException e) {
-                interrupted = true;
-            }
-            ds3.close();
-            assertTrue("receive not interrupted", interrupted);
-            int delay = (int) (new Date().getTime() - start.getTime());
-            assertTrue("timeout too soon: " + delay, delay >= 490);
-        } catch (IOException e) {
-            fail("Unexpected IOException : " + e.getMessage());
+                Thread.sleep(500);
+            } while (!thread2.isAlive());
+        } catch (InterruptedException ignored) {
         }
+        ds2.close();
+        int c2 = 0;
+        do {
+            Thread.sleep(500);
+            if (interrupted) {
+                fail("receive2 was interrupted");
+            }
+            if (++c2 > 4) {
+                fail("read2 call did not exit");
+            }
+        } while (thread2.isAlive());
 
-
+        interrupted = false;
+        DatagramSocket ds3 = new DatagramSocket();
+        ds3.setSoTimeout(500);
+        Date start = new Date();
+        try {
+            ds3.receive(new DatagramPacket(new byte[1], 1));
+        } catch (InterruptedIOException e) {
+            interrupted = true;
+        }
+        ds3.close();
+        assertTrue("receive not interrupted", interrupted);
+        int delay = (int) (new Date().getTime() - start.getTime());
+        assertTrue("timeout too soon: " + delay, delay >= 490);
     }
 
     public void test_sendLjava_net_DatagramPacket() throws Exception {
@@ -978,10 +954,8 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
                     System.out.println("Recv operation timed out");
                     pThread.interrupt();
                     ds.close();
-                    return;
                 } catch (Exception e) {
-                    System.out
-                            .println("Failed to establish Dgram server: " + e);
+                    System.out.println("Failed to establish Dgram server: " + e);
                 }
             }
         }
