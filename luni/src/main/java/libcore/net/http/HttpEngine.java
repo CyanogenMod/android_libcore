@@ -218,7 +218,7 @@ public class HttpEngine {
          * headers may forbid network use. In that case, dispose of the network
          * response and use a BAD_GATEWAY response instead.
          */
-        if (requestHeaders.onlyIfCached && responseSource.requiresConnection()) {
+        if (requestHeaders.isOnlyIfCached() && responseSource.requiresConnection()) {
             if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
                 IoUtils.closeQuietly(cachedResponseBody);
             }
@@ -247,7 +247,7 @@ public class HttpEngine {
         }
 
         CacheResponse candidate = responseCache.get(uri, method,
-                requestHeaders.headers.toMultimap());
+                requestHeaders.getHeaders().toMultimap());
         if (candidate == null) {
             return;
         }
@@ -341,9 +341,9 @@ public class HttpEngine {
         } else if (sendChunked) {
             writeRequestHeaders(-1);
             requestBodyOut = new ChunkedOutputStream(requestOut, chunkLength);
-        } else if (requestHeaders.contentLength != -1) {
-            writeRequestHeaders(requestHeaders.contentLength);
-            requestBodyOut = new RetryableOutputStream(requestHeaders.contentLength);
+        } else if (requestHeaders.getContentLength() != -1) {
+            writeRequestHeaders(requestHeaders.getContentLength());
+            requestBodyOut = new RetryableOutputStream(requestHeaders.getContentLength());
         } else {
             requestBodyOut = new RetryableOutputStream();
         }
@@ -358,7 +358,7 @@ public class HttpEngine {
             throw new IllegalStateException();
         }
         this.responseHeaders = headers;
-        this.httpMinorVersion = responseHeaders.headers.getHttpMinorVersion();
+        this.httpMinorVersion = responseHeaders.getHeaders().getHttpMinorVersion();
         if (body != null) {
             initContentStream(body);
         }
@@ -397,7 +397,7 @@ public class HttpEngine {
         if (responseHeaders == null) {
             throw new IllegalStateException();
         }
-        return responseHeaders.headers.getResponseCode();
+        return responseHeaders.getHeaders().getResponseCode();
     }
 
     public final InputStream getResponseBody() {
@@ -527,9 +527,9 @@ public class HttpEngine {
             return new ChunkedInputStream(socketIn, cacheRequest, this);
         }
 
-        if (responseHeaders.contentLength != -1) {
+        if (responseHeaders.getContentLength() != -1) {
             return new FixedLengthInputStream(socketIn, cacheRequest, this,
-                    responseHeaders.contentLength);
+                    responseHeaders.getContentLength());
         }
 
         /*
@@ -555,7 +555,7 @@ public class HttpEngine {
      * See RFC 2616 section 4.3.
      */
     public final boolean hasResponseBody() {
-        int responseCode = responseHeaders.headers.getResponseCode();
+        int responseCode = responseHeaders.getHeaders().getResponseCode();
         if (method != HEAD
                 && method != CONNECT
                 && (responseCode < HTTP_CONTINUE || responseCode >= 200)
@@ -569,7 +569,7 @@ public class HttpEngine {
          * response code, the response is malformed. For best compatibility, we
          * honor the headers.
          */
-        if (responseHeaders.contentLength != -1 || responseHeaders.isChunked()) {
+        if (responseHeaders.getContentLength() != -1 || responseHeaders.isChunked()) {
             return true;
         }
 
@@ -581,7 +581,7 @@ public class HttpEngine {
      * with chunked encoding.
      */
     final void readTrailers() throws IOException {
-        readHeaders(responseHeaders.headers);
+        readHeaders(responseHeaders.getHeaders());
     }
 
     private void readHeaders(RawHeaders headers) throws IOException {
@@ -638,7 +638,7 @@ public class HttpEngine {
      * the connection is using a proxy.
      */
     protected RawHeaders getNetworkRequestHeaders() throws IOException {
-        requestHeaders.headers.setStatusLine(getRequestLine());
+        requestHeaders.getHeaders().setStatusLine(getRequestLine());
 
         int fixedContentLength = policy.getFixedContentLength();
         if (fixedContentLength != -1) {
@@ -650,7 +650,7 @@ public class HttpEngine {
             requestHeaders.setContentLength(contentLength);
         }
 
-        return requestHeaders.headers;
+        return requestHeaders.getHeaders();
     }
 
     /**
@@ -660,26 +660,26 @@ public class HttpEngine {
      * doesn't know what content types the application is interested in.
      */
     private void prepareRawRequestHeaders() throws IOException {
-        requestHeaders.headers.setStatusLine(getRequestLine());
+        requestHeaders.getHeaders().setStatusLine(getRequestLine());
 
-        if (requestHeaders.userAgent == null) {
+        if (requestHeaders.getUserAgent() == null) {
             requestHeaders.setUserAgent(getDefaultUserAgent());
         }
 
-        if (requestHeaders.host == null) {
+        if (requestHeaders.getHost() == null) {
             requestHeaders.setHost(getOriginAddress(policy.getURL()));
         }
 
-        if (httpMinorVersion > 0 && requestHeaders.connection == null) {
+        if (httpMinorVersion > 0 && requestHeaders.getConnection() == null) {
             requestHeaders.setConnection("Keep-Alive");
         }
 
-        if (requestHeaders.acceptEncoding == null) {
+        if (requestHeaders.getAcceptEncoding() == null) {
             transparentGzip = true;
             requestHeaders.setAcceptEncoding("gzip");
         }
 
-        if (hasRequestBody() && requestHeaders.contentType == null) {
+        if (hasRequestBody() && requestHeaders.getContentType() == null) {
             requestHeaders.setContentType("application/x-www-form-urlencoded");
         }
 
@@ -690,7 +690,8 @@ public class HttpEngine {
 
         CookieHandler cookieHandler = CookieHandler.getDefault();
         if (cookieHandler != null) {
-            requestHeaders.addCookies(cookieHandler.get(uri, requestHeaders.headers.toMultimap()));
+            requestHeaders.addCookies(
+                    cookieHandler.get(uri, requestHeaders.getHeaders().toMultimap()));
         }
     }
 

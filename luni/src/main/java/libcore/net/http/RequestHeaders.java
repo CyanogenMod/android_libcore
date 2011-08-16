@@ -24,15 +24,15 @@ import java.util.Map;
 /**
  * Parsed HTTP request headers.
  */
-final class RequestHeaders {
-    final URI uri;
-    final RawHeaders headers;
+public final class RequestHeaders {
+    private final URI uri;
+    private final RawHeaders headers;
 
     /** Don't use a cache to satisfy this request. */
-    boolean noCache;
-    int maxAgeSeconds = -1;
-    int maxStaleSeconds = -1;
-    int minFreshSeconds = -1;
+    private boolean noCache;
+    private int maxAgeSeconds = -1;
+    private int maxStaleSeconds = -1;
+    private int minFreshSeconds = -1;
 
     /**
      * This field's name "only-if-cached" is misleading. It actually means "do
@@ -41,25 +41,25 @@ final class RequestHeaders {
      * would require validation (ie. conditional gets) are not permitted if this
      * header is set.
      */
-    boolean onlyIfCached;
+    private boolean onlyIfCached;
 
     /**
      * True if the request contains an authorization field. Although this isn't
      * necessarily a shared cache, it follows the spec's strict requirements for
      * shared caches.
      */
-    boolean hasAuthorization;
+    private boolean hasAuthorization;
 
-    int contentLength = -1;
-    String transferEncoding;
-    String userAgent;
-    String host;
-    String connection;
-    String acceptEncoding;
-    String contentType;
-    String ifModifiedSince;
-    String ifNoneMatch;
-    String proxyAuthorization;
+    private int contentLength = -1;
+    private String transferEncoding;
+    private String userAgent;
+    private String host;
+    private String connection;
+    private String acceptEncoding;
+    private String contentType;
+    private String ifModifiedSince;
+    private String ifNoneMatch;
+    private String proxyAuthorization;
 
     public RequestHeaders(URI uri, RawHeaders headers) {
         this.uri = uri;
@@ -125,6 +125,78 @@ final class RequestHeaders {
 
     public boolean hasConnectionClose() {
         return "close".equalsIgnoreCase(connection);
+    }
+
+    public URI getUri() {
+        return uri;
+    }
+
+    public RawHeaders getHeaders() {
+        return headers;
+    }
+
+    public boolean isNoCache() {
+        return noCache;
+    }
+
+    public int getMaxAgeSeconds() {
+        return maxAgeSeconds;
+    }
+
+    public int getMaxStaleSeconds() {
+        return maxStaleSeconds;
+    }
+
+    public int getMinFreshSeconds() {
+        return minFreshSeconds;
+    }
+
+    public boolean isOnlyIfCached() {
+        return onlyIfCached;
+    }
+
+    public boolean hasAuthorization() {
+        return hasAuthorization;
+    }
+
+    public int getContentLength() {
+        return contentLength;
+    }
+
+    public String getTransferEncoding() {
+        return transferEncoding;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public String getConnection() {
+        return connection;
+    }
+
+    public String getAcceptEncoding() {
+        return acceptEncoding;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public String getIfModifiedSince() {
+        return ifModifiedSince;
+    }
+
+    public String getIfNoneMatch() {
+        return ifNoneMatch;
+    }
+
+    public String getProxyAuthorization() {
+        return proxyAuthorization;
     }
 
     public void setChunked() {

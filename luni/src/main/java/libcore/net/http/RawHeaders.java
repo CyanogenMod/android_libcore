@@ -42,7 +42,7 @@ import java.util.TreeMap;
  * <p>This class trims whitespace from values. It never returns values with
  * leading or trailing whitespace.
  */
-final class RawHeaders {
+public final class RawHeaders {
     private static final Comparator<String> FIELD_NAME_COMPARATOR = new Comparator<String>() {
         @FindBugsSuppressWarnings("ES_COMPARING_PARAMETER_STRING_WITH_EQ")
         @Override public int compare(String a, String b) {
