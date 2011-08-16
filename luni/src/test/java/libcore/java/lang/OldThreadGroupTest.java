@@ -162,25 +162,32 @@ public class OldThreadGroupTest extends TestCase implements Thread.UncaughtExcep
     }
 
     public void test_enumerateLThreadGroupArray() {
-        int numGroupThreads = initialThreadGroup.activeGroupCount();
-        assertTrue(initialThreadGroup.toString(), numGroupThreads > 0);
-        ThreadGroup[] listOfGroups = new ThreadGroup[numGroupThreads];
+        int numChildGroupsBefore = initialThreadGroup.activeGroupCount();
+        ThreadGroup childGroup = new ThreadGroup(initialThreadGroup, "child group");
+
+        int numChildGroupsAfter = initialThreadGroup.activeGroupCount();
+        assertTrue(initialThreadGroup.toString(), numChildGroupsAfter == numChildGroupsBefore + 1);
+        ThreadGroup[] listOfGroups = new ThreadGroup[numChildGroupsAfter];
 
         int countGroupThread = initialThreadGroup.enumerate(listOfGroups);
-        assertEquals(numGroupThreads, countGroupThread);
+        assertEquals(numChildGroupsAfter, countGroupThread);
+        assertTrue(Arrays.asList(listOfGroups).contains(childGroup));
 
-        ThreadGroup[] listOfGroups1 = new ThreadGroup[numGroupThreads + 1];
+        ThreadGroup[] listOfGroups1 = new ThreadGroup[numChildGroupsAfter + 1];
         countGroupThread = initialThreadGroup.enumerate(listOfGroups1);
-        assertEquals(numGroupThreads, countGroupThread);
+        assertEquals(numChildGroupsAfter, countGroupThread);
         assertNull(listOfGroups1[listOfGroups1.length - 1]);
 
-        ThreadGroup[] listOfGroups2 = new ThreadGroup[numGroupThreads - 1];
+        ThreadGroup[] listOfGroups2 = new ThreadGroup[numChildGroupsAfter - 1];
         countGroupThread = initialThreadGroup.enumerate(listOfGroups2);
-        assertEquals(numGroupThreads - 1, countGroupThread);
+        assertEquals(numChildGroupsAfter - 1, countGroupThread);
 
         ThreadGroup thrGroup1 = new ThreadGroup("Test Group 1");
         countGroupThread = thrGroup1.enumerate(listOfGroups);
         assertEquals(0, countGroupThread);
+
+        childGroup.destroy();
+        assertTrue(initialThreadGroup.activeGroupCount() == numChildGroupsBefore + 1);
      }
 
     public void test_enumerateLThreadGroupArrayLZ() {
