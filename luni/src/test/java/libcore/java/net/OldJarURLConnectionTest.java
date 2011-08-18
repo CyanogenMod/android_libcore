@@ -257,9 +257,11 @@ public class OldJarURLConnectionTest extends junit.framework.TestCase {
         juc = (JarURLConnection) u.openConnection();
         assertTrue("Returned incorrect file URL", juc.getJarFileURL().equals(
                 fileURL));
-        // Regression test for harmony-3053
+
         URL url = new URL("jar:file:///bar.jar!/foo.jar!/Bugs/HelloWorld.class");
-        assertEquals("file:/bar.jar",((JarURLConnection)url.openConnection()).getJarFileURL().toString());
+        String jarFileUrl = ((JarURLConnection) url.openConnection()).getJarFileURL().toString();
+        // The RI omits the empty authority "//" but the RFC doesn't say this is necessary
+        assertTrue(jarFileUrl.equals("file:///bar.jar") || jarFileUrl.equals("file:/bar.jar"));
     }
 
     public void test_getMainAttributes() throws Exception {
