@@ -199,7 +199,7 @@ public class Manifest implements Cloneable {
         if (is instanceof ByteArrayInputStream) {
             buf = exposeByteArrayInputStreamBytes((ByteArrayInputStream) is);
         } else {
-            buf = Streams.readFully(is);
+            buf = Streams.readFullyNoClose(is);
         }
 
         if (buf.length == 0) {

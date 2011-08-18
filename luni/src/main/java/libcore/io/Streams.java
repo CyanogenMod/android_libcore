@@ -92,16 +92,23 @@ public final class Streams {
      */
     public static byte[] readFully(InputStream in) throws IOException {
         try {
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int count;
-            while ((count = in.read(buffer)) != -1) {
-                bytes.write(buffer, 0, count);
-            }
-            return bytes.toByteArray();
+            return readFullyNoClose(in);
         } finally {
             in.close();
         }
+    }
+
+    /**
+     * Returns a byte[] containing the remainder of 'in'.
+     */
+    public static byte[] readFullyNoClose(InputStream in) throws IOException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int count;
+        while ((count = in.read(buffer)) != -1) {
+            bytes.write(buffer, 0, count);
+        }
+        return bytes.toByteArray();
     }
 
     /**
