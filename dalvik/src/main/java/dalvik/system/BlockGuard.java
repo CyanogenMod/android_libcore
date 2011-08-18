@@ -57,7 +57,7 @@ public final class BlockGuard {
         void onWriteToDisk();
 
         /**
-         * Called on disk writes.
+         * Called on disk reads.
          */
         void onReadFromDisk();
 
