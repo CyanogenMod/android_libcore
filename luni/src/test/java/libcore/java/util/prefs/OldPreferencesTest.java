@@ -17,7 +17,6 @@
 package libcore.java.util.prefs;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.prefs.BackingStoreException;
@@ -34,44 +33,37 @@ public final class OldPreferencesTest extends TestCase {
     final static String longValue;
 
     static {
-        StringBuffer key = new StringBuffer(Preferences.MAX_KEY_LENGTH);
+        StringBuilder key = new StringBuilder(Preferences.MAX_KEY_LENGTH);
         for (int i = 0; i < Preferences.MAX_KEY_LENGTH; i++) {
             key.append('a');
         }
         longKey = key.toString();
 
-        StringBuffer value = new StringBuffer(Preferences.MAX_VALUE_LENGTH);
+        StringBuilder value = new StringBuilder(Preferences.MAX_VALUE_LENGTH);
         for (int i = 0; i < Preferences.MAX_VALUE_LENGTH; i++) {
             value.append('a');
         }
         longValue = value.toString();
     }
 
-    public void testAbstractMethods() {
+    @Override protected void setUp() throws Exception {
+        super.setUp();
+
+        Preferences pref = Preferences.userNodeForPackage(Preferences.class);
+        for (String child : pref.childrenNames()) {
+            pref.node(child).removeNode();
+        }
+        pref.clear();
+    }
+
+    public void testAbstractMethods() throws IOException, BackingStoreException {
         Preferences p = new MockPreferences();
         p.absolutePath();
-        try {
-            p.childrenNames();
-        } catch (BackingStoreException e4) {
-        }
-        try {
-            p.clear();
-        } catch (BackingStoreException e5) {
-        }
-        try {
-            p.exportNode(null);
-        } catch (IOException e6) {
-        } catch (BackingStoreException e6) {
-        }
-        try {
-            p.exportSubtree(null);
-        } catch (IOException e7) {
-        } catch (BackingStoreException e7) {
-        }
-        try {
-            p.flush();
-        } catch (BackingStoreException e8) {
-        }
+        p.childrenNames();
+        p.clear();
+        p.exportNode(null);
+        p.exportSubtree(null);
+        p.flush();
         p.get(null, null);
         p.getBoolean(null, false);
         p.getByteArray(null, null);
@@ -80,16 +72,10 @@ public final class OldPreferencesTest extends TestCase {
         p.getInt(null, 1);
         p.getLong(null, 1l);
         p.isUserNode();
-        try {
-            p.keys();
-        } catch (BackingStoreException e) {
-        }
+        p.keys();
         p.name();
         p.node(null);
-        try {
-            p.nodeExists(null);
-        } catch (BackingStoreException e1) {
-        }
+        p.nodeExists(null);
         p.parent();
         p.put(null, null);
         p.putBoolean(null, false);
@@ -99,18 +85,12 @@ public final class OldPreferencesTest extends TestCase {
         p.putInt(null, 1);
         p.putLong(null, 1l);
         p.remove(null);
-        try {
-            p.removeNode();
-        } catch (BackingStoreException e2) {
-        }
+        p.removeNode();
         p.addNodeChangeListener(null);
         p.addPreferenceChangeListener(null);
         p.removeNodeChangeListener(null);
         p.removePreferenceChangeListener(null);
-        try {
-            p.sync();
-        } catch (BackingStoreException e3) {
-        }
+        p.sync();
         p.toString();
     }
 
@@ -176,7 +156,7 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.get(null, "abc");
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         pref.get("", "abc");
         pref.get("key", null);
@@ -188,12 +168,12 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.get("key", "abc");
             fail();
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException expected) {
         }
         try {
             pref.get(null, "abc");
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
     }
 
@@ -202,7 +182,7 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.getBoolean(null, false);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
 
         pref.put("testGetBooleanKey", "false");
@@ -216,7 +196,7 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.getByteArray(null, new byte[0]);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         byte[] b64Array = new byte[] { 0x59, 0x57, 0x4a, 0x6a };// BASE64
 
@@ -243,7 +223,7 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.getDouble(null, 0);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
 
         pref.put("testGetDoubleKey", "1");
@@ -261,7 +241,7 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.getFloat(null, 0f);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         pref.put("testGetFloatKey", "1");
         pref.put("testGetFloatKey2", "value");
@@ -274,7 +254,7 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.getInt(null, 0);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
 
         pref.put("testGetIntKey", "1");
@@ -288,7 +268,7 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.getLong(null, 0);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
 
         pref.put("testGetLongKey", "1");
@@ -316,9 +296,9 @@ public final class OldPreferencesTest extends TestCase {
 
         String[] keys = pref.keys();
         assertEquals(4, keys.length);
-        for (int i = 0; i < keys.length; i++) {
-            assertEquals(0, keys[i].indexOf("key"));
-            assertEquals(4, keys[i].length());
+        for (String key : keys) {
+            assertEquals(0, key.indexOf("key"));
+            assertEquals(4, key.length());
         }
     }
 
@@ -329,7 +309,7 @@ public final class OldPreferencesTest extends TestCase {
     }
 
     public void testNode() throws BackingStoreException {
-        StringBuffer name = new StringBuffer(Preferences.MAX_NAME_LENGTH);
+        StringBuilder name = new StringBuilder(Preferences.MAX_NAME_LENGTH);
         for (int i = 0; i < Preferences.MAX_NAME_LENGTH; i++) {
             name.append('a');
         }
@@ -343,22 +323,22 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.node(null);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         try {
             pref.node("/java/util/prefs/");
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         try {
             pref.node("/java//util/prefs");
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         try {
             pref.node(longName + "a");
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         assertNotNull(pref.node(longName));
 
@@ -379,17 +359,17 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.nodeExists(null);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         try {
             pref.nodeExists("/java/util/prefs/");
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         try {
             pref.nodeExists("/java//util/prefs");
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
 
         assertTrue(pref.nodeExists("/"));
@@ -436,52 +416,51 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.put(null, "value");
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         try {
             pref.put("key", null);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         pref.put(longKey, longValue);
         try {
             pref.put(longKey + 1, longValue);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         try {
             pref.put(longKey, longValue + 1);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
 
         pref.removeNode();
         try {
             pref.put(longKey, longValue + 1);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
 
         try {
             pref.put(longKey, longValue);
             fail();
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException expected) {
         }
     }
 
     public void testPutBoolean() {
-        Preferences pref = Preferences
-        .userNodeForPackage(Preferences.class);
+        Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         try {
             pref.putBoolean(null, false);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         pref.putBoolean(longKey, false);
         try {
             pref.putBoolean(longKey + "a", false);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         pref.putBoolean("testPutBooleanKey", false);
         assertEquals("false", pref.get("testPutBooleanKey", null));
@@ -494,13 +473,13 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.putDouble(null, 3);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         pref.putDouble(longKey, 3);
         try {
             pref.putDouble(longKey + "a", 3);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         pref.putDouble("testPutDoubleKey", 3);
         assertEquals("3.0", pref.get("testPutDoubleKey", null));
@@ -508,18 +487,17 @@ public final class OldPreferencesTest extends TestCase {
     }
 
     public void testPutFloat() {
-        Preferences pref = Preferences
-        .userNodeForPackage(Preferences.class);
+        Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         try {
             pref.putFloat(null, 3f);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         pref.putFloat(longKey, 3f);
         try {
             pref.putFloat(longKey + "a", 3f);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         pref.putFloat("testPutFloatKey", 3f);
         assertEquals("3.0", pref.get("testPutFloatKey", null));
@@ -527,18 +505,17 @@ public final class OldPreferencesTest extends TestCase {
     }
 
     public void testPutInt() {
-        Preferences pref = Preferences
-        .userNodeForPackage(Preferences.class);
+        Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         try {
             pref.putInt(null, 3);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         pref.putInt(longKey, 3);
         try {
             pref.putInt(longKey + "a", 3);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         pref.putInt("testPutIntKey", 3);
         assertEquals("3", pref.get("testPutIntKey", null));
@@ -546,18 +523,17 @@ public final class OldPreferencesTest extends TestCase {
     }
 
     public void testPutLong() {
-        Preferences pref = Preferences
-        .userNodeForPackage(Preferences.class);
+        Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         try {
             pref.putLong(null, 3L);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         pref.putLong(longKey, 3L);
         try {
             pref.putLong(longKey + "a", 3L);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         pref.putLong("testPutLongKey", 3L);
         assertEquals("3", pref.get("testPutLongKey", null));
@@ -565,24 +541,23 @@ public final class OldPreferencesTest extends TestCase {
     }
 
     public void testPutByteArray() {
-        Preferences pref = Preferences
-        .userNodeForPackage(Preferences.class);
+        Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         try {
             pref.putByteArray(null, new byte[0]);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
         try {
             pref.putByteArray("testPutByteArrayKey4", null);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
 
         pref.putByteArray(longKey, new byte[0]);
         try {
             pref.putByteArray(longKey + "a", new byte[0]);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         byte[] longArray = new byte[(int) (Preferences.MAX_VALUE_LENGTH * 0.74)];
         byte[] longerArray = new byte[(int) (Preferences.MAX_VALUE_LENGTH * 0.75) + 1];
@@ -590,7 +565,7 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.putByteArray(longKey, longerArray);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
 
         pref.putByteArray("testPutByteArrayKey", new byte[0]);
@@ -619,14 +594,14 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.remove(null);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
 
         pref.removeNode();
         try {
             pref.remove("key");
             fail();
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException expected) {
         }
     }
 
@@ -650,12 +625,10 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.addNodeChangeListener(null);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
 
         Preferences child1 = null;
-        Preferences child2 = null;
-        Preferences child3 = null;
 
         MockNodeChangeListener nl = null;
         // To get existed node doesn't create the change event
@@ -666,7 +639,7 @@ public final class OldPreferencesTest extends TestCase {
             nl.waitForEvent();
             assertEquals(1, nl.getAdded());
             nl.reset();
-            child2 = pref.node("mock1");
+            pref.node("mock1");
             nl.waitForEvent();
             assertEquals(0, nl.getAdded());
             nl.reset();
@@ -716,11 +689,12 @@ public final class OldPreferencesTest extends TestCase {
         }
         // test add/remove indirect children, or remove several children at the
         // same time
+        Preferences child3;
         try {
             nl = new MockNodeChangeListener();
             child1 = pref.node("mock4");
             child1.addNodeChangeListener(nl);
-            child2 = pref.node("mock4/mock5");
+            pref.node("mock4/mock5");
             nl.waitForEvent();
             assertEquals(1, nl.getAdded());
             nl.reset();
@@ -734,7 +708,7 @@ public final class OldPreferencesTest extends TestCase {
             assertEquals(0, nl.getRemoved());
             nl.reset();
 
-            child3 = pref.node("mock4/mock7");
+            pref.node("mock4/mock7");
             nl.waitForEvent();
             assertEquals(1, nl.getAdded());
             nl.reset();
@@ -746,20 +720,19 @@ public final class OldPreferencesTest extends TestCase {
         } finally {
             try {
                 child1.removeNode();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
-
     }
 
-    public void testAddPreferenceChangeListener() {
+    public void testAddPreferenceChangeListener() throws Exception {
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         MockPreferenceChangeListener pl = null;
 
         try {
             pref.addPreferenceChangeListener(null);
             fail();
-        } catch (NullPointerException e) {
+        } catch (NullPointerException expected) {
         }
 
         // To get existed node doesn't create the change event
@@ -845,7 +818,7 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.removeNodeChangeListener(null);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         MockNodeChangeListener l1 = new MockNodeChangeListener();
         MockNodeChangeListener l2 = new MockNodeChangeListener();
@@ -857,12 +830,12 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.removeNodeChangeListener(l1);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         try {
             pref.removeNodeChangeListener(l2);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
     }
 
@@ -871,7 +844,7 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.removePreferenceChangeListener(null);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         MockPreferenceChangeListener l1 = new MockPreferenceChangeListener();
         MockPreferenceChangeListener l2 = new MockPreferenceChangeListener();
@@ -880,54 +853,16 @@ public final class OldPreferencesTest extends TestCase {
         try {
             pref.removePreferenceChangeListener(l2);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
         pref.removePreferenceChangeListener(l1);
         pref.removePreferenceChangeListener(l1);
         try {
             pref.removePreferenceChangeListener(l1);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException expected) {
         }
 
-    }
-
-    static class MockInputStream extends InputStream {
-
-        static final int normal = 0;
-
-        static final int exception = 1;
-
-        static final int runtimeException = 2;
-
-        int result = normal;
-
-        InputStream wrapper;
-
-        public void setResult(int i) {
-            result = i;
-        }
-
-        private void checkException() throws IOException {
-            switch (result) {
-            case normal:
-                return;
-            case exception:
-                throw new IOException("test");
-            case runtimeException:
-                throw new RuntimeException("test");
-            }
-        }
-
-        public MockInputStream(InputStream in) {
-            wrapper = in;
-        }
-
-        @Override
-        public int read() throws IOException {
-            checkException();
-            return wrapper.read();
-        }
     }
 
     static class MockNodeChangeListener implements NodeChangeListener {
@@ -937,7 +872,7 @@ public final class OldPreferencesTest extends TestCase {
         public synchronized void waitForEvent() {
             try {
                 wait(500);
-            } catch (InterruptedException expected) {
+            } catch (InterruptedException ignored) {
             }
         }
 
@@ -974,9 +909,9 @@ public final class OldPreferencesTest extends TestCase {
             for (int i = 0; i < count; i++) {
                 try {
                     synchronized (this) {
-                        this.wait(500);
+                        wait(500);
                     }
-                } catch (InterruptedException expected) {
+                } catch (InterruptedException ignored) {
                 }
             }
         }
@@ -987,27 +922,19 @@ public final class OldPreferencesTest extends TestCase {
             notifyAll();
         }
 
-        public boolean getResult() {
+        public boolean getResult() throws InterruptedException {
             if (!addDispatched) {
-                try {
-                    // TODO: don't know why must add limitation
-                    this.wait(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                // TODO: don't know why must add limitation
+                wait(100);
             }
             addDispatched = false;
             return result;
         }
 
-        public synchronized int getChanged() {
+        public synchronized int getChanged() throws InterruptedException {
             if (!addDispatched) {
-                try {
-                    // TODO: don't know why must add limitation
-                    this.wait(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                // TODO: don't know why must add limitation
+                wait(1000);
             }
             addDispatched = false;
             return changed;
