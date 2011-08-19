@@ -109,7 +109,7 @@ public final class HttpResponseCacheTest extends TestCase {
         assertCached(true,  203);
         assertCached(false, 204);
         assertCached(false, 205);
-        assertCached(true,  206);
+        assertCached(false, 206); // we don't cache partial responses
         assertCached(false, 207);
         assertCached(true,  300);
         assertCached(true,  301);
