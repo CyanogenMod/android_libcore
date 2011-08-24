@@ -353,6 +353,9 @@ public abstract class CipherSpi {
             input.get(bInput);
             bOutput = engineUpdate(bInput, 0, limit - position);
         }
+        if (bOutput == null) {
+            return 0;
+        }
         if (output.remaining() < bOutput.length) {
             throw new ShortBufferException("output buffer too small");
         }
