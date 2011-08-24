@@ -41,6 +41,14 @@
 {
   description: "Dalvik doesn't support XML Schemas, DTDs or validation",
   bug: 3268630,
+  names: [
+    "tests.org.w3c.dom.HCNotationsRemoveNamedItemNS#testRemoveNamedItemNS",
+    "tests.org.w3c.dom.HCNotationsSetNamedItemNS#testNotationsSetNamedItemNS"
+  ]
+},
+{
+  description: "Dalvik doesn't support XML Schemas, DTDs or validation",
+  bug: 3268630,
   name: "libcore.xml.DeclarationTest#testGetXmlEncoding",
   substring: "This implementation doesn't parse the encoding from the XML declaration"
 },
