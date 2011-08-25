@@ -570,6 +570,11 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
                 throw new SocketException("Socket is not connected");
             }
         }
+
+        @Override
+        public FileDescriptor getFileDescriptor$() {
+            return socketImpl.getFD$();
+        }
     }
 
     /*
