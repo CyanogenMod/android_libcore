@@ -3,6 +3,16 @@
  */
 [
 {
+ description: "javasqlite doesn't honor query timeouts",
+ bug: 5213614,
+ names: [
+   "libcore.sqlite.QueryTimeoutTest#testExecuteUpdate",
+   "libcore.sqlite.QueryTimeoutTest#testPreparedStatementFetch",
+   "libcore.sqlite.QueryTimeoutTest#testPreparedStatementUpdate",
+   "libcore.sqlite.QueryTimeoutTest#testTimeoutAndStatementReuse"
+  ]
+},
+{
   description: "Dalvik doesn't support XML Schemas, DTDs or validation",
   bug: 3268630,
   name: "libcore.xml.DomTest#testEntityDeclarations",
