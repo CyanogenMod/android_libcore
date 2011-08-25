@@ -15,9 +15,9 @@ endef
 #
 # $(1): directory for search (to support use from frameworks/base)
 define libcore_to_document
- $(call libcoredoc-all-java-files-under,$(1),
+ $(call libcoredoc-all-java-files-under,$(1), \
    dalvik/src/main/java/dalvik/system/ -maxdepth 1) \
- $(call libcoredoc-all-java-files-under,$(1),
+ $(call libcoredoc-all-java-files-under,$(1), \
    dalvik/src/main/java/dalvik/annotation \
    dalvik/src/main/java/dalvik/bytecode \
    json/src/main/java \
