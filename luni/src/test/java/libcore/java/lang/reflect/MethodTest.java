@@ -158,6 +158,45 @@ public final class MethodTest extends TestCase {
         }
     }
 
+    public void testImplementedInterfaceMethodOfAnonymousClass() throws Exception {
+        Object anonymous = new InterfaceA() {
+            @Override public void a() {
+            }
+        };
+        Method method = anonymous.getClass().getMethod("a");
+        assertEquals(anonymous.getClass(), method.getDeclaringClass());
+    }
+
+    public void testPublicMethodOfAnonymousClass() throws Exception {
+        Object anonymous = new Object() {
+            public void a() {
+            }
+        };
+        Method method = anonymous.getClass().getMethod("a");
+        assertEquals(anonymous.getClass(), method.getDeclaringClass());
+    }
+
+    public void testGetMethodDoesNotReturnPrivateMethodOfAnonymousClass() throws Exception {
+        Object anonymous = new Object() {
+            private void a() {
+            }
+        };
+        try {
+            anonymous.getClass().getMethod("a");
+            fail();
+        } catch (NoSuchMethodException expected) {
+        }
+    }
+
+    public void testGetDeclaredMethodReturnsPrivateMethodOfAnonymousClass() throws Exception {
+        Object anonymous = new Object() {
+            private void a() {
+            }
+        };
+        Method method = anonymous.getClass().getDeclaredMethod("a");
+        assertEquals(anonymous.getClass(), method.getDeclaringClass());
+    }
+
     public static class MethodTestHelper {
         public void m1() throws IndexOutOfBoundsException { }
         public void m2(Object o) { }
