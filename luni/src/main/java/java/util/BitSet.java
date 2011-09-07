@@ -85,7 +85,7 @@ public class BitSet implements Serializable, Cloneable {
      */
     public BitSet(int bitCount) {
         if (bitCount < 0) {
-            throw new NegativeArraySizeException();
+            throw new NegativeArraySizeException(Integer.toString(bitCount));
         }
         this.bits = arrayForBits(bitCount);
         this.longCount = 0;
