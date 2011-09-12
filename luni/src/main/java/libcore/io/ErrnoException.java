@@ -18,7 +18,6 @@ package libcore.io;
 
 import java.io.IOException;
 import java.net.SocketException;
-import libcore.io.OsConstants;
 
 /**
  * A checked exception thrown when {@link Os} methods fail. This exception contains the native
@@ -61,8 +60,6 @@ public final class ErrnoException extends Exception {
     }
 
     public SocketException rethrowAsSocketException() throws SocketException {
-        SocketException newException = new SocketException(getMessage());
-        newException.initCause(this);
-        throw newException;
+        throw new SocketException(getMessage(), this);
     }
 }

@@ -28,7 +28,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.PortUnreachableException;
-import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketOptions;
@@ -36,10 +35,8 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import libcore.io.ErrnoException;
-import libcore.io.Libcore;
-import libcore.util.MutableInt;
 import static libcore.io.OsConstants.*;
+import libcore.util.MutableInt;
 
 /**
  * Implements java.io/java.net/java.nio semantics in terms of the underlying POSIX system calls.
@@ -52,7 +49,7 @@ public final class IoBridge {
     public static int available(FileDescriptor fd) throws IOException {
         try {
             MutableInt available = new MutableInt(0);
-            int rc = Libcore.os.ioctlInt(fd, FIONREAD, available);
+            Libcore.os.ioctlInt(fd, FIONREAD, available);
             if (available.value < 0) {
                 // If the fd refers to a regular file, the result is the difference between
                 // the file size and the file position. This may be negative if the position
@@ -188,7 +185,7 @@ public final class IoBridge {
     }
 
     public static boolean isConnected(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs, int remainingTimeoutMs) throws IOException {
-        ErrnoException cause = null;
+        ErrnoException cause;
         try {
             StructPollfd[] pollFds = new StructPollfd[] { new StructPollfd() };
             pollFds[0].fd = fd;
@@ -394,7 +391,6 @@ public final class IoBridge {
             if (fd.valid()) {
                 // Posix open(2) fails with EISDIR only if you ask for write permission.
                 // Java disallows reading directories too.
-                boolean isDirectory = false;
                 if (S_ISDIR(Libcore.os.fstat(fd).st_mode)) {
                     throw new ErrnoException("open", EISDIR);
                 }

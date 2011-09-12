@@ -20,6 +20,9 @@ package java.net;
 /**
  * A {@code ConnectException} is thrown if a connection cannot be established to
  * a remote host on a specific port.
+ *
+ * <p>Most applications <strong>should not</strong> catch this exception; it is
+ * more robust to catch the superclass {@code SocketException}.
  */
 public class ConnectException extends SocketException {
 

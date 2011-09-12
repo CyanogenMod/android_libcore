@@ -20,6 +20,9 @@ package java.net;
 /**
  * A {@code BindException} is thrown when a process cannot bind a local
  * address/port, either because it is already bound or reserved by the OS.
+ *
+ * <p>Most applications <strong>should not</strong> catch this exception; it is
+ * more robust to catch the superclass {@code SocketException}.
  */
 public class BindException extends SocketException {
 
