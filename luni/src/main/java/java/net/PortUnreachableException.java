@@ -20,6 +20,9 @@ package java.net;
 /**
  * This {@code PortUnreachableException} will be thrown if an {@code
  * ICMP_Port_Unreachable} message has been received.
+ *
+ * <p>Most applications <strong>should not</strong> catch this exception; it is
+ * more robust to catch the superclass {@code SocketException}.
  */
 public class PortUnreachableException extends SocketException {
 

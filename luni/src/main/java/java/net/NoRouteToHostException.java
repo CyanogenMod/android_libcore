@@ -21,6 +21,9 @@ package java.net;
  * The {@code NoRouteToHostException} will be thrown while attempting to connect
  * to a remote host but the host cannot be reached for instance because of a
  * badly configured router or a blocking firewall.
+ *
+ * <p>Most applications <strong>should not</strong> catch this exception; it is
+ * more robust to catch the superclass {@code SocketException}.
  */
 public class NoRouteToHostException extends SocketException {
 
