@@ -58,6 +58,14 @@ public final class OpcodeInfo {
     }
 
     /**
+     * Backwards compatibility stub for obsolete interpreter functionality.
+     * @hide
+     */
+    public boolean isInvoke(int packedOpcode) {
+        return false;
+    }
+
+    /**
      * This class is not instantiable.
      */
     private OpcodeInfo() {
