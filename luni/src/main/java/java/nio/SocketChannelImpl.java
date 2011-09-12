@@ -526,9 +526,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
                 throw new ConnectionPendingException();
             }
             super.bind(localAddr);
-            // keep here to see if need next version
-            // channel.Address = getLocalSocketAddress();
-            // channel.localport = getLocalPort();
+            channel.initLocalAddressAndPort();
             channel.isBound = true;
         }
 
