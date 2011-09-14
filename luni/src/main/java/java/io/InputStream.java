@@ -21,18 +21,33 @@ import java.util.Arrays;
 import libcore.io.Streams;
 
 /**
- * The base class for all input streams. An input stream is a means of reading
- * data from a source in a byte-wise manner.
- * <p>
- * Some input streams also support marking a position in the input stream and
- * returning to this position later. This abstract class does not provide a
- * fully working implementation, so it needs to be subclassed, and at least the
- * {@link #read()} method needs to be overridden. Overriding some of the
- * non-abstract methods is also often advised, since it might result in higher
- * efficiency.
- * <p>
- * Many specialized input streams for purposes like reading from a file already
- * exist in this package.
+ * A readable source of bytes.
+ *
+ * <p>Most clients will use input streams that read data from the file system
+ * ({@link FileInputStream}), the network ({@link java.net.Socket#getInputStream()}/{@link
+ * java.net.HttpURLConnection#getInputStream()}), or from an in-memory byte
+ * array ({@link ByteArrayInputStream}).
+ *
+ * <p>Use {@link InputStreamReader} to adapt a byte stream like this one into a
+ * character stream.
+ *
+ * <p>Most clients should wrap their input stream with {@link
+ * BufferedInputStream}. Callers that do only bulk reads may omit buffering.
+ *
+ * <p>Some implementations support marking a position in the input stream and
+ * resetting back to this position later. Implementations that don't return
+ * false from {@link #markSupported()} and throw an {@link IOException} when
+ * {@link #reset()} is called.
+ *
+ * <h3>Subclassing InputStream</h3>
+ * Subclasses that decorate another input stream should consider subclassing
+ * {@link FilterInputStream}, which delegates all calls to the source input
+ * stream.
+ *
+ * <p>All input stream subclasses should override <strong>both</strong> {@link
+ * #read() read()} and {@link #read(byte[],int,int) read(byte[],int,int)}. The
+ * three argument overload is necessary for bulk access to the data. This is
+ * much more efficient than byte-by-byte access.
  *
  * @see OutputStream
  */
