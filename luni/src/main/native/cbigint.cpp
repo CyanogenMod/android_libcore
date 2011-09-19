@@ -576,7 +576,7 @@ toDoubleHighPrecision (uint64_t * arg, int32_t length)
     result = 0.0;
   else if (length > 16)
     {
-      DOUBLE_TO_LONGBITS (result) = EXPONENT_MASK;
+      ASSIGN_DOUBLE_FROM_LONGBITS(result, EXPONENT_MASK);
     }
   else if (length == 1)
     {
@@ -585,20 +585,18 @@ toDoubleHighPrecision (uint64_t * arg, int32_t length)
         {
           highBit = 53 - highBit;
           mantissa = *arg << highBit;
-          DOUBLE_TO_LONGBITS (result) =
-            CREATE_DOUBLE_BITS (mantissa, -highBit);
+          ASSIGN_DOUBLE_FROM_LONGBITS (result, CREATE_DOUBLE_BITS (mantissa, -highBit));
         }
       else
         {
           highBit -= 53;
           mantissa = *arg >> highBit;
-          DOUBLE_TO_LONGBITS (result) =
-            CREATE_DOUBLE_BITS (mantissa, highBit);
+          ASSIGN_DOUBLE_FROM_LONGBITS (result, CREATE_DOUBLE_BITS (mantissa, highBit));
 
           /* perform rounding, round to even in case of tie */
           test = (LOW_U32_FROM_PTR (arg) << (11 - highBit)) & 0x7FF;
           if (test > 0x400 || ((test == 0x400) && (mantissa & 1)))
-            DOUBLE_TO_LONGBITS (result) = DOUBLE_TO_LONGBITS (result) + 1;
+            ASSIGN_DOUBLE_FROM_LONGBITS (result, DOUBLE_TO_LONGBITS (result) + 1);
         }
     }
   else
@@ -617,21 +615,19 @@ toDoubleHighPrecision (uint64_t * arg, int32_t length)
             {
               mantissa = arg[length];
             }
-          DOUBLE_TO_LONGBITS (result) =
-            CREATE_DOUBLE_BITS (mantissa, length * 64 - highBit);
+          ASSIGN_DOUBLE_FROM_LONGBITS (result, CREATE_DOUBLE_BITS (mantissa, length * 64 - highBit));
 
           /* perform rounding, round to even in case of tie */
           test64 = arg[--length] << highBit;
           if (test64 > SIGN_MASK || ((test64 == SIGN_MASK) && (mantissa & 1)))
-            DOUBLE_TO_LONGBITS (result) = DOUBLE_TO_LONGBITS (result) + 1;
+            ASSIGN_DOUBLE_FROM_LONGBITS (result, DOUBLE_TO_LONGBITS (result) + 1);
           else if (test64 == SIGN_MASK)
             {
               while (--length >= 0)
                 {
                   if (arg[length] != 0)
                     {
-                      DOUBLE_TO_LONGBITS (result) =
-                        DOUBLE_TO_LONGBITS (result) + 1;
+                      ASSIGN_DOUBLE_FROM_LONGBITS (result, DOUBLE_TO_LONGBITS (result) + 1);
                       break;
                     }
                 }
@@ -641,21 +637,21 @@ toDoubleHighPrecision (uint64_t * arg, int32_t length)
         {
           highBit -= 53;
           mantissa = arg[length] >> highBit;
-          DOUBLE_TO_LONGBITS (result) =
-            CREATE_DOUBLE_BITS (mantissa, length * 64 + highBit);
+          ASSIGN_DOUBLE_FROM_LONGBITS (result,
+            CREATE_DOUBLE_BITS (mantissa, length * 64 + highBit));
 
           /* perform rounding, round to even in case of tie */
           test = (LOW_U32_FROM_PTR (arg + length) << (11 - highBit)) & 0x7FF;
           if (test > 0x400 || ((test == 0x400) && (mantissa & 1)))
-            DOUBLE_TO_LONGBITS (result) = DOUBLE_TO_LONGBITS (result) + 1;
+            ASSIGN_DOUBLE_FROM_LONGBITS (result, DOUBLE_TO_LONGBITS (result) + 1);
           else if (test == 0x400)
             {
               do
                 {
                   if (arg[--length] != 0)
                     {
-                      DOUBLE_TO_LONGBITS (result) =
-                        DOUBLE_TO_LONGBITS (result) + 1;
+                      ASSIGN_DOUBLE_FROM_LONGBITS (result,
+                        DOUBLE_TO_LONGBITS (result) + 1);
                       break;
                     }
                 }

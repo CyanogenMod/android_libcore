@@ -77,26 +77,26 @@
  */
 #define INCREMENT_DOUBLE(_x, _decCount, _incCount) \
     { \
-        ++DOUBLE_TO_LONGBITS(_x); \
+        ASSIGN_DOUBLE_FROM_LONGBITS(_x, DOUBLE_TO_LONGBITS(_x)+1); \
         _incCount++; \
         if( (_incCount > 2) && (_decCount > 2) ) { \
             if( _decCount > _incCount ) { \
-                DOUBLE_TO_LONGBITS(_x) += _decCount - _incCount; \
+                ASSIGN_DOUBLE_FROM_LONGBITS(_x, DOUBLE_TO_LONGBITS(_x) + (_decCount - _incCount)); \
             } else if( _incCount > _decCount ) { \
-                DOUBLE_TO_LONGBITS(_x) -= _incCount - _decCount; \
+                ASSIGN_DOUBLE_FROM_LONGBITS(_x, DOUBLE_TO_LONGBITS(_x) - (_incCount - _decCount)); \
             } \
             break; \
         } \
     }
 #define DECREMENT_DOUBLE(_x, _decCount, _incCount) \
     { \
-        --DOUBLE_TO_LONGBITS(_x); \
+        ASSIGN_DOUBLE_FROM_LONGBITS(_x, _x-1); \
         _decCount++; \
         if( (_incCount > 2) && (_decCount > 2) ) { \
             if( _decCount > _incCount ) { \
-                DOUBLE_TO_LONGBITS(_x) += _decCount - _incCount; \
+                ASSIGN_DOUBLE_FROM_LONGBITS(_x, DOUBLE_TO_LONGBITS(_x) + (_decCount - _incCount)); \
             } else if( _incCount > _decCount ) { \
-                DOUBLE_TO_LONGBITS(_x) -= _incCount - _decCount; \
+                ASSIGN_DOUBLE_FROM_LONGBITS(_x, DOUBLE_TO_LONGBITS(_x) - (_incCount - _decCount)); \
             } \
             break; \
         } \
@@ -222,7 +222,7 @@ static jdouble createDouble(JNIEnv* env, const char* s, jint e) {
             result = createDouble1 (env, f, index, e);
           else
             {
-              DOUBLE_TO_LONGBITS (result) = DOUBLE_INFINITE_LONGBITS;
+              ASSIGN_DOUBLE_FROM_LONGBITS (result, DOUBLE_INFINITE_LONGBITS);
             }
         }
       else
@@ -284,11 +284,11 @@ static jdouble createDouble1(JNIEnv* env, uint64_t* f, int32_t length, jint e) {
 
       if (result == 0.0)
         {
-          DOUBLE_TO_LONGBITS (result) = DOUBLE_MINIMUM_LONGBITS;
+          ASSIGN_DOUBLE_FROM_LONGBITS (result, DOUBLE_MINIMUM_LONGBITS);
         }
       else
         {
-          DOUBLE_TO_LONGBITS (result) = DOUBLE_INFINITE_LONGBITS;
+          ASSIGN_DOUBLE_FROM_LONGBITS (result, DOUBLE_INFINITE_LONGBITS);
           return result;
         }
     }
@@ -311,7 +311,7 @@ static jdouble createDouble1(JNIEnv* env, uint64_t* f, int32_t length, jint e) {
 
   if (result == 0.0)
 
-    DOUBLE_TO_LONGBITS (result) = DOUBLE_MINIMUM_LONGBITS;
+    ASSIGN_DOUBLE_FROM_LONGBITS (result, DOUBLE_MINIMUM_LONGBITS);
 
   return doubleAlgorithm (env, f, length, e, result);
 }
@@ -558,26 +558,26 @@ static const uint32_t float_tens[] = {
  */
 #define INCREMENT_FLOAT(_x, _decCount, _incCount) \
     { \
-        ++FLOAT_TO_INTBITS(_x); \
+        ASSIGN_FLOAT_FROM_INTBITS(_x, FLOAT_TO_INTBITS(_x)+1); \
         _incCount++; \
         if( (_incCount > 2) && (_decCount > 2) ) { \
             if( _decCount > _incCount ) { \
-                FLOAT_TO_INTBITS(_x) += _decCount - _incCount; \
+                ASSIGN_FLOAT_FROM_INTBITS(_x, FLOAT_TO_INTBITS(_x) + (_decCount - _incCount)); \
             } else if( _incCount > _decCount ) { \
-                FLOAT_TO_INTBITS(_x) -= _incCount - _decCount; \
+                ASSIGN_FLOAT_FROM_INTBITS(_x, FLOAT_TO_INTBITS(_x) - (_incCount - _decCount)); \
             } \
             break; \
         } \
     }
 #define DECREMENT_FLOAT(_x, _decCount, _incCount) \
     { \
-        --FLOAT_TO_INTBITS(_x); \
+        ASSIGN_FLOAT_FROM_INTBITS(_x, FLOAT_TO_INTBITS(_x)-1); \
         _decCount++; \
         if( (_incCount > 2) && (_decCount > 2) ) { \
             if( _decCount > _incCount ) { \
-                FLOAT_TO_INTBITS(_x) += _decCount - _incCount; \
+                ASSIGN_FLOAT_FROM_INTBITS(_x, FLOAT_TO_INTBITS(_x) + (_decCount - _incCount)); \
             } else if( _incCount > _decCount ) { \
-                FLOAT_TO_INTBITS(_x) -= _incCount - _decCount; \
+                ASSIGN_FLOAT_FROM_INTBITS(_x, FLOAT_TO_INTBITS(_x) - (_incCount - _decCount)); \
             } \
             break; \
         } \
@@ -661,7 +661,7 @@ static jfloat createFloat(JNIEnv* env, const char* s, jint e) {
             }
           else
             {
-              FLOAT_TO_INTBITS (result) = FLOAT_INFINITE_INTBITS;
+              ASSIGN_FLOAT_FROM_INTBITS (result, FLOAT_INFINITE_INTBITS);
             }
         }
       else
@@ -712,9 +712,9 @@ static jfloat createFloat1 (JNIEnv* env, uint64_t* f, int32_t length, jint e) {
 
       if (result == 0.0)
 
-        FLOAT_TO_INTBITS (result) = FLOAT_MINIMUM_INTBITS;
+        ASSIGN_FLOAT_FROM_INTBITS (result, FLOAT_MINIMUM_INTBITS);
       else
-        FLOAT_TO_INTBITS (result) = FLOAT_INFINITE_INTBITS;
+        ASSIGN_FLOAT_FROM_INTBITS (result, FLOAT_INFINITE_INTBITS);
     }
   else if (e > -309)
     {
@@ -724,7 +724,7 @@ static jfloat createFloat1 (JNIEnv* env, uint64_t* f, int32_t length, jint e) {
       dresult = toDoubleHighPrecision (f, length) / pow (10.0, (double) -e);
       if (IS_DENORMAL_DBL (dresult))
         {
-          FLOAT_TO_INTBITS (result) = 0;
+          ASSIGN_FLOAT_FROM_INTBITS (result, 0);
           return result;
         }
       dexp = doubleExponent (dresult) + 51;
@@ -733,7 +733,7 @@ static jfloat createFloat1 (JNIEnv* env, uint64_t* f, int32_t length, jint e) {
        * float? */
       if (dexp <= -155)
         {
-          FLOAT_TO_INTBITS (result) = 0;
+          ASSIGN_FLOAT_FROM_INTBITS (result, 0);
           return result;
         }
       /* Is it a denormalized single-precision float? */
@@ -770,7 +770,7 @@ static jfloat createFloat1 (JNIEnv* env, uint64_t* f, int32_t length, jint e) {
                   fmant++;
                 }
             }
-          FLOAT_TO_INTBITS (result) = fmant;
+          ASSIGN_FLOAT_FROM_INTBITS (result, fmant);
         }
       else
         {
@@ -784,7 +784,7 @@ static jfloat createFloat1 (JNIEnv* env, uint64_t* f, int32_t length, jint e) {
    * be.
    */
   if (e <= -309 || FLOAT_TO_INTBITS (result) == 0)
-    FLOAT_TO_INTBITS (result) = FLOAT_MINIMUM_INTBITS;
+    ASSIGN_FLOAT_FROM_INTBITS (result, FLOAT_MINIMUM_INTBITS);
 
   return floatAlgorithm (env, f, length, e, (jfloat) result);
 }

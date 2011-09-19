@@ -57,9 +57,45 @@ union U64U32DBL {
     double  dval;
 };
 
-#define DOUBLE_TO_LONGBITS(dbl) (*(reinterpret_cast<uint64_t*>(&dbl)))
-#define FLOAT_TO_INTBITS(flt) (*(reinterpret_cast<uint32_t*>(&flt)))
-#define INTBITS_TO_FLOAT(bits) (*(reinterpret_cast<float*>(&bits)))
+union U64DBL {
+    uint64_t	u64val;
+    double		dval;
+};
+
+union U32FLT {
+    uint32_t	u32val;
+    float		fval;
+};
+
+//#define DOUBLE_TO_LONGBITS(dbl) (*(reinterpret_cast<uint64_t*>(&dbl)))
+inline uint64_t DOUBLE_TO_LONGBITS(double const &dbl) {
+    U64DBL u;
+    u.dval = dbl;
+    return u.u64val;
+}
+
+inline void ASSIGN_DOUBLE_FROM_LONGBITS(double &dbl, uint64_t const &bits) {
+    U64DBL u;
+    u.u64val = bits;
+    dbl = u.dval;
+}
+//#define FLOAT_TO_INTBITS(flt) (*(reinterpret_cast<uint32_t*>(&flt)))
+inline uint32_t FLOAT_TO_INTBITS(float const &flt) {
+    U32FLT u;
+    u.fval = flt;
+    return u.u32val;
+}
+inline void ASSIGN_FLOAT_FROM_INTBITS(float &flt, uint32_t const &bits) {
+    U32FLT u;
+    u.u32val = bits;
+    flt = u.fval;
+}
+//#define INTBITS_TO_FLOAT(bits) (*(reinterpret_cast<float*>(&bits)))
+inline float INTBITS_TO_FLOAT(uint32_t const bits) {
+    U32FLT u;
+    u.u32val = bits;
+    return u.fval;
+}
 
 /* Replace P_FLOAT_HI and P_FLOAT_LOW */
 /* These macros are used to access the high and low 32-bit parts of a double (64-bit) value. */

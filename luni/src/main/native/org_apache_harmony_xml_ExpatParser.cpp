@@ -428,7 +428,7 @@ static size_t fillBuffer(ParsingContext* parsingContext, const char* characters,
     }
 
     size_t utf16length;
-    strcpylen8to16(nativeBuffer.get(), characters, length, &utf16length);
+    strcpylen8to16((char16_t*)nativeBuffer.get(), characters, length, &utf16length);
     return utf16length;
 }
 
