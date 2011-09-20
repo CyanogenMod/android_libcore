@@ -119,7 +119,11 @@ public class SystemTest extends TestCase {
         }
     }
 
-    // http://b/5247258
+    /**
+     * System.arraycopy() must never copy objects into arrays that can't store
+     * them. We've had bugs where type checks and copying were done separately
+     * and racy code could defeat the type checks. http://b/5247258
+     */
     public void testArrayCopyConcurrentModification() {
         final AtomicBoolean done = new AtomicBoolean();
 
@@ -128,6 +132,8 @@ public class SystemTest extends TestCase {
 
         new Thread() {
             @Override public void run() {
+                // the last array element alternates between being a Thread and being null. When
+                // it's a Thread it isn't safe for arrayCopy; when its null it is!
                 while (!done.get()) {
                     source[source.length - 1] = this;
                     source[source.length - 1] = null;
@@ -138,7 +144,7 @@ public class SystemTest extends TestCase {
         for (int i = 0; i < 100; i++) {
             try {
                 System.arraycopy(source, 0, target, 0, source.length);
-                assertNull(target[source.length - 1]);
+                assertNull(target[source.length - 1]); // make sure the wrong type didn't sneak in
             } catch (ArrayStoreException ignored) {
             }
         }
