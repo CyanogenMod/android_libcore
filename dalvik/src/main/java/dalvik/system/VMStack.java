@@ -59,6 +59,22 @@ public final class VMStack {
     native public static Class<?>[] getClasses(int maxDepth);
 
     /**
+     * Returns the first ClassLoader on the call stack that isn't either of
+     * the passed-in ClassLoaders.
+     */
+    public static ClassLoader getClosestUserClassLoader(ClassLoader bootstrap,
+                                                        ClassLoader system) {
+        Class<?>[] stackClasses = VMStack.getClasses(-1);
+        for (Class<?> stackClass : stackClasses) {
+            ClassLoader loader = stackClass.getClassLoader();
+            if (loader != null && loader != bootstrap && loader != system) {
+                return loader;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Retrieves the stack trace from the specified thread.
      *
      * @param t
