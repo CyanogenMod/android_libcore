@@ -64,6 +64,29 @@ public final class AnnotationsTest extends TestCase {
                 annotationsToTypes(parameterAnnotations[1]));
     }
 
+    public void testAnnotationDefaults() throws Exception {
+        assertEquals((byte) 5, defaultValue("a"));
+        assertEquals((short) 6, defaultValue("b"));
+        assertEquals(7, defaultValue("c"));
+        assertEquals(8L, defaultValue("d"));
+        assertEquals(9.0f, defaultValue("e"));
+        assertEquals(10.0, defaultValue("f"));
+        assertEquals('k', defaultValue("g"));
+        assertEquals(true, defaultValue("h"));
+        assertEquals(Breakfast.WAFFLES, defaultValue("i"));
+        assertEquals("@" + AnnotationA.class.getName() + "()", defaultValue("j").toString());
+        assertEquals("maple", defaultValue("k"));
+        assertEquals(AnnotationB.class, defaultValue("l"));
+        assertEquals("[1, 2, 3]", Arrays.toString((int[]) defaultValue("m")));
+        assertEquals("[WAFFLES, PANCAKES]", Arrays.toString((Breakfast[]) defaultValue("n")));
+        assertEquals(null, defaultValue("o"));
+        assertEquals(null, defaultValue("p"));
+    }
+
+    private Object defaultValue(String name) throws NoSuchMethodException {
+        return HasDefaultsAnnotation.class.getMethod(name).getDefaultValue();
+    }
+
     @Retention(RetentionPolicy.RUNTIME)
     public @interface AnnotationA {}
 
@@ -87,6 +110,27 @@ public final class AnnotationsTest extends TestCase {
 
     public static class ExtendsType extends Type {}
 
+    static enum Breakfast { WAFFLES, PANCAKES }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface HasDefaultsAnnotation {
+        byte a() default 5;
+        short b() default 6;
+        int c() default 7;
+        long d() default 8;
+        float e() default 9.0f;
+        double f() default 10.0;
+        char g() default 'k';
+        boolean h() default true;
+        Breakfast i() default Breakfast.WAFFLES;
+        AnnotationA j() default @AnnotationA();
+        String k() default "maple";
+        Class l() default AnnotationB.class;
+        int[] m() default { 1, 2, 3 };
+        Breakfast[] n() default { Breakfast.WAFFLES, Breakfast.PANCAKES };
+        Breakfast o();
+        int p();
+    }
 
     private void assertAnnotatedElement(
             AnnotatedElement element, Class<? extends Annotation>... expectedAnnotations) {
