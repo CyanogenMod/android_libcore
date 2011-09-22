@@ -98,7 +98,12 @@ public final class AnnotationsTest extends TestCase {
         return HasDefaultsAnnotation.class.getMethod(name).getDefaultValue();
     }
 
-    public void testEnclosingClass() {
+    public void testGetEnclosingClass() {
+        assertNull(AnnotationsTest.class.getEnclosingClass());
+        assertEquals(AnnotationsTest.class, Foo.class.getEnclosingClass());
+        assertEquals(AnnotationsTest.class, HasMemberClassesInterface.class.getEnclosingClass());
+        assertEquals(HasMemberClassesInterface.class,
+                HasMemberClassesInterface.D.class.getEnclosingClass());
         assertEquals(AnnotationsTest.class, Foo.class.getEnclosingClass());
     }
 
