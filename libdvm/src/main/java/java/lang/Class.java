@@ -529,14 +529,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     native private boolean isDeclaredAnnotationPresent(Class<? extends Annotation> annotationClass);
 
     /**
-     * Returns an array containing {@code Class} objects for all classes and
-     * interfaces that are declared as members of the class which this {@code
-     * Class} represents. If there are no classes or interfaces declared or if
-     * this class represents an array class, a primitive type or void, then an
-     * empty array is returned.
+     * Returns an array containing {@code Class} objects for all classes,
+     * interfaces, enums and annotations that are members of this class.
      */
     public Class<?>[] getDeclaredClasses() {
-        return getDeclaredClasses(this, false);
+        return AnnotationAccess.getMemberClasses(this);
     }
 
     /*

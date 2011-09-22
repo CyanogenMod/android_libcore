@@ -87,6 +87,59 @@ public final class AnnotationsTest extends TestCase {
         return HasDefaultsAnnotation.class.getMethod(name).getDefaultValue();
     }
 
+    public void testEnclosingClass() {
+        assertEquals(AnnotationsTest.class, Foo.class.getEnclosingClass());
+        assertNull(AnnotationsTest.class.getEnclosingConstructor());
+        assertNull(AnnotationsTest.class.getEnclosingMethod());
+    }
+
+    public void testEnclosingConstructor() throws Exception {
+        Foo foo = new Foo("string");
+        assertNull(foo.c.getEnclosingClass());
+        assertEquals(Foo.class.getDeclaredConstructor(String.class),
+                foo.c.getEnclosingConstructor());
+        assertNull(foo.c.getEnclosingMethod());
+    }
+
+    public void testEnclosingMethod() throws Exception {
+        Foo foo = new Foo();
+        foo.foo("string");
+        assertNull(foo.c.getEnclosingClass());
+        assertNull(foo.c.getEnclosingConstructor());
+        assertEquals(Foo.class.getDeclaredMethod("foo", String.class),
+                foo.c.getEnclosingMethod());
+    }
+
+    public void testGetClasses() throws Exception {
+        // getClasses() doesn't include classes inherited from interfaces!
+        assertSetEquals(HasMemberClasses.class.getClasses(),
+                HasMemberClassesSuperclass.B.class, HasMemberClasses.H.class);
+    }
+
+    public void testGetDeclaredClasses() throws Exception {
+        assertSetEquals(HasMemberClasses.class.getDeclaredClasses(),
+                HasMemberClasses.G.class, HasMemberClasses.H.class, HasMemberClasses.I.class,
+                HasMemberClasses.J.class, HasMemberClasses.K.class, HasMemberClasses.L.class);
+    }
+
+    private static class Foo {
+        Class<?> c;
+        private Foo() {
+        }
+        private Foo(String s) {
+            c = new Object() {}.getClass();
+        }
+        private Foo(int i) {
+            c = new Object() {}.getClass();
+        }
+        private void foo(String s) {
+            c = new Object() {}.getClass();
+        }
+        private void foo(int i) {
+            c = new Object() {}.getClass();
+        }
+    }
+
     @Retention(RetentionPolicy.RUNTIME)
     public @interface AnnotationA {}
 
@@ -130,6 +183,28 @@ public final class AnnotationsTest extends TestCase {
         Breakfast[] n() default { Breakfast.WAFFLES, Breakfast.PANCAKES };
         Breakfast o();
         int p();
+    }
+
+    static class HasMemberClassesSuperclass {
+        class A {}
+        public class B {}
+        static class C {}
+    }
+
+    public interface HasMemberClassesInterface {
+        class D {}
+        public class E {}
+        static class F {}
+    }
+
+    public static class HasMemberClasses extends HasMemberClassesSuperclass
+            implements HasMemberClassesInterface {
+        class G {}
+        public class H {}
+        static class I {}
+        enum J {}
+        interface K {}
+        @interface L {}
     }
 
     private void assertAnnotatedElement(
@@ -177,5 +252,11 @@ public final class AnnotationsTest extends TestCase {
 
     private <T> Set<T> set(T... instances) {
         return new HashSet<T>(Arrays.asList(instances));
+    }
+
+    private void assertSetEquals(Object[] actual, Object... expected) {
+        Set<Object> actualSet = new HashSet<Object>(Arrays.asList(actual));
+        Set<Object> expectedSet = new HashSet<Object>(Arrays.asList(expected));
+        assertEquals(expectedSet, actualSet);
     }
 }
