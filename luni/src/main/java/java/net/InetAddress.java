@@ -517,7 +517,7 @@ public class InetAddress implements Serializable {
     /**
      * Returns whether this address is a link-local address or not.
      *
-     * <p>Valid Ipv6 link-local addresses have the prefix {@code fe80::/10}.
+     * <p>Valid IPv6 link-local addresses have the prefix {@code fe80::/10}.
      *
      * <p><a href="http://www.ietf.org/rfc/rfc3484.txt">RFC 3484</a>
      * "Default Address Selection for Internet Protocol Version 6 (IPv6)" states
