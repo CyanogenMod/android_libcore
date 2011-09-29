@@ -16,6 +16,7 @@
 
 package libcore.java.lang.reflect;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -23,7 +24,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -122,6 +126,32 @@ public final class AnnotationsTest extends TestCase {
                 HasMemberClasses.J.class, HasMemberClasses.K.class, HasMemberClasses.L.class);
     }
 
+    public void testConstructorGetExceptions() throws Exception {
+        assertSetEquals(HasThrows.class.getConstructor().getExceptionTypes(),
+                IOException.class, InvocationTargetException.class, IllegalStateException.class);
+        assertSetEquals(HasThrows.class.getConstructor(Void.class).getExceptionTypes());
+    }
+
+    public void testClassMethodGetExceptions() throws Exception {
+        assertSetEquals(HasThrows.class.getMethod("foo").getExceptionTypes(),
+                IOException.class, InvocationTargetException.class, IllegalStateException.class);
+        assertSetEquals(HasThrows.class.getMethod("foo", Void.class).getExceptionTypes());
+    }
+
+    public void testProxyMethodGetExceptions() throws Exception {
+        InvocationHandler emptyInvocationHandler = new InvocationHandler() {
+            @Override public Object invoke(Object proxy, Method method, Object[] args) {
+                return null;
+            }
+        };
+
+        Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(),
+                new Class[] { ThrowsInterface.class }, emptyInvocationHandler);
+        assertSetEquals(proxy.getClass().getMethod("foo").getExceptionTypes(),
+                IOException.class, InvocationTargetException.class, IllegalStateException.class);
+        assertSetEquals(proxy.getClass().getMethod("foo", Void.class).getExceptionTypes());
+    }
+
     private static class Foo {
         Class<?> c;
         private Foo() {
@@ -205,6 +235,18 @@ public final class AnnotationsTest extends TestCase {
         enum J {}
         interface K {}
         @interface L {}
+    }
+
+    public static class HasThrows {
+        public HasThrows() throws IOException, InvocationTargetException, IllegalStateException {}
+        public HasThrows(Void v) {}
+        public void foo() throws IOException, InvocationTargetException, IllegalStateException {}
+        public void foo(Void v) {}
+    }
+
+    public static interface ThrowsInterface {
+        void foo() throws IOException, InvocationTargetException, IllegalStateException;
+        void foo(Void v);
     }
 
     private void assertAnnotatedElement(
