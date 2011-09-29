@@ -108,6 +108,36 @@ public class InetAddressTest extends junit.framework.TestCase {
         }
     }
 
+    public void test_isLinkLocalAddress() throws Exception {
+        assertFalse(InetAddress.getByName("127.0.0.1").isLinkLocalAddress());
+        assertTrue(InetAddress.getByName("169.254.1.2").isLinkLocalAddress());
+
+        assertFalse(InetAddress.getByName("fec0::").isLinkLocalAddress());
+        assertTrue(InetAddress.getByName("fe80::").isLinkLocalAddress());
+    }
+
+    public void test_isMCSiteLocalAddress() throws Exception {
+        assertFalse(InetAddress.getByName("239.254.255.255").isMCSiteLocal());
+        assertTrue(InetAddress.getByName("239.255.0.0").isMCSiteLocal());
+        assertTrue(InetAddress.getByName("239.255.255.255").isMCSiteLocal());
+        assertFalse(InetAddress.getByName("240.0.0.0").isMCSiteLocal());
+
+        assertFalse(InetAddress.getByName("ff06::").isMCSiteLocal());
+        assertTrue(InetAddress.getByName("ff05::").isMCSiteLocal());
+        assertTrue(InetAddress.getByName("ff15::").isMCSiteLocal());
+    }
+
+    public void test_isSiteLocalAddress() throws Exception {
+        assertFalse(InetAddress.getByName("144.32.32.1").isSiteLocalAddress());
+        assertTrue(InetAddress.getByName("10.0.0.1").isSiteLocalAddress());
+        assertTrue(InetAddress.getByName("172.16.0.1").isSiteLocalAddress());
+        assertFalse(InetAddress.getByName("172.32.0.1").isSiteLocalAddress());
+        assertTrue(InetAddress.getByName("192.168.0.1").isSiteLocalAddress());
+
+        assertFalse(InetAddress.getByName("fc00::").isSiteLocalAddress());
+        assertTrue(InetAddress.getByName("fec0::").isSiteLocalAddress());
+    }
+
     public void test_getByName() throws Exception {
         for (String invalid : INVALID_IPv4_NUMERIC_ADDRESSES) {
             try {

@@ -385,17 +385,6 @@ public class InetAddress implements Serializable {
         return Arrays.hashCode(ipaddress);
     }
 
-    /*
-     * Returns whether this address is an IP multicast address or not. This
-     * implementation returns always {@code false}.
-     *
-     * @return {@code true} if this address is in the multicast group, {@code
-     *         false} otherwise.
-     */
-    public boolean isMulticastAddress() {
-        return false;
-    }
-
     /**
      * Resolves a hostname to its IP addresses using a cache.
      *
@@ -518,145 +507,135 @@ public class InetAddress implements Serializable {
     }
 
     /**
-     * Returns whether this address is a loopback address or not. This
-     * implementation returns always {@code false}. Valid IPv4 loopback
-     * addresses are 127.d.d.d The only valid IPv6 loopback address is ::1.
-     *
-     * @return {@code true} if this instance represents a loopback address,
-     *         {@code false} otherwise.
+     * Returns whether this is the IPv6 unspecified wildcard address {@code ::}
+     * or the IPv4 "any" address, {@code 0.0.0.0}.
      */
-    public boolean isLoopbackAddress() {
+    public boolean isAnyLocalAddress() {
         return false;
     }
 
     /**
-     * Returns whether this address is a link-local address or not. This
-     * implementation returns always {@code false}.
-     * <p>
-     * Valid IPv6 link-local addresses are FE80::0 through to
-     * FEBF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF.
-     * <p>
-     * There are no valid IPv4 link-local addresses.
+     * Returns whether this address is a link-local address or not.
      *
-     * @return {@code true} if this instance represents a link-local address,
-     *         {@code false} otherwise.
+     * <p>Valid Ipv6 link-local addresses have the prefix {@code fe80::/10}.
+     *
+     * <p><a href="http://www.ietf.org/rfc/rfc3484.txt">RFC 3484</a>
+     * "Default Address Selection for Internet Protocol Version 6 (IPv6)" states
+     * that both IPv4 auto-configuration addresses (prefix {@code 169.254/16}) and
+     * IPv4 loopback addresses (prefix {@code 127/8}) have link-local scope, but
+     * {@link Inet4Address} only considers the auto-configuration addresses
+     * to have link-local scope. That is: the IPv4 loopback address returns false.
      */
     public boolean isLinkLocalAddress() {
         return false;
     }
 
     /**
-     * Returns whether this address is a site-local address or not. This
-     * implementation returns always {@code false}.
-     * <p>
-     * Valid IPv6 site-local addresses are FEC0::0 through to
-     * FEFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF.
-     * <p>
-     * There are no valid IPv4 site-local addresses.
+     * Returns whether this address is a loopback address or not.
      *
-     * @return {@code true} if this instance represents a site-local address,
-     *         {@code false} otherwise.
+     * <p>Valid IPv4 loopback addresses have the prefix {@code 127/8}.
+     *
+     * <p>The only valid IPv6 loopback address is {@code ::1}.
      */
-    public boolean isSiteLocalAddress() {
+    public boolean isLoopbackAddress() {
         return false;
     }
 
     /**
-     * Returns whether this address is a global multicast address or not. This
-     * implementation returns always {@code false}.
-     * <p>
-     * Valid IPv6 link-global multicast addresses are FFxE:/112 where x is a set
-     * of flags, and the additional 112 bits make up the global multicast
-     * address space.
-     * <p>
-     * Valid IPv4 global multicast addresses are between: 224.0.1.0 to
-     * 238.255.255.255.
+     * Returns whether this address is a global multicast address or not.
      *
-     * @return {@code true} if this instance represents a global multicast
-     *         address, {@code false} otherwise.
+     * <p>Valid IPv6 global multicast addresses have the prefix {@code ffxe::/16},
+     * where {@code x} is a set of flags and the additional 112 bits make
+     * up the global multicast address space.
+     *
+     * <p>Valid IPv4 global multicast addresses are the range of addresses
+     * from {@code 224.0.1.0} to {@code 238.255.255.255}.
      */
     public boolean isMCGlobal() {
         return false;
     }
 
     /**
-     * Returns whether this address is a node-local multicast address or not.
-     * This implementation returns always {@code false}.
-     * <p>
-     * Valid IPv6 node-local multicast addresses are FFx1:/112 where x is a set
-     * of flags, and the additional 112 bits make up the node-local multicast
-     * address space.
-     * <p>
-     * There are no valid IPv4 node-local multicast addresses.
-     *
-     * @return {@code true} if this instance represents a node-local multicast
-     *         address, {@code false} otherwise.
-     */
-    public boolean isMCNodeLocal() {
-        return false;
-    }
-
-    /**
      * Returns whether this address is a link-local multicast address or not.
-     * This implementation returns always {@code false}.
-     * <p>
-     * Valid IPv6 link-local multicast addresses are FFx2:/112 where x is a set
-     * of flags, and the additional 112 bits make up the link-local multicast
-     * address space.
-     * <p>
-     * Valid IPv4 link-local addresses are between: 224.0.0.0 to 224.0.0.255
      *
-     * @return {@code true} if this instance represents a link-local multicast
-     *         address, {@code false} otherwise.
+     * <p>Valid IPv6 link-local multicast addresses have the prefix {@code ffx2::/16},
+     * where x is a set of flags and the additional 112 bits make up the link-local multicast
+     * address space.
+     *
+     * <p>Valid IPv4 link-local multicast addresses have the prefix {@code 224.0.0/24}.
      */
     public boolean isMCLinkLocal() {
         return false;
     }
 
     /**
-     * Returns whether this address is a site-local multicast address or not.
-     * This implementation returns always {@code false}.
-     * <p>
-     * Valid IPv6 site-local multicast addresses are FFx5:/112 where x is a set
-     * of flags, and the additional 112 bits make up the site-local multicast
-     * address space.
-     * <p>
-     * Valid IPv4 site-local addresses are between: 239.252.0.0 to
-     * 239.255.255.255
+     * Returns whether this address is a node-local multicast address or not.
      *
-     * @return {@code true} if this instance represents a site-local multicast
-     *         address, {@code false} otherwise.
+     * <p>Valid IPv6 node-local multicast addresses have the prefix {@code ffx1::/16},
+     * where x is a set of flags and the additional 112 bits make up the link-local multicast
+     * address space.
+     *
+     * <p>There are no valid IPv4 node-local multicast addresses.
      */
-    public boolean isMCSiteLocal() {
+    public boolean isMCNodeLocal() {
         return false;
     }
 
     /**
-     * Returns whether this address is a organization-local multicast address or
-     * not. This implementation returns always {@code false}.
-     * <p>
-     * Valid IPv6 organization-local multicast addresses are FFx8:/112 where x
-     * is a set of flags, and the additional 112 bits make up the
-     * organization-local multicast address space.
-     * <p>
-     * Valid IPv4 organization-local addresses are between: 239.192.0.0 to
-     * 239.251.255.255
+     * Returns whether this address is a organization-local multicast address or not.
      *
-     * @return {@code true} if this instance represents a organization-local
-     *         multicast address, {@code false} otherwise.
+     * <p>Valid IPv6 organization-local multicast addresses have the prefix {@code ffx8::/16},
+     * where x is a set of flags and the additional 112 bits make up the link-local multicast
+     * address space.
+     *
+     * <p>Valid IPv4 organization-local multicast addresses have the prefix {@code 239.192/14}.
      */
     public boolean isMCOrgLocal() {
         return false;
     }
 
     /**
-     * Returns whether this is a wildcard address or not. This implementation
-     * returns always {@code false}.
+     * Returns whether this address is a site-local multicast address or not.
      *
-     * @return {@code true} if this instance represents a wildcard address,
+     * <p>Valid IPv6 site-local multicast addresses have the prefix {@code ffx5::/16},
+     * where x is a set of flags and the additional 112 bits make up the link-local multicast
+     * address space.
+     *
+     * <p>Valid IPv4 site-local multicast addresses have the prefix {@code 239.255/16}.
+     */
+    public boolean isMCSiteLocal() {
+        return false;
+    }
+
+    /**
+     * Returns whether this address is a multicast address or not.
+     *
+     * <p>Valid IPv6 multicast addresses have the prefix {@code ff::/8}.
+     *
+     * <p>Valid IPv4 multicast addresses have the prefix {@code 224/4}.
+     */
+    public boolean isMulticastAddress() {
+        return false;
+    }
+
+    /**
+     * Returns whether this address is a site-local address or not.
+     *
+     * <p>For the purposes of this method, valid IPv6 site-local addresses have
+     * the deprecated prefix {@code fec0::/10} from
+     * <a href="http://www.ietf.org/rfc/rfc1884.txt">RFC 1884</a>,
+     * <i>not</i> the modern prefix {@code fc00::/7} from
+     * <a href="http://www.ietf.org/rfc/rfc4193.txt">RFC 4193</a>.
+     *
+     * <p><a href="http://www.ietf.org/rfc/rfc3484.txt">RFC 3484</a>
+     * "Default Address Selection for Internet Protocol Version 6 (IPv6)" states
+     * that IPv4 private addresses have the prefix {@code 10/8}, {@code 172.16/12},
+     * or {@code 192.168/16}.
+     *
+     * @return {@code true} if this instance represents a site-local address,
      *         {@code false} otherwise.
      */
-    public boolean isAnyLocalAddress() {
+    public boolean isSiteLocalAddress() {
         return false;
     }
 

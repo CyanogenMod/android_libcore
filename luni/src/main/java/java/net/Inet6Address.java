@@ -169,90 +169,58 @@ public final class Inet6Address extends InetAddress {
         return false;
     }
 
-    /**
-     * Returns whether this address is an IP multicast address or not.
-     */
-    @Override public boolean isMulticastAddress() {
-        // Multicast addresses are prefixed with 11111111 (255)
-        return ipaddress[0] == -1;
-    }
-
-    /**
-     * Returns true if this address is the unspecified wildcard address "::".
-     */
     @Override public boolean isAnyLocalAddress() {
         return Arrays.equals(ipaddress, Inet6Address.ANY.ipaddress);
     }
 
     /**
-     * Returns whether this address is the loopback address or not. The only
-     * valid IPv6 loopback address is "::1".
+     * Returns whether this IPv6 address is an IPv4-compatible address or not.
+     * An IPv4-compatible address has the prefix {@code ::/96} and is a deprecated
+     * and no-longer used equivalent of the modern IPv4-mapped IPv6 addresses.
      */
+    public boolean isIPv4CompatibleAddress() {
+        for (int i = 0; i < 12; i++) {
+            if (ipaddress[i] != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override public boolean isLinkLocalAddress() {
+        return ((ipaddress[0] & 0xff) == 0xfe) && ((ipaddress[1] & 0xc0) == 0x80); // fe80:/10
+    }
+
     @Override public boolean isLoopbackAddress() {
         return Arrays.equals(ipaddress, Inet6Address.LOOPBACK.ipaddress);
     }
 
-    /**
-     * Returns whether this address is a link-local address or not.
-     */
-    @Override public boolean isLinkLocalAddress() {
-        // the first 10 bits need to be 1111111010 (1018)
-        return (ipaddress[0] == -2) && ((ipaddress[1] & 255) >>> 6) == 2;
-    }
-
-    /**
-     * Returns whether this address is a site-local address or not.
-     */
-    @Override public boolean isSiteLocalAddress() {
-        // the first 10 bits need to be 1111111011 (1019)
-        return (ipaddress[0] == -2) && ((ipaddress[1] & 255) >>> 6) == 3;
-    }
-
-    /**
-     * Returns whether this address is a global multicast address or not. A
-     * valid IPv6 global multicast address is 11111111xxxx1110 or FF0E hex.
-     */
     @Override public boolean isMCGlobal() {
-        // the first byte should be 0xFF and the lower 4 bits
-        // of the second byte should be 0xE
-        return (ipaddress[0] == -1) && (ipaddress[1] & 15) == 14;
+        return ((ipaddress[0] & 0xff) == 0xff) && ((ipaddress[1] & 0x0f) == 0x0e); // ffxe:/16
     }
 
-    /**
-     * Returns whether this address is a node-local multicast address or not.
-     */
-    @Override public boolean isMCNodeLocal() {
-        // the first byte should be 0xFF and the lower 4 bits
-        // of the second byte should be 0x1
-        return (ipaddress[0] == -1) && (ipaddress[1] & 15) == 1;
-    }
-
-    /**
-     * Returns whether this address is a link-local multicast address or not.
-     */
     @Override public boolean isMCLinkLocal() {
-        // the first byte should be 0xFF and the lower 4 bits
-        // of the second byte should be 0x2
-        return (ipaddress[0] == -1) && (ipaddress[1] & 15) == 2;
+        return ((ipaddress[0] & 0xff) == 0xff) && ((ipaddress[1] & 0x0f) == 0x02); // ffx2:/16
     }
 
-    /**
-     * Returns whether this address is a site-local multicast address or not.
-     */
-    @Override public boolean isMCSiteLocal() {
-        // the first byte should be 0xFF and the lower 4 bits
-        // of the second byte should be 0x5
-        return (ipaddress[0] == -1) && (ipaddress[1] & 15) == 5;
+    @Override public boolean isMCNodeLocal() {
+        return ((ipaddress[0] & 0xff) == 0xff) && ((ipaddress[1] & 0x0f) == 0x01); // ffx1:/16
     }
 
-    /**
-     * Returns whether this address is a organization-local multicast address or
-     * not.
-     */
     @Override public boolean isMCOrgLocal() {
-        // the first byte should be 0xFF and the lower 4 bits
-        // of the second byte should be 0x8
-        return (ipaddress[0] == -1) && (ipaddress[1] & 15) == 8;
+        return ((ipaddress[0] & 0xff) == 0xff) && ((ipaddress[1] & 0x0f) == 0x08); // ffx8:/16
+    }
+
+    @Override public boolean isMCSiteLocal() {
+        return ((ipaddress[0] & 0xff) == 0xff) && ((ipaddress[1] & 0x0f) == 0x05); // ffx5:/16
+    }
+
+    @Override public boolean isMulticastAddress() {
+        return ((ipaddress[0] & 0xff) == 0xff); // ff::/8
+    }
+
+    @Override public boolean isSiteLocalAddress() {
+        return ((ipaddress[0] & 0xff) == 0xfe) && ((ipaddress[1] & 0xc0) == 0xc0); // fec0:/10
     }
 
     /**
@@ -272,18 +240,6 @@ public final class Inet6Address extends InetAddress {
         } catch (SocketException ex) {
             return null;
         }
-    }
-
-    /**
-     * Returns whether this address is an IPv4-compatible address or not.
-     */
-    public boolean isIPv4CompatibleAddress() {
-        for (int i = 0; i < 12; i++) {
-            if (ipaddress[i] != 0) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private static final ObjectStreamField[] serialPersistentFields = {
