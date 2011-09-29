@@ -31,10 +31,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import libcore.io.ErrnoException;
 import libcore.io.GaiException;
-import libcore.io.Libcore;
 import libcore.io.IoBridge;
+import libcore.io.Libcore;
 import libcore.io.Memory;
 import libcore.io.StructAddrinfo;
 import static libcore.io.OsConstants.*;
@@ -132,12 +134,6 @@ public class InetAddress implements Serializable {
     private static final AddressCache addressCache = new AddressCache();
 
     private static final long serialVersionUID = 3286316764910316507L;
-
-    private transient Object waitReachable = new Object();
-
-    private boolean reached;
-
-    private int addrCount;
 
     private int family;
 
@@ -641,8 +637,8 @@ public class InetAddress implements Serializable {
 
     /**
      * Tries to reach this {@code InetAddress}. This method first tries to use
-     * ICMP <i>(ICMP ECHO REQUEST)</i>. When first step fails, a TCP connection
-     * on port 7 (Echo) of the remote host is established.
+     * ICMP <i>(ICMP ECHO REQUEST)</i>, falling back to a TCP connection
+     * on port 7 (Echo) of the remote host.
      *
      * @param timeout
      *            timeout in milliseconds before the test fails if no connection
@@ -660,8 +656,8 @@ public class InetAddress implements Serializable {
 
     /**
      * Tries to reach this {@code InetAddress}. This method first tries to use
-     * ICMP <i>(ICMP ECHO REQUEST)</i>. When first step fails, a TCP connection
-     * on port 7 (Echo) of the remote host is established.
+     * ICMP <i>(ICMP ECHO REQUEST)</i>, falling back to a TCP connection
+     * on port 7 (Echo) of the remote host.
      *
      * @param networkInterface
      *            the network interface on which to connection should be
@@ -678,112 +674,53 @@ public class InetAddress implements Serializable {
      * @throws IllegalArgumentException
      *             if ttl or timeout is less than zero.
      */
-    public boolean isReachable(NetworkInterface networkInterface, final int ttl,
-            final int timeout) throws IOException {
+    public boolean isReachable(NetworkInterface networkInterface, final int ttl, final int timeout) throws IOException {
         if (ttl < 0 || timeout < 0) {
             throw new IllegalArgumentException("ttl < 0 || timeout < 0");
         }
-        if (networkInterface == null) {
-            return isReachableByTCP(this, null, timeout);
-        } else {
-            return isReachableByMultiThread(networkInterface, ttl, timeout);
-        }
-    }
 
-    /*
-     * Uses multi-Thread to try if isReachable, returns true if any of threads
-     * returns in time
-     */
-    private boolean isReachableByMultiThread(NetworkInterface netif,
-            final int ttl, final int timeout)
-            throws IOException {
-        List<InetAddress> addresses = Collections.list(netif.getInetAddresses());
-        if (addresses.isEmpty()) {
+        // The simple case.
+        if (networkInterface == null) {
+            return isReachable(this, null, timeout);
+        }
+
+        // Try each NetworkInterface in parallel.
+        // Use a thread pool Executor?
+        List<InetAddress> sourceAddresses = Collections.list(networkInterface.getInetAddresses());
+        if (sourceAddresses.isEmpty()) {
             return false;
         }
-        reached = false;
-        addrCount = addresses.size();
-        boolean needWait = false;
-        for (final InetAddress addr : addresses) {
-            // loopback interface can only reach to local addresses
-            if (addr.isLoopbackAddress()) {
-                Enumeration<NetworkInterface> NetworkInterfaces = NetworkInterface
-                        .getNetworkInterfaces();
-                while (NetworkInterfaces.hasMoreElements()) {
-                    NetworkInterface networkInterface = NetworkInterfaces
-                            .nextElement();
-                    Enumeration<InetAddress> localAddresses = networkInterface
-                            .getInetAddresses();
-                    while (localAddresses.hasMoreElements()) {
-                        if (InetAddress.this.equals(localAddresses
-                                .nextElement())) {
-                            return true;
-                        }
-                    }
-                }
-
-                synchronized (waitReachable) {
-                    addrCount--;
-
-                    if (addrCount == 0) {
-                        // if count equals zero, all thread
-                        // expired,notifies main thread
-                        waitReachable.notifyAll();
-                    }
-                }
-                continue;
-            }
-
-            needWait = true;
+        final InetAddress destinationAddress = this;
+        final CountDownLatch latch = new CountDownLatch(sourceAddresses.size());
+        final AtomicBoolean isReachable = new AtomicBoolean(false);
+        for (final InetAddress sourceAddress : sourceAddresses) {
             new Thread() {
                 @Override public void run() {
-                    /*
-                     * Spec violation! This implementation doesn't attempt an
-                     * ICMP; it skips right to TCP echo.
-                     */
-                    boolean threadReached = false;
                     try {
-                        threadReached = isReachableByTCP(addr, InetAddress.this, timeout);
-                    } catch (IOException e) {
-                    }
-
-                    synchronized (waitReachable) {
-                        if (threadReached) {
-                            // if thread reached this address, sets reached to
-                            // true and notifies main thread
-                            reached = true;
-                            waitReachable.notifyAll();
-                        } else {
-                            addrCount--;
-                            if (addrCount == 0) {
-                                // if count equals zero, all thread
-                                // expired,notifies main thread
-                                waitReachable.notifyAll();
+                        if (isReachable(destinationAddress, sourceAddress, timeout)) {
+                            isReachable.set(true);
+                            // Wake the main thread so it can return success without
+                            // waiting for any other threads to time out.
+                            while (latch.getCount() > 0) {
+                                latch.countDown();
                             }
                         }
+                    } catch (IOException ignored) {
                     }
+                    latch.countDown();
                 }
             }.start();
         }
-
-        if (needWait) {
-            synchronized (waitReachable) {
-                try {
-                    while (!reached && (addrCount != 0)) {
-                        // wait for notification
-                        waitReachable.wait(1000);
-                    }
-                } catch (InterruptedException e) {
-                    // do nothing
-                }
-                return reached;
-            }
+        try {
+            latch.await();
+        } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt(); // Leave the interrupted bit set.
         }
-
-        return false;
+        return isReachable.get();
     }
 
-    private boolean isReachableByTCP(InetAddress destination, InetAddress source, int timeout) throws IOException {
+    private boolean isReachable(InetAddress destination, InetAddress source, int timeout) throws IOException {
+        // TODO: try ICMP first (http://code.google.com/p/android/issues/detail?id=20106)
         FileDescriptor fd = IoBridge.socket(true);
         boolean reached = false;
         try {

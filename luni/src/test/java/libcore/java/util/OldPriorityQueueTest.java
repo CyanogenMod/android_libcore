@@ -67,10 +67,8 @@ public class OldPriorityQueueTest extends TestCase {
     public void test_Serialization() throws Exception {
         Integer[] array = { 2, 45, 7, -12, 9, 23, 17, 1118, 10, 16, 39 };
         List<Integer> list = Arrays.asList(array);
-        PriorityQueue<Integer> srcIntegerQueue = new PriorityQueue<Integer>(
-                list);
-        PriorityQueue<Integer> destIntegerQueue = (PriorityQueue<Integer>) SerializationTester
-                .getDeserilizedObject(srcIntegerQueue);
+        PriorityQueue<Integer> srcIntegerQueue = new PriorityQueue<Integer>(list);
+        PriorityQueue<Integer> destIntegerQueue = SerializationTester.getDeserializedObject(srcIntegerQueue);
         Arrays.sort(array);
         for (int i = 0; i < array.length; i++) {
             assertEquals(array[i], destIntegerQueue.poll());
@@ -81,10 +79,9 @@ public class OldPriorityQueueTest extends TestCase {
     public void test_Serialization_casting() throws Exception {
         Integer[] array = { 2, 45, 7, -12, 9, 23, 17, 1118, 10, 16, 39 };
         List<Integer> list = Arrays.asList(array);
-        PriorityQueue<Integer> srcIntegerQueue = new PriorityQueue<Integer>(
-                list);
-        PriorityQueue<String> destStringQueue = (PriorityQueue<String>) SerializationTester
-                .getDeserilizedObject(srcIntegerQueue);
+        PriorityQueue<Integer> srcIntegerQueue = new PriorityQueue<Integer>(list);
+        Object dodgy = SerializationTester.getDeserializedObject((Object) srcIntegerQueue);
+        PriorityQueue<String> destStringQueue = (PriorityQueue<String>) dodgy;
         // will not incur class cast exception.
         Object o = destStringQueue.peek();
         Arrays.sort(array);

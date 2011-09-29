@@ -27,6 +27,7 @@ import java.text.AttributedCharacterIterator;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import junit.framework.TestCase;
+import tests.util.SerializationTester;
 
 /**
  * AttributedCharacterIterator.Attribute is used like the base enum type and
@@ -44,21 +45,14 @@ public final class AttributedCharacterIteratorAttributeTest extends TestCase {
     public void testSerializingSubclass() throws IOException, ClassNotFoundException {
         AttributedCharacterIterator.Attribute a = new CustomAttribute();
         try {
-            reserialize(a);
+            SerializationTester.getDeserializedObject(a);
             fail();
         } catch (InvalidObjectException expected) {
         }
     }
 
     private void assertSameReserialized(Object o) throws ClassNotFoundException, IOException {
-        assertSame(o, reserialize(o));
-    }
-
-    private Object reserialize(Object o) throws IOException, ClassNotFoundException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new ObjectOutputStream(out).writeObject(o);
-        InputStream in = new ByteArrayInputStream(out.toByteArray());
-        return new ObjectInputStream(in).readObject();
+        assertSame(o, SerializationTester.getDeserializedObject(o));
     }
 
     private static class CustomAttribute extends AttributedCharacterIterator.Attribute {

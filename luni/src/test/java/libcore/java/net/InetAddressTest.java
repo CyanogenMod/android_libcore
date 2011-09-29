@@ -16,10 +16,19 @@
 
 package libcore.java.net;
 
-import java.net.InetAddress;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.UnknownHostException;
+import java.util.Collections;
+import tests.util.SerializationTester;
 
 public class InetAddressTest extends junit.framework.TestCase {
     private static final byte[] LOOPBACK6_BYTES = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
@@ -125,6 +134,15 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertFalse(InetAddress.getByName("ff06::").isMCSiteLocal());
         assertTrue(InetAddress.getByName("ff05::").isMCSiteLocal());
         assertTrue(InetAddress.getByName("ff15::").isMCSiteLocal());
+    }
+
+    public void test_isReachable() throws Exception {
+        // http://code.google.com/p/android/issues/detail?id=20203
+        InetAddress addr = SerializationTester.getDeserializedObject(InetAddress.getByName("www.google.com"));
+        addr.isReachable(500);
+        for (NetworkInterface nif : Collections.list(NetworkInterface.getNetworkInterfaces())) {
+            addr.isReachable(nif, 20, 500);
+        }
     }
 
     public void test_isSiteLocalAddress() throws Exception {
