@@ -66,7 +66,7 @@ public class SerializationTester {
      *            the input object
      * @return the deserialized object
      */
-    public static Object getDeserilizedObject(Object inputObject)
+    public static <T> T getDeserializedObject(T inputObject)
             throws IOException, ClassNotFoundException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(bos);
@@ -78,7 +78,7 @@ public class SerializationTester {
         Object outputObject = ois.readObject();
         lastOutput = outputObject;
         ois.close();
-        return outputObject;
+        return (T) outputObject;
     }
 
     /**
@@ -92,7 +92,7 @@ public class SerializationTester {
      *             If any occurs.
      */
     public static boolean assertSame(Object inputObject) throws Exception {
-        return inputObject == getDeserilizedObject(inputObject);
+        return inputObject == getDeserializedObject(inputObject);
     }
 
     /**
@@ -106,7 +106,7 @@ public class SerializationTester {
      *             If any occurs.
      */
     public static boolean assertEquals(Object inputObject) throws Exception {
-        return inputObject.equals(getDeserilizedObject(inputObject));
+        return inputObject.equals(getDeserializedObject(inputObject));
     }
 
     /**
@@ -120,7 +120,7 @@ public class SerializationTester {
      * @throws Exception
      *             If any occurs.
      */
-    public static boolean assertCompabilitySame(Object obj, String fileName)
+    public static boolean assertCompatibilitySame(Object obj, String fileName)
             throws Exception {
         return obj == readObject(obj, fileName);
     }
@@ -137,7 +137,7 @@ public class SerializationTester {
      * @throws Exception
      *             If any occurs.
      */
-    public static boolean assertCompabilityEquals(Object obj, String fileName)
+    public static boolean assertCompatibilityEquals(Object obj, String fileName)
             throws Exception {
         return obj.equals(readObject(obj, fileName));
     }
