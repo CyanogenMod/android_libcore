@@ -300,6 +300,36 @@ public final class ReflectionTest extends TestCase {
         assertEquals(1, count(names(fields), "field"));
     }
 
+    public void testIsLocalClass() {
+        A methodLevelAnonymous = new A() {};
+        class Local {}
+        class $Local$1 {}
+        assertFalse(ReflectionTest.class.isLocalClass());
+        assertFalse(A.class.isLocalClass());
+        assertFalse($Dollar$1.class.isLocalClass());
+        assertFalse(CLASS_LEVEL_ANONYMOUS.getClass().isLocalClass());
+        assertFalse(methodLevelAnonymous.getClass().isLocalClass());
+        assertTrue(Local.class.isLocalClass());
+        assertTrue($Local$1.class.isLocalClass());
+        assertFalse(int.class.isLocalClass());
+        assertFalse(Object.class.isLocalClass());
+    }
+
+    public void testIsAnonymousClass() {
+        A methodLevelAnonymous = new A() {};
+        class Local {}
+        class $Local$1 {}
+        assertFalse(ReflectionTest.class.isAnonymousClass());
+        assertFalse(A.class.isAnonymousClass());
+        assertFalse($Dollar$1.class.isAnonymousClass());
+        assertTrue(CLASS_LEVEL_ANONYMOUS.getClass().isAnonymousClass());
+        assertTrue(methodLevelAnonymous.getClass().isAnonymousClass());
+        assertFalse(Local.class.isAnonymousClass());
+        assertFalse($Local$1.class.isAnonymousClass());
+        assertFalse(int.class.isAnonymousClass());
+        assertFalse(Object.class.isAnonymousClass());
+    }
+
     /**
      * Class.isEnum() erroneously returned true for indirect descendants of
      * Enum. http://b/1062200.
@@ -322,8 +352,10 @@ public final class ReflectionTest extends TestCase {
         assertNull(greenClass.getEnumConstants());
     }
 
+    static class $Dollar$1 {}
     static class A {}
     static class AList extends ArrayList<A> {}
+    static A CLASS_LEVEL_ANONYMOUS = new A() {};
 
     static class B extends Exception {}
 
