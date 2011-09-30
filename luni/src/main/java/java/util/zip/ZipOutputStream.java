@@ -161,6 +161,10 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         // Update the CentralDirectory
         // http://www.pkware.com/documents/casestudies/APPNOTE.TXT
         int flags = currentEntry.getMethod() == STORED ? 0 : ZipFile.GPBF_DATA_DESCRIPTOR_FLAG;
+        // Since gingerbread, we always set the UTF-8 flag on individual files.
+        // Some tools insist that the central directory also have the UTF-8 flag.
+        // http://code.google.com/p/android/issues/detail?id=20214
+        flags |= ZipFile.GPBF_UTF8_FLAG;
         writeLong(cDir, CENSIG);
         writeShort(cDir, ZIPLocalHeaderVersionNeeded); // Version created
         writeShort(cDir, ZIPLocalHeaderVersionNeeded); // Version to extract
