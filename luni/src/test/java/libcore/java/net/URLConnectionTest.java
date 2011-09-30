@@ -1866,6 +1866,35 @@ public final class URLConnectionTest extends TestCase {
         assertEquals("GET /?query HTTP/1.1", request.getRequestLine());
     }
 
+    // http://code.google.com/p/android/issues/detail?id=20442
+    public void testInputStreamAvailableWithChunkedEncoding() throws Exception {
+        testInputStreamAvailable(TransferKind.CHUNKED);
+    }
+
+    public void testInputStreamAvailableWithContentLengthHeader() throws Exception {
+        testInputStreamAvailable(TransferKind.FIXED_LENGTH);
+    }
+
+    public void testInputStreamAvailableWithNoLengthHeaders() throws Exception {
+        testInputStreamAvailable(TransferKind.END_OF_STREAM);
+    }
+
+    private void testInputStreamAvailable(TransferKind transferKind) throws IOException {
+        String body = "ABCDEFGH";
+        MockResponse response = new MockResponse();
+        transferKind.setBody(response, body, 4);
+        server.enqueue(response);
+        server.play();
+        URLConnection connection = server.getUrl("/").openConnection();
+        InputStream in = connection.getInputStream();
+        for (int i = 0; i < body.length(); i++) {
+            assertTrue(in.available() >= 0);
+            assertEquals(body.charAt(i), in.read());
+        }
+        assertEquals(0, in.available());
+        assertEquals(-1, in.read());
+    }
+
     /**
      * Returns a gzipped copy of {@code bytes}.
      */
