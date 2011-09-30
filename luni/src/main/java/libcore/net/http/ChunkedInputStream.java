@@ -95,7 +95,10 @@ final class ChunkedInputStream extends AbstractHttpInputStream {
 
     @Override public int available() throws IOException {
         checkNotClosed();
-        return hasMoreChunks ? Math.min(in.available(), bytesRemainingInChunk) : 0;
+        if (!hasMoreChunks || bytesRemainingInChunk == NO_CHUNK_YET) {
+            return 0;
+        }
+        return Math.min(in.available(), bytesRemainingInChunk);
     }
 
     @Override public void close() throws IOException {
