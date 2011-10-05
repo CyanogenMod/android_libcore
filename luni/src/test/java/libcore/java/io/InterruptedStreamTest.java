@@ -25,7 +25,6 @@ import java.io.PipedOutputStream;
 import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
@@ -87,20 +86,6 @@ public final class InterruptedStreamTest extends TestCase {
         testInterruptWritableChannel(Pipe.open().sink());
     }
 
-    /**
-     * Neither the RI nor Dalvik support interrupting sockets. We'd like to add
-     * support for that. http://b/4181738
-     */
-    public void testInterruptSocketInputStream() throws Exception {
-        sockets = newSocketPair();
-        testInterruptInputStream(sockets[0].getInputStream());
-    }
-
-    public void testInterruptSocketOutputStream() throws Exception {
-        sockets = newSocketPair();
-        testInterruptOutputStream(sockets[0].getOutputStream());
-    }
-
     public void testInterruptReadableSocketChannel() throws Exception {
         sockets = newSocketChannelPair();
         testInterruptReadableChannel(sockets[0].getChannel());
@@ -109,18 +94,6 @@ public final class InterruptedStreamTest extends TestCase {
     public void testInterruptWritableSocketChannel() throws Exception {
         sockets = newSocketChannelPair();
         testInterruptReadableChannel(sockets[0].getChannel());
-    }
-
-    /**
-     * Returns a pair of connected sockets backed by IO sockets.
-     */
-    private Socket[] newSocketPair() throws IOException {
-        ServerSocket serverSocket = new ServerSocket(0);
-        serverSocket.setReuseAddress(true);
-        Socket client = new Socket();
-        client.connect(serverSocket.getLocalSocketAddress());
-        Socket server = serverSocket.accept();
-        return new Socket[] { client, server };
     }
 
     /**
