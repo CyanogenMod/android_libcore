@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.RandomAccess;
 import java.util.zip.Adler32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -54,7 +55,11 @@ public final class Dex {
     private final TableOfContents tableOfContents = new TableOfContents();
     private int nextSectionStart = 0;
 
-    private final List<String> strings = new AbstractList<String>() {
+    private static abstract class AbstractRandomAccessList<T>
+            extends AbstractList<T> implements RandomAccess {
+    }
+
+    private List<String> strings = new AbstractRandomAccessList<String>() {
         @Override public String get(int index) {
             checkBounds(index, tableOfContents.stringIds.size);
             return open(tableOfContents.stringIds.off + (index * SizeOf.STRING_ID_ITEM))
@@ -65,7 +70,7 @@ public final class Dex {
         }
     };
 
-    private final List<Integer> typeIds = new AbstractList<Integer>() {
+    private final List<Integer> typeIds = new AbstractRandomAccessList<Integer>() {
         @Override public Integer get(int index) {
             checkBounds(index, tableOfContents.typeIds.size);
             return open(tableOfContents.typeIds.off + (index * SizeOf.TYPE_ID_ITEM)).readInt();
@@ -75,7 +80,7 @@ public final class Dex {
         }
     };
 
-    private final List<String> typeNames = new AbstractList<String>() {
+    private final List<String> typeNames = new AbstractRandomAccessList<String>() {
         @Override public String get(int index) {
             checkBounds(index, tableOfContents.typeIds.size);
             return strings.get(typeIds.get(index));
@@ -85,7 +90,7 @@ public final class Dex {
         }
     };
 
-    private final List<ProtoId> protoIds = new AbstractList<ProtoId>() {
+    private final List<ProtoId> protoIds = new AbstractRandomAccessList<ProtoId>() {
         @Override public ProtoId get(int index) {
             checkBounds(index, tableOfContents.protoIds.size);
             return open(tableOfContents.protoIds.off + (SizeOf.PROTO_ID_ITEM * index))
@@ -96,7 +101,7 @@ public final class Dex {
         }
     };
 
-    private final List<FieldId> fieldIds = new AbstractList<FieldId>() {
+    private final List<FieldId> fieldIds = new AbstractRandomAccessList<FieldId>() {
         @Override public FieldId get(int index) {
             checkBounds(index, tableOfContents.fieldIds.size);
             return open(tableOfContents.fieldIds.off + (SizeOf.MEMBER_ID_ITEM * index))
@@ -107,7 +112,7 @@ public final class Dex {
         }
     };
 
-    private final List<MethodId> methodIds = new AbstractList<MethodId>() {
+    private final List<MethodId> methodIds = new AbstractRandomAccessList<MethodId>() {
         @Override public MethodId get(int index) {
             checkBounds(index, tableOfContents.methodIds.size);
             return open(tableOfContents.methodIds.off + (SizeOf.MEMBER_ID_ITEM * index))
