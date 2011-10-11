@@ -33,7 +33,6 @@
 package java.lang;
 
 import dalvik.system.PathClassLoader;
-import dalvik.system.VMStack;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -44,6 +43,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Loads classes and resources from a repository. One or more class loaders are
@@ -90,6 +90,14 @@ public abstract class ClassLoader {
      * The packages known to the class loader.
      */
     private Map<String, Package> packages = new HashMap<String, Package>();
+
+    /**
+     * Maps implemented interfaces to {@link java.lang.reflect.Proxy} classes.
+     *
+     * @hide
+     */
+    public final Map<Set<Class<?>>, Class<?>> proxyCache
+            = Collections.synchronizedMap(new HashMap<Set<Class<?>>, Class<?>>());
 
     /**
      * Create the system class loader. Note this is NOT the bootstrap class

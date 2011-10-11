@@ -1224,11 +1224,22 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         // TODO This might be a hack, but the VM doesn't have the necessary info.
         ClassLoader loader = getClassLoader();
         if (loader != null) {
-            String name = getName();
-            int dot = name.lastIndexOf('.');
-            return (dot != -1 ? loader.getPackage(name.substring(0, dot)) : null);
+            String packageName = getPackageName$();
+            return packageName != null ? loader.getPackage(packageName) : null;
         }
         return null;
+    }
+
+    /**
+     * Returns the package name of this class. This returns null for classes in
+     * the default package.
+     *
+     * @hide
+     */
+    public String getPackageName$() {
+        String name = getName();
+        int last = name.lastIndexOf('.');
+        return last == -1 ? null : name.substring(0, last);
     }
 
     /**

@@ -16,14 +16,25 @@
 
 package libcore.java.lang.reflect;
 
+import java.io.EOFException;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.net.SocketException;
 import junit.framework.TestCase;
 import tests.util.ClassLoaderBuilder;
 
 public final class ProxyTest extends TestCase {
+    private final ClassLoader loader = getClass().getClassLoader();
+    private final InvocationHandler returnHandler = new TestInvocationHandler();
+    private final InvocationHandler throwHandler = new InvocationHandler() {
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            throw (Throwable) args[0];
+        }
+    };
 
     /**
      * Make sure the proxy's class loader fails if it cannot see the class
@@ -36,7 +47,7 @@ public final class ProxyTest extends TestCase {
 
         Class[] interfacesA = { loaderA.loadClass(prefix + "$Echo") };
         try {
-            Proxy.newProxyInstance(loaderB, interfacesA, new TestInvocationHandler());
+            Proxy.newProxyInstance(loaderB, interfacesA, returnHandler);
             fail();
         } catch (IllegalArgumentException expected) {
         }
@@ -55,8 +66,212 @@ public final class ProxyTest extends TestCase {
         assertEquals("foo", proxy.getClass().getMethod("echo", String.class).invoke(proxy, "foo"));
     }
 
+    public void testIncompatibleReturnTypesPrimitiveAndPrimitive() {
+        try {
+            Proxy.newProxyInstance(loader, new Class[] {ReturnsInt.class, ReturnsFloat.class},
+                    returnHandler);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    public void testIncompatibleReturnTypesPrimitiveAndWrapper() {
+        try {
+            Proxy.newProxyInstance(loader, new Class[] {ReturnsInt.class, ReturnsInteger.class},
+                    returnHandler);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    public void testIncompatibleReturnTypesPrimitiveAndVoid() {
+        try {
+            Proxy.newProxyInstance(loader, new Class[] {ReturnsInt.class, ReturnsVoid.class},
+                    returnHandler);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    public void testIncompatibleReturnTypesIncompatibleObjects() {
+        try {
+            Proxy.newProxyInstance(loader, new Class[] {ReturnsInteger.class, ReturnsString.class },
+                    returnHandler);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    public void testCompatibleReturnTypesImplementedInterface() {
+        Proxy.newProxyInstance(loader, new Class[] {ReturnsString.class, ReturnsCharSequence.class},
+                returnHandler);
+    }
+
+    public void testCompatibleReturnTypesSuperclass() {
+        Proxy.newProxyInstance(loader, new Class[] {ReturnsString.class, ReturnsObject.class},
+                returnHandler);
+    }
+
+    public void testDeclaredExceptionIntersectionIsSubtype() throws Exception {
+        ThrowsIOException instance = (ThrowsIOException) Proxy.newProxyInstance(loader,
+                new Class[] {ThrowsIOException.class, ThrowsEOFException.class},
+                throwHandler);
+        try {
+            instance.run(new EOFException());
+            fail();
+        } catch (EOFException expected) {
+        }
+        try {
+            instance.run(new IOException());
+            fail();
+        } catch (UndeclaredThrowableException expected) {
+        }
+        try {
+            instance.run(new Exception());
+            fail();
+        } catch (UndeclaredThrowableException expected) {
+        }
+    }
+
+    public void testDeclaredExceptionIntersectionIsEmpty() throws Exception {
+        ThrowsEOFException instance = (ThrowsEOFException) Proxy.newProxyInstance(loader,
+                new Class[] {ThrowsSocketException.class, ThrowsEOFException.class},
+                throwHandler);
+        try {
+            instance.run(new EOFException());
+            fail();
+        } catch (UndeclaredThrowableException expected) {
+        }
+        try {
+            instance.run(new SocketException());
+            fail();
+        } catch (UndeclaredThrowableException expected) {
+        }
+    }
+
+    public void testDeclaredExceptionIntersectionIsSubset() throws Exception {
+        ThrowsEOFException instance = (ThrowsEOFException) Proxy.newProxyInstance(loader,
+                new Class[] {ThrowsEOFException.class, ThrowsSocketExceptionAndEOFException.class},
+                throwHandler);
+        try {
+            instance.run(new EOFException());
+            fail();
+        } catch (EOFException expected) {
+        }
+        try {
+            instance.run(new SocketException());
+            fail();
+        } catch (UndeclaredThrowableException expected) {
+        }
+        try {
+            instance.run(new IOException());
+            fail();
+        } catch (UndeclaredThrowableException expected) {
+        }
+    }
+
+    public void testMethodsImplementedByFarIndirectInterface() {
+        ExtendsExtendsDeclaresFiveMethods instance = (ExtendsExtendsDeclaresFiveMethods)
+                Proxy.newProxyInstance(loader, new Class[]{ExtendsExtendsDeclaresFiveMethods.class},
+                returnHandler);
+        assertEquals("foo", instance.a("foo"));
+        assertEquals(0x12345678, instance.b(0x12345678));
+        assertEquals(Double.MIN_VALUE, instance.c(Double.MIN_VALUE));
+        assertEquals(null, instance.d(null));
+        assertEquals(0x1234567890abcdefL, instance.e(0x1234567890abcdefL));
+    }
+
+    public void testEquals() {
+        InvocationHandler handler = new InvocationHandler() {
+            @Override public Object invoke(Object proxy, Method method, Object[] args) {
+                return args[0] == ProxyTest.class; // bogus as equals(), but good for testing
+            }
+        };
+        Echo instance = (Echo) Proxy.newProxyInstance(loader, new Class[]{Echo.class}, handler);
+        assertTrue(instance.equals(ProxyTest.class));
+        assertFalse(instance.equals(new Object()));
+        assertFalse(instance.equals(instance));
+        assertFalse(instance.equals(null));
+    }
+
+    public void testHashCode() {
+        InvocationHandler handler = new InvocationHandler() {
+            @Override public Object invoke(Object proxy, Method method, Object[] args) {
+                return 0x12345678;
+            }
+        };
+        Echo instance = (Echo) Proxy.newProxyInstance(loader, new Class[]{Echo.class}, handler);
+        assertEquals(0x12345678, instance.hashCode());
+    }
+
+    public void testToString() {
+        InvocationHandler handler = new InvocationHandler() {
+            @Override public Object invoke(Object proxy, Method method, Object[] args) {
+                return "foo";
+            }
+        };
+        Echo instance = (Echo) Proxy.newProxyInstance(loader, new Class[]{Echo.class}, handler);
+        assertEquals("foo", instance.toString());
+    }
+
     public interface Echo {
         String echo(String s);
+    }
+
+    public interface ReturnsInt {
+        int foo();
+    }
+
+    public interface ReturnsFloat {
+        float foo();
+    }
+
+    public interface ReturnsInteger {
+        Integer foo();
+    }
+
+    public interface ReturnsString {
+        String foo();
+    }
+
+    public interface ReturnsCharSequence {
+        CharSequence foo();
+    }
+
+    public interface ReturnsObject {
+        Object foo();
+    }
+
+    public interface ReturnsVoid {
+        void foo();
+    }
+
+    public interface ThrowsIOException {
+        void run(Throwable toThrow) throws IOException;
+    }
+
+    public interface ThrowsEOFException {
+        void run(Throwable toThrow) throws EOFException;
+    }
+
+    public interface ThrowsSocketException {
+        void run(Throwable toThrow) throws SocketException;
+    }
+
+    public interface ThrowsSocketExceptionAndEOFException {
+        void run(Throwable toThrow) throws SocketException, EOFException;
+    }
+
+    public interface DeclaresFiveMethods {
+        String a(String a);
+        int b(int b);
+        double c(double c);
+        Object d(Object d);
+        long e(long e);
+    }
+    public interface ExtendsDeclaresFiveMethods extends DeclaresFiveMethods {
+    }
+    public interface ExtendsExtendsDeclaresFiveMethods extends ExtendsDeclaresFiveMethods {
     }
 
     public static class TestInvocationHandler implements InvocationHandler {
