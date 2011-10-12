@@ -83,7 +83,9 @@ public class DoubleTest extends TestCase {
             // Exponents missing integer values.
             "1.0e", "1.0e+", "1.0e-",
             // Exponents with too many explicit signs.
-            "1.0e++1", "1.0e+-1", "1.0e-+1", "1.0e--1"
+            "1.0e++1", "1.0e+-1", "1.0e-+1", "1.0e--1",
+            // http://code.google.com/p/android/issues/detail?id=20728
+            "save+", "save-",
         };
         for (String string : strings) {
             try {
