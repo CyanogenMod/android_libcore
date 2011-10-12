@@ -27,6 +27,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -151,6 +152,53 @@ public final class AnnotationsTest extends TestCase {
                 IOException.class, InvocationTargetException.class, IllegalStateException.class);
         assertSetEquals(proxy.getClass().getMethod("foo", Void.class).getExceptionTypes());
     }
+
+    public void testClassModifiers() {
+        int modifiers = AnnotationsTest.class.getModifiers();
+        assertTrue(Modifier.isPublic(modifiers));
+        assertFalse(Modifier.isProtected(modifiers));
+        assertFalse(Modifier.isPrivate(modifiers));
+        assertFalse(Modifier.isAbstract(modifiers));
+        assertFalse(Modifier.isStatic(modifiers));
+        assertTrue(Modifier.isFinal(modifiers));
+        assertFalse(Modifier.isStrict(modifiers));
+    }
+
+    public void testInnerClassModifiers() {
+        int modifiers = Foo.class.getModifiers();
+        assertFalse(Modifier.isPublic(modifiers));
+        assertFalse(Modifier.isProtected(modifiers));
+        assertTrue(Modifier.isPrivate(modifiers));
+        assertFalse(Modifier.isAbstract(modifiers));
+        assertTrue(Modifier.isStatic(modifiers));
+        assertFalse(Modifier.isFinal(modifiers));
+        assertFalse(Modifier.isStrict(modifiers));
+    }
+
+    public void testAnonymousClassModifiers() {
+        int modifiers = staticAnonymous.getClass().getModifiers();
+        assertFalse(Modifier.isPublic(modifiers));
+        assertFalse(Modifier.isProtected(modifiers));
+        assertFalse(Modifier.isPrivate(modifiers));
+        assertFalse(Modifier.isAbstract(modifiers));
+        assertTrue(Modifier.isStatic(modifiers));
+        assertFalse(Modifier.isFinal(modifiers));
+        assertFalse(Modifier.isStrict(modifiers));
+    }
+
+    public void testInnerClassName() {
+        assertEquals("AnnotationsTest", AnnotationsTest.class.getSimpleName());
+        assertEquals("Foo", Foo.class.getSimpleName());
+        assertEquals("", staticAnonymous.getClass().getSimpleName());
+    }
+
+    public void testIsAnonymousClass() {
+        assertFalse(AnnotationsTest.class.isAnonymousClass());
+        assertFalse(Foo.class.isAnonymousClass());
+        assertTrue(staticAnonymous.getClass().isAnonymousClass());
+    }
+
+    private static final Object staticAnonymous = new Object() {};
 
     private static class Foo {
         Class<?> c;
