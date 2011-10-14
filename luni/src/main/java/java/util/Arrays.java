@@ -1739,16 +1739,13 @@ public class Arrays {
      *
      * @hide
      */
-    public static void checkStartAndEnd(int arrayLength, int start, int end) {
+    public static void checkStartAndEnd(int len, int start, int end) {
+        if (start < 0 || end > len) {
+            throw new ArrayIndexOutOfBoundsException("start < 0 || end > len."
+                    + " start=" + start + ", end=" + end + ", len=" + len);
+        }
         if (start > end) {
             throw new IllegalArgumentException("start > end: " + start + " > " + end);
-        }
-        if (start < 0) {
-            throw new ArrayIndexOutOfBoundsException("start < 0: " + start);
-        }
-        if (end > arrayLength) {
-            throw new ArrayIndexOutOfBoundsException("end > array length: " +
-                    end + " > " + arrayLength);
         }
     }
 
