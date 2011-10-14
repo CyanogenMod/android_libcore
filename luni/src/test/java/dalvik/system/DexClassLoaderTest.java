@@ -64,13 +64,18 @@ public class DexClassLoaderTest extends TestCase {
 
     protected void setUp() throws IOException {
         TMP_DIR.mkdirs();
-        OPTIMIZED_DIR.mkdirs();
 
         ClassLoader cl = DexClassLoaderTest.class.getClassLoader();
         copyResource(cl, JAR_NAME, JAR_FILE);
         copyResource(cl, DEX_NAME, DEX_FILE);
         copyResource(cl, JAR2_NAME, JAR2_FILE);
         copyResource(cl, DEX2_NAME, DEX2_FILE);
+
+        OPTIMIZED_DIR.mkdirs();
+        File[] files = OPTIMIZED_DIR.listFiles();
+        for (File file : files) {
+            file.delete();
+        }
     }
 
     /**
