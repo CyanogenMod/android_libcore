@@ -77,7 +77,7 @@ public class Support_Exec extends TestCase {
      * standard err, and returns. If the stream emits anything to standard err,
      * an AssertionFailedError will be thrown.
      *
-     * <p>This method assumes the target process will complete within ten
+     * <p>This method assumes the target process will complete within thirty
      * seconds. If it does not, an AssertionFailedError will be thrown.
      */
     public static String execAndGetOutput(ProcessBuilder builder) throws IOException {
@@ -92,8 +92,8 @@ public class Support_Exec extends TestCase {
             Throwable failure;
             String out = "";
             try {
-                out = outFuture.get(10, TimeUnit.SECONDS);
-                String err = errFuture.get(10, TimeUnit.SECONDS);
+                out = outFuture.get(30, TimeUnit.SECONDS);
+                String err = errFuture.get(30, TimeUnit.SECONDS);
                 failure = err.length() > 0
                         ? new AssertionFailedError("Unexpected err stream data:\n" + err)
                         : null;
