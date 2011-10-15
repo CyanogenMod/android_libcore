@@ -45,7 +45,6 @@ public class DalvikExecTest extends TestCase {
             builder.command().add("dalvikvm"); // for host mode, assume dalvikvm is on the path
         }
 
-        builder.command().add("-Djava.io.tmpdir=/tmp/mc");
         builder.command().add("-Duser.language=en");
         builder.command().add("-Duser.region=US");
         builder.command().add("-Xbootclasspath:" + System.getProperty("java.boot.class.path"));
@@ -56,6 +55,12 @@ public class DalvikExecTest extends TestCase {
         if (arg1 != null) {
             builder.command().add(arg1);
         }
+
+        // Create a writable dalvik-cache under ANDROID_DATA.
+        // The default dalvik-cache is only writable by the system user (and root).
+        String tmp = System.getProperty("java.io.tmpdir");
+        builder.environment().put("ANDROID_DATA", tmp);
+        new File(tmp, "dalvik-cache").mkdir();
 
         return execAndGetOutput(builder);
     }
