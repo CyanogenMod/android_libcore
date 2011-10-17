@@ -1735,7 +1735,7 @@ public class Arrays {
 
     /**
      * Checks that the range described by {@code start} and {@code end} doesn't exceed
-     * {@code arrayLength}.
+     * {@code len}.
      *
      * @hide
      */
