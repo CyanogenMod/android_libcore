@@ -75,6 +75,8 @@ public final class MimeUtils {
         add("application/vnd.oasis.opendocument.text-master", "odm");
         add("application/vnd.oasis.opendocument.text-template", "ott");
         add("application/vnd.oasis.opendocument.text-web", "oth");
+        add("application/vnd.google-earth.kml+xml", "kml");
+        add("application/vnd.google-earth.kmz", "kmz");
         add("application/msword", "doc");
         add("application/msword", "dot");
         add("application/vnd.openxmlformats-officedocument.wordprocessingml.document", "docx");
