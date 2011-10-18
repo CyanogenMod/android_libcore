@@ -972,13 +972,6 @@ public class ArraysTest extends junit.framework.TestCase {
             fail("ArrayIndexOutOfBoundsException expected (2)");
         } catch (ArrayIndexOutOfBoundsException ignore) {
         }
-
-        //exception order testing
-        try {
-            Arrays.sort(new byte[1], startIndex + 1, startIndex);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ignore) {
-        }
     }
 
     /**
@@ -1037,13 +1030,6 @@ public class ArraysTest extends junit.framework.TestCase {
             Arrays.sort(reversedArray, startIndex, reversedArray.length + 1);
             fail("ArrayIndexOutOfBoundsException expected (2)");
         } catch (ArrayIndexOutOfBoundsException ignore) {
-        }
-
-        //exception order testing
-        try {
-            Arrays.sort(new char[1], startIndex + 1, startIndex);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ignore) {
         }
     }
 
@@ -1127,13 +1113,6 @@ public class ArraysTest extends junit.framework.TestCase {
             fail("ArrayIndexOutOfBoundsException expected (2)");
         } catch (ArrayIndexOutOfBoundsException ignore) {
         }
-
-        //exception order testing
-        try {
-            Arrays.sort(new double[1], startIndex + 1, startIndex);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ignore) {
-        }
     }
 
     /**
@@ -1216,13 +1195,6 @@ public class ArraysTest extends junit.framework.TestCase {
             fail("ArrayIndexOutOfBoundsException expected (2)");
         } catch (ArrayIndexOutOfBoundsException ignore) {
         }
-
-        //exception order testing
-        try {
-            Arrays.sort(new float[1], startIndex + 1, startIndex);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ignore) {
-        }
     }
 
     /**
@@ -1280,13 +1252,6 @@ public class ArraysTest extends junit.framework.TestCase {
             Arrays.sort(reversedArray, startIndex, reversedArray.length + 1);
             fail("ArrayIndexOutOfBoundsException expected (2)");
         } catch (ArrayIndexOutOfBoundsException ignore) {
-        }
-
-        //exception order testing
-        try {
-            Arrays.sort(new int[1], startIndex + 1, startIndex);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ignore) {
         }
     }
 
@@ -1346,13 +1311,6 @@ public class ArraysTest extends junit.framework.TestCase {
             Arrays.sort(reversedArray, startIndex, reversedArray.length + 1);
             fail("ArrayIndexOutOfBoundsException expected (2)");
         } catch (ArrayIndexOutOfBoundsException ignore) {
-        }
-
-        //exception order testing
-        try {
-            Arrays.sort(new long[1], startIndex + 1, startIndex);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ignore) {
         }
     }
 
@@ -1423,13 +1381,6 @@ public class ArraysTest extends junit.framework.TestCase {
             Arrays.sort(reversedArray, startIndex, reversedArray.length + 1);
             fail("ArrayIndexOutOfBoundsException expected (2)");
         } catch (ArrayIndexOutOfBoundsException ignore) {
-        }
-
-        //exception order testing
-        try {
-            Arrays.sort(new Object[1], startIndex + 1, startIndex);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ignore) {
         }
 
         Arrays.fill(reversedArray, 0, reversedArray.length/2, "String");
@@ -1584,13 +1535,6 @@ public class ArraysTest extends junit.framework.TestCase {
             Arrays.sort(reversedArray, startIndex, reversedArray.length + 1);
             fail("ArrayIndexOutOfBoundsException expected (2)");
         } catch (ArrayIndexOutOfBoundsException ignore) {
-        }
-
-        //exception order testing
-        try {
-            Arrays.sort(new short[1], startIndex + 1, startIndex);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ignore) {
         }
     }
 
