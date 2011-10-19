@@ -63,13 +63,20 @@ public final class RandomAccessFileTest extends TestCase {
 
     // http://b/3015023
     public void testRandomAccessFileHasCleanupFinalizer() throws Exception {
+        // TODO: this always succeeds on the host because our default open file limit is 32Ki.
+        // Add Libcore.os.getrlimit and use that instead of hard-coding.
         int tooManyOpenFiles = 2000;
         File file = File.createTempFile("RandomAccessFileTest", "tmp");
         for (int i = 0; i < tooManyOpenFiles; i++) {
-            new RandomAccessFile(file, "rw");
+            createRandomAccessFile(file);
             System.gc();
             System.runFinalization();
         }
+    }
+    private void createRandomAccessFile(File file) throws Exception {
+        // TODO: fix our register maps and remove this otherwise unnecessary
+        // indirection! (http://b/5412580)
+        new RandomAccessFile(file, "rw");
     }
 
     public void testDirectories() throws Exception {
