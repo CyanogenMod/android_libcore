@@ -139,7 +139,7 @@ public class Engine {
         ServiceCacheEntry cacheEntry = this.serviceCache;
         if (cacheEntry != null
                 && cacheEntry.algorithm.equalsIgnoreCase(algorithm)
-                && Services.refreshNumber != cacheEntry.refreshNumber) {
+                && Services.refreshNumber == cacheEntry.refreshNumber) {
             service = cacheEntry.service;
         } else {
             if (Services.isEmpty()) {
