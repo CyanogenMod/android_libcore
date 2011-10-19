@@ -616,6 +616,8 @@ public class CertificateTest extends TestCase {
                 fail("MD2 should not be allowed");
             } catch (NoSuchAlgorithmException e) {
                 // expected
+            } catch (Throwable e) {
+                throw new AssertionError(provider.getName(), e);
             }
         }
     }
