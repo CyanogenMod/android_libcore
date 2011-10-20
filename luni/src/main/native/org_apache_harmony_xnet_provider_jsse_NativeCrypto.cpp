@@ -301,7 +301,7 @@ static void throwSSLExceptionWithSslErrors(
     if (asprintf(&str, "%s: ssl=%p: %s", message, ssl, sslErrorStr) <= 0) {
         // problem with asprintf, just throw argument message, log everything
         throwSSLExceptionStr(env, message);
-        LOGV("%s: ssl=%p: %s", message, ssl, sslErrorStr);
+        ALOGV("%s: ssl=%p: %s", message, ssl, sslErrorStr);
         freeOpenSslErrorState();
         return;
     }
@@ -359,7 +359,7 @@ static void throwSSLExceptionWithSslErrors(
         throwSSLExceptionStr(env, allocStr);
     }
 
-    LOGV("%s", allocStr);
+    ALOGV("%s", allocStr);
     free(allocStr);
     freeOpenSslErrorState();
 }
