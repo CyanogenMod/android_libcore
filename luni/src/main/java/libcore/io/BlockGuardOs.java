@@ -48,26 +48,25 @@ public class BlockGuardOs extends ForwardingOs {
     }
 
     @Override public void close(FileDescriptor fd) throws ErrnoException {
-        if (S_ISSOCK(Libcore.os.fstat(fd).st_mode) && isLingerSocket(fd)) {
-            // If the fd is a socket with SO_LINGER set, we might block indefinitely.
-            // We allow non-linger sockets so that apps can close their network connections in
-            // methods like onDestroy which will run on the UI thread.
-            BlockGuard.getThreadPolicy().onNetwork();
-        }
-        os.close(fd);
-    }
-
-    private static boolean isLingerSocket(FileDescriptor fd) {
         try {
-            StructLinger linger = Libcore.os.getsockoptLinger(fd, SOL_SOCKET, SO_LINGER);
-            return linger.isOn() && linger.l_linger > 0;
+            if (S_ISSOCK(Libcore.os.fstat(fd).st_mode) && isLingerSocket(fd)) {
+                // If the fd is a socket with SO_LINGER set, we might block indefinitely.
+                // We allow non-linger sockets so that apps can close their network connections in
+                // methods like onDestroy which will run on the UI thread.
+                BlockGuard.getThreadPolicy().onNetwork();
+            }
         } catch (ErrnoException ignored) {
             // We're called via Socket.close (which doesn't ask for us to be called), so we
             // must not throw here, because Socket.close must not throw if asked to close an
             // already-closed socket. Also, the passed-in FileDescriptor isn't necessarily
             // a socket at all.
-            return false;
         }
+        os.close(fd);
+    }
+
+    private static boolean isLingerSocket(FileDescriptor fd) throws ErrnoException {
+        StructLinger linger = Libcore.os.getsockoptLinger(fd, SOL_SOCKET, SO_LINGER);
+        return linger.isOn() && linger.l_linger > 0;
     }
 
     @Override public void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException {
