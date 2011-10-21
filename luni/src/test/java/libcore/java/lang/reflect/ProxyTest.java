@@ -105,6 +105,11 @@ public final class ProxyTest extends TestCase {
     public void testCompatibleReturnTypesImplementedInterface() {
         Proxy.newProxyInstance(loader, new Class[] {ReturnsString.class, ReturnsCharSequence.class},
                 returnHandler);
+        Proxy.newProxyInstance(loader, new Class[]{ReturnsObject.class, ReturnsCharSequence.class,
+                ReturnsString.class}, returnHandler);
+        Proxy.newProxyInstance(loader, new Class[]{ReturnsObject.class, ReturnsCharSequence.class,
+                ReturnsString.class, ReturnsSerializable.class, ReturnsComparable.class},
+                returnHandler);
     }
 
     public void testCompatibleReturnTypesSuperclass() {
@@ -170,6 +175,32 @@ public final class ProxyTest extends TestCase {
         }
     }
 
+    public void testDeclaredExceptionIntersectedByExactReturnTypes() throws Exception {
+        ThrowsIOException instance = (ThrowsIOException) Proxy.newProxyInstance(loader,
+                new Class[] {ThrowsIOException.class, ThrowsEOFExceptionReturnsString.class},
+                throwHandler);
+        try {
+            instance.run(new EOFException());
+            fail();
+        } catch (EOFException expected) {
+        }
+        try {
+            instance.run(new IOException());
+            fail();
+        } catch (IOException expected) {
+        }
+        try {
+            ((ThrowsEOFExceptionReturnsString) instance).run(new EOFException());
+            fail();
+        } catch (EOFException expected) {
+        }
+        try {
+            ((ThrowsEOFExceptionReturnsString) instance).run(new IOException());
+            fail();
+        } catch (UndeclaredThrowableException expected) {
+        }
+    }
+
     public void testMethodsImplementedByFarIndirectInterface() {
         ExtendsExtendsDeclaresFiveMethods instance = (ExtendsExtendsDeclaresFiveMethods)
                 Proxy.newProxyInstance(loader, new Class[]{ExtendsExtendsDeclaresFiveMethods.class},
@@ -214,6 +245,43 @@ public final class ProxyTest extends TestCase {
         assertEquals("foo", instance.toString());
     }
 
+    public void testReturnTypeDoesNotSatisfyAllConstraintsWithLenientCaller() {
+        InvocationHandler handler = new InvocationHandler() {
+            @Override public Object invoke(Object proxy, Method method, Object[] args) {
+                assertEquals(Object.class, method.getReturnType());
+                return Boolean.TRUE; // not the right type for 'ReturnsString' callers
+            }
+        };
+        ReturnsObject returnsObject = (ReturnsObject) Proxy.newProxyInstance(loader,
+                new Class[] {ReturnsString.class, ReturnsObject.class}, handler);
+        assertEquals(true, returnsObject.foo());
+    }
+
+    public void testReturnTypeDoesNotSatisfyAllConstraintsWithStrictCaller() {
+        InvocationHandler handler = new InvocationHandler() {
+            @Override public Object invoke(Object proxy, Method method, Object[] args) {
+                assertEquals(String.class, method.getReturnType());
+                return Boolean.TRUE; // not the right type for 'ReturnsString' callers
+            }
+        };
+        ReturnsString returnsString = (ReturnsString) Proxy.newProxyInstance(loader,
+                new Class[] {ReturnsString.class, ReturnsObject.class}, handler);
+        try {
+            returnsString.foo();
+            fail();
+        } catch (ClassCastException expected) {
+        }
+    }
+
+    public void testReturnsTypeAndInterfaceNotImplementedByThatType() {
+        try {
+            Proxy.newProxyInstance(loader, new Class[] {ReturnsString.class, ReturnsEcho.class},
+                    returnHandler);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
     public interface Echo {
         String echo(String s);
     }
@@ -238,6 +306,14 @@ public final class ProxyTest extends TestCase {
         CharSequence foo();
     }
 
+    public interface ReturnsSerializable {
+        CharSequence foo();
+    }
+
+    public interface ReturnsComparable {
+        CharSequence foo();
+    }
+
     public interface ReturnsObject {
         Object foo();
     }
@@ -246,20 +322,29 @@ public final class ProxyTest extends TestCase {
         void foo();
     }
 
+    public interface ReturnsEcho {
+        Echo foo();
+    }
+
     public interface ThrowsIOException {
-        void run(Throwable toThrow) throws IOException;
+        Object run(Throwable toThrow) throws IOException;
     }
 
     public interface ThrowsEOFException {
-        void run(Throwable toThrow) throws EOFException;
+        Object run(Throwable toThrow) throws EOFException;
+    }
+
+    public interface ThrowsEOFExceptionReturnsString {
+        String run(Throwable toThrow) throws EOFException;
     }
 
     public interface ThrowsSocketException {
-        void run(Throwable toThrow) throws SocketException;
-    }
+        Object run(Throwable toThrow) throws SocketException;
 
+    }
     public interface ThrowsSocketExceptionAndEOFException {
-        void run(Throwable toThrow) throws SocketException, EOFException;
+        Object run(Throwable toThrow) throws SocketException, EOFException;
+
     }
 
     public interface DeclaresFiveMethods {
