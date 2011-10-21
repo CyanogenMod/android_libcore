@@ -151,24 +151,25 @@ public final class AnnotationsTest extends TestCase {
 
     public void testGetEnclosingConstructorOfTopLevelClass() {
         assertNull(AnnotationsTest.class.getEnclosingConstructor());
-        assertNull(AnnotationsTest.class.getEnclosingMethod());
     }
 
-    public void testEnclosingConstructor() throws Exception {
+    public void testClassEnclosedByConstructor() throws Exception {
         Foo foo = new Foo("string");
-        assertNull(foo.c.getEnclosingClass());
+        assertEquals(Foo.class, foo.c.getEnclosingClass());
         assertEquals(Foo.class.getDeclaredConstructor(String.class),
                 foo.c.getEnclosingConstructor());
         assertNull(foo.c.getEnclosingMethod());
+        assertNull(foo.c.getDeclaringClass());
     }
 
-    public void testEnclosingMethod() throws Exception {
+    public void testClassEnclosedByMethod() throws Exception {
         Foo foo = new Foo();
         foo.foo("string");
-        assertNull(foo.c.getEnclosingClass());
+        assertEquals(Foo.class, foo.c.getEnclosingClass());
         assertNull(foo.c.getEnclosingConstructor());
         assertEquals(Foo.class.getDeclaredMethod("foo", String.class),
                 foo.c.getEnclosingMethod());
+        assertNull(foo.c.getDeclaringClass());
     }
 
     public void testGetClasses() throws Exception {
