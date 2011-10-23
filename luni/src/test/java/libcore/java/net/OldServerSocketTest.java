@@ -242,25 +242,24 @@ public class OldServerSocketTest extends OldSocketTestCase {
         }
     }
 
-    public void test_getSoTimeout() throws IOException {
-        ServerSocket newSocket = new ServerSocket();
-        newSocket.close();
-        try {
-            newSocket.setSoTimeout(100);
-            fail("SocketException was not thrown.");
-        } catch(SocketException e) {
-            //expected
+    public void test_getSoTimeout_setSoTimeout() throws Exception {
+        // TODO: a useful test would check that setSoTimeout actually causes timeouts!
+        ServerSocket s = new ServerSocket();
+        s.setSoTimeout(1500);
+        int ms = s.getSoTimeout();
+        if (ms < 1500-10 || ms > 1500+10) {
+            fail("suspicious timeout: " + ms);
         }
-    }
-
-    public void test_setSoTimeoutI() throws IOException {
-        ServerSocket newSocket = new ServerSocket();
-        newSocket.close();
+        s.close();
         try {
-            newSocket.setSoTimeout(100);
+            s.getSoTimeout();
             fail("SocketException was not thrown.");
-        } catch(SocketException se) {
-            //expected
+        } catch (SocketException expected) {
+        }
+        try {
+            s.setSoTimeout(1000);
+            fail("SocketException was not thrown.");
+        } catch (SocketException expected) {
         }
     }
 

@@ -769,18 +769,24 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
         }
     }
 
-    public void test_getSoTimeout() throws Exception {
-        // Test for method int java.net.DatagramSocket.getSoTimeout()
-        int portNumber = Support_PortManager.getNextPortForUDP();
-        ds = new java.net.DatagramSocket(portNumber);
-        ds.setSoTimeout(100);
-        assertEquals("Returned incorrect timeout", 100, ds.getSoTimeout());
-        ds.close();
+    public void test_getSoTimeout_setSoTimeout() throws Exception {
+        // TODO: a useful test would check that setSoTimeout actually causes timeouts!
+        DatagramSocket s = new DatagramSocket();
+        s.setSoTimeout(1500);
+        int ms = s.getSoTimeout();
+        if (ms < 1500-10 || ms > 1500+10) {
+            fail("suspicious timeout: " + ms);
+        }
+        s.close();
         try {
-            ds.getSoTimeout();
+            s.getSoTimeout();
             fail("SocketException was not thrown.");
-        } catch(SocketException se) {
-            //expected
+        } catch (SocketException expected) {
+        }
+        try {
+            s.setSoTimeout(1000);
+            fail("SocketException was not thrown.");
+        } catch (SocketException expected) {
         }
     }
 
@@ -1129,21 +1135,6 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
             ds.setReceiveBufferSize(1);
             fail("SocketException was not thrown.");
         } catch (SocketException e) {
-            //expected
-        }
-    }
-
-    public void test_setSoTimeoutI() throws Exception {
-        // Test for method void java.net.DatagramSocket.setSoTimeout(int)
-        int portNumber = Support_PortManager.getNextPortForUDP();
-        ds = new java.net.DatagramSocket(portNumber);
-        ds.setSoTimeout(5000);
-        assertTrue("Set incorrect timeout", ds.getSoTimeout() >= 5000);
-        ds.close();
-        try {
-            ds.setSoTimeout(100);
-            fail("SocketException was not thrown.");
-        } catch(SocketException se) {
             //expected
         }
     }
