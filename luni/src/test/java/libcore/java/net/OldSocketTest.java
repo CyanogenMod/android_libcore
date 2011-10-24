@@ -405,30 +405,24 @@ public class OldSocketTest extends OldSocketTestCase {
         }
     }
 
-    public void test_getSoTimeout() {
-        // Test for method int java.net.Socket.getSoTimeout()
-        int sport = startServer("SServer getSoTimeout");
-        try {
-            s = new Socket(InetAddress.getLocalHost(), sport);
-            s.setSoTimeout(100);
-            assertEquals("Returned incorrect sotimeout", 100, s.getSoTimeout());
-            ensureExceptionThrownIfOptionIsUnsupportedOnOS(SO_TIMEOUT);
-        } catch (Exception e) {
-            handleException(e, SO_TIMEOUT);
+    public void test_getSoTimeout_setSoTimeout() throws Exception {
+        // TODO: a useful test would check that setSoTimeout actually causes timeouts!
+        Socket s = new Socket();
+        s.setSoTimeout(1500);
+        int ms = s.getSoTimeout();
+        if (ms < 1500-10 || ms > 1500+10) {
+            fail("suspicious timeout: " + ms);
         }
-
+        s.close();
         try {
-            int portNumber = Support_PortManager.getNextPort();
-            s = new Socket(InetAddress.getLocalHost(), sport, null, portNumber);
-            s.close();
-            try {
-                s.getSoTimeout();
-                fail("SocketException was not thrown.");
-            } catch(SocketException ioe) {
-                //expected
-            }
-        } catch(Exception e) {
-            fail("Unexpected exception was thrown: " + e.toString());
+            s.getSoTimeout();
+            fail("SocketException was not thrown.");
+        } catch (SocketException expected) {
+        }
+        try {
+            s.setSoTimeout(1000);
+            fail("SocketException was not thrown.");
+        } catch (SocketException expected) {
         }
     }
 
@@ -578,31 +572,6 @@ public class OldSocketTest extends OldSocketTestCase {
             Socket theSocket = new Socket();
             theSocket.close();
             theSocket.setSoLinger(true, 1);
-            fail("SocketException was not thrown.");
-        } catch(SocketException ioe) {
-            //expected
-        } catch(IOException ioe) {
-            fail("IOException was thrown.");
-        }
-    }
-
-    public void test_setSoTimeoutI() {
-        // Test for method void java.net.Socket.setSoTimeout(int)
-        try {
-            int sport = startServer("SServer seSoTimeoutI");
-            int portNumber = Support_PortManager.getNextPort();
-            s = new Socket(InetAddress.getLocalHost(), sport, null, portNumber);
-            s.setSoTimeout(100);
-            assertEquals("Set incorrect sotimeout", 100, s.getSoTimeout());
-            ensureExceptionThrownIfOptionIsUnsupportedOnOS(SO_TIMEOUT);
-        } catch (Exception e) {
-            handleException(e, SO_TIMEOUT);
-        }
-
-        try {
-            Socket theSocket = new Socket();
-            theSocket.close();
-            theSocket.setSoTimeout(1);
             fail("SocketException was not thrown.");
         } catch(SocketException ioe) {
             //expected
@@ -1233,9 +1202,9 @@ public class OldSocketTest extends OldSocketTestCase {
             socket.connect( new InetSocketAddress(InetAddress.getLocalHost(),
                     Support_PortManager.getNextPort()));
             fail("IllegalBlockingModeException was not thrown.");
-        } catch(IllegalBlockingModeException ibme) {
-            //expected
+        } catch (IllegalBlockingModeException expected) {
         }
+        socket.close();
     }
 
     public void test_connectLjava_net_SocketAddressI() throws Exception {
@@ -1532,17 +1501,14 @@ public class OldSocketTest extends OldSocketTestCase {
 
         // now try to set options while we are connecting
         theSocket = new Socket();
-        SocketConnector connector = new SocketConnector(5000, theSocket,
-                nonReachableAddress);
+        SocketConnector connector = new SocketConnector(5000, theSocket, nonReachableAddress);
         connector.start();
-        theSocket.setSoTimeout(100);
+        theSocket.setSoTimeout(1000);
         Thread.sleep(10);
-        assertEquals("Socket option not set during connect: 10 ", 100,
-                theSocket.getSoTimeout());
+        assertEquals("Socket option not set during connect: 10 ", 1000, theSocket.getSoTimeout());
         Thread.sleep(50);
-        theSocket.setSoTimeout(200);
-        assertEquals("Socket option not set during connect: 50 ", 200,
-                theSocket.getSoTimeout());
+        theSocket.setSoTimeout(2000);
+        assertEquals("Socket option not set during connect: 50 ", 2000, theSocket.getSoTimeout());
         Thread.sleep(5000);
         theSocket.close();
 
@@ -1554,9 +1520,9 @@ public class OldSocketTest extends OldSocketTestCase {
             socket.connect( new InetSocketAddress(InetAddress.getLocalHost(),
                     Support_PortManager.getNextPort()), port);
             fail("IllegalBlockingModeException was not thrown.");
-        } catch(IllegalBlockingModeException ibme) {
-            //expected
+        } catch (IllegalBlockingModeException expected) {
         }
+        channel.close();
     }
 
     public void test_isInputShutdown() throws IOException {
