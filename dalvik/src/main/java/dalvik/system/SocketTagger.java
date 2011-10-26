@@ -50,11 +50,15 @@ public abstract class SocketTagger {
     public abstract void untag(FileDescriptor socketDescriptor) throws SocketException;
 
     public final void tag(Socket socket) throws SocketException {
-        tag(socket.getFileDescriptor$());
+        if (!socket.isClosed()) {
+            tag(socket.getFileDescriptor$());
+        }
     }
 
     public final void untag(Socket socket) throws SocketException {
-        untag(socket.getFileDescriptor$());
+        if (!socket.isClosed()) {
+            untag(socket.getFileDescriptor$());
+        }
     }
 
     /**
