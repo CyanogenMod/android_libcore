@@ -447,13 +447,14 @@ public class InetAddress implements Serializable {
     }
 
     /**
-     * Returns a string containing a concise, human-readable description of this
-     * IP address.
+     * Returns a string containing the host name (if available) and host address.
+     * For example: {@code "www.google.com/74.125.224.115"} or {@code "/127.0.0.1"}.
      *
-     * @return the description, as host/address.
+     * <p>IPv6 addresses may additionally include an interface name or scope id.
+     * For example: {@code "www.google.com/2001:4860:4001:803::1013%eth0"} or
+     * {@code "/2001:4860:4001:803::1013%2"}.
      */
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return (hostName == null ? "" : hostName) + "/" + getHostAddress();
     }
 

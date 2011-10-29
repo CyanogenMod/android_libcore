@@ -334,6 +334,11 @@ public final class NetworkInterface extends Object {
         return name.hashCode();
     }
 
+    /**
+     * Returns a string containing details of this network interface.
+     * The exact format is deliberately unspecified. Callers that require a specific
+     * format should build a string themselves, using this class' accessor methods.
+     */
     @Override public String toString() {
         StringBuilder sb = new StringBuilder(25);
         sb.append("[");
