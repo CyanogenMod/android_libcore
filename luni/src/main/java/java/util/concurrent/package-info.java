@@ -1,11 +1,11 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 // BEGIN android-note
-// Dropped references to unreleased APIs (ForkJoinPool, Phaser, etc.)
+// omit links to ForkJoinPool, ForkJoinTask, LinkedTransferQueue, PHaser, TransferQueue
 // END android-note
 
 /**
@@ -146,7 +146,7 @@
  * A {@code CopyOnWriteArrayList} is preferable to a synchronized
  * {@code ArrayList} when the expected number of reads and traversals
  * greatly outnumber the number of updates to a list.
-
+ *
  * <p>The "Concurrent" prefix used with some classes in this package
  * is a shorthand indicating several differences from similar
  * "synchronized" classes.  For example {@code java.util.Hashtable} and
@@ -243,7 +243,8 @@
  *   in each thread <i>happen-before</i> those subsequent to the
  *   corresponding {@code exchange()} in another thread.
  *
- *   <li>Actions prior to calling {@code CyclicBarrier.await}
+ *   <li>Actions prior to calling {@code CyclicBarrier.await} and
+ *   {@code Phaser.awaitAdvance} (as well as its variants)
  *   <i>happen-before</i> actions performed by the barrier action, and
  *   actions performed by the barrier action <i>happen-before</i> actions
  *   subsequent to a successful return from the corresponding {@code await}

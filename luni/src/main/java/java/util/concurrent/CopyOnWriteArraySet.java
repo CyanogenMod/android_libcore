@@ -1,7 +1,7 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent;
@@ -160,8 +160,7 @@ public class CopyOnWriteArraySet<E> extends AbstractSet<E>
      * The following code can be used to dump the set into a newly allocated
      * array of <tt>String</tt>:
      *
-     * <pre>
-     *     String[] y = x.toArray(new String[0]);</pre>
+     *  <pre> {@code String[] y = x.toArray(new String[0]);}</pre>
      *
      * Note that <tt>toArray(new Object[0])</tt> is identical in function to
      * <tt>toArray()</tt>.
@@ -358,6 +357,6 @@ public class CopyOnWriteArraySet<E> extends AbstractSet<E>
      * Test for equality, coping with nulls.
      */
     private static boolean eq(Object o1, Object o2) {
-        return (o1 == null ? o2 == null : o1.equals(o2));
+        return (o1 == null) ? o2 == null : o1.equals(o2);
     }
 }
