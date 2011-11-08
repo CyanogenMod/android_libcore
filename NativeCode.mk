@@ -118,8 +118,6 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_SRC_FILES := $(core_src_files)
     LOCAL_CFLAGS += $(core_cflags)
     LOCAL_C_INCLUDES := $(core_c_includes)
-    LOCAL_SHARED_LIBRARIES := $(core_shared_libraries)
-    LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := libjavacore-host
     include $(BUILD_HOST_STATIC_LIBRARY)
