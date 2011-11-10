@@ -17,10 +17,11 @@
 
 package libcore.java.util.logging;
 
-import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.logging.StreamHandler;
 import junit.framework.TestCase;
 
 public class OldFormatterTest extends TestCase {
@@ -28,11 +29,11 @@ public class OldFormatterTest extends TestCase {
 
     Formatter f = new MockFormatter();
     LogRecord r = new LogRecord(Level.FINE, MSG);
-    FileHandler h;
+    Handler h;
 
     @Override protected void setUp() throws Exception {
         super.setUp();
-        h = new FileHandler();
+        h = new StreamHandler();
     }
 
     public void testFormatter() {
