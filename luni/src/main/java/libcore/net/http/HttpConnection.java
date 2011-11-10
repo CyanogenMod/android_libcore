@@ -30,6 +30,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.List;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocket;
@@ -292,13 +293,16 @@ final class HttpConnection {
         private final String socketHost;
         private final int socketPort;
 
-        public Address(URI uri) {
+        public Address(URI uri) throws UnknownHostException {
             this.proxy = null;
             this.requiresTunnel = false;
             this.uriHost = uri.getHost();
             this.uriPort = uri.getEffectivePort();
             this.socketHost = uriHost;
             this.socketPort = uriPort;
+            if (uriHost == null) {
+                throw new UnknownHostException(uri.toString());
+            }
         }
 
         /**
@@ -307,7 +311,7 @@ final class HttpConnection {
          *     proxy. When doing so, we must avoid buffering bytes intended for
          *     the higher-level protocol.
          */
-        public Address(URI uri, Proxy proxy, boolean requiresTunnel) {
+        public Address(URI uri, Proxy proxy, boolean requiresTunnel) throws UnknownHostException {
             this.proxy = proxy;
             this.requiresTunnel = requiresTunnel;
             this.uriHost = uri.getHost();
@@ -321,6 +325,9 @@ final class HttpConnection {
             InetSocketAddress proxySocketAddress = (InetSocketAddress) proxyAddress;
             this.socketHost = proxySocketAddress.getHostName();
             this.socketPort = proxySocketAddress.getPort();
+            if (uriHost == null) {
+                throw new UnknownHostException(uri.toString());
+            }
         }
 
         public Proxy getProxy() {

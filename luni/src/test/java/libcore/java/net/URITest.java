@@ -621,5 +621,43 @@ public final class URITest extends TestCase {
         assertEquals(new URI(""), relative.relativize(relative));
     }
 
+    public void testPartContainsSpace() throws Exception {
+        try {
+            new URI("ht tp://host/");
+            fail();
+        } catch (URISyntaxException expected) {
+        }
+        try {
+            new URI("http://user name@host/");
+            fail();
+        } catch (URISyntaxException expected) {
+        }
+        try {
+            new URI("http://ho st/");
+            fail();
+        } catch (URISyntaxException expected) {
+        }
+        try {
+            new URI("http://host:80 80/");
+            fail();
+        } catch (URISyntaxException expected) {
+        }
+        try {
+            new URI("http://host/fi le");
+            fail();
+        } catch (URISyntaxException expected) {
+        }
+        try {
+            new URI("http://host/file?que ry");
+            fail();
+        } catch (URISyntaxException expected) {
+        }
+        try {
+            new URI("http://host/file?query#re f");
+            fail();
+        } catch (URISyntaxException expected) {
+        }
+    }
+
     // Adding a new test? Consider adding an equivalent test to URLTest.java
 }

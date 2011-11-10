@@ -42,6 +42,7 @@ import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -1893,6 +1894,28 @@ public final class URLConnectionTest extends TestCase {
         }
         assertEquals(0, in.available());
         assertEquals(-1, in.read());
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=16895
+    public void testUrlWithSpaceInHost() throws Exception {
+        URLConnection urlConnection = new URL("http://and roid.com/").openConnection();
+        try {
+            urlConnection.getInputStream();
+            fail();
+        } catch (UnknownHostException expected) {
+        }
+    }
+
+    public void testUrlWithSpaceInHostViaHttpProxy() throws Exception {
+        server.enqueue(new MockResponse());
+        server.play();
+        URLConnection urlConnection = new URL("http://and roid.com/")
+                .openConnection(server.toProxyAddress());
+        try {
+            urlConnection.getInputStream();
+            fail(); // the RI makes a bogus proxy request for "GET http://and roid.com/ HTTP/1.1"
+        } catch (UnknownHostException expected) {
+        }
     }
 
     /**

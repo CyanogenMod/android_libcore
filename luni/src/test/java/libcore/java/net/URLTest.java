@@ -668,5 +668,23 @@ public final class URLTest extends TestCase {
         assertEquals("", new URL("http", "host", -1, "", null).getPath());
     }
 
+    public void testPartContainsSpace() throws Exception {
+        try {
+            new URL("ht tp://host/");
+            fail();
+        } catch (MalformedURLException expected) {
+        }
+        assertEquals("user name", new URL("http://user name@host/").getUserInfo());
+        assertEquals("ho st", new URL("http://ho st/").getHost());
+        try {
+            new URL("http://host:80 80/");
+            fail();
+        } catch (MalformedURLException expected) {
+        }
+        assertEquals("/fi le", new URL("http://host/fi le").getFile());
+        assertEquals("que ry", new URL("http://host/file?que ry").getQuery());
+        assertEquals("re f", new URL("http://host/file?query#re f").getRef());
+    }
+
     // Adding a new test? Consider adding an equivalent test to URITest.java
 }
