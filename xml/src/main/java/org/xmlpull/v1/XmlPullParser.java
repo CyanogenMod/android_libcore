@@ -1051,7 +1051,7 @@ public interface XmlPullParser {
      * If current event is START_TAG then if next element is TEXT then element content is returned
      * or if next event is END_TAG then empty string is returned, otherwise exception is thrown.
      * After calling this function successfully parser will be positioned on END_TAG.
-     *
+     * 
      * <p>The motivation for this function is to allow to parse consistently both
      * empty elements and elements that has non empty content, for example for input: <ol>
      * <li>&lt;tag&gt;foo&lt;/tag&gt;
@@ -1087,6 +1087,15 @@ public interface XmlPullParser {
      *  } else {
      *     throw new XmlPullParserException(
      *       "parser must be on START_TAG or TEXT to read text", this, null);
+     *  }
+     * </pre>
+     *
+     * <p><strong>Warning:</strong> Prior to API level 14, the pull parser returned by {@code
+     * android.util.Xml} did not always advance to the END_TAG event when this method was called.
+     * Work around by using manually advancing after calls to nextText(): <pre>
+     *  String text = xpp.nextText();
+     *  if (xpp.getEventType() != XmlPullParser.END_TAG) {
+     *      xpp.next();
      *  }
      * </pre>
      */

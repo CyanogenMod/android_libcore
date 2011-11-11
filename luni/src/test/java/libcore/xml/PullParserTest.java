@@ -720,6 +720,28 @@ public abstract class PullParserTest extends TestCase {
         assertParseFailure("\ufeff<?xml version='1.0'?><input/>");
     }
 
+    // http://code.google.com/p/android/issues/detail?id=21425
+    public void testNextTextAdvancesToEndTag() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo>bar</foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.next());
+        assertEquals("bar", parser.nextText());
+        assertEquals(XmlPullParser.END_TAG, parser.getEventType());
+    }
+
+    public void testNextTag() throws Exception {
+        XmlPullParser parser = newPullParser();
+        parser.setInput(new StringReader("<foo> <bar></bar> </foo>"));
+        assertEquals(XmlPullParser.START_TAG, parser.nextTag());
+        assertEquals("foo", parser.getName());
+        assertEquals(XmlPullParser.START_TAG, parser.nextTag());
+        assertEquals("bar", parser.getName());
+        assertEquals(XmlPullParser.END_TAG, parser.nextTag());
+        assertEquals("bar", parser.getName());
+        assertEquals(XmlPullParser.END_TAG, parser.nextTag());
+        assertEquals("foo", parser.getName());
+    }
+
     private void assertParseFailure(String xml) throws Exception {
         XmlPullParser parser = newPullParser();
         parser.setInput(new StringReader(xml));
