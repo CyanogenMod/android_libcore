@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import junit.framework.TestCase;
+import libcore.java.lang.ref.FinalizationTester;
 
 public final class RandomAccessFileTest extends TestCase {
 
@@ -69,8 +70,7 @@ public final class RandomAccessFileTest extends TestCase {
         File file = File.createTempFile("RandomAccessFileTest", "tmp");
         for (int i = 0; i < tooManyOpenFiles; i++) {
             createRandomAccessFile(file);
-            System.gc();
-            System.runFinalization();
+            FinalizationTester.induceFinalization();
         }
     }
     private void createRandomAccessFile(File file) throws Exception {

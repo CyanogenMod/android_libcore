@@ -26,6 +26,7 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import junit.framework.Assert;
+import libcore.java.lang.ref.FinalizationTester;
 
 public final class CloseGuardTester implements Closeable {
 
@@ -45,14 +46,12 @@ public final class CloseGuardTester implements Closeable {
          * Collect immediately before we start monitoring the CloseGuard logs.
          * This lowers the chance that we'll report an unrelated leak.
          */
-        System.gc();
-        System.runFinalization();
+        FinalizationTester.induceFinalization();
         logger.addHandler(logWatcher);
     }
 
     public void assertEverythingWasClosed() {
-        System.gc();
-        System.runFinalization();
+        FinalizationTester.induceFinalization();
 
         if (!logRecords.isEmpty()) {
             // print the log records with the output of this test

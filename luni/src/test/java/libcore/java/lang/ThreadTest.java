@@ -18,6 +18,7 @@ package libcore.java.lang;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.TestCase;
+import libcore.java.lang.ref.FinalizationTester;
 
 public final class ThreadTest extends TestCase {
 
@@ -30,7 +31,7 @@ public final class ThreadTest extends TestCase {
                 break;
             }
         }
-        System.runFinalization();
+        FinalizationTester.induceFinalization();
         assertTrue("Started threads were never finalized!", finalizedThreadsCount.get() > 0);
     }
 
@@ -43,7 +44,7 @@ public final class ThreadTest extends TestCase {
                 break;
             }
         }
-        System.runFinalization();
+        FinalizationTester.induceFinalization();
         assertTrue("Unstarted threads were never finalized!", finalizedThreadsCount.get() > 0);
     }
 

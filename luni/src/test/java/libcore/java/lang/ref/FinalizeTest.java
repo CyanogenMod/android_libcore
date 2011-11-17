@@ -27,17 +27,13 @@ public final class FinalizeTest extends TestCase {
         AtomicBoolean finalized = new AtomicBoolean();
         createFinalizableObject(finalized);
 
-        induceFinalization();
+        FinalizationTester.induceFinalization();
         if (!finalized.get()) {
             fail();
         }
     }
 
-    /**
-     * Prevent live-precise bugs from interfering with analysis of what is
-     * reachable. Do not inline this method; otherwise tests may fail on VMs
-     * that are not live-precise. http://b/4191345
-     */
+    /** Do not inline this method; that could break non-precise GCs. See FinalizationTester. */
     private void createFinalizableObject(final AtomicBoolean finalized) {
         new X() {
             @Override protected void finalize() throws Throwable {
@@ -56,22 +52,8 @@ public final class FinalizeTest extends TestCase {
         } catch (AssertionError expected) {
         }
 
-        induceFinalization();
+        FinalizationTester.induceFinalization();
         assertTrue("object whose constructor threw was not finalized", ConstructionFails.finalized);
-    }
-
-    private void induceFinalization() throws Exception {
-        System.gc();
-        enqueueReferences();
-        System.runFinalization();
-    }
-
-    /**
-     * Hack. We don't have a programmatic way to wait for the reference queue
-     * daemon to move references to the appropriate queues.
-     */
-    private void enqueueReferences() throws InterruptedException {
-        Thread.sleep(100);
     }
 
     static class ConstructionFails {
@@ -97,7 +79,7 @@ public final class FinalizeTest extends TestCase {
         createSlowFinalizer(2000, latch);
         createSlowFinalizer(4000, latch);
         createSlowFinalizer(8000, latch);
-        induceFinalization();
+        FinalizationTester.induceFinalization();
         latch.await();
     }
 
@@ -119,7 +101,7 @@ public final class FinalizeTest extends TestCase {
         AtomicInteger count = new AtomicInteger();
         AtomicBoolean keepGoing = new AtomicBoolean(true);
         createChainedFinalizer(count, keepGoing);
-        induceFinalization();
+        FinalizationTester.induceFinalization();
         keepGoing.set(false);
         assertTrue(count.get() > 0);
     }
@@ -133,7 +115,7 @@ public final class FinalizeTest extends TestCase {
                     createChainedFinalizer(counter, keepGoing); // recursive!
                 }
                 System.gc();
-                enqueueReferences();
+                FinalizationTester.enqueueReferences();
             }
         };
     }

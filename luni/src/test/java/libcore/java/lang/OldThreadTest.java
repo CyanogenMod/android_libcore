@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.LockSupport;
+import libcore.java.lang.ref.FinalizationTester;
 
 public class OldThreadTest extends junit.framework.TestCase {
 
@@ -478,7 +479,7 @@ public class OldThreadTest extends junit.framework.TestCase {
             spinner = null;
             st = null;
             ct = null;
-            System.runFinalization();
+            FinalizationTester.induceFinalization();
         } catch (Exception e) {
         }
     }
