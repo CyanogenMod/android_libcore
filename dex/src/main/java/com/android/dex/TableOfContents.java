@@ -75,7 +75,7 @@ public final class TableOfContents {
         byte[] magic = headerIn.readByteArray(8);
         int apiTarget = DexFormat.magicToApi(magic);
 
-        if (apiTarget < 0) {
+        if (apiTarget != DexFormat.API_NO_EXTENDED_OPCODES) {
             throw new DexException("Unexpected magic: " + Arrays.toString(magic));
         }
 
@@ -164,7 +164,7 @@ public final class TableOfContents {
     }
 
     public void writeHeader(Dex.Section out) throws IOException {
-        out.write(DexFormat.apiToMagic(DexFormat.API_CURRENT).getBytes("UTF-8"));
+        out.write(DexFormat.apiToMagic(DexFormat.API_NO_EXTENDED_OPCODES).getBytes("UTF-8"));
         out.writeInt(checksum);
         out.write(signature);
         out.writeInt(fileSize);
