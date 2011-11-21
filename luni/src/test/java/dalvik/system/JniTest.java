@@ -354,4 +354,15 @@ public final class JniTest extends TestCase {
             }
         }
     }
+
+    private static native Class<?> envGetSuperclass(Class<?> clazz);
+
+    public void testGetSuperclass() {
+        assertEquals(Object.class, envGetSuperclass(String.class));
+        assertEquals(null, envGetSuperclass(Object.class));
+        assertEquals(null, envGetSuperclass(int.class));
+
+        // incorrect! the spec says this should be null. http://b/5652725
+        assertEquals(Object.class, envGetSuperclass(Runnable.class));
+    }
 }

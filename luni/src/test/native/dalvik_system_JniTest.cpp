@@ -267,3 +267,8 @@ extern "C" jdouble Java_dalvik_system_JniTest_returnDoubleArgFrom16(
   default: abort();
   }
 }
+
+extern "C" jclass Java_dalvik_system_JniTest_envGetSuperclass(
+    JNIEnv* env, jobject, jclass clazz) {
+  return env->GetSuperclass(clazz);
+}

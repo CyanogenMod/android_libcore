@@ -24,6 +24,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.AbstractCollection;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,27 @@ public final class ReflectionTest extends TestCase {
     String classA = "libcore.java.lang.reflect.ReflectionTest$A";
     String classB = "libcore.java.lang.reflect.ReflectionTest$B";
     String classC = "libcore.java.lang.reflect.ReflectionTest$C";
+
+    public void testClassGetSuperclass() {
+        assertEquals(AbstractList.class, ArrayList.class.getSuperclass());
+        assertEquals(AbstractCollection.class, AbstractList.class.getSuperclass());
+        assertEquals(AbstractCollection.class, AbstractList.class.getSuperclass());
+        assertEquals(Object.class, AbstractCollection.class.getSuperclass());
+        assertNull(Object.class.getSuperclass());
+    }
+
+    public void testPrimitiveGetSuperclass() {
+        assertNull(boolean.class.getSuperclass());
+        assertNull(int.class.getSuperclass());
+        assertNull(double.class.getSuperclass());
+        assertNull(void.class.getSuperclass());
+    }
+
+    public void testInterfaceGetSuperclass() {
+        assertNull(Comparable.class.getSuperclass());
+        assertNull(DefinesMember.class.getSuperclass());
+        assertNull(ExtendsDefinesMember.class.getSuperclass());
+    }
 
     /**
      * http://code.google.com/p/android/issues/detail?id=6636
