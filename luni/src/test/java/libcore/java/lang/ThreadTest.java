@@ -155,7 +155,7 @@ public final class ThreadTest extends TestCase {
             // Sleep for a while (1 min)
             try {
                 Thread.sleep(60000);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignored) {
             }
 
             done = true;
