@@ -52,7 +52,6 @@ public final class ClassCastExceptionTest extends TestCase {
             m.put(F.A, "world");
             fail();
         } catch (ClassCastException ex) {
-            ex.printStackTrace();
             assertNotNull(ex.getMessage());
         }
     }
@@ -63,7 +62,6 @@ public final class ClassCastExceptionTest extends TestCase {
             m.add(F.A);
             fail();
         } catch (ClassCastException ex) {
-            ex.printStackTrace();
             assertNotNull(ex.getMessage());
         }
     }
@@ -75,7 +73,6 @@ public final class ClassCastExceptionTest extends TestCase {
             m.addAll(n);
             fail();
         } catch (ClassCastException ex) {
-            ex.printStackTrace();
             assertNotNull(ex.getMessage());
         }
     }
@@ -97,7 +94,6 @@ public final class ClassCastExceptionTest extends TestCase {
             m.add(HugeF.A0);
             fail();
         } catch (ClassCastException ex) {
-            ex.printStackTrace();
             assertNotNull(ex.getMessage());
         }
     }
@@ -109,7 +105,6 @@ public final class ClassCastExceptionTest extends TestCase {
             m.addAll(n);
             fail();
         } catch (ClassCastException ex) {
-            ex.printStackTrace();
             assertNotNull(ex.getMessage());
         }
     }
