@@ -248,6 +248,44 @@ public class SocketTest extends junit.framework.TestCase {
         server.shutdown();
     }
 
+    // http://b/5534202
+    public void testAvailable() throws Exception {
+        for (int i = 0; i < 100; i++) {
+            assertAvailableReturnsZeroAfterSocketReadsAllData();
+            System.out.println("Success on rep " + i);
+        }
+    }
+
+    private void assertAvailableReturnsZeroAfterSocketReadsAllData() throws Exception {
+        final byte[] data = "foo".getBytes();
+        final ServerSocket serverSocket = new ServerSocket(0);
+
+        new Thread() {
+            @Override public void run() {
+                try {
+                    Socket socket = serverSocket.accept();
+                    socket.getOutputStream().write(data);
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+
+        Socket socket = new Socket("localhost", serverSocket.getLocalPort());
+        byte[] readBuffer = new byte[128];
+        InputStream in = socket.getInputStream();
+        int total = 0;
+        // to prevent available() from cheating after EOF, stop reading before -1 is returned
+        while (total < data.length) {
+            total += in.read(readBuffer);
+        }
+        assertEquals(0, in.available());
+
+        socket.close();
+        serverSocket.close();
+    }
+
     static class MockServer {
         private ExecutorService executor;
         private ServerSocket serverSocket;
