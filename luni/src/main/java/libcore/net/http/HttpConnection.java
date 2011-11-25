@@ -245,10 +245,6 @@ final class HttpConnection {
         }
 
         InputStream in = getInputStream();
-        if (in.available() > 0) {
-            return false;
-        }
-
         Socket socket = getSocket();
         int soTimeout = socket.getSoTimeout();
         try {
