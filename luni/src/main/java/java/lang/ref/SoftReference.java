@@ -33,7 +33,7 @@
 package java.lang.ref;
 
 /**
- * A reference that is cleared when its referent not strongly reachable and
+ * A reference that is cleared when its referent is not strongly reachable and
  * there is memory pressure.
  *
  * <h3>Avoid Soft References for Caching</h3>
@@ -42,29 +42,29 @@ package java.lang.ref;
  * fatally, it doesn't know what to do when given the choice between clearing a
  * soft reference and growing the heap.
  *
- * <p>The lack of information on the cost and value of each reference limits the
- * usefulness of soft references. References that are cleared too early cause
- * unnecessary work; those that are cleared too late waste memory.
+ * <p>The lack of information on the value to your application of each reference
+ * limits the usefulness of soft references. References that are cleared too
+ * early cause unnecessary work; those that are cleared too late waste memory.
  *
  * <p>Most applications should use an {@code android.util.LruCache} instead of
- * soft references. It has an effective eviction policy and lets the user
+ * soft references. LruCache has an effective eviction policy and lets the user
  * tune how much memory is allotted.
  *
- * <h3>Garbage collection of soft references</h3>
+ * <h3>Garbage Collection of Soft References</h3>
  * When the garbage collector encounters an object {@code obj} that is
  * softly-reachable, the following happens:
  * <ul>
- *   <li>A set {@code ref} of references is determined. {@code ref} contains the
- *       following elements:
+ *   <li>A set {@code refs} of references is determined. {@code refs} contains
+ *       the following elements:
  *       <ul>
  *         <li>All soft references pointing to {@code obj}.</li>
  *         <li>All soft references pointing to objects from which {@code obj} is
  *           strongly reachable.</li>
  *       </ul>
  *   </li>
- *   <li>All references in {@code ref} are atomically cleared.</li>
+ *   <li>All references in {@code refs} are atomically cleared.</li>
  *   <li>At the same time or some time in the future, all references in {@code
- *       ref} will be enqueued with their corresponding reference queues, if
+ *       refs} will be enqueued with their corresponding reference queues, if
  *       any.</li>
  * </ul>
  * The system may delay clearing and enqueueing soft references, yet all {@code
