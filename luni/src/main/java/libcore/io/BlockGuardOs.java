@@ -42,6 +42,14 @@ public class BlockGuardOs extends ForwardingOs {
         }
     }
 
+    private void untagSocket(FileDescriptor fd) throws ErrnoException {
+        try {
+            SocketTagger.get().untag(fd);
+        } catch (SocketException e) {
+            throw new ErrnoException("socket", EINVAL, e);
+        }
+    }
+
     @Override public FileDescriptor accept(FileDescriptor fd, InetSocketAddress peerAddress) throws ErrnoException {
         BlockGuard.getThreadPolicy().onNetwork();
         return tagSocket(os.accept(fd, peerAddress));
@@ -49,11 +57,14 @@ public class BlockGuardOs extends ForwardingOs {
 
     @Override public void close(FileDescriptor fd) throws ErrnoException {
         try {
-            if (S_ISSOCK(Libcore.os.fstat(fd).st_mode) && isLingerSocket(fd)) {
-                // If the fd is a socket with SO_LINGER set, we might block indefinitely.
-                // We allow non-linger sockets so that apps can close their network connections in
-                // methods like onDestroy which will run on the UI thread.
-                BlockGuard.getThreadPolicy().onNetwork();
+            if (S_ISSOCK(Libcore.os.fstat(fd).st_mode)) {
+                if (isLingerSocket(fd)) {
+                    // If the fd is a socket with SO_LINGER set, we might block indefinitely.
+                    // We allow non-linger sockets so that apps can close their network
+                    // connections in methods like onDestroy which will run on the UI thread.
+                    BlockGuard.getThreadPolicy().onNetwork();
+                }
+                untagSocket(fd);
             }
         } catch (ErrnoException ignored) {
             // We're called via Socket.close (which doesn't ask for us to be called), so we
@@ -73,6 +84,8 @@ public class BlockGuardOs extends ForwardingOs {
         BlockGuard.getThreadPolicy().onNetwork();
         os.connect(fd, address, port);
     }
+
+    // TODO: Untag newFd when needed for dup2(FileDescriptor oldFd, int newFd)
 
     @Override public void fdatasync(FileDescriptor fd) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
