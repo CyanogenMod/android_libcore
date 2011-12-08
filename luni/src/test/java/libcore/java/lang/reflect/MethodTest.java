@@ -197,6 +197,26 @@ public final class MethodTest extends TestCase {
         assertEquals(anonymous.getClass(), method.getDeclaringClass());
     }
 
+    public void testEqualMethodEqualsAndHashCode() throws Exception {
+        Method m1 = MethodTestHelper.class.getMethod("m1");
+        Method m2 = MethodTestHelper.class.getMethod("m1");
+        assertEquals(m1, m2);
+        assertEquals(m1.hashCode(), m2.hashCode());
+        assertEquals(MethodTestHelper.class.getName().hashCode() ^ "m1".hashCode(), m1.hashCode());
+    }
+
+    public void testHashCodeSpec() throws Exception {
+        Method m1 = MethodTestHelper.class.getMethod("m1");
+        assertEquals(MethodTestHelper.class.getName().hashCode() ^ "m1".hashCode(), m1.hashCode());
+    }
+
+    public void testDifferentMethodEqualsAndHashCode() throws Exception {
+        Method m1 = MethodTestHelper.class.getMethod("m1");
+        Method m2 = MethodTestHelper.class.getMethod("m2", Object.class);
+        assertFalse(m1.equals(m2));
+        assertFalse(m1.hashCode() == m2.hashCode());
+    }
+
     // http://b/1045939
     public void testMethodToString() throws Exception {
         assertEquals("public final native void java.lang.Object.notify()",
