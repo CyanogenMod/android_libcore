@@ -17,8 +17,6 @@
 
 package libcore.java.util;
 
-import junit.framework.TestCase;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,11 +36,9 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
-
+import junit.framework.TestCase;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
-
-import tests.util.SerializationTester;
 
 public class OldCollectionsTest extends TestCase {
 
@@ -603,44 +599,147 @@ public class OldCollectionsTest extends TestCase {
         SerializationTest.verifySelf(Collections.EMPTY_SET, comparator);
     }
 
-    public void test_checkedCollectionSerializationCompatability() throws Exception {
-        Collection<String> c = Collections.emptySet();
-        c = Collections.checkedCollection(c, String.class);
-        SerializationTester.assertCompatibilityEquals(c, "/serialization/org/apache/harmony/luni/tests/java/util/Collections_CheckedCollection.golden.ser");
+    public void test_checkedCollectionSerializationCompatibility() throws Exception {
+        String s = "aced0005737200276a6176612e7574696c2e436f6c6c656374696f6e73244368"
+                + "65636b6564436f6c6c656374696f6e15e96dfd18e6cc6f0200034c00016374001"
+                + "64c6a6176612f7574696c2f436f6c6c656374696f6e3b4c000474797065740011"
+                + "4c6a6176612f6c616e672f436c6173733b5b00167a65726f4c656e677468456c6"
+                + "56d656e7441727261797400135b4c6a6176612f6c616e672f4f626a6563743b78"
+                + "707372001e6a6176612e7574696c2e436f6c6c656374696f6e7324456d7074795"
+                + "3657415f5721db403cb280200007870767200106a6176612e6c616e672e537472"
+                + "696e67a0f0a4387a3bb342020000787070";
+        assertSerialized(Collections.checkedCollection(
+                Collections.<String>emptySet(), String.class), s, false);
     }
-    public void test_checkedListRandomAccessSerializationCompatability() throws Exception {
-        List<String> c = new ArrayList<String>();
-        assertTrue(c instanceof RandomAccess);
-        c = Collections.checkedList(c, String.class);
-        SerializationTester.assertCompatibilityEquals(c, "/serialization/org/apache/harmony/luni/tests/java/util/Collections_CheckedListRandomAccess.golden.ser");
+    public void test_checkedListRandomAccessSerializationCompatibility() throws Exception {
+        String s = "aced00057372002d6a6176612e7574696c2e436f6c6c656374696f6e73244368"
+                + "65636b656452616e646f6d4163636573734c69737416bc0e55a2d7f2f10200007"
+                + "87200216a6176612e7574696c2e436f6c6c656374696f6e7324436865636b6564"
+                + "4c69737400e7ce7692c45f7c0200014c00046c6973747400104c6a6176612f757"
+                + "4696c2f4c6973743b787200276a6176612e7574696c2e436f6c6c656374696f6e"
+                + "7324436865636b6564436f6c6c656374696f6e15e96dfd18e6cc6f0200034c000"
+                + "1637400164c6a6176612f7574696c2f436f6c6c656374696f6e3b4c0004747970"
+                + "657400114c6a6176612f6c616e672f436c6173733b5b00167a65726f4c656e677"
+                + "468456c656d656e7441727261797400135b4c6a6176612f6c616e672f4f626a65"
+                + "63743b7870737200136a6176612e7574696c2e41727261794c6973747881d21d9"
+                + "9c7619d03000149000473697a6578700000000077040000000a78767200106a61"
+                + "76612e6c616e672e537472696e67a0f0a4387a3bb34202000078707071007e0009";
+        assertSerialized(Collections.checkedList(new ArrayList<String>(), String.class), s, true);
     }
-    public void test_checkedListSerializationCompatability() throws Exception {
-        List<String> c = new LinkedList<String>();
-        assertFalse(c instanceof RandomAccess);
-        c = Collections.checkedList(c, String.class);
-        SerializationTester.assertCompatibilityEquals(c, "/serialization/org/apache/harmony/luni/tests/java/util/Collections_CheckedList.golden.ser");
+    public void test_checkedListSerializationCompatibility() throws Exception {
+        String s = "aced0005737200216a6176612e7574696c2e436f6c6c656374696f6e73244368"
+                + "65636b65644c69737400e7ce7692c45f7c0200014c00046c6973747400104c6a6"
+                + "176612f7574696c2f4c6973743b787200276a6176612e7574696c2e436f6c6c65"
+                + "6374696f6e7324436865636b6564436f6c6c656374696f6e15e96dfd18e6cc6f0"
+                + "200034c0001637400164c6a6176612f7574696c2f436f6c6c656374696f6e3b4c"
+                + "0004747970657400114c6a6176612f6c616e672f436c6173733b5b00167a65726"
+                + "f4c656e677468456c656d656e7441727261797400135b4c6a6176612f6c616e67"
+                + "2f4f626a6563743b7870737200146a6176612e7574696c2e4c696e6b65644c697"
+                + "3740c29535d4a608822030000787077040000000078767200106a6176612e6c61"
+                + "6e672e537472696e67a0f0a4387a3bb34202000078707071007e0008";
+        assertSerialized(Collections.checkedList(new LinkedList<String>(), String.class), s, true);
     }
-    public void test_checkedSetSerializationCompatability() throws Exception {
-        Set<String> c = new HashSet<String>();
-        assertFalse(c instanceof SortedSet);
-        c = Collections.checkedSet(c, String.class);
-        SerializationTester.assertCompatibilityEquals(c, "/serialization/org/apache/harmony/luni/tests/java/util/Collections_CheckedSet.golden.ser");
+    public void test_checkedSetSerializationCompatibility() throws Exception {
+        String s = "aced0005737200206a6176612e7574696c2e436f6c6c656374696f6e73244368"
+                + "65636b656453657441249ba27ad9ffab020000787200276a6176612e7574696c2"
+                + "e436f6c6c656374696f6e7324436865636b6564436f6c6c656374696f6e15e96d"
+                + "fd18e6cc6f0200034c0001637400164c6a6176612f7574696c2f436f6c6c65637"
+                + "4696f6e3b4c0004747970657400114c6a6176612f6c616e672f436c6173733b5b"
+                + "00167a65726f4c656e677468456c656d656e7441727261797400135b4c6a61766"
+                + "12f6c616e672f4f626a6563743b7870737200116a6176612e7574696c2e486173"
+                + "68536574ba44859596b8b7340300007870770c000000103f40000000000000787"
+                + "67200106a6176612e6c616e672e537472696e67a0f0a4387a3bb3420200007870"
+                + "70";
+        assertSerialized(Collections.checkedSet(new HashSet<String>(), String.class), s, true);
     }
-    public void test_checkedMapSerializationCompatability() throws Exception {
-        Map<String, String> c = new HashMap<String, String>();
-        assertFalse(c instanceof SortedMap);
-        c = Collections.checkedMap(c, String.class, String.class);
-        SerializationTester.assertCompatibilityEquals(c, "/serialization/org/apache/harmony/luni/tests/java/util/Collections_CheckedMap.golden.ser");
+    public void test_checkedMapSerializationCompatibility() throws Exception {
+        String s = "aced0005737200206a6176612e7574696c2e436f6c6c656374696f6e73244368"
+                + "65636b65644d61704fb2bcdf0d1863680200054c00076b6579547970657400114"
+                + "c6a6176612f6c616e672f436c6173733b4c00016d74000f4c6a6176612f757469"
+                + "6c2f4d61703b4c000976616c75655479706571007e00015b00127a65726f4c656"
+                + "e6774684b657941727261797400135b4c6a6176612f6c616e672f4f626a656374"
+                + "3b5b00147a65726f4c656e67746856616c7565417272617971007e00037870767"
+                + "200106a6176612e6c616e672e537472696e67a0f0a4387a3bb342020000787073"
+                + "7200116a6176612e7574696c2e486173684d61700507dac1c31660d1030002460"
+                + "00a6c6f6164466163746f724900097468726573686f6c6478703f400000000000"
+                + "0c770800000010000000007871007e00067070";
+        assertSerialized(Collections.checkedMap(
+                new HashMap<String, String>(), String.class, String.class), s);
     }
-    public void test_checkedSortedSetSerializationCompatability() throws Exception {
-        SortedSet<String> c = new TreeSet<String>();
-        c = Collections.checkedSortedSet(c, String.class);
-        SerializationTester.assertCompatibilityEquals(c, "/serialization/org/apache/harmony/luni/tests/java/util/Collections_CheckedSortedSet.golden.ser");
+    public void test_checkedSortedSetSerializationCompatibility() throws Exception {
+        String s = "aced0005737200266a6176612e7574696c2e436f6c6c656374696f6e73244368"
+                + "65636b6564536f72746564536574163406ba7362eb0f0200014c0002737374001"
+                + "54c6a6176612f7574696c2f536f727465645365743b787200206a6176612e7574"
+                + "696c2e436f6c6c656374696f6e7324436865636b656453657441249ba27ad9ffa"
+                + "b020000787200276a6176612e7574696c2e436f6c6c656374696f6e7324436865"
+                + "636b6564436f6c6c656374696f6e15e96dfd18e6cc6f0200034c0001637400164"
+                + "c6a6176612f7574696c2f436f6c6c656374696f6e3b4c0004747970657400114c"
+                + "6a6176612f6c616e672f436c6173733b5b00167a65726f4c656e677468456c656"
+                + "d656e7441727261797400135b4c6a6176612f6c616e672f4f626a6563743b7870"
+                + "737200116a6176612e7574696c2e54726565536574dd98509395ed875b0300007"
+                + "8707077040000000078767200106a6176612e6c616e672e537472696e67a0f0a4"
+                + "387a3bb34202000078707071007e0009";
+        assertSerialized(Collections.checkedSortedSet(new TreeSet<String>(), String.class), s, true);
     }
-    public void test_checkedSortedMapSerializationCompatability() throws Exception {
-        SortedMap<String, String> c = new TreeMap<String, String>();
-        c = Collections.checkedSortedMap(c, String.class, String.class);
-        SerializationTester.assertCompatibilityEquals(c, "/serialization/org/apache/harmony/luni/tests/java/util/Collections_CheckedSortedMap.golden.ser");
+    public void test_checkedSortedMapSerializationCompatibility() throws Exception {
+        String s = "aced0005737200266a6176612e7574696c2e436f6c6c656374696f6e73244368"
+                + "65636b6564536f727465644d617016332c973afe036e0200014c0002736d74001"
+                + "54c6a6176612f7574696c2f536f727465644d61703b787200206a6176612e7574"
+                + "696c2e436f6c6c656374696f6e7324436865636b65644d61704fb2bcdf0d18636"
+                + "80200054c00076b6579547970657400114c6a6176612f6c616e672f436c617373"
+                + "3b4c00016d74000f4c6a6176612f7574696c2f4d61703b4c000976616c7565547"
+                + "9706571007e00035b00127a65726f4c656e6774684b657941727261797400135b"
+                + "4c6a6176612f6c616e672f4f626a6563743b5b00147a65726f4c656e677468566"
+                + "16c7565417272617971007e00057870767200106a6176612e6c616e672e537472"
+                + "696e67a0f0a4387a3bb3420200007870737200116a6176612e7574696c2e54726"
+                + "5654d61700cc1f63e2d256ae60300014c000a636f6d70617261746f727400164c"
+                + "6a6176612f7574696c2f436f6d70617261746f723b78707077040000000078710"
+                + "07e0008707071007e000b";
+        assertSerialized(Collections.checkedSortedMap(
+                new TreeMap<String, String>(), String.class, String.class), s);
+    }
+
+    private void assertSerialized(Collection<?> collection, String s, final boolean definesEquals) {
+        new SerializableTester<Collection<?>>(collection, s) {
+            @SuppressWarnings("unchecked")
+            @Override protected void verify(Collection<?> deserialized) throws Exception {
+                try {
+                    ((Collection) deserialized).add(Boolean.TRUE);
+                    fail();
+                } catch (ClassCastException expected) {
+                }
+            }
+            @Override protected boolean equals(Collection<?> a, Collection<?> b) {
+                boolean equal = definesEquals
+                        ? a.equals(b)
+                        : Arrays.equals(a.toArray(), b.toArray());
+                return equal
+                        && (a instanceof SortedSet == b instanceof SortedSet)
+                        && (a instanceof RandomAccess == b instanceof RandomAccess);
+            }
+        }.test();
+    }
+
+    private void assertSerialized(Map<?, ?> map, String s) {
+        new SerializableTester<Map<?, ?>>(map, s) {
+            @SuppressWarnings("unchecked")
+            @Override protected void verify(Map<?, ?> deserialized) throws Exception {
+                try {
+                    ((Map) deserialized).put(Boolean.TRUE, "a");
+                    fail();
+                } catch (ClassCastException expected) {
+                }
+                try {
+                    ((Map) deserialized).put("a", Boolean.TRUE);
+                    fail();
+                } catch (ClassCastException expected) {
+                }
+            }
+            @Override protected boolean equals(Map<?, ?> a, Map<?, ?> b) {
+                return super.equals(a, b)
+                        && (a instanceof SortedMap == b instanceof SortedMap);
+            }
+        }.test();
     }
 
     public void test_checkedCollectionLjava_util_CollectionLjava_lang_Class() {

@@ -16,18 +16,13 @@
 
 package libcore.java.text;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InvalidObjectException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.text.AttributedCharacterIterator;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import junit.framework.TestCase;
-import tests.util.SerializationTester;
+import libcore.java.util.SerializableTester;
 
 /**
  * AttributedCharacterIterator.Attribute is used like the base enum type and
@@ -45,14 +40,14 @@ public final class AttributedCharacterIteratorAttributeTest extends TestCase {
     public void testSerializingSubclass() throws IOException, ClassNotFoundException {
         AttributedCharacterIterator.Attribute a = new CustomAttribute();
         try {
-            SerializationTester.getDeserializedObject(a);
+            SerializableTester.reserialize(a);
             fail();
         } catch (InvalidObjectException expected) {
         }
     }
 
     private void assertSameReserialized(Object o) throws ClassNotFoundException, IOException {
-        assertSame(o, SerializationTester.getDeserializedObject(o));
+        assertSame(o, SerializableTester.reserialize(o));
     }
 
     private static class CustomAttribute extends AttributedCharacterIterator.Attribute {

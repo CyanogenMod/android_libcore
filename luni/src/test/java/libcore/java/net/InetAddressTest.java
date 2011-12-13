@@ -16,19 +16,13 @@
 
 package libcore.java.net;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.Collections;
-import tests.util.SerializationTester;
+import libcore.java.util.SerializableTester;
 
 public class InetAddressTest extends junit.framework.TestCase {
     private static final byte[] LOOPBACK6_BYTES = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
@@ -138,11 +132,23 @@ public class InetAddressTest extends junit.framework.TestCase {
 
     public void test_isReachable() throws Exception {
         // http://code.google.com/p/android/issues/detail?id=20203
-        InetAddress addr = SerializationTester.getDeserializedObject(InetAddress.getByName("www.google.com"));
-        addr.isReachable(500);
-        for (NetworkInterface nif : Collections.list(NetworkInterface.getNetworkInterfaces())) {
-            addr.isReachable(nif, 20, 500);
-        }
+        String s = "aced0005737200146a6176612e6e65742e496e6574416464726573732d9b57af"
+                + "9fe3ebdb0200034900076164647265737349000666616d696c794c0008686f737"
+                + "44e616d657400124c6a6176612f6c616e672f537472696e673b78704a7d9d6300"
+                + "00000274000e7777772e676f6f676c652e636f6d";
+        InetAddress inetAddress = InetAddress.getByName("www.google.com");
+        new SerializableTester<InetAddress>(inetAddress, s) {
+            @Override protected void verify(InetAddress deserialized) throws Exception {
+                deserialized.isReachable(500);
+                for (NetworkInterface nif
+                        : Collections.list(NetworkInterface.getNetworkInterfaces())) {
+                    deserialized.isReachable(nif, 20, 500);
+                }
+            }
+            @Override protected boolean equals(InetAddress a, InetAddress b) {
+                return a.getHostName().equals(b.getHostName());
+            }
+        }.test();
     }
 
     public void test_isSiteLocalAddress() throws Exception {

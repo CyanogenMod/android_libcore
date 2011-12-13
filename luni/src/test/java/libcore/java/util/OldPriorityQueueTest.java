@@ -21,12 +21,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 import junit.framework.TestCase;
-import tests.util.SerializationTester;
 
 public class OldPriorityQueueTest extends TestCase {
-
-    private static final String SERIALIZATION_FILE_NAME = "/serialization/tests/api/java/util/PriorityQueue.golden.ser";
-
     public void test_ConstructorI() {
         PriorityQueue<Object> queue = new PriorityQueue<Object>(100);
         assertNotNull(queue);
@@ -65,43 +61,22 @@ public class OldPriorityQueueTest extends TestCase {
     }
 
     public void test_Serialization() throws Exception {
-        Integer[] array = { 2, 45, 7, -12, 9, 23, 17, 1118, 10, 16, 39 };
-        List<Integer> list = Arrays.asList(array);
-        PriorityQueue<Integer> srcIntegerQueue = new PriorityQueue<Integer>(list);
-        PriorityQueue<Integer> destIntegerQueue = SerializationTester.getDeserializedObject(srcIntegerQueue);
-        Arrays.sort(array);
-        for (int i = 0; i < array.length; i++) {
-            assertEquals(array[i], destIntegerQueue.poll());
-        }
-        assertEquals(0, destIntegerQueue.size());
-    }
-
-    public void test_Serialization_casting() throws Exception {
-        Integer[] array = { 2, 45, 7, -12, 9, 23, 17, 1118, 10, 16, 39 };
-        List<Integer> list = Arrays.asList(array);
-        PriorityQueue<Integer> srcIntegerQueue = new PriorityQueue<Integer>(list);
-        Object dodgy = SerializationTester.getDeserializedObject((Object) srcIntegerQueue);
-        PriorityQueue<String> destStringQueue = (PriorityQueue<String>) dodgy;
-        // will not incur class cast exception.
-        Object o = destStringQueue.peek();
-        Arrays.sort(array);
-        Integer I = (Integer) o;
-        assertEquals(array[0], I);
-    }
-
-    public void test_SerializationCompatibility_cast() throws Exception {
-        Integer[] array = { 2, 45, 7, -12, 9, 23, 17, 1118, 10, 16, 39 };
-        List<Integer> list = Arrays.asList(array);
+        String s = "aced0005737200176a6176612e7574696c2e5072696f72697479517565756594"
+                + "da30b4fb3f82b103000249000473697a654c000a636f6d70617261746f7274001"
+                + "64c6a6176612f7574696c2f436f6d70617261746f723b78700000000b70770400"
+                + "00000c737200116a6176612e6c616e672e496e746567657212e2a0a4f78187380"
+                + "2000149000576616c7565787200106a6176612e6c616e672e4e756d62657286ac"
+                + "951d0b94e08b0200007870fffffff47371007e0003000000027371007e0003000"
+                + "000077371007e00030000000a7371007e0003000000097371007e000300000017"
+                + "7371007e0003000000117371007e00030000045e7371007e00030000002d73710"
+                + "07e0003000000107371007e00030000002778";
         PriorityQueue<Integer> srcIntegerQueue = new PriorityQueue<Integer>(
-                list);
-        PriorityQueue<String> destStringQueue = (PriorityQueue<String>) SerializationTester
-                .readObject(srcIntegerQueue, SERIALIZATION_FILE_NAME);
-
-        // will not incur class cast exception.
-        Object o = destStringQueue.peek();
-        Arrays.sort(array);
-        Integer I = (Integer) o;
-        assertEquals(array[0], I);
+                Arrays.asList(2, 45, 7, -12, 9, 23, 17, 1118, 10, 16, 39));
+        new SerializableTester<PriorityQueue<Integer>>(srcIntegerQueue, s) {
+            @Override protected boolean equals(PriorityQueue<Integer> a, PriorityQueue<Integer> b) {
+                return Arrays.equals(a.toArray(), b.toArray());
+            }
+        }.test();
     }
 
     private static class MockComparatorStringByLength implements

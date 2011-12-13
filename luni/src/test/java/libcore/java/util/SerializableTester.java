@@ -21,11 +21,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 import junit.framework.AssertionFailedError;
 
 public class SerializableTester<T> {
-
     private final String golden;
     private final T value;
 
@@ -47,7 +48,7 @@ public class SerializableTester<T> {
      * Verifies that {@code deserialized} is valid. Implementations of this
      * method may mutate {@code deserialized}.
      */
-    protected void verify(T deserialized) {}
+    protected void verify(T deserialized) throws Exception {}
 
     public void test() {
         try {
@@ -105,6 +106,13 @@ public class SerializableTester<T> {
             result[i] = (byte) Integer.parseInt(s.substring(i*2, i*2 + 2), 16);
         }
         return result;
+    }
+
+    /**
+     * Returns a serialized-and-deserialized copy of {@code object}.
+     */
+    public static Object reserialize(Object object) throws IOException, ClassNotFoundException {
+        return deserialize(serialize(object));
     }
 
     public static String serializeHex(Object object) throws IOException {
