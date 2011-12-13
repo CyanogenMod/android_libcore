@@ -17,10 +17,20 @@
 package libcore.java.lang;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import junit.framework.Assert;
 import junit.framework.TestCase;
 import libcore.java.lang.ref.FinalizationTester;
 
 public final class ThreadTest extends TestCase {
+
+    /**
+     * getContextClassLoader returned a non-application class loader.
+     * http://code.google.com/p/android/issues/detail?id=5697
+     */
+    public void testJavaContextClassLoader() throws Exception {
+        Assert.assertNotNull("Must have a Java context ClassLoader",
+                Thread.currentThread().getContextClassLoader());
+    }
 
     public void testLeakingStartedThreads() {
         final AtomicInteger finalizedThreadsCount = new AtomicInteger();
@@ -56,5 +66,47 @@ public final class ThreadTest extends TestCase {
                 finalizedThreadsCount.incrementAndGet();
             }
         };
+    }
+
+    /**
+     * Thread.getStackTrace() is broken. http://b/1252043
+     */
+    public void testGetStackTrace() throws Exception {
+        Thread t1 = new Thread("t1") {
+            @Override public void run() {
+                doSomething();
+            }
+            public void doSomething() {
+                for (int i = 0; i < 20;) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+            }
+        };
+        t1.start();
+        Thread.sleep(1000);
+        StackTraceElement[] traces = t1.getStackTrace();
+        StackTraceElement trace = traces[traces.length - 2];
+
+        // Expect to find MyThread.doSomething in the trace
+        assertTrue(trace.getClassName().contains("ThreadTest")
+                && trace.getMethodName().equals("doSomething"));
+    }
+
+    public void testGetAllStackTracesIncludesAllGroups() throws Exception {
+        final AtomicInteger visibleTraces = new AtomicInteger();
+        ThreadGroup group = new ThreadGroup("1");
+        Thread t2 = new Thread(group, "t2") {
+            @Override public void run() {
+                visibleTraces.set(Thread.getAllStackTraces().size());
+            }
+        };
+        t2.start();
+        t2.join();
+
+        // Expect to see the traces of all threads (not just t2)
+        assertTrue("Must have traces for all threads", visibleTraces.get() > 1);
     }
 }
