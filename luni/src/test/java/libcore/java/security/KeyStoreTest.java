@@ -1208,7 +1208,7 @@ public class KeyStoreTest extends TestCase {
                 assertTrue(keyStore.aliases().hasMoreElements());
             } else {
                 assertEquals(Collections.EMPTY_SET,
-                             new HashSet(Collections.list(keyStore.aliases())));
+                        new HashSet(Collections.list(keyStore.aliases())));
             }
         }
 
@@ -1396,14 +1396,14 @@ public class KeyStoreTest extends TestCase {
             assertFalse(keyStore.isCertificateEntry(ALIAS_PRIVATE));
             assertFalse(keyStore.isCertificateEntry(ALIAS_SECRET));
             assertEquals(isCertificateEnabled(keyStore) && !isReadOnly(keyStore),
-                         keyStore.isCertificateEntry(ALIAS_CERTIFICATE));
+                    keyStore.isCertificateEntry(ALIAS_CERTIFICATE));
 
             assertFalse(keyStore.isCertificateEntry(ALIAS_ALT_CASE_PRIVATE));
             assertFalse(keyStore.isCertificateEntry(ALIAS_ALT_CASE_SECRET));
             assertEquals(!isCaseSensitive(keyStore)
-                         && isCertificateEnabled(keyStore)
-                         && !isReadOnly(keyStore),
-                         keyStore.isCertificateEntry(ALIAS_ALT_CASE_CERTIFICATE));
+                    && isCertificateEnabled(keyStore)
+                    && !isReadOnly(keyStore),
+                    keyStore.isCertificateEntry(ALIAS_ALT_CASE_CERTIFICATE));
         }
     }
 
@@ -2181,6 +2181,26 @@ public class KeyStoreTest extends TestCase {
             } catch (Throwable t) {
                 throw new Exception("alias=" + alias + " cert=" + c, t);
             }
+        }
+    }
+
+    // http://b/857840: want JKS key store
+    public void testDefaultKeystore() {
+        String type = KeyStore.getDefaultType();
+        assertEquals("Default keystore type must be Bouncy Castle", "BKS", type);
+
+        try {
+            KeyStore store = KeyStore.getInstance(KeyStore.getDefaultType());
+            assertNotNull("Keystore must not be null", store);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+
+        try {
+            KeyStore store = KeyStore.getInstance("BKS");
+            assertNotNull("Keystore must not be null", store);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
     }
 }
