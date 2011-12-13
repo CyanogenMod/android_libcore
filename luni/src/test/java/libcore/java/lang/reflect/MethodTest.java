@@ -197,6 +197,24 @@ public final class MethodTest extends TestCase {
         assertEquals(anonymous.getClass(), method.getDeclaringClass());
     }
 
+    // http://b/1045939
+    public void testMethodToString() throws Exception {
+        assertEquals("public final native void java.lang.Object.notify()",
+                Object.class.getMethod("notify", new Class[] { }).toString());
+        assertEquals("public java.lang.String java.lang.Object.toString()",
+                Object.class.getMethod("toString", new Class[] { }).toString());
+        assertEquals("public final native void java.lang.Object.wait(long,int)"
+                + " throws java.lang.InterruptedException",
+                Object.class.getMethod("wait", new Class[] { long.class, int.class }).toString());
+        assertEquals("public boolean java.lang.Object.equals(java.lang.Object)",
+                Object.class.getMethod("equals", new Class[] { Object.class }).toString());
+        assertEquals("public static java.lang.String java.lang.String.valueOf(char[])",
+                String.class.getMethod("valueOf", new Class[] { char[].class }).toString());
+        assertEquals( "public java.lang.Process java.lang.Runtime.exec(java.lang.String[])"
+                + " throws java.io.IOException",
+                Runtime.class.getMethod("exec", new Class[] { String[].class }).toString());
+    }
+
     public static class MethodTestHelper {
         public void m1() throws IndexOutOfBoundsException { }
         public void m2(Object o) { }
