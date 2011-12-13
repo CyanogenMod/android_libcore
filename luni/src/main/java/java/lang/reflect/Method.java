@@ -188,7 +188,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
         appendGenericType(sb, Types.getType(genericReturnType));
         sb.append(' ');
         // append method name
-        appendArrayType(sb, getDeclaringClass());
+        appendTypeName(sb, getDeclaringClass());
         sb.append(".").append(getName());
         // append parameters
         sb.append('(');
