@@ -517,9 +517,9 @@ public abstract class HttpURLConnection extends URLConnection {
      * closed.
      *
      * <p>Unlike other Java implementations, this will not necessarily close
-     * socket connections that can be reused. Disable all connection reuse by
-     * setting the "http.keepAlive" system property to "false" before issuing
-     * any HTTP requests.
+     * socket connections that can be reused. You can disable all connection
+     * reuse by setting the "http.keepAlive" system property to "false" before
+     * issuing any HTTP requests.
      */
     public abstract void disconnect();
 
