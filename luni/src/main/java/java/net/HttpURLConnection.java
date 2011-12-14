@@ -65,7 +65,6 @@ import libcore.net.http.HttpEngine;
  * }</pre>
  *
  * <h3>Secure Communication with HTTPS</h3>
-
  * Calling {@link URL#openConnection()} on a URL with the "https"
  * scheme will return an {@code HttpsURLConnection}, which allows for
  * overriding the default {@link javax.net.ssl.HostnameVerifier
@@ -514,10 +513,13 @@ public abstract class HttpURLConnection extends URLConnection {
     }
 
     /**
-     * Closes the connection to the HTTP server.
+     * Releases this connection so that its resources may be either reused or
+     * closed.
      *
-     * @see URLConnection#connect()
-     * @see URLConnection#connected
+     * <p>Unlike other Java implementations, this will not necessarily close
+     * socket connections that can be reused. Disable all connection reuse by
+     * setting the "http.keepAlive" system property to "false" before issuing
+     * any HTTP requests.
      */
     public abstract void disconnect();
 

@@ -276,6 +276,23 @@ public final class URLConnectionTest extends TestCase {
         assertEquals(2, server.takeRequest().getSequenceNumber());
     }
 
+    /**
+     * Test that connections are added to the pool as soon as the response has
+     * been consumed.
+     */
+    public void testConnectionsArePooledWithoutExplicitDisconnect() throws Exception {
+        server.enqueue(new MockResponse().setBody("ABC"));
+        server.enqueue(new MockResponse().setBody("DEF"));
+        server.play();
+
+        URLConnection connection1 = server.getUrl("/").openConnection();
+        assertEquals("ABC", readAscii(connection1.getInputStream(), Integer.MAX_VALUE));
+        assertEquals(0, server.takeRequest().getSequenceNumber());
+        URLConnection connection2 = server.getUrl("/").openConnection();
+        assertEquals("DEF", readAscii(connection2.getInputStream(), Integer.MAX_VALUE));
+        assertEquals(1, server.takeRequest().getSequenceNumber());
+    }
+
     public void testServerClosesSocket() throws Exception {
         testServerClosesOutput(DISCONNECT_AT_END);
     }
