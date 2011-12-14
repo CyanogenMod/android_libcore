@@ -53,7 +53,7 @@ public class CookiesTest extends TestCase {
         server.enqueue(new MockResponse().addHeader("Set-Cookie: a=android; "
                 + "expires=Fri, 31-Dec-9999 23:59:59 GMT; "
                 + "path=/path; "
-                + "domain=.local; "
+                + "domain=" + server.getCookieDomain() + "; "
                 + "secure"));
         get(server, "/path/foo");
 
@@ -65,7 +65,7 @@ public class CookiesTest extends TestCase {
         assertEquals(null, cookie.getComment());
         assertEquals(null, cookie.getCommentURL());
         assertEquals(false, cookie.getDiscard());
-        assertEquals(".local", cookie.getDomain());
+        assertEquals(server.getCookieDomain(), cookie.getDomain());
         assertTrue(cookie.getMaxAge() > 100000000000L);
         assertEquals("/path", cookie.getPath());
         assertEquals(true, cookie.getSecure());
@@ -80,7 +80,7 @@ public class CookiesTest extends TestCase {
 
         server.enqueue(new MockResponse().addHeader("Set-Cookie: a=android; "
                 + "Comment=this cookie is delicious; "
-                + "Domain=.local; "
+                + "Domain=" + server.getCookieDomain() + "; "
                 + "Max-Age=60; "
                 + "Path=/path; "
                 + "Secure; "
@@ -95,7 +95,7 @@ public class CookiesTest extends TestCase {
         assertEquals("this cookie is delicious", cookie.getComment());
         assertEquals(null, cookie.getCommentURL());
         assertEquals(false, cookie.getDiscard());
-        assertEquals(".local", cookie.getDomain());
+        assertEquals(server.getCookieDomain(), cookie.getDomain());
         assertEquals(60, cookie.getMaxAge());
         assertEquals("/path", cookie.getPath());
         assertEquals(true, cookie.getSecure());
@@ -112,7 +112,7 @@ public class CookiesTest extends TestCase {
                 + "Comment=this cookie is delicious; "
                 + "CommentURL=http://google.com/; "
                 + "Discard; "
-                + "Domain=.local; "
+                + "Domain=" + server.getCookieDomain() + "; "
                 + "Max-Age=60; "
                 + "Path=/path; "
                 + "Port=\"80,443," + server.getPort() + "\"; "
@@ -128,7 +128,7 @@ public class CookiesTest extends TestCase {
         assertEquals("this cookie is delicious", cookie.getComment());
         assertEquals("http://google.com/", cookie.getCommentURL());
         assertEquals(true, cookie.getDiscard());
-        assertEquals(".local", cookie.getDomain());
+        assertEquals(server.getCookieDomain(), cookie.getDomain());
         assertEquals(60, cookie.getMaxAge());
         assertEquals("/path", cookie.getPath());
         assertEquals("80,443," + server.getPort(), cookie.getPortlist());
@@ -146,7 +146,7 @@ public class CookiesTest extends TestCase {
                 + "Comment=\"this cookie is delicious\"; "
                 + "CommentURL=\"http://google.com/\"; "
                 + "Discard; "
-                + "Domain=\".local\"; "
+                + "Domain=\"" + server.getCookieDomain() + "\"; "
                 + "Max-Age=\"60\"; "
                 + "Path=\"/path\"; "
                 + "Port=\"80,443," + server.getPort() + "\"; "
@@ -162,7 +162,7 @@ public class CookiesTest extends TestCase {
         assertEquals("this cookie is delicious", cookie.getComment());
         assertEquals("http://google.com/", cookie.getCommentURL());
         assertEquals(true, cookie.getDiscard());
-        assertEquals(".local", cookie.getDomain());
+        assertEquals(server.getCookieDomain(), cookie.getDomain());
         assertEquals(60, cookie.getMaxAge());
         assertEquals("/path", cookie.getPath());
         assertEquals("80,443," + server.getPort(), cookie.getPortlist());
@@ -250,11 +250,11 @@ public class CookiesTest extends TestCase {
 
         CookieManager cookieManager = new CookieManager(null, ACCEPT_ORIGINAL_SERVER);
         HttpCookie cookieA = new HttpCookie("a", "android");
-        cookieA.setDomain(".local");
+        cookieA.setDomain(server.getCookieDomain());
         cookieA.setPath("/");
         cookieManager.getCookieStore().add(server.getUrl("/").toURI(), cookieA);
         HttpCookie cookieB = new HttpCookie("b", "banana");
-        cookieB.setDomain(".local");
+        cookieB.setDomain(server.getCookieDomain());
         cookieB.setPath("/");
         cookieManager.getCookieStore().add(server.getUrl("/").toURI(), cookieB);
         CookieHandler.setDefault(cookieManager);
@@ -264,8 +264,8 @@ public class CookiesTest extends TestCase {
 
         List<String> receivedHeaders = request.getHeaders();
         assertContains(receivedHeaders, "Cookie: $Version=\"1\"; "
-                + "a=\"android\";$Path=\"/\";$Domain=\".local\"; "
-                + "b=\"banana\";$Path=\"/\";$Domain=\".local\"");
+                + "a=\"android\";$Path=\"/\";$Domain=\"" + server.getCookieDomain() + "\"; "
+                + "b=\"banana\";$Path=\"/\";$Domain=\"" + server.getCookieDomain() + "\"");
     }
 
     public void testRedirectsDoNotIncludeTooManyCookies() throws Exception {
@@ -281,7 +281,7 @@ public class CookiesTest extends TestCase {
 
         CookieManager cookieManager = new CookieManager(null, ACCEPT_ORIGINAL_SERVER);
         HttpCookie cookie = new HttpCookie("c", "cookie");
-        cookie.setDomain(".local");
+        cookie.setDomain(redirectSource.getCookieDomain());
         cookie.setPath("/");
         String portList = Integer.toString(redirectSource.getPort());
         cookie.setPortlist(portList);
@@ -292,7 +292,8 @@ public class CookiesTest extends TestCase {
         RecordedRequest request = redirectSource.takeRequest();
 
         assertContains(request.getHeaders(), "Cookie: $Version=\"1\"; "
-                + "c=\"cookie\";$Path=\"/\";$Domain=\".local\";$Port=\"" + portList + "\"");
+                + "c=\"cookie\";$Path=\"/\";$Domain=\"" + redirectSource.getCookieDomain()
+                + "\";$Port=\"" + portList + "\"");
 
         for (String header : redirectTarget.takeRequest().getHeaders()) {
             if (header.startsWith("Cookie")) {
@@ -308,7 +309,7 @@ public class CookiesTest extends TestCase {
      * manager should show up in the request and in {@code
      * getRequestProperties}.
      */
-    public void     testHeadersSentToCookieHandler() throws IOException, InterruptedException {
+    public void testHeadersSentToCookieHandler() throws IOException, InterruptedException {
         final Map<String, List<String>> cookieHandlerHeaders = new HashMap<String, List<String>>();
         CookieHandler.setDefault(new CookieManager() {
             @Override public Map<String, List<String>> get(URI uri,
