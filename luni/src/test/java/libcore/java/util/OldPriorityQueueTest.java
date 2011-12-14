@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 import junit.framework.TestCase;
+import libcore.util.SerializationTester;
 
 public class OldPriorityQueueTest extends TestCase {
     public void test_ConstructorI() {
@@ -72,7 +73,7 @@ public class OldPriorityQueueTest extends TestCase {
                 + "07e0003000000107371007e00030000002778";
         PriorityQueue<Integer> srcIntegerQueue = new PriorityQueue<Integer>(
                 Arrays.asList(2, 45, 7, -12, 9, 23, 17, 1118, 10, 16, 39));
-        new SerializableTester<PriorityQueue<Integer>>(srcIntegerQueue, s) {
+        new SerializationTester<PriorityQueue<Integer>>(srcIntegerQueue, s) {
             @Override protected boolean equals(PriorityQueue<Integer> a, PriorityQueue<Integer> b) {
                 return Arrays.equals(a.toArray(), b.toArray());
             }

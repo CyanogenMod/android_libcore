@@ -18,7 +18,7 @@ package libcore.java.io;
 
 import java.io.Serializable;
 import junit.framework.TestCase;
-import libcore.java.util.SerializableTester;
+import libcore.util.SerializationTester;
 
 public final class SerializationTest extends TestCase {
 
@@ -28,7 +28,7 @@ public final class SerializationTest extends TestCase {
         String s = "aced0005737200346c6962636f72652e6a6176612e696f2e53657269616c697a6174696f6e54657"
                 + "374244669656c644d6164655472616e7369656e74000000000000000002000149000c7472616e736"
                 + "9656e74496e747870abababab";
-        FieldMadeTransient deserialized = (FieldMadeTransient) SerializableTester.deserializeHex(s);
+        FieldMadeTransient deserialized = (FieldMadeTransient) SerializationTester.deserializeHex(s);
         assertEquals(0, deserialized.transientInt);
     }
 

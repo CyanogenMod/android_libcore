@@ -22,7 +22,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.Collections;
-import libcore.java.util.SerializableTester;
+import libcore.util.SerializationTester;
 
 public class InetAddressTest extends junit.framework.TestCase {
     private static final byte[] LOOPBACK6_BYTES = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
@@ -137,7 +137,7 @@ public class InetAddressTest extends junit.framework.TestCase {
                 + "44e616d657400124c6a6176612f6c616e672f537472696e673b78704a7d9d6300"
                 + "00000274000e7777772e676f6f676c652e636f6d";
         InetAddress inetAddress = InetAddress.getByName("www.google.com");
-        new SerializableTester<InetAddress>(inetAddress, s) {
+        new SerializationTester<InetAddress>(inetAddress, s) {
             @Override protected void verify(InetAddress deserialized) throws Exception {
                 deserialized.isReachable(500);
                 for (NetworkInterface nif

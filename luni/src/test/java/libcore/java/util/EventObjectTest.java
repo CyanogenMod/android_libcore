@@ -19,6 +19,7 @@ package libcore.java.util;
 
 import java.util.EventObject;
 import junit.framework.TestCase;
+import libcore.util.SerializationTester;
 
 public final class EventObjectTest extends TestCase {
 
@@ -44,7 +45,7 @@ public final class EventObjectTest extends TestCase {
                 + "c8d094e186d7da80200007870";
         Object source = new Object();
         EventObject eventObject = new EventObject(source);
-        new SerializableTester<EventObject>(eventObject, s) {
+        new SerializationTester<EventObject>(eventObject, s) {
             @Override protected boolean equals(EventObject a, EventObject b) {
                 return a.getSource() == null
                         || b.getSource() == null

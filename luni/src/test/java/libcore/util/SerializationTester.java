@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package libcore.java.util;
+package libcore.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,11 +26,11 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import junit.framework.AssertionFailedError;
 
-public class SerializableTester<T> {
+public class SerializationTester<T> {
     private final String golden;
     private final T value;
 
-    public SerializableTester(T value, String golden) {
+    public SerializationTester(T value, String golden) {
         this.golden = golden;
         this.value = value;
     }

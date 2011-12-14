@@ -26,6 +26,7 @@ import java.util.NavigableMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import junit.framework.TestCase;
+import libcore.util.SerializationTester;
 
 public class TreeMapTest extends TestCase {
 
@@ -270,7 +271,7 @@ public class TreeMapTest extends TestCase {
                 + "e60300014c000a636f6d70617261746f727400164c6a6176612f7574696c2f436"
                 + "f6d70617261746f723b78707077040000000078";
         TreeMap<String, String> map = new TreeMap<String, String>();
-        new SerializableTester<TreeMap<String, String>>(map, s).test();
+        new SerializationTester<TreeMap<String, String>>(map, s).test();
     }
 
     public void testSerializationWithComparator() {
@@ -283,7 +284,7 @@ public class TreeMapTest extends TestCase {
                 String.CASE_INSENSITIVE_ORDER);
         map.put("a", "a");
         map.put("b", "b");
-        new SerializableTester<NavigableMap<String, String>>(map, s) {
+        new SerializationTester<NavigableMap<String, String>>(map, s) {
             @Override protected void verify(NavigableMap<String, String> deserialized) {
                 assertEquals(0, deserialized.comparator().compare("X", "x"));
             }
@@ -311,7 +312,7 @@ public class TreeMapTest extends TestCase {
         map.put("c", "c");
         map.put("d", "d");
         SortedMap<String, String> subMap = map.subMap("a", "c");
-        new SerializableTester<SortedMap<String, String>>(subMap, s) {
+        new SerializationTester<SortedMap<String, String>>(subMap, s) {
             @Override protected void verify(SortedMap<String, String> deserialized) {
                 try {
                     deserialized.put("e", "e");
@@ -343,7 +344,7 @@ public class TreeMapTest extends TestCase {
         map.put("c", "c");
         map.put("d", "d");
         SortedMap<String, String> subMap = map.subMap("a", false, "c", true);
-        new SerializableTester<SortedMap<String, String>>(subMap, s) {
+        new SerializationTester<SortedMap<String, String>>(subMap, s) {
             @Override protected void verify(SortedMap<String, String> deserialized) {
                 try {
                     deserialized.put("e", "e");
@@ -375,7 +376,7 @@ public class TreeMapTest extends TestCase {
         map.put("a", "a");
         map.put("b", "b");
         NavigableMap<String, String> descendingMap = map.descendingMap();
-        new SerializableTester<NavigableMap<String, String>>(descendingMap, s) {
+        new SerializationTester<NavigableMap<String, String>>(descendingMap, s) {
             @Override protected void verify(NavigableMap<String, String> deserialized) {
                 assertEquals("b", deserialized.navigableKeySet().first());
             }
@@ -392,7 +393,7 @@ public class TreeMapTest extends TestCase {
                 String.CASE_INSENSITIVE_ORDER);
         map.put("a", "a");
         map.put("b", "b");
-        new SerializableTester<TreeMap<String, String>>(map, s) {
+        new SerializationTester<TreeMap<String, String>>(map, s) {
             @Override protected void verify(TreeMap<String, String> deserialized) {
                 assertEquals(0, deserialized.comparator().compare("X", "x"));
             }
@@ -420,7 +421,7 @@ public class TreeMapTest extends TestCase {
         map.put("c", "c");
         map.put("d", "d");
         SortedMap<String, String> subMap = map.subMap("a", "c");
-        new SerializableTester<SortedMap<String, String>>(subMap, s) {
+        new SerializationTester<SortedMap<String, String>>(subMap, s) {
             @Override protected void verify(SortedMap<String, String> deserialized) {
                 try {
                     deserialized.put("e", "e");

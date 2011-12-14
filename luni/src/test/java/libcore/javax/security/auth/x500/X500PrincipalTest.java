@@ -21,7 +21,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import javax.security.auth.x500.X500Principal;
 import junit.framework.TestCase;
-import libcore.java.util.SerializableTester;
+import libcore.util.SerializationTester;
 
 public class X500PrincipalTest extends TestCase {
 
@@ -37,7 +37,7 @@ public class X500PrincipalTest extends TestCase {
                                                  + "L=Mountain View, "
                                                  + "O=Google Inc, "
                                                  + "CN=www.google.com");
-        new SerializableTester<X500Principal>(actual, expected).test();
+        new SerializationTester<X500Principal>(actual, expected).test();
     }
 
     /**

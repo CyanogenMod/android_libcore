@@ -37,6 +37,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 import junit.framework.TestCase;
+import libcore.util.SerializationTester;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
@@ -700,7 +701,7 @@ public class OldCollectionsTest extends TestCase {
     }
 
     private void assertSerialized(Collection<?> collection, String s, final boolean definesEquals) {
-        new SerializableTester<Collection<?>>(collection, s) {
+        new SerializationTester<Collection<?>>(collection, s) {
             @SuppressWarnings("unchecked")
             @Override protected void verify(Collection<?> deserialized) throws Exception {
                 try {
@@ -721,7 +722,7 @@ public class OldCollectionsTest extends TestCase {
     }
 
     private void assertSerialized(Map<?, ?> map, String s) {
-        new SerializableTester<Map<?, ?>>(map, s) {
+        new SerializationTester<Map<?, ?>>(map, s) {
             @SuppressWarnings("unchecked")
             @Override protected void verify(Map<?, ?> deserialized) throws Exception {
                 try {

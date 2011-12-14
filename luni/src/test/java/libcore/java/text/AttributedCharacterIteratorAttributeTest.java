@@ -22,7 +22,7 @@ import java.text.AttributedCharacterIterator;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import junit.framework.TestCase;
-import libcore.java.util.SerializableTester;
+import libcore.util.SerializationTester;
 
 /**
  * AttributedCharacterIterator.Attribute is used like the base enum type and
@@ -40,14 +40,14 @@ public final class AttributedCharacterIteratorAttributeTest extends TestCase {
     public void testSerializingSubclass() throws IOException, ClassNotFoundException {
         AttributedCharacterIterator.Attribute a = new CustomAttribute();
         try {
-            SerializableTester.reserialize(a);
+            SerializationTester.reserialize(a);
             fail();
         } catch (InvalidObjectException expected) {
         }
     }
 
     private void assertSameReserialized(Object o) throws ClassNotFoundException, IOException {
-        assertSame(o, SerializableTester.reserialize(o));
+        assertSame(o, SerializationTester.reserialize(o));
     }
 
     private static class CustomAttribute extends AttributedCharacterIterator.Attribute {

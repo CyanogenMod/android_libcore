@@ -20,6 +20,7 @@ import java.util.NavigableSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import junit.framework.TestCase;
+import libcore.util.SerializationTester;
 
 public final class TreeSetTest extends TestCase {
 
@@ -27,7 +28,7 @@ public final class TreeSetTest extends TestCase {
         String s = "aced0005737200116a6176612e7574696c2e54726565536574dd98509395ed87"
                 + "5b03000078707077040000000078";
         TreeSet<String> set = new TreeSet<String>();
-        new SerializableTester<TreeSet<String>>(set, s).test();
+        new SerializationTester<TreeSet<String>>(set, s).test();
     }
 
     public void testSerializationWithComparator() {
@@ -38,7 +39,7 @@ public final class TreeSetTest extends TestCase {
         TreeSet<String> set = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
         set.add("a");
         set.add("b");
-        new SerializableTester<NavigableSet<String>>(set, s) {
+        new SerializationTester<NavigableSet<String>>(set, s) {
             @Override protected void verify(NavigableSet<String> deserialized) {
                 assertEquals(0, deserialized.comparator().compare("X", "x"));
             }
@@ -56,7 +57,7 @@ public final class TreeSetTest extends TestCase {
         set.add("c");
         set.add("d");
         final SortedSet<String> subSet = set.subSet("a", "c");
-        new SerializableTester<SortedSet<String>>(subSet, s) {
+        new SerializationTester<SortedSet<String>>(subSet, s) {
             @Override protected void verify(SortedSet<String> deserialized) {
                 assertBounded(deserialized, deserialized == subSet);
             }
@@ -74,7 +75,7 @@ public final class TreeSetTest extends TestCase {
         set.add("c");
         set.add("d");
         final SortedSet<String> subSet = set.subSet("a", false, "c", true);
-        new SerializableTester<SortedSet<String>>(subSet, s) {
+        new SerializationTester<SortedSet<String>>(subSet, s) {
             @Override protected void verify(SortedSet<String> deserialized) {
                 assertBounded(deserialized, deserialized == subSet);
             }
@@ -111,7 +112,7 @@ public final class TreeSetTest extends TestCase {
         set.add("a");
         set.add("b");
         NavigableSet<String> descendingSet = set.descendingSet();
-        new SerializableTester<NavigableSet<String>>(descendingSet, s) {
+        new SerializationTester<NavigableSet<String>>(descendingSet, s) {
             @Override protected void verify(NavigableSet<String> deserialized) {
                 assertEquals("b", deserialized.first());
             }
@@ -126,7 +127,7 @@ public final class TreeSetTest extends TestCase {
         TreeSet<String> set = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
         set.add("a");
         set.add("b");
-        new SerializableTester<TreeSet<String>>(set, s) {
+        new SerializationTester<TreeSet<String>>(set, s) {
             @Override protected void verify(TreeSet<String> deserialized) {
                 assertEquals(0, deserialized.comparator().compare("X", "x"));
             }

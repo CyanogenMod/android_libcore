@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.EventListener;
 import java.util.List;
 import junit.framework.TestCase;
-import libcore.java.util.SerializableTester;
+import libcore.util.SerializationTester;
 
 public final class PropertyChangeSupportTest extends TestCase {
 
@@ -243,7 +243,7 @@ public final class PropertyChangeSupportTest extends TestCase {
         support.addPropertyChangeListener("a", listenerToA);
         support.addPropertyChangeListener("a", listenerToA);
 
-        new SerializableTester<PropertyChangeSupport>(support, s) {
+        new SerializationTester<PropertyChangeSupport>(support, s) {
             @Override protected boolean equals(PropertyChangeSupport a, PropertyChangeSupport b) {
                 return describe(a.getPropertyChangeListeners())
                         .equals(describe(b.getPropertyChangeListeners()));

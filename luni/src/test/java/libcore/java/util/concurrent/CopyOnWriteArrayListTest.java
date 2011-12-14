@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import junit.framework.TestCase;
-import libcore.java.util.SerializableTester;
+import libcore.util.SerializationTester;
 
 public final class CopyOnWriteArrayListTest extends TestCase {
 
@@ -265,7 +265,7 @@ public final class CopyOnWriteArrayListTest extends TestCase {
         List<String> contents = Arrays.asList("a", "b", "c", null, "e");
         CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<String>(contents);
 
-        new SerializableTester<CopyOnWriteArrayList<String>>(list, s).test();
+        new SerializationTester<CopyOnWriteArrayList<String>>(list, s).test();
     }
 
     /**

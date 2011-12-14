@@ -21,7 +21,7 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import junit.framework.TestCase;
-import libcore.java.util.SerializableTester;
+import libcore.util.SerializationTester;
 
 public final class URLTest extends TestCase {
 
@@ -103,7 +103,7 @@ public final class URLTest extends TestCase {
                 + "e00017870ffffffff74000e757365723a7061737340686f73747400102f706174682f66696c653f7"
                 + "175657279740004686f7374740004687474707400046861736878";
         URL url = new URL("http://user:pass@host/path/file?query#hash");
-        new SerializableTester<URL>(url, s).test();
+        new SerializationTester<URL>(url, s).test();
     }
 
     /**
@@ -119,7 +119,7 @@ public final class URLTest extends TestCase {
                 + "47400102f706174682f66696c653f7175657279740004686f7374740004687474707400046861736"
                 + "878";
         final URL url = new URL("http://user:pass@host/path/file?query#hash");
-        new SerializableTester<URL>(url, s) {
+        new SerializationTester<URL>(url, s) {
             @Override protected void verify(URL deserialized) {
                 assertEquals(url.hashCode(), deserialized.hashCode());
             }

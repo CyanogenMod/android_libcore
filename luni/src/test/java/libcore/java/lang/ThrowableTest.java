@@ -20,7 +20,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 import junit.framework.TestCase;
-import libcore.java.util.SerializableTester;
+import libcore.util.SerializationTester;
 
 public class ThrowableTest extends TestCase {
     private static class NoStackTraceException extends Exception {
@@ -248,7 +248,7 @@ public class ThrowableTest extends TestCase {
                 + "00000007078";
         Throwable throwable = new SuppressionsThrowable("foo", null, false);
         throwable.setStackTrace(new StackTraceElement[0]);
-        new SerializableTester<Throwable>(throwable, s) {
+        new SerializationTester<Throwable>(throwable, s) {
             @Override protected boolean equals(Throwable a, Throwable b) {
                 return printStackTraceToString(a).equals(printStackTraceToString(b));
             }
@@ -277,7 +277,7 @@ public class ThrowableTest extends TestCase {
                 + "870000000007704000000007871007e000f78";
         Throwable throwable = new SuppressionsThrowable("foo", null, true);
         throwable.setStackTrace(new StackTraceElement[0]);
-        new SerializableTester<Throwable>(throwable, s) {
+        new SerializationTester<Throwable>(throwable, s) {
             @Override protected boolean equals(Throwable a, Throwable b) {
                 return printStackTraceToString(a).equals(printStackTraceToString(b));
             }
@@ -291,7 +291,7 @@ public class ThrowableTest extends TestCase {
     }
 
     private void assertSerialized(final Throwable throwable, String golden) {
-        new SerializableTester<Throwable>(throwable, golden) {
+        new SerializationTester<Throwable>(throwable, golden) {
             @Override protected boolean equals(Throwable a, Throwable b) {
                 return printStackTraceToString(a).equals(printStackTraceToString(b));
             }
