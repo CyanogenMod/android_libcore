@@ -34,6 +34,7 @@ import java.net.CacheResponse;
 import java.net.ConnectException;
 import java.net.HttpRetryException;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.PasswordAuthentication;
 import java.net.ProtocolException;
 import java.net.Proxy;
@@ -1396,6 +1397,11 @@ public final class URLConnectionTest extends TestCase {
         }
     }
 
+    /**
+     * Test that the timeout period is honored. The timeout may be doubled!
+     * HttpURLConnection will wait the full timeout for each of the server's IP
+     * addresses. This is typically one IPv4 address and one IPv6 address.
+     */
     public void testConnectTimeouts() throws IOException {
         StuckServer ss = new StuckServer();
         int serverPort = ss.getLocalPort();
@@ -1407,8 +1413,10 @@ public final class URLConnectionTest extends TestCase {
             urlConnection.getInputStream();
             fail();
         } catch (SocketTimeoutException expected) {
-            long actual = System.currentTimeMillis() - start;
-            assertTrue(Math.abs(timeout - actual) < 500);
+            long elapsed = System.currentTimeMillis() - start;
+            int attempts = InetAddress.getAllByName("localhost").length; // one per IP address
+            assertTrue("timeout=" +timeout + ", elapsed=" + elapsed + ", attempts=" + attempts,
+                    Math.abs((attempts * timeout) - elapsed) < 500);
         } finally {
             ss.close();
         }

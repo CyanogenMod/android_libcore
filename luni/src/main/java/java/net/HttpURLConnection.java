@@ -130,9 +130,9 @@ import libcore.net.http.HttpEngine;
  * for multiple request/response pairs. As a result, HTTP connections may be
  * held open longer than necessary. Calls to {@link #disconnect()} may return
  * the socket to a pool of connected sockets. This behavior can be disabled by
- * setting the "http.keepAlive" system property to "false" before issuing any
- * HTTP requests. The "http.maxConnections" property may be used to control how
- * many idle connections to each server will be held.
+ * setting the {@code http.keepAlive} system property to {@code false} before
+ * issuing any HTTP requests. The {@code http.maxConnections} property may be
+ * used to control how many idle connections to each server will be held.
  *
  * <p>By default, this implementation of {@code HttpURLConnection} requests that
  * servers use gzip compression. Since {@link #getContentLength()} returns the
@@ -518,8 +518,8 @@ public abstract class HttpURLConnection extends URLConnection {
      *
      * <p>Unlike other Java implementations, this will not necessarily close
      * socket connections that can be reused. You can disable all connection
-     * reuse by setting the "http.keepAlive" system property to "false" before
-     * issuing any HTTP requests.
+     * reuse by setting the {@code http.keepAlive} system property to {@code
+     * false} before issuing any HTTP requests.
      */
     public abstract void disconnect();
 

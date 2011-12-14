@@ -336,8 +336,8 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
     }
 
     @Override
-    public void setConnectTimeout(int timeout) {
-        delegate.setConnectTimeout(timeout);
+    public void setConnectTimeout(int timeoutMillis) {
+        delegate.setConnectTimeout(timeoutMillis);
     }
 
     @Override
@@ -346,8 +346,8 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
     }
 
     @Override
-    public void setReadTimeout(int timeout) {
-        delegate.setReadTimeout(timeout);
+    public void setReadTimeout(int timeoutMillis) {
+        delegate.setReadTimeout(timeoutMillis);
     }
 
     @Override
