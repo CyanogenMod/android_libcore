@@ -978,10 +978,12 @@ public abstract class URLConnection {
      * of {@code 0} disables connect timeouts; connect attempts may wait
      * indefinitely.
      *
-     * <p><strong>Warning:</strong> if the server has both IPv6 and IPv4
-     * addresses, this client will try each in its preferred order. Should the
-     * server not respond on either address, two timeouts will elapse before the
-     * connect attempt fails.
+     * <p><strong>Warning:</strong> if the hostname resolves to multiple IP
+     * addresses, this client will try each in <a
+     * href="http://www.ietf.org/rfc/rfc3484.txt">RFC 3484</a> order. If
+     * connecting to each of these addresses fails, multiple timeouts will
+     * elapse before the connect attempt throws an exception. Host names that
+     * support both IPv6 and IPv4 always have at least 2 IP addresses.
      *
      * @param timeoutMillis the connect timeout in milliseconds. Non-negative.
      */
