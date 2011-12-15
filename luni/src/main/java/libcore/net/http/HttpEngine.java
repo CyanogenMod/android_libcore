@@ -418,6 +418,10 @@ public class HttpEngine {
         return connection;
     }
 
+    public final boolean hasRecycledConnection() {
+        return connection != null && connection.isRecycled();
+    }
+
     /**
      * Returns true if {@code cacheResponse} is of the right type. This
      * condition is necessary but not sufficient for the cached response to

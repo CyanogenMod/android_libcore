@@ -295,23 +295,18 @@ public final class URLConnectionTest extends TestCase {
     }
 
     public void testServerClosesSocket() throws Exception {
-        testServerClosesOutput(DISCONNECT_AT_END);
+        testServerClosesSocket(DISCONNECT_AT_END);
     }
 
     public void testServerShutdownInput() throws Exception {
-        testServerClosesOutput(SHUTDOWN_INPUT_AT_END);
+        testServerClosesSocket(SHUTDOWN_INPUT_AT_END);
     }
 
-    public void testServerShutdownOutput() throws Exception {
-        testServerClosesOutput(SHUTDOWN_OUTPUT_AT_END);
-    }
-
-    private void testServerClosesOutput(SocketPolicy socketPolicy) throws Exception {
+    private void testServerClosesSocket(SocketPolicy socketPolicy) throws Exception {
         server.enqueue(new MockResponse()
                 .setBody("This connection won't pool properly")
                 .setSocketPolicy(socketPolicy));
-        server.enqueue(new MockResponse()
-                .setBody("This comes after a busted connection"));
+        server.enqueue(new MockResponse().setBody("This comes after a busted connection"));
         server.play();
 
         assertContent("This connection won't pool properly", server.getUrl("/a").openConnection());
@@ -319,6 +314,55 @@ public final class URLConnectionTest extends TestCase {
         assertContent("This comes after a busted connection", server.getUrl("/b").openConnection());
         // sequence number 0 means the HTTP socket connection was not reused
         assertEquals(0, server.takeRequest().getSequenceNumber());
+    }
+
+    public void testServerShutdownOutput() throws Exception {
+        // This test causes MockWebServer to log a "connection failed" stack trace
+        server.enqueue(new MockResponse()
+                .setBody("Output shutdown after this response")
+                .setSocketPolicy(SHUTDOWN_OUTPUT_AT_END));
+        server.enqueue(new MockResponse().setBody("This response will fail to write"));
+        server.enqueue(new MockResponse().setBody("This comes after a busted connection"));
+        server.play();
+
+        assertContent("Output shutdown after this response", server.getUrl("/a").openConnection());
+        assertEquals(0, server.takeRequest().getSequenceNumber());
+        assertContent("This comes after a busted connection", server.getUrl("/b").openConnection());
+        assertEquals(1, server.takeRequest().getSequenceNumber());
+        assertEquals(0, server.takeRequest().getSequenceNumber());
+    }
+
+    public void testRetryableRequestBodyAfterBrokenConnection() throws Exception {
+        server.enqueue(new MockResponse().setBody("abc").setSocketPolicy(DISCONNECT_AT_END));
+        server.enqueue(new MockResponse().setBody("def"));
+        server.play();
+
+        assertContent("abc", server.getUrl("/a").openConnection());
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/b").openConnection();
+        connection.setDoOutput(true);
+        OutputStream out = connection.getOutputStream();
+        out.write(new byte[] {1, 2, 3});
+        out.close();
+        assertContent("def", connection);
+    }
+
+    public void testNonRetryableRequestBodyAfterBrokenConnection() throws Exception {
+        server.enqueue(new MockResponse().setBody("abc").setSocketPolicy(DISCONNECT_AT_END));
+        server.enqueue(new MockResponse().setBody("def"));
+        server.play();
+
+        assertContent("abc", server.getUrl("/a").openConnection());
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/b").openConnection();
+        connection.setDoOutput(true);
+        connection.setFixedLengthStreamingMode(3);
+        OutputStream out = connection.getOutputStream();
+        out.write(new byte[] {1, 2, 3});
+        out.close();
+        try {
+            connection.getInputStream();
+            fail();
+        } catch (IOException expected) {
+        }
     }
 
     enum WriteKind { BYTE_BY_BYTE, SMALL_BUFFERS, LARGE_BUFFERS }

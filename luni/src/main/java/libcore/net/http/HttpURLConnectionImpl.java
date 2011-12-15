@@ -268,53 +268,64 @@ class HttpURLConnectionImpl extends HttpURLConnection {
             return httpEngine;
         }
 
-        try {
-            while (true) {
+        while (true) {
+            try {
                 httpEngine.sendRequest();
                 httpEngine.readResponse();
-
-                Retry retry = processResponseHeaders();
-                if (retry == Retry.NONE) {
-                    httpEngine.automaticallyReleaseConnectionToPool();
-                    break;
-                }
-
+            } catch (IOException e) {
                 /*
-                 * The first request was insufficient. Prepare for another...
+                 * If the connection was recycled, its staleness may have caused
+                 * the failure. Silently retry with a different connection.
                  */
-                String retryMethod = method;
                 OutputStream requestBody = httpEngine.getRequestBody();
-
-                /*
-                 * Although RFC 2616 10.3.2 specifies that a HTTP_MOVED_PERM
-                 * redirect should keep the same method, Chrome, Firefox and the
-                 * RI all issue GETs when following any redirect.
-                 */
-                int responseCode = getResponseCode();
-                if (responseCode == HTTP_MULT_CHOICE || responseCode == HTTP_MOVED_PERM
-                        || responseCode == HTTP_MOVED_TEMP || responseCode == HTTP_SEE_OTHER) {
-                    retryMethod = HttpEngine.GET;
-                    requestBody = null;
+                if (httpEngine.hasRecycledConnection()
+                        && (requestBody == null || requestBody instanceof RetryableOutputStream)) {
+                    httpEngine.release(false);
+                    httpEngine = newHttpEngine(method, rawRequestHeaders, null,
+                            (RetryableOutputStream) requestBody);
+                    continue;
                 }
-
-                if (requestBody != null && !(requestBody instanceof RetryableOutputStream)) {
-                    throw new HttpRetryException("Cannot retry streamed HTTP body",
-                            httpEngine.getResponseCode());
-                }
-
-                if (retry == Retry.DIFFERENT_CONNECTION) {
-                    httpEngine.automaticallyReleaseConnectionToPool();
-                }
-
-                httpEngine.release(true);
-
-                httpEngine = newHttpEngine(retryMethod, rawRequestHeaders,
-                        httpEngine.getConnection(), (RetryableOutputStream) requestBody);
+                httpEngineFailure = e;
+                throw e;
             }
-            return httpEngine;
-        } catch (IOException e) {
-            httpEngineFailure = e;
-            throw e;
+
+            Retry retry = processResponseHeaders();
+            if (retry == Retry.NONE) {
+                httpEngine.automaticallyReleaseConnectionToPool();
+                return httpEngine;
+            }
+
+            /*
+             * The first request was insufficient. Prepare for another...
+             */
+            String retryMethod = method;
+            OutputStream requestBody = httpEngine.getRequestBody();
+
+            /*
+             * Although RFC 2616 10.3.2 specifies that a HTTP_MOVED_PERM
+             * redirect should keep the same method, Chrome, Firefox and the
+             * RI all issue GETs when following any redirect.
+             */
+            int responseCode = getResponseCode();
+            if (responseCode == HTTP_MULT_CHOICE || responseCode == HTTP_MOVED_PERM
+                    || responseCode == HTTP_MOVED_TEMP || responseCode == HTTP_SEE_OTHER) {
+                retryMethod = HttpEngine.GET;
+                requestBody = null;
+            }
+
+            if (requestBody != null && !(requestBody instanceof RetryableOutputStream)) {
+                throw new HttpRetryException("Cannot retry streamed HTTP body",
+                        httpEngine.getResponseCode());
+            }
+
+            if (retry == Retry.DIFFERENT_CONNECTION) {
+                httpEngine.automaticallyReleaseConnectionToPool();
+            }
+
+            httpEngine.release(true);
+
+            httpEngine = newHttpEngine(retryMethod, rawRequestHeaders,
+                    httpEngine.getConnection(), (RetryableOutputStream) requestBody);
         }
     }
 

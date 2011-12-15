@@ -28,7 +28,6 @@ import java.net.ProxySelector;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -50,15 +49,14 @@ import org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl;
  */
 final class HttpConnection {
     private final Address address;
-
     private final Socket socket;
     private InputStream inputStream;
     private OutputStream outputStream;
-
     private SSLSocket unverifiedSocket;
     private SSLSocket sslSocket;
     private InputStream sslInputStream;
     private OutputStream sslOutputStream;
+    private boolean recycled = false;
 
     private HttpConnection(Address config, int connectTimeout) throws IOException {
         this.address = config;
@@ -236,39 +234,20 @@ final class HttpConnection {
     }
 
     /**
-     * Returns true if the connection is functional. This uses a shameful hack
-     * to peek a byte from the socket.
+     * Returns true if this connection has been used to satisfy an earlier
+     * HTTP request/response pair.
      */
-    boolean isStale() throws IOException {
-        if (!isEligibleForRecycling()) {
-            return true;
-        }
+    public boolean isRecycled() {
+        return recycled;
+    }
 
-        InputStream in = getInputStream();
-        Socket socket = getSocket();
-        int soTimeout = socket.getSoTimeout();
-        try {
-            socket.setSoTimeout(1);
-            in.mark(1);
-            int byteRead = in.read();
-            if (byteRead != -1) {
-                in.reset();
-                return false;
-            }
-            return true; // the socket is reporting all data read; it's stale
-        } catch (SocketTimeoutException e) {
-            return false; // the connection is not stale; hooray
-        } catch (IOException e) {
-            return true; // the connection is stale, the read or soTimeout failed.
-        } finally {
-            socket.setSoTimeout(soTimeout);
-        }
+    public void setRecycled() {
+        this.recycled = true;
     }
 
     /**
-     * Returns true if this connection is eligible to be recycled. This
-     * is like {@link #isStale} except that it doesn't try to actually
-     * perform any I/O.
+     * Returns true if this connection is eligible to be reused for another
+     * request/response pair.
      */
     protected boolean isEligibleForRecycling() {
         return !socket.isClosed()
