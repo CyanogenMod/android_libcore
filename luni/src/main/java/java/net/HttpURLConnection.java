@@ -236,12 +236,22 @@ import libcore.net.http.HttpEngine;
  * until a connection is established.
  *
  * <h3>Response Caching</h3>
- * <p>{@code HttpURLConnection} supports a VM-wide HTTP response cache.
- * Implement {@link ResponseCache} and use {@link ResponseCache#setDefault} to
- * install a custom cache. Implementing this API is onerous: correct
- * implementations should follow all caching rules defined by <a
- * href="http://tools.ietf.org/html/rfc2616#section-13">Section 13 of RFC
- * 2616</a>.
+ * Android 4.0 (Ice Cream Sandwich) includes a response cache. See {@code
+ * android.net.http.HttpResponseCache} for instructions on enabling HTTP caching
+ * in your application.
+ *
+ * <h3>Avoiding Bugs In Earlier Releases</h3>
+ * Prior to Android 2.2 (Froyo), this class had some frustrating bugs. In
+ * particular, calling {@code close()} on a readable {@code InputStream} could
+ * <a href="http://code.google.com/p/android/issues/detail?id=2939">poison the
+ * connection pool</a>. Work around this by disabling connection pooling:
+ * <pre>   {@code
+ * private void disableConnectionReuseIfNecessary() {
+ *   // Work around pre-Froyo bugs in HTTP connection reuse.
+ *   if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.FROYO) {
+ *     System.setProperty("http.keepAlive", "false");
+ *   }
+ * }}</pre>
  *
  * <p>Each instance of {@code HttpURLConnection} may be used for one
  * request/response pair. Instances of this class are not thread safe.
