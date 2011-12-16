@@ -401,13 +401,10 @@ class HttpURLConnectionImpl extends HttpURLConnection {
         }
 
         // keep asking for username/password until authorized
-        String challenge = responseCode == HTTP_PROXY_AUTH
-                ? response.getProxyAuthenticate()
-                : response.getWwwAuthenticate();
-        if (challenge == null) {
-            throw new IOException("Received authentication challenge is null");
-        }
-        String credentials = getAuthorizationCredentials(challenge);
+        String challengeHeader = responseCode == HTTP_PROXY_AUTH
+                ? "Proxy-Authenticate"
+                : "WWW-Authenticate";
+        String credentials = getAuthorizationCredentials(response.getHeaders(), challengeHeader);
         if (credentials == null) {
             return false; // could not find credentials, end request cycle
         }
@@ -423,31 +420,30 @@ class HttpURLConnectionImpl extends HttpURLConnection {
     /**
      * Returns the authorization credentials on the base of provided challenge.
      */
-    private String getAuthorizationCredentials(String challenge) throws IOException {
-        int idx = challenge.indexOf(" ");
-        if (idx == -1) {
-            return null;
+    private String getAuthorizationCredentials(RawHeaders responseHeaders, String challengeHeader)
+            throws IOException {
+        List<Challenge> challenges = HeaderParser.parseChallenges(responseHeaders, challengeHeader);
+        if (challenges.isEmpty()) {
+            throw new IOException("No authentication challenges found");
         }
-        String scheme = challenge.substring(0, idx);
-        int realm = challenge.indexOf("realm=\"") + 7;
-        String prompt = null;
-        if (realm != -1) {
-            int end = challenge.indexOf('"', realm);
-            if (end != -1) {
-                prompt = challenge.substring(realm, end);
+
+        for (Challenge challenge : challenges) {
+            // use the global authenticator to get the password
+            PasswordAuthentication auth = Authenticator.requestPasswordAuthentication(
+                    getConnectToInetAddress(), getConnectToPort(), url.getProtocol(),
+                    challenge.realm, challenge.scheme);
+            if (auth == null) {
+                continue;
             }
+
+            // base64 encode the username and password
+            String usernameAndPassword = auth.getUserName() + ":" + new String(auth.getPassword());
+            byte[] bytes = usernameAndPassword.getBytes(Charsets.ISO_8859_1);
+            String encoded = Base64.encode(bytes);
+            return challenge.scheme + " " + encoded;
         }
-        // use the global authenticator to get the password
-        PasswordAuthentication pa = Authenticator.requestPasswordAuthentication(
-                getConnectToInetAddress(), getConnectToPort(), url.getProtocol(), prompt, scheme);
-        if (pa == null) {
-            return null;
-        }
-        // base64 encode the username and password
-        String usernameAndPassword = pa.getUserName() + ":" + new String(pa.getPassword());
-        byte[] bytes = usernameAndPassword.getBytes(Charsets.ISO_8859_1);
-        String encoded = Base64.encode(bytes);
-        return scheme + " " + encoded;
+
+        return null;
     }
 
     private InetAddress getConnectToInetAddress() throws IOException {

@@ -73,16 +73,6 @@ import libcore.javax.net.ssl.TestSSLContext;
 import tests.net.StuckServer;
 
 public final class URLConnectionTest extends TestCase {
-
-    private static final Authenticator SIMPLE_AUTHENTICATOR = new Authenticator() {
-        protected PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication("username", "password".toCharArray());
-        }
-    };
-
-    /** base64("username:password") */
-    private static final String BASE_64_CREDENTIALS = "dXNlcm5hbWU6cGFzc3dvcmQ=";
-
     private MockWebServer server = new MockWebServer();
     private String hostName;
 
@@ -710,7 +700,7 @@ public final class URLConnectionTest extends TestCase {
     }
 
     public void testProxyAuthenticateOnConnect() throws Exception {
-        Authenticator.setDefault(SIMPLE_AUTHENTICATOR);
+        Authenticator.setDefault(new SimpleAuthenticator());
         TestSSLContext testSSLContext = TestSSLContext.create();
         server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
         server.enqueue(new MockResponse()
@@ -735,7 +725,8 @@ public final class URLConnectionTest extends TestCase {
 
         RecordedRequest connect2 = server.takeRequest();
         assertEquals("CONNECT android.com:443 HTTP/1.1", connect2.getRequestLine());
-        assertContains(connect2.getHeaders(), "Proxy-Authorization: Basic " + BASE_64_CREDENTIALS);
+        assertContains(connect2.getHeaders(), "Proxy-Authorization: Basic "
+                + SimpleAuthenticator.BASE_64_CREDENTIALS);
 
         RecordedRequest get = server.takeRequest();
         assertEquals("GET /foo HTTP/1.1", get.getRequestLine());
@@ -830,7 +821,7 @@ public final class URLConnectionTest extends TestCase {
      */
     public void testUnauthorizedResponseHandling() throws IOException {
         MockResponse response = new MockResponse()
-                .addHeader("WWW-Authenticate: challenge")
+                .addHeader("WWW-Authenticate: Basic realm=\"protected area\"")
                 .setResponseCode(401) // UNAUTHORIZED
                 .setBody("Unauthorized");
         server.enqueue(response);
@@ -999,7 +990,7 @@ public final class URLConnectionTest extends TestCase {
         server.enqueue(pleaseAuthenticate);
         server.play();
 
-        Authenticator.setDefault(SIMPLE_AUTHENTICATOR);
+        Authenticator.setDefault(new SimpleAuthenticator());
         HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
         connection.setDoOutput(true);
         byte[] requestBody = { 'A', 'B', 'C', 'D' };
@@ -1180,7 +1171,7 @@ public final class URLConnectionTest extends TestCase {
         server.enqueue(new MockResponse().setBody("Successful auth!"));
         server.play();
 
-        Authenticator.setDefault(SIMPLE_AUTHENTICATOR);
+        Authenticator.setDefault(new SimpleAuthenticator());
         HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
         connection.setDoOutput(true);
         byte[] requestBody = { 'A', 'B', 'C', 'D' };
@@ -1191,13 +1182,14 @@ public final class URLConnectionTest extends TestCase {
 
         // no authorization header for the first request...
         RecordedRequest request = server.takeRequest();
-        assertContainsNoneMatching(request.getHeaders(), "Authorization: Basic .*");
+        assertContainsNoneMatching(request.getHeaders(), "Authorization: .*");
 
         // ...but the three requests that follow include an authorization header
         for (int i = 0; i < 3; i++) {
             request = server.takeRequest();
             assertEquals("POST / HTTP/1.1", request.getRequestLine());
-            assertContains(request.getHeaders(), "Authorization: Basic " + BASE_64_CREDENTIALS);
+            assertContains(request.getHeaders(), "Authorization: Basic "
+                    + SimpleAuthenticator.BASE_64_CREDENTIALS);
             assertEquals(Arrays.toString(requestBody), Arrays.toString(request.getBody()));
         }
     }
@@ -1215,20 +1207,72 @@ public final class URLConnectionTest extends TestCase {
         server.enqueue(new MockResponse().setBody("Successful auth!"));
         server.play();
 
-        Authenticator.setDefault(SIMPLE_AUTHENTICATOR);
+        SimpleAuthenticator authenticator = new SimpleAuthenticator();
+        Authenticator.setDefault(authenticator);
         HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
         assertEquals("Successful auth!", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+        assertEquals(Authenticator.RequestorType.SERVER, authenticator.requestorType);
+        assertEquals(server.getPort(), authenticator.requestingPort);
+        assertEquals(InetAddress.getByName(server.getHostName()), authenticator.requestingSite);
+        assertEquals("protected area", authenticator.requestingPrompt);
+        assertEquals("http", authenticator.requestingProtocol);
+        assertEquals("Basic", authenticator.requestingScheme);
 
         // no authorization header for the first request...
         RecordedRequest request = server.takeRequest();
-        assertContainsNoneMatching(request.getHeaders(), "Authorization: Basic .*");
+        assertContainsNoneMatching(request.getHeaders(), "Authorization: .*");
 
         // ...but the three requests that follow requests include an authorization header
         for (int i = 0; i < 3; i++) {
             request = server.takeRequest();
             assertEquals("GET / HTTP/1.1", request.getRequestLine());
-            assertContains(request.getHeaders(), "Authorization: Basic " + BASE_64_CREDENTIALS);
+            assertContains(request.getHeaders(), "Authorization: Basic "
+                    + SimpleAuthenticator.BASE_64_CREDENTIALS);
         }
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=19081
+    public void testAuthenticateWithCommaSeparatedAuthenticationMethods() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .addHeader("WWW-Authenticate: Scheme1 realm=\"a\", Scheme2 realm=\"b\", "
+                        + "Scheme3 realm=\"c\"")
+                .setBody("Please authenticate."));
+        server.enqueue(new MockResponse().setBody("Successful auth!"));
+        server.play();
+
+        SimpleAuthenticator authenticator = new SimpleAuthenticator();
+        authenticator.expectedPrompt = "b";
+        Authenticator.setDefault(authenticator);
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("Successful auth!", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        assertContainsNoneMatching(server.takeRequest().getHeaders(), "Authorization: .*");
+        assertContains(server.takeRequest().getHeaders(),
+                "Authorization: Scheme2 " + SimpleAuthenticator.BASE_64_CREDENTIALS);
+        assertEquals("Scheme2", authenticator.requestingScheme);
+    }
+
+    public void testAuthenticateWithMultipleAuthenticationHeaders() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .addHeader("WWW-Authenticate: Scheme1 realm=\"a\"")
+                .addHeader("WWW-Authenticate: Scheme2 realm=\"b\"")
+                .addHeader("WWW-Authenticate: Scheme3 realm=\"c\"")
+                .setBody("Please authenticate."));
+        server.enqueue(new MockResponse().setBody("Successful auth!"));
+        server.play();
+
+        SimpleAuthenticator authenticator = new SimpleAuthenticator();
+        authenticator.expectedPrompt = "b";
+        Authenticator.setDefault(authenticator);
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("Successful auth!", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        assertContainsNoneMatching(server.takeRequest().getHeaders(), "Authorization: .*");
+        assertContains(server.takeRequest().getHeaders(),
+                "Authorization: Scheme2 " + SimpleAuthenticator.BASE_64_CREDENTIALS);
+        assertEquals("Scheme2", authenticator.requestingScheme);
     }
 
     public void testRedirectedWithChunkedEncoding() throws Exception {
@@ -2140,6 +2184,31 @@ public final class URLConnectionTest extends TestCase {
         public boolean verify(String hostname, SSLSession session) {
             calls.add("verify " + hostname);
             return true;
+        }
+    }
+
+    private static class SimpleAuthenticator extends Authenticator {
+        /** base64("username:password") */
+        private static final String BASE_64_CREDENTIALS = "dXNlcm5hbWU6cGFzc3dvcmQ=";
+
+        private String expectedPrompt;
+        private RequestorType requestorType;
+        private int requestingPort;
+        private InetAddress requestingSite;
+        private String requestingPrompt;
+        private String requestingProtocol;
+        private String requestingScheme;
+
+        protected PasswordAuthentication getPasswordAuthentication() {
+            requestorType = getRequestorType();
+            requestingPort = getRequestingPort();
+            requestingSite = getRequestingSite();
+            requestingPrompt = getRequestingPrompt();
+            requestingProtocol = getRequestingProtocol();
+            requestingScheme = getRequestingScheme();
+            return (expectedPrompt == null || expectedPrompt.equals(requestingPrompt))
+                    ? new PasswordAuthentication("username", "password".toCharArray())
+                    : null;
         }
     }
 }

@@ -108,8 +108,6 @@ public final class ResponseHeaders {
     private String transferEncoding;
     private int contentLength = -1;
     private String connection;
-    private String proxyAuthenticate;
-    private String wwwAuthenticate;
 
     public ResponseHeaders(URI uri, RawHeaders headers) {
         this.uri = uri;
@@ -171,10 +169,6 @@ public final class ResponseHeaders {
                 }
             } else if ("Connection".equalsIgnoreCase(fieldName)) {
                 connection = value;
-            } else if ("Proxy-Authenticate".equalsIgnoreCase(fieldName)) {
-                proxyAuthenticate = value;
-            } else if ("WWW-Authenticate".equalsIgnoreCase(fieldName)) {
-                wwwAuthenticate = value;
             } else if (SENT_MILLIS.equalsIgnoreCase(fieldName)) {
                 sentRequestMillis = Long.parseLong(value);
             } else if (RECEIVED_MILLIS.equalsIgnoreCase(fieldName)) {
@@ -262,14 +256,6 @@ public final class ResponseHeaders {
 
     public String getConnection() {
         return connection;
-    }
-
-    public String getProxyAuthenticate() {
-        return proxyAuthenticate;
-    }
-
-    public String getWwwAuthenticate() {
-        return wwwAuthenticate;
     }
 
     public void setLocalTimestamps(long sentRequestMillis, long receivedResponseMillis) {
