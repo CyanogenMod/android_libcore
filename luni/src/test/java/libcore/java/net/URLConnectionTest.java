@@ -449,6 +449,7 @@ public final class URLConnectionTest extends TestCase {
 
         RecordedRequest request = server.takeRequest();
         assertEquals("GET /foo HTTP/1.1", request.getRequestLine());
+        assertEquals("TLSv1", request.getSslProtocol());
     }
 
     public void testConnectViaHttpsReusingConnections() throws IOException, InterruptedException {
@@ -2029,6 +2030,25 @@ public final class URLConnectionTest extends TestCase {
             fail(); // the RI makes a bogus proxy request for "GET http://and roid.com/ HTTP/1.1"
         } catch (UnknownHostException expected) {
         }
+    }
+
+    public void testSslFallback() throws Exception {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.FAIL_HANDSHAKE));
+        server.enqueue(new MockResponse().setBody("This required a 2nd handshake"));
+        server.play();
+
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        assertEquals("This required a 2nd handshake",
+                readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+
+        RecordedRequest first = server.takeRequest();
+        assertEquals(0, first.getSequenceNumber());
+        RecordedRequest retry = server.takeRequest();
+        assertEquals(0, retry.getSequenceNumber());
+        assertEquals("SSLv3", retry.getSslProtocol());
     }
 
     /**
