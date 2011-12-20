@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
+import javax.net.ssl.SSLSocketFactory;
 import libcore.io.IoUtils;
 import libcore.io.Streams;
 import libcore.util.EmptyArray;
@@ -305,8 +306,8 @@ public class HttpEngine {
     }
 
     protected final HttpConnection openSocketConnection() throws IOException {
-        HttpConnection result = HttpConnection.connect(
-                uri, policy.getProxy(), requiresTunnel(), policy.getConnectTimeout());
+        HttpConnection result = HttpConnection.connect(uri, getSslSocketFactory(),
+                policy.getProxy(), requiresTunnel(), policy.getConnectTimeout());
         Proxy proxy = result.getAddress().getProxy();
         if (proxy != null) {
             policy.setProxy(proxy);
@@ -729,6 +730,14 @@ public class HttpEngine {
      */
     protected boolean includeAuthorityInRequestLine() {
         return policy.usingProxy();
+    }
+
+    /**
+     * Returns the SSL configuration for connections created by this engine.
+     * We cannot reuse HTTPS connections if the socket factory has changed.
+     */
+    protected SSLSocketFactory getSslSocketFactory() {
+        return null;
     }
 
     protected final String getDefaultUserAgent() {

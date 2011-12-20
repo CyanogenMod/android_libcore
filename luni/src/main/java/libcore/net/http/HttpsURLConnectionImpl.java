@@ -35,6 +35,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 final class HttpsURLConnectionImpl extends HttpsURLConnection {
 
@@ -517,6 +518,10 @@ final class HttpsURLConnectionImpl extends HttpsURLConnection {
         @Override protected boolean includeAuthorityInRequestLine() {
             // Even if there is a proxy, it isn't involved. Always request just the file.
             return false;
+        }
+
+        @Override protected SSLSocketFactory getSslSocketFactory() {
+            return enclosing.getSSLSocketFactory();
         }
 
         @Override protected HttpURLConnection getHttpConnectionToCache() {
