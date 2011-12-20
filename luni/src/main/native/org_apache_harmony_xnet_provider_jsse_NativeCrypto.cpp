@@ -2686,7 +2686,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
 
         unsigned int bytesMoved = BIO_number_read(bio) + BIO_number_written(bio);
 
-        // LOGD("Doing SSL_write() with %d bytes to go", len);
+        // ALOGD("Doing SSL_write() with %d bytes to go", len);
         if (!appData->setCallbackState(env, shc, fdObject)) {
             MUTEX_UNLOCK(appData->mutex);
             return THROWN_EXCEPTION;
