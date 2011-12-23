@@ -462,6 +462,7 @@ public final class ResponseHeaders {
      */
     public ResponseHeaders combine(ResponseHeaders network) {
         RawHeaders result = new RawHeaders();
+        result.setStatusLine(headers.getStatusLine());
 
         for (int i = 0; i < headers.length(); i++) {
             String fieldName = headers.getFieldName(i);

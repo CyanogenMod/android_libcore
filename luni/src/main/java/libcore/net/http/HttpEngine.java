@@ -197,6 +197,10 @@ public class HttpEngine {
         this.requestHeaders = new RequestHeaders(uri, new RawHeaders(requestHeaders));
     }
 
+    public URI getUri() {
+        return uri;
+    }
+
     /**
      * Figures out what the response source will be, and opens a socket to that
      * source if necessary. Prepares the request headers and gets ready to start
@@ -793,12 +797,14 @@ public class HttpEngine {
 
         if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
             if (cachedResponseHeaders.validate(responseHeaders)) {
-                if (responseCache instanceof HttpResponseCache) {
-                    ((HttpResponseCache) responseCache).trackConditionalCacheHit();
-                }
-                // Discard the network response body. Combine the headers.
                 release(true);
-                setResponse(cachedResponseHeaders.combine(responseHeaders), cachedResponseBody);
+                ResponseHeaders combinedHeaders = cachedResponseHeaders.combine(responseHeaders);
+                setResponse(combinedHeaders, cachedResponseBody);
+                if (responseCache instanceof HttpResponseCache) {
+                    HttpResponseCache httpResponseCache = (HttpResponseCache) responseCache;
+                    httpResponseCache.trackConditionalCacheHit();
+                    httpResponseCache.update(cacheResponse, getHttpConnectionToCache());
+                }
                 return;
             } else {
                 IoUtils.closeQuietly(cachedResponseBody);

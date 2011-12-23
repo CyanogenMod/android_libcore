@@ -155,12 +155,18 @@ public final class HttpResponseCacheTest extends TestCase {
 
     private void assertCached(boolean shouldPut, int responseCode) throws Exception {
         server = new MockWebServer();
-        server.enqueue(new MockResponse()
+        MockResponse response = new MockResponse()
                 .addHeader("Last-Modified: " + formatDate(-1, TimeUnit.HOURS))
                 .addHeader("Expires: " + formatDate(1, TimeUnit.HOURS))
                 .setResponseCode(responseCode)
                 .setBody("ABCDE")
-                .addHeader("WWW-Authenticate: challenge"));
+                .addHeader("WWW-Authenticate: challenge");
+        if (responseCode == HttpURLConnection.HTTP_PROXY_AUTH) {
+            response.addHeader("Proxy-Authenticate: Basic realm=\"protected area\"");
+        } else if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            response.addHeader("WWW-Authenticate: Basic realm=\"protected area\"");
+        }
+        server.enqueue(response);
         server.play();
 
         URL url = server.getUrl("/");
@@ -1503,12 +1509,12 @@ public final class HttpResponseCacheTest extends TestCase {
 
     public void testCachePlusCookies() throws Exception {
         server.enqueue(new MockResponse()
-                .addHeader("Set-Cookie: a=FIRST; domain=.local;")
+                .addHeader("Set-Cookie: a=FIRST; domain=" + server.getCookieDomain() + ";")
                 .addHeader("Last-Modified: " + formatDate(-1, TimeUnit.HOURS))
                 .addHeader("Cache-Control: max-age=0")
                 .setBody("A"));
         server.enqueue(new MockResponse()
-                .addHeader("Set-Cookie: a=SECOND; domain=.local;")
+                .addHeader("Set-Cookie: a=SECOND; domain=" + server.getCookieDomain() + ";")
                 .setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
         server.play();
 
@@ -1613,6 +1619,37 @@ public final class HttpResponseCacheTest extends TestCase {
                 .addHeader("Cache-Control: max-age=60"));
     }
 
+    public void testConditionalHitUpdatesCache() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Last-Modified: " + formatDate(0, TimeUnit.SECONDS))
+                .addHeader("Cache-Control: max-age=0")
+                .setBody("A"));
+        server.enqueue(new MockResponse()
+                .addHeader("Cache-Control: max-age=30")
+                .addHeader("Allow: GET, HEAD")
+                .setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
+        server.enqueue(new MockResponse().setBody("B"));
+        server.play();
+
+        // cache miss; seed the cache
+        HttpURLConnection connection1 = (HttpURLConnection) server.getUrl("/a").openConnection();
+        assertEquals("A", readAscii(connection1));
+        assertEquals(null, connection1.getHeaderField("Allow"));
+
+        // conditional cache hit; update the cache
+        HttpURLConnection connection2 = (HttpURLConnection) server.getUrl("/a").openConnection();
+        assertEquals(HttpURLConnection.HTTP_OK, connection2.getResponseCode());
+        assertEquals("A", readAscii(connection2));
+        assertEquals("GET, HEAD", connection2.getHeaderField("Allow"));
+
+        // full cache hit
+        HttpURLConnection connection3 = (HttpURLConnection) server.getUrl("/a").openConnection();
+        assertEquals("A", readAscii(connection3));
+        assertEquals("GET, HEAD", connection3.getHeaderField("Allow"));
+
+        assertEquals(2, server.getRequestCount());
+    }
+
     /**
      * @param delta the offset from the current date to use. Negative
      *     values yield dates in the past; positive values yield dates in the
@@ -1678,22 +1715,34 @@ public final class HttpResponseCacheTest extends TestCase {
      */
     private RecordedRequest assertConditionallyCached(MockResponse response) throws Exception {
         // scenario 1: condition succeeds
-        server.enqueue(response.setBody("A"));
+        server.enqueue(response.setBody("A").setStatus("HTTP/1.1 200 A-OK"));
         server.enqueue(new MockResponse().setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
 
         // scenario 2: condition fails
-        server.enqueue(response.setBody("B"));
-        server.enqueue(new MockResponse().setBody("C"));
+        server.enqueue(response.setBody("B").setStatus("HTTP/1.1 200 B-OK"));
+        server.enqueue(new MockResponse().setStatus("HTTP/1.1 200 C-OK").setBody("C"));
 
         server.play();
 
         URL valid = server.getUrl("/valid");
-        assertEquals("A", readAscii(valid.openConnection()));
-        assertEquals("A", readAscii(valid.openConnection()));
+        HttpURLConnection connection1 = (HttpURLConnection) valid.openConnection();
+        assertEquals("A", readAscii(connection1));
+        assertEquals(HttpURLConnection.HTTP_OK, connection1.getResponseCode());
+        assertEquals("A-OK", connection1.getResponseMessage());
+        HttpURLConnection connection2 = (HttpURLConnection) valid.openConnection();
+        assertEquals("A", readAscii(connection2));
+        assertEquals(HttpURLConnection.HTTP_OK, connection2.getResponseCode());
+        assertEquals("A-OK", connection2.getResponseMessage());
 
         URL invalid = server.getUrl("/invalid");
-        assertEquals("B", readAscii(invalid.openConnection()));
-        assertEquals("C", readAscii(invalid.openConnection()));
+        HttpURLConnection connection3 = (HttpURLConnection) invalid.openConnection();
+        assertEquals("B", readAscii(connection3));
+        assertEquals(HttpURLConnection.HTTP_OK, connection3.getResponseCode());
+        assertEquals("B-OK", connection3.getResponseMessage());
+        HttpURLConnection connection4 = (HttpURLConnection) invalid.openConnection();
+        assertEquals("C", readAscii(connection4));
+        assertEquals(HttpURLConnection.HTTP_OK, connection4.getResponseCode());
+        assertEquals("C-OK", connection4.getResponseMessage());
 
         server.takeRequest(); // regular get
         return server.takeRequest(); // conditional get
