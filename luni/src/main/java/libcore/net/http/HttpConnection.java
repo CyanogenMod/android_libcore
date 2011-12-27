@@ -86,15 +86,15 @@ final class HttpConnection {
         this.socket = socketCandidate;
     }
 
-    public static HttpConnection connect(URI uri, Proxy proxy, boolean requiresTunnel,
-            int connectTimeout) throws IOException {
+    public static HttpConnection connect(URI uri, SSLSocketFactory sslSocketFactory,
+            Proxy proxy, boolean requiresTunnel, int connectTimeout) throws IOException {
         /*
          * Try an explicitly-specified proxy.
          */
         if (proxy != null) {
             Address address = (proxy.type() == Proxy.Type.DIRECT)
-                    ? new Address(uri)
-                    : new Address(uri, proxy, requiresTunnel);
+                    ? new Address(uri, sslSocketFactory)
+                    : new Address(uri, sslSocketFactory, proxy, requiresTunnel);
             return HttpConnectionPool.INSTANCE.get(address, connectTimeout);
         }
 
@@ -112,7 +112,8 @@ final class HttpConnection {
                     continue;
                 }
                 try {
-                    Address address = new Address(uri, selectedProxy, requiresTunnel);
+                    Address address = new Address(uri, sslSocketFactory,
+                            selectedProxy, requiresTunnel);
                     return HttpConnectionPool.INSTANCE.get(address, connectTimeout);
                 } catch (IOException e) {
                     // failed to connect, tell it to the selector
@@ -124,7 +125,7 @@ final class HttpConnection {
         /*
          * Try a direct connection. If this fails, this method will throw.
          */
-        return HttpConnectionPool.INSTANCE.get(new Address(uri), connectTimeout);
+        return HttpConnectionPool.INSTANCE.get(new Address(uri, sslSocketFactory), connectTimeout);
     }
 
     public void closeSocketAndStreams() {
@@ -258,7 +259,8 @@ final class HttpConnection {
     /**
      * This address has two parts: the address we connect to directly and the
      * origin address of the resource. These are the same unless a proxy is
-     * being used.
+     * being used. It also includes the SSL socket factory so that a socket will
+     * not be reused if its SSL configuration is different.
      */
     public static final class Address {
         private final Proxy proxy;
@@ -267,12 +269,14 @@ final class HttpConnection {
         private final int uriPort;
         private final String socketHost;
         private final int socketPort;
+        private final SSLSocketFactory sslSocketFactory;
 
-        public Address(URI uri) throws UnknownHostException {
+        public Address(URI uri, SSLSocketFactory sslSocketFactory) throws UnknownHostException {
             this.proxy = null;
             this.requiresTunnel = false;
             this.uriHost = uri.getHost();
             this.uriPort = uri.getEffectivePort();
+            this.sslSocketFactory = sslSocketFactory;
             this.socketHost = uriHost;
             this.socketPort = uriPort;
             if (uriHost == null) {
@@ -286,11 +290,13 @@ final class HttpConnection {
          *     proxy. When doing so, we must avoid buffering bytes intended for
          *     the higher-level protocol.
          */
-        public Address(URI uri, Proxy proxy, boolean requiresTunnel) throws UnknownHostException {
+        public Address(URI uri, SSLSocketFactory sslSocketFactory,
+                Proxy proxy, boolean requiresTunnel) throws UnknownHostException {
             this.proxy = proxy;
             this.requiresTunnel = requiresTunnel;
             this.uriHost = uri.getHost();
             this.uriPort = uri.getEffectivePort();
+            this.sslSocketFactory = sslSocketFactory;
 
             SocketAddress proxyAddress = proxy.address();
             if (!(proxyAddress instanceof InetSocketAddress)) {
@@ -315,6 +321,7 @@ final class HttpConnection {
                 return Objects.equal(this.proxy, that.proxy)
                         && this.uriHost.equals(that.uriHost)
                         && this.uriPort == that.uriPort
+                        && Objects.equal(this.sslSocketFactory, that.sslSocketFactory)
                         && this.requiresTunnel == that.requiresTunnel;
             }
             return false;
@@ -324,6 +331,7 @@ final class HttpConnection {
             int result = 17;
             result = 31 * result + uriHost.hashCode();
             result = 31 * result + uriPort;
+            result = 31 * result + (sslSocketFactory != null ? sslSocketFactory.hashCode() : 0);
             result = 31 * result + (proxy != null ? proxy.hashCode() : 0);
             result = 31 * result + (requiresTunnel ? 1 : 0);
             return result;
