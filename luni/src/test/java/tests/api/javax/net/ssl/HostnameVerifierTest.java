@@ -19,20 +19,14 @@ package tests.api.javax.net.ssl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.URL;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
 import javax.security.auth.x500.X500Principal;
 import junit.framework.TestCase;
 import org.apache.harmony.xnet.tests.support.mySSLSession;
 
-/**
- * Tests for <code>HostnameVerifier</code> class constructors and methods.
- *
- */
 public class HostnameVerifierTest extends TestCase implements
         CertificatesToPlayWith {
 
@@ -69,7 +63,7 @@ public class HostnameVerifierTest extends TestCase implements
         in = new ByteArrayInputStream(X509_FOO_BAR);
         x509 = (X509Certificate) cf.generateCertificate(in);
         session = new mySSLSession(new X509Certificate[] {x509});
-        assertTrue(verifier.verify("foo.com", session));
+        assertFalse(verifier.verify("foo.com", session));
         assertFalse(verifier.verify("a.foo.com", session));
         assertTrue(verifier.verify("bar.com", session));
         assertFalse(verifier.verify("a.bar.com", session));
@@ -113,25 +107,25 @@ public class HostnameVerifierTest extends TestCase implements
         in = new ByteArrayInputStream(X509_WILD_FOO);
         x509 = (X509Certificate) cf.generateCertificate(in);
         session = new mySSLSession(new X509Certificate[] {x509});
-        assertFalse(verifier.verify("foo.com", session));
+        assertTrue(verifier.verify("foo.com", session));
         assertTrue(verifier.verify("www.foo.com", session));
         assertTrue(verifier.verify("\u82b1\u5b50.foo.com", session));
-        assertTrue(verifier.verify("a.b.foo.com", session));
+        assertFalse(verifier.verify("a.b.foo.com", session));
 
         in = new ByteArrayInputStream(X509_WILD_CO_JP);
         x509 = (X509Certificate) cf.generateCertificate(in);
         session = new mySSLSession(new X509Certificate[] {x509});
-        assertFalse(verifier.verify("foo.co.jp", session));
-        assertFalse(verifier.verify("\u82b1\u5b50.co.jp", session));
+        assertTrue(verifier.verify("foo.co.jp", session));
+        assertTrue(verifier.verify("\u82b1\u5b50.co.jp", session));
 
         in = new ByteArrayInputStream(X509_WILD_FOO_BAR_HANAKO);
         x509 = (X509Certificate) cf.generateCertificate(in);
         session = new mySSLSession(new X509Certificate[] {x509});
         // try the foo.com variations
-        assertFalse(verifier.verify("foo.com", session));
+        assertTrue(verifier.verify("foo.com", session));
         assertTrue(verifier.verify("www.foo.com", session));
         assertTrue(verifier.verify("\u82b1\u5b50.foo.com", session));
-        assertTrue(verifier.verify("a.b.foo.com", session));
+        assertFalse(verifier.verify("a.b.foo.com", session));
         // these checks test alternative subjects. The test data contains an
         // alternative subject starting with a japanese kanji character. This is
         // not supported by Android because the underlying implementation from
@@ -150,9 +144,7 @@ public class HostnameVerifierTest extends TestCase implements
         mySSLSession session = new mySSLSession(new X509Certificate[] {x509});
 
         HostnameVerifier verifier = HttpsURLConnection.getDefaultHostnameVerifier();
-        String expected = "CN=localhost,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=CH";
-        assertEquals(new X500Principal(expected),
-                     x509.getSubjectX500Principal());
+        assertEquals(new X500Principal("CN=localhost"), x509.getSubjectX500Principal());
 
         assertTrue(verifier.verify("localhost", session));
         assertTrue(verifier.verify("localhost.localdomain", session));
@@ -192,7 +184,13 @@ public class HostnameVerifierTest extends TestCase implements
         assertFalse(verifier.verify("127.0.0.1", session));
     }
 
-    public void testWildcardsMustHaveTwoDots() throws Exception {
+    /**
+     * Earlier implementations of Android's hostname verifier required that
+     * wildcard names wouldn't match "*.com" or similar. This was a nonstandard
+     * check that we've since dropped. It is the CA's responsibility to not hand
+     * out certificates that match so broadly.
+     */
+    public void testWildcardsDoesNotNeedTwoDots() throws Exception {
         // openssl req -x509 -nodes -days 36500 -subj '/CN=*.com' -newkey rsa:512 -out cert.pem
         String cert = "-----BEGIN CERTIFICATE-----\n"
                 + "MIIBjDCCATagAwIBAgIJAOVulXCSu6HuMA0GCSqGSIb3DQEBBQUAMBAxDjAMBgNV\n"
@@ -211,7 +209,7 @@ public class HostnameVerifierTest extends TestCase implements
         mySSLSession session = new mySSLSession(new X509Certificate[] { x509 });
         HostnameVerifier verifier = HttpsURLConnection.getDefaultHostnameVerifier();
 
-        assertFalse(verifier.verify("google.com", session));
+        assertTrue(verifier.verify("google.com", session));
     }
 
     public void testSubjectAltName() throws Exception {
@@ -244,7 +242,7 @@ public class HostnameVerifierTest extends TestCase implements
         mySSLSession session = new mySSLSession(new X509Certificate[] { x509 });
         HostnameVerifier verifier = HttpsURLConnection.getDefaultHostnameVerifier();
 
-        assertTrue(verifier.verify("foo.com", session));
+        assertFalse(verifier.verify("foo.com", session));
         assertTrue(verifier.verify("bar.com", session));
         assertTrue(verifier.verify("baz.com", session));
         assertFalse(verifier.verify("a.foo.com", session));
@@ -281,10 +279,10 @@ public class HostnameVerifierTest extends TestCase implements
         mySSLSession session = new mySSLSession(new X509Certificate[] { x509 });
         HostnameVerifier verifier = HttpsURLConnection.getDefaultHostnameVerifier();
 
-        assertTrue(verifier.verify("foo.com", session));
+        assertFalse(verifier.verify("foo.com", session));
         assertTrue(verifier.verify("bar.com", session));
         assertTrue(verifier.verify("a.baz.com", session));
-        assertFalse(verifier.verify("baz.com", session));
+        assertTrue(verifier.verify("baz.com", session));
         assertFalse(verifier.verify("a.foo.com", session));
         assertFalse(verifier.verify("a.bar.com", session));
         assertFalse(verifier.verify("quux.com", session));

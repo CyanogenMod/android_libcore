@@ -450,29 +450,29 @@ public interface CertificatesToPlayWith {
           "2b8a9c7d91c7d175ae";
 
     /**
-     * subjectAlt=IP Address:127.0.0.1, email:oleg@ural.ru, DNS:localhost.localdomain
+     * cat cert.cnf
+     * [req]
+     * distinguished_name=distinguished_name
+     * req_extensions=req_extensions
+     * x509_extensions=x509_extensions
+     * [distinguished_name]
+     * [req_extensions]
+     * [x509_extensions]
+     * subjectAltName=DNS:localhost.localdomain,DNS:localhost,IP:127.0.0.1
+     *
+     * $ openssl req -x509 -nodes -days 36500 -subj '/CN=localhost' -config ./cert.cnf \
+     *     -newkey rsa:512 -out cert.pem
      */
     public final static byte[] X509_MULTIPLE_SUBJECT_ALT = (
         "-----BEGIN CERTIFICATE-----\n" +
-        "MIIDcTCCAtqgAwIBAgIBATANBgkqhkiG9w0BAQUFADBAMQswCQYDVQQGEwJDSDEL\n" +
-        "MAkGA1UECBMCWkgxDzANBgNVBAcTBlp1cmljaDETMBEGA1UEAxMKTXkgVGVzdCBD\n" +
-        "QTAeFw0wODEwMzExMTU3NDVaFw0wOTEwMzExMTU3NDVaMGkxCzAJBgNVBAYTAkNI\n" +
-        "MRAwDgYDVQQIEwdVbmtub3duMRAwDgYDVQQHEwdVbmtub3duMRAwDgYDVQQKEwdV\n" +
-        "bmtub3duMRAwDgYDVQQLEwdVbmtub3duMRIwEAYDVQQDEwlsb2NhbGhvc3QwggG4\n" +
-        "MIIBLAYHKoZIzjgEATCCAR8CgYEA/X9TgR11EilS30qcLuzk5/YRt1I870QAwx4/\n" +
-        "gLZRJmlFXUAiUftZPY1Y+r/F9bow9subVWzXgTuAHTRv8mZgt2uZUKWkn5/oBHsQ\n" +
-        "IsJPu6nX/rfGG/g7V+fGqKYVDwT7g/bTxR7DAjVUE1oWkTL2dfOuK2HXKu/yIgMZ\n" +
-        "ndFIAccCFQCXYFCPFSMLzLKSuYKi64QL8Fgc9QKBgQD34aCF1ps93su8q1w2uFe5\n" +
-        "eZSvu/o66oL5V0wLPQeCZ1FZV4661FlP5nEHEIGAtEkWcSPoTCgWE7fPCTKMyKbh\n" +
-        "PBZ6i1R8jSjgo64eK7OmdZFuo38L+iE1YvH7YnoBJDvMpPG+qFGQiaiD3+Fa5Z8G\n" +
-        "kotmXoB7VSVkAUw7/s9JKgOBhQACgYEA6ogAb/YLM1Rz9AoXKW4LA70VtFf7Mqqp\n" +
-        "divdu9f72WQc1vMKo1YMf3dQadkMfBYRvAAa1IXDnoiFCHhXnVRkWkoUBJyNebLB\n" +
-        "N92CZc0RVFZiMFgQMEh8UldnvAIi4cBk0/YuN3BGl4MzmquVIGrFovdWGqeaveOu\n" +
-        "Xcu4lKGJNiqjODA2MDQGA1UdEQQtMCuHBH8AAAGBDG9sZWdAdXJhbC5ydYIVbG9j\n" +
-        "YWxob3N0LmxvY2FsZG9tYWluMA0GCSqGSIb3DQEBBQUAA4GBAIgEwIoCSRkU3O7K\n" +
-        "USYaOYyfJB9hsvs6YpClvYXiQ/5kPGARP60pM62v4wC7wI9shEizokIAxY2+O3cC\n" +
-        "vwuJhNYaa2FJMELIwRN3XES8X8R6JHWbPaRjaAAPhczuEd8SZYy8yiVLmJTgw0gH\n" +
-        "BSW775NHlkjsscFVgXkNf0PobqJ9\n" +
+        "MIIBWDCCAQKgAwIBAgIJANS1EtICX2AZMA0GCSqGSIb3DQEBBQUAMBQxEjAQBgNV\n" +
+        "BAMTCWxvY2FsaG9zdDAgFw0xMjAxMDIxOTA4NThaGA8yMTExMTIwOTE5MDg1OFow\n" +
+        "FDESMBAGA1UEAxMJbG9jYWxob3N0MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAPpt\n" +
+        "atK8r4/hf4hSIs0os/BSlQLbRBaK9AfBReM4QdAklcQqe6CHsStKfI8pp0zs7Ptg\n" +
+        "PmMdpbttL0O7mUboBC8CAwEAAaM1MDMwMQYDVR0RBCowKIIVbG9jYWxob3N0Lmxv\n" +
+        "Y2FsZG9tYWlugglsb2NhbGhvc3SHBH8AAAEwDQYJKoZIhvcNAQEFBQADQQD0ntfL\n" +
+        "DCzOCv9Ma6Lv5o5jcYWVxvBSTsnt22hsJpWD1K7iY9lbkLwl0ivn73pG2evsAn9G\n" +
+        "X8YKH52fnHsCrhSD\n" +
         "-----END CERTIFICATE-----").getBytes();
 
 }
