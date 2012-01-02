@@ -131,50 +131,35 @@ public final class DefaultHostnameVerifier implements HostnameVerifier {
         }
 
         cn = cn.toLowerCase(Locale.US);
-        if (hostName.equals(cn)) {
-            return true;
+
+        if (!cn.contains("*")) {
+            return hostName.equals(cn);
         }
 
-        String[] hostNameParts = hostName.split("\\.");
-        String[] cnParts = cn.split("\\.");
-        if (hostNameParts.length < cnParts.length) {
-          // cn has a '*.'-prefix of hostName: *.Y.X matches Y.X
-          return cn.equals("*." + hostName);
+        if (cn.startsWith("*.") && hostName.regionMatches(0, cn, 2, cn.length() - 2)) {
+            return true; // "*.foo.com" matches "foo.com"
         }
 
-        for (int i = cnParts.length - 1; i >= 0; --i) {
-            if (hostNameParts[i].equals(cnParts[i])) {
-                continue;
-            }
-            // special *-match: *.Y.X matches Z.Y.X but not W.Z.Y.X
-            if (i != 0 || hostNameParts.length != cnParts.length) {
-                return false;
-            }
-            if (cnParts[0].equals("*")) {
-                return true;
-            }
-            // *-component match: f*.com matches foo.com but not bar.com
-            return wildcardMatch(hostNameParts[0], cnParts[0]);
+        int asterisk = cn.indexOf('*');
+        int dot = cn.indexOf('.');
+        if (asterisk > dot) {
+            return false; // malformed; wildcard must be in the first part of the cn
         }
 
-        // hostName is a '.'-suffix of cn: Z.Y.X matches X
+        if (!hostName.regionMatches(0, cn, 0, asterisk)) {
+            return false; // prefix before '*' doesn't match
+        }
+
+        int suffixLength = cn.length() - (asterisk + 1);
+        int suffixStart = hostName.length() - suffixLength;
+        if (hostName.indexOf('.', asterisk) < suffixStart) {
+            return false; // wildcard '*' can't match a '.'
+        }
+
+        if (!hostName.regionMatches(suffixStart, cn, asterisk + 1, suffixLength)) {
+            return false; // suffix after '*' doesn't match
+        }
+
         return true;
-    }
-
-    /**
-     * Returns true if {@code cnPart} matches {@code hostPart}.
-     *
-     * @param hostPart a lowercase host name
-     * @param cnPart a lowercase host name pattern.
-     */
-    private boolean wildcardMatch(String hostPart, String cnPart) {
-        int starIndex = cnPart.indexOf('*');
-        if (starIndex == -1 || hostPart.length() < cnPart.length() - 1) {
-            return false;
-        }
-
-        String prefix = cnPart.substring(0,  starIndex);
-        String suffix = cnPart.substring(starIndex + 1);
-        return hostPart.startsWith(prefix) && hostPart.endsWith(suffix);
     }
 }
