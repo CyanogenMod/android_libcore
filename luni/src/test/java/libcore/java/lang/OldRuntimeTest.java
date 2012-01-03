@@ -17,7 +17,6 @@
 
 package libcore.java.lang;
 
-import dalvik.annotation.KnownFailure;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -462,7 +461,6 @@ public class OldRuntimeTest extends junit.framework.TestCase {
         Runtime.getRuntime().traceInstructions(false);
     }
 
-    @KnownFailure("Fails in CTS but passes under run-core-tests")
     public void test_traceMethodCalls() {
         try {
             Runtime.getRuntime().traceMethodCalls(false);

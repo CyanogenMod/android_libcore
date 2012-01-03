@@ -16,7 +16,6 @@
 
 package libcore.java.lang.reflect;
 
-import dalvik.annotation.KnownFailure;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -160,7 +159,6 @@ public class OldGenericTypesTest extends GenericReflectionTestsBase {
         assertEquals(typeVariableT, boundS);
     }
     @SuppressWarnings("unchecked")
-    @KnownFailure("Fails in CTS but passes under run-core-tests")
     public void testSimpleInheritance() throws Exception {
         Class<? extends SimpleInheritance> clazz = SimpleInheritance.class;
         TypeVariable<Class> subTypeVariable = getTypeParameter(clazz);
