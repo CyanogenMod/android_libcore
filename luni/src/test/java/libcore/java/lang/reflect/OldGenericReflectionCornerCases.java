@@ -16,7 +16,6 @@
 
 package libcore.java.lang.reflect;
 
-import dalvik.annotation.KnownFailure;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -122,7 +121,6 @@ public class OldGenericReflectionCornerCases extends GenericReflectionTestsBase 
         void multipleBoundedWildcardUnEquality(Pair<? extends T, ? super T> param) {}
     }
     @SuppressWarnings("unchecked")
-    @KnownFailure("Fails in CTS but passes under run-core-tests")
     public void testMultipleBoundedWildcardUnEquality() throws Exception {
         Class<? extends MultipleBoundedWildcardUnEquality> clazz = MultipleBoundedWildcardUnEquality.class;
 
@@ -178,7 +176,6 @@ public class OldGenericReflectionCornerCases extends GenericReflectionTestsBase 
         void multipleBoundedWildcardEquality(Pair<? extends T, ? extends T> param) {}
     }
     @SuppressWarnings("unchecked")
-    @KnownFailure("Fails in CTS but passes under run-core-tests")
     public void testMultipleBoundedWildcard() throws Exception {
         Class<? extends MultipleBoundedWildcardEquality> clazz = MultipleBoundedWildcardEquality.class;
 

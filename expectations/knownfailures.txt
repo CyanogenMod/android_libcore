@@ -312,16 +312,6 @@
   modes: [ "host" ]
 },
 {
-  description: "Fails in CTS but passes under run-core-tests",
-  result: EXEC_FAILED,
-  name: "libcore.java.io.OldFileTest#test_deleteOnExit"
-},
-{
-  description: "Fails in CTS but passes under run-core-tests",
-  result: EXEC_FAILED,
-  name: "tests.api.java.io.SerializationStressTest4#test_writeObject_Proxy"
-},
-{
   description: "Defining classes from byte[] not supported in Android",
   result: EXEC_FAILED,
   name: "libcore.java.lang.OldClassTest#test_getClasses_subtest0"
@@ -330,14 +320,6 @@
   description: "There is no protection domain set in Android.",
   result: EXEC_FAILED,
   name: "libcore.java.lang.OldClassTest#test_getProtectionDomain"
-},
-{
-  description: "Fails in CTS but passes under run-core-tests",
-  result: EXEC_FAILED,
-  names: [
-    "tests.api.java.net.MulticastSocketTest#test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface",
-    "tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_DateTimeConversion"
-  ]
 },
 {
   description: "Runtime.getRuntime().traceMethodCalls(true) doesn't return on the host, fails in CTS",
@@ -349,14 +331,6 @@
                 to change URLClassLoader to allow this? It's not specified.",
   result: EXEC_FAILED,
   name: "tests.api.java.util.ResourceBundleTest#test_getBundleLjava_lang_StringLjava_util_LocaleLjava_lang_ClassLoader"
-},
-{
-  description: "Fails in CTS but passes under run-core-tests",
-  result: EXEC_FAILED,
-  names: [
-    "tests.api.java.nio.charset.CharsetProviderTest#testForName_InsufficientPrivilege",
-    "tests.api.java.nio.charset.CharsetProviderTest#testIsSupported_And_ForName_NormalProvider"
-  ]
 },
 {
   description: "Fails (probably) because no protection domain is set.",
