@@ -245,46 +245,86 @@ public interface Opcodes {
     int OP_SHL_INT_LIT8                 = 0x00e0;
     int OP_SHR_INT_LIT8                 = 0x00e1;
     int OP_USHR_INT_LIT8                = 0x00e2;
-    int OP_CONST_CLASS_JUMBO            = 0x00ff;
-    int OP_CHECK_CAST_JUMBO             = 0x01ff;
-    int OP_INSTANCE_OF_JUMBO            = 0x02ff;
-    int OP_NEW_INSTANCE_JUMBO           = 0x03ff;
-    int OP_NEW_ARRAY_JUMBO              = 0x04ff;
-    int OP_FILLED_NEW_ARRAY_JUMBO       = 0x05ff;
-    int OP_IGET_JUMBO                   = 0x06ff;
-    int OP_IGET_WIDE_JUMBO              = 0x07ff;
-    int OP_IGET_OBJECT_JUMBO            = 0x08ff;
-    int OP_IGET_BOOLEAN_JUMBO           = 0x09ff;
-    int OP_IGET_BYTE_JUMBO              = 0x0aff;
-    int OP_IGET_CHAR_JUMBO              = 0x0bff;
-    int OP_IGET_SHORT_JUMBO             = 0x0cff;
-    int OP_IPUT_JUMBO                   = 0x0dff;
-    int OP_IPUT_WIDE_JUMBO              = 0x0eff;
-    int OP_IPUT_OBJECT_JUMBO            = 0x0fff;
-    int OP_IPUT_BOOLEAN_JUMBO           = 0x10ff;
-    int OP_IPUT_BYTE_JUMBO              = 0x11ff;
-    int OP_IPUT_CHAR_JUMBO              = 0x12ff;
-    int OP_IPUT_SHORT_JUMBO             = 0x13ff;
-    int OP_SGET_JUMBO                   = 0x14ff;
-    int OP_SGET_WIDE_JUMBO              = 0x15ff;
-    int OP_SGET_OBJECT_JUMBO            = 0x16ff;
-    int OP_SGET_BOOLEAN_JUMBO           = 0x17ff;
-    int OP_SGET_BYTE_JUMBO              = 0x18ff;
-    int OP_SGET_CHAR_JUMBO              = 0x19ff;
-    int OP_SGET_SHORT_JUMBO             = 0x1aff;
-    int OP_SPUT_JUMBO                   = 0x1bff;
-    int OP_SPUT_WIDE_JUMBO              = 0x1cff;
-    int OP_SPUT_OBJECT_JUMBO            = 0x1dff;
-    int OP_SPUT_BOOLEAN_JUMBO           = 0x1eff;
-    int OP_SPUT_BYTE_JUMBO              = 0x1fff;
-    int OP_SPUT_CHAR_JUMBO              = 0x20ff;
-    int OP_SPUT_SHORT_JUMBO             = 0x21ff;
-    int OP_INVOKE_VIRTUAL_JUMBO         = 0x22ff;
-    int OP_INVOKE_SUPER_JUMBO           = 0x23ff;
-    int OP_INVOKE_DIRECT_JUMBO          = 0x24ff;
-    int OP_INVOKE_STATIC_JUMBO          = 0x25ff;
-    int OP_INVOKE_INTERFACE_JUMBO       = 0x26ff;
     // END(libcore-opcodes)
+
+    /** Never implemented; do not use. */
+    int OP_CONST_CLASS_JUMBO            = 0x00ff;
+    /** Never implemented; do not use. */
+    int OP_CHECK_CAST_JUMBO             = 0x01ff;
+    /** Never implemented; do not use. */
+    int OP_INSTANCE_OF_JUMBO            = 0x02ff;
+    /** Never implemented; do not use. */
+    int OP_NEW_INSTANCE_JUMBO           = 0x03ff;
+    /** Never implemented; do not use. */
+    int OP_NEW_ARRAY_JUMBO              = 0x04ff;
+    /** Never implemented; do not use. */
+    int OP_FILLED_NEW_ARRAY_JUMBO       = 0x05ff;
+    /** Never implemented; do not use. */
+    int OP_IGET_JUMBO                   = 0x06ff;
+    /** Never implemented; do not use. */
+    int OP_IGET_WIDE_JUMBO              = 0x07ff;
+    /** Never implemented; do not use. */
+    int OP_IGET_OBJECT_JUMBO            = 0x08ff;
+    /** Never implemented; do not use. */
+    int OP_IGET_BOOLEAN_JUMBO           = 0x09ff;
+    /** Never implemented; do not use. */
+    int OP_IGET_BYTE_JUMBO              = 0x0aff;
+    /** Never implemented; do not use. */
+    int OP_IGET_CHAR_JUMBO              = 0x0bff;
+    /** Never implemented; do not use. */
+    int OP_IGET_SHORT_JUMBO             = 0x0cff;
+    /** Never implemented; do not use. */
+    int OP_IPUT_JUMBO                   = 0x0dff;
+    /** Never implemented; do not use. */
+    int OP_IPUT_WIDE_JUMBO              = 0x0eff;
+    /** Never implemented; do not use. */
+    int OP_IPUT_OBJECT_JUMBO            = 0x0fff;
+    /** Never implemented; do not use. */
+    int OP_IPUT_BOOLEAN_JUMBO           = 0x10ff;
+    /** Never implemented; do not use. */
+    int OP_IPUT_BYTE_JUMBO              = 0x11ff;
+    /** Never implemented; do not use. */
+    int OP_IPUT_CHAR_JUMBO              = 0x12ff;
+    /** Never implemented; do not use. */
+    int OP_IPUT_SHORT_JUMBO             = 0x13ff;
+    /** Never implemented; do not use. */
+    int OP_SGET_JUMBO                   = 0x14ff;
+    /** Never implemented; do not use. */
+    int OP_SGET_WIDE_JUMBO              = 0x15ff;
+    /** Never implemented; do not use. */
+    int OP_SGET_OBJECT_JUMBO            = 0x16ff;
+    /** Never implemented; do not use. */
+    int OP_SGET_BOOLEAN_JUMBO           = 0x17ff;
+    /** Never implemented; do not use. */
+    int OP_SGET_BYTE_JUMBO              = 0x18ff;
+    /** Never implemented; do not use. */
+    int OP_SGET_CHAR_JUMBO              = 0x19ff;
+    /** Never implemented; do not use. */
+    int OP_SGET_SHORT_JUMBO             = 0x1aff;
+    /** Never implemented; do not use. */
+    int OP_SPUT_JUMBO                   = 0x1bff;
+    /** Never implemented; do not use. */
+    int OP_SPUT_WIDE_JUMBO              = 0x1cff;
+    /** Never implemented; do not use. */
+    int OP_SPUT_OBJECT_JUMBO            = 0x1dff;
+    /** Never implemented; do not use. */
+    int OP_SPUT_BOOLEAN_JUMBO           = 0x1eff;
+    /** Never implemented; do not use. */
+    int OP_SPUT_BYTE_JUMBO              = 0x1fff;
+    /** Never implemented; do not use. */
+    int OP_SPUT_CHAR_JUMBO              = 0x20ff;
+    /** Never implemented; do not use. */
+    int OP_SPUT_SHORT_JUMBO             = 0x21ff;
+    /** Never implemented; do not use. */
+    int OP_INVOKE_VIRTUAL_JUMBO         = 0x22ff;
+    /** Never implemented; do not use. */
+    int OP_INVOKE_SUPER_JUMBO           = 0x23ff;
+    /** Never implemented; do not use. */
+    int OP_INVOKE_DIRECT_JUMBO          = 0x24ff;
+    /** Never implemented; do not use. */
+    int OP_INVOKE_STATIC_JUMBO          = 0x25ff;
+    /** Never implemented; do not use. */
+    int OP_INVOKE_INTERFACE_JUMBO       = 0x26ff;
 
     /*
      * The rest of these are either generated by dexopt for optimized
