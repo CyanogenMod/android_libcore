@@ -61,7 +61,7 @@ int register_org_apache_harmony_dalvik_NativeTestTarget(JNIEnv* env) {
             gMethods, NELEM(gMethods));
     if (result != 0) {
         /* print warning, but allow to continue */
-        LOGW("WARNING: NativeTestTarget not registered\n");
+        ALOGW("WARNING: NativeTestTarget not registered\n");
         env->ExceptionClear();
     }
     return 0;

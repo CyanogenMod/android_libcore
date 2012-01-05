@@ -485,12 +485,12 @@ static void setNumberElements(JNIEnv* env, jobject obj, UResourceBundle* numberE
     UErrorCode status = U_ZERO_ERROR;
     ScopedResourceBundle latnNumberRB(ures_getByKey(numberElements, "latn", NULL, &status));
     if (U_FAILURE(status)) {
-        LOGW("Error getting ICU latn number elements system value: %s", u_errorName(status));
+        ALOGW("Error getting ICU latn number elements system value: %s", u_errorName(status));
         return;
     }
     ScopedResourceBundle patternsRB(ures_getByKey(latnNumberRB.get(), "patterns", NULL, &status));
     if (U_FAILURE(status)) {
-        LOGW("Error getting ICU latn number patterns value: %s", u_errorName(status));
+        ALOGW("Error getting ICU latn number patterns value: %s", u_errorName(status));
         return;
     }
     // Get the patterns from the 'latn' numberElements
@@ -510,7 +510,7 @@ static void setNumberElements(JNIEnv* env, jobject obj, UResourceBundle* numberE
         ures_getUTF8String(defaultNumberElem.get(), buffer, &charCount, true, &status);
         buffer[charCount] = '\0';
         if (U_FAILURE(status)) {
-            LOGW("Error getting ICU default number element system value: %s", u_errorName(status));
+            ALOGW("Error getting ICU default number element system value: %s", u_errorName(status));
             // Use latn number symbols instead.
             isLatn = true;
         } else {
@@ -528,7 +528,7 @@ static void setNumberElements(JNIEnv* env, jobject obj, UResourceBundle* numberE
         if (U_SUCCESS(status)) {
             setNumberSymbols(env, obj, symbolsRB.get(), NULL);
         } else {
-            LOGW("Missing ICU latn symbols system value: %s", u_errorName(status));
+            ALOGW("Missing ICU latn symbols system value: %s", u_errorName(status));
         }
     } else {
         // Get every symbol item from default numbering system first. If it does not
@@ -536,7 +536,7 @@ static void setNumberElements(JNIEnv* env, jobject obj, UResourceBundle* numberE
         ScopedResourceBundle defaultNumberRB(ures_getByKey(numberElements, (const char*)buffer, NULL, &status));
         ScopedResourceBundle defaultSymbolsRB(ures_getByKey(defaultNumberRB.get(), "symbols", NULL, &status));
         if (U_FAILURE(status)) {
-            LOGW("Missing ICU %s symbols system value: %s", buffer, u_errorName(status));
+            ALOGW("Missing ICU %s symbols system value: %s", buffer, u_errorName(status));
             isLatn = true;  // Fallback to latn symbols.
             status = U_ZERO_ERROR;
         }
