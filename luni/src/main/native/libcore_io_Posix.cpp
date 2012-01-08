@@ -566,7 +566,7 @@ static jobjectArray Posix_getaddrinfo(JNIEnv* env, jobject, jstring javaNode, jo
         if (ai->ai_family == AF_INET || ai->ai_family == AF_INET6) {
             ++addressCount;
         } else {
-            LOGE("getaddrinfo unexpected ai_family %i", ai->ai_family);
+            ALOGE("getaddrinfo unexpected ai_family %i", ai->ai_family);
         }
     }
     if (addressCount == 0) {
@@ -584,7 +584,7 @@ static jobjectArray Posix_getaddrinfo(JNIEnv* env, jobject, jstring javaNode, jo
     for (addrinfo* ai = addressList; ai != NULL; ai = ai->ai_next) {
         if (ai->ai_family != AF_INET && ai->ai_family != AF_INET6) {
             // Unknown address family. Skip this address.
-            LOGE("getaddrinfo unexpected ai_family %i", ai->ai_family);
+            ALOGE("getaddrinfo unexpected ai_family %i", ai->ai_family);
             continue;
         }
 

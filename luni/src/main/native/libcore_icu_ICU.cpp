@@ -384,7 +384,7 @@ static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, URes
     if (U_SUCCESS(status)) {
         setStringField(env, obj, fieldName, env->NewString(chars, charCount));
     } else {
-        LOGE("Error setting String field %s from ICU resource: %s", fieldName, u_errorName(status));
+        ALOGE("Error setting String field %s from ICU resource: %s", fieldName, u_errorName(status));
     }
 }
 
@@ -557,19 +557,19 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobj
     UErrorCode status = U_ZERO_ERROR;
     ScopedResourceBundle root(ures_open(NULL, localeName.c_str(), &status));
     if (U_FAILURE(status)) {
-        LOGE("Error getting ICU resource bundle: %s", u_errorName(status));
+        ALOGE("Error getting ICU resource bundle: %s", u_errorName(status));
         return JNI_FALSE;
     }
 
     ScopedResourceBundle calendar(ures_getByKey(root.get(), "calendar", NULL, &status));
     if (U_FAILURE(status)) {
-        LOGE("Error getting ICU calendar resource bundle: %s", u_errorName(status));
+        ALOGE("Error getting ICU calendar resource bundle: %s", u_errorName(status));
         return JNI_FALSE;
     }
 
     ScopedResourceBundle gregorian(ures_getByKey(calendar.get(), "gregorian", NULL, &status));
     if (U_FAILURE(status)) {
-        LOGE("Error getting ICU gregorian resource bundle: %s", u_errorName(status));
+        ALOGE("Error getting ICU gregorian resource bundle: %s", u_errorName(status));
         return JNI_FALSE;
     }
 
@@ -758,11 +758,11 @@ int register_libcore_icu_ICU(JNIEnv* env) {
     path += ".dat";
 
     #define FAIL_WITH_STRERROR(s) \
-        LOGE("Couldn't " s " '%s': %s", path.c_str(), strerror(errno)); \
+        ALOGE("Couldn't " s " '%s': %s", path.c_str(), strerror(errno)); \
         return -1;
     #define MAYBE_FAIL_WITH_ICU_ERROR(s) \
         if (status != U_ZERO_ERROR) {\
-            LOGE("Couldn't initialize ICU (" s "): %s (%s)", u_errorName(status), path.c_str()); \
+            ALOGE("Couldn't initialize ICU (" s "): %s (%s)", u_errorName(status), path.c_str()); \
             return -1; \
         }
 

@@ -255,7 +255,7 @@ static pid_t ProcessManager_exec(JNIEnv* env, jclass, jobjectArray javaCommands,
     // Re-throw exception if present.
     if (exception != NULL) {
         if (env->Throw(exception) < 0) {
-            LOGE("Error rethrowing exception!");
+            ALOGE("Error rethrowing exception!");
         }
     }
 

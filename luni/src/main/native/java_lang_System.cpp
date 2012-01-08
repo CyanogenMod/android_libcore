@@ -36,7 +36,7 @@ static void System_log(JNIEnv* env, jclass, jchar type, jstring javaMessage, jth
     ScopedUtfChars message(env, javaMessage);
     if (message.c_str() == NULL) {
         // Since this function is used for last-gasp debugging output, be noisy on failure.
-        LOGE("message.c_str() == NULL");
+        ALOGE("message.c_str() == NULL");
         return;
     }
     int priority;
