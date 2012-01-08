@@ -20,6 +20,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Enumeration;
+import libcore.io.ErrnoException;
+import libcore.io.Libcore;
+import libcore.io.StructStat;
 
 /**
  * Manipulates DEX files. The class is similar in principle to
@@ -90,6 +93,19 @@ public final class DexFile {
      *  Enable optional features.
      */
     private DexFile(String sourceName, String outputName, int flags) throws IOException {
+        if (outputName != null) {
+            try {
+                String parent = new File(outputName).getParent();
+                if (Libcore.os.getuid() != Libcore.os.stat(parent).st_uid) {
+                    throw new IllegalArgumentException("Optimized data directory " + parent
+                            + " is not owned by the current user. Shared storage cannot protect"
+                            + " your application from code injection attacks.");
+                }
+            } catch (ErrnoException ignored) {
+                // assume we'll fail with a more contextual error later
+            }
+        }
+
         mCookie = openDexFile(sourceName, outputName, flags);
         mFileName = sourceName;
         guard.open("close");
