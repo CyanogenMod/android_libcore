@@ -1353,7 +1353,7 @@ static int cert_verify_callback(X509_STORE_CTX* x509_store_ctx, void* arg __attr
     AppData* appData = toAppData(ssl);
     JNIEnv* env = appData->env;
     if (env == NULL) {
-        LOGE("AppData->env missing in cert_verify_callback");
+        ALOGE("AppData->env missing in cert_verify_callback");
         JNI_TRACE("ssl=%p cert_verify_callback => 0", ssl);
         return 0;
     }
@@ -1394,7 +1394,7 @@ static void info_callback(const SSL* ssl, int where, int ret __attribute__ ((unu
     AppData* appData = toAppData(ssl);
     JNIEnv* env = appData->env;
     if (env == NULL) {
-        LOGE("AppData->env missing in info_callback");
+        ALOGE("AppData->env missing in info_callback");
         JNI_TRACE("ssl=%p info_callback env error", ssl);
         return;
     }
@@ -1426,7 +1426,7 @@ static int client_cert_cb(SSL* ssl, X509** x509Out, EVP_PKEY** pkeyOut) {
     AppData* appData = toAppData(ssl);
     JNIEnv* env = appData->env;
     if (env == NULL) {
-        LOGE("AppData->env missing in client_cert_cb");
+        ALOGE("AppData->env missing in client_cert_cb");
         JNI_TRACE("ssl=%p client_cert_cb env error => 0", ssl);
         return 0;
     }
@@ -1720,7 +1720,7 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
     const unsigned char* tmp = reinterpret_cast<const unsigned char*>(buf.get());
     Unique_PKCS8_PRIV_KEY_INFO pkcs8(d2i_PKCS8_PRIV_KEY_INFO(NULL, &tmp, buf.size()));
     if (pkcs8.get() == NULL) {
-        LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+        ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
         throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE,
                                        "Error parsing private key from DER to PKCS8");
         SSL_clear(ssl);
@@ -1730,7 +1730,7 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
 
     Unique_EVP_PKEY privatekeyevp(EVP_PKCS82PKEY(pkcs8.get()));
     if (privatekeyevp.get() == NULL) {
-        LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+        ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
         throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE,
                                        "Error creating private key from PKCS8");
         SSL_clear(ssl);
@@ -1744,7 +1744,7 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
     if (ret == 1) {
         OWNERSHIP_TRANSFERRED(privatekeyevp);
     } else {
-        LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+        ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
         throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting private key");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => error", ssl);
@@ -1795,7 +1795,7 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
         certificatesX509[i].reset(d2i_X509(NULL, &tmp, buf.size()));
 
         if (certificatesX509[i].get() == NULL) {
-            LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+            ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
             throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error parsing certificate");
             SSL_clear(ssl);
             JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => certificates parsing error", ssl);
@@ -1807,7 +1807,7 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
     if (ret == 1) {
         OWNERSHIP_TRANSFERRED(certificatesX509[0]);
     } else {
-        LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+        ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
         throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting certificate");
         SSL_clear(ssl);
         JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => SSL_use_certificate error", ssl);
@@ -1903,7 +1903,7 @@ static void NativeCrypto_SSL_set_client_CA_list(JNIEnv* env, jclass,
         Unique_X509_NAME principalX509Name(d2i_X509_NAME(NULL, &tmp, buf.size()));
 
         if (principalX509Name.get() == NULL) {
-            LOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+            ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
             throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error parsing principal");
             SSL_clear(ssl);
             JNI_TRACE("ssl=%p NativeCrypto_SSL_set_client_CA_list => principals parsing error",
@@ -2305,7 +2305,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
                 return 0;
             }
         } else {
-            // LOGE("Unknown error %d during handshake", error);
+            // ALOGE("Unknown error %d during handshake", error);
             break;
         }
     }

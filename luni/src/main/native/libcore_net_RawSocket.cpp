@@ -69,21 +69,21 @@ static void RawSocket_create(JNIEnv* env, jclass, jobject fileDescriptor,
 
   int sock = socket(PF_PACKET, SOCK_DGRAM, htons(protocol));
   if (sock == -1) {
-    LOGE("Can't create socket %s", strerror(errno));
+    ALOGE("Can't create socket %s", strerror(errno));
     jniThrowSocketException(env, errno);
     return;
   }
 
   jniSetFileDescriptorOfFD(env, fileDescriptor, sock);
   if (!setBlocking(sock, false)) {
-    LOGE("Can't set non-blocking mode on socket %s", strerror(errno));
+    ALOGE("Can't set non-blocking mode on socket %s", strerror(errno));
     jniThrowSocketException(env, errno);
     return;
   }
 
   int err = bind(sock, &su.sa, sizeof(su));
   if (err != 0) {
-    LOGE("Socket bind error %s", strerror(errno));
+    ALOGE("Socket bind error %s", strerror(errno));
     jniThrowSocketException(env, errno);
     return;
   }
