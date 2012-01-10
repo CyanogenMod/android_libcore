@@ -148,4 +148,13 @@ public class TimeZoneTest extends junit.framework.TestCase {
         TimeZone phoenix = TimeZone.getTimeZone ("America/Phoenix") ;
         assertFalse(denver.hasSameRules(phoenix));
     }
+
+    // http://code.google.com/p/android/issues/detail?id=24036
+    public void testNullId() throws Exception {
+        try {
+            TimeZone.getTimeZone(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
 }
