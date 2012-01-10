@@ -141,7 +141,7 @@ public class SystemTest extends TestCase {
             }
         }.start();
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 8192; i++) {
             try {
                 System.arraycopy(source, 0, target, 0, source.length);
                 assertNull(target[source.length - 1]); // make sure the wrong type didn't sneak in
