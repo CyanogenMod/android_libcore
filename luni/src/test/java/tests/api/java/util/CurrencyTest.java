@@ -136,16 +136,15 @@ public class CurrencyTest extends junit.framework.TestCase {
         // BEGIN android-changed
         // KRW currency symbol is \u20a9 since CLDR1.7 release.
         assertEquals("currK.getSymbol()", "\u20a9", currK.getSymbol());
+        // IEP currency symbol is IEP since CLDR2.0 release.
+        assertEquals("currI.getSymbol()", "IEP", currI.getSymbol());
         // END android-changed
-        assertEquals("currI.getSymbol()", "IR\u00a3", currI.getSymbol());
         assertEquals("currUS.getSymbol()", "$", currUS.getSymbol());
 
         Locale.setDefault(new Locale("en", "IE"));
         // BEGIN android-changed
         assertEquals("currK.getSymbol()", "\u20a9", currK.getSymbol());
-        // END android-changed
-        assertEquals("currI.getSymbol()", "IR\u00a3", currI.getSymbol());
-        // BEGIN android-changed
+        assertEquals("currI.getSymbol()", "IEP", currI.getSymbol());
         assertEquals("currUS.getSymbol()", "$", currUS.getSymbol());
         // END android-changed
 
@@ -154,8 +153,8 @@ public class CurrencyTest extends junit.framework.TestCase {
         Locale.setDefault(new Locale("kr", "KR"));
         // BEGIN android-changed
         assertEquals("currK.getSymbol()", "\u20a9", currK.getSymbol());
+        assertEquals("currI.getSymbol()", "IEP", currI.getSymbol());
         // END android-changed
-        assertEquals("currI.getSymbol()", "IR\u00a3", currI.getSymbol());
         assertEquals("currUS.getSymbol()", "$", currUS.getSymbol());
     }
 

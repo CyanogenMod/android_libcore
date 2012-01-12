@@ -654,10 +654,10 @@ public class CalendarTest extends junit.framework.TestCase {
     public void test_getInstance() {
         // test getInstance(Locale)
         Calendar us_calendar = Calendar.getInstance(Locale.US);
-        Calendar ch_calendar = Calendar.getInstance(Locale.CHINESE);
+        Calendar de_calendar = Calendar.getInstance(Locale.GERMAN);
         assertEquals(Calendar.SUNDAY, us_calendar
                 .getFirstDayOfWeek());
-        assertEquals(Calendar.MONDAY, ch_calendar
+        assertEquals(Calendar.MONDAY, de_calendar
                 .getFirstDayOfWeek());
 
         // test getInstance(Locale, TimeZone)
