@@ -90,7 +90,7 @@ public class SystemTest extends TestCase {
             System.arraycopy(new char[5], 0, new Object[5], 0, 3);
             fail();
         } catch (ArrayStoreException e) {
-            assertEquals("char[] and java.lang.Object[] are incompatible array types", e.getMessage());
+            assertEquals("Incompatible types: src=char[], dst=java.lang.Object[]", e.getMessage());
         }
     }
 
