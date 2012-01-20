@@ -17,6 +17,9 @@
 package libcore.java.lang;
 
 public class FloatTest extends junit.framework.TestCase {
+    // Needed to prevent testVerifierTyping from statically resolving the if statement.
+    static boolean testVerifierTypingBool = false;
+
     public void test_valueOf_String1() throws Exception {
         // This threw OutOfMemoryException.
         // http://code.google.com/p/android/issues/detail?id=4185
@@ -109,5 +112,13 @@ public class FloatTest extends junit.framework.TestCase {
 
         assertEquals(Float.POSITIVE_INFINITY, Float.parseFloat("320.0E+2147483647"));
         assertEquals(-0.0f, Float.parseFloat("-1.4E-2147483314"));
+    }
+
+    public void testVerifierTyping() throws Exception {
+      float f1 = 0;
+      if (testVerifierTypingBool) {
+        f1 = Float.MIN_VALUE;
+      }
+      assertEquals(f1, 0f);
     }
 }
