@@ -35,6 +35,11 @@
 #include "ScopedLocalRef.h"
 #include "toStringArray.h"
 
+#if defined(__APPLE__)
+#include <crt_externs.h>
+#define environ (*_NSGetEnviron())
+#endif
+
 static void CloseNonStandardFds(int status_pipe_fd) {
   // On Cygwin, Linux, and Solaris, the best way to close iterates over "/proc/self/fd/".
   const char* fd_path = "/proc/self/fd";

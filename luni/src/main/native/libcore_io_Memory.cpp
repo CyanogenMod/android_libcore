@@ -28,6 +28,15 @@
 #include <string.h>
 #include <sys/mman.h>
 
+#if defined(__APPLE__)
+#include <libkern/OSByteOrder.h>
+#define bswap_16 OSSwapInt16
+#define bswap_32 OSSwapInt32
+#define bswap_64 OSSwapInt64
+#else
+#include <byteswap.h>
+#endif
+
 #if defined(__arm__)
 // 32-bit ARM has load/store alignment restrictions for longs.
 #define LONG_ALIGNMENT_MASK 0x3

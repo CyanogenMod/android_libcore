@@ -93,9 +93,15 @@ static jlong System_currentTimeMillis(JNIEnv*, jclass) {
 }
 
 static jlong System_nanoTime(JNIEnv*, jclass) {
+#if defined(HAVE_POSIX_CLOCKS)
     timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
     return now.tv_sec * 1000000000LL + now.tv_nsec;
+#else
+    timeval now;
+    gettimeofday(&now, NULL);
+    return static_cast<jlong>(now.tv_sec) * 1000000000LL + now.tv_usec * 1000LL;
+#endif
 }
 
 static jstring System_mapLibraryName(JNIEnv* env, jclass, jstring javaName) {
