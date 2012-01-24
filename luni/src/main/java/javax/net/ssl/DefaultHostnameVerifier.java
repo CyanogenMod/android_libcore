@@ -153,8 +153,8 @@ public final class DefaultHostnameVerifier implements HostnameVerifier {
         int suffixLength = cn.length() - (asterisk + 1);
         int suffixStart = hostName.length() - suffixLength;
         if (hostName.indexOf('.', asterisk) < suffixStart) {
-            // TODO: remove workaround for android.clients.google.com http://b/5426333
-            if (!hostName.equals("android.clients.google.com")) {
+            // TODO: remove workaround for *.clients.google.com http://b/5426333
+            if (!hostName.endsWith(".clients.google.com")) {
                 return false; // wildcard '*' can't match a '.'
             }
         }
