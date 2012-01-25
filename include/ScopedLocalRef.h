@@ -23,20 +23,26 @@
 template<typename T>
 class ScopedLocalRef {
 public:
-    ScopedLocalRef(JNIEnv* env, T localRef)
-    : mEnv(env), mLocalRef(localRef)
-    {
+    ScopedLocalRef(JNIEnv* env, T localRef) : mEnv(env), mLocalRef(localRef) {
     }
 
     ~ScopedLocalRef() {
         reset();
     }
 
-    void reset() {
-        if (mLocalRef != NULL) {
-            mEnv->DeleteLocalRef(mLocalRef);
-            mLocalRef = NULL;
+    void reset(T ptr = NULL) {
+        if (ptr != mLocalRef) {
+            if (mLocalRef != NULL) {
+                mEnv->DeleteLocalRef(mLocalRef);
+            }
+            mLocalRef = ptr;
         }
+    }
+
+    T release() __attribute__((warn_unused_result)) {
+        T localRef = mLocalRef;
+        mLocalRef = NULL;
+        return localRef;
     }
 
     T get() const {
