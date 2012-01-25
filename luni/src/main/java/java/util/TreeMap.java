@@ -132,7 +132,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V>
      *
      * <p>The constructed map <strong>will always use</strong> {@code
      * copyFrom}'s ordering. Because the {@code TreeMap} constructor overloads
-     * are ambigous, prefer to construct a map and populate it in two steps:
+     * are ambiguous, prefer to construct a map and populate it in two steps:
      * <pre>   {@code
      *   TreeMap<String, Integer> customOrderedMap
      *       = new TreeMap<String, Integer>(copyFrom.comparator());
