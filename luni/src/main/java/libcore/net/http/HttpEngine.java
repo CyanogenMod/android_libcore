@@ -408,9 +408,6 @@ public class HttpEngine {
     }
 
     public final CacheResponse getCacheResponse() {
-        if (responseHeaders == null) {
-            throw new IllegalStateException();
-        }
         return cacheResponse;
     }
 

@@ -1895,6 +1895,57 @@ public final class URLConnectionTest extends TestCase {
         assertEquals(-1, in.read());
     }
 
+    public void testInspectSslBeforeConnect() throws Exception {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse());
+        server.play();
+
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        assertNotNull(connection.getHostnameVerifier());
+        try {
+            connection.getLocalCertificates();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            connection.getServerCertificates();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            connection.getCipherSuite();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            connection.getPeerPrincipal();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    /**
+     * Test that we can inspect the SSL session after connect().
+     * http://code.google.com/p/android/issues/detail?id=24431
+     */
+    public void testInspectSslAfterConnect() throws Exception {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse());
+        server.play();
+
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        connection.connect();
+        assertNotNull(connection.getHostnameVerifier());
+        assertNull(connection.getLocalCertificates());
+        assertNotNull(connection.getServerCertificates());
+        assertNotNull(connection.getCipherSuite());
+        assertNotNull(connection.getPeerPrincipal());
+    }
+
     /**
      * Returns a gzipped copy of {@code bytes}.
      */
