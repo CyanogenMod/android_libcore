@@ -58,7 +58,8 @@ public final class Daemons {
             if (thread != null) {
                 throw new IllegalStateException("already running");
             }
-            thread = new Thread(this, getClass().getSimpleName());
+            thread = new Thread(ThreadGroup.mSystem, this,
+                getClass().getSimpleName());
             thread.setDaemon(true);
             thread.start();
         }
