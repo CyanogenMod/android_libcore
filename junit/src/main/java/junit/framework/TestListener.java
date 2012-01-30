@@ -5,17 +5,17 @@ package junit.framework;
  */
 public interface TestListener {
     /**
-      * An error occurred.
-      */
+     * An error occurred.
+     */
     public void addError(Test test, Throwable t);
     /**
-      * A failure occurred.
-      */
-     public void addFailure(Test test, AssertionFailedError t);
+     * A failure occurred.
+     */
+    public void addFailure(Test test, AssertionFailedError t);
     /**
      * A test ended.
      */
-     public void endTest(Test test);
+    public void endTest(Test test);
     /**
      * A test started.
      */
