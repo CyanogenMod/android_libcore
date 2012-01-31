@@ -50,7 +50,7 @@
 
 #ifdef WITH_JNI_TRACE
 #define JNI_TRACE(...) \
-        ((void)LOG(LOG_INFO, LOG_TAG "-jni", __VA_ARGS__));     \
+        ((void)ALOG(LOG_INFO, LOG_TAG "-jni", __VA_ARGS__));     \
 /*
         ((void)printf("I/" LOG_TAG "-jni:"));         \
         ((void)printf(__VA_ARGS__));          \
@@ -519,13 +519,17 @@ static EVP_PKEY* NativeCrypto_EVP_PKEY_new_DSA(JNIEnv* env, jclass,
     dsa->p = arrayToBignum(env, p);
     dsa->q = arrayToBignum(env, q);
     dsa->g = arrayToBignum(env, g);
-    dsa->pub_key = arrayToBignum(env, pub_key);
+
+    if (pub_key != NULL) {
+        dsa->pub_key = arrayToBignum(env, pub_key);
+    }
 
     if (priv_key != NULL) {
         dsa->priv_key = arrayToBignum(env, priv_key);
     }
 
-    if (dsa->p == NULL || dsa->q == NULL || dsa->g == NULL || dsa->pub_key == NULL) {
+    if (dsa->p == NULL || dsa->q == NULL || dsa->g == NULL
+            || (dsa->pub_key == NULL && dsa->priv_key == NULL)) {
         jniThrowRuntimeException(env, "Unable to convert BigInteger to BIGNUM");
         return NULL;
     }
@@ -559,8 +563,17 @@ static EVP_PKEY* NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
         return NULL;
     }
 
+    if (e == NULL && d == NULL) {
+        jniThrowException(env, "java/lang/IllegalArgumentException", "e == NULL && d == NULL");
+        JNI_TRACE("NativeCrypto_EVP_PKEY_new_RSA => e == NULL && d == NULL");
+        return NULL;
+    }
+
     rsa->n = arrayToBignum(env, n);
-    rsa->e = arrayToBignum(env, e);
+
+    if (e != NULL) {
+        rsa->e = arrayToBignum(env, e);
+    }
 
     if (d != NULL) {
         rsa->d = arrayToBignum(env, d);
@@ -581,9 +594,24 @@ static EVP_PKEY* NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
     }
 #endif
 
-    if (rsa->n == NULL || rsa->e == NULL) {
+    if (rsa->n == NULL || (rsa->e == NULL && rsa->d == NULL)) {
         jniThrowRuntimeException(env, "Unable to convert BigInteger to BIGNUM");
         return NULL;
+    }
+
+    /*
+     * If the private exponent is available, there is the potential to do signing
+     * operations. If the public exponent is also available, OpenSSL will do RSA
+     * blinding. Enable it if possible.
+     */
+    if (rsa->d != NULL) {
+        if (rsa->e != NULL) {
+            JNI_TRACE("EVP_PKEY_new_RSA(...) enabling RSA blinding => %p", rsa.get());
+            RSA_blinding_on(rsa.get(), NULL);
+        } else {
+            JNI_TRACE("EVP_PKEY_new_RSA(...) disabling RSA blinding => %p", rsa.get());
+            RSA_blinding_off(rsa.get());
+        }
     }
 
     Unique_EVP_PKEY pkey(EVP_PKEY_new());
@@ -598,6 +626,22 @@ static EVP_PKEY* NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
     OWNERSHIP_TRANSFERRED(rsa);
     JNI_TRACE("EVP_PKEY_new_RSA(n=%p, e=%p, d=%p, p=%p, q=%p) => %p", n, e, d, p, q, pkey.get());
     return pkey.release();
+}
+
+/**
+ * private static native int EVP_PKEY_size(int pkey);
+ */
+static int NativeCrypto_EVP_PKEY_size(JNIEnv* env, jclass, EVP_PKEY* pkey) {
+    JNI_TRACE("NativeCrypto_EVP_PKEY_size(%p)", pkey);
+
+    if (pkey == NULL) {
+        jniThrowNullPointerException(env, NULL);
+        return -1;
+    }
+
+    int result = EVP_PKEY_size(pkey);
+    JNI_TRACE("NativeCrypto_EVP_PKEY_size(%p) => %d", pkey, result);
+    return result;
 }
 
 /**
@@ -794,6 +838,100 @@ static void NativeCrypto_EVP_DigestUpdate(JNIEnv* env, jclass, EVP_MD_CTX* ctx,
 }
 
 /*
+ * public static native int EVP_SignInit(java.lang.String)
+ */
+static jint NativeCrypto_EVP_SignInit(JNIEnv* env, jclass, jstring algorithm) {
+    JNI_TRACE("NativeCrypto_EVP_SignInit(%p)", algorithm);
+
+    if (algorithm == NULL) {
+        jniThrowNullPointerException(env, NULL);
+        return 0;
+    }
+
+    Unique_EVP_MD_CTX ctx(EVP_MD_CTX_create());
+    if (ctx.get() == NULL) {
+        jniThrowOutOfMemoryError(env, "Unable to allocate EVP_MD_CTX");
+        return 0;
+    }
+    JNI_TRACE("NativeCrypto_EVP_SignInit ctx=%p", ctx.get());
+
+    ScopedUtfChars algorithmChars(env, algorithm);
+    if (algorithmChars.c_str() == NULL) {
+        return 0;
+    }
+    JNI_TRACE("NativeCrypto_EVP_SignInit algorithmChars=%s", algorithmChars.c_str());
+
+    const EVP_MD* digest = EVP_get_digestbynid(OBJ_txt2nid(algorithmChars.c_str()));
+    if (digest == NULL) {
+        jniThrowRuntimeException(env, "Hash algorithm not found");
+        return 0;
+    }
+
+    int ok = EVP_SignInit(ctx.get(), digest);
+    if (ok == 0) {
+        bool exception = throwExceptionIfNecessary(env, "NativeCrypto_EVP_SignInit");
+        if (exception) {
+            return 0;
+        }
+    }
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(ctx.release()));
+}
+
+/*
+ * public static native void EVP_SignUpdate(int, byte[], int, int)
+ */
+static void NativeCrypto_EVP_SignUpdate(JNIEnv* env, jclass, EVP_MD_CTX* ctx,
+                                          jbyteArray buffer, jint offset, jint length) {
+    JNI_TRACE("NativeCrypto_EVP_SignUpdate(%p, %p, %d, %d)", ctx, buffer, offset, length);
+
+    if (ctx == NULL || buffer == NULL) {
+        jniThrowNullPointerException(env, NULL);
+        return;
+    }
+
+    ScopedByteArrayRO bufferBytes(env, buffer);
+    if (bufferBytes.get() == NULL) {
+        return;
+    }
+    int ok = EVP_SignUpdate(ctx,
+                            reinterpret_cast<const unsigned char*>(bufferBytes.get() + offset),
+                            length);
+    if (ok == 0) {
+        throwExceptionIfNecessary(env, "NativeCrypto_EVP_SignUpdate");
+    }
+}
+
+/*
+ * public static native int EVP_SignFinal(int, byte[], int, int)
+ */
+static int NativeCrypto_EVP_SignFinal(JNIEnv* env, jclass, EVP_MD_CTX* ctx, jbyteArray signature,
+        jint offset, EVP_PKEY* pkey) {
+    JNI_TRACE("NativeCrypto_EVP_SignFinal(%p, %p)", ctx, pkey);
+
+    if (ctx == NULL || pkey == NULL) {
+        jniThrowNullPointerException(env, NULL);
+        return -1;
+    }
+
+    ScopedByteArrayRW signatureBytes(env, signature);
+    if (signatureBytes.get() == NULL) {
+        return -1;
+    }
+    unsigned int bytesWritten = -1;
+    int ok = EVP_SignFinal(ctx,
+                           reinterpret_cast<unsigned char*>(signatureBytes.get() + offset),
+                           &bytesWritten,
+                           pkey);
+    if (ok == 0) {
+        throwExceptionIfNecessary(env, "NativeCrypto_EVP_SignFinal");
+    }
+    JNI_TRACE("NativeCrypto_EVP_SignFinal(%p, %p, %d, %p) => %u",
+              ctx, signature, offset, pkey, bytesWritten);
+
+    return bytesWritten;
+}
+
+/*
  * public static native int EVP_VerifyInit(java.lang.String)
  */
 static jint NativeCrypto_EVP_VerifyInit(JNIEnv* env, jclass, jstring algorithm) {
@@ -878,7 +1016,7 @@ static int NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass, EVP_MD_CTX* ctx, jb
                              reinterpret_cast<const unsigned char*>(bufferBytes.get() + offset),
                              length,
                              pkey);
-    if (ok == 0) {
+    if (ok < 0) {
         throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyFinal");
     }
     JNI_TRACE("NativeCrypto_EVP_VerifyFinal(%p, %p, %d, %d, %p) => %d",
@@ -3140,6 +3278,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, clinit, "()V"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_DSA, "([B[B[B[B[B)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_RSA, "([B[B[B[B[B)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_size, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_free, "(I)V"),
     NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_destroy, "(I)V"),
     NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_copy, "(I)I"),
@@ -3149,6 +3288,9 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, EVP_MD_block_size, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_MD_size, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_DigestUpdate, "(I[BII)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_SignInit, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_SignUpdate, "(I[BII)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_SignFinal, "(I[BII)I"),
     NATIVE_METHOD(NativeCrypto, EVP_VerifyInit, "(Ljava/lang/String;)I"),
     NATIVE_METHOD(NativeCrypto, EVP_VerifyUpdate, "(I[BII)V"),
     NATIVE_METHOD(NativeCrypto, EVP_VerifyFinal, "(I[BIII)I"),
