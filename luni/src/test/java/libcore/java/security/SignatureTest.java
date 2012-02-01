@@ -28,6 +28,7 @@ import java.security.Security;
 import java.security.Signature;
 import java.security.spec.DSAPrivateKeySpec;
 import java.security.spec.DSAPublicKeySpec;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
@@ -714,6 +715,8 @@ public class SignatureTest extends TestCase {
             privKey = kf.generatePrivate(keySpec);
         } catch (NullPointerException e) {
             return;
+        } catch (InvalidKeySpecException e) {
+            return;
         }
 
         Signature sig = Signature.getInstance("SHA1withRSA");
@@ -737,6 +740,8 @@ public class SignatureTest extends TestCase {
             privKey = kf.generatePrivate(keySpec);
         } catch (NullPointerException e) {
             return;
+        } catch (InvalidKeySpecException e) {
+            return;
         }
 
         Signature sig = Signature.getInstance("SHA1withRSA");
@@ -758,6 +763,8 @@ public class SignatureTest extends TestCase {
         try {
             privKey = kf.generatePrivate(keySpec);
         } catch (NullPointerException e) {
+            return;
+        } catch (InvalidKeySpecException e) {
             return;
         }
 
