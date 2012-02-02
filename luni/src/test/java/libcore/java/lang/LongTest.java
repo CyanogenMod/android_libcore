@@ -31,4 +31,12 @@ public class LongTest extends junit.framework.TestCase {
         assertTrue(Long.compare(min,  zero) < 0);
         assertTrue(Long.compare(min,  max)  < 0);
     }
+
+    public void test_signum() throws Exception {
+        assertEquals(0, Long.signum(0));
+        assertEquals(1, Long.signum(1));
+        assertEquals(-1, Long.signum(-1));
+        assertEquals(1, Long.signum(Long.MAX_VALUE));
+        assertEquals(-1, Long.signum(Long.MIN_VALUE));
+    }
 }
