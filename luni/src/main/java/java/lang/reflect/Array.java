@@ -47,6 +47,16 @@ public final class Array {
         throw new IllegalArgumentException("Array has incompatible type: " + o.getClass());
     }
 
+    private static RuntimeException badArray(Object array) {
+        if (array == null) {
+            throw new NullPointerException("array == null");
+        } else if (!array.getClass().isArray()) {
+            throw notAnArray(array);
+        } else {
+            throw incompatibleType(array);
+        }
+    }
+
     /**
      * Returns the element of the array at the specified index. Equivalent to {@code array[index]}.
      * If the array component is a primitive type, the result is automatically boxed.
@@ -89,16 +99,6 @@ public final class Array {
             throw new NullPointerException("array == null");
         }
         throw notAnArray(array);
-    }
-
-    private static RuntimeException badArray(Object array) {
-        if (array == null) {
-            throw new NullPointerException("array == null");
-        } else if (!array.getClass().isArray()) {
-            throw notAnArray(array);
-        } else {
-            throw incompatibleType(array);
-        }
     }
 
     /**
