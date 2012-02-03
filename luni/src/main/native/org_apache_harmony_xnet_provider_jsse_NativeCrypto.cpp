@@ -600,13 +600,13 @@ static jint NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
     Unique_RSA rsa(RSA_new());
     if (rsa.get() == NULL) {
         jniThrowRuntimeException(env, "RSA_new failed");
-        return NULL;
+        return 0;
     }
 
     if (e == NULL && d == NULL) {
         jniThrowException(env, "java/lang/IllegalArgumentException", "e == NULL && d == NULL");
         JNI_TRACE("NativeCrypto_EVP_PKEY_new_RSA => e == NULL && d == NULL");
-        return NULL;
+        return 0;
     }
 
     rsa->n = arrayToBignum(env, n);
@@ -648,7 +648,7 @@ static jint NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
 
     if (rsa->n == NULL || (rsa->e == NULL && rsa->d == NULL)) {
         jniThrowRuntimeException(env, "Unable to convert BigInteger to BIGNUM");
-        return NULL;
+        return 0;
     }
 
     /*
@@ -669,11 +669,11 @@ static jint NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
     Unique_EVP_PKEY pkey(EVP_PKEY_new());
     if (pkey.get() == NULL) {
         jniThrowRuntimeException(env, "EVP_PKEY_new failed");
-        return NULL;
+        return 0;
     }
     if (EVP_PKEY_assign_RSA(pkey.get(), rsa.get()) != 1) {
         jniThrowRuntimeException(env, "EVP_PKEY_new failed");
-        return NULL;
+        return 0;
     }
     OWNERSHIP_TRANSFERRED(rsa);
     JNI_TRACE("EVP_PKEY_new_RSA(n=%p, e=%p, d=%p, p=%p, q=%p dmp1=%p, dmq1=%p, iqmp=%p) => %p",
@@ -757,7 +757,7 @@ static jint NativeCrypto_d2i_PKCS8_PRIV_KEY_INFO(JNIEnv* env, jclass, jbyteArray
     ScopedByteArrayRO bytes(env, keyJavaBytes);
     if (bytes.get() == NULL) {
         JNI_TRACE("bytes=%p d2i_PKCS8_PRIV_KEY_INFO => threw exception", keyJavaBytes);
-        return NULL;
+        return 0;
     }
 
     const unsigned char* tmp = reinterpret_cast<const unsigned char*>(bytes.get());
@@ -765,14 +765,14 @@ static jint NativeCrypto_d2i_PKCS8_PRIV_KEY_INFO(JNIEnv* env, jclass, jbyteArray
     if (pkcs8.get() == NULL) {
         ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
         JNI_TRACE("ssl=%p d2i_PKCS8_PRIV_KEY_INFO => error from DER to PKCS8", keyJavaBytes);
-        return NULL;
+        return 0;
     }
 
     Unique_EVP_PKEY pkey(EVP_PKCS82PKEY(pkcs8.get()));
     if (pkey.get() == NULL) {
         ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
         JNI_TRACE("ssl=%p d2i_PKCS8_PRIV_KEY_INFO => error from PKCS8 to key", keyJavaBytes);
-        return NULL;
+        return 0;
     }
 
     JNI_TRACE("bytes=%p d2i_PKCS8_PRIV_KEY_INFO => %p", keyJavaBytes, pkey.get());
@@ -820,7 +820,7 @@ static jint NativeCrypto_d2i_PUBKEY(JNIEnv* env, jclass, jbyteArray javaBytes) {
     ScopedByteArrayRO bytes(env, javaBytes);
     if (bytes.get() == NULL) {
         jniThrowNullPointerException(env, NULL);
-        return NULL;
+        return 0;
     }
 
     const unsigned char* tmp = reinterpret_cast<const unsigned char*>(bytes.get());
@@ -828,7 +828,7 @@ static jint NativeCrypto_d2i_PUBKEY(JNIEnv* env, jclass, jbyteArray javaBytes) {
     if (pkey.get() == NULL) {
         JNI_TRACE("bytes=%p d2i_PUBKEY => threw exception", javaBytes);
         throwExceptionIfNecessary(env, "NativeCrypto_d2i_PUBKEY");
-        return NULL;
+        return 0;
     }
 
     return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
@@ -837,7 +837,7 @@ static jint NativeCrypto_d2i_PUBKEY(JNIEnv* env, jclass, jbyteArray javaBytes) {
 /*
  * public static native int RSA_generate_key(int modulusBits, byte[] publicExponent);
  */
-static int NativeCrypto_RSA_generate_key_ex(JNIEnv* env, jclass, jint modulusBits,
+static jint NativeCrypto_RSA_generate_key_ex(JNIEnv* env, jclass, jint modulusBits,
         jbyteArray publicExponent) {
     JNI_TRACE("RSA_generate_key_ex(%d, %p)", modulusBits, publicExponent);
 
@@ -861,12 +861,12 @@ static int NativeCrypto_RSA_generate_key_ex(JNIEnv* env, jclass, jint modulusBit
     Unique_EVP_PKEY pkey(EVP_PKEY_new());
     if (pkey.get() == NULL) {
         jniThrowRuntimeException(env, "NativeCrypto_RSA_generate_key_ex failed");
-        return NULL;
+        return 0;
     }
 
     if (EVP_PKEY_assign_RSA(pkey.get(), rsa.get()) != 1) {
         jniThrowRuntimeException(env, "NativeCrypto_RSA_generate_key_ex failed");
-        return NULL;
+        return 0;
     }
 
     OWNERSHIP_TRANSFERRED(rsa);
@@ -983,7 +983,7 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
 /*
  * public static native int DSA_generate_key(int, byte[]);
  */
-static int NativeCrypto_DSA_generate_key(JNIEnv* env, jclass, jint primeBits,
+static jint NativeCrypto_DSA_generate_key(JNIEnv* env, jclass, jint primeBits,
         jbyteArray seedJavaBytes, jbyteArray gBytes, jbyteArray pBytes, jbyteArray qBytes) {
     JNI_TRACE("DSA_generate_key(%d, %p, %p, %p, %p)", primeBits, seedJavaBytes,
             gBytes, pBytes, qBytes);
@@ -1011,17 +1011,17 @@ static int NativeCrypto_DSA_generate_key(JNIEnv* env, jclass, jint primeBits,
 
         dsa->g = arrayToBignum(env, gBytes);
         if (dsa->g == NULL) {
-            return NULL;
+            return 0;
         }
 
         dsa->p = arrayToBignum(env, pBytes);
         if (dsa->p == NULL) {
-            return NULL;
+            return 0;
         }
 
         dsa->q = arrayToBignum(env, qBytes);
         if (dsa->q == NULL) {
-            return NULL;
+            return 0;
         }
     } else {
         JNI_TRACE("DSA_generate_key generating parameters");
@@ -1029,7 +1029,7 @@ static int NativeCrypto_DSA_generate_key(JNIEnv* env, jclass, jint primeBits,
         if (!DSA_generate_parameters_ex(dsa.get(), primeBits, seedPtr.get(), seedSize, NULL, NULL, NULL)) {
             JNI_TRACE("DSA_generate_key => param generation failed");
             throwExceptionIfNecessary(env, "NativeCrypto_DSA_generate_parameters_ex failed");
-            return NULL;
+            return 0;
         }
     }
 
@@ -1043,13 +1043,13 @@ static int NativeCrypto_DSA_generate_key(JNIEnv* env, jclass, jint primeBits,
     if (pkey.get() == NULL) {
         JNI_TRACE("DSA_generate_key failed");
         jniThrowRuntimeException(env, "NativeCrypto_DSA_generate_key failed");
-        return NULL;
+        return 0;
     }
 
     if (EVP_PKEY_assign_DSA(pkey.get(), dsa.get()) != 1) {
         JNI_TRACE("DSA_generate_key failed");
         jniThrowRuntimeException(env, "NativeCrypto_DSA_generate_key failed");
-        return NULL;
+        return 0;
     }
 
     OWNERSHIP_TRANSFERRED(dsa);
