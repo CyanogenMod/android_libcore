@@ -68,6 +68,10 @@ public class KeyStoreTest extends TestCase {
     private static final String ALIAS_ALT_CASE_CERTIFICATE = "cErTiFiCaTe";
     private static final String ALIAS_ALT_CASE_SECRET = "sEcRet";
 
+    private static final String ALIAS_UNICODE_PRIVATE = "\u6400\u7902\u3101\u8c02\u5002\u8702\udd01";
+    private static final String ALIAS_UNICODE_CERTIFICATE = "\u5402\udd01\u7902\u8702\u3101\u5f02\u3101\u5402\u5002\u8702\udd01";
+    private static final String ALIAS_UNICODE_SECRET = "\ue224\ud424\ud224\ue124\ud424\ue324";
+
     private static final String ALIAS_NO_PASSWORD_PRIVATE = "private-no-password";
     private static final String ALIAS_NO_PASSWORD_SECRET = "secret-no-password";
 
@@ -1832,6 +1836,20 @@ public class KeyStoreTest extends TestCase {
                 } catch (KeyStoreException expected) {
                 }
             }
+            keyStore.setEntry(ALIAS_UNICODE_PRIVATE, getPrivateKey(), PARAM_KEY);
+            assertPrivateKey(keyStore.getKey(ALIAS_UNICODE_PRIVATE, PASSWORD_KEY));
+            assertCertificateChain(keyStore.getCertificateChain(ALIAS_UNICODE_PRIVATE));
+            if (isSecretKeyEnabled(keyStore)) {
+                assertNull(keyStore.getKey(ALIAS_UNICODE_SECRET, PASSWORD_KEY));
+                keyStore.setEntry(ALIAS_UNICODE_SECRET, new SecretKeyEntry(getSecretKey()), PARAM_KEY);
+                assertSecretKey(keyStore.getKey(ALIAS_UNICODE_SECRET, PASSWORD_KEY));
+            } else {
+                try {
+                    keyStore.setKeyEntry(ALIAS_UNICODE_SECRET, getSecretKey(), PASSWORD_KEY, null);
+                    fail();
+                } catch (KeyStoreException expected) {
+                }
+            }
         }
 
         for (KeyStore keyStore : keyStores()) {
@@ -1868,6 +1886,11 @@ public class KeyStoreTest extends TestCase {
                                       null);
                     assertCertificate(keyStore.getCertificate(ALIAS_CERTIFICATE));
                     assertCertificate2(keyStore.getCertificate(ALIAS_ALT_CASE_CERTIFICATE));
+                    keyStore.setEntry(ALIAS_UNICODE_CERTIFICATE,
+                                      new TrustedCertificateEntry(
+                                              getPrivateKey().getCertificate()),
+                                      null);
+                    assertCertificate(keyStore.getCertificate(ALIAS_UNICODE_CERTIFICATE));
                 }
             } else {
                 assertPrivateKey(keyStore.getKey(ALIAS_PRIVATE, PASSWORD_KEY));
@@ -1895,6 +1918,11 @@ public class KeyStoreTest extends TestCase {
                                       null);
                     assertCertificate2(keyStore.getCertificate(ALIAS_CERTIFICATE));
                     assertCertificate2(keyStore.getCertificate(ALIAS_ALT_CASE_CERTIFICATE));
+                    keyStore.setEntry(ALIAS_UNICODE_CERTIFICATE,
+                                      new TrustedCertificateEntry(
+                                              getPrivateKey().getCertificate()),
+                                      null);
+                    assertCertificate(keyStore.getCertificate(ALIAS_UNICODE_CERTIFICATE));
                 }
             }
         }
