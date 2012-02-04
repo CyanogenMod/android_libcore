@@ -625,35 +625,35 @@ static jint NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
     }
 
     if (!arrayToBignum(env, n, &rsa->n)) {
-        return NULL;
+        return 0;
     }
 
     if (e != NULL && !arrayToBignum(env, e, &rsa->e)) {
-        return NULL;
+        return 0;
     }
 
     if (d != NULL && !arrayToBignum(env, d, &rsa->d)) {
-        return NULL;
+        return 0;
     }
 
     if (p != NULL && !arrayToBignum(env, p, &rsa->p)) {
-        return NULL;
+        return 0;
     }
 
     if (q != NULL && !arrayToBignum(env, q, &rsa->q)) {
-        return NULL;
+        return 0;
     }
 
     if (dmp1 != NULL && !arrayToBignum(env, dmp1, &rsa->dmp1)) {
-        return NULL;
+        return 0;
     }
 
     if (dmq1 != NULL && !arrayToBignum(env, dmq1, &rsa->dmq1)) {
-        return NULL;
+        return 0;
     }
 
     if (iqmp != NULL && !arrayToBignum(env, iqmp, &rsa->iqmp)) {
-        return NULL;
+        return 0;
     }
 
 #ifdef WITH_JNI_TRACE
