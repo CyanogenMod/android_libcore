@@ -116,15 +116,9 @@ import static libcore.io.OsConstants.*;
  * brackets.
  *
  * <h4>DNS caching</h4>
- * <p>On Android, addresses are cached for 600 seconds (10 minutes) by default. Failed lookups are
- * cached for 10 seconds. The underlying C library or OS may cache for longer, but you can control
- * the Java-level caching with the usual {@code "networkaddress.cache.ttl"} and
- * {@code "networkaddress.cache.negative.ttl"} system properties. These are parsed as integer
- * numbers of seconds, where the special value 0 means "don't cache" and -1 means "cache forever".
- *
- * <p>Note also that on Android &ndash; unlike the RI &ndash; the cache is not unbounded. The
- * current implementation caches around 512 entries, removed on a least-recently-used basis.
- * (Obviously, you should not rely on these details.)
+ * <p>In Android 4.0 (Ice Cream Sandwich) and earlier, DNS caching was performed both by
+ * InetAddress and by the C library, which meant that DNS TTLs could not be honored correctly.
+ * In later releases, caching is done solely by the C library and DNS TTLs are honored.
  *
  * @see Inet4Address
  * @see Inet6Address
