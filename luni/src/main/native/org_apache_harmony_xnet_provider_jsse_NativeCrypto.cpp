@@ -104,6 +104,13 @@ struct EVP_MD_CTX_Delete {
 };
 typedef UniquePtr<EVP_MD_CTX, EVP_MD_CTX_Delete> Unique_EVP_MD_CTX;
 
+struct EVP_CIPHER_CTX_Delete {
+    void operator()(EVP_CIPHER_CTX* p) const {
+        EVP_CIPHER_CTX_cleanup(p);
+    }
+};
+typedef UniquePtr<EVP_CIPHER_CTX, EVP_CIPHER_CTX_Delete> Unique_EVP_CIPHER_CTX;
+
 struct EVP_PKEY_Delete {
     void operator()(EVP_PKEY* p) const {
         EVP_PKEY_free(p);
@@ -1523,8 +1530,173 @@ static jint NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass, jint ctxRef, jbyte
     return ok;
 }
 
+/*
+ * public static native int EVP_get_cipherbyname(java.lang.String)
+ */
+static jint NativeCrypto_EVP_get_cipherbyname(JNIEnv* env, jclass, jstring algorithm) {
+    JNI_TRACE("EVP_get_cipherbyname(%p)", algorithm);
+    if (algorithm == NULL) {
+        JNI_TRACE("EVP_get_cipherbyname(%p) => threw exception algorithm == null", algorithm);
+        jniThrowNullPointerException(env, NULL);
+        return -1;
+    }
+
+    ScopedUtfChars algorithmChars(env, algorithm);
+    if (algorithmChars.c_str() == NULL) {
+        return 0;
+    }
+    JNI_TRACE("EVP_get_cipherbyname(%p) => algorithm = %s", algorithm, algorithmChars.c_str());
+
+    const EVP_CIPHER* evp_cipher = EVP_get_cipherbyname(algorithmChars.c_str());
+    if (evp_cipher == NULL) {
+        jniThrowRuntimeException(env, "Cipher algorithm not found");
+        return 0;
+    }
+
+    JNI_TRACE("EVP_get_cipherbyname(%s) => %p", algorithmChars.c_str(), evp_md);
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(evp_cipher));
+}
+
+/*
+ * public static native int EVP_CipherInit_ex(int cipherNid, byte[] key, byte[] iv,
+ *          boolean encrypting);
+ */
+static jint NativeCrypto_EVP_CipherInit_ex(JNIEnv* env, jclass, jint cipherRef, jbyteArray keyArray,
+        jbyteArray ivArray, jboolean encrypting) {
+    const EVP_CIPHER* evp_cipher = reinterpret_cast<const EVP_CIPHER*>(cipherRef);
+    JNI_TRACE("EVP_CipherInit_ex(%p, %p, %p, %d)", evp_cipher, keyArray, ivArray, encrypting ? 1 : 0);
+
+    ScopedByteArrayRO keyBytes(env, keyArray);
+    if (keyBytes.get() == NULL) {
+        return 0;
+    }
+
+    // The IV can be null if we're using ECB.
+    UniquePtr<unsigned char[]> ivPtr;
+    if (ivArray != NULL) {
+        ScopedByteArrayRO ivBytes(env, ivArray);
+        if (ivBytes.get() == NULL) {
+            return NULL;
+        }
+
+        ivPtr.reset(new unsigned char[ivBytes.size()]);
+        memcpy(ivPtr.get(), ivBytes.get(), ivBytes.size());
+    }
+
+    Unique_EVP_CIPHER_CTX ctx(EVP_CIPHER_CTX_new());
+    if (ctx.get() == NULL) {
+        jniThrowOutOfMemoryError(env, "Unable to allocate cipher context");
+        JNI_TRACE("ctx=%p EVP_CipherInit_ex => context allocation error", ssl);
+        return 0;
+    }
+
+    const unsigned char* key = reinterpret_cast<const unsigned char*>(keyBytes.get());
+    if (!EVP_CipherInit_ex(ctx.get(), evp_cipher, NULL, key, ivPtr.get(), encrypting ? 1 : 0)) {
+        throwExceptionIfNecessary(env, "EVP_CipherInit_ex");
+        JNI_TRACE("EVP_CipherInit_ex => error initializing cipher");
+        return NULL;
+    }
+
+    JNI_TRACE("EVP_CipherInit_ex(%p, %p, %p, %d) => %p", evp_cipher, keyArray, ivArray,
+            encrypting ? 1 : 0, ctx.get());
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(ctx.release()));
+}
+
+/*
+ *  public static native int EVP_CipherUpdate(int ctx, byte[] out, int outOffset, byte[] in,
+ *          int inOffset);
+ */
+static jint NativeCrypto_EVP_CipherUpdate(JNIEnv* env, jclass, jint ctxRef, jbyteArray outArray,
+        jint outOffset, jbyteArray inArray, jint inOffset) {
+    EVP_CIPHER_CTX* ctx = reinterpret_cast<EVP_CIPHER_CTX*>(ctxRef);
+    JNI_TRACE("EVP_CipherUpdate(%p, %p, %d, %p, %d)", ctx, outArray, outOffset, inArray, inOffset);
+
+    if (ctx == NULL) {
+        jniThrowNullPointerException(env, "ctx == null");
+        JNI_TRACE("ctx=%p EVP_CipherUpdate => ctx == null", ctx);
+        return 0;
+    }
+
+    ScopedByteArrayRO inBytes(env, inArray);
+    if (inBytes.get() == NULL) {
+        return 0;
+    }
+    const size_t inSize = inBytes.size();
+    if (size_t(inOffset + EVP_CIPHER_CTX_block_size(ctx)) > inSize) {
+        jniThrowException(env, "java/lang/IndexOutOfBoundsException", NULL);
+        return 0;
+    }
+
+    ScopedByteArrayRW outBytes(env, outArray);
+    if (outBytes.get() == NULL) {
+        return 0;
+    }
+    const size_t outSize = outBytes.size();
+    if (size_t(outOffset + EVP_CIPHER_CTX_block_size(ctx)) > outSize) {
+        jniThrowException(env, "java/lang/IndexOutOfBoundsException", NULL);
+        return 0;
+    }
+
+    unsigned char* out = reinterpret_cast<unsigned char*>(outBytes.get());
+    const unsigned char* in = reinterpret_cast<const unsigned char*>(inBytes.get());
+
+    int outl;
+    if (!EVP_CipherUpdate(ctx, out + outOffset, &outl, in+inOffset, inSize - inOffset)) {
+        throwExceptionIfNecessary(env, "EVP_CipherInit_ex");
+        JNI_TRACE("ctx=%p EVP_CipherUpdate => threw error", ctx);
+        return 0;
+    }
+
+    JNI_TRACE("EVP_CipherUpdate(%p, %p, %d, %p, %d) => %d", ctx, outArray, outOffset, inArray,
+            inOffset, outl);
+    return outl;
+}
+
+/*
+ *  public static native int EVP_CipherFinal(int ctx, byte[] out, int outOffset);
+ */
+static jint NativeCrypto_EVP_CipherFinal_ex(JNIEnv* env, jclass, jint ctxRef, jbyteArray outArray,
+        jint outOffset) {
+    EVP_CIPHER_CTX* ctx = reinterpret_cast<EVP_CIPHER_CTX*>(ctxRef);
+    JNI_TRACE("EVP_CipherFinal_ex(%p, %p, %d)", ctx, outArray, outOffset);
+
+    if (ctx == NULL) {
+        jniThrowNullPointerException(env, "ctx == null");
+        JNI_TRACE("ctx=%p EVP_CipherFinal_ex => ctx == null", ctx);
+        return 0;
+    }
+
+    ScopedByteArrayRW outBytes(env, outArray);
+    if (outBytes.get() == NULL) {
+        return 0;
+    }
+
+    unsigned char* out = reinterpret_cast<unsigned char*>(outBytes.get());
+
+    int outl;
+    if (!EVP_CipherFinal_ex(ctx, out + outOffset, &outl)) {
+        throwExceptionIfNecessary(env, "EVP_CipherInit_ex");
+        JNI_TRACE("ctx=%p EVP_CipherUpdate => threw error", ctx);
+        return 0;
+    }
+
+    JNI_TRACE("EVP_CipherFinal(%p, %p, %d) => %d", ctx, outArray, outOffset, outl);
+    return outl;
+}
+
+/*
+ * public static native void EVP_CIPHER_CTX_cleanup(int ctx);
+ */
+static void NativeCrypto_EVP_CIPHER_CTX_cleanup(JNIEnv*, jclass, jint ctxRef) {
+    EVP_CIPHER_CTX* ctx = reinterpret_cast<EVP_CIPHER_CTX*>(ctxRef);
+
+    if (ctx != NULL) {
+        EVP_CIPHER_CTX_cleanup(ctx);
+    }
+}
+
 /**
- * Verifies an RSA signature.
+ * public static native void RAND_seed(byte[]);
  */
 static void NativeCrypto_RAND_seed(JNIEnv* env, jclass, jbyteArray seed) {
     JNI_TRACE("NativeCrypto_RAND_seed seed=%p", seed);
@@ -3801,6 +3973,11 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, EVP_VerifyInit, "(Ljava/lang/String;)I"),
     NATIVE_METHOD(NativeCrypto, EVP_VerifyUpdate, "(I[BII)V"),
     NATIVE_METHOD(NativeCrypto, EVP_VerifyFinal, "(I[BIII)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_get_cipherbyname, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_CipherInit_ex, "(I[B[BZ)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_CipherUpdate, "(I[BI[BI)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_CipherFinal_ex, "(I[BI)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_cleanup, "(I)V"),
     NATIVE_METHOD(NativeCrypto, RAND_seed, "([B)V"),
     NATIVE_METHOD(NativeCrypto, RAND_load_file, "(Ljava/lang/String;J)I"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_new, "()I"),
