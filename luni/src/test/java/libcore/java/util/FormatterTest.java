@@ -20,10 +20,14 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
+import tests.support.Support_Locale;
 
 public class FormatterTest extends junit.framework.TestCase {
     public void test_numberLocalization() throws Exception {
         Locale arabic = new Locale("ar");
+        if (!Support_Locale.isLocaleAvailable(arabic)) {
+            return;
+        }
         // Check the fast path for %d:
         assertEquals("12 \u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669\u0660 34",
                 String.format(arabic, "12 %d 34", 1234567890));
