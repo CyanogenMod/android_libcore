@@ -804,9 +804,11 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
                     InetAddress localHost = InetAddress.getLocalHost();
                     Thread.sleep(1000);
                     DatagramSocket sds = new DatagramSocket(ports[1]);
-                    DatagramPacket rdp = new DatagramPacket("Test String"
-                            .getBytes(), 11, localHost, portNumber);
-                    sds.send(rdp);
+                    sds.send(new DatagramPacket("Test".getBytes("UTF-8"), "Test".length(), localHost, portNumber));
+                    sds.send(new DatagramPacket("Longer test".getBytes("UTF-8"), "Longer test".length(), localHost, portNumber));
+                    sds.send(new DatagramPacket("3 Test".getBytes("UTF-8"), "3 Test".length(), localHost, portNumber));
+                    sds.send(new DatagramPacket("4 Test".getBytes("UTF-8"), "4 Test".length(), localHost, portNumber));
+                    sds.send(new DatagramPacket("5".getBytes("UTF-8"), "5".length(), localHost, portNumber));
                     sds.close();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -815,15 +817,30 @@ public class OldDatagramSocketTest extends junit.framework./*Socket*/TestCase {
         }
 
         try {
-            new Thread(new TestDGRcv(), "DGSender").start();
+            new Thread(new TestDGRcv(), "datagram receiver").start();
             ds = new java.net.DatagramSocket(portNumber);
             ds.setSoTimeout(6000);
-            byte rbuf[] = new byte[1000];
+            byte[] rbuf = new byte[1000];
             DatagramPacket rdp = new DatagramPacket(rbuf, rbuf.length);
+
+            // Receive the first packet.
             ds.receive(rdp);
+            assertEquals("Test", new String(rbuf, 0, rdp.getLength()));
+            // Check that we can still receive a longer packet (http://code.google.com/p/android/issues/detail?id=24748).
+            ds.receive(rdp);
+            assertEquals("Longer test", new String(rbuf, 0, rdp.getLength()));
+            // See what happens if we manually call DatagramPacket.setLength.
+            rdp.setLength(4);
+            ds.receive(rdp);
+            assertEquals("3 Te", new String(rbuf, 0, rdp.getLength()));
+            // And then another.
+            ds.receive(rdp);
+            assertEquals("4 Te", new String(rbuf, 0, rdp.getLength()));
+            // And then a packet shorter than the user-supplied length.
+            ds.receive(rdp);
+            assertEquals("5", new String(rbuf, 0, rdp.getLength()));
+
             ds.close();
-            assertEquals("Send/Receive failed to return correct data: "
-                    + new String(rbuf, 0, 11), "Test String", new String(rbuf, 0, 11));
         } finally {
             ds.close();
         }
