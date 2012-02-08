@@ -17,6 +17,7 @@
 package libcore.java.nio;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.nio.*;
 import java.nio.channels.*;
 import java.util.Arrays;
@@ -653,5 +654,25 @@ public class BufferTest extends TestCase {
         CharBuffer cb = b.asCharBuffer();
         CharSequence cs = cb.subSequence(0, cb.length());
         assertEquals("Hello", cs.toString());
+    }
+
+    public void testHasArrayOnJniDirectByteBuffer() throws Exception {
+        // Simulate a call to JNI's NewDirectByteBuffer.
+        Class<?> c = Class.forName("java.nio.ReadWriteDirectByteBuffer");
+        Constructor<?> ctor = c.getDeclaredConstructor(int.class, int.class);
+        ctor.setAccessible(true);
+        ByteBuffer bb = (ByteBuffer) ctor.newInstance(0, 0);
+
+        try {
+            bb.array();
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+        try {
+            bb.arrayOffset();
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+        assertFalse(bb.hasArray());
     }
 }
