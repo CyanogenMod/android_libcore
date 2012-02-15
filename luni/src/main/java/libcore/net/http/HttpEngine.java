@@ -562,8 +562,13 @@ public class HttpEngine {
      */
     public final boolean hasResponseBody() {
         int responseCode = responseHeaders.getHeaders().getResponseCode();
-        if (method != HEAD
-                && method != CONNECT
+
+        // HEAD requests never yield a body regardless of the response headers.
+        if (method == HEAD) {
+            return false;
+        }
+
+        if (method != CONNECT
                 && (responseCode < HTTP_CONTINUE || responseCode >= 200)
                 && responseCode != HttpURLConnectionImpl.HTTP_NO_CONTENT
                 && responseCode != HttpURLConnectionImpl.HTTP_NOT_MODIFIED) {

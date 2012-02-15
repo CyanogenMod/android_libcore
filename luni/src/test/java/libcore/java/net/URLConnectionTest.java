@@ -955,6 +955,29 @@ public final class URLConnectionTest extends TestCase {
     }
 
     /**
+     * Test that HEAD requests don't have a body regardless of the response
+     * headers. http://code.google.com/p/android/issues/detail?id=24672
+     */
+    public void testHeadAndContentLength() throws Exception {
+        server.enqueue(new MockResponse()
+                .clearHeaders()
+                .addHeader("Content-Length: 100"));
+        server.enqueue(new MockResponse().setBody("A"));
+        server.play();
+
+        HttpURLConnection connection1 = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection1.setRequestMethod("HEAD");
+        assertEquals("100", connection1.getHeaderField("Content-Length"));
+        assertContent("", connection1);
+
+        HttpURLConnection connection2 = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("A", readAscii(connection2.getInputStream(), Integer.MAX_VALUE));
+
+        assertEquals(0, server.takeRequest().getSequenceNumber());
+        assertEquals(1, server.takeRequest().getSequenceNumber());
+    }
+
+    /**
      * Obnoxiously test that the chunk sizes transmitted exactly equal the
      * requested data+chunk header size. Although setChunkedStreamingMode()
      * isn't specific about whether the size applies to the data or the
