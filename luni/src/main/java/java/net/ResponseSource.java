@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-package libcore.net.http;
+package java.net;
 
-enum ResponseSource {
+/**
+ * Where the HTTP client should look for a response.
+ *
+ * @hide
+ */
+public enum ResponseSource {
 
     /**
      * Return the response from the cache immediately.

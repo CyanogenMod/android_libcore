@@ -17,6 +17,7 @@
 package libcore.net.http;
 
 import java.net.HttpURLConnection;
+import java.net.ResponseSource;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Date;

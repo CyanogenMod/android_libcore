@@ -25,9 +25,11 @@ import java.io.OutputStream;
 import java.net.CacheRequest;
 import java.net.CacheResponse;
 import java.net.CookieHandler;
+import java.net.ExtendedResponseCache;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.ResponseCache;
+import java.net.ResponseSource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -214,8 +216,8 @@ public class HttpEngine {
 
         prepareRawRequestHeaders();
         initResponseSource();
-        if (responseCache instanceof HttpResponseCache) {
-            ((HttpResponseCache) responseCache).trackResponse(responseSource);
+        if (responseCache instanceof ExtendedResponseCache) {
+            ((ExtendedResponseCache) responseCache).trackResponse(responseSource);
         }
 
         /*
@@ -811,8 +813,8 @@ public class HttpEngine {
                 release(true);
                 ResponseHeaders combinedHeaders = cachedResponseHeaders.combine(responseHeaders);
                 setResponse(combinedHeaders, cachedResponseBody);
-                if (responseCache instanceof HttpResponseCache) {
-                    HttpResponseCache httpResponseCache = (HttpResponseCache) responseCache;
+                if (responseCache instanceof ExtendedResponseCache) {
+                    ExtendedResponseCache httpResponseCache = (ExtendedResponseCache) responseCache;
                     httpResponseCache.trackConditionalCacheHit();
                     httpResponseCache.update(cacheResponse, getHttpConnectionToCache());
                 }
