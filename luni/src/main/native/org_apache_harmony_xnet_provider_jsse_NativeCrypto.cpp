@@ -1576,7 +1576,7 @@ static jint NativeCrypto_EVP_CipherInit_ex(JNIEnv* env, jclass, jint cipherRef, 
     if (ivArray != NULL) {
         ScopedByteArrayRO ivBytes(env, ivArray);
         if (ivBytes.get() == NULL) {
-            return NULL;
+            return 0;
         }
 
         ivPtr.reset(new unsigned char[ivBytes.size()]);
@@ -1594,7 +1594,7 @@ static jint NativeCrypto_EVP_CipherInit_ex(JNIEnv* env, jclass, jint cipherRef, 
     if (!EVP_CipherInit_ex(ctx.get(), evp_cipher, NULL, key, ivPtr.get(), encrypting ? 1 : 0)) {
         throwExceptionIfNecessary(env, "EVP_CipherInit_ex");
         JNI_TRACE("EVP_CipherInit_ex => error initializing cipher");
-        return NULL;
+        return 0;
     }
 
     JNI_TRACE("EVP_CipherInit_ex(%p, %p, %p, %d) => %p", evp_cipher, keyArray, ivArray,
