@@ -137,9 +137,12 @@ static void throwErrnoException(JNIEnv* env, const char* functionName) {
 }
 
 static void throwGaiException(JNIEnv* env, const char* functionName, int error) {
-    if (error == EAI_SYSTEM) {
-        // EAI_SYSTEM means "look at errno instead", so we want our GaiException to have the
-        // relevant ErrnoException as its cause.
+    if (errno != 0) {
+        // EAI_SYSTEM should mean "look at errno instead", but both glibc and bionic seem to
+        // mess this up. In particular, if you don't have INTERNET permission, errno will be EACCES
+        // but you'll get EAI_NONAME or EAI_NODATA. So we want our GaiException to have a
+        // potentially-relevant ErrnoException as its cause even if error != EAI_SYSTEM.
+        // http://code.google.com/p/android/issues/detail?id=15722
         throwErrnoException(env, functionName);
         // Deliberately fall through to throw another exception...
     }
@@ -553,6 +556,7 @@ static jobjectArray Posix_getaddrinfo(JNIEnv* env, jobject, jstring javaNode, jo
     hints.ai_protocol = env->GetIntField(javaHints, protocolFid);
 
     addrinfo* addressList = NULL;
+    errno = 0;
     int rc = getaddrinfo(node.c_str(), NULL, &hints, &addressList);
     UniquePtr<addrinfo, addrinfo_deleter> addressListDeleter(addressList);
     if (rc != 0) {
@@ -631,6 +635,7 @@ static jstring Posix_getnameinfo(JNIEnv* env, jobject, jobject javaAddress, jint
     // then remove this hack.
     socklen_t size = (ss.ss_family == AF_INET) ? sizeof(sockaddr_in) : sizeof(sockaddr_in6);
     char buf[NI_MAXHOST]; // NI_MAXHOST is longer than INET6_ADDRSTRLEN.
+    errno = 0;
     int rc = getnameinfo(reinterpret_cast<sockaddr*>(&ss), size, buf, sizeof(buf), NULL, 0, flags);
     if (rc != 0) {
         throwGaiException(env, "getnameinfo", rc);

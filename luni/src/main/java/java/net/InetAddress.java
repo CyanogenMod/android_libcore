@@ -410,11 +410,15 @@ public class InetAddress implements Serializable {
             addressCache.put(host, addresses);
             return addresses;
         } catch (GaiException gaiException) {
-            // TODO: bionic currently returns EAI_NODATA, which is indistinguishable from a real
-            // failure. We need to fix bionic before we can report a more useful error.
-            // if (gaiException.error == EAI_SYSTEM) {
-            //    throw new SecurityException("Permission denied (missing INTERNET permission?)");
-            // }
+            // If the failure appears to have been a lack of INTERNET permission, throw a clear
+            // SecurityException to aid in debugging this common mistake.
+            // http://code.google.com/p/android/issues/detail?id=15722
+            if (gaiException.getCause() instanceof ErrnoException) {
+                if (((ErrnoException) gaiException.getCause()).errno == EACCES) {
+                    throw new SecurityException("Permission denied (missing INTERNET permission?)", gaiException);
+                }
+            }
+            // Otherwise, throw an UnknownHostException.
             String detailMessage = "Unable to resolve host \"" + host + "\": " + Libcore.os.gai_strerror(gaiException.error);
             addressCache.putUnknownHost(host, detailMessage);
             throw gaiException.rethrowAsUnknownHostException(detailMessage);
