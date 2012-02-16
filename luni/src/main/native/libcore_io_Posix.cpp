@@ -913,7 +913,16 @@ static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint time
         ++count;
     }
 
-    int rc = TEMP_FAILURE_RETRY(poll(fds.get(), count, timeoutMs));
+    // Since we don't know which fds -- if any -- are sockets, be conservative and register
+    // all fds for asynchronous socket close monitoring.
+    std::vector<AsynchronousSocketCloseMonitor*> monitors;
+    for (size_t i = 0; i < count; ++i) {
+        monitors.push_back(new AsynchronousSocketCloseMonitor(fds[i].fd));
+    }
+    int rc = poll(fds.get(), count, timeoutMs);
+    for (size_t i = 0; i < monitors.size(); ++i) {
+        delete monitors[i];
+    }
     if (rc == -1) {
         throwErrnoException(env, "poll");
         return -1;

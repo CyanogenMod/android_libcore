@@ -62,6 +62,21 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
         }
     }
 
+    public void test_connect_timeout() throws Exception {
+        StuckServer ss = new StuckServer();
+        Socket s = new Socket();
+        new Killer(s).start();
+        try {
+            System.err.println("connect (with timeout)...");
+            s.connect(ss.getLocalSocketAddress(), 3600 * 1000);
+            fail("connect returned!");
+        } catch (SocketException expected) {
+            assertEquals("Socket closed", expected.getMessage());
+        } finally {
+            ss.close();
+        }
+    }
+
     public void test_connect_nonBlocking() throws Exception {
         StuckServer ss = new StuckServer();
         SocketChannel s = SocketChannel.open();
