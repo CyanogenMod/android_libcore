@@ -618,6 +618,8 @@ public final class System {
      * executing untrusted code and are unsupported on Android. Untrusted code
      * cannot be safely isolated within a single VM on Android.
      *
+     * This method <b>always</b> throws a SecurityException.
+     *
      * @param sm a security manager
      * @throws SecurityException always
      */
