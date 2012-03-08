@@ -28,6 +28,7 @@
 #include <jni.h>
 
 #include <openssl/dsa.h>
+#include <openssl/engine.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
@@ -430,7 +431,7 @@ static bool arrayToBignum(JNIEnv* env, jbyteArray source, BIGNUM** dest) {
                            NULL);
     if (*dest == NULL) {
         jniThrowRuntimeException(env, "Conversion to BIGNUM failed");
-        JNI_TRACE("arrayToBignum(%p) => threw exception", source, *dest);
+        JNI_TRACE("arrayToBignum(%p) => threw exception", source);
         return false;
     }
 
@@ -549,6 +550,94 @@ static void NativeCrypto_clinit(JNIEnv*, jclass)
     SSL_library_init();
     OpenSSL_add_all_algorithms();
     THREAD_setup();
+}
+
+static void NativeCrypto_ENGINE_load_dynamic(JNIEnv*, jclass) {
+    JNI_TRACE("ENGINE_load_dynamic()");
+
+    ENGINE_load_dynamic();
+}
+
+static jint NativeCrypto_ENGINE_by_id(JNIEnv* env, jclass, jstring idJava) {
+    JNI_TRACE("ENGINE_by_id(%p)", idJava);
+
+    ScopedUtfChars id(env, idJava);
+    if (id.c_str() == NULL) {
+        jniThrowException(env, "java/lang/IllegalArgumentException", "id == NULL");
+        return 0;
+    }
+
+    ENGINE* e = ENGINE_by_id(id.c_str());
+    if (e == NULL) {
+        throwExceptionIfNecessary(env, "ENGINE_by_id");
+        return 0;
+    }
+
+    JNI_TRACE("ENGINE_by_id(%p) => %p", idJava, e);
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(e));
+}
+
+static jint NativeCrypto_ENGINE_init(JNIEnv* env, jclass, jint engineRef) {
+    ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
+    JNI_TRACE("ENGINE_init(%p)", e);
+
+    if (e == NULL) {
+        jniThrowException(env, "java/lang/IllegalArgumentException", "engineRef == 0");
+        return 0;
+    }
+
+    int ret = ENGINE_init(e);
+    JNI_TRACE("ENGINE_init(%p) => %d", e, ret);
+    return ret;
+}
+
+static jint NativeCrypto_ENGINE_finish(JNIEnv* env, jclass, jint engineRef) {
+    ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
+    JNI_TRACE("ENGINE_finish(%p)", e);
+
+    if (e == NULL) {
+        jniThrowException(env, "java/lang/IllegalArgumentException", "engineRef == 0");
+        return 0;
+    }
+
+    int ret = ENGINE_finish(e);
+    JNI_TRACE("ENGINE_finish(%p) => %d", e, ret);
+    return ret;
+}
+
+static jint NativeCrypto_ENGINE_free(JNIEnv* env, jclass, jint engineRef) {
+    ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
+    JNI_TRACE("ENGINE_free(%p)", e);
+
+    if (e == NULL) {
+        jniThrowException(env, "java/lang/IllegalArgumentException", "engineRef == 0");
+        return 0;
+    }
+
+    int ret = ENGINE_free(e);
+    JNI_TRACE("ENGINE_free(%p) => %d", e, ret);
+    return ret;
+}
+
+static jint NativeCrypto_ENGINE_load_private_key(JNIEnv* env, jclass, jint engineRef,
+        jstring idJava) {
+    ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
+    JNI_TRACE("ENGINE_load_private_key(%p, %p)", e, idJava);
+
+    ScopedUtfChars id(env, idJava);
+    if (id.c_str() == NULL) {
+        jniThrowException(env, "java/lang/IllegalArgumentException", "id == NULL");
+        return 0;
+    }
+
+    Unique_EVP_PKEY pkey(ENGINE_load_private_key(e, id.c_str(), NULL, NULL));
+    if (pkey.get() == NULL) {
+        throwExceptionIfNecessary(env, "ENGINE_load_private_key");
+        return 0;
+    }
+
+    JNI_TRACE("ENGINE_load_private_key(%p, %p) => %p", e, idJava, pkey.get());
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
 }
 
 /**
@@ -708,7 +797,25 @@ static jint NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
 /**
  * private static native int EVP_PKEY_size(int pkey);
  */
-static int NativeCrypto_EVP_PKEY_size(JNIEnv* env, jclass, EVP_PKEY* pkey) {
+static int NativeCrypto_EVP_PKEY_type(JNIEnv* env, jclass, jint pkeyRef) {
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
+    JNI_TRACE("EVP_PKEY_type(%p)", pkey);
+
+    if (pkey == NULL) {
+        jniThrowNullPointerException(env, NULL);
+        return -1;
+    }
+
+    int result = EVP_PKEY_type(pkey->type);
+    JNI_TRACE("EVP_PKEY_type(%p) => %d", pkey, result);
+    return result;
+}
+
+/**
+ * private static native int EVP_PKEY_size(int pkey);
+ */
+static int NativeCrypto_EVP_PKEY_size(JNIEnv* env, jclass, jint pkeyRef) {
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("EVP_PKEY_size(%p)", pkey);
 
     if (pkey == NULL) {
@@ -735,7 +842,8 @@ static void NativeCrypto_EVP_PKEY_free(JNIEnv*, jclass, EVP_PKEY* pkey) {
 /*
  * static native byte[] i2d_PKCS8_PRIV_KEY_INFO(int, byte[])
  */
-static jbyteArray NativeCrypto_i2d_PKCS8_PRIV_KEY_INFO(JNIEnv* env, jclass, EVP_PKEY* pkey) {
+static jbyteArray NativeCrypto_i2d_PKCS8_PRIV_KEY_INFO(JNIEnv* env, jclass, jint pkeyRef) {
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("i2d_PKCS8_PRIV_KEY_INFO(%p)", pkey);
 
     if (pkey == NULL) {
@@ -847,7 +955,7 @@ static jint NativeCrypto_d2i_PUBKEY(JNIEnv* env, jclass, jbyteArray javaBytes) {
 
     ScopedByteArrayRO bytes(env, javaBytes);
     if (bytes.get() == NULL) {
-        JNI_TRACE("d2i_PUBKEY(%p) => threw error", pkey);
+        JNI_TRACE("d2i_PUBKEY(%p) => threw error", javaBytes);
         return 0;
     }
 
@@ -1553,7 +1661,7 @@ static jint NativeCrypto_EVP_get_cipherbyname(JNIEnv* env, jclass, jstring algor
         return 0;
     }
 
-    JNI_TRACE("EVP_get_cipherbyname(%s) => %p", algorithmChars.c_str(), evp_md);
+    JNI_TRACE("EVP_get_cipherbyname(%s) => %p", algorithmChars.c_str(), evp_cipher);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(evp_cipher));
 }
 
@@ -1586,7 +1694,7 @@ static jint NativeCrypto_EVP_CipherInit_ex(JNIEnv* env, jclass, jint cipherRef, 
     Unique_EVP_CIPHER_CTX ctx(EVP_CIPHER_CTX_new());
     if (ctx.get() == NULL) {
         jniThrowOutOfMemoryError(env, "Unable to allocate cipher context");
-        JNI_TRACE("ctx=%p EVP_CipherInit_ex => context allocation error", ssl);
+        JNI_TRACE("ctx=%p EVP_CipherInit_ex => context allocation error", evp_cipher);
         return 0;
     }
 
@@ -2239,7 +2347,7 @@ static int client_cert_cb(SSL* ssl, X509** x509Out, EVP_PKEY** pkeyOut) {
         return 0;
     }
     if (env->ExceptionCheck()) {
-        JNI_TRACE("ssl=%p client_cert_cb already pending exception", ssl);
+        JNI_TRACE("ssl=%p client_cert_cb already pending exception => 0", ssl);
         return 0;
     }
     jobject sslHandshakeCallbacks = appData->sslHandshakeCallbacks;
@@ -2509,6 +2617,30 @@ static jint NativeCrypto_SSL_new(JNIEnv* env, jclass, jint ssl_ctx_address)
 
     JNI_TRACE("ssl_ctx=%p NativeCrypto_SSL_new => ssl=%p", ssl_ctx, ssl.get());
     return (jint) ssl.release();
+}
+
+static void NativeCrypto_SSL_use_OpenSSL_PrivateKey(JNIEnv* env, jclass, jint ssl_address, jint pkeyRef) {
+    SSL* ssl = to_SSL(env, ssl_address, true);
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
+    JNI_TRACE("ssl=%p SSL_use_OpenSSL_PrivateKey privatekey=%p", ssl, pkey);
+    if (ssl == NULL) {
+        return;
+    }
+
+    if (pkey == NULL) {
+        return;
+    }
+
+    int ret = SSL_use_PrivateKey(ssl, pkey);
+    if (ret != 1) {
+        ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting private key");
+        SSL_clear(ssl);
+        JNI_TRACE("ssl=%p SSL_use_OpenSSL_PrivateKey => error", ssl);
+        return;
+    }
+
+    JNI_TRACE("ssl=%p SSL_use_OpenSSL_PrivateKey => ok", ssl);
 }
 
 static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
@@ -3946,8 +4078,15 @@ static jint NativeCrypto_d2i_SSL_SESSION(JNIEnv* env, jclass, jbyteArray javaByt
 #define SSL_CALLBACKS "Lorg/apache/harmony/xnet/provider/jsse/NativeCrypto$SSLHandshakeCallbacks;"
 static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, clinit, "()V"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_load_dynamic, "()V"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_by_id, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_init, "(I)I"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_finish, "(I)I"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_free, "(I)I"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_load_private_key, "(ILjava/lang/String;)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_DSA, "([B[B[B[B[B)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_RSA, "([B[B[B[B[B[B[B[B)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_type, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_size, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_free, "(I)V"),
     NATIVE_METHOD(NativeCrypto, i2d_PKCS8_PRIV_KEY_INFO, "(I)[B"),
@@ -3983,6 +4122,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, SSL_CTX_new, "()I"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_free, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_new, "(I)I"),
+    NATIVE_METHOD(NativeCrypto, SSL_use_OpenSSL_PrivateKey, "(II)V"),
     NATIVE_METHOD(NativeCrypto, SSL_use_PrivateKey, "(I[B)V"),
     NATIVE_METHOD(NativeCrypto, SSL_use_certificate, "(I[[B)V"),
     NATIVE_METHOD(NativeCrypto, SSL_check_private_key, "(I)V"),
