@@ -19,7 +19,10 @@ package libcore.net.http;
 import java.util.ArrayList;
 import java.util.List;
 
-final class HeaderParser {
+/**
+ * @hide
+ */
+public final class HeaderParser {
 
     public interface CacheControlHandler {
         void handle(String directive, String parameter);

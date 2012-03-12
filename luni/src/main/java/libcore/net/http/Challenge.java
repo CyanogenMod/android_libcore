@@ -18,12 +18,14 @@ package libcore.net.http;
 
 /**
  * An RFC 2617 challenge.
+ *
+ * @hide
  */
-final class Challenge {
+public final class Challenge {
     final String scheme;
     final String realm;
 
-    Challenge(String scheme, String realm) {
+    public Challenge(String scheme, String realm) {
         this.scheme = scheme;
         this.realm = realm;
     }
@@ -36,5 +38,9 @@ final class Challenge {
 
     @Override public int hashCode() {
         return scheme.hashCode() + 31 * realm.hashCode();
+    }
+
+    @Override public String toString() {
+        return "Challenge[" + scheme + " " + realm + "]";
     }
 }
