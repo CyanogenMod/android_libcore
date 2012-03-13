@@ -1723,4 +1723,15 @@ public class NativeCryptoTest extends TestCase {
         assertEquals(-1372642656, NativeCrypto.X509_NAME_hash(name)); // SHA1
         assertEquals(-1626170662, NativeCrypto.X509_NAME_hash_old(name)); // MD5
     }
+
+    public void test_ENGINE_by_id_Failure() throws Exception {
+        NativeCrypto.ENGINE_load_dynamic();
+
+        try {
+            int engine = NativeCrypto.ENGINE_by_id("non-existent");
+            fail("Shouldn't load non-existent engine");
+        } catch (RuntimeException e) {
+            // Success
+        }
+    }
 }
