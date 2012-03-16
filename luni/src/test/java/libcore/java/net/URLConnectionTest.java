@@ -449,7 +449,7 @@ public final class URLConnectionTest extends TestCase {
 
         RecordedRequest request = server.takeRequest();
         assertEquals("GET /foo HTTP/1.1", request.getRequestLine());
-        assertEquals("TLSv1", request.getSslProtocol());
+        assertEquals("TLSv1.2", request.getSslProtocol());
     }
 
     public void testConnectViaHttpsReusingConnections() throws IOException, InterruptedException {

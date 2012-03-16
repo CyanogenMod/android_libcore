@@ -387,7 +387,8 @@ public final class TestKeyStore extends Assert {
                 // 1.) we make the keys
                 int keySize;
                 if (keyAlgorithm.equals("RSA")) {
-                    keySize = StandardNames.IS_RI ? 1024 : 512; // 512 breaks SSL_RSA_EXPORT_* on RI
+                    // 512 breaks SSL_RSA_EXPORT_* on RI and TLS_ECDHE_RSA_WITH_RC4_128_SHA for us
+                    keySize =  1024;
                 } else if (keyAlgorithm.equals("DSA")) {
                     keySize = 512;
                 } else if (keyAlgorithm.equals("EC")) {

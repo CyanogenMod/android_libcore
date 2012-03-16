@@ -166,7 +166,8 @@ public class SSLEngineTest extends TestCase {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
         String[] protocols = e.getSupportedProtocols();
-        StandardNames.assertSupportedProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
+        StandardNames.assertSupportedProtocols(StandardNames.SSL_SOCKET_PROTOCOLS_SSLENGINE,
+                                               protocols);
         assertNotSame(protocols, e.getSupportedProtocols());
         c.close();
     }

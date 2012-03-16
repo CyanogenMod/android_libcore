@@ -691,7 +691,7 @@ public class HttpsURLConnectionTest extends TestCase {
             trustManagers = TestTrustManager.wrap(trustManagers);
         }
 
-        SSLContext ctx = SSLContext.getInstance("TLSv1");
+        SSLContext ctx = SSLContext.getInstance("TLSv1.2");
         ctx.init(keyManagers, trustManagers, null);
         return ctx;
     }

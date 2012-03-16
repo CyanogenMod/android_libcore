@@ -2368,6 +2368,8 @@ static int client_cert_cb(SSL* ssl, X509** x509Out, EVP_PKEY** pkeyOut) {
             break;
         case SSL3_VERSION:
         case TLS1_VERSION:
+        case TLS1_1_VERSION:
+        case TLS1_2_VERSION:
         case DTLS1_VERSION:
             ctype = ssl->s3->tmp.ctype;
             ctype_num = ssl->s3->tmp.ctype_num;
