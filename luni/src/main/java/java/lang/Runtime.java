@@ -284,7 +284,7 @@ public class Runtime {
                 }
 
                 // Get out of here finally...
-                nativeExit(code, true);
+                nativeExit(code);
             }
         }
     }
@@ -393,7 +393,7 @@ public class Runtime {
         throw new UnsatisfiedLinkError("Library " + libraryName + " not found; tried " + candidates);
     }
 
-    private static native void nativeExit(int code, boolean isExit);
+    private static native void nativeExit(int code);
 
     private static native String nativeLoad(String filename, ClassLoader loader);
 
@@ -595,7 +595,7 @@ public class Runtime {
      */
     public void halt(int code) {
         // Get out of here...
-        nativeExit(code, false);
+        nativeExit(code);
     }
 
     /**
