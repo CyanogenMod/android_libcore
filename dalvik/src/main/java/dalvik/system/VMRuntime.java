@@ -91,7 +91,7 @@ public final class VMRuntime {
      * @throws IllegalArgumentException if newTarget is &lt;= 0.0 or &gt;= 1.0
      */
     public float setTargetHeapUtilization(float newTarget) {
-        if (newTarget <= 0.0 || newTarget >= 1.0) {
+        if (newTarget <= 0.0f || newTarget >= 1.0f) {
             throw new IllegalArgumentException(newTarget +
                     " out of range (0,1)");
         }
