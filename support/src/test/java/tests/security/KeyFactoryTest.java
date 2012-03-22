@@ -46,50 +46,17 @@ public abstract class KeyFactoryTest<PublicKeySpec extends KeySpec, PrivateKeySp
         factory = getFactory();
     }
 
-    private KeyFactory getFactory() {
-        try {
-            return KeyFactory.getInstance(algorithmName);
-        } catch (NoSuchAlgorithmException e) {
-            fail(e.getMessage());
-        }
-        return null;
+    private KeyFactory getFactory() throws Exception {
+        return KeyFactory.getInstance(algorithmName);
     }
 
-    public void testKeyFactory() {
-        PrivateKeySpec privateKeySpec = null;
-        try {
-            privateKeySpec = factory.getKeySpec(DefaultKeys.getPrivateKey(algorithmName),
-                    privateKeySpecClass);
-        } catch (InvalidKeySpecException e) {
-            fail(e.getMessage());
-        } catch (NoSuchAlgorithmException e) {
-            fail(e.getMessage());
-        }
-
-        PrivateKey privateKey = null;
-        try {
-            privateKey = factory.generatePrivate(privateKeySpec);
-        } catch (InvalidKeySpecException e) {
-            fail(e.getMessage());
-        }
-
-        PublicKeySpec publicKeySpec = null;
-        try {
-            publicKeySpec = factory.getKeySpec(DefaultKeys.getPublicKey(algorithmName),
-                    publicKeySpecClass);
-        } catch (InvalidKeySpecException e) {
-            fail(e.getMessage());
-        } catch (NoSuchAlgorithmException e) {
-            fail(e.getMessage());
-        }
-
-        PublicKey publicKey = null;
-        try {
-            publicKey = factory.generatePublic(publicKeySpec);
-        } catch (InvalidKeySpecException e) {
-            fail(e.getMessage());
-        }
-
+    public void testKeyFactory() throws Exception {
+        PrivateKeySpec privateKeySpec = factory.getKeySpec(DefaultKeys.getPrivateKey(algorithmName),
+                                                           privateKeySpecClass);
+        PrivateKey privateKey =  factory.generatePrivate(privateKeySpec);
+        PublicKeySpec publicKeySpec = factory.getKeySpec(DefaultKeys.getPublicKey(algorithmName),
+                                                         publicKeySpecClass);
+        PublicKey publicKey = factory.generatePublic(publicKeySpec);
         check(new KeyPair(publicKey, privateKey));
     }
 
