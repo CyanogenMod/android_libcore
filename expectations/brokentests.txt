@@ -3,6 +3,26 @@
  */
 [
 {
+  description: "libcore.java.io.OldFileTest#test_deleteOnExit fails on IRM05 mysid-user",
+  name: "libcore.java.io.OldFileTest#test_deleteOnExit",
+  bug: 5834665
+},
+{
+  description: "libcore.java.net.URLConnectionTest#testServerShutdownInput fails on ICL27 mysid-userdebug",
+  name: "libcore.java.net.URLConnectionTest#testServerShutdownInput",
+  bug: 5534202
+},
+{
+  description: "libcore.java.security.KeyPairGeneratorTest long test is too long",
+  name: "libcore.java.security.KeyPairGeneratorTest#test_getInstance",
+  bug: 5513723
+},
+{
+  description: "Support digest authentication in HttpURLConnection",
+  name: "libcore.net.http.ParsedHeadersTest#testParseChallengesWithManyParameters",
+  bug: 6156454
+},
+{
   description: "Without no security manager, we don't care if checkPermission's argument is null",
   name: "org.apache.harmony.security.tests.java.security.AccessController2Test#test_checkPermission_NullParameter",
   result: EXEC_FAILED
