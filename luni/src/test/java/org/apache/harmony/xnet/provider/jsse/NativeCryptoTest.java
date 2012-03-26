@@ -1084,7 +1084,7 @@ public class NativeCryptoTest extends TestCase {
             }
             @Override public void afterHandshake(int session, int ssl, int context, Socket socket,
                     FileDescriptor fd, SSLHandshakeCallbacks callback) throws Exception {
-                byte[] negotiated = NativeCrypto.SSL_CTX_get_npn_negotiated_protocol(ssl);
+                byte[] negotiated = NativeCrypto.SSL_get_npn_negotiated_protocol(ssl);
                 assertEquals("spdy/2", new String(negotiated));
                 super.afterHandshake(session, ssl, context, socket, fd, callback);
             }
@@ -1096,7 +1096,7 @@ public class NativeCryptoTest extends TestCase {
             }
             @Override public void afterHandshake(int session, int ssl, int c, Socket sock,
                     FileDescriptor fd, SSLHandshakeCallbacks callback) throws Exception {
-                byte[] negotiated = NativeCrypto.SSL_CTX_get_npn_negotiated_protocol(ssl);
+                byte[] negotiated = NativeCrypto.SSL_get_npn_negotiated_protocol(ssl);
                 assertEquals("spdy/2", new String(negotiated));
                 super.afterHandshake(session, ssl, c, sock, fd, callback);
             }

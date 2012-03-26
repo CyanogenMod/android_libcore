@@ -3202,11 +3202,11 @@ static void NativeCrypto_SSL_CTX_disable_npn(JNIEnv* env, jclass, jint ssl_ctx_a
     SSL_CTX_set_next_protos_advertised_cb(ssl_ctx, NULL, NULL); // server
 }
 
-static jbyteArray NativeCrypto_SSL_CTX_get_npn_negotiated_protocol(JNIEnv* env, jclass,
+static jbyteArray NativeCrypto_SSL_get_npn_negotiated_protocol(JNIEnv* env, jclass,
         jint ssl_address)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_CTX_get_npn_negotiated_protocol", ssl);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_get_npn_negotiated_protocol", ssl);
     if (ssl == NULL) {
         return NULL;
     }
@@ -4272,7 +4272,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, d2i_SSL_SESSION, "([B)I"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_enable_npn, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_disable_npn, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_CTX_get_npn_negotiated_protocol, "(I)[B"),
+    NATIVE_METHOD(NativeCrypto, SSL_get_npn_negotiated_protocol, "(I)[B"),
 };
 
 int register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env) {
