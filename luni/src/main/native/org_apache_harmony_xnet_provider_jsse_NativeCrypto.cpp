@@ -1075,11 +1075,13 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
         env->SetObjectArrayElement(joa, 1, e);
     }
 
-    jbyteArray d = bignumToArray(env, rsa->d);
-    if (env->ExceptionCheck()) {
-        return NULL;
+    if (rsa->d != NULL) {
+        jbyteArray d = bignumToArray(env, rsa->d);
+        if (env->ExceptionCheck()) {
+            return NULL;
+        }
+        env->SetObjectArrayElement(joa, 2, d);
     }
-    env->SetObjectArrayElement(joa, 2, d);
 
     if (rsa->p != NULL) {
         jbyteArray p = bignumToArray(env, rsa->p);
