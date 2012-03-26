@@ -2025,6 +2025,11 @@ static jobjectArray getPrincipalBytes(JNIEnv* env, const STACK_OF(X509_NAME)* na
  *
  * (7) a java.io.FileDescriptor wrapper to check for socket close
  *
+ * We store the NPN protocols list so we can either send it (from the server) or
+ * select a protocol (on the client). We eagerly acquire a pointer to the array
+ * data so the callback doesn't need to acquire resources that it cannot
+ * release.
+ *
  * Because renegotiation can be requested by the peer at any time,
  * care should be taken to maintain an appropriate JNIEnv on any
  * downcall to openssl since it could result in an upcall to Java. The
@@ -2050,6 +2055,9 @@ class AppData {
     JNIEnv* env;
     jobject sslHandshakeCallbacks;
     jobject fileDescriptor;
+    jbyteArray npnProtocolsArray;
+    jbyte* npnProtocolsData;
+    size_t npnProtocolsLength;
     Unique_RSA ephemeralRsa;
     Unique_EC_KEY ephemeralEc;
 
@@ -2088,6 +2096,9 @@ class AppData {
             waitingThreads(0),
             env(NULL),
             sslHandshakeCallbacks(NULL),
+            npnProtocolsArray(NULL),
+            npnProtocolsData(NULL),
+            npnProtocolsLength(-1),
             ephemeralRsa(NULL),
             ephemeralEc(NULL) {
         fdsEmergency[0] = -1;
@@ -2103,8 +2114,11 @@ class AppData {
      * @param env The JNIEnv
      * @param shc The SSLHandshakeCallbacks
      * @param fd The FileDescriptor
+     * @param npnProtocols NPN protocols so that they may be advertised (by the
+     *                     server) or selected (by the client). Has no effect
+     *                     unless NPN is enabled.
      */
-    bool setCallbackState(JNIEnv* e, jobject shc, jobject fd) {
+    bool setCallbackState(JNIEnv* e, jobject shc, jobject fd, jbyteArray npnProtocols) {
         NetFd netFd(e, fd);
         if (netFd.isClosed()) {
             return false;
@@ -2112,13 +2126,27 @@ class AppData {
         env = e;
         sslHandshakeCallbacks = shc;
         fileDescriptor = fd;
+        if (npnProtocols != NULL) {
+            npnProtocolsArray = npnProtocols;
+            npnProtocolsLength = e->GetArrayLength(npnProtocols);
+            npnProtocolsData = e->GetByteArrayElements(npnProtocols, NULL);
+            if (npnProtocolsData == NULL) {
+                return false;
+            }
+        }
         return true;
     }
 
     void clearCallbackState() {
-        env = NULL;
         sslHandshakeCallbacks = NULL;
         fileDescriptor = NULL;
+        if (npnProtocolsArray != NULL) {
+            env->ReleaseByteArrayElements(npnProtocolsArray, npnProtocolsData, JNI_ABORT);
+            npnProtocolsArray = NULL;
+            npnProtocolsData = NULL;
+            npnProtocolsLength = -1;
+        }
+        env = NULL;
     }
 
 };
@@ -3113,14 +3141,97 @@ static jstring NativeCrypto_SSL_get_servername(JNIEnv* env, jclass, jint ssl_add
 }
 
 /**
- * Perform SSL handshake
+ * Callback for the client to select a protocol.
  */
-static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
-    jint ssl_address, jobject fdObject, jobject shc, jint timeout, jboolean client_mode)
+static int next_proto_select_callback(SSL* ssl, unsigned char **out, unsigned char *outlen,
+        const unsigned char *in, unsigned int inlen, void *)
+{
+    JNI_TRACE("ssl=%p next_proto_select_callback", ssl);
+    AppData* appData = toAppData(ssl);
+    unsigned char* npnProtocols = reinterpret_cast<unsigned char*>(appData->npnProtocolsData);
+    size_t npnProtocolsLength = appData->npnProtocolsLength;
+
+    int status = SSL_select_next_proto(out, outlen, in, inlen, npnProtocols, npnProtocolsLength);
+    switch (status) {
+      case OPENSSL_NPN_NEGOTIATED:
+        JNI_TRACE("ssl=%p next_proto_select_callback NPN negotiated", ssl);
+        break;
+      case OPENSSL_NPN_UNSUPPORTED:
+        JNI_TRACE("ssl=%p next_proto_select_callback NPN unsupported", ssl);
+        break;
+      case OPENSSL_NPN_NO_OVERLAP:
+        JNI_TRACE("ssl=%p next_proto_select_callback NPN no overlap", ssl);
+        break;
+    }
+    return SSL_TLSEXT_ERR_OK;
+}
+
+/**
+ * Callback for the server to advertise available protocols.
+ */
+static int next_protos_advertised_callback(SSL* ssl,
+        const unsigned char **out, unsigned int *outlen, void *)
+{
+    JNI_TRACE("ssl=%p next_protos_advertised_callback", ssl);
+    AppData* appData = toAppData(ssl);
+    unsigned char* npnProtocols = reinterpret_cast<unsigned char*>(appData->npnProtocolsData);
+    if (npnProtocols != NULL) {
+        *out = npnProtocols;
+        *outlen = appData->npnProtocolsLength;
+    }
+    return SSL_TLSEXT_ERR_OK;
+}
+
+static void NativeCrypto_SSL_CTX_enable_npn(JNIEnv* env, jclass, jint ssl_ctx_address)
+{
+    SSL_CTX* ssl_ctx = to_SSL_CTX(env, ssl_ctx_address, true);
+    if (ssl_ctx == NULL) {
+        return;
+    }
+    SSL_CTX_set_next_proto_select_cb(ssl_ctx, next_proto_select_callback, NULL); // client
+    SSL_CTX_set_next_protos_advertised_cb(ssl_ctx, next_protos_advertised_callback, NULL); // server
+}
+
+static void NativeCrypto_SSL_CTX_disable_npn(JNIEnv* env, jclass, jint ssl_ctx_address)
+{
+    SSL_CTX* ssl_ctx = to_SSL_CTX(env, ssl_ctx_address, true);
+    if (ssl_ctx == NULL) {
+        return;
+    }
+    SSL_CTX_set_next_proto_select_cb(ssl_ctx, NULL, NULL); // client
+    SSL_CTX_set_next_protos_advertised_cb(ssl_ctx, NULL, NULL); // server
+}
+
+static jbyteArray NativeCrypto_SSL_get_npn_negotiated_protocol(JNIEnv* env, jclass,
+        jint ssl_address)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake fd=%p shc=%p timeout=%d client_mode=%d",
-              ssl, fdObject, shc, timeout, client_mode);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_get_npn_negotiated_protocol", ssl);
+    if (ssl == NULL) {
+        return NULL;
+    }
+    const jbyte* npn;
+    unsigned npnLength;
+    SSL_get0_next_proto_negotiated(ssl, reinterpret_cast<const unsigned char**>(&npn), &npnLength);
+    if (npnLength == 0) {
+        return NULL;
+    }
+    jbyteArray result = env->NewByteArray(npnLength);
+    if (result != NULL) {
+        env->SetByteArrayRegion(result, 0, npnLength, npn);
+    }
+    return result;
+}
+
+/**
+ * Perform SSL handshake
+ */
+static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass, jint ssl_address,
+        jobject fdObject, jobject shc, jint timeout, jboolean client_mode, jbyteArray npnProtocols)
+{
+    SSL* ssl = to_SSL(env, ssl_address, true);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake fd=%p shc=%p timeout=%d client_mode=%d npn=%p",
+              ssl, fdObject, shc, timeout, client_mode, npnProtocols);
     if (ssl == NULL) {
       return 0;
     }
@@ -3175,6 +3286,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
         JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake appData => 0", ssl);
         return 0;
     }
+
     SSL_set_app_data(ssl, reinterpret_cast<char*>(appData));
     JNI_TRACE("ssl=%p AppData::create => %p", ssl, appData);
 
@@ -3188,7 +3300,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass,
     while (appData->aliveAndKicking) {
         errno = 0;
 
-        if (!appData->setCallbackState(env, shc, fdObject)) {
+        if (!appData->setCallbackState(env, shc, fdObject, npnProtocols)) {
             // SocketException thrown by NetFd.isClosed
             SSL_clear(ssl);
             JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake setCallbackState => 0", ssl);
@@ -3428,7 +3540,7 @@ static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* b
 
         unsigned int bytesMoved = BIO_number_read(bio) + BIO_number_written(bio);
 
-        if (!appData->setCallbackState(env, shc, fdObject)) {
+        if (!appData->setCallbackState(env, shc, fdObject, NULL)) {
             MUTEX_UNLOCK(appData->mutex);
             return THROWN_EXCEPTION;
         }
@@ -3629,7 +3741,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
         unsigned int bytesMoved = BIO_number_read(bio) + BIO_number_written(bio);
 
         // ALOGD("Doing SSL_write() with %d bytes to go", len);
-        if (!appData->setCallbackState(env, shc, fdObject)) {
+        if (!appData->setCallbackState(env, shc, fdObject, NULL)) {
             MUTEX_UNLOCK(appData->mutex);
             return THROWN_EXCEPTION;
         }
@@ -3832,7 +3944,7 @@ static void NativeCrypto_SSL_shutdown(JNIEnv* env, jclass, jint ssl_address,
 
     AppData* appData = toAppData(ssl);
     if (appData != NULL) {
-        if (!appData->setCallbackState(env, shc, fdObject)) {
+        if (!appData->setCallbackState(env, shc, fdObject, NULL)) {
             // SocketException thrown by NetFd.isClosed
             SSL_clear(ssl);
             freeOpenSslErrorState();
@@ -4141,7 +4253,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, SSL_set_session_creation_enabled, "(IZ)V"),
     NATIVE_METHOD(NativeCrypto, SSL_set_tlsext_host_name, "(ILjava/lang/String;)V"),
     NATIVE_METHOD(NativeCrypto, SSL_get_servername, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeCrypto, SSL_do_handshake, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "IZ)I"),
+    NATIVE_METHOD(NativeCrypto, SSL_do_handshake, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "IZ[B)I"),
     NATIVE_METHOD(NativeCrypto, SSL_renegotiate, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_get_certificate, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, SSL_get_peer_cert_chain, "(I)[[B"),
@@ -4158,6 +4270,9 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_free, "(I)V"),
     NATIVE_METHOD(NativeCrypto, i2d_SSL_SESSION, "(I)[B"),
     NATIVE_METHOD(NativeCrypto, d2i_SSL_SESSION, "([B)I"),
+    NATIVE_METHOD(NativeCrypto, SSL_CTX_enable_npn, "(I)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_CTX_disable_npn, "(I)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_get_npn_negotiated_protocol, "(I)[B"),
 };
 
 int register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env) {
