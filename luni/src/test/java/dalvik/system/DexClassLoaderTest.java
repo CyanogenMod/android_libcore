@@ -29,8 +29,19 @@ import junit.framework.TestCase;
  * Tests for the class {@link DexClassLoader}.
  */
 public class DexClassLoaderTest extends TestCase {
-    private static final File TMP_DIR =
-        new File(System.getProperty("java.io.tmpdir"), "loading-test");
+    // Use /data not /sdcard because optimized cannot be noexec mounted
+    private static final File WORKING_DIR;
+    static {
+      // First try to use the test runner directory for cts, fall back to
+      // shell-writable directory for vogar
+      File runner_dir = new File("/data/data/android.core.tests.runner");
+      if (runner_dir.exists()) {
+        WORKING_DIR = runner_dir;
+      } else {
+        WORKING_DIR = new File("/data/local/tmp");
+      }
+    }
+    private static final File TMP_DIR = new File(WORKING_DIR, "loading-test");
     private static final String PACKAGE_PATH = "dalvik/system/";
     private static final String JAR_NAME = "loading-test.jar";
     private static final String DEX_NAME = "loading-test.dex";
@@ -62,7 +73,7 @@ public class DexClassLoaderTest extends TestCase {
         }
     }
 
-    protected void setUp() throws IOException {
+    protected void setUp() throws Exception {
         TMP_DIR.mkdirs();
 
         ClassLoader cl = DexClassLoaderTest.class.getClassLoader();
