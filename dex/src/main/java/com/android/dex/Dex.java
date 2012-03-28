@@ -412,10 +412,12 @@ public final class Dex {
     public final class Section implements ByteInput, ByteOutput {
         private final String name;
         private final ByteBuffer data;
+        private final int initialPosition;
 
         private Section(String name, ByteBuffer data) {
             this.name = name;
             this.data = data;
+            this.initialPosition = data.position();
         }
 
         public int getPosition() {
@@ -726,6 +728,13 @@ public final class Dex {
          */
         public int remaining() {
             return data.remaining();
+        }
+
+        /**
+         * Returns the number of bytes used by this section.
+         */
+        public int used () {
+            return data.position() - initialPosition;
         }
     }
 }
