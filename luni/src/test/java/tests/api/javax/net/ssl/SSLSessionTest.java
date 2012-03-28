@@ -179,7 +179,7 @@ public class SSLSessionTest extends TestCase {
      * javax.net.ssl.SSLSession#getProtocol()
      */
     public void test_getProtocol() {
-        assertEquals("TLSv1.2", clientSession.getProtocol());
+        assertEquals("TLSv1", clientSession.getProtocol());
     }
 
     /**
