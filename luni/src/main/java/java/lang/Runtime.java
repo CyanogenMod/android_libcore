@@ -362,8 +362,9 @@ public class Runtime {
         if (loader != null) {
             String filename = loader.findLibrary(libraryName);
             if (filename == null) {
-                throw new UnsatisfiedLinkError("Couldn't load " + libraryName + ": " +
-                        "findLibrary returned null");
+                throw new UnsatisfiedLinkError("Couldn't load " + libraryName
+                                               + " from loader " + loader
+                                               + ": findLibrary returned null");
             }
             String error = nativeLoad(filename, loader);
             if (error != null) {
