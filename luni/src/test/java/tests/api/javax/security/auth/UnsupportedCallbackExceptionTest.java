@@ -28,18 +28,6 @@ import javax.security.auth.callback.Callback;
  */
 public class UnsupportedCallbackExceptionTest extends TestCase {
 
-    public static void main(String[] args) {
-    }
-
-    /**
-     * Constructor for UnsupportedCallbackExceptionTest.
-     *
-     * @param arg0
-     */
-    public UnsupportedCallbackExceptionTest(String arg0) {
-        super(arg0);
-    }
-
     private static String[] msgs = {
             "",
             "Check new message",
