@@ -61,7 +61,13 @@ public final class AnnotationsTest extends TestCase {
 
     public void testParameterAnnotations() throws Exception {
         Method method = Type.class.getMethod("method", String.class, String.class);
-        Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        Annotation[][] noParameterAnnotations = method.getParameterAnnotations();
+        assertEquals(2, noParameterAnnotations.length);
+        assertEquals(set(), annotationsToTypes(noParameterAnnotations[0]));
+        assertEquals(set(), annotationsToTypes(noParameterAnnotations[1]));
+
+        Method parameters = Type.class.getMethod("parameters", String.class, String.class);
+        Annotation[][] parameterAnnotations = parameters.getParameterAnnotations();
         assertEquals(2, parameterAnnotations.length);
         assertEquals(set(AnnotationB.class, AnnotationD.class),
                 annotationsToTypes(parameterAnnotations[0]));
@@ -280,7 +286,8 @@ public final class AnnotationsTest extends TestCase {
     public static class Type {
         @AnnotationA @AnnotationC public Type() {}
         @AnnotationA @AnnotationD public String field;
-        @AnnotationB @AnnotationC public void method(@AnnotationB @AnnotationD String parameter1,
+        @AnnotationB @AnnotationC public void method(String parameter1, String parameter2) {}
+        @AnnotationB @AnnotationC public void parameters(@AnnotationB @AnnotationD String parameter1,
                 @AnnotationC @AnnotationD String parameter2) {}
     }
 
