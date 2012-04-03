@@ -27,18 +27,6 @@ import javax.security.auth.DestroyFailedException;
  */
 public class DestroyFailedExceptionTest extends TestCase {
 
-    public static void main(String[] args) {
-    }
-
-    /**
-     * Constructor for DestroyFailedExceptionTest.
-     *
-     * @param arg0
-     */
-    public DestroyFailedExceptionTest(String arg0) {
-        super(arg0);
-    }
-
     private static String[] msgs = {
             "",
             "Check new message",
