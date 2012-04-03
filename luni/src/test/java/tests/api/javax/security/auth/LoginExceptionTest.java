@@ -27,18 +27,6 @@ import javax.security.auth.login.LoginException;
  */
 public class LoginExceptionTest extends TestCase {
 
-    public static void main(String[] args) {
-    }
-
-    /**
-     * Constructor for LoginExceptionTest.
-     *
-     * @param arg0
-     */
-    public LoginExceptionTest(String arg0) {
-        super(arg0);
-    }
-
     private static String[] msgs = {
             "",
             "Check new message",
