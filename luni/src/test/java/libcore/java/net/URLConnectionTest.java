@@ -2034,6 +2034,16 @@ public final class URLConnectionTest extends TestCase {
         assertEquals(-1, in.read());
     }
 
+    // http://code.google.com/p/android/issues/detail?id=28095
+    public void testInvalidIpv4Address() throws Exception {
+        try {
+            URI uri = new URI("http://1111.111.111.111/index.html");
+            uri.toURL().openConnection().connect();
+            fail();
+        } catch (UnknownHostException expected) {
+        }
+    }
+
     // http://code.google.com/p/android/issues/detail?id=16895
     public void testUrlWithSpaceInHost() throws Exception {
         URLConnection urlConnection = new URL("http://and roid.com/").openConnection();
