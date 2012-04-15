@@ -2619,6 +2619,37 @@ static void NativeCrypto_SSL_CTX_free(JNIEnv* env,
     SSL_CTX_free(ssl_ctx);
 }
 
+static void NativeCrypto_SSL_CTX_set_session_id_context(JNIEnv* env, jclass,
+                                                        jint ssl_ctx_address, jbyteArray sid_ctx)
+{
+    SSL_CTX* ssl_ctx = to_SSL_CTX(env, ssl_ctx_address, true);
+    JNI_TRACE("ssl_ctx=%p NativeCrypto_SSL_CTX_set_session_id_context sid_ctx=%p", ssl_ctx, sid_ctx);
+    if (ssl_ctx == NULL) {
+        return;
+    }
+
+    ScopedByteArrayRO buf(env, sid_ctx);
+    if (buf.get() == NULL) {
+        JNI_TRACE("ssl_ctx=%p NativeCrypto_SSL_CTX_set_session_id_context => threw exception", ssl_ctx);
+        return;
+    }
+
+    unsigned int length = buf.size();
+    if (length > SSL_MAX_SSL_SESSION_ID_LENGTH) {
+        jniThrowException(env, "java/lang/IllegalArgumentException",
+                          "length > SSL_MAX_SSL_SESSION_ID_LENGTH");
+        JNI_TRACE("NativeCrypto_SSL_CTX_set_session_id_context => length = %d", length);
+        return;
+    }
+    const unsigned char* bytes = reinterpret_cast<const unsigned char*>(buf.get());
+    int result = SSL_CTX_set_session_id_context(ssl_ctx, bytes, length);
+    if (result == 0) {
+        throwExceptionIfNecessary(env, "NativeCrypto_SSL_CTX_set_session_id_context");
+        return;
+    }
+    JNI_TRACE("ssl_ctx=%p NativeCrypto_SSL_CTX_set_session_id_context => ok", ssl_ctx);
+}
+
 /**
  * public static native int SSL_new(int ssl_ctx) throws SSLException;
  */
@@ -4237,6 +4268,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, RAND_load_file, "(Ljava/lang/String;J)I"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_new, "()I"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_free, "(I)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_CTX_set_session_id_context, "(I[B)V"),
     NATIVE_METHOD(NativeCrypto, SSL_new, "(I)I"),
     NATIVE_METHOD(NativeCrypto, SSL_use_OpenSSL_PrivateKey, "(II)V"),
     NATIVE_METHOD(NativeCrypto, SSL_use_PrivateKey, "(I[B)V"),
