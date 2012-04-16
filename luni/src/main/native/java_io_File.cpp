@@ -104,6 +104,9 @@ public:
 
     // Returns the next filename, or NULL.
     const char* next() {
+        if (mIsBad) {
+            return NULL;
+        }
         dirent* result = NULL;
         int rc = readdir_r(mDirStream, &mEntry, &result);
         if (rc != 0) {
@@ -139,9 +142,6 @@ static bool readDirectory(JNIEnv* env, jstring javaPath, DirEntries& entries) {
     }
 
     ScopedReaddir dir(path.c_str());
-    if (dir.isBad()) {
-        return false;
-    }
     const char* filename;
     while ((filename = dir.next()) != NULL) {
         if (strcmp(filename, ".") != 0 && strcmp(filename, "..") != 0) {
@@ -149,7 +149,7 @@ static bool readDirectory(JNIEnv* env, jstring javaPath, DirEntries& entries) {
             entries.push_back(filename);
         }
     }
-    return true;
+    return !dir.isBad();
 }
 
 static jobjectArray File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
