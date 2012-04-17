@@ -88,16 +88,6 @@ include $(BUILD_JAVA_LIBRARY)
 core-intermediates := ${intermediates}
 
 
-# Make core-junit
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-main-java-files-under,junit)
-LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core
-LOCAL_JAVACFLAGS := $(local_javac_flags)
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE := core-junit
-include $(BUILD_JAVA_LIBRARY)
-
 # Make the core-tests library.
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik dom json luni support xml)
@@ -151,17 +141,6 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := core-hostdex
 
-    include $(BUILD_HOST_JAVA_LIBRARY)
-
-    # Make core-junit
-    include $(CLEAR_VARS)
-    LOCAL_SRC_FILES := $(call all-main-java-files-under,junit)
-    LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVA_LIBRARIES := core-hostdex
-    LOCAL_JAVACFLAGS := $(local_javac_flags)
-    LOCAL_MODULE_TAGS := optional
-    LOCAL_MODULE := core-junit-hostdex
-    LOCAL_BUILD_HOST_DEX := true
     include $(BUILD_HOST_JAVA_LIBRARY)
 
     # Make the core-tests library.
