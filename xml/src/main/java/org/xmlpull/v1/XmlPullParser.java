@@ -112,6 +112,7 @@ import java.io.Reader;
  * Start tag foo
  * Text Hello World!
  * End tag foo
+ * End document
  * </pre>
  *
  * <p>For more details on API usage, please refer to the
