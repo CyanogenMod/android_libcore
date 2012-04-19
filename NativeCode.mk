@@ -21,13 +21,6 @@
 # Common definitions for host and target.
 #
 
-# Get the list of all native directories that contain sub.mk files.
-# We're using "sub.mk" to make it clear that these are not typical
-# android makefiles.
-define all-core-native-dirs
-$(patsubst %/sub.mk,%,$(shell cd $(LOCAL_PATH) && ls -d */src/$(1)/native/sub.mk 2> /dev/null))
-endef
-
 # These two definitions are used to help sanity check what's put in
 # sub.mk. See, the "error" directives immediately below.
 core_magic_local_target := ...//::default:://...
@@ -54,12 +47,6 @@ define include-core-native-dir
     LOCAL_SRC_FILES :=
 endef
 
-# Find any native directories containing sub.mk files.
-core_native_dirs := $(strip $(call all-core-native-dirs,main))
-ifeq ($(core_native_dirs),)
-    $(error No native code defined for libcore)
-endif
-
 # Set up the default state. Note: We use CLEAR_VARS here, even though
 # we aren't quite defining a new rule yet, to make sure that the
 # sub.mk files don't see anything stray from the last rule that was
@@ -70,7 +57,7 @@ core_src_files :=
 
 # Include the sub.mk files.
 $(foreach dir, \
-    $(core_native_dirs), \
+    dalvik/src/main/native luni/src/main/native, \
     $(eval $(call include-core-native-dir,$(dir))))
 
 # Extract out the allowed LOCAL_* variables. Note: $(sort) also
