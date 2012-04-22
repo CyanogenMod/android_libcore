@@ -44,10 +44,6 @@ static void initConstant(JNIEnv* env, jclass c, const char* fieldName, int value
 }
 
 static void OsConstants_initConstants(JNIEnv* env, jclass c) {
-#if defined(__APPLE__)
-    ALOGE("OsConstants_initConstants unimplemented!");
-    abort();
-#else
     initConstant(env, c, "AF_INET", AF_INET);
     initConstant(env, c, "AF_INET6", AF_INET6);
     initConstant(env, c, "AF_UNIX", AF_UNIX);
@@ -545,7 +541,6 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "_SC_XOPEN_UNIX", _SC_XOPEN_UNIX);
     initConstant(env, c, "_SC_XOPEN_VERSION", _SC_XOPEN_VERSION);
     initConstant(env, c, "_SC_XOPEN_XCU_VERSION", _SC_XOPEN_XCU_VERSION);
-#endif
 }
 
 static JNINativeMethod gMethods[] = {

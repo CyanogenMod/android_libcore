@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 
-#if defined(__APPLE__)
-#include <jni.h>
-void register_libcore_io_Posix(JNIEnv*) { }
-#else
-
 #define LOG_TAG "Posix"
 
 #include "AsynchronousSocketCloseMonitor.h"
@@ -1475,4 +1470,3 @@ static JNINativeMethod gMethods[] = {
 void register_libcore_io_Posix(JNIEnv* env) {
     jniRegisterNativeMethods(env, "libcore/io/Posix", gMethods, NELEM(gMethods));
 }
-#endif

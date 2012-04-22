@@ -18,14 +18,11 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "Portability.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-
-#if defined(__APPLE__)
-#define isnanf __inline_isnanf
-#endif
 
 union Float {
     unsigned int bits;
