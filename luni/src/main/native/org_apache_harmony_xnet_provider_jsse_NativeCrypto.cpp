@@ -2167,7 +2167,7 @@ class AppData {
  * @param type Either SSL_ERROR_WANT_READ or SSL_ERROR_WANT_WRITE
  * @param fdObject The FileDescriptor, since appData->fileDescriptor should be NULL
  * @param appData The application data structure with mutex info etc.
- * @param timeout The timeout value for select call, with the special value
+ * @param timeout_millis The timeout value for select call, with the special value
  *                0 meaning no timeout at all (wait indefinitely). Note: This is
  *                the Java semantics of the timeout value, not the usual
  *                select() semantics.
@@ -2175,7 +2175,7 @@ class AppData {
  * THROW_SOCKETEXCEPTION if a SocketException was thrown, -1 on
  * additional errors
  */
-static int sslSelect(JNIEnv* env, int type, jobject fdObject, AppData* appData, int timeout) {
+static int sslSelect(JNIEnv* env, int type, jobject fdObject, AppData* appData, int timeout_millis) {
     // This loop is an expanded version of the NET_FAILURE_RETRY
     // macro. It cannot simply be used in this case because select
     // cannot be restarted without recreating the fd_sets and timeout
@@ -2190,8 +2190,8 @@ static int sslSelect(JNIEnv* env, int type, jobject fdObject, AppData* appData, 
             break;
         }
         int intFd = fd.get();
-        JNI_TRACE("sslSelect type=%s fd=%d appData=%p timeout=%d",
-                  (type == SSL_ERROR_WANT_READ) ? "READ" : "WRITE", intFd, appData, timeout);
+        JNI_TRACE("sslSelect type=%s fd=%d appData=%p timeout_millis=%d",
+                  (type == SSL_ERROR_WANT_READ) ? "READ" : "WRITE", intFd, appData, timeout_millis);
 
         FD_ZERO(&rfds);
         FD_ZERO(&wfds);
@@ -2209,9 +2209,9 @@ static int sslSelect(JNIEnv* env, int type, jobject fdObject, AppData* appData, 
         // Build a struct for the timeout data if we actually want a timeout.
         timeval tv;
         timeval* ptv;
-        if (timeout > 0) {
-            tv.tv_sec = timeout / 1000;
-            tv.tv_usec = 0;
+        if (timeout_millis > 0) {
+            tv.tv_sec = timeout_millis / 1000;
+            tv.tv_usec = (timeout_millis % 1000) * 1000;
             ptv = &tv;
         } else {
             ptv = NULL;
@@ -2219,9 +2219,9 @@ static int sslSelect(JNIEnv* env, int type, jobject fdObject, AppData* appData, 
 
         AsynchronousSocketCloseMonitor monitor(intFd);
         result = select(maxFd + 1, &rfds, &wfds, NULL, ptv);
-        JNI_TRACE("sslSelect %s fd=%d appData=%p timeout=%d => %d",
+        JNI_TRACE("sslSelect %s fd=%d appData=%p timeout_millis=%d => %d",
                   (type == SSL_ERROR_WANT_READ) ? "READ" : "WRITE",
-                  fd.get(), appData, timeout, result);
+                  fd.get(), appData, timeout_millis, result);
         if (result == -1) {
             if (fd.isClosed()) {
                 result = THROWN_EXCEPTION;
@@ -3260,11 +3260,12 @@ static jbyteArray NativeCrypto_SSL_get_npn_negotiated_protocol(JNIEnv* env, jcla
  * Perform SSL handshake
  */
 static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass, jint ssl_address,
-        jobject fdObject, jobject shc, jint timeout, jboolean client_mode, jbyteArray npnProtocols)
+        jobject fdObject, jobject shc, jint timeout_millis, jboolean client_mode,
+        jbyteArray npnProtocols)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake fd=%p shc=%p timeout=%d client_mode=%d npn=%p",
-              ssl, fdObject, shc, timeout, client_mode, npnProtocols);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake fd=%p shc=%p timeout_millis=%d client_mode=%d npn=%p",
+              ssl, fdObject, shc, timeout_millis, client_mode, npnProtocols);
     if (ssl == NULL) {
       return 0;
     }
@@ -3357,8 +3358,8 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass, jint ssl_address,
         }
         // error case
         int sslError = SSL_get_error(ssl, ret);
-        JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake ret=%d errno=%d sslError=%d timeout=%d",
-                  ssl, ret, errno, sslError, timeout);
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake ret=%d errno=%d sslError=%d timeout_millis=%d",
+                  ssl, ret, errno, sslError, timeout_millis);
 
         /*
          * If SSL_do_handshake doesn't succeed due to the socket being
@@ -3370,7 +3371,7 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass, jint ssl_address,
          */
         if (sslError == SSL_ERROR_WANT_READ || sslError == SSL_ERROR_WANT_WRITE) {
             appData->waitingThreads++;
-            int selectResult = sslSelect(env, sslError, fdObject, appData, timeout);
+            int selectResult = sslSelect(env, sslError, fdObject, appData, timeout_millis);
 
             if (selectResult == THROWN_EXCEPTION) {
                 // SocketException thrown by NetFd.isClosed
@@ -3549,7 +3550,7 @@ static jobjectArray NativeCrypto_SSL_get_peer_cert_chain(JNIEnv* env, jclass, ji
  * cleanly shut down, or THROW_SSLEXCEPTION if an exception should be thrown.
  */
 static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* buf, jint len,
-                   int* sslReturnCode, int* sslErrorCode, int timeout) {
+                   int* sslReturnCode, int* sslErrorCode, int timeout_millis) {
     JNI_TRACE("ssl=%p sslRead buf=%p len=%d", ssl, buf, len);
 
     if (len == 0) {
@@ -3628,7 +3629,7 @@ static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* b
             // Need to wait for availability of underlying layer, then retry.
             case SSL_ERROR_WANT_READ:
             case SSL_ERROR_WANT_WRITE: {
-                int selectResult = sslSelect(env, sslError, fdObject, appData, timeout);
+                int selectResult = sslSelect(env, sslError, fdObject, appData, timeout_millis);
                 if (selectResult == THROWN_EXCEPTION) {
                     return THROWN_EXCEPTION;
                 }
@@ -3679,11 +3680,12 @@ static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* b
  * Returns 1 (success) or value <= 0 (failure).
  */
 static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint ssl_address, jobject fdObject,
-                                  jobject shc, jbyteArray b, jint offset, jint len, jint timeout)
+                                  jobject shc, jbyteArray b, jint offset, jint len,
+                                  jint timeout_millis)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_read fd=%p shc=%p b=%p offset=%d len=%d timeout=%d",
-              ssl, fdObject, shc, b, offset, len, timeout);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_read fd=%p shc=%p b=%p offset=%d len=%d timeout_millis=%d",
+              ssl, fdObject, shc, b, offset, len, timeout_millis);
     if (ssl == NULL) {
         return 0;
     }
@@ -3707,7 +3709,7 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint ssl_address, jobject
     int sslErrorCode = SSL_ERROR_NONE;;
 
     int ret = sslRead(env, ssl, fdObject, shc, reinterpret_cast<char*>(bytes.get() + offset), len,
-                      &returnCode, &sslErrorCode, timeout);
+                      &returnCode, &sslErrorCode, timeout_millis);
 
     int result;
     switch (ret) {
