@@ -28,6 +28,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.Pipe;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.ServerSocketChannel;
@@ -93,7 +94,7 @@ public final class InterruptedStreamTest extends TestCase {
 
     public void testInterruptWritableSocketChannel() throws Exception {
         sockets = newSocketChannelPair();
-        testInterruptReadableChannel(sockets[0].getChannel());
+        testInterruptWritableChannel(sockets[0].getChannel());
     }
 
     /**
@@ -166,6 +167,7 @@ public final class InterruptedStreamTest extends TestCase {
                 channel.write(ByteBuffer.allocate(BUFFER_SIZE));
             }
         } catch (ClosedByInterruptException expected) {
+        } catch (ClosedChannelException expected) {
         }
     }
 
@@ -173,6 +175,10 @@ public final class InterruptedStreamTest extends TestCase {
         final Thread toInterrupt = Thread.currentThread();
         new Thread(new Runnable () {
             @Override public void run() {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                }
                 toInterrupt.interrupt();
             }
         }).start();
