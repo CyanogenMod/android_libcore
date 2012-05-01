@@ -811,6 +811,8 @@ public class NativeCryptoTest extends TestCase {
                                        SSLHandshakeCallbacks callback)
                     throws Exception {
                 NativeCrypto.SSL_set_verify(s, NativeCrypto.SSL_VERIFY_PEER);
+                NativeCrypto.SSL_set_options(
+                        s, NativeCrypto.SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
                 NativeCrypto.SSL_renegotiate(s);
                 NativeCrypto.SSL_write(s, fd, callback, new byte[] { 42 }, 0, 1);
                 super.afterHandshake(session, s, c, sock, fd, callback);
