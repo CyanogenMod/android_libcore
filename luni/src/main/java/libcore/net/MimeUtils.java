@@ -350,6 +350,7 @@ public final class MimeUtils {
         add("video/x-ms-wvx", "wvx");
         add("video/x-msvideo", "avi");
         add("video/x-sgi-movie", "movie");
+        add("video/x-webex", "wrf");
         add("x-conference/x-cooltalk", "ice");
         add("x-epoc/x-sisx-app", "sisx");
         applyOverrides();
