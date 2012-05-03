@@ -75,7 +75,7 @@ core_cflags += '-DGCC_HIDDEN=__attribute__((visibility("hidden")))'
 
 include $(CLEAR_VARS)
 
-LOCAL_CFLAGS += -Wall -Wextra -Werror
+LOCAL_CFLAGS += -Wall -Wextra -Werror -Wno-unused-but-set-variable
 LOCAL_CFLAGS += $(core_cflags)
 ifeq ($(TARGET_ARCH),arm)
 # Ignore "note: the mangling of 'va_list' has changed in GCC 4.4"
