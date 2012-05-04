@@ -62,6 +62,6 @@ static jstring NativeIDN_convertImpl(JNIEnv* env, jclass, jstring javaSrc, jint 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NativeIDN, convertImpl, "(Ljava/lang/String;IZ)Ljava/lang/String;"),
 };
-int register_libcore_icu_NativeIDN(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "libcore/icu/NativeIDN", gMethods, NELEM(gMethods));
+void register_libcore_icu_NativeIDN(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "libcore/icu/NativeIDN", gMethods, NELEM(gMethods));
 }

@@ -58,6 +58,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
         dalvik \
         $(HOST_OUT)/bin/dalvikvm \
         $(HOST_OUT)/bin/dexopt \
+        $(HOST_OUT)/lib/libjavacore.so \
         cacerts-host \
         $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.dat \
         $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.idx \

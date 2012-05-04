@@ -168,6 +168,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Inflater, setFileInputImpl, "(Ljava/io/FileDescriptor;JIJ)I"),
     NATIVE_METHOD(Inflater, setInputImpl, "([BIIJ)V"),
 };
-int register_java_util_zip_Inflater(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/util/zip/Inflater", gMethods, NELEM(gMethods));
+void register_java_util_zip_Inflater(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/util/zip/Inflater", gMethods, NELEM(gMethods));
 }

@@ -577,7 +577,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, toLowerCase, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, toUpperCase, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
 };
-int register_libcore_icu_ICU(JNIEnv* env) {
+void register_libcore_icu_ICU(JNIEnv* env) {
     std::string path;
     path = u_getDataDirectory();
     path += "/";
@@ -586,11 +586,11 @@ int register_libcore_icu_ICU(JNIEnv* env) {
 
     #define FAIL_WITH_STRERROR(s) \
         ALOGE("Couldn't " s " '%s': %s", path.c_str(), strerror(errno)); \
-        return -1;
+        abort();
     #define MAYBE_FAIL_WITH_ICU_ERROR(s) \
         if (status != U_ZERO_ERROR) {\
             ALOGE("Couldn't initialize ICU (" s "): %s (%s)", u_errorName(status), path.c_str()); \
-            return -1; \
+            abort(); \
         }
 
     // Open the file and get its length.
@@ -627,5 +627,5 @@ int register_libcore_icu_ICU(JNIEnv* env) {
     // and bail.
     u_init(&status);
     MAYBE_FAIL_WITH_ICU_ERROR("u_init");
-    return jniRegisterNativeMethods(env, "libcore/icu/ICU", gMethods, NELEM(gMethods));
+    jniRegisterNativeMethods(env, "libcore/icu/ICU", gMethods, NELEM(gMethods));
 }

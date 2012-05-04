@@ -46,6 +46,6 @@ static jint Console_setEchoImpl(JNIEnv* env, jclass, jboolean on, jint previousS
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Console, setEchoImpl, "(ZI)I"),
 };
-int register_java_io_Console(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/io/Console", gMethods, NELEM(gMethods));
+void register_java_io_Console(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/io/Console", gMethods, NELEM(gMethods));
 }

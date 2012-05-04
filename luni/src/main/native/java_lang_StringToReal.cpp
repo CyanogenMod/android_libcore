@@ -1008,6 +1008,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(StringToReal, parseFltImpl, "(Ljava/lang/String;I)F"),
     NATIVE_METHOD(StringToReal, parseDblImpl, "(Ljava/lang/String;I)D"),
 };
-int register_java_lang_StringToReal(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/lang/StringToReal", gMethods, NELEM(gMethods));
+void register_java_lang_StringToReal(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/lang/StringToReal", gMethods, NELEM(gMethods));
 }

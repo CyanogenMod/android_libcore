@@ -211,6 +211,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Matcher, useAnchoringBoundsImpl, "(IZ)V"),
     NATIVE_METHOD(Matcher, useTransparentBoundsImpl, "(IZ)V"),
 };
-int register_java_util_regex_Matcher(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/util/regex/Matcher", gMethods, NELEM(gMethods));
+void register_java_util_regex_Matcher(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/util/regex/Matcher", gMethods, NELEM(gMethods));
 }

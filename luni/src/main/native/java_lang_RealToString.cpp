@@ -237,6 +237,6 @@ void RealToString_bigIntDigitGenerator(JNIEnv* env, jobject obj, jlong f, jint e
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(RealToString, bigIntDigitGenerator, "(JIZI)V"),
 };
-int register_java_lang_RealToString(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/lang/RealToString", gMethods, NELEM(gMethods));
+void register_java_lang_RealToString(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/lang/RealToString", gMethods, NELEM(gMethods));
 }

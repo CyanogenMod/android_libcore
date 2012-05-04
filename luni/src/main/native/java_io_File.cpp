@@ -168,6 +168,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(File, realpath, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(File, setLastModifiedImpl, "(Ljava/lang/String;J)Z"),
 };
-int register_java_io_File(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/io/File", gMethods, NELEM(gMethods));
+void register_java_io_File(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/io/File", gMethods, NELEM(gMethods));
 }

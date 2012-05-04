@@ -87,7 +87,7 @@ endif
 # Define the rules.
 LOCAL_SRC_FILES := $(core_src_files)
 LOCAL_C_INCLUDES := $(core_c_includes)
-LOCAL_SHARED_LIBRARIES := $(core_shared_libraries)
+LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libexpat libicuuc libicui18n libssl libcrypto libz libnativehelper
 LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacore
@@ -95,7 +95,7 @@ LOCAL_MODULE := libjavacore
 LOCAL_C_INCLUDES += external/stlport/stlport bionic/ bionic/libstdc++/include
 LOCAL_SHARED_LIBRARIES += libstlport
 
-include $(BUILD_STATIC_LIBRARY)
+include $(BUILD_SHARED_LIBRARY)
 
 #
 # Build for the host.
@@ -106,9 +106,12 @@ ifeq ($(WITH_HOST_DALVIK),true)
     # Define the rules.
     LOCAL_SRC_FILES := $(core_src_files)
     LOCAL_CFLAGS += $(core_cflags)
-    LOCAL_CPPFLAGS += $(core_cppflags)
     LOCAL_C_INCLUDES := $(core_c_includes)
+    LOCAL_CPPFLAGS += $(core_cppflags)
+    LOCAL_LDLIBS += -ldl -lpthread
     LOCAL_MODULE_TAGS := optional
-    LOCAL_MODULE := libjavacore-host
-    include $(BUILD_HOST_STATIC_LIBRARY)
+    LOCAL_MODULE := libjavacore
+    LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libexpat libicuuc libicui18n libssl libcrypto libz-host
+    LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
+    include $(BUILD_HOST_SHARED_LIBRARY)
 endif

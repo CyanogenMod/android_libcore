@@ -40,6 +40,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Adler32, updateImpl, "([BIIJ)J"),
     NATIVE_METHOD(Adler32, updateByteImpl, "(IJ)J"),
 };
-int register_java_util_zip_Adler32(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/util/zip/Adler32", gMethods, NELEM(gMethods));
+void register_java_util_zip_Adler32(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/util/zip/Adler32", gMethods, NELEM(gMethods));
 }
