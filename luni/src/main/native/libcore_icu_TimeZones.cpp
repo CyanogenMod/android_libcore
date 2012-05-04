@@ -226,6 +226,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(TimeZones, forCountryCode, "(Ljava/lang/String;)[Ljava/lang/String;"),
     NATIVE_METHOD(TimeZones, getZoneStringsImpl, "(Ljava/lang/String;[Ljava/lang/String;)[[Ljava/lang/String;"),
 };
-int register_libcore_icu_TimeZones(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "libcore/icu/TimeZones", gMethods, NELEM(gMethods));
+void register_libcore_icu_TimeZones(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "libcore/icu/TimeZones", gMethods, NELEM(gMethods));
 }

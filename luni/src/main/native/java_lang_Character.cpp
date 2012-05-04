@@ -160,6 +160,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Character, toTitleCaseImpl, "!(I)I"),
     NATIVE_METHOD(Character, toUpperCaseImpl, "!(I)I"),
 };
-int register_java_lang_Character(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/lang/Character", gMethods, NELEM(gMethods));
+void register_java_lang_Character(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/lang/Character", gMethods, NELEM(gMethods));
 }

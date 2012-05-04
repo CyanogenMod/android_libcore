@@ -194,6 +194,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NativeCollation, setOffset, "(II)V"),
     NATIVE_METHOD(NativeCollation, setText, "(ILjava/lang/String;)V"),
 };
-int register_libcore_icu_NativeCollation(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "libcore/icu/NativeCollation", gMethods, NELEM(gMethods));
+void register_libcore_icu_NativeCollation(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "libcore/icu/NativeCollation", gMethods, NELEM(gMethods));
 }

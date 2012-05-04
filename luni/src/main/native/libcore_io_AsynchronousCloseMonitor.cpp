@@ -30,7 +30,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(AsynchronousCloseMonitor, signalBlockedThreads, "(Ljava/io/FileDescriptor;)V"),
 };
 
-int register_libcore_io_AsynchronousCloseMonitor(JNIEnv* env) {
+void register_libcore_io_AsynchronousCloseMonitor(JNIEnv* env) {
     AsynchronousSocketCloseMonitor::init();
-    return jniRegisterNativeMethods(env, "libcore/io/AsynchronousCloseMonitor", gMethods, NELEM(gMethods));
+    jniRegisterNativeMethods(env, "libcore/io/AsynchronousCloseMonitor", gMethods, NELEM(gMethods));
 }

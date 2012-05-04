@@ -553,6 +553,6 @@ static JNINativeMethod gMethods[] = {
    NATIVE_METHOD(NativeBN, sign, "(I)I"),
    NATIVE_METHOD(NativeBN, twosComp2bn, "([BII)Z"),
 };
-int register_java_math_NativeBN(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/math/NativeBN", gMethods, NELEM(gMethods));
+void register_java_math_NativeBN(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/math/NativeBN", gMethods, NELEM(gMethods));
 }

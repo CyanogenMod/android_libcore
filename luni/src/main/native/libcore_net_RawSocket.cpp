@@ -204,15 +204,11 @@ static jint RawSocket_recvPacket(JNIEnv* env, jclass, jobject fileDescriptor,
 }
 
 static JNINativeMethod gRawMethods[] = {
-  NATIVE_METHOD(RawSocket, create,
-                "(Ljava/io/FileDescriptor;SLjava/lang/String;)V"),
-  NATIVE_METHOD(RawSocket, sendPacket,
-                "(Ljava/io/FileDescriptor;Ljava/lang/String;S[B[BII)I"),
-  NATIVE_METHOD(RawSocket, recvPacket,
-                "(Ljava/io/FileDescriptor;[BIIII)I"),
+  NATIVE_METHOD(RawSocket, create, "(Ljava/io/FileDescriptor;SLjava/lang/String;)V"),
+  NATIVE_METHOD(RawSocket, sendPacket, "(Ljava/io/FileDescriptor;Ljava/lang/String;S[B[BII)I"),
+  NATIVE_METHOD(RawSocket, recvPacket, "(Ljava/io/FileDescriptor;[BIIII)I"),
 };
 
-int register_libcore_net_RawSocket(JNIEnv* env) {
-  return jniRegisterNativeMethods(env,
-         "libcore/net/RawSocket", gRawMethods, NELEM(gRawMethods));
+void register_libcore_net_RawSocket(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "libcore/net/RawSocket", gRawMethods, NELEM(gRawMethods));
 }

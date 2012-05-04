@@ -146,6 +146,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Deflater, setInputImpl, "([BIIJ)V"),
     NATIVE_METHOD(Deflater, setLevelsImpl, "(IIJ)V"),
 };
-int register_java_util_zip_Deflater(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/util/zip/Deflater", gMethods, NELEM(gMethods));
+void register_java_util_zip_Deflater(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/util/zip/Deflater", gMethods, NELEM(gMethods));
 }

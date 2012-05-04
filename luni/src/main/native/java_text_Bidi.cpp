@@ -187,6 +187,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Bidi, ubidi_setLine, "(JII)J"),
     NATIVE_METHOD(Bidi, ubidi_setPara, "(J[CII[B)V"),
 };
-int register_java_text_Bidi(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/text/Bidi", gMethods, NELEM(gMethods));
+void register_java_text_Bidi(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/text/Bidi", gMethods, NELEM(gMethods));
 }

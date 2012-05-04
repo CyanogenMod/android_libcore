@@ -445,6 +445,6 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(OsConstants, initConstants, "()V"),
 };
-int register_libcore_io_OsConstants(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "libcore/io/OsConstants", gMethods, NELEM(gMethods));
+void register_libcore_io_OsConstants(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "libcore/io/OsConstants", gMethods, NELEM(gMethods));
 }

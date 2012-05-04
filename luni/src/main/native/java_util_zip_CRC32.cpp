@@ -40,6 +40,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(CRC32, updateImpl, "([BIIJ)J"),
     NATIVE_METHOD(CRC32, updateByteImpl, "(BJ)J"),
 };
-int register_java_util_zip_CRC32(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/util/zip/CRC32", gMethods, NELEM(gMethods));
+void register_java_util_zip_CRC32(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/util/zip/CRC32", gMethods, NELEM(gMethods));
 }

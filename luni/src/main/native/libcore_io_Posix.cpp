@@ -1318,6 +1318,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, writeBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
     NATIVE_METHOD(Posix, writev, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
 };
-int register_libcore_io_Posix(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "libcore/io/Posix", gMethods, NELEM(gMethods));
+void register_libcore_io_Posix(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "libcore/io/Posix", gMethods, NELEM(gMethods));
 }

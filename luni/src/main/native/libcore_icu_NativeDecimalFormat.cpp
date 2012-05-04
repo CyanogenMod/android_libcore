@@ -366,6 +366,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NativeDecimalFormat, setTextAttribute, "(IILjava/lang/String;)V"),
     NATIVE_METHOD(NativeDecimalFormat, toPatternImpl, "(IZ)Ljava/lang/String;"),
 };
-int register_libcore_icu_NativeDecimalFormat(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "libcore/icu/NativeDecimalFormat", gMethods, NELEM(gMethods));
+void register_libcore_icu_NativeDecimalFormat(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "libcore/icu/NativeDecimalFormat", gMethods, NELEM(gMethods));
 }
