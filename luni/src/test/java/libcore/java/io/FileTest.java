@@ -146,13 +146,6 @@ public class FileTest extends junit.framework.TestCase {
 
     // http://b/3047893 - getCanonicalPath wasn't actually resolving symbolic links.
     public void test_getCanonicalPath() throws Exception {
-        if (new File("/sdcard").exists()) {
-            // This assumes the current Android setup where /sdcard is a symbolic link to
-            // /mnt/sdcard.
-            File testFile = new File("/sdcard/test1.txt");
-            assertEquals("/mnt/sdcard/test1.txt", testFile.getCanonicalPath());
-        }
-
         // This assumes you can create symbolic links in the temporary directory. This isn't
         // true on Android if you're using /sdcard. It will work in /data/local though.
         File base = createTemporaryDirectory();
