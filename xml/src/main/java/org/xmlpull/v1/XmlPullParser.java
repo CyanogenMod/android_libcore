@@ -161,9 +161,9 @@ public interface XmlPullParser {
      * Logical end of the xml document. Returned from getEventType, next()
      * and nextToken()
      * when the end of the input document has been reached.
-     * <p><strong>NOTE:</strong> calling again
+     * <p><strong>NOTE:</strong> subsequent calls to
      * <a href="#next()">next()</a> or <a href="#nextToken()">nextToken()</a>
-     * will result in exception being thrown.
+     * may result in exception being thrown.
      *
      * @see #next
      * @see #nextToken
