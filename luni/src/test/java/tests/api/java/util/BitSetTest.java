@@ -1178,6 +1178,33 @@ public class BitSetTest extends junit.framework.TestCase {
         // if the index is larger than bs.size(), nextClearBit should return index
         assertEquals(513, bs.nextClearBit(513));
         assertEquals(800, bs.nextClearBit(800));
+
+        bs.clear();
+        assertEquals(0, bs.nextClearBit(0));
+        assertEquals(3, bs.nextClearBit(3));
+        assertEquals(64, bs.nextClearBit(64));
+        assertEquals(128, bs.nextClearBit(128));
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=31036
+    public void test_31036_clear() {
+        BitSet bs = new BitSet(500);
+        for (int i = 0; i < 500; ++i) {
+            int nextClear = bs.nextClearBit(0);
+            assertEquals(i, nextClear);
+            bs.set(i);
+        }
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=31036
+    public void test_31036_set() {
+        BitSet bs = new BitSet(500);
+        bs.set(0, 511);
+        for (int i = 0; i < 500; ++i) {
+            int nextSet = bs.nextSetBit(0);
+            assertEquals(i, nextSet);
+            bs.clear(i);
+        }
     }
 
     public void test_isEmpty() {
