@@ -2588,10 +2588,6 @@ static int NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
     mode |= SSL_MODE_SMALL_BUFFERS;  /* lazily allocate record buffers; usually saves
                                       * 44k over the default */
 #endif
-#if defined(SSL_MODE_HANDSHAKE_CUTTHROUGH) /* not all SSL versions have this */
-    mode |= SSL_MODE_HANDSHAKE_CUTTHROUGH;  /* enable sending of client data as soon as
-                                             * ClientCCS and ClientFinished are sent */
-#endif
     SSL_CTX_set_mode(sslCtx.get(), mode);
 
     SSL_CTX_set_cert_verify_callback(sslCtx.get(), cert_verify_callback, NULL);
@@ -3180,6 +3176,11 @@ static int next_proto_select_callback(SSL* ssl, unsigned char **out, unsigned ch
         const unsigned char *in, unsigned int inlen, void *)
 {
     JNI_TRACE("ssl=%p next_proto_select_callback", ssl);
+
+    // Enable False Start on the client if the server understands NPN
+    // http://www.imperialviolet.org/2012/04/11/falsestart.html
+    SSL_set_mode(ssl, SSL_MODE_HANDSHAKE_CUTTHROUGH);
+
     AppData* appData = toAppData(ssl);
     unsigned char* npnProtocols = reinterpret_cast<unsigned char*>(appData->npnProtocolsData);
     size_t npnProtocolsLength = appData->npnProtocolsLength;

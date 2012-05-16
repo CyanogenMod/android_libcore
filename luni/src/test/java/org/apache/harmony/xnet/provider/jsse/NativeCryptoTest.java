@@ -41,6 +41,7 @@ import junit.framework.TestCase;
 import libcore.java.security.StandardNames;
 import libcore.java.security.TestKeyStore;
 import org.apache.harmony.xnet.provider.jsse.NativeCrypto.SSLHandshakeCallbacks;
+import static org.apache.harmony.xnet.provider.jsse.NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH;
 
 public class NativeCryptoTest extends TestCase {
 
@@ -310,7 +311,7 @@ public class NativeCryptoTest extends TestCase {
         NativeCrypto.SSL_CTX_free(c);
     }
 
-    public void test_SSL_set_mode() throws Exception {
+    public void test_SSL_set_mode_and_clear_mode() throws Exception {
         try {
             NativeCrypto.SSL_set_mode(NULL, 0);
             fail();
@@ -319,38 +320,17 @@ public class NativeCryptoTest extends TestCase {
 
         int c = NativeCrypto.SSL_CTX_new();
         int s = NativeCrypto.SSL_new(c);
-        // check SSL_MODE_HANDSHAKE_CUTTHROUGH on
-        assertTrue((NativeCrypto.SSL_get_mode(s)
-                    & NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH) != 0);
-        // clear SSL_MODE_HANDSHAKE_CUTTHROUGH off
-        NativeCrypto.SSL_clear_mode(s, NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH);
-        assertTrue((NativeCrypto.SSL_get_mode(s)
-                    & NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH) == 0);
+        // check SSL_MODE_HANDSHAKE_CUTTHROUGH off by default
+        assertEquals(0, NativeCrypto.SSL_get_mode(s) & SSL_MODE_HANDSHAKE_CUTTHROUGH);
         // set SSL_MODE_HANDSHAKE_CUTTHROUGH on
-        NativeCrypto.SSL_set_mode(s, NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH);
+        NativeCrypto.SSL_set_mode(s, SSL_MODE_HANDSHAKE_CUTTHROUGH);
         assertTrue((NativeCrypto.SSL_get_mode(s)
-                    & NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH) != 0);
-
-        NativeCrypto.SSL_free(s);
-        NativeCrypto.SSL_CTX_free(c);
-    }
-
-    public void test_SSL_clear_mode() throws Exception {
-        try {
-            NativeCrypto.SSL_clear_mode(NULL, 0);
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        int c = NativeCrypto.SSL_CTX_new();
-        int s = NativeCrypto.SSL_new(c);
-        // check SSL_MODE_HANDSHAKE_CUTTHROUGH on
-        assertTrue((NativeCrypto.SSL_get_mode(s)
-                    & NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH) != 0);
+                & SSL_MODE_HANDSHAKE_CUTTHROUGH) != 0);
         // clear SSL_MODE_HANDSHAKE_CUTTHROUGH off
-        NativeCrypto.SSL_clear_mode(s, NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH);
+        NativeCrypto.SSL_clear_mode(s, SSL_MODE_HANDSHAKE_CUTTHROUGH);
         assertTrue((NativeCrypto.SSL_get_mode(s)
-                    & NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH) == 0);
+                    & SSL_MODE_HANDSHAKE_CUTTHROUGH) == 0);
+
         NativeCrypto.SSL_free(s);
         NativeCrypto.SSL_CTX_free(c);
     }
@@ -664,14 +644,7 @@ public class NativeCryptoTest extends TestCase {
     public void test_SSL_do_handshake_normal() throws Exception {
         // normal client and server case
         final ServerSocket listener = new ServerSocket(0);
-        Hooks cHooks = new Hooks() {
-            @Override
-            public int beforeHandshake(int context) throws SSLException {
-                int s = super.beforeHandshake(context);
-                NativeCrypto.SSL_clear_mode(s, NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH);
-                return s;
-            }
-        };
+        Hooks cHooks = new Hooks();
         Hooks sHooks = new ServerHooks(getServerPrivateKey(), getServerCertificates());
         Future<TestSSLHandshakeCallbacks> client = handshake(listener, 0, true, cHooks, null);
         Future<TestSSLHandshakeCallbacks> server = handshake(listener, 0, false, sHooks, null);
@@ -693,12 +666,6 @@ public class NativeCryptoTest extends TestCase {
         final ServerSocket listener = new ServerSocket(0);
 
         Hooks cHooks = new Hooks() {
-            @Override
-            public int beforeHandshake(int context) throws SSLException {
-                int s = super.beforeHandshake(context);
-                NativeCrypto.SSL_clear_mode(s, NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH);
-                return s;
-            }
             @Override
             public void clientCertificateRequested(int s) {
                 super.clientCertificateRequested(s);
@@ -786,7 +753,7 @@ public class NativeCryptoTest extends TestCase {
             @Override
             public int beforeHandshake(int context) throws SSLException {
                 int s = super.beforeHandshake(context);
-                NativeCrypto.SSL_clear_mode(s, NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH);
+                NativeCrypto.SSL_clear_mode(s, SSL_MODE_HANDSHAKE_CUTTHROUGH);
                 return s;
             }
             @Override
@@ -1110,6 +1077,8 @@ public class NativeCryptoTest extends TestCase {
                     FileDescriptor fd, SSLHandshakeCallbacks callback) throws Exception {
                 byte[] negotiated = NativeCrypto.SSL_get_npn_negotiated_protocol(ssl);
                 assertEquals("spdy/2", new String(negotiated));
+                assertTrue("NPN should enable cutthrough on the client",
+                        0 != (NativeCrypto.SSL_get_mode(ssl) & SSL_MODE_HANDSHAKE_CUTTHROUGH));
                 super.afterHandshake(session, ssl, context, socket, fd, callback);
             }
         };
@@ -1122,6 +1091,8 @@ public class NativeCryptoTest extends TestCase {
                     FileDescriptor fd, SSLHandshakeCallbacks callback) throws Exception {
                 byte[] negotiated = NativeCrypto.SSL_get_npn_negotiated_protocol(ssl);
                 assertEquals("spdy/2", new String(negotiated));
+                assertEquals("NPN should not enable cutthrough on the server",
+                        0, NativeCrypto.SSL_get_mode(ssl) & SSL_MODE_HANDSHAKE_CUTTHROUGH);
                 super.afterHandshake(session, ssl, c, sock, fd, callback);
             }
         };
