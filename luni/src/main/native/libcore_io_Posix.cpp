@@ -1102,7 +1102,7 @@ static void Posix_setsockoptGroupReq(JNIEnv* env, jobject, jobject javaFd, jint 
     if (rc == -1 && errno == EINVAL) {
         // Maybe we're a 32-bit binary talking to a 64-bit kernel?
         // glibc doesn't automatically handle this.
-        struct GCC_HIDDEN group_req64 {
+        struct group_req64 {
             uint32_t gr_interface;
             uint32_t my_padding;
             sockaddr_storage gr_group;
