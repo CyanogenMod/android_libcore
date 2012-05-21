@@ -886,23 +886,15 @@ public class Cipher {
         if (input == null) {
             throw new IllegalArgumentException("input == null");
         }
-        checkInputOffsetAndCount(input.length, inputOffset, inputLen);
+        if (inputOffset < 0 || inputLen < 0
+                || inputLen > input.length
+                || inputOffset > input.length - inputLen) {
+            throw new IllegalArgumentException("Incorrect inputOffset/inputLen parameters");
+        }
         if (input.length == 0) {
             return null;
         }
         return spiImpl.engineUpdate(input, inputOffset, inputLen);
-    }
-
-    private static void checkInputOffsetAndCount(int inputArrayLength,
-                                                 int inputOffset,
-                                                 int inputLen) {
-        if ((inputOffset | inputLen) < 0
-                || inputOffset > inputArrayLength
-                || inputArrayLength - inputOffset < inputLen) {
-            throw new IllegalArgumentException("input.length=" + inputArrayLength
-                                               + "; inputOffset=" + inputOffset
-                                               + "; inputLen=" + inputLen);
-        }
     }
 
     /**
@@ -980,9 +972,12 @@ public class Cipher {
             throw new IllegalArgumentException("output == null");
         }
         if (outputOffset < 0) {
-            throw new IllegalArgumentException("outputOffset < 0. outputOffset=" + outputOffset);
+            throw new IllegalArgumentException("outputOffset < 0");
         }
-        checkInputOffsetAndCount(input.length, inputOffset, inputLen);
+        if (inputOffset < 0 || inputLen < 0 || inputLen > input.length
+                || inputOffset > input.length - inputLen) {
+            throw new IllegalArgumentException("Incorrect inputOffset/inputLen parameters");
+        }
         if (input.length == 0) {
             return 0;
         }
@@ -1080,7 +1075,7 @@ public class Cipher {
             throw new IllegalStateException();
         }
         if (outputOffset < 0) {
-            throw new IllegalArgumentException("outputOffset < 0. outputOffset=" + outputOffset);
+            throw new IllegalArgumentException("outputOffset < 0");
         }
         return spiImpl.engineDoFinal(null, 0, 0, output, outputOffset);
     }
@@ -1142,7 +1137,9 @@ public class Cipher {
         if (mode != ENCRYPT_MODE && mode != DECRYPT_MODE) {
             throw new IllegalStateException();
         }
-        checkInputOffsetAndCount(input.length, inputOffset, inputLen);
+        if (inputOffset < 0 || inputLen < 0 || inputOffset + inputLen > input.length) {
+            throw new IllegalArgumentException("Incorrect inputOffset/inputLen parameters");
+        }
         return spiImpl.engineDoFinal(input, inputOffset, inputLen);
     }
 
@@ -1220,7 +1217,9 @@ public class Cipher {
         if (mode != ENCRYPT_MODE && mode != DECRYPT_MODE) {
             throw new IllegalStateException();
         }
-        checkInputOffsetAndCount(input.length, inputOffset, inputLen);
+        if (inputOffset < 0 || inputLen < 0 || inputOffset + inputLen > input.length) {
+            throw new IllegalArgumentException("Incorrect inputOffset/inputLen parameters");
+        }
         return spiImpl.engineDoFinal(input, inputOffset, inputLen, output,
                 outputOffset);
     }
