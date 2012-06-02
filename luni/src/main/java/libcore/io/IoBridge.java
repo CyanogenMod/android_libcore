@@ -525,7 +525,7 @@ public final class IoBridge {
             return -1;
         }
         if (packet != null) {
-            packet.setLength(byteCount);
+            packet.setReceivedLength(byteCount);
             if (!isConnected) {
                 packet.setAddress(srcAddress.getAddress());
                 packet.setPort(srcAddress.getPort());
