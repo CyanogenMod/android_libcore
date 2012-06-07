@@ -34,6 +34,7 @@ package java.lang;
 
 import dalvik.system.VMRuntime;
 import dalvik.system.VMStack;
+import java.io.BufferedInputStream;
 import java.io.Console;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -83,10 +84,9 @@ public final class System {
     private static Properties systemProperties;
 
     static {
-        // TODO: all three streams are buffered in Harmony.
         err = new PrintStream(new FileOutputStream(FileDescriptor.err));
         out = new PrintStream(new FileOutputStream(FileDescriptor.out));
-        in = new FileInputStream(FileDescriptor.in);
+        in = new BufferedInputStream(new FileInputStream(FileDescriptor.in));
         lineSeparator = System.getProperty("line.separator");
     }
 
