@@ -1771,4 +1771,25 @@ public class NativeCryptoTest extends TestCase {
             // Success
         }
     }
+
+    public void test_RAND_bytes_Success() throws Exception {
+        byte[] output = new byte[32];
+        NativeCrypto.RAND_bytes(output);
+
+        boolean isZero = true;
+        for (int i = 0; i < output.length; i++) {
+            isZero &= (output[i] == 0);
+        }
+
+        assertFalse("Random output was zero. This is a very low probability event "
+                + "and probably indicates an error.", isZero);
+    }
+
+    public void test_RAND_bytes_Null_Failure() throws Exception {
+        byte[] output = null;
+        try {
+            NativeCrypto.RAND_bytes(output);
+            fail("Should be an error on null buffer input");
+        } catch (RuntimeException success) { }
+    }
 }
