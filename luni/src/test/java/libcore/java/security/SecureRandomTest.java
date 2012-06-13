@@ -99,7 +99,7 @@ public class SecureRandomTest extends TestCase {
     public void testGetCommonInstances_Success() throws Exception {
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
         assertNotNull(sr);
-        assertEquals(EXPECTED_PROVIDER, sr.getProvider().getClass())
+        assertEquals(EXPECTED_PROVIDER, sr.getProvider().getClass());
     }
 
     public void testNewConstructors_Success() throws Exception {
