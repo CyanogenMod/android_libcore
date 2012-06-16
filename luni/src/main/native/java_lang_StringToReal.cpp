@@ -90,7 +90,7 @@
     }
 #define DECREMENT_DOUBLE(_x, _decCount, _incCount) \
     { \
-        ASSIGN_DOUBLE_FROM_LONGBITS(_x, _x-1); \
+        ASSIGN_DOUBLE_FROM_LONGBITS(_x, DOUBLE_TO_LONGBITS(_x)-1); \
         _decCount++; \
         if( (_incCount > 2) && (_decCount > 2) ) { \
             if( _decCount > _incCount ) { \
