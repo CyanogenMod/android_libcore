@@ -23,16 +23,6 @@ import java.util.EnumSet;
 import junit.framework.TestCase;
 
 public final class ClassCastExceptionTest extends TestCase {
-    public void testCast() throws Exception {
-        Object o = new Exception();
-        try {
-            String s = (String) o;
-            fail();
-        } catch (ClassCastException ex) {
-            assertEquals("java.lang.Exception cannot be cast to java.lang.String", ex.getMessage());
-        }
-    }
-
     public void testClassCast() throws Exception {
         Object o = new Exception();
         try {
@@ -51,69 +41,6 @@ public final class ClassCastExceptionTest extends TestCase {
             assertEquals("java.lang.Exception cannot be cast to java.lang.String",
                     ex.getMessage());
         }
-    }
-
-    public void testCastOperator() throws Exception {
-        try {
-            Object o = (InputStream) makeInteger();
-            fail();
-        } catch (ClassCastException ex) {
-            assertEquals("java.lang.Integer cannot be cast to java.io.InputStream",
-                    ex.getMessage());
-        }
-    }
-
-    public void testCastOperatorWithArrays() throws Exception {
-        try {
-            Object o = (E) makeArray(String.class);
-            fail();
-        } catch (ClassCastException ex) {
-            assertEquals("java.lang.String[] cannot be cast to "
-                    + "libcore.java.lang.ClassCastExceptionTest$E",
-                    ex.getMessage());
-        }
-
-        try {
-            Object o = (E) makeArray(float.class);
-            fail();
-        } catch (ClassCastException ex) {
-            assertEquals("float[] cannot be cast to libcore.java.lang.ClassCastExceptionTest$E",
-                    ex.getMessage());
-        }
-
-        try {
-            Object o = (E) makeArray(char[].class);
-            fail();
-        } catch (ClassCastException ex) {
-            assertEquals("char[][] cannot be cast to libcore.java.lang.ClassCastExceptionTest$E",
-                    ex.getMessage());
-        }
-
-        try {
-            Object o = (Object[][][]) makeInteger();
-            fail();
-        } catch (ClassCastException ex) {
-            assertEquals("java.lang.Integer cannot be cast to java.lang.Object[][][]",
-                    ex.getMessage());
-        }
-    }
-
-    /**
-     * Helper for {@link #testCastOperator} and {@link
-     * #testCastOperatorWithArrays}, above. It's important that the
-     * return type is {@code Object}, since otherwise the compiler
-     * will just reject the code.
-     */
-    private static Object makeInteger() {
-        return new Integer(5);
-    }
-
-    /**
-     * Helper for {@link #testCastOperatorWithArrays} above. It's important that
-     * the return type is {@code Object}.
-     */
-    private static Object makeArray(Class clazz) {
-        return Array.newInstance(clazz, 1);
     }
 
     enum E { A, B, C };
