@@ -193,6 +193,7 @@ public class PlainSocketImpl extends SocketImpl {
         }
         super.address = normalAddr;
         super.port = aPort;
+        super.localport = IoBridge.getSocketLocalPort(fd);
     }
 
     @Override
