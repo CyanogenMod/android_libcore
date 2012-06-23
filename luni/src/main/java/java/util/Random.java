@@ -140,25 +140,21 @@ public class Random implements Serializable {
      * section 3.4.1, subsection C, algorithm P.
      */
     public synchronized double nextGaussian() {
-        if (haveNextNextGaussian) { // if X1 has been returned, return the
-                                    // second Gaussian
+        if (haveNextNextGaussian) {
             haveNextNextGaussian = false;
             return nextNextGaussian;
         }
 
         double v1, v2, s;
         do {
-            v1 = 2 * nextDouble() - 1; // Generates two independent random
-                                        // variables U1, U2
+            v1 = 2 * nextDouble() - 1;
             v2 = 2 * nextDouble() - 1;
             s = v1 * v1 + v2 * v2;
-        } while (s >= 1);
-        double norm = Math.sqrt(-2 * Math.log(s) / s);
-        nextNextGaussian = v2 * norm; // should that not be norm instead
-                                        // of multiplier ?
+        } while (s >= 1 || s == 0);
+        double multiplier = StrictMath.sqrt(-2 * StrictMath.log(s) / s);
+        nextNextGaussian = v2 * multiplier;
         haveNextNextGaussian = true;
-        return v1 * norm; // should that not be norm instead of multiplier
-                            // ?
+        return v1 * multiplier;
     }
 
     /**
