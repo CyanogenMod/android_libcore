@@ -17,6 +17,7 @@
 package libcore.java.util.zip;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.security.cert.Certificate;
 import java.util.Arrays;
@@ -58,7 +59,11 @@ public final class OldAndroidZipStressTest extends TestCase {
     }
 
     private File[] getFiles() {
-        File[] result = new File("/system/app").listFiles();
+        File[] result = new File("/system/app").listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".apk");
+            }
+        });
         return result != null ? result : new File[0];
     }
 
