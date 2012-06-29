@@ -25,6 +25,7 @@ import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_START;
 import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_INPUT_AT_END;
 import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_OUTPUT_AT_END;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,14 +47,21 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
@@ -70,10 +78,12 @@ import javax.net.ssl.X509TrustManager;
 import junit.framework.TestCase;
 import libcore.java.security.TestKeyStore;
 import libcore.javax.net.ssl.TestSSLContext;
+import libcore.net.http.HttpResponseCache;
 import tests.net.StuckServer;
 
 public final class URLConnectionTest extends TestCase {
     private MockWebServer server = new MockWebServer();
+    private HttpResponseCache cache;
     private String hostName;
 
     @Override protected void setUp() throws Exception {
@@ -91,6 +101,9 @@ public final class URLConnectionTest extends TestCase {
         System.clearProperty("https.proxyHost");
         System.clearProperty("https.proxyPort");
         server.shutdown();
+        if (cache != null) {
+            cache.getCache().delete();
+        }
         super.tearDown();
     }
 
@@ -662,6 +675,50 @@ public final class URLConnectionTest extends TestCase {
         assertEquals("GET /foo HTTP/1.1", get.getRequestLine());
         assertContains(get.getHeaders(), "Host: android.com");
         assertEquals(Arrays.asList("verify android.com"), hostnameVerifier.calls);
+    }
+
+
+    /**
+     * Tolerate bad https proxy response when using HttpResponseCache. http://b/6754912
+     */
+    public void testConnectViaHttpProxyToHttpsUsingBadProxyAndHttpResponseCache() throws Exception {
+        ProxyConfig proxyConfig = ProxyConfig.PROXY_SYSTEM_PROPERTY;
+
+        TestSSLContext testSSLContext = TestSSLContext.create();
+
+        initResponseCache();
+
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
+        server.enqueue(new MockResponse()
+                .setSocketPolicy(SocketPolicy.UPGRADE_TO_SSL_AT_END)
+                .clearHeaders()
+                .setBody("bogus proxy connect response content")); // Key to reproducing b/6754912
+        server.play();
+
+        URL url = new URL("https://android.com/foo");
+        HttpsURLConnection connection = (HttpsURLConnection) proxyConfig.connect(server, url);
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+
+        try {
+            connection.connect();
+            fail();
+        } catch (IOException expected) {
+            // Thrown when the connect causes SSLSocket.startHandshake() to throw
+            // when it sees the "bogus proxy connect response content"
+            // instead of a ServerHello handshake message.
+        }
+
+        RecordedRequest connect = server.takeRequest();
+        assertEquals("Connect line failure on proxy",
+                "CONNECT android.com:443 HTTP/1.1", connect.getRequestLine());
+        assertContains(connect.getHeaders(), "Host: android.com");
+    }
+
+    private void initResponseCache() throws IOException {
+        String tmp = System.getProperty("java.io.tmpdir");
+        File cacheDir = new File(tmp, "HttpCache-" + UUID.randomUUID());
+        cache = new HttpResponseCache(cacheDir, Integer.MAX_VALUE);
+        ResponseCache.setDefault(cache);
     }
 
     /**
