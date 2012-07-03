@@ -18,6 +18,8 @@
 package java.util;
 
 import java.io.Serializable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import libcore.icu.TimeZones;
 import libcore.util.ZoneInfoDB;
 
@@ -28,7 +30,7 @@ import libcore.util.ZoneInfoDB;
  * <p>Most applications will use {@link #getDefault} which returns a {@code TimeZone} based on
  * the time zone where the program is running.
  *
- * <p>You can also get a specific {@code TimeZone} {@link #getTimeZone by id}.
+ * <p>You can also get a specific {@code TimeZone} {@link #getTimeZone by Olson ID}.
  *
  * <p>It is highly unlikely you'll ever want to use anything but the factory methods yourself.
  * Let classes like {@link Calendar} and {@link java.text.SimpleDateFormat} do the date
@@ -63,6 +65,8 @@ import libcore.util.ZoneInfoDB;
  */
 public abstract class TimeZone implements Serializable, Cloneable {
     private static final long serialVersionUID = 3581463369166924961L;
+
+    private static final Pattern CUSTOM_ZONE_ID_PATTERN = Pattern.compile("^GMT[-+](\\d{1,2})(:?(\\d\\d))?$");
 
     /**
      * The short display name style, such as {@code PDT}. Requests for this
@@ -265,17 +269,19 @@ public abstract class TimeZone implements Serializable, Cloneable {
     public abstract int getRawOffset();
 
     /**
-     * Returns a {@code TimeZone} suitable for {@code id}, or {@code GMT} for unknown ids.
+     * Returns a {@code TimeZone} corresponding to the given {@code id}, or {@code GMT}
+     * for unknown ids.
      *
-     * <p>An id can be an Olson name of the form <i>Area</i>/<i>Location</i>, such
+     * <p>An ID can be an Olson name of the form <i>Area</i>/<i>Location</i>, such
      * as {@code America/Los_Angeles}. The {@link #getAvailableIDs} method returns
      * the supported names.
      *
-     * <p>This method can also create a custom {@code TimeZone} using the following
-     * syntax: {@code GMT[+|-]hh[[:]mm]}. For example, {@code TimeZone.getTimeZone("GMT+14:00")}
-     * would return an object with a raw offset of +14 hours from UTC, and which does <i>not</i>
-     * use daylight savings. These are rarely useful, because they don't correspond to time
-     * zones actually in use.
+     * <p>This method can also create a custom {@code TimeZone} given an ID with the following
+     * syntax: {@code GMT[+|-]hh[[:]mm]}. For example, {@code "GMT+05:00"}, {@code "GMT+0500"},
+     * {@code "GMT+5:00"}, {@code "GMT+500"}, {@code "GMT+05"}, and {@code "GMT+5"} all return
+     * an object with a raw offset of +5 hours from UTC, and which does <i>not</i> use daylight
+     * savings. These are rarely useful, because they don't correspond to time zones actually
+     * in use by humans.
      *
      * <p>Other than the special cases "UTC" and "GMT" (which are synonymous in this context,
      * both corresponding to UTC), Android does not support the deprecated three-letter time
@@ -299,66 +305,37 @@ public abstract class TimeZone implements Serializable, Cloneable {
     }
 
     /**
-     * Returns a new SimpleTimeZone for an id of the form "GMT[+|-]hh[[:]mm]", or null.
+     * Returns a new SimpleTimeZone for an ID of the form "GMT[+|-]hh[[:]mm]", or null.
      */
     private static TimeZone getCustomTimeZone(String id) {
-        char sign = id.charAt(3);
-        if (sign != '+' && sign != '-') {
+        Matcher m = CUSTOM_ZONE_ID_PATTERN.matcher(id);
+        if (!m.matches()) {
             return null;
         }
-        int[] position = new int[1];
-        String formattedName = formatTimeZoneName(id, 4);
-        int hour = parseNumber(formattedName, 4, position);
-        if (hour < 0 || hour > 23) {
-            return null;
-        }
-        int index = position[0];
-        if (index == -1) {
-            return null;
-        }
-        int raw = hour * 3600000;
-        if (index < formattedName.length() && formattedName.charAt(index) == ':') {
-            int minute = parseNumber(formattedName, index + 1, position);
-            if (position[0] == -1 || minute < 0 || minute > 59) {
-                return null;
+
+        int hour;
+        int minute = 0;
+        try {
+            hour = Integer.parseInt(m.group(1));
+            if (m.group(3) != null) {
+                minute = Integer.parseInt(m.group(3));
             }
-            raw += minute * 60000;
-        } else if (hour >= 30 || index > 6) {
-            raw = (hour / 100 * 3600000) + (hour % 100 * 60000);
+        } catch (NumberFormatException impossible) {
+            throw new AssertionError(impossible);
         }
+
+        if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+            return null;
+        }
+
+        char sign = id.charAt(3);
+        int raw = (hour * 3600000) + (minute * 60000);
         if (sign == '-') {
             raw = -raw;
         }
-        return new SimpleTimeZone(raw, formattedName);
-    }
 
-    private static String formatTimeZoneName(String name, int offset) {
-        StringBuilder buf = new StringBuilder();
-        int index = offset, length = name.length();
-        buf.append(name.substring(0, offset));
-
-        while (index < length) {
-            if (Character.digit(name.charAt(index), 10) != -1) {
-                buf.append(name.charAt(index));
-                if ((length - (index + 1)) == 2) {
-                    buf.append(':');
-                }
-            } else if (name.charAt(index) == ':') {
-                buf.append(':');
-            }
-            index++;
-        }
-
-        if (buf.toString().indexOf(":") == -1) {
-            buf.append(':');
-            buf.append("00");
-        }
-
-        if (buf.toString().indexOf(":") == 5) {
-            buf.insert(4, '0');
-        }
-
-        return buf.toString();
+        String cleanId = String.format("GMT%c%02d:%02d", sign, hour, minute);
+        return new SimpleTimeZone(raw, cleanId);
     }
 
     /**
@@ -379,17 +356,6 @@ public abstract class TimeZone implements Serializable, Cloneable {
      * this time zone.
      */
     public abstract boolean inDaylightTime(Date time);
-
-    private static int parseNumber(String string, int offset, int[] position) {
-        int index = offset, length = string.length(), digit, result = 0;
-        while (index < length
-                && (digit = Character.digit(string.charAt(index), 10)) != -1) {
-            index++;
-            result = result * 10 + digit;
-        }
-        position[0] = index == offset ? -1 : index;
-        return result;
-    }
 
     /**
      * Overrides the default time zone for the current process only.

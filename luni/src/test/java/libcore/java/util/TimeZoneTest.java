@@ -144,8 +144,8 @@ public class TimeZoneTest extends junit.framework.TestCase {
 
     // http://code.google.com/p/android/issues/detail?id=11918
     public void testHasSameRules() throws Exception {
-        TimeZone denver = TimeZone.getTimeZone ("America/Denver") ;
-        TimeZone phoenix = TimeZone.getTimeZone ("America/Phoenix") ;
+        TimeZone denver = TimeZone.getTimeZone("America/Denver");
+        TimeZone phoenix = TimeZone.getTimeZone("America/Phoenix");
         assertFalse(denver.hasSameRules(phoenix));
     }
 
@@ -156,5 +156,34 @@ public class TimeZoneTest extends junit.framework.TestCase {
             fail();
         } catch (NullPointerException expected) {
         }
+    }
+
+    // http://b.corp.google.com/issue?id=6556561
+    public void testCustomZoneIds() throws Exception {
+        // These are all okay (and equivalent).
+        assertEquals("GMT+05:00", TimeZone.getTimeZone("GMT+05:00").getID());
+        assertEquals("GMT+05:00", TimeZone.getTimeZone("GMT+5:00").getID());
+        assertEquals("GMT+05:00", TimeZone.getTimeZone("GMT+0500").getID());
+        assertEquals("GMT+05:00", TimeZone.getTimeZone("GMT+500").getID());
+        assertEquals("GMT+05:00", TimeZone.getTimeZone("GMT+5").getID());
+        // These aren't.
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+5.5").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+5:5").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+5:0").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+5:005").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+5:000").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+005:00").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+05:99").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+28:00").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+05:00.00").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+05:00:00").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+5:").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+junk").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+5junk").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+5:junk").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("GMT+5:00junk").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("junkGMT+5:00").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("junk").getID());
+        assertEquals("GMT", TimeZone.getTimeZone("gmt+5:00").getID());
     }
 }
