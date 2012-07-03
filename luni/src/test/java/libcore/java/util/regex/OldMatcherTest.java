@@ -579,4 +579,14 @@ public class OldMatcherTest extends TestCase {
         assertTrue(pattern.matcher("14pt").matches());
     }
 
+    public void testUnicodeCharacterClasses() throws Exception {
+        // http://code.google.com/p/android/issues/detail?id=21176
+        // We use the Unicode TR-18 definitions: http://www.unicode.org/reports/tr18/#Compatibility_Properties
+        assertTrue("\u0666".matches("\\d")); // ARABIC-INDIC DIGIT SIX
+        assertFalse("\u0666".matches("\\D")); // ARABIC-INDIC DIGIT SIX
+        assertTrue("\u1680".matches("\\s")); // OGHAM SPACE MARK
+        assertFalse("\u1680".matches("\\S")); // OGHAM SPACE MARK
+        assertTrue("\u00ea".matches("\\w")); // LATIN SMALL LETTER E WITH CIRCUMFLEX
+        assertFalse("\u00ea".matches("\\W")); // LATIN SMALL LETTER E WITH CIRCUMFLEX
+    }
 }
