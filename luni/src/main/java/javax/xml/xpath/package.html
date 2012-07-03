@@ -165,7 +165,7 @@ or more nodes from an XML document:</p>
 XPath xpath = XPathFactory.newInstance().newXPath();
 String expression = "/widgets/widget";
 InputSource inputSource = new InputSource("widgets.xml");
-NodeSet nodes = (NodeSet) xpath.evaluate(expression, inputSource, XPathConstants.NODESET);
+NodeList nodes = (NodeList) xpath.evaluate(expression, inputSource, XPathConstants.NODESET);
 </pre>
 
 <h3>XPath Expressions and Types</h3>
