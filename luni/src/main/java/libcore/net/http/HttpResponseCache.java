@@ -262,6 +262,13 @@ public final class HttpResponseCache extends ResponseCache {
                     super.close();
                     editor.commit();
                 }
+
+                @Override
+                public void write(byte[] buffer, int offset, int length) throws IOException {
+                    // Since we don't override "write(int oneByte)", we can write directly to "out"
+                    // and avoid the inefficient implementation from the FilterOutputStream.
+                    out.write(buffer, offset, length);
+                }
             };
         }
 
