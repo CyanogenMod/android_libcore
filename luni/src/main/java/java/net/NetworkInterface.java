@@ -122,7 +122,9 @@ public final class NetworkInterface extends Object {
 
     private static void collectIpv6Addresses(String interfaceName, int interfaceIndex,
             List<InetAddress> addresses, List<InterfaceAddress> interfaceAddresses) throws SocketException {
-        // Format of /proc/net/if_inet6 (all numeric fields are implicit hex).
+        // Format of /proc/net/if_inet6.
+        // All numeric fields are implicit hex,
+        // but not necessarily two-digit (http://code.google.com/p/android/issues/detail?id=34022).
         // 1. IPv6 address
         // 2. interface index
         // 3. prefix length
@@ -130,6 +132,7 @@ public final class NetworkInterface extends Object {
         // 5. flags
         // 6. interface name
         // "00000000000000000000000000000001 01 80 10 80       lo"
+        // "fe800000000000000000000000000000 407 40 20 80    wlan0"
         BufferedReader in = null;
         try {
             in = new BufferedReader(new FileReader("/proc/net/if_inet6"));
@@ -139,13 +142,22 @@ public final class NetworkInterface extends Object {
                 if (!line.endsWith(suffix)) {
                     continue;
                 }
+
+                // Extract the IPv6 address.
                 byte[] addressBytes = new byte[16];
                 for (int i = 0; i < addressBytes.length; ++i) {
                     addressBytes[i] = (byte) Integer.parseInt(line.substring(2*i, 2*i + 2), 16);
                 }
-                short prefixLength = Short.parseShort(line.substring(36, 38), 16);
-                Inet6Address inet6Address = new Inet6Address(addressBytes, null, interfaceIndex);
 
+                // Extract the prefix length.
+                // Skip the IPv6 address and its trailing space.
+                int prefixLengthStart = 32 + 1;
+                // Skip the interface index and its trailing space.
+                prefixLengthStart = line.indexOf(' ', prefixLengthStart) + 1;
+                int prefixLengthEnd = line.indexOf(' ', prefixLengthStart);
+                short prefixLength = Short.parseShort(line.substring(prefixLengthStart, prefixLengthEnd), 16);
+
+                Inet6Address inet6Address = new Inet6Address(addressBytes, null, interfaceIndex);
                 addresses.add(inet6Address);
                 interfaceAddresses.add(new InterfaceAddress(inet6Address, prefixLength));
             }
