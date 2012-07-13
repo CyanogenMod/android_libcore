@@ -30,9 +30,21 @@ import java.util.TimeZone;
 
 public class OldSimpleDateFormatTest extends junit.framework.TestCase {
 
-    SimpleDateFormat format = new SimpleDateFormat("", Locale.ENGLISH);
+    SimpleDateFormat format = null;
+    SimpleDateFormat pFormat = null;
 
-    SimpleDateFormat pFormat = new SimpleDateFormat("", Locale.ENGLISH);
+    @Override
+    protected void setUp() throws Exception {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+        format = new SimpleDateFormat("", Locale.ENGLISH);
+        pFormat = new SimpleDateFormat("", Locale.ENGLISH);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        format = null;
+        pFormat = null;
+    }
 
     class FormatTester {
         boolean testsFailed = false;
