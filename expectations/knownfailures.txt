@@ -54,11 +54,6 @@
   bug: 3473300
 },
 {
-  description: "CipherTest.test_doFinal() is flaky",
-  name: "org.apache.harmony.crypto.tests.javax.crypto.CipherTest#test_doFinal",
-  bug: 3469872
-},
-{
   name: "libcore.java.lang.StringTest#testCaseMapping_en_US",
   bug: 3387655
 },
