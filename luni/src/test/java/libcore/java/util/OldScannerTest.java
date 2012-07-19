@@ -28,7 +28,6 @@ import java.util.Scanner;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import junit.framework.TestCase;
-import tests.support.Support_PortManager;
 
 public final class OldScannerTest extends TestCase {
 
@@ -492,15 +491,12 @@ public final class OldScannerTest extends TestCase {
         assertEquals(102400, matchResult.end());
     }
 
-    public void test_Constructor_LReadableByteChannel()
-            throws IOException {
-        InetSocketAddress localAddr = new InetSocketAddress("127.0.0.1",
-                Support_PortManager.getNextPort());
+    public void test_Constructor_LReadableByteChannel() throws IOException {
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(localAddr);
+        ssc.socket().bind(null);
 
         SocketChannel sc = SocketChannel.open();
-        sc.connect(localAddr);
+        sc.connect(ssc.socket().getLocalSocketAddress());
         sc.configureBlocking(false);
         assertFalse(sc.isBlocking());
 
