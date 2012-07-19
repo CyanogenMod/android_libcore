@@ -35,11 +35,7 @@ import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
 import junit.framework.TestCase;
-import tests.support.Support_PortManager;
 
-/**
- * Tests for SocketChannel and its default implementation.
- */
 public class OldSocketChannelTest extends TestCase {
 
     private static final int CAPACITY_NORMAL = 200;
@@ -58,11 +54,10 @@ public class OldSocketChannelTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        this.localAddr1 = new InetSocketAddress("127.0.0.1",
-                Support_PortManager.getNextPort());
         this.channel1 = SocketChannel.open();
         this.channel2 = SocketChannel.open();
-        this.server1 = new ServerSocket(localAddr1.getPort());
+        this.server1 = new ServerSocket(0);
+        this.localAddr1 = (InetSocketAddress) server1.getLocalSocketAddress();
     }
 
     protected void tearDown() throws Exception {
