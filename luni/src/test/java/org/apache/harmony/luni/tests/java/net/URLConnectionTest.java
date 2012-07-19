@@ -19,7 +19,6 @@ package org.apache.harmony.luni.tests.java.net;
 import dalvik.annotation.BrokenTest;
 import junit.framework.TestCase;
 import tests.support.Support_Configuration;
-import tests.support.Support_PortManager;
 import tests.support.Support_TestWebData;
 import tests.support.Support_TestWebServer;
 import tests.support.resource.Support_Resources;
@@ -222,9 +221,8 @@ public class URLConnectionTest extends TestCase {
 
 //        ftpURL = new URL(Support_Configuration.testFTPURL);
 
-        port = Support_PortManager.getNextPort();
         server = new Support_TestWebServer();
-        server.initServer(port, false);
+        port = server.initServer();
         url = new URL("http://localhost:" + port + "/test1");
         uc = url.openConnection();
         url2 =  new URL("http://localhost:" + port + "/test2");
