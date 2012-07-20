@@ -1839,7 +1839,7 @@ static void NativeCrypto_RAND_bytes(JNIEnv* env, jclass, jbyteArray output) {
     unsigned char* tmp = reinterpret_cast<unsigned char*>(outputBytes.get());
     if (!RAND_bytes(tmp, outputBytes.size())) {
         throwExceptionIfNecessary(env, "NativeCrypto_RAND_bytes");
-        JNI_TRACE("ctx=%p NativeCrypto_RAND_bytes => threw error", ctx);
+        JNI_TRACE("tmp=%p NativeCrypto_RAND_bytes => threw error", tmp);
         return;
     }
 
@@ -3200,8 +3200,10 @@ static int next_proto_select_callback(SSL* ssl, unsigned char **out, unsigned ch
     SSL_set_mode(ssl, SSL_MODE_HANDSHAKE_CUTTHROUGH);
 
     AppData* appData = toAppData(ssl);
+    JNI_TRACE("AppData=%p", appData);
     unsigned char* npnProtocols = reinterpret_cast<unsigned char*>(appData->npnProtocolsData);
     size_t npnProtocolsLength = appData->npnProtocolsLength;
+    JNI_TRACE("npn_protocols=%p, length=%d", npnProtocols, npnProtocolsLength);
 
     int status = SSL_select_next_proto(out, outlen, in, inlen, npnProtocols, npnProtocolsLength);
     switch (status) {
