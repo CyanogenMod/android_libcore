@@ -201,7 +201,7 @@ final class HttpConnection {
             OpenSSLSocketImpl openSslSocket = (OpenSSLSocketImpl) unverifiedSocket;
             openSslSocket.setEnabledCompressionMethods(new String[] { "ZLIB"});
             openSslSocket.setUseSessionTickets(true);
-            openSslSocket.setHostname(address.socketHost);
+            openSslSocket.setHostname(address.uriHost);
             // use SSLSocketFactory default enabled protocols
         } else {
             unverifiedSocket.setEnabledProtocols(new String [] { "SSLv3" });
