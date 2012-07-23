@@ -16,7 +16,6 @@
 
 package libcore.net.http;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -53,7 +52,7 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import libcore.io.Base64;
 import libcore.io.DiskLruCache;
 import libcore.io.IoUtils;
-import libcore.io.Streams;
+import libcore.io.StrictLineReader;
 
 /**
  * Cache responses in a directory on the file system. Most clients should use
@@ -100,7 +99,7 @@ public final class HttpResponseCache extends ResponseCache implements ExtendedRe
             if (snapshot == null) {
                 return null;
             }
-            entry = new Entry(new BufferedInputStream(snapshot.getInputStream(ENTRY_METADATA)));
+            entry = new Entry(snapshot.getInputStream(ENTRY_METADATA));
         } catch (IOException e) {
             // Give up because the cache cannot be read.
             return null;
@@ -369,29 +368,30 @@ public final class HttpResponseCache extends ResponseCache implements ExtendedRe
          */
         public Entry(InputStream in) throws IOException {
             try {
-                uri = Streams.readAsciiLine(in);
-                requestMethod = Streams.readAsciiLine(in);
+                StrictLineReader reader = new StrictLineReader(in, Charsets.US_ASCII);
+                uri = reader.readLine();
+                requestMethod = reader.readLine();
                 varyHeaders = new RawHeaders();
-                int varyRequestHeaderLineCount = readInt(in);
+                int varyRequestHeaderLineCount = reader.readInt();
                 for (int i = 0; i < varyRequestHeaderLineCount; i++) {
-                    varyHeaders.addLine(Streams.readAsciiLine(in));
+                    varyHeaders.addLine(reader.readLine());
                 }
 
                 responseHeaders = new RawHeaders();
-                responseHeaders.setStatusLine(Streams.readAsciiLine(in));
-                int responseHeaderLineCount = readInt(in);
+                responseHeaders.setStatusLine(reader.readLine());
+                int responseHeaderLineCount = reader.readInt();
                 for (int i = 0; i < responseHeaderLineCount; i++) {
-                    responseHeaders.addLine(Streams.readAsciiLine(in));
+                    responseHeaders.addLine(reader.readLine());
                 }
 
                 if (isHttps()) {
-                    String blank = Streams.readAsciiLine(in);
+                    String blank = reader.readLine();
                     if (!blank.isEmpty()) {
                         throw new IOException("expected \"\" but was \"" + blank + "\"");
                     }
-                    cipherSuite = Streams.readAsciiLine(in);
-                    peerCertificates = readCertArray(in);
-                    localCertificates = readCertArray(in);
+                    cipherSuite = reader.readLine();
+                    peerCertificates = readCertArray(reader);
+                    localCertificates = readCertArray(reader);
                 } else {
                     cipherSuite = null;
                     peerCertificates = null;
@@ -457,17 +457,8 @@ public final class HttpResponseCache extends ResponseCache implements ExtendedRe
             return uri.startsWith("https://");
         }
 
-        private int readInt(InputStream in) throws IOException {
-            String intString = Streams.readAsciiLine(in);
-            try {
-                return Integer.parseInt(intString);
-            } catch (NumberFormatException e) {
-                throw new IOException("expected an int but was \"" + intString + "\"");
-            }
-        }
-
-        private Certificate[] readCertArray(InputStream in) throws IOException {
-            int length = readInt(in);
+        private Certificate[] readCertArray(StrictLineReader reader) throws IOException {
+            int length = reader.readInt();
             if (length == -1) {
                 return null;
             }
@@ -475,7 +466,7 @@ public final class HttpResponseCache extends ResponseCache implements ExtendedRe
                 CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
                 Certificate[] result = new Certificate[length];
                 for (int i = 0; i < result.length; i++) {
-                    String line = Streams.readAsciiLine(in);
+                    String line = reader.readLine();
                     byte[] bytes = Base64.decode(line.getBytes(Charsets.US_ASCII));
                     result[i] = certificateFactory.generateCertificate(
                             new ByteArrayInputStream(bytes));
