@@ -34,7 +34,7 @@ static jint NativePluralRules_forLocaleImpl(JNIEnv* env, jclass, jstring localeN
     Locale locale = Locale::createFromName(ScopedUtfChars(env, localeName).c_str());
     UErrorCode status = U_ZERO_ERROR;
     PluralRules* result = PluralRules::forLocale(locale, status);
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "PluralRules::forLocale", status);
     return reinterpret_cast<uintptr_t>(result);
 }
 

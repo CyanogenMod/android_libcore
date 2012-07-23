@@ -50,7 +50,7 @@ static jint NativeCollation_compare(JNIEnv* env, jclass, jint address, jstring j
 static jint NativeCollation_getAttribute(JNIEnv* env, jclass, jint address, jint type) {
     UErrorCode status = U_ZERO_ERROR;
     jint result = ucol_getAttribute(toCollator(address), (UColAttribute) type, &status);
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "ucol_getAttribute", status);
     return result;
 }
 
@@ -61,7 +61,7 @@ static jint NativeCollation_getCollationElementIterator(JNIEnv* env, jclass, jin
     }
     UErrorCode status = U_ZERO_ERROR;
     UCollationElements* result = ucol_openElements(toCollator(address), source.get(), source.size(), &status);
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "ucol_openElements", status);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(result));
 }
 
@@ -106,7 +106,7 @@ static jbyteArray NativeCollation_getSortKey(JNIEnv* env, jclass, jint address, 
 static jint NativeCollation_next(JNIEnv* env, jclass, jint address) {
     UErrorCode status = U_ZERO_ERROR;
     jint result = ucol_next(toCollationElements(address), &status);
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "ucol_next", status);
     return result;
 }
 
@@ -117,7 +117,7 @@ static jint NativeCollation_openCollator(JNIEnv* env, jclass, jstring localeName
     }
     UErrorCode status = U_ZERO_ERROR;
     UCollator* c = ucol_open(localeChars.c_str(), &status);
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "ucol_open", status);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(c));
 }
 
@@ -129,14 +129,14 @@ static jint NativeCollation_openCollatorFromRules(JNIEnv* env, jclass, jstring j
     UErrorCode status = U_ZERO_ERROR;
     UCollator* c = ucol_openRules(rules.get(), rules.size(),
             UColAttributeValue(mode), UCollationStrength(strength), NULL, &status);
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "ucol_openRules", status);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(c));
 }
 
 static jint NativeCollation_previous(JNIEnv* env, jclass, jint address) {
     UErrorCode status = U_ZERO_ERROR;
     jint result = ucol_previous(toCollationElements(address), &status);
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "ucol_previous", status);
     return result;
 }
 
@@ -148,20 +148,20 @@ static jint NativeCollation_safeClone(JNIEnv* env, jclass, jint address) {
     UErrorCode status = U_ZERO_ERROR;
     jint bufferSize = U_COL_SAFECLONE_BUFFERSIZE;
     UCollator* c = ucol_safeClone(toCollator(address), NULL, &bufferSize, &status);
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "ucol_safeClone", status);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(c));
 }
 
 static void NativeCollation_setAttribute(JNIEnv* env, jclass, jint address, jint type, jint value) {
     UErrorCode status = U_ZERO_ERROR;
     ucol_setAttribute(toCollator(address), (UColAttribute)type, (UColAttributeValue)value, &status);
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "ucol_setAttribute", status);
 }
 
 static void NativeCollation_setOffset(JNIEnv* env, jclass, jint address, jint offset) {
     UErrorCode status = U_ZERO_ERROR;
     ucol_setOffset(toCollationElements(address), offset, &status);
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "ucol_setOffset", status);
 }
 
 static void NativeCollation_setText(JNIEnv* env, jclass, jint address, jstring javaSource) {
@@ -171,7 +171,7 @@ static void NativeCollation_setText(JNIEnv* env, jclass, jint address, jstring j
     }
     UErrorCode status = U_ZERO_ERROR;
     ucol_setText(toCollationElements(address), source.get(), source.size(), &status);
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "ucol_setText", status);
 }
 
 static JNINativeMethod gMethods[] = {

@@ -122,7 +122,7 @@ static jint NativeDecimalFormat_open(JNIEnv* env, jclass, jstring pattern0,
     if (fmt == NULL) {
         delete symbols;
     }
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "DecimalFormat::DecimalFormat", status);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(fmt));
 }
 
@@ -144,7 +144,7 @@ static void NativeDecimalFormat_setSymbol(JNIEnv* env, jclass, jint addr, jint j
     UErrorCode status = U_ZERO_ERROR;
     UNumberFormatSymbol symbol = static_cast<UNumberFormatSymbol>(javaSymbol);
     unum_setSymbol(toUNumberFormat(addr), symbol, value.get(), value.size(), &status);
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "unum_setSymbol", status);
 }
 
 static void NativeDecimalFormat_setAttribute(JNIEnv*, jclass, jint addr, jint javaAttr, jint value) {
@@ -165,7 +165,7 @@ static void NativeDecimalFormat_setTextAttribute(JNIEnv* env, jclass, jint addr,
     UErrorCode status = U_ZERO_ERROR;
     UNumberFormatTextAttribute attr = static_cast<UNumberFormatTextAttribute>(javaAttr);
     unum_setTextAttribute(toUNumberFormat(addr), attr, value.get(), value.size(), &status);
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "unum_setTextAttribute", status);
 }
 
 static jstring NativeDecimalFormat_getTextAttribute(JNIEnv* env, jclass, jint addr, jint javaAttr) {
@@ -184,7 +184,7 @@ static jstring NativeDecimalFormat_getTextAttribute(JNIEnv* env, jclass, jint ad
         chars.reset(new UChar[charCount]);
         charCount = unum_getTextAttribute(fmt, attr, chars.get(), charCount, &status);
     }
-    return maybeThrowIcuException(env, status) ? NULL : env->NewString(chars.get(), charCount);
+    return maybeThrowIcuException(env, "unum_getTextAttribute", status) ? NULL : env->NewString(chars.get(), charCount);
 }
 
 static void NativeDecimalFormat_applyPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized, jstring pattern0) {
@@ -195,12 +195,15 @@ static void NativeDecimalFormat_applyPatternImpl(JNIEnv* env, jclass, jint addr,
     ScopedJavaUnicodeString pattern(env, pattern0);
     DecimalFormat* fmt = toDecimalFormat(addr);
     UErrorCode status = U_ZERO_ERROR;
+    const char* function;
     if (localized) {
+        function = "DecimalFormat::applyLocalizedPattern";
         fmt->applyLocalizedPattern(pattern.unicodeString(), status);
     } else {
+        function = "DecimalFormat::applyPattern";
         fmt->applyPattern(pattern.unicodeString(), status);
     }
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, function, status);
 }
 
 static jstring NativeDecimalFormat_toPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized) {
