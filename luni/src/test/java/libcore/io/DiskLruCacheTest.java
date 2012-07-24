@@ -349,6 +349,28 @@ public final class DiskLruCacheTest extends TestCase {
         creator2.commit();
     }
 
+    public void testCreateNewEntryWithMissingFileAborts() throws Exception {
+        DiskLruCache.Editor creator = cache.edit("k1");
+        creator.set(0, "A");
+        creator.set(1, "A");
+        assertTrue(getDirtyFile("k1", 0).exists());
+        assertTrue(getDirtyFile("k1", 1).exists());
+        assertTrue(getDirtyFile("k1", 0).delete());
+        assertFalse(getDirtyFile("k1", 0).exists());
+        creator.commit();  // silently abort if file does not exist due to I/O issue
+
+        assertFalse(getCleanFile("k1", 0).exists());
+        assertFalse(getCleanFile("k1", 1).exists());
+        assertFalse(getDirtyFile("k1", 0).exists());
+        assertFalse(getDirtyFile("k1", 1).exists());
+        assertNull(cache.get("k1"));
+
+        DiskLruCache.Editor creator2 = cache.edit("k1");
+        creator2.set(0, "B");
+        creator2.set(1, "C");
+        creator2.commit();
+    }
+
     public void testRevertWithTooFewValues() throws Exception {
         DiskLruCache.Editor creator = cache.edit("k1");
         creator.set(1, "A");
