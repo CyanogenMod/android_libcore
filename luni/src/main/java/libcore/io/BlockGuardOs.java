@@ -50,7 +50,7 @@ public class BlockGuardOs extends ForwardingOs {
         }
     }
 
-    @Override public FileDescriptor accept(FileDescriptor fd, InetSocketAddress peerAddress) throws ErrnoException {
+    @Override public FileDescriptor accept(FileDescriptor fd, InetSocketAddress peerAddress) throws ErrnoException, SocketException {
         BlockGuard.getThreadPolicy().onNetwork();
         return tagSocket(os.accept(fd, peerAddress));
     }
@@ -80,7 +80,7 @@ public class BlockGuardOs extends ForwardingOs {
         return linger.isOn() && linger.l_linger > 0;
     }
 
-    @Override public void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException {
+    @Override public void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException {
         BlockGuard.getThreadPolicy().onNetwork();
         os.connect(fd, address, port);
     }
@@ -154,22 +154,22 @@ public class BlockGuardOs extends ForwardingOs {
         return os.readv(fd, buffers, offsets, byteCounts);
     }
 
-    @Override public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress srcAddress) throws ErrnoException {
+    @Override public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException {
         BlockGuard.getThreadPolicy().onNetwork();
         return os.recvfrom(fd, buffer, flags, srcAddress);
     }
 
-    @Override public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException {
+    @Override public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException {
         BlockGuard.getThreadPolicy().onNetwork();
         return os.recvfrom(fd, bytes, byteOffset, byteCount, flags, srcAddress);
     }
 
-    @Override public int sendto(FileDescriptor fd, ByteBuffer buffer, int flags, InetAddress inetAddress, int port) throws ErrnoException {
+    @Override public int sendto(FileDescriptor fd, ByteBuffer buffer, int flags, InetAddress inetAddress, int port) throws ErrnoException, SocketException {
         BlockGuard.getThreadPolicy().onNetwork();
         return os.sendto(fd, buffer, flags, inetAddress, port);
     }
 
-    @Override public int sendto(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException {
+    @Override public int sendto(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException, SocketException {
         // We permit datagrams without hostname lookups.
         if (inetAddress != null) {
             BlockGuard.getThreadPolicy().onNetwork();
