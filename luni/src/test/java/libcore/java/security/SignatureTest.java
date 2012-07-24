@@ -112,12 +112,20 @@ public class SignatureTest extends TestCase {
         sig.initSign(keyPair.getPrivate());
         sig.update(DATA);
         byte[] signature = sig.sign();
-        assertNotNull(signature);
-        assertTrue(signature.length > 0);
+        assertNotNull(sig.getAlgorithm(), signature);
+        assertTrue(sig.getAlgorithm(), signature.length > 0);
 
         sig.initVerify(keyPair.getPublic());
         sig.update(DATA);
-        assertTrue(sig.verify(signature));
+        assertTrue(sig.getAlgorithm(), sig.verify(signature));
+
+        // After verify, should be reusable as if we are after initVerify
+        sig.update(DATA);
+        assertTrue(sig.getAlgorithm(), sig.verify(signature));
+
+        // Calling Signature.verify a second time should not throw
+        // http://code.google.com/p/android/issues/detail?id=34933
+        sig.verify(signature);
     }
 
     private static final byte[] PK_BYTES = hexToBytes(
