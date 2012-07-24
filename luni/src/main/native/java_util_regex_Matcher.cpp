@@ -71,7 +71,7 @@ public:
         if (mJavaInput) {
             mEnv->ReleaseStringChars(mJavaInput, mChars);
         }
-        maybeThrowIcuException(mEnv, mStatus);
+        maybeThrowIcuException(mEnv, "utext_close", mStatus);
     }
 
     RegexMatcher* operator->() {
@@ -173,7 +173,7 @@ static jint Matcher_openImpl(JNIEnv* env, jclass, jint patternAddr) {
     RegexPattern* pattern = reinterpret_cast<RegexPattern*>(static_cast<uintptr_t>(patternAddr));
     UErrorCode status = U_ZERO_ERROR;
     RegexMatcher* result = pattern->matcher(status);
-    maybeThrowIcuException(env, status);
+    maybeThrowIcuException(env, "RegexPattern::matcher", status);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(result));
 }
 

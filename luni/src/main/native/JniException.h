@@ -25,6 +25,6 @@ void jniThrowExceptionWithErrno(JNIEnv* env, const char* exceptionClassName, int
 void jniThrowOutOfMemoryError(JNIEnv* env, const char* message);
 void jniThrowSocketException(JNIEnv* env, int error);
 
-bool maybeThrowIcuException(JNIEnv* env, UErrorCode error);
+bool maybeThrowIcuException(JNIEnv* env, const char* function, UErrorCode error);
 
 #endif  // JNI_EXCEPTION_H_included
