@@ -3933,7 +3933,7 @@ static void NativeCrypto_SSL_write(JNIEnv* env, jclass, jint ssl_address, jobjec
 }
 
 /**
- * Interrupt any pending IO before closing the socket.
+ * Interrupt any pending I/O before closing the socket.
  */
 static void NativeCrypto_SSL_interrupt(
         JNIEnv* env, jclass, jint ssl_address) {
