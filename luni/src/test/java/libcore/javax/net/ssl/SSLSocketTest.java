@@ -1054,9 +1054,10 @@ public class SSLSocketTest extends TestCase {
         assertEquals(0, wrapping.getSoTimeout());
 
         // setting wrapper sets underlying and ...
-        wrapping.setSoTimeout(10);
-        assertEquals(10, wrapping.getSoTimeout());
-        assertEquals(10, underlying.getSoTimeout());
+        int expectedTimeoutMillis = 1000;  // Using a small value such as 10 was affected by rounding
+        wrapping.setSoTimeout(expectedTimeoutMillis);
+        assertEquals(expectedTimeoutMillis, wrapping.getSoTimeout());
+        assertEquals(expectedTimeoutMillis, underlying.getSoTimeout());
 
         // ... getting wrapper inspects underlying
         underlying.setSoTimeout(0);
