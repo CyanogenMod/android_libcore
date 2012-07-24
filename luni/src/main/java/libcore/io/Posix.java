@@ -20,6 +20,7 @@ import java.io.FileDescriptor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.NioUtils;
 import libcore.util.MutableInt;
@@ -28,12 +29,12 @@ import libcore.util.MutableLong;
 public final class Posix implements Os {
     Posix() { }
 
-    public native FileDescriptor accept(FileDescriptor fd, InetSocketAddress peerAddress) throws ErrnoException;
+    public native FileDescriptor accept(FileDescriptor fd, InetSocketAddress peerAddress) throws ErrnoException, SocketException;
     public native boolean access(String path, int mode) throws ErrnoException;
-    public native void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException;
+    public native void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException;
     public native void chmod(String path, int mode) throws ErrnoException;
     public native void close(FileDescriptor fd) throws ErrnoException;
-    public native void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException;
+    public native void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException;
     public native FileDescriptor dup(FileDescriptor oldFd) throws ErrnoException;
     public native FileDescriptor dup2(FileDescriptor oldFd, int newFd) throws ErrnoException;
     public native String[] environ();
@@ -119,33 +120,33 @@ public final class Posix implements Os {
     }
     private native int readBytes(FileDescriptor fd, Object buffer, int offset, int byteCount) throws ErrnoException;
     public native int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
-    public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress srcAddress) throws ErrnoException {
+    public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException {
         if (buffer.isDirect()) {
             return recvfromBytes(fd, buffer, buffer.position(), buffer.remaining(), flags, srcAddress);
         } else {
             return recvfromBytes(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining(), flags, srcAddress);
         }
     }
-    public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException {
+    public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException {
         // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
         return recvfromBytes(fd, bytes, byteOffset, byteCount, flags, srcAddress);
     }
-    private native int recvfromBytes(FileDescriptor fd, Object buffer, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException;
+    private native int recvfromBytes(FileDescriptor fd, Object buffer, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException;
     public native void remove(String path) throws ErrnoException;
     public native void rename(String oldPath, String newPath) throws ErrnoException;
     public native long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException;
-    public int sendto(FileDescriptor fd, ByteBuffer buffer, int flags, InetAddress inetAddress, int port) throws ErrnoException {
+    public int sendto(FileDescriptor fd, ByteBuffer buffer, int flags, InetAddress inetAddress, int port) throws ErrnoException, SocketException {
         if (buffer.isDirect()) {
             return sendtoBytes(fd, buffer, buffer.position(), buffer.remaining(), flags, inetAddress, port);
         } else {
             return sendtoBytes(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining(), flags, inetAddress, port);
         }
     }
-    public int sendto(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException {
+    public int sendto(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException, SocketException {
         // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
         return sendtoBytes(fd, bytes, byteOffset, byteCount, flags, inetAddress, port);
     }
-    private native int sendtoBytes(FileDescriptor fd, Object buffer, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException;
+    private native int sendtoBytes(FileDescriptor fd, Object buffer, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException, SocketException;
     public native void setegid(int egid) throws ErrnoException;
     public native void seteuid(int euid) throws ErrnoException;
     public native void setgid(int gid) throws ErrnoException;
