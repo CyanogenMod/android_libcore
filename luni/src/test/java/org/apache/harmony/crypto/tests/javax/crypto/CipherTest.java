@@ -57,6 +57,9 @@ public class CipherTest extends junit.framework.TestCase {
 
     private static final Key CIPHER_KEY_DES;
     private static final String ALGORITHM_DES = "DES";
+    private static final byte[] IV = new byte[] {
+        (byte) 0,  (byte) 1, (byte) 2, (byte) 3, (byte) 4, (byte) 5, (byte) 6, (byte) 7,
+    };
 
     static {
         try {
@@ -203,7 +206,6 @@ public class CipherTest extends junit.framework.TestCase {
      */
     public void test_getOutputSizeI() throws Exception {
 
-        SecureRandom sr = new SecureRandom();
         Cipher cipher = Cipher.getInstance(ALGORITHM_3DES + "/ECB/PKCS5Padding");
 
         try {
@@ -212,7 +214,7 @@ public class CipherTest extends junit.framework.TestCase {
         } catch (IllegalStateException expected) {
         }
 
-        cipher.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_3DES, sr);
+        cipher.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_3DES, new SecureRandom());
 
         // A 25-byte input could result in at least 4 8-byte blocks
         int result = cipher.getOutputSize(25);
@@ -244,13 +246,12 @@ public class CipherTest extends junit.framework.TestCase {
      *        java.security.SecureRandom)
      */
     public void test_initWithSecureRandom() throws Exception {
-        SecureRandom sr = new SecureRandom();
         Cipher cipher = Cipher.getInstance(ALGORITHM_3DES + "/ECB/PKCS5Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_3DES, sr);
+        cipher.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_3DES, new SecureRandom());
 
         cipher = Cipher.getInstance("DES/CBC/NoPadding");
         try {
-            cipher.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_3DES, sr);
+            cipher.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_3DES, new SecureRandom());
             fail();
         } catch (InvalidKeyException expected) {
         }
@@ -261,23 +262,12 @@ public class CipherTest extends junit.framework.TestCase {
      *        java.security.spec.AlgorithmParameterSpec)
      */
     public void test_initWithAlgorithmParameterSpec() throws Exception {
-        SecureRandom sr = new SecureRandom();
-        Cipher cipher = null;
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
-        byte[] iv = null;
-        AlgorithmParameterSpec ap = null;
-
-        iv = new byte[8];
-        sr.nextBytes(iv);
-        ap = new IvParameterSpec(iv);
-
-        cipher = Cipher.getInstance(ALGORITHM_3DES + "/CBC/PKCS5Padding");
-
+        Cipher cipher = Cipher.getInstance(ALGORITHM_3DES + "/CBC/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_3DES, ap);
-
         byte[] cipherIV = cipher.getIV();
-
-        assertTrue("IVs differ", Arrays.equals(cipherIV, iv));
+        assertTrue("IVs differ", Arrays.equals(cipherIV, IV));
 
         cipher = Cipher.getInstance("DES/CBC/NoPadding");
         try {
@@ -288,7 +278,6 @@ public class CipherTest extends junit.framework.TestCase {
 
         cipher = Cipher.getInstance("DES/CBC/NoPadding");
         ap = new RSAKeyGenParameterSpec(10, new BigInteger("10"));
-
         try {
             cipher.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
             fail();
@@ -302,26 +291,16 @@ public class CipherTest extends junit.framework.TestCase {
      *        java.security.SecureRandom)
      */
     public void test_initWithKeyAlgorithmParameterSpecSecureRandom() throws Exception {
-        SecureRandom sr = new SecureRandom();
-        Cipher cipher = null;
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
-        byte[] iv = null;
-        AlgorithmParameterSpec ap = null;
-
-        iv = new byte[8];
-        sr.nextBytes(iv);
-        ap = new IvParameterSpec(iv);
-
-        cipher = Cipher.getInstance(ALGORITHM_3DES + "/CBC/PKCS5Padding");
-
-        cipher.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_3DES, ap, sr);
-
+        Cipher cipher = Cipher.getInstance(ALGORITHM_3DES + "/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_3DES, ap, new SecureRandom());
         byte[] cipherIV = cipher.getIV();
+        assertTrue("IVs differ", Arrays.equals(cipherIV, IV));
 
-        assertTrue("IVs differ", Arrays.equals(cipherIV, iv));
         cipher = Cipher.getInstance("DES/CBC/NoPadding");
         try {
-            cipher.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_3DES, ap, sr);
+            cipher.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_3DES, ap, new SecureRandom());
             fail();
         } catch (InvalidKeyException expected) {
         }
@@ -330,7 +309,7 @@ public class CipherTest extends junit.framework.TestCase {
         ap = new RSAKeyGenParameterSpec(10, new BigInteger("10"));
 
         try {
-            cipher.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap, sr);
+            cipher.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap, new SecureRandom());
             fail();
         } catch (InvalidAlgorithmParameterException expected) {
         }
@@ -466,11 +445,7 @@ public class CipherTest extends junit.framework.TestCase {
         int len = c.doFinal(b, 0, 16, b1, 0);
         assertEquals(16, len);
 
-        SecureRandom sr = new SecureRandom();
-        byte[] iv = new byte[8];
-        sr.nextBytes(iv);
-        AlgorithmParameterSpec ap = new IvParameterSpec(iv);
-
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
 
@@ -554,14 +529,9 @@ public class CipherTest extends junit.framework.TestCase {
         int len = c.doFinal(b, 0, 16, b1, 0);
         assertEquals(16, len);
 
-        SecureRandom sr = new SecureRandom();
-        byte[] iv = new byte[8];
-        sr.nextBytes(iv);
-        AlgorithmParameterSpec ap = new IvParameterSpec(iv);
-
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
-
         try {
             c.doFinal(b1, 0, 24, new byte[42], 0);
             fail();
@@ -674,15 +644,11 @@ public class CipherTest extends junit.framework.TestCase {
         int len = c.doFinal(bInput, bOutput);
         assertEquals(0, len);
 
-        SecureRandom sr = new SecureRandom();
-        byte[] iv = new byte[8];
-        sr.nextBytes(iv);
-        AlgorithmParameterSpec ap = new IvParameterSpec(iv);
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
         bInput = ByteBuffer.allocate(64);
-
         try {
             c.doFinal(bOutput, bInput);
             fail();
@@ -720,10 +686,7 @@ public class CipherTest extends junit.framework.TestCase {
     }
 
     public void test_initWithKeyAlgorithmParameters() throws Exception {
-        SecureRandom sr = new SecureRandom();
-        byte[] iv = new byte[8];
-        sr.nextBytes(iv);
-        AlgorithmParameterSpec ap = new IvParameterSpec(iv);
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         Cipher c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
@@ -743,13 +706,10 @@ public class CipherTest extends junit.framework.TestCase {
     }
 
     public void test_initWithKeyAlgorithmParametersSecureRandom() throws Exception {
-        SecureRandom sr = new SecureRandom();
-        byte[] iv = new byte[8];
-        sr.nextBytes(iv);
-        AlgorithmParameterSpec ap = new IvParameterSpec(iv);
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         Cipher c = Cipher.getInstance("DES/CBC/PKCS5Padding");
-        c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap, sr);
+        c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap, new SecureRandom());
         assertNotNull(c.getParameters());
 
         try {
@@ -759,7 +719,8 @@ public class CipherTest extends junit.framework.TestCase {
         }
 
         try {
-            c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, (AlgorithmParameters)null, sr);
+            c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, (AlgorithmParameters)null,
+                   new SecureRandom());
             fail();
         } catch (InvalidAlgorithmParameterException expected) {
         }
@@ -829,14 +790,11 @@ public class CipherTest extends junit.framework.TestCase {
     }
 
     public void test_unwrap$BLjava_lang_StringI() throws Exception {
-        SecureRandom sr = new SecureRandom();
-        byte[] iv = new byte[8];
-        sr.nextBytes(iv);
-        AlgorithmParameterSpec ap = new IvParameterSpec(iv);
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         Cipher c = Cipher.getInstance("DES/CBC/PKCS5Padding");
 
-        c.init(Cipher.WRAP_MODE, CIPHER_KEY_DES, ap, sr);
+        c.init(Cipher.WRAP_MODE, CIPHER_KEY_DES, ap, new SecureRandom());
         byte[] arDES = c.wrap(CIPHER_KEY_DES);
         byte[] ar    = c.wrap(CIPHER_KEY_3DES);
 
@@ -846,7 +804,7 @@ public class CipherTest extends junit.framework.TestCase {
         } catch (IllegalStateException expected) {
         }
 
-        c.init(Cipher.UNWRAP_MODE, CIPHER_KEY_DES, ap, sr);
+        c.init(Cipher.UNWRAP_MODE, CIPHER_KEY_DES, ap, new SecureRandom());
         assertTrue(CIPHER_KEY_DES.equals(c.unwrap(arDES, "DES", Cipher.SECRET_KEY)));
         assertFalse(CIPHER_KEY_DES.equals(c.unwrap(ar, "DES", Cipher.SECRET_KEY)));
 
@@ -857,7 +815,7 @@ public class CipherTest extends junit.framework.TestCase {
         }
 
         c = Cipher.getInstance("DESede/CBC/PKCS5Padding");
-        c.init(Cipher.UNWRAP_MODE, CIPHER_KEY_3DES, ap, sr);
+        c.init(Cipher.UNWRAP_MODE, CIPHER_KEY_3DES, ap, new SecureRandom());
         try {
             c.unwrap(arDES, "DESede", Cipher.SECRET_KEY);
             fail();
@@ -892,10 +850,7 @@ public class CipherTest extends junit.framework.TestCase {
         bOutput.rewind();
         c.update(bInput, bOutput);
 
-        SecureRandom sr = new SecureRandom();
-        byte[] iv = new byte[8];
-        sr.nextBytes(iv);
-        AlgorithmParameterSpec ap = new IvParameterSpec(iv);
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
@@ -951,14 +906,11 @@ public class CipherTest extends junit.framework.TestCase {
     }
 
     public void test_wrap_java_security_Key() throws Exception {
-        SecureRandom sr = new SecureRandom();
-        byte[] iv = new byte[8];
-        sr.nextBytes(iv);
-        AlgorithmParameterSpec ap = new IvParameterSpec(iv);
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         Cipher c = Cipher.getInstance("DES/CBC/PKCS5Padding");
 
-        c.init(Cipher.WRAP_MODE, CIPHER_KEY_DES, ap, sr);
+        c.init(Cipher.WRAP_MODE, CIPHER_KEY_DES, ap, new SecureRandom());
         assertNotNull(c.wrap(CIPHER_KEY_DES));
         assertNotNull(c.wrap(CIPHER_KEY_3DES));
         String certName = Support_Resources.getURL("test.cert");
@@ -969,14 +921,14 @@ public class CipherTest extends junit.framework.TestCase {
         assertNotNull(c.wrap(cert.getPublicKey()));
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.WRAP_MODE, CIPHER_KEY_DES, ap, sr);
+        c.init(Cipher.WRAP_MODE, CIPHER_KEY_DES, ap, new SecureRandom());
         try {
             assertNotNull(c.wrap(cert.getPublicKey()));
             fail();
         } catch (IllegalBlockSizeException expected) {
         }
 
-        c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap, sr);
+        c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap, new SecureRandom());
 
         try {
             c.wrap(CIPHER_KEY_DES);
@@ -984,7 +936,7 @@ public class CipherTest extends junit.framework.TestCase {
         } catch (IllegalStateException expected) {
         }
 
-        c.init(Cipher.WRAP_MODE, CIPHER_KEY_DES, ap, sr);
+        c.init(Cipher.WRAP_MODE, CIPHER_KEY_DES, ap, new SecureRandom());
         try {
             c.wrap(new Mock_Key());
             fail();
@@ -1018,14 +970,10 @@ public class CipherTest extends junit.framework.TestCase {
         int len = c.doFinal(b1, 0);
         assertEquals(0, len);
 
-        SecureRandom sr = new SecureRandom();
-        byte[] iv = new byte[8];
-        sr.nextBytes(iv);
-        AlgorithmParameterSpec ap = new IvParameterSpec(iv);
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
-
         c.update(b1, 0, 24);
         try {
             c.doFinal(b, 0);
@@ -1074,14 +1022,9 @@ public class CipherTest extends junit.framework.TestCase {
         int len2 = c.doFinal(bI3, 0, 16, b1, 0);
         assertEquals(16, len2);
 
-        SecureRandom sr = new SecureRandom();
-        byte[] iv = new byte[8];
-        sr.nextBytes(iv);
-        AlgorithmParameterSpec ap = new IvParameterSpec(iv);
-
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
-
         try {
             c.doFinal(b1);
             fail();
@@ -1116,14 +1059,9 @@ public class CipherTest extends junit.framework.TestCase {
         int len2 = c.doFinal(b, 0, 16, b1, 0);
         assertEquals(16, len2);
 
-        SecureRandom sr = new SecureRandom();
-        byte[] iv = new byte[8];
-        sr.nextBytes(iv);
-        AlgorithmParameterSpec ap = new IvParameterSpec(iv);
-
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
-
         try {
             c.doFinal(b1, 0, 24);
             fail();
@@ -1155,14 +1093,9 @@ public class CipherTest extends junit.framework.TestCase {
         int len = c.doFinal(b, 0, 16, b1);
         assertEquals(16, len);
 
-        SecureRandom sr = new SecureRandom();
-        byte[] iv = new byte[8];
-        sr.nextBytes(iv);
-        AlgorithmParameterSpec ap = new IvParameterSpec(iv);
-
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
-
         try {
             c.doFinal(b1, 0, 24, new byte[42]);
             fail();
