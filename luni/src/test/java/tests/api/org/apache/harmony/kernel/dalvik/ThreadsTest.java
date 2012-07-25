@@ -187,11 +187,10 @@ public class ThreadsTest extends TestCase {
                 if (! completed) {
                     try {
                         wait(maxWaitMillis);
-                    } catch (InterruptedException ex) {
-                        // Ignore it.
+                    } catch (InterruptedException ignored) {
                     }
                     if (! completed) {
-                        Assert.fail("parker hanging");
+                        Assert.fail("parker hung for more than " + maxWaitMillis + " ms");
                     }
                 }
 
