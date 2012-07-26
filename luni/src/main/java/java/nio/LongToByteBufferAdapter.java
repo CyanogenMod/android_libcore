@@ -93,7 +93,6 @@ final class LongToByteBufferAdapter extends LongBuffer {
 
     @Override
     public long get(int index) {
-        checkIndex(index);
         return byteBuffer.getLong(index * SizeOf.LONG);
     }
 
