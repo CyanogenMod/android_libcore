@@ -423,9 +423,10 @@ public class CipherTest extends junit.framework.TestCase {
 
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         c.update(b, 0, 10, b1, 5);
         try {
             c.doFinal();
@@ -441,13 +442,13 @@ public class CipherTest extends junit.framework.TestCase {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         int len = c.doFinal(b, 0, 16, b1, 0);
         assertEquals(16, len);
 
-        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
+        assertTrue(Arrays.equals(c.getIV(), IV));
 
         c.update(b1, 0, 24, b, 0);
         try {
@@ -508,9 +509,10 @@ public class CipherTest extends junit.framework.TestCase {
     public void testDoFinalbyteArrayintintbyteArrayint() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         try {
             c.doFinal(b, 0, 10, b1, 5);
             fail();
@@ -525,11 +527,10 @@ public class CipherTest extends junit.framework.TestCase {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         int len = c.doFinal(b, 0, 16, b1, 0);
         assertEquals(16, len);
 
-        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
         try {
@@ -620,9 +621,10 @@ public class CipherTest extends junit.framework.TestCase {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         ByteBuffer bInput = ByteBuffer.allocate(64);
         ByteBuffer bOutput = ByteBuffer.allocate(64);
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         bInput.put(b, 0, 10);
         try {
             c.doFinal(bInput, bOutput);
@@ -638,13 +640,11 @@ public class CipherTest extends junit.framework.TestCase {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         bInput = ByteBuffer.allocate(16);
         bInput.put(b, 0, 16);
         int len = c.doFinal(bInput, bOutput);
         assertEquals(0, len);
-
-        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
@@ -947,9 +947,10 @@ public class CipherTest extends junit.framework.TestCase {
     public void test_doFinal$BI() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         c.update(b, 0, 10);
         try {
             c.doFinal(b1, 5);
@@ -965,12 +966,10 @@ public class CipherTest extends junit.framework.TestCase {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         c.update(b, 3, 8);
         int len = c.doFinal(b1, 0);
         assertEquals(0, len);
-
-        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
@@ -998,9 +997,10 @@ public class CipherTest extends junit.framework.TestCase {
         byte[] bI2 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
         byte[] bI3 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] bI4 = {1,2,3};
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         try {
             c.doFinal(bI1);
             fail();
@@ -1015,14 +1015,13 @@ public class CipherTest extends junit.framework.TestCase {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         int len1 = c.doFinal(bI2).length;
         assertEquals(16, len1);
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         int len2 = c.doFinal(bI3, 0, 16, b1, 0);
         assertEquals(16, len2);
 
-        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
         try {
@@ -1035,9 +1034,10 @@ public class CipherTest extends junit.framework.TestCase {
     public void test_doFinal$BII() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         try {
             c.doFinal(b, 0, 10);
             fail();
@@ -1052,14 +1052,13 @@ public class CipherTest extends junit.framework.TestCase {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         int len1 = c.doFinal(b, 0, 16).length;
         assertEquals(16, len1);
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         int len2 = c.doFinal(b, 0, 16, b1, 0);
         assertEquals(16, len2);
 
-        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
         try {
@@ -1072,9 +1071,10 @@ public class CipherTest extends junit.framework.TestCase {
     public void test_doFinal$BII$B() throws Exception {
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
         byte[] b1 = new byte[30];
+        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
 
         Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         try {
             c.doFinal(b, 0, 10, b1);
             fail();
@@ -1089,11 +1089,10 @@ public class CipherTest extends junit.framework.TestCase {
         }
 
         c = Cipher.getInstance("DES/CBC/NoPadding");
-        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES);
+        c.init(Cipher.ENCRYPT_MODE, CIPHER_KEY_DES, ap);
         int len = c.doFinal(b, 0, 16, b1);
         assertEquals(16, len);
 
-        AlgorithmParameterSpec ap = new IvParameterSpec(IV);
         c = Cipher.getInstance("DES/CBC/PKCS5Padding");
         c.init(Cipher.DECRYPT_MODE, CIPHER_KEY_DES, ap);
         try {
