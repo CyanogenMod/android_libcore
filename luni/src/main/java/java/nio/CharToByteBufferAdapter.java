@@ -93,7 +93,6 @@ final class CharToByteBufferAdapter extends CharBuffer {
 
     @Override
     public char get(int index) {
-        checkIndex(index);
         return byteBuffer.getChar(index * SizeOf.CHAR);
     }
 

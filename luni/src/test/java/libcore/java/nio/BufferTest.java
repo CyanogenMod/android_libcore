@@ -675,4 +675,74 @@ public class BufferTest extends TestCase {
         }
         assertFalse(bb.hasArray());
     }
+
+    public void testBug6085292() {
+        ByteBuffer b = ByteBuffer.allocateDirect(1);
+
+        try {
+            b.asCharBuffer().get();
+            fail();
+        } catch (BufferUnderflowException expected) {
+        }
+        try {
+            b.asCharBuffer().get(0);
+            fail();
+        } catch (IndexOutOfBoundsException expected) {
+        }
+
+        try {
+            b.asDoubleBuffer().get();
+            fail();
+        } catch (BufferUnderflowException expected) {
+        }
+        try {
+            b.asDoubleBuffer().get(0);
+            fail();
+        } catch (IndexOutOfBoundsException expected) {
+        }
+
+        try {
+            b.asFloatBuffer().get();
+            fail();
+        } catch (BufferUnderflowException expected) {
+        }
+        try {
+            b.asFloatBuffer().get(0);
+            fail();
+        } catch (IndexOutOfBoundsException expected) {
+        }
+
+        try {
+            b.asIntBuffer().get();
+            fail();
+        } catch (BufferUnderflowException expected) {
+        }
+        try {
+            b.asIntBuffer().get(0);
+            fail();
+        } catch (IndexOutOfBoundsException expected) {
+        }
+
+        try {
+            b.asLongBuffer().get();
+            fail();
+        } catch (BufferUnderflowException expected) {
+        }
+        try {
+            b.asLongBuffer().get(0);
+            fail();
+        } catch (IndexOutOfBoundsException expected) {
+        }
+
+        try {
+            b.asShortBuffer().get();
+            fail();
+        } catch (BufferUnderflowException expected) {
+        }
+        try {
+            b.asShortBuffer().get(0);
+            fail();
+        } catch (IndexOutOfBoundsException expected) {
+        }
+    }
 }

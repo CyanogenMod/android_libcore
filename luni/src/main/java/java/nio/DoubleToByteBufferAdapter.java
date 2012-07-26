@@ -93,7 +93,6 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
 
     @Override
     public double get(int index) {
-        checkIndex(index);
         return byteBuffer.getDouble(index * SizeOf.DOUBLE);
     }
 
