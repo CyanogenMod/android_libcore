@@ -93,7 +93,6 @@ final class IntToByteBufferAdapter extends IntBuffer {
 
     @Override
     public int get(int index) {
-        checkIndex(index);
         return byteBuffer.getInt(index * SizeOf.INT);
     }
 
