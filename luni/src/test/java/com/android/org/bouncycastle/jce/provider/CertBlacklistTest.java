@@ -64,7 +64,7 @@ public class CertBlacklistTest extends TestCase {
         // convert the results to a hashset of strings
         Set<String> results = new HashSet<String>();
         for (byte[] value: arr) {
-            results.add(new String(Hex.encode(value)));
+            results.add(new String(value));
         }
         return results;
     }
