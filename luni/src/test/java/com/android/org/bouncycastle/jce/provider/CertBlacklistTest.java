@@ -16,15 +16,24 @@
 
 package com.android.org.bouncycastle.jce.provider;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.cert.CertificateFactory;
+import java.security.cert.Certificate;
+import java.security.MessageDigest;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.HashSet;
 import java.util.Set;
 import junit.framework.TestCase;
 import com.android.org.bouncycastle.jce.provider.CertBlacklist;
+import com.android.org.bouncycastle.crypto.Digest;
+import com.android.org.bouncycastle.util.encoders.Base64;
 import com.android.org.bouncycastle.util.encoders.Hex;
 
 public class CertBlacklistTest extends TestCase {
@@ -33,6 +42,25 @@ public class CertBlacklistTest extends TestCase {
 
     private Set<String> DEFAULT_PUBKEYS;
     private Set<String> DEFAULT_SERIALS;
+
+    public static final String TEST_CERT = "" +
+                    "MIIDsjCCAxugAwIBAgIJAPLf2gS0zYGUMA0GCSqGSIb3DQEBBQUAMIGYMQswCQYDVQQGEwJVUzET" +
+                    "MBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEPMA0GA1UEChMGR29v" +
+                    "Z2xlMRAwDgYDVQQLEwd0ZXN0aW5nMRYwFAYDVQQDEw1HZXJlbXkgQ29uZHJhMSEwHwYJKoZIhvcN" +
+                    "AQkBFhJnY29uZHJhQGdvb2dsZS5jb20wHhcNMTIwNzE0MTc1MjIxWhcNMTIwODEzMTc1MjIxWjCB" +
+                    "mDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWExFjAUBgNVBAcTDU1vdW50YWluIFZp" +
+                    "ZXcxDzANBgNVBAoTBkdvb2dsZTEQMA4GA1UECxMHdGVzdGluZzEWMBQGA1UEAxMNR2VyZW15IENv" +
+                    "bmRyYTEhMB8GCSqGSIb3DQEJARYSZ2NvbmRyYUBnb29nbGUuY29tMIGfMA0GCSqGSIb3DQEBAQUA" +
+                    "A4GNADCBiQKBgQCjGGHATBYlmas+0sEECkno8LZ1KPglb/mfe6VpCT3GhSr+7br7NG/ZwGZnEhLq" +
+                    "E7YIH4fxltHmQC3Tz+jM1YN+kMaQgRRjo/LBCJdOKaMwUbkVynAH6OYsKevjrOPk8lfM5SFQzJMG" +
+                    "sA9+Tfopr5xg0BwZ1vA/+E3mE7Tr3M2UvwIDAQABo4IBADCB/TAdBgNVHQ4EFgQUhzkS9E6G+x8W" +
+                    "L4EsmRjDxu28tHUwgc0GA1UdIwSBxTCBwoAUhzkS9E6G+x8WL4EsmRjDxu28tHWhgZ6kgZswgZgx" +
+                    "CzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3" +
+                    "MQ8wDQYDVQQKEwZHb29nbGUxEDAOBgNVBAsTB3Rlc3RpbmcxFjAUBgNVBAMTDUdlcmVteSBDb25k" +
+                    "cmExITAfBgkqhkiG9w0BCQEWEmdjb25kcmFAZ29vZ2xlLmNvbYIJAPLf2gS0zYGUMAwGA1UdEwQF" +
+                    "MAMBAf8wDQYJKoZIhvcNAQEFBQADgYEAYiugFDmbDOQ2U/+mqNt7o8ftlEo9SJrns6O8uTtK6AvR" +
+                    "orDrR1AXTXkuxwLSbmVfedMGOZy7Awh7iZa8hw5x9XmUudfNxvmrKVEwGQY2DZ9PXbrnta/dwbhK" +
+                    "mWfoepESVbo7CKIhJp8gRW0h1Z55ETXD57aGJRvQS4pxkP8ANhM=";
 
     public CertBlacklistTest() throws IOException {
         tmpFile = File.createTempFile("test", "");
@@ -82,6 +110,13 @@ public class CertBlacklistTest extends TestCase {
         return results;
     }
 
+    private String getHash(PublicKey publicKey) throws Exception {
+        byte[] encoded = publicKey.getEncoded();
+        MessageDigest digest = MessageDigest.getInstance("SHA1");
+        byte[] hexlifiedHash = Hex.encode(digest.digest(encoded));
+        return new String(hexlifiedHash);
+    }
+
     private Set<String> getDefaultPubkeys() throws IOException {
         return getPubkeyBlacklist("");
     }
@@ -116,7 +151,14 @@ public class CertBlacklistTest extends TestCase {
         blacklistToFile(result.toString());
     }
 
-    public void testPubkeyBlacklistLegit() throws IOException {
+    private PublicKey createPublicKey(String cert) throws Exception {
+        byte[] derCert = Base64.decode(cert.getBytes());
+        InputStream istream = new ByteArrayInputStream(derCert);
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        return cf.generateCertificate(istream).getPublicKey();
+    }
+
+    public void testPubkeyBlacklistLegit() throws Exception {
         // build the blacklist
         HashSet<String> bl = new HashSet<String>();
         bl.add("6ccabd7db47e94a5759901b6a7dfd45d1c091ccc");
@@ -126,6 +168,34 @@ public class CertBlacklistTest extends TestCase {
         bl.addAll(DEFAULT_PUBKEYS);
         // do the test
         assertEquals(bl, getCurrentPubkeyBlacklist());
+    }
+
+    public void testLegitPubkeyIsntBlacklisted() throws Exception {
+        // build the public key
+        PublicKey pk = createPublicKey(TEST_CERT);
+        // write that to the test blacklist
+        writeBlacklist(new HashSet<String>());
+        // set our blacklist path
+        CertBlacklist bl = new CertBlacklist(tmpFile.getCanonicalPath(),
+                                             CertBlacklist.DEFAULT_SERIAL_BLACKLIST_PATH);
+        // check to make sure it isn't blacklisted
+        assertEquals(bl.isPublicKeyBlackListed(pk), false);
+    }
+
+    public void testPubkeyIsBlacklisted() throws Exception {
+        // build the public key
+        PublicKey pk = createPublicKey(TEST_CERT);
+        // get its hash
+        String hash = getHash(pk);
+        // write that to the test blacklist
+        HashSet<String> testBlackList = new HashSet<String>();
+        testBlackList.add(hash);
+        writeBlacklist(testBlackList);
+        // set our blacklist path
+        CertBlacklist bl = new CertBlacklist(tmpFile.getCanonicalPath(),
+                                             CertBlacklist.DEFAULT_SERIAL_BLACKLIST_PATH);
+        // check to make sure it isn't blacklited
+        assertTrue(bl.isPublicKeyBlackListed(pk));
     }
 
     public void testSerialBlacklistLegit() throws IOException {
