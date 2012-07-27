@@ -24,7 +24,9 @@ import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_END;
 import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_START;
 import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_INPUT_AT_END;
 import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_OUTPUT_AT_END;
+import dalvik.system.CloseGuard;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,6 +78,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import junit.framework.TestCase;
+import libcore.java.lang.ref.FinalizationTester;
 import libcore.java.security.TestKeyStore;
 import libcore.javax.net.ssl.TestSSLContext;
 import libcore.net.http.HttpResponseCache;
@@ -816,6 +819,50 @@ public final class URLConnectionTest extends TestCase {
 
         assertContent("A", connection);
         assertEquals(200, connection.getResponseCode());
+    }
+
+    public void testDisconnectAfterOnlyResponseCodeCausesNoCloseGuardWarning() throws IOException {
+        CloseGuardGuard guard = new CloseGuardGuard();
+        try {
+            server.enqueue(new MockResponse()
+                           .setBody(gzip("ABCABCABC".getBytes("UTF-8")))
+                           .addHeader("Content-Encoding: gzip"));
+            server.play();
+
+            HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+            assertEquals(200, connection.getResponseCode());
+            connection.disconnect();
+            connection = null;
+            assertFalse(guard.wasCloseGuardCalled());
+        } finally {
+            guard.close();
+        }
+    }
+
+    public static class CloseGuardGuard implements Closeable, CloseGuard.Reporter  {
+        private final CloseGuard.Reporter oldReporter = CloseGuard.getReporter();
+
+        private AtomicBoolean closeGuardCalled = new AtomicBoolean();
+
+        public CloseGuardGuard() {
+            CloseGuard.setReporter(this);
+        }
+
+        @Override public void report(String message, Throwable allocationSite) {
+            oldReporter.report(message, allocationSite);
+            closeGuardCalled.set(true);
+        }
+
+        public boolean wasCloseGuardCalled() {
+            // FinalizationTester.induceFinalization();
+            close();
+            return closeGuardCalled.get();
+        }
+
+        @Override public void close() {
+            CloseGuard.setReporter(oldReporter);
+        }
+
     }
 
     public void testDefaultRequestProperty() throws Exception {
