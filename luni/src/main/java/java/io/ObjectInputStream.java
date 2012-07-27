@@ -23,6 +23,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -1089,8 +1090,11 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
 
         for (ObjectStreamField fieldDesc : fields) {
             Field field = classDesc.getReflectionField(fieldDesc);
-            // We may not have been able to find the field, but we still need to read the value
-            // and do the other checking, so there's no null check on 'field' here.
+            if (Modifier.isTransient(field.getModifiers())) {
+                field = null; // No setting transient fields! (http://b/4471249)
+            }
+            // We may not have been able to find the field, or it may be transient, but we still
+            // need to read the value and do the other checking...
             try {
                 Class<?> type = fieldDesc.getTypeInternal();
                 if (type == byte.class) {
