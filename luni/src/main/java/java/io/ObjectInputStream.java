@@ -1090,7 +1090,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
 
         for (ObjectStreamField fieldDesc : fields) {
             Field field = classDesc.getReflectionField(fieldDesc);
-            if (Modifier.isTransient(field.getModifiers())) {
+            if (field != null && Modifier.isTransient(field.getModifiers())) {
                 field = null; // No setting transient fields! (http://b/4471249)
             }
             // We may not have been able to find the field, or it may be transient, but we still
