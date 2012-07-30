@@ -91,10 +91,24 @@ public class StringTest extends TestCase {
         }
     }
 
-    public void testStringFromCharset() {
-        Charset cs = Charset.forName("UTF-8");
-        byte[] bytes = new byte[] {(byte) 'h', (byte) 'i'};
-        assertEquals("hi", new String(bytes, cs));
+    public void testString_BII() throws Exception {
+        byte[] bytes = "xa\u0666bx".getBytes("UTF-8");
+        assertEquals("a\u0666b", new String(bytes, 1, bytes.length - 2));
+    }
+
+    public void testString_BIIString() throws Exception {
+        byte[] bytes = "xa\u0666bx".getBytes("UTF-8");
+        assertEquals("a\u0666b", new String(bytes, 1, bytes.length - 2, "UTF-8"));
+    }
+
+    public void testString_BIICharset() throws Exception {
+        byte[] bytes = "xa\u0666bx".getBytes("UTF-8");
+        assertEquals("a\u0666b", new String(bytes, 1, bytes.length - 2, Charset.forName("UTF-8")));
+    }
+
+    public void testString_BCharset() throws Exception {
+        byte[] bytes = "a\u0666b".getBytes("UTF-8");
+        assertEquals("a\u0666b", new String(bytes, Charset.forName("UTF-8")));
     }
 
     public void testStringFromCharset_MaliciousCharset() {
