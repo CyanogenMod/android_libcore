@@ -168,17 +168,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      *             if {@code byteCount < 0 || offset < 0 || offset + byteCount > data.length}.
      */
     public String(byte[] data, int offset, int byteCount) {
-        if ((offset | byteCount) < 0 || byteCount > data.length - offset) {
-            throw failedBoundsCheck(data.length, offset, byteCount);
-        }
-        CharBuffer cb = Charset.defaultCharset().decode(ByteBuffer.wrap(data, offset, byteCount));
-        this.count = cb.length();
-        this.offset = 0;
-        if (count > 0) {
-            value = cb.array();
-        } else {
-            value = EmptyArray.CHAR;
-        }
+        this(data, offset, byteCount, Charset.defaultCharset());
     }
 
     /**
