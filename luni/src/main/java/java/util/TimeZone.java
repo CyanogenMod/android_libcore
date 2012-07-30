@@ -17,6 +17,7 @@
 
 package java.util;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -80,7 +81,8 @@ public abstract class TimeZone implements Serializable, Cloneable {
      */
     public static final int LONG = 1;
 
-    static final TimeZone GMT = new SimpleTimeZone(0, "GMT"); // Greenwich Mean Time
+    private static final TimeZone GMT = new SimpleTimeZone(0, "GMT");
+    private static final TimeZone UTC = new SimpleTimeZone(0, "UTC");
 
     private static TimeZone defaultTimeZone;
 
@@ -218,16 +220,27 @@ public abstract class TimeZone implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the daylight savings offset in milliseconds for this time zone.
-     * The base implementation returns {@code 3600000} (1 hour) for time zones
-     * that use daylight savings time and {@code 0} for timezones that do not.
-     * Subclasses should override this method for other daylight savings
-     * offsets.
+     * Returns the latest daylight savings in milliseconds for this time zone, relative
+     * to this time zone's regular UTC offset (as returned by {@link #getRawOffset}).
      *
-     * <p>Note that this method doesn't tell you whether or not to apply the
+     * <p>This class returns {@code 3600000} (1 hour) for time zones
+     * that use daylight savings time and {@code 0} for timezones that do not,
+     * leaving it to subclasses to override this method for other daylight savings
+     * offsets. (There are time zones, such as {@code Australia/Lord_Howe},
+     * that use other values.)
+     *
+     * <p>Note that this method doesn't tell you whether or not to <i>apply</i> the
      * offset: you need to call {@code inDaylightTime} for the specific time
      * you're interested in. If this method returns a non-zero offset, that only
      * tells you that this {@code TimeZone} sometimes observes daylight savings.
+     *
+     * <p>Note also that this method doesn't necessarily return the value you need
+     * to apply to the time you're working with. This value can and does change over
+     * time for a given time zone.
+     *
+     * <p>It's highly unlikely that you should ever call this method. You
+     * probably want {@link #getOffset} instead, which tells you the offset
+     * for a specific point in time, and takes daylight savings into account for you.
      */
     public int getDSTSavings() {
         return useDaylightTime() ? 3600000 : 0;
@@ -291,17 +304,32 @@ public abstract class TimeZone implements Serializable, Cloneable {
         if (id == null) {
             throw new NullPointerException("id == null");
         }
-        TimeZone zone = ZoneInfoDB.getTimeZone(id);
-        if (zone != null) {
-            return zone;
+
+        // Special cases? These can clone an existing instance.
+        // TODO: should we just add a cache to ZoneInfoDB instead?
+        if (id.length() == 3) {
+            if (id.equals("GMT")) {
+                return (TimeZone) GMT.clone();
+            }
+            if (id.equals("UTC")) {
+                return (TimeZone) UTC.clone();
+            }
         }
+
+        // In the database?
+        TimeZone zone = null;
+        try {
+            zone = ZoneInfoDB.makeTimeZone(id);
+        } catch (IOException ignored) {
+        }
+
+        // Custom time zone?
         if (zone == null && id.length() > 3 && id.startsWith("GMT")) {
             zone = getCustomTimeZone(id);
         }
-        if (zone == null) {
-            zone = (TimeZone) GMT.clone();
-        }
-        return zone;
+
+        // We never return null; on failure we return the equivalent of "GMT".
+        return (zone != null) ? zone : (TimeZone) GMT.clone();
     }
 
     /**
