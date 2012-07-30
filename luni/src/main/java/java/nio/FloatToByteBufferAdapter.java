@@ -92,6 +92,7 @@ final class FloatToByteBufferAdapter extends FloatBuffer {
 
     @Override
     public float get(int index) {
+        checkIndex(index);
         return byteBuffer.getFloat(index * SizeOf.FLOAT);
     }
 
