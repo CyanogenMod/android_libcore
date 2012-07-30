@@ -92,6 +92,7 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
 
     @Override
     public short get(int index) {
+        checkIndex(index);
         return byteBuffer.getShort(index * SizeOf.SHORT);
     }
 
