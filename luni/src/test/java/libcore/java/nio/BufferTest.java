@@ -688,6 +688,7 @@ public class BufferTest extends TestCase {
             b.asCharBuffer().get(0);
             fail();
         } catch (IndexOutOfBoundsException expected) {
+            assertTrue(expected.getMessage().contains("limit=0"));
         }
 
         try {
@@ -699,6 +700,7 @@ public class BufferTest extends TestCase {
             b.asDoubleBuffer().get(0);
             fail();
         } catch (IndexOutOfBoundsException expected) {
+            assertTrue(expected.getMessage().contains("limit=0"));
         }
 
         try {
@@ -710,6 +712,7 @@ public class BufferTest extends TestCase {
             b.asFloatBuffer().get(0);
             fail();
         } catch (IndexOutOfBoundsException expected) {
+            assertTrue(expected.getMessage().contains("limit=0"));
         }
 
         try {
@@ -721,6 +724,7 @@ public class BufferTest extends TestCase {
             b.asIntBuffer().get(0);
             fail();
         } catch (IndexOutOfBoundsException expected) {
+            assertTrue(expected.getMessage().contains("limit=0"));
         }
 
         try {
@@ -732,6 +736,7 @@ public class BufferTest extends TestCase {
             b.asLongBuffer().get(0);
             fail();
         } catch (IndexOutOfBoundsException expected) {
+            assertTrue(expected.getMessage().contains("limit=0"));
         }
 
         try {
@@ -743,6 +748,7 @@ public class BufferTest extends TestCase {
             b.asShortBuffer().get(0);
             fail();
         } catch (IndexOutOfBoundsException expected) {
+            assertTrue(expected.getMessage().contains("limit=0"));
         }
     }
 }
