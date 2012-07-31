@@ -186,4 +186,10 @@ public class TimeZoneTest extends junit.framework.TestCase {
         assertEquals("GMT", TimeZone.getTimeZone("junk").getID());
         assertEquals("GMT", TimeZone.getTimeZone("gmt+5:00").getID());
     }
+
+    public void test_getDSTSavings() throws Exception {
+      assertEquals(0, TimeZone.getTimeZone("UTC").getDSTSavings());
+      assertEquals(3600000, TimeZone.getTimeZone("America/Los_Angeles").getDSTSavings());
+      assertEquals(1800000, TimeZone.getTimeZone("Australia/Lord_Howe").getDSTSavings());
+    }
 }
