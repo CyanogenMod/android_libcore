@@ -51,27 +51,44 @@ public final class ZoneInfo extends TimeZone {
     private final byte[] mTypes;
     private final byte[] mIsDsts;
     private final boolean mUseDst;
+    private final int mDstSavings; // Implements TimeZone.getDSTSavings.
 
-    ZoneInfo(String name, int[] transitions, byte[] type, int[] gmtOffsets, byte[] isDsts) {
+    ZoneInfo(String name, int[] transitions, byte[] types, int[] gmtOffsets, byte[] isDsts) {
         mTransitions = transitions;
-        mTypes = type;
+        mTypes = types;
         mIsDsts = isDsts;
         setID(name);
 
-        // Use the latest non-daylight offset (if any) as the raw offset.
-        int lastStd;
-        for (lastStd = mTransitions.length - 1; lastStd >= 0; lastStd--) {
-            if (mIsDsts[mTypes[lastStd] & 0xff] == 0) {
-                break;
+        // Find the latest daylight and standard offsets (if any).
+        int lastStd = 0;
+        boolean haveStd = false;
+        int lastDst = 0;
+        boolean haveDst = false;
+        for (int i = mTransitions.length - 1; (!haveStd || !haveDst) && i >= 0; --i) {
+            int type = mTypes[i] & 0xff;
+            if (!haveStd && mIsDsts[type] == 0) {
+                haveStd = true;
+                lastStd = i;
+            }
+            if (!haveDst && mIsDsts[type] != 0) {
+                haveDst = true;
+                lastDst = i;
             }
         }
-        if (lastStd < 0) {
-            lastStd = 0;
-        }
+
+        // Use the latest non-daylight offset (if any) as the raw offset.
         if (lastStd >= mTypes.length) {
             mRawOffset = gmtOffsets[0];
         } else {
             mRawOffset = gmtOffsets[mTypes[lastStd] & 0xff];
+        }
+
+        // Use the latest transition's pair of offsets to compute the DST savings.
+        // This isn't generally useful, but it's exposed by TimeZone.getDSTSavings.
+        if (lastDst >= mTypes.length) {
+            mDstSavings = 0;
+        } else {
+            mDstSavings = Math.abs(gmtOffsets[mTypes[lastStd] & 0xff] - gmtOffsets[mTypes[lastDst] & 0xff]) * 1000;
         }
 
         // Cache the oldest known raw offset, in case we're asked about times that predate our
@@ -111,6 +128,7 @@ public final class ZoneInfo extends TimeZone {
         }
         mUseDst = usesDst;
 
+        // tzdata uses seconds, but Java uses milliseconds.
         mRawOffset *= 1000;
         mEarliestRawOffset = earliestRawOffset * 1000;
     }
@@ -185,6 +203,10 @@ public final class ZoneInfo extends TimeZone {
         mRawOffset = off;
     }
 
+    @Override public int getDSTSavings() {
+        return mUseDst ? mDstSavings: 0;
+    }
+
     @Override public boolean useDaylightTime() {
         return mUseDst;
     }
@@ -235,7 +257,7 @@ public final class ZoneInfo extends TimeZone {
         StringBuilder sb = new StringBuilder();
         // First the basics...
         sb.append(getClass().getName() + "[" + getID() + ",mRawOffset=" + mRawOffset +
-                ",mUseDst=" + mUseDst + "]");
+                ",mUseDst=" + mUseDst + ",mDstSavings=" + mDstSavings + "]");
         // ...followed by a zdump(1)-like description of all our transition data.
         sb.append("\n");
         Formatter f = new Formatter(sb);

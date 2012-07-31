@@ -180,7 +180,7 @@ public final class ZoneInfoDB {
         }
     }
 
-    private static TimeZone makeTimeZone(String id) throws IOException {
+    public static TimeZone makeTimeZone(String id) throws IOException {
         // Work out where in the big data file this time zone is.
         int index = Arrays.binarySearch(ids, id);
         if (index < 0) {
@@ -256,17 +256,6 @@ public final class ZoneInfoDB {
                 zoneName = "localtime";
             }
             return TimeZone.getTimeZone(zoneName);
-        }
-    }
-
-    public static TimeZone getTimeZone(String id) {
-        if (id == null) {
-            return null;
-        }
-        try {
-            return makeTimeZone(id);
-        } catch (IOException ignored) {
-            return null;
         }
     }
 
