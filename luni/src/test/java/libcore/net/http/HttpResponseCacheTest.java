@@ -959,7 +959,7 @@ public final class HttpResponseCacheTest extends TestCase {
 
         HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
         connection.addRequestProperty("Cache-Control", "only-if-cached");
-        assertBadGateway(connection);
+        assertGatewayTimeout(connection);
     }
 
     public void testRequestOnlyIfCachedWithFullResponseCached() throws IOException {
@@ -983,7 +983,7 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals("A", readAscii(server.getUrl("/").openConnection()));
         HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
         connection.addRequestProperty("Cache-Control", "only-if-cached");
-        assertBadGateway(connection);
+        assertGatewayTimeout(connection);
     }
 
     public void testRequestOnlyIfCachedWithUnhelpfulResponseCached() throws IOException {
@@ -993,7 +993,7 @@ public final class HttpResponseCacheTest extends TestCase {
         assertEquals("A", readAscii(server.getUrl("/").openConnection()));
         HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
         connection.addRequestProperty("Cache-Control", "only-if-cached");
-        assertBadGateway(connection);
+        assertGatewayTimeout(connection);
     }
 
     public void testRequestCacheControlNoCache() throws Exception {
@@ -1804,13 +1804,13 @@ public final class HttpResponseCacheTest extends TestCase {
         }
     }
 
-    private void assertBadGateway(HttpURLConnection connection) throws IOException {
+    private void assertGatewayTimeout(HttpURLConnection connection) throws IOException {
         try {
             connection.getInputStream();
             fail();
         } catch (FileNotFoundException expected) {
         }
-        assertEquals(HttpURLConnection.HTTP_BAD_GATEWAY, connection.getResponseCode());
+        assertEquals(504, connection.getResponseCode());
         assertEquals(-1, connection.getErrorStream().read());
     }
 
