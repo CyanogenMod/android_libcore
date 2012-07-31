@@ -1416,7 +1416,7 @@ public class GregorianCalendar extends Calendar {
      */
     public void setGregorianChange(Date date) {
         gregorianCutover = date.getTime();
-        GregorianCalendar cal = new GregorianCalendar(TimeZone.GMT);
+        GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         cal.setTime(date);
         changeYear = cal.get(YEAR);
         if (cal.get(ERA) == BC) {
