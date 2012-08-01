@@ -1,13 +1,17 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent;
 import java.util.concurrent.locks.*;
 import java.util.concurrent.atomic.*;
 import java.util.*;
+
+// BEGIN android-note
+// removed security manager docs
+// END android-note
 
 /**
  * An {@link ExecutorService} that executes each submitted task using
@@ -1311,8 +1315,6 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * <p>This method does not wait for previously submitted tasks to
      * complete execution.  Use {@link #awaitTermination awaitTermination}
      * to do that.
-     *
-     * @throws SecurityException {@inheritDoc}
      */
     public void shutdown() {
         final ReentrantLock mainLock = this.mainLock;
@@ -1342,8 +1344,6 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * processing actively executing tasks.  This implementation
      * cancels tasks via {@link Thread#interrupt}, so any task that
      * fails to respond to interrupts may never terminate.
-     *
-     * @throws SecurityException {@inheritDoc}
      */
     public List<Runnable> shutdownNow() {
         List<Runnable> tasks;
@@ -1509,6 +1509,18 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     public boolean prestartCoreThread() {
         return workerCountOf(ctl.get()) < corePoolSize &&
             addWorker(null, true);
+    }
+
+    /**
+     * Same as prestartCoreThread except arranges that at least one
+     * thread is started even if corePoolSize is 0.
+     */
+    void ensurePrestart() {
+        int wc = workerCountOf(ctl.get());
+        if (wc < corePoolSize)
+            addWorker(null, true);
+        else if (wc == 0)
+            addWorker(null, false);
     }
 
     /**

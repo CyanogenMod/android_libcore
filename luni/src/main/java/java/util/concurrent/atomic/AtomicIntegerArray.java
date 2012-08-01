@@ -1,12 +1,11 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent.atomic;
 import sun.misc.Unsafe;
-import java.util.*;
 
 /**
  * An {@code int} array in which elements may be updated atomically.
@@ -19,7 +18,7 @@ import java.util.*;
 public class AtomicIntegerArray implements java.io.Serializable {
     private static final long serialVersionUID = 2862133569453604235L;
 
-    private static final Unsafe unsafe = UnsafeAccess.THE_ONE; // android-changed
+    private static final Unsafe unsafe = Unsafe.getUnsafe();
     private static final int base = unsafe.arrayBaseOffset(int[].class);
     private static final int shift;
     private final int[] array;
