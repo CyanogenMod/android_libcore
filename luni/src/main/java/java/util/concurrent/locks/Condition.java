@@ -1,7 +1,7 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent.locks;
@@ -331,10 +331,9 @@ public interface Condition {
     /**
      * Causes the current thread to wait until it is signalled or interrupted,
      * or the specified waiting time elapses. This method is behaviorally
-     * equivalent to:<br>
-     * <pre>
-     *   awaitNanos(unit.toNanos(time)) &gt; 0
-     * </pre>
+     * equivalent to:
+     *  <pre> {@code awaitNanos(unit.toNanos(time)) > 0}</pre>
+     *
      * @param time the maximum time to wait
      * @param unit the time unit of the {@code time} argument
      * @return {@code false} if the waiting time detectably elapsed

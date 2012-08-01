@@ -1,13 +1,12 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent;
 import java.util.*;
 import java.util.concurrent.locks.*;
-import java.util.concurrent.atomic.*;
 
 /**
  * A counting semaphore.  Conceptually, a semaphore maintains a set of
@@ -20,7 +19,7 @@ import java.util.concurrent.atomic.*;
  * <p>Semaphores are often used to restrict the number of threads than can
  * access some (physical or logical) resource. For example, here is
  * a class that uses a semaphore to control access to a pool of items:
- * <pre>
+ *  <pre> {@code
  * class Pool {
  *   private static final int MAX_AVAILABLE = 100;
  *   private final Semaphore available = new Semaphore(MAX_AVAILABLE, true);
@@ -62,9 +61,7 @@ import java.util.concurrent.atomic.*;
  *     }
  *     return false;
  *   }
- *
- * }
- * </pre>
+ * }}</pre>
  *
  * <p>Before obtaining an item each thread must acquire a permit from
  * the semaphore, guaranteeing that an item is available for use. When

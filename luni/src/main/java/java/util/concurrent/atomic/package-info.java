@@ -1,7 +1,7 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 /**
@@ -11,9 +11,7 @@
  * array elements to those that also provide an atomic conditional update
  * operation of the form:
  *
- * <pre>
- *   boolean compareAndSet(expectedValue, updateValue);
- * </pre>
+ *  <pre> {@code boolean compareAndSet(expectedValue, updateValue);}</pre>
  *
  * <p>This method (which varies in argument types across different
  * classes) atomically sets a variable to the {@code updateValue} if it
@@ -40,15 +38,30 @@
  * {@code AtomicInteger} provide atomic increment methods.  One
  * application is to generate sequence numbers, as in:
  *
- * <pre>
+ *  <pre> {@code
  * class Sequencer {
  *   private final AtomicLong sequenceNumber
  *     = new AtomicLong(0);
  *   public long next() {
  *     return sequenceNumber.getAndIncrement();
  *   }
- * }
- * </pre>
+ * }}</pre>
+ *
+ * <p>It is straightforward to define new utility functions that, like
+ * {@code getAndIncrement}, apply a function to a value atomically.
+ * For example, given some transformation
+ * <pre> {@code long transform(long input)}</pre>
+ *
+ * write your utility method as follows:
+ *  <pre> {@code
+ * boolean getAndTransform(AtomicLong var) {
+ *   while (true) {
+ *     long current = var.get();
+ *     long next = transform(current);
+ *     if (var.compareAndSet(current, next))
+ *         return current;
+ *   }
+ * }}</pre>
  *
  * <p>The memory effects for accesses and updates of atomics generally
  * follow the rules for volatiles, as stated in
@@ -161,9 +174,9 @@
  * {@code byte} values, and cast appropriately.
  *
  * You can also hold floats using
- * {@link java.lang.Float#floatToIntBits} and
+ * {@link java.lang.Float#floatToRawIntBits} and
  * {@link java.lang.Float#intBitsToFloat} conversions, and doubles using
- * {@link java.lang.Double#doubleToLongBits} and
+ * {@link java.lang.Double#doubleToRawLongBits} and
  * {@link java.lang.Double#longBitsToDouble} conversions.
  *
  * @since 1.5

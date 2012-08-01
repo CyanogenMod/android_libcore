@@ -1,13 +1,12 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent.locks;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
 
 /**
  * A reentrant mutual exclusion {@link Lock} with the same basic
@@ -44,7 +43,7 @@ import java.util.concurrent.atomic.*;
  * follow a call to {@code lock} with a {@code try} block, most
  * typically in a before/after construction such as:
  *
- * <pre>
+ *  <pre> {@code
  * class X {
  *   private final ReentrantLock lock = new ReentrantLock();
  *   // ...
@@ -57,8 +56,7 @@ import java.util.concurrent.atomic.*;
  *       lock.unlock()
  *     }
  *   }
- * }
- * </pre>
+ * }}</pre>
  *
  * <p>In addition to implementing the {@link Lock} interface, this
  * class defines methods {@code isLocked} and
@@ -354,8 +352,11 @@ public class ReentrantLock implements Lock, java.io.Serializable {
      * method. If you want a timed {@code tryLock} that does permit barging on
      * a fair lock then combine the timed and un-timed forms together:
      *
-     * <pre>if (lock.tryLock() || lock.tryLock(timeout, unit) ) { ... }
-     * </pre>
+     *  <pre> {@code
+     * if (lock.tryLock() ||
+     *     lock.tryLock(timeout, unit)) {
+     *   ...
+     * }}</pre>
      *
      * <p>If the current thread
      * already holds this lock then the hold count is incremented by one and
@@ -485,7 +486,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
      * not be entered with the lock already held then we can assert that
      * fact:
      *
-     * <pre>
+     *  <pre> {@code
      * class X {
      *   ReentrantLock lock = new ReentrantLock();
      *   // ...
@@ -498,8 +499,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
      *       lock.unlock();
      *     }
      *   }
-     * }
-     * </pre>
+     * }}</pre>
      *
      * @return the number of holds on this lock by the current thread,
      *         or zero if this lock is not held by the current thread
@@ -516,7 +516,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
      * testing. For example, a method that should only be called while
      * a lock is held can assert that this is the case:
      *
-     * <pre>
+     *  <pre> {@code
      * class X {
      *   ReentrantLock lock = new ReentrantLock();
      *   // ...
@@ -525,13 +525,12 @@ public class ReentrantLock implements Lock, java.io.Serializable {
      *       assert lock.isHeldByCurrentThread();
      *       // ... method body
      *   }
-     * }
-     * </pre>
+     * }}</pre>
      *
      * <p>It can also be used to ensure that a reentrant lock is used
      * in a non-reentrant manner, for example:
      *
-     * <pre>
+     *  <pre> {@code
      * class X {
      *   ReentrantLock lock = new ReentrantLock();
      *   // ...
@@ -545,8 +544,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
      *           lock.unlock();
      *       }
      *   }
-     * }
-     * </pre>
+     * }}</pre>
      *
      * @return {@code true} if current thread holds this lock and
      *         {@code false} otherwise
