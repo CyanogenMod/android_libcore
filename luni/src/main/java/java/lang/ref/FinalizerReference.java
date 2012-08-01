@@ -28,11 +28,11 @@ public final class FinalizerReference<T> extends Reference<T> {
 
     // This list contains a FinalizerReference for every finalizable object in the heap.
     // Objects in this list may or may not be eligible for finalization yet.
-    private static FinalizerReference head = null;
+    private static FinalizerReference<?> head = null;
 
     // The links used to construct the list.
-    private FinalizerReference prev;
-    private FinalizerReference next;
+    private FinalizerReference<?> prev;
+    private FinalizerReference<?> next;
 
     // When the GC wants something finalized, it moves it from the 'referent' field to
     // the 'zombie' field instead.
@@ -50,7 +50,7 @@ public final class FinalizerReference<T> extends Reference<T> {
         zombie = null;
     }
 
-    static void add(Object referent) {
+    public static void add(Object referent) {
         FinalizerReference<?> reference = new FinalizerReference<Object>(referent, queue);
         synchronized (LIST_LOCK) {
             reference.prev = null;
@@ -62,10 +62,10 @@ public final class FinalizerReference<T> extends Reference<T> {
         }
     }
 
-    public static void remove(FinalizerReference reference) {
+    public static void remove(FinalizerReference<?> reference) {
         synchronized (LIST_LOCK) {
-            FinalizerReference next = reference.next;
-            FinalizerReference prev = reference.prev;
+            FinalizerReference<?> next = reference.next;
+            FinalizerReference<?> prev = reference.prev;
             reference.next = null;
             reference.prev = null;
             if (prev != null) {
@@ -93,11 +93,12 @@ public final class FinalizerReference<T> extends Reference<T> {
             // When a finalizable object is allocated, a FinalizerReference is added to the list.
             // We search the list for that FinalizerReference (it should be at or near the head),
             // and then put it on the queue so that it can be finalized.
-            for (FinalizerReference r = head; r != null; r = r.next) {
+            for (FinalizerReference<?> r = head; r != null; r = r.next) {
                 if (r.referent == sentinel) {
-                    r.referent = null;
-                    r.zombie = sentinel;
-                    r.enqueueInternal();
+                    FinalizerReference<Sentinel> sentinelReference = (FinalizerReference<Sentinel>) r;
+                    sentinelReference.referent = null;
+                    sentinelReference.zombie = sentinel;
+                    sentinelReference.enqueueInternal();
                     return;
                 }
             }
