@@ -854,7 +854,7 @@ public final class URLConnectionTest extends TestCase {
         }
 
         public boolean wasCloseGuardCalled() {
-            // FinalizationTester.induceFinalization();
+            FinalizationTester.induceFinalization();
             close();
             return closeGuardCalled.get();
         }
