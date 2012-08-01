@@ -2459,7 +2459,7 @@ public class Arrays {
      */
     public static boolean[] copyOf(boolean[] original, int newLength) {
         if (newLength < 0) {
-            throw new NegativeArraySizeException();
+            throw new NegativeArraySizeException(Integer.toString(newLength));
         }
         return copyOfRange(original, 0, newLength);
     }
@@ -2478,7 +2478,7 @@ public class Arrays {
      */
     public static byte[] copyOf(byte[] original, int newLength) {
         if (newLength < 0) {
-            throw new NegativeArraySizeException();
+            throw new NegativeArraySizeException(Integer.toString(newLength));
         }
         return copyOfRange(original, 0, newLength);
     }
@@ -2497,7 +2497,7 @@ public class Arrays {
      */
     public static char[] copyOf(char[] original, int newLength) {
         if (newLength < 0) {
-            throw new NegativeArraySizeException();
+            throw new NegativeArraySizeException(Integer.toString(newLength));
         }
         return copyOfRange(original, 0, newLength);
     }
@@ -2516,7 +2516,7 @@ public class Arrays {
      */
     public static double[] copyOf(double[] original, int newLength) {
         if (newLength < 0) {
-            throw new NegativeArraySizeException();
+            throw new NegativeArraySizeException(Integer.toString(newLength));
         }
         return copyOfRange(original, 0, newLength);
     }
@@ -2535,7 +2535,7 @@ public class Arrays {
      */
     public static float[] copyOf(float[] original, int newLength) {
         if (newLength < 0) {
-            throw new NegativeArraySizeException();
+            throw new NegativeArraySizeException(Integer.toString(newLength));
         }
         return copyOfRange(original, 0, newLength);
     }
@@ -2554,7 +2554,7 @@ public class Arrays {
      */
     public static int[] copyOf(int[] original, int newLength) {
         if (newLength < 0) {
-            throw new NegativeArraySizeException();
+            throw new NegativeArraySizeException(Integer.toString(newLength));
         }
         return copyOfRange(original, 0, newLength);
     }
@@ -2573,7 +2573,7 @@ public class Arrays {
      */
     public static long[] copyOf(long[] original, int newLength) {
         if (newLength < 0) {
-            throw new NegativeArraySizeException();
+            throw new NegativeArraySizeException(Integer.toString(newLength));
         }
         return copyOfRange(original, 0, newLength);
     }
@@ -2592,7 +2592,7 @@ public class Arrays {
      */
     public static short[] copyOf(short[] original, int newLength) {
         if (newLength < 0) {
-            throw new NegativeArraySizeException();
+            throw new NegativeArraySizeException(Integer.toString(newLength));
         }
         return copyOfRange(original, 0, newLength);
     }
@@ -2614,7 +2614,7 @@ public class Arrays {
             throw new NullPointerException();
         }
         if (newLength < 0) {
-            throw new NegativeArraySizeException();
+            throw new NegativeArraySizeException(Integer.toString(newLength));
         }
         return copyOfRange(original, 0, newLength);
     }
@@ -2636,7 +2636,7 @@ public class Arrays {
     public static <T, U> T[] copyOf(U[] original, int newLength, Class<? extends T[]> newType) {
         // We use the null pointer check in copyOfRange for exception priority compatibility.
         if (newLength < 0) {
-            throw new NegativeArraySizeException();
+            throw new NegativeArraySizeException(Integer.toString(newLength));
         }
         return copyOfRange(original, 0, newLength, newType);
     }
