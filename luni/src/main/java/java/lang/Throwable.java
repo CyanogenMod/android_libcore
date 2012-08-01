@@ -23,6 +23,7 @@ import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import libcore.util.EmptyArray;
 
@@ -63,7 +64,7 @@ public class Throwable implements java.io.Serializable {
      * Throwables suppressed by this throwable. Null when suppressed exceptions
      * are disabled.
      */
-    private List<Throwable> suppressedExceptions = new ArrayList<Throwable>();
+    private List<Throwable> suppressedExceptions = Collections.emptyList();
 
     /**
      * An intermediate representation of the stack trace.  This field may
@@ -418,6 +419,11 @@ public class Throwable implements java.io.Serializable {
             throw new NullPointerException("suppressed == null");
         }
         if (suppressedExceptions != null) {
+            // suppressed exceptions are enabled
+            if (suppressedExceptions.isEmpty()) {
+                // ensure we have somewhere to place suppressed exceptions
+                suppressedExceptions = new ArrayList<Throwable>(1);
+            }
             suppressedExceptions.add(throwable);
         }
     }
@@ -429,7 +435,7 @@ public class Throwable implements java.io.Serializable {
      * @hide 1.7
      */
     public final Throwable[] getSuppressed() {
-        return (suppressedExceptions != null)
+        return (suppressedExceptions != null && !suppressedExceptions.isEmpty())
                 ? suppressedExceptions.toArray(new Throwable[suppressedExceptions.size()])
                 : EmptyArray.THROWABLE;
     }
