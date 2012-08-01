@@ -88,7 +88,6 @@ public class SecureRandom extends Random {
      */
     public SecureRandom() {
         super(0);
-        Services.refresh();
         Provider.Service service = Services.getSecureRandomService();
         if (service == null) {
             this.provider = null;
