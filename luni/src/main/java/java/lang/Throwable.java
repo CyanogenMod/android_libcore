@@ -70,7 +70,7 @@ public class Throwable implements java.io.Serializable {
      * An intermediate representation of the stack trace.  This field may
      * be accessed by the VM; do not rename.
      */
-    private volatile Object stackState;
+    private transient volatile Object stackState;
 
     /**
      * A fully-expanded representation of the stack trace.
