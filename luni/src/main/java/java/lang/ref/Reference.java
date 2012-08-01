@@ -55,8 +55,7 @@ public abstract class Reference<T> {
      * VM requirement: this field <em>must</em> be called "queue"
      * and be a java.lang.ref.ReferenceQueue.
      */
-    @SuppressWarnings("unchecked")
-    volatile ReferenceQueue queue;
+    volatile ReferenceQueue<? super T> queue;
 
     /**
      * Used internally by java.lang.ref.ReferenceQueue.
@@ -82,7 +81,7 @@ public abstract class Reference<T> {
     Reference() {
     }
 
-    Reference(T r, ReferenceQueue q) {
+    Reference(T r, ReferenceQueue<? super T> q) {
         referent = r;
         queue = q;
     }
