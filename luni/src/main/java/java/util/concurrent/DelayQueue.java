@@ -1,12 +1,14 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 
 package java.util.concurrent;
-import java.util.concurrent.locks.*;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.*;
 
 // BEGIN android-note
@@ -29,7 +31,9 @@ import java.util.*;
  *
  * <p>This class and its iterator implement all of the
  * <em>optional</em> methods of the {@link Collection} and {@link
- * Iterator} interfaces.
+ * Iterator} interfaces.  The Iterator provided in method {@link
+ * #iterator()} is <em>not</em> guaranteed to traverse the elements of
+ * the DelayQueue in any particular order.
  *
  * @since 1.5
  * @author Doug Lea
@@ -154,7 +158,7 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E>
         lock.lock();
         try {
             E first = q.peek();
-            if (first == null || first.getDelay(TimeUnit.NANOSECONDS) > 0)
+            if (first == null || first.getDelay(NANOSECONDS) > 0)
                 return null;
             else
                 return q.poll();
@@ -179,7 +183,7 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E>
                 if (first == null)
                     available.await();
                 else {
-                    long delay = first.getDelay(TimeUnit.NANOSECONDS);
+                    long delay = first.getDelay(NANOSECONDS);
                     if (delay <= 0)
                         return q.poll();
                     else if (leader != null)
@@ -226,7 +230,7 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E>
                     else
                         nanos = available.awaitNanos(nanos);
                 } else {
-                    long delay = first.getDelay(TimeUnit.NANOSECONDS);
+                    long delay = first.getDelay(NANOSECONDS);
                     if (delay <= 0)
                         return q.poll();
                     if (nanos <= 0)
@@ -284,6 +288,17 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E>
     }
 
     /**
+     * Return first element only if it is expired.
+     * Used only by drainTo.  Call only when holding lock.
+     */
+    private E peekExpired() {
+        // assert lock.isHeldByCurrentThread();
+        E first = q.peek();
+        return (first == null || first.getDelay(NANOSECONDS) > 0) ?
+            null : first;
+    }
+
+    /**
      * @throws UnsupportedOperationException {@inheritDoc}
      * @throws ClassCastException            {@inheritDoc}
      * @throws NullPointerException          {@inheritDoc}
@@ -298,11 +313,9 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E>
         lock.lock();
         try {
             int n = 0;
-            for (;;) {
-                E first = q.peek();
-                if (first == null || first.getDelay(TimeUnit.NANOSECONDS) > 0)
-                    break;
-                c.add(q.poll());
+            for (E e; (e = peekExpired()) != null;) {
+                c.add(e);       // In this order, in case add() throws.
+                q.poll();
                 ++n;
             }
             return n;
@@ -328,11 +341,9 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E>
         lock.lock();
         try {
             int n = 0;
-            while (n < maxElements) {
-                E first = q.peek();
-                if (first == null || first.getDelay(TimeUnit.NANOSECONDS) > 0)
-                    break;
-                c.add(q.poll());
+            for (E e; n < maxElements && (e = peekExpired()) != null;) {
+                c.add(e);       // In this order, in case add() throws.
+                q.poll();
                 ++n;
             }
             return n;
@@ -411,8 +422,7 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E>
      * <p>The following code can be used to dump a delay queue into a newly
      * allocated array of <tt>Delayed</tt>:
      *
-     * <pre>
-     *     Delayed[] a = q.toArray(new Delayed[0]);</pre>
+     * <pre> {@code Delayed[] a = q.toArray(new Delayed[0]);}</pre>
      *
      * Note that <tt>toArray(new Object[0])</tt> is identical in function to
      * <tt>toArray()</tt>.
@@ -451,6 +461,24 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E>
     }
 
     /**
+     * Identity-based version for use in Itr.remove
+     */
+    void removeEQ(Object o) {
+        final ReentrantLock lock = this.lock;
+        lock.lock();
+        try {
+            for (Iterator<E> it = q.iterator(); it.hasNext(); ) {
+                if (o == it.next()) {
+                    it.remove();
+                    break;
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
      * Returns an iterator over all the elements (both expired and
      * unexpired) in this queue. The iterator does not return the
      * elements in any particular order.
@@ -473,7 +501,7 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E>
      */
     private class Itr implements Iterator<E> {
         final Object[] array; // Array of all elements
-        int cursor;           // index of next element to return;
+        int cursor;           // index of next element to return
         int lastRet;          // index of last element, or -1 if no such
 
         Itr(Object[] array) {
@@ -496,21 +524,8 @@ public class DelayQueue<E extends Delayed> extends AbstractQueue<E>
         public void remove() {
             if (lastRet < 0)
                 throw new IllegalStateException();
-            Object x = array[lastRet];
+            removeEQ(array[lastRet]);
             lastRet = -1;
-            // Traverse underlying queue to find == element,
-            // not just a .equals element.
-            lock.lock();
-            try {
-                for (Iterator it = q.iterator(); it.hasNext(); ) {
-                    if (it.next() == x) {
-                        it.remove();
-                        return;
-                    }
-                }
-            } finally {
-                lock.unlock();
-            }
         }
     }
 

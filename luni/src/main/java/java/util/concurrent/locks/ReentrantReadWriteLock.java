@@ -1,12 +1,11 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent.locks;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
 import java.util.*;
 
 /**
@@ -33,7 +32,7 @@ import java.util.*;
  * <dt><b><i>Fair mode</i></b>
  * <dd> When constructed as fair, threads contend for entry using an
  * approximately arrival-order policy. When the currently held lock
- * is released either the longest-waiting single writer thread will
+ * is released, either the longest-waiting single writer thread will
  * be assigned the write lock, or if there is a group of reader threads
  * waiting longer than all waiting writer threads, that group will be
  * assigned the read lock.
@@ -51,8 +50,8 @@ import java.util.*;
  * will block unless both the read lock and write lock are free (which
  * implies there are no waiting threads).  (Note that the non-blocking
  * {@link ReadLock#tryLock()} and {@link WriteLock#tryLock()} methods
- * do not honor this fair setting and will acquire the lock if it is
- * possible, regardless of waiting threads.)
+ * do not honor this fair setting and will immediately acquire the lock
+ * if it is possible, regardless of waiting threads.)
  * <p>
  * </dl>
  *
@@ -114,21 +113,21 @@ import java.util.*;
  *   void processCachedData() {
  *     rwl.readLock().lock();
  *     if (!cacheValid) {
- *        // Must release read lock before acquiring write lock
- *        rwl.readLock().unlock();
- *        rwl.writeLock().lock();
- *        try {
- *          // Recheck state because another thread might have
- *          // acquired write lock and changed state before we did.
- *          if (!cacheValid) {
- *            data = ...
- *            cacheValid = true;
- *          }
- *          // Downgrade by acquiring read lock before releasing write lock
- *          rwl.readLock().lock();
- *        } finally {
- *          rwl.writeLock().unlock(); // Unlock write, still hold read
- *        }
+ *       // Must release read lock before acquiring write lock
+ *       rwl.readLock().unlock();
+ *       rwl.writeLock().lock();
+ *       try {
+ *         // Recheck state because another thread might have
+ *         // acquired write lock and changed state before we did.
+ *         if (!cacheValid) {
+ *           data = ...
+ *           cacheValid = true;
+ *         }
+ *         // Downgrade by acquiring read lock before releasing write lock
+ *         rwl.readLock().lock();
+ *       } finally {
+ *         rwl.writeLock().unlock(); // Unlock write, still hold read
+ *       }
  *     }
  *
  *     try {
@@ -147,33 +146,33 @@ import java.util.*;
  * is a class using a TreeMap that is expected to be large and
  * concurrently accessed.
  *
- * <pre>{@code
+ *  <pre> {@code
  * class RWDictionary {
- *    private final Map<String, Data> m = new TreeMap<String, Data>();
- *    private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
- *    private final Lock r = rwl.readLock();
- *    private final Lock w = rwl.writeLock();
+ *   private final Map<String, Data> m = new TreeMap<String, Data>();
+ *   private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+ *   private final Lock r = rwl.readLock();
+ *   private final Lock w = rwl.writeLock();
  *
- *    public Data get(String key) {
- *        r.lock();
- *        try { return m.get(key); }
- *        finally { r.unlock(); }
- *    }
- *    public String[] allKeys() {
- *        r.lock();
- *        try { return m.keySet().toArray(); }
- *        finally { r.unlock(); }
- *    }
- *    public Data put(String key, Data value) {
- *        w.lock();
- *        try { return m.put(key, value); }
- *        finally { w.unlock(); }
- *    }
- *    public void clear() {
- *        w.lock();
- *        try { m.clear(); }
- *        finally { w.unlock(); }
- *    }
+ *   public Data get(String key) {
+ *     r.lock();
+ *     try { return m.get(key); }
+ *     finally { r.unlock(); }
+ *   }
+ *   public String[] allKeys() {
+ *     r.lock();
+ *     try { return m.keySet().toArray(); }
+ *     finally { r.unlock(); }
+ *   }
+ *   public Data put(String key, Data value) {
+ *     w.lock();
+ *     try { return m.put(key, value); }
+ *     finally { w.unlock(); }
+ *   }
+ *   public void clear() {
+ *     w.lock();
+ *     try { m.clear(); }
+ *     finally { w.unlock(); }
+ *   }
  * }}</pre>
  *
  * <h3>Implementation Notes</h3>
@@ -625,7 +624,9 @@ public class ReentrantReadWriteLock
         }
 
         /**
-         * Reconstitute this lock instance from a stream
+         * Reconstitutes this lock instance from a stream (that is,
+         * deserializes it).
+         *
          * @param s the stream
          */
         private void readObject(java.io.ObjectInputStream s)
@@ -790,8 +791,11 @@ public class ReentrantReadWriteLock
          * permit barging on a fair lock then combine the timed and
          * un-timed forms together:
          *
-         * <pre>if (lock.tryLock() || lock.tryLock(timeout, unit) ) { ... }
-         * </pre>
+         *  <pre> {@code
+         * if (lock.tryLock() ||
+         *     lock.tryLock(timeout, unit)) {
+         *   ...
+         * }}</pre>
          *
          * <p>If the write lock is held by another thread then the
          * current thread becomes disabled for thread scheduling
@@ -1020,8 +1024,11 @@ public class ReentrantReadWriteLock
          * that does permit barging on a fair lock then combine the
          * timed and un-timed forms together:
          *
-         * <pre>if (lock.tryLock() || lock.tryLock(timeout, unit) ) { ... }
-         * </pre>
+         *  <pre> {@code
+         * if (lock.tryLock() ||
+         *     lock.tryLock(timeout, unit)) {
+         *   ...
+         * }}</pre>
          *
          * <p>If the current thread already holds this lock then the
          * hold count is incremented by one and the method returns
