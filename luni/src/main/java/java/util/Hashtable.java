@@ -361,8 +361,8 @@ public class Hashtable<K, V> extends Dictionary<K, V>
      * @see java.lang.Object#equals
      */
     public synchronized V put(K key, V value) {
-        if (value == null) {
-            throw new NullPointerException();
+        if (key == null || value == null) {
+            throw new NullPointerException("key=" + key + " value=" + value);
         }
         int hash = secondaryHash(key.hashCode());
         HashtableEntry<K, V>[] tab = table;
@@ -395,8 +395,8 @@ public class Hashtable<K, V> extends Dictionary<K, V>
      * ensure that capacity is sufficient, and does not increment modCount.
      */
     private void constructorPut(K key, V value) {
-        if (value == null) {
-            throw new NullPointerException();
+        if (key == null || value == null) {
+            throw new NullPointerException("key=" + key + " value=" + value);
         }
         int hash = secondaryHash(key.hashCode());
         HashtableEntry<K, V>[] tab = table;
@@ -680,7 +680,7 @@ public class Hashtable<K, V> extends Dictionary<K, V>
 
         public final V setValue(V value) {
             if (value == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("key=" + key + " value=" + value);
             }
             V oldValue = this.value;
             this.value = value;
