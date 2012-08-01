@@ -1,7 +1,7 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent;
@@ -42,7 +42,7 @@ import java.util.Queue;
  *    <td>{@link #add add(e)}</td>
  *    <td>{@link #offer offer(e)}</td>
  *    <td>{@link #put put(e)}</td>
- *    <td>{@link #offer offer(e, time, unit)}</td>
+ *    <td>{@link #offer(Object, long, TimeUnit) offer(e, time, unit)}</td>
  *  </tr>
  *  <tr>
  *    <td><b>Remove</b></td>
@@ -102,7 +102,7 @@ import java.util.Queue;
  * Usage example, based on a typical producer-consumer scenario.
  * Note that a <tt>BlockingQueue</tt> can safely be used with multiple
  * producers and multiple consumers.
- * <pre>
+ *  <pre> {@code
  * class Producer implements Runnable {
  *   private final BlockingQueue queue;
  *   Producer(BlockingQueue q) { queue = q; }
@@ -135,8 +135,7 @@ import java.util.Queue;
  *     new Thread(c1).start();
  *     new Thread(c2).start();
  *   }
- * }
- * </pre>
+ * }}</pre>
  *
  * <p>Memory consistency effects: As with other concurrent
  * collections, actions in a thread prior to placing an object into a
@@ -156,7 +155,7 @@ public interface BlockingQueue<E> extends Queue<E> {
      * <tt>true</tt> upon success and throwing an
      * <tt>IllegalStateException</tt> if no space is currently available.
      * When using a capacity-restricted queue, it is generally preferable to
-     * use {@link #offer offer}.
+     * use {@link #offer(Object) offer}.
      *
      * @param e the element to add
      * @return <tt>true</tt> (as specified by {@link Collection#add})
@@ -274,8 +273,10 @@ public interface BlockingQueue<E> extends Queue<E> {
      * @param o element to be removed from this queue, if present
      * @return <tt>true</tt> if this queue changed as a result of the call
      * @throws ClassCastException if the class of the specified element
-     *         is incompatible with this queue (optional)
-     * @throws NullPointerException if the specified element is null (optional)
+     *         is incompatible with this queue
+     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     * @throws NullPointerException if the specified element is null
+     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
      */
     boolean remove(Object o);
 
@@ -287,8 +288,10 @@ public interface BlockingQueue<E> extends Queue<E> {
      * @param o object to be checked for containment in this queue
      * @return <tt>true</tt> if this queue contains the specified element
      * @throws ClassCastException if the class of the specified element
-     *         is incompatible with this queue (optional)
-     * @throws NullPointerException if the specified element is null (optional)
+     *         is incompatible with this queue
+     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     * @throws NullPointerException if the specified element is null
+     *         (<a href="../Collection.html#optional-restrictions">optional</a>)
      */
     public boolean contains(Object o);
 

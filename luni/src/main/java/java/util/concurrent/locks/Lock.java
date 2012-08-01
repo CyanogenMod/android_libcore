@@ -1,7 +1,7 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent.locks;
@@ -48,14 +48,14 @@ import java.util.concurrent.TimeUnit;
  * methods and statements. In most cases, the following idiom
  * should be used:
  *
- * <pre><tt>     Lock l = ...;
- *     l.lock();
- *     try {
- *         // access the resource protected by this lock
- *     } finally {
- *         l.unlock();
- *     }
- * </tt></pre>
+ *  <pre> {@code
+ * Lock l = ...;
+ * l.lock();
+ * try {
+ *   // access the resource protected by this lock
+ * } finally {
+ *   l.unlock();
+ * }}</pre>
  *
  * When locking and unlocking occur in different scopes, care must be
  * taken to ensure that all code that is executed while the lock is
@@ -210,18 +210,18 @@ public interface Lock {
      * immediately with the value {@code false}.
      *
      * <p>A typical usage idiom for this method would be:
-     * <pre>
-     *      Lock lock = ...;
-     *      if (lock.tryLock()) {
-     *          try {
-     *              // manipulate protected state
-     *          } finally {
-     *              lock.unlock();
-     *          }
-     *      } else {
-     *          // perform alternative actions
-     *      }
-     * </pre>
+     *  <pre> {@code
+     * Lock lock = ...;
+     * if (lock.tryLock()) {
+     *   try {
+     *     // manipulate protected state
+     *   } finally {
+     *     lock.unlock();
+     *   }
+     * } else {
+     *   // perform alternative actions
+     * }}</pre>
+     *
      * This usage ensures that the lock is unlocked if it was acquired, and
      * doesn't try to unlock if the lock was not acquired.
      *

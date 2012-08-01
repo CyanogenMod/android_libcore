@@ -1,7 +1,7 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent;
@@ -12,6 +12,10 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+
+// BEGIN android-note
+// removed link to collections framework docs
+// END android-note
 
 /**
  * An optionally-bounded {@linkplain BlockingDeque blocking deque} based on
@@ -33,10 +37,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>This class and its iterator implement all of the
  * <em>optional</em> methods of the {@link Collection} and {@link
  * Iterator} interfaces.
- *
- * <p>This class is a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
- * Java Collections Framework</a>.
  *
  * @since 1.6
  * @author  Doug Lea
@@ -590,7 +590,7 @@ public class LinkedBlockingDeque<E>
     /**
      * Inserts the specified element at the end of this deque unless it would
      * violate capacity restrictions.  When using a capacity-restricted deque,
-     * it is generally preferable to use method {@link #offer offer}.
+     * it is generally preferable to use method {@link #offer(Object) offer}.
      *
      * <p>This method is equivalent to {@link #addLast}.
      *
@@ -713,6 +713,8 @@ public class LinkedBlockingDeque<E>
             throw new NullPointerException();
         if (c == this)
             throw new IllegalArgumentException();
+        if (maxElements <= 0)
+            return 0;
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
@@ -891,8 +893,7 @@ public class LinkedBlockingDeque<E>
      * The following code can be used to dump the deque into a newly
      * allocated array of {@code String}:
      *
-     * <pre>
-     *     String[] y = x.toArray(new String[0]);</pre>
+     *  <pre> {@code String[] y = x.toArray(new String[0]);}</pre>
      *
      * Note that {@code toArray(new Object[0])} is identical in function to
      * {@code toArray()}.
@@ -1014,7 +1015,7 @@ public class LinkedBlockingDeque<E>
         /**
          * The next node to return in next()
          */
-         Node<E> next;
+        Node<E> next;
 
         /**
          * nextItem holds on to item fields because once we claim that
@@ -1122,7 +1123,7 @@ public class LinkedBlockingDeque<E>
     }
 
     /**
-     * Save the state of this deque to a stream (that is, serialize it).
+     * Saves the state of this deque to a stream (that is, serializes it).
      *
      * @serialData The capacity (int), followed by elements (each an
      * {@code Object}) in the proper order, followed by a null
@@ -1146,8 +1147,8 @@ public class LinkedBlockingDeque<E>
     }
 
     /**
-     * Reconstitute this deque from a stream (that is,
-     * deserialize it).
+     * Reconstitutes this deque from a stream (that is, deserializes it).
+     *
      * @param s the stream
      */
     private void readObject(java.io.ObjectInputStream s)

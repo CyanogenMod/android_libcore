@@ -2,13 +2,12 @@
  * Written by Doug Lea, Bill Scherer, and Michael Scott with
  * assistance from members of JCP JSR-166 Expert Group and released to
  * the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent;
 import java.util.concurrent.locks.*;
 import java.util.*;
-import libcore.util.EmptyArray;
 
 // BEGIN android-note
 // removed link to collections framework docs
@@ -250,12 +249,22 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
             }
 
             // Unsafe mechanics
-            private static final sun.misc.Unsafe UNSAFE = sun.misc.Unsafe.getUnsafe();
-            private static final long nextOffset =
-                objectFieldOffset(UNSAFE, "next", SNode.class);
-            private static final long matchOffset =
-                objectFieldOffset(UNSAFE, "match", SNode.class);
+            private static final sun.misc.Unsafe UNSAFE;
+            private static final long matchOffset;
+            private static final long nextOffset;
 
+            static {
+                try {
+                    UNSAFE = sun.misc.Unsafe.getUnsafe();
+                    Class<?> k = SNode.class;
+                    matchOffset = UNSAFE.objectFieldOffset
+                        (k.getDeclaredField("match"));
+                    nextOffset = UNSAFE.objectFieldOffset
+                        (k.getDeclaredField("next"));
+                } catch (Exception e) {
+                    throw new Error(e);
+                }
+            }
         }
 
         /** The head (top) of the stack */
@@ -393,7 +402,6 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
              */
             long lastTime = timed ? System.nanoTime() : 0;
             Thread w = Thread.currentThread();
-            SNode h = head;
             int spins = (shouldSpin(s) ?
                          (timed ? maxTimedSpins : maxUntimedSpins) : 0);
             for (;;) {
@@ -469,10 +477,18 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
         }
 
         // Unsafe mechanics
-        private static final sun.misc.Unsafe UNSAFE = sun.misc.Unsafe.getUnsafe();
-        private static final long headOffset =
-            objectFieldOffset(UNSAFE, "head", TransferStack.class);
-
+        private static final sun.misc.Unsafe UNSAFE;
+        private static final long headOffset;
+        static {
+            try {
+                UNSAFE = sun.misc.Unsafe.getUnsafe();
+                Class<?> k = TransferStack.class;
+                headOffset = UNSAFE.objectFieldOffset
+                    (k.getDeclaredField("head"));
+            } catch (Exception e) {
+                throw new Error(e);
+            }
+        }
     }
 
     /** Dual Queue */
@@ -529,11 +545,22 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
             }
 
             // Unsafe mechanics
-            private static final sun.misc.Unsafe UNSAFE = sun.misc.Unsafe.getUnsafe();
-            private static final long nextOffset =
-                objectFieldOffset(UNSAFE, "next", QNode.class);
-            private static final long itemOffset =
-                objectFieldOffset(UNSAFE, "item", QNode.class);
+            private static final sun.misc.Unsafe UNSAFE;
+            private static final long itemOffset;
+            private static final long nextOffset;
+
+            static {
+                try {
+                    UNSAFE = sun.misc.Unsafe.getUnsafe();
+                    Class<?> k = QNode.class;
+                    itemOffset = UNSAFE.objectFieldOffset
+                        (k.getDeclaredField("item"));
+                    nextOffset = UNSAFE.objectFieldOffset
+                        (k.getDeclaredField("next"));
+                } catch (Exception e) {
+                    throw new Error(e);
+                }
+            }
         }
 
         /** Head of queue */
@@ -762,15 +789,24 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
             }
         }
 
-        // unsafe mechanics
-        private static final sun.misc.Unsafe UNSAFE = sun.misc.Unsafe.getUnsafe();
-        private static final long headOffset =
-            objectFieldOffset(UNSAFE, "head", TransferQueue.class);
-        private static final long tailOffset =
-            objectFieldOffset(UNSAFE, "tail", TransferQueue.class);
-        private static final long cleanMeOffset =
-            objectFieldOffset(UNSAFE, "cleanMe", TransferQueue.class);
-
+        private static final sun.misc.Unsafe UNSAFE;
+        private static final long headOffset;
+        private static final long tailOffset;
+        private static final long cleanMeOffset;
+        static {
+            try {
+                UNSAFE = sun.misc.Unsafe.getUnsafe();
+                Class<?> k = TransferQueue.class;
+                headOffset = UNSAFE.objectFieldOffset
+                    (k.getDeclaredField("head"));
+                tailOffset = UNSAFE.objectFieldOffset
+                    (k.getDeclaredField("tail"));
+                cleanMeOffset = UNSAFE.objectFieldOffset
+                    (k.getDeclaredField("cleanMe"));
+            } catch (Exception e) {
+                throw new Error(e);
+            }
+        }
     }
 
     /**
@@ -998,8 +1034,19 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
      *
      * @return an empty iterator
      */
+    @SuppressWarnings("unchecked")
     public Iterator<E> iterator() {
-        return Collections.<E>emptySet().iterator(); // android-changed
+        return (Iterator<E>) EmptyIterator.EMPTY_ITERATOR;
+    }
+
+    // Replicated from a previous version of Collections
+    private static class EmptyIterator<E> implements Iterator<E> {
+        static final EmptyIterator<Object> EMPTY_ITERATOR
+            = new EmptyIterator<Object>();
+
+        public boolean hasNext() { return false; }
+        public E next() { throw new NoSuchElementException(); }
+        public void remove() { throw new IllegalStateException(); }
     }
 
     /**
@@ -1007,7 +1054,7 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
      * @return a zero-length array
      */
     public Object[] toArray() {
-        return EmptyArray.OBJECT; // android-changed
+        return new Object[0];
     }
 
     /**
@@ -1036,8 +1083,7 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
         if (c == this)
             throw new IllegalArgumentException();
         int n = 0;
-        E e;
-        while ( (e = poll()) != null) {
+        for (E e; (e = poll()) != null;) {
             c.add(e);
             ++n;
         }
@@ -1056,8 +1102,7 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
         if (c == this)
             throw new IllegalArgumentException();
         int n = 0;
-        E e;
-        while (n < maxElements && (e = poll()) != null) {
+        for (E e; n < maxElements && (e = poll()) != null;) {
             c.add(e);
             ++n;
         }
@@ -1084,7 +1129,7 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
     private WaitQueue waitingConsumers;
 
     /**
-     * Save the state to a stream (that is, serialize it).
+     * Saves the state to a stream (that is, serializes it).
      *
      * @param s the stream
      */
