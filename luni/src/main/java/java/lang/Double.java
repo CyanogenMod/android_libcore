@@ -171,7 +171,13 @@ public final class Double extends Number implements Comparable<Double> {
      * {@code value}. All <em>Not-a-Number (NaN)</em> values are converted to a single NaN
      * representation ({@code 0x7ff8000000000000L}) (compare to {@link #doubleToRawLongBits}).
      */
-    public static native long doubleToLongBits(double value);
+    public static long doubleToLongBits(double value) {
+        if (value != value) {
+            return 0x7ff8000000000000L;  // NaN.
+        } else {
+            return doubleToRawLongBits(value);
+        }
+    }
 
     /**
      * Returns an integer corresponding to the bits of the given

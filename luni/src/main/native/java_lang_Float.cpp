@@ -28,15 +28,6 @@ union Float {
     float f;
 };
 
-static const jint NaN = 0x7fc00000;
-
-static jint Float_floatToIntBits(JNIEnv*, jclass, jfloat val) {
-    Float f;
-    f.f = val;
-    //  For this method all values in the NaN range are normalized to the canonical NaN value.
-    return isnanf(f.f) ? NaN : f.bits;
-}
-
 jint Float_floatToRawIntBits(JNIEnv*, jclass, jfloat val) {
     Float f;
     f.f = val;
@@ -50,7 +41,6 @@ jfloat Float_intBitsToFloat(JNIEnv*, jclass, jint val) {
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(Float, floatToIntBits, "(F)I"),
     NATIVE_METHOD(Float, floatToRawIntBits, "(F)I"),
     NATIVE_METHOD(Float, intBitsToFloat, "(I)F"),
 };
