@@ -28,6 +28,9 @@ public class BaseDexClassLoader extends ClassLoader {
     /** originally specified path (just used for {@code toString()}) */
     private final String originalPath;
 
+    /** originally specified library path (just used for {@code toString()}) */
+    private final String originalLibraryPath;
+
     /** structured lists of path elements */
     private final DexPathList pathList;
 
@@ -49,6 +52,7 @@ public class BaseDexClassLoader extends ClassLoader {
         super(parent);
 
         this.originalPath = dexPath;
+        this.originalLibraryPath = libraryPath;
         this.pathList =
             new DexPathList(this, dexPath, libraryPath, optimizedDirectory);
     }
@@ -123,6 +127,7 @@ public class BaseDexClassLoader extends ClassLoader {
 
     @Override
     public String toString() {
-        return getClass().getName() + "[" + originalPath + "]";
+        return getClass().getName()
+                + "[dexPath=" + originalPath + ",libraryPath=" + originalLibraryPath + "]";
     }
 }
