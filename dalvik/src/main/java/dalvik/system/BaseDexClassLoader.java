@@ -58,7 +58,7 @@ public class BaseDexClassLoader extends ClassLoader {
         Class clazz = pathList.findClass(name);
 
         if (clazz == null) {
-            throw new ClassNotFoundException(name);
+            throw new ClassNotFoundException("Didn't find class \"" + name + "\" on path: " + originalPath);
         }
 
         return clazz;
