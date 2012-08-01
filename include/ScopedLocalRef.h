@@ -17,7 +17,9 @@
 #ifndef SCOPED_LOCAL_REF_H_included
 #define SCOPED_LOCAL_REF_H_included
 
-#include "JNIHelp.h"
+#include "jni.h"
+
+#include <stddef.h>
 
 // A smart pointer that deletes a JNI local reference when it goes out of scope.
 template<typename T>
