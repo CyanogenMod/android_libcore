@@ -34,6 +34,9 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
     private static final BasicLruCache<Class<? extends Enum>, Object[]> sharedConstantsCache
             = new BasicLruCache<Class<? extends Enum>, Object[]>(64) {
         @Override protected Object[] create(Class<? extends Enum> enumType) {
+            if (!enumType.isEnum()) {
+                return null;
+            }
             Method method = (Method) Class.getDeclaredConstructorOrMethod(
                     enumType, "values", EmptyArray.CLASS);
             try {
@@ -181,10 +184,11 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
         if (enumType == null || name == null) {
             throw new NullPointerException("enumType == null || name == null");
         }
-        if (!enumType.isEnum()) {
+        T[] values = getSharedConstants(enumType);
+        if (values == null) {
             throw new IllegalArgumentException(enumType + " is not an enum type");
         }
-        for (T value : getSharedConstants(enumType)) {
+        for (T value : values) {
             if (name.equals(value.name())) {
                 return value;
             }
