@@ -1828,6 +1828,24 @@ static jint NativeCrypto_RAND_load_file(JNIEnv* env, jclass, jstring filename, j
     return result;
 }
 
+static void NativeCrypto_RAND_bytes(JNIEnv* env, jclass, jbyteArray output) {
+    JNI_TRACE("NativeCrypto_RAND_bytes(%p)", output);
+
+    ScopedByteArrayRW outputBytes(env, output);
+    if (outputBytes.get() == NULL) {
+        return;
+    }
+
+    unsigned char* tmp = reinterpret_cast<unsigned char*>(outputBytes.get());
+    if (!RAND_bytes(tmp, outputBytes.size())) {
+        throwExceptionIfNecessary(env, "NativeCrypto_RAND_bytes");
+        JNI_TRACE("ctx=%p NativeCrypto_RAND_bytes => threw error", ctx);
+        return;
+    }
+
+    JNI_TRACE("NativeCrypto_RAND_bytes(%p) => success", output);
+}
+
 #ifdef WITH_JNI_TRACE
 /**
  * Based on example logging call back from SSL_CTX_set_info_callback man page
@@ -4273,6 +4291,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_cleanup, "(I)V"),
     NATIVE_METHOD(NativeCrypto, RAND_seed, "([B)V"),
     NATIVE_METHOD(NativeCrypto, RAND_load_file, "(Ljava/lang/String;J)I"),
+    NATIVE_METHOD(NativeCrypto, RAND_bytes, "([B)V"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_new, "()I"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_free, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_set_session_id_context, "(I[B)V"),
