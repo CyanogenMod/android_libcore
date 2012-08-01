@@ -2698,6 +2698,10 @@ static void NativeCrypto_SSL_use_OpenSSL_PrivateKey(JNIEnv* env, jclass, jint ss
         JNI_TRACE("ssl=%p SSL_use_OpenSSL_PrivateKey => error", ssl);
         return;
     }
+    // SSL_use_PrivateKey expects to take ownership of the EVP_PKEY,
+    // but we have an external reference from the caller such as an
+    // OpenSSLKey, so we manually increment the reference count here.
+    CRYPTO_add(&pkey->references,+1,CRYPTO_LOCK_EVP_PKEY);
 
     JNI_TRACE("ssl=%p SSL_use_OpenSSL_PrivateKey => ok", ssl);
 }
