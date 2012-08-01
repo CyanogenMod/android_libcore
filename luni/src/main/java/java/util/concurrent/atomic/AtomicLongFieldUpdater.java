@@ -1,7 +1,7 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent.atomic;
@@ -235,14 +235,14 @@ public abstract class  AtomicLongFieldUpdater<T> {
     }
 
     private static class CASUpdater<T> extends AtomicLongFieldUpdater<T> {
-        private static final Unsafe unsafe = UnsafeAccess.THE_ONE; // android-changed
+        private static final Unsafe unsafe = Unsafe.getUnsafe();
         private final long offset;
         private final Class<T> tclass;
-        private final Class cclass;
+        private final Class<?> cclass;
 
         CASUpdater(Class<T> tclass, String fieldName) {
             Field field = null;
-            Class caller = null;
+            Class<?> caller = null;
             int modifiers = 0;
             try {
                 field = tclass.getDeclaredField(fieldName);
@@ -257,7 +257,7 @@ public abstract class  AtomicLongFieldUpdater<T> {
                 throw new RuntimeException(ex);
             }
 
-            Class fieldt = field.getType();
+            Class<?> fieldt = field.getType();
             if (fieldt != long.class)
                 throw new IllegalArgumentException("Must be long type");
 
@@ -320,14 +320,14 @@ public abstract class  AtomicLongFieldUpdater<T> {
 
 
     private static class LockedUpdater<T> extends AtomicLongFieldUpdater<T> {
-        private static final Unsafe unsafe = UnsafeAccess.THE_ONE; // android-changed
+        private static final Unsafe unsafe = Unsafe.getUnsafe();
         private final long offset;
         private final Class<T> tclass;
-        private final Class cclass;
+        private final Class<?> cclass;
 
         LockedUpdater(Class<T> tclass, String fieldName) {
             Field field = null;
-            Class caller = null;
+            Class<?> caller = null;
             int modifiers = 0;
             try {
                 field = tclass.getDeclaredField(fieldName);
@@ -342,7 +342,7 @@ public abstract class  AtomicLongFieldUpdater<T> {
                 throw new RuntimeException(ex);
             }
 
-            Class fieldt = field.getType();
+            Class<?> fieldt = field.getType();
             if (fieldt != long.class)
                 throw new IllegalArgumentException("Must be long type");
 

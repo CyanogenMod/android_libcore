@@ -1,11 +1,11 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent.atomic;
-import dalvik.system.VMStack;
+import dalvik.system.VMStack; // android-added
 import sun.misc.Unsafe;
 import java.lang.reflect.*;
 
@@ -155,7 +155,7 @@ public abstract class AtomicReferenceFieldUpdater<T, V> {
         private final long offset;
         private final Class<T> tclass;
         private final Class<V> vclass;
-        private final Class cclass;
+        private final Class<?> cclass;
 
         /*
          * Internal type checks within all update methods contain
@@ -173,8 +173,8 @@ public abstract class AtomicReferenceFieldUpdater<T, V> {
                                         Class<V> vclass,
                                         String fieldName) {
             Field field = null;
-            Class fieldClass = null;
-            Class caller = null;
+            Class<?> fieldClass = null;
+            Class<?> caller = null;
             int modifiers = 0;
             try {
                 field = tclass.getDeclaredField(fieldName);

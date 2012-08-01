@@ -1,12 +1,15 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent;
 import java.util.*;
-import sun.misc.Unsafe;
+
+// BEGIN android-note
+// removed link to collections framework docs
+// END android-note
 
 /**
  * A scalable concurrent {@link NavigableSet} implementation based on
@@ -29,12 +32,14 @@ import sun.misc.Unsafe;
  * <p>Beware that, unlike in most collections, the <tt>size</tt>
  * method is <em>not</em> a constant-time operation. Because of the
  * asynchronous nature of these sets, determining the current number
- * of elements requires a traversal of the elements. Additionally, the
- * bulk operations <tt>addAll</tt>, <tt>removeAll</tt>,
- * <tt>retainAll</tt>, and <tt>containsAll</tt> are <em>not</em>
- * guaranteed to be performed atomically. For example, an iterator
- * operating concurrently with an <tt>addAll</tt> operation might view
- * only some of the added elements.
+ * of elements requires a traversal of the elements, and so may report
+ * inaccurate results if this collection is modified during traversal.
+ * Additionally, the bulk operations <tt>addAll</tt>,
+ * <tt>removeAll</tt>, <tt>retainAll</tt>, <tt>containsAll</tt>,
+ * <tt>equals</tt>, and <tt>toArray</tt> are <em>not</em> guaranteed
+ * to be performed atomically. For example, an iterator operating
+ * concurrently with an <tt>addAll</tt> operation might view only some
+ * of the added elements.
  *
  * <p>This class and its iterators implement all of the
  * <em>optional</em> methods of the {@link Set} and {@link Iterator}
@@ -42,10 +47,6 @@ import sun.misc.Unsafe;
  * this class does not permit the use of <tt>null</tt> elements,
  * because <tt>null</tt> arguments and return values cannot be reliably
  * distinguished from the absence of elements.
- *
- * <p>This class is a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
- * Java Collections Framework</a>.
  *
  * @author Doug Lea
  * @param <E> the type of elements maintained by this set
@@ -127,15 +128,15 @@ public class ConcurrentSkipListSet<E>
      * @return a shallow copy of this set
      */
     public ConcurrentSkipListSet<E> clone() {
-        ConcurrentSkipListSet<E> clone = null;
         try {
-            clone = (ConcurrentSkipListSet<E>) super.clone();
-            clone.setMap(new ConcurrentSkipListMap(m));
+            @SuppressWarnings("unchecked")
+            ConcurrentSkipListSet<E> clone =
+                (ConcurrentSkipListSet<E>) super.clone();
+            clone.setMap(new ConcurrentSkipListMap<E,Object>(m));
+            return clone;
         } catch (CloneNotSupportedException e) {
             throw new InternalError();
         }
-
-        return clone;
     }
 
     /* ---------------- Set operations -------------- */
@@ -291,8 +292,8 @@ public class ConcurrentSkipListSet<E>
     public boolean removeAll(Collection<?> c) {
         // Override AbstractSet version to avoid unnecessary call to size()
         boolean modified = false;
-        for (Iterator<?> i = c.iterator(); i.hasNext(); )
-            if (remove(i.next()))
+        for (Object e : c)
+            if (remove(e))
                 modified = true;
         return modified;
     }
@@ -437,20 +438,24 @@ public class ConcurrentSkipListSet<E>
      * @return a reverse order view of this set
      */
     public NavigableSet<E> descendingSet() {
-        return new ConcurrentSkipListSet(m.descendingMap());
+        return new ConcurrentSkipListSet<E>(m.descendingMap());
     }
 
     // Support for resetting map in clone
-    private static final Unsafe unsafe = Unsafe.getUnsafe();
+    private void setMap(ConcurrentNavigableMap<E,Object> map) {
+        UNSAFE.putObjectVolatile(this, mapOffset, map);
+    }
+
+    private static final sun.misc.Unsafe UNSAFE;
     private static final long mapOffset;
     static {
         try {
-            mapOffset = unsafe.objectFieldOffset
-                (ConcurrentSkipListSet.class.getDeclaredField("m"));
-        } catch (Exception ex) { throw new Error(ex); }
+            UNSAFE = sun.misc.Unsafe.getUnsafe();
+            Class<?> k = ConcurrentSkipListSet.class;
+            mapOffset = UNSAFE.objectFieldOffset
+                (k.getDeclaredField("m"));
+        } catch (Exception e) {
+            throw new Error(e);
+        }
     }
-    private void setMap(ConcurrentNavigableMap<E,Object> map) {
-        unsafe.putObjectVolatile(this, mapOffset, map);
-    }
-
 }
