@@ -17,12 +17,14 @@
 package libcore.java.util;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 import java.util.SimpleTimeZone;
+import java.util.TimeZone;
+import junit.framework.TestCase;
 
-public class TimeZoneTest extends junit.framework.TestCase {
+public class TimeZoneTest extends TestCase {
     // http://code.google.com/p/android/issues/detail?id=877
     public void test_useDaylightTime_Taiwan() {
         TimeZone asiaTaipei = TimeZone.getTimeZone("Asia/Taipei");
@@ -191,5 +193,22 @@ public class TimeZoneTest extends junit.framework.TestCase {
       assertEquals(0, TimeZone.getTimeZone("UTC").getDSTSavings());
       assertEquals(3600000, TimeZone.getTimeZone("America/Los_Angeles").getDSTSavings());
       assertEquals(1800000, TimeZone.getTimeZone("Australia/Lord_Howe").getDSTSavings());
+    }
+
+    public void testSimpleTimeZoneDoesNotCallOverrideableMethodsFromConstructor() {
+        new SimpleTimeZone(0, "X", Calendar.MARCH, 1, 1, 1, Calendar.SEPTEMBER, 1, 1, 1) {
+            @Override public void setStartRule(int m, int d, int dow, int time) {
+                fail();
+            }
+            @Override public void setStartRule(int m, int d, int dow, int time, boolean after) {
+                fail();
+            }
+            @Override public void setEndRule(int m, int d, int dow, int time) {
+                fail();
+            }
+            @Override public void setEndRule(int m, int d, int dow, int time, boolean after) {
+                fail();
+            }
+        };
     }
 }
