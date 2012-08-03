@@ -1010,6 +1010,158 @@ static jint NativeCrypto_RSA_generate_key_ex(JNIEnv* env, jclass, jint modulusBi
     return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
 }
 
+static jint NativeCrypto_RSA_size(JNIEnv* env, jclass, jint pkeyRef) {
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
+    JNI_TRACE("RSA_size(%p)", pkey);
+
+    Unique_RSA rsa(EVP_PKEY_get1_RSA(pkey));
+    if (rsa.get() == NULL) {
+        jniThrowRuntimeException(env, "RSA_size failed");
+        return 0;
+    }
+
+    return static_cast<jint>(RSA_size(rsa.get()));
+}
+
+static jint NativeCrypto_RSA_private_encrypt(JNIEnv* env, jclass, jint flen,
+        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jint pkeyRef, jint padding) {
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
+    JNI_TRACE("RSA_private_encrypt(%d, %p, %p, %p)", flen, fromJavaBytes, toJavaBytes, pkey);
+
+    Unique_RSA rsa(EVP_PKEY_get1_RSA(pkey));
+    if (rsa.get() == NULL) {
+        return -1;
+    }
+
+    ScopedByteArrayRO from(env, fromJavaBytes);
+    if (from.get() == NULL) {
+        return -1;
+    }
+
+    ScopedByteArrayRW to(env, toJavaBytes);
+    if (to.get() == NULL) {
+        return -1;
+    }
+
+    int resultSize = RSA_private_encrypt(static_cast<int>(flen),
+            reinterpret_cast<const unsigned char*>(from.get()),
+            reinterpret_cast<unsigned char*>(to.get()), rsa.get(), padding);
+    if (resultSize == -1) {
+        JNI_TRACE("RSA_private_encrypt => failed");
+        throwExceptionIfNecessary(env, "RSA_private_encrypt failed");
+        return -1;
+    }
+
+    JNI_TRACE("RSA_private_encrypt(%d, %p, %p, %p) => %d", flen, fromJavaBytes, toJavaBytes, pkey,
+            resultSize);
+    return static_cast<jint>(resultSize);
+}
+
+static jint NativeCrypto_RSA_public_decrypt(JNIEnv* env, jclass, jint flen,
+        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jint pkeyRef, jint padding) {
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
+    JNI_TRACE("RSA_private_encrypt(%d, %p, %p, %p)", flen, fromJavaBytes, toJavaBytes, pkey);
+
+    Unique_RSA rsa(EVP_PKEY_get1_RSA(pkey));
+    if (rsa.get() == NULL) {
+        return -1;
+    }
+
+    ScopedByteArrayRO from(env, fromJavaBytes);
+    if (from.get() == NULL) {
+        return -1;
+    }
+
+    ScopedByteArrayRW to(env, toJavaBytes);
+    if (to.get() == NULL) {
+        return -1;
+    }
+
+    int resultSize = RSA_public_decrypt(static_cast<int>(flen),
+            reinterpret_cast<const unsigned char*>(from.get()),
+            reinterpret_cast<unsigned char*>(to.get()), rsa.get(), padding);
+    if (resultSize == -1) {
+        JNI_TRACE("RSA_private_encrypt => failed");
+        throwExceptionIfNecessary(env, "RSA_private_encrypt failed");
+        return -1;
+    }
+
+    JNI_TRACE("RSA_private_encrypt(%d, %p, %p, %p) => %d", flen, fromJavaBytes, toJavaBytes, pkey,
+            resultSize);
+    return static_cast<jint>(resultSize);
+}
+
+static void NativeCrypto_RSA_padding_add_PKCS1_type_1(JNIEnv* env, jclass, jbyteArray toJavaBytes,
+        jint tlen, jbyteArray fromJavaBytes, jint flen) {
+    JNI_TRACE("RSA_padding_add_PKCS1_type_1(%p, %d, %p, %d)", toJavaBytes, tlen, fJavaBytes, fl);
+
+    ScopedByteArrayRO from(env, fromJavaBytes);
+    if (from.get() == NULL) {
+        return;
+    }
+
+    if (size_t(flen) > from.size()) {
+        jniThrowException(env, "java/lang/IndexOutOfBoundsException", NULL);
+        return;
+    }
+
+    ScopedByteArrayRW to(env, toJavaBytes);
+    if (to.get() == NULL) {
+        return;
+    }
+
+    if (size_t(tlen) > to.size()) {
+        jniThrowException(env, "java/lang/IndexOutOfBoundsException", NULL);
+        return;
+    }
+
+    if (RSA_padding_add_PKCS1_type_1(reinterpret_cast<unsigned char*>(to.get()), tlen,
+            reinterpret_cast<const unsigned char*>(from.get()), flen) == 0) {
+        throwExceptionIfNecessary(env, "RSA_padding_add_PKCS1_type_1 failed");
+        return;
+    }
+
+    JNI_TRACE("RSA_padding_add_PKCS1_type_1(%p, %d, %p, %d) => done", toJavaBytes, tlen, fJavaBytes,
+            fl);
+}
+
+static jint NativeCrypto_RSA_padding_check_PKCS1_type_1(JNIEnv* env, jclass, jbyteArray toJavaBytes,
+        jint tlen, jbyteArray fromJavaBytes, jint flen, jint rsa_len) {
+    JNI_TRACE("RSA_padding_add_PKCS1_type_1(%p, %d, %p, %d, %d)", toJavaBytes, tlen, fJavaBytes, fl,
+            rsa_len);
+
+    ScopedByteArrayRW to(env, toJavaBytes);
+    if (to.get() == NULL) {
+        return 0;
+    }
+
+    if (size_t(tlen) > to.size()) {
+        jniThrowException(env, "java/lang/IndexOutOfBoundsException", NULL);
+        return 0;
+    }
+
+    ScopedByteArrayRO from(env, fromJavaBytes);
+    if (from.get() == NULL) {
+        return 0;
+    }
+
+    if (size_t(flen) > from.size()) {
+        jniThrowException(env, "java/lang/IndexOutOfBoundsException", NULL);
+        return 0;
+    }
+
+    int size = RSA_padding_check_PKCS1_type_1(reinterpret_cast<unsigned char*>(to.get()), tlen,
+            reinterpret_cast<const unsigned char*>(from.get()), flen, rsa_len);
+    if (size == -1) {
+        throwExceptionIfNecessary(env, "RSA_padding_check_PKCS1_type_1 failed");
+        return 0;
+    }
+
+    JNI_TRACE("RSA_padding_check_PKCS1_type_1(%p, %d, %p, %d, %d) => %d", toJavaBytes, tlen,
+            fJavaBytes, fl, rsa_len, size);
+    return size;
+}
+
 /*
  * public static native byte[][] get_RSA_public_params(int);
  */
@@ -4268,6 +4420,11 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, i2d_PUBKEY, "(I)[B"),
     NATIVE_METHOD(NativeCrypto, d2i_PUBKEY, "([B)I"),
     NATIVE_METHOD(NativeCrypto, RSA_generate_key_ex, "(I[B)I"),
+    NATIVE_METHOD(NativeCrypto, RSA_size, "(I)I"),
+    NATIVE_METHOD(NativeCrypto, RSA_private_encrypt, "(I[B[BII)I"),
+    NATIVE_METHOD(NativeCrypto, RSA_public_decrypt, "(I[B[BII)I"),
+    NATIVE_METHOD(NativeCrypto, RSA_padding_add_PKCS1_type_1, "([BI[BI)V"),
+    NATIVE_METHOD(NativeCrypto, RSA_padding_check_PKCS1_type_1, "([BI[BII)I"),
     NATIVE_METHOD(NativeCrypto, get_RSA_private_params, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, get_RSA_public_params, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, DSA_generate_key, "(I[B[B[B[B)I"),

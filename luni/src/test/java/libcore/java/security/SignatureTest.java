@@ -26,6 +26,7 @@ import java.security.Provider;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.Signature;
+import java.security.SignatureException;
 import java.security.spec.DSAPrivateKeySpec;
 import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
@@ -123,9 +124,21 @@ public class SignatureTest extends TestCase {
         sig.update(DATA);
         assertTrue(sig.getAlgorithm(), sig.verify(signature));
 
-        // Calling Signature.verify a second time should not throw
-        // http://code.google.com/p/android/issues/detail?id=34933
-        sig.verify(signature);
+        /*
+         * The RI appears to clear out the input data in RawDSA while calling
+         * verify a second time.
+         */
+        if (StandardNames.IS_RI && "NONEwithDSA".equalsIgnoreCase(sig.getAlgorithm())) {
+            try {
+                sig.verify(signature);
+                fail("Expected RI to have a NONEwithDSA bug");
+            } catch (SignatureException bug) {
+            }
+        } else {
+            // Calling Signature.verify a second time should not throw
+            // http://code.google.com/p/android/issues/detail?id=34933
+            sig.verify(signature);
+        }
     }
 
     private static final byte[] PK_BYTES = hexToBytes(
@@ -326,6 +339,7 @@ public class SignatureTest extends TestCase {
         (byte) 0x39,
     });
 
+    /* Test data is: "Android.\n" */
     private static final byte[] Vector1Data = new byte[] {
         (byte) 0x41, (byte) 0x6e, (byte) 0x64, (byte) 0x72, (byte) 0x6f, (byte) 0x69, (byte) 0x64, (byte) 0x2e,
         (byte) 0x0a,
@@ -550,11 +564,61 @@ public class SignatureTest extends TestCase {
         (byte) 0x02, (byte) 0xaf, (byte) 0x8f, (byte) 0x59, (byte) 0xe5, (byte) 0x67, (byte) 0x25, (byte) 0x00,
     };
 
+    /*
+     * openssl rsautl -raw -sign -inkey rsa.key | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] NONEwithRSA_Vector1Signature = new byte[] {
+        (byte) 0x35, (byte) 0x43, (byte) 0x38, (byte) 0x44, (byte) 0xAD, (byte) 0x3F,
+        (byte) 0x97, (byte) 0x02, (byte) 0xFB, (byte) 0x59, (byte) 0x1F, (byte) 0x4A,
+        (byte) 0x2B, (byte) 0xB9, (byte) 0x06, (byte) 0xEC, (byte) 0x66, (byte) 0xE6,
+        (byte) 0xD2, (byte) 0xC5, (byte) 0x8B, (byte) 0x7B, (byte) 0xE3, (byte) 0x18,
+        (byte) 0xBF, (byte) 0x07, (byte) 0xD6, (byte) 0x01, (byte) 0xF9, (byte) 0xD9,
+        (byte) 0x89, (byte) 0xC4, (byte) 0xDB, (byte) 0x00, (byte) 0x68, (byte) 0xFF,
+        (byte) 0x9B, (byte) 0x43, (byte) 0x90, (byte) 0xF2, (byte) 0xDB, (byte) 0x83,
+        (byte) 0xF4, (byte) 0x7E, (byte) 0xC6, (byte) 0x81, (byte) 0x01, (byte) 0x3A,
+        (byte) 0x0B, (byte) 0xE5, (byte) 0xED, (byte) 0x08, (byte) 0x73, (byte) 0x3E,
+        (byte) 0xE1, (byte) 0x3F, (byte) 0xDF, (byte) 0x1F, (byte) 0x07, (byte) 0x6D,
+        (byte) 0x22, (byte) 0x8D, (byte) 0xCC, (byte) 0x4E, (byte) 0xE3, (byte) 0x9A,
+        (byte) 0xBC, (byte) 0xCC, (byte) 0x8F, (byte) 0x9E, (byte) 0x9B, (byte) 0x02,
+        (byte) 0x48, (byte) 0x00, (byte) 0xAC, (byte) 0x9F, (byte) 0xA4, (byte) 0x8F,
+        (byte) 0x87, (byte) 0xA1, (byte) 0xA8, (byte) 0xE6, (byte) 0x9D, (byte) 0xCD,
+        (byte) 0x8B, (byte) 0x05, (byte) 0xE9, (byte) 0xD2, (byte) 0x05, (byte) 0x8D,
+        (byte) 0xC9, (byte) 0x95, (byte) 0x16, (byte) 0xD0, (byte) 0xCD, (byte) 0x43,
+        (byte) 0x25, (byte) 0x8A, (byte) 0x11, (byte) 0x46, (byte) 0xD7, (byte) 0x74,
+        (byte) 0x4C, (byte) 0xCF, (byte) 0x58, (byte) 0xF9, (byte) 0xA1, (byte) 0x30,
+        (byte) 0x84, (byte) 0x52, (byte) 0xC9, (byte) 0x01, (byte) 0x5F, (byte) 0x24,
+        (byte) 0x4C, (byte) 0xB1, (byte) 0x9F, (byte) 0x7D, (byte) 0x12, (byte) 0x38,
+        (byte) 0x27, (byte) 0x0F, (byte) 0x5E, (byte) 0xFF, (byte) 0xE0, (byte) 0x55,
+        (byte) 0x8B, (byte) 0xA3, (byte) 0xAD, (byte) 0x60, (byte) 0x35, (byte) 0x83,
+        (byte) 0x58, (byte) 0xAF, (byte) 0x99, (byte) 0xDE, (byte) 0x3F, (byte) 0x5D,
+        (byte) 0x80, (byte) 0x80, (byte) 0xFF, (byte) 0x9B, (byte) 0xDE, (byte) 0x5C,
+        (byte) 0xAB, (byte) 0x97, (byte) 0x43, (byte) 0x64, (byte) 0xD9, (byte) 0x9F,
+        (byte) 0xFB, (byte) 0x67, (byte) 0x65, (byte) 0xA5, (byte) 0x99, (byte) 0xE7,
+        (byte) 0xE6, (byte) 0xEB, (byte) 0x05, (byte) 0x95, (byte) 0xFC, (byte) 0x46,
+        (byte) 0x28, (byte) 0x4B, (byte) 0xD8, (byte) 0x8C, (byte) 0xF5, (byte) 0x0A,
+        (byte) 0xEB, (byte) 0x1F, (byte) 0x30, (byte) 0xEA, (byte) 0xE7, (byte) 0x67,
+        (byte) 0x11, (byte) 0x25, (byte) 0xF0, (byte) 0x44, (byte) 0x75, (byte) 0x74,
+        (byte) 0x94, (byte) 0x06, (byte) 0x78, (byte) 0xD0, (byte) 0x21, (byte) 0xF4,
+        (byte) 0x3F, (byte) 0xC8, (byte) 0xC4, (byte) 0x4A, (byte) 0x57, (byte) 0xBE,
+        (byte) 0x02, (byte) 0x3C, (byte) 0x93, (byte) 0xF6, (byte) 0x95, (byte) 0xFB,
+        (byte) 0xD1, (byte) 0x77, (byte) 0x8B, (byte) 0x43, (byte) 0xF0, (byte) 0xB9,
+        (byte) 0x7D, (byte) 0xE0, (byte) 0x32, (byte) 0xE1, (byte) 0x72, (byte) 0xB5,
+        (byte) 0x62, (byte) 0x3F, (byte) 0x86, (byte) 0xC3, (byte) 0xD4, (byte) 0x5F,
+        (byte) 0x5E, (byte) 0x54, (byte) 0x1B, (byte) 0x5B, (byte) 0xE6, (byte) 0x74,
+        (byte) 0xA1, (byte) 0x0B, (byte) 0xE5, (byte) 0x18, (byte) 0xD2, (byte) 0x4F,
+        (byte) 0x93, (byte) 0xF3, (byte) 0x09, (byte) 0x58, (byte) 0xCE, (byte) 0xF0,
+        (byte) 0xA3, (byte) 0x61, (byte) 0xE4, (byte) 0x6E, (byte) 0x46, (byte) 0x45,
+        (byte) 0x89, (byte) 0x50, (byte) 0xBD, (byte) 0x03, (byte) 0x3F, (byte) 0x38,
+        (byte) 0xDA, (byte) 0x5D, (byte) 0xD0, (byte) 0x1B, (byte) 0x1F, (byte) 0xB1,
+        (byte) 0xEE, (byte) 0x89, (byte) 0x59, (byte) 0xC5,
+    };
+
     public void testGetCommonInstances_Success() throws Exception {
         assertNotNull(Signature.getInstance("SHA1withRSA"));
         assertNotNull(Signature.getInstance("SHA256withRSA"));
         assertNotNull(Signature.getInstance("SHA384withRSA"));
         assertNotNull(Signature.getInstance("SHA512withRSA"));
+        assertNotNull(Signature.getInstance("NONEwithRSA"));
         assertNotNull(Signature.getInstance("MD5withRSA"));
         assertNotNull(Signature.getInstance("SHA1withDSA"));
     }
@@ -900,6 +964,165 @@ public class SignatureTest extends TestCase {
         sig.initVerify(pubKey);
         sig.update(Vector2Data);
         assertTrue("Signature must verify correctly", sig.verify(signature));
+    }
+
+    public void testSign_NONEwithRSA_Key_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                RSA_2048_privateExponent);
+        PrivateKey privKey = kf.generatePrivate(keySpec);
+
+        Signature sig = Signature.getInstance("NONEwithRSA");
+        sig.initSign(privKey);
+        sig.update(Vector1Data);
+
+        byte[] signature = sig.sign();
+        assertNotNull("Signature must not be null", signature);
+        assertTrue("Signature should match expected",
+                Arrays.equals(signature, NONEwithRSA_Vector1Signature));
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+        sig.initVerify(pubKey);
+        sig.update(Vector1Data);
+        assertTrue("Signature must verify correctly", sig.verify(signature));
+    }
+
+    public void testVerify_NONEwithRSA_Key_WrongSignature_Failure() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+
+        Signature sig = Signature.getInstance("NONEwithRSA");
+        sig.initVerify(pubKey);
+        sig.update(Vector1Data);
+        assertFalse("Invalid signature must not verify", sig.verify("Invalid".getBytes()));
+    }
+
+    public void testSign_NONEwithRSA_Key_DataTooLarge_Failure() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                RSA_2048_privateExponent);
+        PrivateKey privKey = kf.generatePrivate(keySpec);
+
+        Signature sig = Signature.getInstance("NONEwithRSA");
+        sig.initSign(privKey);
+
+        final int oneTooBig = RSA_2048_modulus.bitLength() - 10;
+        for (int i = 0; i < oneTooBig; i++) {
+            sig.update((byte) i);
+        }
+
+        try {
+            sig.sign();
+            fail("Should throw exception when data is too large");
+        } catch (SignatureException success) {
+        }
+    }
+
+    public void testSign_NONEwithRSA_Key_DataTooLarge_SingleByte_Failure() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                RSA_2048_privateExponent);
+        PrivateKey privKey = kf.generatePrivate(keySpec);
+
+        Signature sig = Signature.getInstance("NONEwithRSA");
+        sig.initSign(privKey);
+
+        // This should make it two bytes too big.
+        final int oneTooBig = RSA_2048_modulus.bitLength() - 10;
+        for (int i = 0; i < oneTooBig; i++) {
+            sig.update((byte) i);
+        }
+
+        try {
+            sig.sign();
+            fail("Should throw exception when data is too large");
+        } catch (SignatureException success) {
+        }
+    }
+
+    public void testVerify_NONEwithRSA_Key_DataTooLarge_Failure() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+
+        Signature sig = Signature.getInstance("NONEwithRSA");
+        sig.initVerify(pubKey);
+
+        // This should make it one bytes too big.
+        final int oneTooBig = RSA_2048_modulus.bitLength() + 1;
+        final byte[] vector = new byte[oneTooBig];
+        for (int i = 0; i < oneTooBig; i++) {
+            vector[i] = (byte) Vector1Data[i % Vector1Data.length];
+        }
+        sig.update(vector);
+
+        assertFalse("Should not verify when signature is too large",
+                sig.verify(NONEwithRSA_Vector1Signature));
+    }
+
+    public void testVerify_NONEwithRSA_Key_DataTooLarge_SingleByte_Failure() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+
+        Signature sig = Signature.getInstance("NONEwithRSA");
+        sig.initVerify(pubKey);
+
+        // This should make it twice as big as it should be.
+        final int tooBig = RSA_2048_modulus.bitLength() * 2;
+        for (int i = 0; i < tooBig; i++) {
+            sig.update((byte) Vector1Data[i % Vector1Data.length]);
+        }
+
+        assertFalse("Should not verify when signature is too large",
+                sig.verify(NONEwithRSA_Vector1Signature));
+    }
+
+    public void testVerify_NONEwithRSA_Key_SignatureTooSmall_Failure() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+
+        Signature sig = Signature.getInstance("NONEwithRSA");
+        sig.initVerify(pubKey);
+        sig.update(Vector1Data);
+
+        assertFalse("Invalid signature should not verify", sig.verify("Invalid sig".getBytes()));
+    }
+
+    public void testVerify_NONEwithRSA_Key_SignatureTooLarge_Failure() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+
+        RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                RSA_2048_publicExponent);
+        PublicKey pubKey = kf.generatePublic(pubKeySpec);
+
+        Signature sig = Signature.getInstance("NONEwithRSA");
+        sig.initVerify(pubKey);
+        sig.update(Vector1Data);
+
+        byte[] invalidSignature = new byte[NONEwithRSA_Vector1Signature.length * 2];
+        System.arraycopy(NONEwithRSA_Vector1Signature, 0, invalidSignature, 0,
+                NONEwithRSA_Vector1Signature.length);
+        System.arraycopy(NONEwithRSA_Vector1Signature, 0, invalidSignature,
+                NONEwithRSA_Vector1Signature.length, NONEwithRSA_Vector1Signature.length);
+
+        try {
+            sig.verify(invalidSignature);
+            fail("Should throw exception when signature is too large");
+        } catch (SignatureException success) {
+        }
     }
 
     /*
