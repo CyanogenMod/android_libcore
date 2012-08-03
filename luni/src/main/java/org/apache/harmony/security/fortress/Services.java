@@ -48,7 +48,7 @@ public class Services {
     private static Provider.Service cachedSecureRandomService;
 
     /**
-     * Need refresh flag. Protected by synchronizing on providers.
+     * Need refresh flag.
      */
     private static boolean needRefresh;
 
@@ -65,111 +65,93 @@ public class Services {
     private static final List<Provider> providers = new ArrayList<Provider>(20);
 
     /**
-     * Hash for quick provider access by name. Protected by synchronizing on providers.
+     * Hash for quick provider access by name.
      */
     private static final Map<String, Provider> providersNames = new HashMap<String, Provider>(20);
     static {
-        loadProviders();
-    }
+        String providerClassName = null;
+        int i = 1;
+        ClassLoader cl = ClassLoader.getSystemClassLoader();
 
-    private static void loadProviders() {
-        synchronized (providers) {
-            String providerClassName = null;
-            int i = 1;
-            ClassLoader cl = ClassLoader.getSystemClassLoader();
-
-            while ((providerClassName = Security.getProperty("security.provider." + i++)) != null) {
-                try {
-                    Class providerClass = Class.forName(providerClassName.trim(), true, cl);
-                    Provider p = (Provider) providerClass.newInstance();
-                    providers.add(p);
-                    providersNames.put(p.getName(), p);
-                    initServiceInfo(p);
-                } catch (ClassNotFoundException ignored) {
-                } catch (IllegalAccessException ignored) {
-                } catch (InstantiationException ignored) {
-                }
+        while ((providerClassName = Security.getProperty("security.provider." + i++)) != null) {
+            try {
+                Class providerClass = Class.forName(providerClassName.trim(), true, cl);
+                Provider p = (Provider) providerClass.newInstance();
+                providers.add(p);
+                providersNames.put(p.getName(), p);
+                initServiceInfo(p);
+            } catch (ClassNotFoundException ignored) {
+            } catch (IllegalAccessException ignored) {
+            } catch (InstantiationException ignored) {
             }
-            Engine.door.renumProviders();
         }
+        Engine.door.renumProviders();
     }
 
     /**
      * Returns a copy of the registered providers as an array.
      */
-    public static Provider[] getProviders() {
-        synchronized (providers) {
-            return providers.toArray(new Provider[providers.size()]);
-        }
+    public static synchronized Provider[] getProviders() {
+        return providers.toArray(new Provider[providers.size()]);
     }
 
     /**
      * Returns a copy of the registered providers as a list.
      */
-    public static List<Provider> getProvidersList() {
-        synchronized (providers) {
-            return new ArrayList<Provider>(providers);
-        }
+    public static synchronized List<Provider> getProvidersList() {
+        return new ArrayList<Provider>(providers);
     }
 
     /**
      * Returns the provider with the specified name.
      */
-    public static Provider getProvider(String name) {
+    public static synchronized Provider getProvider(String name) {
         if (name == null) {
             return null;
         }
-        synchronized (providers) {
-            return providersNames.get(name);
-        }
+        return providersNames.get(name);
     }
 
     /**
      * Inserts a provider at a specified 1-based position.
      */
-    public static int insertProviderAt(Provider provider, int position) {
-        synchronized (providers) {
-            int size = providers.size();
-            if ((position < 1) || (position > size)) {
-                position = size + 1;
-            }
-            providers.add(position - 1, provider);
-            providersNames.put(provider.getName(), provider);
-            setNeedRefresh();
-            return position;
+    public static synchronized int insertProviderAt(Provider provider, int position) {
+        int size = providers.size();
+        if ((position < 1) || (position > size)) {
+            position = size + 1;
         }
+        providers.add(position - 1, provider);
+        providersNames.put(provider.getName(), provider);
+        setNeedRefresh();
+        return position;
     }
 
     /**
      * Removes the provider at the specified 1-based position.
      */
-    public static void removeProvider(int providerNumber) {
-        synchronized (providers) {
-            Provider p = providers.remove(providerNumber - 1);
-            providersNames.remove(p.getName());
-            setNeedRefresh();
-        }
+    public static synchronized void removeProvider(int providerNumber) {
+        Provider p = providers.remove(providerNumber - 1);
+        providersNames.remove(p.getName());
+        setNeedRefresh();
     }
 
     /**
      * Adds information about provider services into HashMap.
      */
-    public static void initServiceInfo(Provider p) {
-        synchronized (services) {
-            for (Provider.Service service : p.getServices()) {
-                String type = service.getType();
-                if (cachedSecureRandomService == null && type.equals("SecureRandom")) {
-                    cachedSecureRandomService = service;
-                }
-                String key = type + "." + service.getAlgorithm().toUpperCase(Locale.US);
+    public static synchronized void initServiceInfo(Provider p) {
+        for (Provider.Service service : p.getServices()) {
+            String type = service.getType();
+            if (cachedSecureRandomService == null && type.equals("SecureRandom")) {
+                cachedSecureRandomService = service;
+            }
+            String key = type + "." + service.getAlgorithm().toUpperCase(Locale.US);
+            if (!services.containsKey(key)) {
+                services.put(key, service);
+            }
+            for (String alias : Engine.door.getAliases(service)) {
+                key = type + "." + alias.toUpperCase(Locale.US);
                 if (!services.containsKey(key)) {
                     services.put(key, service);
-                }
-                for (String alias : Engine.door.getAliases(service)) {
-                    key = type + "." + alias.toUpperCase(Locale.US);
-                    if (!services.containsKey(key)) {
-                        services.put(key, service);
-                    }
                 }
             }
         }
@@ -178,10 +160,8 @@ public class Services {
     /**
      * Returns true if services contain any provider information.
      */
-    public static boolean isEmpty() {
-        synchronized (services) {
-            return services.isEmpty();
-        }
+    public static synchronized boolean isEmpty() {
+        return services.isEmpty();
     }
 
     /**
@@ -194,16 +174,14 @@ public class Services {
      * caches should be validated against the result of
      * Service.getCacheVersion() before use.
      */
-    public static Provider.Service getService(String key) {
-        synchronized (services) {
-            return services.get(key);
-        }
+    public static synchronized Provider.Service getService(String key) {
+        return services.get(key);
     }
 
     /**
      * Returns the default SecureRandom service description.
      */
-    public static Provider.Service getSecureRandomService() {
+    public static synchronized Provider.Service getSecureRandomService() {
         getCacheVersion();  // used for side effect of updating cache if needed
         return cachedSecureRandomService;
     }
@@ -214,30 +192,26 @@ public class Services {
      * implementation to indicate that a provides list of services has
      * changed.
      */
-    public static void setNeedRefresh() {
-        synchronized (providers) {
-            needRefresh = true;
-        }
+    public static synchronized void setNeedRefresh() {
+        needRefresh = true;
     }
 
     /**
      * Returns the current cache version. This has the possible side
      * effect of updating the cache if needed.
      */
-    public static int getCacheVersion() {
-        synchronized (providers) {
-            if (needRefresh) {
-                cacheVersion++;
-                synchronized (services) {
-                    services.clear();
-                }
-                cachedSecureRandomService = null;
-                for (Provider p : providers) {
-                    initServiceInfo(p);
-                }
-                needRefresh = false;
+    public static synchronized int getCacheVersion() {
+        if (needRefresh) {
+            cacheVersion++;
+            synchronized (services) {
+                services.clear();
             }
-            return cacheVersion;
+            cachedSecureRandomService = null;
+            for (Provider p : providers) {
+                initServiceInfo(p);
+            }
+            needRefresh = false;
         }
+        return cacheVersion;
     }
 }
