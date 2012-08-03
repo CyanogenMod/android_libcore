@@ -31,8 +31,9 @@ import libcore.util.EmptyArray;
  * @hide
  */
 public final class Daemons {
-    private static final int NANOS_PER_MILLI = 1000000;
-    private static final long MAX_FINALIZE_MILLIS = 10L * 1000L; // 10 seconds
+    private static final int NANOS_PER_MILLI = 1000 * 1000;
+    private static final int NANOS_PER_SECOND = NANOS_PER_MILLI * 1000;
+    private static final long MAX_FINALIZE_NANOS = 10L * NANOS_PER_SECOND;
 
     public static void start() {
         ReferenceQueueDaemon.INSTANCE.start();
@@ -203,41 +204,78 @@ public final class Daemons {
 
         @Override public void run() {
             while (isRunning()) {
-                try {
-                    Object object = FinalizerDaemon.INSTANCE.finalizingObject;
-                    long startedNanos = FinalizerDaemon.INSTANCE.finalizingStartedNanos;
-
-                    if (object == null) {
-                        synchronized (this) {
-                            // wait until something is being finalized
-                            // http://code.google.com/p/android/issues/detail?id=22778
-                            wait();
-                            continue;
-                        }
-                    }
-
-                    long elapsedMillis = (System.nanoTime() - startedNanos) / NANOS_PER_MILLI;
-                    long sleepMillis = MAX_FINALIZE_MILLIS - elapsedMillis;
-                    if (sleepMillis > 0) {
-                        Thread.sleep(sleepMillis);
-                        elapsedMillis = (System.nanoTime() - startedNanos) / NANOS_PER_MILLI;
-                    }
-
-                    if (object != FinalizerDaemon.INSTANCE.finalizingObject
-                            || VMRuntime.getRuntime().isDebuggerActive()) {
-                        continue;
-                    }
-
-                    // The current object has exceeded the finalization deadline; abort!
-                    Exception syntheticException = new TimeoutException();
-                    syntheticException.setStackTrace(FinalizerDaemon.INSTANCE.getStackTrace());
-                    System.logE(object.getClass().getName() + ".finalize() timed out after "
-                            + elapsedMillis + " ms; limit is " + MAX_FINALIZE_MILLIS + " ms",
-                            syntheticException);
-                    System.exit(2);
-                } catch (InterruptedException ignored) {
+                Object object = waitForObject();
+                if (object == null) {
+                    // We have been interrupted, need to see if this daemon has been stopped.
+                    continue;
+                }
+                boolean finalized = waitForFinalization(object);
+                if (!finalized && !VMRuntime.getRuntime().isDebuggerActive()) {
+                    finalizerTimedOut(object);
+                    break;
                 }
             }
+        }
+
+        private Object waitForObject() {
+            while (true) {
+                Object object = FinalizerDaemon.INSTANCE.finalizingObject;
+                if (object != null) {
+                    return object;
+                }
+                synchronized (this) {
+                    // wait until something is ready to be finalized
+                    // http://code.google.com/p/android/issues/detail?id=22778
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        // Daemon.stop may have interrupted us.
+                        return null;
+                    }
+                }
+            }
+        }
+
+        private void sleepFor(long startNanos, long durationNanos) {
+            while (true) {
+                long elapsedNanos = System.nanoTime() - startNanos;
+                long sleepNanos = durationNanos - elapsedNanos;
+                long sleepMills = sleepNanos / NANOS_PER_MILLI;
+                if (sleepMills <= 0) {
+                    return;
+                }
+                try {
+                    Thread.sleep(sleepMills);
+                } catch (InterruptedException e) {
+                    if (!isRunning()) {
+                        return;
+                    }
+                }
+            }
+        }
+
+        private boolean waitForFinalization(Object object) {
+            sleepFor(FinalizerDaemon.INSTANCE.finalizingStartedNanos, MAX_FINALIZE_NANOS);
+            return object != FinalizerDaemon.INSTANCE.finalizingObject;
+        }
+
+        private static void finalizerTimedOut(Object object) {
+            // The current object has exceeded the finalization deadline; abort!
+            String message = object.getClass().getName() + ".finalize() timed out after "
+                    + (MAX_FINALIZE_NANOS / NANOS_PER_SECOND) + " seconds";
+            Exception syntheticException = new TimeoutException(message);
+            // We use the stack from where finalize() was running to show where it was stuck.
+            syntheticException.setStackTrace(FinalizerDaemon.INSTANCE.getStackTrace());
+            Thread.UncaughtExceptionHandler h = Thread.getDefaultUncaughtExceptionHandler();
+            if (h == null) {
+                // If we have no handler, log and exit.
+                System.logE(message, syntheticException);
+                System.exit(2);
+            }
+            // Otherwise call the handler to do crash reporting.
+            // We don't just throw because we're not the thread that
+            // timed out; we're the thread that detected it.
+            h.uncaughtException(Thread.currentThread(), syntheticException);
         }
     }
 }
