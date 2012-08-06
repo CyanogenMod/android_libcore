@@ -446,12 +446,18 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobj
     const UnicodeString* shortMonthNames =
         dateFormatSym.getMonths(count, DateFormatSymbols::FORMAT, DateFormatSymbols::ABBREVIATED);
     setStringArrayField(env, localeData, "shortMonthNames", shortMonthNames, count);
+    const UnicodeString* tinyMonthNames =
+        dateFormatSym.getMonths(count, DateFormatSymbols::FORMAT, DateFormatSymbols::NARROW);
+    setStringArrayField(env, localeData, "tinyMonthNames", tinyMonthNames, count);
     const UnicodeString* longWeekdayNames =
         dateFormatSym.getWeekdays(count, DateFormatSymbols::FORMAT, DateFormatSymbols::WIDE);
     setStringArrayField(env, localeData, "longWeekdayNames", longWeekdayNames, count);
     const UnicodeString* shortWeekdayNames =
         dateFormatSym.getWeekdays(count, DateFormatSymbols::FORMAT, DateFormatSymbols::ABBREVIATED);
     setStringArrayField(env, localeData, "shortWeekdayNames", shortWeekdayNames, count);
+    const UnicodeString* tinyWeekdayNames =
+        dateFormatSym.getWeekdays(count, DateFormatSymbols::FORMAT, DateFormatSymbols::NARROW);
+    setStringArrayField(env, localeData, "tinyWeekdayNames", tinyWeekdayNames, count);
 
     const UnicodeString* longStandAloneMonthNames =
         dateFormatSym.getMonths(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::WIDE);
@@ -459,12 +465,18 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobj
     const UnicodeString* shortStandAloneMonthNames =
         dateFormatSym.getMonths(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::ABBREVIATED);
     setStringArrayField(env, localeData, "shortStandAloneMonthNames", shortStandAloneMonthNames, count);
+    const UnicodeString* tinyStandAloneMonthNames =
+        dateFormatSym.getMonths(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::NARROW);
+    setStringArrayField(env, localeData, "tinyStandAloneMonthNames", tinyStandAloneMonthNames, count);
     const UnicodeString* longStandAloneWeekdayNames =
         dateFormatSym.getWeekdays(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::WIDE);
     setStringArrayField(env, localeData, "longStandAloneWeekdayNames", longStandAloneWeekdayNames, count);
     const UnicodeString* shortStandAloneWeekdayNames =
         dateFormatSym.getWeekdays(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::ABBREVIATED);
     setStringArrayField(env, localeData, "shortStandAloneWeekdayNames", shortStandAloneWeekdayNames, count);
+    const UnicodeString* tinyStandAloneWeekdayNames =
+        dateFormatSym.getWeekdays(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::NARROW);
+    setStringArrayField(env, localeData, "tinyStandAloneWeekdayNames", tinyStandAloneWeekdayNames, count);
 
     status = U_ZERO_ERROR;
 
