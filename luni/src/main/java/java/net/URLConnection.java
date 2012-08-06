@@ -948,11 +948,12 @@ public abstract class URLConnection {
     }
 
     /**
-     * Sets the maximum time to wait for a connect to complete before giving up.
+     * Sets the maximum time in milliseconds to wait while connecting.
      * Connecting to a server will fail with a {@link SocketTimeoutException} if
      * the timeout elapses before a connection is established. The default value
-     * of {@code 0} disables connect timeouts; connect attempts may wait
-     * indefinitely.
+     * of {@code 0} causes us to do a blocking connect. This does not mean we
+     * will never time out, but it probably means you'll get a TCP timeout
+     * after several minutes.
      *
      * <p><strong>Warning:</strong> if the hostname resolves to multiple IP
      * addresses, this client will try each in <a
@@ -961,7 +962,7 @@ public abstract class URLConnection {
      * elapse before the connect attempt throws an exception. Host names that
      * support both IPv6 and IPv4 always have at least 2 IP addresses.
      *
-     * @param timeoutMillis the connect timeout in milliseconds. Non-negative.
+     * @throws IllegalArgumentException if {@code timeoutMillis &lt; 0}.
      */
     public void setConnectTimeout(int timeoutMillis) {
         if (timeoutMillis < 0) {
@@ -971,8 +972,7 @@ public abstract class URLConnection {
     }
 
     /**
-     * Returns the connect timeout in milliseconds, or {@code 0} if connect
-     * attempts never timeout.
+     * Returns the connect timeout in milliseconds. (See {#setConnectTimeout}.)
      */
     public int getConnectTimeout() {
         return connectTimeout;
