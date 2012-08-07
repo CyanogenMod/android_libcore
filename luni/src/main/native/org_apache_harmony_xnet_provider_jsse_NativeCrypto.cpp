@@ -1093,7 +1093,8 @@ static jint NativeCrypto_RSA_public_decrypt(JNIEnv* env, jclass, jint flen,
 
 static void NativeCrypto_RSA_padding_add_PKCS1_type_1(JNIEnv* env, jclass, jbyteArray toJavaBytes,
         jint tlen, jbyteArray fromJavaBytes, jint flen) {
-    JNI_TRACE("RSA_padding_add_PKCS1_type_1(%p, %d, %p, %d)", toJavaBytes, tlen, fJavaBytes, fl);
+    JNI_TRACE("RSA_padding_add_PKCS1_type_1(%p, %d, %p, %d)", toJavaBytes, tlen, fromJavaBytes,
+            flen);
 
     ScopedByteArrayRO from(env, fromJavaBytes);
     if (from.get() == NULL) {
@@ -1121,14 +1122,14 @@ static void NativeCrypto_RSA_padding_add_PKCS1_type_1(JNIEnv* env, jclass, jbyte
         return;
     }
 
-    JNI_TRACE("RSA_padding_add_PKCS1_type_1(%p, %d, %p, %d) => done", toJavaBytes, tlen, fJavaBytes,
-            fl);
+    JNI_TRACE("RSA_padding_add_PKCS1_type_1(%p, %d, %p, %d) => done", toJavaBytes, tlen,
+            fromJavaBytes, flen);
 }
 
 static jint NativeCrypto_RSA_padding_check_PKCS1_type_1(JNIEnv* env, jclass, jbyteArray toJavaBytes,
         jint tlen, jbyteArray fromJavaBytes, jint flen, jint rsa_len) {
-    JNI_TRACE("RSA_padding_add_PKCS1_type_1(%p, %d, %p, %d, %d)", toJavaBytes, tlen, fJavaBytes, fl,
-            rsa_len);
+    JNI_TRACE("RSA_padding_add_PKCS1_type_1(%p, %d, %p, %d, %d)", toJavaBytes, tlen, fromJavaBytes,
+            flen, rsa_len);
 
     ScopedByteArrayRW to(env, toJavaBytes);
     if (to.get() == NULL) {
@@ -1158,7 +1159,7 @@ static jint NativeCrypto_RSA_padding_check_PKCS1_type_1(JNIEnv* env, jclass, jby
     }
 
     JNI_TRACE("RSA_padding_check_PKCS1_type_1(%p, %d, %p, %d, %d) => %d", toJavaBytes, tlen,
-            fJavaBytes, fl, rsa_len, size);
+            fromJavaBytes, flen, rsa_len, size);
     return size;
 }
 
@@ -2534,10 +2535,18 @@ static void info_callback(const SSL* ssl, int where, int ret __attribute__ ((unu
 }
 
 /**
- * Call back to ask for a client certificate
+ * Call back to ask for a client certificate. There are three possible exit codes:
+ *
+ * 1 is success. x509Out and pkeyOut should point to the correct private key and certificate.
+ * 0 is unable to find key. x509Out and pkeyOut should be NULL.
+ * -1 is error and it doesn't matter what x509Out and pkeyOut are.
  */
 static int client_cert_cb(SSL* ssl, X509** x509Out, EVP_PKEY** pkeyOut) {
     JNI_TRACE("ssl=%p client_cert_cb x509Out=%p pkeyOut=%p", ssl, x509Out, pkeyOut);
+
+    /* Clear output of key and certificate in case of early exit due to error. */
+    *x509Out = NULL;
+    *pkeyOut = NULL;
 
     AppData* appData = toAppData(ssl);
     JNIEnv* env = appData->env;
@@ -2548,7 +2557,7 @@ static int client_cert_cb(SSL* ssl, X509** x509Out, EVP_PKEY** pkeyOut) {
     }
     if (env->ExceptionCheck()) {
         JNI_TRACE("ssl=%p client_cert_cb already pending exception => 0", ssl);
-        return 0;
+        return -1;
     }
     jobject sslHandshakeCallbacks = appData->sslHandshakeCallbacks;
 
@@ -2595,21 +2604,17 @@ static int client_cert_cb(SSL* ssl, X509** x509Out, EVP_PKEY** pkeyOut) {
 
     if (env->ExceptionCheck()) {
         JNI_TRACE("ssl=%p client_cert_cb exception => 0", ssl);
-        return 0;
+        return -1;
     }
 
     // Check for values set from Java
     X509*     certificate = SSL_get_certificate(ssl);
     EVP_PKEY* privatekey  = SSL_get_privatekey(ssl);
-    int result;
+    int result = 0;
     if (certificate != NULL && privatekey != NULL) {
         *x509Out = certificate;
         *pkeyOut = privatekey;
         result = 1;
-    } else {
-        *x509Out = NULL;
-        *pkeyOut = NULL;
-        result = 0;
     }
     JNI_TRACE("ssl=%p client_cert_cb => *x509=%p *pkey=%p %d", ssl, *x509Out, *pkeyOut, result);
     return result;
