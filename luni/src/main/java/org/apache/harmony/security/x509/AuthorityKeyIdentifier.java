@@ -70,6 +70,34 @@ public final class AuthorityKeyIdentifier extends ExtensionValue {
         return aki;
     }
 
+    /**
+     * The key identifier for the authority.
+     *
+     * @return key identifier or {@code null}
+     */
+    public byte[] getKeyIdentifier() {
+        return keyIdentifier;
+    }
+
+    /**
+     * The GeneralNames for this authority key identifier.
+     *
+     * @return names for the authority certificate issuer or {@code null}
+     */
+    public GeneralNames getAuthorityCertIssuer() {
+        return authorityCertIssuer;
+    }
+
+    /**
+     * The serial number of the certificate identified by this authority key
+     * identifier.
+     *
+     * @return authority's certificate serial number or {@code null}
+     */
+    public BigInteger getAuthorityCertSerialNumber() {
+        return authorityCertSerialNumber;
+    }
+
     @Override public byte[] getEncoded() {
         if (encoding == null) {
             encoding = ASN1.encode(this);
