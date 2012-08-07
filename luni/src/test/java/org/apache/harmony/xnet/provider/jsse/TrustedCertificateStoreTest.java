@@ -22,11 +22,13 @@ import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.security.auth.x500.X500Principal;
@@ -411,6 +413,15 @@ public class TrustedCertificateStoreTest extends TestCase {
         assertAliases(alias1, alias2);
         assertEquals(getChain()[2], store.findIssuer(getChain()[1]));
         assertEquals(getChain()[1], store.findIssuer(getChain()[0]));
+
+        X509Certificate[] expected = getChain();
+        List<X509Certificate> actualList = store.getCertificateChain(expected[0]);
+
+        assertEquals("Generated CA list should be same length", expected.length, actualList.size());
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals("Chain value should be the same for position " + i, expected[i],
+                    actualList.get(i));
+        }
         resetStore();
     }
 
