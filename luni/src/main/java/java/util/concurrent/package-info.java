@@ -111,7 +111,7 @@
  *
  * <h2>Synchronizers</h2>
  *
- * Five classes aid common special-purpose synchronization idioms.
+ * Four classes aid common special-purpose synchronization idioms.
  * <ul>
  *
  * <li>{@link java.util.concurrent.Semaphore} is a classic concurrency tool.
