@@ -567,6 +567,37 @@ public final class CipherTest extends TestCase {
                 Arrays.equals(RSA_Vector1_Encrypt_Private, encrypted));
     }
 
+    public void testRSA_ECB_NoPadding_Private_OnlyDoFinalWithOffset_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                RSA_2048_privateExponent);
+        final PrivateKey privKey = kf.generatePrivate(keySpec);
+
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+
+        /*
+         * You're actually decrypting with private keys, but there is no
+         * distinction made here. It's all keyed off of what kind of key you're
+         * using. ENCRYPT_MODE and DECRYPT_MODE are the same.
+         */
+        c.init(Cipher.ENCRYPT_MODE, privKey);
+        byte[] encrypted = new byte[RSA_Vector1_Encrypt_Private.length];
+        final int encryptLen = c
+                .doFinal(RSA_2048_Vector1, 0, RSA_2048_Vector1.length, encrypted, 0);
+        assertEquals("Encrypted size should match expected", RSA_Vector1_Encrypt_Private.length,
+                encryptLen);
+        assertTrue("Encrypted should match expected",
+                Arrays.equals(RSA_Vector1_Encrypt_Private, encrypted));
+
+        c.init(Cipher.DECRYPT_MODE, privKey);
+        final int decryptLen = c
+                .doFinal(RSA_2048_Vector1, 0, RSA_2048_Vector1.length, encrypted, 0);
+        assertEquals("Encrypted size should match expected", RSA_Vector1_Encrypt_Private.length,
+                decryptLen);
+        assertTrue("Encrypted should match expected",
+                Arrays.equals(RSA_Vector1_Encrypt_Private, encrypted));
+    }
+
     public void testRSA_ECB_NoPadding_Public_OnlyDoFinal_Success() throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
@@ -589,6 +620,33 @@ public final class CipherTest extends TestCase {
         encrypted = c.doFinal(RSA_Vector1_Encrypt_Private);
         assertTrue("Encrypted should match expected",
                 Arrays.equals(RSA_2048_Vector1, encrypted));
+    }
+
+    public void testRSA_ECB_NoPadding_Public_OnlyDoFinalWithOffset_Success() throws Exception {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
+
+        final PublicKey pubKey = kf.generatePublic(keySpec);
+
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+
+        /*
+         * You're actually encrypting with public keys, but there is no
+         * distinction made here. It's all keyed off of what kind of key you're
+         * using. ENCRYPT_MODE and DECRYPT_MODE are the same.
+         */
+        c.init(Cipher.ENCRYPT_MODE, pubKey);
+        byte[] encrypted = new byte[RSA_2048_Vector1.length];
+        final int encryptLen = c.doFinal(RSA_Vector1_Encrypt_Private, 0,
+                RSA_Vector1_Encrypt_Private.length, encrypted, 0);
+        assertEquals("Encrypted size should match expected", RSA_2048_Vector1.length, encryptLen);
+        assertTrue("Encrypted should match expected", Arrays.equals(RSA_2048_Vector1, encrypted));
+
+        c.init(Cipher.DECRYPT_MODE, pubKey);
+        final int decryptLen = c.doFinal(RSA_Vector1_Encrypt_Private, 0,
+                RSA_Vector1_Encrypt_Private.length, encrypted, 0);
+        assertEquals("Encrypted size should match expected", RSA_2048_Vector1.length, decryptLen);
+        assertTrue("Encrypted should match expected", Arrays.equals(RSA_2048_Vector1, encrypted));
     }
 
     public void testRSA_ECB_NoPadding_Public_UpdateThenEmptyDoFinal_Success() throws Exception {
