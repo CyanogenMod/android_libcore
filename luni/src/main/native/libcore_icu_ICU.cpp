@@ -308,18 +308,7 @@ static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, URes
     if (U_SUCCESS(status)) {
         setStringField(env, obj, fieldName, env->NewString(chars, charCount));
     } else {
-        ALOGE("Error setting String field %s from ICU resource (index %d): %s", fieldName, index, u_errorName(status));
-    }
-}
-
-static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, UResourceBundle* bundle, const char* key) {
-    UErrorCode status = U_ZERO_ERROR;
-    int charCount;
-    const UChar* chars = ures_getStringByKey(bundle, key, &charCount, &status);
-    if (U_SUCCESS(status)) {
-        setStringField(env, obj, fieldName, env->NewString(chars, charCount));
-    } else {
-        ALOGE("Error setting String field %s from ICU resource (key %s): %s", fieldName, key, u_errorName(status));
+        ALOGE("Error setting String field %s from ICU resource: %s", fieldName, u_errorName(status));
     }
 }
 
@@ -418,14 +407,6 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobj
             setStringField(env, localeData, "longDateFormat", dateTimePatterns.get(), 5);
             setStringField(env, localeData, "mediumDateFormat", dateTimePatterns.get(), 6);
             setStringField(env, localeData, "shortDateFormat", dateTimePatterns.get(), 7);
-
-            // Get the "Yesterday", "Today", and "Tomorrow" strings.
-            ScopedResourceBundle fields(ures_getByKey(gregorian.get(), "fields", NULL, &status));
-            ScopedResourceBundle day(ures_getByKey(fields.get(), "day", NULL, &status));
-            ScopedResourceBundle relative(ures_getByKey(day.get(), "relative", NULL, &status));
-            setStringField(env, localeData, "yesterday", relative.get(), "-1");
-            setStringField(env, localeData, "today", relative.get(), "0");
-            setStringField(env, localeData, "tomorrow", relative.get(), "1");
             break;
         } else {
             status = U_ZERO_ERROR;  // get parent locale.
