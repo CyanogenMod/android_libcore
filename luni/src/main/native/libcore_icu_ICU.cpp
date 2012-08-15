@@ -59,27 +59,37 @@
 #include <time.h>
 #include <unistd.h>
 
+// TODO: put this in a header file and use it everywhere!
+// DISALLOW_COPY_AND_ASSIGN disallows the copy and operator= functions.
+// It goes in the private: declarations in a class.
+#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+    TypeName(const TypeName&); \
+    void operator=(const TypeName&)
+
 class ScopedResourceBundle {
-public:
-    ScopedResourceBundle(UResourceBundle* bundle) : mBundle(bundle) {
+ public:
+  ScopedResourceBundle(UResourceBundle* bundle) : bundle_(bundle) {
+  }
+
+  ~ScopedResourceBundle() {
+    if (bundle_ != NULL) {
+      ures_close(bundle_);
     }
+  }
 
-    ~ScopedResourceBundle() {
-        if (mBundle != NULL) {
-            ures_close(mBundle);
-        }
-    }
+  UResourceBundle* get() {
+    return bundle_;
+  }
 
-    UResourceBundle* get() {
-        return mBundle;
-    }
+  bool hasKey(const char* key) {
+    UErrorCode status = U_ZERO_ERROR;
+    ures_getStringByKey(bundle_, key, NULL, &status);
+    return U_SUCCESS(status);
+  }
 
-private:
-    UResourceBundle* mBundle;
-
-    // Disallow copy and assignment.
-    ScopedResourceBundle(const ScopedResourceBundle&);
-    void operator=(const ScopedResourceBundle&);
+ private:
+  UResourceBundle* bundle_;
+  DISALLOW_COPY_AND_ASSIGN(ScopedResourceBundle);
 };
 
 Locale getLocale(JNIEnv* env, jstring localeName) {
@@ -302,14 +312,25 @@ static void setStringArrayField(JNIEnv* env, jobject obj, const char* fieldName,
 }
 
 static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, UResourceBundle* bundle, int index) {
-    UErrorCode status = U_ZERO_ERROR;
-    int charCount;
-    const UChar* chars = ures_getStringByIndex(bundle, index, &charCount, &status);
-    if (U_SUCCESS(status)) {
-        setStringField(env, obj, fieldName, env->NewString(chars, charCount));
-    } else {
-        ALOGE("Error setting String field %s from ICU resource: %s", fieldName, u_errorName(status));
-    }
+  UErrorCode status = U_ZERO_ERROR;
+  int charCount;
+  const UChar* chars = ures_getStringByIndex(bundle, index, &charCount, &status);
+  if (U_SUCCESS(status)) {
+    setStringField(env, obj, fieldName, env->NewString(chars, charCount));
+  } else {
+    ALOGE("Error setting String field %s from ICU resource (index %d): %s", fieldName, index, u_errorName(status));
+  }
+}
+
+static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, UResourceBundle* bundle, const char* key) {
+  UErrorCode status = U_ZERO_ERROR;
+  int charCount;
+  const UChar* chars = ures_getStringByKey(bundle, key, &charCount, &status);
+  if (U_SUCCESS(status)) {
+    setStringField(env, obj, fieldName, env->NewString(chars, charCount));
+  } else {
+    ALOGE("Error setting String field %s from ICU resource (key %s): %s", fieldName, key, u_errorName(status));
+  }
 }
 
 static void setCharField(JNIEnv* env, jobject obj, const char* fieldName, const UnicodeString& value) {
@@ -361,80 +382,169 @@ static void setDecimalFormatSymbolsData(JNIEnv* env, jobject obj, jstring locale
     setCharField(env, obj, "zeroDigit", dfs.getSymbol(DecimalFormatSymbols::kZeroDigitSymbol));
 }
 
+
+// Iterates up through the locale hierarchy. So "en_US" would return "en_US", "en", "".
+class LocaleNameIterator {
+ public:
+  LocaleNameIterator(const char* locale_name, UErrorCode& status) : status_(status), has_next_(true) {
+    strcpy(locale_name_, locale_name);
+    locale_name_length_ = strlen(locale_name_);
+  }
+
+  const char* Get() {
+      return locale_name_;
+  }
+
+  bool HasNext() {
+    return has_next_;
+  }
+
+  void Up() {
+    locale_name_length_ = uloc_getParent(locale_name_, locale_name_, sizeof(locale_name_), &status_);
+    if (locale_name_length_ == 0) {
+      has_next_ = false;
+    }
+  }
+
+ private:
+  UErrorCode& status_;
+  bool has_next_;
+  char locale_name_[ULOC_FULLNAME_CAPACITY];
+  int32_t locale_name_length_;
+
+  DISALLOW_COPY_AND_ASSIGN(LocaleNameIterator);
+};
+
+static bool getDateTimePatterns(JNIEnv* env, jobject localeData, const char* locale_name) {
+  UErrorCode status = U_ZERO_ERROR;
+  ScopedResourceBundle root(ures_open(NULL, locale_name, &status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+  ScopedResourceBundle calendar(ures_getByKey(root.get(), "calendar", NULL, &status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+  ScopedResourceBundle gregorian(ures_getByKey(calendar.get(), "gregorian", NULL, &status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+  ScopedResourceBundle dateTimePatterns(ures_getByKey(gregorian.get(), "DateTimePatterns", NULL, &status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+  setStringField(env, localeData, "fullTimeFormat", dateTimePatterns.get(), 0);
+  setStringField(env, localeData, "longTimeFormat", dateTimePatterns.get(), 1);
+  setStringField(env, localeData, "mediumTimeFormat", dateTimePatterns.get(), 2);
+  setStringField(env, localeData, "shortTimeFormat", dateTimePatterns.get(), 3);
+  setStringField(env, localeData, "fullDateFormat", dateTimePatterns.get(), 4);
+  setStringField(env, localeData, "longDateFormat", dateTimePatterns.get(), 5);
+  setStringField(env, localeData, "mediumDateFormat", dateTimePatterns.get(), 6);
+  setStringField(env, localeData, "shortDateFormat", dateTimePatterns.get(), 7);
+  return true;
+}
+
+static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, const char* locale_name) {
+  UErrorCode status = U_ZERO_ERROR;
+  ScopedResourceBundle root(ures_open(NULL, locale_name, &status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+  ScopedResourceBundle calendar(ures_getByKey(root.get(), "calendar", NULL, &status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+  ScopedResourceBundle gregorian(ures_getByKey(calendar.get(), "gregorian", NULL, &status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+  ScopedResourceBundle fields(ures_getByKey(gregorian.get(), "fields", NULL, &status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+  ScopedResourceBundle day(ures_getByKey(fields.get(), "day", NULL, &status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+  ScopedResourceBundle relative(ures_getByKey(day.get(), "relative", NULL, &status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+  // bn_BD only has a "-2" entry.
+  if (relative.hasKey("-1") && relative.hasKey("0") && relative.hasKey("1")) {
+    setStringField(env, localeData, "yesterday", relative.get(), "-1");
+    setStringField(env, localeData, "today", relative.get(), "0");
+    setStringField(env, localeData, "tomorrow", relative.get(), "1");
+    return true;
+  }
+  return false;
+}
+
 static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobject localeData) {
     ScopedUtfChars localeName(env, locale);
     if (localeName.c_str() == NULL) {
         return JNI_FALSE;
     }
-
-    // Get DateTimePatterns
-    UErrorCode status;
-    char currentLocale[ULOC_FULLNAME_CAPACITY];
-    int32_t localeNameLen = 0;
     if (localeName.size() >= ULOC_FULLNAME_CAPACITY) {
-        return JNI_FALSE;  // Exceed ICU defined limit of the whole locale ID.
+        return JNI_FALSE; // ICU has a fixed-length limit.
     }
-    strcpy(currentLocale, localeName.c_str());
-    do {
-        status = U_ZERO_ERROR;
-        ScopedResourceBundle root(ures_open(NULL, currentLocale, &status));
-        if (U_FAILURE(status)) {
-            if (localeNameLen == 0) {
-                break;  // No parent locale, report this error outside the loop.
-            } else {
-                status = U_ZERO_ERROR;
-                continue;  // get parent locale.
-            }
-        }
-        ScopedResourceBundle calendar(ures_getByKey(root.get(), "calendar", NULL, &status));
-        if (U_FAILURE(status)) {
-            status = U_ZERO_ERROR;
-            continue;  // get parent locale.
-        }
 
-        ScopedResourceBundle gregorian(ures_getByKey(calendar.get(), "gregorian", NULL, &status));
-        if (U_FAILURE(status)) {
-            status = U_ZERO_ERROR;
-            continue;  // get parent locale.
-        }
-        ScopedResourceBundle dateTimePatterns(ures_getByKey(gregorian.get(), "DateTimePatterns", NULL, &status));
-        if (U_SUCCESS(status)) {
-            setStringField(env, localeData, "fullTimeFormat", dateTimePatterns.get(), 0);
-            setStringField(env, localeData, "longTimeFormat", dateTimePatterns.get(), 1);
-            setStringField(env, localeData, "mediumTimeFormat", dateTimePatterns.get(), 2);
-            setStringField(env, localeData, "shortTimeFormat", dateTimePatterns.get(), 3);
-            setStringField(env, localeData, "fullDateFormat", dateTimePatterns.get(), 4);
-            setStringField(env, localeData, "longDateFormat", dateTimePatterns.get(), 5);
-            setStringField(env, localeData, "mediumDateFormat", dateTimePatterns.get(), 6);
-            setStringField(env, localeData, "shortDateFormat", dateTimePatterns.get(), 7);
-            break;
-        } else {
-            status = U_ZERO_ERROR;  // get parent locale.
-        }
-    } while((localeNameLen = uloc_getParent(currentLocale, currentLocale, sizeof(currentLocale), &status)) >= 0);
-    if (U_FAILURE(status)) {
-        ALOGE("Error getting ICU resource bundle: %s", u_errorName(status));
+    // Get the DateTimePatterns.
+    UErrorCode status = U_ZERO_ERROR;
+    bool foundDateTimePatterns = false;
+    for (LocaleNameIterator it(localeName.c_str(), status); it.HasNext(); it.Up()) {
+      if (getDateTimePatterns(env, localeData, it.Get())) {
+          foundDateTimePatterns = true;
+          break;
+      }
+    }
+    if (!foundDateTimePatterns) {
+        ALOGE("Couldn't find ICU DateTimePatterns for %s", localeName.c_str());
         return JNI_FALSE;
+    }
+
+    // Get the "Yesterday", "Today", and "Tomorrow" strings.
+    bool foundYesterdayTodayAndTomorrow = false;
+    for (LocaleNameIterator it(localeName.c_str(), status); it.HasNext(); it.Up()) {
+      if (getYesterdayTodayAndTomorrow(env, localeData, it.Get())) {
+        foundYesterdayTodayAndTomorrow = true;
+        break;
+      }
+    }
+    if (!foundYesterdayTodayAndTomorrow) {
+      // Currently (Jelly Bean, ICU 4.8), the CLDR data for 'ps' and 'ps_AF' is missing these.
+      if (strcmp(localeName.c_str(), "ps") || strcmp(localeName.c_str(), "ps_AF")) {
+        // Deliberately use incorrect values so that anyone using 'ps' knows the CLDR is bad.
+        // (We have to include 'ps' because some of the 'ar' locales refer to it.)
+        ALOGW("Couldn't find ICU yesterday/today/tomorrow for %s; falling back", localeName.c_str());
+        setStringField(env, localeData, "yesterday", UnicodeString("Yesterday"));
+        setStringField(env, localeData, "today", UnicodeString("Today"));
+        setStringField(env, localeData, "tomorrow", UnicodeString("Tomorrow"));
+      } else {
+        ALOGE("Couldn't find ICU yesterday/today/tomorrow for %s", localeName.c_str());
+        return JNI_FALSE;
+      }
     }
 
     status = U_ZERO_ERROR;
     Locale localeObj = getLocale(env, locale);
-
     UniquePtr<Calendar> cal(Calendar::createInstance(localeObj, status));
     if (U_FAILURE(status)) {
         return JNI_FALSE;
     }
+
     setIntegerField(env, localeData, "firstDayOfWeek", cal->getFirstDayOfWeek());
     setIntegerField(env, localeData, "minimalDaysInFirstWeek", cal->getMinimalDaysInFirstWeek());
 
-    // Get DateFormatSymbols
+    // Get DateFormatSymbols.
     status = U_ZERO_ERROR;
     DateFormatSymbols dateFormatSym(localeObj, status);
     if (U_FAILURE(status)) {
         return JNI_FALSE;
     }
+
+    // Get AM/PM and BC/AD.
     int32_t count = 0;
-    // Get AM/PM marker
     const UnicodeString* amPmStrs = dateFormatSym.getAmPmStrings(count);
     setStringArrayField(env, localeData, "amPm", amPmStrs, count);
     const UnicodeString* erasStrs = dateFormatSym.getEras(count);
