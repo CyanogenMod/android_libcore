@@ -63,6 +63,11 @@ public final class LocaleData {
     public String[] shortStandAloneWeekdayNames; // "Sun", ...
     public String[] tinyStandAloneWeekdayNames; // "S", ...
 
+    // Used by frameworks/base DateSorter and DateUtils.
+    public String yesterday; // "Yesterday".
+    public String today; // "Today".
+    public String tomorrow; // "Tomorrow".
+
     public String fullTimeFormat;
     public String longTimeFormat;
     public String mediumTimeFormat;
