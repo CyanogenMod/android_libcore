@@ -19,6 +19,14 @@ package libcore.icu;
 import java.util.Locale;
 
 public class LocaleDataTest extends junit.framework.TestCase {
+    public void testAll() throws Exception {
+        // Test that we can get the locale data for all known locales.
+        for (Locale l : Locale.getAvailableLocales()) {
+            LocaleData d = LocaleData.get(l);
+            System.err.println(l + " : " + d.yesterday + " " + d.today + " " + d.tomorrow);
+        }
+    }
+
     public void test_en_US() throws Exception {
         LocaleData l = LocaleData.get(Locale.US);
         assertEquals("AM", l.amPm[0]);
@@ -39,6 +47,18 @@ public class LocaleDataTest extends junit.framework.TestCase {
         assertEquals("Sunday", l.longStandAloneWeekdayNames[1]);
         assertEquals("Sun", l.shortStandAloneWeekdayNames[1]);
         assertEquals("S", l.tinyStandAloneWeekdayNames[1]);
+
+        assertEquals("Yesterday", l.yesterday);
+        assertEquals("Today", l.today);
+        assertEquals("Tomorrow", l.tomorrow);
+    }
+
+    public void test_de_DE() throws Exception {
+        LocaleData l = LocaleData.get(new Locale("de", "DE"));
+
+        assertEquals("Gestern", l.yesterday);
+        assertEquals("Heute", l.today);
+        assertEquals("Morgen", l.tomorrow);
     }
 
     public void test_cs_CZ() throws Exception {
