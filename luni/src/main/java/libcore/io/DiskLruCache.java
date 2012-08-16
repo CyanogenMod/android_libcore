@@ -16,7 +16,6 @@
 
 package libcore.io;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.EOFException;
@@ -227,13 +226,14 @@ public final class DiskLruCache implements Closeable {
     }
 
     private void readJournal() throws IOException {
-        InputStream in = new BufferedInputStream(new FileInputStream(journalFile));
+        StrictLineReader reader = new StrictLineReader(new FileInputStream(journalFile),
+                Charsets.US_ASCII);
         try {
-            String magic = Streams.readAsciiLine(in);
-            String version = Streams.readAsciiLine(in);
-            String appVersionString = Streams.readAsciiLine(in);
-            String valueCountString = Streams.readAsciiLine(in);
-            String blank = Streams.readAsciiLine(in);
+            String magic = reader.readLine();
+            String version = reader.readLine();
+            String appVersionString = reader.readLine();
+            String valueCountString = reader.readLine();
+            String blank = reader.readLine();
             if (!MAGIC.equals(magic)
                     || !VERSION_1.equals(version)
                     || !Integer.toString(appVersion).equals(appVersionString)
@@ -245,13 +245,13 @@ public final class DiskLruCache implements Closeable {
 
             while (true) {
                 try {
-                    readJournalLine(Streams.readAsciiLine(in));
+                    readJournalLine(reader.readLine());
                 } catch (EOFException endOfJournal) {
                     break;
                 }
             }
         } finally {
-            IoUtils.closeQuietly(in);
+            IoUtils.closeQuietly(reader);
         }
     }
 
