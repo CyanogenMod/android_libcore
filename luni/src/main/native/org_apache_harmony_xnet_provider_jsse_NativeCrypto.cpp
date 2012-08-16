@@ -577,6 +577,20 @@ static jint NativeCrypto_ENGINE_by_id(JNIEnv* env, jclass, jstring idJava) {
     return static_cast<jint>(reinterpret_cast<uintptr_t>(e));
 }
 
+static jint NativeCrypto_ENGINE_add(JNIEnv* env, jclass, jint engineRef) {
+    ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
+    JNI_TRACE("ENGINE_add(%p)", e);
+
+    if (e == NULL) {
+        jniThrowException(env, "java/lang/IllegalArgumentException", "engineRef == 0");
+        return 0;
+    }
+
+    int ret = ENGINE_add(e);
+    JNI_TRACE("ENGINE_add(%p) => %d", e, ret);
+    return ret;
+}
+
 static jint NativeCrypto_ENGINE_init(JNIEnv* env, jclass, jint engineRef) {
     ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
     JNI_TRACE("ENGINE_init(%p)", e);
@@ -4411,6 +4425,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, clinit, "()V"),
     NATIVE_METHOD(NativeCrypto, ENGINE_load_dynamic, "()V"),
     NATIVE_METHOD(NativeCrypto, ENGINE_by_id, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_add, "(I)I"),
     NATIVE_METHOD(NativeCrypto, ENGINE_init, "(I)I"),
     NATIVE_METHOD(NativeCrypto, ENGINE_finish, "(I)I"),
     NATIVE_METHOD(NativeCrypto, ENGINE_free, "(I)I"),
