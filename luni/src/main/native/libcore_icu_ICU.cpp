@@ -512,18 +512,8 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobj
       }
     }
     if (!foundYesterdayTodayAndTomorrow) {
-      // Currently (Jelly Bean, ICU 4.8), the CLDR data for 'ps' and 'ps_AF' is missing these.
-      if (strcmp(localeName.c_str(), "ps") || strcmp(localeName.c_str(), "ps_AF")) {
-        // Deliberately use incorrect values so that anyone using 'ps' knows the CLDR is bad.
-        // (We have to include 'ps' because some of the 'ar' locales refer to it.)
-        ALOGW("Couldn't find ICU yesterday/today/tomorrow for %s; falling back", localeName.c_str());
-        setStringField(env, localeData, "yesterday", UnicodeString("Yesterday"));
-        setStringField(env, localeData, "today", UnicodeString("Today"));
-        setStringField(env, localeData, "tomorrow", UnicodeString("Tomorrow"));
-      } else {
-        ALOGE("Couldn't find ICU yesterday/today/tomorrow for %s", localeName.c_str());
-        return JNI_FALSE;
-      }
+      ALOGE("Couldn't find ICU yesterday/today/tomorrow for %s", localeName.c_str());
+      return JNI_FALSE;
     }
 
     status = U_ZERO_ERROR;
