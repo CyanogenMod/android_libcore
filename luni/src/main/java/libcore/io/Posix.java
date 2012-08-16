@@ -33,11 +33,14 @@ public final class Posix implements Os {
     public native boolean access(String path, int mode) throws ErrnoException;
     public native void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException;
     public native void chmod(String path, int mode) throws ErrnoException;
+    public native void chown(String path, int uid, int gid) throws ErrnoException;
     public native void close(FileDescriptor fd) throws ErrnoException;
     public native void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException;
     public native FileDescriptor dup(FileDescriptor oldFd) throws ErrnoException;
     public native FileDescriptor dup2(FileDescriptor oldFd, int newFd) throws ErrnoException;
     public native String[] environ();
+    public native void fchmod(FileDescriptor fd, int mode) throws ErrnoException;
+    public native void fchown(FileDescriptor fd, int uid, int gid) throws ErrnoException;
     public native int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException;
     public native int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException;
     public native int fcntlFlock(FileDescriptor fd, int cmd, StructFlock arg) throws ErrnoException;
@@ -70,6 +73,7 @@ public final class Posix implements Os {
     public native int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException;
     public native boolean isatty(FileDescriptor fd);
     public native void kill(int pid, int signal) throws ErrnoException;
+    public native void lchown(String path, int uid, int gid) throws ErrnoException;
     public native void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public native long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
     public native StructStat lstat(String path) throws ErrnoException;
@@ -165,6 +169,7 @@ public final class Posix implements Os {
     public native String strerror(int errno);
     public native void symlink(String oldPath, String newPath) throws ErrnoException;
     public native long sysconf(int name);
+    public native int umask(int mask);
     public native StructUtsname uname();
     public native int waitpid(int pid, MutableInt status, int options) throws ErrnoException;
     public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
