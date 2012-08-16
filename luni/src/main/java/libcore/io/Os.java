@@ -30,11 +30,14 @@ public interface Os {
     public boolean access(String path, int mode) throws ErrnoException;
     public void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException;
     public void chmod(String path, int mode) throws ErrnoException;
+    public void chown(String path, int uid, int gid) throws ErrnoException;
     public void close(FileDescriptor fd) throws ErrnoException;
     public void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException;
     public FileDescriptor dup(FileDescriptor oldFd) throws ErrnoException;
     public FileDescriptor dup2(FileDescriptor oldFd, int newFd) throws ErrnoException;
     public String[] environ();
+    public void fchmod(FileDescriptor fd, int mode) throws ErrnoException;
+    public void fchown(FileDescriptor fd, int uid, int gid) throws ErrnoException;
     public int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException;
     public int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException;
     public int fcntlFlock(FileDescriptor fd, int cmd, StructFlock arg) throws ErrnoException;
@@ -68,6 +71,7 @@ public interface Os {
     public int ioctlInt(FileDescriptor fd, int cmd, MutableInt arg) throws ErrnoException;
     public boolean isatty(FileDescriptor fd);
     public void kill(int pid, int signal) throws ErrnoException;
+    public void lchown(String path, int uid, int gid) throws ErrnoException;
     public void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
     public StructStat lstat(String path) throws ErrnoException;
@@ -115,6 +119,7 @@ public interface Os {
     public String strerror(int errno);
     public void symlink(String oldPath, String newPath) throws ErrnoException;
     public long sysconf(int name);
+    public int umask(int mask);
     public StructUtsname uname();
     public int waitpid(int pid, MutableInt status, int options) throws ErrnoException;
     public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException;

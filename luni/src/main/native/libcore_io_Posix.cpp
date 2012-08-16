@@ -420,6 +420,14 @@ static void Posix_chmod(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     throwIfMinusOne(env, "chmod", TEMP_FAILURE_RETRY(chmod(path.c_str(), mode)));
 }
 
+static void Posix_chown(JNIEnv* env, jobject, jstring javaPath, jint uid, jint gid) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return;
+    }
+    throwIfMinusOne(env, "chown", TEMP_FAILURE_RETRY(chown(path.c_str(), uid, gid)));
+}
+
 static void Posix_close(JNIEnv* env, jobject, jobject javaFd) {
     // Get the FileDescriptor's 'fd' field and clear it.
     // We need to do this before we can throw an IOException (http://b/3222087).
@@ -457,6 +465,16 @@ static jobject Posix_dup2(JNIEnv* env, jobject, jobject javaOldFd, jint newFd) {
 static jobjectArray Posix_environ(JNIEnv* env, jobject) {
     extern char** environ; // Standard, but not in any header file.
     return toStringArray(env, environ);
+}
+
+static void Posix_fchmod(JNIEnv* env, jobject, jobject javaFd, jint mode) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    throwIfMinusOne(env, "fchmod", TEMP_FAILURE_RETRY(fchmod(fd, mode)));
+}
+
+static void Posix_fchown(JNIEnv* env, jobject, jobject javaFd, jint uid, jint gid) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    throwIfMinusOne(env, "fchown", TEMP_FAILURE_RETRY(fchown(fd, uid, gid)));
 }
 
 static jint Posix_fcntlVoid(JNIEnv* env, jobject, jobject javaFd, jint cmd) {
@@ -796,6 +814,14 @@ static jboolean Posix_isatty(JNIEnv* env, jobject, jobject javaFd) {
 
 static void Posix_kill(JNIEnv* env, jobject, jint pid, jint sig) {
     throwIfMinusOne(env, "kill", TEMP_FAILURE_RETRY(kill(pid, sig)));
+}
+
+static void Posix_lchown(JNIEnv* env, jobject, jstring javaPath, jint uid, jint gid) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return;
+    }
+    throwIfMinusOne(env, "lchown", TEMP_FAILURE_RETRY(lchown(path.c_str(), uid, gid)));
 }
 
 static void Posix_listen(JNIEnv* env, jobject, jobject javaFd, jint backlog) {
@@ -1195,6 +1221,10 @@ static jlong Posix_sysconf(JNIEnv* env, jobject, jint name) {
     return result;
 }
 
+static jint Posix_umask(JNIEnv*, jint mask) {
+    return umask(mask);
+}
+
 static jobject Posix_uname(JNIEnv* env, jobject) {
     struct utsname buf;
     if (TEMP_FAILURE_RETRY(uname(&buf)) == -1) {
@@ -1236,11 +1266,14 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, access, "(Ljava/lang/String;I)Z"),
     NATIVE_METHOD(Posix, bind, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
     NATIVE_METHOD(Posix, chmod, "(Ljava/lang/String;I)V"),
+    NATIVE_METHOD(Posix, chown, "(Ljava/lang/String;II)V"),
     NATIVE_METHOD(Posix, close, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, connect, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
     NATIVE_METHOD(Posix, dup, "(Ljava/io/FileDescriptor;)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, dup2, "(Ljava/io/FileDescriptor;I)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, environ, "()[Ljava/lang/String;"),
+    NATIVE_METHOD(Posix, fchmod, "(Ljava/io/FileDescriptor;I)V"),
+    NATIVE_METHOD(Posix, fchown, "(Ljava/io/FileDescriptor;II)V"),
     NATIVE_METHOD(Posix, fcntlVoid, "(Ljava/io/FileDescriptor;I)I"),
     NATIVE_METHOD(Posix, fcntlLong, "(Ljava/io/FileDescriptor;IJ)I"),
     NATIVE_METHOD(Posix, fcntlFlock, "(Ljava/io/FileDescriptor;ILlibcore/io/StructFlock;)I"),
@@ -1273,6 +1306,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, ioctlInt, "(Ljava/io/FileDescriptor;ILlibcore/util/MutableInt;)I"),
     NATIVE_METHOD(Posix, isatty, "(Ljava/io/FileDescriptor;)Z"),
     NATIVE_METHOD(Posix, kill, "(II)V"),
+    NATIVE_METHOD(Posix, lchown, "(Ljava/lang/String;II)V"),
     NATIVE_METHOD(Posix, listen, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(Posix, lseek, "(Ljava/io/FileDescriptor;JI)J"),
     NATIVE_METHOD(Posix, lstat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
@@ -1313,6 +1347,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sysconf, "(I)J"),
+    NATIVE_METHOD(Posix, umask, "(I)I"),
     NATIVE_METHOD(Posix, uname, "()Llibcore/io/StructUtsname;"),
     NATIVE_METHOD(Posix, waitpid, "(ILlibcore/util/MutableInt;I)I"),
     NATIVE_METHOD(Posix, writeBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
