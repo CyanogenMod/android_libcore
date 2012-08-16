@@ -90,7 +90,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
                     DateFormat.SHORT, DateFormat.SHORT, Locale.US);
             Date current = new Date();
             String dtf = format.format(current);
-            SimpleDateFormat sdf = new SimpleDateFormat("M/d/yy h:mm a");
+            SimpleDateFormat sdf = new SimpleDateFormat("M/d/yy h:mm a", Locale.US);
             assertTrue("Incorrect date format", sdf.format(current).equals(dtf));
         } catch (Exception e) {
             fail("Unexpected exception " + e.toString());
@@ -110,7 +110,7 @@ public class OldDateFormatTest extends junit.framework.TestCase {
             StringBuffer toAppend = new StringBuffer();
             FieldPosition fp = new FieldPosition(DateFormat.YEAR_FIELD);
             StringBuffer sb = format.format(current, toAppend, fp);
-            SimpleDateFormat sdf = new SimpleDateFormat("M/d/yy h:mm a");
+            SimpleDateFormat sdf = new SimpleDateFormat("M/d/yy h:mm a", Locale.US);
             assertTrue("Incorrect date format", sdf.format(current).equals(
                     sb.toString()));
             assertTrue("Incorrect beginIndex of filed position", fp
