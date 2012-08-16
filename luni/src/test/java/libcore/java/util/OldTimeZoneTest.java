@@ -83,6 +83,7 @@ public class OldTimeZoneTest extends TestCase {
     }
 
     public void test_getDisplayName() {
+        Locale.setDefault(Locale.US);
         TimeZone tz = TimeZone.getTimeZone("GMT-6");
         assertEquals("GMT-06:00", tz.getDisplayName());
         tz = TimeZone.getTimeZone("America/Los_Angeles");
@@ -99,6 +100,7 @@ public class OldTimeZoneTest extends TestCase {
     }
 
     public void test_getDisplayNameZI() {
+        Locale.setDefault(Locale.US);
         TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
         assertEquals("PST",                   tz.getDisplayName(false, 0));
         assertEquals("Pacific Daylight Time", tz.getDisplayName(true, 1));
@@ -149,16 +151,5 @@ public class OldTimeZoneTest extends TestCase {
         assertEquals("GMT-06:00", tz.getID());
         tz.setID("New ID for GMT-6");
         assertEquals("New ID for GMT-6", tz.getID());
-    }
-
-    Locale loc = null;
-
-    protected void setUp() {
-        loc = Locale.getDefault();
-        Locale.setDefault(Locale.US);
-    }
-
-    protected void tearDown() {
-        Locale.setDefault(loc);
     }
 }
