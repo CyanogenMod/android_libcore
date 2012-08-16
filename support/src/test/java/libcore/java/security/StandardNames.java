@@ -334,6 +334,10 @@ public final class StandardNames extends Assert {
             unprovide("Signature", "SHA512WithRSA");
             provide("Signature", "SHA512WithRSAEncryption");
 
+            // Added to support Android KeyStore operations
+            provide("Signature", "NONEwithRSA");
+            provide("Cipher", "RSA/ECB/NOPADDING");
+
             // different names: JSSE Reference Guide says PKIX aka X509
             unprovide("TrustManagerFactory", "PKIX");
             provide("TrustManagerFactory", "X509");
