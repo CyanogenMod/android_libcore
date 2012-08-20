@@ -16,6 +16,7 @@
 
 package libcore.javax.net.ssl;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
@@ -30,6 +31,10 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.KeyManager;
@@ -38,7 +43,6 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLPeerUnverifiedException;
-import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLProtocolException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
@@ -271,32 +275,28 @@ public class SSLSocketTest extends TestCase {
         SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
                                                                                        c.port);
         final SSLSocket server = (SSLSocket) c.serverSocket.accept();
-        Thread thread = new Thread(new Runnable () {
-            public void run() {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
+                server.startHandshake();
+                assertNotNull(server.getSession());
                 try {
-                    server.startHandshake();
-                    assertNotNull(server.getSession());
-                    try {
-                        server.getSession().getPeerCertificates();
-                        fail();
-                    } catch (SSLPeerUnverifiedException expected) {
-                    }
-                    Certificate[] localCertificates = server.getSession().getLocalCertificates();
-                    assertNotNull(localCertificates);
-                    TestKeyStore.assertChainLength(localCertificates);
-                    assertNotNull(localCertificates[0]);
-                    TestSSLContext.assertServerCertificateChain(c.serverTrustManager,
-                                                                localCertificates);
-                    TestSSLContext.assertCertificateInKeyStore(localCertificates[0],
-                                                               c.serverKeyStore);
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    server.getSession().getPeerCertificates();
+                    fail();
+                } catch (SSLPeerUnverifiedException expected) {
                 }
+                Certificate[] localCertificates = server.getSession().getLocalCertificates();
+                assertNotNull(localCertificates);
+                TestKeyStore.assertChainLength(localCertificates);
+                assertNotNull(localCertificates[0]);
+                TestSSLContext.assertServerCertificateChain(c.serverTrustManager,
+                                                            localCertificates);
+                TestSSLContext.assertCertificateInKeyStore(localCertificates[0],
+                                                           c.serverKeyStore);
+                return null;
             }
         });
-        thread.start();
+        executor.shutdown();
         client.startHandshake();
         assertNotNull(client.getSession());
         assertNull(client.getSession().getLocalCertificates());
@@ -307,7 +307,7 @@ public class SSLSocketTest extends TestCase {
         TestSSLContext.assertServerCertificateChain(c.clientTrustManager,
                                                     peerCertificates);
         TestSSLContext.assertCertificateInKeyStore(peerCertificates[0], c.serverKeyStore);
-        thread.join();
+        future.get();
         client.close();
         server.close();
         c.close();
@@ -321,25 +321,24 @@ public class SSLSocketTest extends TestCase {
         // RI used to throw SSLException on accept, now throws on startHandshake
         if (StandardNames.IS_RI) {
             final SSLSocket server = (SSLSocket) c.serverSocket.accept();
-            Thread thread = new Thread(new Runnable () {
-                public void run() {
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<Void> future = executor.submit(new Callable<Void>() {
+                @Override public Void call() throws Exception {
                     try {
                         server.startHandshake();
+                        fail();
                     } catch (SSLHandshakeException expected) {
-                    } catch (RuntimeException e) {
-                        throw e;
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
                     }
+                    return null;
                 }
             });
-            thread.start();
+            executor.shutdown();
             try {
                 client.startHandshake();
                 fail();
             } catch (SSLHandshakeException expected) {
             }
-            thread.join();
+            future.get();
             server.close();
         } else {
             try {
@@ -359,20 +358,16 @@ public class SSLSocketTest extends TestCase {
         SSLSocket client = (SSLSocket)
             clientContext.getSocketFactory().createSocket(c.host, c.port);
         final SSLSocket server = (SSLSocket) c.serverSocket.accept();
-        Thread thread = new Thread(new Runnable () {
-            public void run() {
-                try {
-                    server.startHandshake();
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
+                server.startHandshake();
+                return null;
             }
         });
-        thread.start();
+        executor.shutdown();
         client.startHandshake();
-        thread.join();
+        future.get();
         client.close();
         server.close();
         c.close();
@@ -383,18 +378,14 @@ public class SSLSocketTest extends TestCase {
         final SSLSocket client = (SSLSocket)
                 c.clientContext.getSocketFactory().createSocket(c.host, c.port);
         final SSLSocket server = (SSLSocket) c.serverSocket.accept();
-        Thread thread = new Thread(new Runnable () {
-            public void run() {
-                try {
-                    server.startHandshake();
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
+                server.startHandshake();
+                return null;
             }
         });
-        thread.start();
+        executor.shutdown();
         final boolean[] handshakeCompletedListenerCalled = new boolean[1];
         client.addHandshakeCompletedListener(new HandshakeCompletedListener() {
             public void handshakeCompleted(HandshakeCompletedEvent event) {
@@ -472,7 +463,7 @@ public class SSLSocketTest extends TestCase {
             }
         });
         client.startHandshake();
-        thread.join();
+        future.get();
         if (!TestSSLContext.sslServerSocketSupportsSessionTickets()) {
             assertNotNull(c.serverContext.getServerSessionContext().getSession(
                     client.getSession().getId()));
@@ -492,25 +483,21 @@ public class SSLSocketTest extends TestCase {
         final SSLSocket client = (SSLSocket)
                 c.clientContext.getSocketFactory().createSocket(c.host, c.port);
         final SSLSocket server = (SSLSocket) c.serverSocket.accept();
-        Thread thread = new Thread(new Runnable () {
-            public void run() {
-                try {
-                    server.startHandshake();
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
+                server.startHandshake();
+                return null;
             }
         });
-        thread.start();
+        executor.shutdown();
         client.addHandshakeCompletedListener(new HandshakeCompletedListener() {
             public void handshakeCompleted(HandshakeCompletedEvent event) {
                 throw new RuntimeException("RuntimeException from handshakeCompleted");
             }
         });
         client.startHandshake();
-        thread.join();
+        future.get();
         client.close();
         server.close();
         c.close();
@@ -551,6 +538,46 @@ public class SSLSocketTest extends TestCase {
         }
     }
 
+    private void test_SSLSocket_setUseClientMode(final boolean clientClientMode,
+                                                 final boolean serverClientMode)
+            throws Exception {
+        TestSSLContext c = TestSSLContext.create();
+        SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
+                                                                                       c.port);
+        final SSLSocket server = (SSLSocket) c.serverSocket.accept();
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<IOException> future = executor.submit(new Callable<IOException>() {
+            @Override public IOException call() throws Exception {
+                try {
+                    if (!serverClientMode) {
+                        server.setSoTimeout(1 * 1000);
+                    }
+                    server.setUseClientMode(serverClientMode);
+                    server.startHandshake();
+                    return null;
+                } catch (SSLHandshakeException e) {
+                    return e;
+                } catch (SocketTimeoutException e) {
+                    return e;
+                }
+            }
+        });
+        executor.shutdown();
+        if (!clientClientMode) {
+            client.setSoTimeout(1 * 1000);
+        }
+        client.setUseClientMode(clientClientMode);
+        client.startHandshake();
+        IOException ioe = future.get();
+        if (ioe != null) {
+            throw ioe;
+        }
+        client.close();
+        server.close();
+        c.close();
+    }
+
     public void test_SSLSocket_setUseClientMode_afterHandshake() throws Exception {
 
         // can't set after handshake
@@ -567,72 +594,25 @@ public class SSLSocketTest extends TestCase {
         }
     }
 
-    private void test_SSLSocket_setUseClientMode(final boolean clientClientMode,
-                                                 final boolean serverClientMode)
-            throws Exception {
-        TestSSLContext c = TestSSLContext.create();
-        SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
-                                                                                       c.port);
-        final SSLSocket server = (SSLSocket) c.serverSocket.accept();
-
-        final SSLHandshakeException[] sslHandshakeException = new SSLHandshakeException[1];
-        final SocketTimeoutException[] socketTimeoutException = new SocketTimeoutException[1];
-        Thread thread = new Thread(new Runnable () {
-            public void run() {
-                try {
-                    if (!serverClientMode) {
-                        server.setSoTimeout(1 * 1000);
-                    }
-                    server.setUseClientMode(serverClientMode);
-                    server.startHandshake();
-                } catch (SSLHandshakeException e) {
-                    sslHandshakeException[0] = e;
-                } catch (SocketTimeoutException e) {
-                    socketTimeoutException[0] = e;
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-        thread.start();
-        if (!clientClientMode) {
-            client.setSoTimeout(1 * 1000);
-        }
-        client.setUseClientMode(clientClientMode);
-        client.startHandshake();
-        thread.join();
-        if (sslHandshakeException[0] != null) {
-            throw sslHandshakeException[0];
-        }
-        if (socketTimeoutException[0] != null) {
-            throw socketTimeoutException[0];
-        }
-        client.close();
-        server.close();
-        c.close();
-    }
-
     public void test_SSLSocket_untrustedServer() throws Exception {
         TestSSLContext c = TestSSLContext.create(TestKeyStore.getClientCA2(),
                                                  TestKeyStore.getServer());
         SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
                                                                                        c.port);
         final SSLSocket server = (SSLSocket) c.serverSocket.accept();
-        Thread thread = new Thread(new Runnable () {
-            public void run() {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
                 try {
                     server.startHandshake();
+                    assertFalse(StandardNames.IS_RI);
                 } catch (SSLHandshakeException expected) {
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    assertTrue(StandardNames.IS_RI);
                 }
+                return null;
             }
         });
-        thread.start();
+        executor.shutdown();
         try {
             client.startHandshake();
             fail();
@@ -641,7 +621,7 @@ public class SSLSocketTest extends TestCase {
         }
         client.close();
         server.close();
-        thread.join();
+        future.get();
     }
 
     public void test_SSLSocket_clientAuth() throws Exception {
@@ -650,43 +630,38 @@ public class SSLSocketTest extends TestCase {
         SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
                                                                                        c.port);
         final SSLSocket server = (SSLSocket) c.serverSocket.accept();
-        Thread thread = new Thread(new Runnable () {
-            public void run() {
-                try {
-                    assertFalse(server.getWantClientAuth());
-                    assertFalse(server.getNeedClientAuth());
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
+                assertFalse(server.getWantClientAuth());
+                assertFalse(server.getNeedClientAuth());
 
-                    // confirm turning one on by itself
-                    server.setWantClientAuth(true);
-                    assertTrue(server.getWantClientAuth());
-                    assertFalse(server.getNeedClientAuth());
+                // confirm turning one on by itself
+                server.setWantClientAuth(true);
+                assertTrue(server.getWantClientAuth());
+                assertFalse(server.getNeedClientAuth());
 
-                    // confirm turning setting on toggles the other
-                    server.setNeedClientAuth(true);
-                    assertFalse(server.getWantClientAuth());
-                    assertTrue(server.getNeedClientAuth());
+                // confirm turning setting on toggles the other
+                server.setNeedClientAuth(true);
+                assertFalse(server.getWantClientAuth());
+                assertTrue(server.getNeedClientAuth());
 
-                    // confirm toggling back
-                    server.setWantClientAuth(true);
-                    assertTrue(server.getWantClientAuth());
-                    assertFalse(server.getNeedClientAuth());
+                // confirm toggling back
+                server.setWantClientAuth(true);
+                assertTrue(server.getWantClientAuth());
+                assertFalse(server.getNeedClientAuth());
 
-                    server.startHandshake();
-
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                server.startHandshake();
+                return null;
             }
         });
-        thread.start();
+        executor.shutdown();
         client.startHandshake();
         assertNotNull(client.getSession().getLocalCertificates());
         TestKeyStore.assertChainLength(client.getSession().getLocalCertificates());
         TestSSLContext.assertClientCertificateChain(c.clientTrustManager,
                                                     client.getSession().getLocalCertificates());
-        thread.join();
+        future.get();
         client.close();
         server.close();
         c.close();
@@ -727,22 +702,20 @@ public class SSLSocketTest extends TestCase {
         SSLSocket client = (SSLSocket) clientContext.getSocketFactory().createSocket(c.host,
                                                                                      c.port);
         final SSLSocket server = (SSLSocket) c.serverSocket.accept();
-        Thread thread = new Thread(new Runnable () {
-            public void run() {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
                 try {
                     server.setNeedClientAuth(true);
                     server.startHandshake();
                     fail();
                 } catch (SSLHandshakeException expected) {
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
                 }
+                return null;
             }
         });
 
-        thread.start();
+        executor.shutdown();
         try {
             client.startHandshake();
             fail();
@@ -750,7 +723,7 @@ public class SSLSocketTest extends TestCase {
             // before we would get a NullPointerException from passing
             // due to the null PrivateKey return by the X509KeyManager.
         }
-        thread.join();
+        future.get();
         client.close();
         server.close();
         c.close();
@@ -773,29 +746,25 @@ public class SSLSocketTest extends TestCase {
         SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
                                                                                        c.port);
         final SSLSocket server = (SSLSocket) c.serverSocket.accept();
-        Thread thread = new Thread(new Runnable () {
-            public void run() {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
+                server.setEnableSessionCreation(false);
                 try {
-                    server.setEnableSessionCreation(false);
-                    try {
-                        server.startHandshake();
-                        fail();
-                    } catch (SSLException expected) {
-                    }
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    server.startHandshake();
+                    fail();
+                } catch (SSLException expected) {
                 }
+                return null;
             }
         });
-        thread.start();
+        executor.shutdown();
         try {
             client.startHandshake();
             fail();
         } catch (SSLException expected) {
         }
-        thread.join();
+        future.get();
         client.close();
         server.close();
         c.close();
@@ -806,29 +775,25 @@ public class SSLSocketTest extends TestCase {
         SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
                                                                                        c.port);
         final SSLSocket server = (SSLSocket) c.serverSocket.accept();
-        Thread thread = new Thread(new Runnable () {
-            public void run() {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
                 try {
-                    try {
-                        server.startHandshake();
-                        fail();
-                    } catch (SSLException expected) {
-                    }
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    server.startHandshake();
+                    fail();
+                } catch (SSLException expected) {
                 }
+                return null;
             }
         });
-        thread.start();
+        executor.shutdown();
         client.setEnableSessionCreation(false);
         try {
             client.startHandshake();
             fail();
         } catch (SSLException expected) {
         }
-        thread.join();
+        future.get();
         client.close();
         server.close();
         c.close();
@@ -1012,32 +977,25 @@ public class SSLSocketTest extends TestCase {
                                                                 c.host.getHostName(),
                                                                 c.port,
                                                                 false);
-        Thread clientThread = new Thread(new Runnable () {
-            public void run() {
-                try {
-                    try {
-                        wrapping.startHandshake();
-                        wrapping.getOutputStream().write(42);
-                        // close the underlying socket,
-                        // so that no SSL shutdown is sent
-                        underlying.close();
-                        wrapping.close();
-                    } catch (SSLException expected) {
-                    }
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> clientFuture = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
+                wrapping.startHandshake();
+                wrapping.getOutputStream().write(42);
+                // close the underlying socket,
+                // so that no SSL shutdown is sent
+                underlying.close();
+                wrapping.close();
+                return null;
             }
         });
-        clientThread.start();
+        executor.shutdown();
 
         SSLSocket server = (SSLSocket) c.serverSocket.accept();
         server.startHandshake();
         server.getInputStream().read();
         // wait for thread to finish so we know client is closed.
-        clientThread.join();
+        clientFuture.get();
         // close should cause an SSL_shutdown which will fail
         // because the peer has closed, but it shouldn't throw.
         server.close();
@@ -1127,17 +1085,15 @@ public class SSLSocketTest extends TestCase {
 
     private void test_SSLSocket_interrupt_case(Socket toRead, final Socket toClose)
             throws Exception {
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(1 * 1000);
-                    toClose.close();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
+                Thread.sleep(1 * 1000);
+                toClose.close();
+                return null;
             }
-        }.start();
+        });
+        executor.shutdown();
         try {
             toRead.setSoTimeout(5 * 1000);
             toRead.getInputStream().read();
@@ -1146,6 +1102,43 @@ public class SSLSocketTest extends TestCase {
             throw e;
         } catch (SocketException expected) {
         }
+        future.get();
+    }
+
+    /**
+     * b/7014266 Test to confirm that an SSLSocket.close() on one
+     * thread will interupt another thread blocked reading on the same
+     * socket.
+     */
+    public void test_SSLSocket_interrupt_read() throws Exception {
+        TestSSLContext c = TestSSLContext.create();
+        final Socket underlying = new Socket(c.host, c.port);
+        final SSLSocket wrapping = (SSLSocket)
+                c.clientContext.getSocketFactory().createSocket(underlying,
+                                                                c.host.getHostName(),
+                                                                c.port,
+                                                                false);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> clientFuture = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
+                try {
+                    wrapping.startHandshake();
+                    assertFalse(StandardNames.IS_RI);
+                    wrapping.setSoTimeout(5 * 1000);
+                    assertEquals(-1, wrapping.getInputStream().read());
+                } catch (Exception e) {
+                    assertTrue(StandardNames.IS_RI);
+                }
+                return null;
+            }
+        });
+        executor.shutdown();
+
+        SSLSocket server = (SSLSocket) c.serverSocket.accept();
+        server.startHandshake();
+        wrapping.close();
+        clientFuture.get();
+        server.close();
     }
 
     public void test_TestSSLSocketPair_create() {
