@@ -577,7 +577,7 @@ public class NativeCryptoTest extends TestCase {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<TestSSLHandshakeCallbacks> future = executor.submit(
                 new Callable<TestSSLHandshakeCallbacks>() {
-            public TestSSLHandshakeCallbacks call() throws Exception {
+            @Override public TestSSLHandshakeCallbacks call() throws Exception {
                 Socket socket = (client
                                  ? new Socket(listener.getInetAddress(),
                                               listener.getLocalPort())
