@@ -151,7 +151,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_JAVA_LIBRARIES := bouncycastle-hostdex core-hostdex core-junit-hostdex
     LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc-host mockwebserver-hostdex
     LOCAL_JAVACFLAGS := $(local_javac_flags)
-    LOCAL_MODULE_TAGS := tests
+    LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := core-tests-hostdex
     LOCAL_NO_EMMA_INSTRUMENT := true
     LOCAL_NO_EMMA_COMPILE := true
