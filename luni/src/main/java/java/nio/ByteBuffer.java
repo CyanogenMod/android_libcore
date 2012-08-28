@@ -47,7 +47,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      */
     public static ByteBuffer allocate(int capacity) {
         if (capacity < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
         return new ReadWriteHeapByteBuffer(capacity);
     }
@@ -63,7 +63,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      */
     public static ByteBuffer allocateDirect(int capacity) {
         if (capacity < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
         return new ReadWriteDirectByteBuffer(capacity);
     }

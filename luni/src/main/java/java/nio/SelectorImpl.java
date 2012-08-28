@@ -150,7 +150,7 @@ final class SelectorImpl extends AbstractSelector {
 
     @Override public int select(long timeout) throws IOException {
         if (timeout < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("timeout < 0: " + timeout);
         }
         // Our timeout is interpreted differently to Unix's --- 0 means block. See selectNow.
         return selectInternal((timeout == 0) ? -1 : timeout);

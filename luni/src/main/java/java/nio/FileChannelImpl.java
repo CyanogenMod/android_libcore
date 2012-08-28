@@ -442,7 +442,7 @@ final class FileChannelImpl extends FileChannel {
     public FileChannel truncate(long size) throws IOException {
         checkOpen();
         if (size < 0) {
-            throw new IllegalArgumentException("size: " + size);
+            throw new IllegalArgumentException("size < 0: " + size);
         }
         checkWritable();
         if (size < size()) {
@@ -457,7 +457,7 @@ final class FileChannelImpl extends FileChannel {
 
     public int write(ByteBuffer buffer, long position) throws IOException {
         if (position < 0) {
-            throw new IllegalArgumentException("position: " + position);
+            throw new IllegalArgumentException("position < 0: " + position);
         }
         return writeImpl(buffer, position);
     }
