@@ -49,7 +49,7 @@ public abstract class CharBuffer extends Buffer implements
      */
     public static CharBuffer allocate(int capacity) {
         if (capacity < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
         return new ReadWriteCharArrayBuffer(capacity);
     }
@@ -500,7 +500,7 @@ public abstract class CharBuffer extends Buffer implements
      */
     public CharBuffer put(CharBuffer src) {
         if (src == this) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("src == this");
         }
         if (src.remaining() > remaining()) {
             throw new BufferOverflowException();
@@ -734,7 +734,7 @@ public abstract class CharBuffer extends Buffer implements
             if (remaining == 0) {
                 return -1;
             }
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("target == this");
         }
         if (remaining == 0) {
             return limit > 0 && target.remaining() == 0 ? 0 : -1;

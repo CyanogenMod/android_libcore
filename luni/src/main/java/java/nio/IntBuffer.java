@@ -44,7 +44,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      */
     public static IntBuffer allocate(int capacity) {
         if (capacity < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
         return new ReadWriteIntArrayBuffer(capacity);
     }
@@ -423,7 +423,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      */
     public IntBuffer put(IntBuffer src) {
         if (src == this) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("src == this");
         }
         if (src.remaining() > remaining()) {
             throw new BufferOverflowException();
