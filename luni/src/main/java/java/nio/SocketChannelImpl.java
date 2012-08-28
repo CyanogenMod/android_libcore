@@ -412,7 +412,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
      */
     static InetSocketAddress validateAddress(SocketAddress socketAddress) {
         if (socketAddress == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("socketAddress == null");
         }
         if (!(socketAddress instanceof InetSocketAddress)) {
             throw new UnsupportedAddressTypeException();
