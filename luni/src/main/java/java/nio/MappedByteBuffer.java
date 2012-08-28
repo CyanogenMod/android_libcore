@@ -45,7 +45,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
     MappedByteBuffer(ByteBuffer directBuffer) {
         super(directBuffer.capacity, directBuffer.block);
         if (!directBuffer.isDirect()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("directBuffer is not a direct buffer: " + directBuffer);
         }
         this.wrapped = (DirectByteBuffer) directBuffer;
         this.mapMode = null;
