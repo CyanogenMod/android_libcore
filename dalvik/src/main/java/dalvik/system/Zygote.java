@@ -47,6 +47,8 @@ public class Zygote {
     public static final int MOUNT_EXTERNAL_SINGLEUSER = 1;
     /** Multi-user external storage should be mounted. */
     public static final int MOUNT_EXTERNAL_MULTIUSER = 2;
+    /** All multi-user external storage should be mounted. */
+    public static final int MOUNT_EXTERNAL_MULTIUSER_ALL = 3;
 
     /**
      * When set by the system server, all subsequent apps will be launched in
