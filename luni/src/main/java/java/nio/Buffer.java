@@ -271,7 +271,7 @@ public abstract class Buffer {
 
     final void checkWritable() {
         if (isReadOnly()) {
-            throw new IllegalArgumentException("read-only buffer");
+            throw new IllegalArgumentException("Read-only buffer");
         }
     }
 

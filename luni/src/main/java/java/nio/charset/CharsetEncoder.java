@@ -706,11 +706,11 @@ public abstract class CharsetEncoder {
             throw new IllegalArgumentException("replacement.length == 0");
         }
         if (replacement.length > maxBytesPerChar()) {
-            throw new IllegalArgumentException("replacement length > maxBytesPerChar: " +
+            throw new IllegalArgumentException("replacement.length > maxBytesPerChar: " +
                     replacement.length + " > " + maxBytesPerChar());
         }
         if (!isLegalReplacement(replacement)) {
-            throw new IllegalArgumentException("bad replacement: " + Arrays.toString(replacement));
+            throw new IllegalArgumentException("Bad replacement: " + Arrays.toString(replacement));
         }
         // It seems like a bug, but the RI doesn't clone, and we have tests that check we don't.
         this.replacementBytes = replacement;

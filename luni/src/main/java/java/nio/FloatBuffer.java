@@ -46,7 +46,7 @@ public abstract class FloatBuffer extends Buffer implements
      */
     public static FloatBuffer allocate(int capacity) {
         if (capacity < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
         return new ReadWriteFloatArrayBuffer(capacity);
     }
@@ -437,7 +437,7 @@ public abstract class FloatBuffer extends Buffer implements
      */
     public FloatBuffer put(FloatBuffer src) {
         if (src == this) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("src == this");
         }
         if (src.remaining() > remaining()) {
             throw new BufferOverflowException();
