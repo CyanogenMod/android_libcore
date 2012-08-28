@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Key;
@@ -50,7 +51,6 @@ import java.util.Set;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import junit.framework.TestCase;
-import libcore.io.IoUtils;
 
 public class KeyStoreTest extends TestCase {
 
@@ -1755,6 +1755,9 @@ public class KeyStoreTest extends TestCase {
         }
     }
 
+    public static class FakeProtectionParameter implements ProtectionParameter {
+    }
+
     public void test_KeyStore_setEntry() throws Exception {
         for (KeyStore keyStore : keyStores()) {
             keyStore.load(null, null);
@@ -1762,6 +1765,16 @@ public class KeyStoreTest extends TestCase {
                 keyStore.setEntry(null, null, null);
                 fail();
             } catch (NullPointerException expected) {
+            }
+        }
+
+        for (KeyStore keyStore : keyStores()) {
+            keyStore.load(null, null);
+
+            try {
+                keyStore.setEntry(ALIAS_PRIVATE, getPrivateKey(), new FakeProtectionParameter());
+                fail("Should not accept unknown ProtectionParameter");
+            } catch (KeyStoreException expected) {
             }
         }
 
@@ -2160,7 +2173,12 @@ public class KeyStoreTest extends TestCase {
                 assertEquals(PARAM_STORE, builder.getProtectionParameter(""));
                 assertEqualsKeyStores(file, PASSWORD_STORE, keyStore);
             } finally {
-                IoUtils.closeQuietly(os);
+                try {
+                    if (os != null) {
+                        os.close();
+                    }
+                } catch (IOException ignored) {
+                }
                 file.delete();
             }
         }
@@ -2215,7 +2233,7 @@ public class KeyStoreTest extends TestCase {
     // http://b/857840: want JKS key store
     public void testDefaultKeystore() {
         String type = KeyStore.getDefaultType();
-        assertEquals("Default keystore type must be Bouncy Castle", "BKS", type);
+        assertEquals(StandardNames.KEY_STORE_ALGORITHM, type);
 
         try {
             KeyStore store = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -2225,7 +2243,7 @@ public class KeyStoreTest extends TestCase {
         }
 
         try {
-            KeyStore store = KeyStore.getInstance("BKS");
+            KeyStore store = KeyStore.getInstance(StandardNames.KEY_STORE_ALGORITHM);
             assertNotNull("Keystore must not be null", store);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
