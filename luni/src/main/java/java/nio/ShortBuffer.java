@@ -46,7 +46,7 @@ public abstract class ShortBuffer extends Buffer implements
      */
     public static ShortBuffer allocate(int capacity) {
         if (capacity < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
         return new ReadWriteShortArrayBuffer(capacity);
     }
@@ -426,7 +426,7 @@ public abstract class ShortBuffer extends Buffer implements
      */
     public ShortBuffer put(ShortBuffer src) {
         if (src == this) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("src == this");
         }
         if (src.remaining() > remaining()) {
             throw new BufferOverflowException();

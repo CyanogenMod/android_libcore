@@ -590,7 +590,7 @@ public abstract class CharsetDecoder {
      */
     public final CharsetDecoder onMalformedInput(CodingErrorAction newAction) {
         if (newAction == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("newAction == null");
         }
         malformedInputAction = newAction;
         implOnMalformedInput(newAction);
@@ -612,7 +612,7 @@ public abstract class CharsetDecoder {
      */
     public final CharsetDecoder onUnmappableCharacter(CodingErrorAction newAction) {
         if (newAction == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("newAction == null");
         }
         unmappableCharacterAction = newAction;
         implOnUnmappableCharacter(newAction);

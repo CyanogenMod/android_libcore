@@ -47,7 +47,7 @@ public abstract class DoubleBuffer extends Buffer implements
      */
     public static DoubleBuffer allocate(int capacity) {
         if (capacity < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
         return new ReadWriteDoubleArrayBuffer(capacity);
     }
@@ -438,7 +438,7 @@ public abstract class DoubleBuffer extends Buffer implements
      */
     public DoubleBuffer put(DoubleBuffer src) {
         if (src == this) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("src == this");
         }
         if (src.remaining() > remaining()) {
             throw new BufferOverflowException();
