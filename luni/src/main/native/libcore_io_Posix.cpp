@@ -67,36 +67,27 @@ struct addrinfo_deleter {
 };
 
 /**
- * Used to retry syscalls that can return EINTR. This differs from TEMP_FAILURE_RETRY in that
- * it also considers the case where the reason for failure is that another thread called
- * Socket.close.
- *
- * Assumes 'JNIEnv* env' and 'jobject javaFd' (which is a java.io.FileDescriptor) are in scope.
+ * Used to retry networking system calls that can return EINTR. Unlike TEMP_FAILURE_RETRY,
+ * this also handles the case where the reason for failure is that another thread called
+ * Socket.close. This macro also throws exceptions on failure.
  *
  * Returns the result of 'exp', though a Java exception will be pending if the result is -1.
- *
- * Correct usage looks like this:
- *
- * void Posix_syscall(JNIEnv* env, jobject javaFd, ...) {
- *     ...
- *     int fd;
- *     NET_FAILURE_RETRY("syscall", syscall(fd, ...)); // Throws on error.
- * }
  */
-#define NET_FAILURE_RETRY(syscall_name, exp) ({ \
-    typeof (exp) _rc = -1; \
+#define NET_FAILURE_RETRY(jni_env, return_type, syscall_name, java_fd, ...) ({ \
+    return_type _rc = -1; \
     do { \
         { \
-            fd = jniGetFDFromFileDescriptor(env, javaFd); \
-            AsynchronousSocketCloseMonitor monitor(fd); \
-            _rc = (exp); \
+            int _fd = jniGetFDFromFileDescriptor(jni_env, java_fd); \
+            AsynchronousSocketCloseMonitor _monitor(_fd); \
+            _rc = syscall_name(_fd, __VA_ARGS__); \
         } \
         if (_rc == -1) { \
-            if (jniGetFDFromFileDescriptor(env, javaFd) == -1) { \
-                jniThrowException(env, "java/net/SocketException", "Socket closed"); \
+            if (jniGetFDFromFileDescriptor(jni_env, java_fd) == -1) { \
+                jniThrowException(jni_env, "java/net/SocketException", "Socket closed"); \
                 break; \
             } else if (errno != EINTR) { \
-                throwErrnoException(env, syscall_name); \
+                /* TODO: with a format string we could show the arguments too, like strace(1). */ \
+                throwErrnoException(jni_env, # syscall_name); \
                 break; \
             } \
         } \
@@ -379,10 +370,9 @@ static jobject Posix_accept(JNIEnv* env, jobject, jobject javaFd, jobject javaIn
     sockaddr_storage ss;
     socklen_t sl = sizeof(ss);
     memset(&ss, 0, sizeof(ss));
-    int fd;
     sockaddr* peer = (javaInetSocketAddress != NULL) ? reinterpret_cast<sockaddr*>(&ss) : NULL;
     socklen_t* peerLength = (javaInetSocketAddress != NULL) ? &sl : 0;
-    jint clientFd = NET_FAILURE_RETRY("accept", accept(fd, peer, peerLength));
+    jint clientFd = NET_FAILURE_RETRY(env, int, accept, javaFd, peer, peerLength);
     if (clientFd == -1 || !fillInetSocketAddress(env, clientFd, javaInetSocketAddress, &ss)) {
         close(clientFd);
         return NULL;
@@ -407,9 +397,9 @@ static void Posix_bind(JNIEnv* env, jobject, jobject javaFd, jobject javaAddress
     if (!inetAddressToSockaddr(env, javaAddress, port, &ss)) {
         return;
     }
-    int fd;
     const sockaddr* sa = reinterpret_cast<const sockaddr*>(&ss);
-    NET_FAILURE_RETRY("bind", bind(fd, sa, sizeof(sockaddr_storage)));
+    // We don't need the return value because we'll already have thrown.
+    (void) NET_FAILURE_RETRY(env, int, bind, javaFd, sa, sizeof(sockaddr_storage));
 }
 
 static void Posix_chmod(JNIEnv* env, jobject, jstring javaPath, jint mode) {
@@ -445,9 +435,9 @@ static void Posix_connect(JNIEnv* env, jobject, jobject javaFd, jobject javaAddr
     if (!inetAddressToSockaddr(env, javaAddress, port, &ss)) {
         return;
     }
-    int fd;
     const sockaddr* sa = reinterpret_cast<const sockaddr*>(&ss);
-    NET_FAILURE_RETRY("connect", connect(fd, sa, sizeof(sockaddr_storage)));
+    // We don't need the return value because we'll already have thrown.
+    (void) NET_FAILURE_RETRY(env, int, connect, javaFd, sa, sizeof(sockaddr_storage));
 }
 
 static jobject Posix_dup(JNIEnv* env, jobject, jobject javaOldFd) {
@@ -1009,10 +999,9 @@ static jint Posix_recvfromBytes(JNIEnv* env, jobject, jobject javaFd, jobject ja
     sockaddr_storage ss;
     socklen_t sl = sizeof(ss);
     memset(&ss, 0, sizeof(ss));
-    int fd;
     sockaddr* from = (javaInetSocketAddress != NULL) ? reinterpret_cast<sockaddr*>(&ss) : NULL;
     socklen_t* fromLength = (javaInetSocketAddress != NULL) ? &sl : 0;
-    jint recvCount = NET_FAILURE_RETRY("recvfrom", recvfrom(fd, bytes.get() + byteOffset, byteCount, flags, from, fromLength));
+    jint recvCount = NET_FAILURE_RETRY(env, ssize_t, recvfrom, javaFd, bytes.get() + byteOffset, byteCount, flags, from, fromLength);
     fillInetSocketAddress(env, recvCount, javaInetSocketAddress, &ss);
     return recvCount;
 }
@@ -1064,10 +1053,9 @@ static jint Posix_sendtoBytes(JNIEnv* env, jobject, jobject javaFd, jobject java
     if (javaInetAddress != NULL && !inetAddressToSockaddr(env, javaInetAddress, port, &ss)) {
         return -1;
     }
-    int fd;
     const sockaddr* to = (javaInetAddress != NULL) ? reinterpret_cast<const sockaddr*>(&ss) : NULL;
     socklen_t toLength = (javaInetAddress != NULL) ? sizeof(ss) : 0;
-    return NET_FAILURE_RETRY("sendto", sendto(fd, bytes.get() + byteOffset, byteCount, flags, to, toLength));
+    return NET_FAILURE_RETRY(env, ssize_t, sendto, javaFd, bytes.get() + byteOffset, byteCount, flags, to, toLength);
 }
 
 static void Posix_setegid(JNIEnv* env, jobject, jint egid) {
