@@ -82,6 +82,7 @@ LOCAL_NO_EMMA_INSTRUMENT := true
 LOCAL_NO_EMMA_COMPILE := true
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 
 include $(BUILD_JAVA_LIBRARY)
 
@@ -98,6 +99,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc mockwebserver
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_NO_EMMA_INSTRUMENT := true
 LOCAL_NO_EMMA_COMPILE := true
 include $(BUILD_STATIC_JAVA_LIBRARY)
@@ -140,6 +142,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
 
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := core-hostdex
+    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 
     include $(BUILD_HOST_JAVA_LIBRARY)
 
@@ -153,6 +156,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := core-tests-hostdex
+    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
     LOCAL_NO_EMMA_INSTRUMENT := true
     LOCAL_NO_EMMA_COMPILE := true
     LOCAL_BUILD_HOST_DEX := true
@@ -190,6 +194,7 @@ LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_CLASS:=JAVA_LIBRARIES
 
 LOCAL_MODULE := libcore
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 
 LOCAL_DROIDDOC_OPTIONS:= \
  -offlinemode \
