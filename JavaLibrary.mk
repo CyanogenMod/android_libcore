@@ -82,6 +82,7 @@ LOCAL_DX_FLAGS := --core-library
 
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 
 include $(BUILD_JAVA_LIBRARY)
 
@@ -98,6 +99,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc mockwebserver
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # This one's tricky. One of our tests needs to have a
@@ -136,6 +138,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
 
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := core-hostdex
+    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 
     include $(BUILD_HOST_JAVA_LIBRARY)
 
@@ -149,6 +152,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := core-tests-hostdex
+    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
     LOCAL_BUILD_HOST_DEX := true
     include $(BUILD_HOST_JAVA_LIBRARY)
 endif
@@ -184,6 +188,7 @@ LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_CLASS:=JAVA_LIBRARIES
 
 LOCAL_MODULE := libcore
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 
 LOCAL_DROIDDOC_OPTIONS:= \
  -offlinemode \
