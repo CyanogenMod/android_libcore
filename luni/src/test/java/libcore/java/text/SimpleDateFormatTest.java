@@ -51,6 +51,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     // The RI fails this test because this is an ICU-compatible Android extension.
     // Necessary for correct localization in various languages (http://b/2633414).
     public void testStandAloneNames() throws Exception {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
         Locale en = Locale.ENGLISH;
         Locale pl = new Locale("pl");
         Locale ru = new Locale("ru");
