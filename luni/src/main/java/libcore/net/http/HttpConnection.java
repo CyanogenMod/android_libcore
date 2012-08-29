@@ -199,7 +199,6 @@ final class HttpConnection {
         // tlsTolerant mimics Chrome's behavior
         if (tlsTolerant && unverifiedSocket instanceof OpenSSLSocketImpl) {
             OpenSSLSocketImpl openSslSocket = (OpenSSLSocketImpl) unverifiedSocket;
-            openSslSocket.setEnabledCompressionMethods(new String[] { "ZLIB"});
             openSslSocket.setUseSessionTickets(true);
             openSslSocket.setHostname(address.uriHost);
             // use SSLSocketFactory default enabled protocols
