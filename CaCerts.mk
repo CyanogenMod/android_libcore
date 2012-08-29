@@ -30,6 +30,7 @@ endef
 define include-prebuilt-with-destination-directory
 include $$(CLEAR_VARS)
 LOCAL_MODULE := $(1)
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/CaCerts.mk
 LOCAL_MODULE_STEM := $(notdir $(2))
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := ETC
