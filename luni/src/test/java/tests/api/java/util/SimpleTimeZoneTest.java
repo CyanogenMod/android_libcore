@@ -691,6 +691,7 @@ public class SimpleTimeZoneTest extends junit.framework.TestCase {
      * java.util.SimpleTimeZone#setStartRule(int, int, int, int, boolean)
      */
     public void test_setStartRuleIIIIZ() {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
         // Test for method void java.util.SimpleTimeZone.setStartRule(int, int,
         // int, int, boolean)
         SimpleTimeZone st = new SimpleTimeZone(TimeZone.getTimeZone("EST").getRawOffset(), "EST");
