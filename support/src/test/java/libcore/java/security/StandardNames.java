@@ -450,6 +450,12 @@ public final class StandardNames extends Assert {
 
             // Android's CA store
             provide("KeyStore", "AndroidCAStore");
+
+            // Android's KeyStore provider
+            if (Security.getProvider("AndroidKeyStoreProvider") != null) {
+                provide("KeyStore", "AndroidKeyStore");
+                provide("KeyPairGenerator", "AndroidKeyPairGenerator");
+            }
         }
     }
 
