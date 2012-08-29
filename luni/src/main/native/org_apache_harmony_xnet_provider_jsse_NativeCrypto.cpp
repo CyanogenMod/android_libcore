@@ -4126,43 +4126,6 @@ static jstring NativeCrypto_SSL_SESSION_cipher(JNIEnv* env, jclass, jint ssl_ses
 }
 
 /**
- * Gets and returns in a string the compression method negotiated for the SSL session.
- */
-static jstring NativeCrypto_SSL_SESSION_compress_meth(JNIEnv* env, jclass,
-                                                      jint ssl_ctx_address,
-                                                      jint ssl_session_address) {
-    SSL_CTX* ssl_ctx = to_SSL_CTX(env, ssl_ctx_address, true);
-    SSL_SESSION* ssl_session = to_SSL_SESSION(env, ssl_session_address, true);
-    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_compress_meth ssl_ctx=%p",
-              ssl_session, ssl_ctx);
-    if (ssl_ctx == NULL || ssl_session == NULL) {
-        return NULL;
-    }
-
-    int compress_meth = ssl_session->compress_meth;
-    if (compress_meth == 0) {
-        const char* name = "NULL";
-        JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_compress_meth => %s", ssl_session, name);
-        return env->NewStringUTF(name);
-    }
-
-    int num_comp_methods = sk_SSL_COMP_num(ssl_ctx->comp_methods);
-    for (int i = 0; i < num_comp_methods; i++) {
-        SSL_COMP* comp = sk_SSL_COMP_value(ssl_ctx->comp_methods, i);
-        if (comp->id != compress_meth) {
-            continue;
-        }
-        const char* name = ((comp->method && comp->method->type == NID_zlib_compression)
-                            ? SN_zlib_compression
-                            : (comp->name ? comp->name : "UNKNOWN"));
-        JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_compress_meth => %s", ssl_session, name);
-        return env->NewStringUTF(name);
-    }
-    throwSSLExceptionStr(env, "Unknown compression method");
-    return NULL;
-}
-
-/**
  * Frees the SSL session.
  */
 static void NativeCrypto_SSL_SESSION_free(JNIEnv* env, jclass, jint ssl_session_address) {
@@ -4307,7 +4270,6 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_get_time, "(I)J"),
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_get_version, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_cipher, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeCrypto, SSL_SESSION_compress_meth, "(II)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_free, "(I)V"),
     NATIVE_METHOD(NativeCrypto, i2d_SSL_SESSION, "(I)[B"),
     NATIVE_METHOD(NativeCrypto, d2i_SSL_SESSION, "([B)I"),
