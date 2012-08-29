@@ -53,4 +53,12 @@ public class ICUTest extends junit.framework.TestCase {
         assertEquals(new Locale("", "", "POSIX"), ICU.localeFromString("__POSIX"));
         assertEquals(new Locale("aa", "BB", "CC"), ICU.localeFromString("aa_BB_CC"));
     }
+
+    public void test_getScript_addLikelySubtags() throws Exception {
+        assertEquals("Latn", ICU.getScript(ICU.addLikelySubtags("en_US")));
+        assertEquals("Hebr", ICU.getScript(ICU.addLikelySubtags("he")));
+        assertEquals("Hebr", ICU.getScript(ICU.addLikelySubtags("he_IL")));
+        assertEquals("Hebr", ICU.getScript(ICU.addLikelySubtags("iw")));
+        assertEquals("Hebr", ICU.getScript(ICU.addLikelySubtags("iw_IL")));
+    }
 }
