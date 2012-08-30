@@ -303,9 +303,9 @@ static jobject NativeDecimalFormat_parse(JNIEnv* env, jclass, jint addr, jstring
     fmt->parse(src.unicodeString(), res, pp);
 
     if (pp.getErrorIndex() == -1) {
-        env->CallVoidMethod(position, gPP_setIndex, (jint) pp.getIndex());
+        env->CallVoidMethod(position, gPP_setIndex, pp.getIndex());
     } else {
-        env->CallVoidMethod(position, gPP_setErrorIndex, (jint) pp.getErrorIndex());
+        env->CallVoidMethod(position, gPP_setErrorIndex, pp.getErrorIndex());
         return NULL;
     }
 
@@ -319,30 +319,18 @@ static jobject NativeDecimalFormat_parse(JNIEnv* env, jclass, jint addr, jstring
                 strncmp(data, "Inf", 3) == 0 ||
                 strncmp(data, "-Inf", 4) == 0) {
                 double resultDouble = res.getDouble(status);
-                return doubleValueOf(env, (jdouble) resultDouble);
+                return doubleValueOf(env, resultDouble);
             }
             return newBigDecimal(env, data, len);
         }
         return NULL;
     }
 
-    Formattable::Type numType = res.getType();
-        switch(numType) {
-        case Formattable::kDouble: {
-            double resultDouble = res.getDouble();
-            return doubleValueOf(env, (jdouble) resultDouble);
-        }
-        case Formattable::kLong: {
-            long resultLong = res.getLong();
-            return longValueOf(env, (jlong) resultLong);
-        }
-        case Formattable::kInt64: {
-            int64_t resultInt64 = res.getInt64();
-            return longValueOf(env, (jlong) resultInt64);
-        }
-        default: {
-            return NULL;
-        }
+    switch (res.getType()) {
+        case Formattable::kDouble: return doubleValueOf(env, res.getDouble());
+        case Formattable::kLong:   return longValueOf(env, res.getLong());
+        case Formattable::kInt64:  return longValueOf(env, res.getInt64());
+        default:                   return NULL;
     }
 }
 
