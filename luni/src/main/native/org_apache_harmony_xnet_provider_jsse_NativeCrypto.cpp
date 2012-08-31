@@ -21,6 +21,7 @@
 #define LOG_TAG "NativeCrypto"
 
 #include <algorithm>
+#include <arpa/inet.h>
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -4407,6 +4408,23 @@ static jint NativeCrypto_d2i_SSL_SESSION(JNIEnv* env, jclass, jbyteArray javaByt
     }
     const unsigned char* ucp = reinterpret_cast<const unsigned char*>(bytes.get());
     SSL_SESSION* ssl_session = d2i_SSL_SESSION(NULL, &ucp, bytes.size());
+
+    // Initialize SSL_SESSION cipher field based on cipher_id http://b/7091840
+    if (ssl_session != NULL) {
+        // based on ssl_get_prev_session
+        uint32_t cipher_id_network_order = htonl(ssl_session->cipher_id);
+        uint8_t* cipher_id_byte_pointer = reinterpret_cast<uint8_t*>(&cipher_id_network_order);
+        if (ssl_session->ssl_version >= SSL3_VERSION_MAJOR) {
+            cipher_id_byte_pointer += 2; // skip first two bytes for SSL3+
+        } else {
+            cipher_id_byte_pointer += 1; // skip first byte for SSL2
+        }
+        ssl_session->cipher = SSLv23_method()->get_cipher_by_char(cipher_id_byte_pointer);
+        JNI_TRACE("NativeCrypto_d2i_SSL_SESSION cipher_id=%lx hton=%x 0=%x 1=%x cipher=%s",
+                  ssl_session->cipher_id, cipher_id_network_order,
+                  cipher_id_byte_pointer[0], cipher_id_byte_pointer[1],
+                  SSL_CIPHER_get_name(ssl_session->cipher));
+    }
 
     JNI_TRACE("NativeCrypto_d2i_SSL_SESSION => %p", ssl_session);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(ssl_session));
