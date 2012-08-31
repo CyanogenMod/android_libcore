@@ -21,10 +21,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateCrtKey;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -129,6 +133,93 @@ public class NativeCryptoTest extends TestCase {
     }
     public static void assertEqualByteArrays(byte[][] expected, byte[][] actual) {
         assertEquals(Arrays.deepToString(expected), Arrays.deepToString(actual));
+    }
+
+    public void test_EVP_PKEY_cmp() throws Exception {
+        try {
+            NativeCrypto.EVP_PKEY_cmp(NULL, NULL);
+            fail("Should throw NullPointerException when arguments are NULL");
+        } catch (NullPointerException expected) {
+        }
+
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(512);
+
+        RSAPrivateCrtKey privKey1, privKey2;
+
+        {
+            KeyPair kp1 = kpg.generateKeyPair();
+            privKey1 = (RSAPrivateCrtKey) kp1.getPrivate();
+        }
+
+        {
+            KeyPair kp2 = kpg.generateKeyPair();
+            privKey2 = (RSAPrivateCrtKey) kp2.getPrivate();
+        }
+
+        int pkey1 = 0, pkey1_copy = 0, pkey2 = 0;
+        try {
+            pkey1 = NativeCrypto.EVP_PKEY_new_RSA(privKey1.getModulus().toByteArray(),
+                        privKey1.getPublicExponent().toByteArray(),
+                        privKey1.getPrivateExponent().toByteArray(),
+                        privKey1.getPrimeP().toByteArray(),
+                        privKey1.getPrimeQ().toByteArray(),
+                        privKey1.getPrimeExponentP().toByteArray(),
+                        privKey1.getPrimeExponentQ().toByteArray(),
+                        privKey1.getCrtCoefficient().toByteArray());
+            assertNotSame(NULL, pkey1);
+
+            pkey1_copy = NativeCrypto.EVP_PKEY_new_RSA(privKey1.getModulus().toByteArray(),
+                    privKey1.getPublicExponent().toByteArray(),
+                    privKey1.getPrivateExponent().toByteArray(),
+                    privKey1.getPrimeP().toByteArray(),
+                    privKey1.getPrimeQ().toByteArray(),
+                    privKey1.getPrimeExponentP().toByteArray(),
+                    privKey1.getPrimeExponentQ().toByteArray(),
+                    privKey1.getCrtCoefficient().toByteArray());
+            assertNotSame(NULL, pkey1_copy);
+
+            pkey2 = NativeCrypto.EVP_PKEY_new_RSA(privKey2.getModulus().toByteArray(),
+                    privKey2.getPublicExponent().toByteArray(),
+                    privKey2.getPrivateExponent().toByteArray(),
+                    privKey2.getPrimeP().toByteArray(),
+                    privKey2.getPrimeQ().toByteArray(),
+                    privKey2.getPrimeExponentP().toByteArray(),
+                    privKey2.getPrimeExponentQ().toByteArray(),
+                    privKey2.getCrtCoefficient().toByteArray());
+            assertNotSame(NULL, pkey2);
+
+            try {
+                NativeCrypto.EVP_PKEY_cmp(pkey1, NULL);
+                fail("Should throw NullPointerException when arguments are NULL");
+            } catch (NullPointerException expected) {
+            }
+
+            try {
+                NativeCrypto.EVP_PKEY_cmp(NULL, pkey1);
+                fail("Should throw NullPointerException when arguments are NULL");
+            } catch (NullPointerException expected) {
+            }
+
+            assertEquals("Same keys should be the equal", 1,
+                    NativeCrypto.EVP_PKEY_cmp(pkey1, pkey1));
+
+            assertEquals("Same keys should be the equal", 1,
+                    NativeCrypto.EVP_PKEY_cmp(pkey1, pkey1_copy));
+
+            assertEquals("Different keys should not be equal", 0,
+                    NativeCrypto.EVP_PKEY_cmp(pkey1, pkey2));
+        } finally {
+            if (pkey1 != 0) {
+                NativeCrypto.EVP_PKEY_free(pkey1);
+            }
+            if (pkey1_copy != 0) {
+                NativeCrypto.EVP_PKEY_free(pkey1_copy);
+            }
+            if (pkey2 != 0) {
+                NativeCrypto.EVP_PKEY_free(pkey2);
+            }
+        }
     }
 
     public void test_SSL_CTX_new() throws Exception {
