@@ -617,6 +617,13 @@ static jint NativeCrypto_ENGINE_add(JNIEnv* env, jclass, jint engineRef) {
     }
 
     int ret = ENGINE_add(e);
+
+    /*
+     * We tolerate errors, because the most likely error is that
+     * the ENGINE is already in the list.
+     */
+    freeOpenSslErrorState();
+
     JNI_TRACE("ENGINE_add(%p) => %d", e, ret);
     return ret;
 }
