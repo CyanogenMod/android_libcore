@@ -168,7 +168,9 @@ public class KeyStoreTest extends TestCase {
 
     private static boolean isUnsupported(KeyStore ks) {
         // Don't bother testing BC on RI
-        return (StandardNames.IS_RI && ks.getProvider().getName().equals("BC"));
+        // TODO enable AndroidKeyStore when CTS can set up the keystore
+        return (StandardNames.IS_RI && ks.getProvider().getName().equals("BC"))
+                || "AndroidKeyStore".equalsIgnoreCase(ks.getType());
     }
 
     private static boolean isNullPasswordAllowed(KeyStore ks) {
