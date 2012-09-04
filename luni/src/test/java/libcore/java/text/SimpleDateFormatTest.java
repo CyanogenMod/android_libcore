@@ -228,4 +228,23 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         new SimpleDateFormat("z", Locale.FRANCE).parse("UTC");
         new SimpleDateFormat("z", Locale.US).parse("UTC");
     }
+
+    // http://code.google.com/p/android/issues/detail?id=36689
+    public void testParseArabic() throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("ar", "EG"));
+        sdf.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+
+        // Can we parse an ASCII-formatted date in an Arabic locale?
+        Date d = sdf.parse("2012-08-29 10:02:45");
+        assertEquals(1346259765000L, d.getTime());
+
+        // Can we format a date correctly in an Arabic locale?
+        String formatted = sdf.format(d);
+        assertEquals("٢٠١٢-٠٨-٢٩ ١٠:٠٢:٤٥", formatted);
+
+        // Can we parse the Arabic-formatted date in an Arabic locale, and get the same date
+        // we started with?
+        Date d2 = sdf.parse(formatted);
+        assertEquals(d, d2);
+    }
 }
