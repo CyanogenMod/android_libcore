@@ -1658,6 +1658,12 @@ public class NativeCryptoTest extends TestCase {
                 assertNotNull(b);
                 int session2 = NativeCrypto.d2i_SSL_SESSION(b);
                 assertTrue(session2 != NULL);
+
+                // Make sure d2i_SSL_SESSION retores SSL_SESSION_cipher value http://b/7091840
+                assertTrue(NativeCrypto.SSL_SESSION_cipher(session2) != null);
+                assertEquals(NativeCrypto.SSL_SESSION_cipher(session),
+                             NativeCrypto.SSL_SESSION_cipher(session2));
+
                 NativeCrypto.SSL_SESSION_free(session2);
                 super.afterHandshake(session, s, c, sock, fd, callback);
             }
@@ -1679,7 +1685,7 @@ public class NativeCryptoTest extends TestCase {
         assertEquals(NULL, NativeCrypto.d2i_SSL_SESSION(new byte[0]));
         assertEquals(NULL, NativeCrypto.d2i_SSL_SESSION(new byte[1]));
 
-        // positively testing by test_i2d_SSL_SESSION
+        // positive testing by test_i2d_SSL_SESSION
     }
 
     public void test_X509_NAME_hashes() {
