@@ -891,6 +891,26 @@ static void NativeCrypto_EVP_PKEY_free(JNIEnv*, jclass, EVP_PKEY* pkey) {
     }
 }
 
+static jint NativeCrypto_EVP_PKEY_cmp(JNIEnv* env, jclass, jint pkey1Ref, jint pkey2Ref) {
+    EVP_PKEY* pkey1 = reinterpret_cast<EVP_PKEY*>(pkey1Ref);
+    EVP_PKEY* pkey2 = reinterpret_cast<EVP_PKEY*>(pkey2Ref);
+    JNI_TRACE("EVP_PKEY_cmp(%p, %p)", pkey1, pkey2);
+
+    if (pkey1 == NULL) {
+        JNI_TRACE("EVP_PKEY_cmp(%p, %p) => failed pkey1 == NULL", pkey1, pkey2);
+        jniThrowNullPointerException(env, "pkey1 == NULL");
+        return -1;
+    } else if (pkey2 == NULL) {
+        JNI_TRACE("EVP_PKEY_cmp(%p, %p) => failed pkey2 == NULL", pkey1, pkey2);
+        jniThrowNullPointerException(env, "pkey2 == NULL");
+        return -1;
+    }
+
+    int result = EVP_PKEY_cmp(pkey1, pkey2);
+    JNI_TRACE("EVP_PKEY_cmp(%p, %p) => %d", pkey1, pkey2, result);
+    return result;
+}
+
 /*
  * static native byte[] i2d_PKCS8_PRIV_KEY_INFO(int, byte[])
  */
@@ -4453,6 +4473,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_type, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_size, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_free, "(I)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_cmp, "(II)I"),
     NATIVE_METHOD(NativeCrypto, i2d_PKCS8_PRIV_KEY_INFO, "(I)[B"),
     NATIVE_METHOD(NativeCrypto, d2i_PKCS8_PRIV_KEY_INFO, "([B)I"),
     NATIVE_METHOD(NativeCrypto, i2d_PUBKEY, "(I)[B"),
