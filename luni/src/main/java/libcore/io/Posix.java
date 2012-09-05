@@ -169,6 +169,7 @@ public final class Posix implements Os {
     public native String strerror(int errno);
     public native void symlink(String oldPath, String newPath) throws ErrnoException;
     public native long sysconf(int name);
+    public native void tcdrain(FileDescriptor fd) throws ErrnoException;
     public native int umask(int mask);
     public native StructUtsname uname();
     public native int waitpid(int pid, MutableInt status, int options) throws ErrnoException;

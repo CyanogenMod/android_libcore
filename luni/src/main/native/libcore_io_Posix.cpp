@@ -52,6 +52,7 @@
 #include <sys/utsname.h>
 #include <sys/vfs.h> // Bionic doesn't have <sys/statvfs.h>
 #include <sys/wait.h>
+#include <termios.h>
 #include <unistd.h>
 
 #define TO_JAVA_STRING(NAME, EXP) \
@@ -799,7 +800,7 @@ static jint Posix_ioctlInt(JNIEnv* env, jobject, jobject javaFd, jint cmd, jobje
 
 static jboolean Posix_isatty(JNIEnv* env, jobject, jobject javaFd) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return TEMP_FAILURE_RETRY(isatty(fd)) == 0;
+    return TEMP_FAILURE_RETRY(isatty(fd)) == 1;
 }
 
 static void Posix_kill(JNIEnv* env, jobject, jint pid, jint sig) {
@@ -1209,6 +1210,11 @@ static jlong Posix_sysconf(JNIEnv* env, jobject, jint name) {
     return result;
 }
 
+static void Posix_tcdrain(JNIEnv* env, jobject, jobject javaFd) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    throwIfMinusOne(env, "tcdrain", TEMP_FAILURE_RETRY(tcdrain(fd)));
+}
+
 static jint Posix_umask(JNIEnv*, jint mask) {
     return umask(mask);
 }
@@ -1335,6 +1341,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sysconf, "(I)J"),
+    NATIVE_METHOD(Posix, tcdrain, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, umask, "(I)I"),
     NATIVE_METHOD(Posix, uname, "()Llibcore/io/StructUtsname;"),
     NATIVE_METHOD(Posix, waitpid, "(ILlibcore/util/MutableInt;I)I"),
