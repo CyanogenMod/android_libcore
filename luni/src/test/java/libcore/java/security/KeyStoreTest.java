@@ -220,7 +220,10 @@ public class KeyStoreTest extends TestCase {
     }
 
     public static void populate(KeyStore ks) throws Exception {
-        clearKeyStore(ks);
+        boolean readOnly = clearKeyStore(ks);
+        if (readOnly) {
+            return;
+        }
         if (isKeyPasswordSupported(ks)) {
             setPrivateKey(ks);
         }
@@ -245,7 +248,7 @@ public class KeyStoreTest extends TestCase {
         }
     }
 
-    private static void clearKeyStore(KeyStore ks) throws Exception {
+    private static boolean clearKeyStore(KeyStore ks) throws Exception {
         ks.load(null, null);
         if (isReadOnly(ks)) {
             try {
@@ -253,7 +256,7 @@ public class KeyStoreTest extends TestCase {
                 fail(ks.toString());
             } catch (UnsupportedOperationException e) {
             }
-            return;
+            return true;
         }
         if (isPersistentStorage(ks)) {
             Enumeration<String> aliases = ks.aliases();
@@ -262,6 +265,7 @@ public class KeyStoreTest extends TestCase {
                 ks.deleteEntry(alias);
             }
         }
+        return false;
     }
 
     public static void setPrivateKeyNoPassword(KeyStore ks, String alias, PrivateKeyEntry privateKey)
