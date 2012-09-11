@@ -52,7 +52,6 @@ LOCAL_SRC_FILES := \
 	valueOf.cpp
 
 LOCAL_C_INCLUDES += \
-	external/expat/lib \
 	external/icu4c/common \
 	external/icu4c/i18n \
 	external/openssl/include \

@@ -30,7 +30,7 @@
 #include "unicode/unistr.h"
 
 #include <string.h>
-#include <expat.h>
+#include <libexpat/expat.h>
 
 #define BUCKET_COUNT 128
 
