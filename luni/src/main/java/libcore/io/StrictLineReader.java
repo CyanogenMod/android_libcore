@@ -106,8 +106,10 @@ public class StrictLineReader implements Closeable {
      *         or the specified charset is not supported.
      */
     public StrictLineReader(InputStream in, int capacity, Charset charset) {
-        if (in == null || charset == null) {
-            throw new NullPointerException();
+        if (in == null) {
+            throw new NullPointerException("in == null");
+        } else if (charset == null) {
+            throw new NullPointerException("charset == null");
         }
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity <= 0");

@@ -514,7 +514,7 @@ outer:
      */
     public String(int[] codePoints, int offset, int count) {
         if (codePoints == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("codePoints == null");
         }
         if ((offset | count) < 0 || count > codePoints.length - offset) {
             throw failedBoundsCheck(codePoints.length, offset, count);
@@ -1222,7 +1222,7 @@ outer:
      */
     public boolean regionMatches(int thisStart, String string, int start, int length) {
         if (string == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("string == null");
         }
         if (start < 0 || string.count - start < length) {
             return false;
@@ -1719,7 +1719,7 @@ outer:
      */
     public boolean contentEquals(CharSequence cs) {
         if (cs == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("cs == null");
         }
 
         int len = cs.length();
@@ -1912,7 +1912,7 @@ outer:
      */
     public boolean contains(CharSequence cs) {
         if (cs == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("cs == null");
         }
         return indexOf(cs.toString()) >= 0;
     }
@@ -1981,7 +1981,7 @@ outer:
      */
     public static String format(Locale locale, String format, Object... args) {
         if (format == null) {
-            throw new NullPointerException("null format argument");
+            throw new NullPointerException("format == null");
         }
         int bufferSize = format.length() + (args == null ? 0 : args.length * 10);
         Formatter f = new Formatter(new StringBuilder(bufferSize), locale);

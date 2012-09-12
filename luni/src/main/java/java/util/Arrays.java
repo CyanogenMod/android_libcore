@@ -35,7 +35,7 @@ public class Arrays {
 
         ArrayList(E[] storage) {
             if (storage == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("storage == null");
             }
             a = storage;
         }
@@ -2611,7 +2611,7 @@ public class Arrays {
      */
     public static <T> T[] copyOf(T[] original, int newLength) {
         if (original == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("original == null");
         }
         if (newLength < 0) {
             throw new NegativeArraySizeException(Integer.toString(newLength));

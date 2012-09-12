@@ -147,7 +147,7 @@ public class File implements Serializable, Comparable<File> {
      */
     public File(String dirPath, String name) {
         if (name == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("name == null");
         }
         if (dirPath == null || dirPath.isEmpty()) {
             this.path = fixSlashes(name);

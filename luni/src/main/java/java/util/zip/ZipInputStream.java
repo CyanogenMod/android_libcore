@@ -101,7 +101,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
     public ZipInputStream(InputStream stream) {
         super(new PushbackInputStream(stream, BUF_SIZE), new Inflater(true));
         if (stream == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("stream == null");
         }
     }
 

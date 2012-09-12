@@ -167,7 +167,7 @@ public class StreamTokenizer {
     public StreamTokenizer(InputStream is) {
         this();
         if (is == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("is == null");
         }
         inStream = is;
     }
@@ -194,7 +194,7 @@ public class StreamTokenizer {
     public StreamTokenizer(Reader r) {
         this();
         if (r == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("r == null");
         }
         inReader = r;
     }

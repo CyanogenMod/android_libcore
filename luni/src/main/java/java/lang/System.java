@@ -455,7 +455,7 @@ public final class System {
      */
     public static String clearProperty(String key) {
         if (key == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("key == null");
         }
         if (key.isEmpty()) {
             throw new IllegalArgumentException();
@@ -679,7 +679,7 @@ public final class System {
 
         private String toNonNullString(Object o) {
             if (o == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("o == null");
             }
             return (String) o;
         }

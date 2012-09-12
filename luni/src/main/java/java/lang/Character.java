@@ -532,7 +532,7 @@ public final class Character implements Serializable, Comparable<Character> {
          */
         protected Subset(String string) {
             if (string == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("string == null");
             }
             name = string;
         }
@@ -1502,7 +1502,7 @@ public final class Character implements Serializable, Comparable<Character> {
          */
         public static UnicodeBlock forName(String blockName) {
             if (blockName == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("blockName == null");
             }
             int block = forNameImpl(blockName);
             if (block == -1) {
@@ -1798,7 +1798,7 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     public static int codePointAt(CharSequence seq, int index) {
         if (seq == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("seq == null");
         }
         int len = seq.length();
         if (index < 0 || index >= len) {
@@ -1840,7 +1840,7 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     public static int codePointAt(char[] seq, int index) {
         if (seq == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("seq == null");
         }
         int len = seq.length;
         if (index < 0 || index >= len) {
@@ -1923,7 +1923,7 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     public static int codePointBefore(CharSequence seq, int index) {
         if (seq == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("seq == null");
         }
         int len = seq.length();
         if (index < 1 || index > len) {
@@ -1965,7 +1965,7 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     public static int codePointBefore(char[] seq, int index) {
         if (seq == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("seq == null");
         }
         int len = seq.length;
         if (index < 1 || index > len) {
@@ -2012,7 +2012,7 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     public static int codePointBefore(char[] seq, int index, int start) {
         if (seq == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("seq == null");
         }
         int len = seq.length;
         if (index <= start || index > len || start < 0 || start >= len) {
@@ -2055,7 +2055,7 @@ public final class Character implements Serializable, Comparable<Character> {
     public static int toChars(int codePoint, char[] dst, int dstIndex) {
         checkValidCodePoint(codePoint);
         if (dst == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("dst == null");
         }
         if (dstIndex < 0 || dstIndex >= dst.length) {
             throw new IndexOutOfBoundsException();
@@ -2126,7 +2126,7 @@ public final class Character implements Serializable, Comparable<Character> {
     public static int codePointCount(CharSequence seq, int beginIndex,
             int endIndex) {
         if (seq == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("seq == null");
         }
         int len = seq.length();
         if (beginIndex < 0 || endIndex > len || beginIndex > endIndex) {
@@ -2215,7 +2215,7 @@ public final class Character implements Serializable, Comparable<Character> {
      */
     public static int offsetByCodePoints(CharSequence seq, int index, int codePointOffset) {
         if (seq == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("seq == null");
         }
         int len = seq.length();
         if (index < 0 || index > len) {
