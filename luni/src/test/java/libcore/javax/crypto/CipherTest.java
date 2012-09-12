@@ -17,36 +17,488 @@
 package libcore.javax.crypto;
 
 import com.android.org.bouncycastle.asn1.x509.KeyUsage;
-
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
+import java.security.InvalidParameterException;
 import java.security.Key;
 import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
-import java.security.Provider;
 import java.security.Provider.Service;
+import java.security.Provider;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.cert.Certificate;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.EncodedKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
-
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
 import junit.framework.TestCase;
 import libcore.java.security.TestKeyStore;
 
 public final class CipherTest extends TestCase {
+
+    private static boolean isUnsupported(String algorithm) {
+        if (algorithm.equals("PBEWITHMD5ANDRC2")) {
+            return true;
+        }
+        if (algorithm.equals("PBEWITHSHA1ANDRC2")) {
+            return true;
+        }
+        if (algorithm.equals("PBEWITHSHAAND40BITRC2-CBC")) {
+            return true;
+        }
+        if (algorithm.equals("PBEWITHSHAAND128BITRC2-CBC")) {
+            return true;
+        }
+        if (algorithm.equals("PBEWITHSHAANDTWOFISH-CBC")) {
+            return true;
+        }
+        return false;
+    }
+
+    private synchronized static int getEncryptMode(String algorithm) throws Exception {
+        if (isWrap(algorithm)) {
+            return Cipher.WRAP_MODE;
+        }
+        return Cipher.ENCRYPT_MODE;
+    }
+
+    private synchronized static int getDecryptMode(String algorithm) throws Exception {
+        if (isWrap(algorithm)) {
+            return Cipher.UNWRAP_MODE;
+        }
+        return Cipher.DECRYPT_MODE;
+    }
+
+    private static String getBaseAlgoritm(String algorithm) {
+        if (algorithm.equals("AESWRAP")) {
+            return "AES";
+        }
+        if (algorithm.equals("PBEWITHMD5AND128BITAES-CBC-OPENSSL")) {
+            return "AES";
+        }
+        if (algorithm.equals("PBEWITHMD5AND192BITAES-CBC-OPENSSL")) {
+            return "AES";
+        }
+        if (algorithm.equals("PBEWITHMD5AND256BITAES-CBC-OPENSSL")) {
+            return "AES";
+        }
+        if (algorithm.equals("PBEWITHSHA256AND128BITAES-CBC-BC")) {
+            return "AES";
+        }
+        if (algorithm.equals("PBEWITHSHA256AND192BITAES-CBC-BC")) {
+            return "AES";
+        }
+        if (algorithm.equals("PBEWITHSHA256AND256BITAES-CBC-BC")) {
+            return "AES";
+        }
+        if (algorithm.equals("PBEWITHSHAAND128BITAES-CBC-BC")) {
+            return "AES";
+        }
+        if (algorithm.equals("PBEWITHSHAAND192BITAES-CBC-BC")) {
+            return "AES";
+        }
+        if (algorithm.equals("PBEWITHSHAAND256BITAES-CBC-BC")) {
+            return "AES";
+        }
+        if (algorithm.equals("PBEWITHMD5ANDDES")) {
+            return "DES";
+        }
+        if (algorithm.equals("PBEWITHSHA1ANDDES")) {
+            return "DES";
+        }
+        if (algorithm.equals("DESEDEWRAP")) {
+            return "DESede";
+        }
+        if (algorithm.equals("PBEWITHSHAAND2-KEYTRIPLEDES-CBC")) {
+            return "DESede";
+        }
+        if (algorithm.equals("PBEWITHSHAAND3-KEYTRIPLEDES-CBC")) {
+            return "DESede";
+        }
+        if (algorithm.equals("RSA/ECB/NoPadding")) {
+            return "RSA";
+        }
+        if (algorithm.equals("RSA/ECB/PKCS1Padding")) {
+            return "RSA";
+        }
+        if (algorithm.equals("PBEWITHSHAAND40BITRC4")) {
+            return "ARC4";
+        }
+        if (algorithm.equals("PBEWITHSHAAND128BITRC4")) {
+            return "ARC4";
+        }
+        return algorithm;
+    }
+
+    private static boolean isAsymmetric(String algorithm) {
+        return getBaseAlgoritm(algorithm).equals("RSA");
+    }
+
+    private static boolean isWrap(String algorithm) {
+        return algorithm.endsWith("WRAP");
+    }
+
+    private static Map<String, Key> ENCRYPT_KEYS = new HashMap<String, Key>();
+    private synchronized static Key getEncryptKey(String algorithm) throws Exception {
+        Key key = ENCRYPT_KEYS.get(algorithm);
+        if (key != null) {
+            return key;
+        }
+        algorithm = getBaseAlgoritm(algorithm);
+        if (algorithm.equals("RSA")) {
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
+                                                              RSA_2048_privateExponent);
+            key = kf.generatePrivate(keySpec);
+        } else {
+            KeyGenerator kg = KeyGenerator.getInstance(algorithm);
+            key = kg.generateKey();
+        }
+        ENCRYPT_KEYS.put(algorithm, key);
+        return key;
+    }
+
+    private static Map<String, Key> DECRYPT_KEYS = new HashMap<String, Key>();
+    private synchronized static Key getDecryptKey(String algorithm) throws Exception {
+        Key key = DECRYPT_KEYS.get(algorithm);
+        if (key != null) {
+            return key;
+        }
+        algorithm = getBaseAlgoritm(algorithm);
+        if (algorithm.equals("RSA")) {
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus,
+                                                            RSA_2048_publicExponent);
+            key = kf.generatePublic(keySpec);
+        } else {
+            assertFalse(algorithm, isAsymmetric(algorithm));
+            key = getEncryptKey(algorithm);
+        }
+        DECRYPT_KEYS.put(algorithm, key);
+        return key;
+    }
+
+    private static Map<String, Integer> EXPECTED_BLOCK_SIZE = new HashMap<String, Integer>();
+    static {
+        EXPECTED_BLOCK_SIZE.put("AES", 16);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHMD5AND128BITAES-CBC-OPENSSL", 16);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHMD5AND192BITAES-CBC-OPENSSL", 16);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHMD5AND256BITAES-CBC-OPENSSL", 16);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHSHA256AND128BITAES-CBC-BC", 16);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHSHA256AND192BITAES-CBC-BC", 16);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHSHA256AND256BITAES-CBC-BC", 16);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHSHAAND128BITAES-CBC-BC", 16);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHSHAAND192BITAES-CBC-BC", 16);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHSHAAND256BITAES-CBC-BC", 16);
+
+        EXPECTED_BLOCK_SIZE.put("AESWRAP", 0);
+
+        EXPECTED_BLOCK_SIZE.put("ARC4", 0);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHSHAAND40BITRC4", 0);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHSHAAND128BITRC4", 0);
+
+        EXPECTED_BLOCK_SIZE.put("BLOWFISH", 8);
+
+        EXPECTED_BLOCK_SIZE.put("DES", 8);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHMD5ANDDES", 8);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHSHA1ANDDES", 8);
+
+        EXPECTED_BLOCK_SIZE.put("DESEDE", 8);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHSHAAND2-KEYTRIPLEDES-CBC", 8);
+        EXPECTED_BLOCK_SIZE.put("PBEWITHSHAAND3-KEYTRIPLEDES-CBC", 8);
+
+        EXPECTED_BLOCK_SIZE.put("DESEDEWRAP", 0);
+
+        EXPECTED_BLOCK_SIZE.put("RSA", 255);
+        EXPECTED_BLOCK_SIZE.put("RSA/ECB/NoPadding", 0);
+        EXPECTED_BLOCK_SIZE.put("RSA/ECB/PKCS1Padding", 0);
+    }
+    private static int getExpectedBlockSize(String algorithm) {
+        Integer expected = EXPECTED_BLOCK_SIZE.get(algorithm);
+        assertNotNull(algorithm, expected);
+        return expected;
+    }
+
+    private static Map<String, Integer> EXPECTED_OUTPUT_SIZE = new HashMap<String, Integer>();
+    static {
+        EXPECTED_OUTPUT_SIZE.put("AES", 16);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHMD5AND128BITAES-CBC-OPENSSL", 16);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHMD5AND192BITAES-CBC-OPENSSL", 16);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHMD5AND256BITAES-CBC-OPENSSL", 16);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHA256AND128BITAES-CBC-BC", 16);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHA256AND192BITAES-CBC-BC", 16);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHA256AND256BITAES-CBC-BC", 16);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHAAND128BITAES-CBC-BC", 16);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHAAND192BITAES-CBC-BC", 16);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHAAND256BITAES-CBC-BC", 16);
+
+        EXPECTED_OUTPUT_SIZE.put("AESWRAP", -1);
+
+        EXPECTED_OUTPUT_SIZE.put("ARC4", 0);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHAAND40BITRC4", 0);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHAAND128BITRC4", 0);
+
+        EXPECTED_OUTPUT_SIZE.put("BLOWFISH", 8);
+
+        EXPECTED_OUTPUT_SIZE.put("DES", 8);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHMD5ANDDES", 8);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHA1ANDDES", 8);
+
+        EXPECTED_OUTPUT_SIZE.put("DESEDE", 8);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHAAND2-KEYTRIPLEDES-CBC", 8);
+        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHAAND3-KEYTRIPLEDES-CBC", 8);
+
+        EXPECTED_OUTPUT_SIZE.put("DESEDEWRAP", -1);
+
+        EXPECTED_OUTPUT_SIZE.put("RSA", 256);
+        EXPECTED_OUTPUT_SIZE.put("RSA/ECB/NoPadding", 256);
+        EXPECTED_OUTPUT_SIZE.put("RSA/ECB/PKCS1Padding", 256);
+    }
+    private static int getExpectedOutputSize(String algorithm) {
+        Integer expected = EXPECTED_OUTPUT_SIZE.get(algorithm);
+        assertNotNull(algorithm, expected);
+        return expected;
+    }
+
+    private static byte[] ORIGINAL_PLAIN_TEXT = new byte[] { 0x0a, 0x0b, 0x0c };
+    private static byte[] PKCS1_BLOCK_TYPE_00_PADDED_PLAIN_TEXT = new byte[] {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x0a, 0x0b, 0x0c
+    };
+    private static byte[] PKCS1_BLOCK_TYPE_01_PADDED_PLAIN_TEXT = new byte[] {
+        (byte) 0x00, (byte) 0x01, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x0a, (byte) 0x0b, (byte) 0x0c
+    };
+    private static byte[] PKCS1_BLOCK_TYPE_02_PADDED_PLAIN_TEXT = new byte[] {
+        (byte) 0x00, (byte) 0x02, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x0a, (byte) 0x0b, (byte) 0x0c
+    };
+
+    private static byte[] getExpectedPlainText(String algorithm) {
+        if (algorithm.equals("RSA/ECB/NoPadding")) {
+            return PKCS1_BLOCK_TYPE_00_PADDED_PLAIN_TEXT;
+        }
+        return ORIGINAL_PLAIN_TEXT;
+    }
+
+    public void test_getInstance() throws Exception {
+        Provider[] providers = Security.getProviders();
+        for (Provider provider : providers) {
+            Set<Provider.Service> services = provider.getServices();
+            for (Provider.Service service : services) {
+                String type = service.getType();
+                if (!type.equals("Cipher")) {
+                    continue;
+                }
+                String algorithm = service.getAlgorithm();
+                try {
+                    // Cipher.getInstance(String)
+                    Cipher c1 = Cipher.getInstance(algorithm);
+                    assertEquals(algorithm, c1.getAlgorithm());
+                    test_Cipher(c1);
+
+                    // Cipher.getInstance(String, Provider)
+                    Cipher c2 = Cipher.getInstance(algorithm, provider);
+                    assertEquals(algorithm, c2.getAlgorithm());
+                    assertEquals(provider, c2.getProvider());
+                    test_Cipher(c2);
+
+                    // KeyGenerator.getInstance(String, String)
+                    Cipher c3 = Cipher.getInstance(algorithm, provider.getName());
+                    assertEquals(algorithm, c3.getAlgorithm());
+                    assertEquals(provider, c3.getProvider());
+                    test_Cipher(c3);
+                } catch (Throwable e) {
+                    throw new Exception("Problem testing Cipher." + algorithm, e);
+                }
+            }
+        }
+    }
+
+    private void test_Cipher(Cipher c) throws Exception {
+        // TODO: test all supported modes and padding for a given algorithm
+        String algorithm = c.getAlgorithm();
+        if (isUnsupported(algorithm)) {
+            return;
+        }
+
+        try {
+            c.getOutputSize(0);
+        } catch (IllegalStateException expected) {
+        }
+
+        // TODO: test keys from different factories (e.g. OpenSSLRSAPrivateKey vs JCERSAPrivateKey)
+        Key encryptKey = getEncryptKey(algorithm);
+        c.init(getEncryptMode(algorithm), encryptKey);
+
+        assertEquals(getExpectedBlockSize(algorithm), c.getBlockSize());
+
+        assertEquals(getExpectedOutputSize(algorithm), c.getOutputSize(0));
+
+        // TODO: test Cipher.getIV()
+
+        // TODO: test Cipher.getParameters()
+
+        assertNull(c.getExemptionMechanism());
+
+        if (isWrap(algorithm)) {
+            byte[] cipherText = c.wrap(encryptKey);
+            c.init(getDecryptMode(algorithm), getDecryptKey(algorithm));
+            int keyType = (isAsymmetric(algorithm)) ? Cipher.PRIVATE_KEY : Cipher.SECRET_KEY;
+            Key decryptedKey = c.unwrap(cipherText, encryptKey.getAlgorithm(), keyType);
+            assertEquals("encryptKey.getAlgorithm()=" + encryptKey.getAlgorithm()
+                         + " decryptedKey.getAlgorithm()=" + decryptedKey.getAlgorithm()
+                         + " encryptKey.getEncoded()=" + Arrays.toString(encryptKey.getEncoded())
+                         + " decryptedKey.getEncoded()=" + Arrays.toString(decryptedKey.getEncoded()),
+                         encryptKey, decryptedKey);
+        } else {
+            byte[] cipherText = c.doFinal(ORIGINAL_PLAIN_TEXT);
+            c.init(getDecryptMode(algorithm), getDecryptKey(algorithm));
+            byte[] decryptedPlainText = c.doFinal(cipherText);
+            assertEquals(Arrays.toString(getExpectedPlainText(algorithm)),
+                         Arrays.toString(decryptedPlainText));
+        }
+    }
+
+    public void testInputPKCS1Padding() throws Exception {
+        testInputPKCS1Padding(PKCS1_BLOCK_TYPE_01_PADDED_PLAIN_TEXT, getEncryptKey("RSA"), getDecryptKey("RSA"));
+        try {
+            testInputPKCS1Padding(PKCS1_BLOCK_TYPE_02_PADDED_PLAIN_TEXT, getEncryptKey("RSA"), getDecryptKey("RSA"));
+            fail();
+        } catch (BadPaddingException expected) {
+        }
+        try {
+            testInputPKCS1Padding(PKCS1_BLOCK_TYPE_01_PADDED_PLAIN_TEXT, getDecryptKey("RSA"), getEncryptKey("RSA"));
+            fail();
+        } catch (BadPaddingException expected) {
+        }
+        testInputPKCS1Padding(PKCS1_BLOCK_TYPE_02_PADDED_PLAIN_TEXT, getDecryptKey("RSA"), getEncryptKey("RSA"));
+    }
+
+    private void testInputPKCS1Padding(byte[] prePaddedPlainText, Key encryptKey, Key decryptKey) throws Exception {
+        Cipher encryptCipher = Cipher.getInstance("RSA/ECB/NoPadding");
+        encryptCipher.init(Cipher.ENCRYPT_MODE, encryptKey);
+        byte[] cipherText = encryptCipher.doFinal(prePaddedPlainText);
+        Cipher decryptCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        decryptCipher.init(Cipher.DECRYPT_MODE, decryptKey);
+        byte[] plainText = decryptCipher.doFinal(cipherText);
+        assertEquals(Arrays.toString(ORIGINAL_PLAIN_TEXT),
+                     Arrays.toString(plainText));
+    }
+
+    public void testOutputPKCS1Padding() throws Exception {
+       testOutputPKCS1Padding((byte) 1, getEncryptKey("RSA"), getDecryptKey("RSA"));
+       testOutputPKCS1Padding((byte) 2, getDecryptKey("RSA"), getEncryptKey("RSA"));
+    }
+
+    private void testOutputPKCS1Padding(byte expectedBlockType, Key encryptKey, Key decryptKey) throws Exception {
+        Cipher encryptCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        encryptCipher.init(Cipher.ENCRYPT_MODE, encryptKey);
+        byte[] cipherText = encryptCipher.doFinal(ORIGINAL_PLAIN_TEXT);
+        Cipher decryptCipher = Cipher.getInstance("RSA/ECB/NoPadding");
+        decryptCipher.init(Cipher.DECRYPT_MODE, decryptKey);
+        byte[] plainText = decryptCipher.doFinal(cipherText);
+        assertPadding(expectedBlockType, ORIGINAL_PLAIN_TEXT, plainText);
+    }
+
+    private void assertPadding(byte expectedBlockType, byte[] expectedData, byte[] actualDataWithPadding) {
+        assertNotNull(actualDataWithPadding);
+        assertEquals(getExpectedOutputSize("RSA"), actualDataWithPadding.length);
+        assertEquals(0, actualDataWithPadding[0]);
+        byte actualBlockType = actualDataWithPadding[1];
+        assertEquals(expectedBlockType, actualBlockType);
+        int actualDataOffset = actualDataWithPadding.length - expectedData.length;
+        if (actualBlockType == 1) {
+            for (int i = 2; i < actualDataOffset - 1; i++) {
+                assertEquals((byte) 0xFF, actualDataWithPadding[i]);
+            }
+        }
+        assertEquals(0x00, actualDataWithPadding[actualDataOffset-1]);
+        byte[] actualData = new byte[expectedData.length];
+        System.arraycopy(actualDataWithPadding, actualDataOffset, actualData, 0, actualData.length);
+        assertEquals(Arrays.toString(expectedData), Arrays.toString(actualData));
+    }
 
     public void testCipherInitWithCertificate () throws Exception {
         // no key usage specified, everything is fine
