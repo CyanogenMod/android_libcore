@@ -219,9 +219,9 @@ public class Throwable implements java.io.Serializable {
      */
     public void setStackTrace(StackTraceElement[] trace) {
         StackTraceElement[] newTrace = trace.clone();
-        for (StackTraceElement element : newTrace) {
-            if (element == null) {
-                throw new NullPointerException();
+        for (int i = 0; i < newTrace.length; i++) {
+            if (newTrace[i] == null) {
+                throw new NullPointerException("trace[" + i + "] == null");
             }
         }
         stackTrace = newTrace;
@@ -413,10 +413,10 @@ public class Throwable implements java.io.Serializable {
      */
     public final void addSuppressed(Throwable throwable) {
         if (throwable == this) {
-            throw new IllegalArgumentException("suppressed == this");
+            throw new IllegalArgumentException("throwable == this");
         }
         if (throwable == null) {
-            throw new NullPointerException("suppressed == null");
+            throw new NullPointerException("throwable == null");
         }
         if (suppressedExceptions != null) {
             // suppressed exceptions are enabled

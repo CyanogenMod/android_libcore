@@ -318,7 +318,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
     @Override
     public int write(ByteBuffer src) throws IOException {
         if (src == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("src == null");
         }
         checkOpenConnected();
         if (!src.hasRemaining()) {

@@ -448,7 +448,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
      */
     private void checkNotNull(ByteBuffer source) {
         if (source == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("source == null");
         }
     }
 

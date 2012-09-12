@@ -71,7 +71,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
      */
     public ZipEntry(String name) {
         if (name == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("name == null");
         }
         if (name.length() > 0xFFFF) {
             throw new IllegalArgumentException("Name too long: " + name.length());

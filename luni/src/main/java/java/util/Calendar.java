@@ -1389,7 +1389,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      */
     public int compareTo(Calendar anotherCalendar) {
         if (anotherCalendar == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("anotherCalendar == null");
         }
         long timeInMillis = getTimeInMillis();
         long anotherTimeInMillis = anotherCalendar.getTimeInMillis();

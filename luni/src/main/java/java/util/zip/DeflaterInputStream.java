@@ -72,8 +72,10 @@ public class DeflaterInputStream extends FilterInputStream {
      */
     public DeflaterInputStream(InputStream in, Deflater deflater, int bufferSize) {
         super(in);
-        if (in == null || deflater == null) {
-            throw new NullPointerException();
+        if (in == null) {
+            throw new NullPointerException("in == null");
+        } else if (deflater == null) {
+            throw new NullPointerException("deflater == null");
         }
         if (bufferSize <= 0) {
             throw new IllegalArgumentException();
