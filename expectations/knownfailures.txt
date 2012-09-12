@@ -89,12 +89,6 @@
   substring: "java.net.URISyntaxException"
 },
 {
-  description: "Test regression",
-  name: "libcore.javax.crypto.spec.KeyFactoryTestDSA#testKeyFactory",
-  substring: "not implemented yet",
-  bug: 3286592
-},
-{
   description: "KxmlParser doesn't expose DTD text",
   name: "libcore.xml.KxmlPullParserDtdTest#testDoctypeWithNextToken",
   bug: 3241492
