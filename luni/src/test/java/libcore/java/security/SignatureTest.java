@@ -796,8 +796,7 @@ public class SignatureTest extends TestCase {
         try {
             sig.initSign(privKey);
             fail("Should throw error when private exponent is not available");
-        } catch (InvalidKeyException e) {
-            // success
+        } catch (InvalidKeyException expected) {
         }
     }
 
@@ -821,8 +820,7 @@ public class SignatureTest extends TestCase {
         try {
             sig.initSign(privKey);
             fail("Should throw error when modulus is not available");
-        } catch (InvalidKeyException e) {
-            // success
+        } catch (InvalidKeyException expected) {
         }
     }
 
@@ -845,8 +843,7 @@ public class SignatureTest extends TestCase {
         try {
             sig.initSign(privKey);
             fail("Should throw error when key is empty");
-        } catch (InvalidKeyException e) {
-            // success
+        } catch (InvalidKeyException expected) {
         }
     }
 
@@ -1019,7 +1016,7 @@ public class SignatureTest extends TestCase {
         try {
             sig.sign();
             fail("Should throw exception when data is too large");
-        } catch (SignatureException success) {
+        } catch (SignatureException expected) {
         }
     }
 
@@ -1041,7 +1038,7 @@ public class SignatureTest extends TestCase {
         try {
             sig.sign();
             fail("Should throw exception when data is too large");
-        } catch (SignatureException success) {
+        } catch (SignatureException expected) {
         }
     }
 
@@ -1121,7 +1118,7 @@ public class SignatureTest extends TestCase {
         try {
             sig.verify(invalidSignature);
             fail("Should throw exception when signature is too large");
-        } catch (SignatureException success) {
+        } catch (SignatureException expected) {
         }
     }
 
