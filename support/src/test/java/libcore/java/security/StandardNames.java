@@ -325,14 +325,6 @@ public final class StandardNames extends Assert {
             // different names: added "Encryption" suffix
             unprovide("Signature", "MD5withRSA");
             provide("Signature", "MD5WithRSAEncryption");
-            unprovide("Signature", "SHA1withRSA");
-            provide("Signature", "SHA1WithRSAEncryption");
-            unprovide("Signature", "SHA256WithRSA");
-            provide("Signature", "SHA256WithRSAEncryption");
-            unprovide("Signature", "SHA384WithRSA");
-            provide("Signature", "SHA384WithRSAEncryption");
-            unprovide("Signature", "SHA512WithRSA");
-            provide("Signature", "SHA512WithRSAEncryption");
 
             // Added to support Android KeyStore operations
             provide("Signature", "NONEwithRSA");
