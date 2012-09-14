@@ -181,8 +181,10 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
      *             have a constant value called {@code name}.
      */
     public static <T extends Enum<T>> T valueOf(Class<T> enumType, String name) {
-        if (enumType == null || name == null) {
-            throw new NullPointerException("enumType == null || name == null");
+        if (enumType == null) {
+            throw new NullPointerException("enumType == null");
+        } else if (name == null) {
+            throw new NullPointerException("name == null");
         }
         T[] values = getSharedConstants(enumType);
         if (values == null) {

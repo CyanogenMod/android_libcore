@@ -61,7 +61,7 @@ public abstract class Reader implements Readable, Closeable {
      */
     protected Reader(Object lock) {
         if (lock == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("lock == null");
         }
         this.lock = lock;
     }

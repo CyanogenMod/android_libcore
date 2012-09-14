@@ -654,7 +654,7 @@ public class DecimalFormat extends NumberFormat {
     @Override
     public AttributedCharacterIterator formatToCharacterIterator(Object object) {
         if (object == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("object == null");
         }
         return dform.formatToCharacterIterator(object);
     }
@@ -1248,7 +1248,7 @@ public class DecimalFormat extends NumberFormat {
      */
     public void setRoundingMode(RoundingMode roundingMode) {
         if (roundingMode == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("roundingMode == null");
         }
         this.roundingMode = roundingMode;
         if (roundingMode != RoundingMode.UNNECESSARY) { // ICU4C doesn't support UNNECESSARY.

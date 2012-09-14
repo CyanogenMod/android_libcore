@@ -195,7 +195,7 @@ public abstract class ClassLoader {
      */
     ClassLoader(ClassLoader parentLoader, boolean nullAllowed) {
         if (parentLoader == null && !nullAllowed) {
-            throw new NullPointerException("Parent ClassLoader may not be null");
+            throw new NullPointerException("parentLoader == null && !nullAllowed");
         }
         parent = parentLoader;
     }

@@ -471,7 +471,7 @@ public class SimpleDateFormat extends DateFormat {
     @Override
     public AttributedCharacterIterator formatToCharacterIterator(Object object) {
         if (object == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("object == null");
         }
         if (object instanceof Date) {
             return formatToCharacterIteratorImpl((Date) object);

@@ -78,7 +78,7 @@ public class InputStreamReader extends Reader {
             throws UnsupportedEncodingException {
         super(in);
         if (enc == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("enc == null");
         }
         this.in = in;
         try {

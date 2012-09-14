@@ -153,7 +153,7 @@ public class SecureRandom extends Random {
      */
     public static SecureRandom getInstance(String algorithm) throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("algorithm == null");
         }
         Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
         return new SecureRandom((SecureRandomSpi) sap.spi, sap.provider,
@@ -212,7 +212,7 @@ public class SecureRandom extends Random {
             throw new IllegalArgumentException();
         }
         if (algorithm == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("algorithm == null");
         }
         Object spi = ENGINE.getInstance(algorithm, provider, null);
         return new SecureRandom((SecureRandomSpi) spi, provider, algorithm);

@@ -76,10 +76,10 @@ abstract class ExpatAttributes implements Attributes {
 
     public int getIndex(String uri, String localName) {
         if (uri == null) {
-            throw new NullPointerException("uri");
+            throw new NullPointerException("uri == null");
         }
         if (localName == null) {
-            throw new NullPointerException("local name");
+            throw new NullPointerException("localName == null");
         }
         int pointer = getPointer();
         if (pointer == 0) {
@@ -90,7 +90,7 @@ abstract class ExpatAttributes implements Attributes {
 
     public int getIndex(String qName) {
         if (qName == null) {
-            throw new NullPointerException("uri");
+            throw new NullPointerException("qName == null");
         }
         int pointer = getPointer();
         if (pointer == 0) {
@@ -101,10 +101,10 @@ abstract class ExpatAttributes implements Attributes {
 
     public String getType(String uri, String localName) {
         if (uri == null) {
-            throw new NullPointerException("uri");
+            throw new NullPointerException("uri == null");
         }
         if (localName == null) {
-            throw new NullPointerException("local name");
+            throw new NullPointerException("localName == null");
         }
         return getIndex(uri, localName) == -1 ? null : CDATA;
     }
@@ -115,10 +115,10 @@ abstract class ExpatAttributes implements Attributes {
 
     public String getValue(String uri, String localName) {
         if (uri == null) {
-            throw new NullPointerException("uri");
+            throw new NullPointerException("uri == null");
         }
         if (localName == null) {
-            throw new NullPointerException("local name");
+            throw new NullPointerException("localName == null");
         }
         int pointer = getPointer();
         if (pointer == 0) {
@@ -129,7 +129,7 @@ abstract class ExpatAttributes implements Attributes {
 
     public String getValue(String qName) {
         if (qName == null) {
-            throw new NullPointerException("qName");
+            throw new NullPointerException("qName == null");
         }
         int pointer = getPointer();
         if (pointer == 0) {

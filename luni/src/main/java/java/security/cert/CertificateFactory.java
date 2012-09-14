@@ -84,7 +84,7 @@ public class CertificateFactory {
     public static final CertificateFactory getInstance(String type)
             throws CertificateException {
         if (type == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("type == null");
         }
         try {
             Engine.SpiAndProvider sap = ENGINE.getInstance(type, null);
@@ -117,7 +117,7 @@ public class CertificateFactory {
             String provider) throws CertificateException,
             NoSuchProviderException {
         if (provider == null || provider.isEmpty()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("provider == null || provider.isEmpty()");
         }
         Provider impProvider = Security.getProvider(provider);
         if (impProvider == null) {
@@ -147,10 +147,10 @@ public class CertificateFactory {
     public static final CertificateFactory getInstance(String type,
             Provider provider) throws CertificateException {
         if (provider == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("provider == null");
         }
         if (type == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("type == null");
         }
         try {
             Object spi = ENGINE.getInstance(type, provider, null);
