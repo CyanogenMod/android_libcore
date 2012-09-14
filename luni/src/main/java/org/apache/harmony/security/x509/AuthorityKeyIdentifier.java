@@ -138,10 +138,10 @@ public final class AuthorityKeyIdentifier extends ExtensionValue {
         @Override protected Object getDecodedObject(BerInputStream in) throws IOException {
             Object[] values = (Object[]) in.content;
 
-            byte[] enc = (byte[]) values[2];
+            byte[] bytes = (byte[]) values[2];
             BigInteger authorityCertSerialNumber = null;
-            if (enc != null) {
-                authorityCertSerialNumber = new BigInteger(enc);
+            if (bytes != null) {
+                authorityCertSerialNumber = new BigInteger(bytes);
             }
 
             return new AuthorityKeyIdentifier((byte[]) values[0],
