@@ -62,32 +62,32 @@ public class InputStreamReader extends Reader {
     /**
      * Constructs a new InputStreamReader on the InputStream {@code in}. The
      * character converter that is used to decode bytes into characters is
-     * identified by name by {@code enc}. If the encoding cannot be found, an
+     * identified by name by {@code charsetName}. If the encoding cannot be found, an
      * UnsupportedEncodingException error is thrown.
      *
      * @param in
      *            the InputStream from which to read characters.
-     * @param enc
+     * @param charsetName
      *            identifies the character converter to use.
      * @throws NullPointerException
-     *             if {@code enc} is {@code null}.
+     *             if {@code charsetName} is {@code null}.
      * @throws UnsupportedEncodingException
-     *             if the encoding specified by {@code enc} cannot be found.
+     *             if the encoding specified by {@code charsetName} cannot be found.
      */
-    public InputStreamReader(InputStream in, final String enc)
+    public InputStreamReader(InputStream in, final String charsetName)
             throws UnsupportedEncodingException {
         super(in);
-        if (enc == null) {
-            throw new NullPointerException("enc == null");
+        if (charsetName == null) {
+            throw new NullPointerException("charsetName == null");
         }
         this.in = in;
         try {
-            decoder = Charset.forName(enc).newDecoder().onMalformedInput(
+            decoder = Charset.forName(charsetName).newDecoder().onMalformedInput(
                     CodingErrorAction.REPLACE).onUnmappableCharacter(
                     CodingErrorAction.REPLACE);
         } catch (IllegalArgumentException e) {
             throw (UnsupportedEncodingException)
-                    new UnsupportedEncodingException(enc).initCause(e);
+                    new UnsupportedEncodingException(charsetName).initCause(e);
         }
         bytes.limit(0);
     }
