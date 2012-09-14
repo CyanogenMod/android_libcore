@@ -110,7 +110,7 @@ public class KeyStore {
      */
     public static KeyStore getInstance(String type) throws KeyStoreException {
         if (type == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("type == null");
         }
         try {
             Engine.SpiAndProvider sap = ENGINE.getInstance(type, null);
@@ -182,7 +182,7 @@ public class KeyStore {
             throw new IllegalArgumentException();
         }
         if (type == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("type == null");
         }
         // return KeyStore instance
         try {

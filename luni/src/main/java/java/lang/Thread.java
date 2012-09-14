@@ -232,7 +232,7 @@ public class Thread implements Runnable {
      */
     public Thread(Runnable runnable, String threadName) {
         if (threadName == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("threadName == null");
         }
 
         create(null, runnable, threadName, 0);
@@ -252,7 +252,7 @@ public class Thread implements Runnable {
      */
     public Thread(String threadName) {
         if (threadName == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("threadName == null");
         }
 
         create(null, null, threadName, 0);
@@ -296,7 +296,7 @@ public class Thread implements Runnable {
      */
     public Thread(ThreadGroup group, Runnable runnable, String threadName) {
         if (threadName == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("threadName == null");
         }
 
         create(group, runnable, threadName, 0);
@@ -317,7 +317,7 @@ public class Thread implements Runnable {
      */
     public Thread(ThreadGroup group, String threadName) {
         if (threadName == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("threadName == null");
         }
 
         create(group, null, threadName, 0);
@@ -346,7 +346,7 @@ public class Thread implements Runnable {
      */
     public Thread(ThreadGroup group, Runnable runnable, String threadName, long stackSize) {
         if (threadName == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("threadName == null");
         }
         create(group, runnable, threadName, stackSize);
     }
@@ -943,7 +943,7 @@ public class Thread implements Runnable {
      */
     public final void setName(String threadName) {
         if (threadName == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("threadName == null");
         }
 
         name = threadName;

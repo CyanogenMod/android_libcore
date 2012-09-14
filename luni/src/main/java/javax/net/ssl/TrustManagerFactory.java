@@ -67,7 +67,7 @@ public class TrustManagerFactory {
     public static final TrustManagerFactory getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException("algorithm is null");
+            throw new NullPointerException("algorithm == null");
         }
         Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
         return new TrustManagerFactory((TrustManagerFactorySpi) sap.spi, sap.provider, algorithm);
@@ -126,7 +126,7 @@ public class TrustManagerFactory {
             throw new IllegalArgumentException("Provider is null");
         }
         if (algorithm == null) {
-            throw new NullPointerException("algorithm is null");
+            throw new NullPointerException("algorithm == null");
         }
         Object spi = ENGINE.getInstance(algorithm, provider, null);
         return new TrustManagerFactory((TrustManagerFactorySpi) spi, provider, algorithm);

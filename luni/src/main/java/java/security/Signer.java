@@ -83,7 +83,7 @@ public abstract class Signer extends Identity {
      */
     public final void setKeyPair(KeyPair pair) throws InvalidParameterException, KeyException {
         if (pair == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("pair == null");
         }
 
         if (pair.getPrivate() == null || pair.getPublic() == null) {

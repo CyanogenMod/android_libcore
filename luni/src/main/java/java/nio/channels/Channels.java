@@ -150,7 +150,7 @@ public final class Channels {
     public static Reader newReader(ReadableByteChannel channel,
             String charsetName) {
         if (charsetName == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("charsetName == null");
         }
         return newReader(channel, Charset.forName(charsetName).newDecoder(), -1);
     }
@@ -193,7 +193,7 @@ public final class Channels {
     public static Writer newWriter(WritableByteChannel channel,
             String charsetName) {
         if (charsetName == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("charsetName == null");
         }
         return newWriter(channel, Charset.forName(charsetName).newEncoder(), -1);
     }
@@ -207,7 +207,7 @@ public final class Channels {
 
         ChannelInputStream(ReadableByteChannel channel) {
             if (channel == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("channel == null");
             }
             this.channel = channel;
         }
@@ -247,7 +247,7 @@ public final class Channels {
 
         ChannelOutputStream(WritableByteChannel channel) {
             if (channel == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("channel == null");
             }
             this.channel = channel;
         }
@@ -289,7 +289,7 @@ public final class Channels {
 
         InputStreamChannel(InputStream inputStream) {
             if (inputStream == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("inputStream == null");
             }
             this.inputStream = inputStream;
         }
@@ -328,7 +328,7 @@ public final class Channels {
 
         OutputStreamChannel(OutputStream outputStream) {
             if (outputStream == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("outputStream == null");
             }
             this.outputStream = outputStream;
         }

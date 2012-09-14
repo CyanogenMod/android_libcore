@@ -1412,7 +1412,7 @@ public class Collections {
     @SuppressWarnings("unchecked")
     public static <T> int binarySearch(List<? extends Comparable<? super T>> list, T object) {
         if (list == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("list == null");
         }
         if (list.isEmpty()) {
             return -1;
@@ -1916,7 +1916,7 @@ public class Collections {
     @SuppressWarnings("unchecked")
     public static void swap(List<?> list, int index1, int index2) {
         if (list == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("list == null");
         }
         final int size = list.size();
         if (index1 < 0 || index1 >= size || index2 < 0 || index2 >= size) {
@@ -2174,7 +2174,7 @@ public class Collections {
     public static <T> Collection<T> synchronizedCollection(
             Collection<T> collection) {
         if (collection == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("collection == null");
         }
         return new SynchronizedCollection<T>(collection);
     }
@@ -2189,7 +2189,7 @@ public class Collections {
      */
     public static <T> List<T> synchronizedList(List<T> list) {
         if (list == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("list == null");
         }
         if (list instanceof RandomAccess) {
             return new SynchronizedRandomAccessList<T>(list);
@@ -2207,7 +2207,7 @@ public class Collections {
      */
     public static <K, V> Map<K, V> synchronizedMap(Map<K, V> map) {
         if (map == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("map == null");
         }
         return new SynchronizedMap<K, V>(map);
     }
@@ -2222,7 +2222,7 @@ public class Collections {
      */
     public static <E> Set<E> synchronizedSet(Set<E> set) {
         if (set == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("set == null");
         }
         return new SynchronizedSet<E>(set);
     }
@@ -2238,7 +2238,7 @@ public class Collections {
     public static <K, V> SortedMap<K, V> synchronizedSortedMap(
             SortedMap<K, V> map) {
         if (map == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("map == null");
         }
         return new SynchronizedSortedMap<K, V>(map);
     }
@@ -2253,7 +2253,7 @@ public class Collections {
      */
     public static <E> SortedSet<E> synchronizedSortedSet(SortedSet<E> set) {
         if (set == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("set == null");
         }
         return new SynchronizedSortedSet<E>(set);
     }
@@ -2271,7 +2271,7 @@ public class Collections {
     public static <E> Collection<E> unmodifiableCollection(
             Collection<? extends E> collection) {
         if (collection == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("collection == null");
         }
         return new UnmodifiableCollection<E>((Collection<E>) collection);
     }
@@ -2288,7 +2288,7 @@ public class Collections {
     @SuppressWarnings("unchecked")
     public static <E> List<E> unmodifiableList(List<? extends E> list) {
         if (list == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("list == null");
         }
         if (list instanceof RandomAccess) {
             return new UnmodifiableRandomAccessList<E>((List<E>) list);
@@ -2309,7 +2309,7 @@ public class Collections {
     public static <K, V> Map<K, V> unmodifiableMap(
             Map<? extends K, ? extends V> map) {
         if (map == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("map == null");
         }
         return new UnmodifiableMap<K, V>((Map<K, V>) map);
     }
@@ -2326,7 +2326,7 @@ public class Collections {
     @SuppressWarnings("unchecked")
     public static <E> Set<E> unmodifiableSet(Set<? extends E> set) {
         if (set == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("set == null");
         }
         return new UnmodifiableSet<E>((Set<E>) set);
     }
@@ -2344,7 +2344,7 @@ public class Collections {
     public static <K, V> SortedMap<K, V> unmodifiableSortedMap(
             SortedMap<K, ? extends V> map) {
         if (map == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("map == null");
         }
         return new UnmodifiableSortedMap<K, V>((SortedMap<K, V>) map);
     }
@@ -2360,7 +2360,7 @@ public class Collections {
      */
     public static <E> SortedSet<E> unmodifiableSortedSet(SortedSet<E> set) {
         if (set == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("set == null");
         }
         return new UnmodifiableSortedSet<E>(set);
     }
@@ -2381,7 +2381,7 @@ public class Collections {
      */
     public static int frequency(Collection<?> c, Object o) {
         if (c == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("c == null");
         }
         if (c.isEmpty()) {
             return 0;
@@ -2834,8 +2834,10 @@ public class Collections {
         Class<E> type;
 
         public CheckedCollection(Collection<E> c, Class<E> type) {
-            if (c == null || type == null) {
-                throw new NullPointerException();
+            if (c == null) {
+                throw new NullPointerException("c == null");
+            } else if (type == null) {
+                throw new NullPointerException("type == null");
             }
             this.c = c;
             this.type = type;
@@ -3079,8 +3081,12 @@ public class Collections {
         Class<V> valueType;
 
         private CheckedMap(Map<K, V> m, Class<K> keyType, Class<V> valueType) {
-            if (m == null || keyType == null || valueType == null) {
-                throw new NullPointerException();
+            if (m == null) {
+                throw new NullPointerException("m == null");
+            } else if (keyType == null) {
+                throw new NullPointerException("keyType == null");
+            } else if (valueType == null) {
+                throw new NullPointerException("valueType == null");
             }
             this.m = m;
             this.keyType = keyType;
@@ -3172,7 +3178,7 @@ public class Collections {
 
             public CheckedEntry(Map.Entry<K, V> e, Class<V> valueType) {
                 if (e == null) {
-                    throw new NullPointerException();
+                    throw new NullPointerException("e == null");
                 }
                 this.e = e;
                 this.valueType = valueType;

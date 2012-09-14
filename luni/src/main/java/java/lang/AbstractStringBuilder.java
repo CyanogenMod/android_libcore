@@ -437,7 +437,7 @@ abstract class AbstractStringBuilder {
             }
             if (start == end) {
                 if (string == null) {
-                    throw new NullPointerException();
+                    throw new NullPointerException("string == null");
                 }
                 insert0(start, string);
                 return;

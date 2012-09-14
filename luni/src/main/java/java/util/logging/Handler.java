@@ -227,7 +227,7 @@ public abstract class Handler {
      */
     public boolean isLoggable(LogRecord record) {
         if (record == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("record == null");
         }
         if (this.level.intValue() == Level.OFF.intValue()) {
             return false;
@@ -294,17 +294,17 @@ public abstract class Handler {
     /**
      * Sets the error manager for this handler.
      *
-     * @param em
+     * @param newErrorManager
      *            the error manager to set.
      * @throws NullPointerException
      *             if {@code em} is {@code null}.
      */
-    public void setErrorManager(ErrorManager em) {
+    public void setErrorManager(ErrorManager newErrorManager) {
         LogManager.getLogManager().checkAccess();
-        if (em == null) {
-            throw new NullPointerException();
+        if (newErrorManager == null) {
+            throw new NullPointerException("newErrorManager == null");
         }
-        this.errorMan = em;
+        this.errorMan = newErrorManager;
     }
 
     /**
@@ -327,7 +327,7 @@ public abstract class Handler {
      */
     void internalSetFormatter(Formatter newFormatter) {
         if (newFormatter == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("newFormatter == null");
         }
         this.formatter = newFormatter;
     }
@@ -356,7 +356,7 @@ public abstract class Handler {
      */
     public void setLevel(Level newLevel) {
         if (newLevel == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("newLevel == null");
         }
         LogManager.getLogManager().checkAccess();
         this.level = newLevel;
