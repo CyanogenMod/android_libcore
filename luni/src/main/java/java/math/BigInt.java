@@ -153,7 +153,7 @@ final class BigInt {
      */
     String checkString(String s, int base) {
         if (s == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("s == null");
         }
         // A valid big integer consists of an optional '-' or '+' followed by
         // one or more digit characters appropriate to the given base,

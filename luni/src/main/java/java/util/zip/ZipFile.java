@@ -223,7 +223,7 @@ public class ZipFile implements ZipConstants {
     public ZipEntry getEntry(String entryName) {
         checkNotClosed();
         if (entryName == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("entryName == null");
         }
 
         ZipEntry ze = mEntries.get(entryName);

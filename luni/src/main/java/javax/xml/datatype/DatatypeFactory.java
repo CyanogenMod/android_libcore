@@ -326,7 +326,7 @@ public abstract class DatatypeFactory {
      */
     public Duration newDurationDayTime(final String lexicalRepresentation) {
         if (lexicalRepresentation == null) {
-            throw new NullPointerException("The lexical representation cannot be null.");
+            throw new NullPointerException("lexicalRepresentation == null");
         }
         // The lexical representation must match the pattern [^YM]*(T.*)?
         int pos = lexicalRepresentation.indexOf('T');
@@ -539,7 +539,7 @@ public abstract class DatatypeFactory {
      */
     public Duration newDurationYearMonth(final String lexicalRepresentation) {
         if (lexicalRepresentation == null) {
-            throw new NullPointerException("The lexical representation cannot be null.");
+            throw new NullPointerException("lexicalRepresentation == null");
         }
         // The lexical representation must match the pattern [^DT]*.
         int length = lexicalRepresentation.length();

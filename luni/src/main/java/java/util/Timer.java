@@ -362,7 +362,7 @@ public class Timer {
      */
     public Timer(String name, boolean isDaemon) {
         if (name == null) {
-            throw new NullPointerException("name is null");
+            throw new NullPointerException("name == null");
         }
         this.impl = new TimerImpl(name, isDaemon);
         this.finalizer = new FinalizerHelper(impl);

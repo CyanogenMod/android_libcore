@@ -167,7 +167,7 @@ public class StreamHandler extends Handler {
      */
     protected void setOutputStream(OutputStream os) {
         if (os == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("os == null");
         }
         LogManager.getLogManager().checkAccess();
         close(true);

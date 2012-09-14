@@ -822,7 +822,7 @@ public class URLClassLoader extends SecureClassLoader {
         while (!searchList.isEmpty()) {
             URL nextCandidate = searchList.remove(0);
             if (nextCandidate == null) {
-                throw new NullPointerException("A URL is null");
+                throw new NullPointerException("nextCandidate == null");
             }
             if (!handlerMap.containsKey(nextCandidate)) {
                 URLHandler result;

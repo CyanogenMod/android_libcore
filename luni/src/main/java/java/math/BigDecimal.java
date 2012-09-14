@@ -276,7 +276,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         long newScale; // the new scale
 
         if (in == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("in == null");
         }
         if ((last >= in.length) || (offset < 0) || (len <= 0) || (last < 0)) {
             throw new NumberFormatException("Bad offset/length: offset=" + offset +
@@ -601,7 +601,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      */
     public BigDecimal(BigInteger unscaledVal, int scale) {
         if (unscaledVal == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("unscaledVal == null");
         }
         this.scale = scale;
         setUnscaledValue(unscaledVal);
@@ -1059,7 +1059,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
     public BigDecimal divide(BigDecimal divisor, int scale, RoundingMode roundingMode) {
         // Let be: this = [u1,s1]  and  divisor = [u2,s2]
         if (roundingMode == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("roundingMode == null");
         }
         if (divisor.isZero()) {
             throw new ArithmeticException("Division by zero");
@@ -1916,7 +1916,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      */
     public BigDecimal setScale(int newScale, RoundingMode roundingMode) {
         if (roundingMode == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("roundingMode == null");
         }
         long diffScale = newScale - (long)scale;
         // Let be:  'this' = [u,s]

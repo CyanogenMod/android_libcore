@@ -244,7 +244,7 @@ public class DatagramSocket {
         checkOpen();
         ensureBound();
         if (pack == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("pack == null");
         }
         if (pendingConnectException != null) {
             throw new SocketException("Pending connect failure", pendingConnectException);
@@ -295,7 +295,7 @@ public class DatagramSocket {
      */
     public void setNetworkInterface(NetworkInterface netInterface) throws SocketException {
         if (netInterface == null) {
-            throw new NullPointerException("networkInterface == null");
+            throw new NullPointerException("netInterface == null");
         }
         try {
             Libcore.os.setsockoptIfreq(impl.fd, SOL_SOCKET, SO_BINDTODEVICE, netInterface.getName());
@@ -374,7 +374,7 @@ public class DatagramSocket {
      */
     protected DatagramSocket(DatagramSocketImpl socketImpl) {
         if (socketImpl == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("socketImpl == null");
         }
         impl = socketImpl;
     }

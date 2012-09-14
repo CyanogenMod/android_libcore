@@ -68,7 +68,7 @@ public class KeyManagerFactory {
     public static final KeyManagerFactory getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException("algorithm is null");
+            throw new NullPointerException("algorithm == null");
         }
         Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
         return new KeyManagerFactory((KeyManagerFactorySpi) sap.spi, sap.provider, algorithm);
@@ -127,7 +127,7 @@ public class KeyManagerFactory {
             throw new IllegalArgumentException("Provider is null");
         }
         if (algorithm == null) {
-            throw new NullPointerException("algorithm is null");
+            throw new NullPointerException("algorithm == null");
         }
         Object spi = ENGINE.getInstance(algorithm, provider, null);
         return new KeyManagerFactory((KeyManagerFactorySpi) spi, provider, algorithm);

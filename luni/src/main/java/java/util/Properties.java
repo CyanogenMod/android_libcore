@@ -243,7 +243,7 @@ public class Properties extends Hashtable<Object, Object> {
      */
     public synchronized void load(InputStream in) throws IOException {
         if (in == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("in == null");
         }
         load(new InputStreamReader(in, "ISO-8859-1"));
     }
@@ -276,7 +276,7 @@ public class Properties extends Hashtable<Object, Object> {
     @SuppressWarnings("fallthrough")
     public synchronized void load(Reader in) throws IOException {
         if (in == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("in == null");
         }
         int mode = NONE, unicode = 0, count = 0;
         char nextChar, buf[] = new char[40];
@@ -578,7 +578,7 @@ public class Properties extends Hashtable<Object, Object> {
     public synchronized void loadFromXML(InputStream in) throws IOException,
             InvalidPropertiesFormatException {
         if (in == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("in == null");
         }
 
         if (builder == null) {
@@ -690,8 +690,10 @@ public class Properties extends Hashtable<Object, Object> {
     public synchronized void storeToXML(OutputStream os, String comment,
             String encoding) throws IOException {
 
-        if (os == null || encoding == null) {
-            throw new NullPointerException();
+        if (os == null) {
+            throw new NullPointerException("os == null");
+        } else if (encoding == null) {
+            throw new NullPointerException("encoding == null");
         }
 
         /*

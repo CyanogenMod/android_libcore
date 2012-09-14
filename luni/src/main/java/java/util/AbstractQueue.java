@@ -150,9 +150,9 @@ public abstract class AbstractQueue<E>
      */
     public boolean addAll(Collection<? extends E> c) {
         if (c == null)
-            throw new NullPointerException();
+            throw new NullPointerException("c == null");
         if (c == this)
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("c == this");
         boolean modified = false;
         for (E e : c)
             if (add(e))

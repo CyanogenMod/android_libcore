@@ -186,7 +186,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
      */
     public boolean offer(E o) {
         if (o == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("o == null");
         }
         growToSize(size + 1);
         elements[size] = o;
@@ -387,7 +387,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
 
     private void initSize(Collection<? extends E> c) {
         if (c == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("c == null");
         }
         if (c.isEmpty()) {
             elements = newElementArray(1);

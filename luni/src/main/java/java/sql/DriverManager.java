@@ -329,7 +329,7 @@ public class DriverManager {
      */
     public static void registerDriver(Driver driver) throws SQLException {
         if (driver == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("driver == null");
         }
         synchronized (theDrivers) {
             theDrivers.add(driver);
