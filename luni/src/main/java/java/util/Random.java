@@ -151,6 +151,8 @@ public class Random implements Serializable {
             v2 = 2 * nextDouble() - 1;
             s = v1 * v1 + v2 * v2;
         } while (s >= 1 || s == 0);
+
+        // The specification says this uses StrictMath.
         double multiplier = StrictMath.sqrt(-2 * StrictMath.log(s) / s);
         nextNextGaussian = v2 * multiplier;
         haveNextNextGaussian = true;
