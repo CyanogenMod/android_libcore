@@ -115,8 +115,10 @@ public class DeflaterOutputStream extends FilterOutputStream {
      */
     public DeflaterOutputStream(OutputStream os, Deflater def, int bsize, boolean syncFlush) {
         super(os);
-        if (os == null || def == null) {
-            throw new NullPointerException();
+        if (os == null) {
+            throw new NullPointerException("os == null");
+        } else if (def == null) {
+            throw new NullPointerException("def == null");
         }
         if (bsize <= 0) {
             throw new IllegalArgumentException();

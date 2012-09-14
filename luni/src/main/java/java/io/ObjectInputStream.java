@@ -2344,7 +2344,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
     public int skipBytes(int length) throws IOException {
         // To be used with available. Ok to call if reading primitive buffer
         if (input == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("source stream is null");
         }
 
         int offset = 0;

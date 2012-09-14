@@ -101,7 +101,7 @@ public class CertPathValidator {
     public static CertPathValidator getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("algorithm == null");
         }
         Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
         return new CertPathValidator((CertPathValidatorSpi) sap.spi, sap.provider, algorithm);
@@ -160,7 +160,7 @@ public class CertPathValidator {
             throw new IllegalArgumentException();
         }
         if (algorithm == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("algorithm == null");
         }
         Object spi = ENGINE.getInstance(algorithm, provider, null);
         return new CertPathValidator((CertPathValidatorSpi) spi, provider, algorithm);

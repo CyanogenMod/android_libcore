@@ -405,7 +405,7 @@ public abstract class TimeZone implements Serializable, Cloneable {
      */
     public void setID(String id) {
         if (id == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("id == null");
         }
         ID = id;
     }

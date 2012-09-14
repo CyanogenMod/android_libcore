@@ -74,7 +74,7 @@ public class OutputStreamWriter extends Writer {
             throws UnsupportedEncodingException {
         super(out);
         if (enc == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("enc == null");
         }
         this.out = out;
         try {

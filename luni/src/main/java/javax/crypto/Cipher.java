@@ -141,10 +141,10 @@ public class Cipher {
     protected Cipher(CipherSpi cipherSpi, Provider provider,
             String transformation) {
         if (cipherSpi == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("cipherSpi == null");
         }
         if (!(cipherSpi instanceof NullCipherSpi) && provider == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("provider == null");
         }
         this.provider = provider;
         this.transformation = transformation;
@@ -1332,7 +1332,7 @@ public class Cipher {
     public static final int getMaxAllowedKeyLength(String transformation)
             throws NoSuchAlgorithmException {
         if (transformation == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("transformation == null");
         }
         checkTransformation(transformation);
         //FIXME jurisdiction policy files
@@ -1356,7 +1356,7 @@ public class Cipher {
     public static final AlgorithmParameterSpec getMaxAllowedParameterSpec(
             String transformation) throws NoSuchAlgorithmException {
         if (transformation == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("transformation == null");
         }
         checkTransformation(transformation);
         //FIXME jurisdiction policy files

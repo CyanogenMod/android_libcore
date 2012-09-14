@@ -224,9 +224,9 @@ public class Runtime {
     public Process exec(String prog, String[] envp, File directory) throws java.io.IOException {
         // Sanity checks
         if (prog == null) {
-            throw new NullPointerException();
-        } else if (prog.length() == 0) {
-            throw new IllegalArgumentException();
+            throw new NullPointerException("prog == null");
+        } else if (prog.isEmpty()) {
+            throw new IllegalArgumentException("prog is empty");
         }
 
         // Break down into tokens, as described in Java docs
@@ -331,11 +331,11 @@ public class Runtime {
     /*
      * Loads and links a library without security checks.
      */
-    void load(String filename, ClassLoader loader) {
-        if (filename == null) {
-            throw new NullPointerException("library path was null.");
+    void load(String pathName, ClassLoader loader) {
+        if (pathName == null) {
+            throw new NullPointerException("pathName == null");
         }
-        String error = nativeLoad(filename, loader);
+        String error = nativeLoad(pathName, loader);
         if (error != null) {
             throw new UnsatisfiedLinkError(error);
         }
@@ -538,7 +538,7 @@ public class Runtime {
     public void addShutdownHook(Thread hook) {
         // Sanity checks
         if (hook == null) {
-            throw new NullPointerException("Hook may not be null.");
+            throw new NullPointerException("hook == null");
         }
 
         if (shuttingDown) {
@@ -571,7 +571,7 @@ public class Runtime {
     public boolean removeShutdownHook(Thread hook) {
         // Sanity checks
         if (hook == null) {
-            throw new NullPointerException("Hook may not be null.");
+            throw new NullPointerException("hook == null");
         }
 
         if (shuttingDown) {

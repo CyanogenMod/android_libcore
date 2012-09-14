@@ -46,7 +46,7 @@ public final class RuleBasedCollatorICU implements Cloneable {
 
     public RuleBasedCollatorICU(String rules) throws ParseException {
         if (rules == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("rules == null");
         }
         address = NativeCollation.openCollatorFromRules(rules, VALUE_OFF, VALUE_DEFAULT_STRENGTH);
     }

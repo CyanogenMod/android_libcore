@@ -407,8 +407,10 @@ public abstract class Provider extends Properties {
      */
     public synchronized Provider.Service getService(String type,
             String algorithm) {
-        if (type == null || algorithm == null) {
-            throw new NullPointerException();
+        if (type == null) {
+            throw new NullPointerException("type == null");
+        } else if (algorithm == null) {
+            throw new NullPointerException("algorithm == null");
         }
 
         if (type.equals(lastServiceName) && algorithm.equalsIgnoreCase(lastAlgorithm)) {
@@ -475,7 +477,7 @@ public abstract class Provider extends Properties {
      */
     protected synchronized void putService(Provider.Service s) {
         if (s == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("s == null");
         }
         if ("Provider".equals(s.getType())) { // Provider service type cannot be added
             return;
@@ -507,7 +509,7 @@ public abstract class Provider extends Properties {
      */
     protected synchronized void removeService(Provider.Service s) {
         if (s == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("s == null");
         }
         servicesChanged();
         if (serviceTable != null) {
@@ -852,9 +854,14 @@ public abstract class Provider extends Properties {
          */
         public Service(Provider provider, String type, String algorithm,
                 String className, List<String> aliases, Map<String, String> attributes) {
-            if (provider == null || type == null || algorithm == null
-                    || className == null) {
-                throw new NullPointerException();
+            if (provider == null) {
+                throw new NullPointerException("provider == null");
+            } else if (type == null) {
+                throw new NullPointerException("type == null");
+            } else if (algorithm == null) {
+                throw new NullPointerException("algorithm == null");
+            } else if (className == null) {
+                throw new NullPointerException("className == null");
             }
             this.provider = provider;
             this.type = type;
@@ -943,7 +950,7 @@ public abstract class Provider extends Properties {
          */
         public final String getAttribute(String name) {
             if (name == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("name == null");
             }
             if (attributes == null) {
                 return null;
