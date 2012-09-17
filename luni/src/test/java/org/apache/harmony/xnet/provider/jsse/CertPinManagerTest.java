@@ -115,7 +115,6 @@ public class CertPinManagerTest extends TestCase {
             new PinListEntry(entry);
             fail("Accepted an empty pin list entry.");
         } catch (PinEntryException expected) {
-            // did what we're supposed to do
         }
     }
 
@@ -126,7 +125,6 @@ public class CertPinManagerTest extends TestCase {
             new PinListEntry(entry);
             fail("Accepted a basically wholly bogus entry.");
         } catch (NullPointerException expected) {
-            // did what we're supposed to do
         }
     }
 
