@@ -50,7 +50,7 @@ public class SequenceInputStream extends InputStream {
      */
     public SequenceInputStream(InputStream s1, InputStream s2) {
         if (s1 == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("s1 == null");
         }
         Vector<InputStream> inVector = new Vector<InputStream>(1);
         inVector.addElement(s2);
@@ -73,7 +73,7 @@ public class SequenceInputStream extends InputStream {
         if (e.hasMoreElements()) {
             in = e.nextElement();
             if (in == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("element is null");
             }
         }
     }
@@ -112,7 +112,7 @@ public class SequenceInputStream extends InputStream {
         if (e.hasMoreElements()) {
             in = e.nextElement();
             if (in == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("element is null");
             }
         } else {
             in = null;

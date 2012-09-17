@@ -884,7 +884,7 @@ public final class Formatter implements Closeable, Flushable {
      */
     public Formatter(PrintStream ps) {
         if (ps == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("ps == null");
         }
         out = ps;
         locale = Locale.getDefault();

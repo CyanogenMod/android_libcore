@@ -94,7 +94,7 @@ public abstract class UriCodec {
     private void appendEncoded(StringBuilder builder, String s, Charset charset,
             boolean isPartiallyEncoded) {
         if (s == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("s == null");
         }
 
         int escapeStart = -1;

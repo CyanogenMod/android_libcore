@@ -54,7 +54,7 @@ public class StringBufferInputStream extends InputStream {
      */
     public StringBufferInputStream(String str) {
         if (str == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("str == null");
         }
         buffer = str;
         count = str.length();

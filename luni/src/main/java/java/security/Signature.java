@@ -99,7 +99,7 @@ public abstract class Signature extends SignatureSpi {
     public static Signature getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("algorithm == null");
         }
         Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
         Object spi = sap.spi;
@@ -134,7 +134,7 @@ public abstract class Signature extends SignatureSpi {
     public static Signature getInstance(String algorithm, String provider)
             throws NoSuchAlgorithmException, NoSuchProviderException {
         if (algorithm == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("algorithm == null");
         }
         if (provider == null || provider.isEmpty()) {
             throw new IllegalArgumentException();
@@ -165,7 +165,7 @@ public abstract class Signature extends SignatureSpi {
     public static Signature getInstance(String algorithm, Provider provider)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("algorithm == null");
         }
         if (provider == null) {
             throw new IllegalArgumentException();

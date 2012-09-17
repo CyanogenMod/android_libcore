@@ -142,7 +142,7 @@ public final class UUID implements Serializable, Comparable<UUID> {
      */
     public static UUID nameUUIDFromBytes(byte[] name) {
         if (name == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("name == null");
         }
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -179,7 +179,7 @@ public final class UUID implements Serializable, Comparable<UUID> {
      */
     public static UUID fromString(String uuid) {
         if (uuid == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("uuid == null");
         }
 
         int[] position = new int[5];
