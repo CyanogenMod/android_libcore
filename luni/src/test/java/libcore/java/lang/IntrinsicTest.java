@@ -18,6 +18,9 @@ package libcore.java.lang;
 
 import junit.framework.TestCase;
 
+/**
+ * Tests that all intrinsic methods are still invokable via reflection.
+ */
 public final class IntrinsicTest extends TestCase {
     public void testString_charAt() throws Exception {
         "hello".charAt(0);
