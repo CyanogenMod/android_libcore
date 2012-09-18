@@ -224,6 +224,7 @@ public final class OsConstants {
     public static final int O_CREAT = placeholder();
     public static final int O_EXCL = placeholder();
     public static final int O_NOCTTY = placeholder();
+    public static final int O_NOFOLLOW = placeholder();
     public static final int O_NONBLOCK = placeholder();
     public static final int O_RDONLY = placeholder();
     public static final int O_RDWR = placeholder();
