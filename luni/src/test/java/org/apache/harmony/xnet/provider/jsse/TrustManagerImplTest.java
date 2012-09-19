@@ -151,7 +151,7 @@ public class TrustManagerImplTest extends TestCase {
         // write it to a pinfile
         String path = writeTmpPinFile(pinString);
         // build the certpinmanager
-        return new CertPinManager(path);
+        return new CertPinManager(path, new TrustedCertificateStore());
     }
 
     private void assertValid(X509Certificate[] chain, X509TrustManager tm) throws Exception {
