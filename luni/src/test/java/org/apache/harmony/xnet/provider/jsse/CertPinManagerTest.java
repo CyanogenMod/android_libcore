@@ -92,7 +92,7 @@ public class CertPinManagerTest extends TestCase {
 
         // create the pinFile
         String path = writeTmpPinFile(shortEntry + "\n" + longEntry);
-        CertPinManager pf = new CertPinManager(path);
+        CertPinManager pf = new CertPinManager(path, new TrustedCertificateStore());
 
         // verify that the shorter chain doesn't work for a name matching the longer
         assertTrue("short chain long uri failed",
@@ -112,7 +112,7 @@ public class CertPinManagerTest extends TestCase {
         // set up the pinEntry with a bogus entry
         String entry = "*.google.com=";
         try {
-            new PinListEntry(entry);
+            new PinListEntry(entry, new TrustedCertificateStore());
             fail("Accepted an empty pin list entry.");
         } catch (PinEntryException expected) {
         }
@@ -122,7 +122,7 @@ public class CertPinManagerTest extends TestCase {
         // set up the pinEntry with a bogus entry
         String entry = null;
         try {
-            new PinListEntry(entry);
+            new PinListEntry(entry, new TrustedCertificateStore());
             fail("Accepted a basically wholly bogus entry.");
         } catch (NullPointerException expected) {
         }
@@ -131,7 +131,7 @@ public class CertPinManagerTest extends TestCase {
     public void testPinEntryEmpty() throws Exception {
         // set up the pinEntry with a bogus entry
         try {
-            new PinListEntry("");
+            new PinListEntry("", new TrustedCertificateStore());
             fail("Accepted an empty entry.");
         } catch (PinEntryException expected) {
         }
@@ -142,7 +142,7 @@ public class CertPinManagerTest extends TestCase {
         String shortEntry = "*.google.com=true|" + shortPin;
 
         // set up the pinEntry with a pinlist that doesn't match what we'll give it
-        PinListEntry e = new PinListEntry(shortEntry);
+        PinListEntry e = new PinListEntry(shortEntry, new TrustedCertificateStore());
         assertTrue("Not enforcing!", e.getEnforcing());
         // verify that it doesn't accept
         boolean retval = e.chainIsNotPinned(longChain);
@@ -154,7 +154,7 @@ public class CertPinManagerTest extends TestCase {
         String shortEntry = "*.google.com=true|" + shortPin;
 
         // set up the pinEntry with a pinlist that matches what we'll give it
-        PinListEntry e = new PinListEntry(shortEntry);
+        PinListEntry e = new PinListEntry(shortEntry, new TrustedCertificateStore());
         assertTrue("Not enforcing!", e.getEnforcing());
         // verify that it accepts
         boolean retval = e.chainIsNotPinned(shortChain);
@@ -166,7 +166,7 @@ public class CertPinManagerTest extends TestCase {
         String shortEntry = "*.google.com=false|" + shortPin;
 
         // set up the pinEntry with a pinlist that matches what we'll give it
-        PinListEntry e = new PinListEntry(shortEntry);
+        PinListEntry e = new PinListEntry(shortEntry, new TrustedCertificateStore());
         assertFalse("Enforcing!", e.getEnforcing());
         // verify that it accepts
         boolean retval = e.chainIsNotPinned(shortChain);
