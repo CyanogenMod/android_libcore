@@ -165,11 +165,7 @@ public abstract class NumberFormat extends Format {
     }
 
     /**
-     * Returns a new {@code NumberFormat} with the same properties as this
-     * {@code NumberFormat}.
-     *
-     * @return a shallow copy of this {@code NumberFormat}.
-     * @see java.lang.Cloneable
+     * Returns a new {@code NumberFormat} with the same properties.
      */
     @Override
     public Object clone() {

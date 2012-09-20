@@ -411,9 +411,6 @@ public class SimpleDateFormat extends DateFormat {
     /**
      * Returns a new {@code SimpleDateFormat} with the same pattern and
      * properties as this simple date format.
-     *
-     * @return a shallow copy of this simple date format.
-     * @see java.lang.Cloneable
      */
     @Override
     public Object clone() {
