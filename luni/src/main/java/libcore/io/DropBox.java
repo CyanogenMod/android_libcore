@@ -62,11 +62,11 @@ public final class DropBox {
         }
     }
 
-    public void addData(String tag, byte[] data, int flags) {
+    public static void addData(String tag, byte[] data, int flags) {
         getReporter().addData(tag, data, flags);
     }
 
-    public void addText(String tag, String data) {
+    public static void addText(String tag, String data) {
         getReporter().addText(tag, data);
     }
 }
