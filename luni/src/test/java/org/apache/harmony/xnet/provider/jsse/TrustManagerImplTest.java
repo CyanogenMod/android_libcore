@@ -98,6 +98,27 @@ public class TrustManagerImplTest extends TestCase {
         assertValid(chain1, tm);
     }
 
+    public void testGetFullChain() throws Exception {
+        // build the trust manager
+        KeyStore.PrivateKeyEntry pke = TestKeyStore.getServer().getPrivateKey("RSA", "RSA");
+        X509Certificate[] chain3 = (X509Certificate[])pke.getCertificateChain();
+        X509Certificate root = chain3[2];
+        X509TrustManager tm = trustManager(root);
+
+        // build the chains we'll use for testing
+        X509Certificate intermediate = chain3[1];
+        X509Certificate server = chain3[0];
+        X509Certificate[] chain2 =  new X509Certificate[] { server, intermediate };
+        X509Certificate[] chain1 =  new X509Certificate[] { server };
+
+        assertTrue(tm instanceof TrustManagerImpl);
+        TrustManagerImpl tmi = (TrustManagerImpl) tm;
+        List<X509Certificate> certs = tmi.checkServerTrusted(chain2, "RSA", "purple.com");
+        assertEquals(Arrays.asList(chain3), certs);
+        certs = tmi.checkServerTrusted(chain1, "RSA", "purple.com");
+        assertEquals(Arrays.asList(chain3), certs);
+    }
+
     public void testCertPinning() throws Exception {
         // chain3 should be server/intermediate/root
         KeyStore.PrivateKeyEntry pke = TestKeyStore.getServer().getPrivateKey("RSA", "RSA");
