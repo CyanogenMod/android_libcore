@@ -286,10 +286,6 @@ public abstract class DateFormat extends Format {
 
     /**
      * Returns a new instance of {@code DateFormat} with the same properties.
-     *
-     * @return a shallow copy of this {@code DateFormat}.
-     *
-     * @see java.lang.Cloneable
      */
     @Override
     public Object clone() {
