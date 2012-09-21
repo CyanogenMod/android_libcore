@@ -1071,6 +1071,10 @@ static void Posix_setgid(JNIEnv* env, jobject, jint gid) {
     throwIfMinusOne(env, "setgid", TEMP_FAILURE_RETRY(setgid(gid)));
 }
 
+static jint Posix_setsid(JNIEnv* env, jobject) {
+    return throwIfMinusOne(env, "setsid", TEMP_FAILURE_RETRY(setsid()));
+}
+
 static void Posix_setsockoptByte(JNIEnv* env, jobject, jobject javaFd, jint level, jint option, jint value) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     u_char byte = value;
@@ -1326,6 +1330,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, setegid, "(I)V"),
     NATIVE_METHOD(Posix, seteuid, "(I)V"),
     NATIVE_METHOD(Posix, setgid, "(I)V"),
+    NATIVE_METHOD(Posix, setsid, "()I"),
     NATIVE_METHOD(Posix, setsockoptByte, "(Ljava/io/FileDescriptor;III)V"),
     NATIVE_METHOD(Posix, setsockoptIfreq, "(Ljava/io/FileDescriptor;IILjava/lang/String;)V"),
     NATIVE_METHOD(Posix, setsockoptInt, "(Ljava/io/FileDescriptor;III)V"),
