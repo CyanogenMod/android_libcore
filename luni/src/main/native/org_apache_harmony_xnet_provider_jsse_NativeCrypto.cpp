@@ -3755,7 +3755,7 @@ static jobjectArray NativeCrypto_SSL_get_peer_cert_chain(JNIEnv* env, jclass, ji
  * cleanly shut down, or THROW_SSLEXCEPTION if an exception should be thrown.
  */
 static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* buf, jint len,
-                   int* sslReturnCode, int* sslErrorCode, int timeout_millis) {
+                   int* sslReturnCode, int* sslErrorCode, int read_timeout_millis) {
     JNI_TRACE("ssl=%p sslRead buf=%p len=%d", ssl, buf, len);
 
     if (len == 0) {
@@ -3834,7 +3834,7 @@ static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* b
             // Need to wait for availability of underlying layer, then retry.
             case SSL_ERROR_WANT_READ:
             case SSL_ERROR_WANT_WRITE: {
-                int selectResult = sslSelect(env, sslError, fdObject, appData, timeout_millis);
+                int selectResult = sslSelect(env, sslError, fdObject, appData, read_timeout_millis);
                 if (selectResult == THROWN_EXCEPTION) {
                     return THROWN_EXCEPTION;
                 }
@@ -3886,11 +3886,11 @@ static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* b
  */
 static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint ssl_address, jobject fdObject,
                                   jobject shc, jbyteArray b, jint offset, jint len,
-                                  jint timeout_millis)
+                                  jint read_timeout_millis)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_read fd=%p shc=%p b=%p offset=%d len=%d timeout_millis=%d",
-              ssl, fdObject, shc, b, offset, len, timeout_millis);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_read fd=%p shc=%p b=%p offset=%d len=%d read_timeout_millis=%d",
+              ssl, fdObject, shc, b, offset, len, read_timeout_millis);
     if (ssl == NULL) {
         return 0;
     }
@@ -3914,7 +3914,7 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint ssl_address, jobject
     int sslErrorCode = SSL_ERROR_NONE;;
 
     int ret = sslRead(env, ssl, fdObject, shc, reinterpret_cast<char*>(bytes.get() + offset), len,
-                      &returnCode, &sslErrorCode, timeout_millis);
+                      &returnCode, &sslErrorCode, read_timeout_millis);
 
     int result;
     switch (ret) {
@@ -3954,7 +3954,7 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint ssl_address, jobject
  * cleanly shut down, or THROW_SSLEXCEPTION if an exception should be thrown.
  */
 static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const char* buf, jint len,
-                    int* sslReturnCode, int* sslErrorCode) {
+                    int* sslReturnCode, int* sslErrorCode, int write_timeout_millis) {
     JNI_TRACE("ssl=%p sslWrite buf=%p len=%d", ssl, buf, len);
 
     if (len == 0) {
@@ -4040,7 +4040,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
             // it's also not standard Java behavior, so we wait forever here.
             case SSL_ERROR_WANT_READ:
             case SSL_ERROR_WANT_WRITE: {
-                int selectResult = sslSelect(env, sslError, fdObject, appData, 0);
+                int selectResult = sslSelect(env, sslError, fdObject, appData, write_timeout_millis);
                 if (selectResult == THROWN_EXCEPTION) {
                     return THROWN_EXCEPTION;
                 }
@@ -4091,7 +4091,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
  * OpenSSL write function (2): write into buffer at offset n chunks.
  */
 static void NativeCrypto_SSL_write(JNIEnv* env, jclass, jint ssl_address, jobject fdObject,
-                                   jobject shc, jbyteArray b, jint offset, jint len)
+                                   jobject shc, jbyteArray b, jint offset, jint len, jint write_timeout_millis)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_write fd=%p shc=%p b=%p offset=%d len=%d",
@@ -4118,7 +4118,7 @@ static void NativeCrypto_SSL_write(JNIEnv* env, jclass, jint ssl_address, jobjec
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;
     int ret = sslWrite(env, ssl, fdObject, shc, reinterpret_cast<const char*>(bytes.get() + offset),
-                       len, &returnCode, &sslErrorCode);
+                       len, &returnCode, &sslErrorCode, write_timeout_millis);
 
     switch (ret) {
         case THROW_SSLEXCEPTION:
@@ -4487,7 +4487,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, SSL_get_certificate, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, SSL_get_peer_cert_chain, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, SSL_read, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "[BIII)I"),
-    NATIVE_METHOD(NativeCrypto, SSL_write, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "[BII)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_write, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "[BIII)V"),
     NATIVE_METHOD(NativeCrypto, SSL_interrupt, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_shutdown, "(I" FILE_DESCRIPTOR SSL_CALLBACKS ")V"),
     NATIVE_METHOD(NativeCrypto, SSL_free, "(I)V"),
