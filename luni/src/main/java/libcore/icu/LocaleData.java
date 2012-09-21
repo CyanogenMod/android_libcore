@@ -20,6 +20,7 @@ import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
+import libcore.util.Objects;
 
 /**
  * Passes locale-specific from ICU native code to Java.
@@ -129,44 +130,7 @@ public final class LocaleData {
     }
 
     @Override public String toString() {
-        return "LocaleData[" +
-                "firstDayOfWeek=" + firstDayOfWeek + "," +
-                "minimalDaysInFirstWeek=" + minimalDaysInFirstWeek + "," +
-                "amPm=" + Arrays.toString(amPm) + "," +
-                "eras=" + Arrays.toString(eras) + "," +
-                "longMonthNames=" + Arrays.toString(longMonthNames) + "," +
-                "shortMonthNames=" + Arrays.toString(shortMonthNames) + "," +
-                "longStandAloneMonthNames=" + Arrays.toString(longStandAloneMonthNames) + "," +
-                "shortStandAloneMonthNames=" + Arrays.toString(shortStandAloneMonthNames) + "," +
-                "longWeekdayNames=" + Arrays.toString(longWeekdayNames) + "," +
-                "shortWeekdayNames=" + Arrays.toString(shortWeekdayNames) + "," +
-                "longStandAloneWeekdayNames=" + Arrays.toString(longStandAloneWeekdayNames) + "," +
-                "shortStandAloneWeekdayNames=" + Arrays.toString(shortStandAloneWeekdayNames) + "," +
-                "fullTimeFormat=" + fullTimeFormat + "," +
-                "longTimeFormat=" + longTimeFormat + "," +
-                "mediumTimeFormat=" + mediumTimeFormat + "," +
-                "shortTimeFormat=" + shortTimeFormat + "," +
-                "fullDateFormat=" + fullDateFormat + "," +
-                "longDateFormat=" + longDateFormat + "," +
-                "mediumDateFormat=" + mediumDateFormat + "," +
-                "shortDateFormat=" + shortDateFormat + "," +
-                "zeroDigit=" + zeroDigit + "," +
-                "decimalSeparator=" + decimalSeparator + "," +
-                "groupingSeparator=" + groupingSeparator + "," +
-                "patternSeparator=" + patternSeparator + "," +
-                "percent=" + percent + "," +
-                "perMill=" + perMill + "," +
-                "monetarySeparator=" + monetarySeparator + "," +
-                "minusSign=" + minusSign + "," +
-                "exponentSeparator=" + exponentSeparator + "," +
-                "infinity=" + infinity + "," +
-                "NaN=" + NaN + "," +
-                "currencySymbol=" + currencySymbol + "," +
-                "internationalCurrencySymbol=" + internationalCurrencySymbol + "," +
-                "numberPattern=" + numberPattern + "," +
-                "integerPattern=" + integerPattern + "," +
-                "currencyPattern=" + currencyPattern + "," +
-                "percentPattern=" + percentPattern + "]";
+        return Objects.toString(this);
     }
 
     public String getDateFormat(int style) {
