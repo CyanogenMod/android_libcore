@@ -103,6 +103,7 @@ public interface Os {
     public void setegid(int egid) throws ErrnoException;
     public void seteuid(int euid) throws ErrnoException;
     public void setgid(int gid) throws ErrnoException;
+    public int setsid() throws ErrnoException;
     public void setsockoptByte(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
     public void setsockoptIfreq(FileDescriptor fd, int level, int option, String value) throws ErrnoException;
     public void setsockoptInt(FileDescriptor fd, int level, int option, int value) throws ErrnoException;

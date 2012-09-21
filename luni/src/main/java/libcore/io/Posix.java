@@ -154,6 +154,7 @@ public final class Posix implements Os {
     public native void setegid(int egid) throws ErrnoException;
     public native void seteuid(int euid) throws ErrnoException;
     public native void setgid(int gid) throws ErrnoException;
+    public native int setsid() throws ErrnoException;
     public native void setsockoptByte(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
     public native void setsockoptIfreq(FileDescriptor fd, int level, int option, String value) throws ErrnoException;
     public native void setsockoptInt(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
