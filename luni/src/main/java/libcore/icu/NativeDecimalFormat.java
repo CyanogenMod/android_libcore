@@ -29,7 +29,7 @@ import java.text.ParsePosition;
 import java.util.Currency;
 import java.util.NoSuchElementException;
 
-public final class NativeDecimalFormat {
+public final class NativeDecimalFormat implements Cloneable {
     /**
      * Constants corresponding to the native type UNumberFormatSymbol, for setSymbol.
      */
@@ -144,22 +144,6 @@ public final class NativeDecimalFormat {
         this.lastPattern = pattern;
     }
 
-    // Used to implement clone.
-    private NativeDecimalFormat(NativeDecimalFormat other) {
-        this.address = cloneImpl(other.address);
-        this.lastPattern = other.lastPattern;
-        this.negPrefNull = other.negPrefNull;
-        this.negSuffNull = other.negSuffNull;
-        this.posPrefNull = other.posPrefNull;
-        this.posSuffNull = other.posSuffNull;
-    }
-
-    // TODO: remove this and just have DecimalFormat.hashCode do the right thing itself.
-    @Override
-    public int hashCode() {
-        return this.getPositivePrefix().hashCode();
-    }
-
     public synchronized void close() {
         if (address != 0) {
             close(address);
@@ -167,9 +151,27 @@ public final class NativeDecimalFormat {
         }
     }
 
-    @Override
-    public Object clone() {
-        return new NativeDecimalFormat(this);
+    @Override protected void finalize() throws Throwable {
+        try {
+            close();
+        } finally {
+            super.finalize();
+        }
+    }
+
+    @Override public Object clone() {
+        try {
+            NativeDecimalFormat clone = (NativeDecimalFormat) super.clone();
+            clone.address = cloneImpl(address);
+            clone.lastPattern = lastPattern;
+            clone.negPrefNull = negPrefNull;
+            clone.negSuffNull = negSuffNull;
+            clone.posPrefNull = posPrefNull;
+            clone.posSuffNull = posSuffNull;
+            return clone;
+        } catch (CloneNotSupportedException unexpected) {
+            throw new AssertionError(unexpected);
+        }
     }
 
     /**
