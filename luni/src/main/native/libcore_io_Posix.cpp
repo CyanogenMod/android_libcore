@@ -1219,7 +1219,7 @@ static void Posix_tcdrain(JNIEnv* env, jobject, jobject javaFd) {
     throwIfMinusOne(env, "tcdrain", TEMP_FAILURE_RETRY(tcdrain(fd)));
 }
 
-static jint Posix_umask(JNIEnv*, jint mask) {
+static jint Posix_umask(JNIEnv*, jobject, jint mask) {
     return umask(mask);
 }
 
