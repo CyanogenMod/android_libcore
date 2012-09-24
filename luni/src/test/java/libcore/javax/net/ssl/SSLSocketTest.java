@@ -19,6 +19,7 @@ package libcore.javax.net.ssl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -1012,7 +1013,7 @@ public class SSLSocketTest extends TestCase {
         assertEquals(0, wrapping.getSoTimeout());
 
         // setting wrapper sets underlying and ...
-        int expectedTimeoutMillis = 1000;  // Using a small value such as 10 was affected by rounding
+        int expectedTimeoutMillis = 1000;  // 10 was too small because it was affected by rounding
         wrapping.setSoTimeout(expectedTimeoutMillis);
         assertEquals(expectedTimeoutMillis, wrapping.getSoTimeout());
         assertEquals(expectedTimeoutMillis, underlying.getSoTimeout());
@@ -1048,6 +1049,52 @@ public class SSLSocketTest extends TestCase {
         server.close();
         underlying.close();
         listening.close();
+    }
+
+    public void test_SSLSocket_setSoWriteTimeout() throws Exception {
+        if (StandardNames.IS_RI) {
+            // RI does not support write timeout on sockets
+            return;
+        }
+
+        final TestSSLContext c = TestSSLContext.create();
+        SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
+                                                                                       c.port);
+        final SSLSocket server = (SSLSocket) c.serverSocket.accept();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
+                server.startHandshake();
+                return null;
+            }
+        });
+        executor.shutdown();
+        client.startHandshake();
+
+        // Reflection is used so this can compile on the RI
+        String expectedClassName = "org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl";
+        Class actualClass = client.getClass();
+        assertEquals(expectedClassName, actualClass.getName());
+        Method setSoWriteTimeout = actualClass.getMethod("setSoWriteTimeout",
+                                                         new Class[] { Integer.TYPE });
+        setSoWriteTimeout.invoke(client, 1);
+
+        // Try to make the size smaller (it can be 512k or even megabytes).
+        // Note that it may not respect your request, so read back the actual value.
+        int sendBufferSize = 1024;
+        client.setSendBufferSize(sendBufferSize);
+        sendBufferSize = client.getSendBufferSize();
+
+        try {
+            client.getOutputStream().write(new byte[sendBufferSize + 1]);
+            fail();
+        } catch (SocketTimeoutException expected) {
+        }
+
+        future.get();
+        client.close();
+        server.close();
+        c.close();
     }
 
     public void test_SSLSocket_interrupt() throws Exception {
