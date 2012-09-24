@@ -872,7 +872,7 @@ public class NativeCryptoTest extends TestCase {
                 NativeCrypto.SSL_set_options(
                         s, NativeCrypto.SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
                 NativeCrypto.SSL_renegotiate(s);
-                NativeCrypto.SSL_write(s, fd, callback, new byte[] { 42 }, 0, 1);
+                NativeCrypto.SSL_write(s, fd, callback, new byte[] { 42 }, 0, 1, 0);
                 super.afterHandshake(session, s, c, sock, fd, callback);
             }
         };
@@ -1241,7 +1241,7 @@ public class NativeCryptoTest extends TestCase {
                                        SSLHandshakeCallbacks callback)
                 throws Exception {
                 NativeCrypto.SSL_renegotiate(s);
-                NativeCrypto.SSL_write(s, fd, callback, new byte[] { 42 }, 0, 1);
+                NativeCrypto.SSL_write(s, fd, callback, new byte[] { 42 }, 0, 1, 0);
                 super.afterHandshake(session, s, c, sock, fd, callback);
             }
         };
@@ -1408,7 +1408,7 @@ public class NativeCryptoTest extends TestCase {
                                            Socket sock, FileDescriptor fd,
                                            SSLHandshakeCallbacks callback)
                         throws Exception {
-                    NativeCrypto.SSL_write(s, fd, callback, BYTES, 0, BYTES.length);
+                    NativeCrypto.SSL_write(s, fd, callback, BYTES, 0, BYTES.length, 0);
                     super.afterHandshake(session, s, c, sock, fd, callback);
                 }
             };
@@ -1451,7 +1451,7 @@ public class NativeCryptoTest extends TestCase {
 
     public void test_SSL_write() throws Exception {
         try {
-            NativeCrypto.SSL_write(NULL, null, null, null, 0, 0);
+            NativeCrypto.SSL_write(NULL, null, null, null, 0, 0, 0);
             fail();
         } catch (NullPointerException expected) {
         }
@@ -1461,7 +1461,7 @@ public class NativeCryptoTest extends TestCase {
             int c = NativeCrypto.SSL_CTX_new();
             int s = NativeCrypto.SSL_new(c);
             try {
-                NativeCrypto.SSL_write(s, null, DUMMY_CB, null, 0, 1);
+                NativeCrypto.SSL_write(s, null, DUMMY_CB, null, 0, 1, 0);
                 fail();
             } catch (NullPointerException expected) {
             }
@@ -1474,7 +1474,7 @@ public class NativeCryptoTest extends TestCase {
             int c = NativeCrypto.SSL_CTX_new();
             int s = NativeCrypto.SSL_new(c);
             try {
-                NativeCrypto.SSL_write(s, INVALID_FD, null, null, 0, 1);
+                NativeCrypto.SSL_write(s, INVALID_FD, null, null, 0, 1, 0);
                 fail();
             } catch (NullPointerException expected) {
             }
@@ -1487,7 +1487,7 @@ public class NativeCryptoTest extends TestCase {
             int c = NativeCrypto.SSL_CTX_new();
             int s = NativeCrypto.SSL_new(c);
             try {
-                NativeCrypto.SSL_write(s, INVALID_FD, DUMMY_CB, null, 0, 1);
+                NativeCrypto.SSL_write(s, INVALID_FD, DUMMY_CB, null, 0, 1, 0);
                 fail();
             } catch (NullPointerException expected) {
             }
@@ -1500,7 +1500,7 @@ public class NativeCryptoTest extends TestCase {
             int c = NativeCrypto.SSL_CTX_new();
             int s = NativeCrypto.SSL_new(c);
             try {
-                NativeCrypto.SSL_write(s, INVALID_FD, DUMMY_CB, new byte[1], 0, 1);
+                NativeCrypto.SSL_write(s, INVALID_FD, DUMMY_CB, new byte[1], 0, 1, 0);
                 fail();
             } catch (SSLException expected) {
             }
