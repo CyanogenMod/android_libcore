@@ -989,21 +989,25 @@ public final class URLConnectionTest extends TestCase {
         URLConnection connection = server.getUrl("/").openConnection();
         assertEquals("ABCABCABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
         assertNull(connection.getContentEncoding());
+        assertEquals(-1, connection.getContentLength());
 
         RecordedRequest request = server.takeRequest();
         assertContains(request.getHeaders(), "Accept-Encoding: gzip");
     }
 
     public void testClientConfiguredGzipContentEncoding() throws Exception {
+        byte[] bodyBytes = gzip("ABCDEFGHIJKLMNOPQRSTUVWXYZ".getBytes("UTF-8"));
         server.enqueue(new MockResponse()
-                .setBody(gzip("ABCDEFGHIJKLMNOPQRSTUVWXYZ".getBytes("UTF-8")))
-                .addHeader("Content-Encoding: gzip"));
+                .setBody(bodyBytes)
+                .addHeader("Content-Encoding: gzip")
+                .addHeader("Content-Length: " + bodyBytes.length));
         server.play();
 
         URLConnection connection = server.getUrl("/").openConnection();
         connection.addRequestProperty("Accept-Encoding", "gzip");
         InputStream gunzippedIn = new GZIPInputStream(connection.getInputStream());
         assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ", readAscii(gunzippedIn, Integer.MAX_VALUE));
+        assertEquals(bodyBytes.length, connection.getContentLength());
 
         RecordedRequest request = server.takeRequest();
         assertContains(request.getHeaders(), "Accept-Encoding: gzip");
