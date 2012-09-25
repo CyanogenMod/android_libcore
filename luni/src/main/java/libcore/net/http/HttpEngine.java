@@ -524,8 +524,13 @@ public class HttpEngine {
             /*
              * If the response was transparently gzipped, remove the gzip header field
              * so clients don't double decompress. http://b/3009828
+             *
+             * Also remove the Content-Length in this case because it contains the length
+             * of the gzipped response. This isn't terribly useful and is dangerous because
+             * clients can query the content length, but not the content encoding.
              */
             responseHeaders.stripContentEncoding();
+            responseHeaders.stripContentLength();
             responseBodyIn = new GZIPInputStream(transferStream);
         } else {
             responseBodyIn = transferStream;
