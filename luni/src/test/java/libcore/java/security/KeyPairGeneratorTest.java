@@ -16,6 +16,10 @@
 
 package libcore.java.security;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -148,6 +152,19 @@ public class KeyPairGeneratorTest extends TestCase {
         assertEquals(expectedAlgorithm, k.getAlgorithm().toUpperCase());
         assertNotNull(k.getEncoded());
         assertNotNull(k.getFormat());
+
+        // Test serialization
+        {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream(16384);
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(k);
+
+            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            Key inflatedKey = (Key) ois.readObject();
+
+            assertEquals(k, inflatedKey);
+        }
 
         test_KeyWithAllKeyFactories(k);
     }
