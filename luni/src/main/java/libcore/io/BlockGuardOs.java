@@ -181,6 +181,12 @@ public class BlockGuardOs extends ForwardingOs {
         return tagSocket(os.socket(domain, type, protocol));
     }
 
+    @Override public void socketpair(int domain, int type, int protocol, FileDescriptor fd1, FileDescriptor fd2) throws ErrnoException {
+        os.socketpair(domain, type, protocol, fd1, fd2);
+        tagSocket(fd1);
+        tagSocket(fd2);
+    }
+
     @Override public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         return os.write(fd, buffer);
