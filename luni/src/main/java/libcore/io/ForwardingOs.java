@@ -121,6 +121,7 @@ public class ForwardingOs implements Os {
     public void setuid(int uid) throws ErrnoException { os.setuid(uid); }
     public void shutdown(FileDescriptor fd, int how) throws ErrnoException { os.shutdown(fd, how); }
     public FileDescriptor socket(int domain, int type, int protocol) throws ErrnoException { return os.socket(domain, type, protocol); }
+    public void socketpair(int domain, int type, int protocol, FileDescriptor fd1, FileDescriptor fd2) throws ErrnoException { os.socketpair(domain, type, protocol, fd1, fd2); }
     public StructStat stat(String path) throws ErrnoException { return os.stat(path); }
     public StructStatFs statfs(String path) throws ErrnoException { return os.statfs(path); }
     public String strerror(int errno) { return os.strerror(errno); }

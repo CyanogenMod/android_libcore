@@ -103,6 +103,15 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
     }
 
     /*
+     * Constructor for use by Pipe.SinkChannel and Pipe.SourceChannel.
+     */
+    public SocketChannelImpl(SelectorProvider selectorProvider, FileDescriptor existingFd) throws IOException {
+        super(selectorProvider);
+        status = SOCKET_STATUS_CONNECTED;
+        fd = existingFd;
+    }
+
+    /*
      * Getting the internal Socket If we have not the socket, we create a new
      * one.
      */
