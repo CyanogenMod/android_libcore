@@ -42,6 +42,7 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLProtocolException;
 import javax.security.auth.x500.X500Principal;
 import junit.framework.TestCase;
+import libcore.io.IoUtils;
 import libcore.java.security.StandardNames;
 import libcore.java.security.TestKeyStore;
 import org.apache.harmony.xnet.provider.jsse.NativeCrypto.SSLHandshakeCallbacks;
@@ -51,7 +52,8 @@ public class NativeCryptoTest extends TestCase {
 
     private static final int NULL = 0;
     private static final FileDescriptor INVALID_FD = new FileDescriptor();
-    private static final SSLHandshakeCallbacks DUMMY_CB = new TestSSLHandshakeCallbacks(-1, null);
+    private static final SSLHandshakeCallbacks DUMMY_CB
+            = new TestSSLHandshakeCallbacks(null, 0, null);
 
     private static final long TIMEOUT_SECONDS = 5;
 
@@ -145,17 +147,11 @@ public class NativeCryptoTest extends TestCase {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
         kpg.initialize(512);
 
-        RSAPrivateCrtKey privKey1, privKey2;
+        KeyPair kp1 = kpg.generateKeyPair();
+        RSAPrivateCrtKey privKey1 = (RSAPrivateCrtKey) kp1.getPrivate();
 
-        {
-            KeyPair kp1 = kpg.generateKeyPair();
-            privKey1 = (RSAPrivateCrtKey) kp1.getPrivate();
-        }
-
-        {
-            KeyPair kp2 = kpg.generateKeyPair();
-            privKey2 = (RSAPrivateCrtKey) kp2.getPrivate();
-        }
+        KeyPair kp2 = kpg.generateKeyPair();
+        RSAPrivateCrtKey privKey2 = (RSAPrivateCrtKey) kp2.getPrivate();
 
         int pkey1 = 0, pkey1_copy = 0, pkey2 = 0;
         try {
@@ -581,11 +577,14 @@ public class NativeCryptoTest extends TestCase {
     }
 
     public static class TestSSLHandshakeCallbacks implements SSLHandshakeCallbacks {
+        private final Socket socket;
         private final int sslNativePointer;
         private final Hooks hooks;
 
-        public TestSSLHandshakeCallbacks(int sslNativePointer,
+        public TestSSLHandshakeCallbacks(Socket socket,
+                                         int sslNativePointer,
                                          Hooks hooks) {
+            this.socket = socket;
             this.sslNativePointer = sslNativePointer;
             this.hooks = hooks;
         }
@@ -637,6 +636,10 @@ public class NativeCryptoTest extends TestCase {
             }
             this.handshakeCompletedCalled = true;
         }
+
+        public Socket getSocket() {
+            return socket;
+        }
     }
 
     public static class ServerHooks extends Hooks {
@@ -674,12 +677,13 @@ public class NativeCryptoTest extends TestCase {
                                               listener.getLocalPort())
                                  : listener.accept());
                 if (timeout == -1) {
-                    return null;
+                    return new TestSSLHandshakeCallbacks(socket, 0, null);
                 }
                 FileDescriptor fd = socket.getFileDescriptor$();
                 int c = hooks.getContext();
                 int s = hooks.beforeHandshake(c);
-                TestSSLHandshakeCallbacks callback = new TestSSLHandshakeCallbacks(s, hooks);
+                TestSSLHandshakeCallbacks callback
+                        = new TestSSLHandshakeCallbacks(socket, s, hooks);
                 if (DEBUG) {
                     System.out.println("ssl=0x" + Integer.toString(s, 16)
                                        + " handshake"
@@ -689,14 +693,19 @@ public class NativeCryptoTest extends TestCase {
                                        + " timeout=" + timeout
                                        + " client=" + client);
                 }
-                int session = NativeCrypto.SSL_do_handshake(s, fd, callback, timeout, client,
-                        npnProtocols);
-                if (DEBUG) {
-                    System.out.println("ssl=0x" + Integer.toString(s, 16)
-                                       + " handshake"
-                                       + " session=0x" + Integer.toString(session, 16));
+                int session = NULL;
+                try {
+                    session = NativeCrypto.SSL_do_handshake(s, fd, callback, timeout, client,
+                                                            npnProtocols);
+                    if (DEBUG) {
+                        System.out.println("ssl=0x" + Integer.toString(s, 16)
+                                           + " handshake"
+                                           + " session=0x" + Integer.toString(session, 16));
+                    }
+                } finally {
+                    // Ensure afterHandshake is called to free resources
+                    hooks.afterHandshake(session, s, c, socket, fd, callback);
                 }
-                hooks.afterHandshake(session, s, c, socket, fd, callback);
                 return callback;
             }
         });
@@ -891,30 +900,43 @@ public class NativeCryptoTest extends TestCase {
     public void test_SSL_do_handshake_client_timeout() throws Exception {
         // client timeout
         final ServerSocket listener = new ServerSocket(0);
+        Socket serverSocket = null;
         try {
             Hooks cHooks = new Hooks();
             Hooks sHooks = new ServerHooks(getServerPrivateKey(), getServerCertificates());
             Future<TestSSLHandshakeCallbacks> client = handshake(listener, 1, true, cHooks, null);
             Future<TestSSLHandshakeCallbacks> server = handshake(listener, -1, false, sHooks, null);
+            serverSocket = server.get(TIMEOUT_SECONDS, TimeUnit.SECONDS).getSocket();
             client.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
             fail();
         } catch (ExecutionException expected) {
+            if (SocketTimeoutException.class != expected.getCause().getClass()) {
+                expected.printStackTrace();
+            }
             assertEquals(SocketTimeoutException.class, expected.getCause().getClass());
+        } finally {
+            // Manually close peer socket when testing timeout
+            IoUtils.closeQuietly(serverSocket);
         }
     }
 
     public void test_SSL_do_handshake_server_timeout() throws Exception {
         // server timeout
         final ServerSocket listener = new ServerSocket(0);
+        Socket clientSocket = null;
         try {
             Hooks cHooks = new Hooks();
             Hooks sHooks = new ServerHooks(getServerPrivateKey(), getServerCertificates());
             Future<TestSSLHandshakeCallbacks> client = handshake(listener, -1, true, cHooks, null);
             Future<TestSSLHandshakeCallbacks> server = handshake(listener, 1, false, sHooks, null);
+            clientSocket = client.get(TIMEOUT_SECONDS, TimeUnit.SECONDS).getSocket();
             server.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
             fail();
         } catch (ExecutionException expected) {
             assertEquals(SocketTimeoutException.class, expected.getCause().getClass());
+        } finally {
+            // Manually close peer socket when testing timeout
+            IoUtils.closeQuietly(clientSocket);
         }
     }
 
