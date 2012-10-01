@@ -1228,7 +1228,7 @@ static void Posix_tcdrain(JNIEnv* env, jobject, jobject javaFd) {
     throwIfMinusOne(env, "tcdrain", TEMP_FAILURE_RETRY(tcdrain(fd)));
 }
 
-static jint Posix_umask(JNIEnv*, jobject, jint mask) {
+static jint Posix_umaskImpl(JNIEnv*, jobject, jint mask) {
     return umask(mask);
 }
 
@@ -1357,7 +1357,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sysconf, "(I)J"),
     NATIVE_METHOD(Posix, tcdrain, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(Posix, umask, "(I)I"),
+    NATIVE_METHOD(Posix, umaskImpl, "(I)I"),
     NATIVE_METHOD(Posix, uname, "()Llibcore/io/StructUtsname;"),
     NATIVE_METHOD(Posix, waitpid, "(ILlibcore/util/MutableInt;I)I"),
     NATIVE_METHOD(Posix, writeBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
