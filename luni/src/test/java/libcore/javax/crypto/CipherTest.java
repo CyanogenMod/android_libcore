@@ -1716,17 +1716,45 @@ public final class CipherTest extends TestCase {
         c.init(Cipher.ENCRYPT_MODE, key, spec);
 
         final byte[] actualCiphertext = c.doFinal(p.plaintext);
-        assertTrue(Arrays.equals(p.ciphertext, actualCiphertext));
+        assertEquals(Arrays.toString(p.ciphertext), Arrays.toString(actualCiphertext));
 
         c.init(Cipher.DECRYPT_MODE, key, spec);
 
-        final byte[] actualPlaintext = c.doFinal(p.ciphertext);
-        assertTrue(Arrays.equals(p.plaintext, actualPlaintext));
+        // .doFinal(input)
+        {
+            final byte[] actualPlaintext = c.doFinal(p.ciphertext);
+            assertEquals(Arrays.toString(p.plaintext), Arrays.toString(actualPlaintext));
+        }
+
+        // .doFinal(input, offset, len, output)
+        {
+            final byte[] largerThanCiphertext = new byte[p.ciphertext.length + 5];
+            System.arraycopy(p.ciphertext, 0, largerThanCiphertext, 5, p.ciphertext.length);
+
+            final byte[] actualPlaintext = new byte[c.getOutputSize(p.ciphertext.length)];
+            assertEquals(p.plaintext.length,
+                    c.doFinal(largerThanCiphertext, 5, p.ciphertext.length, actualPlaintext));
+            assertEquals(Arrays.toString(p.plaintext),
+                    Arrays.toString(Arrays.copyOfRange(actualPlaintext, 0, p.plaintext.length)));
+        }
+
+        // .doFinal(input, offset, len, output, offset)
+        {
+            final byte[] largerThanCiphertext = new byte[p.ciphertext.length + 10];
+            System.arraycopy(p.ciphertext, 0, largerThanCiphertext, 5, p.ciphertext.length);
+
+            final byte[] actualPlaintext = new byte[c.getOutputSize(p.ciphertext.length) + 2];
+            assertEquals(p.plaintext.length,
+                    c.doFinal(largerThanCiphertext, 5, p.ciphertext.length, actualPlaintext, 1));
+            assertEquals(Arrays.toString(p.plaintext),
+                    Arrays.toString(Arrays.copyOfRange(actualPlaintext, 1, p.plaintext.length + 1)));
+        }
 
         Cipher cNoPad = Cipher.getInstance(p.mode + "/NoPadding");
         cNoPad.init(Cipher.DECRYPT_MODE, key, spec);
 
         final byte[] actualPlaintextPadded = cNoPad.doFinal(p.ciphertext);
+        assertEquals(Arrays.toString(p.plaintextPadded), Arrays.toString(actualPlaintextPadded));
         assertTrue(Arrays.equals(p.plaintextPadded, actualPlaintextPadded));
     }
 
