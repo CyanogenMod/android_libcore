@@ -877,17 +877,21 @@ public class NativeCryptoTest extends TestCase {
                                        Socket sock, FileDescriptor fd,
                                        SSLHandshakeCallbacks callback)
                     throws Exception {
-                NativeCrypto.SSL_set_verify(s, NativeCrypto.SSL_VERIFY_PEER);
-                NativeCrypto.SSL_set_options(
-                        s, NativeCrypto.SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
-                NativeCrypto.SSL_renegotiate(s);
-                NativeCrypto.SSL_write(s, fd, callback, new byte[] { 42 }, 0, 1, 0);
-                super.afterHandshake(session, s, c, sock, fd, callback);
+                try {
+                    NativeCrypto.SSL_set_verify(s, NativeCrypto.SSL_VERIFY_PEER);
+                    NativeCrypto.SSL_set_options(
+                            s, NativeCrypto.SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
+                    NativeCrypto.SSL_renegotiate(s);
+                    NativeCrypto.SSL_write(s, fd, callback, new byte[] { 42 }, 0, 1,
+                                           (int) ((TIMEOUT_SECONDS * 1000) / 2));
+                } catch (SocketTimeoutException expected) {
+                } finally {
+                    super.afterHandshake(session, s, c, sock, fd, callback);
+                }
             }
         };
         Future<TestSSLHandshakeCallbacks> client = handshake(listener, 0, true, cHooks, null);
         Future<TestSSLHandshakeCallbacks> server = handshake(listener, 0, false, sHooks, null);
-        server.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         try {
             client.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
@@ -895,6 +899,7 @@ public class NativeCryptoTest extends TestCase {
                 throw e;
             }
         }
+        server.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     public void test_SSL_do_handshake_client_timeout() throws Exception {

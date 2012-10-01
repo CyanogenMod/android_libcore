@@ -3958,7 +3958,8 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint ssl_address, jobject
  */
 static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const char* buf, jint len,
                     int* sslReturnCode, int* sslErrorCode, int write_timeout_millis) {
-    JNI_TRACE("ssl=%p sslWrite buf=%p len=%d", ssl, buf, len);
+    JNI_TRACE("ssl=%p sslWrite buf=%p len=%d write_timeout_millis=%d",
+              ssl, buf, len, write_timeout_millis);
 
     if (len == 0) {
         // Don't bother doing anything in this case.
@@ -4097,8 +4098,8 @@ static void NativeCrypto_SSL_write(JNIEnv* env, jclass, jint ssl_address, jobjec
                                    jobject shc, jbyteArray b, jint offset, jint len, jint write_timeout_millis)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_write fd=%p shc=%p b=%p offset=%d len=%d",
-              ssl, fdObject, shc, b, offset, len);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_write fd=%p shc=%p b=%p offset=%d len=%d write_timeout_millis=%d",
+              ssl, fdObject, shc, b, offset, len, write_timeout_millis);
     if (ssl == NULL) {
         return;
     }
