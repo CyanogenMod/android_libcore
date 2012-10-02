@@ -20,6 +20,7 @@ package java.sql;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
@@ -413,7 +414,7 @@ public class Timestamp extends Date {
             throw badTimestampString(s);
         }
 
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
         ParsePosition pp = new ParsePosition(0);
 
         /*
