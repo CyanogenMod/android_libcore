@@ -85,20 +85,6 @@ public final class CipherTest extends TestCase {
         return false;
     }
 
-    private synchronized static int getEncryptMode(String algorithm) throws Exception {
-        if (isWrap(algorithm)) {
-            return Cipher.WRAP_MODE;
-        }
-        return Cipher.ENCRYPT_MODE;
-    }
-
-    private synchronized static int getDecryptMode(String algorithm) throws Exception {
-        if (isWrap(algorithm)) {
-            return Cipher.UNWRAP_MODE;
-        }
-        return Cipher.DECRYPT_MODE;
-    }
-
     private static String getBaseAlgorithm(String algorithm) {
         if (algorithm.equals("AESWRAP")) {
             return "AES";
@@ -173,7 +159,7 @@ public final class CipherTest extends TestCase {
         return getBaseAlgorithm(algorithm).equals("RSA");
     }
 
-    private static boolean isWrap(String algorithm) {
+    private static boolean isOnlyWrappingAlgorithm(String algorithm) {
         return algorithm.endsWith("WRAP");
     }
 
@@ -562,7 +548,12 @@ public final class CipherTest extends TestCase {
         } else {
             spec = null;
         }
-        c.init(getEncryptMode(algorithm), encryptKey, spec);
+
+        if (!isOnlyWrappingAlgorithm(algorithm)) {
+            c.init(Cipher.ENCRYPT_MODE, encryptKey, spec);
+        } else {
+            c.init(Cipher.WRAP_MODE, encryptKey, spec);
+        }
 
         assertEquals("getBlockSize()", getExpectedBlockSize(algorithm, encryptKey),
                 c.getBlockSize());
@@ -576,22 +567,35 @@ public final class CipherTest extends TestCase {
 
         assertNull(c.getExemptionMechanism());
 
-        if (isWrap(algorithm)) {
-            byte[] cipherText = c.wrap(encryptKey);
-            c.init(getDecryptMode(algorithm), getDecryptKey(algorithm));
-            int keyType = (isAsymmetric(algorithm)) ? Cipher.PRIVATE_KEY : Cipher.SECRET_KEY;
-            Key decryptedKey = c.unwrap(cipherText, encryptKey.getAlgorithm(), keyType);
-            assertEquals("encryptKey.getAlgorithm()=" + encryptKey.getAlgorithm()
-                         + " decryptedKey.getAlgorithm()=" + decryptedKey.getAlgorithm()
-                         + " encryptKey.getEncoded()=" + Arrays.toString(encryptKey.getEncoded())
-                         + " decryptedKey.getEncoded()=" + Arrays.toString(decryptedKey.getEncoded()),
-                         encryptKey, decryptedKey);
-        } else {
+        // Test wrapping a key. Every cipher should be able to wrap.
+        {
+            // Generate a small SecretKey for AES.
+            KeyGenerator kg = KeyGenerator.getInstance("AES");
+            kg.init(128);
+            SecretKey sk = kg.generateKey();
+
+            // Wrap it
+            c.init(Cipher.WRAP_MODE, encryptKey, spec);
+            byte[] cipherText = c.wrap(sk);
+
+            // Unwrap it
+            c.init(Cipher.UNWRAP_MODE, getDecryptKey(algorithm), spec);
+            Key decryptedKey = c.unwrap(cipherText, sk.getAlgorithm(), Cipher.SECRET_KEY);
+
+            assertEquals("sk.getAlgorithm()=" + sk.getAlgorithm()
+                    + " decryptedKey.getAlgorithm()=" + decryptedKey.getAlgorithm()
+                    + " encryptKey.getEncoded()=" + Arrays.toString(sk.getEncoded())
+                    + " decryptedKey.getEncoded()=" + Arrays.toString(decryptedKey.getEncoded()),
+                    sk, decryptedKey);
+        }
+
+        if (!isOnlyWrappingAlgorithm(algorithm)) {
+            c.init(Cipher.ENCRYPT_MODE, encryptKey, spec);
             byte[] cipherText = c.doFinal(ORIGINAL_PLAIN_TEXT);
-            c.init(getDecryptMode(algorithm), getDecryptKey(algorithm), spec);
+            c.init(Cipher.DECRYPT_MODE, getDecryptKey(algorithm), spec);
             byte[] decryptedPlainText = c.doFinal(cipherText);
             assertEquals(Arrays.toString(getExpectedPlainText(algorithm)),
-                         Arrays.toString(decryptedPlainText));
+                    Arrays.toString(decryptedPlainText));
         }
     }
 
@@ -1716,17 +1720,45 @@ public final class CipherTest extends TestCase {
         c.init(Cipher.ENCRYPT_MODE, key, spec);
 
         final byte[] actualCiphertext = c.doFinal(p.plaintext);
-        assertTrue(Arrays.equals(p.ciphertext, actualCiphertext));
+        assertEquals(Arrays.toString(p.ciphertext), Arrays.toString(actualCiphertext));
 
         c.init(Cipher.DECRYPT_MODE, key, spec);
 
-        final byte[] actualPlaintext = c.doFinal(p.ciphertext);
-        assertTrue(Arrays.equals(p.plaintext, actualPlaintext));
+        // .doFinal(input)
+        {
+            final byte[] actualPlaintext = c.doFinal(p.ciphertext);
+            assertEquals(Arrays.toString(p.plaintext), Arrays.toString(actualPlaintext));
+        }
+
+        // .doFinal(input, offset, len, output)
+        {
+            final byte[] largerThanCiphertext = new byte[p.ciphertext.length + 5];
+            System.arraycopy(p.ciphertext, 0, largerThanCiphertext, 5, p.ciphertext.length);
+
+            final byte[] actualPlaintext = new byte[c.getOutputSize(p.ciphertext.length)];
+            assertEquals(p.plaintext.length,
+                    c.doFinal(largerThanCiphertext, 5, p.ciphertext.length, actualPlaintext));
+            assertEquals(Arrays.toString(p.plaintext),
+                    Arrays.toString(Arrays.copyOfRange(actualPlaintext, 0, p.plaintext.length)));
+        }
+
+        // .doFinal(input, offset, len, output, offset)
+        {
+            final byte[] largerThanCiphertext = new byte[p.ciphertext.length + 10];
+            System.arraycopy(p.ciphertext, 0, largerThanCiphertext, 5, p.ciphertext.length);
+
+            final byte[] actualPlaintext = new byte[c.getOutputSize(p.ciphertext.length) + 2];
+            assertEquals(p.plaintext.length,
+                    c.doFinal(largerThanCiphertext, 5, p.ciphertext.length, actualPlaintext, 1));
+            assertEquals(Arrays.toString(p.plaintext),
+                    Arrays.toString(Arrays.copyOfRange(actualPlaintext, 1, p.plaintext.length + 1)));
+        }
 
         Cipher cNoPad = Cipher.getInstance(p.mode + "/NoPadding");
         cNoPad.init(Cipher.DECRYPT_MODE, key, spec);
 
         final byte[] actualPlaintextPadded = cNoPad.doFinal(p.ciphertext);
+        assertEquals(Arrays.toString(p.plaintextPadded), Arrays.toString(actualPlaintextPadded));
         assertTrue(Arrays.equals(p.plaintextPadded, actualPlaintextPadded));
     }
 
