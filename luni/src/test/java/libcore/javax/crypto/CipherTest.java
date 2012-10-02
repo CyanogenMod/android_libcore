@@ -1759,7 +1759,28 @@ public final class CipherTest extends TestCase {
 
         final byte[] actualPlaintextPadded = cNoPad.doFinal(p.ciphertext);
         assertEquals(Arrays.toString(p.plaintextPadded), Arrays.toString(actualPlaintextPadded));
-        assertTrue(Arrays.equals(p.plaintextPadded, actualPlaintextPadded));
+
+        // Test wrapping a key. Every cipher should be able to wrap.
+        {
+            // Generate a small SecretKey for AES.
+            KeyGenerator kg = KeyGenerator.getInstance("AES");
+            kg.init(128);
+            SecretKey sk = kg.generateKey();
+
+            // Wrap it
+            c.init(Cipher.WRAP_MODE, key, spec);
+            byte[] cipherText = c.wrap(sk);
+
+            // Unwrap it
+            c.init(Cipher.UNWRAP_MODE, key, spec);
+            Key decryptedKey = c.unwrap(cipherText, sk.getAlgorithm(), Cipher.SECRET_KEY);
+
+            assertEquals(
+                    "sk.getAlgorithm()=" + sk.getAlgorithm() + " decryptedKey.getAlgorithm()="
+                            + decryptedKey.getAlgorithm() + " encryptKey.getEncoded()="
+                            + Arrays.toString(sk.getEncoded()) + " decryptedKey.getEncoded()="
+                            + Arrays.toString(decryptedKey.getEncoded()), sk, decryptedKey);
+        }
     }
 
     public void testCipher_ShortBlock_Failure() throws Exception {
