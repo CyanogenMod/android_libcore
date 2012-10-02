@@ -1728,4 +1728,51 @@ public class NativeCryptoTest extends TestCase {
             fail("Should be an error on null buffer input");
         } catch (RuntimeException success) { }
     }
+
+    /*
+     * Test vector generation:
+     * openssl rand -hex 16
+     */
+    private static final byte[] AES_128_KEY = new byte[] {
+            (byte) 0x3d, (byte) 0x4f, (byte) 0x89, (byte) 0x70, (byte) 0xb1, (byte) 0xf2,
+            (byte) 0x75, (byte) 0x37, (byte) 0xf4, (byte) 0x0a, (byte) 0x39, (byte) 0x29,
+            (byte) 0x8a, (byte) 0x41, (byte) 0x55, (byte) 0x5f,
+    };
+
+    private static final byte[] AES_IV_ZEROES = new byte[] {
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+    };
+
+    public void test_EVP_CipherInit_ex_Null_Failure() throws Exception {
+        OpenSSLCipherContext context = new OpenSSLCipherContext(NativeCrypto.EVP_CIPHER_CTX_new());
+        int evpCipher = NativeCrypto.EVP_get_cipherbyname("aes-128-ecb");
+
+        try {
+            NativeCrypto.EVP_CipherInit_ex(NULL, evpCipher, null, null, true);
+            fail("Null context should throw NullPointerException");
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            NativeCrypto.EVP_CipherInit_ex(context.getContext(), NULL, null, null, true);
+            fail("Null evpCipher should throw NullPointerException");
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    public void test_EVP_CipherInit_ex_Success() throws Exception {
+        OpenSSLCipherContext context = new OpenSSLCipherContext(NativeCrypto.EVP_CIPHER_CTX_new());
+        int evpCipher = NativeCrypto.EVP_get_cipherbyname("aes-128-ecb");
+        NativeCrypto.EVP_CipherInit_ex(context.getContext(), evpCipher, AES_128_KEY, null, true);
+    }
+
+    public void test_EVP_CIPHER_iv_length() throws Exception {
+        int aes128ecb = NativeCrypto.EVP_get_cipherbyname("aes-128-ecb");
+        assertEquals(0, NativeCrypto.EVP_CIPHER_iv_length(aes128ecb));
+
+        int aes128cbc = NativeCrypto.EVP_get_cipherbyname("aes-128-cbc");
+        assertEquals(16, NativeCrypto.EVP_CIPHER_iv_length(aes128cbc));
+    }
 }
