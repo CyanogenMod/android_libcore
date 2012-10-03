@@ -278,6 +278,8 @@ static bool throwExceptionIfNecessary(JNIEnv* env, const char* location  __attri
             throwBadPaddingException(env, message);
         } else if (library == ERR_LIB_RSA && reason == RSA_R_DATA_GREATER_THAN_MOD_LEN) {
             throwSignatureException(env, message);
+        } else if (library == ERR_LIB_EVP && reason == EVP_R_BAD_DECRYPT) {
+            throwBadPaddingException(env, message);
         } else {
             jniThrowRuntimeException(env, message);
         }
@@ -1831,7 +1833,7 @@ static void NativeCrypto_EVP_CipherInit_ex(JNIEnv* env, jclass, jint ctxRef, jin
 
     if (ctx == NULL) {
         jniThrowNullPointerException(env, "ctx == null");
-        JNI_TRACE("EVP_CipherUpdate => ctx == null", evpCipher);
+        JNI_TRACE("EVP_CipherUpdate => ctx == null");
         return;
     }
 
@@ -1865,7 +1867,7 @@ static void NativeCrypto_EVP_CipherInit_ex(JNIEnv* env, jclass, jint ctxRef, jin
         return;
     }
 
-    JNI_TRACE("EVP_CipherInit_ex(%p, %p, %p, %d) => success", evp_cipher, keyArray, ivArray,
+    JNI_TRACE("EVP_CipherInit_ex(%p, %p, %p, %p, %d) => success", ctx, evpCipher, keyArray, ivArray,
             encrypting ? 1 : 0);
 }
 
@@ -1956,7 +1958,7 @@ static jint NativeCrypto_EVP_CIPHER_iv_length(JNIEnv* env, jclass, jint evpCiphe
 
     if (evpCipher == NULL) {
         jniThrowNullPointerException(env, "evpCipher == null");
-        JNI_TRACE("EVP_CIPHER_iv_length => evpCipher == null", evpCipher);
+        JNI_TRACE("EVP_CIPHER_iv_length => evpCipher == null");
         return 0;
     }
 
@@ -1971,7 +1973,7 @@ static jint NativeCrypto_EVP_CIPHER_CTX_new(JNIEnv* env, jclass) {
     Unique_EVP_CIPHER_CTX ctx(EVP_CIPHER_CTX_new());
     if (ctx.get() == NULL) {
         jniThrowOutOfMemoryError(env, "Unable to allocate cipher context");
-        JNI_TRACE("ctx=%p EVP_CipherInit_ex => context allocation error", evp_cipher);
+        JNI_TRACE("EVP_CipherInit_ex => context allocation error");
         return 0;
     }
 
@@ -2013,6 +2015,7 @@ static void NativeCrypto_EVP_CIPHER_CTX_set_padding(JNIEnv* env, jclass, jint ct
  */
 static void NativeCrypto_EVP_CIPHER_CTX_cleanup(JNIEnv*, jclass, jint ctxRef) {
     EVP_CIPHER_CTX* ctx = reinterpret_cast<EVP_CIPHER_CTX*>(ctxRef);
+    JNI_TRACE("EVP_CIPHER_CTX_cleanup(%p)", ctx);
 
     if (ctx != NULL) {
         EVP_CIPHER_CTX_cleanup(ctx);
