@@ -418,8 +418,8 @@ public class CipherTest extends junit.framework.TestCase {
 
             byte[] cipherText = loadBytes("hyts_" + "des-ede3-cbc.test" + index
                     + ".ciphertext");
-            assertTrue("Operation produced incorrect results", Arrays.equals(
-                    encryptedPlaintext, cipherText));
+            assertEquals("Operation produced incorrect results for index " + index,
+                    Arrays.toString(cipherText), Arrays.toString(encryptedPlaintext));
         }
 
         byte[] b = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
