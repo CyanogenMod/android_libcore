@@ -25,6 +25,7 @@ package org.apache.harmony.security.asn1;
 import java.io.IOException;
 import java.nio.charset.Charsets;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -83,7 +84,7 @@ public final class ASN1GeneralizedTime extends ASN1Time {
     private static final String GEN_PATTERN = "yyyyMMddHHmmss.SSS";
 
     public void setEncodingContent(BerOutputStream out) {
-        SimpleDateFormat sdf = new SimpleDateFormat(GEN_PATTERN);
+        SimpleDateFormat sdf = new SimpleDateFormat(GEN_PATTERN, Locale.US);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         String temp = sdf.format(out.content);
         // cut off trailing 0s
