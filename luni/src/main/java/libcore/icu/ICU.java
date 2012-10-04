@@ -127,6 +127,8 @@ public final class ICU {
         return localesFromStrings(getAvailableNumberFormatLocalesNative());
     }
 
+    public static native String getBestDateTimePattern(String skeleton, String localeName);
+
     /**
      * Returns the ICU version in use. This is "4.4" for gingerbread, for example.
      */
