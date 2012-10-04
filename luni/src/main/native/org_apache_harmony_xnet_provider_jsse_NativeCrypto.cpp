@@ -250,6 +250,14 @@ static void throwSignatureException(JNIEnv* env, const char* message) {
     jniThrowException(env, "java/security/SignatureException", message);
 }
 
+/**
+ * Throws a SignatureException with the given string as a message.
+ */
+static void throwIllegalBlockSizeException(JNIEnv* env, const char* message) {
+    JNI_TRACE("throwIllegalBlockSizeException %s", message);
+    jniThrowException(env, "javax/crypto/IllegalBlockSizeException", message);
+}
+
 /*
  * Checks this thread's OpenSSL error queue and throws a RuntimeException if
  * necessary.
@@ -280,6 +288,8 @@ static bool throwExceptionIfNecessary(JNIEnv* env, const char* location  __attri
             throwSignatureException(env, message);
         } else if (library == ERR_LIB_EVP && reason == EVP_R_BAD_DECRYPT) {
             throwBadPaddingException(env, message);
+        } else if (library == ERR_LIB_EVP && reason == EVP_R_DATA_NOT_MULTIPLE_OF_BLOCK_LENGTH) {
+            throwIllegalBlockSizeException(env, message);
         } else {
             jniThrowRuntimeException(env, message);
         }
@@ -1927,6 +1937,9 @@ static jint NativeCrypto_EVP_CipherUpdate(JNIEnv* env, jclass, jint ctxRef, jbyt
                 "out.length < inSize + outOffset + blockSize - 1");
         return 0;
     }
+
+    JNI_TRACE("ctx=%p EVP_CipherUpdate in=%p in.length=%d inOffset=%d inLength=%d out=%p out.length=%d outOffset=%d",
+            ctx, inBytes.get(), inBytes.size(), inOffset, inLength, outBytes.get(), outBytes.size(), outOffset);
 
     unsigned char* out = reinterpret_cast<unsigned char*>(outBytes.get());
     const unsigned char* in = reinterpret_cast<const unsigned char*>(inBytes.get());
