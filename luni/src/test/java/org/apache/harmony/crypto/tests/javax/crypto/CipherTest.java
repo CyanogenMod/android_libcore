@@ -362,8 +362,8 @@ public class CipherTest extends junit.framework.TestCase {
 
             byte[] plaintextBytes = loadBytes("hyts_" + "des-ede3-cbc.test"
                     + index + ".plaintext");
-            assertTrue("Operation produced incorrect results", Arrays.equals(
-                    plaintextBytes, decipheredCipherText));
+            assertEquals("Operation produced incorrect results for index " + index,
+                    Arrays.toString(plaintextBytes), Arrays.toString(decipheredCipherText));
         }
 
         Cipher cipher = Cipher.getInstance("DESEDE/CBC/PKCS5Padding");
