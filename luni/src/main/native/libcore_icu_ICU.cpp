@@ -32,6 +32,7 @@
 #include "unicode/dcfmtsym.h"
 #include "unicode/decimfmt.h"
 #include "unicode/dtfmtsym.h"
+#include "unicode/dtptngen.h"
 #include "unicode/gregocal.h"
 #include "unicode/locid.h"
 #include "unicode/numfmt.h"
@@ -665,6 +666,23 @@ static jobject ICU_getAvailableCurrencyCodes(JNIEnv* env, jclass) {
     return result;
 }
 
+static jstring ICU_getBestDateTimePattern(JNIEnv* env, jclass, jstring javaPattern, jstring javaLocaleName) {
+  Locale locale = getLocale(env, javaLocaleName);
+  UErrorCode status = U_ZERO_ERROR;
+  DateTimePatternGenerator* generator = DateTimePatternGenerator::createInstance(locale, status);
+  if (maybeThrowIcuException(env, "DateTimePatternGenerator::createInstance", status)) {
+    return NULL;
+  }
+
+  ScopedJavaUnicodeString patternHolder(env, javaPattern);
+  UnicodeString result(generator->getBestPattern(patternHolder.unicodeString(), status));
+  if (maybeThrowIcuException(env, "DateTimePatternGenerator::getBestPattern", status)) {
+    return NULL;
+  }
+
+  return env->NewString(result.getBuffer(), result.length());
+}
+
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, addLikelySubtags, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getAvailableBreakIteratorLocalesNative, "()[Ljava/lang/String;"),
@@ -674,6 +692,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, getAvailableDateFormatLocalesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getAvailableLocalesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getAvailableNumberFormatLocalesNative, "()[Ljava/lang/String;"),
+    NATIVE_METHOD(ICU, getBestDateTimePattern, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getCurrencyCode, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getCurrencyDisplayName, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getCurrencyFractionDigits, "(Ljava/lang/String;)I"),
