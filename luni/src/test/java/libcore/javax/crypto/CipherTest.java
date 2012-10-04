@@ -60,6 +60,7 @@ import javax.crypto.spec.SecretKeySpec;
 import junit.framework.TestCase;
 import libcore.java.security.StandardNames;
 import libcore.java.security.TestKeyStore;
+import libcore.util.EmptyArray;
 
 public final class CipherTest extends TestCase {
 
@@ -1722,7 +1723,21 @@ public final class CipherTest extends TestCase {
         final byte[] actualCiphertext = c.doFinal(p.plaintext);
         assertEquals(Arrays.toString(p.ciphertext), Arrays.toString(actualCiphertext));
 
+        byte[] emptyCipherText = c.doFinal();
+        assertNotNull(emptyCipherText);
+
         c.init(Cipher.DECRYPT_MODE, key, spec);
+
+        byte[] emptyPlainText = c.doFinal(emptyCipherText);
+        assertEquals(Arrays.toString(EmptyArray.BYTE), Arrays.toString(emptyPlainText));
+
+        // empty decrypt
+        {
+            assertNull(c.doFinal());
+
+            c.update(EmptyArray.BYTE);
+            assertNull(c.doFinal());
+        }
 
         // .doFinal(input)
         {

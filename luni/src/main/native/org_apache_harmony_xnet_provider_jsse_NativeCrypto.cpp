@@ -1946,7 +1946,7 @@ static jint NativeCrypto_EVP_CipherUpdate(JNIEnv* env, jclass, jint ctxRef, jbyt
 
     int outl;
     if (!EVP_CipherUpdate(ctx, out + outOffset, &outl, in + inOffset, inLength)) {
-        throwExceptionIfNecessary(env, "EVP_CipherInit_ex");
+        throwExceptionIfNecessary(env, "EVP_CipherUpdate");
         JNI_TRACE("ctx=%p EVP_CipherUpdate => threw error", ctx);
         return 0;
     }
@@ -1976,8 +1976,8 @@ static jint NativeCrypto_EVP_CipherFinal_ex(JNIEnv* env, jclass, jint ctxRef, jb
 
     int outl;
     if (!EVP_CipherFinal_ex(ctx, out + outOffset, &outl)) {
-        throwExceptionIfNecessary(env, "EVP_CipherInit_ex");
-        JNI_TRACE("ctx=%p EVP_CipherUpdate => threw error", ctx);
+        throwExceptionIfNecessary(env, "EVP_CipherFinal_ex");
+        JNI_TRACE("ctx=%p EVP_CipherFinal_ex => threw error", ctx);
         return 0;
     }
 
