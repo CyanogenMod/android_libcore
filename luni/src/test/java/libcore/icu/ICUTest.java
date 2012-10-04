@@ -40,6 +40,15 @@ public class ICUTest extends junit.framework.TestCase {
         assertNotNull(ICU.getAvailableLocales()[0]);
     }
 
+    public void test_getBestDateTimePattern() throws Exception {
+        assertEquals("d MMMM", ICU.getBestDateTimePattern("MMMMd", "ca_ES"));
+        assertEquals("d 'de' MMMM", ICU.getBestDateTimePattern("MMMMd", "es_ES"));
+        assertEquals("d. MMMM", ICU.getBestDateTimePattern("MMMMd", "de_CH"));
+        assertEquals("MMMM d", ICU.getBestDateTimePattern("MMMMd", "en_US"));
+        assertEquals("d LLLL", ICU.getBestDateTimePattern("MMMMd", "fa_IR"));
+        assertEquals("M月d日", ICU.getBestDateTimePattern("MMMMd", "ja_JP"));
+    }
+
     public void test_localeFromString() throws Exception {
         // localeFromString is pretty lenient. Some of these can't be round-tripped
         // through Locale.toString.
