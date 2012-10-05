@@ -1930,6 +1930,13 @@ static jint NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass, jint ctxRef, jbyte
     if (ok < 0) {
         throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyFinal");
     }
+
+    /*
+     * For DSA keys, OpenSSL appears to have a bug where it returns
+     * errors for any result != 1. See dsa_ossl.c in dsa_do_verify
+     */
+    freeOpenSslErrorState();
+
     JNI_TRACE("NativeCrypto_EVP_VerifyFinal(%p, %p, %d, %d, %p) => %d",
               ctx, buffer, offset, length, pkey, ok);
 
