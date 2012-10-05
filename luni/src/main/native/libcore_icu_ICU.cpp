@@ -22,7 +22,6 @@
 #include "ScopedFd.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedLocalRef.h"
-#include "ScopedStringChars.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
 #include "cutils/log.h"
