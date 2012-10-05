@@ -16,10 +16,8 @@
 
 package libcore.util;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Formatter;
 import java.util.TimeZone;
 
 /**
@@ -43,15 +41,14 @@ public final class ZoneInfo extends TimeZone {
     };
 
     private int mRawOffset;
-
     private final int mEarliestRawOffset;
+    private final boolean mUseDst;
+    private final int mDstSavings; // Implements TimeZone.getDSTSavings.
 
     private final int[] mTransitions;
     private final int[] mOffsets;
     private final byte[] mTypes;
     private final byte[] mIsDsts;
-    private final boolean mUseDst;
-    private final int mDstSavings; // Implements TimeZone.getDSTSavings.
 
     ZoneInfo(String name, int[] transitions, byte[] types, int[] gmtOffsets, byte[] isDsts) {
         mTransitions = transitions;
@@ -254,29 +251,12 @@ public final class ZoneInfo extends TimeZone {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        // First the basics...
-        sb.append(getClass().getName() + "[" + getID() + ",mRawOffset=" + mRawOffset +
-                ",mUseDst=" + mUseDst + ",mDstSavings=" + mDstSavings + "]");
-        // ...followed by a zdump(1)-like description of all our transition data.
-        sb.append("\n");
-        Formatter f = new Formatter(sb);
-        for (int i = 0; i < mTransitions.length; ++i) {
-            int type = mTypes[i] & 0xff;
-            String utcTime = formatTime(mTransitions[i], TimeZone.getTimeZone("UTC"));
-            String localTime = formatTime(mTransitions[i], this);
-            int offset = mOffsets[type];
-            int gmtOffset = mRawOffset/1000 + offset;
-            f.format("%4d : time=%11d %s = %s isDst=%d offset=%5d gmtOffset=%d\n",
-                    i, mTransitions[i], utcTime, localTime, mIsDsts[type], offset, gmtOffset);
-        }
-        return sb.toString();
-    }
-
-    private static String formatTime(int s, TimeZone tz) {
-        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy zzz");
-        sdf.setTimeZone(tz);
-        long ms = ((long) s) * 1000L;
-        return sdf.format(new Date(ms));
+        return getClass().getName() + "[id=\"" + getID() + "\"" +
+            ",mRawOffset=" + mRawOffset +
+            ",mEarliestRawOffset=" + mEarliestRawOffset +
+            ",mUseDst=" + mUseDst +
+            ",mDstSavings=" + mDstSavings +
+            ",transitions=" + mTransitions.length +
+            "]";
     }
 }
