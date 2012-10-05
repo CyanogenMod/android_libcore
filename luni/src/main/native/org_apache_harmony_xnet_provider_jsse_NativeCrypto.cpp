@@ -4596,10 +4596,16 @@ static jint NativeCrypto_d2i_SSL_SESSION(JNIEnv* env, jclass, jbyteArray javaByt
                   ssl_session->cipher_id, cipher_id_network_order,
                   cipher_id_byte_pointer[0], cipher_id_byte_pointer[1],
                   SSL_CIPHER_get_name(ssl_session->cipher));
+    } else {
+        freeOpenSslErrorState();
     }
 
     JNI_TRACE("NativeCrypto_d2i_SSL_SESSION => %p", ssl_session);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(ssl_session));
+}
+
+static jlong NativeCrypto_ERR_peek_last_error(JNIEnv*, jclass) {
+    return ERR_peek_last_error();
 }
 
 #define FILE_DESCRIPTOR "Ljava/io/FileDescriptor;"
@@ -4704,6 +4710,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, SSL_CTX_enable_npn, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_disable_npn, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_get_npn_negotiated_protocol, "(I)[B"),
+    NATIVE_METHOD(NativeCrypto, ERR_peek_last_error, "()J"),
 };
 
 void register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env) {
