@@ -46,6 +46,16 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("Deutsch", Locale.GERMAN.getDisplayLanguage(Locale.GERMAN));
     }
 
+    // http://b/7291355; Locale.getDisplayLanguage fails for tl in tl in ICU 4.9.
+    public void test_tl() throws Exception {
+        Locale tl = new Locale("tl");
+        Locale tl_PH = new Locale("tl", "PH");
+        assertEquals("Filipino", tl.getDisplayLanguage(Locale.ENGLISH));
+        assertEquals("Filipino", tl_PH.getDisplayLanguage(Locale.ENGLISH));
+        assertEquals("Filipino", tl.getDisplayLanguage(tl));
+        assertEquals("Filipino", tl_PH.getDisplayLanguage(tl_PH));
+    }
+
     // http://b/3452611; Locale.getDisplayLanguage fails for the obsolete language codes.
     public void test_getDisplayName_obsolete() throws Exception {
         // he (new) -> iw (obsolete)
