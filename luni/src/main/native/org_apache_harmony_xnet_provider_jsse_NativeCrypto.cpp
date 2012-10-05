@@ -1202,9 +1202,14 @@ static jobjectArray NativeCrypto_get_RSA_public_params(JNIEnv* env, jclass, jint
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("get_RSA_public_params(%p)", pkey);
 
+    if (pkey == NULL) {
+        jniThrowNullPointerException(env, "pkey == null");
+        return 0;
+    }
+
     Unique_RSA rsa(EVP_PKEY_get1_RSA(pkey));
     if (rsa.get() == NULL) {
-        jniThrowRuntimeException(env, "get_RSA_public_params failed");
+        throwExceptionIfNecessary(env, "get_RSA_public_params failed");
         return 0;
     }
 
@@ -1235,9 +1240,14 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("get_RSA_public_params(%p)", pkey);
 
+    if (pkey == NULL) {
+        jniThrowNullPointerException(env, "pkey == null");
+        return 0;
+    }
+
     Unique_RSA rsa(EVP_PKEY_get1_RSA(pkey));
     if (rsa.get() == NULL) {
-        jniThrowRuntimeException(env, "get_RSA_public_params failed");
+        throwExceptionIfNecessary(env, "get_RSA_public_params failed");
         return 0;
     }
 
@@ -1337,6 +1347,7 @@ static jint NativeCrypto_DSA_generate_key(JNIEnv* env, jclass, jint primeBits,
     if (dsa.get() == NULL) {
         JNI_TRACE("DSA_generate_key failed");
         jniThrowOutOfMemoryError(env, "Unable to allocate DSA key");
+        freeOpenSslErrorState();
         return 0;
     }
 
@@ -1374,12 +1385,13 @@ static jint NativeCrypto_DSA_generate_key(JNIEnv* env, jclass, jint primeBits,
     if (pkey.get() == NULL) {
         JNI_TRACE("DSA_generate_key failed");
         jniThrowRuntimeException(env, "NativeCrypto_DSA_generate_key failed");
+        freeOpenSslErrorState();
         return 0;
     }
 
     if (EVP_PKEY_assign_DSA(pkey.get(), dsa.get()) != 1) {
         JNI_TRACE("DSA_generate_key failed");
-        jniThrowRuntimeException(env, "NativeCrypto_DSA_generate_key failed");
+        throwExceptionIfNecessary(env, "NativeCrypto_DSA_generate_key failed");
         return 0;
     }
 
@@ -1397,7 +1409,7 @@ static jobjectArray NativeCrypto_get_DSA_params(JNIEnv* env, jclass, jint pkeyRe
 
     Unique_DSA dsa(EVP_PKEY_get1_DSA(pkey));
     if (dsa.get() == NULL) {
-        jniThrowRuntimeException(env, "get_DSA_params failed");
+        throwExceptionIfNecessary(env, "get_DSA_params failed");
         return 0;
     }
 
@@ -1470,7 +1482,7 @@ static jint NativeCrypto_EVP_MD_CTX_copy(JNIEnv* env, jclass, jint ctxRef) {
     JNI_TRACE("NativeCrypto_EVP_MD_CTX_copy(%p)", ctx);
 
     if (ctx == NULL) {
-        jniThrowNullPointerException(env, NULL);
+        jniThrowNullPointerException(env, "ctx == null");
         return 0;
     }
 
@@ -1485,6 +1497,7 @@ static jint NativeCrypto_EVP_MD_CTX_copy(JNIEnv* env, jclass, jint ctxRef) {
     if (result == 0) {
         EVP_MD_CTX_destroy(copy);
         jniThrowRuntimeException(env, "Unable to copy EVP_MD_CTX");
+        freeOpenSslErrorState();
         return 0;
     }
 
@@ -1501,7 +1514,7 @@ static jint NativeCrypto_EVP_DigestFinal(JNIEnv* env, jclass, jint ctxRef,
     JNI_TRACE("NativeCrypto_EVP_DigestFinal(%p, %p, %d)", ctx, hash, offset);
 
     if (ctx == NULL || hash == NULL) {
-        jniThrowNullPointerException(env, NULL);
+        jniThrowNullPointerException(env, "ctx == null || hash == null");
         return -1;
     }
 
