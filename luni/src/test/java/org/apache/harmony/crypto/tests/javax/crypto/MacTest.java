@@ -443,19 +443,18 @@ public class MacTest extends TestCase {
         SecretKeySpec scs = new SecretKeySpec(b, "SHA1");
         for (int i = 0; i < macs.length; i++) {
             macs[i].init(scs);
-            byte [] res1 = macs[i].doFinal();
-            byte [] res2 = macs[i].doFinal();
-            assertEquals("Results are not the same", res1.length, res2.length);
-            for(int t = 0; t < res1.length; t++) {
-                assertEquals("Results are not the same", res1[t], res2[t]);
-            }
+            byte[] res1 = macs[i].doFinal();
+            byte[] res2 = macs[i].doFinal();
+            assertEquals("Results are not the same",
+                    IntegralToString.bytesToHexString(res1, false),
+                    IntegralToString.bytesToHexString(res2, false));
+
             res2 = macs[i].doFinal(upd);
             macs[i].update(upd);
             res1 = macs[i].doFinal();
-            assertEquals("Results are not the same", res1.length, res2.length);
-            for(int t = 0; t < res1.length; t++) {
-                assertEquals("Results are not the same", res1[t], res2[t]);
-            }
+            assertEquals("Results are not the same",
+                    IntegralToString.bytesToHexString(res1, false),
+                    IntegralToString.bytesToHexString(res2, false));
         }
     }
 
