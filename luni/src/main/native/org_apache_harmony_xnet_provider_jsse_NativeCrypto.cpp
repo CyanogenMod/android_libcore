@@ -1788,7 +1788,7 @@ static jint NativeCrypto_EVP_SignInit(JNIEnv* env, jclass, jstring algorithm) {
 
     const EVP_MD* digest = EVP_get_digestbynid(OBJ_txt2nid(algorithmChars.c_str()));
     if (digest == NULL) {
-        jniThrowRuntimeException(env, "Hash algorithm not found");
+        throwExceptionIfNecessary(env, "Hash algorithm not found");
         return 0;
     }
 
