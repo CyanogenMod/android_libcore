@@ -55,14 +55,11 @@ import libcore.util.ZoneInfoDB;
  *
  * <p>Note the type returned by the factory methods {@link #getDefault} and {@link #getTimeZone} is
  * implementation dependent. This may introduce serialization incompatibility issues between
- * different implementations. Android returns instances of {@link SimpleTimeZone} so that
- * the bytes serialized by Android can be deserialized successfully on other
- * implementations, but the reverse compatibility cannot be guaranteed.
+ * different implementations, or different versions of Android.
  *
  * @see Calendar
  * @see GregorianCalendar
  * @see SimpleDateFormat
- * @see SimpleTimeZone
  */
 public abstract class TimeZone implements Serializable, Cloneable {
     private static final long serialVersionUID = 3581463369166924961L;
