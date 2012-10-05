@@ -1864,28 +1864,36 @@ public class NativeCryptoTest extends TestCase {
     };
 
     public void test_EVP_CipherInit_ex_Null_Failure() throws Exception {
-        OpenSSLCipherContext context = new OpenSSLCipherContext(NativeCrypto.EVP_CIPHER_CTX_new());
-        int evpCipher = NativeCrypto.EVP_get_cipherbyname("aes-128-ecb");
-
+        final int ctx = NativeCrypto.EVP_CIPHER_CTX_new();
         try {
-            NativeCrypto.EVP_CipherInit_ex(NULL, evpCipher, null, null, true);
-            fail("Null context should throw NullPointerException");
-        } catch (NullPointerException expected) {
+            final int evpCipher = NativeCrypto.EVP_get_cipherbyname("aes-128-ecb");
+
+            try {
+                NativeCrypto.EVP_CipherInit_ex(NULL, evpCipher, null, null, true);
+                fail("Null context should throw NullPointerException");
+            } catch (NullPointerException expected) {
+            }
+
+            /* Initialize encrypting. */
+            NativeCrypto.EVP_CipherInit_ex(ctx, evpCipher, null, null, true);
+            NativeCrypto.EVP_CipherInit_ex(ctx, NULL, null, null, true);
+
+            /* Initialize decrypting. */
+            NativeCrypto.EVP_CipherInit_ex(ctx, evpCipher, null, null, false);
+            NativeCrypto.EVP_CipherInit_ex(ctx, NULL, null, null, false);
+        } finally {
+            NativeCrypto.EVP_CIPHER_CTX_cleanup(ctx);
         }
-
-        /* Initialize encrypting. */
-        NativeCrypto.EVP_CipherInit_ex(context.getContext(), evpCipher, null, null, true);
-        NativeCrypto.EVP_CipherInit_ex(context.getContext(), NULL, null, null, true);
-
-        /* Initialize decrypting. */
-        NativeCrypto.EVP_CipherInit_ex(context.getContext(), evpCipher, null, null, false);
-        NativeCrypto.EVP_CipherInit_ex(context.getContext(), NULL, null, null, false);
     }
 
     public void test_EVP_CipherInit_ex_Success() throws Exception {
-        OpenSSLCipherContext context = new OpenSSLCipherContext(NativeCrypto.EVP_CIPHER_CTX_new());
-        int evpCipher = NativeCrypto.EVP_get_cipherbyname("aes-128-ecb");
-        NativeCrypto.EVP_CipherInit_ex(context.getContext(), evpCipher, AES_128_KEY, null, true);
+        final int ctx = NativeCrypto.EVP_CIPHER_CTX_new();
+        try {
+            final int evpCipher = NativeCrypto.EVP_get_cipherbyname("aes-128-ecb");
+            NativeCrypto.EVP_CipherInit_ex(ctx, evpCipher, AES_128_KEY, null, true);
+        } finally {
+            NativeCrypto.EVP_CIPHER_CTX_cleanup(ctx);
+        }
     }
 
     public void test_EVP_CIPHER_iv_length() throws Exception {
