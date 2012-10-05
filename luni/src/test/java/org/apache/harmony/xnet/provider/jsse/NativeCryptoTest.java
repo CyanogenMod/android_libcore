@@ -63,6 +63,11 @@ public class NativeCryptoTest extends TestCase {
     private static byte[][] CLIENT_CERTIFICATES;
     private static byte[][] CA_PRINCIPALS;
 
+    @Override
+    protected void tearDown() throws Exception {
+        assertEquals(0, NativeCrypto.ERR_peek_last_error());
+    }
+
     private static byte[] getServerPrivateKey() {
         initCerts();
         return SERVER_PRIVATE_KEY;
@@ -1827,7 +1832,7 @@ public class NativeCryptoTest extends TestCase {
     }
 
     public void test_RAND_bytes_Success() throws Exception {
-        byte[] output = new byte[32];
+        byte[] output = new byte[128];
         NativeCrypto.RAND_bytes(output);
 
         boolean isZero = true;
@@ -1835,7 +1840,7 @@ public class NativeCryptoTest extends TestCase {
             isZero &= (output[i] == 0);
         }
 
-        assertFalse("Random output was zero. This is a very low probability event "
+        assertFalse("Random output was zero. This is a very low probability event (1 in 2^128) "
                 + "and probably indicates an error.", isZero);
     }
 
@@ -1844,7 +1849,8 @@ public class NativeCryptoTest extends TestCase {
         try {
             NativeCrypto.RAND_bytes(output);
             fail("Should be an error on null buffer input");
-        } catch (RuntimeException success) { }
+        } catch (RuntimeException expected) {
+        }
     }
 
     /*
