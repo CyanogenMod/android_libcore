@@ -491,8 +491,15 @@ public class HttpEngine {
                 reusable = false;
             }
 
-            // If the headers specify that the connection shouldn't be reused, don't reuse it.
-            if (hasConnectionCloseHeader()) {
+            // If the request specified that the connection shouldn't be reused,
+            // don't reuse it. This advice doesn't apply to CONNECT requests because
+            // the "Connection: close" header goes the origin server, not the proxy.
+            if (requestHeaders.hasConnectionClose() && method != CONNECT) {
+                reusable = false;
+            }
+
+            // If the response specified that the connection shouldn't be reused, don't reuse it.
+            if (responseHeaders != null && responseHeaders.hasConnectionClose()) {
                 reusable = false;
             }
 
@@ -762,11 +769,6 @@ public class HttpEngine {
     protected final String getDefaultUserAgent() {
         String agent = System.getProperty("http.agent");
         return agent != null ? agent : ("Java" + System.getProperty("java.version"));
-    }
-
-    private boolean hasConnectionCloseHeader() {
-        return (responseHeaders != null && responseHeaders.hasConnectionClose())
-                || requestHeaders.hasConnectionClose();
     }
 
     protected final String getOriginAddress(URL url) {
