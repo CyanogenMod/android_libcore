@@ -29,8 +29,8 @@
 
 // ICU documentation: http://icu-project.org/apiref/icu4c/classRegexMatcher.html
 
-static RegexMatcher* toRegexMatcher(jint addr) {
-    return reinterpret_cast<RegexMatcher*>(static_cast<uintptr_t>(addr));
+static RegexMatcher* toRegexMatcher(jint address) {
+    return reinterpret_cast<RegexMatcher*>(static_cast<uintptr_t>(address));
 }
 
 /**
@@ -41,8 +41,8 @@ static RegexMatcher* toRegexMatcher(jint addr) {
  */
 class MatcherAccessor {
 public:
-    MatcherAccessor(JNIEnv* env, jint addr, jstring javaInput, bool reset) {
-        init(env, addr);
+    MatcherAccessor(JNIEnv* env, jint address, jstring javaInput, bool reset) {
+        init(env, address);
 
         mJavaInput = javaInput;
         mChars = env->GetStringChars(mJavaInput, NULL);
@@ -62,8 +62,8 @@ public:
         }
     }
 
-    MatcherAccessor(JNIEnv* env, jint addr) {
-        init(env, addr);
+    MatcherAccessor(JNIEnv* env, jint address) {
+        init(env, address);
     }
 
     ~MatcherAccessor() {
@@ -95,10 +95,10 @@ public:
     }
 
 private:
-    void init(JNIEnv* env, jint addr) {
+    void init(JNIEnv* env, jint address) {
         mEnv = env;
         mJavaInput = NULL;
-        mMatcher = toRegexMatcher(addr);
+        mMatcher = toRegexMatcher(address);
         mChars = NULL;
         mStatus = U_ZERO_ERROR;
         mUText = NULL;
@@ -116,8 +116,8 @@ private:
     void operator=(const MatcherAccessor&);
 };
 
-static void Matcher_closeImpl(JNIEnv*, jclass, jint addr) {
-    delete toRegexMatcher(addr);
+static void Matcher_closeImpl(JNIEnv*, jclass, jint address) {
+    delete toRegexMatcher(address);
 }
 
 static jint Matcher_findImpl(JNIEnv* env, jclass, jint addr, jstring javaText, jint startIndex, jintArray offsets) {
