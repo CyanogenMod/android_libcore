@@ -884,7 +884,7 @@ public class NativeCryptoTest extends TestCase {
                     NativeCrypto.SSL_renegotiate(s);
                     NativeCrypto.SSL_write(s, fd, callback, new byte[] { 42 }, 0, 1,
                                            (int) ((TIMEOUT_SECONDS * 1000) / 2));
-                } catch (SocketTimeoutException expected) {
+                } catch (IOException expected) {
                 } finally {
                     super.afterHandshake(session, s, c, sock, fd, callback);
                 }
