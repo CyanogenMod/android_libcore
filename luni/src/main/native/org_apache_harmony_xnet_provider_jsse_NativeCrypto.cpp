@@ -997,8 +997,12 @@ static jbyteArray NativeCrypto_i2d_PKCS8_PRIV_KEY_INFO(JNIEnv* env, jclass, jint
         return NULL;
     }
 
-    jbyteArray javaBytes = env->NewByteArray(len);
-    ScopedByteArrayRW bytes(env, javaBytes);
+    ScopedLocalRef<jbyteArray> javaBytes(env, env->NewByteArray(len));
+    if (javaBytes.get() == NULL) {
+        return NULL;
+    }
+
+    ScopedByteArrayRW bytes(env, javaBytes.get());
     if (bytes.get() == NULL) {
         return NULL;
     }
@@ -1010,7 +1014,7 @@ static jbyteArray NativeCrypto_i2d_PKCS8_PRIV_KEY_INFO(JNIEnv* env, jclass, jint
     }
 
     JNI_TRACE("pkey=%p i2d_PKCS8_PRIV_KEY_INFO => size=%d", pkey, len);
-    return javaBytes;
+    return javaBytes.release();
 }
 
 /*
