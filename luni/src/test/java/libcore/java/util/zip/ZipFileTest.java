@@ -16,6 +16,7 @@
 
 package libcore.java.util.zip;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -114,9 +115,9 @@ public final class ZipFileTest extends TestCase {
           File result = File.createTempFile("ZipFileTest", "zip");
           result.deleteOnExit();
 
-          ZipOutputStream out = new ZipOutputStream(new FileOutputStream(result));
+          ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(result)));
           for (int i = 0; i < count; ++i) {
-              ZipEntry entry = new ZipEntry(Integer.toString(i));
+              ZipEntry entry = new ZipEntry(Integer.toHexString(i));
               out.putNextEntry(entry);
               out.closeEntry();
           }
