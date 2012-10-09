@@ -50,6 +50,15 @@ public class BreakIteratorTest extends junit.framework.TestCase {
         assertTrue("Incorrect BreakIterator", it2 != BreakIterator.getWordInstance());
     }
 
+    // http://b/7307154 - we used to pin an unbounded number of char[]s, relying on finalization.
+    public void testStress() throws Exception {
+        char[] cs = { 'a' };
+        for (int i = 0; i < 4096; ++i) {
+            BreakIterator it = BreakIterator.getWordInstance(Locale.US);
+            it.setText(new String(cs));
+        }
+    }
+
     public void testWordBoundaries() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 1024; ++i) {
