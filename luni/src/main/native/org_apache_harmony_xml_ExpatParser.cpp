@@ -503,7 +503,7 @@ public:
         }
 
         // return prefix + ":" + localName
-        LocalArray<1024> qName(strlen(mPrefix) + 1 + strlen(mLocalName) + 1);
+        ::LocalArray<1024> qName(strlen(mPrefix) + 1 + strlen(mLocalName) + 1);
         snprintf(&qName[0], qName.size(), "%s:%s", mPrefix, mLocalName);
         return internString(mEnv, mParsingContext, &qName[0]);
     }

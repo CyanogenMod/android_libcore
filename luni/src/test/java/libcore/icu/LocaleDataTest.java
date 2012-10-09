@@ -23,7 +23,7 @@ public class LocaleDataTest extends junit.framework.TestCase {
         // Test that we can get the locale data for all known locales.
         for (Locale l : Locale.getAvailableLocales()) {
             LocaleData d = LocaleData.get(l);
-            System.err.println(l + " : " + d.yesterday + " " + d.today + " " + d.tomorrow);
+            // System.err.println(d);
         }
     }
 
@@ -84,5 +84,28 @@ public class LocaleDataTest extends junit.framework.TestCase {
         assertEquals("Воскресенье", l.longStandAloneWeekdayNames[1]);
         assertEquals("Вс", l.shortStandAloneWeekdayNames[1]);
         assertEquals("В", l.tinyStandAloneWeekdayNames[1]);
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=38844
+    public void testDecimalFormatSymbols_es() throws Exception {
+        LocaleData es = LocaleData.get(new Locale("es"));
+        assertEquals(',', es.decimalSeparator);
+        assertEquals('.', es.groupingSeparator);
+
+        LocaleData es_419 = LocaleData.get(new Locale("es", "419"));
+        assertEquals('.', es_419.decimalSeparator);
+        assertEquals(',', es_419.groupingSeparator);
+
+        LocaleData es_US = LocaleData.get(new Locale("es", "US"));
+        assertEquals('.', es_US.decimalSeparator);
+        assertEquals(',', es_US.groupingSeparator);
+
+        LocaleData es_MX = LocaleData.get(new Locale("es", "MX"));
+        assertEquals('.', es_MX.decimalSeparator);
+        assertEquals(',', es_MX.groupingSeparator);
+
+        LocaleData es_AR = LocaleData.get(new Locale("es", "AR"));
+        assertEquals(',', es_AR.decimalSeparator);
+        assertEquals('.', es_AR.groupingSeparator);
     }
 }
