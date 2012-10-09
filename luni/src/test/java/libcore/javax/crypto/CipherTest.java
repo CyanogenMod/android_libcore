@@ -17,37 +17,87 @@
 package libcore.javax.crypto;
 
 import com.android.org.bouncycastle.asn1.x509.KeyUsage;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.InvalidParameterException;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
-import java.security.Provider.Service;
 import java.security.Provider;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.Certificate;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.ShortBufferException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import junit.framework.TestCase;
+import libcore.java.security.StandardNames;
 import libcore.java.security.TestKeyStore;
 
 public final class CipherTest extends TestCase {
 
+    private static final String[] RSA_PROVIDERS = ((StandardNames.IS_RI)
+                                                   ? new String[] { "SunJCE" }
+                                                   : new String[] { "BC" , "AndroidOpenSSL" });
+
+    private static final String[] AES_PROVIDERS = ((StandardNames.IS_RI)
+                                                   ? new String[] { "SunJCE" }
+                                                   : new String[] { "BC" }); // TOOD: , "AndroidOpenSSL"
+
+    private static final boolean IS_UNLIMITED;
+    static {
+        boolean is_unlimited;
+        if (StandardNames.IS_RI) {
+            try {
+                String algorithm = "PBEWITHMD5ANDTRIPLEDES";
+                Cipher.getInstance(algorithm).init(getEncryptMode(algorithm),
+                                                   getEncryptKey(algorithm),
+                                                   getAlgorithmParameterSpec(algorithm));
+                is_unlimited = true;
+            } catch (Exception e) {
+                is_unlimited = false;
+                System.out.println("WARNING: Some tests disabled due to lack of "
+                                   + "'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files'");
+            }
+        } else {
+            is_unlimited = true;
+        }
+        IS_UNLIMITED = is_unlimited;
+    }
+
     private static boolean isUnsupported(String algorithm) {
+        if (algorithm.equals("RC2")) {
+            return true;
+        }
         if (algorithm.equals("PBEWITHMD5ANDRC2")) {
             return true;
         }
-        if (algorithm.equals("PBEWITHSHA1ANDRC2")) {
+        if (algorithm.startsWith("PBEWITHSHA1ANDRC2")) {
             return true;
         }
         if (algorithm.equals("PBEWITHSHAAND40BITRC2-CBC")) {
@@ -58,6 +108,11 @@ public final class CipherTest extends TestCase {
         }
         if (algorithm.equals("PBEWITHSHAANDTWOFISH-CBC")) {
             return true;
+        }
+        if (!IS_UNLIMITED) {
+            if (algorithm.equals("PBEWITHMD5ANDTRIPLEDES")) {
+                return true;
+            }
         }
         return false;
     }
@@ -76,8 +131,11 @@ public final class CipherTest extends TestCase {
         return Cipher.DECRYPT_MODE;
     }
 
-    private static String getBaseAlgoritm(String algorithm) {
+    private static String getBaseAlgorithm(String algorithm) {
         if (algorithm.equals("AESWRAP")) {
+            return "AES";
+        }
+        if (algorithm.startsWith("AES/")) {
             return "AES";
         }
         if (algorithm.equals("PBEWITHMD5AND128BITAES-CBC-OPENSSL")) {
@@ -114,18 +172,24 @@ public final class CipherTest extends TestCase {
             return "DES";
         }
         if (algorithm.equals("DESEDEWRAP")) {
-            return "DESede";
+            return "DESEDE";
         }
         if (algorithm.equals("PBEWITHSHAAND2-KEYTRIPLEDES-CBC")) {
-            return "DESede";
+            return "DESEDE";
         }
         if (algorithm.equals("PBEWITHSHAAND3-KEYTRIPLEDES-CBC")) {
-            return "DESede";
+            return "DESEDE";
         }
-        if (algorithm.equals("RSA/ECB/NoPadding")) {
+        if (algorithm.equals("PBEWITHMD5ANDTRIPLEDES")) {
+            return "DESEDE";
+        }
+        if (algorithm.equals("PBEWITHSHA1ANDDESEDE")) {
+            return "DESEDE";
+        }
+        if (algorithm.equals("RSA/ECB/NOPADDING")) {
             return "RSA";
         }
-        if (algorithm.equals("RSA/ECB/PKCS1Padding")) {
+        if (algorithm.equals("RSA/ECB/PKCS1PADDING")) {
             return "RSA";
         }
         if (algorithm.equals("PBEWITHSHAAND40BITRC4")) {
@@ -138,11 +202,15 @@ public final class CipherTest extends TestCase {
     }
 
     private static boolean isAsymmetric(String algorithm) {
-        return getBaseAlgoritm(algorithm).equals("RSA");
+        return getBaseAlgorithm(algorithm).equals("RSA");
     }
 
     private static boolean isWrap(String algorithm) {
         return algorithm.endsWith("WRAP");
+    }
+
+    private static boolean isPBE(String algorithm) {
+        return algorithm.startsWith("PBE");
     }
 
     private static Map<String, Key> ENCRYPT_KEYS = new HashMap<String, Key>();
@@ -151,14 +219,19 @@ public final class CipherTest extends TestCase {
         if (key != null) {
             return key;
         }
-        algorithm = getBaseAlgoritm(algorithm);
-        if (algorithm.equals("RSA")) {
+        if (algorithm.startsWith("RSA")) {
             KeyFactory kf = KeyFactory.getInstance("RSA");
             RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
                                                               RSA_2048_privateExponent);
             key = kf.generatePrivate(keySpec);
+        } else if (isPBE(algorithm)) {
+            SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm);
+            key = skf.generateSecret(new PBEKeySpec("secret".toCharArray()));
         } else {
-            KeyGenerator kg = KeyGenerator.getInstance(algorithm);
+            KeyGenerator kg = KeyGenerator.getInstance(getBaseAlgorithm(algorithm));
+            if (StandardNames.IS_RI && algorithm.equals("AES")) {
+                kg.init(128);
+            }
             key = kg.generateKey();
         }
         ENCRYPT_KEYS.put(algorithm, key);
@@ -171,8 +244,7 @@ public final class CipherTest extends TestCase {
         if (key != null) {
             return key;
         }
-        algorithm = getBaseAlgoritm(algorithm);
-        if (algorithm.equals("RSA")) {
+        if (algorithm.startsWith("RSA")) {
             KeyFactory kf = KeyFactory.getInstance("RSA");
             RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus,
                                                             RSA_2048_publicExponent);
@@ -187,84 +259,213 @@ public final class CipherTest extends TestCase {
 
     private static Map<String, Integer> EXPECTED_BLOCK_SIZE = new HashMap<String, Integer>();
     static {
-        EXPECTED_BLOCK_SIZE.put("AES", 16);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHMD5AND128BITAES-CBC-OPENSSL", 16);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHMD5AND192BITAES-CBC-OPENSSL", 16);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHMD5AND256BITAES-CBC-OPENSSL", 16);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHSHA256AND128BITAES-CBC-BC", 16);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHSHA256AND192BITAES-CBC-BC", 16);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHSHA256AND256BITAES-CBC-BC", 16);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHSHAAND128BITAES-CBC-BC", 16);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHSHAAND192BITAES-CBC-BC", 16);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHSHAAND256BITAES-CBC-BC", 16);
+        setExpectedBlockSize("AES", 16);
+        setExpectedBlockSize("PBEWITHMD5AND128BITAES-CBC-OPENSSL", 16);
+        setExpectedBlockSize("PBEWITHMD5AND192BITAES-CBC-OPENSSL", 16);
+        setExpectedBlockSize("PBEWITHMD5AND256BITAES-CBC-OPENSSL", 16);
+        setExpectedBlockSize("PBEWITHSHA256AND128BITAES-CBC-BC", 16);
+        setExpectedBlockSize("PBEWITHSHA256AND192BITAES-CBC-BC", 16);
+        setExpectedBlockSize("PBEWITHSHA256AND256BITAES-CBC-BC", 16);
+        setExpectedBlockSize("PBEWITHSHAAND128BITAES-CBC-BC", 16);
+        setExpectedBlockSize("PBEWITHSHAAND192BITAES-CBC-BC", 16);
+        setExpectedBlockSize("PBEWITHSHAAND256BITAES-CBC-BC", 16);
 
-        EXPECTED_BLOCK_SIZE.put("AESWRAP", 0);
+        if (StandardNames.IS_RI) {
+            setExpectedBlockSize("AESWRAP", 16);
+        } else {
+            setExpectedBlockSize("AESWRAP", 0);
+        }
 
-        EXPECTED_BLOCK_SIZE.put("ARC4", 0);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHSHAAND40BITRC4", 0);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHSHAAND128BITRC4", 0);
+        setExpectedBlockSize("ARC4", 0);
+        setExpectedBlockSize("ARCFOUR", 0);
+        setExpectedBlockSize("PBEWITHSHAAND40BITRC4", 0);
+        setExpectedBlockSize("PBEWITHSHAAND128BITRC4", 0);
 
-        EXPECTED_BLOCK_SIZE.put("BLOWFISH", 8);
+        setExpectedBlockSize("BLOWFISH", 8);
 
-        EXPECTED_BLOCK_SIZE.put("DES", 8);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHMD5ANDDES", 8);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHSHA1ANDDES", 8);
+        setExpectedBlockSize("DES", 8);
+        setExpectedBlockSize("PBEWITHMD5ANDDES", 8);
+        setExpectedBlockSize("PBEWITHSHA1ANDDES", 8);
 
-        EXPECTED_BLOCK_SIZE.put("DESEDE", 8);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHSHAAND2-KEYTRIPLEDES-CBC", 8);
-        EXPECTED_BLOCK_SIZE.put("PBEWITHSHAAND3-KEYTRIPLEDES-CBC", 8);
+        setExpectedBlockSize("DESEDE", 8);
+        setExpectedBlockSize("PBEWITHSHAAND2-KEYTRIPLEDES-CBC", 8);
+        setExpectedBlockSize("PBEWITHSHAAND3-KEYTRIPLEDES-CBC", 8);
+        setExpectedBlockSize("PBEWITHMD5ANDTRIPLEDES", 8);
+        setExpectedBlockSize("PBEWITHSHA1ANDDESEDE", 8);
 
-        EXPECTED_BLOCK_SIZE.put("DESEDEWRAP", 0);
 
-        EXPECTED_BLOCK_SIZE.put("RSA", 255);
-        EXPECTED_BLOCK_SIZE.put("RSA/ECB/NoPadding", 0);
-        EXPECTED_BLOCK_SIZE.put("RSA/ECB/PKCS1Padding", 0);
+        if (StandardNames.IS_RI) {
+            setExpectedBlockSize("DESEDEWRAP", 8);
+        } else {
+            setExpectedBlockSize("DESEDEWRAP", 0);
+        }
+
+        if (StandardNames.IS_RI) {
+            setExpectedBlockSize("RSA", 0);
+            setExpectedBlockSize("RSA/ECB/NoPadding", 0);
+            setExpectedBlockSize("RSA/ECB/PKCS1Padding", 0);
+        } else {
+            setExpectedBlockSize("RSA", Cipher.ENCRYPT_MODE, 256);
+            setExpectedBlockSize("RSA/ECB/NoPadding", Cipher.ENCRYPT_MODE, 256);
+            setExpectedBlockSize("RSA/ECB/PKCS1Padding", Cipher.ENCRYPT_MODE, 245);
+
+            // BC strips the leading 0 for us even when NoPadding is specified
+            setExpectedBlockSize("RSA", Cipher.ENCRYPT_MODE, "BC", 255);
+            setExpectedBlockSize("RSA/ECB/NoPadding", Cipher.ENCRYPT_MODE, "BC", 255);
+
+            setExpectedBlockSize("RSA", Cipher.DECRYPT_MODE, 256);
+            setExpectedBlockSize("RSA/ECB/NoPadding", Cipher.DECRYPT_MODE, 256);
+            setExpectedBlockSize("RSA/ECB/PKCS1Padding", Cipher.DECRYPT_MODE, 256);
+        }
     }
-    private static int getExpectedBlockSize(String algorithm) {
-        Integer expected = EXPECTED_BLOCK_SIZE.get(algorithm);
-        assertNotNull(algorithm, expected);
+
+    private static String modeKey(String algorithm, int mode) {
+        return algorithm + ":" + mode;
+    }
+
+    private static String modeProviderKey(String algorithm, int mode, String provider) {
+        return algorithm + ":" + mode + ":" + provider;
+    }
+
+    private static void setExpectedSize(Map<String, Integer> map,
+                                        String algorithm, int value) {
+        algorithm = algorithm.toUpperCase(Locale.US);
+        map.put(algorithm, value);
+    }
+
+    private static void setExpectedSize(Map<String, Integer> map,
+                                        String algorithm, int mode, int value) {
+        setExpectedSize(map, modeKey(algorithm, mode), value);
+    }
+
+    private static void setExpectedSize(Map<String, Integer> map,
+                                        String algorithm, int mode, String provider, int value) {
+        setExpectedSize(map, modeProviderKey(algorithm, mode, provider), value);
+    }
+
+    private static int getExpectedSize(Map<String, Integer> map, String algorithm, int mode, String provider) {
+        Integer expected = map.get(modeProviderKey(algorithm, mode, provider));
+        if (expected != null) {
+            return expected;
+        }
+        expected = map.get(modeKey(algorithm, mode));
+        if (expected != null) {
+            return expected;
+        }
+        expected = map.get(algorithm);
+        assertNotNull("Algorithm " + algorithm + " not found in " + map, expected);
         return expected;
+    }
+
+    private static void setExpectedBlockSize(String algorithm, int value) {
+        setExpectedSize(EXPECTED_BLOCK_SIZE, algorithm, value);
+    }
+
+    private static void setExpectedBlockSize(String algorithm, int mode, int value) {
+        setExpectedSize(EXPECTED_BLOCK_SIZE, algorithm, mode, value);
+    }
+
+    private static void setExpectedBlockSize(String algorithm, int mode, String provider, int value) {
+        setExpectedSize(EXPECTED_BLOCK_SIZE, algorithm, mode, provider, value);
+    }
+
+    private static int getExpectedBlockSize(String algorithm, int mode, String provider) {
+        return getExpectedSize(EXPECTED_BLOCK_SIZE, algorithm, mode, provider);
     }
 
     private static Map<String, Integer> EXPECTED_OUTPUT_SIZE = new HashMap<String, Integer>();
     static {
-        EXPECTED_OUTPUT_SIZE.put("AES", 16);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHMD5AND128BITAES-CBC-OPENSSL", 16);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHMD5AND192BITAES-CBC-OPENSSL", 16);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHMD5AND256BITAES-CBC-OPENSSL", 16);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHA256AND128BITAES-CBC-BC", 16);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHA256AND192BITAES-CBC-BC", 16);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHA256AND256BITAES-CBC-BC", 16);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHAAND128BITAES-CBC-BC", 16);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHAAND192BITAES-CBC-BC", 16);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHAAND256BITAES-CBC-BC", 16);
+        setExpectedOutputSize("AES", Cipher.ENCRYPT_MODE, 16);
+        setExpectedOutputSize("PBEWITHMD5AND128BITAES-CBC-OPENSSL", 16);
+        setExpectedOutputSize("PBEWITHMD5AND192BITAES-CBC-OPENSSL", 16);
+        setExpectedOutputSize("PBEWITHMD5AND256BITAES-CBC-OPENSSL", 16);
+        setExpectedOutputSize("PBEWITHSHA256AND128BITAES-CBC-BC", 16);
+        setExpectedOutputSize("PBEWITHSHA256AND192BITAES-CBC-BC", 16);
+        setExpectedOutputSize("PBEWITHSHA256AND256BITAES-CBC-BC", 16);
+        setExpectedOutputSize("PBEWITHSHAAND128BITAES-CBC-BC", 16);
+        setExpectedOutputSize("PBEWITHSHAAND192BITAES-CBC-BC", 16);
+        setExpectedOutputSize("PBEWITHSHAAND256BITAES-CBC-BC", 16);
 
-        EXPECTED_OUTPUT_SIZE.put("AESWRAP", -1);
+        setExpectedOutputSize("AES", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHMD5AND128BITAES-CBC-OPENSSL", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHMD5AND192BITAES-CBC-OPENSSL", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHMD5AND256BITAES-CBC-OPENSSL", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHSHA256AND128BITAES-CBC-BC", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHSHA256AND192BITAES-CBC-BC", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHSHA256AND256BITAES-CBC-BC", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHSHAAND128BITAES-CBC-BC", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHSHAAND192BITAES-CBC-BC", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHSHAAND256BITAES-CBC-BC", Cipher.DECRYPT_MODE, 0);
 
-        EXPECTED_OUTPUT_SIZE.put("ARC4", 0);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHAAND40BITRC4", 0);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHAAND128BITRC4", 0);
+        if (StandardNames.IS_RI) {
+            setExpectedOutputSize("AESWRAP", Cipher.WRAP_MODE, 8);
+            setExpectedOutputSize("AESWRAP", Cipher.UNWRAP_MODE, 0);
+        } else {
+            setExpectedOutputSize("AESWRAP", -1);
+        }
 
-        EXPECTED_OUTPUT_SIZE.put("BLOWFISH", 8);
+        setExpectedOutputSize("ARC4", 0);
+        setExpectedOutputSize("ARCFOUR", 0);
+        setExpectedOutputSize("PBEWITHSHAAND40BITRC4", 0);
+        setExpectedOutputSize("PBEWITHSHAAND128BITRC4", 0);
 
-        EXPECTED_OUTPUT_SIZE.put("DES", 8);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHMD5ANDDES", 8);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHA1ANDDES", 8);
+        setExpectedOutputSize("BLOWFISH", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("BLOWFISH", Cipher.DECRYPT_MODE, 0);
 
-        EXPECTED_OUTPUT_SIZE.put("DESEDE", 8);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHAAND2-KEYTRIPLEDES-CBC", 8);
-        EXPECTED_OUTPUT_SIZE.put("PBEWITHSHAAND3-KEYTRIPLEDES-CBC", 8);
+        setExpectedOutputSize("DES", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("PBEWITHMD5ANDDES", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("PBEWITHSHA1ANDDES", Cipher.ENCRYPT_MODE, 8);
 
-        EXPECTED_OUTPUT_SIZE.put("DESEDEWRAP", -1);
+        setExpectedOutputSize("DES", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHMD5ANDDES", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHSHA1ANDDES", Cipher.DECRYPT_MODE, 0);
 
-        EXPECTED_OUTPUT_SIZE.put("RSA", 256);
-        EXPECTED_OUTPUT_SIZE.put("RSA/ECB/NoPadding", 256);
-        EXPECTED_OUTPUT_SIZE.put("RSA/ECB/PKCS1Padding", 256);
+        setExpectedOutputSize("DESEDE", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("PBEWITHSHAAND2-KEYTRIPLEDES-CBC", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("PBEWITHSHAAND3-KEYTRIPLEDES-CBC", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("PBEWITHMD5ANDTRIPLEDES", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("PBEWITHSHA1ANDDESEDE", Cipher.ENCRYPT_MODE, 8);
+
+        setExpectedOutputSize("DESEDE", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHSHAAND2-KEYTRIPLEDES-CBC", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHSHAAND3-KEYTRIPLEDES-CBC", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHMD5ANDTRIPLEDES", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("PBEWITHSHA1ANDDESEDE", Cipher.DECRYPT_MODE, 0);
+
+        if (StandardNames.IS_RI) {
+            setExpectedOutputSize("DESEDEWRAP", Cipher.WRAP_MODE, 16);
+            setExpectedOutputSize("DESEDEWRAP", Cipher.UNWRAP_MODE, 0);
+        } else {
+            setExpectedOutputSize("DESEDEWRAP", -1);
+        }
+
+        setExpectedOutputSize("RSA", Cipher.ENCRYPT_MODE, 256);
+        setExpectedOutputSize("RSA/ECB/NoPadding", Cipher.ENCRYPT_MODE, 256);
+        setExpectedOutputSize("RSA/ECB/PKCS1Padding", Cipher.ENCRYPT_MODE, 256);
+
+        setExpectedOutputSize("RSA", Cipher.DECRYPT_MODE, 256);
+        setExpectedOutputSize("RSA/ECB/NoPadding", Cipher.DECRYPT_MODE, 256);
+        setExpectedOutputSize("RSA/ECB/PKCS1Padding", Cipher.DECRYPT_MODE, 245);
+
+        // BC strips the leading 0 for us even when NoPadding is specified
+        setExpectedOutputSize("RSA", Cipher.DECRYPT_MODE, "BC", 255);
+        setExpectedOutputSize("RSA/ECB/NoPadding", Cipher.DECRYPT_MODE, "BC", 255);
     }
-    private static int getExpectedOutputSize(String algorithm) {
-        Integer expected = EXPECTED_OUTPUT_SIZE.get(algorithm);
-        assertNotNull(algorithm, expected);
-        return expected;
+
+    private static void setExpectedOutputSize(String algorithm, int value) {
+        setExpectedSize(EXPECTED_OUTPUT_SIZE, algorithm, value);
+    }
+
+    private static void setExpectedOutputSize(String algorithm, int mode, int value) {
+        setExpectedSize(EXPECTED_OUTPUT_SIZE, algorithm, mode, value);
+    }
+
+    private static void setExpectedOutputSize(String algorithm, int mode, String provider, int value) {
+        setExpectedSize(EXPECTED_OUTPUT_SIZE, algorithm, mode, provider, value);
+    }
+
+    private static int getExpectedOutputSize(String algorithm, int mode, String provider) {
+        return getExpectedSize(EXPECTED_OUTPUT_SIZE, algorithm, mode, provider);
     }
 
     private static byte[] ORIGINAL_PLAIN_TEXT = new byte[] { 0x0a, 0x0b, 0x0c };
@@ -356,13 +557,28 @@ public final class CipherTest extends TestCase {
     };
 
     private static byte[] getExpectedPlainText(String algorithm) {
-        if (algorithm.equals("RSA/ECB/NoPadding")) {
+        if (algorithm.equals("RSA/ECB/NOPADDING")) {
             return PKCS1_BLOCK_TYPE_00_PADDED_PLAIN_TEXT;
         }
         return ORIGINAL_PLAIN_TEXT;
     }
 
+    private static AlgorithmParameterSpec getAlgorithmParameterSpec(String algorithm) {
+        if (!isPBE(algorithm)) {
+            return null;
+        }
+        final byte[] salt = new byte[8];
+        new SecureRandom().nextBytes(salt);
+        return new PBEParameterSpec(salt, 1024);
+    }
+
     public void test_getInstance() throws Exception {
+        final ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+        PrintStream out = new PrintStream(errBuffer);
+
+        Set<String> seenBaseCipherNames = new HashSet<String>();
+        Set<String> seenCiphersWithModeAndPadding = new HashSet<String>();
+
         Provider[] providers = Security.getProviders();
         for (Provider provider : providers) {
             Set<Provider.Service> services = provider.getServices();
@@ -371,37 +587,91 @@ public final class CipherTest extends TestCase {
                 if (!type.equals("Cipher")) {
                     continue;
                 }
+
                 String algorithm = service.getAlgorithm();
+
+                /*
+                 * Any specific modes and paddings aren't tested directly here,
+                 * but we need to make sure we see the bare algorithm from some
+                 * provider. We will test each mode specifically when we get the
+                 * base cipher.
+                 */
+                final int firstSlash = algorithm.indexOf('/');
+                if (firstSlash == -1) {
+                    seenBaseCipherNames.add(algorithm);
+                } else {
+                    final String baseCipherName = algorithm.substring(0, firstSlash);
+                    if (!seenBaseCipherNames.contains(baseCipherName)) {
+                        seenCiphersWithModeAndPadding.add(baseCipherName);
+                    }
+                    continue;
+                }
+
                 try {
-                    // Cipher.getInstance(String)
-                    Cipher c1 = Cipher.getInstance(algorithm);
-                    assertEquals(algorithm, c1.getAlgorithm());
-                    test_Cipher(c1);
-
-                    // Cipher.getInstance(String, Provider)
-                    Cipher c2 = Cipher.getInstance(algorithm, provider);
-                    assertEquals(algorithm, c2.getAlgorithm());
-                    assertEquals(provider, c2.getProvider());
-                    test_Cipher(c2);
-
-                    // KeyGenerator.getInstance(String, String)
-                    Cipher c3 = Cipher.getInstance(algorithm, provider.getName());
-                    assertEquals(algorithm, c3.getAlgorithm());
-                    assertEquals(provider, c3.getProvider());
-                    test_Cipher(c3);
+                    test_Cipher_Algorithm(provider, algorithm);
                 } catch (Throwable e) {
-                    throw new Exception("Problem testing Cipher." + algorithm, e);
+                    out.append("Error encountered checking " + algorithm
+                               + " with provider " + provider.getName() + "\n");
+                    e.printStackTrace(out);
+                }
+
+                Set<String> modes = StandardNames.getModesForCipher(algorithm);
+                if (modes != null) {
+                    for (String mode : modes) {
+                        Set<String> paddings = StandardNames.getPaddingsForCipher(algorithm);
+                        if (paddings != null) {
+                            for (String padding : paddings) {
+                                final String algorithmName = algorithm + "/" + mode + "/" + padding;
+                                try {
+                                    test_Cipher_Algorithm(provider, algorithmName);
+                                } catch (Throwable e) {
+                                    out.append("Error encountered checking " + algorithmName
+                                               + " with provider " + provider.getName() + "\n");
+                                    e.printStackTrace(out);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
+
+        seenCiphersWithModeAndPadding.removeAll(seenBaseCipherNames);
+        assertEquals("Ciphers seen with mode and padding but not base cipher",
+                Collections.EMPTY_SET, seenCiphersWithModeAndPadding);
+
+        out.flush();
+        if (errBuffer.size() > 0) {
+            throw new Exception("Errors encountered:\n\n" + errBuffer.toString() + "\n\n");
+        }
+    }
+
+    private void test_Cipher_Algorithm(Provider provider, String algorithm) throws Exception {
+        // Cipher.getInstance(String)
+        Cipher c1 = Cipher.getInstance(algorithm);
+        assertEquals(algorithm, c1.getAlgorithm());
+        test_Cipher(c1);
+
+        // Cipher.getInstance(String, Provider)
+        Cipher c2 = Cipher.getInstance(algorithm, provider);
+        assertEquals(algorithm, c2.getAlgorithm());
+        assertEquals(provider, c2.getProvider());
+        test_Cipher(c2);
+
+        // KeyGenerator.getInstance(String, String)
+        Cipher c3 = Cipher.getInstance(algorithm, provider.getName());
+        assertEquals(algorithm, c3.getAlgorithm());
+        assertEquals(provider, c3.getProvider());
+        test_Cipher(c3);
     }
 
     private void test_Cipher(Cipher c) throws Exception {
-        // TODO: test all supported modes and padding for a given algorithm
-        String algorithm = c.getAlgorithm();
+        String algorithm = c.getAlgorithm().toUpperCase(Locale.US);
         if (isUnsupported(algorithm)) {
             return;
         }
+        String providerName = c.getProvider().getName();
+        String cipherID = algorithm + ":" + providerName;
 
         try {
             c.getOutputSize(0);
@@ -410,21 +680,28 @@ public final class CipherTest extends TestCase {
 
         // TODO: test keys from different factories (e.g. OpenSSLRSAPrivateKey vs JCERSAPrivateKey)
         Key encryptKey = getEncryptKey(algorithm);
-        c.init(getEncryptMode(algorithm), encryptKey);
 
-        assertEquals(getExpectedBlockSize(algorithm), c.getBlockSize());
+        final AlgorithmParameterSpec spec = getAlgorithmParameterSpec(algorithm);
 
-        assertEquals(getExpectedOutputSize(algorithm), c.getOutputSize(0));
+        int encryptMode = getEncryptMode(algorithm);
+        c.init(encryptMode, encryptKey, spec);
+        assertEquals(cipherID, getExpectedBlockSize(algorithm, encryptMode, providerName), c.getBlockSize());
+        assertEquals(cipherID, getExpectedOutputSize(algorithm, encryptMode, providerName), c.getOutputSize(0));
+        int decryptMode = getDecryptMode(algorithm);
+        c.init(decryptMode, encryptKey, spec);
+        assertEquals(cipherID, getExpectedBlockSize(algorithm, decryptMode, providerName), c.getBlockSize());
+        assertEquals(cipherID, getExpectedOutputSize(algorithm, decryptMode, providerName), c.getOutputSize(0));
 
         // TODO: test Cipher.getIV()
 
         // TODO: test Cipher.getParameters()
 
-        assertNull(c.getExemptionMechanism());
+        assertNull(cipherID, c.getExemptionMechanism());
 
+        c.init(getEncryptMode(algorithm), encryptKey, spec);
         if (isWrap(algorithm)) {
             byte[] cipherText = c.wrap(encryptKey);
-            c.init(getDecryptMode(algorithm), getDecryptKey(algorithm));
+            c.init(getDecryptMode(algorithm), getDecryptKey(algorithm), spec);
             int keyType = (isAsymmetric(algorithm)) ? Cipher.PRIVATE_KEY : Cipher.SECRET_KEY;
             Key decryptedKey = c.unwrap(cipherText, encryptKey.getAlgorithm(), keyType);
             assertEquals("encryptKey.getAlgorithm()=" + encryptKey.getAlgorithm()
@@ -434,33 +711,40 @@ public final class CipherTest extends TestCase {
                          encryptKey, decryptedKey);
         } else {
             byte[] cipherText = c.doFinal(ORIGINAL_PLAIN_TEXT);
-            c.init(getDecryptMode(algorithm), getDecryptKey(algorithm));
+            c.init(getDecryptMode(algorithm), getDecryptKey(algorithm), spec);
             byte[] decryptedPlainText = c.doFinal(cipherText);
-            assertEquals(Arrays.toString(getExpectedPlainText(algorithm)),
+            assertEquals(cipherID,
+                         Arrays.toString(getExpectedPlainText(algorithm)),
                          Arrays.toString(decryptedPlainText));
         }
     }
 
     public void testInputPKCS1Padding() throws Exception {
-        testInputPKCS1Padding(PKCS1_BLOCK_TYPE_01_PADDED_PLAIN_TEXT, getEncryptKey("RSA"), getDecryptKey("RSA"));
-        try {
-            testInputPKCS1Padding(PKCS1_BLOCK_TYPE_02_PADDED_PLAIN_TEXT, getEncryptKey("RSA"), getDecryptKey("RSA"));
-            fail();
-        } catch (BadPaddingException expected) {
+        for (String provider : RSA_PROVIDERS) {
+            testInputPKCS1Padding(provider);
         }
-        try {
-            testInputPKCS1Padding(PKCS1_BLOCK_TYPE_01_PADDED_PLAIN_TEXT, getDecryptKey("RSA"), getEncryptKey("RSA"));
-            fail();
-        } catch (BadPaddingException expected) {
-        }
-        testInputPKCS1Padding(PKCS1_BLOCK_TYPE_02_PADDED_PLAIN_TEXT, getDecryptKey("RSA"), getEncryptKey("RSA"));
     }
 
-    private void testInputPKCS1Padding(byte[] prePaddedPlainText, Key encryptKey, Key decryptKey) throws Exception {
-        Cipher encryptCipher = Cipher.getInstance("RSA/ECB/NoPadding");
+    private void testInputPKCS1Padding(String provider) throws Exception {
+        testInputPKCS1Padding(provider, PKCS1_BLOCK_TYPE_01_PADDED_PLAIN_TEXT, getEncryptKey("RSA"), getDecryptKey("RSA"));
+        try {
+            testInputPKCS1Padding(provider, PKCS1_BLOCK_TYPE_02_PADDED_PLAIN_TEXT, getEncryptKey("RSA"), getDecryptKey("RSA"));
+            fail();
+        } catch (BadPaddingException expected) {
+        }
+        try {
+            testInputPKCS1Padding(provider, PKCS1_BLOCK_TYPE_01_PADDED_PLAIN_TEXT, getDecryptKey("RSA"), getEncryptKey("RSA"));
+            fail();
+        } catch (BadPaddingException expected) {
+        }
+        testInputPKCS1Padding(provider, PKCS1_BLOCK_TYPE_02_PADDED_PLAIN_TEXT, getDecryptKey("RSA"), getEncryptKey("RSA"));
+    }
+
+    private void testInputPKCS1Padding(String provider, byte[] prePaddedPlainText, Key encryptKey, Key decryptKey) throws Exception {
+        Cipher encryptCipher = Cipher.getInstance("RSA/ECB/NoPadding", provider);
         encryptCipher.init(Cipher.ENCRYPT_MODE, encryptKey);
         byte[] cipherText = encryptCipher.doFinal(prePaddedPlainText);
-        Cipher decryptCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        Cipher decryptCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", provider);
         decryptCipher.init(Cipher.DECRYPT_MODE, decryptKey);
         byte[] plainText = decryptCipher.doFinal(cipherText);
         assertEquals(Arrays.toString(ORIGINAL_PLAIN_TEXT),
@@ -468,36 +752,51 @@ public final class CipherTest extends TestCase {
     }
 
     public void testOutputPKCS1Padding() throws Exception {
-       testOutputPKCS1Padding((byte) 1, getEncryptKey("RSA"), getDecryptKey("RSA"));
-       testOutputPKCS1Padding((byte) 2, getDecryptKey("RSA"), getEncryptKey("RSA"));
+        for (String provider : RSA_PROVIDERS) {
+            testOutputPKCS1Padding(provider);
+        }
     }
 
-    private void testOutputPKCS1Padding(byte expectedBlockType, Key encryptKey, Key decryptKey) throws Exception {
-        Cipher encryptCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+    private void testOutputPKCS1Padding(String provider) throws Exception {
+       testOutputPKCS1Padding(provider, (byte) 1, getEncryptKey("RSA"), getDecryptKey("RSA"));
+       testOutputPKCS1Padding(provider, (byte) 2, getDecryptKey("RSA"), getEncryptKey("RSA"));
+    }
+
+    private void testOutputPKCS1Padding(String provider, byte expectedBlockType, Key encryptKey, Key decryptKey) throws Exception {
+        Cipher encryptCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", provider);
         encryptCipher.init(Cipher.ENCRYPT_MODE, encryptKey);
         byte[] cipherText = encryptCipher.doFinal(ORIGINAL_PLAIN_TEXT);
-        Cipher decryptCipher = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher decryptCipher = Cipher.getInstance("RSA/ECB/NoPadding", provider);
         decryptCipher.init(Cipher.DECRYPT_MODE, decryptKey);
         byte[] plainText = decryptCipher.doFinal(cipherText);
-        assertPadding(expectedBlockType, ORIGINAL_PLAIN_TEXT, plainText);
+        assertPadding(provider, expectedBlockType, ORIGINAL_PLAIN_TEXT, plainText);
     }
 
-    private void assertPadding(byte expectedBlockType, byte[] expectedData, byte[] actualDataWithPadding) {
-        assertNotNull(actualDataWithPadding);
-        assertEquals(getExpectedOutputSize("RSA"), actualDataWithPadding.length);
-        assertEquals(0, actualDataWithPadding[0]);
-        byte actualBlockType = actualDataWithPadding[1];
-        assertEquals(expectedBlockType, actualBlockType);
+    private void assertPadding(String provider, byte expectedBlockType, byte[] expectedData, byte[] actualDataWithPadding) {
+        assertNotNull(provider, actualDataWithPadding);
+        int expectedOutputSize = getExpectedOutputSize("RSA", Cipher.DECRYPT_MODE, provider);
+        assertEquals(provider, expectedOutputSize, actualDataWithPadding.length);
+        int expectedBlockTypeOffset;
+        if (provider.equals("BC")) {
+            // BC strips the leading 0 for us on decrypt even when NoPadding is specified...
+            expectedBlockTypeOffset = 0;
+        } else {
+            expectedBlockTypeOffset = 1;
+            assertEquals(provider, 0, actualDataWithPadding[0]);
+        }
+        byte actualBlockType = actualDataWithPadding[expectedBlockTypeOffset];
+        assertEquals(provider, expectedBlockType, actualBlockType);
         int actualDataOffset = actualDataWithPadding.length - expectedData.length;
         if (actualBlockType == 1) {
-            for (int i = 2; i < actualDataOffset - 1; i++) {
-                assertEquals((byte) 0xFF, actualDataWithPadding[i]);
+            int expectedDataOffset = expectedBlockTypeOffset + 1;
+            for (int i = expectedDataOffset; i < actualDataOffset - 1; i++) {
+                assertEquals(provider, (byte) 0xFF, actualDataWithPadding[i]);
             }
         }
-        assertEquals(0x00, actualDataWithPadding[actualDataOffset-1]);
+        assertEquals(provider, 0x00, actualDataWithPadding[actualDataOffset-1]);
         byte[] actualData = new byte[expectedData.length];
         System.arraycopy(actualDataWithPadding, actualDataOffset, actualData, 0, actualData.length);
-        assertEquals(Arrays.toString(expectedData), Arrays.toString(actualData));
+        assertEquals(provider, Arrays.toString(expectedData), Arrays.toString(actualData));
     }
 
     public void testCipherInitWithCertificate () throws Exception {
@@ -935,13 +1234,19 @@ public final class CipherTest extends TestCase {
     };
 
     public void testRSA_ECB_NoPadding_Private_OnlyDoFinal_Success() throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_Private_OnlyDoFinal_Success(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_Private_OnlyDoFinal_Success(String provider) throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
                 RSA_2048_privateExponent);
 
         final PrivateKey privKey = kf.generatePrivate(keySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
 
         /*
          * You're actually decrypting with private keys, but there is no
@@ -960,13 +1265,19 @@ public final class CipherTest extends TestCase {
     }
 
     public void testRSA_ECB_NoPadding_Private_UpdateThenEmptyDoFinal_Success() throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_Private_UpdateThenEmptyDoFinal_Success(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_Private_UpdateThenEmptyDoFinal_Success(String provider) throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
                 RSA_2048_privateExponent);
 
         final PrivateKey privKey = kf.generatePrivate(keySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
 
         /*
          * You're actually decrypting with private keys, but there is no
@@ -988,13 +1299,20 @@ public final class CipherTest extends TestCase {
 
     public void testRSA_ECB_NoPadding_Private_SingleByteUpdateThenEmptyDoFinal_Success()
             throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_Private_SingleByteUpdateThenEmptyDoFinal_Success(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_Private_SingleByteUpdateThenEmptyDoFinal_Success(String provider)
+            throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
                 RSA_2048_privateExponent);
 
         final PrivateKey privKey = kf.generatePrivate(keySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
 
         /*
          * You're actually decrypting with private keys, but there is no
@@ -1020,12 +1338,18 @@ public final class CipherTest extends TestCase {
     }
 
     public void testRSA_ECB_NoPadding_Private_OnlyDoFinalWithOffset_Success() throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_Private_OnlyDoFinalWithOffset_Success(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_Private_OnlyDoFinalWithOffset_Success(String provider) throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
                 RSA_2048_privateExponent);
         final PrivateKey privKey = kf.generatePrivate(keySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
 
         /*
          * You're actually decrypting with private keys, but there is no
@@ -1051,12 +1375,18 @@ public final class CipherTest extends TestCase {
     }
 
     public void testRSA_ECB_NoPadding_Public_OnlyDoFinal_Success() throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_Public_OnlyDoFinal_Success(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_Public_OnlyDoFinal_Success(String provider) throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
 
         final PublicKey privKey = kf.generatePublic(keySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
 
         /*
          * You're actually encrypting with public keys, but there is no
@@ -1065,22 +1395,26 @@ public final class CipherTest extends TestCase {
          */
         c.init(Cipher.ENCRYPT_MODE, privKey);
         byte[] encrypted = c.doFinal(RSA_Vector1_Encrypt_Private);
-        assertTrue("Encrypted should match expected",
-                Arrays.equals(RSA_2048_Vector1, encrypted));
+        assertEncryptedEqualsNoPadding(provider, Cipher.ENCRYPT_MODE, RSA_2048_Vector1, encrypted);
 
         c.init(Cipher.DECRYPT_MODE, privKey);
         encrypted = c.doFinal(RSA_Vector1_Encrypt_Private);
-        assertTrue("Encrypted should match expected",
-                Arrays.equals(RSA_2048_Vector1, encrypted));
+        assertEncryptedEqualsNoPadding(provider, Cipher.DECRYPT_MODE, RSA_2048_Vector1, encrypted);
     }
 
     public void testRSA_ECB_NoPadding_Public_OnlyDoFinalWithOffset_Success() throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_Public_OnlyDoFinalWithOffset_Success(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_Public_OnlyDoFinalWithOffset_Success(String provider) throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
 
         final PublicKey pubKey = kf.generatePublic(keySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
 
         /*
          * You're actually encrypting with public keys, but there is no
@@ -1092,22 +1426,33 @@ public final class CipherTest extends TestCase {
         final int encryptLen = c.doFinal(RSA_Vector1_Encrypt_Private, 0,
                 RSA_Vector1_Encrypt_Private.length, encrypted, 0);
         assertEquals("Encrypted size should match expected", RSA_2048_Vector1.length, encryptLen);
-        assertTrue("Encrypted should match expected", Arrays.equals(RSA_2048_Vector1, encrypted));
+        assertEncryptedEqualsNoPadding(provider, Cipher.ENCRYPT_MODE, RSA_2048_Vector1, encrypted);
 
         c.init(Cipher.DECRYPT_MODE, pubKey);
-        final int decryptLen = c.doFinal(RSA_Vector1_Encrypt_Private, 0,
+        int decryptLen = c.doFinal(RSA_Vector1_Encrypt_Private, 0,
                 RSA_Vector1_Encrypt_Private.length, encrypted, 0);
+        if (provider.equals("BC")) {
+            // BC strips the leading 0 for us on decrypt even when NoPadding is specified...
+            decryptLen++;
+            encrypted = Arrays.copyOf(encrypted, encrypted.length - 1);
+        }
         assertEquals("Encrypted size should match expected", RSA_2048_Vector1.length, decryptLen);
-        assertTrue("Encrypted should match expected", Arrays.equals(RSA_2048_Vector1, encrypted));
+        assertEncryptedEqualsNoPadding(provider, Cipher.DECRYPT_MODE, RSA_2048_Vector1, encrypted);
     }
 
     public void testRSA_ECB_NoPadding_Public_UpdateThenEmptyDoFinal_Success() throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_Public_UpdateThenEmptyDoFinal_Success(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_Public_UpdateThenEmptyDoFinal_Success(String provider) throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
 
         final PublicKey privKey = kf.generatePublic(keySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
 
         /*
          * You're actually encrypting with public keys, but there is no
@@ -1117,22 +1462,29 @@ public final class CipherTest extends TestCase {
         c.init(Cipher.ENCRYPT_MODE, privKey);
         c.update(RSA_Vector1_Encrypt_Private);
         byte[] encrypted = c.doFinal();
-        assertTrue("Encrypted should match expected", Arrays.equals(RSA_2048_Vector1, encrypted));
+        assertEncryptedEqualsNoPadding(provider, Cipher.ENCRYPT_MODE, RSA_2048_Vector1, encrypted);
 
         c.init(Cipher.DECRYPT_MODE, privKey);
         c.update(RSA_Vector1_Encrypt_Private);
         encrypted = c.doFinal();
-        assertTrue("Encrypted should match expected", Arrays.equals(RSA_2048_Vector1, encrypted));
+        assertEncryptedEqualsNoPadding(provider, Cipher.DECRYPT_MODE, RSA_2048_Vector1, encrypted);
     }
 
     public void testRSA_ECB_NoPadding_Public_SingleByteUpdateThenEmptyDoFinal_Success()
+            throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_Public_SingleByteUpdateThenEmptyDoFinal_Success(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_Public_SingleByteUpdateThenEmptyDoFinal_Success(String provider)
             throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
 
         final PublicKey privKey = kf.generatePublic(keySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
 
         /*
          * You're actually encrypting with public keys, but there is no
@@ -1145,23 +1497,29 @@ public final class CipherTest extends TestCase {
             c.update(RSA_Vector1_Encrypt_Private, i, 1);
         }
         byte[] encrypted = c.doFinal(RSA_Vector1_Encrypt_Private, i, RSA_2048_Vector1.length - i);
-        assertTrue("Encrypted should match expected", Arrays.equals(RSA_2048_Vector1, encrypted));
+        assertEncryptedEqualsNoPadding(provider, Cipher.ENCRYPT_MODE, RSA_2048_Vector1, encrypted);
 
         c.init(Cipher.DECRYPT_MODE, privKey);
         for (i = 0; i < RSA_Vector1_Encrypt_Private.length / 2; i++) {
             c.update(RSA_Vector1_Encrypt_Private, i, 1);
         }
         encrypted = c.doFinal(RSA_Vector1_Encrypt_Private, i, RSA_2048_Vector1.length - i);
-        assertTrue("Encrypted should match expected", Arrays.equals(RSA_2048_Vector1, encrypted));
+        assertEncryptedEqualsNoPadding(provider, Cipher.DECRYPT_MODE, RSA_2048_Vector1, encrypted);
     }
 
     public void testRSA_ECB_NoPadding_Public_TooSmall_Success() throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_Public_TooSmall_Success(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_Public_TooSmall_Success(String provider) throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPublicKeySpec keySpec = new RSAPublicKeySpec(RSA_2048_modulus, RSA_2048_publicExponent);
 
         final PublicKey privKey = kf.generatePublic(keySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
 
         /*
          * You're actually encrypting with public keys, but there is no
@@ -1180,13 +1538,19 @@ public final class CipherTest extends TestCase {
     }
 
     public void testRSA_ECB_NoPadding_Private_TooSmall_Success() throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_Private_TooSmall_Success(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_Private_TooSmall_Success(String provider) throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
                 RSA_2048_privateExponent);
 
         final PrivateKey privKey = kf.generatePrivate(keySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
 
         /*
          * You're actually encrypting with public keys, but there is no
@@ -1195,16 +1559,40 @@ public final class CipherTest extends TestCase {
          */
         c.init(Cipher.ENCRYPT_MODE, privKey);
         byte[] encrypted = c.doFinal(RSA_Vector1_ZeroPadded_Encrypted);
-        assertTrue("Encrypted should match expected",
-                Arrays.equals(TooShort_Vector_Zero_Padded, encrypted));
+        assertEncryptedEqualsNoPadding(provider, Cipher.ENCRYPT_MODE,
+                                       TooShort_Vector_Zero_Padded, encrypted);
 
         c.init(Cipher.DECRYPT_MODE, privKey);
         encrypted = c.doFinal(RSA_Vector1_ZeroPadded_Encrypted);
-        assertTrue("Encrypted should match expected",
-                Arrays.equals(TooShort_Vector_Zero_Padded, encrypted));
+        assertEncryptedEqualsNoPadding(provider, Cipher.DECRYPT_MODE,
+                                       TooShort_Vector_Zero_Padded, encrypted);
+    }
+
+    private static void assertEncryptedEqualsNoPadding(String provider, int mode,
+                                                       byte[] expected, byte[] actual) {
+        if (provider.equals("BC") && mode == Cipher.DECRYPT_MODE) {
+            // BouncyCastle does us the favor of stripping leading zeroes in DECRYPT_MODE
+            int nonZeroOffset = 0;
+            for (byte b : expected) {
+                if (b != 0) {
+                    break;
+                }
+                nonZeroOffset++;
+            }
+            expected = Arrays.copyOfRange(expected, nonZeroOffset, expected.length);
+        }
+        assertEquals("Encrypted should match expected",
+                     Arrays.toString(expected), Arrays.toString(actual));
     }
 
     public void testRSA_ECB_NoPadding_Private_CombinedUpdateAndDoFinal_TooBig_Failure()
+            throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_Private_CombinedUpdateAndDoFinal_TooBig_Failure(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_Private_CombinedUpdateAndDoFinal_TooBig_Failure(String provider)
             throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
@@ -1212,7 +1600,7 @@ public final class CipherTest extends TestCase {
 
         final PrivateKey privKey = kf.generatePrivate(keySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
 
         /*
          * You're actually encrypting with public keys, but there is no
@@ -1226,10 +1614,20 @@ public final class CipherTest extends TestCase {
             c.doFinal(RSA_Vector1_ZeroPadded_Encrypted);
             fail("Should have error when block size is too big.");
         } catch (IllegalBlockSizeException success) {
+            assertFalse(provider, "BC".equals(provider));
+        } catch (ArrayIndexOutOfBoundsException success) {
+            assertEquals("BC", provider);
         }
     }
 
     public void testRSA_ECB_NoPadding_Private_UpdateInAndOutPlusDoFinal_TooBig_Failure()
+            throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_Private_UpdateInAndOutPlusDoFinal_TooBig_Failure(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_Private_UpdateInAndOutPlusDoFinal_TooBig_Failure(String provider)
             throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
@@ -1237,7 +1635,7 @@ public final class CipherTest extends TestCase {
 
         final PrivateKey privKey = kf.generatePrivate(keySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
 
         /*
          * You're actually encrypting with public keys, but there is no
@@ -1254,17 +1652,26 @@ public final class CipherTest extends TestCase {
             c.doFinal(RSA_Vector1_ZeroPadded_Encrypted);
             fail("Should have error when block size is too big.");
         } catch (IllegalBlockSizeException success) {
+            assertFalse(provider, "BC".equals(provider));
+        } catch (ArrayIndexOutOfBoundsException success) {
+            assertEquals("BC", provider);
         }
     }
 
     public void testRSA_ECB_NoPadding_Private_OnlyDoFinal_TooBig_Failure() throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_Private_OnlyDoFinal_TooBig_Failure(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_Private_OnlyDoFinal_TooBig_Failure(String provider) throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(RSA_2048_modulus,
                 RSA_2048_privateExponent);
 
         final PrivateKey privKey = kf.generatePrivate(keySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
 
         /*
          * You're actually encrypting with public keys, but there is no
@@ -1283,26 +1690,46 @@ public final class CipherTest extends TestCase {
             c.doFinal(tooBig_Vector);
             fail("Should have error when block size is too big.");
         } catch (IllegalBlockSizeException success) {
+            assertFalse(provider, "BC".equals(provider));
+        } catch (ArrayIndexOutOfBoundsException success) {
+            assertEquals("BC", provider);
         }
     }
 
     public void testRSA_ECB_NoPadding_GetBlockSize_Success() throws Exception {
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
-        assertEquals("RSA is not a block cipher and should return block size of 0",
-                0, c.getBlockSize());
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_GetBlockSize_Success(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_GetBlockSize_Success(String provider) throws Exception {
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
+        if (StandardNames.IS_RI) {
+            assertEquals(0, c.getBlockSize());
+        } else {
+            try {
+                c.getBlockSize();
+                fail();
+            } catch (IllegalStateException expected) {
+            }
+        }
 
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
                 RSA_2048_publicExponent);
         final PublicKey pubKey = kf.generatePublic(pubKeySpec);
         c.init(Cipher.ENCRYPT_MODE, pubKey);
-
-        assertEquals("RSA is not a block cipher and should return block size of 0",
-                0, c.getBlockSize());
+        assertEquals(getExpectedBlockSize("RSA", Cipher.ENCRYPT_MODE, provider), c.getBlockSize());
     }
 
     public void testRSA_ECB_NoPadding_GetOutputSize_NoInit_Failure() throws Exception {
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_GetOutputSize_NoInit_Failure(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_GetOutputSize_NoInit_Failure(String provider) throws Exception {
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
         try {
             c.getOutputSize(RSA_2048_Vector1.length);
             fail("Should throw IllegalStateException if getOutputSize is called before init");
@@ -1311,32 +1738,39 @@ public final class CipherTest extends TestCase {
     }
 
     public void testRSA_ECB_NoPadding_GetOutputSize_Success() throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_GetOutputSize_Success(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_GetOutputSize_Success(String provider) throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
                 RSA_2048_publicExponent);
         final PublicKey pubKey = kf.generatePublic(pubKeySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
         c.init(Cipher.ENCRYPT_MODE, pubKey);
 
         final int modulusInBytes = RSA_2048_modulus.bitLength() / 8;
-        assertEquals("Output size should be equal to modulus size",
-                modulusInBytes, c.getOutputSize(RSA_2048_Vector1.length));
-
-        assertEquals("Output size should be equal to modulus size",
-                modulusInBytes, c.getOutputSize(RSA_2048_Vector1.length * 2));
-
-        assertEquals("Output size should be equal to modulus size",
-                modulusInBytes, c.getOutputSize(0));
+        assertEquals(modulusInBytes, c.getOutputSize(RSA_2048_Vector1.length));
+        assertEquals(modulusInBytes, c.getOutputSize(RSA_2048_Vector1.length * 2));
+        assertEquals(modulusInBytes, c.getOutputSize(0));
     }
 
     public void testRSA_ECB_NoPadding_GetIV_Success() throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_GetIV_Success(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_GetIV_Success(String provider) throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
                 RSA_2048_publicExponent);
         final PublicKey pubKey = kf.generatePublic(pubKeySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
         assertNull("ECB mode has no IV and should be null", c.getIV());
 
         c.init(Cipher.ENCRYPT_MODE, pubKey);
@@ -1345,12 +1779,390 @@ public final class CipherTest extends TestCase {
     }
 
     public void testRSA_ECB_NoPadding_GetParameters_NoneProvided_Success() throws Exception {
+        for (String provider : RSA_PROVIDERS) {
+            testRSA_ECB_NoPadding_GetParameters_NoneProvided_Success(provider);
+        }
+    }
+
+    private void testRSA_ECB_NoPadding_GetParameters_NoneProvided_Success(String provider) throws Exception {
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(RSA_2048_modulus,
                 RSA_2048_publicExponent);
         final PublicKey pubKey = kf.generatePublic(pubKeySpec);
 
-        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding");
+        Cipher c = Cipher.getInstance("RSA/ECB/NoPadding", provider);
         assertNull("Parameters should be null", c.getParameters());
+    }
+
+    /*
+     * Test vector generation:
+     * openssl rand -hex 16
+     * echo '3d4f8970b1f27537f40a39298a41555f' | sed 's/\(..\)/(byte) 0x\1, /g'
+     */
+    private static final byte[] AES_128_KEY = new byte[] {
+            (byte) 0x3d, (byte) 0x4f, (byte) 0x89, (byte) 0x70, (byte) 0xb1, (byte) 0xf2,
+            (byte) 0x75, (byte) 0x37, (byte) 0xf4, (byte) 0x0a, (byte) 0x39, (byte) 0x29,
+            (byte) 0x8a, (byte) 0x41, (byte) 0x55, (byte) 0x5f,
+    };
+
+    /*
+     * Test key generation:
+     * openssl rand -hex 24
+     * echo '5a7a3d7e40b64ed996f7afa15f97fd595e27db6af428e342' | sed 's/\(..\)/(byte) 0x\1, /g'
+     */
+    private static final byte[] AES_192_KEY = new byte[] {
+            (byte) 0x5a, (byte) 0x7a, (byte) 0x3d, (byte) 0x7e, (byte) 0x40, (byte) 0xb6,
+            (byte) 0x4e, (byte) 0xd9, (byte) 0x96, (byte) 0xf7, (byte) 0xaf, (byte) 0xa1,
+            (byte) 0x5f, (byte) 0x97, (byte) 0xfd, (byte) 0x59, (byte) 0x5e, (byte) 0x27,
+            (byte) 0xdb, (byte) 0x6a, (byte) 0xf4, (byte) 0x28, (byte) 0xe3, (byte) 0x42,
+    };
+
+    /*
+     * Test key generation:
+     * openssl rand -hex 32
+     * echo 'ec53c6d51d2c4973585fb0b8e51cd2e39915ff07a1837872715d6121bf861935' | sed 's/\(..\)/(byte) 0x\1, /g'
+     */
+    private static final byte[] AES_256_KEY = new byte[] {
+            (byte) 0xec, (byte) 0x53, (byte) 0xc6, (byte) 0xd5, (byte) 0x1d, (byte) 0x2c,
+            (byte) 0x49, (byte) 0x73, (byte) 0x58, (byte) 0x5f, (byte) 0xb0, (byte) 0xb8,
+            (byte) 0xe5, (byte) 0x1c, (byte) 0xd2, (byte) 0xe3, (byte) 0x99, (byte) 0x15,
+            (byte) 0xff, (byte) 0x07, (byte) 0xa1, (byte) 0x83, (byte) 0x78, (byte) 0x72,
+            (byte) 0x71, (byte) 0x5d, (byte) 0x61, (byte) 0x21, (byte) 0xbf, (byte) 0x86,
+            (byte) 0x19, (byte) 0x35,
+    };
+
+    private static final byte[][] AES_KEYS = new byte[][] {
+            AES_128_KEY, AES_192_KEY, AES_256_KEY,
+    };
+
+    private static final String[] AES_MODES = new String[] {
+            "AES/ECB",
+            "AES/CBC",
+            "AES/CFB",
+            "AES/CTR",
+            "AES/OFB",
+    };
+
+    /*
+     * Test vector creation:
+     * echo -n 'Hello, world!' | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext = new byte[] {
+            (byte) 0x48, (byte) 0x65, (byte) 0x6C, (byte) 0x6C, (byte) 0x6F, (byte) 0x2C,
+            (byte) 0x20, (byte) 0x77, (byte) 0x6F, (byte) 0x72, (byte) 0x6C, (byte) 0x64,
+            (byte) 0x21,
+    };
+
+    /*
+     * Test vector creation:
+     * openssl enc -aes-128-ecb -K 3d4f8970b1f27537f40a39298a41555f -in blah|openssl enc -aes-128-ecb -K 3d4f8970b1f27537f40a39298a41555f -nopad -d|recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext_Padded = new byte[] {
+            (byte) 0x48, (byte) 0x65, (byte) 0x6C, (byte) 0x6C, (byte) 0x6F, (byte) 0x2C,
+            (byte) 0x20, (byte) 0x77, (byte) 0x6F, (byte) 0x72, (byte) 0x6C, (byte) 0x64,
+            (byte) 0x21, (byte) 0x03, (byte) 0x03, (byte) 0x03
+    };
+
+    /*
+     * Test vector generation:
+     * openssl enc -aes-128-ecb -K 3d4f8970b1f27537f40a39298a41555f -in blah|recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] AES_128_ECB_PKCS5Padding_TestVector_1_Encrypted = new byte[] {
+            (byte) 0x65, (byte) 0x3E, (byte) 0x86, (byte) 0xFB, (byte) 0x05, (byte) 0x5A,
+            (byte) 0x52, (byte) 0xEA, (byte) 0xDD, (byte) 0x08, (byte) 0xE7, (byte) 0x48,
+            (byte) 0x33, (byte) 0x01, (byte) 0xFC, (byte) 0x5A,
+    };
+
+    /*
+     * Test key generation:
+     * openssl rand -hex 16
+     * echo 'ceaa31952dfd3d0f5af4b2042ba06094' | sed 's/\(..\)/(byte) 0x\1, /g'
+     */
+    private static final byte[] AES_256_CBC_PKCS5Padding_TestVector_1_IV = new byte[] {
+            (byte) 0xce, (byte) 0xaa, (byte) 0x31, (byte) 0x95, (byte) 0x2d, (byte) 0xfd,
+            (byte) 0x3d, (byte) 0x0f, (byte) 0x5a, (byte) 0xf4, (byte) 0xb2, (byte) 0x04,
+            (byte) 0x2b, (byte) 0xa0, (byte) 0x60, (byte) 0x94,
+    };
+
+    /*
+     * Test vector generation:
+     * echo -n 'I only regret that I have but one test to write.' | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] AES_256_CBC_PKCS5Padding_TestVector_1_Plaintext = new byte[] {
+            (byte) 0x49, (byte) 0x20, (byte) 0x6F, (byte) 0x6E, (byte) 0x6C, (byte) 0x79,
+            (byte) 0x20, (byte) 0x72, (byte) 0x65, (byte) 0x67, (byte) 0x72, (byte) 0x65,
+            (byte) 0x74, (byte) 0x20, (byte) 0x74, (byte) 0x68, (byte) 0x61, (byte) 0x74,
+            (byte) 0x20, (byte) 0x49, (byte) 0x20, (byte) 0x68, (byte) 0x61, (byte) 0x76,
+            (byte) 0x65, (byte) 0x20, (byte) 0x62, (byte) 0x75, (byte) 0x74, (byte) 0x20,
+            (byte) 0x6F, (byte) 0x6E, (byte) 0x65, (byte) 0x20, (byte) 0x74, (byte) 0x65,
+            (byte) 0x73, (byte) 0x74, (byte) 0x20, (byte) 0x74, (byte) 0x6F, (byte) 0x20,
+            (byte) 0x77, (byte) 0x72, (byte) 0x69, (byte) 0x74, (byte) 0x65, (byte) 0x2E
+    };
+
+    /*
+     * Test vector generation:
+     * echo -n 'I only regret that I have but one test to write.' | openssl enc -aes-256-cbc -K ec53c6d51d2c4973585fb0b8e51cd2e39915ff07a1837872715d6121bf861935 -iv ceaa31952dfd3d0f5af4b2042ba06094 | openssl enc -aes-256-cbc -K ec53c6d51d2c4973585fb0b8e51cd2e39915ff07a1837872715d6121bf861935 -iv ceaa31952dfd3d0f5af4b2042ba06094 -d -nopad | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] AES_256_CBC_PKCS5Padding_TestVector_1_Plaintext_Padded = new byte[] {
+            (byte) 0x49, (byte) 0x20, (byte) 0x6F, (byte) 0x6E, (byte) 0x6C, (byte) 0x79,
+            (byte) 0x20, (byte) 0x72, (byte) 0x65, (byte) 0x67, (byte) 0x72, (byte) 0x65,
+            (byte) 0x74, (byte) 0x20, (byte) 0x74, (byte) 0x68, (byte) 0x61, (byte) 0x74,
+            (byte) 0x20, (byte) 0x49, (byte) 0x20, (byte) 0x68, (byte) 0x61, (byte) 0x76,
+            (byte) 0x65, (byte) 0x20, (byte) 0x62, (byte) 0x75, (byte) 0x74, (byte) 0x20,
+            (byte) 0x6F, (byte) 0x6E, (byte) 0x65, (byte) 0x20, (byte) 0x74, (byte) 0x65,
+            (byte) 0x73, (byte) 0x74, (byte) 0x20, (byte) 0x74, (byte) 0x6F, (byte) 0x20,
+            (byte) 0x77, (byte) 0x72, (byte) 0x69, (byte) 0x74, (byte) 0x65, (byte) 0x2E,
+            (byte) 0x10, (byte) 0x10, (byte) 0x10, (byte) 0x10, (byte) 0x10, (byte) 0x10,
+            (byte) 0x10, (byte) 0x10, (byte) 0x10, (byte) 0x10, (byte) 0x10, (byte) 0x10,
+            (byte) 0x10, (byte) 0x10, (byte) 0x10, (byte) 0x10
+    };
+
+    /*
+     * Test vector generation:
+     * echo -n 'I only regret that I have but one test to write.' | openssl enc -aes-256-cbc -K ec53c6d51d2c4973585fb0b8e51cd2e39915ff07a1837872715d6121bf861935 -iv ceaa31952dfd3d0f5af4b2042ba06094 | recode ../x1 | sed 's/0x/(byte) 0x/g'
+     */
+    private static final byte[] AES_256_CBC_PKCS5Padding_TestVector_1_Ciphertext = new byte[] {
+            (byte) 0x90, (byte) 0x65, (byte) 0xDD, (byte) 0xAF, (byte) 0x7A, (byte) 0xCE,
+            (byte) 0xAE, (byte) 0xBF, (byte) 0xE8, (byte) 0xF6, (byte) 0x9E, (byte) 0xDB,
+            (byte) 0xEA, (byte) 0x65, (byte) 0x28, (byte) 0xC4, (byte) 0x9A, (byte) 0x28,
+            (byte) 0xEA, (byte) 0xA3, (byte) 0x95, (byte) 0x2E, (byte) 0xFF, (byte) 0xF1,
+            (byte) 0xA0, (byte) 0xCA, (byte) 0xC2, (byte) 0xA4, (byte) 0x65, (byte) 0xCD,
+            (byte) 0xBF, (byte) 0xCE, (byte) 0x9E, (byte) 0xF1, (byte) 0x57, (byte) 0xF6,
+            (byte) 0x32, (byte) 0x2E, (byte) 0x8F, (byte) 0x93, (byte) 0x2E, (byte) 0xAE,
+            (byte) 0x41, (byte) 0x33, (byte) 0x54, (byte) 0xD0, (byte) 0xEF, (byte) 0x8C,
+            (byte) 0x52, (byte) 0x14, (byte) 0xAC, (byte) 0x2D, (byte) 0xD5, (byte) 0xA4,
+            (byte) 0xF9, (byte) 0x20, (byte) 0x77, (byte) 0x25, (byte) 0x91, (byte) 0x3F,
+            (byte) 0xD1, (byte) 0xB9, (byte) 0x00, (byte) 0x3E
+    };
+
+    private static class CipherTestParam {
+        public final String mode;
+
+        public final byte[] key;
+
+        public final byte[] iv;
+
+        public final byte[] plaintext;
+
+        public final byte[] ciphertext;
+
+        public final byte[] plaintextPadded;
+
+        public CipherTestParam(String mode, byte[] key, byte[] iv, byte[] plaintext,
+                byte[] plaintextPadded, byte[] ciphertext) {
+            this.mode = mode;
+            this.key = key;
+            this.iv = iv;
+            this.plaintext = plaintext;
+            this.plaintextPadded = plaintextPadded;
+            this.ciphertext = ciphertext;
+        }
+    }
+
+    private static List<CipherTestParam> CIPHER_TEST_PARAMS = new ArrayList<CipherTestParam>();
+    static {
+        CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/ECB", AES_128_KEY,
+                null,
+                AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext,
+                AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext_Padded,
+                AES_128_ECB_PKCS5Padding_TestVector_1_Encrypted));
+        if (IS_UNLIMITED) {
+            CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/CBC", AES_256_KEY,
+                    AES_256_CBC_PKCS5Padding_TestVector_1_IV,
+                    AES_256_CBC_PKCS5Padding_TestVector_1_Plaintext,
+                    AES_256_CBC_PKCS5Padding_TestVector_1_Plaintext_Padded,
+                    AES_256_CBC_PKCS5Padding_TestVector_1_Ciphertext));
+        }
+    }
+
+    public void testCipher_Success() throws Exception {
+        for (String provider : AES_PROVIDERS) {
+            testCipher_Success(provider);
+        }
+    }
+
+    private void testCipher_Success(String provider) throws Exception {
+        final ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+        PrintStream out = new PrintStream(errBuffer);
+        for (CipherTestParam p : CIPHER_TEST_PARAMS) {
+            try {
+                checkCipher(p, provider);
+            } catch (Exception e) {
+                out.append("Error encountered checking " + p.mode + ", keySize="
+                        + (p.key.length * 8) + "\n");
+                e.printStackTrace(out);
+            }
+        }
+        out.flush();
+        if (errBuffer.size() > 0) {
+            throw new Exception("Errors encountered:\n\n" + errBuffer.toString() + "\n\n");
+        }
+    }
+
+    private void checkCipher(CipherTestParam p, String provider) throws Exception {
+        SecretKey key = new SecretKeySpec(p.key, "AES");
+        Cipher c = Cipher.getInstance(p.mode + "/PKCS5Padding", provider);
+        AlgorithmParameterSpec spec = null;
+        if (p.iv != null) {
+            spec = new IvParameterSpec(p.iv);
+        }
+        c.init(Cipher.ENCRYPT_MODE, key, spec);
+
+        final byte[] actualCiphertext = c.doFinal(p.plaintext);
+        assertTrue(Arrays.equals(p.ciphertext, actualCiphertext));
+
+        c.init(Cipher.DECRYPT_MODE, key, spec);
+
+        final byte[] actualPlaintext = c.doFinal(p.ciphertext);
+        assertTrue(Arrays.equals(p.plaintext, actualPlaintext));
+
+        Cipher cNoPad = Cipher.getInstance(p.mode + "/NoPadding", provider);
+        cNoPad.init(Cipher.DECRYPT_MODE, key, spec);
+
+        final byte[] actualPlaintextPadded = cNoPad.doFinal(p.ciphertext);
+        assertTrue(Arrays.equals(p.plaintextPadded, actualPlaintextPadded));
+    }
+
+    public void testCipher_ShortBlock_Failure() throws Exception {
+        for (String provider : AES_PROVIDERS) {
+            testCipher_ShortBlock_Failure(provider);
+        }
+    }
+
+    private void testCipher_ShortBlock_Failure(String provider) throws Exception {
+        final ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+        PrintStream out = new PrintStream(errBuffer);
+        for (CipherTestParam p : CIPHER_TEST_PARAMS) {
+            try {
+                checkCipher_ShortBlock_Failure(p, provider);
+            } catch (Exception e) {
+                out.append("Error encountered checking " + p.mode + ", keySize="
+                        + (p.key.length * 8) + "\n");
+                e.printStackTrace(out);
+            }
+        }
+        out.flush();
+        if (errBuffer.size() > 0) {
+            throw new Exception("Errors encountered:\n\n" + errBuffer.toString() + "\n\n");
+        }
+    }
+
+    private void checkCipher_ShortBlock_Failure(CipherTestParam p, String provider) throws Exception {
+        SecretKey key = new SecretKeySpec(p.key, "AES");
+        Cipher c = Cipher.getInstance(p.mode + "/NoPadding", provider);
+        if (c.getBlockSize() == 0) {
+            return;
+        }
+
+        c.init(Cipher.ENCRYPT_MODE, key);
+        try {
+            c.doFinal(new byte[] { 0x01, 0x02, 0x03 });
+            fail("Should throw IllegalBlockSizeException on wrong-sized block");
+        } catch (IllegalBlockSizeException expected) {
+        }
+    }
+
+    public void testAES_ECB_PKCS5Padding_ShortBuffer_Failure() throws Exception {
+        for (String provider : AES_PROVIDERS) {
+            testAES_ECB_PKCS5Padding_ShortBuffer_Failure(provider);
+        }
+    }
+
+    private void testAES_ECB_PKCS5Padding_ShortBuffer_Failure(String provider) throws Exception {
+        SecretKey key = new SecretKeySpec(AES_128_KEY, "AES");
+        Cipher c = Cipher.getInstance("AES/ECB/PKCS5Padding", provider);
+        c.init(Cipher.ENCRYPT_MODE, key);
+
+        final byte[] fragmentOutput = c.update(AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext);
+        if (fragmentOutput != null) {
+            assertEquals(0, fragmentOutput.length);
+        }
+
+        // Provide null buffer.
+        {
+            try {
+                c.doFinal(null, 0);
+                fail("Should throw NullPointerException on null output buffer");
+            } catch (NullPointerException expected) {
+            } catch (IllegalArgumentException expected) {
+            }
+        }
+
+        // Provide short buffer.
+        {
+            final byte[] output = new byte[c.getBlockSize() - 1];
+            try {
+                c.doFinal(output, 0);
+                fail("Should throw ShortBufferException on short output buffer");
+            } catch (ShortBufferException expected) {
+            }
+        }
+
+        // Start 1 byte into output buffer.
+        {
+            final byte[] output = new byte[c.getBlockSize()];
+            try {
+                c.doFinal(output, 1);
+                fail("Should throw ShortBufferException on short output buffer");
+            } catch (ShortBufferException expected) {
+            }
+        }
+
+        // Should keep data for real output buffer
+        {
+            final byte[] output = new byte[c.getBlockSize()];
+            assertEquals(AES_128_ECB_PKCS5Padding_TestVector_1_Encrypted.length, c.doFinal(output, 0));
+            assertTrue(Arrays.equals(AES_128_ECB_PKCS5Padding_TestVector_1_Encrypted, output));
+        }
+    }
+
+    public void testAES_ECB_NoPadding_IncrementalUpdate_Success() throws Exception {
+        for (String provider : AES_PROVIDERS) {
+            testAES_ECB_NoPadding_IncrementalUpdate_Success(provider);
+        }
+    }
+
+    private void testAES_ECB_NoPadding_IncrementalUpdate_Success(String provider) throws Exception {
+        SecretKey key = new SecretKeySpec(AES_128_KEY, "AES");
+        Cipher c = Cipher.getInstance("AES/ECB/NoPadding", provider);
+        c.init(Cipher.ENCRYPT_MODE, key);
+
+        for (int i = 0; i < AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext_Padded.length - 1; i++) {
+            final byte[] outputFragment = c.update(AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext_Padded, i, 1);
+            if (outputFragment != null) {
+                assertEquals(0, outputFragment.length);
+            }
+        }
+
+        final byte[] output = c.doFinal(AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext_Padded,
+                AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext_Padded.length - 1, 1);
+        assertNotNull(output);
+        assertEquals(AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext_Padded.length, output.length);
+
+        assertTrue(Arrays.equals(AES_128_ECB_PKCS5Padding_TestVector_1_Encrypted, output));
+    }
+
+    private static final byte[] AES_IV_ZEROES = new byte[] {
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+    };
+
+    public void testAES_ECB_NoPadding_IvParameters_Failure() throws Exception {
+        for (String provider : AES_PROVIDERS) {
+            testAES_ECB_NoPadding_IvParameters_Failure(provider);
+        }
+    }
+
+    private void testAES_ECB_NoPadding_IvParameters_Failure(String provider) throws Exception {
+        SecretKey key = new SecretKeySpec(AES_128_KEY, "AES");
+        Cipher c = Cipher.getInstance("AES/ECB/NoPadding", provider);
+
+        AlgorithmParameterSpec spec = new IvParameterSpec(AES_IV_ZEROES);
+        try {
+            c.init(Cipher.ENCRYPT_MODE, key, spec);
+            fail("Should not accept an IV in ECB mode");
+        } catch (InvalidAlgorithmParameterException expected) {
+        }
     }
 }

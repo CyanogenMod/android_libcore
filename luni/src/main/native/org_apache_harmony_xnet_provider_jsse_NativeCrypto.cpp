@@ -505,11 +505,11 @@ static bool arrayToBignum(JNIEnv* env, jbyteArray source, BIGNUM** dest) {
 /**
  * Converts an OpenSSL BIGNUM to a Java byte[] array.
  */
-static jbyteArray bignumToArray(JNIEnv* env, BIGNUM* source) {
-    JNI_TRACE("bignumToArray(%p)", source);
+static jbyteArray bignumToArray(JNIEnv* env, BIGNUM* source, const char* sourceName) {
+    JNI_TRACE("bignumToArray(%p, %s)", source, sourceName);
 
     if (source == NULL) {
-        jniThrowNullPointerException(env, NULL);
+        jniThrowNullPointerException(env, sourceName);
         return NULL;
     }
 
@@ -517,7 +517,7 @@ static jbyteArray bignumToArray(JNIEnv* env, BIGNUM* source) {
     jbyteArray javaBytes = env->NewByteArray(len);
     ScopedByteArrayRW bytes(env, javaBytes);
     if (bytes.get() == NULL) {
-        JNI_TRACE("bignumToArray(%p) => NULL", source);
+        JNI_TRACE("bignumToArray(%p, %s) => NULL", source, sourceName);
         return NULL;
     }
 
@@ -535,7 +535,7 @@ static jbyteArray bignumToArray(JNIEnv* env, BIGNUM* source) {
         return NULL;
     }
 
-    JNI_TRACE("bignumToArray(%p) => %p", source, javaBytes);
+    JNI_TRACE("bignumToArray(%p, %s) => %p", source, sourceName, javaBytes);
     return javaBytes;
 }
 
@@ -1204,13 +1204,13 @@ static jobjectArray NativeCrypto_get_RSA_public_params(JNIEnv* env, jclass, jint
         return NULL;
     }
 
-    jbyteArray n = bignumToArray(env, rsa->n);
+    jbyteArray n = bignumToArray(env, rsa->n, "n");
     if (env->ExceptionCheck()) {
         return NULL;
     }
     env->SetObjectArrayElement(joa, 0, n);
 
-    jbyteArray e = bignumToArray(env, rsa->e);
+    jbyteArray e = bignumToArray(env, rsa->e, "e");
     if (env->ExceptionCheck()) {
         return NULL;
     }
@@ -1237,14 +1237,14 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
         return NULL;
     }
 
-    jbyteArray n = bignumToArray(env, rsa->n);
+    jbyteArray n = bignumToArray(env, rsa->n, "n");
     if (env->ExceptionCheck()) {
         return NULL;
     }
     env->SetObjectArrayElement(joa, 0, n);
 
     if (rsa->e != NULL) {
-        jbyteArray e = bignumToArray(env, rsa->e);
+        jbyteArray e = bignumToArray(env, rsa->e, "e");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1252,7 +1252,7 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
     }
 
     if (rsa->d != NULL) {
-        jbyteArray d = bignumToArray(env, rsa->d);
+        jbyteArray d = bignumToArray(env, rsa->d, "d");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1260,7 +1260,7 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
     }
 
     if (rsa->p != NULL) {
-        jbyteArray p = bignumToArray(env, rsa->p);
+        jbyteArray p = bignumToArray(env, rsa->p, "p");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1268,7 +1268,7 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
     }
 
     if (rsa->q != NULL) {
-        jbyteArray q = bignumToArray(env, rsa->q);
+        jbyteArray q = bignumToArray(env, rsa->q, "q");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1276,7 +1276,7 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
     }
 
     if (rsa->dmp1 != NULL) {
-        jbyteArray dmp1 = bignumToArray(env, rsa->dmp1);
+        jbyteArray dmp1 = bignumToArray(env, rsa->dmp1, "dmp1");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1284,7 +1284,7 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
     }
 
     if (rsa->dmq1 != NULL) {
-        jbyteArray dmq1 = bignumToArray(env, rsa->dmq1);
+        jbyteArray dmq1 = bignumToArray(env, rsa->dmq1, "dmq1");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1292,7 +1292,7 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
     }
 
     if (rsa->iqmp != NULL) {
-        jbyteArray iqmp = bignumToArray(env, rsa->iqmp);
+        jbyteArray iqmp = bignumToArray(env, rsa->iqmp, "iqmp");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1397,26 +1397,26 @@ static jobjectArray NativeCrypto_get_DSA_params(JNIEnv* env, jclass, jint pkeyRe
         return NULL;
     }
 
-    jbyteArray g = bignumToArray(env, dsa->g);
+    jbyteArray g = bignumToArray(env, dsa->g, "g");
     if (env->ExceptionCheck()) {
         return NULL;
     }
     env->SetObjectArrayElement(joa, 0, g);
 
-    jbyteArray p = bignumToArray(env, dsa->p);
+    jbyteArray p = bignumToArray(env, dsa->p, "p");
     if (env->ExceptionCheck()) {
         return NULL;
     }
     env->SetObjectArrayElement(joa, 1, p);
 
-    jbyteArray q = bignumToArray(env, dsa->q);
+    jbyteArray q = bignumToArray(env, dsa->q, "q");
     if (env->ExceptionCheck()) {
         return NULL;
     }
     env->SetObjectArrayElement(joa, 2, q);
 
     if (dsa->pub_key != NULL) {
-        jbyteArray pub_key = bignumToArray(env, dsa->pub_key);
+        jbyteArray pub_key = bignumToArray(env, dsa->pub_key, "pub_key");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1424,7 +1424,7 @@ static jobjectArray NativeCrypto_get_DSA_params(JNIEnv* env, jclass, jint pkeyRe
     }
 
     if (dsa->priv_key != NULL) {
-        jbyteArray priv_key = bignumToArray(env, dsa->priv_key);
+        jbyteArray priv_key = bignumToArray(env, dsa->priv_key, "priv_key");
         if (env->ExceptionCheck()) {
             return NULL;
         }
