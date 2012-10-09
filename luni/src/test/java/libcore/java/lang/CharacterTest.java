@@ -74,8 +74,9 @@ public class CharacterTest extends junit.framework.TestCase {
 
     public void test_getName() throws Exception {
         // Character.getName requires the corresponding ICU data.
-        assertEquals("NULL", Character.getName(0x0000));
-        assertEquals("BELL", Character.getName(0x0007));
+        // Changed from "NULL" and "BELL" by Unicode 49.2
+        assertEquals("<control-0000>", Character.getName(0x0000));
+        assertEquals("<control-0007>", Character.getName(0x0007));
         assertEquals("LATIN SMALL LETTER L", Character.getName('l'));
         // This changed name from Unicode 1.0. Used to be "OPENING...".
         assertEquals("LEFT CURLY BRACKET", Character.getName('{'));

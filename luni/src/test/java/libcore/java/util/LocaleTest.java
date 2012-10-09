@@ -28,15 +28,33 @@ import java.util.Locale;
 
 public class LocaleTest extends junit.framework.TestCase {
     // http://b/2611311; if there's no display language/country/variant, use the raw codes.
-    public void test_getDisplayName_raw() throws Exception {
-        Locale weird = new Locale("AaBbCc", "DdEeFf", "GgHhIi");
-        assertEquals("aabbcc", weird.getLanguage());
-        assertEquals("", weird.getDisplayLanguage());
-        assertEquals("DDEEFF", weird.getCountry());
-        assertEquals("", weird.getDisplayCountry());
-        assertEquals("GgHhIi", weird.getVariant());
-        assertEquals("", weird.getDisplayVariant());
-        assertEquals("aabbcc (DDEEFF,GgHhIi)", weird.getDisplayName());
+    public void test_getDisplayName_invalid() throws Exception {
+        Locale invalid = new Locale("AaBbCc", "DdEeFf", "GgHhIi");
+
+        assertEquals("aabbcc", invalid.getLanguage());
+        assertEquals("DDEEFF", invalid.getCountry());
+        assertEquals("GgHhIi", invalid.getVariant());
+
+        // Android using icu4c < 49.2 returned empty strings for display language, country,
+        // and variant, but a display name made up of the raw strings.
+        // Newer releases return slightly different results, but no less unreasonable.
+        assertEquals("aabbcc", invalid.getDisplayLanguage());
+        assertEquals("", invalid.getDisplayCountry());
+        assertEquals("DDEEFF_GGHHII", invalid.getDisplayVariant());
+        assertEquals("aabbcc (DDEEFF,DDEEFF_GGHHII)", invalid.getDisplayName());
+    }
+
+    // http://b/2611311; if there's no display language/country/variant, use the raw codes.
+    public void test_getDisplayName_unknown() throws Exception {
+        Locale unknown = new Locale("xx", "YY", "Traditional");
+        assertEquals("xx", unknown.getLanguage());
+        assertEquals("YY", unknown.getCountry());
+        assertEquals("Traditional", unknown.getVariant());
+
+        assertEquals("xx", unknown.getDisplayLanguage());
+        assertEquals("YY", unknown.getDisplayCountry());
+        assertEquals("TRADITIONAL", unknown.getDisplayVariant());
+        assertEquals("xx (YY,TRADITIONAL)", unknown.getDisplayName());
     }
 
     public void test_getDisplayName_easy() throws Exception {
