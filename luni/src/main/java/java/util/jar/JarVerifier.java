@@ -51,6 +51,16 @@ import org.apache.harmony.security.utils.JarUtils;
  * </ul>
  */
 class JarVerifier {
+    /**
+     * List of accepted digest algorithms. This list is in order from most
+     * preferred to least preferred.
+     */
+    private static final String[] DIGEST_ALGORITHMS = new String[] {
+        "SHA-512",
+        "SHA-384",
+        "SHA-256",
+        "SHA1",
+    };
 
     private final String jarName;
 
@@ -190,22 +200,17 @@ class JarVerifier {
         }
         Certificate[] certificatesArray = certs.toArray(new Certificate[certs.size()]);
 
-        String algorithms = attributes.getValue("Digest-Algorithms");
-        if (algorithms == null) {
-            algorithms = "SHA SHA1";
-        }
-        StringTokenizer tokens = new StringTokenizer(algorithms);
-        while (tokens.hasMoreTokens()) {
-            String algorithm = tokens.nextToken();
-            String hash = attributes.getValue(algorithm + "-Digest");
+        for (int i = 0; i < DIGEST_ALGORITHMS.length; i++) {
+            final String algorithm = DIGEST_ALGORITHMS[i];
+            final String hash = attributes.getValue(algorithm + "-Digest");
             if (hash == null) {
                 continue;
             }
             byte[] hashBytes = hash.getBytes(Charsets.ISO_8859_1);
 
             try {
-                return new VerifierEntry(name, MessageDigest
-                        .getInstance(algorithm), hashBytes, certificatesArray);
+                return new VerifierEntry(name, MessageDigest.getInstance(algorithm), hashBytes,
+                        certificatesArray);
             } catch (NoSuchAlgorithmException e) {
                 // ignored
             }
@@ -378,13 +383,8 @@ class JarVerifier {
 
     private boolean verify(Attributes attributes, String entry, byte[] data,
             int start, int end, boolean ignoreSecondEndline, boolean ignorable) {
-        String algorithms = attributes.getValue("Digest-Algorithms");
-        if (algorithms == null) {
-            algorithms = "SHA SHA1";
-        }
-        StringTokenizer tokens = new StringTokenizer(algorithms);
-        while (tokens.hasMoreTokens()) {
-            String algorithm = tokens.nextToken();
+        for (int i = 0; i < DIGEST_ALGORITHMS.length; i++) {
+            String algorithm = DIGEST_ALGORITHMS[i];
             String hash = attributes.getValue(algorithm + entry);
             if (hash == null) {
                 continue;
