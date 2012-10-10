@@ -69,6 +69,10 @@ public class JarFileTest extends TestCase {
 
     private final String jarName5 = "hyts_signed_inc.jar";
 
+    private final String jarName6 = "hyts_signed_sha256withrsa.jar";
+
+    private final String jarName7 = "hyts_signed_sha256digest_sha256withrsa.jar";
+
     private final String entryName = "foo/bar/A.class";
 
     private final String entryName3 = "coucou/FileAccess.class";
@@ -581,6 +585,40 @@ public class JarFileTest extends TestCase {
             // expected
         } catch (Exception e) {
             fail("Exception during test 5: " + e);
+        }
+
+        // SHA1 digest, SHA256withRSA signed JAR
+        try {
+            Support_Resources.copyFile(resources, null, jarName6);
+            signedFile = new File(resources, jarName6);
+        } catch (Exception e) {
+            fail("Failed to create local file 6: " + e);
+        }
+
+        try {
+            JarFile jar = new JarFile(signedFile);
+            JarEntry entry = new JarEntry(entryName3);
+            InputStream in = jar.getInputStream(entry);
+            in.read();
+        } catch (Exception e) {
+            fail("Exception during test 6: " + e);
+        }
+
+        // SHA-256 digest, SHA256withRSA signed JAR
+        try {
+            Support_Resources.copyFile(resources, null, jarName7);
+            signedFile = new File(resources, jarName7);
+        } catch (Exception e) {
+            fail("Failed to create local file 7: " + e);
+        }
+
+        try {
+            JarFile jar = new JarFile(signedFile);
+            JarEntry entry = new JarEntry(entryName3);
+            InputStream in = jar.getInputStream(entry);
+            in.read();
+        } catch (Exception e) {
+            fail("Exception during test 7: " + e);
         }
     }
 

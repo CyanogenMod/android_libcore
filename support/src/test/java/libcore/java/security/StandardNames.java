@@ -190,6 +190,7 @@ public final class StandardNames extends Assert {
         provide("Mac", "HmacSHA256");
         provide("Mac", "HmacSHA384");
         provide("Mac", "HmacSHA512");
+        // If adding a new MessageDigest, consider adding it to JarVerifier
         provide("MessageDigest", "MD2");
         provide("MessageDigest", "MD5");
         provide("MessageDigest", "SHA-256");
