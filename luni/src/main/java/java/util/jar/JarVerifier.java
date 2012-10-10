@@ -259,7 +259,7 @@ class JarVerifier {
         Iterator<String> it = metaEntries.keySet().iterator();
         while (it.hasNext()) {
             String key = it.next();
-            if (key.endsWith(".DSA") || key.endsWith(".RSA")) {
+            if (key.endsWith(".DSA") || key.endsWith(".RSA") || key.endsWith(".EC")) {
                 verifyCertificate(key);
                 // Check for recursive class load
                 if (metaEntries == null) {
