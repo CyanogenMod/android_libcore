@@ -121,7 +121,7 @@ public class JarUtils {
         if (da != null && dea != null) {
             alg = da + "with" +  dea;
             try {
-                sig = Signature.getInstance(alg, OpenSSLProvider.PROVIDER_NAME);
+                sig = Signature.getInstance(alg);
             } catch (NoSuchAlgorithmException e) {}
         }
         if (sig == null) {
@@ -130,7 +130,7 @@ public class JarUtils {
                 return null;
             }
             try {
-                sig = Signature.getInstance(alg, OpenSSLProvider.PROVIDER_NAME);
+                sig = Signature.getInstance(alg);
             } catch (NoSuchAlgorithmException e) {
                 return null;
             }
