@@ -38,12 +38,12 @@ import tests.net.StuckServer;
  */
 public class ConcurrentCloseTest extends junit.framework.TestCase {
     public void test_accept() throws Exception {
-        ServerSocket s = new ServerSocket(0);
-        new Killer(s).start();
+        ServerSocket ss = new ServerSocket(0);
+        new Killer(ss).start();
         try {
             System.err.println("accept...");
-            s.accept();
-            fail("accept returned!");
+            Socket s = ss.accept();
+            fail("accept returned " + s + "!");
         } catch (SocketException expected) {
             assertEquals("Socket closed", expected.getMessage());
         }
@@ -54,9 +54,9 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
         Socket s = new Socket();
         new Killer(s).start();
         try {
-            System.err.println("connect...");
+            System.err.println("connect " + s + " to " + ss.getLocalSocketAddress() + "...");
             s.connect(ss.getLocalSocketAddress());
-            fail("connect returned!");
+            fail("connect returned: " + s + "!");
         } catch (SocketException expected) {
             assertEquals("Socket closed", expected.getMessage());
         } finally {
@@ -69,9 +69,9 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
         Socket s = new Socket();
         new Killer(s).start();
         try {
-            System.err.println("connect (with timeout)...");
+            System.err.println("connect (with timeout) " + s + " to " + ss.getLocalSocketAddress() + "...");
             s.connect(ss.getLocalSocketAddress(), 3600 * 1000);
-            fail("connect returned!");
+            fail("connect returned: " + s + "!");
         } catch (SocketException expected) {
             assertEquals("Socket closed", expected.getMessage());
         } finally {
@@ -84,13 +84,13 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
         SocketChannel s = SocketChannel.open();
         new Killer(s.socket()).start();
         try {
-            System.err.println("connect (non-blocking)...");
+            System.err.println("connect (non-blocking) " + s + " to " + ss.getLocalSocketAddress() + "...");
             s.configureBlocking(false);
             s.connect(ss.getLocalSocketAddress());
             while (!s.finishConnect()) {
                 // Spin like a mad thing!
             }
-            fail("connect returned!");
+            fail("connect returned: " + s + "!");
         } catch (SocketException expected) {
             assertEquals("Socket closed", expected.getMessage());
         } catch (AsynchronousCloseException alsoOkay) {
@@ -111,7 +111,7 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
         try {
             System.err.println("read...");
             int i = s.getInputStream().read();
-            fail("read returned " + i);
+            fail("read returned: " + i);
         } catch (SocketException expected) {
             assertEquals("Socket closed", expected.getMessage());
         }
@@ -136,7 +136,7 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
                         try {
                             System.err.println("read...");
                             int i = s.getInputStream().read();
-                            fail("read returned " + i);
+                            fail("read returned: " + i);
                         } catch (SocketException expected) {
                             assertEquals("Socket closed", expected.getMessage());
                         }
@@ -238,7 +238,7 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
             try {
                 System.err.println("sleep...");
                 Thread.sleep(2000);
-                System.err.println("close...");
+                System.err.println("close " + s + "...");
                 s.getClass().getMethod("close").invoke(s);
             } catch (Exception ex) {
                 ex.printStackTrace();
