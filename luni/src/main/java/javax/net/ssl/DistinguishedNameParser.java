@@ -196,7 +196,7 @@ public final class DistinguishedNameParser {
             case '+':
             case ',':
             case ';':
-                // separator char has beed found
+                // separator char has been found
                 return new String(chars, beg, end - beg);
             case '\\':
                 // escaped char
@@ -216,7 +216,7 @@ public final class DistinguishedNameParser {
                 }
                 if (pos == length || chars[pos] == ',' || chars[pos] == '+'
                         || chars[pos] == ';') {
-                    // separator char or the end of DN has beed found
+                    // separator char or the end of DN has been found
                     return new String(chars, beg, cur - beg);
                 }
                 break;
