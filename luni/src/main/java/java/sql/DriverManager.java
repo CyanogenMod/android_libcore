@@ -28,9 +28,13 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Provides facilities for managing JDBC drivers.
- * <p>
- * The {@code DriverManager} class loads JDBC drivers during its initialization,
+ * Provides facilities for managing JDBC drivers. The <code>android.database</code> and
+ * <code>android.database.sqlite</code> packages offer a higher-performance alternative for new
+ * code.
+ *
+ * <p>Note that Android does not include any JDBC drivers by default; you must provide your own.
+ *
+ * <p>The {@code DriverManager} class loads JDBC drivers during its initialization,
  * from the list of drivers referenced by the system property {@code
  * "jdbc.drivers"}.
  */
