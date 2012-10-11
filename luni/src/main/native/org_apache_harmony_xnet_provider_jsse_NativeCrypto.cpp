@@ -517,7 +517,7 @@ static bool arrayToBignum(JNIEnv* env, jbyteArray source, BIGNUM** dest) {
 /**
  * Converts an OpenSSL BIGNUM to a Java byte[] array.
  */
-static jbyteArray bignumToArray(JNIEnv* env, BIGNUM* source) {
+static jbyteArray bignumToArray(JNIEnv* env, const BIGNUM* source) {
     JNI_TRACE("bignumToArray(%p)", source);
 
     if (source == NULL) {
