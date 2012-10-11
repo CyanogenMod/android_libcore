@@ -135,6 +135,11 @@ public final class System {
      * starting at offset {@code srcPos}, into the array {@code dst},
      * starting at offset {@code dstPos}.
      *
+     * <p>The source and destination arrays can be the same array,
+     * in which case copying is performed as if the source elements
+     * are first copied into a temporary array and then into the
+     * destination array.
+     *
      * @param src
      *            the source array to copy the content.
      * @param srcPos
