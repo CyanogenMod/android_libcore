@@ -93,6 +93,20 @@ struct DSA_Delete {
 };
 typedef UniquePtr<DSA, DSA_Delete> Unique_DSA;
 
+struct EC_GROUP_Delete {
+    void operator()(EC_GROUP* p) const {
+        EC_GROUP_clear_free(p);
+    }
+};
+typedef UniquePtr<EC_GROUP, EC_GROUP_Delete> Unique_EC_GROUP;
+
+struct EC_POINT_Delete {
+    void operator()(EC_POINT* p) const {
+        EC_POINT_clear_free(p);
+    }
+};
+typedef UniquePtr<EC_POINT, EC_POINT_Delete> Unique_EC_POINT;
+
 struct EC_KEY_Delete {
     void operator()(EC_KEY* p) const {
         EC_KEY_free(p);
@@ -890,6 +904,84 @@ static jint NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
     return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
 }
 
+static jint NativeCrypto_EVP_PKEY_new_EC_KEY(JNIEnv* env, jclass, jint groupRef,
+        int pubkeyRef, jbyteArray keyJavaBytes) {
+    const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
+    const EC_POINT* pubkey = reinterpret_cast<const EC_POINT*>(pubkeyRef);
+    JNI_TRACE("EVP_PKEY_new_EC_KEY(%p, %p, %p)", group, pubkey, keyJavaBytes);
+
+    Unique_BIGNUM key(NULL);
+    if (keyJavaBytes != NULL) {
+        BIGNUM* keyRef;
+        if (!arrayToBignum(env, keyJavaBytes, &keyRef)) {
+            return 0;
+        }
+        key.reset(keyRef);
+    }
+
+    Unique_EC_KEY eckey(EC_KEY_new());
+    if (eckey.get() == NULL) {
+        jniThrowRuntimeException(env, "EC_KEY_new failed");
+        return 0;
+    }
+
+    if (EC_KEY_set_group(eckey.get(), group) != 1) {
+        JNI_TRACE("EVP_PKEY_new_EC_KEY(%p, %p, %p) > EC_KEY_set_group failed", group, pubkey,
+                keyJavaBytes);
+        throwExceptionIfNecessary(env, "EC_KEY_set_group");
+        return 0;
+    }
+
+    if (pubkey != NULL) {
+        if (EC_KEY_set_public_key(eckey.get(), pubkey) != 1) {
+            JNI_TRACE("EVP_PKEY_new_EC_KEY(%p, %p, %p) => EC_KEY_set_private_key failed", group,
+                    pubkey, keyJavaBytes);
+            throwExceptionIfNecessary(env, "EC_KEY_set_public_key");
+            return 0;
+        }
+    }
+
+    if (key.get() != NULL) {
+        if (EC_KEY_set_private_key(eckey.get(), key.get()) != 1) {
+            JNI_TRACE("EVP_PKEY_new_EC_KEY(%p, %p, %p) => EC_KEY_set_private_key failed", group,
+                    pubkey, keyJavaBytes);
+            throwExceptionIfNecessary(env, "EC_KEY_set_private_key");
+            return 0;
+        }
+        if (pubkey == NULL) {
+            Unique_EC_POINT calcPubkey(EC_POINT_new(group));
+            if (!EC_POINT_mul(group, calcPubkey.get(), key.get(), NULL, NULL, NULL)) {
+                JNI_TRACE("EVP_PKEY_new_EC_KEY(%p, %p, %p) => can't calulate public key", group,
+                        pubkey, keyJavaBytes);
+                throwExceptionIfNecessary(env, "EC_KEY_set_private_key");
+                return 0;
+            }
+            EC_KEY_set_public_key(eckey.get(), calcPubkey.get());
+        }
+    }
+
+    if (!EC_KEY_check_key(eckey.get())) {
+        JNI_TRACE("EVP_KEY_new_EC_KEY(%p, %p, %p) => invalid key created", group, pubkey, keyJavaBytes);
+        throwExceptionIfNecessary(env, "EC_KEY_check_key");
+        return 0;
+    }
+
+    Unique_EVP_PKEY pkey(EVP_PKEY_new());
+    if (pkey.get() == NULL) {
+        JNI_TRACE("EVP_PKEY_new_EC(%p, %p, %p) => threw error", group, pubkey, keyJavaBytes);
+        throwExceptionIfNecessary(env, "ENGINE_load_private_key");
+        return 0;
+    }
+    if (EVP_PKEY_assign_EC_KEY(pkey.get(), eckey.get()) != 1) {
+        jniThrowRuntimeException(env, "EVP_PKEY_new failed");
+        return 0;
+    }
+    OWNERSHIP_TRANSFERRED(eckey);
+
+    JNI_TRACE("EVP_PKEY_new_EC_KEY(%p, %p, %p) => %p", group, pubkey, keyJavaBytes, pkey.get());
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
+}
+
 static jint NativeCrypto_EVP_PKEY_new_mac_key(JNIEnv* env, jclass, jint pkeyType,
         jbyteArray keyJavaBytes)
 {
@@ -941,6 +1033,66 @@ static int NativeCrypto_EVP_PKEY_size(JNIEnv* env, jclass, jint pkeyRef) {
     int result = EVP_PKEY_size(pkey);
     JNI_TRACE("EVP_PKEY_size(%p) => %d", pkey, result);
     return result;
+}
+
+static jstring NativeCrypto_EVP_PKEY_print_public(JNIEnv* env, jclass, jint pkeyRef) {
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
+    JNI_TRACE("EVP_PKEY_print_public(%p)", pkey);
+
+    if (pkey == NULL) {
+        jniThrowNullPointerException(env, "pkey == null");
+        return NULL;
+    }
+
+    Unique_BIO buffer(BIO_new(BIO_s_mem()));
+    if (buffer.get() == NULL) {
+        jniThrowOutOfMemoryError(env, "Unable to allocate BIO");
+        return NULL;
+    }
+
+    if (EVP_PKEY_print_public(buffer.get(), pkey, 0, (ASN1_PCTX*) NULL) != 1) {
+        throwExceptionIfNecessary(env, "EVP_PKEY_print_public");
+        return NULL;
+    }
+    // Null terminate this
+    BIO_write(buffer.get(), "\0", 1);
+
+    char *tmp;
+    BIO_get_mem_data(buffer.get(), &tmp);
+    jstring description = env->NewStringUTF(tmp);
+
+    JNI_TRACE("EVP_PKEY_print_public(%p) => \"%s\"", pkey, tmp);
+    return description;
+}
+
+static jstring NativeCrypto_EVP_PKEY_print_private(JNIEnv* env, jclass, jint pkeyRef) {
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
+    JNI_TRACE("EVP_PKEY_print_private(%p)", pkey);
+
+    if (pkey == NULL) {
+        jniThrowNullPointerException(env, "pkey == null");
+        return NULL;
+    }
+
+    Unique_BIO buffer(BIO_new(BIO_s_mem()));
+    if (buffer.get() == NULL) {
+        jniThrowOutOfMemoryError(env, "Unable to allocate BIO");
+        return NULL;
+    }
+
+    if (EVP_PKEY_print_private(buffer.get(), pkey, 0, (ASN1_PCTX*) NULL) != 1) {
+        throwExceptionIfNecessary(env, "EVP_PKEY_print_private");
+        return NULL;
+    }
+    // Null terminate this
+    BIO_write(buffer.get(), "\0", 1);
+
+    char *tmp;
+    BIO_get_mem_data(buffer.get(), &tmp);
+    jstring description = env->NewStringUTF(tmp);
+
+    JNI_TRACE("EVP_PKEY_print_private(%p) => \"%s\"", pkey, tmp);
+    return description;
 }
 
 static void NativeCrypto_EVP_PKEY_free(JNIEnv*, jclass, jint pkeyRef) {
@@ -1459,6 +1611,548 @@ static jobjectArray NativeCrypto_get_DSA_params(JNIEnv* env, jclass, jint pkeyRe
     return joa;
 }
 
+#define EC_CURVE_GFP 1
+#define EC_CURVE_GF2M 2
+
+/**
+ * Return group type or 0 if unknown group.
+ * EC_GROUP_GFP or EC_GROUP_GF2M
+ */
+static int get_EC_GROUP_type(const EC_GROUP* group)
+{
+    const EC_METHOD* method = EC_GROUP_method_of(group);
+    if (method == EC_GFp_nist_method()
+                || method == EC_GFp_mont_method()
+                || method == EC_GFp_simple_method()) {
+        return EC_CURVE_GFP;
+    } else if (method == EC_GF2m_simple_method()) {
+        return EC_CURVE_GF2M;
+    }
+
+    return 0;
+}
+
+static jint NativeCrypto_EC_GROUP_new_by_curve_name(JNIEnv* env, jclass, jstring curveNameJava)
+{
+    JNI_TRACE("EC_GROUP_new_by_curve_name(%p)", curveNameJava);
+
+    ScopedUtfChars curveName(env, curveNameJava);
+    if (curveName.c_str() == NULL) {
+        return 0;
+    }
+    JNI_TRACE("EC_GROUP_new_by_curve_name(%s)", curveName.c_str());
+
+    int nid = OBJ_sn2nid(curveName.c_str());
+    if (nid == NID_undef) {
+        JNI_TRACE("EC_GROUP_new_by_curve_name(%s) => unknown NID name", curveName.c_str());
+        return 0;
+    }
+
+    EC_GROUP* group = EC_GROUP_new_by_curve_name(nid);
+    if (group == NULL) {
+        JNI_TRACE("EC_GROUP_new_by_curve_name(%s) => unknown NID %d", curveName.c_str(), nid);
+        freeOpenSslErrorState();
+        return 0;
+    }
+
+    JNI_TRACE("EC_GROUP_new_by_curve_name(%s) => %p", curveName.c_str(), group);
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(group));
+}
+
+static jint NativeCrypto_EC_GROUP_new_curve(JNIEnv* env, jclass, jint type, jbyteArray pJava,
+        jbyteArray aJava, jbyteArray bJava)
+{
+    JNI_TRACE("EC_GROUP_new_curve(%d, %p, %p, %p)", type, pJava, aJava, bJava);
+
+    BIGNUM* pRef;
+    if (!arrayToBignum(env, pJava, &pRef)) {
+        return 0;
+    }
+    Unique_BIGNUM p(pRef);
+
+    BIGNUM* aRef;
+    if (!arrayToBignum(env, aJava, &aRef)) {
+        return 0;
+    }
+    Unique_BIGNUM a(aRef);
+
+    BIGNUM* bRef;
+    if (!arrayToBignum(env, bJava, &bRef)) {
+        return 0;
+    }
+    Unique_BIGNUM b(bRef);
+
+    EC_GROUP* group;
+    switch (type) {
+    case EC_CURVE_GFP:
+        group = EC_GROUP_new_curve_GFp(p.get(), a.get(), b.get(), (BN_CTX*) NULL);
+        break;
+    case EC_CURVE_GF2M:
+        group = EC_GROUP_new_curve_GF2m(p.get(), a.get(), b.get(), (BN_CTX*) NULL);
+        break;
+    default:
+        jniThrowRuntimeException(env, "invalid group");
+        return 0;
+    }
+
+    if (group == NULL) {
+        throwExceptionIfNecessary(env, "EC_GROUP_new_curve");
+    }
+
+    JNI_TRACE("EC_GROUP_new_curve(%d, %p, %p, %p) => %p", type, pJava, aJava, bJava, group);
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(group));
+}
+
+static jobjectArray NativeCrypto_EC_GROUP_get_curve(JNIEnv* env, jclass, jint groupRef)
+{
+    const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
+    JNI_TRACE("EC_GROUP_get_curve(%p)", group);
+
+    Unique_BIGNUM p(BN_new());
+    Unique_BIGNUM a(BN_new());
+    Unique_BIGNUM b(BN_new());
+
+    int ret;
+    switch (get_EC_GROUP_type(group)) {
+    case EC_CURVE_GFP:
+        ret = EC_GROUP_get_curve_GFp(group, p.get(), a.get(), b.get(), (BN_CTX*) NULL);
+        break;
+    case EC_CURVE_GF2M:
+        ret = EC_GROUP_get_curve_GF2m(group, p.get(), a.get(), b.get(), (BN_CTX*)NULL);
+        break;
+    default:
+        jniThrowRuntimeException(env, "invalid group");
+        return NULL;
+    }
+    if (ret != 1) {
+        throwExceptionIfNecessary(env, "EC_GROUP_get_curve");
+        return NULL;
+    }
+
+    jobjectArray joa = env->NewObjectArray(3, JniConstants::byteArrayClass, NULL);
+    if (joa == NULL) {
+        return NULL;
+    }
+
+    jbyteArray pArray = bignumToArray(env, p.get());
+    if (env->ExceptionCheck()) {
+        return NULL;
+    }
+    env->SetObjectArrayElement(joa, 0, pArray);
+
+    jbyteArray aArray = bignumToArray(env, a.get());
+    if (env->ExceptionCheck()) {
+        return NULL;
+    }
+    env->SetObjectArrayElement(joa, 1, aArray);
+
+    jbyteArray bArray = bignumToArray(env, b.get());
+    if (env->ExceptionCheck()) {
+        return NULL;
+    }
+    env->SetObjectArrayElement(joa, 2, bArray);
+
+    JNI_TRACE("EC_GROUP_get_curve(%p) => %p", group, joa);
+    return joa;
+}
+
+static jbyteArray NativeCrypto_EC_GROUP_get_order(JNIEnv* env, jclass, jint groupRef)
+{
+    const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
+    JNI_TRACE("EC_GROUP_get_order(%p)", group);
+
+    Unique_BIGNUM order(BN_new());
+    if (order.get() == NULL) {
+        JNI_TRACE("EC_GROUP_get_order(%p) => can't create BN", group);
+        jniThrowOutOfMemoryError(env, "BN_new");
+        return NULL;
+    }
+
+    if (EC_GROUP_get_order(group, order.get(), NULL) != 1) {
+        JNI_TRACE("EC_GROUP_get_order(%p) => threw error", group);
+        throwExceptionIfNecessary(env, "EC_GROUP_get_order");
+        return NULL;
+    }
+
+    jbyteArray orderArray = bignumToArray(env, order.get());
+    if (env->ExceptionCheck()) {
+        return NULL;
+    }
+
+    JNI_TRACE("EC_GROUP_get_order(%p) => %p", group, orderArray);
+    return orderArray;
+}
+
+static jbyteArray NativeCrypto_EC_GROUP_get_cofactor(JNIEnv* env, jclass, jint groupRef)
+{
+    const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
+    JNI_TRACE("EC_GROUP_get_cofactor(%p)", group);
+
+    Unique_BIGNUM cofactor(BN_new());
+    if (cofactor.get() == NULL) {
+        JNI_TRACE("EC_GROUP_get_cofactor(%p) => can't create BN", group);
+        jniThrowOutOfMemoryError(env, "BN_new");
+        return NULL;
+    }
+
+    if (EC_GROUP_get_cofactor(group, cofactor.get(), NULL) != 1) {
+        JNI_TRACE("EC_GROUP_get_cofactor(%p) => threw error", group);
+        throwExceptionIfNecessary(env, "EC_GROUP_get_cofactor");
+        return NULL;
+    }
+
+    jbyteArray cofactorArray = bignumToArray(env, cofactor.get());
+    if (env->ExceptionCheck()) {
+        return NULL;
+    }
+
+    JNI_TRACE("EC_GROUP_get_cofactor(%p) => %p", group, cofactorArray);
+    return cofactorArray;
+}
+
+static jint NativeCrypto_get_EC_GROUP_type(JNIEnv* env, jclass, jint groupRef)
+{
+    const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
+    JNI_TRACE("get_EC_GROUP_type(%p)", group);
+
+    int type = get_EC_GROUP_type(group);
+    if (type == 0) {
+        JNI_TRACE("get_EC_GROUP_type(%p) => curve type", group);
+        jniThrowRuntimeException(env, "unknown curve type");
+    } else {
+        JNI_TRACE("get_EC_GROUP_type(%p) => %d", group, type);
+    }
+    return type;
+}
+
+static void NativeCrypto_EC_GROUP_clear_free(JNIEnv* env, jclass, jint groupRef)
+{
+    EC_GROUP* group = reinterpret_cast<EC_GROUP*>(groupRef);
+    JNI_TRACE("EC_GROUP_clear_free(%p)", group);
+
+    if (group == NULL) {
+        JNI_TRACE("EC_GROUP_clear_free => group == NULL");
+        jniThrowNullPointerException(env, "group == NULL");
+        return;
+    }
+
+    EC_GROUP_clear_free(group);
+    JNI_TRACE("EC_GROUP_clear_free(%p) => success", group);
+}
+
+static jboolean NativeCrypto_EC_GROUP_cmp(JNIEnv* env, jclass, jint group1Ref, jint group2Ref)
+{
+    const EC_GROUP* group1 = reinterpret_cast<const EC_GROUP*>(group1Ref);
+    const EC_GROUP* group2 = reinterpret_cast<const EC_GROUP*>(group2Ref);
+    JNI_TRACE("EC_GROUP_cmp(%p, %p)", group1, group2);
+
+    if (group1 == NULL || group2 == NULL) {
+        JNI_TRACE("EC_GROUP_cmp(%p, %p) => group1 == null || group2 == null", group1, group2);
+        jniThrowNullPointerException(env, "group1 == null || group2 == null");
+        return false;
+    }
+
+    int ret = EC_GROUP_cmp(group1, group2, (BN_CTX*)NULL);
+
+    JNI_TRACE("ECP_GROUP_cmp(%p, %p) => %d", group1, group2, ret);
+    return ret == 0;
+}
+
+static void NativeCrypto_EC_GROUP_set_generator(JNIEnv* env, jclass, jint groupRef, jint pointRef, jbyteArray njavaBytes, jbyteArray hjavaBytes)
+{
+    EC_GROUP* group = reinterpret_cast<EC_GROUP*>(groupRef);
+    const EC_POINT* point = reinterpret_cast<const EC_POINT*>(pointRef);
+    JNI_TRACE("EC_GROUP_set_generator(%p, %p, %p, %p)", group, point, njavaBytes, hjavaBytes);
+
+    if (group == NULL || point == NULL) {
+        JNI_TRACE("EC_GROUP_set_generator(%p, %p, %p, %p) => group == null || point == null",
+                group, point, njavaBytes, hjavaBytes);
+        jniThrowNullPointerException(env, "group == null || point == null");
+        return;
+    }
+
+    BIGNUM* nRef;
+    if (!arrayToBignum(env, njavaBytes, &nRef)) {
+        return;
+    }
+    Unique_BIGNUM n(nRef);
+
+    BIGNUM* hRef;
+    if (!arrayToBignum(env, hjavaBytes, &hRef)) {
+        return;
+    }
+    Unique_BIGNUM h(hRef);
+
+    int ret = EC_GROUP_set_generator(group, point, n.get(), h.get());
+    if (ret == 0) {
+        throwExceptionIfNecessary(env, "EC_GROUP_set_generator");
+    }
+
+    JNI_TRACE("EC_GROUP_set_generator(%p, %p, %p, %p) => %d", group, point, njavaBytes, hjavaBytes, ret);
+}
+
+static jint NativeCrypto_EC_GROUP_get_generator(JNIEnv* env, jclass, jint groupRef)
+{
+    const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
+    JNI_TRACE("EC_GROUP_get_generator(%p)", group);
+
+    if (group == NULL) {
+        JNI_TRACE("EC_POINT_get_generator(%p) => group == null", group);
+        jniThrowNullPointerException(env, "group == null");
+        return 0;
+    }
+
+    const EC_POINT* generator = EC_GROUP_get0_generator(group);
+
+    Unique_EC_POINT dup(EC_POINT_dup(generator, group));
+    if (dup.get() == NULL) {
+        JNI_TRACE("EC_GROUP_get_generator(%p) => oom error", group);
+        jniThrowOutOfMemoryError(env, "unable to dupe generator");
+        return 0;
+    }
+
+    JNI_TRACE("EC_GROUP_get_generator(%p) => %p", group, dup.get());
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(dup.release()));
+}
+
+static jint NativeCrypto_EC_POINT_new(JNIEnv* env, jclass, jint groupRef)
+{
+    const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
+    JNI_TRACE("EC_POINT_new(%p)", group);
+
+    if (group == NULL) {
+        JNI_TRACE("EC_POINT_new(%p) => group == null", group);
+        jniThrowNullPointerException(env, "group == null");
+        return 0;
+    }
+
+    EC_POINT* point = EC_POINT_new(group);
+    if (point == NULL) {
+        jniThrowOutOfMemoryError(env, "Unable create an EC_POINT");
+        return 0;
+    }
+
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(point));
+}
+
+static void NativeCrypto_EC_POINT_clear_free(JNIEnv* env, jclass, jint groupRef) {
+    EC_POINT* group = reinterpret_cast<EC_POINT*>(groupRef);
+    JNI_TRACE("EC_POINT_clear_free(%p)", group);
+
+    if (group == NULL) {
+        JNI_TRACE("EC_POINT_clear_free => group == NULL");
+        jniThrowNullPointerException(env, "group == NULL");
+        return;
+    }
+
+    EC_POINT_clear_free(group);
+    JNI_TRACE("EC_POINT_clear_free(%p) => success", group);
+}
+
+static jboolean NativeCrypto_EC_POINT_cmp(JNIEnv* env, jclass, jint groupRef, jint point1Ref,
+        jint point2Ref)
+{
+    const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
+    const EC_POINT* point1 = reinterpret_cast<const EC_POINT*>(point1Ref);
+    const EC_POINT* point2 = reinterpret_cast<const EC_POINT*>(point2Ref);
+    JNI_TRACE("EC_POINT_cmp(%p, %p, %p)", group, point1, point2);
+
+    if (group == NULL || point1 == NULL || point2 == NULL) {
+        JNI_TRACE("EC_POINT_cmp(%p, %p, %p) => group == null || point1 == null || point2 == null",
+                group, point1, point2);
+        jniThrowNullPointerException(env, "group == null || point1 == null || point2 == null");
+        return false;
+    }
+
+    int ret = EC_POINT_cmp(group, point1, point2, (BN_CTX*)NULL);
+
+    JNI_TRACE("ECP_GROUP_cmp(%p, %p) => %d", point1, point2, ret);
+    return ret == 0;
+}
+
+static void NativeCrypto_EC_POINT_set_affine_coordinates(JNIEnv* env, jclass,
+        jint groupRef, jint pointRef, jbyteArray xjavaBytes, jbyteArray yjavaBytes)
+{
+    const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
+    EC_POINT* point = reinterpret_cast<EC_POINT*>(pointRef);
+    JNI_TRACE("EC_POINT_set_affine_coordinates(%p, %p, %p, %p)", group, point, xjavaBytes,
+            yjavaBytes);
+
+    if (group == NULL || point == NULL) {
+        JNI_TRACE("EC_POINT_set_affine_coordinates(%p, %p, %p, %p) => group == null || point == null",
+                group, point, xjavaBytes, yjavaBytes);
+        jniThrowNullPointerException(env, "group == null || point == null");
+        return;
+    }
+
+    BIGNUM* xRef;
+    if (!arrayToBignum(env, xjavaBytes, &xRef)) {
+        return;
+    }
+    Unique_BIGNUM x(xRef);
+
+    BIGNUM* yRef;
+    if (!arrayToBignum(env, yjavaBytes, &yRef)) {
+        return;
+    }
+    Unique_BIGNUM y(yRef);
+
+    int ret;
+    switch (get_EC_GROUP_type(group)) {
+    case EC_CURVE_GFP:
+        ret = EC_POINT_set_affine_coordinates_GFp(group, point, x.get(), y.get(), NULL);
+        break;
+    case EC_CURVE_GF2M:
+        ret = EC_POINT_set_affine_coordinates_GF2m(group, point, x.get(), y.get(), NULL);
+        break;
+    default:
+        jniThrowRuntimeException(env, "invalid curve type");
+        return;
+    }
+
+    if (ret != 1) {
+        throwExceptionIfNecessary(env, "EC_POINT_set_affine_coordinates");
+    }
+
+    JNI_TRACE("EC_POINT_set_affine_coordinates(%p, %p, %p, %p) => %d", group, point,
+            xjavaBytes, yjavaBytes, ret);
+}
+
+static jobjectArray NativeCrypto_EC_POINT_get_affine_coordinates(JNIEnv* env, jclass, jint groupRef,
+        jint pointRef)
+{
+    const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
+    const EC_POINT* point = reinterpret_cast<const EC_POINT*>(pointRef);
+    JNI_TRACE("EC_POINT_get_affine_coordinates(%p, %p)", group, point);
+
+    Unique_BIGNUM x(BN_new());
+    Unique_BIGNUM y(BN_new());
+
+    int ret;
+    switch (get_EC_GROUP_type(group)) {
+    case EC_CURVE_GFP:
+        ret = EC_POINT_get_affine_coordinates_GFp(group, point, x.get(), y.get(), NULL);
+        break;
+    case EC_CURVE_GF2M:
+        ret = EC_POINT_get_affine_coordinates_GF2m(group, point, x.get(), y.get(), NULL);
+        break;
+    default:
+        jniThrowRuntimeException(env, "invalid curve type");
+        return NULL;
+    }
+    if (ret != 1) {
+        JNI_TRACE("EC_POINT_get_affine_coordinates(%p, %p)", group, point);
+        throwExceptionIfNecessary(env, "EC_POINT_get_affine_coordinates");
+        return NULL;
+    }
+
+    jobjectArray joa = env->NewObjectArray(2, JniConstants::byteArrayClass, NULL);
+    if (joa == NULL) {
+        return NULL;
+    }
+
+    jbyteArray xBytes = bignumToArray(env, x.get());
+    if (env->ExceptionCheck()) {
+        return NULL;
+    }
+    env->SetObjectArrayElement(joa, 0, xBytes);
+
+    jbyteArray yBytes = bignumToArray(env, y.get());
+    if (env->ExceptionCheck()) {
+        return NULL;
+    }
+    env->SetObjectArrayElement(joa, 1, yBytes);
+
+    JNI_TRACE("EC_POINT_get_affine_coordinates(%p, %p) => %p", group, point, joa);
+    return joa;
+}
+
+static jint NativeCrypto_EC_KEY_generate_key(JNIEnv* env, jclass, jint groupRef)
+{
+    const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
+    JNI_TRACE("EC_KEY_generate_key(%p)", group);
+
+    Unique_EC_KEY eckey(EC_KEY_new());
+    if (eckey.get() == NULL) {
+        JNI_TRACE("EC_KEY_generate_key(%p) => EC_KEY_new() oom", group);
+        jniThrowOutOfMemoryError(env, "Unable to create an EC_KEY");
+        return 0;
+    }
+
+    if (EC_KEY_set_group(eckey.get(), group) != 1) {
+        JNI_TRACE("EC_KEY_generate_key(%p) => EC_KEY_set_group error", group);
+        throwExceptionIfNecessary(env, "EC_KEY_set_group");
+        return 0;
+    }
+
+    if (EC_KEY_generate_key(eckey.get()) != 1) {
+        JNI_TRACE("EC_KEY_generate_key(%p) => EC_KEY_generate_key error", group);
+         throwExceptionIfNecessary(env, "EC_KEY_set_group");
+         return 0;
+    }
+
+    Unique_EVP_PKEY pkey(EVP_PKEY_new());
+    if (pkey.get() == NULL) {
+        JNI_TRACE("EC_KEY_generate_key(%p) => threw error", group);
+        throwExceptionIfNecessary(env, "EC_KEY_generate_key");
+        return 0;
+    }
+    if (EVP_PKEY_assign_EC_KEY(pkey.get(), eckey.get()) != 1) {
+        jniThrowRuntimeException(env, "EVP_PKEY_assign_EC_KEY failed");
+        return 0;
+    }
+    OWNERSHIP_TRANSFERRED(eckey);
+
+    JNI_TRACE("EC_KEY_generate_key(%p) => %p", group, pkey.get());
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
+}
+
+static jbyteArray NativeCrypto_EC_KEY_get_private_key(JNIEnv* env, jclass, jint pkeyRef)
+{
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
+    JNI_TRACE("EC_KEY_get_private_key(%p)", pkey);
+
+    Unique_EC_KEY eckey(EVP_PKEY_get1_EC_KEY(pkey));
+    if (eckey.get() == NULL) {
+        throwExceptionIfNecessary(env, "EVP_PKEY_get1_EC_KEY");
+        return NULL;
+    }
+
+    const BIGNUM *privkey = EC_KEY_get0_private_key(eckey.get());
+
+    jbyteArray privBytes = bignumToArray(env, privkey);
+    if (env->ExceptionCheck()) {
+        JNI_TRACE("EC_KEY_get_private_key(%p) => threw error", pkey);
+        return NULL;
+    }
+
+    JNI_TRACE("EC_KEY_get_private_key(%p) => %p", pkey, privBytes);
+    return privBytes;
+}
+
+static jint NativeCrypto_EC_KEY_get_public_key(JNIEnv* env, jclass, jint pkeyRef)
+{
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
+    JNI_TRACE("EC_KEY_get_public_key(%p)", pkey);
+
+    Unique_EC_KEY eckey(EVP_PKEY_get1_EC_KEY(pkey));
+    if (eckey.get() == NULL) {
+        throwExceptionIfNecessary(env, "EVP_PKEY_get1_EC_KEY");
+        return 0;
+    }
+
+    Unique_EC_POINT dup(EC_POINT_dup(EC_KEY_get0_public_key(eckey.get()),
+            EC_KEY_get0_group(eckey.get())));
+    if (dup.get() == NULL) {
+        JNI_TRACE("EC_KEY_get_public_key(%p) => can't dup public key", pkey);
+        jniThrowRuntimeException(env, "EC_POINT_dup");
+        return 0;
+    }
+
+    JNI_TRACE("EC_KEY_get_public_key(%p) => %p", pkey, dup.get());
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(dup.release()));
+}
+
 static jint NativeCrypto_EVP_MD_CTX_create(JNIEnv* env, jclass) {
     JNI_TRACE("EVP_MD_CTX_create()");
 
@@ -1785,6 +2479,7 @@ static jint NativeCrypto_EVP_SignInit(JNIEnv* env, jclass, jstring algorithm) {
 
     const EVP_MD* digest = EVP_get_digestbynid(OBJ_txt2nid(algorithmChars.c_str()));
     if (digest == NULL) {
+        JNI_TRACE("NativeCrypto_EVP_SignInit(%s) => hash not found", algorithmChars.c_str());
         throwExceptionIfNecessary(env, "Hash algorithm not found");
         return 0;
     }
@@ -1793,9 +2488,12 @@ static jint NativeCrypto_EVP_SignInit(JNIEnv* env, jclass, jstring algorithm) {
     if (ok == 0) {
         bool exception = throwExceptionIfNecessary(env, "NativeCrypto_EVP_SignInit");
         if (exception) {
+            JNI_TRACE("NativeCrypto_EVP_SignInit(%s) => threw exception", algorithmChars.c_str());
             return 0;
         }
     }
+
+    JNI_TRACE("NativeCrypto_EVP_SignInit(%s) => %p", algorithmChars.c_str(), ctx.get());
     return static_cast<jint>(reinterpret_cast<uintptr_t>(ctx.release()));
 }
 
@@ -4645,9 +5343,12 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, ENGINE_load_private_key, "(ILjava/lang/String;)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_DSA, "([B[B[B[B[B)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_RSA, "([B[B[B[B[B[B[B[B)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_EC_KEY, "(II[B)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_mac_key, "(I[B)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_type, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_size, "(I)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_print_public, "(I)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_print_private, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_free, "(I)V"),
     NATIVE_METHOD(NativeCrypto, i2d_PKCS8_PRIV_KEY_INFO, "(I)[B"),
     NATIVE_METHOD(NativeCrypto, d2i_PKCS8_PRIV_KEY_INFO, "([B)I"),
@@ -4663,6 +5364,24 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, get_RSA_public_params, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, DSA_generate_key, "(I[B[B[B[B)I"),
     NATIVE_METHOD(NativeCrypto, get_DSA_params, "(I)[[B"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_new_by_curve_name, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_new_curve, "(I[B[B[B)I"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_curve, "(I)[[B"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_order, "(I)[B"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_cofactor, "(I)[B"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_clear_free, "(I)V"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_cmp, "(II)Z"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_generator, "(I)I"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_set_generator, "(II[B[B)V"),
+    NATIVE_METHOD(NativeCrypto, get_EC_GROUP_type, "(I)I"),
+    NATIVE_METHOD(NativeCrypto, EC_POINT_new, "(I)I"),
+    NATIVE_METHOD(NativeCrypto, EC_POINT_clear_free, "(I)V"),
+    NATIVE_METHOD(NativeCrypto, EC_POINT_cmp, "(III)Z"),
+    NATIVE_METHOD(NativeCrypto, EC_POINT_set_affine_coordinates, "(II[B[B)V"),
+    NATIVE_METHOD(NativeCrypto, EC_POINT_get_affine_coordinates, "(II)[[B"),
+    NATIVE_METHOD(NativeCrypto, EC_KEY_generate_key, "(I)I"),
+    NATIVE_METHOD(NativeCrypto, EC_KEY_get_private_key, "(I)[B"),
+    NATIVE_METHOD(NativeCrypto, EC_KEY_get_public_key, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_create, "()I"),
     NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_destroy, "(I)V"),
     NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_copy, "(I)I"),

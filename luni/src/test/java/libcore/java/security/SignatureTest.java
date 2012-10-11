@@ -56,7 +56,7 @@ public class SignatureTest extends TestCase {
                 }
                 String algorithm = service.getAlgorithm();
                 try {
-                    KeyPair kp = keyPair(algorithm);
+                    KeyPair kp = keyPair(algorithm, provider.getName());
                     // Signature.getInstance(String)
                     Signature sig1 = Signature.getInstance(algorithm);
                     assertEquals(algorithm, sig1.getAlgorithm());
@@ -83,7 +83,7 @@ public class SignatureTest extends TestCase {
     private final Map<String, KeyPair> keypairAlgorithmToInstance
             = new HashMap<String, KeyPair>();
 
-    private KeyPair keyPair(String sigAlgorithm) throws Exception {
+    private KeyPair keyPair(String sigAlgorithm, String providerName) throws Exception {
         if (sigAlgorithm.endsWith("Encryption")) {
             sigAlgorithm = sigAlgorithm.substring(0, sigAlgorithm.length()-"Encryption".length());
         }
