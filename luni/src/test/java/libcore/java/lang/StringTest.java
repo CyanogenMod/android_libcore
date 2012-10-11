@@ -228,6 +228,7 @@ public class StringTest extends TestCase {
         static String literal = "[5058, 9962, 1563, 5744]";
     }
 
+    private static final String COMBINING_DOT_ABOVE = "\u0307";
     private static final String LATIN_CAPITAL_I = "I";
     private static final String LATIN_CAPITAL_I_WITH_DOT_ABOVE = "\u0130";
     private static final String LATIN_SMALL_I = "i";
@@ -265,8 +266,9 @@ public class StringTest extends TestCase {
         assertEquals(LATIN_SMALL_DOTLESS_I, LATIN_SMALL_DOTLESS_I.toLowerCase(enUs));
 
         assertEquals(LATIN_CAPITAL_I, LATIN_SMALL_DOTLESS_I.toUpperCase(enUs));
-        // http://b/3325799: Android fails this with an extra combining "dot above".
-        assertEquals(LATIN_SMALL_I, LATIN_CAPITAL_I_WITH_DOT_ABOVE.toLowerCase(enUs));
+        // http://b/3325799: the RI fails this because it's using an obsolete version of the Unicode rules.
+        // Android correctly preserves canonical equivalence. (See the separate test for tr_TR.)
+        assertEquals(LATIN_SMALL_I + COMBINING_DOT_ABOVE, LATIN_CAPITAL_I_WITH_DOT_ABOVE.toLowerCase(enUs));
     }
 
     public void testEqualsIgnoreCase_tr_TR() {
