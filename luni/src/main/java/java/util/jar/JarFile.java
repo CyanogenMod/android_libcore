@@ -337,7 +337,8 @@ public class JarFile extends ZipFile {
                 if (verifier != null
                         && (endsWithIgnoreCase(entryName, ".SF")
                                 || endsWithIgnoreCase(entryName, ".DSA")
-                                || endsWithIgnoreCase(entryName, ".RSA"))) {
+                                || endsWithIgnoreCase(entryName, ".RSA")
+                                || endsWithIgnoreCase(entryName, ".EC"))) {
                     signed = true;
                     InputStream is = super.getInputStream(entry);
                     verifier.addMetaEntry(entryName, Streams.readFully(is));
