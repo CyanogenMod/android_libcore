@@ -1754,19 +1754,19 @@ static jobjectArray NativeCrypto_EC_GROUP_get_curve(JNIEnv* env, jclass, jint gr
         return NULL;
     }
 
-    jbyteArray pArray = bignumToArray(env, p.get());
+    jbyteArray pArray = bignumToArray(env, p.get(), "p");
     if (env->ExceptionCheck()) {
         return NULL;
     }
     env->SetObjectArrayElement(joa, 0, pArray);
 
-    jbyteArray aArray = bignumToArray(env, a.get());
+    jbyteArray aArray = bignumToArray(env, a.get(), "a");
     if (env->ExceptionCheck()) {
         return NULL;
     }
     env->SetObjectArrayElement(joa, 1, aArray);
 
-    jbyteArray bArray = bignumToArray(env, b.get());
+    jbyteArray bArray = bignumToArray(env, b.get(), "b");
     if (env->ExceptionCheck()) {
         return NULL;
     }
@@ -1794,7 +1794,7 @@ static jbyteArray NativeCrypto_EC_GROUP_get_order(JNIEnv* env, jclass, jint grou
         return NULL;
     }
 
-    jbyteArray orderArray = bignumToArray(env, order.get());
+    jbyteArray orderArray = bignumToArray(env, order.get(), "order");
     if (env->ExceptionCheck()) {
         return NULL;
     }
@@ -1821,7 +1821,7 @@ static jbyteArray NativeCrypto_EC_GROUP_get_cofactor(JNIEnv* env, jclass, jint g
         return NULL;
     }
 
-    jbyteArray cofactorArray = bignumToArray(env, cofactor.get());
+    jbyteArray cofactorArray = bignumToArray(env, cofactor.get(), "cofactor");
     if (env->ExceptionCheck()) {
         return NULL;
     }
@@ -2071,13 +2071,13 @@ static jobjectArray NativeCrypto_EC_POINT_get_affine_coordinates(JNIEnv* env, jc
         return NULL;
     }
 
-    jbyteArray xBytes = bignumToArray(env, x.get());
+    jbyteArray xBytes = bignumToArray(env, x.get(), "x");
     if (env->ExceptionCheck()) {
         return NULL;
     }
     env->SetObjectArrayElement(joa, 0, xBytes);
 
-    jbyteArray yBytes = bignumToArray(env, y.get());
+    jbyteArray yBytes = bignumToArray(env, y.get(), "y");
     if (env->ExceptionCheck()) {
         return NULL;
     }
@@ -2140,7 +2140,7 @@ static jbyteArray NativeCrypto_EC_KEY_get_private_key(JNIEnv* env, jclass, jint 
 
     const BIGNUM *privkey = EC_KEY_get0_private_key(eckey.get());
 
-    jbyteArray privBytes = bignumToArray(env, privkey);
+    jbyteArray privBytes = bignumToArray(env, privkey, "privkey");
     if (env->ExceptionCheck()) {
         JNI_TRACE("EC_KEY_get_private_key(%p) => threw error", pkey);
         return NULL;
