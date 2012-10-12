@@ -18,6 +18,7 @@ package org.apache.harmony.xnet.provider.jsse;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -2101,6 +2102,111 @@ public class NativeCryptoTest extends TestCase {
             (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
             (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
     };
+
+    public void testEC_GROUP() throws Exception {
+        /* Test using NIST's P-256 curve */
+        check_EC_GROUP(NativeCrypto.EC_CURVE_GFP, "prime256v1",
+                "FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF",
+                "FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFC",
+                "5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b",
+                "6B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296",
+                "4FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5",
+                "FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551",
+                1L);
+
+        check_EC_GROUP(NativeCrypto.EC_CURVE_GF2M, "sect283r1",
+                "0800000000000000000000000000000000000000000000000000000000000000000010A1",
+                "000000000000000000000000000000000000000000000000000000000000000000000001",
+                "027B680AC8B8596DA5A4AF8A19A0303FCA97FD7645309FA2A581485AF6263E313B79A2F5",
+                "05F939258DB7DD90E1934F8C70B0DFEC2EED25B8557EAC9C80E2E198F8CDBECD86B12053",
+                "03676854FE24141CB98FE6D4B20D02B4516FF702350EDDB0826779C813F0DF45BE8112F4",
+                "03FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEF90399660FC938A90165B042A7CEFADB307",
+                2L);
+    }
+
+    private void check_EC_GROUP(int type, String name, String pStr, String aStr, String bStr,
+            String xStr, String yStr, String nStr, long hLong) throws Exception {
+        int group1 = NULL, group2 = NULL, point1 = NULL, point2 = NULL;
+        try {
+            group1 = NativeCrypto.EC_GROUP_new_by_curve_name(name);
+            assertTrue(group1 != NULL);
+            assertEquals(type, NativeCrypto.get_EC_GROUP_type(group1));
+
+            // prime
+            BigInteger p = new BigInteger(pStr, 16);
+            // first coefficient
+            BigInteger a = new BigInteger(aStr, 16);
+            // second coefficient
+            BigInteger b = new BigInteger(bStr, 16);
+            // x affine coordinate of generator
+            BigInteger x = new BigInteger(xStr, 16);
+            // y affine coordinate of generator
+            BigInteger y = new BigInteger(yStr, 16);
+            // order of the generator
+            BigInteger n = new BigInteger(nStr, 16);
+            // cofactor of generator
+            BigInteger h = BigInteger.valueOf(hLong);
+
+            group2 = NativeCrypto.EC_GROUP_new_curve(type, p.toByteArray(),
+                    a.toByteArray(), b.toByteArray());
+            assertEquals(type, NativeCrypto.get_EC_GROUP_type(group2));
+
+            point2 = NativeCrypto.EC_POINT_new(group2);
+
+            NativeCrypto.EC_POINT_set_affine_coordinates(group2, point2, x.toByteArray(),
+                    y.toByteArray());
+
+            NativeCrypto.EC_GROUP_set_generator(group2, point2, n.toByteArray(), h.toByteArray());
+
+            point1 = NativeCrypto.EC_GROUP_get_generator(group2);
+            assertTrue(NativeCrypto.EC_POINT_cmp(group1, point1, point2));
+
+            byte[][] pab = NativeCrypto.EC_GROUP_get_curve(group2);
+            assertEquals(3, pab.length);
+
+            BigInteger p2 = new BigInteger(pab[0]);
+            assertEquals(p, p2);
+
+            BigInteger a2 = new BigInteger(pab[1]);
+            assertEquals(a, a2);
+
+            BigInteger b2 = new BigInteger(pab[2]);
+            assertEquals(b, b2);
+
+            byte[][] xy = NativeCrypto.EC_POINT_get_affine_coordinates(group2, point2);
+            assertEquals(2, xy.length);
+
+            BigInteger x2 = new BigInteger(xy[0]);
+            assertEquals(x, x2);
+
+            BigInteger y2 = new BigInteger(xy[1]);
+            assertEquals(y, y2);
+
+            BigInteger n2 = new BigInteger(NativeCrypto.EC_GROUP_get_order(group1));
+            assertEquals(n, n2);
+
+            BigInteger h2 = new BigInteger(NativeCrypto.EC_GROUP_get_cofactor(group2));
+            assertEquals(h, h2);
+
+            assertTrue(NativeCrypto.EC_GROUP_cmp(group1, group2));
+        } finally {
+            if (group1 != NULL) {
+                NativeCrypto.EC_GROUP_clear_free(group1);
+            }
+
+            if (group2 != NULL) {
+                NativeCrypto.EC_GROUP_clear_free(group2);
+            }
+
+            if (point1 != NULL) {
+                NativeCrypto.EC_POINT_clear_free(point1);
+            }
+
+            if (point2 != NULL) {
+                NativeCrypto.EC_POINT_clear_free(point2);
+            }
+        }
+    }
 
     public void test_EVP_CipherInit_ex_Null_Failure() throws Exception {
         final int ctx = NativeCrypto.EVP_CIPHER_CTX_new();
