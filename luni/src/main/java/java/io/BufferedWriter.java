@@ -46,7 +46,7 @@ public class BufferedWriter extends Writer {
 
     /**
      * Constructs a new {@code BufferedWriter}, providing {@code out} with a buffer
-     * of 8192 bytes.
+     * of 8192 chars.
      *
      * @param out the {@code Writer} the buffer writes to.
      */
@@ -55,11 +55,11 @@ public class BufferedWriter extends Writer {
     }
 
     /**
-     * Constructs a new {@code BufferedWriter}, providing {@code out} with {@code size} bytes
+     * Constructs a new {@code BufferedWriter}, providing {@code out} with {@code size} chars
      * of buffer.
      *
      * @param out the {@code OutputStream} the buffer writes to.
-     * @param size the size of buffer in bytes.
+     * @param size the size of buffer in chars.
      * @throws IllegalArgumentException if {@code size <= 0}.
      */
     public BufferedWriter(Writer out, int size) {
