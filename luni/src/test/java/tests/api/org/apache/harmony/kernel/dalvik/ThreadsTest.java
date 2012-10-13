@@ -17,7 +17,8 @@
 package tests.api.org.apache.harmony.kernel.dalvik;
 
 import java.lang.reflect.Field;
-
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import sun.misc.Unsafe;
@@ -50,10 +51,11 @@ public class ThreadsTest extends TestCase {
 
     /** Test the case where the park times out. */
     public void test_parkFor_1() {
-        Parker parker = new Parker(false, 500);
+        CyclicBarrier barrier = new CyclicBarrier(2);
+        Parker parker = new Parker(barrier, false, 500);
         Thread parkerThread = new Thread(parker);
         Thread waiterThread =
-            new Thread(new WaitAndUnpark(1000, parkerThread));
+            new Thread(new WaitAndUnpark(barrier, 1000, parkerThread));
 
         parkerThread.start();
         waiterThread.start();
@@ -62,10 +64,11 @@ public class ThreadsTest extends TestCase {
 
     /** Test the case where the unpark happens before the timeout. */
     public void test_parkFor_2() {
-        Parker parker = new Parker(false, 1000);
+        CyclicBarrier barrier = new CyclicBarrier(2);
+        Parker parker = new Parker(barrier, false, 1000);
         Thread parkerThread = new Thread(parker);
         Thread waiterThread =
-            new Thread(new WaitAndUnpark(300, parkerThread));
+            new Thread(new WaitAndUnpark(barrier, 300, parkerThread));
 
         parkerThread.start();
         waiterThread.start();
@@ -74,7 +77,8 @@ public class ThreadsTest extends TestCase {
 
     /** Test the case where the thread is preemptively unparked. */
     public void test_parkFor_3() {
-        Parker parker = new Parker(false, 1000);
+        CyclicBarrier barrier = new CyclicBarrier(2);
+        Parker parker = new Parker(barrier, false, 1000);
         Thread parkerThread = new Thread(parker);
 
         UNSAFE.unpark(parkerThread);
@@ -84,10 +88,11 @@ public class ThreadsTest extends TestCase {
 
     /** Test the case where the park times out. */
     public void test_parkUntil_1() {
-        Parker parker = new Parker(true, 500);
+        CyclicBarrier barrier = new CyclicBarrier(2);
+        Parker parker = new Parker(barrier, true, 500);
         Thread parkerThread = new Thread(parker);
         Thread waiterThread =
-            new Thread(new WaitAndUnpark(1000, parkerThread));
+            new Thread(new WaitAndUnpark(barrier, 1000, parkerThread));
 
         parkerThread.start();
         waiterThread.start();
@@ -96,10 +101,11 @@ public class ThreadsTest extends TestCase {
 
     /** Test the case where the unpark happens before the timeout. */
     public void test_parkUntil_2() {
-        Parker parker = new Parker(true, 1000);
+        CyclicBarrier barrier = new CyclicBarrier(2);
+        Parker parker = new Parker(barrier, true, 1000);
         Thread parkerThread = new Thread(parker);
         Thread waiterThread =
-            new Thread(new WaitAndUnpark(300, parkerThread));
+            new Thread(new WaitAndUnpark(barrier, 300, parkerThread));
 
         parkerThread.start();
         waiterThread.start();
@@ -108,7 +114,8 @@ public class ThreadsTest extends TestCase {
 
     /** Test the case where the thread is preemptively unparked. */
     public void test_parkUntil_3() {
-        Parker parker = new Parker(true, 1000);
+        CyclicBarrier barrier = new CyclicBarrier(2);
+        Parker parker = new Parker(barrier, true, 1000);
         Thread parkerThread = new Thread(parker);
 
         UNSAFE.unpark(parkerThread);
@@ -123,6 +130,9 @@ public class ThreadsTest extends TestCase {
      * the indicated value, noting the duration of time actually parked.
      */
     private static class Parker implements Runnable {
+
+        private final CyclicBarrier barrier;
+
         /** whether {@link #amount} is milliseconds to wait in an
          * absolute fashion (<code>true</code>) or nanoseconds to wait
          * in a relative fashion (<code>false</code>) */
@@ -147,7 +157,8 @@ public class ThreadsTest extends TestCase {
          * either case, this constructor takes a duration to park for
          * @param parkMillis the number of milliseconds to be parked
          */
-        public Parker(boolean absolute, long parkMillis) {
+        public Parker(CyclicBarrier barrier, boolean absolute, long parkMillis) {
+            this.barrier = barrier;
             this.absolute = absolute;
 
             // Multiply by 1000000 because parkFor() takes nanoseconds.
@@ -155,8 +166,14 @@ public class ThreadsTest extends TestCase {
         }
 
         public void run() {
+            try {
+                barrier.await(60, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                throw new AssertionError(e);
+            }
             boolean absolute = this.absolute;
             long amount = this.amount;
+            long startNanos = System.nanoTime();
             long start = System.currentTimeMillis();
 
             if (absolute) {
@@ -165,11 +182,11 @@ public class ThreadsTest extends TestCase {
                 UNSAFE.park(false, amount);
             }
 
-            long end = System.currentTimeMillis();
+            long endNanos = System.nanoTime();
 
             synchronized (this) {
-                startMillis = start;
-                endMillis = end;
+                startMillis = startNanos / 1000000;
+                endMillis = endNanos / 1000000;
                 completed = true;
                 notifyAll();
             }
@@ -230,15 +247,22 @@ public class ThreadsTest extends TestCase {
      * specified amount of time and then unparks an indicated thread.
      */
     private static class WaitAndUnpark implements Runnable {
+        private final CyclicBarrier barrier;
         private final long waitMillis;
         private final Thread thread;
 
-        public WaitAndUnpark(long waitMillis, Thread thread) {
+        public WaitAndUnpark(CyclicBarrier barrier, long waitMillis, Thread thread) {
+            this.barrier = barrier;
             this.waitMillis = waitMillis;
             this.thread = thread;
         }
 
         public void run() {
+            try {
+                barrier.await(60, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                throw new AssertionError(e);
+            }
             try {
                 Thread.sleep(waitMillis);
             } catch (InterruptedException ex) {
