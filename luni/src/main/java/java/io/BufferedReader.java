@@ -119,7 +119,7 @@ public class BufferedReader extends Reader {
      * Populates the buffer with data. It is an error to call this method when
      * the buffer still contains data; ie. if {@code pos < end}.
      *
-     * @return the number of bytes read into the buffer, or -1 if the end of the
+     * @return the number of chars read into the buffer, or -1 if the end of the
      *      source stream has been reached.
      */
     private int fillBuf() throws IOException {
@@ -254,7 +254,7 @@ public class BufferedReader extends Reader {
      * @param buffer
      *            the character array to store the characters read.
      * @param offset
-     *            the initial position in {@code buffer} to store the bytes read
+     *            the initial position in {@code buffer} to store the chars read
      *            from this reader.
      * @param length
      *            the maximum number of characters to read, must be
@@ -277,7 +277,7 @@ public class BufferedReader extends Reader {
             while (outstanding > 0) {
 
                 /*
-                 * If there are bytes in the buffer, grab those first.
+                 * If there are chars in the buffer, grab those first.
                  */
                 int available = end - pos;
                 if (available > 0) {
@@ -291,7 +291,7 @@ public class BufferedReader extends Reader {
                 /*
                  * Before attempting to read from the underlying stream, make
                  * sure we really, really want to. We won't bother if we're
-                 * done, or if we've already got some bytes and reading from the
+                 * done, or if we've already got some chars and reading from the
                  * underlying stream would block.
                  */
                 if (outstanding == 0 || (outstanding < length && !in.ready())) {
@@ -302,7 +302,7 @@ public class BufferedReader extends Reader {
 
                 /*
                  * If we're unmarked and the requested size is greater than our
-                 * buffer, read the bytes directly into the caller's buffer. We
+                 * buffer, read the chars directly into the caller's buffer. We
                  * don't read into smaller buffers because that could result in
                  * a many reads.
                  */
@@ -464,17 +464,16 @@ public class BufferedReader extends Reader {
     }
 
     /**
-     * Skips {@code byteCount} bytes in this stream. Subsequent calls to
-     * {@code read} will not return these bytes unless {@code reset} is
+     * Skips {@code charCount} chars in this stream. Subsequent calls to
+     * {@code read} will not return these chars unless {@code reset} is
      * used.
-     * Skipping characters may invalidate a mark if {@code markLimit}
+     *
+     * <p>Skipping characters may invalidate a mark if {@code markLimit}
      * is surpassed.
      *
-     * @param byteCount
-     *            the maximum number of characters to skip.
+     * @param charCount the maximum number of characters to skip.
      * @return the number of characters actually skipped.
-     * @throws IllegalArgumentException
-     *             if {@code byteCount < 0}.
+     * @throws IllegalArgumentException if {@code charCount < 0}.
      * @throws IOException
      *             if this reader is closed or some other I/O error occurs.
      * @see #mark(int)
@@ -482,35 +481,35 @@ public class BufferedReader extends Reader {
      * @see #reset()
      */
     @Override
-    public long skip(long byteCount) throws IOException {
-        if (byteCount < 0) {
-            throw new IllegalArgumentException("byteCount < 0: " + byteCount);
+    public long skip(long charCount) throws IOException {
+        if (charCount < 0) {
+            throw new IllegalArgumentException("charCount < 0: " + charCount);
         }
         synchronized (lock) {
             checkNotClosed();
-            if (byteCount < 1) {
+            if (charCount < 1) {
                 return 0;
             }
-            if (end - pos >= byteCount) {
-                pos += byteCount;
-                return byteCount;
+            if (end - pos >= charCount) {
+                pos += charCount;
+                return charCount;
             }
 
             long read = end - pos;
             pos = end;
-            while (read < byteCount) {
+            while (read < charCount) {
                 if (fillBuf() == -1) {
                     return read;
                 }
-                if (end - pos >= byteCount - read) {
-                    pos += byteCount - read;
-                    return byteCount;
+                if (end - pos >= charCount - read) {
+                    pos += charCount - read;
+                    return charCount;
                 }
                 // Couldn't get all the characters, skip what we read
                 read += (end - pos);
                 pos = end;
             }
-            return byteCount;
+            return charCount;
         }
     }
 }
