@@ -1916,4 +1916,70 @@ public final class CipherTest extends TestCase {
         } catch (InvalidAlgorithmParameterException expected) {
         }
     }
+
+    public void testRC4_MultipleKeySizes() throws Exception {
+        final int SMALLEST_KEY_SIZE = 40;
+        final int LARGEST_KEY_SIZE = 1024;
+
+        /* Make an array of keys for our tests */
+        SecretKey[] keys = new SecretKey[LARGEST_KEY_SIZE - SMALLEST_KEY_SIZE];
+        {
+            KeyGenerator kg = KeyGenerator.getInstance("ARC4");
+            for (int keysize = SMALLEST_KEY_SIZE; keysize < LARGEST_KEY_SIZE; keysize++) {
+                final int index = keysize - SMALLEST_KEY_SIZE;
+                kg.init(keysize);
+                keys[index] = kg.generateKey();
+            }
+        }
+
+        /*
+         * Use this to compare the output of the first provider against
+         * subsequent providers.
+         */
+        String[] expected = new String[LARGEST_KEY_SIZE - SMALLEST_KEY_SIZE];
+
+        /* Find all providers that provide ARC4. We must have at least one! */
+        Map<String, String> filter = new HashMap<String, String>();
+        filter.put("Cipher.ARC4", "");
+        Provider[] providers = Security.getProviders(filter);
+        assertTrue("There must be security providers of Cipher.ARC4", providers.length > 0);
+
+        /* Keep track of this for later error messages */
+        String firstProvider = providers[0].getName();
+
+        for (Provider p : providers) {
+            Cipher c = Cipher.getInstance("ARC4", p);
+
+            for (int keysize = SMALLEST_KEY_SIZE; keysize < LARGEST_KEY_SIZE; keysize++) {
+                final int index = keysize - SMALLEST_KEY_SIZE;
+                final SecretKey sk = keys[index];
+
+                /*
+                 * Test that encryption works. Donig this in a loop also has the
+                 * benefit of testing that re-initialization works for this
+                 * cipher.
+                 */
+                c.init(Cipher.ENCRYPT_MODE, sk);
+                byte[] cipherText = c.doFinal(ORIGINAL_PLAIN_TEXT);
+                assertNotNull(cipherText);
+
+                /*
+                 * Compare providers against eachother to make sure they're all
+                 * in agreement. This helps when you add a brand new provider.
+                 */
+                if (expected[index] == null) {
+                    expected[index] = Arrays.toString(cipherText);
+                } else {
+                    assertEquals(firstProvider + " should output the same as " + p.getName()
+                            + " for key size " + keysize, expected[index],
+                            Arrays.toString(cipherText));
+                }
+
+                c.init(Cipher.DECRYPT_MODE, sk);
+                byte[] actualPlaintext = c.doFinal(cipherText);
+                assertEquals("Key size: " + keysize, Arrays.toString(ORIGINAL_PLAIN_TEXT),
+                        Arrays.toString(actualPlaintext));
+            }
+        }
+    }
 }
