@@ -2905,9 +2905,22 @@ static void NativeCrypto_EVP_CIPHER_CTX_set_padding(JNIEnv* env, jclass, jint ct
     EVP_CIPHER_CTX_set_padding(ctx, enablePadding);
     JNI_TRACE("EVP_CIPHER_CTX_set_padding(%p, %d) => success", ctx, enablePadding);
 }
-/*
- * public static native void EVP_CIPHER_CTX_cleanup(int ctx);
- */
+
+static void NativeCrypto_EVP_CIPHER_CTX_set_key_length(JNIEnv* env, jclass, jint ctxRef,
+        jint keySizeBits) {
+    EVP_CIPHER_CTX* ctx = reinterpret_cast<EVP_CIPHER_CTX*>(ctxRef);
+    JNI_TRACE("EVP_CIPHER_CTX_set_key_length(%p, %d)", ctx, keySizeBits);
+
+    if (ctx == NULL) {
+        jniThrowNullPointerException(env, "ctx == null");
+        JNI_TRACE("ctx=%p EVP_CIPHER_CTX_set_key_length => ctx == null", ctx);
+        return;
+    }
+
+    EVP_CIPHER_CTX_set_key_length(ctx, keySizeBits);
+    JNI_TRACE("EVP_CIPHER_CTX_set_key_length(%p, %d) => success", ctx, keySizeBits);
+}
+
 static void NativeCrypto_EVP_CIPHER_CTX_cleanup(JNIEnv*, jclass, jint ctxRef) {
     EVP_CIPHER_CTX* ctx = reinterpret_cast<EVP_CIPHER_CTX*>(ctxRef);
     JNI_TRACE("EVP_CIPHER_CTX_cleanup(%p)", ctx);
@@ -2915,6 +2928,7 @@ static void NativeCrypto_EVP_CIPHER_CTX_cleanup(JNIEnv*, jclass, jint ctxRef) {
     if (ctx != NULL) {
         EVP_CIPHER_CTX_cleanup(ctx);
     }
+    JNI_TRACE("EVP_CIPHER_CTX_cleanup(%p) => success", ctx);
 }
 
 /**
@@ -5434,6 +5448,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_block_size, "(I)I"),
     NATIVE_METHOD(NativeCrypto, get_EVP_CIPHER_CTX_buf_len, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_set_padding, "(IZ)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_set_key_length, "(II)V"),
     NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_cleanup, "(I)V"),
     NATIVE_METHOD(NativeCrypto, RAND_seed, "([B)V"),
     NATIVE_METHOD(NativeCrypto, RAND_load_file, "(Ljava/lang/String;J)I"),
