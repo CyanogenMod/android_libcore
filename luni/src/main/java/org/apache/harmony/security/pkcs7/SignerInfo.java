@@ -93,8 +93,16 @@ public final class SignerInfo {
         return digestAlgorithm.getAlgorithm();
     }
 
+    public String getDigestAlgorithmName() {
+        return digestAlgorithm.getAlgorithmName();
+    }
+
     public String getDigestEncryptionAlgorithm() {
         return digestEncryptionAlgorithm.getAlgorithm();
+    }
+
+    public String getDigestEncryptionAlgorithmName() {
+        return digestEncryptionAlgorithm.getAlgorithmName();
     }
 
     public List<AttributeTypeAndValue> getAuthenticatedAttributes() {
