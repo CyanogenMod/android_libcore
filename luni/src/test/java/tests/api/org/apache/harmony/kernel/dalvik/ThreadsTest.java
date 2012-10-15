@@ -77,7 +77,7 @@ public class ThreadsTest extends TestCase {
 
     /** Test the case where the thread is preemptively unparked. */
     public void test_parkFor_3() {
-        CyclicBarrier barrier = new CyclicBarrier(2);
+        CyclicBarrier barrier = new CyclicBarrier(1);
         Parker parker = new Parker(barrier, false, 1000);
         Thread parkerThread = new Thread(parker);
 
@@ -114,7 +114,7 @@ public class ThreadsTest extends TestCase {
 
     /** Test the case where the thread is preemptively unparked. */
     public void test_parkUntil_3() {
-        CyclicBarrier barrier = new CyclicBarrier(2);
+        CyclicBarrier barrier = new CyclicBarrier(1);
         Parker parker = new Parker(barrier, true, 1000);
         Thread parkerThread = new Thread(parker);
 
