@@ -21,7 +21,7 @@ public final class NativeConverter {
     public static native int encode(long converterHandle, char[] input, int inEnd,
             byte[] output, int outEnd, int[] data, boolean flush);
 
-    public static native long openConverter(String encoding);
+    public static native long openConverter(String charsetName);
     public static native void closeConverter(long converterHandle);
 
     public static native void resetByteToChar(long converterHandle);
