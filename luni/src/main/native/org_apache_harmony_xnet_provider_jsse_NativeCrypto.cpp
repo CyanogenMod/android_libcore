@@ -149,6 +149,13 @@ struct RSA_Delete {
 };
 typedef UniquePtr<RSA, RSA_Delete> Unique_RSA;
 
+struct ASN1_OBJECT_Delete {
+    void operator()(ASN1_OBJECT* p) const {
+        ASN1_OBJECT_free(p);
+    }
+};
+typedef UniquePtr<ASN1_OBJECT, ASN1_OBJECT_Delete> Unique_ASN1_OBJECT;
+
 struct SSL_Delete {
     void operator()(SSL* p) const {
         SSL_free(p);
@@ -2952,6 +2959,70 @@ static void NativeCrypto_RAND_bytes(JNIEnv* env, jclass, jbyteArray output) {
     JNI_TRACE("NativeCrypto_RAND_bytes(%p) => success", output);
 }
 
+static jstring NativeCrypto_OBJ_txt2nid_longName(JNIEnv* env, jclass, jstring oidStr) {
+    JNI_TRACE("OBJ_txt2nid_longName(%p)", oidStr);
+
+    ScopedUtfChars oid(env, oidStr);
+    if (oid.c_str() == NULL) {
+        return NULL;
+    }
+
+    JNI_TRACE("OBJ_txt2nid_longName(%s)", oid.c_str());
+
+    int nid = OBJ_txt2nid(oid.c_str());
+    if (nid == NID_undef) {
+        JNI_TRACE("OBJ_txt2nid_longName(%s) => NID_undef", oid.c_str());
+        freeOpenSslErrorState();
+        return NULL;
+    }
+
+    const char* longName = OBJ_nid2ln(nid);
+    JNI_TRACE("OBJ_txt2nid_longName(%s) => %s", oid.c_str(), longName);
+    return env->NewStringUTF(longName);
+}
+
+static jstring NativeCrypto_OBJ_txt2nid_oid(JNIEnv* env, jclass, jstring oidStr) {
+    JNI_TRACE("OBJ_txt2nid_oid(%p)", oidStr);
+
+    ScopedUtfChars oid(env, oidStr);
+    if (oid.c_str() == NULL) {
+        return NULL;
+    }
+
+    JNI_TRACE("OBJ_txt2nid_oid(%s)", oid.c_str());
+
+    int nid = OBJ_txt2nid(oid.c_str());
+    if (nid == NID_undef) {
+        JNI_TRACE("OBJ_txt2nid_oid(%s) => NID_undef", oid.c_str());
+        freeOpenSslErrorState();
+        return NULL;
+    }
+
+    Unique_ASN1_OBJECT obj(OBJ_nid2obj(nid));
+    if (obj.get() == NULL) {
+        throwExceptionIfNecessary(env, "OBJ_nid2obj");
+        return NULL;
+    }
+
+    /*
+     * The OBJ_obj2txt API doesn't "measure" if you pass in NULL as the buffer.
+     * Just make a buffer that's large enough here. The documentation recommends
+     * 80 characters.
+     */
+    char output[128];
+    int ret = OBJ_obj2txt(output, sizeof(output), obj.get(), 1);
+    if (ret < 0) {
+        throwExceptionIfNecessary(env, "OBJ_obj2txt");
+        return NULL;
+    } else if (size_t(ret) >= sizeof(output)) {
+        jniThrowRuntimeException(env, "OBJ_obj2txt buffer too small");
+        return NULL;
+    }
+
+    JNI_TRACE("OBJ_txt2nid_oid(%s) => %s", oid.c_str(), output);
+    return env->NewStringUTF(output);
+}
+
 #ifdef WITH_JNI_TRACE
 /**
  * Based on example logging call back from SSL_CTX_set_info_callback man page
@@ -5428,6 +5499,8 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, RAND_seed, "([B)V"),
     NATIVE_METHOD(NativeCrypto, RAND_load_file, "(Ljava/lang/String;J)I"),
     NATIVE_METHOD(NativeCrypto, RAND_bytes, "([B)V"),
+    NATIVE_METHOD(NativeCrypto, OBJ_txt2nid_longName, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeCrypto, OBJ_txt2nid_oid, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_new, "()I"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_free, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_set_session_id_context, "(I[B)V"),
