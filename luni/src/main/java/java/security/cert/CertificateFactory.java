@@ -225,23 +225,17 @@ public class CertificateFactory {
     }
 
     /**
-     * Generates a {@code CertPath} (a certificate chain) from the provided
-     * {@code InputStream} and the specified encoding scheme.
+     * Generates a {@code CertPath} (a certificate chain) from the given
+     * {@code inputStream}, assuming the given {@code charsetName}.
      *
-     * @param inStream
-     *            {@code InputStream} containing certificate path data in
-     *            specified encoding.
-     * @param encoding
-     *            encoding of the data in the input stream.
-     * @return a {@code CertPath} initialized from the provided data.
      * @throws CertificateException
      *             if parsing problems are detected.
      * @throws UnsupportedOperationException
      *             if the provider does not implement this method.
      */
-    public final CertPath generateCertPath(InputStream inStream, String encoding)
+    public final CertPath generateCertPath(InputStream inputStream, String charsetName)
             throws CertificateException {
-        return spiImpl.engineGenerateCertPath(inStream, encoding);
+        return spiImpl.engineGenerateCertPath(inputStream, charsetName);
     }
 
     /**
