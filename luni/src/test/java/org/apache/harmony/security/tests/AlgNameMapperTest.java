@@ -53,15 +53,15 @@ public class AlgNameMapperTest extends TestCase {
 
         for (int i = 0; i < HARDCODED_ALIASES.length; i++) {
             try {
-                assertEquals(HARDCODED_ALIASES[i][1],
-                        AlgNameMapper.map2AlgName(HARDCODED_ALIASES[i][0]));
+                assertEquals(HARDCODED_ALIASES[i][1].toUpperCase(Locale.US),
+                        AlgNameMapper.map2AlgName(HARDCODED_ALIASES[i][0]).toUpperCase(Locale.US));
 
                 assertEquals(HARDCODED_ALIASES[i][0],
                         AlgNameMapper.map2OID(HARDCODED_ALIASES[i][1]));
 
-                assertEquals(HARDCODED_ALIASES[i][1],
+                assertEquals(HARDCODED_ALIASES[i][1].toUpperCase(Locale.US),
                         AlgNameMapper.getStandardName(HARDCODED_ALIASES[i][1]
-                                .toUpperCase(Locale.US)));
+                                .toUpperCase(Locale.US)).toUpperCase(Locale.US));
 
                 assertTrue(AlgNameMapper.isOID(HARDCODED_ALIASES[i][0]));
             } catch (Throwable e) {
@@ -78,7 +78,7 @@ public class AlgNameMapperTest extends TestCase {
 
     private final String[][] NON_HARDCODED_ALIASES = {
             {"2.16.840.1.101.3.4.2.3", "SHA512"}, // This isn't currently hardcoded in AlgNameMapper
-            {"1.2.840.10045.3.1.7", "PRIME256V1"}, // No provider provides EC curves
+            {"1.2.840.10045.3.1.7", "prime256v1"}, // No provider provides EC curves
     };
 
     public void testNon_Hardcoded_Aliases_Exist() throws Exception {
@@ -89,7 +89,8 @@ public class AlgNameMapperTest extends TestCase {
             try {
                 String algName = AlgNameMapper.map2AlgName(NON_HARDCODED_ALIASES[i][0]);
                 assertNotNull(algName);
-                assertEquals(NON_HARDCODED_ALIASES[i][1], algName.toUpperCase(Locale.US));
+                assertEquals(NON_HARDCODED_ALIASES[i][1].toUpperCase(Locale.US),
+                        algName.toUpperCase(Locale.US));
 
                 String oid = AlgNameMapper.map2OID(algName);
                 assertNotNull(oid);
