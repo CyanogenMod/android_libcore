@@ -281,14 +281,11 @@ public abstract class Handler {
      * Sets the character encoding used by this handler, {@code null} indicates
      * a default encoding.
      *
-     * @param encoding
-     *            the character encoding to set.
-     * @throws UnsupportedEncodingException
-     *             if the specified encoding is not supported by the runtime.
+     * @throws UnsupportedEncodingException if {@code charsetName} is not supported.
      */
-    public void setEncoding(String encoding) throws UnsupportedEncodingException {
+    public void setEncoding(String charsetName) throws UnsupportedEncodingException {
         LogManager.getLogManager().checkAccess();
-        internalSetEncoding(encoding);
+        internalSetEncoding(charsetName);
     }
 
     /**
