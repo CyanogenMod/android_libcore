@@ -75,4 +75,34 @@ public class AlgNameMapperTest extends TestCase {
             throw new Exception("Errors encountered:\n\n" + errBuffer.toString() + "\n\n");
         }
     }
+
+    private final String[][] NON_HARDCODED_ALIASES = {
+            {"2.16.840.1.101.3.4.2.3", "SHA512"}, // This isn't currently hardcoded in AlgNameMapper
+            {"1.2.840.10045.3.1.7", "PRIME256V1"}, // No provider provides EC curves
+    };
+
+    public void testNon_Hardcoded_Aliases_Exist() throws Exception {
+        final ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+        PrintStream out = new PrintStream(errBuffer);
+
+        for (int i = 0; i < NON_HARDCODED_ALIASES.length; i++) {
+            try {
+                String algName = AlgNameMapper.map2AlgName(NON_HARDCODED_ALIASES[i][0]);
+                assertNotNull(algName);
+                assertEquals(NON_HARDCODED_ALIASES[i][1], algName.toUpperCase(Locale.US));
+
+                String oid = AlgNameMapper.map2OID(algName);
+                assertNotNull(oid);
+                assertEquals(NON_HARDCODED_ALIASES[i][0], oid);
+            } catch (Throwable e) {
+                out.append("Error encountered checking " + HARDCODED_ALIASES[i][1] + "\n");
+                e.printStackTrace(out);
+            }
+        }
+
+        out.flush();
+        if (errBuffer.size() > 0) {
+            throw new Exception("Errors encountered:\n\n" + errBuffer.toString() + "\n\n");
+        }
+    }
 }
