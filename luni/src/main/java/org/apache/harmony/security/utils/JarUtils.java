@@ -114,27 +114,56 @@ public class JarUtils {
         }
 
         // Get Signature instance
-        Signature sig = null;
-        String da = sigInfo.getDigestAlgorithm();
-        String dea = sigInfo.getDigestEncryptionAlgorithm();
+        final String daOid = sigInfo.getDigestAlgorithm();
+        final String daName = sigInfo.getDigestAlgorithmName();
+        final String deaOid = sigInfo.getDigestEncryptionAlgorithm();
+
         String alg = null;
-        if (da != null && dea != null) {
-            alg = da + "with" +  dea;
-            try {
-                sig = Signature.getInstance(alg);
-            } catch (NoSuchAlgorithmException e) {}
-        }
-        if (sig == null) {
-            alg = da;
-            if (alg == null) {
-                return null;
-            }
+        Signature sig = null;
+
+        if (daOid != null && deaOid != null) {
+            alg = daOid + "with" + deaOid;
             try {
                 sig = Signature.getInstance(alg);
             } catch (NoSuchAlgorithmException e) {
-                return null;
+            }
+
+            // Try to convert to names instead of OID.
+            if (sig == null) {
+                final String deaName = sigInfo.getDigestEncryptionAlgorithmName();
+                alg = daName + "with" + deaName;
+                try {
+                    sig = Signature.getInstance(alg);
+                } catch (NoSuchAlgorithmException e) {
+                }
             }
         }
+
+        /*
+         * TODO figure out the case in which we'd only use digestAlgorithm and
+         * add a test for it.
+         */
+        if (sig == null && daOid != null) {
+            alg = daOid;
+            try {
+                sig = Signature.getInstance(alg);
+            } catch (NoSuchAlgorithmException e) {
+            }
+
+            if (sig == null && daName != null) {
+                alg = daName;
+                try {
+                    sig = Signature.getInstance(alg);
+                } catch (NoSuchAlgorithmException e) {
+                }
+            }
+        }
+
+        // We couldn't find a valid Signature type.
+        if (sig == null) {
+            return null;
+        }
+
         sig.initVerify(certs[issuerSertIndex]);
 
         // If the authenticatedAttributes field of SignerInfo contains more than zero attributes,
