@@ -657,15 +657,18 @@ public class Thread implements Runnable {
      * @see Thread#isInterrupted
      */
     public void interrupt() {
+        // Interrupt this thread before running actions so that other
+        // threads that observe the interrupt as a result of an action
+        // will see that this thread is in the interrupted state.
+        VMThread vmt = this.vmThread;
+        if (vmt != null) {
+            vmt.interrupt();
+        }
+
         synchronized (interruptActions) {
             for (int i = interruptActions.size() - 1; i >= 0; i--) {
                 interruptActions.get(i).run();
             }
-        }
-
-        VMThread vmt = this.vmThread;
-        if (vmt != null) {
-            vmt.interrupt();
         }
     }
 
