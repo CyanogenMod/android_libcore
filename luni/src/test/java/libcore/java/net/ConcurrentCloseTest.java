@@ -50,11 +50,11 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
     }
 
     public void test_connect() throws Exception {
-        StuckServer ss = new StuckServer();
+        StuckServer ss = new StuckServer(false);
         Socket s = new Socket();
         new Killer(s).start();
         try {
-            System.err.println("connect " + s + " to " + ss.getLocalSocketAddress() + "...");
+            System.err.println("connect...");
             s.connect(ss.getLocalSocketAddress());
             fail("connect returned: " + s + "!");
         } catch (SocketException expected) {
@@ -65,11 +65,11 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
     }
 
     public void test_connect_timeout() throws Exception {
-        StuckServer ss = new StuckServer();
+        StuckServer ss = new StuckServer(false);
         Socket s = new Socket();
         new Killer(s).start();
         try {
-            System.err.println("connect (with timeout) " + s + " to " + ss.getLocalSocketAddress() + "...");
+            System.err.println("connect (with timeout)...");
             s.connect(ss.getLocalSocketAddress(), 3600 * 1000);
             fail("connect returned: " + s + "!");
         } catch (SocketException expected) {
@@ -80,11 +80,11 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
     }
 
     public void test_connect_nonBlocking() throws Exception {
-        StuckServer ss = new StuckServer();
+        StuckServer ss = new StuckServer(false);
         SocketChannel s = SocketChannel.open();
         new Killer(s.socket()).start();
         try {
-            System.err.println("connect (non-blocking) " + s + " to " + ss.getLocalSocketAddress() + "...");
+            System.err.println("connect (non-blocking)...");
             s.configureBlocking(false);
             s.connect(ss.getLocalSocketAddress());
             while (!s.finishConnect()) {
@@ -238,7 +238,7 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
             try {
                 System.err.println("sleep...");
                 Thread.sleep(2000);
-                System.err.println("close " + s + "...");
+                System.err.println("close...");
                 s.getClass().getMethod("close").invoke(s);
             } catch (Exception ex) {
                 ex.printStackTrace();

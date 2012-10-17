@@ -1645,7 +1645,7 @@ public final class URLConnectionTest extends TestCase {
      * addresses. This is typically one IPv4 address and one IPv6 address.
      */
     public void testConnectTimeouts() throws IOException {
-        StuckServer ss = new StuckServer();
+        StuckServer ss = new StuckServer(false);
         int serverPort = ss.getLocalPort();
         URLConnection urlConnection = new URL("http://localhost:" + serverPort).openConnection();
         int timeout = 1000;
