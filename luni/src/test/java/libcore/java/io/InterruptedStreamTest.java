@@ -47,7 +47,9 @@ public final class InterruptedStreamTest extends TestCase {
     private Socket[] sockets;
 
     @Override protected void setUp() throws Exception {
-        Thread.interrupted(); // clear interrupted bit
+        // Clear the interrupted bit to make sure an earlier test did
+        // not leave us in a bad state.
+        Thread.interrupted();
         super.tearDown();
     }
 
@@ -123,7 +125,7 @@ public final class InterruptedStreamTest extends TestCase {
             fail();
         } catch (InterruptedIOException expected) {
         } finally {
-            waitForInterrupt(thread);
+            confirmInterrupted(thread);
         }
     }
 
@@ -134,7 +136,7 @@ public final class InterruptedStreamTest extends TestCase {
             fail();
         } catch (InterruptedIOException expected) {
         } finally {
-            waitForInterrupt(thread);
+            confirmInterrupted(thread);
         }
     }
 
@@ -145,7 +147,7 @@ public final class InterruptedStreamTest extends TestCase {
             fail();
         } catch (ClosedByInterruptException expected) {
         } finally {
-            waitForInterrupt(thread);
+            confirmInterrupted(thread);
         }
     }
 
@@ -158,7 +160,7 @@ public final class InterruptedStreamTest extends TestCase {
             }
         } catch (InterruptedIOException expected) {
         } finally {
-            waitForInterrupt(thread);
+            confirmInterrupted(thread);
         }
     }
 
@@ -171,7 +173,7 @@ public final class InterruptedStreamTest extends TestCase {
             }
         } catch (InterruptedIOException expected) {
         } finally {
-            waitForInterrupt(thread);
+            confirmInterrupted(thread);
         }
     }
 
@@ -185,7 +187,7 @@ public final class InterruptedStreamTest extends TestCase {
         } catch (ClosedByInterruptException expected) {
         } catch (ClosedChannelException expected) {
         } finally {
-            waitForInterrupt(thread);
+            confirmInterrupted(thread);
         }
     }
 
@@ -204,15 +206,9 @@ public final class InterruptedStreamTest extends TestCase {
         return thread;
     }
 
-    private static void waitForInterrupt(Thread thread) throws Exception {
-        try {
-            thread.join();
-        } catch (InterruptedException ignore) {
-            // There is currently a race between Thread.interrupt in
-            // interruptMeLater and Thread.join here. Most of the time
-            // we won't get an InterruptedException, but occasionally
-            // we do, so for now ignore this exception.
-            // http://b/6951157
-        }
+    private static void confirmInterrupted(Thread thread) throws InterruptedException {
+        // validate and clear interrupted bit before join
+        assertTrue(Thread.interrupted());
+        thread.join();
     }
 }
