@@ -18,6 +18,7 @@
 package java.io;
 
 import java.util.Arrays;
+import libcore.io.IoUtils;
 
 /**
  * Receives information on a communications pipe. When two threads want to pass
@@ -261,7 +262,7 @@ public class PipedReader extends Reader {
                 wait(1000);
             }
         } catch (InterruptedException e) {
-            throw new InterruptedIOException();
+            IoUtils.throwInterruptedIoException();
         }
 
         int copyLength = 0;
@@ -362,7 +363,7 @@ public class PipedReader extends Reader {
                 }
             }
         } catch (InterruptedException e) {
-            throw new InterruptedIOException();
+            IoUtils.throwInterruptedIoException();
         }
         if (buffer == null) {
             throw new IOException("Pipe is closed");
@@ -411,7 +412,7 @@ public class PipedReader extends Reader {
                     }
                 }
             } catch (InterruptedException e) {
-                throw new InterruptedIOException();
+                IoUtils.throwInterruptedIoException();
             }
             if (buffer == null) {
                 throw new IOException("Pipe is closed");

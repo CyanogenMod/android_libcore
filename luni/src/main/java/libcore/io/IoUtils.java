@@ -19,6 +19,7 @@ package libcore.io;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.nio.charset.Charsets;
@@ -144,5 +145,14 @@ public final class IoUtils {
                 throw new IOException("failed to delete file: " + file);
             }
         }
+    }
+
+    public static void throwInterruptedIoException() throws InterruptedIOException {
+        // This is typically thrown in response to an
+        // InterruptedException which does not leave the thread in an
+        // interrupted state, so explicitly interrupt here.
+        Thread.currentThread().interrupt();
+        // TODO: set InterruptedIOException.bytesTransferred
+        throw new InterruptedIOException();
     }
 }
