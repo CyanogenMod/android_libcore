@@ -60,9 +60,6 @@ ifeq ($(WITH_HOST_DALVIK),true)
         $(HOST_OUT)/bin/dexopt \
         $(HOST_OUT)/lib/libjavacore.so \
         cacerts-host \
-        $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.dat \
-        $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.idx \
-        $(HOST_OUT)/usr/share/zoneinfo/zoneinfo.version \
         core-hostdex \
         bouncycastle-hostdex \
         apache-xml-hostdex \
