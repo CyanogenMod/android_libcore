@@ -111,7 +111,7 @@ public abstract class UriCodec {
                 }
                 if (c == '%' && isPartiallyEncoded) {
                     // this is an encoded 3-character sequence like "%20"
-                    builder.append(s, i, i + 3);
+                    builder.append(s, i, Math.min(i + 3, s.length()));
                     i += 2;
                 } else if (c == ' ') {
                     builder.append('+');
