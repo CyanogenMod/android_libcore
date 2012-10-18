@@ -28,8 +28,6 @@ import sun.misc.Unsafe;
  */
 public class ThreadsTest extends TestCase {
     private static Unsafe UNSAFE = null;
-    private static RuntimeException INITIALIZEFAILED = null;
-
     static {
         /*
          * Set up {@link #UNSAFE}. This subverts the access check to
@@ -43,14 +41,14 @@ public class ThreadsTest extends TestCase {
 
             UNSAFE = (Unsafe) field.get(null);
         } catch (NoSuchFieldException ex) {
-            INITIALIZEFAILED = new RuntimeException(ex);
+            throw new RuntimeException(ex);
         } catch (IllegalAccessException ex) {
-            INITIALIZEFAILED = new RuntimeException(ex);
+            throw new RuntimeException(ex);
         }
     }
 
     /** Test the case where the park times out. */
-    public void test_parkFor_1() {
+    public void test_parkFor_1() throws Exception {
         CyclicBarrier barrier = new CyclicBarrier(2);
         Parker parker = new Parker(barrier, false, 500);
         Thread parkerThread = new Thread(parker);
@@ -60,10 +58,12 @@ public class ThreadsTest extends TestCase {
         parkerThread.start();
         waiterThread.start();
         parker.assertDurationIsInRange(500);
+        waiterThread.join();
+        parkerThread.join();
     }
 
     /** Test the case where the unpark happens before the timeout. */
-    public void test_parkFor_2() {
+    public void test_parkFor_2() throws Exception {
         CyclicBarrier barrier = new CyclicBarrier(2);
         Parker parker = new Parker(barrier, false, 1000);
         Thread parkerThread = new Thread(parker);
@@ -73,10 +73,12 @@ public class ThreadsTest extends TestCase {
         parkerThread.start();
         waiterThread.start();
         parker.assertDurationIsInRange(300);
+        waiterThread.join();
+        parkerThread.join();
     }
 
     /** Test the case where the thread is preemptively unparked. */
-    public void test_parkFor_3() {
+    public void test_parkFor_3() throws Exception {
         CyclicBarrier barrier = new CyclicBarrier(1);
         Parker parker = new Parker(barrier, false, 1000);
         Thread parkerThread = new Thread(parker);
@@ -84,10 +86,11 @@ public class ThreadsTest extends TestCase {
         UNSAFE.unpark(parkerThread);
         parkerThread.start();
         parker.assertDurationIsInRange(0);
+        parkerThread.join();
     }
 
     /** Test the case where the park times out. */
-    public void test_parkUntil_1() {
+    public void test_parkUntil_1() throws Exception {
         CyclicBarrier barrier = new CyclicBarrier(2);
         Parker parker = new Parker(barrier, true, 500);
         Thread parkerThread = new Thread(parker);
@@ -97,10 +100,12 @@ public class ThreadsTest extends TestCase {
         parkerThread.start();
         waiterThread.start();
         parker.assertDurationIsInRange(500);
+        waiterThread.join();
+        parkerThread.join();
     }
 
     /** Test the case where the unpark happens before the timeout. */
-    public void test_parkUntil_2() {
+    public void test_parkUntil_2() throws Exception {
         CyclicBarrier barrier = new CyclicBarrier(2);
         Parker parker = new Parker(barrier, true, 1000);
         Thread parkerThread = new Thread(parker);
@@ -110,10 +115,12 @@ public class ThreadsTest extends TestCase {
         parkerThread.start();
         waiterThread.start();
         parker.assertDurationIsInRange(300);
+        waiterThread.join();
+        parkerThread.join();
     }
 
     /** Test the case where the thread is preemptively unparked. */
-    public void test_parkUntil_3() {
+    public void test_parkUntil_3() throws Exception {
         CyclicBarrier barrier = new CyclicBarrier(1);
         Parker parker = new Parker(barrier, true, 1000);
         Thread parkerThread = new Thread(parker);
@@ -121,6 +128,7 @@ public class ThreadsTest extends TestCase {
         UNSAFE.unpark(parkerThread);
         parkerThread.start();
         parker.assertDurationIsInRange(0);
+        parkerThread.join();
     }
 
     // TODO: Add more tests.
@@ -234,10 +242,12 @@ public class ThreadsTest extends TestCase {
 
             if (duration < minimum) {
                 Assert.fail("expected duration: " + expectedMillis +
-                        "; actual too short: " + duration);
+                            " minimum duration: " + minimum +
+                            " actual duration too short: " + duration);
             } else if (duration > maximum) {
                 Assert.fail("expected duration: " + expectedMillis +
-                        "; actual too long: " + duration);
+                            " maximum duration: " + maximum +
+                            " actual duration too long: " + duration);
             }
         }
     }
@@ -270,13 +280,6 @@ public class ThreadsTest extends TestCase {
             }
 
             UNSAFE.unpark(thread);
-        }
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        if (INITIALIZEFAILED != null) {
-            throw INITIALIZEFAILED;
         }
     }
 }
