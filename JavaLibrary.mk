@@ -91,6 +91,7 @@ core-intermediates := ${intermediates}
 
 
 # Make the core-tests library.
+ifeq ($(LIBCORE_SKIP_TESTS),)
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik dom json luni support xml)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
@@ -98,12 +99,12 @@ LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit
 LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc mockwebserver
 LOCAL_JAVACFLAGS := $(local_javac_flags)
-LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_NO_EMMA_INSTRUMENT := true
 LOCAL_NO_EMMA_COMPILE := true
 include $(BUILD_STATIC_JAVA_LIBRARY)
+endif
 
 # This one's tricky. One of our tests needs to have a
 # resource with a "#" in its name, but Perforce doesn't
@@ -149,6 +150,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     include $(BUILD_HOST_JAVA_LIBRARY)
 
     # Make the core-tests library.
+    ifeq ($(LIBCORE_SKIP_TESTS),)
     include $(CLEAR_VARS)
     LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik dom json luni support xml)
     LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
@@ -163,6 +165,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_NO_EMMA_COMPILE := true
     LOCAL_BUILD_HOST_DEX := true
     include $(BUILD_HOST_JAVA_LIBRARY)
+    endif
 endif
 
 #
