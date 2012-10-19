@@ -171,46 +171,10 @@ public final class ZoneInfoDB {
             return null;
         }
 
-        BufferIterator data = TZDATA.bigEndianIterator();
-        data.skip(byteOffsets[index]);
+        BufferIterator it = TZDATA.bigEndianIterator();
+        it.skip(byteOffsets[index]);
 
-        // Variable names beginning tzh_ correspond to those in "tzfile.h".
-        // Check tzh_magic.
-        if (data.readInt() != 0x545a6966) { // "TZif"
-            return null;
-        }
-
-        // Skip the uninteresting part of the header.
-        data.skip(28);
-
-        // Read the sizes of the arrays we're about to read.
-        int tzh_timecnt = data.readInt();
-        int tzh_typecnt = data.readInt();
-
-        data.skip(4); // Skip tzh_charcnt.
-
-        int[] transitions = new int[tzh_timecnt];
-        data.readIntArray(transitions, 0, transitions.length);
-
-        byte[] type = new byte[tzh_timecnt];
-        data.readByteArray(type, 0, type.length);
-
-        int[] gmtOffsets = new int[tzh_typecnt];
-        byte[] isDsts = new byte[tzh_typecnt];
-        for (int i = 0; i < tzh_typecnt; ++i) {
-            gmtOffsets[i] = data.readInt();
-            isDsts[i] = data.readByte();
-            // We skip the abbreviation index. This would let us provide historically-accurate
-            // time zone abbreviations (such as "AHST", "YST", and "AKST" for standard time in
-            // America/Anchorage in 1982, 1983, and 1984 respectively). ICU only knows the current
-            // names, though, so even if we did use this data to provide the correct abbreviations
-            // for en_US, we wouldn't be able to provide correct abbreviations for other locales,
-            // nor would we be able to provide correct long forms (such as "Yukon Standard Time")
-            // for any locale. (The RI doesn't do any better than us here either.)
-            data.skip(1);
-        }
-
-        return new ZoneInfo(id, transitions, type, gmtOffsets, isDsts);
+        return ZoneInfo.makeTimeZone(id, it);
     }
 
     public static String[] getAvailableIDs() {
