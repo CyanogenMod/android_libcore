@@ -125,6 +125,7 @@ static jint ICU_getCurrencyFractionDigits(JNIEnv* env, jclass, jstring javaCurre
     return ucurr_getDefaultFractionDigits(icuCurrencyCode.getTerminatedBuffer(), &status);
 }
 
+// TODO: rewrite this with int32_t ucurr_forLocale(const char* locale, UChar* buff, int32_t buffCapacity, UErrorCode* ec)...
 static jstring ICU_getCurrencyCode(JNIEnv* env, jclass, jstring javaCountryCode) {
     UErrorCode status = U_ZERO_ERROR;
     ScopedResourceBundle supplData(ures_openDirect(U_ICUDATA_CURR, "supplementalData", &status));
@@ -167,50 +168,38 @@ static jstring ICU_getCurrencyCode(JNIEnv* env, jclass, jstring javaCountryCode)
     return (charCount == 0) ? env->NewStringUTF("XXX") : env->NewString(chars, charCount);
 }
 
-static jstring ICU_getCurrencyDisplayName(JNIEnv* env, jclass, jstring javaLocaleName, jstring javaCurrencyCode) {
-    ScopedUtfChars localeName(env, javaLocaleName);
-    ScopedJavaUnicodeString currencyCode(env, javaCurrencyCode);
-    UnicodeString icuCurrencyCode(currencyCode.unicodeString());
-    UErrorCode status = U_ZERO_ERROR;
-    UBool isChoiceFormat;
-    int32_t charCount;
-    const UChar* chars = ucurr_getName(icuCurrencyCode.getTerminatedBuffer(), localeName.c_str(),
-            UCURR_LONG_NAME, &isChoiceFormat, &charCount, &status);
-    if (status == U_USING_DEFAULT_WARNING) {
-        // ICU's default is English. We want the ISO 4217 currency code instead.
-        chars = icuCurrencyCode.getBuffer();
-        charCount = icuCurrencyCode.length();
+static jstring getCurrencyName(JNIEnv* env, jstring javaLocaleName, jstring javaCurrencyCode, UCurrNameStyle nameStyle) {
+  ScopedUtfChars localeName(env, javaLocaleName);
+  ScopedJavaUnicodeString currencyCode(env, javaCurrencyCode);
+  UnicodeString icuCurrencyCode(currencyCode.unicodeString());
+  UErrorCode status = U_ZERO_ERROR;
+  UBool isChoiceFormat = false;
+  int32_t charCount;
+  const UChar* chars = ucurr_getName(icuCurrencyCode.getTerminatedBuffer(), localeName.c_str(),
+                                     nameStyle, &isChoiceFormat, &charCount, &status);
+  if (status == U_USING_DEFAULT_WARNING) {
+    if (nameStyle == UCURR_SYMBOL_NAME) {
+      // ICU doesn't distinguish between falling back to the root locale and meeting a genuinely
+      // unknown currency. The Currency class does.
+      if (!ucurr_isAvailable(icuCurrencyCode.getTerminatedBuffer(), U_DATE_MIN, U_DATE_MAX, &status)) {
+        return NULL;
+      }
     }
-    return (charCount == 0) ? NULL : env->NewString(chars, charCount);
+    if (nameStyle == UCURR_LONG_NAME) {
+      // ICU's default is English. We want the ISO 4217 currency code instead.
+      chars = icuCurrencyCode.getBuffer();
+      charCount = icuCurrencyCode.length();
+    }
+  }
+  return (charCount == 0) ? NULL : env->NewString(chars, charCount);
 }
 
-static jstring ICU_getCurrencySymbol(JNIEnv* env, jclass, jstring locale, jstring currencyCode) {
-    // We can't use ucurr_getName because it doesn't distinguish between using data root from
-    // the root locale and parroting back the input because it's never heard of the currency code.
-    ScopedUtfChars localeName(env, locale);
-    UErrorCode status = U_ZERO_ERROR;
-    ScopedResourceBundle currLoc(ures_open(U_ICUDATA_CURR, localeName.c_str(), &status));
-    if (U_FAILURE(status)) {
-        return NULL;
-    }
+static jstring ICU_getCurrencyDisplayName(JNIEnv* env, jclass, jstring javaLocaleName, jstring javaCurrencyCode) {
+  return getCurrencyName(env, javaLocaleName, javaCurrencyCode, UCURR_LONG_NAME);
+}
 
-    ScopedResourceBundle currencies(ures_getByKey(currLoc.get(), "Currencies", NULL, &status));
-    if (U_FAILURE(status)) {
-        return NULL;
-    }
-
-    ScopedUtfChars currency(env, currencyCode);
-    ScopedResourceBundle currencyElems(ures_getByKey(currencies.get(), currency.c_str(), NULL, &status));
-    if (U_FAILURE(status)) {
-        return NULL;
-    }
-
-    int32_t charCount;
-    const jchar* chars = ures_getStringByIndex(currencyElems.get(), 0, &charCount, &status);
-    if (U_FAILURE(status)) {
-        return NULL;
-    }
-    return (charCount == 0) ? NULL : env->NewString(chars, charCount);
+static jstring ICU_getCurrencySymbol(JNIEnv* env, jclass, jstring javaLocaleName, jstring javaCurrencyCode) {
+  return getCurrencyName(env, javaLocaleName, javaCurrencyCode, UCURR_SYMBOL_NAME);
 }
 
 static jstring ICU_getDisplayCountryNative(JNIEnv* env, jclass, jstring targetLocale, jstring locale) {
