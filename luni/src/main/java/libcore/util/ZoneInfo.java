@@ -19,6 +19,7 @@ package libcore.util;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
+import libcore.io.BufferIterator;
 
 /**
  * Our concrete TimeZone implementation, backed by zoneinfo data.
@@ -50,7 +51,48 @@ public final class ZoneInfo extends TimeZone {
     private final byte[] mTypes;
     private final byte[] mIsDsts;
 
-    ZoneInfo(String name, int[] transitions, byte[] types, int[] gmtOffsets, byte[] isDsts) {
+    public static TimeZone makeTimeZone(String id, BufferIterator it) {
+        // Variable names beginning tzh_ correspond to those in "tzfile.h".
+
+        // Check tzh_magic.
+        if (it.readInt() != 0x545a6966) { // "TZif"
+            return null;
+        }
+
+        // Skip the uninteresting part of the header.
+        it.skip(28);
+
+        // Read the sizes of the arrays we're about to read.
+        int tzh_timecnt = it.readInt();
+        int tzh_typecnt = it.readInt();
+
+        it.skip(4); // Skip tzh_charcnt.
+
+        int[] transitions = new int[tzh_timecnt];
+        it.readIntArray(transitions, 0, transitions.length);
+
+        byte[] type = new byte[tzh_timecnt];
+        it.readByteArray(type, 0, type.length);
+
+        int[] gmtOffsets = new int[tzh_typecnt];
+        byte[] isDsts = new byte[tzh_typecnt];
+        for (int i = 0; i < tzh_typecnt; ++i) {
+            gmtOffsets[i] = it.readInt();
+            isDsts[i] = it.readByte();
+            // We skip the abbreviation index. This would let us provide historically-accurate
+            // time zone abbreviations (such as "AHST", "YST", and "AKST" for standard time in
+            // America/Anchorage in 1982, 1983, and 1984 respectively). ICU only knows the current
+            // names, though, so even if we did use this data to provide the correct abbreviations
+            // for en_US, we wouldn't be able to provide correct abbreviations for other locales,
+            // nor would we be able to provide correct long forms (such as "Yukon Standard Time")
+            // for any locale. (The RI doesn't do any better than us here either.)
+            it.skip(1);
+        }
+
+        return new ZoneInfo(id, transitions, type, gmtOffsets, isDsts);
+    }
+
+    private ZoneInfo(String name, int[] transitions, byte[] types, int[] gmtOffsets, byte[] isDsts) {
         mTransitions = transitions;
         mTypes = types;
         mIsDsts = isDsts;
