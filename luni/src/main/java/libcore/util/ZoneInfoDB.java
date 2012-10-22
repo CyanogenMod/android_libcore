@@ -104,11 +104,21 @@ public final class ZoneInfoDB {
     }
 
     private static MemoryMappedFile mapData() {
+        MemoryMappedFile result = mapData(System.getenv("ANDROID_DATA") + "/misc/zoneinfo/");
+        if (result == null) {
+            result = mapData(System.getenv("ANDROID_ROOT") + "/usr/share/zoneinfo/");
+            if (result == null) {
+                throw new AssertionError("Couldn't find any tzdata!");
+            }
+        }
+        return result;
+    }
+
+    private static MemoryMappedFile mapData(String directory) {
         try {
-            String path = System.getenv("ANDROID_ROOT") + "/usr/share/zoneinfo/tzdata";
-            return MemoryMappedFile.mmapRO(path);
+            return MemoryMappedFile.mmapRO(directory + "tzdata");
         } catch (ErrnoException errnoException) {
-            throw new AssertionError(errnoException);
+            return null;
         }
     }
 
