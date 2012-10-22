@@ -74,7 +74,6 @@ public final class ZoneInfoDB {
 
     private static void readHeader() {
         // byte[12] tzdata_version  -- "tzdata2012f\0"
-        // int file_format_version  -- 1
         // int index_offset
         // int data_offset
         // int zonetab_offset
@@ -88,17 +87,9 @@ public final class ZoneInfoDB {
         }
         version = new String(tzdata_version, 6, 5, Charsets.US_ASCII);
 
-        int file_format_version = it.readInt();
-        if (file_format_version != 1) {
-            throw new RuntimeException("unknown tzdata file format version: " + file_format_version);
-        }
-
         int index_offset = it.readInt();
         int data_offset = it.readInt();
         int zonetab_offset = it.readInt();
-        if (zonetab_offset != 0) {
-            throw new RuntimeException("non-zero zonetab offset: " + zonetab_offset);
-        }
 
         readIndex(it, index_offset, data_offset);
     }
