@@ -39,11 +39,11 @@ public class CertStore {
     private static final Engine ENGINE = new Engine(SERVICE);
 
     // Store default property name
-    private static final String PROPERTYNAME = "certstore.type";
+    private static final String PROPERTY_NAME = "certstore.type";
 
     // Default value of CertStore type. It returns if certpathbuild.type
     // property is not defined in java.security file
-    private static final String DEFAULTPROPERTY = "LDAP";
+    private static final String DEFAULT_PROPERTY = "LDAP";
 
     // Store used provider
     private final Provider provider;
@@ -266,7 +266,7 @@ public class CertStore {
      *         determined.
      */
     public static final String getDefaultType() {
-        String defaultType = Security.getProperty(PROPERTYNAME);
-        return (defaultType == null ? DEFAULTPROPERTY : defaultType);
+        String defaultType = Security.getProperty(PROPERTY_NAME);
+        return (defaultType == null ? DEFAULT_PROPERTY : defaultType);
     }
 }
