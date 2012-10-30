@@ -55,7 +55,7 @@ public class KeyStore {
     private static final Engine ENGINE = new Engine(SERVICE);
 
     //  Store KeyStore property name
-    private static final String PROPERTYNAME = "keystore.type";
+    private static final String PROPERTY_NAME = "keystore.type";
 
     //  Store default KeyStore type
     private static final String DEFAULT_KEYSTORE_TYPE = "jks";
@@ -204,7 +204,7 @@ public class KeyStore {
      * @return the default type for {@code KeyStore} instances
      */
     public static final String getDefaultType() {
-        String dt = Security.getProperty(PROPERTYNAME);
+        String dt = Security.getProperty(PROPERTY_NAME);
         return (dt == null ? DEFAULT_KEYSTORE_TYPE : dt);
     }
 
