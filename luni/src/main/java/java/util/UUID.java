@@ -335,13 +335,13 @@ public final class UUID implements Serializable, Comparable<UUID> {
             return this.mostSigBits < uuid.mostSigBits ? -1 : 1;
         }
 
-        assert this.mostSigBits == uuid.mostSigBits;
+        // assert this.mostSigBits == uuid.mostSigBits;
 
         if (this.leastSigBits != uuid.leastSigBits) {
             return this.leastSigBits < uuid.leastSigBits ? -1 : 1;
         }
 
-        assert this.leastSigBits == uuid.leastSigBits;
+        // assert this.leastSigBits == uuid.leastSigBits;
 
         return 0;
     }
