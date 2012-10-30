@@ -37,11 +37,11 @@ public class CertPathValidator {
     private static final Engine ENGINE = new Engine(SERVICE);
 
     // Store default property name
-    private static final String PROPERTYNAME = "certpathvalidator.type";
+    private static final String PROPERTY_NAME = "certpathvalidator.type";
 
     // Default value of CertPathBuilder type. It returns if certpathbuild.type
     // property is not defined in java.security file
-    private static final String DEFAULTPROPERTY = "PKIX";
+    private static final String DEFAULT_PROPERTY = "PKIX";
 
     // Store used provider
     private final Provider provider;
@@ -199,7 +199,7 @@ public class CertPathValidator {
      *         determined.
      */
     public static final String getDefaultType() {
-        String defaultType = Security.getProperty(PROPERTYNAME);
-        return (defaultType != null ? defaultType : DEFAULTPROPERTY);
+        String defaultType = Security.getProperty(PROPERTY_NAME);
+        return (defaultType != null ? defaultType : DEFAULT_PROPERTY);
     }
 }

@@ -44,7 +44,8 @@ import java.security.cert.X509Certificate;
  * <p>For example, to trust a set of certificates specified by a {@code KeyStore}:
  * <pre>   {@code
  *   KeyStore keyStore = ...;
- *   TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
+ *   String algorithm = TrustManagerFactory.getDefaultAlgorithm();
+ *   TrustManagerFactory tmf = TrustManagerFactory.getInstance(algorithm);
  *   tmf.init(keyStore);
  *
  *   SSLContext context = SSLContext.getInstance("TLS");
@@ -77,7 +78,8 @@ import java.security.cert.X509Certificate;
  * <p>For example, to supply client certificates from a {@code KeyStore}:
  * <pre>   {@code
  *   KeyStore keyStore = ...;
- *   KeyManagerFactory kmf = KeyManagerFactory.getInstance("X509");
+ *   String algorithm = KeyManagerFactory.getDefaultAlgorithm();
+ *   KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
  *   kmf.init(keyStore);
  *
  *   SSLContext context = SSLContext.getInstance("TLS");

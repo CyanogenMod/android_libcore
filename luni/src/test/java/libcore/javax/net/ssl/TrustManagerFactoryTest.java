@@ -53,17 +53,20 @@ public class TrustManagerFactoryTest extends TestCase {
         return TEST_KEY_STORE;
     }
 
+    private static boolean supportsManagerFactoryParameters(String algorithm) {
+        return (StandardNames.IS_RI && algorithm.equals("PKIX"));
+    }
+
     public void test_TrustManagerFactory_getDefaultAlgorithm() throws Exception {
         String algorithm = TrustManagerFactory.getDefaultAlgorithm();
         assertEquals(StandardNames.TRUST_MANAGER_FACTORY_DEFAULT, algorithm);
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(algorithm);
-        test_TrustManagerFactory(tmf, StandardNames.IS_RI);
+        test_TrustManagerFactory(tmf);
     }
 
     private static class UselessManagerFactoryParameters implements ManagerFactoryParameters {}
 
-    private void test_TrustManagerFactory(TrustManagerFactory tmf,
-                                          boolean supportsManagerFactoryParameters)
+    private void test_TrustManagerFactory(TrustManagerFactory tmf)
             throws Exception {
         assertNotNull(tmf);
         assertNotNull(tmf.getAlgorithm());
@@ -103,7 +106,7 @@ public class TrustManagerFactoryTest extends TestCase {
         X509CertSelector xcs = new X509CertSelector();
         PKIXBuilderParameters pbp = new PKIXBuilderParameters(getTestKeyStore().keyStore, xcs);
         CertPathTrustManagerParameters cptmp = new CertPathTrustManagerParameters(pbp);
-        if (supportsManagerFactoryParameters) {
+        if (supportsManagerFactoryParameters(tmf.getAlgorithm())) {
             tmf.init(cptmp);
             test_TrustManagerFactory_getTrustManagers(tmf);
         } else {
@@ -179,11 +182,10 @@ public class TrustManagerFactoryTest extends TestCase {
                     continue;
                 }
                 String algorithm = service.getAlgorithm();
-                boolean supportsManagerFactoryParameters = algorithm.equals("PKIX");
                 {
                     TrustManagerFactory tmf = TrustManagerFactory.getInstance(algorithm);
                     assertEquals(algorithm, tmf.getAlgorithm());
-                    test_TrustManagerFactory(tmf, supportsManagerFactoryParameters);
+                    test_TrustManagerFactory(tmf);
                 }
 
                 {
@@ -191,7 +193,7 @@ public class TrustManagerFactoryTest extends TestCase {
                                                                           provider);
                     assertEquals(algorithm, tmf.getAlgorithm());
                     assertEquals(provider, tmf.getProvider());
-                    test_TrustManagerFactory(tmf, supportsManagerFactoryParameters);
+                    test_TrustManagerFactory(tmf);
                 }
 
                 {
@@ -199,7 +201,7 @@ public class TrustManagerFactoryTest extends TestCase {
                                                                           provider.getName());
                     assertEquals(algorithm, tmf.getAlgorithm());
                     assertEquals(provider, tmf.getProvider());
-                    test_TrustManagerFactory(tmf, supportsManagerFactoryParameters);
+                    test_TrustManagerFactory(tmf);
                 }
             }
         }

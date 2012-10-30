@@ -69,8 +69,8 @@ public final class StandardNames extends Assert {
     public static final String JSSE_PROVIDER_NAME = (IS_RI) ? "SunJSSE" : "AndroidOpenSSL";
     public static final String SECURITY_PROVIDER_NAME = (IS_RI) ? "SUN" : "BC";
 
-    public static final String KEY_MANAGER_FACTORY_DEFAULT = (IS_RI) ? "SunX509" : "X509";
-    public static final String TRUST_MANAGER_FACTORY_DEFAULT = (IS_RI) ? "PKIX" : "X509";
+    public static final String KEY_MANAGER_FACTORY_DEFAULT = (IS_RI) ? "SunX509" : "PKIX";
+    public static final String TRUST_MANAGER_FACTORY_DEFAULT = "PKIX";
 
     public static final String KEY_STORE_ALGORITHM = (IS_RI) ? "JKS" : "BKS";
 
@@ -178,7 +178,7 @@ public final class StandardNames extends Assert {
         provide("KeyGenerator", "HmacSHA512");
         provide("KeyGenerator", "RC2");
         provide("KeyInfoFactory", "DOM");
-        provide("KeyManagerFactory", "SunX509");
+        provide("KeyManagerFactory", "PKIX");
         provide("KeyPairGenerator", "DSA");
         provide("KeyPairGenerator", "DiffieHellman");
         provide("KeyPairGenerator", "RSA");
@@ -263,7 +263,6 @@ public final class StandardNames extends Assert {
             provide("KeyGenerator", "SunTlsMasterSecret");
             provide("KeyGenerator", "SunTlsPrf");
             provide("KeyGenerator", "SunTlsRsaPremasterSecret");
-            provide("KeyManagerFactory", "NewSunX509");
             provide("KeyStore", "CaseExactJKS");
             provide("Mac", "HmacPBESHA1");
             provide("Mac", "SslMacMD5");
@@ -307,6 +306,14 @@ public final class StandardNames extends Assert {
             unprovide("SSLContext", "TLSv1.2");
         }
 
+        // Fixups for the RI
+        if (IS_RI) {
+            // different names: Standard Names says PKIX, JSSE Reference Guide says SunX509 or NewSunX509
+            unprovide("KeyManagerFactory", "PKIX");
+            provide("KeyManagerFactory", "SunX509");
+            provide("KeyManagerFactory", "NewSunX509");
+        }
+
         // Fixups for dalvik
         if (!IS_RI) {
 
@@ -341,10 +348,6 @@ public final class StandardNames extends Assert {
             provide("Cipher", "PBEWithSHAAnd3-KEYTripleDES-CBC");
             provide("SecretKeyFactory", "PBEWithSHAAnd3-KEYTripleDES-CBC");
 
-            // different names: dropped Sun
-            unprovide("KeyManagerFactory", "SunX509");
-            provide("KeyManagerFactory", "X509");
-
             // different names: BouncyCastle actually uses the Standard name of SHA-1 vs SHA
             unprovide("MessageDigest", "SHA");
             provide("MessageDigest", "SHA-1");
@@ -357,10 +360,6 @@ public final class StandardNames extends Assert {
             provide("Signature", "NONEwithRSA");
             provide("Cipher", "RSA/ECB/NOPADDING");
             provide("Cipher", "RSA/ECB/PKCS1PADDING");
-
-            // different names: JSSE Reference Guide says PKIX aka X509
-            unprovide("TrustManagerFactory", "PKIX");
-            provide("TrustManagerFactory", "X509");
 
             // different names: ARCFOUR vs ARC4
             unprovide("Cipher", "ARCFOUR");
