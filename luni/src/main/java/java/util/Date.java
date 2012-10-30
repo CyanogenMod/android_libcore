@@ -40,7 +40,7 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
     private static final long serialVersionUID = 7523967970034938905L;
 
     // Used by parse()
-    private static int creationYear = new Date().getYear();
+    private static final int CREATION_YEAR = new Date().getYear();
 
     private transient long milliseconds;
 
@@ -531,7 +531,7 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
             if (second == -1) {
                 second = 0;
             }
-            if (year < (creationYear - 80)) {
+            if (year < (CREATION_YEAR - 80)) {
                 year += 2000;
             } else if (year < 100) {
                 year += 1900;
