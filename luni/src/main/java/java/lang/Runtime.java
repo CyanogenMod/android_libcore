@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import libcore.io.Libcore;
-import static libcore.io.OsConstants._SC_NPROCESSORS_ONLN;
+import static libcore.io.OsConstants._SC_NPROCESSORS_CONF;
 
 /**
  * Allows Java applications to interface with the environment in which they are
@@ -90,7 +90,7 @@ public class Runtime {
     /**
      * Prevent this class from being instantiated.
      */
-    private Runtime(){
+    private Runtime() {
         String pathList = System.getProperty("java.library.path", ".");
         String pathSep = System.getProperty("path.separator", ":");
         String fileSep = System.getProperty("file.separator", "/");
@@ -242,14 +242,12 @@ public class Runtime {
     }
 
     /**
-     * Causes the VM to stop running and the program to exit. If
-     * {@link #runFinalizersOnExit(boolean)} has been previously invoked with a
+     * Causes the VM to stop running and the program to exit.
+     * If {@link #runFinalizersOnExit(boolean)} has been previously invoked with a
      * {@code true} argument, then all objects will be properly
      * garbage-collected and finalized first.
-     *
-     * @param code
-     *            the return code. By convention, non-zero return codes indicate
-     *            abnormal terminations.
+     * Use 0 to signal success to the calling process and 1 to signal failure.
+     * This method is unlikely to be useful to an Android application.
      */
     public void exit(int code) {
         // Make sure we don't try this several times
@@ -290,10 +288,7 @@ public class Runtime {
     }
 
     /**
-     * Returns the amount of free memory resources which are available to the
-     * running program.
-     *
-     * @return the approximate amount of free memory, measured in bytes.
+     * Returns the amount of free memory available to the running program, in bytes.
      */
     public native long freeMemory();
 
@@ -305,9 +300,7 @@ public class Runtime {
     public native void gc();
 
     /**
-     * Returns the single {@code Runtime} instance.
-     *
-     * @return the {@code Runtime} object for the current application.
+     * Returns the single {@code Runtime} instance for the current application.
      */
     public static Runtime getRuntime() {
         return mRuntime;
@@ -329,7 +322,7 @@ public class Runtime {
     }
 
     /*
-     * Loads and links a library without security checks.
+     * Loads and links the given library without security checks.
      */
     void load(String pathName, ClassLoader loader) {
         if (pathName == null) {
@@ -356,7 +349,7 @@ public class Runtime {
     }
 
     /*
-     * Loads and links a library without security checks.
+     * Searches for a library, then loads and links it without security checks.
      */
     void loadLibrary(String libraryName, ClassLoader loader) {
         if (loader != null) {
@@ -428,29 +421,19 @@ public class Runtime {
 
     /**
      * Returns the total amount of memory which is available to the running
-     * program.
-     *
-     * @return the total amount of memory, measured in bytes.
+     * program, in bytes.
      */
     public native long totalMemory();
 
     /**
      * Switches the output of debug information for instructions on or off.
      * On Android, this method does nothing.
-     *
-     * @param enable
-     *            {@code true} to switch tracing on, {@code false} to switch it
-     *            off.
      */
     public void traceInstructions(boolean enable) {
     }
 
     /**
      * Switches the output of debug information for methods on or off.
-     *
-     * @param enable
-     *            {@code true} to switch tracing on, {@code false} to switch it
-     *            off.
      */
     public void traceMethodCalls(boolean enable) {
         if (enable != tracingMethods) {
@@ -584,15 +567,10 @@ public class Runtime {
     }
 
     /**
-     * Causes the VM to stop running, and the program to exit.
-     * Neither shutdown hooks nor finalizers are run before.
-     *
-     * @param code
-     *            the return code. By convention, non-zero return codes indicate
-     *            abnormal terminations.
-     * @see #addShutdownHook(Thread)
-     * @see #removeShutdownHook(Thread)
-     * @see #runFinalizersOnExit(boolean)
+     * Causes the VM to stop running, and the program to exit with the given return code.
+     * Use 0 to signal success to the calling process and 1 to signal failure.
+     * Neither shutdown hooks nor finalizers are run before exiting.
+     * This method is unlikely to be useful to an Android application.
      */
     public void halt(int code) {
         // Get out of here...
@@ -600,10 +578,15 @@ public class Runtime {
     }
 
     /**
-     * Returns the number of processors available to the VM, at least 1.
+     * Returns the number of processor cores available to the VM, at least 1.
+     * Traditionally this returned the number currently online,
+     * but many mobile devices are able to take unused cores offline to
+     * save power, so releases newer than Android 4.2 (Jelly Bean) return the maximum number of
+     * cores that could be made available if there were no power or heat
+     * constraints.
      */
     public int availableProcessors() {
-        return (int) Libcore.os.sysconf(_SC_NPROCESSORS_ONLN);
+        return (int) Libcore.os.sysconf(_SC_NPROCESSORS_CONF);
     }
 
     /**
