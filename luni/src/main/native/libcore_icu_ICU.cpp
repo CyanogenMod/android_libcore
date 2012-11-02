@@ -335,28 +335,26 @@ static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, cons
     setStringField(env, obj, fieldName, env->NewString(chars, value.length()));
 }
 
-static void setNumberPatterns(JNIEnv* env, jobject obj, jstring locale) {
+static void setNumberPatterns(JNIEnv* env, jobject obj, Locale& locale) {
     UErrorCode status = U_ZERO_ERROR;
-    Locale localeObj = getLocale(env, locale);
 
     UnicodeString pattern;
-    UniquePtr<DecimalFormat> fmt(static_cast<DecimalFormat*>(NumberFormat::createInstance(localeObj, UNUM_CURRENCY, status)));
+    UniquePtr<DecimalFormat> fmt(static_cast<DecimalFormat*>(NumberFormat::createInstance(locale, UNUM_CURRENCY, status)));
     pattern = fmt->toPattern(pattern.remove());
     setStringField(env, obj, "currencyPattern", pattern);
 
-    fmt.reset(static_cast<DecimalFormat*>(NumberFormat::createInstance(localeObj, UNUM_DECIMAL, status)));
+    fmt.reset(static_cast<DecimalFormat*>(NumberFormat::createInstance(locale, UNUM_DECIMAL, status)));
     pattern = fmt->toPattern(pattern.remove());
     setStringField(env, obj, "numberPattern", pattern);
 
-    fmt.reset(static_cast<DecimalFormat*>(NumberFormat::createInstance(localeObj, UNUM_PERCENT, status)));
+    fmt.reset(static_cast<DecimalFormat*>(NumberFormat::createInstance(locale, UNUM_PERCENT, status)));
     pattern = fmt->toPattern(pattern.remove());
     setStringField(env, obj, "percentPattern", pattern);
 }
 
-static void setDecimalFormatSymbolsData(JNIEnv* env, jobject obj, jstring locale) {
+static void setDecimalFormatSymbolsData(JNIEnv* env, jobject obj, Locale& locale) {
     UErrorCode status = U_ZERO_ERROR;
-    Locale localeObj = getLocale(env, locale);
-    DecimalFormatSymbols dfs(localeObj, status);
+    DecimalFormatSymbols dfs(locale, status);
 
     setCharField(env, obj, "decimalSeparator", dfs.getSymbol(DecimalFormatSymbols::kDecimalSeparatorSymbol));
     setCharField(env, obj, "groupingSeparator", dfs.getSymbol(DecimalFormatSymbols::kGroupingSeparatorSymbol));
@@ -469,8 +467,8 @@ static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, const 
   return false;
 }
 
-static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobject localeData) {
-    ScopedUtfChars localeName(env, locale);
+static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring javaLocaleName, jobject localeData) {
+    ScopedUtfChars localeName(env, javaLocaleName);
     if (localeName.c_str() == NULL) {
         return JNI_FALSE;
     }
@@ -506,8 +504,8 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobj
     }
 
     status = U_ZERO_ERROR;
-    Locale localeObj = getLocale(env, locale);
-    UniquePtr<Calendar> cal(Calendar::createInstance(localeObj, status));
+    Locale locale = getLocale(env, javaLocaleName);
+    UniquePtr<Calendar> cal(Calendar::createInstance(locale, status));
     if (U_FAILURE(status)) {
         return JNI_FALSE;
     }
@@ -517,7 +515,7 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobj
 
     // Get DateFormatSymbols.
     status = U_ZERO_ERROR;
-    DateFormatSymbols dateFormatSym(localeObj, status);
+    DateFormatSymbols dateFormatSym(locale, status);
     if (U_FAILURE(status)) {
         return JNI_FALSE;
     }
@@ -580,7 +578,7 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring locale, jobj
 
     jstring currencySymbol = NULL;
     if (internationalCurrencySymbol != NULL) {
-        currencySymbol = ICU_getCurrencySymbol(env, NULL, locale, internationalCurrencySymbol);
+        currencySymbol = ICU_getCurrencySymbol(env, NULL, javaLocaleName, internationalCurrencySymbol);
     } else {
         internationalCurrencySymbol = env->NewStringUTF("XXX");
     }
