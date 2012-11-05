@@ -147,6 +147,22 @@ public final class IoUtils {
         }
     }
 
+    /**
+     * Checks whether {@code path} can be opened read-only. Similar to File.exists, but doesn't
+     * require read permission on the parent, so it'll work in more cases, and allow you to
+     * remove read permission from more directories.
+     */
+    public static boolean canOpenReadOnly(String path) {
+        try {
+            // Use open(2) rather than stat(2) so we require fewer permissions. http://b/6485312.
+            FileDescriptor fd = Libcore.os.open(path, O_RDONLY, 0);
+            Libcore.os.close(fd);
+            return true;
+        } catch (ErrnoException errnoException) {
+            return false;
+        }
+    }
+
     public static void throwInterruptedIoException() throws InterruptedIOException {
         // This is typically thrown in response to an
         // InterruptedException which does not leave the thread in an

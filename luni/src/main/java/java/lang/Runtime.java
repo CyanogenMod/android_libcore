@@ -44,6 +44,7 @@ import java.lang.ref.FinalizerReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import static libcore.io.OsConstants._SC_NPROCESSORS_CONF;
 
@@ -372,7 +373,8 @@ public class Runtime {
         for (String directory : mLibPaths) {
             String candidate = directory + filename;
             candidates.add(candidate);
-            if (new File(candidate).exists()) {
+
+            if (IoUtils.canOpenReadOnly(candidate)) {
                 String error = nativeLoad(candidate, loader);
                 if (error == null) {
                     return; // We successfully loaded the library. Job done.
