@@ -25,6 +25,11 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
+import libcore.io.ErrnoException;
+import libcore.io.IoUtils;
+import libcore.io.Libcore;
+import libcore.io.StructStat;
+import static libcore.io.OsConstants.*;
 
 /**
  * A pair of lists of entries, associated with a {@code ClassLoader}.
@@ -154,36 +159,20 @@ import java.util.zip.ZipFile;
      * Helper for {@link #splitPaths}, which does the actual splitting
      * and filtering and adding to a result.
      */
-    private static void splitAndAdd(String path, boolean wantDirectories,
+    private static void splitAndAdd(String searchPath, boolean wantDirectories,
             ArrayList<File> resultList) {
-        if (path == null) {
+        if (searchPath == null) {
             return;
         }
-
-        String[] strings = path.split(Pattern.quote(File.pathSeparator));
-
-        for (String s : strings) {
-            File file = new File(s);
-
-            if (! (file.exists() && file.canRead())) {
-                continue;
-            }
-
-            /*
-             * Note: There are other entities in filesystems than
-             * regular files and directories.
-             */
-            if (wantDirectories) {
-                if (!file.isDirectory()) {
-                    continue;
+        for (String path : searchPath.split(":")) {
+            try {
+                StructStat sb = Libcore.os.stat(path);
+                if ((wantDirectories && S_ISDIR(sb.st_mode)) ||
+                        (!wantDirectories && S_ISREG(sb.st_mode))) {
+                    resultList.add(new File(path));
                 }
-            } else {
-                if (!file.isFile()) {
-                    continue;
-                }
+            } catch (ErrnoException ignored) {
             }
-
-            resultList.add(file);
         }
     }
 
@@ -370,14 +359,12 @@ import java.util.zip.ZipFile;
      */
     public String findLibrary(String libraryName) {
         String fileName = System.mapLibraryName(libraryName);
-
         for (File directory : nativeLibraryDirectories) {
-            File file = new File(directory, fileName);
-            if (file.exists() && file.isFile() && file.canRead()) {
-                return file.getPath();
+            String path = new File(directory, fileName).getPath();
+            if (IoUtils.canOpenReadOnly(path)) {
+                return path;
             }
         }
-
         return null;
     }
 
