@@ -101,6 +101,7 @@ public interface Os {
     public int sendto(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException, SocketException;
     public long sendfile(FileDescriptor outFd, FileDescriptor inFd, MutableLong inOffset, long byteCount) throws ErrnoException;
     public void setegid(int egid) throws ErrnoException;
+    public void setenv(String name, String value, boolean overwrite) throws ErrnoException;
     public void seteuid(int euid) throws ErrnoException;
     public void setgid(int gid) throws ErrnoException;
     public int setsid() throws ErrnoException;
@@ -124,6 +125,7 @@ public interface Os {
     public void tcdrain(FileDescriptor fd) throws ErrnoException;
     public int umask(int mask);
     public StructUtsname uname();
+    public void unsetenv(String name) throws ErrnoException;
     public int waitpid(int pid, MutableInt status, int options) throws ErrnoException;
     public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException;
     public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
