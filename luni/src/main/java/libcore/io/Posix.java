@@ -152,6 +152,7 @@ public final class Posix implements Os {
     }
     private native int sendtoBytes(FileDescriptor fd, Object buffer, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException, SocketException;
     public native void setegid(int egid) throws ErrnoException;
+    public native void setenv(String name, String value, boolean overwrite) throws ErrnoException;
     public native void seteuid(int euid) throws ErrnoException;
     public native void setgid(int gid) throws ErrnoException;
     public native int setsid() throws ErrnoException;
@@ -180,6 +181,7 @@ public final class Posix implements Os {
     }
     private native int umaskImpl(int mask);
     public native StructUtsname uname();
+    public native void unsetenv(String name) throws ErrnoException;
     public native int waitpid(int pid, MutableInt status, int options) throws ErrnoException;
     public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
         if (buffer.isDirect()) {

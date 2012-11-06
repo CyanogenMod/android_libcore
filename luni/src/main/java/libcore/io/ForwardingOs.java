@@ -108,6 +108,7 @@ public class ForwardingOs implements Os {
     public int sendto(FileDescriptor fd, ByteBuffer buffer, int flags, InetAddress inetAddress, int port) throws ErrnoException, SocketException { return os.sendto(fd, buffer, flags, inetAddress, port); }
     public int sendto(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException, SocketException { return os.sendto(fd, bytes, byteOffset, byteCount, flags, inetAddress, port); }
     public void setegid(int egid) throws ErrnoException { os.setegid(egid); }
+    public void setenv(String name, String value, boolean overwrite) throws ErrnoException { os.setenv(name, value, overwrite); }
     public void seteuid(int euid) throws ErrnoException { os.seteuid(euid); }
     public void setgid(int gid) throws ErrnoException { os.setgid(gid); }
     public int setsid() throws ErrnoException { return os.setsid(); }
@@ -130,6 +131,7 @@ public class ForwardingOs implements Os {
     public void tcdrain(FileDescriptor fd) throws ErrnoException { os.tcdrain(fd); }
     public int umask(int mask) { return os.umask(mask); }
     public StructUtsname uname() { return os.uname(); }
+    public void unsetenv(String name) throws ErrnoException { os.unsetenv(name); }
     public int waitpid(int pid, MutableInt status, int options) throws ErrnoException { return os.waitpid(pid, status, options); }
     public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException { return os.write(fd, buffer); }
     public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException { return os.write(fd, bytes, byteOffset, byteCount); }

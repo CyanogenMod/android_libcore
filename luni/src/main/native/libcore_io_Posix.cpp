@@ -1063,6 +1063,18 @@ static void Posix_setegid(JNIEnv* env, jobject, jint egid) {
     throwIfMinusOne(env, "setegid", TEMP_FAILURE_RETRY(setegid(egid)));
 }
 
+static void Posix_setenv(JNIEnv* env, jobject, jstring javaName, jstring javaValue, jboolean overwrite) {
+    ScopedUtfChars name(env, javaName);
+    if (name.c_str() == NULL) {
+        return;
+    }
+    ScopedUtfChars value(env, javaValue);
+    if (value.c_str() == NULL) {
+        return;
+    }
+    throwIfMinusOne(env, "setenv", setenv(name.c_str(), value.c_str(), overwrite));
+}
+
 static void Posix_seteuid(JNIEnv* env, jobject, jint euid) {
     throwIfMinusOne(env, "seteuid", TEMP_FAILURE_RETRY(seteuid(euid)));
 }
@@ -1240,6 +1252,14 @@ static jobject Posix_uname(JNIEnv* env, jobject) {
     return makeStructUtsname(env, buf);
 }
 
+static void Posix_unsetenv(JNIEnv* env, jobject, jstring javaName) {
+    ScopedUtfChars name(env, javaName);
+    if (name.c_str() == NULL) {
+        return;
+    }
+    throwIfMinusOne(env, "unsetenv", unsetenv(name.c_str()));
+}
+
 static jint Posix_waitpid(JNIEnv* env, jobject, jint pid, jobject javaStatus, jint options) {
     int status;
     int rc = throwIfMinusOne(env, "waitpid", TEMP_FAILURE_RETRY(waitpid(pid, &status, options)));
@@ -1337,6 +1357,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, sendfile, "(Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Llibcore/util/MutableLong;J)J"),
     NATIVE_METHOD(Posix, sendtoBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetAddress;I)I"),
     NATIVE_METHOD(Posix, setegid, "(I)V"),
+    NATIVE_METHOD(Posix, setenv, "(Ljava/lang/String;Ljava/lang/String;Z)V"),
     NATIVE_METHOD(Posix, seteuid, "(I)V"),
     NATIVE_METHOD(Posix, setgid, "(I)V"),
     NATIVE_METHOD(Posix, setsid, "()I"),
@@ -1359,6 +1380,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, tcdrain, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, umaskImpl, "(I)I"),
     NATIVE_METHOD(Posix, uname, "()Llibcore/io/StructUtsname;"),
+    NATIVE_METHOD(Posix, unsetenv, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, waitpid, "(ILlibcore/util/MutableInt;I)I"),
     NATIVE_METHOD(Posix, writeBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
     NATIVE_METHOD(Posix, writev, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
