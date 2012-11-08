@@ -195,7 +195,7 @@ LOCAL_MODULE_CLASS:=JAVA_LIBRARIES
 LOCAL_MODULE := libcore
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 
-LOCAL_DROIDDOC_OPTIONS:= \
+LOCAL_DROIDDOC_OPTIONS := \
  -offlinemode \
  -title "libcore" \
  -proofread $(OUT_DOCS)/$(LOCAL_MODULE)-proofread.txt \
