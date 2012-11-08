@@ -27,13 +27,18 @@ import java.text.SimpleDateFormat;
 import libcore.icu.LocaleData;
 
 /**
- * {@code Date} represents a specific moment in time, to the millisecond.
+ * A specific moment in time, with millisecond precision. Values typically come
+ * from {@link System#currentTimeMillis}, and are always UTC, regardless of the
+ * system's time zone. This is often called "Unix time" or "epoch time".
  *
- * @see System#currentTimeMillis
- * @see Calendar
- * @see GregorianCalendar
- * @see SimpleTimeZone
- * @see TimeZone
+ * <p>Instances of this class are suitable for comparison, but little else.
+ * Use {@link java.text.DateFormat} to format a {@code Date} for display to a human.
+ * Use {@link Calendar} to break down a {@code Date} if you need to extract fields such
+ * as the current month or day of week, or to construct a {@code Date} from a broken-down
+ * time. That is: this class' deprecated display-related functionality is now provided
+ * by {@code DateFormat}, and this class' deprecated computational functionality is
+ * now provided by {@code Calendar}. Both of these other classes (and their subclasses)
+ * allow you to interpret a {@code Date} in a given time zone.
  */
 public class Date implements Serializable, Cloneable, Comparable<Date> {
 

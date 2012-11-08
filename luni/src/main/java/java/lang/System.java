@@ -154,22 +154,27 @@ public final class System {
     public static native void arraycopy(Object src, int srcPos, Object dst, int dstPos, int length);
 
     /**
-     * Returns the current system time in milliseconds since January 1, 1970
-     * 00:00:00 UTC. This method shouldn't be used for measuring timeouts or
-     * other elapsed time measurements, as changing the system time can affect
-     * the results.
+     * Returns the current time in milliseconds since January 1, 1970 00:00:00.0 UTC.
      *
-     * @return the local system time in milliseconds.
+     * <p>This method always uses UTC, regardless of the system's time zone.
+     * This is often called "Unix time" or "epoch time".
+     * Use a {@link java.text.DateFormat} instance to format this time for display to a human.
+     *
+     * <p>This method shouldn't be used for measuring timeouts or
+     * other elapsed time measurements, as changing the system time can affect
+     * the results. Use {@link #nanoTime} for that.
      */
     public static native long currentTimeMillis();
 
     /**
      * Returns the current timestamp of the most precise timer available on the
-     * local system. This timestamp can only be used to measure an elapsed
-     * period by comparing it against another timestamp. It cannot be used as a
-     * very exact system time expression.
+     * local system.
      *
-     * @return the current timestamp in nanoseconds.
+     * <p>This timestamp should only be used to measure a duration by comparing it
+     * against another timestamp from the same process on the same device.
+     * Values returned by this method do not have a defined correspondence to
+     * wall clock times; the zero value is typically whenever the device last booted.
+     * Use {@link #currentTimeMillis} if you want to know what time it is.
      */
     public static native long nanoTime();
 
