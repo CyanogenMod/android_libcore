@@ -216,13 +216,6 @@ public final class System {
         return (value != null) ? value : defaultValue;
     }
 
-    /*
-     * Returns an environment variable. No security checks are performed.
-     * @param var the name of the environment variable
-     * @return the value of the specified environment variable
-     */
-    private static native String getEnvByName(String name);
-
     /**
      * Returns an unmodifiable map of all available environment variables.
      *
