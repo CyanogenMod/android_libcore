@@ -134,11 +134,11 @@ import libcore.icu.TimeZones;
  *   DateFormat.getTimeInstance(),
  * };
  * for (DateFormat df : formats) {
- *   System.err.println(df.format(new Date(0)));
+ *   System.out.println(df.format(new Date(0)));
  * }
  * </pre>
  *
- * <p>Produces this output when run on an {@code en_US} device in the PDT time zone:
+ * <p>Produces this output when run on an {@code en_US} device in the America/Los_Angeles time zone:
  * <pre>
  * Dec 31, 1969
  * Dec 31, 1969 4:00:00 PM
@@ -157,13 +157,13 @@ import libcore.icu.TimeZones;
  * };
  * for (String format : formats) {
  *   SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
- *   System.err.format("%30s %s\n", format, sdf.format(new Date(0)));
+ *   System.out.format("%30s %s\n", format, sdf.format(new Date(0)));
  *   sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
- *   System.err.format("%30s %s\n", format, sdf.format(new Date(0)));
+ *   System.out.format("%30s %s\n", format, sdf.format(new Date(0)));
  * }
  * </pre>
  *
- * <p>Which produces this output when run in the PDT time zone:
+ * <p>Which produces this output when run in the America/Los_Angeles time zone:
  * <pre>
  *                     yyyy-MM-dd 1969-12-31
  *                     yyyy-MM-dd 1970-01-01
@@ -187,7 +187,9 @@ import libcore.icu.TimeZones;
  * the original {@code Date}. For this
  * reason it is almost always necessary and desirable to include the timezone in the output.
  * It may also be desirable to set the formatter's time zone to UTC (to ease comparison, or to
- * make logs more readable, for example).
+ * make logs more readable, for example). It is often best to avoid formatting completely when
+ * writing dates/times in machine-readable form. Simply sending the "Unix time" as an integer is
+ * cheaper and unambiguous, and can be formatted any way the recipient deems appropriate.
  *
  * <h4>Synchronization</h4>
  * {@code SimpleDateFormat} is not thread-safe. Users should create a separate instance for
