@@ -49,7 +49,6 @@ public class OpenSSLSessionImpl implements SSLSession {
     private int peerPort = -1;
     private String cipherSuite;
     private String protocol;
-    private String compressionMethod;
     private AbstractSessionContext sessionContext;
     private byte[] id;
 
@@ -328,19 +327,6 @@ public class OpenSSLSessionImpl implements SSLSession {
     }
 
     /**
-     * Returns the compression method name used in all connections
-     * pertaining to this SSL session.
-     */
-    public String getCompressionMethod() {
-        if (compressionMethod == null) {
-            compressionMethod
-                    = NativeCrypto.SSL_SESSION_compress_meth(sessionContext.sslCtxNativePointer,
-                                                             sslSessionNativePointer);
-        }
-        return compressionMethod;
-    }
-
-    /**
      * Returns the context to which the actual SSL session is bound. A SSL
      * context consists of (1) a possible delegate, (2) a provider and (3) a
      * protocol.
@@ -380,9 +366,7 @@ public class OpenSSLSessionImpl implements SSLSession {
     /**
      * Returns the object which is bound to the the input parameter name.
      * This name is a sort of link to the data of the SSL session's application
-     * layer, if any exists. The search for this link is monitored, as a matter
-     * of security, by the full machinery of the <code>AccessController</code>
-     * class.
+     * layer, if any exists.
      *
      * @param name the name of the binding to find.
      * @return the value bound to that name, or null if the binding does not
@@ -398,9 +382,7 @@ public class OpenSSLSessionImpl implements SSLSession {
 
     /**
      * Returns an array with the names (sort of links) of all the data
-     * objects of the application layer bound into the SSL session. The search
-     * for this link is monitored, as a matter of security, by the full
-     * machinery of the <code>AccessController</code> class.
+     * objects of the application layer bound into the SSL session.
      *
      * @return a non-null (possibly empty) array of names of the data objects
      *         bound to this SSL session.
@@ -413,9 +395,7 @@ public class OpenSSLSessionImpl implements SSLSession {
      * A link (name) with the specified value object of the SSL session's
      * application layer data is created or replaced. If the new (or existing)
      * value object implements the <code>SSLSessionBindingListener</code>
-     * interface, that object will be notified in due course. These links-to
-     * -data bounds are monitored, as a matter of security, by the full
-     * machinery of the <code>AccessController</code> class.
+     * interface, that object will be notified in due course.
      *
      * @param name the name of the link (no null are
      *            accepted!)
@@ -445,10 +425,6 @@ public class OpenSSLSessionImpl implements SSLSession {
      *
      * <p>If the value object implements the <code>SSLSessionBindingListener</code>
      * interface, the object will receive a <code>valueUnbound</code> notification.
-     *
-     * <p>These links-to -data bounds are
-     * monitored, as a matter of security, by the full machinery of the
-     * <code>AccessController</code> class.
      *
      * @param name the name of the link (no null are
      *            accepted!)

@@ -55,11 +55,10 @@ public class SelectorTest extends TestCase {
     public void testNonBlockingConnect_slow() throws Exception {
         // Test the case where we have to wait for the connection.
         Selector selector = Selector.open();
-        StuckServer ss = new StuckServer();
+        StuckServer ss = new StuckServer(true);
         try {
             SocketChannel sc = SocketChannel.open();
             sc.configureBlocking(false);
-            ss.unblockAfterMs(2000);
             sc.connect(ss.getLocalSocketAddress());
             SelectionKey key = sc.register(selector, SelectionKey.OP_CONNECT);
             assertEquals(1, selector.select());

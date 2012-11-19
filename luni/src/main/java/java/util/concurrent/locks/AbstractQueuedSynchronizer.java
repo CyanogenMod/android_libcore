@@ -1,13 +1,12 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent.locks;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
 import sun.misc.Unsafe;
 
 // BEGIN android-note
@@ -173,7 +172,7 @@ import sun.misc.Unsafe;
  * It also supports conditions and exposes
  * one of the instrumentation methods:
  *
- * <pre>
+ *  <pre> {@code
  * class Mutex implements Lock, java.io.Serializable {
  *
  *   // Our internal helper class
@@ -229,15 +228,14 @@ import sun.misc.Unsafe;
  *       throws InterruptedException {
  *     return sync.tryAcquireNanos(1, unit.toNanos(timeout));
  *   }
- * }
- * </pre>
+ * }}</pre>
  *
  * <p>Here is a latch class that is like a {@link CountDownLatch}
  * except that it only requires a single <tt>signal</tt> to
  * fire. Because a latch is non-exclusive, it uses the <tt>shared</tt>
  * acquire and release methods.
  *
- * <pre>
+ *  <pre> {@code
  * class BooleanLatch {
  *
  *   private static class Sync extends AbstractQueuedSynchronizer {
@@ -259,8 +257,7 @@ import sun.misc.Unsafe;
  *   public void await() throws InterruptedException {
  *     sync.acquireSharedInterruptibly(1);
  *   }
- * }
- * </pre>
+ * }}</pre>
  *
  * @since 1.5
  * @author Doug Lea
@@ -800,7 +797,7 @@ public abstract class AbstractQueuedSynchronizer
     /**
      * Convenience method to interrupt current thread.
      */
-    private static void selfInterrupt() {
+    static void selfInterrupt() {
         Thread.currentThread().interrupt();
     }
 
@@ -2251,9 +2248,7 @@ public abstract class AbstractQueuedSynchronizer
      * are at it, we do the same for other CASable fields (which could
      * otherwise be done with atomic field updaters).
      */
-    // BEGIN android-changed
-    private static final Unsafe unsafe = UnsafeAccess.THE_ONE;
-    // END android-changed
+    private static final Unsafe unsafe = Unsafe.getUnsafe();
     private static final long stateOffset;
     private static final long headOffset;
     private static final long tailOffset;

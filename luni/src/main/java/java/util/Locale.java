@@ -396,6 +396,17 @@ public final class Locale implements Cloneable, Serializable {
         if (languageCode.isEmpty()) {
             return "";
         }
+
+        // Last-minute workaround for http://b/7291355 in jb-mr1.
+        // This isn't right for all languages, but it's right for en and tl.
+        // We should have more CLDR data in a future release, but we'll still
+        // probably want to have frameworks/base translate the obsolete tl and
+        // tl-rPH locales to fil and fil-rPH at runtime, at which point
+        // libcore and icu4c will just do the right thing.
+        if (languageCode.equals("tl")) {
+            return "Filipino";
+        }
+
         String result = ICU.getDisplayLanguageNative(toString(), locale.toString());
         if (result == null) { // TODO: do we need to do this, or does ICU do it for us?
             result = ICU.getDisplayLanguageNative(toString(), Locale.getDefault().toString());

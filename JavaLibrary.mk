@@ -55,8 +55,10 @@ core_resource_dirs := $(call all-core-resource-dirs,main)
 test_resource_dirs := $(call all-core-resource-dirs,test)
 
 ifeq ($(EMMA_INSTRUMENT),true)
+ifneq ($(EMMA_INSTRUMENT_STATIC),true)
     core_src_files += $(call all-java-files-under, ../external/emma/core ../external/emma/pregenerated)
     core_resource_dirs += ../external/emma/core/res ../external/emma/pregenerated/res
+endif
 endif
 
 local_javac_flags=-encoding UTF-8
@@ -78,10 +80,9 @@ LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_DX_FLAGS := --core-library
 
-LOCAL_NO_EMMA_INSTRUMENT := true
-LOCAL_NO_EMMA_COMPILE := true
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 
 include $(BUILD_JAVA_LIBRARY)
 
@@ -98,8 +99,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc mockwebserver
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_TAGS := tests
 LOCAL_MODULE := core-tests
-LOCAL_NO_EMMA_INSTRUMENT := true
-LOCAL_NO_EMMA_COMPILE := true
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # This one's tricky. One of our tests needs to have a
@@ -134,12 +134,11 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_DX_FLAGS := --core-library
 
-    LOCAL_NO_EMMA_INSTRUMENT := true
-    LOCAL_NO_EMMA_COMPILE := true
     LOCAL_BUILD_HOST_DEX := true
 
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := core-hostdex
+    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 
     include $(BUILD_HOST_JAVA_LIBRARY)
 
@@ -151,10 +150,9 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_JAVA_LIBRARIES := bouncycastle-hostdex core-hostdex core-junit-hostdex
     LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc-host mockwebserver-hostdex
     LOCAL_JAVACFLAGS := $(local_javac_flags)
-    LOCAL_MODULE_TAGS := tests
+    LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := core-tests-hostdex
-    LOCAL_NO_EMMA_INSTRUMENT := true
-    LOCAL_NO_EMMA_COMPILE := true
+    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
     LOCAL_BUILD_HOST_DEX := true
     include $(BUILD_HOST_JAVA_LIBRARY)
 endif
@@ -190,6 +188,7 @@ LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE_CLASS:=JAVA_LIBRARIES
 
 LOCAL_MODULE := libcore
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 
 LOCAL_DROIDDOC_OPTIONS:= \
  -offlinemode \

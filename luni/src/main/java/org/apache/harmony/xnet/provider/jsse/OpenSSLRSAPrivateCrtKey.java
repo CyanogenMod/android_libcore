@@ -191,8 +191,8 @@ public class OpenSSLRSAPrivateCrtKey extends OpenSSLRSAPrivateKey implements RSA
             return true;
         }
 
-        if (o instanceof OpenSSLRSAPrivateCrtKey) {
-            OpenSSLRSAPrivateCrtKey other = (OpenSSLRSAPrivateCrtKey) o;
+        if (o instanceof OpenSSLRSAPrivateKey) {
+            OpenSSLRSAPrivateKey other = (OpenSSLRSAPrivateKey) o;
 
             /*
              * We can shortcut the true case, but it still may be equivalent but
@@ -201,19 +201,36 @@ public class OpenSSLRSAPrivateCrtKey extends OpenSSLRSAPrivateKey implements RSA
             if (getOpenSSLKey().equals(other.getOpenSSLKey())) {
                 return true;
             }
+
+            return NativeCrypto.EVP_PKEY_cmp(getPkeyContext(), other.getPkeyContext()) == 1;
         }
 
         if (o instanceof RSAPrivateCrtKey) {
             ensureReadParams();
             RSAPrivateCrtKey other = (RSAPrivateCrtKey) o;
 
-            return getModulus().equals(other.getModulus())
-                    && publicExponent.equals(other.getPublicExponent())
-                    && getPrivateExponent().equals(other.getPrivateExponent())
-                    && primeP.equals(other.getPrimeP()) && primeQ.equals(other.getPrimeQ())
-                    && primeExponentP.equals(other.getPrimeExponentP())
-                    && primeExponentQ.equals(other.getPrimeExponentQ())
-                    && crtCoefficient.equals(other.getCrtCoefficient());
+            if (getOpenSSLKey().isEngineBased()) {
+                return getModulus().equals(other.getModulus())
+                        && publicExponent.equals(other.getPublicExponent());
+            } else {
+                return getModulus().equals(other.getModulus())
+                        && publicExponent.equals(other.getPublicExponent())
+                        && getPrivateExponent().equals(other.getPrivateExponent())
+                        && primeP.equals(other.getPrimeP()) && primeQ.equals(other.getPrimeQ())
+                        && primeExponentP.equals(other.getPrimeExponentP())
+                        && primeExponentQ.equals(other.getPrimeExponentQ())
+                        && crtCoefficient.equals(other.getCrtCoefficient());
+            }
+        } else if (o instanceof RSAPrivateKey) {
+            ensureReadParams();
+            RSAPrivateKey other = (RSAPrivateKey) o;
+
+            if (getOpenSSLKey().isEngineBased()) {
+                return getModulus().equals(other.getModulus());
+            } else {
+                return getModulus().equals(other.getModulus())
+                        && getPrivateExponent().equals(other.getPrivateExponent());
+            }
         }
 
         return false;
@@ -232,11 +249,11 @@ public class OpenSSLRSAPrivateCrtKey extends OpenSSLRSAPrivateKey implements RSA
     public String toString() {
         final StringBuilder sb = new StringBuilder("OpenSSLRSAPrivateCrtKey{");
 
-        if (getOpenSSLKey().isEngineBased()) {
+        final boolean engineBased = getOpenSSLKey().isEngineBased();
+        if (engineBased) {
             sb.append("key=");
             sb.append(getOpenSSLKey());
             sb.append('}');
-            return sb.toString();
         }
 
         ensureReadParams();
@@ -250,9 +267,11 @@ public class OpenSSLRSAPrivateCrtKey extends OpenSSLRSAPrivateKey implements RSA
             sb.append(',');
         }
 
-        sb.append("privateExponent=");
-        sb.append(getPrivateExponent().toString(16));
-        sb.append(',');
+        if (!engineBased) {
+            sb.append("privateExponent=");
+            sb.append(getPrivateExponent().toString(16));
+            sb.append(',');
+        }
 
         if (primeP != null) {
             sb.append("primeP=");

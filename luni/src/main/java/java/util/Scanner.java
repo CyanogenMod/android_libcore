@@ -241,7 +241,7 @@ public final class Scanner implements Iterator<String> {
      */
     public Scanner(Readable src) {
         if (src == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("src == null");
         }
         input = src;
         initialization();
@@ -1664,7 +1664,7 @@ public final class Scanner implements Iterator<String> {
      */
     public Scanner useLocale(Locale l) {
         if (l == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("l == null");
         }
         this.locale = l;
         return this;
@@ -1724,7 +1724,7 @@ public final class Scanner implements Iterator<String> {
      */
     private void checkNull(Pattern pattern) {
         if (pattern == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("pattern == null");
         }
     }
 

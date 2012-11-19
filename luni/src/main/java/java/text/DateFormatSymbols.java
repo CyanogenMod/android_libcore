@@ -142,7 +142,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      */
     public static final DateFormatSymbols getInstance(Locale locale) {
         if (locale == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("locale == null");
         }
         return new DateFormatSymbols(locale);
     }
@@ -410,7 +410,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      */
     public void setLocalPatternChars(String data) {
         if (data == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("data == null");
         }
         localPatternChars = data;
     }
@@ -471,7 +471,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      */
     public void setZoneStrings(String[][] zoneStrings) {
         if (zoneStrings == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("zoneStrings == null");
         }
         for (String[] row : zoneStrings) {
             if (row.length < 5) {

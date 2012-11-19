@@ -89,12 +89,6 @@
   substring: "java.net.URISyntaxException"
 },
 {
-  description: "Test regression",
-  name: "libcore.javax.crypto.spec.KeyFactoryTestDSA#testKeyFactory",
-  substring: "not implemented yet",
-  bug: 3286592
-},
-{
   description: "KxmlParser doesn't expose DTD text",
   name: "libcore.xml.KxmlPullParserDtdTest#testDoctypeWithNextToken",
   bug: 3241492
@@ -198,15 +192,6 @@
   description: "DecimalFormat is limited to 127 digits",
   name: "libcore.java.text.DecimalFormatTest#test_setMaximumIntegerDigits",
   bug: 2400429
-},
-{
-  description: "Concurrent close tests fail on the device",
-  names: [
-    "libcore.java.net.ConcurrentCloseTest#test_connect",
-    "libcore.java.net.ConcurrentCloseTest#test_connect_nonBlocking"
-  ],
-  modes: [ "device" ],
-  bug: 3044772
 },
 {
   description: "HTTPS connections should not be pooled.",

@@ -89,13 +89,13 @@ public class Proxy implements Serializable {
             Class<?>... interfaces) throws IllegalArgumentException {
         // check that interfaces are a valid array of visible interfaces
         if (interfaces == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("interfaces == null");
         }
         String commonPackageName = null;
         for (int i = 0, length = interfaces.length; i < length; i++) {
             Class<?> next = interfaces[i];
             if (next == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("interfaces[" + i + "] == null");
             }
             String name = next.getName();
             if (!next.isInterface()) {
@@ -206,7 +206,7 @@ public class Proxy implements Serializable {
             Class<?>[] interfaces, InvocationHandler h)
             throws IllegalArgumentException {
         if (h == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("h == null");
         }
         try {
             return getProxyClass(loader, interfaces).getConstructor(
@@ -241,7 +241,7 @@ public class Proxy implements Serializable {
      */
     public static boolean isProxyClass(Class<?> cl) {
         if (cl == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("cl == null");
         }
         synchronized (proxyCache) {
             return proxyCache.containsKey(cl);

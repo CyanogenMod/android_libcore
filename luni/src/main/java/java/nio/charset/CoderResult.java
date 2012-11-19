@@ -121,7 +121,7 @@ public class CoderResult {
                 return r;
             }
         }
-        throw new IllegalArgumentException("Length must be greater than 0; was " + length);
+        throw new IllegalArgumentException("length <= 0: " + length);
     }
 
     /**
@@ -149,7 +149,7 @@ public class CoderResult {
                 return r;
             }
         }
-        throw new IllegalArgumentException("Length must be greater than 0; was " + length);
+        throw new IllegalArgumentException("length <= 0: " + length);
     }
 
     /**

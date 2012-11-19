@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.net.ssl.X509TrustManager;
+import libcore.io.EventLogger;
 
 /**
  *
@@ -50,6 +51,11 @@ public final class TrustManagerImpl implements X509TrustManager {
      * The AndroidCAStore if non-null, null otherwise.
      */
     private final KeyStore rootKeyStore;
+
+    /**
+     * The CertPinManager, which validates the chain against a host-to-pin mapping
+     */
+    private CertPinManager pinManager;
 
     /**
      * The backing store for the AndroidCAStore if non-null. This will
@@ -83,6 +89,13 @@ public final class TrustManagerImpl implements X509TrustManager {
      * @param ks
      */
     public TrustManagerImpl(KeyStore keyStore) {
+        this(keyStore, null);
+    }
+
+    /**
+     * For testing only
+     */
+    public TrustManagerImpl(KeyStore keyStore, CertPinManager manager) {
         CertPathValidator validatorLocal = null;
         CertificateFactory factoryLocal = null;
         KeyStore rootKeyStoreLocal = null;
@@ -111,6 +124,17 @@ public final class TrustManagerImpl implements X509TrustManager {
         } catch (Exception e) {
             errLocal = e;
         }
+
+        if (manager != null) {
+            this.pinManager = manager;
+        } else {
+            try {
+                pinManager = new CertPinManager(trustedCertificateStoreLocal);
+            } catch (PinManagerException e) {
+                throw new SecurityException("Could not initialize CertPinManager", e);
+            }
+        }
+
         this.rootKeyStore = rootKeyStoreLocal;
         this.trustedCertificateStore = trustedCertificateStoreLocal;
         this.validator = validatorLocal;
@@ -155,12 +179,22 @@ public final class TrustManagerImpl implements X509TrustManager {
 
     @Override public void checkClientTrusted(X509Certificate[] chain, String authType)
             throws CertificateException {
-        checkTrusted(chain, authType);
+        checkTrusted(chain, authType, null);
     }
 
     @Override public void checkServerTrusted(X509Certificate[] chain, String authType)
             throws CertificateException {
-        checkTrusted(chain, authType);
+        checkTrusted(chain, authType, null);
+    }
+
+    /**
+     * Validates whether a server is trusted. If hostname is given and non-null it also checks if
+     * chain is pinned appropriately for that host. If null, it does not check for pinned certs.
+     * The return value is a list of the certificates used for making the trust decision.
+     */
+    public List<X509Certificate> checkServerTrusted(X509Certificate[] chain, String authType,
+                                                    String host) throws CertificateException {
+        return checkTrusted(chain, authType, host);
     }
 
     public void handleTrustStorageUpdate() {
@@ -168,10 +202,10 @@ public final class TrustManagerImpl implements X509TrustManager {
             trustedCertificateIndex.reset();
         } else {
             trustedCertificateIndex.reset(trustAnchors(acceptedIssuers));
-        }
+       }
     }
 
-    private void checkTrusted(X509Certificate[] chain, String authType)
+    private List<X509Certificate> checkTrusted(X509Certificate[] chain, String authType, String host)
             throws CertificateException {
         if (chain == null || chain.length == 0 || authType == null || authType.length() == 0) {
             throw new IllegalArgumentException("null or zero-length parameter");
@@ -180,21 +214,71 @@ public final class TrustManagerImpl implements X509TrustManager {
             throw new CertificateException(err);
         }
 
-        Set<TrustAnchor> trustAnchors = new HashSet<TrustAnchor>();
-        X509Certificate[] newChain = cleanupCertChainAndFindTrustAnchors(chain, trustAnchors);
-        if (newChain.length == 0) {
-            // chain was entirely trusted, skip the validator
-            return;
+        // get the cleaned up chain and trust anchor
+        Set<TrustAnchor> trustAnchor = new HashSet<TrustAnchor>(); // there can only be one!
+        X509Certificate[] newChain = cleanupCertChainAndFindTrustAnchors(chain, trustAnchor);
+
+        // add the first trust anchor to the chain, which may be an intermediate
+        List<X509Certificate> wholeChain = new ArrayList<X509Certificate>();
+        wholeChain.addAll(Arrays.asList(newChain));
+        // trustAnchor is actually just a single element
+        for (TrustAnchor trust : trustAnchor) {
+            wholeChain.add(trust.getTrustedCert());
         }
 
+        // add all the cached certificates from the cert index, avoiding loops
+        // this gives us a full chain from leaf to root, which we use for cert pinning and pass
+        // back out to callers when we return.
+        X509Certificate last = wholeChain.get(wholeChain.size() - 1);
+        while (true) {
+            TrustAnchor cachedTrust = trustedCertificateIndex.findByIssuerAndSignature(last);
+            // the cachedTrust can be null if there isn't anything in the index or if a user has
+            // trusted a non-self-signed cert.
+            if (cachedTrust == null) {
+                break;
+            }
+
+            // at this point we have a cached trust anchor, but don't know if its one we got from
+            // the server. Extract the cert, compare it to the last element in the chain, and add it
+            // if we haven't seen it before.
+            X509Certificate next = cachedTrust.getTrustedCert();
+            if (next != last) {
+                wholeChain.add(next);
+                last = next;
+            } else {
+                // if next == last then we found a self-signed cert and the chain is done
+                break;
+            }
+        }
+
+        // build the cert path from the array of certs sans trust anchors
         CertPath certPath = factory.generateCertPath(Arrays.asList(newChain));
-        if (trustAnchors.isEmpty()) {
+
+        if (host != null) {
+            boolean chainIsNotPinned = true;
+            try {
+                chainIsNotPinned = pinManager.chainIsNotPinned(host, wholeChain);
+            } catch (PinManagerException e) {
+                throw new CertificateException(e);
+            }
+            if (chainIsNotPinned) {
+                throw new CertificateException(new CertPathValidatorException(
+                        "Certificate path is not properly pinned.", null, certPath, -1));
+            }
+        }
+
+        if (newChain.length == 0) {
+            // chain was entirely trusted, skip the validator
+            return wholeChain;
+        }
+
+        if (trustAnchor.isEmpty()) {
             throw new CertificateException(new CertPathValidatorException(
                     "Trust anchor for certification path not found.", null, certPath, -1));
         }
 
         try {
-            PKIXParameters params = new PKIXParameters(trustAnchors);
+            PKIXParameters params = new PKIXParameters(trustAnchor);
             params.setRevocationEnabled(false);
             validator.validate(certPath, params);
             // Add intermediate CAs to the index to tolerate sites
@@ -211,6 +295,8 @@ public final class TrustManagerImpl implements X509TrustManager {
         } catch (CertPathValidatorException e) {
             throw new CertificateException(e);
         }
+
+        return wholeChain;
     }
 
     /**
@@ -232,17 +318,9 @@ public final class TrustManagerImpl implements X509TrustManager {
         // Start with the first certificate in the chain, assuming it
         // is the leaf certificate (server or client cert).
         for (currIndex = 0; currIndex < chain.length; currIndex++) {
-            // If the current cert is a TrustAnchor, we can ignore the rest of the chain.
-            // This avoids including "bridge" CA certs that added for legacy compatability.
-            TrustAnchor trustAnchor = findTrustAnchorBySubjectAndPublicKey(chain[currIndex]);
-            if (trustAnchor != null) {
-                trustAnchors.add(trustAnchor);
-                currIndex--;
-                break;
-            }
-            // Walk the rest of the chain to find a "subject" matching
+            // Walk the chain to find a "subject" matching
             // the "issuer" of the current certificate. In a properly
-            // order chain this should be the next cert and be fast.
+            // ordered chain this should be the next cert and be fast.
             // If not, we reorder things to be as the validator will
             // expect.
             boolean foundNext = false;
@@ -271,15 +349,27 @@ public final class TrustManagerImpl implements X509TrustManager {
             }
         }
 
-        // 2. If the chain is now shorter, copy to an appropriately sized array.
-        int chainLength = currIndex + 1;
+        // 2. Find the trust anchor in the chain, if any
+        int anchorIndex;
+        for (anchorIndex = 0; anchorIndex < chain.length; anchorIndex++) {
+            // If the current cert is a TrustAnchor, we can ignore the rest of the chain.
+            // This avoids including "bridge" CA certs that added for legacy compatibility.
+            TrustAnchor trustAnchor = findTrustAnchorBySubjectAndPublicKey(chain[anchorIndex]);
+            if (trustAnchor != null) {
+                trustAnchors.add(trustAnchor);
+                break;
+            }
+        }
+
+        // 3. If the chain is now shorter, copy to an appropriately sized array.
+        int chainLength = anchorIndex;
         X509Certificate[] newChain = ((chainLength == chain.length)
                                       ? chain
                                       : Arrays.copyOf(chain, chainLength));
 
-        // 3. If no TrustAnchor was found in cleanup, look for one now
+        // 4. If we didn't find a trust anchor earlier, look for one now
         if (trustAnchors.isEmpty()) {
-            TrustAnchor trustAnchor = findTrustAnchorByIssuerAndSignature(newChain[chainLength-1]);
+            TrustAnchor trustAnchor = findTrustAnchorByIssuerAndSignature(newChain[anchorIndex-1]);
             if (trustAnchor != null) {
                 trustAnchors.add(trustAnchor);
             }

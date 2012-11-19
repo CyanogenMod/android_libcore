@@ -14,26 +14,69 @@
  * limitations under the License.
  */
 
-package org.kxml2.io;
-
-import junit.framework.TestCase;
+package libcore.xml;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import junit.framework.TestCase;
+import org.kxml2.io.KXmlSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xmlpull.v1.XmlSerializer;
+import static tests.support.Support_Xml.domOf;
 
-import static tests.support.Support_Xml.*;
-
-public class KXmlSerializerTest extends TestCase {
+public final class KxmlSerializerTest extends TestCase {
     private static final String NAMESPACE = null;
 
-    private static boolean isValidXmlCodePoint(int c) {
-        // http://www.w3.org/TR/REC-xml/#charsets
-        return (c >= 0x20 && c <= 0xd7ff) || (c == 0x9) || (c == 0xa) || (c == 0xd) ||
-                (c >= 0xe000 && c <= 0xfffd) || (c >= 0x10000 && c <= 0x10ffff);
+    public void testWhitespaceInAttributeValue() throws Exception {
+        StringWriter stringWriter = new StringWriter();
+        XmlSerializer serializer = new KXmlSerializer();
+        serializer.setOutput(stringWriter);
+        serializer.startDocument("UTF-8", null);
+        serializer.startTag(NAMESPACE, "a");
+        serializer.attribute(NAMESPACE, "cr", "\r");
+        serializer.attribute(NAMESPACE, "lf", "\n");
+        serializer.attribute(NAMESPACE, "tab", "\t");
+        serializer.attribute(NAMESPACE, "space", " ");
+        serializer.endTag(NAMESPACE, "a");
+        serializer.endDocument();
+        assertXmlEquals("<a cr=\"&#13;\" lf=\"&#10;\" tab=\"&#9;\" space=\" \" />",
+                stringWriter.toString());
+    }
+
+    public void testWriteDocument() throws Exception {
+        StringWriter stringWriter = new StringWriter();
+        XmlSerializer serializer = new KXmlSerializer();
+        serializer.setOutput(stringWriter);
+        serializer.startDocument("UTF-8", null);
+        serializer.startTag(NAMESPACE, "foo");
+        serializer.attribute(NAMESPACE, "quux", "abc");
+        serializer.startTag(NAMESPACE, "bar");
+        serializer.endTag(NAMESPACE, "bar");
+        serializer.startTag(NAMESPACE, "baz");
+        serializer.endTag(NAMESPACE, "baz");
+        serializer.endTag(NAMESPACE, "foo");
+        serializer.endDocument();
+        assertXmlEquals("<foo quux=\"abc\"><bar /><baz /></foo>", stringWriter.toString());
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=21250
+    public void testWriteSpecialCharactersInText() throws Exception {
+        StringWriter stringWriter = new StringWriter();
+        XmlSerializer serializer = new KXmlSerializer();
+        serializer.setOutput(stringWriter);
+        serializer.startDocument("UTF-8", null);
+        serializer.startTag(NAMESPACE, "foo");
+        serializer.text("5'8\", 5 < 6 & 7 > 3!");
+        serializer.endTag(NAMESPACE, "foo");
+        serializer.endDocument();
+        assertXmlEquals("<foo>5'8\", 5 &lt; 6 &amp; 7 &gt; 3!</foo>", stringWriter.toString());
+    }
+
+    private void assertXmlEquals(String expectedXml, String actualXml) throws Exception {
+        String declaration = "<?xml version='1.0' encoding='UTF-8' ?>";
+        assertEquals(declaration + expectedXml, actualXml);
     }
 
     private static XmlSerializer newSerializer() throws IOException {
@@ -115,5 +158,11 @@ public class KXmlSerializerTest extends TestCase {
             text += children.item(i).getNodeValue();
         }
         assertEquals("a]]>b", text);
+    }
+
+    private static boolean isValidXmlCodePoint(int c) {
+        // http://www.w3.org/TR/REC-xml/#charsets
+        return (c >= 0x20 && c <= 0xd7ff) || (c == 0x9) || (c == 0xa) || (c == 0xd) ||
+                (c >= 0xe000 && c <= 0xfffd) || (c >= 0x10000 && c <= 0x10ffff);
     }
 }

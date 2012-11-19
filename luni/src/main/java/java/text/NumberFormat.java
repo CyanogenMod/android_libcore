@@ -566,7 +566,7 @@ public abstract class NumberFormat extends Format {
     @Override
     public final Object parseObject(String string, ParsePosition position) {
         if (position == null) {
-            throw new NullPointerException("position is null");
+            throw new NullPointerException("position == null");
         }
         try {
             return parse(string, position);

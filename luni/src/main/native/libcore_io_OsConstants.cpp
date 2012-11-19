@@ -230,6 +230,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "O_CREAT", O_CREAT);
     initConstant(env, c, "O_EXCL", O_EXCL);
     initConstant(env, c, "O_NOCTTY", O_NOCTTY);
+    initConstant(env, c, "O_NOFOLLOW", O_NOFOLLOW);
     initConstant(env, c, "O_NONBLOCK", O_NONBLOCK);
     initConstant(env, c, "O_RDONLY", O_RDONLY);
     initConstant(env, c, "O_RDWR", O_RDWR);
@@ -275,7 +276,9 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "SIGRTMAX", SIGRTMAX);
     initConstant(env, c, "SIGRTMIN", SIGRTMIN);
     initConstant(env, c, "SIGSEGV", SIGSEGV);
+#if defined(SIGSTKFLT)
     initConstant(env, c, "SIGSTKFLT", SIGSTKFLT);
+#endif
     initConstant(env, c, "SIGSTOP", SIGSTOP);
     initConstant(env, c, "SIGSYS", SIGSYS);
     initConstant(env, c, "SIGTERM", SIGTERM);

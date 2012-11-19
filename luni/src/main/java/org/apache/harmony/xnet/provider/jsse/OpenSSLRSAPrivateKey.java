@@ -180,6 +180,10 @@ public class OpenSSLRSAPrivateKey implements RSAPrivateKey {
         return key.getPkeyContext();
     }
 
+    public String getPkeyAlias() {
+        return key.getAlias();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == this) {
@@ -196,6 +200,8 @@ public class OpenSSLRSAPrivateKey implements RSAPrivateKey {
             if (key.equals(other.getOpenSSLKey())) {
                 return true;
             }
+
+            return NativeCrypto.EVP_PKEY_cmp(getPkeyContext(), other.getPkeyContext()) == 1;
         }
 
         if (o instanceof RSAPrivateKey) {
@@ -226,11 +232,11 @@ public class OpenSSLRSAPrivateKey implements RSAPrivateKey {
     public String toString() {
         final StringBuilder sb = new StringBuilder("OpenSSLRSAPrivateKey{");
 
-        if (key.isEngineBased()) {
+        final boolean engineBased = key.isEngineBased();
+        if (engineBased) {
             sb.append("key=");
             sb.append(key);
             sb.append('}');
-            return sb.toString();
         }
 
         ensureReadParams();
@@ -238,9 +244,11 @@ public class OpenSSLRSAPrivateKey implements RSAPrivateKey {
         sb.append(modulus.toString(16));
         sb.append(',');
 
-        sb.append("privateExponent=");
-        sb.append(privateExponent.toString(16));
-        sb.append(',');
+        if (!engineBased) {
+            sb.append("privateExponent=");
+            sb.append(privateExponent.toString(16));
+            sb.append(',');
+        }
 
         return sb.toString();
     }

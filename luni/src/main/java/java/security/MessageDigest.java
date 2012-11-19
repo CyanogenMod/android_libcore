@@ -86,7 +86,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
     public static MessageDigest getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         if (algorithm == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("algorithm == null");
         }
         Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
         Object spi = sap.spi;
@@ -152,7 +152,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
             throw new IllegalArgumentException();
         }
         if (algorithm == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("algorithm == null");
         }
         Object spi = ENGINE.getInstance(algorithm, provider, null);
         if (spi instanceof MessageDigest) {
@@ -217,7 +217,7 @@ public abstract class MessageDigest extends MessageDigestSpi {
      */
     public void update(byte[] input) {
         if (input == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("input == null");
         }
         engineUpdate(input, 0, input.length);
     }

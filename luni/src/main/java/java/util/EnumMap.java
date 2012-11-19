@@ -773,7 +773,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
     @SuppressWarnings("unchecked")
     private V putImpl(K key, V value) {
         if (key == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("key == null");
         }
         keyType.cast(key); // Called to throw ClassCastException.
         int keyOrdinal = key.ordinal();

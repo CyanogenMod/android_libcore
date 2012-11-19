@@ -481,16 +481,14 @@ public class ObjectStreamClass implements Serializable {
                 Field field = fields[i];
                 int modifiers = field.getModifiers() & FIELD_MODIFIERS_MASK;
 
-                boolean skip = Modifier.isPrivate(modifiers)
-                        && (Modifier.isTransient(modifiers) || Modifier
-                                .isStatic(modifiers));
+                boolean skip = Modifier.isPrivate(modifiers) &&
+                        (Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers));
                 if (!skip) {
                     // write name, modifier & "descriptor" of all but private
                     // static and private transient
                     output.writeUTF(field.getName());
                     output.writeInt(modifiers);
-                    output
-                            .writeUTF(descriptorForFieldSignature(getFieldSignature(field)));
+                    output.writeUTF(descriptorForFieldSignature(getFieldSignature(field)));
                 }
             }
 

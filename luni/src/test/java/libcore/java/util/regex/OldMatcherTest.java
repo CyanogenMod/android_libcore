@@ -247,19 +247,36 @@ public class OldMatcherTest extends TestCase {
             }
         }
 
-        // Starting index out of region
+        String string3 = "Brave new world";
         Pattern pat3 = Pattern.compile("new");
-        Matcher mat3 = pat3.matcher("Brave new world");
+        Matcher mat3 = pat3.matcher(string3);
 
-        assertTrue(mat3.find(-1));
+        // find(int) throws for out of range indexes.
+        try {
+            mat3.find(-1);
+            fail();
+        } catch (IndexOutOfBoundsException expected) {
+        }
+        assertFalse(mat3.find(string3.length()));
+        try {
+            mat3.find(string3.length() + 1);
+            fail();
+        } catch (IndexOutOfBoundsException expected) {
+        }
+
         assertTrue(mat3.find(6));
         assertFalse(mat3.find(7));
 
         mat3.region(7, 10);
+        assertFalse(mat3.find()); // No "new" in the region.
 
-        assertFalse(mat3.find(3));
-        assertFalse(mat3.find(6));
-        assertFalse(mat3.find(7));
+        assertTrue(mat3.find(3)); // find(int) ignores the region.
+        assertTrue(mat3.find(6)); // find(int) ignores the region.
+        assertFalse(mat3.find(7)); // No "new" >= 7.
+
+        mat3.region(1, 4);
+        assertFalse(mat3.find()); // No "new" in the region.
+        assertTrue(mat3.find(5)); // find(int) ignores the region.
     }
 
     public void testSEOLsymbols() {
@@ -579,4 +596,14 @@ public class OldMatcherTest extends TestCase {
         assertTrue(pattern.matcher("14pt").matches());
     }
 
+    public void testUnicodeCharacterClasses() throws Exception {
+        // http://code.google.com/p/android/issues/detail?id=21176
+        // We use the Unicode TR-18 definitions: http://www.unicode.org/reports/tr18/#Compatibility_Properties
+        assertTrue("\u0666".matches("\\d")); // ARABIC-INDIC DIGIT SIX
+        assertFalse("\u0666".matches("\\D")); // ARABIC-INDIC DIGIT SIX
+        assertTrue("\u1680".matches("\\s")); // OGHAM SPACE MARK
+        assertFalse("\u1680".matches("\\S")); // OGHAM SPACE MARK
+        assertTrue("\u00ea".matches("\\w")); // LATIN SMALL LETTER E WITH CIRCUMFLEX
+        assertFalse("\u00ea".matches("\\W")); // LATIN SMALL LETTER E WITH CIRCUMFLEX
+    }
 }

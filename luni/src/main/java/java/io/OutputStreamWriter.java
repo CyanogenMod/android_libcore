@@ -57,30 +57,30 @@ public class OutputStreamWriter extends Writer {
 
     /**
      * Constructs a new OutputStreamWriter using {@code out} as the target
-     * stream to write converted characters to and {@code enc} as the character
+     * stream to write converted characters to and {@code charsetName} as the character
      * encoding. If the encoding cannot be found, an
      * UnsupportedEncodingException error is thrown.
      *
      * @param out
      *            the target stream to write converted bytes to.
-     * @param enc
+     * @param charsetName
      *            the string describing the desired character encoding.
      * @throws NullPointerException
-     *             if {@code enc} is {@code null}.
+     *             if {@code charsetName} is {@code null}.
      * @throws UnsupportedEncodingException
-     *             if the encoding specified by {@code enc} cannot be found.
+     *             if the encoding specified by {@code charsetName} cannot be found.
      */
-    public OutputStreamWriter(OutputStream out, final String enc)
+    public OutputStreamWriter(OutputStream out, final String charsetName)
             throws UnsupportedEncodingException {
         super(out);
-        if (enc == null) {
-            throw new NullPointerException();
+        if (charsetName == null) {
+            throw new NullPointerException("charsetName == null");
         }
         this.out = out;
         try {
-            encoder = Charset.forName(enc).newEncoder();
+            encoder = Charset.forName(charsetName).newEncoder();
         } catch (Exception e) {
-            throw new UnsupportedEncodingException(enc);
+            throw new UnsupportedEncodingException(charsetName);
         }
         encoder.onMalformedInput(CodingErrorAction.REPLACE);
         encoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
@@ -106,19 +106,19 @@ public class OutputStreamWriter extends Writer {
 
     /**
      * Constructs a new OutputStreamWriter using {@code out} as the target
-     * stream to write converted characters to and {@code enc} as the character
+     * stream to write converted characters to and {@code charsetEncoder} as the character
      * encoder.
      *
      * @param out
      *            the target stream to write converted bytes to.
-     * @param enc
+     * @param charsetEncoder
      *            the character encoder used for character conversion.
      */
-    public OutputStreamWriter(OutputStream out, CharsetEncoder enc) {
+    public OutputStreamWriter(OutputStream out, CharsetEncoder charsetEncoder) {
         super(out);
-        enc.charset();
+        charsetEncoder.charset();
         this.out = out;
-        encoder = enc;
+        encoder = charsetEncoder;
     }
 
     /**

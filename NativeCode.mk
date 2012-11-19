@@ -53,6 +53,7 @@ endef
 # set up.
 include $(CLEAR_VARS)
 LOCAL_MODULE := $(core_magic_local_target)
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
 core_src_files :=
 
 # Include the sub.mk files.
@@ -65,9 +66,6 @@ $(foreach dir, \
 core_c_includes := $(sort libcore/include $(LOCAL_C_INCLUDES) $(JNI_H_INCLUDE))
 core_shared_libraries := $(sort $(LOCAL_SHARED_LIBRARIES))
 core_static_libraries := $(sort $(LOCAL_STATIC_LIBRARIES))
-core_cflags := -fvisibility=hidden
-core_cflags += '-DGCC_HIDDEN=__attribute__((visibility("hidden")))'
-core_cppflags := -fvisibility-inlines-hidden
 
 
 #
@@ -91,6 +89,7 @@ LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libexpat libicuuc libicui18n 
 LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacore
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
 
 LOCAL_C_INCLUDES += external/stlport/stlport bionic/ bionic/libstdc++/include
 LOCAL_SHARED_LIBRARIES += libstlport
@@ -111,6 +110,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_LDLIBS += -ldl -lpthread
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := libjavacore
+    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
     LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libexpat libicuuc libicui18n libssl libcrypto libz-host
     LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
     include $(BUILD_HOST_SHARED_LIBRARY)

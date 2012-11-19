@@ -227,7 +227,7 @@ public final class Security {
      */
     public static Provider[] getProviders(String filter) {
         if (filter == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("filter == null");
         }
         if (filter.length() == 0) {
             throw new InvalidParameterException();
@@ -271,7 +271,7 @@ public final class Security {
      */
     public static synchronized Provider[] getProviders(Map<String,String> filter) {
         if (filter == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("filter == null");
         }
         if (filter.isEmpty()) {
             return null;

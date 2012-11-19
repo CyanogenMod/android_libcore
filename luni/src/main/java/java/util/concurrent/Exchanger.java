@@ -2,7 +2,7 @@
  * Written by Doug Lea, Bill Scherer, and Michael Scott with
  * assistance from members of JCP JSR-166 Expert Group and released to
  * the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent;
@@ -23,7 +23,7 @@ import java.util.concurrent.locks.LockSupport;
  * to swap buffers between threads so that the thread filling the
  * buffer gets a freshly emptied one when it needs it, handing off the
  * filled one to the thread emptying the buffer.
- * <pre>{@code
+ *  <pre> {@code
  * class FillAndEmpty {
  *   Exchanger<DataBuffer> exchanger = new Exchanger<DataBuffer>();
  *   DataBuffer initialEmptyBuffer = ... a made-up type
@@ -59,8 +59,7 @@ import java.util.concurrent.locks.LockSupport;
  *     new Thread(new FillingLoop()).start();
  *     new Thread(new EmptyingLoop()).start();
  *   }
- * }
- * }</pre>
+ * }}</pre>
  *
  * <p>Memory consistency effects: For each pair of threads that
  * successfully exchange objects via an {@code Exchanger}, actions
@@ -135,8 +134,8 @@ public class Exchanger<V> {
      * races between two threads or thread pre-emptions occurring
      * between reading and CASing.  Also, very transient peak
      * contention can be much higher than the average sustainable
-     * levels.  The max limit is decreased on average 50% of the times
-     * that a non-slot-zero wait elapses without being fulfilled.
+     * levels.  An attempt to decrease the max limit is usually made
+     * when a non-slot-zero wait elapses without being fulfilled.
      * Threads experiencing elapsed waits move closer to zero, so
      * eventually find existing (or future) threads even if the table
      * has been shrunk due to inactivity.  The chosen mechanics and
@@ -275,7 +274,9 @@ public class Exchanger<V> {
      * extra space.
      */
     private static final class Slot extends AtomicReference<Object> {
-        // Improve likelihood of isolation on <= 64 byte cache lines
+        // Improve likelihood of isolation on <= 128 byte cache lines.
+        // We used to target 64 byte cache lines, but some x86s (including
+        // i7 under some BIOSes) actually use 128 byte cache lines.
         long q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, qa, qb, qc, qd, qe;
     }
 

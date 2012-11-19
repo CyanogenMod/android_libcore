@@ -686,5 +686,13 @@ public final class URLTest extends TestCase {
         assertEquals("re f", new URL("http://host/file?query#re f").getRef());
     }
 
+    // http://code.google.com/p/android/issues/detail?id=37577
+    public void testUnderscore() throws Exception {
+        URL url = new URL("http://a_b.c.d.net/");
+        assertEquals("a_b.c.d.net", url.getAuthority());
+        // The RFC's don't permit underscores in hostnames, but URL accepts them (unlike URI).
+        assertEquals("a_b.c.d.net", url.getHost());
+    }
+
     // Adding a new test? Consider adding an equivalent test to URITest.java
 }

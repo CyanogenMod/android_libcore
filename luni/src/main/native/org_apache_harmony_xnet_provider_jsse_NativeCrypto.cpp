@@ -21,9 +21,11 @@
 #define LOG_TAG "NativeCrypto"
 
 #include <algorithm>
+#include <arpa/inet.h>
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <vector>
 
 #include <jni.h>
 
@@ -154,6 +156,35 @@ struct X509_Delete {
 };
 typedef UniquePtr<X509, X509_Delete> Unique_X509;
 
+class X509Chain {
+  public:
+    X509Chain(size_t n) : x509s_(n) {}
+
+    ~X509Chain() {
+        // TODO: C++0x auto
+        for (std::vector<X509*>::const_iterator it = x509s_.begin(); it != x509s_.end(); ++it) {
+            X509_free(*it);
+        }
+    }
+
+    X509*& operator[](size_t n) {
+        return x509s_[n];
+    }
+
+    X509* operator[](size_t n) const {
+        return x509s_[n];
+    }
+
+    X509* release(size_t i) {
+        X509* x = x509s_[i];
+        x509s_[i] = NULL;
+        return x;
+    }
+
+  private:
+    std::vector<X509*> x509s_;
+};
+
 struct X509_NAME_Delete {
     void operator()(X509_NAME* p) const {
         X509_NAME_free(p);
@@ -203,6 +234,22 @@ static void freeOpenSslErrorState(void) {
     ERR_remove_state(0);
 }
 
+/**
+ * Throws a BadPaddingException with the given string as a message.
+ */
+static void throwBadPaddingException(JNIEnv* env, const char* message) {
+    JNI_TRACE("throwBadPaddingException %s", message);
+    jniThrowException(env, "javax/crypto/BadPaddingException", message);
+}
+
+/**
+ * Throws a SignatureException with the given string as a message.
+ */
+static void throwSignatureException(JNIEnv* env, const char* message) {
+    JNI_TRACE("throwSignatureException %s", message);
+    jniThrowException(env, "java/security/SignatureException", message);
+}
+
 /*
  * Checks this thread's OpenSSL error queue and throws a RuntimeException if
  * necessary.
@@ -210,14 +257,30 @@ static void freeOpenSslErrorState(void) {
  * @return true if an exception was thrown, false if not.
  */
 static bool throwExceptionIfNecessary(JNIEnv* env, const char* location  __attribute__ ((unused))) {
-    int error = ERR_get_error();
+    const char* file;
+    int line;
+    const char* data;
+    int flags;
+    unsigned long error = ERR_get_error_line_data(&file, &line, &data, &flags);
     int result = false;
 
     if (error != 0) {
         char message[256];
         ERR_error_string_n(error, message, sizeof(message));
-        JNI_TRACE("OpenSSL error in %s %d: %s", location, error, message);
-        jniThrowRuntimeException(env, message);
+        int library = ERR_GET_LIB(error);
+        int reason = ERR_GET_REASON(error);
+        JNI_TRACE("OpenSSL error in %s error=%lx library=%x reason=%x (%s:%d): %s %s",
+                  location, error, library, reason, file, line, message,
+                  (flags & ERR_TXT_STRING) ? data : "(no data)");
+        if ((library == ERR_LIB_RSA)
+                && ((reason == RSA_R_BLOCK_TYPE_IS_NOT_01)
+                    || (reason == RSA_R_BLOCK_TYPE_IS_NOT_02))) {
+            throwBadPaddingException(env, message);
+        } else if (library == ERR_LIB_RSA && reason == RSA_R_DATA_GREATER_THAN_MOD_LEN) {
+            throwSignatureException(env, message);
+        } else {
+            jniThrowRuntimeException(env, message);
+        }
         result = true;
     }
 
@@ -442,11 +505,11 @@ static bool arrayToBignum(JNIEnv* env, jbyteArray source, BIGNUM** dest) {
 /**
  * Converts an OpenSSL BIGNUM to a Java byte[] array.
  */
-static jbyteArray bignumToArray(JNIEnv* env, BIGNUM* source) {
-    JNI_TRACE("bignumToArray(%p)", source);
+static jbyteArray bignumToArray(JNIEnv* env, BIGNUM* source, const char* sourceName) {
+    JNI_TRACE("bignumToArray(%p, %s)", source, sourceName);
 
     if (source == NULL) {
-        jniThrowNullPointerException(env, NULL);
+        jniThrowNullPointerException(env, sourceName);
         return NULL;
     }
 
@@ -454,7 +517,7 @@ static jbyteArray bignumToArray(JNIEnv* env, BIGNUM* source) {
     jbyteArray javaBytes = env->NewByteArray(len);
     ScopedByteArrayRW bytes(env, javaBytes);
     if (bytes.get() == NULL) {
-        JNI_TRACE("bignumToArray(%p) => NULL", source);
+        JNI_TRACE("bignumToArray(%p, %s) => NULL", source, sourceName);
         return NULL;
     }
 
@@ -472,7 +535,7 @@ static jbyteArray bignumToArray(JNIEnv* env, BIGNUM* source) {
         return NULL;
     }
 
-    JNI_TRACE("bignumToArray(%p) => %p", source, javaBytes);
+    JNI_TRACE("bignumToArray(%p, %s) => %p", source, sourceName, javaBytes);
     return javaBytes;
 }
 
@@ -575,6 +638,27 @@ static jint NativeCrypto_ENGINE_by_id(JNIEnv* env, jclass, jstring idJava) {
 
     JNI_TRACE("ENGINE_by_id(%p) => %p", idJava, e);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(e));
+}
+
+static jint NativeCrypto_ENGINE_add(JNIEnv* env, jclass, jint engineRef) {
+    ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
+    JNI_TRACE("ENGINE_add(%p)", e);
+
+    if (e == NULL) {
+        jniThrowException(env, "java/lang/IllegalArgumentException", "engineRef == 0");
+        return 0;
+    }
+
+    int ret = ENGINE_add(e);
+
+    /*
+     * We tolerate errors, because the most likely error is that
+     * the ENGINE is already in the list.
+     */
+    freeOpenSslErrorState();
+
+    JNI_TRACE("ENGINE_add(%p) => %d", e, ret);
+    return ret;
 }
 
 static jint NativeCrypto_ENGINE_init(JNIEnv* env, jclass, jint engineRef) {
@@ -839,6 +923,26 @@ static void NativeCrypto_EVP_PKEY_free(JNIEnv*, jclass, EVP_PKEY* pkey) {
     }
 }
 
+static jint NativeCrypto_EVP_PKEY_cmp(JNIEnv* env, jclass, jint pkey1Ref, jint pkey2Ref) {
+    EVP_PKEY* pkey1 = reinterpret_cast<EVP_PKEY*>(pkey1Ref);
+    EVP_PKEY* pkey2 = reinterpret_cast<EVP_PKEY*>(pkey2Ref);
+    JNI_TRACE("EVP_PKEY_cmp(%p, %p)", pkey1, pkey2);
+
+    if (pkey1 == NULL) {
+        JNI_TRACE("EVP_PKEY_cmp(%p, %p) => failed pkey1 == NULL", pkey1, pkey2);
+        jniThrowNullPointerException(env, "pkey1 == NULL");
+        return -1;
+    } else if (pkey2 == NULL) {
+        JNI_TRACE("EVP_PKEY_cmp(%p, %p) => failed pkey2 == NULL", pkey1, pkey2);
+        jniThrowNullPointerException(env, "pkey2 == NULL");
+        return -1;
+    }
+
+    int result = EVP_PKEY_cmp(pkey1, pkey2);
+    JNI_TRACE("EVP_PKEY_cmp(%p, %p) => %d", pkey1, pkey2, result);
+    return result;
+}
+
 /*
  * static native byte[] i2d_PKCS8_PRIV_KEY_INFO(int, byte[])
  */
@@ -1010,6 +1114,78 @@ static jint NativeCrypto_RSA_generate_key_ex(JNIEnv* env, jclass, jint modulusBi
     return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
 }
 
+static jint NativeCrypto_RSA_size(JNIEnv* env, jclass, jint pkeyRef) {
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
+    JNI_TRACE("RSA_size(%p)", pkey);
+
+    Unique_RSA rsa(EVP_PKEY_get1_RSA(pkey));
+    if (rsa.get() == NULL) {
+        jniThrowRuntimeException(env, "RSA_size failed");
+        return 0;
+    }
+
+    return static_cast<jint>(RSA_size(rsa.get()));
+}
+
+typedef int RSACryptOperation(int flen, const unsigned char* from, unsigned char* to, RSA* rsa,
+                              int padding);
+
+static jint RSA_crypt_operation(RSACryptOperation operation,
+        const char* caller __attribute__ ((unused)), JNIEnv* env, jint flen,
+        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jint pkeyRef, jint padding) {
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
+    JNI_TRACE("%s(%d, %p, %p, %p)", caller, flen, fromJavaBytes, toJavaBytes, pkey);
+
+    Unique_RSA rsa(EVP_PKEY_get1_RSA(pkey));
+    if (rsa.get() == NULL) {
+        return -1;
+    }
+
+    ScopedByteArrayRO from(env, fromJavaBytes);
+    if (from.get() == NULL) {
+        return -1;
+    }
+
+    ScopedByteArrayRW to(env, toJavaBytes);
+    if (to.get() == NULL) {
+        return -1;
+    }
+
+    int resultSize = operation(static_cast<int>(flen),
+            reinterpret_cast<const unsigned char*>(from.get()),
+            reinterpret_cast<unsigned char*>(to.get()), rsa.get(), padding);
+    if (resultSize == -1) {
+        JNI_TRACE("%s => failed", caller);
+        throwExceptionIfNecessary(env, "RSA_crypt_operation");
+        return -1;
+    }
+
+    JNI_TRACE("%s(%d, %p, %p, %p) => %d", caller, flen, fromJavaBytes, toJavaBytes, pkey,
+              resultSize);
+    return static_cast<jint>(resultSize);
+}
+
+static jint NativeCrypto_RSA_private_encrypt(JNIEnv* env, jclass, jint flen,
+        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jint pkeyRef, jint padding) {
+    return RSA_crypt_operation(RSA_private_encrypt, __FUNCTION__,
+                               env, flen, fromJavaBytes, toJavaBytes, pkeyRef, padding);
+}
+static jint NativeCrypto_RSA_public_decrypt(JNIEnv* env, jclass, jint flen,
+        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jint pkeyRef, jint padding) {
+    return RSA_crypt_operation(RSA_public_decrypt, __FUNCTION__,
+                               env, flen, fromJavaBytes, toJavaBytes, pkeyRef, padding);
+}
+static jint NativeCrypto_RSA_public_encrypt(JNIEnv* env, jclass, jint flen,
+        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jint pkeyRef, jint padding) {
+    return RSA_crypt_operation(RSA_public_encrypt, __FUNCTION__,
+                               env, flen, fromJavaBytes, toJavaBytes, pkeyRef, padding);
+}
+static jint NativeCrypto_RSA_private_decrypt(JNIEnv* env, jclass, jint flen,
+        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jint pkeyRef, jint padding) {
+    return RSA_crypt_operation(RSA_private_decrypt, __FUNCTION__,
+                               env, flen, fromJavaBytes, toJavaBytes, pkeyRef, padding);
+}
+
 /*
  * public static native byte[][] get_RSA_public_params(int);
  */
@@ -1028,13 +1204,13 @@ static jobjectArray NativeCrypto_get_RSA_public_params(JNIEnv* env, jclass, jint
         return NULL;
     }
 
-    jbyteArray n = bignumToArray(env, rsa->n);
+    jbyteArray n = bignumToArray(env, rsa->n, "n");
     if (env->ExceptionCheck()) {
         return NULL;
     }
     env->SetObjectArrayElement(joa, 0, n);
 
-    jbyteArray e = bignumToArray(env, rsa->e);
+    jbyteArray e = bignumToArray(env, rsa->e, "e");
     if (env->ExceptionCheck()) {
         return NULL;
     }
@@ -1061,14 +1237,14 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
         return NULL;
     }
 
-    jbyteArray n = bignumToArray(env, rsa->n);
+    jbyteArray n = bignumToArray(env, rsa->n, "n");
     if (env->ExceptionCheck()) {
         return NULL;
     }
     env->SetObjectArrayElement(joa, 0, n);
 
     if (rsa->e != NULL) {
-        jbyteArray e = bignumToArray(env, rsa->e);
+        jbyteArray e = bignumToArray(env, rsa->e, "e");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1076,7 +1252,7 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
     }
 
     if (rsa->d != NULL) {
-        jbyteArray d = bignumToArray(env, rsa->d);
+        jbyteArray d = bignumToArray(env, rsa->d, "d");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1084,7 +1260,7 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
     }
 
     if (rsa->p != NULL) {
-        jbyteArray p = bignumToArray(env, rsa->p);
+        jbyteArray p = bignumToArray(env, rsa->p, "p");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1092,7 +1268,7 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
     }
 
     if (rsa->q != NULL) {
-        jbyteArray q = bignumToArray(env, rsa->q);
+        jbyteArray q = bignumToArray(env, rsa->q, "q");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1100,7 +1276,7 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
     }
 
     if (rsa->dmp1 != NULL) {
-        jbyteArray dmp1 = bignumToArray(env, rsa->dmp1);
+        jbyteArray dmp1 = bignumToArray(env, rsa->dmp1, "dmp1");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1108,7 +1284,7 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
     }
 
     if (rsa->dmq1 != NULL) {
-        jbyteArray dmq1 = bignumToArray(env, rsa->dmq1);
+        jbyteArray dmq1 = bignumToArray(env, rsa->dmq1, "dmq1");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1116,7 +1292,7 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
     }
 
     if (rsa->iqmp != NULL) {
-        jbyteArray iqmp = bignumToArray(env, rsa->iqmp);
+        jbyteArray iqmp = bignumToArray(env, rsa->iqmp, "iqmp");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1221,26 +1397,26 @@ static jobjectArray NativeCrypto_get_DSA_params(JNIEnv* env, jclass, jint pkeyRe
         return NULL;
     }
 
-    jbyteArray g = bignumToArray(env, dsa->g);
+    jbyteArray g = bignumToArray(env, dsa->g, "g");
     if (env->ExceptionCheck()) {
         return NULL;
     }
     env->SetObjectArrayElement(joa, 0, g);
 
-    jbyteArray p = bignumToArray(env, dsa->p);
+    jbyteArray p = bignumToArray(env, dsa->p, "p");
     if (env->ExceptionCheck()) {
         return NULL;
     }
     env->SetObjectArrayElement(joa, 1, p);
 
-    jbyteArray q = bignumToArray(env, dsa->q);
+    jbyteArray q = bignumToArray(env, dsa->q, "q");
     if (env->ExceptionCheck()) {
         return NULL;
     }
     env->SetObjectArrayElement(joa, 2, q);
 
     if (dsa->pub_key != NULL) {
-        jbyteArray pub_key = bignumToArray(env, dsa->pub_key);
+        jbyteArray pub_key = bignumToArray(env, dsa->pub_key, "pub_key");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1248,7 +1424,7 @@ static jobjectArray NativeCrypto_get_DSA_params(JNIEnv* env, jclass, jint pkeyRe
     }
 
     if (dsa->priv_key != NULL) {
-        jbyteArray priv_key = bignumToArray(env, dsa->priv_key);
+        jbyteArray priv_key = bignumToArray(env, dsa->priv_key, "priv_key");
         if (env->ExceptionCheck()) {
             return NULL;
         }
@@ -1634,6 +1810,13 @@ static jint NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass, jint ctxRef, jbyte
     if (ok < 0) {
         throwExceptionIfNecessary(env, "NativeCrypto_EVP_VerifyFinal");
     }
+
+    /*
+     * For DSA keys, OpenSSL appears to have a bug where it returns
+     * errors for any result != 1. See dsa_ossl.c in dsa_do_verify
+     */
+    freeOpenSslErrorState();
+
     JNI_TRACE("NativeCrypto_EVP_VerifyFinal(%p, %p, %d, %d, %p) => %d",
               ctx, buffer, offset, length, pkey, ok);
 
@@ -1826,6 +2009,24 @@ static jint NativeCrypto_RAND_load_file(JNIEnv* env, jclass, jstring filename, j
     int result = RAND_load_file(file.c_str(), max_bytes);
     JNI_TRACE("NativeCrypto_RAND_load_file file=%s => %d", file.c_str(), result);
     return result;
+}
+
+static void NativeCrypto_RAND_bytes(JNIEnv* env, jclass, jbyteArray output) {
+    JNI_TRACE("NativeCrypto_RAND_bytes(%p)", output);
+
+    ScopedByteArrayRW outputBytes(env, output);
+    if (outputBytes.get() == NULL) {
+        return;
+    }
+
+    unsigned char* tmp = reinterpret_cast<unsigned char*>(outputBytes.get());
+    if (!RAND_bytes(tmp, outputBytes.size())) {
+        throwExceptionIfNecessary(env, "NativeCrypto_RAND_bytes");
+        JNI_TRACE("tmp=%p NativeCrypto_RAND_bytes => threw error", tmp);
+        return;
+    }
+
+    JNI_TRACE("NativeCrypto_RAND_bytes(%p) => success", output);
 }
 
 #ifdef WITH_JNI_TRACE
@@ -2070,12 +2271,15 @@ class AppData {
     static AppData* create() {
         UniquePtr<AppData> appData(new AppData());
         if (pipe(appData.get()->fdsEmergency) == -1) {
+            ALOGE("AppData::create pipe(2) failed: %s", strerror(errno));
             return NULL;
         }
         if (!setBlocking(appData.get()->fdsEmergency[0], false)) {
+            ALOGE("AppData::create fcntl(2) failed: %s", strerror(errno));
             return NULL;
         }
         if (MUTEX_SETUP(appData.get()->mutex) == -1) {
+            ALOGE("pthread_mutex_init(3) failed: %s", strerror(errno));
             return NULL;
         }
         return appData.release();
@@ -2364,10 +2568,18 @@ static void info_callback(const SSL* ssl, int where, int ret __attribute__ ((unu
 }
 
 /**
- * Call back to ask for a client certificate
+ * Call back to ask for a client certificate. There are three possible exit codes:
+ *
+ * 1 is success. x509Out and pkeyOut should point to the correct private key and certificate.
+ * 0 is unable to find key. x509Out and pkeyOut should be NULL.
+ * -1 is error and it doesn't matter what x509Out and pkeyOut are.
  */
 static int client_cert_cb(SSL* ssl, X509** x509Out, EVP_PKEY** pkeyOut) {
     JNI_TRACE("ssl=%p client_cert_cb x509Out=%p pkeyOut=%p", ssl, x509Out, pkeyOut);
+
+    /* Clear output of key and certificate in case of early exit due to error. */
+    *x509Out = NULL;
+    *pkeyOut = NULL;
 
     AppData* appData = toAppData(ssl);
     JNIEnv* env = appData->env;
@@ -2378,7 +2590,7 @@ static int client_cert_cb(SSL* ssl, X509** x509Out, EVP_PKEY** pkeyOut) {
     }
     if (env->ExceptionCheck()) {
         JNI_TRACE("ssl=%p client_cert_cb already pending exception => 0", ssl);
-        return 0;
+        return -1;
     }
     jobject sslHandshakeCallbacks = appData->sslHandshakeCallbacks;
 
@@ -2425,21 +2637,17 @@ static int client_cert_cb(SSL* ssl, X509** x509Out, EVP_PKEY** pkeyOut) {
 
     if (env->ExceptionCheck()) {
         JNI_TRACE("ssl=%p client_cert_cb exception => 0", ssl);
-        return 0;
+        return -1;
     }
 
     // Check for values set from Java
     X509*     certificate = SSL_get_certificate(ssl);
     EVP_PKEY* privatekey  = SSL_get_privatekey(ssl);
-    int result;
+    int result = 0;
     if (certificate != NULL && privatekey != NULL) {
         *x509Out = certificate;
         *pkeyOut = privatekey;
         result = 1;
-    } else {
-        *x509Out = NULL;
-        *pkeyOut = NULL;
-        result = 0;
     }
     JNI_TRACE("ssl=%p client_cert_cb => *x509=%p *pkey=%p %d", ssl, *x509Out, *pkeyOut, result);
     return result;
@@ -2779,7 +2987,7 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
         return;
     }
 
-    Unique_X509 certificatesX509[length];
+    X509Chain certificatesX509(length);
     for (int i = 0; i < length; i++) {
         ScopedLocalRef<jbyteArray> certificate(env,
                 reinterpret_cast<jbyteArray>(env->GetObjectArrayElement(certificates, i)));
@@ -2795,9 +3003,9 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
             return;
         }
         const unsigned char* tmp = reinterpret_cast<const unsigned char*>(buf.get());
-        certificatesX509[i].reset(d2i_X509(NULL, &tmp, buf.size()));
+        certificatesX509[i] = d2i_X509(NULL, &tmp, buf.size());
 
-        if (certificatesX509[i].get() == NULL) {
+        if (certificatesX509[i] == NULL) {
             ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
             throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error parsing certificate");
             SSL_clear(ssl);
@@ -2806,9 +3014,9 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
         }
     }
 
-    int ret = SSL_use_certificate(ssl, certificatesX509[0].get());
+    int ret = SSL_use_certificate(ssl, certificatesX509[0]);
     if (ret == 1) {
-        OWNERSHIP_TRANSFERRED(certificatesX509[0]);
+        certificatesX509.release(0);
     } else {
         ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
         throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting certificate");
@@ -2824,7 +3032,7 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
         return;
     }
     for (int i = 1; i < length; i++) {
-        if (!sk_X509_push(chain.get(), certificatesX509[i].release())) {
+        if (!sk_X509_push(chain.get(), certificatesX509.release(i))) {
             jniThrowOutOfMemoryError(env, "Unable to push certificate");
             JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => certificate push error", ssl);
             return;
@@ -3186,8 +3394,10 @@ static int next_proto_select_callback(SSL* ssl, unsigned char **out, unsigned ch
     SSL_set_mode(ssl, SSL_MODE_HANDSHAKE_CUTTHROUGH);
 
     AppData* appData = toAppData(ssl);
+    JNI_TRACE("AppData=%p", appData);
     unsigned char* npnProtocols = reinterpret_cast<unsigned char*>(appData->npnProtocolsData);
     size_t npnProtocolsLength = appData->npnProtocolsLength;
+    JNI_TRACE("npn_protocols=%p, length=%d", npnProtocols, npnProtocolsLength);
 
     int status = SSL_select_next_proto(out, outlen, in, inlen, npnProtocols, npnProtocolsLength);
     switch (status) {
@@ -3555,7 +3765,7 @@ static jobjectArray NativeCrypto_SSL_get_peer_cert_chain(JNIEnv* env, jclass, ji
  * cleanly shut down, or THROW_SSLEXCEPTION if an exception should be thrown.
  */
 static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* buf, jint len,
-                   int* sslReturnCode, int* sslErrorCode, int timeout_millis) {
+                   int* sslReturnCode, int* sslErrorCode, int read_timeout_millis) {
     JNI_TRACE("ssl=%p sslRead buf=%p len=%d", ssl, buf, len);
 
     if (len == 0) {
@@ -3634,7 +3844,7 @@ static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* b
             // Need to wait for availability of underlying layer, then retry.
             case SSL_ERROR_WANT_READ:
             case SSL_ERROR_WANT_WRITE: {
-                int selectResult = sslSelect(env, sslError, fdObject, appData, timeout_millis);
+                int selectResult = sslSelect(env, sslError, fdObject, appData, read_timeout_millis);
                 if (selectResult == THROWN_EXCEPTION) {
                     return THROWN_EXCEPTION;
                 }
@@ -3686,11 +3896,11 @@ static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* b
  */
 static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint ssl_address, jobject fdObject,
                                   jobject shc, jbyteArray b, jint offset, jint len,
-                                  jint timeout_millis)
+                                  jint read_timeout_millis)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_read fd=%p shc=%p b=%p offset=%d len=%d timeout_millis=%d",
-              ssl, fdObject, shc, b, offset, len, timeout_millis);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_read fd=%p shc=%p b=%p offset=%d len=%d read_timeout_millis=%d",
+              ssl, fdObject, shc, b, offset, len, read_timeout_millis);
     if (ssl == NULL) {
         return 0;
     }
@@ -3714,7 +3924,7 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint ssl_address, jobject
     int sslErrorCode = SSL_ERROR_NONE;;
 
     int ret = sslRead(env, ssl, fdObject, shc, reinterpret_cast<char*>(bytes.get() + offset), len,
-                      &returnCode, &sslErrorCode, timeout_millis);
+                      &returnCode, &sslErrorCode, read_timeout_millis);
 
     int result;
     switch (ret) {
@@ -3754,8 +3964,9 @@ static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint ssl_address, jobject
  * cleanly shut down, or THROW_SSLEXCEPTION if an exception should be thrown.
  */
 static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const char* buf, jint len,
-                    int* sslReturnCode, int* sslErrorCode) {
-    JNI_TRACE("ssl=%p sslWrite buf=%p len=%d", ssl, buf, len);
+                    int* sslReturnCode, int* sslErrorCode, int write_timeout_millis) {
+    JNI_TRACE("ssl=%p sslWrite buf=%p len=%d write_timeout_millis=%d",
+              ssl, buf, len, write_timeout_millis);
 
     if (len == 0) {
         // Don't bother doing anything in this case.
@@ -3840,7 +4051,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
             // it's also not standard Java behavior, so we wait forever here.
             case SSL_ERROR_WANT_READ:
             case SSL_ERROR_WANT_WRITE: {
-                int selectResult = sslSelect(env, sslError, fdObject, appData, 0);
+                int selectResult = sslSelect(env, sslError, fdObject, appData, write_timeout_millis);
                 if (selectResult == THROWN_EXCEPTION) {
                     return THROWN_EXCEPTION;
                 }
@@ -3891,11 +4102,11 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
  * OpenSSL write function (2): write into buffer at offset n chunks.
  */
 static void NativeCrypto_SSL_write(JNIEnv* env, jclass, jint ssl_address, jobject fdObject,
-                                   jobject shc, jbyteArray b, jint offset, jint len)
+                                   jobject shc, jbyteArray b, jint offset, jint len, jint write_timeout_millis)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
-    JNI_TRACE("ssl=%p NativeCrypto_SSL_write fd=%p shc=%p b=%p offset=%d len=%d",
-              ssl, fdObject, shc, b, offset, len);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_write fd=%p shc=%p b=%p offset=%d len=%d write_timeout_millis=%d",
+              ssl, fdObject, shc, b, offset, len, write_timeout_millis);
     if (ssl == NULL) {
         return;
     }
@@ -3918,7 +4129,7 @@ static void NativeCrypto_SSL_write(JNIEnv* env, jclass, jint ssl_address, jobjec
     int returnCode = 0;
     int sslErrorCode = SSL_ERROR_NONE;
     int ret = sslWrite(env, ssl, fdObject, shc, reinterpret_cast<const char*>(bytes.get() + offset),
-                       len, &returnCode, &sslErrorCode);
+                       len, &returnCode, &sslErrorCode, write_timeout_millis);
 
     switch (ret) {
         case THROW_SSLEXCEPTION:
@@ -3937,7 +4148,7 @@ static void NativeCrypto_SSL_write(JNIEnv* env, jclass, jint ssl_address, jobjec
 }
 
 /**
- * Interrupt any pending IO before closing the socket.
+ * Interrupt any pending I/O before closing the socket.
  */
 static void NativeCrypto_SSL_interrupt(
         JNIEnv* env, jclass, jint ssl_address) {
@@ -4126,43 +4337,6 @@ static jstring NativeCrypto_SSL_SESSION_cipher(JNIEnv* env, jclass, jint ssl_ses
 }
 
 /**
- * Gets and returns in a string the compression method negotiated for the SSL session.
- */
-static jstring NativeCrypto_SSL_SESSION_compress_meth(JNIEnv* env, jclass,
-                                                      jint ssl_ctx_address,
-                                                      jint ssl_session_address) {
-    SSL_CTX* ssl_ctx = to_SSL_CTX(env, ssl_ctx_address, true);
-    SSL_SESSION* ssl_session = to_SSL_SESSION(env, ssl_session_address, true);
-    JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_compress_meth ssl_ctx=%p",
-              ssl_session, ssl_ctx);
-    if (ssl_ctx == NULL || ssl_session == NULL) {
-        return NULL;
-    }
-
-    int compress_meth = ssl_session->compress_meth;
-    if (compress_meth == 0) {
-        const char* name = "NULL";
-        JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_compress_meth => %s", ssl_session, name);
-        return env->NewStringUTF(name);
-    }
-
-    int num_comp_methods = sk_SSL_COMP_num(ssl_ctx->comp_methods);
-    for (int i = 0; i < num_comp_methods; i++) {
-        SSL_COMP* comp = sk_SSL_COMP_value(ssl_ctx->comp_methods, i);
-        if (comp->id != compress_meth) {
-            continue;
-        }
-        const char* name = ((comp->method && comp->method->type == NID_zlib_compression)
-                            ? SN_zlib_compression
-                            : (comp->name ? comp->name : "UNKNOWN"));
-        JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_compress_meth => %s", ssl_session, name);
-        return env->NewStringUTF(name);
-    }
-    throwSSLExceptionStr(env, "Unknown compression method");
-    return NULL;
-}
-
-/**
  * Frees the SSL session.
  */
 static void NativeCrypto_SSL_SESSION_free(JNIEnv* env, jclass, jint ssl_session_address) {
@@ -4224,6 +4398,23 @@ static jint NativeCrypto_d2i_SSL_SESSION(JNIEnv* env, jclass, jbyteArray javaByt
     const unsigned char* ucp = reinterpret_cast<const unsigned char*>(bytes.get());
     SSL_SESSION* ssl_session = d2i_SSL_SESSION(NULL, &ucp, bytes.size());
 
+    // Initialize SSL_SESSION cipher field based on cipher_id http://b/7091840
+    if (ssl_session != NULL) {
+        // based on ssl_get_prev_session
+        uint32_t cipher_id_network_order = htonl(ssl_session->cipher_id);
+        uint8_t* cipher_id_byte_pointer = reinterpret_cast<uint8_t*>(&cipher_id_network_order);
+        if (ssl_session->ssl_version >= SSL3_VERSION_MAJOR) {
+            cipher_id_byte_pointer += 2; // skip first two bytes for SSL3+
+        } else {
+            cipher_id_byte_pointer += 1; // skip first byte for SSL2
+        }
+        ssl_session->cipher = SSLv23_method()->get_cipher_by_char(cipher_id_byte_pointer);
+        JNI_TRACE("NativeCrypto_d2i_SSL_SESSION cipher_id=%lx hton=%x 0=%x 1=%x cipher=%s",
+                  ssl_session->cipher_id, cipher_id_network_order,
+                  cipher_id_byte_pointer[0], cipher_id_byte_pointer[1],
+                  SSL_CIPHER_get_name(ssl_session->cipher));
+    }
+
     JNI_TRACE("NativeCrypto_d2i_SSL_SESSION => %p", ssl_session);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(ssl_session));
 }
@@ -4234,6 +4425,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, clinit, "()V"),
     NATIVE_METHOD(NativeCrypto, ENGINE_load_dynamic, "()V"),
     NATIVE_METHOD(NativeCrypto, ENGINE_by_id, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_add, "(I)I"),
     NATIVE_METHOD(NativeCrypto, ENGINE_init, "(I)I"),
     NATIVE_METHOD(NativeCrypto, ENGINE_finish, "(I)I"),
     NATIVE_METHOD(NativeCrypto, ENGINE_free, "(I)I"),
@@ -4243,11 +4435,17 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_type, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_size, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_free, "(I)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_cmp, "(II)I"),
     NATIVE_METHOD(NativeCrypto, i2d_PKCS8_PRIV_KEY_INFO, "(I)[B"),
     NATIVE_METHOD(NativeCrypto, d2i_PKCS8_PRIV_KEY_INFO, "([B)I"),
     NATIVE_METHOD(NativeCrypto, i2d_PUBKEY, "(I)[B"),
     NATIVE_METHOD(NativeCrypto, d2i_PUBKEY, "([B)I"),
     NATIVE_METHOD(NativeCrypto, RSA_generate_key_ex, "(I[B)I"),
+    NATIVE_METHOD(NativeCrypto, RSA_size, "(I)I"),
+    NATIVE_METHOD(NativeCrypto, RSA_private_encrypt, "(I[B[BII)I"),
+    NATIVE_METHOD(NativeCrypto, RSA_public_decrypt, "(I[B[BII)I"),
+    NATIVE_METHOD(NativeCrypto, RSA_public_encrypt, "(I[B[BII)I"),
+    NATIVE_METHOD(NativeCrypto, RSA_private_decrypt, "(I[B[BII)I"),
     NATIVE_METHOD(NativeCrypto, get_RSA_private_params, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, get_RSA_public_params, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, DSA_generate_key, "(I[B[B[B[B)I"),
@@ -4273,6 +4471,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_cleanup, "(I)V"),
     NATIVE_METHOD(NativeCrypto, RAND_seed, "([B)V"),
     NATIVE_METHOD(NativeCrypto, RAND_load_file, "(Ljava/lang/String;J)I"),
+    NATIVE_METHOD(NativeCrypto, RAND_bytes, "([B)V"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_new, "()I"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_free, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_set_session_id_context, "(I[B)V"),
@@ -4299,7 +4498,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, SSL_get_certificate, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, SSL_get_peer_cert_chain, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, SSL_read, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "[BIII)I"),
-    NATIVE_METHOD(NativeCrypto, SSL_write, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "[BII)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_write, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "[BIII)V"),
     NATIVE_METHOD(NativeCrypto, SSL_interrupt, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_shutdown, "(I" FILE_DESCRIPTOR SSL_CALLBACKS ")V"),
     NATIVE_METHOD(NativeCrypto, SSL_free, "(I)V"),
@@ -4307,7 +4506,6 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_get_time, "(I)J"),
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_get_version, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_cipher, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeCrypto, SSL_SESSION_compress_meth, "(II)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, SSL_SESSION_free, "(I)V"),
     NATIVE_METHOD(NativeCrypto, i2d_SSL_SESSION, "(I)[B"),
     NATIVE_METHOD(NativeCrypto, d2i_SSL_SESSION, "([B)I"),

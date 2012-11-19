@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package java.util.concurrent.atomic;
+package org.apache.harmony.xnet.provider.jsse;
 
-import sun.misc.Unsafe;
+// public for testing by CertPinManagerTest
+public class PinEntryException extends Exception {
 
-/**
- * Easy access to {@link Unsafe} for the rest of this package.
- */
-/*package*/ final class UnsafeAccess {
-    /** non-null; unique instance of {@link Unsafe} */
-    /*package*/ static final Unsafe THE_ONE = Unsafe.getUnsafe();
+    PinEntryException() {
+    }
 
-    /**
-     * This class is uninstantiable.
-     */
-    private UnsafeAccess() {
-        // This space intentionally left blank.
+    PinEntryException(String msg) {
+        super(msg);
     }
 }
+

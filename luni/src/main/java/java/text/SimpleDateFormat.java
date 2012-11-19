@@ -468,7 +468,7 @@ public class SimpleDateFormat extends DateFormat {
     @Override
     public AttributedCharacterIterator formatToCharacterIterator(Object object) {
         if (object == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("object == null");
         }
         if (object instanceof Date) {
             return formatToCharacterIteratorImpl((Date) object);
@@ -1067,24 +1067,42 @@ public class SimpleDateFormat extends DateFormat {
     }
 
     private Number parseNumber(int max, String string, ParsePosition position) {
-        int digit, length = string.length(), result = 0;
+        int length = string.length();
         int index = position.getIndex();
         if (max > 0 && max < length - index) {
             length = index + max;
         }
-        while (index < length
-                && (string.charAt(index) == ' ' || string.charAt(index) == '\t')) {
-            index++;
+        while (index < length && (string.charAt(index) == ' ' || string.charAt(index) == '\t')) {
+            ++index;
         }
         if (max == 0) {
             position.setIndex(index);
-            return numberFormat.parse(string, position);
+            Number n = numberFormat.parse(string, position);
+            // In RTL locales, NumberFormat might have parsed "2012-" in an ISO date as the
+            // negative number -2012.
+            // Ideally, we wouldn't have this broken API that exposes a NumberFormat and expects
+            // us to use it. The next best thing would be a way to ask the NumberFormat to parse
+            // positive numbers only, but icu4c supports negative (BCE) years. The best we can do
+            // is try to recognize when icu4c has done this, and undo it.
+            if (n != null && n.longValue() < 0) {
+                if (numberFormat instanceof DecimalFormat) {
+                    DecimalFormat df = (DecimalFormat) numberFormat;
+                    char lastChar = string.charAt(position.getIndex() - 1);
+                    char minusSign = df.getDecimalFormatSymbols().getMinusSign();
+                    if (lastChar == minusSign) {
+                        n = Long.valueOf(-n.longValue()); // Make the value positive.
+                        position.setIndex(position.getIndex() - 1); // Spit out the negative sign.
+                    }
+                }
+            }
+            return n;
         }
 
-        while (index < length
-                && (digit = Character.digit(string.charAt(index), 10)) != -1) {
-            index++;
+        int result = 0;
+        int digit;
+        while (index < length && (digit = Character.digit(string.charAt(index), 10)) != -1) {
             result = result * 10 + digit;
+            ++index;
         }
         if (index == position.getIndex()) {
             position.setErrorIndex(index);
@@ -1171,14 +1189,18 @@ public class SimpleDateFormat extends DateFormat {
                     }
                     int raw = zone.getRawOffset();
                     if (j == TimeZones.LONG_NAME_DST || j == TimeZones.SHORT_NAME_DST) {
-                        /*
-                         * TODO, http://b/4723412
-                         * We can't use TimeZone#getDSTSavings here because that
-                         * will return 0 if the zone no longer uses DST. We
-                         * should change this to use TimeZone.getOffset(long),
-                         * which requires the complete date to be parsed first.
-                         */
-                        raw += 3600000;
+                        // Not all time zones use a one-hour difference, so we need to query
+                        // the TimeZone. (Australia/Lord_Howe is the usual example of this.)
+                        int dstSavings = zone.getDSTSavings();
+                        // One problem with TimeZone.getDSTSavings is that it will return 0 if the
+                        // time zone has stopped using DST, even if we're parsing a date from
+                        // the past. In that case, assume the default.
+                        if (dstSavings == 0) {
+                            // TODO: we should change this to use TimeZone.getOffset(long),
+                            // but that requires the complete date to be parsed first.
+                            dstSavings = 3600000;
+                        }
+                        raw += dstSavings;
                     }
                     calendar.setTimeZone(new SimpleTimeZone(raw, ""));
                     return offset + element[j].length();

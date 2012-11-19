@@ -46,7 +46,7 @@ public abstract class LongBuffer extends Buffer implements
      */
     public static LongBuffer allocate(int capacity) {
         if (capacity < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
         return new ReadWriteLongArrayBuffer(capacity);
     }
@@ -427,7 +427,7 @@ public abstract class LongBuffer extends Buffer implements
      */
     public LongBuffer put(LongBuffer src) {
         if (src == this) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("src == this");
         }
         if (src.remaining() > remaining()) {
             throw new BufferOverflowException();

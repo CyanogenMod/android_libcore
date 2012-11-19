@@ -24,7 +24,9 @@ import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_END;
 import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_START;
 import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_INPUT_AT_END;
 import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_OUTPUT_AT_END;
+import dalvik.system.CloseGuard;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,6 +78,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import junit.framework.TestCase;
+import libcore.java.lang.ref.FinalizationTester;
 import libcore.java.security.TestKeyStore;
 import libcore.javax.net.ssl.TestSSLContext;
 import libcore.net.http.HttpResponseCache;
@@ -792,6 +795,27 @@ public final class URLConnectionTest extends TestCase {
         assertContainsNoneMatching(get.getHeaders(), "Proxy\\-Authorization.*");
     }
 
+    // Don't disconnect after building a tunnel with CONNECT
+    // http://code.google.com/p/android/issues/detail?id=37221
+    public void testProxyWithConnectionClose() throws IOException {
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
+        server.enqueue(new MockResponse()
+                .setSocketPolicy(SocketPolicy.UPGRADE_TO_SSL_AT_END)
+                .clearHeaders());
+        server.enqueue(new MockResponse().setBody("this response comes via a proxy"));
+        server.play();
+
+        URL url = new URL("https://android.com/foo");
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection(
+                server.toProxyAddress());
+        connection.setRequestProperty("Connection", "close");
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        connection.setHostnameVerifier(new RecordingHostnameVerifier());
+
+        assertContent("this response comes via a proxy", connection);
+    }
+
     public void testDisconnectedConnection() throws IOException {
         server.enqueue(new MockResponse().setBody("ABCDEFGHIJKLMNOPQR"));
         server.play();
@@ -816,6 +840,50 @@ public final class URLConnectionTest extends TestCase {
 
         assertContent("A", connection);
         assertEquals(200, connection.getResponseCode());
+    }
+
+    public void testDisconnectAfterOnlyResponseCodeCausesNoCloseGuardWarning() throws IOException {
+        CloseGuardGuard guard = new CloseGuardGuard();
+        try {
+            server.enqueue(new MockResponse()
+                           .setBody(gzip("ABCABCABC".getBytes("UTF-8")))
+                           .addHeader("Content-Encoding: gzip"));
+            server.play();
+
+            HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+            assertEquals(200, connection.getResponseCode());
+            connection.disconnect();
+            connection = null;
+            assertFalse(guard.wasCloseGuardCalled());
+        } finally {
+            guard.close();
+        }
+    }
+
+    public static class CloseGuardGuard implements Closeable, CloseGuard.Reporter  {
+        private final CloseGuard.Reporter oldReporter = CloseGuard.getReporter();
+
+        private AtomicBoolean closeGuardCalled = new AtomicBoolean();
+
+        public CloseGuardGuard() {
+            CloseGuard.setReporter(this);
+        }
+
+        @Override public void report(String message, Throwable allocationSite) {
+            oldReporter.report(message, allocationSite);
+            closeGuardCalled.set(true);
+        }
+
+        public boolean wasCloseGuardCalled() {
+            FinalizationTester.induceFinalization();
+            close();
+            return closeGuardCalled.get();
+        }
+
+        @Override public void close() {
+            CloseGuard.setReporter(oldReporter);
+        }
+
     }
 
     public void testDefaultRequestProperty() throws Exception {
@@ -942,21 +1010,25 @@ public final class URLConnectionTest extends TestCase {
         URLConnection connection = server.getUrl("/").openConnection();
         assertEquals("ABCABCABC", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
         assertNull(connection.getContentEncoding());
+        assertEquals(-1, connection.getContentLength());
 
         RecordedRequest request = server.takeRequest();
         assertContains(request.getHeaders(), "Accept-Encoding: gzip");
     }
 
     public void testClientConfiguredGzipContentEncoding() throws Exception {
+        byte[] bodyBytes = gzip("ABCDEFGHIJKLMNOPQRSTUVWXYZ".getBytes("UTF-8"));
         server.enqueue(new MockResponse()
-                .setBody(gzip("ABCDEFGHIJKLMNOPQRSTUVWXYZ".getBytes("UTF-8")))
-                .addHeader("Content-Encoding: gzip"));
+                .setBody(bodyBytes)
+                .addHeader("Content-Encoding: gzip")
+                .addHeader("Content-Length: " + bodyBytes.length));
         server.play();
 
         URLConnection connection = server.getUrl("/").openConnection();
         connection.addRequestProperty("Accept-Encoding", "gzip");
         InputStream gunzippedIn = new GZIPInputStream(connection.getInputStream());
         assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ", readAscii(gunzippedIn, Integer.MAX_VALUE));
+        assertEquals(bodyBytes.length, connection.getContentLength());
 
         RecordedRequest request = server.takeRequest();
         assertContains(request.getHeaders(), "Accept-Encoding: gzip");
@@ -1573,7 +1645,7 @@ public final class URLConnectionTest extends TestCase {
      * addresses. This is typically one IPv4 address and one IPv6 address.
      */
     public void testConnectTimeouts() throws IOException {
-        StuckServer ss = new StuckServer();
+        StuckServer ss = new StuckServer(false);
         int serverPort = ss.getLocalPort();
         URLConnection urlConnection = new URL("http://localhost:" + serverPort).openConnection();
         int timeout = 1000;

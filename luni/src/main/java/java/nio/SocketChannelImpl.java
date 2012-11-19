@@ -103,6 +103,15 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
     }
 
     /*
+     * Constructor for use by Pipe.SinkChannel and Pipe.SourceChannel.
+     */
+    public SocketChannelImpl(SelectorProvider selectorProvider, FileDescriptor existingFd) throws IOException {
+        super(selectorProvider);
+        status = SOCKET_STATUS_CONNECTED;
+        fd = existingFd;
+    }
+
+    /*
      * Getting the internal Socket If we have not the socket, we create a new
      * one.
      */
@@ -318,7 +327,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
     @Override
     public int write(ByteBuffer src) throws IOException {
         if (src == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("src == null");
         }
         checkOpenConnected();
         if (!src.hasRemaining()) {
@@ -412,7 +421,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
      */
     static InetSocketAddress validateAddress(SocketAddress socketAddress) {
         if (socketAddress == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("socketAddress == null");
         }
         if (!(socketAddress instanceof InetSocketAddress)) {
             throw new UnsupportedAddressTypeException();

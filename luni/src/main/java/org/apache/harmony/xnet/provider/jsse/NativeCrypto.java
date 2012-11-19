@@ -22,6 +22,7 @@ import java.net.SocketTimeoutException;
 import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -31,6 +32,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.crypto.BadPaddingException;
 import javax.net.ssl.SSLException;
 import javax.security.auth.x500.X500Principal;
 import libcore.io.Memory;
@@ -51,6 +53,8 @@ public final class NativeCrypto {
     public static native void ENGINE_load_dynamic();
 
     public static native int ENGINE_by_id(String id);
+
+    public static native int ENGINE_add(int e);
 
     public static native int ENGINE_init(int e);
 
@@ -74,6 +78,8 @@ public final class NativeCrypto {
 
     public static native void EVP_PKEY_free(int pkey);
 
+    public static native int EVP_PKEY_cmp(int pkey1, int pkey2);
+
     public static native byte[] i2d_PKCS8_PRIV_KEY_INFO(int pkey);
 
     public static native int d2i_PKCS8_PRIV_KEY_INFO(byte[] data);
@@ -83,6 +89,20 @@ public final class NativeCrypto {
     public static native int d2i_PUBKEY(byte[] data);
 
     public static native int RSA_generate_key_ex(int modulusBits, byte[] publicExponent);
+
+    public static native int RSA_size(int pkey);
+
+    public static native int RSA_private_encrypt(int flen, byte[] from, byte[] to, int pkey,
+            int padding);
+
+    public static native int RSA_public_decrypt(int flen, byte[] from, byte[] to, int pkey,
+            int padding) throws BadPaddingException, SignatureException;
+
+    public static native int RSA_public_encrypt(int flen, byte[] from, byte[] to, int pkey,
+            int padding);
+
+    public static native int RSA_private_decrypt(int flen, byte[] from, byte[] to, int pkey,
+            int padding) throws BadPaddingException, SignatureException;
 
     /**
      * @return array of {n, e}
@@ -171,6 +191,8 @@ public final class NativeCrypto {
     public static native void RAND_seed(byte[] seed);
 
     public static native int RAND_load_file(String filename, long max_bytes);
+
+    public static native void RAND_bytes(byte[] output);
 
     // --- X509_NAME -----------------------------------------------------------
 
@@ -333,13 +355,16 @@ public final class NativeCrypto {
     public static final int EVP_PKEY_DH  = 28;  // NID_dhKeyAgreement
     public static final int EVP_PKEY_EC  = 408; // NID_X9_62_id_ecPublicKey
 
+    // RSA padding modes from rsa.h
+    public static final int RSA_PKCS1_PADDING = 1;
+    public static final int RSA_NO_PADDING    = 3;
+
     // SSL mode from ssl.h
     public static final long SSL_MODE_HANDSHAKE_CUTTHROUGH = 0x00000040L;
 
     // SSL options from ssl.h
     public static final long SSL_OP_NO_TICKET                              = 0x00004000L;
     public static final long SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION = 0x00010000L;
-    public static final long SSL_OP_NO_COMPRESSION                         = 0x00020000L;
     public static final long SSL_OP_NO_SSLv3                               = 0x02000000L;
     public static final long SSL_OP_NO_TLSv1                               = 0x04000000L;
     public static final long SSL_OP_NO_TLSv1_1                             = 0x10000000L;
@@ -544,66 +569,6 @@ public final class NativeCrypto {
         return cipherSuites;
     }
 
-    public static final String SUPPORTED_COMPRESSION_METHOD_ZLIB = "ZLIB";
-    public static final String SUPPORTED_COMPRESSION_METHOD_NULL = "NULL";
-
-    private static final String[] SUPPORTED_COMPRESSION_METHODS
-            = { SUPPORTED_COMPRESSION_METHOD_ZLIB, SUPPORTED_COMPRESSION_METHOD_NULL };
-
-    public static String[] getSupportedCompressionMethods() {
-        return SUPPORTED_COMPRESSION_METHODS.clone();
-    }
-
-    public static final String[] getDefaultCompressionMethods() {
-        return new String[] { SUPPORTED_COMPRESSION_METHOD_NULL };
-    }
-
-    public static String[] checkEnabledCompressionMethods(String[] methods) {
-        if (methods == null) {
-            throw new IllegalArgumentException("methods == null");
-        }
-        if (methods.length < 1
-                && !methods[methods.length-1].equals(SUPPORTED_COMPRESSION_METHOD_NULL)) {
-            throw new IllegalArgumentException("last method must be NULL");
-        }
-        for (int i = 0; i < methods.length; i++) {
-            String method = methods[i];
-            if (method == null) {
-                throw new IllegalArgumentException("methods[" + i + "] == null");
-            }
-            if (!method.equals(SUPPORTED_COMPRESSION_METHOD_ZLIB)
-                    && !method.equals(SUPPORTED_COMPRESSION_METHOD_NULL)) {
-                throw new IllegalArgumentException("method " + method
-                                                   + " is not supported");
-            }
-        }
-        return methods;
-    }
-
-    public static void setEnabledCompressionMethods(int ssl, String[] methods) {
-        checkEnabledCompressionMethods(methods);
-        // openssl uses negative logic letting you disable compression.
-        // so first, assume we need to set all (disable all) and clear none (enable none).
-        // in the loop, selectively move bits from set to clear (from disable to enable)
-        long optionsToSet = (SSL_OP_NO_COMPRESSION);
-        long optionsToClear = 0;
-        for (int i = 0; i < methods.length; i++) {
-            String method = methods[i];
-            if (method.equals(SUPPORTED_COMPRESSION_METHOD_NULL)) {
-                // nothing to do to support NULL
-            } else if (method.equals(SUPPORTED_COMPRESSION_METHOD_ZLIB)) {
-                optionsToSet &= ~SSL_OP_NO_COMPRESSION;
-                optionsToClear |= SSL_OP_NO_COMPRESSION;
-            } else {
-                // error checked by checkEnabledCompressionMethods
-                throw new IllegalStateException();
-            }
-        }
-
-        SSL_set_options(ssl, optionsToSet);
-        SSL_clear_options(ssl, optionsToClear);
-    }
-
     /*
      * See the OpenSSL ssl.h header file for more information.
      */
@@ -680,7 +645,7 @@ public final class NativeCrypto {
     public static native int SSL_read(int sslNativePointer,
                                       FileDescriptor fd,
                                       SSLHandshakeCallbacks shc,
-                                      byte[] b, int off, int len, int timeoutMillis)
+                                      byte[] b, int off, int len, int readTimeoutMillis)
         throws IOException;
 
     /**
@@ -689,7 +654,7 @@ public final class NativeCrypto {
     public static native void SSL_write(int sslNativePointer,
                                         FileDescriptor fd,
                                         SSLHandshakeCallbacks shc,
-                                        byte[] b, int off, int len)
+                                        byte[] b, int off, int len, int writeTimeoutMillis)
         throws IOException;
 
     public static native void SSL_interrupt(int sslNativePointer);
@@ -706,9 +671,6 @@ public final class NativeCrypto {
     public static native String SSL_SESSION_get_version(int sslSessionNativePointer);
 
     public static native String SSL_SESSION_cipher(int sslSessionNativePointer);
-
-    public static native String SSL_SESSION_compress_meth(int sslCtxNativePointer,
-                                                          int sslSessionNativePointer);
 
     public static native void SSL_SESSION_free(int sslSessionNativePointer);
 

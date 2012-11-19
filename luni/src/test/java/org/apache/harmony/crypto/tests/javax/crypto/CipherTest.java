@@ -47,6 +47,7 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.DESedeKeySpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import libcore.java.security.StandardNames;
 import org.apache.harmony.crypto.tests.support.MyCipher;
 import tests.support.resource.Support_Resources;
 
@@ -545,7 +546,10 @@ public class CipherTest extends junit.framework.TestCase {
         try {
             c.doFinal(b, 3, 6, b1, 5);
             fail();
-        } catch (ShortBufferException expected) {
+        } catch (IllegalBlockSizeException maybeExpected) {
+            assertTrue(StandardNames.IS_RI);
+        } catch (ShortBufferException maybeExpected) {
+            assertFalse(StandardNames.IS_RI);
         }
     }
 

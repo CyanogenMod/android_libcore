@@ -85,6 +85,13 @@ public final class StandardNames extends Assert {
      */
     public static final Map<String,Set<String>> PROVIDER_ALGORITHMS
             = new HashMap<String,Set<String>>();
+
+    public static final Map<String,Set<String>> CIPHER_MODES
+            = new HashMap<String,Set<String>>();
+
+    public static final Map<String,Set<String>> CIPHER_PADDINGS
+            = new HashMap<String,Set<String>>();
+
     private static void provide(String type, String algorithm) {
         Set<String> algorithms = PROVIDER_ALGORITHMS.get(type);
         if (algorithms == null) {
@@ -101,6 +108,22 @@ public final class StandardNames extends Assert {
         if (algorithms.isEmpty()) {
             assertNotNull(PROVIDER_ALGORITHMS.remove(type));
         }
+    }
+    private static void provideCipherModes(String algorithm, String newModes[]) {
+        Set<String> modes = CIPHER_MODES.get(algorithm);
+        if (modes == null) {
+            modes = new HashSet<String>();
+            CIPHER_MODES.put(algorithm, modes);
+        }
+        modes.addAll(Arrays.asList(newModes));
+    }
+    private static void provideCipherPaddings(String algorithm, String newPaddings[]) {
+        Set<String> paddings = CIPHER_MODES.get(algorithm);
+        if (paddings == null) {
+            paddings = new HashSet<String>();
+            CIPHER_MODES.put(algorithm, paddings);
+        }
+        paddings.addAll(Arrays.asList(newPaddings));
     }
     static {
         provide("AlgorithmParameterGenerator", "DSA");
@@ -122,7 +145,10 @@ public final class StandardNames extends Assert {
         provide("CertStore", "Collection");
         provide("CertStore", "LDAP");
         provide("CertificateFactory", "X.509");
+        // TODO: provideCipherModes and provideCipherPaddings for other Ciphers
         provide("Cipher", "AES");
+        provideCipherModes("AES", new String[] { "CBC", "CFB", "CTR", "CTS", "ECB", "OFB" });
+        provideCipherPaddings("AES", new String[] { "NoPadding", "PKCS5Padding" });
         provide("Cipher", "AESWrap");
         provide("Cipher", "ARCFOUR");
         provide("Cipher", "Blowfish");
@@ -274,6 +300,12 @@ public final class StandardNames extends Assert {
             provide("Signature", "SHA512WITHECDSA");
         }
 
+        // Documented as Standard Names, but do not exit in RI 6
+        if (IS_RI) {
+            unprovide("SSLContext", "TLSv1.1");
+            unprovide("SSLContext", "TLSv1.2");
+        }
+
         // Fixups for dalvik
         if (!IS_RI) {
 
@@ -316,17 +348,10 @@ public final class StandardNames extends Assert {
             unprovide("MessageDigest", "SHA");
             provide("MessageDigest", "SHA-1");
 
-            // different names: added "Encryption" suffix
-            unprovide("Signature", "MD5withRSA");
-            provide("Signature", "MD5WithRSAEncryption");
-            unprovide("Signature", "SHA1withRSA");
-            provide("Signature", "SHA1WithRSAEncryption");
-            unprovide("Signature", "SHA256WithRSA");
-            provide("Signature", "SHA256WithRSAEncryption");
-            unprovide("Signature", "SHA384WithRSA");
-            provide("Signature", "SHA384WithRSAEncryption");
-            unprovide("Signature", "SHA512WithRSA");
-            provide("Signature", "SHA512WithRSAEncryption");
+            // Added to support Android KeyStore operations
+            provide("Signature", "NONEwithRSA");
+            provide("Cipher", "RSA/ECB/NOPADDING");
+            provide("Cipher", "RSA/ECB/PKCS1PADDING");
 
             // different names: JSSE Reference Guide says PKIX aka X509
             unprovide("TrustManagerFactory", "PKIX");
@@ -440,6 +465,12 @@ public final class StandardNames extends Assert {
 
             // Android's CA store
             provide("KeyStore", "AndroidCAStore");
+
+            // Android's KeyStore provider
+            if (Security.getProvider("AndroidKeyStoreProvider") != null) {
+                provide("KeyStore", "AndroidKeyStore");
+                provide("KeyPairGenerator", "AndroidKeyPairGenerator");
+            }
         }
     }
 
@@ -838,5 +869,19 @@ public final class StandardNames extends Assert {
     public static void assertDefaultCipherSuites(String[] cipherSuites) {
         assertValidCipherSuites(CIPHER_SUITES, cipherSuites);
         assertEquals(CIPHER_SUITES_DEFAULT, Arrays.asList(cipherSuites));
+    }
+
+    /**
+     * Get all supported mode names for the given cipher.
+     */
+    public static Set<String> getModesForCipher(String cipher) {
+        return CIPHER_MODES.get(cipher);
+    }
+
+    /**
+     * Get all supported padding names for the given cipher.
+     */
+    public static Set<String> getPaddingsForCipher(String cipher) {
+        return CIPHER_PADDINGS.get(cipher);
     }
 }

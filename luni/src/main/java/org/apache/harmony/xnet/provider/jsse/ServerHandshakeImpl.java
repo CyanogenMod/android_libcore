@@ -19,7 +19,6 @@ package org.apache.harmony.xnet.provider.jsse;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.AccessController;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -659,7 +658,7 @@ public class ServerHandshakeImpl extends HandshakeProtocol {
         } else {
             if ((parameters.getNeedClientAuth() && clientCert == null)
                     || clientKeyExchange == null
-                    || (clientCert != null
+                    || (clientCert != null && clientCert.certs.length > 0
                             && !clientKeyExchange.isEmpty()
                             && certificateVerify == null)) {
                 unexpectedMessage();

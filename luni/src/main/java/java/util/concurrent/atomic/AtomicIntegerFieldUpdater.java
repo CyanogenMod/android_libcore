@@ -1,7 +1,7 @@
 /*
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
- * http://creativecommons.org/licenses/publicdomain
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package java.util.concurrent.atomic;
@@ -236,24 +236,21 @@ public abstract class  AtomicIntegerFieldUpdater<T> {
      * Standard hotspot implementation using intrinsics
      */
     private static class AtomicIntegerFieldUpdaterImpl<T> extends AtomicIntegerFieldUpdater<T> {
-        private static final Unsafe unsafe = UnsafeAccess.THE_ONE; // android-changed
+        private static final Unsafe unsafe = Unsafe.getUnsafe();
         private final long offset;
         private final Class<T> tclass;
-        private final Class cclass;
+        private final Class<?> cclass;
 
         AtomicIntegerFieldUpdaterImpl(Class<T> tclass, String fieldName) {
             Field field = null;
-            Class caller = null;
+            Class<?> caller = null;
             int modifiers = 0;
             try {
                 field = tclass.getDeclaredField(fieldName);
-                // BEGIN android-changed
-                caller = VMStack.getStackClass2();
-                // END android-changed
+                caller = VMStack.getStackClass2(); // android-changed
                 modifiers = field.getModifiers();
 
                 // BEGIN android-removed
-                // modifiers = field.getModifiers();
                 // sun.reflect.misc.ReflectUtil.ensureMemberAccess(
                 //     caller, tclass, null, modifiers);
                 // sun.reflect.misc.ReflectUtil.checkPackageAccess(tclass);
@@ -262,7 +259,7 @@ public abstract class  AtomicIntegerFieldUpdater<T> {
                 throw new RuntimeException(ex);
             }
 
-            Class fieldt = field.getType();
+            Class<?> fieldt = field.getType();
             if (fieldt != int.class)
                 throw new IllegalArgumentException("Must be integer type");
 

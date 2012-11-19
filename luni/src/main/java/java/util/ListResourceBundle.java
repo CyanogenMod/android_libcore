@@ -108,7 +108,7 @@ public abstract class ListResourceBundle extends ResourceBundle {
     public final Object handleGetObject(String key) {
         initializeTable();
         if (key == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("key == null");
         }
         return table.get(key);
     }

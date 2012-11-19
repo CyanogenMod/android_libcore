@@ -69,10 +69,10 @@ import libcore.util.EmptyArray;
  * required, use {@link #automaticallyReleaseConnectionToPool()}.
  */
 public class HttpEngine {
-    private static final CacheResponse BAD_GATEWAY_RESPONSE = new CacheResponse() {
+    private static final CacheResponse GATEWAY_TIMEOUT_RESPONSE = new CacheResponse() {
         @Override public Map<String, List<String>> getHeaders() throws IOException {
             Map<String, List<String>> result = new HashMap<String, List<String>>();
-            result.put(null, Collections.singletonList("HTTP/1.1 502 Bad Gateway"));
+            result.put(null, Collections.singletonList("HTTP/1.1 504 Gateway Timeout"));
             return result;
         }
         @Override public InputStream getBody() throws IOException {
@@ -223,14 +223,15 @@ public class HttpEngine {
         /*
          * The raw response source may require the network, but the request
          * headers may forbid network use. In that case, dispose of the network
-         * response and use a BAD_GATEWAY response instead.
+         * response and use a GATEWAY_TIMEOUT response instead, as specified
+         * by http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.4.
          */
         if (requestHeaders.isOnlyIfCached() && responseSource.requiresConnection()) {
             if (responseSource == ResponseSource.CONDITIONAL_CACHE) {
                 IoUtils.closeQuietly(cachedResponseBody);
             }
             this.responseSource = ResponseSource.CACHE;
-            this.cacheResponse = BAD_GATEWAY_RESPONSE;
+            this.cacheResponse = GATEWAY_TIMEOUT_RESPONSE;
             RawHeaders rawResponseHeaders = RawHeaders.fromMultimap(cacheResponse.getHeaders());
             setResponse(new ResponseHeaders(uri, rawResponseHeaders), cacheResponse.getBody());
         }
@@ -490,8 +491,15 @@ public class HttpEngine {
                 reusable = false;
             }
 
-            // If the headers specify that the connection shouldn't be reused, don't reuse it.
-            if (hasConnectionCloseHeader()) {
+            // If the request specified that the connection shouldn't be reused,
+            // don't reuse it. This advice doesn't apply to CONNECT requests because
+            // the "Connection: close" header goes the origin server, not the proxy.
+            if (requestHeaders.hasConnectionClose() && method != CONNECT) {
+                reusable = false;
+            }
+
+            // If the response specified that the connection shouldn't be reused, don't reuse it.
+            if (responseHeaders != null && responseHeaders.hasConnectionClose()) {
                 reusable = false;
             }
 
@@ -523,8 +531,13 @@ public class HttpEngine {
             /*
              * If the response was transparently gzipped, remove the gzip header field
              * so clients don't double decompress. http://b/3009828
+             *
+             * Also remove the Content-Length in this case because it contains the length
+             * of the gzipped response. This isn't terribly useful and is dangerous because
+             * clients can query the content length, but not the content encoding.
              */
             responseHeaders.stripContentEncoding();
+            responseHeaders.stripContentLength();
             responseBodyIn = new GZIPInputStream(transferStream);
         } else {
             responseBodyIn = transferStream;
@@ -756,11 +769,6 @@ public class HttpEngine {
     protected final String getDefaultUserAgent() {
         String agent = System.getProperty("http.agent");
         return agent != null ? agent : ("Java" + System.getProperty("java.version"));
-    }
-
-    private boolean hasConnectionCloseHeader() {
-        return (responseHeaders != null && responseHeaders.hasConnectionClose())
-                || requestHeaders.hasConnectionClose();
     }
 
     protected final String getOriginAddress(URL url) {

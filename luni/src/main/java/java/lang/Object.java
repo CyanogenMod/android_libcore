@@ -361,7 +361,7 @@ public class Object {
      * @see java.lang.Thread
      */
     public final void wait() throws InterruptedException {
-        wait(0 ,0);
+        wait(0, 0);
     }
 
     /**

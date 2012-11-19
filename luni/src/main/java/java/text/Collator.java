@@ -286,7 +286,7 @@ public abstract class Collator implements Comparator<Object>, Cloneable {
      */
     public static Collator getInstance(Locale locale) {
         if (locale == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("locale == null");
         }
         return new RuleBasedCollator(new RuleBasedCollatorICU(locale));
     }

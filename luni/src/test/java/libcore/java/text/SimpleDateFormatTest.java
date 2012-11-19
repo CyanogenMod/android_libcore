@@ -51,6 +51,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     // The RI fails this test because this is an ICU-compatible Android extension.
     // Necessary for correct localization in various languages (http://b/2633414).
     public void testStandAloneNames() throws Exception {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
         Locale en = Locale.ENGLISH;
         Locale pl = new Locale("pl");
         Locale ru = new Locale("ru");
@@ -77,7 +78,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     }
 
     public void test2038() {
-        SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
+        SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.US);
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         assertEquals("Sun Nov 24 17:31:44 1833",
@@ -175,14 +176,14 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
      * longer use their DST zone but we should continue to parse it properly.
      */
     public void testObsoleteDstZoneName() throws Exception {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz", Locale.US);
         Date normal = format.parse("1970-01-01T00:00 EET");
         Date dst = format.parse("1970-01-01T00:00 EEST");
         assertEquals(60 * 60 * 1000, normal.getTime() - dst.getTime());
     }
 
     public void testDstZoneNameWithNonDstTimestamp() throws Exception {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz", Locale.US);
         Calendar calendar = new GregorianCalendar(AMERICA_LOS_ANGELES);
         calendar.setTime(format.parse("2011-06-21T10:00 Pacific Standard Time")); // 18:00 GMT-8
         assertEquals(11, calendar.get(Calendar.HOUR_OF_DAY)); // 18:00 GMT-7
@@ -190,7 +191,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     }
 
     public void testNonDstZoneNameWithDstTimestamp() throws Exception {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz", Locale.US);
         Calendar calendar = new GregorianCalendar(AMERICA_LOS_ANGELES);
         calendar.setTime(format.parse("2010-12-21T10:00 Pacific Daylight Time")); // 17:00 GMT-7
         assertEquals(9, calendar.get(Calendar.HOUR_OF_DAY)); // 17:00 GMT-8
@@ -199,7 +200,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
 
     // http://b/4723412
     public void testDstZoneWithNonDstTimestampForNonHourDstZone() throws Exception {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz", Locale.US);
         Calendar calendar = new GregorianCalendar(AUSTRALIA_LORD_HOWE);
         calendar.setTime(format.parse("2011-06-21T20:00 Lord Howe Daylight Time")); // 9:00 GMT+11
         assertEquals(19, calendar.get(Calendar.HOUR_OF_DAY)); // 9:00 GMT+10:30
@@ -207,7 +208,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     }
 
     public void testNonDstZoneWithDstTimestampForNonHourDstZone() throws Exception {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz", Locale.US);
         Calendar calendar = new GregorianCalendar(AUSTRALIA_LORD_HOWE);
         calendar.setTime(format.parse("2010-12-21T19:30 Lord Howe Standard Time")); //9:00 GMT+10:30
         assertEquals(20, calendar.get(Calendar.HOUR_OF_DAY)); // 9:00 GMT+11:00
@@ -226,5 +227,24 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     public void testParseTimezoneOnly() throws Exception {
         new SimpleDateFormat("z", Locale.FRANCE).parse("UTC");
         new SimpleDateFormat("z", Locale.US).parse("UTC");
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=36689
+    public void testParseArabic() throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("ar", "EG"));
+        sdf.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+
+        // Can we parse an ASCII-formatted date in an Arabic locale?
+        Date d = sdf.parse("2012-08-29 10:02:45");
+        assertEquals(1346259765000L, d.getTime());
+
+        // Can we format a date correctly in an Arabic locale?
+        String formatted = sdf.format(d);
+        assertEquals("٢٠١٢-٠٨-٢٩ ١٠:٠٢:٤٥", formatted);
+
+        // Can we parse the Arabic-formatted date in an Arabic locale, and get the same date
+        // we started with?
+        Date d2 = sdf.parse(formatted);
+        assertEquals(d, d2);
     }
 }

@@ -103,8 +103,10 @@ public class InflaterInputStream extends FilterInputStream {
      */
     public InflaterInputStream(InputStream is, Inflater inflater, int bsize) {
         super(is);
-        if (is == null || inflater == null) {
-            throw new NullPointerException();
+        if (is == null) {
+            throw new NullPointerException("is == null");
+        } else if (inflater == null) {
+            throw new NullPointerException("inflater == null");
         }
         if (bsize <= 0) {
             throw new IllegalArgumentException();

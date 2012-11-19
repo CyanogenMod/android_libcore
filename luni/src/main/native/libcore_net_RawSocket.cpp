@@ -38,10 +38,10 @@
 #include <netinet/ip.h>
 #include <linux/udp.h>
 
-union GCC_HIDDEN sockunion {
+union sockunion {
     sockaddr sa;
     sockaddr_ll sll;
-} su;
+};
 
 /*
  * Creates a socket suitable for raw socket operations.  The socket is
@@ -61,6 +61,7 @@ static void RawSocket_create(JNIEnv* env, jclass, jobject fileDescriptor,
     return;
   }
 
+  sockunion su;
   memset(&su, 0, sizeof(su));
   su.sll.sll_family = PF_PACKET;
   su.sll.sll_protocol = htons(protocolType);
@@ -119,6 +120,7 @@ static int RawSocket_sendPacket(JNIEnv* env, jclass, jobject fileDescriptor,
     return 0;
   }
 
+  sockunion su;
   memset(&su, 0, sizeof(su));
   su.sll.sll_hatype = htons(1); // ARPHRD_ETHER
   su.sll.sll_halen = mac.size();

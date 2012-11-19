@@ -35,11 +35,7 @@ import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
 import junit.framework.TestCase;
-import tests.support.Support_PortManager;
 
-/**
- * Tests for SocketChannel and its default implementation.
- */
 public class OldSocketChannelTest extends TestCase {
 
     private static final int CAPACITY_NORMAL = 200;
@@ -58,11 +54,10 @@ public class OldSocketChannelTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        this.localAddr1 = new InetSocketAddress("127.0.0.1",
-                Support_PortManager.getNextPort());
         this.channel1 = SocketChannel.open();
         this.channel2 = SocketChannel.open();
-        this.server1 = new ServerSocket(localAddr1.getPort());
+        this.server1 = new ServerSocket(0);
+        this.localAddr1 = (InetSocketAddress) server1.getLocalSocketAddress();
     }
 
     protected void tearDown() throws Exception {
@@ -287,17 +282,27 @@ public class OldSocketChannelTest extends TestCase {
     }
 
     public void test_socketChannel_read_DirectByteBuffer() throws InterruptedException, IOException {
+        final ServerSocketChannel ssc = ServerSocketChannel.open();
+        ssc.socket().bind(null, 0);
 
-        ServerThread server = new ServerThread();
+        Thread server = new Thread() {
+            @Override public void run() {
+                try {
+                    for (int i = 0; i < 2; ++i) {
+                        ByteBuffer buf = ByteBuffer.allocate(10);
+                        buf.put(data);
+                        buf.rewind();
+                        ssc.accept().write(buf);
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        };
         server.start();
-        Thread.currentThread().sleep(1000);
-
-        InetSocketAddress address = new InetSocketAddress(InetAddress
-                .getByName("localhost"), port);
 
         // First test with array based byte buffer
         SocketChannel sc = SocketChannel.open();
-        sc.connect(address);
+        sc.connect(ssc.socket().getLocalSocketAddress());
 
         ByteBuffer buf = ByteBuffer.allocate(data.length);
         buf.limit(data.length / 2);
@@ -313,7 +318,7 @@ public class OldSocketChannelTest extends TestCase {
 
         // Now test with direct byte buffer
         sc = SocketChannel.open();
-        sc.connect(address);
+        sc.connect(ssc.socket().getLocalSocketAddress());
 
         buf = ByteBuffer.allocateDirect(data.length);
         buf.limit(data.length / 2);
@@ -339,31 +344,7 @@ public class OldSocketChannelTest extends TestCase {
     }
 
     public static boolean done = false;
-    public static int port = Support_PortManager.getNextPort();
     public static byte[] data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-
-    static class ServerThread extends Thread {
-        @Override
-        public void run() {
-            try {
-                ServerSocketChannel ssc = ServerSocketChannel.open();
-                InetSocketAddress addr = new InetSocketAddress(InetAddress
-                        .getByAddress(new byte[] {0, 0, 0, 0}), port);
-                ssc.socket().bind(addr, 0);
-
-                ByteBuffer buf = ByteBuffer.allocate(10);
-                buf.put(data);
-
-                while (!done) {
-                    SocketChannel sc = ssc.accept();
-                    buf.rewind();
-                    sc.write(buf);
-                }
-            } catch (Exception e) {
-                // ignore
-            }
-        }
-    }
 
     class MockSocketChannel extends SocketChannel {
 

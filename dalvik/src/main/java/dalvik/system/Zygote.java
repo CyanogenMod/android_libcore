@@ -41,6 +41,15 @@ public class Zygote {
     /** Enable logging of third-party JNI activity. */
     public static final int DEBUG_ENABLE_JNI_LOGGING = 1 << 4;
 
+    /** No external storage should be mounted. */
+    public static final int MOUNT_EXTERNAL_NONE = 0;
+    /** Single-user external storage should be mounted. */
+    public static final int MOUNT_EXTERNAL_SINGLEUSER = 1;
+    /** Multi-user external storage should be mounted. */
+    public static final int MOUNT_EXTERNAL_MULTIUSER = 2;
+    /** All multi-user external storage should be mounted. */
+    public static final int MOUNT_EXTERNAL_MULTIUSER_ALL = 3;
+
     /**
      * When set by the system server, all subsequent apps will be launched in
      * VM safe mode.
@@ -107,31 +116,24 @@ public class Zygote {
      * dimension having a length of 3 and representing
      * (resource, rlim_cur, rlim_max). These are set via the posix
      * setrlimit(2) call.
+     * @param seInfo null-ok a string specifying SEAndroid information for
+     * the new process.
+     * @param niceName null-ok a string specifying the process name.
      *
      * @return 0 if this is the child, pid of the child
      * if this is the parent, or -1 on error.
      */
-    public static int forkAndSpecialize(int uid, int gid, int[] gids,
-            int debugFlags, int[][] rlimits) {
+    public static int forkAndSpecialize(int uid, int gid, int[] gids, int debugFlags,
+            int[][] rlimits, int mountExternal, String seInfo, String niceName) {
         preFork();
-        int pid = nativeForkAndSpecialize(uid, gid, gids, debugFlags, rlimits);
+        int pid = nativeForkAndSpecialize(
+                uid, gid, gids, debugFlags, rlimits, mountExternal, seInfo, niceName);
         postFork();
         return pid;
     }
 
-    native public static int nativeForkAndSpecialize(int uid, int gid,
-            int[] gids, int debugFlags, int[][] rlimits);
-
-    /**
-     * Forks a new VM instance.
-     * @deprecated use {@link Zygote#forkAndSpecialize(int, int, int[], int, int[][])}
-     */
-    @Deprecated
-    public static int forkAndSpecialize(int uid, int gid, int[] gids,
-            boolean enableDebugger, int[][] rlimits) {
-        int debugFlags = enableDebugger ? DEBUG_ENABLE_DEBUGGER : 0;
-        return forkAndSpecialize(uid, gid, gids, debugFlags, rlimits);
-    }
+    native public static int nativeForkAndSpecialize(int uid, int gid, int[] gids, int debugFlags,
+            int[][] rlimits, int mountExternal, String seInfo, String niceName);
 
     /**
      * Special method to start the system server process. In addition to the
@@ -156,31 +158,17 @@ public class Zygote {
      * @return 0 if this is the child, pid of the child
      * if this is the parent, or -1 on error.
      */
-    public static int forkSystemServer(int uid, int gid, int[] gids,
-            int debugFlags, int[][] rlimits,
-            long permittedCapabilities, long effectiveCapabilities) {
+    public static int forkSystemServer(int uid, int gid, int[] gids, int debugFlags,
+            int[][] rlimits, long permittedCapabilities, long effectiveCapabilities) {
         preFork();
-        int pid = nativeForkSystemServer(uid, gid, gids, debugFlags, rlimits,
-                                         permittedCapabilities,
-                                         effectiveCapabilities);
+        int pid = nativeForkSystemServer(
+                uid, gid, gids, debugFlags, rlimits, permittedCapabilities, effectiveCapabilities);
         postFork();
         return pid;
     }
 
-    /**
-     * Special method to start the system server process.
-     * @deprecated use {@link Zygote#forkSystemServer(int, int, int[], int, int[][])}
-     */
-    @Deprecated
-    public static int forkSystemServer(int uid, int gid, int[] gids,
-            boolean enableDebugger, int[][] rlimits) {
-        int debugFlags = enableDebugger ? DEBUG_ENABLE_DEBUGGER : 0;
-        return forkAndSpecialize(uid, gid, gids, debugFlags, rlimits);
-    }
-
-    native public static int nativeForkSystemServer(int uid, int gid,
-            int[] gids, int debugFlags, int[][] rlimits,
-            long permittedCapabilities, long effectiveCapabilities);
+    native public static int nativeForkSystemServer(int uid, int gid, int[] gids, int debugFlags,
+            int[][] rlimits, long permittedCapabilities, long effectiveCapabilities);
 
     /**
      * Executes "/system/bin/sh -c &lt;command&gt;" using the exec() system call.
