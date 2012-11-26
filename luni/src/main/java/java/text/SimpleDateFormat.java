@@ -188,8 +188,9 @@ import libcore.icu.TimeZones;
  * reason it is almost always necessary and desirable to include the timezone in the output.
  * It may also be desirable to set the formatter's time zone to UTC (to ease comparison, or to
  * make logs more readable, for example). It is often best to avoid formatting completely when
- * writing dates/times in machine-readable form. Simply sending the "Unix time" as an integer is
- * cheaper and unambiguous, and can be formatted any way the recipient deems appropriate.
+ * writing dates/times in machine-readable form. Simply sending the "Unix time" as a {@code long}
+ * or as the string corresponding to the long is cheaper and unambiguous, and can be formatted any
+ * way the recipient deems appropriate.
  *
  * <h4>Synchronization</h4>
  * {@code SimpleDateFormat} is not thread-safe. Users should create a separate instance for
