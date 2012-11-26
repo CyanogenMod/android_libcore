@@ -39,6 +39,8 @@ import libcore.icu.LocaleData;
  * by {@code DateFormat}, and this class' deprecated computational functionality is
  * now provided by {@code Calendar}. Both of these other classes (and their subclasses)
  * allow you to interpret a {@code Date} in a given time zone.
+ *
+ * <p>Note that, surprisingly, instances of this class are mutable.
  */
 public class Date implements Serializable, Cloneable, Comparable<Date> {
 
