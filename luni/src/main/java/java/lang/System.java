@@ -156,7 +156,7 @@ public final class System {
     /**
      * Returns the current time in milliseconds since January 1, 1970 00:00:00.0 UTC.
      *
-     * <p>This method always uses UTC, regardless of the system's time zone.
+     * <p>This method always returns UTC times, regardless of the system's time zone.
      * This is often called "Unix time" or "epoch time".
      * Use a {@link java.text.DateFormat} instance to format this time for display to a human.
      *
