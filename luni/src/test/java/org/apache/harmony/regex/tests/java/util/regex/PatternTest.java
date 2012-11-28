@@ -1774,4 +1774,11 @@ public class PatternTest extends TestCase {
         }
     }
 
+    // http://code.google.com/p/android/issues/detail?id=19308
+    public void test_hitEnd() {
+        Pattern p = Pattern.compile("^2(2[4-9]|3\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
+        Matcher m = p.matcher("224..");
+        boolean isPartialMatch = !m.matches() && m.hitEnd();
+        assertFalse(isPartialMatch);
+    }
 }
