@@ -61,14 +61,14 @@ public class OldAndroidLocaleTest extends TestCase {
         assertEquals("Sunday", engSymbols.getWeekdays()[Calendar.SUNDAY]);
         assertEquals("Sonntag", deuSymbols.getWeekdays()[Calendar.SUNDAY]);
 
-        assertEquals("Central European Time",
+        assertEquals("Central European Standard Time",
                 berlin.getDisplayName(false, TimeZone.LONG, eng));
         assertEquals("Central European Summer Time",
                 berlin.getDisplayName(true, TimeZone.LONG, eng));
 
-        assertEquals("Mitteleurop\u00E4ische Zeit",
+        assertEquals("Mitteleuropäische Winterzeit",
                 berlin.getDisplayName(false, TimeZone.LONG, deu));
-        assertEquals("Mitteleurop\u00E4ische Sommerzeit",
+        assertEquals("Mitteleuropäische Sommerzeit",
                 berlin.getDisplayName(true, TimeZone.LONG, deu));
 
         assertTrue(engSymbols.getZoneStrings().length > 100);

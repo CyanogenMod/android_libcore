@@ -53,7 +53,7 @@ public class OldNumberFormatTest extends TestCase {
         Locale arLocale = new Locale("ar", "AE");
         if (Support_Locale.isLocaleAvailable(arLocale)) {
             format = (DecimalFormat) NumberFormat.getIntegerInstance(arLocale);
-            assertEquals("#,##0;#,##0-", format.toPattern());
+            assertEquals("#0;#0-", format.toPattern());
             assertEquals("\u0666-", format.format(-6));
             assertEquals(new Long(-36), format.parse("36-"));
             assertEquals(new Long(-36), format.parseObject("36-"));

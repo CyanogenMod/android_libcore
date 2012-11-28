@@ -116,9 +116,9 @@ public class OldTimeZoneTest extends TestCase {
             assertEquals("Pacific Standard Time", tz.getDisplayName(false, 1, Locale.UK));
         }
         if (Support_Locale.isLocaleAvailable(Locale.FRANCE)) {
-            //RI fails on following line. RI always returns short time zone name as "PST"
-            assertEquals("UTC-08:00",             tz.getDisplayName(false, 0, Locale.FRANCE));
-            // BEGIN android-note: RI has "Heure", CLDR/ICU has "heure".
+            // RI always returns short time zone name as "PST"
+            // ICU zone/root.txt patched to allow metazone names.
+            assertEquals("PST",             tz.getDisplayName(false, 0, Locale.FRANCE));
             assertEquals("heure avanc\u00e9e du Pacifique", tz.getDisplayName(true,  1, Locale.FRANCE));
             assertEquals("heure normale du Pacifique", tz.getDisplayName(false, 1, Locale.FRANCE));
         }
