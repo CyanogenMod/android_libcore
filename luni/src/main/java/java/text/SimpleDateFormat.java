@@ -108,7 +108,8 @@ import libcore.icu.TimeZones;
  * </ul>
  *
  * <p>The two pattern characters {@code L} and {@code c} are ICU-compatible extensions, not
- * available in the RI. These are necessary for correct localization in languages such as Russian
+ * available in the RI or in Android before Android 2.3 "Gingerbread" (API level 9). These
+ * extensions are necessary for correct localization in languages such as Russian
  * that distinguish between, say, "June" and "June 2010".
  *
  * <p>When numeric fields are adjacent directly, with no intervening delimiter
