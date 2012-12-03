@@ -890,15 +890,6 @@
   substring: "java.util.IllegalFormatFlagsException: %% doesn't take an argument"
 },
 {
-  description: "These tests expect to be able to load resources from the file system",
-  result: EXEC_FAILED,
-  names: [
-    "libcore.java.lang.OldClassTest#test_getResourceAsStreamLjava_lang_String",
-    "libcore.java.lang.OldClassTest#test_getResourceAsStream_withSharpChar",
-    "libcore.java.lang.OldClassTest#test_getResourceLjava_lang_String"
-  ]
-},
-{
   description: "Some tests (ExcludedProxyTest) connect to a public webserver to check that the HTTP client works",
   result: EXEC_FAILED,
   failure: "connect to the Internet",

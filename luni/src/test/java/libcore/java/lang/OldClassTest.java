@@ -994,7 +994,7 @@ public class OldClassTest extends junit.framework.TestCase {
         byte[] buffer = new byte[20];
         int length = stream.read(buffer);
         String s = new String(buffer, 0, length);
-        assertEquals("Hello, World.",  s);
+        assertEquals("Hello, World.\n",  s);
 
         stream.close();
     }
@@ -1008,7 +1008,7 @@ public class OldClassTest extends junit.framework.TestCase {
         byte[] buffer = new byte[20];
         int length = stream.read(buffer);
         String s = new String(buffer, 0, length);
-        assertEquals("Hello, World.", s);
+        assertEquals("Hello, World.\n", s);
 
         stream.close();
 
