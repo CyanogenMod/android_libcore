@@ -130,7 +130,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
             throw new ClosedChannelException();
         }
         if (!((interestSet & ~validOps()) == 0)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("no valid ops in interest set: " + interestSet);
         }
 
         synchronized (blockingLock) {

@@ -86,11 +86,11 @@ public class DeflaterOutputStream extends FilterOutputStream {
      * @param def
      *            is the specific {@code Deflater} that will be used to compress
      *            data.
-     * @param bsize
+     * @param bufferSize
      *            is the size to be used for the internal buffer.
      */
-    public DeflaterOutputStream(OutputStream os, Deflater def, int bsize) {
-        this(os, def, bsize, false);
+    public DeflaterOutputStream(OutputStream os, Deflater def, int bufferSize) {
+        this(os, def, bufferSize, false);
     }
 
     /**
@@ -113,19 +113,19 @@ public class DeflaterOutputStream extends FilterOutputStream {
      * @hide
      * @since 1.7
      */
-    public DeflaterOutputStream(OutputStream os, Deflater def, int bsize, boolean syncFlush) {
+    public DeflaterOutputStream(OutputStream os, Deflater def, int bufferSize, boolean syncFlush) {
         super(os);
         if (os == null) {
             throw new NullPointerException("os == null");
         } else if (def == null) {
             throw new NullPointerException("def == null");
         }
-        if (bsize <= 0) {
-            throw new IllegalArgumentException();
+        if (bufferSize <= 0) {
+            throw new IllegalArgumentException("bufferSize <= 0: " + bufferSize);
         }
         this.def = def;
         this.syncFlush = syncFlush;
-        buf = new byte[bsize];
+        buf = new byte[bufferSize];
     }
 
     /**

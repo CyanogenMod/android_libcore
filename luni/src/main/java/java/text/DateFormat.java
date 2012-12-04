@@ -286,16 +286,14 @@ public abstract class DateFormat extends Format {
      *            {@code Number} instance.
      */
     @Override
-    public final StringBuffer format(Object object, StringBuffer buffer,
-            FieldPosition field) {
+    public final StringBuffer format(Object object, StringBuffer buffer, FieldPosition field) {
         if (object instanceof Date) {
             return format((Date) object, buffer, field);
         }
         if (object instanceof Number) {
-            return format(new Date(((Number) object).longValue()), buffer,
-                    field);
+            return format(new Date(((Number) object).longValue()), buffer, field);
         }
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("Bad class: " + object.getClass());
     }
 
     /**
@@ -306,8 +304,7 @@ public abstract class DateFormat extends Format {
      * @return the formatted string.
      */
     public final String format(Date date) {
-        return format(date, new StringBuffer(), new FieldPosition(0))
-                .toString();
+        return format(date, new StringBuffer(), new FieldPosition(0)).toString();
     }
 
     /**
@@ -328,8 +325,7 @@ public abstract class DateFormat extends Format {
      *            of the alignment field in the formatted text.
      * @return the string buffer.
      */
-    public abstract StringBuffer format(Date date, StringBuffer buffer,
-            FieldPosition field);
+    public abstract StringBuffer format(Date date, StringBuffer buffer, FieldPosition field);
 
     /**
      * Returns an array of locales for which custom {@code DateFormat} instances
@@ -811,9 +807,8 @@ public abstract class DateFormat extends Format {
          */
         public static Field ofCalendarField(int calendarField) {
             if (calendarField < 0 || calendarField >= Calendar.FIELD_COUNT) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Field out of range: " + calendarField);
             }
-
             return table.get(Integer.valueOf(calendarField));
         }
     }
@@ -821,14 +816,14 @@ public abstract class DateFormat extends Format {
     private static void checkDateStyle(int style) {
         if (!(style == SHORT || style == MEDIUM || style == LONG
                 || style == FULL || style == DEFAULT)) {
-            throw new IllegalArgumentException("Illegal date style " + style);
+            throw new IllegalArgumentException("Illegal date style: " + style);
         }
     }
 
     private static void checkTimeStyle(int style) {
         if (!(style == SHORT || style == MEDIUM || style == LONG
                 || style == FULL || style == DEFAULT)) {
-            throw new IllegalArgumentException("Illegal time style " + style);
+            throw new IllegalArgumentException("Illegal time style: " + style);
         }
     }
 }

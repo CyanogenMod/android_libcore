@@ -1612,7 +1612,7 @@ public class KXmlParser implements XmlPullParser, Closeable {
         boolean detectCharset = (charset == null);
 
         if (is == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("is == null");
         }
 
         try {

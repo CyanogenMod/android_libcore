@@ -63,7 +63,7 @@ public class Collections {
 
         CopiesList(int length, E object) {
             if (length < 0) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("length < 0: " + length);
             }
             n = length;
             element = object;
@@ -2648,7 +2648,7 @@ public class Collections {
         if (map.isEmpty()) {
             return new SetFromMap<E>(map);
         }
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("map not empty");
     }
 
     /**

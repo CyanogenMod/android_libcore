@@ -118,7 +118,7 @@ public class ZipFile implements ZipConstants {
     public ZipFile(File file, int mode) throws IOException {
         fileName = file.getPath();
         if (mode != OPEN_READ && mode != (OPEN_READ | OPEN_DELETE)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad mode: " + mode);
         }
 
         if ((mode & OPEN_DELETE) != 0) {

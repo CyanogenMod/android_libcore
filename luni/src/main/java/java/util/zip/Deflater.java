@@ -185,7 +185,7 @@ public class Deflater {
      */
     public Deflater(int level, boolean noHeader) {
         if (level < DEFAULT_COMPRESSION || level > BEST_COMPRESSION) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad level: " + level);
         }
         compressLevel = level;
         streamHandle = createStream(compressLevel, strategy, noHeader);

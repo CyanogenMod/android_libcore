@@ -76,7 +76,7 @@ public class InflaterOutputStream extends FilterOutputStream {
             throw new NullPointerException("inf == null");
         }
         if (bufferSize <= 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("bufferSize <= 0: " + bufferSize);
         }
         this.inf = inf;
         this.buf = new byte[bufferSize];

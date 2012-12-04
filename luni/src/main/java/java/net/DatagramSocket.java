@@ -614,7 +614,7 @@ public class DatagramSocket {
     public void setTrafficClass(int value) throws SocketException {
         checkOpen();
         if (value < 0 || value > 255) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Value doesn't fit in an unsigned byte: " + value);
         }
         impl.setOption(SocketOptions.IP_TOS, Integer.valueOf(value));
     }
