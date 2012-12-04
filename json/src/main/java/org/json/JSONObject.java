@@ -131,7 +131,7 @@ public class JSONObject {
              */
             String key = (String) entry.getKey();
             if (key == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("key == null");
             }
             nameValuePairs.put(key, entry.getValue());
         }
