@@ -367,7 +367,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
      */
     public void setLevel(int level) {
         if (level < Deflater.DEFAULT_COMPRESSION || level > Deflater.BEST_COMPRESSION) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad level: " + level);
         }
         compressLevel = level;
     }
@@ -382,7 +382,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
      */
     public void setMethod(int method) {
         if (method != STORED && method != DEFLATED) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad method: " + method);
         }
         compressMethod = method;
     }

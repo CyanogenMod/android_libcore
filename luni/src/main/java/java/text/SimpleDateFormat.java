@@ -480,8 +480,7 @@ public class SimpleDateFormat extends DateFormat {
         if (object instanceof Number) {
             return formatToCharacterIteratorImpl(new Date(((Number) object).longValue()));
         }
-        throw new IllegalArgumentException();
-
+        throw new IllegalArgumentException("Bad class: " + object.getClass());
     }
 
     private AttributedCharacterIterator formatToCharacterIteratorImpl(Date date) {

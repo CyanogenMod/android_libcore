@@ -171,18 +171,18 @@ public class Random implements Serializable {
      * in the half-open range [0, n).
      */
     public int nextInt(int n) {
-        if (n > 0) {
-            if ((n & -n) == n) {
-                return (int) ((n * (long) next(31)) >> 31);
-            }
-            int bits, val;
-            do {
-                bits = next(31);
-                val = bits % n;
-            } while (bits - val + (n - 1) < 0);
-            return val;
+        if (n <= 0) {
+            throw new IllegalArgumentException("n <= 0: " + n);
         }
-        throw new IllegalArgumentException();
+        if ((n & -n) == n) {
+            return (int) ((n * (long) next(31)) >> 31);
+        }
+        int bits, val;
+        do {
+            bits = next(31);
+            val = bits % n;
+        } while (bits - val + (n - 1) < 0);
+        return val;
     }
 
     /**

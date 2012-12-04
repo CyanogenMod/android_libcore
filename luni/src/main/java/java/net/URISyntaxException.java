@@ -56,7 +56,7 @@ public class URISyntaxException extends Exception {
         }
 
         if (index < -1) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad index: " + index);
         }
 
         this.input = input;

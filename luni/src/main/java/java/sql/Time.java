@@ -76,7 +76,7 @@ public class Time extends Date {
     @Deprecated
     @Override
     public int getDate() {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("unimplemented");
     }
 
     /**
@@ -90,7 +90,7 @@ public class Time extends Date {
     @Deprecated
     @Override
     public int getDay() {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("unimplemented");
     }
 
     /**
@@ -104,7 +104,7 @@ public class Time extends Date {
     @Deprecated
     @Override
     public int getMonth() {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("unimplemented");
     }
 
     /**
@@ -118,7 +118,7 @@ public class Time extends Date {
     @Deprecated
     @Override
     public int getYear() {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("unimplemented");
     }
 
     /**
@@ -131,7 +131,7 @@ public class Time extends Date {
     @Deprecated
     @Override
     public void setDate(int i) {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("unimplemented");
     }
 
     /**
@@ -144,7 +144,7 @@ public class Time extends Date {
     @Deprecated
     @Override
     public void setMonth(int i) {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("unimplemented");
     }
 
     /**
@@ -157,7 +157,7 @@ public class Time extends Date {
     @Deprecated
     @Override
     public void setYear(int i) {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("unimplemented");
     }
 
     /**
@@ -223,7 +223,7 @@ public class Time extends Date {
      */
     public static Time valueOf(String timeString) {
         if (timeString == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("timeString == null");
         }
         int firstIndex = timeString.indexOf(':');
         int secondIndex = timeString.indexOf(':', firstIndex + 1);
