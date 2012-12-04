@@ -83,7 +83,7 @@ public class StringReader extends Reader {
     @Override
     public void mark(int readLimit) throws IOException {
         if (readLimit < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("readLimit < 0: " + readLimit);
         }
 
         synchronized (lock) {

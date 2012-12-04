@@ -198,15 +198,14 @@ public class WeakHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
      *                if the capacity is less than zero.
      */
     public WeakHashMap(int capacity) {
-        if (capacity >= 0) {
-            elementCount = 0;
-            elementData = newEntryArray(capacity == 0 ? 1 : capacity);
-            loadFactor = 7500; // Default load factor of 0.75
-            computeMaxSize();
-            referenceQueue = new ReferenceQueue<K>();
-        } else {
-            throw new IllegalArgumentException();
+        if (capacity < 0) {
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
+        elementCount = 0;
+        elementData = newEntryArray(capacity == 0 ? 1 : capacity);
+        loadFactor = 7500; // Default load factor of 0.75
+        computeMaxSize();
+        referenceQueue = new ReferenceQueue<K>();
     }
 
     /**
@@ -222,15 +221,17 @@ public class WeakHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
      *             or equal to zero.
      */
     public WeakHashMap(int capacity, float loadFactor) {
-        if (capacity >= 0 && loadFactor > 0) {
-            elementCount = 0;
-            elementData = newEntryArray(capacity == 0 ? 1 : capacity);
-            this.loadFactor = (int) (loadFactor * 10000);
-            computeMaxSize();
-            referenceQueue = new ReferenceQueue<K>();
-        } else {
-            throw new IllegalArgumentException();
+        if (capacity < 0) {
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
+        if (loadFactor <= 0) {
+            throw new IllegalArgumentException("loadFactor <= 0: " + loadFactor);
+        }
+        elementCount = 0;
+        elementData = newEntryArray(capacity == 0 ? 1 : capacity);
+        this.loadFactor = (int) (loadFactor * 10000);
+        computeMaxSize();
+        referenceQueue = new ReferenceQueue<K>();
     }
 
     /**

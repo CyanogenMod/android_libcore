@@ -577,8 +577,8 @@ public class AttributedString {
         if (attribute == null) {
             throw new NullPointerException("attribute == null");
         }
-        if (text.length() == 0) {
-            throw new IllegalArgumentException();
+        if (text.isEmpty()) {
+            throw new IllegalArgumentException("text is empty");
         }
 
         List<Range> ranges = attributeMap.get(attribute);

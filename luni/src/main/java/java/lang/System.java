@@ -409,58 +409,44 @@ public final class System {
     /**
      * Returns the value of a particular system property. The {@code
      * defaultValue} will be returned if no such property has been found.
-     *
-     * @param prop
-     *            the name of the system property to look up.
-     * @param defaultValue
-     *            the return value if the system property with the given name
-     *            does not exist.
-     * @return the value of the specified system property or the {@code
-     *         defaultValue} if the property does not exist.
      */
-    public static String getProperty(String prop, String defaultValue) {
-        if (prop.isEmpty()) {
-            throw new IllegalArgumentException();
-        }
-        return getProperties().getProperty(prop, defaultValue);
+    public static String getProperty(String name, String defaultValue) {
+        checkPropertyName(name);
+        return getProperties().getProperty(name, defaultValue);
     }
 
     /**
      * Sets the value of a particular system property.
      *
-     * @param prop
-     *            the name of the system property to be changed.
-     * @param value
-     *            the value to associate with the given property {@code prop}.
      * @return the old value of the property or {@code null} if the property
      *         didn't exist.
      */
-    public static String setProperty(String prop, String value) {
-        if (prop.isEmpty()) {
-            throw new IllegalArgumentException();
-        }
-        return (String) getProperties().setProperty(prop, value);
+    public static String setProperty(String name, String value) {
+        checkPropertyName(name);
+        return (String) getProperties().setProperty(name, value);
     }
 
     /**
      * Removes a specific system property.
      *
-     * @param key
-     *            the name of the system property to be removed.
      * @return the property value or {@code null} if the property didn't exist.
      * @throws NullPointerException
-     *             if the argument {@code key} is {@code null}.
+     *             if the argument is {@code null}.
      * @throws IllegalArgumentException
-     *             if the argument {@code key} is empty.
+     *             if the argument is empty.
      */
-    public static String clearProperty(String key) {
-        if (key == null) {
-            throw new NullPointerException("key == null");
+    public static String clearProperty(String name) {
+        checkPropertyName(name);
+        return (String) getProperties().remove(name);
+    }
+
+    private static void checkPropertyName(String name) {
+        if (name == null) {
+            throw new NullPointerException("name == null");
         }
-        if (key.isEmpty()) {
-            throw new IllegalArgumentException();
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("name is empty");
         }
-        return (String) getProperties().remove(key);
     }
 
     /**

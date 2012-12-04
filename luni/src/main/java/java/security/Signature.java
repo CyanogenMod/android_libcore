@@ -168,7 +168,7 @@ public abstract class Signature extends SignatureSpi {
             throw new NullPointerException("algorithm == null");
         }
         if (provider == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("provider == null");
         }
         return getSignatureInstance(algorithm, provider);
     }

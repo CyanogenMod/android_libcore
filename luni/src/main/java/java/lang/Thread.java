@@ -792,7 +792,7 @@ public class Thread implements Runnable {
      */
     public final void join(long millis, int nanos) throws InterruptedException {
         if (millis < 0 || nanos < 0 || nanos >= NANOS_PER_MILLI) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("bad timeout: millis=" + millis + ",nanos=" + nanos);
         }
 
         // avoid overflow: if total > 292,277 years, just wait forever

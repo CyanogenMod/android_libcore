@@ -82,7 +82,7 @@ public class PriorityQueue<E> extends AbstractQueue<E> implements Serializable {
      */
     public PriorityQueue(int initialCapacity, Comparator<? super E> comparator) {
         if (initialCapacity < 1) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("initialCapacity < 1: " + initialCapacity);
         }
         elements = newElementArray(initialCapacity);
         this.comparator = comparator;

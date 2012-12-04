@@ -190,7 +190,7 @@ public class BufferedReader extends Reader {
     @Override
     public void mark(int markLimit) throws IOException {
         if (markLimit < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("markLimit < 0:" + markLimit);
         }
         synchronized (lock) {
             checkNotClosed();
