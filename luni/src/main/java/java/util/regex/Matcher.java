@@ -194,7 +194,7 @@ public final class Matcher implements MatchResult {
      */
     private Matcher reset(CharSequence input, int start, int end) {
         if (input == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("input == null");
         }
 
         if (start < 0 || end < 0 || start > input.length() || end > input.length() || start > end) {
@@ -224,7 +224,7 @@ public final class Matcher implements MatchResult {
      */
     public Matcher usePattern(Pattern pattern) {
         if (pattern == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("pattern == null");
         }
 
         this.pattern = pattern;

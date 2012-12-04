@@ -82,7 +82,7 @@ public class Timestamp extends Date {
             throws IllegalArgumentException {
         super(theYear, theMonth, theDate, theHour, theMinute, theSecond);
         if (theNano < 0 || theNano > 999999999) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("ns out of range: " + theNano);
         }
         nanos = theNano;
     }

@@ -253,7 +253,8 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         }
 
         if (isConnected() && !connectAddress.equals(isa)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Connected to " + connectAddress +
+                                               ", not " + socketAddress);
         }
 
         synchronized (writeLock) {

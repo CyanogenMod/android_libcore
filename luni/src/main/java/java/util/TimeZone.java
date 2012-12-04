@@ -171,7 +171,7 @@ public abstract class TimeZone implements Serializable, Cloneable {
      */
     public String getDisplayName(boolean daylightTime, int style, Locale locale) {
         if (style != SHORT && style != LONG) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad style: " + style);
         }
 
         boolean useDaylight = daylightTime && useDaylightTime();
