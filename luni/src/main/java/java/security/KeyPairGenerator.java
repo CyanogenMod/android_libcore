@@ -140,7 +140,7 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
     public static KeyPairGenerator getInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
         if (provider == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("provider == null");
         }
         if (algorithm == null) {
             throw new NullPointerException("algorithm == null");

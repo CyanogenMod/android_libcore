@@ -70,7 +70,7 @@ public class ArrayList<E> extends AbstractList<E> implements Cloneable, Serializ
      */
     public ArrayList(int capacity) {
         if (capacity < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
         array = (capacity == 0 ? EmptyArray.OBJECT : new Object[capacity]);
     }

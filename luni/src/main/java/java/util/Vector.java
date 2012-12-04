@@ -92,7 +92,7 @@ public class Vector<E> extends AbstractList<E> implements List<E>,
      */
     public Vector(int capacity, int capacityIncrement) {
         if (capacity < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
         elementData = newElementArray(capacity);
         elementCount = 0;
