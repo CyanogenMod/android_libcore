@@ -229,11 +229,13 @@ public final class Matcher implements MatchResult {
 
         this.pattern = pattern;
 
-        if (address != 0) {
-            closeImpl(address);
-            address = 0;
+        synchronized (this) {
+            if (address != 0) {
+                closeImpl(address);
+                address = 0; // In case openImpl throws.
+            }
+            address = openImpl(pattern.address);
         }
-        address = openImpl(pattern.address);
 
         if (input != null) {
             resetForInput();
@@ -634,7 +636,9 @@ public final class Matcher implements MatchResult {
 
     @Override protected void finalize() throws Throwable {
         try {
-            closeImpl(address);
+            synchronized (this) {
+                closeImpl(address);
+            }
         } finally {
             super.finalize();
         }
