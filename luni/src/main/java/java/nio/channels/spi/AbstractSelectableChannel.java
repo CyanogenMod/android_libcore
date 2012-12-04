@@ -143,7 +143,7 @@ public abstract class AbstractSelectableChannel extends SelectableChannel {
                     throw new IllegalSelectorException();
                 }
                 // throw NPE exactly to keep consistency
-                throw new NullPointerException();
+                throw new NullPointerException("selector not open");
             }
             SelectionKey key = keyFor(selector);
             if (key == null) {
