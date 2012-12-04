@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
@@ -54,7 +55,7 @@ import static libcore.io.OsConstants.*;
     private final ClassLoader definingContext;
 
     /** list of dex/resource (class path) elements */
-    private final Element[] dexElements;
+    private final Element[] pathElements;
 
     /** list of native library directory elements */
     private final File[] nativeLibraryDirectories;
@@ -98,9 +99,13 @@ import static libcore.io.OsConstants.*;
         }
 
         this.definingContext = definingContext;
-        this.dexElements =
-            makeDexElements(splitDexPath(dexPath), optimizedDirectory);
+        this.pathElements = makeDexElements(splitDexPath(dexPath), optimizedDirectory);
         this.nativeLibraryDirectories = splitLibraryPath(libraryPath);
+    }
+
+    @Override public String toString() {
+        return "DexPathList[pathElements=" + Arrays.toString(pathElements) +
+            ",nativeLibraryDirectories=" + Arrays.toString(nativeLibraryDirectories) + "]";
     }
 
     /**
@@ -159,7 +164,7 @@ import static libcore.io.OsConstants.*;
      * Helper for {@link #splitPaths}, which does the actual splitting
      * and filtering and adding to a result.
      */
-    private static void splitAndAdd(String searchPath, boolean wantDirectories,
+    private static void splitAndAdd(String searchPath, boolean directoriesOnly,
             ArrayList<File> resultList) {
         if (searchPath == null) {
             return;
@@ -167,8 +172,7 @@ import static libcore.io.OsConstants.*;
         for (String path : searchPath.split(":")) {
             try {
                 StructStat sb = Libcore.os.stat(path);
-                if ((wantDirectories && S_ISDIR(sb.st_mode)) ||
-                        (!wantDirectories && S_ISREG(sb.st_mode))) {
+                if (!directoriesOnly || S_ISDIR(sb.st_mode)) {
                     resultList.add(new File(path));
                 }
             } catch (ErrnoException ignored) {
@@ -215,12 +219,16 @@ import static libcore.io.OsConstants.*;
                      * the exception here, and let dex == null.
                      */
                 }
+            } else if (file.isDirectory()) {
+                // We support directories for looking up resources.
+                // This is only useful for running libcore tests.
+                elements.add(new Element(file, true, null, null));
             } else {
                 System.logW("Unknown file type for: " + file);
             }
 
             if ((zip != null) || (dex != null)) {
-                elements.add(new Element(file, zip, dex));
+                elements.add(new Element(file, false, zip, dex));
             }
         }
 
@@ -287,7 +295,7 @@ import static libcore.io.OsConstants.*;
      * found in any of the dex files
      */
     public Class findClass(String name) {
-        for (Element element : dexElements) {
+        for (Element element : pathElements) {
             DexFile dex = element.dexFile;
 
             if (dex != null) {
@@ -310,7 +318,7 @@ import static libcore.io.OsConstants.*;
      * resource is not found in any of the zip/jar files
      */
     public URL findResource(String name) {
-        for (Element element : dexElements) {
+        for (Element element : pathElements) {
             URL url = element.findResource(name);
             if (url != null) {
                 return url;
@@ -328,7 +336,7 @@ import static libcore.io.OsConstants.*;
     public Enumeration<URL> findResources(String name) {
         ArrayList<URL> result = new ArrayList<URL>();
 
-        for (Element element : dexElements) {
+        for (Element element : pathElements) {
             URL url = element.findResource(name);
             if (url != null) {
                 result.add(url);
@@ -363,26 +371,38 @@ import static libcore.io.OsConstants.*;
      */
     /*package*/ static class Element {
         private final File file;
+        private final boolean isDirectory;
         private final File zip;
         private final DexFile dexFile;
 
         private ZipFile zipFile;
-        private boolean init;
+        private boolean initialized;
 
-        public Element(File file, File zip, DexFile dexFile) {
+        public Element(File file, boolean isDirectory, File zip, DexFile dexFile) {
             this.file = file;
+            this.isDirectory = isDirectory;
             this.zip = zip;
             this.dexFile = dexFile;
         }
 
+        @Override public String toString() {
+            if (isDirectory) {
+                return "directory \"" + file + "\"";
+            } else if (zip != null) {
+                return "zip file \"" + zip + "\"";
+            } else {
+                return "dex file \"" + dexFile + "\"";
+            }
+        }
+
         public synchronized void maybeInit() {
-            if (init) {
+            if (initialized) {
                 return;
             }
 
-            init = true;
+            initialized = true;
 
-            if (zip == null) {
+            if (isDirectory || zip == null) {
                 return;
             }
 
@@ -402,6 +422,19 @@ import static libcore.io.OsConstants.*;
 
         public URL findResource(String name) {
             maybeInit();
+
+            // We support directories so we can run tests and/or legacy code
+            // that uses Class.getResource.
+            if (isDirectory) {
+                File resourceFile = new File(file, name);
+                if (resourceFile.exists()) {
+                    try {
+                        return resourceFile.toURI().toURL();
+                    } catch (MalformedURLException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }
 
             if (zipFile == null || zipFile.getEntry(name) == null) {
                 /*
