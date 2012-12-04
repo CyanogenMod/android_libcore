@@ -25,14 +25,7 @@ import java.util.Enumeration;
  * {@link ClassLoader} implementations.
  */
 public class BaseDexClassLoader extends ClassLoader {
-    /** originally specified path (just used for {@code toString()}) */
-    private final String originalPath;
-
-    /** originally specified library path (just used for {@code toString()}) */
-    private final String originalLibraryPath;
-
-    /** structured lists of path elements */
-    private final DexPathList pathList;
+    private final DexPathList path;
 
     /**
      * Constructs an instance.
@@ -50,37 +43,31 @@ public class BaseDexClassLoader extends ClassLoader {
     public BaseDexClassLoader(String dexPath, File optimizedDirectory,
             String libraryPath, ClassLoader parent) {
         super(parent);
-
-        this.originalPath = dexPath;
-        this.originalLibraryPath = libraryPath;
-        this.pathList =
-            new DexPathList(this, dexPath, libraryPath, optimizedDirectory);
+        this.path = new DexPathList(this, dexPath, libraryPath, optimizedDirectory);
     }
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        Class clazz = pathList.findClass(name);
-
-        if (clazz == null) {
-            throw new ClassNotFoundException("Didn't find class \"" + name + "\" on path: " + originalPath);
+        Class c = path.findClass(name);
+        if (c == null) {
+            throw new ClassNotFoundException("Didn't find class \"" + name + "\" on path: " + path);
         }
-
-        return clazz;
+        return c;
     }
 
     @Override
     protected URL findResource(String name) {
-        return pathList.findResource(name);
+        return path.findResource(name);
     }
 
     @Override
     protected Enumeration<URL> findResources(String name) {
-        return pathList.findResources(name);
+        return path.findResources(name);
     }
 
     @Override
     public String findLibrary(String name) {
-        return pathList.findLibrary(name);
+        return path.findLibrary(name);
     }
 
     /**
@@ -125,9 +112,7 @@ public class BaseDexClassLoader extends ClassLoader {
         return null;
     }
 
-    @Override
-    public String toString() {
-        return getClass().getName()
-                + "[dexPath=" + originalPath + ",libraryPath=" + originalLibraryPath + "]";
+    @Override public String toString() {
+        return getClass().getName() + "[" + path + "]";
     }
 }
