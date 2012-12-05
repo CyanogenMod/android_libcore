@@ -179,7 +179,7 @@ public class KeyStore {
     public static KeyStore getInstance(String type, Provider provider) throws KeyStoreException {
         // check parameters
         if (provider == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("provider == null");
         }
         if (type == null) {
             throw new NullPointerException("type == null");

@@ -78,7 +78,7 @@ public class DeflaterInputStream extends FilterInputStream {
             throw new NullPointerException("deflater == null");
         }
         if (bufferSize <= 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("bufferSize <= 0: " + bufferSize);
         }
         this.def = deflater;
         this.buf = new byte[bufferSize];

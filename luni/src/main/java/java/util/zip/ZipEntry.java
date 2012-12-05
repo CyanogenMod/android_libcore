@@ -183,11 +183,10 @@ public class ZipEntry implements ZipConstants, Cloneable {
      *            the comment for this entry.
      */
     public void setComment(String comment) {
-        if (comment == null || comment.length() <= 0xFFFF) {
-            this.comment = comment;
-        } else {
-            throw new IllegalArgumentException();
+        if (comment != null && comment.length() > 0xffff) {
+            throw new IllegalArgumentException("Comment too long: " + comment.length());
         }
+        this.comment = comment;
     }
 
     /**
@@ -225,11 +224,10 @@ public class ZipEntry implements ZipConstants, Cloneable {
      *             when the length of data is greater than 0xFFFF bytes.
      */
     public void setExtra(byte[] data) {
-        if (data == null || data.length <= 0xFFFF) {
-            extra = data;
-        } else {
-            throw new IllegalArgumentException();
+        if (data != null && data.length > 0xffff) {
+            throw new IllegalArgumentException("Extra data too long: " + data.length);
         }
+        extra = data;
     }
 
     /**

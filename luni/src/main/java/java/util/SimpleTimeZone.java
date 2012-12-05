@@ -546,11 +546,10 @@ public class SimpleTimeZone extends TimeZone {
      *            the daylight savings offset in milliseconds.
      */
     public void setDSTSavings(int milliseconds) {
-        if (milliseconds > 0) {
-            dstSavings = milliseconds;
-        } else {
-            throw new IllegalArgumentException();
+        if (milliseconds <= 0) {
+            throw new IllegalArgumentException("milliseconds <= 0: " + milliseconds);
         }
+        dstSavings = milliseconds;
     }
 
     private void checkRange(int month, int dayOfWeek, int time) {
