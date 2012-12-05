@@ -165,11 +165,10 @@ public final class VMDebug {
      * @param flags flags to control method tracing. The only one that
      * is currently defined is {@link #TRACE_COUNT_ALLOCS}.
      */
-    public static void startMethodTracing(String traceFileName,
-        int bufferSize, int flags) {
+    public static void startMethodTracing(String traceFileName, int bufferSize, int flags) {
 
         if (traceFileName == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("traceFileName == null");
         }
 
         startMethodTracingNative(traceFileName, null, bufferSize, flags);
@@ -183,8 +182,11 @@ public final class VMDebug {
     public static void startMethodTracing(String traceFileName,
         FileDescriptor fd, int bufferSize, int flags)
     {
-        if (traceFileName == null || fd == null) {
-            throw new NullPointerException();
+        if (traceFileName == null) {
+            throw new NullPointerException("traceFileName == null");
+        }
+        if (fd == null) {
+            throw new NullPointerException("fd == null");
         }
 
         startMethodTracingNative(traceFileName, fd, bufferSize, flags);
@@ -291,15 +293,16 @@ public final class VMDebug {
      *
      * The VM may create a temporary file in the same directory.
      *
-     * @param fileName Full pathname of output file (e.g. "/sdcard/dump.hprof").
+     * @param filename Full pathname of output file (e.g. "/sdcard/dump.hprof").
      * @throws UnsupportedOperationException if the VM was built without
      *         HPROF support.
      * @throws IOException if an error occurs while opening or writing files.
      */
-    public static void dumpHprofData(String fileName) throws IOException {
-        if (fileName == null)
-            throw new NullPointerException();
-        dumpHprofData(fileName, null);
+    public static void dumpHprofData(String filename) throws IOException {
+        if (filename == null) {
+            throw new NullPointerException("filename == null");
+        }
+        dumpHprofData(filename, null);
     }
 
     /**

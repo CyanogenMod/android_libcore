@@ -50,9 +50,9 @@ public class DdmServer {
      * Throws an exception if the type already has a handler registered.
      */
     public static void registerHandler(int type, ChunkHandler handler) {
-        if (handler == null)
-            throw new NullPointerException();
-
+        if (handler == null) {
+            throw new NullPointerException("handler == null");
+        }
         synchronized (mHandlerMap) {
             if (mHandlerMap.get(type) != null)
                 throw new RuntimeException("type " + Integer.toHexString(type)
@@ -171,4 +171,3 @@ public class DdmServer {
         return handler.handleChunk(chunk);
     }
 }
-
