@@ -34,18 +34,17 @@ import libcore.io.HeapBufferIterator;
 import libcore.io.Streams;
 
 /**
- * This class provides random read access to a <i>ZIP-archive</i> file.
- * <p>
- * While {@code ZipInputStream} provides stream based read access to a
- * <i>ZIP-archive</i>, this class implements more efficient (file based) access
- * and makes use of the <i>central directory</i> within a <i>ZIP-archive</i>.
- * <p>
- * Use {@code ZipOutputStream} if you want to create an archive.
- * <p>
- * A temporary ZIP file can be marked for automatic deletion upon closing it.
+ * This class provides random read access to a <i>ZIP-archive</i> file. You pay more to read
+ * the zip file's central directory up front (from the constructor), but if you're using
+ * {@link #getEntry} to look up multiple files by name, you get the benefit of this index.
  *
- * @see ZipEntry
- * @see ZipOutputStream
+ * <p>If you only want to iterate through all the files (using {@link #entries}, you should
+ * consider {@link ZipInputStream}, which provides stream-like read access to a zip file and
+ * has a lower up-front cost, and doesn't require an in-memory index. The savings could be
+ * particularly large if your zip file has many entries and you only require a few of them.
+ *
+ * <p>If you want to create a zip file, use {@link ZipOutputStream}. There is no API for updating
+ * an existing zip file.
  */
 public class ZipFile implements ZipConstants {
     /**
@@ -70,7 +69,7 @@ public class ZipFile implements ZipConstants {
     static final int GPBF_UTF8_FLAG = 1 << 11;
 
     /**
-     * Open ZIP file for read.
+     * Open ZIP file for reading.
      */
     public static final int OPEN_READ = 1;
 
@@ -79,9 +78,9 @@ public class ZipFile implements ZipConstants {
      */
     public static final int OPEN_DELETE = 4;
 
-    private final String fileName;
+    private final String mFilename;
 
-    private File fileToDeleteOnClose;
+    private File mFileToDeleteOnClose;
 
     private RandomAccessFile mRaf;
 
@@ -90,59 +89,49 @@ public class ZipFile implements ZipConstants {
     private final CloseGuard guard = CloseGuard.get();
 
     /**
-     * Constructs a new {@code ZipFile} with the specified file.
-     *
-     * @param file
-     *            the file to read from.
-     * @throws ZipException
-     *             if a ZIP error occurs.
-     * @throws IOException
-     *             if an {@code IOException} occurs.
+     * Constructs a new {@code ZipFile} allowing read access to the contents of the given file.
+     * @throws ZipException if a ZIP error occurs.
+     * @throws IOException if an {@code IOException} occurs.
      */
     public ZipFile(File file) throws ZipException, IOException {
         this(file, OPEN_READ);
     }
 
     /**
-     * Opens a file as <i>ZIP-archive</i>. "mode" must be {@code OPEN_READ} or
-     * {@code OPEN_DELETE} . The latter sets the "delete on exit" flag through a
-     * file.
+     * Constructs a new {@code ZipFile} allowing read access to the contents of the given file.
+     * @throws IOException if an IOException occurs.
+     */
+    public ZipFile(String name) throws IOException {
+        this(new File(name), OPEN_READ);
+    }
+
+    /**
+     * Constructs a new {@code ZipFile} allowing access to the given file.
+     * The {@code mode} must be either {@code OPEN_READ} or {@code OPEN_READ|OPEN_DELETE}.
      *
-     * @param file
-     *            the ZIP file to read.
-     * @param mode
-     *            the mode of the file open operation.
-     * @throws IOException
-     *             if an {@code IOException} occurs.
+     * <p>If the {@code OPEN_DELETE} flag is supplied, the file will be deleted at or before the
+     * time that the {@code ZipFile} is closed (the contents will remain accessible until
+     * this {@code ZipFile} is closed); it also calls {@code File.deleteOnExit}.
+     *
+     * @throws IOException if an {@code IOException} occurs.
      */
     public ZipFile(File file, int mode) throws IOException {
-        fileName = file.getPath();
+        mFilename = file.getPath();
         if (mode != OPEN_READ && mode != (OPEN_READ | OPEN_DELETE)) {
             throw new IllegalArgumentException("Bad mode: " + mode);
         }
 
         if ((mode & OPEN_DELETE) != 0) {
-            fileToDeleteOnClose = file; // file.deleteOnExit();
+            mFileToDeleteOnClose = file;
+            mFileToDeleteOnClose.deleteOnExit();
         } else {
-            fileToDeleteOnClose = null;
+            mFileToDeleteOnClose = null;
         }
 
-        mRaf = new RandomAccessFile(fileName, "r");
+        mRaf = new RandomAccessFile(mFilename, "r");
 
         readCentralDir();
         guard.open("close");
-    }
-
-    /**
-     * Opens a ZIP archived file.
-     *
-     * @param name
-     *            the name of the ZIP file.
-     * @throws IOException
-     *             if an IOException occurs.
-     */
-    public ZipFile(String name) throws IOException {
-        this(new File(name), OPEN_READ);
     }
 
     @Override protected void finalize() throws IOException {
@@ -174,9 +163,9 @@ public class ZipFile implements ZipConstants {
                 mRaf = null;
                 raf.close();
             }
-            if (fileToDeleteOnClose != null) {
-                fileToDeleteOnClose.delete();
-                fileToDeleteOnClose = null;
+            if (mFileToDeleteOnClose != null) {
+                mFileToDeleteOnClose.delete();
+                mFileToDeleteOnClose = null;
             }
         }
     }
@@ -257,19 +246,19 @@ public class ZipFile implements ZipConstants {
             // position of the entry's local header. At position 28 we find the
             // length of the extra data. In some cases this length differs from
             // the one coming in the central header.
-            RAFStream rafstrm = new RAFStream(raf, entry.mLocalHeaderRelOffset + 28);
-            DataInputStream is = new DataInputStream(rafstrm);
+            RAFStream rafStream = new RAFStream(raf, entry.mLocalHeaderRelOffset + 28);
+            DataInputStream is = new DataInputStream(rafStream);
             int localExtraLenOrWhatever = Short.reverseBytes(is.readShort());
             is.close();
 
             // Skip the name and this "extra" data or whatever it is:
-            rafstrm.skip(entry.nameLength + localExtraLenOrWhatever);
-            rafstrm.mLength = rafstrm.mOffset + entry.compressedSize;
+            rafStream.skip(entry.nameLength + localExtraLenOrWhatever);
+            rafStream.mLength = rafStream.mOffset + entry.compressedSize;
             if (entry.compressionMethod == ZipEntry.DEFLATED) {
                 int bufSize = Math.max(1024, (int)Math.min(entry.getSize(), 65535L));
-                return new ZipInflaterInputStream(rafstrm, new Inflater(true), bufSize, entry);
+                return new ZipInflaterInputStream(rafStream, new Inflater(true), bufSize, entry);
             } else {
-                return rafstrm;
+                return rafStream;
             }
         }
     }
@@ -280,7 +269,7 @@ public class ZipFile implements ZipConstants {
      * @return the file name of this {@code ZipFile}.
      */
     public String getName() {
-        return fileName;
+        return mFilename;
     }
 
     /**
@@ -351,18 +340,21 @@ public class ZipFile implements ZipConstants {
         int numEntries = it.readShort() & 0xffff;
         int totalNumEntries = it.readShort() & 0xffff;
         it.skip(4); // Ignore centralDirSize.
-        int centralDirOffset = it.readInt();
+        long centralDirOffset = ((long) it.readInt()) & 0xffffffffL;
 
         if (numEntries != totalNumEntries || diskNumber != 0 || diskWithCentralDir != 0) {
             throw new ZipException("spanned archives not supported");
         }
 
         // Seek to the first CDE and read all entries.
-        RAFStream rafs = new RAFStream(mRaf, centralDirOffset);
-        BufferedInputStream bin = new BufferedInputStream(rafs, 4096);
+        // We have to do this now (from the constructor) rather than lazily because the
+        // public API doesn't allow us to throw IOException except from the constructor
+        // or from getInputStream.
+        RAFStream rafStream = new RAFStream(mRaf, centralDirOffset);
+        BufferedInputStream bufferedStream = new BufferedInputStream(rafStream, 4096);
         byte[] hdrBuf = new byte[CENHDR]; // Reuse the same buffer for each entry.
         for (int i = 0; i < numEntries; ++i) {
-            ZipEntry newEntry = new ZipEntry(hdrBuf, bin);
+            ZipEntry newEntry = new ZipEntry(hdrBuf, bufferedStream);
             mEntries.put(newEntry.getName(), newEntry);
         }
     }
@@ -376,14 +368,13 @@ public class ZipFile implements ZipConstants {
      * <p>We could support mark/reset, but we don't currently need them.
      */
     static class RAFStream extends InputStream {
+        private final RandomAccessFile mSharedRaf;
+        private long mLength;
+        private long mOffset;
 
-        RandomAccessFile mSharedRaf;
-        long mOffset;
-        long mLength;
-
-        public RAFStream(RandomAccessFile raf, long pos) throws IOException {
+        public RAFStream(RandomAccessFile raf, long offset) throws IOException {
             mSharedRaf = raf;
-            mOffset = pos;
+            mOffset = offset;
             mLength = raf.length();
         }
 
@@ -411,28 +402,34 @@ public class ZipFile implements ZipConstants {
             }
         }
 
-        @Override
-        public long skip(long byteCount) throws IOException {
+        @Override public long skip(long byteCount) throws IOException {
             if (byteCount > mLength - mOffset) {
                 byteCount = mLength - mOffset;
             }
             mOffset += byteCount;
             return byteCount;
         }
+
+        public int fill(Inflater inflater, int nativeEndBufSize) throws IOException {
+            synchronized (mSharedRaf) {
+                int len = Math.min((int) (mLength - mOffset), nativeEndBufSize);
+                int cnt = inflater.setFileInput(mSharedRaf.getFD(), mOffset, nativeEndBufSize);
+                skip(cnt);
+                return len;
+            }
+        }
     }
 
     static class ZipInflaterInputStream extends InflaterInputStream {
-
-        ZipEntry entry;
-        long bytesRead = 0;
+        private final ZipEntry entry;
+        private long bytesRead = 0;
 
         public ZipInflaterInputStream(InputStream is, Inflater inf, int bsize, ZipEntry entry) {
             super(is, inf, bsize);
             this.entry = entry;
         }
 
-        @Override
-        public int read(byte[] buffer, int off, int nbytes) throws IOException {
+        @Override public int read(byte[] buffer, int off, int nbytes) throws IOException {
             int i = super.read(buffer, off, nbytes);
             if (i != -1) {
                 bytesRead += i;
@@ -440,8 +437,7 @@ public class ZipFile implements ZipConstants {
             return i;
         }
 
-        @Override
-        public int available() throws IOException {
+        @Override public int available() throws IOException {
             if (closed) {
                 // Our superclass will throw an exception, but there's a jtreg test that
                 // explicitly checks that the InputStream returned from ZipFile.getInputStream

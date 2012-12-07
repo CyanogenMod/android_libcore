@@ -40,11 +40,17 @@ import libcore.io.HeapBufferIterator;
  * @see ZipOutputStream
  */
 public class ZipEntry implements ZipConstants, Cloneable {
-    String name, comment;
+    String name;
+    String comment;
 
-    long compressedSize = -1, crc = -1, size = -1;
+    long crc = -1; // Needs to be a long to distinguish -1 ("not set") from the 0xffffffff CRC32.
 
-    int compressionMethod = -1, time = -1, modDate = -1;
+    long compressedSize = -1;
+    long size = -1;
+
+    int compressionMethod = -1;
+    int time = -1;
+    int modDate = -1;
 
     byte[] extra;
 
@@ -80,11 +86,8 @@ public class ZipEntry implements ZipConstants, Cloneable {
     }
 
     /**
-     * Gets the comment for this {@code ZipEntry}.
-     *
-     * @return the comment for this {@code ZipEntry}, or {@code null} if there
-     *         is no comment. If we're reading an archive with
-     *         {@code ZipInputStream} the comment is not available.
+     * Returns the comment for this {@code ZipEntry}, or {@code null} if there is no comment.
+     * If we're reading an archive with {@code ZipInputStream} the comment is not available.
      */
     public String getComment() {
         return comment;
@@ -178,13 +181,17 @@ public class ZipEntry implements ZipConstants, Cloneable {
 
     /**
      * Sets the comment for this {@code ZipEntry}.
-     *
-     * @param comment
-     *            the comment for this entry.
+     * @throws IllegalArgumentException if the comment is longer than 64 KiB.
      */
     public void setComment(String comment) {
-        if (comment != null && comment.length() > 0xffff) {
-            throw new IllegalArgumentException("Comment too long: " + comment.length());
+        if (comment == null) {
+            this.comment = null;
+            return;
+        }
+
+        byte[] commentBytes = comment.getBytes(Charsets.UTF_8);
+        if (commentBytes.length > 0xffff) {
+            throw new IllegalArgumentException("Comment too long: " + commentBytes.length);
         }
         this.comment = comment;
     }
@@ -221,7 +228,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
      * @param data
      *            a byte array containing the extra information.
      * @throws IllegalArgumentException
-     *             when the length of data is greater than 0xFFFF bytes.
+     *             when the length of data is greater than 64 KiB.
      */
     public void setExtra(byte[] data) {
         if (data != null && data.length > 0xffff) {
@@ -231,11 +238,12 @@ public class ZipEntry implements ZipConstants, Cloneable {
     }
 
     /**
-     * Sets the compression method for this {@code ZipEntry}.
-     *
-     * @param value
-     *            the compression method, either {@code DEFLATED} or {@code
-     *            STORED}.
+     * Sets the compression method for this entry to either {@code DEFLATED} or {@code STORED}.
+     * The default is {@code DEFLATED}, which will cause the size, compressed size, and CRC to be
+     * set automatically, and the entry's data to be compressed. If you switch to {@code STORED}
+     * note that you'll have to set the size (or compressed size; they must be the same, but it's
+     * okay to only set one) and CRC yourself because they must appear <i>before</i> the user data
+     * in the resulting zip file. See {@link #setSize} and {@link #setCrc}.
      * @throws IllegalArgumentException
      *             when value is not {@code DEFLATED} or {@code STORED}.
      */
@@ -369,7 +377,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
 
         nameLength = it.readShort();
         int extraLength = it.readShort();
-        int commentLength = it.readShort();
+        int commentByteCount = it.readShort();
 
         // This is a 32-bit value in the file, but a 64-bit field in this object.
         it.seek(42);
@@ -381,9 +389,9 @@ public class ZipEntry implements ZipConstants, Cloneable {
 
         // The RI has always assumed UTF-8. (If GPBF_UTF8_FLAG isn't set, the encoding is
         // actually IBM-437.)
-        if (commentLength > 0) {
-            byte[] commentBytes = new byte[commentLength];
-            Streams.readFully(in, commentBytes, 0, commentLength);
+        if (commentByteCount > 0) {
+            byte[] commentBytes = new byte[commentByteCount];
+            Streams.readFully(in, commentBytes, 0, commentByteCount);
             comment = new String(commentBytes, 0, commentBytes.length, Charsets.UTF_8);
         }
 
