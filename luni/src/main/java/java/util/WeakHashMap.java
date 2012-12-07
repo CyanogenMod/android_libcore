@@ -384,26 +384,6 @@ public class WeakHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
                         }
                     });
                 }
-
-                @Override
-                public Object[] toArray() {
-                    Collection<K> coll = new ArrayList<K>(size());
-
-                    for (Iterator<K> iter = iterator(); iter.hasNext();) {
-                        coll.add(iter.next());
-                    }
-                    return coll.toArray();
-                }
-
-                @Override
-                public <T> T[] toArray(T[] contents) {
-                    Collection<K> coll = new ArrayList<K>(size());
-
-                    for (Iterator<K> iter = iterator(); iter.hasNext();) {
-                        coll.add(iter.next());
-                    }
-                    return coll.toArray(contents);
-                }
             };
         }
         return keySet;
