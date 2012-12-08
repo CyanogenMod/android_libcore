@@ -34,14 +34,15 @@ import libcore.io.Streams;
  *
  * <p>A ZIP archive is a collection of (possibly) compressed files.
  * When reading from a {@code ZipInputStream}, you retrieve the
- * entry's metadata with {@code getNextEntry} before you can read the userdata.
+ * entry's metadata with {@code getNextEntry} (which returns a {@link ZipEntry}
+ * before you can read the userdata.
  *
  * <p>Although {@code InflaterInputStream} can only read compressed ZIP archive
  * entries, this class can read non-compressed entries as well.
  *
- * <p>Use {@code ZipFile} if you can access the archive as a file directly,
- * especially if you want random access to entries, rather than needing to
- * iterate over all entries.
+ * <p>Use {@link ZipFile} if you need random access to entries by name, but use this class
+ * if you just want to iterate over all entries (and remember that iteration is better
+ * than lookup by name in the case where you're only looking for one file).
  *
  * <h3>Example</h3>
  * <p>Using {@code ZipInputStream} is a little more complicated than {@link GZIPInputStream}
@@ -67,9 +68,6 @@ import libcore.io.Streams;
  *     zis.close();
  * }
  * </pre>
- *
- * @see ZipEntry
- * @see ZipFile
  */
 public class ZipInputStream extends InflaterInputStream implements ZipConstants {
     private static final int ZIPLocalHeaderVersionNeeded = 20;
@@ -213,13 +211,10 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
     }
 
     /**
-     * Reads the next entry from this {@code ZipInputStream} or {@code null} if
+     * Returns the next entry from this {@code ZipInputStream} or {@code null} if
      * no more entries are present.
      *
-     * @return the next {@code ZipEntry} contained in the input stream.
-     * @throws IOException
-     *             if an {@code IOException} occurs.
-     * @see ZipEntry
+     * @throws IOException if an {@code IOException} occurs.
      */
     public ZipEntry getNextEntry() throws IOException {
         closeEntry();
