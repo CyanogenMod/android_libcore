@@ -189,13 +189,8 @@ public class InflaterInputStream extends FilterInputStream {
     protected void fill() throws IOException {
         checkClosed();
         if (nativeEndBufSize > 0) {
-            ZipFile.RAFStream is = (ZipFile.RAFStream)in;
-            synchronized (is.mSharedRaf) {
-                long len = is.mLength - is.mOffset;
-                if (len > nativeEndBufSize) len = nativeEndBufSize;
-                int cnt = inf.setFileInput(is.mSharedRaf.getFD(), is.mOffset, nativeEndBufSize);
-                is.skip(cnt);
-            }
+            ZipFile.RAFStream is = (ZipFile.RAFStream) in;
+            len = is.fill(inf, nativeEndBufSize);
         } else {
             if ((len = in.read(buf)) > 0) {
                 inf.setInput(buf, 0, len);
