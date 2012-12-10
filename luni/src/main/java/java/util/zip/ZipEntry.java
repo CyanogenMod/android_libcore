@@ -176,7 +176,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
 
     /**
      * Sets the comment for this {@code ZipEntry}.
-    @throws IllegalArgumentException if the comment is >= 64 Ki UTF-8 bytes.
+     * @throws IllegalArgumentException if the comment is >= 64 Ki UTF-8 bytes.
      */
     public void setComment(String comment) {
         if (comment == null) {
