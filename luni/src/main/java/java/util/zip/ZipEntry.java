@@ -29,15 +29,11 @@ import libcore.io.BufferIterator;
 import libcore.io.HeapBufferIterator;
 
 /**
- * An instance of {@code ZipEntry} represents an entry within a <i>ZIP-archive</i>.
- * An entry has attributes such as name (= path) or the size of its data. While
- * an entry identifies data stored in an archive, it does not hold the data
- * itself. For example when reading a <i>ZIP-file</i> you will first retrieve
- * all its entries in a collection and then read the data for a specific entry
- * through an input stream.
- *
- * @see ZipFile
- * @see ZipOutputStream
+ * An entry within a zip file.
+ * An entry has attributes such as its name (which is actually a path) and the uncompressed size
+ * of the corresponding data. An entry does not contain the data itself, but can be used as a key
+ * with {@link ZipFile#getInputStream}. The class documentation for {@link ZipInputStream} and
+ * {@link ZipOutputStream} shows how {@code ZipEntry} is used in conjunction with those two classes.
  */
 public class ZipEntry implements ZipConstants, Cloneable {
     String name;
@@ -55,7 +51,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
     byte[] extra;
 
     int nameLength = -1;
-    long mLocalHeaderRelOffset = -1;
+    long localHeaderRelOffset = -1;
 
     /**
      * Zip entry state: Deflated.
@@ -68,10 +64,9 @@ public class ZipEntry implements ZipConstants, Cloneable {
     public static final int STORED = 0;
 
     /**
-     * Constructs a new {@code ZipEntry} with the specified name.
+     * Constructs a new {@code ZipEntry} with the specified name. The name is actually a path,
+     * and may contain {@code /} characters.
      *
-     * @param name
-     *            the name of the ZIP entry.
      * @throws IllegalArgumentException
      *             if the name length is outside the range (> 0xFFFF).
      */
@@ -87,7 +82,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
 
     /**
      * Returns the comment for this {@code ZipEntry}, or {@code null} if there is no comment.
-     * If we're reading an archive with {@code ZipInputStream} the comment is not available.
+     * If we're reading a zip file using {@code ZipInputStream}, the comment is not available.
      */
     public String getComment() {
         return comment;
@@ -181,7 +176,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
 
     /**
      * Sets the comment for this {@code ZipEntry}.
-     * @throws IllegalArgumentException if the comment is longer than 64 KiB.
+    @throws IllegalArgumentException if the comment is >= 64 Ki UTF-8 bytes.
      */
     public void setComment(String comment) {
         if (comment == null) {
@@ -225,10 +220,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
     /**
      * Sets the extra information for this {@code ZipEntry}.
      *
-     * @param data
-     *            a byte array containing the extra information.
-     * @throws IllegalArgumentException
-     *             when the length of data is greater than 64 KiB.
+     * @throws IllegalArgumentException if the data length >= 64 KiB.
      */
     public void setExtra(byte[] data) {
         if (data != null && data.length > 0xffff) {
@@ -322,7 +314,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
         modDate = ze.modDate;
         extra = ze.extra;
         nameLength = ze.nameLength;
-        mLocalHeaderRelOffset = ze.mLocalHeaderRelOffset;
+        localHeaderRelOffset = ze.localHeaderRelOffset;
     }
 
     /**
@@ -381,7 +373,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
 
         // This is a 32-bit value in the file, but a 64-bit field in this object.
         it.seek(42);
-        mLocalHeaderRelOffset = ((long) it.readInt()) & 0xffffffffL;
+        localHeaderRelOffset = ((long) it.readInt()) & 0xffffffffL;
 
         byte[] nameBytes = new byte[nameLength];
         Streams.readFully(in, nameBytes, 0, nameBytes.length);
