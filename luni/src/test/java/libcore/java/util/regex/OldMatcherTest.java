@@ -17,6 +17,7 @@
 
 package libcore.java.util.regex;
 
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import junit.framework.TestCase;
@@ -605,5 +606,41 @@ public class OldMatcherTest extends TestCase {
         assertFalse("\u1680".matches("\\S")); // OGHAM SPACE MARK
         assertTrue("\u00ea".matches("\\w")); // LATIN SMALL LETTER E WITH CIRCUMFLEX
         assertFalse("\u00ea".matches("\\W")); // LATIN SMALL LETTER E WITH CIRCUMFLEX
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=41143
+    public void testConcurrentMatcherAccess() throws Exception {
+        final Pattern p = Pattern.compile("(^|\\W)([a-z])");
+        final Matcher m = p.matcher("");
+
+        ArrayList<Thread> threads = new ArrayList<Thread>();
+        for (int i = 0; i < 10; ++i) {
+            Thread t = new Thread(new Runnable() {
+                public void run() {
+                    for (int i = 0; i < 4096; ++i) {
+                        String s = "some example text";
+                        m.reset(s);
+                        try {
+                            StringBuffer sb = new StringBuffer(s.length());
+                            while (m.find()) {
+                                m.appendReplacement(sb, m.group(1) + m.group(2));
+                            }
+                            m.appendTail(sb);
+                        } catch (Exception expected) {
+                            // This code is inherently unsafe and crazy;
+                            // we're just trying to provoke native crashes!
+                        }
+                    }
+                }
+            });
+            threads.add(t);
+        }
+
+        for (Thread t : threads) {
+            t.start();
+        }
+        for (Thread t : threads) {
+            t.join();
+        }
     }
 }

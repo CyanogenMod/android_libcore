@@ -28,7 +28,8 @@ public final class Matcher implements MatchResult {
     private Pattern pattern;
 
     /**
-     * Holds the handle for the native version of the pattern.
+     * The address of the native peer.
+     * Uses of this must be manually synchronized to avoid native crashes.
      */
     private int address;
 
@@ -247,9 +248,11 @@ public final class Matcher implements MatchResult {
     }
 
     private void resetForInput() {
-        setInputImpl(address, input, regionStart, regionEnd);
-        useAnchoringBoundsImpl(address, anchoringBounds);
-        useTransparentBoundsImpl(address, transparentBounds);
+        synchronized (this) {
+            setInputImpl(address, input, regionStart, regionEnd);
+            useAnchoringBoundsImpl(address, anchoringBounds);
+            useTransparentBoundsImpl(address, transparentBounds);
+        }
     }
 
     /**
@@ -383,7 +386,9 @@ public final class Matcher implements MatchResult {
             throw new IndexOutOfBoundsException("start=" + start + "; length=" + input.length());
         }
 
-        matchFound = findImpl(address, input, start, matchOffsets);
+        synchronized (this) {
+            matchFound = findImpl(address, input, start, matchOffsets);
+        }
         return matchFound;
     }
 
@@ -396,7 +401,9 @@ public final class Matcher implements MatchResult {
      * @return true if (and only if) a match has been found.
      */
     public boolean find() {
-        matchFound = findNextImpl(address, input, matchOffsets);
+        synchronized (this) {
+            matchFound = findNextImpl(address, input, matchOffsets);
+        }
         return matchFound;
     }
 
@@ -408,7 +415,9 @@ public final class Matcher implements MatchResult {
      * @return true if (and only if) the {@code Pattern} matches.
      */
     public boolean lookingAt() {
-        matchFound = lookingAtImpl(address, input, matchOffsets);
+        synchronized (this) {
+            matchFound = lookingAtImpl(address, input, matchOffsets);
+        }
         return matchFound;
     }
 
@@ -420,7 +429,9 @@ public final class Matcher implements MatchResult {
      *         region.
      */
     public boolean matches() {
-        matchFound = matchesImpl(address, input, matchOffsets);
+        synchronized (this) {
+            matchFound = matchesImpl(address, input, matchOffsets);
+        }
         return matchFound;
     }
 
@@ -496,7 +507,9 @@ public final class Matcher implements MatchResult {
      * @return the number of groups.
      */
     public int groupCount() {
-        return groupCountImpl(address);
+        synchronized (this) {
+            return groupCountImpl(address);
+        }
     }
 
     /**
@@ -536,8 +549,10 @@ public final class Matcher implements MatchResult {
      * @return the {@code Matcher} itself.
      */
     public Matcher useAnchoringBounds(boolean value) {
-        anchoringBounds = value;
-        useAnchoringBoundsImpl(address, value);
+        synchronized (this) {
+            anchoringBounds = value;
+            useAnchoringBoundsImpl(address, value);
+        }
         return this;
     }
 
@@ -564,8 +579,10 @@ public final class Matcher implements MatchResult {
      * @return the {@code Matcher} itself.
      */
     public Matcher useTransparentBounds(boolean value) {
-        transparentBounds = value;
-        useTransparentBoundsImpl(address, value);
+        synchronized (this) {
+            transparentBounds = value;
+            useTransparentBoundsImpl(address, value);
+        }
         return this;
     }
 
@@ -595,43 +612,38 @@ public final class Matcher implements MatchResult {
     }
 
     /**
-     * Returns this matcher's region start, that is, the first character that is
+     * Returns this matcher's region start, that is, the index of the first character that is
      * considered for a match.
-     *
-     * @return the start of the region.
      */
     public int regionStart() {
         return regionStart;
     }
 
     /**
-     * Returns this matcher's region end, that is, the first character that is
+     * Returns this matcher's region end, that is, the index of the first character that is
      * not considered for a match.
-     *
-     * @return the end of the region.
      */
     public int regionEnd() {
         return regionEnd;
     }
 
     /**
-     * Indicates whether more input might change a successful match into an
+     * Returns true if and only if more input might change a successful match into an
      * unsuccessful one.
-     *
-     * @return true if (and only if) more input might change a successful match
-     *         into an unsuccessful one.
      */
     public boolean requireEnd() {
-        return requireEndImpl(address);
+        synchronized (this) {
+            return requireEndImpl(address);
+        }
     }
 
     /**
-     * Indicates whether the last match hit the end of the input.
-     *
-     * @return true if (and only if) the last match hit the end of the input.
+     * Returns true if and only if the last match hit the end of the input.
      */
     public boolean hitEnd() {
-        return hitEndImpl(address);
+        synchronized (this) {
+            return hitEndImpl(address);
+        }
     }
 
     @Override protected void finalize() throws Throwable {
