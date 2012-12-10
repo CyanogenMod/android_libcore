@@ -175,7 +175,7 @@ public class Deflater {
     /**
      * Constructs a new {@code Deflater} instance with a specific compression
      * level. If {@code noHeader} is true, no ZLIB header is added to the
-     * output. In a ZIP archive every entry (compressed file) comes with such a
+     * output. In a zip file, every entry (compressed file) comes with such a
      * header. The strategy can be specified using {@link #setStrategy}.
      *
      * @param level
