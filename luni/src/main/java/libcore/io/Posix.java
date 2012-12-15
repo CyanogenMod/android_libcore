@@ -173,6 +173,7 @@ public final class Posix implements Os {
     public native void symlink(String oldPath, String newPath) throws ErrnoException;
     public native long sysconf(int name);
     public native void tcdrain(FileDescriptor fd) throws ErrnoException;
+    public native void tcsendbreak(FileDescriptor fd, int duration) throws ErrnoException;
     public int umask(int mask) {
         if ((mask & 0777) != mask) {
             throw new IllegalArgumentException("Invalid umask: " + mask);
