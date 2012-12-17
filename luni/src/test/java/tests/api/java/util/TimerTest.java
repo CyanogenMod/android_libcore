@@ -91,6 +91,15 @@ public class TimerTest extends junit.framework.TestCase {
         }
     }
 
+    private void awaitRun(TimerTestTask task) {
+        while (task.wasRun() == 0) {
+            try {
+                Thread.sleep(150);
+            } catch (InterruptedException e) {
+            }
+        }
+    }
+
     /**
      * java.util.Timer#Timer(boolean)
      */
@@ -101,14 +110,7 @@ public class TimerTest extends junit.framework.TestCase {
             t = new Timer(true);
             TimerTestTask testTask = new TimerTestTask();
             t.schedule(testTask, 200);
-            synchronized (sync) {
-                try {
-                    sync.wait(1000);
-                } catch (InterruptedException e) {
-                }
-            }
-            assertEquals("TimerTask.run() method not called after 200ms",
-                    1, testTask.wasRun());
+            awaitRun(testTask);
             t.cancel();
         } finally {
             if (t != null)
@@ -127,14 +129,7 @@ public class TimerTest extends junit.framework.TestCase {
             t = new Timer();
             TimerTestTask testTask = new TimerTestTask();
             t.schedule(testTask, 200);
-            synchronized (sync) {
-                try {
-                    sync.wait(1000);
-                } catch (InterruptedException e) {
-                }
-            }
-            assertEquals("TimerTask.run() method not called after 200ms",
-                    1, testTask.wasRun());
+            awaitRun(testTask);
             t.cancel();
         } finally {
             if (t != null)
@@ -153,13 +148,7 @@ public class TimerTest extends junit.framework.TestCase {
             t = new Timer("test_ConstructorSZThread", true);
             TimerTestTask testTask = new TimerTestTask();
             t.schedule(testTask, 200);
-            synchronized (sync) {
-                try {
-                    sync.wait(1000);
-                } catch (InterruptedException e) {}
-            }
-            assertEquals("TimerTask.run() method not called after 200ms", 1,
-                    testTask.wasRun());
+            awaitRun(testTask);
             t.cancel();
         } finally {
             if (t != null)
@@ -191,13 +180,7 @@ public class TimerTest extends junit.framework.TestCase {
             t = new Timer("test_ConstructorSThread");
             TimerTestTask testTask = new TimerTestTask();
             t.schedule(testTask, 200);
-            synchronized (sync) {
-                try {
-                    sync.wait(1000);
-                } catch (InterruptedException e) {}
-            }
-            assertEquals("TimerTask.run() method not called after 200ms", 1,
-                    testTask.wasRun());
+            awaitRun(testTask);
             t.cancel();
         } finally {
             if (t != null)
@@ -236,14 +219,7 @@ public class TimerTest extends junit.framework.TestCase {
             t = new Timer();
             testTask = new TimerTestTask();
             t.schedule(testTask, 100, 500);
-            synchronized (sync) {
-                try {
-                    sync.wait(1000);
-                } catch (InterruptedException e) {
-                }
-            }
-            assertEquals("TimerTask.run() method not called after 200ms",
-                    1, testTask.wasRun());
+            awaitRun(testTask);
             t.cancel();
             synchronized (sync) {
                 try {
@@ -258,14 +234,7 @@ public class TimerTest extends junit.framework.TestCase {
             t = new Timer();
             testTask = new TimerTestTask();
             t.schedule(testTask, 100, 500);
-            synchronized (sync) {
-                try {
-                    sync.wait(500);
-                } catch (InterruptedException e) {
-                }
-            }
-            assertEquals("TimerTask.run() method not called after 200ms",
-                    1, testTask.wasRun());
+            awaitRun(testTask);
             t.cancel();
             t.cancel();
             t.cancel();
@@ -446,12 +415,7 @@ public class TimerTest extends junit.framework.TestCase {
             testTask = new TimerTestTask();
             d = new Date(System.currentTimeMillis() + 200);
             t.schedule(testTask, d);
-            try {
-                Thread.sleep(400);
-            } catch (InterruptedException e) {
-            }
-            assertEquals("TimerTask.run() method not called after 200ms",
-                    1, testTask.wasRun());
+            awaitRun(testTask);
             t.cancel();
 
             // Ensure multiple tasks are run
@@ -568,12 +532,7 @@ public class TimerTest extends junit.framework.TestCase {
             t = new Timer();
             testTask = new TimerTestTask();
             t.schedule(testTask, 200);
-            try {
-                Thread.sleep(400);
-            } catch (InterruptedException e) {
-            }
-            assertEquals("TimerTask.run() method not called after 200ms",
-                    1, testTask.wasRun());
+            awaitRun(testTask);
             t.cancel();
 
             // Ensure multiple tasks are run
