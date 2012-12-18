@@ -473,6 +473,12 @@ public class HttpEngine {
         }
     }
 
+    public final void markConnectionAsRecycled() {
+        if (connection != null) {
+            connection.setRecycled();
+        }
+    }
+
     /**
      * Releases this engine so that its resources may be either reused or
      * closed.
