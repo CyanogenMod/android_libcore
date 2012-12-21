@@ -340,12 +340,12 @@ public final class DistinguishedNameParser {
     }
 
     /**
-     * Parses the DN and returns the attribute value for an attribute type.
+     * Parses the DN and returns the most significant attribute value
+     * for an attribute type, or null if none found.
      *
      * @param attributeType attribute type to look for (e.g. "ca")
-     * @return value of the attribute that first found, or null if none found
      */
-    public String find(String attributeType) {
+    public String findMostSpecific(String attributeType) {
         // Initialize internal state.
         pos = 0;
         beg = 0;
@@ -357,11 +357,15 @@ public final class DistinguishedNameParser {
         if (attType == null) {
             return null;
         }
+        // Values are ordered from least specific to most specific. We
+        // remember the most recent choice in result and return it
+        // when we reach the end of the input.
+        String result = null;
         while (true) {
             String attValue = "";
 
             if (pos == length) {
-                return null;
+                return result;
             }
 
             switch (chars[pos]) {
@@ -381,11 +385,11 @@ public final class DistinguishedNameParser {
             }
 
             if (attributeType.equalsIgnoreCase(attType)) {
-                return attValue;
+                result = attValue;
             }
 
             if (pos >= length) {
-                return null;
+                return result;
             }
 
             if (chars[pos] == ',' || chars[pos] == ';') {
