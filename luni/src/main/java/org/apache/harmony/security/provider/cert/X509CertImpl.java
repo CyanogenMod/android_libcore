@@ -305,9 +305,9 @@ public final class X509CertImpl extends X509Certificate {
 
     public int getBasicConstraints() {
         if (extensions == null) {
-            return Integer.MAX_VALUE;
+            return -1;
         }
-        return extensions.valueOfBasicConstrains();
+        return extensions.valueOfBasicConstraints();
     }
 
     public Collection<List<?>> getSubjectAlternativeNames() throws CertificateParsingException {
