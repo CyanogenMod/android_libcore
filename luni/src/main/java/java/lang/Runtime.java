@@ -32,6 +32,7 @@
 
 package java.lang;
 
+import dalvik.system.BaseDexClassLoader;
 import dalvik.system.VMDebug;
 import dalvik.system.VMStack;
 import java.io.File;
@@ -329,7 +330,7 @@ public class Runtime {
         if (pathName == null) {
             throw new NullPointerException("pathName == null");
         }
-        String error = nativeLoad(pathName, loader);
+        String error = doLoad(pathName, loader);
         if (error != null) {
             throw new UnsatisfiedLinkError(error);
         }
@@ -356,11 +357,11 @@ public class Runtime {
         if (loader != null) {
             String filename = loader.findLibrary(libraryName);
             if (filename == null) {
-                throw new UnsatisfiedLinkError("Couldn't load " + libraryName
-                                               + " from loader " + loader
-                                               + ": findLibrary returned null");
+                throw new UnsatisfiedLinkError("Couldn't load " + libraryName +
+                                               " from loader " + loader +
+                                               ": findLibrary returned null");
             }
-            String error = nativeLoad(filename, loader);
+            String error = doLoad(filename, loader);
             if (error != null) {
                 throw new UnsatisfiedLinkError(error);
             }
@@ -375,7 +376,7 @@ public class Runtime {
             candidates.add(candidate);
 
             if (IoUtils.canOpenReadOnly(candidate)) {
-                String error = nativeLoad(candidate, loader);
+                String error = doLoad(candidate, loader);
                 if (error == null) {
                     return; // We successfully loaded the library. Job done.
                 }
@@ -391,7 +392,40 @@ public class Runtime {
 
     private static native void nativeExit(int code);
 
-    private static native String nativeLoad(String filename, ClassLoader loader);
+    private String doLoad(String name, ClassLoader loader) {
+        // Android apps are forked from the zygote, so they can't have a custom LD_LIBRARY_PATH,
+        // which means that by default an app's shared library directory isn't on LD_LIBRARY_PATH.
+
+        // The PathClassLoader set up by frameworks/base knows the appropriate path, so we can load
+        // libraries with no dependencies just fine, but an app that has multiple libraries that
+        // depend on each other needed to load them in most-dependent-first order.
+
+        // We added API to Android's dynamic linker so we can update the library path used for
+        // the currently-running process. We pull the desired path out of the ClassLoader here
+        // and pass it to nativeLoad so that it can call the private dynamic linker API.
+
+        // We didn't just change frameworks/base to update the LD_LIBRARY_PATH once at the
+        // beginning because multiple apks can run in the same process and third party code can
+        // use its own BaseDexClassLoader.
+
+        // We didn't just add a dlopen_with_custom_LD_LIBRARY_PATH call because we wanted any
+        // dlopen(3) calls made from a .so's JNI_OnLoad to work too.
+
+        // So, find out what the native library search path is for the ClassLoader in question...
+        String ldLibraryPath = null;
+        if (loader != null && loader instanceof BaseDexClassLoader) {
+            ldLibraryPath = ((BaseDexClassLoader) loader).getLdLibraryPath();
+        }
+        // nativeLoad should be synchronized so there's only one LD_LIBRARY_PATH in use regardless
+        // of how many ClassLoaders are in the system, but dalvik doesn't support synchronized
+        // internal natives.
+        synchronized (this) {
+            return nativeLoad(name, loader, ldLibraryPath);
+        }
+    }
+
+    // TODO: should be synchronized, but dalvik doesn't support synchronized internal natives.
+    private static native String nativeLoad(String filename, ClassLoader loader, String ldLibraryPath);
 
     /**
      * Provides a hint to the VM that it would be useful to attempt

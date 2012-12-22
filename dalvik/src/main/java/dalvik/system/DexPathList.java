@@ -109,6 +109,13 @@ import static libcore.io.OsConstants.*;
     }
 
     /**
+     * For BaseDexClassLoader.getLdLibraryPath.
+     */
+    public File[] getNativeLibraryDirectories() {
+        return nativeLibraryDirectories;
+    }
+
+    /**
      * Splits the given dex path string into elements using the path
      * separator, pruning out any elements that do not refer to existing
      * and readable files. (That is, directories are not included in the
