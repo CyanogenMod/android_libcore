@@ -112,6 +112,20 @@ public class BaseDexClassLoader extends ClassLoader {
         return null;
     }
 
+    /**
+     * @hide
+     */
+    public String getLdLibraryPath() {
+        StringBuilder result = new StringBuilder();
+        for (File directory : path.getNativeLibraryDirectories()) {
+            if (result.length() > 0) {
+                result.append(':');
+            }
+            result.append(directory);
+        }
+        return result.toString();
+    }
+
     @Override public String toString() {
         return getClass().getName() + "[" + path + "]";
     }
