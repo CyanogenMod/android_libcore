@@ -879,31 +879,45 @@ static jint NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
         return 0;
     }
 
-    if (e != NULL && !arrayToBignum(env, e, &rsa->e)) {
+    if (e == NULL) {
+        rsa->e = BN_new();
+    } else if (!arrayToBignum(env, e, &rsa->e)) {
         return 0;
     }
 
-    if (d != NULL && !arrayToBignum(env, d, &rsa->d)) {
+    if (d == NULL) {
+        rsa->d = BN_new();
+    } else if (!arrayToBignum(env, d, &rsa->d)) {
         return 0;
     }
 
-    if (p != NULL && !arrayToBignum(env, p, &rsa->p)) {
+    if (p == NULL) {
+        rsa->p = BN_new();
+    } else if (!arrayToBignum(env, p, &rsa->p)) {
         return 0;
     }
 
-    if (q != NULL && !arrayToBignum(env, q, &rsa->q)) {
+    if (q == NULL) {
+        rsa->q = BN_new();
+    } else if (!arrayToBignum(env, q, &rsa->q)) {
         return 0;
     }
 
-    if (dmp1 != NULL && !arrayToBignum(env, dmp1, &rsa->dmp1)) {
+    if (dmp1 == NULL) {
+        rsa->dmp1 = BN_new();
+    } else if (!arrayToBignum(env, dmp1, &rsa->dmp1)) {
         return 0;
     }
 
-    if (dmq1 != NULL && !arrayToBignum(env, dmq1, &rsa->dmq1)) {
+    if (dmq1 == NULL) {
+        rsa->dmq1 = BN_new();
+    } else if (!arrayToBignum(env, dmq1, &rsa->dmq1)) {
         return 0;
     }
 
-    if (iqmp != NULL && !arrayToBignum(env, iqmp, &rsa->iqmp)) {
+    if (iqmp == NULL) {
+        rsa->iqmp = BN_new();
+    } else if (!arrayToBignum(env, iqmp, &rsa->iqmp)) {
         return 0;
     }
 
@@ -924,8 +938,8 @@ static jint NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
      * operations. If the public exponent is also available, OpenSSL will do RSA
      * blinding. Enable it if possible.
      */
-    if (rsa->d != NULL) {
-        if (rsa->e != NULL) {
+    if (d != NULL) {
+        if (e != NULL) {
             JNI_TRACE("EVP_PKEY_new_RSA(...) enabling RSA blinding => %p", rsa.get());
             RSA_blinding_on(rsa.get(), NULL);
         } else {
