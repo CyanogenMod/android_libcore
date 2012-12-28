@@ -222,14 +222,20 @@ public final class Extensions {
      * </pre>
      * (as specified in RFC 3280)
      *
-     * @return the value of pathLenConstraint field if extension presents,
-     * and Integer.MAX_VALUE if does not.
+     * @return-1 if the Basic Constraints Extension is not present or
+     * it is present but it indicates the certificate is not a
+     * certificate authority. If the certificate is a certificate
+     * authority, returns the path length constraint if present, or
+     * Integer.MAX_VALUE if it is not.
      */
-    public int valueOfBasicConstrains() {
+    public int valueOfBasicConstraints() {
         Extension extension = getExtensionByOID("2.5.29.19");
-        BasicConstraints bc;
-        if ((extension == null) || ((bc = extension.getBasicConstraintsValue()) == null)) {
-            return Integer.MAX_VALUE;
+        if (extension == null) {
+            return -1;
+        }
+        BasicConstraints bc = extension.getBasicConstraintsValue();
+        if (bc == null || !bc.getCa()) {
+            return -1;
         }
         return bc.getPathLenConstraint();
     }
