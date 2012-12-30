@@ -573,6 +573,44 @@ static jbyteArray bignumToArray(JNIEnv* env, const BIGNUM* source, const char* s
 }
 
 /**
+ * Converts various OpenSSL ASN.1 types to a jbyteArray with DER-encoded data
+ * inside. The "i2d_func" function pointer is a function of the "i2d_<TYPE>"
+ * from the OpenSSL ASN.1 API.
+ */
+template<typename T>
+jbyteArray ASN1ToByteArray(JNIEnv* env, T* obj, int (*i2d_func)(T*, unsigned char**)) {
+    int derLen = i2d_func(obj, NULL);
+    if (derLen < 0) {
+        throwExceptionIfNecessary(env, "ASN1ToByteArray");
+        JNI_TRACE("ASN1ToByteArray(%p) => measurement failed", obj);
+        return NULL;
+    }
+
+    ScopedLocalRef<jbyteArray> byteArray(env, env->NewByteArray(derLen));
+    if (byteArray.get() == NULL) {
+        JNI_TRACE("ASN1ToByteArray(%p) => creating byte array failed", obj);
+        return NULL;
+    }
+
+    ScopedByteArrayRW bytes(env, byteArray.get());
+    if (bytes.get() == NULL) {
+        JNI_TRACE("ASN1ToByteArray(%p) => using byte array failed", obj);
+        return NULL;
+    }
+
+    unsigned char* p = reinterpret_cast<unsigned char*>(bytes.get());
+    int ret = i2d_func(obj, &p);
+    if (ret < 0) {
+        throwExceptionIfNecessary(env, "ASN1ToByteArray");
+        JNI_TRACE("ASN1ToByteArray(%p) => final conversion failed", obj);
+        return NULL;
+    }
+
+    JNI_TRACE("ASN1ToByteArray(%p) => success (%d bytes written)", obj, ret);
+    return byteArray.release();
+}
+
+/**
  * OpenSSL locking support. Taken from the O'Reilly book by Viega et al., but I
  * suppose there are not many other ways to do this on a Linux system (modulo
  * isomorphism).
@@ -1150,30 +1188,7 @@ static jbyteArray NativeCrypto_i2d_PKCS8_PRIV_KEY_INFO(JNIEnv* env, jclass, jint
         return NULL;
     }
 
-    int len = i2d_PKCS8_PRIV_KEY_INFO(pkcs8.get(), NULL);
-    if (len < 0) {
-        throwExceptionIfNecessary(env, "i2d_PKCS8_PRIV_KEY_INFO");
-        return NULL;
-    }
-
-    ScopedLocalRef<jbyteArray> javaBytes(env, env->NewByteArray(len));
-    if (javaBytes.get() == NULL) {
-        return NULL;
-    }
-
-    ScopedByteArrayRW bytes(env, javaBytes.get());
-    if (bytes.get() == NULL) {
-        return NULL;
-    }
-
-    unsigned char* tmp = reinterpret_cast<unsigned char*>(bytes.get());
-    if (i2d_PKCS8_PRIV_KEY_INFO(pkcs8.get(), &tmp) < 0) {
-        throwExceptionIfNecessary(env, "i2d_PKCS8_PRIV_KEY_INFO");
-        return NULL;
-    }
-
-    JNI_TRACE("pkey=%p i2d_PKCS8_PRIV_KEY_INFO => size=%d", pkey, len);
-    return javaBytes.release();
+    return ASN1ToByteArray<PKCS8_PRIV_KEY_INFO>(env, pkcs8.get(), i2d_PKCS8_PRIV_KEY_INFO);
 }
 
 /*
@@ -1219,28 +1234,7 @@ static jbyteArray NativeCrypto_i2d_PUBKEY(JNIEnv* env, jclass, jint pkeyRef) {
         return NULL;
     }
 
-    int len = i2d_PUBKEY(pkey, NULL);
-    if (len < 0) {
-        throwExceptionIfNecessary(env, "i2d_PUBKEY");
-        JNI_TRACE("i2d_PUBKEY(%p) => threw error measuring key", pkey);
-        return NULL;
-    }
-
-    jbyteArray javaBytes = env->NewByteArray(len);
-    ScopedByteArrayRW bytes(env, javaBytes);
-    if (bytes.get() == NULL) {
-        return NULL;
-    }
-
-    unsigned char* tmp = reinterpret_cast<unsigned char*>(bytes.get());
-    if (i2d_PUBKEY(pkey, &tmp) < 0) {
-        throwExceptionIfNecessary(env, "i2d_PUBKEY");
-        JNI_TRACE("i2d_PUBKEY(%p) => threw error converting key", pkey);
-        return NULL;
-    }
-
-    JNI_TRACE("pkey=%p i2d_PUBKEY => size=%d", pkey, len);
-    return javaBytes;
+    return ASN1ToByteArray<EVP_PKEY>(env, pkey, i2d_PUBKEY);
 }
 
 /*
@@ -3120,21 +3114,8 @@ static jobjectArray getCertificateBytes(JNIEnv* env, const STACK_OF(X509)* chain
     for (int i = 0; i < count; i++) {
         X509* cert = sk_X509_value(chain, i);
 
-        int len = i2d_X509(cert, NULL);
-        if (len < 0) {
-            return NULL;
-        }
-        ScopedLocalRef<jbyteArray> byteArray(env, env->NewByteArray(len));
+        ScopedLocalRef<jbyteArray> byteArray(env, ASN1ToByteArray<X509>(env, cert, i2d_X509));
         if (byteArray.get() == NULL) {
-            return NULL;
-        }
-        ScopedByteArrayRW bytes(env, byteArray.get());
-        if (bytes.get() == NULL) {
-            return NULL;
-        }
-        unsigned char* p = reinterpret_cast<unsigned char*>(bytes.get());
-        int n = i2d_X509(cert, &p);
-        if (n < 0) {
             return NULL;
         }
         env->SetObjectArrayElement(joa, i, byteArray.get());
@@ -3157,35 +3138,24 @@ static jobjectArray getPrincipalBytes(JNIEnv* env, const STACK_OF(X509_NAME)* na
         return NULL;
     }
 
-    jobjectArray joa = env->NewObjectArray(count, JniConstants::byteArrayClass, NULL);
-    if (joa == NULL) {
+    ScopedLocalRef<jobjectArray> joa(env, env->NewObjectArray(count, JniConstants::byteArrayClass,
+            NULL));
+    if (joa.get() == NULL) {
         return NULL;
     }
 
     for (int i = 0; i < count; i++) {
         X509_NAME* principal = sk_X509_NAME_value(names, i);
 
-        int len = i2d_X509_NAME(principal, NULL);
-        if (len < 0) {
-            return NULL;
-        }
-        ScopedLocalRef<jbyteArray> byteArray(env, env->NewByteArray(len));
+        ScopedLocalRef<jbyteArray> byteArray(env, ASN1ToByteArray<X509_NAME>(env, principal,
+                i2d_X509_NAME));
         if (byteArray.get() == NULL) {
             return NULL;
         }
-        ScopedByteArrayRW bytes(env, byteArray.get());
-        if (bytes.get() == NULL) {
-            return NULL;
-        }
-        unsigned char* p = reinterpret_cast<unsigned char*>(bytes.get());
-        int n = i2d_X509_NAME(principal, &p);
-        if (n < 0) {
-            return NULL;
-        }
-        env->SetObjectArrayElement(joa, i, byteArray.get());
+        env->SetObjectArrayElement(joa.get(), i, byteArray.get());
     }
 
-    return joa;
+    return joa.release();
 }
 
 /**
@@ -5375,27 +5345,7 @@ static jbyteArray NativeCrypto_i2d_SSL_SESSION(JNIEnv* env, jclass, jint ssl_ses
         return NULL;
     }
 
-    // Compute the size of the DER data
-    int size = i2d_SSL_SESSION(ssl_session, NULL);
-    if (size == 0) {
-        JNI_TRACE("ssl_session=%p NativeCrypto_i2d_SSL_SESSION => NULL", ssl_session);
-        return NULL;
-    }
-
-    jbyteArray javaBytes = env->NewByteArray(size);
-    if (javaBytes != NULL) {
-        ScopedByteArrayRW bytes(env, javaBytes);
-        if (bytes.get() == NULL) {
-            JNI_TRACE("ssl_session=%p NativeCrypto_i2d_SSL_SESSION => threw exception",
-                      ssl_session);
-            return NULL;
-        }
-        unsigned char* ucp = reinterpret_cast<unsigned char*>(bytes.get());
-        i2d_SSL_SESSION(ssl_session, &ucp);
-    }
-
-    JNI_TRACE("ssl_session=%p NativeCrypto_i2d_SSL_SESSION => size=%d", ssl_session, size);
-    return javaBytes;
+    return ASN1ToByteArray<SSL_SESSION>(env, ssl_session, i2d_SSL_SESSION);
 }
 
 /**
