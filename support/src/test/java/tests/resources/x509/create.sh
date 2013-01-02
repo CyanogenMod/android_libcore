@@ -102,3 +102,12 @@ rm -rf /tmp/ca
 rm -f privkey.pem
 rm -f dsapriv.pem
 rm -f ecpriv.pem
+
+rm -f certs.pem
+
+cat cert-rsa.der cert-dsa.der > certs.der
+openssl x509 -inform d -in cert-rsa.der > certs.pem
+openssl x509 -inform d -in cert-dsa.der >> certs.pem
+
+openssl crl2pkcs7 -certfile certs.pem -nocrl > certs-pk7.pem
+openssl crl2pkcs7 -certfile certs.pem -nocrl -outform d > certs-pk7.der
