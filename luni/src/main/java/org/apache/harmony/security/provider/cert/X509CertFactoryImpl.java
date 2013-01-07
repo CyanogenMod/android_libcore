@@ -197,7 +197,8 @@ public class X509CertFactoryImpl extends CertificateFactorySpi {
                 // some Certificates have been read
                 return result;
             } else if (ch == -1) {
-                throw new CertificateException("There is no data in the stream");
+                /* No data in the stream, so return the empty collection. */
+                return result;
             }
             // else: check if it is PKCS7
             if (second_asn1_tag == ASN1Constants.TAG_OID) {
