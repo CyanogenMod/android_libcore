@@ -1177,20 +1177,7 @@ public class X509CertificateTest extends TestCase {
     private void generateCertificates_Empty(CertificateFactory f) throws Exception {
         final InputStream is = new ByteArrayInputStream(new byte[0]);
 
-        final Collection<? extends Certificate> certs;
-
-        // DRLCertFactory is broken
-        try {
-            certs = f.generateCertificates(is);
-            if ("DRLCertFactory".equals(f.getProvider().getName())) {
-                fail("should throw when no certificates present");
-            }
-        } catch (CertificateException e) {
-            if ("DRLCertFactory".equals(f.getProvider().getName())) {
-                return;
-            }
-            throw e;
-        }
+        final Collection<? extends Certificate> certs = f.generateCertificates(is);
 
         assertNotNull(certs);
         assertEquals(0, certs.size());
