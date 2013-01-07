@@ -77,7 +77,7 @@ public class Splitter {
             // Last part is empty for limit == 0, remove all trailing empty matches.
             if (separatorCount == lastPartEnd) {
                 // Input contains only separators.
-                return new String[0];
+                return EmptyArray.STRING;
             }
             // Find the beginning of trailing separators.
             do {
