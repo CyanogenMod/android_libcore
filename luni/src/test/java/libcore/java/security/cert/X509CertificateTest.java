@@ -903,17 +903,7 @@ public class X509CertificateTest extends TestCase {
 
     private void getSubjectAlternativeNames_InvalidIP(CertificateFactory f) throws Exception {
         X509Certificate c = getCertificate(f, CERT_INVALIDIP);
-        Collection<List<?>> col = null;
-        try {
-            col = c.getSubjectAlternativeNames();
-            if ("DRLCertFactory".equals(f.getProvider().getName())) {
-                fail("Harmony throws (Provider=" + f.getProvider().getName() + ")");
-            }
-        } catch (IllegalArgumentException expected) {
-            if (!"DRLCertFactory".equals(f.getProvider().getName())) {
-                fail("Non-Harmony shouldn't throw");
-            }
-        }
+        Collection<List<?>> col = c.getSubjectAlternativeNames();
         assertNull(col);
     }
 
