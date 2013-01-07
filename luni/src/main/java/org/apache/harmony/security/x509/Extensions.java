@@ -260,7 +260,19 @@ public final class Extensions {
         if (extension == null) {
             return null;
         }
-        return ((GeneralNames) GeneralNames.ASN1.decode(extension.getExtnValue())).getPairsList();
+
+        Collection<List<?>> collection = ((GeneralNames) GeneralNames.ASN1.decode(extension
+                .getExtnValue())).getPairsList();
+
+        /*
+         * If the extension had any invalid entries, we may have an empty
+         * collection at this point, so just return null.
+         */
+        if (collection.size() == 0) {
+            return null;
+        }
+
+        return collection;
     }
 
     /**
