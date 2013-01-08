@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -37,6 +38,7 @@ import org.apache.harmony.security.asn1.ASN1Choice;
 import org.apache.harmony.security.asn1.ASN1Implicit;
 import org.apache.harmony.security.asn1.ASN1OctetString;
 import org.apache.harmony.security.asn1.ASN1Oid;
+import org.apache.harmony.security.asn1.ASN1SequenceOf;
 import org.apache.harmony.security.asn1.ASN1StringType;
 import org.apache.harmony.security.asn1.ASN1Type;
 import org.apache.harmony.security.asn1.BerInputStream;
@@ -666,12 +668,23 @@ public final class GeneralName {
         }
     }
 
+    /**
+     * The "Name" is actually a CHOICE of one entry, so we need to pretend it's
+     * a SEQUENCE OF and just grab the first entry.
+     */
+    private static final ASN1SequenceOf NAME_ASN1 = new ASN1SequenceOf(Name.ASN1) {
+        @Override
+        public Object decode(BerInputStream in) throws IOException {
+            return ((List<?>) super.decode(in)).get(0);
+        }
+    };
+
     public static final ASN1Choice ASN1 = new ASN1Choice(new ASN1Type[] {
            new ASN1Implicit(0, OtherName.ASN1),
            new ASN1Implicit(1, ASN1StringType.IA5STRING),
            new ASN1Implicit(2, ASN1StringType.IA5STRING),
            new ASN1Implicit(3, ORAddress.ASN1),
-           new ASN1Implicit(4, Name.ASN1),
+           new ASN1Implicit(4, NAME_ASN1),
            new ASN1Implicit(5, EDIPartyName.ASN1),
            new ASN1Implicit(6, ASN1StringType.IA5STRING),
            new ASN1Implicit(7, ASN1OctetString.getInstance()),
