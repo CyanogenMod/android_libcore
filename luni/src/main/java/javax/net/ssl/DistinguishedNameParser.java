@@ -39,6 +39,9 @@ public final class DistinguishedNameParser {
     private char[] chars;
 
     public DistinguishedNameParser(X500Principal principal) {
+        // RFC2253 is used to ensure we get attributes in the reverse
+        // order of the underlying ASN.1 encoding, so that the most
+        // significant values of repeated attributes occur first.
         this.dn = principal.getName(X500Principal.RFC2253);
         this.length = this.dn.length();
     }
@@ -357,15 +360,11 @@ public final class DistinguishedNameParser {
         if (attType == null) {
             return null;
         }
-        // Values are ordered from least specific to most specific. We
-        // remember the most recent choice in result and return it
-        // when we reach the end of the input.
-        String result = null;
         while (true) {
             String attValue = "";
 
             if (pos == length) {
-                return result;
+                return null;
             }
 
             switch (chars[pos]) {
@@ -384,12 +383,15 @@ public final class DistinguishedNameParser {
                 attValue = escapedAV();
             }
 
+            // Values are ordered from most specific to least specific
+            // due to the RFC2253 formatting. So take the first match
+            // we see.
             if (attributeType.equalsIgnoreCase(attType)) {
-                result = attValue;
+                return attValue;
             }
 
             if (pos >= length) {
-                return result;
+                return null;
             }
 
             if (chars[pos] == ',' || chars[pos] == ';') {
