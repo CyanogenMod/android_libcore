@@ -55,6 +55,8 @@ openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfil
 
 openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_rid_cert -req -signkey privkey.pem -outform d > cert-alt-rid.der
 
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_none_cert -req -signkey privkey.pem -outform d > cert-alt-none.der
+
 openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions ipv6_cert -req -signkey privkey.pem -outform d > cert-ipv6.der
 
 openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions unsupported_cert -req -signkey privkey.pem -outform d > cert-unsupported.der
