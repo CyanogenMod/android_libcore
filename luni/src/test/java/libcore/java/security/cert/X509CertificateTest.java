@@ -790,18 +790,7 @@ public class X509CertificateTest extends TestCase {
 
     private void getSubjectAlternativeNames(CertificateFactory f) throws Exception {
         X509Certificate c = getCertificate(f, CERT_RSA);
-        Collection<List<?>> col = null;
-        try {
-            col = c.getSubjectAlternativeNames();
-            if ("DRLCertFactory".equals(f.getProvider().getName())) {
-                fail("Harmony should throw (Provider=" + f.getProvider().getName() + ")");
-            }
-        } catch (CertificateParsingException e) {
-            if (!"DRLCertFactory".equals(f.getProvider().getName())) {
-                throw new Exception("Non-Harmony shouldn't throw", e);
-            }
-            return;
-        }
+        Collection<List<?>> col = c.getSubjectAlternativeNames();
 
         // BouncyCastle is broken
         if ("BC".equals(f.getProvider().getName())) {
@@ -976,19 +965,7 @@ public class X509CertificateTest extends TestCase {
 
     private void getSubjectAlternativeNames_DirName(CertificateFactory f) throws Exception {
         X509Certificate c = getCertificate(f, CERT_ALT_DIRNAME);
-        Collection<List<?>> col = null;
-        try {
-            col = c.getSubjectAlternativeNames();
-            if ("DRLCertFactory".equals(f.getProvider().getName())) {
-                fail("Harmony throws (Provider=" + f.getProvider().getName() + ")");
-            }
-        } catch (CertificateParsingException e) {
-            // Harmony is broken
-            if (!"DRLCertFactory".equals(f.getProvider().getName())) {
-                fail("Non-Harmony shouldn't throw");
-            }
-            return;
-        }
+        Collection<List<?>> col = c.getSubjectAlternativeNames();
 
         // BouncyCastle is broken
         if ("BC".equals(f.getProvider().getName())) {
@@ -1054,18 +1031,7 @@ public class X509CertificateTest extends TestCase {
 
     private void getIssuerAlternativeNames(CertificateFactory f) throws Exception {
         X509Certificate c = getCertificate(f, CERT_RSA);
-        Collection<List<?>> col = null;
-        try {
-            col = c.getSubjectAlternativeNames();
-            if ("DRLCertFactory".equals(f.getProvider().getName())) {
-                fail("Harmony should throw (Provider=" + f.getProvider().getName() + ")");
-            }
-        } catch (CertificateParsingException e) {
-            if (!"DRLCertFactory".equals(f.getProvider().getName())) {
-                throw new Exception("Non-Harmony shouldn't throw", e);
-            }
-            return;
-        }
+        Collection<List<?>> col = c.getSubjectAlternativeNames();
 
         // BouncyCastle is broken
         if ("BC".equals(f.getProvider().getName())) {

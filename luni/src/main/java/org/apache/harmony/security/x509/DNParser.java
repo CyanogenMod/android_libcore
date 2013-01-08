@@ -380,7 +380,7 @@ public final class DNParser {
     /**
      * Parses DN
      *
-     * @return a list of Relative Distinguished Names(RND),
+     * @return a list of Relative Distinguished Names(RDN),
      *         each RDN is represented as a list of AttributeTypeAndValue objects
      */
     public List<List<AttributeTypeAndValue>> parse() throws IOException {
