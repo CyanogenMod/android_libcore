@@ -224,6 +224,8 @@ subjectAltName = @alt_names
 issuerAltName = @alt_names
 #subjectAltName = ASN1:SEQUENCE:raw_alt_names
 
+[ alt_none_cert ]
+
 [ alt_names ]
 otherName.0 = 1.2.3.4;UTF8:test1
 email.0 = x509@example.com
