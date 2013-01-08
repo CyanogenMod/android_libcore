@@ -100,6 +100,8 @@ public class X509CertificateTest extends TestCase {
 
     private static final String CERT_ALT_RID = "x509/cert-alt-rid.der";
 
+    private static final String CERT_ALT_NONE = "x509/cert-alt-none.der";
+
     private static final String CERT_UNSUPPORTED = "x509/cert-unsupported.der";
 
     private static final String CERTS_X509_PEM = "x509/certs.pem";
@@ -269,6 +271,7 @@ public class X509CertificateTest extends TestCase {
                 getSubjectAlternativeNames_DirName(f);
                 getSubjectAlternativeNames_URI(f);
                 getSubjectAlternativeNames_RID(f);
+                getSubjectAlternativeNames_None(f);
                 getIssuerAlternativeNames(f);
                 getTBSCertificate(f);
                 getSignature(f);
@@ -979,6 +982,12 @@ public class X509CertificateTest extends TestCase {
 
         assertTrue(item.get(1) instanceof String);
         assertEquals("1.2.3.4", (String) item.get(1));
+    }
+
+    private void getSubjectAlternativeNames_None(CertificateFactory f) throws Exception {
+        X509Certificate c = getCertificate(f, CERT_ALT_NONE);
+        Collection<List<?>> col = c.getSubjectAlternativeNames();
+        assertNull(col);
     }
 
     private void getIssuerAlternativeNames(CertificateFactory f) throws Exception {
