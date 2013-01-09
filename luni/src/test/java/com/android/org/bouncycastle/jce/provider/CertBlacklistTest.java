@@ -157,7 +157,7 @@ public class CertBlacklistTest extends TestCase {
         return results;
     }
 
-    private String getHash(PublicKey publicKey) throws Exception {
+    private static String getHash(PublicKey publicKey) throws Exception {
         byte[] encoded = publicKey.getEncoded();
         MessageDigest digest = MessageDigest.getInstance("SHA1");
         byte[] hexlifiedHash = Hex.encode(digest.digest(encoded));
@@ -198,14 +198,14 @@ public class CertBlacklistTest extends TestCase {
         blacklistToFile(result.toString());
     }
 
-    private PublicKey createPublicKey(String cert) throws Exception {
+    private static PublicKey createPublicKey(String cert) throws Exception {
         byte[] derCert = Base64.decode(cert.getBytes());
         InputStream istream = new ByteArrayInputStream(derCert);
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         return cf.generateCertificate(istream).getPublicKey();
     }
 
-    private BigInteger createSerialNumber(String cert) throws Exception {
+    private static BigInteger createSerialNumber(String cert) throws Exception {
         byte[] derCert = Base64.decode(cert.getBytes());
         InputStream istream = new ByteArrayInputStream(derCert);
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -415,11 +415,11 @@ public class CertBlacklistTest extends TestCase {
         assertEquals(bl.isPublicKeyBlackListed(pk), true);
     }
 
-    public void printHash(String cert) throws Exception {
+    private static void printHash(String cert) throws Exception {
         System.out.println("CERTIFICATE PUBLIC KEY HASH: " + getHash(createPublicKey(cert)));
     }
 
-    public void printSerial(String cert) throws Exception {
+    private static void printSerial(String cert) throws Exception {
         System.out.println("CERTIFICATE SERIAL NUMBER: " + createSerialNumber(cert).toString(16));
     }
 }
