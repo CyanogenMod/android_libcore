@@ -21,35 +21,35 @@ import javax.security.auth.x500.X500Principal;
 import junit.framework.TestCase;
 
 public final class DistinguishedNameParserTest extends TestCase {
-    public void testGetLastCn() {
-        assertLastCn("", null);
-        assertLastCn("ou=xxx", null);
-        assertLastCn("ou=xxx,cn=xxx", "xxx");
-        assertLastCn("ou=xxx+cn=yyy,cn=zzz+cn=abc", "abc");
-        assertLastCn("cn=a,cn=b", "b");
-        assertLastCn("cn=Cc,cn=Bb,cn=Aa", "Aa");
-        assertLastCn("cn=imap.gmail.com", "imap.gmail.com");
+    public void testGetFirstCn() {
+        assertFirstCn("", null);
+        assertFirstCn("ou=xxx", null);
+        assertFirstCn("ou=xxx,cn=xxx", "xxx");
+        assertFirstCn("ou=xxx+cn=yyy,cn=zzz+cn=abc", "yyy");
+        assertFirstCn("cn=a,cn=b", "a");
+        assertFirstCn("cn=Cc,cn=Bb,cn=Aa", "Cc");
+        assertFirstCn("cn=imap.gmail.com", "imap.gmail.com");
     }
 
     public void testGetFirstCnWithOid() {
-        assertLastCn("2.5.4.3=a,ou=xxx", "a");
+        assertFirstCn("2.5.4.3=a,ou=xxx", "a");
     }
 
     public void testGetFirstCnWithQuotedStrings() {
-        assertLastCn("cn=\"\\\" a ,=<>#;\"", "\" a ,=<>#;");
-        assertLastCn("cn=abc\\,def", "abc,def");
+        assertFirstCn("cn=\"\\\" a ,=<>#;\"", "\" a ,=<>#;");
+        assertFirstCn("cn=abc\\,def", "abc,def");
     }
 
     public void testGetFirstCnWithUtf8() {
-        assertLastCn("cn=Lu\\C4\\8Di\\C4\\87", "\u004c\u0075\u010d\u0069\u0107");
+        assertFirstCn("cn=Lu\\C4\\8Di\\C4\\87", "\u004c\u0075\u010d\u0069\u0107");
     }
 
     public void testGetFirstCnWithWhitespace() {
-        assertLastCn("ou=a, cn=  a  b  ,o=x", "a  b");
-        assertLastCn("cn=\"  a  b  \" ,o=x", "  a  b  ");
+        assertFirstCn("ou=a, cn=  a  b  ,o=x", "a  b");
+        assertFirstCn("cn=\"  a  b  \" ,o=x", "  a  b  ");
     }
 
-    private void assertLastCn(String dn, String expected) {
+    private void assertFirstCn(String dn, String expected) {
         X500Principal principal = new X500Principal(dn);
         assertEquals(dn, expected, new DistinguishedNameParser(principal).findMostSpecific("cn"));
     }
