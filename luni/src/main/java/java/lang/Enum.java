@@ -51,7 +51,7 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
 
     private final String name;
 
-    private final int ordinal;
+    final int ordinal;
 
     /**
      * Constructor for constants of enum subtypes.
