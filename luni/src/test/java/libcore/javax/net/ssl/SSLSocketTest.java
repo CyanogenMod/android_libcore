@@ -45,11 +45,13 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLProtocolException;
+import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509KeyManager;
+import javax.net.ssl.X509TrustManager;
 import junit.framework.TestCase;
 import libcore.java.security.StandardNames;
 import libcore.java.security.TestKeyStore;
@@ -723,6 +725,47 @@ public class SSLSocketTest extends TestCase {
         } catch (SSLHandshakeException expected) {
             // before we would get a NullPointerException from passing
             // due to the null PrivateKey return by the X509KeyManager.
+        }
+        future.get();
+        client.close();
+        server.close();
+        c.close();
+    }
+
+    public void test_SSLSocket_TrustManagerRuntimeException() throws Exception {
+        TestSSLContext c = TestSSLContext.create();
+        SSLContext clientContext = SSLContext.getInstance("TLS");
+        X509TrustManager trustManager = new X509TrustManager() {
+            @Override public void checkClientTrusted(X509Certificate[] chain, String authType)
+                    throws CertificateException {
+                throw new AssertionError();
+            }
+            @Override public void checkServerTrusted(X509Certificate[] chain, String authType)
+                    throws CertificateException {
+                throw new RuntimeException();  // throw a RuntimeException from custom TrustManager
+            }
+            @Override public X509Certificate[] getAcceptedIssuers() {
+                throw new AssertionError();
+            }
+        };
+        clientContext.init(null, new TrustManager[] { trustManager }, null);
+        SSLSocket client = (SSLSocket) clientContext.getSocketFactory().createSocket(c.host,
+                                                                                     c.port);
+        final SSLSocket server = (SSLSocket) c.serverSocket.accept();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
+                server.startHandshake();
+                return null;
+            }
+        });
+
+        executor.shutdown();
+        try {
+            client.startHandshake();
+            fail();
+        } catch (SSLHandshakeException expected) {
+            // before we would get a RuntimeException from checkServerTrusted.
         }
         future.get();
         client.close();
