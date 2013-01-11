@@ -579,6 +579,44 @@ public final class DiskLruCacheTest extends TestCase {
         assertValue("B", "b", "b");
     }
 
+    /** @see <a href="https://github.com/JakeWharton/DiskLruCache/issues/28">Issue #28</a> */
+    public void testRebuildJournalOnRepeatedReadsWithOpenAndClose() throws Exception {
+        set("a", "a", "a");
+        set("b", "b", "b");
+        long lastJournalLength = 0;
+        while (true) {
+            long journalLength = journalFile.length();
+            assertValue("a", "a", "a");
+            assertValue("b", "b", "b");
+            cache.close();
+            cache = DiskLruCache.open(cacheDir, appVersion, 2, Integer.MAX_VALUE);
+            if (journalLength < lastJournalLength) {
+                System.out.printf("Journal compacted from %s bytes to %s bytes\n",
+                        lastJournalLength, journalLength);
+                break; // test passed!
+            }
+            lastJournalLength = journalLength;
+        }
+    }
+
+    /** @see <a href="https://github.com/JakeWharton/DiskLruCache/issues/28">Issue #28</a> */
+    public void testRebuildJournalOnRepeatedEditsWithOpenAndClose() throws Exception {
+        long lastJournalLength = 0;
+        while (true) {
+            long journalLength = journalFile.length();
+            set("a", "a", "a");
+            set("b", "b", "b");
+            cache.close();
+            cache = DiskLruCache.open(cacheDir, appVersion, 2, Integer.MAX_VALUE);
+            if (journalLength < lastJournalLength) {
+                System.out.printf("Journal compacted from %s bytes to %s bytes\n",
+                        lastJournalLength, journalLength);
+                break;
+            }
+            lastJournalLength = journalLength;
+        }
+    }
+
     public void testOpenCreatesDirectoryIfNecessary() throws Exception {
         cache.close();
         File dir = new File(javaTmpDir, "testOpenCreatesDirectoryIfNecessary");
