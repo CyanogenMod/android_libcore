@@ -23,7 +23,7 @@ public class LocaleDataTest extends junit.framework.TestCase {
         // Test that we can get the locale data for all known locales.
         for (Locale l : Locale.getAvailableLocales()) {
             LocaleData d = LocaleData.get(l);
-            // System.err.println(d);
+            // System.err.format("%10s %10s %10s\n", l, d.timeFormat12, d.timeFormat24);
         }
     }
 
@@ -107,5 +107,16 @@ public class LocaleDataTest extends junit.framework.TestCase {
         LocaleData es_AR = LocaleData.get(new Locale("es", "AR"));
         assertEquals(',', es_AR.decimalSeparator);
         assertEquals('.', es_AR.groupingSeparator);
+    }
+
+    // http://b/7924970
+    public void testTimeFormat12And24() throws Exception {
+        LocaleData en_US = LocaleData.get(Locale.US);
+        assertEquals("h:mm a", en_US.timeFormat12);
+        assertEquals("HH:mm", en_US.timeFormat24);
+
+        LocaleData ja_JP = LocaleData.get(Locale.JAPAN);
+        assertEquals("aK:mm", ja_JP.timeFormat12);
+        assertEquals("H:mm", ja_JP.timeFormat24);
     }
 }
