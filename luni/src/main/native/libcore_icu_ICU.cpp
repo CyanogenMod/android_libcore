@@ -431,6 +431,28 @@ static bool getDateTimePatterns(JNIEnv* env, jobject localeData, const char* loc
   return true;
 }
 
+static bool getTimeFormats12And24(JNIEnv* env, jobject localeData, Locale& locale) {
+  UErrorCode status = U_ZERO_ERROR;
+  DateTimePatternGenerator* generator = DateTimePatternGenerator::createInstance(locale, status);
+  if (U_FAILURE(status)) {
+    return false;
+  }
+
+  UnicodeString pattern_Hm(generator->getBestPattern(UnicodeString("Hm", 2, US_INV), status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+
+  UnicodeString pattern_hm(generator->getBestPattern(UnicodeString("hm", 2, US_INV), status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+
+  setStringField(env, localeData, "timeFormat12", pattern_hm);
+  setStringField(env, localeData, "timeFormat24", pattern_Hm);
+  return true;
+}
+
 static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, const char* locale_name) {
   UErrorCode status = U_ZERO_ERROR;
   ScopedResourceBundle root(ures_open(NULL, locale_name, &status));
@@ -490,6 +512,13 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring javaLocaleNa
         return JNI_FALSE;
     }
 
+    // Get the "h:mm a" and "HH:mm" 12- and 24-hour time format strings.
+    Locale locale = getLocale(env, javaLocaleName);
+    if (!getTimeFormats12And24(env, localeData, locale)) {
+        ALOGE("Couldn't find ICU 12- and 24-hour time formats for %s", localeName.c_str());
+        return JNI_FALSE;
+    }
+
     // Get the "Yesterday", "Today", and "Tomorrow" strings.
     bool foundYesterdayTodayAndTomorrow = false;
     for (LocaleNameIterator it(localeName.c_str(), status); it.HasNext(); it.Up()) {
@@ -504,7 +533,6 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring javaLocaleNa
     }
 
     status = U_ZERO_ERROR;
-    Locale locale = getLocale(env, javaLocaleName);
     UniquePtr<Calendar> cal(Calendar::createInstance(locale, status));
     if (U_FAILURE(status)) {
         return JNI_FALSE;
