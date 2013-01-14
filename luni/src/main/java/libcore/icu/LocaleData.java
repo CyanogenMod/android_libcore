@@ -79,6 +79,10 @@ public final class LocaleData {
     public String mediumDateFormat;
     public String shortDateFormat;
 
+    // Used by android.text.format.DateFormat.getTimeFormat.
+    public String timeFormat12; // "hh:mm a"
+    public String timeFormat24; // "HH:mm"
+
     // Used by DecimalFormatSymbols.
     public char zeroDigit;
     public char decimalSeparator;
