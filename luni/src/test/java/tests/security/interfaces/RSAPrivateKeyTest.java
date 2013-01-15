@@ -19,53 +19,21 @@ import junit.framework.TestCase;
 
 import java.math.BigInteger;
 import java.security.KeyFactory;
-import java.security.Provider;
-import java.security.Security;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.RSAPrivateKeySpec;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Arrays;
 
 public class RSAPrivateKeyTest extends TestCase {
-    private static final BigInteger SIMPLE_N = BigInteger.valueOf(3233);
-
-    private static final BigInteger SIMPLE_D = BigInteger.valueOf(2753);
-
-    private static RSAPrivateKey getNonCRTKey(Provider p) throws Exception {
-        KeyFactory gen = KeyFactory.getInstance("RSA", p);
-
-        return (RSAPrivateKey) gen.generatePrivate(new RSAPrivateKeySpec(SIMPLE_N, SIMPLE_D));
-    }
 
     /**
-     * @see java.security.interfaces.RSAPrivateKey#getPrivateExponent()
+     * java.security.interfaces.RSAPrivateKey
+     * #getPrivateExponent()
      */
     public void test_getPrivateExponent() throws Exception {
-        for (Provider p : Security.getProviders("KeyFactory.RSA")) {
-            RSAPrivateKey key = getNonCRTKey(p);
-            assertEquals("invalid private exponent", SIMPLE_D, key.getPrivateExponent());
-        }
-    }
-
-    public void test_getModulus() throws Exception {
-        for (Provider p : Security.getProviders("KeyFactory.RSA")) {
-            RSAPrivateKey key = getNonCRTKey(p);
-            assertEquals("invalid private exponent", SIMPLE_N, key.getModulus());
-        }
-    }
-
-    public void test_getEncoded() throws Exception {
-        for (Provider p : Security.getProviders("KeyFactory.RSA")) {
-            RSAPrivateKey key = getNonCRTKey(p);
-            byte[] encoded = key.getEncoded();
-
-            KeyFactory gen = KeyFactory.getInstance("RSA", p);
-            RSAPrivateKey key2 = (RSAPrivateKey) gen.generatePrivate(new PKCS8EncodedKeySpec(
-                    encoded));
-            assertEquals("invalid private exponent", SIMPLE_D, key2.getPrivateExponent());
-            assertEquals("invalid modulus", SIMPLE_N, key2.getModulus());
-
-            assertEquals(Arrays.toString(encoded), Arrays.toString(key2.getEncoded()));
-        }
+        KeyFactory gen = KeyFactory.getInstance("RSA");
+        final BigInteger n = BigInteger.valueOf(3233);
+        final BigInteger d = BigInteger.valueOf(2753);
+        RSAPrivateKey key = (RSAPrivateKey) gen.generatePrivate(new RSAPrivateKeySpec(
+                n, d));
+        assertEquals("invalid private exponent", d, key.getPrivateExponent());
     }
 }
