@@ -54,10 +54,14 @@ import static libcore.io.OsConstants.*;
     /** class definition context */
     private final ClassLoader definingContext;
 
-    /** list of dex/resource (class path) elements */
-    private final Element[] pathElements;
+    /**
+     * List of dex/resource (class path) elements.
+     * Should be called pathElements, but the Facebook app uses reflection
+     * to modify 'dexElements' (http://b/7726934).
+     */
+    private final Element[] dexElements;
 
-    /** list of native library directory elements */
+    /** List of native library directories. */
     private final File[] nativeLibraryDirectories;
 
     /**
@@ -99,12 +103,12 @@ import static libcore.io.OsConstants.*;
         }
 
         this.definingContext = definingContext;
-        this.pathElements = makeDexElements(splitDexPath(dexPath), optimizedDirectory);
+        this.dexElements = makeDexElements(splitDexPath(dexPath), optimizedDirectory);
         this.nativeLibraryDirectories = splitLibraryPath(libraryPath);
     }
 
     @Override public String toString() {
-        return "DexPathList[pathElements=" + Arrays.toString(pathElements) +
+        return "DexPathList[" + Arrays.toString(dexElements) +
             ",nativeLibraryDirectories=" + Arrays.toString(nativeLibraryDirectories) + "]";
     }
 
@@ -302,7 +306,7 @@ import static libcore.io.OsConstants.*;
      * found in any of the dex files
      */
     public Class findClass(String name) {
-        for (Element element : pathElements) {
+        for (Element element : dexElements) {
             DexFile dex = element.dexFile;
 
             if (dex != null) {
@@ -325,7 +329,7 @@ import static libcore.io.OsConstants.*;
      * resource is not found in any of the zip/jar files
      */
     public URL findResource(String name) {
-        for (Element element : pathElements) {
+        for (Element element : dexElements) {
             URL url = element.findResource(name);
             if (url != null) {
                 return url;
@@ -343,7 +347,7 @@ import static libcore.io.OsConstants.*;
     public Enumeration<URL> findResources(String name) {
         ArrayList<URL> result = new ArrayList<URL>();
 
-        for (Element element : pathElements) {
+        for (Element element : dexElements) {
             URL url = element.findResource(name);
             if (url != null) {
                 result.add(url);
