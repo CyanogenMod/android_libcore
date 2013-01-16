@@ -1025,7 +1025,7 @@ public class X509CertificateTest extends TestCase {
 
     private void getIssuerAlternativeNames(CertificateFactory f) throws Exception {
         X509Certificate c = getCertificate(f, CERT_RSA);
-        Collection<List<?>> col = c.getSubjectAlternativeNames();
+        Collection<List<?>> col = c.getIssuerAlternativeNames();
 
         checkAlternativeNames(col);
     }
