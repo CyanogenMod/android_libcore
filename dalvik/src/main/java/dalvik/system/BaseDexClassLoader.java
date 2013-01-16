@@ -25,7 +25,7 @@ import java.util.Enumeration;
  * {@link ClassLoader} implementations.
  */
 public class BaseDexClassLoader extends ClassLoader {
-    private final DexPathList path;
+    private final DexPathList pathList;
 
     /**
      * Constructs an instance.
@@ -43,31 +43,31 @@ public class BaseDexClassLoader extends ClassLoader {
     public BaseDexClassLoader(String dexPath, File optimizedDirectory,
             String libraryPath, ClassLoader parent) {
         super(parent);
-        this.path = new DexPathList(this, dexPath, libraryPath, optimizedDirectory);
+        this.pathList = new DexPathList(this, dexPath, libraryPath, optimizedDirectory);
     }
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        Class c = path.findClass(name);
+        Class c = pathList.findClass(name);
         if (c == null) {
-            throw new ClassNotFoundException("Didn't find class \"" + name + "\" on path: " + path);
+            throw new ClassNotFoundException("Didn't find class \"" + name + "\" on path: " + pathList);
         }
         return c;
     }
 
     @Override
     protected URL findResource(String name) {
-        return path.findResource(name);
+        return pathList.findResource(name);
     }
 
     @Override
     protected Enumeration<URL> findResources(String name) {
-        return path.findResources(name);
+        return pathList.findResources(name);
     }
 
     @Override
     public String findLibrary(String name) {
-        return path.findLibrary(name);
+        return pathList.findLibrary(name);
     }
 
     /**
@@ -117,7 +117,7 @@ public class BaseDexClassLoader extends ClassLoader {
      */
     public String getLdLibraryPath() {
         StringBuilder result = new StringBuilder();
-        for (File directory : path.getNativeLibraryDirectories()) {
+        for (File directory : pathList.getNativeLibraryDirectories()) {
             if (result.length() > 0) {
                 result.append(':');
             }
@@ -127,6 +127,6 @@ public class BaseDexClassLoader extends ClassLoader {
     }
 
     @Override public String toString() {
-        return getClass().getName() + "[" + path + "]";
+        return getClass().getName() + "[" + pathList + "]";
     }
 }
