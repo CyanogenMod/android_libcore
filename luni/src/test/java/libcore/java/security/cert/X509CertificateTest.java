@@ -47,6 +47,7 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -801,6 +802,15 @@ public class X509CertificateTest extends TestCase {
     private void checkAlternativeNames(Collection<List<?>> col) {
         assertNotNull(col);
 
+        /* Check to see that the Collection is unmodifiable. */
+        {
+            try {
+                col.add(new ArrayList<Object>());
+                fail("should be an unmodifiable list");
+            } catch (UnsupportedOperationException expected) {
+            }
+        }
+
         /*
          * There should be 9 types of alternative names in this test
          * certificate.
@@ -808,6 +818,15 @@ public class X509CertificateTest extends TestCase {
         boolean[] typesFound = new boolean[9];
 
         for (List<?> item : col) {
+            /* Check to see that the List is unmodifiable. */
+            {
+                try {
+                    item.remove(0);
+                    fail("should be an unmodifiable list");
+                } catch (UnsupportedOperationException expected) {
+                }
+            }
+
             assertTrue(item.get(0) instanceof Integer);
             int type = (Integer) item.get(0);
             typesFound[type] = true;
@@ -901,7 +920,21 @@ public class X509CertificateTest extends TestCase {
 
         /* OID:1.2.3.4, UTF8:test1 */
         final byte[] der = getOIDTestBytes();
-        assertEquals(Arrays.toString(der), Arrays.toString((byte[]) item.get(1)));
+        final byte[] actual = (byte[]) item.get(1);
+        assertEquals(Arrays.toString(der), Arrays.toString(actual));
+
+        /* Make sure the byte[] array isn't modified by our test. */
+        {
+            actual[0] ^= (byte) 0xFF;
+            byte[] actual2 = (byte[]) c.getSubjectAlternativeNames().iterator().next().get(1);
+
+            if (!StandardNames.IS_RI) {
+                assertEquals(Arrays.toString(der), Arrays.toString(actual2));
+            } else {
+                /* RI is broken here. */
+                assertEquals(Arrays.toString(actual), Arrays.toString(actual2));
+            }
+        }
     }
 
     private void getSubjectAlternativeNames_Email(CertificateFactory f) throws Exception {
@@ -992,7 +1025,7 @@ public class X509CertificateTest extends TestCase {
 
     private void getIssuerAlternativeNames(CertificateFactory f) throws Exception {
         X509Certificate c = getCertificate(f, CERT_RSA);
-        Collection<List<?>> col = c.getSubjectAlternativeNames();
+        Collection<List<?>> col = c.getIssuerAlternativeNames();
 
         checkAlternativeNames(col);
     }
