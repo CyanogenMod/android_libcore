@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -256,23 +257,7 @@ public final class Extensions {
      * null if does not.
      */
     public Collection<List<?>> valueOfSubjectAlternativeName() throws IOException {
-        Extension extension = getExtensionByOID("2.5.29.17");
-        if (extension == null) {
-            return null;
-        }
-
-        Collection<List<?>> collection = ((GeneralNames) GeneralNames.ASN1.decode(extension
-                .getExtnValue())).getPairsList();
-
-        /*
-         * If the extension had any invalid entries, we may have an empty
-         * collection at this point, so just return null.
-         */
-        if (collection.size() == 0) {
-            return null;
-        }
-
-        return collection;
+        return decodeGeneralNames(getExtensionByOID("2.5.29.17"));
     }
 
     /**
@@ -291,11 +276,31 @@ public final class Extensions {
      * null if does not.
      */
     public Collection<List<?>> valueOfIssuerAlternativeName() throws IOException {
-        Extension extension = getExtensionByOID("2.5.29.18");
+        return decodeGeneralNames(getExtensionByOID("2.5.29.18"));
+    }
+
+    /**
+     * Given an X.509 extension that encodes GeneralNames, return it in the
+     * format expected by APIs.
+     */
+    private static Collection<List<?>> decodeGeneralNames(Extension extension)
+            throws IOException {
         if (extension == null) {
             return null;
         }
-        return ((GeneralNames) GeneralNames.ASN1.decode(extension.getExtnValue())).getPairsList();
+
+        Collection<List<?>> collection = ((GeneralNames) GeneralNames.ASN1.decode(extension
+                .getExtnValue())).getPairsList();
+
+        /*
+         * If the extension had any invalid entries, we may have an empty
+         * collection at this point, so just return null.
+         */
+        if (collection.size() == 0) {
+            return null;
+        }
+
+        return Collections.unmodifiableCollection(collection);
     }
 
     /**
