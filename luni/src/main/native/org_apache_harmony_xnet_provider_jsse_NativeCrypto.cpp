@@ -3954,6 +3954,160 @@ static jint NativeCrypto_SSL_new(JNIEnv* env, jclass, jint ssl_ctx_address)
     return (jint) ssl.release();
 }
 
+
+static void NativeCrypto_SSL_enable_tls_channel_id(JNIEnv* env, jclass, jint ssl_address)
+{
+    SSL* ssl = to_SSL(env, ssl_address, true);
+    JNI_TRACE("ssl=%p NativeCrypto_NativeCrypto_SSL_enable_tls_channel_id", ssl);
+    if (ssl == NULL) {
+        return;
+    }
+
+    long ret = SSL_enable_tls_channel_id(ssl);
+    if (ret != 1L) {
+        ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error enabling Channel ID");
+        SSL_clear(ssl);
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_enable_tls_channel_id => error", ssl);
+        return;
+    }
+}
+
+static jbyteArray NativeCrypto_SSL_get_tls_channel_id(JNIEnv* env, jclass, jint ssl_address)
+{
+    SSL* ssl = to_SSL(env, ssl_address, true);
+    JNI_TRACE("ssl=%p NativeCrypto_NativeCrypto_SSL_get_tls_channel_id", ssl);
+    if (ssl == NULL) {
+        return NULL;
+    }
+
+    // Channel ID is 64 bytes long. Unfortunately, OpenSSL doesn't declare this length
+    // as a constant anywhere.
+    jbyteArray javaBytes = env->NewByteArray(64);
+    ScopedByteArrayRW bytes(env, javaBytes);
+    if (bytes.get() == NULL) {
+        JNI_TRACE("NativeCrypto_SSL_get_tls_channel_id(%p) => NULL", ssl);
+        return NULL;
+    }
+
+    unsigned char* tmp = reinterpret_cast<unsigned char*>(bytes.get());
+    // Unfortunately, the SSL_get_tls_channel_id method below always returns 64 (upon success)
+    // regardless of the number of bytes copied into the output buffer "tmp". Thus, the correctness
+    // of this code currently relies on the "tmp" buffer being exactly 64 bytes long.
+    long ret = SSL_get_tls_channel_id(ssl, tmp, 64);
+    if (ret == 0) {
+        // Channel ID either not set or did not verify
+        JNI_TRACE("NativeCrypto_SSL_get_tls_channel_id(%p) => not available", ssl);
+        return NULL;
+    } else if (ret != 64) {
+        ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error getting Channel ID");
+        SSL_clear(ssl);
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_get_tls_channel_id => error, returned %ld", ssl, ret);
+        return NULL;
+    }
+
+    JNI_TRACE("ssl=%p NativeCrypto_NativeCrypto_SSL_get_tls_channel_id() => %p", ssl, javaBytes);
+    return javaBytes;
+}
+
+static void NativeCrypto_SSL_use_OpenSSL_PrivateKey_for_tls_channel_id(
+        JNIEnv* env, jclass, jint ssl_address, jint pkeyRef)
+{
+    SSL* ssl = to_SSL(env, ssl_address, true);
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_use_OpenSSL_PrivateKey_for_tls_channel_id privatekey=%p",
+            ssl, pkey);
+    if (ssl == NULL) {
+        return;
+    }
+
+    if (pkey == NULL) {
+        return;
+    }
+
+    // SSL_set1_tls_channel_id requires ssl->server to be set to 0.
+    // Unfortunately, the default value is 1 and it's only changed to 0 just
+    // before the handshake starts (see NativeCrypto_SSL_do_handshake).
+    ssl->server = 0;
+    long ret = SSL_set1_tls_channel_id(ssl, pkey);
+
+    if (ret != 1L) {
+        ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+        throwSSLExceptionWithSslErrors(
+                env, ssl, SSL_ERROR_NONE, "Error setting private key for Channel ID");
+        SSL_clear(ssl);
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_OpenSSL_PrivateKey_for_tls_channel_id => error", ssl);
+        return;
+    }
+    // SSL_use_PrivateKey expects to take ownership of the EVP_PKEY,
+    // but we have an external reference from the caller such as an
+    // OpenSSLKey, so we manually increment the reference count here.
+    CRYPTO_add(&pkey->references,+1,CRYPTO_LOCK_EVP_PKEY);
+
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_use_OpenSSL_PrivateKey_for_tls_channel_id => ok", ssl);
+}
+
+static void NativeCrypto_SSL_use_PKCS8_PrivateKey_for_tls_channel_id(
+        JNIEnv* env, jclass, jint ssl_address, jbyteArray privatekey)
+{
+    SSL* ssl = to_SSL(env, ssl_address, true);
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey_for_tls_channel_id privatekey=%p", ssl,
+            privatekey);
+    if (ssl == NULL) {
+        return;
+    }
+
+    ScopedByteArrayRO buf(env, privatekey);
+    if (buf.get() == NULL) {
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey_for_tls_channel_id => threw exception",
+                ssl);
+        return;
+    }
+    const unsigned char* tmp = reinterpret_cast<const unsigned char*>(buf.get());
+    Unique_PKCS8_PRIV_KEY_INFO pkcs8(d2i_PKCS8_PRIV_KEY_INFO(NULL, &tmp, buf.size()));
+    if (pkcs8.get() == NULL) {
+        ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE,
+                                       "Error parsing private key from DER to PKCS8");
+        SSL_clear(ssl);
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey => error from DER to PKCS8", ssl);
+        return;
+    }
+
+    Unique_EVP_PKEY privatekeyevp(EVP_PKCS82PKEY(pkcs8.get()));
+    if (privatekeyevp.get() == NULL) {
+        ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE,
+                                       "Error creating private key from PKCS8");
+        SSL_clear(ssl);
+        JNI_TRACE(
+                "ssl=%p NativeCrypto_SSL_use_PrivateKey_for_tls_channel_id => error from PKCS8 to key",
+                ssl);
+        return;
+    }
+
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey_for_tls_channel_id EVP_PKEY_type=%d",
+              ssl, EVP_PKEY_type(privatekeyevp.get()->type));
+
+    // SSL_set1_tls_channel_id requires ssl->server to be set to 0.
+    // Unfortunately, the default value is 1 and it's only changed to 0 just
+    // before the handshake starts (see NativeCrypto_SSL_do_handshake).
+    ssl->server = 0;
+    long ret = SSL_set1_tls_channel_id(ssl, privatekeyevp.get());
+    if (ret == 1L) {
+        OWNERSHIP_TRANSFERRED(privatekeyevp);
+    } else {
+        ALOGE("%s", ERR_error_string(ERR_peek_error(), NULL));
+        throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE, "Error setting private key");
+        SSL_clear(ssl);
+        JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey_for_tls_channel_id => error", ssl);
+        return;
+    }
+
+    JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey_for_tls_channel_id => ok", ssl);
+}
+
 static void NativeCrypto_SSL_use_OpenSSL_PrivateKey(JNIEnv* env, jclass, jint ssl_address, jint pkeyRef) {
     SSL* ssl = to_SSL(env, ssl_address, true);
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
@@ -5569,6 +5723,10 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, SSL_CTX_free, "(I)V"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_set_session_id_context, "(I[B)V"),
     NATIVE_METHOD(NativeCrypto, SSL_new, "(I)I"),
+    NATIVE_METHOD(NativeCrypto, SSL_enable_tls_channel_id, "(I)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_get_tls_channel_id, "(I)[B"),
+    NATIVE_METHOD(NativeCrypto, SSL_use_OpenSSL_PrivateKey_for_tls_channel_id, "(II)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_use_PKCS8_PrivateKey_for_tls_channel_id, "(I[B)V"),
     NATIVE_METHOD(NativeCrypto, SSL_use_OpenSSL_PrivateKey, "(II)V"),
     NATIVE_METHOD(NativeCrypto, SSL_use_PrivateKey, "(I[B)V"),
     NATIVE_METHOD(NativeCrypto, SSL_use_certificate, "(I[[B)V"),
