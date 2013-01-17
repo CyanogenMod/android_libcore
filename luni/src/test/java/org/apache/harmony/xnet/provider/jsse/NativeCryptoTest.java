@@ -2126,10 +2126,12 @@ public class NativeCryptoTest extends TestCase {
 
     private void check_EC_GROUP(int type, String name, String pStr, String aStr, String bStr,
             String xStr, String yStr, String nStr, long hLong) throws Exception {
-        int group1 = NULL, group2 = NULL, point1 = NULL, point2 = NULL;
+        int group1 = NULL, group2 = NULL, point1 = NULL, point2 = NULL, key1 = NULL;
         try {
             group1 = NativeCrypto.EC_GROUP_new_by_curve_name(name);
             assertTrue(group1 != NULL);
+            assertEquals(NativeCrypto.OBJ_txt2nid(name),
+                    NativeCrypto.EC_GROUP_get_curve_name(group1));
             assertEquals(type, NativeCrypto.get_EC_GROUP_type(group1));
 
             // prime
@@ -2189,6 +2191,12 @@ public class NativeCryptoTest extends TestCase {
             assertEquals(h, h2);
 
             assertTrue(NativeCrypto.EC_GROUP_cmp(group1, group2));
+
+            key1 = NativeCrypto.EC_KEY_generate_key(group1);
+            int groupTmp = NativeCrypto.EC_KEY_get0_group(key1);
+            assertEquals(NativeCrypto.EC_GROUP_get_curve_name(group1),
+                    NativeCrypto.EC_GROUP_get_curve_name(groupTmp));
+
         } finally {
             if (group1 != NULL) {
                 NativeCrypto.EC_GROUP_clear_free(group1);
@@ -2204,6 +2212,10 @@ public class NativeCryptoTest extends TestCase {
 
             if (point2 != NULL) {
                 NativeCrypto.EC_POINT_clear_free(point2);
+            }
+
+            if (key1 != NULL) {
+                NativeCrypto.EVP_PKEY_free(key1);
             }
         }
     }
