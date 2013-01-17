@@ -3776,10 +3776,10 @@ static int NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
      * and undesirable.)
      */
     mode |= SSL_MODE_ENABLE_PARTIAL_WRITE;
-#if defined(SSL_MODE_SMALL_BUFFERS) /* not all SSL versions have this */
-    mode |= SSL_MODE_SMALL_BUFFERS;  /* lazily allocate record buffers; usually saves
-                                      * 44k over the default */
-#endif
+
+    // Reuse empty buffers within the SSL_CTX to save memory
+    mode |= SSL_MODE_RELEASE_BUFFERS;
+
     SSL_CTX_set_mode(sslCtx.get(), mode);
 
     SSL_CTX_set_cert_verify_callback(sslCtx.get(), cert_verify_callback, NULL);
