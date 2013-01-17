@@ -1014,11 +1014,12 @@ static jint NativeCrypto_EVP_PKEY_new_EC_KEY(JNIEnv* env, jclass, jint groupRef,
     Unique_EVP_PKEY pkey(EVP_PKEY_new());
     if (pkey.get() == NULL) {
         JNI_TRACE("EVP_PKEY_new_EC(%p, %p, %p) => threw error", group, pubkey, keyJavaBytes);
-        throwExceptionIfNecessary(env, "ENGINE_load_private_key");
+        throwExceptionIfNecessary(env, "EVP_PKEY_new failed");
         return 0;
     }
     if (EVP_PKEY_assign_EC_KEY(pkey.get(), eckey.get()) != 1) {
-        jniThrowRuntimeException(env, "EVP_PKEY_new failed");
+        JNI_TRACE("EVP_PKEY_new_EC(%p, %p, %p) => threw error", group, pubkey, keyJavaBytes);
+        jniThrowRuntimeException(env, "EVP_PKEY_assign_EC_KEY failed");
         return 0;
     }
     OWNERSHIP_TRANSFERRED(eckey);
@@ -1680,6 +1681,38 @@ static jint NativeCrypto_EC_GROUP_new_by_curve_name(JNIEnv* env, jclass, jstring
     return static_cast<jint>(reinterpret_cast<uintptr_t>(group));
 }
 
+static void NativeCrypto_EC_GROUP_set_asn1_flag(JNIEnv* env, jclass, jint groupRef,
+        jint flag)
+{
+    EC_GROUP* group = reinterpret_cast<EC_GROUP*>(groupRef);
+    JNI_TRACE("EC_GROUP_set_asn1_flag(%p, %d)", group, flag);
+
+    if (group == NULL) {
+        JNI_TRACE("EC_GROUP_set_asn1_flag => group == NULL");
+        jniThrowNullPointerException(env, "group == NULL");
+        return;
+    }
+
+    EC_GROUP_set_asn1_flag(group, flag);
+    JNI_TRACE("EC_GROUP_set_asn1_flag(%p, %d) => success", group, flag);
+}
+
+static void NativeCrypto_EC_GROUP_set_point_conversion_form(JNIEnv* env, jclass,
+        jint groupRef, jint form)
+{
+    EC_GROUP* group = reinterpret_cast<EC_GROUP*>(groupRef);
+    JNI_TRACE("EC_GROUP_set_point_conversion_form(%p, %d)", group, form);
+
+    if (group == NULL) {
+        JNI_TRACE("EC_GROUP_set_point_conversion_form => group == NULL");
+        jniThrowNullPointerException(env, "group == NULL");
+        return;
+    }
+
+    EC_GROUP_set_point_conversion_form(group, static_cast<point_conversion_form_t>(form));
+    JNI_TRACE("EC_GROUP_set_point_conversion_form(%p, %d) => success", group, form);
+}
+
 static jint NativeCrypto_EC_GROUP_new_curve(JNIEnv* env, jclass, jint type, jbyteArray pJava,
         jbyteArray aJava, jbyteArray bJava)
 {
@@ -1722,6 +1755,21 @@ static jint NativeCrypto_EC_GROUP_new_curve(JNIEnv* env, jclass, jint type, jbyt
 
     JNI_TRACE("EC_GROUP_new_curve(%d, %p, %p, %p) => %p", type, pJava, aJava, bJava, group);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(group));
+}
+
+static jint NativeCrypto_EC_GROUP_get_curve_name(JNIEnv* env, jclass, jint groupRef) {
+    const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
+    JNI_TRACE("EC_GROUP_get_curve_name(%p)", group);
+
+    if (group == NULL) {
+        JNI_TRACE("EC_GROUP_get_curve_name => group == NULL");
+        jniThrowNullPointerException(env, "group == NULL");
+        return 0;
+    }
+
+    int nid = EC_GROUP_get_curve_name(group);
+    JNI_TRACE("EC_GROUP_get_curve_name(%p) => %d", group, nid);
+    return nid;
 }
 
 static jobjectArray NativeCrypto_EC_GROUP_get_curve(JNIEnv* env, jclass, jint groupRef)
@@ -2126,6 +2174,29 @@ static jint NativeCrypto_EC_KEY_generate_key(JNIEnv* env, jclass, jint groupRef)
 
     JNI_TRACE("EC_KEY_generate_key(%p) => %p", group, pkey.get());
     return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
+}
+
+static jint NativeCrypto_EC_KEY_get0_group(JNIEnv* env, jclass, jint pkeyRef)
+{
+    EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
+    JNI_TRACE("EC_KEY_get0_group(%p)", pkey);
+
+    if (pkey == NULL) {
+        jniThrowNullPointerException(env, "pkey == null");
+        JNI_TRACE("EC_KEY_get0_group(%p) => pkey == null", pkey);
+        return 0;
+    }
+
+    if (EVP_PKEY_type(pkey->type) != EVP_PKEY_EC) {
+        jniThrowRuntimeException(env, "not EC key");
+        JNI_TRACE("EC_KEY_get0_group(%p) => not EC key (type == %d)", pkey,
+                EVP_PKEY_type(pkey->type));
+        return 0;
+    }
+
+    const EC_GROUP* group = EC_KEY_get0_group(pkey->pkey.ec);
+    JNI_TRACE("EC_KEY_get0_group(%p) => %p", pkey, group);
+    return static_cast<jint>(reinterpret_cast<uintptr_t>(group));
 }
 
 static jbyteArray NativeCrypto_EC_KEY_get_private_key(JNIEnv* env, jclass, jint pkeyRef)
@@ -2971,6 +3042,19 @@ static void NativeCrypto_RAND_bytes(JNIEnv* env, jclass, jbyteArray output) {
     }
 
     JNI_TRACE("NativeCrypto_RAND_bytes(%p) => success", output);
+}
+
+static jint NativeCrypto_OBJ_txt2nid(JNIEnv* env, jclass, jstring oidStr) {
+    JNI_TRACE("OBJ_txt2nid(%p)", oidStr);
+
+    ScopedUtfChars oid(env, oidStr);
+    if (oid.c_str() == NULL) {
+        return 0;
+    }
+
+    int nid = OBJ_txt2nid(oid.c_str());
+    JNI_TRACE("OBJ_txt2nid(%s) => %d", oid.c_str(), nid);
+    return nid;
 }
 
 static jstring NativeCrypto_OBJ_txt2nid_longName(JNIEnv* env, jclass, jstring oidStr) {
@@ -5426,6 +5510,9 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, get_DSA_params, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_new_by_curve_name, "(Ljava/lang/String;)I"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_new_curve, "(I[B[B[B)I"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_set_asn1_flag, "(II)V"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_set_point_conversion_form, "(II)V"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_curve_name, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_get_curve, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_get_order, "(I)[B"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_get_cofactor, "(I)[B"),
@@ -5440,6 +5527,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, EC_POINT_set_affine_coordinates, "(II[B[B)V"),
     NATIVE_METHOD(NativeCrypto, EC_POINT_get_affine_coordinates, "(II)[[B"),
     NATIVE_METHOD(NativeCrypto, EC_KEY_generate_key, "(I)I"),
+    NATIVE_METHOD(NativeCrypto, EC_KEY_get0_group, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EC_KEY_get_private_key, "(I)[B"),
     NATIVE_METHOD(NativeCrypto, EC_KEY_get_public_key, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_create, "()I"),
@@ -5474,6 +5562,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, RAND_seed, "([B)V"),
     NATIVE_METHOD(NativeCrypto, RAND_load_file, "(Ljava/lang/String;J)I"),
     NATIVE_METHOD(NativeCrypto, RAND_bytes, "([B)V"),
+    NATIVE_METHOD(NativeCrypto, OBJ_txt2nid, "(Ljava/lang/String;)I"),
     NATIVE_METHOD(NativeCrypto, OBJ_txt2nid_longName, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, OBJ_txt2nid_oid, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_new, "()I"),
