@@ -130,6 +130,7 @@ public class SSLSocketTest extends TestCase {
             cipherSuites = cs.toArray(new String[cs.size()]);
         }
 
+        StringBuilder error = new StringBuilder();
         for (String cipherSuite : cipherSuites) {
             boolean errorExpected = StandardNames.IS_RI && cipherSuite.endsWith("_SHA256");
             try {
@@ -182,12 +183,19 @@ public class SSLSocketTest extends TestCase {
                 assertFalse(errorExpected);
             } catch (Exception maybeExpected) {
                 if (!errorExpected) {
-                    throw new Exception("Problem trying to connect cipher suite " + cipherSuite
-                                        + " client=" + clientProvider
-                                        + " server=" + serverProvider,
-                                        maybeExpected);
+                    String message = ("Problem trying to connect cipher suite " + cipherSuite
+                                      + " client=" + clientProvider
+                                      + " server=" + serverProvider);
+                    System.out.println(message);
+                    maybeExpected.printStackTrace();
+                    error.append(message);
+                    error.append('\n');
                 }
             }
+        }
+        if (error.length() != 0) {
+            throw new Exception("One or more problems in "
+                                + "test_SSLSocket_getSupportedCipherSuites_connect:\n" + error);
         }
         c.close();
     }
