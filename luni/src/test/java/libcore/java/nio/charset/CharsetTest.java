@@ -21,6 +21,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 public class CharsetTest extends junit.framework.TestCase {
     public void test_guaranteedCharsetsAvailable() throws Exception {
@@ -31,6 +32,28 @@ public class CharsetTest extends junit.framework.TestCase {
         assertNotNull(Charset.forName("UTF-16BE"));
         assertNotNull(Charset.forName("UTF-16LE"));
         assertNotNull(Charset.forName("UTF-8"));
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=42769
+    public void test_42769() throws Exception {
+        ArrayList<Thread> threads = new ArrayList<Thread>();
+        for (int i = 0; i < 10; ++i) {
+            Thread t = new Thread(new Runnable() {
+                public void run() {
+                    for (int i = 0; i < 50; ++i) {
+                        Charset.availableCharsets();
+                    }
+                }
+            });
+            threads.add(t);
+        }
+
+        for (Thread t : threads) {
+            t.start();
+        }
+        for (Thread t : threads) {
+            t.join();
+        }
     }
 
     public void test_allAvailableCharsets() throws Exception {
