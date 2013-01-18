@@ -73,41 +73,51 @@ public class SSLSocketTest extends TestCase {
                 .aliasPrefix("rsa-dsa-ec")
                 .ca(true)
                 .build();
+        StringBuilder error = new StringBuilder();
         if (StandardNames.IS_RI) {
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             StandardNames.JSSE_PROVIDER_NAME,
                                                             StandardNames.JSSE_PROVIDER_NAME,
                                                             true,
-                                                            true);
+                                                            true,
+                                                            error);
         } else  {
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             "HarmonyJSSE",
                                                             "HarmonyJSSE",
                                                             false,
-                                                            false);
+                                                            false,
+                                                            error);
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             "AndroidOpenSSL",
                                                             "AndroidOpenSSL",
                                                             true,
-                                                            true);
+                                                            true,
+                                                            error);
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             "HarmonyJSSE",
                                                             "AndroidOpenSSL",
                                                             false,
-                                                            true);
+                                                            true,
+                                                            error);
             test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
                                                             "AndroidOpenSSL",
                                                             "HarmonyJSSE",
                                                             true,
-                                                            false);
+                                                            false,
+                                                            error);
         }
-
+        if (error.length() > 0) {
+            throw new Exception("One or more problems in "
+                    + "test_SSLSocket_getSupportedCipherSuites_connect:\n" + error);
+        }
     }
     private void test_SSLSocket_getSupportedCipherSuites_connect(TestKeyStore testKeyStore,
                                                                  String clientProvider,
                                                                  String serverProvider,
                                                                  boolean clientSecureRenegotiation,
-                                                                 boolean serverSecureRenegotiation)
+                                                                 boolean serverSecureRenegotiation,
+                                                                 StringBuilder error)
             throws Exception {
 
         String clientToServerString = "this is sent from the client to the server...";
@@ -130,7 +140,6 @@ public class SSLSocketTest extends TestCase {
             cipherSuites = cs.toArray(new String[cs.size()]);
         }
 
-        StringBuilder error = new StringBuilder();
         for (String cipherSuite : cipherSuites) {
             boolean errorExpected = StandardNames.IS_RI && cipherSuite.endsWith("_SHA256");
             try {
@@ -192,10 +201,6 @@ public class SSLSocketTest extends TestCase {
                     error.append('\n');
                 }
             }
-        }
-        if (error.length() != 0) {
-            throw new Exception("One or more problems in "
-                                + "test_SSLSocket_getSupportedCipherSuites_connect:\n" + error);
         }
         c.close();
     }
