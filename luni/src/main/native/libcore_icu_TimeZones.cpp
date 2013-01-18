@@ -68,7 +68,7 @@ struct TimeZoneNames {
     UnicodeString shortDst;
 
     UDate standardDate;
-    UDate daylightSavingDate;
+    UDate daylightDate;
 };
 
 static void setStringArrayElement(JNIEnv* env, jobjectArray array, int i, const UnicodeString& s) {
@@ -114,12 +114,27 @@ static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring lo
 
     UnicodeString utc("UTC", 3, US_INV);
 
-    // TODO: use of fixed dates prevents us from using the correct historical name when formatting dates.
-    // TODO: use of dates not in the current year could cause us to output obsoleted names.
-    // 15th January 2008
-    UDate date1 = 1203105600000.0;
-    // 15th July 2008
-    UDate date2 = 1218826800000.0;
+    // Find out what year this is.
+    UniquePtr<Calendar> calendar(Calendar::createInstance(*TimeZone::getGMT(), status));
+    calendar->setTime(Calendar::getNow(), status);
+    int year = calendar->get(UCAL_YEAR, status);
+
+    // Get a UDate corresponding to February 1st this year.
+    calendar->clear();
+    calendar->set(UCAL_YEAR, year);
+    calendar->set(UCAL_MONTH, UCAL_FEBRUARY);
+    calendar->set(UCAL_DAY_OF_MONTH, 1);
+    UDate date1 = calendar->getTime(status);
+
+    // Get a UDate corresponding to July 15th this year.
+    calendar->clear();
+    calendar->set(UCAL_YEAR, year);
+    calendar->set(UCAL_MONTH, UCAL_JULY);
+    calendar->set(UCAL_DAY_OF_MONTH, 15);
+    UDate date2 = calendar->getTime(status);
+
+    UnicodeString pacific_apia("Pacific/Apia", 12, US_INV);
+    UnicodeString gmt("GMT", 3, US_INV);
 
     // In the first pass, we get the long names for the time zone.
     // We also get any commonly-used abbreviations.
@@ -156,20 +171,34 @@ static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring lo
             // The TimeZone is reporting that we are in daylight time for the winter date.
             // The dates are for the wrong hemisphere, so swap them.
             row.standardDate = date2;
-            row.daylightSavingDate = date1;
+            row.daylightDate = date1;
         } else {
             row.standardDate = date1;
-            row.daylightSavingDate = date2;
+            row.daylightDate = date2;
         }
 
         longFormat.format(row.standardDate, row.longStd);
         shortFormat.format(row.standardDate, row.shortStd);
-        if (row.tz->useDaylightTime()) {
-            longFormat.format(row.daylightSavingDate, row.longDst);
-            shortFormat.format(row.daylightSavingDate, row.shortDst);
-        } else {
-            row.longDst = row.longStd;
-            row.shortDst = row.shortStd;
+        longFormat.format(row.daylightDate, row.longDst);
+        shortFormat.format(row.daylightDate, row.shortDst);
+
+        // The getDisplayName API is too expensive for us to use normally,
+        // but it does let us work around cases where icu4c doesn't know to use DST.
+        // When we upgrade to icu4c 50, we can hopefully switch to the new TimeZoneNames API.
+        // http://b/7955614
+        if ((row.longStd == row.longDst) || (row.shortStd == row.shortDst)) {
+            row.tz->getDisplayName(true, TimeZone::LONG, locale, row.longDst);
+            row.tz->getDisplayName(false, TimeZone::LONG, locale, row.longStd);
+            row.tz->getDisplayName(true, TimeZone::SHORT, locale, row.shortDst);
+            row.tz->getDisplayName(false, TimeZone::SHORT, locale, row.shortStd);
+        }
+
+        if (id == pacific_apia) {
+            if (row.longDst.startsWith(gmt)) {
+                row.longDst = "Samoa Summer Time";
+            } else {
+                abort(); // Time to remove this hack!
+            }
         }
 
         table.push_back(row);
@@ -180,7 +209,6 @@ static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring lo
     // In the second pass, we create the Java String[][].
     // We also look for any uncommon abbreviations that don't conflict with ones we've already seen.
     jobjectArray result = env->NewObjectArray(idCount, JniConstants::stringArrayClass, NULL);
-    UnicodeString gmt("GMT", 3, US_INV);
     for (size_t i = 0; i < table.size(); ++i) {
         TimeZoneNames& row(table[i]);
         // Did we get a GMT offset instead of an abbreviation?
@@ -190,7 +218,7 @@ static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring lo
             allShortFormat.setTimeZone(*row.tz);
             allShortFormat.format(row.standardDate, uncommonStd);
             if (row.tz->useDaylightTime()) {
-                allShortFormat.format(row.daylightSavingDate, uncommonDst);
+                allShortFormat.format(row.daylightDate, uncommonDst);
             } else {
                 uncommonDst = uncommonStd;
             }
@@ -207,14 +235,27 @@ static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring lo
                 usedAbbreviations[row.shortDst] = &row.longDst;
             }
         }
-        // Fill in whatever we got.
+
+        // Fill in whatever we got. We don't use the display names if they're "GMT[+-]xx:xx"
+        // because icu4c doesn't use the up-to-date time zone transition data, so it gets these
+        // wrong. TimeZone.getDisplayName creates accurate names on demand. When we rewrite this
+        // code to use icu4c 50's TimeZoneNames API, we should investigate whether it's worth
+        // doing that work once in the Java wrapper instead of on-demand.
         ScopedLocalRef<jobjectArray> javaRow(env, env->NewObjectArray(5, JniConstants::stringClass, NULL));
         ScopedLocalRef<jstring> id(env, reinterpret_cast<jstring>(env->GetObjectArrayElement(timeZoneIds, i)));
         env->SetObjectArrayElement(javaRow.get(), 0, id.get());
-        setStringArrayElement(env, javaRow.get(), 1, row.longStd);
-        setStringArrayElement(env, javaRow.get(), 2, row.shortStd);
-        setStringArrayElement(env, javaRow.get(), 3, row.longDst);
-        setStringArrayElement(env, javaRow.get(), 4, row.shortDst);
+        if (!row.longStd.startsWith(gmt)) {
+            setStringArrayElement(env, javaRow.get(), 1, row.longStd);
+        }
+        if (!row.shortStd.startsWith(gmt)) {
+            setStringArrayElement(env, javaRow.get(), 2, row.shortStd);
+        }
+        if (!row.longDst.startsWith(gmt)) {
+            setStringArrayElement(env, javaRow.get(), 3, row.longDst);
+        }
+        if (!row.shortDst.startsWith(gmt)) {
+            setStringArrayElement(env, javaRow.get(), 4, row.shortDst);
+        }
         env->SetObjectArrayElement(result, i, javaRow.get());
         delete row.tz;
     }
