@@ -216,18 +216,11 @@ public final class IoBridge {
                 cause = errnoException;
             }
         }
-        // TODO: is it really helpful/necessary to throw so many different exceptions?
         String detail = connectDetail(inetAddress, port, timeoutMs, cause);
-        if (cause.errno == ECONNRESET || cause.errno == ECONNREFUSED ||
-                cause.errno == EADDRNOTAVAIL || cause.errno == EADDRINUSE ||
-                cause.errno == ENETUNREACH) {
-            throw new ConnectException(detail, cause);
-        } else if (cause.errno == EACCES) {
-            throw new SecurityException(detail, cause);
-        } else if (cause.errno == ETIMEDOUT) {
+        if (cause.errno == ETIMEDOUT) {
             throw new SocketTimeoutException(detail, cause);
         }
-        throw new SocketException(detail, cause);
+        throw new ConnectException(detail, cause);
     }
 
     // Socket options used by java.net but not exposed in SocketOptions.
