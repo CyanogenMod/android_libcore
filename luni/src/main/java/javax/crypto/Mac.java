@@ -265,7 +265,9 @@ public class Mac implements Cloneable {
             return;
         }
         if ((offset < 0) || (len < 0) || ((offset + len) > input.length)) {
-            throw new IllegalArgumentException("Incorrect arguments");
+            throw new IllegalArgumentException("Incorrect arguments."
+                                               + " input.length=" + input.length
+                                               + " offset=" + offset + ", len=" + len);
         }
         spiImpl.engineUpdate(input, offset, len);
     }
