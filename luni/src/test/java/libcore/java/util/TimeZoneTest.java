@@ -211,4 +211,86 @@ public class TimeZoneTest extends TestCase {
             }
         };
     }
+
+    // http://b/7955614 and http://b/8026776.
+    public void testDisplayNames() throws Exception {
+        // Check that there are no time zones that use DST but have the same display name for
+        // both standard and daylight time.
+        StringBuilder failures = new StringBuilder();
+        for (String id : TimeZone.getAvailableIDs()) {
+            TimeZone tz = TimeZone.getTimeZone(id);
+            String longDst = tz.getDisplayName(true, TimeZone.LONG, Locale.US);
+            String longStd = tz.getDisplayName(false, TimeZone.LONG, Locale.US);
+            String shortDst = tz.getDisplayName(true, TimeZone.SHORT, Locale.US);
+            String shortStd = tz.getDisplayName(false, TimeZone.SHORT, Locale.US);
+
+            if (tz.useDaylightTime()) {
+                // The long std and dst strings must differ!
+                if (longDst.equals(longStd)) {
+                    failures.append(String.format("\n%20s: LD='%s' LS='%s'!",
+                                                  id, longDst, longStd));
+                }
+                // The short std and dst strings must differ!
+                if (shortDst.equals(shortStd)) {
+                    failures.append(String.format("\n%20s: SD='%s' SS='%s'!",
+                                                  id, shortDst, shortStd));
+                }
+
+                // If the short std matches the long dst, or the long std matches the short dst,
+                // it probably means we have a time zone that icu4c doesn't believe has ever
+                // observed dst.
+                if (shortStd.equals(longDst)) {
+                    failures.append(String.format("\n%20s: SS='%s' LD='%s'!",
+                                                  id, shortStd, longDst));
+                }
+                if (longStd.equals(shortDst)) {
+                    failures.append(String.format("\n%20s: LS='%s' SD='%s'!",
+                                                  id, longStd, shortDst));
+                }
+            }
+
+            // Sanity check that whenever a display name is just a GMT string that it's the
+            // right GMT string.
+            String gmtDst = formatGmtString(tz, true);
+            String gmtStd = formatGmtString(tz, false);
+            if (isGmtString(longDst) && !longDst.equals(gmtDst)) {
+                failures.append(String.format("\n%s: LD %s", id, longDst));
+            }
+            if (isGmtString(longStd) && !longStd.equals(gmtStd)) {
+                failures.append(String.format("\n%s: LS %s", id, longStd));
+            }
+            if (isGmtString(shortDst) && !shortDst.equals(gmtDst)) {
+                failures.append(String.format("\n%s: SD %s", id, shortDst));
+            }
+            if (isGmtString(shortStd) && !shortStd.equals(gmtStd)) {
+                failures.append(String.format("\n%s: SS %s", id, shortStd));
+            }
+        }
+        assertEquals("", failures.toString());
+
+        // Check one specific example.
+        TimeZone tz = TimeZone.getTimeZone("America/Santiago");
+        assertEquals("Chile Summer Time", tz.getDisplayName(true, TimeZone.LONG, Locale.US));
+        assertEquals("Chile Standard Time", tz.getDisplayName(false, TimeZone.LONG, Locale.US));
+        assertEquals("GMT-03:00", tz.getDisplayName(true, TimeZone.SHORT, Locale.US));
+        assertEquals("GMT-04:00", tz.getDisplayName(false, TimeZone.SHORT, Locale.US));
+    }
+
+    private static boolean isGmtString(String s) {
+        return s.startsWith("GMT+") || s.startsWith("GMT-");
+    }
+
+    private static String formatGmtString(TimeZone tz, boolean daylight) {
+        int offset = tz.getRawOffset();
+        if (daylight) {
+            offset += tz.getDSTSavings();
+        }
+        offset /= 60000;
+        char sign = '+';
+        if (offset < 0) {
+            sign = '-';
+            offset = -offset;
+        }
+        return String.format("GMT%c%02d:%02d", sign, offset / 60, offset % 60);
+    }
 }
