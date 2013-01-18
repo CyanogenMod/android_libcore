@@ -2258,6 +2258,15 @@ static jint NativeCrypto_EVP_MD_CTX_create(JNIEnv* env, jclass) {
     return static_cast<jint>(reinterpret_cast<uintptr_t>(ctx.release()));
 }
 
+static void NativeCrypto_EVP_MD_CTX_init(JNIEnv*, jclass, jint ctxRef) {
+    EVP_MD_CTX* ctx = reinterpret_cast<EVP_MD_CTX*>(ctxRef);
+    JNI_TRACE("NativeCrypto_EVP_MD_CTX_init(%p)", ctx);
+
+    if (ctx != NULL) {
+        EVP_MD_CTX_init(ctx);
+    }
+}
+
 static void NativeCrypto_EVP_MD_CTX_destroy(JNIEnv*, jclass, jint ctxRef) {
     EVP_MD_CTX* ctx = reinterpret_cast<EVP_MD_CTX*>(ctxRef);
     JNI_TRACE("NativeCrypto_EVP_MD_CTX_destroy(%p)", ctx);
@@ -5531,6 +5540,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, EC_KEY_get_private_key, "(I)[B"),
     NATIVE_METHOD(NativeCrypto, EC_KEY_get_public_key, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_create, "()I"),
+    NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_init, "(I)V"),
     NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_destroy, "(I)V"),
     NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_copy, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_DigestFinal, "(I[BI)I"),
