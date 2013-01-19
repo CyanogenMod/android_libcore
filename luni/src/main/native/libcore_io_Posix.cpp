@@ -129,7 +129,12 @@ static void throwErrnoException(JNIEnv* env, const char* functionName) {
 }
 
 static void throwGaiException(JNIEnv* env, const char* functionName, int error) {
-    if (errno != 0) {
+  // Cache the methods ids before we throw, so we don't call GetMethodID with a pending exception.
+  static jmethodID ctor3 = env->GetMethodID(JniConstants::gaiExceptionClass, "<init>",
+                                            "(Ljava/lang/String;ILjava/lang/Throwable;)V");
+  static jmethodID ctor2 = env->GetMethodID(JniConstants::gaiExceptionClass, "<init>",
+                                            "(Ljava/lang/String;I)V");
+  if (errno != 0) {
         // EAI_SYSTEM should mean "look at errno instead", but both glibc and bionic seem to
         // mess this up. In particular, if you don't have INTERNET permission, errno will be EACCES
         // but you'll get EAI_NONAME or EAI_NODATA. So we want our GaiException to have a
@@ -138,10 +143,6 @@ static void throwGaiException(JNIEnv* env, const char* functionName, int error) 
         throwErrnoException(env, functionName);
         // Deliberately fall through to throw another exception...
     }
-    static jmethodID ctor3 = env->GetMethodID(JniConstants::gaiExceptionClass,
-            "<init>", "(Ljava/lang/String;ILjava/lang/Throwable;)V");
-    static jmethodID ctor2 = env->GetMethodID(JniConstants::gaiExceptionClass,
-            "<init>", "(Ljava/lang/String;I)V");
     throwException(env, JniConstants::gaiExceptionClass, ctor3, ctor2, functionName, error);
 }
 
