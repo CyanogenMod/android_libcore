@@ -31,13 +31,13 @@
 #include "cutils/log.h"
 
 /** Close all open fds > 2 (i.e. everything but stdin/out/err), != skipFd. */
-static void closeNonStandardFds(int skipFd1, int skipFd2) {
+static void closeNonStandardFds(int skipFd1) {
     // TODO: rather than close all these non-open files, we could look in /proc/self/fd.
     rlimit rlimit;
     getrlimit(RLIMIT_NOFILE, &rlimit);
     const int max_fd = rlimit.rlim_max;
     for (int fd = 3; fd < max_fd; ++fd) {
-        if (fd != skipFd1 && fd != skipFd2) {
+        if (fd != skipFd1) {
             close(fd);
         }
     }
@@ -63,13 +63,6 @@ static pid_t executeProcess(JNIEnv* env, char** commands, char** environment,
         const char* workingDirectory, jobject inDescriptor,
         jobject outDescriptor, jobject errDescriptor,
         jboolean redirectErrorStream) {
-
-    // Keep track of the system properties fd so we don't close it.
-    int androidSystemPropertiesFd = -1;
-    char* fdString = getenv("ANDROID_PROPERTY_WORKSPACE");
-    if (fdString) {
-        androidSystemPropertiesFd = atoi(fdString);
-    }
 
     // Create 4 pipes: stdin, stdout, stderr, and an exec() status pipe.
     int pipes[PIPE_COUNT * 2] = { -1, -1, -1, -1, -1, -1, -1, -1 };
@@ -122,7 +115,7 @@ static pid_t executeProcess(JNIEnv* env, char** commands, char** environment,
         fcntl(statusOut, F_SETFD, FD_CLOEXEC);
 
         // Close remaining unwanted open fds.
-        closeNonStandardFds(statusOut, androidSystemPropertiesFd);
+        closeNonStandardFds(statusOut);
 
         // Switch to working directory.
         if (workingDirectory != NULL) {
