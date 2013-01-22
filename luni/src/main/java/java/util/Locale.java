@@ -400,19 +400,17 @@ public final class Locale implements Cloneable, Serializable {
             return "";
         }
 
-        // Last-minute workaround for http://b/7291355 in jb-mr1.
-        // This isn't right for all languages, but it's right for en and tl.
-        // We should have more CLDR data in a future release, but we'll still
-        // probably want to have frameworks/base translate the obsolete tl and
-        // tl-rPH locales to fil and fil-rPH at runtime, at which point
-        // libcore and icu4c will just do the right thing.
+        // http://b/8049507 --- frameworks/base should use fil_PH instead of tl_PH.
+        // Until then, we're stuck covering their tracks, making it look like they're
+        // using "fil" when they're not.
+        String localeString = toString();
         if (languageCode.equals("tl")) {
-            return "Filipino";
+            localeString = toNewString("fil", countryCode, variantCode);
         }
 
-        String result = ICU.getDisplayLanguageNative(toString(), locale.toString());
+        String result = ICU.getDisplayLanguageNative(localeString, locale.toString());
         if (result == null) { // TODO: do we need to do this, or does ICU do it for us?
-            result = ICU.getDisplayLanguageNative(toString(), Locale.getDefault().toString());
+            result = ICU.getDisplayLanguageNative(localeString, Locale.getDefault().toString());
         }
         return result;
     }
@@ -585,10 +583,13 @@ public final class Locale implements Cloneable, Serializable {
     @Override
     public final String toString() {
         String result = cachedToStringResult;
-        return (result == null) ? (cachedToStringResult = toNewString()) : result;
+        if (result == null) {
+            result = cachedToStringResult = toNewString(languageCode, countryCode, variantCode);
+        }
+        return result;
     }
 
-    private String toNewString() {
+    private static String toNewString(String languageCode, String countryCode, String variantCode) {
         // The string form of a locale that only has a variant is the empty string.
         if (languageCode.length() == 0 && countryCode.length() == 0) {
             return "";
