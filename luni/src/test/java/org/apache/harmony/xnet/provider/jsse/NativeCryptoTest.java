@@ -27,11 +27,14 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateCrtKey;
-import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECPrivateKeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2421,5 +2424,28 @@ public class NativeCryptoTest extends TestCase {
 
         int aes128cbc = NativeCrypto.EVP_get_cipherbyname("aes-128-cbc");
         assertEquals(16, NativeCrypto.EVP_CIPHER_iv_length(aes128cbc));
+    }
+
+    public void test_OpenSSLKey_toJava() throws Exception {
+        OpenSSLKey key1;
+
+        BigInteger e = BigInteger.valueOf(65537);
+        key1 = new OpenSSLKey(NativeCrypto.RSA_generate_key_ex(1024, e.toByteArray()));
+        assertTrue(key1.getPublicKey() instanceof RSAPublicKey);
+
+        key1 = new OpenSSLKey(NativeCrypto.DSA_generate_key(1024, null, null, null, null));
+        assertTrue(key1.getPublicKey() instanceof DSAPublicKey);
+
+        int group1 = NULL;
+        try {
+            group1 = NativeCrypto.EC_GROUP_new_by_curve_name("prime256v1");
+            assertTrue(group1 != NULL);
+            key1 = new OpenSSLKey(NativeCrypto.EC_KEY_generate_key(group1));
+        } finally {
+            if (group1 != NULL) {
+                NativeCrypto.EC_GROUP_clear_free(group1);
+            }
+        }
+        assertTrue(key1.getPublicKey() instanceof ECPublicKey);
     }
 }

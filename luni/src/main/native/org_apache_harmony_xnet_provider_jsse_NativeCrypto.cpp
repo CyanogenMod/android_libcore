@@ -795,6 +795,23 @@ static jint NativeCrypto_ENGINE_load_private_key(JNIEnv* env, jclass, jint engin
     return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
 }
 
+static jstring NativeCrypto_ENGINE_get_id(JNIEnv* env, jclass, jint engineRef)
+{
+    ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
+    JNI_TRACE("ENGINE_get_id(%p)", e);
+
+    if (e == NULL) {
+        jniThrowNullPointerException(env, "engine == null");
+        return NULL;
+    }
+
+    const char *id = ENGINE_get_id(e);
+    ScopedLocalRef<jstring> idJava(env, env->NewStringUTF(id));
+
+    JNI_TRACE("ENGINE_get_id(%p) => \"%s\"", e, id);
+    return idJava.release();
+}
+
 /**
  * public static native int EVP_PKEY_new_DSA(byte[] p, byte[] q, byte[] g,
  *                                           byte[] pub_key, byte[] priv_key);
@@ -1757,6 +1774,21 @@ static jint NativeCrypto_EC_GROUP_new_curve(JNIEnv* env, jclass, jint type, jbyt
     return static_cast<jint>(reinterpret_cast<uintptr_t>(group));
 }
 
+static jint NativeCrypto_EC_GROUP_dup(JNIEnv* env, jclass, jint groupRef) {
+    const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
+    JNI_TRACE("EC_GROUP_get_curve_name(%p)", group);
+
+    if (group == NULL) {
+         JNI_TRACE("EC_GROUP_dup => group == NULL");
+         jniThrowNullPointerException(env, "group == NULL");
+         return 0;
+     }
+
+     EC_GROUP* groupDup = EC_GROUP_dup(group);
+     JNI_TRACE("EC_GROUP_dup(%p) => %p", group, groupDup);
+     return static_cast<jint>(reinterpret_cast<uintptr_t>(groupDup));
+}
+
 static jint NativeCrypto_EC_GROUP_get_curve_name(JNIEnv* env, jclass, jint groupRef) {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     JNI_TRACE("EC_GROUP_get_curve_name(%p)", group);
@@ -2156,8 +2188,8 @@ static jint NativeCrypto_EC_KEY_generate_key(JNIEnv* env, jclass, jint groupRef)
 
     if (EC_KEY_generate_key(eckey.get()) != 1) {
         JNI_TRACE("EC_KEY_generate_key(%p) => EC_KEY_generate_key error", group);
-         throwExceptionIfNecessary(env, "EC_KEY_set_group");
-         return 0;
+        throwExceptionIfNecessary(env, "EC_KEY_set_group");
+        return 0;
     }
 
     Unique_EVP_PKEY pkey(EVP_PKEY_new());
@@ -5647,6 +5679,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, ENGINE_finish, "(I)I"),
     NATIVE_METHOD(NativeCrypto, ENGINE_free, "(I)I"),
     NATIVE_METHOD(NativeCrypto, ENGINE_load_private_key, "(ILjava/lang/String;)I"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_get_id, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_DSA, "([B[B[B[B[B)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_RSA, "([B[B[B[B[B[B[B[B)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_EC_KEY, "(II[B)I"),
@@ -5673,6 +5706,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, get_DSA_params, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_new_by_curve_name, "(Ljava/lang/String;)I"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_new_curve, "(I[B[B[B)I"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_dup, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_set_asn1_flag, "(II)V"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_set_point_conversion_form, "(II)V"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_get_curve_name, "(I)I"),
