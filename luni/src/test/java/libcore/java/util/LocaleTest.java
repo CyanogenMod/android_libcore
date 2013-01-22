@@ -64,15 +64,22 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("Deutsch", Locale.GERMAN.getDisplayLanguage(Locale.GERMAN));
     }
 
-    // http://b/7291355; Locale.getDisplayLanguage fails for tl in tl in ICU 4.9.
     public void test_tl() throws Exception {
+        // In jb-mr1, we had a last-minute hack to always return "Filipino" because
+        // icu4c 4.8 didn't have any localizations for fil. (http://b/7291355)
         Locale tl = new Locale("tl");
         Locale tl_PH = new Locale("tl", "PH");
         assertEquals("Filipino", tl.getDisplayLanguage(Locale.ENGLISH));
         assertEquals("Filipino", tl_PH.getDisplayLanguage(Locale.ENGLISH));
         assertEquals("Filipino", tl.getDisplayLanguage(tl));
         assertEquals("Filipino", tl_PH.getDisplayLanguage(tl_PH));
-    }
+
+        // After the icu4c 4.9 upgrade, we could localize "fil" correctly, though we
+        // needed another hack to supply "fil" instead of "tl" to icu4c. (http://b/8023288)
+        Locale es_MX = new Locale("es", "MX");
+        assertEquals("filipino", tl.getDisplayLanguage(es_MX));
+        assertEquals("filipino", tl_PH.getDisplayLanguage(es_MX));
+      }
 
     // http://b/3452611; Locale.getDisplayLanguage fails for the obsolete language codes.
     public void test_getDisplayName_obsolete() throws Exception {
