@@ -417,7 +417,9 @@ static size_t fillBuffer(ParsingContext* parsingContext, const char* utf8, int b
 
     // Grow buffer if necessary (the length in bytes is always >= the length in chars).
     jcharArray javaChars = parsingContext->ensureCapacity(byteCount);
-    if (javaChars == NULL) return -1;
+    if (javaChars == NULL) {
+        return -1;
+    }
 
     // Decode UTF-8 characters into our char[].
     ScopedCharArrayRW chars(env, javaChars);

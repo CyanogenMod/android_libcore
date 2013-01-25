@@ -21,7 +21,6 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <net/if.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -34,6 +33,8 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+#include <net/if.h> // After <sys/socket.h> to work around a Mac header file bug.
 
 static void initConstant(JNIEnv* env, jclass c, const char* fieldName, int value) {
     jfieldID field = env->GetStaticFieldID(c, fieldName, "I");
@@ -49,7 +50,9 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "AI_ALL", AI_ALL);
     initConstant(env, c, "AI_CANONNAME", AI_CANONNAME);
     initConstant(env, c, "AI_NUMERICHOST", AI_NUMERICHOST);
+#if defined(AI_NUMERICSERV)
     initConstant(env, c, "AI_NUMERICSERV", AI_NUMERICSERV);
+#endif
     initConstant(env, c, "AI_PASSIVE", AI_PASSIVE);
     initConstant(env, c, "AI_V4MAPPED", AI_V4MAPPED);
     initConstant(env, c, "E2BIG", E2BIG);
@@ -65,7 +68,9 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "EAI_MEMORY", EAI_MEMORY);
     initConstant(env, c, "EAI_NODATA", EAI_NODATA);
     initConstant(env, c, "EAI_NONAME", EAI_NONAME);
+#if defined(EAI_OVERFLOW)
     initConstant(env, c, "EAI_OVERFLOW", EAI_OVERFLOW);
+#endif
     initConstant(env, c, "EAI_SERVICE", EAI_SERVICE);
     initConstant(env, c, "EAI_SOCKTYPE", EAI_SOCKTYPE);
     initConstant(env, c, "EAI_SYSTEM", EAI_SYSTEM);
@@ -150,34 +155,50 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "F_GETFD", F_GETFD);
     initConstant(env, c, "F_GETFL", F_GETFL);
     initConstant(env, c, "F_GETLK", F_GETLK);
+#if defined(F_GETLK64)
     initConstant(env, c, "F_GETLK64", F_GETLK64);
+#endif
     initConstant(env, c, "F_GETOWN", F_GETOWN);
     initConstant(env, c, "F_OK", F_OK);
     initConstant(env, c, "F_RDLCK", F_RDLCK);
     initConstant(env, c, "F_SETFD", F_SETFD);
     initConstant(env, c, "F_SETFL", F_SETFL);
     initConstant(env, c, "F_SETLK", F_SETLK);
+#if defined(F_SETLK64)
     initConstant(env, c, "F_SETLK64", F_SETLK64);
+#endif
     initConstant(env, c, "F_SETLKW", F_SETLKW);
+#if defined(F_SETLKW64)
     initConstant(env, c, "F_SETLKW64", F_SETLKW64);
+#endif
     initConstant(env, c, "F_SETOWN", F_SETOWN);
     initConstant(env, c, "F_UNLCK", F_UNLCK);
     initConstant(env, c, "F_WRLCK", F_WRLCK);
     initConstant(env, c, "IFF_ALLMULTI", IFF_ALLMULTI);
+#if defined(IFF_AUTOMEDIA)
     initConstant(env, c, "IFF_AUTOMEDIA", IFF_AUTOMEDIA);
+#endif
     initConstant(env, c, "IFF_BROADCAST", IFF_BROADCAST);
     initConstant(env, c, "IFF_DEBUG", IFF_DEBUG);
+#if defined(IFF_DYNAMIC)
     initConstant(env, c, "IFF_DYNAMIC", IFF_DYNAMIC);
+#endif
     initConstant(env, c, "IFF_LOOPBACK", IFF_LOOPBACK);
+#if defined(IFF_MASTER)
     initConstant(env, c, "IFF_MASTER", IFF_MASTER);
+#endif
     initConstant(env, c, "IFF_MULTICAST", IFF_MULTICAST);
     initConstant(env, c, "IFF_NOARP", IFF_NOARP);
     initConstant(env, c, "IFF_NOTRAILERS", IFF_NOTRAILERS);
     initConstant(env, c, "IFF_POINTOPOINT", IFF_POINTOPOINT);
+#if defined(IFF_PORTSEL)
     initConstant(env, c, "IFF_PORTSEL", IFF_PORTSEL);
+#endif
     initConstant(env, c, "IFF_PROMISC", IFF_PROMISC);
     initConstant(env, c, "IFF_RUNNING", IFF_RUNNING);
+#if defined(IFF_SLAVE)
     initConstant(env, c, "IFF_SLAVE", IFF_SLAVE);
+#endif
     initConstant(env, c, "IFF_UP", IFF_UP);
     initConstant(env, c, "IPPROTO_ICMP", IPPROTO_ICMP);
     initConstant(env, c, "IPPROTO_IP", IPPROTO_IP);
@@ -189,13 +210,27 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "IPV6_MULTICAST_HOPS", IPV6_MULTICAST_HOPS);
     initConstant(env, c, "IPV6_MULTICAST_IF", IPV6_MULTICAST_IF);
     initConstant(env, c, "IPV6_MULTICAST_LOOP", IPV6_MULTICAST_LOOP);
+#if defined(IPV6_RECVDSTOPTS)
     initConstant(env, c, "IPV6_RECVDSTOPTS", IPV6_RECVDSTOPTS);
+#endif
+#if defined(IPV6_RECVHOPLIMIT)
     initConstant(env, c, "IPV6_RECVHOPLIMIT", IPV6_RECVHOPLIMIT);
+#endif
+#if defined(IPV6_RECVHOPOPTS)
     initConstant(env, c, "IPV6_RECVHOPOPTS", IPV6_RECVHOPOPTS);
+#endif
+#if defined(IPV6_RECVPKTINFO)
     initConstant(env, c, "IPV6_RECVPKTINFO", IPV6_RECVPKTINFO);
+#endif
+#if defined(IPV6_RECVRTHDR)
     initConstant(env, c, "IPV6_RECVRTHDR", IPV6_RECVRTHDR);
+#endif
+#if defined(IPV6_RECVTCLASS)
     initConstant(env, c, "IPV6_RECVTCLASS", IPV6_RECVTCLASS);
+#endif
+#if defined(IPV6_TCLASS)
     initConstant(env, c, "IPV6_TCLASS", IPV6_TCLASS);
+#endif
     initConstant(env, c, "IPV6_UNICAST_HOPS", IPV6_UNICAST_HOPS);
     initConstant(env, c, "IPV6_V6ONLY", IPV6_V6ONLY);
     initConstant(env, c, "IP_MULTICAST_IF", IP_MULTICAST_IF);
@@ -206,8 +241,12 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "MAP_FIXED", MAP_FIXED);
     initConstant(env, c, "MAP_PRIVATE", MAP_PRIVATE);
     initConstant(env, c, "MAP_SHARED", MAP_SHARED);
+#if defined(MCAST_JOIN_GROUP)
     initConstant(env, c, "MCAST_JOIN_GROUP", MCAST_JOIN_GROUP);
+#endif
+#if defined(MCAST_LEAVE_GROUP)
     initConstant(env, c, "MCAST_LEAVE_GROUP", MCAST_LEAVE_GROUP);
+#endif
     initConstant(env, c, "MCL_CURRENT", MCL_CURRENT);
     initConstant(env, c, "MCL_FUTURE", MCL_FUTURE);
     initConstant(env, c, "MSG_CTRUNC", MSG_CTRUNC);
@@ -271,10 +310,16 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "SIGKILL", SIGKILL);
     initConstant(env, c, "SIGPIPE", SIGPIPE);
     initConstant(env, c, "SIGPROF", SIGPROF);
+#if defined(SIGPWR)
     initConstant(env, c, "SIGPWR", SIGPWR);
+#endif
     initConstant(env, c, "SIGQUIT", SIGQUIT);
+#if defined(SIGRTMAX)
     initConstant(env, c, "SIGRTMAX", SIGRTMAX);
+#endif
+#if defined(SIGRTMIN)
     initConstant(env, c, "SIGRTMIN", SIGRTMIN);
+#endif
     initConstant(env, c, "SIGSEGV", SIGSEGV);
 #if defined(SIGSTKFLT)
     initConstant(env, c, "SIGSTKFLT", SIGSTKFLT);
@@ -302,7 +347,9 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "SOCK_SEQPACKET", SOCK_SEQPACKET);
     initConstant(env, c, "SOCK_STREAM", SOCK_STREAM);
     initConstant(env, c, "SOL_SOCKET", SOL_SOCKET);
+#if defined(SO_BINDTODEVICE)
     initConstant(env, c, "SO_BINDTODEVICE", SO_BINDTODEVICE);
+#endif
     initConstant(env, c, "SO_BROADCAST", SO_BROADCAST);
     initConstant(env, c, "SO_DEBUG", SO_DEBUG);
     initConstant(env, c, "SO_DONTROUTE", SO_DONTROUTE);
@@ -356,7 +403,9 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "_SC_2_CHAR_TERM", _SC_2_CHAR_TERM);
     initConstant(env, c, "_SC_2_C_BIND", _SC_2_C_BIND);
     initConstant(env, c, "_SC_2_C_DEV", _SC_2_C_DEV);
+#if defined(_SC_2_C_VERSION)
     initConstant(env, c, "_SC_2_C_VERSION", _SC_2_C_VERSION);
+#endif
     initConstant(env, c, "_SC_2_FORT_DEV", _SC_2_FORT_DEV);
     initConstant(env, c, "_SC_2_FORT_RUN", _SC_2_FORT_RUN);
     initConstant(env, c, "_SC_2_LOCALEDEF", _SC_2_LOCALEDEF);
@@ -369,7 +418,9 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "_SC_ARG_MAX", _SC_ARG_MAX);
     initConstant(env, c, "_SC_ASYNCHRONOUS_IO", _SC_ASYNCHRONOUS_IO);
     initConstant(env, c, "_SC_ATEXIT_MAX", _SC_ATEXIT_MAX);
+#if defined(_SC_AVPHYS_PAGES)
     initConstant(env, c, "_SC_AVPHYS_PAGES", _SC_AVPHYS_PAGES);
+#endif
     initConstant(env, c, "_SC_BC_BASE_MAX", _SC_BC_BASE_MAX);
     initConstant(env, c, "_SC_BC_DIM_MAX", _SC_BC_DIM_MAX);
     initConstant(env, c, "_SC_BC_SCALE_MAX", _SC_BC_SCALE_MAX);
@@ -400,7 +451,9 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "_SC_PAGESIZE", _SC_PAGESIZE);
     initConstant(env, c, "_SC_PAGE_SIZE", _SC_PAGE_SIZE);
     initConstant(env, c, "_SC_PASS_MAX", _SC_PASS_MAX);
+#if defined(_SC_PHYS_PAGES)
     initConstant(env, c, "_SC_PHYS_PAGES", _SC_PHYS_PAGES);
+#endif
     initConstant(env, c, "_SC_PRIORITIZED_IO", _SC_PRIORITIZED_IO);
     initConstant(env, c, "_SC_PRIORITY_SCHEDULING", _SC_PRIORITY_SCHEDULING);
     initConstant(env, c, "_SC_REALTIME_SIGNALS", _SC_REALTIME_SIGNALS);
