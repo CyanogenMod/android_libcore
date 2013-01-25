@@ -588,7 +588,7 @@ static jobject NativeConverter_charsetForName(JNIEnv* env, jclass, jstring chars
     }
     // Get Java's canonical name for this charset.
     jstring javaCanonicalName = getJavaCanonicalName(env, icuCanonicalName);
-    if (env->ExceptionOccurred()) {
+    if (env->ExceptionCheck()) {
         return NULL;
     }
 
@@ -604,14 +604,14 @@ static jobject NativeConverter_charsetForName(JNIEnv* env, jclass, jstring chars
 
     // Get the aliases for this charset.
     jobjectArray aliases = getAliases(env, icuCanonicalName);
-    if (env->ExceptionOccurred()) {
+    if (env->ExceptionCheck()) {
         return NULL;
     }
 
     // Construct the CharsetICU object.
-    jmethodID charsetConstructor = env->GetMethodID(JniConstants::charsetICUClass, "<init>",
+    static jmethodID charsetConstructor = env->GetMethodID(JniConstants::charsetICUClass, "<init>",
             "(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)V");
-    if (env->ExceptionOccurred()) {
+    if (env->ExceptionCheck()) {
         return NULL;
     }
     return env->NewObject(JniConstants::charsetICUClass, charsetConstructor,

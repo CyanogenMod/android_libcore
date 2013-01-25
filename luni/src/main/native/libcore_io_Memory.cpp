@@ -18,11 +18,11 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "Portability.h"
 #include "ScopedBytes.h"
 #include "ScopedPrimitiveArray.h"
 #include "UniquePtr.h"
 
-#include <byteswap.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>

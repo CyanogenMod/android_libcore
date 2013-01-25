@@ -144,7 +144,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(StrictMath, tan, "!(D)D"),
     NATIVE_METHOD(StrictMath, tanh, "!(D)D"),
 };
-
 void register_java_lang_StrictMath(JNIEnv* env) {
     jniRegisterNativeMethods(env, "java/lang/StrictMath", gMethods, NELEM(gMethods));
 }

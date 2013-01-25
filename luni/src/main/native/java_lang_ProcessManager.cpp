@@ -27,6 +27,7 @@
 #include "jni.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "Portability.h"
 #include "ScopedLocalRef.h"
 #include "cutils/log.h"
 
@@ -101,9 +102,9 @@ static pid_t executeProcess(JNIEnv* env, char** commands, char** environment,
     // If this is the child process...
     if (childPid == 0) {
         /*
-         * Note: We cannot malloc() or free() after this point!
-         * A no-longer-running thread may be holding on to the heap lock, and
-         * an attempt to malloc() or free() would result in deadlock.
+         * Note: We cannot malloc(3) or free(3) after this point!
+         * A thread in the parent that no longer exists in the child may have held the heap lock
+         * when we forked, so an attempt to malloc(3) or free(3) would result in deadlock.
          */
 
         // Replace stdin, out, and err with pipes.
@@ -143,11 +144,11 @@ static pid_t executeProcess(JNIEnv* env, char** commands, char** environment,
         execvp(commands[0], commands);
 
         // If we got here, execvp() failed or the working dir was invalid.
-        execFailed:
-            int error = errno;
-            write(statusOut, &error, sizeof(int));
-            close(statusOut);
-            exit(error);
+execFailed:
+        int error = errno;
+        write(statusOut, &error, sizeof(int));
+        close(statusOut);
+        exit(error);
     }
 
     // This is the parent process.
