@@ -21,6 +21,7 @@
 #include "JniConstants.h"
 #include "JniException.h"
 #include "NetworkUtilities.h"
+#include "Portability.h"
 #include "ScopedBytes.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
@@ -42,7 +43,6 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-#include <sys/sendfile.h>
 #include <sys/socket.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -50,7 +50,6 @@
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <sys/utsname.h>
-#include <sys/vfs.h> // Bionic doesn't have <sys/statvfs.h>
 #include <sys/wait.h>
 #include <termios.h>
 #include <unistd.h>
@@ -248,16 +247,24 @@ static jobject makeStructStat(JNIEnv* env, const struct stat& sb) {
 }
 
 static jobject makeStructStatFs(JNIEnv* env, const struct statfs& sb) {
+#if defined(__APPLE__)
+    // Mac OS has no f_namelen field in struct statfs.
+    jlong max_name_length = 255; // __DARWIN_MAXNAMLEN
+#else
+    // Until Mac OS 10.7, these were 32-bit fields.
     STATIC_ASSERT(sizeof(sb.f_bavail) == sizeof(jlong), statfs_not_64_bit);
     STATIC_ASSERT(sizeof(sb.f_bfree) == sizeof(jlong), statfs_not_64_bit);
     STATIC_ASSERT(sizeof(sb.f_blocks) == sizeof(jlong), statfs_not_64_bit);
+
+    jlong max_name_length = static_cast<jlong>(sb.f_namelen);
+#endif
 
     static jmethodID ctor = env->GetMethodID(JniConstants::structStatFsClass, "<init>",
             "(JJJJJJJJ)V");
     return env->NewObject(JniConstants::structStatFsClass, ctor, static_cast<jlong>(sb.f_bsize),
             static_cast<jlong>(sb.f_blocks), static_cast<jlong>(sb.f_bfree),
             static_cast<jlong>(sb.f_bavail), static_cast<jlong>(sb.f_files),
-            static_cast<jlong>(sb.f_ffree), static_cast<jlong>(sb.f_namelen),
+            static_cast<jlong>(sb.f_ffree), max_name_length,
             static_cast<jlong>(sb.f_frsize));
 }
 
@@ -1108,6 +1115,11 @@ static void Posix_setsockoptInt(JNIEnv* env, jobject, jobject javaFd, jint level
     throwIfMinusOne(env, "setsockopt", TEMP_FAILURE_RETRY(setsockopt(fd, level, option, &value, sizeof(value))));
 }
 
+#if defined(__APPLE__) && MAC_OS_X_VERSION_MAX_ALLOWED < 1070
+// Mac OS didn't support modern multicast APIs until 10.7.
+static void Posix_setsockoptIpMreqn(JNIEnv*, jobject, jobject, jint, jint, jint) { abort(); }
+static void Posix_setsockoptGroupReq(JNIEnv*, jobject, jobject, jint, jint, jobject) { abort(); }
+#else
 static void Posix_setsockoptIpMreqn(JNIEnv* env, jobject, jobject javaFd, jint level, jint option, jint value) {
     ip_mreqn req;
     memset(&req, 0, sizeof(req));
@@ -1146,6 +1158,7 @@ static void Posix_setsockoptGroupReq(JNIEnv* env, jobject, jobject javaFd, jint 
     }
     throwIfMinusOne(env, "setsockopt", rc);
 }
+#endif
 
 static void Posix_setsockoptLinger(JNIEnv* env, jobject, jobject javaFd, jint level, jint option, jobject javaLinger) {
     static jfieldID lOnoffFid = env->GetFieldID(JniConstants::structLingerClass, "l_onoff", "I");
