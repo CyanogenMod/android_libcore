@@ -51,6 +51,30 @@ endef
 # we aren't quite defining a new rule yet, to make sure that the
 # sub.mk files don't see anything stray from the last rule that was
 # set up.
+
+# Set up the test library first
+ifeq ($(LIBCORE_SKIP_TESTS),)
+include $(CLEAR_VARS)
+LOCAL_MODULE := $(core_magic_local_target)
+core_src_files :=
+
+# Include the sub.mk files.
+$(foreach dir, \
+    luni/src/test/native, \
+    $(eval $(call include-core-native-dir,$(dir))))
+
+# This is for the test library, so rename the variable.
+test_src_files := $(core_src_files)
+core_src_files :=
+
+# Extract out the allowed LOCAL_* variables. Note: $(sort) also
+# removes duplicates.
+test_c_includes := $(sort libcore/include $(LOCAL_C_INCLUDES) $(JNI_H_INCLUDE))
+test_shared_libraries := $(sort $(LOCAL_SHARED_LIBRARIES))
+test_static_libraries := $(sort $(LOCAL_STATIC_LIBRARIES))
+endif # LIBCORE_SKIP_TESTS
+
+
 include $(CLEAR_VARS)
 LOCAL_MODULE := $(core_magic_local_target)
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
@@ -96,6 +120,32 @@ LOCAL_SHARED_LIBRARIES += libstlport
 
 include $(BUILD_SHARED_LIBRARY)
 
+
+# Test library
+ifeq ($(LIBCORE_SKIP_TESTS),)
+include $(CLEAR_VARS)
+
+LOCAL_CFLAGS += -Wall -Wextra -Werror
+LOCAL_CFLAGS += $(core_cflags)
+LOCAL_CPPFLAGS += $(core_cppflags)
+ifeq ($(TARGET_ARCH),arm)
+# Ignore "note: the mangling of 'va_list' has changed in GCC 4.4"
+LOCAL_CFLAGS += -Wno-psabi
+endif
+
+# Define the rules.
+LOCAL_SRC_FILES := $(test_src_files)
+LOCAL_C_INCLUDES := $(test_c_includes)
+LOCAL_SHARED_LIBRARIES := $(test_shared_libraries)
+LOCAL_STATIC_LIBRARIES := $(test_static_libraries)
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := libjavacore-test
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
+
+include $(BUILD_SHARED_LIBRARY)
+endif # LIBCORE_SKIP_TESTS
+
+
 #
 # Build for the host.
 #
@@ -114,4 +164,20 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libexpat libicuuc libicui18n libssl libcrypto libz-host
     LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
     include $(BUILD_HOST_SHARED_LIBRARY)
+
+    ifeq ($(LIBCORE_SKIP_TESTS),)
+    include $(CLEAR_VARS)
+    # Define the rules.
+    LOCAL_SRC_FILES := $(test_src_files)
+    LOCAL_CFLAGS += $(core_cflags)
+    LOCAL_C_INCLUDES := $(test_c_includes)
+    LOCAL_CPPFLAGS += $(core_cppflags)
+    LOCAL_LDLIBS += -ldl -lpthread
+    LOCAL_MODULE_TAGS := optional
+    LOCAL_MODULE := libjavacore-test
+    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
+    LOCAL_SHARED_LIBRARIES := $(test_shared_libraries)
+    LOCAL_STATIC_LIBRARIES := $(test_static_libraries)
+    include $(BUILD_HOST_SHARED_LIBRARY)
+    endif # LIBCORE_SKIP_TESTS
 endif

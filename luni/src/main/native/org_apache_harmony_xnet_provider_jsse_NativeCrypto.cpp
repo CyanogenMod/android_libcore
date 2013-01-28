@@ -697,17 +697,17 @@ static jint NativeCrypto_ENGINE_by_id(JNIEnv* env, jclass, jstring idJava) {
 
     ScopedUtfChars id(env, idJava);
     if (id.c_str() == NULL) {
-        jniThrowException(env, "java/lang/IllegalArgumentException", "id == NULL");
+        JNI_TRACE("ENGINE_by_id(%p) => id == null", idJava);
         return 0;
     }
+    JNI_TRACE("ENGINE_by_id(\"%s\")", id.c_str());
 
     ENGINE* e = ENGINE_by_id(id.c_str());
     if (e == NULL) {
-        throwExceptionIfNecessary(env, "ENGINE_by_id");
-        return 0;
+        freeOpenSslErrorState();
     }
 
-    JNI_TRACE("ENGINE_by_id(%p) => %p", idJava, e);
+    JNI_TRACE("ENGINE_by_id(\"%s\") => %p", id.c_str(), e);
     return static_cast<jint>(reinterpret_cast<uintptr_t>(e));
 }
 
@@ -802,6 +802,7 @@ static jstring NativeCrypto_ENGINE_get_id(JNIEnv* env, jclass, jint engineRef)
 
     if (e == NULL) {
         jniThrowNullPointerException(env, "engine == null");
+        JNI_TRACE("ENGINE_get_id(%p) => engine == null", e);
         return NULL;
     }
 
@@ -810,6 +811,49 @@ static jstring NativeCrypto_ENGINE_get_id(JNIEnv* env, jclass, jint engineRef)
 
     JNI_TRACE("ENGINE_get_id(%p) => \"%s\"", e, id);
     return idJava.release();
+}
+
+static jint NativeCrypto_ENGINE_ctrl_cmd_string(JNIEnv* env, jclass, jint engineRef,
+        jstring cmdJava, jstring argJava, jint cmd_optional)
+{
+    ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
+    JNI_TRACE("ENGINE_ctrl_cmd_string(%p, %p, %p, %d)", e, cmdJava, argJava, cmd_optional);
+
+    if (e == NULL) {
+        jniThrowNullPointerException(env, "engine == null");
+        JNI_TRACE("ENGINE_ctrl_cmd_string(%p, %p, %p, %d) => engine == null", e, cmdJava, argJava,
+                cmd_optional);
+        return 0;
+    }
+
+    ScopedUtfChars cmdChars(env, cmdJava);
+    if (cmdChars.c_str() == NULL) {
+        return 0;
+    }
+
+    UniquePtr<ScopedUtfChars> arg;
+    const char* arg_c_str = NULL;
+    if (argJava != NULL) {
+        arg.reset(new ScopedUtfChars(env, argJava));
+        arg_c_str = arg->c_str();
+        if (arg_c_str == NULL) {
+            return 0;
+        }
+    }
+    JNI_TRACE("ENGINE_ctrl_cmd_string(%p, \"%s\", \"%s\", %d)", e, cmdChars.c_str(), arg_c_str,
+            cmd_optional);
+
+    int ret = ENGINE_ctrl_cmd_string(e, cmdChars.c_str(), arg_c_str, cmd_optional);
+    if (ret != 1) {
+        throwExceptionIfNecessary(env, "ENGINE_ctrl_cmd_string");
+        JNI_TRACE("ENGINE_ctrl_cmd_string(%p, \"%s\", \"%s\", %d) => threw error", e,
+                cmdChars.c_str(), arg_c_str, cmd_optional);
+        return 0;
+    }
+
+    JNI_TRACE("ENGINE_ctrl_cmd_string(%p, \"%s\", \"%s\", %d) => %d", e, cmdChars.c_str(),
+            arg_c_str, cmd_optional, ret);
+    return ret;
 }
 
 /**
@@ -5680,6 +5724,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, ENGINE_free, "(I)I"),
     NATIVE_METHOD(NativeCrypto, ENGINE_load_private_key, "(ILjava/lang/String;)I"),
     NATIVE_METHOD(NativeCrypto, ENGINE_get_id, "(I)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_ctrl_cmd_string, "(ILjava/lang/String;Ljava/lang/String;I)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_DSA, "([B[B[B[B[B)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_RSA, "([B[B[B[B[B[B[B[B)I"),
     NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_EC_KEY, "(II[B)I"),
