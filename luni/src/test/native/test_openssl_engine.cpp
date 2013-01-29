@@ -36,23 +36,34 @@ struct RSA_Delete {
 };
 typedef UniquePtr<RSA, RSA_Delete> Unique_RSA;
 
+static const char* HMAC_TAG = "-HMAC-";
+static const size_t HMAC_TAG_LEN = strlen(HMAC_TAG);
+
 static EVP_PKEY *test_load_key(ENGINE* e, const char *key_id,
         EVP_PKEY* (*read_func)(BIO*, EVP_PKEY**, pem_password_cb*, void*)) {
     void* data = static_cast<void*>(const_cast<char*>(key_id));
-    BIO* in = BIO_new_mem_buf(data, strlen(key_id));
-    if (!in) {
-        return NULL;
-    }
 
-    EVP_PKEY *key = read_func(in, NULL, 0, NULL);
-    BIO_free(in);
+    EVP_PKEY *key = NULL;
 
-    if (key != NULL && EVP_PKEY_type(key->type) == EVP_PKEY_RSA) {
-        ENGINE_init(e);
+    const size_t key_len = strlen(key_id);
+    if (key_len > HMAC_TAG_LEN && !strncmp(key_id, HMAC_TAG, HMAC_TAG_LEN)) {
+        key = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, e, reinterpret_cast<const unsigned char*>(key_id),
+                key_len);
+    } else {
+        BIO* in = BIO_new_mem_buf(data, strlen(key_id));
+        if (!in) {
+            return NULL;
+        }
+        key = read_func(in, NULL, 0, NULL);
+        BIO_free(in);
 
-        Unique_RSA rsa(EVP_PKEY_get1_RSA(key));
-        rsa->engine = e;
-        rsa->flags |= RSA_FLAG_EXT_PKEY;
+        if (key != NULL && EVP_PKEY_type(key->type) == EVP_PKEY_RSA) {
+            ENGINE_init(e);
+
+            Unique_RSA rsa(EVP_PKEY_get1_RSA(key));
+            rsa->engine = e;
+            rsa->flags |= RSA_FLAG_EXT_PKEY;
+        }
     }
 
     return key;
@@ -66,13 +77,34 @@ static EVP_PKEY* test_load_pubkey(ENGINE* e, const char* key_id, UI_METHOD*, voi
     return test_load_key(e, key_id, PEM_read_bio_PUBKEY);
 }
 
+static const int meths[] = {
+        EVP_PKEY_HMAC,
+};
+
+static int pkey_meths(ENGINE*, EVP_PKEY_METHOD** meth, const int** nids, int nid) {
+    if (nid == EVP_PKEY_HMAC) {
+        *meth = const_cast<EVP_PKEY_METHOD*>(EVP_PKEY_meth_find(nid));
+        return 1;
+    } else if (nid != 0) {
+        return 0;
+    }
+
+    if (nids != NULL) {
+        *nids = meths;
+        return 1;
+    }
+
+    return 0;
+}
+
 static int test_engine_setup(ENGINE* e) {
     if (!ENGINE_set_id(e, TEST_ENGINE_ID)
             || !ENGINE_set_name(e, TEST_ENGINE_NAME)
             || !ENGINE_set_flags(e, 0)
             || !ENGINE_set_RSA(e, RSA_get_default_method())
             || !ENGINE_set_load_privkey_function(e, test_load_privkey)
-            || !ENGINE_set_load_pubkey_function(e, test_load_pubkey)) {
+            || !ENGINE_set_load_pubkey_function(e, test_load_pubkey)
+            || !ENGINE_set_pkey_meths(e, pkey_meths)) {
         return 0;
     }
 
