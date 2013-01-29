@@ -74,7 +74,7 @@ public final class TimeZones {
             long end = System.currentTimeMillis();
             long duration = end - start;
             long nativeDuration = nativeEnd - nativeStart;
-            System.logI("Loaded time zone names for " + locale + " in " + duration + "ms" +
+            System.logI("Loaded time zone names for \"" + locale + "\" in " + duration + "ms" +
                     " (" + nativeDuration + "ms in ICU)");
             return result;
         }
