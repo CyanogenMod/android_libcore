@@ -195,9 +195,7 @@ static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring lo
 
         if (id == pacific_apia) {
             if (row.longDst.startsWith(gmt)) {
-                row.longDst = "Samoa Summer Time";
-            } else {
-                abort(); // Time to remove this hack!
+                row.longDst = "Samoa Daylight Time";
             }
         }
 
