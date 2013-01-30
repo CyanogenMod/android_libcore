@@ -210,11 +210,6 @@ public final class CipherTest extends TestCase {
         return algorithm.endsWith("WRAP");
     }
 
-    private static boolean isWrappingSupported(String algorithm, String provider) {
-        // All Cipher's should support wrapping but BouncyCastle PBE ciphers do not.
-        return !(provider.equals("BC") && isPBE(algorithm));
-    }
-
     private static boolean isPBE(String algorithm) {
         return algorithm.startsWith("PBE");
     }
@@ -705,8 +700,8 @@ public final class CipherTest extends TestCase {
 
         assertNull(cipherID, c.getExemptionMechanism());
 
-        // Test wrapping a key.  Most every cipher should be able to wrap.
-        if (isWrappingSupported(algorithm, providerName)) {
+        // Test wrapping a key.  Every cipher should be able to wrap.
+        {
             // Generate a small SecretKey for AES.
             KeyGenerator kg = KeyGenerator.getInstance("AES");
             kg.init(128);
