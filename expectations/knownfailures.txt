@@ -325,11 +325,6 @@
   name: "tests.java.security.SecureClassLoaderTest#testSecureClassLoaderClassLoader"
 },
 {
-  description: "Assertion does not evaluate to true... Works in javax.Certificate",
-  result: EXEC_FAILED,
-  name: "tests.security.cert.CertificateTest#testGetEncoded"
-},
-{
   description: "Not all Drivers are loaded in testsetup. ClassLoader issue in DriverManager.",
   result: EXEC_FAILED,
   name: "org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testDeregisterDriver"
