@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
-import libcore.java.security.StandardNames;
 
 public class X509CRLTest extends TestCase {
     private Provider[] mX509Providers;
@@ -69,7 +68,9 @@ public class X509CRLTest extends TestCase {
         final InputStream is = Support_Resources.getStream(name);
         assertNotNull("File does not exist: " + name, is);
         try {
-            return (X509Certificate) f.generateCertificate(is);
+            X509Certificate c = (X509Certificate) f.generateCertificate(is);
+            assertNotNull(c);
+            return c;
         } finally {
             try {
                 is.close();
@@ -82,7 +83,9 @@ public class X509CRLTest extends TestCase {
         final InputStream is = Support_Resources.getStream(name);
         assertNotNull("File does not exist: " + name, is);
         try {
-            return (X509CRL) f.generateCRL(is);
+            X509CRL crl = (X509CRL) f.generateCRL(is);
+            assertNotNull(crl);
+            return crl;
         } finally {
             try {
                 is.close();
@@ -205,8 +208,8 @@ public class X509CRLTest extends TestCase {
             assertNotNull(lastUpdate);
             assertNotNull(nextUpdate);
 
-            assertEquals(lastUpdate, crl.getThisUpdate());
-            assertEquals(nextUpdate, crl.getNextUpdate());
+            assertDateEquals(lastUpdate, crl.getThisUpdate());
+            assertDateEquals(nextUpdate, crl.getNextUpdate());
         }
 
         {
@@ -219,8 +222,8 @@ public class X509CRLTest extends TestCase {
             assertNotNull(lastUpdate);
             assertNotNull(nextUpdate);
 
-            assertEquals(lastUpdate, crl.getThisUpdate());
-            assertEquals(nextUpdate, crl.getNextUpdate());
+            assertDateEquals(lastUpdate, crl.getThisUpdate());
+            assertDateEquals(nextUpdate, crl.getNextUpdate());
         }
     }
 
@@ -276,16 +279,27 @@ public class X509CRLTest extends TestCase {
 
         byte[] crlRsaBytes = getResourceAsBytes(CRL_RSA);
 
-        assertEquals(Arrays.toString(crlRsa.getEncoded()), Arrays.toString(crlRsaBytes));
+        assertEquals(Arrays.toString(crlRsaBytes), Arrays.toString(crlRsa.getEncoded()));
+    }
+
+    private static void assertDateEquals(Date date1, Date date2) throws Exception {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
+
+        String result1 = formatter.format(date1);
+        String result2 = formatter.format(date2);
+
+        assertEquals(result1, result2);
     }
 
     private void assertRsaCrl(CertificateFactory f, X509CRLEntry rsaEntry) throws Exception {
+        assertNotNull(rsaEntry);
+
         X509Certificate rsaCert = getCertificate(f, CERT_RSA);
         Map<String, Date> dates = getCrlDates(CRL_RSA_DSA_DATES);
         Date expectedDate = dates.get("lastUpdate");
 
         assertEquals(rsaCert.getSerialNumber(), rsaEntry.getSerialNumber());
-        assertEquals(expectedDate, rsaEntry.getRevocationDate());
+        assertDateEquals(expectedDate, rsaEntry.getRevocationDate());
         assertNull(rsaEntry.getCertificateIssuer());
         assertFalse(rsaEntry.hasExtensions());
         assertNull(rsaEntry.getCriticalExtensionOIDs());
@@ -298,7 +312,7 @@ public class X509CRLTest extends TestCase {
         Date expectedDate = dates.get("lastUpdate");
 
         assertEquals(dsaCert.getSerialNumber(), dsaEntry.getSerialNumber());
-        assertEquals(expectedDate, dsaEntry.getRevocationDate());
+        assertDateEquals(expectedDate, dsaEntry.getRevocationDate());
         assertNull(dsaEntry.getCertificateIssuer());
         assertTrue(dsaEntry.hasExtensions());
         /* TODO: get the OID */
