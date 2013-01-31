@@ -93,7 +93,8 @@ public class CertificateFactoryTest extends TestCase {
             CertificateFactory cf = CertificateFactory.getInstance("X509", p);
             try {
                 test_generateCertificate(cf);
-                testGenerateCertificate_InputStream_Offset_Correct(cf);
+                test_generateCertificate_InputStream_Offset_Correct(cf);
+                test_generateCertificate_InputStream_Empty(cf);
             } catch (Exception e) {
                 throw new Exception("Problem testing " + p.getName(), e);
             }
@@ -113,7 +114,21 @@ public class CertificateFactoryTest extends TestCase {
         }
     }
 
-    private void testGenerateCertificate_InputStream_Offset_Correct(CertificateFactory cf)
+    private void test_generateCertificate_InputStream_Empty(CertificateFactory cf) throws Exception {
+        try {
+            Certificate c = cf.generateCertificate(new ByteArrayInputStream(new byte[0]));
+            if (!"BC".equals(cf.getProvider().getName())) {
+                fail("should throw CertificateException: " + cf.getProvider().getName());
+            }
+            assertNull(c);
+        } catch (CertificateException e) {
+            if ("BC".equals(cf.getProvider().getName())) {
+                fail("should return null: " + cf.getProvider().getName());
+            }
+        }
+    }
+
+    private void test_generateCertificate_InputStream_Offset_Correct(CertificateFactory cf)
             throws Exception {
         byte[] valid = VALID_CERTIFICATE_PEM.getBytes();
 
