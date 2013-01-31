@@ -528,8 +528,12 @@ public final class TestKeyStore extends Assert {
         if (!permittedNameConstraints.isEmpty() || !excludedNameConstraints.isEmpty()) {
             x509cg.addExtension(X509Extensions.NameConstraints,
                                 true,
-                                new NameConstraints(permittedNameConstraints,
-                                                    excludedNameConstraints));
+                                new NameConstraints(permittedNameConstraints.toArray(
+                                                        new GeneralSubtree[
+                                                            permittedNameConstraints.size()]),
+                                                    excludedNameConstraints.toArray(
+                                                        new GeneralSubtree[
+                                                            excludedNameConstraints.size()])));
         }
 
         if (privateKey instanceof ECPrivateKey) {
