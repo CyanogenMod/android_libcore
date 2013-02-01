@@ -139,7 +139,7 @@ LOCAL_C_INCLUDES := $(test_c_includes)
 LOCAL_SHARED_LIBRARIES := $(test_shared_libraries)
 LOCAL_STATIC_LIBRARIES := $(test_static_libraries)
 LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE := libjavacore-test
+LOCAL_MODULE := libjavacoretests
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
 
 include $(BUILD_SHARED_LIBRARY)
@@ -174,7 +174,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_CPPFLAGS += $(core_cppflags)
     LOCAL_LDLIBS += -ldl -lpthread
     LOCAL_MODULE_TAGS := optional
-    LOCAL_MODULE := libjavacore-test
+    LOCAL_MODULE := libjavacoretests
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
     LOCAL_SHARED_LIBRARIES := $(test_shared_libraries)
     LOCAL_STATIC_LIBRARIES := $(test_static_libraries)

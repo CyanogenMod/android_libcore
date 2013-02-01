@@ -56,6 +56,8 @@ import org.apache.harmony.xnet.provider.jsse.NativeCrypto.SSLHandshakeCallbacks;
 import static org.apache.harmony.xnet.provider.jsse.NativeCrypto.SSL_MODE_HANDSHAKE_CUTTHROUGH;
 
 public class NativeCryptoTest extends TestCase {
+    /** Corresponds to the native test library "libjavacoretests.so" */
+    private static final String NATIVE_LIBRARY_NAME = "javacoretests";
 
     private static final int NULL = 0;
     private static final FileDescriptor INVALID_FD = new FileDescriptor();
@@ -2027,8 +2029,8 @@ public class NativeCryptoTest extends TestCase {
             assertEquals(1, NativeCrypto.ENGINE_ctrl_cmd_string(dynEngine, "LIST_ADD", "2", 0));
 
             // Do a direct load of the ENGINE.
-            assertEquals(1,
-                    NativeCrypto.ENGINE_ctrl_cmd_string(dynEngine, "SO_PATH", "javacore-test", 0));
+            assertEquals(1, NativeCrypto.ENGINE_ctrl_cmd_string(dynEngine, "SO_PATH",
+                    NATIVE_LIBRARY_NAME, 0));
             assertEquals(1, NativeCrypto.ENGINE_ctrl_cmd_string(dynEngine, "LOAD", null, 0));
         } finally {
             NativeCrypto.ENGINE_finish(dynEngine);
