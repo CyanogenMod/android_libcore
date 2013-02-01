@@ -1045,6 +1045,8 @@ public class NativeCryptoTest extends TestCase {
     }
 
     public void test_SSL_do_handshake_with_channel_id_normal() throws Exception {
+        initChannelIdKey();
+
         // Normal handshake with TLS Channel ID.
         final ServerSocket listener = new ServerSocket(0);
         Hooks cHooks = new Hooks();
@@ -1069,6 +1071,8 @@ public class NativeCryptoTest extends TestCase {
     }
 
     public void test_SSL_do_handshake_with_channel_id_not_supported_by_server() throws Exception {
+        initChannelIdKey();
+
         // Client tries to use TLS Channel ID but the server does not enable/offer the extension.
         final ServerSocket listener = new ServerSocket(0);
         Hooks cHooks = new Hooks();
@@ -1093,6 +1097,8 @@ public class NativeCryptoTest extends TestCase {
     }
 
     public void test_SSL_do_handshake_with_channel_id_not_enabled_by_client() throws Exception {
+        initChannelIdKey();
+
         // Client does not use TLS Channel ID when the server has the extension enabled/offered.
         final ServerSocket listener = new ServerSocket(0);
         Hooks cHooks = new Hooks();
