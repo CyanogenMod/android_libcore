@@ -135,17 +135,16 @@ public class NativeCryptoTest extends TestCase {
     }
 
     private static synchronized void initChannelIdKey() throws Exception {
+        if (CHANNEL_ID_PRIVATE_KEY != null) {
+            return;
+        }
+
         // NIST P-256 aka SECG secp256r1 aka X9.62 prime256v1
         OpenSSLECGroupContext openSslSpec = OpenSSLECGroupContext.getCurveByName("prime256v1");
         BigInteger s = new BigInteger(
                 "229cdbbf489aea584828a261a23f9ff8b0f66f7ccac98bf2096ab3aee41497c5", 16);
-        KeyFactory keyFactory = KeyFactory.getInstance("EC");
-        CHANNEL_ID_PRIVATE_KEY = (ECPrivateKey) keyFactory.generatePrivate(
-                new ECPrivateKeySpec(s, openSslSpec.getECParameterSpec()));
-        // Since OpenSSL-backed EC KeyFactory is not yet implemented, we manually convert
-        // the private key (most likely a BouncyCastle one) to an OpenSSL-backed one.
         CHANNEL_ID_PRIVATE_KEY = new OpenSSLECPrivateKey(
-                openSslSpec, OpenSSLECPrivateKey.getInstance(CHANNEL_ID_PRIVATE_KEY));
+                new ECPrivateKeySpec(s, openSslSpec.getECParameterSpec()));
 
         // Channel ID is the concatenation of the X and Y coordinates of the public key.
         CHANNEL_ID = new BigInteger(
