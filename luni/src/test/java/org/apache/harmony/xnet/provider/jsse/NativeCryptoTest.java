@@ -16,18 +16,17 @@
 
 package org.apache.harmony.xnet.provider.jsse;
 
+import dalvik.system.BaseDexClassLoader;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
-import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.DSAPublicKey;
@@ -2017,7 +2016,14 @@ public class NativeCryptoTest extends TestCase {
         NativeCrypto.ENGINE_load_dynamic();
         int dynEngine = NativeCrypto.ENGINE_by_id("dynamic");
         try {
-            String libraryPaths = System.getProperty("java.library.path");
+            ClassLoader loader = NativeCryptoTest.class.getClassLoader();
+
+            final String libraryPaths;
+            if (loader instanceof BaseDexClassLoader) {
+                libraryPaths = ((BaseDexClassLoader) loader).getLdLibraryPath();
+            } else {
+                libraryPaths = System.getProperty("java.library.path");
+            }
             assertNotNull(libraryPaths);
 
             String[] libraryPathArray = libraryPaths.split(":");
