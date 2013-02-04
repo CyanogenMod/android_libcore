@@ -19,6 +19,7 @@
 #include <map>
 #include <vector>
 
+#include "IcuUtilities.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
@@ -29,34 +30,12 @@
 #include "unicode/smpdtfmt.h"
 #include "unicode/timezone.h"
 
-extern Locale getLocale(JNIEnv* env, jstring localeName);
-
 static jobjectArray TimeZones_forCountryCode(JNIEnv* env, jclass, jstring countryCode) {
     ScopedUtfChars countryChars(env, countryCode);
     if (countryChars.c_str() == NULL) {
         return NULL;
     }
-
-    UniquePtr<StringEnumeration> ids(TimeZone::createEnumeration(countryChars.c_str()));
-    if (ids.get() == NULL) {
-        return NULL;
-    }
-    UErrorCode status = U_ZERO_ERROR;
-    int32_t idCount = ids->count(status);
-    if (maybeThrowIcuException(env, "StringEnumeration::count", status)) {
-        return NULL;
-    }
-
-    jobjectArray result = env->NewObjectArray(idCount, JniConstants::stringClass, NULL);
-    for (int32_t i = 0; i < idCount; ++i) {
-        const UnicodeString* id = ids->snext(status);
-        if (maybeThrowIcuException(env, "StringEnumeration::snext", status)) {
-            return NULL;
-        }
-        ScopedLocalRef<jstring> idString(env, env->NewString(id->getBuffer(), id->length()));
-        env->SetObjectArrayElement(result, i, idString.get());
-    }
-    return result;
+    return fromStringEnumeration(env, TimeZone::createEnumeration(countryChars.c_str()));
 }
 
 struct TimeZoneNames {
@@ -146,6 +125,9 @@ static jobjectArray TimeZones_getZoneStringsImpl(JNIEnv* env, jclass, jstring lo
         ScopedLocalRef<jstring> javaZoneId(env,
                 reinterpret_cast<jstring>(env->GetObjectArrayElement(timeZoneIds, i)));
         ScopedJavaUnicodeString zoneId(env, javaZoneId.get());
+        if (!zoneId.valid()) {
+            return NULL;
+        }
         UnicodeString id(zoneId.unicodeString());
 
         TimeZoneNames row;

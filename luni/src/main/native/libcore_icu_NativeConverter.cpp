@@ -15,6 +15,7 @@
 
 #define LOG_TAG "NativeConverter"
 
+#include "IcuUtilities.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"

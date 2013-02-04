@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#if !defined(zip_h)
-#define zip_h
+#ifndef ZIP_UTILITIES_H_included
+#define ZIP_UTILITIES_H_included
 
 #include "JNIHelp.h"
 #include "JniException.h"
@@ -97,4 +97,4 @@ static NativeZipStream* toNativeZipStream(jlong address) {
     return reinterpret_cast<NativeZipStream*>(static_cast<uintptr_t>(address));
 }
 
-#endif /* zip_h */
+#endif  // ZIP_UTILITIES_H_included

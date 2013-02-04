@@ -83,6 +83,9 @@ static jint Pattern_compileImpl(JNIEnv* env, jclass, jstring javaRegex, jint fla
     error.offset = -1;
 
     ScopedJavaUnicodeString regex(env, javaRegex);
+    if (!regex.valid()) {
+        return 0;
+    }
     UnicodeString& regexString(regex.unicodeString());
     RegexPattern* result = RegexPattern::compile(regexString, flags, error, status);
     if (!U_SUCCESS(status)) {

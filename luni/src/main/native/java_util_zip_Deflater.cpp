@@ -19,7 +19,7 @@
 
 #include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
-#include "zip.h"
+#include "ZipUtilities.h"
 
 static void Deflater_setDictionaryImpl(JNIEnv* env, jobject, jbyteArray dict, int off, int len, jlong handle) {
     toNativeZipStream(handle)->setDictionary(env, dict, off, len, false);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef JNI_EXCEPTION_H_included
-#define JNI_EXCEPTION_H_included
+#ifndef ICU_UTILITIES_H_included
+#define ICU_UTILITIES_H_included
 
 #include "jni.h"
+#include "unicode/utypes.h" // For UErrorCode.
+#include "unicode/locid.h" // For Locale.
 
-void jniThrowExceptionWithErrno(JNIEnv* env, const char* exceptionClassName, int error);
+extern Locale getLocale(JNIEnv* env, jstring localeName);
+extern jobjectArray fromStringEnumeration(JNIEnv* env, StringEnumeration*);
+bool maybeThrowIcuException(JNIEnv* env, const char* function, UErrorCode error);
 
-void jniThrowOutOfMemoryError(JNIEnv* env, const char* message);
-void jniThrowSocketException(JNIEnv* env, int error);
-
-#endif  // JNI_EXCEPTION_H_included
+#endif  // ICU_UTILITIES_H_included
