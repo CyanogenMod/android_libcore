@@ -1151,8 +1151,7 @@ public class SimpleDateFormat extends DateFormat {
             offset += 3;
         }
         char sign;
-        if (offset < string.length()
-                && ((sign = string.charAt(offset)) == '+' || sign == '-')) {
+        if (offset < string.length() && ((sign = string.charAt(offset)) == '+' || sign == '-')) {
             ParsePosition position = new ParsePosition(offset + 1);
             Number result = numberFormat.parse(string, position);
             if (result == null) {
@@ -1182,16 +1181,21 @@ public class SimpleDateFormat extends DateFormat {
             calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
             return offset;
         }
-        String[][] zones = formatData.internalZoneStrings();
-        for (String[] element : zones) {
-            for (int j = TimeZones.LONG_NAME; j < TimeZones.NAME_COUNT; j++) {
-                if (string.regionMatches(true, offset, element[j], 0, element[j].length())) {
-                    TimeZone zone = TimeZone.getTimeZone(element[TimeZones.OLSON_NAME]);
+        for (String[] row : formatData.internalZoneStrings()) {
+            for (int i = TimeZones.LONG_NAME; i < TimeZones.NAME_COUNT; ++i) {
+                if (row[i] == null) {
+                    // If icu4c doesn't have a name, our array contains a null. Normally we'd
+                    // work out the correct GMT offset, but we already handled parsing GMT offsets
+                    // above, so we can just ignore these cases. http://b/8128460.
+                    continue;
+                }
+                if (string.regionMatches(true, offset, row[i], 0, row[i].length())) {
+                    TimeZone zone = TimeZone.getTimeZone(row[TimeZones.OLSON_NAME]);
                     if (zone == null) {
                         return -offset - 1;
                     }
                     int raw = zone.getRawOffset();
-                    if (j == TimeZones.LONG_NAME_DST || j == TimeZones.SHORT_NAME_DST) {
+                    if (i == TimeZones.LONG_NAME_DST || i == TimeZones.SHORT_NAME_DST) {
                         // Not all time zones use a one-hour difference, so we need to query
                         // the TimeZone. (Australia/Lord_Howe is the usual example of this.)
                         int dstSavings = zone.getDSTSavings();
@@ -1206,7 +1210,7 @@ public class SimpleDateFormat extends DateFormat {
                         raw += dstSavings;
                     }
                     calendar.setTimeZone(new SimpleTimeZone(raw, ""));
-                    return offset + element[j].length();
+                    return offset + row[i].length();
                 }
             }
         }

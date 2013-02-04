@@ -123,4 +123,22 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
         assertEquals(Arrays.toString(row), "UTC", row[2]);
         assertEquals(Arrays.toString(row), "UTC", row[4]);
     }
+
+    // http://b/8128460
+    // If icu4c doesn't actually have a name, we arrange to return null from native code rather
+    // that use icu4c's probably-out-of-date time zone transition data.
+    // getZoneStrings has to paper over this.
+    public void test_getZoneStrings_no_nulls() throws Exception {
+        String[][] array = DateFormatSymbols.getInstance(Locale.US).getZoneStrings();
+        int failCount = 0;
+        for (String[] row : array) {
+            for (String element : row) {
+                if (element == null) {
+                    System.err.println(Arrays.toString(row));
+                    ++failCount;
+                }
+            }
+          }
+          assertEquals(0, failCount);
+    }
 }
