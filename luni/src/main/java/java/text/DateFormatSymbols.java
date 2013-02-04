@@ -23,6 +23,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.TimeZone;
 import libcore.icu.ICU;
 import libcore.icu.LocaleData;
 import libcore.icu.TimeZones;
@@ -331,7 +332,25 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * </ul>
      */
     public String[][] getZoneStrings() {
-        return clone2dStringArray(internalZoneStrings());
+        String[][] result = clone2dStringArray(internalZoneStrings());
+        // If icu4c doesn't have a name, our array contains a null. TimeZone.getDisplayName
+        // knows how to format GMT offsets (and, unlike icu4c, has accurate data). http://b/8128460.
+        for (String[] zone : result) {
+            String id = zone[0];
+            if (zone[1] == null) {
+                zone[1] = TimeZone.getTimeZone(id).getDisplayName(false, TimeZone.LONG, locale);
+            }
+            if (zone[2] == null) {
+                zone[2] = TimeZone.getTimeZone(id).getDisplayName(false, TimeZone.SHORT, locale);
+            }
+            if (zone[3] == null) {
+                zone[3] = TimeZone.getTimeZone(id).getDisplayName(true, TimeZone.LONG, locale);
+            }
+            if (zone[4] == null) {
+                zone[4] = TimeZone.getTimeZone(id).getDisplayName(true, TimeZone.LONG, locale);
+            }
+        }
+        return result;
     }
 
     private static String[][] clone2dStringArray(String[][] array) {
