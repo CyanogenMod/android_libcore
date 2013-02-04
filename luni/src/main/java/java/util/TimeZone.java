@@ -184,7 +184,9 @@ public abstract class TimeZone implements Serializable, Cloneable {
         // which only gets updated when we update icu4c. http://b/7955614 and http://b/8026776.
 
         // TODO: should we generate these once, in TimeZones.getDisplayName? Revisit when we
-        // upgrade to icu4c 50 and rewrite the underlying native code.
+        // upgrade to icu4c 50 and rewrite the underlying native code. See also the
+        // "element[j] != null" check in SimpleDateFormat.parseTimeZone, and the extra work in
+        // DateFormatSymbols.getZoneStrings.
 
         int offset = getRawOffset();
         if (daylightTime) {
