@@ -200,7 +200,7 @@ public final class Math {
 
     /**
      * Returns the double conversion of the most negative (closest to negative
-     * infinity) integer value which is greater than the argument.
+     * infinity) integer value greater than or equal to the argument.
      * <p>
      * Special cases:
      * <ul>
@@ -211,10 +211,6 @@ public final class Math {
      * <li>{@code ceil(-infinity) = -infinity}</li>
      * <li>{@code ceil(NaN) = NaN}</li>
      * </ul>
-     *
-     * @param d
-     *            the value whose closest integer value has to be computed.
-     * @return the ceiling of the argument.
      */
     public static native double ceil(double d);
 
@@ -301,7 +297,7 @@ public final class Math {
 
     /**
      * Returns the double conversion of the most positive (closest to positive
-     * infinity) integer value which is less than the argument.
+     * infinity) integer value less than or equal to the argument.
      * <p>
      * Special cases:
      * <ul>
@@ -311,10 +307,6 @@ public final class Math {
      * <li>{@code floor(-infinity) = -infinity}</li>
      * <li>{@code floor(NaN) = NaN}</li>
      * </ul>
-     *
-     * @param d
-     *            the value whose closest integer value has to be computed.
-     * @return the floor of the argument.
      */
     public static native double floor(double d);
 
