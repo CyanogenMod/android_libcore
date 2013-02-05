@@ -63,6 +63,7 @@ int JNI_OnLoad(JavaVM* vm, void*) {
     REGISTER(register_libcore_icu_NativeNormalizer);
     REGISTER(register_libcore_icu_NativePluralRules);
     REGISTER(register_libcore_icu_TimeZones);
+    REGISTER(register_libcore_icu_Transliterator);
     REGISTER(register_libcore_io_AsynchronousCloseMonitor);
     REGISTER(register_libcore_io_Memory);
     REGISTER(register_libcore_io_OsConstants);

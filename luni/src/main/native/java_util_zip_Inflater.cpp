@@ -19,7 +19,7 @@
 
 #include "JniConstants.h"
 #include "ScopedPrimitiveArray.h"
-#include "zip.h"
+#include "ZipUtilities.h"
 #include <errno.h>
 
 static jlong Inflater_createStream(JNIEnv* env, jobject, jboolean noHeader) {

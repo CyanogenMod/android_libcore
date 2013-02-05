@@ -17,29 +17,6 @@
 #include "JniException.h"
 #include "JNIHelp.h"
 
-bool maybeThrowIcuException(JNIEnv* env, const char* function, UErrorCode error) {
-    if (U_SUCCESS(error)) {
-        return false;
-    }
-    const char* exceptionClass;
-    switch (error) {
-    case U_ILLEGAL_ARGUMENT_ERROR:
-        exceptionClass = "java/lang/IllegalArgumentException";
-        break;
-    case U_INDEX_OUTOFBOUNDS_ERROR:
-    case U_BUFFER_OVERFLOW_ERROR:
-        exceptionClass = "java/lang/ArrayIndexOutOfBoundsException";
-        break;
-    case U_UNSUPPORTED_ERROR:
-        exceptionClass = "java/lang/UnsupportedOperationException";
-        break;
-    default:
-        exceptionClass = "java/lang/RuntimeException";
-        break;
-    }
-    return jniThrowExceptionFmt(env, exceptionClass, "%s failed: %s", function, u_errorName(error));
-}
-
 void jniThrowExceptionWithErrno(JNIEnv* env, const char* exceptionClassName, int error) {
     char buf[BUFSIZ];
     jniThrowException(env, exceptionClassName, jniStrError(error, buf, sizeof(buf)));
