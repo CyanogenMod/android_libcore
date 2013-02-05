@@ -16,6 +16,7 @@
 
 #define LOG_TAG "NativeNormalizer"
 
+#include "IcuUtilities.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
@@ -23,28 +24,34 @@
 #include "unicode/normlzr.h"
 
 static jstring NativeNormalizer_normalizeImpl(JNIEnv* env, jclass, jstring s, jint intMode) {
-    ScopedJavaUnicodeString src(env, s);
-    UNormalizationMode mode = static_cast<UNormalizationMode>(intMode);
-    UErrorCode status = U_ZERO_ERROR;
-    UnicodeString dst;
-    Normalizer::normalize(src.unicodeString(), mode, 0, dst, status);
-    maybeThrowIcuException(env, "Normalizer::normalize", status);
-    return dst.isBogus() ? NULL : env->NewString(dst.getBuffer(), dst.length());
+  ScopedJavaUnicodeString src(env, s);
+  if (!src.valid()) {
+    return NULL;
+  }
+  UNormalizationMode mode = static_cast<UNormalizationMode>(intMode);
+  UErrorCode status = U_ZERO_ERROR;
+  UnicodeString dst;
+  Normalizer::normalize(src.unicodeString(), mode, 0, dst, status);
+  maybeThrowIcuException(env, "Normalizer::normalize", status);
+  return dst.isBogus() ? NULL : env->NewString(dst.getBuffer(), dst.length());
 }
 
 static jboolean NativeNormalizer_isNormalizedImpl(JNIEnv* env, jclass, jstring s, jint intMode) {
-    ScopedJavaUnicodeString src(env, s);
-    UNormalizationMode mode = static_cast<UNormalizationMode>(intMode);
-    UErrorCode status = U_ZERO_ERROR;
-    UBool result = Normalizer::isNormalized(src.unicodeString(), mode, status);
-    maybeThrowIcuException(env, "Normalizer::isNormalized", status);
-    return result;
+  ScopedJavaUnicodeString src(env, s);
+  if (!src.valid()) {
+    return JNI_FALSE;
+  }
+  UNormalizationMode mode = static_cast<UNormalizationMode>(intMode);
+  UErrorCode status = U_ZERO_ERROR;
+  UBool result = Normalizer::isNormalized(src.unicodeString(), mode, status);
+  maybeThrowIcuException(env, "Normalizer::isNormalized", status);
+  return result;
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(NativeNormalizer, normalizeImpl, "(Ljava/lang/String;I)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeNormalizer, isNormalizedImpl, "(Ljava/lang/String;I)Z"),
+  NATIVE_METHOD(NativeNormalizer, normalizeImpl, "(Ljava/lang/String;I)Ljava/lang/String;"),
+  NATIVE_METHOD(NativeNormalizer, isNormalizedImpl, "(Ljava/lang/String;I)Z"),
 };
 void register_libcore_icu_NativeNormalizer(JNIEnv* env) {
-    jniRegisterNativeMethods(env, "libcore/icu/NativeNormalizer", gMethods, NELEM(gMethods));
+  jniRegisterNativeMethods(env, "libcore/icu/NativeNormalizer", gMethods, NELEM(gMethods));
 }

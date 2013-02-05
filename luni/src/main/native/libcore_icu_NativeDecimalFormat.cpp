@@ -16,6 +16,7 @@
 
 #define LOG_TAG "NativeDecimalFormat"
 
+#include "IcuUtilities.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
@@ -106,13 +107,12 @@ static jint NativeDecimalFormat_open(JNIEnv* env, jclass, jstring pattern0,
         jstring internationalCurrencySymbol, jchar minusSign,
         jchar monetaryDecimalSeparator, jstring nan, jchar patternSeparator,
         jchar percent, jchar perMill, jchar zeroDigit) {
-    if (pattern0 == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        return 0;
-    }
     UErrorCode status = U_ZERO_ERROR;
     UParseError parseError;
     ScopedJavaUnicodeString pattern(env, pattern0);
+    if (!pattern.valid()) {
+      return 0;
+    }
     DecimalFormatSymbols* symbols = makeDecimalFormatSymbols(env,
             currencySymbol, decimalSeparator, digit, exponentSeparator, groupingSeparator,
             infinity, internationalCurrencySymbol, minusSign,
@@ -188,11 +188,10 @@ static jstring NativeDecimalFormat_getTextAttribute(JNIEnv* env, jclass, jint ad
 }
 
 static void NativeDecimalFormat_applyPatternImpl(JNIEnv* env, jclass, jint addr, jboolean localized, jstring pattern0) {
-    if (pattern0 == NULL) {
-        jniThrowNullPointerException(env, NULL);
-        return;
-    }
     ScopedJavaUnicodeString pattern(env, pattern0);
+    if (!pattern.valid()) {
+      return;
+    }
     DecimalFormat* fmt = toDecimalFormat(addr);
     UErrorCode status = U_ZERO_ERROR;
     const char* function;
@@ -299,6 +298,9 @@ static jobject NativeDecimalFormat_parse(JNIEnv* env, jclass, jint addr, jstring
     Formattable res;
     ParsePosition pp(parsePos);
     ScopedJavaUnicodeString src(env, text);
+    if (!src.valid()) {
+      return NULL;
+    }
     DecimalFormat* fmt = toDecimalFormat(addr);
     fmt->parse(src.unicodeString(), res, pp);
 

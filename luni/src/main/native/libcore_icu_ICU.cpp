@@ -16,6 +16,7 @@
 
 #define LOG_TAG "ICU"
 
+#include "IcuUtilities.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
@@ -92,10 +93,6 @@ class ScopedResourceBundle {
   DISALLOW_COPY_AND_ASSIGN(ScopedResourceBundle);
 };
 
-Locale getLocale(JNIEnv* env, jstring localeName) {
-    return Locale::createFromName(ScopedUtfChars(env, localeName).c_str());
-}
-
 static jstring ICU_addLikelySubtags(JNIEnv* env, jclass, jstring javaLocale) {
     UErrorCode status = U_ZERO_ERROR;
     ScopedUtfChars localeID(env, javaLocale);
@@ -119,10 +116,13 @@ static jstring ICU_getScript(JNIEnv* env, jclass, jstring javaLocale) {
 }
 
 static jint ICU_getCurrencyFractionDigits(JNIEnv* env, jclass, jstring javaCurrencyCode) {
-    ScopedJavaUnicodeString currencyCode(env, javaCurrencyCode);
-    UnicodeString icuCurrencyCode(currencyCode.unicodeString());
-    UErrorCode status = U_ZERO_ERROR;
-    return ucurr_getDefaultFractionDigits(icuCurrencyCode.getTerminatedBuffer(), &status);
+  ScopedJavaUnicodeString currencyCode(env, javaCurrencyCode);
+  if (!currencyCode.valid()) {
+    return 0;
+  }
+  UnicodeString icuCurrencyCode(currencyCode.unicodeString());
+  UErrorCode status = U_ZERO_ERROR;
+  return ucurr_getDefaultFractionDigits(icuCurrencyCode.getTerminatedBuffer(), &status);
 }
 
 // TODO: rewrite this with int32_t ucurr_forLocale(const char* locale, UChar* buff, int32_t buffCapacity, UErrorCode* ec)...
@@ -170,7 +170,13 @@ static jstring ICU_getCurrencyCode(JNIEnv* env, jclass, jstring javaCountryCode)
 
 static jstring getCurrencyName(JNIEnv* env, jstring javaLocaleName, jstring javaCurrencyCode, UCurrNameStyle nameStyle) {
   ScopedUtfChars localeName(env, javaLocaleName);
+  if (localeName.c_str() == NULL) {
+    return NULL;
+  }
   ScopedJavaUnicodeString currencyCode(env, javaCurrencyCode);
+  if (!currencyCode.valid()) {
+    return NULL;
+  }
   UnicodeString icuCurrencyCode(currencyCode.unicodeString());
   UErrorCode status = U_ZERO_ERROR;
   UBool isChoiceFormat = false;
@@ -621,19 +627,25 @@ static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring javaLocaleNa
 }
 
 static jstring ICU_toLowerCase(JNIEnv* env, jclass, jstring javaString, jstring localeName) {
-    ScopedJavaUnicodeString scopedString(env, javaString);
-    UnicodeString& s(scopedString.unicodeString());
-    UnicodeString original(s);
-    s.toLower(Locale::createFromName(ScopedUtfChars(env, localeName).c_str()));
-    return s == original ? javaString : env->NewString(s.getBuffer(), s.length());
+  ScopedJavaUnicodeString scopedString(env, javaString);
+  if (!scopedString.valid()) {
+    return NULL;
+  }
+  UnicodeString& s(scopedString.unicodeString());
+  UnicodeString original(s);
+  s.toLower(Locale::createFromName(ScopedUtfChars(env, localeName).c_str()));
+  return s == original ? javaString : env->NewString(s.getBuffer(), s.length());
 }
 
 static jstring ICU_toUpperCase(JNIEnv* env, jclass, jstring javaString, jstring localeName) {
-    ScopedJavaUnicodeString scopedString(env, javaString);
-    UnicodeString& s(scopedString.unicodeString());
-    UnicodeString original(s);
-    s.toUpper(Locale::createFromName(ScopedUtfChars(env, localeName).c_str()));
-    return s == original ? javaString : env->NewString(s.getBuffer(), s.length());
+  ScopedJavaUnicodeString scopedString(env, javaString);
+  if (!scopedString.valid()) {
+    return NULL;
+  }
+  UnicodeString& s(scopedString.unicodeString());
+  UnicodeString original(s);
+  s.toUpper(Locale::createFromName(ScopedUtfChars(env, localeName).c_str()));
+  return s == original ? javaString : env->NewString(s.getBuffer(), s.length());
 }
 
 static jstring versionString(JNIEnv* env, const UVersionInfo& version) {
@@ -689,6 +701,9 @@ static jstring ICU_getBestDateTimePattern(JNIEnv* env, jclass, jstring javaPatte
   }
 
   ScopedJavaUnicodeString patternHolder(env, javaPattern);
+  if (!patternHolder.valid()) {
+    return NULL;
+  }
   UnicodeString result(generator->getBestPattern(patternHolder.unicodeString(), status));
   if (maybeThrowIcuException(env, "DateTimePatternGenerator::getBestPattern", status)) {
     return NULL;
