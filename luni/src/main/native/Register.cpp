@@ -54,6 +54,7 @@ int JNI_OnLoad(JavaVM* vm, void*) {
     REGISTER(register_java_util_zip_CRC32);
     REGISTER(register_java_util_zip_Deflater);
     REGISTER(register_java_util_zip_Inflater);
+    REGISTER(register_libcore_icu_AlphabeticIndex);
     REGISTER(register_libcore_icu_ICU);
     REGISTER(register_libcore_icu_NativeBreakIterator);
     REGISTER(register_libcore_icu_NativeCollation);
