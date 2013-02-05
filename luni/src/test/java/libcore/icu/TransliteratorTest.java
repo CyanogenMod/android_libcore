@@ -73,5 +73,13 @@ public class TransliteratorTest extends junit.framework.TestCase {
 
   public void test_Han_Latin() throws Exception {
     assertEquals("hàn zì/hàn zì", Transliterator.transliterate("Han-Latin", "汉字/漢字"));
+
+    assertEquals("chén", Transliterator.transliterate("Han-Latin", "\u6c88"));
+    assertEquals("shěn", Transliterator.transliterate("Han-Latin", "\u700b"));
+    assertEquals("jiǎ", Transliterator.transliterate("Han-Latin", "\u8d3e"));
+
+    assertEquals("shěn", Transliterator.transliterate("Han-Latin/Names", "\u6c88"));
+    assertEquals("shěn", Transliterator.transliterate("Han-Latin/Names", "\u700b"));
+    assertEquals("jǐa", Transliterator.transliterate("Han-Latin/Names", "\u8d3e"));
   }
 }
