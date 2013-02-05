@@ -1657,23 +1657,29 @@ static jobjectArray NativeCrypto_get_DSA_params(JNIEnv* env, jclass, jint pkeyRe
         return NULL;
     }
 
-    jbyteArray g = bignumToArray(env, dsa->g, "g");
-    if (env->ExceptionCheck()) {
-        return NULL;
+    if (dsa->g != NULL) {
+        jbyteArray g = bignumToArray(env, dsa->g, "g");
+        if (env->ExceptionCheck()) {
+            return NULL;
+        }
+        env->SetObjectArrayElement(joa, 0, g);
     }
-    env->SetObjectArrayElement(joa, 0, g);
 
-    jbyteArray p = bignumToArray(env, dsa->p, "p");
-    if (env->ExceptionCheck()) {
-        return NULL;
+    if (dsa->p != NULL) {
+        jbyteArray p = bignumToArray(env, dsa->p, "p");
+        if (env->ExceptionCheck()) {
+            return NULL;
+        }
+        env->SetObjectArrayElement(joa, 1, p);
     }
-    env->SetObjectArrayElement(joa, 1, p);
 
-    jbyteArray q = bignumToArray(env, dsa->q, "q");
-    if (env->ExceptionCheck()) {
-        return NULL;
+    if (dsa->q != NULL) {
+        jbyteArray q = bignumToArray(env, dsa->q, "q");
+        if (env->ExceptionCheck()) {
+            return NULL;
+        }
+        env->SetObjectArrayElement(joa, 2, q);
     }
-    env->SetObjectArrayElement(joa, 2, q);
 
     if (dsa->pub_key != NULL) {
         jbyteArray pub_key = bignumToArray(env, dsa->pub_key, "pub_key");
