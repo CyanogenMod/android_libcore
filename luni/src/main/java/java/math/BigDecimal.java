@@ -352,10 +352,6 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         } else {
             setUnscaledValue(new BigInteger(unscaledBuffer.toString()));
         }
-        precision = unscaledBuffer.length() - counter;
-        if (unscaledBuffer.charAt(0) == '-') {
-            precision --;
-        }
     }
 
     /**
@@ -1825,12 +1821,10 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      * @return the precision of this {@code BigDecimal}.
      */
     public int precision() {
-        // Checking if the precision already was calculated
-        if (precision > 0) {
+        // Return the cached value if we have one.
+        if (precision != 0) {
             return precision;
         }
-
-        int bitLength = this.bitLength;
 
         if (bitLength == 0) {
             precision = 1;
