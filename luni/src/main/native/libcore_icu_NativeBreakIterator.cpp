@@ -16,6 +16,7 @@
 
 #define LOG_TAG "NativeBreakIterator"
 
+#include "IcuUtilities.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"

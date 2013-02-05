@@ -17,6 +17,7 @@
 
 #define LOG_TAG "Bidi"
 
+#include "IcuUtilities.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"

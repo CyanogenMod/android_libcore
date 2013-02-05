@@ -5,6 +5,7 @@
 
 LOCAL_SRC_FILES := \
 	AsynchronousSocketCloseMonitor.cpp \
+	IcuUtilities.cpp \
 	JniConstants.cpp \
 	JniException.cpp \
 	NetworkUtilities.cpp \
@@ -39,6 +40,7 @@ LOCAL_SRC_FILES := \
 	libcore_icu_NativeNormalizer.cpp \
 	libcore_icu_NativePluralRules.cpp \
 	libcore_icu_TimeZones.cpp \
+	libcore_icu_Transliterator.cpp \
 	libcore_io_AsynchronousCloseMonitor.cpp \
 	libcore_io_Memory.cpp \
 	libcore_io_OsConstants.cpp \
