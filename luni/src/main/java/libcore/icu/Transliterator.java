@@ -16,6 +16,9 @@
 
 package libcore.icu;
 
+/**
+ * Exposes icu4c's Transliterator.
+ */
 public final class Transliterator {
   /**
    * Returns the ids of all known transliterators.

@@ -24,8 +24,6 @@
 #include "ScopedStringChars.h"
 #include "unicode/translit.h"
 
-extern jobjectArray fromStringEnumeration(JNIEnv* env, StringEnumeration*);
-
 static jobjectArray Transliterator_getAvailableIDs(JNIEnv* env, jclass) {
   UErrorCode status = U_ZERO_ERROR;
   return fromStringEnumeration(env, Transliterator::getAvailableIDs(status));
