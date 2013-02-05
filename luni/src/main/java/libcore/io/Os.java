@@ -36,6 +36,8 @@ public interface Os {
     public FileDescriptor dup(FileDescriptor oldFd) throws ErrnoException;
     public FileDescriptor dup2(FileDescriptor oldFd, int newFd) throws ErrnoException;
     public String[] environ();
+    public void execv(String filename, String[] argv) throws ErrnoException;
+    public void execve(String filename, String[] argv, String[] envp) throws ErrnoException;
     public void fchmod(FileDescriptor fd, int mode) throws ErrnoException;
     public void fchown(FileDescriptor fd, int uid, int gid) throws ErrnoException;
     public int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException;
