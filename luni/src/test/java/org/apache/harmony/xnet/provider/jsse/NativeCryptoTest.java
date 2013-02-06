@@ -2384,7 +2384,7 @@ public class NativeCryptoTest extends TestCase {
         try {
             group1 = NativeCrypto.EC_GROUP_new_by_curve_name(name);
             assertTrue(group1 != NULL);
-            assertEquals(NativeCrypto.OBJ_txt2nid(name),
+            assertEquals(NativeCrypto.OBJ_txt2nid_longName(name),
                     NativeCrypto.EC_GROUP_get_curve_name(group1));
             assertEquals(type, NativeCrypto.get_EC_GROUP_type(group1));
 
