@@ -58,10 +58,6 @@
   bug: 3387655
 },
 {
-  name: "org.apache.harmony.crypto.tests.javax.crypto.CipherTest#testGetMaxAllowedKeyLength",
-  bug: 3387688
-},
-{
   name: "libcore.java.io.FileTest#test_emptyFilename",
   bug: 3387758
 },
