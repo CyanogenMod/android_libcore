@@ -64,3 +64,6 @@ jobjectArray toStringArray16(JNIEnv* env, Counter* counter, Getter* getter) {
 
 jobjectArray toStringArray(JNIEnv* env, const std::vector<std::string>& strings);
 jobjectArray toStringArray(JNIEnv* env, const char* const* strings);
+
+char** convertStrings(JNIEnv* env, jobjectArray javaArray);
+void freeStrings(JNIEnv* env, jobjectArray javaArray, char** array);
