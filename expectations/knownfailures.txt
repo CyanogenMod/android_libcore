@@ -26,14 +26,6 @@
   bug: 4723412
 },
 {
-  description: "Encoded bytes don't match for EC elliptic curve keys created through KeyFactory.generatePrivate()",
-  names: [
-    "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_generatePrivateLjava_security_spec_KeySpec",
-    "org.apache.harmony.security.tests.java.security.KeyFactory2Test#test_getKeySpecLjava_security_KeyLjava_lang_Class"
-  ],
-  bug: 3483365
-},
-{
   description: "Expat uses an unbounded number of global references",
   name: "libcore.xml.ExpatSaxParserTest#testGlobalReferenceTableOverflow",
   bug: 2772628

@@ -1826,7 +1826,7 @@ static jint NativeCrypto_EC_GROUP_new_curve(JNIEnv* env, jclass, jint type, jbyt
 
 static jint NativeCrypto_EC_GROUP_dup(JNIEnv* env, jclass, jint groupRef) {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
-    JNI_TRACE("EC_GROUP_get_curve_name(%p)", group);
+    JNI_TRACE("EC_GROUP_dup(%p)", group);
 
     if (group == NULL) {
          JNI_TRACE("EC_GROUP_dup => group == NULL");
@@ -1839,7 +1839,7 @@ static jint NativeCrypto_EC_GROUP_dup(JNIEnv* env, jclass, jint groupRef) {
      return static_cast<jint>(reinterpret_cast<uintptr_t>(groupDup));
 }
 
-static jint NativeCrypto_EC_GROUP_get_curve_name(JNIEnv* env, jclass, jint groupRef) {
+static jstring NativeCrypto_EC_GROUP_get_curve_name(JNIEnv* env, jclass, jint groupRef) {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     JNI_TRACE("EC_GROUP_get_curve_name(%p)", group);
 
@@ -1850,8 +1850,14 @@ static jint NativeCrypto_EC_GROUP_get_curve_name(JNIEnv* env, jclass, jint group
     }
 
     int nid = EC_GROUP_get_curve_name(group);
-    JNI_TRACE("EC_GROUP_get_curve_name(%p) => %d", group, nid);
-    return nid;
+    if (nid == NID_undef) {
+        JNI_TRACE("EC_GROUP_get_curve_name(%p) => unnamed curve", group, nid);
+        return NULL;
+    }
+
+    const char* shortName = OBJ_nid2sn(nid);
+    JNI_TRACE("EC_GROUP_get_curve_name(%p) => \"%s\"", group, shortName);
+    return env->NewStringUTF(shortName);
 }
 
 static jobjectArray NativeCrypto_EC_GROUP_get_curve(JNIEnv* env, jclass, jint groupRef)
@@ -5760,7 +5766,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, EC_GROUP_dup, "(I)I"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_set_asn1_flag, "(II)V"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_set_point_conversion_form, "(II)V"),
-    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_curve_name, "(I)I"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_curve_name, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_get_curve, "(I)[[B"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_get_order, "(I)[B"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_get_cofactor, "(I)[B"),
