@@ -113,7 +113,11 @@ public class KeyPairGeneratorTest extends TestCase {
         putKeySize("DiffieHellman", 512);
         putKeySize("DiffieHellman", 512+64);
         putKeySize("DiffieHellman", 1024);
+        putKeySize("EC", 192);
+        putKeySize("EC", 224);
         putKeySize("EC", 256);
+        putKeySize("EC", 384);
+        putKeySize("EC", 521);
     }
 
     private void test_KeyPairGenerator(KeyPairGenerator kpg) throws Exception {
