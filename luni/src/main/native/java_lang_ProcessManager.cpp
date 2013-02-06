@@ -28,6 +28,8 @@
 
 #include "cutils/log.h"
 #include "jni.h"
+#include "ExecStrings.h"
+#include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JNIHelp.h"
 #include "Portability.h"
@@ -208,8 +210,8 @@ static pid_t ProcessManager_exec(JNIEnv* env, jclass, jobjectArray javaCommands,
                                  jobject inDescriptor, jobject outDescriptor, jobject errDescriptor,
                                  jboolean redirectErrorStream) {
 
-  // Copy commands into char*[].
-  char** commands = convertStrings(env, javaCommands);
+  ExecStrings commands(env, javaCommands);
+  ExecStrings environment(env, javaEnvironment);
 
   // Extract working directory string.
   const char* workingDirectory = NULL;
@@ -217,30 +219,12 @@ static pid_t ProcessManager_exec(JNIEnv* env, jclass, jobjectArray javaCommands,
     workingDirectory = env->GetStringUTFChars(javaWorkingDirectory, NULL);
   }
 
-  // Convert environment array.
-  char** environment = convertStrings(env, javaEnvironment);
-
-  pid_t result = ExecuteProcess(env, commands, environment, workingDirectory,
+  pid_t result = ExecuteProcess(env, commands.get(), environment.get(), workingDirectory,
                                 inDescriptor, outDescriptor, errDescriptor, redirectErrorStream);
-
-  // Temporarily clear exception so we can clean up.
-  jthrowable exception = env->ExceptionOccurred();
-  env->ExceptionClear();
-
-  freeStrings(env, javaEnvironment, environment);
 
   // Clean up working directory string.
   if (javaWorkingDirectory != NULL) {
     env->ReleaseStringUTFChars(javaWorkingDirectory, workingDirectory);
-  }
-
-  freeStrings(env, javaCommands, commands);
-
-  // Re-throw exception if present.
-  if (exception != NULL) {
-    if (env->Throw(exception) < 0) {
-      ALOGE("Error rethrowing exception!");
-    }
   }
 
   return result;

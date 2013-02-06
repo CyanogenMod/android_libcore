@@ -5,6 +5,7 @@
 
 LOCAL_SRC_FILES := \
 	AsynchronousSocketCloseMonitor.cpp \
+	ExecStrings.cpp \
 	IcuUtilities.cpp \
 	JniException.cpp \
 	NetworkUtilities.cpp \
