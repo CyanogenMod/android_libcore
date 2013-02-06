@@ -34,6 +34,7 @@ import java.security.Security;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
+import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.DSAParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -43,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.crypto.spec.DHParameterSpec;
 
 import junit.framework.TestCase;
 
@@ -58,16 +60,29 @@ public class KeyPairGeneratorTest extends TestCase {
                     continue;
                 }
                 String algorithm = service.getAlgorithm();
+                AlgorithmParameterSpec params = null;
+
+                // TODO: detect if we're running in vogar and run the full test
+                if ("DH".equals(algorithm)) {
+                    params = getDHParams();
+                }
+
                 try {
                     // KeyPairGenerator.getInstance(String)
                     KeyPairGenerator kpg1 = KeyPairGenerator.getInstance(algorithm);
                     assertEquals(algorithm, kpg1.getAlgorithm());
+                    if (params != null) {
+                        kpg1.initialize(params);
+                    }
                     test_KeyPairGenerator(kpg1);
 
                     // KeyPairGenerator.getInstance(String, Provider)
                     KeyPairGenerator kpg2 = KeyPairGenerator.getInstance(algorithm, provider);
                     assertEquals(algorithm, kpg2.getAlgorithm());
                     assertEquals(provider, kpg2.getProvider());
+                    if (params != null) {
+                        kpg2.initialize(params);
+                    }
                     test_KeyPairGenerator(kpg2);
 
                     // KeyPairGenerator.getInstance(String, String)
@@ -75,6 +90,9 @@ public class KeyPairGeneratorTest extends TestCase {
                                                                         provider.getName());
                     assertEquals(algorithm, kpg3.getAlgorithm());
                     assertEquals(provider, kpg3.getProvider());
+                    if (params != null) {
+                        kpg3.initialize(params);
+                    }
                     test_KeyPairGenerator(kpg3);
                 } catch (Exception e) {
                     throw new Exception("Problem testing KeyPairGenerator." + algorithm, e);
@@ -200,6 +218,18 @@ public class KeyPairGeneratorTest extends TestCase {
                 }
             }
         }
+    }
+
+    /**
+     * DH parameters pre-generated so that the test doesn't take too long.
+     * These parameters were generated with:
+     *
+     * openssl gendh 512 | openssl dhparams -C
+     */
+    private static AlgorithmParameterSpec getDHParams() {
+        BigInteger p = new BigInteger("E7AB1768BD75CD24700960FFA32D3F1557344E587101237532CC641646ED7A7C104743377F6D46251698B665CE2A6CBAB6714C2569A7D2CA22C0CF03FA40AC93", 16);
+        BigInteger g = new BigInteger("02", 16);
+        return new DHParameterSpec(p, g, 512);
     }
 
     private static final BigInteger DSA_P = new BigInteger(new byte[] {
