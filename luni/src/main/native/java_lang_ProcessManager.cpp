@@ -30,6 +30,7 @@
 #include "Portability.h"
 #include "ScopedLocalRef.h"
 #include "cutils/log.h"
+#include "toStringArray.h"
 
 /** Close all open fds > 2 (i.e. everything but stdin/out/err), != skipFd. */
 static void closeNonStandardFds(int skipFd1, int skipFd2) {
@@ -181,40 +182,6 @@ execFailed:
     jniSetFileDescriptorOfFD(env, errDescriptor, stderrIn);
 
     return childPid;
-}
-
-/** Converts a Java String[] to a 0-terminated char**. */
-static char** convertStrings(JNIEnv* env, jobjectArray javaArray) {
-    if (javaArray == NULL) {
-        return NULL;
-    }
-
-    jsize length = env->GetArrayLength(javaArray);
-    char** array = new char*[length + 1];
-    array[length] = 0;
-    for (jsize i = 0; i < length; ++i) {
-        ScopedLocalRef<jstring> javaEntry(env, reinterpret_cast<jstring>(env->GetObjectArrayElement(javaArray, i)));
-        // We need to pass these strings to const-unfriendly code.
-        char* entry = const_cast<char*>(env->GetStringUTFChars(javaEntry.get(), NULL));
-        array[i] = entry;
-    }
-
-    return array;
-}
-
-/** Frees a char** which was converted from a Java String[]. */
-static void freeStrings(JNIEnv* env, jobjectArray javaArray, char** array) {
-    if (javaArray == NULL) {
-        return;
-    }
-
-    jsize length = env->GetArrayLength(javaArray);
-    for (jsize i = 0; i < length; ++i) {
-        ScopedLocalRef<jstring> javaEntry(env, reinterpret_cast<jstring>(env->GetObjectArrayElement(javaArray, i)));
-        env->ReleaseStringUTFChars(javaEntry.get(), array[i]);
-    }
-
-    delete[] array;
 }
 
 /**
