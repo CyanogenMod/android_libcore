@@ -34,8 +34,10 @@ import java.security.Security;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.ECPrivateKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.DSAParameterSpec;
+import java.security.spec.ECParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
@@ -207,8 +209,19 @@ public class KeyPairGeneratorTest extends TestCase {
                     PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(encoded);
                     KeyFactory kf = KeyFactory.getInstance(k.getAlgorithm(), p);
                     PrivateKey privKey = kf.generatePrivate(spec);
-                    assertNotNull(privKey);
-                    assertTrue(Arrays.equals(privKey.getEncoded(), encoded));
+                    assertNotNull(k.getAlgorithm() + ", provider=" + p.getName(), privKey);
+
+                    /*
+                     * EC keys are unique because they can have explicit parameters or a curve
+                     * name. Check them specially so this test can continue to function.
+                     */
+                    if (k instanceof ECPrivateKey) {
+                        assertECPrivateKeyEquals((ECPrivateKey) k, (ECPrivateKey) privKey);
+                    } else {
+                        assertEquals(k.getAlgorithm() + ", provider=" + p.getName(),
+                                Arrays.toString(encoded),
+                                Arrays.toString(privKey.getEncoded()));
+                    }
                 } else if ("X.509".equals(k.getFormat())) {
                     X509EncodedKeySpec spec = new X509EncodedKeySpec(encoded);
                     KeyFactory kf = KeyFactory.getInstance(k.getAlgorithm(), p);
@@ -218,6 +231,18 @@ public class KeyPairGeneratorTest extends TestCase {
                 }
             }
         }
+    }
+
+    private static void assertECPrivateKeyEquals(ECPrivateKey expected, ECPrivateKey actual) {
+        assertEquals(expected.getS(), actual.getS());
+        assertECParametersEquals(expected.getParams(), actual.getParams());
+    }
+
+    private static void assertECParametersEquals(ECParameterSpec expected, ECParameterSpec actual) {
+        assertEquals(expected.getCurve(), actual.getCurve());
+        assertEquals(expected.getGenerator(), actual.getGenerator());
+        assertEquals(expected.getOrder(), actual.getOrder());
+        assertEquals(expected.getCofactor(), actual.getCofactor());
     }
 
     /**
