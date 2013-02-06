@@ -18,11 +18,6 @@
   bug: 5534202
 },
 {
-  description: "libcore.java.security.KeyPairGeneratorTest long test is too long",
-  name: "libcore.java.security.KeyPairGeneratorTest#test_getInstance",
-  bug: 5513723
-},
-{
   description: "Support digest authentication in HttpURLConnection",
   name: "libcore.net.http.ParsedHeadersTest#testParseChallengesWithManyParameters",
   bug: 6156454
