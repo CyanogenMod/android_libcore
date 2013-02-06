@@ -16,6 +16,9 @@
 
 package dalvik.system;
 
+import libcore.io.ErrnoException;
+import libcore.io.Libcore;
+
 import java.io.File;
 
 /**
@@ -172,12 +175,18 @@ public class Zygote {
 
     /**
      * Executes "/system/bin/sh -c &lt;command&gt;" using the exec() system call.
-     * This method never returns.
+     * This method throws a runtime exception if exec() failed, otherwise, this
+     * method never returns.
      *
      * @param command The shell command to execute.
      */
     public static void execShell(String command) {
-        nativeExecShell(command);
+        String[] args = { "/system/bin/sh", "-c", command };
+        try {
+            Libcore.os.execv(args[0], args);
+        } catch (ErrnoException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -194,6 +203,4 @@ public class Zygote {
             command.append(" '").append(arg.replace("'", "'\\''")).append("'");
         }
     }
-
-    native private static void nativeExecShell(String command);
 }

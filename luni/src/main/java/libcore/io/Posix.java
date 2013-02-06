@@ -39,6 +39,8 @@ public final class Posix implements Os {
     public native FileDescriptor dup(FileDescriptor oldFd) throws ErrnoException;
     public native FileDescriptor dup2(FileDescriptor oldFd, int newFd) throws ErrnoException;
     public native String[] environ();
+    public native void execv(String filename, String[] argv) throws ErrnoException;
+    public native void execve(String filename, String[] argv, String[] envp) throws ErrnoException;
     public native void fchmod(FileDescriptor fd, int mode) throws ErrnoException;
     public native void fchown(FileDescriptor fd, int uid, int gid) throws ErrnoException;
     public native int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException;
