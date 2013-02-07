@@ -24,7 +24,7 @@
 #include "ScopedLocalRef.h"
 
 ExecStrings::ExecStrings(JNIEnv* env, jobjectArray java_string_array)
-    : env_(env), java_array_(java_string_array) {
+    : env_(env), java_array_(java_string_array), array_(NULL) {
   if (java_array_ == NULL) {
     return;
   }
