@@ -33,12 +33,12 @@ import libcore.icu.LocaleData;
 import libcore.icu.TimeZones;
 
 /**
- * A concrete class for formatting and parsing dates in a locale-sensitive
- * manner. Formatting turns a {@link Date} into a {@link String}, and parsing turns a
- * {@code String} into a {@code Date}.
+ * Formats and parses dates in a locale-sensitive manner. Formatting turns a {@link Date} into
+ * a {@link String}, and parsing turns a {@code String} into a {@code Date}.
  *
  * <h4>Time Pattern Syntax</h4>
- * <p>You can supply a pattern describing what strings are produced/accepted, but almost all
+ * <p>You can supply a Unicode <a href="http://www.unicode.org/reports/tr35/#Date_Format_Patterns">UTS #35</a>
+ * pattern describing what strings are produced/accepted, but almost all
  * callers should use {@link DateFormat#getDateInstance}, {@link DateFormat#getDateTimeInstance},
  * or {@link DateFormat#getTimeInstance} to get a ready-made instance suitable for the user's
  * locale.
@@ -57,62 +57,46 @@ import libcore.icu.TimeZones;
  * of the ASCII letters is given in the table below. ASCII letters not appearing in the table are
  * reserved for future use, and it is an error to attempt to use them.
  *
+ * <p>The number of consecutive copies (the "count") of a pattern character further influences
+ * the format, as shown in the table. For fields of kind "number", the count is the minimum number
+ * of digits; shorter values are zero-padded to the given width and longer values overflow it.
+ *
  * <p><table BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
  * <tr BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
- *      <td><B>Symbol</B></td> <td><B>Meaning</B></td> <td><B>Presentation</B></td> <td><B>Example</B></td> </tr>
+ *      <td><B>Symbol</B></td> <td><B>Meaning</B></td> <td><B>Kind</B></td> <td><B>Example</B></td> </tr>
  * <tr> <td>{@code D}</td> <td>day in year</td>             <td>(Number)</td>      <td>189</td> </tr>
- * <tr> <td>{@code E}</td> <td>day of week</td>             <td>(Text)</td>        <td>Tuesday</td> </tr>
+ * <tr> <td>{@code E}</td> <td>day of week</td>             <td>(Text)</td>        <td>{@code E}/{@code EE}/{@code EEE}:Tue, {@code EEEE}:Tuesday, {@code EEEEE}:T</td> </tr>
  * <tr> <td>{@code F}</td> <td>day of week in month</td>    <td>(Number)</td>      <td>2 <i>(2nd Wed in July)</i></td> </tr>
  * <tr> <td>{@code G}</td> <td>era designator</td>          <td>(Text)</td>        <td>AD</td> </tr>
  * <tr> <td>{@code H}</td> <td>hour in day (0-23)</td>      <td>(Number)</td>      <td>0</td> </tr>
  * <tr> <td>{@code K}</td> <td>hour in am/pm (0-11)</td>    <td>(Number)</td>      <td>0</td> </tr>
- * <tr> <td>{@code L}</td> <td>stand-alone month</td>       <td>(Text/Number)</td> <td>July / 07</td> </tr>
- * <tr> <td>{@code M}</td> <td>month in year</td>           <td>(Text/Number)</td> <td>July / 07</td> </tr>
+ * <tr> <td>{@code L}</td> <td>stand-alone month</td>       <td>(Text)</td>        <td>{@code L}:1 {@code LL}:01 {@code LLL}:Jan {@code LLLL}:January {@code LLLLL}:J</td> </tr>
+ * <tr> <td>{@code M}</td> <td>month in year</td>           <td>(Text)</td>        <td>{@code M}:1 {@code MM}:01 {@code MMM}:Jan {@code MMMM}:January {@code MMMMM}:J</td> </tr>
  * <tr> <td>{@code S}</td> <td>fractional seconds</td>      <td>(Number)</td>      <td>978</td> </tr>
  * <tr> <td>{@code W}</td> <td>week in month</td>           <td>(Number)</td>      <td>2</td> </tr>
- * <tr> <td>{@code Z}</td> <td>time zone (RFC 822)</td>     <td>(Timezone)</td>    <td>-0800</td> </tr>
+ * <tr> <td>{@code Z}</td> <td>time zone (RFC 822)</td>     <td>(Time Zone)</td>   <td>{@code Z}/{@code ZZ}/{@code ZZZ}:-0800 {@code ZZZZ}:GMT-08:00 {@code ZZZZZ}:-08:00</td> </tr>
  * <tr> <td>{@code a}</td> <td>am/pm marker</td>            <td>(Text)</td>        <td>PM</td> </tr>
- * <tr> <td>{@code c}</td> <td>stand-alone day of week</td> <td>(Text/Number)</td> <td>Tuesday / 2</td> </tr>
+ * <tr> <td>{@code c}</td> <td>stand-alone day of week</td> <td>(Text)</td>        <td>{@code c}/{@code cc}/{@code ccc}:Tue, {@code cccc}:Tuesday, {@code ccccc}:T</td> </tr>
  * <tr> <td>{@code d}</td> <td>day in month</td>            <td>(Number)</td>      <td>10</td> </tr>
  * <tr> <td>{@code h}</td> <td>hour in am/pm (1-12)</td>    <td>(Number)</td>      <td>12</td> </tr>
  * <tr> <td>{@code k}</td> <td>hour in day (1-24)</td>      <td>(Number)</td>      <td>24</td> </tr>
  * <tr> <td>{@code m}</td> <td>minute in hour</td>          <td>(Number)</td>      <td>30</td> </tr>
  * <tr> <td>{@code s}</td> <td>second in minute</td>        <td>(Number)</td>      <td>55</td> </tr>
  * <tr> <td>{@code w}</td> <td>week in year</td>            <td>(Number)</td>      <td>27</td> </tr>
- * <tr> <td>{@code y}</td> <td>year</td>                    <td>(Number)</td>      <td>2010</td> </tr>
- * <tr> <td>{@code z}</td> <td>time zone</td>               <td>(Timezone)</td>    <td>Pacific Standard Time</td> </tr>
- * <tr> <td>{@code '}</td> <td>escape for text</td>         <td>(Delimiter)</td>   <td>'Date='</td> </tr>
- * <tr> <td>{@code ''}</td> <td>single quote</td>           <td>(Literal)</td>     <td>'o''clock'</td> </tr>
+ * <tr> <td>{@code y}</td> <td>year</td>                    <td>(Number)</td>      <td>{@code yy}:10 {@code y}/{@code yyy}/{@code yyyy}:2010</td> </tr>
+ * <tr> <td>{@code z}</td> <td>time zone</td>               <td>(Time Zone)</td>   <td>{@code z}/{@code zz}/{@code zzz}:PST {@code ZZZZ}:Pacific Standard Time</td> </tr>
+ * <tr> <td>{@code '}</td> <td>escape for text</td>         <td>(Delimiter)</td>   <td>{@code 'Date='}:Date=</td> </tr>
+ * <tr> <td>{@code ''}</td> <td>single quote</td>           <td>(Literal)</td>     <td>{@code 'o''clock'}:o'clock</td> </tr>
  * </table>
  *
- * <p>The number of consecutive copies (the "count") of a pattern character further influences
- * the format.
- * <ul>
- * <li><b>Text</b> if the count is 4 or more, use the full form; otherwise use a short or
- * abbreviated form if one exists. So {@code zzzz} might give {@code Pacific Standard Time}
- * whereas {@code z} might give {@code PST}. Note that the count does <i>not</i> specify the
- * exact width of the field.
- *
- * <li><b>Number</b> the count is the minimum number of digits. Shorter values are
- * zero-padded to this width, longer values overflow this width.
- *
- * <p>Years are handled specially: {@code yy} truncates to the last 2 digits, but any
- * other number of consecutive {@code y}s does not truncate. So where {@code yyyy} or
- * {@code y} might give {@code 2010}, {@code yy} would give {@code 10}.
- *
- * <p>Fractional seconds are also handled specially: they're zero-padded on the
- * <i>right</i>.
- *
- * <li><b>Text/Number</b>: if the count is 3 or more, use text; otherwise use a number.
- * So {@code MM} might give {@code 07} while {@code MMM} gives {@code July}.
- * </ul>
+ * <p>Fractional seconds are handled specially: they're zero-padded on the <i>right</i>.
  *
  * <p>The two pattern characters {@code L} and {@code c} are ICU-compatible extensions, not
  * available in the RI or in Android before Android 2.3 "Gingerbread" (API level 9). These
  * extensions are necessary for correct localization in languages such as Russian
  * that distinguish between, say, "June" and "June 2010".
  *
- * <p>When numeric fields are adjacent directly, with no intervening delimiter
+ * <p>When two numeric fields are directly adjacent with no intervening delimiter
  * characters, they constitute a run of adjacent numeric fields. Such runs are
  * parsed specially. For example, the format "HHmmss" parses the input text
  * "123456" to 12:34:56, parses the input text "12345" to 1:23:45, and fails to
@@ -529,8 +513,7 @@ public class SimpleDateFormat extends DateFormat {
      *            if the object cannot be formatted by this Format.
      */
     private StringBuffer formatImpl(Date date, StringBuffer buffer,
-            FieldPosition field, List<FieldPosition> fields) {
-
+                                    FieldPosition field, List<FieldPosition> fields) {
         boolean quote = false;
         int next, last = -1, count = 0;
         calendar.setTime(date);
@@ -610,24 +593,24 @@ public class SimpleDateFormat extends DateFormat {
                     appendNumber(buffer, count, year);
                 }
                 break;
-            case STAND_ALONE_MONTH_FIELD: // L
+            case STAND_ALONE_MONTH_FIELD: // 'L'
                 dateFormatField = Field.MONTH;
-                appendMonth(buffer, count, formatData.longStandAloneMonths, formatData.shortStandAloneMonths);
+                appendMonth(buffer, count, true);
                 break;
-            case MONTH_FIELD: // M
+            case MONTH_FIELD: // 'M'
                 dateFormatField = Field.MONTH;
-                appendMonth(buffer, count, formatData.months, formatData.shortMonths);
+                appendMonth(buffer, count, false);
                 break;
             case DATE_FIELD:
                 dateFormatField = Field.DAY_OF_MONTH;
                 field = Calendar.DATE;
                 break;
-            case HOUR_OF_DAY1_FIELD: // k
+            case HOUR_OF_DAY1_FIELD: // 'k'
                 dateFormatField = Field.HOUR_OF_DAY1;
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 appendNumber(buffer, count, hour == 0 ? 24 : hour);
                 break;
-            case HOUR_OF_DAY0_FIELD: // H
+            case HOUR_OF_DAY0_FIELD: // 'H'
                 dateFormatField = Field.HOUR_OF_DAY0;
                 field = Calendar.HOUR_OF_DAY;
                 break;
@@ -646,11 +629,11 @@ public class SimpleDateFormat extends DateFormat {
                 break;
             case STAND_ALONE_DAY_OF_WEEK_FIELD:
                 dateFormatField = Field.DAY_OF_WEEK;
-                appendDayOfWeek(buffer, count, formatData.longStandAloneWeekdays, formatData.shortStandAloneWeekdays);
+                appendDayOfWeek(buffer, count, true);
                 break;
             case DAY_OF_WEEK_FIELD:
                 dateFormatField = Field.DAY_OF_WEEK;
-                appendDayOfWeek(buffer, count, formatData.weekdays, formatData.shortWeekdays);
+                appendDayOfWeek(buffer, count, false);
                 break;
             case DAY_OF_YEAR_FIELD:
                 dateFormatField = Field.DAY_OF_YEAR;
@@ -672,22 +655,22 @@ public class SimpleDateFormat extends DateFormat {
                 dateFormatField = Field.AM_PM;
                 buffer.append(formatData.ampms[calendar.get(Calendar.AM_PM)]);
                 break;
-            case HOUR1_FIELD: // h
+            case HOUR1_FIELD: // 'h'
                 dateFormatField = Field.HOUR1;
                 hour = calendar.get(Calendar.HOUR);
                 appendNumber(buffer, count, hour == 0 ? 12 : hour);
                 break;
-            case HOUR0_FIELD: // K
+            case HOUR0_FIELD: // 'K'
                 dateFormatField = Field.HOUR0;
                 field = Calendar.HOUR;
                 break;
-            case TIMEZONE_FIELD: // z
+            case TIMEZONE_FIELD: // 'z'
                 dateFormatField = Field.TIME_ZONE;
                 appendTimeZone(buffer, count, true);
                 break;
-            case RFC_822_TIMEZONE_FIELD: // Z
+            case RFC_822_TIMEZONE_FIELD: // 'Z'
                 dateFormatField = Field.TIME_ZONE;
-                appendNumericTimeZone(buffer, false);
+                appendNumericTimeZone(buffer, count, false);
                 break;
         }
         if (field != -1) {
@@ -710,22 +693,38 @@ public class SimpleDateFormat extends DateFormat {
         }
     }
 
-    private void appendDayOfWeek(StringBuffer buffer, int count, String[] longs, String[] shorts) {
-        boolean isLong = (count > 3);
-        String[] days = isLong ? longs : shorts;
-        buffer.append(days[calendar.get(Calendar.DAY_OF_WEEK)]);
+    // See http://www.unicode.org/reports/tr35/#Date_Format_Patterns for the different counts.
+    private void appendDayOfWeek(StringBuffer buffer, int count, boolean standAlone) {
+      String[] days;
+      LocaleData ld = formatData.localeData;
+      if (count == 4) {
+        days = standAlone ? ld.longStandAloneWeekdayNames : formatData.weekdays;
+      } else if (count == 5) {
+        days = standAlone ? ld.tinyStandAloneWeekdayNames : formatData.localeData.tinyWeekdayNames;
+      } else {
+        days = standAlone ? ld.shortStandAloneWeekdayNames : formatData.shortWeekdays;
+      }
+      buffer.append(days[calendar.get(Calendar.DAY_OF_WEEK)]);
     }
 
-    private void appendMonth(StringBuffer buffer, int count, String[] longs, String[] shorts) {
-        int month = calendar.get(Calendar.MONTH);
-        if (count <= 2) {
-            appendNumber(buffer, count, month + 1);
-            return;
-        }
+    // See http://www.unicode.org/reports/tr35/#Date_Format_Patterns for the different counts.
+    private void appendMonth(StringBuffer buffer, int count, boolean standAlone) {
+      int month = calendar.get(Calendar.MONTH);
+      if (count <= 2) {
+        appendNumber(buffer, count, month + 1);
+        return;
+      }
 
-        boolean isLong = (count > 3);
-        String[] months = isLong ? longs : shorts;
-        buffer.append(months[month]);
+      String[] months;
+      LocaleData ld = formatData.localeData;
+      if (count == 4) {
+        months = standAlone ? ld.longStandAloneMonthNames : formatData.months;
+      } else if (count == 5) {
+        months = standAlone ? ld.tinyStandAloneMonthNames : ld.tinyMonthNames;
+      } else {
+        months = standAlone ? ld.shortStandAloneMonthNames : formatData.shortMonths;
+      }
+      buffer.append(months[month]);
     }
 
     /**
@@ -755,25 +754,24 @@ public class SimpleDateFormat extends DateFormat {
             }
         }
         // We didn't find what we were looking for, so default to a numeric time zone.
-        appendNumericTimeZone(buffer, generalTimeZone);
+        appendNumericTimeZone(buffer, count, generalTimeZone);
     }
 
-    /**
-     * @param generalTimeZone "GMT-08:00" rather than "-0800".
-     */
-    private void appendNumericTimeZone(StringBuffer buffer, boolean generalTimeZone) {
+    // See http://www.unicode.org/reports/tr35/#Date_Format_Patterns for the different counts.
+    // @param generalTimeZone "GMT-08:00" rather than "-0800".
+    private void appendNumericTimeZone(StringBuffer buffer, int count, boolean generalTimeZone) {
         int offset = calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET);
         char sign = '+';
         if (offset < 0) {
             sign = '-';
             offset = -offset;
         }
-        if (generalTimeZone) {
+        if (generalTimeZone || count == 4) {
             buffer.append("GMT");
         }
         buffer.append(sign);
         appendNumber(buffer, 2, offset / 3600000);
-        if (generalTimeZone) {
+        if (generalTimeZone || count >= 4) {
             buffer.append(':');
         }
         appendNumber(buffer, 2, (offset % 3600000) / 60000);
@@ -879,16 +877,14 @@ public class SimpleDateFormat extends DateFormat {
                     return position.getIndex();
                 }
                 break;
-            case STAND_ALONE_MONTH_FIELD: // L
-                return parseMonth(string, offset, count, absolute,
-                        formatData.longStandAloneMonths, formatData.shortStandAloneMonths);
-            case MONTH_FIELD: // M
-                return parseMonth(string, offset, count, absolute,
-                        formatData.months, formatData.shortMonths);
+            case STAND_ALONE_MONTH_FIELD: // 'L'
+                return parseMonth(string, offset, count, absolute, true);
+            case MONTH_FIELD: // 'M'
+                return parseMonth(string, offset, count, absolute, false);
             case DATE_FIELD:
                 field = Calendar.DATE;
                 break;
-            case HOUR_OF_DAY1_FIELD: // k
+            case HOUR_OF_DAY1_FIELD: // 'k'
                 ParsePosition position = new ParsePosition(offset);
                 Number result = parseNumber(absolute, string, position);
                 if (result == null) {
@@ -900,7 +896,7 @@ public class SimpleDateFormat extends DateFormat {
                 }
                 calendar.set(Calendar.HOUR_OF_DAY, hour);
                 return position.getIndex();
-            case HOUR_OF_DAY0_FIELD: // H
+            case HOUR_OF_DAY0_FIELD: // 'H'
                 field = Calendar.HOUR_OF_DAY;
                 break;
             case MINUTE_FIELD:
@@ -913,9 +909,9 @@ public class SimpleDateFormat extends DateFormat {
                 field = Calendar.MILLISECOND;
                 break;
             case STAND_ALONE_DAY_OF_WEEK_FIELD:
-                return parseDayOfWeek(string, offset, formatData.longStandAloneWeekdays, formatData.shortStandAloneWeekdays);
+                return parseDayOfWeek(string, offset, true);
             case DAY_OF_WEEK_FIELD:
-                return parseDayOfWeek(string, offset, formatData.weekdays, formatData.shortWeekdays);
+                return parseDayOfWeek(string, offset, false);
             case DAY_OF_YEAR_FIELD:
                 field = Calendar.DAY_OF_YEAR;
                 break;
@@ -930,7 +926,7 @@ public class SimpleDateFormat extends DateFormat {
                 break;
             case AM_PM_FIELD:
                 return parseText(string, offset, formatData.ampms, Calendar.AM_PM);
-            case HOUR1_FIELD: // h
+            case HOUR1_FIELD: // 'h'
                 position = new ParsePosition(offset);
                 result = parseNumber(absolute, string, position);
                 if (result == null) {
@@ -942,12 +938,12 @@ public class SimpleDateFormat extends DateFormat {
                 }
                 calendar.set(Calendar.HOUR, hour);
                 return position.getIndex();
-            case HOUR0_FIELD: // K
+            case HOUR0_FIELD: // 'K'
                 field = Calendar.HOUR;
                 break;
-            case TIMEZONE_FIELD: // z
+            case TIMEZONE_FIELD: // 'z'
                 return parseTimeZone(string, offset);
-            case RFC_822_TIMEZONE_FIELD: // Z
+            case RFC_822_TIMEZONE_FIELD: // 'Z'
                 return parseTimeZone(string, offset);
         }
         if (field != -1) {
@@ -956,23 +952,33 @@ public class SimpleDateFormat extends DateFormat {
         return offset;
     }
 
-    private int parseDayOfWeek(String string, int offset, String[] longs, String[] shorts) {
-        int index = parseText(string, offset, longs, Calendar.DAY_OF_WEEK);
-        if (index < 0) {
-            index = parseText(string, offset, shorts, Calendar.DAY_OF_WEEK);
-        }
-        return index;
+    private int parseDayOfWeek(String string, int offset, boolean standAlone) {
+      LocaleData ld = formatData.localeData;
+      int index = parseText(string, offset,
+                            standAlone ? ld.longStandAloneWeekdayNames : formatData.weekdays,
+                            Calendar.DAY_OF_WEEK);
+      if (index < 0) {
+        index = parseText(string, offset,
+                          standAlone ? ld.shortStandAloneWeekdayNames : formatData.shortWeekdays,
+                          Calendar.DAY_OF_WEEK);
+      }
+      return index;
     }
 
-    private int parseMonth(String string, int offset, int count, int absolute, String[] longs, String[] shorts) {
-        if (count <= 2) {
-            return parseNumber(absolute, string, offset, Calendar.MONTH, -1);
-        }
-        int index = parseText(string, offset, longs, Calendar.MONTH);
-        if (index < 0) {
-            index = parseText(string, offset, shorts, Calendar.MONTH);
-        }
-        return index;
+    private int parseMonth(String string, int offset, int count, int absolute, boolean standAlone) {
+      if (count <= 2) {
+        return parseNumber(absolute, string, offset, Calendar.MONTH, -1);
+      }
+      LocaleData ld = formatData.localeData;
+      int index = parseText(string, offset,
+                            standAlone ? ld.longStandAloneMonthNames : formatData.months,
+                            Calendar.MONTH);
+      if (index < 0) {
+        index = parseText(string, offset,
+                          standAlone ? ld.shortStandAloneMonthNames : formatData.shortMonths,
+                          Calendar.MONTH);
+      }
+      return index;
     }
 
     /**
