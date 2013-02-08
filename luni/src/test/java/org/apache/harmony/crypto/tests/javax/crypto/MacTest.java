@@ -897,7 +897,7 @@ public class MacTest extends TestCase {
 
         Provider p = Security.getProvider(OpenSSLProvider.PROVIDER_NAME);
         NativeCryptoTest.loadTestEngine();
-        OpenSSLEngine engine = OpenSSLEngine.getInstance("test");
+        OpenSSLEngine engine = OpenSSLEngine.getInstance(NativeCryptoTest.TEST_ENGINE_ID);
 
         /*
          * The "-HMAC-" prefix is a special prefix recognized by

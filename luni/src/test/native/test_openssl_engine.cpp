@@ -26,7 +26,7 @@
 #include <openssl/pem.h>
 
 #define DYNAMIC_ENGINE
-#define TEST_ENGINE_ID   "test"
+#define TEST_ENGINE_ID   "javacoretests"
 #define TEST_ENGINE_NAME "libcore test engine"
 
 struct RSA_Delete {

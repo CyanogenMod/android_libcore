@@ -56,7 +56,7 @@ import static org.apache.harmony.xnet.provider.jsse.NativeCrypto.SSL_MODE_HANDSH
 
 public class NativeCryptoTest extends TestCase {
     /** Corresponds to the native test library "libjavacoretests.so" */
-    private static final String NATIVE_LIBRARY_NAME = "javacoretests";
+    public static final String TEST_ENGINE_ID = "javacoretests";
 
     private static final int NULL = 0;
     private static final FileDescriptor INVALID_FD = new FileDescriptor();
@@ -2007,7 +2007,7 @@ public class NativeCryptoTest extends TestCase {
      * immediately.
      */
     public static void loadTestEngine() throws Exception {
-        int testEngine = NativeCrypto.ENGINE_by_id("test");
+        int testEngine = NativeCrypto.ENGINE_by_id(TEST_ENGINE_ID);
         if (testEngine != 0) {
             NativeCrypto.ENGINE_finish(testEngine);
             return;
@@ -2035,14 +2035,14 @@ public class NativeCryptoTest extends TestCase {
             assertEquals(1, NativeCrypto.ENGINE_ctrl_cmd_string(dynEngine, "LIST_ADD", "2", 0));
 
             // Do a direct load of the ENGINE.
-            assertEquals(1, NativeCrypto.ENGINE_ctrl_cmd_string(dynEngine, "SO_PATH",
-                    NATIVE_LIBRARY_NAME, 0));
+            assertEquals(1,
+                    NativeCrypto.ENGINE_ctrl_cmd_string(dynEngine, "ID", TEST_ENGINE_ID, 0));
             assertEquals(1, NativeCrypto.ENGINE_ctrl_cmd_string(dynEngine, "LOAD", null, 0));
         } finally {
             NativeCrypto.ENGINE_finish(dynEngine);
         }
 
-        testEngine = NativeCrypto.ENGINE_by_id("test");
+        testEngine = NativeCrypto.ENGINE_by_id(TEST_ENGINE_ID);
         if (testEngine == 0) {
             fail("could not load test engine");
         }
@@ -2052,7 +2052,7 @@ public class NativeCryptoTest extends TestCase {
     public void test_ENGINE_by_id_TestEngine() throws Exception {
         loadTestEngine();
 
-        int engine = NativeCrypto.ENGINE_by_id("test");
+        int engine = NativeCrypto.ENGINE_by_id(TEST_ENGINE_ID);
         assertTrue(engine != 0);
         NativeCrypto.ENGINE_add(engine);
 
