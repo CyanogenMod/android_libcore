@@ -138,7 +138,7 @@ public class SignatureTest extends TestCase {
 
         /* ENGINE-based private key */
         NativeCryptoTest.loadTestEngine();
-        OpenSSLEngine engine = OpenSSLEngine.getInstance("test");
+        OpenSSLEngine engine = OpenSSLEngine.getInstance(NativeCryptoTest.TEST_ENGINE_ID);
         PrivateKey privKey = engine.getPrivateKeyById(pem_private);
         assertTrue(privKey instanceof RSAPrivateKey);
 
