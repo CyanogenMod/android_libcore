@@ -58,11 +58,8 @@ public class DateFormatSymbols implements Serializable, Cloneable {
 
     String[] ampms, eras, months, shortMonths, shortWeekdays, weekdays;
 
-    // These are used to implement ICU/Android extensions.
-    transient String[] longStandAloneMonths;
-    transient String[] shortStandAloneMonths;
-    transient String[] longStandAloneWeekdays;
-    transient String[] shortStandAloneWeekdays;
+    // This is used to implement parts of Unicode UTS #35 not historically supported.
+    transient LocaleData localeData;
 
     // Localized display names.
     String[][] zoneStrings;
@@ -107,19 +104,14 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     public DateFormatSymbols(Locale locale) {
         this.locale = locale;
         this.localPatternChars = SimpleDateFormat.PATTERN_CHARS;
-        LocaleData localeData = LocaleData.get(locale);
+
+        this.localeData = LocaleData.get(locale);
         this.ampms = localeData.amPm;
         this.eras = localeData.eras;
         this.months = localeData.longMonthNames;
         this.shortMonths = localeData.shortMonthNames;
         this.weekdays = localeData.longWeekdayNames;
         this.shortWeekdays = localeData.shortWeekdayNames;
-
-        // ICU/Android extensions.
-        this.longStandAloneMonths = localeData.longStandAloneMonthNames;
-        this.shortStandAloneMonths = localeData.shortStandAloneMonthNames;
-        this.longStandAloneWeekdays = localeData.longStandAloneWeekdayNames;
-        this.shortStandAloneWeekdays = localeData.shortStandAloneWeekdayNames;
     }
 
     /**
@@ -160,12 +152,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
 
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
-
-        // The RI doesn't have these fields, so we'll have to fall back and do the best we can.
-        longStandAloneMonths = months;
-        shortStandAloneMonths = shortMonths;
-        longStandAloneWeekdays = weekdays;
-        shortStandAloneWeekdays = shortWeekdays;
+        this.localeData = LocaleData.get(locale);
     }
 
     private void writeObject(ObjectOutputStream oos) throws IOException {

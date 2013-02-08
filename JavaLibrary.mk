@@ -167,19 +167,19 @@ endif
 #
 #
 # Run with:
-#     m libcore-docs
+#     mm -j32 libcore-docs
 #
 # Main output:
-#     out/target/common/docs/libcore/reference/packages.html
+#     ../out/target/common/docs/libcore/reference/packages.html
 #
 # All text for proofreading (or running tools over):
-#     out/target/common/docs/libcore-proofread.txt
+#     ../out/target/common/docs/libcore-proofread.txt
 #
 # TODO list of missing javadoc, etc:
-#     out/target/common/docs/libcore-docs-todo.html
+#     ../out/target/common/docs/libcore-docs-todo.html
 #
 # Rerun:
-#     rm -rf out/target/common/docs/libcore-timestamp && m libcore-docs
+#     rm -rf ../out/target/common/docs/libcore-timestamp && mm -j32 libcore-docs
 #
 include $(CLEAR_VARS)
 
