@@ -297,9 +297,9 @@ format("%6.0E", 123.456f);</td>
  * </tr>
  * </table>
  * <p>
- * It's also possible to format dates and times with {@code Formatter}, though you should seriously
- * consider using {@link java.text.SimpleDateFormat} via the factory methods in
- * {@link java.text.DateFormat} instead.
+ * It's also possible to format dates and times with {@code Formatter}, though you should
+ * use {@link java.text.SimpleDateFormat} (probably via the factory methods in
+ * {@link java.text.DateFormat}) instead.
  * The facilities offered by {@code Formatter} are low-level and place the burden of localization
  * on the developer. Using {@link java.text.DateFormat#getDateInstance},
  * {@link java.text.DateFormat#getTimeInstance}, and
@@ -310,11 +310,8 @@ format("%6.0E", 123.456f);</td>
  * which you can get with {@code "%tF"} (2010-01-22), {@code "%tF %tR"} (2010-01-22 13:39),
  * {@code "%tF %tT"} (2010-01-22 13:39:15), or {@code "%tF %tT%z"} (2010-01-22 13:39:15-0800).
  * <p>
- * As with the other conversions, date/time conversion has an uppercase format. Replacing
- * {@code %t} with {@code %T} will uppercase the field according to the rules of the formatter's
- * locale.
- * <p>
- * This table shows the date/time conversions:
+ * This table shows the date/time conversions, but you should use {@link java.text.SimpleDateFormat}
+ * instead:
  * <table BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
  * <tr BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
  * <TD COLSPAN=4><B>Date/time conversions</B>
@@ -349,7 +346,7 @@ format("%6.0E", 123.456f);</td>
  * </tr>
  * <tr>
  * <td width="5%">{@code tc}</td>
- * <td width="25%">Locale-preferred date and time representation. (See {@link java.text.DateFormat} for more variations.)</td>
+ * <td width="25%">C library <i>asctime(3)</i>-like output. Do not use.</td>
  * <td width="30%">{@code format("%tc", cal);}</td>
  * <td width="30%">{@code Tue Apr 01 16:19:17 CEST 2008}</td>
  * </tr>
@@ -510,6 +507,10 @@ format("%6.0E", 123.456f);</td>
  * <td width="30%">{@code CEST}</td>
  * </tr>
  * </table>
+ * <p>
+ * As with the other conversions, date/time conversion has an uppercase format. Replacing
+ * {@code %t} with {@code %T} will uppercase the field according to the rules of the formatter's
+ * locale.
  * <p><i>Number localization</i>. Some conversions use localized decimal digits rather than the
  * usual ASCII digits. So formatting {@code 123} with {@code %d} will give 123 in English locales
  * but &#x0661;&#x0662;&#x0663; in appropriate Arabic locales, for example. This number localization
