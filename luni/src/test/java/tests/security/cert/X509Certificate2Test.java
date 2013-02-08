@@ -475,31 +475,6 @@ public class X509Certificate2Test extends junit.framework.TestCase {
         assertEquals(Integer.MAX_VALUE, generateCert(CERT_WITH_BASIC_CA_NO_PATH_LENGTH).getBasicConstraints());
     }
 
-    public void testGetSubjectAlternativeNames() throws Exception {
-
-        assertNull(new MyX509Certificate().getSubjectAlternativeNames());
-
-        X509Certificate cert = generateCert(CERT_CORRECT);
-        Collection<List<?>> coll = cert.getSubjectAlternativeNames();
-        //getSubjectAlternativeNames method is not supported
-        assertNotNull(coll);
-        coll.clear();
-        assertEquals(0, coll.size());
-
-    }
-
-    public void testGetIssuerAlternativeNames() throws Exception {
-
-        assertNull(new MyX509Certificate().getIssuerAlternativeNames());
-
-        X509Certificate cert = generateCert(CERT_CORRECT);
-        Collection<List<?>> coll = cert.getIssuerAlternativeNames();
-        // getIssuerAlternativeNames returns null.
-        assertNotNull(coll);
-        coll.clear();
-        assertEquals(0, coll.size());
-    }
-
     public void testCertificateException() throws Exception {
         try {
             generateCert(CERT_TAMPERED);
