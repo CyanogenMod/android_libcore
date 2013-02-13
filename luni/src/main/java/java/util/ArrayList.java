@@ -90,6 +90,10 @@ public class ArrayList<E> extends AbstractList<E> implements Cloneable, Serializ
      *            the collection of elements to add.
      */
     public ArrayList(Collection<? extends E> collection) {
+        if (collection == null) {
+            throw new NullPointerException("collection == null");
+        }
+
         Object[] a = collection.toArray();
         if (a.getClass() != Object[].class) {
             Object[] newArray = new Object[a.length];
