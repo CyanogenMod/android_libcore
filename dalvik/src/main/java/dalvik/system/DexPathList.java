@@ -200,7 +200,7 @@ import java.util.zip.ZipFile;
          * up front.
          */
         for (File file : files) {
-            ZipFile zip = null;
+            File zip = null;
             DexFile dex = null;
             String name = file.getName();
 
@@ -213,17 +213,7 @@ import java.util.zip.ZipFile;
                 }
             } else if (name.endsWith(APK_SUFFIX) || name.endsWith(JAR_SUFFIX)
                     || name.endsWith(ZIP_SUFFIX)) {
-                try {
-                    zip = new ZipFile(file);
-                } catch (IOException ex) {
-                    /*
-                     * Note: ZipException (a subclass of IOException)
-                     * might get thrown by the ZipFile constructor
-                     * (e.g. if the file isn't actually a zip/jar
-                     * file).
-                     */
-                    System.logE("Unable to open zip file: " + file, ex);
-                }
+                zip = file;
 
                 try {
                     dex = loadDexFile(file, optimizedDirectory);
@@ -385,23 +375,53 @@ import java.util.zip.ZipFile;
      * Element of the dex/resource file path
      */
     /*package*/ static class Element {
-        public final File file;
-        public final ZipFile zipFile;
-        public final DexFile dexFile;
+        private final File file;
+        private final File zip;
+        private final DexFile dexFile;
 
-        public Element(File file, ZipFile zipFile, DexFile dexFile) {
+        private ZipFile zipFile;
+        private boolean init;
+
+        public Element(File file, File zip, DexFile dexFile) {
             this.file = file;
-            this.zipFile = zipFile;
+            this.zip = zip;
             this.dexFile = dexFile;
         }
 
-        public URL findResource(String name) {
-            if ((zipFile == null) || (zipFile.getEntry(name) == null)) {
+        public synchronized void maybeInit() {
+            if (init) {
+                return;
+            }
+
+            init = true;
+
+            if (zip == null) {
                 /*
                  * Either this element has no zip/jar file (first
                  * clause), or the zip/jar file doesn't have an entry
                  * for the given name (second clause).
                  */
+                return;
+            }
+
+            try {
+                zipFile = new ZipFile(zip);
+            } catch (IOException ioe) {
+                /*
+                 * Note: ZipException (a subclass of IOException)
+                 * might get thrown by the ZipFile constructor
+                 * (e.g. if the file isn't actually a zip/jar
+                 * file).
+                 */
+                System.logE("Unable to open zip file: " + file, ioe);
+                zipFile = null;
+            }
+        }
+
+        public URL findResource(String name) {
+            maybeInit();
+
+            if (zipFile == null || zipFile.getEntry(name) == null) {
                 return null;
             }
 
