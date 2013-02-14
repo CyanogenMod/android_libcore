@@ -67,9 +67,10 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
         assertEquals("stycznia", formatDate(pl, "MMMM", originalDfs));
         assertEquals("stycze\u0144", formatDate(pl, "LLLL", originalDfs));
 
-        // Whereas the deserialized object can't, because it lost the strings...
+        // But the deserialized object is screwed because the RI's serialized form doesn't
+        // contain the locale or the necessary strings. Don't serialize DateFormatSymbols, folks!
         assertEquals("stycznia", formatDate(pl, "MMMM", deserializedDfs));
-        assertEquals("stycznia", formatDate(pl, "LLLL", deserializedDfs));
+        assertEquals("January", formatDate(pl, "LLLL", deserializedDfs));
     }
 
     private String formatDate(Locale l, String fmt, DateFormatSymbols dfs) {
