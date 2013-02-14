@@ -53,9 +53,26 @@ public final class AlphabeticIndex {
   }
 
   /**
-   * Returns the index of the bucket in which 's' should appear.
+   * Adds the index characters in the range between the specified start and
+   * end code points, inclusive.
    */
-  public int getBucketIndex(String s) {
+  public synchronized void addLabelRange(int codePointStart, int codePointEnd) {
+    addLabelRange(peer, codePointStart, codePointEnd);
+  }
+
+  /**
+   * Returns the number of the label buckets in this index.
+   */
+  public synchronized int getBucketCount() {
+    return getBucketCount(peer);
+  }
+
+  /**
+   * Returns the index of the bucket in which 's' should appear.
+   * Function is synchronized because underlying routine walks an iterator
+   * whose state is maintained inside the index object.
+   */
+  public synchronized int getBucketIndex(String s) {
     return getBucketIndex(peer, s);
   }
 
@@ -69,6 +86,8 @@ public final class AlphabeticIndex {
   private static native long create(String locale);
   private static native void destroy(long peer);
   private static native void addLabels(long peer, String locale);
+  private static native void addLabelRange(long peer, int codePointStart, int codePointEnd);
+  private static native int getBucketCount(long peer);
   private static native int getBucketIndex(long peer, String s);
   private static native String getBucketLabel(long peer, int index);
 }
