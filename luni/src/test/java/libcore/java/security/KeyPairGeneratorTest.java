@@ -37,6 +37,7 @@ import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.DSAParameterSpec;
+import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -140,6 +141,14 @@ public class KeyPairGeneratorTest extends TestCase {
         putKeySize("EC", 521);
     }
 
+    /** Elliptic Curve Crypto named curves that should be supported. */
+    private static final String[] EC_NAMED_CURVES = {
+        // NIST P-192 aka SECG secp192r1 aka ANSI X9.62 prime192v1
+        "secp192r1", "prime192v1",
+        // NIST P-256 aka SECG secp256r1 aka ANSI X9.62 prime256v1
+        "secp256r1", "prime256v1",
+    };
+
     private void test_KeyPairGenerator(KeyPairGenerator kpg) throws Exception {
         // without a call to initialize
         test_KeyPair(kpg, kpg.genKeyPair());
@@ -159,6 +168,23 @@ public class KeyPairGeneratorTest extends TestCase {
             kpg.initialize(keySize, new SecureRandom());
             test_KeyPair(kpg, kpg.genKeyPair());
             test_KeyPair(kpg, kpg.generateKeyPair());
+        }
+
+        if (("EC".equals(algorithm)) || ("ECDH".equals(algorithm))
+                || ("ECDSA".equals(algorithm))) {
+            for (String curveName : EC_NAMED_CURVES) {
+                kpg.initialize(new ECGenParameterSpec(curveName));
+                test_KeyPair(kpg, kpg.genKeyPair());
+                test_KeyPair(kpg, kpg.generateKeyPair());
+
+                kpg.initialize(new ECGenParameterSpec(curveName), (SecureRandom) null);
+                test_KeyPair(kpg, kpg.genKeyPair());
+                test_KeyPair(kpg, kpg.generateKeyPair());
+
+                kpg.initialize(new ECGenParameterSpec(curveName), new SecureRandom());
+                test_KeyPair(kpg, kpg.genKeyPair());
+                test_KeyPair(kpg, kpg.generateKeyPair());
+            }
         }
     }
 
