@@ -83,6 +83,12 @@ public class Zygote {
     }
 
     private static void postFork() {
+        try {
+            Seccomp.setPolicy(Seccomp.APP_POLICY);
+        } catch (SeccompFailureException ignored) {
+            // We ignore the exception right now in order to work on the vast majority of
+            // devices, but in the future this may become a showstopper.
+        }
         Daemons.start();
     }
 

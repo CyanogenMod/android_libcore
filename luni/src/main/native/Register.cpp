@@ -34,6 +34,7 @@ int JNI_OnLoad(JavaVM* vm, void*) {
     JniConstants::init(env);
 
 #define REGISTER(FN) extern void FN(JNIEnv*); FN(env)
+    REGISTER(register_dalvik_system_Seccomp);
     REGISTER(register_java_io_Console);
     REGISTER(register_java_io_File);
     REGISTER(register_java_io_ObjectStreamClass);
