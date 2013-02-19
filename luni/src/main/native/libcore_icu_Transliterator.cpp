@@ -24,36 +24,49 @@
 #include "ScopedStringChars.h"
 #include "unicode/translit.h"
 
+static Transliterator* fromPeer(jlong peer) {
+  return reinterpret_cast<Transliterator*>(static_cast<uintptr_t>(peer));
+}
+
+static jlong Transliterator_create(JNIEnv* env, jclass, jstring javaId) {
+  ScopedJavaUnicodeString id(env, javaId);
+  if (!id.valid()) {
+    return 0;
+  }
+  UErrorCode status = U_ZERO_ERROR;
+  Transliterator* t = Transliterator::createInstance(id.unicodeString(), UTRANS_FORWARD, status);
+  if (maybeThrowIcuException(env, "Transliterator::createInstance", status)) {
+    return 0;
+  }
+  return reinterpret_cast<uintptr_t>(t);
+}
+
+static void Transliterator_destroy(JNIEnv*, jclass, jlong peer) {
+  delete fromPeer(peer);
+}
+
 static jobjectArray Transliterator_getAvailableIDs(JNIEnv* env, jclass) {
   UErrorCode status = U_ZERO_ERROR;
   return fromStringEnumeration(env, Transliterator::getAvailableIDs(status));
 }
 
-static jstring Transliterator_transliterate(JNIEnv* env, jclass, jstring javaId, jstring javaString) {
-  ScopedJavaUnicodeString id(env, javaId);
-  if (!id.valid()) {
-    return NULL;
-  }
+static jstring Transliterator_transliterate(JNIEnv* env, jclass, jlong peer, jstring javaString) {
+  Transliterator* t = fromPeer(peer);
   ScopedJavaUnicodeString string(env, javaString);
   if (!string.valid()) {
     return NULL;
   }
 
-  UErrorCode status = U_ZERO_ERROR;
-  Transliterator* t = Transliterator::createInstance(id.unicodeString(), UTRANS_FORWARD, status);
-  if (maybeThrowIcuException(env, "Transliterator::createInstance", status)) {
-    return NULL;
-  }
-
   UnicodeString& s(string.unicodeString());
   t->transliterate(s);
-
   return env->NewString(s.getBuffer(), s.length());
 }
 
 static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(Transliterator, create, "(Ljava/lang/String;)J"),
+  NATIVE_METHOD(Transliterator, destroy, "(J)V"),
   NATIVE_METHOD(Transliterator, getAvailableIDs, "()[Ljava/lang/String;"),
-  NATIVE_METHOD(Transliterator, transliterate, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
+  NATIVE_METHOD(Transliterator, transliterate, "(JLjava/lang/String;)Ljava/lang/String;"),
 };
 void register_libcore_icu_Transliterator(JNIEnv* env) {
   jniRegisterNativeMethods(env, "libcore/icu/Transliterator", gMethods, NELEM(gMethods));
