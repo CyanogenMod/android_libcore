@@ -23,6 +23,7 @@
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedStringChars.h"
 #include "unicode/alphaindex.h"
+#include "unicode/uniset.h"
 
 static AlphabeticIndex* fromPeer(jlong peer) {
   return reinterpret_cast<AlphabeticIndex*>(static_cast<uintptr_t>(peer));
@@ -46,6 +47,24 @@ static void AlphabeticIndex_addLabels(JNIEnv* env, jclass, jlong peer, jstring j
   UErrorCode status = U_ZERO_ERROR;
   ai->addLabels(getLocale(env, javaLocale), status);
   maybeThrowIcuException(env, "AlphabeticIndex::addLabels", status);
+}
+
+static void AlphabeticIndex_addLabelRange(JNIEnv* env, jclass, jlong peer,
+                                          jint codePointStart, jint codePointEnd) {
+  AlphabeticIndex* ai = fromPeer(peer);
+  UErrorCode status = U_ZERO_ERROR;
+  ai->addLabels(UnicodeSet(codePointStart, codePointEnd), status);
+  maybeThrowIcuException(env, "AlphabeticIndex::addLabels", status);
+}
+
+static jint AlphabeticIndex_getBucketCount(JNIEnv* env, jclass, jlong peer) {
+  AlphabeticIndex* ai = fromPeer(peer);
+  UErrorCode status = U_ZERO_ERROR;
+  jint result = ai->getBucketCount(status);
+  if (maybeThrowIcuException(env, "AlphabeticIndex::getBucketCount", status)) {
+    return -1;
+  }
+  return result;
 }
 
 static jint AlphabeticIndex_getBucketIndex(JNIEnv* env, jclass, jlong peer, jstring javaString) {
@@ -98,6 +117,8 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(AlphabeticIndex, create, "(Ljava/lang/String;)J"),
   NATIVE_METHOD(AlphabeticIndex, destroy, "(J)V"),
   NATIVE_METHOD(AlphabeticIndex, addLabels, "(JLjava/lang/String;)V"),
+  NATIVE_METHOD(AlphabeticIndex, addLabelRange, "(JII)V"),
+  NATIVE_METHOD(AlphabeticIndex, getBucketCount, "(J)I"),
   NATIVE_METHOD(AlphabeticIndex, getBucketIndex, "(JLjava/lang/String;)I"),
   NATIVE_METHOD(AlphabeticIndex, getBucketLabel, "(JI)Ljava/lang/String;"),
 };
