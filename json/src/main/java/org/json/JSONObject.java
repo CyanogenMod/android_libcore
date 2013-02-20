@@ -41,12 +41,12 @@ import java.util.Map;
  *       be coerced using {@link Number#intValue() intValue}. Strings
  *       that can be coerced using {@link Double#valueOf(String)} will be,
  *       and then cast to int.
- *   <li>When the requested type is a long, other {@link Number} types will
+ *   <li><a name="lossy">When the requested type is a long, other {@link Number} types will
  *       be coerced using {@link Number#longValue() longValue}. Strings
  *       that can be coerced using {@link Double#valueOf(String)} will be,
  *       and then cast to long. This two-step conversion is lossy for very
  *       large values. For example, the string "9223372036854775806" yields the
- *       long 9223372036854775807.
+ *       long 9223372036854775807.</a>
  *   <li>When the requested type is a String, other non-null values will be
  *       coerced using {@link String#valueOf(Object)}. Although null cannot be
  *       coerced, the sentinel value {@link JSONObject#NULL} is coerced to the
@@ -468,7 +468,8 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a long or
-     * can be coerced to a long.
+     * can be coerced to a long. Note that JSON represents numbers as doubles,
+     * so this is <a href="#lossy">lossy</a>; use strings to transfer numbers via JSON.
      *
      * @throws JSONException if the mapping doesn't exist or cannot be coerced
      *     to a long.
@@ -484,7 +485,8 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a long or
-     * can be coerced to a long. Returns 0 otherwise.
+     * can be coerced to a long. Returns 0 otherwise. Note that JSON represents numbers as doubles,
+     * so this is <a href="#lossy">lossy</a>; use strings to transfer numbers via JSON.
      */
     public long optLong(String name) {
         return optLong(name, 0L);
@@ -492,7 +494,9 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a long or
-     * can be coerced to a long. Returns {@code fallback} otherwise.
+     * can be coerced to a long. Returns {@code fallback} otherwise. Note that JSON represents
+     * numbers as doubles, so this is <a href="#lossy">lossy</a>; use strings to transfer
+     * numbers via JSON.
      */
     public long optLong(String name, long fallback) {
         Object object = opt(name);
