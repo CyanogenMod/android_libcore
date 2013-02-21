@@ -77,6 +77,7 @@ public:
             }
             memcpy(newArray, array, capacity * sizeof(jstring));
 
+            delete[] array;
             array = newArray;
             capacity = newCapacity;
         }
