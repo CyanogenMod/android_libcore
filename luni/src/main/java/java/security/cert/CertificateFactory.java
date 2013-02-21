@@ -226,16 +226,17 @@ public class CertificateFactory {
 
     /**
      * Generates a {@code CertPath} (a certificate chain) from the given
-     * {@code inputStream}, assuming the given {@code charsetName}.
+     * {@code inputStream}, assuming the given {@code encoding} from
+     * {@link #getCertPathEncodings()}.
      *
      * @throws CertificateException
      *             if parsing problems are detected.
      * @throws UnsupportedOperationException
      *             if the provider does not implement this method.
      */
-    public final CertPath generateCertPath(InputStream inputStream, String charsetName)
+    public final CertPath generateCertPath(InputStream inputStream, String encoding)
             throws CertificateException {
-        return spiImpl.engineGenerateCertPath(inputStream, charsetName);
+        return spiImpl.engineGenerateCertPath(inputStream, encoding);
     }
 
     /**
