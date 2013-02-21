@@ -106,14 +106,15 @@ public abstract class CertificateFactorySpi {
 
     /**
      * Generates a {@code CertPath} (a certificate chain) from the given
-     * {@code inputStream}, assuming the given {@code charsetName}.
+     * {@code inputStream}, assuming the given {@code encoding} from
+     * {@link #engineGetCertPathEncodings()}.
      *
      * @throws CertificateException
      *             if parsing problems are detected.
      * @throws UnsupportedOperationException
      *             if the provider does not implement this method.
      */
-    public CertPath engineGenerateCertPath(InputStream inStream, String charsetName)
+    public CertPath engineGenerateCertPath(InputStream inStream, String encoding)
             throws CertificateException {
         throw new UnsupportedOperationException();
     }
