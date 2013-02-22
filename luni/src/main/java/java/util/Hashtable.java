@@ -178,6 +178,9 @@ public class Hashtable<K, V> extends Dictionary<K, V>
      * readObject).
      */
     private void constructorPutAll(Map<? extends K, ? extends V> map) {
+        if (table == EMPTY_TABLE) {
+            doubleCapacity(); // Don't do unchecked puts to a shared table.
+        }
         for (Entry<? extends K, ? extends V> e : map.entrySet()) {
             constructorPut(e.getKey(), e.getValue());
         }

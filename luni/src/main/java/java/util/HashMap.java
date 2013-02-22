@@ -202,6 +202,9 @@ public class HashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seria
      * readObject). Also used by LinkedHashMap.
      */
     final void constructorPutAll(Map<? extends K, ? extends V> map) {
+        if (table == EMPTY_TABLE) {
+            doubleCapacity(); // Don't do unchecked puts to a shared table.
+        }
         for (Entry<? extends K, ? extends V> e : map.entrySet()) {
             constructorPut(e.getKey(), e.getValue());
         }
