@@ -50,6 +50,8 @@ import java.util.GregorianCalendar;
  *    </li>
  * </ol>
  *
+ * <p>Note that you must supply your own implementation (such as Xerces); Android does not ship with a default implementation.
+ *
  * @author <a href="mailto:Joseph.Fialli@Sun.COM">Joseph Fialli</a>
  * @author <a href="mailto:Jeff.Suttor@Sun.com">Jeff Suttor</a>
  * @version $Revision: 884950 $, $Date: 2009-11-27 10:46:18 -0800 (Fri, 27 Nov 2009) $
@@ -84,6 +86,7 @@ public abstract class DatatypeFactory {
      *
      * <p>The implementation resolution mechanisms are <a href="#DatatypeFactory.newInstance">defined</a> in this
      * <code>Class</code>'s documentation.</p>
+     * <p>Note that you must supply your own implementation (such as Xerces); Android does not ship with a default implementation.
      *
      * @return New instance of a <code>DocumentBuilderFactory</code>
      *
