@@ -441,7 +441,7 @@ public class IdentityHashMap<K, V> extends AbstractMap<K, V> implements
     }
 
     private int getModuloHash(Object key, int length) {
-        return ((System.identityHashCode(key) & 0x7FFFFFFF) % (length / 2)) * 2;
+        return ((Collections.secondaryIdentityHash(key) & 0x7FFFFFFF) % (length / 2)) * 2;
     }
 
     /**
