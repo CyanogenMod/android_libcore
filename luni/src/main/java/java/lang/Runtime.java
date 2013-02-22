@@ -290,11 +290,6 @@ public class Runtime {
     }
 
     /**
-     * Returns the amount of free memory available to the running program, in bytes.
-     */
-    public native long freeMemory();
-
-    /**
      * Indicates to the VM that it would be a good time to run the
      * garbage collector. Note that this is a hint only. There is no guarantee
      * that the garbage collector will actually be run.
@@ -454,12 +449,6 @@ public class Runtime {
     public static void runFinalizersOnExit(boolean run) {
         finalizeOnExit = run;
     }
-
-    /**
-     * Returns the total amount of memory which is available to the running
-     * program, in bytes.
-     */
-    public native long totalMemory();
 
     /**
      * Switches the output of debug information for instructions on or off.
@@ -626,11 +615,24 @@ public class Runtime {
     }
 
     /**
-     * Returns the maximum amount of memory that may be used by the virtual
-     * machine, or {@code Long.MAX_VALUE} if there is no such limit.
-     *
-     * @return the maximum amount of memory that the VM will try to
-     *         allocate, measured in bytes.
+     * Returns the number of bytes currently available on the heap without expanding the heap. See
+     * {@link #totalMemory} for the heap's current size. When these bytes are exhausted, the heap
+     * may expand. See {@link #maxMemory} for that limit.
+     */
+    public native long freeMemory();
+
+    /**
+     * Returns the number of bytes taken by the heap at its current size. The heap may expand or
+     * contract over time, as the number of live objects increases or decreases. See
+     * {@link #maxMemory} for the maximum heap size, and {@link #freeMemory} for an idea of how much
+     * the heap could currently contract.
+     */
+    public native long totalMemory();
+
+    /**
+     * Returns the maximum number of bytes the heap can expand to. See {@link #totalMemory} for the
+     * current number of bytes taken by the heap, and {@link #freeMemory} for the current number of
+     * those bytes actually used by live objects.
      */
     public native long maxMemory();
 }
