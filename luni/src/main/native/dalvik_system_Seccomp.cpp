@@ -136,7 +136,7 @@ static void setNormalAppPolicy(JNIEnv *env) {
     installFilter(env, filter, GET_NUM_ELEMENTS(filter));
 }
 
-static void Seccomp_setPolicy(JNIEnv* env, jint policy_idx) {
+static void Seccomp_setPolicy(JNIEnv* env, jclass, jint policy_idx) {
     Policy policies[] = {
         setNormalAppPolicy     // APP_POLICY = 0
     };
@@ -153,7 +153,7 @@ static void Seccomp_setPolicy(JNIEnv* env, jint policy_idx) {
 
 #else // Host build
 
-static void Seccomp_setPolicy(JNIEnv* env, jint policy_idx) {
+static void Seccomp_setPolicy(JNIEnv* env, jclass, jint policy_idx) {
     jniThrowExceptionFmt(env,
                             "dalvik/system/SeccompFailureException",
                             "Seccomp not supported for host builds");
