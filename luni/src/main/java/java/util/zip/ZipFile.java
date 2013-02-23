@@ -350,7 +350,10 @@ public class ZipFile implements ZipConstants {
         byte[] hdrBuf = new byte[CENHDR]; // Reuse the same buffer for each entry.
         for (int i = 0; i < numEntries; ++i) {
             ZipEntry newEntry = new ZipEntry(hdrBuf, bufferedStream);
-            entries.put(newEntry.getName(), newEntry);
+            String entryName = newEntry.getName();
+            if (entries.put(entryName, newEntry) != null) {
+                throw new ZipException("Duplicate entry name: " + entryName);
+            }
         }
     }
 
