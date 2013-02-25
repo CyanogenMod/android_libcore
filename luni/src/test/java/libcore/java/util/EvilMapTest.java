@@ -16,6 +16,7 @@
 
 package libcore.java.util;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -27,11 +28,11 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EvilMapTest extends junit.framework.TestCase {
-  public static class EvilMap<K,V> implements Map<K,V> {
+  public static class EvilMap<K,V> extends AbstractMap<K,V> {
     private final Set<Entry<K,V>> entries = new HashSet<Entry<K,V>>();
 
     public EvilMap() {
-      entries.add(new HashMapEntry("hi", "there", "there".hashCode(), null));
+      entries.add(new AbstractMap.SimpleEntry("hi", "there"));
     }
 
     // Claim we're empty...
@@ -39,56 +40,9 @@ public class EvilMapTest extends junit.framework.TestCase {
     // ...but potentially return many entries.
     @Override public Set<Entry<K, V>> entrySet() { return entries; }
 
+    // Dummy implementation, not relevant for this test but
+    // necessary to implement AbstractMap.
     @Override public V put(K key, V val) { return val; }
-    @Override public V remove(Object val) { return (V) val; }
-    @Override public V get(Object key) { return null; }
-    @Override public boolean containsKey(Object key) { return false; }
-    @Override public void clear() { }
-    @Override public boolean isEmpty() { return true; }
-    @Override public void putAll(Map<? extends K, ? extends V> map) { }
-    @Override public Set<V> values() { return null; }
-    @Override public Set<K> keySet() { return null; }
-    @Override public boolean containsValue(Object val) { return false; }
-  }
-
-  public static class HashMapEntry<K, V> implements Map.Entry<K, V> {
-    final K key;
-    V value;
-    final int hash;
-    HashMapEntry<K, V> next;
-
-    HashMapEntry(K key, V value, int hash, HashMapEntry<K, V> next) {
-      this.key = key;
-      this.value = value;
-      this.hash = hash;
-      this.next = next;
-    }
-
-    public final K getKey() { return key; }
-
-    public final V getValue() { return value; }
-
-    public final V setValue(V value) {
-      V oldValue = this.value;
-      this.value = value;
-      return oldValue;
-    }
-
-    @Override public final boolean equals(Object o) {
-      if (!(o instanceof Map.Entry)) {
-        return false;
-      }
-      Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
-      return e.getKey().equals(key) && e.getValue().equals(value);
-    }
-
-    @Override public final int hashCode() {
-      return (key == null ? 0 : key.hashCode()) ^ (value == null ? 0 : value.hashCode());
-    }
-
-    @Override public final String toString() {
-      return key + "=" + value;
-    }
   }
 
   // https://code.google.com/p/android/issues/detail?id=48055
