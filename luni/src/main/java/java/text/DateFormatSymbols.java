@@ -26,7 +26,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import libcore.icu.ICU;
 import libcore.icu.LocaleData;
-import libcore.icu.TimeZones;
+import libcore.icu.TimeZoneNames;
 
 /**
  * Encapsulates localized date-time formatting data, such as the names of the
@@ -80,7 +80,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      */
     synchronized String[][] internalZoneStrings() {
         if (zoneStrings == null) {
-            zoneStrings = TimeZones.getZoneStrings(locale);
+            zoneStrings = TimeZoneNames.getZoneStrings(locale);
         }
         return zoneStrings;
     }
@@ -334,7 +334,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
                 zone[3] = TimeZone.getTimeZone(id).getDisplayName(true, TimeZone.LONG, locale);
             }
             if (zone[4] == null) {
-                zone[4] = TimeZone.getTimeZone(id).getDisplayName(true, TimeZone.LONG, locale);
+                zone[4] = TimeZone.getTimeZone(id).getDisplayName(true, TimeZone.SHORT, locale);
             }
         }
         return result;
