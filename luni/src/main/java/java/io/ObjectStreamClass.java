@@ -147,7 +147,7 @@ public class ObjectStreamClass implements Serializable {
     private transient Class<?> resolvedClass;
 
     private transient Class<?> resolvedConstructorClass;
-    private transient int resolvedConstructorMethodId;
+    private transient long resolvedConstructorMethodId;
 
     // Serial version UID of the class the descriptor represents
     private transient long svUID;
@@ -653,7 +653,7 @@ public class ObjectStreamClass implements Serializable {
         resolveConstructorClass(instantiationClass);
         return newInstance(instantiationClass, resolvedConstructorMethodId);
     }
-    private static native Object newInstance(Class<?> instantiationClass, int methodId);
+    private static native Object newInstance(Class<?> instantiationClass, long methodId);
 
     private Class<?> resolveConstructorClass(Class<?> objectClass) throws InvalidClassException {
         if (resolvedConstructorClass != null) {
@@ -720,7 +720,7 @@ public class ObjectStreamClass implements Serializable {
         resolvedConstructorMethodId = getConstructorId(resolvedConstructorClass);
         return constructorClass;
     }
-    private static native int getConstructorId(Class<?> c);
+    private static native long getConstructorId(Class<?> c);
 
     /**
      * Checks if two classes belong to the same package.
