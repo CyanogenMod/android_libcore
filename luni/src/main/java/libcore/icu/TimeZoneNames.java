@@ -24,10 +24,10 @@ import java.util.TimeZone;
 import libcore.util.BasicLruCache;
 
 /**
- * Provides access to ICU's time zone data.
+ * Provides access to ICU's time zone name data.
  */
-public final class TimeZones {
-    private static final String[] availableTimeZones = TimeZone.getAvailableIDs();
+public final class TimeZoneNames {
+    private static final String[] availableTimeZoneIds = TimeZone.getAvailableIDs();
 
     /*
      * Offsets into the arrays returned by DateFormatSymbols.getZoneStrings.
@@ -59,21 +59,29 @@ public final class TimeZones {
             // isn't particularly large (and we remove duplicates), but is currently (Honeycomb)
             // really expensive to compute.
             // If you change this, you might want to change the scope of the intern table too.
-            super(availableTimeZones.length);
+            super(availableTimeZoneIds.length);
         }
 
         @Override protected String[][] create(Locale locale) {
-            long start, nativeStart;
-            start = nativeStart = System.currentTimeMillis();
-            String[][] result = getZoneStringsImpl(locale.toString(), availableTimeZones);
+            long start = System.currentTimeMillis();
+
+            // Set up the 2D array used to hold the names. The first column contains the Olson ids.
+            String[][] result = new String[availableTimeZoneIds.length][5];
+            for (int i = 0; i < availableTimeZoneIds.length; ++i) {
+                result[i][0] = availableTimeZoneIds[i];
+            }
+
+            long nativeStart = System.currentTimeMillis();
+            fillZoneStrings(locale.toString(), result);
             long nativeEnd = System.currentTimeMillis();
+
             internStrings(result);
             // Ending up in this method too often is an easy way to make your app slow, so we ensure
             // it's easy to tell from the log (a) what we were doing, (b) how long it took, and
             // (c) that it's all ICU's fault.
             long end = System.currentTimeMillis();
-            long duration = end - start;
             long nativeDuration = nativeEnd - nativeStart;
+            long duration = end - start;
             System.logI("Loaded time zone names for \"" + locale + "\" in " + duration + "ms" +
                     " (" + nativeDuration + "ms in ICU)");
             return result;
@@ -100,7 +108,7 @@ public final class TimeZones {
         }
     };
 
-    private TimeZones() {}
+    private TimeZoneNames() {}
 
     /**
      * Returns the appropriate string from 'zoneStrings'. Used with getZoneStrings.
@@ -139,5 +147,5 @@ public final class TimeZones {
     }
 
     private static native String[] forCountryCode(String countryCode);
-    private static native String[][] getZoneStringsImpl(String locale, String[] timeZoneIds);
+    private static native void fillZoneStrings(String locale, String[][] result);
 }

@@ -247,6 +247,12 @@ public class TimeZoneTest extends TestCase {
                     failures.append(String.format("\n%20s: LS='%s' SD='%s'!",
                                                   id, longStd, shortDst));
                 }
+
+                // The long and short dst strings must differ!
+                if (longDst.equals(shortDst) && !longDst.startsWith("GMT")) {
+                  failures.append(String.format("\n%20s: LD='%s' SD='%s'!",
+                                                id, longDst, shortDst));
+                }
             }
 
             // Sanity check that whenever a display name is just a GMT string that it's the
@@ -267,13 +273,23 @@ public class TimeZoneTest extends TestCase {
             }
         }
         assertEquals("", failures.toString());
+    }
 
-        // Check one specific example.
+    public void testSantiago() throws Exception {
         TimeZone tz = TimeZone.getTimeZone("America/Santiago");
         assertEquals("Chile Summer Time", tz.getDisplayName(true, TimeZone.LONG, Locale.US));
         assertEquals("Chile Standard Time", tz.getDisplayName(false, TimeZone.LONG, Locale.US));
         assertEquals("GMT-03:00", tz.getDisplayName(true, TimeZone.SHORT, Locale.US));
         assertEquals("GMT-04:00", tz.getDisplayName(false, TimeZone.SHORT, Locale.US));
+    }
+
+    // http://b/7955614
+    public void testApia() throws Exception {
+        TimeZone tz = TimeZone.getTimeZone("Pacific/Apia");
+        assertEquals("Samoa Daylight Time", tz.getDisplayName(true, TimeZone.LONG, Locale.US));
+        assertEquals("Samoa Standard Time", tz.getDisplayName(false, TimeZone.LONG, Locale.US));
+        assertEquals("GMT+14:00", tz.getDisplayName(true, TimeZone.SHORT, Locale.US));
+        assertEquals("GMT+13:00", tz.getDisplayName(false, TimeZone.SHORT, Locale.US));
     }
 
     private static boolean isGmtString(String s) {
@@ -292,5 +308,14 @@ public class TimeZoneTest extends TestCase {
             offset = -offset;
         }
         return String.format("GMT%c%02d:%02d", sign, offset / 60, offset % 60);
+    }
+
+    public void testAllDisplayNames() throws Exception {
+      for (Locale locale : Locale.getAvailableLocales()) {
+        for (String id : TimeZone.getAvailableIDs()) {
+          TimeZone tz = TimeZone.getTimeZone(id);
+          assertNotNull(tz.getDisplayName(false, TimeZone.LONG, locale));
+        }
+      }
     }
 }

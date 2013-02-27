@@ -30,7 +30,7 @@ import java.util.Locale;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 import libcore.icu.LocaleData;
-import libcore.icu.TimeZones;
+import libcore.icu.TimeZoneNames;
 
 /**
  * Formats and parses dates in a locale-sensitive manner. Formatting turns a {@link Date} into
@@ -747,7 +747,7 @@ public class SimpleDateFormat extends DateFormat {
             }
             // We can't call TimeZone.getDisplayName() because it would not use
             // the custom DateFormatSymbols of this SimpleDateFormat.
-            String custom = TimeZones.getDisplayName(formatData.zoneStrings, tz.getID(), daylight, style);
+            String custom = TimeZoneNames.getDisplayName(formatData.zoneStrings, tz.getID(), daylight, style);
             if (custom != null) {
                 buffer.append(custom);
                 return;
@@ -1188,7 +1188,7 @@ public class SimpleDateFormat extends DateFormat {
             return offset;
         }
         for (String[] row : formatData.internalZoneStrings()) {
-            for (int i = TimeZones.LONG_NAME; i < TimeZones.NAME_COUNT; ++i) {
+            for (int i = TimeZoneNames.LONG_NAME; i < TimeZoneNames.NAME_COUNT; ++i) {
                 if (row[i] == null) {
                     // If icu4c doesn't have a name, our array contains a null. Normally we'd
                     // work out the correct GMT offset, but we already handled parsing GMT offsets
@@ -1196,12 +1196,12 @@ public class SimpleDateFormat extends DateFormat {
                     continue;
                 }
                 if (string.regionMatches(true, offset, row[i], 0, row[i].length())) {
-                    TimeZone zone = TimeZone.getTimeZone(row[TimeZones.OLSON_NAME]);
+                    TimeZone zone = TimeZone.getTimeZone(row[TimeZoneNames.OLSON_NAME]);
                     if (zone == null) {
                         return -offset - 1;
                     }
                     int raw = zone.getRawOffset();
-                    if (i == TimeZones.LONG_NAME_DST || i == TimeZones.SHORT_NAME_DST) {
+                    if (i == TimeZoneNames.LONG_NAME_DST || i == TimeZoneNames.SHORT_NAME_DST) {
                         // Not all time zones use a one-hour difference, so we need to query
                         // the TimeZone. (Australia/Lord_Howe is the usual example of this.)
                         int dstSavings = zone.getDSTSavings();
