@@ -42,9 +42,9 @@
 
 #ifdef ARCH_ARM
 #define AUDIT_ARCH_NR AUDIT_ARCH_ARM
-#elif defined(ARCH_X86)
-#define AUDIT_ARCH_NR AUDIT_ARCH_I386
-#elif defined(ARCH_MIPS)
+#elif ARCH_X86
+#define AUDIT_ARCH_NR AUDIT_ARCH_X86
+#elif ARCH_MIPS
 #define AUDIT_ARCH_NR AUDIT_ARCH_MIPS
 #else
 #error "Could not determine AUDIT_ARCH_NR for this architecture"
