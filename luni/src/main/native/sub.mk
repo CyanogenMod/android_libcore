@@ -11,7 +11,6 @@ LOCAL_SRC_FILES := \
 	NetworkUtilities.cpp \
 	Register.cpp \
 	cbigint.cpp \
-	dalvik_system_Seccomp.cpp \
 	java_io_Console.cpp \
 	java_io_File.cpp \
 	java_io_ObjectStreamClass.cpp \
