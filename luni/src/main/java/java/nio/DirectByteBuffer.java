@@ -37,7 +37,7 @@ class DirectByteBuffer extends MappedByteBuffer {
       throw new IllegalArgumentException("capacity + offset > baseSize");
     }
 
-    this.effectiveDirectAddress = block.toInt() + offset;
+    this.effectiveDirectAddress = block.toLong() + offset;
 
     this.offset = offset;
     this.isReadOnly = isReadOnly;
