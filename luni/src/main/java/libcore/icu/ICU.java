@@ -130,12 +130,17 @@ public final class ICU {
     public static native String getBestDateTimePattern(String skeleton, String localeName);
 
     /**
-     * Returns the ICU version in use. This is "4.4" for gingerbread, for example.
+     * Returns the version of the CLDR data in use, such as "22.1.1".
+     */
+    public static native String getCldrVersion();
+
+    /**
+     * Returns the icu4c version in use, such as "50.1.1".
      */
     public static native String getIcuVersion();
 
     /**
-     * Returns the Unicode version our ICU supports. This is "5.2" for gingerbread, for example.
+     * Returns the Unicode version our ICU supports, such as "6.2".
      */
     public static native String getUnicodeVersion();
 
