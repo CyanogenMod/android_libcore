@@ -324,6 +324,7 @@ public final class System {
         // Undocumented Android-only properties.
         p.put("android.icu.library.version", ICU.getIcuVersion());
         p.put("android.icu.unicode.version", ICU.getUnicodeVersion());
+        p.put("android.icu.cldr.version", ICU.getCldrVersion());
         // TODO: it would be nice to have this but currently it causes circularity.
         // p.put("android.tzdata.version", ZoneInfoDB.getVersion());
         parsePropertyAssignments(p, specialProperties());
