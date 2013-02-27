@@ -65,11 +65,11 @@ public class LocaleDataTest extends junit.framework.TestCase {
         LocaleData l = LocaleData.get(new Locale("cs", "CZ"));
 
         assertEquals("ledna", l.longMonthNames[0]);
-        assertEquals("Led", l.shortMonthNames[0]);
+        assertEquals("led", l.shortMonthNames[0]);
         assertEquals("1", l.tinyMonthNames[0]);
 
         assertEquals("leden", l.longStandAloneMonthNames[0]);
-        assertEquals("1.", l.shortStandAloneMonthNames[0]);
+        assertEquals("led", l.shortStandAloneMonthNames[0]);
         assertEquals("l", l.tinyStandAloneMonthNames[0]);
     }
 
@@ -78,7 +78,7 @@ public class LocaleDataTest extends junit.framework.TestCase {
 
         assertEquals("воскресенье", l.longWeekdayNames[1]);
         assertEquals("вс", l.shortWeekdayNames[1]);
-        assertEquals("В", l.tinyWeekdayNames[1]);
+        assertEquals("вс", l.tinyWeekdayNames[1]);
 
         // Russian stand-alone weekday names get an initial capital.
         assertEquals("Воскресенье", l.longStandAloneWeekdayNames[1]);
