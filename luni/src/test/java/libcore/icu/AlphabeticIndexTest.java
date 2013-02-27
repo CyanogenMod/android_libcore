@@ -136,9 +136,9 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
     assertHasLabel(zh_CN, "\u8d3e", "J");
 
     // Shen/Chen
-    assertHasLabel(zh_CN, "\u6c88", "C"); // icu4c 4.9 does not specialize for names.
+    assertHasLabel(zh_CN, "\u6c88", "C"); // icu4c 50 does not specialize for names.
     // Shen/Chen (traditional)
-    assertHasLabel(zh_CN, "\u700b", "S"); // icu4c 4.9 gets this wrong.
+    assertHasLabel(zh_CN, "\u700b", "S"); // icu4c 50 gets this wrong.
   }
 
   public void test_zh_TW() throws Exception {
@@ -146,10 +146,10 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
     // …, 一, 丁, 丈, 不, 且, 丞, 串, 並, 亭, 乘, 乾, 傀, 亂, 僎, 僵, 儐, 償, 叢, 儳, 嚴, 儷, 儻, 囌, 囑, 廳, …
     // Shen/Chen
     AlphabeticIndex zh_TW = new AlphabeticIndex(new Locale("zh", "TW"));
-    assertHasLabel(zh_TW, "\u6c88", "\u5080");
+    assertHasLabel(zh_TW, "\u6c88", "\u4e32");
     assertHasLabel(zh_TW, "\u700b", "\u53e2");
     // Jia/Gu
-    assertHasLabel(zh_TW, "\u8d3e", "\u5080");
+    assertHasLabel(zh_TW, "\u8d3e", "\u4e58");
   }
 
   public void test_constructor_NPE() throws Exception {
