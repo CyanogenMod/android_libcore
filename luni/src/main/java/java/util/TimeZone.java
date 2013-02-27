@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import libcore.icu.TimeZones;
+import libcore.icu.TimeZoneNames;
 import libcore.util.ZoneInfoDB;
 
 /**
@@ -171,8 +171,8 @@ public abstract class TimeZone implements Serializable, Cloneable {
             throw new IllegalArgumentException("Bad style: " + style);
         }
 
-        String[][] zoneStrings = TimeZones.getZoneStrings(locale);
-        String result = TimeZones.getDisplayName(zoneStrings, getID(), daylightTime, style);
+        String[][] zoneStrings = TimeZoneNames.getZoneStrings(locale);
+        String result = TimeZoneNames.getDisplayName(zoneStrings, getID(), daylightTime, style);
         if (result != null) {
             return result;
         }
@@ -183,7 +183,7 @@ public abstract class TimeZone implements Serializable, Cloneable {
         // time zone transition data, which icu4c _doesn't_ use --- it uses its own baked-in copy,
         // which only gets updated when we update icu4c. http://b/7955614 and http://b/8026776.
 
-        // TODO: should we generate these once, in TimeZones.getDisplayName? Revisit when we
+        // TODO: should we generate these once, in TimeZoneNames.getDisplayName? Revisit when we
         // upgrade to icu4c 50 and rewrite the underlying native code. See also the
         // "element[j] != null" check in SimpleDateFormat.parseTimeZone, and the extra work in
         // DateFormatSymbols.getZoneStrings.
