@@ -37,13 +37,13 @@ abstract class ExpatAttributes implements Attributes {
      * Gets the pointer to the parser. We need this so we can get to the
      * interned string pool.
      */
-    abstract int getParserPointer();
+    abstract long getParserPointer();
 
     /**
      * Gets the pointer to the underlying attribute array. Can be 0 if the
      * length is 0.
      */
-    public abstract int getPointer();
+    public abstract long getPointer();
 
     public String getURI(int index) {
         if (index < 0 || index >= getLength()) {
@@ -81,7 +81,7 @@ abstract class ExpatAttributes implements Attributes {
         if (localName == null) {
             throw new NullPointerException("localName == null");
         }
-        int pointer = getPointer();
+        long pointer = getPointer();
         if (pointer == 0) {
             return -1;
         }
@@ -92,7 +92,7 @@ abstract class ExpatAttributes implements Attributes {
         if (qName == null) {
             throw new NullPointerException("qName == null");
         }
-        int pointer = getPointer();
+        long pointer = getPointer();
         if (pointer == 0) {
             return -1;
         }
@@ -120,7 +120,7 @@ abstract class ExpatAttributes implements Attributes {
         if (localName == null) {
             throw new NullPointerException("localName == null");
         }
-        int pointer = getPointer();
+        long pointer = getPointer();
         if (pointer == 0) {
             return null;
         }
@@ -131,20 +131,20 @@ abstract class ExpatAttributes implements Attributes {
         if (qName == null) {
             throw new NullPointerException("qName == null");
         }
-        int pointer = getPointer();
+        long pointer = getPointer();
         if (pointer == 0) {
             return null;
         }
         return getValueForQName(pointer, qName);
     }
 
-    private static native String getURI(int pointer, int attributePointer, int index);
-    private static native String getLocalName(int pointer, int attributePointer, int index);
-    private static native String getQName(int pointer, int attributePointer, int index);
-    private static native String getValueByIndex(int attributePointer, int index);
-    private static native int getIndex(int attributePointer, String uri, String localName);
-    private static native int getIndexForQName(int attributePointer, String qName);
-    private static native String getValue(int attributePointer, String uri, String localName);
-    private static native String getValueForQName(int attributePointer, String qName);
-    protected native void freeAttributes(int pointer);
+    private static native String getURI(long pointer, long attributePointer, int index);
+    private static native String getLocalName(long pointer, long attributePointer, int index);
+    private static native String getQName(long pointer, long attributePointer, int index);
+    private static native String getValueByIndex(long attributePointer, int index);
+    private static native int getIndex(long attributePointer, String uri, String localName);
+    private static native int getIndexForQName(long attributePointer, String qName);
+    private static native String getValue(long attributePointer, String uri, String localName);
+    private static native String getValueForQName(long attributePointer, String qName);
+    protected native void freeAttributes(long pointer);
 }
