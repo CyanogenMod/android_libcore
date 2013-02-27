@@ -77,7 +77,7 @@ public class CurrencyTest extends junit.framework.TestCase {
         Locale pt_BR = new Locale("pt", "BR");
         Locale pt_PT = new Locale("pt", "PT");
         assertEquals("R$", Currency.getInstance(pt_BR).getSymbol(pt_BR));
-        assertEquals("BR$", Currency.getInstance(pt_BR).getSymbol(pt_PT));
+        assertEquals("R$", Currency.getInstance(pt_BR).getSymbol(pt_PT));
         assertEquals("€", Currency.getInstance(pt_PT).getSymbol(pt_BR));
         assertEquals("€", Currency.getInstance(pt_PT).getSymbol(pt_PT));
     }
