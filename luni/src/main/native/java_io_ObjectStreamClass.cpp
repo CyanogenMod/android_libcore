@@ -47,21 +47,21 @@ static jboolean ObjectStreamClass_hasClinit(JNIEnv * env, jclass, jclass targetC
     return (mid != 0);
 }
 
-static jint ObjectStreamClass_getConstructorId(JNIEnv* env, jclass, jclass constructorClass) {
-    return reinterpret_cast<jint>(env->GetMethodID(constructorClass, "<init>", "()V"));
+static jlong ObjectStreamClass_getConstructorId(JNIEnv* env, jclass, jclass constructorClass) {
+    return reinterpret_cast<jlong>(env->GetMethodID(constructorClass, "<init>", "()V"));
 }
 
-static jobject ObjectStreamClass_newInstance(JNIEnv* env, jclass, jclass instantiationClass, jint methodId) {
+static jobject ObjectStreamClass_newInstance(JNIEnv* env, jclass, jclass instantiationClass, jlong methodId) {
     return env->NewObject(instantiationClass, reinterpret_cast<jmethodID>(methodId));
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(ObjectStreamClass, getConstructorId, "(Ljava/lang/Class;)I"),
+    NATIVE_METHOD(ObjectStreamClass, getConstructorId, "(Ljava/lang/Class;)J"),
     NATIVE_METHOD(ObjectStreamClass, getConstructorSignature, "(Ljava/lang/reflect/Constructor;)Ljava/lang/String;"),
     NATIVE_METHOD(ObjectStreamClass, getFieldSignature, "(Ljava/lang/reflect/Field;)Ljava/lang/String;"),
     NATIVE_METHOD(ObjectStreamClass, getMethodSignature, "(Ljava/lang/reflect/Method;)Ljava/lang/String;"),
     NATIVE_METHOD(ObjectStreamClass, hasClinit, "(Ljava/lang/Class;)Z"),
-    NATIVE_METHOD(ObjectStreamClass, newInstance, "(Ljava/lang/Class;I)Ljava/lang/Object;"),
+    NATIVE_METHOD(ObjectStreamClass, newInstance, "(Ljava/lang/Class;J)Ljava/lang/Object;"),
 };
 void register_java_io_ObjectStreamClass(JNIEnv* env) {
     jniRegisterNativeMethods(env, "java/io/ObjectStreamClass", gMethods, NELEM(gMethods));
