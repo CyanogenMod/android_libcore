@@ -44,6 +44,7 @@
 #include "unicode/ucurr.h"
 #include "unicode/udat.h"
 #include "unicode/uloc.h"
+#include "unicode/ulocdata.h"
 #include "unicode/ustring.h"
 #include "ureslocs.h"
 #include "valueOf.h"
@@ -654,6 +655,13 @@ static jstring versionString(JNIEnv* env, const UVersionInfo& version) {
     return env->NewStringUTF(versionString);
 }
 
+static jstring ICU_getCldrVersion(JNIEnv* env, jclass) {
+  UErrorCode status = U_ZERO_ERROR;
+  UVersionInfo cldrVersion;
+  ulocdata_getCLDRVersion(cldrVersion, &status);
+  return versionString(env, cldrVersion);
+}
+
 static jstring ICU_getIcuVersion(JNIEnv* env, jclass) {
     UVersionInfo icuVersion;
     u_getVersion(icuVersion);
@@ -665,7 +673,6 @@ static jstring ICU_getUnicodeVersion(JNIEnv* env, jclass) {
     u_getUnicodeVersion(unicodeVersion);
     return versionString(env, unicodeVersion);
 }
-
 
 struct EnumerationCounter {
     const size_t count;
@@ -722,6 +729,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, getAvailableLocalesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getAvailableNumberFormatLocalesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getBestDateTimePattern, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(ICU, getCldrVersion, "()Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getCurrencyCode, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getCurrencyDisplayName, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getCurrencyFractionDigits, "(Ljava/lang/String;)I"),
