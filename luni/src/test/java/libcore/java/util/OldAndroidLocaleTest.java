@@ -66,7 +66,7 @@ public class OldAndroidLocaleTest extends TestCase {
         assertEquals("Central European Summer Time",
                 berlin.getDisplayName(true, TimeZone.LONG, eng));
 
-        assertEquals("Mitteleuropäische Winterzeit",
+        assertEquals("Mitteleuropäische Normalzeit",
                 berlin.getDisplayName(false, TimeZone.LONG, deu));
         assertEquals("Mitteleuropäische Sommerzeit",
                 berlin.getDisplayName(true, TimeZone.LONG, deu));
