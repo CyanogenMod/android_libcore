@@ -140,7 +140,7 @@ struct ParsingContext {
             if (javaBuffer == NULL) return NULL;
 
             // Create a global reference.
-            javaBuffer = (jcharArray) env->NewGlobalRef(javaBuffer);
+            javaBuffer = reinterpret_cast<jcharArray>(env->NewGlobalRef(javaBuffer));
             if (javaBuffer == NULL) return NULL;
 
             buffer = javaBuffer;
@@ -198,6 +198,14 @@ static ParsingContext* toParsingContext(void* data) {
 
 static ParsingContext* toParsingContext(XML_Parser parser) {
     return reinterpret_cast<ParsingContext*>(XML_GetUserData(parser));
+}
+
+static XML_Parser toXMLParser(jlong address) {
+  return reinterpret_cast<XML_Parser>(address);
+}
+
+static jlong fromXMLParser(XML_Parser parser) {
+  return reinterpret_cast<uintptr_t>(parser);
 }
 
 static jmethodID commentMethod;
@@ -279,7 +287,7 @@ static InternedString* newInternedString(JNIEnv* env, const char* bytes, int has
     }
 
     // Create a global reference to the interned string.
-    wrapper->interned = (jstring) env->NewGlobalRef(interned.get());
+    wrapper->interned = reinterpret_cast<jstring>(env->NewGlobalRef(interned.get()));
     if (env->ExceptionCheck()) {
         return NULL;
     }
@@ -457,7 +465,7 @@ static void bufferAndInvoke(jmethodID method, void* data, const char* text, size
     env->CallVoidMethod(javaParser, method, buffer, utf16length);
 }
 
-static const char** toAttributes(jint attributePointer) {
+static const char** toAttributes(jlong attributePointer) {
     return reinterpret_cast<const char**>(static_cast<uintptr_t>(attributePointer));
 }
 
@@ -466,7 +474,7 @@ static const char** toAttributes(jint attributePointer) {
  */
 class ExpatElementName {
 public:
-    ExpatElementName(JNIEnv* env, ParsingContext* parsingContext, jint attributePointer, jint index) {
+    ExpatElementName(JNIEnv* env, ParsingContext* parsingContext, jlong attributePointer, jint index) {
         const char** attributes = toAttributes(attributePointer);
         const char* name = attributes[index * 2];
         init(env, parsingContext, name);
@@ -834,19 +842,19 @@ static void processingInstruction(void* data, const char* target, const char* in
  * @param javaContext that was provided to handleExternalEntity
  * @returns the pointer to the C Expat entity parser
  */
-static jint ExpatParser_createEntityParser(JNIEnv* env, jobject, jint parentParser, jstring javaContext) {
+static jlong ExpatParser_createEntityParser(JNIEnv* env, jobject, jlong parentParser, jstring javaContext) {
     ScopedUtfChars context(env, javaContext);
     if (context.c_str() == NULL) {
         return 0;
     }
 
-    XML_Parser parent = (XML_Parser) parentParser;
+    XML_Parser parent = toXMLParser(parentParser);
     XML_Parser entityParser = XML_ExternalEntityParserCreate(parent, context.c_str(), NULL);
     if (entityParser == NULL) {
         jniThrowOutOfMemoryError(env, NULL);
     }
 
-    return (jint) entityParser;
+    return fromXMLParser(entityParser);
 }
 
 /**
@@ -947,7 +955,7 @@ static void notationDecl(void* data, const char* name, const char* /*base*/, con
  * @param processNamespaces true if the parser should handle namespaces
  * @returns the pointer to the C Expat parser
  */
-static jint ExpatParser_initialize(JNIEnv* env, jobject object, jstring javaEncoding,
+static jlong ExpatParser_initialize(JNIEnv* env, jobject object, jstring javaEncoding,
         jboolean processNamespaces) {
     // Allocate parsing context.
     UniquePtr<ParsingContext> context(new ParsingContext(object));
@@ -956,7 +964,7 @@ static jint ExpatParser_initialize(JNIEnv* env, jobject object, jstring javaEnco
         return 0;
     }
 
-    context->processNamespaces = (bool) processNamespaces;
+    context->processNamespaces = processNamespaces;
 
     // Create a parser.
     XML_Parser parser;
@@ -992,7 +1000,7 @@ static jint ExpatParser_initialize(JNIEnv* env, jobject object, jstring javaEnco
         return 0;
     }
 
-    return (jint) parser;
+    return fromXMLParser(parser);
 }
 
 /**
@@ -1002,9 +1010,9 @@ static jint ExpatParser_initialize(JNIEnv* env, jobject object, jstring javaEnco
  * can be reinterpreted as a UTF-16 encoded byte[]. appendBytes, appendChars
  * and appendString all call through this method.
  */
-static void append(JNIEnv* env, jobject object, jint pointer,
+static void append(JNIEnv* env, jobject object, jlong pointer,
         const char* bytes, size_t byteOffset, size_t byteCount, jboolean isFinal) {
-    XML_Parser parser = (XML_Parser) pointer;
+    XML_Parser parser = toXMLParser(pointer);
     ParsingContext* context = toParsingContext(parser);
     context->env = env;
     context->object = object;
@@ -1015,7 +1023,7 @@ static void append(JNIEnv* env, jobject object, jint pointer,
     context->env = NULL;
 }
 
-static void ExpatParser_appendBytes(JNIEnv* env, jobject object, jint pointer,
+static void ExpatParser_appendBytes(JNIEnv* env, jobject object, jlong pointer,
         jbyteArray xml, jint byteOffset, jint byteCount) {
     ScopedByteArrayRO byteArray(env, xml);
     if (byteArray.get() == NULL) {
@@ -1026,7 +1034,7 @@ static void ExpatParser_appendBytes(JNIEnv* env, jobject object, jint pointer,
     append(env, object, pointer, bytes, byteOffset, byteCount, XML_FALSE);
 }
 
-static void ExpatParser_appendChars(JNIEnv* env, jobject object, jint pointer,
+static void ExpatParser_appendChars(JNIEnv* env, jobject object, jlong pointer,
         jcharArray xml, jint charOffset, jint charCount) {
     ScopedCharArrayRO charArray(env, xml);
     if (charArray.get() == NULL) {
@@ -1039,7 +1047,7 @@ static void ExpatParser_appendChars(JNIEnv* env, jobject object, jint pointer,
     append(env, object, pointer, bytes, byteOffset, byteCount, XML_FALSE);
 }
 
-static void ExpatParser_appendString(JNIEnv* env, jobject object, jint pointer, jstring javaXml, jboolean isFinal) {
+static void ExpatParser_appendString(JNIEnv* env, jobject object, jlong pointer, jstring javaXml, jboolean isFinal) {
     ScopedStringChars xml(env, javaXml);
     if (xml.get() == NULL) {
         return;
@@ -1051,101 +1059,69 @@ static void ExpatParser_appendString(JNIEnv* env, jobject object, jint pointer, 
 
 /**
  * Releases parser only.
- *
- * @param object the Java ExpatParser instance
- * @param i pointer to the C expat parser
  */
-static void ExpatParser_releaseParser(JNIEnv*, jobject, jint i) {
-    XML_Parser parser = (XML_Parser) i;
-    XML_ParserFree(parser);
+static void ExpatParser_releaseParser(JNIEnv*, jobject, jlong address) {
+  XML_ParserFree(toXMLParser(address));
 }
 
 /**
  * Cleans up after the parser. Called at garbage collection time.
- *
- * @param object the Java ExpatParser instance
- * @param i pointer to the C expat parser
  */
-static void ExpatParser_release(JNIEnv* env, jobject, jint i) {
-    XML_Parser parser = (XML_Parser) i;
+static void ExpatParser_release(JNIEnv* env, jobject, jlong address) {
+  XML_Parser parser = toXMLParser(address);
 
-    ParsingContext* context = toParsingContext(parser);
-    context->env = env;
-    delete context;
+  ParsingContext* context = toParsingContext(parser);
+  context->env = env;
+  delete context;
 
-    XML_ParserFree(parser);
+  XML_ParserFree(parser);
 }
 
-/**
- * Gets the current line.
- *
- * @param object the Java ExpatParser instance
- * @param pointer to the C expat parser
- * @returns current line number
- */
-static int ExpatParser_line(JNIEnv*, jobject, jint pointer) {
-    XML_Parser parser = (XML_Parser) pointer;
-    return XML_GetCurrentLineNumber(parser);
+static int ExpatParser_line(JNIEnv*, jobject, jlong address) {
+  return XML_GetCurrentLineNumber(toXMLParser(address));
 }
 
-/**
- * Gets the current column.
- *
- * @param object the Java ExpatParser instance
- * @param pointer to the C expat parser
- * @returns current column number
- */
-static int ExpatParser_column(JNIEnv*, jobject, jint pointer) {
-    XML_Parser parser = (XML_Parser) pointer;
-    return XML_GetCurrentColumnNumber(parser);
+static int ExpatParser_column(JNIEnv*, jobject, jlong address) {
+  return XML_GetCurrentColumnNumber(toXMLParser(address));
 }
 
 /**
  * Gets the URI of the attribute at the given index.
  *
- * @param object Java ExpatParser instance
- * @param pointer to the C expat parser
  * @param attributePointer to the attribute array
  * @param index of the attribute
  * @returns interned Java string containing attribute's URI
  */
-static jstring ExpatAttributes_getURI(JNIEnv* env, jobject, jint pointer,
-        jint attributePointer, jint index) {
-    XML_Parser parser = (XML_Parser) pointer;
-    ParsingContext* context = toParsingContext(parser);
-    return ExpatElementName(env, context, attributePointer, index).uri();
+static jstring ExpatAttributes_getURI(JNIEnv* env, jobject, jlong address,
+        jlong attributePointer, jint index) {
+  ParsingContext* context = toParsingContext(toXMLParser(address));
+  return ExpatElementName(env, context, attributePointer, index).uri();
 }
 
 /**
  * Gets the local name of the attribute at the given index.
  *
- * @param object Java ExpatParser instance
- * @param pointer to the C expat parser
  * @param attributePointer to the attribute array
  * @param index of the attribute
  * @returns interned Java string containing attribute's local name
  */
-static jstring ExpatAttributes_getLocalName(JNIEnv* env, jobject, jint pointer,
-        jint attributePointer, jint index) {
-    XML_Parser parser = (XML_Parser) pointer;
-    ParsingContext* context = toParsingContext(parser);
-    return ExpatElementName(env, context, attributePointer, index).localName();
+static jstring ExpatAttributes_getLocalName(JNIEnv* env, jobject, jlong address,
+        jlong attributePointer, jint index) {
+  ParsingContext* context = toParsingContext(toXMLParser(address));
+  return ExpatElementName(env, context, attributePointer, index).localName();
 }
 
 /**
  * Gets the qualified name of the attribute at the given index.
  *
- * @param object Java ExpatParser instance
- * @param pointer to the C expat parser
  * @param attributePointer to the attribute array
  * @param index of the attribute
  * @returns interned Java string containing attribute's local name
  */
-static jstring ExpatAttributes_getQName(JNIEnv* env, jobject, jint pointer,
-        jint attributePointer, jint index) {
-    XML_Parser parser = (XML_Parser) pointer;
-    ParsingContext* context = toParsingContext(parser);
-    return ExpatElementName(env, context, attributePointer, index).qName();
+static jstring ExpatAttributes_getQName(JNIEnv* env, jobject, jlong address,
+        jlong attributePointer, jint index) {
+  ParsingContext* context = toParsingContext(toXMLParser(address));
+  return ExpatElementName(env, context, attributePointer, index).qName();
 }
 
 /**
@@ -1157,7 +1133,7 @@ static jstring ExpatAttributes_getQName(JNIEnv* env, jobject, jint pointer,
  * @returns Java string containing attribute's value
  */
 static jstring ExpatAttributes_getValueByIndex(JNIEnv* env, jobject,
-        jint attributePointer, jint index) {
+        jlong attributePointer, jint index) {
     const char** attributes = toAttributes(attributePointer);
     const char* value = attributes[(index * 2) + 1];
     return env->NewStringUTF(value);
@@ -1172,7 +1148,7 @@ static jstring ExpatAttributes_getValueByIndex(JNIEnv* env, jobject,
  *  found
  */
 static jint ExpatAttributes_getIndexForQName(JNIEnv* env, jobject,
-        jint attributePointer, jstring qName) {
+        jlong attributePointer, jstring qName) {
     ScopedUtfChars qNameBytes(env, qName);
     if (qNameBytes.c_str() == NULL) {
         return -1;
@@ -1199,7 +1175,7 @@ static jint ExpatAttributes_getIndexForQName(JNIEnv* env, jobject,
  * @returns index of attribute with the given uri and local name or -1 if not
  *  found
  */
-static jint ExpatAttributes_getIndex(JNIEnv* env, jobject, jint attributePointer,
+static jint ExpatAttributes_getIndex(JNIEnv* env, jobject, jlong attributePointer,
         jstring uri, jstring localName) {
     ScopedUtfChars uriBytes(env, uri);
     if (uriBytes.c_str() == NULL) {
@@ -1231,7 +1207,7 @@ static jint ExpatAttributes_getIndex(JNIEnv* env, jobject, jint attributePointer
  *  found
  */
 static jstring ExpatAttributes_getValueForQName(JNIEnv* env, jobject clazz,
-        jint attributePointer, jstring qName) {
+        jlong attributePointer, jstring qName) {
     jint index = ExpatAttributes_getIndexForQName(env, clazz, attributePointer, qName);
     return index == -1 ? NULL
             : ExpatAttributes_getValueByIndex(env, clazz, attributePointer, index);
@@ -1247,7 +1223,7 @@ static jstring ExpatAttributes_getValueForQName(JNIEnv* env, jobject clazz,
  *  found
  */
 static jstring ExpatAttributes_getValue(JNIEnv* env, jobject clazz,
-        jint attributePointer, jstring uri, jstring localName) {
+        jlong attributePointer, jstring uri, jstring localName) {
     jint index = ExpatAttributes_getIndex(env, clazz, attributePointer, uri, localName);
     return index == -1 ? NULL
             : ExpatAttributes_getValueByIndex(env, clazz, attributePointer, index);
@@ -1260,7 +1236,7 @@ static jstring ExpatAttributes_getValue(JNIEnv* env, jobject clazz,
  * @param address char** to clone
  * @param count number of attributes
  */
-static jint ExpatParser_cloneAttributes(JNIEnv* env, jobject, jint address, jint count) {
+static jlong ExpatParser_cloneAttributes(JNIEnv* env, jobject, jlong address, jint count) {
     const char** source = reinterpret_cast<const char**>(static_cast<uintptr_t>(address));
     count *= 2;
 
@@ -1294,13 +1270,13 @@ static jint ExpatParser_cloneAttributes(JNIEnv* env, jobject, jint address, jint
         destinationString += stringLength + 1;
     }
 
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(buffer));
+    return reinterpret_cast<uintptr_t>(buffer);
 }
 
 /**
  * Frees cloned attributes.
  */
-static void ExpatAttributes_freeAttributes(JNIEnv*, jobject, jint pointer) {
+static void ExpatAttributes_freeAttributes(JNIEnv*, jobject, jlong pointer) {
     delete[] reinterpret_cast<char*>(static_cast<uintptr_t>(pointer));
 }
 
@@ -1367,33 +1343,33 @@ static void ExpatParser_staticInitialize(JNIEnv* env, jobject classObject, jstri
     if (internMethod == NULL) return;
 
     // Reference to "".
-    emptyString = (jstring) env->NewGlobalRef(empty);
+    emptyString = reinterpret_cast<jstring>(env->NewGlobalRef(empty));
 }
 
 static JNINativeMethod parserMethods[] = {
-    NATIVE_METHOD(ExpatParser, appendString, "(ILjava/lang/String;Z)V"),
-    NATIVE_METHOD(ExpatParser, appendBytes, "(I[BII)V"),
-    NATIVE_METHOD(ExpatParser, appendChars, "(I[CII)V"),
-    NATIVE_METHOD(ExpatParser, cloneAttributes, "(II)I"),
-    NATIVE_METHOD(ExpatParser, column, "(I)I"),
-    NATIVE_METHOD(ExpatParser, createEntityParser, "(ILjava/lang/String;)I"),
-    NATIVE_METHOD(ExpatParser, initialize, "(Ljava/lang/String;Z)I"),
-    NATIVE_METHOD(ExpatParser, line, "(I)I"),
-    NATIVE_METHOD(ExpatParser, release, "(I)V"),
-    NATIVE_METHOD(ExpatParser, releaseParser, "(I)V"),
+    NATIVE_METHOD(ExpatParser, appendString, "(JLjava/lang/String;Z)V"),
+    NATIVE_METHOD(ExpatParser, appendBytes, "(J[BII)V"),
+    NATIVE_METHOD(ExpatParser, appendChars, "(J[CII)V"),
+    NATIVE_METHOD(ExpatParser, cloneAttributes, "(JI)J"),
+    NATIVE_METHOD(ExpatParser, column, "(J)I"),
+    NATIVE_METHOD(ExpatParser, createEntityParser, "(JLjava/lang/String;)J"),
+    NATIVE_METHOD(ExpatParser, initialize, "(Ljava/lang/String;Z)J"),
+    NATIVE_METHOD(ExpatParser, line, "(J)I"),
+    NATIVE_METHOD(ExpatParser, release, "(J)V"),
+    NATIVE_METHOD(ExpatParser, releaseParser, "(J)V"),
     NATIVE_METHOD(ExpatParser, staticInitialize, "(Ljava/lang/String;)V"),
 };
 
 static JNINativeMethod attributeMethods[] = {
-    NATIVE_METHOD(ExpatAttributes, freeAttributes, "(I)V"),
-    NATIVE_METHOD(ExpatAttributes, getIndexForQName, "(ILjava/lang/String;)I"),
-    NATIVE_METHOD(ExpatAttributes, getIndex, "(ILjava/lang/String;Ljava/lang/String;)I"),
-    NATIVE_METHOD(ExpatAttributes, getLocalName, "(III)Ljava/lang/String;"),
-    NATIVE_METHOD(ExpatAttributes, getQName, "(III)Ljava/lang/String;"),
-    NATIVE_METHOD(ExpatAttributes, getURI, "(III)Ljava/lang/String;"),
-    NATIVE_METHOD(ExpatAttributes, getValueByIndex, "(II)Ljava/lang/String;"),
-    NATIVE_METHOD(ExpatAttributes, getValueForQName, "(ILjava/lang/String;)Ljava/lang/String;"),
-    NATIVE_METHOD(ExpatAttributes, getValue, "(ILjava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(ExpatAttributes, freeAttributes, "(J)V"),
+    NATIVE_METHOD(ExpatAttributes, getIndexForQName, "(JLjava/lang/String;)I"),
+    NATIVE_METHOD(ExpatAttributes, getIndex, "(JLjava/lang/String;Ljava/lang/String;)I"),
+    NATIVE_METHOD(ExpatAttributes, getLocalName, "(JJI)Ljava/lang/String;"),
+    NATIVE_METHOD(ExpatAttributes, getQName, "(JJI)Ljava/lang/String;"),
+    NATIVE_METHOD(ExpatAttributes, getURI, "(JJI)Ljava/lang/String;"),
+    NATIVE_METHOD(ExpatAttributes, getValueByIndex, "(JI)Ljava/lang/String;"),
+    NATIVE_METHOD(ExpatAttributes, getValueForQName, "(JLjava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(ExpatAttributes, getValue, "(JLjava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
 };
 void register_org_apache_harmony_xml_ExpatParser(JNIEnv* env) {
     jniRegisterNativeMethods(env, "org/apache/harmony/xml/ExpatParser", parserMethods, NELEM(parserMethods));
