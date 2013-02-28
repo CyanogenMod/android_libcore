@@ -31,7 +31,7 @@ public final class Matcher implements MatchResult {
      * The address of the native peer.
      * Uses of this must be manually synchronized to avoid native crashes.
      */
-    private int address;
+    private long address;
 
     /**
      * Holds the input text.
@@ -656,16 +656,16 @@ public final class Matcher implements MatchResult {
         }
     }
 
-    private static native void closeImpl(int addr);
-    private static native boolean findImpl(int addr, String s, int startIndex, int[] offsets);
-    private static native boolean findNextImpl(int addr, String s, int[] offsets);
-    private static native int groupCountImpl(int addr);
-    private static native boolean hitEndImpl(int addr);
-    private static native boolean lookingAtImpl(int addr, String s, int[] offsets);
-    private static native boolean matchesImpl(int addr, String s, int[] offsets);
-    private static native int openImpl(int patternAddr);
-    private static native boolean requireEndImpl(int addr);
-    private static native void setInputImpl(int addr, String s, int start, int end);
-    private static native void useAnchoringBoundsImpl(int addr, boolean value);
-    private static native void useTransparentBoundsImpl(int addr, boolean value);
+    private static native void closeImpl(long addr);
+    private static native boolean findImpl(long addr, String s, int startIndex, int[] offsets);
+    private static native boolean findNextImpl(long addr, String s, int[] offsets);
+    private static native int groupCountImpl(long addr);
+    private static native boolean hitEndImpl(long addr);
+    private static native boolean lookingAtImpl(long addr, String s, int[] offsets);
+    private static native boolean matchesImpl(long addr, String s, int[] offsets);
+    private static native long openImpl(long patternAddr);
+    private static native boolean requireEndImpl(long addr);
+    private static native void setInputImpl(long addr, String s, int start, int end);
+    private static native void useAnchoringBoundsImpl(long addr, boolean value);
+    private static native void useTransparentBoundsImpl(long addr, boolean value);
 }

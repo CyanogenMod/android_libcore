@@ -27,7 +27,7 @@
 
 // ICU documentation: http://icu-project.org/apiref/icu4c/classRegexPattern.html
 
-static RegexPattern* toRegexPattern(jint addr) {
+static RegexPattern* toRegexPattern(jlong addr) {
     return reinterpret_cast<RegexPattern*>(static_cast<uintptr_t>(addr));
 }
 
@@ -71,11 +71,11 @@ static void throwPatternSyntaxException(JNIEnv* env, UErrorCode status, jstring 
     env->Throw(reinterpret_cast<jthrowable>(exception));
 }
 
-static void Pattern_closeImpl(JNIEnv*, jclass, jint addr) {
+static void Pattern_closeImpl(JNIEnv*, jclass, jlong addr) {
     delete toRegexPattern(addr);
 }
 
-static jint Pattern_compileImpl(JNIEnv* env, jclass, jstring javaRegex, jint flags) {
+static jlong Pattern_compileImpl(JNIEnv* env, jclass, jstring javaRegex, jint flags) {
     flags |= UREGEX_ERROR_ON_UNKNOWN_ESCAPES;
 
     UErrorCode status = U_ZERO_ERROR;
@@ -91,12 +91,12 @@ static jint Pattern_compileImpl(JNIEnv* env, jclass, jstring javaRegex, jint fla
     if (!U_SUCCESS(status)) {
         throwPatternSyntaxException(env, status, javaRegex, error);
     }
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(result));
+    return static_cast<jlong>(reinterpret_cast<uintptr_t>(result));
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(Pattern, closeImpl, "(I)V"),
-    NATIVE_METHOD(Pattern, compileImpl, "(Ljava/lang/String;I)I"),
+    NATIVE_METHOD(Pattern, closeImpl, "(J)V"),
+    NATIVE_METHOD(Pattern, compileImpl, "(Ljava/lang/String;I)J"),
 };
 void register_java_util_regex_Pattern(JNIEnv* env) {
     jniRegisterNativeMethods(env, "java/util/regex/Pattern", gMethods, NELEM(gMethods));
