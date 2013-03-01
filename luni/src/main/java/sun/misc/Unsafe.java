@@ -27,8 +27,10 @@ import java.lang.reflect.Modifier;
  * of Java.
  */
 public final class Unsafe {
-    /** non-null; unique instance of this class */
+    /** Traditional dalvik name. */
     private static final Unsafe THE_ONE = new Unsafe();
+    /** Traditional RI name. */
+    private static final Unsafe theUnsafe = THE_ONE;
 
     /**
      * This class is only privately instantiable.
@@ -339,4 +341,10 @@ public final class Unsafe {
             throw new IllegalArgumentException("valid for Threads only");
         }
     }
+
+    /**
+     * Allocates an instance of the given class without running the constructor.
+     * The class' <clinit> will be run, if necessary.
+     */
+    public native Object allocateInstance(Class<?> c);
 }
