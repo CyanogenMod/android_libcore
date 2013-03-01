@@ -17,9 +17,11 @@
 package libcore.java.util.zip;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
@@ -30,6 +32,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import junit.framework.TestCase;
+import libcore.io.IoUtils;
 
 public final class ZipFileTest extends TestCase {
 
@@ -52,6 +55,67 @@ public final class ZipFileTest extends TestCase {
             is.close();
         }
         zipFile.close();
+    }
+
+    private static void replaceBytes(byte[] original, byte[] replacement, byte[] buffer) {
+        // Gotcha here: original and replacement must be the same length
+        assertEquals(original.length, replacement.length);
+        boolean found;
+        for(int i=0; i < buffer.length - original.length; i++) {
+            found = false;
+            if (buffer[i] == original[0]) {
+                found = true;
+                for (int j=0; j < original.length; j++) {
+                    if (buffer[i+j] != original[j]) {
+                        found = false;
+                        break;
+                    }
+                }
+            }
+            if (found) {
+                for (int j=0; j < original.length; j++) {
+                    buffer[i+j] = replacement[j];
+                }
+            }
+        }
+    }
+
+    /**
+     * Make sure we don't fail silently for duplicate entries.
+     * b/8219321
+     */
+    public void testDuplicateEntries() throws IOException {
+        String entryName = "test_file_name1";
+        String tmpName = "test_file_name2";
+
+        // create the template data
+        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+        ZipOutputStream out = new ZipOutputStream(bytesOut);
+        ZipEntry ze1 = new ZipEntry(tmpName);
+        out.putNextEntry(ze1);
+        out.closeEntry();
+        ZipEntry ze2 = new ZipEntry(entryName);
+        out.putNextEntry(ze2);
+        out.closeEntry();
+        out.close();
+
+        // replace the bytes we don't like
+        byte[] buf = bytesOut.toByteArray();
+        replaceBytes(tmpName.getBytes(), entryName.getBytes(), buf);
+
+        // write the result to a file
+        File badZip = File.createTempFile("badzip", "zip");
+        badZip.deleteOnExit();
+        FileOutputStream outstream = new FileOutputStream(badZip);
+        outstream.write(buf);
+        outstream.close();
+
+        // see if we can still handle it
+        try {
+            ZipFile bad = new ZipFile(badZip);
+            fail();
+        } catch (ZipException expected) {
+        }
     }
 
     public void testInflatingStreamsRequiringZipRefill() throws IOException {
