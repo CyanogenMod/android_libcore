@@ -51,6 +51,7 @@ LOCAL_SRC_FILES := \
 	org_apache_harmony_xnet_provider_jsse_NativeCrypto.cpp \
 	readlink.cpp \
 	realpath.cpp \
+	sun_misc_Unsafe.cpp \
 	toStringArray.cpp \
 	valueOf.cpp
 
