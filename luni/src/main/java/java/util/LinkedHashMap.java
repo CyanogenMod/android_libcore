@@ -247,7 +247,8 @@ public class LinkedHashMap<K, V> extends HashMap<K, V> {
             return e.value;
         }
 
-        int hash = Collections.secondaryHash(key);
+        // Replace with Collections.secondaryHash when the VM is fast enough (http://b/8290590).
+        int hash = secondaryHash(key);
         HashMapEntry<K, V>[] tab = table;
         for (HashMapEntry<K, V> e = tab[hash & (tab.length - 1)];
                 e != null; e = e.next) {
