@@ -73,6 +73,7 @@ int JNI_OnLoad(JavaVM* vm, void*) {
     REGISTER(register_org_apache_harmony_dalvik_NativeTestTarget);
     REGISTER(register_org_apache_harmony_xml_ExpatParser);
     REGISTER(register_org_apache_harmony_xnet_provider_jsse_NativeCrypto);
+    REGISTER(register_sun_misc_Unsafe);
 #undef REGISTER
     return JNI_VERSION_1_6;
 }
