@@ -58,12 +58,14 @@ struct JniConstants {
     static jclass inetAddressClass;
     static jclass inetSocketAddressClass;
     static jclass inflaterClass;
+    static jclass inputStreamClass;
     static jclass integerClass;
     static jclass localeDataClass;
     static jclass longClass;
     static jclass methodClass;
     static jclass mutableIntClass;
     static jclass mutableLongClass;
+    static jclass outputStreamClass;
     static jclass parsePositionClass;
     static jclass patternSyntaxExceptionClass;
     static jclass realToStringClass;
