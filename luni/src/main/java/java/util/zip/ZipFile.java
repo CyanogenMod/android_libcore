@@ -351,7 +351,7 @@ public class ZipFile implements ZipConstants {
         for (int i = 0; i < numEntries; ++i) {
             ZipEntry newEntry = new ZipEntry(hdrBuf, bufferedStream);
             String entryName = newEntry.getName();
-            if (mEntries.put(entryName, newEntry) != null) {
+            if (entries.put(entryName, newEntry) != null) {
                 throw new ZipException("Duplicate entry name: " + entryName);
             }
         }
