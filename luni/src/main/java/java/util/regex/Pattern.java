@@ -285,7 +285,7 @@ public final class Pattern implements Serializable {
     private final String pattern;
     private final int flags;
 
-    transient int address;
+    transient long address;
 
     /**
      * Returns a {@link Matcher} for this pattern applied to the given {@code input}.
@@ -452,6 +452,6 @@ public final class Pattern implements Serializable {
         compile();
     }
 
-    private static native void closeImpl(int addr);
-    private static native int compileImpl(String regex, int flags);
+    private static native void closeImpl(long addr);
+    private static native long compileImpl(String regex, int flags);
 }
