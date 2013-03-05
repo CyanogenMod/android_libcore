@@ -3002,7 +3002,7 @@ static jint NativeCrypto_EVP_CipherFinal_ex(JNIEnv* env, jclass, jlong ctxRef, j
     return outl;
 }
 
-static jint NativeCrypto_EVP_CIPHER_iv_length(JNIEnv* env, jclass, jint evpCipherRef) {
+static jint NativeCrypto_EVP_CIPHER_iv_length(JNIEnv* env, jclass, jlong evpCipherRef) {
     const EVP_CIPHER* evpCipher = reinterpret_cast<const EVP_CIPHER*>(evpCipherRef);
     JNI_TRACE("EVP_CIPHER_iv_length(%p)", evpCipher);
 
