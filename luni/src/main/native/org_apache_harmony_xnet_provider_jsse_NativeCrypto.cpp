@@ -481,7 +481,7 @@ static void throwSSLExceptionWithSslErrors(
  * @param throwIfNull whether to throw if the SSL pointer is NULL
  * @returns the pointer, which may be NULL
  */
-static SSL_CTX* to_SSL_CTX(JNIEnv* env, int ssl_ctx_address, bool throwIfNull) {
+static SSL_CTX* to_SSL_CTX(JNIEnv* env, jlong ssl_ctx_address, bool throwIfNull) {
     SSL_CTX* ssl_ctx = reinterpret_cast<SSL_CTX*>(static_cast<uintptr_t>(ssl_ctx_address));
     if ((ssl_ctx == NULL) && throwIfNull) {
         JNI_TRACE("ssl_ctx == null");
@@ -490,7 +490,7 @@ static SSL_CTX* to_SSL_CTX(JNIEnv* env, int ssl_ctx_address, bool throwIfNull) {
     return ssl_ctx;
 }
 
-static SSL* to_SSL(JNIEnv* env, int ssl_address, bool throwIfNull) {
+static SSL* to_SSL(JNIEnv* env, jlong ssl_address, bool throwIfNull) {
     SSL* ssl = reinterpret_cast<SSL*>(static_cast<uintptr_t>(ssl_address));
     if ((ssl == NULL) && throwIfNull) {
         JNI_TRACE("ssl == null");
@@ -499,7 +499,7 @@ static SSL* to_SSL(JNIEnv* env, int ssl_address, bool throwIfNull) {
     return ssl;
 }
 
-static SSL_SESSION* to_SSL_SESSION(JNIEnv* env, int ssl_session_address, bool throwIfNull) {
+static SSL_SESSION* to_SSL_SESSION(JNIEnv* env, jlong ssl_session_address, bool throwIfNull) {
     SSL_SESSION* ssl_session
         = reinterpret_cast<SSL_SESSION*>(static_cast<uintptr_t>(ssl_session_address));
     if ((ssl_session == NULL) && throwIfNull) {
@@ -692,7 +692,7 @@ static void NativeCrypto_ENGINE_load_dynamic(JNIEnv*, jclass) {
     ENGINE_load_dynamic();
 }
 
-static jint NativeCrypto_ENGINE_by_id(JNIEnv* env, jclass, jstring idJava) {
+static jlong NativeCrypto_ENGINE_by_id(JNIEnv* env, jclass, jstring idJava) {
     JNI_TRACE("ENGINE_by_id(%p)", idJava);
 
     ScopedUtfChars id(env, idJava);
@@ -708,10 +708,10 @@ static jint NativeCrypto_ENGINE_by_id(JNIEnv* env, jclass, jstring idJava) {
     }
 
     JNI_TRACE("ENGINE_by_id(\"%s\") => %p", id.c_str(), e);
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(e));
+    return reinterpret_cast<uintptr_t>(e);
 }
 
-static jint NativeCrypto_ENGINE_add(JNIEnv* env, jclass, jint engineRef) {
+static jint NativeCrypto_ENGINE_add(JNIEnv* env, jclass, jlong engineRef) {
     ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
     JNI_TRACE("ENGINE_add(%p)", e);
 
@@ -732,7 +732,7 @@ static jint NativeCrypto_ENGINE_add(JNIEnv* env, jclass, jint engineRef) {
     return ret;
 }
 
-static jint NativeCrypto_ENGINE_init(JNIEnv* env, jclass, jint engineRef) {
+static jint NativeCrypto_ENGINE_init(JNIEnv* env, jclass, jlong engineRef) {
     ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
     JNI_TRACE("ENGINE_init(%p)", e);
 
@@ -746,7 +746,7 @@ static jint NativeCrypto_ENGINE_init(JNIEnv* env, jclass, jint engineRef) {
     return ret;
 }
 
-static jint NativeCrypto_ENGINE_finish(JNIEnv* env, jclass, jint engineRef) {
+static jint NativeCrypto_ENGINE_finish(JNIEnv* env, jclass, jlong engineRef) {
     ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
     JNI_TRACE("ENGINE_finish(%p)", e);
 
@@ -760,7 +760,7 @@ static jint NativeCrypto_ENGINE_finish(JNIEnv* env, jclass, jint engineRef) {
     return ret;
 }
 
-static jint NativeCrypto_ENGINE_free(JNIEnv* env, jclass, jint engineRef) {
+static jint NativeCrypto_ENGINE_free(JNIEnv* env, jclass, jlong engineRef) {
     ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
     JNI_TRACE("ENGINE_free(%p)", e);
 
@@ -774,7 +774,7 @@ static jint NativeCrypto_ENGINE_free(JNIEnv* env, jclass, jint engineRef) {
     return ret;
 }
 
-static jint NativeCrypto_ENGINE_load_private_key(JNIEnv* env, jclass, jint engineRef,
+static jlong NativeCrypto_ENGINE_load_private_key(JNIEnv* env, jclass, jlong engineRef,
         jstring idJava) {
     ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
     JNI_TRACE("ENGINE_load_private_key(%p, %p)", e, idJava);
@@ -792,10 +792,10 @@ static jint NativeCrypto_ENGINE_load_private_key(JNIEnv* env, jclass, jint engin
     }
 
     JNI_TRACE("ENGINE_load_private_key(%p, %p) => %p", e, idJava, pkey.get());
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
+    return reinterpret_cast<uintptr_t>(pkey.release());
 }
 
-static jstring NativeCrypto_ENGINE_get_id(JNIEnv* env, jclass, jint engineRef)
+static jstring NativeCrypto_ENGINE_get_id(JNIEnv* env, jclass, jlong engineRef)
 {
     ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
     JNI_TRACE("ENGINE_get_id(%p)", e);
@@ -813,7 +813,7 @@ static jstring NativeCrypto_ENGINE_get_id(JNIEnv* env, jclass, jint engineRef)
     return idJava.release();
 }
 
-static jint NativeCrypto_ENGINE_ctrl_cmd_string(JNIEnv* env, jclass, jint engineRef,
+static jint NativeCrypto_ENGINE_ctrl_cmd_string(JNIEnv* env, jclass, jlong engineRef,
         jstring cmdJava, jstring argJava, jint cmd_optional)
 {
     ENGINE* e = reinterpret_cast<ENGINE*>(static_cast<uintptr_t>(engineRef));
@@ -860,7 +860,7 @@ static jint NativeCrypto_ENGINE_ctrl_cmd_string(JNIEnv* env, jclass, jint engine
  * public static native int EVP_PKEY_new_DSA(byte[] p, byte[] q, byte[] g,
  *                                           byte[] pub_key, byte[] priv_key);
  */
-static EVP_PKEY* NativeCrypto_EVP_PKEY_new_DSA(JNIEnv* env, jclass,
+static jlong NativeCrypto_EVP_PKEY_new_DSA(JNIEnv* env, jclass,
                                                jbyteArray p, jbyteArray q, jbyteArray g,
                                                jbyteArray pub_key, jbyteArray priv_key) {
     JNI_TRACE("EVP_PKEY_new_DSA(p=%p, q=%p, g=%p, pub_key=%p, priv_key=%p)",
@@ -869,54 +869,54 @@ static EVP_PKEY* NativeCrypto_EVP_PKEY_new_DSA(JNIEnv* env, jclass,
     Unique_DSA dsa(DSA_new());
     if (dsa.get() == NULL) {
         jniThrowRuntimeException(env, "DSA_new failed");
-        return NULL;
+        return 0;
     }
 
     if (!arrayToBignum(env, p, &dsa->p)) {
-        return NULL;
+        return 0;
     }
 
     if (!arrayToBignum(env, q, &dsa->q)) {
-        return NULL;
+        return 0;
     }
 
     if (!arrayToBignum(env, g, &dsa->g)) {
-        return NULL;
+        return 0;
     }
 
     if (pub_key != NULL && !arrayToBignum(env, pub_key, &dsa->pub_key)) {
-        return NULL;
+        return 0;
     }
 
     if (priv_key != NULL && !arrayToBignum(env, priv_key, &dsa->priv_key)) {
-        return NULL;
+        return 0;
     }
 
     if (dsa->p == NULL || dsa->q == NULL || dsa->g == NULL
             || (dsa->pub_key == NULL && dsa->priv_key == NULL)) {
         jniThrowRuntimeException(env, "Unable to convert BigInteger to BIGNUM");
-        return NULL;
+        return 0;
     }
 
     Unique_EVP_PKEY pkey(EVP_PKEY_new());
     if (pkey.get() == NULL) {
         jniThrowRuntimeException(env, "EVP_PKEY_new failed");
-        return NULL;
+        return 0;
     }
     if (EVP_PKEY_assign_DSA(pkey.get(), dsa.get()) != 1) {
         jniThrowRuntimeException(env, "EVP_PKEY_assign_DSA failed");
-        return NULL;
+        return 0;
     }
     OWNERSHIP_TRANSFERRED(dsa);
     JNI_TRACE("EVP_PKEY_new_DSA(p=%p, q=%p, g=%p, pub_key=%p, priv_key=%p) => %p",
               p, q, g, pub_key, priv_key, pkey.get());
-    return pkey.release();
+    return reinterpret_cast<jlong>(pkey.release());
 }
 
 /**
  * private static native int EVP_PKEY_new_RSA(byte[] n, byte[] e, byte[] d, byte[] p, byte[] q);
  */
-static jint NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
+static jlong NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
                                                jbyteArray n, jbyteArray e, jbyteArray d,
                                                jbyteArray p, jbyteArray q,
                                                jbyteArray dmp1, jbyteArray dmq1,
@@ -1007,11 +1007,11 @@ static jint NativeCrypto_EVP_PKEY_new_RSA(JNIEnv* env, jclass,
     OWNERSHIP_TRANSFERRED(rsa);
     JNI_TRACE("EVP_PKEY_new_RSA(n=%p, e=%p, d=%p, p=%p, q=%p dmp1=%p, dmq1=%p, iqmp=%p) => %p",
             n, e, d, p, q, dmp1, dmq1, iqmp, pkey.get());
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
+    return reinterpret_cast<uintptr_t>(pkey.release());
 }
 
-static jint NativeCrypto_EVP_PKEY_new_EC_KEY(JNIEnv* env, jclass, jint groupRef,
-        int pubkeyRef, jbyteArray keyJavaBytes) {
+static jlong NativeCrypto_EVP_PKEY_new_EC_KEY(JNIEnv* env, jclass, jlong groupRef,
+        jlong pubkeyRef, jbyteArray keyJavaBytes) {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     const EC_POINT* pubkey = reinterpret_cast<const EC_POINT*>(pubkeyRef);
     JNI_TRACE("EVP_PKEY_new_EC_KEY(%p, %p, %p)", group, pubkey, keyJavaBytes);
@@ -1086,10 +1086,10 @@ static jint NativeCrypto_EVP_PKEY_new_EC_KEY(JNIEnv* env, jclass, jint groupRef,
     OWNERSHIP_TRANSFERRED(eckey);
 
     JNI_TRACE("EVP_PKEY_new_EC_KEY(%p, %p, %p) => %p", group, pubkey, keyJavaBytes, pkey.get());
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
+    return reinterpret_cast<uintptr_t>(pkey.release());
 }
 
-static jint NativeCrypto_EVP_PKEY_new_mac_key(JNIEnv* env, jclass, jint pkeyType,
+static jlong NativeCrypto_EVP_PKEY_new_mac_key(JNIEnv* env, jclass, jint pkeyType,
         jbyteArray keyJavaBytes)
 {
     JNI_TRACE("EVP_PKEY_new_mac_key(%d, %p)", pkeyType, keyJavaBytes);
@@ -1108,10 +1108,10 @@ static jint NativeCrypto_EVP_PKEY_new_mac_key(JNIEnv* env, jclass, jint pkeyType
     }
 
     JNI_TRACE("EVP_PKEY_new_mac_key(%d, %p) => %p", pkeyType, keyJavaBytes, pkey.get());
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
+    return reinterpret_cast<uintptr_t>(pkey.release());
 }
 
-static int NativeCrypto_EVP_PKEY_type(JNIEnv* env, jclass, jint pkeyRef) {
+static int NativeCrypto_EVP_PKEY_type(JNIEnv* env, jclass, jlong pkeyRef) {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("EVP_PKEY_type(%p)", pkey);
 
@@ -1128,7 +1128,7 @@ static int NativeCrypto_EVP_PKEY_type(JNIEnv* env, jclass, jint pkeyRef) {
 /**
  * private static native int EVP_PKEY_size(int pkey);
  */
-static int NativeCrypto_EVP_PKEY_size(JNIEnv* env, jclass, jint pkeyRef) {
+static int NativeCrypto_EVP_PKEY_size(JNIEnv* env, jclass, jlong pkeyRef) {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("EVP_PKEY_size(%p)", pkey);
 
@@ -1142,7 +1142,7 @@ static int NativeCrypto_EVP_PKEY_size(JNIEnv* env, jclass, jint pkeyRef) {
     return result;
 }
 
-static jstring NativeCrypto_EVP_PKEY_print_public(JNIEnv* env, jclass, jint pkeyRef) {
+static jstring NativeCrypto_EVP_PKEY_print_public(JNIEnv* env, jclass, jlong pkeyRef) {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("EVP_PKEY_print_public(%p)", pkey);
 
@@ -1172,7 +1172,7 @@ static jstring NativeCrypto_EVP_PKEY_print_public(JNIEnv* env, jclass, jint pkey
     return description;
 }
 
-static jstring NativeCrypto_EVP_PKEY_print_private(JNIEnv* env, jclass, jint pkeyRef) {
+static jstring NativeCrypto_EVP_PKEY_print_private(JNIEnv* env, jclass, jlong pkeyRef) {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("EVP_PKEY_print_private(%p)", pkey);
 
@@ -1202,7 +1202,7 @@ static jstring NativeCrypto_EVP_PKEY_print_private(JNIEnv* env, jclass, jint pke
     return description;
 }
 
-static void NativeCrypto_EVP_PKEY_free(JNIEnv*, jclass, jint pkeyRef) {
+static void NativeCrypto_EVP_PKEY_free(JNIEnv*, jclass, jlong pkeyRef) {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("EVP_PKEY_free(%p)", pkey);
 
@@ -1211,7 +1211,7 @@ static void NativeCrypto_EVP_PKEY_free(JNIEnv*, jclass, jint pkeyRef) {
     }
 }
 
-static jint NativeCrypto_EVP_PKEY_cmp(JNIEnv* env, jclass, jint pkey1Ref, jint pkey2Ref) {
+static jint NativeCrypto_EVP_PKEY_cmp(JNIEnv* env, jclass, jlong pkey1Ref, jlong pkey2Ref) {
     EVP_PKEY* pkey1 = reinterpret_cast<EVP_PKEY*>(pkey1Ref);
     EVP_PKEY* pkey2 = reinterpret_cast<EVP_PKEY*>(pkey2Ref);
     JNI_TRACE("EVP_PKEY_cmp(%p, %p)", pkey1, pkey2);
@@ -1234,7 +1234,7 @@ static jint NativeCrypto_EVP_PKEY_cmp(JNIEnv* env, jclass, jint pkey1Ref, jint p
 /*
  * static native byte[] i2d_PKCS8_PRIV_KEY_INFO(int, byte[])
  */
-static jbyteArray NativeCrypto_i2d_PKCS8_PRIV_KEY_INFO(JNIEnv* env, jclass, jint pkeyRef) {
+static jbyteArray NativeCrypto_i2d_PKCS8_PRIV_KEY_INFO(JNIEnv* env, jclass, jlong pkeyRef) {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("i2d_PKCS8_PRIV_KEY_INFO(%p)", pkey);
 
@@ -1256,7 +1256,7 @@ static jbyteArray NativeCrypto_i2d_PKCS8_PRIV_KEY_INFO(JNIEnv* env, jclass, jint
 /*
  * static native int d2i_PKCS8_PRIV_KEY_INFO(byte[])
  */
-static jint NativeCrypto_d2i_PKCS8_PRIV_KEY_INFO(JNIEnv* env, jclass, jbyteArray keyJavaBytes) {
+static jlong NativeCrypto_d2i_PKCS8_PRIV_KEY_INFO(JNIEnv* env, jclass, jbyteArray keyJavaBytes) {
     JNI_TRACE("d2i_PKCS8_PRIV_KEY_INFO(%p)", keyJavaBytes);
 
     ScopedByteArrayRO bytes(env, keyJavaBytes);
@@ -1281,13 +1281,13 @@ static jint NativeCrypto_d2i_PKCS8_PRIV_KEY_INFO(JNIEnv* env, jclass, jbyteArray
     }
 
     JNI_TRACE("bytes=%p d2i_PKCS8_PRIV_KEY_INFO => %p", keyJavaBytes, pkey.get());
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
+    return reinterpret_cast<uintptr_t>(pkey.release());
 }
 
 /*
  * static native byte[] i2d_PUBKEY(int)
  */
-static jbyteArray NativeCrypto_i2d_PUBKEY(JNIEnv* env, jclass, jint pkeyRef) {
+static jbyteArray NativeCrypto_i2d_PUBKEY(JNIEnv* env, jclass, jlong pkeyRef) {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("i2d_PUBKEY(%p)", pkey);
 
@@ -1302,7 +1302,7 @@ static jbyteArray NativeCrypto_i2d_PUBKEY(JNIEnv* env, jclass, jint pkeyRef) {
 /*
  * static native int d2i_PUBKEY(byte[])
  */
-static jint NativeCrypto_d2i_PUBKEY(JNIEnv* env, jclass, jbyteArray javaBytes) {
+static jlong NativeCrypto_d2i_PUBKEY(JNIEnv* env, jclass, jbyteArray javaBytes) {
     JNI_TRACE("d2i_PUBKEY(%p)", javaBytes);
 
     ScopedByteArrayRO bytes(env, javaBytes);
@@ -1319,13 +1319,13 @@ static jint NativeCrypto_d2i_PUBKEY(JNIEnv* env, jclass, jbyteArray javaBytes) {
         return 0;
     }
 
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
+    return reinterpret_cast<uintptr_t>(pkey.release());
 }
 
 /*
  * public static native int RSA_generate_key(int modulusBits, byte[] publicExponent);
  */
-static jint NativeCrypto_RSA_generate_key_ex(JNIEnv* env, jclass, jint modulusBits,
+static jlong NativeCrypto_RSA_generate_key_ex(JNIEnv* env, jclass, jint modulusBits,
         jbyteArray publicExponent) {
     JNI_TRACE("RSA_generate_key_ex(%d, %p)", modulusBits, publicExponent);
 
@@ -1359,10 +1359,10 @@ static jint NativeCrypto_RSA_generate_key_ex(JNIEnv* env, jclass, jint modulusBi
 
     OWNERSHIP_TRANSFERRED(rsa);
     JNI_TRACE("RSA_generate_key_ex(n=%d, e=%p) => %p", modulusBits, publicExponent, pkey.get());
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
+    return reinterpret_cast<uintptr_t>(pkey.release());
 }
 
-static jint NativeCrypto_RSA_size(JNIEnv* env, jclass, jint pkeyRef) {
+static jint NativeCrypto_RSA_size(JNIEnv* env, jclass, jlong pkeyRef) {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("RSA_size(%p)", pkey);
 
@@ -1380,7 +1380,7 @@ typedef int RSACryptOperation(int flen, const unsigned char* from, unsigned char
 
 static jint RSA_crypt_operation(RSACryptOperation operation,
         const char* caller __attribute__ ((unused)), JNIEnv* env, jint flen,
-        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jint pkeyRef, jint padding) {
+        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jlong pkeyRef, jint padding) {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("%s(%d, %p, %p, %p)", caller, flen, fromJavaBytes, toJavaBytes, pkey);
 
@@ -1414,22 +1414,22 @@ static jint RSA_crypt_operation(RSACryptOperation operation,
 }
 
 static jint NativeCrypto_RSA_private_encrypt(JNIEnv* env, jclass, jint flen,
-        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jint pkeyRef, jint padding) {
+        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jlong pkeyRef, jint padding) {
     return RSA_crypt_operation(RSA_private_encrypt, __FUNCTION__,
                                env, flen, fromJavaBytes, toJavaBytes, pkeyRef, padding);
 }
 static jint NativeCrypto_RSA_public_decrypt(JNIEnv* env, jclass, jint flen,
-        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jint pkeyRef, jint padding) {
+        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jlong pkeyRef, jint padding) {
     return RSA_crypt_operation(RSA_public_decrypt, __FUNCTION__,
                                env, flen, fromJavaBytes, toJavaBytes, pkeyRef, padding);
 }
 static jint NativeCrypto_RSA_public_encrypt(JNIEnv* env, jclass, jint flen,
-        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jint pkeyRef, jint padding) {
+        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jlong pkeyRef, jint padding) {
     return RSA_crypt_operation(RSA_public_encrypt, __FUNCTION__,
                                env, flen, fromJavaBytes, toJavaBytes, pkeyRef, padding);
 }
 static jint NativeCrypto_RSA_private_decrypt(JNIEnv* env, jclass, jint flen,
-        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jint pkeyRef, jint padding) {
+        jbyteArray fromJavaBytes, jbyteArray toJavaBytes, jlong pkeyRef, jint padding) {
     return RSA_crypt_operation(RSA_private_decrypt, __FUNCTION__,
                                env, flen, fromJavaBytes, toJavaBytes, pkeyRef, padding);
 }
@@ -1437,7 +1437,7 @@ static jint NativeCrypto_RSA_private_decrypt(JNIEnv* env, jclass, jint flen,
 /*
  * public static native byte[][] get_RSA_public_params(int);
  */
-static jobjectArray NativeCrypto_get_RSA_public_params(JNIEnv* env, jclass, jint pkeyRef) {
+static jobjectArray NativeCrypto_get_RSA_public_params(JNIEnv* env, jclass, jlong pkeyRef) {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("get_RSA_public_params(%p)", pkey);
 
@@ -1475,7 +1475,7 @@ static jobjectArray NativeCrypto_get_RSA_public_params(JNIEnv* env, jclass, jint
 /*
  * public static native byte[][] get_RSA_private_params(int);
  */
-static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jint pkeyRef) {
+static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jlong pkeyRef) {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("get_RSA_public_params(%p)", pkey);
 
@@ -1563,7 +1563,7 @@ static jobjectArray NativeCrypto_get_RSA_private_params(JNIEnv* env, jclass, jin
 /*
  * public static native int DSA_generate_key(int, byte[]);
  */
-static jint NativeCrypto_DSA_generate_key(JNIEnv* env, jclass, jint primeBits,
+static jlong NativeCrypto_DSA_generate_key(JNIEnv* env, jclass, jint primeBits,
         jbyteArray seedJavaBytes, jbyteArray gBytes, jbyteArray pBytes, jbyteArray qBytes) {
     JNI_TRACE("DSA_generate_key(%d, %p, %p, %p, %p)", primeBits, seedJavaBytes,
             gBytes, pBytes, qBytes);
@@ -1636,13 +1636,13 @@ static jint NativeCrypto_DSA_generate_key(JNIEnv* env, jclass, jint primeBits,
 
     OWNERSHIP_TRANSFERRED(dsa);
     JNI_TRACE("DSA_generate_key(n=%d, e=%p) => %p", primeBits, seedPtr.get(), pkey.get());
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
+    return reinterpret_cast<uintptr_t>(pkey.release());
 }
 
 /*
  * public static native byte[][] get_DSA_params(int);
  */
-static jobjectArray NativeCrypto_get_DSA_params(JNIEnv* env, jclass, jint pkeyRef) {
+static jobjectArray NativeCrypto_get_DSA_params(JNIEnv* env, jclass, jlong pkeyRef) {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("get_DSA_params(%p)", pkey);
 
@@ -1721,7 +1721,7 @@ static int get_EC_GROUP_type(const EC_GROUP* group)
     return 0;
 }
 
-static jint NativeCrypto_EC_GROUP_new_by_curve_name(JNIEnv* env, jclass, jstring curveNameJava)
+static jlong NativeCrypto_EC_GROUP_new_by_curve_name(JNIEnv* env, jclass, jstring curveNameJava)
 {
     JNI_TRACE("EC_GROUP_new_by_curve_name(%p)", curveNameJava);
 
@@ -1745,10 +1745,10 @@ static jint NativeCrypto_EC_GROUP_new_by_curve_name(JNIEnv* env, jclass, jstring
     }
 
     JNI_TRACE("EC_GROUP_new_by_curve_name(%s) => %p", curveName.c_str(), group);
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(group));
+    return reinterpret_cast<uintptr_t>(group);
 }
 
-static void NativeCrypto_EC_GROUP_set_asn1_flag(JNIEnv* env, jclass, jint groupRef,
+static void NativeCrypto_EC_GROUP_set_asn1_flag(JNIEnv* env, jclass, jlong groupRef,
         jint flag)
 {
     EC_GROUP* group = reinterpret_cast<EC_GROUP*>(groupRef);
@@ -1765,7 +1765,7 @@ static void NativeCrypto_EC_GROUP_set_asn1_flag(JNIEnv* env, jclass, jint groupR
 }
 
 static void NativeCrypto_EC_GROUP_set_point_conversion_form(JNIEnv* env, jclass,
-        jint groupRef, jint form)
+        jlong groupRef, jint form)
 {
     EC_GROUP* group = reinterpret_cast<EC_GROUP*>(groupRef);
     JNI_TRACE("EC_GROUP_set_point_conversion_form(%p, %d)", group, form);
@@ -1780,7 +1780,7 @@ static void NativeCrypto_EC_GROUP_set_point_conversion_form(JNIEnv* env, jclass,
     JNI_TRACE("EC_GROUP_set_point_conversion_form(%p, %d) => success", group, form);
 }
 
-static jint NativeCrypto_EC_GROUP_new_curve(JNIEnv* env, jclass, jint type, jbyteArray pJava,
+static jlong NativeCrypto_EC_GROUP_new_curve(JNIEnv* env, jclass, jint type, jbyteArray pJava,
         jbyteArray aJava, jbyteArray bJava)
 {
     JNI_TRACE("EC_GROUP_new_curve(%d, %p, %p, %p)", type, pJava, aJava, bJava);
@@ -1821,10 +1821,10 @@ static jint NativeCrypto_EC_GROUP_new_curve(JNIEnv* env, jclass, jint type, jbyt
     }
 
     JNI_TRACE("EC_GROUP_new_curve(%d, %p, %p, %p) => %p", type, pJava, aJava, bJava, group);
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(group));
+    return reinterpret_cast<uintptr_t>(group);
 }
 
-static jint NativeCrypto_EC_GROUP_dup(JNIEnv* env, jclass, jint groupRef) {
+static jlong NativeCrypto_EC_GROUP_dup(JNIEnv* env, jclass, jlong groupRef) {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     JNI_TRACE("EC_GROUP_dup(%p)", group);
 
@@ -1836,10 +1836,10 @@ static jint NativeCrypto_EC_GROUP_dup(JNIEnv* env, jclass, jint groupRef) {
 
      EC_GROUP* groupDup = EC_GROUP_dup(group);
      JNI_TRACE("EC_GROUP_dup(%p) => %p", group, groupDup);
-     return static_cast<jint>(reinterpret_cast<uintptr_t>(groupDup));
+     return reinterpret_cast<uintptr_t>(groupDup);
 }
 
-static jstring NativeCrypto_EC_GROUP_get_curve_name(JNIEnv* env, jclass, jint groupRef) {
+static jstring NativeCrypto_EC_GROUP_get_curve_name(JNIEnv* env, jclass, jlong groupRef) {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     JNI_TRACE("EC_GROUP_get_curve_name(%p)", group);
 
@@ -1860,7 +1860,7 @@ static jstring NativeCrypto_EC_GROUP_get_curve_name(JNIEnv* env, jclass, jint gr
     return env->NewStringUTF(shortName);
 }
 
-static jobjectArray NativeCrypto_EC_GROUP_get_curve(JNIEnv* env, jclass, jint groupRef)
+static jobjectArray NativeCrypto_EC_GROUP_get_curve(JNIEnv* env, jclass, jlong groupRef)
 {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     JNI_TRACE("EC_GROUP_get_curve(%p)", group);
@@ -1913,7 +1913,7 @@ static jobjectArray NativeCrypto_EC_GROUP_get_curve(JNIEnv* env, jclass, jint gr
     return joa;
 }
 
-static jbyteArray NativeCrypto_EC_GROUP_get_order(JNIEnv* env, jclass, jint groupRef)
+static jbyteArray NativeCrypto_EC_GROUP_get_order(JNIEnv* env, jclass, jlong groupRef)
 {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     JNI_TRACE("EC_GROUP_get_order(%p)", group);
@@ -1940,7 +1940,7 @@ static jbyteArray NativeCrypto_EC_GROUP_get_order(JNIEnv* env, jclass, jint grou
     return orderArray;
 }
 
-static jbyteArray NativeCrypto_EC_GROUP_get_cofactor(JNIEnv* env, jclass, jint groupRef)
+static jbyteArray NativeCrypto_EC_GROUP_get_cofactor(JNIEnv* env, jclass, jlong groupRef)
 {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     JNI_TRACE("EC_GROUP_get_cofactor(%p)", group);
@@ -1967,7 +1967,7 @@ static jbyteArray NativeCrypto_EC_GROUP_get_cofactor(JNIEnv* env, jclass, jint g
     return cofactorArray;
 }
 
-static jint NativeCrypto_get_EC_GROUP_type(JNIEnv* env, jclass, jint groupRef)
+static jint NativeCrypto_get_EC_GROUP_type(JNIEnv* env, jclass, jlong groupRef)
 {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     JNI_TRACE("get_EC_GROUP_type(%p)", group);
@@ -1982,7 +1982,7 @@ static jint NativeCrypto_get_EC_GROUP_type(JNIEnv* env, jclass, jint groupRef)
     return type;
 }
 
-static void NativeCrypto_EC_GROUP_clear_free(JNIEnv* env, jclass, jint groupRef)
+static void NativeCrypto_EC_GROUP_clear_free(JNIEnv* env, jclass, jlong groupRef)
 {
     EC_GROUP* group = reinterpret_cast<EC_GROUP*>(groupRef);
     JNI_TRACE("EC_GROUP_clear_free(%p)", group);
@@ -1997,7 +1997,7 @@ static void NativeCrypto_EC_GROUP_clear_free(JNIEnv* env, jclass, jint groupRef)
     JNI_TRACE("EC_GROUP_clear_free(%p) => success", group);
 }
 
-static jboolean NativeCrypto_EC_GROUP_cmp(JNIEnv* env, jclass, jint group1Ref, jint group2Ref)
+static jboolean NativeCrypto_EC_GROUP_cmp(JNIEnv* env, jclass, jlong group1Ref, jlong group2Ref)
 {
     const EC_GROUP* group1 = reinterpret_cast<const EC_GROUP*>(group1Ref);
     const EC_GROUP* group2 = reinterpret_cast<const EC_GROUP*>(group2Ref);
@@ -2015,7 +2015,7 @@ static jboolean NativeCrypto_EC_GROUP_cmp(JNIEnv* env, jclass, jint group1Ref, j
     return ret == 0;
 }
 
-static void NativeCrypto_EC_GROUP_set_generator(JNIEnv* env, jclass, jint groupRef, jint pointRef, jbyteArray njavaBytes, jbyteArray hjavaBytes)
+static void NativeCrypto_EC_GROUP_set_generator(JNIEnv* env, jclass, jlong groupRef, jlong pointRef, jbyteArray njavaBytes, jbyteArray hjavaBytes)
 {
     EC_GROUP* group = reinterpret_cast<EC_GROUP*>(groupRef);
     const EC_POINT* point = reinterpret_cast<const EC_POINT*>(pointRef);
@@ -2048,7 +2048,7 @@ static void NativeCrypto_EC_GROUP_set_generator(JNIEnv* env, jclass, jint groupR
     JNI_TRACE("EC_GROUP_set_generator(%p, %p, %p, %p) => %d", group, point, njavaBytes, hjavaBytes, ret);
 }
 
-static jint NativeCrypto_EC_GROUP_get_generator(JNIEnv* env, jclass, jint groupRef)
+static jlong NativeCrypto_EC_GROUP_get_generator(JNIEnv* env, jclass, jlong groupRef)
 {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     JNI_TRACE("EC_GROUP_get_generator(%p)", group);
@@ -2069,10 +2069,10 @@ static jint NativeCrypto_EC_GROUP_get_generator(JNIEnv* env, jclass, jint groupR
     }
 
     JNI_TRACE("EC_GROUP_get_generator(%p) => %p", group, dup.get());
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(dup.release()));
+    return reinterpret_cast<uintptr_t>(dup.release());
 }
 
-static jint NativeCrypto_EC_POINT_new(JNIEnv* env, jclass, jint groupRef)
+static jlong NativeCrypto_EC_POINT_new(JNIEnv* env, jclass, jlong groupRef)
 {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     JNI_TRACE("EC_POINT_new(%p)", group);
@@ -2089,10 +2089,10 @@ static jint NativeCrypto_EC_POINT_new(JNIEnv* env, jclass, jint groupRef)
         return 0;
     }
 
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(point));
+    return reinterpret_cast<uintptr_t>(point);
 }
 
-static void NativeCrypto_EC_POINT_clear_free(JNIEnv* env, jclass, jint groupRef) {
+static void NativeCrypto_EC_POINT_clear_free(JNIEnv* env, jclass, jlong groupRef) {
     EC_POINT* group = reinterpret_cast<EC_POINT*>(groupRef);
     JNI_TRACE("EC_POINT_clear_free(%p)", group);
 
@@ -2106,8 +2106,7 @@ static void NativeCrypto_EC_POINT_clear_free(JNIEnv* env, jclass, jint groupRef)
     JNI_TRACE("EC_POINT_clear_free(%p) => success", group);
 }
 
-static jboolean NativeCrypto_EC_POINT_cmp(JNIEnv* env, jclass, jint groupRef, jint point1Ref,
-        jint point2Ref)
+static jboolean NativeCrypto_EC_POINT_cmp(JNIEnv* env, jclass, jlong groupRef, jlong point1Ref, jlong point2Ref)
 {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     const EC_POINT* point1 = reinterpret_cast<const EC_POINT*>(point1Ref);
@@ -2128,7 +2127,7 @@ static jboolean NativeCrypto_EC_POINT_cmp(JNIEnv* env, jclass, jint groupRef, ji
 }
 
 static void NativeCrypto_EC_POINT_set_affine_coordinates(JNIEnv* env, jclass,
-        jint groupRef, jint pointRef, jbyteArray xjavaBytes, jbyteArray yjavaBytes)
+        jlong groupRef, jlong pointRef, jbyteArray xjavaBytes, jbyteArray yjavaBytes)
 {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     EC_POINT* point = reinterpret_cast<EC_POINT*>(pointRef);
@@ -2175,8 +2174,8 @@ static void NativeCrypto_EC_POINT_set_affine_coordinates(JNIEnv* env, jclass,
             xjavaBytes, yjavaBytes, ret);
 }
 
-static jobjectArray NativeCrypto_EC_POINT_get_affine_coordinates(JNIEnv* env, jclass, jint groupRef,
-        jint pointRef)
+static jobjectArray NativeCrypto_EC_POINT_get_affine_coordinates(JNIEnv* env, jclass, jlong groupRef,
+        jlong pointRef)
 {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     const EC_POINT* point = reinterpret_cast<const EC_POINT*>(pointRef);
@@ -2224,7 +2223,7 @@ static jobjectArray NativeCrypto_EC_POINT_get_affine_coordinates(JNIEnv* env, jc
     return joa;
 }
 
-static jint NativeCrypto_EC_KEY_generate_key(JNIEnv* env, jclass, jint groupRef)
+static jlong NativeCrypto_EC_KEY_generate_key(JNIEnv* env, jclass, jlong groupRef)
 {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
     JNI_TRACE("EC_KEY_generate_key(%p)", group);
@@ -2261,10 +2260,10 @@ static jint NativeCrypto_EC_KEY_generate_key(JNIEnv* env, jclass, jint groupRef)
     OWNERSHIP_TRANSFERRED(eckey);
 
     JNI_TRACE("EC_KEY_generate_key(%p) => %p", group, pkey.get());
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(pkey.release()));
+    return reinterpret_cast<uintptr_t>(pkey.release());
 }
 
-static jint NativeCrypto_EC_KEY_get0_group(JNIEnv* env, jclass, jint pkeyRef)
+static jlong NativeCrypto_EC_KEY_get0_group(JNIEnv* env, jclass, jlong pkeyRef)
 {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("EC_KEY_get0_group(%p)", pkey);
@@ -2284,10 +2283,10 @@ static jint NativeCrypto_EC_KEY_get0_group(JNIEnv* env, jclass, jint pkeyRef)
 
     const EC_GROUP* group = EC_KEY_get0_group(pkey->pkey.ec);
     JNI_TRACE("EC_KEY_get0_group(%p) => %p", pkey, group);
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(group));
+    return reinterpret_cast<uintptr_t>(group);
 }
 
-static jbyteArray NativeCrypto_EC_KEY_get_private_key(JNIEnv* env, jclass, jint pkeyRef)
+static jbyteArray NativeCrypto_EC_KEY_get_private_key(JNIEnv* env, jclass, jlong pkeyRef)
 {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("EC_KEY_get_private_key(%p)", pkey);
@@ -2310,7 +2309,7 @@ static jbyteArray NativeCrypto_EC_KEY_get_private_key(JNIEnv* env, jclass, jint 
     return privBytes;
 }
 
-static jint NativeCrypto_EC_KEY_get_public_key(JNIEnv* env, jclass, jint pkeyRef)
+static jlong NativeCrypto_EC_KEY_get_public_key(JNIEnv* env, jclass, jlong pkeyRef)
 {
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("EC_KEY_get_public_key(%p)", pkey);
@@ -2330,10 +2329,10 @@ static jint NativeCrypto_EC_KEY_get_public_key(JNIEnv* env, jclass, jint pkeyRef
     }
 
     JNI_TRACE("EC_KEY_get_public_key(%p) => %p", pkey, dup.get());
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(dup.release()));
+    return reinterpret_cast<uintptr_t>(dup.release());
 }
 
-static jint NativeCrypto_EVP_MD_CTX_create(JNIEnv* env, jclass) {
+static jlong NativeCrypto_EVP_MD_CTX_create(JNIEnv* env, jclass) {
     JNI_TRACE("EVP_MD_CTX_create()");
 
     Unique_EVP_MD_CTX ctx(EVP_MD_CTX_create());
@@ -2343,10 +2342,10 @@ static jint NativeCrypto_EVP_MD_CTX_create(JNIEnv* env, jclass) {
     }
 
     JNI_TRACE("EVP_MD_CTX_create() => %p", ctx.get());
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(ctx.release()));
+    return reinterpret_cast<uintptr_t>(ctx.release());
 }
 
-static void NativeCrypto_EVP_MD_CTX_init(JNIEnv*, jclass, jint ctxRef) {
+static void NativeCrypto_EVP_MD_CTX_init(JNIEnv*, jclass, jlong ctxRef) {
     EVP_MD_CTX* ctx = reinterpret_cast<EVP_MD_CTX*>(ctxRef);
     JNI_TRACE("NativeCrypto_EVP_MD_CTX_init(%p)", ctx);
 
@@ -2355,7 +2354,7 @@ static void NativeCrypto_EVP_MD_CTX_init(JNIEnv*, jclass, jint ctxRef) {
     }
 }
 
-static void NativeCrypto_EVP_MD_CTX_destroy(JNIEnv*, jclass, jint ctxRef) {
+static void NativeCrypto_EVP_MD_CTX_destroy(JNIEnv*, jclass, jlong ctxRef) {
     EVP_MD_CTX* ctx = reinterpret_cast<EVP_MD_CTX*>(ctxRef);
     JNI_TRACE("NativeCrypto_EVP_MD_CTX_destroy(%p)", ctx);
 
@@ -2364,7 +2363,7 @@ static void NativeCrypto_EVP_MD_CTX_destroy(JNIEnv*, jclass, jint ctxRef) {
     }
 }
 
-static jint NativeCrypto_EVP_MD_CTX_copy(JNIEnv* env, jclass, jint ctxRef) {
+static jlong NativeCrypto_EVP_MD_CTX_copy(JNIEnv* env, jclass, jlong ctxRef) {
     EVP_MD_CTX* ctx = reinterpret_cast<EVP_MD_CTX*>(ctxRef);
     JNI_TRACE("NativeCrypto_EVP_MD_CTX_copy(%p)", ctx);
 
@@ -2389,13 +2388,13 @@ static jint NativeCrypto_EVP_MD_CTX_copy(JNIEnv* env, jclass, jint ctxRef) {
     }
 
     JNI_TRACE("NativeCrypto_EVP_MD_CTX_copy(%p) => %p", ctx, copy);
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(copy));
+    return reinterpret_cast<uintptr_t>(copy);
 }
 
 /*
  * public static native int EVP_DigestFinal(int, byte[], int)
  */
-static jint NativeCrypto_EVP_DigestFinal(JNIEnv* env, jclass, jint ctxRef,
+static jint NativeCrypto_EVP_DigestFinal(JNIEnv* env, jclass, jlong ctxRef,
                                          jbyteArray hash, jint offset) {
     EVP_MD_CTX* ctx = reinterpret_cast<EVP_MD_CTX*>(ctxRef);
     JNI_TRACE("NativeCrypto_EVP_DigestFinal(%p, %p, %d)", ctx, hash, offset);
@@ -2425,7 +2424,7 @@ static jint NativeCrypto_EVP_DigestFinal(JNIEnv* env, jclass, jint ctxRef,
 /*
  * public static native int EVP_DigestInit(int)
  */
-static jint NativeCrypto_EVP_DigestInit(JNIEnv* env, jclass, jint evpMdRef) {
+static jlong NativeCrypto_EVP_DigestInit(JNIEnv* env, jclass, jlong evpMdRef) {
     EVP_MD* evp_md = reinterpret_cast<EVP_MD*>(evpMdRef);
     JNI_TRACE("NativeCrypto_EVP_DigestInit(%p)", evp_md);
 
@@ -2448,13 +2447,13 @@ static jint NativeCrypto_EVP_DigestInit(JNIEnv* env, jclass, jint evpMdRef) {
             return 0;
         }
     }
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(ctx.release()));
+    return reinterpret_cast<uintptr_t>(ctx.release());
 }
 
 /*
  * public static native int EVP_get_digestbyname(java.lang.String)
  */
-static jint NativeCrypto_EVP_get_digestbyname(JNIEnv* env, jclass, jstring algorithm) {
+static jlong NativeCrypto_EVP_get_digestbyname(JNIEnv* env, jclass, jstring algorithm) {
     JNI_TRACE("NativeCrypto_EVP_get_digestbyname(%p)", algorithm);
 
     if (algorithm == NULL) {
@@ -2475,13 +2474,14 @@ static jint NativeCrypto_EVP_get_digestbyname(JNIEnv* env, jclass, jstring algor
     }
 
     JNI_TRACE("NativeCrypto_EVP_get_digestbyname(%s) => %p", algorithmChars.c_str(), evp_md);
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(evp_md));
+    return reinterpret_cast<uintptr_t>(evp_md);
 }
 
 /*
  * public static native int EVP_MD_size(int)
  */
-static jint NativeCrypto_EVP_MD_size(JNIEnv* env, jclass, EVP_MD* evp_md) {
+static jint NativeCrypto_EVP_MD_size(JNIEnv* env, jclass, jint evpMdRef) {
+    EVP_MD* evp_md = reinterpret_cast<EVP_MD*>(evpMdRef);
     JNI_TRACE("NativeCrypto_EVP_MD_size(%p)", evp_md);
 
     if (evp_md == NULL) {
@@ -2497,7 +2497,8 @@ static jint NativeCrypto_EVP_MD_size(JNIEnv* env, jclass, EVP_MD* evp_md) {
 /*
  * public static int void EVP_MD_block_size(int)
  */
-static jint NativeCrypto_EVP_MD_block_size(JNIEnv* env, jclass, EVP_MD* evp_md) {
+static jint NativeCrypto_EVP_MD_block_size(JNIEnv* env, jclass, jlong evpMdRef) {
+    EVP_MD* evp_md = reinterpret_cast<EVP_MD*>(evpMdRef);
     JNI_TRACE("NativeCrypto_EVP_MD_block_size(%p)", evp_md);
 
     if (evp_md == NULL) {
@@ -2513,7 +2514,7 @@ static jint NativeCrypto_EVP_MD_block_size(JNIEnv* env, jclass, EVP_MD* evp_md) 
 /*
  * public static native void EVP_DigestUpdate(int, byte[], int, int)
  */
-static void NativeCrypto_EVP_DigestUpdate(JNIEnv* env, jclass, jint ctxRef,
+static void NativeCrypto_EVP_DigestUpdate(JNIEnv* env, jclass, jlong ctxRef,
                                           jbyteArray buffer, jint offset, jint length) {
     EVP_MD_CTX* ctx = reinterpret_cast<EVP_MD_CTX*>(ctxRef);
     JNI_TRACE("NativeCrypto_EVP_DigestUpdate(%p, %p, %d, %d)", ctx, buffer, offset, length);
@@ -2541,7 +2542,7 @@ static void NativeCrypto_EVP_DigestUpdate(JNIEnv* env, jclass, jint ctxRef,
 }
 
 static void NativeCrypto_EVP_DigestSignInit(JNIEnv* env, jclass, jint evpMdCtxRef,
-        const jint evpMdRef, jint pkeyRef)
+        const jlong evpMdRef, jlong pkeyRef)
 {
     EVP_MD_CTX* mdCtx = reinterpret_cast<EVP_MD_CTX*>(evpMdCtxRef);
     const EVP_MD* md = reinterpret_cast<const EVP_MD*>(evpMdRef);
@@ -2609,7 +2610,7 @@ static void NativeCrypto_EVP_DigestSignUpdate(JNIEnv* env, jclass, jint evpMdCtx
             inLength);
 }
 
-static jbyteArray NativeCrypto_EVP_DigestSignFinal(JNIEnv* env, jclass, jint evpMdCtxRef)
+static jbyteArray NativeCrypto_EVP_DigestSignFinal(JNIEnv* env, jclass, jlong evpMdCtxRef)
 {
     EVP_MD_CTX* mdCtx = reinterpret_cast<EVP_MD_CTX*>(evpMdCtxRef);
     JNI_TRACE("EVP_DigestSignFinal(%p)", mdCtx);
@@ -2645,7 +2646,7 @@ static jbyteArray NativeCrypto_EVP_DigestSignFinal(JNIEnv* env, jclass, jint evp
     return outJavaBytes.release();
 }
 
-static jint NativeCrypto_EVP_SignInit(JNIEnv* env, jclass, jstring algorithm) {
+static jlong NativeCrypto_EVP_SignInit(JNIEnv* env, jclass, jstring algorithm) {
     JNI_TRACE("NativeCrypto_EVP_SignInit(%p)", algorithm);
 
     if (algorithm == NULL) {
@@ -2683,13 +2684,13 @@ static jint NativeCrypto_EVP_SignInit(JNIEnv* env, jclass, jstring algorithm) {
     }
 
     JNI_TRACE("NativeCrypto_EVP_SignInit(%s) => %p", algorithmChars.c_str(), ctx.get());
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(ctx.release()));
+    return reinterpret_cast<uintptr_t>(ctx.release());
 }
 
 /*
  * public static native void EVP_SignUpdate(int, byte[], int, int)
  */
-static void NativeCrypto_EVP_SignUpdate(JNIEnv* env, jclass, jint ctxRef,
+static void NativeCrypto_EVP_SignUpdate(JNIEnv* env, jclass, jlong ctxRef,
                                           jbyteArray buffer, jint offset, jint length) {
     EVP_MD_CTX* ctx = reinterpret_cast<EVP_MD_CTX*>(ctxRef);
     JNI_TRACE("NativeCrypto_EVP_SignUpdate(%p, %p, %d, %d)", ctx, buffer, offset, length);
@@ -2714,8 +2715,8 @@ static void NativeCrypto_EVP_SignUpdate(JNIEnv* env, jclass, jint ctxRef,
 /*
  * public static native int EVP_SignFinal(int, byte[], int, int)
  */
-static jint NativeCrypto_EVP_SignFinal(JNIEnv* env, jclass, jint ctxRef, jbyteArray signature,
-        jint offset, jint pkeyRef) {
+static jint NativeCrypto_EVP_SignFinal(JNIEnv* env, jclass, jlong ctxRef, jbyteArray signature,
+        jint offset, jlong pkeyRef) {
     EVP_MD_CTX* ctx = reinterpret_cast<EVP_MD_CTX*>(ctxRef);
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("NativeCrypto_EVP_SignFinal(%p, %p, %d, %p)", ctx, signature, offset, pkey);
@@ -2746,7 +2747,7 @@ static jint NativeCrypto_EVP_SignFinal(JNIEnv* env, jclass, jint ctxRef, jbyteAr
 /*
  * public static native int EVP_VerifyInit(java.lang.String)
  */
-static jint NativeCrypto_EVP_VerifyInit(JNIEnv* env, jclass, jstring algorithm) {
+static jlong NativeCrypto_EVP_VerifyInit(JNIEnv* env, jclass, jstring algorithm) {
     JNI_TRACE("NativeCrypto_EVP_VerifyInit(%p)", algorithm);
 
     if (algorithm == NULL) {
@@ -2780,13 +2781,13 @@ static jint NativeCrypto_EVP_VerifyInit(JNIEnv* env, jclass, jstring algorithm) 
             return 0;
         }
     }
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(ctx.release()));
+    return reinterpret_cast<uintptr_t>(ctx.release());
 }
 
 /*
  * public static native void EVP_VerifyUpdate(int, byte[], int, int)
  */
-static void NativeCrypto_EVP_VerifyUpdate(JNIEnv* env, jclass, jint ctxRef,
+static void NativeCrypto_EVP_VerifyUpdate(JNIEnv* env, jclass, jlong ctxRef,
                                           jbyteArray buffer, jint offset, jint length) {
     EVP_MD_CTX* ctx = reinterpret_cast<EVP_MD_CTX*>(ctxRef);
     JNI_TRACE("NativeCrypto_EVP_VerifyUpdate(%p, %p, %d, %d)", ctx, buffer, offset, length);
@@ -2811,8 +2812,8 @@ static void NativeCrypto_EVP_VerifyUpdate(JNIEnv* env, jclass, jint ctxRef,
 /*
  * public static native int EVP_VerifyFinal(int, byte[], int, int, int)
  */
-static jint NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass, jint ctxRef, jbyteArray buffer,
-                                        jint offset, jint length, jint pkeyRef) {
+static jint NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass, jlong ctxRef, jbyteArray buffer,
+                                        jint offset, jint length, jlong pkeyRef) {
     EVP_MD_CTX* ctx = reinterpret_cast<EVP_MD_CTX*>(ctxRef);
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("NativeCrypto_EVP_VerifyFinal(%p, %p, %d, %d, %p)",
@@ -2847,7 +2848,7 @@ static jint NativeCrypto_EVP_VerifyFinal(JNIEnv* env, jclass, jint ctxRef, jbyte
     return ok;
 }
 
-static jint NativeCrypto_EVP_get_cipherbyname(JNIEnv* env, jclass, jstring algorithm) {
+static jlong NativeCrypto_EVP_get_cipherbyname(JNIEnv* env, jclass, jstring algorithm) {
     JNI_TRACE("EVP_get_cipherbyname(%p)", algorithm);
     if (algorithm == NULL) {
         JNI_TRACE("EVP_get_cipherbyname(%p) => threw exception algorithm == null", algorithm);
@@ -2867,10 +2868,10 @@ static jint NativeCrypto_EVP_get_cipherbyname(JNIEnv* env, jclass, jstring algor
     }
 
     JNI_TRACE("EVP_get_cipherbyname(%s) => %p", algorithmChars.c_str(), evp_cipher);
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(evp_cipher));
+    return reinterpret_cast<uintptr_t>(evp_cipher);
 }
 
-static void NativeCrypto_EVP_CipherInit_ex(JNIEnv* env, jclass, jint ctxRef, jint evpCipherRef,
+static void NativeCrypto_EVP_CipherInit_ex(JNIEnv* env, jclass, jlong ctxRef, jlong evpCipherRef,
         jbyteArray keyArray, jbyteArray ivArray, jboolean encrypting) {
     EVP_CIPHER_CTX* ctx = reinterpret_cast<EVP_CIPHER_CTX*>(ctxRef);
     const EVP_CIPHER* evpCipher = reinterpret_cast<const EVP_CIPHER*>(evpCipherRef);
@@ -2921,7 +2922,7 @@ static void NativeCrypto_EVP_CipherInit_ex(JNIEnv* env, jclass, jint ctxRef, jin
  *  public static native int EVP_CipherUpdate(int ctx, byte[] out, int outOffset, byte[] in,
  *          int inOffset);
  */
-static jint NativeCrypto_EVP_CipherUpdate(JNIEnv* env, jclass, jint ctxRef, jbyteArray outArray,
+static jint NativeCrypto_EVP_CipherUpdate(JNIEnv* env, jclass, jlong ctxRef, jbyteArray outArray,
         jint outOffset, jbyteArray inArray, jint inOffset, jint inLength) {
     EVP_CIPHER_CTX* ctx = reinterpret_cast<EVP_CIPHER_CTX*>(ctxRef);
     JNI_TRACE("EVP_CipherUpdate(%p, %p, %d, %p, %d)", ctx, outArray, outOffset, inArray, inOffset);
@@ -2972,7 +2973,7 @@ static jint NativeCrypto_EVP_CipherUpdate(JNIEnv* env, jclass, jint ctxRef, jbyt
     return outl;
 }
 
-static jint NativeCrypto_EVP_CipherFinal_ex(JNIEnv* env, jclass, jint ctxRef, jbyteArray outArray,
+static jint NativeCrypto_EVP_CipherFinal_ex(JNIEnv* env, jclass, jlong ctxRef, jbyteArray outArray,
         jint outOffset) {
     EVP_CIPHER_CTX* ctx = reinterpret_cast<EVP_CIPHER_CTX*>(ctxRef);
     JNI_TRACE("EVP_CipherFinal_ex(%p, %p, %d)", ctx, outArray, outOffset);
@@ -3016,7 +3017,7 @@ static jint NativeCrypto_EVP_CIPHER_iv_length(JNIEnv* env, jclass, jint evpCiphe
     return ivLength;
 }
 
-static jint NativeCrypto_EVP_CIPHER_CTX_new(JNIEnv* env, jclass) {
+static jlong NativeCrypto_EVP_CIPHER_CTX_new(JNIEnv* env, jclass) {
     JNI_TRACE("EVP_CIPHER_CTX_new()");
 
     Unique_EVP_CIPHER_CTX ctx(EVP_CIPHER_CTX_new());
@@ -3027,10 +3028,10 @@ static jint NativeCrypto_EVP_CIPHER_CTX_new(JNIEnv* env, jclass) {
     }
 
     JNI_TRACE("EVP_CIPHER_CTX_new() => %p", ctx.get());
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(ctx.release()));
+    return reinterpret_cast<uintptr_t>(ctx.release());
 }
 
-static jint NativeCrypto_EVP_CIPHER_CTX_block_size(JNIEnv* env, jclass, jint ctxRef) {
+static jint NativeCrypto_EVP_CIPHER_CTX_block_size(JNIEnv* env, jclass, jlong ctxRef) {
     EVP_CIPHER_CTX* ctx = reinterpret_cast<EVP_CIPHER_CTX*>(ctxRef);
     JNI_TRACE("EVP_CIPHER_CTX_block_size(%p)", ctx);
 
@@ -3045,7 +3046,7 @@ static jint NativeCrypto_EVP_CIPHER_CTX_block_size(JNIEnv* env, jclass, jint ctx
     return blockSize;
 }
 
-static jint NativeCrypto_get_EVP_CIPHER_CTX_buf_len(JNIEnv* env, jclass, jint ctxRef) {
+static jint NativeCrypto_get_EVP_CIPHER_CTX_buf_len(JNIEnv* env, jclass, jlong ctxRef) {
     EVP_CIPHER_CTX* ctx = reinterpret_cast<EVP_CIPHER_CTX*>(ctxRef);
     JNI_TRACE("get_EVP_CIPHER_CTX_buf_len(%p)", ctx);
 
@@ -3060,7 +3061,7 @@ static jint NativeCrypto_get_EVP_CIPHER_CTX_buf_len(JNIEnv* env, jclass, jint ct
     return buf_len;
 }
 
-static void NativeCrypto_EVP_CIPHER_CTX_set_padding(JNIEnv* env, jclass, jint ctxRef, jboolean enablePaddingBool) {
+static void NativeCrypto_EVP_CIPHER_CTX_set_padding(JNIEnv* env, jclass, jlong ctxRef, jboolean enablePaddingBool) {
     EVP_CIPHER_CTX* ctx = reinterpret_cast<EVP_CIPHER_CTX*>(ctxRef);
     jint enablePadding = enablePaddingBool ? 1 : 0;
     JNI_TRACE("EVP_CIPHER_CTX_set_padding(%p, %d)", ctx, enablePadding);
@@ -3075,7 +3076,7 @@ static void NativeCrypto_EVP_CIPHER_CTX_set_padding(JNIEnv* env, jclass, jint ct
     JNI_TRACE("EVP_CIPHER_CTX_set_padding(%p, %d) => success", ctx, enablePadding);
 }
 
-static void NativeCrypto_EVP_CIPHER_CTX_set_key_length(JNIEnv* env, jclass, jint ctxRef,
+static void NativeCrypto_EVP_CIPHER_CTX_set_key_length(JNIEnv* env, jclass, jlong ctxRef,
         jint keySizeBits) {
     EVP_CIPHER_CTX* ctx = reinterpret_cast<EVP_CIPHER_CTX*>(ctxRef);
     JNI_TRACE("EVP_CIPHER_CTX_set_key_length(%p, %d)", ctx, keySizeBits);
@@ -3090,7 +3091,7 @@ static void NativeCrypto_EVP_CIPHER_CTX_set_key_length(JNIEnv* env, jclass, jint
     JNI_TRACE("EVP_CIPHER_CTX_set_key_length(%p, %d) => success", ctx, keySizeBits);
 }
 
-static void NativeCrypto_EVP_CIPHER_CTX_cleanup(JNIEnv*, jclass, jint ctxRef) {
+static void NativeCrypto_EVP_CIPHER_CTX_cleanup(JNIEnv*, jclass, jlong ctxRef) {
     EVP_CIPHER_CTX* ctx = reinterpret_cast<EVP_CIPHER_CTX*>(ctxRef);
     JNI_TRACE("EVP_CIPHER_CTX_cleanup(%p)", ctx);
 
@@ -3927,7 +3928,7 @@ static EC_KEY* tmp_ecdh_callback(SSL* ssl __attribute__ ((unused)),
 /*
  * public static native int SSL_CTX_new();
  */
-static int NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
+static jlong NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
     Unique_SSL_CTX sslCtx(SSL_CTX_new(SSLv23_method()));
     if (sslCtx.get() == NULL) {
         jniThrowRuntimeException(env, "SSL_CTX_new");
@@ -3971,14 +3972,14 @@ static int NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
     SSL_CTX_set_tmp_ecdh_callback(sslCtx.get(), tmp_ecdh_callback);
 
     JNI_TRACE("NativeCrypto_SSL_CTX_new => %p", sslCtx.get());
-    return (jint) sslCtx.release();
+    return (jlong) sslCtx.release();
 }
 
 /**
  * public static native void SSL_CTX_free(int ssl_ctx)
  */
 static void NativeCrypto_SSL_CTX_free(JNIEnv* env,
-        jclass, jint ssl_ctx_address)
+        jclass, jlong ssl_ctx_address)
 {
     SSL_CTX* ssl_ctx = to_SSL_CTX(env, ssl_ctx_address, true);
     JNI_TRACE("ssl_ctx=%p NativeCrypto_SSL_CTX_free", ssl_ctx);
@@ -3989,7 +3990,7 @@ static void NativeCrypto_SSL_CTX_free(JNIEnv* env,
 }
 
 static void NativeCrypto_SSL_CTX_set_session_id_context(JNIEnv* env, jclass,
-                                                        jint ssl_ctx_address, jbyteArray sid_ctx)
+                                                        jlong ssl_ctx_address, jbyteArray sid_ctx)
 {
     SSL_CTX* ssl_ctx = to_SSL_CTX(env, ssl_ctx_address, true);
     JNI_TRACE("ssl_ctx=%p NativeCrypto_SSL_CTX_set_session_id_context sid_ctx=%p", ssl_ctx, sid_ctx);
@@ -4022,7 +4023,7 @@ static void NativeCrypto_SSL_CTX_set_session_id_context(JNIEnv* env, jclass,
 /**
  * public static native int SSL_new(int ssl_ctx) throws SSLException;
  */
-static jint NativeCrypto_SSL_new(JNIEnv* env, jclass, jint ssl_ctx_address)
+static jlong NativeCrypto_SSL_new(JNIEnv* env, jclass, jlong ssl_ctx_address)
 {
     SSL_CTX* ssl_ctx = to_SSL_CTX(env, ssl_ctx_address, true);
     JNI_TRACE("ssl_ctx=%p NativeCrypto_SSL_new", ssl_ctx);
@@ -4048,11 +4049,11 @@ static jint NativeCrypto_SSL_new(JNIEnv* env, jclass, jint ssl_ctx_address)
     SSL_set_verify(ssl.get(), SSL_VERIFY_NONE, NULL);
 
     JNI_TRACE("ssl_ctx=%p NativeCrypto_SSL_new => ssl=%p", ssl_ctx, ssl.get());
-    return (jint) ssl.release();
+    return (jlong) ssl.release();
 }
 
 
-static void NativeCrypto_SSL_enable_tls_channel_id(JNIEnv* env, jclass, jint ssl_address)
+static void NativeCrypto_SSL_enable_tls_channel_id(JNIEnv* env, jclass, jlong ssl_address)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_NativeCrypto_SSL_enable_tls_channel_id", ssl);
@@ -4070,7 +4071,7 @@ static void NativeCrypto_SSL_enable_tls_channel_id(JNIEnv* env, jclass, jint ssl
     }
 }
 
-static jbyteArray NativeCrypto_SSL_get_tls_channel_id(JNIEnv* env, jclass, jint ssl_address)
+static jbyteArray NativeCrypto_SSL_get_tls_channel_id(JNIEnv* env, jclass, jlong ssl_address)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_NativeCrypto_SSL_get_tls_channel_id", ssl);
@@ -4109,7 +4110,7 @@ static jbyteArray NativeCrypto_SSL_get_tls_channel_id(JNIEnv* env, jclass, jint 
 }
 
 static void NativeCrypto_SSL_use_OpenSSL_PrivateKey_for_tls_channel_id(
-        JNIEnv* env, jclass, jint ssl_address, jint pkeyRef)
+        JNIEnv* env, jclass, jlong ssl_address, jlong pkeyRef)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
@@ -4146,7 +4147,7 @@ static void NativeCrypto_SSL_use_OpenSSL_PrivateKey_for_tls_channel_id(
 }
 
 static void NativeCrypto_SSL_use_PKCS8_PrivateKey_for_tls_channel_id(
-        JNIEnv* env, jclass, jint ssl_address, jbyteArray privatekey)
+        JNIEnv* env, jclass, jlong ssl_address, jbyteArray privatekey)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey_for_tls_channel_id privatekey=%p", ssl,
@@ -4205,7 +4206,7 @@ static void NativeCrypto_SSL_use_PKCS8_PrivateKey_for_tls_channel_id(
     JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey_for_tls_channel_id => ok", ssl);
 }
 
-static void NativeCrypto_SSL_use_OpenSSL_PrivateKey(JNIEnv* env, jclass, jint ssl_address, jint pkeyRef) {
+static void NativeCrypto_SSL_use_OpenSSL_PrivateKey(JNIEnv* env, jclass, jlong ssl_address, jlong pkeyRef) {
     SSL* ssl = to_SSL(env, ssl_address, true);
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
     JNI_TRACE("ssl=%p SSL_use_OpenSSL_PrivateKey privatekey=%p", ssl, pkey);
@@ -4234,7 +4235,7 @@ static void NativeCrypto_SSL_use_OpenSSL_PrivateKey(JNIEnv* env, jclass, jint ss
 }
 
 static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
-                                            jint ssl_address, jbyteArray privatekey)
+                                            jlong ssl_address, jbyteArray privatekey)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_use_PrivateKey privatekey=%p", ssl, privatekey);
@@ -4285,7 +4286,7 @@ static void NativeCrypto_SSL_use_PrivateKey(JNIEnv* env, jclass,
 }
 
 static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
-                                             jint ssl_address, jobjectArray certificates)
+                                             jlong ssl_address, jobjectArray certificates)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate certificates=%p", ssl, certificates);
@@ -4370,7 +4371,7 @@ static void NativeCrypto_SSL_use_certificate(JNIEnv* env, jclass,
     JNI_TRACE("ssl=%p NativeCrypto_SSL_use_certificate => ok", ssl);
 }
 
-static void NativeCrypto_SSL_check_private_key(JNIEnv* env, jclass, jint ssl_address)
+static void NativeCrypto_SSL_check_private_key(JNIEnv* env, jclass, jlong ssl_address)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_check_private_key", ssl);
@@ -4388,7 +4389,7 @@ static void NativeCrypto_SSL_check_private_key(JNIEnv* env, jclass, jint ssl_add
 }
 
 static void NativeCrypto_SSL_set_client_CA_list(JNIEnv* env, jclass,
-                                                jint ssl_address, jobjectArray principals)
+                                                jlong ssl_address, jobjectArray principals)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_set_client_CA_list principals=%p", ssl, principals);
@@ -4455,7 +4456,7 @@ static void NativeCrypto_SSL_set_client_CA_list(JNIEnv* env, jclass,
 /**
  * public static native long SSL_get_mode(int ssl);
  */
-static jlong NativeCrypto_SSL_get_mode(JNIEnv* env, jclass, jint ssl_address) {
+static jlong NativeCrypto_SSL_get_mode(JNIEnv* env, jclass, jlong ssl_address) {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_get_mode", ssl);
     if (ssl == NULL) {
@@ -4470,7 +4471,7 @@ static jlong NativeCrypto_SSL_get_mode(JNIEnv* env, jclass, jint ssl_address) {
  * public static native long SSL_set_mode(int ssl, long mode);
  */
 static jlong NativeCrypto_SSL_set_mode(JNIEnv* env, jclass,
-        jint ssl_address, jlong mode) {
+        jlong ssl_address, jlong mode) {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_set_mode mode=0x%llx", ssl, mode);
     if (ssl == NULL) {
@@ -4485,7 +4486,7 @@ static jlong NativeCrypto_SSL_set_mode(JNIEnv* env, jclass,
  * public static native long SSL_clear_mode(int ssl, long mode);
  */
 static jlong NativeCrypto_SSL_clear_mode(JNIEnv* env, jclass,
-        jint ssl_address, jlong mode) {
+        jlong ssl_address, jlong mode) {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_clear_mode mode=0x%llx", ssl, mode);
     if (ssl == NULL) {
@@ -4500,7 +4501,7 @@ static jlong NativeCrypto_SSL_clear_mode(JNIEnv* env, jclass,
  * public static native long SSL_get_options(int ssl);
  */
 static jlong NativeCrypto_SSL_get_options(JNIEnv* env, jclass,
-        jint ssl_address) {
+        jlong ssl_address) {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_get_options", ssl);
     if (ssl == NULL) {
@@ -4515,7 +4516,7 @@ static jlong NativeCrypto_SSL_get_options(JNIEnv* env, jclass,
  * public static native long SSL_set_options(int ssl, long options);
  */
 static jlong NativeCrypto_SSL_set_options(JNIEnv* env, jclass,
-        jint ssl_address, jlong options) {
+        jlong ssl_address, jlong options) {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_set_options options=0x%llx", ssl, options);
     if (ssl == NULL) {
@@ -4530,7 +4531,7 @@ static jlong NativeCrypto_SSL_set_options(JNIEnv* env, jclass,
  * public static native long SSL_clear_options(int ssl, long options);
  */
 static jlong NativeCrypto_SSL_clear_options(JNIEnv* env, jclass,
-        jint ssl_address, jlong options) {
+        jlong ssl_address, jlong options) {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_clear_options options=0x%llx", ssl, options);
     if (ssl == NULL) {
@@ -4545,7 +4546,7 @@ static jlong NativeCrypto_SSL_clear_options(JNIEnv* env, jclass,
  * Sets the ciphers suites that are enabled in the SSL
  */
 static void NativeCrypto_SSL_set_cipher_lists(JNIEnv* env, jclass,
-        jint ssl_address, jobjectArray cipherSuites)
+        jlong ssl_address, jobjectArray cipherSuites)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_set_cipher_lists cipherSuites=%p", ssl, cipherSuites);
@@ -4610,7 +4611,7 @@ static void NativeCrypto_SSL_set_cipher_lists(JNIEnv* env, jclass,
  * Sets certificate expectations, especially for server to request client auth
  */
 static void NativeCrypto_SSL_set_verify(JNIEnv* env,
-        jclass, jint ssl_address, jint mode)
+        jclass, jlong ssl_address, jint mode)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_set_verify mode=%x", ssl, mode);
@@ -4624,7 +4625,7 @@ static void NativeCrypto_SSL_set_verify(JNIEnv* env,
  * Sets the ciphers suites that are enabled in the SSL
  */
 static void NativeCrypto_SSL_set_session(JNIEnv* env, jclass,
-        jint ssl_address, jint ssl_session_address)
+        jlong ssl_address, jlong ssl_session_address)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     SSL_SESSION* ssl_session = to_SSL_SESSION(env, ssl_session_address, false);
@@ -4651,7 +4652,7 @@ static void NativeCrypto_SSL_set_session(JNIEnv* env, jclass,
  * Sets the ciphers suites that are enabled in the SSL
  */
 static void NativeCrypto_SSL_set_session_creation_enabled(JNIEnv* env, jclass,
-        jint ssl_address, jboolean creation_enabled)
+        jlong ssl_address, jboolean creation_enabled)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_set_session_creation_enabled creation_enabled=%d",
@@ -4663,7 +4664,7 @@ static void NativeCrypto_SSL_set_session_creation_enabled(JNIEnv* env, jclass,
 }
 
 static void NativeCrypto_SSL_set_tlsext_host_name(JNIEnv* env, jclass,
-        jint ssl_address, jstring hostname)
+        jlong ssl_address, jstring hostname)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_set_tlsext_host_name hostname=%p",
@@ -4689,7 +4690,7 @@ static void NativeCrypto_SSL_set_tlsext_host_name(JNIEnv* env, jclass,
     JNI_TRACE("ssl=%p NativeCrypto_SSL_set_tlsext_host_name => ok", ssl);
 }
 
-static jstring NativeCrypto_SSL_get_servername(JNIEnv* env, jclass, jint ssl_address) {
+static jstring NativeCrypto_SSL_get_servername(JNIEnv* env, jclass, jlong ssl_address) {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_get_servername", ssl);
     if (ssl == NULL) {
@@ -4749,7 +4750,7 @@ static int next_protos_advertised_callback(SSL* ssl,
     return SSL_TLSEXT_ERR_OK;
 }
 
-static void NativeCrypto_SSL_CTX_enable_npn(JNIEnv* env, jclass, jint ssl_ctx_address)
+static void NativeCrypto_SSL_CTX_enable_npn(JNIEnv* env, jclass, jlong ssl_ctx_address)
 {
     SSL_CTX* ssl_ctx = to_SSL_CTX(env, ssl_ctx_address, true);
     if (ssl_ctx == NULL) {
@@ -4759,7 +4760,7 @@ static void NativeCrypto_SSL_CTX_enable_npn(JNIEnv* env, jclass, jint ssl_ctx_ad
     SSL_CTX_set_next_protos_advertised_cb(ssl_ctx, next_protos_advertised_callback, NULL); // server
 }
 
-static void NativeCrypto_SSL_CTX_disable_npn(JNIEnv* env, jclass, jint ssl_ctx_address)
+static void NativeCrypto_SSL_CTX_disable_npn(JNIEnv* env, jclass, jlong ssl_ctx_address)
 {
     SSL_CTX* ssl_ctx = to_SSL_CTX(env, ssl_ctx_address, true);
     if (ssl_ctx == NULL) {
@@ -4770,7 +4771,7 @@ static void NativeCrypto_SSL_CTX_disable_npn(JNIEnv* env, jclass, jint ssl_ctx_a
 }
 
 static jbyteArray NativeCrypto_SSL_get_npn_negotiated_protocol(JNIEnv* env, jclass,
-        jint ssl_address)
+        jlong ssl_address)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_get_npn_negotiated_protocol", ssl);
@@ -4793,7 +4794,7 @@ static jbyteArray NativeCrypto_SSL_get_npn_negotiated_protocol(JNIEnv* env, jcla
 /**
  * Perform SSL handshake
  */
-static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass, jint ssl_address,
+static jlong NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass, jlong ssl_address,
         jobject fdObject, jobject shc, jint timeout_millis, jboolean client_mode,
         jbyteArray npnProtocols)
 {
@@ -4964,13 +4965,13 @@ static jint NativeCrypto_SSL_do_handshake(JNIEnv* env, jclass, jint ssl_address,
     }
     SSL_SESSION* ssl_session = SSL_get1_session(ssl);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_do_handshake => ssl_session=%p", ssl, ssl_session);
-    return (jint) ssl_session;
+    return (jlong) ssl_session;
 }
 
 /**
  * Perform SSL renegotiation
  */
-static void NativeCrypto_SSL_renegotiate(JNIEnv* env, jclass, jint ssl_address)
+static void NativeCrypto_SSL_renegotiate(JNIEnv* env, jclass, jlong ssl_address)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_renegotiate", ssl);
@@ -4999,7 +5000,7 @@ static void NativeCrypto_SSL_renegotiate(JNIEnv* env, jclass, jint ssl_address)
 /**
  * public static native byte[][] SSL_get_certificate(int ssl);
  */
-static jobjectArray NativeCrypto_SSL_get_certificate(JNIEnv* env, jclass, jint ssl_address)
+static jobjectArray NativeCrypto_SSL_get_certificate(JNIEnv* env, jclass, jlong ssl_address)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_get_certificate", ssl);
@@ -5038,7 +5039,7 @@ static jobjectArray NativeCrypto_SSL_get_certificate(JNIEnv* env, jclass, jint s
 }
 
 // Fills a byte[][] with the peer certificates in the chain.
-static jobjectArray NativeCrypto_SSL_get_peer_cert_chain(JNIEnv* env, jclass, jint ssl_address)
+static jobjectArray NativeCrypto_SSL_get_peer_cert_chain(JNIEnv* env, jclass, jlong ssl_address)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_get_peer_cert_chain", ssl);
@@ -5213,7 +5214,7 @@ static int sslRead(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, char* b
  * OpenSSL read function (2): read into buffer at offset n chunks.
  * Returns 1 (success) or value <= 0 (failure).
  */
-static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jint ssl_address, jobject fdObject,
+static jint NativeCrypto_SSL_read(JNIEnv* env, jclass, jlong ssl_address, jobject fdObject,
                                   jobject shc, jbyteArray b, jint offset, jint len,
                                   jint read_timeout_millis)
 {
@@ -5420,7 +5421,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
 /**
  * OpenSSL write function (2): write into buffer at offset n chunks.
  */
-static void NativeCrypto_SSL_write(JNIEnv* env, jclass, jint ssl_address, jobject fdObject,
+static void NativeCrypto_SSL_write(JNIEnv* env, jclass, jlong ssl_address, jobject fdObject,
                                    jobject shc, jbyteArray b, jint offset, jint len, jint write_timeout_millis)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
@@ -5470,7 +5471,7 @@ static void NativeCrypto_SSL_write(JNIEnv* env, jclass, jint ssl_address, jobjec
  * Interrupt any pending I/O before closing the socket.
  */
 static void NativeCrypto_SSL_interrupt(
-        JNIEnv* env, jclass, jint ssl_address) {
+        JNIEnv* env, jclass, jlong ssl_address) {
     SSL* ssl = to_SSL(env, ssl_address, false);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_interrupt", ssl);
     if (ssl == NULL) {
@@ -5494,7 +5495,7 @@ static void NativeCrypto_SSL_interrupt(
 /**
  * OpenSSL close SSL socket function.
  */
-static void NativeCrypto_SSL_shutdown(JNIEnv* env, jclass, jint ssl_address,
+static void NativeCrypto_SSL_shutdown(JNIEnv* env, jclass, jlong ssl_address,
                                       jobject fdObject, jobject shc) {
     SSL* ssl = to_SSL(env, ssl_address, false);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_shutdown fd=%p shc=%p", ssl, fdObject, shc);
@@ -5574,7 +5575,7 @@ static void NativeCrypto_SSL_shutdown(JNIEnv* env, jclass, jint ssl_address,
 /**
  * public static native void SSL_free(int ssl);
  */
-static void NativeCrypto_SSL_free(JNIEnv* env, jclass, jint ssl_address)
+static void NativeCrypto_SSL_free(JNIEnv* env, jclass, jlong ssl_address)
 {
     SSL* ssl = to_SSL(env, ssl_address, true);
     JNI_TRACE("ssl=%p NativeCrypto_SSL_free", ssl);
@@ -5592,7 +5593,7 @@ static void NativeCrypto_SSL_free(JNIEnv* env, jclass, jint ssl_address)
  * Gets and returns in a byte array the ID of the actual SSL session.
  */
 static jbyteArray NativeCrypto_SSL_SESSION_session_id(JNIEnv* env, jclass,
-                                                      jint ssl_session_address) {
+                                                      jlong ssl_session_address) {
     SSL_SESSION* ssl_session = to_SSL_SESSION(env, ssl_session_address, true);
     JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_session_id", ssl_session);
     if (ssl_session == NULL) {
@@ -5612,7 +5613,7 @@ static jbyteArray NativeCrypto_SSL_SESSION_session_id(JNIEnv* env, jclass,
  * Gets and returns in a long integer the creation's time of the
  * actual SSL session.
  */
-static jlong NativeCrypto_SSL_SESSION_get_time(JNIEnv* env, jclass, jint ssl_session_address) {
+static jlong NativeCrypto_SSL_SESSION_get_time(JNIEnv* env, jclass, jlong ssl_session_address) {
     SSL_SESSION* ssl_session = to_SSL_SESSION(env, ssl_session_address, true);
     JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_get_time", ssl_session);
     if (ssl_session == NULL) {
@@ -5629,7 +5630,7 @@ static jlong NativeCrypto_SSL_SESSION_get_time(JNIEnv* env, jclass, jint ssl_ses
  * Gets and returns in a string the version of the SSL protocol. If it
  * returns the string "unknown" it means that no connection is established.
  */
-static jstring NativeCrypto_SSL_SESSION_get_version(JNIEnv* env, jclass, jint ssl_session_address) {
+static jstring NativeCrypto_SSL_SESSION_get_version(JNIEnv* env, jclass, jlong ssl_session_address) {
     SSL_SESSION* ssl_session = to_SSL_SESSION(env, ssl_session_address, true);
     JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_get_version", ssl_session);
     if (ssl_session == NULL) {
@@ -5643,7 +5644,7 @@ static jstring NativeCrypto_SSL_SESSION_get_version(JNIEnv* env, jclass, jint ss
 /**
  * Gets and returns in a string the cipher negotiated for the SSL session.
  */
-static jstring NativeCrypto_SSL_SESSION_cipher(JNIEnv* env, jclass, jint ssl_session_address) {
+static jstring NativeCrypto_SSL_SESSION_cipher(JNIEnv* env, jclass, jlong ssl_session_address) {
     SSL_SESSION* ssl_session = to_SSL_SESSION(env, ssl_session_address, true);
     JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_cipher", ssl_session);
     if (ssl_session == NULL) {
@@ -5658,7 +5659,7 @@ static jstring NativeCrypto_SSL_SESSION_cipher(JNIEnv* env, jclass, jint ssl_ses
 /**
  * Frees the SSL session.
  */
-static void NativeCrypto_SSL_SESSION_free(JNIEnv* env, jclass, jint ssl_session_address) {
+static void NativeCrypto_SSL_SESSION_free(JNIEnv* env, jclass, jlong ssl_session_address) {
     SSL_SESSION* ssl_session = to_SSL_SESSION(env, ssl_session_address, true);
     JNI_TRACE("ssl_session=%p NativeCrypto_SSL_SESSION_free", ssl_session);
     if (ssl_session == NULL) {
@@ -5673,7 +5674,7 @@ static void NativeCrypto_SSL_SESSION_free(JNIEnv* env, jclass, jint ssl_session_
  * not certificates). Returns a byte[] containing the DER-encoded state.
  * See apache mod_ssl.
  */
-static jbyteArray NativeCrypto_i2d_SSL_SESSION(JNIEnv* env, jclass, jint ssl_session_address) {
+static jbyteArray NativeCrypto_i2d_SSL_SESSION(JNIEnv* env, jclass, jlong ssl_session_address) {
     SSL_SESSION* ssl_session = to_SSL_SESSION(env, ssl_session_address, true);
     JNI_TRACE("ssl_session=%p NativeCrypto_i2d_SSL_SESSION", ssl_session);
     if (ssl_session == NULL) {
@@ -5686,7 +5687,7 @@ static jbyteArray NativeCrypto_i2d_SSL_SESSION(JNIEnv* env, jclass, jint ssl_ses
 /**
  * Deserialize the session.
  */
-static jint NativeCrypto_d2i_SSL_SESSION(JNIEnv* env, jclass, jbyteArray javaBytes) {
+static jlong NativeCrypto_d2i_SSL_SESSION(JNIEnv* env, jclass, jbyteArray javaBytes) {
     JNI_TRACE("NativeCrypto_d2i_SSL_SESSION bytes=%p", javaBytes);
 
     ScopedByteArrayRO bytes(env, javaBytes);
@@ -5717,7 +5718,7 @@ static jint NativeCrypto_d2i_SSL_SESSION(JNIEnv* env, jclass, jbyteArray javaByt
     }
 
     JNI_TRACE("NativeCrypto_d2i_SSL_SESSION => %p", ssl_session);
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(ssl_session));
+    return reinterpret_cast<uintptr_t>(ssl_session);
 }
 
 static jlong NativeCrypto_ERR_peek_last_error(JNIEnv*, jclass) {
@@ -5729,141 +5730,141 @@ static jlong NativeCrypto_ERR_peek_last_error(JNIEnv*, jclass) {
 static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, clinit, "()V"),
     NATIVE_METHOD(NativeCrypto, ENGINE_load_dynamic, "()V"),
-    NATIVE_METHOD(NativeCrypto, ENGINE_by_id, "(Ljava/lang/String;)I"),
-    NATIVE_METHOD(NativeCrypto, ENGINE_add, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, ENGINE_init, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, ENGINE_finish, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, ENGINE_free, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, ENGINE_load_private_key, "(ILjava/lang/String;)I"),
-    NATIVE_METHOD(NativeCrypto, ENGINE_get_id, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeCrypto, ENGINE_ctrl_cmd_string, "(ILjava/lang/String;Ljava/lang/String;I)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_DSA, "([B[B[B[B[B)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_RSA, "([B[B[B[B[B[B[B[B)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_EC_KEY, "(II[B)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_mac_key, "(I[B)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_PKEY_type, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_PKEY_size, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_PKEY_print_public, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeCrypto, EVP_PKEY_print_private, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeCrypto, EVP_PKEY_free, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, EVP_PKEY_cmp, "(II)I"),
-    NATIVE_METHOD(NativeCrypto, i2d_PKCS8_PRIV_KEY_INFO, "(I)[B"),
-    NATIVE_METHOD(NativeCrypto, d2i_PKCS8_PRIV_KEY_INFO, "([B)I"),
-    NATIVE_METHOD(NativeCrypto, i2d_PUBKEY, "(I)[B"),
-    NATIVE_METHOD(NativeCrypto, d2i_PUBKEY, "([B)I"),
-    NATIVE_METHOD(NativeCrypto, RSA_generate_key_ex, "(I[B)I"),
-    NATIVE_METHOD(NativeCrypto, RSA_size, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, RSA_private_encrypt, "(I[B[BII)I"),
-    NATIVE_METHOD(NativeCrypto, RSA_public_decrypt, "(I[B[BII)I"),
-    NATIVE_METHOD(NativeCrypto, RSA_public_encrypt, "(I[B[BII)I"),
-    NATIVE_METHOD(NativeCrypto, RSA_private_decrypt, "(I[B[BII)I"),
-    NATIVE_METHOD(NativeCrypto, get_RSA_private_params, "(I)[[B"),
-    NATIVE_METHOD(NativeCrypto, get_RSA_public_params, "(I)[[B"),
-    NATIVE_METHOD(NativeCrypto, DSA_generate_key, "(I[B[B[B[B)I"),
-    NATIVE_METHOD(NativeCrypto, get_DSA_params, "(I)[[B"),
-    NATIVE_METHOD(NativeCrypto, EC_GROUP_new_by_curve_name, "(Ljava/lang/String;)I"),
-    NATIVE_METHOD(NativeCrypto, EC_GROUP_new_curve, "(I[B[B[B)I"),
-    NATIVE_METHOD(NativeCrypto, EC_GROUP_dup, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EC_GROUP_set_asn1_flag, "(II)V"),
-    NATIVE_METHOD(NativeCrypto, EC_GROUP_set_point_conversion_form, "(II)V"),
-    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_curve_name, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_curve, "(I)[[B"),
-    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_order, "(I)[B"),
-    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_cofactor, "(I)[B"),
-    NATIVE_METHOD(NativeCrypto, EC_GROUP_clear_free, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, EC_GROUP_cmp, "(II)Z"),
-    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_generator, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EC_GROUP_set_generator, "(II[B[B)V"),
-    NATIVE_METHOD(NativeCrypto, get_EC_GROUP_type, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EC_POINT_new, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EC_POINT_clear_free, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, EC_POINT_cmp, "(III)Z"),
-    NATIVE_METHOD(NativeCrypto, EC_POINT_set_affine_coordinates, "(II[B[B)V"),
-    NATIVE_METHOD(NativeCrypto, EC_POINT_get_affine_coordinates, "(II)[[B"),
-    NATIVE_METHOD(NativeCrypto, EC_KEY_generate_key, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EC_KEY_get0_group, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EC_KEY_get_private_key, "(I)[B"),
-    NATIVE_METHOD(NativeCrypto, EC_KEY_get_public_key, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_create, "()I"),
-    NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_init, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_destroy, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_copy, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_DigestFinal, "(I[BI)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_DigestInit, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_get_digestbyname, "(Ljava/lang/String;)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_MD_block_size, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_MD_size, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_DigestUpdate, "(I[BII)V"),
-    NATIVE_METHOD(NativeCrypto, EVP_SignInit, "(Ljava/lang/String;)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_SignUpdate, "(I[BII)V"),
-    NATIVE_METHOD(NativeCrypto, EVP_SignFinal, "(I[BII)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_VerifyInit, "(Ljava/lang/String;)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_VerifyUpdate, "(I[BII)V"),
-    NATIVE_METHOD(NativeCrypto, EVP_VerifyFinal, "(I[BIII)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_DigestSignInit, "(III)V"),
-    NATIVE_METHOD(NativeCrypto, EVP_DigestSignUpdate, "(I[B)V"),
-    NATIVE_METHOD(NativeCrypto, EVP_DigestSignFinal, "(I)[B"),
-    NATIVE_METHOD(NativeCrypto, EVP_get_cipherbyname, "(Ljava/lang/String;)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_CipherInit_ex, "(II[B[BZ)V"),
-    NATIVE_METHOD(NativeCrypto, EVP_CipherUpdate, "(I[BI[BII)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_CipherFinal_ex, "(I[BI)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_CIPHER_iv_length, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_new, "()I"),
-    NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_block_size, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, get_EVP_CIPHER_CTX_buf_len, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_set_padding, "(IZ)V"),
-    NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_set_key_length, "(II)V"),
-    NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_cleanup, "(I)V"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_by_id, "(Ljava/lang/String;)J"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_add, "(J)I"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_init, "(J)I"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_finish, "(J)I"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_free, "(J)I"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_load_private_key, "(JLjava/lang/String;)J"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_get_id, "(J)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeCrypto, ENGINE_ctrl_cmd_string, "(JLjava/lang/String;Ljava/lang/String;I)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_DSA, "([B[B[B[B[B)J"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_RSA, "([B[B[B[B[B[B[B[B)J"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_EC_KEY, "(JJ[B)J"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_new_mac_key, "(I[B)J"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_type, "(J)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_size, "(J)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_print_public, "(J)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_print_private, "(J)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_free, "(J)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_PKEY_cmp, "(JJ)I"),
+    NATIVE_METHOD(NativeCrypto, i2d_PKCS8_PRIV_KEY_INFO, "(J)[B"),
+    NATIVE_METHOD(NativeCrypto, d2i_PKCS8_PRIV_KEY_INFO, "([B)J"),
+    NATIVE_METHOD(NativeCrypto, i2d_PUBKEY, "(J)[B"),
+    NATIVE_METHOD(NativeCrypto, d2i_PUBKEY, "([B)J"),
+    NATIVE_METHOD(NativeCrypto, RSA_generate_key_ex, "(I[B)J"),
+    NATIVE_METHOD(NativeCrypto, RSA_size, "(J)I"),
+    NATIVE_METHOD(NativeCrypto, RSA_private_encrypt, "(I[B[BJI)I"),
+    NATIVE_METHOD(NativeCrypto, RSA_public_decrypt, "(I[B[BJI)I"),
+    NATIVE_METHOD(NativeCrypto, RSA_public_encrypt, "(I[B[BJI)I"),
+    NATIVE_METHOD(NativeCrypto, RSA_private_decrypt, "(I[B[BJI)I"),
+    NATIVE_METHOD(NativeCrypto, get_RSA_private_params, "(J)[[B"),
+    NATIVE_METHOD(NativeCrypto, get_RSA_public_params, "(J)[[B"),
+    NATIVE_METHOD(NativeCrypto, DSA_generate_key, "(I[B[B[B[B)J"),
+    NATIVE_METHOD(NativeCrypto, get_DSA_params, "(J)[[B"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_new_by_curve_name, "(Ljava/lang/String;)J"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_new_curve, "(I[B[B[B)J"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_dup, "(J)J"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_set_asn1_flag, "(JI)V"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_set_point_conversion_form, "(JI)V"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_curve_name, "(J)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_curve, "(J)[[B"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_order, "(J)[B"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_cofactor, "(J)[B"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_clear_free, "(J)V"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_cmp, "(JJ)Z"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_generator, "(J)J"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_set_generator, "(JJ[B[B)V"),
+    NATIVE_METHOD(NativeCrypto, get_EC_GROUP_type, "(J)I"),
+    NATIVE_METHOD(NativeCrypto, EC_POINT_new, "(J)J"),
+    NATIVE_METHOD(NativeCrypto, EC_POINT_clear_free, "(J)V"),
+    NATIVE_METHOD(NativeCrypto, EC_POINT_cmp, "(JJJ)Z"),
+    NATIVE_METHOD(NativeCrypto, EC_POINT_set_affine_coordinates, "(JJ[B[B)V"),
+    NATIVE_METHOD(NativeCrypto, EC_POINT_get_affine_coordinates, "(JJ)[[B"),
+    NATIVE_METHOD(NativeCrypto, EC_KEY_generate_key, "(J)J"),
+    NATIVE_METHOD(NativeCrypto, EC_KEY_get0_group, "(J)J"),
+    NATIVE_METHOD(NativeCrypto, EC_KEY_get_private_key, "(J)[B"),
+    NATIVE_METHOD(NativeCrypto, EC_KEY_get_public_key, "(J)J"),
+    NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_create, "()J"),
+    NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_init, "(J)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_destroy, "(J)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_MD_CTX_copy, "(J)J"),
+    NATIVE_METHOD(NativeCrypto, EVP_DigestFinal, "(J[BI)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_DigestInit, "(J)J"),
+    NATIVE_METHOD(NativeCrypto, EVP_get_digestbyname, "(Ljava/lang/String;)J"),
+    NATIVE_METHOD(NativeCrypto, EVP_MD_block_size, "(J)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_MD_size, "(J)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_DigestUpdate, "(J[BII)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_SignInit, "(Ljava/lang/String;)J"),
+    NATIVE_METHOD(NativeCrypto, EVP_SignUpdate, "(J[BII)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_SignFinal, "(J[BIJ)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_VerifyInit, "(Ljava/lang/String;)J"),
+    NATIVE_METHOD(NativeCrypto, EVP_VerifyUpdate, "(J[BII)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_VerifyFinal, "(J[BIIJ)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_DigestSignInit, "(JJJ)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_DigestSignUpdate, "(J[B)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_DigestSignFinal, "(J)[B"),
+    NATIVE_METHOD(NativeCrypto, EVP_get_cipherbyname, "(Ljava/lang/String;)J"),
+    NATIVE_METHOD(NativeCrypto, EVP_CipherInit_ex, "(JJ[B[BZ)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_CipherUpdate, "(J[BI[BII)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_CipherFinal_ex, "(J[BI)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_CIPHER_iv_length, "(J)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_new, "()J"),
+    NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_block_size, "(J)I"),
+    NATIVE_METHOD(NativeCrypto, get_EVP_CIPHER_CTX_buf_len, "(J)I"),
+    NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_set_padding, "(JZ)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_set_key_length, "(JI)V"),
+    NATIVE_METHOD(NativeCrypto, EVP_CIPHER_CTX_cleanup, "(J)V"),
     NATIVE_METHOD(NativeCrypto, RAND_seed, "([B)V"),
     NATIVE_METHOD(NativeCrypto, RAND_load_file, "(Ljava/lang/String;J)I"),
     NATIVE_METHOD(NativeCrypto, RAND_bytes, "([B)V"),
     NATIVE_METHOD(NativeCrypto, OBJ_txt2nid, "(Ljava/lang/String;)I"),
     NATIVE_METHOD(NativeCrypto, OBJ_txt2nid_longName, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, OBJ_txt2nid_oid, "(Ljava/lang/String;)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeCrypto, SSL_CTX_new, "()I"),
-    NATIVE_METHOD(NativeCrypto, SSL_CTX_free, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_CTX_set_session_id_context, "(I[B)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_new, "(I)I"),
-    NATIVE_METHOD(NativeCrypto, SSL_enable_tls_channel_id, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_get_tls_channel_id, "(I)[B"),
-    NATIVE_METHOD(NativeCrypto, SSL_use_OpenSSL_PrivateKey_for_tls_channel_id, "(II)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_use_PKCS8_PrivateKey_for_tls_channel_id, "(I[B)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_use_OpenSSL_PrivateKey, "(II)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_use_PrivateKey, "(I[B)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_use_certificate, "(I[[B)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_check_private_key, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_set_client_CA_list, "(I[[B)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_get_mode, "(I)J"),
-    NATIVE_METHOD(NativeCrypto, SSL_set_mode, "(IJ)J"),
-    NATIVE_METHOD(NativeCrypto, SSL_clear_mode, "(IJ)J"),
-    NATIVE_METHOD(NativeCrypto, SSL_get_options, "(I)J"),
-    NATIVE_METHOD(NativeCrypto, SSL_set_options, "(IJ)J"),
-    NATIVE_METHOD(NativeCrypto, SSL_clear_options, "(IJ)J"),
-    NATIVE_METHOD(NativeCrypto, SSL_set_cipher_lists, "(I[Ljava/lang/String;)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_set_verify, "(II)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_set_session, "(II)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_set_session_creation_enabled, "(IZ)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_set_tlsext_host_name, "(ILjava/lang/String;)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_get_servername, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeCrypto, SSL_do_handshake, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "IZ[B)I"),
-    NATIVE_METHOD(NativeCrypto, SSL_renegotiate, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_get_certificate, "(I)[[B"),
-    NATIVE_METHOD(NativeCrypto, SSL_get_peer_cert_chain, "(I)[[B"),
-    NATIVE_METHOD(NativeCrypto, SSL_read, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "[BIII)I"),
-    NATIVE_METHOD(NativeCrypto, SSL_write, "(I" FILE_DESCRIPTOR SSL_CALLBACKS "[BIII)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_interrupt, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_shutdown, "(I" FILE_DESCRIPTOR SSL_CALLBACKS ")V"),
-    NATIVE_METHOD(NativeCrypto, SSL_free, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_SESSION_session_id, "(I)[B"),
-    NATIVE_METHOD(NativeCrypto, SSL_SESSION_get_time, "(I)J"),
-    NATIVE_METHOD(NativeCrypto, SSL_SESSION_get_version, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeCrypto, SSL_SESSION_cipher, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeCrypto, SSL_SESSION_free, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, i2d_SSL_SESSION, "(I)[B"),
-    NATIVE_METHOD(NativeCrypto, d2i_SSL_SESSION, "([B)I"),
-    NATIVE_METHOD(NativeCrypto, SSL_CTX_enable_npn, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_CTX_disable_npn, "(I)V"),
-    NATIVE_METHOD(NativeCrypto, SSL_get_npn_negotiated_protocol, "(I)[B"),
+    NATIVE_METHOD(NativeCrypto, SSL_CTX_new, "()J"),
+    NATIVE_METHOD(NativeCrypto, SSL_CTX_free, "(J)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_CTX_set_session_id_context, "(J[B)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_new, "(J)J"),
+    NATIVE_METHOD(NativeCrypto, SSL_enable_tls_channel_id, "(J)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_get_tls_channel_id, "(J)[B"),
+    NATIVE_METHOD(NativeCrypto, SSL_use_OpenSSL_PrivateKey_for_tls_channel_id, "(JJ)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_use_PKCS8_PrivateKey_for_tls_channel_id, "(J[B)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_use_OpenSSL_PrivateKey, "(JJ)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_use_PrivateKey, "(J[B)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_use_certificate, "(J[[B)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_check_private_key, "(J)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_set_client_CA_list, "(J[[B)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_get_mode, "(J)J"),
+    NATIVE_METHOD(NativeCrypto, SSL_set_mode, "(JJ)J"),
+    NATIVE_METHOD(NativeCrypto, SSL_clear_mode, "(JJ)J"),
+    NATIVE_METHOD(NativeCrypto, SSL_get_options, "(J)J"),
+    NATIVE_METHOD(NativeCrypto, SSL_set_options, "(JJ)J"),
+    NATIVE_METHOD(NativeCrypto, SSL_clear_options, "(JJ)J"),
+    NATIVE_METHOD(NativeCrypto, SSL_set_cipher_lists, "(J[Ljava/lang/String;)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_set_verify, "(JI)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_set_session, "(JJ)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_set_session_creation_enabled, "(JZ)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_set_tlsext_host_name, "(JLjava/lang/String;)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_get_servername, "(J)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeCrypto, SSL_do_handshake, "(J" FILE_DESCRIPTOR SSL_CALLBACKS "IZ[B)I"),
+    NATIVE_METHOD(NativeCrypto, SSL_renegotiate, "(J)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_get_certificate, "(J)[[B"),
+    NATIVE_METHOD(NativeCrypto, SSL_get_peer_cert_chain, "(J)[[B"),
+    NATIVE_METHOD(NativeCrypto, SSL_read, "(J" FILE_DESCRIPTOR SSL_CALLBACKS "[BIII)I"),
+    NATIVE_METHOD(NativeCrypto, SSL_write, "(J" FILE_DESCRIPTOR SSL_CALLBACKS "[BIII)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_interrupt, "(J)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_shutdown, "(J" FILE_DESCRIPTOR SSL_CALLBACKS ")V"),
+    NATIVE_METHOD(NativeCrypto, SSL_free, "(J)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_SESSION_session_id, "(J)[B"),
+    NATIVE_METHOD(NativeCrypto, SSL_SESSION_get_time, "(J)J"),
+    NATIVE_METHOD(NativeCrypto, SSL_SESSION_get_version, "(J)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeCrypto, SSL_SESSION_cipher, "(J)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeCrypto, SSL_SESSION_free, "(J)V"),
+    NATIVE_METHOD(NativeCrypto, i2d_SSL_SESSION, "(J)[B"),
+    NATIVE_METHOD(NativeCrypto, d2i_SSL_SESSION, "([B)J"),
+    NATIVE_METHOD(NativeCrypto, SSL_CTX_enable_npn, "(J)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_CTX_disable_npn, "(J)V"),
+    NATIVE_METHOD(NativeCrypto, SSL_get_npn_negotiated_protocol, "(J)[B"),
     NATIVE_METHOD(NativeCrypto, ERR_peek_last_error, "()J"),
 };
 void register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env) {
