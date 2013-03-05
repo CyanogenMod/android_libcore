@@ -17,6 +17,8 @@
 package org.apache.harmony.xnet.provider.jsse;
 
 import dalvik.system.BaseDexClassLoader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -2536,5 +2538,36 @@ public class NativeCryptoTest extends TestCase {
             }
         }
         assertTrue(key1.getPublicKey() instanceof ECPublicKey);
+    }
+
+    public void test_create_BIO_InputStream() throws Exception {
+        byte[] actual = "Test".getBytes();
+        ByteArrayInputStream is = new ByteArrayInputStream(actual);
+
+        long ctx = NativeCrypto.create_BIO_InputStream(new OpenSSLBIOInputStream(is));
+        try {
+            byte[] buffer = new byte[1024];
+            int numRead = NativeCrypto.BIO_read(ctx, buffer);
+            assertEquals(actual.length, numRead);
+            assertEquals(Arrays.toString(actual),
+                    Arrays.toString(Arrays.copyOfRange(buffer, 0, numRead)));
+        } finally {
+            NativeCrypto.BIO_free(ctx);
+        }
+
+    }
+
+    public void test_create_BIO_OutputStream() throws Exception {
+        byte[] actual = "Test".getBytes();
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        long ctx = NativeCrypto.create_BIO_OutputStream(os);
+        try {
+            NativeCrypto.BIO_write(ctx, actual, 0, actual.length);
+            assertEquals(actual.length, os.size());
+            assertEquals(Arrays.toString(actual), Arrays.toString(os.toByteArray()));
+        } finally {
+            NativeCrypto.BIO_free(ctx);
+        }
     }
 }

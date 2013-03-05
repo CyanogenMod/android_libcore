@@ -65,6 +65,14 @@
 // don't overwhelm logcat
 #define WITH_JNI_TRACE_DATA_CHUNK_SIZE 512
 
+static JavaVM* gJavaVM;
+static jclass openSslOutputStreamClass;
+
+static jmethodID inputStream_readMethod;
+static jmethodID openSslInputStream_readLineMethod;
+static jmethodID outputStream_writeMethod;
+static jmethodID outputStream_flushMethod;
+
 struct BIO_Delete {
     void operator()(BIO* p) const {
         BIO_free(p);
@@ -609,6 +617,219 @@ jbyteArray ASN1ToByteArray(JNIEnv* env, T* obj, int (*i2d_func)(T*, unsigned cha
     JNI_TRACE("ASN1ToByteArray(%p) => success (%d bytes written)", obj, ret);
     return byteArray.release();
 }
+
+/**
+ * BIO for InputStream
+ */
+class BIO_Stream {
+public:
+    BIO_Stream(jobject stream) :
+            mEof(false) {
+        JNIEnv* env = getEnv();
+        mStream = env->NewGlobalRef(stream);
+    }
+
+    ~BIO_Stream() {
+        JNIEnv* env = getEnv();
+
+        env->DeleteGlobalRef(mStream);
+    }
+
+    bool isEof() const {
+        JNI_TRACE("isEof? %s", mEof ? "yes" : "no");
+        return mEof;
+    }
+
+    int flush() {
+        JNIEnv* env = getEnv();
+        if (env == NULL) {
+            return -1;
+        }
+
+        env->CallVoidMethod(mStream, outputStream_flushMethod);
+        if (env->ExceptionCheck()) {
+            return -1;
+        }
+
+        return 1;
+    }
+
+protected:
+    jobject getStream() {
+        return mStream;
+    }
+
+    void setEof(bool eof) {
+        mEof = eof;
+    }
+
+    JNIEnv* getEnv() {
+        JNIEnv* env;
+
+        if (gJavaVM->AttachCurrentThread(&env, NULL) < 0) {
+            return NULL;
+        }
+
+        return env;
+    }
+
+private:
+    jobject mStream;
+    bool mEof;
+};
+
+class BIO_InputStream : public BIO_Stream {
+public:
+    BIO_InputStream(jobject stream) :
+            BIO_Stream(stream) {
+    }
+
+    int read(char *buf, int len) {
+        return read_internal(buf, len, inputStream_readMethod);
+    }
+
+    int gets(char *buf, int len) {
+        int read = read_internal(buf, len - 1, openSslInputStream_readLineMethod);
+        buf[read] = '\0';
+        JNI_TRACE("BIO::gets \"%s\"", buf);
+        return read;
+    }
+
+private:
+    int read_internal(char *buf, int len, jmethodID method) {
+        JNIEnv* env = getEnv();
+        if (env == NULL) {
+            JNI_TRACE("BIO_InputStream::read could not get JNIEnv");
+            return -1;
+        }
+
+        ScopedLocalRef<jbyteArray> javaBytes(env, env->NewByteArray(len));
+        if (javaBytes.get() == NULL) {
+            JNI_TRACE("BIO_InputStream::read failed call to NewByteArray");
+            return -1;
+        }
+
+        jint read = env->CallIntMethod(getStream(), method, javaBytes.get());
+        if (env->ExceptionCheck()) {
+            JNI_TRACE("BIO_InputStream::read failed call to InputStream#read");
+            return -1;
+        }
+
+        /* Java uses -1 to indicate EOF condition. */
+        if (read == -1) {
+            setEof(true);
+            read = 0;
+        } else if (read > 0) {
+            env->GetByteArrayRegion(javaBytes.get(), 0, read, reinterpret_cast<jbyte*>(buf));
+        }
+
+        return read;
+    }
+};
+
+class BIO_OutputStream : public BIO_Stream {
+public:
+    BIO_OutputStream(jobject stream) :
+            BIO_Stream(stream) {
+    }
+
+    int write(const char *buf, int len) {
+        JNIEnv* env = getEnv();
+        if (env == NULL) {
+            JNI_TRACE("BIO_OutputStream::write => could not get JNIEnv");
+            return -1;
+        }
+
+        ScopedLocalRef<jbyteArray> javaBytes(env, env->NewByteArray(len));
+        if (javaBytes.get() == NULL) {
+            JNI_TRACE("BIO_OutputStream::write => failed call to NewByteArray");
+            return -1;
+        }
+
+        env->SetByteArrayRegion(javaBytes.get(), 0, len, reinterpret_cast<const jbyte*>(buf));
+
+        env->CallVoidMethod(getStream(), outputStream_writeMethod, javaBytes.get());
+        if (env->ExceptionCheck()) {
+            JNI_TRACE("BIO_OutputStream::write => failed call to OutputStream#write");
+            return -1;
+        }
+
+        return 1;
+    }
+};
+
+static int bio_stream_create(BIO *b) {
+    b->init = 1;
+    b->num = 0;
+    b->ptr = NULL;
+    b->flags = 0;
+    return 1;
+}
+
+static int bio_stream_destroy(BIO *b) {
+    if (b == NULL) {
+        return 0;
+    }
+
+    if (b->ptr != NULL) {
+        delete static_cast<BIO_Stream*>(b->ptr);
+        b->ptr = NULL;
+    }
+
+    b->init = 0;
+    b->flags = 0;
+    return 1;
+}
+
+static int bio_stream_read(BIO *b, char *buf, int len) {
+    BIO_InputStream* stream = static_cast<BIO_InputStream*>(b->ptr);
+    return stream->read(buf, len);
+}
+
+static int bio_stream_write(BIO *b, const char *buf, int len) {
+    BIO_OutputStream* stream = static_cast<BIO_OutputStream*>(b->ptr);
+    return stream->write(buf, len);
+}
+
+static int bio_stream_puts(BIO *b, const char *buf) {
+    BIO_OutputStream* stream = static_cast<BIO_OutputStream*>(b->ptr);
+    return stream->write(buf, strlen(buf));
+}
+
+static int bio_stream_gets(BIO *b, char *buf, int len) {
+    BIO_InputStream* stream = static_cast<BIO_InputStream*>(b->ptr);
+    return stream->gets(buf, len);
+}
+
+static void bio_stream_assign(BIO *b, BIO_Stream* stream) {
+    b->ptr = static_cast<void*>(stream);
+}
+
+static long bio_stream_ctrl(BIO *b, int cmd, long, void *) {
+    BIO_Stream* stream = static_cast<BIO_Stream*>(b->ptr);
+
+    switch (cmd) {
+    case BIO_CTRL_EOF:
+        return stream->isEof() ? 1 : 0;
+    case BIO_CTRL_FLUSH:
+        return stream->flush();
+    default:
+        return 0;
+    }
+}
+
+static BIO_METHOD stream_bio_method = {
+        ( 100 | 0x0400 ), /* source/sink BIO */
+        "InputStream/OutputStream BIO",
+        bio_stream_write, /* bio_write */
+        bio_stream_read, /* bio_read */
+        bio_stream_puts, /* bio_puts */
+        bio_stream_gets, /* bio_gets */
+        bio_stream_ctrl, /* bio_ctrl */
+        bio_stream_create, /* bio_create */
+        bio_stream_destroy, /* bio_free */
+        NULL, /* no bio_callback_ctrl */
+};
 
 /**
  * OpenSSL locking support. Taken from the O'Reilly book by Viega et al., but I
@@ -3219,6 +3440,127 @@ static jstring NativeCrypto_OBJ_txt2nid_oid(JNIEnv* env, jclass, jstring oidStr)
     return env->NewStringUTF(output);
 }
 
+static jlong NativeCrypto_create_BIO_InputStream(JNIEnv* env, jclass, jobject streamObj) {
+    JNI_TRACE("create_BIO_InputStream(%p)", streamObj);
+
+    if (streamObj == NULL) {
+        jniThrowNullPointerException(env, "stream == null");
+        return 0;
+    }
+
+    Unique_BIO bio(BIO_new(&stream_bio_method));
+    if (bio.get() == NULL) {
+        return 0;
+    }
+
+    bio_stream_assign(bio.get(), new BIO_InputStream(streamObj));
+
+    JNI_TRACE("create_BIO_InputStream(%p) => %p", streamObj, bio.get());
+    return static_cast<jlong>(reinterpret_cast<uintptr_t>(bio.release()));
+}
+
+static jlong NativeCrypto_create_BIO_OutputStream(JNIEnv* env, jclass, jobject streamObj) {
+    JNI_TRACE("create_BIO_OutputStream(%p)", streamObj);
+
+    if (streamObj == NULL) {
+        jniThrowNullPointerException(env, "stream == null");
+        return 0;
+    }
+
+    Unique_BIO bio(BIO_new(&stream_bio_method));
+    if (bio.get() == NULL) {
+        return 0;
+    }
+
+    bio_stream_assign(bio.get(), new BIO_OutputStream(streamObj));
+
+    JNI_TRACE("create_BIO_OutputStream(%p) => %p", streamObj, bio.get());
+    return static_cast<jlong>(reinterpret_cast<uintptr_t>(bio.release()));
+}
+
+static int NativeCrypto_BIO_read(JNIEnv* env, jclass, jlong bioRef, jbyteArray outputJavaBytes) {
+    BIO* bio = reinterpret_cast<BIO*>(static_cast<uintptr_t>(bioRef));
+    JNI_TRACE("BIO_read(%p, %p)", bio, outputJavaBytes);
+
+    if (outputJavaBytes == NULL) {
+        jniThrowNullPointerException(env, "output == null");
+        JNI_TRACE("BIO_read(%p, %p) => output == null", bio, outputJavaBytes);
+        return 0;
+    }
+
+    int outputSize = env->GetArrayLength(outputJavaBytes);
+
+    UniquePtr<unsigned char[]> buffer(new unsigned char[outputSize]);
+    if (buffer.get() == NULL) {
+        jniThrowOutOfMemoryError(env, "Unable to allocate buffer for read");
+        return 0;
+    }
+
+    int read = BIO_read(bio, buffer.get(), outputSize);
+    if (read <= 0) {
+        jniThrowException(env, "java/io/IOException", "BIO_read");
+        JNI_TRACE("BIO_read(%p, %p) => threw IO exception", bio, outputJavaBytes);
+        return 0;
+    }
+
+    env->SetByteArrayRegion(outputJavaBytes, 0, read, reinterpret_cast<jbyte*>(buffer.get()));
+    JNI_TRACE("BIO_read(%p, %p) => %d", bio, outputJavaBytes, read);
+    return read;
+}
+
+static void NativeCrypto_BIO_write(JNIEnv* env, jclass, jlong bioRef, jbyteArray inputJavaBytes,
+        jint offset, jint length) {
+    BIO* bio = reinterpret_cast<BIO*>(static_cast<uintptr_t>(bioRef));
+    JNI_TRACE("BIO_write(%p, %p, %d, %d)", bio, inputJavaBytes, offset, length);
+
+    if (inputJavaBytes == NULL) {
+        jniThrowNullPointerException(env, "input == null");
+        return;
+    }
+
+    if (offset < 0 || length < 0) {
+        jniThrowException(env, "java/lang/IndexOutOfBoundsException", "offset < 0 || length < 0");
+        JNI_TRACE("BIO_write(%p, %p, %d, %d) => IOOB", bio, inputJavaBytes, offset, length);
+        return;
+    }
+
+    int inputSize = env->GetArrayLength(inputJavaBytes);
+    if (inputSize < offset + length) {
+        jniThrowException(env, "java/lang/IndexOutOfBoundsException",
+                "input.length < offset + length");
+        JNI_TRACE("BIO_write(%p, %p, %d, %d) => IOOB", bio, inputJavaBytes, offset, length);
+        return;
+    }
+
+    UniquePtr<unsigned char[]> buffer(new unsigned char[length]);
+    if (buffer.get() == NULL) {
+        jniThrowOutOfMemoryError(env, "Unable to allocate buffer for write");
+        return;
+    }
+
+    env->GetByteArrayRegion(inputJavaBytes, offset, length, reinterpret_cast<jbyte*>(buffer.get()));
+    if (BIO_write(bio, buffer.get(), length) != 1) {
+        freeOpenSslErrorState();
+        jniThrowException(env, "java/io/IOException", "BIO_write");
+        JNI_TRACE("BIO_write(%p, %p, %d, %d) => IO error", bio, inputJavaBytes, offset, length);
+        return;
+    }
+
+    JNI_TRACE("BIO_write(%p, %p, %d, %d) => success", bio, inputJavaBytes, offset, length);
+}
+
+static void NativeCrypto_BIO_free(JNIEnv* env, jclass, jlong bioRef) {
+    BIO* bio = reinterpret_cast<BIO*>(static_cast<uintptr_t>(bioRef));
+    JNI_TRACE("BIO_free(%p)", bio);
+
+    if (bio == NULL) {
+        jniThrowNullPointerException(env, "bio == null");
+        return;
+    }
+
+    BIO_free(bio);
+}
+
 #ifdef WITH_JNI_TRACE
 /**
  * Based on example logging call back from SSL_CTX_set_info_callback man page
@@ -5821,6 +6163,11 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, OBJ_txt2nid, "(Ljava/lang/String;)I"),
     NATIVE_METHOD(NativeCrypto, OBJ_txt2nid_longName, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, OBJ_txt2nid_oid, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeCrypto, create_BIO_InputStream, "(Lorg/apache/harmony/xnet/provider/jsse/OpenSSLBIOInputStream;)J"),
+    NATIVE_METHOD(NativeCrypto, create_BIO_OutputStream, "(Ljava/io/OutputStream;)J"),
+    NATIVE_METHOD(NativeCrypto, BIO_read, "(J[B)I"),
+    NATIVE_METHOD(NativeCrypto, BIO_write, "(J[BII)V"),
+    NATIVE_METHOD(NativeCrypto, BIO_free, "(J)V"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_new, "()J"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_free, "(J)V"),
     NATIVE_METHOD(NativeCrypto, SSL_CTX_set_session_id_context, "(J[B)V"),
@@ -5871,4 +6218,20 @@ void register_org_apache_harmony_xnet_provider_jsse_NativeCrypto(JNIEnv* env) {
     JNI_TRACE("register_org_apache_harmony_xnet_provider_jsse_NativeCrypto");
     jniRegisterNativeMethods(env, "org/apache/harmony/xnet/provider/jsse/NativeCrypto",
                              sNativeCryptoMethods, NELEM(sNativeCryptoMethods));
+
+    env->GetJavaVM(&gJavaVM);
+
+    ScopedLocalRef<jclass> localClass(env,
+            env->FindClass("org/apache/harmony/xnet/provider/jsse/OpenSSLBIOInputStream"));
+    openSslOutputStreamClass = reinterpret_cast<jclass>(env->NewGlobalRef(localClass.get()));
+    if (openSslOutputStreamClass == NULL) {
+        ALOGE("failed to find class OpenSSLBIOInputStream");
+        abort();
+    }
+
+    inputStream_readMethod = env->GetMethodID(JniConstants::inputStreamClass, "read", "([B)I");
+    openSslInputStream_readLineMethod = env->GetMethodID(openSslOutputStreamClass, "readLine",
+            "([B)I");
+    outputStream_writeMethod = env->GetMethodID(JniConstants::outputStreamClass, "write", "([B)V");
+    outputStream_flushMethod = env->GetMethodID(JniConstants::outputStreamClass, "flush", "()V");
 }
