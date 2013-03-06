@@ -61,6 +61,8 @@ openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfil
 
 openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions unsupported_cert -req -signkey privkey.pem -outform d > cert-unsupported.der
 
+openssl req -config ${DIR}/default.cnf -new -nodes -batch -config ${DIR}/default.cnf -extensions usr_cert -x509 -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:1 -outform d > cert-sigopt.der
+
 openssl dsaparam -out dsaparam.pem 1024
 openssl req -config ${DIR}/default.cnf -newkey dsa:dsaparam.pem -keyout dsapriv.pem -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions keyUsage_cert -req -signkey dsapriv.pem -outform d > cert-dsa.der
 rm -f dsaparam.pem
@@ -76,6 +78,7 @@ touch /tmp/ca/index.txt
 touch /tmp/ca/index.txt.attr
 echo "01" > /tmp/ca/serial
 openssl req -new -nodes -batch -x509 -extensions v3_ca -keyout cakey.pem -out cacert.pem -days 3650 -config default.cnf
+openssl x509 -in cacert.pem -outform d > cert-crl-ca.der
 
 openssl x509 -inform d -in cert-rsa.der -out cert-rsa.pem
 openssl ca -revoke cert-rsa.pem -keyfile cakey.pem -cert cacert.pem -config default.cnf
@@ -89,7 +92,9 @@ openssl asn1parse -in crl-rsa.der -inform d -strparse ${SIG_OFFSET} -noout -out 
 openssl x509 -inform d -in cert-dsa.der -out cert-dsa.pem
 openssl ca -revoke cert-dsa.pem -keyfile cakey.pem -cert cacert.pem -crl_reason cessationOfOperation -extensions unsupported_cert -config default.cnf
 openssl ca -gencrl -crldays 30 -keyfile cakey.pem -cert cacert.pem -out crl-rsa-dsa.pem -config default.cnf
+openssl ca -gencrl -crldays 30 -keyfile cakey.pem -cert cacert.pem -out crl-rsa-dsa-sigopt.pem -config default.cnf -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:1
 openssl crl -in crl-rsa-dsa.pem -outform d -out crl-rsa-dsa.der
+openssl crl -in crl-rsa-dsa-sigopt.pem -outform d -out crl-rsa-dsa-sigopt.der
 
 # Unsupported extensions
 openssl ca -gencrl -crlexts unsupported_cert -keyfile cakey.pem -cert cacert.pem -out crl-unsupported.pem -config default.cnf
