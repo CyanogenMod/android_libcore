@@ -643,4 +643,12 @@ public class OldMatcherTest extends TestCase {
             t.join();
         }
     }
+
+    // https://code.google.com/p/android/issues/detail?id=33040
+    public void test33040() throws Exception {
+        Pattern p = Pattern.compile("ma");
+        // replaceFirst resets the region; apparently, this was broken in Android 1.6.
+        String result = p.matcher("mama").region(2, 4).replaceFirst("mi");
+        assertEquals("mima", result);
+    }
 }
