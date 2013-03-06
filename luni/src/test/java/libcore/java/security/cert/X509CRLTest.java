@@ -25,8 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.security.InvalidKeyException;
 import java.security.Provider;
 import java.security.Security;
+import java.security.SignatureException;
 import java.security.cert.CRL;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
@@ -41,6 +43,7 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
+import libcore.java.security.StandardNames;
 
 public class X509CRLTest extends TestCase {
     private Provider[] mX509Providers;
@@ -49,9 +52,13 @@ public class X509CRLTest extends TestCase {
 
     private static final String CERT_DSA = "x509/cert-dsa.der";
 
+    private static final String CERT_CRL_CA = "x509/cert-crl-ca.der";
+
     private static final String CRL_RSA = "x509/crl-rsa.der";
 
     private static final String CRL_RSA_DSA = "x509/crl-rsa-dsa.der";
+
+    private static final String CRL_RSA_DSA_SIGOPT = "x509/crl-rsa-dsa-sigopt.der";
 
     private static final String CRL_UNSUPPORTED = "x509/crl-unsupported.der";
 
@@ -153,6 +160,8 @@ public class X509CRLTest extends TestCase {
                 getThisUpdateNextUpdate(f);
                 getSigAlgName(f);
                 getSigAlgOID(f);
+                getSigAlgParams(f);
+                verify(f);
                 test_toString(f);
                 test_equals(f);
             } catch (Throwable e) {
@@ -164,6 +173,20 @@ public class X509CRLTest extends TestCase {
         out.flush();
         if (errBuffer.size() > 0) {
             throw new Exception("Errors encountered:\n\n" + errBuffer.toString() + "\n\n");
+        }
+    }
+
+    private void verify(CertificateFactory f) throws Exception {
+        X509CRL crlRsa = getCRL(f, CRL_RSA);
+
+        X509Certificate caCert = getCertificate(f, CERT_CRL_CA);
+        crlRsa.verify(caCert.getPublicKey());
+
+        X509Certificate dsaCert = getCertificate(f, CERT_DSA);
+        try {
+            crlRsa.verify(dsaCert.getPublicKey());
+            fail("should not verify using incorrect key type");
+        } catch (InvalidKeyException expected) {
         }
     }
 
@@ -291,7 +314,7 @@ public class X509CRLTest extends TestCase {
         assertEquals(result1, result2);
     }
 
-    private void assertRsaCrl(CertificateFactory f, X509CRLEntry rsaEntry) throws Exception {
+    private void assertRsaCrlEntry(CertificateFactory f, X509CRLEntry rsaEntry) throws Exception {
         assertNotNull(rsaEntry);
 
         X509Certificate rsaCert = getCertificate(f, CERT_RSA);
@@ -304,9 +327,11 @@ public class X509CRLTest extends TestCase {
         assertFalse(rsaEntry.hasExtensions());
         assertNull(rsaEntry.getCriticalExtensionOIDs());
         assertNull(rsaEntry.getNonCriticalExtensionOIDs());
+
+        assertNotNull(rsaEntry.toString());
     }
 
-    private void assertDsaCrl(CertificateFactory f, X509CRLEntry dsaEntry) throws Exception {
+    private void assertDsaCrlEntry(CertificateFactory f, X509CRLEntry dsaEntry) throws Exception {
         X509Certificate dsaCert = getCertificate(f, CERT_DSA);
         Map<String, Date> dates = getCrlDates(CRL_RSA_DSA_DATES);
         Date expectedDate = dates.get("lastUpdate");
@@ -319,6 +344,8 @@ public class X509CRLTest extends TestCase {
         assertNotNull(dsaEntry.getCriticalExtensionOIDs());
         /* TODO: get the OID */
         assertNotNull(dsaEntry.getNonCriticalExtensionOIDs());
+
+        assertNotNull(dsaEntry.toString());
     }
 
     private void getRevokedCertificates(CertificateFactory f) throws Exception {
@@ -329,14 +356,48 @@ public class X509CRLTest extends TestCase {
         Set<? extends X509CRLEntry> entries = crlRsa.getRevokedCertificates();
         assertEquals(1, entries.size());
         for (X509CRLEntry e : entries) {
-            assertRsaCrl(f, e);
+            assertRsaCrlEntry(f, e);
         }
 
         X509CRL crlRsaDsa = getCRL(f, CRL_RSA_DSA);
         Set<? extends X509CRLEntry> entries2 = crlRsaDsa.getRevokedCertificates();
         assertEquals(2, entries2.size());
-        assertRsaCrl(f, crlRsaDsa.getRevokedCertificate(rsaCert));
-        assertDsaCrl(f, crlRsaDsa.getRevokedCertificate(dsaCert));
+        assertRsaCrlEntry(f, crlRsaDsa.getRevokedCertificate(rsaCert));
+        assertDsaCrlEntry(f, crlRsaDsa.getRevokedCertificate(dsaCert));
+    }
+
+    private void getSigAlgParams(CertificateFactory f) throws Exception {
+        X509CRL crl1 = getCRL(f, CRL_RSA);
+        final byte[] sigAlgParams = crl1.getSigAlgParams();
+        if (StandardNames.IS_RI) {
+            assertNull(f.getProvider().getName(), sigAlgParams);
+        } else {
+            assertNotNull(f.getProvider().getName(), sigAlgParams);
+            /* ASN.1 NULL */
+            final byte[] expected = new byte[] {
+                    0x05, 0x00,
+            };
+            assertEquals(f.getProvider().getName(), Arrays.toString(expected),
+                    Arrays.toString(sigAlgParams));
+        }
+
+        {
+            X509CRL crlSigOpt = getCRL(f, CRL_RSA_DSA_SIGOPT);
+
+            /* SEQUENCE, INTEGER 1 */
+            final byte[] expected = new byte[] {
+                    /* SEQUENCE, constructed, len=5 */
+                    (byte) 0x30, (byte) 0x05,
+                    /* Type=2, constructed, context-specific, len=3 */
+                    (byte) 0xA2, (byte) 0x03,
+                    /* INTEGER, len=1, value=1 */
+                    (byte) 0x02, (byte) 0x01, (byte) 0x01,
+            };
+
+            final byte[] params = crlSigOpt.getSigAlgParams();
+            assertNotNull(f.getProvider().getName(), params);
+            assertEquals(Arrays.toString(expected), Arrays.toString(params));
+        }
     }
 
     private void test_toString(CertificateFactory f) throws Exception {
