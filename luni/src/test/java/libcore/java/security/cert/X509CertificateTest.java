@@ -105,6 +105,8 @@ public class X509CertificateTest extends TestCase {
 
     private static final String CERT_UNSUPPORTED = "x509/cert-unsupported.der";
 
+    private static final String CERT_SIGOPT = "x509/cert-sigopt.der";
+
     private static final String CERTS_X509_PEM = "x509/certs.pem";
 
     private static final String CERTS_X509_DER = "x509/certs.der";
@@ -639,12 +641,11 @@ public class X509CertificateTest extends TestCase {
     private void getSigAlgParams(CertificateFactory f) throws Exception {
         {
             X509Certificate c = getCertificate(f, CERT_RSA);
-            // Harmony and BC are broken?
-            String provider = f.getProvider().getName();
-            if ("DRLCertFactory".equals(provider) || "BC".equals(provider)) {
-                assertNotNull(c.getSigAlgParams());
-            } else {
+            // RI appears to disagree
+            if (StandardNames.IS_RI) {
                 assertNull(f.getProvider().getName(), c.getSigAlgParams());
+            } else {
+                assertNotNull(f.getProvider().getName(), c.getSigAlgParams());
             }
         }
 
@@ -656,6 +657,24 @@ public class X509CertificateTest extends TestCase {
         {
             X509Certificate c = getCertificate(f, CERT_EC);
             assertNull(f.getProvider().getName(), c.getSigAlgParams());
+        }
+
+        {
+            X509Certificate c = getCertificate(f, CERT_SIGOPT);
+
+            /* SEQUENCE, INTEGER 1 */
+            final byte[] expected = new byte[] {
+                    /* SEQUENCE, constructed, len=5 */
+                    (byte) 0x30, (byte) 0x05,
+                    /* Type=2, constructed, context-specific, len=3 */
+                    (byte) 0xA2, (byte) 0x03,
+                    /* INTEGER, len=1, value=1 */
+                    (byte) 0x02, (byte) 0x01, (byte) 0x01,
+            };
+
+            final byte[] params = c.getSigAlgParams();
+            assertNotNull(f.getProvider().getName(), params);
+            assertEquals(Arrays.toString(expected), Arrays.toString(params));
         }
     }
 
