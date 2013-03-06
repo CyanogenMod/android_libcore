@@ -70,6 +70,8 @@ public class X509CRLTest extends TestCase {
 
     private static final String CRL_RSA_TBS = "x509/crl-rsa-tbs.der";
 
+    private static final String CRL_EMPTY = "x509/crl-empty.der";
+
     private final X509Certificate getCertificate(CertificateFactory f, String name)
             throws Exception {
         final InputStream is = Support_Resources.getStream(name);
@@ -349,6 +351,9 @@ public class X509CRLTest extends TestCase {
     }
 
     private void getRevokedCertificates(CertificateFactory f) throws Exception {
+        X509CRL crlEmpty = getCRL(f, CRL_EMPTY);
+        assertNull(crlEmpty.getRevokedCertificates());
+
         X509CRL crlRsa = getCRL(f, CRL_RSA);
         X509Certificate rsaCert = getCertificate(f, CERT_RSA);
         X509Certificate dsaCert = getCertificate(f, CERT_DSA);
