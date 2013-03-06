@@ -130,4 +130,9 @@ public class FormatterTest extends junit.framework.TestCase {
                     output[i], result);
         }
     }
+
+    // https://code.google.com/p/android/issues/detail?id=42936
+    public void test42936() throws Exception {
+        assertEquals("0.00000000000000", String.format("%.15g",0.0d));
+    }
 }
