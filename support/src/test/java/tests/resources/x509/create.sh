@@ -80,6 +80,9 @@ echo "01" > /tmp/ca/serial
 openssl req -new -nodes -batch -x509 -extensions v3_ca -keyout cakey.pem -out cacert.pem -days 3650 -config default.cnf
 openssl x509 -in cacert.pem -outform d > cert-crl-ca.der
 
+openssl ca -gencrl -crlhours 70 -keyfile cakey.pem -cert cacert.pem -out crl-empty.pem -config default.cnf
+openssl crl -in crl-empty.pem -outform d -out crl-empty.der
+
 openssl x509 -inform d -in cert-rsa.der -out cert-rsa.pem
 openssl ca -revoke cert-rsa.pem -keyfile cakey.pem -cert cacert.pem -config default.cnf
 openssl ca -gencrl -crlhours 70 -keyfile cakey.pem -cert cacert.pem -out crl-rsa.pem -config default.cnf
@@ -103,7 +106,7 @@ openssl crl -in crl-unsupported.pem -outform d -out crl-unsupported.der
 openssl crl -inform d -in crl-rsa.der -noout -lastupdate -nextupdate > crl-rsa-dates.txt
 openssl crl -inform d -in crl-rsa-dsa.der -noout -lastupdate -nextupdate > crl-rsa-dsa-dates.txt
 
-rm -f cert-rsa.pem cert-dsa.pem cacert.pem cakey.pem crl-rsa.pem crl-rsa-dsa.pem crl-unsupported.pem
+rm -f cert-rsa.pem cert-dsa.pem cacert.pem cakey.pem crl-rsa.pem crl-rsa-dsa.pem crl-unsupported.pem crl-empty.pem
 rm -rf /tmp/ca
 
 rm -f privkey.pem
