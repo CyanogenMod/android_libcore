@@ -22,6 +22,56 @@ import java.util.Locale;
  * Exposes icu4c's AlphabeticIndex.
  */
 public final class AlphabeticIndex {
+
+  /**
+   * Exposes icu4c's ImmutableIndex (new to icu 51). This exposes a read-only,
+   * thread safe snapshot view of an AlphabeticIndex at the moment it was
+   * created, and allows for random access to buckets by index.
+   */
+  public static final class ImmutableIndex {
+    private long peer;
+
+    private ImmutableIndex(long peer) {
+      this.peer = peer;
+    }
+
+    @Override protected synchronized void finalize() throws Throwable {
+      try {
+        destroy(peer);
+        peer = 0;
+      } finally {
+        super.finalize();
+      }
+    }
+
+    /**
+     * Returns the number of the label buckets in this index.
+     */
+    public int getBucketCount() {
+      return getBucketCount(peer);
+    }
+
+    /**
+     * Returns the index of the bucket in which 's' should appear.
+     * Function is synchronized because underlying routine walks an iterator
+     * whose state is maintained inside the index object.
+     */
+    public int getBucketIndex(String s) {
+      return getBucketIndex(peer, s);
+    }
+
+    /**
+     * Returns the label for the bucket at the given index (as returned by getBucketIndex).
+     */
+    public String getBucketLabel(int index) {
+      return getBucketLabel(peer, index);
+    }
+
+    private static native int getBucketCount(long peer);
+    private static native int getBucketIndex(long peer, String s);
+    private static native String getBucketLabel(long peer, int index);
+  }
+
   private long peer;
 
   /**
@@ -48,16 +98,18 @@ public final class AlphabeticIndex {
    * it remains that of the locale that was originally specified
    * when creating this index.
    */
-  public synchronized void addLabels(Locale locale) {
+  public synchronized AlphabeticIndex addLabels(Locale locale) {
     addLabels(peer, locale.toString());
+    return this;
   }
 
   /**
    * Adds the index characters in the range between the specified start and
    * end code points, inclusive.
    */
-  public synchronized void addLabelRange(int codePointStart, int codePointEnd) {
+  public synchronized AlphabeticIndex addLabelRange(int codePointStart, int codePointEnd) {
     addLabelRange(peer, codePointStart, codePointEnd);
+    return this;
   }
 
   /**
@@ -79,8 +131,15 @@ public final class AlphabeticIndex {
   /**
    * Returns the label for the bucket at the given index (as returned by getBucketIndex).
    */
-  public String getBucketLabel(int index) {
+  public synchronized String getBucketLabel(int index) {
     return getBucketLabel(peer, index);
+  }
+
+  /**
+   * Returns an ImmutableIndex created from this AlphabeticIndex.
+   */
+  public synchronized ImmutableIndex getImmutableIndex() {
+    return new ImmutableIndex(buildImmutableIndex(peer));
   }
 
   private static native long create(String locale);
@@ -90,4 +149,5 @@ public final class AlphabeticIndex {
   private static native int getBucketCount(long peer);
   private static native int getBucketIndex(long peer, String s);
   private static native String getBucketLabel(long peer, int index);
+  private static native long buildImmutableIndex(long peer);
 }
