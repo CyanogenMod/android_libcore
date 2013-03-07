@@ -19,12 +19,12 @@ package libcore.icu;
 import java.util.Locale;
 
 public class AlphabeticIndexTest extends junit.framework.TestCase {
-  private static ImmutableIndex createIndex(Locale locale) {
+  private static AlphabeticIndex.ImmutableIndex createIndex(Locale locale) {
     return new AlphabeticIndex(locale).addLabels(Locale.US)
         .getImmutableIndex();
   }
 
-  private static void assertHasLabel(ImmutableIndex ii, String string, String expectedLabel) {
+  private static void assertHasLabel(AlphabeticIndex.ImmutableIndex ii, String string, String expectedLabel) {
     int index = ii.getBucketIndex(string);
     String label = ii.getBucketLabel(index);
     assertEquals(expectedLabel, label);
@@ -32,13 +32,13 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
 
   public void test_en() throws Exception {
     // English [A-Z]
-    ImmutableIndex en = createIndex(Locale.ENGLISH);
+    AlphabeticIndex.ImmutableIndex en = createIndex(Locale.ENGLISH);
     assertHasLabel(en, "Allen", "A");
     assertHasLabel(en, "allen", "A");
   }
 
   public void test_ja() throws Exception {
-    ImmutableIndex ja = createIndex(Locale.JAPANESE);
+    AlphabeticIndex.ImmutableIndex ja = createIndex(Locale.JAPANESE);
 
     // Japanese
     //   sorts hiragana/katakana, Kanji/Chinese, English, other
@@ -65,7 +65,7 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
   public void test_ko() throws Exception {
     // Korean (sorts Korean, then English)
     // …, ᄀ, ᄂ, ᄃ, ᄅ, ᄆ, ᄇ, ᄉ, ᄋ, ᄌ, ᄎ, ᄏ, ᄐ, ᄑ, ᄒ, …
-    ImmutableIndex ko = createIndex(Locale.KOREAN);
+    AlphabeticIndex.ImmutableIndex ko = createIndex(Locale.KOREAN);
     assertHasLabel(ko, "\u1100", "\u1100");
     assertHasLabel(ko, "\u3131", "\u1100");
     assertHasLabel(ko, "\u1101", "\u1100");
@@ -75,7 +75,7 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
   public void test_cs() throws Exception {
     // Czech
     // …, [A-C], Č,[D-H], CH, [I-R], Ř, S, Š, [T-Z], Ž, …
-    ImmutableIndex cs = createIndex(new Locale("cs"));
+    AlphabeticIndex.ImmutableIndex cs = createIndex(new Locale("cs"));
     assertHasLabel(cs, "Cena", "C");
     assertHasLabel(cs, "Čáp", "\u010c");
     assertHasLabel(cs, "Ruda", "R");
@@ -89,14 +89,14 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
 
   public void test_fr() throws Exception {
     // French: [A-Z] (no accented chars)
-    ImmutableIndex fr = createIndex(Locale.FRENCH);
+    AlphabeticIndex.ImmutableIndex fr = createIndex(Locale.FRENCH);
     assertHasLabel(fr, "Øfer", "O");
     assertHasLabel(fr, "Œster", "O");
   }
 
   public void test_da() throws Exception {
     // Danish: [A-Z], Æ, Ø, Å
-    ImmutableIndex da = createIndex(new Locale("da"));
+    AlphabeticIndex.ImmutableIndex da = createIndex(new Locale("da"));
     assertHasLabel(da, "Ænes", "\u00c6");
     assertHasLabel(da, "Øfer", "\u00d8");
     assertHasLabel(da, "Œster", "\u00d8");
@@ -105,14 +105,14 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
 
   public void test_de() throws Exception {
     // German: [A-Z] (no ß or umlauted characters in standard alphabet)
-    ImmutableIndex de = createIndex(Locale.GERMAN);
+    AlphabeticIndex.ImmutableIndex de = createIndex(Locale.GERMAN);
     assertHasLabel(de, "ßind", "S");
   }
 
   public void test_th() throws Exception {
     // Thai (sorts English then Thai)
     // …, ก, ข, ฃ, ค, ฅ, ฆ, ง, จ, ฉ, ช, ซ, ฌ, ญ, ฎ, ฏ, ฐ, ฑ, ฒ, ณ, ด, ต, ถ, ท, ธ, น, บ, ป, ผ, ฝ, พ, ฟ, ภ, ม, ย, ร, ฤ, ล, ฦ, ว, ศ, ษ, ส, ห, ฬ, อ, ฮ, …,
-    ImmutableIndex th = createIndex(new Locale("th"));
+    AlphabeticIndex.ImmutableIndex th = createIndex(new Locale("th"));
     assertHasLabel(th, "\u0e2d\u0e07\u0e04\u0e4c\u0e40\u0e25\u0e47\u0e01", "\u0e2d");
     assertHasLabel(th, "\u0e2a\u0e34\u0e07\u0e2b\u0e40\u0e2a\u0e19\u0e35", "\u0e2a");
   }
@@ -120,21 +120,21 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
   public void test_ar() throws Exception {
     // Arabic (sorts English then Arabic)
     // …, ا, ب, ت, ث, ج, ح, خ, د, ذ, ر, ز, س, ش, ص, ض, ط, ظ, ع, غ, ف, ق, ك, ل, م, ن, ه, و, ي, …
-    ImmutableIndex ar = createIndex(new Locale("ar"));
+    AlphabeticIndex.ImmutableIndex ar = createIndex(new Locale("ar"));
     assertHasLabel(ar, "\u0646\u0648\u0631", /* Noor */ "\u0646");
   }
 
   public void test_he() throws Exception {
     // Hebrew (sorts English then Hebrew)
     // …, א, ב, ג, ד, ה, ו, ז, ח, ט, י, כ, ל, מ, נ, ס, ע, פ, צ, ק, ר, ש, ת, …
-    ImmutableIndex he = createIndex(new Locale("he"));
+    AlphabeticIndex.ImmutableIndex he = createIndex(new Locale("he"));
     assertHasLabel(he, "\u05e4\u05e8\u05d9\u05d3\u05de\u05df", "\u05e4");
   }
 
   public void test_zh_CN() throws Exception {
     // Simplified Chinese (default collator Pinyin): [A-Z]
     // Shen/Chen (simplified): should be, usually, 'S' for name collator and 'C' for apps/other
-    ImmutableIndex zh_CN = createIndex(new Locale("zh", "CN"));
+    AlphabeticIndex.ImmutableIndex zh_CN = createIndex(new Locale("zh", "CN"));
 
     // Jia/Gu: should be, usually, 'J' for name collator and 'G' for apps/other
     assertHasLabel(zh_CN, "\u8d3e", "J");
@@ -149,7 +149,7 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
     // Traditional Chinese
     // …, 一, 丁, 丈, 不, 且, 丞, 串, 並, 亭, 乘, 乾, 傀, 亂, 僎, 僵, 儐, 償, 叢, 儳, 嚴, 儷, 儻, 囌, 囑, 廳, …
     // Shen/Chen
-    ImmutableIndex zh_TW = createIndex(new Locale("zh", "TW"));
+    AlphabeticIndex.ImmutableIndex zh_TW = createIndex(new Locale("zh", "TW"));
     assertHasLabel(zh_TW, "\u6c88", "\u4e32");
     assertHasLabel(zh_TW, "\u700b", "\u53e2");
     // Jia/Gu
@@ -174,7 +174,7 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
   }
 
   public void test_getBucketIndex_NPE() throws Exception {
-    ImmutableIndex ii = createIndex(Locale.US);
+    AlphabeticIndex.ImmutableIndex ii = createIndex(Locale.US);
     try {
       ii.getBucketIndex(null);
       fail();
@@ -183,7 +183,7 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
   }
 
   public void test_getBucketLabel_invalid() throws Exception {
-    ImmutableIndex ii = createIndex(Locale.US);
+    AlphabeticIndex.ImmutableIndex ii = createIndex(Locale.US);
     try {
       ii.getBucketLabel(-1);
       fail();
