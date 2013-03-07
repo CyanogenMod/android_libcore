@@ -246,7 +246,7 @@ public class SignatureTest extends TestCase {
             + "34fdadc44326b9b3f3fa828652bab07f0362ac141c8c3784ebdec44e0b156a5e7bccdc81a56fe954"
             + "56ac8c0e4ae12d97");
 
-    private static byte[] hexToBytes(String s) {
+    public static byte[] hexToBytes(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
