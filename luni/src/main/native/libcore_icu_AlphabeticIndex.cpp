@@ -113,6 +113,56 @@ static jstring AlphabeticIndex_getBucketLabel(JNIEnv* env, jclass, jlong peer, j
   return env->NewString(label.getBuffer(), label.length());
 }
 
+static jlong AlphabeticIndex_buildImmutableIndex(JNIEnv* env, jclass, jlong peer) {
+  AlphabeticIndex* ai = fromPeer(peer);
+  UErrorCode status = U_ZERO_ERROR;
+  AlphabeticIndex::ImmutableIndex* ii = ai->buildImmutableIndex(status);
+  if (maybeThrowIcuException(env, "AlphabeticIndex::buildImmutableIndex", status)) {
+    return 0;
+  }
+  return reinterpret_cast<uintptr_t>(ii);
+}
+
+static AlphabeticIndex::ImmutableIndex* immutableIndexFromPeer(jlong peer) {
+  return reinterpret_cast<AlphabeticIndex::ImmutableIndex*>(static_cast<uintptr_t>(peer));
+}
+
+static jint ImmutableIndex_getBucketCount(JNIEnv*, jclass, jlong peer) {
+  AlphabeticIndex::ImmutableIndex* ii = immutableIndexFromPeer(peer);
+  return ii->getBucketCount();
+}
+
+static jint ImmutableIndex_getBucketIndex(JNIEnv* env, jclass, jlong peer, jstring javaString) {
+  AlphabeticIndex::ImmutableIndex* ii = immutableIndexFromPeer(peer);
+  ScopedJavaUnicodeString string(env, javaString);
+  if (!string.valid()) {
+    return -1;
+  }
+  UErrorCode status = U_ZERO_ERROR;
+  jint result = ii->getBucketIndex(string.unicodeString(), status);
+  if (maybeThrowIcuException(env, "AlphabeticIndex::ImmutableIndex::getBucketIndex", status)) {
+    return -1;
+  }
+  return result;
+}
+
+static jstring ImmutableIndex_getBucketLabel(JNIEnv* env, jclass, jlong peer, jint index) {
+  AlphabeticIndex::ImmutableIndex* ii = immutableIndexFromPeer(peer);
+  const AlphabeticIndex::Bucket* bucket = ii->getBucket(index);
+  if (bucket == NULL) {
+    jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException", "Invalid index: %d", index);
+    return NULL;
+  }
+
+  // Return "" for the underflow/inflow/overflow buckets.
+  if (bucket->getLabelType() != U_ALPHAINDEX_NORMAL) {
+    return env->NewStringUTF("");
+  }
+
+  const UnicodeString& label(bucket->getLabel());
+  return env->NewString(label.getBuffer(), label.length());
+}
+
 static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(AlphabeticIndex, create, "(Ljava/lang/String;)J"),
   NATIVE_METHOD(AlphabeticIndex, destroy, "(J)V"),
@@ -121,7 +171,14 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(AlphabeticIndex, getBucketCount, "(J)I"),
   NATIVE_METHOD(AlphabeticIndex, getBucketIndex, "(JLjava/lang/String;)I"),
   NATIVE_METHOD(AlphabeticIndex, getBucketLabel, "(JI)Ljava/lang/String;"),
+  NATIVE_METHOD(AlphabeticIndex, buildImmutableIndex, "(J)J"),
+};
+static JNINativeMethod gImmutableIndexMethods[] = {
+  NATIVE_METHOD(ImmutableIndex, getBucketCount, "(J)I"),
+  NATIVE_METHOD(ImmutableIndex, getBucketIndex, "(JLjava/lang/String;)I"),
+  NATIVE_METHOD(ImmutableIndex, getBucketLabel, "(JI)Ljava/lang/String;"),
 };
 void register_libcore_icu_AlphabeticIndex(JNIEnv* env) {
   jniRegisterNativeMethods(env, "libcore/icu/AlphabeticIndex", gMethods, NELEM(gMethods));
+  jniRegisterNativeMethods(env, "libcore/icu/AlphabeticIndex$ImmutableIndex", gImmutableIndexMethods, NELEM(gImmutableIndexMethods));
 }
