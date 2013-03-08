@@ -693,6 +693,18 @@ jbyteArray ASN1ToByteArray(JNIEnv* env, T* obj) {
     return byteArray.release();
 }
 
+template<typename T, T* (*d2i_func)(T**, const unsigned char**, long)>
+T* ByteArrayToASN1(JNIEnv* env, jbyteArray byteArray) {
+    ScopedByteArrayRO bytes(env, byteArray);
+    if (bytes.get() == NULL) {
+        JNI_TRACE("ByteArrayToASN1(%p) => using byte array failed", obj);
+        return 0;
+    }
+
+    const unsigned char* tmp = reinterpret_cast<const unsigned char*>(bytes.get());
+    return d2i_func(NULL, &tmp, bytes.size());
+}
+
 /**
  * Converts ASN.1 BIT STRING to a jbooleanArray.
  */
@@ -4488,6 +4500,11 @@ static jlong NativeCrypto_d2i_X509_bio(JNIEnv* env, jclass, jlong bioRef) {
     return d2i_ASN1Object_to_jlong<X509, d2i_X509_bio>(env, bioRef);
 }
 
+static jlong NativeCrypto_d2i_X509(JNIEnv* env, jclass, jbyteArray certBytes) {
+    X509* x = ByteArrayToASN1<X509, d2i_X509>(env, certBytes);
+    return reinterpret_cast<uintptr_t>(x);
+}
+
 static jbyteArray NativeCrypto_i2d_X509(JNIEnv* env, jclass, jlong x509Ref) {
     X509* x509 = reinterpret_cast<X509*>(static_cast<uintptr_t>(x509Ref));
     JNI_TRACE("i2d_X509(%p)", x509);
@@ -4626,7 +4643,36 @@ static jlongArray NativeCrypto_d2i_PKCS7_bio(JNIEnv* env, jclass, jlong bioRef, 
     default:
         jniThrowRuntimeException(env, "unknown PKCS7 field");
         return NULL;
-    }}
+    }
+}
+
+static jbyteArray NativeCrypto_i2d_PKCS7(JNIEnv* env, jclass, jlongArray certsArray) {
+    JNI_TRACE("i2d_PKCS7(%p)", certsArray);
+
+    Unique_PKCS7 pkcs7(PKCS7_new());
+    if (pkcs7.get() == NULL) {
+        jniThrowNullPointerException(env, "pkcs7 == null");
+        JNI_TRACE("i2d_PKCS7(%p) => pkcs7 == null", certsArray);
+        return NULL;
+    }
+
+    if (PKCS7_set_type(pkcs7.get(), NID_pkcs7_signed) != 1) {
+        throwExceptionIfNecessary(env, "PKCS7_set_type");
+        return NULL;
+    }
+
+    ScopedLongArrayRO certs(env, certsArray);
+    for (size_t i = 0; i < certs.size(); i++) {
+        X509* item = reinterpret_cast<X509*>(certs[i]);
+        if (PKCS7_add_certificate(pkcs7.get(), item) != 1) {
+            throwExceptionIfNecessary(env, "i2d_PKCS7");
+            return NULL;
+        }
+    }
+
+    JNI_TRACE("i2d_PKCS7(%p) => %d certs", certsArray, certs.size());
+    return ASN1ToByteArray<PKCS7, i2d_PKCS7>(env, pkcs7.get());
+}
 
 static void NativeCrypto_X509_free(JNIEnv* env, jclass, jlong x509Ref) {
     X509* x509 = reinterpret_cast<X509*>(static_cast<uintptr_t>(x509Ref));
@@ -7595,10 +7641,12 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, BIO_free, "(J)V"),
     NATIVE_METHOD(NativeCrypto, X509_NAME_print_ex, "(JJ)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, d2i_X509_bio, "(J)J"),
+    NATIVE_METHOD(NativeCrypto, d2i_X509, "([B)J"),
     NATIVE_METHOD(NativeCrypto, i2d_X509, "(J)[B"),
     NATIVE_METHOD(NativeCrypto, PEM_read_bio_X509, "(J)J"),
     NATIVE_METHOD(NativeCrypto, PEM_read_bio_PKCS7, "(JI)[J"),
     NATIVE_METHOD(NativeCrypto, d2i_PKCS7_bio, "(JI)[J"),
+    NATIVE_METHOD(NativeCrypto, i2d_PKCS7, "([J)[B"),
     NATIVE_METHOD(NativeCrypto, X509_free, "(J)V"),
     NATIVE_METHOD(NativeCrypto, X509_cmp, "(JJ)I"),
     NATIVE_METHOD(NativeCrypto, get_X509_hashCode, "(J)I"),
