@@ -29,6 +29,7 @@
 
 #include <jni.h>
 
+#include <openssl/asn1t.h>
 #include <openssl/dsa.h>
 #include <openssl/engine.h>
 #include <openssl/err.h>
@@ -75,6 +76,13 @@ static jmethodID integer_valueOfMethod;
 static jmethodID openSslInputStream_readLineMethod;
 static jmethodID outputStream_writeMethod;
 static jmethodID outputStream_flushMethod;
+
+struct OPENSSL_Delete {
+    void operator()(void* p) const {
+        OPENSSL_free(p);
+    }
+};
+typedef UniquePtr<unsigned char, OPENSSL_Delete> Unique_OPENSSL_str;
 
 struct BIO_Delete {
     void operator()(BIO* p) const {
@@ -697,7 +705,7 @@ template<typename T, T* (*d2i_func)(T**, const unsigned char**, long)>
 T* ByteArrayToASN1(JNIEnv* env, jbyteArray byteArray) {
     ScopedByteArrayRO bytes(env, byteArray);
     if (bytes.get() == NULL) {
-        JNI_TRACE("ByteArrayToASN1(%p) => using byte array failed", obj);
+        JNI_TRACE("ByteArrayToASN1(%p) => using byte array failed", byteArray);
         return 0;
     }
 
@@ -4619,18 +4627,18 @@ static jlongArray NativeCrypto_PEM_read_bio_PKCS7(JNIEnv* env, jclass, jlong bio
 
 static jlongArray NativeCrypto_d2i_PKCS7_bio(JNIEnv* env, jclass, jlong bioRef, jint which) {
     BIO* bio = reinterpret_cast<BIO*>(static_cast<uintptr_t>(bioRef));
-    JNI_TRACE("d2i_PKCS7_bio_certs(%p)", bio);
+    JNI_TRACE("d2i_PKCS7_bio(%p, %d)", bio, which);
 
     if (bio == NULL) {
         jniThrowNullPointerException(env, "bio == null");
-        JNI_TRACE("d2i_PKCS7_bio_certs(%p) => bio == null", bio);
+        JNI_TRACE("d2i_PKCS7_bio(%p, %d) => bio == null", bio, which);
         return 0;
     }
 
     Unique_PKCS7 pkcs7(d2i_PKCS7_bio(bio, NULL));
     if (pkcs7.get() == NULL) {
-        throwExceptionIfNecessary(env, "d2i_PKCS7_bio_certs");
-        JNI_TRACE("d2i_PKCS7_bio_certs(%p) => threw exception", bio);
+        throwExceptionIfNecessary(env, "d2i_PKCS7_bio");
+        JNI_TRACE("d2i_PKCS7_bio(%p, %d) => threw exception", bio, which);
         return 0;
     }
 
@@ -4672,6 +4680,82 @@ static jbyteArray NativeCrypto_i2d_PKCS7(JNIEnv* env, jclass, jlongArray certsAr
 
     JNI_TRACE("i2d_PKCS7(%p) => %d certs", certsArray, certs.size());
     return ASN1ToByteArray<PKCS7, i2d_PKCS7>(env, pkcs7.get());
+}
+
+typedef STACK_OF(X509) PKIPATH;
+
+ASN1_ITEM_TEMPLATE(PKIPATH) =
+    ASN1_EX_TEMPLATE_TYPE(ASN1_TFLG_SEQUENCE_OF, 0, PkiPath, X509)
+ASN1_ITEM_TEMPLATE_END(PKIPATH)
+
+static jlongArray NativeCrypto_ASN1_seq_unpack_X509_bio(JNIEnv* env, jclass, jlong bioRef) {
+    BIO* bio = reinterpret_cast<BIO*>(static_cast<uintptr_t>(bioRef));
+    JNI_TRACE("ASN1_seq_unpack_X509_bio(%p)", bio);
+
+    Unique_sk_X509 path((PKIPATH*) ASN1_item_d2i_bio(ASN1_ITEM_rptr(PKIPATH), bio, NULL));
+    if (path.get() == NULL) {
+        throwExceptionIfNecessary(env, "ASN1_seq_unpack_X509_bio");
+        return NULL;
+    }
+
+    size_t size = sk_X509_num(path.get());
+
+    ScopedLocalRef<jlongArray> certArray(env, env->NewLongArray(size));
+    ScopedLongArrayRW certs(env, certArray.get());
+    for (size_t i = 0; i < size; i++) {
+        X509* item = reinterpret_cast<X509*>(sk_X509_value(path.get(), i));
+        certs[i] = reinterpret_cast<uintptr_t>(item);
+    }
+
+    JNI_TRACE("ASN1_seq_unpack_X509_bio(%p) => returns %d items", bio, size);
+    return certArray.release();
+}
+
+static jbyteArray NativeCrypto_ASN1_seq_pack_X509(JNIEnv* env, jclass, jlongArray certs) {
+    JNI_TRACE("ASN1_seq_pack_X509(%p)", certs);
+    ScopedLongArrayRO certsArray(env, certs);
+    if (certsArray.get() == NULL) {
+        JNI_TRACE("ASN1_seq_pack_X509(%p) => failed to get certs array", certs);
+        return NULL;
+    }
+
+    Unique_sk_X509 certStack(sk_X509_new_null());
+    if (certStack.get() == NULL) {
+        JNI_TRACE("ASN1_seq_pack_X509(%p) => failed to make cert stack", certs);
+        return NULL;
+    }
+
+    for (size_t i = 0; i < certsArray.size(); i++) {
+        X509* x509 = reinterpret_cast<X509*>(static_cast<uintptr_t>(certsArray[i]));
+        sk_X509_push(certStack.get(), X509_dup(x509));
+    }
+
+    int len;
+    Unique_OPENSSL_str encoded(ASN1_seq_pack(
+                    reinterpret_cast<STACK_OF(OPENSSL_BLOCK)*>(
+                            reinterpret_cast<uintptr_t>(certStack.get())),
+                    reinterpret_cast<int (*)(void*, unsigned char**)>(i2d_X509), NULL, &len));
+    if (encoded.get() == NULL) {
+        JNI_TRACE("ASN1_seq_pack_X509(%p) => trouble encoding", certs);
+        return NULL;
+    }
+
+    ScopedLocalRef<jbyteArray> byteArray(env, env->NewByteArray(len));
+    if (byteArray.get() == NULL) {
+        JNI_TRACE("ASN1_seq_pack_X509(%p) => creating byte array failed", certs);
+        return NULL;
+    }
+
+    ScopedByteArrayRW bytes(env, byteArray.get());
+    if (bytes.get() == NULL) {
+        JNI_TRACE("ASN1_seq_pack_X509(%p) => using byte array failed", certs);
+        return NULL;
+    }
+
+    unsigned char* p = reinterpret_cast<unsigned char*>(bytes.get());
+    memcpy(p, encoded.get(), len);
+
+    return byteArray.release();
 }
 
 static void NativeCrypto_X509_free(JNIEnv* env, jclass, jlong x509Ref) {
@@ -7647,6 +7731,8 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, PEM_read_bio_PKCS7, "(JI)[J"),
     NATIVE_METHOD(NativeCrypto, d2i_PKCS7_bio, "(JI)[J"),
     NATIVE_METHOD(NativeCrypto, i2d_PKCS7, "([J)[B"),
+    NATIVE_METHOD(NativeCrypto, ASN1_seq_unpack_X509_bio, "(J)[J"),
+    NATIVE_METHOD(NativeCrypto, ASN1_seq_pack_X509, "([J)[B"),
     NATIVE_METHOD(NativeCrypto, X509_free, "(J)V"),
     NATIVE_METHOD(NativeCrypto, X509_cmp, "(JJ)I"),
     NATIVE_METHOD(NativeCrypto, get_X509_hashCode, "(J)I"),
