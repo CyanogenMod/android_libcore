@@ -386,8 +386,6 @@ static bool throwExceptionIfNecessary(JNIEnv* env, const char* location  __attri
             throwSignatureException(env, message);
         } else if (library == ERR_LIB_RSA && reason == RSA_R_WRONG_SIGNATURE_LENGTH) {
             throwSignatureException(env, message);
-        } else if (library == ERR_LIB_DSA && reason == DSA_R_PARAMETER_ENCODING_ERROR) {
-            throwInvalidKeyException(env, message);
         } else if (library == ERR_LIB_ASN1 && reason == ASN1_R_WRONG_PUBLIC_KEY_TYPE) {
             throwInvalidKeyException(env, message);
         } else if (library == ERR_LIB_EVP && reason == EVP_R_BAD_DECRYPT) {
@@ -396,6 +394,8 @@ static bool throwExceptionIfNecessary(JNIEnv* env, const char* location  __attri
             throwIllegalBlockSizeException(env, message);
         } else if (library == ERR_LIB_X509 && reason == X509_R_UNSUPPORTED_ALGORITHM) {
             throwNoSuchAlgorithmException(env, message);
+        } else if (library == ERR_LIB_DSA) {
+            throwInvalidKeyException(env, message);
         } else {
             jniThrowRuntimeException(env, message);
         }
