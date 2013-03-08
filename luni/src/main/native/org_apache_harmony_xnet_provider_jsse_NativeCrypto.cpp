@@ -2881,9 +2881,8 @@ static void NativeCrypto_EVP_DigestUpdate(JNIEnv* env, jclass, jlong ctxRef,
     }
 }
 
-static void NativeCrypto_EVP_DigestSignInit(JNIEnv* env, jclass, jint evpMdCtxRef,
-        const jlong evpMdRef, jlong pkeyRef)
-{
+static void NativeCrypto_EVP_DigestSignInit(JNIEnv* env, jclass, jlong evpMdCtxRef,
+        const jlong evpMdRef, jlong pkeyRef) {
     EVP_MD_CTX* mdCtx = reinterpret_cast<EVP_MD_CTX*>(evpMdCtxRef);
     const EVP_MD* md = reinterpret_cast<const EVP_MD*>(evpMdRef);
     EVP_PKEY* pkey = reinterpret_cast<EVP_PKEY*>(pkeyRef);
@@ -4238,7 +4237,7 @@ static jbyteArray X509Type_get_ext_oid(JNIEnv* env, T* x509Type, jstring oidStri
         return NULL;
     }
 
-    JNI_TRACE("X509Type_get_ext_oid(%p, %p) => fetching extension failed", x509Type, oidString);
+    JNI_TRACE("X509Type_get_ext_oid(%p, %p) => %p", x509Type, oidString, ext->value);
     return ASN1ToByteArray<ASN1_OCTET_STRING, i2d_ASN1_OCTET_STRING>(env, ext->value);
 }
 
@@ -4960,7 +4959,7 @@ static jbooleanArray NativeCrypto_get_X509_ex_kusage(JNIEnv* env, jclass, jlong 
     Unique_ASN1_BIT_STRING bitStr(static_cast<ASN1_BIT_STRING*>(
             X509_get_ext_d2i(x509, NID_key_usage, NULL, NULL)));
     if (bitStr.get() == NULL) {
-        JNI_TRACE("get_X509_ex_kusage(%p) => conversion to bitstring failed", x509);
+        JNI_TRACE("get_X509_ex_kusage(%p) => null", x509);
         return NULL;
     }
 
