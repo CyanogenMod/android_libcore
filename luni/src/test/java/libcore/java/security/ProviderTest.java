@@ -212,7 +212,7 @@ public class ProviderTest extends TestCase {
             assertEquals(1, position);
             SecureRandom sr = new SecureRandom();
             if (!sr.getAlgorithm().equals("SecureRandom1")) {
-                throw new IllegalStateException("Expected SecureRandom1");
+                throw new IllegalStateException("Expected SecureRandom1 was " + sr.getAlgorithm());
             }
         } finally {
             Security.removeProvider(srp.getName());

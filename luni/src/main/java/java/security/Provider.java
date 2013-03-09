@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -72,7 +71,7 @@ public abstract class Provider extends Properties {
     private transient LinkedHashMap<String, Service> propertyAliasTable;
 
     // The properties changed via put()
-    private transient Properties changedProperties;
+    private transient LinkedHashMap<Object, Object> changedProperties;
 
     // For getService(String type, String algorithm) optimization:
     // previous result
@@ -194,7 +193,7 @@ public abstract class Provider extends Properties {
 
     private void myPutAll(Map<?,?> t) {
         if (changedProperties == null) {
-            changedProperties = new Properties();
+            changedProperties = new LinkedHashMap<Object, Object>();
         }
         Iterator<? extends Map.Entry<?, ?>> it = t.entrySet().iterator();
         Object key;
@@ -259,7 +258,7 @@ public abstract class Provider extends Properties {
             removeFromPropertyServiceTable(key);
         }
         if (changedProperties == null) {
-            changedProperties = new Properties();
+            changedProperties = new LinkedHashMap<Object, Object>();
         }
         changedProperties.put(key, value);
         return super.put(key, value);
