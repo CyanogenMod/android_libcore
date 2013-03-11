@@ -66,10 +66,10 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
     // Korean (sorts Korean, then English)
     // …, ᄀ, ᄂ, ᄃ, ᄅ, ᄆ, ᄇ, ᄉ, ᄋ, ᄌ, ᄎ, ᄏ, ᄐ, ᄑ, ᄒ, …
     AlphabeticIndex.ImmutableIndex ko = createIndex(Locale.KOREAN);
-    assertHasLabel(ko, "\u1100", "\u1100");
-    assertHasLabel(ko, "\u3131", "\u1100");
-    assertHasLabel(ko, "\u1101", "\u1100");
-    assertHasLabel(ko, "\u1161", "\u1112");
+    assertHasLabel(ko, "\u1100", "\u3131");
+    assertHasLabel(ko, "\u3131", "\u3131");
+    assertHasLabel(ko, "\u1101", "\u3131");
+    assertHasLabel(ko, "\u1161", "\u314e");
   }
 
   public void test_cs() throws Exception {
@@ -104,9 +104,12 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
   }
 
   public void test_de() throws Exception {
-    // German: [A-Z] (no ß or umlauted characters in standard alphabet)
+    // German: [A-S,Sch,St,T-Z] (no ß or umlauted characters in standard alphabet)
     AlphabeticIndex.ImmutableIndex de = createIndex(Locale.GERMAN);
     assertHasLabel(de, "ßind", "S");
+    assertHasLabel(de, "Sacher", "S");
+    assertHasLabel(de, "Schiller", "Sch");
+    assertHasLabel(de, "Steiff", "St");
   }
 
   public void test_th() throws Exception {
@@ -142,18 +145,18 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
     // Shen/Chen
     assertHasLabel(zh_CN, "\u6c88", "C"); // icu4c 50 does not specialize for names.
     // Shen/Chen (traditional)
-    assertHasLabel(zh_CN, "\u700b", "S"); // icu4c 50 gets this wrong.
+    assertHasLabel(zh_CN, "\u700b", "S");
   }
 
   public void test_zh_TW() throws Exception {
     // Traditional Chinese
-    // …, 一, 丁, 丈, 不, 且, 丞, 串, 並, 亭, 乘, 乾, 傀, 亂, 僎, 僵, 儐, 償, 叢, 儳, 嚴, 儷, 儻, 囌, 囑, 廳, …
+    // …, [1-33, 35, 36, 39, 48]劃, …
     // Shen/Chen
     AlphabeticIndex.ImmutableIndex zh_TW = createIndex(new Locale("zh", "TW"));
-    assertHasLabel(zh_TW, "\u6c88", "\u4e32");
-    assertHasLabel(zh_TW, "\u700b", "\u53e2");
+    assertHasLabel(zh_TW, "\u6c88", "7\u5283");
+    assertHasLabel(zh_TW, "\u700b", "18\u5283");
     // Jia/Gu
-    assertHasLabel(zh_TW, "\u8d3e", "\u4e58");
+    assertHasLabel(zh_TW, "\u8d3e", "10\u5283");
   }
 
   public void test_constructor_NPE() throws Exception {
