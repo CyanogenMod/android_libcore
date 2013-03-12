@@ -29,10 +29,10 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.DSAPublicKey;
-import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPublicKey;
@@ -72,7 +72,7 @@ public class NativeCryptoTest extends TestCase {
     private static byte[] CLIENT_PRIVATE_KEY;
     private static byte[][] CLIENT_CERTIFICATES;
     private static byte[][] CA_PRINCIPALS;
-    private static ECPrivateKey CHANNEL_ID_PRIVATE_KEY;
+    private static PrivateKey CHANNEL_ID_PRIVATE_KEY;
     private static byte[] CHANNEL_ID;
 
     @Override
@@ -613,7 +613,7 @@ public class NativeCryptoTest extends TestCase {
     private static final boolean DEBUG = false;
 
     public static class Hooks {
-        private ECPrivateKey channelIdPrivateKey;
+        private PrivateKey channelIdPrivateKey;
 
         public long getContext() throws SSLException {
             return NativeCrypto.SSL_CTX_new();
