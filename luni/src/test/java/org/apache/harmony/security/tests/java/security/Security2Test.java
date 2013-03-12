@@ -57,17 +57,15 @@ public class Security2Test extends TestCase {
             for (Map.Entry entry : provider.entrySet()) {
                 String key = (String) entry.getKey();
                 if (isAlias(key)) {
-                    String aliasVal = key.substring("ALG.ALIAS.".length());
-                    String aliasKey = aliasVal.substring(0, aliasVal.indexOf(".") + 1)
-                            + entry.getValue();
+                    String aliasName = key.substring("ALG.ALIAS.".length()).toUpperCase();
+                    String realName = aliasName.substring(0, aliasName.indexOf(".") + 1) + entry.getValue();
                     // Skip over nonsense alias declarations where alias and
                     // aliased are identical. Such entries can occur.
-                    if (!aliasVal.equalsIgnoreCase(aliasKey)) {
-                        // Has a real entry been added for aliasValue ?
-                        if (allSupported.containsKey(aliasVal.toUpperCase())) {
-                            // Add 1 to the provider count of the thing being
-                            // aliased
-                            addOrIncrementTable(allSupported, aliasKey);
+                    if (!aliasName.equalsIgnoreCase(realName)) {
+                        // Has a real entry been added for aliasName ?
+                        if (allSupported.containsKey(aliasName)) {
+                            // Add 1 to the provider count of the thing being aliased
+                            addOrIncrementTable(allSupported, aliasName);
                         }
                     }
                 }
