@@ -356,6 +356,87 @@ static void throwNoSuchAlgorithmException(JNIEnv* env, const char* message) {
     jniThrowException(env, "java/security/NoSuchAlgorithmException", message);
 }
 
+static void throwForAsn1Error(JNIEnv* env, int reason, const char *message) {
+    switch (reason) {
+    case ASN1_R_UNABLE_TO_DECODE_RSA_KEY:
+    case ASN1_R_UNABLE_TO_DECODE_RSA_PRIVATE_KEY:
+    case ASN1_R_UNKNOWN_PUBLIC_KEY_TYPE:
+    case ASN1_R_UNSUPPORTED_PUBLIC_KEY_TYPE:
+    case ASN1_R_WRONG_PUBLIC_KEY_TYPE:
+        throwInvalidKeyException(env, message);
+        break;
+    case ASN1_R_UNKNOWN_MESSAGE_DIGEST_ALGORITHM:
+        throwNoSuchAlgorithmException(env, message);
+        break;
+    default:
+        jniThrowRuntimeException(env, message);
+        break;
+    }
+}
+
+static void throwForEvpError(JNIEnv* env, int reason, const char *message) {
+    switch (reason) {
+    case EVP_R_BAD_DECRYPT:
+        throwBadPaddingException(env, message);
+        break;
+    case EVP_R_DATA_NOT_MULTIPLE_OF_BLOCK_LENGTH:
+        throwIllegalBlockSizeException(env, message);
+        break;
+    case EVP_R_BAD_KEY_LENGTH:
+    case EVP_R_BN_DECODE_ERROR:
+    case EVP_R_BN_PUBKEY_ERROR:
+    case EVP_R_INVALID_KEY_LENGTH:
+    case EVP_R_MISSING_PARAMETERS:
+    case EVP_R_UNSUPPORTED_KEY_SIZE:
+    case EVP_R_UNSUPPORTED_KEYLENGTH:
+        throwInvalidKeyException(env, message);
+        break;
+    case EVP_R_WRONG_PUBLIC_KEY_TYPE:
+        throwSignatureException(env, message);
+        break;
+    default:
+        jniThrowRuntimeException(env, message);
+        break;
+    }
+}
+
+static void throwForRsaError(JNIEnv* env, int reason, const char *message) {
+    switch (reason) {
+    case RSA_R_BLOCK_TYPE_IS_NOT_01:
+    case RSA_R_BLOCK_TYPE_IS_NOT_02:
+        throwBadPaddingException(env, message);
+        break;
+    case RSA_R_ALGORITHM_MISMATCH:
+    case RSA_R_BAD_SIGNATURE:
+    case RSA_R_DATA_GREATER_THAN_MOD_LEN:
+    case RSA_R_INVALID_MESSAGE_LENGTH:
+    case RSA_R_WRONG_SIGNATURE_LENGTH:
+        throwSignatureException(env, message);
+        break;
+    case RSA_R_UNKNOWN_ALGORITHM_TYPE:
+        throwNoSuchAlgorithmException(env, message);
+        break;
+    case RSA_R_MODULUS_TOO_LARGE:
+    case RSA_R_NO_PUBLIC_EXPONENT:
+        throwInvalidKeyException(env, message);
+        break;
+    default:
+        jniThrowRuntimeException(env, message);
+        break;
+    }
+}
+
+static void throwForX509Error(JNIEnv* env, int reason, const char *message) {
+    switch (reason) {
+    case X509_R_UNSUPPORTED_ALGORITHM:
+        throwNoSuchAlgorithmException(env, message);
+        break;
+    default:
+        jniThrowRuntimeException(env, message);
+        break;
+    }
+}
+
 /*
  * Checks this thread's OpenSSL error queue and throws a RuntimeException if
  * necessary.
@@ -378,26 +459,25 @@ static bool throwExceptionIfNecessary(JNIEnv* env, const char* location  __attri
         JNI_TRACE("OpenSSL error in %s error=%lx library=%x reason=%x (%s:%d): %s %s",
                   location, error, library, reason, file, line, message,
                   (flags & ERR_TXT_STRING) ? data : "(no data)");
-        if ((library == ERR_LIB_RSA)
-                && ((reason == RSA_R_BLOCK_TYPE_IS_NOT_01)
-                    || (reason == RSA_R_BLOCK_TYPE_IS_NOT_02))) {
-            throwBadPaddingException(env, message);
-        } else if (library == ERR_LIB_RSA && reason == RSA_R_DATA_GREATER_THAN_MOD_LEN) {
-            throwSignatureException(env, message);
-        } else if (library == ERR_LIB_RSA && reason == RSA_R_WRONG_SIGNATURE_LENGTH) {
-            throwSignatureException(env, message);
-        } else if (library == ERR_LIB_ASN1 && reason == ASN1_R_WRONG_PUBLIC_KEY_TYPE) {
+        switch (library) {
+        case ERR_LIB_RSA:
+            throwForRsaError(env, reason, message);
+            break;
+        case ERR_LIB_ASN1:
+            throwForAsn1Error(env, reason, message);
+            break;
+        case ERR_LIB_EVP:
+            throwForEvpError(env, reason, message);
+            break;
+        case ERR_LIB_X509:
+            throwForX509Error(env, reason, message);
+            break;
+        case ERR_LIB_DSA:
             throwInvalidKeyException(env, message);
-        } else if (library == ERR_LIB_EVP && reason == EVP_R_BAD_DECRYPT) {
-            throwBadPaddingException(env, message);
-        } else if (library == ERR_LIB_EVP && reason == EVP_R_DATA_NOT_MULTIPLE_OF_BLOCK_LENGTH) {
-            throwIllegalBlockSizeException(env, message);
-        } else if (library == ERR_LIB_X509 && reason == X509_R_UNSUPPORTED_ALGORITHM) {
-            throwNoSuchAlgorithmException(env, message);
-        } else if (library == ERR_LIB_DSA) {
-            throwInvalidKeyException(env, message);
-        } else {
+            break;
+        default:
             jniThrowRuntimeException(env, message);
+            break;
         }
         result = true;
     }
