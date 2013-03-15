@@ -16,12 +16,14 @@
 
 package libcore.icu;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 import libcore.util.BasicLruCache;
+import libcore.util.ZoneInfoDB;
 
 /**
  * Provides access to ICU's time zone name data.
@@ -140,12 +142,22 @@ public final class TimeZoneNames {
     /**
      * Returns an array containing the time zone ids in use in the country corresponding to
      * the given locale. This is not necessary for Java API, but is used by telephony as a
-     * fallback.
+     * fallback. We retrieve these strings from zone.tab rather than icu4c because the latter
+     * supplies them in alphabetical order where zone.tab has them in a kind of "importance"
+     * order (as defined in the zone.tab header).
      */
     public static String[] forLocale(Locale locale) {
-        return forCountryCode(locale.getCountry());
+        String countryCode = locale.getCountry();
+        ArrayList<String> ids = new ArrayList<String>();
+        for (String line : ZoneInfoDB.getZoneTab().split("\n")) {
+            if (line.startsWith(countryCode)) {
+                int olsonIdStart = line.indexOf('\t', 4) + 1;
+                int olsonIdEnd = line.indexOf('\t', olsonIdStart);
+                ids.add(line.substring(olsonIdStart, olsonIdEnd));
+            }
+        }
+        return ids.toArray(new String[ids.size()]);
     }
 
-    private static native String[] forCountryCode(String countryCode);
     private static native void fillZoneStrings(String locale, String[][] result);
 }
