@@ -303,10 +303,21 @@ public class X509Certificate2Test extends junit.framework.TestCase {
         X509Certificate cert = generateCert(CERT_CORRECT);
         List<String> l = cert.getExtendedKeyUsage();
         assertNotNull(l);
-        l.clear();
-        l.add("Test");
-        assertEquals(1, l.size());
-        l.remove(0);
+
+        try {
+            l.clear();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        try {
+            l.add("Test");
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        try {
+            l.remove(0);
+        } catch (UnsupportedOperationException expected) {
+        }
     }
 
     private static final String CERT_WITHOUT_BASIC
