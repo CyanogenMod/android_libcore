@@ -28,14 +28,6 @@
 #include "unicode/timezone.h"
 #include "unicode/tznames.h"
 
-static jobjectArray TimeZoneNames_forCountryCode(JNIEnv* env, jclass, jstring countryCode) {
-  ScopedUtfChars countryChars(env, countryCode);
-  if (countryChars.c_str() == NULL) {
-    return NULL;
-  }
-  return fromStringEnumeration(env, TimeZone::createEnumeration(countryChars.c_str()));
-}
-
 static bool isUtc(const UnicodeString& id) {
   static const UnicodeString kEtcUct("Etc/UCT", 7, US_INV);
   static const UnicodeString kEtcUtc("Etc/UTC", 7, US_INV);
@@ -119,7 +111,6 @@ static void TimeZoneNames_fillZoneStrings(JNIEnv* env, jclass, jstring localeNam
 }
 
 static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(TimeZoneNames, forCountryCode, "(Ljava/lang/String;)[Ljava/lang/String;"),
   NATIVE_METHOD(TimeZoneNames, fillZoneStrings, "(Ljava/lang/String;[[Ljava/lang/String;)V"),
 };
 void register_libcore_icu_TimeZoneNames(JNIEnv* env) {
