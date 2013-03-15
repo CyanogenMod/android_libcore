@@ -55,6 +55,7 @@ public final class ZoneInfoDB {
     private static final MemoryMappedFile TZDATA = mapData();
 
     private static String version;
+    private static String zoneTab;
 
     /**
      * The 'ids' array contains time zone ids sorted alphabetically, for binary searching.
@@ -92,6 +93,7 @@ public final class ZoneInfoDB {
         int zonetab_offset = it.readInt();
 
         readIndex(it, index_offset, data_offset);
+        readZoneTab(it, zonetab_offset);
     }
 
     private static MemoryMappedFile mapData() {
@@ -111,6 +113,13 @@ public final class ZoneInfoDB {
         } catch (ErrnoException errnoException) {
             return null;
         }
+    }
+
+    private static void readZoneTab(BufferIterator it, int zoneTabOffset) {
+        byte[] bytes = new byte[(int) TZDATA.size() - zoneTabOffset];
+        it.seek(zoneTabOffset);
+        it.readByteArray(bytes, 0, bytes.length);
+        zoneTab = new String(bytes, 0, bytes.length, Charsets.US_ASCII);
     }
 
     private static void readIndex(BufferIterator it, int indexOffset, int dataOffset) {
@@ -210,5 +219,9 @@ public final class ZoneInfoDB {
 
     public static String getVersion() {
         return version;
+    }
+
+    public static String getZoneTab() {
+        return zoneTab;
     }
 }
