@@ -7344,7 +7344,7 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
 
     int count = len;
 
-    while (appData->aliveAndKicking && len > 0) {
+    while (appData->aliveAndKicking && ((len > 0) || (ssl->s3->wbuf.left > 0))) {
         errno = 0;
 
         if (MUTEX_LOCK(appData->mutex) == -1) {
@@ -7353,11 +7353,11 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
 
         unsigned int bytesMoved = BIO_number_read(bio) + BIO_number_written(bio);
 
-        // ALOGD("Doing SSL_write() with %d bytes to go", len);
         if (!appData->setCallbackState(env, shc, fdObject, NULL)) {
             MUTEX_UNLOCK(appData->mutex);
             return THROWN_EXCEPTION;
         }
+        JNI_TRACE("ssl=%p sslWrite SSL_write len=%d left=%d", ssl, len, ssl->s3->wbuf.left);
         int result = SSL_write(ssl, buf, len);
         appData->clearCallbackState();
         // callbacks can happen if server requests renegotiation
@@ -7371,7 +7371,8 @@ static int sslWrite(JNIEnv* env, SSL* ssl, jobject fdObject, jobject shc, const 
             sslError = SSL_get_error(ssl, result);
             freeOpenSslErrorState();
         }
-        JNI_TRACE("ssl=%p sslWrite SSL_write result=%d sslError=%d", ssl, result, sslError);
+        JNI_TRACE("ssl=%p sslWrite SSL_write result=%d sslError=%d left=%d",
+                  ssl, result, sslError, ssl->s3->wbuf.left);
 #ifdef WITH_JNI_TRACE_DATA
         for (int i = 0; i < result; i+= WITH_JNI_TRACE_DATA_CHUNK_SIZE) {
             int n = std::min(result - i, WITH_JNI_TRACE_DATA_CHUNK_SIZE);

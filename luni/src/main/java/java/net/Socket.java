@@ -482,7 +482,7 @@ public class Socket {
     }
 
     /**
-     * Sets this socket's {@link SocketOptions#SO_SNDBUF receive buffer size}.
+     * Sets this socket's {@link SocketOptions#SO_RCVBUF receive buffer size}.
      */
     public synchronized void setReceiveBufferSize(int size) throws SocketException {
         checkOpenAndCreate(true);
