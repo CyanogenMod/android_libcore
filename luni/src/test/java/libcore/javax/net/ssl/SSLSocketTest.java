@@ -19,6 +19,7 @@ package libcore.javax.net.ssl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -494,7 +495,22 @@ public class SSLSocketTest extends TestCase {
         c.close();
     }
 
+    private static final class TestUncaughtExceptionHandler implements UncaughtExceptionHandler {
+        Throwable actualException;
+        @Override public void uncaughtException(Thread thread, Throwable ex) {
+            assertNull(actualException);
+            actualException = ex;
+        }
+    }
+
     public void test_SSLSocket_HandshakeCompletedListener_RuntimeException() throws Exception {
+        final Thread self = Thread.currentThread();
+        final UncaughtExceptionHandler original = self.getUncaughtExceptionHandler();
+
+        final RuntimeException expectedException = new RuntimeException("expected");
+        final TestUncaughtExceptionHandler test = new TestUncaughtExceptionHandler();
+        self.setUncaughtExceptionHandler(test);
+
         final TestSSLContext c = TestSSLContext.create();
         final SSLSocket client = (SSLSocket)
                 c.clientContext.getSocketFactory().createSocket(c.host, c.port);
@@ -509,7 +525,7 @@ public class SSLSocketTest extends TestCase {
         executor.shutdown();
         client.addHandshakeCompletedListener(new HandshakeCompletedListener() {
             public void handshakeCompleted(HandshakeCompletedEvent event) {
-                throw new RuntimeException("RuntimeException from handshakeCompleted");
+                throw expectedException;
             }
         });
         client.startHandshake();
@@ -517,6 +533,9 @@ public class SSLSocketTest extends TestCase {
         client.close();
         server.close();
         c.close();
+
+        assertSame(expectedException, test.actualException);
+        self.setUncaughtExceptionHandler(original);
     }
 
     public void test_SSLSocket_getUseClientMode() throws Exception {
