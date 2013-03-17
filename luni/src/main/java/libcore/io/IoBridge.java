@@ -273,7 +273,7 @@ public final class IoBridge {
         case SocketOptions.SO_OOBINLINE:
             return booleanFromInt(Libcore.os.getsockoptInt(fd, SOL_SOCKET, SO_OOBINLINE));
         case SocketOptions.SO_RCVBUF:
-            return Libcore.os.getsockoptInt(fd, SOL_SOCKET, SO_SNDBUF);
+            return Libcore.os.getsockoptInt(fd, SOL_SOCKET, SO_RCVBUF);
         case SocketOptions.SO_REUSEADDR:
             return booleanFromInt(Libcore.os.getsockoptInt(fd, SOL_SOCKET, SO_REUSEADDR));
         case SocketOptions.SO_SNDBUF:

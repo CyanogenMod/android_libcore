@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -45,7 +46,6 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLProtocolException;
-import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -1114,8 +1114,27 @@ public class SSLSocketTest extends TestCase {
         }
 
         final TestSSLContext c = TestSSLContext.create();
-        SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
-                                                                                       c.port);
+        SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket();
+
+        // Try to make the client SO_SNDBUF size as small as possible
+        // (it can default to 512k or even megabytes).  Note that
+        // socket(7) says that the kernel will double the request to
+        // leave room for its own book keeping and that the minimal
+        // value will be 2048. Also note that tcp(7) says the value
+        // needs to be set before connect(2).
+        int sendBufferSize = 1024;
+        client.setSendBufferSize(sendBufferSize);
+        sendBufferSize = client.getSendBufferSize();
+
+        // In jb-mr2 it was found that we need to also set SO_RCVBUF
+        // to a minimal size or the write would not block. While
+        // tcp(2) says the value has to be set before listen(2), it
+        // seems fine to set it before accept(2).
+        final int recvBufferSize = 128;
+        c.serverSocket.setReceiveBufferSize(recvBufferSize);
+
+        client.connect(new InetSocketAddress(c.host, c.port));
+
         final SSLSocket server = (SSLSocket) c.serverSocket.accept();
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<Void> future = executor.submit(new Callable<Void>() {
@@ -1135,14 +1154,12 @@ public class SSLSocketTest extends TestCase {
                                                          new Class[] { Integer.TYPE });
         setSoWriteTimeout.invoke(client, 1);
 
-        // Try to make the size smaller (it can be 512k or even megabytes).
-        // Note that it may not respect your request, so read back the actual value.
-        int sendBufferSize = 1024;
-        client.setSendBufferSize(sendBufferSize);
-        sendBufferSize = client.getSendBufferSize();
 
         try {
-            client.getOutputStream().write(new byte[sendBufferSize + 1]);
+            // Add extra space to the write to exceed the send buffer
+            // size and cause the write to block.
+            final int extra = 1;
+            client.getOutputStream().write(new byte[sendBufferSize + extra]);
             fail();
         } catch (SocketTimeoutException expected) {
         }
