@@ -361,13 +361,8 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
     }
 
     /**
-     * Sets the compression level to be used for writing entry data. This level
-     * may be set on a per entry basis. The level must have a value between -1
-     * and 8 according to the {@code Deflater} compression level bounds.
-     *
-     * @param level
-     *            the compression level (ranging from -1 to 8).
-     * @see Deflater
+     * Sets the <a href="Deflater.html#compression_level">compression level</a> to be used
+     * for writing entry data.
      */
     public void setLevel(int level) {
         if (level < Deflater.DEFAULT_COMPRESSION || level > Deflater.BEST_COMPRESSION) {
