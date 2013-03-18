@@ -191,7 +191,7 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
       .addLabels(new Locale("ru"));
     assertEquals(MAX_LABEL_COUNT, ai.getMaxLabelCount());
     assertEquals(208, ai.getBucketCount());
-    ImmutableIndex ii = ai.getImmutableIndex();
+    AlphabeticIndex.ImmutableIndex ii = ai.getImmutableIndex();
     assertEquals(ai.getBucketCount(), ii.getBucketCount());
   }
 
