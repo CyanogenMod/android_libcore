@@ -91,6 +91,22 @@ public final class AlphabeticIndex {
   }
 
   /**
+   * Returns the max number of the label buckets allowed in this index.
+   */
+  public synchronized int getMaxLabelCount() {
+    return getMaxLabelCount(peer);
+  }
+
+  /**
+   * Sets the max number of the label buckets in this index.
+   * (ICU 51 default is 99)
+   */
+  public synchronized AlphabeticIndex setMaxLabelCount(int count) {
+    setMaxLabelCount(peer, count);
+    return this;
+  }
+
+  /**
    * Adds the index characters from the given locale to the index.
    * The labels are added to those that are already in the index;
    * they do not replace the existing index characters.
@@ -144,6 +160,8 @@ public final class AlphabeticIndex {
 
   private static native long create(String locale);
   private static native void destroy(long peer);
+  private static native int getMaxLabelCount(long peer);
+  private static native void setMaxLabelCount(long peer, int count);
   private static native void addLabels(long peer, String locale);
   private static native void addLabelRange(long peer, int codePointStart, int codePointEnd);
   private static native int getBucketCount(long peer);

@@ -42,6 +42,18 @@ static void AlphabeticIndex_destroy(JNIEnv*, jclass, jlong peer) {
   delete fromPeer(peer);
 }
 
+static jint AlphabeticIndex_getMaxLabelCount(JNIEnv*, jclass, jlong peer) {
+  AlphabeticIndex* ai = fromPeer(peer);
+  return ai->getMaxLabelCount();
+}
+
+static void AlphabeticIndex_setMaxLabelCount(JNIEnv* env, jclass, jlong peer, jint count) {
+  AlphabeticIndex* ai = fromPeer(peer);
+  UErrorCode status = U_ZERO_ERROR;
+  ai->setMaxLabelCount(count, status);
+  maybeThrowIcuException(env, "AlphabeticIndex::setMaxLabelCount", status);
+}
+
 static void AlphabeticIndex_addLabels(JNIEnv* env, jclass, jlong peer, jstring javaLocale) {
   AlphabeticIndex* ai = fromPeer(peer);
   UErrorCode status = U_ZERO_ERROR;
@@ -166,6 +178,8 @@ static jstring ImmutableIndex_getBucketLabel(JNIEnv* env, jclass, jlong peer, ji
 static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(AlphabeticIndex, create, "(Ljava/lang/String;)J"),
   NATIVE_METHOD(AlphabeticIndex, destroy, "(J)V"),
+  NATIVE_METHOD(AlphabeticIndex, getMaxLabelCount, "(J)I"),
+  NATIVE_METHOD(AlphabeticIndex, setMaxLabelCount, "(JI)V"),
   NATIVE_METHOD(AlphabeticIndex, addLabels, "(JLjava/lang/String;)V"),
   NATIVE_METHOD(AlphabeticIndex, addLabelRange, "(JII)V"),
   NATIVE_METHOD(AlphabeticIndex, getBucketCount, "(J)I"),

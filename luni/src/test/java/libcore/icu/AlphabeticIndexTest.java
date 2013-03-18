@@ -176,6 +176,25 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
     }
   }
 
+  // ICU 51 default max label count is 99. Test to make sure can create an
+  // index with a larger number of labels.
+  public void test_setMaxLabelCount() throws Exception {
+    final int MAX_LABEL_COUNT = 500;
+    AlphabeticIndex ai = new AlphabeticIndex(Locale.US)
+      .setMaxLabelCount(MAX_LABEL_COUNT)
+      .addLabels(Locale.JAPANESE)
+      .addLabels(Locale.KOREAN)
+      .addLabels(new Locale("th"))
+      .addLabels(new Locale("ar"))
+      .addLabels(new Locale("he"))
+      .addLabels(new Locale("el"))
+      .addLabels(new Locale("ru"));
+    assertEquals(MAX_LABEL_COUNT, ai.getMaxLabelCount());
+    assertEquals(208, ai.getBucketCount());
+    ImmutableIndex ii = ai.getImmutableIndex();
+    assertEquals(ai.getBucketCount(), ii.getBucketCount());
+  }
+
   public void test_getBucketIndex_NPE() throws Exception {
     AlphabeticIndex.ImmutableIndex ii = createIndex(Locale.US);
     try {
