@@ -205,4 +205,21 @@ public class CalendarTest extends junit.framework.TestCase {
         double ONE_HOUR = 3600d * 1000d;
         return c.getTimeInMillis() / ONE_HOUR;
     }
+
+    // https://code.google.com/p/android/issues/detail?id=45877
+    public void test_clear_45877() {
+      GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("America/Los_Angeles"));
+      cal.set(Calendar.YEAR, 1970);
+      cal.set(Calendar.MONTH, Calendar.JANUARY);
+      cal.set(Calendar.DAY_OF_MONTH, 1);
+      cal.clear(Calendar.HOUR_OF_DAY);
+      cal.clear(Calendar.MINUTE);
+      cal.clear(Calendar.SECOND);
+      cal.clear(Calendar.MILLISECOND);
+
+      assertEquals(75600000, cal.getTimeInMillis());
+
+      cal.set (Calendar.HOUR_OF_DAY, 0);
+      assertEquals(28800000, cal.getTimeInMillis());
+    }
 }
