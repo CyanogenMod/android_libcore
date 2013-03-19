@@ -774,8 +774,9 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
     }
 
     /**
-     * Clears all of the fields of this {@code Calendar}. All fields are initialized to
-     * zero.
+     * Clears the values of all the time fields, marking them all unset and assigning
+     * them all a value of zero. The actual field values will be determined the next
+     * time the fields are accessed.
      */
     public final void clear() {
         for (int i = 0; i < FIELD_COUNT; i++) {
@@ -786,7 +787,9 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
     }
 
     /**
-     * Clears the given field to zero and sets the isSet flag to {@code false}.
+     * Clears the value in the given time field, marking it unset and assigning
+     * it a value of zero. The actual field value will be determined the next
+     * time the field is accessed.
      */
     public final void clear(int field) {
         fields[field] = 0;
