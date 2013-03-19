@@ -176,19 +176,29 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
     }
 
     public void test_write() throws Exception {
-        final SilentServer ss = new SilentServer();
+        final SilentServer ss = new SilentServer(128); // Minimal receive buffer size.
         Socket s = new Socket();
+
+        // Set the send buffer size really small, to ensure we block.
+        int sendBufferSize = 1024;
+        s.setSendBufferSize(sendBufferSize);
+        sendBufferSize = s.getSendBufferSize(); // How big is the buffer really, Linux?
+
+        // Linux still seems to accept more than it should.
+        // How much seems to differ from device to device, but I've yet to see anything accept
+        // twice as much again.
+        sendBufferSize *= 2;
+
         s.connect(ss.getLocalSocketAddress());
         new Killer(s).start();
         try {
             System.err.println("write...");
-            // We just keep writing here until all the buffers are full and we block,
-            // waiting for the server to read (which it never will). If the asynchronous close
-            // fails, we'll see a test timeout here.
-            while (true) {
-                byte[] buf = new byte[256*1024];
-                s.getOutputStream().write(buf);
-            }
+            // Write too much so the buffer is full and we block,
+            // waiting for the server to read (which it never will).
+            // If the asynchronous close fails, we'll see a test timeout here.
+            byte[] buf = new byte[sendBufferSize];
+            s.getOutputStream().write(buf);
+            fail();
         } catch (SocketException expected) {
             // We throw "Connection reset by peer", which I don't _think_ is a problem.
             // assertEquals("Socket closed", expected.getMessage());
@@ -204,7 +214,14 @@ public class ConcurrentCloseTest extends junit.framework.TestCase {
         private Socket client;
 
         public SilentServer() throws IOException {
+            this(0);
+        }
+
+        public SilentServer(int receiveBufferSize) throws IOException {
             ss = new ServerSocket(0);
+            if (receiveBufferSize != 0) {
+                ss.setReceiveBufferSize(receiveBufferSize);
+            }
             new Thread(new Runnable() {
                 public void run() {
                     try {
