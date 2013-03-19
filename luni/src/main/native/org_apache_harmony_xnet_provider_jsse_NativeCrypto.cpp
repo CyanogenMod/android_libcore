@@ -3825,12 +3825,17 @@ static jobject GENERAL_NAME_to_jobject(JNIEnv* env, GENERAL_NAME* gen) {
     case GEN_EMAIL:
     case GEN_DNS:
     case GEN_URI: {
-        // This must be an IA5String and must not contain NULLs.
-        char* data = reinterpret_cast<char*>(ASN1_STRING_data(gen->d.ia5));
-        if ((ASN1_STRING_type(gen->d.ia5) == V_ASN1_IA5STRING)
-                && (static_cast<size_t>(ASN1_STRING_length(gen->d.ia5)) == strlen(data))) {
+        // This must not be a T61String and must not contain NULLs.
+        const char* data = reinterpret_cast<const char*>(ASN1_STRING_data(gen->d.ia5));
+        ssize_t len = ASN1_STRING_length(gen->d.ia5);
+        if ((len == static_cast<ssize_t>(strlen(data)))
+                && (ASN1_PRINTABLE_type(ASN1_STRING_data(gen->d.ia5), len) != V_ASN1_T61STRING)) {
+            JNI_TRACE("GENERAL_NAME_to_jobject(%p) => Email/DNS/URI \"%s\"", gen, data);
             return env->NewStringUTF(data);
         } else {
+            jniThrowException(env, "java/security/cert/CertificateParsingException",
+                    "Invalid dNSName encoding");
+            JNI_TRACE("GENERAL_NAME_to_jobject(%p) => Email/DNS/URI invalid", gen);
             return NULL;
         }
     }
@@ -3858,7 +3863,9 @@ static jobject GENERAL_NAME_to_jobject(JNIEnv* env, GENERAL_NAME* gen) {
                 JNI_TRACE("GENERAL_NAME_to_jobject(%p) => IPv6 failed %s", gen, strerror(errno));
             }
         }
-        break;
+
+        /* Invalid IP encodings are pruned out without throwing an exception. */
+        return NULL;
     }
     case GEN_RID:
         return ASN1_OBJECT_to_OID_string(env, gen->d.registeredID);
@@ -3918,6 +3925,11 @@ static jobjectArray NativeCrypto_get_X509_GENERAL_NAME_stack(JNIEnv* env, jclass
     for (int i = 0, j = 0; i < origCount; i++, j++) {
         GENERAL_NAME* gen = sk_GENERAL_NAME_value(gn_stack, i);
         ScopedLocalRef<jobject> val(env, GENERAL_NAME_to_jobject(env, gen));
+        if (env->ExceptionCheck()) {
+            JNI_TRACE("get_X509_GENERAL_NAME_stack(%p, %d) => threw exception parsing gen name",
+                    x509, type);
+            return NULL;
+        }
 
         /*
          * If it's NULL, we'll have to skip this, reduce the number of total
