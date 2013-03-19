@@ -57,7 +57,7 @@ public final class DateToStringBenchmark extends SimpleBenchmark {
 
     public void timeDateToString_AndroidDateFormat(int reps) {
         for (int i = 0; i < reps; i++) {
-            DateFormat.format("EEE MMM dd kk:mm:ss zzz yyyy", calendar);
+            DateFormat.format("EEE MMM dd HH:mm:ss zzz yyyy", calendar);
         }
     }
 
