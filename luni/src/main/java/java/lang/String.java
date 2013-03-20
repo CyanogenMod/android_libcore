@@ -282,14 +282,14 @@ outer:
 
                     if (idx + utfCount > last) {
                         v[s++] = REPLACEMENT_CHAR;
-                        break;
+                        continue;
                     }
 
                     // Extract usable bits from b0
                     int val = b0 & (0x1f >> (utfCount - 1));
-                    for (int i = 0; i < utfCount; i++) {
+                    for (int i = 0; i < utfCount; ++i) {
                         byte b = d[idx++];
-                        if ((b & 0xC0) != 0x80) {
+                        if ((b & 0xc0) != 0x80) {
                             v[s++] = REPLACEMENT_CHAR;
                             idx--; // Put the input char back
                             continue outer;
