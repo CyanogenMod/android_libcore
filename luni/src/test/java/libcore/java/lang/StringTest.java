@@ -25,6 +25,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
+import java.nio.charset.CodingErrorAction;
 import java.util.Arrays;
 import java.util.Locale;
 import junit.framework.TestCase;
@@ -325,5 +326,19 @@ public class StringTest extends TestCase {
     // http://code.google.com/p/android/issues/detail?id=15266
     public void test_replaceAll() throws Exception {
         assertEquals("project_Id", "projectId".replaceAll("(?!^)(\\p{Upper})(?!$)", "_$1"));
+    }
+
+    // https://code.google.com/p/android/issues/detail?id=23831
+    public void test_23831() throws Exception {
+        byte[] bytes = { (byte) 0xf5, (byte) 0xa9, (byte) 0xea, (byte) 0x21 };
+        String expected = "\ufffd\ufffd\u0021";
+
+        // Since we use icu4c for CharsetDecoder...
+        CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
+        decoder.onMalformedInput(CodingErrorAction.REPLACE);
+        assertEquals(expected, decoder.decode(ByteBuffer.wrap(bytes)).toString());
+
+        // Our fast-path code in String should behave the same...
+        assertEquals(expected, new String(bytes, "UTF-8"));
     }
 }
