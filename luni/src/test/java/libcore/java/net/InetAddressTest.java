@@ -77,6 +77,8 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertEquals("/1.2.3.4", InetAddress.parseNumericAddress("1.2.3.4").toString());
         // Regular IPv6.
         assertEquals("/2001:4860:800d::68", InetAddress.parseNumericAddress("2001:4860:800d::68").toString());
+        // Mapped IPv4
+        assertEquals("/127.0.0.1", InetAddress.parseNumericAddress("::ffff:127.0.0.1").toString());
         // Optional square brackets around IPv6 addresses, including mapped IPv4.
         assertEquals("/2001:4860:800d::68", InetAddress.parseNumericAddress("[2001:4860:800d::68]").toString());
         assertEquals("/127.0.0.1", InetAddress.parseNumericAddress("[::ffff:127.0.0.1]").toString());
@@ -101,9 +103,22 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     public void test_isNumeric() throws Exception {
+        // IPv4
         assertTrue(InetAddress.isNumeric("1.2.3.4"));
         assertTrue(InetAddress.isNumeric("127.0.0.1"));
 
+        // IPv6
+        assertTrue(InetAddress.isNumeric("::1"));
+        assertTrue(InetAddress.isNumeric("2001:4860:800d::68"));
+
+        // Mapped IPv4
+        assertTrue(InetAddress.isNumeric("::ffff:127.0.0.1"));
+
+        // Optional square brackets around IPv6 addresses, including mapped IPv4.
+        assertTrue(InetAddress.isNumeric("[2001:4860:800d::68]"));
+        assertTrue(InetAddress.isNumeric("[::ffff:127.0.0.1]"));
+
+        // Negative test
         assertFalse(InetAddress.isNumeric("example.com"));
 
         for (String invalid : INVALID_IPv4_NUMERIC_ADDRESSES) {
@@ -113,6 +128,7 @@ public class InetAddressTest extends junit.framework.TestCase {
 
     public void test_isLinkLocalAddress() throws Exception {
         assertFalse(InetAddress.getByName("127.0.0.1").isLinkLocalAddress());
+        assertFalse(InetAddress.getByName("::ffff:127.0.0.1").isLinkLocalAddress());
         assertTrue(InetAddress.getByName("169.254.1.2").isLinkLocalAddress());
 
         assertFalse(InetAddress.getByName("fec0::").isLinkLocalAddress());
@@ -194,6 +210,9 @@ public class InetAddressTest extends junit.framework.TestCase {
         assertEquals("::1", InetAddress.getByName("::1").getHostAddress());
 
         assertEquals("127.0.0.1", Inet4Address.LOOPBACK.getHostAddress());
+
+        // IPv4 mapped address
+        assertEquals("127.0.0.1", InetAddress.getByName("::ffff:127.0.0.1").getHostAddress());
 
         InetAddress aAddr = InetAddress.getByName("224.0.0.0");
         assertEquals("224.0.0.0", aAddr.getHostAddress());
