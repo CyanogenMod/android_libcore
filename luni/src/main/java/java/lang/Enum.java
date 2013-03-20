@@ -51,7 +51,7 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
 
     private final String name;
 
-    final int ordinal;
+    private final int ordinal;
 
     /**
      * Constructor for constants of enum subtypes.
@@ -147,7 +147,7 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
      * @see java.lang.Comparable
      */
     public final int compareTo(E o) {
-        return ordinal - o.ordinal;
+        return ordinal - ((Enum<?>) o).ordinal;
     }
 
     /**
