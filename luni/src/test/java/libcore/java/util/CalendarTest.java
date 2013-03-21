@@ -213,13 +213,27 @@ public class CalendarTest extends junit.framework.TestCase {
       cal.set(Calendar.MONTH, Calendar.JANUARY);
       cal.set(Calendar.DAY_OF_MONTH, 1);
       cal.clear(Calendar.HOUR_OF_DAY);
+      cal.clear(Calendar.HOUR);
       cal.clear(Calendar.MINUTE);
       cal.clear(Calendar.SECOND);
       cal.clear(Calendar.MILLISECOND);
 
-      assertEquals(75600000, cal.getTimeInMillis());
+      // Now we have a mix of set and unset fields.
+      assertTrue(cal.isSet(Calendar.DAY_OF_MONTH));
+      assertFalse(cal.isSet(Calendar.HOUR_OF_DAY));
 
-      cal.set (Calendar.HOUR_OF_DAY, 0);
+      // When we call get, unset fields are computed.
+      assertEquals(0, cal.get(Calendar.HOUR_OF_DAY));
+      // And set fields stay the same.
+      assertEquals(1, cal.get(Calendar.DAY_OF_MONTH));
+
+      // ...so now everything is set.
+      assertTrue(cal.isSet(Calendar.DAY_OF_MONTH));
+      assertTrue(cal.isSet(Calendar.HOUR_OF_DAY));
+
       assertEquals(28800000, cal.getTimeInMillis());
+
+      cal.set(Calendar.HOUR_OF_DAY, 1);
+      assertEquals(32400000, cal.getTimeInMillis());
     }
 }
