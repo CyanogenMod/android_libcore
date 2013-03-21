@@ -37,15 +37,8 @@ class InitManifest {
     private final UnsafeByteSequence valueBuffer = new UnsafeByteSequence(80);
     private int consecutiveLineBreaks = 0;
 
-    InitManifest(byte[] buf, Attributes main, Attributes.Name ver) throws IOException {
+    InitManifest(byte[] buf, Attributes main) throws IOException {
         this.buf = buf;
-
-        // check a version attribute
-        if (!readHeader() || (ver != null && !name.equals(ver))) {
-            throw new IOException("Missing version attribute: " + ver);
-        }
-
-        main.put(name, value);
         while (readHeader()) {
             main.put(name, value);
         }
