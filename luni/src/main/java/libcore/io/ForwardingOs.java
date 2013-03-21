@@ -64,6 +64,7 @@ public class ForwardingOs implements Os {
     public int getgid() { return os.getgid(); }
     public String getenv(String name) { return os.getenv(name); }
     public String getnameinfo(InetAddress address, int flags) throws GaiException { return os.getnameinfo(address, flags); }
+    public SocketAddress getpeername(FileDescriptor fd) throws ErrnoException { return os.getpeername(fd); }
     public int getpid() { return os.getpid(); }
     public int getppid() { return os.getppid(); }
     public StructPasswd getpwnam(String name) throws ErrnoException { return os.getpwnam(name); }
@@ -74,6 +75,7 @@ public class ForwardingOs implements Os {
     public int getsockoptInt(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptInt(fd, level, option); }
     public StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptLinger(fd, level, option); }
     public StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptTimeval(fd, level, option); }
+    public StructUcred getsockoptUcred(FileDescriptor fd, int level, int option) throws ErrnoException { return os.getsockoptUcred(fd, level, option); }
     public int getuid() { return os.getuid(); }
     public String if_indextoname(int index) { return os.if_indextoname(index); }
     public InetAddress inet_pton(int family, String address) { return os.inet_pton(family, address); }
