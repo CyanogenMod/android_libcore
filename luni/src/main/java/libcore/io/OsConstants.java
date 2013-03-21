@@ -134,7 +134,7 @@ public final class OsConstants {
     public static final int ETIME = placeholder();
     public static final int ETIMEDOUT = placeholder();
     public static final int ETXTBSY = placeholder();
-    public static final int EWOULDBLOCK = placeholder();
+    // On Linux, EWOULDBLOCK == EAGAIN. Use EAGAIN instead, to reduce confusion.
     public static final int EXDEV = placeholder();
     public static final int EXIT_FAILURE = placeholder();
     public static final int EXIT_SUCCESS = placeholder();
@@ -706,9 +706,6 @@ public final class OsConstants {
         }
         if (errno == ETXTBSY) {
             return "ETXTBSY";
-        }
-        if (errno == EWOULDBLOCK) {
-            return "EWOULDBLOCK";
         }
         if (errno == EXDEV) {
             return "EXDEV";
