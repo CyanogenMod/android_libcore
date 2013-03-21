@@ -56,6 +56,7 @@ public interface Os {
     public String getenv(String name);
     /* TODO: break into getnameinfoHost and getnameinfoService? */
     public String getnameinfo(InetAddress address, int flags) throws GaiException;
+    public SocketAddress getpeername(FileDescriptor fd) throws ErrnoException;
     public int getpid();
     public int getppid();
     public StructPasswd getpwnam(String name) throws ErrnoException;
@@ -66,6 +67,7 @@ public interface Os {
     public int getsockoptInt(FileDescriptor fd, int level, int option) throws ErrnoException;
     public StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException;
     public StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException;
+    public StructUcred getsockoptUcred(FileDescriptor fd, int level, int option) throws ErrnoException;
     public int getuid();
     public String if_indextoname(int index);
     public InetAddress inet_pton(int family, String address);

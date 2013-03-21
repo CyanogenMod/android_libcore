@@ -131,18 +131,14 @@ public class InetSocketAddress extends SocketAddress {
     }
 
     /**
-     * Gets the port number of this socket.
-     *
-     * @return the socket endpoint port number.
+     * Returns this socket address' port.
      */
     public final int getPort() {
         return port;
     }
 
     /**
-     * Gets the address of this socket.
-     *
-     * @return the socket endpoint address.
+     * Returns this socket address' address.
      */
     public final InetAddress getAddress() {
         return addr;

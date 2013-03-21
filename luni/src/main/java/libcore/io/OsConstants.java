@@ -302,6 +302,8 @@ public final class OsConstants {
     public static final int SO_KEEPALIVE = placeholder();
     public static final int SO_LINGER = placeholder();
     public static final int SO_OOBINLINE = placeholder();
+    public static final int SO_PASSCRED = placeholder();
+    public static final int SO_PEERCRED = placeholder();
     public static final int SO_RCVBUF = placeholder();
     public static final int SO_RCVLOWAT = placeholder();
     public static final int SO_RCVTIMEO = placeholder();

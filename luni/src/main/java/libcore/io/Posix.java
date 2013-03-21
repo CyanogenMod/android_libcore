@@ -58,6 +58,7 @@ public final class Posix implements Os {
     public native int getgid();
     public native String getenv(String name);
     public native String getnameinfo(InetAddress address, int flags) throws GaiException;
+    public native SocketAddress getpeername(FileDescriptor fd) throws ErrnoException;
     public native int getpid();
     public native int getppid();
     public native StructPasswd getpwnam(String name) throws ErrnoException;
@@ -68,6 +69,7 @@ public final class Posix implements Os {
     public native int getsockoptInt(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException;
+    public native StructUcred getsockoptUcred(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native int getuid();
     public native String if_indextoname(int index);
     public native InetAddress inet_pton(int family, String address);
