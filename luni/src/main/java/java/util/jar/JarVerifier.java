@@ -314,14 +314,9 @@ class JarVerifier {
         Attributes attributes = new Attributes();
         HashMap<String, Attributes> entries = new HashMap<String, Attributes>();
         try {
-            InitManifest im = new InitManifest(sfBytes, attributes);
+            InitManifest im = new InitManifest(sfBytes, attributes, Attributes.Name.SIGNATURE_VERSION);
             im.initEntries(entries, null);
         } catch (IOException e) {
-            return;
-        }
-
-        // Do we actually have any signatures to look at?
-        if (entries.get(Attributes.Name.SIGNATURE_VERSION) == null) {
             return;
         }
 
