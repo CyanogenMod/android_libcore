@@ -37,6 +37,7 @@ jclass JniConstants::gaiExceptionClass;
 jclass JniConstants::inet6AddressClass;
 jclass JniConstants::inetAddressClass;
 jclass JniConstants::inetSocketAddressClass;
+jclass JniConstants::inetUnixAddressClass;
 jclass JniConstants::inflaterClass;
 jclass JniConstants::inputStreamClass;
 jclass JniConstants::integerClass;
@@ -63,6 +64,7 @@ jclass JniConstants::structPollfdClass;
 jclass JniConstants::structStatClass;
 jclass JniConstants::structStatFsClass;
 jclass JniConstants::structTimevalClass;
+jclass JniConstants::structUcredClass;
 jclass JniConstants::structUtsnameClass;
 
 static jclass findClass(JNIEnv* env, const char* name) {
@@ -94,6 +96,7 @@ void JniConstants::init(JNIEnv* env) {
     inet6AddressClass = findClass(env, "java/net/Inet6Address");
     inetAddressClass = findClass(env, "java/net/InetAddress");
     inetSocketAddressClass = findClass(env, "java/net/InetSocketAddress");
+    inetUnixAddressClass = findClass(env, "java/net/InetUnixAddress");
     inflaterClass = findClass(env, "java/util/zip/Inflater");
     inputStreamClass = findClass(env, "java/io/InputStream");
     integerClass = findClass(env, "java/lang/Integer");
@@ -120,5 +123,6 @@ void JniConstants::init(JNIEnv* env) {
     structStatClass = findClass(env, "libcore/io/StructStat");
     structStatFsClass = findClass(env, "libcore/io/StructStatFs");
     structTimevalClass = findClass(env, "libcore/io/StructTimeval");
+    structUcredClass = findClass(env, "libcore/io/StructUcred");
     structUtsnameClass = findClass(env, "libcore/io/StructUtsname");
 }
