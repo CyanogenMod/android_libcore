@@ -174,10 +174,11 @@ public class Manifest implements Cloneable {
     }
 
     /**
-     * Writes this {@code Manifest}'s name/attributes pairs to the given {@code OutputStream}.
-     * The {@code MANIFEST_VERSION} or {@code SIGNATURE_VERSION} attribute must be set before
-     * calling this method, or no attributes will be written.
+     * Writes out the attribute information of the receiver to the specified
+     * {@code OutputStream}.
      *
+     * @param os
+     *            The {@code OutputStream} to write to.
      * @throws IOException
      *             If an error occurs writing the {@code Manifest}.
      */
@@ -213,7 +214,9 @@ public class Manifest implements Cloneable {
             buf[buf.length - 1] = '\n';
         }
 
-        InitManifest im = new InitManifest(buf, mainAttributes);
+        // Attributes.Name.MANIFEST_VERSION is not used for
+        // the second parameter for RI compatibility
+        InitManifest im = new InitManifest(buf, mainAttributes, null);
         mainEnd = im.getPos();
         im.initEntries(entries, chunks);
     }
@@ -305,18 +308,13 @@ public class Manifest implements Cloneable {
         CharsetEncoder encoder = Charsets.UTF_8.newEncoder();
         ByteBuffer buffer = ByteBuffer.allocate(LINE_LENGTH_LIMIT);
 
-        Attributes.Name versionName = Attributes.Name.MANIFEST_VERSION;
-        String version = manifest.mainAttributes.getValue(versionName);
-        if (version == null) {
-            versionName = Attributes.Name.SIGNATURE_VERSION;
-            version = manifest.mainAttributes.getValue(versionName);
-        }
+        String version = manifest.mainAttributes.getValue(Attributes.Name.MANIFEST_VERSION);
         if (version != null) {
-            writeEntry(out, versionName, version, encoder, buffer);
+            writeEntry(out, Attributes.Name.MANIFEST_VERSION, version, encoder, buffer);
             Iterator<?> entries = manifest.mainAttributes.keySet().iterator();
             while (entries.hasNext()) {
                 Attributes.Name name = (Attributes.Name) entries.next();
-                if (!name.equals(versionName)) {
+                if (!name.equals(Attributes.Name.MANIFEST_VERSION)) {
                     writeEntry(out, name, manifest.mainAttributes.getValue(name), encoder, buffer);
                 }
             }
@@ -326,11 +324,11 @@ public class Manifest implements Cloneable {
         while (i.hasNext()) {
             String key = i.next();
             writeEntry(out, NAME_ATTRIBUTE, key, encoder, buffer);
-            Attributes attributes = manifest.entries.get(key);
-            Iterator<?> entries = attributes.keySet().iterator();
+            Attributes attrib = manifest.entries.get(key);
+            Iterator<?> entries = attrib.keySet().iterator();
             while (entries.hasNext()) {
                 Attributes.Name name = (Attributes.Name) entries.next();
-                writeEntry(out, name, attributes.getValue(name), encoder, buffer);
+                writeEntry(out, name, attrib.getValue(name), encoder, buffer);
             }
             out.write(LINE_SEPARATOR);
         }
