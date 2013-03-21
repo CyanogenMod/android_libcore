@@ -5985,7 +5985,7 @@ static EC_KEY* tmp_ecdh_callback(SSL* ssl __attribute__ ((unused)),
 static jlong NativeCrypto_SSL_CTX_new(JNIEnv* env, jclass) {
     Unique_SSL_CTX sslCtx(SSL_CTX_new(SSLv23_method()));
     if (sslCtx.get() == NULL) {
-        jniThrowRuntimeException(env, "SSL_CTX_new");
+        throwExceptionIfNecessary(env, "SSL_CTX_new");
         return 0;
     }
     SSL_CTX_set_options(sslCtx.get(),
