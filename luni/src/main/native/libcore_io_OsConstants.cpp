@@ -145,7 +145,9 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "ETIME", ETIME);
     initConstant(env, c, "ETIMEDOUT", ETIMEDOUT);
     initConstant(env, c, "ETXTBSY", ETXTBSY);
-    initConstant(env, c, "EWOULDBLOCK", EWOULDBLOCK);
+#if EWOULDBLOCK != EAGAIN
+#error EWOULDBLOCK != EAGAIN
+#endif
     initConstant(env, c, "EXDEV", EXDEV);
     initConstant(env, c, "EXIT_FAILURE", EXIT_FAILURE);
     initConstant(env, c, "EXIT_SUCCESS", EXIT_SUCCESS);
