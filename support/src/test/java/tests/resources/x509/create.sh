@@ -18,58 +18,58 @@ set -e
 
 DIR=$(dirname $0)
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch > cert-rsa-req.pem
-openssl req -in cert-rsa-req.pem -pubkey -noout | openssl rsa -pubin -pubout -outform der > cert-rsa-pubkey.der
-openssl x509 -extfile ${DIR}/default.cnf -days 3650 -extensions usr_cert -req -signkey privkey.pem -outform d < cert-rsa-req.pem > cert-rsa.der
-rm -f cert-rsa-req.pem
+openssl req -config ${DIR}/default.cnf -new -nodes -batch > /tmp/cert-rsa-req.pem
+openssl req -in /tmp/cert-rsa-req.pem -pubkey -noout | openssl rsa -pubin -pubout -outform der > ${DIR}/cert-rsa-pubkey.der
+openssl x509 -extfile ${DIR}/default.cnf -days 3650 -extensions usr_cert -req -signkey /tmp/privkey.pem -outform d < /tmp/cert-rsa-req.pem > ${DIR}/cert-rsa.der
+rm /tmp/cert-rsa-req.pem
 
-openssl asn1parse -in cert-rsa.der -inform d -out cert-rsa-tbs.der -noout -strparse 4
-SIG_OFFSET=$(openssl asn1parse -in cert-rsa.der -inform d | tail -1 | cut -f1 -d:)
-openssl asn1parse -in cert-rsa.der -inform d -strparse ${SIG_OFFSET} -noout -out cert-rsa-sig.der
+openssl asn1parse -in ${DIR}/cert-rsa.der -inform d -out ${DIR}/cert-rsa-tbs.der -noout -strparse 4
+SIG_OFFSET=$(openssl asn1parse -in ${DIR}/cert-rsa.der -inform d | tail -1 | cut -f1 -d:)
+openssl asn1parse -in ${DIR}/cert-rsa.der -inform d -strparse ${SIG_OFFSET} -noout -out ${DIR}/cert-rsa-sig.der
 
 # extract startdate and enddate
-openssl x509 -in cert-rsa.der -inform d -noout -startdate -enddate > cert-rsa-dates.txt
+openssl x509 -in ${DIR}/cert-rsa.der -inform d -noout -startdate -enddate > ${DIR}/cert-rsa-dates.txt
 
 # extract serial
-openssl x509 -in cert-rsa.der -inform d -noout -serial > cert-rsa-serial.txt
+openssl x509 -in ${DIR}/cert-rsa.der -inform d -noout -serial > ${DIR}/cert-rsa-serial.txt
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions keyUsage_extraLong_cert -req -signkey privkey.pem -outform d > cert-keyUsage-extraLong.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions keyUsage_extraLong_cert -req -signkey /tmp/privkey.pem -outform d > ${DIR}/cert-keyUsage-extraLong.der
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions extendedKeyUsage_cert -req -signkey privkey.pem -outform d > cert-extendedKeyUsage.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions extendedKeyUsage_cert -req -signkey /tmp/privkey.pem -outform d > ${DIR}/cert-extendedKeyUsage.der
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions ca_cert -req -signkey privkey.pem -outform d > cert-ca.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions ca_cert -req -signkey /tmp/privkey.pem -outform d > ${DIR}/cert-ca.der
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions userWithPathLen_cert -req -signkey privkey.pem -outform d > cert-userWithPathLen.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions userWithPathLen_cert -req -signkey /tmp/privkey.pem -outform d > ${DIR}/cert-userWithPathLen.der
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions caWithPathLen_cert -req -signkey privkey.pem -outform d > cert-caWithPathLen.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions caWithPathLen_cert -req -signkey /tmp/privkey.pem -outform d > ${DIR}/cert-caWithPathLen.der
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_other_cert -req -signkey privkey.pem -outform d > cert-alt-other.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_other_cert -req -signkey /tmp/privkey.pem -outform d > ${DIR}/cert-alt-other.der
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_email_cert -req -signkey privkey.pem -outform d > cert-alt-email.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_email_cert -req -signkey /tmp/privkey.pem -outform d > ${DIR}/cert-alt-email.der
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_dns_cert -req -signkey privkey.pem -outform d > cert-alt-dns.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_dns_cert -req -signkey /tmp/privkey.pem -outform d > ${DIR}/cert-alt-dns.der
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_dirname_cert -req -signkey privkey.pem -outform d > cert-alt-dirname.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_dirname_cert -req -signkey /tmp/privkey.pem -outform d > ${DIR}/cert-alt-dirname.der
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_uri_cert -req -signkey privkey.pem -outform d > cert-alt-uri.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_uri_cert -req -signkey /tmp/privkey.pem -outform d > ${DIR}/cert-alt-uri.der
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_rid_cert -req -signkey privkey.pem -outform d > cert-alt-rid.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_rid_cert -req -signkey /tmp/privkey.pem -outform d > ${DIR}/cert-alt-rid.der
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_none_cert -req -signkey privkey.pem -outform d > cert-alt-none.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions alt_none_cert -req -signkey /tmp/privkey.pem -outform d > ${DIR}/cert-alt-none.der
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions ipv6_cert -req -signkey privkey.pem -outform d > cert-ipv6.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions ipv6_cert -req -signkey /tmp/privkey.pem -outform d > ${DIR}/cert-ipv6.der
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions unsupported_cert -req -signkey privkey.pem -outform d > cert-unsupported.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions unsupported_cert -req -signkey /tmp/privkey.pem -outform d > ${DIR}/cert-unsupported.der
 
-openssl req -config ${DIR}/default.cnf -new -nodes -batch -config ${DIR}/default.cnf -extensions usr_cert -x509 -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:1 -outform d > cert-sigopt.der
+openssl req -config ${DIR}/default.cnf -new -nodes -batch -config ${DIR}/default.cnf -extensions usr_cert -x509 -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:1 -outform d > ${DIR}/cert-sigopt.der
 
-openssl dsaparam -out dsaparam.pem 1024
-openssl req -config ${DIR}/default.cnf -newkey dsa:dsaparam.pem -keyout dsapriv.pem -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions keyUsage_cert -req -signkey dsapriv.pem -outform d > cert-dsa.der
-rm -f dsaparam.pem
+openssl dsaparam -out /tmp/dsaparam.pem 1024
+openssl req -config ${DIR}/default.cnf -newkey dsa:/tmp/dsaparam.pem -keyout /tmp/dsapriv.pem -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions keyUsage_cert -req -signkey /tmp/dsapriv.pem -outform d > ${DIR}/cert-dsa.der
+rm /tmp/dsaparam.pem
 
-openssl ecparam -name sect283k1 -out ecparam.pem
-openssl req -config ${DIR}/default.cnf -newkey ec:ecparam.pem -keyout ecpriv.pem -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions keyUsage_critical_cert -req -signkey ecpriv.pem -outform d > cert-ec.der
-rm -f ecparam.pem
+openssl ecparam -name sect283k1 -out /tmp/ecparam.pem
+openssl req -config ${DIR}/default.cnf -newkey ec:/tmp/ecparam.pem -keyout /tmp/ecpriv.pem -nodes -batch | openssl x509 -extfile ${DIR}/default.cnf -extensions keyUsage_critical_cert -req -signkey /tmp/ecpriv.pem -outform d > ${DIR}/cert-ec.der
+rm /tmp/ecparam.pem
 
 # Create temporary CA for CRL generation
 rm -rf /tmp/ca
@@ -77,47 +77,47 @@ mkdir -p /tmp/ca
 touch /tmp/ca/index.txt
 touch /tmp/ca/index.txt.attr
 echo "01" > /tmp/ca/serial
-openssl req -new -nodes -batch -x509 -extensions v3_ca -keyout cakey.pem -out cacert.pem -days 3650 -config default.cnf
-openssl x509 -in cacert.pem -outform d > cert-crl-ca.der
+openssl req -new -nodes -batch -x509 -extensions v3_ca -keyout /tmp/cakey.pem -out /tmp/cacert.pem -days 3650 -config ${DIR}/default.cnf
+openssl x509 -in /tmp/cacert.pem -outform d > ${DIR}/cert-crl-ca.der
 
-openssl ca -gencrl -crlhours 70 -keyfile cakey.pem -cert cacert.pem -out crl-empty.pem -config default.cnf
-openssl crl -in crl-empty.pem -outform d -out crl-empty.der
+openssl ca -gencrl -crlhours 70 -keyfile /tmp/cakey.pem -cert /tmp/cacert.pem -out /tmp/crl-empty.pem -config ${DIR}/default.cnf
+openssl crl -in /tmp/crl-empty.pem -outform d -out ${DIR}/crl-empty.der
 
-openssl x509 -inform d -in cert-rsa.der -out cert-rsa.pem
-openssl ca -revoke cert-rsa.pem -keyfile cakey.pem -cert cacert.pem -config default.cnf
-openssl ca -gencrl -crlhours 70 -keyfile cakey.pem -cert cacert.pem -out crl-rsa.pem -config default.cnf
-openssl crl -in crl-rsa.pem -outform d -out crl-rsa.der
+openssl x509 -inform d -in ${DIR}/cert-rsa.der -out /tmp/cert-rsa.pem
+openssl ca -revoke /tmp/cert-rsa.pem -keyfile /tmp/cakey.pem -cert /tmp/cacert.pem -config ${DIR}/default.cnf
+openssl ca -gencrl -crlhours 70 -keyfile /tmp/cakey.pem -cert /tmp/cacert.pem -out /tmp/crl-rsa.pem -config ${DIR}/default.cnf
+openssl crl -in /tmp/crl-rsa.pem -outform d -out ${DIR}/crl-rsa.der
 
-openssl asn1parse -in crl-rsa.der -inform d -out crl-rsa-tbs.der -noout -strparse 4
-SIG_OFFSET=$(openssl asn1parse -in crl-rsa.der -inform d | tail -1 | cut -f1 -d:)
-openssl asn1parse -in crl-rsa.der -inform d -strparse ${SIG_OFFSET} -noout -out crl-rsa-sig.der
+openssl asn1parse -in ${DIR}/crl-rsa.der -inform d -out ${DIR}/crl-rsa-tbs.der -noout -strparse 4
+SIG_OFFSET=$(openssl asn1parse -in ${DIR}/crl-rsa.der -inform d | tail -1 | cut -f1 -d:)
+openssl asn1parse -in ${DIR}/crl-rsa.der -inform d -strparse ${SIG_OFFSET} -noout -out ${DIR}/crl-rsa-sig.der
 
-openssl x509 -inform d -in cert-dsa.der -out cert-dsa.pem
-openssl ca -revoke cert-dsa.pem -keyfile cakey.pem -cert cacert.pem -crl_reason cessationOfOperation -extensions unsupported_cert -config default.cnf
-openssl ca -gencrl -crldays 30 -keyfile cakey.pem -cert cacert.pem -out crl-rsa-dsa.pem -config default.cnf
-openssl ca -gencrl -crldays 30 -keyfile cakey.pem -cert cacert.pem -out crl-rsa-dsa-sigopt.pem -config default.cnf -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:1
-openssl crl -in crl-rsa-dsa.pem -outform d -out crl-rsa-dsa.der
-openssl crl -in crl-rsa-dsa-sigopt.pem -outform d -out crl-rsa-dsa-sigopt.der
+openssl x509 -inform d -in ${DIR}/cert-dsa.der -out /tmp/cert-dsa.pem
+openssl ca -revoke /tmp/cert-dsa.pem -keyfile /tmp/cakey.pem -cert /tmp/cacert.pem -crl_reason cessationOfOperation -extensions unsupported_cert -config ${DIR}/default.cnf
+openssl ca -gencrl -crldays 30 -keyfile /tmp/cakey.pem -cert /tmp/cacert.pem -out /tmp/crl-rsa-dsa.pem -config ${DIR}/default.cnf
+openssl ca -gencrl -crldays 30 -keyfile /tmp/cakey.pem -cert /tmp/cacert.pem -out ${DIR}/crl-rsa-dsa-sigopt.pem -config ${DIR}/default.cnf -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:1
+openssl crl -in /tmp/crl-rsa-dsa.pem -outform d -out ${DIR}/crl-rsa-dsa.der
+openssl crl -in ${DIR}/crl-rsa-dsa-sigopt.pem -outform d -out ${DIR}/crl-rsa-dsa-sigopt.der
 
 # Unsupported extensions
-openssl ca -gencrl -crlexts unsupported_cert -keyfile cakey.pem -cert cacert.pem -out crl-unsupported.pem -config default.cnf
-openssl crl -in crl-unsupported.pem -outform d -out crl-unsupported.der
+openssl ca -gencrl -crlexts unsupported_cert -keyfile /tmp/cakey.pem -cert /tmp/cacert.pem -out /tmp/crl-unsupported.pem -config ${DIR}/default.cnf
+openssl crl -in /tmp/crl-unsupported.pem -outform d -out ${DIR}/crl-unsupported.der
 
-openssl crl -inform d -in crl-rsa.der -noout -lastupdate -nextupdate > crl-rsa-dates.txt
-openssl crl -inform d -in crl-rsa-dsa.der -noout -lastupdate -nextupdate > crl-rsa-dsa-dates.txt
+openssl crl -inform d -in ${DIR}/crl-rsa.der -noout -lastupdate -nextupdate > ${DIR}/crl-rsa-dates.txt
+openssl crl -inform d -in ${DIR}/crl-rsa-dsa.der -noout -lastupdate -nextupdate > ${DIR}/crl-rsa-dsa-dates.txt
 
-rm -f cert-rsa.pem cert-dsa.pem cacert.pem cakey.pem crl-rsa.pem crl-rsa-dsa.pem crl-unsupported.pem crl-empty.pem
-rm -rf /tmp/ca
+rm /tmp/cert-rsa.pem /tmp/cert-dsa.pem /tmp/cacert.pem /tmp/cakey.pem /tmp/crl-rsa.pem /tmp/crl-rsa-dsa.pem /tmp/crl-unsupported.pem /tmp/crl-empty.pem
+rm -r /tmp/ca
 
-rm -f privkey.pem
-rm -f dsapriv.pem
-rm -f ecpriv.pem
+rm /tmp/privkey.pem
+rm /tmp/dsapriv.pem
+rm /tmp/ecpriv.pem
 
-rm -f certs.pem
+cat ${DIR}/cert-rsa.der ${DIR}/cert-dsa.der > /tmp/certs.der
+openssl x509 -inform d -in ${DIR}/cert-rsa.der > /tmp/certs.pem
+openssl x509 -inform d -in ${DIR}/cert-dsa.der >> /tmp/certs.pem
 
-cat cert-rsa.der cert-dsa.der > certs.der
-openssl x509 -inform d -in cert-rsa.der > certs.pem
-openssl x509 -inform d -in cert-dsa.der >> certs.pem
+openssl crl2pkcs7 -certfile /tmp/certs.pem -nocrl > ${DIR}/certs-pk7.pem
+openssl crl2pkcs7 -certfile /tmp/certs.pem -nocrl -outform d > ${DIR}/certs-pk7.der
 
-openssl crl2pkcs7 -certfile certs.pem -nocrl > certs-pk7.pem
-openssl crl2pkcs7 -certfile certs.pem -nocrl -outform d > certs-pk7.der
+rm /tmp/certs.pem
