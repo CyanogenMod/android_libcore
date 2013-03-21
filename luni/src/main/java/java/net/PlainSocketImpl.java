@@ -104,7 +104,7 @@ public class PlainSocketImpl extends SocketImpl {
             newImpl.address = peerAddress.getAddress();
             newImpl.port = peerAddress.getPort();
         } catch (ErrnoException errnoException) {
-            if (errnoException.errno == EAGAIN || errnoException.errno == EWOULDBLOCK) {
+            if (errnoException.errno == EAGAIN) {
                 throw new SocketTimeoutException(errnoException);
             }
             throw errnoException.rethrowAsSocketException();
