@@ -113,6 +113,7 @@ static bool inetAddressToSockaddr(JNIEnv* env, jobject inetAddress, int port, so
     static jfieldID familyFid = env->GetFieldID(JniConstants::inetAddressClass, "family", "I");
     ss.ss_family = env->GetIntField(inetAddress, familyFid);
     if (ss.ss_family == AF_UNSPEC) {
+        sa_len = sizeof(ss.ss_family);
         return true; // Job done!
     }
 
