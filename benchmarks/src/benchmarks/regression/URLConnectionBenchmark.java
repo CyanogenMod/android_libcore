@@ -18,12 +18,13 @@ package benchmarks.regression;
 
 import com.google.caliper.Param;
 import com.google.caliper.SimpleBenchmark;
+import com.google.mockwebserver.MockResponse;
+import com.google.mockwebserver.MockWebServer;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import tests.http.MockResponse;
-import tests.http.MockWebServer;
 
 public final class URLConnectionBenchmark extends SimpleBenchmark {
 
@@ -46,7 +47,8 @@ public final class URLConnectionBenchmark extends SimpleBenchmark {
         transferEncoding.setBody(response, bodySize, chunkSize);
         server.enqueue(response);
 
-        server.setContinuousServing(true);
+        // keep serving the same response for all iterations
+        server.setSingleResponse(true);
         server.play();
 
         url = server.getUrl("/");
@@ -60,9 +62,7 @@ public final class URLConnectionBenchmark extends SimpleBenchmark {
          * threads. Instead, read the last continuously-served request, and then
          * cause the server to close the otherwise-reusable HTTP connection.
          */
-        server.setContinuousServing(false);
-        server.enqueue(new MockResponse().setDisconnectAtEnd(true));
-        get();
+        server.setSingleResponse(false);
         get();
         server.shutdown();
     }
@@ -77,7 +77,8 @@ public final class URLConnectionBenchmark extends SimpleBenchmark {
 
     private int get() throws IOException {
         int totalBytesRead = 0;
-        URLConnection connection = url.openConnection();
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        // URLConnection connection = url.openConnection();
         InputStream in = connection.getInputStream();
         int count;
         while ((count = in.read(readBuffer)) != -1) {
