@@ -14,55 +14,30 @@
  * limitations under the License.
  */
 
+#define LOG_TAG "NativeTestTarget"
+
 #include "JNIHelp.h"
+#include "../../../../luni/src/main/native/JniConstants.h"
 
-/*
- * public static void emptyJniStaticMethod0()
- *
- * For benchmarks, a do-nothing JNI method with no arguments.
- */
-static void emptyJniStaticMethod0(JNIEnv*, jclass)
-{
-    // This space intentionally left blank.
-}
-
-/*
- * public static void emptyJniStaticMethod6(int a, int b, int c,
- *   int d, int e, int f)
- *
- * For benchmarks, a do-nothing JNI method with six arguments.
- */
-static void emptyJniStaticMethod6(JNIEnv*, jclass,
-    int, int, int, int, int, int)
-{
-    // This space intentionally left blank.
-}
-
-/*
- * public static void emptyJniStaticMethod6L(String a, String[] b,
- *   int[][] c, Object d, Object[] e, Object[][][][] f)
- *
- * For benchmarks, a do-nothing JNI method with six arguments.
- */
-static void emptyJniStaticMethod6L(JNIEnv*, jclass,
-    jobject, jarray, jarray, jobject, jarray, jarray)
-{
-    // This space intentionally left blank.
-}
+static void NativeTestTarget_emptyJniMethod0(JNIEnv*, jobject) { }
+static void NativeTestTarget_emptyJniMethod6(JNIEnv*, jclass, int, int, int, int, int, int) { }
+static void NativeTestTarget_emptyJniMethod6L(JNIEnv*, jclass, jobject, jarray, jarray, jobject, jarray, jarray) { }
+static void NativeTestTarget_emptyJniStaticMethod0(JNIEnv*, jclass) { }
+static void NativeTestTarget_emptyJniStaticMethod6(JNIEnv*, jclass, int, int, int, int, int, int) { }
+static void NativeTestTarget_emptyJniStaticMethod6L(JNIEnv*, jclass, jobject, jarray, jarray, jobject, jarray, jarray) { }
+static void NativeTestTarget_emptyJniStaticSynchronizedMethod0(JNIEnv*, jclass) { }
+static void NativeTestTarget_emptyJniSynchronizedMethod0(JNIEnv*, jclass) { }
 
 static JNINativeMethod gMethods[] = {
-  { "emptyJniStaticMethod0",  "()V",       (void*)emptyJniStaticMethod0 },
-  { "emptyJniStaticMethod6",  "(IIIIII)V", (void*)emptyJniStaticMethod6 },
-  { "emptyJniStaticMethod6L", "(Ljava/lang/String;[Ljava/lang/String;[[ILjava/lang/Object;[Ljava/lang/Object;[[[[Ljava/lang/Object;)V", (void*)emptyJniStaticMethod6L },
+    NATIVE_METHOD(NativeTestTarget, emptyJniMethod0, "()V"),
+    NATIVE_METHOD(NativeTestTarget, emptyJniMethod6, "(IIIIII)V"),
+    NATIVE_METHOD(NativeTestTarget, emptyJniMethod6L, "(Ljava/lang/String;[Ljava/lang/String;[[ILjava/lang/Object;[Ljava/lang/Object;[[[[Ljava/lang/Object;)V"),
+    NATIVE_METHOD(NativeTestTarget, emptyJniStaticMethod0, "()V"),
+    NATIVE_METHOD(NativeTestTarget, emptyJniStaticMethod6, "(IIIIII)V"),
+    NATIVE_METHOD(NativeTestTarget, emptyJniStaticMethod6L, "(Ljava/lang/String;[Ljava/lang/String;[[ILjava/lang/Object;[Ljava/lang/Object;[[[[Ljava/lang/Object;)V"),
+    NATIVE_METHOD(NativeTestTarget, emptyJniStaticSynchronizedMethod0, "()V"),
+    NATIVE_METHOD(NativeTestTarget, emptyJniSynchronizedMethod0, "()V"),
 };
 int register_org_apache_harmony_dalvik_NativeTestTarget(JNIEnv* env) {
-    int result = jniRegisterNativeMethods(env,
-            "org/apache/harmony/dalvik/NativeTestTarget",
-            gMethods, NELEM(gMethods));
-    if (result != 0) {
-        /* print warning, but allow to continue */
-        ALOGW("WARNING: NativeTestTarget not registered\n");
-        env->ExceptionClear();
-    }
-    return 0;
+    return jniRegisterNativeMethods(env, "org/apache/harmony/dalvik/NativeTestTarget", gMethods, NELEM(gMethods));
 }

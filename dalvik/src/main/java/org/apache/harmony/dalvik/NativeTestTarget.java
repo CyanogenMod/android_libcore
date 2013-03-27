@@ -22,25 +22,20 @@ package org.apache.harmony.dalvik;
  * and performance of calling native methods.
  */
 public final class NativeTestTarget {
-    /**
-     * This class is uninstantiable.
-     */
-    private NativeTestTarget() {
-        // This space intentionally left blank.
+    public NativeTestTarget() {
     }
 
-    /**
-     * This is an empty native static method with no args, hooked up using
-     * JNI.
-     */
+    public static native synchronized void emptyJniStaticSynchronizedMethod0();
+
+    public native synchronized void emptyJniSynchronizedMethod0();
+
     public static native void emptyJniStaticMethod0();
 
-    /**
-     * This is an empty native static method with six args, hooked up using
-     * JNI.
-     */
-    public static native void emptyJniStaticMethod6(int a, int b, int c,
-        int d, int e, int f);
+    public native void emptyJniMethod0();
+
+    public static native void emptyJniStaticMethod6(int a, int b, int c, int d, int e, int f);
+
+    public native void emptyJniMethod6(int a, int b, int c, int d, int e, int f);
 
     /**
      * This is an empty native static method with six args, hooked up
@@ -51,18 +46,12 @@ public final class NativeTestTarget {
     public static native void emptyJniStaticMethod6L(String a, String[] b,
         int[][] c, Object d, Object[] e, Object[][][][] f);
 
-    /**
-     * This method is intended to be "inlined" by the virtual machine
-     * (e.g., given special treatment as an intrinsic).
-     */
-    public static void emptyInlineMethod() {
-        // This space intentionally left blank.
-    }
+    public native void emptyJniMethod6L(String a, String[] b,
+        int[][] c, Object d, Object[] e, Object[][][][] f);
 
     /**
-     * This method is intended to be defined in native code and hooked
-     * up using the virtual machine's special fast-path native linkage
-     * (as opposed to being hooked up using JNI).
+     * This is used to benchmark dalvik's inline natives.
      */
-    public static native void emptyInternalStaticMethod();
+    public static void emptyInlineMethod() {
+    }
 }
