@@ -17,39 +17,39 @@
 
 package java.nio;
 
-import java.nio.channels.FileChannel.MapMode;
-
-import libcore.io.Memory;
 import libcore.io.SizeOf;
+import libcore.io.Memory;
 
-class DirectByteBuffer extends MappedByteBuffer {
-  // This is the offset into {@code Buffer.block} at which this buffer logically starts.
-  // TODO: rewrite this so we set 'block' to an OffsetMemoryBlock?
-  protected final int offset;
+/**
+ * ByteArrayBuffer implements byte[]-backed ByteBuffers.
+ */
+final class ByteArrayBuffer extends ByteBuffer {
+
+  /**
+   * These fields are non-private for NioUtils.unsafeArray.
+   */
+  final byte[] backingArray;
+  final int arrayOffset;
 
   private final boolean isReadOnly;
 
-  protected DirectByteBuffer(MemoryBlock block, int capacity, int offset, boolean isReadOnly, MapMode mapMode) {
-    super(block, capacity, mapMode);
+  ByteArrayBuffer(byte[] backingArray) {
+    this(backingArray.length, backingArray, 0, false);
+  }
 
-    long baseSize = block.getSize();
-    if (baseSize >= 0 && (capacity + offset) > baseSize) {
-      throw new IllegalArgumentException("capacity + offset > baseSize");
-    }
-
-    this.effectiveDirectAddress = block.toInt() + offset;
-
-    this.offset = offset;
+  private ByteArrayBuffer(int capacity, byte[] backingArray, int arrayOffset, boolean isReadOnly) {
+    super(capacity, null);
+    this.backingArray = backingArray;
+    this.arrayOffset = arrayOffset;
     this.isReadOnly = isReadOnly;
+    if (arrayOffset + capacity > backingArray.length) {
+      throw new IndexOutOfBoundsException("backingArray.length=" + backingArray.length +
+                                              ", capacity=" + capacity + ", arrayOffset=" + arrayOffset);
+    }
   }
 
-  // Used by the JNI NewDirectByteBuffer function.
-  DirectByteBuffer(int address, int capacity) {
-    this(MemoryBlock.wrapFromJni(address, capacity), capacity, 0, false, null);
-  }
-
-  private static DirectByteBuffer copy(DirectByteBuffer other, int markOfOther, boolean isReadOnly) {
-    DirectByteBuffer buf = new DirectByteBuffer(other.block, other.capacity(), other.offset, isReadOnly, other.mapMode);
+  private static ByteArrayBuffer copy(ByteArrayBuffer other, int markOfOther, boolean isReadOnly) {
+    ByteArrayBuffer buf = new ByteArrayBuffer(other.capacity(), other.backingArray, other.arrayOffset, isReadOnly);
     buf.limit = other.limit;
     buf.position = other.position();
     buf.mark = markOfOther;
@@ -64,7 +64,7 @@ class DirectByteBuffer extends MappedByteBuffer {
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
-    Memory.memmove(this, 0, this, position, remaining());
+    System.arraycopy(backingArray, position + arrayOffset, backingArray, arrayOffset, remaining());
     position = limit - position;
     limit = capacity;
     mark = UNSET_MARK;
@@ -76,7 +76,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer slice() {
-    return new DirectByteBuffer(block, remaining(), offset + position, isReadOnly, mapMode);
+    return new ByteArrayBuffer(remaining(), backingArray, arrayOffset + position, isReadOnly);
   }
 
   @Override public boolean isReadOnly() {
@@ -87,62 +87,63 @@ class DirectByteBuffer extends MappedByteBuffer {
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
-    byte[] array = this.block.array();
-    if (array == null) {
-      throw new UnsupportedOperationException();
-    }
-    return array;
+    return backingArray;
   }
 
   @Override int protectedArrayOffset() {
-    protectedArray(); // Throw if we don't have an array or are read-only.
-    return offset;
+    if (isReadOnly) {
+      throw new ReadOnlyBufferException();
+    }
+    return arrayOffset;
   }
 
   @Override boolean protectedHasArray() {
-    return !isReadOnly && (block.array() != null);
+    if (isReadOnly) {
+      return false;
+    }
+    return true;
   }
 
   @Override public final ByteBuffer get(byte[] dst, int dstOffset, int byteCount) {
     checkGetBounds(1, dst.length, dstOffset, byteCount);
-    this.block.peekByteArray(offset + position, dst, dstOffset, byteCount);
+    System.arraycopy(backingArray, arrayOffset + position, dst, dstOffset, byteCount);
     position += byteCount;
     return this;
   }
 
   final void get(char[] dst, int dstOffset, int charCount) {
     int byteCount = checkGetBounds(SizeOf.CHAR, dst.length, dstOffset, charCount);
-    this.block.peekCharArray(offset + position, dst, dstOffset, charCount, order.needsSwap);
+    Memory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, arrayOffset + position, SizeOf.CHAR, order.needsSwap);
     position += byteCount;
   }
 
   final void get(double[] dst, int dstOffset, int doubleCount) {
     int byteCount = checkGetBounds(SizeOf.DOUBLE, dst.length, dstOffset, doubleCount);
-    this.block.peekDoubleArray(offset + position, dst, dstOffset, doubleCount, order.needsSwap);
+    Memory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, arrayOffset + position, SizeOf.DOUBLE, order.needsSwap);
     position += byteCount;
   }
 
   final void get(float[] dst, int dstOffset, int floatCount) {
     int byteCount = checkGetBounds(SizeOf.FLOAT, dst.length, dstOffset, floatCount);
-    this.block.peekFloatArray(offset + position, dst, dstOffset, floatCount, order.needsSwap);
+    Memory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, arrayOffset + position, SizeOf.FLOAT, order.needsSwap);
     position += byteCount;
   }
 
   final void get(int[] dst, int dstOffset, int intCount) {
     int byteCount = checkGetBounds(SizeOf.INT, dst.length, dstOffset, intCount);
-    this.block.peekIntArray(offset + position, dst, dstOffset, intCount, order.needsSwap);
+    Memory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, arrayOffset + position, SizeOf.INT, order.needsSwap);
     position += byteCount;
   }
 
   final void get(long[] dst, int dstOffset, int longCount) {
     int byteCount = checkGetBounds(SizeOf.LONG, dst.length, dstOffset, longCount);
-    this.block.peekLongArray(offset + position, dst, dstOffset, longCount, order.needsSwap);
+    Memory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, arrayOffset + position, SizeOf.LONG, order.needsSwap);
     position += byteCount;
   }
 
   final void get(short[] dst, int dstOffset, int shortCount) {
     int byteCount = checkGetBounds(SizeOf.SHORT, dst.length, dstOffset, shortCount);
-    this.block.peekShortArray(offset + position, dst, dstOffset, shortCount, order.needsSwap);
+    Memory.unsafeBulkGet(dst, dstOffset, byteCount, backingArray, arrayOffset + position, SizeOf.SHORT, order.needsSwap);
     position += byteCount;
   }
 
@@ -150,12 +151,12 @@ class DirectByteBuffer extends MappedByteBuffer {
     if (position == limit) {
       throw new BufferUnderflowException();
     }
-    return this.block.peekByte(offset + position++);
+    return backingArray[arrayOffset + position++];
   }
 
   @Override public final byte get(int index) {
     checkIndex(index);
-    return this.block.peekByte(offset + index);
+    return backingArray[arrayOffset + index];
   }
 
   @Override public final char getChar() {
@@ -163,44 +164,30 @@ class DirectByteBuffer extends MappedByteBuffer {
     if (newPosition > limit) {
       throw new BufferUnderflowException();
     }
-    char result = (char) this.block.peekShort(offset + position, order);
+    char result = (char) Memory.peekShort(backingArray, arrayOffset + position, order);
     position = newPosition;
     return result;
   }
 
   @Override public final char getChar(int index) {
     checkIndex(index, SizeOf.CHAR);
-    return (char) this.block.peekShort(offset + index, order);
+    return (char) Memory.peekShort(backingArray, arrayOffset + index, order);
   }
 
   @Override public final double getDouble() {
-    int newPosition = position + SizeOf.DOUBLE;
-    if (newPosition > limit) {
-      throw new BufferUnderflowException();
-    }
-    double result = Double.longBitsToDouble(this.block.peekLong(offset + position, order));
-    position = newPosition;
-    return result;
+    return Double.longBitsToDouble(getLong());
   }
 
   @Override public final double getDouble(int index) {
-    checkIndex(index, SizeOf.DOUBLE);
-    return Double.longBitsToDouble(this.block.peekLong(offset + index, order));
+    return Double.longBitsToDouble(getLong(index));
   }
 
   @Override public final float getFloat() {
-    int newPosition = position + SizeOf.FLOAT;
-    if (newPosition > limit) {
-      throw new BufferUnderflowException();
-    }
-    float result = Float.intBitsToFloat(this.block.peekInt(offset + position, order));
-    position = newPosition;
-    return result;
+    return Float.intBitsToFloat(getInt());
   }
 
   @Override public final float getFloat(int index) {
-    checkIndex(index, SizeOf.FLOAT);
-    return Float.intBitsToFloat(this.block.peekInt(offset + index, order));
+    return Float.intBitsToFloat(getInt(index));
   }
 
   @Override public final int getInt() {
@@ -208,14 +195,14 @@ class DirectByteBuffer extends MappedByteBuffer {
     if (newPosition > limit) {
       throw new BufferUnderflowException();
     }
-    int result = this.block.peekInt(offset + position, order);
+    int result = Memory.peekInt(backingArray, arrayOffset + position, order);
     position = newPosition;
     return result;
   }
 
   @Override public final int getInt(int index) {
     checkIndex(index, SizeOf.INT);
-    return this.block.peekInt(offset + index, order);
+    return Memory.peekInt(backingArray, arrayOffset + index, order);
   }
 
   @Override public final long getLong() {
@@ -223,14 +210,14 @@ class DirectByteBuffer extends MappedByteBuffer {
     if (newPosition > limit) {
       throw new BufferUnderflowException();
     }
-    long result = this.block.peekLong(offset + position, order);
+    long result = Memory.peekLong(backingArray, arrayOffset + position, order);
     position = newPosition;
     return result;
   }
 
   @Override public final long getLong(int index) {
     checkIndex(index, SizeOf.LONG);
-    return this.block.peekLong(offset + index, order);
+    return Memory.peekLong(backingArray, arrayOffset + index, order);
   }
 
   @Override public final short getShort() {
@@ -238,22 +225,188 @@ class DirectByteBuffer extends MappedByteBuffer {
     if (newPosition > limit) {
       throw new BufferUnderflowException();
     }
-    short result = this.block.peekShort(offset + position, order);
+    short result = Memory.peekShort(backingArray, arrayOffset + position, order);
     position = newPosition;
     return result;
   }
 
   @Override public final short getShort(int index) {
     checkIndex(index, SizeOf.SHORT);
-    return this.block.peekShort(offset + index, order);
+    return Memory.peekShort(backingArray, arrayOffset + index, order);
   }
 
   @Override public final boolean isDirect() {
-    return true;
+    return false;
   }
 
-  public final void free() {
-    block.free();
+  @Override public ByteBuffer put(byte b) {
+    if (isReadOnly) {
+      throw new ReadOnlyBufferException();
+    }
+    if (position == limit) {
+      throw new BufferOverflowException();
+    }
+    backingArray[arrayOffset + position++] = b;
+    return this;
+  }
+
+  @Override public ByteBuffer put(int index, byte b) {
+    if (isReadOnly) {
+      throw new ReadOnlyBufferException();
+    }
+    checkIndex(index);
+    backingArray[arrayOffset + index] = b;
+    return this;
+  }
+
+  @Override public ByteBuffer put(byte[] src, int srcOffset, int byteCount) {
+    if (isReadOnly) {
+      throw new ReadOnlyBufferException();
+    }
+    checkPutBounds(1, src.length, srcOffset, byteCount);
+    System.arraycopy(src, srcOffset, backingArray, arrayOffset + position, byteCount);
+    position += byteCount;
+    return this;
+  }
+
+  final void put(char[] src, int srcOffset, int charCount) {
+    int byteCount = checkPutBounds(SizeOf.CHAR, src.length, srcOffset, charCount);
+    Memory.unsafeBulkPut(backingArray, arrayOffset + position, byteCount, src, srcOffset, SizeOf.CHAR, order.needsSwap);
+    position += byteCount;
+  }
+
+  final void put(double[] src, int srcOffset, int doubleCount) {
+    int byteCount = checkPutBounds(SizeOf.DOUBLE, src.length, srcOffset, doubleCount);
+    Memory.unsafeBulkPut(backingArray, arrayOffset + position, byteCount, src, srcOffset, SizeOf.DOUBLE, order.needsSwap);
+    position += byteCount;
+  }
+
+  final void put(float[] src, int srcOffset, int floatCount) {
+    int byteCount = checkPutBounds(SizeOf.FLOAT, src.length, srcOffset, floatCount);
+    Memory.unsafeBulkPut(backingArray, arrayOffset + position, byteCount, src, srcOffset, SizeOf.FLOAT, order.needsSwap);
+    position += byteCount;
+  }
+
+  final void put(int[] src, int srcOffset, int intCount) {
+    int byteCount = checkPutBounds(SizeOf.INT, src.length, srcOffset, intCount);
+    Memory.unsafeBulkPut(backingArray, arrayOffset + position, byteCount, src, srcOffset, SizeOf.INT, order.needsSwap);
+    position += byteCount;
+  }
+
+  final void put(long[] src, int srcOffset, int longCount) {
+    int byteCount = checkPutBounds(SizeOf.LONG, src.length, srcOffset, longCount);
+    Memory.unsafeBulkPut(backingArray, arrayOffset + position, byteCount, src, srcOffset, SizeOf.LONG, order.needsSwap);
+    position += byteCount;
+  }
+
+  final void put(short[] src, int srcOffset, int shortCount) {
+    int byteCount = checkPutBounds(SizeOf.SHORT, src.length, srcOffset, shortCount);
+    Memory.unsafeBulkPut(backingArray, arrayOffset + position, byteCount, src, srcOffset, SizeOf.SHORT, order.needsSwap);
+    position += byteCount;
+  }
+
+  @Override public ByteBuffer putChar(int index, char value) {
+    if (isReadOnly) {
+      throw new ReadOnlyBufferException();
+    }
+    checkIndex(index, SizeOf.CHAR);
+    Memory.pokeShort(backingArray, arrayOffset + index, (short) value, order);
+    return this;
+  }
+
+  @Override public ByteBuffer putChar(char value) {
+    if (isReadOnly) {
+      throw new ReadOnlyBufferException();
+    }
+    int newPosition = position + SizeOf.CHAR;
+    if (newPosition > limit) {
+      throw new BufferOverflowException();
+    }
+    Memory.pokeShort(backingArray, arrayOffset + position, (short) value, order);
+    position = newPosition;
+    return this;
+  }
+
+  @Override public ByteBuffer putDouble(double value) {
+    return putLong(Double.doubleToRawLongBits(value));
+  }
+
+  @Override public ByteBuffer putDouble(int index, double value) {
+    return putLong(index, Double.doubleToRawLongBits(value));
+  }
+
+  @Override public ByteBuffer putFloat(float value) {
+    return putInt(Float.floatToRawIntBits(value));
+  }
+
+  @Override public ByteBuffer putFloat(int index, float value) {
+    return putInt(index, Float.floatToRawIntBits(value));
+  }
+
+  @Override public ByteBuffer putInt(int value) {
+    if (isReadOnly) {
+      throw new ReadOnlyBufferException();
+    }
+    int newPosition = position + SizeOf.INT;
+    if (newPosition > limit) {
+      throw new BufferOverflowException();
+    }
+    Memory.pokeInt(backingArray, arrayOffset + position, value, order);
+    position = newPosition;
+    return this;
+  }
+
+  @Override public ByteBuffer putInt(int index, int value) {
+    if (isReadOnly) {
+      throw new ReadOnlyBufferException();
+    }
+    checkIndex(index, SizeOf.INT);
+    Memory.pokeInt(backingArray, arrayOffset + index, value, order);
+    return this;
+  }
+
+  @Override public ByteBuffer putLong(int index, long value) {
+    if (isReadOnly) {
+      throw new ReadOnlyBufferException();
+    }
+    checkIndex(index, SizeOf.LONG);
+    Memory.pokeLong(backingArray, arrayOffset + index, value, order);
+    return this;
+  }
+
+  @Override public ByteBuffer putLong(long value) {
+    if (isReadOnly) {
+      throw new ReadOnlyBufferException();
+    }
+    int newPosition = position + SizeOf.LONG;
+    if (newPosition > limit) {
+      throw new BufferOverflowException();
+    }
+    Memory.pokeLong(backingArray, arrayOffset + position, value, order);
+    position = newPosition;
+    return this;
+  }
+
+  @Override public ByteBuffer putShort(int index, short value) {
+    if (isReadOnly) {
+      throw new ReadOnlyBufferException();
+    }
+    checkIndex(index, SizeOf.SHORT);
+    Memory.pokeShort(backingArray, arrayOffset + index, value, order);
+    return this;
+  }
+
+  @Override public ByteBuffer putShort(short value) {
+    if (isReadOnly) {
+      throw new ReadOnlyBufferException();
+    }
+    int newPosition = position + SizeOf.SHORT;
+    if (newPosition > limit) {
+      throw new BufferOverflowException();
+    }
+    Memory.pokeShort(backingArray, arrayOffset + position, value, order);
+    position = newPosition;
+    return this;
   }
 
   @Override public final CharBuffer asCharBuffer() {
@@ -278,203 +431,5 @@ class DirectByteBuffer extends MappedByteBuffer {
 
   @Override public final ShortBuffer asShortBuffer() {
     return ByteBufferAsShortBuffer.asShortBuffer(this);
-  }
-
-  @Override public ByteBuffer put(byte value) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    if (position == limit) {
-      throw new BufferOverflowException();
-    }
-    this.block.pokeByte(offset + position++, value);
-    return this;
-  }
-
-  @Override public ByteBuffer put(int index, byte value) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    checkIndex(index);
-    this.block.pokeByte(offset + index, value);
-    return this;
-  }
-
-  @Override public ByteBuffer put(byte[] src, int srcOffset, int byteCount) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    checkPutBounds(1, src.length, srcOffset, byteCount);
-    this.block.pokeByteArray(offset + position, src, srcOffset, byteCount);
-    position += byteCount;
-    return this;
-  }
-
-  final void put(char[] src, int srcOffset, int charCount) {
-    int byteCount = checkPutBounds(SizeOf.CHAR, src.length, srcOffset, charCount);
-    this.block.pokeCharArray(offset + position, src, srcOffset, charCount, order.needsSwap);
-    position += byteCount;
-  }
-
-  final void put(double[] src, int srcOffset, int doubleCount) {
-    int byteCount = checkPutBounds(SizeOf.DOUBLE, src.length, srcOffset, doubleCount);
-    this.block.pokeDoubleArray(offset + position, src, srcOffset, doubleCount, order.needsSwap);
-    position += byteCount;
-  }
-
-  final void put(float[] src, int srcOffset, int floatCount) {
-    int byteCount = checkPutBounds(SizeOf.FLOAT, src.length, srcOffset, floatCount);
-    this.block.pokeFloatArray(offset + position, src, srcOffset, floatCount, order.needsSwap);
-    position += byteCount;
-  }
-
-  final void put(int[] src, int srcOffset, int intCount) {
-    int byteCount = checkPutBounds(SizeOf.INT, src.length, srcOffset, intCount);
-    this.block.pokeIntArray(offset + position, src, srcOffset, intCount, order.needsSwap);
-    position += byteCount;
-  }
-
-  final void put(long[] src, int srcOffset, int longCount) {
-    int byteCount = checkPutBounds(SizeOf.LONG, src.length, srcOffset, longCount);
-    this.block.pokeLongArray(offset + position, src, srcOffset, longCount, order.needsSwap);
-    position += byteCount;
-  }
-
-  final void put(short[] src, int srcOffset, int shortCount) {
-    int byteCount = checkPutBounds(SizeOf.SHORT, src.length, srcOffset, shortCount);
-    this.block.pokeShortArray(offset + position, src, srcOffset, shortCount, order.needsSwap);
-    position += byteCount;
-  }
-
-  @Override public ByteBuffer putChar(char value) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    int newPosition = position + SizeOf.CHAR;
-    if (newPosition > limit) {
-      throw new BufferOverflowException();
-    }
-    this.block.pokeShort(offset + position, (short) value, order);
-    position = newPosition;
-    return this;
-  }
-
-  @Override public ByteBuffer putChar(int index, char value) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    checkIndex(index, SizeOf.CHAR);
-    this.block.pokeShort(offset + index, (short) value, order);
-    return this;
-  }
-
-  @Override public ByteBuffer putDouble(double value) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    int newPosition = position + SizeOf.DOUBLE;
-    if (newPosition > limit) {
-      throw new BufferOverflowException();
-    }
-    this.block.pokeLong(offset + position, Double.doubleToRawLongBits(value), order);
-    position = newPosition;
-    return this;
-  }
-
-  @Override public ByteBuffer putDouble(int index, double value) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    checkIndex(index, SizeOf.DOUBLE);
-    this.block.pokeLong(offset + index, Double.doubleToRawLongBits(value), order);
-    return this;
-  }
-
-  @Override public ByteBuffer putFloat(float value) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    int newPosition = position + SizeOf.FLOAT;
-    if (newPosition > limit) {
-      throw new BufferOverflowException();
-    }
-    this.block.pokeInt(offset + position, Float.floatToRawIntBits(value), order);
-    position = newPosition;
-    return this;
-  }
-
-  @Override public ByteBuffer putFloat(int index, float value) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    checkIndex(index, SizeOf.FLOAT);
-    this.block.pokeInt(offset + index, Float.floatToRawIntBits(value), order);
-    return this;
-  }
-
-  @Override public ByteBuffer putInt(int value) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    int newPosition = position + SizeOf.INT;
-    if (newPosition > limit) {
-      throw new BufferOverflowException();
-    }
-    this.block.pokeInt(offset + position, value, order);
-    position = newPosition;
-    return this;
-  }
-
-  @Override public ByteBuffer putInt(int index, int value) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    checkIndex(index, SizeOf.INT);
-    this.block.pokeInt(offset + index, value, order);
-    return this;
-  }
-
-  @Override public ByteBuffer putLong(long value) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    int newPosition = position + SizeOf.LONG;
-    if (newPosition > limit) {
-      throw new BufferOverflowException();
-    }
-    this.block.pokeLong(offset + position, value, order);
-    position = newPosition;
-    return this;
-  }
-
-  @Override public ByteBuffer putLong(int index, long value) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    checkIndex(index, SizeOf.LONG);
-    this.block.pokeLong(offset + index, value, order);
-    return this;
-  }
-
-  @Override public ByteBuffer putShort(short value) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    int newPosition = position + SizeOf.SHORT;
-    if (newPosition > limit) {
-      throw new BufferOverflowException();
-    }
-    this.block.pokeShort(offset + position, value, order);
-    position = newPosition;
-    return this;
-  }
-
-  @Override public ByteBuffer putShort(int index, short value) {
-    if (isReadOnly) {
-      throw new ReadOnlyBufferException();
-    }
-    checkIndex(index, SizeOf.SHORT);
-    this.block.pokeShort(offset + index, value, order);
-    return this;
   }
 }

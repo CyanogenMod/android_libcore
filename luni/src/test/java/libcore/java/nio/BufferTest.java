@@ -714,7 +714,7 @@ public class BufferTest extends TestCase {
 
     public void testHasArrayOnJniDirectByteBuffer() throws Exception {
         // Simulate a call to JNI's NewDirectByteBuffer.
-        Class<?> c = Class.forName("java.nio.ReadWriteDirectByteBuffer");
+        Class<?> c = Class.forName("java.nio.DirectByteBuffer");
         Constructor<?> ctor = c.getDeclaredConstructor(int.class, int.class);
         ctor.setAccessible(true);
         ByteBuffer bb = (ByteBuffer) ctor.newInstance(0, 0);
@@ -806,5 +806,53 @@ public class BufferTest extends TestCase {
         } catch (IndexOutOfBoundsException expected) {
             assertTrue(expected.getMessage().contains("limit=0"));
         }
+    }
+
+    public void testUsingDirectBufferAsMappedBuffer() throws Exception {
+        MappedByteBuffer notMapped = (MappedByteBuffer) ByteBuffer.allocateDirect(1);
+        try {
+            notMapped.force();
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+        try {
+            notMapped.isLoaded();
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+        try {
+            notMapped.load();
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        MappedByteBuffer mapped = (MappedByteBuffer) allocateMapped(1);
+        mapped.force();
+        mapped.isLoaded();
+        mapped.load();
+    }
+
+    // https://code.google.com/p/android/issues/detail?id=53637
+    public void testBug53637() throws Exception {
+        MappedByteBuffer mapped = (MappedByteBuffer) allocateMapped(1);
+        mapped.get();
+        mapped.rewind();
+        mapped.get();
+
+        mapped.rewind();
+        mapped.mark();
+        mapped.get();
+        mapped.reset();
+        mapped.get();
+
+        mapped.rewind();
+        mapped.get();
+        mapped.clear();
+        mapped.get();
+
+        mapped.rewind();
+        mapped.get();
+        mapped.flip();
+        mapped.get();
     }
 }

@@ -48,7 +48,7 @@ public abstract class ShortBuffer extends Buffer implements
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
-        return new ReadWriteShortArrayBuffer(capacity);
+        return new ShortArrayBuffer(new short[capacity]);
     }
 
     /**
@@ -85,7 +85,7 @@ public abstract class ShortBuffer extends Buffer implements
      */
     public static ShortBuffer wrap(short[] array, int start, int shortCount) {
         Arrays.checkOffsetAndCount(array.length, start, shortCount);
-        ShortBuffer buf = new ReadWriteShortArrayBuffer(array);
+        ShortBuffer buf = new ShortArrayBuffer(array);
         buf.position = start;
         buf.limit = start + shortCount;
         return buf;
@@ -425,6 +425,9 @@ public abstract class ShortBuffer extends Buffer implements
      *                if no changes may be made to the contents of this buffer.
      */
     public ShortBuffer put(ShortBuffer src) {
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
         if (src == this) {
             throw new IllegalArgumentException("src == this");
         }
