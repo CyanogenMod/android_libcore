@@ -409,15 +409,11 @@ public abstract class Buffer {
         return this;
     }
 
+    /**
+     * Returns a string describing this buffer.
+     */
     @Override public String toString() {
-        StringBuilder buf = new StringBuilder();
-        buf.append(getClass().getName());
-        buf.append(", status: capacity=");
-        buf.append(capacity);
-        buf.append(" position=");
-        buf.append(position);
-        buf.append(" limit=");
-        buf.append(limit);
-        return buf.toString();
+        return getClass().getName() +
+            "[position=" + position + ",limit=" + limit + ",capacity=" + capacity + "]";
     }
 }
