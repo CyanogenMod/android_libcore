@@ -54,4 +54,9 @@ public final class NativeTestTarget {
      */
     public static void emptyInlineMethod() {
     }
+
+    /**
+     * This is used to benchmark dalvik's inline natives.
+     */
+    public static native void emptyInternalStaticMethod();
 }
