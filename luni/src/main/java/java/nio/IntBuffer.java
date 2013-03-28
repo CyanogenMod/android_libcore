@@ -46,7 +46,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
-        return new ReadWriteIntArrayBuffer(capacity);
+        return new IntArrayBuffer(new int[capacity]);
     }
 
     /**
@@ -83,7 +83,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      */
     public static IntBuffer wrap(int[] array, int start, int intCount) {
         Arrays.checkOffsetAndCount(array.length, start, intCount);
-        IntBuffer buf = new ReadWriteIntArrayBuffer(array);
+        IntBuffer buf = new IntArrayBuffer(array);
         buf.position = start;
         buf.limit = start + intCount;
         return buf;
@@ -395,6 +395,9 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      *                if no changes may be made to the contents of this buffer.
      */
     public IntBuffer put(int[] src, int srcOffset, int intCount) {
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
         Arrays.checkOffsetAndCount(src.length, srcOffset, intCount);
         if (intCount > remaining()) {
             throw new BufferOverflowException();
@@ -422,6 +425,9 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      *                if no changes may be made to the contents of this buffer.
      */
     public IntBuffer put(IntBuffer src) {
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
         if (src == this) {
             throw new IllegalArgumentException("src == this");
         }

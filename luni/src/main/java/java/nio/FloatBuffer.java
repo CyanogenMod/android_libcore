@@ -48,7 +48,7 @@ public abstract class FloatBuffer extends Buffer implements
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
-        return new ReadWriteFloatArrayBuffer(capacity);
+        return new FloatArrayBuffer(new float[capacity]);
     }
 
     /**
@@ -87,7 +87,7 @@ public abstract class FloatBuffer extends Buffer implements
      */
     public static FloatBuffer wrap(float[] array, int start, int floatCount) {
         Arrays.checkOffsetAndCount(array.length, start, floatCount);
-        FloatBuffer buf = new ReadWriteFloatArrayBuffer(array);
+        FloatBuffer buf = new FloatArrayBuffer(array);
         buf.position = start;
         buf.limit = start + floatCount;
         return buf;
@@ -436,6 +436,9 @@ public abstract class FloatBuffer extends Buffer implements
      *                if no changes may be made to the contents of this buffer.
      */
     public FloatBuffer put(FloatBuffer src) {
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
         if (src == this) {
             throw new IllegalArgumentException("src == this");
         }

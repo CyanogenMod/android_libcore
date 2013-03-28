@@ -19,7 +19,7 @@ package java.nio;
 import libcore.io.SizeOf;
 
 /**
- * This class wraps a byte buffer to be a double buffer.
+ * This class wraps a byte buffer to be a int buffer.
  * <p>
  * Implementation notice:
  * <ul>
@@ -31,26 +31,26 @@ import libcore.io.SizeOf;
  * </p>
  *
  */
-final class DoubleToByteBufferAdapter extends DoubleBuffer {
+final class ByteBufferAsIntBuffer extends IntBuffer {
 
     private final ByteBuffer byteBuffer;
 
-    static DoubleBuffer asDoubleBuffer(ByteBuffer byteBuffer) {
+    static IntBuffer asIntBuffer(ByteBuffer byteBuffer) {
         ByteBuffer slice = byteBuffer.slice();
         slice.order(byteBuffer.order());
-        return new DoubleToByteBufferAdapter(slice);
+        return new ByteBufferAsIntBuffer(slice);
     }
 
-    private DoubleToByteBufferAdapter(ByteBuffer byteBuffer) {
-        super(byteBuffer.capacity() / SizeOf.DOUBLE);
+    private ByteBufferAsIntBuffer(ByteBuffer byteBuffer) {
+        super(byteBuffer.capacity() / SizeOf.INT);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
         this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
     }
 
     @Override
-    public DoubleBuffer asReadOnlyBuffer() {
-        DoubleToByteBufferAdapter buf = new DoubleToByteBufferAdapter(byteBuffer.asReadOnlyBuffer());
+    public IntBuffer asReadOnlyBuffer() {
+        ByteBufferAsIntBuffer buf = new ByteBufferAsIntBuffer(byteBuffer.asReadOnlyBuffer());
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -59,12 +59,12 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
     }
 
     @Override
-    public DoubleBuffer compact() {
+    public IntBuffer compact() {
         if (byteBuffer.isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        byteBuffer.limit(limit * SizeOf.DOUBLE);
-        byteBuffer.position(position * SizeOf.DOUBLE);
+        byteBuffer.limit(limit * SizeOf.INT);
+        byteBuffer.position(position * SizeOf.INT);
         byteBuffer.compact();
         byteBuffer.clear();
         position = limit - position;
@@ -74,9 +74,9 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
     }
 
     @Override
-    public DoubleBuffer duplicate() {
+    public IntBuffer duplicate() {
         ByteBuffer bb = byteBuffer.duplicate().order(byteBuffer.order());
-        DoubleToByteBufferAdapter buf = new DoubleToByteBufferAdapter(bb);
+        ByteBufferAsIntBuffer buf = new ByteBufferAsIntBuffer(bb);
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -84,29 +84,29 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
     }
 
     @Override
-    public double get() {
+    public int get() {
         if (position == limit) {
             throw new BufferUnderflowException();
         }
-        return byteBuffer.getDouble(position++ * SizeOf.DOUBLE);
+        return byteBuffer.getInt(position++ * SizeOf.INT);
     }
 
     @Override
-    public double get(int index) {
+    public int get(int index) {
         checkIndex(index);
-        return byteBuffer.getDouble(index * SizeOf.DOUBLE);
+        return byteBuffer.getInt(index * SizeOf.INT);
     }
 
     @Override
-    public DoubleBuffer get(double[] dst, int dstOffset, int doubleCount) {
-        byteBuffer.limit(limit * SizeOf.DOUBLE);
-        byteBuffer.position(position * SizeOf.DOUBLE);
+    public IntBuffer get(int[] dst, int dstOffset, int intCount) {
+        byteBuffer.limit(limit * SizeOf.INT);
+        byteBuffer.position(position * SizeOf.INT);
         if (byteBuffer instanceof DirectByteBuffer) {
-            ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, doubleCount);
+            ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, intCount);
         } else {
-            ((HeapByteBuffer) byteBuffer).get(dst, dstOffset, doubleCount);
+            ((ByteArrayBuffer) byteBuffer).get(dst, dstOffset, intCount);
         }
-        this.position += doubleCount;
+        this.position += intCount;
         return this;
     }
 
@@ -125,7 +125,7 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
         return byteBuffer.order();
     }
 
-    @Override double[] protectedArray() {
+    @Override int[] protectedArray() {
         throw new UnsupportedOperationException();
     }
 
@@ -138,40 +138,40 @@ final class DoubleToByteBufferAdapter extends DoubleBuffer {
     }
 
     @Override
-    public DoubleBuffer put(double c) {
+    public IntBuffer put(int c) {
         if (position == limit) {
             throw new BufferOverflowException();
         }
-        byteBuffer.putDouble(position++ * SizeOf.DOUBLE, c);
+        byteBuffer.putInt(position++ * SizeOf.INT, c);
         return this;
     }
 
     @Override
-    public DoubleBuffer put(int index, double c) {
+    public IntBuffer put(int index, int c) {
         checkIndex(index);
-        byteBuffer.putDouble(index * SizeOf.DOUBLE, c);
+        byteBuffer.putInt(index * SizeOf.INT, c);
         return this;
     }
 
     @Override
-    public DoubleBuffer put(double[] src, int srcOffset, int doubleCount) {
-        byteBuffer.limit(limit * SizeOf.DOUBLE);
-        byteBuffer.position(position * SizeOf.DOUBLE);
-        if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
-            ((ReadWriteDirectByteBuffer) byteBuffer).put(src, srcOffset, doubleCount);
+    public IntBuffer put(int[] src, int srcOffset, int intCount) {
+        byteBuffer.limit(limit * SizeOf.INT);
+        byteBuffer.position(position * SizeOf.INT);
+        if (byteBuffer instanceof DirectByteBuffer) {
+            ((DirectByteBuffer) byteBuffer).put(src, srcOffset, intCount);
         } else {
-            ((ReadWriteHeapByteBuffer) byteBuffer).put(src, srcOffset, doubleCount);
+            ((ByteArrayBuffer) byteBuffer).put(src, srcOffset, intCount);
         }
-        this.position += doubleCount;
+        this.position += intCount;
         return this;
     }
 
     @Override
-    public DoubleBuffer slice() {
-        byteBuffer.limit(limit * SizeOf.DOUBLE);
-        byteBuffer.position(position * SizeOf.DOUBLE);
+    public IntBuffer slice() {
+        byteBuffer.limit(limit * SizeOf.INT);
+        byteBuffer.position(position * SizeOf.INT);
         ByteBuffer bb = byteBuffer.slice().order(byteBuffer.order());
-        DoubleBuffer result = new DoubleToByteBufferAdapter(bb);
+        IntBuffer result = new ByteBufferAsIntBuffer(bb);
         byteBuffer.clear();
         return result;
     }
