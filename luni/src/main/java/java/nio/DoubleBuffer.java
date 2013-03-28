@@ -49,7 +49,7 @@ public abstract class DoubleBuffer extends Buffer implements
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
-        return new ReadWriteDoubleArrayBuffer(capacity);
+        return new DoubleArrayBuffer(new double[capacity]);
     }
 
     /**
@@ -86,7 +86,7 @@ public abstract class DoubleBuffer extends Buffer implements
      */
     public static DoubleBuffer wrap(double[] array, int start, int doubleCount) {
         Arrays.checkOffsetAndCount(array.length, start, doubleCount);
-        DoubleBuffer buf = new ReadWriteDoubleArrayBuffer(array);
+        DoubleBuffer buf = new DoubleArrayBuffer(array);
         buf.position = start;
         buf.limit = start + doubleCount;
         return buf;
@@ -437,6 +437,9 @@ public abstract class DoubleBuffer extends Buffer implements
      *                if no changes may be made to the contents of this buffer.
      */
     public DoubleBuffer put(DoubleBuffer src) {
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
         if (src == this) {
             throw new IllegalArgumentException("src == this");
         }
