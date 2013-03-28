@@ -35,6 +35,10 @@ import libcore.io.Memory;
  *
  */
 public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer> {
+    /**
+     * The byte order of this buffer, default is {@code BIG_ENDIAN}.
+     */
+    ByteOrder order = ByteOrder.BIG_ENDIAN;
 
     /**
      * Creates a byte buffer based on a newly allocated byte array.
@@ -49,7 +53,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
-        return new ReadWriteHeapByteBuffer(capacity);
+        return new ByteArrayBuffer(new byte[capacity]);
     }
 
     /**
@@ -65,7 +69,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
-        return new ReadWriteDirectByteBuffer(capacity);
+        return new DirectByteBuffer(MemoryBlock.allocate(capacity), capacity, 0, false, null);
     }
 
     /**
@@ -79,7 +83,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      * @return the created byte buffer.
      */
     public static ByteBuffer wrap(byte[] array) {
-        return new ReadWriteHeapByteBuffer(array);
+        return new ByteArrayBuffer(array);
     }
 
     /**
@@ -102,16 +106,11 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      */
     public static ByteBuffer wrap(byte[] array, int start, int byteCount) {
         Arrays.checkOffsetAndCount(array.length, start, byteCount);
-        ByteBuffer buf = new ReadWriteHeapByteBuffer(array);
+        ByteBuffer buf = new ByteArrayBuffer(array);
         buf.position = start;
         buf.limit = start + byteCount;
         return buf;
     }
-
-    /**
-     * The byte order of this buffer, default is {@code BIG_ENDIAN}.
-     */
-    ByteOrder order = ByteOrder.BIG_ENDIAN;
 
     ByteBuffer(int capacity, MemoryBlock block) {
         super(0, capacity, block);
@@ -644,18 +643,11 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      * @see ByteOrder
      */
     public final ByteBuffer order(ByteOrder byteOrder) {
-        orderImpl(byteOrder);
-        return this;
-    }
-
-    /**
-     * Subverts the fact that order(ByteOrder) is final, for the benefit of MappedByteBufferAdapter.
-     */
-    void orderImpl(ByteOrder byteOrder) {
         if (byteOrder == null) {
             byteOrder = ByteOrder.LITTLE_ENDIAN;
         }
         order = byteOrder;
+        return this;
     }
 
     /**
@@ -761,6 +753,9 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      *                if no changes may be made to the contents of this buffer.
      */
     public ByteBuffer put(ByteBuffer src) {
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
         if (src == this) {
             throw new IllegalArgumentException("src == this");
         }
