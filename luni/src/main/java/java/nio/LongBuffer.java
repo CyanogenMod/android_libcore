@@ -48,7 +48,7 @@ public abstract class LongBuffer extends Buffer implements
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
-        return new ReadWriteLongArrayBuffer(capacity);
+        return new LongArrayBuffer(new long[capacity]);
     }
 
     /**
@@ -85,7 +85,7 @@ public abstract class LongBuffer extends Buffer implements
      */
     public static LongBuffer wrap(long[] array, int start, int longCount) {
         Arrays.checkOffsetAndCount(array.length, start, longCount);
-        LongBuffer buf = new ReadWriteLongArrayBuffer(array);
+        LongBuffer buf = new LongArrayBuffer(array);
         buf.position = start;
         buf.limit = start + longCount;
         return buf;
@@ -426,6 +426,9 @@ public abstract class LongBuffer extends Buffer implements
      *                if no changes may be made to the contents of this buffer.
      */
     public LongBuffer put(LongBuffer src) {
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
         if (src == this) {
             throw new IllegalArgumentException("src == this");
         }

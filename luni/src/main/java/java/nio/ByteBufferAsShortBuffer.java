@@ -30,17 +30,17 @@ import libcore.io.SizeOf;
  * </ul>
  * </p>
  */
-final class ShortToByteBufferAdapter extends ShortBuffer {
+final class ByteBufferAsShortBuffer extends ShortBuffer {
 
     private final ByteBuffer byteBuffer;
 
     static ShortBuffer asShortBuffer(ByteBuffer byteBuffer) {
         ByteBuffer slice = byteBuffer.slice();
         slice.order(byteBuffer.order());
-        return new ShortToByteBufferAdapter(slice);
+        return new ByteBufferAsShortBuffer(slice);
     }
 
-    private ShortToByteBufferAdapter(ByteBuffer byteBuffer) {
+    private ByteBufferAsShortBuffer(ByteBuffer byteBuffer) {
         super(byteBuffer.capacity() / SizeOf.SHORT);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
@@ -49,7 +49,7 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
 
     @Override
     public ShortBuffer asReadOnlyBuffer() {
-        ShortToByteBufferAdapter buf = new ShortToByteBufferAdapter(byteBuffer.asReadOnlyBuffer());
+        ByteBufferAsShortBuffer buf = new ByteBufferAsShortBuffer(byteBuffer.asReadOnlyBuffer());
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -75,7 +75,7 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
     @Override
     public ShortBuffer duplicate() {
         ByteBuffer bb = byteBuffer.duplicate().order(byteBuffer.order());
-        ShortToByteBufferAdapter buf = new ShortToByteBufferAdapter(bb);
+        ByteBufferAsShortBuffer buf = new ByteBufferAsShortBuffer(bb);
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -103,7 +103,7 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
         if (byteBuffer instanceof DirectByteBuffer) {
             ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, shortCount);
         } else {
-            ((HeapByteBuffer) byteBuffer).get(dst, dstOffset, shortCount);
+            ((ByteArrayBuffer) byteBuffer).get(dst, dstOffset, shortCount);
         }
         this.position += shortCount;
         return this;
@@ -156,10 +156,10 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
     public ShortBuffer put(short[] src, int srcOffset, int shortCount) {
         byteBuffer.limit(limit * SizeOf.SHORT);
         byteBuffer.position(position * SizeOf.SHORT);
-        if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
-            ((ReadWriteDirectByteBuffer) byteBuffer).put(src, srcOffset, shortCount);
+        if (byteBuffer instanceof DirectByteBuffer) {
+            ((DirectByteBuffer) byteBuffer).put(src, srcOffset, shortCount);
         } else {
-            ((ReadWriteHeapByteBuffer) byteBuffer).put(src, srcOffset, shortCount);
+            ((ByteArrayBuffer) byteBuffer).put(src, srcOffset, shortCount);
         }
         this.position += shortCount;
         return this;
@@ -170,7 +170,7 @@ final class ShortToByteBufferAdapter extends ShortBuffer {
         byteBuffer.limit(limit * SizeOf.SHORT);
         byteBuffer.position(position * SizeOf.SHORT);
         ByteBuffer bb = byteBuffer.slice().order(byteBuffer.order());
-        ShortBuffer result = new ShortToByteBufferAdapter(bb);
+        ShortBuffer result = new ByteBufferAsShortBuffer(bb);
         byteBuffer.clear();
         return result;
     }

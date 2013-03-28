@@ -19,7 +19,7 @@ package java.nio;
 import libcore.io.SizeOf;
 
 /**
- * This class wraps a byte buffer to be a int buffer.
+ * This class wraps a byte buffer to be a long buffer.
  * <p>
  * Implementation notice:
  * <ul>
@@ -31,26 +31,26 @@ import libcore.io.SizeOf;
  * </p>
  *
  */
-final class IntToByteBufferAdapter extends IntBuffer {
+final class ByteBufferAsLongBuffer extends LongBuffer {
 
     private final ByteBuffer byteBuffer;
 
-    static IntBuffer asIntBuffer(ByteBuffer byteBuffer) {
+    static LongBuffer asLongBuffer(ByteBuffer byteBuffer) {
         ByteBuffer slice = byteBuffer.slice();
         slice.order(byteBuffer.order());
-        return new IntToByteBufferAdapter(slice);
+        return new ByteBufferAsLongBuffer(slice);
     }
 
-    private IntToByteBufferAdapter(ByteBuffer byteBuffer) {
-        super(byteBuffer.capacity() / SizeOf.INT);
+    private ByteBufferAsLongBuffer(ByteBuffer byteBuffer) {
+        super(byteBuffer.capacity() / SizeOf.LONG);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
         this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
     }
 
     @Override
-    public IntBuffer asReadOnlyBuffer() {
-        IntToByteBufferAdapter buf = new IntToByteBufferAdapter(byteBuffer.asReadOnlyBuffer());
+    public LongBuffer asReadOnlyBuffer() {
+        ByteBufferAsLongBuffer buf = new ByteBufferAsLongBuffer(byteBuffer.asReadOnlyBuffer());
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -59,12 +59,12 @@ final class IntToByteBufferAdapter extends IntBuffer {
     }
 
     @Override
-    public IntBuffer compact() {
+    public LongBuffer compact() {
         if (byteBuffer.isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        byteBuffer.limit(limit * SizeOf.INT);
-        byteBuffer.position(position * SizeOf.INT);
+        byteBuffer.limit(limit * SizeOf.LONG);
+        byteBuffer.position(position * SizeOf.LONG);
         byteBuffer.compact();
         byteBuffer.clear();
         position = limit - position;
@@ -74,9 +74,9 @@ final class IntToByteBufferAdapter extends IntBuffer {
     }
 
     @Override
-    public IntBuffer duplicate() {
+    public LongBuffer duplicate() {
         ByteBuffer bb = byteBuffer.duplicate().order(byteBuffer.order());
-        IntToByteBufferAdapter buf = new IntToByteBufferAdapter(bb);
+        ByteBufferAsLongBuffer buf = new ByteBufferAsLongBuffer(bb);
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -84,29 +84,29 @@ final class IntToByteBufferAdapter extends IntBuffer {
     }
 
     @Override
-    public int get() {
+    public long get() {
         if (position == limit) {
             throw new BufferUnderflowException();
         }
-        return byteBuffer.getInt(position++ * SizeOf.INT);
+        return byteBuffer.getLong(position++ * SizeOf.LONG);
     }
 
     @Override
-    public int get(int index) {
+    public long get(int index) {
         checkIndex(index);
-        return byteBuffer.getInt(index * SizeOf.INT);
+        return byteBuffer.getLong(index * SizeOf.LONG);
     }
 
     @Override
-    public IntBuffer get(int[] dst, int dstOffset, int intCount) {
-        byteBuffer.limit(limit * SizeOf.INT);
-        byteBuffer.position(position * SizeOf.INT);
+    public LongBuffer get(long[] dst, int dstOffset, int longCount) {
+        byteBuffer.limit(limit * SizeOf.LONG);
+        byteBuffer.position(position * SizeOf.LONG);
         if (byteBuffer instanceof DirectByteBuffer) {
-            ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, intCount);
+            ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, longCount);
         } else {
-            ((HeapByteBuffer) byteBuffer).get(dst, dstOffset, intCount);
+            ((ByteArrayBuffer) byteBuffer).get(dst, dstOffset, longCount);
         }
-        this.position += intCount;
+        this.position += longCount;
         return this;
     }
 
@@ -125,7 +125,7 @@ final class IntToByteBufferAdapter extends IntBuffer {
         return byteBuffer.order();
     }
 
-    @Override int[] protectedArray() {
+    @Override long[] protectedArray() {
         throw new UnsupportedOperationException();
     }
 
@@ -138,40 +138,40 @@ final class IntToByteBufferAdapter extends IntBuffer {
     }
 
     @Override
-    public IntBuffer put(int c) {
+    public LongBuffer put(long c) {
         if (position == limit) {
             throw new BufferOverflowException();
         }
-        byteBuffer.putInt(position++ * SizeOf.INT, c);
+        byteBuffer.putLong(position++ * SizeOf.LONG, c);
         return this;
     }
 
     @Override
-    public IntBuffer put(int index, int c) {
+    public LongBuffer put(int index, long c) {
         checkIndex(index);
-        byteBuffer.putInt(index * SizeOf.INT, c);
+        byteBuffer.putLong(index * SizeOf.LONG, c);
         return this;
     }
 
     @Override
-    public IntBuffer put(int[] src, int srcOffset, int intCount) {
-        byteBuffer.limit(limit * SizeOf.INT);
-        byteBuffer.position(position * SizeOf.INT);
-        if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
-            ((ReadWriteDirectByteBuffer) byteBuffer).put(src, srcOffset, intCount);
+    public LongBuffer put(long[] src, int srcOffset, int longCount) {
+        byteBuffer.limit(limit * SizeOf.LONG);
+        byteBuffer.position(position * SizeOf.LONG);
+        if (byteBuffer instanceof DirectByteBuffer) {
+            ((DirectByteBuffer) byteBuffer).put(src, srcOffset, longCount);
         } else {
-            ((ReadWriteHeapByteBuffer) byteBuffer).put(src, srcOffset, intCount);
+            ((ByteArrayBuffer) byteBuffer).put(src, srcOffset, longCount);
         }
-        this.position += intCount;
+        this.position += longCount;
         return this;
     }
 
     @Override
-    public IntBuffer slice() {
-        byteBuffer.limit(limit * SizeOf.INT);
-        byteBuffer.position(position * SizeOf.INT);
+    public LongBuffer slice() {
+        byteBuffer.limit(limit * SizeOf.LONG);
+        byteBuffer.position(position * SizeOf.LONG);
         ByteBuffer bb = byteBuffer.slice().order(byteBuffer.order());
-        IntBuffer result = new IntToByteBufferAdapter(bb);
+        LongBuffer result = new ByteBufferAsLongBuffer(bb);
         byteBuffer.clear();
         return result;
     }

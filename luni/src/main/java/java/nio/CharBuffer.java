@@ -51,7 +51,7 @@ public abstract class CharBuffer extends Buffer implements
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity < 0: " + capacity);
         }
-        return new ReadWriteCharArrayBuffer(capacity);
+        return new CharArrayBuffer(new char[capacity]);
     }
 
     /**
@@ -88,7 +88,7 @@ public abstract class CharBuffer extends Buffer implements
      */
     public static CharBuffer wrap(char[] array, int start, int charCount) {
         Arrays.checkOffsetAndCount(array.length, start, charCount);
-        CharBuffer buf = new ReadWriteCharArrayBuffer(array);
+        CharBuffer buf = new CharArrayBuffer(array);
         buf.position = start;
         buf.limit = start + charCount;
         return buf;
@@ -499,6 +499,9 @@ public abstract class CharBuffer extends Buffer implements
      *                if no changes may be made to the contents of this buffer.
      */
     public CharBuffer put(CharBuffer src) {
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
         if (src == this) {
             throw new IllegalArgumentException("src == this");
         }
@@ -568,6 +571,9 @@ public abstract class CharBuffer extends Buffer implements
      *                if no changes may be made to the contents of this buffer.
      */
     public CharBuffer put(String str, int start, int end) {
+        if (isReadOnly()) {
+            throw new ReadOnlyBufferException();
+        }
         if (start < 0 || end < start || end > str.length()) {
             throw new IndexOutOfBoundsException("str.length()=" + str.length() +
                     ", start=" + start + ", end=" + end);

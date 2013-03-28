@@ -19,7 +19,7 @@ package java.nio;
 import libcore.io.SizeOf;
 
 /**
- * This class wraps a byte buffer to be a long buffer.
+ * This class wraps a byte buffer to be a char buffer.
  * <p>
  * Implementation notice:
  * <ul>
@@ -31,26 +31,26 @@ import libcore.io.SizeOf;
  * </p>
  *
  */
-final class LongToByteBufferAdapter extends LongBuffer {
+final class ByteBufferAsCharBuffer extends CharBuffer {
 
     private final ByteBuffer byteBuffer;
 
-    static LongBuffer asLongBuffer(ByteBuffer byteBuffer) {
+    static CharBuffer asCharBuffer(ByteBuffer byteBuffer) {
         ByteBuffer slice = byteBuffer.slice();
         slice.order(byteBuffer.order());
-        return new LongToByteBufferAdapter(slice);
+        return new ByteBufferAsCharBuffer(slice);
     }
 
-    private LongToByteBufferAdapter(ByteBuffer byteBuffer) {
-        super(byteBuffer.capacity() / SizeOf.LONG);
+    private ByteBufferAsCharBuffer(ByteBuffer byteBuffer) {
+        super(byteBuffer.capacity() / SizeOf.CHAR);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
         this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
     }
 
     @Override
-    public LongBuffer asReadOnlyBuffer() {
-        LongToByteBufferAdapter buf = new LongToByteBufferAdapter(byteBuffer.asReadOnlyBuffer());
+    public CharBuffer asReadOnlyBuffer() {
+        ByteBufferAsCharBuffer buf = new ByteBufferAsCharBuffer(byteBuffer.asReadOnlyBuffer());
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -59,12 +59,12 @@ final class LongToByteBufferAdapter extends LongBuffer {
     }
 
     @Override
-    public LongBuffer compact() {
+    public CharBuffer compact() {
         if (byteBuffer.isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
-        byteBuffer.limit(limit * SizeOf.LONG);
-        byteBuffer.position(position * SizeOf.LONG);
+        byteBuffer.limit(limit * SizeOf.CHAR);
+        byteBuffer.position(position * SizeOf.CHAR);
         byteBuffer.compact();
         byteBuffer.clear();
         position = limit - position;
@@ -74,9 +74,9 @@ final class LongToByteBufferAdapter extends LongBuffer {
     }
 
     @Override
-    public LongBuffer duplicate() {
+    public CharBuffer duplicate() {
         ByteBuffer bb = byteBuffer.duplicate().order(byteBuffer.order());
-        LongToByteBufferAdapter buf = new LongToByteBufferAdapter(bb);
+        ByteBufferAsCharBuffer buf = new ByteBufferAsCharBuffer(bb);
         buf.limit = limit;
         buf.position = position;
         buf.mark = mark;
@@ -84,29 +84,29 @@ final class LongToByteBufferAdapter extends LongBuffer {
     }
 
     @Override
-    public long get() {
+    public char get() {
         if (position == limit) {
             throw new BufferUnderflowException();
         }
-        return byteBuffer.getLong(position++ * SizeOf.LONG);
+        return byteBuffer.getChar(position++ * SizeOf.CHAR);
     }
 
     @Override
-    public long get(int index) {
+    public char get(int index) {
         checkIndex(index);
-        return byteBuffer.getLong(index * SizeOf.LONG);
+        return byteBuffer.getChar(index * SizeOf.CHAR);
     }
 
     @Override
-    public LongBuffer get(long[] dst, int dstOffset, int longCount) {
-        byteBuffer.limit(limit * SizeOf.LONG);
-        byteBuffer.position(position * SizeOf.LONG);
+    public CharBuffer get(char[] dst, int dstOffset, int charCount) {
+        byteBuffer.limit(limit * SizeOf.CHAR);
+        byteBuffer.position(position * SizeOf.CHAR);
         if (byteBuffer instanceof DirectByteBuffer) {
-            ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, longCount);
+            ((DirectByteBuffer) byteBuffer).get(dst, dstOffset, charCount);
         } else {
-            ((HeapByteBuffer) byteBuffer).get(dst, dstOffset, longCount);
+            ((ByteArrayBuffer) byteBuffer).get(dst, dstOffset, charCount);
         }
-        this.position += longCount;
+        this.position += charCount;
         return this;
     }
 
@@ -125,7 +125,7 @@ final class LongToByteBufferAdapter extends LongBuffer {
         return byteBuffer.order();
     }
 
-    @Override long[] protectedArray() {
+    @Override char[] protectedArray() {
         throw new UnsupportedOperationException();
     }
 
@@ -138,42 +138,50 @@ final class LongToByteBufferAdapter extends LongBuffer {
     }
 
     @Override
-    public LongBuffer put(long c) {
+    public CharBuffer put(char c) {
         if (position == limit) {
             throw new BufferOverflowException();
         }
-        byteBuffer.putLong(position++ * SizeOf.LONG, c);
+        byteBuffer.putChar(position++ * SizeOf.CHAR, c);
         return this;
     }
 
     @Override
-    public LongBuffer put(int index, long c) {
+    public CharBuffer put(int index, char c) {
         checkIndex(index);
-        byteBuffer.putLong(index * SizeOf.LONG, c);
+        byteBuffer.putChar(index * SizeOf.CHAR, c);
         return this;
     }
 
     @Override
-    public LongBuffer put(long[] src, int srcOffset, int longCount) {
-        byteBuffer.limit(limit * SizeOf.LONG);
-        byteBuffer.position(position * SizeOf.LONG);
-        if (byteBuffer instanceof ReadWriteDirectByteBuffer) {
-            ((ReadWriteDirectByteBuffer) byteBuffer).put(src, srcOffset, longCount);
+    public CharBuffer put(char[] src, int srcOffset, int charCount) {
+        byteBuffer.limit(limit * SizeOf.CHAR);
+        byteBuffer.position(position * SizeOf.CHAR);
+        if (byteBuffer instanceof DirectByteBuffer) {
+            ((DirectByteBuffer) byteBuffer).put(src, srcOffset, charCount);
         } else {
-            ((ReadWriteHeapByteBuffer) byteBuffer).put(src, srcOffset, longCount);
+            ((ByteArrayBuffer) byteBuffer).put(src, srcOffset, charCount);
         }
-        this.position += longCount;
+        this.position += charCount;
         return this;
     }
 
     @Override
-    public LongBuffer slice() {
-        byteBuffer.limit(limit * SizeOf.LONG);
-        byteBuffer.position(position * SizeOf.LONG);
+    public CharBuffer slice() {
+        byteBuffer.limit(limit * SizeOf.CHAR);
+        byteBuffer.position(position * SizeOf.CHAR);
         ByteBuffer bb = byteBuffer.slice().order(byteBuffer.order());
-        LongBuffer result = new LongToByteBufferAdapter(bb);
+        CharBuffer result = new ByteBufferAsCharBuffer(bb);
         byteBuffer.clear();
         return result;
     }
 
+    @Override
+    public CharSequence subSequence(int start, int end) {
+        checkStartEndRemaining(start, end);
+        CharBuffer result = duplicate();
+        result.limit(position + end);
+        result.position(position + start);
+        return result;
+    }
 }
