@@ -174,6 +174,7 @@ public final class Posix implements Os {
     public native StructStat stat(String path) throws ErrnoException;
     public native StructStatFs statfs(String path) throws ErrnoException;
     public native String strerror(int errno);
+    public native String strsignal(int signal);
     public native void symlink(String oldPath, String newPath) throws ErrnoException;
     public native long sysconf(int name);
     public native void tcdrain(FileDescriptor fd) throws ErrnoException;
