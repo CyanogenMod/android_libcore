@@ -124,6 +124,7 @@ public interface Os {
     /* TODO: replace statfs with statvfs. */
     public StructStatFs statfs(String path) throws ErrnoException;
     public String strerror(int errno);
+    public String strsignal(int signal);
     public void symlink(String oldPath, String newPath) throws ErrnoException;
     public long sysconf(int name);
     public void tcdrain(FileDescriptor fd) throws ErrnoException;
