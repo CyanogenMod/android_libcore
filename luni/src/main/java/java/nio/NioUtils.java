@@ -26,25 +26,6 @@ public final class NioUtils {
     private NioUtils() {
     }
 
-    /**
-     * Gets the start address of a direct buffer.
-     * <p>
-     * This method corresponds to the JNI function:
-     *
-     * <pre>
-     *    void* GetDirectBufferAddress(JNIEnv* env, jobject buf);
-     * </pre>
-     *
-     * @param buf
-     *            the direct buffer whose address shall be returned must not be
-     *            <code>null</code>.
-     * @return the address of the buffer given, or zero if the buffer is not a
-     *         direct Buffer.
-     */
-    public static int getDirectBufferAddress(Buffer buffer) {
-        return buffer.effectiveDirectAddress;
-    }
-
     public static void freeDirectBuffer(ByteBuffer buffer) {
         if (buffer == null) {
             return;
