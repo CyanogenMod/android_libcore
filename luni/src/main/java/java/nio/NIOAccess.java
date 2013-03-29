@@ -33,7 +33,7 @@ final class NIOAccess {
      * position, or 0 if there is none
      */
     static long getBasePointer(Buffer b) {
-        int address = b.effectiveDirectAddress;
+        long address = b.effectiveDirectAddress;
         if (address == 0) {
             return 0L;
         }

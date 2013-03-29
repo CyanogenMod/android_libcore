@@ -87,7 +87,7 @@ public abstract class Buffer {
      * This is set in the constructor.
      * TODO: make this final at the cost of loads of extra constructors? [how many?]
      */
-    int effectiveDirectAddress;
+    long effectiveDirectAddress;
 
     /**
      * For direct buffers, the underlying MemoryBlock; null otherwise.
