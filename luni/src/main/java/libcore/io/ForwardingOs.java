@@ -130,6 +130,7 @@ public class ForwardingOs implements Os {
     public StructStat stat(String path) throws ErrnoException { return os.stat(path); }
     public StructStatFs statfs(String path) throws ErrnoException { return os.statfs(path); }
     public String strerror(int errno) { return os.strerror(errno); }
+    public String strsignal(int signal) { return os.strsignal(signal); }
     public void symlink(String oldPath, String newPath) throws ErrnoException { os.symlink(oldPath, newPath); }
     public long sysconf(int name) { return os.sysconf(name); }
     public void tcdrain(FileDescriptor fd) throws ErrnoException { os.tcdrain(fd); }
