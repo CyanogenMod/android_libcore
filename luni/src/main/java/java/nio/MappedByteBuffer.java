@@ -52,7 +52,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
   public final boolean isLoaded() {
     checkIsMapped();
 
-    long address = block.toInt();
+    long address = block.toLong();
     long size = block.getSize();
     if (size == 0) {
       return true;
@@ -85,18 +85,17 @@ public abstract class MappedByteBuffer extends ByteBuffer {
     checkIsMapped();
 
     try {
-      Libcore.os.mlock(block.toInt(), block.getSize());
-      Libcore.os.munlock(block.toInt(), block.getSize());
+      Libcore.os.mlock(block.toLong(), block.getSize());
+      Libcore.os.munlock(block.toLong(), block.getSize());
     } catch (ErrnoException ignored) {
     }
     return this;
   }
 
   /**
-   * Writes all changes of the buffer to the mapped file. If the mapped file
-   * is stored on a local device, it is guaranteed that the changes are
-   * written to the file. No such guarantee is given if the file is located on
-   * a remote device.
+   * Flushes changes made to the in-memory buffer back to the mapped file.
+   * Unless you call this, changes may not be written back until the finalizer
+   * runs. This method waits for the write to complete before returning.
    *
    * @return this buffer.
    */
@@ -105,7 +104,7 @@ public abstract class MappedByteBuffer extends ByteBuffer {
 
     if (mapMode == MapMode.READ_WRITE) {
       try {
-        Libcore.os.msync(block.toInt(), block.getSize(), MS_SYNC);
+        Libcore.os.msync(block.toLong(), block.getSize(), MS_SYNC);
       } catch (ErrnoException errnoException) {
         // The RI doesn't throw, presumably on the assumption that you can't get into
         // a state where msync(2) could return an error.
