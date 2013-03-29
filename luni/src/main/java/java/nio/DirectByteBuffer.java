@@ -44,7 +44,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   // Used by the JNI NewDirectByteBuffer function.
-  DirectByteBuffer(int address, int capacity) {
+  DirectByteBuffer(long address, int capacity) {
     this(MemoryBlock.wrapFromJni(address, capacity), capacity, 0, false, null);
   }
 
