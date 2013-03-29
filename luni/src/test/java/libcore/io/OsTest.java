@@ -129,4 +129,9 @@ public class OsTest extends TestCase {
   private void checkNoSockName(FileDescriptor fd) throws Exception {
     checkNoName(Libcore.os.getsockname(fd));
   }
+
+  public void test_strsignal() throws Exception {
+    assertEquals("Killed", Libcore.os.strsignal(9));
+    assertEquals("Unknown signal -1", Libcore.os.strsignal(-1));
+  }
 }

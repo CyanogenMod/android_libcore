@@ -1280,6 +1280,10 @@ static jstring Posix_strerror(JNIEnv* env, jobject, jint errnum) {
     return env->NewStringUTF(message);
 }
 
+static jstring Posix_strsignal(JNIEnv* env, jobject, jint signal) {
+    return env->NewStringUTF(strsignal(signal));
+}
+
 static void Posix_symlink(JNIEnv* env, jobject, jstring javaOldPath, jstring javaNewPath) {
     ScopedUtfChars oldPath(env, javaOldPath);
     if (oldPath.c_str() == NULL) {
@@ -1451,6 +1455,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, stat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, statfs, "(Ljava/lang/String;)Llibcore/io/StructStatFs;"),
     NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),
+    NATIVE_METHOD(Posix, strsignal, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, sysconf, "(I)J"),
     NATIVE_METHOD(Posix, tcdrain, "(Ljava/io/FileDescriptor;)V"),
