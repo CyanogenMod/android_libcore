@@ -2360,6 +2360,22 @@ static jbyteArray NativeCrypto_EC_GROUP_get_order(JNIEnv* env, jclass, jlong gro
     return orderArray;
 }
 
+static jint NativeCrypto_EC_GROUP_get_degree(JNIEnv* env, jclass, jlong groupRef)
+{
+    const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
+    JNI_TRACE("EC_GROUP_get_degree(%p)", group);
+
+    jint degree = EC_GROUP_get_degree(group);
+    if (degree == 0) {
+      JNI_TRACE("EC_GROUP_get_degree(%p) => unsupported", group);
+      jniThrowRuntimeException(env, "not supported");
+      return 0;
+    }
+
+    JNI_TRACE("EC_GROUP_get_degree(%p) => %d", group, degree);
+    return degree;
+}
+
 static jbyteArray NativeCrypto_EC_GROUP_get_cofactor(JNIEnv* env, jclass, jlong groupRef)
 {
     const EC_GROUP* group = reinterpret_cast<const EC_GROUP*>(groupRef);
@@ -7821,6 +7837,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, EC_GROUP_get_curve_name, "(J)Ljava/lang/String;"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_get_curve, "(J)[[B"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_get_order, "(J)[B"),
+    NATIVE_METHOD(NativeCrypto, EC_GROUP_get_degree, "(J)I"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_get_cofactor, "(J)[B"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_clear_free, "(J)V"),
     NATIVE_METHOD(NativeCrypto, EC_GROUP_cmp, "(JJ)Z"),
