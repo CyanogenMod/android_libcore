@@ -96,8 +96,8 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik dom json luni support xml)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit
-LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc mockwebserver nist-pkix-tests
+LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit okhttp
+LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc mockwebserver nist-pkix-tests okhttp-tests
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE := core-tests
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
@@ -151,7 +151,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik dom json luni support xml)
     LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
     LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVA_LIBRARIES := bouncycastle-hostdex core-hostdex core-junit-hostdex
+    LOCAL_JAVA_LIBRARIES := bouncycastle-hostdex core-hostdex core-junit-hostdex okhttp-hostdex
     LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc-host mockwebserver-host nist-pkix-tests-host
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_MODULE_TAGS := optional
