@@ -715,7 +715,7 @@ public class BufferTest extends TestCase {
     public void testHasArrayOnJniDirectByteBuffer() throws Exception {
         // Simulate a call to JNI's NewDirectByteBuffer.
         Class<?> c = Class.forName("java.nio.DirectByteBuffer");
-        Constructor<?> ctor = c.getDeclaredConstructor(int.class, int.class);
+        Constructor<?> ctor = c.getDeclaredConstructor(long.class, int.class);
         ctor.setAccessible(true);
         ByteBuffer bb = (ByteBuffer) ctor.newInstance(0, 0);
 
