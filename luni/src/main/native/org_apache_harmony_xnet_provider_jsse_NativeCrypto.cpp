@@ -4702,6 +4702,10 @@ static jlong PEM_ASN1Object_to_jlong(JNIEnv* env, jlong bioRef) {
     T* x = PEM_read_func(bio, NULL, NULL, NULL);
     if (x == NULL) {
         throwExceptionIfNecessary(env, "PEM_ASN1Object_to_jlong");
+        // Sometimes the PEM functions fail without pushing an error
+        if (!env->ExceptionCheck()) {
+            jniThrowRuntimeException(env, "Failure parsing PEM");
+        }
         JNI_TRACE("PEM_ASN1Object_to_jlong(%p) => threw exception", bio);
         return 0;
     }
