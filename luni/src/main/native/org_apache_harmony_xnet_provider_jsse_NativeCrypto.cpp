@@ -5170,21 +5170,6 @@ static jobjectArray NativeCrypto_get_X509_ex_xkusage(JNIEnv* env, jclass, jlong 
     return exKeyUsage.release();
 }
 
-static jint NativeCrypto_X509_check_ca(JNIEnv* env, jclass, jlong x509Ref) {
-    X509* x509 = reinterpret_cast<X509*>(static_cast<uintptr_t>(x509Ref));
-    JNI_TRACE("X509_check_ca(%p)", x509);
-
-    if (x509 == NULL) {
-        jniThrowNullPointerException(env, "x509 == null");
-        JNI_TRACE("X509_check_ca(%p) => x509 == null", x509);
-        return 0;
-    }
-
-    int ret = X509_check_ca(x509);
-    JNI_TRACE("X509_check_ca(%p) => %d", x509, ret);
-    return ret;
-}
-
 static jint NativeCrypto_get_X509_ex_pathlen(JNIEnv* env, jclass, jlong x509Ref) {
     X509* x509 = reinterpret_cast<X509*>(static_cast<uintptr_t>(x509Ref));
     JNI_TRACE("get_X509_ex_pathlen(%p)", x509);
@@ -7919,7 +7904,6 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, get_X509_subjectUID, "(J)[Z"),
     NATIVE_METHOD(NativeCrypto, get_X509_ex_kusage, "(J)[Z"),
     NATIVE_METHOD(NativeCrypto, get_X509_ex_xkusage, "(J)[Ljava/lang/String;"),
-    NATIVE_METHOD(NativeCrypto, X509_check_ca, "(J)I"),
     NATIVE_METHOD(NativeCrypto, get_X509_ex_pathlen, "(J)I"),
     NATIVE_METHOD(NativeCrypto, X509_get_ext_oid, "(JLjava/lang/String;)[B"),
     NATIVE_METHOD(NativeCrypto, X509_CRL_get_ext_oid, "(JLjava/lang/String;)[B"),
