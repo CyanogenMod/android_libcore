@@ -36,6 +36,11 @@ include $(LOCAL_PATH)/NativeCode.mk
 include $(LOCAL_PATH)/CaCerts.mk
 
 #
+# Include the definitions to build the caliper benchmarks.
+#
+include $(LOCAL_PATH)/benchmarks/Android.mk
+
+#
 # Disable test modules if LIBCORE_SKIP_TESTS environment variable is set.
 #
 
