@@ -394,6 +394,9 @@ static void throwForEvpError(JNIEnv* env, int reason, const char *message) {
     case EVP_R_WRONG_PUBLIC_KEY_TYPE:
         throwSignatureException(env, message);
         break;
+    case EVP_R_UNSUPPORTED_ALGORITHM:
+        throwNoSuchAlgorithmException(env, message);
+        break;
     default:
         jniThrowRuntimeException(env, message);
         break;
@@ -4688,6 +4691,13 @@ static jbyteArray NativeCrypto_i2d_X509(JNIEnv* env, jclass, jlong x509Ref) {
     return ASN1ToByteArray<X509, i2d_X509>(env, x509);
 }
 
+static jbyteArray NativeCrypto_i2d_X509_PUBKEY(JNIEnv* env, jclass, jlong x509Ref) {
+    X509* x509 = reinterpret_cast<X509*>(static_cast<uintptr_t>(x509Ref));
+    JNI_TRACE("i2d_X509_PUBKEY(%p)", x509);
+    return ASN1ToByteArray<X509_PUBKEY, i2d_X509_PUBKEY>(env, X509_get_X509_PUBKEY(x509));
+}
+
+
 template<typename T, T* (*PEM_read_func)(BIO*, T**, pem_password_cb*, void*)>
 static jlong PEM_ASN1Object_to_jlong(JNIEnv* env, jlong bioRef) {
     BIO* bio = reinterpret_cast<BIO*>(static_cast<uintptr_t>(bioRef));
@@ -7888,6 +7898,7 @@ static JNINativeMethod sNativeCryptoMethods[] = {
     NATIVE_METHOD(NativeCrypto, d2i_X509_bio, "(J)J"),
     NATIVE_METHOD(NativeCrypto, d2i_X509, "([B)J"),
     NATIVE_METHOD(NativeCrypto, i2d_X509, "(J)[B"),
+    NATIVE_METHOD(NativeCrypto, i2d_X509_PUBKEY, "(J)[B"),
     NATIVE_METHOD(NativeCrypto, PEM_read_bio_X509, "(J)J"),
     NATIVE_METHOD(NativeCrypto, PEM_read_bio_PKCS7, "(JI)[J"),
     NATIVE_METHOD(NativeCrypto, d2i_PKCS7_bio, "(JI)[J"),
