@@ -98,6 +98,9 @@ import libcore.icu.TimeZoneNames;
  * extensions are necessary for correct localization in languages such as Russian
  * that distinguish between, say, "June" and "June 2010".
  *
+ * <p>Five-count patterns (such as "MMMMM") used for the shortest non-numeric
+ * representation of a field were introduced in Jelly Bean MR2 (API level 18).
+ *
  * <p>When two numeric fields are directly adjacent with no intervening delimiter
  * characters, they constitute a run of adjacent numeric fields. Such runs are
  * parsed specially. For example, the format "HHmmss" parses the input text
