@@ -66,6 +66,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
         core-hostdex \
         bouncycastle-hostdex \
         apache-xml-hostdex \
+        okhttp-hostdex \
         apache-harmony-tests-hostdex \
         $(call intermediates-dir-for,JAVA_LIBRARIES,core-tests,,COMMON)/classes.jar
 endif

@@ -16,14 +16,11 @@
 
 package libcore.java.net;
 
+import com.android.okhttp.internal.http.HttpResponseCache;
 import com.google.mockwebserver.MockResponse;
 import com.google.mockwebserver.MockWebServer;
 import com.google.mockwebserver.RecordedRequest;
 import com.google.mockwebserver.SocketPolicy;
-import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_END;
-import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_START;
-import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_INPUT_AT_END;
-import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_OUTPUT_AT_END;
 import dalvik.system.CloseGuard;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -49,21 +46,15 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
@@ -81,8 +72,12 @@ import junit.framework.TestCase;
 import libcore.java.lang.ref.FinalizationTester;
 import libcore.java.security.TestKeyStore;
 import libcore.javax.net.ssl.TestSSLContext;
-import libcore.net.http.HttpResponseCache;
 import tests.net.StuckServer;
+
+import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_END;
+import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_START;
+import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_INPUT_AT_END;
+import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_OUTPUT_AT_END;
 
 public final class URLConnectionTest extends TestCase {
     private MockWebServer server = new MockWebServer();

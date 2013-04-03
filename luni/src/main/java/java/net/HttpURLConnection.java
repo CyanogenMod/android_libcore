@@ -20,7 +20,6 @@ package java.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import libcore.net.http.HttpEngine;
 
 /**
  * An {@link URLConnection} for HTTP (<a
@@ -257,19 +256,20 @@ import libcore.net.http.HttpEngine;
  * request/response pair. Instances of this class are not thread safe.
  */
 public abstract class HttpURLConnection extends URLConnection {
+    private static final int DEFAULT_CHUNK_LENGTH = 1024;
 
     /**
      * The subset of HTTP methods that the user may select via {@link
      * #setRequestMethod(String)}.
      */
     private static final String[] PERMITTED_USER_METHODS = {
-            HttpEngine.OPTIONS,
-            HttpEngine.GET,
-            HttpEngine.HEAD,
-            HttpEngine.POST,
-            HttpEngine.PUT,
-            HttpEngine.DELETE,
-            HttpEngine.TRACE
+            "OPTIONS",
+            "GET",
+            "HEAD",
+            "POST",
+            "PUT",
+            "DELETE",
+            "TRACE"
             // Note: we don't allow users to specify "CONNECT"
     };
 
@@ -277,7 +277,7 @@ public abstract class HttpURLConnection extends URLConnection {
      * The HTTP request method of this {@code HttpURLConnection}. The default
      * value is {@code "GET"}.
      */
-    protected String method = HttpEngine.GET;
+    protected String method = "GET";
 
     /**
      * The status code of the response obtained from the HTTP request. The
@@ -787,7 +787,7 @@ public abstract class HttpURLConnection extends URLConnection {
             throw new IllegalStateException("Already in fixed-length mode");
         }
         if (chunkLength <= 0) {
-            this.chunkLength = HttpEngine.DEFAULT_CHUNK_LENGTH;
+            this.chunkLength = DEFAULT_CHUNK_LENGTH;
         } else {
             this.chunkLength = chunkLength;
         }
