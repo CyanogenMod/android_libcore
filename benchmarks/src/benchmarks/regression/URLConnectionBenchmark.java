@@ -18,8 +18,10 @@ package benchmarks.regression;
 
 import com.google.caliper.Param;
 import com.google.caliper.SimpleBenchmark;
+import com.google.mockwebserver.Dispatcher;
 import com.google.mockwebserver.MockResponse;
 import com.google.mockwebserver.MockWebServer;
+import com.google.mockwebserver.RecordedRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -38,6 +40,16 @@ public final class URLConnectionBenchmark extends SimpleBenchmark {
     private MockWebServer server;
     private URL url;
 
+    private static class SingleResponseDispatcher extends Dispatcher {
+        private MockResponse response;
+        SingleResponseDispatcher(MockResponse response) {
+            this.response = response;
+        }
+        @Override public MockResponse dispatch(RecordedRequest request) {
+            return response;
+        }
+    };
+
     protected void setUp() throws Exception {
         readBuffer = new byte[readBufferSize];
         server = new MockWebServer();
@@ -45,10 +57,9 @@ public final class URLConnectionBenchmark extends SimpleBenchmark {
         MockResponse response = new MockResponse();
         responseHeaders.apply(response);
         transferEncoding.setBody(response, bodySize, chunkSize);
-        server.enqueue(response);
 
         // keep serving the same response for all iterations
-        server.setSingleResponse(true);
+        server.setDispatcher(new SingleResponseDispatcher(response));
         server.play();
 
         url = server.getUrl("/");
@@ -56,14 +67,6 @@ public final class URLConnectionBenchmark extends SimpleBenchmark {
     }
 
     protected void tearDown() throws Exception {
-        /*
-         * Entice the server to shut itself down gracefully. The shutdown method
-         * doesn't work on Dalvik because socket.close() doesn't release blocked
-         * threads. Instead, read the last continuously-served request, and then
-         * cause the server to close the otherwise-reusable HTTP connection.
-         */
-        server.setSingleResponse(false);
-        get();
         server.shutdown();
     }
 
