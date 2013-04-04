@@ -495,29 +495,33 @@ public final class Locale implements Cloneable, Serializable {
     }
 
     /**
-     * Returns the three letter ISO country code which corresponds to the country
+     * Returns the three-letter ISO 3166 country code which corresponds to the country
      * code for this {@code Locale}.
+     * @throws MissingResourceException if there's no 3-letter country code for this locale.
      */
     public String getISO3Country() {
-        if (countryCode.length() == 0) {
-            return countryCode;
+        String code = ICU.getISO3CountryNative(toString());
+        if (!countryCode.isEmpty() && code.isEmpty()) {
+            throw new MissingResourceException("No 3-letter country code for locale: " + this, "FormatData_" + this, "ShortCountry");
         }
-        return ICU.getISO3CountryNative(toString());
+        return code;
     }
 
     /**
-     * Returns the three letter ISO language code which corresponds to the language
+     * Returns the three-letter ISO 639-2/T language code which corresponds to the language
      * code for this {@code Locale}.
+     * @throws MissingResourceException if there's no 3-letter language code for this locale.
      */
     public String getISO3Language() {
-        if (languageCode.length() == 0) {
-            return languageCode;
+        String code = ICU.getISO3LanguageNative(toString());
+        if (!languageCode.isEmpty() && code.isEmpty()) {
+            throw new MissingResourceException("No 3-letter language code for locale: " + this, "FormatData_" + this, "ShortLanguage");
         }
-        return ICU.getISO3LanguageNative(toString());
+        return code;
     }
 
     /**
-     * Returns an array of strings containing all the two-letter ISO country codes that can be
+     * Returns an array of strings containing all the two-letter ISO 3166 country codes that can be
      * used as the country code when constructing a {@code Locale}.
      */
     public static String[] getISOCountries() {
@@ -525,7 +529,7 @@ public final class Locale implements Cloneable, Serializable {
     }
 
     /**
-     * Returns an array of strings containing all the two-letter ISO language codes that can be
+     * Returns an array of strings containing all the two-letter ISO 639-1 language codes that can be
      * used as the language code when constructing a {@code Locale}.
      */
     public static String[] getISOLanguages() {
