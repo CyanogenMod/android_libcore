@@ -25,6 +25,7 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.MissingResourceException;
 
 public class LocaleTest extends junit.framework.TestCase {
     // http://b/2611311; if there's no display language/country/variant, use the raw codes.
@@ -125,4 +126,42 @@ public class LocaleTest extends junit.framework.TestCase {
         }
         assertEquals(1, count);
     }
-}
+
+    public void test_getISO3Country() {
+        // Empty country code.
+        assertEquals("", new Locale("en", "").getISO3Country());
+
+        // Invalid country code.
+        try {
+            assertEquals("", new Locale("en", "XX").getISO3Country());
+            fail();
+        } catch (MissingResourceException expected) {
+            assertEquals("FormatData_en_XX", expected.getClassName());
+            assertEquals("ShortCountry", expected.getKey());
+        }
+
+        // Valid country code.
+        assertEquals("CAN", new Locale("", "CA").getISO3Country());
+        assertEquals("CAN", new Locale("en", "CA").getISO3Country());
+        assertEquals("CAN", new Locale("xx", "CA").getISO3Country());
+    }
+
+    public void test_getISO3Language() {
+        // Empty language code.
+        assertEquals("", new Locale("", "US").getISO3Language());
+
+        // Invalid language code.
+        try {
+            assertEquals("", new Locale("xx", "US").getISO3Language());
+            fail();
+        } catch (MissingResourceException expected) {
+            assertEquals("FormatData_xx_US", expected.getClassName());
+            assertEquals("ShortLanguage", expected.getKey());
+        }
+
+        // Valid language code.
+        assertEquals("eng", new Locale("en", "").getISO3Language());
+        assertEquals("eng", new Locale("en", "CA").getISO3Language());
+        assertEquals("eng", new Locale("en", "XX").getISO3Language());
+    }
+  }
