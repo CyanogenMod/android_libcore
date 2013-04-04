@@ -17,7 +17,6 @@
 
 package tests.api.java.util;
 
-import dalvik.annotation.AndroidOnly;
 import tests.support.Support_Locale;
 
 import java.security.Permission;
@@ -172,7 +171,6 @@ public class LocaleTest extends junit.framework.TestCase {
     /**
      * java.util.Locale#getDisplayCountry()
      */
-    @AndroidOnly("ICU has different display name for countries")
     public void test_getDisplayCountry() {
         // Test for method java.lang.String java.util.Locale.getDisplayCountry()
         assertTrue("Returned incorrect country: "
@@ -248,35 +246,7 @@ public class LocaleTest extends junit.framework.TestCase {
                 .getDisplayVariant(l).equals("WIN32"));
     }
 
-    /**
-     * java.util.Locale#getISO3Country()
-     */
-    public void test_getISO3Country() {
-        // Test for method java.lang.String java.util.Locale.getISO3Country()
-        assertTrue("Returned incorrect ISO3 country: "
-                + testLocale.getISO3Country(), testLocale.getISO3Country()
-                .equals("CAN"));
-
-        Locale l = new Locale("", "CD");
-        assertEquals("COD", l.getISO3Country());
-
-        Locale x = new Locale("xx", "C");
-        try {
-            x.getISO3Country();
-        } catch (MissingResourceException e) {
-            //expected
-        }
-    }
-
-    /**
-     * java.util.Locale#getISO3Language()
-     */
     public void test_getISO3Language() {
-        // Test for method java.lang.String java.util.Locale.getISO3Language()
-        assertTrue("Returned incorrect ISO3 language: "
-                + testLocale.getISO3Language(), testLocale.getISO3Language()
-                .equals("eng"));
-
         Locale l = new Locale("ae");
         assertEquals("ave", l.getISO3Language());
 
@@ -287,13 +257,6 @@ public class LocaleTest extends junit.framework.TestCase {
         // Regression for Harmony-1129
         l = new Locale("ak", "");
         assertEquals("aka", l.getISO3Language());
-
-        Locale x = new Locale("xx", "C");
-        try {
-            x.getISO3Language();
-        } catch (MissingResourceException e) {
-            //expected
-        }
     }
 
     /**
