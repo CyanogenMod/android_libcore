@@ -412,6 +412,7 @@ static void throwForRsaError(JNIEnv* env, int reason, const char *message) {
     case RSA_R_ALGORITHM_MISMATCH:
     case RSA_R_BAD_SIGNATURE:
     case RSA_R_DATA_GREATER_THAN_MOD_LEN:
+    case RSA_R_DATA_TOO_LARGE_FOR_MODULUS:
     case RSA_R_INVALID_MESSAGE_LENGTH:
     case RSA_R_WRONG_SIGNATURE_LENGTH:
         throwSignatureException(env, message);
