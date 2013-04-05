@@ -93,7 +93,7 @@ core-intermediates := ${intermediates}
 # Make the core-tests library.
 ifeq ($(LIBCORE_SKIP_TESTS),)
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik dom json luni support xml)
+LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik dom harmony-tests json luni support xml)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit
