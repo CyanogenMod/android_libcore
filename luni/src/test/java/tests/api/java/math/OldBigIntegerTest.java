@@ -20,7 +20,7 @@ package tests.api.java.math;
 import java.math.BigInteger;
 import java.util.Random;
 
-public class BigIntegerTest extends junit.framework.TestCase {
+public class OldBigIntegerTest extends junit.framework.TestCase {
 
     BigInteger minusTwo = new BigInteger("-2", 10);
 
