@@ -25,61 +25,87 @@ import libcore.javax.net.ssl.FakeSSLSession;
 
 public final class ClientSessionContextTest extends TestCase {
 
-    public void testGetSessionById() {
+    public void testSimpleAddition() {
         ClientSessionContext context = new ClientSessionContext();
-
         SSLSession a = new ValidSSLSession("a");
         SSLSession b = new ValidSSLSession("b");
 
         context.putSession(a);
+        assertSessionContextContents(context, new SSLSession[] { a }, new SSLSession[] { b });
+
         context.putSession(b);
-
-        assertSame(a, context.getSession("a".getBytes()));
-        assertSame(b, context.getSession("b".getBytes()));
-
-        assertSame(a, context.getSession("a", 443));
-        assertSame(b, context.getSession("b", 443));
-
-        assertEquals(2, context.size());
-
-        Set<SSLSession> sessions = new HashSet<SSLSession>();
-        Enumeration ids = context.getIds();
-        while (ids.hasMoreElements()) {
-            sessions.add(context.getSession((byte[]) ids.nextElement()));
-        }
-
-        Set<SSLSession> expected = new HashSet<SSLSession>();
-        expected.add(a);
-        expected.add(b);
-
-        assertEquals(expected, sessions);
+        assertSessionContextContents(context, new SSLSession[] { a, b }, new SSLSession[0]);
     }
 
     public void testTrimToSize() {
         ClientSessionContext context = new ClientSessionContext();
-
         ValidSSLSession a = new ValidSSLSession("a");
         ValidSSLSession b = new ValidSSLSession("b");
         ValidSSLSession c = new ValidSSLSession("c");
         ValidSSLSession d = new ValidSSLSession("d");
 
         context.putSession(a);
+        assertSessionContextContents(context, new SSLSession[] { a }, new SSLSession[] { b, c, d });
+
         context.putSession(b);
+        assertSessionContextContents(context, new SSLSession[] { a, b }, new SSLSession[] { c, d });
+
         context.putSession(c);
+        assertSessionContextContents(context, new SSLSession[] { a, b, c }, new SSLSession[] { d });
+
         context.putSession(d);
+        assertSessionContextContents(context, new SSLSession[] { a, b, c, d }, new SSLSession[0]);
 
         context.setSessionCacheSize(2);
+        assertSessionContextContents(context, new SSLSession[] { c, d }, new SSLSession[] { a, b });
+    }
+
+    public void testImplicitRemovalOfOldest() {
+        ClientSessionContext context = new ClientSessionContext();
+        context.setSessionCacheSize(2);
+        ValidSSLSession a = new ValidSSLSession("a");
+        ValidSSLSession b = new ValidSSLSession("b");
+        ValidSSLSession c = new ValidSSLSession("c");
+        ValidSSLSession d = new ValidSSLSession("d");
+
+        context.putSession(a);
+        assertSessionContextContents(context, new SSLSession[] { a }, new SSLSession[] { b, c, d });
+
+        context.putSession(b);
+        assertSessionContextContents(context, new SSLSession[] { a, b }, new SSLSession[] { c, d });
+
+        context.putSession(c);
+        assertSessionContextContents(context, new SSLSession[] { b, c }, new SSLSession[] { a, d });
+
+        context.putSession(d);
+        assertSessionContextContents(context, new SSLSession[] { c, d }, new SSLSession[] { a, b });
+    }
+
+    private static void assertSessionContextContents(ClientSessionContext context,
+                                                     SSLSession[] contains,
+                                                     SSLSession[] exludes) {
+        assertEquals(contains.length, context.size());
+
+        for (SSLSession s : contains) {
+            assertSame(s.getPeerHost(), s, context.getSession(s.getId()));
+            assertSame(s.getPeerHost(), s, context.getSession(s.getPeerHost(), 443));
+        }
+        for (SSLSession s : exludes) {
+            assertNull(s.getPeerHost(), context.getSession(s.getId()));
+            assertNull(s.getPeerHost(), context.getSession(s.getPeerHost(), 443));
+        }
 
         Set<SSLSession> sessions = new HashSet<SSLSession>();
-        Enumeration ids = context.getIds();
+        Enumeration<byte[]> ids = context.getIds();
         while (ids.hasMoreElements()) {
-            sessions.add(context.getSession((byte[]) ids.nextElement()));
+            byte[] id = ids.nextElement();
+            sessions.add(context.getSession(id));
         }
 
         Set<SSLSession> expected = new HashSet<SSLSession>();
-        expected.add(c);
-        expected.add(d);
-
+        for (SSLSession s : sessions) {
+            expected.add(s);
+        }
         assertEquals(expected, sessions);
     }
 

@@ -330,6 +330,55 @@ public class SSLSocketTest extends TestCase {
         c.close();
     }
 
+    private static final class SSLServerSessionIdCallable implements Callable<byte[]> {
+        private final SSLSocket server;
+        private SSLServerSessionIdCallable(SSLSocket server) {
+            this.server = server;
+        }
+        @Override public byte[] call() throws Exception {
+            server.startHandshake();
+            assertNotNull(server.getSession());
+            assertNotNull(server.getSession().getId());
+            return server.getSession().getId();
+        }
+    }
+
+    public void test_SSLSocket_confirmSessionReuse() throws Exception {
+        final TestSSLContext c = TestSSLContext.create();
+        final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        final SSLSocket client1 = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
+                                                                                       c.port);
+        final SSLSocket server1 = (SSLSocket) c.serverSocket.accept();
+        final Future<byte[]> future1 = executor.submit(new SSLServerSessionIdCallable(server1));
+        client1.startHandshake();
+        assertNotNull(client1.getSession());
+        assertNotNull(client1.getSession().getId());
+        final byte[] clientSessionId1 = client1.getSession().getId();
+        final byte[] serverSessionId1 = future1.get();
+        assertTrue(Arrays.equals(clientSessionId1, serverSessionId1));
+        client1.close();
+        server1.close();
+
+        final SSLSocket client2 = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
+                                                                                       c.port);
+        final SSLSocket server2 = (SSLSocket) c.serverSocket.accept();
+        final Future<byte[]> future2 = executor.submit(new SSLServerSessionIdCallable(server2));
+        client2.startHandshake();
+        assertNotNull(client2.getSession());
+        assertNotNull(client2.getSession().getId());
+        final byte[] clientSessionId2 = client2.getSession().getId();
+        final byte[] serverSessionId2 = future2.get();
+        assertTrue(Arrays.equals(clientSessionId2, serverSessionId2));
+        client2.close();
+        server2.close();
+
+        assertTrue(Arrays.equals(clientSessionId1, clientSessionId2));
+
+        executor.shutdown();
+        c.close();
+    }
+
     public void test_SSLSocket_startHandshake_noKeyStore() throws Exception {
         TestSSLContext c = TestSSLContext.create(null, null, null, null, null, null, null, null,
                                                  SSLContext.getDefault(), SSLContext.getDefault());
