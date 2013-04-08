@@ -129,13 +129,28 @@ public final class IoUtils {
     }
 
     /**
-     * Do not use. This is for System.loadLibrary use only.
-     *
+     * Recursively delete everything in {@code dir}.
+     */
+    // TODO: this should specify paths as Strings rather than as Files
+    public static void deleteContents(File dir) throws IOException {
+        File[] files = dir.listFiles();
+        if (files == null) {
+            throw new IllegalArgumentException("not a directory: " + dir);
+        }
+        for (File file : files) {
+            if (file.isDirectory()) {
+                deleteContents(file);
+            }
+            if (!file.delete()) {
+                throw new IOException("failed to delete file: " + file);
+            }
+        }
+    }
+
+    /**
      * Checks whether {@code path} can be opened read-only. Similar to File.exists, but doesn't
      * require read permission on the parent, so it'll work in more cases, and allow you to
-     * remove read permission from more directories. Everyone else should just open(2) and then
-     * use the fd, but the loadLibrary API is broken by its need to ask ClassLoaders where to
-     * find a .so rather than just calling dlopen(3).
+     * remove read permission from more directories.
      */
     public static boolean canOpenReadOnly(String path) {
         try {
