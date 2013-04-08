@@ -135,7 +135,7 @@ public final class IoUtils {
     public static void deleteContents(File dir) throws IOException {
         File[] files = dir.listFiles();
         if (files == null) {
-            throw new IllegalArgumentException("not a directory: " + dir);
+            throw new IOException("listFiles returned null: " + dir);
         }
         for (File file : files) {
             if (file.isDirectory()) {
