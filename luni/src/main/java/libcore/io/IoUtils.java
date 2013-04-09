@@ -23,9 +23,12 @@ import java.io.InterruptedIOException;
 import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.nio.charset.Charsets;
+import java.util.Random;
 import static libcore.io.OsConstants.*;
 
 public final class IoUtils {
+    private static final Random TEMPORARY_DIRECTORY_PRNG = new Random();
+
     private IoUtils() {
     }
 
@@ -129,28 +132,47 @@ public final class IoUtils {
     }
 
     /**
-     * Recursively delete everything in {@code dir}.
+     * Do not use. Use createTemporaryDirectory instead.
+     *
+     * Used by frameworks/base unit tests to clean up a temporary directory.
+     * Deliberately ignores errors, on the assumption that test cleanup is only
+     * supposed to be best-effort.
+     *
+     * @deprecated Use createTemporaryDirectory instead.
      */
-    // TODO: this should specify paths as Strings rather than as Files
     public static void deleteContents(File dir) throws IOException {
         File[] files = dir.listFiles();
-        if (files == null) {
-            throw new IllegalArgumentException("not a directory: " + dir);
-        }
-        for (File file : files) {
-            if (file.isDirectory()) {
-                deleteContents(file);
-            }
-            if (!file.delete()) {
-                throw new IOException("failed to delete file: " + file);
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteContents(file);
+                }
+                file.delete();
             }
         }
     }
 
     /**
+     * Creates a unique new temporary directory under "java.io.tmpdir".
+     */
+    public static File createTemporaryDirectory(String prefix) {
+        while (true) {
+            String candidateName = prefix + TEMPORARY_DIRECTORY_PRNG.nextInt();
+            File result = new File(System.getProperty("java.io.tmpdir"), candidateName);
+            if (result.mkdir()) {
+                return result;
+            }
+        }
+    }
+
+    /**
+     * Do not use. This is for System.loadLibrary use only.
+     *
      * Checks whether {@code path} can be opened read-only. Similar to File.exists, but doesn't
      * require read permission on the parent, so it'll work in more cases, and allow you to
-     * remove read permission from more directories.
+     * remove read permission from more directories. Everyone else should just open(2) and then
+     * use the fd, but the loadLibrary API is broken by its need to ask ClassLoaders where to
+     * find a .so rather than just calling dlopen(3).
      */
     public static boolean canOpenReadOnly(String path) {
         try {
