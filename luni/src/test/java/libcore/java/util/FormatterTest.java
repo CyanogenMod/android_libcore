@@ -18,6 +18,7 @@ package libcore.java.util;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import tests.support.Support_Locale;
@@ -134,5 +135,43 @@ public class FormatterTest extends junit.framework.TestCase {
     // https://code.google.com/p/android/issues/detail?id=42936
     public void test42936() throws Exception {
         assertEquals("0.00000000000000", String.format("%.15g",0.0d));
+    }
+
+    // https://code.google.com/p/android/issues/detail?id=53983
+    public void test53983() throws Exception {
+      checkFormat("00", "H", 00);
+      checkFormat( "0", "k", 00);
+      checkFormat("12", "I", 00);
+      checkFormat("12", "l", 00);
+
+      checkFormat("01", "H", 01);
+      checkFormat( "1", "k", 01);
+      checkFormat("01", "I", 01);
+      checkFormat( "1", "l", 01);
+
+      checkFormat("12", "H", 12);
+      checkFormat("12", "k", 12);
+      checkFormat("12", "I", 12);
+      checkFormat("12", "l", 12);
+
+      checkFormat("13", "H", 13);
+      checkFormat("13", "k", 13);
+      checkFormat("01", "I", 13);
+      checkFormat( "1", "l", 13);
+
+      checkFormat("00", "H", 24);
+      checkFormat( "0", "k", 24);
+      checkFormat("12", "I", 24);
+      checkFormat("12", "l", 24);
+    }
+
+    private static void checkFormat(String expected, String pattern, int hour) {
+      TimeZone utc = TimeZone.getTimeZone("UTC");
+
+      Calendar c = new GregorianCalendar(utc);
+      c.set(2013, Calendar.JANUARY, 1, hour, 00);
+
+      assertEquals(expected, String.format(Locale.US, "%t" + pattern, c));
+      assertEquals(expected, String.format(Locale.US, "%T" + pattern, c));
     }
 }
