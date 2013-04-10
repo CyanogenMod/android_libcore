@@ -94,7 +94,10 @@ import libcore.icu.TimeZoneNames;
  * <p>The two pattern characters {@code L} and {@code c} are ICU-compatible extensions, not
  * available in the RI or in Android before Android 2.3 "Gingerbread" (API level 9). These
  * extensions are necessary for correct localization in languages such as Russian
- * that distinguish between, say, "June" and "June 2010".
+ * that make a grammatical distinction between, say, the word "June" in the sentence "June" and
+ * in the sentence "June 10th"; the former is the stand-alone form, the latter the regular
+ * form (because the usual case is to format a complete date). The relationship between {@code E}
+ * and {@code c} is equivalent, but for weekday names.
  *
  * <p>When two numeric fields are directly adjacent with no intervening delimiter
  * characters, they constitute a run of adjacent numeric fields. Such runs are
