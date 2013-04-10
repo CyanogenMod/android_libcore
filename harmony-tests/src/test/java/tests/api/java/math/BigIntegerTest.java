@@ -101,31 +101,6 @@ public class BigIntegerTest extends junit.framework.TestCase {
 	}
 
 	/**
-	 * @tests java.math.BigInteger#BigInteger(int, int, java.util.Random)
-	 */
-	public void test_ConstructorIILjava_util_Random() {
-		bi = new BigInteger(10, 5, rand);
-		bi2 = new BigInteger(10, 5, rand);
-		assertTrue("Random number one is negative", bi.compareTo(zero) >= 0);
-		assertTrue("Random number one is too big",
-				bi.compareTo(twoToTheTen) < 0);
-		assertTrue("Random number two is negative", bi2.compareTo(zero) >= 0);
-		assertTrue("Random number two is too big",
-				bi2.compareTo(twoToTheTen) < 0);
-
-		Random rand = new Random();
-		BigInteger bi;
-		int certainty[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-				Integer.MIN_VALUE, Integer.MIN_VALUE + 1, -2, -1 };
-		for (int i = 2; i <= 20; i++) {
-            for (int c = 0; c < certainty.length; c++) {
-				bi = new BigInteger(i, c, rand); // Create BigInteger
-				assertTrue("Bit length incorrect", bi.bitLength() == i);
-			}
-        }
-	}
-
-	/**
 	 * @tests java.math.BigInteger#BigInteger(byte[])
 	 */
 	public void test_Constructor$B() {

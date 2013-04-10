@@ -135,15 +135,13 @@ public class OldBigIntegerTest extends junit.framework.TestCase {
         try {
             new BigInteger(1, 80, (Random)null);
             fail("ArithmeticException expected");
-        } catch (ArithmeticException e) {
-            // PASSED
+        } catch (ArithmeticException expected) {
         }
 
         try {
             new BigInteger(-1, (Random)null);
             fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
-            // PASSED
+        } catch (IllegalArgumentException expected) {
         }
     }
 
