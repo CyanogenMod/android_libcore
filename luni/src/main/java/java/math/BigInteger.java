@@ -164,7 +164,10 @@ public class BigInteger extends Number
         if (bitLength < 2) {
             throw new ArithmeticException("bitLength < 2: " + bitLength);
         }
-        setBigInt(BigInt.generatePrimeDefault(bitLength));
+        bitLength = Math.max(bitLength, 16); // OpenSSL won't generate shorter primes.
+        do {
+            setBigInt(BigInt.generatePrimeDefault(bitLength));
+        } while (bitLength() != bitLength); // Work around an OpenSSL bug; http://b/8588028.
     }
 
     /**
@@ -940,26 +943,27 @@ public class BigInteger extends Number
 
     /**
      * Returns a {@code BigInteger} whose value is {@code
-     * pow(this, exponent) mod m}. The modulus {@code m} must be positive. The
-     * result is guaranteed to be in the interval {@code [0, m)} (0 inclusive,
-     * m exclusive). If the exponent is negative, then {@code
-     * pow(this.modInverse(m), -exponent) mod m} is computed. The inverse of
-     * this only exists if {@code this} is relatively prime to m, otherwise an
-     * exception is thrown.
+     * pow(this, exponent) mod modulus}. The modulus must be positive. The
+     * result is guaranteed to be in the interval {@code [0, modulus)}.
+     * If the exponent is negative, then
+     * {@code pow(this.modInverse(modulus), -exponent) mod modulus} is computed.
+     * The inverse of this only exists if {@code this} is relatively prime to the modulus,
+     * otherwise an exception is thrown.
      *
-     * @param exponent the exponent.
-     * @param m the modulus.
-     * @throws NullPointerException if {@code m == null} or {@code exponent ==
-     *     null}.
-     * @throws ArithmeticException if {@code m < 0} or if {@code exponent<0} and
-     *     this is not relatively prime to {@code m}.
+     * @throws NullPointerException if {@code modulus == null} or {@code exponent == null}.
+     * @throws ArithmeticException if {@code modulus < 0} or if {@code exponent < 0} and
+     *     not relatively prime to {@code modulus}.
      */
-    public BigInteger modPow(BigInteger exponent, BigInteger m) {
-        if (m.signum() <= 0) {
-            throw new ArithmeticException("m.signum() <= 0");
+    public BigInteger modPow(BigInteger exponent, BigInteger modulus) {
+        if (modulus.signum() <= 0) {
+            throw new ArithmeticException("modulus.signum() <= 0");
         }
-        BigInteger base = exponent.signum() < 0 ? modInverse(m) : this;
-        return new BigInteger(BigInt.modExp(base.getBigInt(), exponent.getBigInt(), m.getBigInt()));
+        int exponentSignum = exponent.signum();
+        if (exponentSignum == 0) { // OpenSSL gets this case wrong; http://b/8574367.
+            return ONE.mod(modulus);
+        }
+        BigInteger base = exponentSignum < 0 ? modInverse(modulus) : this;
+        return new BigInteger(BigInt.modExp(base.getBigInt(), exponent.getBigInt(), modulus.getBigInt()));
     }
 
     /**
