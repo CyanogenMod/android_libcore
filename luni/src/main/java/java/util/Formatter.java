@@ -321,6 +321,7 @@ format("%6.0E", 123.456f);</td>
  * <br>
  * Calendar, Date, and Long (representing milliseconds past the epoch) are all acceptable
  * as date/time arguments. Any other type is an error. The epoch is 1970-01-01 00:00:00 UTC.
+ * <font color="red">Use {@link java.text.SimpleDateFormat} instead.</font>
  * </TD>
  * </tr>
  * <tr>
@@ -391,14 +392,14 @@ format("%6.0E", 123.456f);</td>
  * </tr>
  * <tr>
  * <td width="5%">{@code tH}</td>
- * <td width="25%">24-hour hour of day (00-23).</td>
+ * <td width="25%">2-digit 24-hour hour of day (00-23).</td>
  * <td width="30%">{@code format("%tH", cal);}</td>
  * <td width="30%">{@code 16}</td>
  * </tr>
  * <tr>
  * <td width="5%">{@code tI}</td>
- * <td width="25%">12-hour hour of day (01-12).</td>
- * <td width="30%">{@code format("%tH", cal);}</td>
+ * <td width="25%">2-digit 12-hour hour of day (01-12).</td>
+ * <td width="30%">{@code format("%tI", cal);}</td>
  * <td width="30%">{@code 04}</td>
  * </tr>
  * <tr>
@@ -410,13 +411,13 @@ format("%6.0E", 123.456f);</td>
  * <tr>
  * <td width="5%">{@code tk}</td>
  * <td width="25%">24-hour hour of day (0-23).</td>
- * <td width="30%">{@code format("%tH", cal);}</td>
+ * <td width="30%">{@code format("%tk", cal);}</td>
  * <td width="30%">{@code 16}</td>
  * </tr>
  * <tr>
  * <td width="5%">{@code tl}</td>
  * <td width="25%">12-hour hour of day (1-12).</td>
- * <td width="30%">{@code format("%tH", cal);}</td>
+ * <td width="30%">{@code format("%tl", cal);}</td>
  * <td width="30%">{@code 4}</td>
  * </tr>
  * <tr>
