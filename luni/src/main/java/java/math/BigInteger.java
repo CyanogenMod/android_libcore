@@ -24,7 +24,7 @@ import java.io.Serializable;
 import java.util.Random;
 
 /**
- * An immutable signed integer of arbitrary magnitude.
+ * An immutable arbitrary-precision signed integer.
  *
  * <h3>Fast Cryptography</h3>
  * This implementation is efficient for operations traditionally used in
