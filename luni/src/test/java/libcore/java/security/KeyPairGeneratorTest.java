@@ -63,6 +63,12 @@ public class KeyPairGeneratorTest extends TestCase {
                     continue;
                 }
                 String algorithm = service.getAlgorithm();
+
+                // AndroidKeyStore is tested in CTS.
+                if ("AndroidKeyStore".equals(algorithm)) {
+                    continue;
+                }
+
                 AlgorithmParameterSpec params = null;
 
                 // TODO: detect if we're running in vogar and run the full test
