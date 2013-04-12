@@ -119,7 +119,7 @@ public class Zygote {
      * dimension having a length of 3 and representing
      * (resource, rlim_cur, rlim_max). These are set via the posix
      * setrlimit(2) call.
-     * @param seInfo null-ok a string specifying SEAndroid information for
+     * @param seInfo null-ok a string specifying SELinux information for
      * the new process.
      * @param niceName null-ok a string specifying the process name.
      *
