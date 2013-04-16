@@ -137,7 +137,7 @@ public class BigInteger extends Number
             for (int i = 0; i < numberLength; i++) {
                 digits[i] = random.nextInt();
             }
-            // Using only the necessary bits
+            // Clear any extra bits.
             digits[numberLength - 1] >>>= (-numBits) & 31;
             setJavaRepresentation(sign, numberLength, digits);
         }
@@ -147,12 +147,12 @@ public class BigInteger extends Number
     /**
      * Constructs a random {@code BigInteger} instance in the range {@code [0,
      * pow(2, bitLength)-1]} which is probably prime. The probability that the
-     * returned {@code BigInteger} is prime is beyond
-     * {@code 1 - 1/pow(2, certainty)}.
+     * returned {@code BigInteger} is prime is greater than
+     * {@code 1 - 1/2<sup>certainty</sup>)}.
      *
-     * <p><b>Implementation Note:</b> the {@code Random} argument is ignored.
-     * This implementation uses OpenSSL's {@code bn_rand} as a source of
-     * cryptographically strong pseudo-random numbers.
+     * <p><b>Note:</b> the {@code Random} argument is ignored if
+     * {@code bitLength >= 16}, where this implementation will use OpenSSL's
+     * {@code BN_generate_prime_ex} as a source of cryptographically strong pseudo-random numbers.
      *
      * @param bitLength length of the new {@code BigInteger} in bits.
      * @param certainty tolerated primality uncertainty.
@@ -160,14 +160,45 @@ public class BigInteger extends Number
      * @see <a href="http://www.openssl.org/docs/crypto/BN_rand.html">
      *      Specification of random generator used from OpenSSL library</a>
      */
-    public BigInteger(int bitLength, int certainty, Random unused) {
+    public BigInteger(int bitLength, int certainty, Random random) {
         if (bitLength < 2) {
             throw new ArithmeticException("bitLength < 2: " + bitLength);
         }
-        bitLength = Math.max(bitLength, 16); // OpenSSL won't generate shorter primes.
-        do {
-            setBigInt(BigInt.generatePrimeDefault(bitLength));
-        } while (bitLength() != bitLength); // Work around an OpenSSL bug; http://b/8588028.
+        if (bitLength < 16) {
+            // We have to generate short primes ourselves, because OpenSSL bottoms out at 16 bits.
+            int candidate;
+            do {
+                candidate = random.nextInt() & ((1 << bitLength) - 1);
+                candidate |= (1 << (bitLength - 1)); // Set top bit.
+                if (bitLength > 2) {
+                    candidate |= 1; // Any prime longer than 2 bits must have the bottom bit set.
+                }
+            } while (!isSmallPrime(candidate));
+            BigInt prime = new BigInt();
+            prime.putULongInt(candidate, false);
+            setBigInt(prime);
+        } else {
+            // We need a loop here to work around an OpenSSL bug; http://b/8588028.
+            do {
+                setBigInt(BigInt.generatePrimeDefault(bitLength));
+            } while (bitLength() != bitLength);
+        }
+    }
+
+    private static boolean isSmallPrime(int x) {
+        if (x == 2) {
+            return true;
+        }
+        if ((x % 2) == 0) {
+            return false;
+        }
+        final int max = (int) Math.sqrt(x);
+        for (int i = 3; i <= max; i += 2) {
+            if ((x % i) == 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -987,8 +1018,8 @@ public class BigInteger extends Number
 
     /**
      * Tests whether this {@code BigInteger} is probably prime. If {@code true}
-     * is returned, then this is prime with a probability beyond
-     * {@code 1 - 1/pow(2, certainty)}. If {@code false} is returned, then this
+     * is returned, then this is prime with a probability greater than
+     * {@code 1 - 1/2<sup>certainty</sup>)}. If {@code false} is returned, then this
      * is definitely composite. If the argument {@code certainty} <= 0, then
      * this method returns true.
      *
@@ -1006,7 +1037,7 @@ public class BigInteger extends Number
     /**
      * Returns the smallest integer x > {@code this} which is probably prime as
      * a {@code BigInteger} instance. The probability that the returned {@code
-     * BigInteger} is prime is beyond {@code 1 - 1/pow(2, 80)}.
+     * BigInteger} is prime is greater than {@code 1 - 1/2<sup>100</sup>}.
      *
      * @return smallest integer > {@code this} which is probably prime.
      * @throws ArithmeticException if {@code this < 0}.
@@ -1021,17 +1052,14 @@ public class BigInteger extends Number
     /**
      * Returns a random positive {@code BigInteger} instance in the range {@code
      * [0, pow(2, bitLength)-1]} which is probably prime. The probability that
-     * the returned {@code BigInteger} is prime is beyond {@code
-     * 1 - 1/pow(2, 80)}.
-     *
-     * <p><b>Implementation Note:</b> Currently {@code random} is ignored.
+     * the returned {@code BigInteger} is prime is greater than {@code 1 - 1/2<sup>100</sup>)}.
      *
      * @param bitLength length of the new {@code BigInteger} in bits.
      * @return probably prime random {@code BigInteger} instance.
      * @throws IllegalArgumentException if {@code bitLength < 2}.
      */
-    public static BigInteger probablePrime(int bitLength, Random unused) {
-        return new BigInteger(bitLength, 100, unused);
+    public static BigInteger probablePrime(int bitLength, Random random) {
+        return new BigInteger(bitLength, 100, random);
     }
 
     /* Private Methods */
@@ -1039,8 +1067,6 @@ public class BigInteger extends Number
     /**
      * Returns the two's complement representation of this BigInteger in a byte
      * array.
-     *
-     * @return two's complement representation of {@code this}
      */
     private byte[] twosComplement() {
         prepareJavaRepresentation();
