@@ -79,10 +79,10 @@ import libcore.icu.TimeZones;
  * <tr> <td>{@code m}</td> <td>minute in hour</td>          <td>(Number)</td>      <td>30</td> </tr>
  * <tr> <td>{@code s}</td> <td>second in minute</td>        <td>(Number)</td>      <td>55</td> </tr>
  * <tr> <td>{@code w}</td> <td>week in year</td>            <td>(Number)</td>      <td>27</td> </tr>
- * <tr> <td>{@code y}</td> <td>year</td>                    <td>(Number)</td>      <td>2010</td> </tr>
- * <tr> <td>{@code z}</td> <td>time zone</td>               <td>(Timezone)</td>    <td>Pacific Standard Time</td> </tr>
- * <tr> <td>{@code '}</td> <td>escape for text</td>         <td>(Delimiter)</td>   <td>'Date='</td> </tr>
- * <tr> <td>{@code ''}</td> <td>single quote</td>           <td>(Literal)</td>     <td>'o''clock'</td> </tr>
+ * <tr> <td>{@code y}</td> <td>year</td>                    <td>(Number)</td>      <td>{@code yy}:10 {@code y}/{@code yyy}/{@code yyyy}:2010</td> </tr>
+ * <tr> <td>{@code z}</td> <td>time zone</td>               <td>(Timezone)</td>    <td>{@code z}/{@code zz}/{@code zzz}:PST {@code zzzz}:Pacific Standard Time</td> </tr>
+ * <tr> <td>{@code '}</td> <td>escape for text</td>         <td>(Delimiter)</td>   <td>{@code 'Date='}:Date=</td> </tr>
+ * <tr> <td>{@code ''}</td> <td>single quote</td>           <td>(Literal)</td>     <td>{@code 'o''clock'}:o'clock</td> </tr>
  * </table>
  *
  * <p>The number of consecutive copies (the "count") of a pattern character further influences
