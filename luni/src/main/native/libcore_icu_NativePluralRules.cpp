@@ -23,6 +23,8 @@
 #include "ScopedUtfChars.h"
 #include "unicode/plurrule.h"
 
+#include <string>
+
 static PluralRules* toPluralRules(jint address) {
     return reinterpret_cast<PluralRules*>(static_cast<uintptr_t>(address));
 }
@@ -31,8 +33,22 @@ static void NativePluralRules_finalizeImpl(JNIEnv*, jclass, jint address) {
     delete toPluralRules(address);
 }
 
-static jint NativePluralRules_forLocaleImpl(JNIEnv* env, jclass, jstring localeName) {
-    Locale locale = Locale::createFromName(ScopedUtfChars(env, localeName).c_str());
+static jint NativePluralRules_forLocaleImpl(JNIEnv* env, jclass, jstring javaLocaleName) {
+    // The icu4c PluralRules returns a "other: n" default rule for the deprecated locales Java uses.
+    // Work around this by translating back to the current language codes.
+    std::string localeName(ScopedUtfChars(env, javaLocaleName).c_str());
+    if (localeName[0] == 'i' && localeName[1] == 'w') {
+        localeName[0] = 'h';
+        localeName[1] = 'e';
+    } else if (localeName[0] == 'i' && localeName[1] == 'n') {
+        localeName[0] = 'i';
+        localeName[1] = 'd';
+    } else if (localeName[0] == 'j' && localeName[1] == 'i') {
+        localeName[0] = 'y';
+        localeName[1] = 'i';
+    }
+
+    Locale locale = Locale::createFromName(localeName.c_str());
     UErrorCode status = U_ZERO_ERROR;
     PluralRules* result = PluralRules::forLocale(locale, status);
     maybeThrowIcuException(env, "PluralRules::forLocale", status);
