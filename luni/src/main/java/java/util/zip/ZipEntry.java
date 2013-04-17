@@ -368,7 +368,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
         it.seek(8);
         int gpbf = it.readShort();
 
-        if ((gpbf & ~ZipFile.GPBF_SUPPORTED_MASK) != 0) {
+        if ((gpbf & ZipFile.GPBF_UNSUPPORTED_MASK) != 0) {
             throw new ZipException("Invalid General Purpose Bit Flag: " + gpbf);
         }
 

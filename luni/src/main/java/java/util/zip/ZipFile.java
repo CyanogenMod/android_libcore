@@ -48,6 +48,12 @@ import libcore.io.Streams;
  */
 public class ZipFile implements ZipConstants {
     /**
+     * General Purpose Bit Flags, Bit 0.
+     * If set, indicates that the file is encrypted.
+     */
+    static final int GPBF_ENCRYPTED_FLAG = 1 << 0;
+
+    /**
      * General Purpose Bit Flags, Bit 3.
      * If this bit is set, the fields crc-32, compressed
      * size and uncompressed size are set to zero in the
@@ -70,9 +76,13 @@ public class ZipFile implements ZipConstants {
 
     /**
      * Supported General Purpose Bit Flags Mask.
-     * Bit mask of supported GPBF bits.
+     * Bit mask of bits not supported.
+     * Note: The only bit that we will enforce at this time
+     * is the encrypted bit. Although other bits are not supported,
+     * we must not enforce them as this could break some legitimate
+     * use cases (See http://b/8617715).
      */
-    static final int GPBF_SUPPORTED_MASK = GPBF_DATA_DESCRIPTOR_FLAG | GPBF_UTF8_FLAG;
+    static final int GPBF_UNSUPPORTED_MASK = GPBF_ENCRYPTED_FLAG;
 
     /**
      * Open zip file for reading.
@@ -255,7 +265,7 @@ public class ZipFile implements ZipConstants {
             RAFStream rafStream= new RAFStream(raf, entry.mLocalHeaderRelOffset + 6);
             DataInputStream is = new DataInputStream(rafStream);
             int gpbf = Short.reverseBytes(is.readShort());
-            if ((gpbf & ~ZipFile.GPBF_SUPPORTED_MASK) != 0) {
+            if ((gpbf & ZipFile.GPBF_UNSUPPORTED_MASK) != 0) {
                 throw new ZipException("Invalid General Purpose Bit Flag: " + gpbf);
             }
 
