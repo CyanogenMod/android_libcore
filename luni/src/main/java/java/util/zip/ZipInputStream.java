@@ -240,7 +240,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
             throw new ZipException("Cannot read local header version " + version);
         }
         int flags = peekShort(LOCFLG - LOCVER);
-        if ((flags & ~ZipFile.GPBF_SUPPORTED_MASK) != 0) {
+        if ((flags & ZipFile.GPBF_UNSUPPORTED_MASK) != 0) {
             throw new ZipException("Invalid General Purpose Bit Flag: " + flags);
         }
 
