@@ -489,7 +489,7 @@ public final class StandardNames extends Assert {
             // Android's KeyStore provider
             if (Security.getProvider("AndroidKeyStoreProvider") != null) {
                 provide("KeyStore", "AndroidKeyStore");
-                provide("KeyPairGenerator", "AndroidKeyPairGenerator");
+                provide("KeyPairGenerator", "AndroidKeyStore");
             }
         }
     }
