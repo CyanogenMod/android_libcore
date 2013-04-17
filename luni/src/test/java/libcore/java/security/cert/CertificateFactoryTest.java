@@ -78,6 +78,52 @@ public class CertificateFactoryTest extends TestCase {
             + "z5nRUP8pJcA2NhUzUnC+MY+f6H/nEQyNv4SgQhqAibAxWEEHXw==\n"
             + "-----END CERTIFICATE-----\n";
 
+    private static final String VALID_CERTIFICATE_PEM_CRLF =
+            "-----BEGIN CERTIFICATE-----\r\n"
+            + "MIIDITCCAoqgAwIBAgIQL9+89q6RUm0PmqPfQDQ+mjANBgkqhkiG9w0BAQUFADBM\r\n"
+            + "MQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkg\r\n"
+            + "THRkLjEWMBQGA1UEAxMNVGhhd3RlIFNHQyBDQTAeFw0wOTEyMTgwMDAwMDBaFw0x\r\n"
+            + "MTEyMTgyMzU5NTlaMGgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlh\r\n"
+            + "MRYwFAYDVQQHFA1Nb3VudGFpbiBWaWV3MRMwEQYDVQQKFApHb29nbGUgSW5jMRcw\r\n"
+            + "FQYDVQQDFA53d3cuZ29vZ2xlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkC\r\n"
+            + "gYEA6PmGD5D6htffvXImttdEAoN4c9kCKO+IRTn7EOh8rqk41XXGOOsKFQebg+jN\r\n"
+            + "gtXj9xVoRaELGYW84u+E593y17iYwqG7tcFR39SDAqc9BkJb4SLD3muFXxzW2k6L\r\n"
+            + "05vuuWciKh0R73mkszeK9P4Y/bz5RiNQl/Os/CRGK1w7t0UCAwEAAaOB5zCB5DAM\r\n"
+            + "BgNVHRMBAf8EAjAAMDYGA1UdHwQvMC0wK6ApoCeGJWh0dHA6Ly9jcmwudGhhd3Rl\r\n"
+            + "LmNvbS9UaGF3dGVTR0NDQS5jcmwwKAYDVR0lBCEwHwYIKwYBBQUHAwEGCCsGAQUF\r\n"
+            + "BwMCBglghkgBhvhCBAEwcgYIKwYBBQUHAQEEZjBkMCIGCCsGAQUFBzABhhZodHRw\r\n"
+            + "Oi8vb2NzcC50aGF3dGUuY29tMD4GCCsGAQUFBzAChjJodHRwOi8vd3d3LnRoYXd0\r\n"
+            + "ZS5jb20vcmVwb3NpdG9yeS9UaGF3dGVfU0dDX0NBLmNydDANBgkqhkiG9w0BAQUF\r\n"
+            + "AAOBgQCfQ89bxFApsb/isJr/aiEdLRLDLE5a+RLizrmCUi3nHX4adpaQedEkUjh5\r\n"
+            + "u2ONgJd8IyAPkU0Wueru9G2Jysa9zCRo1kNbzipYvzwY4OA8Ys+WAi0oR1A04Se6\r\n"
+            + "z5nRUP8pJcA2NhUzUnC+MY+f6H/nEQyNv4SgQhqAibAxWEEHXw==\r\n"
+            + "-----END CERTIFICATE-----\r\n";
+
+    private static final byte[] VALID_CERTIFICATE_PEM_HEADER = "-----BEGIN CERTIFICATE-----\n"
+            .getBytes();
+
+    private static final byte[] VALID_CERTIFICATE_PEM_DATA =
+             ("MIIDITCCAoqgAwIBAgIQL9+89q6RUm0PmqPfQDQ+mjANBgkqhkiG9w0BAQUFADBM"
+            + "MQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkg"
+            + "THRkLjEWMBQGA1UEAxMNVGhhd3RlIFNHQyBDQTAeFw0wOTEyMTgwMDAwMDBaFw0x"
+            + "MTEyMTgyMzU5NTlaMGgxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlh"
+            + "MRYwFAYDVQQHFA1Nb3VudGFpbiBWaWV3MRMwEQYDVQQKFApHb29nbGUgSW5jMRcw"
+            + "FQYDVQQDFA53d3cuZ29vZ2xlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkC"
+            + "gYEA6PmGD5D6htffvXImttdEAoN4c9kCKO+IRTn7EOh8rqk41XXGOOsKFQebg+jN"
+            + "gtXj9xVoRaELGYW84u+E593y17iYwqG7tcFR39SDAqc9BkJb4SLD3muFXxzW2k6L"
+            + "05vuuWciKh0R73mkszeK9P4Y/bz5RiNQl/Os/CRGK1w7t0UCAwEAAaOB5zCB5DAM"
+            + "BgNVHRMBAf8EAjAAMDYGA1UdHwQvMC0wK6ApoCeGJWh0dHA6Ly9jcmwudGhhd3Rl"
+            + "LmNvbS9UaGF3dGVTR0NDQS5jcmwwKAYDVR0lBCEwHwYIKwYBBQUHAwEGCCsGAQUF"
+            + "BwMCBglghkgBhvhCBAEwcgYIKwYBBQUHAQEEZjBkMCIGCCsGAQUFBzABhhZodHRw"
+            + "Oi8vb2NzcC50aGF3dGUuY29tMD4GCCsGAQUFBzAChjJodHRwOi8vd3d3LnRoYXd0"
+            + "ZS5jb20vcmVwb3NpdG9yeS9UaGF3dGVfU0dDX0NBLmNydDANBgkqhkiG9w0BAQUF"
+            + "AAOBgQCfQ89bxFApsb/isJr/aiEdLRLDLE5a+RLizrmCUi3nHX4adpaQedEkUjh5"
+            + "u2ONgJd8IyAPkU0Wueru9G2Jysa9zCRo1kNbzipYvzwY4OA8Ys+WAi0oR1A04Se6"
+            + "z5nRUP8pJcA2NhUzUnC+MY+f6H/nEQyNv4SgQhqAibAxWEEHXw==").getBytes();
+
+    private static final byte[] VALID_CERTIFICATE_PEM_FOOTER = "\n-----END CERTIFICATE-----\n"
+            .getBytes();
+
     private static final String INVALID_CERTIFICATE_PEM =
             "-----BEGIN CERTIFICATE-----\n"
             + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n"
@@ -124,16 +170,26 @@ public class CertificateFactoryTest extends TestCase {
                 test_generateCertificate(cf);
                 test_generateCertificate_InputStream_Offset_Correct(cf);
                 test_generateCertificate_InputStream_Empty(cf);
-            } catch (Exception e) {
+                test_generateCertificate_InputStream_InvalidStart_Failure(cf);
+                test_generateCertificate_AnyLineLength_Success(cf);
+            } catch (Throwable e) {
                 throw new Exception("Problem testing " + p.getName(), e);
             }
         }
     }
 
     private void test_generateCertificate(CertificateFactory cf) throws Exception {
-        byte[] valid = VALID_CERTIFICATE_PEM.getBytes();
-        Certificate c = cf.generateCertificate(new ByteArrayInputStream(valid));
-        assertNotNull(c);
+        {
+            byte[] valid = VALID_CERTIFICATE_PEM.getBytes();
+            Certificate c = cf.generateCertificate(new ByteArrayInputStream(valid));
+            assertNotNull(c);
+        }
+
+        {
+            byte[] valid = VALID_CERTIFICATE_PEM_CRLF.getBytes();
+            Certificate c = cf.generateCertificate(new ByteArrayInputStream(valid));
+            assertNotNull(c);
+        }
 
         try {
             byte[] invalid = INVALID_CERTIFICATE_PEM.getBytes();
@@ -141,6 +197,49 @@ public class CertificateFactoryTest extends TestCase {
             fail();
         } catch (CertificateException expected) {
         }
+    }
+
+    /*
+     * Checks all possible line lengths for PEM input data.
+     */
+    private void test_generateCertificate_AnyLineLength_Success(CertificateFactory cf)
+            throws Exception {
+        // RI barfs on this
+        if (StandardNames.IS_RI) {
+            return;
+        }
+
+        int lineLength = 1;
+        int maxLineLength = VALID_CERTIFICATE_PEM_DATA.length;
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        baos.write(VALID_CERTIFICATE_PEM_HEADER);
+        int offset = 0;
+        while (lineLength < (maxLineLength - 4)) {
+            int end = offset + lineLength;
+            if (end > VALID_CERTIFICATE_PEM_DATA.length) {
+                end = VALID_CERTIFICATE_PEM_DATA.length;
+            }
+            baos.write(Arrays.copyOfRange(VALID_CERTIFICATE_PEM_DATA, offset, end));
+            baos.write('\n');
+            offset += lineLength;
+            if (offset >= maxLineLength) {
+                baos.write(VALID_CERTIFICATE_PEM_FOOTER);
+                try {
+                    Certificate c =
+                            cf.generateCertificate(new ByteArrayInputStream(baos.toByteArray()));
+                    assertNotNull(c);
+                } catch (Exception e) {
+                    throw new Exception("Fail at line length " + lineLength, e);
+                }
+                baos.reset();
+                baos.write(VALID_CERTIFICATE_PEM_HEADER);
+                offset = 0;
+            } else {
+                lineLength++;
+            }
+        }
+
     }
 
     private void test_generateCertificate_InputStream_Empty(CertificateFactory cf) throws Exception {
@@ -151,6 +250,22 @@ public class CertificateFactoryTest extends TestCase {
             }
             assertNull(c);
         } catch (CertificateException e) {
+            if ("BC".equals(cf.getProvider().getName())) {
+                fail("should return null: " + cf.getProvider().getName());
+            }
+        }
+    }
+
+    private void test_generateCertificate_InputStream_InvalidStart_Failure(CertificateFactory cf)
+            throws Exception {
+        try {
+            Certificate c = cf.generateCertificate(new ByteArrayInputStream(
+                    "-----BEGIN CERTIFICATE-----".getBytes()));
+            if (!"BC".equals(cf.getProvider().getName())) {
+                fail("should throw CertificateException: " + cf.getProvider().getName());
+            }
+            assertNull(c);
+        } catch (CertificateException expected) {
             if ("BC".equals(cf.getProvider().getName())) {
                 fail("should return null: " + cf.getProvider().getName());
             }
