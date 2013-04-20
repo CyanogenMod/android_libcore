@@ -766,13 +766,13 @@ public class BigIntegerConstructorsTest extends TestCase {
       b = new BigInteger(bits, 10, rnd);
       assertEquals(b.toString(), bits, b.bitLength());
 
-      // On Android, anything less than 16 bits will be at least 16 bits
-      // because that's how OpenSSL behaves...
+      // On Android, anything less than 16 bits used to be at least 16 bits
+      // because that's how OpenSSL behaves, but we recently fixed this...
       bits = 2;
       b = new BigInteger(bits, 10, rnd);
-      assertEquals(b.toString(), 16, b.bitLength());
+      assertEquals(b.toString(), bits, b.bitLength());
 
-      // ...unless you use the 2-arg constructor, which doesn't use OpenSSL.
+      // The 2-arg constructor has never used OpenSSL.
       bits = 2;
       b = new BigInteger(bits, rnd);
       assertTrue(b.toString(), b.bitLength() <= bits);
