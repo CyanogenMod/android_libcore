@@ -42,7 +42,6 @@ import org.apache.harmony.security.pkcs7.SignedData;
 import org.apache.harmony.security.pkcs7.SignerInfo;
 import org.apache.harmony.security.provider.cert.X509CertImpl;
 import org.apache.harmony.security.x501.AttributeTypeAndValue;
-import org.apache.harmony.xnet.provider.jsse.OpenSSLProvider;
 
 public class JarUtils {
 

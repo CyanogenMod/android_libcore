@@ -48,7 +48,6 @@ LOCAL_SRC_FILES := \
 	libcore_io_Posix.cpp \
 	libcore_net_RawSocket.cpp \
 	org_apache_harmony_xml_ExpatParser.cpp \
-	org_apache_harmony_xnet_provider_jsse_NativeCrypto.cpp \
 	readlink.cpp \
 	realpath.cpp \
 	sun_misc_Unsafe.cpp \

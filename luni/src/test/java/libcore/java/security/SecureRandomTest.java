@@ -16,8 +16,6 @@
 
 package libcore.java.security;
 
-import org.apache.harmony.xnet.provider.jsse.OpenSSLProvider;
-
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -27,7 +25,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 public class SecureRandomTest extends TestCase {
-    private static final Class<? extends Provider> EXPECTED_PROVIDER = OpenSSLProvider.class;
+    private static final String EXPECTED_PROVIDER = "org.conscrypt.OpenSSLProvider";
 
     private static final byte[] STATIC_SEED_BYTES = new byte[] {
             0x0A, (byte) 0xA0, 0x01, 0x10, (byte) 0xFF, (byte) 0xF0, 0x0F
@@ -99,16 +97,16 @@ public class SecureRandomTest extends TestCase {
     public void testGetCommonInstances_Success() throws Exception {
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
         assertNotNull(sr);
-        assertEquals(EXPECTED_PROVIDER, sr.getProvider().getClass());
+        assertEquals(EXPECTED_PROVIDER, sr.getProvider().getClass().getName());
     }
 
     public void testNewConstructors_Success() throws Exception {
         SecureRandom sr1 = new SecureRandom();
-        assertEquals(EXPECTED_PROVIDER, sr1.getProvider().getClass());
+        assertEquals(EXPECTED_PROVIDER, sr1.getProvider().getClass().getName());
         test_SecureRandom(sr1);
 
         SecureRandom sr2 = new SecureRandom(STATIC_SEED_BYTES);
-        assertEquals(EXPECTED_PROVIDER, sr2.getProvider().getClass());
+        assertEquals(EXPECTED_PROVIDER, sr2.getProvider().getClass().getName());
         test_SecureRandom(sr2);
     }
 }
