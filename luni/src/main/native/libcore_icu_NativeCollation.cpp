@@ -20,23 +20,23 @@
 #include "unicode/ucol.h"
 #include "unicode/ucoleitr.h"
 
-static UCollator* toCollator(jint address) {
+static UCollator* toCollator(jlong address) {
     return reinterpret_cast<UCollator*>(static_cast<uintptr_t>(address));
 }
 
-static UCollationElements* toCollationElements(jint address) {
+static UCollationElements* toCollationElements(jlong address) {
     return reinterpret_cast<UCollationElements*>(static_cast<uintptr_t>(address));
 }
 
-static void NativeCollation_closeCollator(JNIEnv*, jclass, jint address) {
+static void NativeCollation_closeCollator(JNIEnv*, jclass, jlong address) {
     ucol_close(toCollator(address));
 }
 
-static void NativeCollation_closeElements(JNIEnv*, jclass, jint address) {
+static void NativeCollation_closeElements(JNIEnv*, jclass, jlong address) {
     ucol_closeElements(toCollationElements(address));
 }
 
-static jint NativeCollation_compare(JNIEnv* env, jclass, jint address, jstring javaLhs, jstring javaRhs) {
+static jint NativeCollation_compare(JNIEnv* env, jclass, jlong address, jstring javaLhs, jstring javaRhs) {
     ScopedStringChars lhs(env, javaLhs);
     if (lhs.get() == NULL) {
         return 0;
@@ -48,14 +48,14 @@ static jint NativeCollation_compare(JNIEnv* env, jclass, jint address, jstring j
     return ucol_strcoll(toCollator(address), lhs.get(), lhs.size(), rhs.get(), rhs.size());
 }
 
-static jint NativeCollation_getAttribute(JNIEnv* env, jclass, jint address, jint type) {
+static jint NativeCollation_getAttribute(JNIEnv* env, jclass, jlong address, jint type) {
     UErrorCode status = U_ZERO_ERROR;
     jint result = ucol_getAttribute(toCollator(address), (UColAttribute) type, &status);
     maybeThrowIcuException(env, "ucol_getAttribute", status);
     return result;
 }
 
-static jint NativeCollation_getCollationElementIterator(JNIEnv* env, jclass, jint address, jstring javaSource) {
+static jlong NativeCollation_getCollationElementIterator(JNIEnv* env, jclass, jlong address, jstring javaSource) {
     ScopedStringChars source(env, javaSource);
     if (source.get() == NULL) {
         return -1;
@@ -63,24 +63,24 @@ static jint NativeCollation_getCollationElementIterator(JNIEnv* env, jclass, jin
     UErrorCode status = U_ZERO_ERROR;
     UCollationElements* result = ucol_openElements(toCollator(address), source.get(), source.size(), &status);
     maybeThrowIcuException(env, "ucol_openElements", status);
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(result));
+    return static_cast<jlong>(reinterpret_cast<uintptr_t>(result));
 }
 
-static jint NativeCollation_getMaxExpansion(JNIEnv*, jclass, jint address, jint order) {
+static jint NativeCollation_getMaxExpansion(JNIEnv*, jclass, jlong address, jint order) {
     return ucol_getMaxExpansion(toCollationElements(address), order);
 }
 
-static jint NativeCollation_getOffset(JNIEnv*, jclass, jint address) {
+static jint NativeCollation_getOffset(JNIEnv*, jclass, jlong address) {
     return ucol_getOffset(toCollationElements(address));
 }
 
-static jstring NativeCollation_getRules(JNIEnv* env, jclass, jint address) {
+static jstring NativeCollation_getRules(JNIEnv* env, jclass, jlong address) {
     int32_t length = 0;
     const UChar* rules = ucol_getRules(toCollator(address), &length);
     return env->NewString(rules, length);
 }
 
-static jbyteArray NativeCollation_getSortKey(JNIEnv* env, jclass, jint address, jstring javaSource) {
+static jbyteArray NativeCollation_getSortKey(JNIEnv* env, jclass, jlong address, jstring javaSource) {
     ScopedStringChars source(env, javaSource);
     if (source.get() == NULL) {
         return NULL;
@@ -104,14 +104,14 @@ static jbyteArray NativeCollation_getSortKey(JNIEnv* env, jclass, jint address, 
     return result;
 }
 
-static jint NativeCollation_next(JNIEnv* env, jclass, jint address) {
+static jint NativeCollation_next(JNIEnv* env, jclass, jlong address) {
     UErrorCode status = U_ZERO_ERROR;
     jint result = ucol_next(toCollationElements(address), &status);
     maybeThrowIcuException(env, "ucol_next", status);
     return result;
 }
 
-static jint NativeCollation_openCollator(JNIEnv* env, jclass, jstring localeName) {
+static jlong NativeCollation_openCollator(JNIEnv* env, jclass, jstring localeName) {
     ScopedUtfChars localeChars(env, localeName);
     if (localeChars.c_str() == NULL) {
         return 0;
@@ -119,10 +119,10 @@ static jint NativeCollation_openCollator(JNIEnv* env, jclass, jstring localeName
     UErrorCode status = U_ZERO_ERROR;
     UCollator* c = ucol_open(localeChars.c_str(), &status);
     maybeThrowIcuException(env, "ucol_open", status);
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(c));
+    return static_cast<jlong>(reinterpret_cast<uintptr_t>(c));
 }
 
-static jint NativeCollation_openCollatorFromRules(JNIEnv* env, jclass, jstring javaRules, jint mode, jint strength) {
+static jlong NativeCollation_openCollatorFromRules(JNIEnv* env, jclass, jstring javaRules, jint mode, jint strength) {
     ScopedStringChars rules(env, javaRules);
     if (rules.get() == NULL) {
         return -1;
@@ -131,41 +131,41 @@ static jint NativeCollation_openCollatorFromRules(JNIEnv* env, jclass, jstring j
     UCollator* c = ucol_openRules(rules.get(), rules.size(),
             UColAttributeValue(mode), UCollationStrength(strength), NULL, &status);
     maybeThrowIcuException(env, "ucol_openRules", status);
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(c));
+    return static_cast<jlong>(reinterpret_cast<uintptr_t>(c));
 }
 
-static jint NativeCollation_previous(JNIEnv* env, jclass, jint address) {
+static jint NativeCollation_previous(JNIEnv* env, jclass, jlong address) {
     UErrorCode status = U_ZERO_ERROR;
     jint result = ucol_previous(toCollationElements(address), &status);
     maybeThrowIcuException(env, "ucol_previous", status);
     return result;
 }
 
-static void NativeCollation_reset(JNIEnv*, jclass, jint address) {
+static void NativeCollation_reset(JNIEnv*, jclass, jlong address) {
     ucol_reset(toCollationElements(address));
 }
 
-static jint NativeCollation_safeClone(JNIEnv* env, jclass, jint address) {
+static jlong NativeCollation_safeClone(JNIEnv* env, jclass, jlong address) {
     UErrorCode status = U_ZERO_ERROR;
     jint bufferSize = U_COL_SAFECLONE_BUFFERSIZE;
     UCollator* c = ucol_safeClone(toCollator(address), NULL, &bufferSize, &status);
     maybeThrowIcuException(env, "ucol_safeClone", status);
-    return static_cast<jint>(reinterpret_cast<uintptr_t>(c));
+    return static_cast<jlong>(reinterpret_cast<uintptr_t>(c));
 }
 
-static void NativeCollation_setAttribute(JNIEnv* env, jclass, jint address, jint type, jint value) {
+static void NativeCollation_setAttribute(JNIEnv* env, jclass, jlong address, jint type, jint value) {
     UErrorCode status = U_ZERO_ERROR;
     ucol_setAttribute(toCollator(address), (UColAttribute)type, (UColAttributeValue)value, &status);
     maybeThrowIcuException(env, "ucol_setAttribute", status);
 }
 
-static void NativeCollation_setOffset(JNIEnv* env, jclass, jint address, jint offset) {
+static void NativeCollation_setOffset(JNIEnv* env, jclass, jlong address, jint offset) {
     UErrorCode status = U_ZERO_ERROR;
     ucol_setOffset(toCollationElements(address), offset, &status);
     maybeThrowIcuException(env, "ucol_setOffset", status);
 }
 
-static void NativeCollation_setText(JNIEnv* env, jclass, jint address, jstring javaSource) {
+static void NativeCollation_setText(JNIEnv* env, jclass, jlong address, jstring javaSource) {
     ScopedStringChars source(env, javaSource);
     if (source.get() == NULL) {
         return;
@@ -176,24 +176,24 @@ static void NativeCollation_setText(JNIEnv* env, jclass, jint address, jstring j
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(NativeCollation, closeCollator, "(I)V"),
-    NATIVE_METHOD(NativeCollation, closeElements, "(I)V"),
-    NATIVE_METHOD(NativeCollation, compare, "(ILjava/lang/String;Ljava/lang/String;)I"),
-    NATIVE_METHOD(NativeCollation, getAttribute, "(II)I"),
-    NATIVE_METHOD(NativeCollation, getCollationElementIterator, "(ILjava/lang/String;)I"),
-    NATIVE_METHOD(NativeCollation, getMaxExpansion, "(II)I"),
-    NATIVE_METHOD(NativeCollation, getOffset, "(I)I"),
-    NATIVE_METHOD(NativeCollation, getRules, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeCollation, getSortKey, "(ILjava/lang/String;)[B"),
-    NATIVE_METHOD(NativeCollation, next, "(I)I"),
-    NATIVE_METHOD(NativeCollation, openCollator, "(Ljava/lang/String;)I"),
-    NATIVE_METHOD(NativeCollation, openCollatorFromRules, "(Ljava/lang/String;II)I"),
-    NATIVE_METHOD(NativeCollation, previous, "(I)I"),
-    NATIVE_METHOD(NativeCollation, reset, "(I)V"),
-    NATIVE_METHOD(NativeCollation, safeClone, "(I)I"),
-    NATIVE_METHOD(NativeCollation, setAttribute, "(III)V"),
-    NATIVE_METHOD(NativeCollation, setOffset, "(II)V"),
-    NATIVE_METHOD(NativeCollation, setText, "(ILjava/lang/String;)V"),
+    NATIVE_METHOD(NativeCollation, closeCollator, "(J)V"),
+    NATIVE_METHOD(NativeCollation, closeElements, "(J)V"),
+    NATIVE_METHOD(NativeCollation, compare, "(JLjava/lang/String;Ljava/lang/String;)I"),
+    NATIVE_METHOD(NativeCollation, getAttribute, "(JI)I"),
+    NATIVE_METHOD(NativeCollation, getCollationElementIterator, "(JLjava/lang/String;)I"),
+    NATIVE_METHOD(NativeCollation, getMaxExpansion, "(JI)I"),
+    NATIVE_METHOD(NativeCollation, getOffset, "(J)I"),
+    NATIVE_METHOD(NativeCollation, getRules, "(J)Ljava/lang/String;"),
+    NATIVE_METHOD(NativeCollation, getSortKey, "(JLjava/lang/String;)[B"),
+    NATIVE_METHOD(NativeCollation, next, "(J)I"),
+    NATIVE_METHOD(NativeCollation, openCollator, "(Ljava/lang/String;)J"),
+    NATIVE_METHOD(NativeCollation, openCollatorFromRules, "(Ljava/lang/String;II)J"),
+    NATIVE_METHOD(NativeCollation, previous, "(J)I"),
+    NATIVE_METHOD(NativeCollation, reset, "(J)V"),
+    NATIVE_METHOD(NativeCollation, safeClone, "(J)J"),
+    NATIVE_METHOD(NativeCollation, setAttribute, "(JII)V"),
+    NATIVE_METHOD(NativeCollation, setOffset, "(JI)V"),
+    NATIVE_METHOD(NativeCollation, setText, "(JLjava/lang/String;)V"),
 };
 void register_libcore_icu_NativeCollation(JNIEnv* env) {
     jniRegisterNativeMethods(env, "libcore/icu/NativeCollation", gMethods, NELEM(gMethods));

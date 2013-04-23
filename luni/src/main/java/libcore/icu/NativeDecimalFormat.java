@@ -621,7 +621,7 @@ public final class NativeDecimalFormat implements Cloneable {
     }
 
     private static native void applyPatternImpl(long addr, boolean localized, String pattern);
-    private static native int cloneImpl(long addr);
+    private static native long cloneImpl(long addr);
     private static native void close(long addr);
     private static native char[] formatLong(long addr, long value, FieldPositionIterator iter);
     private static native char[] formatDouble(long addr, double value, FieldPositionIterator iter);
