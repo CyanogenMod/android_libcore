@@ -815,10 +815,10 @@ public class X509CertificateTest extends TestCase {
         X509Certificate c = getCertificate(f, CERT_RSA);
         Collection<List<?>> col = c.getSubjectAlternativeNames();
 
-        checkAlternativeNames(col);
+        checkAlternativeNames(f, col);
     }
 
-    private void checkAlternativeNames(Collection<List<?>> col) {
+    private void checkAlternativeNames(CertificateFactory f, Collection<List<?>> col) throws Exception {
         assertNotNull(col);
 
         /* Check to see that the Collection is unmodifiable. */
@@ -865,7 +865,14 @@ public class X509CertificateTest extends TestCase {
                 assertEquals("UNSUPPORTED", (String) item.get(1));
                 break;
             case 4: /* directoryName: Name */
-                assertEquals("CN=∆ƒ,OU=Über Frîends,O=Awesome Dudes,C=US", (String) item.get(1));
+                if ("BC".equals(f.getProvider().getName())) {
+                    // Bouncycastle doesn't parse T61String as UTF-8 like the RI, libcore, or OpenSSL.
+                    byte[] bytes = "CN=∆ƒ,OU=Über Frîends,O=Awesome Dudes,C=US".getBytes("UTF-8");
+                    String string = new String(bytes, 0);
+                    assertEquals(string, (String) item.get(1));
+                } else {
+                    assertEquals("CN=∆ƒ,OU=Über Frîends,O=Awesome Dudes,C=US", (String) item.get(1));
+                }
                 break;
             case 5: /* ediPartyName */
                 assertEquals("UNSUPPORTED", Arrays.toString((byte[]) item.get(1)));
@@ -1001,7 +1008,14 @@ public class X509CertificateTest extends TestCase {
         assertTrue(String.valueOf((Integer) item.get(0)), 4 == (Integer) item.get(0));
 
         assertTrue(item.get(1) instanceof String);
-        assertEquals("CN=∆ƒ,OU=Über Frîends,O=Awesome Dudes,C=US", (String) item.get(1));
+        if ("BC".equals(f.getProvider().getName())) {
+            // Bouncycastle doesn't parse T61String as UTF-8 like the RI, libcore, or OpenSSL.
+            byte[] bytes = "CN=∆ƒ,OU=Über Frîends,O=Awesome Dudes,C=US".getBytes("UTF-8");
+            String string = new String(bytes, 0);
+            assertEquals(string, (String) item.get(1));
+        } else {
+            assertEquals("CN=∆ƒ,OU=Über Frîends,O=Awesome Dudes,C=US", (String) item.get(1));
+        }
     }
 
     private void getSubjectAlternativeNames_URI(CertificateFactory f) throws Exception {
@@ -1046,7 +1060,7 @@ public class X509CertificateTest extends TestCase {
         X509Certificate c = getCertificate(f, CERT_RSA);
         Collection<List<?>> col = c.getIssuerAlternativeNames();
 
-        checkAlternativeNames(col);
+        checkAlternativeNames(f, col);
     }
 
     private void getSignature(CertificateFactory f) throws Exception {
