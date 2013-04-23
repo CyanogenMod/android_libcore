@@ -27,6 +27,7 @@
 #include <poll.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <sys/capability.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
@@ -55,6 +56,43 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
 #endif
     initConstant(env, c, "AI_PASSIVE", AI_PASSIVE);
     initConstant(env, c, "AI_V4MAPPED", AI_V4MAPPED);
+    initConstant(env, c, "CAP_AUDIT_CONTROL", CAP_AUDIT_CONTROL);
+    initConstant(env, c, "CAP_AUDIT_WRITE", CAP_AUDIT_WRITE);
+    initConstant(env, c, "CAP_CHOWN", CAP_CHOWN);
+    initConstant(env, c, "CAP_DAC_OVERRIDE", CAP_DAC_OVERRIDE);
+    initConstant(env, c, "CAP_DAC_READ_SEARCH", CAP_DAC_READ_SEARCH);
+    initConstant(env, c, "CAP_FOWNER", CAP_FOWNER);
+    initConstant(env, c, "CAP_FSETID", CAP_FSETID);
+    initConstant(env, c, "CAP_IPC_LOCK", CAP_IPC_LOCK);
+    initConstant(env, c, "CAP_IPC_OWNER", CAP_IPC_OWNER);
+    initConstant(env, c, "CAP_KILL", CAP_KILL);
+    initConstant(env, c, "CAP_LAST_CAP", CAP_LAST_CAP);
+    initConstant(env, c, "CAP_LEASE", CAP_LEASE);
+    initConstant(env, c, "CAP_LINUX_IMMUTABLE", CAP_LINUX_IMMUTABLE);
+    initConstant(env, c, "CAP_MAC_ADMIN", CAP_MAC_ADMIN);
+    initConstant(env, c, "CAP_MAC_OVERRIDE", CAP_MAC_OVERRIDE);
+    initConstant(env, c, "CAP_MKNOD", CAP_MKNOD);
+    initConstant(env, c, "CAP_NET_ADMIN", CAP_NET_ADMIN);
+    initConstant(env, c, "CAP_NET_BIND_SERVICE", CAP_NET_BIND_SERVICE);
+    initConstant(env, c, "CAP_NET_BROADCAST", CAP_NET_BROADCAST);
+    initConstant(env, c, "CAP_NET_RAW", CAP_NET_RAW);
+    initConstant(env, c, "CAP_SETFCAP", CAP_SETFCAP);
+    initConstant(env, c, "CAP_SETGID", CAP_SETGID);
+    initConstant(env, c, "CAP_SETPCAP", CAP_SETPCAP);
+    initConstant(env, c, "CAP_SETUID", CAP_SETUID);
+    initConstant(env, c, "CAP_SYS_ADMIN", CAP_SYS_ADMIN);
+    initConstant(env, c, "CAP_SYS_BOOT", CAP_SYS_BOOT);
+    initConstant(env, c, "CAP_SYS_CHROOT", CAP_SYS_CHROOT);
+    initConstant(env, c, "CAP_SYSLOG", CAP_SYSLOG);
+    initConstant(env, c, "CAP_SYS_MODULE", CAP_SYS_MODULE);
+    initConstant(env, c, "CAP_SYS_NICE", CAP_SYS_NICE);
+    initConstant(env, c, "CAP_SYS_PACCT", CAP_SYS_PACCT);
+    initConstant(env, c, "CAP_SYS_PTRACE", CAP_SYS_PTRACE);
+    initConstant(env, c, "CAP_SYS_RAWIO", CAP_SYS_RAWIO);
+    initConstant(env, c, "CAP_SYS_RESOURCE", CAP_SYS_RESOURCE);
+    initConstant(env, c, "CAP_SYS_TIME", CAP_SYS_TIME);
+    initConstant(env, c, "CAP_SYS_TTY_CONFIG", CAP_SYS_TTY_CONFIG);
+    initConstant(env, c, "CAP_WAKE_ALARM", CAP_WAKE_ALARM);
     initConstant(env, c, "E2BIG", E2BIG);
     initConstant(env, c, "EACCES", EACCES);
     initConstant(env, c, "EADDRINUSE", EADDRINUSE);
