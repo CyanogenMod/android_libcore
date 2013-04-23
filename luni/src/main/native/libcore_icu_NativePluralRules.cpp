@@ -25,15 +25,15 @@
 
 #include <string>
 
-static PluralRules* toPluralRules(jint address) {
+static PluralRules* toPluralRules(jlong address) {
     return reinterpret_cast<PluralRules*>(static_cast<uintptr_t>(address));
 }
 
-static void NativePluralRules_finalizeImpl(JNIEnv*, jclass, jint address) {
+static void NativePluralRules_finalizeImpl(JNIEnv*, jclass, jlong address) {
     delete toPluralRules(address);
 }
 
-static jint NativePluralRules_forLocaleImpl(JNIEnv* env, jclass, jstring javaLocaleName) {
+static jlong NativePluralRules_forLocaleImpl(JNIEnv* env, jclass, jstring javaLocaleName) {
     // The icu4c PluralRules returns a "other: n" default rule for the deprecated locales Java uses.
     // Work around this by translating back to the current language codes.
     std::string localeName(ScopedUtfChars(env, javaLocaleName).c_str());
@@ -55,7 +55,7 @@ static jint NativePluralRules_forLocaleImpl(JNIEnv* env, jclass, jstring javaLoc
     return reinterpret_cast<uintptr_t>(result);
 }
 
-static jint NativePluralRules_quantityForIntImpl(JNIEnv*, jclass, jint address, jint value) {
+static jint NativePluralRules_quantityForIntImpl(JNIEnv*, jclass, jlong address, jint value) {
     UnicodeString keyword = toPluralRules(address)->select(value);
     if (keyword == "zero") {
         return 0;
@@ -73,9 +73,9 @@ static jint NativePluralRules_quantityForIntImpl(JNIEnv*, jclass, jint address, 
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(NativePluralRules, finalizeImpl, "(I)V"),
-    NATIVE_METHOD(NativePluralRules, forLocaleImpl, "(Ljava/lang/String;)I"),
-    NATIVE_METHOD(NativePluralRules, quantityForIntImpl, "(II)I"),
+    NATIVE_METHOD(NativePluralRules, finalizeImpl, "(J)V"),
+    NATIVE_METHOD(NativePluralRules, forLocaleImpl, "(Ljava/lang/String;)J"),
+    NATIVE_METHOD(NativePluralRules, quantityForIntImpl, "(JI)I"),
 };
 void register_libcore_icu_NativePluralRules(JNIEnv* env) {
     jniRegisterNativeMethods(env, "libcore/icu/NativePluralRules", gMethods, NELEM(gMethods));
