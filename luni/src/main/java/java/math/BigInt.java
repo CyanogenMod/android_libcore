@@ -24,7 +24,7 @@ package java.math;
 final class BigInt {
 
     /* Fields used for the internal representation. */
-    transient int bignum = 0;
+    transient long bignum = 0;
 
     @Override protected void finalize() throws Throwable {
         try {
@@ -42,15 +42,15 @@ final class BigInt {
         return this.decString();
     }
 
-    int getNativeBIGNUM() {
+    long getNativeBIGNUM() {
         return this.bignum;
     }
 
     static int consumeErrors(StringBuilder sb) {
         int cnt = 0;
-        int e, reason;
+        long e;
         while ((e = NativeBN.ERR_get_error()) != 0) {
-            reason = e & 255;
+          int reason = ((int) e) & 0xff;
             if (reason == 103) {
                 throw new ArithmeticException("BigInteger division by zero");
             }
@@ -335,9 +335,8 @@ final class BigInt {
         // int BN_sqr(BIGNUM *r, const BIGNUM *a,BN_CTX *ctx);
     }
 
-    static void division(BigInt dividend, BigInt divisor,
-            BigInt quotient, BigInt remainder) {
-        int quot, rem;
+    static void division(BigInt dividend, BigInt divisor, BigInt quotient, BigInt remainder) {
+        long quot, rem;
         if (quotient != null) {
             quotient.makeValid();
             quot = quotient.bignum;
