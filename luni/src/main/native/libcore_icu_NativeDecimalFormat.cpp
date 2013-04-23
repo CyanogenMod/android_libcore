@@ -343,7 +343,7 @@ static jlong NativeDecimalFormat_cloneImpl(JNIEnv*, jclass, jlong addr) {
 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NativeDecimalFormat, applyPatternImpl, "(JZLjava/lang/String;)V"),
-    NATIVE_METHOD(NativeDecimalFormat, cloneImpl, "(J)I"),
+    NATIVE_METHOD(NativeDecimalFormat, cloneImpl, "(J)J"),
     NATIVE_METHOD(NativeDecimalFormat, close, "(J)V"),
     NATIVE_METHOD(NativeDecimalFormat, formatDouble, "(JDLlibcore/icu/NativeDecimalFormat$FieldPositionIterator;)[C"),
     NATIVE_METHOD(NativeDecimalFormat, formatLong, "(JJLlibcore/icu/NativeDecimalFormat$FieldPositionIterator;)[C"),
