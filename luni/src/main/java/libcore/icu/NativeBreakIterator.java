@@ -29,13 +29,13 @@ public final class NativeBreakIterator implements Cloneable {
 
     // The address of the native peer.
     // Uses of this must be manually synchronized to avoid native crashes.
-    private final int address;
+    private final long address;
 
     private final int type;
     private String string;
     private CharacterIterator charIterator;
 
-    private NativeBreakIterator(int address, int type) {
+    private NativeBreakIterator(long address, int type) {
         this.address = address;
         this.type = type;
         this.charIterator = new StringCharacterIterator("");
@@ -43,7 +43,7 @@ public final class NativeBreakIterator implements Cloneable {
 
     @Override
     public Object clone() {
-        int cloneAddr = cloneImpl(this.address);
+        long cloneAddr = cloneImpl(this.address);
         NativeBreakIterator clone = new NativeBreakIterator(cloneAddr, this.type);
         clone.string = this.string;
         // The RI doesn't clone the CharacterIterator.
@@ -157,21 +157,21 @@ public final class NativeBreakIterator implements Cloneable {
         return new NativeBreakIterator(getWordInstanceImpl(where.toString()), BI_WORD_INSTANCE);
     }
 
-    private static native int getCharacterInstanceImpl(String locale);
-    private static native int getWordInstanceImpl(String locale);
-    private static native int getLineInstanceImpl(String locale);
-    private static native int getSentenceInstanceImpl(String locale);
-    private static synchronized native int cloneImpl(int address);
+    private static native long getCharacterInstanceImpl(String locale);
+    private static native long getWordInstanceImpl(String locale);
+    private static native long getLineInstanceImpl(String locale);
+    private static native long getSentenceInstanceImpl(String locale);
+    private static synchronized native long cloneImpl(long address);
 
-    private static synchronized native void closeImpl(int address);
+    private static synchronized native void closeImpl(long address);
 
-    private static synchronized native void setTextImpl(int address, String text);
-    private static synchronized native int precedingImpl(int address, String text, int offset);
-    private static synchronized native boolean isBoundaryImpl(int address, String text, int offset);
-    private static synchronized native int nextImpl(int address, String text, int n);
-    private static synchronized native int previousImpl(int address, String text);
-    private static synchronized native int currentImpl(int address, String text);
-    private static synchronized native int firstImpl(int address, String text);
-    private static synchronized native int followingImpl(int address, String text, int offset);
-    private static synchronized native int lastImpl(int address, String text);
+    private static synchronized native void setTextImpl(long address, String text);
+    private static synchronized native int precedingImpl(long address, String text, int offset);
+    private static synchronized native boolean isBoundaryImpl(long address, String text, int offset);
+    private static synchronized native int nextImpl(long address, String text, int n);
+    private static synchronized native int previousImpl(long address, String text);
+    private static synchronized native int currentImpl(long address, String text);
+    private static synchronized native int firstImpl(long address, String text);
+    private static synchronized native int followingImpl(long address, String text, int offset);
+    private static synchronized native int lastImpl(long address, String text);
 }
