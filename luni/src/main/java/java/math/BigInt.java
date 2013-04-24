@@ -46,49 +46,15 @@ final class BigInt {
         return this.bignum;
     }
 
-    static int consumeErrors(StringBuilder sb) {
-        int cnt = 0;
-        long e;
-        while ((e = NativeBN.ERR_get_error()) != 0) {
-          int reason = ((int) e) & 0xff;
-            if (reason == 103) {
-                throw new ArithmeticException("BigInteger division by zero");
-            }
-            if (reason == 108) {
-                throw new ArithmeticException("BigInteger not invertible");
-            }
-            if (reason == 65) {
-                throw new OutOfMemoryError();
-            }
-            sb.append(e).append(": ");
-            String s = NativeBN.ERR_error_string(e);
-            sb.append(s);
-            cnt++;
-        }
-        return cnt;
-    }
-
-    private static void Check(boolean success) {
-        if (!success) {
-            StringBuilder sb = new StringBuilder("(openssl)ERR: ");
-            int cnt = consumeErrors(sb);
-            if (cnt > 0)
-                throw new ArithmeticException(sb.toString());
-        }
-    }
-
-
     private void makeValid() {
         if (this.bignum == 0) {
             this.bignum = NativeBN.BN_new();
-            Check(this.bignum != 0);
         }
     }
 
     private static BigInt newBigInt() {
         BigInt bi = new BigInt();
         bi.bignum = NativeBN.BN_new();
-        Check(bi.bignum != 0);
         return bi;
     }
 
@@ -100,7 +66,7 @@ final class BigInt {
 
     void putCopy(BigInt from) {
         this.makeValid();
-        Check(NativeBN.BN_copy(this.bignum, from.bignum));
+        NativeBN.BN_copy(this.bignum, from.bignum);
     }
 
     BigInt copy() {
@@ -112,12 +78,12 @@ final class BigInt {
 
     void putLongInt(long val) {
         this.makeValid();
-        Check(NativeBN.putLongInt(this.bignum, val));
+        NativeBN.putLongInt(this.bignum, val);
     }
 
     void putULongInt(long val, boolean neg) {
         this.makeValid();
-        Check(NativeBN.putULongInt(this.bignum, val, neg));
+        NativeBN.putULongInt(this.bignum, val, neg);
     }
 
     private NumberFormatException invalidBigInteger(String s) {
@@ -128,7 +94,6 @@ final class BigInt {
         String s = checkString(original, 10);
         this.makeValid();
         int usedLen = NativeBN.BN_dec2bn(this.bignum, s);
-        Check((usedLen > 0));
         if (usedLen < s.length()) {
             throw invalidBigInteger(original);
         }
@@ -138,7 +103,6 @@ final class BigInt {
         String s = checkString(original, 16);
         this.makeValid();
         int usedLen = NativeBN.BN_hex2bn(this.bignum, s);
-        Check((usedLen > 0));
         if (usedLen < s.length()) {
             throw invalidBigInteger(original);
         }
@@ -205,17 +169,17 @@ final class BigInt {
 
     void putBigEndian(byte[] a, boolean neg) {
         this.makeValid();
-        Check(NativeBN.BN_bin2bn(a, a.length, neg, this.bignum));
+        NativeBN.BN_bin2bn(a, a.length, neg, this.bignum);
     }
 
     void putLittleEndianInts(int[] a, boolean neg) {
         this.makeValid();
-        Check(NativeBN.litEndInts2bn(a, a.length, neg, this.bignum));
+        NativeBN.litEndInts2bn(a, a.length, neg, this.bignum);
     }
 
     void putBigEndianTwosComplement(byte[] a) {
         this.makeValid();
-        Check(NativeBN.twosComp2bn(a, a.length, this.bignum));
+        NativeBN.twosComp2bn(a, a.length, this.bignum);
     }
 
 
@@ -267,61 +231,59 @@ final class BigInt {
     // n > 0: shift left (multiply)
     static BigInt shift(BigInt a, int n) {
         BigInt r = newBigInt();
-        Check(NativeBN.BN_shift(r.bignum, a.bignum, n));
+        NativeBN.BN_shift(r.bignum, a.bignum, n);
         return r;
     }
 
     void shift(int n) {
-        Check(NativeBN.BN_shift(this.bignum, this.bignum, n));
+        NativeBN.BN_shift(this.bignum, this.bignum, n);
     }
 
     void addPositiveInt(int w) {
-        Check(NativeBN.BN_add_word(this.bignum, w));
+        NativeBN.BN_add_word(this.bignum, w);
     }
 
     void multiplyByPositiveInt(int w) {
-        Check(NativeBN.BN_mul_word(this.bignum, w));
+        NativeBN.BN_mul_word(this.bignum, w);
     }
 
     static int remainderByPositiveInt(BigInt a, int w) {
-        int rem = NativeBN.BN_mod_word(a.bignum, w);
-        Check(rem != -1);
-        return rem;
+        return NativeBN.BN_mod_word(a.bignum, w);
     }
 
     static BigInt addition(BigInt a, BigInt b) {
         BigInt r = newBigInt();
-        Check(NativeBN.BN_add(r.bignum, a.bignum, b.bignum));
+        NativeBN.BN_add(r.bignum, a.bignum, b.bignum);
         return r;
     }
 
     void add(BigInt a) {
-        Check(NativeBN.BN_add(this.bignum, this.bignum, a.bignum));
+        NativeBN.BN_add(this.bignum, this.bignum, a.bignum);
     }
 
     static BigInt subtraction(BigInt a, BigInt b) {
         BigInt r = newBigInt();
-        Check(NativeBN.BN_sub(r.bignum, a.bignum, b.bignum));
+        NativeBN.BN_sub(r.bignum, a.bignum, b.bignum);
         return r;
     }
 
 
     static BigInt gcd(BigInt a, BigInt b) {
         BigInt r = newBigInt();
-        Check(NativeBN.BN_gcd(r.bignum, a.bignum, b.bignum));
+        NativeBN.BN_gcd(r.bignum, a.bignum, b.bignum);
         return r;
     }
 
     static BigInt product(BigInt a, BigInt b) {
         BigInt r = newBigInt();
-        Check(NativeBN.BN_mul(r.bignum, a.bignum, b.bignum));
+        NativeBN.BN_mul(r.bignum, a.bignum, b.bignum);
         return r;
     }
 
     static BigInt bigExp(BigInt a, BigInt p) {
         // Sign of p is ignored!
         BigInt r = newBigInt();
-        Check(NativeBN.BN_exp(r.bignum, a.bignum, p.bignum));
+        NativeBN.BN_exp(r.bignum, a.bignum, p.bignum);
         return r;
     }
 
@@ -349,37 +311,34 @@ final class BigInt {
         } else {
             rem = 0;
         }
-        Check(NativeBN.BN_div(quot, rem, dividend.bignum, divisor.bignum));
+        NativeBN.BN_div(quot, rem, dividend.bignum, divisor.bignum);
     }
 
     static BigInt modulus(BigInt a, BigInt m) {
         // Sign of p is ignored! ?
         BigInt r = newBigInt();
-        Check(NativeBN.BN_nnmod(r.bignum, a.bignum, m.bignum));
+        NativeBN.BN_nnmod(r.bignum, a.bignum, m.bignum);
         return r;
     }
 
     static BigInt modExp(BigInt a, BigInt p, BigInt m) {
         // Sign of p is ignored!
         BigInt r = newBigInt();
-        Check(NativeBN.BN_mod_exp(r.bignum, a.bignum, p.bignum, m.bignum));
-
-        // OPTIONAL:
-        // int BN_mod_sqr(BIGNUM *r, const BIGNUM *a, const BIGNUM *m, BN_CTX *ctx);
+        NativeBN.BN_mod_exp(r.bignum, a.bignum, p.bignum, m.bignum);
         return r;
     }
 
 
     static BigInt modInverse(BigInt a, BigInt m) {
         BigInt r = newBigInt();
-        Check(NativeBN.BN_mod_inverse(r.bignum, a.bignum, m.bignum));
+        NativeBN.BN_mod_inverse(r.bignum, a.bignum, m.bignum);
         return r;
     }
 
 
     static BigInt generatePrimeDefault(int bitLength) {
         BigInt r = newBigInt();
-        Check(NativeBN.BN_generate_prime_ex(r.bignum, bitLength, false, 0, 0, 0));
+        NativeBN.BN_generate_prime_ex(r.bignum, bitLength, false, 0, 0, 0);
         return r;
     }
 

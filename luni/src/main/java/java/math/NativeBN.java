@@ -18,12 +18,6 @@ package java.math;
 
 final class NativeBN {
 
-    public static native long ERR_get_error();
-    // unsigned long ERR_get_error(void);
-
-    public static native String ERR_error_string(long e);
-    // char *ERR_error_string(unsigned long e, char *buf);
-
     public static native long BN_new();
     // BIGNUM *BN_new(void);
 
@@ -33,14 +27,11 @@ final class NativeBN {
     public static native int BN_cmp(long a, long b);
     // int BN_cmp(const BIGNUM *a, const BIGNUM *b);
 
-    public static native boolean BN_copy(long to, long from);
-    // Returns boolean success AND NOT result BIGNUM handle!
+    public static native void BN_copy(long to, long from);
     // BIGNUM *BN_copy(BIGNUM *to, const BIGNUM *from);
 
-
-    public static native boolean putLongInt(long a, long dw);
-
-    public static native boolean putULongInt(long a, long dw, boolean neg);
+    public static native void putLongInt(long a, long dw);
+    public static native void putULongInt(long a, long dw, boolean neg);
 
     public static native int BN_dec2bn(long a, String str);
     // int BN_dec2bn(BIGNUM **a, const char *str);
@@ -48,15 +39,14 @@ final class NativeBN {
     public static native int BN_hex2bn(long a, String str);
     // int BN_hex2bn(BIGNUM **a, const char *str);
 
-    public static native boolean BN_bin2bn(byte[] s, int len, boolean neg, long ret);
-    // Returns boolean success AND NOT result BIGNUM handle!
+    public static native void BN_bin2bn(byte[] s, int len, boolean neg, long ret);
     // BIGNUM * BN_bin2bn(const unsigned char *s, int len, BIGNUM *ret);
     // BN-Docu: s is taken as unsigned big endian;
     // Additional parameter: neg.
 
-    public static native boolean litEndInts2bn(int[] ints, int len, boolean neg, long ret);
+    public static native void litEndInts2bn(int[] ints, int len, boolean neg, long ret);
 
-    public static native boolean twosComp2bn(byte[] s, int len, long ret);
+    public static native void twosComp2bn(byte[] s, int len, long ret);
 
 
     public static native long longInt(long a);
@@ -86,14 +76,14 @@ final class NativeBN {
     public static native boolean BN_is_bit_set(long a, int n);
     // int BN_is_bit_set(const BIGNUM *a, int n);
 
-    public static native boolean BN_shift(long r, long a, int n);
+    public static native void BN_shift(long r, long a, int n);
     // int BN_shift(BIGNUM *r, const BIGNUM *a, int n);
 
-    public static native boolean BN_add_word(long a, int w);
+    public static native void BN_add_word(long a, int w);
     // ATTENTION: w is treated as unsigned.
     // int BN_add_word(BIGNUM *a, BN_ULONG w);
 
-    public static native boolean BN_mul_word(long a, int w);
+    public static native void BN_mul_word(long a, int w);
     // ATTENTION: w is treated as unsigned.
     // int BN_mul_word(BIGNUM *a, BN_ULONG w);
 
@@ -101,37 +91,36 @@ final class NativeBN {
     // ATTENTION: w is treated as unsigned.
     // BN_ULONG BN_mod_word(BIGNUM *a, BN_ULONG w);
 
-    public static native boolean BN_add(long r, long a, long b);
+    public static native void BN_add(long r, long a, long b);
     // int BN_add(BIGNUM *r, const BIGNUM *a, const BIGNUM *b);
 
-    public static native boolean BN_sub(long r, long a, long b);
+    public static native void BN_sub(long r, long a, long b);
     // int BN_sub(BIGNUM *r, const BIGNUM *a, const BIGNUM *b);
 
-    public static native boolean BN_gcd(long r, long a, long b);
+    public static native void BN_gcd(long r, long a, long b);
     // int BN_gcd(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx);
 
-    public static native boolean BN_mul(long r, long a, long b);
+    public static native void BN_mul(long r, long a, long b);
     // int BN_mul(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx);
 
-    public static native boolean BN_exp(long r, long a, long p);
+    public static native void BN_exp(long r, long a, long p);
     // int BN_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, BN_CTX *ctx);
 
-    public static native boolean BN_div(long dv, long rem, long m, long d);
+    public static native void BN_div(long dv, long rem, long m, long d);
     // int BN_div(BIGNUM *dv, BIGNUM *rem, const BIGNUM *m, const BIGNUM *d, BN_CTX *ctx);
 
-    public static native boolean BN_nnmod(long r, long a, long m);
+    public static native void BN_nnmod(long r, long a, long m);
     // int BN_nnmod(BIGNUM *r, const BIGNUM *a, const BIGNUM *m, BN_CTX *ctx);
 
-    public static native boolean BN_mod_exp(long r, long a, long p, long m);
+    public static native void BN_mod_exp(long r, long a, long p, long m);
     // int BN_mod_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m, BN_CTX *ctx);
 
-    public static native boolean BN_mod_inverse(long ret, long a, long n);
-    // Returns boolean success AND NOT result BIGNUM handle!
+    public static native void BN_mod_inverse(long ret, long a, long n);
     // BIGNUM * BN_mod_inverse(BIGNUM *ret, const BIGNUM *a, const BIGNUM *n, BN_CTX *ctx);
 
 
-    public static native boolean BN_generate_prime_ex(long ret, int bits, boolean safe,
-                                                      long add, long rem, long cb);
+    public static native void BN_generate_prime_ex(long ret, int bits, boolean safe,
+                                                   long add, long rem, long cb);
     // int BN_generate_prime_ex(BIGNUM *ret, int bits, int safe,
     //         const BIGNUM *add, const BIGNUM *rem, BN_GENCB *cb);
 
