@@ -88,4 +88,12 @@ public final class BigDecimalTest extends TestCase {
       assertEquals(0, a.subtract(b).signum());
       assertEquals(0, a.compareTo(b));
     }
+
+    // https://code.google.com/p/android/issues/detail?id=54580
+    public void test54580() {
+        BigDecimal a = new BigDecimal("1.200002");
+        assertEquals("1.200002", a.toPlainString());
+        assertEquals("1.20", a.abs(new MathContext(3,RoundingMode.HALF_UP)).toPlainString());
+        assertEquals("1.200002", a.toPlainString());
+    }
 }
