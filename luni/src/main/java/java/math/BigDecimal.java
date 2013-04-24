@@ -1666,26 +1666,20 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
     }
 
     /**
-     * Returns a new {@code BigDecimal} whose value is the absolute value of
+     * Returns a {@code BigDecimal} whose value is the absolute value of
      * {@code this}. The scale of the result is the same as the scale of this.
-     *
-     * @return {@code abs(this)}
      */
     public BigDecimal abs() {
         return ((signum() < 0) ? negate() : this);
     }
 
     /**
-     * Returns a new {@code BigDecimal} whose value is the absolute value of
+     * Returns a {@code BigDecimal} whose value is the absolute value of
      * {@code this}. The result is rounded according to the passed context
      * {@code mc}.
-     *
-     * @param mc
-     *            rounding mode and precision for the result of this operation.
-     * @return {@code abs(this)}
      */
     public BigDecimal abs(MathContext mc) {
-        BigDecimal result = abs();
+        BigDecimal result = (signum() < 0) ? negate() : new BigDecimal(getUnscaledValue(), scale);
         result.inplaceRound(mc);
         return result;
     }
