@@ -577,23 +577,23 @@ public final class IoBridge {
         }
     }
 
-    public static InetAddress getSocketLocalAddress(FileDescriptor fd) {
+    public static InetAddress getSocketLocalAddress(FileDescriptor fd) throws SocketException {
         try {
             SocketAddress sa = Libcore.os.getsockname(fd);
             InetSocketAddress isa = (InetSocketAddress) sa;
             return isa.getAddress();
         } catch (ErrnoException errnoException) {
-            throw new AssertionError(errnoException);
+            throw errnoException.rethrowAsSocketException();
         }
     }
 
-    public static int getSocketLocalPort(FileDescriptor fd) {
+    public static int getSocketLocalPort(FileDescriptor fd) throws SocketException {
         try {
             SocketAddress sa = Libcore.os.getsockname(fd);
             InetSocketAddress isa = (InetSocketAddress) sa;
             return isa.getPort();
         } catch (ErrnoException errnoException) {
-            throw new AssertionError(errnoException);
+            throw errnoException.rethrowAsSocketException();
         }
     }
 }

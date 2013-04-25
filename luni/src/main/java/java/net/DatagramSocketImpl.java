@@ -19,7 +19,6 @@ package java.net;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
-import libcore.io.IoBridge;
 
 /**
  * The abstract superclass for datagram and multicast socket implementations.
@@ -79,13 +78,6 @@ public abstract class DatagramSocketImpl implements SocketOptions {
      */
     protected FileDescriptor getFileDescriptor() {
         return fd;
-    }
-
-    /**
-     * Returns the local address to which the socket is bound.
-     */
-    InetAddress getLocalAddress() {
-        return IoBridge.getSocketLocalAddress(fd);
     }
 
     /**
