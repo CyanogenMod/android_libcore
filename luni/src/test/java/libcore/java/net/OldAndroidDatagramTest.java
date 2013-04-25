@@ -20,7 +20,9 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
+import java.nio.channels.DatagramChannel;
 import junit.framework.TestCase;
 
 /**
@@ -36,7 +38,7 @@ public class OldAndroidDatagramTest extends TestCase {
      */
 
     class Reflector extends Thread {
-        // Helper class for reflecting incoming datagrams. 
+        // Helper class for reflecting incoming datagrams.
         DatagramSocket socket;
 
         boolean alive = true;
@@ -184,5 +186,24 @@ public class OldAndroidDatagramTest extends TestCase {
                 sock.close();
             }
         }
+    }
+
+    public void test_54072_DatagramSocket() throws Exception {
+        DatagramSocket s = new DatagramSocket(null);
+        assertTrue(s.getLocalAddress().isAnyLocalAddress());
+        s.bind(new InetSocketAddress(8888));
+        assertTrue(s.getLocalAddress().isAnyLocalAddress());
+        s.close();
+        assertNull(s.getLocalAddress());
+    }
+
+    public void test_54072_DatagramChannel() throws Exception {
+        DatagramChannel ch = DatagramChannel.open();
+        DatagramSocket s = ch.socket();
+        assertTrue(s.getLocalAddress().isAnyLocalAddress());
+        s.bind(new InetSocketAddress(8888));
+        assertTrue(s.getLocalAddress().isAnyLocalAddress());
+        s.close();
+        assertNull(s.getLocalAddress());
     }
 }
