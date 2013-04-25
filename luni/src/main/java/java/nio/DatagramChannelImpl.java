@@ -259,6 +259,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
                 if (sendCount > 0) {
                     source.position(oldPosition + sendCount);
                 }
+                isBound = true;
             } finally {
                 end(sendCount >= 0);
             }
