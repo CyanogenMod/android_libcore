@@ -941,12 +941,12 @@ public class Socket {
      *
      * @see ServerSocket#implAccept
      */
-    void accepted() {
+    void accepted() throws SocketException {
         isCreated = isBound = isConnected = true;
         cacheLocalAddress();
     }
 
-    private void cacheLocalAddress() {
+    private void cacheLocalAddress() throws SocketException {
         this.localAddress = IoBridge.getSocketLocalAddress(impl.fd);
     }
 
