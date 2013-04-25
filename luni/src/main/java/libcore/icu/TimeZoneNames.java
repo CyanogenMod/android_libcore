@@ -149,7 +149,7 @@ public final class TimeZoneNames {
     public static String[] forLocale(Locale locale) {
         String countryCode = locale.getCountry();
         ArrayList<String> ids = new ArrayList<String>();
-        for (String line : ZoneInfoDB.getZoneTab().split("\n")) {
+        for (String line : ZoneInfoDB.getInstance().getZoneTab().split("\n")) {
             if (line.startsWith(countryCode)) {
                 int olsonIdStart = line.indexOf('\t', 4) + 1;
                 int olsonIdEnd = line.indexOf('\t', olsonIdStart);
