@@ -56,22 +56,31 @@ public final class Extensions {
             "2.5.29.30", "2.5.29.36", "2.5.29.37", "2.5.29.54");
 
     // the values of extensions of the structure
-    private List<Extension> extensions;
-    private Set<String> critical;
-    private Set<String> noncritical;
+    private final List<Extension> extensions;
+
+    // to speed up access, the following fields cache values computed
+    // from the extensions field, initialized using the "single-check
+    // idiom".
+
+    private volatile Set<String> critical;
+    private volatile Set<String> noncritical;
     // the flag showing is there any unsupported critical extension
     // in the list of extensions or not.
-    private boolean hasUnsupported;
+    private volatile Boolean hasUnsupported;
+
     // map containing the oid of extensions as a keys and
     // Extension objects as values
-    private HashMap<String, Extension> oidMap;
+    private volatile HashMap<String, Extension> oidMap;
+
     // the ASN.1 encoded form of Extensions
     private byte[] encoding;
 
     /**
      * Constructs an object representing the value of Extensions.
      */
-    public Extensions() {}
+    public Extensions() {
+        this.extensions = null;
+    }
 
     public Extensions(List<Extension> extensions) {
         this.extensions = extensions;
@@ -85,27 +94,33 @@ public final class Extensions {
      * Returns the list of critical extensions.
      */
     public Set<String> getCriticalExtensions() {
-        if (critical == null) {
+        Set<String> resultCritical = critical;
+        if (resultCritical == null) {
             makeOidsLists();
+            resultCritical = critical;
         }
-        return critical;
+        return resultCritical;
     }
 
     /**
      * Returns the list of critical extensions.
      */
     public Set<String> getNonCriticalExtensions() {
-        if (noncritical == null) {
+        Set<String> resultNoncritical = noncritical;
+        if (resultNoncritical == null) {
             makeOidsLists();
+            resultNoncritical = noncritical;
         }
-        return noncritical;
+        return resultNoncritical;
     }
 
     public boolean hasUnsupportedCritical() {
-        if (critical == null) {
+        Boolean resultHasUnsupported = hasUnsupported;
+        if (resultHasUnsupported == null) {
             makeOidsLists();
+            resultHasUnsupported = hasUnsupported;
         }
-        return hasUnsupported;
+        return resultHasUnsupported.booleanValue();
     }
 
     //
@@ -117,19 +132,23 @@ public final class Extensions {
             return;
         }
         int size = extensions.size();
-        critical = new HashSet<String>(size);
-        noncritical = new HashSet<String>(size);
+        Set<String> localCritical = new HashSet<String>(size);
+        Set<String> localNoncritical = new HashSet<String>(size);
+        Boolean localHasUnsupported = Boolean.FALSE;
         for (Extension extension : extensions) {
             String oid = extension.getExtnID();
             if (extension.getCritical()) {
                 if (!SUPPORTED_CRITICAL.contains(oid)) {
-                    hasUnsupported = true;
+                    localHasUnsupported = Boolean.TRUE;
                 }
-                critical.add(oid);
+                localCritical.add(oid);
             } else {
-                noncritical.add(oid);
+                localNoncritical.add(oid);
             }
         }
+        this.critical = localCritical;
+        this.noncritical = localNoncritical;
+        this.hasUnsupported = localHasUnsupported;
     }
 
     /**
@@ -139,13 +158,15 @@ public final class Extensions {
         if (extensions == null) {
             return null;
         }
-        if (oidMap == null) {
-            oidMap = new HashMap<String, Extension>();
+        HashMap<String, Extension> localOidMap = oidMap;
+        if (localOidMap == null) {
+            localOidMap = new HashMap<String, Extension>();
             for (Extension extension : extensions) {
-                oidMap.put(extension.getExtnID(), extension);
+                localOidMap.put(extension.getExtnID(), extension);
             }
+            this.oidMap = localOidMap;
         }
-        return oidMap.get(oid);
+        return localOidMap.get(oid);
     }
 
 
