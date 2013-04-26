@@ -139,9 +139,12 @@ public abstract class TimeZone implements Serializable, Cloneable {
             }
             if (zoneName == null || zoneName.isEmpty()) {
                 try {
+                    // On the host, we can find the configured timezone here.
                     zoneName = IoUtils.readFileAsString("/etc/timezone");
                 } catch (IOException ex) {
-                    throw new AssertionError("Can't read /etc/timezone.", ex);
+                    // "vogar --mode device" can end up here.
+                    // TODO: give libcore access to Android system properties and read "persist.sys.timezone".
+                    zoneName = "GMT";
                 }
             }
             defaultTimeZone = TimeZone.getTimeZone(zoneName);
