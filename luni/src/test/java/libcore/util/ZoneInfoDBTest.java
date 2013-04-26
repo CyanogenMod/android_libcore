@@ -22,7 +22,7 @@ import java.io.RandomAccessFile;
 import java.util.TimeZone;
 
 public class ZoneInfoDBTest extends junit.framework.TestCase {
-  private static final String CURRENT_VERSION = ZoneInfoDB.getVersion();
+  private static final String CURRENT_VERSION = ZoneInfoDB.getInstance().getVersion();
   private static final String DEFAULT_FILE = System.getenv("ANDROID_ROOT") + "/usr/share/zoneinfo/tzdata";
 
   // An empty override file should fall back to the default file.
