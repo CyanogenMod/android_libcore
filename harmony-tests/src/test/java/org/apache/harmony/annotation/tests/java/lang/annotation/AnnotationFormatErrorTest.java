@@ -21,18 +21,32 @@ import java.lang.annotation.AnnotationFormatError;
 
 import junit.framework.TestCase;
 
+/**
+ * Test case of java.lang.annotation.AnnotationFormatError
+ */
 public class AnnotationFormatErrorTest extends TestCase {
+    /**
+     * @tests java.lang.annotation.AnnotationFormatError#AnnotationFormatError(String)
+     */
+    @SuppressWarnings("nls")
     public void test_constructorLjava_lang_String() {
         AnnotationFormatError e = new AnnotationFormatError("some message");
         assertEquals("some message", e.getMessage());
     }
 
+    /**
+     * @tests java.lang.annotation.AnnotationFormatError#AnnotationFormatError(Throwable)
+     */
     public void test_constructorLjava_lang_Throwable() {
         IllegalArgumentException iae = new IllegalArgumentException();
         AnnotationFormatError e = new AnnotationFormatError(iae);
         assertSame(iae, e.getCause());
     }
 
+    /**
+     * @tests java.lang.annotation.AnnotationFormatError#AnnotationFormatError(String,Throwable)
+     */
+    @SuppressWarnings("nls")
     public void test_constructorLjava_lang_StringLjava_lang_Throwable() {
         IllegalArgumentException iae = new IllegalArgumentException();
         AnnotationFormatError e = new AnnotationFormatError("some message", iae);
