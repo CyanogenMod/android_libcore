@@ -487,8 +487,6 @@ public class File implements Serializable, Comparable<File> {
 
     /**
      * Returns the path of this file.
-     *
-     * @return this file's path.
      */
     public String getPath() {
         return path;
