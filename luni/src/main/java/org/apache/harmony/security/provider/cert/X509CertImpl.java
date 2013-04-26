@@ -66,11 +66,11 @@ public final class X509CertImpl extends X509Certificate {
     /** the core object to be wrapped in X509Certificate */
     private final Certificate certificate;
 
+    private final TBSCertificate tbsCert;
+    private final Extensions extensions;
     // to speed up access to the info, the following fields
     // cache values retrieved from the certificate object,
     // initialized using the "single-check idiom".
-    private final TBSCertificate tbsCert;
-    private final Extensions extensions;
     private volatile long notBefore = -1;
     private volatile long notAfter = -1;
     private volatile BigInteger serialNumber;
