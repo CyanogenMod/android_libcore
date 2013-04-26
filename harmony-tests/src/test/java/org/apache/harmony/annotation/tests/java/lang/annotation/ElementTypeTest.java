@@ -17,28 +17,49 @@
 
 package org.apache.harmony.annotation.tests.java.lang.annotation;
 
-import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.ElementType;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
 
-public class RetentionPolicyTest extends TestCase {
+/**
+ * Test case of java.lang.annotation.ElementType
+ */
+public class ElementTypeTest extends TestCase {
+
+    /**
+     * @throws Exception
+     * @tests java.lang.annotation.ElementType#valueOf(String)
+     */
+    @SuppressWarnings("nls")
     public void test_valueOfLjava_lang_String() throws Exception {
-        assertSame(RetentionPolicy.CLASS, RetentionPolicy.valueOf("CLASS"));
-        assertSame(RetentionPolicy.RUNTIME, RetentionPolicy.valueOf("RUNTIME"));
-        assertSame(RetentionPolicy.SOURCE, RetentionPolicy.valueOf("SOURCE"));
+        assertSame(ElementType.ANNOTATION_TYPE, ElementType
+                .valueOf("ANNOTATION_TYPE"));
+        assertSame(ElementType.CONSTRUCTOR, ElementType.valueOf("CONSTRUCTOR"));
+        assertSame(ElementType.FIELD, ElementType.valueOf("FIELD"));
+        assertSame(ElementType.LOCAL_VARIABLE, ElementType
+                .valueOf("LOCAL_VARIABLE"));
+        assertSame(ElementType.METHOD, ElementType.valueOf("METHOD"));
+        assertSame(ElementType.PACKAGE, ElementType.valueOf("PACKAGE"));
+        assertSame(ElementType.PARAMETER, ElementType.valueOf("PARAMETER"));
+        assertSame(ElementType.TYPE, ElementType.valueOf("TYPE"));
         try {
-            RetentionPolicy.valueOf("OTHER");
+            ElementType.valueOf("OTHER");
             fail("Should throw an IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected
         }
     }
 
+    /**
+     * @throws Exception
+     * @tests java.lang.annotation.ElementType#values()
+     */
+    @SuppressWarnings("nls")
     public void test_values() throws Exception {
-        RetentionPolicy[] values = RetentionPolicy.values();
+        ElementType[] values = ElementType.values();
         assertTrue(values.length > 1);
         Arrays.sort(values);
-        assertTrue(Arrays.binarySearch(values, RetentionPolicy.RUNTIME) >= 0);
+        assertTrue(Arrays.binarySearch(values, ElementType.METHOD) >= 0);
     }
 }
