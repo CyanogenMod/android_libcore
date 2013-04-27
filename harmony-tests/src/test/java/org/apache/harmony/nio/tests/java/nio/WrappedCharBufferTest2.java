@@ -109,21 +109,20 @@ public class WrappedCharBufferTest2 extends ReadOnlyCharBufferTest {
         CharBuffer other = CharBuffer.allocate(1);
         try {
             buf.put(other);
-            fail("Should throw ReadOnlyBufferException"); //$NON-NLS-1$
-        } catch (ReadOnlyBufferException e) {
-            // expected
+            fail();
+        } catch (ReadOnlyBufferException expected) {
         }
         try {
             buf.put((CharBuffer) null);
-            fail("Should throw NullPointerException"); //$NON-NLS-1$
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (ReadOnlyBufferException expected) {
+        } catch (NullPointerException expected) {
         }
         try {
             buf.put(buf);
-            fail("Should throw IllegalArgumentException"); //$NON-NLS-1$
-        } catch (IllegalArgumentException e) {
-            // expected
+            fail();
+        } catch (ReadOnlyBufferException expected) {
+        } catch (IllegalArgumentException expected) {
         }
     }    
 }
