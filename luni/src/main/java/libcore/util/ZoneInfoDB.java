@@ -226,8 +226,4 @@ public final class ZoneInfoDB {
   public static TzData getInstance() {
     return DATA;
   }
-
-  public static String getVersion() {
-    return DATA.getVersion();
-  }
 }
