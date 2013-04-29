@@ -349,16 +349,27 @@ public class SourceChannelTest extends TestCase {
 		ByteBuffer[] nullBufArrayRef = null;
 		try {
 			source.read(nullBufArrayRef, 0, 1);
-			fail("should throw NullPointerException");
-		} catch (NullPointerException e) {
-			// expected
+			fail();
+		} catch (NullPointerException expected) {
 		}
 
 		try {
 			source.read(nullBufArrayRef, 0, -1);
-			fail("should throw IndexOutOfBoundsException");
-		} catch (IndexOutOfBoundsException e) {
-			// expected
+			fail();
+		} catch (NullPointerException expected) {
+		} catch (IndexOutOfBoundsException expected) {
+		}
+
+		try {
+			source.read(new ByteBuffer[0], 0, -1);
+			fail();
+		} catch (IndexOutOfBoundsException expected) {
+		}
+
+		try {
+			source.read(new ByteBuffer[0], -1, 0);
+			fail();
+		} catch (IndexOutOfBoundsException expected) {
 		}
 
 		// ByteBuffer array contains null element
@@ -457,16 +468,27 @@ public class SourceChannelTest extends TestCase {
 		ByteBuffer[] nullBufArrayRef = null;
 		try {
 			source.read(nullBufArrayRef, 0, 1);
-			fail("should throw NullPointerException");
-		} catch (NullPointerException e) {
-			// expected
+			fail();
+		} catch (NullPointerException expected) {
 		}
 
 		try {
 			source.read(nullBufArrayRef, 0, -1);
-			fail("should throw IndexOutOfBoundsException");
-		} catch (IndexOutOfBoundsException e) {
-			// expected
+			fail();
+		} catch (NullPointerException expected) {
+		} catch (IndexOutOfBoundsException expected) {
+		}
+
+		try {
+			source.read(new ByteBuffer[0], 0, -1);
+			fail();
+		} catch (IndexOutOfBoundsException expected) {
+		}
+
+		try {
+			source.read(new ByteBuffer[0], -1, 1);
+			fail();
+		} catch (IndexOutOfBoundsException expected) {
 		}
 
 		// ByteBuffer array contains null element

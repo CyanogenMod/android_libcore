@@ -768,12 +768,6 @@
   substring: "junit.framework.AssertionFailedError: expected:<3> but was:<2>"
 },
 {
-  description: "this is testing exception priorities",
-  result: EXEC_FAILED,
-  name: "org.apache.harmony.nio.tests.java.nio.channels.DatagramChannelTest#testReadByteBuffer_readOnlyBuf",
-  substring: "java.lang.IllegalArgumentException: read-only buffer"
-},
-{
   description: "ICU doesn't provide localized pattern characters, and these tests assume the locale they're using has them.",
   result: EXEC_FAILED,
   name: "org.apache.harmony.text.tests.java.text.SimpleDateFormatTest#test_applyLocalizedPatternLjava_lang_String",

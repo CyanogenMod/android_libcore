@@ -62,7 +62,6 @@ public class AbstractInterruptibleChannelTest extends TestCase {
         } finally {
             testChannel.superEnd(complete);
         }
-        testChannel.superEnd(complete);
         
         testChannel.superBegin();
         try {
