@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UTFDataFormatException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -151,6 +153,30 @@ public final class Dex {
         } else {
             throw new DexException("unknown output extension: " + file);
         }
+    }
+
+    /**
+     * Creates a new dex from the contents of {@code bytes}. This API supports
+     * both {@code .dex} and {@code .odex} input.
+     */
+    public static Dex create(ByteBuffer bytes) throws IOException {
+        // if it's an .odex file, set position and limit to the .dex section
+        if (bytes.get(0) == 'd'
+                && bytes.get(1) == 'e'
+                && bytes.get(2) == 'y'
+                && bytes.get(3) == '\n') {
+            bytes.position(8);
+            bytes.order(ByteOrder.nativeOrder());
+            int offset = bytes.getInt();
+            int length = bytes.getInt();
+            bytes.position(offset);
+            bytes.limit(offset + length);
+        }
+
+        // TODO: don't copy the bytes; use the ByteBuffer directly
+        byte[] data = new byte[bytes.remaining()];
+        bytes.get(data);
+        return new Dex(data);
     }
 
     private void loadFrom(InputStream in) throws IOException {
