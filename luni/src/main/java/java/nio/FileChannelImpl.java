@@ -234,13 +234,17 @@ final class FileChannelImpl extends FileChannel {
             // and we only care about making our backing file longer here.
             try {
                 Libcore.os.ftruncate(fd, position + size);
-            } catch (ErrnoException errnoException) {
+            } catch (ErrnoException ftruncateException) {
                 // EINVAL can be thrown if we're dealing with non-regular
                 // files, for example, character devices such as /dev/zero.
                 // In those cases, we ignore the failed truncation and
                 // continue on.
-                if (errnoException.errno != EINVAL) {
-                    throw errnoException.rethrowAsIOException();
+                try {
+                    if (S_ISREG(Libcore.os.fstat(fd).st_mode) || ftruncateException.errno != EINVAL) {
+                        throw ftruncateException.rethrowAsIOException();
+                    }
+                } catch (ErrnoException fstatException) {
+                    throw fstatException.rethrowAsIOException();
                 }
             }
         }
