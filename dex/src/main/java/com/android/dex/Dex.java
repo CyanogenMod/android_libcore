@@ -123,7 +123,11 @@ public final class Dex {
      * {@code data} after using it to create a dex buffer.
      */
     public Dex(byte[] data) throws IOException {
-        this.data = ByteBuffer.wrap(data);
+        this(ByteBuffer.wrap(data));
+    }
+
+    private Dex(ByteBuffer data) throws IOException {
+        this.data = data;
         this.data.order(ByteOrder.LITTLE_ENDIAN);
         this.tableOfContents.readFrom(this);
     }
@@ -169,24 +173,22 @@ public final class Dex {
      * transfers ownership of {@code bytes} to the returned Dex: it is an error
      * to access the buffer after calling this method.
      */
-    public static Dex create(ByteBuffer bytes) throws IOException {
-        bytes.order(ByteOrder.LITTLE_ENDIAN);
+    public static Dex create(ByteBuffer data) throws IOException {
+        data.order(ByteOrder.LITTLE_ENDIAN);
 
         // if it's an .odex file, set position and limit to the .dex section
-        if (bytes.get(0) == 'd'
-                && bytes.get(1) == 'e'
-                && bytes.get(2) == 'y'
-                && bytes.get(3) == '\n') {
-            bytes.position(8);
-            int offset = bytes.getInt();
-            int length = bytes.getInt();
-            bytes.position(offset);
-            bytes.limit(offset + length);
+        if (data.get(0) == 'd'
+                && data.get(1) == 'e'
+                && data.get(2) == 'y'
+                && data.get(3) == '\n') {
+            data.position(8);
+            int offset = data.getInt();
+            int length = data.getInt();
+            data.position(offset);
+            data.limit(offset + length);
+            data = data.slice();
         }
 
-        // TODO: don't copy the bytes; use the ByteBuffer directly
-        byte[] data = new byte[bytes.remaining()];
-        bytes.get(data);
         return new Dex(data);
     }
 
