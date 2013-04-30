@@ -125,7 +125,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      * @exception UnsupportedOperationException
      *                if this buffer is not based on an array.
      */
-    public final byte[] array() {
+    @Override public final byte[] array() {
         return protectedArray();
     }
 
@@ -142,7 +142,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      * @exception UnsupportedOperationException
      *                if this buffer is not based on an array.
      */
-    public final int arrayOffset() {
+    @Override public final int arrayOffset() {
         return protectedArrayOffset();
     }
 
@@ -290,7 +290,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      * @exception ClassCastException
      *                if {@code other} is not a byte buffer.
      */
-    public int compareTo(ByteBuffer otherBuffer) {
+    @Override public int compareTo(ByteBuffer otherBuffer) {
         int compareRemaining = (remaining() < otherBuffer.remaining()) ? remaining()
                 : otherBuffer.remaining();
         int thisPos = position;
@@ -592,7 +592,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      */
     public abstract short getShort(int index);
 
-    public final boolean hasArray() {
+    @Override public final boolean hasArray() {
         return protectedHasArray();
     }
 
@@ -617,7 +617,7 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      *
      * @return {@code true} if this buffer is direct, {@code false} otherwise.
      */
-    public abstract boolean isDirect();
+    @Override public abstract boolean isDirect();
 
     /**
      * Returns the byte order used by this buffer when converting bytes from/to
