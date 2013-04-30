@@ -458,8 +458,16 @@ public final class Dex {
             return Leb128.readUnsignedLeb128(this);
         }
 
+        public int readUleb128p1() {
+            return Leb128.readUnsignedLeb128(this) - 1;
+        }
+
         public int readSleb128() {
             return Leb128.readSignedLeb128(this);
+        }
+
+        public void writeUleb128p1(int i) {
+            writeUleb128(i + 1);
         }
 
         public TypeList readTypeList() {
