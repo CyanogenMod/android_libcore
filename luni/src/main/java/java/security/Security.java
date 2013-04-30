@@ -17,7 +17,6 @@
 
 package java.security;
 
-
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.Enumeration;
@@ -72,11 +71,11 @@ public final class Security {
 
     // Register default providers
     private static void registerDefaultProviders() {
-        secprops.put("security.provider.1", "org.apache.harmony.xnet.provider.jsse.OpenSSLProvider");
+        secprops.put("security.provider.1", "org.conscrypt.OpenSSLProvider");
         secprops.put("security.provider.2", "org.apache.harmony.security.provider.cert.DRLCertFactory");
         secprops.put("security.provider.3", "org.bouncycastle.jce.provider.BouncyCastleProvider");
         secprops.put("security.provider.4", "org.apache.harmony.security.provider.crypto.CryptoProvider");
-        secprops.put("security.provider.5", "org.apache.harmony.xnet.provider.jsse.JSSEProvider");
+        secprops.put("security.provider.5", "org.conscrypt.JSSEProvider");
     }
 
     /**
