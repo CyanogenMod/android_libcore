@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.harmony.security.asn1.ObjectIdentifier;
-import org.apache.harmony.xnet.provider.jsse.NativeCrypto;
 
 /**
  * Provides Algorithm Name to OID and OID to Algorithm Name mappings. Some known
@@ -114,12 +113,7 @@ public class AlgNameMapper {
      */
     public static String map2OID(String algName) {
         // alg2OidMap map contains upper case keys
-        final String result = alg2OidMap.get(algName.toUpperCase(Locale.US));
-        if (result != null) {
-            return result;
-        }
-
-        return NativeCrypto.OBJ_txt2nid_oid(algName);
+        return alg2OidMap.get(algName.toUpperCase(Locale.US));
     }
 
     /**
@@ -130,14 +124,12 @@ public class AlgNameMapper {
      */
     public static String map2AlgName(String oid) {
         // oid2AlgMap map contains upper case values
-        String algUC = oid2AlgMap.get(oid);
+        final String algUC = oid2AlgMap.get(oid);
         // if not null there is always map UC->Orig
         if (algUC != null) {
             return algAliasesMap.get(algUC);
         }
-
-        // If we don't know about this OID, ask OpenSSL if it does.
-        return NativeCrypto.OBJ_txt2nid_longName(oid);
+        return null;
     }
 
     /**

@@ -82,7 +82,7 @@ core_src_files :=
 
 # Include the sub.mk files.
 $(foreach dir, \
-    dalvik/src/main/native luni/src/main/native, \
+    crypto/src/main/native dalvik/src/main/native luni/src/main/native, \
     $(eval $(call include-core-native-dir,$(dir))))
 
 # Extract out the allowed LOCAL_* variables. Note: $(sort) also
@@ -90,7 +90,7 @@ $(foreach dir, \
 core_c_includes := $(sort libcore/include $(LOCAL_C_INCLUDES) $(JNI_H_INCLUDE))
 core_shared_libraries := $(sort $(LOCAL_SHARED_LIBRARIES))
 core_static_libraries := $(sort $(LOCAL_STATIC_LIBRARIES))
-
+core_cflags := -DJNI_JARJAR_PREFIX="com/android/"
 
 #
 # Build for the target (device).
@@ -108,6 +108,7 @@ endif
 
 # Define the rules.
 LOCAL_SRC_FILES := $(core_src_files)
+LOCAL_CFLAGS := $(core_cflags)
 LOCAL_C_INCLUDES := $(core_c_includes)
 LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libexpat libicuuc libicui18n libssl libcrypto libz libnativehelper
 LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
