@@ -268,10 +268,6 @@ public final class Dex {
         return nextSectionStart;
     }
 
-    private static int fourByteAlign(int position) {
-        return (position + 3) & ~3;
-    }
-
     /**
      * Returns a copy of the the bytes of this dex.
      */
@@ -633,9 +629,16 @@ public final class Dex {
         }
 
         /**
-         * Writes 0x00 until the position is aligned to a multiple of 4.
+         * Skips bytes until the position is aligned to a multiple of 4.
          */
         public void alignToFourBytes() {
+            data.position((data.position() + 3) & ~3);
+        }
+
+        /**
+         * Writes 0x00 until the position is aligned to a multiple of 4.
+         */
+        public void alignToFourBytesWithZeroFill() {
             while ((data.position() & 3) != 0) {
                 data.put((byte) 0);
             }
@@ -710,7 +713,7 @@ public final class Dex {
             for (short type : types) {
                 writeShort(type);
             }
-            alignToFourBytes();
+            alignToFourBytesWithZeroFill();
         }
 
         /**
