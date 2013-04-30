@@ -245,22 +245,6 @@ public class SimpleDateFormat extends DateFormat {
     }
 
     /**
-     * Validates the format character.
-     *
-     * @param format
-     *            the format character
-     *
-     * @throws IllegalArgumentException
-     *             when the format character is invalid
-     */
-    private void validateFormat(char format) {
-        int index = PATTERN_CHARS.indexOf(format);
-        if (index == -1) {
-            throw new IllegalArgumentException("Unknown pattern character '" + format + "'");
-        }
-    }
-
-    /**
      * Validates the pattern.
      *
      * @param template
@@ -280,7 +264,7 @@ public class SimpleDateFormat extends DateFormat {
             next = (template.charAt(i));
             if (next == '\'') {
                 if (count > 0) {
-                    validateFormat((char) last);
+                    validatePatternCharacter((char) last);
                     count = 0;
                 }
                 if (last == next) {
@@ -297,25 +281,32 @@ public class SimpleDateFormat extends DateFormat {
                     count++;
                 } else {
                     if (count > 0) {
-                        validateFormat((char) last);
+                        validatePatternCharacter((char) last);
                     }
                     last = next;
                     count = 1;
                 }
             } else {
                 if (count > 0) {
-                    validateFormat((char) last);
+                    validatePatternCharacter((char) last);
                     count = 0;
                 }
                 last = -1;
             }
         }
         if (count > 0) {
-            validateFormat((char) last);
+            validatePatternCharacter((char) last);
         }
 
         if (quote) {
             throw new IllegalArgumentException("Unterminated quote");
+        }
+    }
+
+    private void validatePatternCharacter(char format) {
+        int index = PATTERN_CHARS.indexOf(format);
+        if (index == -1) {
+            throw new IllegalArgumentException("Unknown pattern character '" + format + "'");
         }
     }
 
