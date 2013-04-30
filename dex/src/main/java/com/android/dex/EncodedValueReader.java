@@ -280,8 +280,8 @@ public final class EncodedValueReader {
 
     private void checkType(int expected) {
         if (peek() != expected) {
-            throw new IllegalStateException("Expected array but was "
-                    + Integer.toHexString(peek()));
+            throw new IllegalStateException(
+                    String.format("Expected %x but was %x", expected, peek()));
         }
     }
 }
