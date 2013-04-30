@@ -29,12 +29,14 @@ import java.io.OutputStream;
 import java.io.UTFDataFormatException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.AbstractList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.zip.Adler32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -43,9 +45,14 @@ import java.util.zip.ZipFile;
  * are unsigned.
  */
 public final class Dex {
-    private byte[] data;
+    private static final int CHECKSUM_OFFSET = 8;
+    private static final int CHECKSUM_SIZE = 4;
+    private static final int SIGNATURE_OFFSET = CHECKSUM_OFFSET + CHECKSUM_SIZE;
+    private static final int SIGNATURE_SIZE = 20;
+
+    private ByteBuffer data;
     private final TableOfContents tableOfContents = new TableOfContents();
-    private int length = 0;
+    private int nextSectionStart = 0;
 
     private final List<String> strings = new AbstractList<String>() {
         @Override public String get(int index) {
@@ -112,20 +119,21 @@ public final class Dex {
     };
 
     /**
-     * Creates a new dex buffer defining no classes.
+     * Creates a new dex that reads from {@code data}. It is an error to modify
+     * {@code data} after using it to create a dex buffer.
      */
-    public Dex() {
-        this.data = new byte[0];
+    public Dex(byte[] data) throws IOException {
+        this.data = ByteBuffer.wrap(data);
+        this.data.order(ByteOrder.LITTLE_ENDIAN);
+        this.tableOfContents.readFrom(this);
     }
 
     /**
-     * Creates a new dex buffer that reads from {@code data}. It is an error to
-     * modify {@code data} after using it to create a dex buffer.
+     * Creates a new empty dex of the specified size.
      */
-    public Dex(byte[] data) throws IOException {
-        this.data = data;
-        this.length = data.length;
-        this.tableOfContents.readFrom(this);
+    public Dex(int byteCount) throws IOException {
+        this.data = ByteBuffer.wrap(new byte[byteCount]);
+        this.data.order(ByteOrder.LITTLE_ENDIAN);
     }
 
     /**
@@ -157,16 +165,19 @@ public final class Dex {
 
     /**
      * Creates a new dex from the contents of {@code bytes}. This API supports
-     * both {@code .dex} and {@code .odex} input.
+     * both {@code .dex} and {@code .odex} input. Calling this constructor
+     * transfers ownership of {@code bytes} to the returned Dex: it is an error
+     * to access the buffer after calling this method.
      */
     public static Dex create(ByteBuffer bytes) throws IOException {
+        bytes.order(ByteOrder.LITTLE_ENDIAN);
+
         // if it's an .odex file, set position and limit to the .dex section
         if (bytes.get(0) == 'd'
                 && bytes.get(1) == 'e'
                 && bytes.get(2) == 'y'
                 && bytes.get(3) == '\n') {
             bytes.position(8);
-            bytes.order(ByteOrder.nativeOrder());
             int offset = bytes.getInt();
             int length = bytes.getInt();
             bytes.position(offset);
@@ -189,8 +200,8 @@ public final class Dex {
         }
         in.close();
 
-        this.data = bytesOut.toByteArray();
-        this.length = data.length;
+        this.data = ByteBuffer.wrap(bytesOut.toByteArray());
+        this.data.order(ByteOrder.LITTLE_ENDIAN);
         this.tableOfContents.readFrom(this);
     }
 
@@ -201,7 +212,14 @@ public final class Dex {
     }
 
     public void writeTo(OutputStream out) throws IOException {
-        out.write(data);
+        byte[] buffer = new byte[8192];
+        ByteBuffer data = this.data.duplicate(); // positioned ByteBuffers aren't thread safe
+        data.clear();
+        while (data.hasRemaining()) {
+            int count = Math.min(buffer.length, data.remaining());
+            data.get(buffer, 0, count);
+            out.write(buffer, 0, count);
+        }
     }
 
     public void writeTo(File dexOut) throws IOException {
@@ -215,33 +233,52 @@ public final class Dex {
     }
 
     public Section open(int position) {
-        if (position < 0 || position > length) {
-            throw new IllegalArgumentException("position=" + position + " length=" + length);
+        if (position < 0 || position >= data.capacity()) {
+            throw new IllegalArgumentException("position=" + position
+                    + " length=" + data.capacity());
         }
-        return new Section(position);
+        ByteBuffer sectionData = data.duplicate();
+        sectionData.order(ByteOrder.LITTLE_ENDIAN); // necessary?
+        sectionData.position(position);
+        sectionData.limit(data.capacity());
+        return new Section("section", sectionData);
     }
 
     public Section appendSection(int maxByteCount, String name) {
-        int limit = fourByteAlign(length + maxByteCount);
-        Section result = new Section(name, length, limit);
-        length = limit;
+        if ((maxByteCount & 3) != 0) {
+            throw new IllegalStateException("Not four byte aligned!");
+        }
+        int limit = nextSectionStart + maxByteCount;
+        ByteBuffer sectionData = data.duplicate();
+        sectionData.order(ByteOrder.LITTLE_ENDIAN); // necessary?
+        sectionData.position(nextSectionStart);
+        sectionData.limit(limit);
+        Section result = new Section(name, sectionData);
+        nextSectionStart = limit;
         return result;
     }
 
-    public void noMoreSections() {
-        data = new byte[length];
+    public int getLength() {
+        return data.capacity();
     }
 
-    public int getLength() {
-        return length;
+    public int getNextSectionStart() {
+        return nextSectionStart;
     }
 
     private static int fourByteAlign(int position) {
         return (position + 3) & ~3;
     }
 
+    /**
+     * Returns a copy of the the bytes of this dex.
+     */
     public byte[] getBytes() {
-        return data;
+        ByteBuffer data = this.data.duplicate(); // positioned ByteBuffers aren't thread safe
+        byte[] result = new byte[data.capacity()];
+        data.position(0);
+        data.get(result);
+        return result;
     }
 
     public List<String> strings() {
@@ -319,39 +356,75 @@ public final class Dex {
         return open(offset).readCode();
     }
 
+    /**
+     * Returns the signature of all but the first 32 bytes of this dex. The
+     * first 32 bytes of dex files are not specified to be included in the
+     * signature.
+     */
+    public byte[] computeSignature() throws IOException {
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new AssertionError();
+        }
+        byte[] buffer = new byte[8192];
+        ByteBuffer data = this.data.duplicate(); // positioned ByteBuffers aren't thread safe
+        data.limit(data.capacity());
+        data.position(SIGNATURE_OFFSET + SIGNATURE_SIZE);
+        while (data.hasRemaining()) {
+            int count = Math.min(buffer.length, data.remaining());
+            data.get(buffer, 0, count);
+            digest.update(buffer, 0, count);
+        }
+        return digest.digest();
+    }
+
+    /**
+     * Returns the checksum of all but the first 12 bytes of {@code dex}.
+     */
+    public int computeChecksum() throws IOException {
+        Adler32 adler32 = new Adler32();
+        byte[] buffer = new byte[8192];
+        ByteBuffer data = this.data.duplicate(); // positioned ByteBuffers aren't thread safe
+        data.limit(data.capacity());
+        data.position(CHECKSUM_OFFSET + CHECKSUM_SIZE);
+        while (data.hasRemaining()) {
+            int count = Math.min(buffer.length, data.remaining());
+            data.get(buffer, 0, count);
+            adler32.update(buffer, 0, count);
+        }
+        return (int) adler32.getValue();
+    }
+
+    /**
+     * Generates the signature and checksum of the dex file {@code out} and
+     * writes them to the file.
+     */
+    public void writeHashes() throws IOException {
+        open(SIGNATURE_OFFSET).write(computeSignature());
+        open(CHECKSUM_OFFSET).writeInt(computeChecksum());
+    }
+
     public final class Section implements ByteInput, ByteOutput {
         private final String name;
-        private int position;
-        private final int limit;
+        private final ByteBuffer data;
 
-        private Section(String name, int position, int limit) {
+        private Section(String name, ByteBuffer data) {
             this.name = name;
-            this.position = position;
-            this.limit = limit;
-        }
-
-        private Section(int position) {
-            this("section", position, data.length);
+            this.data = data;
         }
 
         public int getPosition() {
-            return position;
+            return data.position();
         }
 
         public int readInt() {
-            int result = (data[position] & 0xff)
-                    | (data[position + 1] & 0xff) << 8
-                    | (data[position + 2] & 0xff) << 16
-                    | (data[position + 3] & 0xff) << 24;
-            position += 4;
-            return result;
+            return data.getInt();
         }
 
         public short readShort() {
-            int result = (data[position] & 0xff)
-                    | (data[position + 1] & 0xff) << 8;
-            position += 2;
-            return (short) result;
+            return data.getShort();
         }
 
         public int readUnsignedShort() {
@@ -359,12 +432,12 @@ public final class Dex {
         }
 
         public byte readByte() {
-            return (byte) (data[position++] & 0xff);
+            return data.get();
         }
 
         public byte[] readByteArray(int length) {
-            byte[] result = Arrays.copyOfRange(data, position, position + length);
-            position += length;
+            byte[] result = new byte[length];
+            data.get(result);
             return result;
         }
 
@@ -396,8 +469,10 @@ public final class Dex {
 
         public String readString() {
             int offset = readInt();
-            int savedPosition = position;
-            position = offset;
+            int savedPosition = data.position();
+            int savedLimit = data.limit();
+            data.position(offset);
+            data.limit(data.capacity());
             try {
                 int expectedLength = readUleb128();
                 String result = Mutf8.decode(this, new char[expectedLength]);
@@ -409,7 +484,8 @@ public final class Dex {
             } catch (UTFDataFormatException e) {
                 throw new DexException(e);
             } finally {
-                position = savedPosition;
+                data.position(savedPosition);
+                data.limit(savedLimit);
             }
         }
 
@@ -529,61 +605,56 @@ public final class Dex {
             return result;
         }
 
+        /**
+         * Returns a byte array containing the bytes from {@code start} to this
+         * section's current position.
+         */
+        private byte[] getBytesFrom(int start) {
+            int end = data.position();
+            byte[] result = new byte[end - start];
+            data.position(start);
+            data.get(result);
+            return result;
+        }
+
         public Annotation readAnnotation() {
             byte visibility = readByte();
-            int start = position;
+            int start = data.position();
             new EncodedValueReader(this, EncodedValueReader.ENCODED_ANNOTATION).skipValue();
-            int end = position;
-            return new Annotation(Dex.this, visibility,
-                    new EncodedValue(Arrays.copyOfRange(data, start, end)));
+            return new Annotation(Dex.this, visibility, new EncodedValue(getBytesFrom(start)));
         }
 
         public EncodedValue readEncodedArray() {
-            int start = position;
+            int start = data.position();
             new EncodedValueReader(this, EncodedValueReader.ENCODED_ARRAY).skipValue();
-            int end = position;
-            return new EncodedValue(Arrays.copyOfRange(data, start, end));
-        }
-
-        private void ensureCapacity(int size) {
-            if (position + size > limit) {
-                throw new DexException("Section limit " + limit + " exceeded by " + name);
-            }
+            return new EncodedValue(getBytesFrom(start));
         }
 
         /**
          * Writes 0x00 until the position is aligned to a multiple of 4.
          */
         public void alignToFourBytes() {
-            int unalignedCount = position;
-            position = Dex.fourByteAlign(position);
-            for (int i = unalignedCount; i < position; i++) {
-                data[i] = 0;
+            while ((data.position() & 3) != 0) {
+                data.put((byte) 0);
             }
         }
 
         public void assertFourByteAligned() {
-            if ((position & 3) != 0) {
+            if ((data.position() & 3) != 0) {
                 throw new IllegalStateException("Not four byte aligned!");
             }
         }
 
         public void write(byte[] bytes) {
-            ensureCapacity(bytes.length);
-            System.arraycopy(bytes, 0, data, position, bytes.length);
-            position += bytes.length;
+            this.data.put(bytes);
         }
 
         public void writeByte(int b) {
-            ensureCapacity(1);
-            data[position++] = (byte) b;
+            data.put((byte) b);
         }
 
         public void writeShort(short i) {
-            ensureCapacity(2);
-            data[position    ] = (byte) i;
-            data[position + 1] = (byte) (i >>> 8);
-            position += 2;
+            data.putShort(i);
         }
 
         public void writeUnsignedShort(int i) {
@@ -601,29 +672,22 @@ public final class Dex {
         }
 
         public void writeInt(int i) {
-            ensureCapacity(4);
-            data[position    ] = (byte) i;
-            data[position + 1] = (byte) (i >>>  8);
-            data[position + 2] = (byte) (i >>> 16);
-            data[position + 3] = (byte) (i >>> 24);
-            position += 4;
+            data.putInt(i);
         }
 
         public void writeUleb128(int i) {
             try {
                 Leb128.writeUnsignedLeb128(this, i);
-                ensureCapacity(0);
             } catch (ArrayIndexOutOfBoundsException e) {
-                throw new DexException("Section limit " + limit + " exceeded by " + name);
+                throw new DexException("Section limit " + data.limit() + " exceeded by " + name);
             }
         }
 
         public void writeSleb128(int i) {
             try {
                 Leb128.writeSignedLeb128(this, i);
-                ensureCapacity(0);
             } catch (ArrayIndexOutOfBoundsException e) {
-                throw new DexException("Section limit " + limit + " exceeded by " + name);
+                throw new DexException("Section limit " + data.limit() + " exceeded by " + name);
             }
         }
 
@@ -651,7 +715,7 @@ public final class Dex {
          * Returns the number of bytes remaining in this section.
          */
         public int remaining() {
-            return limit - position;
+            return data.remaining();
         }
     }
 }
