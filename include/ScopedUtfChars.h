@@ -25,50 +25,47 @@
 // passed a null jstring, and c_str will return NULL.
 // This makes the correct idiom very simple:
 //
-//   ScopedUtfChars name(env, javaName);
+//   ScopedUtfChars name(env, java_name);
 //   if (name.c_str() == NULL) {
-//       return NULL;
+//     return NULL;
 //   }
 class ScopedUtfChars {
-public:
-    ScopedUtfChars(JNIEnv* env, jstring s)
-    : mEnv(env), mString(s)
-    {
-        if (s == NULL) {
-            mUtfChars = NULL;
-            jniThrowNullPointerException(env, NULL);
-        } else {
-            mUtfChars = env->GetStringUTFChars(s, NULL);
-        }
+ public:
+  ScopedUtfChars(JNIEnv* env, jstring s) : env_(env), string_(s) {
+    if (s == NULL) {
+      utf_chars_ = NULL;
+      jniThrowNullPointerException(env, NULL);
+    } else {
+      utf_chars_ = env->GetStringUTFChars(s, NULL);
     }
+  }
 
-    ~ScopedUtfChars() {
-        if (mUtfChars) {
-            mEnv->ReleaseStringUTFChars(mString, mUtfChars);
-        }
+  ~ScopedUtfChars() {
+    if (utf_chars_) {
+      env_->ReleaseStringUTFChars(string_, utf_chars_);
     }
+  }
 
-    const char* c_str() const {
-        return mUtfChars;
-    }
+  const char* c_str() const {
+    return utf_chars_;
+  }
 
-    size_t size() const {
-        return strlen(mUtfChars);
-    }
+  size_t size() const {
+    return strlen(utf_chars_);
+  }
 
-    // Element access.
-    const char& operator[](size_t n) const {
-        return mUtfChars[n];
-    }
+  const char& operator[](size_t n) const {
+    return utf_chars_[n];
+  }
 
-private:
-    JNIEnv* mEnv;
-    jstring mString;
-    const char* mUtfChars;
+ private:
+  JNIEnv* env_;
+  jstring string_;
+  const char* utf_chars_;
 
-    // Disallow copy and assignment.
-    ScopedUtfChars(const ScopedUtfChars&);
-    void operator=(const ScopedUtfChars&);
+  // Disallow copy and assignment.
+  ScopedUtfChars(const ScopedUtfChars&);
+  void operator=(const ScopedUtfChars&);
 };
 
 #endif  // SCOPED_UTF_CHARS_H_included
