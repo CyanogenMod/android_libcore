@@ -21,7 +21,6 @@
 #include "JniConstants.h"
 #include "JniException.h"
 #include "ScopedJavaUnicodeString.h"
-#include "ScopedStringChars.h"
 #include "unicode/alphaindex.h"
 #include "unicode/uniset.h"
 
