@@ -145,6 +145,21 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
     include $(BUILD_HOST_SHARED_LIBRARY)
 
+    # Conscrypt native library for nojarjar'd version
+    include $(CLEAR_VARS)
+    LOCAL_SRC_FILES := \
+            crypto/src/main/native/org_conscrypt_NativeCrypto.cpp \
+            luni/src/main/native/AsynchronousSocketCloseMonitor.cpp
+    LOCAL_C_INCLUDES := $(core_c_includes)
+    LOCAL_CPPFLAGS += $(core_cppflags)
+    LOCAL_LDLIBS += -lpthread
+    LOCAL_MODULE_TAGS := optional
+    LOCAL_MODULE := libconscrypt_jni
+    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
+    LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libssl libcrypto
+    LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
+    include $(BUILD_HOST_SHARED_LIBRARY)
+
     ifeq ($(LIBCORE_SKIP_TESTS),)
     include $(CLEAR_VARS)
     # Define the rules.
