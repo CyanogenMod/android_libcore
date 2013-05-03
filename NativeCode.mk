@@ -156,7 +156,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := libconscrypt_jni
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
-    LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libssl libcrypto
+    LOCAL_SHARED_LIBRARIES := $(core_shared_libraries) libssl-host libcrypto-host
     LOCAL_STATIC_LIBRARIES := $(core_static_libraries)
     include $(BUILD_HOST_SHARED_LIBRARY)
 
