@@ -952,7 +952,7 @@
   name: "tests.api.javax.net.ssl.SSLEngineTest#testHandshake"
 },
 {
-  description: "org.apache.harmony.xnet.provider.jsse.SSLEngineImpl#getDelegatedTask() throws NPE instead of
+  description: "com.android.org.conscrypt.SSLEngineImpl#getDelegatedTask() throws NPE instead of
                 returning null",
   bug: 3403706,
   name: "tests.api.javax.net.ssl.SSLEngineTest#test_getDelegatedTask"

@@ -16,6 +16,7 @@
 
 package benchmarks.regression;
 
+import com.android.org.conscrypt.OpenSSLSignature;
 import com.google.caliper.Param;
 import com.google.caliper.SimpleBenchmark;
 import java.security.KeyPair;
@@ -25,7 +26,6 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.harmony.xnet.provider.jsse.OpenSSLSignature;
 
 /**
  * Tests RSA and DSA signature creation and verification.
