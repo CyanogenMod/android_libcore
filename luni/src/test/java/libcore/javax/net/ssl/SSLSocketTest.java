@@ -1215,7 +1215,7 @@ public class SSLSocketTest extends TestCase {
         client.startHandshake();
 
         // Reflection is used so this can compile on the RI
-        String expectedClassName = "org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl";
+        String expectedClassName = "com.android.org.conscrypt.OpenSSLSocketImpl";
         Class actualClass = client.getClass();
         assertEquals(expectedClassName, actualClass.getName());
         Method setSoWriteTimeout = actualClass.getMethod("setSoWriteTimeout",
