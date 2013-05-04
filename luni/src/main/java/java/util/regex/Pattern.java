@@ -385,6 +385,10 @@ public final class Pattern implements Serializable {
         if ((flags & CANON_EQ) != 0) {
             throw new UnsupportedOperationException("CANON_EQ flag not supported");
         }
+        int supportedFlags = CASE_INSENSITIVE | COMMENTS | DOTALL | LITERAL | MULTILINE | UNICODE_CASE | UNIX_LINES;
+        if ((flags & ~supportedFlags) != 0) {
+            throw new IllegalArgumentException("Unsupported flags: " + (flags & ~supportedFlags));
+        }
         this.pattern = pattern;
         this.flags = flags;
         compile();

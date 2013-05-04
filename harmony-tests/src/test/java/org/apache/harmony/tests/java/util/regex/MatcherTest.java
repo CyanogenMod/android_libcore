@@ -607,16 +607,16 @@ public class MatcherTest extends TestCase {
         assertTrue(matcher.matches());
     }
 
-    public void testAllCodePoints() {
+    public void testAllCodePoints_p() {
         // Regression for HARMONY-3145
         int[] codePoint = new int[1];
         Pattern p = Pattern.compile("(\\p{all})+");
         boolean res = true;
         int cnt = 0;
-        String s;
-        for (int i = 0; i < 0x110000; i++) {
+        int step = 16; // Ideally 1, but devices are still too slow.
+        for (int i = 0; i < 0x110000; i += step) {
             codePoint[0] = i;
-            s = new String(codePoint, 0, 1);
+            String s = new String(codePoint, 0, 1);
             if (!s.matches(p.toString())) {
                 cnt++;
                 res = false;
@@ -624,22 +624,25 @@ public class MatcherTest extends TestCase {
         }
         assertTrue(res);
         assertEquals(0, cnt);
+    }
 
-        p = Pattern.compile("(\\P{all})+");
-        res = true;
-        cnt = 0;
-
-        for (int i = 0; i < 0x110000; i++) {
+    public void testAllCodePoints_P() {
+        // Regression for HARMONY-3145
+        int[] codePoint = new int[1];
+        Pattern p = Pattern.compile("(\\P{all})+");
+        boolean res = true;
+        int cnt = 0;
+        int step = 16; // Ideally 1, but devices are still too slow.
+        for (int i = 0; i < 0x110000; i += step) {
             codePoint[0] = i;
-            s = new String(codePoint, 0, 1);
+            String s = new String(codePoint, 0, 1);
             if (!s.matches(p.toString())) {
                 cnt++;
                 res = false;
             }
         }
-
         assertFalse(res);
-        assertEquals(0x110000, cnt);
+        assertEquals(0x110000 / step, cnt);
     }
 
     /*
@@ -735,14 +738,13 @@ public class MatcherTest extends TestCase {
                 "----1 fish 2 fish red fish 5----", false);
     }
 
-    /*
-     * Test if Matcher's toString conatain pattern information
-     */
     public void testToString() {
-        String result = Pattern.compile("(\\d{1,3})").matcher(
-                "aaaa123456789045").toString();
-        assertTrue("The result doesn't contain pattern info", result
-                .contains("(\\d{1,3})"));
+        Matcher m = Pattern.compile("(\\d{1,3})").matcher("aaaa666456789045");
+        assertEquals("java.util.regex.Matcher[pattern=(\\d{1,3}) region=0,16 lastmatch=]", m.toString());
+        assertTrue(m.find());
+        assertEquals("java.util.regex.Matcher[pattern=(\\d{1,3}) region=0,16 lastmatch=666]", m.toString());
+        m.region(4, 8);
+        assertEquals("java.util.regex.Matcher[pattern=(\\d{1,3}) region=4,8 lastmatch=]", m.toString());
     }
 
     private void hitEndTest(boolean callFind, String testNo, String regex,
