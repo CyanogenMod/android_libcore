@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -50,11 +50,13 @@ public class PatternErrorTest extends TestCase {
         flags |= Pattern.COMMENTS;
         flags |= Pattern.DOTALL;
         flags |= Pattern.UNICODE_CASE;
+        flags &= ~Pattern.CANON_EQ; // Android always throws given this flag.
         Pattern.compile("foo", flags);
 
         // add invalid flags - should get IllegalArgumentException
         // regression test for HARMONY-4248
         flags |= 0xFFFFFFFF;
+        flags &= ~Pattern.CANON_EQ; // Android always throws given this flag.
         try {
             Pattern.compile("foo", flags);
             fail("Expected IllegalArgumentException to be thrown");
