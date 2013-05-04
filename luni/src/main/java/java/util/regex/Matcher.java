@@ -656,6 +656,16 @@ public final class Matcher implements MatchResult {
         }
     }
 
+    /**
+     * Returns a string representing this {@code Matcher}.
+     * The format of this string is unspecified.
+     */
+    @Override public String toString() {
+        return getClass().getName() + "[pattern=" + pattern() +
+            " region=" + regionStart() + "," + regionEnd() +
+            " lastmatch=" + (matchFound ? group() : "") + "]";
+    }
+
     private static native void closeImpl(long addr);
     private static native boolean findImpl(long addr, String s, int startIndex, int[] offsets);
     private static native boolean findNextImpl(long addr, String s, int[] offsets);

@@ -287,16 +287,18 @@ p = Pattern.compile("([0-9]+)[\\u0020:\\x21];");
         } catch (PatternSyntaxException e) {
         }
 
+        // icu4c allows 1 to 6 hex digits in \x escapes.
+        p = Pattern.compile("\\xa");
+        p = Pattern.compile("\\xab");
+        p = Pattern.compile("\\xabc");
+        p = Pattern.compile("\\xabcd");
+        p = Pattern.compile("\\xabcde");
+        p = Pattern.compile("\\xabcdef");
+        // (Further digits would just be treated as characters after the escape.)
         try {
-            p = Pattern.compile("\\xa");
-            fail("PatternSyntaxException expected");
-        } catch (PatternSyntaxException e) {
-        }
-
-        try {
-            p = Pattern.compile("\\xa;");
-            fail("PatternSyntaxException expected");
-        } catch (PatternSyntaxException e) {
+            p = Pattern.compile("\\xg");
+            fail();
+        } catch (PatternSyntaxException expected) {
         }
 
         // Test \0 (octal) sequences (1, 2 and 3 digit)
@@ -369,11 +371,18 @@ p = Pattern.compile("([0-9]+)[\\u0020:\\x21];");
         }
 
         // Test invalid control escapes
-        try {
+        // icu4c 50 accepts this pattern, and treats it as a literal.
+        //try {
             p = Pattern.compile("\\c");
-            fail("PatternSyntaxException expected");
-        } catch (PatternSyntaxException e) {
-        }
+            assertTrue(p.matcher("x\\cy").find());
+        //    fail(p.matcher("").toString());
+        //} catch (PatternSyntaxException e) {
+        //}
+
+        // But \cH works.
+        p = Pattern.compile("\\cH");
+        assertTrue(p.matcher("x\u0008y").find());
+        assertFalse(p.matcher("x\\cHy").find());
 
         // originally contributed test did not check the result
         // TODO: check what RI does here
@@ -467,15 +476,18 @@ p = Pattern.compile("([0-9]+)[\\u0020:\\x21];");
         assertTrue(m.matches());
 
         // Test ranges including the "-" character
-        p = Pattern.compile("[\\*-/]_+[---]!+[--AP]");
-        m = p.matcher("-_-!!A");
-        assertTrue(m.matches());
-        m = p.matcher("\u002b_-!!!-");
-        assertTrue(m.matches());
-        m = p.matcher("!_-!@");
-        assertFalse(m.matches());
-        m = p.matcher(",______-!!!!!!!P");
-        assertTrue(m.matches());
+        // "---" collides with icu4c's "--" operator, and likely to be user error anyway.
+        if (false) {
+            p = Pattern.compile("[\\*-/]_+[---]!+[--AP]");
+            m = p.matcher("-_-!!A");
+            assertTrue(m.matches());
+            m = p.matcher("\u002b_-!!!-");
+            assertTrue(m.matches());
+            m = p.matcher("!_-!@");
+            assertFalse(m.matches());
+            m = p.matcher(",______-!!!!!!!P");
+            assertTrue(m.matches());
+        }
 
         // Test nested ranges
         p = Pattern.compile("[pm[t]][a-z]+[[r]lp]");
@@ -503,13 +515,16 @@ p = Pattern.compile("([0-9]+)[\\u0020:\\x21];");
         assertTrue(m.matches());
 
         // Test error cases with &&
-        p = Pattern.compile("[&&[xyz]]");
-        m = p.matcher("&");
-        // System.out.println(m.matches());
-        m = p.matcher("x");
-        // System.out.println(m.matches());
-        m = p.matcher("y");
-        // System.out.println(m.matches());
+        // This is an RI bug that icu4c doesn't have.
+        if (false) {
+            p = Pattern.compile("[&&[xyz]]");
+            m = p.matcher("&");
+            // System.out.println(m.matches());
+            m = p.matcher("x");
+            // System.out.println(m.matches());
+            m = p.matcher("y");
+            // System.out.println(m.matches());
+        }
         p = Pattern.compile("[[xyz]&[axy]]");
         m = p.matcher("x");
         // System.out.println(m.matches());
@@ -521,7 +536,10 @@ p = Pattern.compile("([0-9]+)[\\u0020:\\x21];");
         m = p.matcher("a");
         // System.out.println(m.matches());
 
-        p = Pattern.compile("[[xyz]&&]");
+        // icu4c rightly considers a missing rhs to && a syntax error.
+        if (false) {
+            p = Pattern.compile("[[xyz]&&]");
+        }
 
         p = Pattern.compile("[[abc]&]");
 
@@ -795,54 +813,6 @@ p = Pattern.compile("([0-9]+)[\\u0020:\\x21];");
         // TODO
     }
 
-    public void testUnicodeCategories() throws PatternSyntaxException {
-        // Test Unicode categories using \p and \P
-        // One letter codes: L, M, N, P, S, Z, C
-        // Two letter codes: Lu, Nd, Sc, Sm, ...
-        // See java.lang.Character and Unicode standard for complete list
-        // TODO
-        // Test \p{L}
-        // TODO
-
-        // Test \p{N}
-        // TODO
-
-        // ... etc
-
-        // Test two letter codes:
-        // From unicode.org:
-        // Lu
-        // Ll
-        // Lt
-        // Lm
-        // Lo
-        // Mn
-        // Mc
-        // Me
-        // Nd
-        // Nl
-        // No
-        // Pc
-        // Pd
-        // Ps
-        // Pe
-        // Pi
-        // Pf
-        // Po
-        // Sm
-        // Sc
-        // Sk
-        // So
-        // Zs
-        // Zl
-        // Zp
-        // Cc
-        // Cf
-        // Cs
-        // Co
-        // Cn
-    }
-
     public void testUnicodeBlocks() throws PatternSyntaxException {
         Pattern p;
         Matcher m;
@@ -881,107 +851,32 @@ p = Pattern.compile("([0-9]+)[\\u0020:\\x21];");
 
             if (UBlocks[i].low > 0) {
                 m = p.matcher(Character.toString((char) (UBlocks[i].low - 1)));
-                assertFalse(m.matches());
+                assertFalse(UBlocks[i].name, m.matches());
             }
             for (j = UBlocks[i].low; j <= UBlocks[i].high; j++) {
                 m = p.matcher(Character.toString((char) j));
-                assertTrue(m.matches());
+                assertTrue(UBlocks[i].name, m.matches());
             }
             if (UBlocks[i].high < 0xFFFF) {
                 m = p.matcher(Character.toString((char) (UBlocks[i].high + 1)));
-                assertFalse(m.matches());
+                assertFalse(UBlocks[i].name, m.matches());
             }
 
             p = Pattern.compile("\\P{In" + UBlocks[i].name + "}");
 
             if (UBlocks[i].low > 0) {
                 m = p.matcher(Character.toString((char) (UBlocks[i].low - 1)));
-                assertTrue(m.matches());
+                assertTrue(UBlocks[i].name, m.matches());
             }
             for (j = UBlocks[i].low; j < UBlocks[i].high; j++) {
                 m = p.matcher(Character.toString((char) j));
-                assertFalse(m.matches());
+                assertFalse(UBlocks[i].name, m.matches());
             }
             if (UBlocks[i].high < 0xFFFF) {
                 m = p.matcher(Character.toString((char) (UBlocks[i].high + 1)));
-                assertTrue(m.matches());
+                assertTrue(UBlocks[i].name, m.matches());
             }
         }
-    }
-
-    public void testCapturingGroups() throws PatternSyntaxException {
-        // Test simple capturing groups
-        // TODO
-
-        // Test grouping without capture (?:...)
-        // TODO
-
-        // Test combination of grouping and capture
-        // TODO
-
-        // Test \<num> sequence with capturing and non-capturing groups
-        // TODO
-
-        // Test \<num> with <num> out of range
-        // TODO
-    }
-
-    public void testRepeats() {
-        // Test ?
-        // TODO
-
-        // Test *
-        // TODO
-
-        // Test +
-        // TODO
-
-        // Test {<num>}, including 0, 1 and more
-        // TODO
-
-        // Test {<num>,}, including 0, 1 and more
-        // TODO
-
-        // Test {<n1>,<n2>}, with n1 < n2, n1 = n2 and n1 > n2 (illegal?)
-        // TODO
-    }
-
-    public void testAnchors() throws PatternSyntaxException {
-        // Test ^, default and MULTILINE
-        // TODO
-
-        // Test $, default and MULTILINE
-        // TODO
-
-        // Test \b (word boundary)
-        // TODO
-
-        // Test \B (not a word boundary)
-        // TODO
-
-        // Test \A (beginning of string)
-        // TODO
-
-        // Test \Z (end of string)
-        // TODO
-
-        // Test \z (end of string)
-        // TODO
-
-        // Test \G
-        // TODO
-
-        // Test positive lookahead using (?=...)
-        // TODO
-
-        // Test negative lookahead using (?!...)
-        // TODO
-
-        // Test positive lookbehind using (?<=...)
-        // TODO
-
-        // Test negative lookbehind using (?<!...)
-        // TODO
     }
 
     public void testMisc() throws PatternSyntaxException {
@@ -1127,11 +1022,9 @@ p = Pattern.compile("([0-9]+)[\\u0020:\\x21];");
         assertFalse(m.find());
 
         m = p.matcher("");
-        // FIXME: This matches the reference behaviour but is
-        // inconsistent with matching "a" - ie. the end of the
-        // target string should match against $ always but this
-        // appears to work with the null string only when not in
-        // multiline mode (see below)
+        // This differs from the RI behaviour but seems more correct.
+        assertTrue(m.find());
+        assertTrue(m.group().equals(""));
         assertFalse(m.find());
 
         p = Pattern.compile("^.*$");
@@ -1371,7 +1264,7 @@ p = Pattern.compile("([0-9]+)[\\u0020:\\x21];");
             /* 3300; 33FF; CJK Compatibility */
             new UBInfo(0x3300, 0x33FF, "CJKCompatibility"), // Character.UnicodeBlock.CJK_COMPATIBILITY
             /* 3400; 4DB5; CJK Unified Ideographs Extension A */
-            new UBInfo(0x3400, 0x4DB5, "CJKUnifiedIdeographsExtensionA"), // Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
+            new UBInfo(0x3400, 0x4DBF, "CJKUnifiedIdeographsExtensionA"), // Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
             /* 4E00; 9FFF; CJK Unified Ideographs */
             new UBInfo(0x4E00, 0x9FFF, "CJKUnifiedIdeographs"), // Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
             /* A000; A48F; Yi Syllables */
@@ -1379,7 +1272,7 @@ p = Pattern.compile("([0-9]+)[\\u0020:\\x21];");
             /* A490; A4CF; Yi Radicals */
             new UBInfo(0xA490, 0xA4CF, "YiRadicals"), // Character.UnicodeBlock.YI_RADICALS
             /* AC00; D7A3; Hangul Syllables */
-            new UBInfo(0xAC00, 0xD7A3, "HangulSyllables"), // Character.UnicodeBlock.HANGUL_SYLLABLES
+            new UBInfo(0xAC00, 0xD7AF, "HangulSyllables"), // Character.UnicodeBlock.HANGUL_SYLLABLES
             /* D800; DB7F; High Surrogates */
             /* DB80; DBFF; High Private Use Surrogates */
             /* DC00; DFFF; Low Surrogates */
@@ -1397,13 +1290,10 @@ p = Pattern.compile("([0-9]+)[\\u0020:\\x21];");
             /* FE50; FE6F; Small Form Variants */
             new UBInfo(0xFE50, 0xFE6F, "SmallFormVariants"), // Character.UnicodeBlock.SMALL_FORM_VARIANTS
             /* FE70; FEFE; Arabic Presentation Forms-B */
-            // new UBInfo (0xFE70,0xFEFE,"InArabicPresentationForms-B"), //
-            // Character.UnicodeBlock.ARABIC_PRESENTATION_FORMS_B
-            /* FEFF; FEFF; Specials */
-            new UBInfo(0xFEFF, 0xFEFF, "Specials"), // Character.UnicodeBlock.SPECIALS
+            new UBInfo(0xFE70, 0xFEFF, "ArabicPresentationForms-B"), // Character.UnicodeBlock.ARABIC_PRESENTATION_FORMS_B
             /* FF00; FFEF; Halfwidth and Fullwidth Forms */
             new UBInfo(0xFF00, 0xFFEF, "HalfwidthandFullwidthForms"), // Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS
             /* FFF0; FFFD; Specials */
-            new UBInfo(0xFFF0, 0xFFFD, "Specials") // Character.UnicodeBlock.SPECIALS
+            new UBInfo(0xFFF0, 0xFFFF, "Specials") // Character.UnicodeBlock.SPECIALS
     };
 }

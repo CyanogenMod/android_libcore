@@ -1020,24 +1020,6 @@ public class PatternTest extends TestCase {
         assertTrue(mat.matches());
     }
 
-    public void testCompileNonCaptGroup() {
-        boolean isCompiled = false;
-
-        try {
-// BEGIN android-change
-// We don't have canonical equivalence.
-            Pattern pat = Pattern.compile("(?:)");
-            pat = Pattern.compile("(?:)", Pattern.DOTALL);
-            pat = Pattern.compile("(?:)", Pattern.CASE_INSENSITIVE);
-            pat = Pattern.compile("(?:)", Pattern.COMMENTS | Pattern.UNIX_LINES);
-// END android-change
-            isCompiled = true;
-        } catch (PatternSyntaxException e) {
-            System.out.println(e);
-        }
-        assertTrue(isCompiled);
-    }
-
     public void testEmbeddedFlags() {
         String baseString = "(?i)((?s)a)";
         String testString = "A";
