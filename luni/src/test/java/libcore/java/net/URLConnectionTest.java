@@ -80,12 +80,13 @@ import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_INPUT_AT_END;
 import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_OUTPUT_AT_END;
 
 public final class URLConnectionTest extends TestCase {
-    private MockWebServer server = new MockWebServer();
+    private MockWebServer server;
     private HttpResponseCache cache;
     private String hostName;
 
     @Override protected void setUp() throws Exception {
         super.setUp();
+        server = new MockWebServer();
         hostName = server.getHostName();
     }
 
@@ -1835,7 +1836,6 @@ public final class URLConnectionTest extends TestCase {
     }
 
     public void testGetKeepAlive() throws Exception {
-        MockWebServer server = new MockWebServer();
         server.enqueue(new MockResponse().setBody("ABC"));
         server.play();
 
