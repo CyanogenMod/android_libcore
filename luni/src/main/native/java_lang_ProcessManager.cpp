@@ -31,7 +31,6 @@
 #include "ExecStrings.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
-#include "JNIHelp.h"
 #include "Portability.h"
 #include "ScopedLocalRef.h"
 #include "toStringArray.h"
