@@ -75,12 +75,6 @@ class VMClassLoader {
 
     native static Class getPrimitiveClass(char type);
 
-    native static Class defineClass(ClassLoader cl, String name, byte[] data, int offset, int len)
-            throws ClassFormatError;
-
-    native static Class defineClass(ClassLoader cl, byte[] data, int offset, int len)
-            throws ClassFormatError;
-
     native static Class findLoadedClass(ClassLoader cl, String name);
 
     /**

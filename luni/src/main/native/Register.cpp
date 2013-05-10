@@ -31,8 +31,6 @@ int JNI_OnLoad(JavaVM* vm, void*) {
 
     ScopedLocalFrame localFrame(env);
 
-    JniConstants::init(env);
-
 #define REGISTER(FN) extern void FN(JNIEnv*); FN(env)
     REGISTER(register_java_io_Console);
     REGISTER(register_java_io_File);
