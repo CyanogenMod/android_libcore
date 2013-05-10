@@ -19,6 +19,7 @@ package java.util.zip;
 
 import dalvik.system.CloseGuard;
 import java.io.BufferedInputStream;
+import java.io.Closeable;
 import java.io.EOFException;
 import java.io.DataInputStream;
 import java.io.File;
@@ -45,7 +46,7 @@ import libcore.io.Streams;
  * <p>If you want to create a zip file, use {@link ZipOutputStream}. There is no API for updating
  * an existing zip file.
  */
-public class ZipFile implements ZipConstants {
+public class ZipFile implements Closeable, ZipConstants {
     /**
      * General Purpose Bit Flags, Bit 0.
      * If set, indicates that the file is encrypted.
