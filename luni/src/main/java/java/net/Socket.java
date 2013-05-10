@@ -17,6 +17,7 @@
 
 package java.net;
 
+import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +28,7 @@ import libcore.io.IoBridge;
 /**
  * Provides a client-side TCP socket.
  */
-public class Socket {
+public class Socket implements Closeable {
     private static SocketImplFactory factory;
 
     final SocketImpl impl;

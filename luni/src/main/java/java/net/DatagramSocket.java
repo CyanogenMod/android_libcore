@@ -17,6 +17,7 @@
 
 package java.net;
 
+import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.channels.DatagramChannel;
@@ -33,7 +34,7 @@ import static libcore.io.OsConstants.*;
  * @see DatagramPacket
  * @see DatagramSocketImplFactory
  */
-public class DatagramSocket {
+public class DatagramSocket implements Closeable {
 
     DatagramSocketImpl impl;
 
