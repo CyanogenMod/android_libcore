@@ -273,12 +273,6 @@ public final class DexFile {
         int flags) throws IOException;
 
     /*
-     * Open a DEX file based on a {@code byte[]}. The value returned
-     * is a magic VM cookie. On failure, a RuntimeException is thrown.
-     */
-    native private static int openDexFile(byte[] fileContents);
-
-    /*
      * Close DEX file.
      */
     native private static void closeDexFile(int cookie);

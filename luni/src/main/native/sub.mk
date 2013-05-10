@@ -5,8 +5,8 @@
 
 LOCAL_SRC_FILES := \
 	AsynchronousSocketCloseMonitor.cpp \
+	ExecStrings.cpp \
 	IcuUtilities.cpp \
-	JniConstants.cpp \
 	JniException.cpp \
 	NetworkUtilities.cpp \
 	Register.cpp \
@@ -51,7 +51,6 @@ LOCAL_SRC_FILES := \
 	readlink.cpp \
 	realpath.cpp \
 	sun_misc_Unsafe.cpp \
-	toStringArray.cpp \
 	valueOf.cpp
 
 LOCAL_C_INCLUDES += \

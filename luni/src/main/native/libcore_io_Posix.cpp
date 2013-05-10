@@ -17,6 +17,7 @@
 #define LOG_TAG "Posix"
 
 #include "AsynchronousSocketCloseMonitor.h"
+#include "ExecStrings.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
@@ -493,12 +494,10 @@ static void Posix_execve(JNIEnv* env, jobject, jstring javaFilename, jobjectArra
         return;
     }
 
-    char** argv = convertStrings(env, javaArgv);
-    char** envp = convertStrings(env, javaEnvp);
-    execve(path.c_str(), argv, envp);
+    ExecStrings argv(env, javaArgv);
+    ExecStrings envp(env, javaEnvp);
+    execve(path.c_str(), argv.get(), envp.get());
 
-    freeStrings(env, javaArgv, argv);
-    freeStrings(env, javaEnvp, envp);
     throwErrnoException(env, "execve");
 }
 
@@ -508,10 +507,9 @@ static void Posix_execv(JNIEnv* env, jobject, jstring javaFilename, jobjectArray
         return;
     }
 
-    char** argv = convertStrings(env, javaArgv);
-    execv(path.c_str(), argv);
+    ExecStrings argv(env, javaArgv);
+    execv(path.c_str(), argv.get());
 
-    freeStrings(env, javaArgv, argv);
     throwErrnoException(env, "execv");
 }
 
