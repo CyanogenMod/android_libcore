@@ -59,7 +59,7 @@ import libcore.io.IoUtils;
  * <p>
  * The {@code Scanner} class is not thread-safe.
  */
-public final class Scanner implements Iterator<String> {
+public final class Scanner implements Closeable, Iterator<String> {
 
     // Default delimiting pattern.
     private static final Pattern DEFAULT_DELIMITER = Pattern
