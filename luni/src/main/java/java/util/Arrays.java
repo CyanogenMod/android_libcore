@@ -150,6 +150,7 @@ public class Arrays {
      *            the array.
      * @return a {@code List} of the elements of the specified array.
      */
+    @SafeVarargs
     public static <T> List<T> asList(T... array) {
         return new ArrayList<T>(array);
     }
