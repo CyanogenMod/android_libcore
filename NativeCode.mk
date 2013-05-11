@@ -121,6 +121,7 @@ LOCAL_SHARED_LIBRARIES := libcrypto
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacoretests
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
+include external/stlport/libstlport.mk
 
 include $(BUILD_SHARED_LIBRARY)
 endif # LIBCORE_SKIP_TESTS
