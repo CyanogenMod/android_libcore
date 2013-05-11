@@ -2584,6 +2584,7 @@ public class Collections {
      *             if at least one of the elements can't be inserted into the
      *             collection.
      */
+    @SafeVarargs
     public static <T> boolean addAll(Collection<? super T> c, T... a) {
         boolean modified = false;
         for (int i = 0; i < a.length; i++) {
