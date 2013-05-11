@@ -259,6 +259,7 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
      * @throws NullPointerException
      *             if any of the specified elements is {@code null}.
      */
+    @SafeVarargs
     public static <E extends Enum<E>> EnumSet<E> of(E start, E... others) {
         EnumSet<E> set = of(start);
         for (E e : others) {
