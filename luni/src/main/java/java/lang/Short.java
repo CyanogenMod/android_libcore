@@ -114,7 +114,7 @@ public final class Short extends Number implements Comparable<Short> {
      * @since 1.7
      * @hide 1.7
      */
-    public static int compare(long lhs, long rhs) {
+    public static int compare(short lhs, short rhs) {
         return lhs > rhs ? 1 : (lhs < rhs ? -1 : 0);
     }
 
