@@ -48,53 +48,28 @@ public class DeflaterOutputStream extends FilterOutputStream {
     private final boolean syncFlush;
 
     /**
-     * This constructor lets you pass the {@code Deflater} specifying the
-     * compression algorithm.
-     *
-     * @param os
-     *            is the {@code OutputStream} where to write the compressed data
-     *            to.
-     * @param def
-     *            is the specific {@code Deflater} that is used to compress
-     *            data.
-     */
-    public DeflaterOutputStream(OutputStream os, Deflater def) {
-        this(os, def, BUF_SIZE, false);
-    }
-
-    /**
-     * This is the most basic constructor. You only need to pass the {@code
-     * OutputStream} to which the compressed data shall be written to. The
-     * default settings for the {@code Deflater} and internal buffer are used.
-     * In particular the {@code Deflater} produces a ZLIB header in the output
-     * stream.
-     *
-     * @param os
-     *            is the OutputStream where to write the compressed data to.
+     * Constructs a new instance with a default-constructed {@link Deflater}.
      */
     public DeflaterOutputStream(OutputStream os) {
         this(os, new Deflater(), BUF_SIZE, false);
     }
 
     /**
-     * This constructor lets you specify both the compression algorithm as well
-     * as the internal buffer size to be used.
-     *
-     * @param os
-     *            is the {@code OutputStream} where to write the compressed data
-     *            to.
-     * @param def
-     *            is the specific {@code Deflater} that will be used to compress
-     *            data.
-     * @param bufferSize
-     *            is the size to be used for the internal buffer.
+     * Constructs a new instance with the given {@code Deflater}.
+     */
+    public DeflaterOutputStream(OutputStream os, Deflater def) {
+        this(os, def, BUF_SIZE, false);
+    }
+
+    /**
+     * Constructs a new instance with the given {@code Deflater} and buffer size.
      */
     public DeflaterOutputStream(OutputStream os, Deflater def, int bufferSize) {
         this(os, def, bufferSize, false);
     }
 
     /**
-     * @hide
+     * Constructs a new instance with the given flushing behavior.
      * @since 1.7
      */
     public DeflaterOutputStream(OutputStream os, boolean syncFlush) {
@@ -102,7 +77,7 @@ public class DeflaterOutputStream extends FilterOutputStream {
     }
 
     /**
-     * @hide
+     * Constructs a new instance with the given {@code Deflater} and flushing behavior.
      * @since 1.7
      */
     public DeflaterOutputStream(OutputStream os, Deflater def, boolean syncFlush) {
@@ -110,7 +85,7 @@ public class DeflaterOutputStream extends FilterOutputStream {
     }
 
     /**
-     * @hide
+     * Constructs a new instance with the given {@code Deflater}, buffer size, and flushing behavior.
      * @since 1.7
      */
     public DeflaterOutputStream(OutputStream os, Deflater def, int bufferSize, boolean syncFlush) {

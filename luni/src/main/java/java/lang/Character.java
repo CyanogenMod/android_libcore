@@ -1614,7 +1614,6 @@ public final class Character implements Serializable, Comparable<Character> {
      * Compares two {@code char} values.
      * @return 0 if lhs = rhs, less than 0 if lhs &lt; rhs, and greater than 0 if lhs &gt; rhs.
      * @since 1.7
-     * @hide 1.7
      */
     public static int compare(char lhs, char rhs) {
         return lhs - rhs;
@@ -1706,9 +1705,8 @@ public final class Character implements Serializable, Comparable<Character> {
     }
 
     /**
-     * Tests whether the given character is a high or low surrogate.
+     * Returns true if the given character is a high or low surrogate.
      * @since 1.7
-     * @hide 1.7
      */
     public static boolean isSurrogate(char ch) {
         return ch >= MIN_SURROGATE && ch <= MAX_SURROGATE;
@@ -2433,7 +2431,8 @@ public final class Character implements Serializable, Comparable<Character> {
     }
 
     /**
-     * Returns the name of the given code point, or null if the code point is unassigned.
+     * Returns a human-readable name for the given code point,
+     * or null if the code point is unassigned.
      *
      * <p>As a fallback mechanism this method returns strings consisting of the Unicode
      * block name (with underscores replaced by spaces), a single space, and the uppercase
@@ -2447,9 +2446,10 @@ public final class Character implements Serializable, Comparable<Character> {
      * <li>{@code Character.getName(0xe000)} returns "PRIVATE USE AREA E000".
      * </ul>
      *
+     * <p>Note that the exact strings returned will vary from release to release.
+     *
      * @throws IllegalArgumentException if {@code codePoint} is not a valid code point.
      * @since 1.7
-     * @hide 1.7
      */
     public static String getName(int codePoint) {
         checkValidCodePoint(codePoint);
@@ -2620,7 +2620,6 @@ public final class Character implements Serializable, Comparable<Character> {
      * Returns the high surrogate for the given code point. The result is meaningless if
      * the given code point is not a supplementary character.
      * @since 1.7
-     * @hide 1.7
      */
     public static char highSurrogate(int codePoint) {
         return (char) ((codePoint >> 10) + 0xd7c0);
@@ -2630,20 +2629,18 @@ public final class Character implements Serializable, Comparable<Character> {
      * Returns the low surrogate for the given code point. The result is meaningless if
      * the given code point is not a supplementary character.
      * @since 1.7
-     * @hide 1.7
      */
     public static char lowSurrogate(int codePoint) {
         return (char) ((codePoint & 0x3ff) | 0xdc00);
     }
 
     /**
-     * Tests whether the given code point is in the Basic Multilingual Plane (BMP).
+     * Returns true if the given code point is in the Basic Multilingual Plane (BMP).
      * Such code points can be represented by a single {@code char}.
      * @since 1.7
-     * @hide 1.7
      */
     public static boolean isBmpCodePoint(int codePoint) {
-        return codePoint >= 0 && codePoint <= 0xffff;
+       return codePoint >= Character.MIN_VALUE && codePoint <= Character.MAX_VALUE;
     }
 
     /**

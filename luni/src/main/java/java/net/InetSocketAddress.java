@@ -145,8 +145,9 @@ public class InetSocketAddress extends SocketAddress {
     }
 
     /**
-     * Returns the hostname, doing a reverse lookup on the {@code InetAddress} if no
-     * hostname string was provided at construction time.
+     * Returns the hostname, doing a reverse DNS lookup on the {@code InetAddress} if no
+     * hostname string was provided at construction time. Use {@link #getHostString} to
+     * avoid the reverse DNS lookup.
      */
     public final String getHostName() {
         return (addr != null) ? addr.getHostName() : hostname;
@@ -156,7 +157,6 @@ public class InetSocketAddress extends SocketAddress {
      * Returns the hostname if known, or the result of {@code InetAddress.getHostAddress}.
      * Unlike {@link #getHostName}, this method will never cause a DNS lookup.
      * @since 1.7
-     * @hide 1.7 - remember to add a link in the getHostName documentation!
      */
     public final String getHostString() {
         return (hostname != null) ? hostname : addr.getHostAddress();

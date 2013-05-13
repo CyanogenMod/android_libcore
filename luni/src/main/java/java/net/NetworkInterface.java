@@ -67,8 +67,7 @@ public final class NetworkInterface extends Object {
 
     /**
      * Returns the index for the network interface, or -1 if unknown.
-     *
-     * @hide 1.7
+     * @since 1.7
      */
     public int getIndex() {
         return interfaceIndex;
@@ -250,7 +249,7 @@ public final class NetworkInterface extends Object {
      * interface has this index.
      *
      * @throws SocketException if an error occurs.
-     * @hide 1.7
+     * @since 1.7
      */
     public static NetworkInterface getByIndex(int index) throws SocketException {
         String name = Libcore.os.if_indextoname(index);
