@@ -51,6 +51,7 @@ endef
 
 # The Java files and their associated resources.
 core_src_files := $(call all-main-java-files-under,dalvik dex dom json luni support xml)
+core_src_files += $(call all-main-java-files-under,libdvm)
 core_resource_dirs := $(call all-core-resource-dirs,main)
 test_resource_dirs := $(call all-core-resource-dirs,test)
 
