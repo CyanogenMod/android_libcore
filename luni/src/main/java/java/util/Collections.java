@@ -2435,7 +2435,7 @@ public class Collections {
 
     /**
      * Returns an enumeration containing no elements.
-     * @hide 1.7
+     * @since 1.7
      */
     @SuppressWarnings("unchecked")
     public static <T> Enumeration<T> emptyEnumeration() {
@@ -2444,7 +2444,7 @@ public class Collections {
 
     /**
      * Returns an iterator containing no elements.
-     * @hide 1.7
+     * @since 1.7
      */
     @SuppressWarnings("unchecked")
     public static <T> Iterator<T> emptyIterator() {
@@ -2453,7 +2453,7 @@ public class Collections {
 
     /**
      * Returns a list iterator containing no elements.
-     * @hide 1.7
+     * @since 1.7
      */
     public static <T> ListIterator<T> emptyListIterator() {
         return Collections.<T>emptyList().listIterator();
