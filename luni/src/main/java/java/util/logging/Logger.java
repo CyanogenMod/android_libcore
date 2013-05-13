@@ -388,7 +388,6 @@ public class Logger {
     /**
      * Returns the global {@code Logger}.
      * @since 1.7
-     * @hide 1.7
      */
     public static Logger getGlobal() {
         return global;

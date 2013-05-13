@@ -492,7 +492,6 @@ public final class System {
      * starts. Later changes to the property will not affect the value returned by this
      * method.
      * @since 1.7
-     * @hide 1.7 - fix documentation references to "line.separator" in Formatter.
      */
     public static String lineSeparator() {
         return lineSeparator;
