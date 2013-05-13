@@ -291,7 +291,7 @@ format("%6.0E", 123.456f);</td>
  * </tr>
  * <tr>
  * <td width="5%">{@code n}</td>
- * <td width="25%">Newline. (The value of the "line.separator" system property}.)</td>
+ * <td width="25%">Newline. (The value of {@link System#lineSeparator}.)</td>
  * <td width="30%">{@code format("first%nsecond");}</td>
  * <td width="30%">{@code first\nsecond}</td>
  * </tr>

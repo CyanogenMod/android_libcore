@@ -133,8 +133,8 @@ public class Throwable implements java.io.Serializable {
      * @since 1.7
      * @hide 1.7
      */
-    protected Throwable(String detailMessage, Throwable throwable, boolean enableSuppression) {
-        this(detailMessage, throwable);
+    protected Throwable(String detailMessage, Throwable cause, boolean enableSuppression) {
+        this(detailMessage, cause);
         if (!enableSuppression) {
             this.suppressedExceptions = null;
         }

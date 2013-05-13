@@ -106,8 +106,6 @@ public class Deflater {
 
     /**
      * Use buffering for best compression.
-     *
-     * @hide
      * @since 1.7
      */
     public static final int NO_FLUSH = 0;
@@ -115,8 +113,6 @@ public class Deflater {
     /**
      * Flush buffers so recipients can immediately decode the data sent thus
      * far. This mode may degrade compression.
-     *
-     * @hide
      * @since 1.7
      */
     public static final int SYNC_FLUSH = 2;
@@ -126,8 +122,6 @@ public class Deflater {
      * far. The compression state is also reset to permit random access and
      * recovery for clients who have discarded or damaged their own copy. This
      * mode may degrade compression.
-     *
-     * @hide
      * @since 1.7
      */
     public static final int FULL_FLUSH = 3;
@@ -228,7 +222,7 @@ public class Deflater {
      *      may have exceeded the output buffer's capacity. In this case,
      *      finishing a flush will require the output buffer to be drained
      *      and additional calls to {@link #deflate} to be made.
-     * @hide
+     * @throws IllegalArgumentException if {@code flush} is invalid.
      * @since 1.7
      */
     public synchronized int deflate(byte[] buf, int offset, int byteCount, int flush) {
