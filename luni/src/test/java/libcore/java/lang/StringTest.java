@@ -341,4 +341,11 @@ public class StringTest extends TestCase {
         // Our fast-path code in String should behave the same...
         assertEquals(expected, new String(bytes, "UTF-8"));
     }
+
+    // https://code.google.com/p/android/issues/detail?id=55129
+    public void test_55129() throws Exception {
+        assertEquals("-h-e-l-l-o- -w-o-r-l-d-", "hello world".replace("", "-"));
+        assertEquals("-w-o-r-l-d-", "hello world".substring(6).replace("", "-"));
+        assertEquals("-*-w-*-o-*-r-*-l-*-d-*-", "hello world".substring(6).replace("", "-*-"));
+    }
 }

@@ -1360,10 +1360,14 @@ outer:
         // The empty target matches at the start and end and between each character.
         int targetLength = targetString.length();
         if (targetLength == 0) {
-            int resultLength = (count + 2) * replacementString.length();
+            // The result contains the original 'count' characters, a copy of the
+            // replacement string before every one of those characters, and a final
+            // copy of the replacement string at the end.
+            int resultLength = count + (count + 1) * replacementString.length();
             StringBuilder result = new StringBuilder(resultLength);
             result.append(replacementString);
-            for (int i = offset; i < count; ++i) {
+            int end = offset + count;
+            for (int i = offset; i != end; ++i) {
                 result.append(value[i]);
                 result.append(replacementString);
             }
