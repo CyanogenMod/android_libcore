@@ -148,7 +148,7 @@ public class Modifier {
     }
 
     /**
-     * Returns true if the given modifiers contain {@@link #ABSTRACT}.
+     * Returns true if the given modifiers contain {@link #ABSTRACT}.
      */
     public static boolean isAbstract(int modifiers) {
         return ((modifiers & ABSTRACT) != 0);
