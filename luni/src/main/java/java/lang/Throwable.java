@@ -35,8 +35,8 @@ import libcore.util.EmptyArray;
  * circumstances in which the {@code Throwable} was created (basically an error
  * message in most cases), and for saving a stack trace (that is, a record of
  * the call stack at a particular point in time) which can be printed later.
- * <p>
- * A {@code Throwable} can also include a cause, which is a nested {@code
+ *
+ * <p>A {@code Throwable} can also include a cause, which is a nested {@code
  * Throwable} that represents the original problem that led to this {@code
  * Throwable}. It is often used for wrapping various types of errors into a
  * common {@code Throwable} without losing the detailed original error
@@ -127,7 +127,6 @@ public class Throwable implements java.io.Serializable {
      * calls to {@link #fillInStackTrace} and {@link #setStackTrace} will be no-ops,
      * and {@link #getStackTrace} will return a zero-length array.
      * @since 1.7
-     * @hide 1.7
      */
     protected Throwable(String detailMessage, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         this.detailMessage = detailMessage;
@@ -190,14 +189,11 @@ public class Throwable implements java.io.Serializable {
     }
 
     /**
-     * Returns the array of stack trace elements of this {@code Throwable}. Each
+     * Returns a clone of the array of stack trace elements of this {@code Throwable}. Each
      * {@code StackTraceElement} represents an entry in the call stack. The
      * element at position 0 is the top of the stack, that is, the stack frame
      * where this {@code Throwable} is thrown.
      *
-     * @return a copy of the array of {@code StackTraceElement}s representing
-     *         the call stack. Changes in the array obtained from this call will
-     *         not change the call stack stored in this {@code Throwable}.
      * @see #printStackTrace()
      */
     public StackTraceElement[] getStackTrace() {
@@ -235,7 +231,6 @@ public class Throwable implements java.io.Serializable {
     /**
      * Writes a printable representation of this {@code Throwable}'s stack trace
      * to the {@code System.err} stream.
-     *
      */
     public void printStackTrace() {
         printStackTrace(System.err);
@@ -244,11 +239,6 @@ public class Throwable implements java.io.Serializable {
     /**
      * Counts the number of duplicate stack frames, starting from the
      * end of the stack.
-     *
-     * @param currentStack a stack to compare
-     * @param parentStack a stack to compare
-     *
-     * @return the number of duplicate stack frames.
      */
     private static int countDuplicates(StackTraceElement[] currentStack,
             StackTraceElement[] parentStack) {
@@ -272,7 +262,7 @@ public class Throwable implements java.io.Serializable {
     private StackTraceElement[] getInternalStackTrace() {
         if (stackTrace == EmptyArray.STACK_TRACE_ELEMENT) {
             stackTrace = nativeGetStackTrace(stackState);
-            stackState = null; // Clean up intermediate representation
+            stackState = null; // Let go of intermediate representation.
             return stackTrace;
         } else if (stackTrace == null) {
             return EmptyArray.STACK_TRACE_ELEMENT;
@@ -283,12 +273,9 @@ public class Throwable implements java.io.Serializable {
 
     /**
      * Writes a printable representation of this {@code Throwable}'s stack trace
-     * to the specified print stream. If the {@code Throwable} contains a
+     * to the given print stream. If the {@code Throwable} contains a
      * {@link #getCause() cause}, the method will be invoked recursively for
      * the nested {@code Throwable}.
-     *
-     * @param err
-     *            the stream to write the stack trace on.
      */
     public void printStackTrace(PrintStream err) {
         try {
@@ -399,8 +386,6 @@ public class Throwable implements java.io.Serializable {
     /**
      * Returns the cause of this {@code Throwable}, or {@code null} if there is
      * no cause.
-     *
-     * @return Throwable this {@code Throwable}'s cause.
      */
     public Throwable getCause() {
         if (cause == this) {
@@ -416,7 +401,6 @@ public class Throwable implements java.io.Serializable {
      * @throws IllegalArgumentException if {@code throwable == this}.
      * @throws NullPointerException if {@code throwable == null}.
      * @since 1.7
-     * @hide 1.7
      */
     public final void addSuppressed(Throwable throwable) {
         if (throwable == this) {
@@ -426,9 +410,9 @@ public class Throwable implements java.io.Serializable {
             throw new NullPointerException("throwable == null");
         }
         if (suppressedExceptions != null) {
-            // suppressed exceptions are enabled
+            // Suppressed exceptions are enabled.
             if (suppressedExceptions.isEmpty()) {
-                // ensure we have somewhere to place suppressed exceptions
+                // Ensure we have somewhere to place suppressed exceptions.
                 suppressedExceptions = new ArrayList<Throwable>(1);
             }
             suppressedExceptions.add(throwable);
@@ -439,7 +423,6 @@ public class Throwable implements java.io.Serializable {
      * Returns the throwables suppressed by this.
      *
      * @since 1.7
-     * @hide 1.7
      */
     public final Throwable[] getSuppressed() {
         return (suppressedExceptions != null && !suppressedExceptions.isEmpty())
@@ -448,7 +431,7 @@ public class Throwable implements java.io.Serializable {
     }
 
     private void writeObject(ObjectOutputStream out) throws IOException {
-        // ensure the stackTrace field is initialized
+        // Ensure the stackTrace field is initialized.
         getInternalStackTrace();
         out.defaultWriteObject();
     }
@@ -457,7 +440,7 @@ public class Throwable implements java.io.Serializable {
         in.defaultReadObject();
 
         if (suppressedExceptions != null) {
-            // the deserialized list may be unmodifiable, so just create a mutable copy
+            // The deserialized list may be unmodifiable, so just create a mutable copy.
             suppressedExceptions = new ArrayList<Throwable>(suppressedExceptions);
         }
     }
