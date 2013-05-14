@@ -81,62 +81,65 @@ public class Throwable implements java.io.Serializable {
      * Constructs a new {@code Throwable} that includes the current stack trace.
      */
     public Throwable() {
+        this.stackTrace = EmptyArray.STACK_TRACE_ELEMENT;
         fillInStackTrace();
     }
 
     /**
      * Constructs a new {@code Throwable} with the current stack trace and the
-     * specified detail message.
-     *
-     * @param detailMessage
-     *            the detail message for this {@code Throwable}.
+     * given detail message.
      */
     public Throwable(String detailMessage) {
-        this();
         this.detailMessage = detailMessage;
+        this.stackTrace = EmptyArray.STACK_TRACE_ELEMENT;
+        fillInStackTrace();
     }
 
     /**
      * Constructs a new {@code Throwable} with the current stack trace, the
-     * specified detail message and the specified cause.
-     *
-     * @param detailMessage
-     *            the detail message for this {@code Throwable}.
-     * @param throwable
-     *            the cause of this {@code Throwable}.
+     * given detail message and cause.
      */
-    public Throwable(String detailMessage, Throwable throwable) {
-        this();
+    public Throwable(String detailMessage, Throwable cause) {
         this.detailMessage = detailMessage;
-        cause = throwable;
+        this.cause = cause;
+        this.stackTrace = EmptyArray.STACK_TRACE_ELEMENT;
+        fillInStackTrace();
     }
 
     /**
      * Constructs a new {@code Throwable} with the current stack trace and the
-     * specified cause.
-     *
-     * @param throwable
-     *            the cause of this {@code Throwable}.
+     * given cause.
      */
-    public Throwable(Throwable throwable) {
-        this();
-        this.detailMessage = throwable == null ? null : throwable.toString();
-        cause = throwable;
+    public Throwable(Throwable cause) {
+        this.detailMessage = cause == null ? null : cause.toString();
+        this.cause = cause;
+        this.stackTrace = EmptyArray.STACK_TRACE_ELEMENT;
+        fillInStackTrace();
     }
 
     /**
      * Constructs a new {@code Throwable} with the current stack trace, the
      * specified detail message and the specified cause.
      *
-     * @param enableSuppression if false, throwables passed to {@link
-     *     #addSuppressed(Throwable)} will be silently discarded.
+     * @param enableSuppression if false, {@link #addSuppressed(Throwable)} will be a no-op.
+     * @param writableStackTrace if false, {@link #fillInStackTrace} will not be called,
+     * this object's {@code stackTrace} will be null,
+     * calls to {@link #fillInStackTrace} and {@link #setStackTrace} will be no-ops,
+     * and {@link #getStackTrace} will return a zero-length array.
      * @since 1.7
      * @hide 1.7
      */
-    protected Throwable(String detailMessage, Throwable cause, boolean enableSuppression) {
-        this(detailMessage, cause);
+    protected Throwable(String detailMessage, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        this.detailMessage = detailMessage;
+        this.cause = cause;
         if (!enableSuppression) {
             this.suppressedExceptions = null;
+        }
+        if (writableStackTrace) {
+            this.stackTrace = EmptyArray.STACK_TRACE_ELEMENT;
+            fillInStackTrace();
+        } else {
+            this.stackTrace = null;
         }
     }
 
@@ -157,31 +160,30 @@ public class Throwable implements java.io.Serializable {
      * @return this {@code Throwable} instance.
      */
     public Throwable fillInStackTrace() {
-        // Fill in the intermediate representation
+        if (stackTrace == null) {
+            return this; // writableStackTrace was false.
+        }
+        // Fill in the intermediate representation.
         stackState = nativeFillInStackTrace();
-        // Mark the full representation as empty
-        stackTrace = null;
+        // Mark the full representation as in need of update.
+        stackTrace = EmptyArray.STACK_TRACE_ELEMENT;
         return this;
     }
 
     /**
-     * Returns the extra information message which was provided when this
+     * Returns the detail message which was provided when this
      * {@code Throwable} was created. Returns {@code null} if no message was
      * provided at creation time.
-     *
-     * @return this {@code Throwable}'s detail message.
      */
     public String getMessage() {
         return detailMessage;
     }
 
     /**
-     * Returns the extra information message which was provided when this
+     * Returns the detail message which was provided when this
      * {@code Throwable} was created. Returns {@code null} if no message was
      * provided at creation time. Subclasses may override this method to return
      * localized text for the message. Android returns the regular detail message.
-     *
-     * @return this {@code Throwable}'s localized detail message.
      */
     public String getLocalizedMessage() {
         return getMessage();
@@ -218,6 +220,9 @@ public class Throwable implements java.io.Serializable {
      * @see #printStackTrace()
      */
     public void setStackTrace(StackTraceElement[] trace) {
+        if (stackTrace == null) {
+            return; // writableStackTrace was false.
+        }
         StackTraceElement[] newTrace = trace.clone();
         for (int i = 0; i < newTrace.length; i++) {
             if (newTrace[i] == null) {
@@ -263,15 +268,17 @@ public class Throwable implements java.io.Serializable {
     /**
      * Returns an array of StackTraceElement. Each StackTraceElement
      * represents a entry on the stack.
-     *
-     * @return an array of StackTraceElement representing the stack
      */
     private StackTraceElement[] getInternalStackTrace() {
-        if (stackTrace == null) {
+        if (stackTrace == EmptyArray.STACK_TRACE_ELEMENT) {
             stackTrace = nativeGetStackTrace(stackState);
             stackState = null; // Clean up intermediate representation
+            return stackTrace;
+        } else if (stackTrace == null) {
+            return EmptyArray.STACK_TRACE_ELEMENT;
+        } else {
+          return stackTrace;
         }
-        return stackTrace;
     }
 
     /**
