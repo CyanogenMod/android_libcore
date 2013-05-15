@@ -148,8 +148,7 @@ import static libcore.io.OsConstants.*;
          *
          * This order was reversed prior to Gingerbread; see http://b/2933456.
          */
-        ArrayList<File> result = splitPaths(
-                path, System.getProperty("java.library.path", "."), true);
+        ArrayList<File> result = splitPaths(path, System.getProperty("java.library.path"), true);
         return result.toArray(new File[result.size()]);
     }
 
