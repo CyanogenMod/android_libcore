@@ -20,6 +20,7 @@ import com.android.org.bouncycastle.asn1.x509.KeyUsage;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -2032,6 +2033,12 @@ public final class CipherTest extends TestCase {
 
         c.init(Cipher.DECRYPT_MODE, key, spec);
 
+        try {
+            c.updateAAD(new byte[8]);
+            fail("Cipher should not support AAD");
+        } catch (UnsupportedOperationException expected) {
+        }
+
         byte[] emptyPlainText = c.doFinal(emptyCipherText);
         assertEquals(Arrays.toString(EmptyArray.BYTE), Arrays.toString(emptyPlainText));
 
@@ -2122,6 +2129,82 @@ public final class CipherTest extends TestCase {
                             + decryptedKey.getAlgorithm() + " encryptKey.getEncoded()="
                             + Arrays.toString(sk.getEncoded()) + " decryptedKey.getEncoded()="
                             + Arrays.toString(decryptedKey.getEncoded()), sk, decryptedKey);
+        }
+    }
+
+    public void testCipher_updateAAD_BeforeInit_Failure() throws Exception {
+        Cipher c = Cipher.getInstance("AES/ECB/NoPadding");
+
+        try {
+            c.updateAAD((byte[]) null);
+            fail("should not be able to call updateAAD before Cipher is initialized");
+        } catch (IllegalArgumentException expected) {
+        }
+
+        try {
+            c.updateAAD((ByteBuffer) null);
+            fail("should not be able to call updateAAD before Cipher is initialized");
+        } catch (IllegalStateException expected) {
+        }
+
+        try {
+            c.updateAAD(new byte[8]);
+            fail("should not be able to call updateAAD before Cipher is initialized");
+        } catch (IllegalStateException expected) {
+        }
+
+        try {
+            c.updateAAD(null, 0, 8);
+            fail("should not be able to call updateAAD before Cipher is initialized");
+        } catch (IllegalStateException expected) {
+        }
+
+        ByteBuffer bb = ByteBuffer.allocate(8);
+        try {
+            c.updateAAD(bb);
+            fail("should not be able to call updateAAD before Cipher is initialized");
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    public void testCipher_updateAAD_AfterInit_Failure() throws Exception {
+        Cipher c = Cipher.getInstance("AES/ECB/NoPadding");
+        c.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(new byte[128 / 8], "AES"));
+
+        try {
+            c.updateAAD((byte[]) null);
+            fail("should not be able to call updateAAD with null input");
+        } catch (IllegalArgumentException expected) {
+        }
+
+        try {
+            c.updateAAD((ByteBuffer) null);
+            fail("should not be able to call updateAAD with null input");
+        } catch (IllegalArgumentException expected) {
+        }
+
+        try {
+            c.updateAAD(null, 0, 8);
+            fail("should not be able to call updateAAD with null input");
+        } catch (IllegalArgumentException expected) {
+        }
+
+        try {
+            c.updateAAD(new byte[8], -1, 7);
+            fail("should not be able to call updateAAD with invalid offset");
+        } catch (IllegalArgumentException expected) {
+        }
+
+        try {
+            c.updateAAD(new byte[8], 0, -1);
+            fail("should not be able to call updateAAD with negative length");
+        } catch (IllegalArgumentException expected) {
+        }
+
+        try {
+            c.updateAAD(new byte[8], 0, 8 + 1);
+            fail("should not be able to call updateAAD with too large length");
+        } catch (IllegalArgumentException expected) {
         }
     }
 
