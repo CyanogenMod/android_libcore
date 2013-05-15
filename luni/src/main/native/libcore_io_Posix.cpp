@@ -358,11 +358,6 @@ class Passwd {
 public:
     Passwd(JNIEnv* env) : mEnv(env), mResult(NULL) {
         mBufferSize = sysconf(_SC_GETPW_R_SIZE_MAX);
-        if (mBufferSize == -1UL) {
-            // We're probably on bionic, where 1KiB should be enough for anyone.
-            // TODO: fix bionic to return 1024 like glibc.
-            mBufferSize = 1024;
-        }
         mBuffer.reset(new char[mBufferSize]);
     }
 
