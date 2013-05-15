@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
+import libcore.util.EmptyArray;
 import static libcore.io.OsConstants._SC_NPROCESSORS_CONF;
 
 /**
@@ -66,7 +67,22 @@ public class Runtime {
     /**
      * Holds the library paths, used for native library lookup.
      */
-    private final String[] mLibPaths;
+    private final String[] mLibPaths = initLibPaths();
+
+    private static String[] initLibPaths() {
+        String javaLibraryPath = System.getProperty("java.library.path");
+        if (javaLibraryPath == null) {
+            return EmptyArray.STRING;
+        }
+        String[] paths = javaLibraryPath.split(":");
+        // Add a '/' to the end of each directory so we don't have to do it every time.
+        for (int i = 0; i < paths.length; ++i) {
+            if (!paths[i].endsWith("/")) {
+                paths[i] += "/";
+            }
+        }
+        return paths;
+    }
 
     /**
      * Holds the list of threads to run when the VM terminates
@@ -93,19 +109,6 @@ public class Runtime {
      * Prevent this class from being instantiated.
      */
     private Runtime() {
-        String pathList = System.getProperty("java.library.path", ".");
-        String pathSep = System.getProperty("path.separator", ":");
-        String fileSep = System.getProperty("file.separator", "/");
-
-        mLibPaths = pathList.split(pathSep);
-
-        // Add a '/' to the end so we don't have to do the property lookup
-        // and concatenation later.
-        for (int i = 0; i < mLibPaths.length; i++) {
-            if (!mLibPaths[i].endsWith(fileSep)) {
-                mLibPaths[i] += fileSep;
-            }
-        }
     }
 
     /**

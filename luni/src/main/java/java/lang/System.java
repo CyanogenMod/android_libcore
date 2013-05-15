@@ -51,7 +51,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import libcore.icu.ICU;
+import libcore.io.ErrnoException;
 import libcore.io.Libcore;
+import libcore.io.StructPasswd;
 import libcore.io.StructUtsname;
 import libcore.util.ZoneInfoDB;
 
@@ -179,13 +181,10 @@ public final class System {
     public static native long nanoTime();
 
     /**
-     * Causes the VM to stop running and the program to exit. If
-     * {@link #runFinalizersOnExit(boolean)} has been previously invoked with a
+     * Causes the VM to stop running and the program to exit with the given exit status.
+     * If {@link #runFinalizersOnExit(boolean)} has been previously invoked with a
      * {@code true} argument, then all objects will be properly
      * garbage-collected and finalized first.
-     *
-     * @param code
-     *            the return code.
      */
     public static void exit(int code) {
         Runtime.getRuntime().exit(code);
@@ -201,30 +200,18 @@ public final class System {
     }
 
     /**
-     * Returns the value of the environment variable with the given name {@code
-     * var}.
-     *
-     * @param name
-     *            the name of the environment variable.
-     * @return the value of the specified environment variable or {@code null}
-     *         if no variable exists with the given name.
+     * Returns the value of the environment variable with the given name, or null if no such
+     * variable exists.
      */
     public static String getenv(String name) {
-        return getenv(name, null);
-    }
-
-    private static String getenv(String name, String defaultValue) {
         if (name == null) {
             throw new NullPointerException("name == null");
         }
-        String value = Libcore.os.getenv(name);
-        return (value != null) ? value : defaultValue;
+        return Libcore.os.getenv(name);
     }
 
     /**
-     * Returns an unmodifiable map of all available environment variables.
-     *
-     * @return the map representing all environment variables.
+     * Returns an unmodifiable map of all environment variables to their values.
      */
     public static Map<String, String> getenv() {
         Map<String, String> map = new HashMap<String, String>();
@@ -283,10 +270,21 @@ public final class System {
         p.put("java.ext.dirs", "");
         p.put("java.version", "0");
 
-        p.put("java.home", getenv("JAVA_HOME", "/system"));
+        // TODO: does this make any sense? Should we just leave java.home unset?
+        String javaHome = getenv("JAVA_HOME");
+        if (javaHome == null) {
+            javaHome = "/system";
+        }
+        p.put("java.home", javaHome);
 
+        // On Android, each app gets its own temporary directory. This is just a fallback
+        // default, useful only on the host.
         p.put("java.io.tmpdir", "/tmp");
-        p.put("java.library.path", getenv("LD_LIBRARY_PATH"));
+
+        String ldLibraryPath = getenv("LD_LIBRARY_PATH");
+        if (ldLibraryPath != null) {
+            p.put("java.library.path", ldLibraryPath);
+        }
 
         p.put("java.specification.name", "Dalvik Core Library");
         p.put("java.specification.vendor", projectName);
@@ -313,8 +311,13 @@ public final class System {
         p.put("user.language", "en");
         p.put("user.region", "US");
 
-        p.put("user.home", getenv("HOME", ""));
-        p.put("user.name", getenv("USER", ""));
+        try {
+            StructPasswd passwd = Libcore.os.getpwuid(Libcore.os.getuid());
+            p.put("user.home", passwd.pw_dir);
+            p.put("user.name", passwd.pw_name);
+        } catch (ErrnoException exception) {
+            throw new AssertionError(exception);
+        }
 
         StructUtsname info = Libcore.os.uname();
         p.put("os.arch", info.machine);
@@ -325,8 +328,7 @@ public final class System {
         p.put("android.icu.library.version", ICU.getIcuVersion());
         p.put("android.icu.unicode.version", ICU.getUnicodeVersion());
         p.put("android.icu.cldr.version", ICU.getCldrVersion());
-        // TODO: it would be nice to have this but currently it causes circularity.
-        // p.put("android.tzdata.version", ZoneInfoDB.getVersion());
+
         parsePropertyAssignments(p, specialProperties());
 
         // Override built-in properties with settings from the command line.
@@ -370,7 +372,7 @@ public final class System {
      * <tr><td>java.ext.dirs</td>      <td>(Not useful on Android)</td>           <td>Empty</td></tr>
      * <tr><td>java.home</td>          <td>Location of the VM on the file system</td> <td>{@code /system}</td></tr>
      * <tr><td>java.io.tmpdir</td>     <td>See {@link java.io.File#createTempFile}</td> <td>{@code /sdcard}</td></tr>
-     * <tr><td>java.library.path</td>  <td>Search path for JNI libraries</td>     <td>{@code /system/lib}</td></tr>
+     * <tr><td>java.library.path</td>  <td>Search path for JNI libraries</td>     <td>{@code /vendor/lib:/system/lib}</td></tr>
      * <tr><td>java.vendor</td>        <td>Human-readable VM vendor</td>          <td>{@code The Android Project}</td></tr>
      * <tr><td>java.vendor.url</td>    <td>URL for VM vendor's web site</td>      <td>{@code http://www.android.com/}</td></tr>
      * <tr><td>java.version</td>       <td>(Not useful on Android)</td>           <td>{@code 0}</td></tr>
