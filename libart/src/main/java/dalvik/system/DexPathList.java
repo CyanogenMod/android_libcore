@@ -66,6 +66,11 @@ import static libcore.io.OsConstants.*;
     private final File[] nativeLibraryDirectories;
 
     /**
+     * Exceptions thrown during creation of the dexElements list.
+     */
+    private final IOException[] dexElementsSuppressedExceptions;
+
+    /**
      * Constructs an instance.
      *
      * @param definingContext the context in which any as-yet unresolved
@@ -104,7 +109,15 @@ import static libcore.io.OsConstants.*;
         }
 
         this.definingContext = definingContext;
-        this.dexElements = makeDexElements(splitDexPath(dexPath), optimizedDirectory);
+        ArrayList<IOException> suppressedExceptions = new ArrayList<IOException>();
+        this.dexElements = makeDexElements(splitDexPath(dexPath), optimizedDirectory,
+                                           suppressedExceptions);
+        if (suppressedExceptions.size() > 0) {
+            this.dexElementsSuppressedExceptions =
+                suppressedExceptions.toArray(new IOException[suppressedExceptions.size()]);
+        } else {
+            dexElementsSuppressedExceptions = null;
+        }
         this.nativeLibraryDirectories = splitLibraryPath(libraryPath);
     }
 
@@ -195,10 +208,9 @@ import static libcore.io.OsConstants.*;
      * Makes an array of dex/resource path elements, one per element of
      * the given array.
      */
-    private static Element[] makeDexElements(ArrayList<File> files,
-            File optimizedDirectory) {
+    private static Element[] makeDexElements(ArrayList<File> files, File optimizedDirectory,
+                                             ArrayList<IOException> suppressedExceptions) {
         ArrayList<Element> elements = new ArrayList<Element>();
-
         /*
          * Open all files and load the (direct or contained) dex files
          * up front.
@@ -221,14 +233,14 @@ import static libcore.io.OsConstants.*;
 
                 try {
                     dex = loadDexFile(file, optimizedDirectory);
-                } catch (IOException ignored) {
+                } catch (IOException suppressed) {
                     /*
-                     * IOException might get thrown "legitimately" by
-                     * the DexFile constructor if the zip file turns
-                     * out to be resource-only (that is, no
-                     * classes.dex file in it). Safe to just ignore
-                     * the exception here, and let dex == null.
+                     * IOException might get thrown "legitimately" by the DexFile constructor if the
+                     * zip file turns out to be resource-only (that is, no classes.dex file in it).
+                     * Let dex == null and hang on to the exception to add to the tea-leaves for
+                     * when findClass returns null.
                      */
+                    suppressedExceptions.add(suppressed);
                 }
             } else if (file.isDirectory()) {
                 // We support directories for looking up resources.
@@ -294,7 +306,9 @@ import static libcore.io.OsConstants.*;
                 }
             }
         }
-
+        if (dexElementsSuppressedExceptions != null) {
+            suppressed.addAll(Arrays.asList(dexElementsSuppressedExceptions));
+        }
         return null;
     }
 
