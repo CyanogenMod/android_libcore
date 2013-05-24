@@ -92,28 +92,28 @@ public final class CipherTest extends TestCase {
         IS_UNLIMITED = is_unlimited;
     }
 
-    private static boolean isUnsupported(String algorithm, String provider) {
+    private static boolean isSupported(String algorithm, String provider) {
         if (algorithm.equals("RC2")) {
-            return true;
+            return false;
         }
         if (algorithm.equals("PBEWITHMD5ANDRC2")) {
-            return true;
+            return false;
         }
         if (algorithm.startsWith("PBEWITHSHA1ANDRC2")) {
-            return true;
+            return false;
         }
         if (algorithm.equals("PBEWITHSHAAND40BITRC2-CBC")) {
-            return true;
+            return false;
         }
         if (algorithm.equals("PBEWITHSHAAND128BITRC2-CBC")) {
-            return true;
+            return false;
         }
         if (algorithm.equals("PBEWITHSHAANDTWOFISH-CBC")) {
-            return true;
+            return false;
         }
         if (!IS_UNLIMITED) {
             if (algorithm.equals("PBEWITHMD5ANDTRIPLEDES")) {
-                return true;
+                return false;
             }
         }
         // stream modes CFB, CTR, CTS, OFB with PKCS5Padding don't really make sense
@@ -122,25 +122,25 @@ public final class CipherTest extends TestCase {
              || algorithm.equals("AES/CTR/PKCS5PADDING")
              || algorithm.equals("AES/CTS/PKCS5PADDING")
              || algorithm.equals("AES/OFB/PKCS5PADDING"))) {
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
-    private static boolean isUnsupportedForWrapping(String algorithm) {
+    private static boolean isSupportedForWrapping(String algorithm) {
         if (isOnlyWrappingAlgorithm(algorithm)) {
-            return false;
+            return true;
         }
         // http://b/9097343 RSA with NoPadding won't work since
         // leading zeroes in the underlying key material are lost.
         if (algorithm.equals("RSA/ECB/NOPADDING")) {
-            return true;
+            return false;
         }
         // AESWRAP should be used instead, fails with BC and SunJCE otherwise.
         if (algorithm.startsWith("AES")) {
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     private synchronized static int getEncryptMode(String algorithm) throws Exception {
@@ -797,7 +797,7 @@ public final class CipherTest extends TestCase {
     private void test_Cipher(Cipher c) throws Exception {
         String algorithm = c.getAlgorithm().toUpperCase(Locale.US);
         String providerName = c.getProvider().getName();
-        if (isUnsupported(algorithm, providerName)) {
+        if (!isSupported(algorithm, providerName)) {
             return;
         }
         String cipherID = algorithm + ":" + providerName;
@@ -833,7 +833,7 @@ public final class CipherTest extends TestCase {
         assertNull(cipherID, c.getExemptionMechanism());
 
         // Test wrapping a key.  Every cipher should be able to wrap. Except those that can't.
-        if (!isUnsupportedForWrapping(algorithm)) {
+        if (isSupportedForWrapping(algorithm)) {
             // Generate a small SecretKey for AES.
             KeyGenerator kg = KeyGenerator.getInstance("AES");
             kg.init(128);
