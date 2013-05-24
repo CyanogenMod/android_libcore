@@ -118,10 +118,10 @@ public final class StandardNames extends Assert {
         modes.addAll(Arrays.asList(newModes));
     }
     private static void provideCipherPaddings(String algorithm, String newPaddings[]) {
-        Set<String> paddings = CIPHER_MODES.get(algorithm);
+        Set<String> paddings = CIPHER_PADDINGS.get(algorithm);
         if (paddings == null) {
             paddings = new HashSet<String>();
-            CIPHER_MODES.put(algorithm, paddings);
+            CIPHER_PADDINGS.put(algorithm, paddings);
         }
         paddings.addAll(Arrays.asList(newPaddings));
     }
@@ -161,6 +161,10 @@ public final class StandardNames extends Assert {
         provide("Cipher", "PBEWithSHA1AndRC2_40");
         provide("Cipher", "RC2");
         provide("Cipher", "RSA");
+        // TODO: None?
+        provideCipherModes("RSA", new String[] { "ECB" });
+        // TODO: OAEPPadding
+        provideCipherPaddings("RSA", new String[] { "NoPadding", "PKCS1Padding" });
         provide("Configuration", "JavaLoginConfig");
         provide("KeyAgreement", "DiffieHellman");
         provide("KeyFactory", "DSA");
