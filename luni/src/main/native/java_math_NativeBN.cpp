@@ -527,10 +527,10 @@ static void NativeBN_BN_generate_prime_ex(JNIEnv* env, jclass, jlong ret, int bi
   throwExceptionIfNecessary(env);
 }
 
-static jboolean NativeBN_BN_is_prime_ex(JNIEnv* env, jclass, jlong p, int nchecks, BN_GENCB* cb) {
+static jboolean NativeBN_BN_is_prime_ex(JNIEnv* env, jclass, jlong p, int nchecks, jlong cb) {
   if (!oneValidHandle(env, p)) return JNI_FALSE;
   Unique_BN_CTX ctx(BN_CTX_new());
-  return BN_is_prime_ex(toBigNum(p), nchecks, ctx.get(), cb);
+  return BN_is_prime_ex(toBigNum(p), nchecks, ctx.get(), reinterpret_cast<BN_GENCB*>(cb));
 }
 
 static JNINativeMethod gMethods[] = {
