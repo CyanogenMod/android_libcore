@@ -25,7 +25,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 public class SecureRandomTest extends TestCase {
-    private static final String EXPECTED_PROVIDER = "org.conscrypt.OpenSSLProvider";
+    private static final String EXPECTED_PROVIDER = "com.android.org.conscrypt.OpenSSLProvider";
 
     private static final byte[] STATIC_SEED_BYTES = new byte[] {
             0x0A, (byte) 0xA0, 0x01, 0x10, (byte) 0xFF, (byte) 0xF0, 0x0F
