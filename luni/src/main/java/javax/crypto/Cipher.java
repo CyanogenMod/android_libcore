@@ -1079,11 +1079,11 @@ public class Cipher {
      * @since 1.7
      */
     public final void updateAAD(byte[] input, int inputOffset, int inputLen) {
-        if (input == null) {
-            throw new IllegalArgumentException("input == null");
-        }
         if (mode != ENCRYPT_MODE && mode != DECRYPT_MODE) {
             throw new IllegalStateException();
+        }
+        if (input == null) {
+            throw new IllegalArgumentException("input == null");
         }
         checkInputOffsetAndCount(input.length, inputOffset, inputLen);
         if (input.length == 0) {
