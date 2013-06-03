@@ -23,7 +23,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import junit.framework.TestCase;
-
 import libcore.java.security.StandardNames;
 
 public class SecretKeyFactoryTest extends TestCase {
@@ -115,8 +114,8 @@ public class SecretKeyFactoryTest extends TestCase {
                         (byte)0x83, (byte)0x7c, (byte)0x14, (byte)0x1f,
                         (byte)0xf6, (byte)0x4a, (byte)0xb0, (byte)0x54
                     };
-        test_PBKDF2(PASSWORD, SALT, ITERATIONS, KEY_LENGTH, expected);
-        test_BrokenPBKDF2(PASSWORD, SALT, ITERATIONS, KEY_LENGTH, expected);
+        test_PBKDF2_UTF8(PASSWORD, SALT, ITERATIONS, KEY_LENGTH, expected);
+        test_PBKDF2_8BIT(PASSWORD, SALT, ITERATIONS, KEY_LENGTH, expected);
     }
 
     /**
@@ -136,8 +135,8 @@ public class SecretKeyFactoryTest extends TestCase {
             (byte)0xD1, (byte)0xDA, (byte)0xA7, (byte)0x86,
             (byte)0x15, (byte)0xF2, (byte)0x87, (byte)0xE6
         };
-        test_PBKDF2(password, salt, iterations, keyLength, expected);
-        test_BrokenPBKDF2(password, salt, iterations, keyLength, expected);
+        test_PBKDF2_UTF8(password, salt, iterations, keyLength, expected);
+        test_PBKDF2_8BIT(password, salt, iterations, keyLength, expected);
     }
 
     /**
@@ -160,8 +159,8 @@ public class SecretKeyFactoryTest extends TestCase {
             (byte)0x85, (byte)0x10, (byte)0x85, (byte)0x86, (byte)0x07, (byte)0x12,
             (byte)0x63, (byte)0x80, (byte)0xcc, (byte)0x47, (byte)0xab, (byte)0x2d
         };
-        test_PBKDF2(password, salt, iterations, keyLength, expected);
-        test_BrokenPBKDF2(password, salt, iterations, keyLength, expected);
+        test_PBKDF2_UTF8(password, salt, iterations, keyLength, expected);
+        test_PBKDF2_8BIT(password, salt, iterations, keyLength, expected);
     }
 
    /**
@@ -175,26 +174,26 @@ public class SecretKeyFactoryTest extends TestCase {
         byte[] salt = "salt".getBytes();
         int iterations = 4096;
         int keyLength = 160;
-        byte[] expected = new byte[] {
+        byte[] expected_utf8 = new byte[] {
             (byte)0x4c, (byte)0xe0, (byte)0x6a, (byte)0xb8, (byte)0x48, (byte)0x04,
             (byte)0xb7, (byte)0xe7, (byte)0x72, (byte)0xf2, (byte)0xaf, (byte)0x5e,
             (byte)0x54, (byte)0xe9, (byte)0x03, (byte)0xad, (byte)0x59, (byte)0x64,
             (byte)0x8b, (byte)0xab
         };
-        byte[] brokenExpected = new byte[] {
+        byte[] expected_8bit = new byte[] {
             (byte)0x6e, (byte)0x43, (byte)0xe0, (byte)0x18, (byte)0xc5, (byte)0x50,
             (byte)0x0d, (byte)0xa7, (byte)0xfe, (byte)0x7a, (byte)0x44, (byte)0x4d,
             (byte)0x99, (byte)0x5d, (byte)0x8c, (byte)0xae, (byte)0xc1, (byte)0xc9,
             (byte)0x17, (byte)0xce
         };
-        test_PBKDF2(password, salt, iterations, keyLength, expected);
-        test_BrokenPBKDF2(password, salt, iterations, keyLength, brokenExpected);
+        test_PBKDF2_UTF8(password, salt, iterations, keyLength, expected_utf8);
+        test_PBKDF2_8BIT(password, salt, iterations, keyLength, expected_8bit);
     }
 
-    private void test_BrokenPBKDF2(char[] password, byte[] salt, int iterations, int keyLength,
-                             byte[] expected) throws Exception {
+    private void test_PBKDF2_8BIT(char[] password, byte[] salt, int iterations, int keyLength,
+                                  byte[] expected) throws Exception {
         if (!StandardNames.IS_RI) {
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("BrokenPBKDF2WithHmacSHA1");
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1And8bit");
             KeySpec ks = new PBEKeySpec(password, salt, iterations, keyLength);
             SecretKey key = factory.generateSecret(ks);
             assertTrue(Arrays.equals(expected, key.getEncoded()));
@@ -202,8 +201,8 @@ public class SecretKeyFactoryTest extends TestCase {
 
     }
 
-    private void test_PBKDF2(char[] password, byte[] salt, int iterations, int keyLength,
-                             byte[] expected) throws Exception {
+    private void test_PBKDF2_UTF8(char[] password, byte[] salt, int iterations, int keyLength,
+                                  byte[] expected) throws Exception {
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         KeySpec ks = new PBEKeySpec(password, salt, iterations, keyLength);
         SecretKey key = factory.generateSecret(ks);
