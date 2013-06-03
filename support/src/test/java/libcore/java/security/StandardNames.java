@@ -212,6 +212,7 @@ public final class StandardNames extends Assert {
         provide("SecretKeyFactory", "PBEWithSHA1AndDESede");
         provide("SecretKeyFactory", "PBEWithSHA1AndRC2_40");
         provide("SecretKeyFactory", "PBKDF2WithHmacSHA1");
+        provide("SecretKeyFactory", "PBKDF2WithHmacSHA1And8bit");
         provide("SecureRandom", "SHA1PRNG");
         provide("Signature", "MD2withRSA");
         provide("Signature", "MD5withRSA");
