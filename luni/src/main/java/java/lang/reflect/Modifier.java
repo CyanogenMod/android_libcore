@@ -90,11 +90,23 @@ public class Modifier {
 
     static final int VARARGS = 0x80;
 
-    static final int SYNTHETIC = 0x1000;
+    /**
+     * @hide
+     */
+    public static final int SYNTHETIC = 0x1000;
 
     static final int ANNOTATION = 0x2000;
 
     static final int ENUM = 0x4000;
+
+    /**
+     * Miranda methods are fabrications to reserve virtual method
+     * table slots in abstract classes that implement interfaces
+     * without declaring the abstract methods that the interface would
+     * require they implement.
+     * @hide
+     */
+    public static final int MIRANDA = 0x8000;
 
     /**
      * Constructs a new {@code Modifier} instance.
