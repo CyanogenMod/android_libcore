@@ -1404,7 +1404,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      * @return the string read from the source stream.
      * @throws IOException
      *             if an error occurs while reading from the source stream.
-     * @deprecated Use {@link BufferedReader}
+     * @deprecated Use {@link BufferedReader} instead.
      */
     @Deprecated
     public String readLine() throws IOException {

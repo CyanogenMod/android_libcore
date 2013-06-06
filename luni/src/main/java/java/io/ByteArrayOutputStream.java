@@ -149,7 +149,7 @@ public class ByteArrayOutputStream extends OutputStream {
      *            the high byte of each resulting Unicode character.
      * @return this stream's current contents as a string with the high byte set
      *         to {@code hibyte}.
-     * @deprecated Use {@link #toString()}.
+     * @deprecated Use {@link #toString()} instead.
      */
     @Deprecated
     public String toString(int hibyte) {

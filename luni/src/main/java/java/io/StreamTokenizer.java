@@ -155,13 +155,13 @@ public class StreamTokenizer {
     /**
      * Constructs a new {@code StreamTokenizer} with {@code is} as source input
      * stream. This constructor is deprecated; instead, the constructor that
-     * takes a {@code Reader} as an arugment should be used.
+     * takes a {@code Reader} as an argument should be used.
      *
      * @param is
      *            the source stream from which to parse tokens.
      * @throws NullPointerException
      *             if {@code is} is {@code null}.
-     * @deprecated Use {@link #StreamTokenizer(Reader)}
+     * @deprecated Use {@link #StreamTokenizer(Reader)} instead.
      */
     @Deprecated
     public StreamTokenizer(InputStream is) {
