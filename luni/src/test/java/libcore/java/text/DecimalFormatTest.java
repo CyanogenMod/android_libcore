@@ -22,6 +22,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.util.Currency;
 import java.util.Locale;
 import tests.support.Support_Locale;
 
@@ -175,5 +176,12 @@ public class DecimalFormatTest extends junit.framework.TestCase {
         df.setMaximumFractionDigits(fraction);
         BigDecimal d = new BigDecimal(value);
         assertEquals(expectedResult, df.format(d));
+    }
+
+    public void testBug9087737() throws Exception {
+        DecimalFormat df = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
+        // These shouldn't make valgrind unhappy.
+        df.setCurrency(Currency.getInstance("CHF"));
+        df.setCurrency(Currency.getInstance("GBP"));
     }
 }
