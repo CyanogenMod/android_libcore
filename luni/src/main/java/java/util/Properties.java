@@ -486,7 +486,7 @@ public class Properties extends Hashtable<Object, Object> {
      * @throws ClassCastException if the key or value of a mapping is not a
      *                String.
      * @deprecated This method ignores any {@code IOException} thrown while
-     *             writing -- use {@link #store} instead for better exception
+     *             writing &mdash; use {@link #store} instead for better exception
      *             handling.
      */
     @Deprecated

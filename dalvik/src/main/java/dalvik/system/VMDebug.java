@@ -32,7 +32,7 @@ public final class VMDebug {
     /**
      * Specifies the default method trace data file name.
      *
-     * @deprecated only used in one place, which is unused and deprecated
+     * @deprecated Only used in one place, which is unused and deprecated.
      */
     @Deprecated
     static public final String DEFAULT_METHOD_TRACE_FILE_NAME = "/sdcard/dmtrace.trace";
@@ -140,7 +140,7 @@ public final class VMDebug {
      * Start method tracing with default name, size, and with <code>0</code>
      * flags.
      *
-     * @deprecated not used, not needed
+     * @deprecated Not used, not needed.
      */
     @Deprecated
     public static void startMethodTracing() {

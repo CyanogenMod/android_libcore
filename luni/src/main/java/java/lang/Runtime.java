@@ -483,7 +483,7 @@ public class Runtime {
      * @param stream
      *            the input stream to localize.
      * @return the localized input stream.
-     * @deprecated Use {@link InputStreamReader}.
+     * @deprecated Use {@link InputStreamReader} instead.
      */
     @Deprecated
     public InputStream getLocalizedInputStream(InputStream stream) {
@@ -503,7 +503,7 @@ public class Runtime {
      * @param stream
      *            the output stream to localize.
      * @return the localized output stream.
-     * @deprecated Use {@link OutputStreamWriter}.
+     * @deprecated Use {@link OutputStreamWriter} instead.
      */
     @Deprecated
     public OutputStream getLocalizedOutputStream(OutputStream stream) {

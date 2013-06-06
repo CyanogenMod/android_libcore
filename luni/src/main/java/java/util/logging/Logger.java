@@ -91,8 +91,8 @@ public class Logger {
 
     /**
      * The global logger is provided as convenience for casual use.
-     * @deprecated deadlock-prone. Use {@code Logger.getLogger(Logger.GLOBAL_LOGGER_NAME)} as
-     * a direct replacement, but see the discussion of how to use {@code Logger} in the class
+     * @deprecated This is deadlock-prone. Use {@code Logger.getLogger(Logger.GLOBAL_LOGGER_NAME)}
+     * as a direct replacement, but read the discussion of how to use {@link Logger} in the class
      * documentation.
      */
     @Deprecated

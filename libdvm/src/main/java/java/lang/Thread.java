@@ -1034,7 +1034,7 @@ public class Thread implements Runnable {
      * resumed if it was suspended and awakened if it was sleeping, so that it
      * can proceed to throw ThreadDeath.
      *
-     * @deprecated because stopping a thread in this manner is unsafe and can
+     * @deprecated Stopping a thread in this manner is unsafe and can
      * leave your application and the VM in an unpredictable state.
      */
     @Deprecated
@@ -1044,7 +1044,7 @@ public class Thread implements Runnable {
 
     /**
      * Throws {@code UnsupportedOperationException}.
-     * @deprecated because stopping a thread in this manner is unsafe and can
+     * @deprecated Stopping a thread in this manner is unsafe and can
      * leave your application and the VM in an unpredictable state.
      */
     @Deprecated

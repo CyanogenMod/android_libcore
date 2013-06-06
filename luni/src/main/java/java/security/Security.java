@@ -86,8 +86,7 @@ public final class Security {
      * @param propName
      *            the name of the property.
      * @return value of the property.
-     * @deprecated Use {@link AlgorithmParameters} and {@link KeyFactory}
-     *             instead.
+     * @deprecated Use {@link AlgorithmParameters} and {@link KeyFactory} instead.
      */
     @Deprecated
     public static String getAlgorithmProperty(String algName, String propName) {

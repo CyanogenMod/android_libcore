@@ -281,7 +281,7 @@ public class DriverManager {
      * Gets the log {@code PrintStream} used by the {@code DriverManager} and
      * all the JDBC Drivers.
      *
-     * @deprecated use {@link #getLogWriter()} instead.
+     * @deprecated Use {@link #getLogWriter()} instead.
      * @return the {@code PrintStream} used for logging activities.
      */
     @Deprecated
