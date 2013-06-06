@@ -436,6 +436,7 @@ public final class DNParser {
             if (attType == null) {
                 throw new IOException("Invalid distinguished name string");
             }
+            oid = AttributeTypeAndValue.getObjectIdentifier(attType);
         }
     }
 }
