@@ -2839,7 +2839,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *            the character to check.
      * @return {@code true} if {@code c} is a Java letter; {@code false}
      *         otherwise.
-     * @deprecated Use {@link #isJavaIdentifierStart(char)}
+     * @deprecated Use {@link #isJavaIdentifierStart(char)} instead.
      */
     @Deprecated
     public static boolean isJavaLetter(char c) {
@@ -2854,7 +2854,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *            the character to check.
      * @return {@code true} if {@code c} is a Java letter or digit;
      *         {@code false} otherwise.
-     * @deprecated Use {@link #isJavaIdentifierPart(char)}
+     * @deprecated Use {@link #isJavaIdentifierPart(char)} instead.
      */
     @Deprecated
     public static boolean isJavaLetterOrDigit(char c) {
@@ -2968,7 +2968,7 @@ public final class Character implements Serializable, Comparable<Character> {
      *            the character to check.
      * @return {@code true} if {@code c} is a Java space; {@code false}
      *         otherwise.
-     * @deprecated Use {@link #isWhitespace(char)}
+     * @deprecated Use {@link #isWhitespace(char)} instead.
      */
     @Deprecated
     public static boolean isSpace(char c) {

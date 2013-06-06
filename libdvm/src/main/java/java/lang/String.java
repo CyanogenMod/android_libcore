@@ -791,7 +791,7 @@ outer:
      * @throws IndexOutOfBoundsException
      *             if {@code start < 0}, {@code end > length()}, {@code index <
      *             0} or {@code end - start > data.length - index}.
-     * @deprecated Use {@link #getBytes()} or {@link #getBytes(String)}
+     * @deprecated Use {@link #getBytes()} or {@link #getBytes(String)} instead.
      */
     @Deprecated
     public void getBytes(int start, int end, byte[] data, int index) {

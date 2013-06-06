@@ -54,7 +54,7 @@ import static tests.http.SocketPolicy.DISCONNECT_AT_START;
  * A scriptable web server. Callers supply canned responses and the server
  * replays them upon request in sequence.
  *
- * @deprecated prefer com.google.mockwebserver.MockWebServer
+ * @deprecated Use {@code com.google.mockwebserver.MockWebServer} instead.
  */
 @Deprecated
 public final class MockWebServer {
