@@ -585,7 +585,7 @@ public final class System {
      *
      * @param flag
      *            the flag determines if finalization on exit is enabled.
-     * @deprecated this method is unsafe.
+     * @deprecated This method is unsafe.
      */
     @SuppressWarnings("deprecation")
     @Deprecated

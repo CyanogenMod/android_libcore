@@ -347,7 +347,7 @@ public abstract class URLConnection {
     /**
      * Returns null.
      *
-     * @deprecated Use {@link #getRequestProperty}
+     * @deprecated Use {@link #getRequestProperty} instead.
      */
     @Deprecated
     public static String getDefaultRequestProperty(String field) {
@@ -829,7 +829,7 @@ public abstract class URLConnection {
     /**
      * Does nothing.
      *
-     * @deprecated Use {@link URLConnection#setRequestProperty(String, String)}.
+     * @deprecated Use {@link URLConnection#setRequestProperty(String, String)} instead.
      */
     @Deprecated
     public static void setDefaultRequestProperty(String field, String value) {

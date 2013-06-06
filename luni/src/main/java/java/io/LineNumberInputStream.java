@@ -27,7 +27,7 @@ import libcore.io.Streams;
  * When using {@code read}, line terminator sequences are always translated into
  * {@code '\n'}.
  *
- * @deprecated Use {@link LineNumberReader}
+ * @deprecated Use {@link LineNumberReader} instead.
  */
 @Deprecated
 public class LineNumberInputStream extends FilterInputStream {

@@ -38,7 +38,7 @@ public class URLDecoder {
      * @param s
      *            the encoded string.
      * @return the decoded clear-text representation of the given string.
-     * @deprecated use {@link #decode(String, String)} instead.
+     * @deprecated Use {@link #decode(String, String)} instead.
      */
     @Deprecated
     public static String decode(String s) {

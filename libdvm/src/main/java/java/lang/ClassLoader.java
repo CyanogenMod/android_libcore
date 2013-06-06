@@ -218,7 +218,7 @@ public abstract class ClassLoader {
      *             if {@code offset < 0}, {@code length < 0} or if
      *             {@code offset + length} is greater than the length of
      *             {@code classRep}.
-     * @deprecated Use {@link #defineClass(String, byte[], int, int)}
+     * @deprecated Use {@link #defineClass(String, byte[], int, int)} instead.
      */
     @Deprecated
     protected final Class<?> defineClass(byte[] classRep, int offset, int length)

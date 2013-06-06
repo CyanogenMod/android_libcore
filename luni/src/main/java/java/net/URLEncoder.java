@@ -43,7 +43,7 @@ public class URLEncoder {
     /**
      * Equivalent to {@code encode(s, "UTF-8")}.
      *
-     * @deprecated use {@link #encode(String, String)} instead.
+     * @deprecated Use {@link #encode(String, String)} instead.
      */
     @Deprecated
     public static String encode(String s) {
