@@ -138,7 +138,7 @@ public final class IoUtils {
      * Deliberately ignores errors, on the assumption that test cleanup is only
      * supposed to be best-effort.
      *
-     * @deprecated Use createTemporaryDirectory instead.
+     * @deprecated Use {@link #createTemporaryDirectory} instead.
      */
     public static void deleteContents(File dir) throws IOException {
         File[] files = dir.listFiles();

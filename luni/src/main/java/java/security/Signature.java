@@ -523,7 +523,7 @@ public abstract class Signature extends SignatureSpi {
      * @throws InvalidParameterException
      *             if the parameter is invalid, already set or is not allowed to
      *             be changed.
-     * @deprecated Use {@link #setParameter(AlgorithmParameterSpec)}
+     * @deprecated Use {@link #setParameter(AlgorithmParameterSpec)} instead.
      */
     @Deprecated
     public final void setParameter(String param, Object value)
@@ -565,7 +565,7 @@ public abstract class Signature extends SignatureSpi {
      *         null}.
      * @throws InvalidParameterException
      *             if {@code param} is not a valid parameter for this {@code
-     *             Signature} or an other error occures.
+     *             Signature} or an other error occurs.
      * @deprecated There is no generally accepted parameter naming convention.
      */
     @Deprecated

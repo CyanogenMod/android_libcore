@@ -94,7 +94,7 @@ public abstract class DatagramSocketImpl implements SocketOptions {
      * @throws IOException
      *             if an error occurs while getting the time-to-live option
      *             value.
-     * @deprecated Replaced by {@link #getTimeToLive}
+     * @deprecated Use {@link #getTimeToLive} instead.
      * @see #getTimeToLive()
      */
     @Deprecated
@@ -225,7 +225,7 @@ public abstract class DatagramSocketImpl implements SocketOptions {
      *            &lt;= 255.
      * @throws IOException
      *             if an error occurs while setting the option.
-     * @deprecated Replaced by {@link #setTimeToLive}
+     * @deprecated Use {@link #setTimeToLive} instead.
      * @see #setTimeToLive(int)
      */
     @Deprecated

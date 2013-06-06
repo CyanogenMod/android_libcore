@@ -1082,8 +1082,8 @@ public class File implements Serializable, Comparable<File> {
      * @return a URL for this file.
      * @throws java.net.MalformedURLException
      *             if the path cannot be transformed into a URL.
-     * @deprecated use {@link #toURI} and {@link java.net.URI#toURL} to get
-     * correct escaping of illegal characters.
+     * @deprecated Use {@link #toURI} and {@link java.net.URI#toURL} to
+     * correctly escape illegal characters.
      */
     @Deprecated
     public URL toURL() throws java.net.MalformedURLException {

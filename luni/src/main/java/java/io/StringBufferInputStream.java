@@ -23,7 +23,7 @@ import java.util.Arrays;
  * A specialized {@link InputStream} that reads bytes from a {@code String} in
  * a sequential manner.
  *
- * @deprecated Use {@link StringReader}
+ * @deprecated Use {@link StringReader} instead.
  */
 @Deprecated
 public class StringBufferInputStream extends InputStream {

@@ -475,7 +475,7 @@ public abstract class HttpURLConnection extends URLConnection {
     /**
      * Numeric status code, 500: Internal error
      *
-     * @deprecated Use {@link #HTTP_INTERNAL_ERROR}
+     * @deprecated Use {@link #HTTP_INTERNAL_ERROR} instead.
      */
     @Deprecated
     public static final int HTTP_SERVER_ERROR = 500;
