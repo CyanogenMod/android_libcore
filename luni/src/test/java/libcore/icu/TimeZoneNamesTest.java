@@ -47,4 +47,16 @@ public class TimeZoneNamesTest extends junit.framework.TestCase {
     }
     return -1;
   }
+
+  public void testBug9327819() throws Exception {
+    // Check one specific example of a zone.tab line without a comment thoroughly.
+    String[] ids = TimeZoneNames.forLocale(Locale.KOREA);
+    assertEquals("Asia/Seoul", ids[0]);
+    assertEquals(1, ids.length);
+
+    // Now check we can parse all countries' lines.
+    for (Locale l : Locale.getAvailableLocales()) {
+      assertTrue(TimeZoneNames.forLocale(l) != null);
+    }
+  }
 }

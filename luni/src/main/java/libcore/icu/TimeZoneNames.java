@@ -153,6 +153,9 @@ public final class TimeZoneNames {
             if (line.startsWith(countryCode)) {
                 int olsonIdStart = line.indexOf('\t', 4) + 1;
                 int olsonIdEnd = line.indexOf('\t', olsonIdStart);
+                if (olsonIdEnd == -1) {
+                    olsonIdEnd = line.length(); // Not all zone.tab lines have a comment.
+                }
                 ids.add(line.substring(olsonIdStart, olsonIdEnd));
             }
         }
