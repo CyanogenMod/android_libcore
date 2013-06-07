@@ -138,7 +138,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_CFLAGS += $(core_cflags)
     LOCAL_C_INCLUDES := $(core_c_includes)
     LOCAL_CPPFLAGS += $(core_cppflags)
-    LOCAL_LDLIBS += -ldl -lpthread
+    LOCAL_LDLIBS += -ldl -lpthread -lrt
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := libjavacore
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
