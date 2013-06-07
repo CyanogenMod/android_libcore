@@ -332,6 +332,7 @@ static InternedString** expandInternedStringBucket(
     memcpy(newBucket, existingBucket, size * sizeof(InternedString*));
     newBucket[size] = entry;
     newBucket[size + 1] = NULL;
+    delete[] existingBucket;
 
     return newBucket;
 }
@@ -385,6 +386,7 @@ static jstring internString(JNIEnv* env, ParsingContext* parsingContext, const c
         // Expand the bucket.
         bucket = expandInternedStringBucket(bucket, internedString);
         if (bucket == NULL) {
+            delete internedString;
             jniThrowOutOfMemoryError(env, NULL);
             return NULL;
         }
@@ -400,6 +402,7 @@ static jstring internString(JNIEnv* env, ParsingContext* parsingContext, const c
         // Create a new bucket with one entry.
         bucket = newInternedStringBucket(internedString);
         if (bucket == NULL) {
+            delete internedString;
             jniThrowOutOfMemoryError(env, NULL);
             return NULL;
         }
