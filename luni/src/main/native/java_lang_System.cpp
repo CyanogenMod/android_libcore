@@ -30,6 +30,8 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 
 static void System_log(JNIEnv* env, jclass, jchar type, jstring javaMessage, jthrowable exception) {
@@ -83,8 +85,36 @@ static jobjectArray System_specialProperties(JNIEnv* env, jclass) {
     return toStringArray(env, properties);
 }
 
+static jlong System_currentTimeMillis(JNIEnv*, jclass) {
+    timeval now;
+    gettimeofday(&now, NULL);
+    jlong when = now.tv_sec * 1000LL + now.tv_usec / 1000;
+    return when;
+}
+
+static jlong System_nanoTime(JNIEnv*, jclass) {
+    timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    return now.tv_sec * 1000000000LL + now.tv_nsec;
+}
+
+static jstring System_mapLibraryName(JNIEnv* env, jclass, jstring javaName) {
+    ScopedUtfChars name(env, javaName);
+    if (name.c_str() == NULL) {
+        return NULL;
+    }
+    char* mappedName = NULL;
+    asprintf(&mappedName, OS_SHARED_LIB_FORMAT_STR, name.c_str());
+    jstring result = env->NewStringUTF(mappedName);
+    free(mappedName);
+    return result;
+}
+
 static JNINativeMethod gMethods[] = {
+    NATIVE_METHOD(System, currentTimeMillis, "()J"),
     NATIVE_METHOD(System, log, "(CLjava/lang/String;Ljava/lang/Throwable;)V"),
+    NATIVE_METHOD(System, mapLibraryName, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(System, nanoTime, "()J"),
     NATIVE_METHOD(System, setFieldImpl, "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V"),
     NATIVE_METHOD(System, specialProperties, "()[Ljava/lang/String;"),
 };
