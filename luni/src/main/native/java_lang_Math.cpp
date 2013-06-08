@@ -23,6 +23,14 @@
 #include <stdlib.h>
 #include <math.h>
 
+static jdouble Math_sin(JNIEnv*, jclass, jdouble a) {
+    return sin(a);
+}
+
+static jdouble Math_cos(JNIEnv*, jclass, jdouble a) {
+    return cos(a);
+}
+
 static jdouble Math_tan(JNIEnv*, jclass, jdouble a) {
     return tan(a);
 }
@@ -91,6 +99,10 @@ static jdouble Math_cbrt(JNIEnv*, jclass, jdouble a) {
     return cbrt(a);
 }
 
+static jdouble Math_sqrt(JNIEnv*, jclass, jdouble a) {
+    return sqrt(a);
+}
+
 static jdouble Math_expm1(JNIEnv*, jclass, jdouble a) {
     return expm1(a);
 }
@@ -115,6 +127,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Math, atan2, "!(DD)D"),
     NATIVE_METHOD(Math, cbrt, "!(D)D"),
     NATIVE_METHOD(Math, ceil, "!(D)D"),
+    NATIVE_METHOD(Math, cos, "!(D)D"),
     NATIVE_METHOD(Math, cosh, "!(D)D"),
     NATIVE_METHOD(Math, exp, "!(D)D"),
     NATIVE_METHOD(Math, expm1, "!(D)D"),
@@ -126,7 +139,9 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Math, nextafter, "!(DD)D"),
     NATIVE_METHOD(Math, pow, "!(DD)D"),
     NATIVE_METHOD(Math, rint, "!(D)D"),
+    NATIVE_METHOD(Math, sin, "!(D)D"),
     NATIVE_METHOD(Math, sinh, "!(D)D"),
+    NATIVE_METHOD(Math, sqrt, "!(D)D"),
     NATIVE_METHOD(Math, tan, "!(D)D"),
     NATIVE_METHOD(Math, tanh, "!(D)D"),
 };

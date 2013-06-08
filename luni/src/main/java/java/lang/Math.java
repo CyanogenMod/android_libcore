@@ -54,7 +54,9 @@ public final class Math {
      * <li>{@code abs(NaN) = NaN}</li>
      * </ul>
      */
-    public static native double abs(double d);
+    public static double abs(double d) {
+        return Double.longBitsToDouble(Double.doubleToRawLongBits(d) & 0x7fffffffffffffffL);
+    }
 
     /**
      * Returns the absolute value of the argument.
@@ -67,7 +69,9 @@ public final class Math {
      * <li>{@code abs(NaN) = NaN}</li>
      * </ul>
      */
-    public static native float abs(float f);
+    public static float abs(float f) {
+        return Float.intBitsToFloat(Float.floatToRawIntBits(f) & 0x7fffffff);
+    }
 
     /**
      * Returns the absolute value of the argument.
@@ -75,13 +79,17 @@ public final class Math {
      * If the argument is {@code Integer.MIN_VALUE}, {@code Integer.MIN_VALUE}
      * is returned.
      */
-    public static native int abs(int i);
+    public static int abs(int i) {
+        return (i >= 0) ? i : -i;
+    }
 
     /**
      * Returns the absolute value of the argument. If the argument is {@code
      * Long.MIN_VALUE}, {@code Long.MIN_VALUE} is returned.
      */
-    public static native long abs(long l);
+    public static long abs(long l) {
+        return (l >= 0) ? l : -l;
+    }
 
     /**
      * Returns the closest double approximation of the arc cosine of the
@@ -495,7 +503,9 @@ public final class Math {
      * Returns the most positive (closest to positive infinity) of the two
      * arguments.
      */
-    public static native int max(int i1, int i2);
+    public static int max(int i1, int i2) {
+        return i1 > i2 ? i1 : i2;
+    }
 
     /**
      * Returns the most positive (closest to positive infinity) of the two
@@ -571,7 +581,9 @@ public final class Math {
      * Returns the most negative (closest to negative infinity) of the two
      * arguments.
      */
-    public static native int min(int i1, int i2);
+    public static int min(int i1, int i2) {
+        return i1 < i2 ? i1 : i2;
+    }
 
     /**
      * Returns the most negative (closest to negative infinity) of the two
