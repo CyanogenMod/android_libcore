@@ -120,18 +120,6 @@ public final class String implements Serializable, Comparable<String>, CharSeque
         count = 0;
     }
 
-    /*
-     * Private constructor used for JIT optimization.
-     */
-    @SuppressWarnings("unused")
-    private String(String s, char c) {
-        offset = 0;
-        value = new char[s.count + 1];
-        count = s.count + 1;
-        System.arraycopy(s.value, s.offset, value, 0, s.count);
-        value[s.count] = c;
-    }
-
     /**
      * Converts the byte array to a string using the system's
      * {@link java.nio.charset.Charset#defaultCharset default charset}.
@@ -447,46 +435,6 @@ outer:
         count = value.length;
     }
 
-    /*
-     * Private constructor useful for JIT optimization.
-     */
-    @SuppressWarnings( { "unused", "nls" })
-    private String(String s1, String s2) {
-        if (s1 == null) {
-            s1 = "null";
-        }
-        if (s2 == null) {
-            s2 = "null";
-        }
-        count = s1.count + s2.count;
-        value = new char[count];
-        offset = 0;
-        System.arraycopy(s1.value, s1.offset, value, 0, s1.count);
-        System.arraycopy(s2.value, s2.offset, value, s1.count, s2.count);
-    }
-
-    /*
-     * Private constructor useful for JIT optimization.
-     */
-    @SuppressWarnings( { "unused", "nls" })
-    private String(String s1, String s2, String s3) {
-        if (s1 == null) {
-            s1 = "null";
-        }
-        if (s2 == null) {
-            s2 = "null";
-        }
-        if (s3 == null) {
-            s3 = "null";
-        }
-        count = s1.count + s2.count + s3.count;
-        value = new char[count];
-        offset = 0;
-        System.arraycopy(s1.value, s1.offset, value, 0, s1.count);
-        System.arraycopy(s2.value, s2.offset, value, s1.count, s2.count);
-        System.arraycopy(s3.value, s3.offset, value, s1.count + s2.count, s3.count);
-    }
-
     /**
      * Creates a {@code String} from the contents of the specified
      * {@code StringBuffer}.
@@ -545,23 +493,6 @@ outer:
         this.count = stringBuilder.length();
         this.value = new char[this.count];
         stringBuilder.getChars(0, this.count, this.value, 0);
-    }
-
-    /*
-     * Creates a {@code String} that is s1 + v1. May be used by JIT code.
-     */
-    @SuppressWarnings("unused")
-    private String(String s1, int v1) {
-        if (s1 == null) {
-            s1 = "null";
-        }
-        String s2 = String.valueOf(v1);
-        int len = s1.count + s2.count;
-        value = new char[len];
-        offset = 0;
-        System.arraycopy(s1.value, s1.offset, value, 0, s1.count);
-        System.arraycopy(s2.value, s2.offset, value, s1.count, s2.count);
-        count = len;
     }
 
     /**
