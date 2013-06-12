@@ -16,7 +16,7 @@
 
 package libcore.java.net;
 
-import com.android.okhttp.internal.http.HttpResponseCache;
+import com.android.okhttp.HttpResponseCache;
 import com.google.mockwebserver.MockResponse;
 import com.google.mockwebserver.MockWebServer;
 import com.google.mockwebserver.RecordedRequest;
@@ -101,7 +101,7 @@ public final class URLConnectionTest extends TestCase {
         System.clearProperty("https.proxyPort");
         server.shutdown();
         if (cache != null) {
-            cache.getCache().delete();
+            cache.delete();
         }
         super.tearDown();
     }
