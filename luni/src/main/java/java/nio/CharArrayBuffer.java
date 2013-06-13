@@ -124,7 +124,7 @@ final class CharArrayBuffer extends CharBuffer {
     return ByteOrder.nativeOrder();
   }
 
-  @Override public final CharSequence subSequence(int start, int end) {
+  @Override public final CharBuffer subSequence(int start, int end) {
     checkStartEndRemaining(start, end);
     CharBuffer result = duplicate();
     result.limit(position + end);

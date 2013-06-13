@@ -632,7 +632,7 @@ public abstract class CharBuffer extends Buffer implements
      * @exception IndexOutOfBoundsException
      *                if either {@code start} or {@code end} is invalid.
      */
-    public abstract CharSequence subSequence(int start, int end);
+    public abstract CharBuffer subSequence(int start, int end);
 
     /**
      * Returns a string representing the current remaining chars of this buffer.
