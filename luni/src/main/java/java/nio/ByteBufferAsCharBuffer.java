@@ -176,8 +176,7 @@ final class ByteBufferAsCharBuffer extends CharBuffer {
         return result;
     }
 
-    @Override
-    public CharSequence subSequence(int start, int end) {
+    @Override public CharBuffer subSequence(int start, int end) {
         checkStartEndRemaining(start, end);
         CharBuffer result = duplicate();
         result.limit(position + end);
