@@ -608,7 +608,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         return getMethod(name, parameterTypes, true);
     }
 
-    private Method getMethod(String name, Class<?>[] parameterTypes, boolean recursivePublicMethods) 
+    private Method getMethod(String name, Class<?>[] parameterTypes, boolean recursivePublicMethods)
             throws NoSuchMethodException {
         if (name == null) {
             throw new NullPointerException("name == null");
@@ -1113,6 +1113,19 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * defined by constants in the {@link Modifier} class.
      */
     public int getModifiers() {
+        // Array classes inherit modifiers from their component types, but in the case of arrays
+        // of an inner class, the class file may contain "fake" access flags because it's not valid
+        // for a top-level class to private, say. The real access flags are stored in the InnerClass
+        // attribute, so we need to make sure we drill down to the inner class: the accessFlags
+        // field is not the value we want to return, and the synthesized array class does not itself
+        // have an InnerClass attribute. https://code.google.com/p/android/issues/detail?id=56267
+        if (isArray()) {
+            int componentModifiers = getComponentType().getModifiers();
+            if ((componentModifiers & Modifier.INTERFACE) != 0) {
+                componentModifiers &= ~(Modifier.INTERFACE | Modifier.STATIC);
+            }
+            return Modifier.ABSTRACT | Modifier.FINAL | componentModifiers;
+        }
         int JAVA_FLAGS_MASK = 0xffff;
         int modifiers = AnnotationAccess.getInnerClassFlags(this, accessFlags & JAVA_FLAGS_MASK);
         return modifiers & JAVA_FLAGS_MASK;
