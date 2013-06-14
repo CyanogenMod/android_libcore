@@ -8,7 +8,8 @@ package java.util.concurrent.atomic;
 
 import dalvik.system.VMStack; // android-added
 import sun.misc.Unsafe;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 /**
  * A reflection-based utility that enables atomic updates to
@@ -28,7 +29,7 @@ import java.lang.reflect.*;
  * @author Doug Lea
  * @param <T> The type of the object holding the updatable field
  */
-public abstract class  AtomicIntegerFieldUpdater<T> {
+public abstract class AtomicIntegerFieldUpdater<T> {
     /**
      * Creates and returns an updater for objects with the given field.
      * The Class argument is needed to check that reflective types and
@@ -40,7 +41,9 @@ public abstract class  AtomicIntegerFieldUpdater<T> {
      * @throws IllegalArgumentException if the field is not a
      * volatile integer type
      * @throws RuntimeException with a nested reflection-based
-     * exception if the class does not hold field or is the wrong type
+     * exception if the class does not hold field or is the wrong type,
+     * or the field is inaccessible to the caller according to Java language
+     * access control
      */
     public static <U> AtomicIntegerFieldUpdater<U> newUpdater(Class<U> tclass, String fieldName) {
         return new AtomicIntegerFieldUpdaterImpl<U>(tclass, fieldName);
@@ -75,9 +78,9 @@ public abstract class  AtomicIntegerFieldUpdater<T> {
      * other calls to {@code compareAndSet} and {@code set}, but not
      * necessarily with respect to other changes in the field.
      *
-     * <p>May <a href="package-summary.html#Spurious">fail spuriously</a>
-     * and does not provide ordering guarantees, so is only rarely an
-     * appropriate alternative to {@code compareAndSet}.
+     * <p><a href="package-summary.html#weakCompareAndSet">May fail
+     * spuriously and does not provide ordering guarantees</a>, so is
+     * only rarely an appropriate alternative to {@code compareAndSet}.
      *
      * @param obj An object whose field to conditionally set
      * @param expect the expected value
@@ -107,7 +110,6 @@ public abstract class  AtomicIntegerFieldUpdater<T> {
      * @since 1.6
      */
     public abstract void lazySet(T obj, int newValue);
-
 
     /**
      * Gets the current value held in the field of the given object managed
@@ -242,19 +244,28 @@ public abstract class  AtomicIntegerFieldUpdater<T> {
         private final Class<?> cclass;
 
         AtomicIntegerFieldUpdaterImpl(Class<T> tclass, String fieldName) {
-            Field field = null;
-            Class<?> caller = null;
-            int modifiers = 0;
+            final Field field;
+            final Class<?> caller;
+            final int modifiers;
             try {
-                field = tclass.getDeclaredField(fieldName);
+                field = tclass.getDeclaredField(fieldName); // android-changed
                 caller = VMStack.getStackClass2(); // android-changed
-                modifiers = field.getModifiers();
 
+                modifiers = field.getModifiers();
                 // BEGIN android-removed
                 // sun.reflect.misc.ReflectUtil.ensureMemberAccess(
                 //     caller, tclass, null, modifiers);
-                // sun.reflect.misc.ReflectUtil.checkPackageAccess(tclass);
+                // ClassLoader cl = tclass.getClassLoader();
+                // ClassLoader ccl = caller.getClassLoader();
+                // if ((ccl != null) && (ccl != cl) &&
+                //     ((cl == null) || !isAncestor(cl, ccl))) {
+                //   sun.reflect.misc.ReflectUtil.checkPackageAccess(tclass);
+                // }
                 // END android-removed
+            // BEGIN android-removed
+            // } catch (PrivilegedActionException pae) {
+            //     throw new RuntimeException(pae.getException());
+            // END android-removed
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
@@ -272,6 +283,23 @@ public abstract class  AtomicIntegerFieldUpdater<T> {
             offset = unsafe.objectFieldOffset(field);
         }
 
+        // BEGIN android-removed
+        // /**
+        //  * Returns true if the second classloader can be found in the first
+        //  * classloader's delegation chain.
+        //  * Equivalent to the inaccessible: first.isAncestor(second).
+        //  */
+        //  private static boolean isAncestor(ClassLoader first, ClassLoader second) {
+        //     ClassLoader acl = first;
+        //     do {
+        //         acl = acl.getParent();
+        //         if (second == acl) {
+        //             return true;
+        //         }
+        //     } while (acl != null);
+        //     return false;
+        // }
+        // END android-removed
         private void fullCheck(T obj) {
             if (!tclass.isInstance(obj))
                 throw new ClassCastException();

@@ -54,19 +54,20 @@
  *
  * write your utility method as follows:
  *  <pre> {@code
- * boolean getAndTransform(AtomicLong var) {
+ * long getAndTransform(AtomicLong var) {
  *   while (true) {
  *     long current = var.get();
  *     long next = transform(current);
  *     if (var.compareAndSet(current, next))
  *         return current;
+ *         // return next; for transformAndGet
  *   }
  * }}</pre>
  *
  * <p>The memory effects for accesses and updates of atomics generally
  * follow the rules for volatiles, as stated in
- * <a href="http://java.sun.com/docs/books/jls/"> The Java Language
- * Specification, Third Edition (17.4 Memory Model)</a>:
+ * <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.4">
+ * The Java Language Specification (17.4 Memory Model)</a>:
  *
  * <ul>
  *
@@ -122,13 +123,12 @@
  * semantics for their array elements, which is not supported for
  * ordinary arrays.
  *
- * <a name="Spurious">
- * <p>The atomic classes also support method {@code weakCompareAndSet},
- * which has limited applicability.  On some platforms, the weak version
- * may be more efficient than {@code compareAndSet} in the normal case,
- * but differs in that any given invocation of the
- * {@code weakCompareAndSet} method may return {@code false}
- * <em>spuriously</em> (that is, for no apparent reason)</a>.  A
+ * <p id="weakCompareAndSet">The atomic classes also support method
+ * {@code weakCompareAndSet}, which has limited applicability.  On some
+ * platforms, the weak version may be more efficient than {@code
+ * compareAndSet} in the normal case, but differs in that any given
+ * invocation of the {@code weakCompareAndSet} method may return {@code
+ * false} <em>spuriously</em> (that is, for no apparent reason).  A
  * {@code false} return means only that the operation may be retried if
  * desired, relying on the guarantee that repeated invocation when the
  * variable holds {@code expectedValue} and no other thread is also
@@ -164,7 +164,7 @@
  *
  * <p>Atomic classes are not general purpose replacements for
  * {@code java.lang.Integer} and related classes.  They do <em>not</em>
- * define methods such as {@code hashCode} and
+ * define methods such as {@code equals}, {@code hashCode} and
  * {@code compareTo}.  (Because atomic variables are expected to be
  * mutated, they are poor choices for hash table keys.)  Additionally,
  * classes are provided only for those types that are commonly useful in

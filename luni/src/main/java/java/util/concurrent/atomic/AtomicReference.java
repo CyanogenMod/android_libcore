@@ -15,7 +15,7 @@ import sun.misc.Unsafe;
  * @author Doug Lea
  * @param <V> The type of object referred to by this reference
  */
-public class AtomicReference<V>  implements java.io.Serializable {
+public class AtomicReference<V> implements java.io.Serializable {
     private static final long serialVersionUID = -1848883965231344442L;
 
     private static final Unsafe unsafe = Unsafe.getUnsafe();
@@ -89,13 +89,13 @@ public class AtomicReference<V>  implements java.io.Serializable {
      * Atomically sets the value to the given updated value
      * if the current value {@code ==} the expected value.
      *
-     * <p>May <a href="package-summary.html#Spurious">fail spuriously</a>
-     * and does not provide ordering guarantees, so is only rarely an
-     * appropriate alternative to {@code compareAndSet}.
+     * <p><a href="package-summary.html#weakCompareAndSet">May fail
+     * spuriously and does not provide ordering guarantees</a>, so is
+     * only rarely an appropriate alternative to {@code compareAndSet}.
      *
      * @param expect the expected value
      * @param update the new value
-     * @return true if successful.
+     * @return true if successful
      */
     public final boolean weakCompareAndSet(V expect, V update) {
         return unsafe.compareAndSwapObject(this, valueOffset, expect, update);
@@ -117,7 +117,7 @@ public class AtomicReference<V>  implements java.io.Serializable {
 
     /**
      * Returns the String representation of the current value.
-     * @return the String representation of the current value.
+     * @return the String representation of the current value
      */
     public String toString() {
         return String.valueOf(get());
