@@ -79,6 +79,10 @@ public final class LocaleData {
     public String mediumDateFormat;
     public String shortDateFormat;
 
+    // shortDateFormat, but guaranteed to have 4-digit years.
+    // Used by android.text.format.DateFormat.getDateFormatStringForSetting.
+    public String shortDateFormat4;
+
     // Used by android.text.format.DateFormat.getTimeFormat.
     public String timeFormat12; // "hh:mm a"
     public String timeFormat24; // "HH:mm"
@@ -187,6 +191,7 @@ public final class LocaleData {
             // accidentally eat too much.
             localeData.integerPattern = localeData.numberPattern.replaceAll("\\.[#,]*", "");
         }
+        localeData.shortDateFormat4 = localeData.shortDateFormat.replaceAll("\\byy\\b", "y");
         return localeData;
     }
 }
