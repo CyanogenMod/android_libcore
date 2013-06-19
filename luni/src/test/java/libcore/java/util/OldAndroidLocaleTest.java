@@ -177,10 +177,8 @@ public class OldAndroidLocaleTest extends TestCase {
         assertFalse("Charset KLINGON must not be supported",
                 Charset.isSupported("KLINGON"));
 
-        // Make sure our local change to the real translation table used for
-        // EUC-JP doesn't get lost.
-        Charset cs = Charset.forName("EUC-JP");
-        assertTrue("EUC-JP must use 'ibm-954_P101-2007'", cs.aliases().contains("ibm-954_P101-2007"));
+        // Check we have the canonical EUC-JP charset.
+        assertEquals("EUC-JP", Charset.forName("EUC-JP").name());
     }
 
 }

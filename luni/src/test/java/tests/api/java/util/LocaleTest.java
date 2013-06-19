@@ -179,13 +179,8 @@ public class LocaleTest extends junit.framework.TestCase {
 
         // Regression for Harmony-1146
         Locale l_countryCD = new Locale("", "CD");
-// BEGIN android-changed
-// ICU has different display name for countries
-//                assertEquals("The Democratic Republic Of Congo",
-//                        l_countryCD.getDisplayCountry());
-        assertEquals("Congo - Kinshasa",
+        assertEquals("Congo [DRC]",
               l_countryCD.getDisplayCountry());
-// END android-changed
     }
 
     public void test_getDisplayCountryLjava_util_Locale() {
