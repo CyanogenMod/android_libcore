@@ -170,7 +170,8 @@ public final class System {
 
     /**
      * Returns the current timestamp of the most precise timer available on the
-     * local system, in nanoseconds. Equivalent to Linux's {@code CLOCK_MONOTONIC}.
+     * local system, in nanoseconds. Equivalent to something like Linux's
+     * {@code CLOCK_MONOTONIC_RAW}.
      *
      * <p>This timestamp should only be used to measure a duration by comparing it
      * against another timestamp from the same process on the same device.
