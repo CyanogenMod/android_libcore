@@ -5,7 +5,7 @@
  */
 
 package java.util.concurrent.locks;
-import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
 import java.util.Date;
 
 /**
@@ -295,7 +295,7 @@ public interface Condition {
      *   }
      * }}</pre>
      *
-     * <p> Design note: This method requires a nanosecond argument so
+     * <p>Design note: This method requires a nanosecond argument so
      * as to avoid truncation errors in reporting remaining times.
      * Such precision loss would make it difficult for programmers to
      * ensure that total waiting times are not systematically shorter
