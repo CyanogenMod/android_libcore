@@ -94,7 +94,11 @@ static jlong System_currentTimeMillis(JNIEnv*, jclass) {
 
 static jlong System_nanoTime(JNIEnv*, jclass) {
     timespec now;
-    clock_gettime(CLOCK_MONOTONIC, &now);
+#ifdef CLOCK_MONOTONIC_RAW
+    clock_gettime(CLOCK_MONOTONIC_RAW, &now);
+#else // Darwin, say.
+  clock_gettime(CLOCK_MONOTONIC, &now);
+#endif
     return now.tv_sec * 1000000000LL + now.tv_nsec;
 }
 
