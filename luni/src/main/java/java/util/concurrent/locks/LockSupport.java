@@ -7,7 +7,6 @@
 package java.util.concurrent.locks;
 import sun.misc.Unsafe;
 
-
 /**
  * Basic thread blocking primitives for creating locks and other
  * synchronization classes.
@@ -73,14 +72,14 @@ import sun.misc.Unsafe;
  *     // Block while not first in queue or cannot acquire lock
  *     while (waiters.peek() != current ||
  *            !locked.compareAndSet(false, true)) {
- *        LockSupport.park(this);
- *        if (Thread.interrupted()) // ignore interrupts while waiting
- *          wasInterrupted = true;
+ *       LockSupport.park(this);
+ *       if (Thread.interrupted()) // ignore interrupts while waiting
+ *         wasInterrupted = true;
  *     }
  *
  *     waiters.remove();
  *     if (wasInterrupted)          // reassert interrupt status on exit
- *        current.interrupt();
+ *       current.interrupt();
  *   }
  *
  *   public void unlock() {
@@ -89,7 +88,6 @@ import sun.misc.Unsafe;
  *   }
  * }}</pre>
  */
-
 public class LockSupport {
     private LockSupport() {} // Cannot be instantiated.
 

@@ -17,7 +17,7 @@ import java.util.concurrent.locks.LockSupport;
  * {@link java.util.concurrent.CountDownLatch CountDownLatch}
  * but supporting more flexible usage.
  *
- * <p> <b>Registration.</b> Unlike the case for other barriers, the
+ * <p><b>Registration.</b> Unlike the case for other barriers, the
  * number of parties <em>registered</em> to synchronize on a phaser
  * may vary over time.  Tasks may be registered at any time (using
  * methods {@link #register}, {@link #bulkRegister}, or forms of
@@ -30,7 +30,7 @@ import java.util.concurrent.locks.LockSupport;
  * (However, you can introduce such bookkeeping by subclassing this
  * class.)
  *
- * <p> <b>Synchronization.</b> Like a {@code CyclicBarrier}, a {@code
+ * <p><b>Synchronization.</b> Like a {@code CyclicBarrier}, a {@code
  * Phaser} may be repeatedly awaited.  Method {@link
  * #arriveAndAwaitAdvance} has effect analogous to {@link
  * java.util.concurrent.CyclicBarrier#await CyclicBarrier.await}. Each
@@ -74,7 +74,7 @@ import java.util.concurrent.locks.LockSupport;
  *
  * </ul>
  *
- * <p> <b>Termination.</b> A phaser may enter a <em>termination</em>
+ * <p><b>Termination.</b> A phaser may enter a <em>termination</em>
  * state, that may be checked using method {@link #isTerminated}. Upon
  * termination, all synchronization methods immediately return without
  * waiting for advance, as indicated by a negative return value.
@@ -89,7 +89,7 @@ import java.util.concurrent.locks.LockSupport;
  * also available to abruptly release waiting threads and allow them
  * to terminate.
  *
- * <p> <b>Tiering.</b> Phasers may be <em>tiered</em> (i.e.,
+ * <p><b>Tiering.</b> Phasers may be <em>tiered</em> (i.e.,
  * constructed in tree structures) to reduce contention. Phasers with
  * large numbers of parties that would otherwise experience heavy
  * synchronization contention costs may instead be set up so that
@@ -1065,7 +1065,7 @@ public class Phaser {
         final boolean timed;
         boolean wasInterrupted;
         long nanos;
-        long lastTime;
+        final long deadline;
         volatile Thread thread; // nulled to cancel wait
         QNode next;
 
@@ -1076,7 +1076,7 @@ public class Phaser {
             this.interruptible = interruptible;
             this.nanos = nanos;
             this.timed = timed;
-            this.lastTime = timed ? System.nanoTime() : 0L;
+            this.deadline = timed ? System.nanoTime() + nanos : 0L;
             thread = Thread.currentThread();
         }
 
@@ -1095,9 +1095,7 @@ public class Phaser {
             }
             if (timed) {
                 if (nanos > 0L) {
-                    long now = System.nanoTime();
-                    nanos -= now - lastTime;
-                    lastTime = now;
+                    nanos = deadline - System.nanoTime();
                 }
                 if (nanos <= 0L) {
                     thread = null;
@@ -1112,7 +1110,7 @@ public class Phaser {
                 return true;
             else if (!timed)
                 LockSupport.park(this);
-            else if (nanos > 0)
+            else if (nanos > 0L)
                 LockSupport.parkNanos(this, nanos);
             return isReleasable();
         }

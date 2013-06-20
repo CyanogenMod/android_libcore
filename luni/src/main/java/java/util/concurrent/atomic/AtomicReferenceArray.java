@@ -29,19 +29,18 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
     private final Object[] array; // must have exact type Object[]
 
     static {
-        int scale;
         try {
             unsafe = Unsafe.getUnsafe();
             arrayFieldOffset = unsafe.objectFieldOffset
                 (AtomicReferenceArray.class.getDeclaredField("array"));
             base = unsafe.arrayBaseOffset(Object[].class);
-            scale = unsafe.arrayIndexScale(Object[].class);
+            int scale = unsafe.arrayIndexScale(Object[].class);
+            if ((scale & (scale - 1)) != 0)
+                throw new Error("data type scale not a power of two");
+            shift = 31 - Integer.numberOfLeadingZeros(scale);
         } catch (Exception e) {
             throw new Error(e);
         }
-        if ((scale & (scale - 1)) != 0)
-            throw new Error("data type scale not a power of two");
-        shift = 31 - Integer.numberOfLeadingZeros(scale);
     }
 
     private long checkedByteOffset(int i) {
@@ -96,6 +95,7 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
         return getRaw(checkedByteOffset(i));
     }
 
+    @SuppressWarnings("unchecked")
     private E getRaw(long offset) {
         return (E) unsafe.getObjectVolatile(array, offset);
     }
@@ -120,7 +120,6 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
     public final void lazySet(int i, E newValue) {
         unsafe.putOrderedObject(array, checkedByteOffset(i), newValue);
     }
-
 
     /**
      * Atomically sets the element at position {@code i} to the given
@@ -161,14 +160,14 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
      * Atomically sets the element at position {@code i} to the given
      * updated value if the current value {@code ==} the expected value.
      *
-     * <p>May <a href="package-summary.html#Spurious">fail spuriously</a>
-     * and does not provide ordering guarantees, so is only rarely an
-     * appropriate alternative to {@code compareAndSet}.
+     * <p><a href="package-summary.html#weakCompareAndSet">May fail
+     * spuriously and does not provide ordering guarantees</a>, so is
+     * only rarely an appropriate alternative to {@code compareAndSet}.
      *
      * @param i the index
      * @param expect the expected value
      * @param update the new value
-     * @return true if successful.
+     * @return true if successful
      */
     public final boolean weakCompareAndSet(int i, E expect, E update) {
         return compareAndSet(i, expect, update);
@@ -195,7 +194,6 @@ public class AtomicReferenceArray<E> implements java.io.Serializable {
 
     /**
      * Reconstitutes the instance from a stream (that is, deserializes it).
-     * @param s the stream
      */
     private void readObject(java.io.ObjectInputStream s)
         throws java.io.IOException, ClassNotFoundException,

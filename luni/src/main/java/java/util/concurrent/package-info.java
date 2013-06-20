@@ -5,7 +5,7 @@
  */
 
 // BEGIN android-note
-// omit links to ForkJoinPool, ForkJoinTask, LinkedTransferQueue, PHaser, TransferQueue
+// omit links to ForkJoinPool, ForkJoinTask, LinkedTransferQueue, Phaser, TransferQueue
 // END android-note
 
 /**
@@ -23,7 +23,7 @@
  *
  * {@link java.util.concurrent.Executor} is a simple standardized
  * interface for defining custom thread-like subsystems, including
- * thread pools, asynchronous IO, and lightweight task frameworks.
+ * thread pools, asynchronous I/O, and lightweight task frameworks.
  * Depending on which concrete Executor class is being used, tasks may
  * execute in a newly created thread, an existing task-execution thread,
  * or the thread calling {@link java.util.concurrent.Executor#execute
@@ -174,7 +174,7 @@
  * it may (or may not) reflect any updates since the iterator was
  * created.
  *
- * <h2><a name="MemoryVisibility">Memory Consistency Properties</a></h2>
+ * <h2 id="MemoryVisibility">Memory Consistency Properties</h2>
  *
  * <a href="http://java.sun.com/docs/books/jls/third_edition/html/memory.html">
  * Chapter 17 of the Java Language Specification</a> defines the
@@ -243,8 +243,7 @@
  *   in each thread <i>happen-before</i> those subsequent to the
  *   corresponding {@code exchange()} in another thread.
  *
- *   <li>Actions prior to calling {@code CyclicBarrier.await} and
- *   {@code Phaser.awaitAdvance} (as well as its variants)
+ *   <li>Actions prior to calling {@code CyclicBarrier.await}
  *   <i>happen-before</i> actions performed by the barrier action, and
  *   actions performed by the barrier action <i>happen-before</i> actions
  *   subsequent to a successful return from the corresponding {@code await}
