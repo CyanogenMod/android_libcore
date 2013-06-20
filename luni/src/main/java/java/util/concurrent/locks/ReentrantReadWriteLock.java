@@ -5,8 +5,8 @@
  */
 
 package java.util.concurrent.locks;
-import java.util.concurrent.*;
-import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.Collection;
 
 /**
  * An implementation of {@link ReadWriteLock} supporting similar
@@ -16,7 +16,7 @@ import java.util.*;
  * <ul>
  * <li><b>Acquisition order</b>
  *
- * <p> This class does not impose a reader or writer preference
+ * <p>This class does not impose a reader or writer preference
  * ordering for lock access.  However, it does support an optional
  * <em>fairness</em> policy.
  *
@@ -30,7 +30,7 @@ import java.util.*;
  * <p>
  *
  * <dt><b><i>Fair mode</i></b>
- * <dd> When constructed as fair, threads contend for entry using an
+ * <dd>When constructed as fair, threads contend for entry using an
  * approximately arrival-order policy. When the currently held lock
  * is released, either the longest-waiting single writer thread will
  * be assigned the write lock, or if there is a group of reader threads
@@ -183,7 +183,6 @@ import java.util.*;
  *
  * @since 1.5
  * @author Doug Lea
- *
  */
 public class ReentrantReadWriteLock
         implements ReadWriteLock, java.io.Serializable {
@@ -624,10 +623,7 @@ public class ReentrantReadWriteLock
         }
 
         /**
-         * Reconstitutes this lock instance from a stream (that is,
-         * deserializes it).
-         *
-         * @param s the stream
+         * Reconstitutes the instance from a stream (that is, deserializes it).
          */
         private void readObject(java.io.ObjectInputStream s)
             throws java.io.IOException, ClassNotFoundException {
@@ -771,7 +767,7 @@ public class ReentrantReadWriteLock
          *
          * @return {@code true} if the read lock was acquired
          */
-        public  boolean tryLock() {
+        public boolean tryLock() {
             return sync.tryReadLock();
         }
 
@@ -841,7 +837,6 @@ public class ReentrantReadWriteLock
          * @return {@code true} if the read lock was acquired
          * @throws InterruptedException if the current thread is interrupted
          * @throws NullPointerException if the time unit is null
-         *
          */
         public boolean tryLock(long timeout, TimeUnit unit)
                 throws InterruptedException {
@@ -851,10 +846,10 @@ public class ReentrantReadWriteLock
         /**
          * Attempts to release this lock.
          *
-         * <p> If the number of readers is now zero then the lock
+         * <p>If the number of readers is now zero then the lock
          * is made available for write lock attempts.
          */
-        public  void unlock() {
+        public void unlock() {
             sync.releaseShared(1);
         }
 
@@ -993,7 +988,7 @@ public class ReentrantReadWriteLock
          * #tryLock(long, TimeUnit) tryLock(0, TimeUnit.SECONDS) }
          * which is almost equivalent (it also detects interruption).
          *
-         * <p> If the current thread already holds this lock then the
+         * <p>If the current thread already holds this lock then the
          * hold count is incremented by one and the method returns
          * {@code true}.
          *
@@ -1086,7 +1081,6 @@ public class ReentrantReadWriteLock
          *
          * @throws InterruptedException if the current thread is interrupted
          * @throws NullPointerException if the time unit is null
-         *
          */
         public boolean tryLock(long timeout, TimeUnit unit)
                 throws InterruptedException {
@@ -1103,7 +1097,7 @@ public class ReentrantReadWriteLock
          * IllegalMonitorStateException} is thrown.
          *
          * @throws IllegalMonitorStateException if the current thread does not
-         * hold this lock.
+         * hold this lock
          */
         public void unlock() {
             sync.release(1);
@@ -1231,7 +1225,7 @@ public class ReentrantReadWriteLock
      * Queries the number of read locks held for this lock. This
      * method is designed for use in monitoring system state, not for
      * synchronization control.
-     * @return the number of read locks held.
+     * @return the number of read locks held
      */
     public int getReadLockCount() {
         return sync.getReadLockCount();
