@@ -83,9 +83,9 @@ public class AtomicStampedReference<V> {
      * current reference is {@code ==} to the expected reference
      * and the current stamp is equal to the expected stamp.
      *
-     * <p>May <a href="package-summary.html#Spurious">fail spuriously</a>
-     * and does not provide ordering guarantees, so is only rarely an
-     * appropriate alternative to {@code compareAndSet}.
+     * <p><a href="package-summary.html#weakCompareAndSet">May fail
+     * spuriously and does not provide ordering guarantees</a>, so is
+     * only rarely an appropriate alternative to {@code compareAndSet}.
      *
      * @param expectedReference the expected value of the reference
      * @param newReference the new value for the reference
@@ -125,7 +125,6 @@ public class AtomicStampedReference<V> {
               newStamp == current.stamp) ||
              casPair(current, Pair.of(newReference, newStamp)));
     }
-
 
     /**
      * Unconditionally sets the value of both the reference and stamp.

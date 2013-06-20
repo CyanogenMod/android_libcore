@@ -83,12 +83,11 @@ public class FutureTask<V> implements RunnableFuture<V> {
      *
      * @param s completed state value
      */
+    @SuppressWarnings("unchecked")
     private V report(int s) throws ExecutionException {
         Object x = outcome;
-        if (s == NORMAL) {
-            @SuppressWarnings("unchecked") V v = (V)x;
-            return v;
-        }
+        if (s == NORMAL)
+            return (V)x;
         if (s >= CANCELLED)
             throw new CancellationException();
         throw new ExecutionException((Throwable)x);
@@ -134,19 +133,23 @@ public class FutureTask<V> implements RunnableFuture<V> {
     }
 
     public boolean cancel(boolean mayInterruptIfRunning) {
-        if (state != NEW)
+        if (!(state == NEW &&
+              UNSAFE.compareAndSwapInt(this, stateOffset, NEW,
+                  mayInterruptIfRunning ? INTERRUPTING : CANCELLED)))
             return false;
-        if (mayInterruptIfRunning) {
-            if (!UNSAFE.compareAndSwapInt(this, stateOffset, NEW, INTERRUPTING))
-                return false;
-            Thread t = runner;
-            if (t != null)
-                t.interrupt();
-            UNSAFE.putOrderedInt(this, stateOffset, INTERRUPTED); // final state
+        try {    // in case call to interrupt throws exception
+            if (mayInterruptIfRunning) {
+                try {
+                    Thread t = runner;
+                    if (t != null)
+                        t.interrupt();
+                } finally { // final state
+                    UNSAFE.putOrderedInt(this, stateOffset, INTERRUPTED);
+                }
+            }
+        } finally {
+            finishCompletion();
         }
-        else if (!UNSAFE.compareAndSwapInt(this, stateOffset, NEW, CANCELLED))
-            return false;
-        finishCompletion();
         return true;
     }
 
@@ -363,7 +366,7 @@ public class FutureTask<V> implements RunnableFuture<V> {
      */
     private int awaitDone(boolean timed, long nanos)
         throws InterruptedException {
-        long last = timed ? System.nanoTime() : 0L;
+        final long deadline = timed ? System.nanoTime() + nanos : 0L;
         WaitNode q = null;
         boolean queued = false;
         for (;;) {
@@ -378,18 +381,19 @@ public class FutureTask<V> implements RunnableFuture<V> {
                     q.thread = null;
                 return s;
             }
+            else if (s == COMPLETING) // cannot time out yet
+                Thread.yield();
             else if (q == null)
                 q = new WaitNode();
             else if (!queued)
                 queued = UNSAFE.compareAndSwapObject(this, waitersOffset,
                                                      q.next = waiters, q);
             else if (timed) {
-                long now = System.nanoTime();
-                if ((nanos -= (now - last)) <= 0L) {
+                nanos = deadline - System.nanoTime();
+                if (nanos <= 0L) {
                     removeWaiter(q);
                     return state;
                 }
-                last = now;
                 LockSupport.parkNanos(this, nanos);
             }
             else

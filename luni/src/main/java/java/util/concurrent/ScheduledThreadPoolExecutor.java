@@ -13,7 +13,6 @@ import java.util.*;
 
 // BEGIN android-note
 // omit class-level docs on setRemoveOnCancelPolicy()
-// removed security manager docs
 // END android-note
 
 /**
@@ -31,7 +30,7 @@ import java.util.*;
  * submission.
  *
  * <p>When a submitted task is cancelled before it is run, execution
- * is suppressed. Such a cancelled task is not
+ * is suppressed. By default, such a cancelled task is not
  * automatically removed from the work queue until its delay
  * elapses. While this enables further inspection and monitoring, it
  * may also cause unbounded retention of cancelled tasks.
@@ -54,7 +53,7 @@ import java.util.*;
  * without threads to handle tasks once they become eligible to run.
  *
  * <p><b>Extension notes:</b> This class overrides the
- * {@link ThreadPoolExecutor#execute execute} and
+ * {@link ThreadPoolExecutor#execute(Runnable) execute} and
  * {@link AbstractExecutorService#submit(Runnable) submit}
  * methods to generate internal {@link ScheduledFuture} objects to
  * control per-task delays and scheduling.  To preserve
@@ -196,7 +195,7 @@ public class ScheduledThreadPoolExecutor
         }
 
         /**
-         * Creates a one-shot action with given nanoTime-based trigger.
+         * Creates a one-shot action with given nanoTime-based trigger time.
          */
         ScheduledFutureTask(Callable<V> callable, long ns) {
             super(callable);
@@ -224,15 +223,14 @@ public class ScheduledThreadPoolExecutor
                 else
                     return 1;
             }
-            long diff = (getDelay(NANOSECONDS) -
-                         other.getDelay(NANOSECONDS));
+            long diff = getDelay(NANOSECONDS) - other.getDelay(NANOSECONDS);
             return (diff < 0) ? -1 : (diff > 0) ? 1 : 0;
         }
 
         /**
-         * Returns true if this is a periodic (not a one-shot) action.
+         * Returns {@code true} if this is a periodic (not a one-shot) action.
          *
-         * @return true if periodic
+         * @return {@code true} if periodic
          */
         public boolean isPeriodic() {
             return period != 0;
@@ -289,7 +287,7 @@ public class ScheduledThreadPoolExecutor
      * is shut down, rejects the task. Otherwise adds task to queue
      * and starts a thread, if necessary, to run it.  (We cannot
      * prestart the thread to run the task because the task (probably)
-     * shouldn't be run yet,) If the pool is shut down while the task
+     * shouldn't be run yet.)  If the pool is shut down while the task
      * is being added, cancel and remove it if required by state and
      * run-after-shutdown parameters.
      *
@@ -628,7 +626,7 @@ public class ScheduledThreadPoolExecutor
      * {@code false} when already shutdown.
      * This value is by default {@code false}.
      *
-     * @param value if {@code true}, continue after shutdown, else don't.
+     * @param value if {@code true}, continue after shutdown, else don't
      * @see #getContinueExistingPeriodicTasksAfterShutdownPolicy
      */
     public void setContinueExistingPeriodicTasksAfterShutdownPolicy(boolean value) {
@@ -660,7 +658,7 @@ public class ScheduledThreadPoolExecutor
      * {@code false} when already shutdown.
      * This value is by default {@code true}.
      *
-     * @param value if {@code true}, execute after shutdown, else don't.
+     * @param value if {@code true}, execute after shutdown, else don't
      * @see #getExecuteExistingDelayedTasksAfterShutdownPolicy
      */
     public void setExecuteExistingDelayedTasksAfterShutdownPolicy(boolean value) {
@@ -834,7 +832,7 @@ public class ScheduledThreadPoolExecutor
         private final Condition available = lock.newCondition();
 
         /**
-         * Set f's heapIndex if it is a ScheduledFutureTask.
+         * Sets f's heapIndex if it is a ScheduledFutureTask.
          */
         private void setIndex(RunnableScheduledFuture<?> f, int idx) {
             if (f instanceof ScheduledFutureTask)
@@ -842,7 +840,7 @@ public class ScheduledThreadPoolExecutor
         }
 
         /**
-         * Sift element added at bottom up to its heap-ordered spot.
+         * Sifts element added at bottom up to its heap-ordered spot.
          * Call only when holding lock.
          */
         private void siftUp(int k, RunnableScheduledFuture<?> key) {
@@ -860,7 +858,7 @@ public class ScheduledThreadPoolExecutor
         }
 
         /**
-         * Sift element added at top down to its heap-ordered spot.
+         * Sifts element added at top down to its heap-ordered spot.
          * Call only when holding lock.
          */
         private void siftDown(int k, RunnableScheduledFuture<?> key) {
@@ -882,7 +880,7 @@ public class ScheduledThreadPoolExecutor
         }
 
         /**
-         * Resize the heap array.  Call only when holding lock.
+         * Resizes the heap array.  Call only when holding lock.
          */
         private void grow() {
             int oldCapacity = queue.length;
@@ -893,7 +891,7 @@ public class ScheduledThreadPoolExecutor
         }
 
         /**
-         * Find index of given object, or -1 if absent
+         * Finds index of given object, or -1 if absent.
          */
         private int indexOf(Object x) {
             if (x != null) {
@@ -1054,7 +1052,8 @@ public class ScheduledThreadPoolExecutor
                         long delay = first.getDelay(NANOSECONDS);
                         if (delay <= 0)
                             return finishPoll(first);
-                        else if (leader != null)
+                        first = null; // don't retain ref while waiting
+                        if (leader != null)
                             available.await();
                         else {
                             Thread thisThread = Thread.currentThread();
@@ -1094,6 +1093,7 @@ public class ScheduledThreadPoolExecutor
                             return finishPoll(first);
                         if (nanos <= 0)
                             return null;
+                        first = null; // don't retain ref while waiting
                         if (nanos < delay || leader != null)
                             nanos = available.awaitNanos(nanos);
                         else {
@@ -1134,7 +1134,7 @@ public class ScheduledThreadPoolExecutor
         }
 
         /**
-         * Return first element only if it is expired.
+         * Returns first element only if it is expired.
          * Used only by drainTo.  Call only when holding lock.
          */
         private RunnableScheduledFuture<?> peekExpired() {
