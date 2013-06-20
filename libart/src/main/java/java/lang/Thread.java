@@ -902,9 +902,15 @@ public class Thread implements Runnable {
         if (threadName == null) {
             throw new NullPointerException("threadName == null");
         }
+        // The lock is taken to ensure no race occurs between starting the
+        // the thread and setting its name (and the name of its native peer).
+        synchronized (this) {
+            this.name = threadName;
 
-        this.name = threadName;
-        nativeSetName(threadName);
+            if (isAlive()) {
+                nativeSetName(threadName);
+            }
+        }
     }
 
     /**
@@ -930,8 +936,15 @@ public class Thread implements Runnable {
             priority = group.getMaxPriority();
         }
 
-        this.priority = priority;
-        nativeSetPriority(priority);
+        // The lock is taken to ensure no race occurs between starting the
+        // the thread and setting its priority (and the priority of its native peer).
+        synchronized (this) {
+            this.priority = priority;
+
+            if (isAlive()) {
+                nativeSetPriority(priority);
+            }
+        }
     }
 
     private native void nativeSetPriority(int newPriority);
