@@ -73,7 +73,7 @@ public class SocketChannelTest extends junit.framework.TestCase {
     try {
       sc.connect(new InetSocketAddress(InetAddress.getByAddress(new byte[] { 0, 0, 0, 0 }), 0));
       fail();
-    } catch (java.net.ConnectException ex) {
+    } catch (ConnectException ex) {
     }
 
     try {
