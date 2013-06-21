@@ -469,9 +469,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
     }
 
     @Override protected void implConfigureBlocking(boolean blocking) throws IOException {
-        synchronized (blockingLock()) {
-            IoUtils.setBlocking(fd, blocking);
-        }
+        IoUtils.setBlocking(fd, blocking);
     }
 
     /*
