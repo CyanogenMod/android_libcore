@@ -125,7 +125,7 @@ public class Thread implements Runnable {
     public static final int NORM_PRIORITY = 5;
 
     /* some of these are accessed directly by the VM; do not rename them */
-    private volatile int vmData;
+    private volatile int nativePeer;
     volatile ThreadGroup group;
     volatile boolean daemon;
     volatile String name;
@@ -684,7 +684,7 @@ public class Thread implements Runnable {
      * @see Thread#start
      */
     public final boolean isAlive() {
-        return (vmData != 0);
+        return (nativePeer != 0);
     }
 
     /**
@@ -832,7 +832,7 @@ public class Thread implements Runnable {
     public final void setDaemon(boolean isDaemon) {
         checkNotStarted();
 
-        if (vmData == 0) {
+        if (nativePeer == 0) {
             daemon = isDaemon;
         }
     }
