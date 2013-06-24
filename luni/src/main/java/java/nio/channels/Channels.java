@@ -216,8 +216,8 @@ public final class Channels {
             return Streams.readSingleByte(this);
         }
 
-        @Override public synchronized int read(byte[] target, int offset, int length) throws IOException {
-            ByteBuffer buffer = ByteBuffer.wrap(target, offset, length);
+        @Override public synchronized int read(byte[] target, int byteOffset, int byteCount) throws IOException {
+            ByteBuffer buffer = ByteBuffer.wrap(target, byteOffset, byteCount);
             checkBlocking(channel);
             return channel.read(buffer);
         }

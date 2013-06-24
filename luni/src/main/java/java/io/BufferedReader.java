@@ -267,7 +267,7 @@ public class BufferedReader extends Reader {
     }
 
     /**
-     * Reads at most {@code length} characters from this reader and stores them
+     * Reads up to {@code length} characters from this reader and stores them
      * at {@code offset} in the character array {@code buffer}. Returns the
      * number of characters actually read or -1 if the end of the source reader
      * has been reached. If all the buffered characters have been used, a mark
@@ -275,20 +275,8 @@ public class BufferedReader extends Reader {
      * this readers buffer size, BufferedReader bypasses the buffer and simply
      * places the results directly into {@code buffer}.
      *
-     * @param buffer
-     *            the character array to store the characters read.
-     * @param offset
-     *            the initial position in {@code buffer} to store the chars read
-     *            from this reader.
-     * @param length
-     *            the maximum number of characters to read, must be
-     *            non-negative.
-     * @return number of characters read or -1 if the end of the source reader
-     *         has been reached.
      * @throws IndexOutOfBoundsException
-     *             if {@code offset < 0} or {@code length < 0}, or if
-     *             {@code offset + length} is greater than the size of
-     *             {@code buffer}.
+     *     if {@code offset < 0 || length < 0 || offset + length > buffer.length}.
      * @throws IOException
      *             if this reader is closed or some other I/O error occurs.
      */

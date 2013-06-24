@@ -132,14 +132,13 @@ public class InflaterInputStream extends FilterInputStream {
 
     /**
      * Reads up to {@code byteCount} bytes of decompressed data and stores it in
-     * {@code buffer} starting at {@code offset}.
-     *
-     * @return Number of uncompressed bytes read
+     * {@code buffer} starting at {@code byteOffset}. Returns the number of uncompressed bytes read,
+     * or -1.
      */
     @Override
-    public int read(byte[] buffer, int offset, int byteCount) throws IOException {
+    public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
         checkClosed();
-        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
+        Arrays.checkOffsetAndCount(buffer.length, byteOffset, byteCount);
 
         if (byteCount == 0) {
             return 0;
@@ -156,7 +155,7 @@ public class InflaterInputStream extends FilterInputStream {
             // Invariant: if reading returns -1 or throws, eof must be true.
             // It may also be true if the next read() should return -1.
             try {
-                int result = inf.inflate(buffer, offset, byteCount);
+                int result = inf.inflate(buffer, byteOffset, byteCount);
                 eof = inf.finished();
                 if (result > 0) {
                     return result;
