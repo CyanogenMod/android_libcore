@@ -286,15 +286,13 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
     }
 
     /**
-     * Reads up to the specified number of uncompressed bytes into the buffer
-     * starting at the offset.
-     *
-     * @return the number of bytes read
+     * Reads up to {@code byteCount} uncompressed bytes into the buffer
+     * starting at {@code byteOffset}. Returns the number of bytes actually read, or -1.
      */
     @Override
-    public int read(byte[] buffer, int offset, int byteCount) throws IOException {
+    public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
         checkClosed();
-        Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
+        Arrays.checkOffsetAndCount(buffer.length, byteOffset, byteCount);
 
         if (inf.finished() || currentEntry == null) {
             return -1;
@@ -317,10 +315,10 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
             if ((csize - inRead) < toRead) {
                 toRead = csize - inRead;
             }
-            System.arraycopy(buf, lastRead, buffer, offset, toRead);
+            System.arraycopy(buf, lastRead, buffer, byteOffset, toRead);
             lastRead += toRead;
             inRead += toRead;
-            crc.update(buffer, offset, toRead);
+            crc.update(buffer, byteOffset, toRead);
             return toRead;
         }
         if (inf.needsInput()) {
@@ -331,14 +329,14 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         }
         int read;
         try {
-            read = inf.inflate(buffer, offset, byteCount);
+            read = inf.inflate(buffer, byteOffset, byteCount);
         } catch (DataFormatException e) {
             throw new ZipException(e.getMessage());
         }
         if (read == 0 && inf.finished()) {
             return -1;
         }
-        crc.update(buffer, offset, read);
+        crc.update(buffer, byteOffset, read);
         return read;
     }
 

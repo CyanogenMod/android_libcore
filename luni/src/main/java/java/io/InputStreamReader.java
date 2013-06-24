@@ -185,42 +185,31 @@ public class InputStreamReader extends Reader {
     }
 
     /**
-     * Reads at most {@code length} characters from this reader and stores them
-     * at position {@code offset} in the character array {@code buf}. Returns
+     * Reads up to {@code count} characters from this reader and stores them
+     * at position {@code offset} in the character array {@code buffer}. Returns
      * the number of characters actually read or -1 if the end of the reader has
      * been reached. The bytes are either obtained from converting bytes in this
      * reader's buffer or by first filling the buffer from the source
      * InputStream and then reading from the buffer.
      *
-     * @param buffer
-     *            the array to store the characters read.
-     * @param offset
-     *            the initial position in {@code buf} to store the characters
-     *            read from this reader.
-     * @param length
-     *            the maximum number of characters to read.
-     * @return the number of characters read or -1 if the end of the reader has
-     *         been reached.
      * @throws IndexOutOfBoundsException
-     *             if {@code offset < 0} or {@code length < 0}, or if
-     *             {@code offset + length} is greater than the length of
-     *             {@code buf}.
+     *     if {@code offset < 0 || count < 0 || offset + count > buffer.length}.
      * @throws IOException
      *             if this reader is closed or some other I/O error occurs.
      */
     @Override
-    public int read(char[] buffer, int offset, int length) throws IOException {
+    public int read(char[] buffer, int offset, int count) throws IOException {
         synchronized (lock) {
             if (!isOpen()) {
                 throw new IOException("InputStreamReader is closed");
             }
 
-            Arrays.checkOffsetAndCount(buffer.length, offset, length);
-            if (length == 0) {
+            Arrays.checkOffsetAndCount(buffer.length, offset, count);
+            if (count == 0) {
                 return 0;
             }
 
-            CharBuffer out = CharBuffer.wrap(buffer, offset, length);
+            CharBuffer out = CharBuffer.wrap(buffer, offset, count);
             CoderResult result = CoderResult.UNDERFLOW;
 
             // bytes.remaining() indicates number of bytes in buffer
