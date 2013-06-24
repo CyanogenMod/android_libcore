@@ -406,13 +406,13 @@ public class ZipFile implements Closeable, ZipConstants {
             return Streams.readSingleByte(this);
         }
 
-        @Override public int read(byte[] b, int off, int len) throws IOException {
+        @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
             synchronized (sharedRaf) {
                 sharedRaf.seek(offset);
-                if (len > length - offset) {
-                    len = (int) (length - offset);
+                if (byteCount > length - offset) {
+                    byteCount = (int) (length - offset);
                 }
-                int count = sharedRaf.read(b, off, len);
+                int count = sharedRaf.read(buffer, byteOffset, byteCount);
                 if (count > 0) {
                     offset += count;
                     return count;
@@ -451,8 +451,8 @@ public class ZipFile implements Closeable, ZipConstants {
             this.entry = entry;
         }
 
-        @Override public int read(byte[] buffer, int off, int nbytes) throws IOException {
-            int i = super.read(buffer, off, nbytes);
+        @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+            int i = super.read(buffer, byteOffset, byteCount);
             if (i != -1) {
                 bytesRead += i;
             }

@@ -98,18 +98,18 @@ public class JarFile extends ZipFile {
         }
 
         @Override
-        public int read(byte[] buf, int off, int nbytes) throws IOException {
+        public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
             if (done) {
                 return -1;
             }
             if (count > 0) {
-                int r = super.read(buf, off, nbytes);
+                int r = super.read(buffer, byteOffset, byteCount);
                 if (r != -1) {
                     int size = r;
                     if (count < size) {
                         size = (int) count;
                     }
-                    entry.write(buf, off, size);
+                    entry.write(buffer, byteOffset, size);
                     count -= size;
                 } else {
                     count = 0;

@@ -199,28 +199,21 @@ public class PipedReader extends Reader {
     }
 
     /**
-     * Reads at most {@code count} characters from this reader and stores them
+     * Reads up to {@code count} characters from this reader and stores them
      * in the character array {@code buffer} starting at {@code offset}. If
      * there is no data in the pipe, this method blocks until at least one byte
      * has been read, the end of the reader is detected or an exception is
      * thrown.
-     * <p>
-     * Separate threads should be used to read from a {@code PipedReader} and to
+     *
+     * <p>Separate threads should be used to read from a {@code PipedReader} and to
      * write to the connected {@link PipedWriter}. If the same thread is used, a
      * deadlock may occur.
      *
-     * @param buffer
-     *            the character array in which to store the characters read.
-     * @param offset
-     *            the initial position in {@code bytes} to store the characters
-     *            read from this reader.
-     * @param count
-     *            the maximum number of characters to store in {@code buffer}.
-     * @return the number of characters read or -1 if the end of the reader has
-     *         been reached.
+     * <p>Returns the number of characters read or -1 if the end of the reader has
+     * been reached.
+     *
      * @throws IndexOutOfBoundsException
-     *             if {@code offset < 0} or {@code count < 0}, or if {@code
-     *             offset + count} is greater than the size of {@code buffer}.
+     *     if {@code offset < 0 || count < 0 || offset + count > buffer.length}.
      * @throws InterruptedIOException
      *             if the thread reading from this reader is interrupted.
      * @throws IOException
@@ -228,8 +221,7 @@ public class PipedReader extends Reader {
      *             the thread writing to the connected writer is no longer
      *             alive.
      */
-    @Override
-    public synchronized int read(char[] buffer, int offset, int count) throws IOException {
+    @Override public synchronized int read(char[] buffer, int offset, int count) throws IOException {
         if (!isConnected) {
             throw new IOException("Pipe not connected");
         }
