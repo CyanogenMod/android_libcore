@@ -236,8 +236,8 @@ public class PlainSocketImpl extends SocketImpl {
             return Streams.readSingleByte(this);
         }
 
-        @Override public int read(byte[] buffer, int offset, int byteCount) throws IOException {
-            return socketImpl.read(buffer, offset, byteCount);
+        @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+            return socketImpl.read(buffer, byteOffset, byteCount);
         }
     }
 

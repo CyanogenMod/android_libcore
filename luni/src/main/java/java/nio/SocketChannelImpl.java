@@ -669,12 +669,12 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         }
 
         @Override
-        public int read(byte[] buffer, int offset, int byteCount) throws IOException {
-            Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
+        public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+            Arrays.checkOffsetAndCount(buffer.length, byteOffset, byteCount);
             if (!channel.isBlocking()) {
                 throw new IllegalBlockingModeException();
             }
-            ByteBuffer buf = ByteBuffer.wrap(buffer, offset, byteCount);
+            ByteBuffer buf = ByteBuffer.wrap(buffer, byteOffset, byteCount);
             return channel.read(buf);
         }
     }
