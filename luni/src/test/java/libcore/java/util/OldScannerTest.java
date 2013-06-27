@@ -15,7 +15,13 @@
  */
 package libcore.java.util;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.net.InetSocketAddress;
 import java.nio.CharBuffer;
@@ -31,12 +37,10 @@ import junit.framework.TestCase;
 
 public final class OldScannerTest extends TestCase {
 
-    private Scanner s;
-
     public void test_findWithinHorizon_Ljava_lang_StringI() {
         // This method searches through the input up to the specified search
         // horizon(exclusive).
-        s = new Scanner("123test");
+        Scanner s = new Scanner("123test");
         String result = s.findWithinHorizon("\\p{Lower}", 5);
         assertEquals("t", result);
         MatchResult mresult = s.match();
@@ -265,30 +269,7 @@ public final class OldScannerTest extends TestCase {
     }
 
     public void test_findInLine_LString() {
-        s = new Scanner("test");
-        try {
-            s.findInLine((String) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
-        }
-
-        s.close();
-        try {
-            s.findInLine((String) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
-        }
-        try {
-            s.findInLine("test");
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // exptected
-        }
-
-        s = new Scanner("");
-
+        Scanner s = new Scanner("");
         String result = s.findInLine("^");
         assertEquals("", result);
         MatchResult matchResult = s.match();
@@ -325,8 +306,7 @@ public final class OldScannerTest extends TestCase {
         try {
             matchResult = s.match();
             fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+        } catch (IllegalStateException expected) {
         }
         assertEquals(0, matchResult.start());
         assertEquals(4, matchResult.end());
@@ -392,105 +372,6 @@ public final class OldScannerTest extends TestCase {
         result = s.findInLine("est");
     }
 
-    public void test_skip_LPattern() {
-        s = new Scanner("test");
-        try {
-            s.skip((String) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
-        }
-
-        // If pattern does not match, NoSuchElementException will be thrown out.
-        s = new Scanner("1234");
-        try {
-            s.skip(Pattern.compile("\\p{Lower}"));
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // expected
-        }
-        // Then, no matchResult will be thrown out.
-        try {
-            s.match();
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
-        }
-
-        s.skip(Pattern.compile("\\p{Digit}"));
-        MatchResult matchResult = s.match();
-        assertEquals(0, matchResult.start());
-        assertEquals(1, matchResult.end());
-
-        s.skip(Pattern.compile("\\p{Digit}+"));
-        matchResult = s.match();
-        assertEquals(1, matchResult.start());
-        assertEquals(4, matchResult.end());
-
-        s.close();
-        try {
-            s.skip(Pattern.compile("test"));
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
-        }
-
-        MockStringReader2Read reader = new MockStringReader2Read("test");
-        s = new Scanner(reader);
-        try {
-            s.skip(Pattern.compile("\\p{Digit}{4}"));
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // expected
-        }
-        try {
-            s.match();
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
-        }
-        s.skip(Pattern.compile("\\p{Digit}{3}\\p{Lower}"));
-        matchResult = s.match();
-        assertEquals(0, matchResult.start());
-        assertEquals(4, matchResult.end());
-
-        s.close();
-        try {
-            s.skip((Pattern) null);
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
-        }
-
-        StringBuilder stringBuilder = new StringBuilder();
-        char [] chars = new char[1024];
-        Arrays.fill(chars, 'a');
-        stringBuilder.append(chars);
-        stringBuilder.append('3');
-        s = new Scanner(stringBuilder.toString());
-        s.skip(Pattern.compile("\\p{Lower}+\\p{Digit}"));
-        matchResult = s.match();
-        assertEquals(0, matchResult.start());
-        assertEquals(1025, matchResult.end());
-
-        // Large amount of input may be cached
-        chars = new char[102400];
-        Arrays.fill(chars, 'a');
-        stringBuilder = new StringBuilder();
-        stringBuilder.append(chars);
-        s = new Scanner(stringBuilder.toString());
-        s.skip(Pattern.compile(".*"));
-        matchResult = s.match();
-        assertEquals(0, matchResult.start());
-        assertEquals(102400, matchResult.end());
-
-        // skip something without risking a NoSuchElementException
-        s.skip(Pattern.compile("[ \t]*"));
-        matchResult = s.match();
-        assertEquals(102400, matchResult.start());
-        assertEquals(102400, matchResult.end());
-    }
-
     public void test_Constructor_LReadableByteChannel() throws IOException {
         ServerSocketChannel ssc = ServerSocketChannel.open();
         ssc.socket().bind(null);
@@ -529,27 +410,30 @@ public final class OldScannerTest extends TestCase {
         }
     }
 
-    private static class MockStringReader2Read extends StringReader {
-        private int timesRead = 1;
+  // http://code.google.com/p/android/issues/detail?id=57050
+  public void testPerformance() throws Exception {
+    int count = 100000;
 
-        public MockStringReader2Read(String param) {
-            super(param);
-        }
-
-        public int read(CharBuffer target) throws IOException {
-            if (timesRead == 1) {
-                target.append('1');
-                target.append('2');
-                target.append('3');
-                timesRead++;
-                return 3;
-            } else if (timesRead == 2) {
-                target.append('t');
-                timesRead++;
-                return 1;
-            } else {
-                throw new IOException();
-            }
-        }
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    BufferedWriter out = new BufferedWriter(new OutputStreamWriter(baos));
+    for (int i = 0; i < count; ++i) {
+      out.write(Integer.toString(123) + " ");
     }
+    out.close();
+
+    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+    Scanner s = new Scanner(new BufferedReader(new InputStreamReader(bais)));
+    for (int i = 0; i < count; ++i) {
+      if (s.nextInt() != 123) {
+        fail();
+      }
+    }
+
+    s = new Scanner(new BufferedReader(new InputStreamReader(bais)));
+    for (int i = 0; i < count; ++i) {
+      if (s.nextFloat() != 123.0) {
+        fail();
+      }
+    }
+  }
 }
