@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -109,10 +109,10 @@ public class SelectorTest extends TestCase {
      */
     public void test_keys() throws IOException {
         SelectionKey key = ssc.register(selector, SelectionKey.OP_ACCEPT);
-        
+
         Set<SelectionKey> keySet = selector.keys();
         Set<SelectionKey> keySet2 = selector.keys();
-        
+
         assertSame(keySet, keySet2);
         assertEquals(1,keySet.size());
         SelectionKey key2 = keySet.iterator().next();
@@ -288,13 +288,15 @@ public class SelectorTest extends TestCase {
         // make sure select(long) does wait for specified amount of
         // time if keys.size() == 0 (initial state of selector).
 
-        final long SELECT_TIMEOUT = 2000;
+        final long SELECT_TIMEOUT_MS = 2000;
 
-        long time1 = System.currentTimeMillis();
-        selector.select(SELECT_TIMEOUT);
-        long time2 = System.currentTimeMillis();
-        assertEquals("elapsed time", SELECT_TIMEOUT, (time2 - time1),
-                     SELECT_TIMEOUT * 0.05); // 5% accuracy
+        long t0 = System.nanoTime();
+        selector.select(SELECT_TIMEOUT_MS);
+        long t1 = System.nanoTime();
+
+        long waitMs = (t1 - t0) / 1000L / 1000L;
+        assertTrue(waitMs >= SELECT_TIMEOUT_MS);
+        assertTrue(waitMs < 5*SELECT_TIMEOUT_MS);
     }
 
     /**
@@ -530,7 +532,7 @@ public class SelectorTest extends TestCase {
             assertEquals(0, count);
             // but selectedKeys remains the same as previous
             assertSame(selectedKeys, selector.selectedKeys());
-            sc.finishConnect();            
+            sc.finishConnect();
             selectedKeys.clear();
         } finally {
             try {
@@ -538,7 +540,7 @@ public class SelectorTest extends TestCase {
             } catch (Exception e) {
                 // do nothing
             }
-          
+
             try {
                 sc.close();
             } catch (IOException e) {
