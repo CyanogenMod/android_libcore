@@ -68,6 +68,11 @@ public final class VMRuntime {
     public native String vmVersion();
 
     /**
+     * Returns the name of the shared library providing the VM implementation.
+     */
+    public native String vmLibrary();
+
+    /**
      * Gets the current ideal heap utilization, represented as a number
      * between zero and one.  After a GC happens, the Dalvik heap may
      * be resized so that (size of live objects) / (size of heap) is
