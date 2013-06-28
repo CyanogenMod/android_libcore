@@ -23,7 +23,7 @@
 package org.apache.harmony.security.asn1;
 
 import java.io.IOException;
-import java.nio.charset.Charsets;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This class is the super class for all string ASN.1 types
@@ -39,12 +39,12 @@ public abstract class ASN1StringType extends ASN1Type {
 
         @Override
         public Object getDecodedObject(BerInputStream in) throws IOException {
-            return new String(in.buffer, in.contentOffset, in.length, Charsets.UTF_8);
+            return new String(in.buffer, in.contentOffset, in.length, StandardCharsets.UTF_8);
         }
 
         @Override
         public void setEncodingContent(BerOutputStream out) {
-            byte[] bytes = ((String) out.content).getBytes(Charsets.UTF_8);
+            byte[] bytes = ((String) out.content).getBytes(StandardCharsets.UTF_8);
             out.content = bytes;
             out.length = bytes.length;
         }
@@ -96,7 +96,7 @@ public abstract class ASN1StringType extends ASN1Type {
     public Object getDecodedObject(BerInputStream in) throws IOException {
         /* To ensure we get the correct encoding on non-ASCII platforms, specify
            that we wish to convert from ASCII to the default platform encoding */
-        return new String(in.buffer, in.contentOffset, in.length, Charsets.ISO_8859_1);
+        return new String(in.buffer, in.contentOffset, in.length, StandardCharsets.ISO_8859_1);
     }
 
     public void encodeASN(BerOutputStream out) {
@@ -109,7 +109,7 @@ public abstract class ASN1StringType extends ASN1Type {
     }
 
     public void setEncodingContent(BerOutputStream out) {
-        byte[] bytes = ((String) out.content).getBytes(Charsets.UTF_8);
+        byte[] bytes = ((String) out.content).getBytes(StandardCharsets.UTF_8);
         out.content = bytes;
         out.length = bytes.length;
     }

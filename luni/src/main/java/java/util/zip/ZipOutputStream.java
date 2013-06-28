@@ -20,7 +20,7 @@ package java.util.zip;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.Charsets;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import libcore.util.EmptyArray;
@@ -182,7 +182,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         String comment = currentEntry.getComment();
         byte[] commentBytes = EmptyArray.BYTE;
         if (comment != null) {
-            commentBytes = comment.getBytes(Charsets.UTF_8);
+            commentBytes = comment.getBytes(StandardCharsets.UTF_8);
         }
         writeShort(cDir, commentBytes.length); // Comment length.
         writeShort(cDir, 0); // Disk Start
@@ -294,7 +294,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
             // TODO: support Zip64.
             throw new ZipException("Too many entries for the zip file format's 16-bit entry count");
         }
-        nameBytes = ze.name.getBytes(Charsets.UTF_8);
+        nameBytes = ze.name.getBytes(StandardCharsets.UTF_8);
         nameLength = nameBytes.length;
         if (nameLength > 0xffff) {
             throw new IllegalArgumentException("Name too long: " + nameLength + " UTF-8 bytes");
@@ -353,7 +353,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
             return;
         }
 
-        byte[] newCommentBytes = comment.getBytes(Charsets.UTF_8);
+        byte[] newCommentBytes = comment.getBytes(StandardCharsets.UTF_8);
         if (newCommentBytes.length > 0xffff) {
             throw new IllegalArgumentException("Comment too long: " + newCommentBytes.length + " bytes");
         }

@@ -20,7 +20,7 @@ package java.util.zip;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteOrder;
-import java.nio.charset.Charsets;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -184,7 +184,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
             return;
         }
 
-        byte[] commentBytes = comment.getBytes(Charsets.UTF_8);
+        byte[] commentBytes = comment.getBytes(StandardCharsets.UTF_8);
         if (commentBytes.length > 0xffff) {
             throw new IllegalArgumentException("Comment too long: " + commentBytes.length);
         }
@@ -383,14 +383,14 @@ public class ZipEntry implements ZipConstants, Cloneable {
 
         byte[] nameBytes = new byte[nameLength];
         Streams.readFully(in, nameBytes, 0, nameBytes.length);
-        name = new String(nameBytes, 0, nameBytes.length, Charsets.UTF_8);
+        name = new String(nameBytes, 0, nameBytes.length, StandardCharsets.UTF_8);
 
         // The RI has always assumed UTF-8. (If GPBF_UTF8_FLAG isn't set, the encoding is
         // actually IBM-437.)
         if (commentByteCount > 0) {
             byte[] commentBytes = new byte[commentByteCount];
             Streams.readFully(in, commentBytes, 0, commentByteCount);
-            comment = new String(commentBytes, 0, commentBytes.length, Charsets.UTF_8);
+            comment = new String(commentBytes, 0, commentBytes.length, StandardCharsets.UTF_8);
         }
 
         if (extraLength > 0) {
