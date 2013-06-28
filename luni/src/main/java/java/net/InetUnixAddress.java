@@ -16,7 +16,7 @@
 
 package java.net;
 
-import java.nio.charset.Charsets;
+import java.nio.charset.StandardCharsets;
 
 import static libcore.io.OsConstants.*;
 
@@ -29,7 +29,7 @@ public final class InetUnixAddress extends InetAddress {
    * Constructs an AF_UNIX InetAddress for the given path.
    */
   public InetUnixAddress(String path) {
-    this(path.getBytes(Charsets.UTF_8));
+    this(path.getBytes(StandardCharsets.UTF_8));
   }
 
   /**
@@ -43,6 +43,6 @@ public final class InetUnixAddress extends InetAddress {
    * Returns a string form of this InetAddress.
    */
   @Override public String toString() {
-    return "InetUnixAddress[" + new String(ipaddress, Charsets.UTF_8) + "]";
+    return "InetUnixAddress[" + new String(ipaddress, StandardCharsets.UTF_8) + "]";
   }
 }

@@ -20,7 +20,7 @@ package java.util.jar;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.Charsets;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -206,7 +206,7 @@ class JarVerifier {
             if (hash == null) {
                 continue;
             }
-            byte[] hashBytes = hash.getBytes(Charsets.ISO_8859_1);
+            byte[] hashBytes = hash.getBytes(StandardCharsets.ISO_8859_1);
 
             try {
                 return new VerifierEntry(name, MessageDigest.getInstance(algorithm), hashBytes,
@@ -408,7 +408,7 @@ class JarVerifier {
                 md.update(data, start, end - start);
             }
             byte[] b = md.digest();
-            byte[] hashBytes = hash.getBytes(Charsets.ISO_8859_1);
+            byte[] hashBytes = hash.getBytes(StandardCharsets.ISO_8859_1);
             return MessageDigest.isEqual(b, Base64.decode(hashBytes));
         }
         return ignorable;
