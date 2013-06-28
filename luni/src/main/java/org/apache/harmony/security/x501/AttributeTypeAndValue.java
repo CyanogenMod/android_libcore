@@ -23,7 +23,7 @@
 package org.apache.harmony.security.x501;
 
 import java.io.IOException;
-import java.nio.charset.Charsets;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -378,7 +378,7 @@ public final class AttributeTypeAndValue {
                     av.bytes = (byte[]) out.content;
                     out.content = av;
                 } else {
-                    av.bytes = av.rawString.getBytes(Charsets.UTF_8);
+                    av.bytes = av.rawString.getBytes(StandardCharsets.UTF_8);
                     out.length = av.bytes.length;
                 }
             }

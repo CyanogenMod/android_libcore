@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.RandomAccessFile;
 import java.net.Socket;
-import java.nio.charset.Charsets;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import static libcore.io.OsConstants.*;
 
@@ -110,7 +110,7 @@ public final class IoUtils {
      * Returns the contents of 'path' as a string. The contents are assumed to be UTF-8.
      */
     public static String readFileAsString(String path) throws IOException {
-        return readFileAsBytes(path).toString(Charsets.UTF_8);
+        return readFileAsBytes(path).toString(StandardCharsets.UTF_8);
     }
 
     private static UnsafeByteSequence readFileAsBytes(String path) throws IOException {

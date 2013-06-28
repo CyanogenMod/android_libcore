@@ -21,7 +21,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel.MapMode;
-import java.nio.charset.Charsets;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -111,11 +111,11 @@ public final class ZoneInfoDB {
 
       byte[] tzdata_version = new byte[12];
       it.readByteArray(tzdata_version, 0, tzdata_version.length);
-      String magic = new String(tzdata_version, 0, 6, Charsets.US_ASCII);
+      String magic = new String(tzdata_version, 0, 6, StandardCharsets.US_ASCII);
       if (!magic.equals("tzdata") || tzdata_version[11] != 0) {
         throw new RuntimeException("bad tzdata magic: " + Arrays.toString(tzdata_version));
       }
-      version = new String(tzdata_version, 6, 5, Charsets.US_ASCII);
+      version = new String(tzdata_version, 6, 5, StandardCharsets.US_ASCII);
 
       int index_offset = it.readInt();
       int data_offset = it.readInt();
@@ -129,7 +129,7 @@ public final class ZoneInfoDB {
       byte[] bytes = new byte[zoneTabSize];
       it.seek(zoneTabOffset);
       it.readByteArray(bytes, 0, bytes.length);
-      zoneTab = new String(bytes, 0, bytes.length, Charsets.US_ASCII);
+      zoneTab = new String(bytes, 0, bytes.length, StandardCharsets.US_ASCII);
     }
 
     private void readIndex(BufferIterator it, int indexOffset, int dataOffset) {

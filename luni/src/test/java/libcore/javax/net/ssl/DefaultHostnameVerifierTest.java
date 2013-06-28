@@ -19,7 +19,7 @@ package libcore.javax.net.ssl;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.nio.charset.Charsets;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
@@ -301,7 +301,7 @@ public final class DefaultHostnameVerifierTest extends TestCase {
     }
 
     X509Certificate parseCertificate(String encoded) throws Exception {
-        InputStream in = new ByteArrayInputStream(encoded.getBytes(Charsets.US_ASCII));
+        InputStream in = new ByteArrayInputStream(encoded.getBytes(StandardCharsets.US_ASCII));
         return (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(in);
     }
 

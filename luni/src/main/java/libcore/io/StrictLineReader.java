@@ -22,7 +22,7 @@ import java.io.EOFException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.charset.Charsets;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Buffers input from an {@link InputStream} for reading lines.
@@ -78,7 +78,7 @@ public class StrictLineReader implements Closeable {
      * @throws IllegalArgumentException for negative or zero {@code capacity}.
      */
     public StrictLineReader(InputStream in, int capacity) {
-        this(in, capacity, Charsets.US_ASCII);
+        this(in, capacity, StandardCharsets.US_ASCII);
     }
 
     /**
@@ -114,8 +114,8 @@ public class StrictLineReader implements Closeable {
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity <= 0");
         }
-        if (!(charset.equals(Charsets.US_ASCII) || charset.equals(Charsets.UTF_8) ||
-                charset.equals(Charsets.ISO_8859_1))) {
+        if (!(charset.equals(StandardCharsets.US_ASCII) || charset.equals(StandardCharsets.UTF_8) ||
+                charset.equals(StandardCharsets.ISO_8859_1))) {
             throw new IllegalArgumentException("Unsupported encoding");
         }
 
@@ -240,4 +240,3 @@ public class StrictLineReader implements Closeable {
         end = result;
     }
 }
-
