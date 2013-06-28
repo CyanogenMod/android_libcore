@@ -18,7 +18,7 @@
 package java.util.jar;
 
 import java.io.IOException;
-import java.nio.charset.Charsets;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -110,7 +110,7 @@ class InitManifest {
                 continue;
             }
 
-            String name = new String(buf, mark, pos - mark - 1, Charsets.US_ASCII);
+            String name = new String(buf, mark, pos - mark - 1, StandardCharsets.US_ASCII);
 
             if (buf[pos++] != ' ') {
                 throw new IOException(String.format("Invalid value for attribute '%s'", name));
@@ -164,6 +164,6 @@ class InitManifest {
         }
 
         valueBuffer.write(buf, mark, last - mark);
-        value = valueBuffer.toString(Charsets.UTF_8);
+        value = valueBuffer.toString(StandardCharsets.UTF_8);
     }
 }
