@@ -69,7 +69,7 @@ public class DeflaterOutputStream extends FilterOutputStream {
     }
 
     /**
-     * Constructs a new instance with the given flushing behavior.
+     * Constructs a new instance with the given flushing behavior (see {@link #flush}).
      * @since 1.7
      */
     public DeflaterOutputStream(OutputStream os, boolean syncFlush) {
@@ -77,7 +77,8 @@ public class DeflaterOutputStream extends FilterOutputStream {
     }
 
     /**
-     * Constructs a new instance with the given {@code Deflater} and flushing behavior.
+     * Constructs a new instance with the given {@code Deflater} and
+     * flushing behavior (see {@link #flush}).
      * @since 1.7
      */
     public DeflaterOutputStream(OutputStream os, Deflater def, boolean syncFlush) {
@@ -85,7 +86,8 @@ public class DeflaterOutputStream extends FilterOutputStream {
     }
 
     /**
-     * Constructs a new instance with the given {@code Deflater}, buffer size, and flushing behavior.
+     * Constructs a new instance with the given {@code Deflater}, buffer size, and
+     * flushing behavior (see {@link #flush}).
      * @since 1.7
      */
     public DeflaterOutputStream(OutputStream os, Deflater def, int bufferSize, boolean syncFlush) {
@@ -181,10 +183,9 @@ public class DeflaterOutputStream extends FilterOutputStream {
      * Flushes the underlying stream. This flushes only the bytes that can be
      * compressed at the highest level.
      *
-     * <p>For deflater output streams constructed with Java 7's
-     * {@code syncFlush} parameter set to true (not yet available on Android),
-     * this first flushes all outstanding data so that it may be immediately
-     * read by its recipient. Doing so may degrade compression.
+     * <p>For deflater output streams constructed with the {@code syncFlush} parameter set to true,
+     * this first flushes all outstanding data so that it may be immediately read by its recipient.
+     * Doing so may degrade compression but improve interactive behavior.
      */
     @Override public void flush() throws IOException {
         if (syncFlush) {
