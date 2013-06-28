@@ -25,8 +25,8 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
-import java.nio.charset.Charsets;
 import java.nio.charset.CoderResult;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -302,7 +302,7 @@ public class Manifest implements Cloneable {
      *             If an error occurs writing the {@code Manifest}.
      */
     static void write(Manifest manifest, OutputStream out) throws IOException {
-        CharsetEncoder encoder = Charsets.UTF_8.newEncoder();
+        CharsetEncoder encoder = StandardCharsets.UTF_8.newEncoder();
         ByteBuffer buffer = ByteBuffer.allocate(LINE_LENGTH_LIMIT);
 
         Attributes.Name versionName = Attributes.Name.MANIFEST_VERSION;
@@ -339,7 +339,7 @@ public class Manifest implements Cloneable {
     private static void writeEntry(OutputStream os, Attributes.Name name,
             String value, CharsetEncoder encoder, ByteBuffer bBuf) throws IOException {
         String nameString = name.getName();
-        os.write(nameString.getBytes(Charsets.US_ASCII));
+        os.write(nameString.getBytes(StandardCharsets.US_ASCII));
         os.write(VALUE_SEPARATOR);
 
         encoder.reset();

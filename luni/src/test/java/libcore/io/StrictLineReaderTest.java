@@ -23,7 +23,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStream;
-import java.nio.charset.Charsets;
+import java.nio.charset.StandardCharsets;
 
 public class StrictLineReaderTest extends TestCase {
 
@@ -31,7 +31,7 @@ public class StrictLineReaderTest extends TestCase {
         try {
             // Testing with LineReader buffer capacity 32 to check some corner cases.
             StrictLineReader lineReader = new StrictLineReader(createTestInputStream(), 32,
-                    Charsets.US_ASCII);
+                                                               StandardCharsets.US_ASCII);
             InputStream refStream = createTestInputStream();
             while (true) {
                 try {
@@ -81,4 +81,3 @@ public class StrictLineReaderTest extends TestCase {
                 ).getBytes());
     }
 }
-

@@ -23,7 +23,7 @@
 package org.apache.harmony.security.asn1;
 
 import java.io.IOException;
-import java.nio.charset.Charsets;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -99,7 +99,7 @@ public final class ASN1GeneralizedTime extends ASN1Time {
             temp = temp.substring(0, currLength);
         }
 
-        out.content = (temp + "Z").getBytes(Charsets.UTF_8);
+        out.content = (temp + "Z").getBytes(StandardCharsets.UTF_8);
         out.length = ((byte[]) out.content).length;
     }
 }
