@@ -344,7 +344,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
     }
 
     /**
-     * Sets the comment associated with the file being written.
+     * Sets the comment associated with the file being written. See {@link ZipFile#getComment}.
      * @throws IllegalArgumentException if the comment is >= 64 Ki UTF-8 bytes.
      */
     public void setComment(String comment) {
