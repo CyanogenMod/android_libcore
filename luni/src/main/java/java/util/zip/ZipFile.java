@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -101,6 +102,8 @@ public class ZipFile implements Closeable, ZipConstants {
     private RandomAccessFile raf;
 
     private final LinkedHashMap<String, ZipEntry> entries = new LinkedHashMap<String, ZipEntry>();
+
+    private String comment;
 
     private final CloseGuard guard = CloseGuard.get();
 
@@ -218,6 +221,18 @@ public class ZipFile implements Closeable, ZipConstants {
                 return iterator.next();
             }
         };
+    }
+
+    /**
+     * Returns this file's comment, or null if it doesn't have one.
+     * See {@link ZipOutputStream#setComment}.
+     *
+     * @throws IllegalStateException if this zip file has been closed.
+     * @since 1.7
+     */
+    public String getComment() {
+        checkNotClosed();
+        return comment;
     }
 
     /**
@@ -348,9 +363,9 @@ public class ZipFile implements Closeable, ZipConstants {
             }
         }
 
-        // Read the End Of Central Directory. We could use ENDHDR instead of the magic number 18,
-        // but we don't actually need all the header.
-        byte[] eocd = new byte[18];
+        // Read the End Of Central Directory. ENDHDR includes the signature bytes,
+        // which we've already read.
+        byte[] eocd = new byte[ENDHDR - 4];
         raf.readFully(eocd);
 
         // Pull out the information we need.
@@ -361,9 +376,16 @@ public class ZipFile implements Closeable, ZipConstants {
         int totalNumEntries = it.readShort() & 0xffff;
         it.skip(4); // Ignore centralDirSize.
         long centralDirOffset = ((long) it.readInt()) & 0xffffffffL;
+        int commentLength = it.readShort() & 0xffff;
 
         if (numEntries != totalNumEntries || diskNumber != 0 || diskWithCentralDir != 0) {
             throw new ZipException("spanned archives not supported");
+        }
+
+        if (commentLength > 0) {
+            byte[] commentBytes = new byte[commentLength];
+            raf.readFully(commentBytes);
+            comment = new String(commentBytes, 0, commentBytes.length, StandardCharsets.UTF_8);
         }
 
         // Seek to the first CDE and read all entries.
