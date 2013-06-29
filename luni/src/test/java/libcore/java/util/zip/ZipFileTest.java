@@ -252,7 +252,7 @@ public final class ZipFileTest extends TestCase {
         return sb.toString();
     }
 
-    public void testComment() throws Exception {
+    public void testComments() throws Exception {
         String expectedFileComment = "1 \u0666 2";
         String expectedEntryComment = "a \u0666 b";
 
@@ -297,9 +297,21 @@ public final class ZipFileTest extends TestCase {
         out.close();
 
         ZipFile zipFile = new ZipFile(file);
-        // TODO: there's currently no API for reading the file comment --- strings(1) the file?
+        assertEquals(expectedFileComment, zipFile.getComment());
         assertEquals(expectedEntryComment, zipFile.getEntry("a").getComment());
         zipFile.close();
+    }
+
+    public void test_getComment_unset() throws Exception {
+        File file = createTemporaryZipFile();
+        ZipOutputStream out = createZipOutputStream(file);
+        ZipEntry ze = new ZipEntry("test entry");
+        ze.setComment("per-entry comment");
+        out.putNextEntry(ze);
+        out.close();
+
+        ZipFile zipFile = new ZipFile(file);
+        assertEquals(null, zipFile.getComment());
     }
 
     public void testNameLengthChecks() throws IOException {
