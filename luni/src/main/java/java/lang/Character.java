@@ -2595,6 +2595,13 @@ public final class Character implements Serializable, Comparable<Character> {
     }
 
     /**
+     * Returns true if the given code point is alphabetic. That is,
+     * if it is in any of the Lu, Ll, Lt, Lm, Lo, Nl, or Other_Alphabetic categories.
+     * @since 1.7
+     */
+    public static native boolean isAlphabetic(int codePoint);
+
+    /**
      * Returns true if the given code point is in the Basic Multilingual Plane (BMP).
      * Such code points can be represented by a single {@code char}.
      * @since 1.7
@@ -2675,6 +2682,12 @@ public final class Character implements Serializable, Comparable<Character> {
     public static boolean isIdentifierIgnorable(char c) {
         return isIdentifierIgnorable((int) c);
     }
+
+    /**
+     * Returns true if the given code point is a CJKV ideographic character.
+     * @since 1.7
+     */
+    public static native boolean isIdeographic(int codePoint);
 
     /**
      * Indicates whether the specified code point is ignorable in a Java or

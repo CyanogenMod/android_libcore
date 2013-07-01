@@ -171,4 +171,22 @@ public class CharacterTest extends junit.framework.TestCase {
     assertEquals(Character.UnicodeBlock.CYRILLIC_SUPPLEMENTARY, Character.UnicodeBlock.forName("Cyrillic Supplementary"));
     assertEquals(Character.UnicodeBlock.CYRILLIC_SUPPLEMENTARY, Character.UnicodeBlock.forName("Cyrillic Supplement"));
   }
+
+  public void test_isAlphabetic() throws Exception {
+    assertTrue(Character.isAlphabetic('A'));
+    assertTrue(Character.isAlphabetic('a'));
+    assertFalse(Character.isAlphabetic('1'));
+    assertTrue(Character.isAlphabetic(0x113c)); // Hangul j
+  }
+
+  public void test_isIdeographic() throws Exception {
+    assertFalse(Character.isIdeographic('A'));
+    assertFalse(Character.isIdeographic('a'));
+    assertFalse(Character.isIdeographic('1'));
+    assertFalse(Character.isIdeographic(0x113c)); // Hangul j
+
+    assertTrue(Character.isIdeographic(0x4db5));
+    assertTrue(Character.isIdeographic(0x2f999));
+    assertFalse(Character.isIdeographic(0x2f99)); // Kangxi radical shell
+  }
 }
