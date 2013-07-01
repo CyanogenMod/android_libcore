@@ -75,6 +75,8 @@ public class JarFileTest extends TestCase {
 
     private final String jarName8 = "hyts_signed_sha512digest_sha512withecdsa.jar";
 
+    private final String authAttrsJar = "hyts_signed_authAttrs.jar";
+
     private final String entryName = "foo/bar/A.class";
 
     private final String entryName3 = "coucou/FileAccess.class";
@@ -597,6 +599,9 @@ public class JarFileTest extends TestCase {
 
         // SHA-512 digest, SHA512withECDSA signed JAR
         checkSignedJar(jarName8);
+
+        // JAR with a signature that has PKCS#7 Authenticated Attributes
+        checkSignedJar(authAttrsJar);
     }
 
     private void checkSignedJar(String jarName) throws Exception {

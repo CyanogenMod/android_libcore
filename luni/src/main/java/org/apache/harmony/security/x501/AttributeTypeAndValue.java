@@ -301,6 +301,10 @@ public final class AttributeTypeAndValue {
         return oid;
     }
 
+    public AttributeValue getValue() {
+        return value;
+    }
+
     /**
      * According to RFC 3280 (http://www.ietf.org/rfc/rfc3280.txt)
      * X.501 AttributeTypeAndValue structure is defined as follows:
