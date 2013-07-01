@@ -36,6 +36,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import javax.security.auth.x500.X500Principal;
+
+import org.apache.harmony.security.asn1.ASN1OctetString;
 import org.apache.harmony.security.asn1.BerInputStream;
 import org.apache.harmony.security.pkcs7.ContentInfo;
 import org.apache.harmony.security.pkcs7.SignedData;
@@ -183,15 +185,37 @@ public class JarUtils {
             byte[] existingDigest = null;
             for (AttributeTypeAndValue a : atr) {
                 if (Arrays.equals(a.getType().getOid(), MESSAGE_DIGEST_OID)) {
-//TODO value                    existingDigest = a.AttributeValue;
+                    if (existingDigest != null) {
+                        throw new SecurityException("Too many MessageDigest attributes");
+                    }
+                    Collection<?> entries = a.getValue().getValues(ASN1OctetString.getInstance());
+                    if (entries.size() != 1) {
+                        throw new SecurityException("Too many values for MessageDigest attribute");
+                    }
+                    existingDigest = (byte[]) entries.iterator().next();
                 }
             }
-            if (existingDigest != null) {
-                MessageDigest md = MessageDigest.getInstance(sigInfo.getDigestAlgorithm());
-                byte[] computedDigest = md.digest(sfBytes);
-                if (!Arrays.equals(existingDigest, computedDigest)) {
-                    throw new SecurityException("Incorrect MD");
-                }
+
+            // RFC 3852 section 9.2: it authAttrs is present, it must have a
+            // message digest entry.
+            if (existingDigest == null) {
+                throw new SecurityException("Missing MessageDigest in Authenticated Attributes");
+            }
+
+            MessageDigest md = null;
+            if (daOid != null) {
+                md = MessageDigest.getInstance(daOid);
+            }
+            if (md == null && daName != null) {
+                md = MessageDigest.getInstance(daName);
+            }
+            if (md == null) {
+                return null;
+            }
+
+            byte[] computedDigest = md.digest(sfBytes);
+            if (!Arrays.equals(existingDigest, computedDigest)) {
+                throw new SecurityException("Incorrect MD");
             }
         }
 
