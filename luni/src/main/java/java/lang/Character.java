@@ -558,14 +558,15 @@ public final class Character implements Serializable, Comparable<Character> {
     }
 
     /**
-     * Represents a block of Unicode characters, as defined by the Unicode 4.0.1
-     * specification.
+     * Represents a block of Unicode characters. This class provides constants for various
+     * well-known blocks (but not all blocks) and methods for looking up a block
+     * by name {@link #forName} or by code point {@link #of}.
      *
      * @since 1.2
      */
     public static final class UnicodeBlock extends Subset {
         /**
-         * The &quot;Surrogates Area&quot; Unicode Block.
+         * The Surrogates Area Unicode block.
          *
          * @deprecated As of Java 5, this block has been replaced by
          *             {@link #HIGH_SURROGATES},
@@ -574,764 +575,668 @@ public final class Character implements Serializable, Comparable<Character> {
          */
         @Deprecated
         public static final UnicodeBlock SURROGATES_AREA = new UnicodeBlock("SURROGATES_AREA");
-        /**
-         * The &quot;Basic Latin&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Basic Latin Unicode block. */
         public static final UnicodeBlock BASIC_LATIN = new UnicodeBlock("BASIC_LATIN");
-        /**
-         * The &quot;Latin-1 Supplement&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Latin-1 Supplement Unicode block. */
         public static final UnicodeBlock LATIN_1_SUPPLEMENT = new UnicodeBlock("LATIN_1_SUPPLEMENT");
-        /**
-         * The &quot;Latin Extended-A&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Latin Extended-A Unicode block. */
         public static final UnicodeBlock LATIN_EXTENDED_A = new UnicodeBlock("LATIN_EXTENDED_A");
-        /**
-         * The &quot;Latin Extended-B&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Latin Extended-B Unicode block. */
         public static final UnicodeBlock LATIN_EXTENDED_B = new UnicodeBlock("LATIN_EXTENDED_B");
-        /**
-         * The &quot;IPA Extensions&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The IPA Extensions Unicode block. */
         public static final UnicodeBlock IPA_EXTENSIONS = new UnicodeBlock("IPA_EXTENSIONS");
-        /**
-         * The &quot;Spacing Modifier Letters&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Spacing Modifier Letters Unicode block. */
         public static final UnicodeBlock SPACING_MODIFIER_LETTERS = new UnicodeBlock("SPACING_MODIFIER_LETTERS");
-        /**
-         * The &quot;Combining Diacritical Marks&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Combining Diacritical Marks Unicode block. */
         public static final UnicodeBlock COMBINING_DIACRITICAL_MARKS = new UnicodeBlock("COMBINING_DIACRITICAL_MARKS");
+
         /**
-         * The &quot;Greek and Coptic&quot; Unicode Block. Previously referred
-         * to as &quot;Greek&quot;.
-         *
-         * @since 1.2
+         * The Greek and Coptic Unicode block. Previously referred to as Greek.
          */
         public static final UnicodeBlock GREEK = new UnicodeBlock("GREEK");
-        /**
-         * The &quot;Cyrillic&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Cyrillic Unicode block. */
         public static final UnicodeBlock CYRILLIC = new UnicodeBlock("CYRILLIC");
+
         /**
-         * The &quot;Cyrillic Supplement&quot; Unicode Block. Previously
-         * referred to as &quot;Cyrillic Supplementary&quot;.
-         *
-         * @since 1.5
+         * The Cyrillic Supplement Unicode block. Previously referred to as Cyrillic Supplementary.
          */
         public static final UnicodeBlock CYRILLIC_SUPPLEMENTARY = new UnicodeBlock("CYRILLIC_SUPPLEMENTARY");
-        /**
-         * The &quot;Armenian&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Armenian Unicode block. */
         public static final UnicodeBlock ARMENIAN = new UnicodeBlock("ARMENIAN");
-        /**
-         * The &quot;Hebrew&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Hebrew Unicode block. */
         public static final UnicodeBlock HEBREW = new UnicodeBlock("HEBREW");
-        /**
-         * The &quot;Arabic&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Arabic Unicode block. */
         public static final UnicodeBlock ARABIC = new UnicodeBlock("ARABIC");
-        /**
-         * The &quot;Syriac&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Syriac Unicode block. */
         public static final UnicodeBlock SYRIAC = new UnicodeBlock("SYRIAC");
-        /**
-         * The &quot;Thaana&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Thaana Unicode block. */
         public static final UnicodeBlock THAANA = new UnicodeBlock("THAANA");
-        /**
-         * The &quot;Devanagari&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Devanagari Unicode block. */
         public static final UnicodeBlock DEVANAGARI = new UnicodeBlock("DEVANAGARI");
-        /**
-         * The &quot;Bengali&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Bengali Unicode block. */
         public static final UnicodeBlock BENGALI = new UnicodeBlock("BENGALI");
-        /**
-         * The &quot;Gurmukhi&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Gurmukhi Unicode block. */
         public static final UnicodeBlock GURMUKHI = new UnicodeBlock("GURMUKHI");
-        /**
-         * The &quot;Gujarati&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Gujarati Unicode block. */
         public static final UnicodeBlock GUJARATI = new UnicodeBlock("GUJARATI");
-        /**
-         * The &quot;Oriya&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Oriya Unicode block. */
         public static final UnicodeBlock ORIYA = new UnicodeBlock("ORIYA");
-        /**
-         * The &quot;Tamil&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Tamil Unicode block. */
         public static final UnicodeBlock TAMIL = new UnicodeBlock("TAMIL");
-        /**
-         * The &quot;Telugu&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Telugu Unicode block. */
         public static final UnicodeBlock TELUGU = new UnicodeBlock("TELUGU");
-        /**
-         * The &quot;Kannada&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Kannada Unicode block. */
         public static final UnicodeBlock KANNADA = new UnicodeBlock("KANNADA");
-        /**
-         * The &quot;Malayalam&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Malayalam Unicode block. */
         public static final UnicodeBlock MALAYALAM = new UnicodeBlock("MALAYALAM");
-        /**
-         * The &quot;Sinhala&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Sinhala Unicode block. */
         public static final UnicodeBlock SINHALA = new UnicodeBlock("SINHALA");
-        /**
-         * The &quot;Thai&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Thai Unicode block. */
         public static final UnicodeBlock THAI = new UnicodeBlock("THAI");
-        /**
-         * The &quot;Lao&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Lao Unicode block. */
         public static final UnicodeBlock LAO = new UnicodeBlock("LAO");
-        /**
-         * The &quot;Tibetan&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Tibetan Unicode block. */
         public static final UnicodeBlock TIBETAN = new UnicodeBlock("TIBETAN");
-        /**
-         * The &quot;Myanmar&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Myanmar Unicode block. */
         public static final UnicodeBlock MYANMAR = new UnicodeBlock("MYANMAR");
-        /**
-         * The &quot;Georgian&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Georgian Unicode block. */
         public static final UnicodeBlock GEORGIAN = new UnicodeBlock("GEORGIAN");
-        /**
-         * The &quot;Hangul Jamo&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Hangul Jamo Unicode block. */
         public static final UnicodeBlock HANGUL_JAMO = new UnicodeBlock("HANGUL_JAMO");
-        /**
-         * The &quot;Ethiopic&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Ethiopic Unicode block. */
         public static final UnicodeBlock ETHIOPIC = new UnicodeBlock("ETHIOPIC");
-        /**
-         * The &quot;Cherokee&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Cherokee Unicode block. */
         public static final UnicodeBlock CHEROKEE = new UnicodeBlock("CHEROKEE");
-        /**
-         * The &quot;Unified Canadian Aboriginal Syllabics&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Unified Canadian Aboriginal Syllabics Unicode block. */
         public static final UnicodeBlock UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS = new UnicodeBlock("UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS");
-        /**
-         * The &quot;Ogham&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Ogham Unicode block. */
         public static final UnicodeBlock OGHAM = new UnicodeBlock("OGHAM");
-        /**
-         * The &quot;Runic&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Runic Unicode block. */
         public static final UnicodeBlock RUNIC = new UnicodeBlock("RUNIC");
-        /**
-         * The &quot;Tagalog&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Tagalog Unicode block. */
         public static final UnicodeBlock TAGALOG = new UnicodeBlock("TAGALOG");
-        /**
-         * The &quot;Hanunoo&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Hanunoo Unicode block. */
         public static final UnicodeBlock HANUNOO = new UnicodeBlock("HANUNOO");
-        /**
-         * The &quot;Buhid&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Buhid Unicode block. */
         public static final UnicodeBlock BUHID = new UnicodeBlock("BUHID");
-        /**
-         * The &quot;Tagbanwa&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Tagbanwa Unicode block. */
         public static final UnicodeBlock TAGBANWA = new UnicodeBlock("TAGBANWA");
-        /**
-         * The &quot;Khmer&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Khmer Unicode block. */
         public static final UnicodeBlock KHMER = new UnicodeBlock("KHMER");
-        /**
-         * The &quot;Mongolian&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Mongolian Unicode block. */
         public static final UnicodeBlock MONGOLIAN = new UnicodeBlock("MONGOLIAN");
-        /**
-         * The &quot;Limbu&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Limbu Unicode block. */
         public static final UnicodeBlock LIMBU = new UnicodeBlock("LIMBU");
-        /**
-         * The &quot;Tai Le&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Tai Le Unicode block. */
         public static final UnicodeBlock TAI_LE = new UnicodeBlock("TAI_LE");
-        /**
-         * The &quot;Khmer Symbols&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Khmer Symbols Unicode block. */
         public static final UnicodeBlock KHMER_SYMBOLS = new UnicodeBlock("KHMER_SYMBOLS");
-        /**
-         * The &quot;Phonetic Extensions&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Phonetic Extensions Unicode block. */
         public static final UnicodeBlock PHONETIC_EXTENSIONS = new UnicodeBlock("PHONETIC_EXTENSIONS");
-        /**
-         * The &quot;Latin Extended Additional&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Latin Extended Additional Unicode block. */
         public static final UnicodeBlock LATIN_EXTENDED_ADDITIONAL = new UnicodeBlock("LATIN_EXTENDED_ADDITIONAL");
-        /**
-         * The &quot;Greek Extended&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Greek Extended Unicode block. */
         public static final UnicodeBlock GREEK_EXTENDED = new UnicodeBlock("GREEK_EXTENDED");
-        /**
-         * The &quot;General Punctuation&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The General Punctuation Unicode block. */
         public static final UnicodeBlock GENERAL_PUNCTUATION = new UnicodeBlock("GENERAL_PUNCTUATION");
-        /**
-         * The &quot;Superscripts and Subscripts&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Superscripts and Subscripts Unicode block. */
         public static final UnicodeBlock SUPERSCRIPTS_AND_SUBSCRIPTS = new UnicodeBlock("SUPERSCRIPTS_AND_SUBSCRIPTS");
-        /**
-         * The &quot;Currency Symbols&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Currency Symbols Unicode block. */
         public static final UnicodeBlock CURRENCY_SYMBOLS = new UnicodeBlock("CURRENCY_SYMBOLS");
+
         /**
-         * The &quot;Combining Diacritical Marks for Symbols&quot; Unicode
-         * Block. Previously referred to as &quot;Combining Marks for
-         * Symbols&quot;.
-         *
-         * @since 1.2
+         * The Combining Diacritical Marks for Symbols Unicode
+         * Block. Previously referred to as Combining Marks for
+         * Symbols.
          */
         public static final UnicodeBlock COMBINING_MARKS_FOR_SYMBOLS = new UnicodeBlock("COMBINING_MARKS_FOR_SYMBOLS");
-        /**
-         * The &quot;Letterlike Symbols&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Letterlike Symbols Unicode block. */
         public static final UnicodeBlock LETTERLIKE_SYMBOLS = new UnicodeBlock("LETTERLIKE_SYMBOLS");
-        /**
-         * The &quot;Number Forms&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Number Forms Unicode block. */
         public static final UnicodeBlock NUMBER_FORMS = new UnicodeBlock("NUMBER_FORMS");
-        /**
-         * The &quot;Arrows&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Arrows Unicode block. */
         public static final UnicodeBlock ARROWS = new UnicodeBlock("ARROWS");
-        /**
-         * The &quot;Mathematical Operators&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Mathematical Operators Unicode block. */
         public static final UnicodeBlock MATHEMATICAL_OPERATORS = new UnicodeBlock("MATHEMATICAL_OPERATORS");
-        /**
-         * The &quot;Miscellaneous Technical&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Miscellaneous Technical Unicode block. */
         public static final UnicodeBlock MISCELLANEOUS_TECHNICAL = new UnicodeBlock("MISCELLANEOUS_TECHNICAL");
-        /**
-         * The &quot;Control Pictures&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Control Pictures Unicode block. */
         public static final UnicodeBlock CONTROL_PICTURES = new UnicodeBlock("CONTROL_PICTURES");
-        /**
-         * The &quot;Optical Character Recognition&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Optical Character Recognition Unicode block. */
         public static final UnicodeBlock OPTICAL_CHARACTER_RECOGNITION = new UnicodeBlock("OPTICAL_CHARACTER_RECOGNITION");
-        /**
-         * The &quot;Enclosed Alphanumerics&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Enclosed Alphanumerics Unicode block. */
         public static final UnicodeBlock ENCLOSED_ALPHANUMERICS = new UnicodeBlock("ENCLOSED_ALPHANUMERICS");
-        /**
-         * The &quot;Box Drawing&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Box Drawing Unicode block. */
         public static final UnicodeBlock BOX_DRAWING = new UnicodeBlock("BOX_DRAWING");
-        /**
-         * The &quot;Block Elements&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Block Elements Unicode block. */
         public static final UnicodeBlock BLOCK_ELEMENTS = new UnicodeBlock("BLOCK_ELEMENTS");
-        /**
-         * The &quot;Geometric Shapes&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Geometric Shapes Unicode block. */
         public static final UnicodeBlock GEOMETRIC_SHAPES = new UnicodeBlock("GEOMETRIC_SHAPES");
-        /**
-         * The &quot;Miscellaneous Symbols&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Miscellaneous Symbols Unicode block. */
         public static final UnicodeBlock MISCELLANEOUS_SYMBOLS = new UnicodeBlock("MISCELLANEOUS_SYMBOLS");
-        /**
-         * The &quot;Dingbats&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Dingbats Unicode block. */
         public static final UnicodeBlock DINGBATS = new UnicodeBlock("DINGBATS");
-        /**
-         * The &quot;Miscellaneous Mathematical Symbols-A&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Miscellaneous Mathematical Symbols-A Unicode block. */
         public static final UnicodeBlock MISCELLANEOUS_MATHEMATICAL_SYMBOLS_A = new UnicodeBlock("MISCELLANEOUS_MATHEMATICAL_SYMBOLS_A");
-        /**
-         * The &quot;Supplemental Arrows-A&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Supplemental Arrows-A Unicode block. */
         public static final UnicodeBlock SUPPLEMENTAL_ARROWS_A = new UnicodeBlock("SUPPLEMENTAL_ARROWS_A");
-        /**
-         * The &quot;Braille Patterns&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Braille Patterns Unicode block. */
         public static final UnicodeBlock BRAILLE_PATTERNS = new UnicodeBlock("BRAILLE_PATTERNS");
-        /**
-         * The &quot;Supplemental Arrows-B&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Supplemental Arrows-B Unicode block. */
         public static final UnicodeBlock SUPPLEMENTAL_ARROWS_B = new UnicodeBlock("SUPPLEMENTAL_ARROWS_B");
-        /**
-         * The &quot;Miscellaneous Mathematical Symbols-B&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Miscellaneous Mathematical Symbols-B Unicode block. */
         public static final UnicodeBlock MISCELLANEOUS_MATHEMATICAL_SYMBOLS_B = new UnicodeBlock("MISCELLANEOUS_MATHEMATICAL_SYMBOLS_B");
-        /**
-         * The &quot;Supplemental Mathematical Operators&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Supplemental Mathematical Operators Unicode block. */
         public static final UnicodeBlock SUPPLEMENTAL_MATHEMATICAL_OPERATORS = new UnicodeBlock("SUPPLEMENTAL_MATHEMATICAL_OPERATORS");
-        /**
-         * The &quot;Miscellaneous Symbols and Arrows&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Miscellaneous Symbols and Arrows Unicode block. */
         public static final UnicodeBlock MISCELLANEOUS_SYMBOLS_AND_ARROWS = new UnicodeBlock("MISCELLANEOUS_SYMBOLS_AND_ARROWS");
-        /**
-         * The &quot;CJK Radicals Supplement&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The CJK Radicals Supplement Unicode block. */
         public static final UnicodeBlock CJK_RADICALS_SUPPLEMENT = new UnicodeBlock("CJK_RADICALS_SUPPLEMENT");
-        /**
-         * The &quot;Kangxi Radicals&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Kangxi Radicals Unicode block. */
         public static final UnicodeBlock KANGXI_RADICALS = new UnicodeBlock("KANGXI_RADICALS");
-        /**
-         * The &quot;Ideographic Description Characters&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Ideographic Description Characters Unicode block. */
         public static final UnicodeBlock IDEOGRAPHIC_DESCRIPTION_CHARACTERS = new UnicodeBlock("IDEOGRAPHIC_DESCRIPTION_CHARACTERS");
-        /**
-         * The &quot;CJK Symbols and Punctuation&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The CJK Symbols and Punctuation Unicode block. */
         public static final UnicodeBlock CJK_SYMBOLS_AND_PUNCTUATION = new UnicodeBlock("CJK_SYMBOLS_AND_PUNCTUATION");
-        /**
-         * The &quot;Hiragana&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Hiragana Unicode block. */
         public static final UnicodeBlock HIRAGANA = new UnicodeBlock("HIRAGANA");
-        /**
-         * The &quot;Katakana&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Katakana Unicode block. */
         public static final UnicodeBlock KATAKANA = new UnicodeBlock("KATAKANA");
-        /**
-         * The &quot;Bopomofo&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Bopomofo Unicode block. */
         public static final UnicodeBlock BOPOMOFO = new UnicodeBlock("BOPOMOFO");
-        /**
-         * The &quot;Hangul Compatibility Jamo&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Hangul Compatibility Jamo Unicode block. */
         public static final UnicodeBlock HANGUL_COMPATIBILITY_JAMO = new UnicodeBlock("HANGUL_COMPATIBILITY_JAMO");
-        /**
-         * The &quot;Kanbun&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Kanbun Unicode block. */
         public static final UnicodeBlock KANBUN = new UnicodeBlock("KANBUN");
-        /**
-         * The &quot;Bopomofo Extended&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Bopomofo Extended Unicode block. */
         public static final UnicodeBlock BOPOMOFO_EXTENDED = new UnicodeBlock("BOPOMOFO_EXTENDED");
-        /**
-         * The &quot;Katakana Phonetic Extensions&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Katakana Phonetic Extensions Unicode block. */
         public static final UnicodeBlock KATAKANA_PHONETIC_EXTENSIONS = new UnicodeBlock("KATAKANA_PHONETIC_EXTENSIONS");
-        /**
-         * The &quot;Enclosed CJK Letters and Months&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Enclosed CJK Letters and Months Unicode block. */
         public static final UnicodeBlock ENCLOSED_CJK_LETTERS_AND_MONTHS = new UnicodeBlock("ENCLOSED_CJK_LETTERS_AND_MONTHS");
-        /**
-         * The &quot;CJK Compatibility&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The CJK Compatibility Unicode block. */
         public static final UnicodeBlock CJK_COMPATIBILITY = new UnicodeBlock("CJK_COMPATIBILITY");
-        /**
-         * The &quot;CJK Unified Ideographs Extension A&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The CJK Unified Ideographs Extension A Unicode block. */
         public static final UnicodeBlock CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A = new UnicodeBlock("CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A");
-        /**
-         * The &quot;Yijing Hexagram Symbols&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Yijing Hexagram Symbols Unicode block. */
         public static final UnicodeBlock YIJING_HEXAGRAM_SYMBOLS = new UnicodeBlock("YIJING_HEXAGRAM_SYMBOLS");
-        /**
-         * The &quot;CJK Unified Ideographs&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The CJK Unified Ideographs Unicode block. */
         public static final UnicodeBlock CJK_UNIFIED_IDEOGRAPHS = new UnicodeBlock("CJK_UNIFIED_IDEOGRAPHS");
-        /**
-         * The &quot;Yi Syllables&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Yi Syllables Unicode block. */
         public static final UnicodeBlock YI_SYLLABLES = new UnicodeBlock("YI_SYLLABLES");
-        /**
-         * The &quot;Yi Radicals&quot; Unicode Block.
-         *
-         * @since 1.4
-         */
+
+        /** The Yi Radicals Unicode block. */
         public static final UnicodeBlock YI_RADICALS = new UnicodeBlock("YI_RADICALS");
-        /**
-         * The &quot;Hangul Syllables&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Hangul Syllables Unicode block. */
         public static final UnicodeBlock HANGUL_SYLLABLES = new UnicodeBlock("HANGUL_SYLLABLES");
+
         /**
-         * The &quot;High Surrogates&quot; Unicode Block. This block represents
+         * The High Surrogates Unicode block. This block represents
          * code point values in the high surrogate range 0xD800 to 0xDB7F
          */
         public static final UnicodeBlock HIGH_SURROGATES = new UnicodeBlock("HIGH_SURROGATES");
+
         /**
-         * The &quot;High Private Use Surrogates&quot; Unicode Block. This block
+         * The High Private Use Surrogates Unicode block. This block
          * represents code point values in the high surrogate range 0xDB80 to
          * 0xDBFF
          */
         public static final UnicodeBlock HIGH_PRIVATE_USE_SURROGATES = new UnicodeBlock("HIGH_PRIVATE_USE_SURROGATES");
+
         /**
-         * The &quot;Low Surrogates&quot; Unicode Block. This block represents
+         * The Low Surrogates Unicode block. This block represents
          * code point values in the low surrogate range 0xDC00 to 0xDFFF
          */
         public static final UnicodeBlock LOW_SURROGATES = new UnicodeBlock("LOW_SURROGATES");
-        /**
-         * The &quot;Private Use Area&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Private Use Area Unicode block. */
         public static final UnicodeBlock PRIVATE_USE_AREA = new UnicodeBlock("PRIVATE_USE_AREA");
-        /**
-         * The &quot;CJK Compatibility Ideographs&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The CJK Compatibility Ideographs Unicode block. */
         public static final UnicodeBlock CJK_COMPATIBILITY_IDEOGRAPHS = new UnicodeBlock("CJK_COMPATIBILITY_IDEOGRAPHS");
-        /**
-         * The &quot;Alphabetic Presentation Forms&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Alphabetic Presentation Forms Unicode block. */
         public static final UnicodeBlock ALPHABETIC_PRESENTATION_FORMS = new UnicodeBlock("ALPHABETIC_PRESENTATION_FORMS");
-        /**
-         * The &quot;Arabic Presentation Forms-A&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Arabic Presentation Forms-A Unicode block. */
         public static final UnicodeBlock ARABIC_PRESENTATION_FORMS_A = new UnicodeBlock("ARABIC_PRESENTATION_FORMS_A");
-        /**
-         * The &quot;Variation Selectors&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Variation Selectors Unicode block. */
         public static final UnicodeBlock VARIATION_SELECTORS = new UnicodeBlock("VARIATION_SELECTORS");
-        /**
-         * The &quot;Combining Half Marks&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Combining Half Marks Unicode block. */
         public static final UnicodeBlock COMBINING_HALF_MARKS = new UnicodeBlock("COMBINING_HALF_MARKS");
-        /**
-         * The &quot;CJK Compatibility Forms&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The CJK Compatibility Forms Unicode block. */
         public static final UnicodeBlock CJK_COMPATIBILITY_FORMS = new UnicodeBlock("CJK_COMPATIBILITY_FORMS");
-        /**
-         * The &quot;Small Form Variants&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Small Form Variants Unicode block. */
         public static final UnicodeBlock SMALL_FORM_VARIANTS = new UnicodeBlock("SMALL_FORM_VARIANTS");
-        /**
-         * The &quot;Arabic Presentation Forms-B&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Arabic Presentation Forms-B Unicode block. */
         public static final UnicodeBlock ARABIC_PRESENTATION_FORMS_B = new UnicodeBlock("ARABIC_PRESENTATION_FORMS_B");
-        /**
-         * The &quot;Halfwidth and Fullwidth Forms&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Halfwidth and Fullwidth Forms Unicode block. */
         public static final UnicodeBlock HALFWIDTH_AND_FULLWIDTH_FORMS = new UnicodeBlock("HALFWIDTH_AND_FULLWIDTH_FORMS");
-        /**
-         * The &quot;Specials&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Specials Unicode block. */
         public static final UnicodeBlock SPECIALS = new UnicodeBlock("SPECIALS");
-        /**
-         * The &quot;Linear B Syllabary&quot; Unicode Block.
-         *
-         * @since 1.2
-         */
+
+        /** The Linear B Syllabary Unicode block. */
         public static final UnicodeBlock LINEAR_B_SYLLABARY = new UnicodeBlock("LINEAR_B_SYLLABARY");
-        /**
-         * The &quot;Linear B Ideograms&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Linear B Ideograms Unicode block. */
         public static final UnicodeBlock LINEAR_B_IDEOGRAMS = new UnicodeBlock("LINEAR_B_IDEOGRAMS");
-        /**
-         * The &quot;Aegean Numbers&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Aegean Numbers Unicode block. */
         public static final UnicodeBlock AEGEAN_NUMBERS = new UnicodeBlock("AEGEAN_NUMBERS");
-        /**
-         * The &quot;Old Italic&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Old Italic Unicode block. */
         public static final UnicodeBlock OLD_ITALIC = new UnicodeBlock("OLD_ITALIC");
-        /**
-         * The &quot;Gothic&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Gothic Unicode block. */
         public static final UnicodeBlock GOTHIC = new UnicodeBlock("GOTHIC");
-        /**
-         * The &quot;Ugaritic&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Ugaritic Unicode block. */
         public static final UnicodeBlock UGARITIC = new UnicodeBlock("UGARITIC");
-        /**
-         * The &quot;Deseret&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Deseret Unicode block. */
         public static final UnicodeBlock DESERET = new UnicodeBlock("DESERET");
-        /**
-         * The &quot;Shavian&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Shavian Unicode block. */
         public static final UnicodeBlock SHAVIAN = new UnicodeBlock("SHAVIAN");
-        /**
-         * The &quot;Osmanya&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Osmanya Unicode block. */
         public static final UnicodeBlock OSMANYA = new UnicodeBlock("OSMANYA");
-        /**
-         * The &quot;Cypriot Syllabary&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Cypriot Syllabary Unicode block. */
         public static final UnicodeBlock CYPRIOT_SYLLABARY = new UnicodeBlock("CYPRIOT_SYLLABARY");
-        /**
-         * The &quot;Byzantine Musical Symbols&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Byzantine Musical Symbols Unicode block. */
         public static final UnicodeBlock BYZANTINE_MUSICAL_SYMBOLS = new UnicodeBlock("BYZANTINE_MUSICAL_SYMBOLS");
-        /**
-         * The &quot;Musical Symbols&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Musical Symbols Unicode block. */
         public static final UnicodeBlock MUSICAL_SYMBOLS = new UnicodeBlock("MUSICAL_SYMBOLS");
-        /**
-         * The &quot;Tai Xuan Jing Symbols&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Tai Xuan Jing Symbols Unicode block. */
         public static final UnicodeBlock TAI_XUAN_JING_SYMBOLS = new UnicodeBlock("TAI_XUAN_JING_SYMBOLS");
-        /**
-         * The &quot;Mathematical Alphanumeric Symbols&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Mathematical Alphanumeric Symbols Unicode block. */
         public static final UnicodeBlock MATHEMATICAL_ALPHANUMERIC_SYMBOLS = new UnicodeBlock("MATHEMATICAL_ALPHANUMERIC_SYMBOLS");
-        /**
-         * The &quot;CJK Unified Ideographs Extension B&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The CJK Unified Ideographs Extension B Unicode block. */
         public static final UnicodeBlock CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B = new UnicodeBlock("CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B");
-        /**
-         * The &quot;CJK Compatibility Ideographs Supplement&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The CJK Compatibility Ideographs Supplement Unicode block. */
         public static final UnicodeBlock CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT = new UnicodeBlock("CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT");
-        /**
-         * The &quot;Tags&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Tags Unicode block. */
         public static final UnicodeBlock TAGS = new UnicodeBlock("TAGS");
-        /**
-         * The &quot;Variation Selectors Supplement&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Variation Selectors Supplement Unicode block. */
         public static final UnicodeBlock VARIATION_SELECTORS_SUPPLEMENT = new UnicodeBlock("VARIATION_SELECTORS_SUPPLEMENT");
-        /**
-         * The &quot;Supplementary Private Use Area-A&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Supplementary Private Use Area-A Unicode block. */
         public static final UnicodeBlock SUPPLEMENTARY_PRIVATE_USE_AREA_A = new UnicodeBlock("SUPPLEMENTARY_PRIVATE_USE_AREA_A");
-        /**
-         * The &quot;Supplementary Private Use Area-B&quot; Unicode Block.
-         *
-         * @since 1.5
-         */
+
+        /** The Supplementary Private Use Area-B Unicode block. */
         public static final UnicodeBlock SUPPLEMENTARY_PRIVATE_USE_AREA_B = new UnicodeBlock("SUPPLEMENTARY_PRIVATE_USE_AREA_B");
 
+        // Unicode 4.1.
+
+        /** The Ancient Greek Musical Notation Unicode 4.1 block. */
+        public static final UnicodeBlock ANCIENT_GREEK_MUSICAL_NOTATION = new UnicodeBlock("ANCIENT_GREEK_MUSICAL_NOTATION");
+
+        /** The Ancient Greek Numbers Unicode 4.1 block. */
+        public static final UnicodeBlock ANCIENT_GREEK_NUMBERS = new UnicodeBlock("ANCIENT_GREEK_NUMBERS");
+
+        /** The Arabic Supplement Unicode 4.1 block. */
+        public static final UnicodeBlock ARABIC_SUPPLEMENT = new UnicodeBlock("ARABIC_SUPPLEMENT");
+
+        /** The Buginese Unicode 4.1 block. */
+        public static final UnicodeBlock BUGINESE = new UnicodeBlock("BUGINESE");
+
+        /** The CJK Strokes Unicode 4.1 block. */
+        public static final UnicodeBlock CJK_STROKES = new UnicodeBlock("CJK_STROKES");
+
+        /** The Combining Diacritical Marks Supplement Unicode 4.1 block. */
+        public static final UnicodeBlock COMBINING_DIACRITICAL_MARKS_SUPPLEMENT = new UnicodeBlock("COMBINING_DIACRITICAL_MARKS_SUPPLEMENT");
+
+        /** The Coptic Unicode 4.1 block. */
+        public static final UnicodeBlock COPTIC = new UnicodeBlock("COPTIC");
+
+        /** The Ethiopic Extended Unicode 4.1 block. */
+        public static final UnicodeBlock ETHIOPIC_EXTENDED = new UnicodeBlock("ETHIOPIC_EXTENDED");
+
+        /** The Ethiopic Supplement Unicode 4.1 block. */
+        public static final UnicodeBlock ETHIOPIC_SUPPLEMENT = new UnicodeBlock("ETHIOPIC_SUPPLEMENT");
+
+        /** The Georgian Supplement Unicode 4.1 block. */
+        public static final UnicodeBlock GEORGIAN_SUPPLEMENT = new UnicodeBlock("GEORGIAN_SUPPLEMENT");
+
+        /** The Glagolitic Unicode 4.1 block. */
+        public static final UnicodeBlock GLAGOLITIC = new UnicodeBlock("GLAGOLITIC");
+
+        /** The Kharoshthi Unicode 4.1 block. */
+        public static final UnicodeBlock KHAROSHTHI = new UnicodeBlock("KHAROSHTHI");
+
+        /** The Modifier Tone Letters Unicode 4.1 block. */
+        public static final UnicodeBlock MODIFIER_TONE_LETTERS = new UnicodeBlock("MODIFIER_TONE_LETTERS");
+
+        /** The New Tai Lue Unicode 4.1 block. */
+        public static final UnicodeBlock NEW_TAI_LUE = new UnicodeBlock("NEW_TAI_LUE");
+
+        /** The Old Persian Unicode 4.1 block. */
+        public static final UnicodeBlock OLD_PERSIAN = new UnicodeBlock("OLD_PERSIAN");
+
+        /** The Phonetic Extensions Supplement Unicode 4.1 block. */
+        public static final UnicodeBlock PHONETIC_EXTENSIONS_SUPPLEMENT = new UnicodeBlock("PHONETIC_EXTENSIONS_SUPPLEMENT");
+
+        /** The Supplemental Punctuation Unicode 4.1 block. */
+        public static final UnicodeBlock SUPPLEMENTAL_PUNCTUATION = new UnicodeBlock("SUPPLEMENTAL_PUNCTUATION");
+
+        /** The Syloti Nagri Unicode 4.1 block. */
+        public static final UnicodeBlock SYLOTI_NAGRI = new UnicodeBlock("SYLOTI_NAGRI");
+
+        /** The Tifinagh Unicode 4.1 block. */
+        public static final UnicodeBlock TIFINAGH = new UnicodeBlock("TIFINAGH");
+
+        /** The Vertical Forms Unicode 4.1 block. */
+        public static final UnicodeBlock VERTICAL_FORMS = new UnicodeBlock("VERTICAL_FORMS");
+
+        // Unicode 5.0.
+
+        /** The NKo Unicode 5.0 block. */
+        public static final UnicodeBlock NKO = new UnicodeBlock("NKO");
+
+        /** The Balinese Unicode 5.0 block. */
+        public static final UnicodeBlock BALINESE = new UnicodeBlock("BALINESE");
+
+        /** The Latin Extended C Unicode 5.0 block. */
+        public static final UnicodeBlock LATIN_EXTENDED_C = new UnicodeBlock("LATIN_EXTENDED_C");
+
+        /** The Latin Extended D Unicode 5.0 block. */
+        public static final UnicodeBlock LATIN_EXTENDED_D = new UnicodeBlock("LATIN_EXTENDED_D");
+
+        /** The Phags-pa Unicode 5.0 block. */
+        public static final UnicodeBlock PHAGS_PA = new UnicodeBlock("PHAGS_PA");
+
+        /** The Phoenician Unicode 5.0 block. */
+        public static final UnicodeBlock PHOENICIAN = new UnicodeBlock("PHOENICIAN");
+
+        /** The Cuneiform Unicode 5.0 block. */
+        public static final UnicodeBlock CUNEIFORM = new UnicodeBlock("CUNEIFORM");
+
+        /** The Cuneiform Numbers And Punctuation Unicode 5.0 block. */
+        public static final UnicodeBlock CUNEIFORM_NUMBERS_AND_PUNCTUATION = new UnicodeBlock("CUNEIFORM_NUMBERS_AND_PUNCTUATION");
+
+        /** The Counting Rod Numerals Unicode 5.0 block. */
+        public static final UnicodeBlock COUNTING_ROD_NUMERALS = new UnicodeBlock("COUNTING_ROD_NUMERALS");
+
+        // Unicode 5.1.
+
+        /** The Sudanese Unicode 5.1 block. */
+        public static final UnicodeBlock SUNDANESE = new UnicodeBlock("SUNDANESE");
+
+        /** The Lepcha Unicode 5.1 block. */
+        public static final UnicodeBlock LEPCHA = new UnicodeBlock("LEPCHA");
+
+        /** The Ol Chiki Unicode 5.1 block. */
+        public static final UnicodeBlock OL_CHIKI = new UnicodeBlock("OL_CHIKI");
+
+        /** The Cyrillic Extended-A Unicode 5.1 block. */
+        public static final UnicodeBlock CYRILLIC_EXTENDED_A = new UnicodeBlock("CYRILLIC_EXTENDED_A");
+
+        /** The Vai Unicode 5.1 block. */
+        public static final UnicodeBlock VAI = new UnicodeBlock("VAI");
+
+        /** The Cyrillic Extended-B Unicode 5.1 block. */
+        public static final UnicodeBlock CYRILLIC_EXTENDED_B = new UnicodeBlock("CYRILLIC_EXTENDED_B");
+
+        /** The Saurashtra Unicode 5.1 block. */
+        public static final UnicodeBlock SAURASHTRA = new UnicodeBlock("SAURASHTRA");
+
+        /** The Kayah Li Unicode 5.1 block. */
+        public static final UnicodeBlock KAYAH_LI = new UnicodeBlock("KAYAH_LI");
+
+        /** The Rejang Unicode 5.1 block. */
+        public static final UnicodeBlock REJANG = new UnicodeBlock("REJANG");
+
+        /** The Cham Unicode 5.1 block. */
+        public static final UnicodeBlock CHAM = new UnicodeBlock("CHAM");
+
+        /** The Ancient Symbols Unicode 5.1 block. */
+        public static final UnicodeBlock ANCIENT_SYMBOLS = new UnicodeBlock("ANCIENT_SYMBOLS");
+
+        /** The Phaistos Disc Unicode 5.1 block. */
+        public static final UnicodeBlock PHAISTOS_DISC = new UnicodeBlock("PHAISTOS_DISC");
+
+        /** The Lycian Unicode 5.1 block. */
+        public static final UnicodeBlock LYCIAN = new UnicodeBlock("LYCIAN");
+
+        /** The Carian Unicode 5.1 block. */
+        public static final UnicodeBlock CARIAN = new UnicodeBlock("CARIAN");
+
+        /** The Lydian Unicode 5.1 block. */
+        public static final UnicodeBlock LYDIAN = new UnicodeBlock("LYDIAN");
+
+        /** The Mahjong Tiles Unicode 5.1 block. */
+        public static final UnicodeBlock MAHJONG_TILES = new UnicodeBlock("MAHJONG_TILES");
+
+        /** The Domino Tiles Unicode 5.1 block. */
+        public static final UnicodeBlock DOMINO_TILES = new UnicodeBlock("DOMINO_TILES");
+
+        // Unicode 5.2.
+
+        /** The Samaritan Unicode 5.2 block. */
+        public static final UnicodeBlock SAMARITAN = new UnicodeBlock("SAMARITAN");
+
+        /** The Unified Canadian Aboriginal Syllabics Expanded Unicode 5.2 block. */
+        public static final UnicodeBlock UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS_EXTENDED = new UnicodeBlock("UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS_EXTENDED");
+
+        /** The Tai Tham Unicode 5.2 block. */
+        public static final UnicodeBlock TAI_THAM = new UnicodeBlock("TAI_THAM");
+
+        /** The Vedic Extensions Unicode 5.2 block. */
+        public static final UnicodeBlock VEDIC_EXTENSIONS = new UnicodeBlock("VEDIC_EXTENSIONS");
+
+        /** The Lisu Extensions Unicode 5.2 block. */
+        public static final UnicodeBlock LISU = new UnicodeBlock("LISU");
+
+        /** The Bamum Extensions Unicode 5.2 block. */
+        public static final UnicodeBlock BAMUM = new UnicodeBlock("BAMUM");
+
+        /** The Common Indic Number Forms Unicode 5.2 block. */
+        public static final UnicodeBlock COMMON_INDIC_NUMBER_FORMS = new UnicodeBlock("COMMON_INDIC_NUMBER_FORMS");
+
+        /** The Devanagari Extended Unicode 5.2 block. */
+        public static final UnicodeBlock DEVANAGARI_EXTENDED = new UnicodeBlock("DEVANAGARI_EXTENDED");
+
+        /** The Hangul Jamo Extended-A Unicode 5.2 block. */
+        public static final UnicodeBlock HANGUL_JAMO_EXTENDED_A = new UnicodeBlock("HANGUL_JAMO_EXTENDED_A");
+
+        /** The Javanese Unicode 5.2 block. */
+        public static final UnicodeBlock JAVANESE = new UnicodeBlock("JAVANESE");
+
+        /** The Myanmar Extended-A Unicode 5.2 block. */
+        public static final UnicodeBlock MYANMAR_EXTENDED_A = new UnicodeBlock("MYANMAR_EXTENDED_A");
+
+        /** The Tai Viet Unicode 5.2 block. */
+        public static final UnicodeBlock TAI_VIET = new UnicodeBlock("TAI_VIET");
+
+        /** The Meetei Mayek Unicode 5.2 block. */
+        public static final UnicodeBlock MEETEI_MAYEK = new UnicodeBlock("MEETEI_MAYEK");
+
+        /** The Hangul Jamo Extended-B Unicode 5.2 block. */
+        public static final UnicodeBlock HANGUL_JAMO_EXTENDED_B = new UnicodeBlock("HANGUL_JAMO_EXTENDED_B");
+
+        /** The Imperial Aramaic Unicode 5.2 block. */
+        public static final UnicodeBlock IMPERIAL_ARAMAIC = new UnicodeBlock("IMPERIAL_ARAMAIC");
+
+        /** The Old South Arabian Unicode 5.2 block. */
+        public static final UnicodeBlock OLD_SOUTH_ARABIAN = new UnicodeBlock("OLD_SOUTH_ARABIAN");
+
+        /** The Avestan Unicode 5.2 block. */
+        public static final UnicodeBlock AVESTAN = new UnicodeBlock("AVESTAN");
+
+        /** The Inscriptional Pathian Unicode 5.2 block. */
+        public static final UnicodeBlock INSCRIPTIONAL_PARTHIAN = new UnicodeBlock("INSCRIPTIONAL_PARTHIAN");
+
+        /** The Inscriptional Pahlavi Unicode 5.2 block. */
+        public static final UnicodeBlock INSCRIPTIONAL_PAHLAVI = new UnicodeBlock("INSCRIPTIONAL_PAHLAVI");
+
+        /** The Old Turkic Unicode 5.2 block. */
+        public static final UnicodeBlock OLD_TURKIC = new UnicodeBlock("OLD_TURKIC");
+
+        /** The Rumi Numeral Symbols Unicode 5.2 block. */
+        public static final UnicodeBlock RUMI_NUMERAL_SYMBOLS = new UnicodeBlock("RUMI_NUMERAL_SYMBOLS");
+
+        /** The Kaithi Unicode 5.2 block. */
+        public static final UnicodeBlock KAITHI = new UnicodeBlock("KAITHI");
+
+        /** The Egyptian Hieroglyphs Unicode 5.2 block. */
+        public static final UnicodeBlock EGYPTIAN_HIEROGLYPHS = new UnicodeBlock("EGYPTIAN_HIEROGLYPHS");
+
+        /** The Enclosed Alphanumeric Supplement Unicode 5.2 block. */
+        public static final UnicodeBlock ENCLOSED_ALPHANUMERIC_SUPPLEMENT = new UnicodeBlock("ENCLOSED_ALPHANUMERIC_SUPPLEMENT");
+
+        /** The Enclosed Ideographic Supplement Unicode 5.2 block. */
+        public static final UnicodeBlock ENCLOSED_IDEOGRAPHIC_SUPPLEMENT = new UnicodeBlock("ENCLOSED_IDEOGRAPHIC_SUPPLEMENT");
+
+        /** The CJK Unified Ideographs Unicode 5.2 block. */
+        public static final UnicodeBlock CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C = new UnicodeBlock("CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C");
+
+        // Unicode 6.0.
+
+        /** The Mandaic Unicode 6.0 block. */
+        public static final UnicodeBlock MANDAIC = new UnicodeBlock("MANDAIC");
+
+        /** The Batak Unicode 6.0 block. */
+        public static final UnicodeBlock BATAK = new UnicodeBlock("BATAK");
+
+        /** The Ethiopic Extended-A Unicode 6.0 block. */
+        public static final UnicodeBlock ETHIOPIC_EXTENDED_A = new UnicodeBlock("ETHIOPIC_EXTENDED_A");
+
+        /** The Brahmi Unicode 6.0 block. */
+        public static final UnicodeBlock BRAHMI = new UnicodeBlock("BRAHMI");
+
+        /** The Bamum Supplement Unicode 6.0 block. */
+        public static final UnicodeBlock BAMUM_SUPPLEMENT = new UnicodeBlock("BAMUM_SUPPLEMENT");
+
+        /** The Kana Supplement Unicode 6.0 block. */
+        public static final UnicodeBlock KANA_SUPPLEMENT = new UnicodeBlock("KANA_SUPPLEMENT");
+
+        /** The Playing Cards Supplement Unicode 6.0 block. */
+        public static final UnicodeBlock PLAYING_CARDS = new UnicodeBlock("PLAYING_CARDS");
+
+        /** The Miscellaneous Symbols And Pictographs Supplement Unicode 6.0 block. */
+        public static final UnicodeBlock MISCELLANEOUS_SYMBOLS_AND_PICTOGRAPHS = new UnicodeBlock("MISCELLANEOUS_SYMBOLS_AND_PICTOGRAPHS");
+
+        /** The Emoticons Unicode 6.0 block. */
+        public static final UnicodeBlock EMOTICONS = new UnicodeBlock("EMOTICONS");
+
+        /** The Transport And Map Symbols Unicode 6.0 block. */
+        public static final UnicodeBlock TRANSPORT_AND_MAP_SYMBOLS = new UnicodeBlock("TRANSPORT_AND_MAP_SYMBOLS");
+
+        /** The Alchemical Symbols Unicode 6.0 block. */
+        public static final UnicodeBlock ALCHEMICAL_SYMBOLS = new UnicodeBlock("ALCHEMICAL_SYMBOLS");
+
+        /** The CJK Unified Ideographs Extension-D Unicode 6.0 block. */
+        public static final UnicodeBlock CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D = new UnicodeBlock("CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D");
+
         /*
-         * All of the UnicodeBlocks with valid ranges in ascending order.
+         * All of the UnicodeBlocks above, in the icu4c UBlock enum order.
          */
         private static UnicodeBlock[] BLOCKS = new UnicodeBlock[] {
-            null,
+            null, // icu4c numbers blocks starting at 1, so index 0 should be null.
+
             UnicodeBlock.BASIC_LATIN,
             UnicodeBlock.LATIN_1_SUPPLEMENT,
             UnicodeBlock.LATIN_EXTENDED_A,
@@ -1419,6 +1324,8 @@ public final class Character implements Serializable, Comparable<Character> {
             UnicodeBlock.ARABIC_PRESENTATION_FORMS_B,
             UnicodeBlock.SPECIALS,
             UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS,
+
+            // Unicode 3.1.
             UnicodeBlock.OLD_ITALIC,
             UnicodeBlock.GOTHIC,
             UnicodeBlock.DESERET,
@@ -1428,6 +1335,8 @@ public final class Character implements Serializable, Comparable<Character> {
             UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B,
             UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT,
             UnicodeBlock.TAGS,
+
+            // Unicode 3.2.
             UnicodeBlock.CYRILLIC_SUPPLEMENTARY,
             UnicodeBlock.TAGALOG,
             UnicodeBlock.HANUNOO,
@@ -1442,6 +1351,8 @@ public final class Character implements Serializable, Comparable<Character> {
             UnicodeBlock.VARIATION_SELECTORS,
             UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_A,
             UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_B,
+
+            // Unicode 4.0.
             UnicodeBlock.LIMBU,
             UnicodeBlock.TAI_LE,
             UnicodeBlock.KHMER_SYMBOLS,
@@ -1456,32 +1367,122 @@ public final class Character implements Serializable, Comparable<Character> {
             UnicodeBlock.OSMANYA,
             UnicodeBlock.CYPRIOT_SYLLABARY,
             UnicodeBlock.TAI_XUAN_JING_SYMBOLS,
-            UnicodeBlock.VARIATION_SELECTORS_SUPPLEMENT
+            UnicodeBlock.VARIATION_SELECTORS_SUPPLEMENT,
+
+            // Unicode 4.1.
+            UnicodeBlock.ANCIENT_GREEK_MUSICAL_NOTATION,
+            UnicodeBlock.ANCIENT_GREEK_NUMBERS,
+            UnicodeBlock.ARABIC_SUPPLEMENT,
+            UnicodeBlock.BUGINESE,
+            UnicodeBlock.CJK_STROKES,
+            UnicodeBlock.COMBINING_DIACRITICAL_MARKS_SUPPLEMENT,
+            UnicodeBlock.COPTIC,
+            UnicodeBlock.ETHIOPIC_EXTENDED,
+            UnicodeBlock.ETHIOPIC_SUPPLEMENT,
+            UnicodeBlock.GEORGIAN_SUPPLEMENT,
+            UnicodeBlock.GLAGOLITIC,
+            UnicodeBlock.KHAROSHTHI,
+            UnicodeBlock.MODIFIER_TONE_LETTERS,
+            UnicodeBlock.NEW_TAI_LUE,
+            UnicodeBlock.OLD_PERSIAN,
+            UnicodeBlock.PHONETIC_EXTENSIONS_SUPPLEMENT,
+            UnicodeBlock.SUPPLEMENTAL_PUNCTUATION,
+            UnicodeBlock.SYLOTI_NAGRI,
+            UnicodeBlock.TIFINAGH,
+            UnicodeBlock.VERTICAL_FORMS,
+
+            // Unicode 5.0.
+            UnicodeBlock.NKO,
+            UnicodeBlock.BALINESE,
+            UnicodeBlock.LATIN_EXTENDED_C,
+            UnicodeBlock.LATIN_EXTENDED_D,
+            UnicodeBlock.PHAGS_PA,
+            UnicodeBlock.PHOENICIAN,
+            UnicodeBlock.CUNEIFORM,
+            UnicodeBlock.CUNEIFORM_NUMBERS_AND_PUNCTUATION,
+            UnicodeBlock.COUNTING_ROD_NUMERALS,
+
+            // Unicode 5.1.
+            UnicodeBlock.SUNDANESE,
+            UnicodeBlock.LEPCHA,
+            UnicodeBlock.OL_CHIKI,
+            UnicodeBlock.CYRILLIC_EXTENDED_A,
+            UnicodeBlock.VAI,
+            UnicodeBlock.CYRILLIC_EXTENDED_B,
+            UnicodeBlock.SAURASHTRA,
+            UnicodeBlock.KAYAH_LI,
+            UnicodeBlock.REJANG,
+            UnicodeBlock.CHAM,
+            UnicodeBlock.ANCIENT_SYMBOLS,
+            UnicodeBlock.PHAISTOS_DISC,
+            UnicodeBlock.LYCIAN,
+            UnicodeBlock.CARIAN,
+            UnicodeBlock.LYDIAN,
+            UnicodeBlock.MAHJONG_TILES,
+            UnicodeBlock.DOMINO_TILES,
+
+            // Unicode 5.2.
+            UnicodeBlock.SAMARITAN,
+            UnicodeBlock.UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS_EXTENDED,
+            UnicodeBlock.TAI_THAM,
+            UnicodeBlock.VEDIC_EXTENSIONS,
+            UnicodeBlock.LISU,
+            UnicodeBlock.BAMUM,
+            UnicodeBlock.COMMON_INDIC_NUMBER_FORMS,
+            UnicodeBlock.DEVANAGARI_EXTENDED,
+            UnicodeBlock.HANGUL_JAMO_EXTENDED_A,
+            UnicodeBlock.JAVANESE,
+            UnicodeBlock.MYANMAR_EXTENDED_A,
+            UnicodeBlock.TAI_VIET,
+            UnicodeBlock.MEETEI_MAYEK,
+            UnicodeBlock.HANGUL_JAMO_EXTENDED_B,
+            UnicodeBlock.IMPERIAL_ARAMAIC,
+            UnicodeBlock.OLD_SOUTH_ARABIAN,
+            UnicodeBlock.AVESTAN,
+            UnicodeBlock.INSCRIPTIONAL_PARTHIAN,
+            UnicodeBlock.INSCRIPTIONAL_PAHLAVI,
+            UnicodeBlock.OLD_TURKIC,
+            UnicodeBlock.RUMI_NUMERAL_SYMBOLS,
+            UnicodeBlock.KAITHI,
+            UnicodeBlock.EGYPTIAN_HIEROGLYPHS,
+            UnicodeBlock.ENCLOSED_ALPHANUMERIC_SUPPLEMENT,
+            UnicodeBlock.ENCLOSED_IDEOGRAPHIC_SUPPLEMENT,
+            UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C,
+
+            // Unicode 6.0.
+            UnicodeBlock.MANDAIC,
+            UnicodeBlock.BATAK,
+            UnicodeBlock.ETHIOPIC_EXTENDED_A,
+            UnicodeBlock.BRAHMI,
+            UnicodeBlock.BAMUM_SUPPLEMENT,
+            UnicodeBlock.KANA_SUPPLEMENT,
+            UnicodeBlock.PLAYING_CARDS,
+            UnicodeBlock.MISCELLANEOUS_SYMBOLS_AND_PICTOGRAPHS,
+            UnicodeBlock.EMOTICONS,
+            UnicodeBlock.TRANSPORT_AND_MAP_SYMBOLS,
+            UnicodeBlock.ALCHEMICAL_SYMBOLS,
+            UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D,
         };
 
         /**
-         * Retrieves the constant that corresponds to the specified block name.
-         * The block names are defined by the Unicode 4.0.1 specification in the
-         * {@code Blocks-4.0.1.txt} file.
-         * <p>
-         * Block names may be one of the following:
+         * Returns the Unicode block for the given block name, or null if there is no
+         * such block.
+         *
+         * <p>Block names may be one of the following:
          * <ul>
          * <li>Canonical block name, as defined by the Unicode specification;
          * case-insensitive.</li>
          * <li>Canonical block name without any spaces, as defined by the
          * Unicode specification; case-insensitive.</li>
-         * <li>{@code UnicodeBlock} constant identifier. This is determined by
+         * <li>A {@code UnicodeBlock} constant identifier. This is determined by
          * converting the canonical name to uppercase and replacing all spaces and hyphens
          * with underscores.</li>
          * </ul>
          *
-         * @param blockName
-         *            the name of the block to retrieve.
-         * @return the UnicodeBlock constant corresponding to {@code blockName}.
          * @throws NullPointerException
-         *             if {@code blockName} is {@code null}.
+         *             if {@code blockName == null}.
          * @throws IllegalArgumentException
-         *             if {@code blockName} is not a valid block name.
+         *             if {@code blockName} is not the name of any known block.
          * @since 1.5
          */
         public static UnicodeBlock forName(String blockName) {
@@ -1490,47 +1491,22 @@ public final class Character implements Serializable, Comparable<Character> {
             }
             int block = forNameImpl(blockName);
             if (block == -1) {
-                if (blockName.equals("SURROGATES_AREA")) {
-                    return SURROGATES_AREA;
-                } else if(blockName.equalsIgnoreCase("greek")) {
-                    return GREEK;
-                } else if(blockName.equals("COMBINING_MARKS_FOR_SYMBOLS") ||
-                        blockName.equals("Combining Marks for Symbols") ||
-                        blockName.equals("CombiningMarksforSymbols")) {
-                    return COMBINING_MARKS_FOR_SYMBOLS;
-                }
-                throw new IllegalArgumentException("Bad block name: " + blockName);
+                throw new IllegalArgumentException("Unknown block: " + blockName);
             }
             return BLOCKS[block];
         }
 
         /**
-         * Gets the constant for the Unicode block that contains the specified
-         * character.
-         *
-         * @param c
-         *            the character for which to get the {@code UnicodeBlock}
-         *            constant.
-         * @return the {@code UnicodeBlock} constant for the block that contains
-         *         {@code c}, or {@code null} if {@code c} does not belong to
-         *         any defined block.
+         * Returns the Unicode block containing the given code point, or null if the
+         * code point does not belong to any known block.
          */
         public static UnicodeBlock of(char c) {
             return of((int) c);
         }
 
         /**
-         * Gets the constant for the Unicode block that contains the specified
-         * Unicode code point.
-         *
-         * @param codePoint
-         *            the Unicode code point for which to get the
-         *            {@code UnicodeBlock} constant.
-         * @return the {@code UnicodeBlock} constant for the block that contains
-         *         {@code codePoint}, or {@code null} if {@code codePoint} does
-         *         not belong to any defined block.
-         * @throws IllegalArgumentException if {@code codePoint} is not a valid code point.
-         * @since 1.5
+         * Returns the Unicode block containing the given code point, or null if the
+         * code point does not belong to any known block.
          */
         public static UnicodeBlock of(int codePoint) {
             checkValidCodePoint(codePoint);
