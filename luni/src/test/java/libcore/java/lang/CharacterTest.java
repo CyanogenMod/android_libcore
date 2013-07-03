@@ -16,6 +16,8 @@
 
 package libcore.java.lang;
 
+import java.lang.reflect.Method;
+
 public class CharacterTest extends junit.framework.TestCase {
   public void test_valueOfC() {
     // The JLS requires caching for chars between "\u0000 to \u007f":
@@ -188,5 +190,77 @@ public class CharacterTest extends junit.framework.TestCase {
     assertTrue(Character.isIdeographic(0x4db5));
     assertTrue(Character.isIdeographic(0x2f999));
     assertFalse(Character.isIdeographic(0x2f99)); // Kangxi radical shell
+  }
+
+  // http://b/9690863
+  public void test_isDigit_against_icu4c() throws Exception {
+    Method m = Character.class.getDeclaredMethod("isDigit" + "Impl", int.class);
+    m.setAccessible(true);
+    for (int i = 0; i <= 0xffff; ++i) {
+      assertEquals(m.invoke(null, i), Character.isDigit(i));
+    }
+  }
+
+  // http://b/9690863
+  public void test_isIdentifierIgnorable_against_icu4c() throws Exception {
+    Method m = Character.class.getDeclaredMethod("isIdentifierIgnorable" + "Impl", int.class);
+    m.setAccessible(true);
+    for (int i = 0; i <= 0xffff; ++i) {
+      assertEquals(m.invoke(null, i), Character.isIdentifierIgnorable(i));
+    }
+  }
+
+  // http://b/9690863
+  public void test_isLetter_against_icu4c() throws Exception {
+    Method m = Character.class.getDeclaredMethod("isLetter" + "Impl", int.class);
+    m.setAccessible(true);
+    for (int i = 0; i <= 0xffff; ++i) {
+      assertEquals(m.invoke(null, i), Character.isLetter(i));
+    }
+  }
+
+  // http://b/9690863
+  public void test_isLetterOrDigit_against_icu4c() throws Exception {
+    Method m = Character.class.getDeclaredMethod("isLetterOrDigit" + "Impl", int.class);
+    m.setAccessible(true);
+    for (int i = 0; i <= 0xffff; ++i) {
+      assertEquals(m.invoke(null, i), Character.isLetterOrDigit(i));
+    }
+  }
+
+  // http://b/9690863
+  public void test_isLowerCase_against_icu4c() throws Exception {
+    Method m = Character.class.getDeclaredMethod("isLowerCase" + "Impl", int.class);
+    m.setAccessible(true);
+    for (int i = 0; i <= 0xffff; ++i) {
+      assertEquals(m.invoke(null, i), Character.isLowerCase(i));
+    }
+  }
+
+  // http://b/9690863
+  public void test_isSpaceChar_against_icu4c() throws Exception {
+    Method m = Character.class.getDeclaredMethod("isSpaceChar" + "Impl", int.class);
+    m.setAccessible(true);
+    for (int i = 0; i <= 0xffff; ++i) {
+      if((Boolean) m.invoke(null, i) != Character.isSpaceChar(i)) System.out.println(i);
+    }
+  }
+
+  // http://b/9690863
+  public void test_isUpperCase_against_icu4c() throws Exception {
+    Method m = Character.class.getDeclaredMethod("isUpperCase" + "Impl", int.class);
+    m.setAccessible(true);
+    for (int i = 0; i <= 0xffff; ++i) {
+      assertEquals(m.invoke(null, i), Character.isUpperCase(i));
+    }
+  }
+
+  // http://b/9690863
+  public void test_isWhitespace_against_icu4c() throws Exception {
+    Method m = Character.class.getDeclaredMethod("isWhitespace" + "Impl", int.class);
+    m.setAccessible(true);
+    for (int i = 0; i <= 0xffff; ++i) {
+      assertEquals(m.invoke(null, i), Character.isWhitespace(i));
+    }
   }
 }
