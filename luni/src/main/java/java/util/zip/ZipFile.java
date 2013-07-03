@@ -263,7 +263,7 @@ public class ZipFile implements ZipConstants {
             // http://www.pkware.com/documents/casestudies/APPNOTE.TXT
             RAFStream rafStream= new RAFStream(localRaf, entry.localHeaderRelOffset + 6);
             DataInputStream is = new DataInputStream(rafStream);
-            int gpbf = Short.reverseBytes(is.readShort());
+            int gpbf = Short.reverseBytes(is.readShort()) & 0xffff;
             if ((gpbf & ZipFile.GPBF_UNSUPPORTED_MASK) != 0) {
                 throw new ZipException("Invalid General Purpose Bit Flag: " + gpbf);
             }
@@ -271,7 +271,7 @@ public class ZipFile implements ZipConstants {
             // At position 28 we find the length of the extra data. In some cases
             // this length differs from the one coming in the central header.
             is.skipBytes(20);
-            int localExtraLenOrWhatever = Short.reverseBytes(is.readShort());
+            int localExtraLenOrWhatever = Short.reverseBytes(is.readShort()) & 0xffff;
             is.close();
 
             // Skip the name and this "extra" data or whatever it is:
