@@ -241,6 +241,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
 #endif
     initConstant(env, c, "IFF_UP", IFF_UP);
     initConstant(env, c, "IPPROTO_ICMP", IPPROTO_ICMP);
+    initConstant(env, c, "IPPROTO_ICMPV6", IPPROTO_ICMPV6);
     initConstant(env, c, "IPPROTO_IP", IPPROTO_IP);
     initConstant(env, c, "IPPROTO_IPV6", IPPROTO_IPV6);
     initConstant(env, c, "IPPROTO_RAW", IPPROTO_RAW);

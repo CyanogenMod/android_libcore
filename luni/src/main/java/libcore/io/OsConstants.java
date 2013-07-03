@@ -211,6 +211,7 @@ public final class OsConstants {
     public static final int IFF_SLAVE = placeholder();
     public static final int IFF_UP = placeholder();
     public static final int IPPROTO_ICMP = placeholder();
+    public static final int IPPROTO_ICMPV6 = placeholder();
     public static final int IPPROTO_IP = placeholder();
     public static final int IPPROTO_IPV6 = placeholder();
     public static final int IPPROTO_RAW = placeholder();
