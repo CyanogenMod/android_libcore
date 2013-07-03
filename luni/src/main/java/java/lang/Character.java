@@ -2935,12 +2935,7 @@ public final class Character implements Serializable, Comparable<Character> {
     private static native boolean isLowerCaseImpl(int codePoint);
 
     /**
-     * Indicates whether the specified character is a Java space.
-     *
-     * @param c
-     *            the character to check.
-     * @return {@code true} if {@code c} is a Java space; {@code false}
-     *         otherwise.
+     * Use {@link #isWhitespace(char)} instead.
      * @deprecated Use {@link #isWhitespace(char)} instead.
      */
     @Deprecated
@@ -2949,40 +2944,41 @@ public final class Character implements Serializable, Comparable<Character> {
     }
 
     /**
-     * Indicates whether the specified character is a Unicode space character.
-     * That is, if it is a member of one of the Unicode categories Space
-     * Separator, Line Separator, or Paragraph Separator.
-     *
-     * @param c
-     *            the character to check.
-     * @return {@code true} if {@code c} is a Unicode space character,
-     *         {@code false} otherwise.
+     * See {@link #isSpaceChar(int)}.
      */
     public static boolean isSpaceChar(char c) {
         return isSpaceChar((int) c);
     }
 
     /**
-     * Indicates whether the specified code point is a Unicode space character.
-     * That is, if it is a member of one of the Unicode categories Space
-     * Separator, Line Separator, or Paragraph Separator.
-     *
-     * @param codePoint
-     *            the code point to check.
-     * @return {@code true} if {@code codePoint} is a Unicode space character,
-     *         {@code false} otherwise.
+     * Returns true if the given code point is a Unicode space character.
+     * The exact set of characters considered as whitespace varies with Unicode version.
+     * Note that non-breaking spaces are considered whitespace.
+     * Note also that line separators are not considered whitespace; see {@link #isWhitespace}
+     * for an alternative.
      */
     public static boolean isSpaceChar(int codePoint) {
-        if (codePoint == 0x20 || codePoint == 0xa0 || codePoint == 0x1680) {
+        // We don't just call into icu4c because of the JNI overhead. Ideally we'd fix that.
+        // SPACE or NO-BREAK SPACE?
+        if (codePoint == 0x20 || codePoint == 0xa0) {
+            return true;
+        }
+        if (codePoint < 0x1000) {
+            return false;
+        }
+        // OGHAM SPACE MARK or MONGOLIAN VOWEL SEPARATOR?
+        if (codePoint == 0x1680 || codePoint == 0x180e) {
             return true;
         }
         if (codePoint < 0x2000) {
             return false;
         }
         if (codePoint <= 0xffff) {
-            return codePoint <= 0x200b || codePoint == 0x2028 || codePoint == 0x2029 ||
-                    codePoint == 0x202f || codePoint == 0x3000;
+            // Other whitespace from General Punctuation...
+            return codePoint <= 0x200a || codePoint == 0x2028 || codePoint == 0x2029 || codePoint == 0x202f || codePoint == 0x205f ||
+                codePoint == 0x3000; // ...or CJK Symbols and Punctuation?
         }
+        // Let icu4c worry about non-BMP code points.
         return isSpaceCharImpl(codePoint);
     }
 
@@ -3104,42 +3100,45 @@ public final class Character implements Serializable, Comparable<Character> {
     private static native boolean isUpperCaseImpl(int codePoint);
 
     /**
-     * Indicates whether the specified character is a whitespace character in
-     * Java.
-     *
-     * @param c
-     *            the character to check.
-     * @return {@code true} if the supplied {@code c} is a whitespace character
-     *         in Java; {@code false} otherwise.
+     * See {@link #isWhitespace(int)}.
      */
     public static boolean isWhitespace(char c) {
         return isWhitespace((int) c);
     }
 
     /**
-     * Indicates whether the specified code point is a whitespace character in
-     * Java.
-     *
-     * @param codePoint
-     *            the code point to check.
-     * @return {@code true} if the supplied {@code c} is a whitespace character
-     *         in Java; {@code false} otherwise.
+     * Returns true if the given code point is a Unicode whitespace character.
+     * The exact set of characters considered as whitespace varies with Unicode version.
+     * Note that non-breaking spaces are not considered whitespace.
+     * Note also that line separators are considered whitespace; see {@link #isSpaceChar}
+     * for an alternative.
      */
     public static boolean isWhitespace(int codePoint) {
-        // This is both an optimization and papers over differences between Java and ICU.
-        if ((codePoint >= 0x1c && codePoint <= 0x20) || (codePoint >= 0x9 && codePoint <= 0xd)) {
+        // We don't just call into icu4c because of the JNI overhead. Ideally we'd fix that.
+        // Any ASCII whitespace character?
+        if ((codePoint >= 0x1c && codePoint <= 0x20) || (codePoint >= 0x09 && codePoint <= 0x0d)) {
             return true;
         }
-        if (codePoint == 0x1680) {
+        if (codePoint < 0x1000) {
+            return false;
+        }
+        // OGHAM SPACE MARK or MONGOLIAN VOWEL SEPARATOR?
+        if (codePoint == 0x1680 || codePoint == 0x180e) {
             return true;
         }
-        if (codePoint < 0x2000 || codePoint == 0x2007) {
+        if (codePoint < 0x2000) {
+            return false;
+        }
+        // Exclude General Punctuation's non-breaking spaces (which includes FIGURE SPACE).
+        if (codePoint == 0x2007 || codePoint == 0x202f) {
             return false;
         }
         if (codePoint <= 0xffff) {
-            return codePoint <= 0x200b || codePoint == 0x2028 || codePoint == 0x2029 ||
-                    codePoint == 0x3000;
+            // Other whitespace from General Punctuation...
+            return codePoint <= 0x200a || codePoint == 0x2028 || codePoint == 0x2029 || codePoint == 0x205f ||
+                codePoint == 0x3000; // ...or CJK Symbols and Punctuation?
         }
+        // Let icu4c worry about non-BMP code points.
         return isWhitespaceImpl(codePoint);
     }
 
