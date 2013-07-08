@@ -312,11 +312,19 @@ public abstract class HttpURLConnection extends URLConnection {
     protected int chunkLength = -1;
 
     /**
-     * If using HTTP fixed-length streaming mode this parameter defines the
-     * fixed length of content. Default value is {@code -1} that means the
-     * fixed-length streaming mode is disabled.
+     * The byte count in the request body if it is both known and streamed; and
+     * -1 otherwise. If the byte count exceeds {@link Integer#MAX_VALUE} (2 GiB)
+     * then the value of this field will be {@link Integer#MAX_VALUE}. In that
+     * case use {@link #fixedContentLengthLong} to access the exact byte count.
      */
     protected int fixedContentLength = -1;
+
+    /**
+     * The byte count in the request body if it is both known and streamed; and
+     * -1 otherwise. Prefer this field over the {@code int}-valued {@code
+     * fixedContentLength} on platforms that support both.
+     */
+    protected long fixedContentLengthLong = -1;
 
     // 2XX: generally "OK"
     // 3XX: relocation/redirect
@@ -737,9 +745,8 @@ public abstract class HttpURLConnection extends URLConnection {
     }
 
     /**
-     * If the length of a HTTP request body is known ahead, sets fixed length to
-     * enable streaming without buffering. Sets after connection will cause an
-     * exception.
+     * Configures this connection to stream the request body with the known
+     * fixed byte count of {@code contentLength}.
      *
      * @see #setChunkedStreamingMode
      * @param contentLength
@@ -748,8 +755,9 @@ public abstract class HttpURLConnection extends URLConnection {
      *             if already connected or another mode already set.
      * @throws IllegalArgumentException
      *             if {@code contentLength} is less than zero.
+     * @since 1.7
      */
-    public void setFixedLengthStreamingMode(int contentLength) {
+    public void setFixedLengthStreamingMode(long contentLength) {
         if (super.connected) {
             throw new IllegalStateException("Already connected");
         }
@@ -759,7 +767,16 @@ public abstract class HttpURLConnection extends URLConnection {
         if (contentLength < 0) {
             throw new IllegalArgumentException("contentLength < 0");
         }
-        this.fixedContentLength = contentLength;
+        this.fixedContentLength = (int) Math.min(contentLength, Integer.MAX_VALUE);
+        this.fixedContentLengthLong = contentLength;
+    }
+
+    /**
+     * Equivalent to {@code setFixedLengthStreamingMode((long) contentLength)},
+     * but available on earlier versions of Android and limited to 2 GiB.
+     */
+    public void setFixedLengthStreamingMode(int contentLength) {
+      setFixedLengthStreamingMode((long) contentLength);
     }
 
     /**
