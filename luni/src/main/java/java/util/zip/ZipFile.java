@@ -247,7 +247,7 @@ public class ZipFile implements ZipConstants {
             // the one coming in the central header.
             RAFStream rafStream = new RAFStream(localRaf, entry.localHeaderRelOffset + 28);
             DataInputStream is = new DataInputStream(rafStream);
-            int localExtraLenOrWhatever = Short.reverseBytes(is.readShort());
+            int localExtraLenOrWhatever = Short.reverseBytes(is.readShort()) & 0xffff;
             is.close();
 
             // Skip the name and this "extra" data or whatever it is:
