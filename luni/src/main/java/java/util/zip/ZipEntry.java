@@ -360,18 +360,18 @@ public class ZipEntry implements ZipConstants, Cloneable {
         }
 
         it.seek(10);
-        compressionMethod = it.readShort();
-        time = it.readShort();
-        modDate = it.readShort();
+        compressionMethod = it.readShort() & 0xffff;
+        time = it.readShort() & 0xffff;
+        modDate = it.readShort() & 0xffff;
 
         // These are 32-bit values in the file, but 64-bit fields in this object.
         crc = ((long) it.readInt()) & 0xffffffffL;
         compressedSize = ((long) it.readInt()) & 0xffffffffL;
         size = ((long) it.readInt()) & 0xffffffffL;
 
-        nameLength = it.readShort();
-        int extraLength = it.readShort();
-        int commentLength = it.readShort();
+        nameLength = it.readShort() & 0xffff;
+        int extraLength = it.readShort() & 0xffff;
+        int commentLength = it.readShort() & 0xffff;
 
         // This is a 32-bit value in the file, but a 64-bit field in this object.
         it.seek(42);
