@@ -18,6 +18,7 @@ package libcore.java.nio.channels;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.nio.ByteBuffer;
 import java.nio.channels.NoConnectionPendingException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -129,16 +130,44 @@ public class SelectorTest extends TestCase {
         }
     }
 
-    /**
-     * We previously leaked a file descriptor for each selector instance created.
-     *
-     * http://code.google.com/p/android/issues/detail?id=5993
-     * http://code.google.com/p/android/issues/detail?id=4825
-     */
+    // We previously leaked a file descriptor for each selector instance created.
+    //
+    // http://code.google.com/p/android/issues/detail?id=5993
+    // http://code.google.com/p/android/issues/detail?id=4825
     public void testLeakingPipes() throws IOException {
         for (int i = 0; i < 2000; i++) {
             Selector selector = Selector.open();
             selector.close();
         }
+    }
+
+    public void test_57456() throws Exception {
+      Selector selector = Selector.open();
+      ServerSocketChannel ssc = ServerSocketChannel.open();
+
+      try {
+        // Connect.
+        ssc.configureBlocking(false);
+        ssc.socket().bind(null);
+        SocketChannel sc = SocketChannel.open();
+        sc.connect(ssc.socket().getLocalSocketAddress());
+        sc.finishConnect();
+
+        // Switch to non-blocking so we can use a Selector.
+        sc.configureBlocking(false);
+
+        // Have the 'server' write something.
+        ssc.accept().write(ByteBuffer.allocate(128));
+
+        // At this point, the client should be able to read or write immediately.
+        // (It shouldn't be able to connect because it's already connected.)
+        SelectionKey key = sc.register(selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+        assertEquals(1, selector.select());
+        assertEquals(SelectionKey.OP_READ | SelectionKey.OP_WRITE, key.readyOps());
+        assertEquals(0, selector.select());
+      } finally {
+        selector.close();
+        ssc.close();
+      }
     }
 }
