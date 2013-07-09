@@ -6,6 +6,7 @@
 
 package java.util.concurrent;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,6 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -49,9 +51,9 @@ import java.util.concurrent.TimeUnit;
  * level; by default, equal to the number of available processors. The
  * pool attempts to maintain enough active (or available) threads by
  * dynamically adding, suspending, or resuming internal worker
- * threads, even if some tasks are stalled waiting to join
- * others. However, no such adjustments are guaranteed in the face of
- * blocked I/O or other unmanaged synchronization. The nested {@link
+ * threads, even if some tasks are stalled waiting to join others.
+ * However, no such adjustments are guaranteed in the face of blocked
+ * I/O or other unmanaged synchronization. The nested {@link
  * ManagedBlocker} interface enables extension of the kinds of
  * synchronization accommodated.
  *
@@ -75,38 +77,45 @@ import java.util.concurrent.TimeUnit;
  * there is little difference among choice of methods.
  *
  * <table BORDER CELLPADDING=3 CELLSPACING=1>
+ * <caption>Summary of task execution methods</caption>
  *  <tr>
  *    <td></td>
  *    <td ALIGN=CENTER> <b>Call from non-fork/join clients</b></td>
  *    <td ALIGN=CENTER> <b>Call from within fork/join computations</b></td>
  *  </tr>
  *  <tr>
- *    <td> <b>Arrange async execution</td>
+ *    <td> <b>Arrange async execution</b></td>
  *    <td> {@link #execute(ForkJoinTask)}</td>
  *    <td> {@link ForkJoinTask#fork}</td>
  *  </tr>
  *  <tr>
- *    <td> <b>Await and obtain result</td>
+ *    <td> <b>Await and obtain result</b></td>
  *    <td> {@link #invoke(ForkJoinTask)}</td>
  *    <td> {@link ForkJoinTask#invoke}</td>
  *  </tr>
  *  <tr>
- *    <td> <b>Arrange exec and obtain Future</td>
+ *    <td> <b>Arrange exec and obtain Future</b></td>
  *    <td> {@link #submit(ForkJoinTask)}</td>
  *    <td> {@link ForkJoinTask#fork} (ForkJoinTasks <em>are</em> Futures)</td>
  *  </tr>
  * </table>
  *
  * <p>The common pool is by default constructed with default
- * parameters, but these may be controlled by setting three {@link
- * System#getProperty system properties} with prefix {@code
- * java.util.concurrent.ForkJoinPool.common}: {@code parallelism} --
- * an integer greater than zero, {@code threadFactory} -- the class
- * name of a {@link ForkJoinWorkerThreadFactory}, and {@code
- * exceptionHandler} -- the class name of a {@link
- * java.lang.Thread.UncaughtExceptionHandler
- * Thread.UncaughtExceptionHandler}. Upon any error in establishing
- * these settings, default parameters are used.
+ * parameters, but these may be controlled by setting three
+ * {@linkplain System#getProperty system properties}:
+ * <ul>
+ * <li>{@code java.util.concurrent.ForkJoinPool.common.parallelism}
+ * - the parallelism level, a non-negative integer
+ * <li>{@code java.util.concurrent.ForkJoinPool.common.threadFactory}
+ * - the class name of a {@link ForkJoinWorkerThreadFactory}
+ * <li>{@code java.util.concurrent.ForkJoinPool.common.exceptionHandler}
+ * - the class name of a {@link UncaughtExceptionHandler}
+ * </ul>
+ * The system class loader is used to load these classes.
+ * Upon any error in establishing these settings, default parameters
+ * are used. It is possible to disable or limit the use of threads in
+ * the common pool by setting the parallelism property to zero, and/or
+ * using a factory that may return {@code null}.
  *
  * <p><b>Implementation notes</b>: This implementation restricts the
  * maximum number of running threads to 32767. Attempts to create
@@ -153,32 +162,35 @@ public class ForkJoinPool extends AbstractExecutorService {
      * (http://research.sun.com/scalable/pubs/index.html) and
      * "Idempotent work stealing" by Michael, Saraswat, and Vechev,
      * PPoPP 2009 (http://portal.acm.org/citation.cfm?id=1504186).
-     * The main differences ultimately stem from GC requirements that
-     * we null out taken slots as soon as we can, to maintain as small
-     * a footprint as possible even in programs generating huge
-     * numbers of tasks. To accomplish this, we shift the CAS
-     * arbitrating pop vs poll (steal) from being on the indices
-     * ("base" and "top") to the slots themselves.  So, both a
-     * successful pop and poll mainly entail a CAS of a slot from
-     * non-null to null.  Because we rely on CASes of references, we
-     * do not need tag bits on base or top.  They are simple ints as
-     * used in any circular array-based queue (see for example
-     * ArrayDeque).  Updates to the indices must still be ordered in a
-     * way that guarantees that top == base means the queue is empty,
-     * but otherwise may err on the side of possibly making the queue
-     * appear nonempty when a push, pop, or poll have not fully
-     * committed. Note that this means that the poll operation,
-     * considered individually, is not wait-free. One thief cannot
-     * successfully continue until another in-progress one (or, if
-     * previously empty, a push) completes.  However, in the
-     * aggregate, we ensure at least probabilistic non-blockingness.
-     * If an attempted steal fails, a thief always chooses a different
-     * random victim target to try next. So, in order for one thief to
-     * progress, it suffices for any in-progress poll or new push on
-     * any empty queue to complete. (This is why we normally use
-     * method pollAt and its variants that try once at the apparent
-     * base index, else consider alternative actions, rather than
-     * method poll.)
+     * See also "Correct and Efficient Work-Stealing for Weak Memory
+     * Models" by Le, Pop, Cohen, and Nardelli, PPoPP 2013
+     * (http://www.di.ens.fr/~zappa/readings/ppopp13.pdf) for an
+     * analysis of memory ordering (atomic, volatile etc) issues.  The
+     * main differences ultimately stem from GC requirements that we
+     * null out taken slots as soon as we can, to maintain as small a
+     * footprint as possible even in programs generating huge numbers
+     * of tasks. To accomplish this, we shift the CAS arbitrating pop
+     * vs poll (steal) from being on the indices ("base" and "top") to
+     * the slots themselves.  So, both a successful pop and poll
+     * mainly entail a CAS of a slot from non-null to null.  Because
+     * we rely on CASes of references, we do not need tag bits on base
+     * or top.  They are simple ints as used in any circular
+     * array-based queue (see for example ArrayDeque).  Updates to the
+     * indices must still be ordered in a way that guarantees that top
+     * == base means the queue is empty, but otherwise may err on the
+     * side of possibly making the queue appear nonempty when a push,
+     * pop, or poll have not fully committed. Note that this means
+     * that the poll operation, considered individually, is not
+     * wait-free. One thief cannot successfully continue until another
+     * in-progress one (or, if previously empty, a push) completes.
+     * However, in the aggregate, we ensure at least probabilistic
+     * non-blockingness.  If an attempted steal fails, a thief always
+     * chooses a different random victim target to try next. So, in
+     * order for one thief to progress, it suffices for any
+     * in-progress poll or new push on any empty queue to
+     * complete. (This is why we normally use method pollAt and its
+     * variants that try once at the apparent base index, else
+     * consider alternative actions, rather than method poll.)
      *
      * This approach also enables support of a user mode in which local
      * task processing is in FIFO, not LIFO order, simply by using
@@ -197,18 +209,18 @@ public class ForkJoinPool extends AbstractExecutorService {
      * for work-stealing (this would contaminate lifo/fifo
      * processing). Instead, we randomly associate submission queues
      * with submitting threads, using a form of hashing.  The
-     * ThreadLocal Submitter class contains a value initially used as
-     * a hash code for choosing existing queues, but may be randomly
-     * repositioned upon contention with other submitters.  In
-     * essence, submitters act like workers except that they are
-     * restricted to executing local tasks that they submitted (or in
-     * the case of CountedCompleters, others with the same root task).
-     * However, because most shared/external queue operations are more
-     * expensive than internal, and because, at steady state, external
-     * submitters will compete for CPU with workers, ForkJoinTask.join
-     * and related methods disable them from repeatedly helping to
-     * process tasks if all workers are active.  Insertion of tasks in
-     * shared mode requires a lock (mainly to protect in the case of
+     * Submitter probe value serves as a hash code for
+     * choosing existing queues, and may be randomly repositioned upon
+     * contention with other submitters.  In essence, submitters act
+     * like workers except that they are restricted to executing local
+     * tasks that they submitted (or in the case of CountedCompleters,
+     * others with the same root task).  However, because most
+     * shared/external queue operations are more expensive than
+     * internal, and because, at steady state, external submitters
+     * will compete for CPU with workers, ForkJoinTask.join and
+     * related methods disable them from repeatedly helping to process
+     * tasks if all workers are active.  Insertion of tasks in shared
+     * mode requires a lock (mainly to protect in the case of
      * resizing) but we use only a simple spinlock (using bits in
      * field qlock), because submitters encountering a busy queue move
      * on to try or create other queues -- they block only when
@@ -298,37 +310,35 @@ public class ForkJoinPool extends AbstractExecutorService {
      * has not yet entered the wait queue. We solve this by requiring
      * a full sweep of all workers (via repeated calls to method
      * scan()) both before and after a newly waiting worker is added
-     * to the wait queue. During a rescan, the worker might release
-     * some other queued worker rather than itself, which has the same
-     * net effect. Because enqueued workers may actually be rescanning
-     * rather than waiting, we set and clear the "parker" field of
-     * WorkQueues to reduce unnecessary calls to unpark.  (This
-     * requires a secondary recheck to avoid missed signals.)  Note
-     * the unusual conventions about Thread.interrupts surrounding
-     * parking and other blocking: Because interrupts are used solely
-     * to alert threads to check termination, which is checked anyway
-     * upon blocking, we clear status (using Thread.interrupted)
-     * before any call to park, so that park does not immediately
-     * return due to status being set via some other unrelated call to
-     * interrupt in user code.
+     * to the wait queue.  Because enqueued workers may actually be
+     * rescanning rather than waiting, we set and clear the "parker"
+     * field of WorkQueues to reduce unnecessary calls to unpark.
+     * (This requires a secondary recheck to avoid missed signals.)
+     * Note the unusual conventions about Thread.interrupts
+     * surrounding parking and other blocking: Because interrupts are
+     * used solely to alert threads to check termination, which is
+     * checked anyway upon blocking, we clear status (using
+     * Thread.interrupted) before any call to park, so that park does
+     * not immediately return due to status being set via some other
+     * unrelated call to interrupt in user code.
      *
      * Signalling.  We create or wake up workers only when there
      * appears to be at least one task they might be able to find and
-     * execute. However, many other threads may notice the same task
-     * and each signal to wake up a thread that might take it. So in
-     * general, pools will be over-signalled.  When a submission is
-     * added or another worker adds a task to a queue that has fewer
-     * than two tasks, they signal waiting workers (or trigger
-     * creation of new ones if fewer than the given parallelism level
-     * -- signalWork), and may leave a hint to the unparked worker to
-     * help signal others upon wakeup).  These primary signals are
-     * buttressed by others (see method helpSignal) whenever other
-     * threads scan for work or do not have a task to process.  On
-     * most platforms, signalling (unpark) overhead time is noticeably
+     * execute.  When a submission is added or another worker adds a
+     * task to a queue that has fewer than two tasks, they signal
+     * waiting workers (or trigger creation of new ones if fewer than
+     * the given parallelism level -- signalWork).  These primary
+     * signals are buttressed by others whenever other threads remove
+     * a task from a queue and notice that there are other tasks there
+     * as well.  So in general, pools will be over-signalled. On most
+     * platforms, signalling (unpark) overhead time is noticeably
      * long, and the time between signalling a thread and it actually
      * making progress can be very noticeably long, so it is worth
      * offloading these delays from critical paths as much as
-     * possible.
+     * possible. Additionally, workers spin-down gradually, by staying
+     * alive so long as they see the ctl state changing.  Similar
+     * stability-sensing techniques are also used before blocking in
+     * awaitJoin and helpComplete.
      *
      * Trimming workers. To release resources after periods of lack of
      * use, a worker starting to wait when the pool is quiescent will
@@ -441,7 +451,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      * Common Pool
      * ===========
      *
-     * The static commonPool always exists after static
+     * The static common pool always exists after static
      * initialization.  Since it (or any other created pool) need
      * never be used, we minimize initial construction overhead and
      * footprint to the setup of about a dozen fields, with no nested
@@ -449,8 +459,11 @@ public class ForkJoinPool extends AbstractExecutorService {
      * fullExternalPush during the first submission to the pool.
      *
      * When external threads submit to the common pool, they can
-     * perform some subtask processing (see externalHelpJoin and
-     * related methods).  We do not need to record whether these
+     * perform subtask processing (see externalHelpJoin and related
+     * methods).  This caller-helps policy makes it sensible to set
+     * common pool parallelism level to one (or more) less than the
+     * total number of available cores, or even zero for pure
+     * caller-runs.  We do not need to record whether external
      * submissions are to the common pool -- if not, externalHelpJoin
      * returns quickly (at the most helping to signal some common pool
      * workers). These submitters would otherwise be blocked waiting
@@ -520,6 +533,7 @@ public class ForkJoinPool extends AbstractExecutorService {
          *
          * @param pool the pool this thread works in
          * @throws NullPointerException if the pool is null
+         * @return the new worker thread
          */
         public ForkJoinWorkerThread newThread(ForkJoinPool pool);
     }
@@ -533,26 +547,6 @@ public class ForkJoinPool extends AbstractExecutorService {
         public final ForkJoinWorkerThread newThread(ForkJoinPool pool) {
             return new ForkJoinWorkerThread(pool);
         }
-    }
-
-    /**
-     * Per-thread records for threads that submit to pools. Currently
-     * holds only pseudo-random seed / index that is used to choose
-     * submission queues in method externalPush. In the future, this may
-     * also incorporate a means to implement different task rejection
-     * and resubmission policies.
-     *
-     * Seeds for submitters and workers/workQueues work in basically
-     * the same way but are initialized and updated using slightly
-     * different mechanics. Both are initialized using the same
-     * approach as in class ThreadLocal, where successive values are
-     * unlikely to collide with previous values. Seeds are then
-     * randomly modified upon collisions using xorshifts, which
-     * requires a non-zero seed.
-     */
-    static final class Submitter {
-        int seed;
-        Submitter(int s) { seed = s; }
     }
 
     /**
@@ -614,17 +608,8 @@ public class ForkJoinPool extends AbstractExecutorService {
      * do not want multiple WorkQueue instances or multiple queue
      * arrays sharing cache lines. (It would be best for queue objects
      * and their arrays to share, but there is nothing available to
-     * help arrange that).  Unfortunately, because they are recorded
-     * in a common array, WorkQueue instances are often moved to be
-     * adjacent by garbage collectors. To reduce impact, we use field
-     * padding that works OK on common platforms; this effectively
-     * trades off slightly slower average field access for the sake of
-     * avoiding really bad worst-case access. (Until better JVM
-     * support is in place, this padding is dependent on transient
-     * properties of JVM field layout rules.) We also take care in
-     * allocating, sizing and resizing the array. Non-shared queue
-     * arrays are initialized by workers before use. Others are
-     * allocated on first use.
+     * help arrange that). The @Contended annotation alerts JVMs to
+     * try to keep instances apart.
      */
     static final class WorkQueue {
         /**
@@ -650,13 +635,12 @@ public class ForkJoinPool extends AbstractExecutorService {
         // Heuristic padding to ameliorate unfortunate memory placements
         volatile long pad00, pad01, pad02, pad03, pad04, pad05, pad06;
 
-        int seed;                  // for random scanning; initialize nonzero
         volatile int eventCount;   // encoded inactivation count; < 0 if inactive
         int nextWait;              // encoded record of next event waiter
-        int hint;                  // steal or signal hint (index)
-        int poolIndex;             // index of this queue in pool (or 0)
-        final int mode;            // 0: lifo, > 0: fifo, < 0: shared
         int nsteals;               // number of steals
+        int hint;                  // steal index hint
+        short poolIndex;           // index of this queue in pool
+        final short mode;          // 0: lifo, > 0: fifo, < 0: shared
         volatile int qlock;        // 1: locked, -1: terminate; else 0
         volatile int base;         // index of next slot for poll
         int top;                   // index of next slot for push
@@ -674,8 +658,8 @@ public class ForkJoinPool extends AbstractExecutorService {
                   int seed) {
             this.pool = pool;
             this.owner = owner;
-            this.mode = mode;
-            this.seed = seed;
+            this.mode = (short)mode;
+            this.hint = seed; // store initial seed for runWorker
             // Place indices in the center of array (that is not yet allocated)
             base = top = INITIAL_QUEUE_CAPACITY >>> 1;
         }
@@ -688,7 +672,7 @@ public class ForkJoinPool extends AbstractExecutorService {
             return (n >= 0) ? 0 : -n; // ignore transient negative
         }
 
-       /**
+        /**
          * Provides a more accurate estimate of whether this queue has
          * any tasks than does queueSize, by checking whether a
          * near-empty queue has at least one unclaimed task.
@@ -713,20 +697,18 @@ public class ForkJoinPool extends AbstractExecutorService {
          */
         final void push(ForkJoinTask<?> task) {
             ForkJoinTask<?>[] a; ForkJoinPool p;
-            int s = top, m, n;
+            int s = top, n;
             if ((a = array) != null) {    // ignore if queue removed
-                int j = (((m = a.length - 1) & s) << ASHIFT) + ABASE;
-                U.putOrderedObject(a, j, task);
-                if ((n = (top = s + 1) - base) <= 2) {
-                    if ((p = pool) != null)
-                        p.signalWork(this);
-                }
+                int m = a.length - 1;
+                U.putOrderedObject(a, ((m & s) << ASHIFT) + ABASE, task);
+                if ((n = (top = s + 1) - base) <= 2)
+                    (p = pool).signalWork(p.workQueues, this);
                 else if (n >= m)
                     growArray();
             }
         }
 
-       /**
+        /**
          * Initializes or doubles the capacity of array. Call either
          * by owner or with lock held -- it is OK for base, but not
          * top, to move while resizings are in progress.
@@ -784,9 +766,8 @@ public class ForkJoinPool extends AbstractExecutorService {
             if ((a = array) != null) {
                 int j = (((a.length - 1) & b) << ASHIFT) + ABASE;
                 if ((t = (ForkJoinTask<?>)U.getObjectVolatile(a, j)) != null &&
-                    base == b &&
-                    U.compareAndSwapObject(a, j, t, null)) {
-                    base = b + 1;
+                    base == b && U.compareAndSwapObject(a, j, t, null)) {
+                    U.putOrderedInt(this, QBASE, b + 1);
                     return t;
                 }
             }
@@ -802,9 +783,8 @@ public class ForkJoinPool extends AbstractExecutorService {
                 int j = (((a.length - 1) & b) << ASHIFT) + ABASE;
                 t = (ForkJoinTask<?>)U.getObjectVolatile(a, j);
                 if (t != null) {
-                    if (base == b &&
-                        U.compareAndSwapObject(a, j, t, null)) {
-                        base = b + 1;
+                    if (U.compareAndSwapObject(a, j, t, null)) {
+                        U.putOrderedInt(this, QBASE, b + 1);
                         return t;
                     }
                 }
@@ -861,46 +841,43 @@ public class ForkJoinPool extends AbstractExecutorService {
                 ForkJoinTask.cancelIgnoringExceptions(t);
         }
 
-        /**
-         * Computes next value for random probes.  Scans don't require
-         * a very high quality generator, but also not a crummy one.
-         * Marsaglia xor-shift is cheap and works well enough.  Note:
-         * This is manually inlined in its usages in ForkJoinPool to
-         * avoid writes inside busy scan loops.
-         */
-        final int nextSeed() {
-            int r = seed;
-            r ^= r << 13;
-            r ^= r >>> 17;
-            return seed = r ^= r << 5;
-        }
-
         // Specialized execution methods
-
-        /**
-         * Pops and runs tasks until empty.
-         */
-        private void popAndExecAll() {
-            // A bit faster than repeated pop calls
-            ForkJoinTask<?>[] a; int m, s; long j; ForkJoinTask<?> t;
-            while ((a = array) != null && (m = a.length - 1) >= 0 &&
-                   (s = top - 1) - base >= 0 &&
-                   (t = ((ForkJoinTask<?>)
-                         U.getObject(a, j = ((m & s) << ASHIFT) + ABASE)))
-                   != null) {
-                if (U.compareAndSwapObject(a, j, t, null)) {
-                    top = s;
-                    t.doExec();
-                }
-            }
-        }
 
         /**
          * Polls and runs tasks until empty.
          */
-        private void pollAndExecAll() {
+        final void pollAndExecAll() {
             for (ForkJoinTask<?> t; (t = poll()) != null;)
                 t.doExec();
+        }
+
+        /**
+         * Executes a top-level task and any local tasks remaining
+         * after execution.
+         */
+        final void runTask(ForkJoinTask<?> task) {
+            if ((currentSteal = task) != null) {
+                task.doExec();
+                ForkJoinTask<?>[] a = array;
+                int md = mode;
+                ++nsteals;
+                currentSteal = null;
+                if (md != 0)
+                    pollAndExecAll();
+                else if (a != null) {
+                    int s, m = a.length - 1;
+                    while ((s = top - 1) - base >= 0) {
+                        long i = ((m & s) << ASHIFT) + ABASE;
+                        ForkJoinTask<?> t = (ForkJoinTask<?>)U.getObject(a, i);
+                        if (t == null)
+                            break;
+                        if (U.compareAndSwapObject(a, i, t, null)) {
+                            top = s;
+                            t.doExec();
+                        }
+                    }
+                }
+            }
         }
 
         /**
@@ -911,13 +888,15 @@ public class ForkJoinPool extends AbstractExecutorService {
          * @return false if no progress can be made, else true
          */
         final boolean tryRemoveAndExec(ForkJoinTask<?> task) {
-            boolean stat = true, removed = false, empty = true;
+            boolean stat;
             ForkJoinTask<?>[] a; int m, s, b, n;
-            if ((a = array) != null && (m = a.length - 1) >= 0 &&
+            if (task != null && (a = array) != null && (m = a.length - 1) >= 0 &&
                 (n = (s = top) - (b = base)) > 0) {
+                boolean removed = false, empty = true;
+                stat = true;
                 for (ForkJoinTask<?> t;;) {           // traverse from s to b
-                    int j = ((--s & m) << ASHIFT) + ABASE;
-                    t = (ForkJoinTask<?>)U.getObjectVolatile(a, j);
+                    long j = ((--s & m) << ASHIFT) + ABASE;
+                    t = (ForkJoinTask<?>)U.getObject(a, j);
                     if (t == null)                    // inconsistent length
                         break;
                     else if (t == task) {
@@ -945,68 +924,95 @@ public class ForkJoinPool extends AbstractExecutorService {
                         break;
                     }
                 }
+                if (removed)
+                    task.doExec();
             }
-            if (removed)
-                task.doExec();
+            else
+                stat = false;
             return stat;
         }
 
         /**
-         * Polls for and executes the given task or any other task in
-         * its CountedCompleter computation.
+         * Tries to poll for and execute the given task or any other
+         * task in its CountedCompleter computation.
          */
-        final boolean pollAndExecCC(ForkJoinTask<?> root) {
-            ForkJoinTask<?>[] a; int b; Object o;
-            outer: while ((b = base) - top < 0 && (a = array) != null) {
+        final boolean pollAndExecCC(CountedCompleter<?> root) {
+            ForkJoinTask<?>[] a; int b; Object o; CountedCompleter<?> t, r;
+            if ((b = base) - top < 0 && (a = array) != null) {
                 long j = (((a.length - 1) & b) << ASHIFT) + ABASE;
-                if ((o = U.getObject(a, j)) == null ||
-                    !(o instanceof CountedCompleter))
-                    break;
-                for (CountedCompleter<?> t = (CountedCompleter<?>)o, r = t;;) {
-                    if (r == root) {
-                        if (base == b &&
-                            U.compareAndSwapObject(a, j, t, null)) {
-                            base = b + 1;
-                            t.doExec();
+                if ((o = U.getObjectVolatile(a, j)) == null)
+                    return true; // retry
+                if (o instanceof CountedCompleter) {
+                    for (t = (CountedCompleter<?>)o, r = t;;) {
+                        if (r == root) {
+                            if (base == b &&
+                                U.compareAndSwapObject(a, j, t, null)) {
+                                U.putOrderedInt(this, QBASE, b + 1);
+                                t.doExec();
+                            }
                             return true;
                         }
-                        else
-                            break; // restart
+                        else if ((r = r.completer) == null)
+                            break; // not part of root computation
                     }
-                    if ((r = r.completer) == null)
-                        break outer; // not part of root computation
                 }
             }
             return false;
         }
 
         /**
-         * Executes a top-level task and any local tasks remaining
-         * after execution.
+         * Tries to pop and execute the given task or any other task
+         * in its CountedCompleter computation.
          */
-        final void runTask(ForkJoinTask<?> t) {
-            if (t != null) {
-                (currentSteal = t).doExec();
-                currentSteal = null;
-                ++nsteals;
-                if (base - top < 0) {       // process remaining local tasks
-                    if (mode == 0)
-                        popAndExecAll();
-                    else
-                        pollAndExecAll();
+        final boolean externalPopAndExecCC(CountedCompleter<?> root) {
+            ForkJoinTask<?>[] a; int s; Object o; CountedCompleter<?> t, r;
+            if (base - (s = top) < 0 && (a = array) != null) {
+                long j = (((a.length - 1) & (s - 1)) << ASHIFT) + ABASE;
+                if ((o = U.getObject(a, j)) instanceof CountedCompleter) {
+                    for (t = (CountedCompleter<?>)o, r = t;;) {
+                        if (r == root) {
+                            if (U.compareAndSwapInt(this, QLOCK, 0, 1)) {
+                                if (top == s && array == a &&
+                                    U.compareAndSwapObject(a, j, t, null)) {
+                                    top = s - 1;
+                                    qlock = 0;
+                                    t.doExec();
+                                }
+                                else
+                                    qlock = 0;
+                            }
+                            return true;
+                        }
+                        else if ((r = r.completer) == null)
+                            break;
+                    }
                 }
             }
+            return false;
         }
 
         /**
-         * Executes a non-top-level (stolen) task.
+         * Internal version
          */
-        final void runSubtask(ForkJoinTask<?> t) {
-            if (t != null) {
-                ForkJoinTask<?> ps = currentSteal;
-                (currentSteal = t).doExec();
-                currentSteal = ps;
+        final boolean internalPopAndExecCC(CountedCompleter<?> root) {
+            ForkJoinTask<?>[] a; int s; Object o; CountedCompleter<?> t, r;
+            if (base - (s = top) < 0 && (a = array) != null) {
+                long j = (((a.length - 1) & (s - 1)) << ASHIFT) + ABASE;
+                if ((o = U.getObject(a, j)) instanceof CountedCompleter) {
+                    for (t = (CountedCompleter<?>)o, r = t;;) {
+                        if (r == root) {
+                            if (U.compareAndSwapObject(a, j, t, null)) {
+                                top = s - 1;
+                                t.doExec();
+                            }
+                            return true;
+                        }
+                        else if ((r = r.completer) == null)
+                            break;
+                    }
+                }
             }
+            return false;
         }
 
         /**
@@ -1023,6 +1029,7 @@ public class ForkJoinPool extends AbstractExecutorService {
 
         // Unsafe mechanics
         private static final sun.misc.Unsafe U;
+        private static final long QBASE;
         private static final long QLOCK;
         private static final int ABASE;
         private static final int ASHIFT;
@@ -1031,6 +1038,8 @@ public class ForkJoinPool extends AbstractExecutorService {
                 U = sun.misc.Unsafe.getUnsafe();
                 Class<?> k = WorkQueue.class;
                 Class<?> ak = ForkJoinTask[].class;
+                QBASE = U.objectFieldOffset
+                    (k.getDeclaredField("base"));
                 QLOCK = U.objectFieldOffset
                     (k.getDeclaredField("qlock"));
                 ABASE = U.arrayBaseOffset(ak);
@@ -1047,13 +1056,6 @@ public class ForkJoinPool extends AbstractExecutorService {
     // static fields (initialized in static initializer below)
 
     /**
-     * Creates a new ForkJoinWorkerThread. This factory is used unless
-     * overridden in ForkJoinPool constructors.
-     */
-    public static final ForkJoinWorkerThreadFactory
-        defaultForkJoinWorkerThreadFactory;
-
-    /**
      * Per-thread submission bookkeeping. Shared across all pools
      * to reduce ThreadLocal pollution and because random motion
      * to avoid contention in one pool is likely to hold for others.
@@ -1061,6 +1063,13 @@ public class ForkJoinPool extends AbstractExecutorService {
      * in other contexts to avoid unnecessary initialization).
      */
     static final ThreadLocal<Submitter> submitters;
+
+    /**
+     * Creates a new ForkJoinWorkerThread. This factory is used unless
+     * overridden in ForkJoinPool constructors.
+     */
+    public static final ForkJoinWorkerThreadFactory
+        defaultForkJoinWorkerThreadFactory;
 
     /**
      * Permission required for callers of methods that may start or
@@ -1074,12 +1083,15 @@ public class ForkJoinPool extends AbstractExecutorService {
      * to paranoically avoid potential initialization circularities
      * as well as to simplify generated code.
      */
-    static final ForkJoinPool commonPool;
+    static final ForkJoinPool common;
 
     /**
-     * Common pool parallelism. Must equal commonPool.parallelism.
+     * Common pool parallelism. To allow simpler use and management
+     * when common pool threads are disabled, we allow the underlying
+     * common.parallelism field to be zero, but in that case still report
+     * parallelism as 1 to reflect resulting caller-runs mechanics.
      */
-    static final int commonPoolParallelism;
+    static final int commonParallelism;
 
     /**
      * Sequence number for creating workerNamePrefix.
@@ -1114,7 +1126,7 @@ public class ForkJoinPool extends AbstractExecutorService {
     /**
      * Tolerance for idle timeouts, to cope with timer undershoots
      */
-    private static final long TIMEOUT_SLOP = 2000000L; // 20ms
+    private static final long TIMEOUT_SLOP = 2000000L;
 
     /**
      * The maximum stolen->joining link depth allowed in method
@@ -1216,30 +1228,19 @@ public class ForkJoinPool extends AbstractExecutorService {
     static final int FIFO_QUEUE          =  1;
     static final int SHARED_QUEUE        = -1;
 
-    // bounds for #steps in scan loop -- must be power 2 minus 1
-    private static final int MIN_SCAN    = 0x1ff;   // cover estimation slop
-    private static final int MAX_SCAN    = 0x1ffff; // 4 * max workers
-
-    // Instance fields
-
-    /*
-     * Field layout of this class tends to matter more than one would
-     * like. Runtime layout order is only loosely related to
-     * declaration order and may differ across JVMs, but the following
-     * empirically works OK on current JVMs.
-     */
-
     // Heuristic padding to ameliorate unfortunate memory placements
     volatile long pad00, pad01, pad02, pad03, pad04, pad05, pad06;
 
+    // Instance fields
     volatile long stealCount;                  // collects worker counts
     volatile long ctl;                         // main pool control
     volatile int plock;                        // shutdown status and seqLock
     volatile int indexSeed;                    // worker/submitter index seed
-    final int config;                          // mode and parallelism level
+    final short parallelism;                   // parallelism level
+    final short mode;                          // LIFO/FIFO
     WorkQueue[] workQueues;                    // main registry
     final ForkJoinWorkerThreadFactory factory;
-    final Thread.UncaughtExceptionHandler ueh; // per-worker UEH
+    final UncaughtExceptionHandler ueh;        // per-worker UEH
     final String workerNamePrefix;             // to create worker name string
 
     volatile Object pad10, pad11, pad12, pad13, pad14, pad15, pad16, pad17;
@@ -1254,24 +1255,13 @@ public class ForkJoinPool extends AbstractExecutorService {
      * a more conservative alternative to a pure spinlock.
      */
     private int acquirePlock() {
-        int spins = PL_SPINS, r = 0, ps, nps;
+        int spins = PL_SPINS, ps, nps;
         for (;;) {
             if (((ps = plock) & PL_LOCK) == 0 &&
                 U.compareAndSwapInt(this, PLOCK, ps, nps = ps + PL_LOCK))
                 return nps;
-            else if (r == 0) { // randomize spins if possible
-                Thread t = Thread.currentThread(); WorkQueue w; Submitter z;
-                if ((t instanceof ForkJoinWorkerThread) &&
-                    (w = ((ForkJoinWorkerThread)t).workQueue) != null)
-                    r = w.seed;
-                else if ((z = submitters.get()) != null)
-                    r = z.seed;
-                else
-                    r = 1;
-            }
             else if (spins >= 0) {
-                r ^= r << 1; r ^= r >>> 3; r ^= r << 10; // xorshift
-                if (r >= 0)
+                if (ThreadLocalRandom.current().nextInt() >= 0)
                     --spins;
             }
             else if (U.compareAndSwapInt(this, PLOCK, ps, ps | PL_SIGNAL)) {
@@ -1303,48 +1293,15 @@ public class ForkJoinPool extends AbstractExecutorService {
     }
 
     /**
-     * Performs secondary initialization, called when plock is zero.
-     * Creates workQueue array and sets plock to a valid value.  The
-     * lock body must be exception-free (so no try/finally) so we
-     * optimistically allocate new array outside the lock and throw
-     * away if (very rarely) not needed. (A similar tactic is used in
-     * fullExternalPush.)  Because the plock seq value can eventually
-     * wrap around zero, this method harmlessly fails to reinitialize
-     * if workQueues exists, while still advancing plock.
-     *
-     * Additionally tries to create the first worker.
-     */
-    private void initWorkers() {
-        WorkQueue[] ws, nws; int ps;
-        int p = config & SMASK;        // find power of two table size
-        int n = (p > 1) ? p - 1 : 1;   // ensure at least 2 slots
-        n |= n >>> 1; n |= n >>> 2; n |= n >>> 4; n |= n >>> 8; n |= n >>> 16;
-        n = (n + 1) << 1;
-        if ((ws = workQueues) == null || ws.length == 0)
-            nws = new WorkQueue[n];
-        else
-            nws = null;
-        if (((ps = plock) & PL_LOCK) != 0 ||
-            !U.compareAndSwapInt(this, PLOCK, ps, ps += PL_LOCK))
-            ps = acquirePlock();
-        if (((ws = workQueues) == null || ws.length == 0) && nws != null)
-            workQueues = nws;
-        int nps = (ps & SHUTDOWN) | ((ps + PL_LOCK) & ~SHUTDOWN);
-        if (!U.compareAndSwapInt(this, PLOCK, ps, nps))
-            releasePlock(nps);
-        tryAddWorker();
-    }
-
-    /**
      * Tries to create and start one worker if fewer than target
      * parallelism level exist. Adjusts counts etc on failure.
      */
     private void tryAddWorker() {
-        long c; int u;
+        long c; int u, e;
         while ((u = (int)((c = ctl) >>> 32)) < 0 &&
-               (u & SHORT_SIGN) != 0 && (int)c == 0) {
-            long nc = (long)(((u + UTC_UNIT) & UTC_MASK) |
-                             ((u + UAC_UNIT) & UAC_MASK)) << 32;
+               (u & SHORT_SIGN) != 0 && (e = (int)c) >= 0) {
+            long nc = ((long)(((u + UTC_UNIT) & UTC_MASK) |
+                              ((u + UAC_UNIT) & UAC_MASK)) << 32) | (long)e;
             if (U.compareAndSwapLong(this, CTL, c, nc)) {
                 ForkJoinWorkerThreadFactory fac;
                 Throwable ex = null;
@@ -1355,8 +1312,8 @@ public class ForkJoinPool extends AbstractExecutorService {
                         wt.start();
                         break;
                     }
-                } catch (Throwable e) {
-                    ex = e;
+                } catch (Throwable rex) {
+                    ex = rex;
                 }
                 deregisterWorker(wt, ex);
                 break;
@@ -1377,14 +1334,14 @@ public class ForkJoinPool extends AbstractExecutorService {
      * @return the worker's queue
      */
     final WorkQueue registerWorker(ForkJoinWorkerThread wt) {
-        Thread.UncaughtExceptionHandler handler; WorkQueue[] ws; int s, ps;
+        UncaughtExceptionHandler handler; WorkQueue[] ws; int s, ps;
         wt.setDaemon(true);
         if ((handler = ueh) != null)
             wt.setUncaughtExceptionHandler(handler);
         do {} while (!U.compareAndSwapInt(this, INDEXSEED, s = indexSeed,
                                           s += SEED_INCREMENT) ||
                      s == 0); // skip 0
-        WorkQueue w = new WorkQueue(this, wt, config >>> 16, s);
+        WorkQueue w = new WorkQueue(this, wt, mode, s);
         if (((ps = plock) & PL_LOCK) != 0 ||
             !U.compareAndSwapInt(this, PLOCK, ps, ps += PL_LOCK))
             ps = acquirePlock();
@@ -1404,14 +1361,15 @@ public class ForkJoinPool extends AbstractExecutorService {
                         }
                     }
                 }
-                w.eventCount = w.poolIndex = r; // volatile write orders
+                w.poolIndex = (short)r;
+                w.eventCount = r; // volatile write orders
                 ws[r] = w;
             }
         } finally {
             if (!U.compareAndSwapInt(this, PLOCK, ps, nps))
                 releasePlock(nps);
         }
-        wt.setName(workerNamePrefix.concat(Integer.toString(w.poolIndex)));
+        wt.setName(workerNamePrefix.concat(Integer.toString(w.poolIndex >>> 1)));
         return w;
     }
 
@@ -1421,17 +1379,17 @@ public class ForkJoinPool extends AbstractExecutorService {
      * array, and adjusts counts. If pool is shutting down, tries to
      * complete termination.
      *
-     * @param wt the worker thread or null if construction failed
+     * @param wt the worker thread, or null if construction failed
      * @param ex the exception causing failure, or null if none
      */
     final void deregisterWorker(ForkJoinWorkerThread wt, Throwable ex) {
         WorkQueue w = null;
         if (wt != null && (w = wt.workQueue) != null) {
-            int ps;
+            int ps; long sc;
             w.qlock = -1;                // ensure set
-            long ns = w.nsteals, sc;     // collect steal count
             do {} while (!U.compareAndSwapLong(this, STEALCOUNT,
-                                               sc = stealCount, sc + ns));
+                                               sc = stealCount,
+                                               sc + w.nsteals));
             if (((ps = plock) & PL_LOCK) != 0 ||
                 !U.compareAndSwapInt(this, PLOCK, ps, ps += PL_LOCK))
                 ps = acquirePlock();
@@ -1460,7 +1418,7 @@ public class ForkJoinPool extends AbstractExecutorService {
                 if (e > 0) {             // activate or create replacement
                     if ((ws = workQueues) == null ||
                         (i = e & SMASK) >= ws.length ||
-                        (v = ws[i]) != null)
+                        (v = ws[i]) == null)
                         break;
                     long nc = (((long)(v.nextWait & E_MASK)) |
                                ((long)(u + UAC_UNIT) << 32));
@@ -1489,6 +1447,26 @@ public class ForkJoinPool extends AbstractExecutorService {
     // Submissions
 
     /**
+     * Per-thread records for threads that submit to pools. Currently
+     * holds only pseudo-random seed / index that is used to choose
+     * submission queues in method externalPush. In the future, this may
+     * also incorporate a means to implement different task rejection
+     * and resubmission policies.
+     *
+     * Seeds for submitters and workers/workQueues work in basically
+     * the same way but are initialized and updated using slightly
+     * different mechanics. Both are initialized using the same
+     * approach as in class ThreadLocal, where successive values are
+     * unlikely to collide with previous values. Seeds are then
+     * randomly modified upon collisions using xorshifts, which
+     * requires a non-zero seed.
+     */
+    static final class Submitter {
+        int seed;
+        Submitter(int s) { seed = s; }
+    }
+
+    /**
      * Unless shutting down, adds the given task to a submission queue
      * at submitter's current queue index (modulo submission
      * range). Only the most common path is directly handled in this
@@ -1497,19 +1475,21 @@ public class ForkJoinPool extends AbstractExecutorService {
      * @param task the task. Caller must ensure non-null.
      */
     final void externalPush(ForkJoinTask<?> task) {
-        WorkQueue[] ws; WorkQueue q; Submitter z; int m; ForkJoinTask<?>[] a;
-        if ((z = submitters.get()) != null && plock > 0 &&
-            (ws = workQueues) != null && (m = (ws.length - 1)) >= 0 &&
-            (q = ws[m & z.seed & SQMASK]) != null &&
+        Submitter z = submitters.get();
+        WorkQueue q; int r, m, s, n, am; ForkJoinTask<?>[] a;
+        int ps = plock;
+        WorkQueue[] ws = workQueues;
+        if (z != null && ps > 0 && ws != null && (m = (ws.length - 1)) >= 0 &&
+            (q = ws[m & (r = z.seed) & SQMASK]) != null && r != 0 &&
             U.compareAndSwapInt(q, QLOCK, 0, 1)) { // lock
-            int b = q.base, s = q.top, n, an;
-            if ((a = q.array) != null && (an = a.length) > (n = s + 1 - b)) {
-                int j = (((an - 1) & s) << ASHIFT) + ABASE;
+            if ((a = q.array) != null &&
+                (am = a.length - 1) > (n = (s = q.top) - q.base)) {
+                int j = ((am & s) << ASHIFT) + ABASE;
                 U.putOrderedObject(a, j, task);
                 q.top = s + 1;                     // push on to deque
                 q.qlock = 0;
-                if (n <= 2)
-                    signalWork(q);
+                if (n <= 1)
+                    signalWork(ws, q);
                 return;
             }
             q.qlock = 0;
@@ -1520,13 +1500,19 @@ public class ForkJoinPool extends AbstractExecutorService {
     /**
      * Full version of externalPush. This method is called, among
      * other times, upon the first submission of the first task to the
-     * pool, so must perform secondary initialization (via
-     * initWorkers). It also detects first submission by an external
-     * thread by looking up its ThreadLocal, and creates a new shared
-     * queue if the one at index if empty or contended. The plock lock
-     * body must be exception-free (so no try/finally) so we
-     * optimistically allocate new queues outside the lock and throw
-     * them away if (very rarely) not needed.
+     * pool, so must perform secondary initialization.  It also
+     * detects first submission by an external thread by looking up
+     * its ThreadLocal, and creates a new shared queue if the one at
+     * index if empty or contended. The plock lock body must be
+     * exception-free (so no try/finally) so we optimistically
+     * allocate new queues outside the lock and throw them away if
+     * (very rarely) not needed.
+     *
+     * Secondary initialization occurs when plock is zero, to create
+     * workQueue array and set plock to a valid value.  This lock body
+     * must also be exception-free. Because the plock seq value can
+     * eventually wrap around zero, this method harmlessly fails to
+     * reinitialize if workQueues exists, while still advancing plock.
      */
     private void fullExternalPush(ForkJoinTask<?> task) {
         int r = 0; // random index seed
@@ -1537,17 +1523,31 @@ public class ForkJoinPool extends AbstractExecutorService {
                                         r += SEED_INCREMENT) && r != 0)
                     submitters.set(z = new Submitter(r));
             }
-            else if (r == 0) {               // move to a different index
+            else if (r == 0) {                  // move to a different index
                 r = z.seed;
-                r ^= r << 13;                // same xorshift as WorkQueues
+                r ^= r << 13;                   // same xorshift as WorkQueues
                 r ^= r >>> 17;
-                z.seed = r ^ (r << 5);
+                z.seed = r ^= (r << 5);
             }
-            else if ((ps = plock) < 0)
+            if ((ps = plock) < 0)
                 throw new RejectedExecutionException();
             else if (ps == 0 || (ws = workQueues) == null ||
-                     (m = ws.length - 1) < 0)
-                initWorkers();
+                     (m = ws.length - 1) < 0) { // initialize workQueues
+                int p = parallelism;            // find power of two table size
+                int n = (p > 1) ? p - 1 : 1;    // ensure at least 2 slots
+                n |= n >>> 1; n |= n >>> 2;  n |= n >>> 4;
+                n |= n >>> 8; n |= n >>> 16; n = (n + 1) << 1;
+                WorkQueue[] nws = ((ws = workQueues) == null || ws.length == 0 ?
+                                   new WorkQueue[n] : null);
+                if (((ps = plock) & PL_LOCK) != 0 ||
+                    !U.compareAndSwapInt(this, PLOCK, ps, ps += PL_LOCK))
+                    ps = acquirePlock();
+                if (((ws = workQueues) == null || ws.length == 0) && nws != null)
+                    workQueues = nws;
+                int nps = (ps & SHUTDOWN) | ((ps + PL_LOCK) & ~SHUTDOWN);
+                if (!U.compareAndSwapInt(this, PLOCK, ps, nps))
+                    releasePlock(nps);
+            }
             else if ((q = ws[k = r & m & SQMASK]) != null) {
                 if (q.qlock == 0 && U.compareAndSwapInt(q, QLOCK, 0, 1)) {
                     ForkJoinTask<?>[] a = q.array;
@@ -1565,7 +1565,7 @@ public class ForkJoinPool extends AbstractExecutorService {
                         q.qlock = 0;  // unlock
                     }
                     if (submitted) {
-                        signalWork(q);
+                        signalWork(ws, q);
                         return;
                     }
                 }
@@ -1573,6 +1573,7 @@ public class ForkJoinPool extends AbstractExecutorService {
             }
             else if (((ps = plock) & PL_LOCK) == 0) { // create new queue
                 q = new WorkQueue(this, null, SHARED_QUEUE, r);
+                q.poolIndex = (short)k;
                 if (((ps = plock) & PL_LOCK) != 0 ||
                     !U.compareAndSwapInt(this, PLOCK, ps, ps += PL_LOCK))
                     ps = acquirePlock();
@@ -1583,7 +1584,7 @@ public class ForkJoinPool extends AbstractExecutorService {
                     releasePlock(nps);
             }
             else
-                r = 0; // try elsewhere while lock held
+                r = 0;
         }
     }
 
@@ -1594,41 +1595,42 @@ public class ForkJoinPool extends AbstractExecutorService {
      */
     final void incrementActiveCount() {
         long c;
-        do {} while (!U.compareAndSwapLong(this, CTL, c = ctl, c + AC_UNIT));
+        do {} while (!U.compareAndSwapLong
+                     (this, CTL, c = ctl, ((c & ~AC_MASK) |
+                                           ((c & AC_MASK) + AC_UNIT))));
     }
 
     /**
      * Tries to create or activate a worker if too few are active.
      *
-     * @param q the (non-null) queue holding tasks to be signalled
+     * @param ws the worker array to use to find signallees
+     * @param q if non-null, the queue holding tasks to be processed
      */
-    final void signalWork(WorkQueue q) {
-        int hint = q.poolIndex;
-        long c; int e, u, i, n; WorkQueue[] ws; WorkQueue w; Thread p;
-        while ((u = (int)((c = ctl) >>> 32)) < 0) {
-            if ((e = (int)c) > 0) {
-                if ((ws = workQueues) != null && ws.length > (i = e & SMASK) &&
-                    (w = ws[i]) != null && w.eventCount == (e | INT_SIGN)) {
-                    long nc = (((long)(w.nextWait & E_MASK)) |
-                               ((long)(u + UAC_UNIT) << 32));
-                    if (U.compareAndSwapLong(this, CTL, c, nc)) {
-                        w.hint = hint;
-                        w.eventCount = (e + E_SEQ) & E_MASK;
-                        if ((p = w.parker) != null)
-                            U.unpark(p);
-                        break;
-                    }
-                    if (q.top - q.base <= 0)
-                        break;
-                }
-                else
-                    break;
-            }
-            else {
+    final void signalWork(WorkQueue[] ws, WorkQueue q) {
+        for (;;) {
+            long c; int e, u, i; WorkQueue w; Thread p;
+            if ((u = (int)((c = ctl) >>> 32)) >= 0)
+                break;
+            if ((e = (int)c) <= 0) {
                 if ((short)u < 0)
                     tryAddWorker();
                 break;
             }
+            if (ws == null || ws.length <= (i = e & SMASK) ||
+                (w = ws[i]) == null)
+                break;
+            long nc = (((long)(w.nextWait & E_MASK)) |
+                       ((long)(u + UAC_UNIT)) << 32);
+            int ne = (e + E_SEQ) & E_MASK;
+            if (w.eventCount == (e | INT_SIGN) &&
+                U.compareAndSwapLong(this, CTL, c, nc)) {
+                w.eventCount = ne;
+                if ((p = w.parker) != null)
+                    U.unpark(p);
+                break;
+            }
+            if (q != null && q.base >= q.top)
+                break;
         }
     }
 
@@ -1639,214 +1641,154 @@ public class ForkJoinPool extends AbstractExecutorService {
      */
     final void runWorker(WorkQueue w) {
         w.growArray(); // allocate queue
-        do { w.runTask(scan(w)); } while (w.qlock >= 0);
+        for (int r = w.hint; scan(w, r) == 0; ) {
+            r ^= r << 13; r ^= r >>> 17; r ^= r << 5; // xorshift
+        }
     }
 
     /**
-     * Scans for and, if found, returns one task, else possibly
+     * Scans for and, if found, runs one task, else possibly
      * inactivates the worker. This method operates on single reads of
      * volatile state and is designed to be re-invoked continuously,
      * in part because it returns upon detecting inconsistencies,
      * contention, or state changes that indicate possible success on
      * re-invocation.
      *
-     * The scan searches for tasks across queues (starting at a random
-     * index, and relying on registerWorker to irregularly scatter
-     * them within array to avoid bias), checking each at least twice.
-     * The scan terminates upon either finding a non-empty queue, or
-     * completing the sweep. If the worker is not inactivated, it
-     * takes and returns a task from this queue. Otherwise, if not
-     * activated, it signals workers (that may include itself) and
-     * returns so caller can retry. Also returns for true if the
-     * worker array may have changed during an empty scan.  On failure
-     * to find a task, we take one of the following actions, after
-     * which the caller will retry calling this method unless
-     * terminated.
-     *
-     * * If pool is terminating, terminate the worker.
-     *
-     * * If not already enqueued, try to inactivate and enqueue the
-     * worker on wait queue. Or, if inactivating has caused the pool
-     * to be quiescent, relay to idleAwaitWork to possibly shrink
-     * pool.
-     *
-     * * If already enqueued and none of the above apply, possibly
-     * park awaiting signal, else lingering to help scan and signal.
-     *
-     * * If a non-empty queue discovered or left as a hint,
-     * help wake up other workers before return.
+     * The scan searches for tasks across queues starting at a random
+     * index, checking each at least twice.  The scan terminates upon
+     * either finding a non-empty queue, or completing the sweep. If
+     * the worker is not inactivated, it takes and runs a task from
+     * this queue. Otherwise, if not activated, it tries to activate
+     * itself or some other worker by signalling. On failure to find a
+     * task, returns (for retry) if pool state may have changed during
+     * an empty scan, or tries to inactivate if active, else possibly
+     * blocks or terminates via method awaitWork.
      *
      * @param w the worker (via its WorkQueue)
-     * @return a task or null if none found
+     * @param r a random seed
+     * @return worker qlock status if would have waited, else 0
      */
-    private final ForkJoinTask<?> scan(WorkQueue w) {
+    private final int scan(WorkQueue w, int r) {
         WorkQueue[] ws; int m;
-        int ps = plock;                          // read plock before ws
-        if (w != null && (ws = workQueues) != null && (m = ws.length - 1) >= 0) {
-            int ec = w.eventCount;               // ec is negative if inactive
-            int r = w.seed; r ^= r << 13; r ^= r >>> 17; w.seed = r ^= r << 5;
-            w.hint = -1;                         // update seed and clear hint
-            int j = ((m + m + 1) | MIN_SCAN) & MAX_SCAN;
-            do {
-                WorkQueue q; ForkJoinTask<?>[] a; int b;
-                if ((q = ws[(r + j) & m]) != null && (b = q.base) - q.top < 0 &&
-                    (a = q.array) != null) {     // probably nonempty
-                    int i = (((a.length - 1) & b) << ASHIFT) + ABASE;
-                    ForkJoinTask<?> t = (ForkJoinTask<?>)
-                        U.getObjectVolatile(a, i);
-                    if (q.base == b && ec >= 0 && t != null &&
-                        U.compareAndSwapObject(a, i, t, null)) {
-                        if ((q.base = b + 1) - q.top < 0)
-                            signalWork(q);
-                        return t;                // taken
+        long c = ctl;                            // for consistency check
+        if ((ws = workQueues) != null && (m = ws.length - 1) >= 0 && w != null) {
+            for (int j = m + m + 1, ec = w.eventCount;;) {
+                WorkQueue q; int b, e; ForkJoinTask<?>[] a; ForkJoinTask<?> t;
+                if ((q = ws[(r - j) & m]) != null &&
+                    (b = q.base) - q.top < 0 && (a = q.array) != null) {
+                    long i = (((a.length - 1) & b) << ASHIFT) + ABASE;
+                    if ((t = ((ForkJoinTask<?>)
+                              U.getObjectVolatile(a, i))) != null) {
+                        if (ec < 0)
+                            helpRelease(c, ws, w, q, b);
+                        else if (q.base == b &&
+                                 U.compareAndSwapObject(a, i, t, null)) {
+                            U.putOrderedInt(q, QBASE, b + 1);
+                            if ((b + 1) - q.top < 0)
+                                signalWork(ws, q);
+                            w.runTask(t);
+                        }
                     }
-                    else if ((ec < 0 || j < m) && (int)(ctl >> AC_SHIFT) <= 0) {
-                        w.hint = (r + j) & m;    // help signal below
-                        break;                   // cannot take
-                    }
+                    break;
                 }
-            } while (--j >= 0);
-
-            int h, e, ns; long c, sc; WorkQueue q;
-            if ((ns = w.nsteals) != 0) {
-                if (U.compareAndSwapLong(this, STEALCOUNT,
-                                         sc = stealCount, sc + ns))
-                    w.nsteals = 0;               // collect steals and rescan
-            }
-            else if (plock != ps)                // consistency check
-                ;                                // skip
-            else if ((e = (int)(c = ctl)) < 0)
-                w.qlock = -1;                    // pool is terminating
-            else {
-                if ((h = w.hint) < 0) {
-                    if (ec >= 0) {               // try to enqueue/inactivate
-                        long nc = (((long)ec |
-                                    ((c - AC_UNIT) & (AC_MASK|TC_MASK))));
-                        w.nextWait = e;          // link and mark inactive
+                else if (--j < 0) {
+                    if ((ec | (e = (int)c)) < 0) // inactive or terminating
+                        return awaitWork(w, c, ec);
+                    else if (ctl == c) {         // try to inactivate and enqueue
+                        long nc = (long)ec | ((c - AC_UNIT) & (AC_MASK|TC_MASK));
+                        w.nextWait = e;
                         w.eventCount = ec | INT_SIGN;
-                        if (ctl != c || !U.compareAndSwapLong(this, CTL, c, nc))
-                            w.eventCount = ec;   // unmark on CAS failure
-                        else if ((int)(c >> AC_SHIFT) == 1 - (config & SMASK))
-                            idleAwaitWork(w, nc, c);
+                        if (!U.compareAndSwapLong(this, CTL, c, nc))
+                            w.eventCount = ec;   // back out
                     }
-                    else if (w.eventCount < 0 && !tryTerminate(false, false) &&
-                             ctl == c) {         // block
-                        Thread wt = Thread.currentThread();
-                        Thread.interrupted();    // clear status
-                        U.putObject(wt, PARKBLOCKER, this);
-                        w.parker = wt;           // emulate LockSupport.park
-                        if (w.eventCount < 0)    // recheck
-                            U.park(false, 0L);
-                        w.parker = null;
-                        U.putObject(wt, PARKBLOCKER, null);
-                    }
-                }
-                if ((h >= 0 || (h = w.hint) >= 0) &&
-                    (ws = workQueues) != null && h < ws.length &&
-                    (q = ws[h]) != null) {      // signal others before retry
-                    WorkQueue v; Thread p; int u, i, s;
-                    for (int n = (config & SMASK) >>> 1;;) {
-                        int idleCount = (w.eventCount < 0) ? 0 : -1;
-                        if (((s = idleCount - q.base + q.top) <= n &&
-                             (n = s) <= 0) ||
-                            (u = (int)((c = ctl) >>> 32)) >= 0 ||
-                            (e = (int)c) <= 0 || m < (i = e & SMASK) ||
-                            (v = ws[i]) == null)
-                            break;
-                        long nc = (((long)(v.nextWait & E_MASK)) |
-                                   ((long)(u + UAC_UNIT) << 32));
-                        if (v.eventCount != (e | INT_SIGN) ||
-                            !U.compareAndSwapLong(this, CTL, c, nc))
-                            break;
-                        v.hint = h;
-                        v.eventCount = (e + E_SEQ) & E_MASK;
-                        if ((p = v.parker) != null)
-                            U.unpark(p);
-                        if (--n <= 0)
-                            break;
-                    }
+                    break;
                 }
             }
         }
-        return null;
+        return 0;
     }
 
     /**
-     * If inactivating worker w has caused the pool to become
-     * quiescent, checks for pool termination, and, so long as this is
-     * not the only worker, waits for event for up to a given
-     * duration.  On timeout, if ctl has not changed, terminates the
-     * worker, which will in turn wake up another worker to possibly
-     * repeat this process.
+     * A continuation of scan(), possibly blocking or terminating
+     * worker w. Returns without blocking if pool state has apparently
+     * changed since last invocation.  Also, if inactivating w has
+     * caused the pool to become quiescent, checks for pool
+     * termination, and, so long as this is not the only worker, waits
+     * for event for up to a given duration.  On timeout, if ctl has
+     * not changed, terminates the worker, which will in turn wake up
+     * another worker to possibly repeat this process.
      *
      * @param w the calling worker
-     * @param currentCtl the ctl value triggering possible quiescence
-     * @param prevCtl the ctl value to restore if thread is terminated
+     * @param c the ctl value on entry to scan
+     * @param ec the worker's eventCount on entry to scan
      */
-    private void idleAwaitWork(WorkQueue w, long currentCtl, long prevCtl) {
-        if (w != null && w.eventCount < 0 &&
-            !tryTerminate(false, false) && (int)prevCtl != 0) {
-            int dc = -(short)(currentCtl >>> TC_SHIFT);
-            long parkTime = dc < 0 ? FAST_IDLE_TIMEOUT: (dc + 1) * IDLE_TIMEOUT;
-            long deadline = System.nanoTime() + parkTime - TIMEOUT_SLOP;
-            Thread wt = Thread.currentThread();
-            while (ctl == currentCtl) {
-                Thread.interrupted();  // timed variant of version in scan()
-                U.putObject(wt, PARKBLOCKER, this);
-                w.parker = wt;
-                if (ctl == currentCtl)
-                    U.park(false, parkTime);
-                w.parker = null;
-                U.putObject(wt, PARKBLOCKER, null);
-                if (ctl != currentCtl)
-                    break;
-                if (deadline - System.nanoTime() <= 0L &&
-                    U.compareAndSwapLong(this, CTL, currentCtl, prevCtl)) {
-                    w.eventCount = (w.eventCount + E_SEQ) | E_MASK;
-                    w.qlock = -1;   // shrink
-                    break;
+    private final int awaitWork(WorkQueue w, long c, int ec) {
+        int stat, ns; long parkTime, deadline;
+        if ((stat = w.qlock) >= 0 && w.eventCount == ec && ctl == c &&
+            !Thread.interrupted()) {
+            int e = (int)c;
+            int u = (int)(c >>> 32);
+            int d = (u >> UAC_SHIFT) + parallelism; // active count
+
+            if (e < 0 || (d <= 0 && tryTerminate(false, false)))
+                stat = w.qlock = -1;          // pool is terminating
+            else if ((ns = w.nsteals) != 0) { // collect steals and retry
+                long sc;
+                w.nsteals = 0;
+                do {} while (!U.compareAndSwapLong(this, STEALCOUNT,
+                                                   sc = stealCount, sc + ns));
+            }
+            else {
+                long pc = ((d > 0 || ec != (e | INT_SIGN)) ? 0L :
+                           ((long)(w.nextWait & E_MASK)) | // ctl to restore
+                           ((long)(u + UAC_UNIT)) << 32);
+                if (pc != 0L) {               // timed wait if last waiter
+                    int dc = -(short)(c >>> TC_SHIFT);
+                    parkTime = (dc < 0 ? FAST_IDLE_TIMEOUT:
+                                (dc + 1) * IDLE_TIMEOUT);
+                    deadline = System.nanoTime() + parkTime - TIMEOUT_SLOP;
+                }
+                else
+                    parkTime = deadline = 0L;
+                if (w.eventCount == ec && ctl == c) {
+                    Thread wt = Thread.currentThread();
+                    U.putObject(wt, PARKBLOCKER, this);
+                    w.parker = wt;            // emulate LockSupport.park
+                    if (w.eventCount == ec && ctl == c)
+                        U.park(false, parkTime);  // must recheck before park
+                    w.parker = null;
+                    U.putObject(wt, PARKBLOCKER, null);
+                    if (parkTime != 0L && ctl == c &&
+                        deadline - System.nanoTime() <= 0L &&
+                        U.compareAndSwapLong(this, CTL, c, pc))
+                        stat = w.qlock = -1;  // shrink pool
                 }
             }
         }
+        return stat;
     }
 
     /**
-     * Scans through queues looking for work while joining a task; if
-     * any present, signals. May return early if more signalling is
-     * detectably unneeded.
-     *
-     * @param task return early if done
-     * @param origin an index to start scan
+     * Possibly releases (signals) a worker. Called only from scan()
+     * when a worker with apparently inactive status finds a non-empty
+     * queue. This requires revalidating all of the associated state
+     * from caller.
      */
-    private void helpSignal(ForkJoinTask<?> task, int origin) {
-        WorkQueue[] ws; WorkQueue w; Thread p; long c; int m, u, e, i, s;
-        if (task != null && task.status >= 0 &&
-            (u = (int)(ctl >>> 32)) < 0 && (u >> UAC_SHIFT) < 0 &&
-            (ws = workQueues) != null && (m = ws.length - 1) >= 0) {
-            outer: for (int k = origin, j = m; j >= 0; --j) {
-                WorkQueue q = ws[k++ & m];
-                for (int n = m;;) { // limit to at most m signals
-                    if (task.status < 0)
-                        break outer;
-                    if (q == null ||
-                        ((s = -q.base + q.top) <= n && (n = s) <= 0))
-                        break;
-                    if ((u = (int)((c = ctl) >>> 32)) >= 0 ||
-                        (e = (int)c) <= 0 || m < (i = e & SMASK) ||
-                        (w = ws[i]) == null)
-                        break outer;
-                    long nc = (((long)(w.nextWait & E_MASK)) |
-                               ((long)(u + UAC_UNIT) << 32));
-                    if (w.eventCount != (e | INT_SIGN))
-                        break outer;
-                    if (U.compareAndSwapLong(this, CTL, c, nc)) {
-                        w.eventCount = (e + E_SEQ) & E_MASK;
-                        if ((p = w.parker) != null)
-                            U.unpark(p);
-                        if (--n <= 0)
-                            break;
-                    }
-                }
+    private final void helpRelease(long c, WorkQueue[] ws, WorkQueue w,
+                                   WorkQueue q, int b) {
+        WorkQueue v; int e, i; Thread p;
+        if (w != null && w.eventCount < 0 && (e = (int)c) > 0 &&
+            ws != null && ws.length > (i = e & SMASK) &&
+            (v = ws[i]) != null && ctl == c) {
+            long nc = (((long)(v.nextWait & E_MASK)) |
+                       ((long)((int)(c >>> 32) + UAC_UNIT)) << 32);
+            int ne = (e + E_SEQ) & E_MASK;
+            if (q != null && q.base == b && w.eventCount < 0 &&
+                v.eventCount == (e | INT_SIGN) &&
+                U.compareAndSwapLong(this, CTL, c, nc)) {
+                v.eventCount = ne;
+                if ((p = v.parker) != null)
+                    U.unpark(p);
             }
         }
     }
@@ -1871,7 +1813,8 @@ public class ForkJoinPool extends AbstractExecutorService {
      */
     private int tryHelpStealer(WorkQueue joiner, ForkJoinTask<?> task) {
         int stat = 0, steps = 0;                    // bound to avoid cycles
-        if (joiner != null && task != null) {       // hoist null checks
+        if (task != null && joiner != null &&
+            joiner.base - joiner.top >= 0) {        // hoist checks
             restart: for (;;) {
                 ForkJoinTask<?> subtask = task;     // current target
                 for (WorkQueue j = joiner, v;;) {   // v is stealer of subtask
@@ -1898,7 +1841,7 @@ public class ForkJoinPool extends AbstractExecutorService {
                         }
                     }
                     for (;;) { // help stealer or descend to its stealer
-                        ForkJoinTask[] a;  int b;
+                        ForkJoinTask[] a; int b;
                         if (subtask.status < 0)     // surround probes with
                             continue restart;       //   consistency checks
                         if ((b = v.base) - v.top < 0 && (a = v.array) != null) {
@@ -1909,13 +1852,23 @@ public class ForkJoinPool extends AbstractExecutorService {
                                 v.currentSteal != subtask)
                                 continue restart;   // stale
                             stat = 1;               // apparent progress
-                            if (t != null && v.base == b &&
-                                U.compareAndSwapObject(a, i, t, null)) {
-                                v.base = b + 1;     // help stealer
-                                joiner.runSubtask(t);
+                            if (v.base == b) {
+                                if (t == null)
+                                    break restart;
+                                if (U.compareAndSwapObject(a, i, t, null)) {
+                                    U.putOrderedInt(v, QBASE, b + 1);
+                                    ForkJoinTask<?> ps = joiner.currentSteal;
+                                    int jt = joiner.top;
+                                    do {
+                                        joiner.currentSteal = t;
+                                        t.doExec(); // clear local tasks too
+                                    } while (task.status >= 0 &&
+                                             joiner.top != jt &&
+                                             (t = joiner.pop()) != null);
+                                    joiner.currentSteal = ps;
+                                    break restart;
+                                }
                             }
-                            else if (v.base == b && ++steps == MAX_HELP)
-                                break restart;      // v apparently stalled
                         }
                         else {                      // empty -- try to descend
                             ForkJoinTask<?> next = v.currentJoin;
@@ -1942,27 +1895,33 @@ public class ForkJoinPool extends AbstractExecutorService {
      * and run tasks within the target's computation.
      *
      * @param task the task to join
-     * @param mode if shared, exit upon completing any task
-     * if all workers are active
      */
-    private int helpComplete(ForkJoinTask<?> task, int mode) {
-        WorkQueue[] ws; WorkQueue q; int m, n, s, u;
-        if (task != null && (ws = workQueues) != null &&
-            (m = ws.length - 1) >= 0) {
-            for (int j = 1, origin = j;;) {
+    private int helpComplete(WorkQueue joiner, CountedCompleter<?> task) {
+        WorkQueue[] ws; int m;
+        int s = 0;
+        if ((ws = workQueues) != null && (m = ws.length - 1) >= 0 &&
+            joiner != null && task != null) {
+            int j = joiner.poolIndex;
+            int scans = m + m + 1;
+            long c = 0L;              // for stability check
+            for (int k = scans; ; j += 2) {
+                WorkQueue q;
                 if ((s = task.status) < 0)
-                    return s;
-                if ((q = ws[j & m]) != null && q.pollAndExecCC(task)) {
-                    origin = j;
-                    if (mode == SHARED_QUEUE &&
-                        ((u = (int)(ctl >>> 32)) >= 0 || (u >> UAC_SHIFT) >= 0))
-                        break;
-                }
-                else if ((j = (j + 2) & m) == origin)
                     break;
+                else if (joiner.internalPopAndExecCC(task))
+                    k = scans;
+                else if ((s = task.status) < 0)
+                    break;
+                else if ((q = ws[j & m]) != null && q.pollAndExecCC(task))
+                    k = scans;
+                else if (--k < 0) {
+                    if (c == (c = ctl))
+                        break;
+                    k = scans;
+                }
             }
         }
-        return 0;
+        return s;
     }
 
     /**
@@ -1971,17 +1930,22 @@ public class ForkJoinPool extends AbstractExecutorService {
      * for blocking. Fails on contention or termination. Otherwise,
      * adds a new thread if no idle workers are available and pool
      * may become starved.
+     *
+     * @param c the assumed ctl value
      */
-    final boolean tryCompensate() {
-        int pc = config & SMASK, e, i, tc; long c;
-        WorkQueue[] ws; WorkQueue w; Thread p;
-        if ((ws = workQueues) != null && (e = (int)(c = ctl)) >= 0) {
-            if (e != 0 && (i = e & SMASK) < ws.length &&
-                (w = ws[i]) != null && w.eventCount == (e | INT_SIGN)) {
+    final boolean tryCompensate(long c) {
+        WorkQueue[] ws = workQueues;
+        int pc = parallelism, e = (int)c, m, tc;
+        if (ws != null && (m = ws.length - 1) >= 0 && e >= 0 && ctl == c) {
+            WorkQueue w = ws[e & m];
+            if (e != 0 && w != null) {
+                Thread p;
                 long nc = ((long)(w.nextWait & E_MASK) |
                            (c & (AC_MASK|TC_MASK)));
-                if (U.compareAndSwapLong(this, CTL, c, nc)) {
-                    w.eventCount = (e + E_SEQ) & E_MASK;
+                int ne = (e + E_SEQ) & E_MASK;
+                if (w.eventCount == (e | INT_SIGN) &&
+                    U.compareAndSwapLong(this, CTL, c, nc)) {
+                    w.eventCount = ne;
                     if ((p = w.parker) != null)
                         U.unpark(p);
                     return true;   // replace with idle worker
@@ -2024,23 +1988,20 @@ public class ForkJoinPool extends AbstractExecutorService {
      */
     final int awaitJoin(WorkQueue joiner, ForkJoinTask<?> task) {
         int s = 0;
-        if (joiner != null && task != null && (s = task.status) >= 0) {
+        if (task != null && (s = task.status) >= 0 && joiner != null) {
             ForkJoinTask<?> prevJoin = joiner.currentJoin;
             joiner.currentJoin = task;
-            do {} while ((s = task.status) >= 0 && !joiner.isEmpty() &&
-                         joiner.tryRemoveAndExec(task)); // process local tasks
-            if (s >= 0 && (s = task.status) >= 0) {
-                helpSignal(task, joiner.poolIndex);
-                if ((s = task.status) >= 0 &&
-                    (task instanceof CountedCompleter))
-                    s = helpComplete(task, LIFO_QUEUE);
-            }
+            do {} while (joiner.tryRemoveAndExec(task) && // process local tasks
+                         (s = task.status) >= 0);
+            if (s >= 0 && (task instanceof CountedCompleter))
+                s = helpComplete(joiner, (CountedCompleter<?>)task);
+            long cc = 0;        // for stability checks
             while (s >= 0 && (s = task.status) >= 0) {
-                if ((!joiner.isEmpty() ||           // try helping
-                     (s = tryHelpStealer(joiner, task)) == 0) &&
+                if ((s = tryHelpStealer(joiner, task)) == 0 &&
                     (s = task.status) >= 0) {
-                    helpSignal(task, joiner.poolIndex);
-                    if ((s = task.status) >= 0 && tryCompensate()) {
+                    if (!tryCompensate(cc))
+                        cc = ctl;
+                    else {
                         if (task.trySetSignal() && (s = task.status) >= 0) {
                             synchronized (task) {
                                 if (task.status >= 0) {
@@ -2053,9 +2014,11 @@ public class ForkJoinPool extends AbstractExecutorService {
                                     task.notifyAll();
                             }
                         }
-                        long c;                          // re-activate
+                        long c; // reactivate
                         do {} while (!U.compareAndSwapLong
-                                     (this, CTL, c = ctl, c + AC_UNIT));
+                                     (this, CTL, c = ctl,
+                                      ((c & ~AC_MASK) |
+                                       ((c & AC_MASK) + AC_UNIT))));
                     }
                 }
             }
@@ -2077,15 +2040,11 @@ public class ForkJoinPool extends AbstractExecutorService {
         if (joiner != null && task != null && (s = task.status) >= 0) {
             ForkJoinTask<?> prevJoin = joiner.currentJoin;
             joiner.currentJoin = task;
-            do {} while ((s = task.status) >= 0 && !joiner.isEmpty() &&
-                         joiner.tryRemoveAndExec(task));
-            if (s >= 0 && (s = task.status) >= 0) {
-                helpSignal(task, joiner.poolIndex);
-                if ((s = task.status) >= 0 &&
-                    (task instanceof CountedCompleter))
-                    s = helpComplete(task, LIFO_QUEUE);
-            }
-            if (s >= 0 && joiner.isEmpty()) {
+            do {} while (joiner.tryRemoveAndExec(task) && // process local tasks
+                         (s = task.status) >= 0);
+            if (s >= 0) {
+                if (task instanceof CountedCompleter)
+                    helpComplete(joiner, (CountedCompleter<?>)task);
                 do {} while (task.status >= 0 &&
                              tryHelpStealer(joiner, task) > 0);
             }
@@ -2095,29 +2054,22 @@ public class ForkJoinPool extends AbstractExecutorService {
 
     /**
      * Returns a (probably) non-empty steal queue, if one is found
-     * during a random, then cyclic scan, else null.  This method must
-     * be retried by caller if, by the time it tries to use the queue,
-     * it is empty.
-     * @param r a (random) seed for scanning
+     * during a scan, else null.  This method must be retried by
+     * caller if, by the time it tries to use the queue, it is empty.
      */
-    private WorkQueue findNonEmptyStealQueue(int r) {
-        for (WorkQueue[] ws;;) {
-            int ps = plock, m, n;
-            if ((ws = workQueues) == null || (m = ws.length - 1) < 1)
-                return null;
-            for (int j = (m + 1) << 2; ;) {
-                WorkQueue q = ws[(((r + j) << 1) | 1) & m];
-                if (q != null && (n = q.base - q.top) < 0) {
-                    if (n < -1)
-                        signalWork(q);
-                    return q;
-                }
-                else if (--j < 0) {
-                    if (plock == ps)
-                        return null;
-                    break;
+    private WorkQueue findNonEmptyStealQueue() {
+        int r = ThreadLocalRandom.current().nextInt();
+        for (;;) {
+            int ps = plock, m; WorkQueue[] ws; WorkQueue q;
+            if ((ws = workQueues) != null && (m = ws.length - 1) >= 0) {
+                for (int j = (m + 1) << 2; j >= 0; --j) {
+                    if ((q = ws[(((r - j) << 1) | 1) & m]) != null &&
+                        q.base - q.top < 0)
+                        return q;
                 }
             }
+            if (plock == ps)
+                return null;
         }
     }
 
@@ -2128,38 +2080,36 @@ public class ForkJoinPool extends AbstractExecutorService {
      * find tasks either.
      */
     final void helpQuiescePool(WorkQueue w) {
+        ForkJoinTask<?> ps = w.currentSteal;
         for (boolean active = true;;) {
-            ForkJoinTask<?> localTask; // exhaust local queue
-            while ((localTask = w.nextLocalTask()) != null)
-                localTask.doExec();
-            // Similar to loop in scan(), but ignoring submissions
-            WorkQueue q = findNonEmptyStealQueue(w.nextSeed());
-            if (q != null) {
-                ForkJoinTask<?> t; int b;
+            long c; WorkQueue q; ForkJoinTask<?> t; int b;
+            while ((t = w.nextLocalTask()) != null)
+                t.doExec();
+            if ((q = findNonEmptyStealQueue()) != null) {
                 if (!active) {      // re-establish active count
-                    long c;
                     active = true;
                     do {} while (!U.compareAndSwapLong
-                                 (this, CTL, c = ctl, c + AC_UNIT));
+                                 (this, CTL, c = ctl,
+                                  ((c & ~AC_MASK) |
+                                   ((c & AC_MASK) + AC_UNIT))));
                 }
-                if ((b = q.base) - q.top < 0 && (t = q.pollAt(b)) != null)
-                    w.runSubtask(t);
+                if ((b = q.base) - q.top < 0 && (t = q.pollAt(b)) != null) {
+                    (w.currentSteal = t).doExec();
+                    w.currentSteal = ps;
+                }
             }
-            else {
-                long c;
-                if (active) {       // decrement active count without queuing
+            else if (active) {       // decrement active count without queuing
+                long nc = ((c = ctl) & ~AC_MASK) | ((c & AC_MASK) - AC_UNIT);
+                if ((int)(nc >> AC_SHIFT) + parallelism == 0)
+                    break;          // bypass decrement-then-increment
+                if (U.compareAndSwapLong(this, CTL, c, nc))
                     active = false;
-                    do {} while (!U.compareAndSwapLong
-                                 (this, CTL, c = ctl, c -= AC_UNIT));
-                }
-                else
-                    c = ctl;        // re-increment on exit
-                if ((int)(c >> AC_SHIFT) + (config & SMASK) == 0) {
-                    do {} while (!U.compareAndSwapLong
-                                 (this, CTL, c = ctl, c + AC_UNIT));
-                    break;
-                }
             }
+            else if ((int)((c = ctl) >> AC_SHIFT) + parallelism <= 0 &&
+                     U.compareAndSwapLong
+                     (this, CTL, c, ((c & ~AC_MASK) |
+                                     ((c & AC_MASK) + AC_UNIT))))
+                break;
         }
     }
 
@@ -2173,7 +2123,7 @@ public class ForkJoinPool extends AbstractExecutorService {
             WorkQueue q; int b;
             if ((t = w.nextLocalTask()) != null)
                 return t;
-            if ((q = findNonEmptyStealQueue(w.nextSeed())) == null)
+            if ((q = findNonEmptyStealQueue()) == null)
                 return null;
             if ((b = q.base) - q.top < 0 && (t = q.pollAt(b)) != null)
                 return t;
@@ -2229,7 +2179,7 @@ public class ForkJoinPool extends AbstractExecutorService {
     static int getSurplusQueuedTaskCount() {
         Thread t; ForkJoinWorkerThread wt; ForkJoinPool pool; WorkQueue q;
         if (((t = Thread.currentThread()) instanceof ForkJoinWorkerThread)) {
-            int p = (pool = (wt = (ForkJoinWorkerThread)t).pool).config & SMASK;
+            int p = (pool = (wt = (ForkJoinWorkerThread)t).pool).parallelism;
             int n = (q = wt.workQueue).top - q.base;
             int a = (int)(pool.ctl >> AC_SHIFT) + p;
             return n - (a > (p >>>= 1) ? 0 :
@@ -2258,45 +2208,47 @@ public class ForkJoinPool extends AbstractExecutorService {
      * @return true if now terminating or terminated
      */
     private boolean tryTerminate(boolean now, boolean enable) {
-        if (this == commonPool)                     // cannot shut down
+        int ps;
+        if (this == common)                        // cannot shut down
             return false;
+        if ((ps = plock) >= 0) {                   // enable by setting plock
+            if (!enable)
+                return false;
+            if ((ps & PL_LOCK) != 0 ||
+                !U.compareAndSwapInt(this, PLOCK, ps, ps += PL_LOCK))
+                ps = acquirePlock();
+            int nps = ((ps + PL_LOCK) & ~SHUTDOWN) | SHUTDOWN;
+            if (!U.compareAndSwapInt(this, PLOCK, ps, nps))
+                releasePlock(nps);
+        }
         for (long c;;) {
-            if (((c = ctl) & STOP_BIT) != 0) {      // already terminating
-                if ((short)(c >>> TC_SHIFT) == -(config & SMASK)) {
+            if (((c = ctl) & STOP_BIT) != 0) {     // already terminating
+                if ((short)(c >>> TC_SHIFT) + parallelism <= 0) {
                     synchronized (this) {
-                        notifyAll();                // signal when 0 workers
+                        notifyAll();               // signal when 0 workers
                     }
                 }
                 return true;
             }
-            if (plock >= 0) {                       // not yet enabled
-                int ps;
-                if (!enable)
+            if (!now) {                            // check if idle & no tasks
+                WorkQueue[] ws; WorkQueue w;
+                if ((int)(c >> AC_SHIFT) + parallelism > 0)
                     return false;
-                if (((ps = plock) & PL_LOCK) != 0 ||
-                    !U.compareAndSwapInt(this, PLOCK, ps, ps += PL_LOCK))
-                    ps = acquirePlock();
-                if (!U.compareAndSwapInt(this, PLOCK, ps, SHUTDOWN))
-                    releasePlock(SHUTDOWN);
-            }
-            if (!now) {                             // check if idle & no tasks
-                if ((int)(c >> AC_SHIFT) != -(config & SMASK) ||
-                    hasQueuedSubmissions())
-                    return false;
-                // Check for unqueued inactive workers. One pass suffices.
-                WorkQueue[] ws = workQueues; WorkQueue w;
-                if (ws != null) {
-                    for (int i = 1; i < ws.length; i += 2) {
-                        if ((w = ws[i]) != null && w.eventCount >= 0)
+                if ((ws = workQueues) != null) {
+                    for (int i = 0; i < ws.length; ++i) {
+                        if ((w = ws[i]) != null &&
+                            (!w.isEmpty() ||
+                             ((i & 1) != 0 && w.eventCount >= 0))) {
+                            signalWork(ws, w);
                             return false;
+                        }
                     }
                 }
             }
             if (U.compareAndSwapLong(this, CTL, c, c | STOP_BIT)) {
                 for (int pass = 0; pass < 3; ++pass) {
-                    WorkQueue[] ws = workQueues;
-                    if (ws != null) {
-                        WorkQueue w; Thread wt;
+                    WorkQueue[] ws; WorkQueue w; Thread wt;
+                    if ((ws = workQueues) != null) {
                         int n = ws.length;
                         for (int i = 0; i < n; ++i) {
                             if ((w = ws[i]) != null) {
@@ -2307,7 +2259,7 @@ public class ForkJoinPool extends AbstractExecutorService {
                                         if (!wt.isInterrupted()) {
                                             try {
                                                 wt.interrupt();
-                                            } catch (SecurityException ignore) {
+                                            } catch (Throwable ignore) {
                                             }
                                         }
                                         U.unpark(wt);
@@ -2318,7 +2270,7 @@ public class ForkJoinPool extends AbstractExecutorService {
                         // Wake up workers parked on event queue
                         int i, e; long cc; Thread p;
                         while ((e = (int)(cc = ctl) & E_MASK) != 0 &&
-                               (i = e & SMASK) < n &&
+                               (i = e & SMASK) < n && i >= 0 &&
                                (w = ws[i]) != null) {
                             long nc = ((long)(w.nextWait & E_MASK) |
                                        ((cc + AC_UNIT) & AC_MASK) |
@@ -2344,9 +2296,9 @@ public class ForkJoinPool extends AbstractExecutorService {
      * least one task.
      */
     static WorkQueue commonSubmitterQueue() {
-        ForkJoinPool p; WorkQueue[] ws; int m; Submitter z;
+        Submitter z; ForkJoinPool p; WorkQueue[] ws; int m, r;
         return ((z = submitters.get()) != null &&
-                (p = commonPool) != null &&
+                (p = common) != null &&
                 (ws = p.workQueues) != null &&
                 (m = ws.length - 1) >= 0) ?
             ws[m & z.seed & SQMASK] : null;
@@ -2355,127 +2307,57 @@ public class ForkJoinPool extends AbstractExecutorService {
     /**
      * Tries to pop the given task from submitter's queue in common pool.
      */
-    static boolean tryExternalUnpush(ForkJoinTask<?> t) {
-        ForkJoinPool p; WorkQueue[] ws; WorkQueue q; Submitter z;
-        ForkJoinTask<?>[] a;  int m, s;
-        if (t != null &&
-            (z = submitters.get()) != null &&
-            (p = commonPool) != null &&
-            (ws = p.workQueues) != null &&
-            (m = ws.length - 1) >= 0 &&
-            (q = ws[m & z.seed & SQMASK]) != null &&
-            (s = q.top) != q.base &&
-            (a = q.array) != null) {
+    final boolean tryExternalUnpush(ForkJoinTask<?> task) {
+        WorkQueue joiner; ForkJoinTask<?>[] a; int m, s;
+        Submitter z = submitters.get();
+        WorkQueue[] ws = workQueues;
+        boolean popped = false;
+        if (z != null && ws != null && (m = ws.length - 1) >= 0 &&
+            (joiner = ws[z.seed & m & SQMASK]) != null &&
+            joiner.base != (s = joiner.top) &&
+            (a = joiner.array) != null) {
             long j = (((a.length - 1) & (s - 1)) << ASHIFT) + ABASE;
-            if (U.getObject(a, j) == t &&
-                U.compareAndSwapInt(q, QLOCK, 0, 1)) {
-                if (q.array == a && q.top == s && // recheck
-                    U.compareAndSwapObject(a, j, t, null)) {
-                    q.top = s - 1;
-                    q.qlock = 0;
-                    return true;
+            if (U.getObject(a, j) == task &&
+                U.compareAndSwapInt(joiner, QLOCK, 0, 1)) {
+                if (joiner.top == s && joiner.array == a &&
+                    U.compareAndSwapObject(a, j, task, null)) {
+                    joiner.top = s - 1;
+                    popped = true;
                 }
-                q.qlock = 0;
+                joiner.qlock = 0;
             }
         }
-        return false;
+        return popped;
     }
 
-    /**
-     * Tries to pop and run local tasks within the same computation
-     * as the given root. On failure, tries to help complete from
-     * other queues via helpComplete.
-     */
-    private void externalHelpComplete(WorkQueue q, ForkJoinTask<?> root) {
-        ForkJoinTask<?>[] a; int m;
-        if (q != null && (a = q.array) != null && (m = (a.length - 1)) >= 0 &&
-            root != null && root.status >= 0) {
-            for (;;) {
-                int s, u; Object o; CountedCompleter<?> task = null;
-                if ((s = q.top) - q.base > 0) {
-                    long j = ((m & (s - 1)) << ASHIFT) + ABASE;
-                    if ((o = U.getObject(a, j)) != null &&
-                        (o instanceof CountedCompleter)) {
-                        CountedCompleter<?> t = (CountedCompleter<?>)o, r = t;
-                        do {
-                            if (r == root) {
-                                if (U.compareAndSwapInt(q, QLOCK, 0, 1)) {
-                                    if (q.array == a && q.top == s &&
-                                        U.compareAndSwapObject(a, j, t, null)) {
-                                        q.top = s - 1;
-                                        task = t;
-                                    }
-                                    q.qlock = 0;
-                                }
-                                break;
-                            }
-                        } while ((r = r.completer) != null);
-                    }
-                }
-                if (task != null)
-                    task.doExec();
-                if (root.status < 0 ||
-                    (u = (int)(ctl >>> 32)) >= 0 || (u >> UAC_SHIFT) >= 0)
+    final int externalHelpComplete(CountedCompleter<?> task) {
+        WorkQueue joiner; int m, j;
+        Submitter z = submitters.get();
+        WorkQueue[] ws = workQueues;
+        int s = 0;
+        if (z != null && ws != null && (m = ws.length - 1) >= 0 &&
+            (joiner = ws[(j = z.seed) & m & SQMASK]) != null && task != null) {
+            int scans = m + m + 1;
+            long c = 0L;             // for stability check
+            j |= 1;                  // poll odd queues
+            for (int k = scans; ; j += 2) {
+                WorkQueue q;
+                if ((s = task.status) < 0)
                     break;
-                if (task == null) {
-                    helpSignal(root, q.poolIndex);
-                    if (root.status >= 0)
-                        helpComplete(root, SHARED_QUEUE);
+                else if (joiner.externalPopAndExecCC(task))
+                    k = scans;
+                else if ((s = task.status) < 0)
                     break;
+                else if ((q = ws[j & m]) != null && q.pollAndExecCC(task))
+                    k = scans;
+                else if (--k < 0) {
+                    if (c == (c = ctl))
+                        break;
+                    k = scans;
                 }
             }
         }
-    }
-
-    /**
-     * Tries to help execute or signal availability of the given task
-     * from submitter's queue in common pool.
-     */
-    static void externalHelpJoin(ForkJoinTask<?> t) {
-        // Some hard-to-avoid overlap with tryExternalUnpush
-        ForkJoinPool p; WorkQueue[] ws; WorkQueue q, w; Submitter z;
-        ForkJoinTask<?>[] a;  int m, s, n;
-        if (t != null &&
-            (z = submitters.get()) != null &&
-            (p = commonPool) != null &&
-            (ws = p.workQueues) != null &&
-            (m = ws.length - 1) >= 0 &&
-            (q = ws[m & z.seed & SQMASK]) != null &&
-            (a = q.array) != null) {
-            int am = a.length - 1;
-            if ((s = q.top) != q.base) {
-                long j = ((am & (s - 1)) << ASHIFT) + ABASE;
-                if (U.getObject(a, j) == t &&
-                    U.compareAndSwapInt(q, QLOCK, 0, 1)) {
-                    if (q.array == a && q.top == s &&
-                        U.compareAndSwapObject(a, j, t, null)) {
-                        q.top = s - 1;
-                        q.qlock = 0;
-                        t.doExec();
-                    }
-                    else
-                        q.qlock = 0;
-                }
-            }
-            if (t.status >= 0) {
-                if (t instanceof CountedCompleter)
-                    p.externalHelpComplete(q, t);
-                else
-                    p.helpSignal(t, q.poolIndex);
-            }
-        }
-    }
-
-    /**
-     * Restricted version of helpQuiescePool for external callers
-     */
-    static void externalHelpQuiescePool() {
-        ForkJoinPool p; ForkJoinTask<?> t; WorkQueue q; int b;
-        if ((p = commonPool) != null &&
-            (q = p.findNonEmptyStealQueue(1)) != null &&
-            (b = q.base) - q.top < 0 &&
-            (t = q.pollAt(b)) != null)
-            t.doExec();
+        return s;
     }
 
     // Exported methods
@@ -2529,49 +2411,65 @@ public class ForkJoinPool extends AbstractExecutorService {
      */
     public ForkJoinPool(int parallelism,
                         ForkJoinWorkerThreadFactory factory,
-                        Thread.UncaughtExceptionHandler handler,
+                        UncaughtExceptionHandler handler,
                         boolean asyncMode) {
+        this(checkParallelism(parallelism),
+             checkFactory(factory),
+             handler,
+             (asyncMode ? FIFO_QUEUE : LIFO_QUEUE),
+             "ForkJoinPool-" + nextPoolId() + "-worker-");
         checkPermission();
-        if (factory == null)
-            throw new NullPointerException();
+    }
+
+    private static int checkParallelism(int parallelism) {
         if (parallelism <= 0 || parallelism > MAX_CAP)
             throw new IllegalArgumentException();
+        return parallelism;
+    }
+
+    private static ForkJoinWorkerThreadFactory checkFactory
+        (ForkJoinWorkerThreadFactory factory) {
+        if (factory == null)
+            throw new NullPointerException();
+        return factory;
+    }
+
+    /**
+     * Creates a {@code ForkJoinPool} with the given parameters, without
+     * any security checks or parameter validation.  Invoked directly by
+     * makeCommonPool.
+     */
+    private ForkJoinPool(int parallelism,
+                         ForkJoinWorkerThreadFactory factory,
+                         UncaughtExceptionHandler handler,
+                         int mode,
+                         String workerNamePrefix) {
+        this.workerNamePrefix = workerNamePrefix;
         this.factory = factory;
         this.ueh = handler;
-        this.config = parallelism | (asyncMode ? (FIFO_QUEUE << 16) : 0);
+        this.mode = (short)mode;
+        this.parallelism = (short)parallelism;
         long np = (long)(-parallelism); // offset ctl counts
         this.ctl = ((np << AC_SHIFT) & AC_MASK) | ((np << TC_SHIFT) & TC_MASK);
-        int pn = nextPoolId();
-        StringBuilder sb = new StringBuilder("ForkJoinPool-");
-        sb.append(Integer.toString(pn));
-        sb.append("-worker-");
-        this.workerNamePrefix = sb.toString();
     }
 
     /**
-     * Constructor for common pool, suitable only for static initialization.
-     * Basically the same as above, but uses smallest possible initial footprint.
-     */
-    ForkJoinPool(int parallelism, long ctl,
-                 ForkJoinWorkerThreadFactory factory,
-                 Thread.UncaughtExceptionHandler handler) {
-        this.config = parallelism;
-        this.ctl = ctl;
-        this.factory = factory;
-        this.ueh = handler;
-        this.workerNamePrefix = "ForkJoinPool.commonPool-worker-";
-    }
-
-    /**
-     * Returns the common pool instance.
+     * Returns the common pool instance. This pool is statically
+     * constructed; its run state is unaffected by attempts to {@link
+     * #shutdown} or {@link #shutdownNow}. However this pool and any
+     * ongoing processing are automatically terminated upon program
+     * {@link System#exit}.  Any program that relies on asynchronous
+     * task processing to complete before program termination should
+     * invoke {@code commonPool().}{@link #awaitQuiescence awaitQuiescence},
+     * before exit.
      *
      * @return the common pool instance
      * @since 1.8
      * @hide
      */
     public static ForkJoinPool commonPool() {
-        // assert commonPool != null : "static init error";
-        return commonPool;
+        // assert common != null : "static init error";
+        return common;
     }
 
     // Execution methods
@@ -2627,7 +2525,7 @@ public class ForkJoinPool extends AbstractExecutorService {
         if (task instanceof ForkJoinTask<?>) // avoid re-wrap
             job = (ForkJoinTask<?>) task;
         else
-            job = new ForkJoinTask.AdaptedRunnableAction(task);
+            job = new ForkJoinTask.RunnableExecuteAction(task);
         externalPush(job);
     }
 
@@ -2729,7 +2627,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      *
      * @return the handler, or {@code null} if none
      */
-    public Thread.UncaughtExceptionHandler getUncaughtExceptionHandler() {
+    public UncaughtExceptionHandler getUncaughtExceptionHandler() {
         return ueh;
     }
 
@@ -2739,7 +2637,8 @@ public class ForkJoinPool extends AbstractExecutorService {
      * @return the targeted parallelism level of this pool
      */
     public int getParallelism() {
-        return config & SMASK;
+        int par;
+        return ((par = parallelism) > 0) ? par : 1;
     }
 
     /**
@@ -2750,7 +2649,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      * @hide
      */
     public static int getCommonPoolParallelism() {
-        return commonPoolParallelism;
+        return commonParallelism;
     }
 
     /**
@@ -2762,7 +2661,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      * @return the number of worker threads
      */
     public int getPoolSize() {
-        return (config & SMASK) + (short)(ctl >>> TC_SHIFT);
+        return parallelism + (short)(ctl >>> TC_SHIFT);
     }
 
     /**
@@ -2772,7 +2671,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      * @return {@code true} if this pool uses async mode
      */
     public boolean getAsyncMode() {
-        return (config >>> 16) == FIFO_QUEUE;
+        return mode == FIFO_QUEUE;
     }
 
     /**
@@ -2803,7 +2702,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      * @return the number of active threads
      */
     public int getActiveThreadCount() {
-        int r = (config & SMASK) + (int)(ctl >> AC_SHIFT);
+        int r = parallelism + (int)(ctl >> AC_SHIFT);
         return (r <= 0) ? 0 : r; // suppress momentarily negative values
     }
 
@@ -2819,7 +2718,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      * @return {@code true} if all threads are currently idle
      */
     public boolean isQuiescent() {
-        return (int)(ctl >> AC_SHIFT) + (config & SMASK) == 0;
+        return parallelism + (int)(ctl >> AC_SHIFT) <= 0;
     }
 
     /**
@@ -2982,7 +2881,7 @@ public class ForkJoinPool extends AbstractExecutorService {
                 }
             }
         }
-        int pc = (config & SMASK);
+        int pc = parallelism;
         int tc = pc + (short)(c >>> TC_SHIFT);
         int ac = pc + (int)(c >> AC_SHIFT);
         if (ac < 0) // ignore transient negative
@@ -3012,11 +2911,6 @@ public class ForkJoinPool extends AbstractExecutorService {
      * already shut down.  Tasks that are in the process of being
      * submitted concurrently during the course of this method may or
      * may not be rejected.
-     *
-     * @throws SecurityException if a security manager exists and
-     *         the caller is not permitted to modify threads
-     *         because it does not hold {@link
-     *         java.lang.RuntimePermission}{@code ("modifyThread")}
      */
     public void shutdown() {
         checkPermission();
@@ -3051,7 +2945,7 @@ public class ForkJoinPool extends AbstractExecutorService {
     public boolean isTerminated() {
         long c = ctl;
         return ((c & STOP_BIT) != 0L &&
-                (short)(c >>> TC_SHIFT) == -(config & SMASK));
+                (short)(c >>> TC_SHIFT) + parallelism <= 0);
     }
 
     /**
@@ -3070,7 +2964,7 @@ public class ForkJoinPool extends AbstractExecutorService {
     public boolean isTerminating() {
         long c = ctl;
         return ((c & STOP_BIT) != 0L &&
-                (short)(c >>> TC_SHIFT) != -(config & SMASK));
+                (short)(c >>> TC_SHIFT) + parallelism > 0);
     }
 
     /**
@@ -3085,9 +2979,10 @@ public class ForkJoinPool extends AbstractExecutorService {
     /**
      * Blocks until all tasks have completed execution after a
      * shutdown request, or the timeout occurs, or the current thread
-     * is interrupted, whichever happens first. Note that the {@link
-     * #commonPool()} never terminates until program shutdown so
-     * this method will always time out.
+     * is interrupted, whichever happens first. Because the {@link
+     * #commonPool()} never terminates until program shutdown, when
+     * applied to the common pool, this method is equivalent to {@link
+     * #awaitQuiescence(long, TimeUnit)} but always returns {@code false}.
      *
      * @param timeout the maximum time to wait
      * @param unit the time unit of the timeout argument
@@ -3097,6 +2992,12 @@ public class ForkJoinPool extends AbstractExecutorService {
      */
     public boolean awaitTermination(long timeout, TimeUnit unit)
         throws InterruptedException {
+        if (Thread.interrupted())
+            throw new InterruptedException();
+        if (this == common) {
+            awaitQuiescence(timeout, unit);
+            return false;
+        }
         long nanos = unit.toNanos(timeout);
         if (isTerminated())
             return true;
@@ -3117,6 +3018,59 @@ public class ForkJoinPool extends AbstractExecutorService {
     }
 
     /**
+     * If called by a ForkJoinTask operating in this pool, equivalent
+     * in effect to {@link ForkJoinTask#helpQuiesce}. Otherwise,
+     * waits and/or attempts to assist performing tasks until this
+     * pool {@link #isQuiescent} or the indicated timeout elapses.
+     *
+     * @param timeout the maximum time to wait
+     * @param unit the time unit of the timeout argument
+     * @return {@code true} if quiescent; {@code false} if the
+     * timeout elapsed.
+     */
+    public boolean awaitQuiescence(long timeout, TimeUnit unit) {
+        long nanos = unit.toNanos(timeout);
+        ForkJoinWorkerThread wt;
+        Thread thread = Thread.currentThread();
+        if ((thread instanceof ForkJoinWorkerThread) &&
+            (wt = (ForkJoinWorkerThread)thread).pool == this) {
+            helpQuiescePool(wt.workQueue);
+            return true;
+        }
+        long startTime = System.nanoTime();
+        WorkQueue[] ws;
+        int r = 0, m;
+        boolean found = true;
+        while (!isQuiescent() && (ws = workQueues) != null &&
+               (m = ws.length - 1) >= 0) {
+            if (!found) {
+                if ((System.nanoTime() - startTime) > nanos)
+                    return false;
+                Thread.yield(); // cannot block
+            }
+            found = false;
+            for (int j = (m + 1) << 2; j >= 0; --j) {
+                ForkJoinTask<?> t; WorkQueue q; int b;
+                if ((q = ws[r++ & m]) != null && (b = q.base) - q.top < 0) {
+                    found = true;
+                    if ((t = q.pollAt(b)) != null)
+                        t.doExec();
+                    break;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Waits and/or attempts to assist performing tasks indefinitely
+     * until the {@link #commonPool()} {@link #isQuiescent}.
+     */
+    static void quiesceCommonPool() {
+        common.awaitQuiescence(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+    }
+
+    /**
      * Interface for extending managed parallelism for tasks running
      * in {@link ForkJoinPool}s.
      *
@@ -3125,9 +3079,9 @@ public class ForkJoinPool extends AbstractExecutorService {
      * not necessary. Method {@code block} blocks the current thread
      * if necessary (perhaps internally invoking {@code isReleasable}
      * before actually blocking). These actions are performed by any
-     * thread invoking {@link ForkJoinPool#managedBlock}.  The
-     * unusual methods in this API accommodate synchronizers that may,
-     * but don't usually, block for long periods. Similarly, they
+     * thread invoking {@link ForkJoinPool#managedBlock(ManagedBlocker)}.
+     * The unusual methods in this API accommodate synchronizers that
+     * may, but don't usually, block for long periods. Similarly, they
      * allow more efficient internal handling of cases in which
      * additional workers may be, but usually are not, needed to
      * ensure sufficient parallelism.  Toward this end,
@@ -3185,6 +3139,7 @@ public class ForkJoinPool extends AbstractExecutorService {
 
         /**
          * Returns {@code true} if blocking is unnecessary.
+         * @return {@code true} if blocking is unnecessary
          */
         boolean isReleasable();
     }
@@ -3214,21 +3169,8 @@ public class ForkJoinPool extends AbstractExecutorService {
         Thread t = Thread.currentThread();
         if (t instanceof ForkJoinWorkerThread) {
             ForkJoinPool p = ((ForkJoinWorkerThread)t).pool;
-            while (!blocker.isReleasable()) { // variant of helpSignal
-                WorkQueue[] ws; WorkQueue q; int m, u;
-                if ((ws = p.workQueues) != null && (m = ws.length - 1) >= 0) {
-                    for (int i = 0; i <= m; ++i) {
-                        if (blocker.isReleasable())
-                            return;
-                        if ((q = ws[i]) != null && q.base - q.top < 0) {
-                            p.signalWork(q);
-                            if ((u = (int)(p.ctl >>> 32)) >= 0 ||
-                                (u >> UAC_SHIFT) >= 0)
-                                break;
-                        }
-                    }
-                }
-                if (p.tryCompensate()) {
+            while (!blocker.isReleasable()) {
+                if (p.tryCompensate(p.ctl)) {
                     try {
                         do {} while (!blocker.isReleasable() &&
                                      !blocker.block());
@@ -3266,6 +3208,7 @@ public class ForkJoinPool extends AbstractExecutorService {
     private static final long STEALCOUNT;
     private static final long PLOCK;
     private static final long INDEXSEED;
+    private static final long QBASE;
     private static final long QLOCK;
 
     static {
@@ -3285,6 +3228,8 @@ public class ForkJoinPool extends AbstractExecutorService {
             PARKBLOCKER = U.objectFieldOffset
                 (tk.getDeclaredField("parkBlocker"));
             Class<?> wk = WorkQueue.class;
+            QBASE = U.objectFieldOffset
+                (wk.getDeclaredField("base"));
             QLOCK = U.objectFieldOffset
                 (wk.getDeclaredField("qlock"));
             Class<?> ak = ForkJoinTask[].class;
@@ -3298,45 +3243,51 @@ public class ForkJoinPool extends AbstractExecutorService {
         }
 
         submitters = new ThreadLocal<Submitter>();
-        ForkJoinWorkerThreadFactory fac = defaultForkJoinWorkerThreadFactory =
+        defaultForkJoinWorkerThreadFactory =
             new DefaultForkJoinWorkerThreadFactory();
         modifyThreadPermission = new RuntimePermission("modifyThread");
 
-        /*
-         * Establish common pool parameters.  For extra caution,
-         * computations to set up common pool state are here; the
-         * constructor just assigns these values to fields.
-         */
+        common = java.security.AccessController.doPrivileged
+            (new java.security.PrivilegedAction<ForkJoinPool>() {
+                public ForkJoinPool run() { return makeCommonPool(); }});
+        int par = common.parallelism; // report 1 even if threads disabled
+        commonParallelism = par > 0 ? par : 1;
+    }
 
-        int par = 0;
-        Thread.UncaughtExceptionHandler handler = null;
-        try {  // TBD: limit or report ignored exceptions?
+    /**
+     * Creates and returns the common pool, respecting user settings
+     * specified via system properties.
+     */
+    private static ForkJoinPool makeCommonPool() {
+        int parallelism = -1;
+        ForkJoinWorkerThreadFactory factory
+            = defaultForkJoinWorkerThreadFactory;
+        UncaughtExceptionHandler handler = null;
+        try {  // ignore exceptions in accessing/parsing properties
             String pp = System.getProperty
                 ("java.util.concurrent.ForkJoinPool.common.parallelism");
-            String hp = System.getProperty
-                ("java.util.concurrent.ForkJoinPool.common.exceptionHandler");
             String fp = System.getProperty
                 ("java.util.concurrent.ForkJoinPool.common.threadFactory");
-            if (fp != null)
-                fac = ((ForkJoinWorkerThreadFactory)ClassLoader.
-                       getSystemClassLoader().loadClass(fp).newInstance());
-            if (hp != null)
-                handler = ((Thread.UncaughtExceptionHandler)ClassLoader.
-                           getSystemClassLoader().loadClass(hp).newInstance());
+            String hp = System.getProperty
+                ("java.util.concurrent.ForkJoinPool.common.exceptionHandler");
             if (pp != null)
-                par = Integer.parseInt(pp);
+                parallelism = Integer.parseInt(pp);
+            if (fp != null)
+                factory = ((ForkJoinWorkerThreadFactory)ClassLoader.
+                           getSystemClassLoader().loadClass(fp).newInstance());
+            if (hp != null)
+                handler = ((UncaughtExceptionHandler)ClassLoader.
+                           getSystemClassLoader().loadClass(hp).newInstance());
         } catch (Exception ignore) {
         }
 
-        if (par <= 0)
-            par = Runtime.getRuntime().availableProcessors();
-        if (par > MAX_CAP)
-            par = MAX_CAP;
-        commonPoolParallelism = par;
-        long np = (long)(-par); // precompute initial ctl value
-        long ct = ((np << AC_SHIFT) & AC_MASK) | ((np << TC_SHIFT) & TC_MASK);
-
-        commonPool = new ForkJoinPool(par, ct, fac, handler);
+        if (parallelism < 0 && // default 1 less than #cores
+            (parallelism = Runtime.getRuntime().availableProcessors() - 1) < 0)
+            parallelism = 0;
+        if (parallelism > MAX_CAP)
+            parallelism = MAX_CAP;
+        return new ForkJoinPool(parallelism, factory, handler, LIFO_QUEUE,
+                                "ForkJoinPool.commonPool-worker-");
     }
 
 }
