@@ -48,7 +48,7 @@ public final class Posix implements Os {
     public native int fcntlFlock(FileDescriptor fd, int cmd, StructFlock arg) throws ErrnoException;
     public native void fdatasync(FileDescriptor fd) throws ErrnoException;
     public native StructStat fstat(FileDescriptor fd) throws ErrnoException;
-    public native StructStatFs fstatfs(FileDescriptor fd) throws ErrnoException;
+    public native StructStatVfs fstatvfs(FileDescriptor fd) throws ErrnoException;
     public native void fsync(FileDescriptor fd) throws ErrnoException;
     public native void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public native String gai_strerror(int error);
@@ -172,7 +172,7 @@ public final class Posix implements Os {
     public native FileDescriptor socket(int domain, int type, int protocol) throws ErrnoException;
     public native void socketpair(int domain, int type, int protocol, FileDescriptor fd1, FileDescriptor fd2) throws ErrnoException;
     public native StructStat stat(String path) throws ErrnoException;
-    public native StructStatFs statfs(String path) throws ErrnoException;
+    public native StructStatVfs statvfs(String path) throws ErrnoException;
     public native String strerror(int errno);
     public native String strsignal(int signal);
     public native void symlink(String oldPath, String newPath) throws ErrnoException;

@@ -45,7 +45,7 @@ public interface Os {
     public int fcntlFlock(FileDescriptor fd, int cmd, StructFlock arg) throws ErrnoException;
     public void fdatasync(FileDescriptor fd) throws ErrnoException;
     public StructStat fstat(FileDescriptor fd) throws ErrnoException;
-    public StructStatFs fstatfs(FileDescriptor fd) throws ErrnoException;
+    public StructStatVfs fstatvfs(FileDescriptor fd) throws ErrnoException;
     public void fsync(FileDescriptor fd) throws ErrnoException;
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public String gai_strerror(int error);
@@ -121,8 +121,7 @@ public interface Os {
     public FileDescriptor socket(int domain, int type, int protocol) throws ErrnoException;
     public void socketpair(int domain, int type, int protocol, FileDescriptor fd1, FileDescriptor fd2) throws ErrnoException;
     public StructStat stat(String path) throws ErrnoException;
-    /* TODO: replace statfs with statvfs. */
-    public StructStatFs statfs(String path) throws ErrnoException;
+    public StructStatVfs statvfs(String path) throws ErrnoException;
     public String strerror(int errno);
     public String strsignal(int signal);
     public void symlink(String oldPath, String newPath) throws ErrnoException;
