@@ -276,6 +276,17 @@ public class JSONArray {
     }
 
     /**
+     * Removes and returns the value at {@code index}, or null if the array has no value
+     * at {@code index}.
+     */
+    public Object remove(int index) {
+        if (index < 0 || index >= values.size()) {
+            return null;
+        }
+        return values.remove(index);
+    }
+
+    /**
      * Returns the value at {@code index} if it exists and is a boolean or can
      * be coerced to a boolean.
      *
