@@ -223,6 +223,21 @@ public final class VMRuntime {
      */
     public native boolean isDebuggerActive();
 
+    /**
+     * Registers a native allocation so that the heap knows about it and performs GC as required.
+     * If the number of native allocated bytes exceeds the native allocation watermark, the
+     * function requests a concurrent GC. If the native bytes allocated exceeds a second higher
+     * watermark, it is determined that the application is registering native allocations at an
+     * unusually high rate and a GC is performed inside of the function to prevent memory usage
+     * from excessively increasing.
+     */
+    public native void registerNativeAllocation(int bytes);
+
+    /**
+     * Registers a native free by reducing the number of native bytes accounted for.
+     */
+    public native void registerNativeFree(int bytes);
+
     /*
      * Updates the internal process state of the VM. You can find the process states in
      * ActivityManager.
