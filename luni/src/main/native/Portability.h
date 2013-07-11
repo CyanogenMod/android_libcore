@@ -72,9 +72,7 @@ static inline int mincore(void* addr, size_t length, unsigned char* vec) {
 
 #include <byteswap.h>
 #include <sys/sendfile.h>
-
-// For statfs(3).
-#include <sys/vfs.h> // Bionic doesn't have <sys/statvfs.h>
+#include <sys/statvfs.h>
 
 #endif
 
