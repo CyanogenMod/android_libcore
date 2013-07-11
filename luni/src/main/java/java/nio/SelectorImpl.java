@@ -254,24 +254,25 @@ final class SelectorImpl extends AbstractSelector {
             pollFd.userData = null;
 
             int ops = key.interestOpsNoCheck();
-            int selectedOp = 0;
+            int selectedOps = 0;
             if ((pollFd.revents & POLLIN) != 0) {
-                selectedOp = ops & (OP_ACCEPT | OP_READ);
-            } else if ((pollFd.revents & POLLOUT) != 0) {
+                selectedOps |= ops & (OP_ACCEPT | OP_READ);
+            }
+            if ((pollFd.revents & POLLOUT) != 0) {
                 if (key.isConnected()) {
-                    selectedOp = ops & OP_WRITE;
+                    selectedOps |= ops & OP_WRITE;
                 } else {
-                    selectedOp = ops & OP_CONNECT;
+                    selectedOps |= ops & OP_CONNECT;
                 }
             }
 
-            if (selectedOp != 0) {
+            if (selectedOps != 0) {
                 boolean wasSelected = mutableSelectedKeys.contains(key);
-                if (wasSelected && key.readyOps() != selectedOp) {
-                    key.setReadyOps(key.readyOps() | selectedOp);
+                if (wasSelected && key.readyOps() != selectedOps) {
+                    key.setReadyOps(key.readyOps() | selectedOps);
                     ++readyKeyCount;
                 } else if (!wasSelected) {
-                    key.setReadyOps(selectedOp);
+                    key.setReadyOps(selectedOps);
                     mutableSelectedKeys.add(key);
                     ++readyKeyCount;
                 }
