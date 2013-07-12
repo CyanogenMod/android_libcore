@@ -388,9 +388,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * constructor matching the given parameter types.
      * {@code (Class[]) null} is equivalent to the empty array.
      *
+     * <p>See {@link #getMethod} for details of the search order.
+     * Use {@link #getDeclaredConstructor} if you don't want to search superclasses.
+     *
      * @throws NoSuchMethodException
      *             if the constructor can not be found.
-     * @see #getDeclaredConstructor(Class[])
      */
     @SuppressWarnings("unchecked")
     public Constructor<T> getConstructor(Class<?>... parameterTypes) throws NoSuchMethodException {
@@ -502,9 +504,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * represented by this {@code Class}.
      * {@code (Class[]) null} is equivalent to the empty array.
      *
+     * <p>Use {@link #getConstructor} if you want to search superclasses.
+     *
      * @throws NoSuchMethodException
      *             if the requested constructor can not be found.
-     * @see #getConstructor(Class[])
      */
     @SuppressWarnings("unchecked")
     public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)
@@ -578,11 +581,12 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * represented by this {@code Class}.
      * {@code (Class[]) null} is equivalent to the empty array.
      *
+     * <p>See {@link #getMethod} if you want to search superclasses.
+     *
      * @throws NoSuchMethodException
      *             if the requested method can not be found.
      * @throws NullPointerException
      *             if {@code name} is {@code null}.
-     * @see #getMethod(String, Class[])
      */
     public Method getDeclaredMethod(String name, Class<?>... parameterTypes)
             throws NoSuchMethodException {
@@ -774,14 +778,15 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Returns a {@code Method} object which represents the public method with
      * the given name and parameter types.
      * {@code (Class[]) null} is equivalent to the empty array.
-     * This method first searches the
-     * class C represented by this {@code Class}, then the superclasses of C and
-     * finally the interfaces implemented by C and finally the superclasses of C
-     * for a method with matching name.
+     *
+     * <p>This method first searches the class C represented by this {@code Class},
+     * then the superclasses of C,
+     * and finally the interfaces implemented by C and its superclasses.
+     *
+     * <p>Use {@link #getDeclaredMethod} if you don't want to search superclasses.
      *
      * @throws NoSuchMethodException
      *             if the method can not be found.
-     * @see #getDeclaredMethod(String, Class[])
      */
     public Method getMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException {
         Member member = getConstructorOrMethod(name, true, true, parameterTypes);
