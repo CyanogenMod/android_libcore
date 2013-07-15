@@ -371,4 +371,25 @@ public final class VMDebug {
      * @return the number of matching instances.
      */
     public static native long countInstancesOfClass(Class klass, boolean assignable);
+
+    /**
+     * Export the heap per-space stats for dumpsys meminfo.
+     *
+     * The content of the array is:
+     *
+     * <pre>
+     *   data[0] : the application heap space size
+     *   data[1] : the application heap space allocated bytes
+     *   data[2] : the application heap space free bytes
+     *   data[3] : the zygote heap space size
+     *   data[4] : the zygote heap space allocated size
+     *   data[5] : the zygote heap space free size
+     *   data[6] : the large object space size
+     *   data[7] : the large object space allocated bytes
+     *   data[8] : the large object space free bytes
+     * </pre>
+     *
+     * @param data the array into which the stats are written.
+     */
+    public static native void getHeapSpaceStats(long[] data);
 }
