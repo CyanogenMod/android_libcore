@@ -466,15 +466,7 @@ static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, const 
   if (U_FAILURE(status)) {
     return false;
   }
-  ScopedResourceBundle calendar(ures_getByKey(root.get(), "calendar", NULL, &status));
-  if (U_FAILURE(status)) {
-    return false;
-  }
-  ScopedResourceBundle gregorian(ures_getByKey(calendar.get(), "gregorian", NULL, &status));
-  if (U_FAILURE(status)) {
-    return false;
-  }
-  ScopedResourceBundle fields(ures_getByKey(gregorian.get(), "fields", NULL, &status));
+  ScopedResourceBundle fields(ures_getByKey(root.get(), "fields", NULL, &status));
   if (U_FAILURE(status)) {
     return false;
   }

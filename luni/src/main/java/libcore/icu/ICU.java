@@ -149,6 +149,8 @@ public final class ICU {
             result[resultIndex++] = 'y';
             sawYear = true;
           }
+        } else if (ch == 'G') {
+          // Ignore the era specifier, if present.
         } else if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
           throw new IllegalArgumentException("Bad pattern character '" + ch + "' in " + pattern);
         } else if (ch == '\'') {
