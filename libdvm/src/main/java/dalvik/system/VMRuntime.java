@@ -237,4 +237,11 @@ public final class VMRuntime {
      * Registers a native free by reducing the number of native bytes accounted for.
      */
     public native void registerNativeFree(int bytes);
+
+    /*
+     * Updates the internal process state of the VM. You can find the process states in
+     * ActivityManager.
+     */
+    public native void updateProcessState(int newProcessState);
+
 }
