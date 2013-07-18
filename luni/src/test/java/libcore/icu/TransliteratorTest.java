@@ -90,7 +90,7 @@ public class TransliteratorTest extends junit.framework.TestCase {
     t = new Transliterator("Han-Latin/Names");
     assertEquals("shěn", t.transliterate("\u6c88"));
     assertEquals("shěn", t.transliterate("\u700b"));
-    assertEquals("jǐa", t.transliterate("\u8d3e"));
+    assertEquals("jiǎ", t.transliterate("\u8d3e"));
 
     t = new Transliterator("Han-Latin/Names; Latin-Ascii; Any-Upper");
     assertEquals("SHEN", t.transliterate("\u6c88"));
