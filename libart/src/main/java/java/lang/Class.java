@@ -668,38 +668,38 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         // escalated visibility. We never return miranda methods that
         // were synthesized by the VM.
         int skipModifiers = Modifier.MIRANDA | Modifier.SYNTHETIC;
-        AbstractMethod result = null;
-        if (directMethods != null) {
-            for (AbstractMethod m : directMethods) {
-                if (name.equals(m.getName()) && Arrays.equals(args, m.getParameterTypes()) &&
-                    m instanceof Method) {
+        Method result = null;
+        if (virtualMethods != null) {
+            for (Method m : virtualMethods) {
+                if (name.equals(m.getName()) && Arrays.equals(args, m.getParameterTypes())) {
                     int modifiers = m.getAccessFlags();
                     if ((modifiers & skipModifiers) == 0) {
-                        return (Method) m;
-                    } else {
-                        // Direct methods cannot be miranda methods,
-                        // so this potential result must be synthetic.
+                        return m;
+                    } else if ((modifiers & Modifier.MIRANDA) == 0) {
+                        // Remember as potential result if it's not a miranda method.
                         result = m;
                     }
                 }
             }
         }
         if (result == null) {
-            if (virtualMethods != null) {
-                for (Method m : virtualMethods) {
-                    if (name.equals(m.getName()) && Arrays.equals(args, m.getParameterTypes())) {
+            if (directMethods != null) {
+                for (AbstractMethod m : directMethods) {
+                    if (m instanceof Method && name.equals(m.getName()) &&
+                        Arrays.equals(args, m.getParameterTypes())) {
                         int modifiers = m.getAccessFlags();
                         if ((modifiers & skipModifiers) == 0) {
                             return (Method) m;
-                        } else if ((modifiers & Modifier.MIRANDA) == 0) {
-                            // Remember as potential result if it's not a miranda method.
-                            result = m;
+                        } else {
+                            // Direct methods cannot be miranda methods,
+                            // so this potential result must be synthetic.
+                            result = (Method) m;
                         }
                     }
                 }
             }
         }
-        return (Method) result;
+        return result;
     }
 
     /**
