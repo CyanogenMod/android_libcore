@@ -149,7 +149,7 @@ public class InputStreamReader extends Reader {
     }
 
     /**
-     * Returns the historical name of the encoding used by this writer to convert characters to
+     * Returns the canonical name of the encoding used by this writer to convert characters to
      * bytes, or null if this writer has been closed. Most callers should probably keep
      * track of the String or Charset they passed in; this method may not return the same
      * name.
@@ -158,7 +158,7 @@ public class InputStreamReader extends Reader {
         if (!isOpen()) {
             return null;
         }
-        return HistoricalCharsetNames.get(decoder.charset());
+        return decoder.charset().name();
     }
 
     /**

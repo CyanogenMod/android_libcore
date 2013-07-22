@@ -225,7 +225,7 @@ public class OutputStreamWriter extends Writer {
     }
 
     /**
-     * Returns the historical name of the encoding used by this writer to convert characters to
+     * Returns the canonical name of the encoding used by this writer to convert characters to
      * bytes, or null if this writer has been closed. Most callers should probably keep
      * track of the String or Charset they passed in; this method may not return the same
      * name.
@@ -234,7 +234,7 @@ public class OutputStreamWriter extends Writer {
         if (encoder == null) {
             return null;
         }
-        return HistoricalCharsetNames.get(encoder.charset());
+        return encoder.charset().name();
     }
 
     /**
