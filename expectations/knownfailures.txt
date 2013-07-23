@@ -249,11 +249,6 @@
   bug: 2702411
 },
 {
-  description: "Pre-NIO aliases not implemented",
-  name: "libcore.java.nio.charset.CharsetTest#test_preNioAliases",
-  bug: 3032697
-},
-{
   description: "HTTPS proxy broken on host",
   names: [
     "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testConsequentProxyConnection",

@@ -199,17 +199,6 @@ public class CharsetTest extends junit.framework.TestCase {
         assertDecodes(cs, "a\u0666", 'a', 0, 0, 0, 0x66, 0x06, 0, 0);
     }
 
-    public void test_preNioAliases() throws Exception {
-        // Various pre-nio java.lang/java.io encoding names are translated to nio charsets.
-        assertEquals("UTF-16BE", Charset.forName("UnicodeBigUnmarked").name());
-        assertEquals("UTF-16LE", Charset.forName("UnicodeLittleUnmarked").name());
-        assertEquals("UTF-16", Charset.forName("Unicode").name());
-        assertEquals("UTF-16", Charset.forName("UnicodeBig").name());
-        assertEquals("x-UTF-16LE-BOM", Charset.forName("UnicodeLittle").name());
-        assertEquals("X-UTF-32BE-BOM", Charset.forName("UTF_32BE_BOM").name());
-        assertEquals("X-UTF-32LE-BOM", Charset.forName("UTF_32LE_BOM").name());
-    }
-
     private byte[] toByteArray(int[] ints) {
         byte[] result = new byte[ints.length];
         for (int i = 0; i < ints.length; ++i) {

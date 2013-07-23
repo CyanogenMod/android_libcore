@@ -371,9 +371,7 @@ public abstract class Charset implements Comparable<Charset> {
     public abstract CharsetDecoder newDecoder();
 
     /**
-     * Gets the canonical name of this charset.
-     *
-     * @return this charset's name in canonical form.
+     * Returns the canonical name of this charset.
      */
     public final String name() {
         return this.canonicalName;
