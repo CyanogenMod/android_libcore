@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.lang.annotation;
+package libcore.reflect;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
