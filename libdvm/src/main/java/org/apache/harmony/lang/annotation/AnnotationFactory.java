@@ -29,8 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import static org.apache.harmony.lang.annotation.AnnotationMember.ARRAY;
-import static org.apache.harmony.lang.annotation.AnnotationMember.ERROR;
 
 /**
  * The annotation implementation based on dynamically generated proxy instances.
@@ -41,7 +39,7 @@ import static org.apache.harmony.lang.annotation.AnnotationMember.ERROR;
  * conforming access to annotation member values and required implementations of
  * methods declared in Annotation interface.
  *
- * @see android.lang.annotation.AnnotationMember
+ * @see AnnotationMember
  * @see java.lang.annotation.Annotation
  *
  * @author Alexey V. Varlamov, Serguei S. Zapreyev
@@ -50,35 +48,36 @@ import static org.apache.harmony.lang.annotation.AnnotationMember.ERROR;
 @SuppressWarnings({"serial"})
 public final class AnnotationFactory implements InvocationHandler, Serializable {
 
-    private static final transient
-    Map<Class<? extends Annotation>, AnnotationMember[]>
-    cache = new WeakHashMap<Class<? extends Annotation>, AnnotationMember[]>();
+    private static final transient Map<Class<? extends Annotation>, AnnotationMember[]> cache =
+            new WeakHashMap<Class<? extends Annotation>, AnnotationMember[]>();
 
     /**
      * Reflects specified annotation type and returns an array
      * of member element definitions with default values.
      */
-    public static AnnotationMember[] getElementsDescription(Class<? extends Annotation> annotationType ) {
-        AnnotationMember[] desc = cache.get(annotationType);
-        if (desc == null) {
-            if (!annotationType.isAnnotation()) {
-                throw new IllegalArgumentException("Type is not annotation: "
-                        + annotationType.getName());
+    public static AnnotationMember[] getElementsDescription(Class<? extends Annotation> annotationType) {
+        synchronized (cache) {
+            AnnotationMember[] desc = cache.get(annotationType);
+            if (desc != null) {
+                return desc;
             }
-            Method[] m = annotationType.getDeclaredMethods();
-            desc = new AnnotationMember[m.length];
-            int idx = 0;
-            for (Method element : m) {
-                String name = element.getName();
-                Class<?> type = element.getReturnType();
-                try {
-                    desc[idx] = new AnnotationMember(name,
-                            element.getDefaultValue(), type, element);
-                } catch (Throwable t) {
-                    desc[idx] = new AnnotationMember(name, t, type, element);
-                }
-                idx++;
+        }
+        if (!annotationType.isAnnotation()) {
+            throw new IllegalArgumentException("Type is not annotation: " + annotationType.getName());
+        }
+        Method[] declaredMethods = annotationType.getDeclaredMethods();
+        AnnotationMember[] desc = new AnnotationMember[declaredMethods.length];
+        for (int i = 0; i < declaredMethods.length; ++i) {
+            Method element = declaredMethods[i];
+            String name = element.getName();
+            Class<?> type = element.getReturnType();
+            try {
+                desc[i] = new AnnotationMember(name, element.getDefaultValue(), type, element);
+            } catch (Throwable t) {
+                desc[i] = new AnnotationMember(name, t, type, element);
             }
+        }
+        synchronized (cache) {
             cache.put(annotationType, desc);
         }
         return desc;
@@ -90,13 +89,11 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
      * @param elements name-value pairs representing elements of the annotation
      * @return a new annotation instance
      */
-    public static Annotation createAnnotation(
-            Class<? extends Annotation> annotationType,
-            AnnotationMember[] elements)
-    {
-        AnnotationFactory antn = new AnnotationFactory(annotationType, elements);
-        return (Annotation)Proxy.newProxyInstance( annotationType.getClassLoader(),
-                new Class[]{annotationType}, antn);
+    public static Annotation createAnnotation(Class<? extends Annotation> annotationType,
+                                              AnnotationMember[] elements) {
+        AnnotationFactory factory = new AnnotationFactory(annotationType, elements);
+        return (Annotation) Proxy.newProxyInstance(annotationType.getClassLoader(),
+                                                   new Class[]{annotationType}, factory);
     }
 
     private final Class<? extends Annotation> klazz;
@@ -118,8 +115,8 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
         } else {
             //merge default and actual values
             elements = new AnnotationMember[defs.length];
-            next: for (int i = elements.length - 1; i >= 0; i-- ){
-                for (AnnotationMember val : values){
+            next: for (int i = elements.length - 1; i >= 0; i--) {
+                for (AnnotationMember val : values) {
                     if (val.name.equals(defs[i].name)) {
                         elements[i] = val.setDefinition(defs[i]);
                         continue next;
@@ -134,8 +131,7 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
      * Reads the object, obtains actual member definitions for the annotation type,
      * and merges deserialized values with the new definitions.
      */
-    private void readObject(ObjectInputStream os) throws IOException,
-    ClassNotFoundException {
+    private void readObject(ObjectInputStream os) throws IOException, ClassNotFoundException {
         os.defaultReadObject();
         // Annotation type members can be changed arbitrarily
         // So there may be zombi elements from the previous life;
@@ -145,8 +141,7 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
         // but seems better to keep them for compatibility
         AnnotationMember[] defs = getElementsDescription(klazz);
         AnnotationMember[] old = elements;
-        List<AnnotationMember> merged = new ArrayList<AnnotationMember>(
-                defs.length + old.length);
+        List<AnnotationMember> merged = new ArrayList<AnnotationMember>(defs.length + old.length);
         nextOld: for (AnnotationMember el1 : old) {
             for (AnnotationMember el2 : defs) {
                 if (el2.name.equals(el1.name)) {
@@ -155,8 +150,8 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
             }
             merged.add(el1); //phantom element
         }
-        nextNew: for (AnnotationMember def : defs){
-            for (AnnotationMember val : old){
+        nextNew: for (AnnotationMember def : defs) {
+            for (AnnotationMember val : old) {
                 if (val.name.equals(def.name)) {
                     // nothing to do about cached errors (if any)
                     // anyway they remain relevant to values
@@ -177,7 +172,7 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
      * differ completely from this class.
      * @return true if the passed object is equivalent annotation instance,
      * false otherwise.
-     * @see android.lang.annotation.AnnotationMember#equals(Object)
+     * @see AnnotationMember#equals(Object)
      */
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -188,12 +183,12 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
         }
         Object handler = null;
         if (Proxy.isProxyClass(obj.getClass())
-                && (handler = Proxy.getInvocationHandler(obj)) instanceof AnnotationFactory ) {
+                && (handler = Proxy.getInvocationHandler(obj)) instanceof AnnotationFactory) {
             AnnotationFactory other = (AnnotationFactory) handler;
             if (elements.length != other.elements.length) {
                 return false;
             }
-            next: for (AnnotationMember el1 : elements){
+            next: for (AnnotationMember el1 : elements) {
                 for (AnnotationMember el2 : other.elements) {
                     if (el1.equals(el2)) {
                         continue next;
@@ -203,11 +198,11 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
             }
             return true;
         } else {
-            // encountered foreign annotation implementaton
+            // encountered foreign annotation implementation
             // so have to obtain element values via invocation
             // of corresponding methods
             for (final AnnotationMember el : elements) {
-                if (el.tag == ERROR) {
+                if (el.tag == AnnotationMember.ERROR) {
                     // undefined value is incomparable (transcendent)
                     return false;
                 }
@@ -216,8 +211,8 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
                         el.definingMethod.setAccessible(true);
                     }
                     Object otherValue = el.definingMethod.invoke(obj);
-                    if (otherValue != null ) {
-                        if (el.tag == ARRAY) {
+                    if (otherValue != null) {
+                        if (el.tag == AnnotationMember.ARRAY) {
                             if (!el.equalArrayValue(otherValue)) {
                                 return false;
                             }
@@ -240,7 +235,7 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
     /**
      * Returns a hash code composed as a sum of hash codes of member elements,
      * including elements with default values.
-     * @see android.lang.annotation.AnnotationMember#hashCode()
+     * @see AnnotationMember#hashCode()
      */
     public int hashCode() {
         int hash = 0;
@@ -278,8 +273,7 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
      * @throws IllegalArgumentException If the specified method is none of the above
      * @return the invocation result
      */
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-    {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         String name = method.getName();
         Class[] params = method.getParameterTypes();
         if (params.length == 0) {
@@ -308,10 +302,9 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
                 }
                 return value;
             }
-        } else if (params.length == 1 && params[0] == Object.class && "equals".equals(name)){
+        } else if (params.length == 1 && params[0] == Object.class && "equals".equals(name)) {
             return Boolean.valueOf(equals(args[0]));
         }
-        throw new IllegalArgumentException(
-                "Invalid method for annotation type: " + method);
+        throw new IllegalArgumentException("Invalid method for annotation type: " + method);
     }
 }
