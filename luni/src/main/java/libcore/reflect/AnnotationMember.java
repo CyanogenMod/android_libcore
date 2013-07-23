@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.lang.annotation;
+package libcore.reflect;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -45,13 +45,13 @@ import java.util.Arrays;
  * class-data structures and throwing is delayed until the element
  * is requested for value.
  *
- * @see android.lang.annotation.AnnotationFactory
+ * @see AnnotationFactory
  *
  * @author Alexey V. Varlamov, Serguei S. Zapreyev
  * @version $Revision$
  */
 @SuppressWarnings({"serial"})
-public class AnnotationMember implements Serializable {
+public final class AnnotationMember implements Serializable {
 
     /**
      * Tag description of a Throwable value type.
