@@ -89,11 +89,11 @@ public final class AnnotationFactory implements InvocationHandler, Serializable 
      * @param elements name-value pairs representing elements of the annotation
      * @return a new annotation instance
      */
-    public static Annotation createAnnotation(Class<? extends Annotation> annotationType,
-                                              AnnotationMember[] elements) {
+    public static <A extends Annotation> A createAnnotation(Class<? extends Annotation> annotationType,
+                                                            AnnotationMember[] elements) {
         AnnotationFactory factory = new AnnotationFactory(annotationType, elements);
-        return (Annotation) Proxy.newProxyInstance(annotationType.getClassLoader(),
-                                                   new Class[]{annotationType}, factory);
+        return (A) Proxy.newProxyInstance(annotationType.getClassLoader(),
+                                          new Class[]{annotationType}, factory);
     }
 
     private final Class<? extends Annotation> klazz;
