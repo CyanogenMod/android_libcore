@@ -149,6 +149,12 @@ $(LOCAL_INTERMEDIATE_TARGETS): $(TMP_RESOURCE_DIR)$(TMP_RESOURCE_FILE)
 # Build for the host.
 #
 
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-main-java-files-under, dex)
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := dex-host
+include $(BUILD_HOST_JAVA_LIBRARY)
+
 ifeq ($(WITH_HOST_DALVIK),true)
 
     # Definitions to make the core library.
