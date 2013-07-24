@@ -691,7 +691,7 @@ static jobject ICU_getAvailableCurrencyCodes(JNIEnv* env, jclass) {
     return result;
 }
 
-static jstring ICU_getBestDateTimePattern(JNIEnv* env, jclass, jstring javaPattern, jstring javaLocaleName) {
+static jstring ICU_getBestDateTimePattern(JNIEnv* env, jclass, jstring javaSkeleton, jstring javaLocaleName) {
   Locale locale = getLocale(env, javaLocaleName);
   UErrorCode status = U_ZERO_ERROR;
   DateTimePatternGenerator* generator = DateTimePatternGenerator::createInstance(locale, status);
@@ -699,11 +699,11 @@ static jstring ICU_getBestDateTimePattern(JNIEnv* env, jclass, jstring javaPatte
     return NULL;
   }
 
-  ScopedJavaUnicodeString patternHolder(env, javaPattern);
-  if (!patternHolder.valid()) {
+  ScopedJavaUnicodeString skeletonHolder(env, javaSkeleton);
+  if (!skeletonHolder.valid()) {
     return NULL;
   }
-  UnicodeString result(generator->getBestPattern(patternHolder.unicodeString(), status));
+  UnicodeString result(generator->getBestPattern(skeletonHolder.unicodeString(), status));
   if (maybeThrowIcuException(env, "DateTimePatternGenerator::getBestPattern", status)) {
     return NULL;
   }
