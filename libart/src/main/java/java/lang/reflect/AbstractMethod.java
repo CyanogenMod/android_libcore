@@ -45,6 +45,7 @@ import libcore.reflect.GenericSignatureParser;
 import libcore.reflect.InternalNames;
 import libcore.reflect.ListOfTypes;
 import libcore.reflect.Types;
+import libcore.util.EmptyArray;
 
 /**
  * This class represents an abstract method. Abstract methods are either methods or constructors.
@@ -152,7 +153,12 @@ public abstract class AbstractMethod extends AccessibleObject {
         return declaringClass;
     }
 
-    public int getDexMethodIndex() {
+    /**
+     * Returns the index of this method's ID in its dex file.
+     *
+     * @hide
+     */
+    public final int getDexMethodIndex() {
         return methodDexIndex;
     }
 
@@ -180,7 +186,38 @@ public abstract class AbstractMethod extends AccessibleObject {
      *
      * @return the parameter types
      */
-    public abstract Class<?>[] getParameterTypes();
+    public Class<?>[] getParameterTypes() {
+        Dex dex = declaringClass.getDex();
+        short[] types = dex.parameterTypeIndicesFromMethodIndex(methodDexIndex);
+        if (types.length == 0) {
+            return EmptyArray.CLASS;
+        }
+        Class<?>[] parametersArray = new Class[types.length];
+        for (int i = 0; i < types.length; i++) {
+            // Note, in the case of a Proxy the dex cache types are equal.
+            parametersArray[i] = getDexCacheType(dex, types[i]);
+        }
+        return parametersArray;
+    }
+
+    /**
+     * Returns true if the given parameters match those of the method in the given order.
+     *
+     * @hide
+     */
+    public boolean equalParameters(Class<?>[] params) {
+        Dex dex = getDeclaringClass().getDex();
+        short[] types = dex.parameterTypeIndicesFromMethodIndex(methodDexIndex);
+        if (types.length != params.length) {
+            return false;
+        }
+        for (int i = 0; i < types.length; i++) {
+            if (getDexCacheType(dex, types[i]) != params[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Returns true if {@code other} has the same declaring class, name,
@@ -243,7 +280,7 @@ public abstract class AbstractMethod extends AccessibleObject {
      * Note this method replicates {@link java.lang.Class#getDexCacheString(Dex, int)}, but in
      * Method we can avoid one indirection.
      */
-    String getDexCacheString(Dex dex, int dexStringIndex) {
+    final String getDexCacheString(Dex dex, int dexStringIndex) {
         String s = (String) dexCacheStrings[dexStringIndex];
         if (s == null) {
             s = dex.strings().get(dexStringIndex);
@@ -257,7 +294,7 @@ public abstract class AbstractMethod extends AccessibleObject {
      * necessary. Note this method replicates {@link java.lang.Class#getDexCacheType(Dex, int)},
      * but in Method we can avoid one indirection.
      */
-    Class<?> getDexCacheType(Dex dex, int dexTypeIndex) {
+    final Class<?> getDexCacheType(Dex dex, int dexTypeIndex) {
         Class<?> resolvedType = dexCacheResolvedTypes[dexTypeIndex];
         if (resolvedType == null) {
             int descriptorIndex = dex.typeIds().get(dexTypeIndex);

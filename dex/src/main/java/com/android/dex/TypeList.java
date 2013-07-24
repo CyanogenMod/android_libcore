@@ -20,7 +20,7 @@ import com.android.dex.util.Unsigned;
 
 public final class TypeList implements Comparable<TypeList> {
 
-    public static final TypeList EMPTY = new TypeList(null, new short[0]);
+    public static final TypeList EMPTY = new TypeList(null, Dex.EMPTY_SHORT_ARRAY);
 
     private final Dex dex;
     private final short[] types;

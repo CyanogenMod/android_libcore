@@ -520,7 +520,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     private Constructor<T> getDeclaredConstructorInternal(Class<?>[] args) {
         if (directMethods != null) {
             for (AbstractMethod m : directMethods) {
-                if (m instanceof Constructor && Arrays.equals(args, m.getParameterTypes())) {
+                if (m instanceof Constructor && m.equalParameters(args)) {
                     return (Constructor<T>) m;
                 }
             }
@@ -671,7 +671,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         Method result = null;
         if (virtualMethods != null) {
             for (Method m : virtualMethods) {
-                if (name.equals(m.getName()) && Arrays.equals(args, m.getParameterTypes())) {
+                if (name.equals(m.getName()) && m.equalParameters(args)) {
                     int modifiers = m.getAccessFlags();
                     if ((modifiers & skipModifiers) == 0) {
                         return m;
@@ -686,7 +686,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             if (directMethods != null) {
                 for (AbstractMethod m : directMethods) {
                     if (m instanceof Method && name.equals(m.getName()) &&
-                        Arrays.equals(args, m.getParameterTypes())) {
+                        m.equalParameters(args)) {
                         int modifiers = m.getAccessFlags();
                         if ((modifiers & skipModifiers) == 0) {
                             return (Method) m;

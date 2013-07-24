@@ -53,7 +53,9 @@ public final class Dex {
     private static final int CHECKSUM_SIZE = 4;
     private static final int SIGNATURE_OFFSET = CHECKSUM_OFFSET + CHECKSUM_SIZE;
     private static final int SIGNATURE_SIZE = 20;
-
+    // Provided as a convenience to avoid a memory allocation to benefit Dalvik.
+    // Note: libcore.util.EmptyArray cannot be accessed when this code isn't run on Dalvik.
+    static final short[] EMPTY_SHORT_ARRAY = new short[0];
     private ByteBuffer data;
     private final TableOfContents tableOfContents = new TableOfContents();
     private int nextSectionStart = 0;
@@ -450,6 +452,9 @@ public final class Dex {
         }
 
         public short[] readShortArray(int length) {
+            if (length == 0) {
+                return EMPTY_SHORT_ARRAY;
+            }
             short[] result = new short[length];
             for (int i = 0; i < length; i++) {
                 result[i] = readShort();
@@ -475,10 +480,7 @@ public final class Dex {
 
         public TypeList readTypeList() {
             int size = readInt();
-            short[] types = new short[size];
-            for (int i = 0; i < size; i++) {
-                types[i] = readShort();
-            }
+            short[] types = readShortArray(size);
             alignToFourBytes();
             return new TypeList(Dex.this, types);
         }
@@ -552,71 +554,71 @@ public final class Dex {
             Try[] tries;
             CatchHandler[] catchHandlers;
             if (triesSize > 0) {
-              if (instructions.length % 2 == 1) {
-                  readShort(); // padding
-              }
+                if (instructions.length % 2 == 1) {
+                    readShort(); // padding
+                }
 
-              /*
-               * We can't read the tries until we've read the catch handlers.
-               * Unfortunately they're in the opposite order in the dex file
-               * so we need to read them out-of-order.
-               */
-              Section triesSection = open(data.position());
-              skip(triesSize * SizeOf.TRY_ITEM);
-              catchHandlers = readCatchHandlers();
-              tries = triesSection.readTries(triesSize, catchHandlers);
-          } else {
-              tries = new Try[0];
-              catchHandlers = new CatchHandler[0];
-          }
-          return new Code(registersSize, insSize, outsSize, debugInfoOffset, instructions,
-                  tries, catchHandlers);
+                /*
+                 * We can't read the tries until we've read the catch handlers.
+                 * Unfortunately they're in the opposite order in the dex file
+                 * so we need to read them out-of-order.
+                 */
+                Section triesSection = open(data.position());
+                skip(triesSize * SizeOf.TRY_ITEM);
+                catchHandlers = readCatchHandlers();
+                tries = triesSection.readTries(triesSize, catchHandlers);
+            } else {
+                tries = new Try[0];
+                catchHandlers = new CatchHandler[0];
+            }
+            return new Code(registersSize, insSize, outsSize, debugInfoOffset, instructions,
+                            tries, catchHandlers);
         }
 
         private CatchHandler[] readCatchHandlers() {
-          int baseOffset = data.position();
-          int catchHandlersSize = readUleb128();
-          CatchHandler[] result = new CatchHandler[catchHandlersSize];
-          for (int i = 0; i < catchHandlersSize; i++) {
-            int offset = data.position() - baseOffset;
-            result[i] = readCatchHandler(offset);
-          }
-          return result;
+            int baseOffset = data.position();
+            int catchHandlersSize = readUleb128();
+            CatchHandler[] result = new CatchHandler[catchHandlersSize];
+            for (int i = 0; i < catchHandlersSize; i++) {
+                int offset = data.position() - baseOffset;
+                result[i] = readCatchHandler(offset);
+            }
+            return result;
         }
 
         private Try[] readTries(int triesSize, CatchHandler[] catchHandlers) {
-          Try[] result = new Try[triesSize];
-          for (int i = 0; i < triesSize; i++) {
-            int startAddress = readInt();
-            int instructionCount = readUnsignedShort();
-            int handlerOffset = readUnsignedShort();
-            int catchHandlerIndex = findCatchHandlerIndex(catchHandlers, handlerOffset);
-            result[i] = new Try(startAddress, instructionCount, catchHandlerIndex);
-          }
-          return result;
+            Try[] result = new Try[triesSize];
+            for (int i = 0; i < triesSize; i++) {
+                int startAddress = readInt();
+                int instructionCount = readUnsignedShort();
+                int handlerOffset = readUnsignedShort();
+                int catchHandlerIndex = findCatchHandlerIndex(catchHandlers, handlerOffset);
+                result[i] = new Try(startAddress, instructionCount, catchHandlerIndex);
+            }
+            return result;
         }
 
         private int findCatchHandlerIndex(CatchHandler[] catchHandlers, int offset) {
-          for (int i = 0; i < catchHandlers.length; i++) {
-            CatchHandler catchHandler = catchHandlers[i];
-            if (catchHandler.getOffset() == offset) {
-              return i;
+            for (int i = 0; i < catchHandlers.length; i++) {
+                CatchHandler catchHandler = catchHandlers[i];
+                if (catchHandler.getOffset() == offset) {
+                    return i;
+                }
             }
-          }
-          throw new IllegalArgumentException();
+            throw new IllegalArgumentException();
         }
 
         private CatchHandler readCatchHandler(int offset) {
-          int size = readSleb128();
-          int handlersCount = Math.abs(size);
-          int[] typeIndexes = new int[handlersCount];
-          int[] addresses = new int[handlersCount];
-          for (int i = 0; i < handlersCount; i++) {
-            typeIndexes[i] = readUleb128();
-            addresses[i] = readUleb128();
-          }
-          int catchAllAddress = size <= 0 ? readUleb128() : -1;
-          return new CatchHandler(typeIndexes, addresses, catchAllAddress, offset);
+            int size = readSleb128();
+            int handlersCount = Math.abs(size);
+            int[] typeIndexes = new int[handlersCount];
+            int[] addresses = new int[handlersCount];
+            for (int i = 0; i < handlersCount; i++) {
+                typeIndexes[i] = readUleb128();
+                addresses[i] = readUleb128();
+            }
+            int catchAllAddress = size <= 0 ? readUleb128() : -1;
+            return new CatchHandler(typeIndexes, addresses, catchAllAddress, offset);
         }
 
         private ClassData readClassData() {
@@ -680,11 +682,11 @@ public final class Dex {
         }
 
         public void skip(int count) {
-          if (count < 0) {
-              throw new IllegalArgumentException();
-          }
-          data.position(data.position() + count);
-      }
+            if (count < 0) {
+                throw new IllegalArgumentException();
+            }
+            data.position(data.position() + count);
+        }
 
         /**
          * Skips bytes until the position is aligned to a multiple of 4.
@@ -787,5 +789,86 @@ public final class Dex {
         public int used () {
             return data.position() - initialPosition;
         }
+    }
+
+    /**
+     * Look up a field id name index from a field index. Equivalent to:
+     * {@code fieldIds().get(fieldDexIndex).getNameIndex();}
+     */
+    public int nameIndexFromFieldIndex(int fieldIndex) {
+        checkBounds(fieldIndex, tableOfContents.fieldIds.size);
+        int position = tableOfContents.fieldIds.off + (SizeOf.MEMBER_ID_ITEM * fieldIndex);
+        position += SizeOf.USHORT;  // declaringClassIndex
+        position += SizeOf.USHORT;  // typeIndex
+        return data.getInt(position);  // nameIndex
+    }
+
+    /**
+     * Look up a field id type index from a field index. Equivalent to:
+     * {@code fieldIds().get(fieldDexIndex).getTypeIndex();}
+     */
+    public int typeIndexFromFieldIndex(int fieldIndex) {
+        checkBounds(fieldIndex, tableOfContents.fieldIds.size);
+        int position = tableOfContents.fieldIds.off + (SizeOf.MEMBER_ID_ITEM * fieldIndex);
+        position += SizeOf.USHORT;  // declaringClassIndex
+        return data.getShort(position) & 0xFFFF;  // typeIndex
+    }
+
+    /**
+     * Look up a method id name index from a method index. Equivalent to:
+     * {@code methodIds().get(methodIndex).getNameIndex();}
+     */
+    public int nameIndexFromMethodIndex(int methodIndex) {
+        checkBounds(methodIndex, tableOfContents.methodIds.size);
+        int position = tableOfContents.methodIds.off + (SizeOf.MEMBER_ID_ITEM * methodIndex);
+        position += SizeOf.USHORT;  // declaringClassIndex
+        position += SizeOf.USHORT;  // protoIndex
+        return data.getInt(position);  // nameIndex
+    }
+
+    /**
+     * Lookup a parameter type ids from a method index. Equivalent to:
+     * {@code readTypeList(protoIds.get(methodIds().get(methodDexIndex).getProtoIndex()).getParametersOffset()).getTypes();}
+     */
+    public short[] parameterTypeIndicesFromMethodIndex(int methodIndex) {
+        checkBounds(methodIndex, tableOfContents.methodIds.size);
+        int position = tableOfContents.methodIds.off + (SizeOf.MEMBER_ID_ITEM * methodIndex);
+        position += SizeOf.USHORT;  // declaringClassIndex
+        int protoIndex = data.getShort(position) & 0xFFFF;
+        checkBounds(protoIndex, tableOfContents.protoIds.size);
+        position = tableOfContents.protoIds.off + (SizeOf.PROTO_ID_ITEM * protoIndex);
+        position += SizeOf.UINT;  // shortyIndex
+        position += SizeOf.UINT;  // returnTypeIndex
+        int parametersOffset = data.getInt(position);
+        if (parametersOffset == 0) {
+            return EMPTY_SHORT_ARRAY;
+        }
+        position = parametersOffset;
+        int size = data.getInt(position);
+        if (size <= 0) {
+            throw new AssertionError("Unexpected parameter type list size: " + size);
+        }
+        position += SizeOf.UINT;
+        short[] types = new short[size];
+        for (int i = 0; i < size; i++) {
+            types[i] = data.getShort(position);
+            position += SizeOf.USHORT;
+        }
+        return types;
+    }
+
+    /**
+     * Look up a method id return type index from a method index. Equivalent to:
+     * {@code protoIds().get(methodIds().get(methodDexIndex).getProtoIndex()).getReturnTypeIndex();}
+     */
+    public int returnTypeIndexFromMethodIndex(int methodIndex) {
+        checkBounds(methodIndex, tableOfContents.methodIds.size);
+        int position = tableOfContents.methodIds.off + (SizeOf.MEMBER_ID_ITEM * methodIndex);
+        position += SizeOf.USHORT;  // declaringClassIndex
+        int protoIndex = data.getShort(position) & 0xFFFF;
+        checkBounds(protoIndex, tableOfContents.protoIds.size);
+        position = tableOfContents.protoIds.off + (SizeOf.PROTO_ID_ITEM * protoIndex);
+        position += SizeOf.UINT;  // shortyIndex
+        return data.getInt(position);  // returnTypeIndex
     }
 }

@@ -54,11 +54,20 @@ public final class Field extends AccessibleObject implements Member {
     public static final Comparator<Field> ORDER_BY_NAME_AND_DECLARING_CLASS
             = new Comparator<Field>() {
         @Override public int compare(Field a, Field b) {
+            if (a == b) {
+                return 0;
+            }
             int comparison = a.getName().compareTo(b.getName());
             if (comparison != 0) {
                 return comparison;
             }
-            return a.getDeclaringClass().getName().compareTo(b.getDeclaringClass().getName());
+            Class<?> aType = a.getDeclaringClass();
+            Class<?> bType = b.getDeclaringClass();
+            if (aType == bType) {
+                return 0;
+            } else {
+                return aType.getName().compareTo(bType.getName());
+            }
         }
     };
 
@@ -120,7 +129,7 @@ public final class Field extends AccessibleObject implements Member {
             return "throws";
         }
         Dex dex = declaringClass.getDex();
-        int nameIndex = dex.fieldIds().get(fieldDexIndex).getNameIndex();
+        int nameIndex = dex.nameIndexFromFieldIndex(fieldDexIndex);
         return declaringClass.getDexCacheString(dex, nameIndex);
     }
 
@@ -147,7 +156,7 @@ public final class Field extends AccessibleObject implements Member {
             return Class[][].class;
         }
         Dex dex = declaringClass.getDex();
-        int typeIndex = dex.fieldIds().get(fieldDexIndex).getTypeIndex();
+        int typeIndex = dex.typeIndexFromFieldIndex(fieldDexIndex);
         return declaringClass.getDexCacheType(dex, typeIndex);
     }
 

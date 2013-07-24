@@ -33,11 +33,7 @@
 package java.lang.reflect;
 
 import com.android.dex.Dex;
-import com.android.dex.ProtoId;
-import com.android.dex.TypeList;
-
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import libcore.reflect.AnnotationAccess;
@@ -61,23 +57,20 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
                 return 0;
             }
             int comparison = a.getName().compareTo(b.getName());
-            if (comparison != 0) {
-                return comparison;
-            }
-            Class<?>[] aParameters = a.getParameterTypes();
-            Class<?>[] bParameters = b.getParameterTypes();
-            int length = Math.min(aParameters.length, bParameters.length);
-            for (int i = 0; i < length; i++) {
-                comparison = aParameters[i].getName().compareTo(bParameters[i].getName());
-                if (comparison != 0) {
-                    return comparison;
+            if (comparison == 0) {
+                comparison = a.compareParameters(b.getParameterTypes());
+                if (comparison == 0) {
+                    // This is necessary for methods that have covariant return types.
+                    Class<?> aReturnType = a.getReturnType();
+                    Class<?> bReturnType = b.getReturnType();
+                    if (aReturnType == bReturnType) {
+                        comparison = 0;
+                    } else {
+                        comparison = aReturnType.getName().compareTo(bReturnType.getName());
+                    }
                 }
             }
-            if (aParameters.length != bParameters.length) {
-                return aParameters.length - bParameters.length;
-            }
-            // this is necessary for methods that have covariant return types.
-            return a.getReturnType().getName().compareTo(b.getReturnType().getName());
+            return comparison;
         }
     };
 
@@ -144,7 +137,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
             method = findOverriddenMethod();
         }
         Dex dex = method.declaringClass.getDex();
-        int nameIndex = dex.methodIds().get(methodDexIndex).getNameIndex();
+        int nameIndex = dex.nameIndexFromMethodIndex(methodDexIndex);
         // Note, in the case of a Proxy the dex cache strings are equal.
         return getDexCacheString(dex, nameIndex);
     }
@@ -154,15 +147,6 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      */
     @Override public Class<?> getDeclaringClass() {
         return super.getDeclaringClass();
-    }
-
-    /**
-     * Returns the index of this method's ID in its dex file.
-     *
-     * @hide
-     */
-    public int getDexMethodIndex() {
-        return super.getDexMethodIndex();
     }
 
     /**
@@ -189,23 +173,13 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      *
      * @return the parameter types
      */
-    public Class<?>[] getParameterTypes() {
+    @Override public Class<?>[] getParameterTypes() {
         Method method = this;
         if (declaringClass.isProxy()) {
-            // For proxies use their interface method
-            method = findOverriddenMethod();
+            // For proxies use their interface method.
+            return findOverriddenMethod().getParameterTypes();
         }
-        Dex dex = method.declaringClass.getDex();
-        int protoIndex = dex.methodIds().get(methodDexIndex).getProtoIndex();
-        ProtoId proto = dex.protoIds().get(protoIndex);
-        TypeList parametersList = dex.readTypeList(proto.getParametersOffset());
-        short[] types = parametersList.getTypes();
-        Class<?>[] parametersArray = new Class[types.length];
-        for (int i = 0; i < types.length; i++) {
-            // Note, in the case of a Proxy the dex cache types are equal.
-            parametersArray[i] = getDexCacheType(dex, types[i]);
-        }
-        return parametersArray;
+        return super.getParameterTypes();
     }
 
     /**
@@ -221,9 +195,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
             method = findOverriddenMethod();
         }
         Dex dex = method.declaringClass.getDex();
-        int proto_idx = dex.methodIds().get(methodDexIndex).getProtoIndex();
-        ProtoId proto = dex.protoIds().get(proto_idx);
-        int returnTypeIndex = proto.getReturnTypeIndex();
+        int returnTypeIndex = dex.returnTypeIndexFromMethodIndex(methodDexIndex);
         // Note, in the case of a Proxy the dex cache types are equal.
         return getDexCacheType(dex, returnTypeIndex);
     }
@@ -253,13 +225,46 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @hide needed by Proxy
      */
     boolean equalNameAndParameters(Method m) {
-        if (!getName().equals(m.getName())) {
-            return false;
+        return getName().equals(m.getName()) && equalParameters(m.getParameterTypes());
+    }
+
+    /**
+     * Returns true if the given parameters match those of this method in the given order.
+     *
+     * @hide
+     */
+    @Override public boolean equalParameters(Class<?>[] params) {
+        if (declaringClass.isProxy()) {
+            // For proxies use their interface method.
+            return findOverriddenMethod().equalParameters(params);
         }
-        if (!Arrays.equals(getParameterTypes(), m.getParameterTypes())) {
-            return false;
+        return super.equalParameters(params);
+    }
+
+    /**
+     * Performs a comparison of the parameters to this method with the given parameters.
+     *
+     * @hide
+     */
+    int compareParameters(Class<?>[] params) {
+        if (declaringClass.isProxy()) {
+            // For proxies use their interface method.
+            return findOverriddenMethod().compareParameters(params);
         }
-        return true;
+        Dex dex = getDeclaringClass().getDex();
+        short[] types = dex.parameterTypeIndicesFromMethodIndex(methodDexIndex);
+        int length = Math.min(types.length, params.length);
+        for (int i = 0; i < types.length; i++) {
+            Class<?> aType = getDexCacheType(dex, types[i]);
+            Class<?> bType = params[i];
+            if (aType != bType) {
+                int comparison = aType.getName().compareTo(bType.getName());
+                if (comparison != 0) {
+                    return comparison;
+                }
+            }
+        }
+        return types.length - params.length;
     }
 
     /**
@@ -493,31 +498,6 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
 
     public void setAccessible(boolean flag) {
         super.setAccessible(flag);
-    }
-
-    /**
-     * Returns a string from the dex cache, computing the string from the dex file if necessary.
-     * Note this method replicates {@link java.lang.Class#getDexCacheString(Dex, int)}, but in
-     * Method we can avoid one indirection.
-     */
-    String getDexCacheString(Dex dex, int dexStringIndex) {
-        return super.getDexCacheString(dex, dexStringIndex);
-    }
-
-    /**
-     * Returns a resolved type from the dex cache, computing the string from the dex file if
-     * necessary. Note this method replicates {@link java.lang.Class#getDexCacheType(Dex, int)},
-     * but in Method we can avoid one indirection.
-     */
-    Class<?> getDexCacheType(Dex dex, int dexTypeIndex) {
-        Class<?> resolvedType = dexCacheResolvedTypes[dexTypeIndex];
-        if (resolvedType == null) {
-            int descriptorIndex = dex.typeIds().get(dexTypeIndex);
-            String descriptor = getDexCacheString(dex, descriptorIndex);
-            resolvedType = InternalNames.getClass(declaringClass.getClassLoader(), descriptor);
-            dexCacheResolvedTypes[dexTypeIndex] = resolvedType;
-        }
-        return resolvedType;
     }
 
     /**

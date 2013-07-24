@@ -33,8 +33,6 @@
 package java.lang.reflect;
 
 import com.android.dex.Dex;
-import com.android.dex.ProtoId;
-import com.android.dex.TypeList;
 
 import java.lang.annotation.Annotation;
 import java.util.Comparator;
@@ -93,15 +91,6 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
     }
 
     /**
-     * Returns the index of this constructor's method ID in its dex file.
-     *
-     * @hide used by AnnotationAccess
-     */
-    public int getDexMethodIndex() {
-        return super.getDexMethodIndex();
-    }
-
-    /**
      * Returns the class that declares this constructor.
      */
     @Override public Class<T> getDeclaringClass() {
@@ -124,16 +113,7 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
      * no parameters, an empty array will be returned.
      */
     public Class<?>[] getParameterTypes() {
-        Dex dex = declaringClass.getDex();
-        int protoIndex = dex.methodIds().get(methodDexIndex).getProtoIndex();
-        ProtoId proto = dex.protoIds().get(protoIndex);
-        TypeList parametersList = dex.readTypeList(proto.getParametersOffset());
-        short[] types = parametersList.getTypes();
-        Class<?>[] parametersArray = new Class[types.length];
-        for (int i = 0; i < types.length; i++) {
-            parametersArray[i] = getDexCacheType(dex, types[i]);
-        }
-        return parametersArray;
+        return super.getParameterTypes();
     }
 
     /**
@@ -343,34 +323,5 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
         }
 
         return result.toString();
-    }
-
-    /**
-     * Returns a string from the dex cache, computing the string from the dex file if necessary.
-     * Note this method replicates {@link java.lang.Class#getDexCacheString(Dex, int)}, but in
-     * Method we can avoid one indirection.
-     *
-     * @hide
-     */
-    String getDexCacheString(Dex dex, int dexStringIndex) {
-        return super.getDexCacheString(dex, dexStringIndex);
-    }
-
-    /**
-     * Returns a resolved type from the dex cache, computing the string from the dex file if
-     * necessary. Note this method replicates {@link java.lang.Class#getDexCacheType(Dex, int)},
-     * but in Method we can avoid one indirection.
-     *
-     * @hide
-     */
-    Class<?> getDexCacheType(Dex dex, int dexTypeIndex) {
-        Class<?> resolvedType = dexCacheResolvedTypes[dexTypeIndex];
-        if (resolvedType == null) {
-            int descriptorIndex = dex.typeIds().get(dexTypeIndex);
-            String descriptor = getDexCacheString(dex, descriptorIndex);
-            resolvedType = InternalNames.getClass(declaringClass.getClassLoader(), descriptor);
-            dexCacheResolvedTypes[dexTypeIndex] = resolvedType;
-        }
-        return resolvedType;
     }
 }
