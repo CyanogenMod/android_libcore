@@ -173,6 +173,24 @@ public class DecimalFormatTest extends junit.framework.TestCase {
         assertEquals(expectedResult, df.format(d));
     }
 
+    public void testSetZeroDigitForPattern() {
+        DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols();
+        decimalFormatSymbols.setZeroDigit('a');
+        DecimalFormat formatter = new DecimalFormat();
+        formatter.setDecimalFormatSymbols(decimalFormatSymbols);
+        formatter.applyLocalizedPattern("#.aa");
+        assertEquals("e.fa", formatter.format(4.50));
+    }
+
+    public void testSetZeroDigitForFormatting() {
+        DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols();
+        decimalFormatSymbols.setZeroDigit('a');
+        DecimalFormat formatter = new DecimalFormat();
+        formatter.setDecimalFormatSymbols(decimalFormatSymbols);
+        formatter.applyLocalizedPattern("#");
+        assertEquals("eadacab", formatter.format(4030201));
+    }
+
     public void testBug9087737() throws Exception {
         DecimalFormat df = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
         // These shouldn't make valgrind unhappy.
