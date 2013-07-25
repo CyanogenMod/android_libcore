@@ -108,7 +108,7 @@ public abstract class HttpsURLConnection extends HttpURLConnection {
      * Holds default instances so class preloading doesn't create an instance of
      * it.
      */
-    private static class DefaultHolder {
+    private static class NoPreloadHolder {
         public static HostnameVerifier defaultHostnameVerifier = new DefaultHostnameVerifier();
 
         public static SSLSocketFactory defaultSSLSocketFactory = (SSLSocketFactory) SSLSocketFactory
@@ -127,7 +127,7 @@ public abstract class HttpsURLConnection extends HttpURLConnection {
         if (v == null) {
             throw new IllegalArgumentException("HostnameVerifier is null");
         }
-        DefaultHolder.defaultHostnameVerifier = v;
+        NoPreloadHolder.defaultHostnameVerifier = v;
     }
 
     /**
@@ -136,7 +136,7 @@ public abstract class HttpsURLConnection extends HttpURLConnection {
      * @return the default hostname verifier.
      */
     public static HostnameVerifier getDefaultHostnameVerifier() {
-        return DefaultHolder.defaultHostnameVerifier;
+        return NoPreloadHolder.defaultHostnameVerifier;
     }
 
     /**
@@ -151,7 +151,7 @@ public abstract class HttpsURLConnection extends HttpURLConnection {
         if (sf == null) {
             throw new IllegalArgumentException("SSLSocketFactory is null");
         }
-        DefaultHolder.defaultSSLSocketFactory = sf;
+        NoPreloadHolder.defaultSSLSocketFactory = sf;
     }
 
     /**
@@ -160,7 +160,7 @@ public abstract class HttpsURLConnection extends HttpURLConnection {
      * @return the default SSL socket factory for new instances.
      */
     public static SSLSocketFactory getDefaultSSLSocketFactory() {
-        return DefaultHolder.defaultSSLSocketFactory;
+        return NoPreloadHolder.defaultSSLSocketFactory;
     }
 
     /**
@@ -181,8 +181,8 @@ public abstract class HttpsURLConnection extends HttpURLConnection {
      */
     protected HttpsURLConnection(URL url) {
         super(url);
-        hostnameVerifier = DefaultHolder.defaultHostnameVerifier;
-        sslSocketFactory = DefaultHolder.defaultSSLSocketFactory;
+        hostnameVerifier = NoPreloadHolder.defaultHostnameVerifier;
+        sslSocketFactory = NoPreloadHolder.defaultSSLSocketFactory;
     }
 
     /**
