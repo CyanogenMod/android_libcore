@@ -394,9 +394,10 @@ class LocaleNameIterator {
   }
 
   void Up() {
-    locale_name_length_ = uloc_getParent(locale_name_, locale_name_, sizeof(locale_name_), &status_);
     if (locale_name_length_ == 0) {
       has_next_ = false;
+    } else {
+      locale_name_length_ = uloc_getParent(locale_name_, locale_name_, sizeof(locale_name_), &status_);
     }
   }
 
