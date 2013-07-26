@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.lang.reflect;
+package libcore.reflect;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public final class ListOfTypes {
         for (int i = 0; i < unresolved.size(); i++) {
             Type type = unresolved.get(i);
             try {
-                result[i] = ((ImplForType) type).getResolvedType();
+                result[i] = ((ParameterizedTypeImpl) type).getResolvedType();
             } catch (ClassCastException e) {
                 result[i] = type;
             }

@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.lang.reflect;
+package libcore.reflect;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-public final class ImplForType implements ParameterizedType {
+public final class ParameterizedTypeImpl implements ParameterizedType {
     private final ListOfTypes args;
-    private final ImplForType ownerType0; // Potentially unresolved.
+    private final ParameterizedTypeImpl ownerType0; // Potentially unresolved.
     private Type ownerTypeRes;
     private Class rawType; // Already resolved.
     private final String rawTypeName;
     private ClassLoader loader;
 
-
-    public ImplForType(ImplForType ownerType, String rawTypeName,
+    public ParameterizedTypeImpl(ParameterizedTypeImpl ownerType, String rawTypeName,
             ListOfTypes args, ClassLoader loader) {
         this.ownerType0 = ownerType;
         this.rawTypeName = rawTypeName;

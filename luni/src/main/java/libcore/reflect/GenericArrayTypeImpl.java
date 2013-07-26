@@ -14,21 +14,27 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.lang.reflect;
+package libcore.reflect;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 
-public class Types {
+public final class GenericArrayTypeImpl implements GenericArrayType {
+    private final Type componentType;
 
-    public static Type[] getClonedTypeArray(ListOfTypes types) {
-        return types.getResolvedTypes().clone();
+    public GenericArrayTypeImpl(Type componentType) {
+        this.componentType = componentType;
     }
 
-    public static Type getType(Type type) {
-        if (type instanceof ImplForType) {
-            return ((ImplForType)type).getResolvedType();
-        } else {
-            return type;
+    public Type getGenericComponentType() {
+        try {
+            return ((ParameterizedTypeImpl)componentType).getResolvedType();
+        } catch (ClassCastException e) {
+            return componentType;
         }
+    }
+
+    public String toString() {
+        return componentType.toString() + "[]";
     }
 }

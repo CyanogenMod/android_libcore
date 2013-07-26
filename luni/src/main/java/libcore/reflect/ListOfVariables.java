@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.lang.reflect;
+package libcore.reflect;
 
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 
-class ListOfVariables {
-    public static final TypeVariable[] EMPTY = new ImplForVariable[0];
+final class ListOfVariables {
+    public static final TypeVariable[] EMPTY = new TypeVariableImpl[0];
 
-    ArrayList<TypeVariable<?>> array = new ArrayList<TypeVariable<?>>();
+    final ArrayList<TypeVariable<?>> array = new ArrayList<TypeVariable<?>>();
 
     void add (TypeVariable<?> elem) {
         array.add(elem);

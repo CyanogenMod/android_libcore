@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.lang.reflect;
+package libcore.reflect;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.GenericDeclaration;
@@ -64,7 +64,9 @@ import java.lang.reflect.TypeVariable;
  * VoidDescriptor ::= "V".
  * </pre>
  */
-public class GenericSignatureParser {
+public final class GenericSignatureParser {
+
+    // TODO: unify this with InternalNames
 
     public ListOfTypes exceptionTypes;
     public ListOfTypes parameterTypes;
@@ -149,18 +151,11 @@ public class GenericSignatureParser {
         if (!eof) {
             parseMethodTypeSignature(rawExceptionTypes);
         } else {
-            if(genericDecl instanceof Method) {
-                Method m = (Method) genericDecl;
-                this.formalTypeParameters = ListOfVariables.EMPTY;
-                this.parameterTypes = new ListOfTypes(m.getParameterTypes());
-                this.exceptionTypes = new ListOfTypes(m.getExceptionTypes());
-                this.returnType = m.getReturnType();
-            } else {
-                this.formalTypeParameters = ListOfVariables.EMPTY;
-                this.parameterTypes = ListOfTypes.EMPTY;
-                this.exceptionTypes = ListOfTypes.EMPTY;
-                this.returnType = void.class;
-            }
+            Method m = (Method) genericDecl;
+            this.formalTypeParameters = ListOfVariables.EMPTY;
+            this.parameterTypes = new ListOfTypes(m.getParameterTypes());
+            this.exceptionTypes = new ListOfTypes(m.getExceptionTypes());
+            this.returnType = m.getReturnType();
         }
     }
 
@@ -177,16 +172,10 @@ public class GenericSignatureParser {
         if (!eof) {
             parseMethodTypeSignature(rawExceptionTypes);
         } else {
-            if(genericDecl instanceof Constructor) {
-                Constructor c = (Constructor) genericDecl;
-                this.formalTypeParameters = ListOfVariables.EMPTY;
-                this.parameterTypes = new ListOfTypes(c.getParameterTypes());
-                this.exceptionTypes = new ListOfTypes(c.getExceptionTypes());
-            } else {
-                this.formalTypeParameters = ListOfVariables.EMPTY;
-                this.parameterTypes = ListOfTypes.EMPTY;
-                this.exceptionTypes = ListOfTypes.EMPTY;
-            }
+            Constructor c = (Constructor) genericDecl;
+            this.formalTypeParameters = ListOfVariables.EMPTY;
+            this.parameterTypes = new ListOfTypes(c.getParameterTypes());
+            this.exceptionTypes = new ListOfTypes(c.getExceptionTypes());
         }
     }
 
@@ -243,7 +232,7 @@ public class GenericSignatureParser {
         this.formalTypeParameters = typeParams.getArray();
     }
 
-    ImplForVariable<GenericDeclaration> parseFormalTypeParameter() {
+    TypeVariableImpl<GenericDeclaration> parseFormalTypeParameter() {
         // FormalTypeParameter ::= Ident ClassBound {InterfaceBound}.
 
         scanIdentifier();
@@ -263,7 +252,7 @@ public class GenericSignatureParser {
             bounds.add(parseFieldTypeSignature());
         }
 
-        return new ImplForVariable<GenericDeclaration>(genericDecl, name, bounds);
+        return new TypeVariableImpl<GenericDeclaration>(genericDecl, name, bounds);
     }
 
     Type parseFieldTypeSignature() {
@@ -276,7 +265,7 @@ public class GenericSignatureParser {
         case '[':
             // ArrayTypeSignature ::= "[" TypSignature.
             scanSymbol();
-            return new ImplForArray(parseTypeSignature());
+            return new GenericArrayTypeImpl(parseTypeSignature());
         case 'T':
             return parseTypeVariableSignature();
         default:
@@ -301,9 +290,9 @@ public class GenericSignatureParser {
         qualIdent.append(this.identifier);
 
         ListOfTypes typeArgs = parseOptTypeArguments();
-        ImplForType parentType =
-                new ImplForType(null, qualIdent.toString(), typeArgs, loader);
-        ImplForType type = parentType;
+        ParameterizedTypeImpl parentType =
+                new ParameterizedTypeImpl(null, qualIdent.toString(), typeArgs, loader);
+        ParameterizedTypeImpl type = parentType;
 
         while (symbol == '.') {
             // Deal with Member Classes:
@@ -311,7 +300,7 @@ public class GenericSignatureParser {
             scanIdentifier();
             qualIdent.append("$").append(identifier); // FIXME: is "$" correct?
             typeArgs = parseOptTypeArguments();
-            type = new ImplForType(parentType, qualIdent.toString(), typeArgs,
+            type = new ParameterizedTypeImpl(parentType, qualIdent.toString(), typeArgs,
                     loader);
         }
 
@@ -343,32 +332,32 @@ public class GenericSignatureParser {
         if (symbol == '*') {
             scanSymbol();
             extendsBound.add(Object.class);
-            return new ImplForWildcard(extendsBound, superBound);
+            return new WildcardTypeImpl(extendsBound, superBound);
         }
         else if (symbol == '+') {
             scanSymbol();
             extendsBound.add(parseFieldTypeSignature());
-            return new ImplForWildcard(extendsBound, superBound);
+            return new WildcardTypeImpl(extendsBound, superBound);
         }
         else if (symbol == '-') {
             scanSymbol();
             superBound.add(parseFieldTypeSignature());
             extendsBound.add(Object.class);
-            return new ImplForWildcard(extendsBound, superBound);
+            return new WildcardTypeImpl(extendsBound, superBound);
         }
         else {
             return parseFieldTypeSignature();
         }
     }
 
-    ImplForVariable<GenericDeclaration> parseTypeVariableSignature() {
+    TypeVariableImpl<GenericDeclaration> parseTypeVariableSignature() {
         // TypeVariableSignature ::= "T" Ident ";".
         expect('T');
         scanIdentifier();
         expect(';');
         // Reference to type variable:
         // Note: we don't know the declaring GenericDeclaration yet.
-        return new ImplForVariable<GenericDeclaration>(genericDecl, identifier);
+        return new TypeVariableImpl<GenericDeclaration>(genericDecl, identifier);
     }
 
     Type parseTypeSignature() {
@@ -504,5 +493,4 @@ public class GenericSignatureParser {
             throw new GenericSignatureFormatError();
         }
     }
-
 }
