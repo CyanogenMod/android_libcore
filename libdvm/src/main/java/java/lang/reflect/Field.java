@@ -35,8 +35,8 @@ package java.lang.reflect;
 import java.lang.annotation.Annotation;
 import java.util.Comparator;
 import org.apache.harmony.kernel.vm.StringUtils;
-import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
-import org.apache.harmony.luni.lang.reflect.Types;
+import libcore.reflect.GenericSignatureParser;
+import libcore.reflect.Types;
 
 /**
  * This class represents a field. Information about the field can be accessed,
@@ -73,6 +73,8 @@ public final class Field extends AccessibleObject implements Member {
 
     private int slot;
 
+    private final int fieldDexIndex;
+
     private static final char TYPE_BOOLEAN = 'Z';
 
     private static final char TYPE_BYTE = 'B';
@@ -95,7 +97,7 @@ public final class Field extends AccessibleObject implements Member {
      * @param orig non-null; the original instance to clone
      */
     /*package*/ Field(Field orig) {
-        this(orig.declaringClass, orig.type, orig.name, orig.slot);
+        this(orig.declaringClass, orig.type, orig.name, orig.slot, orig.fieldDexIndex);
 
         // Copy the accessible flag.
         if (orig.flag) {
@@ -103,11 +105,20 @@ public final class Field extends AccessibleObject implements Member {
         }
     }
 
-    private Field(Class<?> declaringClass, Class<?> type, String name, int slot) {
+    private Field(Class<?> declaringClass, Class<?> type, String name, int slot, int fieldDexIndex) {
         this.declaringClass = declaringClass;
         this.type = type;
         this.name = name;
         this.slot = slot;
+        this.fieldDexIndex = fieldDexIndex;
+    }
+
+    /**
+     * Returns the index of this field's ID in its dex file.
+     * @hide
+     */
+    public int getDexFieldIndex() {
+        return fieldDexIndex;
     }
 
     private synchronized void initGenericType() {

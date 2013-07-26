@@ -37,9 +37,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import libcore.util.EmptyArray;
 import org.apache.harmony.kernel.vm.StringUtils;
-import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
-import org.apache.harmony.luni.lang.reflect.ListOfTypes;
-import org.apache.harmony.luni.lang.reflect.Types;
+import libcore.reflect.GenericSignatureParser;
+import libcore.reflect.ListOfTypes;
+import libcore.reflect.Types;
 
 /**
  * This class represents a method. Information about the method can be accessed,
@@ -80,6 +80,8 @@ public final class Method extends AccessibleObject implements GenericDeclaration
 
     private int slot;
 
+    private final int methodDexIndex;
+
     private Class<?> declaringClass;
 
     private String name;
@@ -117,7 +119,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
      */
     /*package*/ Method(Method orig) {
         this(orig.declaringClass, orig.parameterTypes, orig.exceptionTypes,
-                orig.returnType, orig.name, orig.slot);
+                orig.returnType, orig.name, orig.slot, orig.methodDexIndex);
 
         // Copy the accessible flag.
         if (orig.flag) {
@@ -125,14 +127,18 @@ public final class Method extends AccessibleObject implements GenericDeclaration
         }
     }
 
-    private Method(Class<?> declaring, Class<?>[] paramTypes, Class<?>[] exceptTypes, Class<?> returnType, String name, int slot)
-    {
+    private Method(Class<?> declaring, Class<?>[] paramTypes, Class<?>[] exceptTypes, Class<?> returnType, String name, int slot, int methodDexIndex) {
         this.declaringClass = declaring;
         this.name = name;
         this.slot = slot;
         this.parameterTypes = paramTypes;
         this.exceptionTypes = exceptTypes;      // may be null
         this.returnType = returnType;
+        this.methodDexIndex = methodDexIndex;
+    }
+
+    public int getDexMethodIndex() {
+        return methodDexIndex;
     }
 
     public TypeVariable<Method>[] getTypeParameters() {
