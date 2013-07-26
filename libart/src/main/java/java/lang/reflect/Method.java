@@ -254,7 +254,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
         Dex dex = getDeclaringClass().getDex();
         short[] types = dex.parameterTypeIndicesFromMethodIndex(methodDexIndex);
         int length = Math.min(types.length, params.length);
-        for (int i = 0; i < types.length; i++) {
+        for (int i = 0; i < length; i++) {
             Class<?> aType = getDexCacheType(dex, types[i] & 0xFFFF);
             Class<?> bType = params[i];
             if (aType != bType) {
