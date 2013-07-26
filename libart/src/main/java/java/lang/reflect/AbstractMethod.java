@@ -195,7 +195,7 @@ public abstract class AbstractMethod extends AccessibleObject {
         Class<?>[] parametersArray = new Class[types.length];
         for (int i = 0; i < types.length; i++) {
             // Note, in the case of a Proxy the dex cache types are equal.
-            parametersArray[i] = getDexCacheType(dex, types[i]);
+            parametersArray[i] = getDexCacheType(dex, types[i] & 0xFFFF);
         }
         return parametersArray;
     }
@@ -212,7 +212,7 @@ public abstract class AbstractMethod extends AccessibleObject {
             return false;
         }
         for (int i = 0; i < types.length; i++) {
-            if (getDexCacheType(dex, types[i]) != params[i]) {
+            if (getDexCacheType(dex, types[i] & 0xFFFF) != params[i]) {
                 return false;
             }
         }
