@@ -104,6 +104,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
         this.methodDexIndex = methodDexIndex;
     }
 
+    /** @hide */
     public int getDexMethodIndex() {
         return methodDexIndex;
     }
