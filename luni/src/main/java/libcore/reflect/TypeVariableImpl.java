@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.lang.reflect;
+package libcore.reflect;
 
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.Method;
@@ -23,8 +24,8 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
 
-public final class ImplForVariable<D extends GenericDeclaration> implements TypeVariable<D> {
-    private ImplForVariable<D> formalVar;
+public final class TypeVariableImpl<D extends GenericDeclaration> implements TypeVariable<D> {
+    private TypeVariableImpl<D> formalVar;
     private final GenericDeclaration declOfVarUser;
     private final String name;
     private D genericDeclaration;
@@ -51,7 +52,7 @@ public final class ImplForVariable<D extends GenericDeclaration> implements Type
      * @param name type variable name
      * @param bounds class and interface bounds
      */
-    ImplForVariable(D genericDecl, String name, ListOfTypes bounds) {
+    TypeVariableImpl(D genericDecl, String name, ListOfTypes bounds) {
         this.genericDeclaration = genericDecl;
         this.name = name;
         this.bounds = bounds;
@@ -63,7 +64,7 @@ public final class ImplForVariable<D extends GenericDeclaration> implements Type
      * @param genericDecl declaration where a type variable is used
      * @param name type variable name
      */
-    ImplForVariable(D genericDecl, String name) {
+    TypeVariableImpl(D genericDecl, String name) {
         this.name = name;
         this.declOfVarUser = genericDecl;
     }
@@ -83,11 +84,7 @@ public final class ImplForVariable<D extends GenericDeclaration> implements Type
         if (decl instanceof Class) {
             // FIXME: Is the following hierarchy correct?:
             Class cl = (Class)decl;
-            decl = cl.getEnclosingMethod();
-            if (decl != null) {
-                return decl;
-            }
-            decl = cl.getEnclosingConstructor();
+            decl = (GenericDeclaration) AnnotationAccess.getEnclosingMethodOrConstructor(cl);
             if (decl != null) {
                 return decl;
             }
@@ -113,7 +110,7 @@ public final class ImplForVariable<D extends GenericDeclaration> implements Type
                 throw new AssertionError("illegal type variable reference");
             }
         }
-        formalVar = (ImplForVariable<D>) var;
+        formalVar = (TypeVariableImpl<D>) var;
         this.genericDeclaration = formalVar.genericDeclaration;
         this.bounds = formalVar.bounds;
     }

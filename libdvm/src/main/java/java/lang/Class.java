@@ -32,6 +32,7 @@
 
 package java.lang;
 
+import com.android.dex.Dex;
 import dalvik.system.VMStack;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -56,8 +57,9 @@ import java.util.List;
 import libcore.util.CollectionUtils;
 import libcore.util.EmptyArray;
 import org.apache.harmony.kernel.vm.StringUtils;
-import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
-import org.apache.harmony.luni.lang.reflect.Types;
+import libcore.reflect.AnnotationAccess;
+import libcore.reflect.GenericSignatureParser;
+import libcore.reflect.Types;
 
 /**
  * The in-memory representation of a Java class. This representation serves as
@@ -123,9 +125,36 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private transient String name;
 
+    private transient int dexTypeIndex;
+
     private Class() {
         // Prevent this class to be instantiated, instance
         // should be created by JVM only
+    }
+
+    /**
+     * Returns the dex file from which this class was loaded.
+     * @hide
+     */
+    public native Dex getDex();
+
+    /**
+     * The type index of this class in its own Dex, or 0 if it is unknown. If a
+     * class is referenced by multiple Dex files, it will have a different type
+     * index in each. Dex files support 65534 type indices, with 65535
+     * representing no index.
+     *
+     * TODO: 0 is a valid index; this should be -1 if it is unknown
+     *
+     * @hide
+     */
+    public int getTypeIndex() {
+        int result = dexTypeIndex;
+        if (result == 0) {  // uncomputed => Dalvik
+            result = AnnotationAccess.computeTypeIndex(getDex(), this);
+            dexTypeIndex = result;
+        }
+        return result;
     }
 
     /**
@@ -1220,4 +1249,17 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         System.arraycopy(tail, 0, result, head.length, tail.length);
         return result;
     }
+
+    /**
+     * The annotation directory offset of this class in its own Dex, or 0 if it
+     * is unknown.
+     *
+     * TODO: 0 is a sentinel that means 'no annotations directory'; this should be -1 if unknown
+     *
+     * @hide
+     */
+    public int getAnnotationDirectoryOffset() {
+        return AnnotationAccess.typeIndexToAnnotationDirectoryOffset(getDex(), getTypeIndex());
+    }
+
 }

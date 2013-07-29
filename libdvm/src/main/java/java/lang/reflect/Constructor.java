@@ -35,9 +35,9 @@ package java.lang.reflect;
 import java.lang.annotation.Annotation;
 import libcore.util.EmptyArray;
 import org.apache.harmony.kernel.vm.StringUtils;
-import org.apache.harmony.luni.lang.reflect.GenericSignatureParser;
-import org.apache.harmony.luni.lang.reflect.ListOfTypes;
-import org.apache.harmony.luni.lang.reflect.Types;
+import libcore.reflect.GenericSignatureParser;
+import libcore.reflect.ListOfTypes;
+import libcore.reflect.Types;
 
 /**
  * This class represents a constructor. Information about the constructor can be
@@ -74,6 +74,8 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
 
     int slot;
 
+    private int methodDexIndex;
+
     /**
      * Prevent this class from being instantiated.
      */
@@ -94,11 +96,16 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      * @param slot
      *            the slot of the constructor inside the VM class structure
      */
-    private Constructor (Class<T> declaringClass, Class<?>[] ptypes, Class<?>[] extypes, int slot){
+    private Constructor (Class<T> declaringClass, Class<?>[] ptypes, Class<?>[] extypes, int slot, int methodDexIndex) {
         this.declaringClass = declaringClass;
         this.parameterTypes = ptypes;
         this.exceptionTypes = extypes;          // may be null
         this.slot = slot;
+        this.methodDexIndex = methodDexIndex;
+    }
+
+    public int getDexMethodIndex() {
+        return methodDexIndex;
     }
 
     @Override /*package*/ String getSignatureAttribute() {

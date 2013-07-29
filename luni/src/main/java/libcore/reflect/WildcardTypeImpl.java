@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.luni.lang.reflect;
+package libcore.reflect;
 
 import java.lang.reflect.MalformedParameterizedTypeException;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 
-public final class ImplForWildcard implements WildcardType {
+public final class WildcardTypeImpl implements WildcardType {
 
     private final ListOfTypes extendsBound, superBound;
 
-    public ImplForWildcard(ListOfTypes extendsBound, ListOfTypes superBound) {
+    public WildcardTypeImpl(ListOfTypes extendsBound, ListOfTypes superBound) {
         this.extendsBound = extendsBound;
         this.superBound = superBound;
     }
