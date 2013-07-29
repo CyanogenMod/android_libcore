@@ -112,21 +112,6 @@ public final class Method extends AccessibleObject implements GenericDeclaration
         }
     }
 
-    /**
-     * Construct a clone of the given instance.
-     *
-     * @param orig non-null; the original instance to clone
-     */
-    /*package*/ Method(Method orig) {
-        this(orig.declaringClass, orig.parameterTypes, orig.exceptionTypes,
-                orig.returnType, orig.name, orig.slot, orig.methodDexIndex);
-
-        // Copy the accessible flag.
-        if (orig.flag) {
-            this.flag = true;
-        }
-    }
-
     private Method(Class<?> declaring, Class<?>[] paramTypes, Class<?>[] exceptTypes, Class<?> returnType, String name, int slot, int methodDexIndex) {
         this.declaringClass = declaring;
         this.name = name;
