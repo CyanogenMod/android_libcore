@@ -137,6 +137,7 @@ public final class Method extends AccessibleObject implements GenericDeclaration
         this.methodDexIndex = methodDexIndex;
     }
 
+    /** @hide */
     public int getDexMethodIndex() {
         return methodDexIndex;
     }
