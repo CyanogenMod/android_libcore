@@ -96,7 +96,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      * @param slot
      *            the slot of the constructor inside the VM class structure
      */
-    private Constructor (Class<T> declaringClass, Class<?>[] ptypes, Class<?>[] extypes, int slot, int methodDexIndex) {
+    private Constructor(Class<T> declaringClass, Class<?>[] ptypes, Class<?>[] extypes, int slot, int methodDexIndex) {
         this.declaringClass = declaringClass;
         this.parameterTypes = ptypes;
         this.exceptionTypes = extypes;          // may be null

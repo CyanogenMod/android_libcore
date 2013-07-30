@@ -91,20 +91,6 @@ public final class Field extends AccessibleObject implements Member {
 
     private static final char TYPE_DOUBLE = 'D';
 
-    /**
-     * Construct a clone of the given instance.
-     *
-     * @param orig non-null; the original instance to clone
-     */
-    /*package*/ Field(Field orig) {
-        this(orig.declaringClass, orig.type, orig.name, orig.slot, orig.fieldDexIndex);
-
-        // Copy the accessible flag.
-        if (orig.flag) {
-            this.flag = true;
-        }
-    }
-
     private Field(Class<?> declaringClass, Class<?> type, String name, int slot, int fieldDexIndex) {
         this.declaringClass = declaringClass;
         this.type = type;
