@@ -37,7 +37,6 @@
 #include <net/if.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <netinet/in.h>
 #include <poll.h>
 #include <pwd.h>
 #include <signal.h>
@@ -45,8 +44,8 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
-#include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/syscall.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/uio.h>
@@ -799,6 +798,11 @@ static jobject Posix_getsockoptUcred(JNIEnv* env, jobject, jobject javaFd, jint 
   return makeStructUcred(env, u);
 }
 
+static jint Posix_gettid(JNIEnv*, jobject) {
+  // Neither bionic nor glibc exposes gettid(2).
+  return syscall(__NR_gettid);
+}
+
 static jint Posix_getuid(JNIEnv*, jobject) {
     return getuid();
 }
@@ -1401,6 +1405,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, getsockoptLinger, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructLinger;"),
     NATIVE_METHOD(Posix, getsockoptTimeval, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructTimeval;"),
     NATIVE_METHOD(Posix, getsockoptUcred, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructUcred;"),
+    NATIVE_METHOD(Posix, gettid, "()I"),
     NATIVE_METHOD(Posix, getuid, "()I"),
     NATIVE_METHOD(Posix, if_indextoname, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, inet_pton, "(ILjava/lang/String;)Ljava/net/InetAddress;"),
