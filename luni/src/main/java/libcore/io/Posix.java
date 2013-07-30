@@ -70,6 +70,7 @@ public final class Posix implements Os {
     public native StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException;
     public native StructUcred getsockoptUcred(FileDescriptor fd, int level, int option) throws ErrnoException;
+    public native int gettid();
     public native int getuid();
     public native String if_indextoname(int index);
     public native InetAddress inet_pton(int family, String address);

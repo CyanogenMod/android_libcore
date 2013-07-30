@@ -68,6 +68,7 @@ public interface Os {
     public StructLinger getsockoptLinger(FileDescriptor fd, int level, int option) throws ErrnoException;
     public StructTimeval getsockoptTimeval(FileDescriptor fd, int level, int option) throws ErrnoException;
     public StructUcred getsockoptUcred(FileDescriptor fd, int level, int option) throws ErrnoException;
+    public int gettid();
     public int getuid();
     public String if_indextoname(int index);
     public InetAddress inet_pton(int family, String address);
