@@ -17,6 +17,8 @@
 #ifndef ICU_UTILITIES_H_included
 #define ICU_UTILITIES_H_included
 
+#define U_HAVE_STD_STRING 1 // For UnicodeString::toUTF8String(std::string&).
+
 #include "jni.h"
 #include "unicode/utypes.h" // For UErrorCode.
 #include "unicode/locid.h" // For Locale.
