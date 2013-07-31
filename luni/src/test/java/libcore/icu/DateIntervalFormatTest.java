@@ -168,4 +168,12 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
     long oct_4_2046 = new Date(2046 - 1900, 9, 4, 3, 30, 15).getTime();
     assertEquals("Jan 19, 2042 – Oct 4, 2046", formatDateRange(Locale.US, tz, jan_19_2042, oct_4_2046, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
   }
+
+  public void test10089890() throws Exception {
+    // Test that we actually take the time zone into account.
+    // The Unix epoch is UTC, so 0 is 1970-01-01T00:00Z...
+    assertEquals("Jan 1–2", formatDateRange(0, 24*60*60 * 1000L, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL, "Europe/London"));
+    // But MTV is hours behind, so 0 was still the afternoon of the previous day...
+    assertEquals("Dec 31, 1969 – Jan 1, 1970", formatDateRange(0, 24*60*60 * 1000L, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL, "America/Los_Angeles"));
+  }
 }

@@ -23,11 +23,16 @@
 #include "cutils/log.h"
 #include "unicode/dtitvfmt.h"
 
-static jstring DateIntervalFormat_formatDateInterval(JNIEnv* env, jclass, jstring javaSkeleton, jstring javaLocaleName, jlong fromDate, jlong toDate) {
+static jstring DateIntervalFormat_formatDateInterval(JNIEnv* env, jclass, jstring javaSkeleton, jstring javaLocaleName, jstring javaTzName, jlong fromDate, jlong toDate) {
   Locale locale = getLocale(env, javaLocaleName);
 
   ScopedJavaUnicodeString skeletonHolder(env, javaSkeleton);
   if (!skeletonHolder.valid()) {
+    return NULL;
+  }
+
+  ScopedJavaUnicodeString tzNameHolder(env, javaTzName);
+  if (!tzNameHolder.valid()) {
     return NULL;
   }
 
@@ -36,6 +41,8 @@ static jstring DateIntervalFormat_formatDateInterval(JNIEnv* env, jclass, jstrin
   if (maybeThrowIcuException(env, "DateIntervalFormat::createInstance", status)) {
     return NULL;
   }
+
+  formatter->adoptTimeZone(TimeZone::createTimeZone(tzNameHolder.unicodeString()));
 
   DateInterval date_interval(fromDate, toDate);
 
@@ -50,7 +57,7 @@ static jstring DateIntervalFormat_formatDateInterval(JNIEnv* env, jclass, jstrin
 }
 
 static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(DateIntervalFormat, formatDateInterval, "(Ljava/lang/String;Ljava/lang/String;JJ)Ljava/lang/String;"),
+  NATIVE_METHOD(DateIntervalFormat, formatDateInterval, "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JJ)Ljava/lang/String;"),
 };
 void register_libcore_icu_DateIntervalFormat(JNIEnv* env) {
   jniRegisterNativeMethods(env, "libcore/icu/DateIntervalFormat", gMethods, NELEM(gMethods));

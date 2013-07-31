@@ -59,7 +59,7 @@ public final class DateIntervalFormat {
   // skeleton instead of int flags.)
   public static String formatDateRange(Locale locale, TimeZone tz, long startMs, long endMs, int flags) {
     String skeleton = toSkeleton(tz, startMs, endMs, flags);
-    return formatDateInterval(skeleton, locale.toString(), startMs, endMs);
+    return formatDateInterval(skeleton, locale.toString(), tz.getID(), startMs, endMs);
   }
 
   private static String toSkeleton(TimeZone tz, long startMs, long endMs, int flags) {
@@ -146,5 +146,5 @@ public final class DateIntervalFormat {
     return c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH);
   }
 
-  private static native String formatDateInterval(String skeleton, String localeName, long fromDate, long toDate);
+  private static native String formatDateInterval(String skeleton, String localeName, String timeZoneName, long fromDate, long toDate);
 }
