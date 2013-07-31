@@ -40,6 +40,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AbstractMethod;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.ArtField;
+import java.lang.reflect.ArtMethod;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericDeclaration;
@@ -135,7 +137,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     private transient DexCache dexCache;
 
     /** static, private, and &lt;init&gt; methods. */
-    private transient AbstractMethod[] directMethods;
+    private transient ArtMethod[] directMethods;
 
     /**
      * Instance fields. These describe the layout of the contents of an Object. Note that only the
@@ -145,7 +147,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * All instance fields that refer to objects are guaranteed to be at the beginning of the field
      * list.  {@link Class#numReferenceInstanceFields} specifies the number of reference fields.
      */
-    private transient Field[] iFields;
+    private transient ArtField[] iFields;
 
     /**
      * The interface table (iftable_) contains pairs of a interface class and an array of the
@@ -167,7 +169,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     private transient String name;
 
     /** Static fields */
-    private transient Field[] sFields;
+    private transient ArtField[] sFields;
 
     /** The superclass, or NULL if this is java.lang.Object, an interface or primitive type. */
     private transient Class<? super T> superClass;
@@ -176,7 +178,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     private transient Class<?> verifyErrorClass;
 
     /** Virtual methods defined in this class; invoked through vtable. */
-    private transient Method[] virtualMethods;
+    private transient ArtMethod[] virtualMethods;
 
     /**
      * Virtual method table (vtable), for use by "invoke-virtual". The vtable from the superclass
@@ -184,7 +186,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * appended. For abstract classes, methods may be created in the vtable that aren't in
      * virtual_ methods_ for miranda methods.
      */
-    private transient Method[] vtable;
+    private transient ArtMethod[] vtable;
 
     /** access flags; low 16 bits are defined by VM spec */
     private transient int accessFlags;
@@ -235,10 +237,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     }
 
     /**
-     * Returns a {@code Class} object which represents the class with the
-     * given name. The name should be the name of a non-primitive class, as described in
-     * the {@link Class class definition}.
-     * Primitive types can not be found using this method; use {@code int.class} or {@code Integer.TYPE} instead.
+     * Returns a {@code Class} object which represents the class with
+     * the given name. The name should be the name of a non-primitive
+     * class, as described in the {@link Class class definition}.
+     * Primitive types can not be found using this method; use {@code
+     * int.class} or {@code Integer.TYPE} instead.
      *
      * <p>If the class has not yet been loaded, it is loaded and initialized
      * first. This is done through either the class loader of the calling class
@@ -258,10 +261,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     }
 
     /**
-     * Returns a {@code Class} object which represents the class with the
-     * given name. The name should be the name of a non-primitive class, as described in
-     * the {@link Class class definition}.
-     * Primitive types can not be found using this method; use {@code int.class} or {@code Integer.TYPE} instead.
+     * Returns a {@code Class} object which represents the class with
+     * the given name. The name should be the name of a non-primitive
+     * class, as described in the {@link Class class definition}.
+     * Primitive types can not be found using this method; use {@code
+     * int.class} or {@code Integer.TYPE} instead.
      *
      * <p>If the class has not yet been loaded, it is loaded first, using the given class loader.
      * If the class has not yet been initialized and {@code shouldInitialize} is true,
@@ -304,11 +308,12 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             ClassLoader classLoader) throws ClassNotFoundException;
 
     /**
-     * Returns an array containing {@code Class} objects for all public classes,
-     * interfaces, enums and annotations that are members of this class and its
-     * superclasses. This does not include classes of implemented interfaces.
-     * If there are no such class members or if this object represents a primitive type then an array
-     * of length 0 is returned.
+     * Returns an array containing {@code Class} objects for all
+     * public classes, interfaces, enums and annotations that are
+     * members of this class and its superclasses. This does not
+     * include classes of implemented interfaces.  If there are no
+     * such class members or if this object represents a primitive
+     * type then an array of length 0 is returned.
      */
     public Class<?>[] getClasses() {
         List<Class<?>> result = new ArrayList<Class<?>>();
@@ -519,10 +524,19 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private Constructor<T> getDeclaredConstructorInternal(Class<?>[] args) {
         if (directMethods != null) {
-            for (AbstractMethod m : directMethods) {
-                if (m instanceof Constructor && m.equalParameters(args)) {
-                    return (Constructor<T>) m;
+            for (ArtMethod m : directMethods) {
+                int modifiers = m.getAccessFlags();
+                if (Modifier.isStatic(modifiers)) {
+                    // skip <clinit> which is a static constructor
+                    continue;
                 }
+                if (!Modifier.isConstructor(modifiers)) {
+                    continue;
+                }
+                if (!ArtMethod.equalConstructorParameters(m, args)) {
+                    continue;
+                }
+                return new Constructor<T>(m);
             }
         }
         return null;
@@ -558,11 +572,15 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     private void getDeclaredConstructors(boolean publicOnly, List<Constructor<T>> constructors) {
         if (directMethods != null) {
-            for (AbstractMethod m : directMethods) {
+            for (ArtMethod m : directMethods) {
                 int modifiers = m.getAccessFlags();
                 if (!publicOnly || Modifier.isPublic(modifiers)) {
-                    if (m instanceof Constructor) {
-                        constructors.add((Constructor<T>) m);
+                    if (Modifier.isStatic(modifiers)) {
+                        // skip <clinit> which is a static constructor
+                        continue;
+                    }
+                    if (Modifier.isConstructor(modifiers)) {
+                        constructors.add(new Constructor<T>(m));
                     }
                 }
             }
@@ -668,38 +686,53 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         // escalated visibility. We never return miranda methods that
         // were synthesized by the VM.
         int skipModifiers = Modifier.MIRANDA | Modifier.SYNTHETIC;
-        Method result = null;
+        ArtMethod artMethodResult = null;
         if (virtualMethods != null) {
-            for (Method m : virtualMethods) {
-                if (name.equals(m.getName()) && m.equalParameters(args)) {
-                    int modifiers = m.getAccessFlags();
-                    if ((modifiers & skipModifiers) == 0) {
-                        return m;
-                    } else if ((modifiers & Modifier.MIRANDA) == 0) {
-                        // Remember as potential result if it's not a miranda method.
-                        result = m;
-                    }
+            for (ArtMethod m : virtualMethods) {
+                String methodName = ArtMethod.getMethodName(m);
+                if (!name.equals(methodName)) {
+                    continue;
+                }
+                if (!ArtMethod.equalMethodParameters(m, args)) {
+                    continue;
+                }
+                int modifiers = m.getAccessFlags();
+                if ((modifiers & skipModifiers) == 0) {
+                    return new Method(m);
+                }
+                if ((modifiers & Modifier.MIRANDA) == 0) {
+                    // Remember as potential result if it's not a miranda method.
+                    artMethodResult = m;
                 }
             }
         }
-        if (result == null) {
+        if (artMethodResult == null) {
             if (directMethods != null) {
-                for (AbstractMethod m : directMethods) {
-                    if (m instanceof Method && name.equals(m.getName()) &&
-                        m.equalParameters(args)) {
-                        int modifiers = m.getAccessFlags();
-                        if ((modifiers & skipModifiers) == 0) {
-                            return (Method) m;
-                        } else {
-                            // Direct methods cannot be miranda methods,
-                            // so this potential result must be synthetic.
-                            result = (Method) m;
-                        }
+                for (ArtMethod m : directMethods) {
+                    int modifiers = m.getAccessFlags();
+                    if (Modifier.isConstructor(modifiers)) {
+                        continue;
                     }
+                    String methodName = ArtMethod.getMethodName(m);
+                    if (!name.equals(methodName)) {
+                        continue;
+                    }
+                    if (!ArtMethod.equalMethodParameters(m, args)) {
+                        continue;
+                    }
+                    if ((modifiers & skipModifiers) == 0) {
+                        return new Method(m);
+                    }
+                    // Direct methods cannot be miranda methods,
+                    // so this potential result must be synthetic.
+                    artMethodResult = m;
                 }
             }
         }
-        return result;
+        if (artMethodResult == null) {
+            return null;
+        }
+        return new Method(artMethodResult);
     }
 
     /**
@@ -731,23 +764,23 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private void getDeclaredMethods(boolean publicOnly, List<Method> methods) {
         if (virtualMethods != null) {
-            for (Method m : virtualMethods) {
+            for (ArtMethod m : virtualMethods) {
                 int modifiers = m.getAccessFlags();
                 if (!publicOnly || Modifier.isPublic(modifiers)) {
                     // Add non-miranda virtual methods.
                     if ((modifiers & Modifier.MIRANDA) == 0) {
-                        methods.add((Method) m);
+                        methods.add(new Method(m));
                     }
                 }
             }
         }
         if (directMethods != null) {
-            for (AbstractMethod m : directMethods) {
+            for (ArtMethod m : directMethods) {
                 int modifiers = m.getAccessFlags();
                 if (!publicOnly || Modifier.isPublic(modifiers)) {
                     // Add non-constructor direct/static methods.
-                    if (m instanceof Method) {
-                        methods.add((Method) m);
+                    if (!Modifier.isConstructor(modifiers)) {
+                        methods.add(new Method(m));
                     }
                 }
             }
@@ -862,16 +895,16 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     private void getDeclaredFields(boolean publicOnly, List<Field> fields) {
         if (iFields != null) {
-            for (Field f : iFields) {
-                if (!publicOnly || Modifier.isPublic(f.getModifiers())) {
-                    fields.add(f);
+            for (ArtField f : iFields) {
+                if (!publicOnly || Modifier.isPublic(f.getAccessFlags())) {
+                    fields.add(new Field(f));
                 }
             }
         }
         if (sFields != null) {
-            for (Field f : sFields) {
-                if (!publicOnly || Modifier.isPublic(f.getModifiers())) {
-                    fields.add(f);
+            for (ArtField f : sFields) {
+                if (!publicOnly || Modifier.isPublic(f.getAccessFlags())) {
+                    fields.add(new Field(f));
                 }
             }
         }
@@ -883,16 +916,16 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private Field getDeclaredFieldInternal(String name) {
         if (iFields != null) {
-            for (Field f : iFields) {
+            for (ArtField f : iFields) {
                 if (f.getName().equals(name)) {
-                    return f;
+                    return new Field(f);
                 }
             }
         }
         if (sFields != null) {
-            for (Field f : sFields) {
+            for (ArtField f : sFields) {
                 if (f.getName().equals(name)) {
-                    return f;
+                    return new Field(f);
                 }
             }
         }

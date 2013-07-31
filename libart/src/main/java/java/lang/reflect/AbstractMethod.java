@@ -33,60 +33,26 @@
 package java.lang.reflect;
 
 import com.android.dex.Dex;
-import com.android.dex.ProtoId;
-import com.android.dex.TypeList;
-
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import libcore.reflect.AnnotationAccess;
 import libcore.reflect.GenericSignatureParser;
-import libcore.reflect.InternalNames;
 import libcore.reflect.ListOfTypes;
 import libcore.reflect.Types;
-import libcore.util.EmptyArray;
 
 /**
  * This class represents an abstract method. Abstract methods are either methods or constructors.
  * @hide
  */
 public abstract class AbstractMethod extends AccessibleObject {
-    private static final Comparator<AbstractMethod> ORDER_BY_SIGNATURE = null;
 
-    /** Method's declaring class */
-    Class<?> declaringClass;
-    /** Method access flags (modifiers) */
-    private int accessFlags;
-    /** DexFile index */
-    int methodDexIndex;
-    /** Dispatch table entry */
-    private int methodIndex;
-    /** DexFile offset of CodeItem for this Method */
-    private int codeItemOffset;
-    /* ART compiler meta-data */
-    private int frameSizeInBytes;
-    private int coreSpillMask;
-    private int fpSpillMask;
-    private int mappingTable;
-    private int gcMap;
-    private int vmapTable;
-    /** ART: compiled managed code associated with this Method */
-    private int entryPointFromCompiledCode;
-    /** ART: entry point from interpreter associated with this Method */
-    private int entryPointFromInterpreter;
-    /** ART: if this is a native method, the native code that will be invoked */
-    private int nativeMethod;
-    /* ART: dex cache fast access */
-    private String[] dexCacheStrings;
-    Class<?>[] dexCacheResolvedTypes;
-    AbstractMethod[] dexCacheResolvedMethods;
-    private Object[] dexCacheInitializedStaticStorage;
+    protected final ArtMethod artMethod;
 
-    /**
-     * Only created by native code.
-     */
-    AbstractMethod() {
+    protected AbstractMethod(ArtMethod artMethod) {
+        if (artMethod == null) {
+            throw new NullPointerException("artMethod == null");
+        }
+        this.artMethod = artMethod;
     }
 
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
@@ -116,41 +82,33 @@ public abstract class AbstractMethod extends AccessibleObject {
     }
 
     int getModifiers() {
-        return fixMethodFlags(accessFlags);
+        return fixMethodFlags(artMethod.getAccessFlags());
     }
 
     boolean isVarArgs() {
-        return (accessFlags & Modifier.VARARGS) != 0;
+        return (artMethod.getAccessFlags() & Modifier.VARARGS) != 0;
     }
 
     boolean isBridge() {
-        return (accessFlags & Modifier.BRIDGE) != 0;
+        return (artMethod.getAccessFlags() & Modifier.BRIDGE) != 0;
     }
 
-    public boolean isSynthetic() {
-        return (accessFlags & Modifier.SYNTHETIC) != 0;
+    boolean isSynthetic() {
+        return (artMethod.getAccessFlags() & Modifier.SYNTHETIC) != 0;
     }
 
     /**
      * @hide
      */
     public final int getAccessFlags() {
-        return accessFlags;
+        return artMethod.getAccessFlags();
     }
-
-    /**
-     * Returns the name of the method or constructor represented by this
-     * instance.
-     *
-     * @return the name of this method
-     */
-    public abstract String getName();
 
     /**
      * Returns the class that declares this constructor or method.
      */
     Class<?> getDeclaringClass() {
-        return declaringClass;
+        return artMethod.getDeclaringClass();
     }
 
     /**
@@ -159,25 +117,16 @@ public abstract class AbstractMethod extends AccessibleObject {
      * @hide
      */
     public final int getDexMethodIndex() {
-        return methodDexIndex;
+        return artMethod.getDexMethodIndex();
     }
 
     /**
-     * Returns the exception types as an array of {@code Class} instances. If
-     * this method has no declared exceptions, an empty array is returned.
+     * Returns the name of the method or constructor represented by this
+     * instance.
      *
-     * @return the declared exception classes
+     * @return the name of this method
      */
-    protected Class<?>[] getExceptionTypes() {
-        if (declaringClass.isProxy()) {
-            return getExceptionTypesNative();
-        } else {
-            // TODO: use dex cache to speed looking up class
-            return AnnotationAccess.getExceptions(this);
-        }
-    }
-
-    private native Class<?>[] getExceptionTypesNative();
+    abstract public String getName();
 
     /**
      * Returns an array of {@code Class} objects associated with the parameter types of this
@@ -187,36 +136,7 @@ public abstract class AbstractMethod extends AccessibleObject {
      * @return the parameter types
      */
     public Class<?>[] getParameterTypes() {
-        Dex dex = declaringClass.getDex();
-        short[] types = dex.parameterTypeIndicesFromMethodIndex(methodDexIndex);
-        if (types.length == 0) {
-            return EmptyArray.CLASS;
-        }
-        Class<?>[] parametersArray = new Class[types.length];
-        for (int i = 0; i < types.length; i++) {
-            // Note, in the case of a Proxy the dex cache types are equal.
-            parametersArray[i] = getDexCacheType(dex, types[i] & 0xFFFF);
-        }
-        return parametersArray;
-    }
-
-    /**
-     * Returns true if the given parameters match those of the method in the given order.
-     *
-     * @hide
-     */
-    public boolean equalParameters(Class<?>[] params) {
-        Dex dex = getDeclaringClass().getDex();
-        short[] types = dex.parameterTypeIndicesFromMethodIndex(methodDexIndex);
-        if (types.length != params.length) {
-            return false;
-        }
-        for (int i = 0; i < types.length; i++) {
-            if (getDexCacheType(dex, types[i] & 0xFFFF) != params[i]) {
-                return false;
-            }
-        }
-        return true;
+        return artMethod.getParameterTypes();
     }
 
     /**
@@ -224,7 +144,11 @@ public abstract class AbstractMethod extends AccessibleObject {
      * parameters and return type as this method.
      */
     @Override public boolean equals(Object other) {
-        return this == other; // exactly one instance of each member in this runtime
+        if (!(other instanceof AbstractMethod)) {
+            return false;
+        }
+        // exactly one instance of each member in this runtime
+        return this.artMethod == ((AbstractMethod) other).artMethod;
     }
 
     String toGenericString() {
@@ -275,36 +199,6 @@ public abstract class AbstractMethod extends AccessibleObject {
     @SuppressWarnings("unused")
     abstract String getSignature();
 
-    /**
-     * Returns a string from the dex cache, computing the string from the dex file if necessary.
-     * Note this method replicates {@link java.lang.Class#getDexCacheString(Dex, int)}, but in
-     * Method we can avoid one indirection.
-     */
-    final String getDexCacheString(Dex dex, int dexStringIndex) {
-        String s = (String) dexCacheStrings[dexStringIndex];
-        if (s == null) {
-            s = dex.strings().get(dexStringIndex);
-            dexCacheStrings[dexStringIndex] = s;
-        }
-        return s;
-    }
-
-    /**
-     * Returns a resolved type from the dex cache, computing the string from the dex file if
-     * necessary. Note this method replicates {@link java.lang.Class#getDexCacheType(Dex, int)},
-     * but in Method we can avoid one indirection.
-     */
-    final Class<?> getDexCacheType(Dex dex, int dexTypeIndex) {
-        Class<?> resolvedType = dexCacheResolvedTypes[dexTypeIndex];
-        if (resolvedType == null) {
-            int descriptorIndex = dex.typeIds().get(dexTypeIndex);
-            String descriptor = getDexCacheString(dex, descriptorIndex);
-            resolvedType = InternalNames.getClass(declaringClass.getClassLoader(), descriptor);
-            dexCacheResolvedTypes[dexTypeIndex] = resolvedType;
-        }
-        return resolvedType;
-    }
-
     static final class GenericInfo {
         final ListOfTypes genericExceptionTypes;
         final ListOfTypes genericParameterTypes;
@@ -323,7 +217,7 @@ public abstract class AbstractMethod extends AccessibleObject {
     /**
      * Returns generic information associated with this method/constructor member.
      */
-    GenericInfo getMethodOrConstructorGenericInfo() {
+    final GenericInfo getMethodOrConstructorGenericInfo() {
         String signatureAttribute = AnnotationAccess.getSignature(this);
         Member member;
         Class<?>[] exceptionTypes;
@@ -342,7 +236,9 @@ public abstract class AbstractMethod extends AccessibleObject {
         if (method) {
             parser.parseForMethod((GenericDeclaration) this, signatureAttribute, exceptionTypes);
         } else {
-            parser.parseForConstructor((GenericDeclaration) this, signatureAttribute, exceptionTypes);
+            parser.parseForConstructor((GenericDeclaration) this,
+                                       signatureAttribute,
+                                       exceptionTypes);
         }
         return new GenericInfo(parser.exceptionTypes, parser.parameterTypes,
                                parser.returnType, parser.formalTypeParameters);
@@ -351,7 +247,7 @@ public abstract class AbstractMethod extends AccessibleObject {
     /**
      * Helper for Method and Constructor for toGenericString
      */
-    String toGenericStringHelper() {
+    final String toGenericStringHelper() {
         StringBuilder sb = new StringBuilder(80);
         GenericInfo info =  getMethodOrConstructorGenericInfo();
         int modifiers = ((Member)this).getModifiers();
@@ -395,5 +291,4 @@ public abstract class AbstractMethod extends AccessibleObject {
         }
         return sb.toString();
     }
-
 }

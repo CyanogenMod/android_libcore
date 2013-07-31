@@ -16,8 +16,8 @@
  */
 
 package java.lang;
-import java.lang.reflect.Field;
-import java.lang.reflect.AbstractMethod;
+import java.lang.reflect.ArtField;
+import java.lang.reflect.ArtMethod;
 
 /**
  * A dex cache holds resolved copies of strings, fields, methods, and classes from the dexfile.
@@ -28,8 +28,8 @@ final class DexCache {
 
     Object[] initializedStaticStorage;
     String location;
-    Field[] resolvedFields;
-    AbstractMethod[] resolvedMethods;
+    ArtField[] resolvedFields;
+    ArtMethod[] resolvedMethods;
     Class[] resolvedTypes;
     String[] strings;
 

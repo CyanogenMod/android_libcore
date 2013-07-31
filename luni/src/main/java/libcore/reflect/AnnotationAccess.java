@@ -271,15 +271,9 @@ public final class AnnotationAccess {
     /**
      * Returns the parameter annotations on {@code member}.
      */
-    public static Annotation[][] getParameterAnnotations(Member member) {
-        Class<?> declaringClass = member.getDeclaringClass();
+    public static Annotation[][] getParameterAnnotations(Class<?> declaringClass,
+                                                         int methodDexIndex) {
         Dex dex = declaringClass.getDex();
-        int methodDexIndex;
-        if (member instanceof Method) {
-            methodDexIndex = ((Method) member).getDexMethodIndex();
-        } else {
-            methodDexIndex = ((Constructor<?>) member).getDexMethodIndex();
-        }
         int protoIndex = dex.methodIds().get(methodDexIndex).getProtoIndex();
         ProtoId proto = dex.protoIds().get(protoIndex);
         TypeList parametersList = dex.readTypeList(proto.getParametersOffset());
