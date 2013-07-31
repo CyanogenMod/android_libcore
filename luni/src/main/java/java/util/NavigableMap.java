@@ -55,7 +55,7 @@ package java.util;
  * implement {@code NavigableMap}, but extensions and implementations
  * of this interface are encouraged to override these methods to return
  * {@code NavigableMap}.  Similarly,
- * {@link #keySet()} can be overriden to return {@code NavigableSet}.
+ * {@link #keySet()} can be overridden to return {@code NavigableSet}.
  *
  * @author Doug Lea
  * @author Josh Bloch
@@ -183,18 +183,12 @@ public interface NavigableMap<K,V> extends SortedMap<K,V> {
     /**
      * Returns a key-value mapping associated with the least
      * key in this map, or {@code null} if the map is empty.
-     *
-     * @return an entry with the least key,
-     *         or {@code null} if this map is empty
      */
     Map.Entry<K,V> firstEntry();
 
     /**
      * Returns a key-value mapping associated with the greatest
      * key in this map, or {@code null} if the map is empty.
-     *
-     * @return an entry with the greatest key,
-     *         or {@code null} if this map is empty
      */
     Map.Entry<K,V> lastEntry();
 
