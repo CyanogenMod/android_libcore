@@ -62,11 +62,10 @@ $(foreach dir, \
     crypto/src/main/native dalvik/src/main/native luni/src/main/native, \
     $(eval $(call include-core-native-dir,$(dir))))
 
-# Extract out the allowed LOCAL_* variables. Note: $(sort) also
-# removes duplicates.
-core_c_includes := $(sort libcore/include $(LOCAL_C_INCLUDES) $(JNI_H_INCLUDE))
-core_shared_libraries := $(sort $(LOCAL_SHARED_LIBRARIES))
-core_static_libraries := $(sort $(LOCAL_STATIC_LIBRARIES))
+# Extract out the allowed LOCAL_* variables.
+core_c_includes := libcore/include $(LOCAL_C_INCLUDES)
+core_shared_libraries := $(LOCAL_SHARED_LIBRARIES)
+core_static_libraries := $(LOCAL_STATIC_LIBRARIES)
 core_cflags := -Wall -Wextra -Werror
 core_cflags += -DJNI_JARJAR_PREFIX="com/android/"
 
