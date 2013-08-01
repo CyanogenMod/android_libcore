@@ -3,6 +3,11 @@
  */
 [
 {
+  description: "our regex implementation calls toString on CharSequences",
+  name: "org.apache.harmony.luni.tests.java.util.ScannerParseLargeFileBenchmarkTest#testParseLargeFile",
+  bug: 10133206
+},
+{
   description: "Package.getPackages(), ClassLoader.getPackages() both omit results",
   name: "libcore.java.lang.PackageTest#testGetPackages",
   bug: 5171136
