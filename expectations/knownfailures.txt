@@ -3,6 +3,11 @@
  */
 [
 {
+  description: "can't compile a pattern with negative look-behind and quantifiers with upper bounds",
+  name: "org.apache.harmony.regex.tests.java.util.regex.PatternTest#test_bug_40103",
+  bug: 40103
+},
+{
   description: "our regex implementation calls toString on CharSequences",
   name: "org.apache.harmony.luni.tests.java.util.ScannerParseLargeFileBenchmarkTest#testParseLargeFile",
   bug: 10133206
