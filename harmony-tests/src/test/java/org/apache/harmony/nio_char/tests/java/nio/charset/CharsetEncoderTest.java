@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -154,18 +154,31 @@ public class CharsetEncoderTest extends TestCase {
     /*
      * Test reserve bytes encode(CharBuffer,ByteBuffer,boolean)
      */
-    public void test_EncodeLjava_nio_CharBufferLjava_nio_ByteBufferB() {
-        CharsetEncoder encoder = Charset.forName("utf-8").newEncoder();
+    public void test_EncodeLjava_nio_CharBufferLjava_nio_ByteBufferB() throws Exception {
+        Charset utf8 = Charset.forName("utf-8");
+        CharsetEncoder encoder = utf8.newEncoder();
         CharBuffer in1 = CharBuffer.wrap("\ud800");
         CharBuffer in2 = CharBuffer.wrap("\udc00");
         ByteBuffer out = ByteBuffer.allocate(4);
         encoder.reset();
+
+        // If we supply just the high surrogate...
         CoderResult result = encoder.encode(in1, out, false);
-        assertEquals(4, out.remaining());
+        // ...we're not done...
         assertTrue(result.isUnderflow());
-        result = encoder.encode(in2, out, true);
         assertEquals(4, out.remaining());
-        assertTrue(result.isMalformed());
+        // ...but if we then supply the low surrogate...
+        result = encoder.encode(in2, out, true);
+        // ...we're done. Note that the RI loses its state in
+        // between the two characters, so it can't do this.
+        assertEquals(0, out.remaining());
+
+        // See what we got in the output buffer by decoding and checking that we
+        // get back the same surrogate pair.
+        out.flip();
+        CharBuffer chars = utf8.newDecoder().decode(out);
+        assertEquals(0xd800, chars.get(0));
+        assertEquals(0xdc00, chars.get(1));
     }
 
     /**
@@ -178,7 +191,7 @@ public class CharsetEncoderTest extends TestCase {
         assertEquals(1, s.length());
         assertEquals(55296, s.charAt(0));
         Charset.forName("UTF-8").encode(CharBuffer.wrap(s));
-//        ByteBuffer buf = <result> 
+//        ByteBuffer buf = <result>
 //        for (byte o : orig) {
 //            byte b = 0;
 //            buf.get(b);
