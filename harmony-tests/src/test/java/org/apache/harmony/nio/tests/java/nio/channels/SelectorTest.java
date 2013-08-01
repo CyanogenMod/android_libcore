@@ -17,8 +17,8 @@
 package org.apache.harmony.nio.tests.java.nio.channels;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ClosedSelectorException;
@@ -28,30 +28,24 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
+import java.util.Set;
 import junit.framework.TestCase;
-import tests.support.Support_PortManager;
 
 /*
  * Tests for Selector and its default implementation
  */
 public class SelectorTest extends TestCase {
-
     private static final int WAIT_TIME = 100;
 
-    private static final int PORT = Support_PortManager.getNextPort();
+    private SocketAddress localAddress;
 
-    private static final InetSocketAddress LOCAL_ADDRESS = new InetSocketAddress(
-            "127.0.0.1", PORT);
+    private Selector selector;
 
-    Selector selector;
+    private ServerSocketChannel ssc;
 
-    ServerSocketChannel ssc;
-
-    enum SelectType {
+    private enum SelectType {
         NULL, TIMEOUT, NOW
     };
 
@@ -60,8 +54,8 @@ public class SelectorTest extends TestCase {
         ssc = ServerSocketChannel.open();
         ssc.configureBlocking(false);
         ServerSocket ss = ssc.socket();
-        InetSocketAddress address = new InetSocketAddress(PORT);
-        ss.bind(address);
+        ss.bind(null);
+        localAddress = ss.getLocalSocketAddress();
         selector = Selector.open();
     }
 
@@ -158,7 +152,7 @@ public class SelectorTest extends TestCase {
         ssc.register(selector, SelectionKey.OP_ACCEPT);
         try {
             int count = 0;
-            sc.connect(LOCAL_ADDRESS);
+            sc.connect(localAddress);
             count = blockingSelect(SelectType.NULL, 0);
             assertEquals(1, count);
             Set<SelectionKey> selectedKeys = selector.selectedKeys();
@@ -410,7 +404,7 @@ public class SelectorTest extends TestCase {
         sc.configureBlocking(false);
         sc.register(selector, SelectionKey.OP_CONNECT);
         try {
-            sc.connect(LOCAL_ADDRESS);
+            sc.connect(localAddress);
             int count = blockingSelect(SelectType.TIMEOUT, 100);
             assertEquals(1, count);
             Set<SelectionKey> selectedKeys = selector.selectedKeys();
@@ -458,10 +452,10 @@ public class SelectorTest extends TestCase {
             channel.configureBlocking(false);
             Selector selector = Selector.open();
             channel.register(selector, SelectionKey.OP_CONNECT);
-            channel.connect(LOCAL_ADDRESS);
+            channel.connect(localAddress);
             channel.finishConnect();
             selector.select();
-            assertEquals(1, selector.selectedKeys().size());
+            assertEquals(0, selector.selectedKeys().size());
         } finally {
             channel.close();
         }
@@ -485,7 +479,7 @@ public class SelectorTest extends TestCase {
         SocketChannel client = null;
         try {
             ssc.register(selector, SelectionKey.OP_ACCEPT);
-            sc.connect(LOCAL_ADDRESS);
+            sc.connect(localAddress);
             int count = blockingSelect(type, timeout);
             assertEquals(1, count);
             Set<SelectionKey> selectedKeys = selector.selectedKeys();
@@ -519,7 +513,7 @@ public class SelectorTest extends TestCase {
         sc.configureBlocking(false);
         sc.register(selector, SelectionKey.OP_CONNECT);
         try {
-            sc.connect(LOCAL_ADDRESS);
+            sc.connect(localAddress);
             int count = blockingSelect(type, timeout);
             assertEquals(1, count);
             Set<SelectionKey> selectedKeys = selector.selectedKeys();
@@ -557,13 +551,13 @@ public class SelectorTest extends TestCase {
         SocketChannel client2 = null;
         try {
             ssc.configureBlocking(true);
-            sc.connect(LOCAL_ADDRESS);
+            sc.connect(localAddress);
             client = ssc.accept();
             sc.configureBlocking(false);
             sc.register(selector, SelectionKey.OP_READ);
             client.configureBlocking(true);
 
-            sc2.connect(LOCAL_ADDRESS);
+            sc2.connect(localAddress);
             client2 = ssc.accept();
             sc2.configureBlocking(false);
             sc2.register(selector, SelectionKey.OP_READ);
@@ -627,7 +621,7 @@ public class SelectorTest extends TestCase {
         SocketChannel sc = SocketChannel.open();
         SocketChannel client = null;
         try {
-            sc.connect(LOCAL_ADDRESS);
+            sc.connect(localAddress);
             ssc.configureBlocking(true);
             client = ssc.accept();
             sc.configureBlocking(false);
