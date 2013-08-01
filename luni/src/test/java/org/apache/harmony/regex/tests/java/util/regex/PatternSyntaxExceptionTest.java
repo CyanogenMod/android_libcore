@@ -18,6 +18,7 @@ package org.apache.harmony.regex.tests.java.util.regex;
 
 import java.io.ObjectStreamClass;
 import java.io.Serializable;
+import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import junit.framework.TestCase;
