@@ -166,13 +166,13 @@ final class SelectorImpl extends AbstractSelector {
             synchronized (unmodifiableKeys) {
                 synchronized (selectedKeys) {
                     doCancel();
-                    boolean isBlock = (timeout != 0);
+                    boolean isBlocking = (timeout != 0);
                     synchronized (keysLock) {
                         preparePollFds();
                     }
                     int rc = -1;
                     try {
-                        if (isBlock) {
+                        if (isBlocking) {
                             begin();
                         }
                         try {
@@ -183,7 +183,7 @@ final class SelectorImpl extends AbstractSelector {
                             }
                         }
                     } finally {
-                        if (isBlock) {
+                        if (isBlocking) {
                             end();
                         }
                     }

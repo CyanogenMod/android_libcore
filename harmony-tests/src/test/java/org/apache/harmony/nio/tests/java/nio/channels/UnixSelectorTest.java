@@ -28,8 +28,8 @@ import junit.framework.TestCase;
 
 public class UnixSelectorTest extends TestCase {
     static class Server {
-        private ServerSocketChannel serverChannel = ServerSocketChannel.open();
-        private ServerSocket socket = null;
+        ServerSocketChannel serverChannel = ServerSocketChannel.open();
+        ServerSocket socket = null;
 
         Server() throws Exception {
             serverChannel.configureBlocking(false);
@@ -37,19 +37,7 @@ public class UnixSelectorTest extends TestCase {
 
         public void initialize() throws Exception {
             this.socket = serverChannel.socket();
-            socket.bind(new InetSocketAddress("localhost", 0));
-        }
-
-        public int getPort() {
-            return socket.getLocalPort();
-        }
-
-        public boolean isOpen() {
-            return !socket.isClosed();
-        }
-
-        public ServerSocketChannel getServerChannel() {
-            return serverChannel;
+            socket.bind(null);
         }
 
         public void accept() {
@@ -74,9 +62,8 @@ public class UnixSelectorTest extends TestCase {
         Selector sel0 = Selector.open();
         Selector sel1 = Selector.open();
         Server server = new Server();
-        SelectableChannel serverChannel = server.getServerChannel();
-        SelectionKey mkey0 = serverChannel.register(sel0, SelectionKey.OP_ACCEPT);
-        serverChannel.register(sel1, SelectionKey.OP_ACCEPT);
+        SelectionKey mkey0 = server.serverChannel.register(sel0, SelectionKey.OP_ACCEPT);
+        server.serverChannel.register(sel1, SelectionKey.OP_ACCEPT);
 
         // HUP is treating as acceptable
         assertEquals(1, sel0.select(100));
@@ -86,12 +73,11 @@ public class UnixSelectorTest extends TestCase {
         assertEquals(0, sel1.select(100));
         server.accept();
         Thread.sleep(1000);
-        int port = server.getPort();
         SocketChannel socketChannel = SocketChannel.open();
         socketChannel.configureBlocking(false);
         Selector sel2 = Selector.open();
         socketChannel.register(sel2, SelectionKey.OP_WRITE);
-        boolean isConnected = socketChannel.connect(new InetSocketAddress("localhost", port));
+        boolean isConnected = socketChannel.connect(server.socket.getLocalSocketAddress());
         if (!isConnected) {
             socketChannel.finishConnect();
         }
