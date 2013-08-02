@@ -25,6 +25,7 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.IllegalCharsetNameException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 
@@ -46,7 +47,7 @@ public class CharsetTest extends TestCase {
 		Set names = Charset.availableCharsets().keySet();
 		for (Iterator nameItr = names.iterator(); nameItr.hasNext();) {
 			String name = (String) nameItr.next();
-			if (name.toLowerCase().startsWith("x-"))
+			if (name.toLowerCase(Locale.ROOT).startsWith("x-"))
 				unknownRegisteredCharsets.add(name);
 			else
 				knownRegisteredCharsets.add(name);

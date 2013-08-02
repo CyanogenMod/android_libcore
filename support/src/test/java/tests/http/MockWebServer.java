@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -345,7 +346,7 @@ public final class MockWebServer {
         String header;
         while (!(header = readAsciiUntilCrlf(in)).isEmpty()) {
             headers.add(header);
-            String lowercaseHeader = header.toLowerCase();
+            String lowercaseHeader = header.toLowerCase(Locale.ROOT);
             if (contentLength == -1 && lowercaseHeader.startsWith("content-length:")) {
                 contentLength = Integer.parseInt(header.substring(15).trim());
             }
