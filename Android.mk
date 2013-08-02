@@ -61,12 +61,14 @@ ifeq ($(WITH_HOST_DALVIK),true)
         dalvik \
         $(HOST_OUT)/bin/dalvikvm \
         $(HOST_OUT)/bin/dexopt \
+        $(HOST_OUT)/lib/libconscrypt_jni.so \
         $(HOST_OUT)/lib/libjavacore.so \
         cacerts-host \
         core-hostdex \
+        conscrypt-hostdex \
+        okhttp-hostdex \
         bouncycastle-hostdex \
         apache-xml-hostdex \
-        okhttp-hostdex \
         apache-harmony-tests-hostdex \
         $(call intermediates-dir-for,JAVA_LIBRARIES,core-tests,,COMMON)/classes.jar
 endif
