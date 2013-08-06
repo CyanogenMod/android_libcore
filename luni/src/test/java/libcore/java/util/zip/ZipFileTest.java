@@ -57,7 +57,7 @@ public final class ZipFileTest extends TestCase {
         zipFile.close();
     }
 
-    private static void replaceBytes(byte[] original, byte[] replacement, byte[] buffer) {
+    private static void replaceBytes(byte[] buffer, byte[] original, byte[] replacement) {
         // Gotcha here: original and replacement must be the same length
         assertEquals(original.length, replacement.length);
         boolean found;
@@ -80,37 +80,38 @@ public final class ZipFileTest extends TestCase {
         }
     }
 
+    private static void writeBytes(File f, byte[] bytes) throws IOException {
+        FileOutputStream out = new FileOutputStream(f);
+        out.write(bytes);
+        out.close();
+    }
+
     /**
      * Make sure we don't fail silently for duplicate entries.
      * b/8219321
      */
-    public void testDuplicateEntries() throws IOException {
-        String entryName = "test_file_name1";
-        String tmpName = "test_file_name2";
+    public void testDuplicateEntries() throws Exception {
+        String name1 = "test_file_name1";
+        String name2 = "test_file_name2";
 
-        // create the template data
-        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-        ZipOutputStream out = new ZipOutputStream(bytesOut);
-        ZipEntry ze1 = new ZipEntry(tmpName);
-        out.putNextEntry(ze1);
+        // Create the good zip file.
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream out = new ZipOutputStream(baos);
+        out.putNextEntry(new ZipEntry(name2));
         out.closeEntry();
-        ZipEntry ze2 = new ZipEntry(entryName);
-        out.putNextEntry(ze2);
+        out.putNextEntry(new ZipEntry(name1));
         out.closeEntry();
         out.close();
 
-        // replace the bytes we don't like
-        byte[] buf = bytesOut.toByteArray();
-        replaceBytes(tmpName.getBytes(), entryName.getBytes(), buf);
+        // Rewrite one of the filenames.
+        byte[] buffer = baos.toByteArray();
+        replaceBytes(buffer, name2.getBytes(), name1.getBytes());
 
-        // write the result to a file
-        File badZip = File.createTempFile("badzip", "zip");
-        badZip.deleteOnExit();
-        FileOutputStream outstream = new FileOutputStream(badZip);
-        outstream.write(buf);
-        outstream.close();
+        // Write the result to a file.
+        File badZip = createTemporaryZipFile();
+        writeBytes(badZip, buffer);
 
-        // see if we can still handle it
+        // Check that we refuse to load the modified file.
         try {
             ZipFile bad = new ZipFile(badZip);
             fail();
