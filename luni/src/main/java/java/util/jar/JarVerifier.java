@@ -313,8 +313,8 @@ class JarVerifier {
         Attributes attributes = new Attributes();
         HashMap<String, Attributes> entries = new HashMap<String, Attributes>();
         try {
-            InitManifest im = new InitManifest(sfBytes, attributes);
-            im.initEntries(entries, null);
+            ManifestReader im = new ManifestReader(sfBytes, attributes);
+            im.readEntries(entries, null);
         } catch (IOException e) {
             return;
         }
