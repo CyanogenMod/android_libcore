@@ -211,9 +211,9 @@ public class Manifest implements Cloneable {
             buf[buf.length - 1] = '\n';
         }
 
-        InitManifest im = new InitManifest(buf, mainAttributes);
-        mainEnd = im.getPos();
-        im.initEntries(entries, chunks);
+        ManifestReader im = new ManifestReader(buf, mainAttributes);
+        mainEnd = im.getEndOfMainSection();
+        im.readEntries(entries, chunks);
     }
 
     /**

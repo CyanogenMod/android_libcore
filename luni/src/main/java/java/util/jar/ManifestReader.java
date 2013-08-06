@@ -26,7 +26,7 @@ import java.util.Map;
  * Reads a JAR file manifest. The specification is here:
  * http://java.sun.com/javase/6/docs/technotes/guides/jar/jar.html
  */
-class InitManifest {
+class ManifestReader {
     // There are relatively few unique attribute names,
     // but a manifest might have thousands of entries.
     private final HashMap<String, Attributes.Name> attributeNameCache = new HashMap<String, Attributes.Name>();
@@ -34,6 +34,8 @@ class InitManifest {
     private final UnsafeByteSequence valueBuffer = new UnsafeByteSequence(80);
 
     private final byte[] buf;
+
+    private final int endOfMainSection;
 
     private int pos;
 
@@ -43,16 +45,15 @@ class InitManifest {
 
     private int consecutiveLineBreaks = 0;
 
-    InitManifest(byte[] buf, Attributes main) throws IOException {
+    public ManifestReader(byte[] buf, Attributes main) throws IOException {
         this.buf = buf;
         while (readHeader()) {
             main.put(name, value);
         }
+        this.endOfMainSection = pos;
     }
 
-    void initEntries(Map<String, Attributes> entries,
-            Map<String, Manifest.Chunk> chunks) throws IOException {
-
+    public void readEntries(Map<String, Attributes> entries, Map<String, Manifest.Chunk> chunks) throws IOException {
         int mark = pos;
         while (readHeader()) {
             if (!Attributes.Name.NAME.equals(name)) {
@@ -87,8 +88,8 @@ class InitManifest {
         }
     }
 
-    int getPos() {
-        return pos;
+    public int getEndOfMainSection() {
+        return endOfMainSection;
     }
 
     /**
