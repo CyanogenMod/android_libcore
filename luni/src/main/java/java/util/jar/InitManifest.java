@@ -19,6 +19,7 @@ package java.util.jar;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -26,6 +27,12 @@ import java.util.Map;
  * http://java.sun.com/javase/6/docs/technotes/guides/jar/jar.html
  */
 class InitManifest {
+    // There are relatively few unique attribute names,
+    // but a manifest might have thousands of entries.
+    private final HashMap<String, Attributes.Name> attributeNameCache = new HashMap<String, Attributes.Name>();
+
+    private final UnsafeByteSequence valueBuffer = new UnsafeByteSequence(80);
+
     private final byte[] buf;
 
     private int pos;
@@ -34,7 +41,6 @@ class InitManifest {
 
     private String value;
 
-    private final UnsafeByteSequence valueBuffer = new UnsafeByteSequence(80);
     private int consecutiveLineBreaks = 0;
 
     InitManifest(byte[] buf, Attributes main) throws IOException {
@@ -110,14 +116,18 @@ class InitManifest {
                 continue;
             }
 
-            String name = new String(buf, mark, pos - mark - 1, StandardCharsets.US_ASCII);
+            String nameString = new String(buf, mark, pos - mark - 1, StandardCharsets.US_ASCII);
 
             if (buf[pos++] != ' ') {
-                throw new IOException(String.format("Invalid value for attribute '%s'", name));
+                throw new IOException(String.format("Invalid value for attribute '%s'", nameString));
             }
 
             try {
-                this.name = new Attributes.Name(name);
+                name = attributeNameCache.get(nameString);
+                if (name == null) {
+                    name = new Attributes.Name(nameString);
+                    attributeNameCache.put(nameString, name);
+                }
             } catch (IllegalArgumentException e) {
                 // new Attributes.Name() throws IllegalArgumentException but we declare IOException
                 throw new IOException(e.getMessage());
