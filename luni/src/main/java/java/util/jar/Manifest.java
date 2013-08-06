@@ -43,8 +43,6 @@ public class Manifest implements Cloneable {
 
     private static final byte[] VALUE_SEPARATOR = new byte[] { ':', ' ' };
 
-    private static final Attributes.Name NAME_ATTRIBUTE = new Attributes.Name("Name");
-
     private static final Field BAIS_BUF = getByteArrayInputStreamField("buf");
     private static final Field BAIS_POS = getByteArrayInputStreamField("pos");
 
@@ -325,7 +323,7 @@ public class Manifest implements Cloneable {
         Iterator<String> i = manifest.getEntries().keySet().iterator();
         while (i.hasNext()) {
             String key = i.next();
-            writeEntry(out, NAME_ATTRIBUTE, key, encoder, buffer);
+            writeEntry(out, Attributes.Name.NAME, key, encoder, buffer);
             Attributes attributes = manifest.entries.get(key);
             Iterator<?> entries = attributes.keySet().iterator();
             while (entries.hasNext()) {
