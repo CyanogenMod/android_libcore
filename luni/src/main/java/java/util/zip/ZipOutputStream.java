@@ -69,7 +69,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
      */
     public static final int STORED = 0;
 
-    private static final int ZIPLocalHeaderVersionNeeded = 20;
+    private static final int ZIP_VERSION_2_0 = 20; // Zip specification version 2.0.
 
     private byte[] commentBytes = EmptyArray.BYTE;
 
@@ -158,8 +158,8 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         // http://code.google.com/p/android/issues/detail?id=20214
         flags |= ZipFile.GPBF_UTF8_FLAG;
         writeLong(cDir, CENSIG);
-        writeShort(cDir, ZIPLocalHeaderVersionNeeded); // Version created
-        writeShort(cDir, ZIPLocalHeaderVersionNeeded); // Version to extract
+        writeShort(cDir, ZIP_VERSION_2_0); // Version this file was made by.
+        writeShort(cDir, ZIP_VERSION_2_0); // Minimum version needed to extract.
         writeShort(cDir, flags);
         writeShort(cDir, currentEntry.getMethod());
         writeShort(cDir, currentEntry.time);
@@ -313,7 +313,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         // modified UTF-8. From Java 7, it sets this flag and uses normal UTF-8.)
         flags |= ZipFile.GPBF_UTF8_FLAG;
         writeLong(out, LOCSIG); // Entry header
-        writeShort(out, ZIPLocalHeaderVersionNeeded); // Extraction version
+        writeShort(out, ZIP_VERSION_2_0); // Minimum version needed to extract.
         writeShort(out, flags);
         writeShort(out, method);
         if (currentEntry.getTime() == -1) {
