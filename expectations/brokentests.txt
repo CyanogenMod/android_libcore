@@ -543,17 +543,6 @@
   substring: "GMT-07:00"
 },
 {
-  description: "These harmony tests are broken. The RI doesn't ship with es__TRADITIONAL, so
-                they have incorrect expectations.
-                http://b/2608750",
-  result: EXEC_FAILED,
-  names: [
-    "org.apache.harmony.text.tests.java.text.RuleBasedCollatorTest#testGetCollationElementIteratorCharacterIterator",
-    "org.apache.harmony.text.tests.java.text.RuleBasedCollatorTest#testGetCollationElementIteratorString"
-  ],
-  substring: "expected:<1> but was:<2>"
-},
-{
   description: "This test fails because on Android, RuleBasedCollators default to
                 CANONICAL_DECOMPOSITION, not NO_DECOMPOSITION.",
   result: EXEC_FAILED,
