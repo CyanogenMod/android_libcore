@@ -238,12 +238,6 @@ public final class VMRuntime {
      */
     public native void registerNativeFree(int bytes);
 
-    /*
-     * Updates the internal process state of the VM. You can find the process states in
-     * ActivityManager.
-     */
-    public native void updateProcessState(int newProcessState);
-
     public native void trimHeap();
     public native void concurrentGC();
 }
