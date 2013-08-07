@@ -294,12 +294,12 @@ public class ZipFile implements Closeable, ZipConstants {
             // Skip the variable-size file name and extra field data.
             rafStream.skip(fileNameLength + extraFieldLength);
 
-            // The compressed or stored file data follows immediately after.
-            rafStream.length = rafStream.offset + entry.compressedSize;
             if (entry.compressionMethod == ZipEntry.DEFLATED) {
+                rafStream.length = rafStream.offset + entry.compressedSize;
                 int bufSize = Math.max(1024, (int) Math.min(entry.getSize(), 65535L));
                 return new ZipInflaterInputStream(rafStream, new Inflater(true), bufSize, entry);
             } else {
+                rafStream.length = rafStream.offset + entry.size;
                 return rafStream;
             }
         }
