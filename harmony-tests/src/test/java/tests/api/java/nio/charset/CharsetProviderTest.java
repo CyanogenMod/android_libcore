@@ -32,9 +32,6 @@ import tests.api.java.nio.charset.CharsetTest.MockCharset;
  */
 public class CharsetProviderTest extends TestCase {
 
-	// need to be modified, e.g., read from system property
-	static String PROP_CONFIG_FILE1 = "clear.tests.cp1";
-
 	static String CONFIG_FILE1 = null;
 
 

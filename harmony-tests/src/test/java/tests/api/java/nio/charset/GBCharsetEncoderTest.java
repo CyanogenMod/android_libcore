@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,8 +32,9 @@ public class GBCharsetEncoderTest extends CharsetEncoderTest {
 	 * @see CharsetEncoderTest#setUp()
 	 */
 	protected void setUp() throws Exception {
-		cs = CS;
-		super.setUp();
+	  cs = CS;
+	  specifiedReplacement = new byte[] { 0x1a };
+	  super.setUp();
 	}
 
 	/*
@@ -60,20 +61,16 @@ public class GBCharsetEncoderTest extends CharsetEncoderTest {
 		// surrogate char
 
 		// valid surrogate pair
-		//assertTrue(encoder.canEncode("\ud800\udc00"));
+		assertTrue(encoder.canEncode("\ud800\udc00"));
 		// invalid surrogate pair
 		assertFalse(encoder.canEncode("\ud800\udb00"));
-		assertFalse(encoder.canEncode("\ud800"));
+		// The RI doesn't allow this, but we do.
+		//assertFalse(encoder.canEncode("\ud800"));
 	}
 
 	public void testSpecificDefaultValue() {
-		// FIXME: different here!
 		assertEquals(4.0, encoder.maxBytesPerChar(), 0.0);
-		assertEquals(4.0, encoder.averageBytesPerChar(), 0.0);
-
-		// assertTrue(encoder.averageBytesPerChar() == 3);
-		// assertTrue(encoder.maxBytesPerChar() == 2);
-
+		assertEquals(2.5, encoder.averageBytesPerChar(), 0.0);
 	}
 
 	CharBuffer getMalformedCharBuffer() {
