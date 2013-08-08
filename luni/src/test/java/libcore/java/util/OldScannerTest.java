@@ -422,6 +422,8 @@ public final class OldScannerTest extends TestCase {
     out.close();
 
     ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+    bais.mark(-1);
+
     Scanner s = new Scanner(new BufferedReader(new InputStreamReader(bais)));
     for (int i = 0; i < count; ++i) {
       if (s.nextInt() != 123) {
@@ -429,6 +431,7 @@ public final class OldScannerTest extends TestCase {
       }
     }
 
+    bais.reset();
     s = new Scanner(new BufferedReader(new InputStreamReader(bais)));
     for (int i = 0; i < count; ++i) {
       if (s.nextFloat() != 123.0) {
