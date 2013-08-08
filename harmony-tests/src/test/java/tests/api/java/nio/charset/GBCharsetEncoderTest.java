@@ -57,15 +57,12 @@ public class GBCharsetEncoderTest extends CharsetEncoderTest {
 	 * Class under test for boolean canEncode(CharSequence)
 	 */
 	public void testCanEncodeCharSequence() {
-		assertTrue(encoder.canEncode(""));
 		// surrogate char
 
 		// valid surrogate pair
 		assertTrue(encoder.canEncode("\ud800\udc00"));
 		// invalid surrogate pair
 		assertFalse(encoder.canEncode("\ud800\udb00"));
-		// The RI doesn't allow this, but we do.
-		//assertFalse(encoder.canEncode("\ud800"));
 	}
 
 	public void testSpecificDefaultValue() {

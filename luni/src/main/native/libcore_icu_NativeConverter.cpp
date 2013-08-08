@@ -230,28 +230,6 @@ static jfloat NativeConverter_getAveBytesPerChar(JNIEnv*, jclass, jlong address)
     return (cnv != NULL) ? ((ucnv_getMaxCharSize(cnv) + ucnv_getMinCharSize(cnv)) / 2.0) : -1;
 }
 
-static jboolean NativeConverter_canEncode(JNIEnv*, jclass, jlong address, jint codeUnit) {
-    UErrorCode errorCode = U_ZERO_ERROR;
-    UConverter* cnv = toUConverter(address);
-    if (cnv == NULL) {
-        return JNI_FALSE;
-    }
-
-    UChar srcBuffer[3];
-    const UChar* src = &srcBuffer[0];
-    const UChar* srcLimit = (codeUnit < 0x10000) ? &src[1] : &src[2];
-
-    char dstBuffer[5];
-    char* dst = &dstBuffer[0];
-    const char* dstLimit = &dstBuffer[4];
-
-    int i = 0;
-    UTF_APPEND_CHAR(&srcBuffer[0], i, 2, codeUnit);
-
-    ucnv_fromUnicode(cnv, &dst, dstLimit, &src, srcLimit, NULL, TRUE, &errorCode);
-    return U_SUCCESS(errorCode);
-}
-
 /*
  * If a charset listed in the IANA Charset Registry is supported by an implementation
  * of the Java platform then its canonical name must be the name listed in the registry.
@@ -620,7 +598,6 @@ static jobject NativeConverter_charsetForName(JNIEnv* env, jclass, jstring chars
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(NativeConverter, canEncode, "(JI)Z"),
     NATIVE_METHOD(NativeConverter, charsetForName, "(Ljava/lang/String;)Ljava/nio/charset/Charset;"),
     NATIVE_METHOD(NativeConverter, closeConverter, "(J)V"),
     NATIVE_METHOD(NativeConverter, contains, "(Ljava/lang/String;Ljava/lang/String;)Z"),

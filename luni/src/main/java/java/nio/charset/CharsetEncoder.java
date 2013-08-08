@@ -163,65 +163,27 @@ public abstract class CharsetEncoder {
     }
 
     /**
-     * Checks if the given character can be encoded by this encoder.
-     * <p>
-     * Note that this method can change the internal status of this encoder, so
+     * Tests whether the given character can be encoded by this encoder.
+     *
+     * <p>Note that this method may change the internal status of this encoder, so
      * it should not be called when another encoding process is ongoing,
      * otherwise it will throw an <code>IllegalStateException</code>.
-     * <p>
-     * This method can be overridden for performance improvement.
      *
-     * @param c
-     *            the given encoder.
-     * @return true if given character can be encoded by this encoder.
-     * @throws IllegalStateException
-     *             if another encode process is ongoing so that the current
-     *             internal status is neither RESET or FLUSH.
+     * @throws IllegalStateException if another encode process is ongoing.
      */
     public boolean canEncode(char c) {
-        return implCanEncode(CharBuffer.wrap(new char[] { c }));
-    }
-
-    // implementation of canEncode
-    private boolean implCanEncode(CharBuffer cb) {
-        if (status == FLUSH || status == INIT) {
-            status = READY;
-        }
-        if (status != READY) {
-            throw new IllegalStateException("encoding already in progress");
-        }
-        CodingErrorAction malformBak = malformedInputAction;
-        CodingErrorAction unmapBak = unmappableCharacterAction;
-        onMalformedInput(CodingErrorAction.REPORT);
-        onUnmappableCharacter(CodingErrorAction.REPORT);
-        boolean result = true;
-        try {
-            this.encode(cb);
-        } catch (CharacterCodingException e) {
-            result = false;
-        }
-        onMalformedInput(malformBak);
-        onUnmappableCharacter(unmapBak);
-        reset();
-        return result;
+        return canEncode(CharBuffer.wrap(new char[] { c }));
     }
 
     /**
-     * Checks if a given <code>CharSequence</code> can be encoded by this
+     * Tests whether the given <code>CharSequence</code> can be encoded by this
      * encoder.
      *
-     * Note that this method can change the internal status of this encoder, so
+     * <p>Note that this method may change the internal status of this encoder, so
      * it should not be called when another encode process is ongoing, otherwise
      * it will throw an <code>IllegalStateException</code>.
      *
-     * This method can be overridden for performance improvement.
-     *
-     * @param sequence
-     *            the given <code>CharSequence</code>.
-     * @return true if the given <code>CharSequence</code> can be encoded by
-     *         this encoder.
-     * @throws IllegalStateException
-     *             if current internal status is neither RESET or FLUSH.
+     * @throws IllegalStateException if another encode process is ongoing.
      */
     public boolean canEncode(CharSequence sequence) {
         CharBuffer cb;
@@ -230,7 +192,27 @@ public abstract class CharsetEncoder {
         } else {
             cb = CharBuffer.wrap(sequence);
         }
-        return implCanEncode(cb);
+
+        if (status == FLUSH || status == INIT) {
+            status = READY;
+        }
+        if (status != READY) {
+            throw new IllegalStateException();
+        }
+        CodingErrorAction originalMalformedInputAction = malformedInputAction;
+        CodingErrorAction originalUnmappableCharacterAction = unmappableCharacterAction;
+        onMalformedInput(CodingErrorAction.REPORT);
+        onUnmappableCharacter(CodingErrorAction.REPORT);
+        try {
+            this.encode(cb);
+            return true;
+        } catch (CharacterCodingException e) {
+            return false;
+        } finally {
+            onMalformedInput(originalMalformedInputAction);
+            onUnmappableCharacter(originalUnmappableCharacterAction);
+            reset();
+        }
     }
 
     /**
@@ -272,54 +254,47 @@ public abstract class CharsetEncoder {
      *             if other exception happened during the encode operation.
      */
     public final ByteBuffer encode(CharBuffer in) throws CharacterCodingException {
-        if (in.remaining() == 0) {
-            return ByteBuffer.allocate(0);
-        }
-        reset();
         int length = (int) (in.remaining() * averageBytesPerChar);
-        ByteBuffer output = ByteBuffer.allocate(length);
-        CoderResult result = null;
-        while (true) {
-            result = encode(in, output, false);
-            if (result==CoderResult.UNDERFLOW) {
-                break;
-            } else if (result==CoderResult.OVERFLOW) {
-                output = allocateMore(output);
-                continue;
-            }
-            checkCoderResult(result);
+        ByteBuffer out = ByteBuffer.allocate(length);
+        if (in.hasRemaining() == false) {
+            return out;
         }
-        result = encode(in, output, true);
-        checkCoderResult(result);
 
-        while (true) {
-            result = flush(output);
-            if (result==CoderResult.UNDERFLOW) {
-                output.flip();
+        reset();
+
+        while (in.hasRemaining()) {
+            CoderResult result = encode(in, out, true);
+            if (result == CoderResult.UNDERFLOW) {
                 break;
-            } else if (result==CoderResult.OVERFLOW) {
-                output = allocateMore(output);
+            } else if (result == CoderResult.OVERFLOW) {
+                out = allocateMore(out);
                 continue;
+            } else {
+                checkCoderResult(result);
             }
-            checkCoderResult(result);
-            output.flip();
-            if (result.isMalformed()) {
-                throw new MalformedInputException(result.length());
-            } else if (result.isUnmappable()) {
-                throw new UnmappableCharacterException(result.length());
+
+            result = flush(out);
+            if (result == CoderResult.UNDERFLOW) {
+                break;
+            } else if (result == CoderResult.OVERFLOW) {
+                out = allocateMore(out);
+                continue;
+            } else {
+                checkCoderResult(result);
             }
-            break;
         }
+
+        out.flip();
         status = READY;
         finished = true;
-        return output;
+        return out;
     }
 
     /*
      * checks the result whether it needs to throw CharacterCodingException.
      */
     private void checkCoderResult(CoderResult result) throws CharacterCodingException {
-        if (malformedInputAction == CodingErrorAction.REPORT && result.isMalformed() ) {
+        if (malformedInputAction == CodingErrorAction.REPORT && result.isMalformed()) {
             throw new MalformedInputException(result.length());
         } else if (unmappableCharacterAction == CodingErrorAction.REPORT && result.isUnmappable()) {
             throw new UnmappableCharacterException(result.length());
@@ -405,12 +380,14 @@ public abstract class CharsetEncoder {
         if (status == READY && finished && !endOfInput) {
             throw new IllegalStateException();
         }
-        if ((status == FLUSH) || (!endOfInput && status == END)) {
+        if (status == FLUSH || (!endOfInput && status == END)) {
             throw new IllegalStateException();
         }
 
-        CoderResult result;
+        status = endOfInput ? END : ONGOING;
+
         while (true) {
+            CoderResult result;
             try {
                 result = encodeLoop(in, out);
             } catch (BufferOverflowException e) {
@@ -418,37 +395,25 @@ public abstract class CharsetEncoder {
             } catch (BufferUnderflowException e) {
                 throw new CoderMalfunctionError(e);
             }
-            if (result==CoderResult.UNDERFLOW) {
-                status = endOfInput ? END : ONGOING;
-                if (endOfInput) {
-                    int remaining = in.remaining();
-                    if (remaining > 0) {
-                        result = CoderResult.malformedForLength(remaining);
-                    } else {
-                        return result;
-                    }
+            if (result == CoderResult.UNDERFLOW) {
+                if (endOfInput && in.hasRemaining()) {
+                    result = CoderResult.malformedForLength(in.remaining());
                 } else {
                     return result;
                 }
-            } else if (result==CoderResult.OVERFLOW) {
-                status = endOfInput ? END : ONGOING;
+            } else if (result == CoderResult.OVERFLOW) {
                 return result;
             }
-            CodingErrorAction action = malformedInputAction;
-            if (result.isUnmappable()) {
-                action = unmappableCharacterAction;
+            CodingErrorAction action =
+                    result.isUnmappable() ? unmappableCharacterAction : malformedInputAction;
+            if (action == CodingErrorAction.REPORT) {
+                return result;
             }
-            // If the action is IGNORE or REPLACE, we should continue
-            // encoding.
             if (action == CodingErrorAction.REPLACE) {
                 if (out.remaining() < replacementBytes.length) {
                     return CoderResult.OVERFLOW;
                 }
                 out.put(replacementBytes);
-            } else {
-                if (action != CodingErrorAction.IGNORE) {
-                    return result;
-                }
             }
             in.position(in.position() + result.length());
         }
@@ -467,9 +432,9 @@ public abstract class CharsetEncoder {
      * {@link #encode(CharBuffer, ByteBuffer, boolean) encode}. When an
      * exception is encountered in the encoding operation, most implementations
      * of this method will return a relevant result object to the
-     * {@link #encode(CharBuffer, ByteBuffer, boolean) encode} method, and some
-     * performance optimized implementation may handle the exception and
-     * implement the error action itself.
+     * {@link #encode(CharBuffer, ByteBuffer, boolean) encode} method, and
+     * subclasses may handle the exception and
+     * implement the error action themselves.
      * <p>
      * The buffers are scanned from their current positions, and their positions
      * will be modified accordingly, while their marks and limits will be
@@ -588,18 +553,9 @@ public abstract class CharsetEncoder {
     }
 
     /**
-     * Checks if the given argument is legal as this encoder's replacement byte
-     * array.
-     *
-     * The given byte array is legal if and only if it can be decode into
-     * sixteen bits Unicode characters.
-     *
-     * This method can be overridden for performance improvement.
-     *
-     * @param replacement
-     *            the given byte array to be checked.
-     * @return true if the the given argument is legal as this encoder's
-     *         replacement byte array.
+     * Tests whether the given argument is legal as this encoder's replacement byte
+     * array. The given byte array is legal if and only if it can be decoded into
+     * characters.
      */
     public boolean isLegalReplacement(byte[] replacement) {
         if (decoder == null) {

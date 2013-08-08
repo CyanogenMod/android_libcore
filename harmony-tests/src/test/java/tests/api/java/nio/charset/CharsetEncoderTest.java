@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -88,16 +88,13 @@ public class CharsetEncoderTest extends TestCase {
 
 	public void testDefaultValue() {
 		assertEquals(CodingErrorAction.REPORT, encoder.malformedInputAction());
-		assertEquals(CodingErrorAction.REPORT, encoder
-				.unmappableCharacterAction());
+		assertEquals(CodingErrorAction.REPORT, encoder.unmappableCharacterAction());
 		assertSame(encoder, encoder.onMalformedInput(CodingErrorAction.IGNORE));
-		assertSame(encoder, encoder
-				.onUnmappableCharacter(CodingErrorAction.IGNORE));
+		assertSame(encoder, encoder.onUnmappableCharacter(CodingErrorAction.IGNORE));
 		if (encoder instanceof MockCharsetEncoder) {
 			assertTrue(Arrays.equals(encoder.replacement(), defaultReplacement));
 		} else {
-			assertTrue(Arrays.equals(encoder.replacement(),
-					specifiedReplacement));
+			assertTrue(Arrays.equals(encoder.replacement(), specifiedReplacement));
 		}
 
 	}
@@ -309,13 +306,13 @@ public class CharsetEncoderTest extends TestCase {
 		    // Expected
 		}
 	}
-	
+
 	public void testFlushAfterConstructing() {
 		ByteBuffer out = ByteBuffer.allocate(5);
-		
+
 		//Illegal state: flush after instance created
 		try {
-			encoder.flush(out);			
+			encoder.flush(out);
 			fail("should throw IllegalStateException");
 		} catch (IllegalStateException e) {
 			// Expected
@@ -529,12 +526,33 @@ public class CharsetEncoderTest extends TestCase {
 		// surrogate char for unicode
 		// 1st byte: d800-dbff
 		// 2nd byte: dc00-dfff
-		assertTrue(encoder.canEncode("\ud800"));
 		// valid surrogate pair
 		assertTrue(encoder.canEncode("\ud800\udc00"));
 		// invalid surrogate pair
 		assertTrue(encoder.canEncode("\ud800\udb00"));
 	}
+
+    public void test_canEncode_char_ICUBug() {
+        // The RI doesn't allow this, but icu4c does.
+        assertTrue(encoder.canEncode('\ud800'));
+    }
+
+    public void test_canEncode_CharSequence_ICUBug() {
+        // The RI doesn't allow this, but icu4c does.
+        assertTrue(encoder.canEncode("\ud800"));
+    }
+
+    public void test_canEncode_empty() throws Exception {
+        assertTrue(encoder.canEncode(""));
+    }
+
+    public void test_canEncode_null() throws Exception {
+        try {
+            encoder.canEncode(null);
+            fail();
+        } catch (NullPointerException e) {
+        }
+    }
 
 	/*
 	 * Class under test for Charset charset()
@@ -571,7 +589,7 @@ public class CharsetEncoderTest extends TestCase {
 		out = encoder.encode(CharBuffer.wrap(unistr));
 		assertEquals(out.position(), 0);
 		assertByteArray(out, addSurrogate(unibytes));
-        
+
         // Regression test for harmony-3378
         Charset cs = Charset.forName("UTF-8");
         CharsetEncoder encoder = cs.newEncoder();
@@ -580,7 +598,7 @@ public class CharsetEncoderTest extends TestCase {
                 (byte) 0xbd, });
         CharBuffer in = CharBuffer.wrap("\ud800");
         out = encoder.encode(in);
-        assertNotNull(out); 
+        assertNotNull(out);
 	}
 
 	private byte[] addSurrogate(byte[] expected) {
@@ -917,14 +935,19 @@ public class CharsetEncoderTest extends TestCase {
 	/*
 	 * test isLegalReplacement(byte[])
 	 */
-	public void testIsLegalReplacement() {
+	public void test_isLegalReplacement_null() {
 		try {
 			encoder.isLegalReplacement(null);
 			fail("should throw null pointer exception");
 		} catch (NullPointerException e) {
 		}
-		assertTrue(encoder.isLegalReplacement(specifiedReplacement));
+	}
 
+	public void test_isLegalReplacement_good() {
+		assertTrue(encoder.isLegalReplacement(specifiedReplacement));
+	}
+
+	public void test_isLegalReplacement_bad() {
 		assertTrue(encoder.isLegalReplacement(new byte[200]));
 		byte[] ba = getIllegalByteArray();
 		if (ba != null) {
@@ -932,14 +955,10 @@ public class CharsetEncoderTest extends TestCase {
 		}
 	}
 
-	public void testIsLegalReplacementEmptyArray() {
+	public void test_isLegalReplacement_empty_array() {
 		// ISO, ASC, GB, UTF8 encoder will throw exception in RI
 		// others will pass
-		// try {
 		assertTrue(encoder.isLegalReplacement(new byte[0]));
-		// fail("should throw ArrayIndexOutOfBoundsException");
-		// } catch (ArrayIndexOutOfBoundsException e) {
-		// }
 	}
 
 	public void testOnMalformedInput() {
@@ -990,7 +1009,7 @@ public class CharsetEncoderTest extends TestCase {
 		nr = getIllegalByteArray();
 		try {
 			encoder.replaceWith(new byte[100]);
-			fail("should throw null pointer exception");
+			fail();
 		} catch (IllegalArgumentException e) {
 		}
 	}
