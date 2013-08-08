@@ -119,6 +119,51 @@ public final class ZipFileTest extends TestCase {
         }
     }
 
+    /**
+     * Make sure the size used for stored zip entires is the uncompressed size.
+     * b/10227498
+     */
+    public void testStoredEntrySize() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream out = new ZipOutputStream(baos);
+
+        // Set up a single stored entry.
+        String name = "test_file";
+        int expectedLength = 5;
+        ZipEntry outEntry = new ZipEntry(name);
+        byte[] buffer = new byte[expectedLength];
+        outEntry.setMethod(ZipEntry.STORED);
+        CRC32 crc = new CRC32();
+        crc.update(buffer);
+        outEntry.setCrc(crc.getValue());
+        outEntry.setSize(buffer.length);
+
+        out.putNextEntry(outEntry);
+        out.write(buffer);
+        out.closeEntry();
+        out.close();
+
+        // Write the result to a file.
+        byte[] outBuffer = baos.toByteArray();
+        File zipFile = createTemporaryZipFile();
+        writeBytes(zipFile, outBuffer);
+
+        ZipFile zip = new ZipFile(zipFile);
+        // Set up the zip entry to have different compressed/uncompressed sizes.
+        ZipEntry ze = zip.getEntry(name);
+        ze.setCompressedSize(expectedLength - 1);
+        // Read the contents of the stream and verify uncompressed size was used.
+        InputStream stream = zip.getInputStream(ze);
+        int count = 0;
+        int read;
+        while ((read = stream.read(buffer)) != -1) {
+            count += read;
+        }
+
+        assertEquals(expectedLength, count);
+
+    }
+
     public void testInflatingStreamsRequiringZipRefill() throws IOException {
         int originalSize = 1024 * 1024;
         byte[] readBuffer = new byte[8192];
