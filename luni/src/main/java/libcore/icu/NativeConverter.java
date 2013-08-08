@@ -36,8 +36,6 @@ public final class NativeConverter {
 
     public static native boolean contains(String converterName1, String converterName2);
 
-    public static native boolean canEncode(long converterHandle, int codeUnit);
-
     public static native String[] getAvailableCharsetNames();
     public static native Charset charsetForName(String charsetName);
 

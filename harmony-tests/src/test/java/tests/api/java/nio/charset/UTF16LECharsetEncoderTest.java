@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -68,7 +68,6 @@ public class UTF16LECharsetEncoderTest extends CharsetEncoderTest {
 		// normal case for utfCS
 		assertTrue(encoder.canEncode("\u0077"));
 		assertTrue(encoder.canEncode("\uc2a3"));
-		assertTrue(encoder.canEncode(""));
 
 		// for non-mapped char
 		assertTrue(encoder.canEncode("\uc2c0"));
@@ -82,17 +81,9 @@ public class UTF16LECharsetEncoderTest extends CharsetEncoderTest {
 		assertFalse(encoder.canEncode("\ud800\udb00"));
 	}
 
-	public void testCanEncodeICUBug() {
-		assertFalse(encoder.canEncode("\ud800"));
-	}
-
 	public void testSpecificDefaultValue() {
 		assertEquals(2, encoder.averageBytesPerChar(), 0.001);
 		assertEquals(2, encoder.maxBytesPerChar(), 0.001);
-	}
-
-	public void testIsLegalReplacementEmptyArray() {
-		assertTrue(encoder.isLegalReplacement(new byte[0]));
 	}
 
 	CharBuffer getMalformedCharBuffer() {
@@ -108,7 +99,7 @@ public class UTF16LECharsetEncoderTest extends CharsetEncoderTest {
 	}
 
 	protected byte[] getIllegalByteArray() {
-		return new byte[] { 0x00 };
+	  return new byte[] { (byte)0x00, (byte)0xd8, (byte)0x00, (byte)0xdb };
 	}
 
 	protected byte[] getLegalByteArray() {
