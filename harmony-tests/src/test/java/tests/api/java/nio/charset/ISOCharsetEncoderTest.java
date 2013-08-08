@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnmappableCharacterException;
 
 /**
@@ -46,29 +47,19 @@ public class ISOCharsetEncoderTest extends CharsetEncoderTest {
 		super.tearDown();
 	}
 
-	public void testCanEncodeCharSequence() {
+	@Override public void testCanEncodeCharSequence() {
 		// normal case for isoCS
 		assertTrue(encoder.canEncode("\u0077"));
 		assertFalse(encoder.canEncode("\uc2a3"));
 		assertFalse(encoder.canEncode("\ud800\udc00"));
-		try {
-			encoder.canEncode(null);
-		} catch (NullPointerException e) {
-		}
-		assertTrue(encoder.canEncode(""));
 	}
 
-	public void testCanEncodeICUBug() {
-		assertFalse(encoder.canEncode((char) '\ud800'));
-		assertFalse(encoder.canEncode((String) "\ud800"));
-	}
-
-	public void testCanEncodechar() throws CharacterCodingException {
+	@Override public void testCanEncodechar() throws CharacterCodingException {
 		assertTrue(encoder.canEncode('\u0077'));
 		assertFalse(encoder.canEncode('\uc2a3'));
 	}
 
-	public void testSpecificDefaultValue() {
+	@Override public void testSpecificDefaultValue() {
 		assertEquals(1, encoder.averageBytesPerChar(), 0.001);
 		assertEquals(1, encoder.maxBytesPerChar(), 0.001);
 	}
@@ -98,15 +89,5 @@ public class ISOCharsetEncoderTest extends CharsetEncoderTest {
 		} catch (UnmappableCharacterException e) {
 		}
 		encoder.reset();
-		ByteBuffer out = ByteBuffer.allocate(10);
-		assertTrue(encoder.encode(CharBuffer.wrap("\ud800"), out, true)
-				.isMalformed());
-		encoder.flush(out);
-		encoder.reset();
-		out = ByteBuffer.allocate(10);
-		assertSame(CoderResult.UNDERFLOW, encoder.encode(CharBuffer
-				.wrap("\ud800"), out, false));
-		assertTrue(encoder.encode(CharBuffer.wrap("\udc00"), out, true)
-				.isMalformed());
 	}
 }

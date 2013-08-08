@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,7 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
 /**
- * 
+ *
  */
 public class UTF16CharsetDecoderTest extends CharsetDecoderTest {
 
@@ -64,49 +64,6 @@ public class UTF16CharsetDecoderTest extends CharsetDecoderTest {
         byte[] bytes = new byte[b.remaining()];
         b.get(bytes);
         return ByteBuffer.wrap(bytes);
-    }
-
-    public void testMultiStepDecode() throws CharacterCodingException {
-        if (!cs.name().equals("mock")) {
-            decoder.onMalformedInput(CodingErrorAction.REPORT);
-            decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
-            CharBuffer out = CharBuffer.allocate(10);
-            assertTrue(decoder.decode(
-                    ByteBuffer.wrap(new byte[] { -1, -2, 32, 0, 98 }), out,
-                    true).isMalformed());
-
-            decoder.flush(out);
-            decoder.reset();
-            out.clear();
-            assertSame(CoderResult.UNDERFLOW, decoder.decode(ByteBuffer
-                    .wrap(new byte[] { -1, -2, 32, 0 }), out, false));
-            assertTrue(decoder.decode(ByteBuffer.wrap(new byte[] { 98 }), out,
-                    true).isMalformed());
-
-            decoder.flush(out);
-            decoder.reset();
-            out.clear();
-            assertSame(CoderResult.UNDERFLOW, decoder.decode(ByteBuffer
-                    .wrap(new byte[] { -1, -2, 32, 0, 98 }), out, false));
-            assertFalse(decoder.decode(ByteBuffer.wrap(new byte[] {}), out,
-                    true).isMalformed());
-
-            decoder.flush(out);
-            decoder.reset();
-            out.clear();
-            assertFalse(decoder.decode(
-                    ByteBuffer.wrap(new byte[] { -1, -2, 32, 0, 98, 0 }), out,
-                    true).isError());
-
-            decoder.flush(out);
-            decoder.reset();
-            out.clear();
-            assertSame(CoderResult.UNDERFLOW, decoder.decode(ByteBuffer
-                    .wrap(new byte[] { -1, -2, 32, 0, 98 }), out, false));
-            assertTrue(decoder.decode(ByteBuffer.wrap(new byte[] { 0 }), out,
-                    true).isMalformed());
-
-        }
     }
 
     public void testLittleEndianByteBufferCharBuffer()

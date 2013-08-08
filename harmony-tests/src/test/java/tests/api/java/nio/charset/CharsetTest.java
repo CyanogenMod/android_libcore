@@ -708,8 +708,7 @@ public class CharsetTest extends TestCase {
      */
     public void test_availableCharsets() throws Exception {
         // regression test for Harmony-1051
-        ClassLoader originalClassLoader = Thread.currentThread()
-                .getContextClassLoader();
+        ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(null);
             SortedMap<String, Charset> charsets = Charset.availableCharsets();

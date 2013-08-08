@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -57,7 +57,6 @@ public class UTFCharsetEncoderTest extends CharsetEncoderTest {
 		// normal case for utfCS
 		assertTrue(encoder.canEncode("\u0077"));
 		assertTrue(encoder.canEncode("\uc2a3"));
-		assertTrue(encoder.canEncode(""));
 
 		// for non-mapped char
 		assertTrue(encoder.canEncode("\uc2c0"));
@@ -69,10 +68,6 @@ public class UTFCharsetEncoderTest extends CharsetEncoderTest {
 		assertTrue(encoder.canEncode("\ud800\udc00"));
 		// invalid surrogate pair
 		assertFalse(encoder.canEncode("\ud800\udb00"));
-	}
-
-	public void testCanEncodeICUBug() {
-		assertFalse(encoder.canEncode("\ud800"));
 	}
 
 	public void testSpecificDefaultValue() {

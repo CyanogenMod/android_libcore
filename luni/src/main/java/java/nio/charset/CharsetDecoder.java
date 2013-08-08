@@ -303,12 +303,8 @@ public abstract class CharsetDecoder {
      *             method threw an <code>BufferUnderflowException</code> or
      *             <code>BufferOverflowException</code>.
      */
-    public final CoderResult decode(ByteBuffer in, CharBuffer out,
-            boolean endOfInput) {
-        /*
-         * status check
-         */
-        if ((status == FLUSH) || (!endOfInput && status == END)) {
+    public final CoderResult decode(ByteBuffer in, CharBuffer out, boolean endOfInput) {
+        if (status == FLUSH || (!endOfInput && status == END)) {
             throw new IllegalStateException();
         }
 

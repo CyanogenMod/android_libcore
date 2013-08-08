@@ -184,14 +184,6 @@ final class CharsetEncoderICU extends CharsetEncoder {
         }
     }
 
-    public boolean canEncode(char c) {
-        return canEncode((int) c);
-    }
-
-    public boolean canEncode(int codePoint) {
-        return NativeConverter.canEncode(converterHandle, codePoint);
-    }
-
     @Override protected void finalize() throws Throwable {
         try {
             NativeConverter.closeConverter(converterHandle);
