@@ -18,7 +18,9 @@ package dalvik.system;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 /**
  * Base class for common functionality between various dex-based
@@ -48,9 +50,14 @@ public class BaseDexClassLoader extends ClassLoader {
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        Class c = pathList.findClass(name);
+        List<Throwable> suppressedExceptions = new ArrayList<Throwable>();
+        Class c = pathList.findClass(name, suppressedExceptions);
         if (c == null) {
-            throw new ClassNotFoundException("Didn't find class \"" + name + "\" on path: " + pathList);
+            ClassNotFoundException cnfe = new ClassNotFoundException("Didn't find class \"" + name + "\" on path: " + pathList);
+            for (Throwable t : suppressedExceptions) {
+                cnfe.addSuppressed(t);
+            }
+            throw cnfe;
         }
         return c;
     }

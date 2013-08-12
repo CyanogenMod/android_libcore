@@ -19,7 +19,9 @@ package dalvik.system;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
 import libcore.io.StructStat;
@@ -169,9 +171,11 @@ public final class DexFile {
      *             normally should not happen
      */
     public void close() throws IOException {
-        guard.close();
-        closeDexFile(mCookie);
-        mCookie = 0;
+        if (mCookie != 0) {
+            guard.close();
+            closeDexFile(mCookie);
+            mCookie = 0;
+        }
     }
 
     /**
@@ -197,7 +201,7 @@ public final class DexFile {
      */
     public Class loadClass(String name, ClassLoader loader) {
         String slashName = name.replace('.', '/');
-        return loadClassBinaryName(slashName, loader);
+        return loadClassBinaryName(slashName, loader, null);
     }
 
     /**
@@ -207,11 +211,29 @@ public final class DexFile {
      *
      * @hide
      */
-    public Class loadClassBinaryName(String name, ClassLoader loader) {
-        return defineClass(name, loader, mCookie);
+    public Class loadClassBinaryName(String name, ClassLoader loader, List<Throwable> suppressed) {
+        return defineClass(name, loader, mCookie, suppressed);
     }
 
-    private native static Class defineClass(String name, ClassLoader loader, int cookie);
+    private static Class defineClass(String name, ClassLoader loader, int cookie,
+                                     List<Throwable> suppressed) {
+        Class result = null;
+        try {
+            result = defineClassNative(name, loader, cookie);
+        } catch (NoClassDefFoundError e) {
+            if (suppressed != null) {
+                suppressed.add(e);
+            }
+        } catch (ClassNotFoundException e) {
+            if (suppressed != null) {
+                suppressed.add(e);
+            }
+        }
+        return result;
+    }
+
+    private static native Class defineClassNative(String name, ClassLoader loader, int cookie)
+        throws ClassNotFoundException, NoClassDefFoundError;
 
     /**
      * Enumerate the names of the classes in this DEX file.
@@ -269,7 +291,14 @@ public final class DexFile {
      * Open a DEX file.  The value returned is a magic VM cookie.  On
      * failure, an IOException is thrown.
      */
-    native private static int openDexFile(String sourceName, String outputName,
+    private static int openDexFile(String sourceName, String outputName,
+        int flags) throws IOException {
+        return openDexFileNative(new File(sourceName).getCanonicalPath(),
+                                 (outputName == null) ? null : new File(outputName).getCanonicalPath(),
+                                 flags);
+    }
+
+    native private static int openDexFileNative(String sourceName, String outputName,
         int flags) throws IOException;
 
     /*
