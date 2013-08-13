@@ -68,6 +68,7 @@ core_shared_libraries := $(LOCAL_SHARED_LIBRARIES)
 core_static_libraries := $(LOCAL_STATIC_LIBRARIES)
 core_cflags := -Wall -Wextra -Werror
 core_cflags += -DJNI_JARJAR_PREFIX="com/android/"
+core_cppflags += -std=gnu++11
 
 core_test_files := \
   luni/src/test/native/test_openssl_engine.cpp \
