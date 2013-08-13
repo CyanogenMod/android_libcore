@@ -33,7 +33,6 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import junit.framework.TestCase;
-import libcore.io.IoUtils;
 
 public final class ZipFileTest extends TestCase {
     /**
@@ -57,7 +56,7 @@ public final class ZipFileTest extends TestCase {
         zipFile.close();
     }
 
-    private static void replaceBytes(byte[] original, byte[] replacement, byte[] buffer) {
+    private static void replaceBytes(byte[] buffer, byte[] original, byte[] replacement) {
         // Gotcha here: original and replacement must be the same length
         assertEquals(original.length, replacement.length);
         boolean found;
@@ -80,37 +79,38 @@ public final class ZipFileTest extends TestCase {
         }
     }
 
+    private static void writeBytes(File f, byte[] bytes) throws IOException {
+        FileOutputStream out = new FileOutputStream(f);
+        out.write(bytes);
+        out.close();
+    }
+
     /**
      * Make sure we don't fail silently for duplicate entries.
      * b/8219321
      */
-    public void testDuplicateEntries() throws IOException {
-        String entryName = "test_file_name1";
-        String tmpName = "test_file_name2";
+    public void testDuplicateEntries() throws Exception {
+        String name1 = "test_file_name1";
+        String name2 = "test_file_name2";
 
-        // create the template data
-        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-        ZipOutputStream out = new ZipOutputStream(bytesOut);
-        ZipEntry ze1 = new ZipEntry(tmpName);
-        out.putNextEntry(ze1);
+        // Create the good zip file.
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream out = new ZipOutputStream(baos);
+        out.putNextEntry(new ZipEntry(name2));
         out.closeEntry();
-        ZipEntry ze2 = new ZipEntry(entryName);
-        out.putNextEntry(ze2);
+        out.putNextEntry(new ZipEntry(name1));
         out.closeEntry();
         out.close();
 
-        // replace the bytes we don't like
-        byte[] buf = bytesOut.toByteArray();
-        replaceBytes(tmpName.getBytes(), entryName.getBytes(), buf);
+        // Rewrite one of the filenames.
+        byte[] buffer = baos.toByteArray();
+        replaceBytes(buffer, name2.getBytes(), name1.getBytes());
 
-        // write the result to a file
-        File badZip = File.createTempFile("badzip", "zip");
-        badZip.deleteOnExit();
-        FileOutputStream outstream = new FileOutputStream(badZip);
-        outstream.write(buf);
-        outstream.close();
+        // Write the result to a file.
+        File badZip = createTemporaryZipFile();
+        writeBytes(badZip, buffer);
 
-        // see if we can still handle it
+        // Check that we refuse to load the modified file.
         try {
             ZipFile bad = new ZipFile(badZip);
             fail();
@@ -364,6 +364,55 @@ public final class ZipFileTest extends TestCase {
         // TODO: there's currently no API for reading the file comment --- strings(1) the file?
         assertEquals(expectedEntryComment, zipFile.getEntry("a").getComment());
         zipFile.close();
+    }
+
+    public void testNameLengthChecks() throws IOException {
+        // Is entry name length checking done on bytes or characters?
+        // Really it should be bytes, but the RI only checks characters at construction time.
+        // Android does the same, because it's cheap...
+        try {
+            new ZipEntry((String) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        new ZipEntry(makeString(0xffff, "a"));
+        try {
+            new ZipEntry(makeString(0xffff + 1, "a"));
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+
+        // ...but Android won't let you create a zip file with a truncated name.
+        ZipOutputStream out = createZipOutputStream(createTemporaryZipFile());
+        ZipEntry ze = new ZipEntry(makeString(0xffff, "\u0666"));
+        try {
+            out.putNextEntry(ze);
+            fail(); // The RI fails this test; it just checks the character count at construction time.
+        } catch (IllegalArgumentException expected) {
+        }
+        out.closeEntry();
+        out.putNextEntry(new ZipEntry("okay")); // ZipOutputStream.close throws if you add nothing!
+        out.close();
+    }
+
+    // https://code.google.com/p/android/issues/detail?id=58465
+    public void test_NUL_in_filename() throws Exception {
+        File file = createTemporaryZipFile();
+
+        // We allow creation of a ZipEntry whose name contains a NUL byte,
+        // mainly because it's not likely to happen by accident and it's useful for testing.
+        ZipOutputStream out = createZipOutputStream(file);
+        out.putNextEntry(new ZipEntry("hello"));
+        out.putNextEntry(new ZipEntry("hello\u0000"));
+        out.close();
+
+        // But you can't open a ZIP file containing such an entry, because we reject it
+        // when we find it in the central directory.
+        try {
+            ZipFile zipFile = new ZipFile(file);
+            fail();
+        } catch (ZipException expected) {
+        }
     }
 
     public void testNameLengthChecks() throws IOException {

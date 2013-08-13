@@ -47,6 +47,12 @@ import libcore.io.Streams;
  */
 public class ZipFile implements ZipConstants {
     /**
+     * General Purpose Bit Flags, Bit 0.
+     * If set, indicates that the file is encrypted.
+     */
+    static final int GPBF_ENCRYPTED_FLAG = 1 << 0;
+
+    /**
      * General Purpose Bit Flags, Bit 3.
      * If this bit is set, the fields crc-32, compressed
      * size and uncompressed size are set to zero in the
@@ -66,6 +72,16 @@ public class ZipFile implements ZipConstants {
      * must be encoded using UTF-8.
      */
     static final int GPBF_UTF8_FLAG = 1 << 11;
+
+    /**
+     * Supported General Purpose Bit Flags Mask.
+     * Bit mask of bits not supported.
+     * Note: The only bit that we will enforce at this time
+     * is the encrypted bit. Although other bits are not supported,
+     * we must not enforce them as this could break some legitimate
+     * use cases (See http://b/8617715).
+     */
+    static final int GPBF_UNSUPPORTED_MASK = GPBF_ENCRYPTED_FLAG;
 
     /**
      * Open zip file for reading.
@@ -242,21 +258,33 @@ public class ZipFile implements ZipConstants {
         RandomAccessFile localRaf = raf;
         synchronized (localRaf) {
             // We don't know the entry data's start position. All we have is the
-            // position of the entry's local header. At position 28 we find the
-            // length of the extra data. In some cases this length differs from
-            // the one coming in the central header.
-            RAFStream rafStream = new RAFStream(localRaf, entry.localHeaderRelOffset + 28);
+            // position of the entry's local header. At position 6 we find the
+            // General Purpose Bit Flag.
+            // http://www.pkware.com/documents/casestudies/APPNOTE.TXT
+            RAFStream rafStream= new RAFStream(localRaf, entry.localHeaderRelOffset + 6);
             DataInputStream is = new DataInputStream(rafStream);
-            int localExtraLenOrWhatever = Short.reverseBytes(is.readShort()) & 0xffff;
+            int gpbf = Short.reverseBytes(is.readShort()) & 0xffff;
+            if ((gpbf & ZipFile.GPBF_UNSUPPORTED_MASK) != 0) {
+                throw new ZipException("Invalid General Purpose Bit Flag: " + gpbf);
+            }
+
+            // Offset 26 has the file name length, and offset 28 has the extra field length.
+            // These lengths can differ from the ones in the central header.
+            is.skipBytes(18);
+            int fileNameLength = Short.reverseBytes(is.readShort()) & 0xffff;
+            int extraFieldLength = Short.reverseBytes(is.readShort()) & 0xffff;
             is.close();
 
-            // Skip the name and this "extra" data or whatever it is:
-            rafStream.skip(entry.nameLength + localExtraLenOrWhatever);
-            rafStream.length = rafStream.offset + entry.compressedSize;
+            // Skip the variable-size file name and extra field data.
+            rafStream.skip(fileNameLength + extraFieldLength);
+
+            // The compressed or stored file data follows immediately after.
             if (entry.compressionMethod == ZipEntry.DEFLATED) {
-                int bufSize = Math.max(1024, (int)Math.min(entry.getSize(), 65535L));
+                rafStream.length = rafStream.offset + entry.compressedSize;
+                int bufSize = Math.max(1024, (int) Math.min(entry.getSize(), 65535L));
                 return new ZipInflaterInputStream(rafStream, new Inflater(true), bufSize, entry);
             } else {
+                rafStream.length = rafStream.offset + entry.size;
                 return rafStream;
             }
         }
