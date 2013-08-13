@@ -443,35 +443,6 @@ public final class ZipFileTest extends TestCase {
         }
     }
 
-    public void testNameLengthChecks() throws IOException {
-        // Is entry name length checking done on bytes or characters?
-        // Really it should be bytes, but the RI only checks characters at construction time.
-        // Android does the same, because it's cheap...
-        try {
-            new ZipEntry((String) null);
-            fail();
-        } catch (NullPointerException expected) {
-        }
-        new ZipEntry(makeString(0xffff, "a"));
-        try {
-            new ZipEntry(makeString(0xffff + 1, "a"));
-            fail();
-        } catch (IllegalArgumentException expected) {
-        }
-
-        // ...but Android won't let you create a zip file with a truncated name.
-        ZipOutputStream out = createZipOutputStream(createTemporaryZipFile());
-        ZipEntry ze = new ZipEntry(makeString(0xffff, "\u0666"));
-        try {
-            out.putNextEntry(ze);
-            fail(); // The RI fails this test; it just checks the character count at construction time.
-        } catch (IllegalArgumentException expected) {
-        }
-        out.closeEntry();
-        out.putNextEntry(new ZipEntry("okay")); // ZipOutputStream.close throws if you add nothing!
-        out.close();
-    }
-
     public void testCrc() throws IOException {
         ZipEntry ze = new ZipEntry("test");
         ze.setMethod(ZipEntry.STORED);
