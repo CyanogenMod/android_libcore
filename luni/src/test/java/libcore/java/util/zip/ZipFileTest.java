@@ -33,7 +33,6 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import junit.framework.TestCase;
-import libcore.io.IoUtils;
 
 public final class ZipFileTest extends TestCase {
     /**
@@ -377,6 +376,55 @@ public final class ZipFileTest extends TestCase {
 
         ZipFile zipFile = new ZipFile(file);
         assertEquals(null, zipFile.getComment());
+    }
+
+    public void testNameLengthChecks() throws IOException {
+        // Is entry name length checking done on bytes or characters?
+        // Really it should be bytes, but the RI only checks characters at construction time.
+        // Android does the same, because it's cheap...
+        try {
+            new ZipEntry((String) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        new ZipEntry(makeString(0xffff, "a"));
+        try {
+            new ZipEntry(makeString(0xffff + 1, "a"));
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+
+        // ...but Android won't let you create a zip file with a truncated name.
+        ZipOutputStream out = createZipOutputStream(createTemporaryZipFile());
+        ZipEntry ze = new ZipEntry(makeString(0xffff, "\u0666"));
+        try {
+            out.putNextEntry(ze);
+            fail(); // The RI fails this test; it just checks the character count at construction time.
+        } catch (IllegalArgumentException expected) {
+        }
+        out.closeEntry();
+        out.putNextEntry(new ZipEntry("okay")); // ZipOutputStream.close throws if you add nothing!
+        out.close();
+    }
+
+    // https://code.google.com/p/android/issues/detail?id=58465
+    public void test_NUL_in_filename() throws Exception {
+        File file = createTemporaryZipFile();
+
+        // We allow creation of a ZipEntry whose name contains a NUL byte,
+        // mainly because it's not likely to happen by accident and it's useful for testing.
+        ZipOutputStream out = createZipOutputStream(file);
+        out.putNextEntry(new ZipEntry("hello"));
+        out.putNextEntry(new ZipEntry("hello\u0000"));
+        out.close();
+
+        // But you can't open a ZIP file containing such an entry, because we reject it
+        // when we find it in the central directory.
+        try {
+            ZipFile zipFile = new ZipFile(file);
+            fail();
+        } catch (ZipException expected) {
+        }
     }
 
     public void testNameLengthChecks() throws IOException {

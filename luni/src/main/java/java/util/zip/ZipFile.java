@@ -284,19 +284,23 @@ public class ZipFile implements Closeable, ZipConstants {
                 throw new ZipException("Invalid General Purpose Bit Flag: " + gpbf);
             }
 
-            // At position 28 we find the length of the extra data. In some cases
-            // this length differs from the one coming in the central header.
-            is.skipBytes(20);
-            int localExtraLenOrWhatever = Short.reverseBytes(is.readShort()) & 0xffff;
+            // Offset 26 has the file name length, and offset 28 has the extra field length.
+            // These lengths can differ from the ones in the central header.
+            is.skipBytes(18);
+            int fileNameLength = Short.reverseBytes(is.readShort()) & 0xffff;
+            int extraFieldLength = Short.reverseBytes(is.readShort()) & 0xffff;
             is.close();
 
-            // Skip the name and this "extra" data or whatever it is:
-            rafStream.skip(entry.nameLength + localExtraLenOrWhatever);
-            rafStream.length = rafStream.offset + entry.compressedSize;
+            // Skip the variable-size file name and extra field data.
+            rafStream.skip(fileNameLength + extraFieldLength);
+
+            // The compressed or stored file data follows immediately after.
             if (entry.compressionMethod == ZipEntry.DEFLATED) {
-                int bufSize = Math.max(1024, (int)Math.min(entry.getSize(), 65535L));
+                rafStream.length = rafStream.offset + entry.compressedSize;
+                int bufSize = Math.max(1024, (int) Math.min(entry.getSize(), 65535L));
                 return new ZipInflaterInputStream(rafStream, new Inflater(true), bufSize, entry);
             } else {
+                rafStream.length = rafStream.offset + entry.size;
                 return rafStream;
             }
         }
