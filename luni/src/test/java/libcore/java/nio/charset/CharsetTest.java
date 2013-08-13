@@ -75,16 +75,18 @@ public class CharsetTest extends junit.framework.TestCase {
         }
     }
 
-    public void test_EUC_JP() throws Exception {
+    public void test_EUC_JP_replacement_character() throws Exception {
         assertEncodes(Charset.forName("EUC-JP"), "\ufffd", 0xf4, 0xfe);
     }
 
-    public void test_SCSU() throws Exception {
-        assertEncodes(Charset.forName("SCSU"), "\ufffd", 14, 0xff, 0xfd);
+    public void test_SCSU_replacement_character() throws Exception {
+        assertDecodes(Charset.forName("SCSU"), "\ufffd", 14, 0xff);
+        assertEncodes(Charset.forName("SCSU"), "\ufffd", 14, 0xff);
     }
 
-    public void test_Shift_JIS() throws Exception {
-        assertEncodes(Charset.forName("Shift_JIS"), "\ufffd", 0xfc, 0xfc);
+    public void test_Shift_JIS_replacement_character() throws Exception {
+        assertDecodes(Charset.forName("Shift_JIS"), "\ufffd", 0xfc);
+        assertEncodes(Charset.forName("Shift_JIS"), "\ufffd", 0xfc);
     }
 
     public void test_UTF_16() throws Exception {
