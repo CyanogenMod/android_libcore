@@ -158,7 +158,7 @@ public class Services {
     }
 
     /**
-     * Returns true if services contain any provider information.
+     * Returns true if services does not contain any provider information.
      */
     public static synchronized boolean isEmpty() {
         return services.isEmpty();
