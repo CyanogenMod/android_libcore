@@ -33,12 +33,10 @@
 package java.lang.reflect;
 
 import com.android.dex.Dex;
-
 import java.lang.annotation.Annotation;
 import java.util.Comparator;
 import java.util.List;
 import libcore.reflect.AnnotationAccess;
-import libcore.reflect.InternalNames;
 import libcore.reflect.Types;
 
 /**
@@ -52,9 +50,10 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
     private static final Comparator<Method> ORDER_BY_SIGNATURE = null; // Unused; must match Method.
 
     /**
-     * Only created by native code.
+     * @hide
      */
-    private Constructor() {
+    public Constructor(ArtMethod artMethod) {
+        super(artMethod);
     }
 
     public Annotation[] getAnnotations() {
@@ -102,7 +101,7 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
      * this constructor has no declared exceptions, an empty array will be
      * returned.
      */
-    @Override public Class<?>[] getExceptionTypes() {
+    public Class<?>[] getExceptionTypes() {
         // TODO: use dex cache to speed looking up class
         return AnnotationAccess.getExceptions(this);
     }
@@ -130,7 +129,7 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
      * as this constructor.
      */
     @Override public boolean equals(Object other) {
-        return this == other; // exactly one instance of each member in this runtime
+        return super.equals(other);
     }
 
     @Override public TypeVariable<Constructor<T>>[] getTypeParameters() {
@@ -214,7 +213,7 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
      * @return an array of arrays of {@code Annotation} instances
      */
     public Annotation[][] getParameterAnnotations() {
-        return AnnotationAccess.getParameterAnnotations(this);
+        return artMethod.getParameterAnnotations();
     }
 
     /**
@@ -284,8 +283,8 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
      *
      * @see AccessibleObject
      */
-    public native T newInstance(Object... args) throws InstantiationException, IllegalAccessException,
-        IllegalArgumentException, InvocationTargetException;
+    public native T newInstance(Object... args) throws InstantiationException,
+        IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 
     /**
      * Returns a string containing a concise, human-readable description of this

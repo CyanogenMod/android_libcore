@@ -35,29 +35,35 @@ package java.lang.reflect;
 import java.lang.annotation.Annotation;
 
 /**
- * The superclass of fields, constructors and methods. Reflective operations
- * like {@link Field#set} and {@link Method#invoke} will fail with an {@link
- * IllegalAccessException} when the caller doesn't satisfy the target's access
- * modifier (either public, protected, package-private or private) and the
- * <i>accessible</i> flag is false. Prevent the exception by setting the
- * <i>accessible</i> flag to true with {@link #setAccessible(boolean)
- * setAccessible(true)}.
+ * {@code AccessibleObject} is the superclass of all member reflection classes
+ * (Field, Constructor, Method). AccessibleObject provides the ability to toggle
+ * a flag controlling access checks for these objects. By default, accessing a
+ * member (for example, setting a field or invoking a method) checks the
+ * validity of the access (for example, invoking a private method from outside
+ * the defining class is prohibited) and throws IllegalAccessException if the
+ * operation is not permitted. If the accessible flag is set to true, these
+ * checks are omitted. This allows privileged code, such as Java object
+ * serialization, object inspectors, and debuggers to have complete access to
+ * objects.
  *
- * <p>On Android releases up to and including Android 4.0 (Ice Cream Sandwich),
- * the <i>accessible</i> flag is false by default. On releases after
- * Android 4.0, the <i>accessible</i> flag is true by default and cannot be set
- * to false.
+ * @see Field
+ * @see Constructor
+ * @see Method
  */
-// STOPSHIP 'After 4.0' is a guess; identify the release in which 'accessible' was true by default
 public class AccessibleObject implements AnnotatedElement {
     protected AccessibleObject() {
     }
 
     /**
+     * If true, object is accessible, bypassing normal access checks
+     */
+    private boolean flag = false;
+
+    /**
      * Returns true if this object is accessible without access checks.
      */
     public boolean isAccessible() {
-        return true; // always!
+        return flag;
     }
 
     /**
@@ -65,13 +71,17 @@ public class AccessibleObject implements AnnotatedElement {
      * IllegalAccessExceptions}.
      */
     public void setAccessible(boolean flag) {
-    }
+        this.flag = flag;
+     }
 
     /**
      * Attempts to set the accessible flag for all objects in {@code objects}.
      * Setting this to true prevents {@code IllegalAccessExceptions}.
      */
     public static void setAccessible(AccessibleObject[] objects, boolean flag) {
+        for (AccessibleObject object : objects) {
+            object.flag = flag;
+        }
     }
 
     @Override public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
