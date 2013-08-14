@@ -175,10 +175,11 @@ public abstract class Charset implements Comparable<Charset> {
      *             <code>aliases</code>.
      */
     protected Charset(String canonicalName, String[] aliases) {
-        // check whether the given canonical name is legal
+        // Check whether the given canonical name is legal.
         checkCharsetName(canonicalName);
         this.canonicalName = canonicalName;
-        // check each alias and put into a set
+
+        // Collect and check each unique alias.
         this.aliasesSet = new HashSet<String>();
         if (aliases != null) {
             for (String alias : aliases) {
@@ -192,15 +193,21 @@ public abstract class Charset implements Comparable<Charset> {
         if (name.isEmpty()) {
             throw new IllegalCharsetNameException(name);
         }
-        int length = name.length();
-        for (int i = 0; i < length; ++i) {
-            if (!isValidCharsetNameCharacter(name.charAt(i))) {
+        if (!isValidCharsetNameStart(name.charAt(0))) {
+            throw new IllegalCharsetNameException(name);
+        }
+        for (int i = 1; i < name.length(); ++i) {
+            if (!isValidCharsetNamePart(name.charAt(i))) {
                 throw new IllegalCharsetNameException(name);
             }
         }
     }
 
-    private static boolean isValidCharsetNameCharacter(char c) {
+    private static boolean isValidCharsetNameStart(char c) {
+        return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9');
+    }
+
+    private static boolean isValidCharsetNamePart(char c) {
         return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
                 c == '-' || c == '.' || c == ':' || c == '_';
     }
