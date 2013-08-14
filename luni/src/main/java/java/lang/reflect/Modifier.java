@@ -109,6 +109,13 @@ public class Modifier {
     public static final int MIRANDA = 0x8000;
 
     /**
+     * Dex addition to mark instance constructors and static class
+     * initializer methods.
+     * @hide
+     */
+    public static final int CONSTRUCTOR = 0x10000;
+
+    /**
      * Constructs a new {@code Modifier} instance.
      */
     public Modifier() {
@@ -236,6 +243,14 @@ public class Modifier {
      */
     public static boolean isVolatile(int modifiers) {
         return ((modifiers & VOLATILE) != 0);
+    }
+
+    /**
+     * Returns true if the given modifiers contain {@link Modifier#CONSTRUCTOR}.
+     * @hide
+     */
+    public static boolean isConstructor(int modifiers) {
+        return ((modifiers & Modifier.CONSTRUCTOR) != 0);
     }
 
     /**

@@ -37,7 +37,6 @@ import java.lang.annotation.Annotation;
 import java.util.Comparator;
 import java.util.List;
 import libcore.reflect.AnnotationAccess;
-import libcore.reflect.InternalNames;
 import libcore.reflect.Types;
 
 /**
@@ -58,7 +57,8 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
             }
             int comparison = a.getName().compareTo(b.getName());
             if (comparison == 0) {
-                comparison = a.compareParameters(b.getParameterTypes());
+                comparison = a.artMethod.findOverriddenMethodIfProxy().compareParameters(
+                        b.getParameterTypes());
                 if (comparison == 0) {
                     // This is necessary for methods that have covariant return types.
                     Class<?> aReturnType = a.getReturnType();
@@ -75,9 +75,14 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
     };
 
     /**
-     * Only created by native code.
+     * @hide
      */
-    private Method() {
+    public Method(ArtMethod artMethod) {
+        super(artMethod);
+    }
+
+    ArtMethod getArtMethod() {
+        return artMethod;
     }
 
     public Annotation[] getAnnotations() {
@@ -131,15 +136,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @return the name of this method
      */
     @Override public String getName() {
-        Method method = this;
-        if (declaringClass.isProxy()) {
-            // For proxies use their interface method
-            method = findOverriddenMethod();
-        }
-        Dex dex = method.declaringClass.getDex();
-        int nameIndex = dex.nameIndexFromMethodIndex(methodDexIndex);
-        // Note, in the case of a Proxy the dex cache strings are equal.
-        return getDexCacheString(dex, nameIndex);
+        return ArtMethod.getMethodName(artMethod);
     }
 
     /**
@@ -156,7 +153,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @return the declared exception classes
      */
     public Class<?>[] getExceptionTypes() {
-        if (declaringClass.isProxy()) {
+        if (getDeclaringClass().isProxy()) {
             return getExceptionTypesNative();
         } else {
             // TODO: use dex cache to speed looking up class
@@ -174,12 +171,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @return the parameter types
      */
     @Override public Class<?>[] getParameterTypes() {
-        Method method = this;
-        if (declaringClass.isProxy()) {
-            // For proxies use their interface method.
-            return findOverriddenMethod().getParameterTypes();
-        }
-        return super.getParameterTypes();
+        return artMethod.findOverriddenMethodIfProxy().getParameterTypes();
     }
 
     /**
@@ -189,15 +181,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @return the return type
      */
     public Class<?> getReturnType() {
-        Method method = this;
-        if (declaringClass.isProxy()) {
-            // For proxies use their interface method
-            method = findOverriddenMethod();
-        }
-        Dex dex = method.declaringClass.getDex();
-        int returnTypeIndex = dex.returnTypeIndexFromMethodIndex(methodDexIndex);
-        // Note, in the case of a Proxy the dex cache types are equal.
-        return getDexCacheType(dex, returnTypeIndex);
+        return artMethod.findOverriddenMethodIfProxy().getReturnType();
     }
 
     /**
@@ -214,7 +198,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * parameters and return type as this method.
      */
     @Override public boolean equals(Object other) {
-        return this == other; // exactly one instance of each member in this runtime
+        return super.equals(other);
     }
 
     /**
@@ -225,46 +209,8 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @hide needed by Proxy
      */
     boolean equalNameAndParameters(Method m) {
-        return getName().equals(m.getName()) && equalParameters(m.getParameterTypes());
-    }
-
-    /**
-     * Returns true if the given parameters match those of this method in the given order.
-     *
-     * @hide
-     */
-    @Override public boolean equalParameters(Class<?>[] params) {
-        if (declaringClass.isProxy()) {
-            // For proxies use their interface method.
-            return findOverriddenMethod().equalParameters(params);
-        }
-        return super.equalParameters(params);
-    }
-
-    /**
-     * Performs a comparison of the parameters to this method with the given parameters.
-     *
-     * @hide
-     */
-    int compareParameters(Class<?>[] params) {
-        if (declaringClass.isProxy()) {
-            // For proxies use their interface method.
-            return findOverriddenMethod().compareParameters(params);
-        }
-        Dex dex = getDeclaringClass().getDex();
-        short[] types = dex.parameterTypeIndicesFromMethodIndex(methodDexIndex);
-        int length = Math.min(types.length, params.length);
-        for (int i = 0; i < length; i++) {
-            Class<?> aType = getDexCacheType(dex, types[i] & 0xFFFF);
-            Class<?> bType = params[i];
-            if (aType != bType) {
-                int comparison = aType.getName().compareTo(bType.getName());
-                if (comparison != 0) {
-                    return comparison;
-                }
-            }
-        }
-        return types.length - params.length;
+        return getName().equals(m.getName()) &&
+                ArtMethod.equalMethodParameters(artMethod,m.getParameterTypes());
     }
 
     /**
@@ -364,12 +310,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @return an array of arrays of {@code Annotation} instances
      */
     public Annotation[][] getParameterAnnotations() {
-        Method method = this;
-        if (declaringClass.isProxy()) {
-            // For proxies use their interface method
-            method = findOverriddenMethod();
-        }
-        return AnnotationAccess.getParameterAnnotations(method);
+        return artMethod.findOverriddenMethodIfProxy().getParameterAnnotations();
     }
 
     /**
@@ -495,26 +436,4 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
 
         return result.toString();
     }
-
-    public void setAccessible(boolean flag) {
-        super.setAccessible(flag);
-    }
-
-    /**
-     * Returns the {@code Method} that this method overrides. Used to determine the interface
-     * method overridden by a proxy method (as the proxy method doesn't directly support operations
-     * such as {@link Method#getName}). This method works for non-proxy methods.
-     */
-    private Method findOverriddenMethod() {
-      if (declaringClass.isProxy()) {
-        // Proxy method's declaring class' dex cache refers to that of Proxy. The local cache in
-        // Method refers to the original interface's dex cache and is ensured to be resolved by
-        // proxy generation. Short-cut the native call below in this case.
-        return (Method) dexCacheResolvedMethods[methodDexIndex];
-      } else {
-        return findOverriddenMethodNative();
-      }
-    }
-
-    private native Method findOverriddenMethodNative();
 }

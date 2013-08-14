@@ -71,18 +71,16 @@ public final class Field extends AccessibleObject implements Member {
         }
     };
 
-    private Class<?> declaringClass;
-    /** Field access flags (modifiers) */
-    private int accessFlags;
-    /** Index into DexFile's field ids */
-    private int fieldDexIndex;
-    /** Offset of field in object or class */
-    private int offset;
+    private final ArtField artField;
 
     /**
-     * Only created by native code.
+     * @hide
      */
-    private Field() {
+    public Field(ArtField artField) {
+        if (artField == null) {
+            throw new NullPointerException("artField == null");
+        }
+        this.artField = artField;
     }
 
     /**
@@ -92,8 +90,8 @@ public final class Field extends AccessibleObject implements Member {
      * @return the modifiers for this field
      * @see Modifier
      */
-    @Override  public int getModifiers() {
-        return accessFlags & 0xffff;  // mask out bits not used by Java
+    @Override public int getModifiers() {
+        return artField.getAccessFlags() & 0xffff;  // mask out bits not used by Java
     }
 
     /**
@@ -103,7 +101,7 @@ public final class Field extends AccessibleObject implements Member {
      *         false} otherwise
      */
     public boolean isEnumConstant() {
-        return (accessFlags & Modifier.ENUM) != 0;
+        return (artField.getAccessFlags() & Modifier.ENUM) != 0;
     }
 
     /**
@@ -112,7 +110,7 @@ public final class Field extends AccessibleObject implements Member {
      * @return {@code true} if this field is synthetic, {@code false} otherwise
      */
     @Override public boolean isSynthetic() {
-        return (accessFlags & Modifier.SYNTHETIC) != 0;
+        return (artField.getAccessFlags() & Modifier.SYNTHETIC) != 0;
     }
 
     /**
@@ -121,25 +119,11 @@ public final class Field extends AccessibleObject implements Member {
      * @return the name of this field
      */
     @Override public String getName() {
-        if (fieldDexIndex == -1) {
-            // Proxy classes have 1 synthesized static field with no valid dex index
-            if (!declaringClass.isProxy()) {
-                throw new AssertionError();
-            }
-            return "throws";
-        }
-        Dex dex = declaringClass.getDex();
-        int nameIndex = dex.nameIndexFromFieldIndex(fieldDexIndex);
-        return declaringClass.getDexCacheString(dex, nameIndex);
+        return artField.getName();
     }
 
-    /**
-     * Returns the class that declares this field.
-     *
-     * @return the declaring class
-     */
     @Override public Class<?> getDeclaringClass() {
-        return declaringClass;
+        return artField.getDeclaringClass();
     }
 
     /**
@@ -148,16 +132,7 @@ public final class Field extends AccessibleObject implements Member {
      * @return the type of this field
      */
     public Class<?> getType() {
-        if (fieldDexIndex == -1) {
-            // The type of the synthesized field in a Proxy class is Class[][]
-            if (!declaringClass.isProxy()) {
-                throw new AssertionError();
-            }
-            return Class[][].class;
-        }
-        Dex dex = declaringClass.getDex();
-        int typeIndex = dex.typeIndexFromFieldIndex(fieldDexIndex);
-        return declaringClass.getDexCacheType(dex, typeIndex);
+        return artField.getType();
     }
 
     /**
@@ -166,7 +141,7 @@ public final class Field extends AccessibleObject implements Member {
      * @hide
      */
     public int getDexFieldIndex() {
-        return fieldDexIndex;
+        return artField.getDexFieldIndex();
     }
 
     /**
@@ -175,7 +150,7 @@ public final class Field extends AccessibleObject implements Member {
      * @hide
      */
     public int getOffset() {
-        return offset;
+        return artField.getOffset();
     }
 
     /**
@@ -192,7 +167,11 @@ public final class Field extends AccessibleObject implements Member {
      * as this field.
      */
     @Override public boolean equals(Object other) {
-        return this == other; // exactly one instance of each member in this runtime
+        if (!(other instanceof Field)) {
+            return false;
+        }
+        // exactly one instance of each member in this runtime
+        return this.artField == ((Field) other).artField;
     }
 
     /**
