@@ -107,30 +107,21 @@ public class CharsetTest extends TestCase {
 		}
 	}
 
-	/*
-	 * Test the method isSupported(String) with empty string.
-	 *
-	 */
-	public void testIsSupported_EmptyString() {
-		try {
-			Charset.isSupported("");
-		} catch (IllegalArgumentException e) {
-                        // FIXME: Commented out since RI does throw IAE
-                        // fail("Should not throw IllegalArgumentException!");
-		}
-	}
+  public void testIsSupported_EmptyString() {
+    try {
+      Charset.isSupported("");
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+  }
 
-	/*
-	 * Test the method isSupported(String) with a string starting with ".".
-	 *
-	 */
-	public void testIsSupported_InvalidInitialCharacter() {
-		try {
-			Charset.isSupported(".char");
-		} catch (IllegalArgumentException e) {
-			fail("Should not throw IllegalArgumentException!");
-		}
-	}
+  public void testIsSupported_InvalidInitialCharacter() {
+    try {
+      Charset.isSupported(".char");
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+  }
 
 	/*
 	 * Test the method isSupported(String) with illegal charset name.
@@ -224,31 +215,21 @@ public class CharsetTest extends TestCase {
 		assertEquals(1, c.aliases().toArray().length);
 	}
 
-	/*
-	 * Test the constructor with empty canonical name.
-	 *
-	 */
-	public void testConstructor_EmptyCanonicalName() {
-		try {
-			new MockCharset("", new String[0]);
-		} catch (IllegalCharsetNameException e) {
-                        // FIXME: Commented out since RI does throw IAE
-                        // fail("Should not throw IllegalArgumentException!");
-		}
-	}
+  public void testConstructor_EmptyCanonicalName() {
+    try {
+      new MockCharset("", new String[0]);
+      fail();
+    } catch (IllegalCharsetNameException expected) {
+    }
+  }
 
-	/*
-	 * Test the constructor with illegal canonical name: starting with neither a
-	 * digit nor a letter.
-	 *
-	 */
-	public void testConstructor_IllegalCanonicalName_Initial() {
-		try {
-			new MockCharset("-123", new String[] { "mock" });
-		} catch (IllegalCharsetNameException e) {
-			fail("Should not throw IllegalArgumentException!");
-		}
-	}
+  public void testConstructor_IllegalCanonicalName_Initial() {
+    try {
+      new MockCharset("-123", new String[] { "mock" });
+      fail();
+    } catch (IllegalCharsetNameException expected) {
+    }
+  }
 
 	/*
 	 * Test the constructor with illegal canonical name, illegal character in
@@ -315,31 +296,22 @@ public class CharsetTest extends TestCase {
 		assertEquals(0, c.aliases().toArray().length);
 	}
 
-	/*
-	 * Test the constructor with empty aliases.
-	 *
-	 */
-	public void testConstructor_EmptyAliases() {
-		try {
-			new MockCharset("mockChar", new String[] { "" });
-		} catch (IllegalCharsetNameException e) {
-                        // FIXME: Commented out since RI does throw IAE
-			// fail("Should not throw IllegalArgumentException!");
-		}
-	}
+  public void testConstructor_EmptyAliases() {
+    try {
+      new MockCharset("mockChar", new String[] { "" });
+      fail();
+    } catch (IllegalCharsetNameException expected) {
+    }
+  }
 
-	/*
-	 * Test the constructor with illegal aliases: starting with neither a digit
-	 * nor a letter.
-	 *
-	 */
-	public void testConstructor_IllegalAliases_Initial() {
-		try {
-			new MockCharset("mockChar", new String[] { "mock", "-123" });
-		} catch (IllegalCharsetNameException e) {
-			fail("Should not throw IllegalArgumentException!");
-		}
-	}
+  // Test the constructor with illegal aliases: starting with neither a digit nor a letter.
+  public void testConstructor_IllegalAliases_Initial() {
+    try {
+      new MockCharset("mockChar", new String[] { "mock", "-123" });
+      fail();
+    } catch (IllegalCharsetNameException e) {
+    }
+  }
 
 	/*
 	 * Test the constructor with illegal aliase, illegal character in the
