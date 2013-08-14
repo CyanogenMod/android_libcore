@@ -793,12 +793,6 @@
   substring: "junit.framework.AssertionFailedError: expected:<1.1> but was:<2.0>"
 },
 {
-  description: "We don't permit runtime switching of the default charset (and neither does the RI)",
-  result: EXEC_FAILED,
-  name: "org.apache.harmony.nio_char.tests.java.nio.charset.CharsetTest#test_defaultCharset",
-  substring: "expected:<ISO-8859-1> but was:<UTF-8>"
-},
-{
   description: "this test needs external interaction",
   result: UNSUPPORTED,
   names: [
