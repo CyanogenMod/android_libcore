@@ -204,7 +204,7 @@ public abstract class CharsetEncoder {
         onMalformedInput(CodingErrorAction.REPORT);
         onUnmappableCharacter(CodingErrorAction.REPORT);
         try {
-            this.encode(cb);
+            encode(cb);
             return true;
         } catch (CharacterCodingException e) {
             return false;
@@ -290,9 +290,6 @@ public abstract class CharsetEncoder {
         return out;
     }
 
-    /*
-     * checks the result whether it needs to throw CharacterCodingException.
-     */
     private void checkCoderResult(CoderResult result) throws CharacterCodingException {
         if (malformedInputAction == CodingErrorAction.REPORT && result.isMalformed()) {
             throw new MalformedInputException(result.length());
@@ -301,7 +298,6 @@ public abstract class CharsetEncoder {
         }
     }
 
-    // allocate more spaces to the given ByteBuffer
     private ByteBuffer allocateMore(ByteBuffer output) {
         if (output.capacity() == 0) {
             return ByteBuffer.allocate(1);
