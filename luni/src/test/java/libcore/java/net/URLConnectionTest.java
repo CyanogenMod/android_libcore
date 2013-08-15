@@ -1913,7 +1913,22 @@ public final class URLConnectionTest extends TestCase {
     }
 
     public void testLenientUrlToUriNul() throws Exception {
-        testUrlToUriMapping("\u0000", "%00", "%00", "%00", "%00"); // RI fails this
+        // On JB-MR2 and below, we would allow a host containing \u0000
+        // and then generate a request with a Host header that violated RFC2616.
+        // We now reject such hosts.
+        //
+        // The ideal behaviour here is to be "lenient" about the host and rewrite
+        // it, but attempting to do so introduces a new range of incompatible
+        // behaviours.
+        testUrlToUriMapping("\u0000", null, "%00", "%00", "%00"); // RI fails this
+    }
+
+    public void testHostWithNul() throws Exception {
+        URL url = new URL("http://host\u0000/");
+        try {
+            url.openStream();
+            fail();
+        } catch (IllegalArgumentException expected) {}
     }
 
     private void testUrlToUriMapping(String string, String asAuthority, String asFile,
