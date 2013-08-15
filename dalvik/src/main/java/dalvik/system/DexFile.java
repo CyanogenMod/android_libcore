@@ -223,11 +223,11 @@ public final class DexFile {
         } catch (NoClassDefFoundError e) {
             if (suppressed != null) {
                 suppressed.add(e);
-	    }
+            }
         } catch (ClassNotFoundException e) {
             if (suppressed != null) {
                 suppressed.add(e);
-	    }
+            }
         }
         return result;
     }
@@ -291,7 +291,14 @@ public final class DexFile {
      * Open a DEX file.  The value returned is a magic VM cookie.  On
      * failure, an IOException is thrown.
      */
-    native private static int openDexFile(String sourceName, String outputName,
+    private static int openDexFile(String sourceName, String outputName,
+        int flags) throws IOException {
+        return openDexFileNative(new File(sourceName).getCanonicalPath(),
+                                 (outputName == null) ? null : new File(outputName).getCanonicalPath(),
+                                 flags);
+    }
+
+    native private static int openDexFileNative(String sourceName, String outputName,
         int flags) throws IOException;
 
     /*

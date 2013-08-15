@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
@@ -274,11 +273,35 @@ import static libcore.io.OsConstants.*;
 
     /**
      * Converts a dex/jar file path and an output directory to an
-     * output file path for an associated oat file.
+     * output file path for an associated optimized dex file.
      */
     private static String optimizedPathFor(File path,
             File optimizedDirectory) {
-        String fileName = path.getName() + ".oat";
+        /*
+         * Get the filename component of the path, and replace the
+         * suffix with ".dex" if that's not already the suffix.
+         *
+         * We don't want to use ".odex", because the build system uses
+         * that for files that are paired with resource-only jar
+         * files. If the VM can assume that there's no classes.dex in
+         * the matching jar, it doesn't need to open the jar to check
+         * for updated dependencies, providing a slight performance
+         * boost at startup. The use of ".dex" here matches the use on
+         * files in /data/dalvik-cache.
+         */
+        String fileName = path.getName();
+        if (!fileName.endsWith(DEX_SUFFIX)) {
+            int lastDot = fileName.lastIndexOf(".");
+            if (lastDot < 0) {
+                fileName += DEX_SUFFIX;
+            } else {
+                StringBuilder sb = new StringBuilder(lastDot + 4);
+                sb.append(fileName, 0, lastDot);
+                sb.append(DEX_SUFFIX);
+                fileName = sb.toString();
+            }
+        }
+
         File result = new File(optimizedDirectory, fileName);
         return result.getPath();
     }
