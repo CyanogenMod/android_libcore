@@ -54,7 +54,9 @@ import org.apache.harmony.kernel.vm.StringUtils;
  */
 public class AccessibleObject implements AnnotatedElement {
 
-    // If true, object is accessible, bypassing normal access checks
+    /**
+     * If true, object is accessible, bypassing normal access checks
+     */
     boolean flag = false;
 
     // Holds a mapping from Java type names to native type codes.
@@ -87,10 +89,8 @@ public class AccessibleObject implements AnnotatedElement {
      * @see #setAccessible(boolean)
      */
     public static void setAccessible(AccessibleObject[] objects, boolean flag) {
-        synchronized(AccessibleObject.class) {
-            for (AccessibleObject object : objects) {
-                object.flag = flag;
-            }
+        for (AccessibleObject object : objects) {
+            object.flag = flag;
         }
     }
 
