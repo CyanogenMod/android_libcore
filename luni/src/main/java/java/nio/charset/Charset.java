@@ -217,7 +217,6 @@ public abstract class Charset implements Comparable<Charset> {
      * If multiple charsets have the same canonical name, it is unspecified which is returned in
      * the map. This method may be slow. If you know which charset you're looking for, use
      * {@link #forName}.
-     * @return an immutable case-insensitive map from canonical names to {@code Charset} instances
      */
     public static SortedMap<String, Charset> availableCharsets() {
         // Start with a copy of the built-in charsets...
@@ -364,67 +363,56 @@ public abstract class Charset implements Comparable<Charset> {
     public abstract boolean contains(Charset charset);
 
     /**
-     * Gets a new instance of an encoder for this charset.
-     *
-     * @return a new instance of an encoder for this charset.
+     * Returns a new instance of an encoder for this charset.
      */
     public abstract CharsetEncoder newEncoder();
 
     /**
-     * Gets a new instance of a decoder for this charset.
-     *
-     * @return a new instance of a decoder for this charset.
+     * Returns a new instance of a decoder for this charset.
      */
     public abstract CharsetDecoder newDecoder();
 
     /**
      * Returns the canonical name of this charset.
+     *
+     * <p>If a charset is in the IANA registry, this will be the MIME-preferred name (a charset
+     * may have multiple IANA-registered names). Otherwise the canonical name will begin with "x-"
+     * or "X-".
      */
     public final String name() {
         return this.canonicalName;
     }
 
     /**
-     * Gets the set of this charset's aliases.
-     *
-     * @return an unmodifiable set of this charset's aliases.
+     * Returns an unmodifiable set of this charset's aliases.
      */
     public final Set<String> aliases() {
         return Collections.unmodifiableSet(this.aliasesSet);
     }
 
     /**
-     * Gets the name of this charset for the default locale.
+     * Returns the name of this charset for the default locale.
      *
      * <p>The default implementation returns the canonical name of this charset.
      * Subclasses may return a localized display name.
-     *
-     * @return the name of this charset for the default locale.
      */
     public String displayName() {
         return this.canonicalName;
     }
 
     /**
-     * Gets the name of this charset for the specified locale.
+     * Returns the name of this charset for the specified locale.
      *
      * <p>The default implementation returns the canonical name of this charset.
      * Subclasses may return a localized display name.
-     *
-     * @param l
-     *            a certain locale
-     * @return the name of this charset for the specified locale
      */
     public String displayName(Locale l) {
         return this.canonicalName;
     }
 
     /**
-     * Indicates whether this charset is known to be registered in the IANA
+     * Returns true if this charset is known to be registered in the IANA
      * Charset Registry.
-     *
-     * @return true if the charset is known to be registered, otherwise returns
-     *         false.
      */
     public final boolean isRegistered() {
         return !canonicalName.startsWith("x-") && !canonicalName.startsWith("X-");
@@ -432,8 +420,6 @@ public abstract class Charset implements Comparable<Charset> {
 
     /**
      * Returns true if this charset supports encoding, false otherwise.
-     *
-     * @return true if this charset supports encoding, false otherwise.
      */
     public boolean canEncode() {
         return true;
