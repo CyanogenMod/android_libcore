@@ -71,10 +71,8 @@ public class UTFCharsetEncoderTest extends CharsetEncoderTest {
 	}
 
 	public void testSpecificDefaultValue() {
-		assertEquals(1.1, encoder.averageBytesPerChar(), 0.0001);
-		// assertEquals(2, encoder.averageBytesPerChar(), 0.0001);
-		assertEquals(4, encoder.maxBytesPerChar(), 0);
-		// assertEquals(3, encoder.maxBytesPerChar(), 0);
+		assertEquals(2, encoder.averageBytesPerChar(), 0);
+		assertEquals(3, encoder.maxBytesPerChar(), 0);
 	}
 
 	CharBuffer getMalformedCharBuffer() {
