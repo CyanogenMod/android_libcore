@@ -54,13 +54,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import libcore.util.CollectionUtils;
 import libcore.util.EmptyArray;
 import org.apache.harmony.kernel.vm.StringUtils;
 import libcore.reflect.AnnotationAccess;
 import libcore.reflect.GenericSignatureParser;
 import libcore.reflect.Types;
-
+import libcore.util.BasicLruCache;
 /**
  * The in-memory representation of a Java class. This representation serves as
  * the starting point for querying class-related information, a process usually
@@ -779,9 +780,17 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * void} then an empty array is returned.
      */
     public Type[] getGenericInterfaces() {
-        GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
-        parser.parseForClass(this, getSignatureAttribute());
-        return Types.getClonedTypeArray(parser.interfaceTypes);
+        Type[] result;
+        synchronized (Caches.genericInterfaces) {
+            result = Caches.genericInterfaces.get(this);
+            if (result == null) {
+                GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
+                parser.parseForClass(this, getSignatureAttribute());
+                result = Types.getClonedTypeArray(parser.interfaceTypes);
+                Caches.genericInterfaces.put(this, result);
+            }
+       }
+       return result;
     }
 
     /**
@@ -1260,6 +1269,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     public int getAnnotationDirectoryOffset() {
         return AnnotationAccess.typeIndexToAnnotationDirectoryOffset(getDex(), getTypeIndex());
+    }
+
+    private static class Caches {
+        private static final BasicLruCache<Class, Type[]> genericInterfaces
+            = new BasicLruCache<Class, Type[]>(50);
     }
 
 }

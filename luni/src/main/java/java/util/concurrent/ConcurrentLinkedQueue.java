@@ -31,7 +31,7 @@ import java.util.Queue;
  * Like most other concurrent collection implementations, this class
  * does not permit the use of {@code null} elements.
  *
- * <p>This implementation employs an efficient &quot;wait-free&quot;
+ * <p>This implementation employs an efficient <em>non-blocking</em>
  * algorithm based on one described in <a
  * href="http://www.cs.rochester.edu/u/michael/PODC96.html"> Simple,
  * Fast, and Practical Non-Blocking and Blocking Concurrent Queue
