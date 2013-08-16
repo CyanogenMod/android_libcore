@@ -75,7 +75,6 @@ public class OldAndroidLocaleTest extends TestCase {
     }
 
     // This one makes sure we have all necessary locales installed.
-    // Suppress this flaky test for now.
     public void testICULocales() {
         String[] locales = new String[] {
                 // List of locales currently required for Android.
@@ -131,7 +130,6 @@ public class OldAndroidLocaleTest extends TestCase {
                 "ISO-8859-13",
                 "ISO-8859-14",
                 "ISO-8859-15",
-                "ISO-8859-16",
                 "ISO-2022-JP",
                 "Windows-950",
                 "Windows-1250",
@@ -153,32 +151,16 @@ public class OldAndroidLocaleTest extends TestCase {
                 "GBK",
                 "GB2312",
                 "EUC-KR",
+                "GSM0338"
+        };
 
-                // Additional encoding not included in standard ICU.
-                "GSM0338" };
+        for (String encoding : encodings) {
+            assertTrue("Charset " + encoding + " must be supported", Charset.isSupported(encoding));
 
-        for (int i = 0; i < encodings.length; i++) {
-            assertTrue("Charset " + encodings[i] + " must be supported",
-                    Charset.isSupported(encodings[i]));
-
-            Charset cs = Charset.forName(encodings[i]);
-
+            Charset cs = Charset.forName(encoding);
             Set<String> aliases = cs.aliases();
-            System.out.println(aliases);
+            System.out.println(cs.name() + ": " + aliases);
         }
-
-        // Test for valid encoding that is not included in Android. IBM-37 is
-        // a perfect candidate for this, as it is being used for mainframes and
-        // thus somewhat out of the scope of Android.
-        assertFalse("Charset IBM-37 must not be supported",
-                Charset.isSupported("IBM-37"));
-
-        // Test for a bogus encoding.
-        assertFalse("Charset KLINGON must not be supported",
-                Charset.isSupported("KLINGON"));
-
-        // Check we have the canonical EUC-JP charset.
-        assertEquals("EUC-JP", Charset.forName("EUC-JP").name());
     }
 
 }
