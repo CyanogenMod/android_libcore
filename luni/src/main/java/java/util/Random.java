@@ -85,6 +85,9 @@ public class Random implements Serializable {
      * Volume 2: Seminumerical Algorithms</i>, section 3.2.1.
      *
      * <p>Most applications will want to use one of this class' convenience methods instead.
+     *
+     * <p>Subclasses only need to override this method to alter the behavior
+     * of all the public methods.
      */
     protected synchronized int next(int bits) {
         seed = (seed * multiplier + 0xbL) & ((1L << 48) - 1);
