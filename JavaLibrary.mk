@@ -118,7 +118,7 @@ include $(BUILD_JAVA_LIBRARY)
 ifeq ($(LIBCORE_SKIP_TESTS),)
 # Make the core-tests library.
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-test-java-files-under,crypto dalvik dom harmony-tests json jsr166-tests luni support xml)
+LOCAL_SRC_FILES := $(call all-test-java-files-under,crypto dalvik dom harmony-tests json luni support xml)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := bouncycastle core conscrypt-nojarjar core-junit okhttp
