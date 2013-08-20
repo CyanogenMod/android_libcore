@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,15 +15,21 @@
  */
 package org.apache.harmony.luni.tests.java.util;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.StringReader;
@@ -33,10 +39,12 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,9 +52,9 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
-import java.util.Scanner;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
+import java.util.Scanner;
 
 import junit.framework.TestCase;
 
@@ -88,24 +96,24 @@ public class ScannerTest extends TestCase {
 
         try {
             s = new Scanner(tmpFile);
-            fail("should throw FileNotFoundException");
-        } catch (FileNotFoundException e) {
-            // expected
+            fail();
+        } catch (FileNotFoundException expected) {
         }
 
         tmpFile = File.createTempFile("TestFileForScanner", ".tmp");
         FileOutputStream fos = new FileOutputStream(tmpFile);
         fos.write("test".getBytes());
+        fos.close();
 
         s = new Scanner(tmpFile);
+        s.close();
         tmpFile.delete();
 
         // Scanner(File = null)
         try {
             s = new Scanner((File) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         // TODO: test if the default charset is used.
@@ -124,24 +132,21 @@ public class ScannerTest extends TestCase {
 
         try {
             s = new Scanner(tmpFile, Charset.defaultCharset().name());
-            fail("should throw FileNotFoundException");
-        } catch (FileNotFoundException e) {
-            // expected
+            fail();
+        } catch (FileNotFoundException expected) {
         }
 
         try {
             s = new Scanner(tmpFile, null);
-            fail("should throw FileNotFoundException");
-        } catch (FileNotFoundException e) {
-            // expected
+            fail();
+        } catch (FileNotFoundException expected) {
         }
 
         tmpFile = File.createTempFile("TestFileForScanner", ".tmp");
         try {
             s = new Scanner(tmpFile, "invalid charset");
-            fail("should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
 
         //fail on RI. File is opened but not closed when exception is thrown on
@@ -151,34 +156,30 @@ public class ScannerTest extends TestCase {
         // Scanner(File = null, Charset = null)
         try {
             s = new Scanner((File) null, null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         // Scanner(File = null, Charset = UTF-8)
         try {
             s = new Scanner((File) null, "UTF-8");
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         // Scanner(File = null, Charset = invalid)
         try {
             s = new Scanner((File) null, "invalid");
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         // Scanner(File, Charset = null)
         try {
             File f = File.createTempFile("test", ".tmp");
             s = new Scanner(f, null);
-            fail("Should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
 
         // TODO: test if the specified charset is used.
@@ -195,9 +196,8 @@ public class ScannerTest extends TestCase {
         // Scanner(InputStream)
         try {
             s = new Scanner((InputStream) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         // TODO: test if the default charset is used.
@@ -213,23 +213,20 @@ public class ScannerTest extends TestCase {
 
         try {
             s = new Scanner((PipedInputStream) null, "invalid charset");
-            fail("should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         try {
             s = new Scanner(new PipedInputStream(), null);
-            fail("should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         try {
             s = new Scanner(new PipedInputStream(), "invalid charset");
-            fail("should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
 
         // TODO: test if the specified charset is used.
@@ -246,9 +243,8 @@ public class ScannerTest extends TestCase {
         // Scanner(Readable)
         try {
             s = new Scanner((Readable) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
     }
 
@@ -267,9 +263,8 @@ public class ScannerTest extends TestCase {
         // Scanner(ReadableByteChannel)
         try {
             s = new Scanner((ReadableByteChannel) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         // Test if the default charset is used.
@@ -307,9 +302,8 @@ public class ScannerTest extends TestCase {
         fc = new FileOutputStream(tmpFile).getChannel();
         try {
             s = new Scanner(fc, "invalid charset");
-            fail("should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
         fc.close();
         assertTrue(tmpFile.delete());
@@ -317,27 +311,47 @@ public class ScannerTest extends TestCase {
         // Scanner(ReadableByteChannel = null, Charset = null)
         try {
             s = new Scanner((ReadableByteChannel) null, null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         // Scanner(ReadableByteChannel = null, Charset = invalid)
         try {
             s = new Scanner((ReadableByteChannel) null, "invalid");
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         // Scanner(ReadableByteChannel, Charset = null)
         try {
             s = new Scanner(fc, null);
-            fail("Should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
         // TODO: test if the specified charset is used.
+    }
+
+    public void test_Constructor_LReadableByteChannel() throws IOException {
+        ServerSocketChannel ssc = ServerSocketChannel.open();
+        ssc.socket().bind(null);
+
+        SocketChannel sc = SocketChannel.open();
+        sc.connect(ssc.socket().getLocalSocketAddress());
+        sc.configureBlocking(false);
+        assertFalse(sc.isBlocking());
+
+        ssc.accept().close();
+        ssc.close();
+        assertFalse(sc.isBlocking());
+
+        Scanner s = new Scanner(sc);
+        try {
+            s.hasNextInt();
+            fail();
+        } catch (IllegalBlockingModeException expected) {
+        }
+
+        sc.close();
     }
 
     /**
@@ -351,9 +365,8 @@ public class ScannerTest extends TestCase {
         // Scanner(String)
         try {
             s = new Scanner((String) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
     }
 
@@ -376,9 +389,8 @@ public class ScannerTest extends TestCase {
         // thrown out.
         try {
             fos.write(12);
-            fail("Should throw IOException");
-        } catch (IOException e) {
-            // expected
+            fail();
+        } catch (IOException expected) {
         }
 
         s.close(); // no exception should be thrown
@@ -427,9 +439,8 @@ public class ScannerTest extends TestCase {
         s = new Scanner("test");
         try {
             s.useDelimiter((String) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         s = new Scanner("test");
@@ -452,9 +463,8 @@ public class ScannerTest extends TestCase {
         s = new Scanner("test");
         try {
             s.useLocale(null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         s.useLocale(new Locale("test", "test"));
@@ -476,15 +486,13 @@ public class ScannerTest extends TestCase {
         s = new Scanner("test");
         try {
             s.useRadix(Character.MIN_RADIX - 1);
-            fail("Should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
         try {
             s.useRadix(Character.MAX_RADIX + 1);
-            fail("Should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
         s.useRadix(11);
         assertEquals(11, s.radix());
@@ -497,9 +505,8 @@ public class ScannerTest extends TestCase {
         s = new Scanner("aab*b*").useDelimiter("\\*");
         try {
             s.remove();
-            fail("should throw UnsupportedOperationException");
-        } catch (UnsupportedOperationException e) {
-            //Expected
+            fail();
+        } catch (UnsupportedOperationException expected) {
         }
     }
 
@@ -511,9 +518,8 @@ public class ScannerTest extends TestCase {
         s = new Scanner("1 2 ");
         try {
             s.match();
-            fail("should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // Expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
         assertEquals("1", s.next());
         assertEquals("2", s.next());
@@ -527,29 +533,25 @@ public class ScannerTest extends TestCase {
         assertEquals(0, result.groupCount());
         try {
             result.start(1);
-            fail("should throw IndexOutOfBoundsException");
-        } catch (IndexOutOfBoundsException e) {
-            // Expected
+            fail();
+        } catch (IndexOutOfBoundsException expected) {
         }
         try {
             s.next();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
         try {
             s.match();
-            fail("should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // Expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
-        
+
         s = new Scanner("True faLse");
         try {
             s.match();
-            fail("should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // Expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
         assertTrue(s.nextBoolean());
         result = s.match();
@@ -562,17 +564,15 @@ public class ScannerTest extends TestCase {
         assertFalse(s.nextBoolean());
         try {
             s.nextBoolean();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
         try {
             s.match();
-            fail("should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // Expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
-        
+
         s = new Scanner("True faLse");
         assertTrue(s.nextBoolean());
         result = s.match();
@@ -585,9 +585,8 @@ public class ScannerTest extends TestCase {
         s.close();
         try {
             s.nextBoolean();
-            fail("should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // Expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
         result = s.match();
         assertEquals(0, result.start());
@@ -596,30 +595,27 @@ public class ScannerTest extends TestCase {
         assertEquals(4, result.end(0));
         assertEquals("True", result.group());
         assertEquals(0, result.groupCount());
-        
+
         s = new Scanner("True fase");
         assertTrue(s.nextBoolean());
         assertEquals(0, result.groupCount());
         try {
             s.nextBoolean();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         try {
             s.match();
-            fail("should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // Expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
-        
+
         s = new Scanner("True fase");
         assertTrue(s.nextBoolean());
         try {
             s.next((Pattern)null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // Expected
+            fail();
+        } catch (NullPointerException expected) {
         }
         result = s.match();
         assertEquals(0, result.start());
@@ -628,9 +624,9 @@ public class ScannerTest extends TestCase {
         assertEquals(4, result.end(0));
         assertEquals("True", result.group());
         assertEquals(0, result.groupCount());
-        
+
     }
-     
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#next()
@@ -647,28 +643,25 @@ public class ScannerTest extends TestCase {
         assertEquals("2", s.next());
         try {
             s.next();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
-        
+
         s = new Scanner("a").useDelimiter("a?");
         try {
             s.next();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
-        
+
         s = new Scanner("aa").useDelimiter("a?");
         assertEquals("", s.next());
         try {
             s.next();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
-        
+
 
         s = new Scanner("word( )test( )").useDelimiter("\\( \\)");
         assertEquals("word", s.next());
@@ -685,27 +678,24 @@ public class ScannerTest extends TestCase {
         // test boundary case
         try {
             s.next();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // just delimiter exists in this scanner
         s = new Scanner(" ");
         try {
             s.next();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // nothing exists in this scanner
         s = new Scanner("");
         try {
             s.next();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // no delimiter exists in this scanner
@@ -741,23 +731,21 @@ public class ScannerTest extends TestCase {
                 Pattern.MULTILINE));
         assertEquals("test\n", s.next());
         assertEquals("test", s.next());
-        
+
         s = new Scanner("").useDelimiter(Pattern.compile("^",
                 Pattern.MULTILINE));
         try {
             s.next();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
-        
+
         s = new Scanner("").useDelimiter(Pattern.compile("^*",
                 Pattern.MULTILINE));
         try {
             s.next();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         s = new Scanner("test\ntest").useDelimiter(Pattern.compile("^*",
@@ -786,13 +774,12 @@ public class ScannerTest extends TestCase {
         assertEquals("2", s.next());
         try {
             s.next();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#next(Pattern)
@@ -804,9 +791,8 @@ public class ScannerTest extends TestCase {
         assertEquals("aab", s.next(pattern));
         try {
             s.next(pattern);
-            fail("should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("word ? ");
@@ -814,9 +800,8 @@ public class ScannerTest extends TestCase {
         assertEquals("word", s.next(pattern));
         try {
             s.next(pattern);
-            fail("should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("word1 word2  ");
@@ -826,9 +811,8 @@ public class ScannerTest extends TestCase {
         // test boundary case
         try {
             s.next(pattern);
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // test socket inputStream
@@ -841,9 +825,8 @@ public class ScannerTest extends TestCase {
         assertEquals("aab", s.next(pattern));
         try {
             s.next(pattern);
-            fail("should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
     }
 
@@ -856,18 +839,16 @@ public class ScannerTest extends TestCase {
         assertEquals("b", s.next("a*b"));
         try {
             s.next("a*b");
-            fail("should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("word ? ");
         assertEquals("word", s.next("\\w+"));
         try {
             s.next("\\w+");
-            fail("should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("word1 next  ");
@@ -876,9 +857,8 @@ public class ScannerTest extends TestCase {
         // test boundary case
         try {
             s.next("\\w+");
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // test socket inputStream
@@ -889,12 +869,11 @@ public class ScannerTest extends TestCase {
         assertEquals("aab", s.next("a*b"));
         try {
             s.next("a*b");
-            fail("should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextBoolean()
@@ -909,25 +888,22 @@ public class ScannerTest extends TestCase {
         assertFalse(s.nextBoolean());
         try {
             s.nextBoolean();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         s = new Scanner("true1");
         try {
             s.nextBoolean();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         try {
             s = new Scanner("");
             s.nextBoolean();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // test socket inputStream
@@ -943,16 +919,15 @@ public class ScannerTest extends TestCase {
         assertTrue(s.nextBoolean());
         try {
             s.nextBoolean();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         s = new Scanner("false( )").useDelimiter("\\( \\)");
         assertFalse(s.nextBoolean());
 
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextInt(int)
@@ -963,9 +938,8 @@ public class ScannerTest extends TestCase {
         assertEquals(456, s.nextInt(10));
         try {
             s.nextInt(10);
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -973,18 +947,16 @@ public class ScannerTest extends TestCase {
         assertEquals(38, s.nextInt(5));
         try {
             s.nextInt(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
         s = new Scanner("123456789123456789123456789123456789");
         try {
             s.nextInt(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -995,9 +967,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextInt(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.ENGLISH);
         // If exception is thrown out, input will not be advanced.
@@ -1011,9 +982,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextInt(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(new Locale("it", "CH"));
         // If exception is thrown out, input will not be advanced.
@@ -1027,9 +997,8 @@ public class ScannerTest extends TestCase {
         assertEquals(102, s.nextInt(10));
         try {
             s.nextInt(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         assertEquals(162, s.nextInt(10));
 
@@ -1041,9 +1010,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         try {
             s.nextInt(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         // If exception is thrown out, input will not be advanced.
@@ -1055,9 +1023,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.ENGLISH);
         try {
             s.nextInt(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -1086,7 +1053,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextInt(10));
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextInt(10));
@@ -1094,7 +1061,7 @@ public class ScannerTest extends TestCase {
         /*
          * There are three types of negative prefix all in all. '' '-' '(' There
          * are three types of negative suffix all in all. '' '-' ')' '(' and ')'
-         * must be used togethor. Prefix '-' and suffix '-' must be used 
+         * must be used togethor. Prefix '-' and suffix '-' must be used
          * exclusively.
          */
 
@@ -1112,9 +1079,8 @@ public class ScannerTest extends TestCase {
         assertEquals(-123, s.nextInt(10));
         try {
             s.nextInt(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("-123 123-");
@@ -1122,9 +1088,8 @@ public class ScannerTest extends TestCase {
         assertEquals(-123, s.nextInt(10));
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         // Skip the un-recognizable token 123-.
         assertEquals("123-", s.next());
@@ -1133,15 +1098,13 @@ public class ScannerTest extends TestCase {
         // RI
         try {
             s.nextInt(Character.MIN_RADIX - 1);
-            fail("Should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // Expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
         try {
             s.nextInt(Character.MAX_RADIX + 1);
-            fail("Should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // Expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
     }
 
@@ -1155,9 +1118,8 @@ public class ScannerTest extends TestCase {
         assertEquals(456, s.nextInt());
         try {
             s.nextInt();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -1166,18 +1128,16 @@ public class ScannerTest extends TestCase {
         assertEquals(38, s.nextInt());
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
         s = new Scanner("123456789123456789123456789123456789");
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -1188,9 +1148,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.ENGLISH);
         // If exception is thrown out, input will not be advanced.
@@ -1204,9 +1163,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(new Locale("it", "CH"));
         // If exception is thrown out, input will not be advanced.
@@ -1221,9 +1179,8 @@ public class ScannerTest extends TestCase {
         s.useRadix(5);
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useRadix(10);
         assertEquals(162, s.nextInt());
@@ -1236,9 +1193,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         // If exception is thrown out, input will not be advanced.
@@ -1250,9 +1206,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.ENGLISH);
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -1284,7 +1239,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextInt());
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextInt());
@@ -1310,9 +1265,8 @@ public class ScannerTest extends TestCase {
         assertEquals(-123, s.nextInt());
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("-123 123-");
@@ -1320,14 +1274,13 @@ public class ScannerTest extends TestCase {
         assertEquals(-123, s.nextInt());
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         // Skip the un-recognizable token 123-.
         assertEquals("123-", s.next());
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextByte(int)
@@ -1338,9 +1291,8 @@ public class ScannerTest extends TestCase {
         assertEquals(126, s.nextByte(10));
         try {
             s.nextByte(10);
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -1348,18 +1300,16 @@ public class ScannerTest extends TestCase {
         assertEquals(38, s.nextByte(5));
         try {
             s.nextByte(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
         s = new Scanner("1234");
         try {
             s.nextByte(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -1369,9 +1319,8 @@ public class ScannerTest extends TestCase {
         assertEquals(102, s.nextByte(10));
         try {
             s.nextByte(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         assertEquals(126, s.nextByte(10));
 
@@ -1392,7 +1341,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("1\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(100, s.nextByte(10));
-        
+
         s = new Scanner("1\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(100, s.nextByte(10));
@@ -1400,7 +1349,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("-123");
         s.useLocale(new Locale("ar", "AE"));
         assertEquals(-123, s.nextByte(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
@@ -1417,9 +1366,8 @@ public class ScannerTest extends TestCase {
         assertEquals(126, s.nextByte());
         try {
             s.nextByte();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -1428,18 +1376,16 @@ public class ScannerTest extends TestCase {
         assertEquals(38, s.nextByte());
         try {
             s.nextByte();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
         s = new Scanner("1234");
         try {
             s.nextByte();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -1450,9 +1396,8 @@ public class ScannerTest extends TestCase {
         s.useRadix(5);
         try {
             s.nextByte();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useRadix(10);
         assertEquals(126, s.nextByte());
@@ -1475,7 +1420,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("1\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(100, s.nextByte());
-        
+
         s = new Scanner("1\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(100, s.nextByte());
@@ -1488,7 +1433,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(new Locale("mk", "MK"));
         assertEquals(-123, s.nextByte());
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextFloat()
@@ -1502,9 +1447,8 @@ public class ScannerTest extends TestCase {
         assertEquals((float)0.123, s.nextFloat());
         try {
             s.nextFloat();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         s = new Scanner("+123.4 -456.7 123,456.789 0.1\u06623,4");
@@ -1514,9 +1458,8 @@ public class ScannerTest extends TestCase {
         assertEquals((float)123456.789, s.nextFloat());
         try {
             s.nextFloat();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // Scientific notation
@@ -1534,7 +1477,7 @@ public class ScannerTest extends TestCase {
         String str=String.valueOf(Float.MAX_VALUE*2);
         s=new Scanner(str);
         assertEquals(Float.POSITIVE_INFINITY,s.nextFloat());
-        
+
         /*
          * Different locale can only recognize corresponding locale sensitive
          * string. ',' is used in many locales as group separator.
@@ -1565,25 +1508,23 @@ public class ScannerTest extends TestCase {
 //        assertEquals((float)-123.4, s.nextFloat());
         try {
             s.nextFloat();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("123- -123");
         s.useLocale(new Locale("mk", "MK"));
         try {
             s.nextFloat();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         // Skip the un-recognizable token 123-.
         assertEquals("123-", s.next());
         assertEquals((float)-123.0, s.nextFloat());
 
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextBigInteger(int)
@@ -1594,9 +1535,8 @@ public class ScannerTest extends TestCase {
         assertEquals(new BigInteger("456"), s.nextBigInteger(10));
         try {
             s.nextBigInteger(10);
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -1604,9 +1544,8 @@ public class ScannerTest extends TestCase {
         assertEquals(new BigInteger("38"), s.nextBigInteger(5));
         try {
             s.nextBigInteger(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -1617,9 +1556,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextBigInteger(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.ENGLISH);
         // If exception is thrown out, input will not be advanced.
@@ -1633,9 +1571,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextBigInteger(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(new Locale("it", "CH"));
         // If exception is thrown out, input will not be advanced.
@@ -1649,9 +1586,8 @@ public class ScannerTest extends TestCase {
         assertEquals(new BigInteger("102"), s.nextBigInteger(10));
         try {
             s.nextBigInteger(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         assertEquals(new BigInteger("162"), s.nextBigInteger(10));
 
@@ -1663,9 +1599,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         try {
             s.nextBigInteger(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         // If exception is thrown out, input will not be advanced.
@@ -1677,9 +1612,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.ENGLISH);
         try {
             s.nextBigInteger(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -1703,7 +1637,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(new BigInteger("12300"), s.nextBigInteger(10));
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(new BigInteger("12300"), s.nextBigInteger(10));
@@ -1711,7 +1645,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("-123");
         s.useLocale(new Locale("ar", "AE"));
         assertEquals(new BigInteger("-123"), s.nextBigInteger(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
@@ -1728,9 +1662,8 @@ public class ScannerTest extends TestCase {
         assertEquals(new BigInteger("456"), s.nextBigInteger());
         try {
             s.nextBigInteger();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -1739,9 +1672,8 @@ public class ScannerTest extends TestCase {
         assertEquals(new BigInteger("38"), s.nextBigInteger());
         try {
             s.nextBigInteger();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -1752,9 +1684,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextBigInteger();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.ENGLISH);
         // If exception is thrown out, input will not be advanced.
@@ -1768,9 +1699,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextBigInteger();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(new Locale("it", "CH"));
         // If exception is thrown out, input will not be advanced.
@@ -1785,9 +1715,8 @@ public class ScannerTest extends TestCase {
         s.useRadix(5);
         try {
             s.nextBigInteger();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useRadix(10);
         assertEquals(new BigInteger("162"), s.nextBigInteger());
@@ -1800,9 +1729,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         try {
             s.nextBigInteger();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         // If exception is thrown out, input will not be advanced.
@@ -1814,9 +1742,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.ENGLISH);
         try {
             s.nextBigInteger();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -1841,7 +1768,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(new BigInteger("12300"), s.nextBigInteger());
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(new BigInteger("12300"), s.nextBigInteger());
@@ -1854,7 +1781,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(new Locale("mk", "MK"));
         assertEquals(new BigInteger("-123"), s.nextBigInteger());
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextShort(int)
@@ -1865,9 +1792,8 @@ public class ScannerTest extends TestCase {
         assertEquals(456, s.nextShort(10));
         try {
             s.nextShort(10);
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -1875,18 +1801,16 @@ public class ScannerTest extends TestCase {
         assertEquals(38, s.nextShort(5));
         try {
             s.nextShort(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
         s = new Scanner("123456789");
         try {
             s.nextShort(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -1897,9 +1821,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextShort(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.ENGLISH);
         // If exception is thrown out, input will not be advanced.
@@ -1913,9 +1836,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextShort(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(new Locale("it", "CH"));
         // If exception is thrown out, input will not be advanced.
@@ -1929,9 +1851,8 @@ public class ScannerTest extends TestCase {
         assertEquals(102, s.nextShort(10));
         try {
             s.nextShort(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         assertEquals(162, s.nextShort(10));
 
@@ -1943,9 +1864,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         try {
             s.nextShort(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         // If exception is thrown out, input will not be advanced.
@@ -1957,9 +1877,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.ENGLISH);
         try {
             s.nextShort(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -1983,7 +1902,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextShort(10));
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextShort(10));
@@ -1991,7 +1910,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("-123");
         s.useLocale(new Locale("ar", "AE"));
         assertEquals(-123, s.nextShort(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
@@ -2008,9 +1927,8 @@ public class ScannerTest extends TestCase {
         assertEquals(456, s.nextShort());
         try {
             s.nextShort();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -2019,18 +1937,16 @@ public class ScannerTest extends TestCase {
         assertEquals(38, s.nextShort());
         try {
             s.nextShort();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
         s = new Scanner("123456789");
         try {
             s.nextShort();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -2041,9 +1957,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextShort();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.ENGLISH);
         // If exception is thrown out, input will not be advanced.
@@ -2057,9 +1972,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextShort();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(new Locale("it", "CH"));
         // If exception is thrown out, input will not be advanced.
@@ -2074,9 +1988,8 @@ public class ScannerTest extends TestCase {
         s.useRadix(5);
         try {
             s.nextShort();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useRadix(10);
         assertEquals(162, s.nextShort());
@@ -2089,9 +2002,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         try {
             s.nextShort();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         // If exception is thrown out, input will not be advanced.
@@ -2103,9 +2015,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.ENGLISH);
         try {
             s.nextShort();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -2130,7 +2041,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextShort());
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextShort());
@@ -2143,7 +2054,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(new Locale("mk", "MK"));
         assertEquals(-123, s.nextShort());
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextLong(int)
@@ -2154,9 +2065,8 @@ public class ScannerTest extends TestCase {
         assertEquals(456, s.nextLong(10));
         try {
             s.nextLong(10);
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -2164,18 +2074,16 @@ public class ScannerTest extends TestCase {
         assertEquals(38, s.nextLong(5));
         try {
             s.nextLong(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
         s = new Scanner("123456789123456789123456789123456789");
         try {
             s.nextLong(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -2186,9 +2094,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextLong(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.ENGLISH);
         // If exception is thrown out, input will not be advanced.
@@ -2202,9 +2109,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextLong(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(new Locale("it", "CH"));
         // If exception is thrown out, input will not be advanced.
@@ -2218,9 +2124,8 @@ public class ScannerTest extends TestCase {
         assertEquals(102, s.nextLong(10));
         try {
             s.nextLong(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         assertEquals(162, s.nextLong(10));
 
@@ -2232,9 +2137,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         try {
             s.nextLong(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         // If exception is thrown out, input will not be advanced.
@@ -2246,9 +2150,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.ENGLISH);
         try {
             s.nextLong(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -2272,7 +2175,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextLong(10));
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextLong(10));
@@ -2280,13 +2183,13 @@ public class ScannerTest extends TestCase {
         s = new Scanner("-123");
         s.useLocale(new Locale("ar", "AE"));
         assertEquals(-123, s.nextLong(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
         assertEquals(-123, s.nextLong(10));
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextLong()
@@ -2297,9 +2200,8 @@ public class ScannerTest extends TestCase {
         assertEquals(456, s.nextLong());
         try {
             s.nextLong();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -2308,18 +2210,16 @@ public class ScannerTest extends TestCase {
         assertEquals(38, s.nextLong());
         try {
             s.nextLong();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
         s = new Scanner("123456789123456789123456789123456789");
         try {
             s.nextLong();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -2330,9 +2230,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextLong();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.ENGLISH);
         // If exception is thrown out, input will not be advanced.
@@ -2346,9 +2245,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.GERMANY);
         try {
             s.nextLong();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(new Locale("it", "CH"));
         // If exception is thrown out, input will not be advanced.
@@ -2363,9 +2261,8 @@ public class ScannerTest extends TestCase {
         s.useRadix(5);
         try {
             s.nextLong();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useRadix(10);
         assertEquals(162, s.nextLong());
@@ -2378,9 +2275,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         try {
             s.nextLong();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         // If exception is thrown out, input will not be advanced.
@@ -2392,9 +2288,8 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.ENGLISH);
         try {
             s.nextLong();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -2419,7 +2314,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner("123\u0966\u0966");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextLong());
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextLong());
@@ -2432,7 +2327,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(new Locale("mk", "MK"));
         assertEquals(-123, s.nextLong());
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNext()
@@ -2447,9 +2342,8 @@ public class ScannerTest extends TestCase {
         s.close();
         try {
             s.hasNext();
-            fail("should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         s = new Scanner("1( )2( )").useDelimiter("\\( \\)");
@@ -2472,9 +2366,8 @@ public class ScannerTest extends TestCase {
         // test boundary case
         try {
             s.next();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         s = new Scanner("1'\n'2  ");
@@ -2485,9 +2378,8 @@ public class ScannerTest extends TestCase {
         // test boundary case
         try {
             s.next();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         s = new Scanner("  ");
@@ -2505,12 +2397,11 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNext());
         try {
             s.next();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNext(Pattern)
@@ -2524,9 +2415,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNext(pattern));
         try {
             s.next(pattern);
-            fail("should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("word ? ");
@@ -2536,9 +2426,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNext(pattern));
         try {
             s.next(pattern);
-            fail("should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("word1 WorD2  ");
@@ -2550,27 +2439,24 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNext(pattern));
         try {
             s.next(pattern);
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         s = new Scanner("word1 WorD2  ");
         pattern = Pattern.compile("\\w+");
         try {
             s.hasNext((Pattern) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
         s.close();
         try {
             s.hasNext(pattern);
-            fail("should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
-        
+
         // test socket inputStream
         os.write("aab b".getBytes());
         serverSocket.close();
@@ -2582,12 +2468,11 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNext(pattern));
         try {
             s.next(pattern);
-            fail("should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNext(String)
@@ -2596,27 +2481,24 @@ public class ScannerTest extends TestCase {
         s = new Scanner("aab@2@abb@").useDelimiter("\\@");
         try {
             s.hasNext((String)null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
-        
+
         s = new Scanner("aab*b*").useDelimiter("\\*");
         assertTrue(s.hasNext("a+b"));
         assertEquals("aab", s.next("a+b"));
         assertFalse(s.hasNext("a+b"));
         try {
             s.next("a+b");
-            fail("should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.close();
         try {
             s.hasNext("a+b");
-            fail("should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         s = new Scanner("WORD ? ");
@@ -2625,9 +2507,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNext("\\w+"));
         try {
             s.next("\\w+");
-            fail("should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("word1 word2  ");
@@ -2636,9 +2517,8 @@ public class ScannerTest extends TestCase {
         // test boundary case
         try {
             s.next("\\w+");
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // test socket inputStream
@@ -2652,12 +2532,11 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNext("a*b"));
         try {
             s.next("a*b");
-            fail("should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextBoolean()
@@ -2693,9 +2572,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBoolean());
         try {
             s.nextBoolean();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         s = new Scanner("false( )").useDelimiter("\\( \\)");
@@ -2704,7 +2582,7 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBoolean());
 
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextByte(int)
@@ -2718,9 +2596,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextByte(10));
         try {
             s.nextByte(10);
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -2730,9 +2607,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextByte(5));
         try {
             s.nextByte(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
@@ -2740,9 +2616,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextByte(10));
         try {
             s.nextByte(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -2754,9 +2629,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextByte(5));
         try {
             s.nextByte(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         assertTrue(s.hasNextByte(10));
         assertEquals(126, s.nextByte(10));
@@ -2782,7 +2656,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextByte(10));
         assertEquals(100, s.nextByte(10));
-        
+
         s = new Scanner("1\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextByte(10));
@@ -2792,7 +2666,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(new Locale("ar", "AE"));
         assertTrue(s.hasNextByte(10));
         assertEquals(-123, s.nextByte(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
@@ -2800,42 +2674,34 @@ public class ScannerTest extends TestCase {
         assertEquals(-123, s.nextByte(10));
     }
 
-    /**
-     * @throws IOException
-     * @tests java.util.Scanner#hasNextByte(int)
-     */
     public void test_hasNextByteI_cache() throws IOException{
         //regression for HARMONY-2063
-    	s = new Scanner("123 45");
-		assertTrue(s.hasNextByte(8));
-		assertEquals(83, s.nextByte());
-		assertEquals(45, s.nextByte());
+        s = new Scanner("123 45");
+        assertTrue(s.hasNextByte(8));
+        assertEquals(83, s.nextByte());
+        assertEquals(45, s.nextByte());
 
-		s = new Scanner("123 45");
-		assertTrue(s.hasNextByte(10));
-		assertTrue(s.hasNextByte(8));
-		assertEquals(83, s.nextByte());
-		assertEquals(45, s.nextByte());
+        s = new Scanner("123 45");
+        assertTrue(s.hasNextByte(10));
+        assertTrue(s.hasNextByte(8));
+        assertEquals(83, s.nextByte());
+        assertEquals(45, s.nextByte());
 
-		s = new Scanner("-123 -45");
-		assertTrue(s.hasNextByte(8));
-		assertEquals(-123, s.nextInt());
-		assertEquals(-45, s.nextByte());
-		
-		s = new Scanner("123 45");
-		assertTrue(s.hasNextByte());
-		s.close();
-		try {
-			s.nextByte();
-			fail("Should throw IllegalStateException");
-		} catch (IllegalStateException e) {
-			// expected
-		}
+        s = new Scanner("-123 -45");
+        assertTrue(s.hasNextByte(8));
+        assertEquals(-123, s.nextInt());
+        assertEquals(-45, s.nextByte());
+
+        s = new Scanner("123 45");
+        assertTrue(s.hasNextByte());
+        s.close();
+        try {
+          s.nextByte();
+          fail();
+        } catch (IllegalStateException expected) {
+        }
     }
-    /**
-     * @throws IOException
-     * @tests java.util.Scanner#hasNextByte()
-     */
+
     public void test_hasNextByte() throws IOException {
         s = new Scanner("123 126");
         assertTrue(s.hasNextByte());
@@ -2845,9 +2711,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextByte());
         try {
             s.nextByte();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -2858,9 +2723,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextByte());
         try {
             s.nextByte();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
@@ -2868,9 +2732,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextByte());
         try {
             s.nextByte();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -2883,9 +2746,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextByte());
         try {
             s.nextByte();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useRadix(10);
         assertTrue(s.hasNextByte());
@@ -2912,7 +2774,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextByte());
         assertEquals(100, s.nextByte());
-        
+
         s = new Scanner("1\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextByte());
@@ -2928,7 +2790,7 @@ public class ScannerTest extends TestCase {
         assertTrue(s.hasNextByte());
         assertEquals(-123, s.nextByte());
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextBigInteger(int)
@@ -2942,9 +2804,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigInteger(10));
         try {
             s.nextBigInteger(10);
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -2954,9 +2815,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigInteger(5));
         try {
             s.nextBigInteger(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -2968,9 +2828,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigInteger(10));
         try {
             s.nextBigInteger(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.ENGLISH);
         // If exception is thrown out, input will not be advanced.
@@ -2987,9 +2846,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigInteger(10));
         try {
             s.nextBigInteger(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(new Locale("it", "CH"));
         // If exception is thrown out, input will not be advanced.
@@ -3007,9 +2865,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigInteger(5));
         try {
             s.nextBigInteger(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         assertTrue(s.hasNextBigInteger(10));
         assertEquals(new BigInteger("162"), s.nextBigInteger(10));
@@ -3023,9 +2880,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigInteger(10));
         try {
             s.nextBigInteger(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         // If exception is thrown out, input will not be advanced.
@@ -3040,9 +2896,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigInteger(10));
         try {
             s.nextBigInteger(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -3071,7 +2926,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextBigInteger(10));
         assertEquals(new BigInteger("12300"), s.nextBigInteger(10));
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextBigInteger(10));
@@ -3081,47 +2936,46 @@ public class ScannerTest extends TestCase {
         s.useLocale(new Locale("ar", "AE"));
         assertTrue(s.hasNextBigInteger(10));
         assertEquals(new BigInteger("-123"), s.nextBigInteger(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
         assertTrue(s.hasNextBigInteger(10));
         assertEquals(new BigInteger("-123"), s.nextBigInteger(10));
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextBigInteger(int)
      */
     public void test_hasNextBigIntegerI_cache() throws IOException {
         //regression for HARMONY-2063
-    	s = new Scanner("123 123456789123456789");
-		assertTrue(s.hasNextBigInteger(16));
-		assertEquals(new BigInteger("291"), s.nextBigInteger());
-		assertEquals(new BigInteger("123456789123456789"), s.nextBigInteger());
+        s = new Scanner("123 123456789123456789");
+        assertTrue(s.hasNextBigInteger(16));
+        assertEquals(new BigInteger("291"), s.nextBigInteger());
+        assertEquals(new BigInteger("123456789123456789"), s.nextBigInteger());
 
-		s = new Scanner("123456789123456789 456");
-		assertTrue(s.hasNextBigInteger(16));
-		assertTrue(s.hasNextBigInteger(10));
-		assertEquals(new BigInteger("123456789123456789"), s.nextBigInteger());
-		assertEquals(new BigInteger("456"), s.nextBigInteger());
+        s = new Scanner("123456789123456789 456");
+        assertTrue(s.hasNextBigInteger(16));
+        assertTrue(s.hasNextBigInteger(10));
+        assertEquals(new BigInteger("123456789123456789"), s.nextBigInteger());
+        assertEquals(new BigInteger("456"), s.nextBigInteger());
 
-		s = new Scanner("-123 -123456789123456789");
-		assertTrue(s.hasNextBigInteger(8));
-		assertEquals(-123, s.nextShort());
-		assertEquals(new BigInteger("-123456789123456789"), s.nextBigInteger());
-		
-		s = new Scanner("123 456");
-		assertTrue(s.hasNextBigInteger());
-		s.close();
-		try {
-			s.nextBigInteger();
-			fail("Should throw IllegalStateException");
-		} catch (IllegalStateException e) {
-			// expected
-		}
+        s = new Scanner("-123 -123456789123456789");
+        assertTrue(s.hasNextBigInteger(8));
+        assertEquals(-123, s.nextShort());
+        assertEquals(new BigInteger("-123456789123456789"), s.nextBigInteger());
+
+        s = new Scanner("123 456");
+        assertTrue(s.hasNextBigInteger());
+        s.close();
+        try {
+            s.nextBigInteger();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextBigInteger()
@@ -3135,9 +2989,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigInteger());
         try {
             s.nextBigInteger();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -3148,9 +3001,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigInteger());
         try {
             s.nextBigInteger();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -3162,9 +3014,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigInteger());
         try {
             s.nextBigInteger();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.ENGLISH);
         // If exception is thrown out, input will not be advanced.
@@ -3181,9 +3032,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigInteger());
         try {
             s.nextBigInteger();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(new Locale("it", "CH"));
         // If exception is thrown out, input will not be advanced.
@@ -3201,9 +3051,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigInteger());
         try {
             s.nextBigInteger();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useRadix(10);
         assertTrue(s.hasNextBigInteger());
@@ -3218,9 +3067,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigInteger());
         try {
             s.nextBigInteger();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         // If exception is thrown out, input will not be advanced.
@@ -3235,9 +3083,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigInteger());
         try {
             s.nextBigInteger();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -3267,7 +3114,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextBigInteger());
         assertEquals(new BigInteger("12300"), s.nextBigInteger());
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextBigInteger());
@@ -3283,7 +3130,7 @@ public class ScannerTest extends TestCase {
         assertTrue(s.hasNextBigInteger());
         assertEquals(new BigInteger("-123"), s.nextBigInteger());
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextInt(int)
@@ -3296,9 +3143,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextInt(10));
         try {
             s.nextInt(10);
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -3308,9 +3154,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextInt(5));
         try {
             s.nextInt(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
@@ -3353,9 +3198,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextInt(10));
         try {
             s.nextInt(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         assertTrue(s.hasNextInt(10));
@@ -3366,9 +3210,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextInt(10));
         try {
             s.nextInt(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -3393,9 +3236,8 @@ public class ScannerTest extends TestCase {
         // If parameter radix is illegal, the following test case fails on RI
         try {
             s.hasNextInt(Character.MIN_RADIX - 1);
-            fail("Should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // Expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
 
         /*
@@ -3420,7 +3262,7 @@ public class ScannerTest extends TestCase {
         /*
          * There are three types of negative prefix all in all. '' '-' '(' There
          * are three types of negative suffix all in all. '' '-' ')' '(' and ')'
-         * must be used togethor. Prefix '-' and suffix '-' must be used 
+         * must be used together. Prefix '-' and suffix '-' must be used
          * exclusively.
          */
 
@@ -3428,7 +3270,7 @@ public class ScannerTest extends TestCase {
          * According to Integer regular expression: Integer :: = ( [-+]? (*
          * Numeral ) ) | LocalPositivePrefix Numeral LocalPositiveSuffix |
          * LocalNegativePrefix Numeral LocalNegativeSuffix 123- should be
-         * recognized by scanner with locale ar_AE, (123) shouble be recognized
+         * recognized by scanner with locale ar_AE, (123) should be recognized
          * by scanner with locale mk_MK. But this is not the case on RI.
          */
         s = new Scanner("-123 123- -123-");
@@ -3441,9 +3283,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextInt(10));
         try {
             s.nextInt(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("-123 123-");
@@ -3453,9 +3294,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextInt(10));
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         // Skip the un-recognizable token 123-.
         assertEquals("123-", s.next());
@@ -3467,33 +3307,32 @@ public class ScannerTest extends TestCase {
      */
     public void test_hasNextIntI_cache() throws IOException {
         //regression for HARMONY-2063
-    	s = new Scanner("123 456");
-		assertTrue(s.hasNextInt(16));
-		assertEquals(291, s.nextInt(10));
-		assertEquals(456, s.nextInt());
+        s = new Scanner("123 456");
+        assertTrue(s.hasNextInt(16));
+        assertEquals(291, s.nextInt(10));
+        assertEquals(456, s.nextInt());
 
-		s = new Scanner("123 456");
-		assertTrue(s.hasNextInt(16));
-		assertTrue(s.hasNextInt(8));
-		assertEquals(83, s.nextInt());
-		assertEquals(456, s.nextInt());
+        s = new Scanner("123 456");
+        assertTrue(s.hasNextInt(16));
+        assertTrue(s.hasNextInt(8));
+        assertEquals(83, s.nextInt());
+        assertEquals(456, s.nextInt());
 
-		s = new Scanner("-123 -456 -789");
-		assertTrue(s.hasNextInt(8));
-		assertEquals(-123, s.nextShort());
-		assertEquals(-456, s.nextInt());
-		assertTrue(s.hasNextShort(16));
-		assertEquals(-789, s.nextInt());
-		
-		s = new Scanner("123 456");
-		assertTrue(s.hasNextInt());
-		s.close();
-		try {
-			s.nextInt();
-			fail("Should throw IllegalStateException");
-		} catch (IllegalStateException e) {
-			// expected
-		}
+        s = new Scanner("-123 -456 -789");
+        assertTrue(s.hasNextInt(8));
+        assertEquals(-123, s.nextShort());
+        assertEquals(-456, s.nextInt());
+        assertTrue(s.hasNextShort(16));
+        assertEquals(-789, s.nextInt());
+
+        s = new Scanner("123 456");
+        assertTrue(s.hasNextInt());
+        s.close();
+        try {
+            s.nextInt();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
     }
     /**
      * @throws IOException
@@ -3507,9 +3346,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextInt());
         try {
             s.nextInt();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -3520,9 +3358,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextInt());
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
@@ -3571,9 +3408,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextInt());
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -3619,7 +3455,7 @@ public class ScannerTest extends TestCase {
         /*
          * There are three types of negative prefix all in all. '' '-' '(' There
          * are three types of negative suffix all in all. '' '-' ')' '(' and ')'
-         * must be used togethor. Prefix '-' and suffix '-' must be used 
+         * must be used togethor. Prefix '-' and suffix '-' must be used
          * exclusively.
          */
 
@@ -3640,9 +3476,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextInt());
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("-123 123-");
@@ -3651,14 +3486,13 @@ public class ScannerTest extends TestCase {
         assertEquals(-123, s.nextInt());
         try {
             s.nextInt();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         // Skip the un-recognizable token 123-.
         assertEquals("123-", s.next());
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextFloat()
@@ -3677,9 +3511,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextFloat());
         try {
             s.nextFloat();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         s = new Scanner("+123.4 -456.7 123,456.789 0.1\u06623,4");
@@ -3693,9 +3526,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextFloat());
         try {
             s.nextFloat();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // Scientific notation
@@ -3720,7 +3552,7 @@ public class ScannerTest extends TestCase {
         s=new Scanner(str);
         assertTrue(s.hasNextFloat());
         assertEquals(Float.POSITIVE_INFINITY,s.nextFloat());
-        
+
         /*
          * Different locale can only recognize corresponding locale sensitive
          * string. ',' is used in many locales as group separator.
@@ -3759,9 +3591,8 @@ public class ScannerTest extends TestCase {
 //        assertEquals((float)-123.4, s.nextFloat());
 //        try {
 //            s.nextFloat();
-//            fail("Should throw InputMismatchException");
-//        } catch (InputMismatchException e) {
-//            // Expected
+//            fail();
+//        } catch (InputMismatchException expected) {
 //        }
 
         s = new Scanner("123- -123");
@@ -3769,28 +3600,26 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextFloat());
         try {
             s.nextFloat();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         // Skip the un-recognizable token 123-.
         assertEquals("123-", s.next());
         assertTrue(s.hasNextFloat());
         assertEquals((float)-123.0, s.nextFloat());
-        
+
         s = new Scanner("+123.4 -456.7");
         s.useLocale(Locale.ENGLISH);
         assertTrue(s.hasNextFloat());
         s.close();
         try{
-        	s.nextFloat();
-        	fail("Should throw IllegalStateException");
-        }catch(IllegalStateException e){
-        	//expected
+            s.nextFloat();
+            fail();
+        }catch(IllegalStateException expected) {
         }
 
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextShort(int)
@@ -3804,9 +3633,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort(10));
         try {
             s.nextShort(10);
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -3816,9 +3644,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort(5));
         try {
             s.nextShort(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
@@ -3826,9 +3653,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort(10));
         try {
             s.nextShort(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -3840,9 +3666,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort(10));
         try {
             s.nextShort(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.ENGLISH);
         // If exception is thrown out, input will not be advanced.
@@ -3859,9 +3684,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort(10));
         try {
             s.nextShort(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(new Locale("it", "CH"));
         // If exception is thrown out, input will not be advanced.
@@ -3879,9 +3703,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort(5));
         try {
             s.nextShort(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         assertTrue(s.hasNextShort(10));
         assertEquals(162, s.nextShort(10));
@@ -3895,9 +3718,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort(10));
         try {
             s.nextShort(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         // If exception is thrown out, input will not be advanced.
@@ -3912,9 +3734,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort(10));
         try {
             s.nextShort(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -3943,7 +3764,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextShort(10));
         assertEquals(12300, s.nextShort(10));
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextShort(10));
@@ -3953,7 +3774,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(new Locale("ar", "AE"));
         assertTrue(s.hasNextShort(10));
         assertEquals(-123, s.nextShort(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
@@ -3974,9 +3795,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort());
         try {
             s.nextShort();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -3987,9 +3807,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort());
         try {
             s.nextShort();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
@@ -3997,9 +3816,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort());
         try {
             s.nextShort();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -4011,9 +3829,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort());
         try {
             s.nextShort();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.ENGLISH);
         // If exception is thrown out, input will not be advanced.
@@ -4030,9 +3847,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort());
         try {
             s.nextShort();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(new Locale("it", "CH"));
         // If exception is thrown out, input will not be advanced.
@@ -4050,9 +3866,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort());
         try {
             s.nextShort();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useRadix(10);
         assertTrue(s.hasNextShort());
@@ -4067,9 +3882,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort());
         try {
             s.nextShort();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         // If exception is thrown out, input will not be advanced.
@@ -4084,9 +3898,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort());
         try {
             s.nextShort();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -4116,7 +3929,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextShort());
         assertEquals(12300, s.nextShort());
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextShort());
@@ -4132,46 +3945,45 @@ public class ScannerTest extends TestCase {
         assertTrue(s.hasNextShort());
         assertEquals(-123, s.nextShort());
     }
-    
+
     /**
-	 * @throws IOException
-	 * @tests java.util.Scanner#hasNextShort(int)
-	 */
-	public void test_hasNextShortI_cache() throws IOException {
+     * @throws IOException
+     * @tests java.util.Scanner#hasNextShort(int)
+     */
+    public void test_hasNextShortI_cache() throws IOException {
         //regression for HARMONY-2063
-		s = new Scanner("123 456");
-		assertTrue(s.hasNextShort(16));
-		assertEquals(291, s.nextShort());
-		assertEquals(456, s.nextShort());
+        s = new Scanner("123 456");
+        assertTrue(s.hasNextShort(16));
+        assertEquals(291, s.nextShort());
+        assertEquals(456, s.nextShort());
 
-		s = new Scanner("123 456");
-		assertTrue(s.hasNextShort(16));
-		assertTrue(s.hasNextShort(8));
-		assertEquals(83, s.nextShort());
-		assertEquals(456, s.nextShort());
+        s = new Scanner("123 456");
+        assertTrue(s.hasNextShort(16));
+        assertTrue(s.hasNextShort(8));
+        assertEquals(83, s.nextShort());
+        assertEquals(456, s.nextShort());
 
-		s = new Scanner("-123 -456 -789");
-		assertTrue(s.hasNextShort(8));
-		assertEquals(-123, s.nextInt());
-		assertEquals(-456, s.nextShort());
-		assertTrue(s.hasNextInt(16));
-		assertEquals(-789, s.nextShort());
-		
-		s = new Scanner("123 456");
-		assertTrue(s.hasNextShort());
-		s.close();
-		try {
-			s.nextShort();
-			fail("Should throw IllegalStateException");
-		} catch (IllegalStateException e) {
-			// expected
-		}
-	}
-    
+        s = new Scanner("-123 -456 -789");
+        assertTrue(s.hasNextShort(8));
+        assertEquals(-123, s.nextInt());
+        assertEquals(-456, s.nextShort());
+        assertTrue(s.hasNextInt(16));
+        assertEquals(-789, s.nextShort());
+
+        s = new Scanner("123 456");
+        assertTrue(s.hasNextShort());
+        s.close();
+        try {
+            s.nextShort();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
     /**
-	 * @throws IOException
-	 * @tests java.util.Scanner#hasNextLong(int)
-	 */
+     * @throws IOException
+     * @tests java.util.Scanner#hasNextLong(int)
+     */
     public void test_hasNextLongI() throws IOException {
         s = new Scanner("123 456");
         assertTrue(s.hasNextLong(10));
@@ -4181,9 +3993,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong(10));
         try {
             s.nextLong(10);
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -4193,9 +4004,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong(5));
         try {
             s.nextLong(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
@@ -4203,9 +4013,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong(10));
         try {
             s.nextLong(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -4217,9 +4026,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextShort(10));
         try {
             s.nextLong(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.ENGLISH);
         // If exception is thrown out, input will not be advanced.
@@ -4236,9 +4044,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong(10));
         try {
             s.nextLong(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(new Locale("it", "CH"));
         // If exception is thrown out, input will not be advanced.
@@ -4256,9 +4063,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong(5));
         try {
             s.nextLong(5);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         assertTrue(s.hasNextLong(10));
         assertEquals(162, s.nextLong(10));
@@ -4272,9 +4078,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong(10));
         try {
             s.nextLong(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         // If exception is thrown out, input will not be advanced.
@@ -4289,9 +4094,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong(10));
         try {
             s.nextLong(10);
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -4320,7 +4124,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextLong(10));
         assertEquals(12300, s.nextLong(10));
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextLong(10));
@@ -4330,47 +4134,46 @@ public class ScannerTest extends TestCase {
         s.useLocale(new Locale("ar", "AE"));
         assertTrue(s.hasNextLong(10));
         assertEquals(-123, s.nextLong(10));
-       
+
 
         s = new Scanner("-123");
         s.useLocale(new Locale("mk", "MK"));
         assertTrue(s.hasNextLong(10));
         assertEquals(-123, s.nextLong(10));
     }
-    
+
     /**
-	 * @throws IOException
-	 * @tests java.util.Scanner#hasNextLong(int)
-	 */
+     * @throws IOException
+     * @tests java.util.Scanner#hasNextLong(int)
+     */
     public void test_hasNextLongI_cache() throws IOException {
         //regression for HARMONY-2063
-    	s = new Scanner("123 456");
-		assertTrue(s.hasNextLong(16));
-		assertEquals(291, s.nextLong());
-		assertEquals(456, s.nextLong());
+        s = new Scanner("123 456");
+        assertTrue(s.hasNextLong(16));
+        assertEquals(291, s.nextLong());
+        assertEquals(456, s.nextLong());
 
-		s = new Scanner("123 456");
-		assertTrue(s.hasNextLong(16));
-		assertTrue(s.hasNextLong(8));
-		assertEquals(83, s.nextLong());
-		assertEquals(456, s.nextLong());
+        s = new Scanner("123 456");
+        assertTrue(s.hasNextLong(16));
+        assertTrue(s.hasNextLong(8));
+        assertEquals(83, s.nextLong());
+        assertEquals(456, s.nextLong());
 
-		s = new Scanner("-123 -456 -789");
-		assertTrue(s.hasNextLong(8));
-		assertEquals(-123, s.nextInt());
-		assertEquals(-456, s.nextLong());
-		assertTrue(s.hasNextShort(16));
-		assertEquals(-789, s.nextLong());
-		
-		s = new Scanner("123 456");
-		assertTrue(s.hasNextLong());
-		s.close();
-		try {
-			s.nextLong();
-			fail("Should throw IllegalStateException");
-		} catch (IllegalStateException e) {
-			// expected
-		}
+        s = new Scanner("-123 -456 -789");
+        assertTrue(s.hasNextLong(8));
+        assertEquals(-123, s.nextInt());
+        assertEquals(-456, s.nextLong());
+        assertTrue(s.hasNextShort(16));
+        assertEquals(-789, s.nextLong());
+
+        s = new Scanner("123 456");
+        assertTrue(s.hasNextLong());
+        s.close();
+        try {
+            s.nextLong();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
     }
 
     /**
@@ -4386,9 +4189,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong());
         try {
             s.nextLong();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         // If the radix is different from 10
@@ -4399,9 +4201,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong());
         try {
             s.nextLong();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // If the number is out of range
@@ -4409,9 +4210,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong());
         try {
             s.nextLong();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -4423,9 +4223,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong());
         try {
             s.nextLong();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.ENGLISH);
         // If exception is thrown out, input will not be advanced.
@@ -4442,9 +4241,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong());
         try {
             s.nextLong();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(new Locale("it", "CH"));
         // If exception is thrown out, input will not be advanced.
@@ -4462,9 +4260,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong());
         try {
             s.nextLong();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useRadix(10);
         assertTrue(s.hasNextLong());
@@ -4479,9 +4276,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong());
         try {
             s.nextLong();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
         s.useLocale(Locale.GERMANY);
         // If exception is thrown out, input will not be advanced.
@@ -4496,9 +4292,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextLong());
         try {
             s.nextLong();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         s = new Scanner("03456");
@@ -4528,7 +4323,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextLong());
         assertEquals(12300, s.nextLong());
-        
+
         s = new Scanner("123\u0e50\u0e50");
         s.useLocale(Locale.CHINESE);
         assertTrue(s.hasNextLong());
@@ -4544,7 +4339,7 @@ public class ScannerTest extends TestCase {
         assertTrue(s.hasNextLong());
         assertEquals(-123, s.nextLong());
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextDouble()
@@ -4563,9 +4358,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextDouble());
         try {
             s.nextDouble();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         s = new Scanner("+123.4 -456.7 123,456.789 0.1\u06623,4");
@@ -4579,9 +4373,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextDouble());
         try {
             s.nextDouble();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // Scientific notation
@@ -4606,7 +4399,7 @@ public class ScannerTest extends TestCase {
         s=new Scanner(str);
         assertTrue(s.hasNextDouble());
         assertEquals(Double.POSITIVE_INFINITY,s.nextDouble());
-        
+
         /*
          * Different locale can only recognize corresponding locale sensitive
          * string. ',' is used in many locales as group separator.
@@ -4639,19 +4432,18 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.ENGLISH);
         assertTrue(s.hasNextDouble());
         assertEquals(-123.4, s.nextDouble());
-        
+
         s = new Scanner("+123.4 -456.7");
         s.useLocale(Locale.ENGLISH);
         assertTrue(s.hasNextDouble());
         s.close();
         try{
-        	s.nextDouble();
-        	fail("Should throw IllegalStateException");
-        }catch(IllegalStateException e){
-        	//expected
+            s.nextDouble();
+            fail();
+        }catch(IllegalStateException expected) {
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#hasNextBigDecimal()
@@ -4670,9 +4462,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigDecimal());
         try {
             s.nextBigDecimal();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         s = new Scanner("+123.4 -456.7 123,456.789 0.1\u06623,4");
@@ -4686,9 +4477,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigDecimal());
         try {
             s.nextBigDecimal();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // Scientific notation
@@ -4705,9 +4495,8 @@ public class ScannerTest extends TestCase {
         assertFalse(s.hasNextBigDecimal());
         try {
             s.nextBigDecimal();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -4740,7 +4529,7 @@ public class ScannerTest extends TestCase {
         assertTrue(s.hasNextBigDecimal());
         assertEquals(new BigDecimal("-123.4"), s.nextBigDecimal());
     }
-    
+
     private static class MockStringReader extends StringReader {
 
         public MockStringReader(String param) {
@@ -4756,22 +4545,22 @@ public class ScannerTest extends TestCase {
         }
 
     }
-    
+
     private static class MockStringReader2Read extends StringReader {
-        private int timesRead = 1;
+        int timesRead = 0;
 
         public MockStringReader2Read(String param) {
             super(param);
         }
 
         public int read(CharBuffer target) throws IOException {
-            if (timesRead == 1) {
+            if (timesRead == 0) {
                 target.append('1');
                 target.append('2');
                 target.append('3');
                 timesRead++;
                 return 3;
-            } else if (timesRead == 2) {
+            } else if (timesRead == 1) {
                 target.append('t');
                 timesRead++;
                 return 1;
@@ -4781,11 +4570,22 @@ public class ScannerTest extends TestCase {
         }
 
     }
-    
+
+    // https://code.google.com/p/android/issues/detail?id=40555
+    public void test_40555() throws Exception {
+      MockStringReader2Read reader = new MockStringReader2Read("MockStringReader");
+      s = new Scanner(reader);
+      // We should get a match straight away.
+      String result = s.findWithinHorizon("1", 0);
+      assertEquals("1", result);
+      // The stream should not be consumed as there's already a match after the first read.
+      assertEquals(1, reader.timesRead);
+    }
+
     /**
      * @tests java.util.Scanner#findWithinHorizon(Pattern, int)
      */
-    public void test_findWithinHorizon_LPatternI(){
+    public void test_findWithinHorizon_LPatternI() {
 
         // This method searches through the input up to the specified search
         // horizon(exclusive).
@@ -4823,9 +4623,8 @@ public class ScannerTest extends TestCase {
 
         try {
             s.match();
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
         assertEquals("345", mresult.group());
         assertEquals(2, mresult.start());
@@ -4853,24 +4652,21 @@ public class ScannerTest extends TestCase {
 
         try {
             s.findWithinHorizon((Pattern) null, -1);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         try {
             s.findWithinHorizon(Pattern.compile("\\p{Digit}+"), -1);
-            fail("Should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
 
         s.close();
         try {
             s.findWithinHorizon((Pattern) null, -1);
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         s = new Scanner("test");
@@ -4878,22 +4674,19 @@ public class ScannerTest extends TestCase {
         assertEquals("test", result);
 
         s = new Scanner("aa\n\rb");
-        String patternStr = "^(a)$";
         result = s.findWithinHorizon(Pattern.compile("a"), 5);
         assertEquals("a", result);
         mresult = s.match();
         assertEquals(0, mresult.start());
         assertEquals(1, mresult.end());
 
-        result = s.findWithinHorizon(Pattern.compile(patternStr,
-                Pattern.MULTILINE), 5);
+        result = s.findWithinHorizon(Pattern.compile("^(a)$", Pattern.MULTILINE), 5);
         assertNull(result);
 
         try {
             mresult = s.match();
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         s = new Scanner("");
@@ -4916,9 +4709,8 @@ public class ScannerTest extends TestCase {
 
         try {
             mresult = s.match();
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
         assertEquals(0, mresult.groupCount());
 
@@ -4936,18 +4728,16 @@ public class ScannerTest extends TestCase {
         s.close();
         try {
             s.findWithinHorizon(Pattern.compile("test"), 1);
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         s = new Scanner("word1 WorD2  ");
         s.close();
         try {
             s.findWithinHorizon(Pattern.compile("\\d+"), 10);
-            fail("should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         s = new Scanner("word1 WorD2 wOrd3 ");
@@ -4970,6 +4760,7 @@ public class ScannerTest extends TestCase {
         s = new Scanner(stringBuilder.toString());
         pattern = Pattern.compile("\\p{Lower}+");
         result = s.findWithinHorizon(pattern, 1026);
+        assertEquals(stringBuilder.toString().length(), result.length());
         assertEquals(stringBuilder.toString(), result);
 
         // Test the situation when input length is longer than buffer size and
@@ -5005,7 +4796,7 @@ public class ScannerTest extends TestCase {
         pattern = Pattern.compile("\\p{Lower}+");
         result = s.findWithinHorizon(pattern, 0);
         assertEquals(stringBuilder.toString(), result);
-        
+
         stringBuilder = new StringBuilder();
         for (int i = 0; i < 10240; i++) {
             stringBuilder.append('-');
@@ -5014,12 +4805,12 @@ public class ScannerTest extends TestCase {
         s = new Scanner(stringBuilder.toString());
         result = s.findWithinHorizon(Pattern.compile("aa"), 0);
         assertEquals("aa", result);
-        
+
         s = new Scanner("aaaa");
         result = s.findWithinHorizon(Pattern.compile("a*"), 0);
         assertEquals("aaaa", result);
     }
-    
+
     /**
      * @tests java.util.Scanner#findInLine(Pattern)
      */
@@ -5028,9 +4819,8 @@ public class ScannerTest extends TestCase {
         Scanner s = new Scanner("");
         try {
             s.findInLine((Pattern) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // Expected
+            fail();
+        } catch (NullPointerException expected) {
         }
         String result = s.findInLine(Pattern.compile("^"));
         assertEquals("", result);
@@ -5067,9 +4857,8 @@ public class ScannerTest extends TestCase {
         assertNull(result);
         try {
             matchResult = s.match();
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
         assertEquals(0, matchResult.start());
         assertEquals(4, matchResult.end());
@@ -5096,9 +4885,8 @@ public class ScannerTest extends TestCase {
         s.close();
         try {
             s.findInLine((Pattern) null);
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         s = new Scanner("test1234\n1234 test");
@@ -5125,13 +4913,13 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(14, matchResult.start());
         assertEquals(18, matchResult.end());
-        
+
         s = new Scanner("test\u0085\ntest");
         result = s.findInLine("est");
         assertEquals("est", result);
         result = s.findInLine("est");
         assertEquals("est", result);
-        
+
         s = new Scanner("test\ntest");
         result = s.findInLine("est");
         assertEquals("est", result);
@@ -5144,39 +4932,134 @@ public class ScannerTest extends TestCase {
         result = s.findInLine("est");
         // RI fails. It is a RI's bug.
         assertNull(result);
-        
+
         s = new Scanner( "   *\n");
         result = s.findInLine(Pattern.compile( "^\\s*(?:\\*(?=[^/]))"));
         assertEquals("   *", result);
     }
 
-    /**
-     * @tests java.util.Scanner#findInLine(String)
-     */
-    public void test_findInLine_LString() {
+    public void test_findInLine_LString_NPEs() {
         s = new Scanner("test");
         try {
             s.findInLine((String) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
-
         s.close();
         try {
             s.findInLine((String) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
         try {
             s.findInLine("test");
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // exptected
+            fail();
+        } catch (IllegalStateException expected) {
         }
     }
-    
+
+    public void test_findInLine_LString() {
+      Scanner s = new Scanner("");
+      String result = s.findInLine("^");
+      assertEquals("", result);
+      MatchResult matchResult = s.match();
+      assertEquals(0, matchResult.start());
+      assertEquals(0, matchResult.end());
+
+      result = s.findInLine("$");
+      assertEquals("", result);
+      matchResult = s.match();
+      assertEquals(0, matchResult.start());
+      assertEquals(0, matchResult.end());
+
+      // When we use the operation of findInLine(Pattern), the match region
+      // should not span the line separator.
+      s = new Scanner("aa\nb.b");
+      result = s.findInLine("a\nb*");
+      assertNull(result);
+
+      s = new Scanner("aa\nbb.b");
+      result = s.findInLine("\\.");
+      assertNull(result);
+
+      s = new Scanner("abcd1234test\n");
+      result = s.findInLine("\\p{Lower}+");
+      assertEquals("abcd", result);
+      matchResult = s.match();
+      assertEquals(0, matchResult.start());
+      assertEquals(4, matchResult.end());
+
+      result = s.findInLine("\\p{Digit}{5}");
+      assertNull(result);
+      try {
+        matchResult = s.match();
+        fail();
+      } catch (IllegalStateException expected) {
+      }
+      assertEquals(0, matchResult.start());
+      assertEquals(4, matchResult.end());
+
+      result = s.findInLine("\\p{Lower}+");
+      assertEquals("test", result);
+      matchResult = s.match();
+      assertEquals(8, matchResult.start());
+      assertEquals(12, matchResult.end());
+
+      char[] chars = new char[2048];
+      Arrays.fill(chars, 'a');
+      StringBuilder stringBuilder = new StringBuilder();
+      stringBuilder.append(chars);
+      stringBuilder.append("1234");
+      s = new Scanner(stringBuilder.toString());
+      result = s.findInLine("\\p{Digit}+");
+      assertEquals("1234", result);
+      matchResult = s.match();
+      assertEquals(2048, matchResult.start());
+      assertEquals(2052, matchResult.end());
+
+      s = new Scanner("test1234\n1234 test");
+      result = s.findInLine("test");
+      assertEquals("test", result);
+      matchResult = s.match();
+      assertEquals(0, matchResult.start());
+      assertEquals(4, matchResult.end());
+
+      int number = s.nextInt();
+      assertEquals(1234, number);
+      matchResult = s.match();
+      assertEquals(4, matchResult.start());
+      assertEquals(8, matchResult.end());
+
+      result = s.next();
+      assertEquals("1234", result);
+      matchResult = s.match();
+      assertEquals(9, matchResult.start());
+      assertEquals(13, matchResult.end());
+
+      result = s.findInLine("test");
+      assertEquals("test", result);
+      matchResult = s.match();
+      assertEquals(14, matchResult.start());
+      assertEquals(18, matchResult.end());
+
+      s = new Scanner("test\u0085\ntest");
+      result = s.findInLine("est");
+      assertEquals("est", result);
+      result = s.findInLine("est");
+      assertEquals("est", result);
+
+      s = new Scanner("test\ntest");
+      result = s.findInLine("est");
+      assertEquals("est", result);
+      result = s.findInLine("est");
+      assertEquals("est", result);
+
+      s = new Scanner("test\n123\ntest");
+      result = s.findInLine("est");
+      assertEquals("est", result);
+      result = s.findInLine("est");
+    }
+
     /**
      * @tests java.util.Scanner#skip(Pattern)
      */
@@ -5184,25 +5067,22 @@ public class ScannerTest extends TestCase {
         s = new Scanner("test");
         try {
             s.skip((String) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
-        
+
         // If pattern does not match, NoSuchElementException will be thrown out.
         s = new Scanner("1234");
         try {
             s.skip(Pattern.compile("\\p{Lower}"));
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
         // Then, no matchResult will be thrown out.
         try {
             s.match();
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         s.skip(Pattern.compile("\\p{Digit}"));
@@ -5218,24 +5098,21 @@ public class ScannerTest extends TestCase {
         s.close();
         try {
             s.skip(Pattern.compile("test"));
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         MockStringReader2Read reader = new MockStringReader2Read("test");
         s = new Scanner(reader);
         try {
             s.skip(Pattern.compile("\\p{Digit}{4}"));
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
         try {
             s.match();
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
         s.skip(Pattern.compile("\\p{Digit}{3}\\p{Lower}"));
         matchResult = s.match();
@@ -5245,11 +5122,10 @@ public class ScannerTest extends TestCase {
         s.close();
         try {
             s.skip((Pattern) null);
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
-        
+
         StringBuilder stringBuilder = new StringBuilder();
         char [] chars = new char[1024];
         Arrays.fill(chars, 'a');
@@ -5260,7 +5136,7 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1025, matchResult.end());
-        
+
         // Large amount of input may be cached
         chars = new char[102400];
         Arrays.fill(chars, 'a');
@@ -5271,7 +5147,7 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(102400, matchResult.end());
-        
+
         // skip something without risking a NoSuchElementException
         s.skip(Pattern.compile("[ \t]*"));
         matchResult = s.match();
@@ -5286,12 +5162,11 @@ public class ScannerTest extends TestCase {
         s = new Scanner("test");
         try {
             s.skip((String) null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextDouble()
@@ -5305,9 +5180,8 @@ public class ScannerTest extends TestCase {
         assertEquals(0.123, s.nextDouble());
         try {
             s.nextDouble();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         s = new Scanner("+123.4 -456.7 123,456.789 0.1\u06623,4");
@@ -5317,9 +5191,8 @@ public class ScannerTest extends TestCase {
         assertEquals(123456.789, s.nextDouble());
         try {
             s.nextDouble();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // Scientific notation
@@ -5333,7 +5206,7 @@ public class ScannerTest extends TestCase {
         assertEquals(Double.NaN, s.nextDouble());
         assertEquals(Double.POSITIVE_INFINITY, s.nextDouble());
         assertEquals(Double.NEGATIVE_INFINITY, s.nextDouble());
-        
+
         //The following test case fails on RI
         s=new Scanner("\u221e");
         s.useLocale(Locale.ENGLISH);
@@ -5342,7 +5215,7 @@ public class ScannerTest extends TestCase {
         String str=String.valueOf(Double.MAX_VALUE*2);
         s=new Scanner(str);
         assertEquals(Double.POSITIVE_INFINITY,s.nextDouble());
-        
+
         /*
          * Different locale can only recognize corresponding locale sensitive
          * string. ',' is used in many locales as group separator.
@@ -5369,7 +5242,7 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.ENGLISH);
         assertEquals(-123.4, s.nextDouble());
     }
-    
+
     /**
      * @throws IOException
      * @tests java.util.Scanner#nextBigDecimal()
@@ -5383,9 +5256,8 @@ public class ScannerTest extends TestCase {
         assertEquals(new BigDecimal("0.123"), s.nextBigDecimal());
         try {
             s.nextBigDecimal();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
 
         s = new Scanner("+123.4 -456.7 123,456.789 0.1\u06623,4");
@@ -5395,9 +5267,8 @@ public class ScannerTest extends TestCase {
         assertEquals(new BigDecimal("123456.789"), s.nextBigDecimal());
         try {
             s.nextBigDecimal();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         // Scientific notation
@@ -5410,9 +5281,8 @@ public class ScannerTest extends TestCase {
         s = new Scanner("NaN");
         try {
             s.nextBigDecimal();
-            fail("Should throw InputMismatchException");
-        } catch (InputMismatchException e) {
-            // Expected
+            fail();
+        } catch (InputMismatchException expected) {
         }
 
         /*
@@ -5456,11 +5326,10 @@ public class ScannerTest extends TestCase {
         s.close();
         try {
             s.nextLine();
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
-        
+
         s = new Scanner("test\r\ntest");
         String result = s.nextLine();
         assertEquals("test", result);
@@ -5474,33 +5343,31 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1, matchResult.end());
-        
+
         s = new Scanner("\u2028");
         result = s.nextLine();
         assertEquals("", result);
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1, matchResult.end());
-        
+
         s = new Scanner("\u2029");
         result = s.nextLine();
         assertEquals("", result);
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1, matchResult.end());
-        
+
         s = new Scanner("");
         try {
             result = s.nextLine();
-            fail("Should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // expected
+            fail();
+        } catch (NoSuchElementException expected) {
         }
         try {
             s.match();
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
 
         s = new Scanner("Ttest");
@@ -5570,14 +5437,14 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(1, matchResult.start());
         assertEquals(2, matchResult.end());
-        
+
         s = new Scanner("123 test\n   ");
         int value = s.nextInt();
         assertEquals(123, value);
-        
+
         result = s.nextLine();
         assertEquals(" test", result);
-        
+
         s = new Scanner("test\n ");
         result = s.nextLine();
         assertEquals("test", result);
@@ -5597,9 +5464,9 @@ public class ScannerTest extends TestCase {
         // We expect read() to be called only once, otherwise we see the problem
         // when reading from System.in described in Harmony-4774
         assertEquals(1, cr.counter);
-        assertEquals("hello", result);        
+        assertEquals("hello", result);
     }
-    
+
     /**
      * @tests java.util.Scanner#hasNextLine()
      */
@@ -5608,11 +5475,10 @@ public class ScannerTest extends TestCase {
         s.close();
         try {
             s.hasNextLine();
-            fail("Should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-            // expected
+            fail();
+        } catch (IllegalStateException expected) {
         }
-        
+
         s = new Scanner("test\r\ntest");
         boolean result = s.hasNextLine();
         assertTrue(result);
@@ -5626,21 +5492,21 @@ public class ScannerTest extends TestCase {
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1, matchResult.end());
-        
+
         s = new Scanner("\u2028");
         result = s.hasNextLine();
         assertTrue(result);
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1, matchResult.end());
-        
+
         s = new Scanner("\u2029");
         result = s.hasNextLine();
         assertTrue(result);
         matchResult = s.match();
         assertEquals(0, matchResult.start());
         assertEquals(1, matchResult.end());
-        
+
         s = new Scanner("test\n");
         assertTrue(s.hasNextLine());
         matchResult = s.match();
@@ -5681,18 +5547,19 @@ public class ScannerTest extends TestCase {
         Thread thread = new Thread(new Runnable() {
             public void run() {
                 while (scanner.hasNextLine()) {
-                    result.add(scanner.nextLine());
+                    String line = scanner.nextLine();
+                    result.add(line);
                 }
             }
         });
         thread.start();
         for (int index = 0; index < 5; index++) {
-            pos.write(("line" + index + "\n").getBytes());
+            String line = "line" + index + "\n";
+            pos.write(line.getBytes());
             pos.flush();
             try {
                 Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                // Ignored
+            } catch (InterruptedException ignored) {
             }
             assertEquals(index + 1, result.size());
         }
@@ -5700,8 +5567,7 @@ public class ScannerTest extends TestCase {
         pos.close();
         try {
             thread.join(1000);
-        } catch (InterruptedException e) {
-            // Ignored
+        } catch (InterruptedException ignored) {
         }
         assertFalse(scanner.hasNextLine());
     }
@@ -5724,18 +5590,45 @@ public class ScannerTest extends TestCase {
 
         try {
             serverSocket.close();
-        } catch (Exception e) {
-
+        } catch (Exception ignored) {
         }
         try {
             client.close();
-        } catch (Exception e) {
-            // do nothing
+        } catch (Exception ignored) {
         }
         try {
             server.close();
-        } catch (Exception e) {
-            // do nothing
+        } catch (Exception ignored) {
+        }
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=57050
+    public void testPerformance() throws Exception {
+        int count = 100000;
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(baos));
+        for (int i = 0; i < count; ++i) {
+            out.write(Integer.toString(123) + " ");
+        }
+        out.close();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        bais.mark(-1);
+
+        Scanner s = new Scanner(new BufferedReader(new InputStreamReader(bais)));
+        for (int i = 0; i < count; ++i) {
+            if (s.nextInt() != 123) {
+                fail();
+            }
+        }
+
+        bais.reset();
+        s = new Scanner(new BufferedReader(new InputStreamReader(bais)));
+        for (int i = 0; i < count; ++i) {
+            if (s.nextFloat() != 123.0) {
+                fail();
+            }
         }
     }
 }
