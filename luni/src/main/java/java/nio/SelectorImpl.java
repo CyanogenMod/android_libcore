@@ -84,7 +84,7 @@ final class SelectorImpl extends AbstractSelector {
         super(selectorProvider);
 
         /*
-         * Create a pipes to trigger wakeup. We can't use a NIO pipe because it
+         * Create a pipe to trigger wakeup. We can't use a NIO pipe because it
          * would be closed if the selecting thread is interrupted. Also
          * configure the pipe so we can fully drain it without blocking.
          */
@@ -255,6 +255,11 @@ final class SelectorImpl extends AbstractSelector {
 
             int ops = key.interestOpsNoCheck();
             int selectedOps = 0;
+            if ((pollFd.revents & POLLHUP) != 0) {
+                // If there was an error condition, we definitely want to wake listeners,
+                // regardless of what they're waiting for. Failure is always interesting.
+                selectedOps |= ops;
+            }
             if ((pollFd.revents & POLLIN) != 0) {
                 selectedOps |= ops & (OP_ACCEPT | OP_READ);
             }
@@ -289,7 +294,7 @@ final class SelectorImpl extends AbstractSelector {
 
     /**
      * Removes cancelled keys from the key set and selected key set, and
-     * deregisters the corresponding channels. Returns the number of keys
+     * unregisters the corresponding channels. Returns the number of keys
      * removed from the selected key set.
      */
     private int doCancel() {
