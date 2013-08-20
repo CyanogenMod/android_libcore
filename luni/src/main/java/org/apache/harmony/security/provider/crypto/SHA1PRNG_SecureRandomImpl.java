@@ -300,6 +300,11 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements Serial
             updateSeed(getRandomBytes(DIGEST_LENGTH));
             nextBIndex = HASHBYTES_TO_USE;
 
+            // updateSeed(...) updates where the last word of the seed is, so we
+            // have to read it again.
+            lastWord = seed[BYTES_OFFSET] == 0 ? 0
+                    : (seed[BYTES_OFFSET] + extrabytes) >> 3 - 1;
+
         } else if (state == SET_SEED) {
 
             System.arraycopy(seed, HASH_OFFSET, copies, HASHCOPY_OFFSET,
