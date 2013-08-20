@@ -557,12 +557,10 @@ public final class Matcher implements MatchResult {
     }
 
     /**
-     * Indicates whether this matcher has anchoring bounds enabled. When
+     * Returns true if this matcher has anchoring bounds enabled. When
      * anchoring bounds are enabled, the start and end of the input match the
      * '^' and '$' meta-characters, otherwise not. Anchoring bounds are enabled
      * by default.
-     *
-     * @return true if (and only if) the {@code Matcher} uses anchoring bounds.
      */
     public boolean hasAnchoringBounds() {
         return anchoringBounds;
@@ -600,12 +598,10 @@ public final class Matcher implements MatchResult {
     }
 
     /**
-     * Indicates whether this matcher has transparent bounds enabled. When
+     * Returns true if this matcher has transparent bounds enabled. When
      * transparent bounds are enabled, the parts of the input outside the region
      * are subject to lookahead and lookbehind, otherwise they are not.
      * Transparent bounds are disabled by default.
-     *
-     * @return true if (and only if) the {@code Matcher} uses anchoring bounds.
      */
     public boolean hasTransparentBounds() {
         return transparentBounds;
@@ -628,8 +624,10 @@ public final class Matcher implements MatchResult {
     }
 
     /**
-     * Returns true if and only if more input might change a successful match into an
-     * unsuccessful one.
+     * Returns true if the most recent match succeeded and additional input could cause
+     * it to fail. If this method returns false and a match was found, then more input
+     * might change the match but the match won't be lost. If a match was not found,
+     * then requireEnd has no meaning.
      */
     public boolean requireEnd() {
         synchronized (this) {
@@ -638,7 +636,9 @@ public final class Matcher implements MatchResult {
     }
 
     /**
-     * Returns true if and only if the last match hit the end of the input.
+     * Returns true if the most recent matching operation attempted to access
+     * additional text beyond the available input, meaning that additional input
+     * could change the results of the match.
      */
     public boolean hitEnd() {
         synchronized (this) {
