@@ -400,31 +400,4 @@ public class SHA1PRNG_SecureRandomTest extends TestCase {
             assertFalse("sequences are equal i=" + i, b);
         }
     }
-
-    public void testSeedIsFullLength() throws Exception {
-        Class<?> srClass = Class.forName(
-                "org.apache.harmony.security.provider.crypto.SHA1PRNG_SecureRandomImpl");
-        Field seedField = srClass.getDeclaredField("seed");
-        seedField.setAccessible(true);
-
-        Method nextBytesMethod = srClass.getDeclaredMethod("engineNextBytes", byte[].class);
-        nextBytesMethod.setAccessible(true);
-
-        byte[] bytes = new byte[1];
-
-        // Iterate 8 times to make sure the probability of a false positive is
-        // extremely rare.
-        for (int i = 0; i < 8; i++) {
-            Object sr = srClass.newInstance();
-            nextBytesMethod.invoke(sr, bytes);
-            int[] seed = (int[]) seedField.get(sr);
-
-            // If the first integer is not zero, it is fixed.
-            if (seed[0] != 0) {
-                return; // Success
-            }
-        }
-
-        fail("Fallback SHA1PRNG_SecureRandomImpl should not clobber seed internally");
-    }
 }
