@@ -173,7 +173,7 @@ public final class System {
      * local system, in nanoseconds. Equivalent to Linux's {@code CLOCK_MONOTONIC}.
      *
      * <p>This timestamp should only be used to measure a duration by comparing it
-     * against another timestamp from the same process on the same device.
+     * against another timestamp on the same device.
      * Values returned by this method do not have a defined correspondence to
      * wall clock times; the zero value is typically whenever the device last booted.
      * Use {@link #currentTimeMillis} if you want to know what time it is.
