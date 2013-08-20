@@ -174,7 +174,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
         @Override
         @SuppressWarnings("unchecked")
         public String toString() {
-            if (-1 == prePosition) {
+            if (prePosition == -1) {
                 return super.toString();
             }
             return type.get(
@@ -183,7 +183,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
         }
 
         private void checkStatus() {
-            if (-1 == prePosition) {
+            if (prePosition == -1) {
                 throw new IllegalStateException();
             }
         }
