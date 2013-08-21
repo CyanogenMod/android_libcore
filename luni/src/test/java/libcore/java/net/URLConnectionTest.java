@@ -520,6 +520,11 @@ public final class URLConnectionTest extends TestCase {
 
         assertContent("this response comes via SSL", connection);
 
+        // The first request will be an incomplete (bookkeeping) request
+        // that the server disconnected from at start.
+        server.takeRequest();
+
+        // The request will be retried.
         RecordedRequest request = server.takeRequest();
         assertEquals("GET /foo HTTP/1.1", request.getRequestLine());
     }
