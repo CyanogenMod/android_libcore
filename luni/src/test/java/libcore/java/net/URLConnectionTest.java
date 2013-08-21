@@ -1408,7 +1408,7 @@ public final class URLConnectionTest extends TestCase {
     public void testAuthenticateWithCommaSeparatedAuthenticationMethods() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(401)
-                .addHeader("WWW-Authenticate: Scheme1 realm=\"a\", Scheme2 realm=\"b\", "
+                .addHeader("WWW-Authenticate: Scheme1 realm=\"a\", Basic realm=\"b\", "
                         + "Scheme3 realm=\"c\"")
                 .setBody("Please authenticate."));
         server.enqueue(new MockResponse().setBody("Successful auth!"));
@@ -1422,15 +1422,15 @@ public final class URLConnectionTest extends TestCase {
 
         assertContainsNoneMatching(server.takeRequest().getHeaders(), "Authorization: .*");
         assertContains(server.takeRequest().getHeaders(),
-                "Authorization: Scheme2 " + SimpleAuthenticator.BASE_64_CREDENTIALS);
-        assertEquals("Scheme2", authenticator.requestingScheme);
+                "Authorization: Basic " + SimpleAuthenticator.BASE_64_CREDENTIALS);
+        assertEquals("Basic", authenticator.requestingScheme);
     }
 
     public void testAuthenticateWithMultipleAuthenticationHeaders() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(401)
                 .addHeader("WWW-Authenticate: Scheme1 realm=\"a\"")
-                .addHeader("WWW-Authenticate: Scheme2 realm=\"b\"")
+                .addHeader("WWW-Authenticate: Basic realm=\"b\"")
                 .addHeader("WWW-Authenticate: Scheme3 realm=\"c\"")
                 .setBody("Please authenticate."));
         server.enqueue(new MockResponse().setBody("Successful auth!"));
@@ -1444,8 +1444,8 @@ public final class URLConnectionTest extends TestCase {
 
         assertContainsNoneMatching(server.takeRequest().getHeaders(), "Authorization: .*");
         assertContains(server.takeRequest().getHeaders(),
-                "Authorization: Scheme2 " + SimpleAuthenticator.BASE_64_CREDENTIALS);
-        assertEquals("Scheme2", authenticator.requestingScheme);
+                "Authorization: Basic " + SimpleAuthenticator.BASE_64_CREDENTIALS);
+        assertEquals("Basic", authenticator.requestingScheme);
     }
 
     public void testRedirectedWithChunkedEncoding() throws Exception {
