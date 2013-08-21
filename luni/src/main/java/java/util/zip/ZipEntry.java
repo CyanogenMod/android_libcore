@@ -385,17 +385,17 @@ public class ZipEntry implements ZipConstants, Cloneable {
         Streams.readFully(in, nameBytes, 0, nameBytes.length);
         name = new String(nameBytes, 0, nameBytes.length, StandardCharsets.UTF_8);
 
+        if (extraLength > 0) {
+            extra = new byte[extraLength];
+            Streams.readFully(in, extra, 0, extraLength);
+        }
+
         // The RI has always assumed UTF-8. (If GPBF_UTF8_FLAG isn't set, the encoding is
         // actually IBM-437.)
         if (commentByteCount > 0) {
             byte[] commentBytes = new byte[commentByteCount];
             Streams.readFully(in, commentBytes, 0, commentByteCount);
             comment = new String(commentBytes, 0, commentBytes.length, StandardCharsets.UTF_8);
-        }
-
-        if (extraLength > 0) {
-            extra = new byte[extraLength];
-            Streams.readFully(in, extra, 0, extraLength);
         }
     }
 }

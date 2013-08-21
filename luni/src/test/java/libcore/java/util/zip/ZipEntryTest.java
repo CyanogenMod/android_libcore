@@ -169,4 +169,27 @@ public class ZipEntryTest extends junit.framework.TestCase {
     assertEquals(maxLengthComment, zipFile.getEntry("x").getComment());
     zipFile.close();
   }
+
+  public void testCommentAndExtraInSameOrder() throws Exception {
+    String comment = makeString(17, "z");
+    byte[] extra = makeString(11, "a").getBytes();
+
+    File f = createTemporaryZipFile();
+    ZipOutputStream out = createZipOutputStream(f);
+    ZipEntry ze = new ZipEntry("x");
+    ze.setExtra(extra);
+    ze.setComment(comment);
+    out.putNextEntry(ze);
+    out.closeEntry();
+    out.close();
+
+    // Read it back and make sure comments and extra are in the right order
+    ZipFile zipFile = new ZipFile(f);
+    try {
+      assertEquals(comment, zipFile.getEntry("x").getComment());
+      assertTrue(Arrays.equals(extra, zipFile.getEntry("x").getExtra()));
+    } finally {
+      zipFile.close();
+    }
+  }
 }
