@@ -1850,19 +1850,25 @@ public final class URLConnectionTest extends TestCase {
         }
     }
 
-    public void testGetKeepAlive() throws Exception {
+    public void testReadTimeoutsOnRecycledConnections() throws Exception {
         server.enqueue(new MockResponse().setBody("ABC"));
         server.play();
 
         // The request should work once and then fail
         URLConnection connection = server.getUrl("").openConnection();
+        // Read timeout of a day, sure to cause the test to timeout and fail.
+        connection.setReadTimeout(24 * 3600 * 1000);
         InputStream input = connection.getInputStream();
         assertEquals("ABC", readAscii(input, Integer.MAX_VALUE));
         input.close();
         try {
-            server.getUrl("").openConnection().getInputStream();
+            connection = server.getUrl("").openConnection();
+            // Set the read timeout back to 100ms, this request will time out
+            // because we've only enqueued one response.
+            connection.setReadTimeout(100);
+            connection.getInputStream();
             fail();
-        } catch (ConnectException expected) {
+        } catch (IOException expected) {
         }
     }
 
