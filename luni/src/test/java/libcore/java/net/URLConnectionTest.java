@@ -693,10 +693,17 @@ public final class URLConnectionTest extends TestCase {
         initResponseCache();
 
         server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
-        server.enqueue(new MockResponse()
+        MockResponse badProxyResponse = new MockResponse()
                 .setSocketPolicy(SocketPolicy.UPGRADE_TO_SSL_AT_END)
                 .clearHeaders()
-                .setBody("bogus proxy connect response content")); // Key to reproducing b/6754912
+                .setBody("bogus proxy connect response content"); // Key to reproducing b/6754912
+
+        // We enqueue the bad response twice because the connection will
+        // be retried with TLS_MODE_COMPATIBLE after the first connection
+        // fails.
+        server.enqueue(badProxyResponse);
+        server.enqueue(badProxyResponse);
+
         server.play();
 
         URL url = new URL("https://android.com/foo");
@@ -706,7 +713,7 @@ public final class URLConnectionTest extends TestCase {
         try {
             connection.connect();
             fail();
-        } catch (IOException expected) {
+        } catch (SSLHandshakeException expected) {
             // Thrown when the connect causes SSLSocket.startHandshake() to throw
             // when it sees the "bogus proxy connect response content"
             // instead of a ServerHello handshake message.
