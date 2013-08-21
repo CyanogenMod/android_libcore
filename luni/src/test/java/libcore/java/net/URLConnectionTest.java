@@ -74,6 +74,7 @@ import libcore.java.security.TestKeyStore;
 import libcore.javax.net.ssl.TestSSLContext;
 import tests.net.StuckServer;
 
+import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AFTER_READING_REQUEST;
 import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_END;
 import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_START;
 import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_INPUT_AT_END;
@@ -335,26 +336,36 @@ public final class URLConnectionTest extends TestCase {
     }
 
     public void testRetryableRequestBodyAfterBrokenConnection() throws Exception {
-        server.enqueue(new MockResponse().setBody("abc").setSocketPolicy(DISCONNECT_AT_END));
-        server.enqueue(new MockResponse().setBody("def"));
+        // Use SSL to make an alternate route available.
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+
+        server.enqueue(new MockResponse().setBody("abc").setSocketPolicy(
+            DISCONNECT_AFTER_READING_REQUEST));
+        server.enqueue(new MockResponse().setBody("abc"));
         server.play();
 
-        assertContent("abc", server.getUrl("/a").openConnection());
-        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/b").openConnection();
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
         connection.setDoOutput(true);
         OutputStream out = connection.getOutputStream();
         out.write(new byte[] {1, 2, 3});
         out.close();
-        assertContent("def", connection);
+        assertContent("abc", connection);
+
+        assertEquals(0, server.takeRequest().getSequenceNumber());
+        assertEquals(0, server.takeRequest().getSequenceNumber());
     }
 
     public void testNonRetryableRequestBodyAfterBrokenConnection() throws Exception {
-        server.enqueue(new MockResponse().setBody("abc").setSocketPolicy(DISCONNECT_AT_END));
-        server.enqueue(new MockResponse().setBody("def"));
+        TestSSLContext testSSLContext = TestSSLContext.create();
+        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        server.enqueue(new MockResponse().setBody("abc")
+            .setSocketPolicy(DISCONNECT_AFTER_READING_REQUEST));
         server.play();
 
-        assertContent("abc", server.getUrl("/a").openConnection());
-        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/b").openConnection();
+        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/a").openConnection();
+        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
         connection.setDoOutput(true);
         connection.setFixedLengthStreamingMode(3);
         OutputStream out = connection.getOutputStream();
