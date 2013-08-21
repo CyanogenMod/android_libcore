@@ -325,7 +325,7 @@ public class BufferedInputStream extends FilterInputStream {
         if (buf == null) {
             throw new IOException("Stream is closed");
         }
-        if (markpos == - 1) {
+        if (markpos == -1) {
             throw new IOException("Mark has been invalidated.");
         }
         pos = markpos;
