@@ -10,6 +10,7 @@ LOCAL_SRC_FILES := \
 	JniException.cpp \
 	NetworkUtilities.cpp \
 	Register.cpp \
+	ZipUtilities.cpp \
 	cbigint.cpp \
 	java_io_Console.cpp \
 	java_io_File.cpp \
