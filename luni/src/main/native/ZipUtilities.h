@@ -18,20 +18,9 @@
 #ifndef ZIP_UTILITIES_H_included
 #define ZIP_UTILITIES_H_included
 
-#include "JNIHelp.h"
-#include "JniException.h"
 #include "UniquePtr.h"
 #include "jni.h"
 #include "zlib.h"
-#include "zutil.h" // For DEF_WBITS and DEF_MEM_LEVEL.
-
-static void throwExceptionForZlibError(JNIEnv* env, const char* exceptionClassName, int error) {
-    if (error == Z_MEM_ERROR) {
-        jniThrowOutOfMemoryError(env, NULL);
-    } else {
-        jniThrowException(env, exceptionClassName, zError(error));
-    }
-}
 
 class NativeZipStream {
 public:
@@ -39,51 +28,10 @@ public:
     int inCap;
     z_stream stream;
 
-    NativeZipStream() : input(NULL), inCap(0), mDict(NULL) {
-        // Let zlib use its default allocator.
-        stream.opaque = Z_NULL;
-        stream.zalloc = Z_NULL;
-        stream.zfree = Z_NULL;
-    }
-
-    ~NativeZipStream() {
-    }
-
-    void setDictionary(JNIEnv* env, jbyteArray javaDictionary, int off, int len, bool inflate) {
-        UniquePtr<jbyte[]> dictionaryBytes(new jbyte[len]);
-        if (dictionaryBytes.get() == NULL) {
-            jniThrowOutOfMemoryError(env, NULL);
-            return;
-        }
-        env->GetByteArrayRegion(javaDictionary, off, len, &dictionaryBytes[0]);
-        const Bytef* dictionary = reinterpret_cast<const Bytef*>(&dictionaryBytes[0]);
-        int err;
-        if (inflate) {
-            err = inflateSetDictionary(&stream, dictionary, len);
-        } else {
-            err = deflateSetDictionary(&stream, dictionary, len);
-        }
-        if (err != Z_OK) {
-            throwExceptionForZlibError(env, "java/lang/IllegalArgumentException", err);
-            return;
-        }
-        mDict.reset(dictionaryBytes.release());
-    }
-
-    void setInput(JNIEnv* env, jbyteArray buf, jint off, jint len) {
-        input.reset(new jbyte[len]);
-        if (input.get() == NULL) {
-            inCap = 0;
-            jniThrowOutOfMemoryError(env, NULL);
-            return;
-        }
-        inCap = len;
-        if (buf != NULL) {
-            env->GetByteArrayRegion(buf, off, len, &input[0]);
-        }
-        stream.next_in = reinterpret_cast<Bytef*>(&input[0]);
-        stream.avail_in = len;
-    }
+    NativeZipStream();
+    ~NativeZipStream();
+    void setDictionary(JNIEnv* env, jbyteArray javaDictionary, int off, int len, bool inflate);
+    void setInput(JNIEnv* env, jbyteArray buf, jint off, jint len);
 
 private:
     UniquePtr<jbyte[]> mDict;
@@ -93,8 +41,9 @@ private:
     void operator=(const NativeZipStream&);
 };
 
-static NativeZipStream* toNativeZipStream(jlong address) {
-    return reinterpret_cast<NativeZipStream*>(static_cast<uintptr_t>(address));
-}
+NativeZipStream* toNativeZipStream(jlong address);
+
+void throwExceptionForZlibError(JNIEnv* env, const char* exceptionClassName, int error,
+        NativeZipStream* stream);
 
 #endif  // ZIP_UTILITIES_H_included
