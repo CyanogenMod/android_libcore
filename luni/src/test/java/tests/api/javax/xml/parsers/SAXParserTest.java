@@ -301,12 +301,7 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    /**
-     * @test javax.xml.parsers.SAXParser#parse(java.io.File,
-     *     org.xml.sax.helpers.DefaultHandler)
-     */
-    public void test_parseLjava_io_FileLorg_xml_sax_helpers_DefaultHandler()
-    throws Exception {
+    public void test_parseLjava_io_FileLorg_xml_sax_helpers_DefaultHandler() throws Exception {
 
         for(int i = 0; i < list_wf.length; i++) {
             HashMap<String, String> hm =
@@ -396,10 +391,6 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    /**
-     * @test javax.xml.parsers.SAXParser#parse(org.xml.sax.InputSource,
-     *     org.xml.sax.helpers.DefaultHandler)
-     */
     public void test_parseLorg_xml_sax_InputSourceLorg_xml_sax_helpers_DefaultHandler()
             throws Exception {
         for(int i = 0; i < list_wf.length; i++) {
@@ -492,12 +483,7 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    /**
-     * @test javax.xml.parsers.SAXParser#parse(java.io.InputStream,
-     *     org.xml.sax.helpers.DefaultHandler)
-     */
-    public void test_parseLjava_io_InputStreamLorg_xml_sax_helpers_DefaultHandler()
-    throws Exception {
+    public void test_parseLjava_io_InputStreamLorg_xml_sax_helpers_DefaultHandler() throws Exception {
 
         for(int i = 0; i < list_wf.length; i++) {
 
@@ -536,10 +522,6 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    /**
-     * @test javax.xml.parsers.SAXParser#parse(java.io.InputStream,
-     *     org.xml.sax.helpers.DefaultHandler, java.lang.String)
-     */
     @KnownFailure("We supply optional qnames, but this test doesn't expect them")
     public void test_parseLjava_io_InputStreamLorg_xml_sax_helpers_DefaultHandlerLjava_lang_String() {
         for(int i = 0; i < list_wf.length; i++) {
@@ -731,12 +713,7 @@ public class SAXParserTest extends TestCase {
         }
     }
 
-    /**
-     * @test javax.xml.parsers.SAXParser#parse(java.lang.String,
-     *     org.xml.sax.helpers.DefaultHandler)
-     */
-    public void test_parseLjava_lang_StringLorg_xml_sax_helpers_DefaultHandler()
-    throws Exception {
+    public void test_parseLjava_lang_StringLorg_xml_sax_helpers_DefaultHandler() throws Exception {
 
         for(int i = 0; i < list_wf.length; i++) {
 

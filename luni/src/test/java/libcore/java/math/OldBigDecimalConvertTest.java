@@ -251,10 +251,6 @@ public class OldBigDecimalConvertTest extends TestCase {
         assertTrue("incorrect byteValue", i == bNumber);
     }
 
-    /**
-     * @test java.math.BigDecimal#byteValue() Convert negative BigDesimal to
-     *       byte type
-     */
     public void test_ByteValueNeg() {
         String sNumber = "-127.56789";
         int iNumber = -128;

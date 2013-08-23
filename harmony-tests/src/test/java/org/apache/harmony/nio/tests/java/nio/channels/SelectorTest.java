@@ -206,9 +206,6 @@ public class SelectorTest extends TestCase {
         assert_select_SelectorClosed(SelectType.NOW, 0);
     }
 
-    /**
-     * @test java.nio.channels.Selector#selectNow()
-     */
     public void test_selectNow_Timeout() throws IOException {
         // make sure selectNow doesn't block
         selector.selectNow();
@@ -266,17 +263,11 @@ public class SelectorTest extends TestCase {
         }
     }
 
-    /**
-     * @test java.nio.channels.Selector#select(long)
-     */
     public void test_selectJ_Timeout() throws IOException {
         // make sure select(timeout) doesn't block
         selector.select(WAIT_TIME);
     }
 
-    /**
-     * @test java.nio.channels.Selector#select(long)
-     */
     public void test_selectJ_Empty_Keys() throws IOException {
         // regression test, see HARMONY-3888.
         // make sure select(long) does wait for specified amount of
