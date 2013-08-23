@@ -138,6 +138,19 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 include $(BUILD_STATIC_JAVA_LIBRARY)
 endif
 
+ifeq ($(LIBCORE_SKIP_TESTS),)
+# Make the jsr166-tests library.
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES :=  $(call all-test-java-files-under, jsr166-tests)
+LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVA_LIBRARIES := core core-junit
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_MODULE := jsr166-tests
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+include $(BUILD_STATIC_JAVA_LIBRARY)
+endif
+
 # This one's tricky. One of our tests needs to have a
 # resource with a "#" in its name, but Perforce doesn't
 # allow us to submit such a file. So we create it here
