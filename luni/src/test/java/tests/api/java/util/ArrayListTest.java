@@ -590,9 +590,6 @@ public class ArrayListTest extends junit.framework.TestCase {
         list.trimToSize();
     }
 
-    /**
-     * @test java.util.ArrayList#addAll(int, Collection)
-     */
     public void test_addAll() {
         ArrayList list = new ArrayList();
         list.add("one");
