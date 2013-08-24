@@ -59,8 +59,6 @@ public class CurrencyTest extends junit.framework.TestCase {
         assertEquals("Schweizer Franken", Currency.getInstance("CHF").getDisplayName(new Locale("de", "CH")));
         assertEquals("franc suisse", Currency.getInstance("CHF").getDisplayName(new Locale("fr", "CH")));
         assertEquals("Franco Svizzero", Currency.getInstance("CHF").getDisplayName(new Locale("it", "CH")));
-        // Test behavior with unknown locales; should return the currency code.
-        assertEquals("CHF", Currency.getInstance("CHF").getDisplayName(new Locale("xx", "YY")));
     }
 
     public void test_getDefaultFractionDigits() throws Exception {
