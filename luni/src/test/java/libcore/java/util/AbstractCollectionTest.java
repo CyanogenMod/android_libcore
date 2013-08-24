@@ -26,8 +26,6 @@ public final class AbstractCollectionTest extends TestCase {
   // http://code.google.com/p/android/issues/detail?id=36519
   public void test_toArray() throws Exception {
     final ConcurrentHashMap<Integer, Integer> m = new ConcurrentHashMap<Integer, Integer>();
-    assertTrue(m.values() instanceof AbstractCollection);
-
     final AtomicBoolean finished = new AtomicBoolean(false);
 
     Thread reader = new Thread(new Runnable() {
