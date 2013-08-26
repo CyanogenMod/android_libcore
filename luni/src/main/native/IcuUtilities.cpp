@@ -32,13 +32,11 @@ Locale getLocale(JNIEnv* env, jstring localeName) {
   return Locale::createFromName(ScopedUtfChars(env, localeName).c_str());
 }
 
-jobjectArray fromStringEnumeration(JNIEnv* env, StringEnumeration* se) {
-  UniquePtr<StringEnumeration> deleter(se);
-  if (se == NULL) {
+jobjectArray fromStringEnumeration(JNIEnv* env, UErrorCode& status, const char* provider, StringEnumeration* se) {
+  if (maybeThrowIcuException(env, provider, status)) {
     return NULL;
   }
 
-  UErrorCode status = U_ZERO_ERROR;
   int32_t count = se->count(status);
   if (maybeThrowIcuException(env, "StringEnumeration::count", status)) {
     return NULL;

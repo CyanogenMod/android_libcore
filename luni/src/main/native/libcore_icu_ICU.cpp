@@ -667,29 +667,10 @@ static jstring ICU_getUnicodeVersion(JNIEnv* env, jclass) {
     return versionString(env, unicodeVersion);
 }
 
-struct EnumerationCounter {
-    const size_t count;
-    EnumerationCounter(size_t count) : count(count) {}
-    size_t operator()() { return count; }
-};
-struct EnumerationGetter {
-    UEnumeration* e;
-    UErrorCode* status;
-    EnumerationGetter(UEnumeration* e, UErrorCode* status) : e(e), status(status) {}
-    const UChar* operator()(int32_t* charCount) { return uenum_unext(e, charCount, status); }
-};
 static jobject ICU_getAvailableCurrencyCodes(JNIEnv* env, jclass) {
-    UErrorCode status = U_ZERO_ERROR;
-    UEnumeration* e(ucurr_openISOCurrencies(UCURR_COMMON|UCURR_NON_DEPRECATED, &status));
-    EnumerationCounter counter(uenum_count(e, &status));
-    if (maybeThrowIcuException(env, "uenum_count", status)) {
-        return NULL;
-    }
-    EnumerationGetter getter(e, &status);
-    jobject result = toStringArray16(env, &counter, &getter);
-    maybeThrowIcuException(env, "uenum_unext", status);
-    uenum_close(e);
-    return result;
+  UErrorCode status = U_ZERO_ERROR;
+  UStringEnumeration e(ucurr_openISOCurrencies(UCURR_COMMON|UCURR_NON_DEPRECATED, &status));
+  return fromStringEnumeration(env, status, "ucurr_openISOCurrencies", &e);
 }
 
 static jstring ICU_getBestDateTimePattern(JNIEnv* env, jclass, jstring javaSkeleton, jstring javaLocaleName) {
