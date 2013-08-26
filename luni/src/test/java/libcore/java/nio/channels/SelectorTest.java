@@ -124,7 +124,7 @@ public class SelectorTest extends TestCase {
             thread.start();
 
             // select doesn't ever return, so await() times out and returns false
-            assertFalse(selectReturned.await(500, TimeUnit.MILLISECONDS));
+            assertFalse(selectReturned.await(2, TimeUnit.SECONDS));
         } finally {
             selector.close();
         }
