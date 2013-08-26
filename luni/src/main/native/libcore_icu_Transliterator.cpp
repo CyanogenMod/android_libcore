@@ -46,7 +46,8 @@ static void Transliterator_destroy(JNIEnv*, jclass, jlong peer) {
 
 static jobjectArray Transliterator_getAvailableIDs(JNIEnv* env, jclass) {
   UErrorCode status = U_ZERO_ERROR;
-  return fromStringEnumeration(env, Transliterator::getAvailableIDs(status));
+  StringEnumeration* e = Transliterator::getAvailableIDs(status);
+  return fromStringEnumeration(env, status, "Transliterator::getAvailableIDs", e);
 }
 
 static jstring Transliterator_transliterate(JNIEnv* env, jclass, jlong peer, jstring javaString) {

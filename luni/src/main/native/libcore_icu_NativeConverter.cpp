@@ -61,32 +61,32 @@ static UConverter* toUConverter(jlong address) {
     return reinterpret_cast<UConverter*>(static_cast<uintptr_t>(address));
 }
 
-static jobjectArray getAliases(JNIEnv* env, const char* icuCanonicalName) {
-  // Get an upper bound on the number of aliases...
-  const char* myEncName = icuCanonicalName;
-  UErrorCode error = U_ZERO_ERROR;
-  size_t aliasCount = ucnv_countAliases(myEncName, &error);
-  if (aliasCount == 0 && myEncName[0] == 'x' && myEncName[1] == '-') {
-    myEncName = myEncName + 2;
-    aliasCount = ucnv_countAliases(myEncName, &error);
-  }
-  if (!U_SUCCESS(error)) {
-    return NULL;
+static bool collectStandardNames(JNIEnv* env, const char* canonicalName, const char* standard,
+                                 std::vector<std::string>& result) {
+  UErrorCode status = U_ZERO_ERROR;
+  UStringEnumeration e(ucnv_openStandardNames(canonicalName, standard, &status));
+  if (maybeThrowIcuException(env, "ucnv_openStandardNames", status)) {
+    return false;
   }
 
-  // Collect the aliases we want...
-  std::vector<std::string> aliases;
-  for (size_t i = 0; i < aliasCount; ++i) {
-    const char* name = ucnv_getAlias(myEncName, i, &error);
-    if (!U_SUCCESS(error)) {
-      return NULL;
+  int32_t count = e.count(status);
+  if (maybeThrowIcuException(env, "StringEnumeration::count", status)) {
+    return false;
+  }
+
+  for (int32_t i = 0; i < count; ++i) {
+    const UnicodeString* string = e.snext(status);
+    if (maybeThrowIcuException(env, "StringEnumeration::snext", status)) {
+      return false;
     }
-    // TODO: why do we ignore these ones?
-    if (strchr(name, '+') == 0 && strchr(name, ',') == 0) {
-      aliases.push_back(name);
+    std::string s;
+    string->toUTF8String(s);
+    if (s.find_first_of("+,") == std::string::npos) {
+      result.push_back(s);
     }
   }
-  return toStringArray(env, aliases);
+
+  return true;
 }
 
 static const char* getICUCanonicalName(const char* name) {
@@ -575,7 +575,20 @@ static jobject NativeConverter_charsetForName(JNIEnv* env, jclass, jstring chars
     }
 
     // Get the aliases for this charset.
-    jobjectArray aliases = getAliases(env, icuCanonicalName);
+    std::vector<std::string> aliases;
+    if (!collectStandardNames(env, icuCanonicalName, "IANA", aliases)) {
+        return NULL;
+    }
+    if (!collectStandardNames(env, icuCanonicalName, "MIME", aliases)) {
+        return NULL;
+    }
+    if (!collectStandardNames(env, icuCanonicalName, "JAVA", aliases)) {
+        return NULL;
+    }
+    if (!collectStandardNames(env, icuCanonicalName, "WINDOWS", aliases)) {
+        return NULL;
+    }
+    jobjectArray javaAliases = toStringArray(env, aliases);
     if (env->ExceptionCheck()) {
         return NULL;
     }
@@ -587,7 +600,7 @@ static jobject NativeConverter_charsetForName(JNIEnv* env, jclass, jstring chars
         return NULL;
     }
     return env->NewObject(JniConstants::charsetICUClass, charsetConstructor,
-            javaCanonicalName, env->NewStringUTF(icuCanonicalName), aliases);
+            javaCanonicalName, env->NewStringUTF(icuCanonicalName), javaAliases);
 }
 
 static JNINativeMethod gMethods[] = {
