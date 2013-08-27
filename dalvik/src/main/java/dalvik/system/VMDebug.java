@@ -30,14 +30,6 @@ import java.io.IOException;
  */
 public final class VMDebug {
     /**
-     * Specifies the default method trace data file name.
-     *
-     * @deprecated only used in one place, which is unused and deprecated
-     */
-    @Deprecated
-    static public final String DEFAULT_METHOD_TRACE_FILE_NAME = "/sdcard/dmtrace.trace";
-
-    /**
      * flag for startMethodTracing(), which adds the results from
      * startAllocCounting to the trace key file.
      */
@@ -140,11 +132,11 @@ public final class VMDebug {
      * Start method tracing with default name, size, and with <code>0</code>
      * flags.
      *
-     * @deprecated not used, not needed
+     * @deprecated Not used, not needed.
      */
     @Deprecated
     public static void startMethodTracing() {
-        startMethodTracing(DEFAULT_METHOD_TRACE_FILE_NAME, 0, 0);
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -186,8 +178,8 @@ public final class VMDebug {
      * is called, the result is sent directly to DDMS.  (If DDMS is not
      * attached when tracing ends, the profiling data will be discarded.)
      */
-    public static void startMethodTracingDdms(int bufferSize, int flags) {
-        startMethodTracingDdmsImpl(checkBufferSize(bufferSize), flags);
+    public static void startMethodTracingDdms(int bufferSize, int flags, boolean samplingEnabled, int intervalUs) {
+        startMethodTracingDdmsImpl(checkBufferSize(bufferSize), flags, samplingEnabled, intervalUs);
     }
 
     private static int checkBufferSize(int bufferSize) {
@@ -201,7 +193,7 @@ public final class VMDebug {
         return bufferSize;
     }
 
-    private static native void startMethodTracingDdmsImpl(int bufferSize, int flags);
+    private static native void startMethodTracingDdmsImpl(int bufferSize, int flags, boolean samplingEnabled, int intervalUs);
     private static native void startMethodTracingFd(String traceFileName, FileDescriptor fd, int bufferSize, int flags);
     private static native void startMethodTracingFilename(String traceFileName, int bufferSize, int flags);
 
