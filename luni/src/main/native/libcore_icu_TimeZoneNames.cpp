@@ -43,7 +43,7 @@ static bool isUtc(const UnicodeString& id) {
       id == kUct || id == kUtc || id == kUniversal || id == kZulu;
 }
 
-static void setStringArrayElement(JNIEnv* env, jobjectArray array, int i, const UnicodeString& s) {
+static bool setStringArrayElement(JNIEnv* env, jobjectArray array, int i, const UnicodeString& s) {
   // Fill in whatever we got. We don't use the display names if they're "GMT[+-]xx:xx"
   // because icu4c doesn't use the up-to-date time zone transition data, so it gets these
   // wrong. TimeZone.getDisplayName creates accurate names on demand.
@@ -51,8 +51,12 @@ static void setStringArrayElement(JNIEnv* env, jobjectArray array, int i, const 
   static const UnicodeString kGmt("GMT", 3, US_INV);
   if (!s.isBogus() && !s.startsWith(kGmt)) {
     ScopedLocalRef<jstring> javaString(env, env->NewString(s.getBuffer(), s.length()));
+    if (javaString.get() == NULL) {
+      return false;
+    }
     env->SetObjectArrayElement(array, i, javaString.get());
   }
+  return true;
 }
 
 static void TimeZoneNames_fillZoneStrings(JNIEnv* env, jclass, jstring localeName, jobjectArray result) {
@@ -103,10 +107,14 @@ static void TimeZoneNames_fillZoneStrings(JNIEnv* env, jclass, jstring localeNam
       }
     }
 
-    setStringArrayElement(env, java_row.get(), 1, long_std);
-    setStringArrayElement(env, java_row.get(), 2, short_std);
-    setStringArrayElement(env, java_row.get(), 3, long_dst);
-    setStringArrayElement(env, java_row.get(), 4, short_dst);
+    bool okay =
+        setStringArrayElement(env, java_row.get(), 1, long_std) &&
+        setStringArrayElement(env, java_row.get(), 2, short_std) &&
+        setStringArrayElement(env, java_row.get(), 3, long_dst) &&
+        setStringArrayElement(env, java_row.get(), 4, short_dst);
+    if (!okay) {
+      return;
+    }
   }
 }
 

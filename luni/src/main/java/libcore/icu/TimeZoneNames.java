@@ -53,15 +53,8 @@ public final class TimeZoneNames {
     }
 
     public static class ZoneStringsCache extends BasicLruCache<Locale, String[][]> {
-        // De-duplicate the strings (http://b/2672057).
-        private final HashMap<String, String> internTable = new HashMap<String, String>();
-
         public ZoneStringsCache() {
-            // We make room for all the time zones known to the system, since each set of strings
-            // isn't particularly large (and we remove duplicates), but is currently (Honeycomb)
-            // really expensive to compute.
-            // If you change this, you might want to change the scope of the intern table too.
-            super(availableTimeZoneIds.length);
+            super(5); // Room for a handful of locales.
         }
 
         @Override protected String[][] create(Locale locale) {
@@ -85,11 +78,13 @@ public final class TimeZoneNames {
             long nativeDuration = nativeEnd - nativeStart;
             long duration = end - start;
             System.logI("Loaded time zone names for \"" + locale + "\" in " + duration + "ms" +
-                    " (" + nativeDuration + "ms in ICU)");
+                        " (" + nativeDuration + "ms in ICU)");
             return result;
         }
 
+        // De-duplicate the strings (http://b/2672057).
         private synchronized void internStrings(String[][] result) {
+            HashMap<String, String> internTable = new HashMap<String, String>();
             for (int i = 0; i < result.length; ++i) {
                 for (int j = 1; j < NAME_COUNT; ++j) {
                     String original = result[i][j];
