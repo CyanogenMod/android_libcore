@@ -173,10 +173,8 @@ public abstract class DoubleBuffer extends Buffer implements
      * order are the same as this buffer's, too.
      * <p>
      * The new buffer shares its content with this buffer, which means either
-     * buffer's change of content will be visible to the other. The two buffer's
+     * buffer's change of content will be visible to the other. The two buffers'
      * position, limit and mark are independent.
-     *
-     * @return a duplicated buffer that shares its content with this buffer.
      */
     public abstract DoubleBuffer duplicate();
 
@@ -478,10 +476,8 @@ public abstract class DoubleBuffer extends Buffer implements
      * the same as this buffer's.
      * <p>
      * The new buffer shares its content with this buffer, which means either
-     * buffer's change of content will be visible to the other. The two buffer's
+     * buffer's change of content will be visible to the other. The two buffers'
      * position, limit and mark are independent.
-     *
-     * @return a sliced buffer that shares its content with this buffer.
      */
     public abstract DoubleBuffer slice();
 }
