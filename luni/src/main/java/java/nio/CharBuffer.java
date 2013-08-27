@@ -236,10 +236,8 @@ public abstract class CharBuffer extends Buffer implements
      * byte order are the same as this buffer's, too.
      * <p>
      * The new buffer shares its content with this buffer, which means either
-     * buffer's change of content will be visible to the other. The two buffer's
+     * buffer's change of content will be visible to the other. The two buffers'
      * position, limit and mark are independent.
-     *
-     * @return a duplicated buffer that shares its content with this buffer.
      */
     public abstract CharBuffer duplicate();
 
@@ -597,10 +595,8 @@ public abstract class CharBuffer extends Buffer implements
      * same as this buffer.
      * <p>
      * The new buffer shares its content with this buffer, which means either
-     * buffer's change of content will be visible to the other. The two buffer's
+     * buffer's change of content will be visible to the other. The two buffers'
      * position, limit and mark are independent.
-     *
-     * @return a sliced buffer that shares its content with this buffer.
      */
     public abstract CharBuffer slice();
 
@@ -614,7 +610,7 @@ public abstract class CharBuffer extends Buffer implements
      * buffer.
      * <p>
      * The new buffer shares its content with this buffer, which means either
-     * buffer's change of content will be visible to the other. The two buffer's
+     * buffer's change of content will be visible to the other. The two buffers'
      * position, limit and mark are independent.
      *
      * @param start
