@@ -1963,32 +1963,22 @@ public class Arrays {
     /**
      * Sorts the specified array in ascending natural order.
      *
-     * @param array
-     *            the {@code Object} array to be sorted.
-     * @throws ClassCastException
-     *                if an element in the array does not implement {@code Comparable}
-     *                or if some elements cannot be compared to each other.
-     * @see #sort(Object[], int, int)
+     * @throws ClassCastException if any element does not implement {@code Comparable},
+     *     or if {@code compareTo} throws for any pair of elements.
      */
     public static void sort(Object[] array) {
         ComparableTimSort.sort(array);
     }
 
     /**
-     * Sorts the specified range in the array in ascending natural order. All
-     * elements must implement the {@code Comparable} interface and must be
-     * comparable to each other without a {@code ClassCastException} being
-     * thrown.
+     * Sorts the specified range in the array in ascending natural order.
      *
-     * @param array
-     *            the {@code Object} array to be sorted.
      * @param start
      *            the start index to sort.
      * @param end
      *            the last + 1 index to sort.
-     * @throws ClassCastException
-     *                if an element in the array does not implement {@code Comparable}
-     *                or some elements cannot be compared to each other.
+     * @throws ClassCastException if any element does not implement {@code Comparable},
+     *     or if {@code compareTo} throws for any pair of elements.
      * @throws IllegalArgumentException
      *                if {@code start > end}.
      * @throws ArrayIndexOutOfBoundsException
@@ -2003,8 +1993,6 @@ public class Arrays {
      * All elements must be comparable to each other without a
      * {@code ClassCastException} being thrown.
      *
-     * @param array
-     *            the {@code Object} array to be sorted.
      * @param start
      *            the start index to sort.
      * @param end
@@ -2013,7 +2001,7 @@ public class Arrays {
      *            the {@code Comparator}.
      * @throws ClassCastException
      *                if elements in the array cannot be compared to each other
-     *                using the {@code Comparator}.
+     *                using the given {@code Comparator}.
      * @throws IllegalArgumentException
      *                if {@code start > end}.
      * @throws ArrayIndexOutOfBoundsException
@@ -2027,10 +2015,6 @@ public class Arrays {
      * Sorts the specified array using the specified {@code Comparator}. All elements
      * must be comparable to each other without a {@code ClassCastException} being thrown.
      *
-     * @param array
-     *            the {@code Object} array to be sorted.
-     * @param comparator
-     *            the {@code Comparator}.
      * @throws ClassCastException
      *                if elements in the array cannot be compared to each other
      *                using the {@code Comparator}.
