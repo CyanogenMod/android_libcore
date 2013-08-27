@@ -346,4 +346,11 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         Date d2 = sdf.parse(formatted);
         assertEquals(d, d2);
     }
+
+    public void test_59383() throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("d. MMM yyyy H:mm", Locale.GERMAN);
+        sdf.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+        assertEquals(1376927400000L, sdf.parse("19. Aug 2013 8:50").getTime());
+        assertEquals(1376927400000L, sdf.parse("19. Aug. 2013 8:50").getTime());
+    }
 }
