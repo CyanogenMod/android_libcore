@@ -1852,14 +1852,11 @@ public class Collections {
     }
 
     /**
-     * Sorts the specified list in ascending natural order. The algorithm is
+     * Sorts the given list in ascending natural order. The algorithm is
      * stable which means equal elements don't get reordered.
      *
-     * @param list
-     *            the list to be sorted.
-     * @throws ClassCastException
-     *             when an element in the List does not implement Comparable or
-     *             elements cannot be compared to each other.
+     * @throws ClassCastException if any element does not implement {@code Comparable},
+     *     or if {@code compareTo} throws for any pair of elements.
      */
     @SuppressWarnings("unchecked")
     public static <T extends Comparable<? super T>> void sort(List<T> list) {
@@ -1874,16 +1871,11 @@ public class Collections {
     }
 
     /**
-     * Sorts the specified list using the specified comparator. The algorithm is
+     * Sorts the given list using the given comparator. The algorithm is
      * stable which means equal elements don't get reordered.
      *
-     * @param list
-     *            the list to be sorted.
-     * @param comparator
-     *            the comparator.
-     * @throws ClassCastException
-     *             when elements in the list cannot be compared to each other
-     *             using the comparator.
+     * @throws ClassCastException if any element does not implement {@code Comparable},
+     *     or if {@code compareTo} throws for any pair of elements.
      */
     @SuppressWarnings("unchecked")
     public static <T> void sort(List<T> list, Comparator<? super T> comparator) {
