@@ -39,9 +39,9 @@ public interface DSAParams {
     public BigInteger getP();
 
     /**
-     * Returns the subprime ({@code q} value.
+     * Returns the subprime ({@code q}) value.
      *
-     * @return the subprime ({@code q} value.
+     * @return the subprime ({@code q}) value.
      */
     public BigInteger getQ();
 
