@@ -30,14 +30,6 @@ import java.io.IOException;
  */
 public final class VMDebug {
     /**
-     * Specifies the default method trace data file name.
-     *
-     * @deprecated Only used in one place, which is unused and deprecated.
-     */
-    @Deprecated
-    static public final String DEFAULT_METHOD_TRACE_FILE_NAME = "/sdcard/dmtrace.trace";
-
-    /**
      * flag for startMethodTracing(), which adds the results from
      * startAllocCounting to the trace key file.
      */
@@ -144,7 +136,7 @@ public final class VMDebug {
      */
     @Deprecated
     public static void startMethodTracing() {
-        startMethodTracing(DEFAULT_METHOD_TRACE_FILE_NAME, 0, 0);
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -166,12 +158,7 @@ public final class VMDebug {
      * is currently defined is {@link #TRACE_COUNT_ALLOCS}.
      */
     public static void startMethodTracing(String traceFileName, int bufferSize, int flags) {
-
-        if (traceFileName == null) {
-            throw new NullPointerException("traceFileName == null");
-        }
-
-        startMethodTracingNative(traceFileName, null, bufferSize, flags);
+        startMethodTracingFilename(traceFileName, checkBufferSize(bufferSize), flags);
     }
 
     /**
@@ -179,17 +166,11 @@ public final class VMDebug {
      * FileDescriptor in which the trace is written.  The file name is also
      * supplied simply for logging.  Makes a dup of the file descriptor.
      */
-    public static void startMethodTracing(String traceFileName,
-        FileDescriptor fd, int bufferSize, int flags)
-    {
-        if (traceFileName == null) {
-            throw new NullPointerException("traceFileName == null");
-        }
+    public static void startMethodTracing(String traceFileName, FileDescriptor fd, int bufferSize, int flags) {
         if (fd == null) {
             throw new NullPointerException("fd == null");
         }
-
-        startMethodTracingNative(traceFileName, fd, bufferSize, flags);
+        startMethodTracingFd(traceFileName, fd, checkBufferSize(bufferSize), flags);
     }
 
     /**
@@ -197,15 +178,24 @@ public final class VMDebug {
      * is called, the result is sent directly to DDMS.  (If DDMS is not
      * attached when tracing ends, the profiling data will be discarded.)
      */
-    public static void startMethodTracingDdms(int bufferSize, int flags) {
-        startMethodTracingNative(null, null, bufferSize, flags);
+    public static void startMethodTracingDdms(int bufferSize, int flags, boolean samplingEnabled, int intervalUs) {
+        startMethodTracingDdmsImpl(checkBufferSize(bufferSize), flags, samplingEnabled, intervalUs);
     }
 
-    /**
-     * Implements all startMethodTracing variants.
-     */
-    private static native void startMethodTracingNative(String traceFileName,
-        FileDescriptor fd, int bufferSize, int flags);
+    private static int checkBufferSize(int bufferSize) {
+        if (bufferSize == 0) {
+            // Default to 8MB per the documentation.
+            bufferSize = 8 * 1024 * 1024;
+        }
+        if (bufferSize < 1024) {
+            throw new IllegalArgumentException("buffer size < 1024: " + bufferSize);
+        }
+        return bufferSize;
+    }
+
+    private static native void startMethodTracingDdmsImpl(int bufferSize, int flags, boolean samplingEnabled, int intervalUs);
+    private static native void startMethodTracingFd(String traceFileName, FileDescriptor fd, int bufferSize, int flags);
+    private static native void startMethodTracingFilename(String traceFileName, int bufferSize, int flags);
 
     /**
      * Determine whether method tracing is currently active.
