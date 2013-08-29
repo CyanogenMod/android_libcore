@@ -50,7 +50,7 @@ $(shell cd $(LOCAL_PATH) && ls -d */src/$(1)/{java,resources} 2> /dev/null)
 endef
 
 # The Java files and their associated resources.
-core_src_files := $(call all-main-java-files-under,dalvik dex dom json luni support xml)
+core_src_files := $(call all-main-java-files-under,dalvik dex dom json luni xml)
 core_src_files += $(call all-main-java-files-under,libdvm)
 core_resource_dirs := $(call all-core-resource-dirs,main)
 test_resource_dirs := $(call all-core-resource-dirs,test)
@@ -118,14 +118,29 @@ include $(BUILD_JAVA_LIBRARY)
 ifeq ($(LIBCORE_SKIP_TESTS),)
 # Make the core-tests library.
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-test-java-files-under,crypto dalvik dom harmony-tests json luni support xml)
+LOCAL_SRC_FILES := $(call all-test-java-files-under,crypto dalvik dom harmony-tests json luni xml)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := bouncycastle core conscrypt-nojarjar core-junit okhttp
-LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc mockwebserver nist-pkix-tests okhttp-tests
+LOCAL_STATIC_JAVA_LIBRARIES := core-tests-support sqlite-jdbc mockwebserver nist-pkix-tests okhttp-tests
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_JARJAR_RULES := $(LOCAL_PATH)/crypto/jarjar-rules.txt
 LOCAL_MODULE := core-tests
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+include $(BUILD_STATIC_JAVA_LIBRARY)
+endif
+
+ifeq ($(LIBCORE_SKIP_TESTS),)
+# Make the core-tests-support library.
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(call all-test-java-files-under,support)
+LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit
+LOCAL_STATIC_JAVA_LIBRARIES := mockwebserver
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_JARJAR_RULES := $(LOCAL_PATH)/crypto/jarjar-rules.txt
+LOCAL_MODULE := core-tests-support
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 include $(BUILD_STATIC_JAVA_LIBRARY)
 endif
