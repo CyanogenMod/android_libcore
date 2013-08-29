@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -82,48 +82,22 @@ public class DecimalFormatSymbolsTest extends TestCase {
         assertEquals(new DecimalFormatSymbols(), DecimalFormatSymbols.getInstance());
         assertEquals(new DecimalFormatSymbols(Locale.getDefault()),
                 DecimalFormatSymbols.getInstance());
-        
+
         assertNotSame(DecimalFormatSymbols.getInstance(), DecimalFormatSymbols.getInstance());
     }
 
-    /**
-     * @tests java.text.DecimalFormatSymbols#getInstance(Locale)
-     */
     public void test_getInstanceLjava_util_Locale() {
         try {
             DecimalFormatSymbols.getInstance(null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
-        assertEquals(new DecimalFormatSymbols(Locale.GERMANY), DecimalFormatSymbols
-                .getInstance(Locale.GERMANY));
+        assertEquals(new DecimalFormatSymbols(Locale.GERMANY), DecimalFormatSymbols.getInstance(Locale.GERMANY));
 
         Locale locale = new Locale("not exist language", "not exist country");
         DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(locale);
         assertNotNull(symbols);
-        assertEquals(DecimalFormatSymbols.getInstance(), symbols);
-    }
-
-    /**
-     * @tests java.text.DecimalFormatSymbols#getInstance(Locale)
-     */
-    public void test_getInstanceLjava_util_Locale_no_provider() {
-        try {
-            DecimalFormatSymbols.getInstance(null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
-        }
-
-        assertEquals(new DecimalFormatSymbols(Locale.GERMANY), DecimalFormatSymbols
-                .getInstance(Locale.GERMANY));
-
-        Locale locale = new Locale("not exist language", "not exist country");
-        DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(locale);
-        assertNotNull(symbols);
-        assertEquals(DecimalFormatSymbols.getInstance(), symbols);
     }
 
     /**
@@ -522,7 +496,7 @@ public class DecimalFormatSymbolsTest extends TestCase {
         }
         assertDecimalFormatSymbolsRIFrance(dfs);
     }
-    
+
     static void assertDecimalFormatSymbolsRIFrance(DecimalFormatSymbols dfs) {
         // Values based on Java 1.5 RI DecimalFormatSymbols for Locale.FRANCE
         /*
@@ -567,7 +541,7 @@ public class DecimalFormatSymbolsTest extends TestCase {
         symbols.setNaN("NaN");
         SerializationTest.verifyGolden(this, symbols);
     }
-    
+
     /**
      * @tests serialization/deserialization compatibility.
      */

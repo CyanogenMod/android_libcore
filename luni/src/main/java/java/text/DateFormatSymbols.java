@@ -251,8 +251,6 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     /**
      * Returns the pattern characters used by {@link SimpleDateFormat} to
      * specify date and time fields.
-     *
-     * @return a string containing the pattern characters.
      */
     public String getLocalPatternChars() {
         return localPatternChars;

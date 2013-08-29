@@ -517,7 +517,8 @@ public class SimpleDateFormat extends DateFormat {
         int next, last = -1, count = 0;
         calendar.setTime(date);
         if (field != null) {
-            field.clear();
+            field.setBeginIndex(0);
+            field.setEndIndex(0);
         }
 
         final int patternLength = pattern.length();
@@ -623,8 +624,7 @@ public class SimpleDateFormat extends DateFormat {
                 break;
             case MILLISECOND_FIELD:
                 dateFormatField = Field.MILLISECOND;
-                int value = calendar.get(Calendar.MILLISECOND);
-                appendNumber(buffer, count, value);
+                appendMilliseconds(buffer, count, calendar.get(Calendar.MILLISECOND));
                 break;
             case STAND_ALONE_DAY_OF_WEEK_FIELD:
                 dateFormatField = Field.DAY_OF_WEEK;
@@ -774,6 +774,24 @@ public class SimpleDateFormat extends DateFormat {
             buffer.append(':');
         }
         appendNumber(buffer, 2, (offset % 3600000) / 60000);
+    }
+
+    private void appendMilliseconds(StringBuffer buffer, int count, int value) {
+        // Unlike other fields, milliseconds are truncated by count. So 361 formatted SS is "36".
+        numberFormat.setMinimumIntegerDigits((count > 3) ? 3 : count);
+        numberFormat.setMaximumIntegerDigits(10);
+        // We need to left-justify.
+        if (count == 1) {
+            value /= 100;
+        } else if (count == 2) {
+            value /= 10;
+        }
+        FieldPosition p = new FieldPosition(0);
+        numberFormat.format(Integer.valueOf(value), buffer, p);
+        if (count > 3) {
+            numberFormat.setMinimumIntegerDigits(count - 3);
+            numberFormat.format(Integer.valueOf(0), buffer, p);
+        }
     }
 
     private void appendNumber(StringBuffer buffer, int count, int value) {
