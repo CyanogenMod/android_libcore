@@ -101,7 +101,7 @@ public final class Unsafe {
           throw new IllegalArgumentException("Valid for array classes only: " + clazz);
       }
       // TODO: make the following not specific to the object model.
-      if (!clazz.isPrimitive()) {
+      if (!component.isPrimitive()) {
           return 4;
       } else  if (component == long.class || component == double.class) {
           return 8;
