@@ -198,9 +198,10 @@ public final class VMDebug {
     private static native void startMethodTracingFilename(String traceFileName, int bufferSize, int flags);
 
     /**
-     * Determine whether method tracing is currently active.
+     * Determine whether method tracing is currently active and what type is
+     * active.
      */
-    public static native boolean isMethodTracingActive();
+    public static native int getMethodTracingMode();
 
     /**
      * Stops method tracing.
