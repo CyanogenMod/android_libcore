@@ -59,7 +59,7 @@ core_src_files :=
 
 # Include the sub.mk files.
 $(foreach dir, \
-    crypto/src/main/native dalvik/src/main/native luni/src/main/native, \
+    dalvik/src/main/native luni/src/main/native, \
     $(eval $(call include-core-native-dir,$(dir))))
 
 # Extract out the allowed LOCAL_* variables.
@@ -67,7 +67,6 @@ core_c_includes := libcore/include $(LOCAL_C_INCLUDES)
 core_shared_libraries := $(LOCAL_SHARED_LIBRARIES)
 core_static_libraries := $(LOCAL_STATIC_LIBRARIES)
 core_cflags := -Wall -Wextra -Werror
-core_cflags += -DJNI_JARJAR_PREFIX="com/android/"
 core_cppflags += -std=gnu++11
 
 core_test_files := \
@@ -82,7 +81,7 @@ LOCAL_CFLAGS += $(core_cflags)
 LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_SRC_FILES += $(core_src_files)
 LOCAL_C_INCLUDES += $(core_c_includes)
-LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libexpat libicuuc libicui18n libssl libcrypto libz libnativehelper
+LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libcrypto libexpat libicuuc libicui18n libnativehelper libz
 LOCAL_STATIC_LIBRARIES += $(core_static_libraries)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacore
@@ -90,6 +89,23 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
 include external/stlport/libstlport.mk
 include $(BUILD_SHARED_LIBRARY)
 
+# Platform conscrypt crypto library
+include $(CLEAR_VARS)
+LOCAL_CFLAGS += $(core_cflags)
+LOCAL_CFLAGS += -DJNI_JARJAR_PREFIX="com/android/"
+LOCAL_CPPFLAGS += $(core_cppflags)
+LOCAL_SRC_FILES := \
+        crypto/src/main/native/org_conscrypt_NativeCrypto.cpp \
+        luni/src/main/native/AsynchronousSocketCloseMonitor.cpp
+LOCAL_C_INCLUDES += $(core_c_includes) \
+        libcore/luni/src/main/native
+LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libcrypto libssl libnativehelper libz
+LOCAL_STATIC_LIBRARIES += $(core_static_libraries)
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := libjavacrypto
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
+include external/stlport/libstlport.mk
+include $(BUILD_SHARED_LIBRARY)
 
 # Test JNI library.
 ifeq ($(LIBCORE_SKIP_TESTS),)
@@ -123,7 +139,24 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := libjavacore
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
-    LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libexpat-host libicuuc-host libicui18n-host libssl-host libcrypto-host libz-host
+    LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libexpat-host libicuuc-host libicui18n-host libcrypto-host libz-host
+    LOCAL_STATIC_LIBRARIES += $(core_static_libraries)
+    include $(BUILD_HOST_SHARED_LIBRARY)
+
+    # Conscrypt native library for host
+    include $(CLEAR_VARS)
+    LOCAL_SRC_FILES += \
+            crypto/src/main/native/org_conscrypt_NativeCrypto.cpp \
+            luni/src/main/native/AsynchronousSocketCloseMonitor.cpp
+    LOCAL_C_INCLUDES += $(core_c_includes) \
+            libcore/luni/src/main/native
+    LOCAL_CPPFLAGS += $(core_cppflags)
+    LOCAL_LDLIBS += -lpthread
+    LOCAL_MODULE_TAGS := optional
+    LOCAL_MODULE := libjavacrypto
+    LOCAL_CFLAGS += -DJNI_JARJAR_PREFIX="com/android/"
+    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
+    LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libssl-host libcrypto-host
     LOCAL_STATIC_LIBRARIES += $(core_static_libraries)
     include $(BUILD_HOST_SHARED_LIBRARY)
 
@@ -132,7 +165,8 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_SRC_FILES += \
             crypto/src/main/native/org_conscrypt_NativeCrypto.cpp \
             luni/src/main/native/AsynchronousSocketCloseMonitor.cpp
-    LOCAL_C_INCLUDES += $(core_c_includes)
+    LOCAL_C_INCLUDES += $(core_c_includes) \
+            libcore/luni/src/main/native
     LOCAL_CPPFLAGS += $(core_cppflags)
     LOCAL_LDLIBS += -lpthread
     LOCAL_MODULE_TAGS := optional
