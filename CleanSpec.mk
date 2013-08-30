@@ -45,6 +45,8 @@
 #$(call add-clean-step, find $(OUT) -type f -name "IGTalkSession*" -print0 | xargs -0 rm -f)
 #$(call add-clean-step, rm -rf $(PRODUCT_OUT)/data/*)
 #$(call add-clean-step, rm -rf $(OUT)/obj/SHARED_LIBRARIES/libdvm*)
+$(call add-clean-step, rm -rf $(OUT)/system/framework/conscrypt-nojarjar.jar)
+$(call add-clean-step, rm -rf $(OUT)/system/framework/conscrypt-nojarjar.jar)
 # ************************************************
 # NEWER CLEAN STEPS MUST BE AT THE END OF THE LIST
 # ************************************************
