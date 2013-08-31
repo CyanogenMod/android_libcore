@@ -543,21 +543,14 @@
   substring: "GMT-07:00"
 },
 {
-  description: "This test fails because on Android, RuleBasedCollators default to
-                CANONICAL_DECOMPOSITION, not NO_DECOMPOSITION.",
-  result: EXEC_FAILED,
-  name: "org.apache.harmony.text.tests.java.text.RuleBasedCollatorTest#testEqualsObject",
-  substring: "expected:<0> but was:<1>"
-},
-{
-  description: "These Harmony tests are enforcing a buggy behaviour in TreeMap, presumably to be bug-compatible
+  description: "These Harmony tests are enforcing a buggy behavior in TreeMap, presumably to be bug-compatible
                 with the RI. Our implementation is more conservative and throws on the bogus inputs.",
   result: EXEC_FAILED,
   name: "org.apache.harmony.luni.tests.java.util.TreeMapExtendTest#test_AscendingSubMapKeySet_headSet",
   substring: "java.lang.IllegalArgumentException: 100 not in range (100..109]"
 },
 {
-  description: "These Harmony tests are enforcing a buggy behaviour in TreeMap, presumably to be bug-compatible
+  description: "These Harmony tests are enforcing a buggy behavior in TreeMap, presumably to be bug-compatible
                 with the RI. Our implementation is more conservative and throws on the bogus inputs.",
   result: EXEC_FAILED,
   names: [
@@ -567,7 +560,7 @@
   substring: "java.lang.IllegalArgumentException: null not in range [100..109)"
 },
 {
-  description: "These Harmony tests are enforcing a buggy behaviour in TreeMap, presumably to be bug-compatible
+  description: "These Harmony tests are enforcing a buggy behavior in TreeMap, presumably to be bug-compatible
                 with the RI. Our implementation is more conservative and throws on the bogus inputs.",
   result: EXEC_FAILED,
   names: [
@@ -757,24 +750,6 @@
   substring: "junit.framework.AssertionFailedError: expected:<3> but was:<2>"
 },
 {
-  description: "ICU doesn't provide localized pattern characters, and these tests assume the locale they're using has them.",
-  result: EXEC_FAILED,
-  name: "org.apache.harmony.text.tests.java.text.SimpleDateFormatTest#test_applyLocalizedPatternLjava_lang_String",
-  substring: "java.lang.IllegalArgumentException: Invalid pattern character 'u' in 'GuMtkHmsSEDFwWahKz'"
-},
-{
-  description: "ICU doesn't provide localized pattern characters, and these tests assume the locale they're using has them.",
-  result: EXEC_FAILED,
-  name: "org.apache.harmony.text.tests.java.text.SimpleDateFormatTest#test_toLocalizedPattern",
-  substring: "junit.framework.AssertionFailedError: Wrong pattern: GyMdkHmsSEDFwWahKz"
-},
-{
-  description: "ICU doesn't provide localized pattern characters, and these tests assume the locale they're using has them.",
-  result: EXEC_FAILED,
-  name: "org.apache.harmony.text.tests.java.text.DateFormatSymbolsTest#test_getLocalPatternChars",
-  substring: "junit.framework.ComparisonFailure: Returned incorrect pattern string expected:<...YeugAZvcLQqV> but was:<...Z>"
-},
-{
   description: "we don't support the CharsetProvider spi, so we don't have \"mockCharset00\".",
   result: EXEC_FAILED,
   name: "tests.api.java.nio.charset.CharsetTest#test_availableCharsets",
@@ -836,15 +811,6 @@
   description: "We removed this: we don't support localized exceptions.",
   result: UNSUPPORTED,
   name: "org.apache.harmony.luni.tests.internal.nls.MessagesTest"
-},
-{
-  description: "These test implementation details we don't share.",
-  result: EXEC_FAILED,
-  names: [
-    "org.apache.harmony.text.tests.java.text.BreakIteratorTest#test_getInt",
-    "org.apache.harmony.text.tests.java.text.BreakIteratorTest#test_getLong",
-    "org.apache.harmony.text.tests.java.text.BreakIteratorTest#test_getShort"
-  ]
 },
 {
   description: "These format specifiers are documented to not take flags, but the RI accepts and ignores them.",

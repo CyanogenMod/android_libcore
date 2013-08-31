@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,7 @@
 
 package org.apache.harmony.tests.java.text;
 
-import java.text.AttributedString; 
+import java.text.AttributedString;
 import java.text.Bidi;
 import java.util.Arrays;
 
@@ -107,39 +107,39 @@ public class BidiTest extends TestCase {
         //regression for HARMONY-1031
 		try {
 			bd = new Bidi(new char[] { 't','t','t'}, -1, new byte[] { 2, 2 }, 1, 1, 1);
-			fail("should be IAE");					
+			fail("should be IAE");
 		} catch (IllegalArgumentException e) {
 			// expected
 		}
-		
+
 		try {
 			bd = new Bidi(new char[] { 't','t','t'}, 1, new byte[] { 2, 2 }, -1, 1, 1);
-			fail("should be IAE");					
+			fail("should be IAE");
 		} catch (IllegalArgumentException e) {
 			// expected
 		}
-		
+
 		try {
 			bd = new Bidi(new char[] { 't','t','t'}, 1, new byte[] { 2, 2 }, 1, -1, 1);
-			fail("should be IAE");					
+			fail("should be IAE");
 		} catch (IllegalArgumentException e) {
 			// expected
 		}
 
 		try {
 			bd = new Bidi(new char[] {}, 5, new byte[] { 2, 2, 2, 2, 2, 2 }, 8, Integer.MAX_VALUE, 5);
-			fail("should be IAE");					
+			fail("should be IAE");
 		} catch (IllegalArgumentException e) {
 			// expected
 		}
 
         try {
             bd = new Bidi(null, 5, null, 8, Integer.MAX_VALUE, 5);
-            fail("should be IAE");                  
+            fail("should be IAE");
         } catch (IllegalArgumentException e) {
             // expected
         }
-        
+
 		bd = new Bidi(new char[] {'o'}, 0, new byte[] { 2, 2}, 2, 0, 2 );
 	}
 
@@ -700,7 +700,7 @@ public class BidiTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // expected
         }
-		
+
         assertFalse(Bidi.requiresBidi("".toCharArray(), 0, 0));
         assertFalse(Bidi.requiresBidi("aaa".toCharArray(), 1, 1));
         assertFalse(Bidi.requiresBidi("aaa".toCharArray(), 0, 2));
@@ -807,28 +807,28 @@ public class BidiTest extends TestCase {
         Bidi bidi = new Bidi("str", 1);
         try {
             bidi.createLineBidi(-1, 1);
-            fail("Expected IAE");           
+            fail("Expected IAE");
         } catch (IllegalArgumentException e) {
             // Expected
         }
-        
+
         try {
             bidi.createLineBidi(1, -1);
-            fail("Expected IAE");           
+            fail("Expected IAE");
         } catch (IllegalArgumentException e) {
             // Expected
         }
-        
+
         try {
             bidi.createLineBidi(-1, -1);
-            fail("Expected IAE");           
+            fail("Expected IAE");
         } catch (IllegalArgumentException e) {
             // Expected
         }
 
         try {
             bidi.createLineBidi(2, 1);
-            fail("Expected IAE");           
+            fail("Expected IAE");
         } catch (IllegalArgumentException e) {
             // Expected
         }
@@ -841,12 +841,12 @@ public class BidiTest extends TestCase {
 
         try {
             bidi.createLineBidi(2, 4);
-            fail("Expected IAE");           
+            fail("Expected IAE");
         } catch (IllegalArgumentException e) {
             // Expected
         }
     }
-    
+
 	public void testIncompatibleLineAlgorithm() {
 		// ICU treat a new line as in the same run, however RI does not
 		bd = new Bidi("aaaaa".toCharArray(), 0,
@@ -929,7 +929,7 @@ public class BidiTest extends TestCase {
 		} catch (NullPointerException e) {
 			// expected
 		}
-        
+
         try {
             Bidi.reorderVisually(new byte[] { 2, 1, 3, 0 }, 1, s, 0, -1);
             fail("should throw IAE");
@@ -938,22 +938,22 @@ public class BidiTest extends TestCase {
         }
 
 	}
-    
+
     public void testGetRuns() {
         //Regression test for Harmony-1028
-        
+
         String LTR = "\u0061\u0062";
         String RTL = "\u05DC\u05DD";
         String newLine = "\n";
         String defText = LTR + newLine + RTL + LTR + RTL;
-        
+
         int[][] expectedRuns = {
                 {0, 3},
                 {3, 5},
                 {5, 7},
                 {7, 9},
         };
-        
+
         Bidi bi = new Bidi(defText, 0);
         final int count = bi.getRunCount();
         for (int i = 0; i < count; i++) {
@@ -961,29 +961,4 @@ public class BidiTest extends TestCase {
             assertEquals(expectedRuns[i][1], bi.getRunLimit(i));
         }
     }
-       public void testGetRunLimit() {
-         bd = new Bidi("text", Bidi.DIRECTION_LEFT_TO_RIGHT);
-         try {
-             assertTrue(4 == bd.getRunLimit(-1));
-         } catch (IllegalArgumentException e) {
-             // Expected for illegal run limit
-             return;
-         }
-
-         fail("Expected IllegalArgumentException to be thrown for invalid run limit");
-       }
-
-       public void testBidiConstructor_Iterator() {
-               AttributedString paragraph = new AttributedString("text");
-         bd = new Bidi(paragraph.getIterator());
-         try {
-             assertTrue(4 == bd.getRunLimit(1));
-         } catch (IllegalArgumentException e) {
-             // Expected for illegal run limit
-             return;
-         }
-
-         fail("Expected IllegalArgumentException to be thrown for invalid run limit");
-       }
-
 }

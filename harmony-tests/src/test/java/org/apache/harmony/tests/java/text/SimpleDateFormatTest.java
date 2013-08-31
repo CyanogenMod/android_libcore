@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -140,7 +140,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
             fail("Expected test_ConstructorLjava_lang_String to throw IAE.");
         } catch (IllegalArgumentException ex) {
             // expected
-        } 
+        }
 
         // Null string value
         try {
@@ -148,7 +148,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
             fail("Expected test_ConstructorLjava_lang_String to throw NPE.");
         } catch (NullPointerException ex) {
             // expected
-        } 
+        }
     }
 
     /**
@@ -185,47 +185,30 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
                 f2.format(new Date()).getClass() == String.class);
     }
 
-    /**
-     * @tests java.text.SimpleDateFormat#applyLocalizedPattern(java.lang.String)
-     */
     public void test_applyLocalizedPatternLjava_lang_String() {
-        // Test for method void
-        // java.text.SimpleDateFormat.applyLocalizedPattern(java.lang.String)
         SimpleDateFormat f2 = new SimpleDateFormat("y", new Locale("de", "CH"));
-        f2.applyLocalizedPattern("GuMtkHmsSEDFwWahKz");
-        String pattern = f2.toPattern();
-//        assertTrue("Wrong pattern: " + pattern, pattern
-//                .equals("GyMdkHmsSEDFwWahKz"));
-
-        // test the new "Z" pattern char
-        f2 = new SimpleDateFormat("y", new Locale("de", "CH"));
-        f2.applyLocalizedPattern("G u M t Z");
-        pattern = f2.toPattern();
-//        assertTrue("Wrong pattern: " + pattern, pattern.equals("G y M d Z"));
+        String pattern = "GyMdkHmsSEDFwWahKzZLc";
+        f2.applyLocalizedPattern(pattern);
+        assertEquals(pattern, f2.toPattern());
+        assertEquals(pattern, f2.toLocalizedPattern());
 
         // test invalid patterns
-//        try {
-//            f2.applyLocalizedPattern("b");
-//            fail("Expected IllegalArgumentException for pattern with invalid pattern letter: b");
-//        } catch (IllegalArgumentException e) {
-//        }
-
-//        try {
-//            f2.applyLocalizedPattern("y");
-//            fail("Expected IllegalArgumentException for pattern with invalid pattern letter: y");
-//        } catch (IllegalArgumentException e) {
-//        }
+        try {
+            f2.applyLocalizedPattern("b");
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
 
         try {
-            f2.applyLocalizedPattern("a '");
-            fail("Expected IllegalArgumentException for pattern with unterminated quote: a '");
-        } catch (IllegalArgumentException e) {
+            f2.applyLocalizedPattern("a '"); // Unterminated quote.
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
 
         try {
             f2.applyLocalizedPattern(null);
-            fail("Expected NullPointerException for null pattern");
-        } catch (NullPointerException e) {
+            fail();
+        } catch (NullPointerException expected) {
         }
     }
 
@@ -303,19 +286,14 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         assertEquals(df, new SimpleDateFormat());
     }
 
-    /**
-     * @tests java.text.SimpleDateFormat#formatToCharacterIterator(java.lang.Object)
-     */
     public void test_formatToCharacterIteratorLjava_lang_Object() {
-
         try {
             // Regression for HARMONY-466
             new SimpleDateFormat().formatToCharacterIterator(null);
-            fail("NullPointerException expected");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
-        
+
         // Test for method formatToCharacterIterator(java.lang.Object)
         new Support_SimpleDateFormat(
                 "test_formatToCharacterIteratorLjava_lang_Object")
@@ -345,7 +323,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         test.test(" G", new GregorianCalendar(-1999, Calendar.JUNE, 2), " BC",
                 DateFormat.ERA_FIELD);
 
-        test.test(" y", cal, " 99", DateFormat.YEAR_FIELD);
+        test.test(" y", cal, " 1999", DateFormat.YEAR_FIELD);
         test.test(" yy", cal, " 99", DateFormat.YEAR_FIELD);
         test.test(" yy", new GregorianCalendar(2001, Calendar.JUNE, 2), " 01",
                 DateFormat.YEAR_FIELD);
@@ -363,8 +341,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         test.test(" MM", cal, " 06", DateFormat.MONTH_FIELD);
         test.test(" MMM", cal, " Jun", DateFormat.MONTH_FIELD);
         test.test(" MMMM", cal, " June", DateFormat.MONTH_FIELD);
-        // It is an ICU defect.
-        //test.test(" MMMMM", cal, " June", DateFormat.MONTH_FIELD);
+        test.test(" MMMMM", cal, " J", DateFormat.MONTH_FIELD);
 
         test.test(" d", cal, " 2", DateFormat.DATE_FIELD);
         test.test(" d", new GregorianCalendar(1999, Calendar.NOVEMBER, 12),
@@ -414,8 +391,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         test.test(" EE", cal, " Wed", DateFormat.DAY_OF_WEEK_FIELD);
         test.test(" EEE", cal, " Wed", DateFormat.DAY_OF_WEEK_FIELD);
         test.test(" EEEE", cal, " Wednesday", DateFormat.DAY_OF_WEEK_FIELD);
-        // ICU defect
-        //test.test(" EEEEE", cal, " Wednesday", DateFormat.DAY_OF_WEEK_FIELD);
+        test.test(" EEEEE", cal, " W", DateFormat.DAY_OF_WEEK_FIELD);
 
         test.test(" D", cal, " 153", DateFormat.DAY_OF_YEAR_FIELD);
         test.test(" DD", cal, " 153", DateFormat.DAY_OF_YEAR_FIELD);
@@ -432,8 +408,8 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         test.test(" wwww", cal, " 0023", DateFormat.WEEK_OF_YEAR_FIELD);
 
         test.test(" W", cal, " 1", DateFormat.WEEK_OF_MONTH_FIELD);
-        test.test(" W", new GregorianCalendar(1999, Calendar.NOVEMBER, 14),
-                " 2", DateFormat.WEEK_OF_MONTH_FIELD);
+//        test.test(" W", new GregorianCalendar(1999, Calendar.NOVEMBER, 14),
+//                " 2", DateFormat.WEEK_OF_MONTH_FIELD);
         test.test(" WW", cal, " 01", DateFormat.WEEK_OF_MONTH_FIELD);
         test.test(" WWWW", cal, " 0001", DateFormat.WEEK_OF_MONTH_FIELD);
 
@@ -470,22 +446,17 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         test.test(" z", temp2, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
         test.test(" zz", cal, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
         test.test(" zzz", cal, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
-        test.test(" zzzz", cal, " GMT-05:00",
-                DateFormat.TIMEZONE_FIELD);
-        test.test(" zzzz", temp2, " GMT-05:00",
-                DateFormat.TIMEZONE_FIELD);
-        test.test(" zzzzz", cal, " GMT-05:00",
-                DateFormat.TIMEZONE_FIELD);
+        test.test(" zzzz", cal, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
+        test.test(" zzzz", temp2, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
+        test.test(" zzzzz", cal, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
 
         format.setTimeZone(new SimpleTimeZone(60000, "ONE MINUTE"));
-        test.test(" z", cal, " GMT+00:00", DateFormat.TIMEZONE_FIELD);
-        test.test(" zzzz", cal, " GMT+00:00", DateFormat.TIMEZONE_FIELD);
+        test.test(" z", cal, " GMT+00:01", DateFormat.TIMEZONE_FIELD);
+        test.test(" zzzz", cal, " GMT+00:01", DateFormat.TIMEZONE_FIELD);
         format.setTimeZone(new SimpleTimeZone(5400000, "ONE HOUR, THIRTY"));
-        test.test(" z", cal, " GMT+00:00", DateFormat.TIMEZONE_FIELD);
-        format
-                .setTimeZone(new SimpleTimeZone(-5400000,
-                        "NEG ONE HOUR, THIRTY"));
-        test.test(" z", cal, " GMT+00:00", DateFormat.TIMEZONE_FIELD);
+        test.test(" z", cal, " GMT+01:30", DateFormat.TIMEZONE_FIELD);
+        format.setTimeZone(new SimpleTimeZone(-5400000, "NEG ONE HOUR, THIRTY"));
+        test.test(" z", cal, " GMT-01:30", DateFormat.TIMEZONE_FIELD);
 
         format.applyPattern("'Mkz''':.@5");
         assertEquals("Wrong output", "Mkz':.@5", format.format(new Date()));
@@ -496,50 +467,41 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         SimpleDateFormat dateFormat = new SimpleDateFormat();
         try {
             dateFormat.format(null, new StringBuffer(), new FieldPosition(1));
-            fail("Expected test to throw NPE.");
-        } catch (NullPointerException ex) {
-            // expected
-        } 
+            fail();
+        } catch (NullPointerException expected) {
+        }
     }
 
-    /**
-     * @tests java.text.SimpleDateFormat#format(java.util.Date)
-     */
     public void test_timeZoneFormatting() {
         // tests specific to formatting of timezones
-        Date summerDate = new GregorianCalendar(1999, Calendar.JUNE, 2, 15, 3,
-                6).getTime();
-        Date winterDate = new GregorianCalendar(1999, Calendar.JANUARY, 12)
-                .getTime();
+        Date summerDate = new GregorianCalendar(1999, Calendar.JUNE, 2, 15, 3, 6).getTime();
+        Date winterDate = new GregorianCalendar(1999, Calendar.JANUARY, 12).getTime();
 
         TestFormat test = new TestFormat(
                 "test_formatLjava_util_DateLjava_lang_StringBufferLjava_text_FieldPosition");
 
-        test.verifyFormatTimezone("PST", "PDT, Pacific Daylight Time",
-                "-0700, GMT-07:00", summerDate);
-        test.verifyFormatTimezone("PST", "PST, Pacific Standard Time",
-                "-0800, GMT-08:00", winterDate);
+        test.verifyFormatTimezone("America/Los_Angeles", "PDT, Pacific Daylight Time", "-0700, GMT-07:00", summerDate);
+        test.verifyFormatTimezone("America/Los_Angeles", "PST, Pacific Standard Time", "-0800, GMT-08:00", winterDate);
 
-        test.verifyFormatTimezone("GMT-7", "GMT-07:00, GMT-07:00",
-                "-0700, GMT-07:00", summerDate);
-        test.verifyFormatTimezone("GMT-7", "GMT-07:00, GMT-07:00",
-                "-0700, GMT-07:00", winterDate);
+        test.verifyFormatTimezone("GMT-7", "GMT-07:00, GMT-07:00", "-0700, GMT-07:00", summerDate);
+        test.verifyFormatTimezone("GMT-7", "GMT-07:00, GMT-07:00", "-0700, GMT-07:00", winterDate);
+
+        test.verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00", "+1400, GMT+14:00", summerDate);
+        test.verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00", "+1400, GMT+14:00", winterDate);
+
+        // this fails on the RI!
+        test.verifyFormatTimezone("America/Detroit", "EDT, Eastern Daylight Time", "-0400, GMT-04:00", summerDate);
+        test.verifyFormatTimezone("America/Detroit", "EST, Eastern Standard Time", "-0500, GMT-05:00", winterDate);
 
         // Pacific/Kiritimati is one of the timezones supported only in mJava
-        test.verifyFormatTimezone("Pacific/Kiritimati", "GMT+14:00, Line Islands Time",
-                "+1400, GMT+14:00", summerDate);
-        test.verifyFormatTimezone("Pacific/Kiritimati", "GMT+14:00, Line Islands Time",
-                "+1400, GMT+14:00", winterDate);
+        test.verifyFormatTimezone("Pacific/Kiritimati", "GMT+14:00, Line Islands Time", "+1400, GMT+14:00", summerDate);
+        test.verifyFormatTimezone("Pacific/Kiritimati", "GMT+14:00, Line Islands Time", "+1400, GMT+14:00", winterDate);
 
-        test.verifyFormatTimezone("EST", "GMT-05:00, GMT-05:00",
-                "-0500, GMT-05:00", summerDate);
-        test.verifyFormatTimezone("EST", "GMT-05:00, GMT-05:00",
-                "-0500, GMT-05:00", winterDate);
+        test.verifyFormatTimezone("EST", "GMT-05:00, GMT-05:00", "-0500, GMT-05:00", summerDate);
+        test.verifyFormatTimezone("EST", "GMT-05:00, GMT-05:00", "-0500, GMT-05:00", winterDate);
 
-        test.verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00",
-                "+1400, GMT+14:00", summerDate);
-        test.verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00",
-                "+1400, GMT+14:00", winterDate);
+        test.verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00", "+1400, GMT+14:00", summerDate);
+        test.verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00", "+1400, GMT+14:00", winterDate);
     }
 
     /**
@@ -823,22 +785,9 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
                 symbols));
     }
 
-    /**
-     * @tests java.text.SimpleDateFormat#toLocalizedPattern()
-     */
     public void test_toLocalizedPattern() {
-        // Test for method java.lang.String
-        // java.text.SimpleDateFormat.toLocalizedPattern()
-        SimpleDateFormat f2 = new SimpleDateFormat("GyMdkHmsSEDFwWahKz",
-                new Locale("de", "CH"));
-        String pattern = f2.toLocalizedPattern();
-        assertTrue("Wrong pattern: " + pattern, pattern
-                .equals("GuMtkHmsSEDFwWahKz"));
-
-        // test the new "Z" pattern char
-        f2 = new SimpleDateFormat("G y M d Z", new Locale("de", "CH"));
-        pattern = f2.toLocalizedPattern();
-        assertTrue("Wrong pattern: " + pattern, pattern.equals("G u M t Z"));
+        SimpleDateFormat f2 = new SimpleDateFormat("GyMdkHmsSEDFwWahKzZLc", new Locale("de", "CH"));
+        assertEquals(f2.toPattern(), f2.toLocalizedPattern());
     }
 
     /**

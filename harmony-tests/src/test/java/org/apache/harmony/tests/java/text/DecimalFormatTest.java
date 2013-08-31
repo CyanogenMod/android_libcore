@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,8 +43,8 @@ public class DecimalFormatTest extends TestCase {
         AttributedCharacterIterator iterator = new DecimalFormat().formatToCharacterIterator(new Integer(1));
         assertNotNull(iterator);
         assertFalse("attributes should exist", iterator.getAttributes().isEmpty());
-    } 
-    
+    }
+
     /*
      * Test the getter and setter of parseBigDecimal and parseIntegerOnly and
      * test the default value of them.
@@ -83,9 +83,8 @@ public class DecimalFormatTest extends TestCase {
         assertTrue(number instanceof BigDecimal);
         assertEquals(new BigDecimal("23.1"), number);
 
-        // When parseIntegerOnly set to true, all float numbers will be parsed
-        // into Long.
-        // With the exception that, the value is out of the bound of Long or
+        // When parseIntegerOnly set to true, all numbers will be parsed
+        // into Long unless the value is out of the bound of Long or
         // some special values such as NaN or Infinity.
 
         form = (DecimalFormat) DecimalFormat.getInstance(Locale.US);
@@ -101,9 +100,16 @@ public class DecimalFormatTest extends TestCase {
         assertTrue(number instanceof Long);
         assertTrue(new Long(0).equals(number));
 
-        number = form.parse("-9,223,372,036,854,775,8080.00",
-                new ParsePosition(0));
-        assertTrue(number instanceof Double);
+        // The last integers representable by long.
+        number = form.parse("9223372036854775807.00", new ParsePosition(0));
+        assertEquals(Long.class, number.getClass());
+        number = form.parse("9223372036854775808.00", new ParsePosition(0));
+        assertEquals(Double.class, number.getClass());
+        // The first integers that need to be represented by double.
+        number = form.parse("-9223372036854775808.00", new ParsePosition(0));
+        assertEquals(Long.class, number.getClass());
+        number = form.parse("-9223372036854775809.00", new ParsePosition(0));
+        assertEquals(Double.class, number.getClass());
 
         // Even if parseIntegerOnly is set to true, NaN will be parsed to Double
 
@@ -135,8 +141,7 @@ public class DecimalFormatTest extends TestCase {
         number = form.parse("23.0", new ParsePosition(0));
         assertTrue(number instanceof BigDecimal);
 
-        number = form.parse("-9,223,372,036,854,775,8080.00",
-                new ParsePosition(0));
+        number = form.parse("-92,233,720,368,547,758,080.00", new ParsePosition(0));
         assertFalse(number instanceof BigInteger);
         assertTrue(number instanceof BigDecimal);
 
@@ -278,7 +283,7 @@ public class DecimalFormatTest extends TestCase {
         assertTrue(number instanceof Double);
         assertEquals("9.223372036854776E18", number.toString());
 
-        number = form.parse("-9,223,372,036,854,775,8080.00",
+        number = form.parse("-92,233,720,368,547,758,080.00",
                 new ParsePosition(0));
         assertTrue(number instanceof Double);
         assertEquals("-9.223372036854776E19", number.toString());
@@ -296,8 +301,7 @@ public class DecimalFormatTest extends TestCase {
 
         assertEquals(9.223372036854776E18, number.doubleValue(), 0);
 
-        number = form.parse("-9,223,372,036,854,775,8080.00",
-                new ParsePosition(0));
+        number = form.parse("-92,233,720,368,547,758,080.00", new ParsePosition(0));
 
         assertTrue(number instanceof BigDecimal);
         assertEquals(-9.223372036854776E19, number.doubleValue(), 0);
@@ -483,17 +487,9 @@ public class DecimalFormatTest extends TestCase {
         }
 
         try {
-            form.format(new Double(1.4), null, null);
-            fail("Should throw NPE");
-        } catch (NullPointerException e) {
-            // expected
-        }
-
-        try {
-            form.format(new Object(), null, null);
-            fail("Should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
+            form.format(new Object(), new StringBuffer(), new FieldPosition(0));
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
 
         FieldPosition pos;
@@ -789,26 +785,118 @@ public class DecimalFormatTest extends TestCase {
                 format.equals(expected));
     }
 
-    private boolean compare(int count, String format, String expected) {
-        boolean result = format.equals(expected);
-        if (!result)
-            System.out.println("Failure test: " + count + " got: " + format
-                    + " expected: " + expected);
-        return result;
+    // icu4c and the RI disagree about these patterns, and I'm not yet sure which is correct.
+    public void test_formatDLjava_lang_StringBufferLjava_text_FieldPosition_problem_cases() {
+      final DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
+      DecimalFormat df;
+
+      df = new DecimalFormat("##0.0E0", dfs);
+      compare("##0.0E0: 123.0", df.format(123.0), "123E0");
+      compare("##0.0E0: 1234.0", df.format(1234.0), "1.234E3");
+      compare("##0.0E0: 12346.0", df.format(12346.0), "12.35E3");
+
+      df = new DecimalFormat("#00.0##E0", dfs);
+      compare("#00.0##E0: 0.1", df.format(0.1), ".100E0");
+      compare("#00.0##E0: 0.12", df.format(0.12), ".120E0");
+      compare("#00.0##E0: 0.123", df.format(0.123), ".123E0");
+      compare("#00.0##E0: 0.1234", df.format(0.1234), ".1234E0");
+      compare("#00.0##E0: 0.1234567", df.format(0.1234567), ".123457E0");
+      compare("#00.0##E0: 0.01", df.format(0.01), "10.0E-3");
+      compare("#00.0##E0: 0.012", df.format(0.012), "12.0E-3");
+      compare("#00.0##E0: 0.0123", df.format(0.0123), "12.3E-3");
+      compare("#00.0##E0: 0.01234", df.format(0.01234), "12.34E-3");
+      compare("#00.0##E0: 0.01234567", df.format(0.01234567), "12.3457E-3");
+      compare("#00.0##E0: 0.001", df.format(0.001), "1.00E-3");
+      compare("#00.0##E0: 0.0012", df.format(0.0012), "1.20E-3");
+      compare("#00.0##E0: 0.00123", df.format(0.00123), "1.23E-3");
+      compare("#00.0##E0: 0.001234", df.format(0.001234), "1.234E-3");
+      compare("#00.0##E0: 0.001234567", df.format(0.001234567), "1.23457E-3");
+      compare("#00.0##E0: 0.0001", df.format(0.0001), "100E-6");
+      compare("#00.0##E0: 0.00012", df.format(0.00012), "120E-6");
+      compare("#00.0##E0: 0.000123", df.format(0.000123), "123E-6");
+      compare("#00.0##E0: 0.0001234", df.format(0.0001234), "123.4E-6");
+      compare("#00.0##E0: 0.0001234567", df.format(0.0001234567), "123.457E-6");
+
+      compare("#00.0##E0: 0.0", df.format(0.0), "0.00E0");
+      compare("#00.0##E0: 1.0", df.format(1.0), "1.00E0");
+      compare("#00.0##E0: 12.0", df.format(12.0), "12.0E0");
+      compare("#00.0##E0: 123.0", df.format(123.0), "123E0");
+      compare("#00.0##E0: 1234.0", df.format(1234.0), "1.234E3");
+      compare("#00.0##E0: 12345.0", df.format(12345.0), "12.345E3");
+      compare("#00.0##E0: 123456.0", df.format(123456.0), "123.456E3");
+      compare("#00.0##E0: 1234567.0", df.format(1234567.0), "1.23457E6");
+      compare("#00.0##E0: 12345678.0", df.format(12345678.0), "12.3457E6");
+      compare("#00.0##E0: 99999999.0", df.format(99999999.0), "100E6");
+
+      df = new DecimalFormat("#.0E0", dfs);
+      compare("#.0E0: 0.0", df.format(0.0), ".0E0");
+      compare("#.0E0: 1.0", df.format(1.0), ".1E1");
+      compare("#.0E0: 12.0", df.format(12.0), ".12E2");
+      compare("#.0E0: 123.0", df.format(123.0), ".12E3");
+      compare("#.0E0: 1234.0", df.format(1234.0), ".12E4");
+      compare("#.0E0: 9999.0", df.format(9999.0), ".1E5");
+
+      df = new DecimalFormat("0.E0", dfs);
+      compare("0.E0: 0.0", df.format(0.0), "0.E0");
+      compare("0.E0: 1.0", df.format(1.0), "1.E0");
+      compare("0.E0: 12.0", df.format(12.0), "1.E1");
+      compare("0.E0: 123.0", df.format(123.0), "1.E2");
+      compare("0.E0: 1234.0", df.format(1234.0), "1.E3");
+      compare("0.E0: 9999.0", df.format(9999.0), "1.E4");
+
+      df = new DecimalFormat("##0.00#E0", dfs);
+      compare("##0.00#E0: 0.1", df.format(0.1), ".100E0");
+      compare("##0.00#E0: 0.1234567", df.format(0.1234567), ".123457E0");
+      compare("##0.00#E0: 0.9999999", df.format(0.9999999), "1.00E0");
+      compare("##0.00#E0: 0.01", df.format(0.01), "10.0E-3");
+      compare("##0.00#E0: 0.01234567", df.format(0.01234567), "12.3457E-3");
+      compare("##0.00#E0: 0.09999999", df.format(0.09999999), ".100E0");
+      compare("##0.00#E0: 0.001", df.format(0.001), "1.00E-3");
+      compare("##0.00#E0: 0.001234567", df.format(0.001234567), "1.23457E-3");
+      compare("##0.00#E0: 0.009999999", df.format(0.009999999), "10.0E-3");
+      compare("##0.00#E0: 0.0001", df.format(0.0001), "100E-6");
+      compare("##0.00#E0: 0.0001234567", df.format(0.0001234567), "123.457E-6");
+      compare("##0.00#E0: 0.0009999999", df.format(0.0009999999), "1.00E-3");
+
+      df = new DecimalFormat("###0.00#E0", dfs);
+      compare("###0.00#E0: 0.1", df.format(0.1), ".100E0");
+      compare("###0.00#E0: 0.12345678", df.format(0.12345678), ".1234568E0");
+      compare("###0.00#E0: 0.99999999", df.format(0.99999999), "1.00E0");
+      compare("###0.00#E0: 0.01", df.format(0.01), "100E-4");
+      compare("###0.00#E0: 0.012345678", df.format(0.012345678), "123.4568E-4");
+      compare("###0.00#E0: 0.099999999", df.format(0.099999999), ".100E0");
+      compare("###0.00#E0: 0.001", df.format(0.001), "10.0E-4");
+      compare("###0.00#E0: 0.0012345678", df.format(0.0012345678), "12.34568E-4");
+      compare("###0.00#E0: 0.0099999999", df.format(0.0099999999), "100E-4");
+      compare("###0.00#E0: 0.0001", df.format(0.0001), "1.00E-4");
+      compare("###0.00#E0: 0.00012345678", df.format(0.00012345678), "1.234568E-4");
+      compare("###0.00#E0: 0.00099999999", df.format(0.00099999999), "10.0E-4");
+      compare("###0.00#E0: 0.00001", df.format(0.00001), "1000E-8");
+      compare("###0.00#E0: 0.000012345678", df.format(0.000012345678), "1234.568E-8");
+      compare("###0.00#E0: 0.000099999999", df.format(0.000099999999), "1.00E-4");
+
+      df = new DecimalFormat("###0.0#E0", dfs);
+      compare("###0.0#E0: 0.1", df.format(0.1), ".10E0");
+      compare("###0.0#E0: 0.1234567", df.format(0.1234567), ".123457E0");
+      compare("###0.0#E0: 0.9999999", df.format(0.9999999), "1.0E0");
+      compare("###0.0#E0: 0.01", df.format(0.01), "100E-4");
+      compare("###0.0#E0: 0.01234567", df.format(0.01234567), "123.457E-4");
+      compare("###0.0#E0: 0.09999999", df.format(0.09999999), ".10E0");
+      compare("###0.0#E0: 0.001", df.format(0.001), "10E-4");
+      compare("###0.0#E0: 0.001234567", df.format(0.001234567), "12.3457E-4");
+      compare("###0.0#E0: 0.009999999", df.format(0.009999999), "100E-4");
+      compare("###0.0#E0: 0.0001", df.format(0.0001), "1.0E-4");
+      compare("###0.0#E0: 0.0001234567", df.format(0.0001234567), "1.23457E-4");
+      compare("###0.0#E0: 0.0009999999", df.format(0.0009999999), "10E-4");
+      compare("###0.0#E0: 0.00001", df.format(0.00001), "1000E-8");
+      compare("###0.0#E0: 0.00001234567", df.format(0.00001234567), "1234.57E-8");
+      compare("###0.0#E0: 0.00009999999", df.format(0.00009999999), "1.0E-4");
     }
 
-    /**
-     * @tests java.text.DecimalFormat#format(double, java.lang.StringBuffer,
-     *        java.text.FieldPosition)
-     */
-    //FIXME This test fails on Harmony ClassLibrary
     public void test_formatDLjava_lang_StringBufferLjava_text_FieldPosition() {
         new Support_DecimalFormat(
                 "test_formatDLjava_lang_StringBufferLjava_text_FieldPosition")
                 .t_format_with_FieldPosition();
-
-        int failCount = 0;
-        BitSet failures = new BitSet();
 
         final DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
 
@@ -831,7 +919,6 @@ public class DecimalFormatTest extends TestCase {
         compare("00.0#E0: 0.1234", df.format(0.1234), "12.34E-2");
         compare("00.0#E0: 0.12346", df.format(0.12346), "12.35E-2");
         compare("00.0#E0: 0.99999", df.format(0.99999), "10.0E-1");
-        compare("00.0#E0: -0.0", df.format(-0.0), "-00.0E0");
         compare("00.0#E0: -1.0", df.format(-1.0), "-10.0E-1");
         compare("00.0#E0: -12.0", df.format(-12.0), "-12.0E0");
         compare("00.0#E0: -123.0", df.format(-123.0), "-12.3E1");
@@ -840,67 +927,13 @@ public class DecimalFormatTest extends TestCase {
         compare("00.0#E0: -99999.0", df.format(-99999.0), "-10.0E4");
 
         df = new DecimalFormat("##0.0E0", dfs);
-        compare("##0.0E0: -0.0", df.format(-0.0), "-0.0E0");
         compare("##0.0E0: 0.0", df.format(0.0), "0.0E0");
         compare("##0.0E0: 1.0", df.format(1.0), "1.0E0");
         compare("##0.0E0: 12.0", df.format(12.0), "12E0");
-        compare("##0.0E0: 123.0", df.format(123.0), "123E0");
-        compare("##0.0E0: 1234.0", df.format(1234.0), "1.234E3");
-        compare("##0.0E0: 12346.0", df.format(12346.0), "12.35E3");
-        // Fails in JDK 1.2.2
-        if (!compare(failCount, df.format(99999.0), "100E3"))
-            failures.set(failCount);
-        failCount++;
+        compare("##0.0E0: 99999.0", df.format(99999.0), "100E3");
         compare("##0.0E0: 999999.0", df.format(999999.0), "1.0E6");
 
-        df = new DecimalFormat("#00.0##E0", dfs);
-        compare("#00.0##E0: 0.1", df.format(0.1), ".100E0");
-        compare("#00.0##E0: 0.12", df.format(0.12), ".120E0");
-        compare("#00.0##E0: 0.123", df.format(0.123), ".123E0");
-        compare("#00.0##E0: 0.1234", df.format(0.1234), ".1234E0");
-        compare("#00.0##E0: 0.1234567", df.format(0.1234567), ".123457E0");
-        compare("#00.0##E0: 0.01", df.format(0.01), "10.0E-3");
-        compare("#00.0##E0: 0.012", df.format(0.012), "12.0E-3");
-        compare("#00.0##E0: 0.0123", df.format(0.0123), "12.3E-3");
-        compare("#00.0##E0: 0.01234", df.format(0.01234), "12.34E-3");
-        compare("#00.0##E0: 0.01234567", df.format(0.01234567), "12.3457E-3");
-        compare("#00.0##E0: 0.001", df.format(0.001), "1.00E-3");
-        compare("#00.0##E0: 0.0012", df.format(0.0012), "1.20E-3");
-        compare("#00.0##E0: 0.00123", df.format(0.00123), "1.23E-3");
-        compare("#00.0##E0: 0.001234", df.format(0.001234), "1.234E-3");
-        compare("#00.0##E0: 0.001234567", df.format(0.001234567), "1.23457E-3");
-        compare("#00.0##E0: 0.0001", df.format(0.0001), "100E-6");
-        compare("#00.0##E0: 0.00012", df.format(0.00012), "120E-6");
-        compare("#00.0##E0: 0.000123", df.format(0.000123), "123E-6");
-        compare("#00.0##E0: 0.0001234", df.format(0.0001234), "123.4E-6");
-        compare("#00.0##E0: 0.0001234567", df.format(0.0001234567),
-                "123.457E-6");
-
-        // Fails in JDK 1.2.2
-        if (!compare(failCount, df.format(0.0), "0.00E0"))
-            failures.set(failCount);
-        failCount++;
-        compare("#00.0##E0: 1.0", df.format(1.0), "1.00E0");
-        compare("#00.0##E0: 12.0", df.format(12.0), "12.0E0");
-        compare("#00.0##E0: 123.0", df.format(123.0), "123E0");
-        compare("#00.0##E0: 1234.0", df.format(1234.0), "1.234E3");
-        compare("#00.0##E0: 12345.0", df.format(12345.0), "12.345E3");
-        compare("#00.0##E0: 123456.0", df.format(123456.0), "123.456E3");
-        compare("#00.0##E0: 1234567.0", df.format(1234567.0), "1.23457E6");
-        compare("#00.0##E0: 12345678.0", df.format(12345678.0), "12.3457E6");
-        compare("#00.0##E0: 99999999.0", df.format(99999999.0), "100E6");
-
-        df = new DecimalFormat("#.0E0", dfs);
-        compare("#.0E0: -0.0", df.format(-0.0), "-.0E0");
-        compare("#.0E0: 0.0", df.format(0.0), ".0E0");
-        compare("#.0E0: 1.0", df.format(1.0), ".1E1");
-        compare("#.0E0: 12.0", df.format(12.0), ".12E2");
-        compare("#.0E0: 123.0", df.format(123.0), ".12E3");
-        compare("#.0E0: 1234.0", df.format(1234.0), ".12E4");
-        compare("#.0E0: 9999.0", df.format(9999.0), ".1E5");
-
         df = new DecimalFormat("0.#E0", dfs);
-        compare("0.#E0: -0.0", df.format(-0.0), "-0E0");
         compare("0.#E0: 0.0", df.format(0.0), "0E0");
         compare("0.#E0: 1.0", df.format(1.0), "1E0");
         compare("0.#E0: 12.0", df.format(12.0), "1.2E1");
@@ -909,106 +942,12 @@ public class DecimalFormatTest extends TestCase {
         compare("0.#E0: 9999.0", df.format(9999.0), "1E4");
 
         df = new DecimalFormat(".0E0", dfs);
-        compare(".0E0: -0.0", df.format(-0.0), "-.0E0");
         compare(".0E0: 0.0", df.format(0.0), ".0E0");
         compare(".0E0: 1.0", df.format(1.0), ".1E1");
         compare(".0E0: 12.0", df.format(12.0), ".1E2");
         compare(".0E0: 123.0", df.format(123.0), ".1E3");
         compare(".0E0: 1234.0", df.format(1234.0), ".1E4");
         compare(".0E0: 9999.0", df.format(9999.0), ".1E5");
-
-        df = new DecimalFormat("0.E0", dfs);
-        // Fails in JDK 1.2.2
-        if (!compare(failCount, df.format(0.0), "0.E0"))
-            failures.set(failCount);
-        failCount++;
-        if (!compare(failCount, df.format(1.0), "1.E0"))
-            failures.set(failCount);
-        failCount++;
-        if (!compare(failCount, df.format(12.0), "1.E1"))
-            failures.set(failCount);
-        failCount++;
-        if (!compare(failCount, df.format(123.0), "1.E2"))
-            failures.set(failCount);
-        failCount++;
-        if (!compare(failCount, df.format(1234.0), "1.E3"))
-            failures.set(failCount);
-        failCount++;
-        if (!compare(failCount, df.format(9999.0), "1.E4"))
-            failures.set(failCount);
-        failCount++;
-
-        df = new DecimalFormat("##0.00#E0", dfs);
-        compare("##0.00#E0: 0.1", df.format(0.1), ".100E0");
-        compare("##0.00#E0: 0.1234567", df.format(0.1234567), ".123457E0");
-        compare("##0.00#E0: 0.9999999", df.format(0.9999999), "1.00E0");
-        compare("##0.00#E0: 0.01", df.format(0.01), "10.0E-3");
-        compare("##0.00#E0: 0.01234567", df.format(0.01234567), "12.3457E-3");
-        compare("##0.00#E0: 0.09999999", df.format(0.09999999), ".100E0");
-        compare("##0.00#E0: 0.001", df.format(0.001), "1.00E-3");
-        compare("##0.00#E0: 0.001234567", df.format(0.001234567), "1.23457E-3");
-        compare("##0.00#E0: 0.009999999", df.format(0.009999999), "10.0E-3");
-        compare("##0.00#E0: 0.0001", df.format(0.0001), "100E-6");
-        compare("##0.00#E0: 0.0001234567", df.format(0.0001234567),
-                "123.457E-6");
-        compare("##0.00#E0: 0.0009999999", df.format(0.0009999999), "1.00E-3");
-
-        df = new DecimalFormat("###0.00#E0", dfs);
-        compare("###0.00#E0: 0.1", df.format(0.1), ".100E0");
-        compare("###0.00#E0: 0.12345678", df.format(0.12345678), ".1234568E0");
-        compare("###0.00#E0: 0.99999999", df.format(0.99999999), "1.00E0");
-        compare("###0.00#E0: 0.01", df.format(0.01), "100E-4");
-        compare("###0.00#E0: 0.012345678", df.format(0.012345678),
-                "123.4568E-4");
-        compare("###0.00#E0: 0.099999999", df.format(0.099999999), ".100E0");
-        compare("###0.00#E0: 0.001", df.format(0.001), "10.0E-4");
-        compare("###0.00#E0: 0.0012345678", df.format(0.0012345678),
-                "12.34568E-4");
-        compare("###0.00#E0: 0.0099999999", df.format(0.0099999999), "100E-4");
-        compare("###0.00#E0: 0.0001", df.format(0.0001), "1.00E-4");
-        compare("###0.00#E0: 0.00012345678", df.format(0.00012345678),
-                "1.234568E-4");
-        compare("###0.00#E0: 0.00099999999", df.format(0.00099999999),
-                "10.0E-4");
-        // Fails in JDK 1.2.2
-        if (!compare(failCount, df.format(0.00001), "1000E-8"))
-            failures.set(failCount);
-        failCount++;
-        compare("###0.00#E0: 0.000012345678", df.format(0.000012345678),
-                "1234.568E-8");
-        compare("###0.00#E0: 0.000099999999", df.format(0.000099999999),
-                "1.00E-4");
-
-        df = new DecimalFormat("###0.0#E0", dfs);
-        compare("###0.0#E0: 0.1", df.format(0.1), ".10E0");
-        compare("###0.0#E0: 0.1234567", df.format(0.1234567), ".123457E0");
-        compare("###0.0#E0: 0.9999999", df.format(0.9999999), "1.0E0");
-        // Fails in JDK 1.2.2
-        if (!compare(failCount, df.format(0.01), "100E-4"))
-            failures.set(failCount);
-        failCount++;
-        compare("###0.0#E0: 0.01234567", df.format(0.01234567), "123.457E-4");
-        compare("###0.0#E0: 0.09999999", df.format(0.09999999), ".10E0");
-        compare("###0.0#E0: 0.001", df.format(0.001), "10E-4");
-        compare("###0.0#E0: 0.001234567", df.format(0.001234567), "12.3457E-4");
-        // Fails in JDK 1.2.2
-        if (!compare(failCount, df.format(0.009999999), "100E-4"))
-            failures.set(failCount);
-        failCount++;
-        compare("###0.0#E0: 0.0001", df.format(0.0001), "1.0E-4");
-        compare("###0.0#E0: 0.0001234567", df.format(0.0001234567),
-                "1.23457E-4");
-        compare("###0.0#E0: 0.0009999999", df.format(0.0009999999), "10E-4");
-        // Fails in JDK 1.2.2
-        if (!compare(failCount, df.format(0.00001), "1000E-8"))
-            failures.set(failCount);
-        failCount++;
-        compare("###0.0#E0: 0.00001234567", df.format(0.00001234567),
-                "1234.57E-8");
-        compare("###0.0#E0: 0.00009999999", df.format(0.00009999999), "1.0E-4");
-
-        assertTrue("Failed " + failures + " of " + failCount,
-                failures.length() == 0);
 
         String formatString = "##0.#";
         df = new DecimalFormat(formatString, dfs);
@@ -1030,15 +969,26 @@ public class DecimalFormatTest extends TestCase {
         compare(formatString + ": -1", df.format(-1.0), "-1");
     }
 
-    /**
-     * @tests java.text.DecimalFormat#format(long, java.lang.StringBuffer,
-     *        java.text.FieldPosition)
-     */
-    //FIXME This test fails on Harmony ClassLibrary
-    public void test_formatJLjava_lang_StringBufferLjava_text_FieldPosition() {
-        int failCount = 0;
-        BitSet failures = new BitSet();
+    public void test_format_minus_zero() throws Exception {
+      final DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
 
+      DecimalFormat df = new DecimalFormat("00.0#E0", dfs);
+      compare("00.0#E0: -0.0", df.format(-0.0), "-00.0E0");
+
+      df = new DecimalFormat("##0.0E0", dfs);
+      compare("##0.0E0: -0.0", df.format(-0.0), "-0.0E0");
+
+      df = new DecimalFormat("#.0E0", dfs);
+      compare("#.0E0: -0.0", df.format(-0.0), "-.0E0");
+
+      df = new DecimalFormat("0.#E0", dfs);
+      compare("0.#E0: -0.0", df.format(-0.0), "-0E0");
+
+      df = new DecimalFormat(".0E0", dfs);
+      compare(".0E0: -0.0", df.format(-0.0), "-.0E0");
+    }
+
+    public void test_formatJLjava_lang_StringBufferLjava_text_FieldPosition() {
         final DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
 
         DecimalFormat df = new DecimalFormat("00.0#E0", dfs);
@@ -1063,17 +1013,11 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("##0.0E0: 123", "123E0", df.format(123));
         assertEquals("##0.0E0: 1234", "1.234E3", df.format(1234));
         assertEquals("##0.0E0: 12346", "12.35E3", df.format(12346));
-        // Fails in JDK 1.2.2
-        if (!df.format(99999).equals("100E3"))
-            failures.set(failCount);
-        failCount++;
+        assertEquals("##0.0E0: 99999", "100E3", df.format(99999));
         assertEquals("##0.0E0: 999999", "1.0E6", df.format(999999));
 
         df = new DecimalFormat("#00.0##E0", dfs);
-        // Fails in JDK 1.2.2
-        if (!df.format(0).equals("0.00E0"))
-            failures.set(failCount);
-        failCount++;
+        assertEquals("#00.0##E0: 0", "0.00E0", df.format(0));
         assertEquals("#00.0##E0: 1", "1.00E0", df.format(1));
         assertEquals("#00.0##E0: 12", "12.0E0", df.format(12));
         assertEquals("#00.0##E0: 123", "123E0", df.format(123));
@@ -1099,9 +1043,6 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("0.#E0: 123", "1.2E2", df.format(123));
         assertEquals("0.#E0: 1234", "1.2E3", df.format(1234));
         assertEquals("0.#E0: 9999", "1E4", df.format(9999));
-
-        assertTrue("Failed " + failures + " of " + failCount,
-                failures.length() == 0);
     }
 
     /**
@@ -1123,12 +1064,8 @@ public class DecimalFormatTest extends TestCase {
                 .t_formatToCharacterIterator();
     }
 
-    /**
-     * @tests java.text.DecimalFormat#format(double)
-     */
     public void test_formatD() {
-        DecimalFormat format = (DecimalFormat) NumberFormat
-                .getInstance(Locale.ENGLISH);
+        DecimalFormat format = (DecimalFormat) NumberFormat.getInstance(Locale.ENGLISH);
         format.setGroupingUsed(false);
         format.setMaximumFractionDigits(400);
         for (int i = 0; i < 309; i++) {
@@ -1148,44 +1085,37 @@ public class DecimalFormatTest extends TestCase {
             String result = format.format(d);
             assertEquals(i + ") e:" + tval + " r:" + result, tval, result);
         }
-        assertEquals("999999999999999", format.format(999999999999999.));
-        assertEquals("1", "999999999999999.9", format.format(999999999999999.9));
-        assertEquals("2", "99999999999999.98", format.format(99999999999999.99));
-        assertEquals("3", "9999999999999.998", format.format(9999999999999.999));
-        assertEquals("4", "999999999999.9999", format.format(999999999999.9999));
-        assertEquals("5", "99999999999.99998", format.format(99999999999.99999));
-        assertEquals("6", "9999999999.999998", format.format(9999999999.999999));
-        assertEquals("7", "999999999.9999999", format.format(999999999.9999999));
-        assertEquals("8", "99999999.99999999", format.format(99999999.99999999));
-        assertEquals("9", "9999999.999999998", format.format(9999999.999999999));
-        assertEquals("10", "99999.99999999999", format
-                .format(99999.99999999999));
-        assertEquals("11", "9999.999999999998", format
-                .format(9999.999999999999));
-        assertEquals("12", "999.9999999999999", format
-                .format(999.9999999999999));
-        assertEquals("13", "99.99999999999999", format
-                .format(99.99999999999999));
-        assertEquals("14", "9.999999999999998", format
-                .format(9.999999999999999));
-        assertEquals("15", "0.9999999999999999", format
-                .format(.9999999999999999));
     }
 
-    /**
-     * @tests java.text.DecimalFormat#getDecimalFormatSymbols()
-     */
+    public void test_formatD_2() {
+      DecimalFormat format = (DecimalFormat) NumberFormat.getInstance(Locale.ENGLISH);
+      format.setGroupingUsed(false);
+      format.setMaximumFractionDigits(400);
+
+      assertEquals("999999999999999", format.format(999999999999999.));
+      assertEquals("999999999999999.9", format.format(999999999999999.9));
+      assertEquals("99999999999999.98", format.format(99999999999999.99));
+      assertEquals("9999999999999.998", format.format(9999999999999.999));
+      assertEquals("999999999999.9999", format.format(999999999999.9999));
+      assertEquals("99999999999.99998", format.format(99999999999.99999));
+      assertEquals("9999999999.999998", format.format(9999999999.999999));
+      assertEquals("999999999.9999999", format.format(999999999.9999999));
+      assertEquals("99999999.99999999", format.format(99999999.99999999));
+      assertEquals("9999999.999999998", format.format(9999999.999999999));
+      assertEquals("99999.99999999999", format.format(99999.99999999999));
+      assertEquals("9999.999999999998", format.format(9999.999999999999));
+      assertEquals("999.9999999999999", format.format(999.9999999999999));
+      assertEquals("99.99999999999999", format.format(99.99999999999999));
+      assertEquals("9.999999999999998", format.format(9.999999999999999));
+      assertEquals("0.9999999999999999", format.format(.9999999999999999));
+    }
+
     public void test_getDecimalFormatSymbols() {
-        DecimalFormat df = (DecimalFormat) NumberFormat
-                .getInstance(Locale.ENGLISH);
+        DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(Locale.ENGLISH);
         DecimalFormatSymbols dfs = df.getDecimalFormatSymbols();
         assertTrue("Identical symbols", dfs != df.getDecimalFormatSymbols());
     }
 
-    /**
-     * @tests java.text.DecimalFormat#getCurrency()
-     */
-    //FIXME This test fails on Harmony ClassLibrary
     public void test_getCurrency() {
         Currency currK = Currency.getInstance("KRW");
         Currency currX = Currency.getInstance("XXX");
@@ -1216,7 +1146,7 @@ public class DecimalFormatTest extends TestCase {
         df = (DecimalFormat) NumberFormat.getCurrencyInstance(new Locale("QWERTY"));
         assertTrue("Test5: Returned incorrect currency",
                 df.getCurrency() == currX);
-        
+
         // JDK fails these tests since it doesn't have the PREEURO variant
         // df = (DecimalFormat)NumberFormat.getCurrencyInstance(new Locale("fr",
         // "FR","PREEURO"));
@@ -1265,11 +1195,6 @@ public class DecimalFormatTest extends TestCase {
         assertTrue("Wrong set value", df.isDecimalSeparatorAlwaysShown());
     }
 
-    /**
-     * @tests java.text.DecimalFormat#parse(java.lang.String,
-     *        java.text.ParsePosition)
-     */
-    //FIXME This test fails on Harmony ClassLibrary
     public void test_parseLjava_lang_StringLjava_text_ParsePosition() {
         DecimalFormat format = (DecimalFormat) NumberFormat
                 .getNumberInstance(Locale.ENGLISH);
@@ -1335,29 +1260,26 @@ public class DecimalFormatTest extends TestCase {
                 .getClass() == Double.class);
         assertTrue("Wrong result for overflow e: " + result, result
                 .doubleValue() == 9223372036854775809d);
+    }
 
-        // test parse with multipliers
-        format.setMultiplier(100);
-        result = format.parse("9223372036854775807", new ParsePosition(0));
-        assertTrue("Wrong result type multiplier 100: " + result, result
-                .getClass() == Long.class);
-        assertTrue("Wrong result for multiplier 100: " + result, result
-                .longValue() == 92233720368547758L);
+    public void test_parse_with_multiplier() {
+      DecimalFormat format = (DecimalFormat) NumberFormat.getNumberInstance(Locale.ENGLISH);
+      Number result;
 
-        format.setMultiplier(1000);
-        result = format.parse("9223372036854775807", new ParsePosition(0));
-        assertTrue("Wrong result type multiplier 1000: " + result, result
-                .getClass() == Long.class);
-        assertTrue("Wrong result for multiplier 1000: " + result, result
-                .longValue() == 9223372036854776L);
+      format.setMultiplier(100);
+      result = format.parse("9223372036854775807", new ParsePosition(0));
+      assertEquals("Wrong result type multiplier 100: " + result, Double.class, result.getClass());
+      assertEquals("Wrong result for multiplier 100: " + result, 92233720368547758.07d, result.doubleValue());
 
-        format.setMultiplier(10000);
-        result = format.parse("9223372036854775807", new ParsePosition(0));
-        assertTrue("Wrong result type multiplier 10000: " + result, result
-                .getClass() == Double.class);
-        assertTrue("Wrong result for multiplier 10000: " + result, result
-                .doubleValue() == 922337203685477.5807d);
+      format.setMultiplier(1000);
+      result = format.parse("9223372036854775807", new ParsePosition(0));
+      assertEquals("Wrong result type multiplier 1000: " + result, Double.class, result.getClass());
+      assertEquals("Wrong result for multiplier 1000: " + result, 9223372036854775.807d, result.doubleValue());
 
+      format.setMultiplier(10000);
+      result = format.parse("9223372036854775807", new ParsePosition(0));
+      assertEquals("Wrong result type multiplier 10000: " + result, Double.class, result.getClass());
+      assertEquals("Wrong result for multiplier 10000: " + result, 922337203685477.5807d, result.doubleValue());
     }
 
     /**
@@ -1487,33 +1409,22 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("Incorrect integer", "00.7", df.format(0.7));
     }
 
-    /**
-     * @tests java.text.DecimalFormat#setMultiplier(int)
-     */
-    //FIXME This test fails on Harmony ClassLibrary
     public void test_setMultiplierI() {
         DecimalFormat df = new DecimalFormat("###0.##");
         df.setMultiplier(10);
         assertEquals("Wrong multiplier", 10, df.getMultiplier());
         assertEquals("Wrong format", "50", df.format(5));
-        assertEquals("Wrong parse", 5, df.parse("50", new ParsePosition(0))
-                .intValue());
-        
+        assertEquals("Wrong parse", 5, df.parse("50", new ParsePosition(0)).intValue());
+
         // regression test for HARMONY-879
         df.setMultiplier(-1);
         assertEquals("Wrong  multiplier for negative value", -1, df.getMultiplier());
     }
 
-    /**
-     * @tests serialization/deserialization compatibility.
-     */
     public void testSerializationSelf() throws Exception {
         SerializationTest.verifySelf(new DecimalFormat());
     }
 
-    /**
-     * @tests serialization compatibility with RI
-     */
     public void test_serializationHarmonyRICompatible() throws Exception {
         NumberFormat nf = NumberFormat.getInstance(Locale.FRANCE);
 
@@ -1594,17 +1505,17 @@ public class DecimalFormatTest extends TestCase {
         assertTrue(number instanceof Double);
         assertTrue(Double.isInfinite(number.doubleValue()));
     }
-    
+
     /**
-     * Test if setDecimalFormatSymbols method wont throw NullPointerException 
+     * Test if setDecimalFormatSymbols method wont throw NullPointerException
      * when it is called with null parameter.
      */
     public void testSetDecimalFormatSymbolsAsNull(){
 	// Regression for HARMONY-1070
         DecimalFormat format = (DecimalFormat)DecimalFormat.getInstance();
-        format.setDecimalFormatSymbols(null);                     
+        format.setDecimalFormatSymbols(null);
     }
-    
+
     /**
 	 * @tests java.text.DecimalFormat#formatToCharacterIterator(java.lang.Object)
 	 */
@@ -1670,7 +1581,7 @@ public class DecimalFormatTest extends TestCase {
 		// get the default RoundingMode of this DecimalFormat
 		DecimalFormat decimalFormat = (DecimalFormat) DecimalFormat
 				.getInstance(Locale.US);
-		
+
 		// the default RoundingMode is HALF_EVEN
 		assertEquals("Incorrect default RoundingMode", decimalFormat.getRoundingMode(), RoundingMode.HALF_EVEN);
 
@@ -1684,7 +1595,7 @@ public class DecimalFormatTest extends TestCase {
 	/**
 	 * @tests java.text.DecimalFormat#setRoundingMode(java.math.RoundingMode)
 	 */
-	public void test_SetRoudingMode_Ljava_math_RoundingMode() {
+	public void test_SetRoundingMode_Ljava_math_RoundingMode() {
 		DecimalFormat decimalFormat = (DecimalFormat) DecimalFormat
 				.getInstance(Locale.US);
 		// ignore the fraction part of a given value
@@ -1776,11 +1687,9 @@ public class DecimalFormatTest extends TestCase {
 		assertEquals("Incorrect RoundingMode behavior: RoundingMode.HALF_UP",
 				"0", result);
 
-		// the following assertion will fail on RI implementation, since the
-	    // implementation of ICU and RI are not identical.
 		result = decimalFormat.format(-0.2);
 		assertEquals("Incorrect RoundingMode behavior: RoundingMode.HALF_UP",
-				"0", result);
+				"-0", result);
 
 		// set RoundingMode.UP of this DecimalFormat and test its
 		// behavior
@@ -1804,7 +1713,7 @@ public class DecimalFormatTest extends TestCase {
 		// set RoundingMode.UNNECESSARY of this DecimalFormat and test its
 		// behavior
 		decimalFormat.setRoundingMode(RoundingMode.UNNECESSARY);
-		
+
 		try {
 			// when rounding is needed but RoundingMode is set to RoundingMode.UNNECESSARY, throw ArithmeticException
 			result = decimalFormat.format(5.5);
@@ -2038,7 +1947,7 @@ public class DecimalFormatTest extends TestCase {
 
 		result = decimalFormat.format(-0.2);
 		assertEquals("Incorrect RoundingMode behavior: RoundingMode.HALF_UP",
-				"0", result);
+				"-0", result);
 
 		// set RoundingMode.UP of this DecimalFormat and test its
 		// behavior
