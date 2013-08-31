@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -174,7 +174,7 @@ public class NumberFormatTest extends junit.framework.TestCase {
         format = (DecimalFormat) NumberFormat.getIntegerInstance(arLocale);
         assertEquals(
                 "Test7: NumberFormat.getIntegerInstance(new Locale(\"ar\", \"AE\")).toPattern() returned wrong pattern",
-                "#,##0;#,##0-", format.toPattern());
+                "#0;#0-", format.toPattern());
         assertEquals(
                 "Test8: NumberFormat.getIntegerInstance(new Locale(\"ar\", \"AE\")).format(-35.76) returned wrong value",
                 "\u0666-", format.format(-6));
@@ -249,7 +249,7 @@ public class NumberFormatTest extends junit.framework.TestCase {
     public void test_parseObjectLjava_lang_StringLjava_text_ParsePosition() {
     	// regression test for HARMONY-1003
     	assertNull(NumberFormat.getInstance().parseObject("0", new ParsePosition(-1)));
-    
+
          // Regression for HARMONY-1685
          try {
              NumberFormat.getInstance().parseObject("test", null);
@@ -258,13 +258,13 @@ public class NumberFormatTest extends junit.framework.TestCase {
             //expected
 	    }
     }
-    
+
     protected void setUp() {
     }
 
     protected void tearDown() {
     }
-    
+
 	public void test_setRoundingMode_NullRoundingMode() {
 		try {
 			// Create a subclass ChoiceFormat which doesn't support
@@ -291,5 +291,5 @@ public class NumberFormatTest extends junit.framework.TestCase {
 			// expected
 		}
 	}
-	
+
 }

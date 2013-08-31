@@ -144,76 +144,6 @@ public class OldSimpleDateFormatTest extends junit.framework.TestCase {
         }
     }
 
-    public void test_applyLocalizedPatternLjava_lang_String() {
-        // Test for method void
-        // java.text.SimpleDateFormat.applyLocalizedPattern(java.lang.String)
-        SimpleDateFormat f2 = new SimpleDateFormat("y", new Locale("de", "CH"));
-        // BEGIN android-removed
-        // This test doesn't work like this. The cause lies inside of icu
-        // that doesn't support localized pattern characters anymore. So this
-        // test fails because the pattern template contains characters that are
-        // not part of the standard pattern returned for every locale.
-        // The default pattern characters are: GyMdkHmsSEDFwWahKzZ
-        //
-        // f2.applyLocalizedPattern("GuMtkHmsSEDFwWahKz");
-        // String pattern = f2.toPattern();
-        // assertTrue("Wrong pattern: " + pattern, pattern
-        //         .equals("GyMdkHmsSEDFwWahKz"));
-        //
-        // test the new "Z" pattern char
-        // f2 = new SimpleDateFormat("y", new Locale("de", "CH"));
-        // f2.applyLocalizedPattern("G u M t Z");
-        // pattern = f2.toPattern();
-        // assertTrue("Wrong pattern: " + pattern, pattern.equals("G y M d Z"));
-        // END android-removed
-
-        // test invalid patterns
-        try {
-            f2.applyLocalizedPattern("b");
-            fail("Expected IllegalArgumentException for pattern with invalid pattern letter: b");
-        } catch (IllegalArgumentException e) {
-        }
-
-        try {
-            // ICU only! this fails on the RI
-            f2.applyLocalizedPattern("u");
-            fail("Expected IllegalArgumentException for pattern with invalid pattern letter: u");
-        } catch (IllegalArgumentException e) {
-        }
-
-        try {
-            f2.applyLocalizedPattern("a '");
-            fail("Expected IllegalArgumentException for pattern with unterminated quote: a '");
-        } catch (IllegalArgumentException e) {
-        }
-
-        try {
-            f2.applyLocalizedPattern(null);
-            fail("Expected NullPointerException for null pattern");
-        } catch (NullPointerException e) {
-        }
-    }
-
-    /**
-     * java.text.SimpleDateFormat#applyPattern(java.lang.String)
-     */
-    public void test_applyPatternLjava_lang_String() {
-        // Test for method void
-        // java.text.SimpleDateFormat.applyPattern(java.lang.String)
-        SimpleDateFormat f2 = new SimpleDateFormat("y", new Locale("de", "CH"));
-        // BEGIN android-changed
-        f2.applyPattern("GyMdkHmsSEDFwWahKzZ");
-        assertEquals("Wrong pattern", "GyMdkHmsSEDFwWahKzZ", f2.toPattern());
-        // END android-changed
-
-        // test invalid patterns
-        try {
-            f2.applyPattern("u");
-            fail("Expected IllegalArgumentException for pattern with invalid patter letter: u");
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
     public void test_hashCode() {
         SimpleDateFormat format = (SimpleDateFormat) DateFormat.getInstance();
         SimpleDateFormat clone = (SimpleDateFormat) format.clone();
@@ -229,130 +159,6 @@ public class OldSimpleDateFormatTest extends junit.framework.TestCase {
                 .hashCode());
     }
 
-    public void test_formatLjava_util_DateLjava_lang_StringBufferLjava_text_FieldPosition() {
-        FormatTester test = new FormatTester();
-
-        Calendar cal = new GregorianCalendar(1999, Calendar.JUNE, 2, 15, 3, 6);
-        test.test(" G", cal, " AD", DateFormat.ERA_FIELD);
-        test.test(" GG", cal, " AD", DateFormat.ERA_FIELD);
-        test.test(" GGG", cal, " AD", DateFormat.ERA_FIELD);
-        test.test(" G", new GregorianCalendar(-1999, Calendar.JUNE, 2), " BC",
-                DateFormat.ERA_FIELD);
-
-        test.test(" M", cal, " 6", DateFormat.MONTH_FIELD);
-        test.test(" M", new GregorianCalendar(1999, Calendar.NOVEMBER, 2),
-                " 11", DateFormat.MONTH_FIELD);
-        test.test(" MM", cal, " 06", DateFormat.MONTH_FIELD);
-        test.test(" MMM", cal, " Jun", DateFormat.MONTH_FIELD);
-        test.test(" MMMM", cal, " June", DateFormat.MONTH_FIELD);
-        test.test(" MMMMM", cal, " J", DateFormat.MONTH_FIELD);
-
-        test.test(" d", cal, " 2", DateFormat.DATE_FIELD);
-        test.test(" d", new GregorianCalendar(1999, Calendar.NOVEMBER, 12),
-                " 12", DateFormat.DATE_FIELD);
-        test.test(" dd", cal, " 02", DateFormat.DATE_FIELD);
-        test.test(" dddd", cal, " 0002", DateFormat.DATE_FIELD);
-
-        test.test(" h", cal, " 3", DateFormat.HOUR1_FIELD);
-        test.test(" h", new GregorianCalendar(1999, Calendar.NOVEMBER, 12),
-                " 12", DateFormat.HOUR1_FIELD);
-        test.test(" hh", cal, " 03", DateFormat.HOUR1_FIELD);
-        test.test(" hhhh", cal, " 0003", DateFormat.HOUR1_FIELD);
-
-        test.test(" H", cal, " 15", DateFormat.HOUR_OF_DAY0_FIELD);
-        test.test(" H",
-                new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 4, 0), " 4",
-                DateFormat.HOUR_OF_DAY0_FIELD);
-        test.test(" H", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 12,
-                0), " 12", DateFormat.HOUR_OF_DAY0_FIELD);
-        test.test(" H", new GregorianCalendar(1999, Calendar.NOVEMBER, 12),
-                " 0", DateFormat.HOUR_OF_DAY0_FIELD);
-        test.test(" HH", cal, " 15", DateFormat.HOUR_OF_DAY0_FIELD);
-        test.test(" HHHH", cal, " 0015", DateFormat.HOUR_OF_DAY0_FIELD);
-
-        test.test(" m", cal, " 3", DateFormat.MINUTE_FIELD);
-        test.test(" m", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 4,
-                47), " 47", DateFormat.MINUTE_FIELD);
-        test.test(" mm", cal, " 03", DateFormat.MINUTE_FIELD);
-        test.test(" mmmm", cal, " 0003", DateFormat.MINUTE_FIELD);
-
-        test.test(" s", cal, " 6", DateFormat.SECOND_FIELD);
-        test.test(" s", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 4,
-                47, 13), " 13", DateFormat.SECOND_FIELD);
-        test.test(" ss", cal, " 06", DateFormat.SECOND_FIELD);
-        test.test(" ssss", cal, " 0006", DateFormat.SECOND_FIELD);
-
-        test.test(" S", cal, " 0", DateFormat.MILLISECOND_FIELD);
-        Calendar temp = new GregorianCalendar();
-        temp.set(Calendar.MILLISECOND, 961);
-
-        test.test(" SS", temp, " 961", DateFormat.MILLISECOND_FIELD);
-        test.test(" SSSS", cal, " 0000", DateFormat.MILLISECOND_FIELD);
-
-        test.test(" SS", cal, " 00", DateFormat.MILLISECOND_FIELD);
-
-        test.test(" E", cal, " Wed", DateFormat.DAY_OF_WEEK_FIELD);
-        test.test(" EE", cal, " Wed", DateFormat.DAY_OF_WEEK_FIELD);
-        test.test(" EEE", cal, " Wed", DateFormat.DAY_OF_WEEK_FIELD);
-        test.test(" EEEE", cal, " Wednesday", DateFormat.DAY_OF_WEEK_FIELD);
-        test.test(" EEEEE", cal, " W", DateFormat.DAY_OF_WEEK_FIELD);
-
-        test.test(" D", cal, " 153", DateFormat.DAY_OF_YEAR_FIELD);
-        test.test(" DD", cal, " 153", DateFormat.DAY_OF_YEAR_FIELD);
-        test.test(" DDDD", cal, " 0153", DateFormat.DAY_OF_YEAR_FIELD);
-
-        test.test(" F", cal, " 1", DateFormat.DAY_OF_WEEK_IN_MONTH_FIELD);
-        test.test(" F", new GregorianCalendar(1999, Calendar.NOVEMBER, 14),
-                " 2", DateFormat.DAY_OF_WEEK_IN_MONTH_FIELD);
-        test.test(" FF", cal, " 01", DateFormat.DAY_OF_WEEK_IN_MONTH_FIELD);
-        test.test(" FFFF", cal, " 0001", DateFormat.DAY_OF_WEEK_IN_MONTH_FIELD);
-
-        test.test(" a", cal, " PM", DateFormat.AM_PM_FIELD);
-        test.test(" a", new GregorianCalendar(1999, Calendar.NOVEMBER, 14),
-                " AM", DateFormat.AM_PM_FIELD);
-        test.test(" a", new GregorianCalendar(1999, Calendar.NOVEMBER, 14, 12,
-                0), " PM", DateFormat.AM_PM_FIELD);
-        test.test(" aa", cal, " PM", DateFormat.AM_PM_FIELD);
-        test.test(" aaa", cal, " PM", DateFormat.AM_PM_FIELD);
-        test.test(" aaaa", cal, " PM", DateFormat.AM_PM_FIELD);
-        test.test(" aaaaa", cal, " PM", DateFormat.AM_PM_FIELD);
-
-        test.test(" k", cal, " 15", DateFormat.HOUR_OF_DAY1_FIELD);
-        test.test(" k",
-                new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 4, 0), " 4",
-                DateFormat.HOUR_OF_DAY1_FIELD);
-        test.test(" k", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 12,
-                0), " 12", DateFormat.HOUR_OF_DAY1_FIELD);
-        test.test(" k", new GregorianCalendar(1999, Calendar.NOVEMBER, 12),
-                " 24", DateFormat.HOUR_OF_DAY1_FIELD);
-        test.test(" kk", cal, " 15", DateFormat.HOUR_OF_DAY1_FIELD);
-        test.test(" kkkk", cal, " 0015", DateFormat.HOUR_OF_DAY1_FIELD);
-
-        test.test(" K", cal, " 3", DateFormat.HOUR0_FIELD);
-        test.test(" K", new GregorianCalendar(1999, Calendar.NOVEMBER, 12),
-                " 0", DateFormat.HOUR0_FIELD);
-        test.test(" KK", cal, " 03", DateFormat.HOUR0_FIELD);
-        test.test(" KKKK", cal, " 0003", DateFormat.HOUR0_FIELD);
-
-        format.applyPattern("'Mkz''':.@5");
-        assertEquals("Wrong output", "Mkz':.@5", format.format(new Date()));
-
-        //assertTrue("Tests failed", !test.testsFailed());
-
-        // Test invalid args to format.
-        SimpleDateFormat dateFormat = new SimpleDateFormat();
-        try {
-            dateFormat.format(null, new StringBuffer(), new FieldPosition(1));
-            fail("Expected test to throw NPE.");
-        } catch (NullPointerException ex) {
-            // expected
-        } catch (Throwable ex) {
-            fail("Expected test to throw NPE, not " + ex.getClass().getName());
-        }
-
-        assertFalse(test.testsFailed);
-    }
-
     /**
      * This test assumes Unicode behavior where 'y' and 'yyy' don't truncate,
      * which means that it will fail on the RI.
@@ -363,12 +169,9 @@ public class OldSimpleDateFormatTest extends junit.framework.TestCase {
         Calendar cal = new GregorianCalendar(1999, Calendar.JUNE, 2, 15, 3, 6);
         test.test(" y", cal, " 1999", DateFormat.YEAR_FIELD);
         test.test(" yy", cal, " 99", DateFormat.YEAR_FIELD);
-        test.test(" yy", new GregorianCalendar(2001, Calendar.JUNE, 2), " 01",
-                DateFormat.YEAR_FIELD);
-        test.test(" yy", new GregorianCalendar(2000, Calendar.JUNE, 2), " 00",
-                DateFormat.YEAR_FIELD);
-        test.test(" yyy", new GregorianCalendar(2000, Calendar.JUNE, 2), " 2000",
-                DateFormat.YEAR_FIELD);
+        test.test(" yy", new GregorianCalendar(2001, Calendar.JUNE, 2), " 01", DateFormat.YEAR_FIELD);
+        test.test(" yy", new GregorianCalendar(2000, Calendar.JUNE, 2), " 00", DateFormat.YEAR_FIELD);
+        test.test(" yyy", new GregorianCalendar(2000, Calendar.JUNE, 2), " 2000", DateFormat.YEAR_FIELD);
         test.test(" yyy", cal, " 1999", DateFormat.YEAR_FIELD);
         test.test(" yyyy", cal, " 1999", DateFormat.YEAR_FIELD);
         test.test(" yyyyy", cal, " 01999", DateFormat.YEAR_FIELD);
@@ -433,31 +236,6 @@ public class OldSimpleDateFormatTest extends junit.framework.TestCase {
         assertFalse(test.testsFailed);
     }
 
-    /**
-     * java.text.SimpleDateFormat#format(java.util.Date)
-     */
-    public void test_timeZoneFormatting() {
-        // tests specific to formatting of timezones
-        Date summerDate = new GregorianCalendar(1999, Calendar.JUNE, 2, 15, 3, 6).getTime();
-        Date winterDate = new GregorianCalendar(1999, Calendar.JANUARY, 12).getTime();
-
-        FormatTester test = new FormatTester();
-        test.verifyFormatTimezone("GMT-7", "GMT-07:00, GMT-07:00", "-0700, GMT-07:00", summerDate);
-        test.verifyFormatTimezone("GMT-7", "GMT-07:00, GMT-07:00", "-0700, GMT-07:00", winterDate);
-
-        test.verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00", "+1400, GMT+14:00", summerDate);
-        test.verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00", "+1400, GMT+14:00", winterDate);
-
-        test.verifyFormatTimezone("America/Los_Angeles", "PDT, Pacific Daylight Time", "-0700, GMT-07:00", summerDate);
-        test.verifyFormatTimezone("America/Los_Angeles", "PST, Pacific Standard Time", "-0800, GMT-08:00", winterDate);
-
-        // this fails on the RI!
-        test.verifyFormatTimezone("America/Detroit", "EDT, Eastern Daylight Time", "-0400, GMT-04:00", summerDate);
-        test.verifyFormatTimezone("America/Detroit", "EST, Eastern Standard Time", "-0500, GMT-05:00", winterDate);
-
-        assertFalse(test.testsFailed);
-    }
-
     public void test_parseLjava_lang_StringLjava_text_ParsePosition_2() {
         try {
             format.parse("240 11 2002 March", null);
@@ -497,29 +275,6 @@ public class OldSimpleDateFormatTest extends junit.framework.TestCase {
         } catch(NullPointerException npe) {
             //expected
         }
-    }
-
-    public void test_toLocalizedPattern() {
-        // BEGIN android-changed
-        // Test for method java.lang.String
-        // java.text.SimpleDateFormat.toLocalizedPattern()
-        SimpleDateFormat f2 = new SimpleDateFormat("GyMdkHmsSEDFwWahKzZ",
-                new Locale("de", "CH"));
-        String pattern = f2.toLocalizedPattern();
-        // the default localized pattern characters are the same for all locales
-        // since icu has dropped support for this. the default pattern characters
-        // are these: GyMdkHmsSEDFwWahKz
-        // ICU only! this fails on the RI
-        assertTrue("Wrong pattern: " + pattern, pattern
-                .equals("GyMdkHmsSEDFwWahKzZ"));
-
-
-        // test the new "Z" pattern char
-        f2 = new SimpleDateFormat("G y M d Z", new Locale("de", "CH"));
-        pattern = f2.toLocalizedPattern();
-        // assertTrue("Wrong pattern: " + pattern, pattern.equals("G u M t Z"));
-        assertTrue("Wrong pattern: " + pattern, pattern.equals("G y M d Z"));
-        // END android-changed
     }
 
     public void test_toPattern() {

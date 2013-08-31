@@ -159,25 +159,6 @@
   bug: 3056792
 },
 {
-  description: "DecimalFormat.formatToCharacterIterator() is failing tests",
-  names: [
-    "libcore.java.text.OldDecimalFormatTest#test_formatToCharacterIterator",
-    "org.apache.harmony.text.tests.java.text.DecimalFormatTest#test_formatToCharacterIteratorLjava_lang_Object",
-    "org.apache.harmony.text.tests.java.text.DecimalFormatTest#test_formatToCharacterIteratorLjava_lang_Object__ArithmeticException"
-  ],
-  bug: 3056865
-},
-{
-  description: "DecimalFormat.parse returns wrong type with multiplier: expected Long but was Double",
-  name: "libcore.java.text.OldDecimalFormatTest#test_parseLjava_lang_StringLjava_text_ParsePosition",
-  bug: 3057080
-},
-{
-  description: "DecimalFormat FieldPosition not updated with correct begin and end indices",
-  name: "libcore.java.text.OldDecimalFormatTest#test_formatDLjava_lang_StringBufferLjava_text_FieldPosition",
-  bug: 3057090
-},
-{
   description: "DecimalFormat is limited to 127 digits",
   name: "libcore.java.text.DecimalFormatTest#test_setMaximumIntegerDigits",
   bug: 2400429

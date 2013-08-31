@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -73,45 +73,22 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
         assertEquals(new DateFormatSymbols(), DateFormatSymbols.getInstance());
         assertEquals(new DateFormatSymbols(Locale.getDefault()),
                 DateFormatSymbols.getInstance());
-        
+
         assertNotSame(DateFormatSymbols.getInstance(), DateFormatSymbols.getInstance());
     }
 
     public void test_getInstanceLjava_util_Locale() {
         try {
             DateFormatSymbols.getInstance(null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
 
-        assertEquals(new DateFormatSymbols(Locale.GERMANY), DateFormatSymbols
-                .getInstance(Locale.GERMANY));
+        assertEquals(new DateFormatSymbols(Locale.GERMANY), DateFormatSymbols.getInstance(Locale.GERMANY));
 
         Locale locale = new Locale("not exist language", "not exist country");
         DateFormatSymbols symbols = DateFormatSymbols.getInstance(locale);
         assertNotNull(symbols);
-        assertEquals(DateFormatSymbols.getInstance(), symbols);
-    }
-
-    /**
-     * @tests java.text.DateFormatSymbols#getInstance(Locale)
-     */
-    public void test_getInstanceLjava_util_Locale_no_provider() {
-        try {
-            DateFormatSymbols.getInstance(null);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
-        }
-
-        assertEquals(new DateFormatSymbols(Locale.GERMANY), DateFormatSymbols
-                .getInstance(Locale.GERMANY));
-
-        Locale locale = new Locale("not exist language", "not exist country");
-        DateFormatSymbols symbols = DateFormatSymbols.getInstance(locale);
-        assertNotNull(symbols);
-        assertEquals(DateFormatSymbols.getInstance(), symbols);
     }
 
     /**
@@ -162,19 +139,6 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
             fail("Returned wrong array");
         for (int i = 0; i < val.length; i++)
             assertTrue("Array values do not match", retVal[i].equals(val[i]));
-    }
-
-    /**
-     * @tests java.text.DateFormatSymbols#getLocalPatternChars()
-     */
-    public void test_getLocalPatternChars() {
-        // Test for method java.lang.String
-        // java.text.DateFormatSymbols.getLocalPatternChars()
-        String retVal = dfs.getLocalPatternChars();
-
-        String val = "GyMdkHmsSEDFwWahKzYeugAZvcLQqV";
-
-        assertEquals("Returned incorrect pattern string", val, retVal);
     }
 
     /**
@@ -241,7 +205,7 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
     public void test_getZoneStrings() {
         // Test for method java.lang.String [][]
         // java.text.DateFormatSymbols.getZoneStrings()
-        String[][] val = { { "XX", "XX", "XX", "XX", "XX" }, 
+        String[][] val = { { "XX", "XX", "XX", "XX", "XX" },
                 { "YY", "YY", "YY", "YY", "YY" } };
         dfs.setZoneStrings(val);
         String[][] retVal = dfs.getZoneStrings();
@@ -261,7 +225,7 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
         int hc2 = dfs.hashCode();
         assertTrue("hashCode() returned inconsistent number : " + hc1 + " - " + hc2, hc1 == hc2);
 
-        assertTrue("hashCode() returns different values for equal() objects", 
+        assertTrue("hashCode() returns different values for equal() objects",
                             dfs.hashCode() == dfs.clone().hashCode());
     }
 
@@ -295,23 +259,16 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
             assertTrue("Failed to set strings", retVal[i].equals(val[i]));
     }
 
-    /**
-     * @tests java.text.DateFormatSymbols#setLocalPatternChars(java.lang.String)
-     */
     public void test_setLocalPatternCharsLjava_lang_String() {
-        // Test for method void
-        // java.text.DateFormatSymbols.setLocalPatternChars(java.lang.String)
-        dfs.setLocalPatternChars("GyMZZkHmsSEHHFwWahKz");
-        String retVal = dfs.getLocalPatternChars();
-        String val = "GyMZZkHmsSEHHFwWahKz";
-        assertTrue("Returned incorrect pattern string", retVal.equals(val));
-        
+        String patternChars = "GyMZZkHmsSEHHFwWahKz";
+        dfs.setLocalPatternChars(patternChars);
+        assertEquals(patternChars, dfs.getLocalPatternChars());
+
         try {
             // Regression for HARMONY-466
             new DateFormatSymbols().setLocalPatternChars(null);
-            fail("NullPointerException expected");
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
     }
 
@@ -401,7 +358,7 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
 
     /**
      * @tests java.text.DateFormatSymbols#setZoneStrings(java.lang.String[][])
-     * 
+     *
      * Tests setting zone strings to invalid values
      * Regression for HARMONY-6337
      */
