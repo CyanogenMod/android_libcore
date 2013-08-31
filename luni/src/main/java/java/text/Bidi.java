@@ -421,28 +421,20 @@ public final class Bidi {
 
     /**
      * Returns the base level.
-     *
-     * @return the base level.
      */
     public int getBaseLevel() {
         return baseLevel;
     }
 
     /**
-     * Returns the length of the text in the {@code Bidi} object.
-     *
-     * @return the length.
+     * Returns the length of the text.
      */
     public int getLength() {
         return length;
     }
 
     /**
-     * Returns the level of a specified character.
-     *
-     * @param offset
-     *            the offset of the character.
-     * @return the level.
+     * Returns the level of the given character.
      */
     public int getLevelAt(int offset) {
         try {
@@ -453,74 +445,51 @@ public final class Bidi {
     }
 
     /**
-     * Returns the number of runs in the bidirectional text.
-     *
-     * @return the number of runs, at least 1.
+     * Returns the number of runs in the text, at least 1.
      */
     public int getRunCount() {
         return unidirectional ? 1 : runs.length;
     }
 
     /**
-     * Returns the level of the specified run.
-     *
-     * @param run
-     *            the index of the run.
-     * @return the level of the run.
+     * Returns the level of the given run.
      */
     public int getRunLevel(int run) {
         return unidirectional ? baseLevel : runs[run].getLevel();
     }
 
     /**
-     * Returns the limit offset of the specified run.
-     *
-     * @param run
-     *            the index of the run.
-     * @return the limit offset of the run.
+     * Returns the limit offset of the given run.
      */
     public int getRunLimit(int run) {
         return unidirectional ? length : runs[run].getLimit();
     }
 
     /**
-     * Returns the start offset of the specified run.
-     *
-     * @param run
-     *            the index of the run.
-     * @return the start offset of the run.
+     * Returns the start offset of the given run.
      */
     public int getRunStart(int run) {
         return unidirectional ? 0 : runs[run].getStart();
     }
 
     /**
-     * Indicates whether the text is from left to right, that is, both the base
+     * Returns true if the text is from left to right, that is, both the base
      * direction and the text direction is from left to right.
-     *
-     * @return {@code true} if the text is from left to right; {@code false}
-     *         otherwise.
      */
     public boolean isLeftToRight() {
         return direction == UBiDiDirection_UBIDI_LTR;
     }
 
     /**
-     * Indicates whether the text direction is mixed.
-     *
-     * @return {@code true} if the text direction is mixed; {@code false}
-     *         otherwise.
+     * Returns true if the text direction is mixed.
      */
     public boolean isMixed() {
         return direction == UBiDiDirection_UBIDI_MIXED;
     }
 
     /**
-     * Indicates whether the text is from right to left, that is, both the base
+     * Returns true if the text is from right to left, that is, both the base
      * direction and the text direction is from right to left.
-     *
-     * @return {@code true} if the text is from right to left; {@code false}
-     *         otherwise.
      */
     public boolean isRightToLeft() {
         return direction == UBiDiDirection_UBIDI_RTL;

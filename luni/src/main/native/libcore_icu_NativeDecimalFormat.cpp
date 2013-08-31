@@ -216,19 +216,22 @@ static jstring NativeDecimalFormat_toPatternImpl(JNIEnv* env, jclass, jlong addr
     return env->NewString(pattern.getBuffer(), pattern.length());
 }
 
-static jcharArray formatResult(JNIEnv* env, const UnicodeString &str, FieldPositionIterator* fpi, jobject fpIter) {
+static jcharArray formatResult(JNIEnv* env, const UnicodeString& str, FieldPositionIterator* fpi, jobject fpIter) {
     static jmethodID gFPI_setData = env->GetMethodID(JniConstants::fieldPositionIteratorClass, "setData", "([I)V");
 
     if (fpi != NULL) {
-        int len = fpi->getData(NULL, 0);
+        int length = fpi->getData(NULL, 0);
         jintArray data = NULL;
-        if (len) {
-            data = env->NewIntArray(len);
+        if (length > 0) {
+            data = env->NewIntArray(length);
+            if (data == NULL) {
+                return NULL;
+            }
             ScopedIntArrayRW ints(env, data);
             if (ints.get() == NULL) {
                 return NULL;
             }
-            fpi->getData(ints.get(), len);
+            fpi->getData(ints.get(), length);
         }
         env->CallVoidMethod(fpIter, gFPI_setData, data);
     }
@@ -252,11 +255,11 @@ static jcharArray format(JNIEnv* env, jlong addr, jobject fpIter, T val) {
 }
 
 static jcharArray NativeDecimalFormat_formatLong(JNIEnv* env, jclass, jlong addr, jlong value, jobject fpIter) {
-  return format(env, addr, fpIter, value);
+    return format<int64_t>(env, addr, fpIter, value);
 }
 
 static jcharArray NativeDecimalFormat_formatDouble(JNIEnv* env, jclass, jlong addr, jdouble value, jobject fpIter) {
-    return format(env, addr, fpIter, value);
+    return format<double>(env, addr, fpIter, value);
 }
 
 static jcharArray NativeDecimalFormat_formatDigitList(JNIEnv* env, jclass, jlong addr, jstring value, jobject fpIter) {

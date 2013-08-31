@@ -92,6 +92,47 @@ public final class NativeDecimalFormat implements Cloneable {
     private static final int UNUM_PUBLIC_RULESETS = 7;
 
     /**
+     * A table for translating between NumberFormat.Field instances
+     * and icu4c UNUM_x_FIELD constants.
+     */
+    private static final Format.Field[] ICU4C_FIELD_IDS = {
+        // The old java field values were 0 for integer and 1 for fraction.
+        // The new java field attributes are all objects.  ICU assigns the values
+        // starting from 0 in the following order; note that integer and
+        // fraction positions match the old field values.
+        NumberFormat.Field.INTEGER,            //  0 UNUM_INTEGER_FIELD
+        NumberFormat.Field.FRACTION,           //  1 UNUM_FRACTION_FIELD
+        NumberFormat.Field.DECIMAL_SEPARATOR,  //  2 UNUM_DECIMAL_SEPARATOR_FIELD
+        NumberFormat.Field.EXPONENT_SYMBOL,    //  3 UNUM_EXPONENT_SYMBOL_FIELD
+        NumberFormat.Field.EXPONENT_SIGN,      //  4 UNUM_EXPONENT_SIGN_FIELD
+        NumberFormat.Field.EXPONENT,           //  5 UNUM_EXPONENT_FIELD
+        NumberFormat.Field.GROUPING_SEPARATOR, //  6 UNUM_GROUPING_SEPARATOR_FIELD
+        NumberFormat.Field.CURRENCY,           //  7 UNUM_CURRENCY_FIELD
+        NumberFormat.Field.PERCENT,            //  8 UNUM_PERCENT_FIELD
+        NumberFormat.Field.PERMILLE,           //  9 UNUM_PERMILL_FIELD
+        NumberFormat.Field.SIGN,               // 10 UNUM_SIGN_FIELD
+    };
+
+    private static int translateFieldId(FieldPosition fp) {
+        int id = fp.getField();
+        if (id < -1 || id > 1) {
+            id = -1;
+        }
+        if (id == -1) {
+            Format.Field attr = fp.getFieldAttribute();
+            if (attr != null) {
+                for (int i = 0; i < ICU4C_FIELD_IDS.length; ++i) {
+                    if (ICU4C_FIELD_IDS[i].equals(attr)) {
+                        id = i;
+                        break;
+                    }
+                }
+            }
+      }
+      return id;
+    }
+
+    /**
      * The address of the ICU DecimalFormat* on the native heap.
      */
     private long address;
@@ -110,13 +151,6 @@ public final class NativeDecimalFormat implements Cloneable {
     private boolean posSuffNull;
 
     private transient boolean parseBigDecimal;
-
-    /**
-     * Cache the BigDecimal form of the multiplier. This is null until we've
-     * formatted a BigDecimal (with a multiplier that is not 1), or the user has
-     * explicitly called {@link #setMultiplier(int)} with any multiplier.
-     */
-    private BigDecimal multiplierBigDecimal = null;
 
     public NativeDecimalFormat(String pattern, DecimalFormatSymbols dfs) {
         try {
@@ -211,6 +245,23 @@ public final class NativeDecimalFormat implements Cloneable {
                 obj.isGroupingUsed() == this.isGroupingUsed();
     }
 
+    public String toString() {
+      return getClass().getName() + "[\"" + toPattern() + "\"" +
+          ",isDecimalSeparatorAlwaysShown=" + isDecimalSeparatorAlwaysShown() +
+          ",groupingSize=" + getGroupingSize() +
+          ",multiplier=" + getMultiplier() +
+          ",negativePrefix=" + getNegativePrefix() +
+          ",negativeSuffix=" + getNegativeSuffix() +
+          ",positivePrefix=" + getPositivePrefix() +
+          ",positiveSuffix=" + getPositiveSuffix() +
+          ",maxIntegerDigits=" + getMaximumIntegerDigits() +
+          ",maxFractionDigits=" + getMaximumFractionDigits() +
+          ",minIntegerDigits=" + getMinimumIntegerDigits() +
+          ",minFractionDigits=" + getMinimumFractionDigits() +
+          ",grouping=" + isGroupingUsed() +
+          "]";
+    }
+
     /**
      * Copies the DecimalFormatSymbols settings into our native peer in bulk.
      */
@@ -233,8 +284,8 @@ public final class NativeDecimalFormat implements Cloneable {
     public char[] formatBigDecimal(BigDecimal value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
         char[] result = formatDigitList(this.address, value.toString(), fpi);
-        if (fpi != null) {
-            FieldPositionIterator.setFieldPosition(fpi, field);
+        if (fpi != null && field != null) {
+            updateFieldPosition(field, fpi);
         }
         return result;
     }
@@ -242,8 +293,8 @@ public final class NativeDecimalFormat implements Cloneable {
     public char[] formatBigInteger(BigInteger value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
         char[] result = formatDigitList(this.address, value.toString(10), fpi);
-        if (fpi != null) {
-            FieldPositionIterator.setFieldPosition(fpi, field);
+        if (fpi != null && field != null) {
+            updateFieldPosition(field, fpi);
         }
         return result;
     }
@@ -251,8 +302,8 @@ public final class NativeDecimalFormat implements Cloneable {
     public char[] formatLong(long value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
         char[] result = formatLong(this.address, value, fpi);
-        if (fpi != null) {
-            FieldPositionIterator.setFieldPosition(fpi, field);
+        if (fpi != null && field != null) {
+            updateFieldPosition(field, fpi);
         }
         return result;
     }
@@ -260,10 +311,23 @@ public final class NativeDecimalFormat implements Cloneable {
     public char[] formatDouble(double value, FieldPosition field) {
         FieldPositionIterator fpi = FieldPositionIterator.forFieldPosition(field);
         char[] result = formatDouble(this.address, value, fpi);
-        if (fpi != null) {
-            FieldPositionIterator.setFieldPosition(fpi, field);
+        if (fpi != null && field != null) {
+            updateFieldPosition(field, fpi);
         }
         return result;
+    }
+
+    private static void updateFieldPosition(FieldPosition fp, FieldPositionIterator fpi) {
+        int field = translateFieldId(fp);
+        if (field != -1) {
+            while (fpi.next()) {
+                if (fpi.fieldId() == field) {
+                    fp.setBeginIndex(fpi.start());
+                    fp.setEndIndex(fpi.limit());
+                    return;
+                }
+            }
+        }
     }
 
     public void applyLocalizedPattern(String pattern) {
@@ -440,8 +504,6 @@ public final class NativeDecimalFormat implements Cloneable {
 
     public void setMultiplier(int value) {
         setAttribute(this.address, UNUM_MULTIPLIER, value);
-        // Update the cached BigDecimal for multiplier.
-        multiplierBigDecimal = BigDecimal.valueOf(value);
     }
 
     public void setNegativePrefix(String value) {
@@ -515,50 +577,7 @@ public final class NativeDecimalFormat implements Cloneable {
         }
 
         public static FieldPositionIterator forFieldPosition(FieldPosition fp) {
-            if (fp != null && fp.getField() != -1) {
-                return new FieldPositionIterator();
-            }
-            return null;
-        }
-
-        private static int getNativeFieldPositionId(FieldPosition fp) {
-            // NOTE: -1, 0, and 1 were the only valid original java field values
-            // for NumberFormat.  They take precedence.  This assumes any other
-            // value is a mistake and the actual value is in the attribute.
-            // Clients can construct FieldPosition combining any attribute with any field
-            // value, which is just wrong, but there you go.
-
-            int id = fp.getField();
-            if (id < -1 || id > 1) {
-                id = -1;
-            }
-            if (id == -1) {
-                Format.Field attr = fp.getFieldAttribute();
-                if (attr != null) {
-                    for (int i = 0; i < fields.length; ++i) {
-                        if (fields[i].equals(attr)) {
-                            id = i;
-                            break;
-                        }
-                    }
-                }
-            }
-            return id;
-        }
-
-        private static void setFieldPosition(FieldPositionIterator fpi, FieldPosition fp) {
-            if (fpi != null && fp != null) {
-                int field = getNativeFieldPositionId(fp);
-                if (field != -1) {
-                    while (fpi.next()) {
-                        if (fpi.fieldId() == field) {
-                            fp.setBeginIndex(fpi.start());
-                            fp.setEndIndex(fpi.limit());
-                            break;
-                        }
-                    }
-                }
-            }
+            return (fp != null) ? new FieldPositionIterator() : null;
         }
 
         public boolean next() {
@@ -582,7 +601,7 @@ public final class NativeDecimalFormat implements Cloneable {
 
         public Format.Field field() {
             checkValid();
-            return fields[data[pos]];
+            return ICU4C_FIELD_IDS[data[pos]];
         }
 
         public int start() {
@@ -594,24 +613,6 @@ public final class NativeDecimalFormat implements Cloneable {
             checkValid();
             return data[pos + 2];
         }
-
-        private static Format.Field fields[] = {
-            // The old java field values were 0 for integer and 1 for fraction.
-            // The new java field attributes are all objects.  ICU assigns the values
-            // starting from 0 in the following order; note that integer and
-            // fraction positions match the old field values.
-            NumberFormat.Field.INTEGER,
-            NumberFormat.Field.FRACTION,
-            NumberFormat.Field.DECIMAL_SEPARATOR,
-            NumberFormat.Field.EXPONENT_SYMBOL,
-            NumberFormat.Field.EXPONENT_SIGN,
-            NumberFormat.Field.EXPONENT,
-            NumberFormat.Field.GROUPING_SEPARATOR,
-            NumberFormat.Field.CURRENCY,
-            NumberFormat.Field.PERCENT,
-            NumberFormat.Field.PERMILLE,
-            NumberFormat.Field.SIGN,
-        };
 
         // called by native
         private void setData(int[] data) {
