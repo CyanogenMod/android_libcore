@@ -27,6 +27,164 @@ import java.security.SecureRandomSpi;
 import libcore.io.Streams;
 import libcore.util.EmptyArray;
 
+
+
+// HAX
+//
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.Security;
+
+/**
+ * {@link SecureRandomSpi} which passes all requests to the Linux PRNG
+ * ({@code /dev/urandom}).
+ */
+class LinuxPRNGSecureRandom extends SecureRandomSpi {
+
+    /*
+     * IMPLEMENTATION NOTE: Requests to generate bytes and to mix in a seed
+     * are passed through to the Linux PRNG (/dev/urandom). Instances of
+     * this class seed themselves by mixing in the current time, PID, UID,
+     * build fingerprint, and hardware serial number (where available) into
+     * Linux PRNG.
+     *
+     * Concurrency: Read requests to the underlying Linux PRNG are
+     * serialized (on sLock) to ensure that multiple threads do not get
+     * duplicated PRNG output.
+     */
+
+    private static final File URANDOM_FILE = new File("/dev/urandom");
+
+    private static final Object sLock = new Object();
+
+    /**
+     * Input stream for reading from Linux PRNG or {@code null} if not yet
+     * opened.
+     *
+     * @GuardedBy("sLock")
+     */
+    private static DataInputStream sUrandomIn;
+
+    /**
+     * Output stream for writing to Linux PRNG or {@code null} if not yet
+     * opened.
+     *
+     * @GuardedBy("sLock")
+     */
+    private static OutputStream sUrandomOut;
+
+    /**
+     * Whether this engine instance has been seeded. This is needed because
+     * each instance needs to seed itself if the client does not explicitly
+     * seed it.
+     */
+    private boolean mSeeded;
+
+    /**
+     * Generates a invocation-specific seed to be mixed into the
+     * Linux PRNG.
+     */
+    private static byte[] generateSeed() {
+        try {
+            ByteArrayOutputStream seedBuffer = new ByteArrayOutputStream();
+            DataOutputStream seedBufferOut =
+                    new DataOutputStream(seedBuffer);
+            seedBufferOut.writeLong(System.currentTimeMillis());
+            seedBufferOut.writeLong(System.nanoTime());
+            seedBufferOut.close();
+            return seedBuffer.toByteArray();
+        } catch (IOException e) {
+            throw new SecurityException("Failed to generate seed", e);
+        }
+    }
+    @Override
+    protected void engineSetSeed(byte[] bytes) {
+        try {
+            OutputStream out;
+            synchronized (sLock) {
+                out = getUrandomOutputStream();
+            }
+            out.write(bytes);
+            out.flush();
+            mSeeded = true;
+        } catch (IOException e) {
+            throw new SecurityException(
+                    "Failed to mix seed into " + URANDOM_FILE, e);
+        }
+    }
+
+    @Override
+    protected void engineNextBytes(byte[] bytes) {
+        if (!mSeeded) {
+            // Mix in the invocation-specific seed.
+            engineSetSeed(generateSeed());
+        }
+
+        try {
+            DataInputStream in;
+            synchronized (sLock) {
+                in = getUrandomInputStream();
+            }
+            synchronized (in) {
+                in.readFully(bytes);
+            }
+        } catch (IOException e) {
+            throw new SecurityException(
+                    "Failed to read from " + URANDOM_FILE, e);
+        }
+    }
+
+    @Override
+    protected byte[] engineGenerateSeed(int size) {
+        byte[] seed = new byte[size];
+        engineNextBytes(seed);
+        return seed;
+    }
+
+    private DataInputStream getUrandomInputStream() {
+        synchronized (sLock) {
+            if (sUrandomIn == null) {
+                // NOTE: Consider inserting a BufferedInputStream between
+                // DataInputStream and FileInputStream if you need higher
+                // PRNG output performance and can live with future PRNG
+                // output being pulled into this process prematurely.
+                try {
+                    sUrandomIn = new DataInputStream(
+                            new FileInputStream(URANDOM_FILE));
+                } catch (IOException e) {
+                    throw new SecurityException("Failed to open "
+                            + URANDOM_FILE + " for reading", e);
+                }
+            }
+            return sUrandomIn;
+        }
+    }
+
+    private OutputStream getUrandomOutputStream() {
+        synchronized (sLock) {
+            if (sUrandomOut == null) {
+                try {
+                    sUrandomOut = new FileOutputStream(URANDOM_FILE);
+                } catch (IOException e) {
+                    throw new SecurityException("Failed to open "
+                            + URANDOM_FILE + " for writing", e);
+                }
+            }
+            return sUrandomOut;
+        }
+    }
+}
+// --HAX
+
+
+
+
 /**
  * This class extends the SecureRandomSpi class implementing all its abstract methods. <BR>
  * <BR>
@@ -37,7 +195,14 @@ import libcore.util.EmptyArray;
  * The class implements the Serializable interface.
  */
 
-public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements Serializable, SHA1_Data {
+/* TEMPORARY: This now derives from LinuxPRNGSecureRandom and does NOT
+ * override the SecureRandomSpi methods in there
+ *
+ * Pending Google's real fix for the PRNG problem, this is a system-wide
+ * application of the patch from
+ * http://android-developers.blogspot.pt/2013/08/some-securerandom-thoughts.html
+ */
+public class SHA1PRNG_SecureRandomImpl extends LinuxPRNGSecureRandom implements Serializable, SHA1_Data {
 
     private static final long serialVersionUID = 283736797212159675L;
 
@@ -199,6 +364,9 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements Serial
      * @throws
      *       NullPointerException - if null is passed to the "seed" argument
      */
+
+    /* Blocked while LinuxPRNGSecureRandom is in use
+ 
     protected synchronized void engineSetSeed(byte[] seed) {
 
         if (seed == null) {
@@ -216,6 +384,8 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements Serial
         }
     }
 
+    */
+
     /**
      * Returns a required number of random bytes. <BR>
      *
@@ -228,6 +398,8 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements Serial
      * @throws
      *       InvalidParameterException - if numBytes < 0
      */
+
+    /* Blocked while LinuxPRNGSecureRandom is in use
     protected synchronized byte[] engineGenerateSeed(int numBytes) {
 
         byte[] myBytes; // byte[] for bytes returned by "nextBytes()"
@@ -250,6 +422,8 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements Serial
         return myBytes;
     }
 
+    */
+
     /**
      * Writes random bytes into an array supplied.
      * Bits in a byte are from left to right. <BR>
@@ -266,6 +440,8 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements Serial
      * @throws
      *       NullPointerException - if null is passed to the "bytes" argument
      */
+
+    /* Blocked while LinuxPRNGSecureRandom is in use
     protected synchronized void engineNextBytes(byte[] bytes) {
 
         int i, n;
@@ -403,6 +579,7 @@ public class SHA1PRNG_SecureRandomImpl extends SecureRandomSpi implements Serial
             }
         }
     }
+    */
 
     private void writeObject(ObjectOutputStream oos) throws IOException {
 
