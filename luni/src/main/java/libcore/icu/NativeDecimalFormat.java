@@ -27,7 +27,6 @@ import java.text.Format;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Currency;
-import java.util.NoSuchElementException;
 
 public final class NativeDecimalFormat implements Cloneable {
     /**
@@ -581,18 +580,11 @@ public final class NativeDecimalFormat implements Cloneable {
         }
 
         public boolean next() {
-            // if pos == data.length, we've already returned false once
-            if (data == null || pos == data.length) {
-                throw new NoSuchElementException();
+            if (data == null) {
+                return false;
             }
             pos += 3;
             return pos < data.length;
-        }
-
-        private void checkValid() {
-            if (data == null || pos < 0 || pos == data.length) {
-                throw new NoSuchElementException();
-            }
         }
 
         public int fieldId() {
@@ -600,17 +592,14 @@ public final class NativeDecimalFormat implements Cloneable {
         }
 
         public Format.Field field() {
-            checkValid();
             return ICU4C_FIELD_IDS[data[pos]];
         }
 
         public int start() {
-            checkValid();
             return data[pos + 1];
         }
 
         public int limit() {
-            checkValid();
             return data[pos + 2];
         }
 

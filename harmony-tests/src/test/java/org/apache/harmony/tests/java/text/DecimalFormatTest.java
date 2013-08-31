@@ -38,6 +38,15 @@ import org.apache.harmony.testframework.serialization.SerializationTest;
 
 public class DecimalFormatTest extends TestCase {
 
+    // https://code.google.com/p/android/issues/detail?id=59600
+    public void test_empty_NaN() throws Exception {
+        DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+        dfs.setNaN("");
+        DecimalFormat df = new DecimalFormat();
+        df.setDecimalFormatSymbols(dfs);
+        df.format(Double.NaN);
+    }
+
     public void testAttributedCharacterIterator() throws Exception {
         // Regression for http://issues.apache.org/jira/browse/HARMONY-333
         AttributedCharacterIterator iterator = new DecimalFormat().formatToCharacterIterator(new Integer(1));
