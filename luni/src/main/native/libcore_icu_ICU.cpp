@@ -648,7 +648,7 @@ static jobject ICU_getAvailableCurrencyCodes(JNIEnv* env, jclass) {
 static jstring ICU_getBestDateTimePattern(JNIEnv* env, jclass, jstring javaSkeleton, jstring javaLocaleName) {
   Locale locale = getLocale(env, javaLocaleName);
   UErrorCode status = U_ZERO_ERROR;
-  DateTimePatternGenerator* generator = DateTimePatternGenerator::createInstance(locale, status);
+  UniquePtr<DateTimePatternGenerator> generator(DateTimePatternGenerator::createInstance(locale, status));
   if (maybeThrowIcuException(env, "DateTimePatternGenerator::createInstance", status)) {
     return NULL;
   }
