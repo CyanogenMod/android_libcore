@@ -110,7 +110,11 @@ static inline void swapInts(jint* dstInts, const jint* srcInts, size_t count) {
     if ((reinterpret_cast<uintptr_t>(dstInts) & INT_ALIGNMENT_MASK) == 0 &&
         (reinterpret_cast<uintptr_t>(srcInts) & INT_ALIGNMENT_MASK) == 0) {
         for (size_t i = 0; i < count; ++i) {
+#if (__GNUC__ == 4) && (__GNUC_MINOR__ == 7) && defined(__ARM_ARCH_5TE__)   // work around gcc 4.7 bug on armv6
+            jint v = ((jint *)srcInts)[i];
+#else
             jint v = *srcInts++;
+#endif
             *dstInts++ = bswap_32(v);
         }
     } else {
