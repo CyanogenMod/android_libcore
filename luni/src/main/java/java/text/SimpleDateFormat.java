@@ -94,7 +94,7 @@ import libcore.icu.TimeZoneNames;
  * <p>Fractional seconds are handled specially: they're zero-padded on the <i>right</i>.
  *
  * <p>The two pattern characters {@code L} and {@code c} are ICU-compatible extensions, not
- * available in the RI or in Android before Android 2.3 "Gingerbread" (API level 9). These
+ * available in the RI or in Android before Android 2.3 (Gingerbread, API level 9). These
  * extensions are necessary for correct localization in languages such as Russian
  * that make a grammatical distinction between, say, the word "June" in the sentence "June" and
  * in the sentence "June 10th"; the former is the stand-alone form, the latter the regular
@@ -102,7 +102,7 @@ import libcore.icu.TimeZoneNames;
  * and {@code c} is equivalent, but for weekday names.
  *
  * <p>Five-count patterns (such as "MMMMM") used for the shortest non-numeric
- * representation of a field were introduced in Jelly Bean MR2 (API level 18).
+ * representation of a field were introduced in Android 4.3 (Jelly Bean MR2, API level 18).
  *
  * <p>When two numeric fields are directly adjacent with no intervening delimiter
  * characters, they constitute a run of adjacent numeric fields. Such runs are

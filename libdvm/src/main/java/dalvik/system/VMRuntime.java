@@ -122,7 +122,7 @@ public final class VMRuntime {
 
     /**
      * This method exists for binary compatibility.  It was part of a
-     * heap sizing API which was removed in Honeycomb.
+     * heap sizing API which was removed in Android 3.0 (Honeycomb).
      */
     @Deprecated
     public long getMinimumHeapSize() {
@@ -131,7 +131,7 @@ public final class VMRuntime {
 
     /**
      * This method exists for binary compatibility.  It was part of a
-     * heap sizing API which was removed in Honeycomb.
+     * heap sizing API which was removed in Android 3.0 (Honeycomb).
      */
     @Deprecated
     public long setMinimumHeapSize(long size) {
@@ -164,7 +164,7 @@ public final class VMRuntime {
 
     /**
      * This method exists for binary compatibility.  It was part of
-     * the external allocation API which was removed in Honeycomb.
+     * the external allocation API which was removed in Android 3.0 (Honeycomb).
      */
     @Deprecated
     public boolean trackExternalAllocation(long size) {
@@ -173,14 +173,14 @@ public final class VMRuntime {
 
     /**
      * This method exists for binary compatibility.  It was part of
-     * the external allocation API which was removed in Honeycomb.
+     * the external allocation API which was removed in Android 3.0 (Honeycomb).
      */
     @Deprecated
     public void trackExternalFree(long size) {}
 
     /**
      * This method exists for binary compatibility.  It was part of
-     * the external allocation API which was removed in Honeycomb.
+     * the external allocation API which was removed in Android 3.0 (Honeycomb).
      */
     @Deprecated
     public long getExternalBytesAllocated() {

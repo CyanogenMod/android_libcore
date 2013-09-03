@@ -243,7 +243,7 @@ public final class VMDebug {
 
     /**
      * This method exists for binary compatibility.  It was part of
-     * the allocation limits API which was removed in Honeycomb.
+     * the allocation limits API which was removed in Android 3.0 (Honeycomb).
      */
     @Deprecated
     public static int setAllocationLimit(int limit) {
@@ -252,7 +252,7 @@ public final class VMDebug {
 
     /**
      * This method exists for binary compatibility.  It was part of
-     * the allocation limits API which was removed in Honeycomb.
+     * the allocation limits API which was removed in Android 3.0 (Honeycomb).
      */
     @Deprecated
     public static int setGlobalAllocationLimit(int limit) {
