@@ -627,7 +627,7 @@ static jstring ICU_toLowerCase(JNIEnv* env, jclass, jstring javaString, jstring 
   }
   UnicodeString& s(scopedString.unicodeString());
   UnicodeString original(s);
-  s.toLower(Locale::createFromName(ScopedUtfChars(env, localeName).c_str()));
+  s.toLower(getLocale(env, localeName));
   return s == original ? javaString : env->NewString(s.getBuffer(), s.length());
 }
 
@@ -638,7 +638,7 @@ static jstring ICU_toUpperCase(JNIEnv* env, jclass, jstring javaString, jstring 
   }
   UnicodeString& s(scopedString.unicodeString());
   UnicodeString original(s);
-  s.toUpper(Locale::createFromName(ScopedUtfChars(env, localeName).c_str()));
+  s.toUpper(getLocale(env, localeName));
   return s == original ? javaString : env->NewString(s.getBuffer(), s.length());
 }
 
