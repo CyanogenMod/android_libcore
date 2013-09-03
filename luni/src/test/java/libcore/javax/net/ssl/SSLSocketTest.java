@@ -1283,7 +1283,7 @@ public class SSLSocketTest extends TestCase {
         });
         executor.shutdown();
         try {
-            toRead.setSoTimeout(5 * 1000);
+            toRead.setSoTimeout(10 * 1000);
             toRead.getInputStream().read();
             fail();
         } catch (SocketTimeoutException e) {
