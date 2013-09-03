@@ -90,7 +90,7 @@ import libcore.icu.ICU;
  *     <td>ICU 50</td>
  *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-22-1">CLDR 22.1</a></td>
  *     <td><a href="http://www.unicode.org/versions/Unicode6.2.0/">Unicode 6.2</a></td></tr>
- * <tr><td>Android 4.4 (Kit Kat)</td>
+ * <tr><td>Android 4.4 (KitKat)</td>
  *     <td>ICU 51</td>
  *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-23">CLDR 23</a></td>
  *     <td><a href="http://www.unicode.org/versions/Unicode6.2.0/">Unicode 6.2</a></td></tr>
