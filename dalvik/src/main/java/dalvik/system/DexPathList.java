@@ -150,17 +150,13 @@ import static libcore.io.OsConstants.*;
      * do not refer to existing and readable directories.
      */
     private static File[] splitLibraryPath(String path) {
-        /*
-         * Native libraries may exist in both the system and
-         * application library paths, and we use this search order:
-         *
-         *   1. this class loader's library path for application
-         *      libraries
-         *   2. the VM's library path from the system
-         *      property for system libraries
-         *
-         * This order was reversed prior to Gingerbread; see http://b/2933456.
-         */
+        // Native libraries may exist in both the system and
+        // application library paths, and we use this search order:
+        //
+        //   1. this class loader's library path for application libraries
+        //   2. the VM's library path from the system property for system libraries
+        //
+        // This order was reversed prior to Gingerbread; see http://b/2933456.
         ArrayList<File> result = splitPaths(path, System.getProperty("java.library.path"), true);
         return result.toArray(new File[result.size()]);
     }

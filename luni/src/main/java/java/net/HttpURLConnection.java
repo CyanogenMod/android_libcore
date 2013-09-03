@@ -235,9 +235,9 @@ import java.util.Arrays;
  * until a connection is established.
  *
  * <h3>Response Caching</h3>
- * Android 4.0 (Ice Cream Sandwich) includes a response cache. See {@code
- * android.net.http.HttpResponseCache} for instructions on enabling HTTP caching
- * in your application.
+ * Android 4.0 (Ice Cream Sandwich, API level 15) includes a response cache. See
+ * {@code android.net.http.HttpResponseCache} for instructions on enabling HTTP
+ * caching in your application.
  *
  * <h3>Avoiding Bugs In Earlier Releases</h3>
  * Prior to Android 2.2 (Froyo), this class had some frustrating bugs. In
