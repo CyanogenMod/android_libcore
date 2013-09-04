@@ -96,8 +96,18 @@ public final class DateIntervalFormat {
     } else if ((flags & FORMAT_12HOUR) != 0) {
       timePart = "h";
     }
-    if ((flags & FORMAT_ABBREV_TIME) == 0 || !onTheHour(startCalendar) || !onTheHour(endCalendar)) {
-      timePart = timePart + "m";
+
+    // If we've not been asked to abbreviate times, or we're using the 24-hour clock (where it
+    // never makes sense to leave out the minutes), include minutes. This gets us times like
+    // "4 PM" while avoiding times like "16" (for "16:00").
+    if ((flags & FORMAT_ABBREV_TIME) == 0 || (flags & FORMAT_24HOUR) != 0) {
+      timePart += "m";
+    } else {
+      // Otherwise, we're abbreviating a 12-hour time, and should only show the minutes
+      // if they're not both "00".
+      if (!(onTheHour(startCalendar) && onTheHour(endCalendar))) {
+        timePart = timePart + "m";
+      }
     }
 
     if (fallOnDifferentDates(startCalendar, endCalendar)) {
