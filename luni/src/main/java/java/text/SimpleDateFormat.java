@@ -1139,22 +1139,35 @@ public class SimpleDateFormat extends DateFormat {
         return position.getIndex();
     }
 
-    private int parseText(String string, int offset, String[] text, int field) {
-        int found = -1;
-        for (int i = 0; i < text.length; i++) {
-            if (text[i].isEmpty()) {
+    private int parseText(String string, int offset, String[] options, int field) {
+        // We search for the longest match, in case some entries are substrings of others.
+        int bestIndex = -1;
+        int bestLength = -1;
+        for (int i = 0; i < options.length; ++i) {
+            String option = options[i];
+            int optionLength = option.length();
+            if (optionLength == 0) {
                 continue;
             }
-            if (string.regionMatches(true, offset, text[i], 0, text[i].length())) {
-                // Search for the longest match, in case some fields are subsets
-                if (found == -1 || text[i].length() > text[found].length()) {
-                    found = i;
+            if (string.regionMatches(true, offset, option, 0, optionLength)) {
+                if (bestIndex == -1 || optionLength > bestLength) {
+                    bestIndex = i;
+                    bestLength = optionLength;
+                }
+            } else if (option.charAt(optionLength - 1) == '.') {
+                // If CLDR has abbreviated forms like "Aug.", we should accept "Aug" too.
+                // https://code.google.com/p/android/issues/detail?id=59383
+                if (string.regionMatches(true, offset, option, 0, optionLength - 1)) {
+                    if (bestIndex == -1 || optionLength - 1 > bestLength) {
+                        bestIndex = i;
+                        bestLength = optionLength - 1;
+                    }
                 }
             }
         }
-        if (found != -1) {
-            calendar.set(field, found);
-            return offset + text[found].length();
+        if (bestIndex != -1) {
+            calendar.set(field, bestIndex);
+            return offset + bestLength;
         }
         return -offset - 1;
     }
