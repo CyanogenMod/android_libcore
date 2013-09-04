@@ -17,6 +17,7 @@
 #ifndef ICU_UTILITIES_H_included
 #define ICU_UTILITIES_H_included
 
+#undef U_HAVE_STD_STRING
 #define U_HAVE_STD_STRING 1 // For UnicodeString::toUTF8String(std::string&).
 
 #include "jni.h"
