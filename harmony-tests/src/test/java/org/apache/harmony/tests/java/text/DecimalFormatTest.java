@@ -54,10 +54,6 @@ public class DecimalFormatTest extends TestCase {
         assertFalse("attributes should exist", iterator.getAttributes().isEmpty());
     }
 
-    /*
-     * Test the getter and setter of parseBigDecimal and parseIntegerOnly and
-     * test the default value of them.
-     */
     public void test_isParseBigDecimalLjava_lang_Boolean_isParseIntegerOnlyLjava_lang_Boolean() {
 
         // parseBigDecimal default to false
@@ -730,9 +726,6 @@ public class DecimalFormatTest extends TestCase {
         assertFalse(format.isGroupingUsed());
     }
 
-    /**
-     * @tests java.text.DecimalFormat#DecimalFormat(java.lang.String)
-     */
     public void test_ConstructorLjava_lang_String() {
         // Test for method java.text.DecimalFormat(java.lang.String)
         // the constructor form that specifies a pattern is equal to the form
@@ -745,9 +738,6 @@ public class DecimalFormatTest extends TestCase {
                 format.equals(format1));
     }
 
-    /**
-     * @tests java.text.DecimalFormat#applyPattern(java.lang.String)
-     */
     public void test_applyPatternLjava_lang_String() {
         DecimalFormat format = new DecimalFormat("#.#");
         assertEquals("Wrong pattern 1", "#0.#", format.toPattern());
@@ -769,9 +759,6 @@ public class DecimalFormatTest extends TestCase {
 
     }
 
-    /**
-     * @tests java.text.DecimalFormat#clone()
-     */
     public void test_clone() {
         DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance(Locale.US);
         DecimalFormat cloned = (DecimalFormat) format.clone();
@@ -1054,10 +1041,6 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("0.#E0: 9999", "1E4", df.format(9999));
     }
 
-    /**
-     * @tests java.text.DecimalFormat#formatToCharacterIterator(java.lang.Object)
-     */
-    //FIXME This test fails on Harmony ClassLibrary
     public void test_formatToCharacterIteratorLjava_lang_Object() {
 
         try {
@@ -1163,9 +1146,6 @@ public class DecimalFormatTest extends TestCase {
         // currF);
     }
 
-    /**
-     * @tests java.text.DecimalFormat#getGroupingSize()
-     */
     public void test_getGroupingSize() {
         DecimalFormat df = new DecimalFormat("###0.##");
         assertEquals("Wrong unset size", 0, df.getGroupingSize());
@@ -1175,9 +1155,6 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("Wrong multiple set size", 4, df.getGroupingSize());
     }
 
-    /**
-     * @tests java.text.DecimalFormat#getMultiplier()
-     */
     public void test_getMultiplier() {
         final int defaultMultiplier = 1;
         NumberFormat nform = DecimalFormat.getInstance(Locale.US);
@@ -1192,9 +1169,6 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("Wrong mille multiplier", 1000, df.getMultiplier());
     }
 
-    /**
-     * @tests java.text.DecimalFormat#isDecimalSeparatorAlwaysShown()
-     */
     public void test_isDecimalSeparatorAlwaysShown() {
         DecimalFormat df = new DecimalFormat("###0.##");
         assertTrue("Wrong unset value", !df.isDecimalSeparatorAlwaysShown());
@@ -1291,9 +1265,6 @@ public class DecimalFormatTest extends TestCase {
       assertEquals("Wrong result for multiplier 10000: " + result, 922337203685477.5807d, result.doubleValue());
     }
 
-    /**
-     * @tests java.text.DecimalFormat#setDecimalFormatSymbols(java.text.DecimalFormatSymbols)
-     */
     public void test_setDecimalFormatSymbolsLjava_text_DecimalFormatSymbols() {
         DecimalFormat df = new DecimalFormat("###0.##");
         DecimalFormatSymbols dfs = new DecimalFormatSymbols();
@@ -1312,9 +1283,6 @@ public class DecimalFormatTest extends TestCase {
         assertNotSame(symbols, symbolsOut);
     }
 
-    /**
-     * @tests java.text.DecimalFormat#setDecimalSeparatorAlwaysShown(boolean)
-     */
     public void test_setDecimalSeparatorAlwaysShownZ() {
         DecimalFormat df = new DecimalFormat("###0.##",
                                              new DecimalFormatSymbols(Locale.US));
@@ -1324,9 +1292,6 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("Wrong set result", "7.", df.format(7));
     }
 
-    /**
-     * @tests java.text.DecimalFormat#setCurrency(java.util.Currency)
-     */
     public void test_setCurrencyLjava_util_Currency() {
         Locale locale = Locale.CANADA;
         DecimalFormat df = ((DecimalFormat) NumberFormat
@@ -1350,9 +1315,6 @@ public class DecimalFormatTest extends TestCase {
                                 .getInternationalCurrencySymbol()));
     }
 
-    /**
-     * @tests java.text.DecimalFormat#setGroupingSize(int)
-     */
     public void test_setGroupingSizeI() {
         DecimalFormat df = new DecimalFormat("###0.##",
                 new DecimalFormatSymbols(Locale.ENGLISH));
@@ -1363,9 +1325,6 @@ public class DecimalFormatTest extends TestCase {
         assertTrue("Invalid format:" + result, result.equals("1,23"));
     }
 
-    /**
-     * @tests java.text.DecimalFormat#setMaximumFractionDigits(int)
-     */
     public void test_setMaximumFractionDigitsI() {
         DecimalFormat df = new DecimalFormat("###0.##",
                                              new DecimalFormatSymbols(Locale.US));
@@ -1377,9 +1336,6 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("Incorrect fraction", "456.0000", df.format(456));
     }
 
-    /**
-     * @tests java.text.DecimalFormat#setMaximumIntegerDigits(int)
-     */
     public void test_setMaximumIntegerDigitsI() {
         DecimalFormat df = new DecimalFormat("###0.##");
         df.setMaximumIntegerDigits(2);
@@ -1390,9 +1346,6 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("Incorrect integer", "0026", df.format(26));
     }
 
-    /**
-     * @tests java.text.DecimalFormat#setMinimumFractionDigits(int)
-     */
     public void test_setMinimumFractionDigitsI() {
         DecimalFormat df = new DecimalFormat("###0.##",
                                              new DecimalFormatSymbols(Locale.US));
@@ -1404,9 +1357,6 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("Incorrect fraction", "456.00", df.format(456));
     }
 
-    /**
-     * @tests java.text.DecimalFormat#setMinimumIntegerDigits(int)
-     */
     public void test_setMinimumIntegerDigitsI() {
         DecimalFormat df = new DecimalFormat("###0.##",
                                              new DecimalFormatSymbols(Locale.US));
@@ -1489,9 +1439,6 @@ public class DecimalFormatTest extends TestCase {
 
     }
 
-    /**
-     * Test whether DecimalFormat can parse Positive infinity correctly
-     */
     public void testParseInfinityBigDecimalFalse() {
         // Regression test for HARMONY-106
         DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance();
@@ -1502,9 +1449,6 @@ public class DecimalFormatTest extends TestCase {
         assertTrue(Double.isInfinite(number.doubleValue()));
     }
 
-    /**
-     * Test whether DecimalFormat can parse Negative infinity correctly
-     */
     public void testParseMinusInfinityBigDecimalFalse() {
         // Regression test for HARMONY-106
         DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance();
@@ -1515,19 +1459,12 @@ public class DecimalFormatTest extends TestCase {
         assertTrue(Double.isInfinite(number.doubleValue()));
     }
 
-    /**
-     * Test if setDecimalFormatSymbols method wont throw NullPointerException
-     * when it is called with null parameter.
-     */
     public void testSetDecimalFormatSymbolsAsNull(){
 	// Regression for HARMONY-1070
         DecimalFormat format = (DecimalFormat)DecimalFormat.getInstance();
         format.setDecimalFormatSymbols(null);
     }
 
-    /**
-	 * @tests java.text.DecimalFormat#formatToCharacterIterator(java.lang.Object)
-	 */
 	public void test_formatToCharacterIteratorLjava_lang_Object__ArithmeticException() {
 		DecimalFormat decimalFormat = (DecimalFormat) DecimalFormat
 				.getInstance(Locale.US);
@@ -1542,10 +1479,6 @@ public class DecimalFormatTest extends TestCase {
 		}
 	}
 
-	/**
-	 * @tests java.text.DecimalFormat#format(double, java.lang.StringBuffer,
-	 *        java.text.FieldPosition)
-	 */
 	public void test_formatDLjava_lang_StringBufferLjava_text_FieldPosition_ArithmeticException() {
 		DecimalFormat decimalFormat = (DecimalFormat) DecimalFormat
 				.getInstance(Locale.US);
@@ -1562,10 +1495,6 @@ public class DecimalFormatTest extends TestCase {
 		}
 	}
 
-	/**
-	 * @tests java.text.DecimalFormat#format(long, java.lang.StringBuffer,
-	 *        java.text.FieldPosition)
-	 */
 	public void test_formatJLjava_lang_StringBufferLjava_text_FieldPosition_ArithmeticException() {
 
 		final DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
@@ -1582,9 +1511,6 @@ public class DecimalFormatTest extends TestCase {
 		}
 	}
 
-	/**
-	 * @tests java.text.DecimalFormat#getRoundingMode()
-	 */
 	public void test_GetRoundingMode() {
 
 		// get the default RoundingMode of this DecimalFormat
@@ -1601,9 +1527,6 @@ public class DecimalFormatTest extends TestCase {
 
 	}
 
-	/**
-	 * @tests java.text.DecimalFormat#setRoundingMode(java.math.RoundingMode)
-	 */
 	public void test_SetRoundingMode_Ljava_math_RoundingMode() {
 		DecimalFormat decimalFormat = (DecimalFormat) DecimalFormat
 				.getInstance(Locale.US);
