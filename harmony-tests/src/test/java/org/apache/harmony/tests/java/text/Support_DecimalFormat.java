@@ -161,8 +161,6 @@ public class Support_DecimalFormat extends Support_Format {
 
   private static Vector<FieldContainer> getNegativeCurrencyVectorTR() {
     Vector<FieldContainer> v = new Vector<FieldContainer>();
-    // TODO: it's an icu4c bug that we don't have the SIGN field.
-    //v.add(new FieldContainer(0, 1, NumberFormat.Field.SIGN));
     v.add(new FieldContainer(1, 4, NumberFormat.Field.INTEGER));
     v.add(new FieldContainer(4, 5, NumberFormat.Field.DECIMAL_SEPARATOR));
     v.add(new FieldContainer(5, 7, NumberFormat.Field.FRACTION));

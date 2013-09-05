@@ -54,22 +54,39 @@ public class DecimalFormatTest extends TestCase {
         assertFalse("attributes should exist", iterator.getAttributes().isEmpty());
     }
 
-    public void test_isParseBigDecimalLjava_lang_Boolean_isParseIntegerOnlyLjava_lang_Boolean() {
+    public void test_isParseBigDecimalLjava_lang_Boolean_isParseIntegerOnlyLjava_lang_Boolean() throws Exception {
+      // parseBigDecimal default to false
+      DecimalFormat form = (DecimalFormat) DecimalFormat.getInstance(Locale.US);
+      assertFalse(form.isParseBigDecimal());
+      form.setParseBigDecimal(true);
+      assertTrue(form.isParseBigDecimal());
 
-        // parseBigDecimal default to false
-        DecimalFormat form = (DecimalFormat) DecimalFormat.getInstance(Locale.US);
-        assertFalse(form.isParseBigDecimal());
-        form.setParseBigDecimal(true);
-        assertTrue(form.isParseBigDecimal());
-        form.setParseBigDecimal(false);
-        assertFalse(form.isParseBigDecimal());
+      Number result = form.parse("123.123");
+      assertEquals(new BigDecimal("123.123"), result);
 
-        // parseIntegerOnly default to false
-        assertFalse(form.isParseIntegerOnly());
+      form.setParseBigDecimal(false);
+      assertFalse(form.isParseBigDecimal());
+
+      result = form.parse("123.123");
+      assertFalse(result instanceof BigDecimal);
+    }
+
+    public void test_isParseIntegerOnly() throws Exception {
+      DecimalFormat format = new DecimalFormat();
+      assertFalse("Default value of isParseIntegerOnly is true", format.isParseIntegerOnly());
+
+      format.setParseIntegerOnly(true);
+      assertTrue(format.isParseIntegerOnly());
+      Number result = format.parse("123.123");
+      assertEquals(new Long("123"), result);
+
+      format.setParseIntegerOnly(false);
+      assertFalse(format.isParseIntegerOnly());
+      result = format.parse("123.123");
+      assertEquals(new Double("123.123"), result);
     }
 
     // Test the type of the returned object
-
     public void test_parseLjava_lang_String_Ljava_text_ParsePosition() {
         DecimalFormat form = (DecimalFormat) DecimalFormat.getInstance(Locale.US);
         Number number = form.parse("23.1", new ParsePosition(0));
@@ -339,6 +356,24 @@ public class DecimalFormatTest extends TestCase {
         } catch (NullPointerException e) {
             fail("Should not throw NPE");
         }
+    }
+
+    public void test_parseLjava_lang_String_Ljava_text_ParsePosition_2() {
+      DecimalFormat form = (DecimalFormat) DecimalFormat.getInstance(Locale.US);
+      form.setParseIntegerOnly(true);
+      form.setParseBigDecimal(true);
+
+      final String doubleMax2 = "359,538,626,972,463,141,629,054,847,463,408,"
+          + "713,596,141,135,051,689,993,197,834,953,606,314,521,560,057,077,"
+          + "521,179,117,265,533,756,343,080,917,907,028,764,928,468,642,653,"
+          + "778,928,365,536,935,093,407,075,033,972,099,821,153,102,564,152,"
+          + "490,980,180,778,657,888,151,737,016,910,267,884,609,166,473,806,"
+          + "445,896,331,617,118,664,246,696,549,595,652,408,289,446,337,476,"
+          + "354,361,838,599,762,500,808,052,368,249,716,736";
+          Number number = form.parse(doubleMax2, new ParsePosition(0));
+      assertTrue(number instanceof BigDecimal);
+      BigDecimal result = (BigDecimal)number;
+      assertEquals(new BigDecimal(Double.MAX_VALUE).add(new BigDecimal(Double.MAX_VALUE)), result);
     }
 
     public void test_getMaximumFractionDigits() {
@@ -697,33 +732,134 @@ public class DecimalFormatTest extends TestCase {
         assertEquals(format, cloned);
     }
 
-    public void test_setPositivePrefixLjava_lang_String() {
-        DecimalFormat format = new DecimalFormat();
-        assertEquals("", format.getPositivePrefix());
+    public void test_getNegativePrefix() {
+      DecimalFormat df = new DecimalFormat();
+      df.setNegativePrefix("--");
+      assertTrue("Incorrect negative prefix", df.getNegativePrefix().equals("--"));
     }
 
-    public void test_setPositiveSuffixLjava_lang_String() {
-        DecimalFormat format = new DecimalFormat();
-        assertEquals("", format.getPositiveSuffix());
+    public void test_getNegativeSuffix() {
+      DecimalFormat df = new DecimalFormat();
+      df.setNegativeSuffix("&");
+      assertTrue("Incorrect negative suffix", df.getNegativeSuffix().equals("&"));
     }
 
-    public void test_setNegativePrefixLjava_lang_String() {
-        DecimalFormat format = new DecimalFormat();
-        assertEquals("-", format.getNegativePrefix());
+    public void test_getPositivePrefix() {
+      DecimalFormat df = new DecimalFormat();
+      df.setPositivePrefix("++");
+      assertTrue("Incorrect positive prefix", df.getPositivePrefix().equals("++"));
     }
 
-    public void test_setNegativeSuffixLjava_lang_String() {
-        DecimalFormat format = new DecimalFormat();
-        assertEquals("", format.getNegativeSuffix());
+    public void test_getPositiveSuffix() {
+      DecimalFormat df = new DecimalFormat();
+      df.setPositiveSuffix("%");
+      assertTrue("Incorrect positive prefix", df.getPositiveSuffix().equals("%"));
+    }
+
+    public void test_setPositivePrefixLjava_lang_String() throws Exception {
+      DecimalFormat format = new DecimalFormat();
+      assertEquals("", format.getPositivePrefix());
+
+      format.setPositivePrefix("PosPrf");
+      assertEquals("PosPrf", format.getPositivePrefix());
+      assertTrue(format.parse("PosPrf123.45").doubleValue() == 123.45);
+
+      format.setPositivePrefix("");
+      assertEquals("", format.getPositivePrefix());
+
+      format.setPositivePrefix(null);
+      assertNull(format.getPositivePrefix());
+    }
+
+    public void test_setPositiveSuffixLjava_lang_String() throws Exception {
+      DecimalFormat format = new DecimalFormat();
+      assertEquals("", format.getPositiveSuffix());
+
+      format.setPositiveSuffix("PosSfx");
+      assertEquals("PosSfx", format.getPositiveSuffix());
+      assertTrue(format.parse("123.45PosSfx").doubleValue() == 123.45);
+
+      format.setPositiveSuffix("");
+      assertEquals("", format.getPositiveSuffix());
+
+      format.setPositiveSuffix(null);
+      assertNull(format.getPositiveSuffix());
+    }
+
+    public void test_setNegativePrefixLjava_lang_String() throws Exception {
+      DecimalFormat format = new DecimalFormat();
+      assertEquals("-", format.getNegativePrefix());
+
+      format.setNegativePrefix("NegPrf");
+      assertEquals("NegPrf", format.getNegativePrefix());
+      assertTrue(format.parse("NegPrf123.45").doubleValue() == -123.45);
+      format.setNegativePrefix("");
+      assertEquals("", format.getNegativePrefix());
+
+      format.setNegativePrefix(null);
+      assertNull(format.getNegativePrefix());
+    }
+
+    public void test_setNegativeSuffixLjava_lang_String() throws Exception {
+      DecimalFormat format = new DecimalFormat();
+      assertEquals("", format.getNegativeSuffix());
+
+      format.setNegativeSuffix("NegSfx");
+      assertEquals("NegSfx", format.getNegativeSuffix());
+      assertTrue(format.parse("123.45NegPfx").doubleValue() == 123.45);
+
+      format.setNegativeSuffix("");
+      assertEquals("", format.getNegativeSuffix());
+
+      format.setNegativeSuffix(null);
+      assertNull(format.getNegativeSuffix());
     }
 
     public void test_setGroupingUse() {
-        DecimalFormat format = new DecimalFormat();
-        StringBuffer buf = new StringBuffer();
-        format.setGroupingUsed(false);
-        format.format(new Long(1970), buf, new FieldPosition(0));
-        assertEquals("1970", buf.toString());
-        assertFalse(format.isGroupingUsed());
+      DecimalFormat format = new DecimalFormat();
+
+      StringBuffer buf = new StringBuffer();
+      format.setGroupingUsed(false);
+      format.format(new Long(1970), buf, new FieldPosition(0));
+      assertEquals("1970", buf.toString());
+      assertFalse(format.isGroupingUsed());
+      format.format(new Long(1970), buf, new FieldPosition(0));
+      assertEquals("19701970", buf.toString());
+      assertFalse(format.isGroupingUsed());
+
+      format.setGroupingUsed(true);
+      format.format(new Long(1970), buf, new FieldPosition(0));
+      assertEquals("197019701,970", buf.toString());
+      assertTrue(format.isGroupingUsed());
+    }
+
+    public void test_isGroupingUsed() {
+      assertFalse(new DecimalFormat("####.##").isGroupingUsed());
+      assertFalse(new DecimalFormat("######.######").isGroupingUsed());
+      assertFalse(new DecimalFormat("000000.000000").isGroupingUsed());
+      assertFalse(new DecimalFormat("######.000000").isGroupingUsed());
+      assertFalse(new DecimalFormat("000000.######").isGroupingUsed());
+      assertFalse(new DecimalFormat(" ###.###").isGroupingUsed());
+      assertFalse(new DecimalFormat("$#####.######").isGroupingUsed());
+      assertFalse(new DecimalFormat("$$####.######").isGroupingUsed());
+
+      assertTrue(new DecimalFormat("###,####").isGroupingUsed());
+    }
+
+    public void test_Constructor() {
+      // Test for method java.text.DecimalFormat()
+      // the constructor form that specifies a pattern is equal to the form
+      // constructed with no pattern and applying that pattern using the
+      // applyPattern call
+      DecimalFormat format1 = new DecimalFormat();
+      format1.applyPattern("'$'1000.0000");
+      DecimalFormat format2 = new DecimalFormat();
+      format2.applyPattern("'$'1000.0000");
+      assertTrue("Constructed format did not match applied format object", format2.equals(format1));
+      DecimalFormat format3 = new DecimalFormat("'$'1000.0000");
+      assertTrue("Constructed format did not match applied format object", format3.equals(format1));
+      DecimalFormat format4 = new DecimalFormat("'$'8000.0000");
+      assertTrue("Constructed format did not match applied format object", !format4.equals(format1));
     }
 
     public void test_ConstructorLjava_lang_String() {
@@ -734,8 +870,73 @@ public class DecimalFormatTest extends TestCase {
         DecimalFormat format = new DecimalFormat("'$'0000.0000");
         DecimalFormat format1 = new DecimalFormat();
         format1.applyPattern("'$'0000.0000");
-        assertTrue("Constructed format did not match applied format object",
-                format.equals(format1));
+        assertTrue("Constructed format did not match applied format object", format.equals(format1));
+
+        new DecimalFormat("####.##");
+        new DecimalFormat("######.######");
+        new DecimalFormat("000000.000000");
+        new DecimalFormat("######.000000");
+        new DecimalFormat("000000.######");
+        new DecimalFormat(" ###.###");
+        new DecimalFormat("$#####.######");
+        new DecimalFormat("$$####.######");
+        new DecimalFormat("%#,##,###,####");
+        new DecimalFormat("#,##0.00;(#,##0.00)");
+
+        try {
+            new DecimalFormat(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            new DecimalFormat("%#,##,###,####'");
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+
+        try {
+            new DecimalFormat("#.##0.00");
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    public void test_ConstructorLjava_lang_StringLjava_text_DecimalFormatSymbols() {
+      // case 1: Try to construct object using correct pattern and format
+      // symbols.
+      DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.CANADA);
+      DecimalFormat format1 = new DecimalFormat("'$'1000.0000", dfs);
+      DecimalFormat format2 = new DecimalFormat();
+      format2.applyPattern("'$'1000.0000");
+      format2.setDecimalFormatSymbols(dfs);
+      assertTrue("Constructed format did not match applied format object", format2.equals(format1));
+      assertTrue("Constructed format did not match applied format object",
+          !format1.equals(new DecimalFormat("'$'1000.0000", new DecimalFormatSymbols(Locale.CHINA))));
+
+      // case 2: Try to construct object using null arguments.
+      try {
+        new DecimalFormat("'$'1000.0000", (DecimalFormatSymbols) null);
+        fail();
+      } catch (NullPointerException expected) {
+      }
+      try {
+        new DecimalFormat(null, new DecimalFormatSymbols());
+        fail();
+      } catch (NullPointerException expected) {
+      }
+      try {
+        new DecimalFormat(null, (DecimalFormatSymbols) null);
+        fail();
+      } catch (NullPointerException expected) {
+      }
+
+      // case 3: Try to construct object using incorrect pattern.
+      try {
+        new DecimalFormat("$'", new DecimalFormatSymbols());
+        fail();
+      } catch (IllegalArgumentException expected) {
+      }
     }
 
     public void test_applyPatternLjava_lang_String() {
@@ -747,6 +948,7 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("Wrong pattern 3", "#", format.toPattern());
         format = new DecimalFormat(".#");
         assertEquals("Wrong pattern 4", "#.0", format.toPattern());
+
         // Regression for HARMONY-6485
         format = new DecimalFormat();
         format.setMinimumIntegerDigits(0);
@@ -757,13 +959,116 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("Minimum fraction digits not set", 1, format.getMinimumFractionDigits());
         assertEquals("Maximum fraction digits not set", 2, format.getMaximumFractionDigits());
 
+        try {
+            format.applyPattern(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            format.applyPattern("%#,##,###,####'");
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+
+        try {
+            format.applyPattern("#.##0.00");
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    // AndroidOnly: icu supports 2 grouping sizes
+    public void test_applyPatternLjava_lang_String2() {
+        DecimalFormat decFormat = new DecimalFormat("#.#");
+        String[] patterns = {
+            "####.##", "######.######", "000000.000000",
+            "######.000000", "000000.######", " ###.###", "$#####.######",
+            "$$####.######", "%#,##,###,####", "#,##0.00;(#,##0.00)",
+            "##.##-E"
+        };
+
+        String[] expResult = {
+            "#0.##", "#0.######", "#000000.000000",
+            "#.000000", "#000000.######", " #0.###", "$#0.######",
+            "$$#0.######",
+            "%#,###,####", // icu only. icu supports two grouping sizes
+            "#,##0.00;(#,##0.00)",
+            "#0.##-'E'" // icu only. E in the suffix does not need to be quoted. This is done automatically.
+        };
+
+        for (int i = 0; i < patterns.length; i++) {
+            decFormat.applyPattern(patterns[i]);
+            String result = decFormat.toPattern();
+            assertEquals("Failed to apply following pattern: " + patterns[i] +
+                         "\n expected: " + expResult[i] +
+                         "\n returned: " + result, expResult[i], result);
+        }
+    }
+
+    public void test_applyLocalizedPatternLjava_lang_String() throws Exception {
+        DecimalFormat format = new DecimalFormat();
+
+        // case 1: Try to apply correct variants of pattern.
+        format.applyLocalizedPattern("#.#");
+        assertEquals("Wrong pattern 1", "#0.#", format.toLocalizedPattern());
+        format.applyLocalizedPattern("#.");
+        assertEquals("Wrong pattern 2", "#0.", format.toLocalizedPattern());
+        format.applyLocalizedPattern("#");
+        assertEquals("Wrong pattern 3", "#", format.toLocalizedPattern());
+        format.applyLocalizedPattern(".#");
+        assertEquals("Wrong pattern 4", "#.0", format.toLocalizedPattern());
+
+        // case 2: Try to apply malformed patten.
+        try {
+            format.applyLocalizedPattern("'#,#:#0.0#;(#)");
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+
+        // case 3: Try to apply null pattern.
+        try {
+            format.applyLocalizedPattern((String) null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    public void test_toPattern() {
+      DecimalFormat format = new DecimalFormat();
+      format.applyPattern("#.#");
+      assertEquals("Wrong pattern 1", "#0.#", format.toPattern());
+      format.applyPattern("#.");
+      assertEquals("Wrong pattern 2", "#0.", format.toPattern());
+      format.applyPattern("#");
+      assertEquals("Wrong pattern 3", "#", format.toPattern());
+      format.applyPattern(".#");
+      assertEquals("Wrong pattern 4", "#.0", format.toPattern());
+    }
+
+    public void test_toLocalizedPattern() {
+      DecimalFormat format = new DecimalFormat();
+      format.setDecimalFormatSymbols(new DecimalFormatSymbols(Locale.US));
+      format.applyLocalizedPattern("#.#");
+      assertEquals("Wrong pattern 1", "#0.#", format.toLocalizedPattern());
+      format.applyLocalizedPattern("#.");
+      assertEquals("Wrong pattern 2", "#0.", format.toLocalizedPattern());
+      format.applyLocalizedPattern("#");
+      assertEquals("Wrong pattern 3", "#", format.toLocalizedPattern());
+      format.applyLocalizedPattern(".#");
+      assertEquals("Wrong pattern 4", "#.0", format.toLocalizedPattern());
+    }
+
+    public void test_hashCode() {
+        DecimalFormat df1 = new DecimalFormat();
+        DecimalFormat df2 = (DecimalFormat) df1.clone();
+        assertTrue("Hash codes of equals object are not equal", df2.hashCode() == df1.hashCode());
     }
 
     public void test_clone() {
         DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance(Locale.US);
         DecimalFormat cloned = (DecimalFormat) format.clone();
-        assertEquals(cloned.getDecimalFormatSymbols(), format
-                .getDecimalFormatSymbols());
+        assertEquals(cloned.getDecimalFormatSymbols(), format.getDecimalFormatSymbols());
 
         format = new DecimalFormat("'$'0000.0000");
         DecimalFormat format1 = (DecimalFormat) (format.clone());
@@ -772,8 +1077,7 @@ public class DecimalFormatTest extends TestCase {
         // change the content of the clone and make sure it's not equal anymore
         // verifies that it's data is now distinct from the original
         format1.applyPattern("'$'0000.####");
-        assertTrue("Object's changed clone should not be equal!", !format
-                .equals(format1));
+        assertTrue("Object's changed clone should not be equal!", !format.equals(format1));
     }
 
     private void compare(String testName, String format, String expected) {
@@ -1100,6 +1404,28 @@ public class DecimalFormatTest extends TestCase {
       assertEquals("99.99999999999999", format.format(99.99999999999999));
       assertEquals("9.999999999999998", format.format(9.999999999999999));
       assertEquals("0.9999999999999999", format.format(.9999999999999999));
+    }
+
+    public void test_formatD_3() {
+      DecimalFormat format = (DecimalFormat) NumberFormat.getInstance(Locale.ENGLISH);
+      format.setGroupingUsed(false);
+      format.setMaximumFractionDigits(400);
+
+      assertEquals("123456789012345", format.format(123456789012345.));
+      assertEquals("1", "12345678901234.5", format.format(12345678901234.5));
+      assertEquals("2", "1234567890123.25", format.format(1234567890123.25));
+      assertEquals("3", "999999999999.375", format.format(999999999999.375));
+      assertEquals("4", "99999999999.0625", format.format(99999999999.0625));
+      assertEquals("5", "9999999999.03125", format.format(9999999999.03125));
+      assertEquals("6", "999999999.015625", format.format(999999999.015625));
+      assertEquals("7", "99999999.0078125", format.format(99999999.0078125));
+      assertEquals("8", "9999999.00390625", format.format(9999999.00390625));
+      assertEquals("9", "999999.001953125", format.format(999999.001953125));
+      assertEquals("10", "9999.00048828125", format.format(9999.00048828125));
+      assertEquals("11", "999.000244140625", format.format(999.000244140625));
+      assertEquals("12", "99.0001220703125", format.format(99.0001220703125));
+      assertEquals("13", "9.00006103515625", format.format(9.00006103515625));
+      assertEquals("14", "0.000030517578125", format.format(0.000030517578125));
     }
 
     public void test_getDecimalFormatSymbols() {
@@ -1460,9 +1786,107 @@ public class DecimalFormatTest extends TestCase {
     }
 
     public void testSetDecimalFormatSymbolsAsNull(){
-	// Regression for HARMONY-1070
+        // Regression for HARMONY-1070
         DecimalFormat format = (DecimalFormat)DecimalFormat.getInstance();
         format.setDecimalFormatSymbols(null);
+    }
+
+    public void test_formatToCharacterIterator() throws Exception {
+      AttributedCharacterIterator iterator;
+      int[] runStarts;
+      int[] runLimits;
+      String result;
+      char current;
+
+      // BigInteger.
+      iterator = new DecimalFormat().formatToCharacterIterator(new BigInteger("123456789"));
+      runStarts = new int[] {0, 0, 0, 3, 4, 4, 4, 7, 8, 8, 8};
+      runLimits = new int[] {3, 3, 3, 4, 7, 7, 7, 8, 11, 11, 11};
+      result = "123,456,789";
+      current = iterator.current();
+      for (int i = 0; i < runStarts.length; i++) {
+        assertEquals("wrong start @" + i, runStarts[i], iterator.getRunStart());
+        assertEquals("wrong limit @" + i, runLimits[i], iterator.getRunLimit());
+        assertEquals("wrong char @" + i, result.charAt(i), current);
+        current = iterator.next();
+      }
+      assertEquals(0, iterator.getBeginIndex());
+      assertEquals(11, iterator.getEndIndex());
+
+      // For BigDecimal with multiplier test.
+      DecimalFormat df = new DecimalFormat();
+      df.setMultiplier(10);
+      iterator = df.formatToCharacterIterator(new BigDecimal("12345678901234567890"));
+      result = "123,456,789,012,345,678,900";
+      current = iterator.current();
+      for (int i = 0; i < result.length(); i++) {
+        assertEquals("wrong char @" + i, result.charAt(i), current);
+        current = iterator.next();
+      }
+
+      // For BigDecimal with multiplier test.
+      df = new DecimalFormat();
+      df.setMultiplier(-1);
+      df.setMaximumFractionDigits(20);
+      iterator = df.formatToCharacterIterator(new BigDecimal("1.23456789012345678901"));
+      result = "-1.23456789012345678901";
+      current = iterator.current();
+      for (int i = 0; i < result.length(); i++) {
+        assertEquals("wrong char @" + i, result.charAt(i), current);
+        current = iterator.next();
+      }
+
+      iterator = new DecimalFormat().formatToCharacterIterator(new BigDecimal("1.23456789E301"));
+      runStarts = new int[] {0, 0, 2, 3, 3, 3, 6, 7, 7, 7, 10, 11, 11, 11, 14};
+      runLimits = new int[] {2, 2, 3, 6, 6, 6, 7, 10, 10, 10, 11, 14, 14, 14, 15};
+      result = "12,345,678,900,"; // 000,000,000,000....
+      current = iterator.current();
+      for (int i = 0; i < runStarts.length; i++) {
+        assertEquals("wrong start @" + i, runStarts[i], iterator.getRunStart());
+        assertEquals("wrong limit @" + i, runLimits[i], iterator.getRunLimit());
+        assertEquals("wrong char @" + i, result.charAt(i), current);
+        current = iterator.next();
+      }
+      assertEquals(0, iterator.getBeginIndex());
+      assertEquals(402, iterator.getEndIndex());
+
+      iterator = new DecimalFormat().formatToCharacterIterator(new BigDecimal("1.2345678E4"));
+      runStarts = new int[] {0, 0, 2, 3, 3, 3, 6, 7, 7, 7};
+      runLimits = new int[] {2, 2, 3, 6, 6, 6, 7, 10, 10, 10};
+      result = "12,345.678";
+      current = iterator.current();
+      for (int i = 0; i < runStarts.length; i++) {
+        assertEquals("wrong start @" + i, runStarts[i], iterator.getRunStart());
+        assertEquals("wrong limit @" + i, runLimits[i], iterator.getRunLimit());
+        assertEquals("wrong char @" + i, result.charAt(i), current);
+        current = iterator.next();
+      }
+      assertEquals(0, iterator.getBeginIndex());
+      assertEquals(10, iterator.getEndIndex());
+    }
+
+    public void test_formatToCharacterIterator_very_large() throws Exception {
+      AttributedCharacterIterator iterator;
+      int[] runStarts;
+      int[] runLimits;
+      String result;
+      char current;
+
+      Number number = new BigDecimal("1.23456789E1234");
+      assertEquals("1.23456789E+1234", number.toString());
+      iterator = new DecimalFormat().formatToCharacterIterator(number);
+      runStarts = new int[] {0, 0, 2, 3, 3, 3, 6, 7, 7, 7, 10, 11, 11, 11, 14};
+      runLimits = new int[] {2, 2, 3, 6, 6, 6, 7, 10, 10, 10, 11, 14, 14, 14, 15};
+      result = "12,345,678,900,"; // 000,000,000,000....
+      current = iterator.current();
+      for (int i = 0; i < runStarts.length; i++) {
+        assertEquals("wrong start @" + i, runStarts[i], iterator.getRunStart());
+        assertEquals("wrong limit @" + i, runLimits[i], iterator.getRunLimit());
+        assertEquals("wrong char @" + i, result.charAt(i), current);
+        current = iterator.next();
+      }
+      assertEquals(0, iterator.getBeginIndex());
+      assertEquals(1646, iterator.getEndIndex());
     }
 
 	public void test_formatToCharacterIteratorLjava_lang_Object__ArithmeticException() {
