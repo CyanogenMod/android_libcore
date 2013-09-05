@@ -16,25 +16,28 @@
 
 #define LOG_TAG "NativeDecimalFormat"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include <vector>
+
+#include "cutils/log.h"
+#include "digitlst.h"
 #include "IcuUtilities.h"
-#include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
+#include "JNIHelp.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedStringChars.h"
 #include "ScopedUtfChars.h"
-#include "UniquePtr.h"
-#include "cutils/log.h"
-#include "digitlst.h"
 #include "unicode/decimfmt.h"
 #include "unicode/fmtable.h"
 #include "unicode/numfmt.h"
 #include "unicode/unum.h"
 #include "unicode/ustring.h"
+#include "UniquePtr.h"
 #include "valueOf.h"
-#include <stdlib.h>
-#include <string.h>
 
 static DecimalFormat* toDecimalFormat(jlong addr) {
     return reinterpret_cast<DecimalFormat*>(static_cast<uintptr_t>(addr));
@@ -216,59 +219,69 @@ static jstring NativeDecimalFormat_toPatternImpl(JNIEnv* env, jclass, jlong addr
     return env->NewString(pattern.getBuffer(), pattern.length());
 }
 
-static jcharArray formatResult(JNIEnv* env, const UnicodeString& str, FieldPositionIterator* fpi, jobject fpIter) {
+static jcharArray formatResult(JNIEnv* env, const UnicodeString& s, FieldPositionIterator* fpi, jobject javaFieldPositionIterator) {
     static jmethodID gFPI_setData = env->GetMethodID(JniConstants::fieldPositionIteratorClass, "setData", "([I)V");
 
     if (fpi != NULL) {
-        int length = fpi->getData(NULL, 0);
-        jintArray data = NULL;
-        if (length > 0) {
-            data = env->NewIntArray(length);
-            if (data == NULL) {
+        std::vector<int32_t> data;
+        FieldPosition fp;
+        while (fpi->next(fp)) {
+            data.push_back(fp.getField());
+            data.push_back(fp.getBeginIndex());
+            data.push_back(fp.getEndIndex());
+        }
+
+        jintArray javaData = NULL;
+        if (!data.empty()) {
+            javaData = env->NewIntArray(data.size());
+            if (javaData == NULL) {
                 return NULL;
             }
-            ScopedIntArrayRW ints(env, data);
+            ScopedIntArrayRW ints(env, javaData);
             if (ints.get() == NULL) {
                 return NULL;
             }
-            fpi->getData(ints.get(), length);
+            memcpy(ints.get(), &data[0], data.size() * sizeof(int32_t));
         }
-        env->CallVoidMethod(fpIter, gFPI_setData, data);
+        env->CallVoidMethod(javaFieldPositionIterator, gFPI_setData, javaData);
     }
 
-    jcharArray result = env->NewCharArray(str.length());
+    jcharArray result = env->NewCharArray(s.length());
     if (result != NULL) {
-        env->SetCharArrayRegion(result, 0, str.length(), str.getBuffer());
+        env->SetCharArrayRegion(result, 0, s.length(), s.getBuffer());
     }
     return result;
 }
 
 template <typename T>
-static jcharArray format(JNIEnv* env, jlong addr, jobject fpIter, T val) {
+static jcharArray format(JNIEnv* env, jlong addr, jobject javaFieldPositionIterator, T value) {
     UErrorCode status = U_ZERO_ERROR;
-    UnicodeString str;
+    UnicodeString s;
     DecimalFormat* fmt = toDecimalFormat(addr);
-    FieldPositionIterator fpi;
-    FieldPositionIterator* pfpi = fpIter ? &fpi : NULL;
-    fmt->format(val, str, pfpi, status);
-    return formatResult(env, str, pfpi, fpIter);
+    FieldPositionIterator nativeFieldPositionIterator;
+    FieldPositionIterator* fpi = javaFieldPositionIterator ? &nativeFieldPositionIterator : NULL;
+    fmt->format(value, s, fpi, status);
+    if (maybeThrowIcuException(env, "DecimalFormat::format", status)) {
+        return NULL;
+    }
+    return formatResult(env, s, fpi, javaFieldPositionIterator);
 }
 
-static jcharArray NativeDecimalFormat_formatLong(JNIEnv* env, jclass, jlong addr, jlong value, jobject fpIter) {
-    return format<int64_t>(env, addr, fpIter, value);
+static jcharArray NativeDecimalFormat_formatLong(JNIEnv* env, jclass, jlong addr, jlong value, jobject javaFieldPositionIterator) {
+    return format<int64_t>(env, addr, javaFieldPositionIterator, value);
 }
 
-static jcharArray NativeDecimalFormat_formatDouble(JNIEnv* env, jclass, jlong addr, jdouble value, jobject fpIter) {
-    return format<double>(env, addr, fpIter, value);
+static jcharArray NativeDecimalFormat_formatDouble(JNIEnv* env, jclass, jlong addr, jdouble value, jobject javaFieldPositionIterator) {
+    return format<double>(env, addr, javaFieldPositionIterator, value);
 }
 
-static jcharArray NativeDecimalFormat_formatDigitList(JNIEnv* env, jclass, jlong addr, jstring value, jobject fpIter) {
+static jcharArray NativeDecimalFormat_formatDigitList(JNIEnv* env, jclass, jlong addr, jstring value, jobject javaFieldPositionIterator) {
     ScopedUtfChars chars(env, value);
     if (chars.c_str() == NULL) {
         return NULL;
     }
     StringPiece sp(chars.c_str());
-    return format(env, addr, fpIter, sp);
+    return format(env, addr, javaFieldPositionIterator, sp);
 }
 
 static jobject newBigDecimal(JNIEnv* env, const char* value, jsize len) {
