@@ -42,6 +42,9 @@ public final class DateIntervalFormat {
   public static final int FORMAT_NUMERIC_DATE = 0x20000;
   public static final int FORMAT_ABBREV_ALL = 0x80000;
 
+  private static final int DAY_IN_MS = 24 * 60 * 60 * 1000;
+  private static final int EPOCH_JULIAN_DAY = 2440588;
+
   // TODO: check whether icu4c's DateIntervalFormat is expensive enough to warrant a native peer.
   private DateIntervalFormat() {
   }
@@ -58,11 +61,6 @@ public final class DateIntervalFormat {
   // This is our slightly more sensible internal API. (A truly sane replacement would take a
   // skeleton instead of int flags.)
   public static String formatDateRange(Locale locale, TimeZone tz, long startMs, long endMs, int flags) {
-    String skeleton = toSkeleton(tz, startMs, endMs, flags);
-    return formatDateInterval(skeleton, locale.toString(), tz.getID(), startMs, endMs);
-  }
-
-  private static String toSkeleton(TimeZone tz, long startMs, long endMs, int flags) {
     Calendar startCalendar = Calendar.getInstance(tz);
     startCalendar.setTimeInMillis(startMs);
 
@@ -74,6 +72,23 @@ public final class DateIntervalFormat {
       endCalendar.setTimeInMillis(endMs);
     }
 
+    boolean endsAtMidnight = isMidnight(endCalendar);
+
+    // If we're not showing the time or the start and end times are on the same day, and the
+    // end time is midnight, fudge the end date so we don't count the day that's about to start.
+    // This is not the behavior of icu4c's DateIntervalFormat, but it's the historical behavior
+    // of Android's DateUtils.formatDateRange.
+    if (startMs != endMs && endsAtMidnight &&
+        ((flags & FORMAT_SHOW_TIME) == 0 || julianDay(startCalendar) == julianDay(endCalendar))) {
+      endCalendar.roll(Calendar.DAY_OF_MONTH, false);
+      endMs -= DAY_IN_MS;
+    }
+
+    String skeleton = toSkeleton(startCalendar, endCalendar, flags);
+    return formatDateInterval(skeleton, locale.toString(), tz.getID(), startMs, endMs);
+  }
+
+  private static String toSkeleton(Calendar startCalendar, Calendar endCalendar, int flags) {
     if ((flags & FORMAT_ABBREV_ALL) != 0) {
       flags |= FORMAT_ABBREV_MONTH | FORMAT_ABBREV_TIME | FORMAT_ABBREV_WEEKDAY;
     }
@@ -142,6 +157,13 @@ public final class DateIntervalFormat {
     return builder.toString();
   }
 
+  private static boolean isMidnight(Calendar c) {
+    return c.get(Calendar.HOUR_OF_DAY) == 0 &&
+        c.get(Calendar.MINUTE) == 0 &&
+        c.get(Calendar.SECOND) == 0 &&
+        c.get(Calendar.MILLISECOND) == 0;
+  }
+
   private static boolean onTheHour(Calendar c) {
     return c.get(Calendar.MINUTE) == 0 && c.get(Calendar.SECOND) == 0;
   }
@@ -154,6 +176,11 @@ public final class DateIntervalFormat {
 
   private static boolean fallInSameMonth(Calendar c1, Calendar c2) {
     return c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH);
+  }
+
+  private static int julianDay(Calendar c) {
+    long utcMs = c.get(Calendar.MILLISECOND) + c.get(Calendar.ZONE_OFFSET);
+    return (int) (utcMs / DAY_IN_MS) + EPOCH_JULIAN_DAY;
   }
 
   private static native String formatDateInterval(String skeleton, String localeName, String timeZoneName, long fromDate, long toDate);
