@@ -37,6 +37,7 @@ import org.apache.harmony.security.asn1.ObjectIdentifier;
  * providers during initialization.
  */
 public class AlgNameMapper {
+    private static AlgNameMapperSource source = null;
 
     // Will search OID mappings for these services
     private static final String[] serviceName = {
@@ -113,7 +114,18 @@ public class AlgNameMapper {
      */
     public static String map2OID(String algName) {
         // alg2OidMap map contains upper case keys
-        return alg2OidMap.get(algName.toUpperCase(Locale.US));
+        String result = alg2OidMap.get(algName.toUpperCase(Locale.US));
+        if (result != null) {
+            return result;
+        }
+
+        // Check our external source.
+        AlgNameMapperSource s = source;
+        if (s != null) {
+            return s.mapNameToOid(algName);
+        }
+
+        return null;
     }
 
     /**
@@ -124,11 +136,18 @@ public class AlgNameMapper {
      */
     public static String map2AlgName(String oid) {
         // oid2AlgMap map contains upper case values
-        final String algUC = oid2AlgMap.get(oid);
+        String algUC = oid2AlgMap.get(oid);
         // if not null there is always map UC->Orig
         if (algUC != null) {
             return algAliasesMap.get(algUC);
         }
+
+        // Check our external source.
+        AlgNameMapperSource s = source;
+        if (s != null) {
+            return s.mapOidToName(oid);
+        }
+
         return null;
     }
 
@@ -203,5 +222,9 @@ public class AlgNameMapper {
         return oid.startsWith("OID.")
             ? oid.substring(4)
             : oid;
+    }
+
+    public static void setSource(AlgNameMapperSource source) {
+        AlgNameMapper.source = source;
     }
 }
