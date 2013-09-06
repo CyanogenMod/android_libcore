@@ -209,4 +209,36 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
     assertEquals("00:00–16:01", formatDateRange(l, utc, midnight, teaTime + MINUTE, abbr24));
     assertEquals("12:00 AM – 4:01 PM", formatDateRange(l, utc, midnight, teaTime + MINUTE, abbr12));
   }
+
+  public void test10560853_when_time_not_displayed() throws Exception {
+    Locale l = Locale.US;
+    TimeZone utc = TimeZone.getTimeZone("UTC");
+
+    long midnight = 0;
+    long midnightNext = 1 * DAY;
+
+    int flags = FORMAT_SHOW_DATE | FORMAT_SHOW_WEEKDAY;
+
+    // An all-day event runs until 0 milliseconds into the next day, but is formatted as if it's
+    // just the first day.
+    assertEquals("Thursday, January 1", formatDateRange(l, utc, midnight, midnightNext, flags));
+
+    // Run one millisecond over, though, and you're into the next day.
+    long nextMorning = 1 * DAY + 1;
+    assertEquals("Thursday, January 1 – Friday, January 2", formatDateRange(l, utc, midnight, nextMorning, flags));
+
+    // But the same reasoning applies for that day.
+    long nextMidnight = 2 * DAY;
+    assertEquals("Thursday, January 1 – Friday, January 2", formatDateRange(l, utc, midnight, nextMidnight, flags));
+  }
+
+  public void test10560853_for_single_day_events() throws Exception {
+    Locale l = Locale.US;
+    TimeZone utc = TimeZone.getTimeZone("UTC");
+
+    int flags = FORMAT_SHOW_TIME | FORMAT_24HOUR | FORMAT_SHOW_DATE;
+
+    assertEquals("January 1, 22:00–00:00", formatDateRange(l, utc, 22 * HOUR, 24 * HOUR, flags));
+    assertEquals("January 1, 22:00 – January 2, 00:30", formatDateRange(l, utc, 22 * HOUR, 24 * HOUR + 30 * MINUTE, flags));
+  }
 }
