@@ -26,11 +26,19 @@ import java.io.IOException;
 public class OpenSSLRandom extends SecureRandomSpi implements Serializable {
     private static final long serialVersionUID = 8506210602917522860L;
 
+    private transient int state;
+    private static final int UNSEEDED = 0;
+    private static final int SEEDED = 1;
+
+    public OpenSSLRandom() {
+        state = UNSEEDED;
+    }
+
     /**
      * Generates a invocation-specific seed to be mixed into the
      * Linux PRNG.
      */
-    private static void generateSeed() {
+    private void generateSeed() {
         try {
             ByteArrayOutputStream seedBuffer = new ByteArrayOutputStream();
             DataOutputStream seedBufferOut =
@@ -40,6 +48,7 @@ public class OpenSSLRandom extends SecureRandomSpi implements Serializable {
             seedBufferOut.close();
             NativeCrypto.RAND_seed(seedBuffer.toByteArray());
             NativeCrypto.RAND_load_file("/dev/urandom", 1024);
+            state = SEEDED;
         } catch (IOException e) {
             throw new SecurityException("Failed to generate seed", e);
         }
@@ -48,18 +57,21 @@ public class OpenSSLRandom extends SecureRandomSpi implements Serializable {
     @Override
     protected void engineSetSeed(byte[] seed) {
         NativeCrypto.RAND_seed(seed);
+        state = SEEDED;
     }
 
     @Override
     protected void engineNextBytes(byte[] bytes) {
-        generateSeed();
+        if (state == UNSEEDED)
+            generateSeed();
         NativeCrypto.RAND_bytes(bytes);
     }
 
     @Override
     protected byte[] engineGenerateSeed(int numBytes) {
         byte[] output = new byte[numBytes];
-        generateSeed();
+        if (state == UNSEEDED)
+            generateSeed();
         NativeCrypto.RAND_bytes(output);
         return output;
     }
