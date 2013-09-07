@@ -27,20 +27,21 @@ public final class DateIntervalFormat {
 
   // These are all public API in DateUtils. There are others, but they're either for use with
   // other methods (like FORMAT_ABBREV_RELATIVE), don't internationalize (like FORMAT_CAP_AMPM),
-  // or have never been implemented anyway (like FORMAT_NO_YEAR).
-  public static final int FORMAT_SHOW_TIME = 0x00001;
-  public static final int FORMAT_SHOW_WEEKDAY = 0x00002;
-  public static final int FORMAT_SHOW_YEAR = 0x00004;
-  public static final int FORMAT_SHOW_DATE = 0x00010;
-  public static final int FORMAT_NO_MONTH_DAY = 0x00020;
-  public static final int FORMAT_12HOUR = 0x00040;
-  public static final int FORMAT_24HOUR = 0x00080;
-  public static final int FORMAT_UTC = 0x02000;
-  public static final int FORMAT_ABBREV_TIME = 0x04000;
+  // or have never been implemented anyway.
+  public static final int FORMAT_SHOW_TIME      = 0x00001;
+  public static final int FORMAT_SHOW_WEEKDAY   = 0x00002;
+  public static final int FORMAT_SHOW_YEAR      = 0x00004;
+  public static final int FORMAT_NO_YEAR        = 0x00008;
+  public static final int FORMAT_SHOW_DATE      = 0x00010;
+  public static final int FORMAT_NO_MONTH_DAY   = 0x00020;
+  public static final int FORMAT_12HOUR         = 0x00040;
+  public static final int FORMAT_24HOUR         = 0x00080;
+  public static final int FORMAT_UTC            = 0x02000;
+  public static final int FORMAT_ABBREV_TIME    = 0x04000;
   public static final int FORMAT_ABBREV_WEEKDAY = 0x08000;
-  public static final int FORMAT_ABBREV_MONTH = 0x10000;
-  public static final int FORMAT_NUMERIC_DATE = 0x20000;
-  public static final int FORMAT_ABBREV_ALL = 0x80000;
+  public static final int FORMAT_ABBREV_MONTH   = 0x10000;
+  public static final int FORMAT_NUMERIC_DATE   = 0x20000;
+  public static final int FORMAT_ABBREV_ALL     = 0x80000;
 
   private static final int DAY_IN_MS = 24 * 60 * 60 * 1000;
   private static final int EPOCH_JULIAN_DAY = 2440588;
@@ -138,6 +139,17 @@ public final class DateIntervalFormat {
       flags |= FORMAT_SHOW_DATE;
     }
 
+    // If we've been asked to show the date, work out whether we think we should show the year.
+    if ((flags & FORMAT_SHOW_DATE) != 0) {
+      if ((flags & FORMAT_SHOW_YEAR) != 0) {
+        // The caller explicitly wants us to show the year.
+      } else if ((flags & FORMAT_NO_YEAR) != 0) {
+        // The caller explicitly doesn't want us to show the year, even if we otherwise would.
+      } else if (!fallInSameYear(startCalendar, endCalendar) || !isThisYear(startCalendar)) {
+        flags |= FORMAT_SHOW_YEAR;
+      }
+    }
+
     StringBuilder builder = new StringBuilder();
     if ((flags & (FORMAT_SHOW_DATE | FORMAT_NO_MONTH_DAY)) != 0) {
       if ((flags & FORMAT_SHOW_YEAR) != 0) {
@@ -176,6 +188,15 @@ public final class DateIntervalFormat {
 
   private static boolean fallInSameMonth(Calendar c1, Calendar c2) {
     return c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH);
+  }
+
+  private static boolean fallInSameYear(Calendar c1, Calendar c2) {
+    return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR);
+  }
+
+  private static boolean isThisYear(Calendar c) {
+    Calendar now = Calendar.getInstance(c.getTimeZone());
+    return c.get(Calendar.YEAR) == now.get(Calendar.YEAR);
   }
 
   private static int julianDay(Calendar c) {
