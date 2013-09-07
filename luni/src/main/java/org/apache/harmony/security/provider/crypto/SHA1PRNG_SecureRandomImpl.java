@@ -103,8 +103,8 @@ class LinuxPRNGSecureRandom extends SecureRandomSpi {
             throw new SecurityException("Failed to generate seed", e);
         }
     }
-    @Override
-    protected void engineSetSeed(byte[] bytes) {
+
+    protected void internalEngineSetSeed(byte[] bytes) {
         try {
             OutputStream out;
             synchronized (sLock) {
@@ -120,10 +120,15 @@ class LinuxPRNGSecureRandom extends SecureRandomSpi {
     }
 
     @Override
+    protected void engineSetSeed(byte[] bytes) {
+        internalEngineSetSeed(bytes);
+    }
+
+    @Override
     protected void engineNextBytes(byte[] bytes) {
         if (!mSeeded) {
             // Mix in the invocation-specific seed.
-            engineSetSeed(generateSeed());
+            internalEngineSetSeed(generateSeed());
         }
 
         try {
@@ -365,8 +370,6 @@ public class SHA1PRNG_SecureRandomImpl extends LinuxPRNGSecureRandom implements 
      *       NullPointerException - if null is passed to the "seed" argument
      */
 
-    /* Blocked while LinuxPRNGSecureRandom is in use
- 
     protected synchronized void engineSetSeed(byte[] seed) {
 
         if (seed == null) {
@@ -384,8 +387,6 @@ public class SHA1PRNG_SecureRandomImpl extends LinuxPRNGSecureRandom implements 
         }
     }
 
-    */
-
     /**
      * Returns a required number of random bytes. <BR>
      *
@@ -399,8 +400,12 @@ public class SHA1PRNG_SecureRandomImpl extends LinuxPRNGSecureRandom implements 
      *       InvalidParameterException - if numBytes < 0
      */
 
-    /* Blocked while LinuxPRNGSecureRandom is in use
     protected synchronized byte[] engineGenerateSeed(int numBytes) {
+
+        /* Unseeded by user, fallback to the LinuxPRNGSecureRandom */
+        if (state == UNDEFINED) {
+            return super.engineGenerateSeed(numBytes);
+        }
 
         byte[] myBytes; // byte[] for bytes returned by "nextBytes()"
 
@@ -422,8 +427,6 @@ public class SHA1PRNG_SecureRandomImpl extends LinuxPRNGSecureRandom implements 
         return myBytes;
     }
 
-    */
-
     /**
      * Writes random bytes into an array supplied.
      * Bits in a byte are from left to right. <BR>
@@ -441,8 +444,13 @@ public class SHA1PRNG_SecureRandomImpl extends LinuxPRNGSecureRandom implements 
      *       NullPointerException - if null is passed to the "bytes" argument
      */
 
-    /* Blocked while LinuxPRNGSecureRandom is in use
     protected synchronized void engineNextBytes(byte[] bytes) {
+
+        /* Unseeded by user, fallback to the LinuxPRNGSecureRandom */
+        if (state == UNDEFINED) {
+            super.engineNextBytes(bytes);
+            return;
+        }
 
         int i, n;
 
@@ -579,7 +587,6 @@ public class SHA1PRNG_SecureRandomImpl extends LinuxPRNGSecureRandom implements 
             }
         }
     }
-    */
 
     private void writeObject(ObjectOutputStream oos) throws IOException {
 
