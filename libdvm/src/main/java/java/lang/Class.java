@@ -529,11 +529,14 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     native private boolean isDeclaredAnnotationPresent(Class<? extends Annotation> annotationClass);
 
     /**
-     * Returns an array containing {@code Class} objects for all classes,
-     * interfaces, enums and annotations that are members of this class.
+     * Returns an array containing {@code Class} objects for all classes and
+     * interfaces that are declared as members of the class which this {@code
+     * Class} represents. If there are no classes or interfaces declared or if
+     * this class represents an array class, a primitive type or void, then an
+     * empty array is returned.
      */
     public Class<?>[] getDeclaredClasses() {
-        return AnnotationAccess.getMemberClasses(this);
+        return getDeclaredClasses(this, false);
     }
 
     /*
@@ -1224,22 +1227,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         // TODO This might be a hack, but the VM doesn't have the necessary info.
         ClassLoader loader = getClassLoader();
         if (loader != null) {
-            String packageName = getPackageName$();
-            return packageName != null ? loader.getPackage(packageName) : null;
+            String name = getName();
+            int dot = name.lastIndexOf('.');
+            return (dot != -1 ? loader.getPackage(name.substring(0, dot)) : null);
         }
         return null;
-    }
-
-    /**
-     * Returns the package name of this class. This returns null for classes in
-     * the default package.
-     *
-     * @hide
-     */
-    public String getPackageName$() {
-        String name = getName();
-        int last = name.lastIndexOf('.');
-        return last == -1 ? null : name.substring(0, last);
     }
 
     /**
