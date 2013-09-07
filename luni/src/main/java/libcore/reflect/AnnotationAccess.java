@@ -199,7 +199,7 @@ public final class AnnotationAccess {
      */
     private static int getAnnotationSetOffset(AnnotatedElement element) {
         Class<?> dexClass = getDexClass(element);
-        int directoryOffset = getDirectoryOffset(dexClass);
+        int directoryOffset = dexClass.getAnnotationDirectoryOffset();
         if (directoryOffset == 0) {
             return 0; // nothing on this class has annotations
         }
@@ -255,17 +255,17 @@ public final class AnnotationAccess {
         Dex dex = declaringClass.getDex();
         int declaringClassIndex = getTypeIndex(dex, declaringClass);
         int typeIndex = getTypeIndex(dex, type);
-        int nameIndex = getStringIndex(dex, name);
+        int nameIndex = dex.findStringIndex(name);
         FieldId fieldId = new FieldId(dex, declaringClassIndex, typeIndex, nameIndex);
-        return Collections.binarySearch(dex.fieldIds(), fieldId);
+        return dex.findFieldIndex(fieldId);
     }
 
     public static int getMethodIndex(Class<?> declaringClass, String name, int protoIndex) {
         Dex dex = declaringClass.getDex();
         int declaringClassIndex = getTypeIndex(dex, declaringClass);
-        int nameIndex = getStringIndex(dex, name);
+        int nameIndex = dex.findStringIndex(name);
         MethodId methodId = new MethodId(dex, declaringClassIndex, protoIndex, nameIndex);
-        return Collections.binarySearch(dex.methodIds(), methodId);
+        return dex.findMethodIndex(methodId);
     }
 
     /**
@@ -280,7 +280,7 @@ public final class AnnotationAccess {
         short[] types = parametersList.getTypes();
         int typesCount = types.length;
 
-        int directoryOffset = getDirectoryOffset(declaringClass);
+        int directoryOffset = declaringClass.getAnnotationDirectoryOffset();
         if (directoryOffset == 0) {
             return new Annotation[typesCount][0]; // nothing on this class has annotations
         }
@@ -352,7 +352,7 @@ public final class AnnotationAccess {
             throw new AssertionError("annotation value type != annotation class");
         }
 
-        int methodNameIndex = Collections.binarySearch(dex.strings(), method.getName());
+        int methodNameIndex = dex.findStringIndex(method.getName());
         for (int i = 0; i < fieldCount; i++) {
             int candidateNameIndex = reader.readAnnotationName();
             if (candidateNameIndex == methodNameIndex) {
@@ -531,19 +531,11 @@ public final class AnnotationAccess {
         if (dex == null) {
             return -1;
         }
-        int typeIndex = Collections.binarySearch(dex.typeNames(), InternalNames.getInternalName(c));
+        int typeIndex = dex.findTypeIndex(InternalNames.getInternalName(c));
         if (typeIndex < 0) {
             typeIndex = -1;
         }
         return typeIndex;
-    }
-
-    private static int getStringIndex(Dex dex, String string) {
-        return Collections.binarySearch(dex.strings(), string);
-    }
-
-    private static int getDirectoryOffset(Class<?> c) {
-        return c.getAnnotationDirectoryOffset();
     }
 
     private static com.android.dex.Annotation getAnnotationFromAnnotationSet(
@@ -572,7 +564,7 @@ public final class AnnotationAccess {
             return null; // no annotations on the class
         }
 
-        int annotationTypeIndex = Collections.binarySearch(dex.typeNames(), annotationName);
+        int annotationTypeIndex = dex.findTypeIndex(annotationName);
         com.android.dex.Annotation annotation = getAnnotationFromAnnotationSet(
                 dex, annotationSetOffset, annotationTypeIndex);
         if (annotation == null) {

@@ -1101,9 +1101,13 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * void} then an empty array is returned.
      */
     public Type[] getGenericInterfaces() {
+        String annotationSignature = AnnotationAccess.getSignature(this);
+        if (annotationSignature == null) {
+            return EmptyArray.TYPE;
+        }
         GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
-        parser.parseForClass(this, AnnotationAccess.getSignature(this));
-        return Types.getClonedTypeArray(parser.interfaceTypes);
+        parser.parseForClass(this, annotationSignature);
+        return Types.getTypeArray(parser.interfaceTypes, false);
     }
 
     /**
@@ -1111,9 +1115,14 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * class}.
      */
     public Type getGenericSuperclass() {
-        GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
-        parser.parseForClass(this, AnnotationAccess.getSignature(this));
-        return Types.getType(parser.superclassType);
+        Type genericSuperclass = getSuperclass();
+        String annotationSignature = AnnotationAccess.getSignature(this);
+        if (annotationSignature != null) {
+            GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
+            parser.parseForClass(this, annotationSignature);
+            genericSuperclass = parser.superclassType;
+        }
+        return Types.getType(genericSuperclass);
     }
 
     /**
@@ -1132,9 +1141,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             return new Class<?>[] { Cloneable.class, Serializable.class };
         } else if (isProxy()) {
             return getProxyInterfaces();
-        } else {
-            return AnnotationAccess.typeIndexToInterfaces(this, getDex(), getTypeIndex());
         }
+        return AnnotationAccess.typeIndexToInterfaces(this, getDex(), getTypeIndex());
     }
 
     // Returns the interfaces that this proxy class directly implements.
@@ -1319,9 +1327,13 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     @SuppressWarnings("unchecked")
     @Override public synchronized TypeVariable<Class<T>>[] getTypeParameters() {
+        String annotationSignature = AnnotationAccess.getSignature(this);
+        if (annotationSignature == null) {
+            return EmptyArray.TYPE_VARIABLE;
+        }
         GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
-        parser.parseForClass(this, AnnotationAccess.getSignature(this));
-        return parser.formalTypeParameters.clone();
+        parser.parseForClass(this, annotationSignature);
+        return parser.formalTypeParameters;
     }
 
     /**
@@ -1673,4 +1685,5 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     //   return AnnotationAccess.typeIndexToAnnotationDirectoryOffset(getDex(), getTypeIndex());
     // as native code has access to fast maps between type indices and class
     // defs. Move fast maps to managed code.
+
 }
