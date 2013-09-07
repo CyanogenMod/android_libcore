@@ -42,6 +42,9 @@ public final class OpenSSLProvider extends Provider {
     public OpenSSLProvider() {
         super(PROVIDER_NAME, 1.0, "Android's OpenSSL-backed security provider");
 
+        // Make sure the platform is initialized.
+        Platform.setup();
+
         final String prefix = getClass().getPackage().getName() + ".";
 
         /* === SSL Contexts === */
