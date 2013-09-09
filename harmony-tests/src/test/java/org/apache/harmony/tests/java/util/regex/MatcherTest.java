@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 
-@SuppressWarnings("nls")
 public class MatcherTest extends TestCase {
     String[] testPatterns = {
             "(a|b)*abb",
@@ -40,42 +39,42 @@ public class MatcherTest extends TestCase {
     public MatcherTest(String name) {
         super(name);
     }
-    
+
     public void testRegionsIntInt() {
         Pattern p = Pattern.compile("x*");
         Matcher m = p.matcher("axxxxxa");
         assertFalse(m.matches());
-        
+
         m.region(1, 6);
         assertEquals(1, m.regionStart());
         assertEquals(6, m.regionEnd());
         assertTrue(m.matches());
-        
+
         try {
             m.region(1, 0);
             fail("expected an IOOBE");
         } catch(IndexOutOfBoundsException e) {
         }
-        
+
         try {
             m.region(-1, 2);
             fail("expected an IOOBE");
         } catch(IndexOutOfBoundsException e) {
         }
-        
+
         try {
             m.region(10, 11);
             fail("expected an IOOBE");
         } catch(IndexOutOfBoundsException e) {
         }
-        
+
         try {
             m.region(1, 10);
             fail("expected an IOOBE");
         } catch(IndexOutOfBoundsException e) {
         }
     }
-    
+
     public void testAppendReplacement() {
         Pattern pat = Pattern.compile("XX");
         Matcher m = pat.matcher("Today is XX-XX-XX ...");
@@ -109,16 +108,13 @@ public class MatcherTest extends TestCase {
         assertEquals("-foo-foo-foo-", mat.replaceAll("-"));
     }
 
-    /*
-     * Class under test for Matcher reset(CharSequence)
-     */
     public void testResetCharSequence() {
         Pattern p = Pattern.compile("abcd");
         Matcher m = p.matcher("abcd");
         assertTrue(m.matches());
         m.reset("efgh");
         assertFalse(m.matches());
-        
+
         try {
             m.reset(null);
             fail("expected a NPE");
@@ -159,15 +155,9 @@ public class MatcherTest extends TestCase {
         }
     }
 
-    /*
-     * Class under test for Matcher reset()
-     */
     public void testReset() {
     }
 
-    /*
-     * Class under test for String group(int)
-     */
     public void testGroupint() {
         String positiveTestString = "ababababbaaabb";
 
@@ -243,24 +233,6 @@ public class MatcherTest extends TestCase {
 
         mat.matches();
         assertEquals("a", mat.group(1));
-    }
-
-    /*
-     * Class under test for boolean find(int)
-     */
-    public void testFindint() {
-    }
-
-    /*
-     * Class under test for int start(int)
-     */
-    public void testStartint() {
-    }
-
-    /*
-     * Class under test for int end(int)
-     */
-    public void testEndint() {
     }
 
     public void testMatchesMisc() {
@@ -350,9 +322,6 @@ public class MatcherTest extends TestCase {
     public void testLookingAt() {
     }
 
-    /*
-     * Class under test for boolean find()
-     */
     public void testFind() {
         String testPattern = "(abb)";
         String testString = "cccabbabbabbabbabb";
@@ -387,12 +356,6 @@ public class MatcherTest extends TestCase {
         Matcher mat = pat.matcher("a(bb[");
 
         assertTrue(mat.matches());
-    }
-
-    /*
-     * Class under test for int start()
-     */
-    public void testStart() {
     }
 
     public void testGroupCount() {
@@ -595,11 +558,9 @@ public class MatcherTest extends TestCase {
         assertEquals("a", mat.group());
     }
 
-    /*
-     * Verify if the Matcher can match the input when region is changed
-     */
     public void testMatchesRegionChanged() {
         // Regression for HARMONY-610
+        // Verify if the Matcher can match the input when region is changed
         String input = " word ";
         Pattern pattern = Pattern.compile("\\w+");
         Matcher matcher = pattern.matcher(input);
@@ -645,11 +606,9 @@ public class MatcherTest extends TestCase {
         assertEquals(0x110000 / step, cnt);
     }
 
-    /*
-     * Verify if the Matcher behaves correct when region is changed
-     */
     public void testFindRegionChanged() {
         // Regression for HARMONY-625
+        // Verify if the Matcher behaves correct when region is changed.
         Pattern pattern = Pattern.compile("(?s).*");
         Matcher matcher = pattern.matcher("abcde");
         matcher.find();
@@ -662,12 +621,9 @@ public class MatcherTest extends TestCase {
 
     }
 
-    /*
-     * Verify if the Matcher behaves correct with pattern "c" when region is
-     * changed
-     */
     public void testFindRegionChanged2() {
         // Regression for HARMONY-713
+        // Verify if the Matcher behaves correct with pattern "c" when region is changed.
         Pattern pattern = Pattern.compile("c");
 
         String inputStr = "aabb.c";
@@ -677,18 +633,14 @@ public class MatcherTest extends TestCase {
         assertFalse(matcher.find());
     }
 
-    /*
-     * Regression test for HARMONY-674
-     */
     public void testPatternMatcher() throws Exception {
+        // Regression test for HARMONY-674
         Pattern pattern = Pattern.compile("(?:\\d+)(?:pt)");
         assertTrue(pattern.matcher("14pt").matches());
     }
 
-    /**
-     * Inspired by HARMONY-3360
-     */
     public void test3360() {
+        // Inspired by HARMONY-3360
         String str = "!\"#%&'(),-./";
         Pattern p = Pattern.compile("\\s");
         Matcher m = p.matcher(str);
@@ -696,12 +648,9 @@ public class MatcherTest extends TestCase {
         assertFalse(m.find());
     }
 
-    /**
-     * Regression test for HARMONY-3360
-     */
     public void testGeneralPunctuationCategory() {
-        String[] s = { ",", "!", "\"", "#", "%", "&", "'", "(", ")", "-", ".",
-                "/" };
+        // Regression test for HARMONY-3360
+        String[] s = { ",", "!", "\"", "#", "%", "&", "'", "(", ")", "-", ".", "/" };
         String regexp = "\\p{P}";
 
         for (int i = 0; i < s.length; i++) {
@@ -711,10 +660,8 @@ public class MatcherTest extends TestCase {
         }
     }
 
-    /**
-     * Regression test for HARMONY-4396
-     */
     public void testHitEndAfterFind() {
+        // Regression test for HARMONY-4396
         hitEndTest(true, "#01.0", "r((ege)|(geg))x", "regexx", false);
         hitEndTest(true, "#01.1", "r((ege)|(geg))x", "regex", false);
         hitEndTest(true, "#01.2", "r((ege)|(geg))x", "rege", true);
