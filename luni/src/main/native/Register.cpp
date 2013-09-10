@@ -16,6 +16,7 @@
 
 #define LOG_TAG "libcore" // We'll be next to "dalvikvm" in the log; make the distinction clear.
 
+#include "cutils/log.h"
 #include "JniConstants.h"
 #include "ScopedLocalFrame.h"
 

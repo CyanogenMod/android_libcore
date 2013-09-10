@@ -17,6 +17,7 @@
 #define LOG_TAG "Posix"
 
 #include "AsynchronousSocketCloseMonitor.h"
+#include "cutils/log.h"
 #include "ExecStrings.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
