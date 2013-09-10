@@ -314,4 +314,23 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
     assertEquals(String.format("February 10, 1980 – February 10, %d", c.get(Calendar.YEAR)),
                  formatDateRange(l, utc, oldYear, thisYear, FORMAT_SHOW_DATE | FORMAT_NO_YEAR));
   }
+
+  // http://b/8467515 - yet another y2k38 bug report.
+  public void test8467515() throws Exception {
+    Locale l = Locale.US;
+    TimeZone utc = TimeZone.getTimeZone("UTC");
+    int flags = FORMAT_SHOW_DATE | FORMAT_SHOW_WEEKDAY | FORMAT_SHOW_YEAR | FORMAT_ABBREV_MONTH | FORMAT_ABBREV_WEEKDAY;
+    long t;
+
+    Calendar calendar = Calendar.getInstance(utc);
+    calendar.clear();
+
+    calendar.set(2038, Calendar.JANUARY, 19, 12, 0, 0);
+    t = calendar.getTimeInMillis();
+    assertEquals("Tue, Jan 19, 2038", formatDateRange(l, utc, t, t, flags));
+
+    calendar.set(1900, Calendar.JANUARY, 1, 0, 0, 0);
+    t = calendar.getTimeInMillis();
+    assertEquals("Mon, Jan 1, 1900", formatDateRange(l, utc, t, t, flags));
+  }
 }
