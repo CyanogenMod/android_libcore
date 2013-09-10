@@ -157,5 +157,7 @@ public final class TimeZoneNames {
         return ids.toArray(new String[ids.size()]);
     }
 
+    public static native String getExemplarLocation(String locale, String tz);
+
     private static native void fillZoneStrings(String locale, String[][] result);
 }
