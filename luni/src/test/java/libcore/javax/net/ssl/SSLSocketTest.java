@@ -1239,40 +1239,29 @@ public class SSLSocketTest extends TestCase {
     }
 
     public void test_SSLSocket_interrupt() throws Exception {
-        ServerSocket listening = new ServerSocket(0);
-
-        for (int i = 0; i < 3; i++) {
-            Socket underlying = new Socket(listening.getInetAddress(), listening.getLocalPort());
-            Socket server = listening.accept();
-
-            SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
-            Socket clientWrapping = sf.createSocket(underlying, null, -1, true);
-
-            switch (i) {
-                case 0:
-                    test_SSLSocket_interrupt_case(underlying, underlying);
-                    break;
-                case 1:
-                    test_SSLSocket_interrupt_case(underlying, clientWrapping);
-                    break;
-                case 2:
-                    test_SSLSocket_interrupt_case(clientWrapping, underlying);
-                    break;
-                case 3:
-                    test_SSLSocket_interrupt_case(clientWrapping, clientWrapping);
-                    break;
-                default:
-                    fail();
-            }
-
-            server.close();
-            underlying.close();
+        test_SSLSocket_interrupt_case(true, true);
+        test_SSLSocket_interrupt_case(true, false);
+        test_SSLSocket_interrupt_case(false, true);
+        // Currently failing due to reader blocking closing thread http://b/10681815
+        if (StandardNames.IS_RI) {
+            test_SSLSocket_interrupt_case(false, false);
         }
-        listening.close();
     }
 
-    private void test_SSLSocket_interrupt_case(Socket toRead, final Socket toClose)
+    private void test_SSLSocket_interrupt_case(boolean readUnderlying, boolean closeUnderlying)
             throws Exception {
+
+        ServerSocket listening = new ServerSocket(0);
+
+        Socket underlying = new Socket(listening.getInetAddress(), listening.getLocalPort());
+        Socket server = listening.accept();
+
+        SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        Socket clientWrapping = sf.createSocket(underlying, null, -1, true);
+
+        final Socket toRead = (readUnderlying) ? underlying : clientWrapping;
+        final Socket toClose = (closeUnderlying) ? underlying : clientWrapping;
+
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<Void> future = executor.submit(new Callable<Void>() {
             @Override public Void call() throws Exception {
@@ -1283,7 +1272,7 @@ public class SSLSocketTest extends TestCase {
         });
         executor.shutdown();
         try {
-            toRead.setSoTimeout(10 * 1000);
+            toRead.setSoTimeout(5 * 1000);
             toRead.getInputStream().read();
             fail();
         } catch (SocketTimeoutException e) {
@@ -1291,6 +1280,10 @@ public class SSLSocketTest extends TestCase {
         } catch (SocketException expected) {
         }
         future.get();
+
+        server.close();
+        underlying.close();
+        listening.close();
     }
 
     /**
