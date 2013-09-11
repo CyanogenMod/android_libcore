@@ -118,8 +118,29 @@ static void TimeZoneNames_fillZoneStrings(JNIEnv* env, jclass, jstring localeNam
   }
 }
 
+static jstring TimeZoneNames_getExemplarLocation(JNIEnv* env, jclass, jstring javaLocale, jstring javaTz) {
+  Locale locale = getLocale(env, javaLocale);
+
+  UErrorCode status = U_ZERO_ERROR;
+  UniquePtr<TimeZoneNames> names(TimeZoneNames::createInstance(locale, status));
+  if (maybeThrowIcuException(env, "TimeZoneNames::createInstance", status)) {
+    return NULL;
+  }
+
+  ScopedJavaUnicodeString tz(env, javaTz);
+  if (!tz.valid()) {
+    return NULL;
+  }
+
+  UnicodeString s;
+  const UDate now(Calendar::getNow());
+  names->getDisplayName(tz.unicodeString(), UTZNM_EXEMPLAR_LOCATION, now, s);
+  return env->NewString(s.getBuffer(), s.length());
+}
+
 static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(TimeZoneNames, fillZoneStrings, "(Ljava/lang/String;[[Ljava/lang/String;)V"),
+  NATIVE_METHOD(TimeZoneNames, getExemplarLocation, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
 };
 void register_libcore_icu_TimeZoneNames(JNIEnv* env) {
   jniRegisterNativeMethods(env, "libcore/icu/TimeZoneNames", gMethods, NELEM(gMethods));
