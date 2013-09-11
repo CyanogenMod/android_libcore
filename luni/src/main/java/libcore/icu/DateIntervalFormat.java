@@ -19,6 +19,7 @@ package libcore.icu;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
+import libcore.util.BasicLruCache;
 
 /**
  * Exposes icu4c's DateIntervalFormat.
@@ -46,7 +47,18 @@ public final class DateIntervalFormat {
   private static final int DAY_IN_MS = 24 * 60 * 60 * 1000;
   private static final int EPOCH_JULIAN_DAY = 2440588;
 
-  // TODO: check whether icu4c's DateIntervalFormat is expensive enough to warrant a native peer.
+  private static final FormatterCache CACHED_FORMATTERS = new FormatterCache();
+
+  static class FormatterCache extends BasicLruCache<String, Long> {
+    FormatterCache() {
+      super(8);
+    }
+
+    protected void entryEvicted(String key, Long value) {
+      destroyDateIntervalFormat(value);
+    }
+  };
+
   private DateIntervalFormat() {
   }
 
@@ -86,7 +98,20 @@ public final class DateIntervalFormat {
     }
 
     String skeleton = toSkeleton(startCalendar, endCalendar, flags);
-    return formatDateInterval(skeleton, locale.toString(), tz.getID(), startMs, endMs);
+    synchronized (CACHED_FORMATTERS) {
+      return formatDateInterval(getFormatter(skeleton, locale.toString(), tz.getID()), startMs, endMs);
+    }
+  }
+
+  private static long getFormatter(String skeleton, String localeName, String tzName) {
+    String key = skeleton + "\t" + localeName + "\t" + tzName;
+    Long formatter = CACHED_FORMATTERS.get(key);
+    if (formatter != null) {
+      return formatter;
+    }
+    long address = createDateIntervalFormat(skeleton, localeName, tzName);
+    CACHED_FORMATTERS.put(key, address);
+    return address;
   }
 
   private static String toSkeleton(Calendar startCalendar, Calendar endCalendar, int flags) {
@@ -204,5 +229,7 @@ public final class DateIntervalFormat {
     return (int) (utcMs / DAY_IN_MS) + EPOCH_JULIAN_DAY;
   }
 
-  private static native String formatDateInterval(String skeleton, String localeName, String timeZoneName, long fromDate, long toDate);
+  private static native long createDateIntervalFormat(String skeleton, String localeName, String tzName);
+  private static native void destroyDateIntervalFormat(long address);
+  private static native String formatDateInterval(long address, long fromDate, long toDate);
 }
