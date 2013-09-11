@@ -21,6 +21,7 @@
 #include "ScopedUtfChars.h"
 #include "unicode/uchar.h"
 #include <math.h>
+#include <stdio.h> // For BUFSIZ
 #include <stdlib.h>
 
 static jint Character_digitImpl(JNIEnv*, jclass, jint codePoint, jint radix) {
