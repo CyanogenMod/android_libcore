@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
+#define LOG_TAG "RawSocket"
+
 #include "AsynchronousSocketCloseMonitor.h"
+#include "cutils/log.h"
 #include "JNIHelp.h"
 #include "JniException.h"
 #include "JniConstants.h"
