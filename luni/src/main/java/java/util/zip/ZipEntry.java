@@ -343,21 +343,19 @@ public class ZipEntry implements ZipConstants, Cloneable {
 
     /*
      * Internal constructor.  Creates a new ZipEntry by reading the
-     * Central Directory Entry (CDE) from "in", which must be positioned
-     * at the CDE signature.
+     * Central Directory Entry from "in", which must be positioned at
+     * the CDE signature.
      *
-     * On exit, "in" will be positioned at the start of the next entry
-     * in the Central Directory.
+     * On exit, "in" will be positioned at the start of the next entry.
      */
-    ZipEntry(byte[] cdeHdrBuf, InputStream cdStream) throws IOException {
-        Streams.readFully(cdStream, cdeHdrBuf, 0, cdeHdrBuf.length);
+    ZipEntry(byte[] hdrBuf, InputStream in) throws IOException {
+        Streams.readFully(in, hdrBuf, 0, hdrBuf.length);
 
-        BufferIterator it = HeapBufferIterator.iterator(cdeHdrBuf, 0, cdeHdrBuf.length,
-                ByteOrder.LITTLE_ENDIAN);
+        BufferIterator it = HeapBufferIterator.iterator(hdrBuf, 0, hdrBuf.length, ByteOrder.LITTLE_ENDIAN);
 
         int sig = it.readInt();
         if (sig != CENSIG) {
-            ZipFile.throwZipException("Central Directory Entry", sig);
+             throw new ZipException("Central Directory Entry not found");
         }
 
         it.seek(8);
@@ -385,7 +383,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
         localHeaderRelOffset = ((long) it.readInt()) & 0xffffffffL;
 
         byte[] nameBytes = new byte[nameLength];
-        Streams.readFully(cdStream, nameBytes, 0, nameBytes.length);
+        Streams.readFully(in, nameBytes, 0, nameBytes.length);
         if (containsNulByte(nameBytes)) {
             throw new ZipException("Filename contains NUL byte: " + Arrays.toString(nameBytes));
         }
@@ -393,14 +391,14 @@ public class ZipEntry implements ZipConstants, Cloneable {
 
         if (extraLength > 0) {
             extra = new byte[extraLength];
-            Streams.readFully(cdStream, extra, 0, extraLength);
+            Streams.readFully(in, extra, 0, extraLength);
         }
 
         // The RI has always assumed UTF-8. (If GPBF_UTF8_FLAG isn't set, the encoding is
         // actually IBM-437.)
         if (commentByteCount > 0) {
             byte[] commentBytes = new byte[commentByteCount];
-            Streams.readFully(cdStream, commentBytes, 0, commentByteCount);
+            Streams.readFully(in, commentBytes, 0, commentByteCount);
             comment = new String(commentBytes, 0, commentBytes.length, StandardCharsets.UTF_8);
         }
     }
