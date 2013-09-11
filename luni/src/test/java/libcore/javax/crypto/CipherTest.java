@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -778,8 +779,10 @@ public final class CipherTest extends TestCase {
 
         // Cipher.getInstance(String)
         Cipher c1 = Cipher.getInstance(algorithm);
-        assertEquals(algorithm, c1.getAlgorithm());
-        test_Cipher(c1);
+        if (provider.equals(c1.getProvider())) {
+            assertEquals(algorithm, c1.getAlgorithm());
+            test_Cipher(c1);
+        }
 
         // Cipher.getInstance(String, Provider)
         Cipher c2 = Cipher.getInstance(algorithm, provider);
@@ -812,6 +815,23 @@ public final class CipherTest extends TestCase {
 
         final AlgorithmParameterSpec encryptSpec = getEncryptAlgorithmParameterSpec(algorithm);
         int encryptMode = getEncryptMode(algorithm);
+
+        // Bouncycastle doesn't return a default PBEParameterSpec
+        if (isPBE(algorithm) && !"BC".equals(providerName)) {
+            assertNotNull(cipherID + " getParameters()", c.getParameters());
+            assertNotNull(c.getParameters().getParameterSpec(PBEParameterSpec.class));
+        } else {
+            assertNull(cipherID + " getParameters()", c.getParameters());
+        }
+        try {
+            assertNull(cipherID + " getIV()", c.getIV());
+        } catch (NullPointerException e) {
+            // Bouncycastle apparently has a bug here with AESWRAP, et al.
+            if (!("BC".equals(providerName) && isOnlyWrappingAlgorithm(algorithm))) {
+                throw e;
+            }
+        }
+
         c.init(encryptMode, encryptKey, encryptSpec);
         assertEquals(cipherID + " getBlockSize() encryptMode",
                      getExpectedBlockSize(algorithm, encryptMode, providerName), c.getBlockSize());
@@ -826,9 +846,41 @@ public final class CipherTest extends TestCase {
         assertEquals(cipherID + " getOutputSize(0) decryptMode",
                      getExpectedOutputSize(algorithm, decryptMode, providerName), c.getOutputSize(0));
 
-        // TODO: test Cipher.getIV()
+        if (isPBE(algorithm)) {
+            if (algorithm.endsWith("RC4")) {
+                assertNull(cipherID + " getIV()", c.getIV());
+            } else {
+                assertNotNull(cipherID + " getIV()", c.getIV());
+            }
+        } else if (decryptSpec instanceof IvParameterSpec) {
+            assertEquals(cipherID + " getIV()",
+                    Arrays.toString(((IvParameterSpec) decryptSpec).getIV()),
+                    Arrays.toString(c.getIV()));
+        } else {
+            try {
+                assertNull(cipherID + " getIV()", c.getIV());
+            } catch (NullPointerException e) {
+                // Bouncycastle apparently has a bug here with AESWRAP, et al.
+                if (!("BC".equals(providerName) && isOnlyWrappingAlgorithm(algorithm))) {
+                    throw e;
+                }
+            }
+        }
 
-        // TODO: test Cipher.getParameters()
+        AlgorithmParameters params = c.getParameters();
+        if (decryptSpec == null) {
+            assertNull(cipherID + " getParameters()", params);
+        } else if (decryptSpec instanceof IvParameterSpec) {
+            IvParameterSpec ivDecryptSpec = (IvParameterSpec) params.getParameterSpec(IvParameterSpec.class);
+            assertEquals(cipherID + " getIV()",
+                    Arrays.toString(((IvParameterSpec) decryptSpec).getIV()),
+                    Arrays.toString(ivDecryptSpec.getIV()));
+        } else if (decryptSpec instanceof PBEParameterSpec) {
+            // Bouncycastle seems to be schizophrenic about whther it returns this or not
+            if (!"BC".equals(providerName)) {
+                assertNotNull(cipherID + " getParameters()", params);
+            }
+        }
 
         assertNull(cipherID, c.getExemptionMechanism());
 
