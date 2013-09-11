@@ -23,41 +23,52 @@
 #include "cutils/log.h"
 #include "unicode/dtitvfmt.h"
 
-static jstring DateIntervalFormat_formatDateInterval(JNIEnv* env, jclass, jstring javaSkeleton, jstring javaLocaleName, jstring javaTzName, jlong fromDate, jlong toDate) {
+static jlong DateIntervalFormat_createDateIntervalFormat(JNIEnv* env, jclass, jstring javaSkeleton, jstring javaLocaleName, jstring javaTzName) {
   Locale locale = getLocale(env, javaLocaleName);
 
   ScopedJavaUnicodeString skeletonHolder(env, javaSkeleton);
   if (!skeletonHolder.valid()) {
-    return NULL;
+    return 0;
+  }
+
+  UErrorCode status = U_ZERO_ERROR;
+  DateIntervalFormat* formatter(DateIntervalFormat::createInstance(skeletonHolder.unicodeString(), locale, status));
+  if (maybeThrowIcuException(env, "DateIntervalFormat::createInstance", status)) {
+    return 0;
   }
 
   ScopedJavaUnicodeString tzNameHolder(env, javaTzName);
   if (!tzNameHolder.valid()) {
-    return NULL;
+    return 0;
   }
-
-  UErrorCode status = U_ZERO_ERROR;
-  UniquePtr<DateIntervalFormat> formatter(DateIntervalFormat::createInstance(skeletonHolder.unicodeString(), locale, status));
-  if (maybeThrowIcuException(env, "DateIntervalFormat::createInstance", status)) {
-    return NULL;
-  }
-
   formatter->adoptTimeZone(TimeZone::createTimeZone(tzNameHolder.unicodeString()));
 
+  return reinterpret_cast<uintptr_t>(formatter);
+}
+
+static void DateIntervalFormat_destroyDateIntervalFormat(JNIEnv*, jclass, jlong address) {
+  delete reinterpret_cast<DateIntervalFormat*>(address);
+}
+
+static jstring DateIntervalFormat_formatDateInterval(JNIEnv* env, jclass, jlong address, jlong fromDate, jlong toDate) {
+  DateIntervalFormat* formatter(reinterpret_cast<DateIntervalFormat*>(address));
   DateInterval date_interval(fromDate, toDate);
 
-  UnicodeString result;
+  UnicodeString s;
   FieldPosition pos = 0;
-  formatter->format(&date_interval, result, pos, status);
+  UErrorCode status = U_ZERO_ERROR;
+  formatter->format(&date_interval, s, pos, status);
   if (maybeThrowIcuException(env, "DateIntervalFormat::format", status)) {
-      return NULL;
+    return NULL;
   }
 
-  return env->NewString(result.getBuffer(), result.length());
+  return env->NewString(s.getBuffer(), s.length());
 }
 
 static JNINativeMethod gMethods[] = {
-  NATIVE_METHOD(DateIntervalFormat, formatDateInterval, "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JJ)Ljava/lang/String;"),
+  NATIVE_METHOD(DateIntervalFormat, createDateIntervalFormat, "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)J"),
+  NATIVE_METHOD(DateIntervalFormat, destroyDateIntervalFormat, "(J)V"),
+  NATIVE_METHOD(DateIntervalFormat, formatDateInterval, "(JJJ)Ljava/lang/String;"),
 };
 void register_libcore_icu_DateIntervalFormat(JNIEnv* env) {
   jniRegisterNativeMethods(env, "libcore/icu/DateIntervalFormat", gMethods, NELEM(gMethods));
