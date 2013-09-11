@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <stdio.h>  // For BUFSIZ
+
 #include "JniException.h"
 #include "JNIHelp.h"
 
