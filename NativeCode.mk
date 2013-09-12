@@ -103,7 +103,6 @@ LOCAL_STATIC_LIBRARIES += $(core_static_libraries)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacrypto
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
-include external/stlport/libstlport.mk
 include $(BUILD_SHARED_LIBRARY)
 
 # Test JNI library.
