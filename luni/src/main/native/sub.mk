@@ -50,7 +50,6 @@ LOCAL_SRC_FILES := \
 	libcore_io_Memory.cpp \
 	libcore_io_OsConstants.cpp \
 	libcore_io_Posix.cpp \
-	libcore_net_RawSocket.cpp \
 	org_apache_harmony_xml_ExpatParser.cpp \
 	readlink.cpp \
 	realpath.cpp \
