@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -30,37 +31,55 @@ import junit.framework.TestCase;
 
 public final class CipherInputStreamTest extends TestCase {
 
-    private final byte[] keyBytes = { 127, -2, -95, -39, 35, 118, 121, -92 };
+    private final byte[] aesKeyBytes = {
+            (byte) 0x50, (byte) 0x98, (byte) 0xF2, (byte) 0xC3, (byte) 0x85, (byte) 0x23,
+            (byte) 0xA3, (byte) 0x33, (byte) 0x50, (byte) 0x98, (byte) 0xF2, (byte) 0xC3,
+            (byte) 0x85, (byte) 0x23, (byte) 0xA3, (byte) 0x33,
+    };
+
+    private final byte[] aesIvBytes = {
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+    };
+
+    private final byte[] aesCipherText = {
+            (byte) 0x2F, (byte) 0x2C, (byte) 0x74, (byte) 0x31, (byte) 0xFF, (byte) 0xCC,
+            (byte) 0x28, (byte) 0x7D, (byte) 0x59, (byte) 0xBD, (byte) 0xE5, (byte) 0x0A,
+            (byte) 0x30, (byte) 0x7E, (byte) 0x6A, (byte) 0x4A
+    };
+
     private final String plainText = "abcde";
-    private final byte[] cipherText = { 121, -124, -106, 43, -55, -67, -105, -75 };
     private SecretKey key;
+    private AlgorithmParameterSpec iv;
 
     @Override protected void setUp() throws Exception {
-        key = new SecretKeySpec(keyBytes, "DES");
+        key = new SecretKeySpec(aesKeyBytes, "AES");
+        iv = new IvParameterSpec(aesIvBytes);
     }
 
     public void testEncrypt() throws Exception {
-        Cipher cipher = Cipher.getInstance("DES");
-        cipher.init(Cipher.ENCRYPT_MODE, key);
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, key, iv);
         InputStream in = new CipherInputStream(
                 new ByteArrayInputStream(plainText.getBytes("UTF-8")), cipher);
         byte[] bytes = readAll(in);
-        assertEquals(Arrays.toString(cipherText), Arrays.toString(bytes));
+        assertEquals(Arrays.toString(aesCipherText), Arrays.toString(bytes));
     }
 
     public void testDecrypt() throws Exception {
-        Cipher cipher = Cipher.getInstance("DES");
-        cipher.init(Cipher.DECRYPT_MODE, key);
-        InputStream in = new CipherInputStream(new ByteArrayInputStream(cipherText), cipher);
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, key, iv);
+        InputStream in = new CipherInputStream(new ByteArrayInputStream(aesCipherText), cipher);
         byte[] bytes = readAll(in);
-        assertEquals(plainText, new String(bytes, "UTF-8"));
+        assertEquals(Arrays.toString(plainText.getBytes("UTF-8")), Arrays.toString(bytes));
     }
 
     public void testSkip() throws Exception {
-        Cipher cipher = Cipher.getInstance("DES");
-        cipher.init(Cipher.DECRYPT_MODE, key);
-        InputStream in = new CipherInputStream(new ByteArrayInputStream(cipherText), cipher);
-        assertTrue(in.skip(5) > 0);
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, key, iv);
+        InputStream in = new CipherInputStream(new ByteArrayInputStream(aesCipherText), cipher);
+        assertTrue(in.skip(5) >= 0);
     }
 
     private byte[] readAll(InputStream in) throws IOException {
@@ -75,8 +94,7 @@ public final class CipherInputStreamTest extends TestCase {
 
     public void testCipherInputStream_TruncatedInput_Failure() throws Exception {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(new byte[16], "AES"),
-                new IvParameterSpec(new byte[16]));
+        cipher.init(Cipher.DECRYPT_MODE, key, iv);
         InputStream is = new CipherInputStream(new ByteArrayInputStream(new byte[31]), cipher);
         is.read(new byte[4]);
         is.close();
