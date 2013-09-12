@@ -209,19 +209,21 @@ public abstract class InputStream extends Object implements Closeable {
     }
 
     /**
-     * Skips at most {@code n} bytes in this stream. This method does nothing and returns
-     * 0 if {@code n} is negative, but some subclasses may throw.
+     * Skips at most {@code byteCount} bytes in this stream. The number of actual
+     * bytes skipped may be anywhere between 0 and {@code byteCount}. If
+     * {@code byteCount} is negative, this method does nothing and returns 0, but
+     * some subclasses may throw.
      *
-     * <p>Note the "at most" in the description of this method: this method may choose to skip
-     * fewer bytes than requested. Callers should <i>always</i> check the return value.
+     * <p>Note the "at most" in the description of this method: this method may
+     * choose to skip fewer bytes than requested. Callers should <i>always</i>
+     * check the return value.
      *
-     * <p>This default implementation reads bytes into a temporary
-     * buffer. Concrete subclasses should provide their own implementation.
+     * <p>This default implementation reads bytes into a temporary buffer. Concrete
+     * subclasses should provide their own implementation.
      *
-     * @param byteCount the number of bytes to skip.
      * @return the number of bytes actually skipped.
-     * @throws IOException
-     *             if this stream is closed or another IOException occurs.
+     * @throws IOException if this stream is closed or another IOException
+     *             occurs.
      */
     public long skip(long byteCount) throws IOException {
         return Streams.skipByReading(this, byteCount);
