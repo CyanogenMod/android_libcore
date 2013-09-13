@@ -136,17 +136,24 @@ public class CharsetTest extends TestCase {
   }
 
   public void test_EUC_JP_replacement_character() throws Exception {
-    assertEncodes(Charset.forName("EUC-JP"), "\ufffd", 0xf4, 0xfe);
+    // We have text either side of the replacement character, because all kinds of errors
+    // could lead to a replacement character being returned.
+    assertEncodes(Charset.forName("EUC-JP"), " \ufffd ", ' ', 0xf4, 0xfe, ' ');
+    assertDecodes(Charset.forName("EUC-JP"), " \ufffd ", ' ', 0xf4, 0xfe, ' ');
   }
 
   public void test_SCSU_replacement_character() throws Exception {
-    assertDecodes(Charset.forName("SCSU"), "\ufffd", 14, 0xff);
-    assertEncodes(Charset.forName("SCSU"), "\ufffd", 14, 0xff);
+    // We have text either side of the replacement character, because all kinds of errors
+    // could lead to a replacement character being returned.
+    assertEncodes(Charset.forName("SCSU"), " \ufffd ", ' ', 14, 0xff, 0xfd, ' ');
+    assertDecodes(Charset.forName("SCSU"), " \ufffd ", ' ', 14, 0xff, 0xfd, ' ');
   }
 
   public void test_Shift_JIS_replacement_character() throws Exception {
-    assertDecodes(Charset.forName("Shift_JIS"), "\ufffd", 0xfc);
-    assertEncodes(Charset.forName("Shift_JIS"), "\ufffd", 0xfc);
+    // We have text either side of the replacement character, because all kinds of errors
+    // could lead to a replacement character being returned.
+    assertEncodes(Charset.forName("Shift_JIS"), " \ufffd ", ' ', 0xfc, 0xfc, ' ');
+    assertDecodes(Charset.forName("Shift_JIS"), " \ufffd ", ' ', 0xfc, 0xfc, ' ');
   }
 
   public void test_UTF_16() throws Exception {
