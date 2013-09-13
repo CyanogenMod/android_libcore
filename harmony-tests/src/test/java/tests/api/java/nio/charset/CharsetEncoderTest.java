@@ -278,34 +278,36 @@ public class CharsetEncoderTest extends TestCase {
 		assertSame(encoder, encoder.reset());
 	}
 
-	public void testFlushIllegalState() throws CharacterCodingException {
-		CharBuffer in = CharBuffer.wrap("aaa");
-		ByteBuffer out = ByteBuffer.allocate(5);
+  public void testFlushIllegalState() throws CharacterCodingException {
+    CharBuffer in = CharBuffer.wrap("aaa");
+    ByteBuffer out = ByteBuffer.allocate(5);
 
-		// Normal case: after encode with endOfInput is true
-		assertSame(encoder, encoder.reset());
-		encoder.encode(in, out, true);
-		out.rewind();
-		CoderResult result = encoder.flush(out);
+    // Illegal state: after reset.
+    encoder.reset();
+    try {
+      encoder.flush(out);
+      fail();
+    } catch (IllegalStateException expected) {
+    }
 
-		// Illegal state: flush twice
-		try {
-			encoder.flush(out);
-			fail("should throw IllegalStateException");
-		} catch (IllegalStateException e) {
-		    // Expected
-		}
+    // Normal case: after encode with endOfInput is true
+    assertSame(encoder, encoder.reset());
+    encoder.encode(in, out, true);
+    out.rewind();
+    CoderResult result = encoder.flush(out);
 
-		// Illegal state: flush after encode with endOfInput is false
-		assertSame(encoder, encoder.reset());
-		encoder.encode(in, out, false);
-		try {
-			encoder.flush(out);
-			fail("should throw IllegalStateException");
-		} catch (IllegalStateException e) {
-		    // Expected
-		}
-	}
+    // Good state: flush twice
+    encoder.flush(out);
+
+    // Illegal state: flush after encode with endOfInput is false
+    assertSame(encoder, encoder.reset());
+    encoder.encode(in, out, false);
+    try {
+      encoder.flush(out);
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
 
 	public void testFlushAfterConstructing() {
 		ByteBuffer out = ByteBuffer.allocate(5);
