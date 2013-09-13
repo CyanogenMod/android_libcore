@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -600,6 +600,15 @@ public class CharsetDecoderTest extends TestCase {
     public void testFlushIllegalState() throws CharacterCodingException {
         ByteBuffer in = ByteBuffer.wrap(new byte[] { 98, 98 });
         CharBuffer out = CharBuffer.allocate(5);
+
+        // Illegal state: after reset.
+        decoder.reset();
+        try {
+            decoder.flush(out);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+
         // Normal case: after decode with endOfInput is true
         decoder.reset();
         decoder.decode(in, out, true);
@@ -607,23 +616,19 @@ public class CharsetDecoderTest extends TestCase {
         CoderResult result = decoder.flush(out);
         assertSame(result, CoderResult.UNDERFLOW);
 
-        // Illegal state: flush twice
-        try {
-            decoder.flush(out);
-            fail("should throw IllegalStateException");
-        } catch (IllegalStateException e) {
-        }
+        // Good state: flush twice
+        decoder.flush(out);
 
         // Illegal state: flush after decode with endOfInput is false
         decoder.reset();
         decoder.decode(in, out, false);
         try {
             decoder.flush(out);
-            fail("should throw IllegalStateException");
-        } catch (IllegalStateException e) {
+            fail();
+        } catch (IllegalStateException expected) {
         }
     }
-    
+
     // test illegal states for decode facade
     public void testDecodeFacadeIllegalState() throws CharacterCodingException {
         // decode facade can be execute in anywhere

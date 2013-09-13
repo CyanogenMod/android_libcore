@@ -4,9 +4,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -62,7 +62,7 @@ public class CharsetDecoderTest extends TestCase {
 			return null;
 		}
 	}
- 
+
 	/**
 	 * @tests java.nio.charset.CharsetDecoder#decode(java.nio.ByteBuffer)
 	 */
@@ -86,7 +86,7 @@ public class CharsetDecoderTest extends TestCase {
 //
 //		charbuf = Charset.forName("UTF-16LE").decode(buf);
 //		assertEquals("Assert 2: charset UTF16LE", 0, charbuf.length());
-		
+
 		// Regression for HARMONY-99
 		CharsetDecoder decoder2 = Charset.forName("UTF-16").newDecoder();
 		decoder2.onMalformedInput(CodingErrorAction.REPORT);
@@ -97,9 +97,9 @@ public class CharsetDecoderTest extends TestCase {
 			fail("Assert 3: MalformedInputException should have thrown");
 		} catch (MalformedInputException e) {
 			//expected
-		} 
+		}
 	}
-	
+
     /*
      * Test malfunction decode(ByteBuffer)
      */
@@ -124,7 +124,7 @@ public class CharsetDecoderTest extends TestCase {
 			// expected
 		}
 	}
-    
+
 	/*
 	 * Mock charset class with malfunction decode & encode.
 	 */
@@ -173,8 +173,8 @@ public class CharsetDecoderTest extends TestCase {
 		protected CoderResult encodeLoop(CharBuffer in, ByteBuffer out) {
 			throw new BufferOverflowException();
 		}
-	} 
-	
+	}
+
 	/*
 	 * Test the method decode(ByteBuffer) .
 	 */
@@ -249,16 +249,16 @@ public class CharsetDecoderTest extends TestCase {
 
         CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPORT);
+        decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
 
         /*
          * When bytebuffer has a backing array...
          */
         for (byte[] bytes : invalidSequences) {
             try {
-                decoder.decode(ByteBuffer.wrap(bytes));
-                fail("No exception thrown on " + Arrays.toString(bytes));
-            } catch (MalformedInputException e) {
-                // expected
+                CharBuffer cb = decoder.decode(ByteBuffer.wrap(bytes));
+                fail("No exception thrown on " + Arrays.toString(bytes) + " '" + cb + "'");
+            } catch (MalformedInputException expected) {
             }
         }
 
@@ -269,10 +269,9 @@ public class CharsetDecoderTest extends TestCase {
             try {
                 ByteBuffer bb = ByteBuffer.allocateDirect(8);
                 bb.put(bytes).flip();
-                decoder.decode(bb);
-                fail("No exception thrown on " + Arrays.toString(bytes));
-            } catch (MalformedInputException e) {
-                // expected
+                CharBuffer cb = decoder.decode(bb);
+                fail("No exception thrown on " + Arrays.toString(bytes) + " '" + cb + "'");
+            } catch (MalformedInputException expected) {
             }
         }
     }
