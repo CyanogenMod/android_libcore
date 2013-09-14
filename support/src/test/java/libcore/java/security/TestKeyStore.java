@@ -576,14 +576,6 @@ public final class TestKeyStore extends Assert {
                                                             excludedNameConstraints.size()])));
         }
 
-        if (privateKey instanceof ECPrivateKey) {
-            /*
-             * bouncycastle needs its own ECPrivateKey implementation
-             */
-            KeyFactory kf = KeyFactory.getInstance(keyAlgorithm, "BC");
-            PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(privateKey.getEncoded());
-            privateKey = kf.generatePrivate(ks);
-        }
         X509Certificate x509c = x509cg.generateX509Certificate(privateKey);
         if (StandardNames.IS_RI) {
             /*
