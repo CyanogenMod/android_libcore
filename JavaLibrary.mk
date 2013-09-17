@@ -91,31 +91,6 @@ include $(BUILD_JAVA_LIBRARY)
 core-intermediates := ${intermediates}
 
 
-# Create the conscrypt library
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-main-java-files-under,crypto)
-LOCAL_JAVA_LIBRARIES := core
-LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVACFLAGS := $(local_javac_flags)
-LOCAL_JARJAR_RULES := $(LOCAL_PATH)/crypto/jarjar-rules.txt
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE := conscrypt
-LOCAL_REQUIRED_MODULES := libjavacrypto
-LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
-include $(BUILD_JAVA_LIBRARY)
-
-# Create the conscrypt library without jarjar for tests
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-main-java-files-under,crypto)
-LOCAL_JAVA_LIBRARIES := core
-LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVACFLAGS := $(local_javac_flags)
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE := conscrypt-nojarjar
-LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
-
 ifeq ($(LIBCORE_SKIP_TESTS),)
 # Make the core-tests library.
 include $(CLEAR_VARS)
@@ -139,23 +114,6 @@ LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE := core-tests-support
-LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
-include $(BUILD_STATIC_JAVA_LIBRARY)
-endif
-
-ifeq ($(LIBCORE_SKIP_TESTS),)
-# Make the conscrypt-tests library.
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-test-java-files-under,crypto)
-LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
-LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit
-LOCAL_STATIC_JAVA_LIBRARIES := core-tests-support conscrypt-nojarjar
-LOCAL_JAVACFLAGS := $(local_javac_flags)
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE := conscrypt-tests
-LOCAL_REQUIRED_MODULES := libjavacrypto
-LOCAL_JARJAR_RULES := $(LOCAL_PATH)/crypto/jarjar-rules.txt
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 include $(BUILD_STATIC_JAVA_LIBRARY)
 endif
@@ -220,32 +178,6 @@ ifeq ($(WITH_HOST_DALVIK),true)
 
     include $(BUILD_HOST_JAVA_LIBRARY)
 
-    # Make the conscrypt-hostdex library
-    include $(CLEAR_VARS)
-    LOCAL_SRC_FILES := $(call all-main-java-files-under,crypto)
-    LOCAL_JAVA_LIBRARIES := core-hostdex
-    LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVACFLAGS := $(local_javac_flags)
-    LOCAL_JARJAR_RULES := $(LOCAL_PATH)/crypto/jarjar-rules.txt
-    LOCAL_BUILD_HOST_DEX := true
-    LOCAL_MODULE_TAGS := optional
-    LOCAL_MODULE := conscrypt-hostdex
-    LOCAL_REQUIRED_MODULES := libjavacrypto
-    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
-    include $(BUILD_HOST_JAVA_LIBRARY)
-
-    # Make the conscrypt-hostdex-nojarjar for tests
-    include $(CLEAR_VARS)
-    LOCAL_SRC_FILES := $(call all-main-java-files-under,crypto)
-    LOCAL_JAVA_LIBRARIES := core-hostdex
-    LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVACFLAGS := $(local_javac_flags)
-    LOCAL_BUILD_HOST_DEX := true
-    LOCAL_MODULE_TAGS := optional
-    LOCAL_MODULE := conscrypt-hostdex-nojarjar
-    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
-    include $(BUILD_HOST_JAVA_LIBRARY)
-
     # Make the core-tests library.
     ifeq ($(LIBCORE_SKIP_TESTS),)
     include $(CLEAR_VARS)
@@ -272,22 +204,6 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := core-tests-support-hostdex
-    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
-    LOCAL_BUILD_HOST_DEX := true
-    include $(BUILD_HOST_JAVA_LIBRARY)
-    endif
-
-    # Make the conscrypt-tests library.
-    ifeq ($(LIBCORE_SKIP_TESTS),)
-    include $(CLEAR_VARS)
-    LOCAL_SRC_FILES := $(call all-test-java-files-under,crypto)
-    LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
-    LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVA_LIBRARIES := bouncycastle-hostdex core-hostdex core-junit-hostdex core-tests-support-hostdex conscrypt-hostdex-nojarjar
-    LOCAL_JAVACFLAGS := $(local_javac_flags)
-    LOCAL_MODULE_TAGS := optional
-    LOCAL_MODULE := conscrypt-tests-hostdex
-    LOCAL_REQUIRED_MODULES := libjavacrypto
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
     LOCAL_BUILD_HOST_DEX := true
     include $(BUILD_HOST_JAVA_LIBRARY)
