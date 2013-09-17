@@ -89,22 +89,6 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
 include external/stlport/libstlport.mk
 include $(BUILD_SHARED_LIBRARY)
 
-# Platform conscrypt crypto library
-include $(CLEAR_VARS)
-LOCAL_CFLAGS += $(core_cflags)
-LOCAL_CFLAGS += -DJNI_JARJAR_PREFIX="com/android/"
-LOCAL_CPPFLAGS += $(core_cppflags)
-LOCAL_SRC_FILES := \
-        crypto/src/main/native/org_conscrypt_NativeCrypto.cpp
-LOCAL_C_INCLUDES += $(core_c_includes) \
-        libcore/luni/src/main/native
-LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libcrypto libssl libnativehelper libz libjavacore
-LOCAL_STATIC_LIBRARIES += $(core_static_libraries)
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE := libjavacrypto
-LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
-include $(BUILD_SHARED_LIBRARY)
-
 # Test JNI library.
 ifeq ($(LIBCORE_SKIP_TESTS),)
 
@@ -138,37 +122,6 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_MODULE := libjavacore
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
     LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libexpat-host libicuuc-host libicui18n-host libcrypto-host libz-host
-    LOCAL_STATIC_LIBRARIES += $(core_static_libraries)
-    include $(BUILD_HOST_SHARED_LIBRARY)
-
-    # Conscrypt native library for host
-    include $(CLEAR_VARS)
-    LOCAL_SRC_FILES += \
-            crypto/src/main/native/org_conscrypt_NativeCrypto.cpp
-    LOCAL_C_INCLUDES += $(core_c_includes) \
-            libcore/luni/src/main/native
-    LOCAL_CPPFLAGS += $(core_cppflags)
-    LOCAL_LDLIBS += -lpthread
-    LOCAL_MODULE_TAGS := optional
-    LOCAL_MODULE := libjavacrypto
-    LOCAL_CFLAGS += -DJNI_JARJAR_PREFIX="com/android/"
-    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
-    LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libssl-host libcrypto-host libjavacore
-    LOCAL_STATIC_LIBRARIES += $(core_static_libraries)
-    include $(BUILD_HOST_SHARED_LIBRARY)
-
-    # Conscrypt native library for nojarjar'd version
-    include $(CLEAR_VARS)
-    LOCAL_SRC_FILES += \
-            crypto/src/main/native/org_conscrypt_NativeCrypto.cpp
-    LOCAL_C_INCLUDES += $(core_c_includes) \
-            libcore/luni/src/main/native
-    LOCAL_CPPFLAGS += $(core_cppflags)
-    LOCAL_LDLIBS += -lpthread
-    LOCAL_MODULE_TAGS := optional
-    LOCAL_MODULE := libconscrypt_jni
-    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
-    LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libssl-host libcrypto-host libjavacore
     LOCAL_STATIC_LIBRARIES += $(core_static_libraries)
     include $(BUILD_HOST_SHARED_LIBRARY)
 
