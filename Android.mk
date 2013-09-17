@@ -15,6 +15,12 @@
 
 LOCAL_PATH := $(call my-dir)
 
+#
+# Subprojects with separate makefiles
+#
+
+subdirs := benchmarks crypto
+subdir_makefiles := $(call all-named-subdir-makefiles,$(subdirs))
 
 #
 # Include the definitions to build the Java code.
@@ -34,11 +40,6 @@ include $(LOCAL_PATH)/NativeCode.mk
 #
 
 include $(LOCAL_PATH)/CaCerts.mk
-
-#
-# Include the definitions to build the caliper benchmarks.
-#
-include $(LOCAL_PATH)/benchmarks/Android.mk
 
 #
 # Disable test modules if LIBCORE_SKIP_TESTS environment variable is set.
@@ -72,3 +73,5 @@ ifeq ($(WITH_HOST_DALVIK),true)
         apache-harmony-tests-hostdex \
         $(call intermediates-dir-for,JAVA_LIBRARIES,core-tests,,COMMON)/classes.jar
 endif
+
+include $(subdir_makefiles)
