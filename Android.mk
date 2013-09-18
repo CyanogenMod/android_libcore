@@ -62,8 +62,8 @@ ifeq ($(WITH_HOST_DALVIK),true)
         dalvik \
         $(HOST_OUT)/bin/dalvikvm \
         $(HOST_OUT)/bin/dexopt \
-        $(HOST_OUT)/lib/libconscrypt_jni.so \
         $(HOST_OUT)/lib/libjavacore.so \
+        $(HOST_OUT)/lib/libjavacrypto.so \
         cacerts-host \
         core-hostdex \
         conscrypt-hostdex \
