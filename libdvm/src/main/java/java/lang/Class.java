@@ -54,13 +54,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import libcore.util.BasicLruCache;
-import libcore.util.CollectionUtils;
-import libcore.util.EmptyArray;
 import org.apache.harmony.kernel.vm.StringUtils;
 import libcore.reflect.AnnotationAccess;
 import libcore.reflect.GenericSignatureParser;
+import libcore.reflect.InternalNames;
 import libcore.reflect.Types;
+import libcore.util.BasicLruCache;
+import libcore.util.CollectionUtils;
+import libcore.util.EmptyArray;
 
 /**
  * The in-memory representation of a Java class. This representation serves as
@@ -122,11 +123,23 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     private static final long serialVersionUID = 3206093459760846163L;
 
     /**
+     * Class def index from dex file. An index of -1 indicates that there is no class definition,
+     * for example for an array type.
+     */
+    private transient int dexClassDefIndex;
+
+    /** The type index of this class within the dex file that defines it. */
+    private transient int dexTypeIndex;
+
+    /**
+     * Have we computed the type and class def indices? Volatile to avoid double check locking bugs.
+     */
+    private transient volatile boolean dexIndicesInitialized;
+
+    /**
      * Lazily computed name of this class; always prefer calling getName().
      */
     private transient String name;
-
-    private transient int dexTypeIndex;
 
     private Class() {
         // Prevent this class to be instantiated, instance
@@ -139,23 +152,45 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     public native Dex getDex();
 
+    /** Lazily compute indices in to Dex */
+    private synchronized void computeDexIndices() {
+        if (!dexIndicesInitialized) {
+            Dex dex = getDex();
+            dexTypeIndex = dex.findTypeIndex(InternalNames.getInternalName(this));
+            if (dexTypeIndex < 0) {
+                dexTypeIndex = -1;
+                dexClassDefIndex = -1;
+            } else {
+                dexClassDefIndex = dex.findClassDefIndexFromTypeIndex(dexTypeIndex);
+            }
+            dexIndicesInitialized = true;
+        }
+    }
+
     /**
-     * The type index of this class in its own Dex, or 0 if it is unknown. If a
-     * class is referenced by multiple Dex files, it will have a different type
-     * index in each. Dex files support 65534 type indices, with 65535
-     * representing no index.
-     *
-     * TODO: 0 is a valid index; this should be -1 if it is unknown
+     * The class def of this class in its own Dex, or -1 if there is no class def.
      *
      * @hide
      */
-    public int getTypeIndex() {
-        int result = dexTypeIndex;
-        if (result == 0) {  // uncomputed => Dalvik
-            result = AnnotationAccess.computeTypeIndex(getDex(), this);
-            dexTypeIndex = result;
+    public int getDexClassDefIndex() {
+        if (!dexIndicesInitialized) {
+            computeDexIndices();
         }
-        return result;
+        return dexClassDefIndex;
+    }
+
+    /**
+     * The type index of this class in its own Dex, or -1 if it is unknown. If a class is referenced
+     * by multiple Dex files, it will have a different type index in each. Dex files support 65534
+     * type indices, with 65535 representing no index.
+     *
+     * @hide
+     */
+    public int getDexTypeIndex() {
+        if (!dexIndicesInitialized) {
+            computeDexIndices();
+        }
+        return dexTypeIndex;
     }
 
     /**
@@ -777,7 +812,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
                 Caches.genericInterfaces.put(this, result);
             }
         }
-        return result;
+        return (result.length == 0) ? result : result.clone();
     }
 
     /**
@@ -1100,7 +1135,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * {@code enum}.
      */
     public boolean isEnum() {
-        return ((getModifiers() & 0x4000) != 0) && (getSuperclass() == Enum.class);
+        if (getSuperclass() != Enum.class) {
+            return false;
+        }
+        int mod = getModifiers(this, true);
+        return (mod & 0x4000) != 0;
     }
 
     /**
@@ -1262,12 +1301,48 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *
      * @hide
      */
-    public int getAnnotationDirectoryOffset() {
-        return AnnotationAccess.typeIndexToAnnotationDirectoryOffset(getDex(), getTypeIndex());
+    public int getDexAnnotationDirectoryOffset() {
+        Dex dex = getDex();
+        if (dex == null) {
+            return 0;
+        }
+        int classDefIndex = getDexClassDefIndex();
+        if (classDefIndex < 0) {
+            return 0;
+        }
+        return dex.annotationDirectoryOffsetFromClassDefIndex(classDefIndex);
     }
 
+
+    /**
+     * Returns a resolved type from the dex cache, computing the type from the dex file if
+     * necessary.
+     * TODO: use Dalvik's dex cache.
+     * @hide
+     */
+    public Class<?> getDexCacheType(Dex dex, int typeIndex) {
+        String internalName = dex.typeNames().get(typeIndex);
+        return InternalNames.getClass(getClassLoader(), internalName);
+    }
+
+    /**
+     * Returns a string from the dex cache, computing the string from the dex file if necessary.
+     *
+     * @hide
+     */
+    public String getDexCacheString(Dex dex, int dexStringIndex) {
+        return dex.strings().get(dexStringIndex);
+    }
+
+
     private static class Caches {
+        /**
+         * Cache to avoid frequent recalculation of generic interfaces, which is generally uncommon.
+         * Sized sufficient to allow ConcurrentHashMapTest to run without recalculating its generic
+         * interfaces (required to avoid time outs). Validated by running reflection heavy code
+         * such as applications using Guice-like frameworks.
+         */
         private static final BasicLruCache<Class, Type[]> genericInterfaces
-            = new BasicLruCache<Class, Type[]>(50);
+            = new BasicLruCache<Class, Type[]>(8);
     }
 }
