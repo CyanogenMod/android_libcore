@@ -254,6 +254,7 @@
   description: "UTF-16 and UTF-32 encoders don't write big-endian output on little-endian devices",
   names: [
     "libcore.java.nio.charset.CharsetEncoderTest#test_defaultReplacementBytesUtf_16",
+    "libcore.java.nio.charset.OldCharset_MultiByte_UTF_16#test_Encode",
     "tests.api.java.nio.charset.CharsetTest#test_UTF_16",
     "tests.api.java.nio.charset.CharsetTest#test_UTF_32",
     "tests.api.java.nio.charset.CharsetTest#test_UTF_16BE",
@@ -262,8 +263,7 @@
     "tests.api.java.nio.charset.CharsetTest#test_UTF_32LE",
     "tests.api.java.nio.charset.CharsetTest#test_x_UTF_16LE_BOM",
     "tests.api.java.nio.charset.CharsetTest#test_X_UTF_32BE_BOM",
-    "tests.api.java.nio.charset.CharsetTest#test_X_UTF_32LE_BOM",
-    "tests.api.java.nio.charset.OldCharset_MultiByte_UTF_16#test_Encode"
+    "tests.api.java.nio.charset.CharsetTest#test_X_UTF_32LE_BOM"
   ],
   bug: 2702411
 },
