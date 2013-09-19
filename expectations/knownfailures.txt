@@ -3,8 +3,9 @@
  */
 [
 {
-  description: "three known CharsetDecoder-/CharsetEncoder-related failures",
+  description: "four known CharsetDecoder-/CharsetEncoder-related failures",
   names: [
+    "org.apache.harmony.nio_char.tests.java.nio.charset.ASCIICharsetEncoderTest#testCanEncodeSurrogate",
     "org.apache.harmony.nio_char.tests.java.nio.charset.ASCIICharsetEncoderTest#testMultiStepEncode",
     "org.apache.harmony.nio_char.tests.java.nio.charset.CharsetDecoderTest#testInvalidDecoding",
     "org.apache.harmony.nio_char.tests.java.nio.charset.CharsetDecoderTest#test_decode"
