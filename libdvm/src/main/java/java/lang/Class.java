@@ -54,7 +54,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import libcore.util.BasicLruCache;
 import libcore.util.CollectionUtils;
 import libcore.util.EmptyArray;
 import org.apache.harmony.kernel.vm.StringUtils;
@@ -157,24 +157,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         }
         return result;
     }
-
-    /**
-     * Get the Signature attribute for this class.  Returns null if not found.
-     */
-    private String getSignatureAttribute() {
-        Object[] annotation = getSignatureAnnotation();
-
-        if (annotation == null) {
-            return null;
-        }
-
-        return StringUtils.combineStrings(annotation);
-    }
-
-    /**
-     * Get the Signature annotation for this class.  Returns null if not found.
-     */
-    native private Object[] getSignatureAnnotation();
 
     /**
      * Returns a {@code Class} object which represents the class with the
@@ -784,13 +766,18 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         synchronized (Caches.genericInterfaces) {
             result = Caches.genericInterfaces.get(this);
             if (result == null) {
-                GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
-                parser.parseForClass(this, getSignatureAttribute());
-                result = Types.getClonedTypeArray(parser.interfaceTypes);
+                String annotationSignature = AnnotationAccess.getSignature(this);
+                if (annotationSignature == null) {
+                    result = EmptyArray.TYPE;
+                } else {
+                    GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
+                    parser.parseForClass(this, annotationSignature);
+                    result = Types.getTypeArray(parser.interfaceTypes, false);
+                }
                 Caches.genericInterfaces.put(this, result);
             }
-       }
-       return result;
+        }
+        return result;
     }
 
     /**
@@ -798,9 +785,14 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * class}.
      */
     public Type getGenericSuperclass() {
-        GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
-        parser.parseForClass(this, getSignatureAttribute());
-        return Types.getType(parser.superclassType);
+        Type genericSuperclass = getSuperclass();
+        String annotationSignature = AnnotationAccess.getSignature(this);
+        if (annotationSignature != null) {
+            GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
+            parser.parseForClass(this, annotationSignature);
+            genericSuperclass = parser.superclassType;
+        }
+        return Types.getType(genericSuperclass);
     }
 
     /**
@@ -1040,9 +1032,13 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     @SuppressWarnings("unchecked")
     public synchronized TypeVariable<Class<T>>[] getTypeParameters() {
+        String annotationSignature = AnnotationAccess.getSignature(this);
+        if (annotationSignature == null) {
+            return EmptyArray.TYPE_VARIABLE;
+        }
         GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
-        parser.parseForClass(this, getSignatureAttribute());
-        return parser.formalTypeParameters.clone();
+        parser.parseForClass(this, annotationSignature);
+        return parser.formalTypeParameters;
     }
 
     /**
@@ -1179,9 +1175,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     public String toString() {
         if (isPrimitive()) {
             return getSimpleName();
-        } else {
-            return (isInterface() ? "interface " : "class ") + getName();
         }
+        return (isInterface() ? "interface " : "class ") + getName();
     }
 
     /**
@@ -1275,5 +1270,4 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         private static final BasicLruCache<Class, Type[]> genericInterfaces
             = new BasicLruCache<Class, Type[]>(50);
     }
-
 }

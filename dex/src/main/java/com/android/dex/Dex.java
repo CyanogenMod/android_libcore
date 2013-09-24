@@ -56,77 +56,16 @@ public final class Dex {
     // Provided as a convenience to avoid a memory allocation to benefit Dalvik.
     // Note: libcore.util.EmptyArray cannot be accessed when this code isn't run on Dalvik.
     static final short[] EMPTY_SHORT_ARRAY = new short[0];
+
     private ByteBuffer data;
     private final TableOfContents tableOfContents = new TableOfContents();
     private int nextSectionStart = 0;
-
-    private static abstract class AbstractRandomAccessList<T>
-            extends AbstractList<T> implements RandomAccess {
-    }
-
-    private List<String> strings = new AbstractRandomAccessList<String>() {
-        @Override public String get(int index) {
-            checkBounds(index, tableOfContents.stringIds.size);
-            return open(tableOfContents.stringIds.off + (index * SizeOf.STRING_ID_ITEM))
-                    .readString();
-        }
-        @Override public int size() {
-            return tableOfContents.stringIds.size;
-        }
-    };
-
-    private final List<Integer> typeIds = new AbstractRandomAccessList<Integer>() {
-        @Override public Integer get(int index) {
-            checkBounds(index, tableOfContents.typeIds.size);
-            return open(tableOfContents.typeIds.off + (index * SizeOf.TYPE_ID_ITEM)).readInt();
-        }
-        @Override public int size() {
-            return tableOfContents.typeIds.size;
-        }
-    };
-
-    private final List<String> typeNames = new AbstractRandomAccessList<String>() {
-        @Override public String get(int index) {
-            checkBounds(index, tableOfContents.typeIds.size);
-            return strings.get(typeIds.get(index));
-        }
-        @Override public int size() {
-            return tableOfContents.typeIds.size;
-        }
-    };
-
-    private final List<ProtoId> protoIds = new AbstractRandomAccessList<ProtoId>() {
-        @Override public ProtoId get(int index) {
-            checkBounds(index, tableOfContents.protoIds.size);
-            return open(tableOfContents.protoIds.off + (SizeOf.PROTO_ID_ITEM * index))
-                    .readProtoId();
-        }
-        @Override public int size() {
-            return tableOfContents.protoIds.size;
-        }
-    };
-
-    private final List<FieldId> fieldIds = new AbstractRandomAccessList<FieldId>() {
-        @Override public FieldId get(int index) {
-            checkBounds(index, tableOfContents.fieldIds.size);
-            return open(tableOfContents.fieldIds.off + (SizeOf.MEMBER_ID_ITEM * index))
-                    .readFieldId();
-        }
-        @Override public int size() {
-            return tableOfContents.fieldIds.size;
-        }
-    };
-
-    private final List<MethodId> methodIds = new AbstractRandomAccessList<MethodId>() {
-        @Override public MethodId get(int index) {
-            checkBounds(index, tableOfContents.methodIds.size);
-            return open(tableOfContents.methodIds.off + (SizeOf.MEMBER_ID_ITEM * index))
-                    .readMethodId();
-        }
-        @Override public int size() {
-            return tableOfContents.methodIds.size;
-        }
-    };
+    private final StringTable strings = new StringTable();
+    private final TypeIndexToDescriptorIndexTable typeIds = new TypeIndexToDescriptorIndexTable();
+    private final TypeIndexToDescriptorTable typeNames = new TypeIndexToDescriptorTable();
+    private final ProtoIdTable protoIds = new ProtoIdTable();
+    private final FieldIdTable fieldIds = new FieldIdTable();
+    private final MethodIdTable methodIds = new MethodIdTable();
 
     /**
      * Creates a new dex that reads from {@code data}. It is an error to modify
@@ -314,31 +253,7 @@ public final class Dex {
     }
 
     public Iterable<ClassDef> classDefs() {
-        return new Iterable<ClassDef>() {
-            public Iterator<ClassDef> iterator() {
-                if (!tableOfContents.classDefs.exists()) {
-                    return Collections.<ClassDef>emptySet().iterator();
-                }
-                return new Iterator<ClassDef>() {
-                    private Dex.Section in = open(tableOfContents.classDefs.off);
-                    private int count = 0;
-
-                    public boolean hasNext() {
-                        return count < tableOfContents.classDefs.size;
-                    }
-                    public ClassDef next() {
-                        if (!hasNext()) {
-                            throw new NoSuchElementException();
-                        }
-                        count++;
-                        return in.readClassDef();
-                    }
-                    public void remove() {
-                        throw new UnsupportedOperationException();
-                    }
-                };
-            }
-        };
+        return new ClassDefIterable();
     }
 
     public TypeList readTypeList(int offset) {
@@ -412,6 +327,113 @@ public final class Dex {
     public void writeHashes() throws IOException {
         open(SIGNATURE_OFFSET).write(computeSignature());
         open(CHECKSUM_OFFSET).writeInt(computeChecksum());
+    }
+
+    /**
+     * Look up a field id name index from a field index. Cheaper than:
+     * {@code fieldIds().get(fieldDexIndex).getNameIndex();}
+     */
+    public int nameIndexFromFieldIndex(int fieldIndex) {
+        checkBounds(fieldIndex, tableOfContents.fieldIds.size);
+        int position = tableOfContents.fieldIds.off + (SizeOf.MEMBER_ID_ITEM * fieldIndex);
+        position += SizeOf.USHORT;  // declaringClassIndex
+        position += SizeOf.USHORT;  // typeIndex
+        return data.getInt(position);  // nameIndex
+    }
+
+    public int findStringIndex(String s) {
+        return Collections.binarySearch(strings, s);
+    }
+
+    public int findTypeIndex(String descriptor) {
+        return Collections.binarySearch(typeNames, descriptor);
+    }
+
+    public int findFieldIndex(FieldId fieldId) {
+        return Collections.binarySearch(fieldIds, fieldId);
+    }
+
+    public int findMethodIndex(MethodId methodId) {
+        return Collections.binarySearch(methodIds, methodId);
+    }
+
+    /**
+     * Look up a field id type index from a field index. Cheaper than:
+     * {@code fieldIds().get(fieldDexIndex).getTypeIndex();}
+     */
+    public int typeIndexFromFieldIndex(int fieldIndex) {
+        checkBounds(fieldIndex, tableOfContents.fieldIds.size);
+        int position = tableOfContents.fieldIds.off + (SizeOf.MEMBER_ID_ITEM * fieldIndex);
+        position += SizeOf.USHORT;  // declaringClassIndex
+        return data.getShort(position) & 0xFFFF;  // typeIndex
+    }
+
+    /**
+     * Look up a method id name index from a method index. Cheaper than:
+     * {@code methodIds().get(methodIndex).getNameIndex();}
+     */
+    public int nameIndexFromMethodIndex(int methodIndex) {
+        checkBounds(methodIndex, tableOfContents.methodIds.size);
+        int position = tableOfContents.methodIds.off + (SizeOf.MEMBER_ID_ITEM * methodIndex);
+        position += SizeOf.USHORT;  // declaringClassIndex
+        position += SizeOf.USHORT;  // protoIndex
+        return data.getInt(position);  // nameIndex
+    }
+
+    /**
+     * Look up a parameter type ids from a method index. Cheaper than:
+     * {@code readTypeList(protoIds.get(methodIds().get(methodDexIndex).getProtoIndex()).getParametersOffset()).getTypes();}
+     */
+    public short[] parameterTypeIndicesFromMethodIndex(int methodIndex) {
+        checkBounds(methodIndex, tableOfContents.methodIds.size);
+        int position = tableOfContents.methodIds.off + (SizeOf.MEMBER_ID_ITEM * methodIndex);
+        position += SizeOf.USHORT;  // declaringClassIndex
+        int protoIndex = data.getShort(position) & 0xFFFF;
+        checkBounds(protoIndex, tableOfContents.protoIds.size);
+        position = tableOfContents.protoIds.off + (SizeOf.PROTO_ID_ITEM * protoIndex);
+        position += SizeOf.UINT;  // shortyIndex
+        position += SizeOf.UINT;  // returnTypeIndex
+        int parametersOffset = data.getInt(position);
+        if (parametersOffset == 0) {
+            return EMPTY_SHORT_ARRAY;
+        }
+        position = parametersOffset;
+        int size = data.getInt(position);
+        if (size <= 0) {
+            throw new AssertionError("Unexpected parameter type list size: " + size);
+        }
+        position += SizeOf.UINT;
+        short[] types = new short[size];
+        for (int i = 0; i < size; i++) {
+            types[i] = data.getShort(position);
+            position += SizeOf.USHORT;
+        }
+        return types;
+    }
+
+    /**
+     * Look up a method id return type index from a method index. Cheaper than:
+     * {@code protoIds().get(methodIds().get(methodDexIndex).getProtoIndex()).getReturnTypeIndex();}
+     */
+    public int returnTypeIndexFromMethodIndex(int methodIndex) {
+        checkBounds(methodIndex, tableOfContents.methodIds.size);
+        int position = tableOfContents.methodIds.off + (SizeOf.MEMBER_ID_ITEM * methodIndex);
+        position += SizeOf.USHORT;  // declaringClassIndex
+        int protoIndex = data.getShort(position) & 0xFFFF;
+        checkBounds(protoIndex, tableOfContents.protoIds.size);
+        position = tableOfContents.protoIds.off + (SizeOf.PROTO_ID_ITEM * protoIndex);
+        position += SizeOf.UINT;  // shortyIndex
+        return data.getInt(position);  // returnTypeIndex
+    }
+
+    /**
+     * Look up a descriptor index from a type index. Cheaper than:
+     * {@code open(tableOfContents.typeIds.off + (index * SizeOf.TYPE_ID_ITEM)).readInt();}
+     */
+    private int descriptorIndexFromTypeIndex(int typeIndex) {
+       checkBounds(typeIndex, tableOfContents.typeIds.size);
+       int position = tableOfContents.typeIds.off + (SizeOf.TYPE_ID_ITEM * typeIndex);
+       return data.getInt(position);
     }
 
     public final class Section implements ByteInput, ByteOutput {
@@ -791,84 +813,97 @@ public final class Dex {
         }
     }
 
-    /**
-     * Look up a field id name index from a field index. Equivalent to:
-     * {@code fieldIds().get(fieldDexIndex).getNameIndex();}
-     */
-    public int nameIndexFromFieldIndex(int fieldIndex) {
-        checkBounds(fieldIndex, tableOfContents.fieldIds.size);
-        int position = tableOfContents.fieldIds.off + (SizeOf.MEMBER_ID_ITEM * fieldIndex);
-        position += SizeOf.USHORT;  // declaringClassIndex
-        position += SizeOf.USHORT;  // typeIndex
-        return data.getInt(position);  // nameIndex
-    }
-
-    /**
-     * Look up a field id type index from a field index. Equivalent to:
-     * {@code fieldIds().get(fieldDexIndex).getTypeIndex();}
-     */
-    public int typeIndexFromFieldIndex(int fieldIndex) {
-        checkBounds(fieldIndex, tableOfContents.fieldIds.size);
-        int position = tableOfContents.fieldIds.off + (SizeOf.MEMBER_ID_ITEM * fieldIndex);
-        position += SizeOf.USHORT;  // declaringClassIndex
-        return data.getShort(position) & 0xFFFF;  // typeIndex
-    }
-
-    /**
-     * Look up a method id name index from a method index. Equivalent to:
-     * {@code methodIds().get(methodIndex).getNameIndex();}
-     */
-    public int nameIndexFromMethodIndex(int methodIndex) {
-        checkBounds(methodIndex, tableOfContents.methodIds.size);
-        int position = tableOfContents.methodIds.off + (SizeOf.MEMBER_ID_ITEM * methodIndex);
-        position += SizeOf.USHORT;  // declaringClassIndex
-        position += SizeOf.USHORT;  // protoIndex
-        return data.getInt(position);  // nameIndex
-    }
-
-    /**
-     * Lookup a parameter type ids from a method index. Equivalent to:
-     * {@code readTypeList(protoIds.get(methodIds().get(methodDexIndex).getProtoIndex()).getParametersOffset()).getTypes();}
-     */
-    public short[] parameterTypeIndicesFromMethodIndex(int methodIndex) {
-        checkBounds(methodIndex, tableOfContents.methodIds.size);
-        int position = tableOfContents.methodIds.off + (SizeOf.MEMBER_ID_ITEM * methodIndex);
-        position += SizeOf.USHORT;  // declaringClassIndex
-        int protoIndex = data.getShort(position) & 0xFFFF;
-        checkBounds(protoIndex, tableOfContents.protoIds.size);
-        position = tableOfContents.protoIds.off + (SizeOf.PROTO_ID_ITEM * protoIndex);
-        position += SizeOf.UINT;  // shortyIndex
-        position += SizeOf.UINT;  // returnTypeIndex
-        int parametersOffset = data.getInt(position);
-        if (parametersOffset == 0) {
-            return EMPTY_SHORT_ARRAY;
+    private final class StringTable extends AbstractList<String> implements RandomAccess {
+        @Override public String get(int index) {
+            checkBounds(index, tableOfContents.stringIds.size);
+            return open(tableOfContents.stringIds.off + (index * SizeOf.STRING_ID_ITEM))
+                    .readString();
         }
-        position = parametersOffset;
-        int size = data.getInt(position);
-        if (size <= 0) {
-            throw new AssertionError("Unexpected parameter type list size: " + size);
+        @Override public int size() {
+            return tableOfContents.stringIds.size;
         }
-        position += SizeOf.UINT;
-        short[] types = new short[size];
-        for (int i = 0; i < size; i++) {
-            types[i] = data.getShort(position);
-            position += SizeOf.USHORT;
-        }
-        return types;
-    }
+    };
 
-    /**
-     * Look up a method id return type index from a method index. Equivalent to:
-     * {@code protoIds().get(methodIds().get(methodDexIndex).getProtoIndex()).getReturnTypeIndex();}
-     */
-    public int returnTypeIndexFromMethodIndex(int methodIndex) {
-        checkBounds(methodIndex, tableOfContents.methodIds.size);
-        int position = tableOfContents.methodIds.off + (SizeOf.MEMBER_ID_ITEM * methodIndex);
-        position += SizeOf.USHORT;  // declaringClassIndex
-        int protoIndex = data.getShort(position) & 0xFFFF;
-        checkBounds(protoIndex, tableOfContents.protoIds.size);
-        position = tableOfContents.protoIds.off + (SizeOf.PROTO_ID_ITEM * protoIndex);
-        position += SizeOf.UINT;  // shortyIndex
-        return data.getInt(position);  // returnTypeIndex
-    }
+    private final class TypeIndexToDescriptorIndexTable extends AbstractList<Integer>
+            implements RandomAccess {
+        @Override public Integer get(int index) {
+            return descriptorIndexFromTypeIndex(index);
+        }
+        @Override public int size() {
+            return tableOfContents.typeIds.size;
+        }
+    };
+
+    private final class TypeIndexToDescriptorTable extends AbstractList<String>
+            implements RandomAccess {
+        @Override public String get(int index) {
+            return strings.get(descriptorIndexFromTypeIndex(index));
+        }
+        @Override public int size() {
+            return tableOfContents.typeIds.size;
+        }
+    };
+
+    private final class ProtoIdTable extends AbstractList<ProtoId> implements RandomAccess {
+        @Override public ProtoId get(int index) {
+            checkBounds(index, tableOfContents.protoIds.size);
+            return open(tableOfContents.protoIds.off + (SizeOf.PROTO_ID_ITEM * index))
+                    .readProtoId();
+        }
+        @Override public int size() {
+            return tableOfContents.protoIds.size;
+        }
+    };
+
+    private final class FieldIdTable extends AbstractList<FieldId> implements RandomAccess {
+        @Override public FieldId get(int index) {
+            checkBounds(index, tableOfContents.fieldIds.size);
+            return open(tableOfContents.fieldIds.off + (SizeOf.MEMBER_ID_ITEM * index))
+                    .readFieldId();
+        }
+        @Override public int size() {
+            return tableOfContents.fieldIds.size;
+        }
+    };
+
+    private final class MethodIdTable extends AbstractList<MethodId> implements RandomAccess {
+        @Override public MethodId get(int index) {
+            checkBounds(index, tableOfContents.methodIds.size);
+            return open(tableOfContents.methodIds.off + (SizeOf.MEMBER_ID_ITEM * index))
+                    .readMethodId();
+        }
+        @Override public int size() {
+            return tableOfContents.methodIds.size;
+        }
+    };
+
+    private final class ClassDefIterator implements Iterator<ClassDef> {
+        private final Dex.Section in = open(tableOfContents.classDefs.off);
+        private int count = 0;
+
+        @Override
+        public boolean hasNext() {
+            return count < tableOfContents.classDefs.size;
+        }
+        @Override
+        public ClassDef next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            count++;
+            return in.readClassDef();
+        }
+        @Override
+            public void remove() {
+            throw new UnsupportedOperationException();
+        }
+    };
+
+    private final class ClassDefIterable implements Iterable<ClassDef> {
+        public Iterator<ClassDef> iterator() {
+            return !tableOfContents.classDefs.exists()
+               ? Collections.<ClassDef>emptySet().iterator()
+               : new ClassDefIterator();
+        }
+    };
 }

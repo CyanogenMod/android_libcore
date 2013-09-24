@@ -22,6 +22,7 @@ import java.lang.reflect.GenericSignatureFormatError;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import libcore.util.EmptyArray;
 
 /**
  * Implements a parser for the generics signature attribute.
@@ -119,19 +120,23 @@ public final class GenericSignatureParser {
      * @param genericDecl the GenericDeclaration calling this method
      * @param signature the generic signature of the class
      */
-    public void parseForClass(GenericDeclaration genericDecl,
-            String signature) {
+    public void parseForClass(GenericDeclaration genericDecl, String signature) {
         setInput(genericDecl, signature);
         if (!eof) {
             parseClassSignature();
         } else {
             if(genericDecl instanceof Class) {
                 Class c = (Class) genericDecl;
-                this.formalTypeParameters = ListOfVariables.EMPTY;
+                this.formalTypeParameters = EmptyArray.TYPE_VARIABLE;
                 this.superclassType = c.getSuperclass();
-                this.interfaceTypes = new ListOfTypes(c.getInterfaces());
+                Class<?>[] interfaces = c.getInterfaces();
+                if (interfaces.length == 0) {
+                    this.interfaceTypes = ListOfTypes.EMPTY;
+                } else {
+                    this.interfaceTypes = new ListOfTypes(interfaces);
+                }
             } else {
-                this.formalTypeParameters = ListOfVariables.EMPTY;
+                this.formalTypeParameters = EmptyArray.TYPE_VARIABLE;
                 this.superclassType = Object.class;
                 this.interfaceTypes = ListOfTypes.EMPTY;
             }
@@ -152,9 +157,19 @@ public final class GenericSignatureParser {
             parseMethodTypeSignature(rawExceptionTypes);
         } else {
             Method m = (Method) genericDecl;
-            this.formalTypeParameters = ListOfVariables.EMPTY;
-            this.parameterTypes = new ListOfTypes(m.getParameterTypes());
-            this.exceptionTypes = new ListOfTypes(m.getExceptionTypes());
+            this.formalTypeParameters = EmptyArray.TYPE_VARIABLE;
+            Class<?>[] parameterTypes = m.getParameterTypes();
+            if (parameterTypes.length == 0) {
+                this.parameterTypes = ListOfTypes.EMPTY;
+            } else {
+                this.parameterTypes = new ListOfTypes(parameterTypes);
+            }
+            Class<?>[] exceptionTypes = m.getExceptionTypes();
+            if (exceptionTypes.length == 0) {
+                this.exceptionTypes = ListOfTypes.EMPTY;
+            } else {
+                this.exceptionTypes = new ListOfTypes(exceptionTypes);
+            }
             this.returnType = m.getReturnType();
         }
     }
@@ -173,9 +188,19 @@ public final class GenericSignatureParser {
             parseMethodTypeSignature(rawExceptionTypes);
         } else {
             Constructor c = (Constructor) genericDecl;
-            this.formalTypeParameters = ListOfVariables.EMPTY;
-            this.parameterTypes = new ListOfTypes(c.getParameterTypes());
-            this.exceptionTypes = new ListOfTypes(c.getExceptionTypes());
+            this.formalTypeParameters = EmptyArray.TYPE_VARIABLE;
+            Class<?>[] parameterTypes = c.getParameterTypes();
+            if (parameterTypes.length == 0) {
+                this.parameterTypes = ListOfTypes.EMPTY;
+            } else {
+                this.parameterTypes = new ListOfTypes(parameterTypes);
+            }
+            Class<?>[] exceptionTypes = c.getExceptionTypes();
+            if (exceptionTypes.length == 0) {
+                this.exceptionTypes = ListOfTypes.EMPTY;
+            } else {
+                this.exceptionTypes = new ListOfTypes(exceptionTypes);
+            }
         }
     }
 

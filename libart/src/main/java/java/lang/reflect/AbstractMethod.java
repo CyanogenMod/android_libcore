@@ -156,11 +156,11 @@ public abstract class AbstractMethod extends AccessibleObject {
     }
 
     Type[] getGenericParameterTypes() {
-        return Types.getClonedTypeArray(getMethodOrConstructorGenericInfo().genericParameterTypes);
+        return Types.getTypeArray(getMethodOrConstructorGenericInfo().genericParameterTypes, false);
     }
 
     Type[] getGenericExceptionTypes() {
-        return Types.getClonedTypeArray(getMethodOrConstructorGenericInfo().genericExceptionTypes);
+        return Types.getTypeArray(getMethodOrConstructorGenericInfo().genericExceptionTypes, false);
     }
 
     @Override public Annotation[] getDeclaredAnnotations() {
@@ -284,7 +284,7 @@ public abstract class AbstractMethod extends AccessibleObject {
         sb.append(')');
         // append exceptions if any
         Type[] genericExceptionTypeArray =
-                Types.getClonedTypeArray(info.genericExceptionTypes);
+            Types.getTypeArray(info.genericExceptionTypes, false);
         if (genericExceptionTypeArray.length > 0) {
             sb.append(" throws ");
             Types.appendArrayGenericType(sb, genericExceptionTypeArray);

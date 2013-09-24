@@ -153,12 +153,10 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
         appendTypeName(sb, getDeclaringClass());
         // append parameters
         sb.append('(');
-        appendArrayGenericType(sb,
-                Types.getClonedTypeArray(genericParameterTypes));
+        appendArrayGenericType(sb, Types.getTypeArray(genericParameterTypes, false));
         sb.append(')');
         // append exceptions if any
-        Type[] genericExceptionTypeArray =
-                Types.getClonedTypeArray(genericExceptionTypes);
+        Type[] genericExceptionTypeArray = Types.getTypeArray(genericExceptionTypes, false);
         if (genericExceptionTypeArray.length > 0) {
             sb.append(" throws ");
             appendArrayGenericType(sb, genericExceptionTypeArray);
@@ -183,7 +181,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      */
     public Type[] getGenericParameterTypes() {
         initGenericTypes();
-        return Types.getClonedTypeArray(genericParameterTypes);
+        return Types.getTypeArray(genericParameterTypes, true);
     }
 
     /**
@@ -203,7 +201,7 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      */
     public Type[] getGenericExceptionTypes() {
         initGenericTypes();
-        return Types.getClonedTypeArray(genericExceptionTypes);
+        return Types.getTypeArray(genericExceptionTypes, true);
     }
 
     @Override
