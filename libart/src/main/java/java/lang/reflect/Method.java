@@ -244,7 +244,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      *             instantiated for some reason
      */
     public Type[] getGenericParameterTypes() {
-        return Types.getClonedTypeArray(getMethodOrConstructorGenericInfo().genericParameterTypes);
+        return Types.getTypeArray(getMethodOrConstructorGenericInfo().genericParameterTypes, false);
     }
 
     @Override public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
@@ -269,7 +269,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      *             instantiated for some reason
      */
     public Type[] getGenericExceptionTypes() {
-        return Types.getClonedTypeArray(getMethodOrConstructorGenericInfo().genericExceptionTypes);
+        return Types.getTypeArray(getMethodOrConstructorGenericInfo().genericExceptionTypes, false);
     }
 
     /**

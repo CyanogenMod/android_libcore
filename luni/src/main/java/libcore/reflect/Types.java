@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
+import libcore.util.EmptyArray;
 
 public final class Types {
     private Types() {
@@ -42,16 +43,19 @@ public final class Types {
         PRIMITIVE_TO_SIGNATURE.put(boolean.class, "Z");
     }
 
-    public static Type[] getClonedTypeArray(ListOfTypes types) {
-        return types.getResolvedTypes().clone();
+    public static Type[] getTypeArray(ListOfTypes types, boolean clone) {
+        if (types.length() == 0) {
+            return EmptyArray.TYPE;
+        }
+        Type[] result = types.getResolvedTypes();
+        return clone ? result.clone() : result;
     }
 
     public static Type getType(Type type) {
         if (type instanceof ParameterizedTypeImpl) {
             return ((ParameterizedTypeImpl)type).getResolvedType();
-        } else {
-            return type;
         }
+        return type;
     }
 
     /**
