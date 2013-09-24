@@ -1103,7 +1103,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     public Type[] getGenericInterfaces() {
         String annotationSignature = AnnotationAccess.getSignature(this);
         if (annotationSignature == null) {
-            return EmptyArray.TYPE;
+            return getInterfaces();
         }
         GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
         parser.parseForClass(this, annotationSignature);
