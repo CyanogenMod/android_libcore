@@ -357,6 +357,19 @@ public final class Dex {
         return Collections.binarySearch(methodIds, methodId);
     }
 
+    public int findClassDefIndexFromTypeIndex(int typeIndex) {
+        checkBounds(typeIndex, tableOfContents.typeIds.size);
+        if (!tableOfContents.classDefs.exists()) {
+            return -1;
+        }
+        for (int i = 0; i < tableOfContents.classDefs.size; i++) {
+            if (typeIndexFromClassDefIndex(i) == typeIndex) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     /**
      * Look up a field id type index from a field index. Cheaper than:
      * {@code fieldIds().get(fieldDexIndex).getTypeIndex();}
@@ -366,6 +379,16 @@ public final class Dex {
         int position = tableOfContents.fieldIds.off + (SizeOf.MEMBER_ID_ITEM * fieldIndex);
         position += SizeOf.USHORT;  // declaringClassIndex
         return data.getShort(position) & 0xFFFF;  // typeIndex
+    }
+
+    /**
+     * Look up a method id declaring class index from a method index. Cheaper than:
+     * {@code methodIds().get(methodIndex).getDeclaringClassIndex();}
+     */
+    public int declaringClassIndexFromMethodIndex(int methodIndex) {
+        checkBounds(methodIndex, tableOfContents.methodIds.size);
+        int position = tableOfContents.methodIds.off + (SizeOf.MEMBER_ID_ITEM * methodIndex);
+        return data.getShort(position) & 0xFFFF;  // declaringClassIndex
     }
 
     /**
@@ -430,10 +453,61 @@ public final class Dex {
      * Look up a descriptor index from a type index. Cheaper than:
      * {@code open(tableOfContents.typeIds.off + (index * SizeOf.TYPE_ID_ITEM)).readInt();}
      */
-    private int descriptorIndexFromTypeIndex(int typeIndex) {
+    public int descriptorIndexFromTypeIndex(int typeIndex) {
        checkBounds(typeIndex, tableOfContents.typeIds.size);
        int position = tableOfContents.typeIds.off + (SizeOf.TYPE_ID_ITEM * typeIndex);
        return data.getInt(position);
+    }
+
+    /**
+     * Look up a type index index from a class def index.
+     */
+    public int typeIndexFromClassDefIndex(int classDefIndex) {
+        checkBounds(classDefIndex, tableOfContents.classDefs.size);
+        int position = tableOfContents.classDefs.off + (SizeOf.CLASS_DEF_ITEM * classDefIndex);
+        return data.getInt(position);
+    }
+
+    /**
+     * Look up a type index index from a class def index.
+     */
+    public int annotationDirectoryOffsetFromClassDefIndex(int classDefIndex) {
+        checkBounds(classDefIndex, tableOfContents.classDefs.size);
+        int position = tableOfContents.classDefs.off + (SizeOf.CLASS_DEF_ITEM * classDefIndex);
+        position += SizeOf.UINT;  // type
+        position += SizeOf.UINT;  // accessFlags
+        position += SizeOf.UINT;  // superType
+        position += SizeOf.UINT;  // interfacesOffset
+        position += SizeOf.UINT;  // sourceFileIndex
+        return data.getInt(position);
+    }
+
+    /**
+     * Look up interface types indices from a  return type index from a method index. Cheaper than:
+     * {@code ...getClassDef(classDefIndex).getInterfaces();}
+     */
+    public short[] interfaceTypeIndicesFromClassDefIndex(int classDefIndex) {
+        checkBounds(classDefIndex, tableOfContents.classDefs.size);
+        int position = tableOfContents.classDefs.off + (SizeOf.CLASS_DEF_ITEM * classDefIndex);
+        position += SizeOf.UINT;  // type
+        position += SizeOf.UINT;  // accessFlags
+        position += SizeOf.UINT;  // superType
+        int interfacesOffset = data.getInt(position);
+        if (interfacesOffset == 0) {
+            return EMPTY_SHORT_ARRAY;
+        }
+        position = interfacesOffset;
+        int size = data.getInt(position);
+        if (size <= 0) {
+            throw new AssertionError("Unexpected interfaces list size: " + size);
+        }
+        position += SizeOf.UINT;
+        short[] types = new short[size];
+        for (int i = 0; i < size; i++) {
+            types[i] = data.getShort(position);
+            position += SizeOf.USHORT;
+        }
+        return types;
     }
 
     public final class Section implements ByteInput, ByteOutput {

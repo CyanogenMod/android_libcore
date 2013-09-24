@@ -474,7 +474,7 @@ public final class GenericSignatureParser {
         }
     }
 
-    boolean isStopSymbol(char ch) {
+    static boolean isStopSymbol(char ch) {
         switch (ch) {
         case ':':
         case '/':
@@ -497,7 +497,7 @@ public final class GenericSignatureParser {
                     char ch = buffer[pos];
                     if ((ch >= 'a') && (ch <= 'z') || (ch >= 'A') && (ch <= 'Z')
                             || !isStopSymbol(ch)) {
-                        identBuf.append(buffer[pos]);
+                        identBuf.append(ch);
                         pos++;
                     } else {
                         identifier = identBuf.toString();
