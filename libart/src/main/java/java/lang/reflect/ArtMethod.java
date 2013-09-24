@@ -35,7 +35,6 @@ package java.lang.reflect;
 import com.android.dex.Dex;
 import java.lang.annotation.Annotation;
 import libcore.reflect.AnnotationAccess;
-import libcore.reflect.InternalNames;
 import libcore.util.EmptyArray;
 
 /**
@@ -181,7 +180,7 @@ public final class ArtMethod {
     private String getDexCacheString(Dex dex, int dexStringIndex) {
         String s = (String) dexCacheStrings[dexStringIndex];
         if (s == null) {
-            s = dex.strings().get(dexStringIndex);
+            s = dex.strings().get(dexStringIndex).intern();
             dexCacheStrings[dexStringIndex] = s;
         }
         return s;
@@ -189,17 +188,13 @@ public final class ArtMethod {
 
     /**
      * Returns a resolved type from the dex cache, computing the string from the dex file if
-     * necessary. Note this method replicates {@link java.lang.Class#getDexCacheType(Dex, int)},
+     * necessary. Note this method delegates to {@link java.lang.Class#getDexCacheType(Dex, int)},
      * but in Method we can avoid one indirection.
      */
     private Class<?> getDexCacheType(Dex dex, int dexTypeIndex) {
         Class<?> resolvedType = dexCacheResolvedTypes[dexTypeIndex];
         if (resolvedType == null) {
-            int descriptorIndex = dex.typeIds().get(dexTypeIndex);
-            String descriptor = getDexCacheString(dex, descriptorIndex);
-            resolvedType = InternalNames.getClass(declaringClass.getClassLoader(),
-                                                  descriptor);
-            dexCacheResolvedTypes[dexTypeIndex] = resolvedType;
+            resolvedType = declaringClass.getDexCacheType(dex, dexTypeIndex);
         }
         return resolvedType;
     }

@@ -308,8 +308,9 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
     public String toString() {
         StringBuilder result = new StringBuilder(Modifier.toString(getModifiers()));
 
-        if (result.length() != 0)
+        if (result.length() != 0) {
             result.append(' ');
+        }
         result.append(getDeclaringClass().getName());
         result.append("(");
         Class<?>[] parameterTypes = getParameterTypes();
