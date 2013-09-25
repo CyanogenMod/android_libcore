@@ -356,9 +356,7 @@ public class MacTest extends TestCase {
      * throws ShotBufferException when outOffset  is negative or
      * outOffset >= output.length  or when given buffer is small
      */
-    public void testMac10() throws NoSuchAlgorithmException,
-            NoSuchProviderException, IllegalArgumentException,
-            IllegalStateException, InvalidKeyException {
+    public void testMac10() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
             return;
@@ -404,9 +402,7 @@ public class MacTest extends TestCase {
      * <code>doFinal()</code> methods Assertion: Mac result is stored in
      * output buffer
      */
-    public void testMac11() throws NoSuchAlgorithmException, NoSuchProviderException,
-            IllegalArgumentException, IllegalStateException,
-            InvalidKeyException, ShortBufferException {
+    public void testMac11() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
             return;
@@ -430,9 +426,7 @@ public class MacTest extends TestCase {
      * Test for <code>doFinal(byte[] input)</code> method
      * Assertion: update Mac and returns result
      */
-    public void testMac12() throws NoSuchAlgorithmException, NoSuchProviderException,
-            IllegalArgumentException, IllegalStateException,
-            InvalidKeyException  {
+    public void testMac12() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
             return;
@@ -464,9 +458,7 @@ public class MacTest extends TestCase {
      * Assertion: throws IllegalArgumentException when offset or len is negative,
      * offset + len >= input.length
      */
-    public void testMac13() throws NoSuchAlgorithmException,
-            NoSuchProviderException, IllegalArgumentException, IllegalStateException,
-            InvalidKeyException {
+    public void testMac13() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
             return;
@@ -505,9 +497,7 @@ public class MacTest extends TestCase {
      * methods
      * Assertion: updates Mac
      */
-    public void testMac14() throws NoSuchAlgorithmException,
-            NoSuchProviderException, IllegalArgumentException, IllegalStateException,
-            InvalidKeyException {
+    public void testMac14() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
             return;
@@ -572,9 +562,7 @@ public class MacTest extends TestCase {
      * Assertion: throws InvalidKeyException and InvalidAlgorithmParameterException
      * when parameters are not appropriate
      */
-    public void testInit() throws NoSuchAlgorithmException, NoSuchProviderException,
-            IllegalArgumentException, IllegalStateException, InvalidAlgorithmParameterException,
-            InvalidKeyException {
+    public void testInit() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
             return;
@@ -622,9 +610,7 @@ public class MacTest extends TestCase {
      * methods
      * Assertion: processes Mac; if input is null then do nothing
      */
-    public void testUpdateByteBuffer01() throws NoSuchAlgorithmException, NoSuchProviderException,
-            IllegalArgumentException, IllegalStateException, InvalidAlgorithmParameterException,
-            InvalidKeyException {
+    public void testUpdateByteBuffer01() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
             return;
@@ -665,9 +651,7 @@ public class MacTest extends TestCase {
      * methods
      * Assertion: processes Mac
      */
-    public void testUpdateByteBuffer02() throws NoSuchAlgorithmException, NoSuchProviderException,
-            IllegalArgumentException, IllegalStateException, InvalidAlgorithmParameterException,
-            InvalidKeyException {
+    public void testUpdateByteBuffer02() throws Exception {
         if (!DEFSupported) {
             fail(NotSupportedMsg);
             return;
