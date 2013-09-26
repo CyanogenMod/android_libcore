@@ -48,6 +48,7 @@ public final class OsConstants {
     public static final int AI_V4MAPPED = placeholder();
     public static final int CAP_AUDIT_CONTROL = placeholder();
     public static final int CAP_AUDIT_WRITE = placeholder();
+    public static final int CAP_BLOCK_SUSPEND = placeholder();
     public static final int CAP_CHOWN = placeholder();
     public static final int CAP_DAC_OVERRIDE = placeholder();
     public static final int CAP_DAC_READ_SEARCH = placeholder();

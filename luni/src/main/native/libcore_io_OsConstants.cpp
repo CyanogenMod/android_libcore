@@ -18,6 +18,7 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
+#include "Portability.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -58,6 +59,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "AI_V4MAPPED", AI_V4MAPPED);
     initConstant(env, c, "CAP_AUDIT_CONTROL", CAP_AUDIT_CONTROL);
     initConstant(env, c, "CAP_AUDIT_WRITE", CAP_AUDIT_WRITE);
+    initConstant(env, c, "CAP_BLOCK_SUSPEND", CAP_BLOCK_SUSPEND);
     initConstant(env, c, "CAP_CHOWN", CAP_CHOWN);
     initConstant(env, c, "CAP_DAC_OVERRIDE", CAP_DAC_OVERRIDE);
     initConstant(env, c, "CAP_DAC_READ_SEARCH", CAP_DAC_READ_SEARCH);
