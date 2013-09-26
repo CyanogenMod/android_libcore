@@ -49,12 +49,12 @@ import junit.framework.Assert;
  * </a>.
  *
  * Updated based on the
- * <a href="http://download.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html">
+ * <a href="http://download.java.net/jdk8/docs/technotes/guides/security/SunProviders.html">
  * Java &trade; Cryptography Architecture Oracle Providers Documentation
  * for Java &trade; Platform Standard Edition 7
  * </a>.
  * See also the
- * <a href="http://download.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html">
+ * <a href="http://download.java.net/jdk8/docs/technotes/guides/security/StandardNames.html">
  * Java &trade; Cryptography Architecture Standard Algorithm Name Documentation
  * </a>.
  *
@@ -178,6 +178,7 @@ public final class StandardNames extends Assert {
         provide("KeyGenerator", "DESede");
         provide("KeyGenerator", "HmacMD5");
         provide("KeyGenerator", "HmacSHA1");
+        provide("KeyGenerator", "HmacSHA224");
         provide("KeyGenerator", "HmacSHA256");
         provide("KeyGenerator", "HmacSHA384");
         provide("KeyGenerator", "HmacSHA512");
@@ -192,12 +193,14 @@ public final class StandardNames extends Assert {
         provide("KeyStore", "PKCS12");
         provide("Mac", "HmacMD5");
         provide("Mac", "HmacSHA1");
+        provide("Mac", "HmacSHA224");
         provide("Mac", "HmacSHA256");
         provide("Mac", "HmacSHA384");
         provide("Mac", "HmacSHA512");
         // If adding a new MessageDigest, consider adding it to JarVerifier
         provide("MessageDigest", "MD2");
         provide("MessageDigest", "MD5");
+        provide("MessageDigest", "SHA-224");
         provide("MessageDigest", "SHA-256");
         provide("MessageDigest", "SHA-384");
         provide("MessageDigest", "SHA-512");
@@ -219,7 +222,10 @@ public final class StandardNames extends Assert {
         provide("Signature", "MD5withRSA");
         provide("Signature", "NONEwithDSA");
         provide("Signature", "SHA1withDSA");
+        provide("Signature", "SHA224withDSA");
+        provide("Signature", "SHA256withDSA");
         provide("Signature", "SHA1withRSA");
+        provide("Signature", "SHA224withRSA");
         provide("Signature", "SHA256withRSA");
         provide("Signature", "SHA384withRSA");
         provide("Signature", "SHA512withRSA");
@@ -301,6 +307,7 @@ public final class StandardNames extends Assert {
             provide("Signature", "NONEWITHECDSA");
             provide("Signature", "RAWDSA");
             provide("Signature", "SHA1WITHECDSA");
+            provide("Signature", "SHA224WITHECDSA");
             provide("Signature", "SHA256WITHECDSA");
             provide("Signature", "SHA384WITHECDSA");
             provide("Signature", "SHA512WITHECDSA");
@@ -485,6 +492,7 @@ public final class StandardNames extends Assert {
             provide("KeyPairGenerator", "EC");
             provide("Signature", "NONEWITHECDSA");
             provide("Signature", "ECDSA"); // as opposed to SHA1WITHECDSA
+            provide("Signature", "SHA224WITHECDSA");
             provide("Signature", "SHA256WITHECDSA");
             provide("Signature", "SHA384WITHECDSA");
             provide("Signature", "SHA512WITHECDSA");

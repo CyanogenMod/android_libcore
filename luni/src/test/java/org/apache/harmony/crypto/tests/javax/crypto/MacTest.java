@@ -72,7 +72,7 @@ public class MacTest extends TestCase {
     private static String[] validValues = new String[3];
 
     public static final String validAlgorithmsMac [] =
-        {"HmacSHA1", "HmacMD5", "HmacSHA256", "HmacSHA384", "HmacSHA512"};
+        {"HmacSHA1", "HmacMD5", "HmacSHA224", "HmacSHA256", "HmacSHA384", "HmacSHA512"};
 
 
     static {
@@ -441,15 +441,15 @@ public class MacTest extends TestCase {
             byte[] res1 = macs[i].doFinal();
             byte[] res2 = macs[i].doFinal();
             assertEquals("Results are not the same",
-                    IntegralToString.bytesToHexString(res1, false),
-                    IntegralToString.bytesToHexString(res2, false));
+                    Arrays.toString(res1),
+                    Arrays.toString(res2));
 
             res2 = macs[i].doFinal(upd);
             macs[i].update(upd);
             res1 = macs[i].doFinal();
             assertEquals("Results are not the same",
-                    IntegralToString.bytesToHexString(res1, false),
-                    IntegralToString.bytesToHexString(res2, false));
+                    Arrays.toString(res1),
+                    Arrays.toString(res2));
         }
     }
 
