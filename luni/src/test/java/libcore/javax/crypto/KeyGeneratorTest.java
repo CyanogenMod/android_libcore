@@ -114,6 +114,8 @@ public class KeyGeneratorTest extends TestCase {
         putKeySize("HmacMD5", 1025);
         putKeySize("HmacSHA1", 1);
         putKeySize("HmacSHA1", 1025);
+        putKeySize("HmacSHA224", 40);
+        putKeySize("HmacSHA224", 1025);
         putKeySize("HmacSHA256", 40);
         putKeySize("HmacSHA256", 1025);
         putKeySize("HmacSHA384", 40);
