@@ -1215,12 +1215,29 @@ public abstract class Provider extends Properties {
          * and formats is usually just a length of 1, so a simple array is
          * faster than a Set.
          */
-        private static final <T> boolean isInArray(T[] itemList, T target) {
+        private static <T> boolean isInArray(T[] itemList, T target) {
             if (target == null) {
                 return false;
             }
             for (T item : itemList) {
                 if (target.equals(item)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Check if an item is in the array. The array of supported key classes
+         * and formats is usually just a length of 1, so a simple array is
+         * faster than a Set.
+         */
+        private static boolean isInArray(Class<?>[] itemList, Class<?> target) {
+            if (target == null) {
+                return false;
+            }
+            for (Class<?> item : itemList) {
+                if (item.isAssignableFrom(target)) {
                     return true;
                 }
             }
