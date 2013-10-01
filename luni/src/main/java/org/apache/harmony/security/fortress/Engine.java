@@ -31,8 +31,8 @@ import java.util.Locale;
  * This class implements common functionality for Provider supplied
  * classes. The usage pattern is to allocate static Engine instance
  * per service type and synchronize on that instance during calls to
- * {@code getInstance} and retreival of the selected {@code Provider}
- * and Service Provider Interface (SPI) results. Retreiving the
+ * {@code getInstance} and retrieval of the selected {@code Provider}
+ * and Service Provider Interface (SPI) results. Retrieving the
  * results with {@code getProvider} and {@code getSpi} sets the
  * internal {@code Engine} values to null to prevent memory leaks.
  *
