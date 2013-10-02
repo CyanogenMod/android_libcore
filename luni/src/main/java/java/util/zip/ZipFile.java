@@ -457,8 +457,8 @@ public class ZipFile implements Closeable, ZipConstants {
         @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
             synchronized (sharedRaf) {
                 final long length = endOffset - offset;
-                if (byteCount > length - byteOffset) {
-                    byteCount = (int) length - byteOffset;
+                if (byteCount > length) {
+                    byteCount = (int) length;
                 }
                 sharedRaf.seek(offset);
                 int count = sharedRaf.read(buffer, byteOffset, byteCount);
