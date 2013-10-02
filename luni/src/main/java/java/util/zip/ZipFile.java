@@ -457,10 +457,6 @@ public class ZipFile implements Closeable, ZipConstants {
         @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
             synchronized (sharedRaf) {
                 final long length = endOffset - offset;
-                if (byteOffset > length) {
-                    throw new IOException("Byte offset is past end of stream: " + byteOffset
-                            + " > " + length);
-                }
                 if (byteCount > length - byteOffset) {
                     byteCount = (int) length - byteOffset;
                 }
