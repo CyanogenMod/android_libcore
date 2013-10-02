@@ -32,8 +32,6 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.Certificate;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
@@ -138,7 +136,7 @@ public final class CipherTest extends TestCase {
             return false;
         }
         // AESWRAP should be used instead, fails with BC and SunJCE otherwise.
-        if (algorithm.startsWith("AES")) {
+        if (algorithm.startsWith("AES") || algorithm.startsWith("DESEDE")) {
             return false;
         }
         return true;
@@ -164,6 +162,9 @@ public final class CipherTest extends TestCase {
         }
         if (algorithm.startsWith("AES/")) {
             return "AES";
+        }
+        if (algorithm.startsWith("DESEDE/")) {
+            return "DESEDE";
         }
         if (algorithm.equals("PBEWITHMD5AND128BITAES-CBC-OPENSSL")) {
             return "AES";
@@ -238,6 +239,11 @@ public final class CipherTest extends TestCase {
 
     private static boolean isPBE(String algorithm) {
         return algorithm.startsWith("PBE");
+    }
+
+    private static boolean isStreamMode(String algorithm) {
+        return algorithm.contains("/CTR/") || algorithm.contains("/OFB")
+                || algorithm.contains("/CFB");
     }
 
     private static Map<String, Key> ENCRYPT_KEYS = new HashMap<String, Key>();
@@ -324,6 +330,18 @@ public final class CipherTest extends TestCase {
         setExpectedBlockSize("PBEWITHSHA1ANDDES", 8);
 
         setExpectedBlockSize("DESEDE", 8);
+        setExpectedBlockSize("DESEDE/CBC/PKCS5PADDING", 8);
+        setExpectedBlockSize("DESEDE/CBC/NOPADDING", 8);
+        setExpectedBlockSize("DESEDE/CFB/PKCS5PADDING", 8);
+        setExpectedBlockSize("DESEDE/CFB/NOPADDING", 8);
+        setExpectedBlockSize("DESEDE/CTR/PKCS5PADDING", 8);
+        setExpectedBlockSize("DESEDE/CTR/NOPADDING", 8);
+        setExpectedBlockSize("DESEDE/CTS/PKCS5PADDING", 8);
+        setExpectedBlockSize("DESEDE/CTS/NOPADDING", 8);
+        setExpectedBlockSize("DESEDE/ECB/PKCS5PADDING", 8);
+        setExpectedBlockSize("DESEDE/ECB/NOPADDING", 8);
+        setExpectedBlockSize("DESEDE/OFB/PKCS5PADDING", 8);
+        setExpectedBlockSize("DESEDE/OFB/NOPADDING", 8);
         setExpectedBlockSize("PBEWITHSHAAND2-KEYTRIPLEDES-CBC", 8);
         setExpectedBlockSize("PBEWITHSHAAND3-KEYTRIPLEDES-CBC", 8);
         setExpectedBlockSize("PBEWITHMD5ANDTRIPLEDES", 8);
@@ -462,6 +480,8 @@ public final class CipherTest extends TestCase {
         // AndroidOpenSSL returns the block size for the block ciphers
         setExpectedOutputSize("AES/CBC/PKCS5PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 16);
         setExpectedOutputSize("AES/ECB/PKCS5PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 16);
+        setExpectedOutputSize("DESEDE/CBC/PKCS5PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 8);
+        setExpectedOutputSize("DESEDE/ECB/PKCS5PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 8);
 
         if (StandardNames.IS_RI) {
             setExpectedOutputSize("AESWRAP", Cipher.WRAP_MODE, 8);
@@ -486,13 +506,32 @@ public final class CipherTest extends TestCase {
         setExpectedOutputSize("PBEWITHMD5ANDDES", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("PBEWITHSHA1ANDDES", Cipher.DECRYPT_MODE, 0);
 
+        setExpectedOutputSize("DESEDE/CBC/NOPADDING", 0);
+        setExpectedOutputSize("DESEDE/CFB/NOPADDING", 0);
+        setExpectedOutputSize("DESEDE/CTR/NOPADDING", 0);
+        setExpectedOutputSize("DESEDE/CTS/NOPADDING", 0);
+        setExpectedOutputSize("DESEDE/ECB/NOPADDING", 0);
+        setExpectedOutputSize("DESEDE/OFB/NOPADDING", 0);
+
         setExpectedOutputSize("DESEDE", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("DESEDE/CBC/PKCS5PADDING", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("DESEDE/CFB/PKCS5PADDING", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("DESEDE/CTR/PKCS5PADDING", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("DESEDE/CTS/PKCS5PADDING", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("DESEDE/ECB/PKCS5PADDING", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("DESEDE/OFB/PKCS5PADDING", Cipher.ENCRYPT_MODE, 8);
         setExpectedOutputSize("PBEWITHSHAAND2-KEYTRIPLEDES-CBC", Cipher.ENCRYPT_MODE, 8);
         setExpectedOutputSize("PBEWITHSHAAND3-KEYTRIPLEDES-CBC", Cipher.ENCRYPT_MODE, 8);
         setExpectedOutputSize("PBEWITHMD5ANDTRIPLEDES", Cipher.ENCRYPT_MODE, 8);
         setExpectedOutputSize("PBEWITHSHA1ANDDESEDE", Cipher.ENCRYPT_MODE, 8);
 
         setExpectedOutputSize("DESEDE", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("DESEDE/CBC/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("DESEDE/CFB/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("DESEDE/CTR/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("DESEDE/CTS/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("DESEDE/ECB/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("DESEDE/OFB/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("PBEWITHSHAAND2-KEYTRIPLEDES-CBC", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("PBEWITHSHAAND3-KEYTRIPLEDES-CBC", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("PBEWITHMD5ANDTRIPLEDES", Cipher.DECRYPT_MODE, 0);
@@ -542,6 +581,8 @@ public final class CipherTest extends TestCase {
                                                                        0x00, 0x00, 0x00, 0x00,
                                                                        0x00, 0x00, 0x00, 0x00,
                                                                        0x00, 0x00, 0x00, 0x00 };
+    private static byte[] EIGHT_BYTE_BLOCK_PLAIN_TEXT = new byte[] { 0x0a, 0x0b, 0x0c, 0x00,
+                                                                     0x00, 0x00, 0x00, 0x00 };
     private static byte[] PKCS1_BLOCK_TYPE_00_PADDED_PLAIN_TEXT = new byte[] {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -638,6 +679,11 @@ public final class CipherTest extends TestCase {
             || algorithm.equals("AES/ECB/NOPADDING")) {
             return SIXTEEN_BYTE_BLOCK_PLAIN_TEXT;
         }
+        if (algorithm.equals("DESEDE")
+            || algorithm.equals("DESEDE/CBC/NOPADDING")
+            || algorithm.equals("DESEDE/ECB/NOPADDING")) {
+            return EIGHT_BYTE_BLOCK_PLAIN_TEXT;
+        }
         return ORIGINAL_PLAIN_TEXT;
     }
 
@@ -648,6 +694,11 @@ public final class CipherTest extends TestCase {
             || algorithm.equals("AES/CTS/NOPADDING")
             || algorithm.equals("AES/ECB/NOPADDING")) {
             return SIXTEEN_BYTE_BLOCK_PLAIN_TEXT;
+        }
+        if (algorithm.equals("DESEDE")
+            || algorithm.equals("DESEDE/CBC/NOPADDING")
+            || algorithm.equals("DESEDE/ECB/NOPADDING")) {
+            return EIGHT_BYTE_BLOCK_PLAIN_TEXT;
         }
         // BC strips the leading 0 for us even when NoPadding is specified
         if (!provider.equals("BC") && algorithm.equals("RSA/ECB/NOPADDING")) {
@@ -669,6 +720,16 @@ public final class CipherTest extends TestCase {
             || algorithm.equals("AES/CTS/NOPADDING")
             || algorithm.equals("AES/OFB/NOPADDING")) {
             final byte[] iv = new byte[16];
+            new SecureRandom().nextBytes(iv);
+            return new IvParameterSpec(iv);
+        }
+        if (algorithm.equals("DESEDE/CBC/NOPADDING")
+            || algorithm.equals("DESEDE/CBC/PKCS5PADDING")
+            || algorithm.equals("DESEDE/CFB/NOPADDING")
+            || algorithm.equals("DESEDE/CTR/NOPADDING")
+            || algorithm.equals("DESEDE/CTS/NOPADDING")
+            || algorithm.equals("DESEDE/OFB/NOPADDING")) {
+            final byte[] iv = new byte[8];
             new SecureRandom().nextBytes(iv);
             return new IvParameterSpec(iv);
         }
@@ -723,7 +784,9 @@ public final class CipherTest extends TestCase {
                     if (!seenBaseCipherNames.contains(baseCipherName)) {
                         seenCiphersWithModeAndPadding.add(baseCipherName);
                     }
-                    continue;
+                    if (!"AndroidOpenSSL".equals(provider.getName())) {
+                        continue;
+                    }
                 }
 
                 try {
@@ -837,6 +900,10 @@ public final class CipherTest extends TestCase {
                      getExpectedBlockSize(algorithm, encryptMode, providerName), c.getBlockSize());
         assertEquals(cipherID + " getOutputSize(0) encryptMode",
                      getExpectedOutputSize(algorithm, encryptMode, providerName), c.getOutputSize(0));
+        if (algorithm.endsWith("/PKCS5PADDING") && isStreamMode(algorithm)) {
+            assertEquals(getExpectedOutputSize(algorithm, encryptMode, providerName),
+                    c.doFinal(new byte[1]).length);
+        }
 
         final AlgorithmParameterSpec decryptSpec = getDecryptAlgorithmParameterSpec(encryptSpec, c);
         int decryptMode = getDecryptMode(algorithm);
