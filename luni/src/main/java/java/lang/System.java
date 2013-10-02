@@ -168,6 +168,12 @@ public final class System {
      * @hide internal use only
      */
     public static void arraycopy(char[] src, int srcPos, char[] dst, int dstPos, int length) {
+        if (src == null) {
+            throw new NullPointerException("src == null");
+        }
+        if (dst == null) {
+            throw new NullPointerException("dst == null");
+        }
         if (srcPos < 0 || dstPos < 0 || length < 0 ||
             srcPos > src.length - length || dstPos > dst.length - length) {
             throw new ArrayIndexOutOfBoundsException(
