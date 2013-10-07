@@ -147,8 +147,7 @@ static void NativeCollation_reset(JNIEnv*, jclass, jlong address) {
 
 static jlong NativeCollation_safeClone(JNIEnv* env, jclass, jlong address) {
     UErrorCode status = U_ZERO_ERROR;
-    jint bufferSize = U_COL_SAFECLONE_BUFFERSIZE;
-    UCollator* c = ucol_safeClone(toCollator(address), NULL, &bufferSize, &status);
+    UCollator* c = ucol_safeClone(toCollator(address), NULL, NULL, &status);
     maybeThrowIcuException(env, "ucol_safeClone", status);
     return static_cast<jlong>(reinterpret_cast<uintptr_t>(c));
 }
