@@ -16,10 +16,7 @@
 
 package libcore.java.security;
 
-import java.security.Provider;
-import java.security.SecureRandom;
-import java.security.SecureRandomSpi;
-import java.security.Security;
+import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.SecureRandomSpi;
@@ -29,14 +26,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import junit.framework.TestCase;
 
 public class ProviderTest extends TestCase {
+    private static final boolean LOG_DEBUG = false;
 
     /**
      * Makes sure all all expected implementations (but not aliases)
@@ -44,16 +44,15 @@ public class ProviderTest extends TestCase {
      * StandardNames
      */
     public void test_Provider_getServices() throws Exception {
-
         // build set of expected algorithms
-        Map<String,Set<String>> remaining
+        Map<String,Set<String>> remainingExpected
                 = new HashMap<String,Set<String>>(StandardNames.PROVIDER_ALGORITHMS);
-        for (Entry<String,Set<String>> entry : remaining.entrySet()) {
+        for (Entry<String,Set<String>> entry : remainingExpected.entrySet()) {
             entry.setValue(new HashSet<String>(entry.getValue()));
         }
 
-        List<String> extra = new ArrayList();
-        List<String> missing = new ArrayList();
+        List<String> extra = new ArrayList<String>();
+        List<String> missing = new ArrayList<String>();
 
         Provider[] providers = Security.getProviders();
         for (Provider provider : providers) {
@@ -70,7 +69,7 @@ public class ProviderTest extends TestCase {
                 String type = service.getType();
                 String algorithm = service.getAlgorithm().toUpperCase();
                 String className = service.getClassName();
-                if (false) {
+                if (LOG_DEBUG) {
                     System.out.println(providerName
                                        + " " + type
                                        + " " + algorithm
@@ -78,8 +77,8 @@ public class ProviderTest extends TestCase {
                 }
 
                 // remove from remaining, assert unknown if missing
-                Set<String> algorithms = remaining.get(type);
-                if (algorithms == null || !algorithms.remove(algorithm)) {
+                Set<String> remainingAlgorithms = remainingExpected.get(type);
+                if (remainingAlgorithms == null || !remainingAlgorithms.remove(algorithm)) {
                     // seems to be missing, but sometimes the same
                     // algorithm is available from multiple providers
                     // (e.g. KeyFactory RSA is available from
@@ -89,9 +88,28 @@ public class ProviderTest extends TestCase {
                             && StandardNames.PROVIDER_ALGORITHMS.get(type).contains(algorithm))) {
                         extra.add("Unknown " + type + " " + algorithm + " " + providerName + "\n");
                     }
+                } else if ("Cipher".equals(type) && !algorithm.contains("/")) {
+                    /*
+                     * Cipher selection follows special rules where you can
+                     * specify the mode and padding during the getInstance call.
+                     * Try to see if the service supports this.
+                     */
+                    Set<String> toRemove = new HashSet<String>();
+                    for (String remainingAlgo : remainingAlgorithms) {
+                        String[] parts = remainingAlgo.split("/");
+                        if (parts.length == 3 && algorithm.equals(parts[0])) {
+                            try {
+                                Cipher.getInstance(remainingAlgo, provider);
+                                toRemove.add(remainingAlgo);
+                            } catch (NoSuchAlgorithmException ignored) {
+                            } catch (NoSuchPaddingException ignored) {
+                            }
+                        }
+                    }
+                    remainingAlgorithms.removeAll(toRemove);
                 }
-                if (algorithms != null && algorithms.isEmpty()) {
-                    remaining.remove(type);
+                if (remainingAlgorithms != null && remainingAlgorithms.isEmpty()) {
+                    remainingExpected.remove(type);
                 }
 
                 // make sure class exists and can be initialized
@@ -113,7 +131,7 @@ public class ProviderTest extends TestCase {
         assertEquals("Extra algorithms", Collections.EMPTY_LIST, extra);
 
         // assert that we don't have any missing in the implementation
-        assertEquals("Missing algorithms", Collections.EMPTY_MAP, remaining);
+        assertEquals("Missing algorithms", Collections.EMPTY_MAP, remainingExpected);
 
         // assert that we don't have any missing classes
         Collections.sort(missing); // sort it for readability
