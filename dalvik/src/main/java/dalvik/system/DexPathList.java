@@ -47,9 +47,6 @@ import static libcore.io.OsConstants.*;
  */
 /*package*/ final class DexPathList {
     private static final String DEX_SUFFIX = ".dex";
-    private static final String JAR_SUFFIX = ".jar";
-    private static final String ZIP_SUFFIX = ".zip";
-    private static final String APK_SUFFIX = ".apk";
 
     /** class definition context */
     private final ClassLoader definingContext;
@@ -215,34 +212,36 @@ import static libcore.io.OsConstants.*;
             DexFile dex = null;
             String name = file.getName();
 
-            if (name.endsWith(DEX_SUFFIX)) {
-                // Raw dex file (not inside a zip/jar).
-                try {
-                    dex = loadDexFile(file, optimizedDirectory);
-                } catch (IOException ex) {
-                    System.logE("Unable to load dex file: " + file, ex);
-                }
-            } else if (name.endsWith(APK_SUFFIX) || name.endsWith(JAR_SUFFIX)
-                    || name.endsWith(ZIP_SUFFIX)) {
-                zip = file;
-
-                try {
-                    dex = loadDexFile(file, optimizedDirectory);
-                } catch (IOException suppressed) {
-                    /*
-                     * IOException might get thrown "legitimately" by the DexFile constructor if the
-                     * zip file turns out to be resource-only (that is, no classes.dex file in it).
-                     * Let dex == null and hang on to the exception to add to the tea-leaves for
-                     * when findClass returns null.
-                     */
-                    suppressedExceptions.add(suppressed);
-                }
-            } else if (file.isDirectory()) {
+            if (file.isDirectory()) {
                 // We support directories for looking up resources.
                 // This is only useful for running libcore tests.
                 elements.add(new Element(file, true, null, null));
+            } else if (file.isFile()){
+                if (name.endsWith(DEX_SUFFIX)) {
+                    // Raw dex file (not inside a zip/jar).
+                    try {
+                        dex = loadDexFile(file, optimizedDirectory);
+                    } catch (IOException ex) {
+                        System.logE("Unable to load dex file: " + file, ex);
+                    }
+                } else {
+                    zip = file;
+
+                    try {
+                        dex = loadDexFile(file, optimizedDirectory);
+                    } catch (IOException suppressed) {
+                        /*
+                         * IOException might get thrown "legitimately" by the DexFile constructor if
+                         * the zip file turns out to be resource-only (that is, no classes.dex file
+                         * in it).
+                         * Let dex == null and hang on to the exception to add to the tea-leaves for
+                         * when findClass returns null.
+                         */
+                        suppressedExceptions.add(suppressed);
+                    }
+                }
             } else {
-                System.logW("Unknown file type for: " + file);
+                System.logW("ClassLoader referenced unknown path: " + file);
             }
 
             if ((zip != null) || (dex != null)) {
