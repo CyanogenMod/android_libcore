@@ -237,4 +237,9 @@ public final class VMRuntime {
      * Registers a native free by reducing the number of native bytes accounted for.
      */
     public native void registerNativeFree(int bytes);
+
+    /**
+     * Fill in dex caches with classes, fields, and methods that are already loaded.
+     */
+    public native void preloadDexCaches();
 }
