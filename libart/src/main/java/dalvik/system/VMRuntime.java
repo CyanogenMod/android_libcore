@@ -240,4 +240,8 @@ public final class VMRuntime {
 
     public native void trimHeap();
     public native void concurrentGC();
+
+    public void preloadDexCaches() {
+        // Do nothing with ART, image generation already does this.
+    }
 }
