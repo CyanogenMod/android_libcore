@@ -75,6 +75,8 @@ public class JarFileTest extends TestCase {
 
     private final String jarName8 = "hyts_signed_sha512digest_sha512withecdsa.jar";
 
+    private final String jarName9 = "hyts_signed_sha256digest_sha256withecdsa.jar";
+
     private final String authAttrsJar = "hyts_signed_authAttrs.jar";
 
     private final String entryName = "foo/bar/A.class";
@@ -604,26 +606,39 @@ public class JarFileTest extends TestCase {
         checkSignedJar(authAttrsJar);
     }
 
+    /**
+     * This test uses a jar file signed with an algorithm that has its own OID
+     * that is valid as a signature type. SHA256withECDSA is an algorithm that
+     * isn't combined as DigestAlgorithm + "with" + DigestEncryptionAlgorithm
+     * like RSAEncryption needs to be.
+     */
+    public void testJarFile_Signed_Valid_DigestEncryptionAlgorithm() throws Exception {
+        checkSignedJar(jarName9);
+    }
+
     private void checkSignedJar(String jarName) throws Exception {
         Support_Resources.copyFile(resources, null, jarName);
 
         File file = new File(resources, jarName);
-
-        JarFile jarFile = new JarFile(file, true);
-
         boolean foundCerts = false;
 
-        Enumeration<JarEntry> e = jarFile.entries();
-        while (e.hasMoreElements()) {
-            JarEntry entry = e.nextElement();
-            InputStream is = jarFile.getInputStream(entry);
-            is.skip(100000);
-            is.close();
-            Certificate[] certs = entry.getCertificates();
-            if (certs != null && certs.length > 0) {
-                foundCerts = true;
-                break;
+        JarFile jarFile = new JarFile(file, true);
+        try {
+
+            Enumeration<JarEntry> e = jarFile.entries();
+            while (e.hasMoreElements()) {
+                JarEntry entry = e.nextElement();
+                InputStream is = jarFile.getInputStream(entry);
+                is.skip(100000);
+                is.close();
+                Certificate[] certs = entry.getCertificates();
+                if (certs != null && certs.length > 0) {
+                    foundCerts = true;
+                    break;
+                }
             }
+        } finally {
+            jarFile.close();
         }
 
         assertTrue(
