@@ -345,7 +345,7 @@ public class JSONObject {
     }
 
     /**
-     * Returns the value mapped by {@code name}.
+     * Returns the value mapped by {@code name}, or throws if no such mapping exists.
      *
      * @throws JSONException if no such mapping exists.
      */
@@ -367,7 +367,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a boolean or
-     * can be coerced to a boolean.
+     * can be coerced to a boolean, or throws otherwise.
      *
      * @throws JSONException if the mapping doesn't exist or cannot be coerced
      *     to a boolean.
@@ -383,7 +383,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a boolean or
-     * can be coerced to a boolean. Returns false otherwise.
+     * can be coerced to a boolean, or false otherwise.
      */
     public boolean optBoolean(String name) {
         return optBoolean(name, false);
@@ -391,7 +391,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a boolean or
-     * can be coerced to a boolean. Returns {@code fallback} otherwise.
+     * can be coerced to a boolean, or {@code fallback} otherwise.
      */
     public boolean optBoolean(String name, boolean fallback) {
         Object object = opt(name);
@@ -401,7 +401,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a double or
-     * can be coerced to a double.
+     * can be coerced to a double, or throws otherwise.
      *
      * @throws JSONException if the mapping doesn't exist or cannot be coerced
      *     to a double.
@@ -417,7 +417,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a double or
-     * can be coerced to a double. Returns {@code NaN} otherwise.
+     * can be coerced to a double, or {@code NaN} otherwise.
      */
     public double optDouble(String name) {
         return optDouble(name, Double.NaN);
@@ -425,7 +425,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a double or
-     * can be coerced to a double. Returns {@code fallback} otherwise.
+     * can be coerced to a double, or {@code fallback} otherwise.
      */
     public double optDouble(String name, double fallback) {
         Object object = opt(name);
@@ -435,7 +435,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is an int or
-     * can be coerced to an int.
+     * can be coerced to an int, or throws otherwise.
      *
      * @throws JSONException if the mapping doesn't exist or cannot be coerced
      *     to an int.
@@ -451,7 +451,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is an int or
-     * can be coerced to an int. Returns 0 otherwise.
+     * can be coerced to an int, or 0 otherwise.
      */
     public int optInt(String name) {
         return optInt(name, 0);
@@ -459,7 +459,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is an int or
-     * can be coerced to an int. Returns {@code fallback} otherwise.
+     * can be coerced to an int, or {@code fallback} otherwise.
      */
     public int optInt(String name, int fallback) {
         Object object = opt(name);
@@ -469,7 +469,8 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a long or
-     * can be coerced to a long. Note that JSON represents numbers as doubles,
+     * can be coerced to a long, or throws otherwise.
+     * Note that JSON represents numbers as doubles,
      * so this is <a href="#lossy">lossy</a>; use strings to transfer numbers via JSON.
      *
      * @throws JSONException if the mapping doesn't exist or cannot be coerced
@@ -486,7 +487,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a long or
-     * can be coerced to a long. Returns 0 otherwise. Note that JSON represents numbers as doubles,
+     * can be coerced to a long, or 0 otherwise. Note that JSON represents numbers as doubles,
      * so this is <a href="#lossy">lossy</a>; use strings to transfer numbers via JSON.
      */
     public long optLong(String name) {
@@ -495,7 +496,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a long or
-     * can be coerced to a long. Returns {@code fallback} otherwise. Note that JSON represents
+     * can be coerced to a long, or {@code fallback} otherwise. Note that JSON represents
      * numbers as doubles, so this is <a href="#lossy">lossy</a>; use strings to transfer
      * numbers via JSON.
      */
@@ -507,7 +508,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists, coercing it if
-     * necessary.
+     * necessary, or throws if no such mapping exists.
      *
      * @throws JSONException if no such mapping exists.
      */
@@ -522,7 +523,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists, coercing it if
-     * necessary. Returns the empty string if no such mapping exists.
+     * necessary, or the empty string if no such mapping exists.
      */
     public String optString(String name) {
         return optString(name, "");
@@ -530,7 +531,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists, coercing it if
-     * necessary. Returns {@code fallback} if no such mapping exists.
+     * necessary, or {@code fallback} if no such mapping exists.
      */
     public String optString(String name, String fallback) {
         Object object = opt(name);
@@ -540,7 +541,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a {@code
-     * JSONArray}.
+     * JSONArray}, or throws otherwise.
      *
      * @throws JSONException if the mapping doesn't exist or is not a {@code
      *     JSONArray}.
@@ -556,7 +557,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a {@code
-     * JSONArray}. Returns null otherwise.
+     * JSONArray}, or null otherwise.
      */
     public JSONArray optJSONArray(String name) {
         Object object = opt(name);
@@ -565,7 +566,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a {@code
-     * JSONObject}.
+     * JSONObject}, or throws otherwise.
      *
      * @throws JSONException if the mapping doesn't exist or is not a {@code
      *     JSONObject}.
@@ -581,7 +582,7 @@ public class JSONObject {
 
     /**
      * Returns the value mapped by {@code name} if it exists and is a {@code
-     * JSONObject}. Returns null otherwise.
+     * JSONObject}, or null otherwise.
      */
     public JSONObject optJSONObject(String name) {
         Object object = opt(name);
