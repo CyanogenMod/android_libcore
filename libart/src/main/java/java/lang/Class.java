@@ -952,6 +952,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * method or constructor.
      */
     public Class<?> getDeclaringClass() {
+        if (AnnotationAccess.isAnonymousClass(this)) {
+            return null;
+        }
         return AnnotationAccess.getDeclaringClass(this);
     }
 
