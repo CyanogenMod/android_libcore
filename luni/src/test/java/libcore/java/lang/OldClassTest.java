@@ -720,8 +720,20 @@ public class OldClassTest extends junit.framework.TestCase {
     }
 
     public void test_getDeclaringClass() {
-        assertNull(OldClassTest.class.getDeclaringClass());
-        assertNotNull(PublicTestClass.class.getDeclaringClass());
+        assertEquals(OldClassTest.class, Intf1.class.getDeclaringClass());
+        assertEquals(null, Serializable.class.getDeclaringClass());
+        assertEquals(null, OldClassTest.class.getDeclaringClass());
+
+        assertEquals(OldClassTest.class, PublicTestClass.class.getDeclaringClass());
+
+        // https://code.google.com/p/android/issues/detail?id=61003
+        assertEquals(null, new Object() {}.getClass().getDeclaringClass());
+        assertEquals(null, new AnonymousMemberFixture().instanceOfAnonymousClass.getClass().getDeclaringClass());
+
+        // Arrays, primitive types, and void all return null.
+        assertEquals(null, char[].class.getDeclaringClass());
+        assertEquals(null, int.class.getDeclaringClass());
+        assertEquals(null, void.class.getDeclaringClass());
     }
 
     public void test_getFieldLjava_lang_String() throws Exception {
@@ -1021,4 +1033,8 @@ public class OldClassTest extends junit.framework.TestCase {
         assertNull(clazz.getResourceAsStream("/NonExistentResource"));
         assertNull(clazz.getResourceAsStream("libcore/java/lang/HelloWorld.txt"));
     }
+}
+
+class AnonymousMemberFixture {
+    Object instanceOfAnonymousClass = new Object() {};
 }
