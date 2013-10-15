@@ -825,16 +825,20 @@ public final class NativeCrypto {
     public static native long SSL_clear_options(long ssl, long options);
 
     public static String[] getDefaultProtocols() {
-        return new String[] { SUPPORTED_PROTOCOL_SSLV3,
+        return new String[] {
+                              SUPPORTED_PROTOCOL_TLSV1_2,
+                              SUPPORTED_PROTOCOL_TLSV1_1,
                               SUPPORTED_PROTOCOL_TLSV1,
+                              SUPPORTED_PROTOCOL_SSLV3,
         };
     }
 
     public static String[] getSupportedProtocols() {
-        return new String[] { SUPPORTED_PROTOCOL_SSLV3,
-                              SUPPORTED_PROTOCOL_TLSV1,
-                              SUPPORTED_PROTOCOL_TLSV1_1,
+        return new String[] {
                               SUPPORTED_PROTOCOL_TLSV1_2,
+                              SUPPORTED_PROTOCOL_TLSV1_1,
+                              SUPPORTED_PROTOCOL_TLSV1,
+                              SUPPORTED_PROTOCOL_SSLV3,
         };
     }
 
