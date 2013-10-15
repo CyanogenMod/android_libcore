@@ -565,13 +565,8 @@ outer:
     }
 
     /**
-     * Returns the character at the specified offset in this string.
-     *
-     * @param index
-     *            the zero-based index in this string.
-     * @return the character at the index.
-     * @throws IndexOutOfBoundsException
-     *             if {@code index < 0} or {@code index >= length()}.
+     * Returns the character at {@code index}.
+     * @throws IndexOutOfBoundsException if {@code index < 0} or {@code index >= length()}.
      */
     public char charAt(int index) {
         if (index < 0 || index >= count) {
