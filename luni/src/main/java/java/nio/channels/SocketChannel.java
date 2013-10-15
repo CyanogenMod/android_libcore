@@ -26,33 +26,40 @@ import java.nio.channels.spi.SelectorProvider;
 
 /**
  * A {@code SocketChannel} is a selectable channel that provides a partial
- * abstraction of stream connecting socket. {@code socket()} returns the related
- * {@link Socket} instance which can handle the socket.
- * <p>
- * A socket channel is open but not connected when created by {@code open()}.
- * After connecting it by calling {@code connect(SocketAddress)}, it will remain
- * connected until it gets closed. If the connection is non-blocking then
- * {@code connect(SocketAddress)} is used to initiate the connection, followed
- * by a call of {@code finishConnect()} to perform the final steps of
- * connecting. {@code isConnectionPending()} indicates if the connection is
- * blocked or not; {@code isConnected()} indicates if the socket is finally
- * connected or not.
- * <p>
- * The input and output sides of a channel can be shut down independently and
- * asynchronously without closing the channel. The {@code shutdownInput} method
+ * abstraction of stream connecting socket.
+ *
+ * The {@link #socket()} method returns a {@link Socket} instance which
+ * allows a wider range of socket operations than {@code SocketChannel} itself.
+ *
+ * <p>A socket channel is open but not connected when created by {@link #open}.
+ * After connecting it by calling {@link #connect(SocketAddress)}, it will remain
+ * connected until closed.
+ *
+ * <p>If the connection is non-blocking then
+ * {@link #connect(SocketAddress)} is used to initiate the connection, followed
+ * by a call of {@link #finishConnect} to perform the final steps of
+ * connecting. {@link #isConnectionPending} to tests whether we're still
+ * trying to connect; {@link #isConnected} tests whether the socket connect
+ * completed successfully. Note that realistic code should use a {@link Selector}
+ * instead of polling. Note also that {@link java.net.Socket} can connect with a
+ * timeout, which is the most common use for a non-blocking connect.
+ *
+ * <p>The input and output sides of a channel can be shut down independently and
+ * asynchronously without closing the channel. The {@link Socket#shutdownInput} method
+ * on the socket returned by {@link #socket}
  * is used for the input side of a channel and subsequent read operations return
  * -1, which means end of stream. If another thread is blocked in a read
  * operation when the shutdown occurs, the read will end without effect and
- * return end of stream. The {@code shutdownOutput} method is used for the
+ * return end of stream. Likewise the {@link Socket#shutdownOutput} method is used for the
  * output side of the channel; subsequent write operations throw a
  * {@link ClosedChannelException}. If the output is shut down and another thread
  * is blocked in a write operation, an {@link AsynchronousCloseException} will
  * be thrown to the pending thread.
- * <p>
- * Socket channels are thread-safe, no more than one thread can read or write at
- * any given time. The {@code connect(SocketAddress)} and {@code
- * finishConnect()} methods are synchronized against each other; when they are
- * processing, calls to {@code read} and {@code write} will block.
+ *
+ * <p>Socket channels are thread-safe, no more than one thread can read or write at
+ * any given time. The {@link #connect(SocketAddress)} and {@link
+ * #finishConnect()} methods are synchronized against each other; when they are
+ * processing, calls to {@link #read} and {@link #write} will block.
  */
 public abstract class SocketChannel extends AbstractSelectableChannel implements
         ByteChannel, ScatteringByteChannel, GatheringByteChannel {
