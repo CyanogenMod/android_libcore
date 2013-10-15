@@ -73,7 +73,7 @@ public class JarEntry extends ZipEntry {
      * {@code null} if none exists.
      *
      * @return the {@code Attributes} for this entry.
-     * @exception IOException
+     * @throws IOException
      *                If an error occurs obtaining the {@code Attributes}.
      * @see Attributes
      */

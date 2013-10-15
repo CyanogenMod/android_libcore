@@ -74,7 +74,7 @@ public class LinkedHashMap<K, V> extends HashMap<K, V> {
      *
      * @param initialCapacity
      *            the initial capacity of this map.
-     * @exception IllegalArgumentException
+     * @throws IllegalArgumentException
      *                when the capacity is less than zero.
      */
     public LinkedHashMap(int initialCapacity) {
