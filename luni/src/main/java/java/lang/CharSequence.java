@@ -32,15 +32,8 @@ public interface CharSequence {
     public int length();
 
     /**
-     * Returns the character at the specified index, with the first character
-     * having index zero.
-     *
-     * @param index
-     *            the index of the character to return.
-     * @return the requested character.
-     * @throws IndexOutOfBoundsException
-     *             if {@code index < 0} or {@code index} is greater than the
-     *             length of this sequence.
+     * Returns the character at {@code index}.
+     * @throws IndexOutOfBoundsException if {@code index < 0} or {@code index >= length()}.
      */
     public char charAt(int index);
 
