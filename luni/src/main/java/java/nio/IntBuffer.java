@@ -78,7 +78,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      *            the length, must not be negative and not greater than
      *            {@code array.length - start}.
      * @return the created int buffer.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if either {@code start} or {@code intCount} is invalid.
      */
     public static IntBuffer wrap(int[] array, int start, int intCount) {
@@ -124,7 +124,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * limit is set to capacity; the mark is cleared.
      *
      * @return this buffer.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public abstract IntBuffer compact();
@@ -138,7 +138,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * @return a negative value if this is less than {@code other}; 0 if this
      *         equals to {@code other}; a positive value if this is greater
      *         than {@code other}.
-     * @exception ClassCastException
+     * @throws ClassCastException
      *                if {@code other} is not an int buffer.
      */
     public int compareTo(IntBuffer otherBuffer) {
@@ -210,7 +210,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * Returns the int at the current position and increases the position by 1.
      *
      * @return the int at the current position.
-     * @exception BufferUnderflowException
+     * @throws BufferUnderflowException
      *                if the position is equal or greater than limit.
      */
     public abstract int get();
@@ -225,7 +225,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * @param dst
      *            the destination int array.
      * @return this buffer.
-     * @exception BufferUnderflowException
+     * @throws BufferUnderflowException
      *                if {@code dst.length} is greater than {@code remaining()}.
      */
     public IntBuffer get(int[] dst) {
@@ -246,9 +246,9 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      *            the number of ints to read, must be no less than zero and not
      *            greater than {@code dst.length - dstOffset}.
      * @return this buffer.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if either {@code dstOffset} or {@code intCount} is invalid.
-     * @exception BufferUnderflowException
+     * @throws BufferUnderflowException
      *                if {@code intCount} is greater than {@code remaining()}.
      */
     public IntBuffer get(int[] dst, int dstOffset, int intCount) {
@@ -268,7 +268,7 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * @param index
      *            the index, must not be negative and less than limit.
      * @return an int at the specified index.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if index is invalid.
      */
     public abstract int get(int index);
@@ -345,9 +345,9 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * @param i
      *            the int to write.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if position is equal or greater than limit.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public abstract IntBuffer put(int i);
@@ -362,9 +362,9 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * @param src
      *            the source int array.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if {@code remaining()} is less than {@code src.length}.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public final IntBuffer put(int[] src) {
@@ -385,11 +385,11 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      *            the number of ints to write, must be no less than zero and not
      *            greater than {@code src.length - srcOffset}.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if {@code remaining()} is less than {@code intCount}.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if either {@code srcOffset} or {@code intCount} is invalid.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public IntBuffer put(int[] src, int srcOffset, int intCount) {
@@ -414,12 +414,12 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * @param src
      *            the source int buffer.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if {@code src.remaining()} is greater than this buffer's
      *                {@code remaining()}.
-     * @exception IllegalArgumentException
+     * @throws IllegalArgumentException
      *                if {@code src} is this buffer.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public IntBuffer put(IntBuffer src) {
@@ -447,9 +447,9 @@ public abstract class IntBuffer extends Buffer implements Comparable<IntBuffer> 
      * @param i
      *            the int to write.
      * @return this buffer.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if index is invalid.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public abstract IntBuffer put(int index, int i);

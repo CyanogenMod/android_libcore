@@ -288,7 +288,7 @@ public class Attributes implements Cloneable, Map<Object, Object> {
      * @param value
      *            the value to store in this {@code Attributes}.
      * @return the value being stored.
-     * @exception ClassCastException
+     * @throws ClassCastException
      *                when key is not an {@code Attributes.Name} or value is not
      *                a {@code String}.
      */

@@ -80,9 +80,9 @@ public abstract class FloatBuffer extends Buffer implements
      *            the length, must not be negative and not greater than
      *            {@code array.length - start}.
      * @return the created float buffer.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if either {@code start} or {@code floatCount} is invalid.
-     * @exception NullPointerException
+     * @throws NullPointerException
      *                if {@code array} is null.
      */
     public static FloatBuffer wrap(float[] array, int start, int floatCount) {
@@ -128,7 +128,7 @@ public abstract class FloatBuffer extends Buffer implements
      * limit is set to capacity; the mark is cleared.
      *
      * @return this buffer.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public abstract FloatBuffer compact();
@@ -142,7 +142,7 @@ public abstract class FloatBuffer extends Buffer implements
      * @return a negative value if this is less than {@code otherBuffer}; 0 if
      *         this equals to {@code otherBuffer}; a positive value if this is
      *         greater than {@code otherBuffer}.
-     * @exception ClassCastException
+     * @throws ClassCastException
      *                if {@code otherBuffer} is not a float buffer.
      */
     public int compareTo(FloatBuffer otherBuffer) {
@@ -224,7 +224,7 @@ public abstract class FloatBuffer extends Buffer implements
      * 1.
      *
      * @return the float at the current position.
-     * @exception BufferUnderflowException
+     * @throws BufferUnderflowException
      *                if the position is equal or greater than limit.
      */
     public abstract float get();
@@ -239,7 +239,7 @@ public abstract class FloatBuffer extends Buffer implements
      * @param dst
      *            the destination float array.
      * @return this buffer.
-     * @exception BufferUnderflowException
+     * @throws BufferUnderflowException
      *                if {@code dst.length} is greater than {@code remaining()}.
      */
     public FloatBuffer get(float[] dst) {
@@ -260,9 +260,9 @@ public abstract class FloatBuffer extends Buffer implements
      *            the number of floats to read, must be no less than zero and no
      *            greater than {@code dst.length - dstOffset}.
      * @return this buffer.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if either {@code dstOffset} or {@code floatCount} is invalid.
-     * @exception BufferUnderflowException
+     * @throws BufferUnderflowException
      *                if {@code floatCount} is greater than {@code remaining()}.
      */
     public FloatBuffer get(float[] dst, int dstOffset, int floatCount) {
@@ -282,7 +282,7 @@ public abstract class FloatBuffer extends Buffer implements
      * @param index
      *            the index, must not be negative and less than limit.
      * @return a float at the specified index.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if index is invalid.
      */
     public abstract float get(int index);
@@ -359,9 +359,9 @@ public abstract class FloatBuffer extends Buffer implements
      * @param f
      *            the float to write.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if position is equal or greater than limit.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public abstract FloatBuffer put(float f);
@@ -376,9 +376,9 @@ public abstract class FloatBuffer extends Buffer implements
      * @param src
      *            the source float array.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if {@code remaining()} is less than {@code src.length}.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public final FloatBuffer put(float[] src) {
@@ -399,11 +399,11 @@ public abstract class FloatBuffer extends Buffer implements
      *            the number of floats to write, must be no less than zero and
      *            no greater than {@code src.length - srcOffset}.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if {@code remaining()} is less than {@code floatCount}.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if either {@code srcOffset} or {@code floatCount} is invalid.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public FloatBuffer put(float[] src, int srcOffset, int floatCount) {
@@ -425,12 +425,12 @@ public abstract class FloatBuffer extends Buffer implements
      * @param src
      *            the source float buffer.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if {@code src.remaining()} is greater than this buffer's
      *                {@code remaining()}.
-     * @exception IllegalArgumentException
+     * @throws IllegalArgumentException
      *                if {@code src} is this buffer.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public FloatBuffer put(FloatBuffer src) {
@@ -458,9 +458,9 @@ public abstract class FloatBuffer extends Buffer implements
      * @param f
      *            the float to write.
      * @return this buffer.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if index is invalid.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public abstract FloatBuffer put(int index, float f);

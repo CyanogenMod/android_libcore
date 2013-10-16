@@ -53,7 +53,7 @@ public class GuardedObject implements Serializable {
      * SecurityException} is thrown.
      *
      * @return the guarded object.
-     * @exception SecurityException
+     * @throws SecurityException
      *                if access is not granted to the guarded object.
      */
     public Object getObject() throws SecurityException {

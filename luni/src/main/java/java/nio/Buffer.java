@@ -296,7 +296,7 @@ public abstract class Buffer {
      *            the new limit, must not be negative and not greater than
      *            capacity.
      * @return this buffer.
-     * @exception IllegalArgumentException
+     * @throws IllegalArgumentException
      *                if <code>newLimit</code> is invalid.
      */
     public final Buffer limit(int newLimit) {
@@ -344,7 +344,7 @@ public abstract class Buffer {
      *            the new position, must be not negative and not greater than
      *            limit.
      * @return this buffer.
-     * @exception IllegalArgumentException
+     * @throws IllegalArgumentException
      *                if <code>newPosition</code> is invalid.
      */
     public final Buffer position(int newPosition) {
@@ -377,7 +377,7 @@ public abstract class Buffer {
      * Resets the position of this buffer to the <code>mark</code>.
      *
      * @return this buffer.
-     * @exception InvalidMarkException
+     * @throws InvalidMarkException
      *                if the mark is not set.
      */
     public final Buffer reset() {

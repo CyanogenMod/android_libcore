@@ -44,7 +44,7 @@ public abstract class CertificateFactorySpi {
      *            the stream from which the data is read to create the
      *            certificate.
      * @return an initialized certificate.
-     * @exception CertificateException
+     * @throws CertificateException
      *                if parsing problems are detected.
      */
     public abstract Certificate engineGenerateCertificate(InputStream inStream)
@@ -57,7 +57,7 @@ public abstract class CertificateFactorySpi {
      * @param inStream
      *            the stream from where data is read to create the certificates.
      * @return a collection of certificates.
-     * @exception CertificateException
+     * @throws CertificateException
      *                if parsing problems are detected.
      */
     public abstract Collection<? extends Certificate>
@@ -70,7 +70,7 @@ public abstract class CertificateFactorySpi {
      * @param inStream
      *            the stream from where data is read to create the CRL.
      * @return an CRL instance.
-     * @exception CRLException
+     * @throws CRLException
      *                if parsing problems are detected.
      */
     public abstract CRL engineGenerateCRL(InputStream inStream)
@@ -83,7 +83,7 @@ public abstract class CertificateFactorySpi {
      * @param inStream
      *            the stream from which the data is read to create the CRLs.
      * @return a collection of CRLs.
-     * @exception CRLException
+     * @throws CRLException
      *                if parsing problems are detected.
      */
     public abstract Collection<? extends CRL>

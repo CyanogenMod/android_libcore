@@ -80,7 +80,7 @@ public abstract class LongBuffer extends Buffer implements
      *            the length, must not be negative and not greater than
      *            {@code array.length - start}.
      * @return the created long buffer.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if either {@code start} or {@code longCount} is invalid.
      */
     public static LongBuffer wrap(long[] array, int start, int longCount) {
@@ -126,7 +126,7 @@ public abstract class LongBuffer extends Buffer implements
      * limit is set to capacity; the mark is cleared.
      *
      * @return this buffer.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public abstract LongBuffer compact();
@@ -140,7 +140,7 @@ public abstract class LongBuffer extends Buffer implements
      * @return a negative value if this is less than {@code otherBuffer}; 0 if
      *         this equals to {@code otherBuffer}; a positive value if this is
      *         greater than {@code otherBuffer}
-     * @exception ClassCastException
+     * @throws ClassCastException
      *                if {@code otherBuffer} is not a long buffer.
      */
     public int compareTo(LongBuffer otherBuffer) {
@@ -212,7 +212,7 @@ public abstract class LongBuffer extends Buffer implements
      * Returns the long at the current position and increase the position by 1.
      *
      * @return the long at the current position.
-     * @exception BufferUnderflowException
+     * @throws BufferUnderflowException
      *                if the position is equal or greater than limit.
      */
     public abstract long get();
@@ -227,7 +227,7 @@ public abstract class LongBuffer extends Buffer implements
      * @param dst
      *            the destination long array.
      * @return this buffer.
-     * @exception BufferUnderflowException
+     * @throws BufferUnderflowException
      *                if {@code dst.length} is greater than {@code remaining()}.
      */
     public LongBuffer get(long[] dst) {
@@ -248,9 +248,9 @@ public abstract class LongBuffer extends Buffer implements
      *            the number of longs to read, must be no less than zero and not
      *            greater than {@code dst.length - dstOffset}.
      * @return this buffer.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if either {@code dstOffset} or {@code longCount} is invalid.
-     * @exception BufferUnderflowException
+     * @throws BufferUnderflowException
      *                if {@code longCount} is greater than {@code remaining()}.
      */
     public LongBuffer get(long[] dst, int dstOffset, int longCount) {
@@ -270,7 +270,7 @@ public abstract class LongBuffer extends Buffer implements
      * @param index
      *            the index, must not be negative and less than limit.
      * @return the long at the specified index.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if index is invalid.
      */
     public abstract long get(int index);
@@ -349,9 +349,9 @@ public abstract class LongBuffer extends Buffer implements
      * @param l
      *            the long to write.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if position is equal or greater than limit.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public abstract LongBuffer put(long l);
@@ -366,9 +366,9 @@ public abstract class LongBuffer extends Buffer implements
      * @param src
      *            the source long array.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if {@code remaining()} is less than {@code src.length}.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public final LongBuffer put(long[] src) {
@@ -389,11 +389,11 @@ public abstract class LongBuffer extends Buffer implements
      *            the number of longs to write, must be no less than zero and
      *            not greater than {@code src.length - srcOffset}.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if {@code remaining()} is less than {@code longCount}.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if either {@code srcOffset} or {@code longCount} is invalid.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public LongBuffer put(long[] src, int srcOffset, int longCount) {
@@ -415,12 +415,12 @@ public abstract class LongBuffer extends Buffer implements
      * @param src
      *            the source long buffer.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if {@code src.remaining()} is greater than this buffer's
      *                {@code remaining()}.
-     * @exception IllegalArgumentException
+     * @throws IllegalArgumentException
      *                if {@code src} is this buffer.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public LongBuffer put(LongBuffer src) {
@@ -448,9 +448,9 @@ public abstract class LongBuffer extends Buffer implements
      * @param l
      *            the long to write.
      * @return this buffer.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if index is invalid.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public abstract LongBuffer put(int index, long l);

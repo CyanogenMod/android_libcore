@@ -82,7 +82,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
          * @return an int < 0 if object1 is less than object2, 0 if they are
          *         equal, and > 0 if object1 is greater
          *
-         * @exception ClassCastException
+         * @throws ClassCastException
          *                if objects are not the correct type
          */
         public int compare(String o1, String o2) {

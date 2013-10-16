@@ -80,7 +80,7 @@ public abstract class ShortBuffer extends Buffer implements
      *            the length, must not be negative and not greater than
      *            {@code array.length - start}.
      * @return the created short buffer.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if either {@code start} or {@code shortCount} is invalid.
      */
     public static ShortBuffer wrap(short[] array, int start, int shortCount) {
@@ -126,7 +126,7 @@ public abstract class ShortBuffer extends Buffer implements
      * limit is set to capacity; the mark is cleared.
      *
      * @return this buffer.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public abstract ShortBuffer compact();
@@ -140,7 +140,7 @@ public abstract class ShortBuffer extends Buffer implements
      * @return a negative value if this is less than {@code otherBuffer}; 0 if
      *         this equals to {@code otherBuffer}; a positive value if this is
      *         greater than {@code otherBuffer}.
-     * @exception ClassCastException
+     * @throws ClassCastException
      *                if {@code otherBuffer} is not a short buffer.
      */
     public int compareTo(ShortBuffer otherBuffer) {
@@ -213,7 +213,7 @@ public abstract class ShortBuffer extends Buffer implements
      * 1.
      *
      * @return the short at the current position.
-     * @exception BufferUnderflowException
+     * @throws BufferUnderflowException
      *                if the position is equal or greater than limit.
      */
     public abstract short get();
@@ -228,7 +228,7 @@ public abstract class ShortBuffer extends Buffer implements
      * @param dst
      *            the destination short array.
      * @return this buffer.
-     * @exception BufferUnderflowException
+     * @throws BufferUnderflowException
      *                if {@code dst.length} is greater than {@code remaining()}.
      */
     public ShortBuffer get(short[] dst) {
@@ -249,9 +249,9 @@ public abstract class ShortBuffer extends Buffer implements
      *            the number of shorts to read, must be no less than zero and
      *            not greater than {@code dst.length - dstOffset}.
      * @return this buffer.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if either {@code dstOffset} or {@code shortCount} is invalid.
-     * @exception BufferUnderflowException
+     * @throws BufferUnderflowException
      *                if {@code shortCount} is greater than {@code remaining()}.
      */
     public ShortBuffer get(short[] dst, int dstOffset, int shortCount) {
@@ -271,7 +271,7 @@ public abstract class ShortBuffer extends Buffer implements
      * @param index
      *            the index, must not be negative and less than limit.
      * @return a short at the specified index.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if index is invalid.
      */
     public abstract short get(int index);
@@ -348,9 +348,9 @@ public abstract class ShortBuffer extends Buffer implements
      * @param s
      *            the short to write.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if position is equal or greater than limit.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public abstract ShortBuffer put(short s);
@@ -365,9 +365,9 @@ public abstract class ShortBuffer extends Buffer implements
      * @param src
      *            the source short array.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if {@code remaining()} is less than {@code src.length}.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public final ShortBuffer put(short[] src) {
@@ -388,11 +388,11 @@ public abstract class ShortBuffer extends Buffer implements
      *            the number of shorts to write, must be no less than zero and
      *            not greater than {@code src.length - srcOffset}.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if {@code remaining()} is less than {@code shortCount}.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if either {@code srcOffset} or {@code shortCount} is invalid.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public ShortBuffer put(short[] src, int srcOffset, int shortCount) {
@@ -414,12 +414,12 @@ public abstract class ShortBuffer extends Buffer implements
      * @param src
      *            the source short buffer.
      * @return this buffer.
-     * @exception BufferOverflowException
+     * @throws BufferOverflowException
      *                if {@code src.remaining()} is greater than this buffer's
      *                {@code remaining()}.
-     * @exception IllegalArgumentException
+     * @throws IllegalArgumentException
      *                if {@code src} is this buffer.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public ShortBuffer put(ShortBuffer src) {
@@ -447,9 +447,9 @@ public abstract class ShortBuffer extends Buffer implements
      * @param s
      *            the short to write.
      * @return this buffer.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if index is invalid.
-     * @exception ReadOnlyBufferException
+     * @throws ReadOnlyBufferException
      *                if no changes may be made to the contents of this buffer.
      */
     public abstract ShortBuffer put(int index, short s);
