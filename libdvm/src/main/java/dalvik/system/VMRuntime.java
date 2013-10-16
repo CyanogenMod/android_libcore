@@ -239,7 +239,8 @@ public final class VMRuntime {
     public native void registerNativeFree(int bytes);
 
     /**
-     * Fill in dex caches with classes, fields, and methods that are already loaded.
+     * Fill in dex caches with classes, fields, and methods that are
+     * already loaded. Typically used after Zygote preloading.
      */
     public native void preloadDexCaches();
 }
