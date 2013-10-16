@@ -400,7 +400,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
     /**
      * Writes data for the current entry to the underlying stream.
      *
-     * @exception IOException
+     * @throws IOException
      *                If an error occurs writing to the stream
      */
     @Override

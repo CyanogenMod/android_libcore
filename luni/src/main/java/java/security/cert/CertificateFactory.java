@@ -280,7 +280,7 @@ public class CertificateFactory {
      * @param inStream
      *            the stream from where data is read to create the CRL.
      * @return an initialized CRL.
-     * @exception CRLException
+     * @throws CRLException
      *                if parsing problems are detected.
      */
     public final CRL generateCRL(InputStream inStream) throws CRLException {
@@ -294,7 +294,7 @@ public class CertificateFactory {
      * @param inStream
      *            the stream from which the data is read to create the CRLs.
      * @return an initialized collection of CRLs.
-     * @exception CRLException
+     * @throws CRLException
      *                if parsing problems are detected.
      */
     public final Collection<? extends CRL> generateCRLs(InputStream inStream)

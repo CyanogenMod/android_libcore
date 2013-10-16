@@ -417,7 +417,7 @@ public class Deflater {
      * Sets the given <a href="#compression_level">compression level</a>
      * to be used when compressing data. This value must be set
      * prior to calling {@link #setInput setInput}.
-     * @exception IllegalArgumentException
+     * @throws IllegalArgumentException
      *                If the compression level is invalid.
      */
     public synchronized void setLevel(int level) {
@@ -435,7 +435,7 @@ public class Deflater {
      * FILTERED, HUFFMAN_ONLY or DEFAULT_STRATEGY. This value must be set prior
      * to calling {@link #setInput setInput}.
      *
-     * @exception IllegalArgumentException
+     * @throws IllegalArgumentException
      *                If the strategy specified is not one of FILTERED,
      *                HUFFMAN_ONLY or DEFAULT_STRATEGY.
      */
