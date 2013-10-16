@@ -258,7 +258,7 @@ public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>,
 
     /**
      * Returns the first element in this set.
-     * @exception NoSuchElementException when this TreeSet is empty
+     * @throws NoSuchElementException when this TreeSet is empty
      */
     public E first() {
         return backingMap.firstKey();
@@ -266,7 +266,7 @@ public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>,
 
     /**
      * Returns the last element in this set.
-     * @exception NoSuchElementException when this TreeSet is empty
+     * @throws NoSuchElementException when this TreeSet is empty
      */
     public E last() {
         return backingMap.lastKey();
@@ -413,10 +413,10 @@ public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>,
      * @return a subset where the elements are greater or equal to
      *         <code>start</code> and less than <code>end</code>
      *
-     * @exception ClassCastException
+     * @throws ClassCastException
      *                when the start or end object cannot be compared with the
      *                elements in this TreeSet
-     * @exception NullPointerException
+     * @throws NullPointerException
      *                when the start or end object is null and the comparator
      *                cannot handle null
      */
@@ -434,10 +434,10 @@ public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>,
      *            the end element
      * @return a subset where the elements are less than <code>end</code>
      *
-     * @exception ClassCastException
+     * @throws ClassCastException
      *                when the end object cannot be compared with the elements
      *                in this TreeSet
-     * @exception NullPointerException
+     * @throws NullPointerException
      *                when the end object is null and the comparator cannot
      *                handle null
      */
@@ -457,10 +457,10 @@ public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>,
      * @return a subset where the elements are greater or equal to
      *         <code>start</code>
      *
-     * @exception ClassCastException
+     * @throws ClassCastException
      *                when the start object cannot be compared with the elements
      *                in this TreeSet
-     * @exception NullPointerException
+     * @throws NullPointerException
      *                when the start object is null and the comparator cannot
      *                handle null
      */

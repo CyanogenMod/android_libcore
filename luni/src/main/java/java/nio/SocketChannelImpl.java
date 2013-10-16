@@ -610,7 +610,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         /*
          * Closes this stream and channel.
          *
-         * @exception IOException thrown if an error occurs during the close
+         * @throws IOException thrown if an error occurs during the close
          */
         @Override
         public void close() throws IOException {

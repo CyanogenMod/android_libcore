@@ -546,7 +546,7 @@ abstract class AbstractStringBuilder {
      *
      * @param length
      *            the new length of this StringBuffer.
-     * @exception IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *                if {@code length < 0}.
      * @see #length
      */

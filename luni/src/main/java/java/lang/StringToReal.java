@@ -237,7 +237,7 @@ final class StringToReal {
      *            the String that will be parsed to a floating point
      * @return the double closest to the real number
      *
-     * @exception NumberFormatException
+     * @throws NumberFormatException
      *                if the String doesn't represent a double
      */
     public static double parseDouble(String s) {
@@ -278,7 +278,7 @@ final class StringToReal {
      *            the String that will be parsed to a floating point
      * @return the float closest to the real number
      *
-     * @exception NumberFormatException
+     * @throws NumberFormatException
      *                if the String doesn't represent a float
      */
     public static float parseFloat(String s) {

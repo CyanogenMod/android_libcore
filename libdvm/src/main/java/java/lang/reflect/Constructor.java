@@ -408,14 +408,14 @@ public final class Constructor<T> extends AccessibleObject implements GenericDec
      *
      * @return the new, initialized, object
      *
-     * @exception InstantiationException
+     * @throws InstantiationException
      *                if the class cannot be instantiated
-     * @exception IllegalAccessException
+     * @throws IllegalAccessException
      *                if this constructor is not accessible
-     * @exception IllegalArgumentException
+     * @throws IllegalArgumentException
      *                if an incorrect number of arguments are passed, or an
      *                argument could not be converted by a widening conversion
-     * @exception InvocationTargetException
+     * @throws InvocationTargetException
      *                if an exception was thrown by the invoked constructor
      *
      * @see AccessibleObject

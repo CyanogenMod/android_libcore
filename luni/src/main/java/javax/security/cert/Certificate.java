@@ -126,15 +126,15 @@ public abstract class Certificate {
      *            public key for which verification should be performed.
      * @param sigProvider
      *            the name of the signature provider.
-     * @exception CertificateException
+     * @throws CertificateException
      *                if encoding errors are detected
-     * @exception NoSuchAlgorithmException
+     * @throws NoSuchAlgorithmException
      *                if an unsupported algorithm is detected
-     * @exception InvalidKeyException
+     * @throws InvalidKeyException
      *                if an invalid key is detected
-     * @exception NoSuchProviderException
+     * @throws NoSuchProviderException
      *                if the specified provider does not exists.
-     * @exception SignatureException
+     * @throws SignatureException
      *                if signature errors are detected
      */
     public abstract void verify(PublicKey key, String sigProvider)
@@ -157,4 +157,3 @@ public abstract class Certificate {
      */
     public abstract PublicKey getPublicKey();
 }
-
