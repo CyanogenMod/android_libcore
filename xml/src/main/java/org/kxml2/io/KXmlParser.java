@@ -163,6 +163,9 @@ public class KXmlParser implements XmlPullParser, Closeable {
     private boolean degenerated;
     private int attributeCount;
 
+    // true iff. we've encountered the START_TAG of an XML element at depth == 0;
+    private boolean parsedTopLevelStartTag;
+
     /*
      * The current element's attributes arranged in groups of 4:
      * i + 0 = attribute namespace URI
@@ -416,6 +419,9 @@ public class KXmlParser implements XmlPullParser, Closeable {
                 break;
             case DOCDECL:
                 readDoctype(justOneToken);
+                if (parsedTopLevelStartTag) {
+                    throw new XmlPullParserException("Unexpected token", this, null);
+                }
                 break;
 
             default:
@@ -1128,6 +1134,9 @@ public class KXmlParser implements XmlPullParser, Closeable {
         }
 
         int sp = depth++ * 4;
+        if (depth == 1) {
+            parsedTopLevelStartTag = true;
+        }
         elementStack = ensureCapacity(elementStack, sp + 4);
         elementStack[sp + 3] = name;
 
