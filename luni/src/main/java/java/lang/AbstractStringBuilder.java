@@ -17,9 +17,10 @@
 
 package java.lang;
 
+import libcore.util.EmptyArray;
+
 import java.io.InvalidObjectException;
 import java.util.Arrays;
-import libcore.util.EmptyArray;
 
 /**
  * A modifiable {@link CharSequence sequence of characters} for use in creating
@@ -216,6 +217,9 @@ abstract class AbstractStringBuilder {
                 end = count;
             }
             if (end == start) {
+                if (start == count) {
+                    throw startEndAndLength(start, end);
+                }
                 return;
             }
             if (end > start) {
@@ -239,22 +243,7 @@ abstract class AbstractStringBuilder {
     }
 
     final void deleteCharAt0(int index) {
-        if (index < 0 || index >= count) {
-            throw indexAndLength(index);
-        }
-        int length = count - index - 1;
-        if (length > 0) {
-            if (!shared) {
-                System.arraycopy(value, index + 1, value, index, length);
-            } else {
-                char[] newData = new char[value.length];
-                System.arraycopy(value, 0, newData, 0, index);
-                System.arraycopy(value, index + 1, newData, index, length);
-                value = newData;
-                shared = false;
-            }
-        }
-        count--;
+        delete0(index, index + 1);
     }
 
     /**
