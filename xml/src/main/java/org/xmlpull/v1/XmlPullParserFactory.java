@@ -6,6 +6,7 @@ package org.xmlpull.v1;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,13 +20,22 @@ import java.util.Map;
  */
 
 public class XmlPullParserFactory {
+    // TODO: Deprecate or remove these fields. They're currently unused
+    // but are public APIs.
+
     /** Currently unused. */
-    // TODO: Deprecate or remove this field.
     public static final String PROPERTY_NAME =
         "org.xmlpull.v1.XmlPullParserFactory";
+    /** Currently unused */
+    protected String classNamesLocation = null;
+    /** Currently unused */
+    protected ArrayList parserClasses = null;
+    /** Currently unused */
+    protected ArrayList serializerClasses = null;
 
     // features are kept there
-    protected final HashMap<String, Boolean> features = new HashMap<String, Boolean>();
+    // TODO: This can't be made final because it's a public API.
+    protected HashMap<String, Boolean> features = new HashMap<String, Boolean>();
 
     /**
      * Protected constructor to be called by factory implementations.
