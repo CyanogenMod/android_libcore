@@ -241,7 +241,9 @@ public final class VMRuntime {
     public native void trimHeap();
     public native void concurrentGC();
 
-    public void preloadDexCaches() {
-        // Do nothing with ART, image generation already does this.
-    }
+    /**
+     * Fill in dex caches with classes, fields, and methods that are
+     * already loaded. Typically used after Zygote preloading.
+     */
+    public native void preloadDexCaches();
 }
