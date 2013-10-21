@@ -94,6 +94,51 @@ public final class AnnotationsTest extends TestCase {
 
     public void testEnclosingClass() {
         assertEquals(AnnotationsTest.class, Foo.class.getEnclosingClass());
+    }
+
+    public void testGetDeclaringClass() {
+        assertNull(AnnotationsTest.class.getDeclaringClass());
+        assertEquals(AnnotationsTest.class, Foo.class.getDeclaringClass());
+        assertEquals(AnnotationsTest.class, HasMemberClassesInterface.class.getDeclaringClass());
+        assertEquals(HasMemberClassesInterface.class,
+                HasMemberClassesInterface.D.class.getDeclaringClass());
+    }
+
+    public void testGetEnclosingClassIsTransitiveForClassesDefinedInAMethod() {
+        class C {}
+        assertEquals(AnnotationsTest.class, C.class.getEnclosingClass());
+    }
+
+    public void testGetDeclaringClassIsNotTransitiveForClassesDefinedInAMethod() {
+        class C {}
+        assertEquals(null, C.class.getDeclaringClass());
+    }
+
+    public void testGetEnclosingMethodIsNotTransitive() {
+        class C {
+            class D {}
+        }
+        assertEquals(null, C.D.class.getEnclosingMethod());
+    }
+
+    public void testStaticFieldAnonymousClass() {
+        // The class declared in the <clinit> is enclosed by the <clinit>'s class.
+        // http://b/11245138b
+        assertEquals(AnnotationsTest.class, staticAnonymous.getClass().getEnclosingClass());
+        // However, because it is anonymous, it has no delcaring class.
+        // https://code.google.com/p/android/issues/detail?id=61003
+        assertNull(staticAnonymous.getClass().getDeclaringClass());
+        // Because the class is declared in <clinit> which is not exposed through reflection,
+        // it has no enclosing method or constructor.
+        assertNull(staticAnonymous.getClass().getEnclosingMethod());
+        assertNull(staticAnonymous.getClass().getEnclosingConstructor());
+    }
+
+    public void testGetEnclosingMethodOfTopLevelClass() {
+        assertNull(AnnotationsTest.class.getEnclosingMethod());
+    }
+
+    public void testGetEnclosingConstructorOfTopLevelClass() {
         assertNull(AnnotationsTest.class.getEnclosingConstructor());
         assertNull(AnnotationsTest.class.getEnclosingMethod());
     }

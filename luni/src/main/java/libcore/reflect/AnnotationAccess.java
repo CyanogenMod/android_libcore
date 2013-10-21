@@ -384,7 +384,7 @@ public final class AnnotationAccess {
      * Returns the class of which {@code c} is a direct member. If {@code c} is
      * defined in a method or constructor, this is not transitive.
      */
-    public static Class<?> getDeclaringClass(Class<?> c) {
+    public static Class<?> getEnclosingClass(Class<?> c) {
         /*
          * public class Bar {
          *   @EnclosingClass(value=Bar)

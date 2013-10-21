@@ -958,7 +958,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (AnnotationAccess.isAnonymousClass(this)) {
             return null;
         }
-        return AnnotationAccess.getDeclaringClass(this);
+        return AnnotationAccess.getEnclosingClass(this);
     }
 
     /**
@@ -973,9 +973,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             return declaringClass;
         }
         AccessibleObject member = AnnotationAccess.getEnclosingMethodOrConstructor(this);
-        return member != null
-                ? ((Member) member).getDeclaringClass()
-                : null;
+        if (member != null)  {
+            return ((Member) member).getDeclaringClass();
+        }
+        return AnnotationAccess.getEnclosingClass(this);
     }
 
     /**
