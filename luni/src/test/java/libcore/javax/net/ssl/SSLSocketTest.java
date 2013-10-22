@@ -1242,10 +1242,7 @@ public class SSLSocketTest extends TestCase {
         test_SSLSocket_interrupt_case(true, true);
         test_SSLSocket_interrupt_case(true, false);
         test_SSLSocket_interrupt_case(false, true);
-        // Currently failing due to reader blocking closing thread http://b/10681815
-        if (StandardNames.IS_RI) {
-            test_SSLSocket_interrupt_case(false, false);
-        }
+        test_SSLSocket_interrupt_case(false, false);
     }
 
     private void test_SSLSocket_interrupt_case(boolean readUnderlying, boolean closeUnderlying)
