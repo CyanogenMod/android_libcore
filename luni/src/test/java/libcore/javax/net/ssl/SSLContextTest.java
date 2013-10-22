@@ -260,7 +260,7 @@ public class SSLContextTest extends TestCase {
 
             String[] protocols = p.getProtocols();
             assertNotNull(protocols);
-            StandardNames.assertValidCipherSuites(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
+            StandardNames.assertValidProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
 
             assertFalse(p.getWantClientAuth());
             assertFalse(p.getNeedClientAuth());
