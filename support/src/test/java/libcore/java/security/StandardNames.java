@@ -24,6 +24,7 @@ import java.security.spec.ECPublicKeySpec;
 import java.security.spec.KeySpec;
 import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -771,14 +772,26 @@ public final class StandardNames extends Assert {
                             "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
                             "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
                             "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
-                            "SSL_RSA_WITH_DES_CBC_SHA",
-                            "SSL_DHE_RSA_WITH_DES_CBC_SHA",
-                            "SSL_DHE_DSS_WITH_DES_CBC_SHA",
-                            "SSL_RSA_EXPORT_WITH_RC4_40_MD5",
-                            "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
-                            "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA",
-                            "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA",
                             CIPHER_SUITE_SECURE_RENEGOTIATION);
+
+    private static final Set<String> PERMITTED_DEFAULT_KEY_EXCHANGE_ALGS =
+            new HashSet<String>(Arrays.asList("RSA",
+                                              "DHE_RSA",
+                                              "ECDH_RSA",
+                                              "ECDHE_RSA",
+                                              "ECDH_ECDSA",
+                                              "ECDHE_ECDSA",
+                                              "DHE_DSS"));
+
+    private static final Set<String> PERMITTED_DEFAULT_BULK_ENCRYPTION_CIPHERS =
+            new HashSet<String>(Arrays.asList("RC4_128",
+                                              "3DES_EDE_CBC",
+                                              "AES_128_CBC",
+                                              "AES_256_CBC"));
+
+    private static final Set<String> PERMITTED_DEFAULT_MACS =
+            new HashSet<String>(Arrays.asList("MD5",
+                                              "SHA"));
 
     public static final Set<String> CIPHER_SUITES_SSLENGINE = new HashSet<String>(CIPHER_SUITES);
     static {
@@ -897,11 +910,63 @@ public final class StandardNames extends Assert {
     }
 
     /**
-     * Assert cipher suites match the default list in content and priority order.
+     * Assert cipher suites match the default list in content and priority order and contain
+     * only cipher suites permitted by default.
      */
     public static void assertDefaultCipherSuites(String[] cipherSuites) {
         assertValidCipherSuites(CIPHER_SUITES, cipherSuites);
         assertEquals(CIPHER_SUITES_DEFAULT, Arrays.asList(cipherSuites));
+
+        // Assert that all the cipher suites are permitted to be in the default list.
+        // This assertion is a backup for the stricter assertion above.
+        //
+        // There is no point in asserting this for the RI as it's outside of our control.
+        if (!IS_RI) {
+            List<String> disallowedDefaultCipherSuites = new ArrayList<String>();
+            for (String cipherSuite : cipherSuites) {
+                if (!isPermittedDefaultCipherSuite(cipherSuite)) {
+                    disallowedDefaultCipherSuites.add(cipherSuite);
+                }
+            }
+            assertEquals(Collections.EMPTY_LIST, disallowedDefaultCipherSuites);
+        }
+    }
+
+    private static boolean isPermittedDefaultCipherSuite(String cipherSuite) {
+        assertNotNull(cipherSuite);
+        if (CIPHER_SUITE_SECURE_RENEGOTIATION.equals(cipherSuite)) {
+            return true;
+        }
+        assertTrue(cipherSuite, cipherSuite.startsWith("TLS_") || cipherSuite.startsWith("SSL_"));
+
+        // Example: RSA_WITH_AES_128_CBC_SHA
+        String remainder = cipherSuite.substring("TLS_".length());
+        int macDelimiterIndex = remainder.lastIndexOf('_');
+        assertTrue(cipherSuite, macDelimiterIndex != -1);
+        // Example: SHA
+        String mac = remainder.substring(macDelimiterIndex + 1);
+
+        // Example: RSA_WITH_AES_128_CBC
+        remainder = remainder.substring(0, macDelimiterIndex);
+        int withDelimiterIndex = remainder.indexOf("_WITH_");
+        assertTrue(cipherSuite, withDelimiterIndex != -1);
+
+        // Example: RSA
+        String keyExchange = remainder.substring(0, withDelimiterIndex);
+        // Example: AES_128_CBC
+        String bulkEncryptionCipher = remainder.substring(withDelimiterIndex + "_WITH_".length());
+
+        if (!PERMITTED_DEFAULT_MACS.contains(mac)) {
+            return false;
+        }
+        if (!PERMITTED_DEFAULT_KEY_EXCHANGE_ALGS.contains(keyExchange)) {
+            return false;
+        }
+        if (!PERMITTED_DEFAULT_BULK_ENCRYPTION_CIPHERS.contains(bulkEncryptionCipher)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
