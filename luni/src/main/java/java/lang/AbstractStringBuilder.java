@@ -17,9 +17,10 @@
 
 package java.lang;
 
+import libcore.util.EmptyArray;
+
 import java.io.InvalidObjectException;
 import java.util.Arrays;
-import libcore.util.EmptyArray;
 
 /**
  * A modifiable {@link CharSequence sequence of characters} for use in creating
@@ -211,50 +212,46 @@ abstract class AbstractStringBuilder {
     }
 
     final void delete0(int start, int end) {
-        if (start >= 0) {
-            if (end > count) {
-                end = count;
-            }
-            if (end == start) {
-                return;
-            }
-            if (end > start) {
-                int length = count - end;
-                if (length >= 0) {
-                    if (!shared) {
-                        System.arraycopy(value, end, value, start, length);
-                    } else {
-                        char[] newData = new char[value.length];
-                        System.arraycopy(value, 0, newData, 0, start);
-                        System.arraycopy(value, end, newData, start, length);
-                        value = newData;
-                        shared = false;
-                    }
-                }
-                count -= end - start;
-                return;
+        // NOTE: StringBuilder#delete(int, int) is specified not to throw if
+        // the end index is >= count, as long as it's >= start. This means
+        // we have to clamp it to count here.
+        if (end > count) {
+            end = count;
+        }
+
+        if (start < 0 || start > count || start > end) {
+            throw startEndAndLength(start, end);
+        }
+
+        // NOTE: StringBuilder#delete(int, int) throws only if start > count
+        // (start == count is considered valid, oddly enough). Since 'end' is
+        // already a clamped value, that case is handled here.
+        if (end == start) {
+            return;
+        }
+
+        // At this point we know for sure that end > start.
+        int length = count - end;
+        if (length >= 0) {
+            if (!shared) {
+                System.arraycopy(value, end, value, start, length);
+            } else {
+                char[] newData = new char[value.length];
+                System.arraycopy(value, 0, newData, 0, start);
+                System.arraycopy(value, end, newData, start, length);
+                value = newData;
+                shared = false;
             }
         }
-        throw startEndAndLength(start, end);
+        count -= end - start;
     }
 
     final void deleteCharAt0(int index) {
         if (index < 0 || index >= count) {
             throw indexAndLength(index);
         }
-        int length = count - index - 1;
-        if (length > 0) {
-            if (!shared) {
-                System.arraycopy(value, index + 1, value, index, length);
-            } else {
-                char[] newData = new char[value.length];
-                System.arraycopy(value, 0, newData, 0, index);
-                System.arraycopy(value, index + 1, newData, index, length);
-                value = newData;
-                shared = false;
-            }
-        }
-        count--;
+
+        delete0(index, index + 1);
     }
 
     /**
