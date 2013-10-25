@@ -17,7 +17,9 @@
 
 package tests.api.java.util;
 
+import java.io.Serializable;
 import java.util.Random;
+import org.apache.harmony.testframework.serialization.SerializationTest;
 
 public class RandomTest extends junit.framework.TestCase {
 
@@ -295,4 +297,24 @@ public class RandomTest extends junit.framework.TestCase {
      */
     protected void tearDown() {
     }
+
+    public void testSerializationCompatibility() throws Exception {
+        Random rand = new Random(0x8123aea6267e055dL);
+        rand.nextGaussian();
+        // SerializationTest.createGoldenFile("/tmp", this, rand);
+        SerializationTest.verifyGolden(this, rand, comparator);
+
+        rand = new Random(0x8123aea6267e055dL);
+        rand.nextGaussian();
+        SerializationTest.verifySelf(rand, comparator);
+    }
+
+    public static final SerializationTest.SerializableAssert comparator =
+            new SerializationTest.SerializableAssert() {
+        public void assertDeserialized(Serializable initial, Serializable deserialized) {
+            Random initialRand = (Random) initial;
+            Random deserializedRand = (Random) deserialized;
+            assertEquals("should be equal", initialRand.nextInt(), deserializedRand.nextInt());
+        }
+    };
 }
