@@ -166,6 +166,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private transient Object[] ifTable;
 
+    /** Interface method table (imt), for quick "invoke-interface". */
+    private transient ArtMethod[] imTable;
+
     /** Lazily computed name of this class; always prefer calling getName(). */
     private transient String name;
 
