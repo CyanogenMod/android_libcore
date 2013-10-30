@@ -18,10 +18,11 @@ package libcore.io;
 
 import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.io.RandomAccessFile;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import static libcore.io.OsConstants.*;
@@ -102,33 +103,15 @@ public final class IoUtils {
     /**
      * Returns the contents of 'path' as a byte array.
      */
-    public static byte[] readFileAsByteArray(String path) throws IOException {
-        return readFileAsBytes(path).toByteArray();
+    public static byte[] readFileAsByteArray(String absolutePath) throws IOException {
+        return new FileReader(absolutePath).readFully().toByteArray();
     }
 
     /**
      * Returns the contents of 'path' as a string. The contents are assumed to be UTF-8.
      */
-    public static String readFileAsString(String path) throws IOException {
-        return readFileAsBytes(path).toString(StandardCharsets.UTF_8);
-    }
-
-    private static UnsafeByteSequence readFileAsBytes(String path) throws IOException {
-        RandomAccessFile f = null;
-        try {
-            f = new RandomAccessFile(path, "r");
-            UnsafeByteSequence bytes = new UnsafeByteSequence((int) f.length());
-            byte[] buffer = new byte[8192];
-            while (true) {
-                int byteCount = f.read(buffer);
-                if (byteCount == -1) {
-                    return bytes;
-                }
-                bytes.write(buffer, 0, byteCount);
-            }
-        } finally {
-            IoUtils.closeQuietly(f);
-        }
+    public static String readFileAsString(String absolutePath) throws IOException {
+        return new FileReader(absolutePath).readFully().toString(StandardCharsets.UTF_8);
     }
 
     /**
@@ -192,5 +175,101 @@ public final class IoUtils {
         Thread.currentThread().interrupt();
         // TODO: set InterruptedIOException.bytesTransferred
         throw new InterruptedIOException();
+    }
+
+    /**
+     * A convenience class for reading the contents of a file into a {@code String}
+     * or a {@code byte[]}. This class attempts to minimize the number of allocations
+     * and copies required to read this data.
+     *
+     * For the case where we know the "true" length of a file (most ordinary files)
+     * we allocate exactly one byte[] and copy data into that. Calls to
+     * {@link #toByteArray} will then return the internal array and <b>not</b> a copy.
+     *
+     * <b>Note that an absolute path must be supplied. Expect your reads to fail
+     * if one isn't.</b>
+     */
+    private static class FileReader {
+        private FileDescriptor fd;
+        private boolean unknownLength;
+
+        private byte[] bytes;
+        private int count;
+
+        public FileReader(String absolutePath) throws IOException {
+            // We use IoBridge.open because callers might differentiate
+            // between a FileNotFoundException and a general IOException.
+            //
+            // NOTE: This costs us an additional call to fstat(2) to test whether
+            // "absolutePath" is a directory or not. We can eliminate it
+            // at the cost of copying some code from IoBridge.open.
+            try {
+                fd = IoBridge.open(absolutePath, O_RDONLY);
+            } catch (FileNotFoundException fnfe) {
+                throw fnfe;
+            }
+
+            int capacity;
+            try {
+                final StructStat stat = Libcore.os.fstat(fd);
+                // Like RAF & other APIs, we assume that the file size fits
+                // into a 32 bit integer.
+                capacity = (int) stat.st_size;
+                if (capacity == 0) {
+                    unknownLength = true;
+                    capacity = 8192;
+                }
+            } catch (ErrnoException exception) {
+                closeQuietly(fd);
+                throw exception.rethrowAsIOException();
+            }
+
+            bytes = new byte[capacity];
+        }
+
+        public FileReader readFully() throws IOException {
+            int read;
+            int capacity = bytes.length;
+            try {
+                while ((read = Libcore.os.read(fd, bytes, count, capacity - count)) != 0) {
+                    count += read;
+                    if (count == capacity) {
+                        if (unknownLength) {
+                            // If we don't know the length of this file, we need to continue
+                            // reading until we reach EOF. Double the capacity in preparation.
+                            final int newCapacity = capacity * 2;
+                            byte[] newBytes = new byte[newCapacity];
+                            System.arraycopy(bytes, 0, newBytes, 0, capacity);
+                            bytes = newBytes;
+                            capacity = newCapacity;
+                        } else {
+                            // We know the length of this file and we've read the right number
+                            // of bytes from it, return.
+                            break;
+                        }
+                    }
+                }
+
+                return this;
+            } catch (ErrnoException e) {
+                throw e.rethrowAsIOException();
+            } finally {
+                closeQuietly(fd);
+            }
+        }
+
+        @FindBugsSuppressWarnings("EI_EXPOSE_REP")
+        public byte[] toByteArray() {
+            if (count == bytes.length) {
+                return bytes;
+            }
+            byte[] result = new byte[count];
+            System.arraycopy(bytes, 0, result, 0, count);
+            return result;
+        }
+
+        public String toString(Charset cs) {
+            return new String(bytes, 0, count, cs);
+        }
     }
 }
