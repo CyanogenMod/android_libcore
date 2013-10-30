@@ -68,65 +68,6 @@ public class CharsetBenchmark extends SimpleBenchmark {
         }
     }
 
-    // FIXME: benchmark this pure-java implementation for US-ASCII and ISO-8859-1 too!
-
-    /**
-     * Translates the given characters to US-ASCII or ISO-8859-1 bytes, using the fact that
-     * Unicode code points between U+0000 and U+007f inclusive are identical to US-ASCII, while
-     * U+0000 to U+00ff inclusive are identical to ISO-8859-1.
-     */
-    private static byte[] toDirectMappedBytes(char[] chars, int offset, int length, int maxValidChar) {
-        byte[] result = new byte[length];
-        int o = offset;
-        for (int i = 0; i < length; ++i) {
-            int ch = chars[o++];
-            result[i] = (byte) ((ch <= maxValidChar) ? ch : '?');
-        }
-        return result;
-    }
-
-    private static byte[] toUtf8Bytes(char[] chars, int offset, int length) {
-        UnsafeByteSequence result = new UnsafeByteSequence(length);
-        toUtf8Bytes(chars, offset, length, result);
-        return result.toByteArray();
-    }
-
-    private static void toUtf8Bytes(char[] chars, int offset, int length, UnsafeByteSequence out) {
-        final int end = offset + length;
-        for (int i = offset; i < end; ++i) {
-            int ch = chars[i];
-            if (ch < 0x80) {
-                // One byte.
-                out.write(ch);
-            } else if (ch < 0x800) {
-                // Two bytes.
-                out.write((ch >> 6) | 0xc0);
-                out.write((ch & 0x3f) | 0x80);
-            } else if (ch >= Character.MIN_SURROGATE && ch <= Character.MAX_SURROGATE) {
-                // A supplementary character.
-                char high = (char) ch;
-                char low = (i + 1 != end) ? chars[i + 1] : '\u0000';
-                if (!Character.isSurrogatePair(high, low)) {
-                    out.write('?');
-                    continue;
-                }
-                // Now we know we have a *valid* surrogate pair, we can consume the low surrogate.
-                ++i;
-                ch = Character.toCodePoint(high, low);
-                // Four bytes.
-                out.write((ch >> 18) | 0xf0);
-                out.write(((ch >> 12) & 0x3f) | 0x80);
-                out.write(((ch >> 6) & 0x3f) | 0x80);
-                out.write((ch & 0x3f) | 0x80);
-            } else {
-                // Three bytes.
-                out.write((ch >> 12) | 0xe0);
-                out.write(((ch >> 6) & 0x3f) | 0x80);
-                out.write((ch & 0x3f) | 0x80);
-            }
-        }
-    }
-
     private static String makeString(int length) {
         StringBuilder result = new StringBuilder(length);
         for (int i = 0; i < length; ++i) {
