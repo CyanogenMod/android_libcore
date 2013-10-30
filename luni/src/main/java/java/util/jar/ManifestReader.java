@@ -17,6 +17,7 @@
 
 package java.util.jar;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ class ManifestReader {
     // but a manifest might have thousands of entries.
     private final HashMap<String, Attributes.Name> attributeNameCache = new HashMap<String, Attributes.Name>();
 
-    private final UnsafeByteSequence valueBuffer = new UnsafeByteSequence(80);
+    private final ByteArrayOutputStream valueBuffer = new ByteArrayOutputStream(80);
 
     private final byte[] buf;
 
@@ -141,7 +142,7 @@ class ManifestReader {
         boolean lastCr = false;
         int mark = pos;
         int last = pos;
-        valueBuffer.rewind();
+        valueBuffer.reset();
         while (pos < buf.length) {
             byte next = buf[pos++];
             switch (next) {
@@ -175,6 +176,8 @@ class ManifestReader {
         }
 
         valueBuffer.write(buf, mark, last - mark);
-        value = valueBuffer.toString(StandardCharsets.UTF_8);
+        // A bit frustrating that that Charset.forName will be called
+        // again.
+        value = valueBuffer.toString(StandardCharsets.UTF_8.name());
     }
 }
