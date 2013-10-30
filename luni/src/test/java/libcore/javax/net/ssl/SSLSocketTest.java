@@ -63,7 +63,7 @@ public class SSLSocketTest extends TestCase {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
         String[] cipherSuites = ssl.getSupportedCipherSuites();
-        StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+        StandardNames.assertSupportedCipherSuites(cipherSuites);
         assertNotSame(cipherSuites, ssl.getSupportedCipherSuites());
     }
 
@@ -210,7 +210,7 @@ public class SSLSocketTest extends TestCase {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
         String[] cipherSuites = ssl.getEnabledCipherSuites();
-        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+        StandardNames.assertValidCipherSuites(cipherSuites);
         assertNotSame(cipherSuites, ssl.getEnabledCipherSuites());
     }
 
@@ -243,7 +243,7 @@ public class SSLSocketTest extends TestCase {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
         String[] protocols = ssl.getSupportedProtocols();
-        StandardNames.assertSupportedProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
+        StandardNames.assertSupportedProtocols(protocols);
         assertNotSame(protocols, ssl.getSupportedProtocols());
     }
 
@@ -251,7 +251,7 @@ public class SSLSocketTest extends TestCase {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
         String[] protocols = ssl.getEnabledProtocols();
-        StandardNames.assertValidProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
+        StandardNames.assertValidProtocols(protocols);
         assertNotSame(protocols, ssl.getEnabledProtocols());
     }
 
@@ -932,12 +932,12 @@ public class SSLSocketTest extends TestCase {
         assertNotNull(p);
 
         String[] cipherSuites = p.getCipherSuites();
-        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+        StandardNames.assertValidCipherSuites(cipherSuites);
         assertNotSame(cipherSuites, ssl.getEnabledCipherSuites());
         assertEquals(Arrays.asList(cipherSuites), Arrays.asList(ssl.getEnabledCipherSuites()));
 
         String[] protocols = p.getProtocols();
-        StandardNames.assertValidProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
+        StandardNames.assertValidProtocols(protocols);
         assertNotSame(protocols, ssl.getEnabledProtocols());
         assertEquals(Arrays.asList(protocols), Arrays.asList(ssl.getEnabledProtocols()));
 

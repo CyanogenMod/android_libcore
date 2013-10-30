@@ -910,6 +910,70 @@ public final class StandardNames extends Assert {
     }
 
     /**
+     * Asserts that the protocols array is non-null and that it all of its contents are supported
+     * protocols.
+     */
+    public static void assertValidProtocols(String[] protocols) {
+        assertValidProtocols(SSL_SOCKET_PROTOCOLS, protocols);
+    }
+
+    /**
+     * Asserts that the protocols array is non-null and that it all of its contents are protocols
+     * supported by {@link javax.net.ssl.SSLEngine}.
+     */
+    public static void assertSSLEngineValidProtocols(String[] protocols) {
+        assertValidProtocols(SSL_SOCKET_PROTOCOLS_SSLENGINE, protocols);
+    }
+
+    /**
+     * Asserts that the provided list of protocols matches the supported list of protocols.
+     *
+     * <p>This list may be different than the one supported by {@link javax.net.ssl.SSLEngine} --
+     * see {@link #assertSSLEngineSupportedProtocols(String[])}.
+     */
+    public static void assertSupportedProtocols(String[] protocols) {
+        assertSupportedProtocols(SSL_SOCKET_PROTOCOLS, protocols);
+    }
+
+    /**
+     * Asserts that the provided list of protocols matches the supported list of protocols for
+     * {@link javax.net.ssl.SSLEngine}.
+     */
+    public static void assertSSLEngineSupportedProtocols(String[] protocols) {
+        assertSupportedProtocols(SSL_SOCKET_PROTOCOLS_SSLENGINE, protocols);
+    }
+
+    /**
+     * Assert that the provided list of cipher suites contains only the supported cipher suites.
+     */
+    public static void assertValidCipherSuites(String[] cipherSuites) {
+        assertValidCipherSuites(CIPHER_SUITES, cipherSuites);
+    }
+
+    /**
+     * Asserts that the provided list of cipher suites contains only the cipher suites supported by
+     * {@link javax.net.ssl.SSLEngine}.
+     */
+    public static void assertSSLEngineValidCipherSuites(String[] cipherSuites) {
+        assertValidCipherSuites(CIPHER_SUITES_SSLENGINE, cipherSuites);
+    }
+
+    /**
+     * Assert that the provided list of cipher suites matches the supported list.
+     */
+    public static void assertSupportedCipherSuites(String[] cipherSuites) {
+        assertSupportedCipherSuites(CIPHER_SUITES, cipherSuites);
+    }
+
+    /**
+     * Asserts that the provided list of cipher suites matches the supported list of cipher suites
+     * for {@link javax.net.ssl.SSLEngine}.
+     */
+    public static void assertSSLEngineSupportedCipherSuites(String[] cipherSuites) {
+        assertSupportedCipherSuites(CIPHER_SUITES_SSLENGINE, cipherSuites);
+    }
+
+    /**
      * Assert cipher suites match the default list in content and priority order and contain
      * only cipher suites permitted by default.
      */

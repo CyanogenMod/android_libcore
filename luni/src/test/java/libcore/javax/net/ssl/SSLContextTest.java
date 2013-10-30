@@ -256,11 +256,11 @@ public class SSLContextTest extends TestCase {
 
             String[] cipherSuites = p.getCipherSuites();
             assertNotNull(cipherSuites);
-            StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+            StandardNames.assertValidCipherSuites(cipherSuites);
 
             String[] protocols = p.getProtocols();
             assertNotNull(protocols);
-            StandardNames.assertValidProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
+            StandardNames.assertValidProtocols(protocols);
 
             assertFalse(p.getWantClientAuth());
             assertFalse(p.getNeedClientAuth());
@@ -279,12 +279,11 @@ public class SSLContextTest extends TestCase {
 
             String[] cipherSuites = p.getCipherSuites();
             assertNotNull(cipherSuites);
-            StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+            StandardNames.assertSupportedCipherSuites(cipherSuites);
 
             String[] protocols = p.getProtocols();
             assertNotNull(protocols);
-            StandardNames.assertSupportedProtocols(StandardNames.SSL_SOCKET_PROTOCOLS,
-                                                   protocols);
+            StandardNames.assertSupportedProtocols(protocols);
 
             assertFalse(p.getWantClientAuth());
             assertFalse(p.getNeedClientAuth());
