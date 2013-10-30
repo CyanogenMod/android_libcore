@@ -17,10 +17,8 @@
 
 package java.net;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileDescriptor;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +26,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
@@ -41,6 +38,8 @@ import static libcore.io.OsConstants.*;
  * system or to identify the local interface of a joined multicast group.
  */
 public final class NetworkInterface extends Object {
+    private static final File SYS_CLASS_NET = new File("/sys/class/net");
+
     private final String name;
     private final int interfaceIndex;
     private final List<InterfaceAddress> interfaceAddresses;
@@ -110,17 +109,42 @@ public final class NetworkInterface extends Object {
             return null;
         }
 
+        return getByNameInternal(interfaceName, readIfInet6Lines());
+    }
+
+    /**
+     * Similar to {@link #getByName(String)} except that {@code interfaceName}
+     * is assumed to be valid.
+     */
+    private static NetworkInterface getByNameInternal(String interfaceName,
+            String[] ifInet6Lines) throws SocketException {
         int interfaceIndex = readIntFile("/sys/class/net/" + interfaceName + "/ifindex");
         List<InetAddress> addresses = new ArrayList<InetAddress>();
         List<InterfaceAddress> interfaceAddresses = new ArrayList<InterfaceAddress>();
-        collectIpv6Addresses(interfaceName, interfaceIndex, addresses, interfaceAddresses);
+
+        collectIpv6Addresses(interfaceName, interfaceIndex, addresses, interfaceAddresses,
+                ifInet6Lines);
         collectIpv4Address(interfaceName, addresses, interfaceAddresses);
 
         return new NetworkInterface(interfaceName, interfaceIndex, addresses, interfaceAddresses);
     }
 
-    private static void collectIpv6Addresses(String interfaceName, int interfaceIndex,
-            List<InetAddress> addresses, List<InterfaceAddress> interfaceAddresses) throws SocketException {
+    private static String[] readIfInet6Lines() throws SocketException {
+        try {
+            return IoUtils.readFileAsString("/proc/net/if_inet6").split("\n");
+        } catch (IOException ioe) {
+            throw rethrowAsSocketException(ioe);
+        }
+    }
+
+    /**
+     * Visible for testing only.
+     *
+     * @hide
+     */
+    public static void collectIpv6Addresses(String interfaceName, int interfaceIndex,
+            List<InetAddress> addresses, List<InterfaceAddress> interfaceAddresses,
+            String[] ifInet6Lines) throws SocketException {
         // Format of /proc/net/if_inet6.
         // All numeric fields are implicit hex,
         // but not necessarily two-digit (http://code.google.com/p/android/issues/detail?id=34022).
@@ -132,12 +156,9 @@ public final class NetworkInterface extends Object {
         // 6. interface name
         // "00000000000000000000000000000001 01 80 10 80       lo"
         // "fe800000000000000000000000000000 407 40 20 80    wlan0"
-        BufferedReader in = null;
+        final String suffix = " " + interfaceName;
         try {
-            in = new BufferedReader(new FileReader("/proc/net/if_inet6"));
-            String suffix = " " + interfaceName;
-            String line;
-            while ((line = in.readLine()) != null) {
+            for (String line : ifInet6Lines) {
                 if (!line.endsWith(suffix)) {
                     continue;
                 }
@@ -160,10 +181,8 @@ public final class NetworkInterface extends Object {
                 addresses.add(inet6Address);
                 interfaceAddresses.add(new InterfaceAddress(inet6Address, prefixLength));
             }
-        } catch (Exception ex) {
+        } catch (NumberFormatException ex) {
             throw rethrowAsSocketException(ex);
-        } finally {
-            IoUtils.closeQuietly(in);
         }
     }
 
@@ -197,8 +216,14 @@ public final class NetworkInterface extends Object {
 
     @FindBugsSuppressWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
     private static boolean isValidInterfaceName(String interfaceName) {
+        final String[] interfaceList = SYS_CLASS_NET.list();
+        // We have no interfaces listed under /sys/class/net
+        if (interfaceList == null) {
+            return false;
+        }
+
         // Don't just stat because a crafty user might have / or .. in the supposed interface name.
-        for (String validName : new File("/sys/class/net").list()) {
+        for (String validName : interfaceList) {
             if (interfaceName.equals(validName)) {
                 return true;
             }
@@ -275,11 +300,13 @@ public final class NetworkInterface extends Object {
 
     @FindBugsSuppressWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
     private static List<NetworkInterface> getNetworkInterfacesList() throws SocketException {
-        String[] interfaceNames = new File("/sys/class/net").list();
+        String[] interfaceNames = SYS_CLASS_NET.list();
         NetworkInterface[] interfaces = new NetworkInterface[interfaceNames.length];
         boolean[] done = new boolean[interfaces.length];
+
+        String[] ifInet6Lines = readIfInet6Lines();
         for (int i = 0; i < interfaceNames.length; ++i) {
-            interfaces[i] = NetworkInterface.getByName(interfaceNames[i]);
+            interfaces[i] = NetworkInterface.getByNameInternal(interfaceNames[i], ifInet6Lines);
             // http://b/5833739: getByName can return null if the interface went away between our
             // readdir(2) and our stat(2), so mark interfaces that disappeared as 'done'.
             if (interfaces[i] == null) {
@@ -293,9 +320,9 @@ public final class NetworkInterface extends Object {
             if (done[counter]) {
                 continue;
             }
-            int counter2 = counter;
+
             // Checks whether the following interfaces are children.
-            for (; counter2 < interfaces.length; counter2++) {
+            for (int counter2 = counter; counter2 < interfaces.length; counter2++) {
                 if (done[counter2]) {
                     continue;
                 }
@@ -304,7 +331,7 @@ public final class NetworkInterface extends Object {
                     interfaces[counter2].parent = interfaces[counter];
                     interfaces[counter].addresses.addAll(interfaces[counter2].addresses);
                     done[counter2] = true;
-                  }
+                }
             }
             result.add(interfaces[counter]);
             done[counter] = true;
