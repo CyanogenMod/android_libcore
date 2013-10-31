@@ -61,8 +61,7 @@ public class SSLEngineTest extends TestCase {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
         String[] cipherSuites = e.getSupportedCipherSuites();
-        StandardNames.assertSupportedCipherSuites(StandardNames.CIPHER_SUITES_SSLENGINE,
-                                                  cipherSuites);
+        StandardNames.assertSSLEngineSupportedCipherSuites(cipherSuites);
         assertNotSame(cipherSuites, e.getSupportedCipherSuites());
         c.close();
     }
@@ -131,7 +130,7 @@ public class SSLEngineTest extends TestCase {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
         String[] cipherSuites = e.getEnabledCipherSuites();
-        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+        StandardNames.assertValidCipherSuites(cipherSuites);
         assertNotSame(cipherSuites, e.getEnabledCipherSuites());
         c.close();
     }
@@ -166,8 +165,7 @@ public class SSLEngineTest extends TestCase {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
         String[] protocols = e.getSupportedProtocols();
-        StandardNames.assertSupportedProtocols(StandardNames.SSL_SOCKET_PROTOCOLS_SSLENGINE,
-                                               protocols);
+        StandardNames.assertSSLEngineSupportedProtocols(protocols);
         assertNotSame(protocols, e.getSupportedProtocols());
         c.close();
     }
@@ -176,7 +174,7 @@ public class SSLEngineTest extends TestCase {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
         String[] protocols = e.getEnabledProtocols();
-        StandardNames.assertValidProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
+        StandardNames.assertValidProtocols(protocols);
         assertNotSame(protocols, e.getEnabledProtocols());
         c.close();
     }
@@ -430,12 +428,12 @@ public class SSLEngineTest extends TestCase {
         assertNotNull(p);
 
         String[] cipherSuites = p.getCipherSuites();
-        StandardNames.assertValidCipherSuites(StandardNames.CIPHER_SUITES, cipherSuites);
+        StandardNames.assertValidCipherSuites(cipherSuites);
         assertNotSame(cipherSuites, e.getEnabledCipherSuites());
         assertEquals(Arrays.asList(cipherSuites), Arrays.asList(e.getEnabledCipherSuites()));
 
         String[] protocols = p.getProtocols();
-        StandardNames.assertValidProtocols(StandardNames.SSL_SOCKET_PROTOCOLS, protocols);
+        StandardNames.assertValidProtocols(protocols);
         assertNotSame(protocols, e.getEnabledProtocols());
         assertEquals(Arrays.asList(protocols), Arrays.asList(e.getEnabledProtocols()));
 

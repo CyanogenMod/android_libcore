@@ -49,7 +49,7 @@ public class SSLSessionTest extends TestCase {
         assertNotNull(s.client.getCipherSuite());
         assertEquals(s.server.getCipherSuite(),
                      s.client.getCipherSuite());
-        assertTrue(StandardNames.CIPHER_SUITES.contains(s.server.getCipherSuite()));
+        StandardNames.assertValidCipherSuites(new String[] {s.server.getCipherSuite()});
         s.close();
     }
 
