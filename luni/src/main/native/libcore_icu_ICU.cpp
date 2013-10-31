@@ -467,7 +467,7 @@ static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, const 
   return false;
 }
 
-static jboolean ICU_initLocaleDataImpl(JNIEnv* env, jclass, jstring javaLocaleName, jobject localeData) {
+static jboolean ICU_initLocaleDataNative(JNIEnv* env, jclass, jstring javaLocaleName, jobject localeData) {
     ScopedUtfChars localeName(env, javaLocaleName);
     if (localeName.c_str() == NULL) {
         return JNI_FALSE;
@@ -645,7 +645,7 @@ static jobject ICU_getAvailableCurrencyCodes(JNIEnv* env, jclass) {
   return fromStringEnumeration(env, status, "ucurr_openISOCurrencies", &e);
 }
 
-static jstring ICU_getBestDateTimePattern(JNIEnv* env, jclass, jstring javaSkeleton, jstring javaLocaleName) {
+static jstring ICU_getBestDateTimePatternNative(JNIEnv* env, jclass, jstring javaSkeleton, jstring javaLocaleName) {
   Locale locale = getLocale(env, javaLocaleName);
   UErrorCode status = U_ZERO_ERROR;
   UniquePtr<DateTimePatternGenerator> generator(DateTimePatternGenerator::createInstance(locale, status));
@@ -674,7 +674,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, getAvailableDateFormatLocalesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getAvailableLocalesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getAvailableNumberFormatLocalesNative, "()[Ljava/lang/String;"),
-    NATIVE_METHOD(ICU, getBestDateTimePattern, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(ICU, getBestDateTimePatternNative, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getCldrVersion, "()Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getCurrencyCode, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getCurrencyDisplayName, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
@@ -690,7 +690,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, getIcuVersion, "()Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getScript, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getUnicodeVersion, "()Ljava/lang/String;"),
-    NATIVE_METHOD(ICU, initLocaleDataImpl, "(Ljava/lang/String;Llibcore/icu/LocaleData;)Z"),
+    NATIVE_METHOD(ICU, initLocaleDataNative, "(Ljava/lang/String;Llibcore/icu/LocaleData;)Z"),
     NATIVE_METHOD(ICU, toLowerCase, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, toUpperCase, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
 };
