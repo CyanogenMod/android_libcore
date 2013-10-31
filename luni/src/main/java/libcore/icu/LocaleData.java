@@ -171,7 +171,7 @@ public final class LocaleData {
 
     private static LocaleData initLocaleData(Locale locale) {
         LocaleData localeData = new LocaleData();
-        if (!ICU.initLocaleDataImpl(locale.toString(), localeData)) {
+        if (!ICU.initLocaleDataNative(locale.toString(), localeData)) {
             throw new AssertionError("couldn't initialize LocaleData for locale " + locale);
         }
 
