@@ -391,12 +391,10 @@ public final class IoBridge {
             // On Android, we don't want default permissions to allow global access.
             int mode = ((flags & O_ACCMODE) == O_RDONLY) ? 0 : 0600;
             fd = Libcore.os.open(path, flags, mode);
-            if (fd.valid()) {
-                // Posix open(2) fails with EISDIR only if you ask for write permission.
-                // Java disallows reading directories too.
-                if (S_ISDIR(Libcore.os.fstat(fd).st_mode)) {
-                    throw new ErrnoException("open", EISDIR);
-                }
+            // Posix open(2) fails with EISDIR only if you ask for write permission.
+            // Java disallows reading directories too.
+            if (S_ISDIR(Libcore.os.fstat(fd).st_mode)) {
+                throw new ErrnoException("open", EISDIR);
             }
             return fd;
         } catch (ErrnoException errnoException) {
