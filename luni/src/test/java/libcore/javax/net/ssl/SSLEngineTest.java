@@ -130,7 +130,7 @@ public class SSLEngineTest extends TestCase {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
         String[] cipherSuites = e.getEnabledCipherSuites();
-        StandardNames.assertSSLEngineValidCipherSuites(cipherSuites);
+        StandardNames.assertSSLEngineDefaultCipherSuites(cipherSuites);
         assertNotSame(cipherSuites, e.getEnabledCipherSuites());
         c.close();
     }
@@ -428,7 +428,7 @@ public class SSLEngineTest extends TestCase {
         assertNotNull(p);
 
         String[] cipherSuites = p.getCipherSuites();
-        StandardNames.assertSSLEngineValidCipherSuites(cipherSuites);
+        StandardNames.assertSSLEngineDefaultCipherSuites(cipherSuites);
         assertNotSame(cipherSuites, e.getEnabledCipherSuites());
         assertEquals(Arrays.asList(cipherSuites), Arrays.asList(e.getEnabledCipherSuites()));
 

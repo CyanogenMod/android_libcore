@@ -793,11 +793,21 @@ public final class StandardNames extends Assert {
             new HashSet<String>(Arrays.asList("MD5",
                                               "SHA"));
 
+    public static final List<String> CIPHER_SUITES_DEFAULT_SSLENGINE =
+            new ArrayList<String>(CIPHER_SUITES_DEFAULT);
     public static final Set<String> CIPHER_SUITES_SSLENGINE = new HashSet<String>(CIPHER_SUITES);
     static {
         // No Elliptic Curve support on SSLEngine based provider
         if (!IS_RI) {
             Iterator<String> i = CIPHER_SUITES_SSLENGINE.iterator();
+            while (i.hasNext()) {
+                String cs = i.next();
+                if (cs.startsWith("TLS_EC") || cs.equals(CIPHER_SUITE_SECURE_RENEGOTIATION)) {
+                    i.remove();
+                }
+            }
+
+            i = CIPHER_SUITES_DEFAULT_SSLENGINE.iterator();
             while (i.hasNext()) {
                 String cs = i.next();
                 if (cs.startsWith("TLS_EC") || cs.equals(CIPHER_SUITE_SECURE_RENEGOTIATION)) {
@@ -978,8 +988,31 @@ public final class StandardNames extends Assert {
      * only cipher suites permitted by default.
      */
     public static void assertDefaultCipherSuites(String[] cipherSuites) {
-        assertValidCipherSuites(CIPHER_SUITES, cipherSuites);
+        assertValidCipherSuites(cipherSuites);
         assertEquals(CIPHER_SUITES_DEFAULT, Arrays.asList(cipherSuites));
+
+        // Assert that all the cipher suites are permitted to be in the default list.
+        // This assertion is a backup for the stricter assertion above.
+        //
+        // There is no point in asserting this for the RI as it's outside of our control.
+        if (!IS_RI) {
+            List<String> disallowedDefaultCipherSuites = new ArrayList<String>();
+            for (String cipherSuite : cipherSuites) {
+                if (!isPermittedDefaultCipherSuite(cipherSuite)) {
+                    disallowedDefaultCipherSuites.add(cipherSuite);
+                }
+            }
+            assertEquals(Collections.EMPTY_LIST, disallowedDefaultCipherSuites);
+        }
+    }
+
+    /**
+     * Assert cipher suites match the default list in content and priority order and contain
+     * only cipher suites permitted by default for {@link javax.net.ssl.SSLEngine}.
+     */
+    public static void assertSSLEngineDefaultCipherSuites(String[] cipherSuites) {
+        assertSSLEngineValidCipherSuites(cipherSuites);
+        assertEquals(CIPHER_SUITES_DEFAULT_SSLENGINE, Arrays.asList(cipherSuites));
 
         // Assert that all the cipher suites are permitted to be in the default list.
         // This assertion is a backup for the stricter assertion above.
