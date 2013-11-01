@@ -210,7 +210,7 @@ public class SSLSocketTest extends TestCase {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
         String[] cipherSuites = ssl.getEnabledCipherSuites();
-        StandardNames.assertValidCipherSuites(cipherSuites);
+        StandardNames.assertDefaultCipherSuites(cipherSuites);
         assertNotSame(cipherSuites, ssl.getEnabledCipherSuites());
     }
 
@@ -932,7 +932,7 @@ public class SSLSocketTest extends TestCase {
         assertNotNull(p);
 
         String[] cipherSuites = p.getCipherSuites();
-        StandardNames.assertValidCipherSuites(cipherSuites);
+        StandardNames.assertDefaultCipherSuites(cipherSuites);
         assertNotSame(cipherSuites, ssl.getEnabledCipherSuites());
         assertEquals(Arrays.asList(cipherSuites), Arrays.asList(ssl.getEnabledCipherSuites()));
 
