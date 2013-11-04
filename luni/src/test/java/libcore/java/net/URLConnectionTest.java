@@ -1404,6 +1404,32 @@ public final class URLConnectionTest extends TestCase {
         }
     }
 
+    // bug 11473660
+    public void testAuthenticateWithLowerCaseHeadersAndScheme() throws Exception {
+        MockResponse pleaseAuthenticate = new MockResponse()
+                .setResponseCode(401)
+                .addHeader("www-authenticate: basic realm=\"protected area\"")
+                .setBody("Please authenticate.");
+        // fail auth three times...
+        server.enqueue(pleaseAuthenticate);
+        server.enqueue(pleaseAuthenticate);
+        server.enqueue(pleaseAuthenticate);
+        // ...then succeed the fourth time
+        server.enqueue(new MockResponse().setBody("Successful auth!"));
+        server.play();
+
+        SimpleAuthenticator authenticator = new SimpleAuthenticator();
+        Authenticator.setDefault(authenticator);
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        assertEquals("Successful auth!", readAscii(connection.getInputStream(), Integer.MAX_VALUE));
+        assertEquals(Authenticator.RequestorType.SERVER, authenticator.requestorType);
+        assertEquals(server.getPort(), authenticator.requestingPort);
+        assertEquals(InetAddress.getByName(server.getHostName()), authenticator.requestingSite);
+        assertEquals("protected area", authenticator.requestingPrompt);
+        assertEquals("http", authenticator.requestingProtocol);
+        assertEquals("basic", authenticator.requestingScheme);
+    }
+
     // http://code.google.com/p/android/issues/detail?id=19081
     public void testAuthenticateWithCommaSeparatedAuthenticationMethods() throws Exception {
         server.enqueue(new MockResponse()
