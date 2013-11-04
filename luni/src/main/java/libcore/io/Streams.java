@@ -135,8 +135,9 @@ public final class Streams {
     }
 
     /**
-     * Call {@code in.read()} repeatedly until either the stream is exhausted or
-     * {@code byteCount} bytes have been read.
+     * Skip <b>at most</b> {@code byteCount} bytes from {@code in} by calling read
+     * repeatedly until either the stream is exhausted or we read fewer bytes than
+     * we ask for.
      *
      * <p>This method reuses the skip buffer but is careful to never use it at
      * the same time that another stream is using it. Otherwise streams that use
