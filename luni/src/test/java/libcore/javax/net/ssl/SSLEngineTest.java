@@ -16,9 +16,11 @@
 
 package libcore.javax.net.ssl;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
@@ -108,13 +110,24 @@ public class SSLEngineTest extends TestCase {
                            ? new String[] { cipherSuite,
                                             StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION }
                            : new String[] { cipherSuite });
-                assertConnected(TestSSLEnginePair.create(c, new TestSSLEnginePair.Hooks() {
-                        @Override
-                                void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
-                            client.setEnabledCipherSuites(cipherSuiteArray);
-                            server.setEnabledCipherSuites(cipherSuiteArray);
-                        }
-                    }));
+                TestSSLEnginePair pair = TestSSLEnginePair.create(c, new TestSSLEnginePair.Hooks() {
+                    @Override
+                    void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
+                        client.setEnabledCipherSuites(cipherSuiteArray);
+                        server.setEnabledCipherSuites(cipherSuiteArray);
+                    }
+                });
+                assertConnected(pair);
+
+                boolean clientNeedsRecordSplit =
+                        ("TLS".equalsIgnoreCase(c.clientContext.getProtocol())
+                                || "SSLv3".equalsIgnoreCase(c.clientContext.getProtocol()))
+                        && cipherSuite.contains("_CBC_");
+
+                assertSendsCorrectly("This is the client. Hello!".getBytes(),
+                        pair.client, pair.server, clientNeedsRecordSplit);
+                assertSendsCorrectly("This is the server. Hi!".getBytes(),
+                        pair.server, pair.client, false);
                 assertFalse(errorExpected);
             } catch (Exception maybeExpected) {
                 if (!errorExpected) {
@@ -124,6 +137,45 @@ public class SSLEngineTest extends TestCase {
             }
         }
         c.close();
+    }
+
+    private void assertSendsCorrectly(final byte[] sourceBytes, SSLEngine source, SSLEngine dest,
+            boolean needsRecordSplit) throws SSLException {
+        ByteBuffer sourceOut = ByteBuffer.wrap(sourceBytes);
+        SSLSession sourceSession = source.getSession();
+        ByteBuffer sourceToDest = ByteBuffer.allocate(sourceSession.getPacketBufferSize());
+        SSLEngineResult sourceOutRes = source.wrap(sourceOut, sourceToDest);
+        sourceToDest.flip();
+
+        String sourceCipherSuite = source.getSession().getCipherSuite();
+        assertEquals(sourceCipherSuite, sourceBytes.length, sourceOutRes.bytesConsumed());
+        assertEquals(sourceCipherSuite, HandshakeStatus.NOT_HANDSHAKING,
+                sourceOutRes.getHandshakeStatus());
+
+        SSLSession destSession = dest.getSession();
+        ByteBuffer destIn = ByteBuffer.allocate(destSession.getApplicationBufferSize());
+
+        int numUnwrapCalls = 0;
+        while (destIn.position() != sourceOut.limit()) {
+            SSLEngineResult destRes = dest.unwrap(sourceToDest, destIn);
+            assertEquals(sourceCipherSuite, HandshakeStatus.NOT_HANDSHAKING,
+                    destRes.getHandshakeStatus());
+            if (needsRecordSplit && numUnwrapCalls == 0) {
+                assertEquals(sourceCipherSuite, 1, destRes.bytesProduced());
+            }
+            numUnwrapCalls++;
+        }
+
+        destIn.flip();
+        byte[] actual = new byte[destIn.remaining()];
+        destIn.get(actual);
+        assertEquals(sourceCipherSuite, Arrays.toString(sourceBytes), Arrays.toString(actual));
+
+        if (needsRecordSplit) {
+            assertEquals(sourceCipherSuite, 2, numUnwrapCalls);
+        } else {
+            assertEquals(sourceCipherSuite, 1, numUnwrapCalls);
+        }
     }
 
     public void test_SSLEngine_getEnabledCipherSuites() throws Exception {
