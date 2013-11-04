@@ -28,7 +28,7 @@ public class SSLServerSocketTest extends TestCase {
         (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket();
     StandardNames.assertDefaultCipherSuites(serverSocket.getEnabledCipherSuites());
     StandardNames.assertSupportedCipherSuites(serverSocket.getSupportedCipherSuites());
-    StandardNames.assertValidProtocols(serverSocket.getEnabledProtocols());
+    StandardNames.assertDefaultProtocolsServer(serverSocket.getEnabledProtocols());
     StandardNames.assertSupportedProtocols(serverSocket.getSupportedProtocols());
     assertTrue(serverSocket.getEnableSessionCreation());
     assertFalse(serverSocket.getNeedClientAuth());

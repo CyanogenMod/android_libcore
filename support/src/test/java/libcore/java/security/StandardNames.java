@@ -536,6 +536,16 @@ public final class StandardNames extends Assert {
         "TLSv1",
         "TLSv1.1",
         "TLSv1.2"));
+    public static final Set<String> SSL_SOCKET_PROTOCOLS_CLIENT_DEFAULT =
+            new HashSet<String>(Arrays.asList(
+                "SSLv3",
+                "TLSv1"));
+    public static final Set<String> SSL_SOCKET_PROTOCOLS_SERVER_DEFAULT =
+            new HashSet<String>(Arrays.asList(
+                "SSLv3",
+                "TLSv1",
+                "TLSv1.1",
+                "TLSv1.2"));
     static {
         if (IS_RI) {
             /* Even though we use OpenSSL's SSLv23_method which
@@ -549,11 +559,15 @@ public final class StandardNames extends Assert {
     }
 
     public static final Set<String> SSL_SOCKET_PROTOCOLS_SSLENGINE = new HashSet<String>(SSL_SOCKET_PROTOCOLS);
+    public static final Set<String> SSL_SOCKET_PROTOCOLS_DEFAULT_SSLENGINE =
+            new HashSet<String>(SSL_SOCKET_PROTOCOLS_CLIENT_DEFAULT);
     static {
         // No TLSv1.1 or TLSv1.2 support on SSLEngine based provider
         if (!IS_RI) {
             SSL_SOCKET_PROTOCOLS_SSLENGINE.remove("TLSv1.1");
             SSL_SOCKET_PROTOCOLS_SSLENGINE.remove("TLSv1.2");
+            SSL_SOCKET_PROTOCOLS_DEFAULT_SSLENGINE.remove("TLSv1.1");
+            SSL_SOCKET_PROTOCOLS_DEFAULT_SSLENGINE.remove("TLSv1.2");
         }
     }
 
@@ -920,7 +934,7 @@ public final class StandardNames extends Assert {
     }
 
     /**
-     * Asserts that the protocols array is non-null and that it all of its contents are supported
+     * Asserts that the protocols array is non-null and that all of its contents are supported
      * protocols.
      */
     public static void assertValidProtocols(String[] protocols) {
@@ -928,7 +942,7 @@ public final class StandardNames extends Assert {
     }
 
     /**
-     * Asserts that the protocols array is non-null and that it all of its contents are protocols
+     * Asserts that the protocols array is non-null and that all of its contents are protocols
      * supported by {@link javax.net.ssl.SSLEngine}.
      */
     public static void assertSSLEngineValidProtocols(String[] protocols) {
@@ -951,6 +965,33 @@ public final class StandardNames extends Assert {
      */
     public static void assertSSLEngineSupportedProtocols(String[] protocols) {
         assertSupportedProtocols(SSL_SOCKET_PROTOCOLS_SSLENGINE, protocols);
+    }
+
+    /**
+     * Asserts that the protocols array contains all the protocols enabled by default for client use
+     * and no other ones.
+     */
+    public static void assertDefaultProtocolsClient(String[] protocols) {
+        assertValidProtocols(protocols);
+        assertSupportedProtocols(SSL_SOCKET_PROTOCOLS_CLIENT_DEFAULT, protocols);
+    }
+
+    /**
+     * Asserts that the protocols array contains all the protocols enabled by default for server use
+     * and no other ones.
+     */
+    public static void assertDefaultProtocolsServer(String[] protocols) {
+        assertValidProtocols(protocols);
+        assertSupportedProtocols(SSL_SOCKET_PROTOCOLS_SERVER_DEFAULT, protocols);
+    }
+
+    /**
+     * Asserts that the protocols array contains all the protocols enabled by default for
+     * {@link javax.net.ssl.SSLEngine} and no other ones.
+     */
+    public static void assertSSLEngineDefaultProtocols(String[] protocols) {
+        assertSSLEngineValidProtocols(protocols);
+        assertSupportedProtocols(SSL_SOCKET_PROTOCOLS_DEFAULT_SSLENGINE, protocols);
     }
 
     /**
