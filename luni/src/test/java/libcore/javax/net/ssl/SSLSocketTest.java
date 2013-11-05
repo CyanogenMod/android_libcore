@@ -251,7 +251,7 @@ public class SSLSocketTest extends TestCase {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
         String[] protocols = ssl.getEnabledProtocols();
-        StandardNames.assertValidProtocols(protocols);
+        StandardNames.assertDefaultProtocolsClient(protocols);
         assertNotSame(protocols, ssl.getEnabledProtocols());
     }
 
@@ -937,7 +937,7 @@ public class SSLSocketTest extends TestCase {
         assertEquals(Arrays.asList(cipherSuites), Arrays.asList(ssl.getEnabledCipherSuites()));
 
         String[] protocols = p.getProtocols();
-        StandardNames.assertValidProtocols(protocols);
+        StandardNames.assertDefaultProtocolsClient(protocols);
         assertNotSame(protocols, ssl.getEnabledProtocols());
         assertEquals(Arrays.asList(protocols), Arrays.asList(ssl.getEnabledProtocols()));
 
