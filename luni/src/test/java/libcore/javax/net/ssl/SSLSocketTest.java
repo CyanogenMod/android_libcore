@@ -60,12 +60,15 @@ import libcore.java.security.TestKeyStore;
 
 public class SSLSocketTest extends TestCase {
 
-    public void test_SSLSocket_getSupportedCipherSuites_names() throws Exception {
+    public void test_SSLSocket_defaultConfiguration() throws Exception {
+        SSLDefaultConfigurationAsserts.assertSSLSocket(
+                (SSLSocket) SSLSocketFactory.getDefault().createSocket());
+    }
+
+    public void test_SSLSocket_getSupportedCipherSuites_returnsCopies() throws Exception {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
-        String[] cipherSuites = ssl.getSupportedCipherSuites();
-        StandardNames.assertSupportedCipherSuites(cipherSuites);
-        assertNotSame(cipherSuites, ssl.getSupportedCipherSuites());
+        assertNotSame(ssl.getSupportedCipherSuites(), ssl.getSupportedCipherSuites());
     }
 
     public void test_SSLSocket_getSupportedCipherSuites_connect() throws Exception {
@@ -222,12 +225,10 @@ public class SSLSocketTest extends TestCase {
         c.close();
     }
 
-    public void test_SSLSocket_getEnabledCipherSuites() throws Exception {
+    public void test_SSLSocket_getEnabledCipherSuites_returnsCopies() throws Exception {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
-        String[] cipherSuites = ssl.getEnabledCipherSuites();
-        StandardNames.assertDefaultCipherSuites(cipherSuites);
-        assertNotSame(cipherSuites, ssl.getEnabledCipherSuites());
+        assertNotSame(ssl.getEnabledCipherSuites(), ssl.getEnabledCipherSuites());
     }
 
     public void test_SSLSocket_setEnabledCipherSuites() throws Exception {
@@ -255,20 +256,16 @@ public class SSLSocketTest extends TestCase {
         ssl.setEnabledCipherSuites(ssl.getSupportedCipherSuites());
     }
 
-    public void test_SSLSocket_getSupportedProtocols() throws Exception {
+    public void test_SSLSocket_getSupportedProtocols_returnsCopies() throws Exception {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
-        String[] protocols = ssl.getSupportedProtocols();
-        StandardNames.assertSupportedProtocols(protocols);
-        assertNotSame(protocols, ssl.getSupportedProtocols());
+        assertNotSame(ssl.getSupportedProtocols(), ssl.getSupportedProtocols());
     }
 
-    public void test_SSLSocket_getEnabledProtocols() throws Exception {
+    public void test_SSLSocket_getEnabledProtocols_returnsCopies() throws Exception {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
-        String[] protocols = ssl.getEnabledProtocols();
-        StandardNames.assertDefaultProtocolsClient(protocols);
-        assertNotSame(protocols, ssl.getEnabledProtocols());
+        assertNotSame(ssl.getEnabledProtocols(), ssl.getEnabledProtocols());
     }
 
     public void test_SSLSocket_setEnabledProtocols() throws Exception {
@@ -948,12 +945,10 @@ public class SSLSocketTest extends TestCase {
         assertNotNull(p);
 
         String[] cipherSuites = p.getCipherSuites();
-        StandardNames.assertDefaultCipherSuites(cipherSuites);
         assertNotSame(cipherSuites, ssl.getEnabledCipherSuites());
         assertEquals(Arrays.asList(cipherSuites), Arrays.asList(ssl.getEnabledCipherSuites()));
 
         String[] protocols = p.getProtocols();
-        StandardNames.assertDefaultProtocolsClient(protocols);
         assertNotSame(protocols, ssl.getEnabledProtocols());
         assertEquals(Arrays.asList(protocols), Arrays.asList(ssl.getEnabledProtocols()));
 

@@ -18,14 +18,11 @@ package libcore.javax.net.ssl;
 
 import javax.net.ssl.SSLServerSocketFactory;
 import junit.framework.TestCase;
-import libcore.java.security.StandardNames;
 
 public class SSLServerSocketFactoryTest extends TestCase {
 
-  public void testDefaultConfiguration() {
-    SSLServerSocketFactory socketFactory =
-        (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-    StandardNames.assertDefaultCipherSuites(socketFactory.getDefaultCipherSuites());
-    StandardNames.assertSupportedCipherSuites(socketFactory.getSupportedCipherSuites());
+  public void testDefaultConfiguration() throws Exception {
+    SSLDefaultConfigurationAsserts.assertSSLServerSocketFactory(
+        (SSLServerSocketFactory) SSLServerSocketFactory.getDefault());
   }
 }

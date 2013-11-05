@@ -21,7 +21,6 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import libcore.java.security.StandardNames;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -35,18 +34,19 @@ public class SSLSocketFactoryTest extends TestCase {
         assertTrue(SSLSocketFactory.class.isAssignableFrom(sf.getClass()));
     }
 
-    public void test_SSLSocketFactory_getDefaultCipherSuites() {
-        SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
-        String[] cipherSuites = sf.getDefaultCipherSuites();
-        StandardNames.assertDefaultCipherSuites(cipherSuites);
-        assertNotSame(cipherSuites, sf.getDefaultCipherSuites());
+    public void test_SSLSocketFactory_defaultConfiguration() throws Exception {
+        SSLDefaultConfigurationAsserts.assertSSLSocketFactory(
+                (SSLSocketFactory) SSLSocketFactory.getDefault());
     }
 
-    public void test_SSLSocketFactory_getSupportedCipherSuites() {
+    public void test_SSLSocketFactory_getDefaultCipherSuitesReturnsCopies() {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
-        String[] cipherSuites = sf.getSupportedCipherSuites();
-        StandardNames.assertSupportedCipherSuites(cipherSuites);
-        assertNotSame(cipherSuites, sf.getSupportedCipherSuites());
+        assertNotSame(sf.getDefaultCipherSuites(), sf.getDefaultCipherSuites());
+    }
+
+    public void test_SSLSocketFactory_getSupportedCipherSuitesReturnsCopies() {
+        SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        assertNotSame(sf.getSupportedCipherSuites(), sf.getSupportedCipherSuites());
     }
 
     public void test_SSLSocketFactory_createSocket() throws Exception {

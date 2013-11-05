@@ -59,6 +59,18 @@ public class SSLContextTest extends TestCase {
         SSLContext.setDefault(defaultContext);
     }
 
+    public void test_SSLContext_defaultConfiguration() throws Exception {
+        SSLDefaultConfigurationAsserts.assertSSLContext(SSLContext.getDefault());
+
+        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+            SSLContext sslContext = SSLContext.getInstance(protocol);
+            if (!protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                sslContext.init(null, null, null);
+            }
+            SSLDefaultConfigurationAsserts.assertSSLContext(sslContext);
+        }
+    }
+
     public void test_SSLContext_getInstance() throws Exception {
         try {
             SSLContext.getInstance(null);
@@ -241,52 +253,6 @@ public class SSLContextTest extends TestCase {
                 assertNotSame(SSLContext.getInstance(protocol).getClientSessionContext(),
                               sessionContext);
             }
-        }
-    }
-
-    public void test_SSLContext_getDefaultSSLParameters() throws Exception {
-        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
-            SSLContext sslContext = SSLContext.getInstance(protocol);
-            if (!protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
-                sslContext.init(null, null, null);
-            }
-
-            SSLParameters p = sslContext.getDefaultSSLParameters();
-            assertNotNull(p);
-
-            String[] cipherSuites = p.getCipherSuites();
-            assertNotNull(cipherSuites);
-            StandardNames.assertDefaultCipherSuites(cipherSuites);
-
-            String[] protocols = p.getProtocols();
-            assertNotNull(protocols);
-            StandardNames.assertDefaultProtocolsClient(protocols);
-
-            assertFalse(p.getWantClientAuth());
-            assertFalse(p.getNeedClientAuth());
-        }
-    }
-
-    public void test_SSLContext_getSupportedSSLParameters() throws Exception {
-        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
-            SSLContext sslContext = SSLContext.getInstance(protocol);
-            if (!protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
-                sslContext.init(null, null, null);
-            }
-
-            SSLParameters p = sslContext.getSupportedSSLParameters();
-            assertNotNull(p);
-
-            String[] cipherSuites = p.getCipherSuites();
-            assertNotNull(cipherSuites);
-            StandardNames.assertSupportedCipherSuites(cipherSuites);
-
-            String[] protocols = p.getProtocols();
-            assertNotNull(protocols);
-            StandardNames.assertSupportedProtocols(protocols);
-
-            assertFalse(p.getWantClientAuth());
-            assertFalse(p.getNeedClientAuth());
         }
     }
 
