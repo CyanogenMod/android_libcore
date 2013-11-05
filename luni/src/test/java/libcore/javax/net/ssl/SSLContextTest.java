@@ -256,7 +256,7 @@ public class SSLContextTest extends TestCase {
 
             String[] cipherSuites = p.getCipherSuites();
             assertNotNull(cipherSuites);
-            StandardNames.assertValidCipherSuites(cipherSuites);
+            StandardNames.assertDefaultCipherSuites(cipherSuites);
 
             String[] protocols = p.getProtocols();
             assertNotNull(protocols);
