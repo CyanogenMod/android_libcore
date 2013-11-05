@@ -387,17 +387,6 @@ public final class Method extends AccessibleObject implements GenericDeclaration
     }
 
     /**
-     * Returns true if this and {@code method} have the same name and the same
-     * parameters in the same order. Such methods can share implementation if
-     * one method's return types is assignable to the other.
-     *
-     * @hide
-     */
-    public boolean equalNameAndParameters$(Method method) {
-        return name.equals(method.name) && Arrays.equals(parameterTypes, method.parameterTypes);
-    }
-
-    /**
      * Returns the class that declares this method.
      *
      * @return the declaring class
@@ -594,4 +583,5 @@ public final class Method extends AccessibleObject implements GenericDeclaration
 
         return result.toString();
     }
+
 }
