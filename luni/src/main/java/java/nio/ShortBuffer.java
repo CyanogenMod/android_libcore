@@ -91,8 +91,8 @@ public abstract class ShortBuffer extends Buffer implements
         return buf;
     }
 
-    ShortBuffer(int capacity) {
-        super(1, capacity);
+    ShortBuffer(int capacity, long effectiveDirectAddress) {
+        super(1, capacity, effectiveDirectAddress);
     }
 
     public final short[] array() {

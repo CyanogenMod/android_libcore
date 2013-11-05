@@ -30,14 +30,15 @@ class DirectByteBuffer extends MappedByteBuffer {
   private final boolean isReadOnly;
 
   protected DirectByteBuffer(MemoryBlock block, int capacity, int offset, boolean isReadOnly, MapMode mapMode) {
-    super(block, capacity, mapMode);
+    super(block, capacity, mapMode, block.toLong() + offset);
 
     long baseSize = block.getSize();
+    // We're throwing this exception after we passed a bogus value
+    // to the superclass constructor, but it doesn't make any
+    // difference in this case.
     if (baseSize >= 0 && (capacity + offset) > baseSize) {
       throw new IllegalArgumentException("capacity + offset > baseSize");
     }
-
-    this.effectiveDirectAddress = block.toLong() + offset;
 
     this.offset = offset;
     this.isReadOnly = isReadOnly;

@@ -33,7 +33,7 @@ final class LongArrayBuffer extends LongBuffer {
   }
 
   private LongArrayBuffer(int capacity, long[] backingArray, int arrayOffset, boolean isReadOnly) {
-    super(capacity);
+    super(capacity, 0);
     this.backingArray = backingArray;
     this.arrayOffset = arrayOffset;
     this.isReadOnly = isReadOnly;

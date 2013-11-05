@@ -41,10 +41,9 @@ final class ByteBufferAsFloatBuffer extends FloatBuffer {
     }
 
     ByteBufferAsFloatBuffer(ByteBuffer byteBuffer) {
-        super(byteBuffer.capacity() / SizeOf.FLOAT);
+        super(byteBuffer.capacity() / SizeOf.FLOAT, byteBuffer.effectiveDirectAddress);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
-        this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
     }
 
     @Override

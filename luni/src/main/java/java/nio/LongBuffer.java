@@ -91,8 +91,8 @@ public abstract class LongBuffer extends Buffer implements
         return buf;
     }
 
-    LongBuffer(int capacity) {
-        super(3, capacity);
+    LongBuffer(int capacity, long effectiveDirectAddress) {
+        super(3, capacity, effectiveDirectAddress);
     }
 
     public final long[] array() {

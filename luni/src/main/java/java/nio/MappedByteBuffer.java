@@ -40,8 +40,8 @@ public abstract class MappedByteBuffer extends ByteBuffer {
   final MapMode mapMode;
   final MemoryBlock block;
 
-  MappedByteBuffer(MemoryBlock block, int capacity, MapMode mapMode) {
-    super(capacity);
+  MappedByteBuffer(MemoryBlock block, int capacity, MapMode mapMode, long effectiveDirectAddress) {
+    super(capacity, effectiveDirectAddress);
     this.mapMode = mapMode;
     this.block = block;
   }
