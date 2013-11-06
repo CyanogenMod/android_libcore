@@ -56,20 +56,19 @@ public class JarFile extends ZipFile {
     private boolean closed = false;
 
     static final class JarFileInputStream extends FilterInputStream {
+        private final ZipEntry zipEntry;
+        private final JarVerifier.VerifierEntry entry;
+
         private long count;
-
-        private ZipEntry zipEntry;
-
-        private JarVerifier.VerifierEntry entry;
-
         private boolean done = false;
 
         JarFileInputStream(InputStream is, ZipEntry ze,
                 JarVerifier.VerifierEntry e) {
             super(is);
             zipEntry = ze;
-            count = zipEntry.getSize();
             entry = e;
+
+            count = zipEntry.getSize();
         }
 
         @Override
@@ -137,6 +136,24 @@ public class JarFile extends ZipFile {
         @Override
         public long skip(long byteCount) throws IOException {
             return Streams.skipByReading(this, byteCount);
+        }
+    }
+
+    static final class JarFileEnumerator implements Enumeration<JarEntry> {
+        final Enumeration<? extends ZipEntry> ze;
+        final JarFile jf;
+
+        JarFileEnumerator(Enumeration<? extends ZipEntry> zenum, JarFile jf) {
+            ze = zenum;
+            this.jf = jf;
+        }
+
+        public boolean hasMoreElements() {
+            return ze.hasMoreElements();
+        }
+
+        public JarEntry nextElement() {
+            return new JarEntry(ze.nextElement(), jf /* parentJar */);
         }
     }
 
@@ -233,26 +250,6 @@ public class JarFile extends ZipFile {
      */
     @Override
     public Enumeration<JarEntry> entries() {
-        class JarFileEnumerator implements Enumeration<JarEntry> {
-            Enumeration<? extends ZipEntry> ze;
-
-            JarFile jf;
-
-            JarFileEnumerator(Enumeration<? extends ZipEntry> zenum, JarFile jf) {
-                ze = zenum;
-                this.jf = jf;
-            }
-
-            public boolean hasMoreElements() {
-                return ze.hasMoreElements();
-            }
-
-            public JarEntry nextElement() {
-                JarEntry je = new JarEntry(ze.nextElement());
-                je.parentJar = jf;
-                return je;
-            }
-        }
         return new JarFileEnumerator(super.entries(), this);
     }
 
@@ -414,9 +411,7 @@ public class JarFile extends ZipFile {
         if (ze == null) {
             return ze;
         }
-        JarEntry je = new JarEntry(ze);
-        je.parentJar = this;
-        return je;
+        return new JarEntry(ze, this /* parentJar */);
     }
 
     /**
