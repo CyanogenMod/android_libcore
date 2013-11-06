@@ -93,8 +93,8 @@ public abstract class FloatBuffer extends Buffer implements
         return buf;
     }
 
-    FloatBuffer(int capacity) {
-        super(2, capacity);
+    FloatBuffer(int capacity, long effectiveDirectAddress) {
+        super(2, capacity, effectiveDirectAddress);
     }
 
     public final float[] array() {

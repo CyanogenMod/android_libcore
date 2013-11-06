@@ -137,8 +137,8 @@ public abstract class CharBuffer extends Buffer implements
         return result;
     }
 
-    CharBuffer(int capacity) {
-        super(1, capacity);
+    CharBuffer(int capacity, long effectiveDirectAddress) {
+        super(1, capacity, effectiveDirectAddress);
     }
 
     public final char[] array() {

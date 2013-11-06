@@ -33,7 +33,7 @@ final class DoubleArrayBuffer extends DoubleBuffer {
   }
 
   private DoubleArrayBuffer(int capacity, double[] backingArray, int arrayOffset, boolean isReadOnly) {
-    super(capacity);
+    super(capacity, 0);
     this.backingArray = backingArray;
     this.arrayOffset = arrayOffset;
     this.isReadOnly = isReadOnly;

@@ -42,10 +42,9 @@ final class ByteBufferAsCharBuffer extends CharBuffer {
     }
 
     private ByteBufferAsCharBuffer(ByteBuffer byteBuffer) {
-        super(byteBuffer.capacity() / SizeOf.CHAR);
+        super(byteBuffer.capacity() / SizeOf.CHAR, byteBuffer.effectiveDirectAddress);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
-        this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
     }
 
     @Override
