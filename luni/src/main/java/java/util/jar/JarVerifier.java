@@ -17,6 +17,7 @@
 
 package java.util.jar;
 
+import org.apache.harmony.security.utils.JarUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,15 +27,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.Vector;
 import libcore.io.Base64;
-import org.apache.harmony.security.utils.JarUtils;
 
 /**
  * Non-public class used by {@link JarFile} and {@link JarInputStream} to manage
@@ -190,7 +189,10 @@ class JarVerifier {
             if (hm.get(name) != null) {
                 // Found an entry for entry name in .SF file
                 String signatureFile = entry.getKey();
-                certs.addAll(getSignerCertificates(signatureFile, certificates));
+                Certificate[] certChain = certificates.get(signatureFile);
+                if (certChain != null) {
+                    Collections.addAll(certs, certChain);
+                }
             }
         }
 
@@ -434,34 +436,5 @@ class JarVerifier {
      */
     void removeMetaEntries() {
         metaEntries = null;
-    }
-
-    /**
-     * Returns a {@code Vector} of all of the
-     * {@link java.security.cert.Certificate}s that are associated with the
-     * signing of the named signature file.
-     *
-     * @param signatureFileName
-     *            the name of a signature file.
-     * @param certificates
-     *            a {@code Map} of all of the certificate chains discovered so
-     *            far while attempting to verify the JAR that contains the
-     *            signature file {@code signatureFileName}. This object is
-     *            previously set in the course of one or more calls to
-     *            {@link #verifyJarSignatureFile(String, String, String, Map, Map)}
-     *            where it was passed as the last argument.
-     * @return all of the {@code Certificate} entries for the signer of the JAR
-     *         whose actions led to the creation of the named signature file.
-     */
-    public static Vector<Certificate> getSignerCertificates(
-            String signatureFileName, Map<String, Certificate[]> certificates) {
-        Vector<Certificate> result = new Vector<Certificate>();
-        Certificate[] certChain = certificates.get(signatureFileName);
-        if (certChain != null) {
-            for (Certificate element : certChain) {
-                result.add(element);
-            }
-        }
-        return result;
     }
 }
