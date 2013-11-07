@@ -54,6 +54,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 import junit.framework.TestCase;
+import libcore.io.Streams;
 import libcore.java.security.StandardNames;
 import libcore.java.security.TestKeyStore;
 
@@ -177,17 +178,32 @@ public class SSLSocketTest extends TestCase {
 
                 SSLSocket server = pair[0];
                 SSLSocket client = pair[1];
+
+                // Check that the client can read the message sent by the server
                 server.getOutputStream().write(serverToClient);
+                byte[] clientFromServer = new byte[serverToClient.length];
+                Streams.readFully(client.getInputStream(), clientFromServer);
+                assertEquals(serverToClientString, new String(clientFromServer));
+
+                // Check that the server can read the message sent by the client
                 client.getOutputStream().write(clientToServer);
-                // arrays are too big to make sure we get back only what we expect
-                byte[] clientFromServer = new byte[serverToClient.length+1];
-                byte[] serverFromClient = new byte[clientToServer.length+1];
-                int readFromServer = client.getInputStream().read(clientFromServer);
-                int readFromClient = server.getInputStream().read(serverFromClient);
-                assertEquals(serverToClient.length, readFromServer);
-                assertEquals(clientToServer.length, readFromClient);
-                assertEquals(clientToServerString, new String(serverFromClient, 0, readFromClient));
-                assertEquals(serverToClientString, new String(clientFromServer, 0, readFromServer));
+                byte[] serverFromClient = new byte[clientToServer.length];
+                Streams.readFully(server.getInputStream(), serverFromClient);
+                assertEquals(clientToServerString, new String(serverFromClient));
+
+                // Check that the server and the client cannot read anything else
+                // (reads should time out)
+                server.setSoTimeout(10);
+                try {
+                  server.getInputStream().read();
+                  fail();
+                } catch (IOException expected) {}
+                client.setSoTimeout(10);
+                try {
+                  client.getInputStream().read();
+                  fail();
+                } catch (IOException expected) {}
+
                 client.close();
                 server.close();
                 assertFalse(errorExpected);
