@@ -42,7 +42,7 @@ final class CharSequenceAdapter extends CharBuffer {
     final CharSequence sequence;
 
     CharSequenceAdapter(CharSequence chseq) {
-        super(chseq.length());
+        super(chseq.length(), 0);
         sequence = chseq;
     }
 

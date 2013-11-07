@@ -92,8 +92,8 @@ public abstract class DoubleBuffer extends Buffer implements
         return buf;
     }
 
-    DoubleBuffer(int capacity) {
-        super(3, capacity);
+    DoubleBuffer(int capacity, long effectiveDirectAddress) {
+        super(3, capacity, effectiveDirectAddress);
     }
 
     public final double[] array() {

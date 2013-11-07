@@ -16,12 +16,25 @@
 
 package libcore.java.nio;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.nio.*;
-import java.nio.channels.*;
-import java.util.Arrays;
 import junit.framework.TestCase;
+import java.io.File;
+import java.io.RandomAccessFile;
+import java.lang.reflect.Constructor;
+import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.CharBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.ReadOnlyBufferException;
+import java.nio.ShortBuffer;
+import java.nio.channels.FileChannel;
+import java.util.Arrays;
+import libcore.io.SizeOf;
 
 public class BufferTest extends TestCase {
     private static ByteBuffer allocateMapped(int size) throws Exception {
@@ -854,5 +867,20 @@ public class BufferTest extends TestCase {
         mapped.get();
         mapped.flip();
         mapped.get();
+    }
+
+    public void testElementSizeShifts() {
+        // Element size shifts are the log base 2 of the element size
+        // of this buffer.
+        assertEquals(1, 1 << ByteBuffer.allocate(0).getElementSizeShift());
+
+        assertEquals(SizeOf.CHAR, 1 << CharBuffer.allocate(0).getElementSizeShift());
+        assertEquals(SizeOf.SHORT, 1 << ShortBuffer.allocate(0).getElementSizeShift());
+
+        assertEquals(SizeOf.INT, 1 << IntBuffer.allocate(0).getElementSizeShift());
+        assertEquals(SizeOf.FLOAT, 1 << FloatBuffer.allocate(0).getElementSizeShift());
+
+        assertEquals(SizeOf.LONG, 1 << LongBuffer.allocate(0).getElementSizeShift());
+        assertEquals(SizeOf.DOUBLE, 1 << DoubleBuffer.allocate(0).getElementSizeShift());
     }
 }

@@ -33,7 +33,7 @@ final class ShortArrayBuffer extends ShortBuffer {
   }
 
   private ShortArrayBuffer(int capacity, short[] backingArray, int arrayOffset, boolean isReadOnly) {
-    super(capacity);
+    super(capacity, 0);
     this.backingArray = backingArray;
     this.arrayOffset = arrayOffset;
     this.isReadOnly = isReadOnly;

@@ -42,10 +42,9 @@ final class ByteBufferAsIntBuffer extends IntBuffer {
     }
 
     private ByteBufferAsIntBuffer(ByteBuffer byteBuffer) {
-        super(byteBuffer.capacity() / SizeOf.INT);
+        super(byteBuffer.capacity() / SizeOf.INT, byteBuffer.effectiveDirectAddress);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
-        this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
     }
 
     @Override
