@@ -16,14 +16,14 @@
 
 package libcore.java.lang;
 
-import junit.framework.TestCase;
-
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Formatter;
+import java.util.concurrent.atomic.AtomicBoolean;
+import junit.framework.TestCase;
 
 public class SystemTest extends TestCase {
 
@@ -117,5 +117,32 @@ public class SystemTest extends TestCase {
         } catch (NullPointerException e) {
             assertEquals("dst == null", e.getMessage());
         }
+    }
+
+    // http://b/5247258
+    public void testArrayCopyConcurrentModification() {
+        final AtomicBoolean done = new AtomicBoolean();
+
+        final Object[] source = new Object[1024 * 1024];
+        String[] target = new String[1024 * 1024];
+
+        new Thread() {
+            @Override public void run() {
+                while (!done.get()) {
+                    source[source.length - 1] = this;
+                    source[source.length - 1] = null;
+                }
+            }
+        }.start();
+
+        for (int i = 0; i < 100; i++) {
+            try {
+                System.arraycopy(source, 0, target, 0, source.length);
+                assertNull(target[source.length - 1]);
+            } catch (ArrayStoreException ignored) {
+            }
+        }
+
+        done.set(true);
     }
 }
