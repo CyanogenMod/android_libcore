@@ -17,6 +17,7 @@
 
 package java.util.jar;
 
+import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
 import java.security.CodeSigner;
 import java.security.cert.CertPath;
@@ -27,7 +28,6 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
-import javax.security.auth.x500.X500Principal;
 
 /**
  * Represents a single file in a JAR archive together with the manifest
@@ -39,7 +39,7 @@ import javax.security.auth.x500.X500Principal;
 public class JarEntry extends ZipEntry {
     private Attributes attributes;
 
-    JarFile parentJar;
+    final JarFile parentJar;
 
     CodeSigner signers[];
 
@@ -56,6 +56,7 @@ public class JarEntry extends ZipEntry {
      */
     public JarEntry(String name) {
         super(name);
+        parentJar = null;
     }
 
     /**
@@ -65,8 +66,28 @@ public class JarEntry extends ZipEntry {
      *            The ZipEntry to obtain values from.
      */
     public JarEntry(ZipEntry entry) {
-        super(entry);
+        this(entry, null);
     }
+
+    JarEntry(ZipEntry entry, JarFile parentJar) {
+        super(entry);
+        this.parentJar = parentJar;
+    }
+
+    /**
+     * Create a new {@code JarEntry} using the values obtained from the
+     * argument.
+     *
+     * @param je
+     *            The {@code JarEntry} to obtain values from.
+     */
+    public JarEntry(JarEntry je) {
+        super(je);
+        parentJar = je.parentJar;
+        attributes = je.attributes;
+        signers = je.signers;
+    }
+
 
     /**
      * Returns the {@code Attributes} object associated with this entry or
@@ -110,20 +131,6 @@ public class JarEntry extends ZipEntry {
 
     void setAttributes(Attributes attrib) {
         attributes = attrib;
-    }
-
-    /**
-     * Create a new {@code JarEntry} using the values obtained from the
-     * argument.
-     *
-     * @param je
-     *            The {@code JarEntry} to obtain values from.
-     */
-    public JarEntry(JarEntry je) {
-        super(je);
-        parentJar = je.parentJar;
-        attributes = je.attributes;
-        signers = je.signers;
     }
 
     /**
