@@ -38,7 +38,7 @@ final class ByteArrayBuffer extends ByteBuffer {
   }
 
   private ByteArrayBuffer(int capacity, byte[] backingArray, int arrayOffset, boolean isReadOnly) {
-    super(capacity, null);
+    super(capacity);
     this.backingArray = backingArray;
     this.arrayOffset = arrayOffset;
     this.isReadOnly = isReadOnly;

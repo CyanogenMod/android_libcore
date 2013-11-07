@@ -92,7 +92,7 @@ public abstract class ShortBuffer extends Buffer implements
     }
 
     ShortBuffer(int capacity) {
-        super(1, capacity, null);
+        super(1, capacity);
     }
 
     public final short[] array() {
