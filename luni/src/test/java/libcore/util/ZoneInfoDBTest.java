@@ -23,19 +23,22 @@ import java.util.TimeZone;
 
 public class ZoneInfoDBTest extends junit.framework.TestCase {
   private static final String CURRENT_VERSION = ZoneInfoDB.getInstance().getVersion();
-  private static final String DEFAULT_FILE_1 = System.getenv("ANDROID_ROOT") + "/usr/share/zoneinfo/tzdata";
-  private static final String DEFAULT_FILE_2 = System.getenv("ANDROID_DATA") + "/misc/zoneinfo/tzdata";
+
+  // Any new file in /data...
+  private static final String TZDATA_IN_DATA = System.getenv("ANDROID_DATA") + "/misc/zoneinfo/tzdata";
+  // ...overrides any existing file in /system.
+  private static final String TZDATA_IN_ROOT = System.getenv("ANDROID_ROOT") + "/usr/share/zoneinfo/tzdata";
 
   // An empty override file should fall back to the default file.
   public void testEmptyOverrideFile() throws Exception {
-    ZoneInfoDB.TzData data = new ZoneInfoDB.TzData(makeEmptyFile(), DEFAULT_FILE_1, DEFAULT_FILE_2);
+    ZoneInfoDB.TzData data = new ZoneInfoDB.TzData(makeEmptyFile(), TZDATA_IN_DATA, TZDATA_IN_ROOT);
     assertEquals(CURRENT_VERSION, data.getVersion());
     assertEquals(TimeZone.getAvailableIDs().length, data.getAvailableIDs().length);
   }
 
   // A corrupt override file should fall back to the default file.
   public void testCorruptOverrideFile() throws Exception {
-    ZoneInfoDB.TzData data = new ZoneInfoDB.TzData(makeCorruptFile(), DEFAULT_FILE_1, DEFAULT_FILE_2);
+    ZoneInfoDB.TzData data = new ZoneInfoDB.TzData(makeCorruptFile(), TZDATA_IN_DATA, TZDATA_IN_ROOT);
     assertEquals(CURRENT_VERSION, data.getVersion());
     assertEquals(TimeZone.getAvailableIDs().length, data.getAvailableIDs().length);
   }
@@ -51,7 +54,7 @@ public class ZoneInfoDBTest extends junit.framework.TestCase {
   // Given a valid override file, we should find ourselves using that.
   public void testGoodOverrideFile() throws Exception {
     // We copy /system/usr/share/zoneinfo/tzdata because we know that always exists.
-    RandomAccessFile in = new RandomAccessFile(DEFAULT_FILE_1, "r");
+    RandomAccessFile in = new RandomAccessFile(TZDATA_IN_ROOT, "r");
     byte[] content = new byte[(int) in.length()];
     in.readFully(content);
     // Bump the version number to one long past where humans will be extinct.
@@ -64,7 +67,7 @@ public class ZoneInfoDBTest extends junit.framework.TestCase {
 
     String goodFile = makeTemporaryFile(content);
     try {
-      ZoneInfoDB.TzData data = new ZoneInfoDB.TzData(goodFile, DEFAULT_FILE_1, DEFAULT_FILE_2);
+      ZoneInfoDB.TzData data = new ZoneInfoDB.TzData(goodFile, TZDATA_IN_DATA, TZDATA_IN_ROOT);
       assertEquals("9999z", data.getVersion());
       assertEquals(TimeZone.getAvailableIDs().length, data.getAvailableIDs().length);
     } finally {
