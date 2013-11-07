@@ -196,7 +196,6 @@ ifeq ($(WITH_HOST_DALVIK),true)
     include $(CLEAR_VARS)
     LOCAL_SRC_FILES := $(test_src_files)
     LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
-    LOCAL_NO_STANDARD_LIBRARIES := true
     LOCAL_JAVA_LIBRARIES := bouncycastle-hostdex core-junit-hostdex core-tests-support-hostdex okhttp-hostdex
     LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc-host mockwebserver-host nist-pkix-tests-host
     LOCAL_JAVACFLAGS := $(local_javac_flags)
