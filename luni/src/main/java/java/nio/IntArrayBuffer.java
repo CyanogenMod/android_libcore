@@ -33,7 +33,7 @@ final class IntArrayBuffer extends IntBuffer {
   }
 
   private IntArrayBuffer(int capacity, int[] backingArray, int arrayOffset, boolean isReadOnly) {
-    super(capacity);
+    super(capacity, 0);
     this.backingArray = backingArray;
     this.arrayOffset = arrayOffset;
     this.isReadOnly = isReadOnly;

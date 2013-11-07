@@ -112,8 +112,8 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
         return buf;
     }
 
-    ByteBuffer(int capacity) {
-        super(0, capacity);
+    ByteBuffer(int capacity, long effectiveDirectAddress) {
+        super(0, capacity, effectiveDirectAddress);
     }
 
     /**

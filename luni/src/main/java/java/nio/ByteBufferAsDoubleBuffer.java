@@ -42,10 +42,9 @@ final class ByteBufferAsDoubleBuffer extends DoubleBuffer {
     }
 
     private ByteBufferAsDoubleBuffer(ByteBuffer byteBuffer) {
-        super(byteBuffer.capacity() / SizeOf.DOUBLE);
+        super(byteBuffer.capacity() / SizeOf.DOUBLE, byteBuffer.effectiveDirectAddress);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
-        this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
     }
 
     @Override

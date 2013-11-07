@@ -42,10 +42,9 @@ final class ByteBufferAsLongBuffer extends LongBuffer {
     }
 
     private ByteBufferAsLongBuffer(ByteBuffer byteBuffer) {
-        super(byteBuffer.capacity() / SizeOf.LONG);
+        super(byteBuffer.capacity() / SizeOf.LONG, byteBuffer.effectiveDirectAddress);
         this.byteBuffer = byteBuffer;
         this.byteBuffer.clear();
-        this.effectiveDirectAddress = byteBuffer.effectiveDirectAddress;
     }
 
     @Override
