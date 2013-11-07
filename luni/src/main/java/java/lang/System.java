@@ -156,6 +156,43 @@ public final class System {
     public static native void arraycopy(Object src, int srcPos, Object dst, int dstPos, int length);
 
     /**
+     * The char array length threshold below which to use a Java
+     * (non-native) version of arraycopy() instead of the native
+     * version. See b/7103825.
+     */
+    private static final int ARRAYCOPY_SHORT_CHAR_ARRAY_THRESHOLD = 64;
+
+    /**
+     * The char[] specialized version of arraycopy().
+     *
+     * @hide internal use only
+     */
+    public static void arraycopy(char[] src, int srcPos, char[] dst, int dstPos, int length) {
+        if (srcPos < 0 || dstPos < 0 || length < 0 ||
+            srcPos > src.length - length || dstPos > dst.length - length) {
+            throw new ArrayIndexOutOfBoundsException(
+                "src.length=" + src.length + " srcPos=" + srcPos +
+                " dst.length=" + dst.length + " dstPos=" + dstPos + " length=" + length);
+        }
+        if (length <= ARRAYCOPY_SHORT_CHAR_ARRAY_THRESHOLD) {
+            // Copy char by char for shorter arrays.
+            for (int i = 0; i < length; ++i) {
+              dst[dstPos + i] = src[srcPos + i];
+            }
+        } else {
+            // Call the native version for longer arrays.
+            arraycopyCharUnchecked(src, srcPos, dst, dstPos, length);
+        }
+    }
+
+    /**
+     * The char[] specialized, unchecked, native version of
+     * arraycopy(). This assumes error checking has been done.
+     */
+    private static native void arraycopyCharUnchecked(char[] src, int srcPos,
+        char[] dst, int dstPos, int length);
+
+    /**
      * Returns the current time in milliseconds since January 1, 1970 00:00:00.0 UTC.
      *
      * <p>This method always returns UTC times, regardless of the system's time zone.
