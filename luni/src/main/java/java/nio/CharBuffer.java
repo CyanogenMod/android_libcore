@@ -138,7 +138,7 @@ public abstract class CharBuffer extends Buffer implements
     }
 
     CharBuffer(int capacity) {
-        super(1, capacity, null);
+        super(1, capacity);
     }
 
     public final char[] array() {

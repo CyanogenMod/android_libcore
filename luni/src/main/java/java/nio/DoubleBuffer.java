@@ -93,7 +93,7 @@ public abstract class DoubleBuffer extends Buffer implements
     }
 
     DoubleBuffer(int capacity) {
-        super(3, capacity, null);
+        super(3, capacity);
     }
 
     public final double[] array() {
