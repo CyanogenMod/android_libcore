@@ -21,9 +21,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import libcore.io.Streams;
 
 /**
  * The input stream from which the JAR file to be read may be fetched. It is
@@ -31,15 +33,20 @@ import java.util.zip.ZipInputStream;
  *
  * @see ZipInputStream
  */
+// TODO: The semantics provided by this class are really weird. The jar file
+// spec does not impose any ordering constraints on the entries of a jar file.
+// In particular, the Manifest and META-INF directory *need not appear first*. This
+// class will silently skip certificate checks for jar files where the manifest
+// isn't the first entry. To do this correctly, we need O(input_stream_length) memory.
 public class JarInputStream extends ZipInputStream {
 
     private Manifest manifest;
 
-    private boolean eos = false;
+    private boolean verified = false;
 
-    private JarEntry mEntry;
+    private JarEntry currentJarEntry;
 
-    private JarEntry jarEntry;
+    private JarEntry pendingJarEntry;
 
     private boolean isMeta;
 
@@ -60,38 +67,45 @@ public class JarInputStream extends ZipInputStream {
      */
     public JarInputStream(InputStream stream, boolean verify) throws IOException {
         super(stream);
-        if (verify) {
-            verifier = new JarVerifier("JarInputStream");
-        }
-        if ((mEntry = getNextJarEntry()) == null) {
+
+        verifier = null;
+        pendingJarEntry = null;
+        currentJarEntry = null;
+
+        if (getNextJarEntry() == null) {
             return;
         }
-        if (mEntry.getName().equalsIgnoreCase(JarFile.META_DIR)) {
-            mEntry = null; // modifies behavior of getNextJarEntry()
-            closeEntry();
-            mEntry = getNextJarEntry();
-        }
-        if (mEntry.getName().equalsIgnoreCase(JarFile.MANIFEST_NAME)) {
-            mEntry = null;
-            manifest = new Manifest(this, verify);
-            closeEntry();
-            if (verify) {
-                verifier.setManifest(manifest);
-                if (manifest != null) {
-                    verifier.mainAttributesEnd = manifest.getMainAttributesEnd();
-                }
-            }
 
-        } else {
-            Attributes temp = new Attributes(3);
-            temp.map.put("hidden", null);
-            mEntry.setAttributes(temp);
-            /*
-             * if not from the first entry, we will not get enough
-             * information,so no verify will be taken out.
-             */
-            verifier = null;
+        if (currentJarEntry.getName().equalsIgnoreCase(JarFile.META_DIR)) {
+            // Fetch the next entry, in the hope that it's the manifest file.
+            closeEntry();
+            getNextJarEntry();
         }
+
+        if (currentJarEntry.getName().equalsIgnoreCase(JarFile.MANIFEST_NAME)) {
+            final byte[] manifestBytes = Streams.readFullyNoClose(this);
+            manifest = new Manifest(manifestBytes, verify);
+            closeEntry();
+
+            if (verify) {
+                HashMap<String, byte[]> metaEntries = new HashMap<String, byte[]>();
+                metaEntries.put(JarFile.MANIFEST_NAME, manifestBytes);
+                verifier = new JarVerifier("JarInputStream", manifest,
+                        metaEntries, manifest.getMainAttributesEnd());
+            }
+        }
+
+        // There was no manifest available, so we should return the current
+        // entry the next time getNextEntry is called.
+        pendingJarEntry = currentJarEntry;
+        currentJarEntry = null;
+
+        // If the manifest isn't the first entry, we will not have enough
+        // information to perform verification on entries that precede it.
+        //
+        // TODO: Should we throw if verify == true in this case ?
+        // TODO: We need all meta entries to be placed before the manifest
+        // as well.
     }
 
     /**
@@ -138,32 +152,39 @@ public class JarInputStream extends ZipInputStream {
      */
     @Override
     public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-        if (mEntry != null) {
+        if (currentJarEntry == null) {
             return -1;
         }
+
         int r = super.read(buffer, byteOffset, byteCount);
-        if (verStream != null && !eos) {
+        // verifier can be null if we've been asked not to verify or if
+        // the manifest wasn't found.
+        //
+        // verStream will be null if we're reading the manifest or if we have
+        // no signatures or if the digest for this entry isn't present in the
+        // manifest.
+        if (verifier != null && verStream != null && !verified) {
             if (r == -1) {
-                eos = true;
-                if (verifier != null) {
-                    if (isMeta) {
-                        verifier.addMetaEntry(jarEntry.getName(),
-                                ((ByteArrayOutputStream) verStream)
-                                        .toByteArray());
-                        try {
-                            verifier.readCertificates();
-                        } catch (SecurityException e) {
-                            verifier = null;
-                            throw e;
-                        }
-                    } else {
-                        ((JarVerifier.VerifierEntry) verStream).verify();
+                // We've hit the end of this stream for the first time, so attempt
+                // a verification.
+                verified = true;
+                if (isMeta) {
+                    verifier.addMetaEntry(currentJarEntry.getName(),
+                            ((ByteArrayOutputStream) verStream).toByteArray());
+                    try {
+                        verifier.readCertificates();
+                    } catch (SecurityException e) {
+                        verifier = null;
+                        throw e;
                     }
+                } else {
+                    ((JarVerifier.VerifierEntry) verStream).verify();
                 }
             } else {
                 verStream.write(buffer, byteOffset, r);
             }
         }
+
         return r;
     }
 
@@ -177,26 +198,47 @@ public class JarInputStream extends ZipInputStream {
      */
     @Override
     public ZipEntry getNextEntry() throws IOException {
-        if (mEntry != null) {
-            jarEntry = mEntry;
-            mEntry = null;
-            jarEntry.setAttributes(null);
-        } else {
-            jarEntry = (JarEntry) super.getNextEntry();
-            if (jarEntry == null) {
-                return null;
-            }
-            if (verifier != null) {
-                isMeta = jarEntry.getName().toUpperCase(Locale.US).startsWith(JarFile.META_DIR);
-                if (isMeta) {
-                    verStream = new ByteArrayOutputStream();
-                } else {
-                    verStream = verifier.initEntry(jarEntry.getName());
-                }
+        // NOTE: This function must update the value of currentJarEntry
+        // as a side effect.
+
+        if (pendingJarEntry != null) {
+            JarEntry pending = pendingJarEntry;
+            pendingJarEntry = null;
+            currentJarEntry = pending;
+            return pending;
+        }
+
+        currentJarEntry = (JarEntry) super.getNextEntry();
+        if (currentJarEntry == null) {
+            return null;
+        }
+
+        if (verifier != null) {
+            isMeta = currentJarEntry.getName().toUpperCase(Locale.US).startsWith(JarFile.META_DIR);
+            if (isMeta) {
+                final int entrySize = (int) currentJarEntry.getSize();
+                verStream = new ByteArrayOutputStream(entrySize > 0 ? entrySize : 8192);
+            } else {
+                verStream = verifier.initEntry(currentJarEntry.getName());
             }
         }
-        eos = false;
-        return jarEntry;
+
+        verified = false;
+        return currentJarEntry;
+    }
+
+    @Override
+    public void closeEntry() throws IOException {
+        // NOTE: This was the old behavior. A call to closeEntry() before the
+        // first call to getNextEntry should be a no-op. If we don't return early
+        // here, the super class will close pendingJarEntry for us and reads will
+        // fail.
+        if (pendingJarEntry != null) {
+            return;
+        }
+
+        super.closeEntry();
+        currentJarEntry = null;
     }
 
     @Override
