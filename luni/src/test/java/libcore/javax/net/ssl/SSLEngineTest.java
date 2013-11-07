@@ -119,15 +119,15 @@ public class SSLEngineTest extends TestCase {
                 });
                 assertConnected(pair);
 
-                boolean clientNeedsRecordSplit =
+                boolean needsRecordSplit =
                         ("TLS".equalsIgnoreCase(c.clientContext.getProtocol())
                                 || "SSLv3".equalsIgnoreCase(c.clientContext.getProtocol()))
                         && cipherSuite.contains("_CBC_");
 
                 assertSendsCorrectly("This is the client. Hello!".getBytes(),
-                        pair.client, pair.server, clientNeedsRecordSplit);
+                        pair.client, pair.server, needsRecordSplit);
                 assertSendsCorrectly("This is the server. Hi!".getBytes(),
-                        pair.server, pair.client, false);
+                        pair.server, pair.client, needsRecordSplit);
                 assertFalse(errorExpected);
             } catch (Exception maybeExpected) {
                 if (!errorExpected) {
