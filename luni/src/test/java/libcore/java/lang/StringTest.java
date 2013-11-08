@@ -348,4 +348,13 @@ public class StringTest extends TestCase {
         assertEquals("-w-o-r-l-d-", "hello world".substring(6).replace("", "-"));
         assertEquals("-*-w-*-o-*-r-*-l-*-d-*-", "hello world".substring(6).replace("", "-*-"));
     }
+
+    // http://b/11571917
+    public void test_String_getBytes() throws Exception {
+        assertEquals("[-126, -96]", Arrays.toString("あ".getBytes("Shift_JIS")));
+        assertEquals("[-126, -87]", Arrays.toString("か".getBytes("Shift_JIS")));
+        assertEquals("[-105, 67]", Arrays.toString("佑".getBytes("Shift_JIS")));
+        assertEquals("[36]", Arrays.toString("$".getBytes("Shift_JIS")));
+        assertEquals("[-29, -127, -117]", Arrays.toString("か".getBytes("UTF-8")));
+    }
 }
