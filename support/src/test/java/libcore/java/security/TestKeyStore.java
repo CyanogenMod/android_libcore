@@ -78,6 +78,7 @@ public final class TestKeyStore extends Assert {
 
     private static TestKeyStore ROOT_CA;
     private static TestKeyStore INTERMEDIATE_CA;
+    private static TestKeyStore INTERMEDIATE_CA_2;
 
     private static TestKeyStore SERVER;
     private static TestKeyStore CLIENT;
@@ -172,6 +173,13 @@ public final class TestKeyStore extends Assert {
                 .subject("CN=Test Root Certificate Authority 2")
                 .ca(true)
                 .build();
+        INTERMEDIATE_CA_2 = new Builder()
+                .aliasPrefix("IntermediateCA")
+                .subject("CN=Test Intermediate Certificate Authority")
+                .ca(true)
+                .signer(rootCa2.getPrivateKey("RSA", "RSA"))
+                .rootCa(rootCa2.getRootCertificate("RSA"))
+                .build();
         CLIENT_2 = new TestKeyStore(createClient(rootCa2.keyStore), null, null);
     }
 
@@ -189,6 +197,14 @@ public final class TestKeyStore extends Assert {
     public static TestKeyStore getIntermediateCa() {
         initCerts();
         return INTERMEDIATE_CA;
+    }
+
+    /**
+     * Return an intermediate CA that can be used to issue new certificates.
+     */
+    public static TestKeyStore getIntermediateCa2() {
+        initCerts();
+        return INTERMEDIATE_CA_2;
     }
 
     /**
