@@ -681,7 +681,7 @@ public class SSLSocketTest extends TestCase {
     public void test_SSLSocket_setUseClientMode_afterHandshake() throws Exception {
 
         // can't set after handshake
-        TestSSLEnginePair pair = TestSSLEnginePair.create(null);
+        TestSSLSocketPair pair = TestSSLSocketPair.create();
         try {
             pair.server.setUseClientMode(false);
             fail();
