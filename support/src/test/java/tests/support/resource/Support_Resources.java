@@ -196,4 +196,18 @@ public class Support_Resources {
         xml.close();
         return f;
     }
+
+    public static void copyLocalFileTo(File dest, InputStream in) throws IOException {
+        if (!dest.exists()) {
+            FileOutputStream out = new FileOutputStream(dest);
+            int result;
+            byte[] buf = new byte[4096];
+            while ((result = in.read(buf)) != -1) {
+                out.write(buf, 0, result);
+            }
+            in.close();
+            out.close();
+            dest.deleteOnExit();
+        }
+    }
 }
