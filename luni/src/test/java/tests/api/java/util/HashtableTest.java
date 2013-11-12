@@ -17,6 +17,8 @@
 
 package tests.api.java.util;
 
+import tests.support.Support_MapTest2;
+import tests.support.Support_UnmodifiableCollectionTest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,11 +32,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
-import java.util.Collections;
-
-import tests.api.java.util.HashMapTest.ReusableKey;
-import tests.support.Support_MapTest2;
-import tests.support.Support_UnmodifiableCollectionTest;
 
 public class HashtableTest extends junit.framework.TestCase {
 
@@ -75,13 +72,6 @@ public class HashtableTest extends junit.framework.TestCase {
         assertNull("Empty hashtable access", empty.get("nothing"));
         empty.put("something", "here");
         assertTrue("cannot get element", empty.get("something") == "here");
-
-        try {
-            new Hashtable(-1);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
     }
 
     /**
@@ -136,18 +126,12 @@ public class HashtableTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * java.util.Hashtable#Hashtable(java.util.Map)
-     */
-    public void test_ConversionConstructorNullValue() {
-        Map<String, Void> map = Collections.singletonMap("Dog", null);
-        try {
-            new Hashtable<String, Void>(map);
-            fail("NullPointerException expected");
-        } catch (NullPointerException e) {
-            //expected
-        }
+    public void test_HashTable_Constructor() {
+        Hashtable hashTable = new Hashtable();
+        hashTable.put(hashTable, hashTable.keySet());
+        new Hashtable(hashTable);
     }
+
     /**
      * java.util.Hashtable#clear()
      */
@@ -255,6 +239,16 @@ public class HashtableTest extends junit.framework.TestCase {
         }
 
         assertEquals("All keys not retrieved", 10, ht10.size());
+
+        // cast Enumeration to Iterator
+        Iterator iterator = (Iterator) elms;
+        assertFalse(iterator.hasNext());
+        try {
+            iterator.next();
+            fail("should throw NoSuchElementException");
+        } catch (NoSuchElementException e) {
+            // Expected
+        }
     }
 
 // BEGIN android-removed
@@ -436,6 +430,16 @@ public class HashtableTest extends junit.framework.TestCase {
         }
 
         assertEquals("All keys not retrieved", 10, ht10.size());
+
+        // cast Enumeration to Iterator
+        Iterator iterator = (Iterator) keys;
+        assertFalse(iterator.hasNext());
+        try {
+            iterator.next();
+            fail("should throw NoSuchElementException");
+        } catch (NoSuchElementException e) {
+            // Expected
+        }
     }
 
     /**
@@ -667,6 +671,28 @@ public class HashtableTest extends junit.framework.TestCase {
         }
     }
 
+    public void test_HashTable_remove_scenario1() {
+        Hashtable hashTable = new Hashtable();
+        Set keySet = hashTable.keySet();
+        hashTable.put(hashTable, keySet);
+        hashTable.remove(hashTable);
+    }
+
+    public void test_HashTable_remove_scenario2() {
+        Hashtable hashTable = new Hashtable();
+        Set keySet = hashTable.keySet();
+        hashTable.put(hashTable, hashTable);
+        hashTable.remove(hashTable);
+    }
+
+    public void test_HashTable_remove_scenario3() {
+        Hashtable hashTable = new Hashtable();
+        Hashtable keyHashTable = new Hashtable();
+        keyHashTable.put(hashTable, keyHashTable);
+        hashTable.put(keyHashTable, hashTable);
+        hashTable.remove(keyHashTable);
+    }
+
     /**
      * java.util.Hashtable#size()
      */
@@ -751,20 +777,17 @@ public class HashtableTest extends junit.framework.TestCase {
     /**
      * Regression Test for JIRA 2181
      */
-    public void test_entrySet_remove()
-    {
-        Hashtable<String,String> hashtable = new Hashtable<String,String>();
+    public void test_entrySet_remove() {
+        Hashtable<String, String> hashtable = new Hashtable<String, String>();
         hashtable.put("my.nonexistent.prop", "AAA");
-        hashtable.put( "parse.error", "BBB" );
-        Iterator<Map.Entry<String,String>> iterator =
-            hashtable.entrySet().iterator();
-        while(iterator.hasNext())
-        {
+        hashtable.put("parse.error", "BBB");
+        Iterator<Map.Entry<String, String>> iterator =
+                hashtable.entrySet().iterator();
+        while (iterator.hasNext()) {
             Map.Entry entry = iterator.next();
             final Object value = entry.getValue();
-            if(value.equals("AAA"))
-            {
-               iterator.remove();
+            if (value.equals("AAA")) {
+                iterator.remove();
             }
         }
         assertFalse(hashtable.containsKey("my.nonexistent.prop"));
@@ -796,6 +819,150 @@ public class HashtableTest extends junit.framework.TestCase {
             mht.put(i, "New value");
         }
         assertTrue(mht.isRehashed());
+    }
+
+    /**
+     * java.util.Hashtable#elements()
+     * java.util.Hashtable#keys()
+     * java.util.Hashtable#keySet()
+     */
+    public void test_keys_elements_keySet_Exceptions() {
+        Hashtable hashTable = new Hashtable();
+        String key = "key";
+        String value = "value";
+        hashTable.put(key, value);
+
+        Iterator iterator = (Iterator) hashTable.keys();
+        assertTrue(iterator.hasNext());
+        try {
+            iterator.remove();
+            fail("should throw UnsupportedOperationException");
+        } catch (UnsupportedOperationException e) {
+            // Expected
+        }
+        iterator.next();
+        try {
+            iterator.remove();
+            fail("should throw UnsupportedOperationException");
+        } catch (UnsupportedOperationException e) {
+            // Expected
+        }
+        assertFalse(iterator.hasNext());
+
+        iterator = (Iterator) hashTable.elements();
+        assertTrue(iterator.hasNext());
+        try {
+            iterator.remove();
+            fail("should throw UnsupportedOperationException");
+        } catch (UnsupportedOperationException e) {
+            // Expected
+        }
+        iterator.next();
+        try {
+            iterator.remove();
+            fail("should throw UnsupportedOperationException");
+        } catch (UnsupportedOperationException e) {
+            // Expected
+        }
+        assertFalse(iterator.hasNext());
+
+        iterator = hashTable.keySet().iterator();
+        assertTrue(iterator.hasNext());
+        try {
+            iterator.remove();
+            fail("should throw IllegalStateException");
+        } catch (IllegalStateException e) {
+            // Expected
+        }
+        iterator.next();
+        iterator.remove();
+        assertFalse(iterator.hasNext());
+
+        hashTable.clear();
+        for (int i = 0; i < 10; i++) {
+            hashTable.put(key + i, value + i);
+        }
+
+        // cast Enumeration to Iterator
+        Enumeration enumeration = hashTable.keys();
+        iterator = (Iterator) enumeration;
+        assertTrue(enumeration.hasMoreElements());
+        assertTrue(iterator.hasNext());
+        for (int i = 0; i < 10; i++) {
+            if (i % 2 == 0) {
+                enumeration.nextElement();
+            } else {
+                iterator.next();
+            }
+        }
+        assertFalse(enumeration.hasMoreElements());
+        assertFalse(iterator.hasNext());
+        try {
+            enumeration.nextElement();
+            fail("should throw NoSuchElementException");
+        } catch (NoSuchElementException e) {
+            // Expected
+        }
+        try {
+            iterator.next();
+            fail("should throw NoSuchElementException");
+        } catch (NoSuchElementException e) {
+            // Expected
+        }
+
+        // cast Enumeration to Iterator
+        enumeration = hashTable.elements();
+        iterator = (Iterator) enumeration;
+        assertTrue(enumeration.hasMoreElements());
+        assertTrue(iterator.hasNext());
+        for (int i = 0; i < 10; i++) {
+            if (i % 2 == 0) {
+                enumeration.nextElement();
+            } else {
+                iterator.next();
+            }
+        }
+        assertFalse(enumeration.hasMoreElements());
+        assertFalse(iterator.hasNext());
+        try {
+            enumeration.nextElement();
+            fail("should throw NoSuchElementException");
+        } catch (NoSuchElementException e) {
+            // Expected
+        }
+        try {
+            iterator.next();
+            fail("should throw NoSuchElementException");
+        } catch (NoSuchElementException e) {
+            // Expected
+        }
+
+        // cast Iterator to Enumeration
+        enumeration = (Enumeration) hashTable.keySet().iterator();
+        iterator = (Iterator) enumeration;
+        assertTrue(enumeration.hasMoreElements());
+        assertTrue(iterator.hasNext());
+        for (int i = 0; i < 10; i++) {
+            if (i % 2 == 0) {
+                enumeration.nextElement();
+            } else {
+                iterator.next();
+            }
+        }
+        assertFalse(enumeration.hasMoreElements());
+        assertFalse(iterator.hasNext());
+        try {
+            enumeration.nextElement();
+            fail("should throw NoSuchElementException");
+        } catch (NoSuchElementException e) {
+            // Expected
+        }
+        try {
+            iterator.next();
+            fail("should throw NoSuchElementException");
+        } catch (NoSuchElementException e) {
+            // Expected
+        }
     }
 
     protected Hashtable hashtableClone(Hashtable s) {

@@ -171,6 +171,32 @@ public class StackTest extends junit.framework.TestCase {
                 -1, s.search(null));
     }
 
+    static class BugStack<E> extends Stack<E> {
+        public void setLength(int elementCount) {
+            this.elementCount = elementCount;
+        }
+
+        public int getLength() {
+            return elementCount;
+        }
+    }
+
+    //test for wrong exception threw by pop method
+    public void test_pop_modify_elementCount() {
+        BugStack<String> testStack = new BugStack<String>();
+        testStack.push("A");
+        testStack.push("B");
+        testStack.setLength(20);
+        try {
+            testStack.pop();
+            fail("Should throw ArrayIndexOutOfBoundsException here");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            //Expected to throw ArrayIndexOutOfBoundsException here
+        } catch (EmptyStackException e) {
+            fail("Should throw ArrayIndexOutOfBoundsException here");
+        }
+    }
+
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.

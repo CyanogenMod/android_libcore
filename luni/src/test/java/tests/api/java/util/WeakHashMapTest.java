@@ -34,7 +34,8 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         public Set entrySet() {
             return null;
         }
-        public int size(){
+
+        public int size() {
             return 0;
         }
     }
@@ -105,13 +106,6 @@ public class WeakHashMapTest extends junit.framework.TestCase {
 
         try {
             new WeakHashMap(50, -0.5f);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
-
-        try {
-            new WeakHashMap(-50, 0.5f);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             //expected
@@ -251,7 +245,7 @@ public class WeakHashMapTest extends junit.framework.TestCase {
      * java.util.WeakHashMap#putAll(java.util.Map)
      */
     public void test_putAllLjava_util_Map() {
-        Map mockMap=new MockMap();
+        Map mockMap = new MockMap();
         WeakHashMap map = new WeakHashMap();
         map.putAll(mockMap);
         assertEquals("Size should be 0", 0, map.size());
@@ -324,6 +318,47 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         assertEquals("Incorrect number of keys returned after gc,", 99, keySet
                 .size());
     }
+
+    /**
+     * Regression test for HARMONY-3883
+     *
+     * java.util.WeakHashMap#keySet()
+     */
+    public void test_keySet_hasNext() {
+        WeakHashMap map = new WeakHashMap();
+        ConstantHashClass cl = new ConstantHashClass(2);
+        map.put(new ConstantHashClass(1), null);
+        map.put(cl, null);
+        map.put(new ConstantHashClass(3), null);
+        Iterator iter = map.keySet().iterator();
+        iter.next();
+        iter.next();
+        int count = 0;
+        do {
+            System.gc();
+            System.gc();
+            FinalizationTester.induceFinalization();
+            count++;
+        } while (count <= 5);
+        assertFalse("Wrong hasNext() value", iter.hasNext());
+    }
+
+    static class ConstantHashClass {
+        private int id = 0;
+
+        public ConstantHashClass(int id) {
+            this.id = id;
+        }
+
+        public int hashCode() {
+            return 0;
+        }
+
+        public String toString() {
+            return "ConstantHashClass[id=" + id + "]";
+        }
+    }
+
 
     /**
      * java.util.WeakHashMap#values()
