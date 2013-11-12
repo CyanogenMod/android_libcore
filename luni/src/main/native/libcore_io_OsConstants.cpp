@@ -18,7 +18,6 @@
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
-#include "Portability.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -35,6 +34,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include "Portability.h"
 
 #include <net/if.h> // After <sys/socket.h> to work around a Mac header file bug.
 
