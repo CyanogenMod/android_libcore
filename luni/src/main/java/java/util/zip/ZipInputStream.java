@@ -22,8 +22,6 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.nio.ByteOrder;
 import java.nio.charset.ModifiedUtf8;
-import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
 import java.util.Arrays;
 import libcore.io.Memory;
 import libcore.io.Streams;
@@ -124,12 +122,6 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         checkClosed();
         if (currentEntry == null) {
             return;
-        }
-        if (currentEntry instanceof java.util.jar.JarEntry) {
-            Attributes temp = ((JarEntry) currentEntry).getAttributes();
-            if (temp != null && temp.containsKey("hidden")) {
-                return;
-            }
         }
 
         /*
