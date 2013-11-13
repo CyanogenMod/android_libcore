@@ -60,6 +60,9 @@ public class SerializationStressTest1 extends SerializationStressTest {
     private static class SpecTestSuperClass implements Runnable {
         protected java.lang.String instVar;
 
+        public SpecTestSuperClass() {
+        }
+
         public void run() {
         }
     }
