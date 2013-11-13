@@ -1679,5 +1679,10 @@
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testVerifyingPathswithSelfIssuedCertificates_ValidBasicSelfIssuedCRLSigningKeyTest6",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testVerifyingPathswithSelfIssuedCertificates_ValidBasicSelfIssuedNewWithOldTest4"
   ]
+},
+{
+  description: "getExceptionTypes() error when throws clause contains an exception and its sublcass",
+  bug: 11647146,
+  name: "tests.api.java.lang.reflect.ProxyTest#test_ProxyClass_withParentAndSubInThrowList"
 }
 ]
