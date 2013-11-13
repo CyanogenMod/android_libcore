@@ -41,13 +41,12 @@ public class Manifest implements Cloneable {
 
     private static final byte[] VALUE_SEPARATOR = new byte[] { ':', ' ' };
 
-    private Attributes mainAttributes = new Attributes();
+    private final Attributes mainAttributes;
+    private final HashMap<String, Attributes> entries;
 
-    private HashMap<String, Attributes> entries = new HashMap<String, Attributes>();
-
-    static class Chunk {
-        int start;
-        int end;
+    static final class Chunk {
+        final int start;
+        final int end;
 
         Chunk(int start, int end) {
             this.start = start;
@@ -67,6 +66,8 @@ public class Manifest implements Cloneable {
      * Creates a new {@code Manifest} instance.
      */
     public Manifest() {
+        entries = new HashMap<String, Attributes>();
+        mainAttributes = new Attributes();
     }
 
     /**
@@ -79,7 +80,8 @@ public class Manifest implements Cloneable {
      *             if an IO error occurs while creating this {@code Manifest}
      */
     public Manifest(InputStream is) throws IOException {
-        read(is);
+        this();
+        read(Streams.readFully(is));
     }
 
     /**
@@ -96,11 +98,12 @@ public class Manifest implements Cloneable {
                 .getEntries()).clone();
     }
 
-    Manifest(InputStream is, boolean readChunks) throws IOException {
+    Manifest(byte[] manifestBytes, boolean readChunks) throws IOException {
+        this();
         if (readChunks) {
             chunks = new HashMap<String, Chunk>();
         }
-        read(is);
+        read(manifestBytes);
     }
 
     /**
@@ -177,18 +180,12 @@ public class Manifest implements Cloneable {
      *             If an error occurs reading the manifest.
      */
     public void read(InputStream is) throws IOException {
-        final byte[] buf = Streams.readFullyNoClose(is);
+        read(Streams.readFullyNoClose(is));
+    }
 
+    private void read(byte[] buf) throws IOException {
         if (buf.length == 0) {
             return;
-        }
-
-        // a workaround for HARMONY-5662
-        // replace EOF and NUL with another new line
-        // which does not trigger an error
-        byte b = buf[buf.length - 1];
-        if (b == 0 || b == 26) {
-            buf[buf.length - 1] = '\n';
         }
 
         ManifestReader im = new ManifestReader(buf, mainAttributes);

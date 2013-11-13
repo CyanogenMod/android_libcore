@@ -23,7 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import libcore.io.Streams;
@@ -48,27 +50,24 @@ public class JarFile extends ZipFile {
     // The manifest after it has been read from the JAR.
     private Manifest manifest;
 
-    // The entry for the MANIFEST.MF file before it is read.
-    private ZipEntry manifestEntry;
+    // The entry for the MANIFEST.MF file before the first call to getManifest().
+    private byte[] manifestBytes;
 
     JarVerifier verifier;
 
     private boolean closed = false;
 
     static final class JarFileInputStream extends FilterInputStream {
-        private final ZipEntry zipEntry;
         private final JarVerifier.VerifierEntry entry;
 
         private long count;
         private boolean done = false;
 
-        JarFileInputStream(InputStream is, ZipEntry ze,
-                JarVerifier.VerifierEntry e) {
+        JarFileInputStream(InputStream is, long size, JarVerifier.VerifierEntry e) {
             super(is);
-            zipEntry = ze;
             entry = e;
 
-            count = zipEntry.getSize();
+            count = size;
         }
 
         @Override
@@ -180,11 +179,7 @@ public class JarFile extends ZipFile {
      *             If the file cannot be read.
      */
     public JarFile(File file, boolean verify) throws IOException {
-        super(file);
-        if (verify) {
-            verifier = new JarVerifier(file.getPath());
-        }
-        readMetaEntries();
+        this(file, verify, ZipFile.OPEN_READ);
     }
 
     /**
@@ -202,10 +197,30 @@ public class JarFile extends ZipFile {
      */
     public JarFile(File file, boolean verify, int mode) throws IOException {
         super(file, mode);
-        if (verify) {
-            verifier = new JarVerifier(file.getPath());
+
+        // Step 1: Scan the central directory for meta entries (MANIFEST.mf
+        // & possibly the signature files) and read them fully.
+        HashMap<String, byte[]> metaEntries = readMetaEntries(this, verify);
+
+        // Step 2: Construct a verifier with the information we have.
+        // Verification is possible *only* if the JAR file contains a manifest
+        // *AND* it contains signing related information (signature block
+        // files and the signature files).
+        //
+        // TODO: Is this really the behaviour we want if verify == true ?
+        // We silently skip verification for files that have no manifest or
+        // no signatures.
+        if (verify && metaEntries.containsKey(MANIFEST_NAME) &&
+                metaEntries.size() > 1) {
+            // We create the manifest straight away, so that we can create
+            // the jar verifier as well.
+            manifest = new Manifest(metaEntries.get(MANIFEST_NAME), true);
+            verifier = new JarVerifier(getName(), manifest, metaEntries,
+                    manifest.getMainAttributesEnd());
+        } else {
+            verifier = null;
+            manifestBytes = metaEntries.get(MANIFEST_NAME);
         }
-        readMetaEntries();
     }
 
     /**
@@ -233,11 +248,7 @@ public class JarFile extends ZipFile {
      *             If file cannot be opened or read.
      */
     public JarFile(String filename, boolean verify) throws IOException {
-        super(filename);
-        if (verify) {
-            verifier = new JarVerifier(filename);
-        }
-        readMetaEntries();
+        this(new File(filename), verify, ZipFile.OPEN_READ);
     }
 
     /**
@@ -280,73 +291,70 @@ public class JarFile extends ZipFile {
         if (closed) {
             throw new IllegalStateException("JarFile has been closed");
         }
+
         if (manifest != null) {
             return manifest;
         }
-        try {
-            InputStream is = super.getInputStream(manifestEntry);
-            if (verifier != null) {
-                verifier.addMetaEntry(manifestEntry.getName(), Streams.readFully(is));
-                is = super.getInputStream(manifestEntry);
-            }
-            try {
-                manifest = new Manifest(is, verifier != null);
-            } finally {
-                is.close();
-            }
-            manifestEntry = null;  // Can discard the entry now.
-        } catch (NullPointerException e) {
-            manifestEntry = null;
+
+        // If manifest == null && manifestBytes == null, there's no manifest.
+        if (manifestBytes == null) {
+            return null;
         }
+
+        // We hit this code path only if the verification isn't necessary. If
+        // we did decide to verify this file, we'd have created the Manifest and
+        // the associated Verifier in the constructor itself.
+        manifest = new Manifest(manifestBytes, false);
+        manifestBytes = null;
+
         return manifest;
     }
 
     /**
-     * Called by the JarFile constructors, this method reads the contents of the
+     * Called by the JarFile constructors, Reads the contents of the
      * file's META-INF/ directory and picks out the MANIFEST.MF file and
-     * verifier signature files if they exist. Any signature files found are
-     * registered with the verifier.
+     * verifier signature files if they exist.
      *
      * @throws IOException
      *             if there is a problem reading the jar file entries.
+     * @return a map of entry names to their {@code byte[]} content.
      */
-    private void readMetaEntries() throws IOException {
+    static HashMap<String, byte[]> readMetaEntries(ZipFile zipFile,
+            boolean verificationRequired) throws IOException {
         // Get all meta directory entries
-        ZipEntry[] metaEntries = getMetaEntriesImpl();
-        if (metaEntries == null) {
-            verifier = null;
-            return;
-        }
+        List<ZipEntry> metaEntries = getMetaEntries(zipFile);
 
-        boolean signed = false;
+        HashMap<String, byte[]> metaEntriesMap = new HashMap<String, byte[]>();
 
         for (ZipEntry entry : metaEntries) {
             String entryName = entry.getName();
             // Is this the entry for META-INF/MANIFEST.MF ?
-            if (manifestEntry == null && entryName.equalsIgnoreCase(MANIFEST_NAME)) {
-                manifestEntry = entry;
+            //
+            // TODO: Why do we need the containsKey check ? Shouldn't we discard
+            // files that contain duplicate entries like this as invalid ?.
+            if (entryName.equalsIgnoreCase(MANIFEST_NAME) &&
+                    !metaEntriesMap.containsKey(MANIFEST_NAME)) {
+
+                metaEntriesMap.put(MANIFEST_NAME, Streams.readFully(
+                        zipFile.getInputStream(entry)));
+
                 // If there is no verifier then we don't need to look any further.
-                if (verifier == null) {
+                if (!verificationRequired) {
                     break;
                 }
-            } else {
+            } else if (verificationRequired) {
                 // Is this an entry that the verifier needs?
-                if (verifier != null
-                        && (endsWithIgnoreCase(entryName, ".SF")
-                                || endsWithIgnoreCase(entryName, ".DSA")
-                                || endsWithIgnoreCase(entryName, ".RSA")
-                                || endsWithIgnoreCase(entryName, ".EC"))) {
-                    signed = true;
-                    InputStream is = super.getInputStream(entry);
-                    verifier.addMetaEntry(entryName, Streams.readFully(is));
+                if (endsWithIgnoreCase(entryName, ".SF")
+                        || endsWithIgnoreCase(entryName, ".DSA")
+                        || endsWithIgnoreCase(entryName, ".RSA")
+                        || endsWithIgnoreCase(entryName, ".EC")) {
+                    InputStream is = zipFile.getInputStream(entry);
+                    metaEntriesMap.put(entryName.toUpperCase(Locale.US), Streams.readFully(is));
                 }
             }
         }
 
-        // If there were no signature files, then no verifier work to do.
-        if (!signed) {
-            verifier = null;
-        }
+        return metaEntriesMap;
     }
 
     private static boolean endsWithIgnoreCase(String s, String suffix) {
@@ -365,24 +373,21 @@ public class JarFile extends ZipFile {
      */
     @Override
     public InputStream getInputStream(ZipEntry ze) throws IOException {
-        if (manifestEntry != null) {
+        if (manifestBytes != null) {
             getManifest();
         }
+
         if (verifier != null) {
-            verifier.setManifest(getManifest());
-            if (manifest != null) {
-                verifier.mainAttributesEnd = manifest.getMainAttributesEnd();
-            }
             if (verifier.readCertificates()) {
                 verifier.removeMetaEntries();
-                if (manifest != null) {
-                    manifest.removeChunks();
-                }
+                manifest.removeChunks();
+
                 if (!verifier.isSignedJar()) {
                     verifier = null;
                 }
             }
         }
+
         InputStream in = super.getInputStream(ze);
         if (in == null) {
             return null;
@@ -394,7 +399,7 @@ public class JarFile extends ZipFile {
         if (entry == null) {
             return in;
         }
-        return new JarFileInputStream(in, ze, entry);
+        return new JarFileInputStream(in, ze.getSize(), entry);
     }
 
     /**
@@ -417,12 +422,11 @@ public class JarFile extends ZipFile {
     /**
      * Returns all the ZipEntry's that relate to files in the
      * JAR's META-INF directory.
-     *
-     * @return the list of ZipEntry's or {@code null} if there are none.
      */
-    private ZipEntry[] getMetaEntriesImpl() {
+    private static List<ZipEntry> getMetaEntries(ZipFile zipFile) {
         List<ZipEntry> list = new ArrayList<ZipEntry>(8);
-        Enumeration<? extends ZipEntry> allEntries = entries();
+
+        Enumeration<? extends ZipEntry> allEntries = zipFile.entries();
         while (allEntries.hasMoreElements()) {
             ZipEntry ze = allEntries.nextElement();
             if (ze.getName().startsWith(META_DIR)
@@ -430,12 +434,8 @@ public class JarFile extends ZipFile {
                 list.add(ze);
             }
         }
-        if (list.size() == 0) {
-            return null;
-        }
-        ZipEntry[] result = new ZipEntry[list.size()];
-        list.toArray(result);
-        return result;
+
+        return list;
     }
 
     /**
