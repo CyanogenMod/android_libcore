@@ -209,6 +209,92 @@ public class StringTokenizerTest extends junit.framework.TestCase {
         }
     }
 
+    public void test_hasMoreElements_NPE() {
+        StringTokenizer stringTokenizer = new StringTokenizer(new String(),
+                (String) null, true);
+        try {
+            stringTokenizer.hasMoreElements();
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+
+        stringTokenizer = new StringTokenizer(new String(), (String) null);
+        try {
+            stringTokenizer.hasMoreElements();
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    public void test_hasMoreTokens_NPE() {
+        StringTokenizer stringTokenizer = new StringTokenizer(new String(),
+                (String) null, true);
+        try {
+            stringTokenizer.hasMoreTokens();
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+
+        stringTokenizer = new StringTokenizer(new String(), (String) null);
+        try {
+            stringTokenizer.hasMoreTokens();
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    public void test_nextElement_NPE() {
+        StringTokenizer stringTokenizer = new StringTokenizer(new String(),
+                (String) null, true);
+        try {
+            stringTokenizer.nextElement();
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+
+        stringTokenizer = new StringTokenizer(new String(), (String) null);
+        try {
+            stringTokenizer.nextElement();
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    public void test_nextToken_NPE() {
+        StringTokenizer stringTokenizer = new StringTokenizer(new String(),
+                (String) null, true);
+        try {
+            stringTokenizer.nextToken();
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+
+        stringTokenizer = new StringTokenizer(new String(), (String) null);
+        try {
+            stringTokenizer.nextToken();
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    public void test_nextTokenLjava_lang_String_NPE() {
+        StringTokenizer stringTokenizer = new StringTokenizer(new String());
+        try {
+            stringTokenizer.nextToken(null);
+            fail("should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.

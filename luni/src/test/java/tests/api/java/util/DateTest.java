@@ -88,14 +88,6 @@ public class DateTest extends junit.framework.TestCase {
     }
 
     /**
-     * java.util.Date#Date(long)
-     */
-    public void test_ConstructorJ() {
-        // Test for method java.util.Date(long)
-        assertTrue("Used to test", true);
-    }
-
-    /**
      * java.util.Date#Date(java.lang.String)
      */
     public void test_ConstructorLjava_lang_String() {
@@ -108,7 +100,7 @@ public class DateTest extends junit.framework.TestCase {
             // Regression for HARMONY-238
             new Date(null);
             fail("Constructor Date((String)null) should "
-                + "throw IllegalArgumentException");
+                    + "throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected
         }
@@ -279,8 +271,6 @@ public class DateTest extends junit.framework.TestCase {
     public void test_getTimezoneOffset() {
         // Test for method int java.util.Date.getTimezoneOffset()
         assertTrue("Used to test", true);
-        int offset = new Date(96, 1, 14).getTimezoneOffset();
-        assertTrue(offset > -720 && offset < 720);
     }
 
     /**
@@ -345,6 +335,12 @@ public class DateTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             // expected
         }
+
+        // Regression for HARMONY-102
+        assertEquals("Assert 0: parse failure",
+                -5400000, Date.parse("Sat, 1 Jan 1970 +0130 00:00:00"));
+        assertEquals("Assert 1: parse failure",
+                858600000, Date.parse("00:00:00 GMT +0130 Sat, 11 Jan 1970"));
     }
 
     /**
@@ -435,7 +431,7 @@ public class DateTest extends junit.framework.TestCase {
                 .toGMTString());
         assertEquals("Did not convert epoch + 1yr to GMT string correctly",
                 "1 Jan 1971 00:00:00 GMT", new Date((long) 365 * 24 * 60 * 60 * 1000).toGMTString()
-                        );
+        );
     }
 
     /**
@@ -465,6 +461,13 @@ public class DateTest extends junit.framework.TestCase {
         } finally {
             TimeZone.setDefault(tz);
         }
+
+        // Test for HARMONY-5468
+        TimeZone.setDefault(TimeZone.getTimeZone("MST"));
+        Date d2 = new Date(108, 7, 27);
+        assertTrue("Returned incorrect string: " + d2, d2.toString()
+                .startsWith("Wed Aug 27 00:00:00")
+                && d2.toString().endsWith("2008"));
     }
 
     /**
@@ -498,6 +501,8 @@ public class DateTest extends junit.framework.TestCase {
     }
     }
 
+    static TimeZone defaultTimeZone = TimeZone.getDefault();
+
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.
@@ -510,5 +515,6 @@ public class DateTest extends junit.framework.TestCase {
      * method is called after a test is executed.
      */
     protected void tearDown() {
+        TimeZone.setDefault(defaultTimeZone);
     }
 }

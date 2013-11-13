@@ -17,13 +17,17 @@
 
 package org.apache.harmony.luni.tests.java.io;
 
+import junit.framework.TestCase;
+import org.apache.harmony.testframework.serialization.SerializationTest;
+import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
+import tests.support.Support_ASimpleInputStream;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.Externalizable;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,33 +39,21 @@ import java.io.ObjectInputValidation;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
+import java.io.ObjectStreamException;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.Serializable;
-import java.io.SerializablePermission;
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Proxy;
-import java.security.Permission;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import junit.framework.TestCase;
-
-import org.apache.harmony.testframework.serialization.SerializationTest;
-import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
-
 @SuppressWarnings("serial")
 public class ObjectInputStreamTest extends TestCase implements
         Serializable {
-
-    ObjectInputStream ois;
-
-    ObjectOutputStream oos;
-
-    ByteArrayOutputStream bao;
 
     public class SerializableTestHelper implements Serializable {
 
@@ -127,9 +119,306 @@ public class ObjectInputStreamTest extends TestCase implements
         Hashtable h = new Hashtable();
     }
 
-    /**
-     * java.io.ObjectInputStream#readObject()
-     */
+    static final long serialVersionUID = 1L;
+
+    ObjectInputStream ois;
+
+    ObjectOutputStream oos;
+
+    ByteArrayOutputStream bao;
+
+    boolean readStreamHeaderCalled;
+
+    private final String testString = "Lorem ipsum...";
+
+    private final int testLength = testString.length();
+
+    public void test_ConstructorLjava_io_InputStream_IOException() throws IOException {
+        oos.writeObject(testString);
+        oos.close();
+
+        Support_ASimpleInputStream sis = new Support_ASimpleInputStream(bao.toByteArray());
+        sis.throwExceptionOnNextUse = true;
+        try {
+            ois = new ObjectInputStream(sis);
+            fail("Test 1: IOException expected.");
+        } catch (IOException e) {
+            // Expected.
+        }
+        sis.throwExceptionOnNextUse = false;
+    }
+
+    public void test_ClassDescriptor() throws IOException,
+            ClassNotFoundException {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStreamWithWriteDesc oos = new ObjectOutputStreamWithWriteDesc(
+                baos);
+        oos.writeObject(String.class);
+        oos.close();
+        Class<?> cls = TestClassForSerialization.class;
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStreamWithReadDesc ois = new ObjectInputStreamWithReadDesc(
+                bais, cls);
+        Object obj = ois.readObject();
+        ois.close();
+        assertEquals(cls, obj);
+    }
+
+    public void test_available_IOException() throws IOException {
+        oos.writeObject(testString);
+        oos.close();
+
+        Support_ASimpleInputStream sis = new Support_ASimpleInputStream(bao.toByteArray());
+        ois = new ObjectInputStream(sis);
+        sis.throwExceptionOnNextUse = true;
+        try {
+            ois.available();
+            fail("Test 1: IOException expected.");
+        } catch (IOException e) {
+            // Expected.
+        }
+        sis.throwExceptionOnNextUse = false;
+        ois.close();
+    }
+
+    public void test_close() throws Exception {
+        // Test for method void java.io.ObjectInputStream.close()
+        oos.writeObject(testString);
+        oos.close();
+
+        Support_ASimpleInputStream sis = new Support_ASimpleInputStream(bao.toByteArray());
+        ois = new ObjectInputStream(sis);
+        sis.throwExceptionOnNextUse = true;
+        try {
+            ois.close();
+            fail("Test 1: IOException expected.");
+        } catch (IOException e) {
+            // Expected.
+        }
+        sis.throwExceptionOnNextUse = false;
+        ois.close();
+    }
+
+    public void test_enableResolveObjectB() throws IOException {
+        // Start testing without a SecurityManager.
+        BasicObjectInputStream bois = new BasicObjectInputStream();
+        assertFalse("Test 1: Object resolving must be disabled by default.",
+                bois.enableResolveObject(true));
+
+        assertTrue("Test 2: enableResolveObject did not return the previous value.",
+                bois.enableResolveObject(false));
+    }
+
+    public void test_read_IOException() throws IOException {
+        oos.writeObject(testString);
+        oos.close();
+
+        Support_ASimpleInputStream sis = new Support_ASimpleInputStream(bao.toByteArray());
+        ois = new ObjectInputStream(sis);
+        sis.throwExceptionOnNextUse = true;
+        try {
+            ois.read();
+            fail("Test 1: IOException expected.");
+        } catch (IOException e) {
+            // Expected.
+        }
+        sis.throwExceptionOnNextUse = false;
+        ois.close();
+    }
+
+    public void test_read$BII_Exception() throws IOException {
+        byte[] buf = new byte[testLength];
+        oos.writeObject(testString);
+        oos.close();
+
+        ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
+        try {
+            ois.read(buf, 0, -1);
+            fail("IndexOutOfBoundsException was not thrown.");
+        } catch (IndexOutOfBoundsException e) {
+            // Expected
+        }
+        try {
+            ois.read(buf, -1,1);
+            fail("IndexOutOfBoundsException was not thrown.");
+        } catch (IndexOutOfBoundsException e) {
+            // Expected
+        }
+        try {
+            ois.read(buf, testLength, 1);
+            fail("IndexOutOfBoundsException was not thrown.");
+        } catch (IndexOutOfBoundsException e) {
+            // Expected
+        }
+        ois.close();
+
+
+        Support_ASimpleInputStream sis = new Support_ASimpleInputStream(bao.toByteArray());
+        ois = new ObjectInputStream(sis);
+        sis.throwExceptionOnNextUse = true;
+        try {
+            ois.read(buf, 0, testLength);
+            fail("Test 1: IOException expected.");
+        } catch (IOException e) {
+            // Expected.
+        }
+        sis.throwExceptionOnNextUse = false;
+        ois.close();
+    }
+
+    public void test_readFully$B() throws IOException {
+        byte[] buf = new byte[testLength];
+        oos.writeBytes(testString);
+        oos.close();
+        ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
+        ois.readFully(buf);
+        assertEquals("Test 1: Incorrect bytes read;",
+                testString, new String(buf));
+        ois.close();
+
+        ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
+        ois.read();
+        try {
+            ois.readFully(buf);
+            fail("Test 2: EOFException expected.");
+        } catch (EOFException e) {
+            // Expected.
+        }
+    }
+
+    public void test_readFully$B_Exception() throws IOException {
+        byte[] buf = new byte[testLength];
+        oos.writeObject(testString);
+        oos.close();
+
+        Support_ASimpleInputStream sis = new Support_ASimpleInputStream(bao.toByteArray());
+        ois = new ObjectInputStream(sis);
+        sis.throwExceptionOnNextUse = true;
+        try {
+            ois.readFully(buf);
+            fail("Test 1: IOException expected.");
+        } catch (IOException e) {
+            // Expected.
+        }
+        sis.throwExceptionOnNextUse = false;
+        ois.close();
+    }
+
+    public void test_readFully$BII() throws IOException {
+        // Test for method void java.io.ObjectInputStream.readFully(byte [],
+        // int, int)
+        byte[] buf = new byte[testLength];
+        oos.writeBytes(testString);
+        oos.close();
+        ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
+        ois.readFully(buf, 0, testLength);
+        assertEquals("Read incorrect bytes", testString, new String(buf));
+        ois.close();
+
+        ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
+        ois.read();
+        try {
+            ois.readFully(buf);
+            fail("Test 2: EOFException expected.");
+        } catch (EOFException e) {
+            // Expected.
+        }
+    }
+
+    public void test_readFully$BII_Exception() throws IOException {
+        byte[] buf = new byte[testLength];
+        oos.writeObject(testString);
+        oos.close();
+
+        ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
+        try {
+            ois.readFully(buf, 0, -1);
+            fail("IndexOutOfBoundsException was not thrown.");
+        } catch (IndexOutOfBoundsException e) {
+            // Expected
+        }
+        try {
+            ois.readFully(buf, -1,1);
+            fail("IndexOutOfBoundsException was not thrown.");
+        } catch (IndexOutOfBoundsException e) {
+            // Expected
+        }
+        try {
+            ois.readFully(buf, testLength, 1);
+            fail("IndexOutOfBoundsException was not thrown.");
+        } catch (IndexOutOfBoundsException e) {
+            // Expected
+        }
+        ois.close();
+
+        Support_ASimpleInputStream sis = new Support_ASimpleInputStream(bao.toByteArray());
+        ois = new ObjectInputStream(sis);
+        sis.throwExceptionOnNextUse = true;
+        try {
+            ois.readFully(buf, 0, 1);
+            fail("Test 1: IOException expected.");
+        } catch (IOException e) {
+            // Expected.
+        }
+        sis.throwExceptionOnNextUse = false;
+        ois.close();
+    }
+
+    public void test_readLine_IOException() throws IOException {
+        oos.writeObject(testString);
+        oos.close();
+
+        Support_ASimpleInputStream sis = new Support_ASimpleInputStream(bao.toByteArray());
+        ois = new ObjectInputStream(sis);
+        sis.throwExceptionOnNextUse = true;
+        try {
+            ois.readLine();
+            fail("Test 1: IOException expected.");
+        } catch (IOException e) {
+            // Expected.
+        }
+        sis.throwExceptionOnNextUse = false;
+        ois.close();
+    }
+
+    private void fillStreamHeader(byte[] buffer) {
+        short magic = java.io.ObjectStreamConstants.STREAM_MAGIC;
+        short version = java.io.ObjectStreamConstants.STREAM_VERSION;
+
+        if (buffer.length < 4) {
+            throw new IllegalArgumentException("The buffer's minimal length must be 4.");
+        }
+
+        // Initialize the buffer with the correct header for object streams
+        buffer[0] = (byte) (magic >> 8);
+        buffer[1] = (byte) magic;
+        buffer[2] = (byte) (version >> 8);
+        buffer[3] = (byte) (version);
+    }
+
+    public void test_readObjectOverride() throws Exception {
+        byte[] buffer = new byte[4];
+
+        // Initialize the buffer with the correct header for object streams
+        fillStreamHeader(buffer);
+
+        // Test 1: Check that readObjectOverride() returns null if there
+        // is no input stream.
+        BasicObjectInputStream bois = new BasicObjectInputStream();
+        assertNull("Test 1:", bois.readObjectOverride());
+
+        // Test 2: Check that readObjectOverride() throws an IOException
+        // if there is an input stream.
+        bois = new BasicObjectInputStream(new ByteArrayInputStream(buffer));
+        try {
+            bois.readObjectOverride();
+            fail("Test 2: IOException expected.");
+        } catch (IOException e) {}
+
+        bois.close();
+    }
+
     public void test_readObjectMissingClasses() throws Exception {
         SerializationTest.verifySelf(new A1(), new SerializableAssert() {
             public void assertDeserialized(Serializable initial,
@@ -139,9 +428,190 @@ public class ObjectInputStreamTest extends TestCase implements
         });
     }
 
-    /**
-     * java.io.ObjectInputStream#ObjectInputStream(java.io.InputStream)
-     */
+    public void test_readStreamHeader() throws IOException {
+        String testString = "Lorem ipsum";
+        BasicObjectInputStream bois;
+        short magic = java.io.ObjectStreamConstants.STREAM_MAGIC;
+        short version = java.io.ObjectStreamConstants.STREAM_VERSION;
+        byte[] buffer = new byte[20];
+
+        // Initialize the buffer with the correct header for object streams
+        fillStreamHeader(buffer);
+        System.arraycopy(testString.getBytes(), 0, buffer, 4, testString.length());
+
+        // Test 1: readStreamHeader should not throw a StreamCorruptedException.
+        // It should get called by the ObjectInputStream constructor.
+        try {
+            readStreamHeaderCalled = false;
+            bois = new BasicObjectInputStream(new ByteArrayInputStream(buffer));
+            bois.close();
+        } catch (StreamCorruptedException e) {
+            fail("Test 1: Unexpected StreamCorruptedException.");
+        }
+        assertTrue("Test 1: readStreamHeader() has not been called.",
+                    readStreamHeaderCalled);
+
+        // Test 2: Make the stream magic number invalid and check that
+        // readStreamHeader() throws an exception.
+        buffer[0] = (byte)magic;
+        buffer[1] = (byte)(magic >> 8);
+        try {
+            readStreamHeaderCalled = false;
+            bois = new BasicObjectInputStream(new ByteArrayInputStream(buffer));
+            fail("Test 2: StreamCorruptedException expected.");
+            bois.close();
+        } catch (StreamCorruptedException e) {
+        }
+        assertTrue("Test 2: readStreamHeader() has not been called.",
+                    readStreamHeaderCalled);
+
+        // Test 3: Make the stream version invalid and check that
+        // readStreamHeader() throws an exception.
+        buffer[0] = (byte)(magic >> 8);
+        buffer[1] = (byte)magic;
+        buffer[2] = (byte)(version);
+        buffer[3] = (byte)(version >> 8);
+        try {
+            readStreamHeaderCalled = false;
+            bois = new BasicObjectInputStream(new ByteArrayInputStream(buffer));
+            fail("Test 3: StreamCorruptedException expected.");
+            bois.close();
+        } catch (StreamCorruptedException e) {
+        }
+        assertTrue("Test 3: readStreamHeader() has not been called.",
+                    readStreamHeaderCalled);
+    }
+
+    public void test_readUnsignedByte() throws IOException {
+        oos.writeByte(-1);
+        oos.close();
+
+        ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
+        assertEquals("Test 1: Incorrect unsigned byte written or read.",
+                255, ois.readUnsignedByte());
+
+        try {
+            ois.readUnsignedByte();
+            fail("Test 2: EOFException expected.");
+        } catch (EOFException e) {
+            // Expected.
+        }
+
+        ois.close();
+        try {
+            ois.readUnsignedByte();
+            fail("Test 3: IOException expected.");
+        } catch (IOException e) {
+            // Expected.
+        }
+    }
+
+    public void test_readUnsignedShort() throws IOException {
+        // Test for method int java.io.ObjectInputStream.readUnsignedShort()
+        oos.writeShort(-1);
+        oos.close();
+
+        ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
+        assertEquals("Test 1: Incorrect unsigned short written or read.",
+                65535, ois.readUnsignedShort());
+
+        try {
+            ois.readUnsignedShort();
+            fail("Test 2: EOFException expected.");
+        } catch (EOFException e) {
+            // Expected.
+        }
+
+        ois.close();
+        try {
+            ois.readUnsignedShort();
+            fail("Test 3: IOException expected.");
+        } catch (IOException e) {
+            // Expected.
+        }
+    }
+
+    public void test_skipBytesI_IOException() throws IOException {
+        oos.writeObject(testString);
+        oos.close();
+
+        Support_ASimpleInputStream sis = new Support_ASimpleInputStream(bao.toByteArray());
+        ois = new ObjectInputStream(sis);
+        sis.throwExceptionOnNextUse = true;
+        try {
+            ois.skipBytes(5);
+            fail("Test 1: IOException expected.");
+        } catch (IOException e) {
+            // Expected.
+        }
+        sis.throwExceptionOnNextUse = false;
+        ois.close();
+    }
+
+    public static class A implements Serializable {
+
+        private static final long serialVersionUID = 11L;
+
+        public String name = "name";
+    }
+
+    public static class B extends A {}
+
+    public static class C extends B {
+
+        private static final long serialVersionUID = 33L;
+    }
+
+    class BasicObjectInputStream extends ObjectInputStream {
+        public BasicObjectInputStream() throws IOException, SecurityException {
+            super();
+        }
+
+        public BasicObjectInputStream(InputStream input) throws IOException {
+            super(input);
+        }
+
+        public boolean enableResolveObject(boolean enable)
+                throws SecurityException {
+            return super.enableResolveObject(enable);
+        }
+
+        public Object readObjectOverride() throws ClassNotFoundException, IOException {
+            return super.readObjectOverride();
+        }
+
+        public void readStreamHeader() throws IOException {
+            readStreamHeaderCalled = true;
+            super.readStreamHeader();
+        }
+
+        public Class<?> resolveProxyClass(String[] interfaceNames)
+                throws IOException, ClassNotFoundException {
+            return super.resolveProxyClass(interfaceNames);
+        }
+    }
+
+    public static class ObjectInputStreamWithReadDesc extends
+            ObjectInputStream {
+        private Class returnClass;
+
+        public ObjectInputStreamWithReadDesc(InputStream is, Class returnClass)
+                throws IOException {
+            super(is);
+            this.returnClass = returnClass;
+        }
+
+        public ObjectStreamClass readClassDescriptor() throws IOException,
+                ClassNotFoundException {
+            return ObjectStreamClass.lookup(returnClass);
+
+        }
+    }
+
+    static class TestClassForSerialization implements Serializable {
+        private static final long serialVersionUID = 1L;
+    }
+
     public void test_ConstructorLjava_io_InputStream() throws IOException {
         oos.writeDouble(Double.MAX_VALUE);
         oos.close();
@@ -207,24 +677,11 @@ public class ObjectInputStreamTest extends TestCase implements
 
     }
 
-    /**
-     * java.io.ObjectInputStream#available()
-     */
     public void test_available() throws IOException {
         oos.writeBytes("HelloWorld");
         oos.close();
         ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
         assertEquals("Read incorrect bytes", 10, ois.available());
-        ois.close();
-    }
-
-    /**
-     * java.io.ObjectInputStream#close()
-     */
-    public void test_close() throws IOException {
-        oos.writeBytes("HelloWorld");
-        oos.close();
-        ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
         ois.close();
     }
 
@@ -356,34 +813,6 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * java.io.ObjectInputStream#readFully(byte[])
-     */
-    public void test_readFully$B() throws IOException {
-        byte[] buf = new byte[10];
-        oos.writeBytes("HelloWorld");
-        oos.close();
-        ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
-        ois.readFully(buf);
-        ois.close();
-        assertEquals("Read incorrect bytes", "HelloWorld", new String(buf, 0,
-                10, "UTF-8"));
-    }
-
-    /**
-     * java.io.ObjectInputStream#readFully(byte[], int, int)
-     */
-    public void test_readFully$BII() throws IOException {
-        byte[] buf = new byte[10];
-        oos.writeBytes("HelloWorld");
-        oos.close();
-        ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
-        ois.readFully(buf, 0, 10);
-        ois.close();
-        assertEquals("Read incorrect bytes", "HelloWorld", new String(buf, 0,
-                10, "UTF-8"));
-    }
-
-    /**
      * java.io.ObjectInputStream#readInt()
      */
     public void test_readInt() throws IOException {
@@ -510,36 +939,6 @@ public class ObjectInputStreamTest extends TestCase implements
     }
 
     /**
-     * java.io.ObjectInputStream#readObjectOverride()
-     */
-    public void test_readObjectOverride() throws Exception {
-        // Regression for HARMONY-846
-        assertNull(new ObjectInputStream() {
-
-            @Override
-            public Object readObjectOverride() throws IOException,
-                    ClassNotFoundException {
-                return super.readObjectOverride();
-            }
-
-        }.readObjectOverride());
-    }
-
-    public static class A implements Serializable {
-
-        private static final long serialVersionUID = 11L;
-
-        public String name = "name";
-    }
-
-    public static class B extends A {}
-
-    public static class C extends B {
-
-        private static final long serialVersionUID = 33L;
-    }
-
-    /**
      * java.io.ObjectInputStream#readObject()
      */
     public void test_readObjectCorrupt() throws IOException, ClassNotFoundException {
@@ -564,30 +963,6 @@ public class ObjectInputStreamTest extends TestCase implements
         ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
         assertTrue("Read incorrect short value",
                 ois.readShort() == Short.MAX_VALUE);
-        ois.close();
-    }
-
-    /**
-     * java.io.ObjectInputStream#readUnsignedByte()
-     */
-    public void test_readUnsignedByte() throws IOException {
-        oos.writeByte(-1);
-        oos.close();
-        ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
-        assertEquals("Read incorrect unsignedByte value", 255, ois
-                .readUnsignedByte());
-        ois.close();
-    }
-
-    /**
-     * java.io.ObjectInputStream#readUnsignedShort()
-     */
-    public void test_readUnsignedShort() throws IOException {
-        oos.writeShort(-1);
-        oos.close();
-        ois = new ObjectInputStream(new ByteArrayInputStream(bao.toByteArray()));
-        assertEquals("Read incorrect unsignedShort value", 65535, ois
-                .readUnsignedShort());
         ois.close();
     }
 
@@ -617,26 +992,28 @@ public class ObjectInputStreamTest extends TestCase implements
 
         // Regression for HARMONY-844
         try {
-            new ObjectInputStream() {}.skipBytes(0);
+            new ObjectInputStream() {
+            }.skipBytes(0);
             fail("NullPointerException expected");
-        } catch (NullPointerException e) {}
+        } catch (NullPointerException e) {
+        }
     }
 
     // Regression Test for JIRA 2192
-	public void test_readObject_withPrimitiveClass() throws Exception {
-		File file = new File("test.ser");
-		file.deleteOnExit();
-		Test test = new Test();
-		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(
-				file));
-		out.writeObject(test);
-		out.close();
+    public void test_readObject_withPrimitiveClass() throws Exception {
+        File file = new File("test.ser");
+        file.deleteOnExit();
+        Test test = new Test();
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(
+                file));
+        out.writeObject(test);
+        out.close();
 
-		ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
-		Test another = (Test) in.readObject();
-		in.close();
-		assertEquals(test, another);
-	}
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
+        Test another = (Test) in.readObject();
+        in.close();
+        assertEquals(test, another);
+    }
 
     //Regression Test for JIRA-2249
     public static class ObjectOutputStreamWithWriteDesc extends
@@ -652,74 +1029,35 @@ public class ObjectInputStreamTest extends TestCase implements
         }
     }
 
-    public static class ObjectIutputStreamWithReadDesc extends
-            ObjectInputStream {
-        private Class returnClass;
+    // Regression Test for JIRA-2340
+    public static class ObjectOutputStreamWithWriteDesc1 extends
+            ObjectOutputStream {
+        public ObjectOutputStreamWithWriteDesc1(OutputStream os)
+                throws IOException {
+            super(os);
+        }
 
-        public ObjectIutputStreamWithReadDesc(InputStream is, Class returnClass)
+        @Override
+        public void writeClassDescriptor(ObjectStreamClass desc)
+                throws IOException {
+            super.writeClassDescriptor(desc);
+        }
+    }
+
+    public static class ObjectInputStreamWithReadDesc1 extends
+            ObjectInputStream {
+
+        public ObjectInputStreamWithReadDesc1(InputStream is)
                 throws IOException {
             super(is);
-            this.returnClass = returnClass;
         }
 
         @Override
         public ObjectStreamClass readClassDescriptor() throws IOException,
                 ClassNotFoundException {
-            return ObjectStreamClass.lookup(returnClass);
-
+            return super.readClassDescriptor();
         }
     }
-
-    static class TestClassForSerialization implements Serializable {
-		private static final long serialVersionUID = 1L;
-	}
-
-    public void test_ClassDescriptor() throws IOException,
-			ClassNotFoundException {
-
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ObjectOutputStreamWithWriteDesc oos = new ObjectOutputStreamWithWriteDesc(
-				baos);
-		oos.writeObject(String.class);
-		oos.close();
-		Class cls = TestClassForSerialization.class;
-		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-		ObjectIutputStreamWithReadDesc ois = new ObjectIutputStreamWithReadDesc(
-				bais, cls);
-		Object obj = ois.readObject();
-		ois.close();
-		assertEquals(cls, obj);
-	}
-
-	// Regression Test for JIRA-2340
-    public static class ObjectOutputStreamWithWriteDesc1 extends
-			ObjectOutputStream {
-		public ObjectOutputStreamWithWriteDesc1(OutputStream os)
-				throws IOException {
-			super(os);
-		}
-
-		@Override
-        public void writeClassDescriptor(ObjectStreamClass desc)
-				throws IOException {
-			super.writeClassDescriptor(desc);
-		}
-	}
-
-	public static class ObjectIutputStreamWithReadDesc1 extends
-			ObjectInputStream {
-
-		public ObjectIutputStreamWithReadDesc1(InputStream is)
-				throws IOException {
-			super(is);
-		}
-
-		@Override
-        public ObjectStreamClass readClassDescriptor() throws IOException,
-				ClassNotFoundException {
-			return super.readClassDescriptor();
-		}
-	}
 
     // Regression test for Harmony-1921
     public static class ObjectInputStreamWithResolve extends ObjectInputStream {
@@ -769,7 +1107,7 @@ public class ObjectInputStreamTest extends TestCase implements
 
         @Override
         protected Object resolveObject(Object obj) throws IOException {
-            if(obj instanceof Integer){
+            if (obj instanceof Integer) {
                 obj = intObj;
             }
             return super.resolveObject(obj);
@@ -792,7 +1130,7 @@ public class ObjectInputStreamTest extends TestCase implements
         byte[] bytes = baos.toByteArray();
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         ObjectInputStreamWithResolveObject ois =
-            new ObjectInputStreamWithResolveObject(bais);
+                new ObjectInputStreamWithResolveObject(bais);
         Integer actual = (Integer) ois.readObject();
         ois.close();
 
@@ -800,30 +1138,30 @@ public class ObjectInputStreamTest extends TestCase implements
         assertEquals(ObjectInputStreamWithResolveObject.intObj, actual);
     }
 
-	public void test_readClassDescriptor() throws IOException,
-			ClassNotFoundException {
+    public void test_readClassDescriptor() throws IOException,
+            ClassNotFoundException {
 
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ObjectOutputStreamWithWriteDesc1 oos = new ObjectOutputStreamWithWriteDesc1(
-				baos);
-		ObjectStreamClass desc = ObjectStreamClass
-		.lookup(TestClassForSerialization.class);
-		oos.writeClassDescriptor(desc);
-		oos.close();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStreamWithWriteDesc1 oos = new ObjectOutputStreamWithWriteDesc1(
+                baos);
+        ObjectStreamClass desc = ObjectStreamClass
+                .lookup(TestClassForSerialization.class);
+        oos.writeClassDescriptor(desc);
+        oos.close();
 
         byte[] bytes = baos.toByteArray();
-		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-		ObjectIutputStreamWithReadDesc1 ois = new ObjectIutputStreamWithReadDesc1(
-				bais);
-		Object obj = ois.readClassDescriptor();
-		ois.close();
-		assertEquals(desc.getClass(), obj.getClass());
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        ObjectInputStreamWithReadDesc1 ois = new ObjectInputStreamWithReadDesc1(
+                bais);
+        Object obj = ois.readClassDescriptor();
+        ois.close();
+        assertEquals(desc.getClass(), obj.getClass());
 
         //eof
         bais = new ByteArrayInputStream(bytes);
         ExceptionalBufferedInputStream bis = new ExceptionalBufferedInputStream(
                 bais);
-        ois = new ObjectIutputStreamWithReadDesc1(bis);
+        ois = new ObjectInputStreamWithReadDesc1(bis);
 
         bis.setEOF(true);
 
@@ -838,7 +1176,7 @@ public class ObjectInputStreamTest extends TestCase implements
         //throw exception
         bais = new ByteArrayInputStream(bytes);
         bis = new ExceptionalBufferedInputStream(bais);
-        ois = new ObjectIutputStreamWithReadDesc1(bis);
+        ois = new ObjectInputStreamWithReadDesc1(bis);
 
         bis.setException(new IOException());
 
@@ -853,7 +1191,7 @@ public class ObjectInputStreamTest extends TestCase implements
         //corrupt
         bais = new ByteArrayInputStream(bytes);
         bis = new ExceptionalBufferedInputStream(bais);
-        ois = new ObjectIutputStreamWithReadDesc1(bis);
+        ois = new ObjectInputStreamWithReadDesc1(bis);
 
         bis.setCorrupt(true);
 
@@ -864,7 +1202,7 @@ public class ObjectInputStreamTest extends TestCase implements
         } finally {
             ois.close();
         }
-	}
+    }
 
     static class ExceptionalBufferedInputStream extends BufferedInputStream {
         private boolean eof = false;
@@ -1000,26 +1338,15 @@ public class ObjectInputStreamTest extends TestCase implements
 
     //Regression Test for HARMONY-3726
     public void test_readObject_array() throws Exception {
-
-        final String resourcePrefix = ObjectInputStreamTest.class.getPackage().getName().replace('.', '/');
-
-//        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("/temp/test_array_strings.ser"));
-//        TestArray ta = new TestArray(new String[] { "AAA", "BBB" });
-//        oos.writeObject(ta);
-//        oos.close();
-//        oos = new ObjectOutputStream(new FileOutputStream("/temp/test_array_integers.ser"));
-//        ta = new TestArray(new Integer[] { 10, 20 });
-//        oos.writeObject(ta);
-//        oos.close();
-
+        final String resourcePrefix = "serialization/org/apache/harmony/luni/tests/java/io";
         ObjectInputStream oin = new ObjectInputStream(this.getClass().getClassLoader().getResourceAsStream(
-                "serialization/" + resourcePrefix + "/test_array_strings.ser"));
-        TestArray testArray = (TestArray) oin.readObject();
+                resourcePrefix + "/test_array_strings.ser"));
+        org.apache.harmony.luni.tests.java.io.TestArray testArray = (TestArray) oin.readObject();
         String[] strings = new String[] { "AAA", "BBB" };
         assertTrue(java.util.Arrays.equals(strings, testArray.array));
 
         oin = new ObjectInputStream(this.getClass().getClassLoader().getResourceAsStream(
-                "serialization/" + resourcePrefix + "/test_array_integers.ser"));
+                resourcePrefix + "/test_array_integers.ser"));
         testArray = (TestArray) oin.readObject();
         Integer[] integers = new Integer[] { 10, 20 };
         assertTrue(java.util.Arrays.equals(integers, testArray.array));
@@ -1046,7 +1373,8 @@ public class ObjectInputStreamTest extends TestCase implements
 
         @Override
         protected void writeClassDescriptor(ObjectStreamClass osc) throws IOException {
-            objs[pos++] = osc;        }
+            objs[pos++] = osc;
+        }
     }
 
     static class TestObjectInputStream extends ObjectInputStream {
@@ -1078,6 +1406,27 @@ public class ObjectInputStreamTest extends TestCase implements
         oin.readObject();
     }
 
+    public void test_readObject_replacedClassField() throws Exception {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(out);
+        FieldReplacementTestClass obj = new FieldReplacementTestClass(1234);
+        oos.writeObject(obj);
+        out.flush();
+        out.close();
+
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(in);
+
+        try {
+            FieldReplacementTestClass result =
+                    (FieldReplacementTestClass) ois.readObject();
+            fail("should throw ClassCastException");
+        } catch (ClassCastException e) {
+            // expected
+        }
+        ois.close();
+    }
+
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.
@@ -1087,10 +1436,40 @@ public class ObjectInputStreamTest extends TestCase implements
         super.setUp();
         oos = new ObjectOutputStream(bao = new ByteArrayOutputStream());
     }
+
+    public static class FieldReplacementTestClass implements Serializable {
+        private FieldClass c;
+
+        public FieldReplacementTestClass(int i) {
+            super();
+            c = new FieldClass(i);
+        }
+    }
+
+    public static class FieldClass implements Serializable {
+        private int i;
+
+        public FieldClass(int i) {
+            super();
+            this.i = i;
+        }
+
+        protected Object writeReplace() throws ObjectStreamException {
+            return new ReplacementFieldClass(i);
+        }
+    }
+
+    public static class ReplacementFieldClass implements Serializable {
+        private int i;
+
+        public ReplacementFieldClass(int i) {
+            super();
+            this.i = i;
+        }
+    }
 }
 
-class TestArray implements Serializable
-{
+class TestArray implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public Object[] array;
@@ -1098,20 +1477,19 @@ class TestArray implements Serializable
     public TestArray(Object[] array) {
         this.array = array;
     }
-
 }
 
 class Test implements Serializable {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	Class classes[] = new Class[] { byte.class, short.class, int.class,
-			long.class, boolean.class, char.class, float.class, double.class };
+    Class<?> classes[] = new Class[] { byte.class, short.class, int.class,
+            long.class, boolean.class, char.class, float.class, double.class };
 
-	@Override
+    @Override
     public boolean equals(Object o) {
-		if (!(o instanceof Test)) {
-			return false;
-		}
-		return Arrays.equals(classes, ((Test) o).classes);
-	}
+        if (!(o instanceof Test)) {
+            return false;
+        }
+        return Arrays.equals(classes, ((Test) o).classes);
+    }
 }

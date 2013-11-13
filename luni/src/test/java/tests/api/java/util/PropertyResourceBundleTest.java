@@ -17,9 +17,19 @@
 
 package tests.api.java.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.CharArrayReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
 import java.util.Vector;
 
 public class PropertyResourceBundleTest extends junit.framework.TestCase {
@@ -27,11 +37,67 @@ public class PropertyResourceBundleTest extends junit.framework.TestCase {
     static PropertyResourceBundle prb;
 
     /**
+     * @throws IOException
      * java.util.PropertyResourceBundle#PropertyResourceBundle(java.io.InputStream)
      */
-    public void test_ConstructorLjava_io_InputStream() {
-        // Test for method java.util.PropertyResourceBundle(java.io.InputStream)
-        assertTrue("Used to test", true);
+    @SuppressWarnings("nls")
+    public void test_ConstructorLjava_io_InputStream() throws IOException {
+        InputStream propertiesStream = new ByteArrayInputStream(
+                "p1=one\ncharset=iso-8859-1".getBytes("ISO-8859-1"));
+        prb = new PropertyResourceBundle(propertiesStream);
+        assertEquals(2, prb.keySet().size());
+        assertEquals("one", prb.getString("p1"));
+        assertEquals("iso-8859-1", prb.getString("charset"));
+
+        propertiesStream = new ByteArrayInputStream("p1=one\ncharset=UTF-8"
+                .getBytes("UTF-8"));
+        prb = new PropertyResourceBundle(propertiesStream);
+        assertEquals(2, prb.keySet().size());
+        assertEquals("UTF-8", prb.getString("charset"));
+
+        try {
+            new PropertyResourceBundle((InputStream) null);
+            fail("Should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // expected
+        }
+    }
+
+    /**
+     * @throws IOException
+     * {@link java.util.PropertyResourceBundle#PropertyResourceBundle(java.io.Reader)}
+     * @since 1.6
+     */
+    @SuppressWarnings("nls")
+    public void test_ConstructorLjava_io_Reader() throws IOException {
+        Charset charset = Charset.forName("ISO-8859-1");
+        String content = "p1=one\nfeature=good_feature";
+        CharBuffer cbuffer = charset.decode(ByteBuffer.wrap(content
+                .getBytes("ISO-8859-1")));
+        char[] chars = new char[cbuffer.limit()];
+        cbuffer.get(chars);
+
+        prb = new PropertyResourceBundle(new CharArrayReader(chars));
+        assertEquals(2, prb.keySet().size());
+        assertEquals("one", prb.getString("p1"));
+        assertEquals("good_feature", prb.getString("feature"));
+
+        charset = Charset.forName("UTF-8");
+        cbuffer = charset.decode(ByteBuffer.wrap(content.getBytes("UTF-8")));
+        chars = new char[cbuffer.limit()];
+        cbuffer.get(chars);
+
+        prb = new PropertyResourceBundle(new CharArrayReader(chars));
+        assertEquals(2, prb.keySet().size());
+        assertEquals("one", prb.getString("p1"));
+        assertEquals("good_feature", prb.getString("feature"));
+
+        try {
+            new PropertyResourceBundle((Reader) null);
+            fail("Should throw NullPointerException");
+        } catch (NullPointerException e) {
+            // expected
+        }
     }
 
     /**
@@ -39,7 +105,7 @@ public class PropertyResourceBundleTest extends junit.framework.TestCase {
      */
     public void test_getKeys() {
         Enumeration keyEnum = prb.getKeys();
-        Vector test = new Vector();
+        Vector<Object> test = new Vector<Object>();
         int keyCount = 0;
         while (keyEnum.hasMoreElements()) {
             test.addElement(keyEnum.nextElement());
@@ -77,15 +143,17 @@ public class PropertyResourceBundleTest extends junit.framework.TestCase {
     /**
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.
+     *
+     * @throws UnsupportedEncodingException
      */
-    protected void setUp() {
-        java.io.InputStream propertiesStream = new java.io.ByteArrayInputStream(
-                "p1=one\np2=two".getBytes());
+    protected void setUp() throws UnsupportedEncodingException {
+        InputStream propertiesStream = new ByteArrayInputStream(
+                "p1=one\np2=two".getBytes("ISO-8859-1"));
         try {
             prb = new PropertyResourceBundle(propertiesStream);
         } catch (java.io.IOException e) {
             fail(
-                    "Contruction of PropertyResourceBundle threw IOException");
+                    "Construction of PropertyResourceBundle threw IOException");
         }
     }
 
@@ -94,5 +162,40 @@ public class PropertyResourceBundleTest extends junit.framework.TestCase {
      * method is called after a test is executed.
      */
     protected void tearDown() {
+    }
+
+    /**
+     * {@link java.util.PropertyResourceBundle#Enumeration}
+     */
+    public void test_access$0_Enumeration() throws IOException {
+        class MockResourceBundle extends PropertyResourceBundle {
+            MockResourceBundle(java.io.InputStream stream) throws IOException {
+                super(stream);
+            }
+
+            @Override
+            protected void setParent(ResourceBundle bundle) {
+                super.setParent(bundle);
+            }
+        }
+
+        java.io.InputStream localStream = new java.io.ByteArrayInputStream(
+                "p3=three\np4=four".getBytes());
+        MockResourceBundle localPrb = new MockResourceBundle(localStream);
+        localPrb.setParent(prb);
+        Enumeration<String> keys = localPrb.getKeys();
+        Vector<String> contents = new Vector<String>();
+        while (keys.hasMoreElements()) {
+            contents.add(keys.nextElement());
+        }
+
+        assertEquals("did not get the right number of properties", 4, contents
+                .size());
+        assertTrue("did not get the parent property p1", contents
+                .contains("p1"));
+        assertTrue("did not get the parent property p2", contents
+                .contains("p2"));
+        assertTrue("did not get the local property p3", contents.contains("p3"));
+        assertTrue("did not get the local property p4", contents.contains("p4"));
     }
 }
