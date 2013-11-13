@@ -32,26 +32,32 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
   private static final long MONTH = 31 * DAY;
   private static final long YEAR = 12 * MONTH;
 
+  // These are the old CTS tests for DateIntervalFormat.formatDateRange.
   public void test_formatDateInterval() throws Exception {
-    Date date = new Date(109, 0, 19, 3, 30, 15);
-    long fixedTime = date.getTime();
+    TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
 
-    int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-    Date dateWithCurrentYear = new Date(currentYear - 1900, 0, 19, 3, 30, 15);
-    long timeWithCurrentYear = dateWithCurrentYear.getTime();
+    Calendar c = Calendar.getInstance(tz);
+    c.set(Calendar.MONTH, Calendar.JANUARY);
+    c.set(Calendar.DAY_OF_MONTH, 19);
+    c.set(Calendar.HOUR_OF_DAY, 3);
+    c.set(Calendar.MINUTE, 30);
+    c.set(Calendar.SECOND, 15);
+    long timeWithCurrentYear = c.getTimeInMillis();
+
+    c.set(Calendar.YEAR, 2009);
+    long fixedTime = c.getTimeInMillis();
+
+    c.set(Calendar.MINUTE, 0);
+    c.set(Calendar.SECOND, 0);
+    long onTheHour = c.getTimeInMillis();
 
     long noonDuration = (8 * 60 + 30) * 60 * 1000 - 15 * 1000;
     long midnightDuration = (3 * 60 + 30) * 60 * 1000 + 15 * 1000;
-    long integralDuration = 30 * 60 * 1000 + 15 * 1000;
-
-    // These are the old CTS tests for DateIntervalFormat.formatDateRange.
 
     Locale de_DE = new Locale("de", "DE");
     Locale en_US = new Locale("en", "US");
     Locale es_ES = new Locale("es", "ES");
     Locale es_US = new Locale("es", "US");
-
-    TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
 
     assertEquals("Monday", formatDateRange(en_US, tz, fixedTime, fixedTime + HOUR, FORMAT_SHOW_WEEKDAY));
     assertEquals("January 19", formatDateRange(en_US, tz, timeWithCurrentYear, timeWithCurrentYear + HOUR, FORMAT_SHOW_DATE));
@@ -67,7 +73,7 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
     assertEquals("12:00 PM", formatDateRange(en_US, tz, fixedTime + noonDuration, fixedTime + noonDuration, FORMAT_12HOUR /*| FORMAT_NO_NOON*/ | FORMAT_SHOW_TIME));
     assertEquals("12:00 AM", formatDateRange(en_US, tz, fixedTime - midnightDuration, fixedTime - midnightDuration, FORMAT_12HOUR | FORMAT_SHOW_TIME /*| FORMAT_NO_MIDNIGHT*/));
     assertEquals("3:30 AM", formatDateRange(en_US, tz, fixedTime, fixedTime, FORMAT_SHOW_TIME | FORMAT_UTC));
-    assertEquals("3 AM", formatDateRange(en_US, tz, fixedTime - integralDuration, fixedTime - integralDuration, FORMAT_SHOW_TIME | FORMAT_ABBREV_TIME));
+    assertEquals("3 AM", formatDateRange(en_US, tz, onTheHour, onTheHour, FORMAT_SHOW_TIME | FORMAT_ABBREV_TIME));
     assertEquals("Mon", formatDateRange(en_US, tz, fixedTime, fixedTime + HOUR, FORMAT_SHOW_WEEKDAY | FORMAT_ABBREV_WEEKDAY));
     assertEquals("Jan 19", formatDateRange(en_US, tz, timeWithCurrentYear, timeWithCurrentYear + HOUR, FORMAT_SHOW_DATE | FORMAT_ABBREV_MONTH));
     assertEquals("Jan 19", formatDateRange(en_US, tz, timeWithCurrentYear, timeWithCurrentYear + HOUR, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
@@ -166,8 +172,11 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
   public void test8862241() throws Exception {
     Locale l = Locale.US;
     TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
-    long jan_19_2042 = new Date(2042 - 1900, 0, 19, 3, 30, 15).getTime();
-    long oct_4_2046 = new Date(2046 - 1900, 9, 4, 3, 30, 15).getTime();
+    Calendar c = Calendar.getInstance(tz);
+    c.set(2042, Calendar.JANUARY, 19, 3, 30);
+    long jan_19_2042 = c.getTimeInMillis();
+    c.set(2046, Calendar.OCTOBER, 4, 3, 30);
+    long oct_4_2046 = c.getTimeInMillis();
     int flags = FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL;
     assertEquals("Jan 19, 2042 – Oct 4, 2046", formatDateRange(l, tz, jan_19_2042, oct_4_2046, flags));
   }
