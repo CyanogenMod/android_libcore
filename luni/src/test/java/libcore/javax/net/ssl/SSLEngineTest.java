@@ -59,12 +59,15 @@ public class SSLEngineTest extends TestCase {
                 && !b.isOutboundDone());
     }
 
-    public void test_SSLEngine_getSupportedCipherSuites_names() throws Exception {
+    public void test_SSLEngine_defaultConfiguration() throws Exception {
+        SSLDefaultConfigurationAsserts.assertSSLEngine(
+                TestSSLContext.create().clientContext.createSSLEngine());
+    }
+
+    public void test_SSLEngine_getSupportedCipherSuites_returnsCopies() throws Exception {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
-        String[] cipherSuites = e.getSupportedCipherSuites();
-        StandardNames.assertSSLEngineSupportedCipherSuites(cipherSuites);
-        assertNotSame(cipherSuites, e.getSupportedCipherSuites());
+        assertNotSame(e.getSupportedCipherSuites(), e.getSupportedCipherSuites());
         c.close();
     }
 
@@ -178,12 +181,10 @@ public class SSLEngineTest extends TestCase {
         }
     }
 
-    public void test_SSLEngine_getEnabledCipherSuites() throws Exception {
+    public void test_SSLEngine_getEnabledCipherSuites_returnsCopies() throws Exception {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
-        String[] cipherSuites = e.getEnabledCipherSuites();
-        StandardNames.assertSSLEngineDefaultCipherSuites(cipherSuites);
-        assertNotSame(cipherSuites, e.getEnabledCipherSuites());
+        assertNotSame(e.getEnabledCipherSuites(), e.getEnabledCipherSuites());
         c.close();
     }
 
@@ -213,21 +214,17 @@ public class SSLEngineTest extends TestCase {
         c.close();
     }
 
-    public void test_SSLEngine_getSupportedProtocols() throws Exception {
+    public void test_SSLEngine_getSupportedProtocols_returnsCopies() throws Exception {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
-        String[] protocols = e.getSupportedProtocols();
-        StandardNames.assertSSLEngineSupportedProtocols(protocols);
-        assertNotSame(protocols, e.getSupportedProtocols());
+        assertNotSame(e.getSupportedProtocols(), e.getSupportedProtocols());
         c.close();
     }
 
-    public void test_SSLEngine_getEnabledProtocols() throws Exception {
+    public void test_SSLEngine_getEnabledProtocols_returnsCopies() throws Exception {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
-        String[] protocols = e.getEnabledProtocols();
-        StandardNames.assertSSLEngineDefaultProtocols(protocols);
-        assertNotSame(protocols, e.getEnabledProtocols());
+        assertNotSame(e.getEnabledProtocols(), e.getEnabledProtocols());
         c.close();
     }
 
@@ -480,12 +477,10 @@ public class SSLEngineTest extends TestCase {
         assertNotNull(p);
 
         String[] cipherSuites = p.getCipherSuites();
-        StandardNames.assertSSLEngineDefaultCipherSuites(cipherSuites);
         assertNotSame(cipherSuites, e.getEnabledCipherSuites());
         assertEquals(Arrays.asList(cipherSuites), Arrays.asList(e.getEnabledCipherSuites()));
 
         String[] protocols = p.getProtocols();
-        StandardNames.assertSSLEngineDefaultProtocols(protocols);
         assertNotSame(protocols, e.getEnabledProtocols());
         assertEquals(Arrays.asList(protocols), Arrays.asList(e.getEnabledProtocols()));
 
