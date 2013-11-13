@@ -17,12 +17,10 @@
 
 package tests.api.java.util;
 
-import java.security.Permission;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.MissingResourceException;
 import java.util.Set;
 
 public class LocaleTest extends junit.framework.TestCase {
@@ -84,21 +82,21 @@ public class LocaleTest extends junit.framework.TestCase {
         assertTrue("Failed to create Locale", x.getLanguage().equals("xx")
                 && (x.getCountry().equals("CV") && x.getVariant().equals("ZZ")));
         try {
-           new Locale(null, "CV", "ZZ");
-           fail("expected NullPointerException with 1st parameter == null");
-        } catch(NullPointerException e) {
+            new Locale(null, "CV", "ZZ");
+            fail("expected NullPointerException with 1st parameter == null");
+        } catch (NullPointerException e) {
         }
 
         try {
-           new Locale("xx", null, "ZZ");
-           fail("expected NullPointerException with 2nd parameter == null");
-        } catch(NullPointerException e) {
+            new Locale("xx", null, "ZZ");
+            fail("expected NullPointerException with 2nd parameter == null");
+        } catch (NullPointerException e) {
         }
 
         try {
-           new Locale("xx", "CV", null);
-           fail("expected NullPointerException with 3rd parameter == null");
-        } catch(NullPointerException e) {
+            new Locale("xx", "CV", null);
+            fail("expected NullPointerException with 3rd parameter == null");
+        } catch (NullPointerException e) {
         }
     }
 
@@ -178,7 +176,7 @@ public class LocaleTest extends junit.framework.TestCase {
         // Regression for Harmony-1146
         Locale l_countryCD = new Locale("", "CD");
         assertEquals("Congo [DRC]",
-              l_countryCD.getDisplayCountry());
+                l_countryCD.getDisplayCountry());
     }
 
     public void test_getDisplayCountryLjava_util_Locale() {
@@ -198,6 +196,16 @@ public class LocaleTest extends junit.framework.TestCase {
         // Regression for Harmony-1146
         Locale l_languageAE = new Locale("ae", "");
         assertEquals("Avestan", l_languageAE.getDisplayLanguage());
+
+        // Regression for HARMONY-4402
+        Locale defaultLocale = Locale.getDefault();
+        try {
+            Locale locale = new Locale("no", "NO");
+            Locale.setDefault(locale);
+            assertEquals("norsk", locale.getDisplayLanguage());
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
     }
 
     public void test_getDisplayLanguageLjava_util_Locale() {
@@ -233,7 +241,28 @@ public class LocaleTest extends junit.framework.TestCase {
                 .getDisplayVariant(l).equals("WIN32"));
     }
 
+    /**
+     * java.util.Locale#getISO3Country()
+     */
+    public void test_getISO3Country() {
+        // Test for method java.lang.String java.util.Locale.getISO3Country()
+        assertTrue("Returned incorrect ISO3 country: "
+                + testLocale.getISO3Country(), testLocale.getISO3Country()
+                .equals("CAN"));
+
+        Locale l = new Locale("", "CD");
+        assertEquals("COD", l.getISO3Country());
+    }
+
+    /**
+     * java.util.Locale#getISO3Language()
+     */
     public void test_getISO3Language() {
+        // Test for method java.lang.String java.util.Locale.getISO3Language()
+        assertTrue("Returned incorrect ISO3 language: "
+                + testLocale.getISO3Language(), testLocale.getISO3Language()
+                .equals("eng"));
+
         Locale l = new Locale("ae");
         assertEquals("ave", l.getISO3Language());
 
@@ -309,15 +338,6 @@ public class LocaleTest extends junit.framework.TestCase {
                 testLocale.getVariant().equals("WIN32"));
     }
 
-    SecurityManager sm = new SecurityManager() {
-        final String forbidenPermissionName = "user.language";
-
-        public void checkPermission(Permission perm) {
-            if (perm.getName().equals(forbidenPermissionName)) {
-                throw new SecurityException();
-            }
-        }
-    };
     /**
      * java.util.Locale#setDefault(java.util.Locale)
      */
@@ -356,6 +376,8 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("Wrong representation 1", "en", l.toString());
         l = new Locale("", "CA");
         assertEquals("Wrong representation 2", "_CA", l.toString());
+
+        // Non-bug difference for HARMONY-5442
         l = new Locale("", "CA", "var");
         assertEquals("Wrong representation 2.5", "_CA_var", l.toString());
         l = new Locale("en", "", "WIN");
@@ -375,6 +397,17 @@ public class LocaleTest extends junit.framework.TestCase {
         Locale l2 = new Locale("fr", "CA");
 
         assertTrue(l1.hashCode() != l2.hashCode());
+    }
+
+    /**
+     * {@value java.util.Locale#ROOT}
+     * @since 1.6
+     */
+    public void test_constantROOT() {
+        Locale root = Locale.ROOT;
+        assertEquals("", root.getLanguage());
+        assertEquals("", root.getCountry());
+        assertEquals("", root.getVariant());
     }
 
 // BEGIN android-removed
