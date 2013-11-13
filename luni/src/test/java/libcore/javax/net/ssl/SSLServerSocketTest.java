@@ -19,19 +19,11 @@ package libcore.javax.net.ssl;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import junit.framework.TestCase;
-import libcore.java.security.StandardNames;
 
 public class SSLServerSocketTest extends TestCase {
 
   public void testDefaultConfiguration() throws Exception {
-    SSLServerSocket serverSocket =
-        (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket();
-    StandardNames.assertDefaultCipherSuites(serverSocket.getEnabledCipherSuites());
-    StandardNames.assertSupportedCipherSuites(serverSocket.getSupportedCipherSuites());
-    StandardNames.assertDefaultProtocolsServer(serverSocket.getEnabledProtocols());
-    StandardNames.assertSupportedProtocols(serverSocket.getSupportedProtocols());
-    assertTrue(serverSocket.getEnableSessionCreation());
-    assertFalse(serverSocket.getNeedClientAuth());
-    assertFalse(serverSocket.getWantClientAuth());
+    SSLDefaultConfigurationAsserts.assertSSLServerSocket(
+        (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket());
   }
 }
