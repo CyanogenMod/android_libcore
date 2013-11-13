@@ -22,6 +22,7 @@
 
 package org.apache.harmony.testframework.serialization;
 
+import junit.framework.TestCase;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -38,7 +39,6 @@ import java.security.PermissionCollection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import junit.framework.TestCase;
 
 /**
  * Framework for serialization testing. Subclasses only need to override
@@ -98,7 +98,6 @@ public abstract class SerializationTest extends TestCase {
      */
 
     public void testGolden() throws Throwable {
-
         verifyGolden(this, getData());
     }
 
@@ -427,7 +426,9 @@ public abstract class SerializationTest extends TestCase {
         path.append(test.getClass().getName().replace('.', File.separatorChar));
         path.append(toAppend);
 
-        InputStream in = SerializationTest.class.getResourceAsStream(path.toString());
+        String pathString = path.toString();
+
+        InputStream in = SerializationTest.class.getResourceAsStream(pathString);
         assertNotNull("Failed to load serialization resource file: " + path, in);
         return getObjectFromStream(in);
     }
