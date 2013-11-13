@@ -17,7 +17,7 @@
 
 package tests.api.java.io;
 
-import java.io.File;
+import junit.framework.TestCase;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -25,11 +25,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectStreamClass;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.lang.reflect.Proxy;
-
-import junit.framework.TestCase;
 
 public class ObjectStreamClassTest extends TestCase {
 
@@ -85,7 +81,7 @@ public class ObjectStreamClassTest extends TestCase {
         ObjectStreamClass osc = ObjectStreamClass.lookup(DummyClass.class);
         assertEquals(
                 "getName returned incorrect name: " + osc.getName(),
-                "org.apache.harmony.luni.tests.java.io.ObjectStreamClassTest$DummyClass",
+                "tests.api.java.io.ObjectStreamClassTest$DummyClass",
                 osc.getName());
     }
 
@@ -114,35 +110,6 @@ public class ObjectStreamClassTest extends TestCase {
         }
     }
 
-    public void test_getSerialVersionUID_inner_private_class() {
-        ObjectStreamClass osc1 = ObjectStreamClass.lookup(SyntheticTest.class);
-        assertEquals(-4332969662791850406L, osc1.getSerialVersionUID());
-
-        ObjectStreamClass osc2 = ObjectStreamClass.lookup(SyntheticTest.X.class);
-        assertEquals(-3926212872029449440L, osc2.getSerialVersionUID());
-    }
-
-    /**
-     * java.io.ObjectStreamClass#getSerialVersionUID()
-     */
-    public void test_getSerialVersionUID_classloader() throws Exception {
-        File file = new File(
-                "resources/org/apache/harmony/luni/tests/ObjectStreamClassTest.jar");
-        ClassLoader loader = new URLClassLoader(new URL[] { file.toURL() },
-                null);
-        Class cl1 = Class.forName("Test1$TestVarArgs", false, loader);
-        ObjectStreamClass osc1 = ObjectStreamClass.lookup(cl1);
-        assertEquals("Test1$TestVarArgs unexpected UID: "
-                + osc1.getSerialVersionUID(), -6051121963037986215L, osc1
-                .getSerialVersionUID());
-
-        Class cl2 = Class.forName("Test1$TestBridge", false, loader);
-        ObjectStreamClass osc2 = ObjectStreamClass.lookup(cl2);
-        assertEquals("Test1$TestBridge unexpected UID: "
-                + osc2.getSerialVersionUID(), 568585976855071180L, osc2
-                .getSerialVersionUID());
-    }
-
     /**
      * java.io.ObjectStreamClass#lookup(java.lang.Class)
      */
@@ -150,7 +117,7 @@ public class ObjectStreamClassTest extends TestCase {
         ObjectStreamClass osc = ObjectStreamClass.lookup(DummyClass.class);
         assertEquals(
                 "lookup returned wrong class: " + osc.getName(),
-                "org.apache.harmony.luni.tests.java.io.ObjectStreamClassTest$DummyClass",
+                "tests.api.java.io.ObjectStreamClassTest$DummyClass",
                 osc.getName());
     }
 
@@ -234,17 +201,17 @@ public class ObjectStreamClassTest extends TestCase {
         // java.io.ObjectStreamClass.lookupAny(java.lang.Class)
         ObjectStreamClass osc = ObjectStreamClass.lookupAny(DummyClass.class);
         assertEquals("lookup returned wrong class: " + osc.getName(),
-                "org.apache.harmony.luni.tests.java.io.ObjectStreamClassTest$DummyClass", osc
+                "tests.api.java.io.ObjectStreamClassTest$DummyClass", osc
                 .getName());
 
         osc = ObjectStreamClass.lookupAny(NonSerialzableClass.class);
         assertEquals("lookup returned wrong class: " + osc.getName(),
-                "org.apache.harmony.luni.tests.java.io.ObjectStreamClassTest$NonSerialzableClass",
+                "tests.api.java.io.ObjectStreamClassTest$NonSerialzableClass",
                 osc.getName());
 
         osc = ObjectStreamClass.lookupAny(ExternalizableClass.class);
         assertEquals("lookup returned wrong class: " + osc.getName(),
-                "org.apache.harmony.luni.tests.java.io.ObjectStreamClassTest$ExternalizableClass",
+                "tests.api.java.io.ObjectStreamClassTest$ExternalizableClass",
                 osc.getName());
 
         osc = ObjectStreamClass.lookup(NonSerialzableClass.class);
