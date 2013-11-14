@@ -347,7 +347,7 @@ public class Deflater {
 
     /**
      * Resets the {@code Deflater} to accept new input without affecting any
-     * previously made settings for the compression strategy or level. This
+     * previous compression strategy or level settings. This
      * operation <i>must</i> be called after {@link #finished} returns
      * true if the {@code Deflater} is to be reused.
      */
