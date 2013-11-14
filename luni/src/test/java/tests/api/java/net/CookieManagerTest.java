@@ -15,6 +15,7 @@
  */
 package tests.api.java.net;
 
+import junit.framework.TestCase;
 import java.io.IOException;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -27,8 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import junit.framework.TestCase;
 
 public class CookieManagerTest extends TestCase {
 
@@ -271,11 +270,7 @@ public class CookieManagerTest extends TestCase {
         Map<String, List<String>> map = manager.get(uri,
                 new HashMap<String, List<String>>());
 
-        assertEquals(1, map.size());
-        assertTrue(map.get("Cookie").isEmpty());
-        Object key = map.keySet().toArray()[0];
-        assertNotNull(key);
-        assertEquals("Cookie", key);
+        assertEquals(0, map.size());
 
         // Policy = ACCEPT_ALL
         manager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
@@ -283,7 +278,8 @@ public class CookieManagerTest extends TestCase {
         ArrayList<String> list = new ArrayList<String>();
         list.add("test=null");
         responseHeaders.put("Set-cookie", list);
-        manager.put(new URI("http://b.c.d"), responseHeaders);
+        uri = new URI("http://b.c.d");
+        manager.put(uri, responseHeaders);
         map = manager.get(uri, new HashMap<String, List<String>>());
         assertEquals(1, map.size());
     }
