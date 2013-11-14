@@ -266,12 +266,7 @@ public class InflaterInputStream extends FilterInputStream {
     }
 
     /**
-     * Reset the position of the stream to the last marked position. This
-     * implementation overrides the supertype implementation and always throws
-     * an {@link IOException IOException} when called.
-     *
-     * @throws IOException
-     *             if the method is called
+     * This operation is not supported and throws {@code IOException}.
      */
     @Override
     public void reset() throws IOException {
