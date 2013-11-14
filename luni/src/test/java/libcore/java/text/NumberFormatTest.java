@@ -90,4 +90,13 @@ public class NumberFormatTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException expected) {
         }
     }
+
+    public void test_62269() throws Exception {
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        try {
+            nf.parse(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
 }
