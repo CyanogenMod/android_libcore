@@ -303,6 +303,11 @@ static jobject NativeDecimalFormat_parse(JNIEnv* env, jclass, jlong addr, jstrin
     static jmethodID gPP_setIndex = env->GetMethodID(JniConstants::parsePositionClass, "setIndex", "(I)V");
     static jmethodID gPP_setErrorIndex = env->GetMethodID(JniConstants::parsePositionClass, "setErrorIndex", "(I)V");
 
+    ScopedJavaUnicodeString src(env, text);
+    if (!src.valid()) {
+      return NULL;
+    }
+
     // make sure the ParsePosition is valid. Actually icu4c would parse a number
     // correctly even if the parsePosition is set to -1, but since the RI fails
     // for that case we have to fail too
@@ -313,10 +318,6 @@ static jobject NativeDecimalFormat_parse(JNIEnv* env, jclass, jlong addr, jstrin
 
     Formattable res;
     ParsePosition pp(parsePos);
-    ScopedJavaUnicodeString src(env, text);
-    if (!src.valid()) {
-      return NULL;
-    }
     DecimalFormat* fmt = toDecimalFormat(addr);
     fmt->parse(src.unicodeString(), res, pp);
 
