@@ -374,172 +374,6 @@ public class ControlTest extends TestCase {
     }
 
     @SuppressWarnings("nls")
-    private void newBundleTester() throws IllegalAccessException,
-            InstantiationException, IOException, FileNotFoundException {
-        String className = "tests.support.Support_TestResource";
-        String propertiesName = Support_Resources.RESOURCE_PACKAGE_NAME
-                + ".hyts_resource";
-        String propertiesNameCopy = "hyts_resource_copy";
-        String CLASS = "java.class";
-        String PROPERTIES = "java.properties";
-        Locale frFR = new Locale("fr", "FR");
-        // the locale does not exist, but its parent does
-        Locale enUSVAR = new Locale("en", "US", "VAR");
-        ClassLoader systemLoader = ClassLoader.getSystemClassLoader();
-        ClassLoader URLLoader = systemLoader;
-        ResourceBundle bundle = null;
-        final URL srcFile = URLLoader.getResource(control
-                .toResourceName(control.toBundleName(propertiesName,
-                        Locale.ROOT), "properties"));
-        final File copyFile = copyFile(srcFile);
-
-        // 1. with format of "java.class"
-        bundle = control.newBundle(className, frFR, CLASS, systemLoader, false);
-        assertEquals("frFRChildValue1", bundle.getString("child1"));
-
-        bundle = control.newBundle(className, frFR, CLASS, systemLoader, true);
-        assertEquals("frFRChildValue1", bundle.getString("child1"));
-
-        bundle = control.newBundle(className, Locale.ROOT, CLASS, systemLoader,
-                false);
-        assertEquals("parentValue1", bundle.getString("parent1"));
-
-        assertNull(control.newBundle(className, frFR, CLASS, URLLoader, false));
-        assertNull(control.newBundle(className, enUSVAR, CLASS, systemLoader,
-                false));
-        assertNull(control.newBundle("wrongName", frFR, CLASS, systemLoader,
-                false));
-        assertNull(control.newBundle(className, Locale.ROOT, PROPERTIES,
-                systemLoader, false));
-
-        // 2. with format of "java.properties"
-        // if copy file exists, run the "changing" test
-        if (null != URLLoader
-                .getResourceAsStream("hyts_resource_copy.properties")) {
-            ResourceBundle.clearCache(URLLoader);
-            bundle = control.newBundle(propertiesNameCopy, Locale.ROOT,
-                    PROPERTIES, URLLoader, false);
-            assertTrue(bundle.getClass() == PropertyResourceBundle.class);
-            assertEquals("resource", bundle.getString("property"));
-            // change the file
-            changeProperties(copyFile);
-            assertEquals("resource", bundle.getString("property"));
-            bundle = control.newBundle(propertiesNameCopy, Locale.ROOT,
-                    PROPERTIES, URLLoader, false);
-            assertEquals("changedValue", bundle.getString("property"));
-            bundle = control.newBundle(propertiesNameCopy, Locale.ROOT,
-                    PROPERTIES, URLLoader, true);
-            assertEquals("changedValue", bundle.getString("property"));
-        } else {
-            System.err
-                    .println("Can not find the test file, some code of this test 'newBundleTester' did not run.");
-        }
-
-        // class loader
-        bundle = control.newBundle(propertiesName, Locale.ROOT, PROPERTIES,
-                URLLoader, true);
-        assertEquals("resource", bundle.getString("property"));
-        bundle = control.newBundle(propertiesName, Locale.ROOT, PROPERTIES,
-                systemLoader, true);
-        assertEquals("parent", bundle.getString("property"));
-
-        // locale
-        bundle = control.newBundle(propertiesName, frFR, PROPERTIES, URLLoader,
-                false);
-        assertEquals("fr_FR_resource", bundle.getString("property"));
-        assertNull(control.newBundle(propertiesName, frFR, PROPERTIES,
-                systemLoader, false));
-        assertNull(control.newBundle(propertiesName, enUSVAR, PROPERTIES,
-                systemLoader, true));
-        assertNull(control.newBundle(propertiesName, enUSVAR, PROPERTIES,
-                URLLoader, true));
-        assertNull(control.newBundle("wrongName", frFR, PROPERTIES, URLLoader,
-                false));
-
-        // exceptions
-        try {
-            control.newBundle(null, frFR, PROPERTIES, URLLoader, false);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
-        }
-        try {
-            control.newBundle(propertiesName, null, PROPERTIES, URLLoader,
-                    false);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
-        }
-        try {
-            control.newBundle(propertiesName, frFR, null, URLLoader, false);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
-        }
-        try {
-            control.newBundle(propertiesName, frFR, PROPERTIES, null, false);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
-        }
-        // null is returned by toBundleName method
-        try {
-            new Control() {
-                @Override
-                public String toBundleName(@SuppressWarnings("unused")
-                String baseName, @SuppressWarnings("unused")
-                Locale locale) {
-                    return null;
-                }
-            }.newBundle(propertiesName, frFR, PROPERTIES, URLLoader, false);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
-        }
-        try {
-            control.newBundle(propertiesName, frFR, "JAVA.CLASS", URLLoader,
-                    false);
-            fail("Should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
-        try {
-            control.newBundle(this.getClass().getName(), Locale.ROOT, CLASS,
-                    systemLoader, false);
-            fail("Should throw ClassCastException");
-        } catch (ClassCastException e) {
-            // expected
-        }
-        try {
-            control.newBundle(SubRBStaticPrivate.class.getName(), Locale.ROOT,
-                    CLASS, systemLoader, false);
-            fail("Should throw IllegalAccessException");
-        } catch (IllegalAccessException e) {
-            // expected
-        }
-        class SubRBNonStaticPrivate extends ListResourceBundle {
-            private SubRBNonStaticPrivate() {
-                super();
-            }
-
-            @Override
-            protected Object[][] getContents() {
-                return null;
-            }
-        }
-        class SubRBNonStaticPublic extends ListResourceBundle {
-            public SubRBNonStaticPublic() {
-                super();
-            }
-
-            @Override
-            protected Object[][] getContents() {
-                return null;
-            }
-        }
-    }
-
-    @SuppressWarnings("nls")
     static File copyFile(final URL src) throws IOException {
         String tail = src.getFile().split("hyts_resource")[1];
         String tmpdir = System.getProperty("java.io.tmpdir");
@@ -632,11 +466,11 @@ public class ControlTest extends TestCase {
         long time = 0L;
         final URL srcFile = URLLoader.getResource(control.toResourceName(
                 control.toBundleName(propertiesName, frFR), "properties"));
+        assertNotNull(srcFile);
         final File copyFile = copyFile(srcFile);
 
         // 1. format = "java.properties"
-        if (null != URLLoader
-                .getResourceAsStream("hyts_resource_copy_fr_FR.properties")) {
+        if (null != URLLoader.getResourceAsStream(copyFile.toURL().toString())) {
             Thread.sleep(1000);
             bundle = control.newBundle(propertiesNameCopy, frFR, PROPERTIES,
                     URLLoader, false);
