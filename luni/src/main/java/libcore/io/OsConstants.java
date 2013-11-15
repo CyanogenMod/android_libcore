@@ -195,6 +195,15 @@ public final class OsConstants {
     public static final int F_SETOWN = placeholder();
     public static final int F_UNLCK = placeholder();
     public static final int F_WRLCK = placeholder();
+    public static final int IFA_F_DADFAILED = placeholder();
+    public static final int IFA_F_DEPRECATED = placeholder();
+    public static final int IFA_F_HOMEADDRESS = placeholder();
+    public static final int IFA_F_NODAD = placeholder();
+    public static final int IFA_F_OPTIMISTIC = placeholder();
+    public static final int IFA_F_PERMANENT = placeholder();
+    public static final int IFA_F_SECONDARY = placeholder();
+    public static final int IFA_F_TEMPORARY = placeholder();
+    public static final int IFA_F_TENTATIVE = placeholder();
     public static final int IFF_ALLMULTI = placeholder();
     public static final int IFF_AUTOMEDIA = placeholder();
     public static final int IFF_BROADCAST = placeholder();
