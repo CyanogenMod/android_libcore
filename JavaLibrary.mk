@@ -53,6 +53,7 @@ endef
 common_core_src_files := $(call all-main-java-files-under,dalvik dex dom json luni xml)
 core_resource_dirs := $(call all-core-resource-dirs,main)
 test_resource_dirs := $(call all-core-resource-dirs,test)
+test_src_files := $(call all-test-java-files-under,dalvik dom harmony-tests json luni xml)
 
 ifeq ($(EMMA_INSTRUMENT),true)
 ifneq ($(EMMA_INSTRUMENT_STATIC),true)
@@ -101,7 +102,7 @@ include $(BUILD_JAVA_LIBRARY)
 ifeq ($(LIBCORE_SKIP_TESTS),)
 # Make the core-tests library.
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik dom harmony-tests json luni xml)
+LOCAL_SRC_FILES := $(test_src_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit okhttp
@@ -195,7 +196,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     # Make the core-tests library.
     ifeq ($(LIBCORE_SKIP_TESTS),)
     include $(CLEAR_VARS)
-    LOCAL_SRC_FILES := $(call all-test-java-files-under,dalvik dom json luni xml)
+    LOCAL_SRC_FILES := $(test_src_files)
     LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
     LOCAL_NO_STANDARD_LIBRARIES := true
     LOCAL_JAVA_LIBRARIES := bouncycastle-hostdex core-hostdex core-junit-hostdex core-tests-support-hostdex okhttp-hostdex
