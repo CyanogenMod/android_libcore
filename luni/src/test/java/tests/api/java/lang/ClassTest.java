@@ -17,31 +17,23 @@
 
 package tests.api.java.lang;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.BasicPermission;
 import java.security.DomainCombiner;
 import java.security.Permission;
-import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
 import java.security.Security;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
-
-import tests.support.resource.Support_Resources;
 
 public class ClassTest extends junit.framework.TestCase {
 
@@ -429,7 +421,7 @@ public class ClassTest extends junit.framework.TestCase {
      * java.lang.Class#getResource(java.lang.String)
      */
     public void test_getResourceLjava_lang_String() {
-        final String name = "/org/apache/harmony/luni/tests/test_resource.txt";
+        final String name = "/resources/test_resource.txt";
         URL res = getClass().getResource(name);
         assertNotNull(res);
     }
@@ -438,23 +430,14 @@ public class ClassTest extends junit.framework.TestCase {
      * java.lang.Class#getResourceAsStream(java.lang.String)
      */
     public void test_getResourceAsStreamLjava_lang_String() throws Exception {
-        final String name = "/org/apache/harmony/luni/tests/test_resource.txt";
-        assertNotNull("the file " + name + " can not be found in this directory", getClass()
-                .getResourceAsStream(name));
+        final String name = "/resources/test_resource.txt";
+        InputStream str2 = getClass().getResourceAsStream(name);
+        assertNotNull("the file " + name + " can not be found in this directory", str2);
 
         final String nameBadURI = "org/apache/harmony/luni/tests/test_resource.txt";
         assertNull("the file " + nameBadURI + " should not be found in this directory",
                 getClass().getResourceAsStream(nameBadURI));
 
-        InputStream str = Object.class.getResourceAsStream("Class.class");
-        assertNotNull("java.lang.Object couldn't find its class with getResource...", str);
-
-        assertTrue("Cannot read single byte", str.read() != -1);
-        assertEquals("Cannot read multiple bytes", 5, str.read(new byte[5]));
-        str.close();
-
-        InputStream str2 = getClass().getResourceAsStream("ClassTest.class");
-        assertNotNull("Can't find resource", str2);
         assertTrue("Cannot read single byte", str2.read() != -1);
         assertEquals("Cannot read multiple bytes", 5, str2.read(new byte[5]));
         str2.close();
