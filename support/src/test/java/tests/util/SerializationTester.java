@@ -32,31 +32,9 @@ import java.net.URL;
  * This class simplifies the serialization test.
  */
 public class SerializationTester {
-
-    /*
-      * --------------------------------------------------------------------
-      * Class variables
-      * --------------------------------------------------------------------
-      */
-
-    // the last deserialized object
-    private static Object lastOutput = null;
-
-    /*
-      * -------------------------------------------------------------------
-      * Constructors
-      * -------------------------------------------------------------------
-      */
-
     private SerializationTester() {
 
     }
-
-    /*
-      * -------------------------------------------------------------------
-      * Methods
-      * -------------------------------------------------------------------
-      */
 
     /**
      * Serialize an object and then deserialize it.
@@ -74,7 +52,6 @@ public class SerializationTester {
         ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
         ObjectInputStream ois = new ObjectInputStream(bis);
         Object outputObject = ois.readObject();
-        lastOutput = outputObject;
         ois.close();
         return outputObject;
     }
@@ -142,8 +119,7 @@ public class SerializationTester {
             throws Exception {
         InputStream input = null;
         ObjectInputStream oinput = null;
-        URL url = SerializationTester.class.getClassLoader().getResource(
-                fileName);
+        URL url = SerializationTester.class.getClassLoader().getResource(fileName);
         if (null == url) {
             // serialization file does not exist, create one in the current dir
             writeObject(obj, new File(fileName).getName());
@@ -212,20 +188,5 @@ public class SerializationTester {
                 // ignore
             }
         }
-    }
-
-    /**
-     * Gets the last deserialized object.
-     *
-     * @return the last deserialized object
-     */
-    public static Object getLastOutput() {
-        return lastOutput;
-    }
-
-    /*
-      * For test purpose.
-      */
-    public static void main(String[] args) {
     }
 }
