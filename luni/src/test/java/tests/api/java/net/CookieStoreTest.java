@@ -15,16 +15,14 @@
  */
 package tests.api.java.net;
 
+import junit.framework.TestCase;
 import java.net.CookieManager;
 import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.RandomAccess;
-
-import junit.framework.TestCase;
 
 public class CookieStoreTest extends TestCase {
 
@@ -40,12 +38,11 @@ public class CookieStoreTest extends TestCase {
         URI uri = new URI("http://harmony.test.unit.org");
         HttpCookie cookie = new HttpCookie("name1", "value1");
         cookie.setDiscard(true);
-        try {
-            cookieStore.add(null, cookie);
-            fail("should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
-        }
+
+        // This needn't throw. We should use the cookies domain, if set.
+        // If no domain is set, this cookie will languish in the store until
+        // it expires.
+        cookieStore.add(null, cookie);
 
         try {
             cookieStore.add(uri, null);
@@ -139,7 +136,6 @@ public class CookieStoreTest extends TestCase {
         URI uri1 = new URI("http://get.uri1.test.org");
         List<HttpCookie> list = cookieStore.get(uri1);
         assertTrue(list.isEmpty());
-        assertTrue(list instanceof ArrayList);
 
         HttpCookie cookie1 = new HttpCookie("cookie_name1", "cookie_value1");
         HttpCookie cookie2 = new HttpCookie("cookie_name2", "cookie_value2");
@@ -253,7 +249,6 @@ public class CookieStoreTest extends TestCase {
     public void test_getURIs() throws URISyntaxException {
         List<URI> list = cookieStore.getURIs();
         assertTrue(list.isEmpty());
-        assertTrue(list instanceof ArrayList);
 
         URI uri1 = new URI("http://geturis1.test.com");
         HttpCookie cookie1 = new HttpCookie("cookie_name1", "cookie_value1");
@@ -308,12 +303,16 @@ public class CookieStoreTest extends TestCase {
         cookieStore.add(uri2, cookie2);
         HttpCookie cookie3 = new HttpCookie("cookie_name3", "cookie_value3");
         assertFalse(cookieStore.remove(null, cookie3));
-        assertTrue(cookieStore.remove(null, cookie1));
+        // No guarantees on behaviour if we call remove with a different
+        // uri from the one originally associated with the cookie.
         assertFalse(cookieStore.remove(null, cookie1));
+        assertTrue(cookieStore.remove(uri1, cookie1));
+        assertFalse(cookieStore.remove(uri1, cookie1));
+
         assertEquals(2, cookieStore.getURIs().size());
         assertEquals(1, cookieStore.getCookies().size());
-        assertTrue(cookieStore.remove(null, cookie2));
-        assertFalse(cookieStore.remove(null, cookie2));
+        assertTrue(cookieStore.remove(uri2, cookie2));
+        assertFalse(cookieStore.remove(uri2, cookie2));
         assertEquals(2, cookieStore.getURIs().size());
         assertEquals(0, cookieStore.getCookies().size());
 
@@ -331,7 +330,7 @@ public class CookieStoreTest extends TestCase {
         cookieStore.add(uri2, cookie2);
         assertTrue(cookieStore.remove(uri1, cookie1));
         assertFalse(cookieStore.remove(uri1, cookie1));
-        assertFalse(cookieStore.get(uri2).contains(cookie1));
+        assertTrue(cookieStore.get(uri2).contains(cookie1));
         assertTrue(cookieStore.get(uri2).contains(cookie2));
         assertEquals(0, cookieStore.get(uri1).size());
         cookieStore.remove(uri2, cookie2);
@@ -340,8 +339,8 @@ public class CookieStoreTest extends TestCase {
         cookieStore.add(uri2, cookie2);
         cookieStore.add(uri1, cookie1);
         assertEquals(2, cookieStore.getCookies().size());
-        assertTrue(cookieStore.remove(uri2, cookie1));
         assertFalse(cookieStore.remove(uri2, cookie1));
+        assertTrue(cookieStore.remove(uri1, cookie1));
         assertEquals(2, cookieStore.getURIs().size());
         assertEquals(1, cookieStore.getCookies().size());
         assertTrue(cookieStore.getCookies().contains(cookie2));
@@ -369,9 +368,7 @@ public class CookieStoreTest extends TestCase {
      * @since 1.6
      */
     public void test_removeAll() throws URISyntaxException {
-        // Spec says returns true if this store changed as a result of the call.
-        // But RI always return true.
-        assertTrue(cookieStore.removeAll());
+        assertFalse(cookieStore.removeAll());
 
         URI uri1 = new URI("http://removeAll1.test.com");
         HttpCookie cookie1 = new HttpCookie("cookie_name1", "cookie_value1");
@@ -384,7 +381,7 @@ public class CookieStoreTest extends TestCase {
         assertTrue(cookieStore.getURIs().isEmpty());
         assertTrue(cookieStore.getCookies().isEmpty());
 
-        assertTrue(cookieStore.removeAll());
+        assertFalse(cookieStore.removeAll());
     }
 
     @Override
