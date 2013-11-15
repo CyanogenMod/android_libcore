@@ -635,11 +635,19 @@ public class TreeMapExtendTest extends TestCase {
         headMap = subMap_default.headMap(endKey);
         assertEquals(0, headMap.size());
 
-        headMap = subMap_startExcluded_endExcluded.headMap(endKey);
-        assertEquals(0, headMap.size());
+        try {
+            headMap = subMap_startExcluded_endExcluded.headMap(endKey);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
 
-        headMap = subMap_startExcluded_endIncluded.headMap(endKey);
-        assertEquals(0, headMap.size());
+        try {
+            headMap = subMap_startExcluded_endIncluded.headMap(endKey);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
 
         headMap = subMap_startIncluded_endExcluded.headMap(endKey);
         assertEquals(0, headMap.size());
@@ -759,11 +767,19 @@ public class TreeMapExtendTest extends TestCase {
         headMap = subMap_default_comparator.headMap(endKey);
         assertEquals(0, headMap.size());
 
-        headMap = subMap_startExcluded_endExcluded_comparator.headMap(endKey);
-        assertEquals(0, headMap.size());
+        try {
+            headMap = subMap_startExcluded_endExcluded_comparator.headMap(endKey);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
 
-        headMap = subMap_startExcluded_endIncluded_comparator.headMap(endKey);
-        assertEquals(0, headMap.size());
+        try {
+            headMap = subMap_startExcluded_endIncluded_comparator.headMap(endKey);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
 
         headMap = subMap_startIncluded_endExcluded_comparator.headMap(endKey);
         assertEquals(0, headMap.size());
@@ -2855,8 +2871,12 @@ public class TreeMapExtendTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // Expected
         }
-        subDecendingMap_Excluded = decendingMap.tailMap(endKey, false);
-        assertTrue(subDecendingMap_Excluded.isEmpty());
+        try {
+            decendingMap.tailMap(endKey, false);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
 
         endKey = new Integer(99).toString();
         try {
@@ -2927,8 +2947,12 @@ public class TreeMapExtendTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // Expected
         }
-        subDecendingMap_Excluded = decendingMap.tailMap(endKey, false);
-        assertTrue(subDecendingMap_Excluded.isEmpty());
+        try {
+            decendingMap.tailMap(endKey, false);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
 
         endKey = new Integer(99).toString();
         try {
@@ -3146,8 +3170,12 @@ public class TreeMapExtendTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // Expected
         }
-        subDecendingMap_Excluded = decendingMap.tailMap(endKey, false);
-        assertTrue(subDecendingMap_Excluded.isEmpty());
+        try {
+            decendingMap.tailMap(endKey, false);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
 
         endKey = new Integer(99).toString();
         try {
@@ -3218,8 +3246,12 @@ public class TreeMapExtendTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // Expected
         }
-        subDecendingMap_Excluded = decendingMap.tailMap(endKey, false);
-        assertTrue(subDecendingMap_Excluded.isEmpty());
+        try {
+            decendingMap.tailMap(endKey, false);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
 
         endKey = new Integer(99).toString();
         try {
@@ -5460,21 +5492,19 @@ public class TreeMapExtendTest extends TestCase {
         }
 
         endKey = new Integer(109).toString();
-        headSet = descendingKeySet.headSet(endKey);
-        iterator = headSet.iterator();
-        for (index = 108; iterator.hasNext(); index--) {
-            key = (String) iterator.next();
-            assertEquals(new Integer(index).toString(), key);
+        try {
+            headSet = descendingKeySet.headSet(endKey);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            // Expected
         }
-        assertEquals(108, index);
 
-        headSet = descendingKeySet.headSet(endKey, false);
-        iterator = headSet.iterator();
-        for (index = 108; iterator.hasNext(); index--) {
-            key = (String) iterator.next();
-            assertEquals(new Integer(index).toString(), key);
+        try {
+            descendingKeySet.headSet(endKey, false);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
         }
-        assertEquals(108, index);
 
         try {
             descendingKeySet.headSet(endKey, true);
@@ -5748,21 +5778,20 @@ public class TreeMapExtendTest extends TestCase {
         }
 
         endKey = new Integer(109).toString();
-        headSet = descendingKeySet.headSet(endKey);
-        iterator = headSet.iterator();
-        for (index = 108; iterator.hasNext(); index--) {
-            key = (String) iterator.next();
-            assertEquals(new Integer(index).toString(), key);
-        }
-        assertEquals(108, index);
 
-        headSet = descendingKeySet.headSet(endKey, false);
-        iterator = headSet.iterator();
-        for (index = 108; iterator.hasNext(); index--) {
-            key = (String) iterator.next();
-            assertEquals(new Integer(index).toString(), key);
+        try {
+            descendingKeySet.headSet(endKey);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
         }
-        assertEquals(108, index);
+
+        try {
+            descendingKeySet.headSet(endKey, false);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
 
         try {
             descendingKeySet.headSet(endKey, true);
@@ -6008,8 +6037,13 @@ public class TreeMapExtendTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // Expected
         }
-        tailSet = descendingKeySet.tailSet(startKey, false);
-        assertEquals(0, tailSet.size());
+
+        try {
+            descendingKeySet.tailSet(startKey, false);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
 
         startKey = new Integer(101).toString();
         tailSet = descendingKeySet.tailSet(startKey);
@@ -6143,8 +6177,12 @@ public class TreeMapExtendTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // Expected
         }
-        tailSet = descendingKeySet.tailSet(startKey, false);
-        assertEquals(0, tailSet.size());
+        try {
+            descendingKeySet.tailSet(startKey, false);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
 
         startKey = new Integer(101).toString();
         tailSet = descendingKeySet.tailSet(startKey);
@@ -8222,10 +8260,22 @@ public class TreeMapExtendTest extends TestCase {
         }
 
         endKey = new Integer(100).toString();
-        assertEquals(0, keySet.headSet(endKey).size());
-        assertEquals(0, keySet.headSet(endKey, false).size());
         try {
-            keySet.headSet(endKey, true).size();
+            keySet.headSet(endKey, false);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+
+        try {
+            keySet.headSet(endKey);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+
+        try {
+            keySet.headSet(endKey, true);
             fail("should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // Expected
@@ -8331,8 +8381,20 @@ public class TreeMapExtendTest extends TestCase {
         }
 
         endKey = new Integer(100).toString();
-        assertEquals(0, keySet.headSet(endKey).size());
-        assertEquals(0, keySet.headSet(endKey, false).size());
+        try {
+            keySet.headSet(endKey);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+
+        try {
+            keySet.headSet(endKey, false);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+
         try {
             keySet.headSet(endKey, true);
             fail("should throw IllegalArgumentException");
@@ -8736,8 +8798,20 @@ public class TreeMapExtendTest extends TestCase {
         }
 
         endKey = new Integer(100).toString();
-        assertEquals(0, keySet.headSet(endKey).size());
-        assertEquals(0, keySet.headSet(endKey, false).size());
+        try {
+            keySet.headSet(endKey).size();
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+
+        try {
+            keySet.headSet(endKey, false).size();
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+
         try {
             keySet.headSet(endKey, true).size();
             fail("should throw IllegalArgumentException");
@@ -8845,8 +8919,20 @@ public class TreeMapExtendTest extends TestCase {
         }
 
         endKey = new Integer(100).toString();
-        assertEquals(0, keySet.headSet(endKey).size());
-        assertEquals(0, keySet.headSet(endKey, false).size());
+        try {
+            keySet.headSet(endKey);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+
+        try {
+            keySet.headSet(endKey, false);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+
         try {
             keySet.headSet(endKey, true);
             fail("should throw IllegalArgumentException");
@@ -9365,13 +9451,12 @@ public class TreeMapExtendTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // Expected
         }
-        tailSet = keySet.tailSet(startKey, false);
-        iterator = tailSet.iterator();
-        for (index = 109; iterator.hasNext(); index++) {
-            key = (String) iterator.next();
-            assertEquals(new Integer(index + 1).toString(), key);
+        try {
+            keySet.tailSet(startKey, false);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
         }
-        assertEquals(109, index);
 
         startKey = new Integer(110).toString();
         try {
@@ -9623,13 +9708,12 @@ public class TreeMapExtendTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // Expected
         }
-        tailSet = keySet.tailSet(startKey, false);
-        iterator = tailSet.iterator();
-        for (index = 109; iterator.hasNext(); index++) {
-            key = (String) iterator.next();
-            assertEquals(new Integer(index + 1).toString(), key);
+        try {
+            keySet.tailSet(startKey, false);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
         }
-        assertEquals(109, index);
 
         startKey = new Integer(110).toString();
         try {
@@ -9956,13 +10040,12 @@ public class TreeMapExtendTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // Expected
         }
-        tailSet = keySet.tailSet(startKey, false);
-        iterator = tailSet.iterator();
-        for (index = 109; iterator.hasNext(); index++) {
-            key = (String) iterator.next();
-            assertEquals(new Integer(index + 1).toString(), key);
+        try {
+            keySet.tailSet(startKey, false);
+            fail("should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Expected
         }
-        assertEquals(109, index);
 
         startKey = new Integer(110).toString();
         try {

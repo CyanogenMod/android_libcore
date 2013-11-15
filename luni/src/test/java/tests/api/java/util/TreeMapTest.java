@@ -17,18 +17,13 @@
 
 package tests.api.java.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import org.apache.harmony.testframework.serialization.SerializationTest;
+import tests.support.Support_MapTest2;
+import tests.support.Support_UnmodifiableCollectionTest;
 import java.io.Serializable;
 import java.text.CollationKey;
 import java.text.Collator;
 import java.util.AbstractMap;
-import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -36,19 +31,13 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
-import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.Map.Entry;
-
-import org.apache.harmony.testframework.serialization.SerializationTest;
-
-import tests.support.Support_MapTest2;
-import tests.support.Support_UnmodifiableCollectionTest;
 
 public class TreeMapTest extends junit.framework.TestCase {
 
@@ -460,36 +449,10 @@ public class TreeMapTest extends junit.framework.TestCase {
     /**
      * java.util.TreeMap#put(java.lang.Object, java.lang.Object)
      */
-    public void test_putLjava_lang_ObjectLjava_lang_Object() {
+    public void test_remove_throwsWhenNotComparable() {
         // Test for method java.lang.Object
         // java.util.TreeMap.put(java.lang.Object, java.lang.Object)
         Object o = new Object();
-        tm.put("Hello", o);
-        assertTrue("Failed to put mapping", tm.get("Hello") == o);
-
-        // regression for Harmony-780
-        tm = new TreeMap();
-        assertNull(tm.put(new Object(), new Object()));
-        try {
-            tm.put(new Integer(1), new Object());
-            fail("should throw ClassCastException");
-        } catch (ClassCastException e) {
-            // expected
-        }
-
-        tm = new TreeMap();
-        assertNull(tm.put(new Integer(1), new Object()));
-
-        try {
-            tm.put(new Object(), new Object());
-            fail("Should throw a ClassCastException");
-        } catch (ClassCastException e) {
-            // expected
-        }
-
-        // regression for Harmony-2474
-        // but RI6 changes its behavior
-        // so the test changes too
         tm = new TreeMap();
         try {
             tm.remove(o);
@@ -589,11 +552,13 @@ public class TreeMapTest extends junit.framework.TestCase {
         SortedMap<String, String> sub = map.subMap("1", "3"); //$NON-NLS-1$ //$NON-NLS-2$
         assertEquals("2", sub.lastKey()); //$NON-NLS-1$
 
+        // NOTE: The contract of this method allows us to throw either
+        // an NPE or a class cast exception.
         TreeMap t = new TreeMap();
         try {
-            SortedMap th = t.subMap(null, new Object());
-            fail("Should throw a NullPointerException");
-        } catch (NullPointerException npe) {
+            t.subMap(null, new Object());
+            fail("Should throw a ClassCastException");
+        } catch (ClassCastException npe) {
             // expected
         }
     }
@@ -1038,7 +1003,6 @@ public class TreeMapTest extends junit.framework.TestCase {
         }
         tm.clear();
         assertNull(tm.lowerEntry(testint9999.toString()));
-        assertNull(tm.lowerEntry(null));
     }
 
     /**
@@ -1071,7 +1035,6 @@ public class TreeMapTest extends junit.framework.TestCase {
         }
         tm.clear();
         assertNull(tm.lowerKey(testint9999.toString()));
-        assertNull(tm.lowerKey(null));
     }
 
     /**
@@ -1105,7 +1068,6 @@ public class TreeMapTest extends junit.framework.TestCase {
         }
         tm.clear();
         assertNull(tm.floorEntry(testint9999.toString()));
-        assertNull(tm.floorEntry(null));
     }
 
     /**
@@ -1138,7 +1100,6 @@ public class TreeMapTest extends junit.framework.TestCase {
         }
         tm.clear();
         assertNull(tm.floorKey(testint9999.toString()));
-        assertNull(tm.floorKey(null));
     }
 
     /**
@@ -1171,7 +1132,6 @@ public class TreeMapTest extends junit.framework.TestCase {
         }
         tm.clear();
         assertNull(tm.ceilingEntry(testint.toString()));
-        assertNull(tm.ceilingEntry(null));
     }
 
     /**
@@ -1202,7 +1162,6 @@ public class TreeMapTest extends junit.framework.TestCase {
         }
         tm.clear();
         assertNull(tm.ceilingKey(testint.toString()));
-        assertNull(tm.ceilingKey(null));
     }
 
     /**
@@ -1241,7 +1200,6 @@ public class TreeMapTest extends junit.framework.TestCase {
         }
         tm.clear();
         assertNull(tm.higherEntry(testint.toString()));
-        assertNull(tm.higherEntry(null));
     }
 
     /**
@@ -1280,7 +1238,6 @@ public class TreeMapTest extends junit.framework.TestCase {
         }
         tm.clear();
         assertNull(tm.higherKey(testint.toString()));
-        assertNull(tm.higherKey(null));
     }
 
     public void test_navigableKeySet() throws Exception {
@@ -1464,30 +1421,25 @@ public class TreeMapTest extends junit.framework.TestCase {
                 if (o1 == null) {
                     return -1;
                 }
+                if (o2 == null) {
+                    return 1;
+                }
                 return ((String) o1).compareTo((String) o2);
             }
         });
+        tm.put(null, -1);
         tm.put(new String("1st"), 1);
         tm.put(new String("2nd"), 2);
         tm.put(new String("3rd"), 3);
-        String nullKey = null;
-        tm.put(nullKey, -1);
         SortedMap s = tm.subMap(null, "3rd");
         assertEquals(3, s.size());
         assertTrue(s.containsValue(-1));
         assertTrue(s.containsValue(1));
         assertTrue(s.containsValue(2));
         assertFalse(s.containsKey(null));
-        // RI fails here
-        // assertTrue(s.containsKey("1st"));
-        // assertTrue(s.containsKey("2nd"));
+
         s = tm.descendingMap();
         s = s.subMap("3rd", null);
-        // assertEquals(4, s.size());
-//        assertTrue(s.containsValue(-1));
-//        assertTrue(s.containsValue(1));
-//        assertTrue(s.containsValue(2));
-//        assertTrue(s.containsValue(3));
         assertFalse(s.containsKey(null));
         assertTrue(s.containsKey("1st"));
         assertTrue(s.containsKey("2nd"));
@@ -1631,16 +1583,21 @@ public class TreeMapTest extends junit.framework.TestCase {
         assertEquals("Size of subMap should be 2:", 2, subMapWithNull.size()); //$NON-NLS-1$
 
         // head map of head map
-        NavigableMap<Integer, Object> mapIntObj = new TreeMap<Integer, Object>();
+        NavigableMap<Integer, Object> original = new TreeMap<Integer, Object>();
         for (int i = 0; i < 10; ++i) {
-            mapIntObj.put(i, new Object());
+            original.put(i, new Object());
         }
-        mapIntObj = mapIntObj.headMap(5, false);
+        NavigableMap<Integer, Object> mapIntObj = original.headMap(5, false);
         assertEquals(5, mapIntObj.size());
         mapIntObj = mapIntObj.headMap(5, false);
         assertEquals(5, mapIntObj.size());
-        mapIntObj = mapIntObj.tailMap(5, false);
-        assertEquals(0, mapIntObj.size());
+        try {
+            mapIntObj = mapIntObj.tailMap(5, false);
+            fail("IllegalArgumentException expected: key falls outside restricted range");
+        } catch (IllegalArgumentException expected) {
+        }
+
+        assertEquals(0, original.headMap(0, false).size());
     }
 
     /**
@@ -1746,16 +1703,21 @@ public class TreeMapTest extends junit.framework.TestCase {
         assertEquals("Size of subMap should be 2:", 2, subMapWithNull.size()); //$NON-NLS-1$
 
         // tail map of tail map
-        NavigableMap<Integer, Object> mapIntObj = new TreeMap<Integer, Object>();
+        NavigableMap<Integer, Object> original = new TreeMap<Integer, Object>();
         for (int i = 0; i < 10; ++i) {
-            mapIntObj.put(i, new Object());
+            original.put(i, new Object());
         }
-        mapIntObj = mapIntObj.tailMap(5, false);
+        NavigableMap<Integer, Object> mapIntObj = original.tailMap(5, false);
         assertEquals(4, mapIntObj.size());
         mapIntObj = mapIntObj.tailMap(5, false);
         assertEquals(4, mapIntObj.size());
-        mapIntObj = mapIntObj.headMap(5, false);
-        assertEquals(0, mapIntObj.size());
+        try {
+            mapIntObj = mapIntObj.headMap(5, false);
+            fail("IllegalArgumentException expected: key falls outside restricted range");
+        } catch (IllegalArgumentException expected) {
+        }
+
+        assertEquals(0, original.headMap(0, false).size());
     }
 
     public void test_descendingMap_subMap() throws Exception {
@@ -1786,61 +1748,21 @@ public class TreeMapTest extends junit.framework.TestCase {
         assertEquals(4, subMapIntObj.size());
         subMapIntObj = subMapIntObj.headMap(5, false);
         assertEquals(4, subMapIntObj.size());
-        subMapIntObj = subMapIntObj.tailMap(5, false);
-        assertEquals(0, subMapIntObj.size());
+        try {
+            subMapIntObj = subMapIntObj.tailMap(5, false);
+            fail("IllegalArgumentException expected: key falls outside restricted range");
+        } catch (IllegalArgumentException expected) {
+        }
 
         subMapIntObj = mapIntObj.tailMap(5, false);
         assertEquals(5, subMapIntObj.size());
         subMapIntObj = subMapIntObj.tailMap(5, false);
         assertEquals(5, subMapIntObj.size());
-        subMapIntObj = subMapIntObj.headMap(5, false);
-        assertEquals(0, subMapIntObj.size());
-    }
-
-    /**
-     * This test is about an old bug of RI.The bug is that: if the TreeMap has
-     * no comparator or its comparator is not null-tolerable, it can not put a
-     * null-key entry into this TreeMap.But RI can do it when the TreeMap is
-     * empty, and can not do it when the TreeMap is not empty.It is best for
-     * Harmony to follow RI's behavior for legacy reason. This test is to test
-     * the "illegal" TreeMap with the first null key. It can be easily removed
-     * when the bug is fixed in the future.
-     */
-    public void test_illegalFirstNullKey() {
-        // if the comparator is null
-        TreeMap<String, String> map = new TreeMap<String, String>();
-        map.put((String) null, "NullValue");
-        illegalFirstNullKeyMapTester(map);
-        //illegalFirstNullKeyMapTester(map.descendingMap());
-
-        // if the comparator is not null, but do not permit null key
-        map = new TreeMap<String, String>(new Comparator<String>() {
-            public int compare(String object1, String object2) {
-                return object1.compareTo(object2);
-            }
-        });
-        map.put((String) null, "NullValue");
-        illegalFirstNullKeyMapTester(map);
-        //illegalFirstNullKeyMapTester(map.descendingMap());
-
-        // add a few more testcases here based on this situation
-        TreeMap<Integer, String> map2 = new TreeMap<Integer, String>();
-        map2.put(null, "");
-        map2.firstEntry();
         try {
-            map2.headMap(100).firstKey();
-            fail("should throw NPE");
-        } catch (NullPointerException e) {
-            // expected
+            subMapIntObj = subMapIntObj.headMap(5, false);
+            fail("IllegalArgumentException expected: key falls outside restricted range");
+        } catch (IllegalArgumentException expected) {
         }
-        try {
-            map2.tailMap(100).firstKey();
-            fail("should throw NPE");
-        } catch (NullPointerException e) {
-            // expected
-        }
-        // can pass
-        map2.lastEntry();
     }
 
     private void illegalFirstNullKeyMapTester(NavigableMap<String, String> map) {
@@ -1944,14 +1866,17 @@ public class TreeMapTest extends junit.framework.TestCase {
         m2.put(new Object(), "val");
         assertFalse("Maps should not be equal 3", m1.equals(m2));
         assertFalse("Maps should not be equal 4", m2.equals(m1));
+    }
 
+    public void test_invalidKeys() throws Exception {
         // comparing TreeMaps with not-comparable objects inside
-        m1 = new TreeMap();
-        m2 = new TreeMap();
-        m1.put(new Object(), "val1");
-        m2.put(new Object(), "val1");
-        assertFalse("Maps should not be equal 5", m1.equals(m2));
-        assertFalse("Maps should not be equal 6", m2.equals(m1));
+        TreeMap m1 = new TreeMap();
+        try {
+            m1.put(new Object(), "val1");
+            fail("ClassCastException expected");
+        } catch (ClassCastException expected) {
+
+        }
     }
 
     public void test_remove_from_iterator() throws Exception {
