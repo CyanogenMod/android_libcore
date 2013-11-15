@@ -752,19 +752,19 @@
 {
   description: "we don't support the CharsetProvider spi, so we don't have \"mockCharset00\".",
   result: EXEC_FAILED,
-  name: "tests.api.java.nio.charset.CharsetTest#test_availableCharsets",
+  name: "org.apache.harmony.tests.java.nio.charset.CharsetTest#test_availableCharsets",
   substring: "junit.framework.AssertionFailedError"
 },
 {
   description: "we don't support the CharsetProvider spi, so we don't have \"mockCharset00\".",
   result: EXEC_FAILED,
-  name: "tests.api.java.nio.charset.CharsetTest#test_forNameLString",
+  name: "org.apache.harmony.tests.java.nio.charset.CharsetTest#test_forNameLString",
   substring: "java.nio.charset.UnsupportedCharsetException: mockCharset00"
 },
 {
   description: "the average length of possible UTF-8 sequences is 2 bytes.",
   result: EXEC_FAILED,
-  name: "tests.api.java.nio.charset.UTFCharsetEncoderTest#testSpecificDefaultValue",
+  name: "org.apache.harmony.tests.java.nio.charset.UTFCharsetEncoderTest#testSpecificDefaultValue",
   substring: "junit.framework.AssertionFailedError: expected:<1.1> but was:<2.0>"
 },
 {
