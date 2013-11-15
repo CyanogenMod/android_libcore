@@ -17,18 +17,15 @@
 
 package tests.api.java.io;
 
+import junit.framework.TestCase;
+import tests.support.Support_PlatformFile;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.security.Permission;
-
-import junit.framework.TestCase;
-import tests.support.Support_PlatformFile;
 
 public class FileInputStreamTest extends TestCase {
 
@@ -123,26 +120,16 @@ public class FileInputStreamTest extends TestCase {
         // Regression test for HARMONY-6642
         FileInputStream fis1 = new FileInputStream(fileName);
         FileInputStream fis2 = new FileInputStream(fis1.getFD());
+
         try {
             fis2.close();
+            // Should not throw, since the FD is owned by fis1.
             fis1.read();
-            fail("fd sharing error");
-        } catch (IOException expected) {
         } finally {
             try {
                 fis1.close();
             } catch (IOException e) {
             }
-        }
-
-        // TODO: how does this differ from the test above?
-        FileInputStream stdin = new FileInputStream(FileDescriptor.in);
-        stdin.close();
-        stdin = new FileInputStream(FileDescriptor.in);
-        try {
-            stdin.read();
-            fail();
-        } catch (IOException expected) {
         }
     }
 
