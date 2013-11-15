@@ -5,10 +5,10 @@
 {
   description: "four known CharsetDecoder-/CharsetEncoder-related failures",
   names: [
-    "org.apache.harmony.nio_char.tests.java.nio.charset.ASCIICharsetEncoderTest#testCanEncodeSurrogate",
-    "org.apache.harmony.nio_char.tests.java.nio.charset.ASCIICharsetEncoderTest#testMultiStepEncode",
-    "org.apache.harmony.nio_char.tests.java.nio.charset.CharsetDecoderTest#testInvalidDecoding",
-    "org.apache.harmony.nio_char.tests.java.nio.charset.CharsetDecoderTest#test_decode"
+    "org.apache.harmony.tests.java.nio.charset.ASCIICharsetEncoderTest#testCanEncodeSurrogate",
+    "org.apache.harmony.tests.java.nio.charset.ASCIICharsetEncoderTest#testMultiStepEncode",
+    "org.apache.harmony.tests.java.nio.charset.CharsetDecoderTest#testInvalidDecoding",
+    "org.apache.harmony.tests.java.nio.charset.CharsetDecoderTest#test_decode"
   ],
   bug: 10729779
 },
@@ -234,15 +234,15 @@
   names: [
     "libcore.java.nio.charset.CharsetEncoderTest#test_defaultReplacementBytesUtf_16",
     "libcore.java.nio.charset.OldCharset_MultiByte_UTF_16#test_Encode",
-    "tests.api.java.nio.charset.CharsetTest#test_UTF_16",
-    "tests.api.java.nio.charset.CharsetTest#test_UTF_16BE",
-    "tests.api.java.nio.charset.CharsetTest#test_UTF_16LE",
-    "tests.api.java.nio.charset.CharsetTest#test_UTF_32",
-    "tests.api.java.nio.charset.CharsetTest#test_UTF_32BE",
-    "tests.api.java.nio.charset.CharsetTest#test_UTF_32LE",
-    "tests.api.java.nio.charset.CharsetTest#test_x_UTF_16LE_BOM",
-    "tests.api.java.nio.charset.CharsetTest#test_X_UTF_32BE_BOM",
-    "tests.api.java.nio.charset.CharsetTest#test_X_UTF_32LE_BOM"
+    "org.apache.harmony.tests.java.nio.charset.CharsetTest#test_UTF_16",
+    "org.apache.harmony.tests.java.nio.charset.CharsetTest#test_UTF_16BE",
+    "org.apache.harmony.tests.java.nio.charset.CharsetTest#test_UTF_16LE",
+    "org.apache.harmony.tests.java.nio.charset.CharsetTest#test_UTF_32",
+    "org.apache.harmony.tests.java.nio.charset.CharsetTest#test_UTF_32BE",
+    "org.apache.harmony.tests.java.nio.charset.CharsetTest#test_UTF_32LE",
+    "org.apache.harmony.tests.java.nio.charset.CharsetTest#test_x_UTF_16LE_BOM",
+    "org.apache.harmony.tests.java.nio.charset.CharsetTest#test_X_UTF_32BE_BOM",
+    "org.apache.harmony.tests.java.nio.charset.CharsetTest#test_X_UTF_32LE_BOM"
   ],
   bug: 2702411
 },
