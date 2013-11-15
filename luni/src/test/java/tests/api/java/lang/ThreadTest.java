@@ -18,7 +18,6 @@
 package tests.api.java.lang;
 
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.security.Permission;
 import java.util.Map;
 
 public class ThreadTest extends junit.framework.TestCase {
@@ -274,16 +273,11 @@ public class ThreadTest extends junit.framework.TestCase {
         assertNotNull(Thread.currentThread());
     }
 
-    /**
-     * java.lang.Thread#destroy()
-     */
-    @SuppressWarnings("deprecation")
-    public void test_destroy() {
+    public void test_destroy_throwsUnsupportedOperationException() {
         try {
             new Thread().destroy();
-            // FIXME uncomment when IBM VME is updated
-            //fail("NoSuchMethodError was not thrown");
-        } catch (NoSuchMethodError e) {
+            fail();
+        } catch (UnsupportedOperationException expected) {
         }
     }
 

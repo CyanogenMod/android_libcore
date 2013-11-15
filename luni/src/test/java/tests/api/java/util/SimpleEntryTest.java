@@ -16,22 +16,34 @@
  */
 package tests.api.java.util;
 
-import java.util.AbstractMap;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Map.Entry;
-
 import junit.framework.TestCase;
-
 import org.apache.harmony.testframework.serialization.SerializationTest;
-
 import tests.util.SerializationTester;
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 public class SimpleEntryTest extends TestCase {
     public void test_SimpleEntry_Constructor_K_V() throws Exception {
         new AbstractMap.SimpleEntry<Integer, String>(1, "test");
         new AbstractMap.SimpleEntry(null, null);
+    }
+
+    static class NullEntry implements Entry {
+
+        public Object getKey() {
+            return null;
+        }
+
+        public Object getValue() {
+            return null;
+        }
+
+        public Object setValue(Object object) {
+            return null;
+        }
     }
 
     public void test_SimpleEntry_Constructor_LEntry() throws Exception {
@@ -42,9 +54,8 @@ public class SimpleEntryTest extends TestCase {
         assertEquals(1, testEntry.getKey());
         assertEquals("test", testEntry.getValue());
         map.clear();
-        map.put(null, null);
-        entryToPut = (Entry) map.entrySet().iterator().next();
-        testEntry = new AbstractMap.SimpleEntry(entryToPut);
+
+        testEntry = new AbstractMap.SimpleEntry(new NullEntry());
         assertNull(testEntry.getKey());
         assertNull(testEntry.getValue());
         try {
@@ -117,6 +128,6 @@ public class SimpleEntryTest extends TestCase {
     @SuppressWarnings({ "unchecked", "boxing" })
     public void testSerializationCompatibility_SimpleEntry() throws Exception {
         SimpleEntry e = new AbstractMap.SimpleEntry<Integer, String>(1, "test");
-        SerializationTester.assertCompabilityEquals(e, "serialization/java/util/AbstractMapTest_SimpleEntry.golden.ser");
+        SerializationTester.assertCompabilityEquals(e, "serialization/tests/api/java/util/AbstractMapTest_SimpleEntry.golden.ser");
     }
 }
