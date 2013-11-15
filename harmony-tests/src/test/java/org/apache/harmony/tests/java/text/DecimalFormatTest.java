@@ -1726,7 +1726,7 @@ public class DecimalFormatTest extends TestCase {
 
         try {
             oinput = new ObjectInputStream(this.getClass().getResource(
-                    "/serialization/java/text/DecimalFormat.ser").openStream());
+                    "/serialization/org/apache/harmony/tests/java/text/DecimalFormat.ser").openStream());
             deserializedDF = (DecimalFormat) oinput.readObject();
         } finally {
             try {

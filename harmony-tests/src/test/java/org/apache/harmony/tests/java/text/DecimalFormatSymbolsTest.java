@@ -484,7 +484,7 @@ public class DecimalFormatSymbolsTest extends TestCase {
         ObjectInputStream i = null;
         try {
             i = new ObjectInputStream(getClass().getClassLoader().getResourceAsStream(
-                    "/serialization/java/text/DecimalFormatSymbols.ser"));
+                    "serialization/org/apache/harmony/tests/java/text/DecimalFormatSymbols.ser"));
             dfs = (DecimalFormatSymbols) i.readObject();
         } finally {
             try {
