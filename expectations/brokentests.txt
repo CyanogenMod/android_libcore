@@ -850,5 +850,33 @@
   result: EXEC_FAILED,
   name: "java.io.FileOutputStream.FileOpenPos",
   substring: "java.lang.ArrayIndexOutOfBoundsException"
+},
+{
+  description: "Some tests depend on ICU data, which has changed. Others make assumptions about floating point rounding",
+  result: EXEC_FAILED,
+  names: [
+    "tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_BigDecimalExceptionOrder",
+    "tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_DateTimeConversion",
+    "tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_FloatConversionE",
+    "tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_FloatConversionF",
+    "tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_FloatConversionG",
+    "tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_FloatDoubleBigDecimalExceptionOrder",
+    "tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_GeneralConversionOther",
+    "tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_LineSeparator",
+    "tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_Percent",
+    "tests.api.java.util.FormatterTest#test_formatLjava_lang_String$Ljava_lang_Object_Width"
+  ]
+},
+{
+  description: "(Needs investigation) Some tests make assertions that don't make sense, others use broken port allocation logic.",
+  result: EXEC_FAILED,
+  names: [
+    "tests.api.java.net.Inet6AddressTest#test_getByNameLjava_lang_String",
+    "tests.api.java.net.InetAddressTest#test_equalsLjava_lang_Object",
+    "tests.api.java.net.InetAddressTest#test_getByNameLjava_lang_String",
+    "tests.api.java.net.InetAddressTest#test_isReachableLjava_net_NetworkInterfaceII_loopbackInterface",
+    "tests.api.java.net.MulticastSocketTest#test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface",
+    "tests.api.java.net.MulticastSocketTest#test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv4"
+  ]
 }
 ]
