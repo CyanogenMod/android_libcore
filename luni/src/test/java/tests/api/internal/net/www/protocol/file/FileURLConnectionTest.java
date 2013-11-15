@@ -16,12 +16,10 @@
  */
 package tests.api.internal.net.www.protocol.file;
 
+import junit.framework.TestCase;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-
-import junit.framework.TestCase;
-
 import libcore.net.url.FileURLConnection;
 
 /**
@@ -30,7 +28,7 @@ import libcore.net.url.FileURLConnection;
 public class FileURLConnectionTest extends TestCase {
 
     static String getContentType(String fileName) throws IOException {
-        String resourceName = "org/apache/harmony/luni/tests/" + fileName;
+        String resourceName = "resources/" + fileName;
         URL url = ClassLoader.getSystemClassLoader().getResource(resourceName);
         assertNotNull("Cannot find test resource " + resourceName, url);
         return new FileURLConnection(url).getContentType();
@@ -49,8 +47,9 @@ public class FileURLConnectionTest extends TestCase {
 
     public void testGetInputStream() throws IOException {
         // Regression for Harmony-5737
-        String resourceName = "org/apache/harmony/luni/tests/" + "test.rtf";
+        String resourceName = "resources/" + "test.rtf";
         URL url = ClassLoader.getSystemClassLoader().getResource(resourceName);
+        assertNotNull(url);
         URL anchorUrl = new URL(url, "#anchor");
         assertNotNull("Cannot find test resource " + resourceName, anchorUrl);
 
@@ -66,14 +65,13 @@ public class FileURLConnectionTest extends TestCase {
     }
 
     public void testHeaderFunctions() throws IOException {
-        String resourceName = "org/apache/harmony/luni/tests/";  //folder name
+        String resourceName = "resources/test.rtf";  //folder name
         URL url = ClassLoader.getSystemClassLoader().getResource(resourceName);
         FileURLConnection conn = new FileURLConnection(url);
         assertNotNull(conn.getInputStream());
         assertEquals(conn.getContentType(), conn.getHeaderField("content-type"));
 
-        resourceName = "org/apache/harmony/luni/tests/" + "test.rtf";
-        ;  //folder name
+        resourceName = "resources/" + "test.rtf";
         url = ClassLoader.getSystemClassLoader().getResource(resourceName);
         conn = new FileURLConnection(url);
         assertNotNull(conn.getInputStream());
@@ -88,7 +86,7 @@ public class FileURLConnectionTest extends TestCase {
     }
 
     public void testHeader_BoundaryCheck() throws IOException {
-        String resourceName = "org/apache/harmony/luni/tests/";
+        String resourceName = "resources/test.rtf";
         URL url = ClassLoader.getSystemClassLoader().getResource(resourceName);
         URLConnection urlConnection = url.openConnection();
         assertNull(urlConnection.getHeaderField(Integer.MIN_VALUE));
