@@ -277,7 +277,7 @@
   description: "It's not allowed to pass null as parent class loader to a new ClassLoader anymore. Maybe we need
                 to change URLClassLoader to allow this? It's not specified.",
   result: EXEC_FAILED,
-  name: "org.apache.harmony.tests.java.util.ResourceBundleTest#test_getBundleLjava_lang_StringLjava_util_LocaleLjava_lang_ClassLoader"
+  name: "tests.api.java.util.ResourceBundleTest#test_getBundleLjava_lang_StringLjava_util_LocaleLjava_lang_ClassLoader"
 },
 {
   description: "Fails (probably) because no protection domain is set.",
@@ -298,7 +298,7 @@
 {
   description: "Android doesn't support protection domains.",
   result: EXEC_FAILED,
-  name: "org.apache.harmony.tests.java.security.PermissionCollectionTest#test_impliesLjava_security_Permission"
+  name: "tests.api.java.security.PermissionCollectionTest#test_impliesLjava_security_Permission"
 },
 {
   description: "Android doesn't allow null parent.",
@@ -1688,75 +1688,75 @@
 {
   description: "getExceptionTypes() error when throws clause contains an exception and its sublcass",
   bug: 11647146,
-  name: "org.apache.harmony.tests.java.lang.reflect.ProxyTest#test_ProxyClass_withParentAndSubInThrowList"
+  name: "tests.api.java.lang.reflect.ProxyTest#test_ProxyClass_withParentAndSubInThrowList"
 },
 {
   description: "Known failures in dealing with # in file / jar URLs",
   bug: 11664881,
   names: [
-    "org.apache.harmony.tests.internal.net.www.protocol.file.FileURLConnectionTest#testGetContentType",
-    "org.apache.harmony.tests.internal.net.www.protocol.file.FileURLConnectionTest#testGetInputStream",
-    "org.apache.harmony.tests.internal.net.www.protocol.file.FileURLConnectionTest#testHeaderFunctions",
-    "org.apache.harmony.tests.java.lang.ClassLoaderTest#test_getResourceAsStream_withSharpChar",
-    "org.apache.harmony.tests.java.lang.ClassTest#test_getResourceAsStream_withSharpChar"
+    "tests.api.internal.net.www.protocol.file.FileURLConnectionTest#testGetContentType",
+    "tests.api.internal.net.www.protocol.file.FileURLConnectionTest#testGetInputStream",
+    "tests.api.internal.net.www.protocol.file.FileURLConnectionTest#testHeaderFunctions",
+    "tests.api.java.lang.ClassLoaderTest#test_getResourceAsStream_withSharpChar",
+    "tests.api.java.lang.ClassTest#test_getResourceAsStream_withSharpChar"
   ]
 },
 {
   description: "Known failures in InputStreamReaderTest & OutputStreamWriterTest",
   bug: 11665359,
   names: [
-    "org.apache.harmony.tests.java.io.InputStreamReaderTest#test_getEncoding",
-    "org.apache.harmony.tests.java.io.InputStreamReaderTest#test_read_1",
-    "org.apache.harmony.tests.java.io.InputStreamReaderTest#test_read_specialCharset",
-    "org.apache.harmony.tests.java.io.OutputStreamWriterTest#test_getEncoding"
+    "tests.api.java.io.InputStreamReaderTest#test_getEncoding",
+    "tests.api.java.io.InputStreamReaderTest#test_read_1",
+    "tests.api.java.io.InputStreamReaderTest#test_read_specialCharset",
+    "tests.api.java.io.OutputStreamWriterTest#test_getEncoding"
   ]
 },
 {
   description: "Known failures in PipedInputStreamTest & PipedWriterTest",
   bug: 11666814,
   names: [
-    "org.apache.harmony.tests.java.io.PipedInputStreamTest#test_receive",
-    "org.apache.harmony.tests.java.io.PipedWriterTest#test_flushAfterClose"
+    "tests.api.java.io.PipedInputStreamTest#test_receive",
+    "tests.api.java.io.PipedWriterTest#test_flushAfterClose"
   ]
 },
 {
   description: "Known failures in SerializationStressTest",
   bug: 11668227,
   names: [
-    "org.apache.harmony.tests.java.io.SerializationStressTest3#test_18_113_writeObject",
-    "org.apache.harmony.tests.java.io.SerializationStressTest3#test_18_115_writeObject",
-    "org.apache.harmony.tests.java.io.SerializationStressTest4#test_writeObject_Collections_UnmodifiableMap_UnmodifiableEntrySet"
+    "tests.api.java.io.SerializationStressTest3#test_18_113_writeObject",
+    "tests.api.java.io.SerializationStressTest3#test_18_115_writeObject",
+    "tests.api.java.io.SerializationStressTest4#test_writeObject_Collections_UnmodifiableMap_UnmodifiableEntrySet"
   ]
 },
 {
   description: "Known failure in MathTest 1^NAN should be NAN",
   bug: 11669804,
-  name: "org.apache.harmony.tests.java.lang.MathTest#test_powDD"
+  name: "tests.api.java.lang.MathTest#test_powDD"
 },
 {
   description: "Known failures in PropertiesTest: We don't deal with comments in store()",
   bug: 11686302,
   names: [
-    "org.apache.harmony.tests.java.util.PropertiesTest#testStore_scenario0",
-    "org.apache.harmony.tests.java.util.PropertiesTest#testStore_scenario1",
-    "org.apache.harmony.tests.java.util.PropertiesTest#testStore_scenario2",
-    "org.apache.harmony.tests.java.util.PropertiesTest#testStore_scenario3",
-    "org.apache.harmony.tests.java.util.PropertiesTest#testStore_scenario9",
-    "org.apache.harmony.tests.java.util.PropertiesTest#testStore_scenario11"
+    "tests.api.java.util.PropertiesTest#testStore_scenario0",
+    "tests.api.java.util.PropertiesTest#testStore_scenario1",
+    "tests.api.java.util.PropertiesTest#testStore_scenario2",
+    "tests.api.java.util.PropertiesTest#testStore_scenario3",
+    "tests.api.java.util.PropertiesTest#testStore_scenario9",
+    "tests.api.java.util.PropertiesTest#testStore_scenario11"
   ]
 },
 {
   description: "Known failures in URLTest and URLDecoderTest",
   bug: 11686814,
   names: [
-    "org.apache.harmony.tests.java.net.URLTest#test_ConstructorLjava_net_URLLjava_lang_String",
-    "org.apache.harmony.tests.java.net.URLTest#test_sameFileLjava_net_URL",
-    "org.apache.harmony.tests.java.net.URLDecoderTest#test_decodeLjava_lang_String_Ljava_lang_String"
+    "tests.api.java.net.URLTest#test_ConstructorLjava_net_URLLjava_lang_String",
+    "tests.api.java.net.URLTest#test_sameFileLjava_net_URL",
+    "tests.api.java.net.URLDecoderTest#test_decodeLjava_lang_String_Ljava_lang_String"
   ]
 },
 {
   description: "Known failure in CookieManagerTest",
   bug: 11689102,
-  name: "org.apache.harmony.tests.java.net.CookieManagerTest#test_Put_Get_LURI_LMap"
+  name: "tests.api.java.net.CookieManagerTest#test_Put_Get_LURI_LMap"
 }
 ]
