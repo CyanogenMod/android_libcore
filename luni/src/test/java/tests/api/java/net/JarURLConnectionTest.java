@@ -17,6 +17,7 @@
 
 package tests.api.java.net;
 
+import tests.support.resource.Support_Resources;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,22 +34,29 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import tests.support.resource.Support_Resources;
-
 public class JarURLConnectionTest extends junit.framework.TestCase {
 
     JarURLConnection juc;
 
     URLConnection uc;
 
-    private static final String BASE =
-            "file:resources/org/apache/harmony/luni/tests/java/net/lf.jar";
+    private URL copyAndOpenResourceStream(String jarFile, String inFile)
+            throws MalformedURLException {
+
+        File resources = Support_Resources.createTempFolder();
+
+        Support_Resources.copyFile(resources, "net", jarFile);
+        File file = new File(resources.toString() + "/net/" + jarFile);
+
+        return new URL("jar:file:" + file.getPath() + "!/" + inFile);
+    }
+
 
     /**
      * java.net.JarURLConnection#getAttributes()
      */
     public void test_getAttributes() throws Exception {
-        URL u = new URL("jar:" + BASE + "!/swt.dll");
+        URL u = copyAndOpenResourceStream("lf.jar", "swt.dll");
 
         juc = (JarURLConnection) u.openConnection();
         java.util.jar.Attributes a = juc.getJarEntry().getAttributes();
@@ -61,15 +69,15 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
      * java.net.JarURLConnection#getEntryName()
      */
     public void test_getEntryName() throws Exception {
-        URL u = new URL("jar:" + BASE + "!/plus.bmp");
+        URL u = copyAndOpenResourceStream("lf.jar", "plus.bmp");
         juc = (JarURLConnection) u.openConnection();
         assertEquals("Returned incorrect entryName", "plus.bmp", juc
                 .getEntryName());
-        u = new URL("jar:" + BASE + "!/");
+        u = copyAndOpenResourceStream("lf.jar", "");
         juc = (JarURLConnection) u.openConnection();
         assertNull("Returned incorrect entryName", juc.getEntryName());
 //      Regression test for harmony-3053
-        URL url = new URL("jar:file:///bar.jar!/foo.jar!/Bugs/HelloWorld.class");
+        URL url = copyAndOpenResourceStream("lf.jar", "foo.jar!/Bugs/HelloWorld.class");
         assertEquals("foo.jar!/Bugs/HelloWorld.class", ((JarURLConnection) url.openConnection()).getEntryName());
     }
 
@@ -77,11 +85,11 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
      * java.net.JarURLConnection#getJarEntry()
      */
     public void test_getJarEntry() throws Exception {
-        URL u = new URL("jar:" + BASE + "!/plus.bmp");
+        URL u = copyAndOpenResourceStream("lf.jar", "plus.bmp");
         juc = (JarURLConnection) u.openConnection();
         assertEquals("Returned incorrect JarEntry", "plus.bmp", juc
                 .getJarEntry().getName());
-        u = new URL("jar:" + BASE + "!/");
+        u = copyAndOpenResourceStream("lf.jar", "");
         juc = (JarURLConnection) u.openConnection();
         assertNull("Returned incorrect JarEntry", juc.getJarEntry());
     }
@@ -90,8 +98,7 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
      * java.net.JarURLConnection#getJarFile()
      */
     public void test_getJarFile() throws MalformedURLException, IOException {
-        URL url = null;
-        url = new URL("jar:" + BASE + "!/missing");
+        URL url = copyAndOpenResourceStream("lf.jar", "missing");
 
         JarURLConnection connection = null;
         connection = (JarURLConnection) url.openConnection();
@@ -121,7 +128,6 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         assertTrue("file: JarFiles not the same", jf1 == jf2);
         jf1.close();
         assertTrue("File should exist", file.exists());
-        new URL("jar:" + BASE + "!/");
         con1 = (JarURLConnection) fUrl1.openConnection();
         jf1 = con1.getJarFile();
         con2 = (JarURLConnection) fUrl1.openConnection();
@@ -182,22 +188,16 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
      * java.net.JarURLConnection#getJarFileURL()
      */
     public void test_getJarFileURL() throws Exception {
-        URL fileURL = new URL(BASE);
-        URL u = new URL("jar:" + BASE + "!/plus.bmp");
-        juc = (JarURLConnection) u.openConnection();
-        assertEquals("Returned incorrect file URL",
-                fileURL, juc.getJarFileURL());
-
         // Regression test for harmony-3053
         URL url = new URL("jar:file:///bar.jar!/foo.jar!/Bugs/HelloWorld.class");
-        assertEquals("file:/bar.jar", ((JarURLConnection) url.openConnection()).getJarFileURL().toString());
+        assertEquals("file:///bar.jar", ((JarURLConnection) url.openConnection()).getJarFileURL().toString());
     }
 
     /**
      * java.net.JarURLConnection#getMainAttributes()
      */
     public void test_getMainAttributes() throws Exception {
-        URL u = new URL("jar:" + BASE + "!/swt.dll");
+        URL u = copyAndOpenResourceStream("lf.jar", "swt.dll");
         juc = (JarURLConnection) u.openConnection();
         java.util.jar.Attributes a = juc.getMainAttributes();
         assertEquals("Returned incorrect Attributes", "1.0", a
@@ -232,7 +232,7 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
      * java.net.JarURLConnection#getManifest()
      */
     public void test_getManifest() throws Exception {
-        URL u = new URL("jar:" + BASE + "!/plus.bmp");
+        URL u = copyAndOpenResourceStream("lf.jar", "plus.bmp");
         juc = (JarURLConnection) u.openConnection();
         Manifest mf = juc.getManifest();
         assertNotNull(mf);
@@ -247,7 +247,7 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
      * java.net.JarURLConnection#getCertificates()
      */
     public void test_getCertificates() throws Exception {
-        URL u = new URL("jar:" + BASE + "!/plus.bmp");
+        URL u = copyAndOpenResourceStream("lf.jar", "plus.bmp");
         juc = (JarURLConnection) u.openConnection();
         // read incomplete, shall return null
         assertNull(juc.getCertificates());
@@ -260,7 +260,7 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
         // still return null for this type of file
         assertNull(juc.getCertificates());
 
-        URL fileURL = new URL("jar:" + BASE + "!/");
+        URL fileURL = copyAndOpenResourceStream("lf.jar", "");
         juc = (JarURLConnection) fileURL.openConnection();
         is = juc.getJarFileURL().openStream();
         while (is.read(buf) > 0) ;
@@ -274,12 +274,12 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
      */
     public void test_getContentLength() throws Exception {
         // check length for jar file itself
-        URL u = new URL("jar:" + BASE + "!/");
+        URL u = copyAndOpenResourceStream("lf.jar", "");
         assertEquals("Returned incorrect size for jar file", 33095,
                 u.openConnection().getContentLength());
 
         // check length for jar entry
-        u = new URL("jar:" + BASE + "!/plus.bmp");
+        u = copyAndOpenResourceStream("lf.jar", "plus.bmp");
         assertEquals("Returned incorrect size for the entry", 190,
                 u.openConnection().getContentLength());
     }
@@ -290,25 +290,23 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
      */
     public void test_getContentType() throws Exception {
         // check type for jar file itself
-        URL u = new URL("jar:" + BASE + "!/");
+        URL u = copyAndOpenResourceStream("lf.jar", "");
         assertEquals("Returned incorrect type for jar file", "x-java/jar",
                 u.openConnection().getContentType());
 
         // check type for jar entry with known type
-        u = new URL("jar:" + BASE + "!/plus.bmp");
+        u = copyAndOpenResourceStream("lf.jar", "plus.bmp");
         assertEquals("Returned incorrect type for the entry with known type",
-                "image/bmp", u.openConnection().getContentType());
+                "image/x-ms-bmp", u.openConnection().getContentType());
 
         // check type for jar entry with unknown type
-        u = new URL("jar:" + BASE + "!/Manifest.mf");
+        u = copyAndOpenResourceStream("lf.jar", "Manifest.mf");
         assertEquals("Returned incorrect type for the entry with known type",
                 "content/unknown", u.openConnection().getContentType());
     }
 
     public void test_getURLEncodedEntry() throws IOException {
-        String base = "file:resources/org/apache/harmony/luni/tests/java/net/url-test.jar";
-        URL url = new URL("jar:" + base + "!/test%20folder%20for%20url%20test/test");
-
+        URL url = copyAndOpenResourceStream("url-test.jar", "test%20folder%20for%20url%20test/test");
         if (url != null) {
             // Force existence check
             InputStream is = url.openStream();
