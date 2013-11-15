@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <netdb.h>
+#include <linux/if_addr.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <poll.h>
@@ -216,6 +217,17 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "F_SETOWN", F_SETOWN);
     initConstant(env, c, "F_UNLCK", F_UNLCK);
     initConstant(env, c, "F_WRLCK", F_WRLCK);
+#if defined(IFA_F_DADFAILED)
+    initConstant(env, c, "IFA_F_DADFAILED", IFA_F_DADFAILED);
+#endif
+    initConstant(env, c, "IFA_F_DEPRECATED", IFA_F_DEPRECATED);
+    initConstant(env, c, "IFA_F_HOMEADDRESS", IFA_F_HOMEADDRESS);
+    initConstant(env, c, "IFA_F_NODAD", IFA_F_NODAD);
+    initConstant(env, c, "IFA_F_OPTIMISTIC", IFA_F_OPTIMISTIC);
+    initConstant(env, c, "IFA_F_PERMANENT", IFA_F_PERMANENT);
+    initConstant(env, c, "IFA_F_SECONDARY", IFA_F_SECONDARY);
+    initConstant(env, c, "IFA_F_TEMPORARY", IFA_F_TEMPORARY);
+    initConstant(env, c, "IFA_F_TENTATIVE", IFA_F_TENTATIVE);
     initConstant(env, c, "IFF_ALLMULTI", IFF_ALLMULTI);
 #if defined(IFF_AUTOMEDIA)
     initConstant(env, c, "IFF_AUTOMEDIA", IFF_AUTOMEDIA);
