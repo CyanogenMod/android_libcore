@@ -30,7 +30,6 @@ import java.security.PermissionCollection;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Locale;
 import java.util.PropertyPermission;
 import java.util.TimeZone;
@@ -481,32 +480,23 @@ public class SerializationStressTest3 extends SerializationStressTest {
         }
     }
 
-    public void test_18_85_writeObject() {
+    public void test_18_85_writeObject() throws Exception {
         // Test for method void
         // java.io.ObjectOutputStream.writeObject(java.lang.Object)
 
         Object objToSave = null;
         Object objLoaded;
 
+        PrivateConstructorSub test = new PrivateConstructorSub();
+        objToSave = test;
+        if (DEBUG)
+            System.out.println("Obj = " + objToSave);
         try {
-            PrivateConstructorSub test = new PrivateConstructorSub();
-            objToSave = test;
-            if (DEBUG)
-                System.out.println("Obj = " + objToSave);
             objLoaded = dumpAndReload(objToSave);
-            // Has to have worked
-            assertTrue(MSG_TEST_FAILED + objToSave, test.equals(objLoaded));
-
-        } catch (IOException e) {
-            fail("IOException serializing " + objToSave + " : "
-                    + e.getMessage());
-        } catch (ClassNotFoundException e) {
-            fail("ClassNotFoundException reading Object type : "
-                    + e.getMessage());
-        } catch (Error err) {
-            System.out.println("Error when obj = " + objToSave);
-            // err.printStackTrace();
-            throw err;
+            fail();
+        } catch (Exception expected) {
+            // It is an error to mark a class serializable if it derives
+            // from a non serializable class with an inaccessible constructor.
         }
     }
 
@@ -1285,32 +1275,19 @@ public class SerializationStressTest3 extends SerializationStressTest {
         }
     }
 
-    public void test_18_113_writeObject() {
+    public void test_18_113_writeObject() throws Exception {
         // Test for method void
         // java.io.ObjectOutputStream.writeObject(java.lang.Object)
 
         Object objToSave = null;
         Object objLoaded;
 
-        try {
-            objToSave = DATEFORM;
-            if (DEBUG)
-                System.out.println("Obj = " + objToSave);
-            objLoaded = dumpAndReload(objToSave);
-            // Has to have worked
-            assertTrue(MSG_TEST_FAILED + objToSave, DATEFORM.equals(objLoaded));
-
-        } catch (IOException e) {
-            fail("IOException serializing " + objToSave + " : "
-                    + e.getMessage());
-        } catch (ClassNotFoundException e) {
-            fail("ClassNotFoundException reading Object type : "
-                    + e.getMessage());
-        } catch (Error err) {
-            System.out.println("Error when obj = " + objToSave);
-            // err.printStackTrace();
-            throw err;
-        }
+        objToSave = DATEFORM;
+        if (DEBUG)
+            System.out.println("Obj = " + objToSave);
+        objLoaded = dumpAndReload(objToSave);
+        // Has to have worked
+        assertEquals(MSG_TEST_FAILED + objToSave, DATEFORM, objLoaded);
     }
 
     public void test_18_114_writeObject() {
@@ -1341,33 +1318,19 @@ public class SerializationStressTest3 extends SerializationStressTest {
         }
     }
 
-    public void test_18_115_writeObject() {
+    public void test_18_115_writeObject() throws Exception {
         // Test for method void
         // java.io.ObjectOutputStream.writeObject(java.lang.Object)
 
         Object objToSave = null;
         Object objLoaded;
 
-        try {
-            objToSave = NUMBERFORM;
-            if (DEBUG)
-                System.out.println("Obj = " + objToSave);
-            objLoaded = dumpAndReload(objToSave);
-            // Has to have worked
-            assertTrue(MSG_TEST_FAILED + objToSave, NUMBERFORM
-                    .equals(objLoaded));
-
-        } catch (IOException e) {
-            fail("IOException serializing " + objToSave + " : "
-                    + e.getMessage());
-        } catch (ClassNotFoundException e) {
-            fail("ClassNotFoundException reading Object type : "
-                    + e.getMessage());
-        } catch (Error err) {
-            System.out.println("Error when obj = " + objToSave);
-            // err.printStackTrace();
-            throw err;
-        }
+        objToSave = NUMBERFORM;
+        if (DEBUG)
+            System.out.println("Obj = " + objToSave);
+        objLoaded = dumpAndReload(objToSave);
+        // Has to have worked
+        assertEquals(MSG_TEST_FAILED + objToSave, NUMBERFORM, objLoaded);
     }
 
     public void test_18_116_writeObject() {

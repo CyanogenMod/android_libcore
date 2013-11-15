@@ -1271,17 +1271,13 @@ public class SerializationStressTest2 extends SerializationStressTest {
             StreamBasedReplacementWhenDumping streamBasedReplacementWhenDumping;
 
             out = new ByteArrayOutputStream();
-            streamBasedReplacementWhenDumping = new StreamBasedReplacementWhenDumping(
-                    out);
-            ;
+            streamBasedReplacementWhenDumping = new StreamBasedReplacementWhenDumping(out);
             objToSave = FOO.getClass();
             if (DEBUG)
                 System.out.println("Obj = " + objToSave);
             streamBasedReplacementWhenDumping.writeObject(objToSave);
             // Has to have run the replacement method
-            assertTrue("Executed replacement when it should not: " + objToSave,
-                    !streamBasedReplacementWhenDumping.calledClassReplacement);
-
+            assertTrue(streamBasedReplacementWhenDumping.calledClassReplacement);
         } catch (IOException e) {
             fail("Exception serializing " + objToSave + "\t->"
                     + e.toString());
@@ -1305,16 +1301,13 @@ public class SerializationStressTest2 extends SerializationStressTest {
             out = new ByteArrayOutputStream();
             streamBasedReplacementWhenDumping = new StreamBasedReplacementWhenDumping(
                     out);
-            ;
+
             objToSave = ObjectStreamClass.lookup(FOO.getClass());
             if (DEBUG)
                 System.out.println("Obj = " + objToSave);
             streamBasedReplacementWhenDumping.writeObject(objToSave);
             // Has to have run the replacement method
-            assertTrue(
-                    "Executed replacement when it should not: " + objToSave,
-                    !streamBasedReplacementWhenDumping.calledObjectStreamClassReplacement);
-
+            assertTrue(streamBasedReplacementWhenDumping.calledObjectStreamClassReplacement);
         } catch (IOException e) {
             fail("Exception serializing " + objToSave + "\t->"
                     + e.toString());
@@ -1644,7 +1637,7 @@ public class SerializationStressTest2 extends SerializationStressTest {
         Object objLoaded;
 
         try {
-            DeepNesting test = new DeepNesting(50);
+            DeepNesting test = new DeepNesting(25);
             objToSave = test;
             if (DEBUG)
                 System.out.println("Obj = " + objToSave);
@@ -1674,7 +1667,7 @@ public class SerializationStressTest2 extends SerializationStressTest {
         Object objLoaded;
 
         try {
-            DeepNestingWithWriteObject test = new DeepNestingWithWriteObject(50);
+            DeepNestingWithWriteObject test = new DeepNestingWithWriteObject(10);
             objToSave = test;
             if (DEBUG)
                 System.out.println("Obj = " + objToSave);
