@@ -22,7 +22,6 @@ import org.apache.harmony.testframework.serialization.SerializationTest;
 import tests.support.Support_PlatformFile;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -33,6 +32,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import libcore.io.Libcore;
 
 public class FileTest extends TestCase {
 
@@ -675,35 +675,10 @@ public class FileTest extends TestCase {
         assertTrue("Equality test failed", f1.equals(f2));
         assertTrue("Files Should Not Return Equal.", !f1.equals(f3));
 
-        f3 = new File("FiLeChK.tst");
-        boolean onWindows = File.separatorChar == '\\';
-        boolean onUnix = File.separatorChar == '/';
-        if (onWindows) {
-            assertTrue("Files Should Return Equal.", f1.equals(f3));
-        } else if (onUnix) {
-            assertTrue("Files Should NOT Return Equal.", !f1.equals(f3));
-        }
-
         f1 = new File(tempDirectory, "casetest.tmp");
         f2 = new File(tempDirectory, "CaseTest.tmp");
-        new FileOutputStream(f1).close(); // create the file
-        if (f1.equals(f2)) {
-            try {
-                FileInputStream fis = new FileInputStream(f2);
-                fis.close();
-            } catch (IOException e) {
-                fail("File system is case sensitive");
-            }
-        } else {
-            boolean exception = false;
-            try {
-                FileInputStream fis = new FileInputStream(f2);
-                fis.close();
-            } catch (IOException e) {
-                exception = true;
-            }
-            assertTrue("File system is case insensitive", exception);
-        }
+        assertFalse(f1.equals(f2));
+        assertTrue(f1.createNewFile());
         f1.delete();
     }
 
@@ -1958,12 +1933,18 @@ public class FileTest extends TestCase {
     public void test_setReadOnly() throws IOException, InterruptedException {
         File f1 = null;
         File f2 = null;
+        if (Libcore.os.getuid() == 0) {
+            System.err.println("Skipping #test_setReadOnly: test runner is root");
+            return;
+        }
+
         try {
             f1 = File.createTempFile("harmony-test-FileTest_setReadOnly", ".tmp");
             f2 = File.createTempFile("harmony-test-FileTest_setReadOnly", ".tmp");
             // Assert is flawed because canWrite does not work.
             // assertTrue("File f1 Is Set To ReadOnly." , f1.canWrite());
-            f1.setReadOnly();
+            assertTrue(f1.setReadOnly());
+            assertFalse(f1.canWrite());
             // Assert is flawed because canWrite does not work.
             // assertTrue("File f1 Is Not Set To ReadOnly." , !f1.canWrite());
             try {
