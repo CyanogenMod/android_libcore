@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import tests.api.java.lang.reflect.GenericReflectionTestsBase;
+import org.apache.harmony.tests.java.lang.reflect.GenericReflectionTestsBase;
 
 
 /**
