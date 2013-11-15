@@ -17,6 +17,7 @@
 
 package tests.api.java.util;
 
+import tests.support.resource.Support_Resources;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,11 +27,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Iterator;
 import java.util.List;
@@ -38,8 +39,6 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
-
-import tests.support.resource.Support_Resources;
 
 public class PropertiesTest extends junit.framework.TestCase {
 
@@ -451,66 +450,6 @@ public class PropertiesTest extends junit.framework.TestCase {
         assertEquals("11", "   j", props.getProperty("j"));
         assertEquals("12", "   c", props.getProperty("space"));
         assertEquals("13", "\\", props.getProperty("dblbackslash"));
-    }
-
-    /**
-     * java.util.Properties#propertyNames()
-     */
-    public void test_propertyNames() {
-        Properties myPro = new Properties(tProps);
-        Enumeration names = myPro.propertyNames();
-        int i = 0;
-        while (names.hasMoreElements()) {
-            ++i;
-            String p = (String) names.nextElement();
-            assertTrue("Incorrect names returned", p.equals("test.prop")
-                    || p.equals("bogus.prop"));
-        }
-
-        // cast Enumeration to Iterator
-        Iterator iterator = (Iterator) names;
-        assertFalse(iterator.hasNext());
-        try {
-            iterator.next();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
-        }
-    }
-
-    public void test_propertyNames_sequence() {
-        Properties parent = new Properties();
-        parent.setProperty("parent.a.key", "parent.a.value");
-        parent.setProperty("parent.b.key", "parent.b.value");
-
-        Enumeration<?> names = parent.propertyNames();
-        assertEquals("parent.a.key", names.nextElement());
-        assertEquals("parent.b.key", names.nextElement());
-        assertFalse(names.hasMoreElements());
-
-        Properties current = new Properties(parent);
-        current.setProperty("current.a.key", "current.a.value");
-        current.setProperty("current.b.key", "current.b.value");
-
-        names = current.propertyNames();
-        assertEquals("parent.a.key", names.nextElement());
-        assertEquals("current.b.key", names.nextElement());
-        assertEquals("parent.b.key", names.nextElement());
-        assertEquals("current.a.key", names.nextElement());
-        assertFalse(names.hasMoreElements());
-
-        Properties child = new Properties(current);
-        child.setProperty("child.a.key", "child.a.value");
-        child.setProperty("child.b.key", "child.b.value");
-
-        names = child.propertyNames();
-        assertEquals("parent.a.key", names.nextElement());
-        assertEquals("child.b.key", names.nextElement());
-        assertEquals("current.b.key", names.nextElement());
-        assertEquals("parent.b.key", names.nextElement());
-        assertEquals("child.a.key", names.nextElement());
-        assertEquals("current.a.key", names.nextElement());
-        assertFalse(names.hasMoreElements());
     }
 
     /**
@@ -957,98 +896,50 @@ public class PropertiesTest extends junit.framework.TestCase {
         assertEquals(1, props.size());
     }
 
-    public void test_SequentialpropertyNames() {
+    public void test_propertyNames() {
         Properties parent = new Properties();
         parent.setProperty("parent.a.key", "parent.a.value");
         parent.setProperty("parent.b.key", "parent.b.value");
 
         Enumeration<?> names = parent.propertyNames();
-        assertEquals("parent.a.key", names.nextElement());
-        assertEquals("parent.b.key", names.nextElement());
-        assertFalse(names.hasMoreElements());
+        assertPropertyEnumeration(names, "parent.a.key", "parent.b.key");
 
         Properties current = new Properties(parent);
         current.setProperty("current.a.key", "current.a.value");
         current.setProperty("current.b.key", "current.b.value");
 
         names = current.propertyNames();
-        assertEquals("parent.a.key", names.nextElement());
-        assertEquals("current.b.key", names.nextElement());
-        assertEquals("parent.b.key", names.nextElement());
-        assertEquals("current.a.key", names.nextElement());
-        assertFalse(names.hasMoreElements());
+        assertPropertyEnumeration(names,
+                "parent.a.key",
+                "parent.b.key",
+                "current.a.key",
+                "current.b.key");
 
         Properties child = new Properties(current);
         child.setProperty("child.a.key", "child.a.value");
         child.setProperty("child.b.key", "child.b.value");
 
         names = child.propertyNames();
-        assertEquals("parent.a.key", names.nextElement());
-        assertEquals("child.b.key", names.nextElement());
-        assertEquals("current.b.key", names.nextElement());
-        assertEquals("parent.b.key", names.nextElement());
-        assertEquals("child.a.key", names.nextElement());
-        assertEquals("current.a.key", names.nextElement());
-        assertFalse(names.hasMoreElements());
+        assertPropertyEnumeration(names,
+                "parent.a.key",
+                "parent.b.key",
+                "current.a.key",
+                "current.b.key",
+                "child.a.key",
+                "child.b.key");
     }
 
-    public void test_SequentialstringPropertyNames() {
-        Properties parent = new Properties();
-        parent.setProperty("parent.a.key", "parent.a.value");
-        parent.setProperty("parent.b.key", "parent.b.value");
-
-        Iterator<String> nameIterator = parent.stringPropertyNames().iterator();
-        assertEquals("parent.a.key", nameIterator.next());
-        assertEquals("parent.b.key", nameIterator.next());
-        assertFalse(nameIterator.hasNext());
-
-        Properties current = new Properties(parent);
-        current.setProperty("current.a.key", "current.a.value");
-        current.setProperty("current.b.key", "current.b.value");
-
-        nameIterator = current.stringPropertyNames().iterator();
-        assertEquals("parent.a.key", nameIterator.next());
-        assertEquals("current.b.key", nameIterator.next());
-        assertEquals("parent.b.key", nameIterator.next());
-        assertEquals("current.a.key", nameIterator.next());
-        assertFalse(nameIterator.hasNext());
-
-        Properties child = new Properties(current);
-        child.setProperty("child.a.key", "child.a.value");
-        child.setProperty("child.b.key", "child.b.value");
-
-        nameIterator = child.stringPropertyNames().iterator();
-        assertEquals("parent.a.key", nameIterator.next());
-        assertEquals("child.b.key", nameIterator.next());
-        assertEquals("current.b.key", nameIterator.next());
-        assertEquals("parent.b.key", nameIterator.next());
-        assertEquals("child.a.key", nameIterator.next());
-        assertEquals("current.a.key", nameIterator.next());
-        assertFalse(nameIterator.hasNext());
-    }
-
-    public static class MockProperties extends Properties {
-
-        private static final long serialVersionUID = 1L;
-
-        public MockProperties() throws IOException {
-            mockLoad();
+    public void assertPropertyEnumeration(Enumeration<?> propNames,
+            String... expected) {
+        Set<String> propsSet = new HashSet<String>();
+        while (propNames.hasMoreElements()) {
+            String next = (String) propNames.nextElement();
+            assertFalse(propsSet.contains(next));
+            propsSet.add(next);
         }
 
-        private void mockLoad() throws IOException {
-            super.load(new ByteArrayInputStream("key=value".getBytes()));
-        }
-
-        public void load(Reader reader) {
-            fail("should invoke Properties.load(Reader)");
-        }
-    }
-
-    public void test_loadLjava_io_InputStream_onLjava_io_Reader()
-            throws IOException {
-        MockProperties mockProperties = new MockProperties();
-        assertEquals(1, mockProperties.size());
-        assertEquals("value", mockProperties.get("key"));
+        assertEquals(expected.length, propsSet.size());
+        assertTrue(propsSet.containsAll(Arrays.asList(expected)));
     }
 
     private String comment1 = "comment1";
@@ -1191,7 +1082,7 @@ public class PropertiesTest extends junit.framework.TestCase {
         props = new Properties();
         props.load(new InputStreamReader(inputStream, "UTF-8"));
         keyEnum = props.keys();
-        assertEquals("\u3000key", keyEnum.nextElement());
+        assertEquals("key", keyEnum.nextElement());
         assertFalse(keyEnum.hasMoreElements());
         inputStream.close();
     }
