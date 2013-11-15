@@ -107,7 +107,7 @@
 {
   description: "a low impact bug, we can't produce tiny random, probable prime big integers",
   result: EXEC_FAILED,
-  name: "tests.api.java.math.BigIntegerTest#test_ConstructorIILjava_util_Random",
+  name: "org.apache.harmony.tests.java.math.BigIntegerTest#test_ConstructorIILjava_util_Random",
   substring: "junit.framework.AssertionFailedError: Random number one is too big"
 },
 {
