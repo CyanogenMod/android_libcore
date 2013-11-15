@@ -17,6 +17,7 @@
 
 package tests.api.java.io;
 
+import tests.support.Support_Proxy_I1;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -25,15 +26,23 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.cert.Certificate;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-import java.util.*;
-
-
-import tests.support.Support_Configuration;
-import tests.support.Support_Proxy_I1;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+import java.util.TimeZone;
 
 @SuppressWarnings({ "serial", "unused" })
 public class SerializationStressTest4 extends SerializationStressTest {
@@ -712,14 +721,14 @@ public class SerializationStressTest4 extends SerializationStressTest {
 
     }
 
-    public void test_writeObject_Collections_UnmodifiableMap_UnmodifiableEntrySet() {
+    public void test_writeObject_Collections_UnmodifiableMap_UnmodifiableEntrySet() throws Exception {
         // Test for method void
         // java.io.ObjectOutputStream.writeObject(java.util.Collections.UnmodifiableMap.UnmodifiableEntrySet)
 
         Object objToSave = null;
         Object objLoaded = null;
 
-        try {
+
             objToSave = java.util.Collections.unmodifiableMap(MAP).entrySet();
             if (DEBUG)
                 System.out.println("Obj = " + objToSave);
@@ -737,17 +746,7 @@ public class SerializationStressTest4 extends SerializationStressTest {
                     equals = equals && iter1.next().equals(iter2.next());
             }
             assertTrue(MSG_TEST_FAILED + objToSave, equals);
-        } catch (IOException e) {
-            fail("IOException serializing " + objToSave + " : "
-                    + e.getMessage());
-        } catch (ClassNotFoundException e) {
-            fail("ClassNotFoundException reading Object type : "
-                    + e.getMessage());
-        } catch (Error err) {
-            System.out.println("Error when obj = " + objToSave);
-            // err.printStackTrace();
-            throw err;
-        }
+
 
     }
 
@@ -994,8 +993,8 @@ public class SerializationStressTest4 extends SerializationStressTest {
         try {
             objToSave = new java.text.DateFormatSymbols(Locale.CHINESE);
             ((java.text.DateFormatSymbols) objToSave)
-                    .setZoneStrings(new String[][] { { "a", "b", "c", "d" },
-                            { "e", "f", "g", "h" } });
+                    .setZoneStrings(new String[][] { { "a", "b", "c", "d", "e" },
+                            { "e", "f", "g", "h", "i" } });
             if (DEBUG)
                 System.out.println("Obj = " + objToSave);
             objLoaded = dumpAndReload(objToSave);
