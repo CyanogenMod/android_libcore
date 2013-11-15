@@ -17,6 +17,8 @@
 
 package tests.api.java.util;
 
+import org.apache.harmony.testframework.serialization.SerializationTest;
+import tests.support.Support_MapTest2;
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -28,10 +30,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
-import tests.support.Support_MapTest2;
-
-import org.apache.harmony.testframework.serialization.SerializationTest;
 
 public class IdentityHashMap2Test extends junit.framework.TestCase {
     private static final String ID = "hello";
@@ -45,27 +43,13 @@ public class IdentityHashMap2Test extends junit.framework.TestCase {
             return 0;
         }
     }
-    /*
-      * TODO: change all the statements testing the keys and values with equals()
-      * method to check for reference equality instead
-      */
+    private IdentityHashMap hm;
 
-    IdentityHashMap hm;
+    private final static int hmSize = 20;
 
-    final static int hmSize = 1000;
+    private Object[] objArray;
 
-    static Object[] objArray;
-
-    static Object[] objArray2;
-
-    {
-        objArray = new Object[hmSize];
-        objArray2 = new Object[hmSize];
-        for (int i = 0; i < objArray.length; i++) {
-            objArray[i] = new Integer(i);
-            objArray2[i] = objArray[i].toString();
-        }
-    }
+    private Object[] objArray2;
 
     /**
      * java.util.IdentityHashMap#IdentityHashMap()
@@ -155,9 +139,9 @@ public class IdentityHashMap2Test extends junit.framework.TestCase {
         // get the keySet() and values() on the original Map
         Set keys = map.keySet();
         Collection values = map.values();
-        assertEquals("values() does not work",
+        assertSame("values() does not work",
                 "value", values.iterator().next());
-        assertEquals("keySet() does not work",
+        assertSame("keySet() does not work",
                 "key", keys.iterator().next());
         AbstractMap map2 = (AbstractMap) map.clone();
         map2.put("key", "value2");
@@ -170,7 +154,7 @@ public class IdentityHashMap2Test extends junit.framework.TestCase {
         map2.put("key2", "value3");
         Set key2 = map2.keySet();
         assertTrue("keySet() is identical", key2 != keys);
-        assertEquals("keySet() was not cloned",
+        assertSame("keySet() was not cloned",
                 "key2", key2.iterator().next());
     }
 
@@ -178,19 +162,34 @@ public class IdentityHashMap2Test extends junit.framework.TestCase {
      * java.util.IdentityHashMap#containsKey(java.lang.Object)
      */
     public void test_containsKeyLjava_lang_Object() {
-        // Test for method boolean
-        // java.util.IdentityHashMap.containsKey(java.lang.Object)
-        assertTrue("Returned false for valid key", hm
-                .containsKey(objArray2[23]));
-        assertTrue("Returned true for copy of valid key", !hm
-                .containsKey(new Integer(23).toString()));
-        assertTrue("Returned true for invalid key", !hm.containsKey("KKDKDKD"));
-
         IdentityHashMap m = new IdentityHashMap();
         m.put(null, "test");
         assertTrue("Failed with null key", m.containsKey(null));
-        assertTrue("Failed with missing key matching null hash", !m
-                .containsKey(new Integer(0)));
+        assertFalse("Failed with missing key matching null hash", m.containsKey(new Integer(0)));
+    }
+
+    public static class TestKey implements Cloneable {
+        private final String foo;
+
+        TestKey(String foo) {
+            this.foo = foo;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof TestKey && foo.equals(((TestKey) o).foo);
+        }
+
+        public Object clone() throws CloneNotSupportedException {
+            return super.clone();
+        }
+    }
+
+    public void test_containsKey_copies() throws Exception {
+        TestKey a = new TestKey("a");
+        hm.put(a, new Object());
+        assertTrue(hm.containsKey(a));
+        assertFalse(hm.containsKey(a.clone()));
     }
 
     /**
@@ -230,8 +229,7 @@ public class IdentityHashMap2Test extends junit.framework.TestCase {
         assertNull("Get returned non-null for non existent key",
                 hm.get("T"));
         hm.put("T", "HELLO");
-        assertEquals("Get returned incorecct value for existing key", "HELLO", hm.get("T")
-        );
+        assertEquals("Get returned incorecct value for existing key", "HELLO", hm.get("T"));
 
         IdentityHashMap m = new IdentityHashMap();
         m.put(null, "test");
@@ -333,9 +331,10 @@ public class IdentityHashMap2Test extends junit.framework.TestCase {
         // Test for method void java.util.IdentityHashMap.putAll(java.util.Map)
         IdentityHashMap hm2 = new IdentityHashMap();
         hm2.putAll(hm);
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < hmSize; i++) {
             assertTrue("Failed to clear all elements", hm2.get(objArray2[i])
                     .equals((new Integer(i))));
+        }
 
         hm2 = new IdentityHashMap();
         Map mockMap = new MockMap();
@@ -369,8 +368,7 @@ public class IdentityHashMap2Test extends junit.framework.TestCase {
      */
     public void test_size() {
         // Test for method int java.util.IdentityHashMap.size()
-        assertEquals("Returned incorrect size, ", (objArray.length + 2), hm
-                .size());
+        assertEquals("Returned incorrect size, ", (objArray.length), hm.size());
     }
 
     /**
@@ -431,7 +429,7 @@ public class IdentityHashMap2Test extends junit.framework.TestCase {
                     .contains(objArray[i]));
 
         IdentityHashMap myIdentityHashMap = new IdentityHashMap();
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < hmSize; i++)
             myIdentityHashMap.put(objArray2[i], objArray[i]);
         Collection values = myIdentityHashMap.values();
         values.remove(objArray[0]);
@@ -441,16 +439,18 @@ public class IdentityHashMap2Test extends junit.framework.TestCase {
 
     }
 
-    /**
-     * Sets up the fixture, for example, open a network connection. This method
-     * is called before a test is executed.
-     */
     protected void setUp() {
+        objArray = new Object[hmSize];
+        objArray2 = new Object[hmSize];
+        for (int i = 0; i < objArray.length; i++) {
+            objArray[i] = new Integer(i);
+            objArray2[i] = objArray[i].toString();
+        }
+
         hm = new IdentityHashMap();
-        for (int i = 0; i < objArray.length; i++)
+        for (int i = 0; i < objArray.length; i++) {
             hm.put(objArray2[i], objArray[i]);
-        hm.put("test", null);
-        hm.put(null, "test");
+        }
     }
 
 
