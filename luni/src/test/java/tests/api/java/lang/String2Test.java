@@ -19,7 +19,6 @@ package tests.api.java.lang;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
-import java.nio.charset.Charset;
 
 public class String2Test extends junit.framework.TestCase {
 
@@ -469,11 +468,14 @@ public class String2Test extends junit.framework.TestCase {
             // expected
         }
 
-        // Regression for HARMONY-4135
         bytes = "-".getBytes("UTF-16");
-        expected = new byte[] { -2, -1 };
+        expected = new byte[] { (byte) 0xff, (byte) 0xfe };
         assertEquals(expected[0], bytes[0]);
         assertEquals(expected[1], bytes[1]);
+
+        byte[] bytes2 = "-".getBytes("UTF-16LE");
+        assertEquals(bytes2[0], bytes[2]);
+        assertEquals(bytes2[1], bytes[3]);
     }
 
     /*

@@ -16,23 +16,35 @@
  */
 package tests.api.java.util;
 
+import junit.framework.TestCase;
+import org.apache.harmony.testframework.serialization.SerializationTest;
+import tests.util.SerializationTester;
 import java.lang.reflect.Array;
 import java.util.AbstractMap;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Map;
 import java.util.Map.Entry;
-
-import junit.framework.TestCase;
-
-import org.apache.harmony.testframework.serialization.SerializationTest;
-
-import tests.util.SerializationTester;
+import java.util.TreeMap;
 
 public class SimpleImmutableEntryTest extends TestCase {
     public void test_SimpleImmutableEntry_Constructor_K_V() throws Exception {
         new AbstractMap.SimpleImmutableEntry<Integer, String>(1, "test");
         new AbstractMap.SimpleImmutableEntry(null, null);
+    }
+
+    static class NullEntry implements Entry {
+
+        public Object getKey() {
+            return null;
+        }
+
+        public Object getValue() {
+            return null;
+        }
+
+        public Object setValue(Object object) {
+            return null;
+        }
     }
 
     public void test_SimpleImmutableEntry_Constructor_LEntry() throws Exception {
@@ -43,9 +55,8 @@ public class SimpleImmutableEntryTest extends TestCase {
         assertEquals(1, testEntry.getKey());
         assertEquals("test", testEntry.getValue());
         map.clear();
-        map.put(null, null);
-        entryToPut = (Entry) map.entrySet().iterator().next();
-        testEntry = new AbstractMap.SimpleImmutableEntry(entryToPut);
+
+        testEntry = new AbstractMap.SimpleImmutableEntry(new NullEntry());
         assertNull(testEntry.getKey());
         assertNull(testEntry.getValue());
         try {
@@ -127,9 +138,9 @@ public class SimpleImmutableEntryTest extends TestCase {
     @SuppressWarnings({ "unchecked", "boxing" })
     public void testSerializationCompatibility_SimpleImmutableEntry() throws Exception {
         SimpleImmutableEntry e = new AbstractMap.SimpleImmutableEntry<Integer, String>(1, "test");
-        if (!(SerializationTester.readObject(e, "serialization/java/util/AbstractMapTest_SimpleImmutableEntry.golden.ser") instanceof SimpleImmutableEntry)) {
+        if (!(SerializationTester.readObject(e, "serialization/tests/api/java/util/AbstractMapTest_SimpleImmutableEntry.golden.ser") instanceof SimpleImmutableEntry)) {
             fail("should be SimpleImmutableEntry");
         }
-        SerializationTester.assertCompabilityEquals(e, "serialization/java/util/AbstractMapTest_SimpleImmutableEntry.golden.ser");
+        SerializationTester.assertCompabilityEquals(e, "serialization/tests/api/java/util/AbstractMapTest_SimpleImmutableEntry.golden.ser");
     }
 }

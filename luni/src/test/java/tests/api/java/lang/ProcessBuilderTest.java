@@ -16,6 +16,7 @@
 
 package tests.api.java.lang;
 
+import junit.framework.TestCase;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.TestCase;
 
 public class ProcessBuilderTest extends TestCase {
 
@@ -146,9 +145,7 @@ public class ProcessBuilderTest extends TestCase {
      */
     @SuppressWarnings("nls")
     public void testStart() throws IOException {
-        ProcessBuilder pb = new ProcessBuilder("java", "-version");
-        pb.directory(new File(System.getProperty("java.home") + File.separator
-                + "bin"));
+        ProcessBuilder pb = new ProcessBuilder("ls", "-al");
 
         // Call the test target
         Process process = pb.start();

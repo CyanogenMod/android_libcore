@@ -32,7 +32,7 @@ import tests.util.SerializationTester;
 
 public class PriorityQueueTest extends TestCase {
 
-    private static final String SERIALIZATION_FILE_NAME = "serialization/java/util/PriorityQueue.golden.ser"; //$NON-NLS-1$    
+    private static final String SERIALIZATION_FILE_NAME = "serialization/tests/api/java/util/PriorityQueue.golden.ser";
 
     /**
      * java.util.PriorityQueue#iterator()
