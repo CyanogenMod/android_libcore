@@ -16,12 +16,12 @@
 
 package libcore.java.lang.reflect;
 
+import org.apache.harmony.tests.java.lang.reflect.GenericReflectionTestsBase;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import tests.api.java.lang.reflect.GenericReflectionTestsBase;
 
 /**
  * Tests generic reflection in more complicated cases. In particular: Scoping of
