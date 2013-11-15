@@ -16,11 +16,10 @@
  */
 package tests.api.java.net;
 
+import junit.framework.TestCase;
 import java.net.HttpCookie;
 import java.util.List;
 import java.util.Locale;
-
-import junit.framework.TestCase;
 
 public class HttpCookieTest extends TestCase {
     private Locale locale;
@@ -122,10 +121,13 @@ public class HttpCookieTest extends TestCase {
          * that contains one or more dots.
          */
         match = HttpCookie.domainMatches(".c.d", "a.b.c.d");
+        assertTrue(match);
+
+        match = HttpCookie.domainMatches("c.d", "a.b.c.d");
         assertFalse(match);
 
         match = HttpCookie.domainMatches(".foo.com", "y.x.foo.com");
-        assertFalse(match);
+        assertTrue(match);
 
         match = HttpCookie.domainMatches(".foo.com", "x.foo.com");
         assertTrue(match);
@@ -140,10 +142,10 @@ public class HttpCookieTest extends TestCase {
         assertTrue(match);
 
         match = HttpCookie.domainMatches("...", "test...");
-        assertTrue(match);
+        assertFalse(match);
 
         match = HttpCookie.domainMatches(".ajax.com", "b.a.AJAX.com");
-        assertFalse(match);
+        assertTrue(match);
 
         match = HttpCookie.domainMatches(".a", "b.a");
         assertFalse(match);
@@ -157,11 +159,6 @@ public class HttpCookieTest extends TestCase {
 
         match = HttpCookie.domainMatches(null, "b.a.AJAX.com");
         assertFalse(match);
-
-        // TODO RI bug? The effective hostname is hostname.local which is string
-        // equal with hostname.local. So they should be domain match.
-        match = HttpCookie.domainMatches("hostname.local", "hostname");
-        assertTrue(match);
     }
 
     /**
@@ -520,8 +517,6 @@ public class HttpCookieTest extends TestCase {
         checkInvalidCookie("Set-Cookie2:$name=");
         checkInvalidCookie("Set-Cookie:$");
         checkInvalidCookie("Set-Cookie");
-        checkInvalidCookie("Set-Cookie2:test==wwlala;Discard;Patth=/temp");
-        checkInvalidCookie("Set-Cookie2:test==wwlala;Version=2");
 
         // cookie name contains llegal characters
         checkInvalidCookie("Set-Cookie:n,ame=");
@@ -553,9 +548,6 @@ public class HttpCookieTest extends TestCase {
         checkInvalidCookie("Set-Cookie2:name=test;Max-Age=");
         checkInvalidCookie("Set-Cookie2:name=test;Max-Age=max-age");
         checkInvalidCookie("Set-Cookie2:name=test;Max-Age=1000.0");
-        checkInvalidCookie("Set-Cookie2:name=test;Version=trivail");
-        checkInvalidCookie("Set-Cookie2:name=test;vErsion=1000.0");
-        checkInvalidCookie("Set-Cookie2:name=test;vErsion=1000");
     }
 
     /**
@@ -568,14 +560,12 @@ public class HttpCookieTest extends TestCase {
         List<HttpCookie> list = HttpCookie
                 .parse("Set-Cookie:name=test;expires=Thu, 30-Oct-2008 19:14:07 GMT;");
         HttpCookie cookie = list.get(0);
-        assertEquals(0, cookie.getMaxAge());
         assertTrue(cookie.hasExpired());
 
         Locale.setDefault(Locale.GERMAN);
         list = HttpCookie
                 .parse("Set-Cookie:name=test;expires=Sun, 30-Oct-2005 19:14:07 GMT;");
         cookie = list.get(0);
-        assertEquals(0, cookie.getMaxAge());
         assertTrue(cookie.hasExpired());
 
         Locale.setDefault(Locale.KOREA);
@@ -588,8 +578,9 @@ public class HttpCookieTest extends TestCase {
 
         Locale.setDefault(Locale.TAIWAN);
         list = HttpCookie
-                .parse("Set-Cookie:name=test;expires=Sun, 30-Oct-2005 19:14:07 GMT;max-age=-12345;");
+                .parse("Set-Cookie:name=test;max-age=-12345;");
         cookie = list.get(0);
+        // This currently fails, we accept a negative max-age.
         assertEquals(0, cookie.getMaxAge());
         assertTrue(cookie.hasExpired());
 
@@ -697,7 +688,7 @@ public class HttpCookieTest extends TestCase {
         // Check portlist
         list = HttpCookie.parse("Set-Cookie:name=tes,t;port");
         cookie = list.get(0);
-        assertEquals(null, cookie.getPortlist());
+        assertEquals("", cookie.getPortlist());
 
         list = HttpCookie.parse("Set-Cookie:name=tes,t;port=");
         cookie = list.get(0);
@@ -777,11 +768,12 @@ public class HttpCookieTest extends TestCase {
         assertNotNull(cookie.getDomain());
         assertNotNull(cookie.getPortlist());
 
-        // Check CommentURL, RI's bug: 'a  name' is not valid attribute name. 
-        list = HttpCookie
-                .parse("Set-Cookie:a  name=tes,t;Commenturl;commentuRL=(la,la);path=hello");
-        cookie = list.get(0);
-        assertEquals("(la,la)", cookie.getCommentURL());
+        try {
+            list = HttpCookie
+                    .parse("Set-Cookie:a  name=tes,t;Commenturl;commentuRL=(la,la);path=hello");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
 
 
         list = HttpCookie
@@ -795,12 +787,12 @@ public class HttpCookieTest extends TestCase {
         assertEquals("(la,la)", cookie.getCommentURL());
         assertEquals("hello", cookie.getPath());
 
-        list = HttpCookie
-                .parse("a  Set-Cookie:name=tes,t;Commenturl;commentuRL=(la,la);path=hello");
-        cookie = list.get(0);
-        assertEquals("(la,la)", cookie.getCommentURL());
-
-
+        try {
+            list = HttpCookie
+                    .parse("a  Set-Cookie:name=tes,t;Commenturl;commentuRL=(la,la);path=hello");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
     }
 
     /**

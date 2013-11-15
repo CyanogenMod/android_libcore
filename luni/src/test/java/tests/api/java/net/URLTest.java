@@ -30,7 +30,6 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
-import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -192,10 +191,10 @@ public class URLTest extends TestCase {
                 u10.getPort() == -1);
 
         URL u11 = new URL("file:////file.txt");
-        assertNull("u11 returns a wrong authority " + u11.getAuthority(), u11
-                .getAuthority());
-        assertTrue("u11 returns a wrong file " + u11.getFile(), u11.getFile()
-                .equals("////file.txt"));
+        // Harmony returned null here
+        assertEquals("u11 returns a wrong authority", "", u11.getAuthority());
+        assertEquals("u11 returns a wrong file " + u11.getFile(), "//file.txt",
+                u11.getFile());
 
         URL u12 = new URL("file:///file.txt");
         assertTrue("u12 returns a wrong authority", u12.getAuthority().equals(
@@ -305,16 +304,15 @@ public class URLTest extends TestCase {
         assertTrue("3 returns a wrong host: " + u1.getHost(), u1.getHost()
                 .equals("www.yahoo.com"));
         assertEquals("3 returns a wrong port", -1, u1.getPort());
-        assertEquals("3 returns a wrong file", "/dir1/dir2/../file.java", u1
+        assertEquals("3 returns a wrong file", "/dir1/file.java", u1
                 .getFile());
         assertNull("3 returns a wrong anchor", u1.getRef());
 
         u1 = new URL(u, "http:dir1/dir2/../file.java");
         assertEquals("3a returns a wrong protocol", "http", u1.getProtocol());
-        assertTrue("3a returns a wrong host: " + u1.getHost(), u1.getHost()
-                .equals(""));
+        assertEquals("3a returns a wrong host: " + u1.getHost(), "www.yahoo.com", u1.getHost());
         assertEquals("3a returns a wrong port", -1, u1.getPort());
-        assertEquals("3a returns a wrong file", "dir1/dir2/../file.java", u1
+        assertEquals("3a returns a wrong file", "/dir1/file.java", u1
                 .getFile());
         assertNull("3a returns a wrong anchor", u1.getRef());
 
@@ -358,14 +356,14 @@ public class URLTest extends TestCase {
         assertEquals("4fc returns a wrong protocol", "file", u1f.getProtocol());
         assertTrue("4fc returns a wrong host", u1f.getHost().equals(""));
         assertEquals("4fc returns a wrong port", -1, u1f.getPort());
-        assertEquals("4fc returns a wrong file", "file.java", u1f.getFile());
+        assertEquals("4fc returns a wrong file", "testing/file.java", u1f.getFile());
         assertNull("4fc returns a wrong anchor", u1f.getRef());
 
         u1f = new URL(uf, "file:");
         assertEquals("4fd returns a wrong protocol", "file", u1f.getProtocol());
         assertTrue("4fd returns a wrong host", u1f.getHost().equals(""));
         assertEquals("4fd returns a wrong port", -1, u1f.getPort());
-        assertTrue("4fd returns a wrong file", u1f.getFile().equals(""));
+        assertEquals("4fd returns a wrong file", "testing/", u1f.getFile());
         assertNull("4fd returns a wrong anchor", u1f.getRef());
 
         u = new URL("http://www.apache.org/testing");
@@ -464,7 +462,7 @@ public class URLTest extends TestCase {
 
         // test for absolute and relative file processing
         u1 = new URL(u, "/../dir1/./dir2/../file.java");
-        assertEquals("B) returns a wrong file", "/../dir1/./dir2/../file.java",
+        assertEquals("B) returns a wrong file", "/dir1/file.java",
                 u1.getFile());
 
         try {
@@ -549,7 +547,7 @@ public class URLTest extends TestCase {
         assertEquals("3 returns a wrong protocol", "http", u1.getProtocol());
         assertEquals("3 returns a wrong host", "www.yahoo.com", u1.getHost());
         assertEquals("3 returns a wrong port", -1, u1.getPort());
-        assertEquals("3 returns a wrong file", "/dir1/dir2/../file.java", u1
+        assertEquals("3 returns a wrong file", "/dir1/file.java", u1
                 .getFile());
         assertNull("3 returns a wrong anchor", u1.getRef());
 
@@ -563,7 +561,7 @@ public class URLTest extends TestCase {
 
         // test for absolute and relative file processing
         u1 = new URL(u, "/../dir1/dir2/../file.java", null);
-        assertEquals("B) returns a wrong file", "/../dir1/dir2/../file.java",
+        assertEquals("B) returns a wrong file", "/dir1/file.java",
                 u1.getFile());
 
         URL one;
@@ -602,7 +600,7 @@ public class URLTest extends TestCase {
         assertEquals("http", u.getProtocol());
         assertEquals("www.yahoo.com", u.getHost());
         assertEquals(-1, u.getPort());
-        assertEquals("test.html", u.getFile());
+        assertEquals("/test.html", u.getFile());
         assertEquals("foo", u.getRef());
 
         // Strange behavior in reference, the hostname contains a ':' so it gets
@@ -611,7 +609,7 @@ public class URLTest extends TestCase {
         assertEquals("wrong protocol", "http", testURL.getProtocol());
         assertEquals("wrong host", "[www.apache.org:8080]", testURL.getHost());
         assertEquals("wrong port", -1, testURL.getPort());
-        assertEquals("wrong file", "test.html", testURL.getFile());
+        assertEquals("wrong file", "/test.html", testURL.getFile());
         assertEquals("wrong anchor", "anch", testURL.getRef());
     }
 
@@ -625,7 +623,8 @@ public class URLTest extends TestCase {
         assertEquals("SSIS returns a wrong protocol", "http", u.getProtocol());
         assertEquals("SSIS returns a wrong host", "www.yahoo.com", u.getHost());
         assertEquals("SSIS returns a wrong port", 8080, u.getPort());
-        assertEquals("SSIS returns a wrong file", "test.html", u.getFile());
+        // Libcore adds a leading "/"
+        assertEquals("SSIS returns a wrong file", "/test.html", u.getFile());
         assertTrue("SSIS returns a wrong anchor: " + u.getRef(), u.getRef()
                 .equals("foo"));
 
@@ -653,7 +652,7 @@ public class URLTest extends TestCase {
         assertEquals("SSISH1 returns a wrong host", "www.yahoo.com", u
                 .getHost());
         assertEquals("SSISH1 returns a wrong port", 8080, u.getPort());
-        assertEquals("SSISH1 returns a wrong file", "test.html", u.getFile());
+        assertEquals("SSISH1 returns a wrong file", "/test.html", u.getFile());
         assertTrue("SSISH1 returns a wrong anchor: " + u.getRef(), u.getRef()
                 .equals("foo"));
 
@@ -663,7 +662,7 @@ public class URLTest extends TestCase {
         assertEquals("SSISH2 returns a wrong host", "www.yahoo.com", u
                 .getHost());
         assertEquals("SSISH2 returns a wrong port", 8080, u.getPort());
-        assertEquals("SSISH2 returns a wrong file", "test.html", u.getFile());
+        assertEquals("SSISH2 returns a wrong file", "/test.html", u.getFile());
         assertTrue("SSISH2 returns a wrong anchor: " + u.getRef(), u.getRef()
                 .equals("foo"));
     }
@@ -691,7 +690,7 @@ public class URLTest extends TestCase {
 
         u = new URL("file", "harmony.apache.org", 0, "/test.txt");
         u1 = new URL("file", "www.apache.org", 0, "/test.txt");
-        assertEquals(u, u1);
+        assertFalse(u.equals(u1));
     }
 
     /**
@@ -783,44 +782,6 @@ public class URLTest extends TestCase {
     }
 
     /**
-     * java.net.URL#openStream()
-     */
-    public void test_openStream() throws Exception {
-        // Regression test for Harmony-1700
-        URL BASE = URLTest.class.getClassLoader().getResource(
-                URLTest.class.getPackage().getName().replace('.',
-                        File.separatorChar)
-                        + "/lf.jar");
-        URL url = new URL("jar:" + BASE + "!/foo.jar!/Bugs/HelloWorld.class");
-        try {
-            url.openStream();
-            fail("should throw FNFE.");
-        } catch (java.io.FileNotFoundException e) {
-            // Expected
-        }
-
-        // Test for method java.io.InputStream java.net.URL.openStream()
-        File resources = Support_Resources.createTempFolder();
-        Support_Resources.copyFile(resources, null, "hyts_htmltest.html");
-        u = new URL("file", "", resources.getAbsolutePath()
-                + "/hyts_htmltest.html");
-        // HTTP connection
-        InputStream is1 = u.openStream();
-        assertTrue("Unable to read from stream", is1.read() != 0);
-        is1.close();
-
-        boolean exception = false;
-        try {
-            u = new URL("file:///nonexistenttestdir/tstfile");
-            u.openStream();
-        } catch (IOException e) {
-            // Correct behaviour
-            exception = true;
-        }
-        assertTrue("openStream succeeded for non existent resource", exception);
-    }
-
-    /**
      * java.net.URL#openConnection()
      */
     public void test_openConnection() {
@@ -892,7 +853,7 @@ public class URLTest extends TestCase {
         // Test for method java.lang.String java.net.URL.getFile()
         u = new URL("http", "www.yahoo.com:8080", 1233,
                 "test/!@$%^&*/test.html#foo");
-        assertEquals("returns a wrong file", "test/!@$%^&*/test.html", u
+        assertEquals("returns a wrong file", "/test/!@$%^&*/test.html", u
                 .getFile());
         u = new URL("http", "www.yahoo.com:8080", 1233, "");
         assertTrue("returns a wrong file", u.getFile().equals(""));
@@ -1114,7 +1075,7 @@ public class URLTest extends TestCase {
         String strURL = "http://a/b/c/d;p?q";
         String ref = "?y";
         URL url = new URL(new URL(strURL), ref);
-        assertEquals("http://a/b/c/?y", url.toExternalForm());
+        assertEquals("http://a/b/c/d;p?y", url.toExternalForm());
     }
 
     // Regression test for HARMONY-6254
@@ -1167,97 +1128,6 @@ public class URLTest extends TestCase {
 
         public void parse(URL url, String spec, int start, int end) {
             parseURL(url, spec, start, end);
-        }
-    }
-
-    static class MyURLStreamHandlerFactory implements URLStreamHandlerFactory {
-
-        public static MyURLStreamHandler handler = new MyURLStreamHandler();
-
-        public URLStreamHandler createURLStreamHandler(String arg0) {
-            handler = new MyURLStreamHandler();
-            return handler;
-        }
-
-    }
-
-    // Regression test for harmony-2941
-    public void test_URLStreamHandler_parseURL() throws MalformedURLException {
-        URL url = new URL("http://localhost");
-        MyURLStreamHandler handler = MyURLStreamHandlerFactory.handler;
-        try {
-            handler.parse(url, "//", 0, Integer.MIN_VALUE);
-            fail("Should throw SIOOBE.");
-        } catch (StringIndexOutOfBoundsException e) {
-            // expected;
-        }
-        try {
-            handler.parse(url, "1234//", 4, Integer.MIN_VALUE);
-            fail("Should throw SIOOBE.");
-        } catch (StringIndexOutOfBoundsException e) {
-            // expected;
-        }
-        try {
-            handler.parse(url, "1", -1, 0);
-            fail("Should throw SIOOBE.");
-        } catch (StringIndexOutOfBoundsException e) {
-            // expected;
-        }
-        try {
-            handler.parse(url, "1", 3, 2);
-            fail("Should throw SecurityException.");
-        } catch (SecurityException e) {
-            // expected;
-        }
-
-        try {
-            handler.parse(url, "11", 1, Integer.MIN_VALUE);
-            fail("Should throw SecurityException.");
-        } catch (SecurityException e) {
-            // expected;
-        }
-
-        // Regression tests for HARMONY-6499
-        try {
-            handler.parse(url, "any", 10, Integer.MIN_VALUE);
-            fail("Should throw StringIndexOutOfBoundsException");
-        } catch (StringIndexOutOfBoundsException e) {
-            // expected;
-        }
-
-        try {
-            handler.parse(url, "any", 10, Integer.MIN_VALUE + 1);
-            fail("Should throw StringIndexOutOfBoundsException");
-        } catch (StringIndexOutOfBoundsException e) {
-            // expected;
-        }
-
-        try {
-            handler.parse(url, "any", Integer.MIN_VALUE, Integer.MIN_VALUE);
-            fail("Should throw StringIndexOutOfBoundsException");
-        } catch (StringIndexOutOfBoundsException e) {
-            // expected;
-        }
-
-        try {
-            handler.parse(url, "any", Integer.MIN_VALUE, 2);
-            fail("Should throw StringIndexOutOfBoundsException");
-        } catch (StringIndexOutOfBoundsException e) {
-            // expected;
-        }
-
-        try {
-            handler.parse(url, "any", -1, 2);
-            fail("Should throw StringIndexOutOfBoundsException");
-        } catch (StringIndexOutOfBoundsException e) {
-            // expected;
-        }
-
-        try {
-            handler.parse(url, "any", -1, -1);
-            fail("Should throw SecurityException");
-        } catch (SecurityException e) {
-            // expected;
         }
     }
 
