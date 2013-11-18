@@ -1319,31 +1319,25 @@ public class Arrays {
         /*
          * element is an array
          */
-        if (!cl.isPrimitive()) {
+        if (element instanceof Object[]) {
             return deepHashCode((Object[]) element);
-        }
-        if (cl.equals(int.class)) {
+        } else if (cl == int.class) {
             return hashCode((int[]) element);
-        }
-        if (cl.equals(char.class)) {
+        } else if (cl == char.class) {
             return hashCode((char[]) element);
-        }
-        if (cl.equals(boolean.class)) {
+        } else if (cl == boolean.class) {
             return hashCode((boolean[]) element);
-        }
-        if (cl.equals(byte.class)) {
+        } else if (cl == byte.class) {
             return hashCode((byte[]) element);
-        }
-        if (cl.equals(long.class)) {
+        } else if (cl == long.class) {
             return hashCode((long[]) element);
-        }
-        if (cl.equals(float.class)) {
+        } else if (cl == float.class) {
             return hashCode((float[]) element);
-        }
-        if (cl.equals(double.class)) {
+        } else if (cl == double.class) {
             return hashCode((double[]) element);
+        } else {
+            return hashCode((short[]) element);
         }
-        return hashCode((short[]) element);
     }
 
     /**
@@ -1665,32 +1659,25 @@ public class Arrays {
         /*
          * compare as arrays
          */
-        if (!cl1.isPrimitive()) {
+        if (e1 instanceof Object[]) {
             return deepEquals((Object[]) e1, (Object[]) e2);
-        }
-
-        if (cl1.equals(int.class)) {
+        } else if (cl1 == int.class) {
             return equals((int[]) e1, (int[]) e2);
-        }
-        if (cl1.equals(char.class)) {
+        } else if (cl1 == char.class) {
             return equals((char[]) e1, (char[]) e2);
-        }
-        if (cl1.equals(boolean.class)) {
+        } else if (cl1 == boolean.class) {
             return equals((boolean[]) e1, (boolean[]) e2);
-        }
-        if (cl1.equals(byte.class)) {
+        } else if (cl1 == byte.class) {
             return equals((byte[]) e1, (byte[]) e2);
-        }
-        if (cl1.equals(long.class)) {
+        } else if (cl1 == long.class) {
             return equals((long[]) e1, (long[]) e2);
-        }
-        if (cl1.equals(float.class)) {
+        } else if (cl1 == float.class) {
             return equals((float[]) e1, (float[]) e2);
-        }
-        if (cl1.equals(double.class)) {
+        } else if (cl1 == double.class) {
             return equals((double[]) e1, (double[]) e2);
+        } else {
+            return equals((short[]) e1, (short[]) e2);
         }
-        return equals((short[]) e1, (short[]) e2);
     }
 
     /**
