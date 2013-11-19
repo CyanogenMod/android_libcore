@@ -16,9 +16,9 @@
 
 package libcore.java.net;
 
+import junit.framework.TestCase;
 import java.net.URI;
 import java.net.URISyntaxException;
-import junit.framework.TestCase;
 import libcore.util.SerializationTester;
 
 public final class URITest extends TestCase {
@@ -55,6 +55,24 @@ public final class URITest extends TestCase {
                 .equals(new URI("http://localhost/foo?BAR=BAZ#quux")));
         assertFalse(new URI("http://localhost/foo?bar=baz#quux")
                 .equals(new URI("http://localhost/foo?bar=baz#QUUX")));
+    }
+
+    public void testEqualsEscaping() throws Exception {
+        // Case insensitive when comparing escaped values, but not when
+        // comparing unescaped values.
+        assertEquals(new URI("http://localhost/foo?bar=fooobar%E0%AE%A8%E0bar"),
+                new URI("http://localhost/foo?bar=fooobar%E0%AE%a8%e0bar"));
+        assertFalse(new URI("http://localhost/foo?bar=fooobar%E0%AE%A8%E0bar").equals(
+                new URI("http://localhost/foo?bar=FoooBar%E0%AE%a8%e0bar")));
+        assertFalse(new URI("http://localhost/foo?bar=fooobar%E0%AE%A8%E0bar").equals(
+                new URI("http://localhost/foo?bar=fooobar%E0%AE%a8%e0BaR")));
+
+        // Last byte replaced by an unescaped value.
+        assertFalse(new URI("http://localhost/foo?bar=%E0%AE%A8%E0").equals(
+                new URI("http://localhost/foo?bar=%E0%AE%a8xxx")));
+        // Missing byte.
+        assertFalse(new URI("http://localhost/foo?bar=%E0%AE%A8%E0").equals(
+                new URI("http://localhost/foo?bar=%E0%AE%a8")));
     }
 
     public void testFileEqualsWithEmptyHost() throws Exception {
