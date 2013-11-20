@@ -390,6 +390,7 @@ public class PipedInputStream extends InputStream {
                 if (lastReader != null && !lastReader.isAlive()) {
                     throw new IOException("Pipe broken");
                 }
+
                 notifyAll();
                 wait(1000);
             }
@@ -402,6 +403,10 @@ public class PipedInputStream extends InputStream {
         if (in == -1) {
             in = 0;
         }
+        if (lastReader != null && !lastReader.isAlive()) {
+            throw new IOException("Pipe broken");
+        }
+
         buffer[in++] = (byte) oneByte;
         if (in == buffer.length) {
             in = 0;

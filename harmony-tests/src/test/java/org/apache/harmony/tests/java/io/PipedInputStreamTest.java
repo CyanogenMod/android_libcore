@@ -19,6 +19,7 @@ package org.apache.harmony.tests.java.io;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.concurrent.CountDownLatch;
 
 public class PipedInputStreamTest extends junit.framework.TestCase {
 
@@ -248,106 +249,83 @@ public class PipedInputStreamTest extends junit.framework.TestCase {
     /**
      * java.io.PipedInputStream#receive(int)
      */
-    public void test_receive() throws IOException {
+    public void test_write_failsAfterReaderDead() throws Exception {
         pis = new PipedInputStream();
         pos = new PipedOutputStream();
 
         // test if writer recognizes dead reader
         pis.connect(pos);
+
         class WriteRunnable implements Runnable {
 
-            boolean pass = false;
-
-            volatile boolean readerAlive = true;
+            final CountDownLatch readerAlive = new CountDownLatch(1);
 
             public void run() {
                 try {
                     pos.write(1);
-                    while (readerAlive) {
-                        ;
+
+                    try {
+                        readerAlive.await();
+                    } catch (InterruptedException ie) {
+                        fail();
+                        return;
                     }
+
                     try {
                         // should throw exception since reader thread
                         // is now dead
                         pos.write(1);
-                    } catch (IOException e) {
-                        pass = true;
+                        fail();
+                    } catch (IOException expected) {
                     }
                 } catch (IOException e) {
                 }
             }
         }
-        WriteRunnable writeRunnable = new WriteRunnable();
-        Thread writeThread = new Thread(writeRunnable);
+
         class ReadRunnable implements Runnable {
-
-            boolean pass;
-
             public void run() {
                 try {
                     pis.read();
-                    pass = true;
                 } catch (IOException e) {
+                    fail();
                 }
             }
         }
-        ;
+
+        WriteRunnable writeRunnable = new WriteRunnable();
+        Thread writeThread = new Thread(writeRunnable);
+
         ReadRunnable readRunnable = new ReadRunnable();
         Thread readThread = new Thread(readRunnable);
         writeThread.start();
         readThread.start();
-        while (readThread.isAlive()) {
-            ;
-        }
-        writeRunnable.readerAlive = false;
-        assertTrue("reader thread failed to read", readRunnable.pass);
-        while (writeThread.isAlive()) {
-            ;
-        }
-        assertTrue("writer thread failed to recognize dead reader",
-                writeRunnable.pass);
+        readThread.join();
 
+        writeRunnable.readerAlive.countDown();
+        writeThread.join();
+    }
+
+    static final class PipedInputStreamWithPublicReceive extends PipedInputStream {
+        @Override
+        public void receive(int oneByte) throws IOException {
+            super.receive(oneByte);
+        }
+    }
+
+
+    public void test_receive_failsIfWriterClosed() throws Exception {
         // attempt to write to stream after writer closed
-        pis = new PipedInputStream();
+        PipedInputStreamWithPublicReceive pis = new PipedInputStreamWithPublicReceive();
+
         pos = new PipedOutputStream();
-
-        pis.connect(pos);
-        class MyRunnable implements Runnable {
-
-            boolean pass;
-
-            public void run() {
-                try {
-                    pos.write(1);
-                } catch (IOException e) {
-                    pass = true;
-                }
-            }
+        pos.connect(pis);
+        pos.close();
+        try {
+            pis.receive(1);
+            fail();
+        } catch (IOException expected) {
         }
-        MyRunnable myRun = new MyRunnable();
-        synchronized (pis) {
-            t = new Thread(myRun);
-            // thread t will be blocked inside pos.write(1)
-            // when it tries to call the synchronized method pis.receive
-            // because we hold the monitor for object pis
-            t.start();
-            try {
-                // wait for thread t to get to the call to pis.receive
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-            }
-            // now we close
-            pos.close();
-        }
-        // we have exited the synchronized block, so now thread t will make
-        // a call to pis.receive AFTER the output stream was closed,
-        // in which case an IOException should be thrown
-        while (t.isAlive()) {
-            ;
-        }
-        assertTrue(
-                "write failed to throw IOException on closed PipedOutputStream",
-                myRun.pass);
     }
 
     static class Worker extends Thread {
