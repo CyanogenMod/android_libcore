@@ -112,6 +112,7 @@ public final class ProxyTest extends TestCase {
                 returnHandler);
     }
 
+
     public void testCompatibleReturnTypesSuperclass() {
         Proxy.newProxyInstance(loader, new Class[] {ReturnsString.class, ReturnsObject.class},
                 returnHandler);
@@ -199,6 +200,37 @@ public final class ProxyTest extends TestCase {
             fail();
         } catch (UndeclaredThrowableException expected) {
         }
+    }
+
+    public void test_getProxyClass_nullInterfaces() {
+        try {
+            Proxy.getProxyClass(null, new Class<?>[] { null });
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            Proxy.getProxyClass(null, Echo.class, null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    public void test_getProxyClass_duplicateInterfaces() {
+        try {
+            Proxy.getProxyClass(null, Echo.class, Echo.class);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    public void test_getProxyClass_caching() throws Exception {
+        Class<?> proxy1 = Proxy.getProxyClass(null, Echo.class, ReturnsInt.class);
+        Class<?> proxy2 = Proxy.getProxyClass(null, Echo.class, ReturnsInt.class);
+        Class<?> proxy3 = Proxy.getProxyClass(null, ReturnsInt.class, Echo.class);
+
+        assertSame(proxy1, proxy2);
+        assertTrue(!proxy2.equals(proxy3));
     }
 
     public void testMethodsImplementedByFarIndirectInterface() {

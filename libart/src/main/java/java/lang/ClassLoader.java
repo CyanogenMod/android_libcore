@@ -42,8 +42,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Loads classes and resources from a repository. One or more class loaders are
@@ -100,8 +100,8 @@ public abstract class ClassLoader {
      *
      * @hide
      */
-    public final Map<Set<Class<?>>, Class<?>> proxyCache
-            = Collections.synchronizedMap(new HashMap<Set<Class<?>>, Class<?>>());
+    public final Map<List<Class<?>>, Class<?>> proxyCache =
+            new HashMap<List<Class<?>>, Class<?>>();
 
     /**
      * Create the system class loader. Note this is NOT the bootstrap class
