@@ -319,14 +319,6 @@ public class TreeSetTest extends junit.framework.TestCase {
         s2.add(new Object());
         assertFalse("Sets should not be equal 3", s1.equals(s2));
         assertFalse("Sets should not be equal 4", s2.equals(s1));
-
-        // comparing TreeSets with not-comparable objects inside
-        s1 = new TreeSet();
-        s2 = new TreeSet();
-        s1.add(new Object());
-        s2.add(new Object());
-        assertFalse("Sets should not be equal 5", s1.equals(s2));
-        assertFalse("Sets should not be equal 6", s2.equals(s1));
     }
 
     /**
