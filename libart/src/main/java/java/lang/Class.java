@@ -37,7 +37,6 @@ import dalvik.system.VMStack;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AbstractMethod;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.ArtField;
@@ -1146,6 +1145,12 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     public Type getGenericSuperclass() {
         Type genericSuperclass = getSuperclass();
+        // This method is specified to return null for all cases where getSuperclass
+        // returns null, i.e, for primitives, interfaces, void and java.lang.Object.
+        if (genericSuperclass == null) {
+            return null;
+        }
+
         String annotationSignature = AnnotationAccess.getSignature(this);
         if (annotationSignature != null) {
             GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
