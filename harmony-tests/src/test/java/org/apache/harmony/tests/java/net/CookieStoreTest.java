@@ -39,7 +39,7 @@ public class CookieStoreTest extends TestCase {
         HttpCookie cookie = new HttpCookie("name1", "value1");
         cookie.setDiscard(true);
 
-        // This needn't throw. We should use the cookies domain, if set.
+        // This needn't throw. We should use the cookie's domain, if set.
         // If no domain is set, this cookie will languish in the store until
         // it expires.
         cookieStore.add(null, cookie);
@@ -303,7 +303,7 @@ public class CookieStoreTest extends TestCase {
         cookieStore.add(uri2, cookie2);
         HttpCookie cookie3 = new HttpCookie("cookie_name3", "cookie_value3");
         assertFalse(cookieStore.remove(null, cookie3));
-        // No guarantees on behaviour if we call remove with a different
+        // No guarantees on behavior if we call remove with a different
         // uri from the one originally associated with the cookie.
         assertFalse(cookieStore.remove(null, cookie1));
         assertTrue(cookieStore.remove(uri1, cookie1));
