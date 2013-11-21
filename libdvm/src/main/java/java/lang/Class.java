@@ -798,19 +798,21 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * class}.
      */
     public Type getGenericSuperclass() {
-        Type superClass = getSuperclass();
+        Type genericSuperclass = getSuperclass();
         // This method is specified to return null for all cases where getSuperclass
         // returns null, i.e, for primitives, interfaces, void and java.lang.Object.
-        if (superClass == null) {
+
+        if (genericSuperclass == null) {
             return null;
         }
-        String signature = getSignatureAttribute();
-        if (signature != null) {
+
+        String annotationSignature = getSignatureAttribute();
+        if (annotationSignature != null) {
             GenericSignatureParser parser = new GenericSignatureParser(getClassLoader());
-            parser.parseForClass(this, getSignatureAttribute());
-            superClass = parser.superclassType;
+            parser.parseForClass(this, annotationSignature);
+            genericSuperclass = parser.superclassType;
         }
-        return Types.getType(superClass);
+        return Types.getType(genericSuperclass);
     }
 
     /**
