@@ -51,7 +51,7 @@ public class GZIPOutputStream extends DeflaterOutputStream {
      * the given stream.
      */
     public GZIPOutputStream(OutputStream os) throws IOException {
-        this(os, BUF_SIZE, true);
+        this(os, BUF_SIZE, false);
     }
 
     /**
@@ -65,11 +65,10 @@ public class GZIPOutputStream extends DeflaterOutputStream {
 
     /**
      * Constructs a new {@code GZIPOutputStream} to write data in GZIP format to
-     * the given stream with the given internal buffer size and
-     * flushing behavior (see {@link DeflaterOutputStream#flush}).
+     * the given stream with the given internal buffer size.
      */
     public GZIPOutputStream(OutputStream os, int bufferSize) throws IOException {
-        this(os, bufferSize, true);
+        this(os, bufferSize, false);
     }
 
     /**
