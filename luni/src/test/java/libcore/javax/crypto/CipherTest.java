@@ -895,6 +895,8 @@ public final class CipherTest extends TestCase {
             }
         }
 
+        test_Cipher_init_NullParameters(c, encryptMode, encryptKey);
+
         c.init(encryptMode, encryptKey, encryptSpec);
         assertEquals(cipherID + " getBlockSize() encryptMode",
                      getExpectedBlockSize(algorithm, encryptMode, providerName), c.getBlockSize());
@@ -982,6 +984,45 @@ public final class CipherTest extends TestCase {
             assertEquals(cipherID,
                          Arrays.toString(getExpectedPlainText(algorithm, providerName)),
                          Arrays.toString(decryptedPlainText));
+        }
+    }
+
+    /**
+     * Try various .init(...) calls with null parameters to make sure it is
+     * handled.
+     */
+    private void test_Cipher_init_NullParameters(Cipher c, int encryptMode, Key encryptKey)
+            throws Exception {
+        try {
+            c.init(encryptMode, encryptKey, (AlgorithmParameterSpec) null);
+        } catch (InvalidAlgorithmParameterException e) {
+            if (!isPBE(c.getAlgorithm())) {
+                throw e;
+            }
+        }
+
+        try {
+            c.init(encryptMode, encryptKey, (AlgorithmParameterSpec) null, (SecureRandom) null);
+        } catch (InvalidAlgorithmParameterException e) {
+            if (!isPBE(c.getAlgorithm())) {
+                throw e;
+            }
+        }
+
+        try {
+            c.init(encryptMode, encryptKey, (AlgorithmParameters) null);
+        } catch (InvalidAlgorithmParameterException e) {
+            if (!isPBE(c.getAlgorithm())) {
+                throw e;
+            }
+        }
+
+        try {
+            c.init(encryptMode, encryptKey, (AlgorithmParameters) null, (SecureRandom) null);
+        } catch (InvalidAlgorithmParameterException e) {
+            if (!isPBE(c.getAlgorithm())) {
+                throw e;
+            }
         }
     }
 
