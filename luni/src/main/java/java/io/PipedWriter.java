@@ -17,8 +17,6 @@
 
 package java.io;
 
-import java.util.Arrays;
-
 /**
  * Places information on a communications pipe. When two threads want to pass
  * data back and forth, one creates a piped writer and the other creates a piped
@@ -115,6 +113,9 @@ public class PipedWriter extends Writer {
         }
 
         synchronized (reader) {
+            if (reader.isClosed) {
+                throw new IOException("Pipe is broken");
+            }
             reader.notifyAll();
         }
     }
