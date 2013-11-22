@@ -50,18 +50,20 @@ $(shell cd $(LOCAL_PATH) && ls -d */src/$(1)/{java,resources} 2> /dev/null)
 endef
 
 # The Java files and their associated resources.
-core_src_files := $(call all-main-java-files-under,dalvik dex dom json luni xml)
-core_src_files += $(call all-main-java-files-under,libdvm)
+common_core_src_files := $(call all-main-java-files-under,dalvik dex dom json luni xml)
 core_resource_dirs := $(call all-core-resource-dirs,main)
 test_resource_dirs := $(call all-core-resource-dirs,test)
 test_src_files := $(call all-test-java-files-under,dalvik dom harmony-tests json luni xml)
 
 ifeq ($(EMMA_INSTRUMENT),true)
 ifneq ($(EMMA_INSTRUMENT_STATIC),true)
-    core_src_files += $(call all-java-files-under, ../external/emma/core ../external/emma/pregenerated)
+    common_core_src_files += $(call all-java-files-under, ../external/emma/core ../external/emma/pregenerated)
     core_resource_dirs += ../external/emma/core/res ../external/emma/pregenerated/res
 endif
 endif
+
+libdvm_core_src_files += $(common_core_src_files) $(call all-main-java-files-under,libdvm)
+libart_core_src_files += $(common_core_src_files) $(call all-main-java-files-under,libart)
 
 local_javac_flags=-encoding UTF-8
 #local_javac_flags+=-Xlint:all -Xlint:-serial,-deprecation,-unchecked
@@ -74,23 +76,28 @@ local_javac_flags+=-Xmaxwarns 9999999
 # Definitions to make the core library.
 
 include $(CLEAR_VARS)
-
-LOCAL_SRC_FILES := $(core_src_files)
+LOCAL_SRC_FILES := $(libdvm_core_src_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
-
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_DX_FLAGS := --core-library
-
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_REQUIRED_MODULES := tzdata
-
 include $(BUILD_JAVA_LIBRARY)
 
-core-intermediates := ${intermediates}
-
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(libart_core_src_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := core-libart
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_REQUIRED_MODULES := tzdata
+include $(BUILD_JAVA_LIBRARY)
 
 ifeq ($(LIBCORE_SKIP_TESTS),)
 # Make the core-tests library.
@@ -160,23 +167,30 @@ include $(BUILD_HOST_JAVA_LIBRARY)
 ifeq ($(WITH_HOST_DALVIK),true)
 
     # Definitions to make the core library.
-
     include $(CLEAR_VARS)
-
-    LOCAL_SRC_FILES := $(core_src_files)
+    LOCAL_SRC_FILES := $(libdvm_core_src_files)
     LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
-
     LOCAL_NO_STANDARD_LIBRARIES := true
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_DX_FLAGS := --core-library
-
     LOCAL_BUILD_HOST_DEX := true
-
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := core-hostdex
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
     LOCAL_REQUIRED_MODULES := tzdata-host
+    include $(BUILD_HOST_JAVA_LIBRARY)
 
+    include $(CLEAR_VARS)
+    LOCAL_SRC_FILES := $(libart_core_src_files)
+    LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
+    LOCAL_NO_STANDARD_LIBRARIES := true
+    LOCAL_JAVACFLAGS := $(local_javac_flags)
+    LOCAL_DX_FLAGS := --core-library
+    LOCAL_BUILD_HOST_DEX := true
+    LOCAL_MODULE_TAGS := optional
+    LOCAL_MODULE := core-libart-hostdex
+    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+    LOCAL_REQUIRED_MODULES := tzdata-host
     include $(BUILD_HOST_JAVA_LIBRARY)
 
     # Make the core-tests library.

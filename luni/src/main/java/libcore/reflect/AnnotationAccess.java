@@ -187,11 +187,25 @@ public final class AnnotationAccess {
         Dex dex = dexClass.getDex();
         int annotationTypeIndex = getTypeIndex(dex, annotationClass);
         if (annotationTypeIndex == -1) {
-            return null; // the dex file doesn't use this annotation
+            return null; // The dex file doesn't use this annotation.
         }
 
         int annotationSetOffset = getAnnotationSetOffset(element);
-        return getAnnotationFromAnnotationSet(dex, annotationSetOffset, annotationTypeIndex);
+        if (annotationSetOffset == 0) {
+            return null; // no annotation
+        }
+
+        Dex.Section setIn = dex.open(annotationSetOffset); // annotation_set_item
+        for (int i = 0, size = setIn.readInt(); i < size; i++) {
+            int annotationOffset = setIn.readInt();
+            Dex.Section annotationIn = dex.open(annotationOffset); // annotation_item
+            com.android.dex.Annotation candidate = annotationIn.readAnnotation();
+            if (candidate.getTypeIndex() == annotationTypeIndex) {
+                return candidate;
+            }
+        }
+
+        return null; // This set doesn't contain the annotation.
     }
 
     /**
@@ -199,7 +213,7 @@ public final class AnnotationAccess {
      */
     private static int getAnnotationSetOffset(AnnotatedElement element) {
         Class<?> dexClass = getDexClass(element);
-        int directoryOffset = getDirectoryOffset(dexClass);
+        int directoryOffset = dexClass.getDexAnnotationDirectoryOffset();
         if (directoryOffset == 0) {
             return 0; // nothing on this class has annotations
         }
@@ -255,38 +269,32 @@ public final class AnnotationAccess {
         Dex dex = declaringClass.getDex();
         int declaringClassIndex = getTypeIndex(dex, declaringClass);
         int typeIndex = getTypeIndex(dex, type);
-        int nameIndex = getStringIndex(dex, name);
+        int nameIndex = dex.findStringIndex(name);
         FieldId fieldId = new FieldId(dex, declaringClassIndex, typeIndex, nameIndex);
-        return Collections.binarySearch(dex.fieldIds(), fieldId);
+        return dex.findFieldIndex(fieldId);
     }
 
     public static int getMethodIndex(Class<?> declaringClass, String name, int protoIndex) {
         Dex dex = declaringClass.getDex();
         int declaringClassIndex = getTypeIndex(dex, declaringClass);
-        int nameIndex = getStringIndex(dex, name);
+        int nameIndex = dex.findStringIndex(name);
         MethodId methodId = new MethodId(dex, declaringClassIndex, protoIndex, nameIndex);
-        return Collections.binarySearch(dex.methodIds(), methodId);
+        return dex.findMethodIndex(methodId);
     }
 
     /**
      * Returns the parameter annotations on {@code member}.
      */
-    public static Annotation[][] getParameterAnnotations(Member member) {
-        Class<?> declaringClass = member.getDeclaringClass();
+    public static Annotation[][] getParameterAnnotations(Class<?> declaringClass,
+                                                         int methodDexIndex) {
         Dex dex = declaringClass.getDex();
-        int methodDexIndex;
-        if (member instanceof Method) {
-            methodDexIndex = ((Method) member).getDexMethodIndex();
-        } else {
-            methodDexIndex = ((Constructor<?>) member).getDexMethodIndex();
-        }
         int protoIndex = dex.methodIds().get(methodDexIndex).getProtoIndex();
         ProtoId proto = dex.protoIds().get(protoIndex);
         TypeList parametersList = dex.readTypeList(proto.getParametersOffset());
         short[] types = parametersList.getTypes();
         int typesCount = types.length;
 
-        int directoryOffset = getDirectoryOffset(declaringClass);
+        int directoryOffset = declaringClass.getDexAnnotationDirectoryOffset();
         if (directoryOffset == 0) {
             return new Annotation[typesCount][0]; // nothing on this class has annotations
         }
@@ -358,7 +366,7 @@ public final class AnnotationAccess {
             throw new AssertionError("annotation value type != annotation class");
         }
 
-        int methodNameIndex = Collections.binarySearch(dex.strings(), method.getName());
+        int methodNameIndex = dex.findStringIndex(method.getName());
         for (int i = 0; i < fieldCount; i++) {
             int candidateNameIndex = reader.readAnnotationName();
             if (candidateNameIndex == methodNameIndex) {
@@ -389,7 +397,7 @@ public final class AnnotationAccess {
         if (reader == null) {
             return null;
         }
-        return indexToType(c, dex, reader.readType());
+        return c.getDexCacheType(dex, reader.readType());
     }
 
     public static AccessibleObject getEnclosingMethodOrConstructor(Class<?> c) {
@@ -529,47 +537,21 @@ public final class AnnotationAccess {
      * was derived.
      */
 
+    /** Find dex's type index for the class c */
     private static int getTypeIndex(Dex dex, Class<?> c) {
-        return dex == c.getDex() ? c.getTypeIndex() : computeTypeIndex(dex, c);
-    }
-
-    public static int computeTypeIndex(Dex dex, Class<?> c) {
+        if (dex == c.getDex()) {
+            return  c.getDexTypeIndex();
+        }
         if (dex == null) {
             return -1;
         }
-        int typeIndex = Collections.binarySearch(dex.typeNames(), InternalNames.getInternalName(c));
+        int typeIndex = dex.findTypeIndex(InternalNames.getInternalName(c));
         if (typeIndex < 0) {
             typeIndex = -1;
         }
         return typeIndex;
     }
 
-    private static int getStringIndex(Dex dex, String string) {
-        return Collections.binarySearch(dex.strings(), string);
-    }
-
-    private static int getDirectoryOffset(Class<?> c) {
-        return c.getAnnotationDirectoryOffset();
-    }
-
-    private static com.android.dex.Annotation getAnnotationFromAnnotationSet(
-            Dex dex, int annotationSetOffset, int annotationType) {
-        if (annotationSetOffset == 0) {
-            return null; // no annotation
-        }
-
-        Dex.Section setIn = dex.open(annotationSetOffset); // annotation_set_item
-        for (int i = 0, size = setIn.readInt(); i < size; i++) {
-            int annotationOffset = setIn.readInt();
-            Dex.Section annotationIn = dex.open(annotationOffset); // annotation_item
-            com.android.dex.Annotation candidate = annotationIn.readAnnotation();
-            if (candidate.getTypeIndex() == annotationType) {
-                return candidate;
-            }
-        }
-
-        return null; // this set doesn't carry the annotation
-    }
 
     private static EncodedValueReader getAnnotationReader(
             Dex dex, AnnotatedElement element, String annotationName, int expectedFieldCount) {
@@ -578,16 +560,28 @@ public final class AnnotationAccess {
             return null; // no annotations on the class
         }
 
-        int annotationTypeIndex = Collections.binarySearch(dex.typeNames(), annotationName);
-        com.android.dex.Annotation annotation = getAnnotationFromAnnotationSet(
-                dex, annotationSetOffset, annotationTypeIndex);
+        Dex.Section setIn = dex.open(annotationSetOffset); // annotation_set_item
+        com.android.dex.Annotation annotation = null;
+        // TODO: is it better to compute the index of the annotation name in the dex file and check
+        //       indices below?
+        for (int i = 0, size = setIn.readInt(); i < size; i++) {
+            int annotationOffset = setIn.readInt();
+            Dex.Section annotationIn = dex.open(annotationOffset); // annotation_item
+            com.android.dex.Annotation candidate = annotationIn.readAnnotation();
+            String candidateAnnotationName = dex.typeNames().get(candidate.getTypeIndex());
+            if (annotationName.equals(candidateAnnotationName)) {
+                annotation = candidate;
+                break;
+            }
+        }
         if (annotation == null) {
             return null; // no annotation
         }
 
         EncodedValueReader reader = annotation.getReader();
         int fieldCount = reader.readAnnotation();
-        if (reader.getAnnotationType() != annotationTypeIndex) {
+        String readerAnnotationName = dex.typeNames().get(reader.getAnnotationType());
+        if (!readerAnnotationName.equals(annotationName)) {
             throw new AssertionError();
         }
         if (fieldCount != expectedFieldCount) {
@@ -615,8 +609,8 @@ public final class AnnotationAccess {
                                                                   int typeIndex) {
         try {
             @SuppressWarnings("unchecked") // we do a runtime check
-            Class<? extends Annotation> result = (Class<? extends Annotation>) indexToType(context,
-                    dex, typeIndex);
+            Class<? extends Annotation> result =
+                (Class<? extends Annotation>) context.getDexCacheType(dex, typeIndex);
             if (!result.isAnnotation()) {
                 throw new IncompatibleClassChangeError("Expected annotation: " + result.getName());
             }
@@ -626,65 +620,23 @@ public final class AnnotationAccess {
         }
     }
 
-    private static Class<?> indexToType(Class<?> context, Dex dex, int typeIndex) {
-        String internalName = dex.typeNames().get(typeIndex);
-        return InternalNames.getClass(context.getClassLoader(), internalName);
-    }
-
     private static AccessibleObject indexToMethod(Class<?> context, Dex dex, int methodIndex) {
-        MethodId methodId = dex.methodIds().get(methodIndex);
-        Class<?> declaringClass = indexToType(context, dex, methodId.getDeclaringClassIndex());
-        String name = dex.strings().get(methodId.getNameIndex());
-        Class<?>[] parametersArray = protoIndexToParameters(context, dex, methodId.getProtoIndex());
-        try {
-            return name.equals("<init>")
-                    ? declaringClass.getDeclaredConstructor(parametersArray)
-                    : declaringClass.getDeclaredMethod(name, parametersArray);
-        } catch (NoSuchMethodException e) {
-            throw new IncompatibleClassChangeError("Couldn't find " + declaringClass.getName()
-                    + "." + name + Arrays.toString(parametersArray));
-        }
-    }
-
-    public static Class<?>[] protoIndexToParameters(Class<?> context, Dex dex, int protoIndex) {
-        ProtoId proto = dex.protoIds().get(protoIndex);
-        TypeList parametersList = dex.readTypeList(proto.getParametersOffset());
-        short[] types = parametersList.getTypes();
+        Class<?> declaringClass =
+            context.getDexCacheType(dex, dex.declaringClassIndexFromMethodIndex(methodIndex));
+        String name = context.getDexCacheString(dex, dex.nameIndexFromMethodIndex(methodIndex));
+        short[] types = dex.parameterTypeIndicesFromMethodIndex(methodIndex);
         Class<?>[] parametersArray = new Class[types.length];
         for (int i = 0; i < types.length; i++) {
-            parametersArray[i] = indexToType(context, dex, types[i]);
+            parametersArray[i] = context.getDexCacheType(dex, types[i]);
         }
-        return parametersArray;
-    }
-
-    public static Class<?>[] typeIndexToInterfaces(Class<?> context, Dex dex, int typeIndex) {
-        ClassDef def = getClassDef(dex, typeIndex);
-        if (def == null) {
-          return EmptyArray.CLASS;
+        try {
+            return name.equals("<init>")
+                ? declaringClass.getDeclaredConstructor(parametersArray)
+                : declaringClass.getDeclaredMethod(name, parametersArray);
+        } catch (NoSuchMethodException e) {
+            throw new IncompatibleClassChangeError("Couldn't find " + declaringClass.getName()
+                                                   + "." + name + Arrays.toString(parametersArray));
         }
-        short[] interfaces = def.getInterfaces();
-        Class<?>[] result = new Class<?>[interfaces.length];
-        for (int i = 0; i < interfaces.length; i++) {
-            result[i] = indexToType(context, dex, interfaces[i]);
-        }
-        return result;
-    }
-
-    public static int typeIndexToAnnotationDirectoryOffset(Dex dex, int typeIndex) {
-        ClassDef def = getClassDef(dex, typeIndex);
-        return def == null ? 0 : def.getAnnotationsOffset();
-    }
-
-    private static ClassDef getClassDef(Dex dex, int typeIndex) {
-        if (typeIndex == -1) {
-            return null;
-        }
-        for (ClassDef def : dex.classDefs()) {
-            if (def.getTypeIndex() == typeIndex) {
-                return def;
-            }
-        }
-        throw new AssertionError();
     }
 
     private static List<Annotation> annotationSetToAnnotations(Class<?> context, int offset) {
@@ -722,7 +674,7 @@ public final class AnnotationAccess {
     private static <A extends Annotation> A toAnnotationInstance(Class<?> context, Dex dex,
             Class<A> annotationClass, EncodedValueReader reader) {
         int fieldCount = reader.readAnnotation();
-        if (annotationClass != indexToType(context, dex, reader.getAnnotationType())) {
+        if (annotationClass != context.getDexCacheType(dex, reader.getAnnotationType())) {
             throw new AssertionError("annotation value type != return type");
         }
         AnnotationMember[] members = new AnnotationMember[fieldCount];
@@ -766,10 +718,10 @@ public final class AnnotationAccess {
             return toAnnotationInstance(context, dex, annotationClass, reader);
         } else if (type == String.class) {
             int index = reader.readString();
-            return dex.strings().get(index);
+            return context.getDexCacheString(dex, index);
         } else if (type == Class.class) {
             int index = reader.readType();
-            return indexToType(context, dex, index);
+            return context.getDexCacheType(dex, index);
         } else if (type == byte.class) {
             return reader.readByte();
         } else if (type == short.class) {

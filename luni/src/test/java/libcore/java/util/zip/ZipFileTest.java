@@ -33,7 +33,6 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import junit.framework.TestCase;
-import libcore.io.IoUtils;
 
 public final class ZipFileTest extends TestCase {
     /**
@@ -117,6 +116,51 @@ public final class ZipFileTest extends TestCase {
             fail();
         } catch (ZipException expected) {
         }
+    }
+
+    /**
+     * Make sure the size used for stored zip entires is the uncompressed size.
+     * b/10227498
+     */
+    public void testStoredEntrySize() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream out = new ZipOutputStream(baos);
+
+        // Set up a single stored entry.
+        String name = "test_file";
+        int expectedLength = 5;
+        ZipEntry outEntry = new ZipEntry(name);
+        byte[] buffer = new byte[expectedLength];
+        outEntry.setMethod(ZipEntry.STORED);
+        CRC32 crc = new CRC32();
+        crc.update(buffer);
+        outEntry.setCrc(crc.getValue());
+        outEntry.setSize(buffer.length);
+
+        out.putNextEntry(outEntry);
+        out.write(buffer);
+        out.closeEntry();
+        out.close();
+
+        // Write the result to a file.
+        byte[] outBuffer = baos.toByteArray();
+        File zipFile = createTemporaryZipFile();
+        writeBytes(zipFile, outBuffer);
+
+        ZipFile zip = new ZipFile(zipFile);
+        // Set up the zip entry to have different compressed/uncompressed sizes.
+        ZipEntry ze = zip.getEntry(name);
+        ze.setCompressedSize(expectedLength - 1);
+        // Read the contents of the stream and verify uncompressed size was used.
+        InputStream stream = zip.getInputStream(ze);
+        int count = 0;
+        int read;
+        while ((read = stream.read(buffer)) != -1) {
+            count += read;
+        }
+
+        assertEquals(expectedLength, count);
+
     }
 
     public void testInflatingStreamsRequiringZipRefill() throws IOException {
@@ -379,33 +423,24 @@ public final class ZipFileTest extends TestCase {
         assertEquals(null, zipFile.getComment());
     }
 
-    public void testNameLengthChecks() throws IOException {
-        // Is entry name length checking done on bytes or characters?
-        // Really it should be bytes, but the RI only checks characters at construction time.
-        // Android does the same, because it's cheap...
-        try {
-            new ZipEntry((String) null);
-            fail();
-        } catch (NullPointerException expected) {
-        }
-        new ZipEntry(makeString(0xffff, "a"));
-        try {
-            new ZipEntry(makeString(0xffff + 1, "a"));
-            fail();
-        } catch (IllegalArgumentException expected) {
-        }
+    // https://code.google.com/p/android/issues/detail?id=58465
+    public void test_NUL_in_filename() throws Exception {
+        File file = createTemporaryZipFile();
 
-        // ...but Android won't let you create a zip file with a truncated name.
-        ZipOutputStream out = createZipOutputStream(createTemporaryZipFile());
-        ZipEntry ze = new ZipEntry(makeString(0xffff, "\u0666"));
-        try {
-            out.putNextEntry(ze);
-            fail(); // The RI fails this test; it just checks the character count at construction time.
-        } catch (IllegalArgumentException expected) {
-        }
-        out.closeEntry();
-        out.putNextEntry(new ZipEntry("okay")); // ZipOutputStream.close throws if you add nothing!
+        // We allow creation of a ZipEntry whose name contains a NUL byte,
+        // mainly because it's not likely to happen by accident and it's useful for testing.
+        ZipOutputStream out = createZipOutputStream(file);
+        out.putNextEntry(new ZipEntry("hello"));
+        out.putNextEntry(new ZipEntry("hello\u0000"));
         out.close();
+
+        // But you can't open a ZIP file containing such an entry, because we reject it
+        // when we find it in the central directory.
+        try {
+            ZipFile zipFile = new ZipFile(file);
+            fail();
+        } catch (ZipException expected) {
+        }
     }
 
     public void testCrc() throws IOException {

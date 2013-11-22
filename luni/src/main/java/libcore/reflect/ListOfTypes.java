@@ -19,6 +19,7 @@ package libcore.reflect;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import libcore.util.EmptyArray;
 
 public final class ListOfTypes {
     public static final ListOfTypes EMPTY = new ListOfTypes(0);
@@ -50,12 +51,20 @@ public final class ListOfTypes {
 
     public Type[] getResolvedTypes() {
         Type[] result = resolvedTypes;
-        return result != null ? result : (resolvedTypes = resolveTypes(types));
+        if (result == null) {
+            result = resolveTypes(types);
+            resolvedTypes = result;
+        }
+        return result;
     }
 
     private Type[] resolveTypes(List<Type> unresolved) {
-        Type[] result = new Type[unresolved.size()];
-        for (int i = 0; i < unresolved.size(); i++) {
+        int size = unresolved.size();
+        if (size == 0) {
+            return EmptyArray.TYPE;
+        }
+        Type[] result = new Type[size];
+        for (int i = 0; i < size; i++) {
             Type type = unresolved.get(i);
             try {
                 result[i] = ((ParameterizedTypeImpl) type).getResolvedType();

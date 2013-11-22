@@ -30,8 +30,6 @@ public final class VMRuntime {
      */
     private static final VMRuntime THE_ONE = new VMRuntime();
 
-    private int targetSdkVersion;
-
     /**
      * Prevents this class from being instantiated.
      */
@@ -118,23 +116,9 @@ public final class VMRuntime {
      * app starts to run, because it may change the VM's behavior in
      * dangerous ways. Use 0 to mean "current" (since callers won't
      * necessarily know the actual current SDK version, and the
-     * allocated version numbers start at 1), and 10000 to mean
-     * CUR_DEVELOPMENT.
+     * allocated version numbers start at 1).
      */
-    public synchronized void setTargetSdkVersion(int targetSdkVersion) {
-        this.targetSdkVersion = targetSdkVersion;
-        setTargetSdkVersionNative(this.targetSdkVersion);
-    }
-
-    /**
-     * Gets the target SDK version. See {@link #setTargetSdkVersion} for
-     * special values.
-     */
-    public synchronized int getTargetSdkVersion() {
-        return targetSdkVersion;
-    }
-
-    private native void setTargetSdkVersionNative(int targetSdkVersion);
+    public native void setTargetSdkVersion(int targetSdkVersion);
 
     /**
      * This method exists for binary compatibility.  It was part of a
@@ -254,8 +238,10 @@ public final class VMRuntime {
      */
     public native void registerNativeFree(int bytes);
 
-    /**
-     * Fill in dex caches with classes, fields, and methods that are already loaded.
-     */
-    public native void preloadDexCaches();
+    public native void trimHeap();
+    public native void concurrentGC();
+
+    public void preloadDexCaches() {
+        // Do nothing with ART, image generation already does this.
+    }
 }

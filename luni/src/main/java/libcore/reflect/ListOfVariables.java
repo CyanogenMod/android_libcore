@@ -20,8 +20,6 @@ import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 
 final class ListOfVariables {
-    public static final TypeVariable[] EMPTY = new TypeVariableImpl[0];
-
     final ArrayList<TypeVariable<?>> array = new ArrayList<TypeVariable<?>>();
 
     void add (TypeVariable<?> elem) {
