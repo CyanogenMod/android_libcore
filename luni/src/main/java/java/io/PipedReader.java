@@ -33,7 +33,7 @@ public class PipedReader extends Reader {
 
     private Thread lastWriter;
 
-    private boolean isClosed;
+    boolean isClosed;
 
     /**
      * The circular buffer through which data is passed. Data is read from the

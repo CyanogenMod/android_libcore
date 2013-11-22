@@ -32,8 +32,7 @@ public class PipedWriterTest extends junit.framework.TestCase {
             try {
                 pr = new PipedReader(pw);
             } catch (IOException e) {
-                System.out.println("Exception setting up reader: "
-                        + e.toString());
+                fail();
             }
         }
 
@@ -51,9 +50,7 @@ public class PipedWriterTest extends junit.framework.TestCase {
                     buf[i] = (char) r;
                 }
             } catch (Exception e) {
-                System.out.println("Exception reading ("
-                        + Thread.currentThread().getName() + "): "
-                        + e.toString());
+                fail();
             }
         }
     }
@@ -85,7 +82,7 @@ public class PipedWriterTest extends junit.framework.TestCase {
         rdrThread.start();
         pw.write(buf);
         pw.close();
-        rdrThread.join(500);
+        rdrThread.join();
         assertEquals("Failed to construct writer", "HelloWorld", new String(
                 reader.buf));
     }
@@ -123,7 +120,7 @@ public class PipedWriterTest extends junit.framework.TestCase {
         rdrThread.start();
         pw.write(buf);
         pw.close();
-        rdrThread.join(500);
+        rdrThread.join();
         assertEquals("Failed to write correct chars", "HelloWorld", new String(
                 reader.buf));
     }
@@ -140,7 +137,7 @@ public class PipedWriterTest extends junit.framework.TestCase {
         rdrThread.start();
         pw.write(buf);
         pw.flush();
-        rdrThread.join(700);
+        rdrThread.join();
         assertEquals("Failed to flush chars", "HelloWorld", new String(
                 reader.buf));
     }
@@ -185,7 +182,7 @@ public class PipedWriterTest extends junit.framework.TestCase {
         rdrThread.start();
         pw.write(buf, 0, 10);
         pw.close();
-        rdrThread.join(1000);
+        rdrThread.join();
         assertEquals("Failed to write correct chars", "HelloWorld", new String(
                 reader.buf));
     }
