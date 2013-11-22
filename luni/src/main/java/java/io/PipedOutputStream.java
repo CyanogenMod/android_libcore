@@ -140,7 +140,7 @@ public class PipedOutputStream extends OutputStream {
      * @throws IOException
      *             if this stream is not connected, if the target stream is
      *             closed or if the thread reading from the target stream is no
-     *             longer alive. This case is currently not handled correctly.
+     *             longer alive.
      */
     @Override
     public void write(byte[] buffer, int offset, int count) throws IOException {
