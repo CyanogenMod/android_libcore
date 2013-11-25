@@ -15,11 +15,12 @@
  *  limitations under the License.
  */
 
-package tests.api.javax.security.auth;
+package org.apache.harmony.tests.javax.security.auth.callback;
 
 import junit.framework.TestCase;
-
+import javax.security.auth.DestroyFailedException;
 import javax.security.auth.callback.PasswordCallback;
+import org.apache.harmony.testframework.serialization.SerializationTest;
 
 /**
  * Tests for <code>PasswordCallback</code> class constructors and methods.
@@ -103,5 +104,21 @@ public class PasswordCallbackTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
+    }
+
+
+    public void testSerializationSelf() throws Exception {
+        SerializationTest.verifySelf(getSerializationData());
+    }
+
+    public void testSerializationGolden() throws Exception {
+        SerializationTest.verifyGolden(this, getSerializationData());
+    }
+
+    private Object[] getSerializationData() {
+        char[] pwd = { 'a', 'b', 'c' };
+        PasswordCallback p = new PasswordCallback("prmpt", true);
+        p.setPassword(pwd);
+        return new Object[] { new PasswordCallback("prompt", true), p };
     }
 }

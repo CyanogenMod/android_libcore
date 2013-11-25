@@ -15,11 +15,13 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.tests.javax.security.auth;
+package org.apache.harmony.tests.javax.security.auth.login;
 
 import junit.framework.TestCase;
 
+import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
+import org.apache.harmony.testframework.serialization.SerializationTest;
 
 /**
  * Tests for <code>LoginException</code> class constructors and methods.
@@ -65,5 +67,17 @@ public class LoginExceptionTest extends TestCase {
         LoginException lE = new LoginException(msg);
         assertNull("getMessage() must return null.", lE.getMessage());
         assertNull("getCause() must return null", lE.getCause());
+    }
+
+    public void testSerializationSelf() throws Exception {
+        SerializationTest.verifySelf(getSerializationData());
+    }
+
+    public void testSerializationGolden() throws Exception {
+        SerializationTest.verifyGolden(this, getSerializationData());
+    }
+
+    private Object[] getSerializationData() {
+        return new Object[] { new LoginException("message") };
     }
 }
