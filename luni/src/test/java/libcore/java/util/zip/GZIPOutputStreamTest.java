@@ -16,17 +16,14 @@
 
 package libcore.java.util.zip;
 
-import java.io.ByteArrayInputStream;
+import junit.framework.TestCase;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Random;
-import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import java.util.zip.InflaterInputStream;
-import junit.framework.TestCase;
 
 public final class GZIPOutputStreamTest extends TestCase {
   public void testShortMessage() throws IOException {
@@ -67,4 +64,15 @@ public final class GZIPOutputStreamTest extends TestCase {
     in.close();
   }
 
+  // https://code.google.com/p/android/issues/detail?id=62589
+  public void testFlushAfterFinish() throws Exception {
+    byte[] responseBytes = "Some data to gzip".getBytes();
+    ByteArrayOutputStream output = new ByteArrayOutputStream(responseBytes.length);
+    GZIPOutputStream gzipOutputStream = new GZIPOutputStream(output, true);
+    gzipOutputStream.write(responseBytes);
+    gzipOutputStream.finish();
+    // Calling flush() after finish() shouldn't throw.
+    gzipOutputStream.flush();
+    gzipOutputStream.close();
+  }
 }

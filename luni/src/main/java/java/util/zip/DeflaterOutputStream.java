@@ -188,7 +188,10 @@ public class DeflaterOutputStream extends FilterOutputStream {
      * Doing so may degrade compression but improve interactive behavior.
      */
     @Override public void flush() throws IOException {
-        if (syncFlush) {
+        // Though not documented, it's illegal to call deflate with any flush param
+        // other than Z_FINISH after the deflater has finished. See the error checking
+        // at the start of the deflate function in deflate.c.
+        if (syncFlush && !done) {
             int byteCount;
             while ((byteCount = def.deflate(buf, 0, buf.length, Deflater.SYNC_FLUSH)) != 0) {
                 out.write(buf, 0, byteCount);
