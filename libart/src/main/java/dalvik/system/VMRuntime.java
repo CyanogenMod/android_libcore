@@ -258,6 +258,12 @@ public final class VMRuntime {
     public native void concurrentGC();
 
     /**
+     * Let the heap know of the new process state. This can change allocation and garbage collection
+     * behavior regarding trimming and compaction.
+     */
+    public native void updateProcessState(int state);
+
+    /**
      * Fill in dex caches with classes, fields, and methods that are
      * already loaded. Typically used after Zygote preloading.
      */
