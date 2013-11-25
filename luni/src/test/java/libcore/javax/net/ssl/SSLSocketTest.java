@@ -397,35 +397,26 @@ public class SSLSocketTest extends TestCase {
                                                  SSLContext.getDefault(), SSLContext.getDefault());
         SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket(c.host,
                                                                                        c.port);
-        // RI used to throw SSLException on accept, now throws on startHandshake
-        if (StandardNames.IS_RI) {
-            final SSLSocket server = (SSLSocket) c.serverSocket.accept();
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<Void> future = executor.submit(new Callable<Void>() {
-                @Override public Void call() throws Exception {
-                    try {
-                        server.startHandshake();
-                        fail();
-                    } catch (SSLHandshakeException expected) {
-                    }
-                    return null;
+        final SSLSocket server = (SSLSocket) c.serverSocket.accept();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Void> future = executor.submit(new Callable<Void>() {
+            @Override public Void call() throws Exception {
+                try {
+                    server.startHandshake();
+                    fail();
+                } catch (SSLHandshakeException expected) {
                 }
-            });
-            executor.shutdown();
-            try {
-                client.startHandshake();
-                fail();
-            } catch (SSLHandshakeException expected) {
+                return null;
             }
-            future.get();
-            server.close();
-        } else {
-            try {
-                c.serverSocket.accept();
-                fail();
-            } catch (SSLException expected) {
-            }
+        });
+        executor.shutdown();
+        try {
+            client.startHandshake();
+            fail();
+        } catch (SSLHandshakeException expected) {
         }
+        future.get();
+        server.close();
         client.close();
         c.close();
     }
