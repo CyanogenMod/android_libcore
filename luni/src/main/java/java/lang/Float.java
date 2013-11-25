@@ -199,7 +199,13 @@ public final class Float extends Number implements Comparable<Float> {
      * float {@code value}. All <em>Not-a-Number (NaN)</em> values are converted to a single NaN
      * representation ({@code 0x7fc00000}) (compare to {@link #floatToRawIntBits}).
      */
-    public static native int floatToIntBits(float value);
+    public static int floatToIntBits(float value) {
+        if (value != value) {
+            return 0x7fc00000;  // NaN.
+        } else {
+            return floatToRawIntBits(value);
+        }
+    }
 
     /**
      * Returns an integer corresponding to the bits of the given

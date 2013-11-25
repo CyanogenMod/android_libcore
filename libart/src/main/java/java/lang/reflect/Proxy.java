@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 import libcore.util.EmptyArray;
 
 /**
@@ -40,7 +39,7 @@ public class Proxy implements Serializable {
 
     private static final long serialVersionUID = -2222568056686623797L;
 
-    private static int NextClassNameIndex = 0;
+    private static int nextClassNameIndex = 0;
 
     /**
      * Orders methods by their name, parameters, return type and inheritance relationship.
@@ -117,22 +116,33 @@ public class Proxy implements Serializable {
             throw new NullPointerException("interfaces == null");
         }
 
-        Set<Class<?>> interfacesSet = new CopyOnWriteArraySet<Class<?>>(Arrays.asList(interfaces));
+        // Make a copy of the list early on because we're using the list as a
+        // cache key and we don't want it changing under us.
+        final List<Class<?>> interfaceList = new ArrayList<Class<?>>(interfaces.length);
+        Collections.addAll(interfaceList, interfaces);
 
-        Class<?> proxy = loader.proxyCache.get(interfacesSet);
-        if (proxy != null) {
-            return proxy;
+        // We use a HashSet *only* for detecting duplicates and null entries. We
+        // can't use it as our cache key because we need to preserve the order in
+        // which these interfaces were specified. (Different orders should define
+        // different proxies.)
+        final Set<Class<?>> interfaceSet = new HashSet<Class<?>>(interfaceList);
+        if (interfaceSet.contains(null)) {
+            throw new NullPointerException("interface list contains null: " + interfaceList);
         }
 
-        if (interfacesSet.size() != interfaces.length) {
-            throw new IllegalArgumentException(
-                    "interfaces has duplicates: " + Arrays.toString(interfaces));
+        if (interfaceSet.size() != interfaces.length) {
+            throw new IllegalArgumentException("duplicate interface in list: " + interfaceList);
         }
+
+        synchronized (loader.proxyCache) {
+            Class<?> proxy = loader.proxyCache.get(interfaceList);
+            if (proxy != null) {
+                return proxy;
+            }
+        }
+
         String commonPackageName = null;
         for (Class<?> c : interfaces) {
-            if (c == null) {
-                throw new NullPointerException("interfaces contained a null element");
-            }
             if (!c.isInterface()) {
                 throw new IllegalArgumentException(c + " is not an interface");
             }
@@ -152,11 +162,6 @@ public class Proxy implements Serializable {
             }
         }
 
-        String baseName = commonPackageName != null && !commonPackageName.isEmpty()
-                ? commonPackageName + ".$Proxy"
-                : "$Proxy";
-        String name = baseName + NextClassNameIndex++;
-
         List<Method> methods = getMethods(interfaces);
         Collections.sort(methods, ORDER_BY_SIGNATURE_AND_SUBTYPE);
         validateReturnTypes(methods);
@@ -167,8 +172,21 @@ public class Proxy implements Serializable {
             methodsArray[i] = methods.get(i).getArtMethod();
         }
         Class<?>[][] exceptionsArray = exceptions.toArray(new Class<?>[exceptions.size()][]);
-        Class<?> result = generateProxy(name, interfaces, loader, methodsArray, exceptionsArray);
-        loader.proxyCache.put(interfacesSet, result);
+
+        String baseName = commonPackageName != null && !commonPackageName.isEmpty()
+                ? commonPackageName + ".$Proxy"
+                : "$Proxy";
+
+        Class<?> result;
+        synchronized (loader.proxyCache) {
+            result = loader.proxyCache.get(interfaceSet);
+            if (result == null) {
+                String name = baseName + nextClassNameIndex++;
+                result = generateProxy(name, interfaces, loader, methodsArray, exceptionsArray);
+                loader.proxyCache.put(interfaceList, result);
+            }
+        }
+
         return result;
     }
 

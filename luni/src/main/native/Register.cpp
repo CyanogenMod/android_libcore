@@ -23,7 +23,7 @@
 #include <stdlib.h>
 
 // DalvikVM calls this on startup, so we can statically register all our native methods.
-int JNI_OnLoad(JavaVM* vm, void*) {
+jint JNI_OnLoad(JavaVM* vm, void*) {
     JNIEnv* env;
     if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
         ALOGE("JavaVM::GetEnv() failed");
@@ -75,5 +75,6 @@ int JNI_OnLoad(JavaVM* vm, void*) {
     REGISTER(register_org_apache_harmony_xml_ExpatParser);
     REGISTER(register_sun_misc_Unsafe);
 #undef REGISTER
+
     return JNI_VERSION_1_6;
 }

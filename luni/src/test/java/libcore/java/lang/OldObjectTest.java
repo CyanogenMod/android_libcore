@@ -36,6 +36,16 @@ public class OldObjectTest extends TestCase {
     TestThread1 thr1;
     TestThread2 thr2;
 
+    public void test_hashCode() {
+        Object o1 = new Object();
+        Object o2 = new Object();
+        int h1 = System.identityHashCode(o1);
+        int h2 = System.identityHashCode(o2);
+        assertEquals(h1, o1.hashCode());
+        assertEquals(h2, o2.hashCode());
+        assertTrue(h1 != h2);
+    }
+
     public void test_clone() {
         MockCloneableObject mco = new MockCloneableObject();
         try {

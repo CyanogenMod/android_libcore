@@ -124,6 +124,28 @@ public final class ClassLoaderReflectionTest extends TestCase {
         assertParameterizedType(types[1], List.class, aClass);
     }
 
+    public void testClassesOfDifferentClassLoadersAreNotEqual() throws Exception {
+        assertFalse(A.class.equals(aClass));
+    }
+
+    public void testConstructorsOfDifferentClassLoadersAreNotEqual() throws Exception {
+        Constructor<?> c1 = A.class.getDeclaredConstructor();
+        Constructor<?> c2 = aClass.getDeclaredConstructor();
+        assertFalse(c1.equals(c2));
+    }
+
+    public void testMethodsOfDifferentClassLoadersAreNotEqual() throws Exception {
+        Method m1 = E.class.getMethod("call");
+        Method m2 = eClass.getMethod("call");
+        assertFalse(m1.equals(m2));
+    }
+
+    public void testFieldsOfDifferentClassLoadersAreNotEqual() throws Exception {
+        Field f1 = B.class.getDeclaredField("field");
+        Field f2 = bClass.getDeclaredField("field");
+        assertFalse(f1.equals(f2));
+    }
+
     static class A {}
     static class B<T> {
         T field;

@@ -62,9 +62,9 @@ LOCAL_C_INCLUDES += \
 	external/openssl/include \
 	external/zlib
 
+LOCAL_STATIC_LIBRARIES += \
+	libfdlibm
+
 LOCAL_SHARED_LIBRARIES += \
 	liblog \
 	libnativehelper
-
-LOCAL_STATIC_LIBRARIES += \
-	libfdlibm

@@ -58,14 +58,40 @@ public final class ThreadTest extends TestCase {
         assertTrue("Unstarted threads were never finalized!", finalizedThreadsCount.get() > 0);
     }
 
-    private Thread newThread(final AtomicInteger finalizedThreadsCount, final int size) {
-        return new Thread() {
-            byte[] memoryPressure = new byte[size];
-            @Override protected void finalize() throws Throwable {
-                super.finalize();
-                finalizedThreadsCount.incrementAndGet();
-            }
-        };
+    public void testThreadSleep() throws Exception {
+       int millis = 1000;
+       long start = System.currentTimeMillis();
+
+       Thread.sleep(millis);
+
+       long elapsed = System.currentTimeMillis() - start;
+       long offBy = Math.abs(elapsed - millis);
+
+       assertTrue("Actual sleep off by " + offBy + " ms", offBy <= 250);
+    }
+
+    public void testThreadWakeup() throws Exception {
+        WakeupTestThread t1 = new WakeupTestThread();
+        WakeupTestThread t2 = new WakeupTestThread();
+
+        t1.start();
+        t2.start();
+        assertTrue("Threads already finished", !t1.done && !t2.done);
+
+        t1.interrupt();
+        t2.interrupt();
+
+        Thread.sleep(1000);
+        assertTrue("Threads did not finish", t1.done && t2.done);
+    }
+
+    public void testContextClassLoaderIsNotNull() {
+        assertNotNull(Thread.currentThread().getContextClassLoader());
+    }
+
+    public void testContextClassLoaderIsInherited() {
+        Thread other = new Thread();
+        assertSame(Thread.currentThread().getContextClassLoader(), other.getContextClassLoader());
     }
 
     /**
@@ -108,5 +134,31 @@ public final class ThreadTest extends TestCase {
 
         // Expect to see the traces of all threads (not just t2)
         assertTrue("Must have traces for all threads", visibleTraces.get() > 1);
+    }
+
+    private Thread newThread(final AtomicInteger finalizedThreadsCount, final int size) {
+        return new Thread() {
+            long[] memoryPressure = new long[size];
+            @Override protected void finalize() throws Throwable {
+                super.finalize();
+                finalizedThreadsCount.incrementAndGet();
+            }
+        };
+    }
+
+    private class WakeupTestThread extends Thread {
+        public boolean done;
+
+        public void run() {
+            done = false;
+
+            // Sleep for a while (1 min)
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException ignored) {
+            }
+
+            done = true;
+        }
     }
 }

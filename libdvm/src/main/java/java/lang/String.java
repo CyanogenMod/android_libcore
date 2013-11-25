@@ -736,13 +736,47 @@ outer:
      * equal. The object must be an instance of string with the same characters
      * in the same order.
      *
-     * @param object
+     * @param other
      *            the object to compare.
      * @return {@code true} if the specified object is equal to this string,
      *         {@code false} otherwise.
      * @see #hashCode
      */
-    @Override public native boolean equals(Object object);
+    @Override public boolean equals(Object other) {
+        if (other == this) {
+          return true;
+        }
+        if (other instanceof String) {
+            String s = (String)other;
+            int count = this.count;
+            if (s.count != count) {
+                return false;
+            }
+            // TODO: we want to avoid many boundchecks in the loop below
+            // for long Strings until we have array equality intrinsic.
+            // Bad benchmarks just push .equals without first getting a
+            // hashCode hit (unlike real world use in a Hashtable). Filter
+            // out these long strings here. When we get the array equality
+            // intrinsic then remove this use of hashCode.
+            if (hashCode() != s.hashCode()) {
+                return false;
+            }
+            char[] value1 = value;
+            int offset1 = offset;
+            char[] value2 = s.value;
+            int offset2 = s.offset;
+            for (int end = offset1 + count; offset1 < end; ) {
+                if (value1[offset1] != value2[offset2]) {
+                    return false;
+                }
+                offset1++;
+                offset2++;
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     /**
      * Compares the specified string to this string ignoring the case of the

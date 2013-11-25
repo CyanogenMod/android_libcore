@@ -162,13 +162,13 @@ public class FieldTest extends junit.framework.TestCase {
         TestField x = new TestField();
         Field f = null;
         try {
-            f = x.getClass().getDeclaredField("shortField");
+            f = TestField.class.getDeclaredField("shortField");
         } catch (Exception e) {
             fail("Exception during getType test : " + e.getMessage());
         }
         try {
             assertTrue("Same Field returned false", f.equals(f));
-            assertTrue("Inherited Field returned false", f.equals(x.getClass()
+            assertTrue("Inherited Field returned false", f.equals(TestField.class
                     .getDeclaredField("shortField")));
             assertTrue("Identical Field from different class returned true", !f
                     .equals(A.class.getDeclaredField("shortField")));
@@ -184,29 +184,16 @@ public class FieldTest extends junit.framework.TestCase {
         // Test for method java.lang.Object
         // java.lang.reflect.Field.get(java.lang.Object)
         TestField x = new TestField();
-        Field f = x.getClass().getDeclaredField("doubleField");
+        Field f = TestField.class.getDeclaredField("doubleField");
         Double val = (Double) f.get(x);
 
         assertTrue("Returned incorrect double field value",
                 val.doubleValue() == Double.MAX_VALUE);
         // Test getting a static field;
-        f = x.getClass().getDeclaredField("doubleSField");
+        f = TestField.class.getDeclaredField("doubleSField");
         f.set(x, new Double(1.0));
         val = (Double) f.get(x);
-        assertEquals("Returned incorrect double field value", 1.0, val
-                .doubleValue());
-
-        // Try a get on a private field
-        boolean thrown = false;
-        try {
-            f = TestAccess.class.getDeclaredField("xxx");
-            assertNotNull(f);
-            f.get(null);
-            fail("No expected IllegalAccessException");
-        } catch (IllegalAccessException ok) {
-            thrown = true;
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
+        assertEquals("Returned incorrect double field value", 1.0, val.doubleValue());
 
         // Try a get on a private field in nested member
         // temporarily commented because it breaks J9 VM
@@ -215,9 +202,9 @@ public class FieldTest extends junit.framework.TestCase {
         //assertEquals(x.privfield1, f.get(x));
 
         // Try a get using an invalid class.
-        thrown = false;
+        boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("doubleField");
+            f = TestField.class.getDeclaredField("doubleField");
             f.get(new String());
             fail("No expected IllegalArgumentException");
         } catch (IllegalArgumentException exc) {
@@ -252,7 +239,7 @@ public class FieldTest extends junit.framework.TestCase {
     class SupportSubClass extends Support_Field {
 
         Object getField(char primitiveType, Object o, Field f,
-                Class expectedException) {
+                Class expected) {
             Object res = null;
             try {
                 primitiveType = Character.toUpperCase(primitiveType);
@@ -284,23 +271,23 @@ public class FieldTest extends junit.framework.TestCase {
                 default:
                     res = f.get(o);
                 }
-                if (expectedException != null) {
-                    fail("expected exception " + expectedException.getName());
-                }
+                // Since 2011, members are always accessible and throwing is optional
+                assertTrue("expected " + expected + " for " + f.getName(),
+                        expected == null || expected == IllegalAccessException.class);
             } catch (Exception e) {
-                if (expectedException == null) {
+                if (expected == null) {
                     fail("unexpected exception " + e);
                 } else {
                     assertTrue("expected exception "
-                            + expectedException.getName() + " and got " + e, e
-                            .getClass().equals(expectedException));
+                            + expected.getName() + " and got " + e, e
+                            .getClass().equals(expected));
                 }
             }
             return res;
         }
 
         void setField(char primitiveType, Object o, Field f,
-                Class expectedException, Object value) {
+                Class expected, Object value) {
             try {
                 primitiveType = Character.toUpperCase(primitiveType);
                 switch (primitiveType) {
@@ -331,19 +318,19 @@ public class FieldTest extends junit.framework.TestCase {
                 default:
                     f.set(o, value);
                 }
-                if (expectedException != null) {
-                    fail("expected exception " + expectedException.getName()
-                            + " for field " + f.getName() + ", value " + value);
-                }
+                // Since 2011, members are always accessible and throwing is optional
+                assertTrue("expected " + expected + " for " + f.getName() + " = " + value,
+                        expected == null || expected == IllegalAccessException.class);
             } catch (Exception e) {
-                if (expectedException == null) {
+                if (expected == null) {
+                    e.printStackTrace();
                     fail("unexpected exception " + e + " for field "
                             + f.getName() + ", value " + value);
                 } else {
                     assertTrue("expected exception "
-                            + expectedException.getName() + " and got " + e
+                            + expected.getName() + " and got " + e
                             + " for field " + f.getName() + ", value " + value,
-                            e.getClass().equals(expectedException));
+                            e.getClass().equals(expected));
                 }
             }
         }
@@ -370,7 +357,7 @@ public class FieldTest extends junit.framework.TestCase {
      * java.lang.reflect.Field#setChar(java.lang.Object, char)
      */
     public void testProtectedFieldAccess() {
-        Class fieldClass = new Support_Field().getClass();
+        Class fieldClass = Support_Field.class;
         String fieldName = null;
         Field objectField = null;
         Field booleanField = null;
@@ -420,10 +407,8 @@ public class FieldTest extends junit.framework.TestCase {
         SupportSubClass otherSubclass = new SupportSubClass();
         Object plainObject = new Object();
 
-        Class illegalAccessExceptionClass = new IllegalAccessException()
-                .getClass();
-        Class illegalArgumentExceptionClass = new IllegalArgumentException()
-                .getClass();
+        Class illegalAccessExceptionClass = IllegalAccessException.class;
+        Class illegalArgumentExceptionClass = IllegalArgumentException.class;
 
         // The test will attempt to use pass an object to set for object, byte,
         // short, ..., float and double fields
@@ -469,8 +454,7 @@ public class FieldTest extends junit.framework.TestCase {
                     subclass.setField(type, parentClass, field,
                             illegalAccessExceptionClass, value);
                     subclass.setField(type, plainObject, field,
-                            // Failed on JDK.
-                            illegalAccessExceptionClass, value);
+                            illegalArgumentExceptionClass, value);
                 }
             }
             for (int j = 0; j < i; j++) {
@@ -489,8 +473,7 @@ public class FieldTest extends junit.framework.TestCase {
         subclass.setField('Z', parentClass, booleanField,
                 illegalAccessExceptionClass, booleanValue);
         subclass.setField('Z', plainObject, booleanField,
-                // Failed on JDK
-                illegalAccessExceptionClass, booleanValue);
+                illegalArgumentExceptionClass, booleanValue);
         for (int j = 0; j < fields.length; j++) {
             Field listedField = fields[j];
             fieldName = listedField.getName();
@@ -505,7 +488,7 @@ public class FieldTest extends junit.framework.TestCase {
                     illegalArgumentExceptionClass, value);
         }
 
-        // We perform the analagous test on the get methods.
+        // We perform the analogous test on the get methods.
 
         // ordered by widening conversion, except for 'L' at the end (which
         // stands for Object), to which all primitives can be converted by
@@ -534,7 +517,7 @@ public class FieldTest extends junit.framework.TestCase {
                     subclass.getField(type, parentClass, field,
                             illegalAccessExceptionClass);
                     subclass.getField(type, plainObject, field,
-                            illegalAccessExceptionClass);
+                            illegalArgumentExceptionClass);
                 }
             }
             for (int j = i + 1; j < fields.length; j++) {
@@ -551,7 +534,7 @@ public class FieldTest extends junit.framework.TestCase {
         subclass.getField('Z', parentClass, booleanField,
                 illegalAccessExceptionClass);
         subclass.getField('Z', plainObject, booleanField,
-                illegalAccessExceptionClass);
+                illegalArgumentExceptionClass);
         for (int j = 0; j < fields.length; j++) {
             Field listedField = fields[j];
             fieldName = listedField.getName();
@@ -576,7 +559,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         boolean val = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             val = f.getBoolean(x);
         } catch (Exception e) {
             fail("Exception during getBoolean test: " + e.toString());
@@ -585,7 +568,7 @@ public class FieldTest extends junit.framework.TestCase {
 
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("doubleField");
+            f = TestField.class.getDeclaredField("doubleField");
             f.getBoolean(x);
             fail("IllegalArgumentException expected but not thrown");
         } catch (IllegalArgumentException ex) {
@@ -595,23 +578,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("booleanPFField");
-            f.getBoolean(x);
-            fail("IllegalAccessException expected but not thrown");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        } catch (Exception ex) {
-            fail("IllegalAccessException expected but not thrown"
-                    + ex.getMessage());
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
         //Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.getBoolean(null);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -624,7 +594,7 @@ public class FieldTest extends junit.framework.TestCase {
         //Test no NPE on static field
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanSField");
+            f = TestField.class.getDeclaredField("booleanSField");
             boolean staticValue = f.getBoolean(null);
             assertTrue("Wrong value returned", staticValue);
         }  catch (Exception ex) {
@@ -643,7 +613,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         byte val = 0;
         try {
-            f = x.getClass().getDeclaredField("byteField");
+            f = TestField.class.getDeclaredField("byteField");
             val = f.getByte(x);
         } catch (Exception e) {
             fail("Exception during getbyte test : " + e.getMessage());
@@ -652,7 +622,7 @@ public class FieldTest extends junit.framework.TestCase {
 
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("doubleField");
+            f = TestField.class.getDeclaredField("doubleField");
             f.getByte(x);
             fail("IllegalArgumentException expected but not thrown");
         } catch (IllegalArgumentException ex) {
@@ -662,23 +632,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("bytePFField");
-            f.getByte(x);
-            fail("IllegalAccessException expected but not thrown");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        } catch (Exception ex) {
-            fail("IllegalAccessException expected but not thrown"
-                    + ex.getMessage());
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
         //Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("byteField");
+            f = TestField.class.getDeclaredField("byteField");
             f.getByte(null);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -691,7 +648,7 @@ public class FieldTest extends junit.framework.TestCase {
         //Test no NPE on static field
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("byteSField");
+            f = TestField.class.getDeclaredField("byteSField");
             byte staticValue = f.getByte(null);
             assertEquals("Wrong value returned", Byte.MAX_VALUE, staticValue);
         }  catch (Exception ex) {
@@ -709,7 +666,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         char val = 0;
         try {
-            f = x.getClass().getDeclaredField("charField");
+            f = TestField.class.getDeclaredField("charField");
             val = f.getChar(x);
         } catch (Exception e) {
             fail("Exception during getCharacter test: " + e.toString());
@@ -718,7 +675,7 @@ public class FieldTest extends junit.framework.TestCase {
 
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("doubleField");
+            f = TestField.class.getDeclaredField("doubleField");
             f.getChar(x);
             fail("IllegalArgumentException expected but not thrown");
         } catch (IllegalArgumentException ex) {
@@ -728,23 +685,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("charPFField");
-            f.getChar(x);
-            fail("IllegalAccessException expected but not thrown");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        } catch (Exception ex) {
-            fail("IllegalAccessException expected but not thrown"
-                    + ex.getMessage());
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
         //Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("charField");
+            f = TestField.class.getDeclaredField("charField");
             f.getChar(null);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -757,7 +701,7 @@ public class FieldTest extends junit.framework.TestCase {
         //Test no NPE on static field
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("charSField");
+            f = TestField.class.getDeclaredField("charSField");
             char staticValue = f.getChar(null);
             assertEquals("Wrong value returned", 'T', staticValue);
         }  catch (Exception ex) {
@@ -774,15 +718,15 @@ public class FieldTest extends junit.framework.TestCase {
         Field[] fields;
 
         try {
-            fields = new TestField().getClass().getFields();
+            fields = TestField.class.getFields();
             assertTrue("Returned incorrect declaring class", fields[0]
-                    .getDeclaringClass().equals(new TestField().getClass()));
+                    .getDeclaringClass().equals(TestField.class));
 
             // Check the case where the field is inherited to be sure the parent
-            // is returned as the declarator
-            fields = new TestFieldSub1().getClass().getFields();
+            // is returned as the declarer
+            fields = TestFieldSub1.class.getFields();
             assertTrue("Returned incorrect declaring class", fields[0]
-                    .getDeclaringClass().equals(new TestField().getClass()));
+                    .getDeclaringClass().equals(TestField.class));
         } catch (Exception e) {
             fail("Exception : " + e.getMessage());
         }
@@ -798,7 +742,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         double val = 0.0;
         try {
-            f = x.getClass().getDeclaredField("doubleField");
+            f = TestField.class.getDeclaredField("doubleField");
             val = f.getDouble(x);
         } catch (Exception e) {
             fail("Exception during getDouble test: " + e.toString());
@@ -808,7 +752,7 @@ public class FieldTest extends junit.framework.TestCase {
 
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.getDouble(x);
             fail("IllegalArgumentException expected but not thrown");
         } catch (IllegalArgumentException ex) {
@@ -819,23 +763,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("doublePFField");
-            f.getDouble(x);
-            fail("IllegalAccessException expected but not thrown");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        } catch (Exception ex) {
-            fail("IllegalAccessException expected but not thrown"
-                    + ex.getMessage());
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
         //Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("doubleField");
+            f = TestField.class.getDeclaredField("doubleField");
             f.getDouble(null);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -848,7 +779,7 @@ public class FieldTest extends junit.framework.TestCase {
         //Test no NPE on static field
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("doubleSFField");
+            f = TestField.class.getDeclaredField("doubleSFField");
             double staticValue = f.getDouble(null);
             assertEquals("Wrong value returned", Double.MAX_VALUE, staticValue);
         }  catch (Exception ex) {
@@ -866,7 +797,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         float val = 0;
         try {
-            f = x.getClass().getDeclaredField("floatField");
+            f = TestField.class.getDeclaredField("floatField");
             val = f.getFloat(x);
         } catch (Exception e) {
             fail("Exception during getFloat test : " + e.getMessage());
@@ -876,7 +807,7 @@ public class FieldTest extends junit.framework.TestCase {
 
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.getFloat(x);
             fail("IllegalArgumentException expected but not thrown");
         } catch (IllegalArgumentException ex) {
@@ -887,23 +818,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("floatPFField");
-            f.getFloat(x);
-            fail("IllegalAccessException expected but not thrown");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        } catch (Exception ex) {
-            fail("IllegalAccessException expected but not thrown"
-                    + ex.getMessage());
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
         //Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("floatField");
+            f = TestField.class.getDeclaredField("floatField");
             f.getFloat(null);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -916,7 +834,7 @@ public class FieldTest extends junit.framework.TestCase {
         //Test no NPE on static field
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("floatSField");
+            f = TestField.class.getDeclaredField("floatSField");
             float staticValue = f.getFloat(null);
             assertEquals("Wrong value returned", Float.MAX_VALUE, staticValue);
         }  catch (Exception ex) {
@@ -933,7 +851,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         int val = 0;
         try {
-            f = x.getClass().getDeclaredField("intField");
+            f = TestField.class.getDeclaredField("intField");
             val = f.getInt(x);
         } catch (Exception e) {
             fail("Exception during getInt test : " + e.getMessage());
@@ -943,7 +861,7 @@ public class FieldTest extends junit.framework.TestCase {
 
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.getInt(x);
             fail("IllegalArgumentException expected but not thrown");
         } catch (IllegalArgumentException ex) {
@@ -954,23 +872,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("intPFField");
-            f.getInt(x);
-            fail("IllegalAccessException expected but not thrown");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        } catch (Exception ex) {
-            fail("IllegalAccessException expected but not thrown"
-                    + ex.getMessage());
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
         //Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("intField");
+            f = TestField.class.getDeclaredField("intField");
             f.getInt(null);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -983,7 +888,7 @@ public class FieldTest extends junit.framework.TestCase {
         //Test no NPE on static field
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("intSField");
+            f = TestField.class.getDeclaredField("intSField");
             int staticValue = f.getInt(null);
             assertEquals("Wrong value returned", Integer.MAX_VALUE, staticValue);
         } catch (Exception ex) {
@@ -1002,7 +907,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         long val = 0;
         try {
-            f = x.getClass().getDeclaredField("longField");
+            f = TestField.class.getDeclaredField("longField");
             val = f.getLong(x);
         } catch (Exception e) {
             fail("Exception during getLong test : " + e.getMessage());
@@ -1010,7 +915,7 @@ public class FieldTest extends junit.framework.TestCase {
 
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.getLong(x);
             fail("IllegalArgumentException expected but not thrown");
         } catch (IllegalArgumentException ex) {
@@ -1021,23 +926,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("longPFField");
-            f.getLong(x);
-            fail("IllegalAccessException expected but not thrown");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        } catch (Exception ex) {
-            fail("IllegalAccessException expected but not thrown"
-                    + ex.getMessage());
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
         //Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("longField");
+            f = TestField.class.getDeclaredField("longField");
             f.getLong(null);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -1050,7 +942,7 @@ public class FieldTest extends junit.framework.TestCase {
         //Test no NPE on static field
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("longSField");
+            f = TestField.class.getDeclaredField("longSField");
             long staticValue = f.getLong(null);
             assertEquals("Wrong value returned", Long.MAX_VALUE, staticValue);
         }  catch (Exception ex) {
@@ -1066,7 +958,7 @@ public class FieldTest extends junit.framework.TestCase {
         TestField x = new TestField();
         Field f = null;
         try {
-            f = x.getClass().getDeclaredField("prsttrvol");
+            f = TestField.class.getDeclaredField("prsttrvol");
         } catch (Exception e) {
             fail("Exception during getModifiers test: " + e.toString());
         }
@@ -1086,7 +978,7 @@ public class FieldTest extends junit.framework.TestCase {
         TestField x = new TestField();
         Field f = null;
         try {
-            f = x.getClass().getDeclaredField("shortField");
+            f = TestField.class.getDeclaredField("shortField");
         } catch (Exception e) {
             fail("Exception during getType test : " + e.getMessage());
         }
@@ -1105,7 +997,7 @@ public class FieldTest extends junit.framework.TestCase {
         short val = 0;
         ;
         try {
-            f = x.getClass().getDeclaredField("shortField");
+            f = TestField.class.getDeclaredField("shortField");
             val = f.getShort(x);
         } catch (Exception e) {
             fail("Exception during getShort test : " + e.getMessage());
@@ -1115,7 +1007,7 @@ public class FieldTest extends junit.framework.TestCase {
 
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.getShort(x);
             fail("IllegalArgumentException expected but not thrown");
         } catch (IllegalArgumentException ex) {
@@ -1126,23 +1018,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("shortPFField");
-            f.getShort(x);
-            fail("IllegalAccessException expected but not thrown");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        } catch (Exception ex) {
-            fail("IllegalAccessException expected but not thrown"
-                    + ex.getMessage());
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
         //Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("shortField");
+            f = TestField.class.getDeclaredField("shortField");
             f.getShort(null);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -1155,7 +1034,7 @@ public class FieldTest extends junit.framework.TestCase {
         //Test no NPE on static field
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("shortSField");
+            f = TestField.class.getDeclaredField("shortSField");
             short staticValue = f.getShort(null);
             assertEquals("Wrong value returned", Short.MAX_VALUE, staticValue);
         }  catch (Exception ex) {
@@ -1171,7 +1050,7 @@ public class FieldTest extends junit.framework.TestCase {
         TestField x = new TestField();
         Field f = null;
         try {
-            f = x.getClass().getDeclaredField("shortField");
+            f = TestField.class.getDeclaredField("shortField");
         } catch (Exception e) {
             fail("Exception during getType test : " + e.getMessage());
         }
@@ -1189,7 +1068,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         double val = 0.0;
         try {
-            f = x.getClass().getDeclaredField("doubleField");
+            f = TestField.class.getDeclaredField("doubleField");
             f.set(x, new Double(1.0));
             val = f.getDouble(x);
         } catch (Exception e) {
@@ -1200,7 +1079,7 @@ public class FieldTest extends junit.framework.TestCase {
         //test wrong type
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.set(x, new Double(1.0));
             fail("Accessed field of invalid type");
         } catch (IllegalArgumentException ex) {
@@ -1208,22 +1087,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        //test not accessible
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("doubleFField");
-            assertFalse(f.isAccessible());
-            f.set(x, new Double(1.0));
-            fail("Accessed inaccessible field");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
       //Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.set(null, true);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -1234,7 +1101,7 @@ public class FieldTest extends junit.framework.TestCase {
         assertTrue("NullPointerException expected but not thrown", thrown);
 
         // Test setting a static field;
-        f = x.getClass().getDeclaredField("doubleSField");
+        f = TestField.class.getDeclaredField("doubleSField");
         f.set(null, new Double(1.0));
         val = f.getDouble(x);
         assertEquals("Returned incorrect double field value", 1.0, val);
@@ -1250,7 +1117,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         boolean val = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.setBoolean(x, false);
             val = f.getBoolean(x);
         } catch (Exception e) {
@@ -1261,7 +1128,7 @@ public class FieldTest extends junit.framework.TestCase {
       //test wrong type
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("doubleField");
+            f = TestField.class.getDeclaredField("doubleField");
             f.setBoolean(x, false);
             fail("Accessed field of invalid type");
         } catch (IllegalArgumentException ex) {
@@ -1269,22 +1136,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        //test not accessible
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("booleanPFField");
-            assertFalse(f.isAccessible());
-            f.setBoolean(x, true);
-            fail("Accessed inaccessible field");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
       //Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.setBoolean(null, true);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -1295,7 +1150,7 @@ public class FieldTest extends junit.framework.TestCase {
         assertTrue("NullPointerException expected but not thrown", thrown);
 
         // Test setting a static field;
-        f = x.getClass().getDeclaredField("booleanSField");
+        f = TestField.class.getDeclaredField("booleanSField");
         f.setBoolean(null, false);
         val = f.getBoolean(x);
         assertFalse("Returned incorrect boolean field value", val);
@@ -1311,7 +1166,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         byte val = 0;
         try {
-            f = x.getClass().getDeclaredField("byteField");
+            f = TestField.class.getDeclaredField("byteField");
             f.setByte(x, (byte) 1);
             val = f.getByte(x);
         } catch (Exception e) {
@@ -1322,7 +1177,7 @@ public class FieldTest extends junit.framework.TestCase {
         //test wrong type
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.setByte(x, Byte.MIN_VALUE);
             fail("Accessed field of invalid type");
         } catch (IllegalArgumentException ex) {
@@ -1330,22 +1185,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        //test not accessible
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("bytePFField");
-            assertFalse(f.isAccessible());
-            f.setByte(x, Byte.MIN_VALUE);
-            fail("Accessed inaccessible field");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
       //Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("byteField");
+            f = TestField.class.getDeclaredField("byteField");
             f.setByte(null, Byte.MIN_VALUE);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -1356,7 +1199,7 @@ public class FieldTest extends junit.framework.TestCase {
         assertTrue("NullPointerException expected but not thrown", thrown);
 
         // Test setting a static field;
-        f = x.getClass().getDeclaredField("byteSField");
+        f = TestField.class.getDeclaredField("byteSField");
         f.setByte(null, Byte.MIN_VALUE);
         val = f.getByte(x);
         assertEquals("Returned incorrect byte field value", Byte.MIN_VALUE,
@@ -1373,7 +1216,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         char val = 0;
         try {
-            f = x.getClass().getDeclaredField("charField");
+            f = TestField.class.getDeclaredField("charField");
             f.setChar(x, (char) 1);
             val = f.getChar(x);
         } catch (Exception e) {
@@ -1384,7 +1227,7 @@ public class FieldTest extends junit.framework.TestCase {
       //test wrong type
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.setChar(x, Character.MIN_VALUE);
             fail("Accessed field of invalid type");
         } catch (IllegalArgumentException ex) {
@@ -1392,22 +1235,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        //test not accessible
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("charPFField");
-            assertFalse(f.isAccessible());
-            f.setChar(x, Character.MIN_VALUE);
-            fail("Accessed inaccessible field");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
       //Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("charField");
+            f = TestField.class.getDeclaredField("charField");
             f.setChar(null, Character.MIN_VALUE);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -1418,7 +1249,7 @@ public class FieldTest extends junit.framework.TestCase {
         assertTrue("NullPointerException expected but not thrown", thrown);
 
         // Test setting a static field;
-        f = x.getClass().getDeclaredField("charSField");
+        f = TestField.class.getDeclaredField("charSField");
         f.setChar(null, Character.MIN_VALUE);
         val = f.getChar(x);
         assertEquals("Returned incorrect char field value",
@@ -1435,7 +1266,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         double val = 0.0;
         try {
-            f = x.getClass().getDeclaredField("doubleField");
+            f = TestField.class.getDeclaredField("doubleField");
             f.setDouble(x, Double.MIN_VALUE);
             val = f.getDouble(x);
         } catch (Exception e) {
@@ -1447,7 +1278,7 @@ public class FieldTest extends junit.framework.TestCase {
       //test wrong type
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.setDouble(x, Double.MIN_VALUE);
             fail("Accessed field of invalid type");
         } catch (IllegalArgumentException ex) {
@@ -1455,22 +1286,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        //test not accessible
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("doublePFField");
-            assertFalse(f.isAccessible());
-            f.setDouble(x, Double.MIN_VALUE);
-            fail("Accessed inaccessible field");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
       //Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("doubleField");
+            f = TestField.class.getDeclaredField("doubleField");
             f.setDouble(null, Double.MIN_VALUE);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -1481,7 +1300,7 @@ public class FieldTest extends junit.framework.TestCase {
         assertTrue("NullPointerException expected but not thrown", thrown);
 
         // Test setting a static field;
-        f = x.getClass().getDeclaredField("doubleSField");
+        f = TestField.class.getDeclaredField("doubleSField");
         f.setDouble(null, Double.MIN_VALUE);
         val = f.getDouble(x);
         assertEquals("Returned incorrect double field value",
@@ -1498,7 +1317,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         float val = 0.0F;
         try {
-            f = x.getClass().getDeclaredField("floatField");
+            f = TestField.class.getDeclaredField("floatField");
             f.setFloat(x, Float.MIN_VALUE);
             val = f.getFloat(x);
         } catch (Exception e) {
@@ -1510,7 +1329,7 @@ public class FieldTest extends junit.framework.TestCase {
         //test wrong type
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.setFloat(x, Float.MIN_VALUE);
             fail("Accessed field of invalid type");
         } catch (IllegalArgumentException ex) {
@@ -1518,22 +1337,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        //test not accessible
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("floatPFField");
-            assertFalse(f.isAccessible());
-            f.setFloat(x, Float.MIN_VALUE);
-            fail("Accessed inaccessible field");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
       //Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("floatField");
+            f = TestField.class.getDeclaredField("floatField");
             f.setFloat(null, Float.MIN_VALUE);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -1544,7 +1351,7 @@ public class FieldTest extends junit.framework.TestCase {
         assertTrue("NullPointerException expected but not thrown", thrown);
 
         // Test setting a static field;
-        f = x.getClass().getDeclaredField("floatSField");
+        f = TestField.class.getDeclaredField("floatSField");
         f.setFloat(null, Float.MIN_VALUE);
         val = f.getFloat(x);
         assertEquals("Returned incorrect float field value",
@@ -1561,7 +1368,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         int val = 0;
         try {
-            f = x.getClass().getDeclaredField("intField");
+            f = TestField.class.getDeclaredField("intField");
             f.setInt(x, Integer.MIN_VALUE);
             val = f.getInt(x);
         } catch (Exception e) {
@@ -1573,7 +1380,7 @@ public class FieldTest extends junit.framework.TestCase {
         // test wrong type
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.setInt(x, Integer.MIN_VALUE);
             fail("Accessed field of invalid type");
         } catch (IllegalArgumentException ex) {
@@ -1581,22 +1388,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        // test not accessible
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("intPFField");
-            assertFalse(f.isAccessible());
-            f.setInt(x, Integer.MIN_VALUE);
-            fail("Accessed inaccessible field");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
         // Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("intField");
+            f = TestField.class.getDeclaredField("intField");
             f.setInt(null, Integer.MIN_VALUE);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -1607,7 +1402,7 @@ public class FieldTest extends junit.framework.TestCase {
         assertTrue("NullPointerException expected but not thrown", thrown);
 
         // Test setting a static field;
-        f = x.getClass().getDeclaredField("intSField");
+        f = TestField.class.getDeclaredField("intSField");
         f.setInt(null, Integer.MIN_VALUE);
         val = f.getInt(x);
         assertEquals("Returned incorrect int field value",
@@ -1624,7 +1419,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         long val = 0L;
         try {
-            f = x.getClass().getDeclaredField("longField");
+            f = TestField.class.getDeclaredField("longField");
             f.setLong(x, Long.MIN_VALUE);
             val = f.getLong(x);
         } catch (Exception e) {
@@ -1635,7 +1430,7 @@ public class FieldTest extends junit.framework.TestCase {
         // test wrong type
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.setLong(x, Long.MIN_VALUE);
             fail("Accessed field of invalid type");
         } catch (IllegalArgumentException ex) {
@@ -1643,22 +1438,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        // test not accessible
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("longPFField");
-            assertFalse(f.isAccessible());
-            f.setLong(x, Long.MIN_VALUE);
-            fail("Accessed inaccessible field");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
         // Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("longField");
+            f = TestField.class.getDeclaredField("longField");
             f.setLong(null, Long.MIN_VALUE);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -1669,7 +1452,7 @@ public class FieldTest extends junit.framework.TestCase {
         assertTrue("NullPointerException expected but not thrown", thrown);
 
         // Test setting a static field;
-        f = x.getClass().getDeclaredField("longSField");
+        f = TestField.class.getDeclaredField("longSField");
         f.setLong(null, Long.MIN_VALUE);
         val = f.getLong(x);
         assertEquals("Returned incorrect long field value",
@@ -1686,7 +1469,7 @@ public class FieldTest extends junit.framework.TestCase {
         Field f = null;
         short val = 0;
         try {
-            f = x.getClass().getDeclaredField("shortField");
+            f = TestField.class.getDeclaredField("shortField");
             f.setShort(x, Short.MIN_VALUE);
             val = f.getShort(x);
         } catch (Exception e) {
@@ -1698,7 +1481,7 @@ public class FieldTest extends junit.framework.TestCase {
         // test wrong type
         boolean thrown = false;
         try {
-            f = x.getClass().getDeclaredField("booleanField");
+            f = TestField.class.getDeclaredField("booleanField");
             f.setShort(x, Short.MIN_VALUE);
             fail("Accessed field of invalid type");
         } catch (IllegalArgumentException ex) {
@@ -1706,22 +1489,10 @@ public class FieldTest extends junit.framework.TestCase {
         }
         assertTrue("IllegalArgumentException expected but not thrown", thrown);
 
-        // test not accessible
-        thrown = false;
-        try {
-            f = x.getClass().getDeclaredField("shortPFField");
-            assertFalse(f.isAccessible());
-            f.setShort(x, Short.MIN_VALUE);
-            fail("Accessed inaccessible field");
-        } catch (IllegalAccessException ex) {
-            thrown = true;
-        }
-        assertTrue("IllegalAccessException expected but not thrown", thrown);
-
         // Test NPE
         thrown = false;
         try {
-            f = x.getClass().getDeclaredField("shortField");
+            f = TestField.class.getDeclaredField("shortField");
             f.setShort(null, Short.MIN_VALUE);
             fail("NullPointerException expected but not thrown");
         } catch (NullPointerException ex) {
@@ -1732,7 +1503,7 @@ public class FieldTest extends junit.framework.TestCase {
         assertTrue("NullPointerException expected but not thrown", thrown);
 
         // Test setting a static field;
-        f = x.getClass().getDeclaredField("shortSField");
+        f = TestField.class.getDeclaredField("shortSField");
         f.setShort(null, Short.MIN_VALUE);
         val = f.getShort(x);
         assertEquals("Returned incorrect short field value",
