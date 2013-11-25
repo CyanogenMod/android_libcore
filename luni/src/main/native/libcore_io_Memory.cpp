@@ -259,37 +259,23 @@ static void Memory_pokeShortArray(JNIEnv* env, jclass, jlong dstAddress, jshortA
     POKER(jshort, Short, jshort, swapShorts);
 }
 
-static jshort Memory_peekShort(JNIEnv*, jclass, jlong srcAddress, jboolean swap) {
-    jshort result = *cast<const jshort*>(srcAddress);
-    if (swap) {
-        result = bswap_16(result);
-    }
-    return result;
+static jshort Memory_peekShortNative(JNIEnv*, jclass, jlong srcAddress) {
+    return *cast<const jshort*>(srcAddress);
 }
 
-static void Memory_pokeShort(JNIEnv*, jclass, jlong dstAddress, jshort value, jboolean swap) {
-    if (swap) {
-        value = bswap_16(value);
-    }
+static void Memory_pokeShortNative(JNIEnv*, jclass, jlong dstAddress, jshort value) {
     *cast<jshort*>(dstAddress) = value;
 }
 
-static jint Memory_peekInt(JNIEnv*, jclass, jlong srcAddress, jboolean swap) {
-    jint result = *cast<const jint*>(srcAddress);
-    if (swap) {
-        result = bswap_32(result);
-    }
-    return result;
+static jint Memory_peekIntNative(JNIEnv*, jclass, jlong srcAddress) {
+    return *cast<const jint*>(srcAddress);
 }
 
-static void Memory_pokeInt(JNIEnv*, jclass, jlong dstAddress, jint value, jboolean swap) {
-    if (swap) {
-        value = bswap_32(value);
-    }
+static void Memory_pokeIntNative(JNIEnv*, jclass, jlong dstAddress, jint value) {
     *cast<jint*>(dstAddress) = value;
 }
 
-static jlong Memory_peekLong(JNIEnv*, jclass, jlong srcAddress, jboolean swap) {
+static jlong Memory_peekLongNative(JNIEnv*, jclass, jlong srcAddress) {
     jlong result;
     const jlong* src = cast<const jlong*>(srcAddress);
     if ((srcAddress & LONG_ALIGNMENT_MASK) == 0) {
@@ -297,17 +283,11 @@ static jlong Memory_peekLong(JNIEnv*, jclass, jlong srcAddress, jboolean swap) {
     } else {
         result = get_unaligned<jlong>(src);
     }
-    if (swap) {
-        result = bswap_64(result);
-    }
     return result;
 }
 
-static void Memory_pokeLong(JNIEnv*, jclass, jlong dstAddress, jlong value, jboolean swap) {
+static void Memory_pokeLongNative(JNIEnv*, jclass, jlong dstAddress, jlong value) {
     jlong* dst = cast<jlong*>(dstAddress);
-    if (swap) {
-        value = bswap_64(value);
-    }
     if ((dstAddress & LONG_ALIGNMENT_MASK) == 0) {
         *dst = value;
     } else {
@@ -378,22 +358,22 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Memory, peekCharArray, "(J[CIIZ)V"),
     NATIVE_METHOD(Memory, peekDoubleArray, "(J[DIIZ)V"),
     NATIVE_METHOD(Memory, peekFloatArray, "(J[FIIZ)V"),
-    NATIVE_METHOD(Memory, peekInt, "!(JZ)I"),
+    NATIVE_METHOD(Memory, peekIntNative, "!(J)I"),
     NATIVE_METHOD(Memory, peekIntArray, "(J[IIIZ)V"),
-    NATIVE_METHOD(Memory, peekLong, "!(JZ)J"),
+    NATIVE_METHOD(Memory, peekLongNative, "!(J)J"),
     NATIVE_METHOD(Memory, peekLongArray, "(J[JIIZ)V"),
-    NATIVE_METHOD(Memory, peekShort, "!(JZ)S"),
+    NATIVE_METHOD(Memory, peekShortNative, "!(J)S"),
     NATIVE_METHOD(Memory, peekShortArray, "(J[SIIZ)V"),
     NATIVE_METHOD(Memory, pokeByte, "!(JB)V"),
     NATIVE_METHOD(Memory, pokeByteArray, "(J[BII)V"),
     NATIVE_METHOD(Memory, pokeCharArray, "(J[CIIZ)V"),
     NATIVE_METHOD(Memory, pokeDoubleArray, "(J[DIIZ)V"),
     NATIVE_METHOD(Memory, pokeFloatArray, "(J[FIIZ)V"),
-    NATIVE_METHOD(Memory, pokeInt, "!(JIZ)V"),
+    NATIVE_METHOD(Memory, pokeIntNative, "!(JI)V"),
     NATIVE_METHOD(Memory, pokeIntArray, "(J[IIIZ)V"),
-    NATIVE_METHOD(Memory, pokeLong, "!(JJZ)V"),
+    NATIVE_METHOD(Memory, pokeLongNative, "!(JJ)V"),
     NATIVE_METHOD(Memory, pokeLongArray, "(J[JIIZ)V"),
-    NATIVE_METHOD(Memory, pokeShort, "!(JSZ)V"),
+    NATIVE_METHOD(Memory, pokeShortNative, "!(JS)V"),
     NATIVE_METHOD(Memory, pokeShortArray, "(J[SIIZ)V"),
     NATIVE_METHOD(Memory, unsafeBulkGet, "(Ljava/lang/Object;II[BIIZ)V"),
     NATIVE_METHOD(Memory, unsafeBulkPut, "([BIILjava/lang/Object;IIZ)V"),

@@ -39,8 +39,6 @@ public final class OpcodeInfo {
      * <p><b>Note:</b>: This is constant in any given VM incarnation,
      * but it is subject to change over time, so it is not appropriate
      * to represent as a compile-time constant value.</p>
-     *
-     * @see dalvik.system.VMDebug.getInstructionCount()
      */
     public static final int MAXIMUM_PACKED_VALUE;
 
@@ -60,22 +58,17 @@ public final class OpcodeInfo {
     }
 
     /**
+     * Backwards compatibility stub for obsolete interpreter functionality.
+     * @hide
+     */
+    public static boolean isInvoke(int packedOpcode) {
+        return false;
+    }
+
+    /**
      * This class is not instantiable.
      */
     private OpcodeInfo() {
         // This space intentionally left blank.
     }
-
-    /**
-     * Returns whether the given packed opcode value represents a
-     * method invocation operation. This includes most things that
-     * look like method invocation at the source level, but it notably
-     * excludes methods that are implemented directly in the VM as
-     * well as ones the VM knows to have empty implementations.
-     *
-     * @hide Unclear if this is useful enough to publish as supported API.
-     *
-     * @param opcode one of the values defined in {@link Opcodes}
-     */
-    public static native boolean isInvoke(int packedOpcode);
 }

@@ -16,14 +16,14 @@
 
 package libcore.java.lang;
 
-import junit.framework.TestCase;
-
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Formatter;
+import java.util.concurrent.atomic.AtomicBoolean;
+import junit.framework.TestCase;
 
 public class SystemTest extends TestCase {
 
@@ -90,7 +90,7 @@ public class SystemTest extends TestCase {
             System.arraycopy(new char[5], 0, new Object[5], 0, 3);
             fail();
         } catch (ArrayStoreException e) {
-            assertEquals("char[] and java.lang.Object[] are incompatible array types", e.getMessage());
+            assertEquals("Incompatible types: src=char[], dst=java.lang.Object[]", e.getMessage());
         }
     }
 
@@ -117,5 +117,38 @@ public class SystemTest extends TestCase {
         } catch (NullPointerException e) {
             assertEquals("dst == null", e.getMessage());
         }
+    }
+
+    /**
+     * System.arraycopy() must never copy objects into arrays that can't store
+     * them. We've had bugs where type checks and copying were done separately
+     * and racy code could defeat the type checks. http://b/5247258
+     */
+    public void testArrayCopyConcurrentModification() {
+        final AtomicBoolean done = new AtomicBoolean();
+
+        final Object[] source = new Object[1024 * 1024];
+        String[] target = new String[1024 * 1024];
+
+        new Thread() {
+            @Override public void run() {
+                // the last array element alternates between being a Thread and being null. When
+                // it's a Thread it isn't safe for arrayCopy; when its null it is!
+                while (!done.get()) {
+                    source[source.length - 1] = this;
+                    source[source.length - 1] = null;
+                }
+            }
+        }.start();
+
+        for (int i = 0; i < 8192; i++) {
+            try {
+                System.arraycopy(source, 0, target, 0, source.length);
+                assertNull(target[source.length - 1]); // make sure the wrong type didn't sneak in
+            } catch (ArrayStoreException ignored) {
+            }
+        }
+
+        done.set(true);
     }
 }

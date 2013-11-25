@@ -20,42 +20,6 @@ import java.lang.reflect.Method;
 import junit.framework.TestCase;
 
 public final class MethodTest extends TestCase {
-    // Check that the VM gives useful detail messages.
-    public void test_invokeExceptions() throws Exception {
-        Method m = String.class.getMethod("charAt", int.class);
-        try {
-            m.invoke("hello"); // Wrong number of arguments.
-            fail();
-        } catch (IllegalArgumentException iae) {
-            assertEquals("wrong number of arguments; expected 1, got 0", iae.getMessage());
-        }
-        try {
-            m.invoke("hello", "world"); // Wrong type.
-            fail();
-        } catch (IllegalArgumentException iae) {
-            assertEquals("argument 1 should have type int, got java.lang.String", iae.getMessage());
-        }
-        try {
-            m.invoke("hello", (Object) null); // Null for a primitive argument.
-            fail();
-        } catch (IllegalArgumentException iae) {
-            assertEquals("argument 1 should have type int, got null", iae.getMessage());
-        }
-        try {
-            m.invoke(new Integer(5)); // Wrong type for 'this'.
-            fail();
-        } catch (IllegalArgumentException iae) {
-            assertEquals("expected receiver of type java.lang.String, but got java.lang.Integer", iae.getMessage());
-        }
-        try {
-            m.invoke(null); // Null for 'this'.
-            fail();
-        } catch (NullPointerException npe) {
-            assertEquals("expected receiver of type java.lang.String, but got null",
-                    npe.getMessage());
-        }
-    }
-
     public void test_getExceptionTypes() throws Exception {
         Method method = MethodTestHelper.class.getMethod("m1", new Class[0]);
         Class[] exceptions = method.getExceptionTypes();
@@ -195,6 +159,26 @@ public final class MethodTest extends TestCase {
         };
         Method method = anonymous.getClass().getDeclaredMethod("a");
         assertEquals(anonymous.getClass(), method.getDeclaringClass());
+    }
+
+    public void testEqualMethodEqualsAndHashCode() throws Exception {
+        Method m1 = MethodTestHelper.class.getMethod("m1");
+        Method m2 = MethodTestHelper.class.getMethod("m1");
+        assertEquals(m1, m2);
+        assertEquals(m1.hashCode(), m2.hashCode());
+        assertEquals(MethodTestHelper.class.getName().hashCode() ^ "m1".hashCode(), m1.hashCode());
+    }
+
+    public void testHashCodeSpec() throws Exception {
+        Method m1 = MethodTestHelper.class.getMethod("m1");
+        assertEquals(MethodTestHelper.class.getName().hashCode() ^ "m1".hashCode(), m1.hashCode());
+    }
+
+    public void testDifferentMethodEqualsAndHashCode() throws Exception {
+        Method m1 = MethodTestHelper.class.getMethod("m1");
+        Method m2 = MethodTestHelper.class.getMethod("m2", Object.class);
+        assertFalse(m1.equals(m2));
+        assertFalse(m1.hashCode() == m2.hashCode());
     }
 
     // http://b/1045939

@@ -93,9 +93,15 @@ static jlong System_currentTimeMillis(JNIEnv*, jclass) {
 }
 
 static jlong System_nanoTime(JNIEnv*, jclass) {
+#if defined(HAVE_POSIX_CLOCKS)
     timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
     return now.tv_sec * 1000000000LL + now.tv_nsec;
+#else
+    timeval now;
+    gettimeofday(&now, NULL);
+    return static_cast<jlong>(now.tv_sec) * 1000000000LL + now.tv_usec * 1000LL;
+#endif
 }
 
 static jstring System_mapLibraryName(JNIEnv* env, jclass, jstring javaName) {
@@ -111,10 +117,10 @@ static jstring System_mapLibraryName(JNIEnv* env, jclass, jstring javaName) {
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(System, currentTimeMillis, "()J"),
+    NATIVE_METHOD(System, currentTimeMillis, "!()J"),
     NATIVE_METHOD(System, log, "(CLjava/lang/String;Ljava/lang/Throwable;)V"),
     NATIVE_METHOD(System, mapLibraryName, "(Ljava/lang/String;)Ljava/lang/String;"),
-    NATIVE_METHOD(System, nanoTime, "()J"),
+    NATIVE_METHOD(System, nanoTime, "!()J"),
     NATIVE_METHOD(System, setFieldImpl, "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V"),
     NATIVE_METHOD(System, specialProperties, "()[Ljava/lang/String;"),
 };

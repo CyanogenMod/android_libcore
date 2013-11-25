@@ -29,15 +29,6 @@ union Double {
     double d;
 };
 
-static const jlong NaN = 0x7ff8000000000000ULL;
-
-static jlong Double_doubleToLongBits(JNIEnv*, jclass, jdouble val) {
-    Double d;
-    d.d = val;
-    //  For this method all values in the NaN range are normalized to the canonical NaN value.
-    return isnan(d.d) ? NaN : d.bits;
-}
-
 static jlong Double_doubleToRawLongBits(JNIEnv*, jclass, jdouble val) {
     Double d;
     d.d = val;
@@ -51,10 +42,9 @@ static jdouble Double_longBitsToDouble(JNIEnv*, jclass, jlong val) {
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(Double, doubleToLongBits, "(D)J"),
     NATIVE_METHOD(Double, doubleToRawLongBits, "(D)J"),
     NATIVE_METHOD(Double, longBitsToDouble, "(J)D"),
 };
-int register_java_lang_Double(JNIEnv* env) {
-    return jniRegisterNativeMethods(env, "java/lang/Double", gMethods, NELEM(gMethods));
+void register_java_lang_Double(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "java/lang/Double", gMethods, NELEM(gMethods));
 }
