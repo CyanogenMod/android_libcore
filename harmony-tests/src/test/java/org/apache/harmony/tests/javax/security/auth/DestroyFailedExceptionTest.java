@@ -15,11 +15,11 @@
  *  limitations under the License.
  */
 
-package tests.api.javax.security.auth;
+package org.apache.harmony.tests.javax.security.auth;
 
 import junit.framework.TestCase;
-
 import javax.security.auth.DestroyFailedException;
+import org.apache.harmony.testframework.serialization.SerializationTest;
 
 /**
  * Tests for <code>DestroyFailedException</code> class constructors and methods.
@@ -65,5 +65,17 @@ public class DestroyFailedExceptionTest extends TestCase {
         DestroyFailedException dfE = new DestroyFailedException(msg);
         assertNull("getMessage() must return null.", dfE.getMessage());
         assertNull("getCause() must return null", dfE.getCause());
+    }
+
+    public void testSerializationSelf() throws Exception {
+        SerializationTest.verifySelf(getSerializationData());
+    }
+
+    public void testSerializationGolden() throws Exception {
+        SerializationTest.verifyGolden(this, getSerializationData());
+    }
+
+    private Object[] getSerializationData() {
+        return new Object[] { new DestroyFailedException("message") };
     }
 }
