@@ -15,24 +15,17 @@
  *  limitations under the License.
  */
 
-package tests.api.javax.security.auth;
+package org.apache.harmony.tests.javax.security.auth;
 
 import junit.framework.TestCase;
-
-import javax.security.auth.AuthPermission;
-import javax.security.auth.PrivateCredentialPermission;
 import javax.security.auth.Subject;
-
-import java.util.Set;
-import java.util.HashSet;
-import java.security.Permission;
-import java.security.Principal;
+import java.security.AccessControlContext;
+import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.security.AccessControlContext;
-import java.security.AccessController;
 import java.security.ProtectionDomain;
+import org.apache.harmony.testframework.serialization.SerializationTest;
 
 /**
  * Tests for <code>Subject</code> class constructors and methods.
@@ -231,6 +224,20 @@ public class SubjectTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception: " + e);
         }
+    }
+
+    public void testSerializationSelf() throws Exception {
+        SerializationTest.verifySelf(getSerializationData());
+    }
+
+    public void testSerializationGolden() throws Exception {
+        SerializationTest.verifyGolden(this, getSerializationData());
+    }
+
+    private Object[] getSerializationData() {
+        Subject subject = new Subject();
+        return new Object[] { subject, subject.getPrincipals(),
+                subject.getPrivateCredentials(), subject.getPublicCredentials() };
     }
 }
 

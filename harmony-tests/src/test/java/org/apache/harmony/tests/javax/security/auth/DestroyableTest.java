@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package tests.api.javax.security.auth;
+package org.apache.harmony.tests.javax.security.auth;
 
 import junit.framework.TestCase;
 
