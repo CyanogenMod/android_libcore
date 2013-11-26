@@ -551,4 +551,17 @@ public class JSONArrayTest extends TestCase {
         assertEquals("hello", a.remove(0));
         assertEquals(null, a.remove(0));
     }
+
+    enum MyEnum { A, B, C; }
+
+    // https://code.google.com/p/android/issues/detail?id=62539
+    public void testEnums() throws Exception {
+        // This works because it's in java.* and any class in there falls back to toString.
+        JSONArray a1 = new JSONArray(java.lang.annotation.RetentionPolicy.values());
+        assertEquals("[\"SOURCE\",\"CLASS\",\"RUNTIME\"]", a1.toString());
+
+        // This doesn't because it's not.
+        JSONArray a2 = new JSONArray(MyEnum.values());
+        assertEquals("[null, null, null]", a2.toString());
+    }
 }
