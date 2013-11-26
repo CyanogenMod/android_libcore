@@ -17,6 +17,7 @@
 
 package org.apache.harmony.tests.java.io;
 
+import junit.framework.TestCase;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,15 +25,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.MalformedInputException;
 import java.util.Arrays;
-
-import junit.framework.TestCase;
 
 public class InputStreamReaderTest extends TestCase {
 
@@ -298,16 +296,15 @@ public class InputStreamReaderTest extends TestCase {
     }
 
     /**
-     * java.io.InputStreamReader#getEncoding()
+     * Unlike the RI, we return a canonical encoding name and not something
+     * java specific.
      */
     public void test_getEncoding() throws IOException {
         InputStreamReader isr = new InputStreamReader(fis, "8859_1");
-        assertEquals("Returned incorrect encoding when setting 8859_1",
-                "ISO8859_1", isr.getEncoding());
+        assertEquals("ISO-8859-1", isr.getEncoding());
 
         isr = new InputStreamReader(fis, "ISO-8859-1");
-        assertEquals("Returned incorrect encoding when setting ISO-8859-1",
-                "ISO8859_1", isr.getEncoding());
+        assertEquals("ISO-8859-1", isr.getEncoding());
 
         byte b[] = new byte[5];
         isr = new InputStreamReader(new ByteArrayInputStream(b), "UTF-16BE");
@@ -319,7 +316,7 @@ public class InputStreamReaderTest extends TestCase {
         } catch (UnsupportedEncodingException e) {
             // Ignored
         }
-        assertEquals("UnicodeBigUnmarked", isr.getEncoding());
+        assertEquals("UTF-16BE", isr.getEncoding());
     }
 
     /**
