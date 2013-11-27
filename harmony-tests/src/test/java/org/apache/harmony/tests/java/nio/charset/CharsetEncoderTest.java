@@ -534,16 +534,6 @@ public class CharsetEncoderTest extends TestCase {
 		assertTrue(encoder.canEncode("\ud800\udb00"));
 	}
 
-    public void test_canEncode_char_ICUBug() {
-        // The RI doesn't allow this, but icu4c does.
-        assertTrue(encoder.canEncode('\ud800'));
-    }
-
-    public void test_canEncode_CharSequence_ICUBug() {
-        // The RI doesn't allow this, but icu4c does.
-        assertTrue(encoder.canEncode("\ud800"));
-    }
-
     public void test_canEncode_empty() throws Exception {
         assertTrue(encoder.canEncode(""));
     }
