@@ -19,11 +19,28 @@ package libcore.javax.net.ssl;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import junit.framework.TestCase;
+import java.util.Arrays;
 
 public class SSLServerSocketTest extends TestCase {
 
   public void testDefaultConfiguration() throws Exception {
     SSLDefaultConfigurationAsserts.assertSSLServerSocket(
         (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket());
+  }
+
+  public void testSetEnabledCipherSuitesAffectsGetter() throws Exception {
+    SSLServerSocket socket =
+        (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket();
+    String[] cipherSuites = new String[] {socket.getSupportedCipherSuites()[0]};
+    socket.setEnabledCipherSuites(cipherSuites);
+    assertEquals(Arrays.asList(cipherSuites), Arrays.asList(socket.getEnabledCipherSuites()));
+  }
+
+  public void testSetEnabledProtocolsAffectsGetter() throws Exception {
+    SSLServerSocket socket =
+        (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket();
+    String[] protocols = new String[] {socket.getSupportedProtocols()[0]};
+    socket.setEnabledProtocols(protocols);
+    assertEquals(Arrays.asList(protocols), Arrays.asList(socket.getEnabledProtocols()));
   }
 }

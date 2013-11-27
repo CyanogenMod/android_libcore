@@ -250,6 +250,12 @@ public class SSLEngineTest extends TestCase {
         e.setEnabledCipherSuites(new String[0]);
         e.setEnabledCipherSuites(e.getEnabledCipherSuites());
         e.setEnabledCipherSuites(e.getSupportedCipherSuites());
+
+        // Check that setEnabledCipherSuites affects getEnabledCipherSuites
+        String[] cipherSuites = new String[] { e.getSupportedCipherSuites()[0] };
+        e.setEnabledCipherSuites(cipherSuites);
+        assertEquals(Arrays.asList(cipherSuites), Arrays.asList(e.getEnabledCipherSuites()));
+
         c.close();
     }
 
@@ -289,6 +295,12 @@ public class SSLEngineTest extends TestCase {
         e.setEnabledProtocols(new String[0]);
         e.setEnabledProtocols(e.getEnabledProtocols());
         e.setEnabledProtocols(e.getSupportedProtocols());
+
+        // Check that setEnabledProtocols affects getEnabledProtocols
+        String[] protocols = new String[] { e.getSupportedProtocols()[0] };
+        e.setEnabledProtocols(protocols);
+        assertEquals(Arrays.asList(protocols), Arrays.asList(e.getEnabledProtocols()));
+
         c.close();
     }
 
