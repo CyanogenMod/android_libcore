@@ -17,6 +17,7 @@
 
 package org.apache.harmony.tests.java.io;
 
+import junit.framework.TestCase;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -29,8 +30,6 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-
-import junit.framework.TestCase;
 
 public class OutputStreamWriterTest extends TestCase {
 
@@ -630,7 +629,8 @@ public class OutputStreamWriterTest extends TestCase {
     }
 
     /**
-     * java.io.OutputStreamWriter#getEncoding()
+     * Unlike the RI, we return  canonical encoding name and not something
+     * java specific.
      */
     public void test_getEncoding() throws IOException {
         try {
@@ -655,7 +655,7 @@ public class OutputStreamWriterTest extends TestCase {
             // ok
         }
         result = out.getEncoding();
-        assertEquals("UnicodeBigUnmarked", result);
+        assertEquals("UTF-16BE", result);
     }
 
     /**
