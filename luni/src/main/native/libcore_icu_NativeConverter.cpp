@@ -272,7 +272,8 @@ static jint NativeConverter_decode(JNIEnv* env, jclass, jlong address,
     *targetOffset = cTarget - uTarget.get() - *targetOffset;
 
     // If there was an error, count the problematic bytes.
-    if (errorCode == U_ILLEGAL_CHAR_FOUND || errorCode == U_INVALID_CHAR_FOUND) {
+    if (errorCode == U_ILLEGAL_CHAR_FOUND || errorCode == U_INVALID_CHAR_FOUND ||
+        errorCode == U_TRUNCATED_CHAR_FOUND) {
         int8_t invalidByteCount = 32;
         char invalidBytes[32] = {'\0'};
         UErrorCode minorErrorCode = U_ZERO_ERROR;
