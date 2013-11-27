@@ -254,6 +254,11 @@ public class SSLSocketTest extends TestCase {
         ssl.setEnabledCipherSuites(new String[0]);
         ssl.setEnabledCipherSuites(ssl.getEnabledCipherSuites());
         ssl.setEnabledCipherSuites(ssl.getSupportedCipherSuites());
+
+        // Check that setEnabledCipherSuites affects getEnabledCipherSuites
+        String[] cipherSuites = new String[] { ssl.getSupportedCipherSuites()[0] };
+        ssl.setEnabledCipherSuites(cipherSuites);
+        assertEquals(Arrays.asList(cipherSuites), Arrays.asList(ssl.getEnabledCipherSuites()));
     }
 
     public void test_SSLSocket_getSupportedProtocols_returnsCopies() throws Exception {
@@ -290,6 +295,11 @@ public class SSLSocketTest extends TestCase {
         ssl.setEnabledProtocols(new String[0]);
         ssl.setEnabledProtocols(ssl.getEnabledProtocols());
         ssl.setEnabledProtocols(ssl.getSupportedProtocols());
+
+        // Check that setEnabledProtocols affects getEnabledProtocols
+        String[] protocols = new String[] { ssl.getSupportedProtocols()[0] };
+        ssl.setEnabledProtocols(protocols);
+        assertEquals(Arrays.asList(protocols), Arrays.asList(ssl.getEnabledProtocols()));
     }
 
     public void test_SSLSocket_getSession() throws Exception {
