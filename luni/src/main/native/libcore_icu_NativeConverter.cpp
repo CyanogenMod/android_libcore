@@ -217,7 +217,8 @@ static jint NativeConverter_encode(JNIEnv* env, jclass, jlong address,
     *targetOffset = (reinterpret_cast<jbyte*>(cTarget) - uTarget.get()) - *targetOffset;
 
     // If there was an error, count the problematic characters.
-    if (errorCode == U_ILLEGAL_CHAR_FOUND || errorCode == U_INVALID_CHAR_FOUND) {
+    if (errorCode == U_ILLEGAL_CHAR_FOUND || errorCode == U_INVALID_CHAR_FOUND ||
+        errorCode == U_TRUNCATED_CHAR_FOUND) {
         int8_t invalidUCharCount = 32;
         UChar invalidUChars[32];
         UErrorCode minorErrorCode = U_ZERO_ERROR;
