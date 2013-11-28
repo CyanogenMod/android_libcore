@@ -562,6 +562,6 @@ public class JSONArrayTest extends TestCase {
 
         // This doesn't because it's not.
         JSONArray a2 = new JSONArray(MyEnum.values());
-        assertEquals("[null, null, null]", a2.toString());
+        assertEquals("[null,null,null]", a2.toString());
     }
 }
