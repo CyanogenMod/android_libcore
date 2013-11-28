@@ -294,6 +294,11 @@ public final class OsConstants {
     public static final int PROT_READ = placeholder();
     public static final int PROT_WRITE = placeholder();
     public static final int R_OK = placeholder();
+    public static final int RT_SCOPE_HOST = placeholder();
+    public static final int RT_SCOPE_LINK = placeholder();
+    public static final int RT_SCOPE_NOWHERE = placeholder();
+    public static final int RT_SCOPE_SITE = placeholder();
+    public static final int RT_SCOPE_UNIVERSE = placeholder();
     public static final int SEEK_CUR = placeholder();
     public static final int SEEK_END = placeholder();
     public static final int SEEK_SET = placeholder();
