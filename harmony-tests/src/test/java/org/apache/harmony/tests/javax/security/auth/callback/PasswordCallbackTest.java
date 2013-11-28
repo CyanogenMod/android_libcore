@@ -17,9 +17,10 @@
 
 package org.apache.harmony.tests.javax.security.auth.callback;
 
-import junit.framework.TestCase;
-import javax.security.auth.DestroyFailedException;
+import java.io.Serializable;
+import java.util.Arrays;
 import javax.security.auth.callback.PasswordCallback;
+import junit.framework.TestCase;
 import org.apache.harmony.testframework.serialization.SerializationTest;
 
 /**
@@ -108,11 +109,12 @@ public class PasswordCallbackTest extends TestCase {
 
 
     public void testSerializationSelf() throws Exception {
-        SerializationTest.verifySelf(getSerializationData());
+        SerializationTest.verifySelf(getSerializationData(), new PasswordCallbackAssert());
     }
 
     public void testSerializationGolden() throws Exception {
-        SerializationTest.verifyGolden(this, getSerializationData());
+        SerializationTest.verifyGolden(this, getSerializationData(),
+                new PasswordCallbackAssert());
     }
 
     private Object[] getSerializationData() {
@@ -120,5 +122,16 @@ public class PasswordCallbackTest extends TestCase {
         PasswordCallback p = new PasswordCallback("prmpt", true);
         p.setPassword(pwd);
         return new Object[] { new PasswordCallback("prompt", true), p };
+    }
+
+    public static final class PasswordCallbackAssert implements SerializationTest.SerializableAssert {
+        public void assertDeserialized(Serializable initial, Serializable deserialized) {
+            final PasswordCallback callback1 = (PasswordCallback) initial;
+            final PasswordCallback callback2 = (PasswordCallback) deserialized;
+
+            assertTrue(Arrays.equals(callback1.getPassword(), callback2.getPassword()));
+            assertEquals(callback1.getPrompt(), callback2.getPrompt());
+            assertEquals(callback1.isEchoOn(), callback2.isEchoOn());
+        }
     }
 }
