@@ -24,6 +24,7 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <linux/if_addr.h>
+#include <linux/rtnetlink.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <poll.h>
@@ -346,6 +347,11 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "PROT_READ", PROT_READ);
     initConstant(env, c, "PROT_WRITE", PROT_WRITE);
     initConstant(env, c, "R_OK", R_OK);
+    initConstant(env, c, "RT_SCOPE_HOST", RT_SCOPE_HOST);
+    initConstant(env, c, "RT_SCOPE_LINK", RT_SCOPE_LINK);
+    initConstant(env, c, "RT_SCOPE_NOWHERE", RT_SCOPE_NOWHERE);
+    initConstant(env, c, "RT_SCOPE_SITE", RT_SCOPE_SITE);
+    initConstant(env, c, "RT_SCOPE_UNIVERSE", RT_SCOPE_UNIVERSE);
     initConstant(env, c, "SEEK_CUR", SEEK_CUR);
     initConstant(env, c, "SEEK_END", SEEK_END);
     initConstant(env, c, "SEEK_SET", SEEK_SET);
