@@ -90,8 +90,7 @@ public class JarInputStream extends ZipInputStream {
             if (verify) {
                 HashMap<String, byte[]> metaEntries = new HashMap<String, byte[]>();
                 metaEntries.put(JarFile.MANIFEST_NAME, manifestBytes);
-                verifier = new JarVerifier("JarInputStream", manifest,
-                        metaEntries, manifest.getMainAttributesEnd());
+                verifier = new JarVerifier("JarInputStream", manifest, metaEntries);
             }
         }
 

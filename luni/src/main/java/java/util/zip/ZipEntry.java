@@ -25,9 +25,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import libcore.io.Streams;
 import libcore.io.BufferIterator;
 import libcore.io.HeapBufferIterator;
+import libcore.io.Streams;
 
 /**
  * An entry within a zip file.
@@ -54,6 +54,8 @@ public class ZipEntry implements ZipConstants, Cloneable {
     int nameLength = -1;
     long localHeaderRelOffset = -1;
 
+    long dataOffset = -1;
+
     /**
      * Zip entry state: Deflated.
      */
@@ -63,6 +65,23 @@ public class ZipEntry implements ZipConstants, Cloneable {
      * Zip entry state: Stored.
      */
     public static final int STORED = 0;
+
+    ZipEntry(String name, String comment, long crc, long compressedSize,
+            long size, int compressionMethod, int time, int modDate, byte[] extra,
+            int nameLength, long localHeaderRelOffset, long dataOffset) {
+        this.name = name;
+        this.comment = comment;
+        this.crc = crc;
+        this.compressedSize = compressedSize;
+        this.size = size;
+        this.compressionMethod = compressionMethod;
+        this.time = time;
+        this.modDate = modDate;
+        this.extra = extra;
+        this.nameLength = nameLength;
+        this.localHeaderRelOffset = localHeaderRelOffset;
+        this.dataOffset = dataOffset;
+    }
 
     /**
      * Constructs a new {@code ZipEntry} with the specified name. The name is actually a path,
@@ -287,6 +306,17 @@ public class ZipEntry implements ZipConstants, Cloneable {
         }
     }
 
+
+    /** @hide */
+    public void setDataOffset(long value) {
+        dataOffset = value;
+    }
+
+    /** @hide */
+    public long getDataOffset() {
+        return dataOffset;
+    }
+
     /**
      * Returns the string representation of this {@code ZipEntry}.
      *
@@ -316,6 +346,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
         extra = ze.extra;
         nameLength = ze.nameLength;
         localHeaderRelOffset = ze.localHeaderRelOffset;
+        dataOffset = ze.dataOffset;
     }
 
     /**
