@@ -243,7 +243,7 @@ include $(CLEAR_VARS)
 # for shared defintion of libcore_to_document
 include $(LOCAL_PATH)/Docs.mk
 
-LOCAL_SRC_FILES:=$(call libcore_to_document,$(LOCAL_PATH))
+LOCAL_SRC_FILES := $(libcore_to_document)
 # rerun doc generation without recompiling the java
 LOCAL_JAVA_LIBRARIES:=
 LOCAL_JAVACFLAGS := $(local_javac_flags)

@@ -1,23 +1,19 @@
 # -*- mode: makefile -*-
 # List of libcore directories to include in documentation.
 # Shared between libcore and frameworks/base.
+# Exports: libcore_to_document as a list of .java files relative to libcore/.
 
-define libcoredoc-all-java-files-under
-$(patsubst ./%,%, \
-  $(shell cd $(1) ; \
-          find $(2) -name "*.java" -and -not -name ".*") \
- )
-endef
+ifndef libcore_docs_include_once
 
 # List of libcore javadoc source files
-# 
-# Note dalvik/system is non-recursive to exclude dalvik.system.profiler
 #
-# $(1): directory for search (to support use from frameworks/base)
-define libcore_to_document
- $(call libcoredoc-all-java-files-under,$(1), \
+# Note dalvik/system is non-recursive to exclude dalvik.system.profiler
+libcore_to_document := \
+ $(call find-files-in-subdirs, libcore, \
+   "*.java", \
    dalvik/src/main/java/dalvik/system/ -maxdepth 1) \
- $(call libcoredoc-all-java-files-under,$(1), \
+ $(call find-files-in-subdirs, libcore, \
+   "*.java", \
    dalvik/src/main/java/dalvik/annotation \
    dalvik/src/main/java/dalvik/bytecode \
    json/src/main/java \
@@ -28,4 +24,6 @@ define libcore_to_document
    luni/src/main/java/org/xml/sax \
    luni/src/main/java/org/w3c \
    xml/src/main/java/org/xmlpull/v1)
-endef
+
+libcore_docs_include_once := 1
+endif # libcore_docs_include_once
