@@ -804,6 +804,40 @@ public abstract class Provider extends Properties {
      * provider it belongs and other properties.
      */
     public static class Service {
+        /** Attribute name of supported key classes. */
+        private static final String ATTR_SUPPORTED_KEY_CLASSES = "SupportedKeyClasses";
+
+        /** Attribute name of supported key formats. */
+        private static final String ATTR_SUPPORTED_KEY_FORMATS = "SupportedKeyFormats";
+
+        private static final HashMap<String, Boolean> supportsParameterTypes
+                = new HashMap<String, Boolean>();
+        static {
+            // Does not support parameter
+            supportsParameterTypes.put("AlgorithmParameterGenerator", false);
+            supportsParameterTypes.put("AlgorithmParameters", false);
+            supportsParameterTypes.put("CertificateFactory", false);
+            supportsParameterTypes.put("CertPathBuilder", false);
+            supportsParameterTypes.put("CertPathValidator", false);
+            supportsParameterTypes.put("CertStore", false);
+            supportsParameterTypes.put("KeyFactory", false);
+            supportsParameterTypes.put("KeyGenerator", false);
+            supportsParameterTypes.put("KeyManagerFactory", false);
+            supportsParameterTypes.put("KeyPairGenerator", false);
+            supportsParameterTypes.put("KeyStore", false);
+            supportsParameterTypes.put("MessageDigest", false);
+            supportsParameterTypes.put("SecretKeyFactory", false);
+            supportsParameterTypes.put("SecureRandom", false);
+            supportsParameterTypes.put("SSLContext", false);
+            supportsParameterTypes.put("TrustManagerFactory", false);
+
+            // Supports parameter
+            supportsParameterTypes.put("Cipher", true);
+            supportsParameterTypes.put("KeyAgreement", true);
+            supportsParameterTypes.put("Mac", true);
+            supportsParameterTypes.put("Signature", true);
+        }
+
         // The provider
         private Provider provider;
 
@@ -827,6 +861,15 @@ public abstract class Provider extends Properties {
 
         // For newInstance() optimization
         private String lastClassName;
+
+        /** Indicates whether supportedKeyClasses and supportedKeyFormats. */
+        private volatile boolean supportedKeysInitialized;
+
+        /** List of classes that this service supports. */
+        private Class<?>[] keyClasses;
+
+        /** List of key formats this service supports. */
+        private String[] keyFormats;
 
         /**
          * Constructs a new instance of {@code Service} with the given
@@ -1005,7 +1048,7 @@ public abstract class Provider extends Properties {
                 throw new InvalidParameterException(type + ": service cannot use the parameter");
             }
 
-            Class[] parameterTypes = new Class[1];
+            Class<?>[] parameterTypes = new Class<?>[1];
             Object[] initargs = { constructorParameter };
             try {
                 if (type.equalsIgnoreCase("CertStore")) {
@@ -1031,7 +1074,89 @@ public abstract class Provider extends Properties {
          *         constructor parameter, {@code false} otherwise.
          */
         public boolean supportsParameter(Object parameter) {
-            return true;
+            Boolean supportsParameter = supportsParameterTypes.get(type);
+            if (supportsParameter == null) {
+                return true;
+            }
+            if (!supportsParameter) {
+                throw new InvalidParameterException("Cannot use a parameter with " + type);
+            }
+
+            /*
+             * Only key type parameters are allowed, but allow null since there
+             * might not be any listed classes or formats for this instance.
+             */
+            if (parameter != null && !(parameter instanceof Key)) {
+                throw new InvalidParameterException("Parameter should be of type Key");
+            }
+
+            ensureSupportedKeysInitialized();
+
+            // No restriction specified by Provider registration.
+            if (keyClasses == null && keyFormats == null) {
+                return true;
+            }
+
+            Key keyParam = (Key) parameter;
+            if (keyClasses != null && isInArray(keyClasses, keyParam.getClass())) {
+                return true;
+            }
+            if (keyFormats != null && isInArray(keyFormats, keyParam.getFormat())) {
+                return true;
+            }
+
+            return false;
+        }
+
+        /**
+         * Initialize the list of supported key classes and formats.
+         */
+        private void ensureSupportedKeysInitialized() {
+            if (supportedKeysInitialized) {
+                return;
+            }
+
+            final String supportedClassesString = getAttribute(ATTR_SUPPORTED_KEY_CLASSES);
+            if (supportedClassesString != null) {
+                String[] keyClassNames = supportedClassesString.split("\\|");
+                ArrayList<Class<?>> supportedClassList = new ArrayList<Class<?>>(
+                        keyClassNames.length);
+                final ClassLoader classLoader = getProvider().getClass().getClassLoader();
+                for (String keyClassName : keyClassNames) {
+                    try {
+                        Class<?> keyClass = classLoader.loadClass(keyClassName);
+                        if (Key.class.isAssignableFrom(keyClass)) {
+                            supportedClassList.add(keyClass);
+                        }
+                    } catch (ClassNotFoundException ignored) {
+                    }
+                }
+                keyClasses = supportedClassList.toArray(new Class<?>[supportedClassList.size()]);
+            }
+
+            final String supportedFormatString = getAttribute(ATTR_SUPPORTED_KEY_FORMATS);
+            if (supportedFormatString != null) {
+                keyFormats = supportedFormatString.split("\\|");
+            }
+
+            supportedKeysInitialized = true;
+        }
+
+        /**
+         * Check if an item is in the array. The array of supported key classes
+         * and formats is usually just a length of 1, so a simple array is
+         * faster than a Set.
+         */
+        private static final <T> boolean isInArray(T[] itemList, T target) {
+            if (target == null) {
+                return false;
+            }
+            for (T item : itemList) {
+                if (target.equals(item)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /**
