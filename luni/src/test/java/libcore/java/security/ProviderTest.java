@@ -16,12 +16,15 @@
 
 package libcore.java.security;
 
+import java.security.InvalidParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.SecureRandomSpi;
 import java.security.Security;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +37,7 @@ import java.util.regex.Pattern;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import junit.framework.TestCase;
+import libcore.javax.crypto.MockKey;
 
 public class ProviderTest extends TestCase {
     private static final boolean LOG_DEBUG = false;
@@ -220,11 +224,291 @@ public class ProviderTest extends TestCase {
         }
     }
 
+    private static final String[] TYPES_SERVICES_CHECKED = new String[] {
+            "KeyFactory", "CertPathBuilder", "Cipher", "SecureRandom",
+            "AlgorithmParameterGenerator", "Signature", "KeyPairGenerator", "CertificateFactory",
+            "MessageDigest", "KeyAgreement", "CertStore", "SSLContext", "AlgorithmParameters",
+            "TrustManagerFactory", "KeyGenerator", "Mac", "CertPathValidator", "SecretKeyFactory",
+            "KeyManagerFactory", "KeyStore",
+    };
+
+    private static final HashSet<String> TYPES_SUPPORTS_PARAMETER = new HashSet<String>(
+            Arrays.asList(new String[] {
+                    "Mac", "KeyAgreement", "Cipher", "Signature",
+            }));
+
+    private static final HashSet<String> TYPES_NOT_SUPPORTS_PARAMETER = new HashSet<String>(
+            Arrays.asList(TYPES_SERVICES_CHECKED));
+    static {
+        TYPES_NOT_SUPPORTS_PARAMETER.removeAll(TYPES_SUPPORTS_PARAMETER);
+    }
+
+    public void test_Provider_getServices_supportsParameter() throws Exception {
+        HashSet<String> remainingTypes = new HashSet<String>(Arrays.asList(TYPES_SERVICES_CHECKED));
+
+        HashSet<String> supportsParameterTypes = new HashSet<String>();
+        HashSet<String> noSupportsParameterTypes = new HashSet<String>();
+
+        Provider[] providers = Security.getProviders();
+        for (Provider provider : providers) {
+            Set<Provider.Service> services = provider.getServices();
+            assertNotNull(services);
+            assertFalse(services.isEmpty());
+
+            for (Provider.Service service : services) {
+                final String type = service.getType();
+                remainingTypes.remove(type);
+                try {
+                    service.supportsParameter(new MockKey());
+                    supportsParameterTypes.add(type);
+                } catch (InvalidParameterException e) {
+                    noSupportsParameterTypes.add(type);
+                    try {
+                        service.supportsParameter(new Object());
+                        fail("Should throw on non-Key parameter");
+                    } catch (InvalidParameterException expected) {
+                    }
+                }
+            }
+        }
+
+        supportsParameterTypes.retainAll(TYPES_SUPPORTS_PARAMETER);
+        assertEquals("Types that should support parameters", TYPES_SUPPORTS_PARAMETER,
+                supportsParameterTypes);
+
+        noSupportsParameterTypes.retainAll(TYPES_NOT_SUPPORTS_PARAMETER);
+        assertEquals("Types that should not support parameters", TYPES_NOT_SUPPORTS_PARAMETER,
+                noSupportsParameterTypes);
+
+        assertEquals("Types that should be checked", Collections.EMPTY_SET, remainingTypes);
+    }
+
+    public static class MockSpi {
+        public Object parameter;
+
+        public MockSpi(MockKey parameter) {
+            this.parameter = parameter;
+        }
+    };
+
+    @SuppressWarnings("serial")
+    public void testProviderService_supportsParameter_UnknownService_Success() throws Exception {
+        Provider provider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Fake.FOO", MockSpi.class.getName());
+            }
+        };
+
+        Security.addProvider(provider);
+        try {
+            Provider.Service service = provider.getService("Fake", "FOO");
+            assertTrue(service.supportsParameter(new Object()));
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public void testProviderService_supportsParameter_KnownService_NoClassInitialization_Success()
+            throws Exception {
+        Provider provider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.FOO", MockSpi.class.getName());
+                put("Signature.FOO SupportedKeyClasses", getClass().getName()
+                        + ".UninitializedMockKey");
+            }
+        };
+
+        Security.addProvider(provider);
+        try {
+            Provider.Service service = provider.getService("Signature", "FOO");
+            assertFalse(service.supportsParameter(new MockKey()));
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public static class UninitializedMockKey extends MockKey {
+        static {
+            fail("This should not be initialized");
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public void testProviderService_supportsParameter_TypeDoesNotSupportParameter_Failure()
+            throws Exception {
+        Provider provider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("KeyFactory.FOO", MockSpi.class.getName());
+            }
+        };
+
+        Security.addProvider(provider);
+        try {
+            Provider.Service service = provider.getService("KeyFactory", "FOO");
+            try {
+                service.supportsParameter(new MockKey());
+                fail("Should always throw exception");
+            } catch (InvalidParameterException expected) {
+            }
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public void testProviderService_supportsParameter_SupportedKeyClasses_NonKeyClass_Success()
+            throws Exception {
+        Provider provider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.FOO", MockSpi.class.getName());
+                put("Signature.FOO SupportedKeyClasses", MockSpi.class.getName());
+            }
+        };
+
+        Security.addProvider(provider);
+        try {
+            Provider.Service service = provider.getService("Signature", "FOO");
+            assertFalse(service.supportsParameter(new MockKey()));
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public void testProviderService_supportsParameter_KnownService_NonKey_Failure()
+            throws Exception {
+        Provider provider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.FOO", MockSpi.class.getName());
+            }
+        };
+
+        Security.addProvider(provider);
+        try {
+            Provider.Service service = provider.getService("Signature", "FOO");
+            try {
+                service.supportsParameter(new Object());
+                fail("Should throw when non-Key passed in");
+            } catch (InvalidParameterException expected) {
+            }
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public void testProviderService_supportsParameter_KnownService_SupportedKeyClasses_NonKey_Failure()
+            throws Exception {
+        Provider provider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.FOO", MockSpi.class.getName());
+                put("Signature.FOO SupportedKeyClasses", RSAPrivateKey.class.getName());
+            }
+        };
+
+        Security.addProvider(provider);
+        try {
+            Provider.Service service = provider.getService("Signature", "FOO");
+            try {
+                service.supportsParameter(new Object());
+                fail("Should throw on non-Key instance passed in");
+            } catch (InvalidParameterException expected) {
+            }
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public void testProviderService_supportsParameter_SupportedKeyClasses_Success()
+            throws Exception {
+        Provider provider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.FOO", MockSpi.class.getName());
+                put("Signature.FOO SupportedKeyClasses", MockKey.class.getName());
+            }
+        };
+
+        Security.addProvider(provider);
+        try {
+            Provider.Service service = provider.getService("Signature", "FOO");
+            assertTrue(service.supportsParameter(new MockKey()));
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public void testProviderService_supportsParameter_SupportedKeyClasses_Failure()
+            throws Exception {
+        Provider provider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.FOO", MockSpi.class.getName());
+                put("Signature.FOO SupportedKeyClasses", RSAPrivateKey.class.getName());
+            }
+        };
+
+        Security.addProvider(provider);
+        try {
+            Provider.Service service = provider.getService("Signature", "FOO");
+            assertFalse(service.supportsParameter(new MockKey()));
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public void testProviderService_supportsParameter_SupportedKeyFormats_Success()
+            throws Exception {
+        Provider provider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.FOO", MockSpi.class.getName());
+                put("Signature.FOO SupportedKeyFormats", new MockKey().getFormat());
+            }
+        };
+
+        Security.addProvider(provider);
+        try {
+            Provider.Service service = provider.getService("Signature", "FOO");
+            assertTrue(service.supportsParameter(new MockKey()));
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public void testProviderService_supportsParameter_SupportedKeyFormats_Failure()
+            throws Exception {
+        Provider provider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.FOO", MockSpi.class.getName());
+                put("Signature.FOO SupportedKeyFormats", "Invalid");
+            }
+        };
+
+        Security.addProvider(provider);
+        try {
+            Provider.Service service = provider.getService("Signature", "FOO");
+            assertFalse(service.supportsParameter(new MockKey()));
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
     /**
      * http://code.google.com/p/android/issues/detail?id=21449
      */
     public void testSecureRandomImplementationOrder() {
-        Provider srp = new SRProvider();
+        @SuppressWarnings("serial")
+        Provider srp = new MockProvider("SRProvider") {
+            public void setup() {
+                put("SecureRandom.SecureRandom1", SecureRandom1.class.getName());
+                put("SecureRandom.SecureRandom2", SecureRandom2.class.getName());
+                put("SecureRandom.SecureRandom3", SecureRandom3.class.getName());
+            }
+        };
         try {
             int position = Security.insertProviderAt(srp, 1); // first is one, not zero
             assertEquals(1, position);
@@ -237,16 +521,17 @@ public class ProviderTest extends TestCase {
         }
     }
 
-    public static class SRProvider extends Provider {
-
-        SRProvider() {
-            super("SRProvider", 1.42, "SecureRandom Provider");
-            put("SecureRandom.SecureRandom1", SecureRandom1.class.getName());
-            put("SecureRandom.SecureRandom2", SecureRandom2.class.getName());
-            put("SecureRandom.SecureRandom3", SecureRandom3.class.getName());
+    @SuppressWarnings("serial")
+    private static abstract class MockProvider extends Provider {
+        public MockProvider(String name) {
+            super(name, 1.0, "Mock provider used for testing");
+            setup();
         }
+
+        public abstract void setup();
     }
 
+    @SuppressWarnings("serial")
     public static abstract class AbstractSecureRandom extends SecureRandomSpi {
         protected void engineSetSeed(byte[] seed) {
             throw new UnsupportedOperationException();
@@ -259,8 +544,13 @@ public class ProviderTest extends TestCase {
         }
     }
 
+    @SuppressWarnings("serial")
     public static class SecureRandom1 extends AbstractSecureRandom {}
+
+    @SuppressWarnings("serial")
     public static class SecureRandom2 extends AbstractSecureRandom {}
+
+    @SuppressWarnings("serial")
     public static class SecureRandom3 extends AbstractSecureRandom {}
 
 }
