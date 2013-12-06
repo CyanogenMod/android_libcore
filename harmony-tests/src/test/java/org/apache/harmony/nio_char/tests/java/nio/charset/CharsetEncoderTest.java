@@ -157,26 +157,36 @@ public class CharsetEncoderTest extends TestCase {
     public void test_EncodeLjava_nio_CharBufferLjava_nio_ByteBufferB() throws Exception {
         Charset utf8 = Charset.forName("utf-8");
         CharsetEncoder encoder = utf8.newEncoder();
-        CharBuffer in1 = CharBuffer.wrap("\ud800");
-        CharBuffer in2 = CharBuffer.wrap("\udc00");
-        ByteBuffer out = ByteBuffer.allocate(4);
+        CharBuffer char1 = CharBuffer.wrap("\ud800");
+        CharBuffer char2 = CharBuffer.wrap("\udc00");
+        ByteBuffer bytes = ByteBuffer.allocate(4);
         encoder.reset();
 
         // If we supply just the high surrogate...
-        CoderResult result = encoder.encode(in1, out, false);
+        CoderResult result = encoder.encode(char1, bytes, false);
         // ...we're not done...
         assertTrue(result.isUnderflow());
-        assertEquals(4, out.remaining());
+        assertEquals(4, bytes.remaining());
         // ...but if we then supply the low surrogate...
-        result = encoder.encode(in2, out, true);
+        result = encoder.encode(char2, bytes, true);
+        assertTrue(result.isUnderflow());
         // ...we're done. Note that the RI loses its state in
         // between the two characters, so it can't do this.
-        assertEquals(0, out.remaining());
+        assertEquals(0, bytes.remaining());
+
+        // Did we get the UTF-8 for U+10000?
+        assertEquals(4, bytes.limit());
+        assertEquals((byte) 0xf0, bytes.get(0));
+        assertEquals((byte) 0x90, bytes.get(1));
+        assertEquals((byte) 0x80, bytes.get(2));
+        assertEquals((byte) 0x80, bytes.get(3));
 
         // See what we got in the output buffer by decoding and checking that we
         // get back the same surrogate pair.
-        out.flip();
-        CharBuffer chars = utf8.newDecoder().decode(out);
+        bytes.flip();
+        CharBuffer chars = utf8.newDecoder().decode(bytes);
+        assertEquals(0, bytes.remaining());
+        assertEquals(2, chars.limit());
         assertEquals(0xd800, chars.get(0));
         assertEquals(0xdc00, chars.get(1));
     }

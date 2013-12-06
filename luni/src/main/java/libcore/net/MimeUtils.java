@@ -61,6 +61,7 @@ public final class MimeUtils {
         add("application/pgp-keys", "key");
         add("application/pgp-signature", "pgp");
         add("application/pics-rules", "prf");
+        add("application/pkix-cert", "cer");
         add("application/rar", "rar");
         add("application/rdf+xml", "rdf");
         add("application/rss+xml", "rss");
@@ -182,6 +183,7 @@ public final class MimeUtils {
         add("application/x-nwc", "nwc");
         add("application/x-object", "o");
         add("application/x-oz-application", "oza");
+        add("application/x-pem-file", "pem");
         add("application/x-pkcs12", "p12");
         add("application/x-pkcs12", "pfx");
         add("application/x-pkcs7-certreqresp", "p7r");
@@ -205,6 +207,7 @@ public final class MimeUtils {
         add("application/x-webarchive-xml", "webarchivexml");
         add("application/x-x509-ca-cert", "crt");
         add("application/x-x509-user-cert", "crt");
+        add("application/x-x509-server-cert", "crt");
         add("application/x-xcf", "xcf");
         add("application/x-xfig", "fig");
         add("application/xhtml+xml", "xhtml");
