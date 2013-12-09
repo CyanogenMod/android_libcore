@@ -1083,8 +1083,8 @@ public abstract class Provider extends Properties {
             }
 
             /*
-             * Only key type parameters are allowed, but allow null since there
-             * might not be any listed classes or formats for this instance.
+             * Only Key parameters are allowed, but allow null since there might
+             * not be any listed classes or formats for this instance.
              */
             if (parameter != null && !(parameter instanceof Key)) {
                 throw new InvalidParameterException("Parameter should be of type Key");
@@ -1095,6 +1095,11 @@ public abstract class Provider extends Properties {
             // No restriction specified by Provider registration.
             if (keyClasses == null && keyFormats == null) {
                 return true;
+            }
+
+            // Restriction specified by registration, so null is not acceptable.
+            if (parameter == null) {
+                return false;
             }
 
             Key keyParam = (Key) parameter;
