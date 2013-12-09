@@ -49,6 +49,7 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
     REGISTER(register_java_nio_ByteOrder);
     REGISTER(register_java_nio_charset_Charsets);
     REGISTER(register_java_text_Bidi);
+    REGISTER(register_java_util_jar_StrictJarFile);
     REGISTER(register_java_util_regex_Matcher);
     REGISTER(register_java_util_regex_Pattern);
     REGISTER(register_java_util_zip_Adler32);

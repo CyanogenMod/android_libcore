@@ -434,16 +434,23 @@ public class ZipFile implements Closeable, ZipConstants {
      * collisions.)
      *
      * <p>We could support mark/reset, but we don't currently need them.
+     *
+     * @hide
      */
-    static class RAFStream extends InputStream {
+    public static class RAFStream extends InputStream {
         private final RandomAccessFile sharedRaf;
         private long endOffset;
         private long offset;
 
-        public RAFStream(RandomAccessFile raf, long initialOffset) throws IOException {
+
+        public RAFStream(RandomAccessFile raf, long initialOffset, long endOffset) {
             sharedRaf = raf;
             offset = initialOffset;
-            endOffset = raf.length();
+            this.endOffset = endOffset;
+        }
+
+        public RAFStream(RandomAccessFile raf, long initialOffset) throws IOException {
+            this(raf, initialOffset, raf.length());
         }
 
         @Override public int available() throws IOException {
@@ -491,7 +498,8 @@ public class ZipFile implements Closeable, ZipConstants {
         }
     }
 
-    static class ZipInflaterInputStream extends InflaterInputStream {
+    /** @hide */
+    public static class ZipInflaterInputStream extends InflaterInputStream {
         private final ZipEntry entry;
         private long bytesRead = 0;
 
