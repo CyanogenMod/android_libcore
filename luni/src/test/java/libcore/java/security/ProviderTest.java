@@ -422,6 +422,24 @@ public class ProviderTest extends TestCase {
     }
 
     @SuppressWarnings("serial")
+    public void testProviderService_supportsParameter_KnownService_Null_Failure() throws Exception {
+        Provider provider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.FOO", MockSpi.class.getName());
+                put("Signature.FOO SupportedKeyClasses", RSAPrivateKey.class.getName());
+            }
+        };
+
+        Security.addProvider(provider);
+        try {
+            Provider.Service service = provider.getService("Signature", "FOO");
+            assertFalse(service.supportsParameter(null));
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
+    @SuppressWarnings("serial")
     public void testProviderService_supportsParameter_SupportedKeyClasses_Success()
             throws Exception {
         Provider provider = new MockProvider("MockProvider") {
