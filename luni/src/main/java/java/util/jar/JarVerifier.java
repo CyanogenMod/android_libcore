@@ -152,12 +152,11 @@ class JarVerifier {
      * @param name
      *            the name of the JAR file being verified.
      */
-    JarVerifier(String name, Manifest manifest, HashMap<String, byte[]> metaEntries,
-            int mainAttributesEnd) {
+    JarVerifier(String name, Manifest manifest, HashMap<String, byte[]> metaEntries) {
         jarName = name;
         this.manifest = manifest;
         this.metaEntries = metaEntries;
-        this.mainAttributesEnd = mainAttributesEnd;
+        this.mainAttributesEnd = manifest.getMainAttributesEnd();
     }
 
     /**
