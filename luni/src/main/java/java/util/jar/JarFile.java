@@ -215,8 +215,7 @@ public class JarFile extends ZipFile {
             // We create the manifest straight away, so that we can create
             // the jar verifier as well.
             manifest = new Manifest(metaEntries.get(MANIFEST_NAME), true);
-            verifier = new JarVerifier(getName(), manifest, metaEntries,
-                    manifest.getMainAttributesEnd());
+            verifier = new JarVerifier(getName(), manifest, metaEntries);
         } else {
             verifier = null;
             manifestBytes = metaEntries.get(MANIFEST_NAME);

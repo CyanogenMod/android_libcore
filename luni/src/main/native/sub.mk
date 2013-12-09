@@ -28,6 +28,7 @@ LOCAL_SRC_FILES := \
 	java_nio_ByteOrder.cpp \
 	java_nio_charset_Charsets.cpp \
 	java_text_Bidi.cpp \
+	java_util_jar_StrictJarFile.cpp \
 	java_util_regex_Matcher.cpp \
 	java_util_regex_Pattern.cpp \
 	java_util_zip_Adler32.cpp \
@@ -60,7 +61,8 @@ LOCAL_C_INCLUDES += \
 	external/icu4c/common \
 	external/icu4c/i18n \
 	external/openssl/include \
-	external/zlib
+	external/zlib \
+	system/core/include
 
 LOCAL_STATIC_LIBRARIES += \
 	libfdlibm
