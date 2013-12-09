@@ -359,5 +359,11 @@ public class StringTest extends TestCase {
 
         // http://b/11639117
         assertEquals("[-79, -72, -70, -48]", Arrays.toString("구분".getBytes("EUC-KR")));
+
+
+        // https://code.google.com/p/android/issues/detail?id=63188
+        assertEquals("[-77, -10, -64, -76, -63, -53]", Arrays.toString("出来了".getBytes("gbk")));
+        assertEquals("[-77, -10, -64, -76]", Arrays.toString("出来".getBytes("gbk")));
+        assertEquals("[-77, -10]", Arrays.toString("出".getBytes("gbk")));
     }
 }
