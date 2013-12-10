@@ -70,27 +70,6 @@ public final class CipherTest extends TestCase {
                                                    ? new String[] { "SunJCE" }
                                                    : new String[] { "BC", "AndroidOpenSSL" });
 
-    private static final boolean IS_UNLIMITED;
-    static {
-        boolean is_unlimited;
-        if (StandardNames.IS_RI) {
-            try {
-                String algorithm = "PBEWITHMD5ANDTRIPLEDES";
-                Cipher.getInstance(algorithm).init(getEncryptMode(algorithm),
-                                                   getEncryptKey(algorithm),
-                                                   getEncryptAlgorithmParameterSpec(algorithm));
-                is_unlimited = true;
-            } catch (Exception e) {
-                is_unlimited = false;
-                System.out.println("WARNING: Some tests disabled due to lack of "
-                                   + "'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files'");
-            }
-        } else {
-            is_unlimited = true;
-        }
-        IS_UNLIMITED = is_unlimited;
-    }
-
     private static boolean isSupported(String algorithm, String provider) {
         if (algorithm.equals("RC2")) {
             return false;
@@ -750,6 +729,31 @@ public final class CipherTest extends TestCase {
             return new IvParameterSpec(iv);
         }
         return null;
+    }
+
+    /*
+     * This must be below everything else to make sure the other static blocks
+     * have run first.
+     */
+    private static final boolean IS_UNLIMITED;
+    static {
+        boolean is_unlimited;
+        if (StandardNames.IS_RI) {
+            try {
+                String algorithm = "PBEWITHMD5ANDTRIPLEDES";
+                Cipher.getInstance(algorithm).init(getEncryptMode(algorithm),
+                                                   getEncryptKey(algorithm),
+                                                   getEncryptAlgorithmParameterSpec(algorithm));
+                is_unlimited = true;
+            } catch (Exception e) {
+                is_unlimited = false;
+                System.out.println("WARNING: Some tests disabled due to lack of "
+                                   + "'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files'");
+            }
+        } else {
+            is_unlimited = true;
+        }
+        IS_UNLIMITED = is_unlimited;
     }
 
     public void test_getInstance() throws Exception {
