@@ -810,6 +810,7 @@ public abstract class Provider extends Properties {
         /** Attribute name of supported key formats. */
         private static final String ATTR_SUPPORTED_KEY_FORMATS = "SupportedKeyFormats";
 
+        /** Whether this type supports calls to {@link #supportsParameter(Object)}. */
         private static final HashMap<String, Boolean> supportsParameterTypes
                 = new HashMap<String, Boolean>();
         static {
@@ -836,6 +837,44 @@ public abstract class Provider extends Properties {
             supportsParameterTypes.put("KeyAgreement", true);
             supportsParameterTypes.put("Mac", true);
             supportsParameterTypes.put("Signature", true);
+        }
+
+        /** Constructor argument classes for calls to {@link #newInstance(Object)}. */
+        private static final HashMap<String, Class<?>> constructorParameterClasses = new HashMap<String, Class<?>>();
+        static {
+            // Types that take a parameter to newInstance
+            constructorParameterClasses.put("CertStore",
+                    loadClassOrThrow("java.security.cert.CertStoreParameters"));
+
+            // Types that do not take any kind of parameter
+            constructorParameterClasses.put("AlgorithmParameterGenerator", null);
+            constructorParameterClasses.put("AlgorithmParameters", null);
+            constructorParameterClasses.put("CertificateFactory", null);
+            constructorParameterClasses.put("CertPathBuilder", null);
+            constructorParameterClasses.put("CertPathValidator", null);
+            constructorParameterClasses.put("KeyFactory", null);
+            constructorParameterClasses.put("KeyGenerator", null);
+            constructorParameterClasses.put("KeyManagerFactory", null);
+            constructorParameterClasses.put("KeyPairGenerator", null);
+            constructorParameterClasses.put("KeyStore", null);
+            constructorParameterClasses.put("MessageDigest", null);
+            constructorParameterClasses.put("SecretKeyFactory", null);
+            constructorParameterClasses.put("SecureRandom", null);
+            constructorParameterClasses.put("SSLContext", null);
+            constructorParameterClasses.put("TrustManagerFactory", null);
+            constructorParameterClasses.put("Cipher", null);
+            constructorParameterClasses.put("KeyAgreement", null);
+            constructorParameterClasses.put("Mac", null);
+            constructorParameterClasses.put("Signature", null);
+        }
+
+        /** Called to load a class if it's critical that the class exists. */
+        private static Class<?> loadClassOrThrow(String className) {
+            try {
+                return Provider.class.getClassLoader().loadClass(className);
+            } catch (Exception e) {
+                throw new AssertionError(e);
+            }
         }
 
         // The provider
@@ -1036,28 +1075,52 @@ public abstract class Provider extends Properties {
                     throw new NoSuchAlgorithmException(type + " " + algorithm + " implementation not found: " + e);
                 }
             }
-            if (constructorParameter == null) {
-                try {
-                    return implementation.newInstance();
-                } catch (Exception e) {
-                    throw new NoSuchAlgorithmException(
-                            type + " " + algorithm + " implementation not found", e);
+
+            // We don't know whether this takes a parameter or not.
+            if (!constructorParameterClasses.containsKey(type)) {
+                if (constructorParameter == null) {
+                    return newInstanceNoParameter();
+                } else {
+                    return newInstanceWithParameter(constructorParameter,
+                            constructorParameter.getClass());
                 }
-            }
-            if (!supportsParameter(constructorParameter)) {
-                throw new InvalidParameterException(type + ": service cannot use the parameter");
             }
 
-            Class<?>[] parameterTypes = new Class<?>[1];
-            Object[] initargs = { constructorParameter };
+            // A known type, but it's not required to have a parameter even if a
+            // class is specified.
+            if (constructorParameter == null) {
+                return newInstanceNoParameter();
+            }
+
+            // Make sure the provided constructor class is valid.
+            final Class<?> expectedClass = constructorParameterClasses.get(type);
+            if (expectedClass == null) {
+                throw new IllegalArgumentException("Constructor parameter not supported for "
+                        + type);
+            }
+            if (!expectedClass.isAssignableFrom(constructorParameter.getClass())) {
+                throw new IllegalArgumentException("Expecting constructor parameter of type "
+                        + expectedClass.getName() + " but was "
+                        + constructorParameter.getClass().getName());
+            }
+            return newInstanceWithParameter(constructorParameter, expectedClass);
+        }
+
+        private Object newInstanceWithParameter(Object constructorParameter,
+                Class<?> parameterClass) throws NoSuchAlgorithmException {
             try {
-                if (type.equalsIgnoreCase("CertStore")) {
-                    parameterTypes[0] = Class.forName("java.security.cert.CertStoreParameters");
-                } else {
-                    parameterTypes[0] = constructorParameter.getClass();
-                }
-                return implementation.getConstructor(parameterTypes)
-                        .newInstance(initargs);
+                Class<?>[] parameterTypes = { parameterClass };
+                Object[] initargs = { constructorParameter };
+                return implementation.getConstructor(parameterTypes).newInstance(initargs);
+            } catch (Exception e) {
+                throw new NoSuchAlgorithmException(type + " " + algorithm
+                        + " implementation not found", e);
+            }
+        }
+
+        private Object newInstanceNoParameter() throws NoSuchAlgorithmException {
+            try {
+                return implementation.newInstance();
             } catch (Exception e) {
                 throw new NoSuchAlgorithmException(type + " " + algorithm
                         + " implementation not found", e);

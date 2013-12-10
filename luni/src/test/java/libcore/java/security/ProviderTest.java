@@ -16,15 +16,24 @@
 
 package libcore.java.security;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.SecureRandomSpi;
 import java.security.Security;
+import java.security.cert.CRL;
+import java.security.cert.CRLSelector;
+import java.security.cert.CertSelector;
+import java.security.cert.CertStoreException;
+import java.security.cert.CertStoreParameters;
+import java.security.cert.CertStoreSpi;
+import java.security.cert.Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -515,6 +524,53 @@ public class ProviderTest extends TestCase {
         }
     }
 
+    @SuppressWarnings("serial")
+    public void testProviderService_newInstance_DoesNotCallSupportsParameter_Success()
+            throws Exception {
+        MockProvider provider = new MockProvider("MockProvider");
+
+        provider.putServiceForTest(new Provider.Service(provider, "CertStore", "FOO",
+                MyCertStoreSpi.class.getName(), null, null) {
+            @Override
+            public boolean supportsParameter(Object parameter) {
+                fail("This should not be called");
+                return false;
+            }
+        });
+
+        Security.addProvider(provider);
+        try {
+            Provider.Service service = provider.getService("CertStore", "FOO");
+            assertNotNull(service.newInstance(new MyCertStoreParameters()));
+        } finally {
+            Security.removeProvider(provider.getName());
+        }
+    }
+
+    public static class MyCertStoreSpi extends CertStoreSpi {
+        public MyCertStoreSpi(CertStoreParameters params) throws InvalidAlgorithmParameterException {
+            super(params);
+        }
+
+        @Override
+        public Collection<? extends Certificate> engineGetCertificates(CertSelector selector)
+                throws CertStoreException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Collection<? extends CRL> engineGetCRLs(CRLSelector selector)
+                throws CertStoreException {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public static class MyCertStoreParameters implements CertStoreParameters {
+        public Object clone() {
+            return new MyCertStoreParameters();
+        }
+    }
+
     /**
      * http://code.google.com/p/android/issues/detail?id=21449
      */
@@ -540,13 +596,18 @@ public class ProviderTest extends TestCase {
     }
 
     @SuppressWarnings("serial")
-    private static abstract class MockProvider extends Provider {
+    private static class MockProvider extends Provider {
         public MockProvider(String name) {
             super(name, 1.0, "Mock provider used for testing");
             setup();
         }
 
-        public abstract void setup();
+        public void setup() {
+        }
+
+        public void putServiceForTest(Provider.Service service) {
+            putService(service);
+        }
     }
 
     @SuppressWarnings("serial")
