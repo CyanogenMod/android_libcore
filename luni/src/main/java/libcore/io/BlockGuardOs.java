@@ -138,11 +138,6 @@ public class BlockGuardOs extends ForwardingOs {
         os.ftruncate(fd, length);
     }
 
-    @Override public InetAddress[] getaddrinfo(String node, StructAddrinfo hints) throws GaiException {
-        BlockGuard.getThreadPolicy().onNetwork();
-        return os.getaddrinfo(node, hints);
-    }
-
     @Override public void lchown(String path, int uid, int gid) throws ErrnoException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         os.lchown(path, uid, gid);
