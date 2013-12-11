@@ -82,7 +82,7 @@ LOCAL_CFLAGS += $(core_cflags)
 LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_SRC_FILES += $(core_src_files)
 LOCAL_C_INCLUDES += $(core_c_includes)
-LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libcrypto libexpat libicuuc libicui18n libnativehelper libz
+LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libcrypto libexpat libicuuc libicui18n libnativehelper libz libutils
 LOCAL_STATIC_LIBRARIES += $(core_static_libraries) libziparchive
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacore
@@ -123,7 +123,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_MODULE := libjavacore
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
     LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libexpat-host libicuuc-host libicui18n-host libcrypto-host libz-host
-    LOCAL_STATIC_LIBRARIES += $(core_static_libraries) libziparchive-host
+    LOCAL_STATIC_LIBRARIES += $(core_static_libraries) libziparchive-host libutils
     include $(BUILD_HOST_SHARED_LIBRARY)
 
     ifeq ($(LIBCORE_SKIP_TESTS),)
