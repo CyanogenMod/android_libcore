@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -77,7 +78,7 @@ public class CookieManagerTest extends TestCase {
     }
 
     private static Map<String, List<String>> addCookie(String[][] cookies) {
-        Map<String, List<String>> responseHeaders = new TreeMap<String, List<String>>();
+        Map<String, List<String>> responseHeaders = new LinkedHashMap<String, List<String>>();
         for (int i = 0; i < cookies.length; i++) {
             List<String> fields = new ArrayList<String>();
             for (int j = 1; j < cookies[i].length; j += 2) {
@@ -103,8 +104,10 @@ public class CookieManagerTest extends TestCase {
     }
 
     /**
-     * {@link java.net.CookieManager#get(java.net.URI, java.util.Map)} &
-     * {@link java.net.CookieManager#put(java.net.URI, java.util.Map)}
+     * Unlike the RI, we flatten all matching cookies into a single Cookie header
+     * instead of sending down multiple cookie headers. Also, when no cookies match
+     * a given URI, we leave the requestHeaders unmodified.
+     *
      * @since 1.6
      */
     public void test_Put_Get_LURI_LMap() throws IOException, URISyntaxException {
@@ -151,7 +154,10 @@ public class CookieManagerTest extends TestCase {
         // requires path of cookie is the prefix of uri
         map = manager.get(new URI("http://a.b.c/te"), dummyMap);
         list = map.get("Cookie");
-        assertEquals(2, list.size());
+        assertEquals(1, list.size());
+        assertTrue(list.get(0).contains("PREF=test"));
+        // Cookies from "/test" should *not* match the URI "/te".
+        assertFalse(list.get(0).contains("NAME=VALUE"));
 
         // If all cookies are of version 1, then $version=1 will be added
         // ,no matter the value cookie-key
@@ -159,8 +165,8 @@ public class CookieManagerTest extends TestCase {
         manager = store(new String[][] { cookies[2] }, responseHeaders, null);
         map = manager.get(new URI("http://a.beg.com/test"), dummyMap);
         list = map.get("Cookie");
-        assertEquals("$Version=\"1\"", list.get(0));
-        assertEquals(3, list.size());
+        assertEquals(1, list.size());
+        assertTrue(list.get(0).startsWith("$Version=\"1\""));
 
         // cookie-key will not have effect on determining cookie version
         responseHeaders = addCookie(new String[][] { cookies[3] });
@@ -177,7 +183,7 @@ public class CookieManagerTest extends TestCase {
                 CookiePolicy.ACCEPT_ALL);
         map = manager.get(new URI("http://a.test.org/"), responseHeaders);
         list = map.get("Cookie");
-        assertEquals(0, list.size());
+        assertNull(list);
 
         // All cookies will be rejected if policy == ACCEPT_NONE
         responseHeaders = addCookie(new String[][] { cookies[3] });
@@ -185,13 +191,13 @@ public class CookieManagerTest extends TestCase {
                 CookiePolicy.ACCEPT_NONE);
         map = manager.get(new URI("http://a.test.org/"), responseHeaders);
         list = map.get("Cookie");
-        assertEquals(0, list.size());
+        assertNull(list);
 
         responseHeaders = addCookie(new String[][] { cookies[5] });
         manager = store(new String[][] { cookies[5] }, responseHeaders,
                 CookiePolicy.ACCEPT_ALL);
         list = map.get("Cookie");
-        assertEquals(0, list.size());
+        assertNull(list);
 
         try {
             map.put(null, null);
