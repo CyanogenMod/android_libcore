@@ -629,7 +629,7 @@ public class OutputStreamWriterTest extends TestCase {
     }
 
     /**
-     * Unlike the RI, we return  canonical encoding name and not something
+     * Unlike the RI, we return the canonical encoding name and not something
      * java specific.
      */
     public void test_getEncoding() throws IOException {
