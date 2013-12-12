@@ -29,80 +29,81 @@ import java.nio.charset.UnmappableCharacterException;
 
 public class ASCIICharsetEncoderTest extends TestCase {
 
-	// charset for ascii
-	private final Charset cs = Charset.forName("ascii");
+    // charset for ascii
+    private final Charset cs = Charset.forName("ascii");
     private final CharsetEncoder encoder = cs.newEncoder();
     private static final int MAXCODEPOINT = 0x7F;
-	/*
-	 * @see CharsetEncoderTest#setUp()
-	 */
-	protected void setUp() throws Exception {
+
+    /*
+      * @see CharsetEncoderTest#setUp()
+      */
+    protected void setUp() throws Exception {
     }
 
-	/*
-	 * @see CharsetEncoderTest#tearDown()
-	 */
-	protected void tearDown() throws Exception {
+    /*
+      * @see CharsetEncoderTest#tearDown()
+      */
+    protected void tearDown() throws Exception {
     }
 
-	public void testCanEncodeCharSequence() {
-		// normal case for ascCS
-		assertTrue(encoder.canEncode("\u0077"));
-		assertFalse(encoder.canEncode("\uc2a3"));
-		assertFalse(encoder.canEncode("\ud800\udc00"));
-		try {
-			encoder.canEncode(null);
-		} catch (NullPointerException e) {
-		}
-		assertTrue(encoder.canEncode(""));
-	}
+    public void testCanEncodeCharSequence() {
+        // normal case for ascCS
+        assertTrue(encoder.canEncode("\u0077"));
+        assertFalse(encoder.canEncode("\uc2a3"));
+        assertFalse(encoder.canEncode("\ud800\udc00"));
+        try {
+            encoder.canEncode(null);
+        } catch (NullPointerException e) {
+        }
+        assertTrue(encoder.canEncode(""));
+    }
 
-	public void testCanEncodeSurrogate () {
-		assertFalse(encoder.canEncode('\ud800'));
-		assertFalse(encoder.canEncode("\udc00"));
-	}
+    public void testCanEncodeSurrogate() {
+        assertFalse(encoder.canEncode('\ud800'));
+        assertFalse(encoder.canEncode("\udc00"));
+    }
 
-	public void testCanEncodechar() throws CharacterCodingException {
-		assertTrue(encoder.canEncode('\u0077'));
-		assertFalse(encoder.canEncode('\uc2a3'));
-	}
+    public void testCanEncodechar() throws CharacterCodingException {
+        assertTrue(encoder.canEncode('\u0077'));
+        assertFalse(encoder.canEncode('\uc2a3'));
+    }
 
-	public void testSpecificDefaultValue() {
-		assertEquals(1.0, encoder.averageBytesPerChar(), 0.0);
-		assertEquals(1.0, encoder.maxBytesPerChar(), 0.0);
-	}
+    public void testSpecificDefaultValue() {
+        assertEquals(1.0, encoder.averageBytesPerChar(), 0.0);
+        assertEquals(1.0, encoder.maxBytesPerChar(), 0.0);
+    }
 
-	public void testMultiStepEncode() throws CharacterCodingException {
-		encoder.onMalformedInput(CodingErrorAction.REPORT);
-		encoder.onUnmappableCharacter(CodingErrorAction.REPORT);
-		try {
-			encoder.encode(CharBuffer.wrap("\ud800\udc00"));
-			fail("should unmappable");
-		} catch (UnmappableCharacterException e) {
-		}
-		encoder.reset();
-		ByteBuffer out = ByteBuffer.allocate(10);
-		assertEquals(CoderResult.UNDERFLOW,
+    public void testMultiStepEncode() throws CharacterCodingException {
+        encoder.onMalformedInput(CodingErrorAction.REPORT);
+        encoder.onUnmappableCharacter(CodingErrorAction.REPORT);
+        try {
+            encoder.encode(CharBuffer.wrap("\ud800\udc00"));
+            fail("should unmappable");
+        } catch (UnmappableCharacterException e) {
+        }
+        encoder.reset();
+        ByteBuffer out = ByteBuffer.allocate(10);
+        assertEquals(CoderResult.UNDERFLOW,
                 encoder.encode(CharBuffer.wrap("\ud800"), out, true));
         assertTrue(encoder.flush(out).isMalformed());
-		encoder.reset();
+        encoder.reset();
 
-		out = ByteBuffer.allocate(10);
+        out = ByteBuffer.allocate(10);
         CharBuffer buffer1 = CharBuffer.wrap("\ud800");
         CharBuffer buffer2 = CharBuffer.wrap("\udc00");
-		assertSame(CoderResult.UNDERFLOW, encoder.encode(buffer1, out, false));
+        assertSame(CoderResult.UNDERFLOW, encoder.encode(buffer1, out, false));
         // We consume the entire input buffer because we're in an underflow
         // state. We can't make a decision on whether the char in this buffer
         // is unmappable or malformed without looking at the next input buffer.
         assertEquals(1, buffer1.position());
-		assertTrue(encoder.encode(buffer2, out, true).isUnmappable());
+        assertTrue(encoder.encode(buffer2, out, true).isUnmappable());
         assertEquals(0, buffer2.position());
-	}
+    }
 
     public void testEncodeMapping() throws CharacterCodingException {
         encoder.reset();
 
-        for (int i =0; i <= MAXCODEPOINT; i++) {
+        for (int i = 0; i <= MAXCODEPOINT; i++) {
             char[] chars = Character.toChars(i);
             CharBuffer cb = CharBuffer.wrap(chars);
             ByteBuffer bb = encoder.encode(cb);
@@ -128,7 +129,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
         encoder.reset();
         encoder.encode(cb, bb, false);
         try {
-        encoder.encode(cb);
+            encoder.encode(cb);
         } catch (IllegalStateException e) {
             //expected
         }
@@ -296,16 +297,16 @@ public class ASCIICharsetEncoderTest extends TestCase {
         CharsetEncoder newEncoder = cs.newEncoder();
 
         // init -> flushed
-		{
-			ByteBuffer out = ByteBuffer.allocate(0x10);
-			try {
-				newEncoder.flush(out);
-				fail("Should throw IllegalStateException");
-			} catch (IllegalStateException e) {
-				//expected
-			}
+        {
+            ByteBuffer out = ByteBuffer.allocate(0x10);
+            try {
+                newEncoder.flush(out);
+                fail("Should throw IllegalStateException");
+            } catch (IllegalStateException e) {
+                //expected
+            }
 
-		}
+        }
 
         // reset - > flushed
         {
@@ -316,7 +317,7 @@ public class ASCIICharsetEncoderTest extends TestCase {
             newEncoder.reset();
             try {
                 newEncoder.flush(out);
-				fail("Should throw IllegalStateException");
+                fail("Should throw IllegalStateException");
             } catch (IllegalStateException e) {
                 //expected
             }
