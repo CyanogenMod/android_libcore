@@ -18,7 +18,7 @@
 package java.io;
 
 /**
- * Defines an interface for classes that allow reading serialized objects.
+ * Defines an interface for classes that allow writing serialized objects.
  *
  * @see ObjectOutputStream
  * @see ObjectInput
