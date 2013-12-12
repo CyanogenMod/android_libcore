@@ -240,7 +240,17 @@ final class CharsetEncoderICU extends CharsetEncoder {
     }
 
     private void setPosition(CharBuffer in) {
-        in.position(in.position() + data[INPUT_OFFSET] - data[INVALID_CHAR_COUNT]);
+        int position = in.position() + data[INPUT_OFFSET] - data[INVALID_CHAR_COUNT];
+        if (position < 0) {
+            // The calculated position might be negative if we encountered an
+            // invalid char that spanned input buffers. We adjust it to 0 in this case.
+            //
+            // NOTE: The API doesn't allow us to adjust the position of the previous
+            // input buffer. (Doing that wouldn't serve any useful purpose anyway.)
+            position = 0;
+        }
+
+        in.position(position);
         // release reference to input array, which may not be ours
         input = null;
     }
