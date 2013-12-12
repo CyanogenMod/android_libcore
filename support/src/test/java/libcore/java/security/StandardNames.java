@@ -636,7 +636,8 @@ public final class StandardNames extends Assert {
         // Note these are added in priority order as defined by RI 7 documentation.
         // defaultCipherSuites.
         //
-        // NOTE: This list needs to be kept in sync with Javadoc of javax.net.ssl.SSLSocket.
+        // NOTE: This list needs to be kept in sync with Javadoc of javax.net.ssl.SSLSocket and
+        // javax.net.ssl.SSLEngine.
         addNeither("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384");
         addNeither("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384");
         addNeither("TLS_RSA_WITH_AES_256_CBC_SHA256");
@@ -739,7 +740,8 @@ public final class StandardNames extends Assert {
         CIPHER_SUITES = (IS_RI) ? CIPHER_SUITES_RI : CIPHER_SUITES_OPENSSL;
     }
 
-    // NOTE: This list needs to be kept in sync with Javadoc of javax.net.ssl.SSLSocket.
+    // NOTE: This list needs to be kept in sync with Javadoc of javax.net.ssl.SSLSocket and
+    // javax.net.ssl.SSLEngine.
     public static final List<String> CIPHER_SUITES_DEFAULT = (IS_RI)
             ? Arrays.asList("TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
                             "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
