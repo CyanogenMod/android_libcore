@@ -82,6 +82,46 @@ public class SSLContext {
     /**
      * Creates a new {@code SSLContext} instance for the specified protocol.
      *
+     * <p>The following protocols are supported:
+     * <table>
+     *     <thead>
+     *         <tr>
+     *             <th>Protocol</th>
+     *             <th>API Levels</th>
+     *         </tr>
+     *     </thead>
+     *     <tbody>
+     *         <tr>
+     *             <td>Default</td>
+     *             <td>9+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>SSL</td>
+     *             <td>9+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>SSLv3</td>
+     *             <td>9+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>TLS</td>
+     *             <td>1+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>TLSv1</td>
+     *             <td>1+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>TLSv1.1</td>
+     *             <td>16+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>TLSv1.2</td>
+     *             <td>16+</td>
+     *         </tr>
+     *     </tbody>
+     * </table>
+     *
      * @param protocol
      *            the requested protocol to create a context for.
      * @return the created {@code SSLContext} instance.
@@ -102,6 +142,79 @@ public class SSLContext {
     /**
      * Creates a new {@code SSLContext} instance for the specified protocol from
      * the specified provider.
+     *
+     * <p>The following combinations are supported:
+     * <table>
+     *     <thead>
+     *         <tr>
+     *             <th>Protocol</th>
+     *             <th>Provider</th>
+     *             <th>API Levels</th>
+     *         </tr>
+     *     </thead>
+     *     <tbody>
+     *         <tr>
+     *             <td>Default</td>
+     *             <td>AndroidOpenSSL</td>
+     *             <td>9+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>SSL</td>
+     *             <td>AndroidOpenSSL</td>
+     *             <td>9+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>SSL</td>
+     *             <td>HarmonyJSSE</td>
+     *             <td>9+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>SSLv3</td>
+     *             <td>AndroidOpenSSL</td>
+     *             <td>9+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>SSLv3</td>
+     *             <td>HarmonyJSSE</td>
+     *             <td>9+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>TLS</td>
+     *             <td>AndroidOpenSSL</td>
+     *             <td>9+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>TLS</td>
+     *             <td>HarmonyJSSE</td>
+     *             <td>1+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>TLSv1</td>
+     *             <td>AndroidOpenSSL</td>
+     *             <td>9+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>TLSv1</td>
+     *             <td>HarmonyJSSE</td>
+     *             <td>1+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>TLSv1.1</td>
+     *             <td>AndroidOpenSSL</td>
+     *             <td>16+</td>
+     *         </tr>
+     *         <tr>
+     *             <td>TLSv1.2</td>
+     *             <td>AndroidOpenSSL</td>
+     *             <td>16+</td>
+     *         </tr>
+     *     </tbody>
+     * </table>
+     *
+     * <p><strong>NOTE:</strong> The best practice is to rely on platform
+     * defaults rather than explicitly specify a provider.
+     * {@link #getDefault()} and {@link #getInstance(String)} are normally
+     * preferred over this method.
      *
      * @param protocol
      *            the requested protocol to create a context for.
