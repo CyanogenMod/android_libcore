@@ -51,6 +51,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.ShortBufferException;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
@@ -61,6 +62,9 @@ import libcore.java.security.TestKeyStore;
 import libcore.util.EmptyArray;
 
 public final class CipherTest extends TestCase {
+
+    /** GCM tag size used for tests. */
+    private static final int GCM_TAG_SIZE_BITS = 96;
 
     private static final String[] RSA_PROVIDERS = ((StandardNames.IS_RI)
                                                    ? new String[] { "SunJCE" }
@@ -140,6 +144,9 @@ public final class CipherTest extends TestCase {
             return "AES";
         }
         if (algorithm.startsWith("AES/")) {
+            return "AES";
+        }
+        if (algorithm.equals("GCM")) {
             return "AES";
         }
         if (algorithm.startsWith("DESEDE/")) {
@@ -281,6 +288,7 @@ public final class CipherTest extends TestCase {
         setExpectedBlockSize("AES/ECB/NOPADDING", 16);
         setExpectedBlockSize("AES/OFB/PKCS5PADDING", 16);
         setExpectedBlockSize("AES/OFB/NOPADDING", 16);
+        setExpectedBlockSize("GCM", 16);
         setExpectedBlockSize("PBEWITHMD5AND128BITAES-CBC-OPENSSL", 16);
         setExpectedBlockSize("PBEWITHMD5AND192BITAES-CBC-OPENSSL", 16);
         setExpectedBlockSize("PBEWITHMD5AND256BITAES-CBC-OPENSSL", 16);
@@ -425,6 +433,7 @@ public final class CipherTest extends TestCase {
         setExpectedOutputSize("AES/CTS/PKCS5PADDING", Cipher.ENCRYPT_MODE, 16);
         setExpectedOutputSize("AES/ECB/PKCS5PADDING", Cipher.ENCRYPT_MODE, 16);
         setExpectedOutputSize("AES/OFB/PKCS5PADDING", Cipher.ENCRYPT_MODE, 16);
+        setExpectedOutputSize("GCM", Cipher.ENCRYPT_MODE, GCM_TAG_SIZE_BITS / 8);
         setExpectedOutputSize("PBEWITHMD5AND128BITAES-CBC-OPENSSL", 16);
         setExpectedOutputSize("PBEWITHMD5AND192BITAES-CBC-OPENSSL", 16);
         setExpectedOutputSize("PBEWITHMD5AND256BITAES-CBC-OPENSSL", 16);
@@ -447,6 +456,7 @@ public final class CipherTest extends TestCase {
         setExpectedOutputSize("AES/CTS/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("AES/ECB/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("AES/OFB/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("GCM", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("PBEWITHMD5AND128BITAES-CBC-OPENSSL", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("PBEWITHMD5AND192BITAES-CBC-OPENSSL", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("PBEWITHMD5AND256BITAES-CBC-OPENSSL", Cipher.DECRYPT_MODE, 0);
@@ -692,6 +702,11 @@ public final class CipherTest extends TestCase {
             new SecureRandom().nextBytes(salt);
             return new PBEParameterSpec(salt, 1024);
         }
+        if (algorithm.equals("GCM")) {
+            final byte[] iv = new byte[8];
+            new SecureRandom().nextBytes(iv);
+            return new GCMParameterSpec(GCM_TAG_SIZE_BITS, iv);
+        }
         if (algorithm.equals("AES/CBC/NOPADDING")
             || algorithm.equals("AES/CBC/PKCS5PADDING")
             || algorithm.equals("AES/CFB/NOPADDING")
@@ -726,6 +741,9 @@ public final class CipherTest extends TestCase {
         }
         byte[] iv = encryptCipher.getIV();
         if (iv != null) {
+            if ("GCM".equals(algorithm)) {
+                return new GCMParameterSpec(GCM_TAG_SIZE_BITS, iv);
+            }
             return new IvParameterSpec(iv);
         }
         return null;
@@ -929,6 +947,11 @@ public final class CipherTest extends TestCase {
             assertEquals(cipherID + " getIV()",
                     Arrays.toString(((IvParameterSpec) decryptSpec).getIV()),
                     Arrays.toString(c.getIV()));
+        } else if (decryptSpec instanceof GCMParameterSpec) {
+            assertNotNull(c.getIV());
+            assertEquals(cipherID + " getIV()",
+                    Arrays.toString(((GCMParameterSpec) decryptSpec).getIV()),
+                    Arrays.toString(c.getIV()));
         } else {
             try {
                 assertNull(cipherID + " getIV()", c.getIV());
@@ -958,7 +981,9 @@ public final class CipherTest extends TestCase {
         assertNull(cipherID, c.getExemptionMechanism());
 
         // Test wrapping a key.  Every cipher should be able to wrap. Except those that can't.
-        if (isSupportedForWrapping(algorithm)) {
+        /* Bouncycastle is broken for wrapping because getIV() fails. */
+        if (isSupportedForWrapping(algorithm)
+                && !algorithm.equals("GCM") && !providerName.equals("BC")) {
             // Generate a small SecretKey for AES.
             KeyGenerator kg = KeyGenerator.getInstance("AES");
             kg.init(128);
