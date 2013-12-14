@@ -136,6 +136,7 @@ public final class StandardNames extends Assert {
         provide("AlgorithmParameters", "DESede");
         provide("AlgorithmParameters", "DSA");
         provide("AlgorithmParameters", "DiffieHellman");
+        provide("AlgorithmParameters", "GCM");
         provide("AlgorithmParameters", "OAEP");
         provide("AlgorithmParameters", "PBEWithMD5AndDES");
         provide("AlgorithmParameters", "PBEWithMD5AndTripleDES");
@@ -157,6 +158,7 @@ public final class StandardNames extends Assert {
         provide("Cipher", "DES");
         provide("Cipher", "DESede");
         provide("Cipher", "DESedeWrap");
+        provide("Cipher", "GCM");
         provide("Cipher", "PBEWithMD5AndDES");
         provide("Cipher", "PBEWithMD5AndTripleDES");
         provide("Cipher", "PBEWithSHA1AndDESede");
