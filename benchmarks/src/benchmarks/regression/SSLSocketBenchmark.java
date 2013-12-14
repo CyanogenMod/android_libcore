@@ -69,24 +69,10 @@ public class SSLSocketBenchmark extends SimpleBenchmark {
         }
     }
 
-    @Param private Implementation implementation;
-
-    public enum Implementation { OPENSSL, HARMONY };
-
     private SocketFactory sf;
 
     @Override protected void setUp() throws Exception {
-        SSLContext sslContext;
-        switch (implementation) {
-            case OPENSSL:
-                sslContext = SSLContext.getInstance("SSL", "AndroidOpenSSL");
-                break;
-            case HARMONY:
-                sslContext = SSLContext.getInstance("SSL", "HarmonyJSSE");
-                break;
-            default:
-                throw new RuntimeException(implementation.toString());
-        }
+        SSLContext sslContext = SSLContext.getInstance("SSL");
         sslContext.init(null, null, null);
         this.sf = sslContext.getSocketFactory();
     }
