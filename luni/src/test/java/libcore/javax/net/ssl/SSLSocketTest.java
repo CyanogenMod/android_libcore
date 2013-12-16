@@ -79,49 +79,13 @@ public class SSLSocketTest extends TestCase {
                 .ca(true)
                 .build();
         StringBuilder error = new StringBuilder();
-        if (StandardNames.IS_RI) {
-            test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
-                                                            StandardNames.JSSE_PROVIDER_NAME,
-                                                            StandardNames.JSSE_PROVIDER_NAME,
-                                                            true,
-                                                            true,
-                                                            error);
-        } else  {
-            test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
-                                                            "HarmonyJSSE",
-                                                            "HarmonyJSSE",
-                                                            false,
-                                                            false,
-                                                            error);
-            test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
-                                                            "AndroidOpenSSL",
-                                                            "AndroidOpenSSL",
-                                                            true,
-                                                            true,
-                                                            error);
-            test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
-                                                            "HarmonyJSSE",
-                                                            "AndroidOpenSSL",
-                                                            false,
-                                                            true,
-                                                            error);
-            test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore,
-                                                            "AndroidOpenSSL",
-                                                            "HarmonyJSSE",
-                                                            true,
-                                                            false,
-                                                            error);
-        }
+        test_SSLSocket_getSupportedCipherSuites_connect(testKeyStore, error);
         if (error.length() > 0) {
             throw new Exception("One or more problems in "
                     + "test_SSLSocket_getSupportedCipherSuites_connect:\n" + error);
         }
     }
     private void test_SSLSocket_getSupportedCipherSuites_connect(TestKeyStore testKeyStore,
-                                                                 String clientProvider,
-                                                                 String serverProvider,
-                                                                 boolean clientSecureRenegotiation,
-                                                                 boolean serverSecureRenegotiation,
                                                                  StringBuilder error)
             throws Exception {
 
@@ -130,20 +94,8 @@ public class SSLSocketTest extends TestCase {
         byte[] clientToServer = clientToServerString.getBytes();
         byte[] serverToClient = serverToClientString.getBytes();
 
-        TestSSLContext c = TestSSLContext.create(testKeyStore, testKeyStore,
-                                                 clientProvider, serverProvider);
-        String[] cipherSuites;
-        if (clientProvider.equals(serverProvider)) {
-            cipherSuites = c.clientContext.getSocketFactory().getSupportedCipherSuites();
-        } else {
-            String[] clientSuites = c.clientContext.getSocketFactory().getSupportedCipherSuites();
-            String[] serverSuites = c.serverContext.getSocketFactory().getSupportedCipherSuites();
-            Set<String> ccs = new HashSet<String>(Arrays.asList(clientSuites));
-            Set<String> scs = new HashSet<String>(Arrays.asList(serverSuites));
-            Set<String> cs = new HashSet<String>(ccs);
-            cs.retainAll(scs);
-            cipherSuites = cs.toArray(new String[cs.size()]);
-        }
+        TestSSLContext c = TestSSLContext.create(testKeyStore, testKeyStore);
+        String[] cipherSuites = c.clientContext.getSocketFactory().getSupportedCipherSuites();
 
         for (String cipherSuite : cipherSuites) {
             boolean errorExpected = StandardNames.IS_RI && cipherSuite.endsWith("_SHA256");
@@ -165,16 +117,10 @@ public class SSLSocketTest extends TestCase {
                     continue;
                 }
 
-                String[] clientCipherSuiteArray
-                        = (clientSecureRenegotiation
-                           ? new String[] { cipherSuite,
-                                            StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION }
-                           : new String[] { cipherSuite });
-                String[] serverCipherSuiteArray
-                        = (serverSecureRenegotiation
-                           ? new String[] { cipherSuite,
-                                            StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION }
-                           : new String[] { cipherSuite });
+                String[] clientCipherSuiteArray = new String[] {
+                        cipherSuite,
+                        StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION };
+                String[] serverCipherSuiteArray = clientCipherSuiteArray;
                 SSLSocket[] pair = TestSSLSocketPair.connect(c,
                                                              clientCipherSuiteArray,
                                                              serverCipherSuiteArray);
@@ -212,9 +158,7 @@ public class SSLSocketTest extends TestCase {
                 assertFalse(errorExpected);
             } catch (Exception maybeExpected) {
                 if (!errorExpected) {
-                    String message = ("Problem trying to connect cipher suite " + cipherSuite
-                                      + " client=" + clientProvider
-                                      + " server=" + serverProvider);
+                    String message = ("Problem trying to connect cipher suite " + cipherSuite);
                     System.out.println(message);
                     maybeExpected.printStackTrace();
                     error.append(message);
