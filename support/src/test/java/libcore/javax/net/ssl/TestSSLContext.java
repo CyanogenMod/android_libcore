@@ -141,16 +141,11 @@ public final class TestSSLContext extends Assert {
      * TestSSLContext creation method that allows separate creation of server key store
      */
     public static TestSSLContext create(TestKeyStore client, TestKeyStore server) {
-        String provider = StandardNames.JSSE_PROVIDER_NAME;
-        return create(client, server, provider, provider);
-    }
-    public static TestSSLContext create(TestKeyStore client, TestKeyStore server,
-                                        String clientProvider, String serverProvider) {
         String protocol = "TLS";
-        SSLContext clientContext = createSSLContext(protocol, clientProvider,
-                                                    client.keyManagers, client.trustManagers);
-        SSLContext serverContext = createSSLContext(protocol, serverProvider,
-                                                    server.keyManagers, server.trustManagers);
+        SSLContext clientContext =
+                createSSLContext(protocol, client.keyManagers, client.trustManagers);
+        SSLContext serverContext =
+                createSSLContext(protocol, server.keyManagers, server.trustManagers);
         return create(client.keyStore, client.storePassword,
                       server.keyStore, server.storePassword,
                       client.keyManagers[0],
@@ -199,12 +194,11 @@ public final class TestSSLContext extends Assert {
      * using the certificates authorities from the same KeyStore.
      */
     public static final SSLContext createSSLContext(final String protocol,
-                                                    final String provider,
                                                     final KeyManager[] keyManagers,
                                                     final TrustManager[] trustManagers)
     {
         try {
-            SSLContext context = SSLContext.getInstance(protocol, provider);
+            SSLContext context = SSLContext.getInstance(protocol);
             context.init(keyManagers, trustManagers, new SecureRandom());
             return context;
         } catch (Exception e) {
