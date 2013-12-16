@@ -166,7 +166,7 @@ public class SSLContext {
      *         <tr>
      *             <td>SSL</td>
      *             <td>HarmonyJSSE</td>
-     *             <td>9+</td>
+     *             <td>9-19</td>
      *         </tr>
      *         <tr>
      *             <td>SSLv3</td>
@@ -176,7 +176,7 @@ public class SSLContext {
      *         <tr>
      *             <td>SSLv3</td>
      *             <td>HarmonyJSSE</td>
-     *             <td>9+</td>
+     *             <td>9-19</td>
      *         </tr>
      *         <tr>
      *             <td>TLS</td>
@@ -186,7 +186,7 @@ public class SSLContext {
      *         <tr>
      *             <td>TLS</td>
      *             <td>HarmonyJSSE</td>
-     *             <td>1+</td>
+     *             <td>1-19</td>
      *         </tr>
      *         <tr>
      *             <td>TLSv1</td>
@@ -196,7 +196,7 @@ public class SSLContext {
      *         <tr>
      *             <td>TLSv1</td>
      *             <td>HarmonyJSSE</td>
-     *             <td>1+</td>
+     *             <td>1-19</td>
      *         </tr>
      *         <tr>
      *             <td>TLSv1.1</td>

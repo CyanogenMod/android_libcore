@@ -16,7 +16,6 @@
 
 package benchmarks.regression;
 
-import com.google.caliper.Param;
 import com.google.caliper.SimpleBenchmark;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,24 +33,11 @@ import libcore.javax.net.ssl.TestSSLContext;
 import libcore.javax.net.ssl.TestSSLSocketPair;
 
 public class SSLLoopbackBenchmark extends SimpleBenchmark {
-    @Param private Implementation implementation;
-
-    public enum Implementation {
-        OPENSSL("AndroidOpenSSL"),
-        HARMONY("HarmonyJSSE");
-
-        final String providerName;
-
-        Implementation(String providerName) {
-            this.providerName = providerName;
-        }
-    };
 
     public void time(int reps) throws Exception {
         for (int i = 0; i < reps; ++i) {
             TestSSLContext context = TestSSLContext.create(
-                    TestKeyStore.getClient(), TestKeyStore.getServer(),
-                    implementation.providerName, implementation.providerName);
+                    TestKeyStore.getClient(), TestKeyStore.getServer());
             SSLSocket[] sockets = TestSSLSocketPair.connect(context, null, null);
             context.close();
             sockets[0].close();
