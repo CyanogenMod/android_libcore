@@ -878,5 +878,21 @@
     "org.apache.harmony.tests.java.net.MulticastSocketTest#test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface",
     "org.apache.harmony.tests.java.net.MulticastSocketTest#test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv4"
   ]
+},
+{
+  description: "(Needs investigation) Test failures from the harmony import of external/apache-harmony/archive",
+  bug: 12189307,
+  result: EXEC_FAILED,
+  names: [
+    "org.apache.harmony.tests.java.util.jar.AttributesTest#test_putAllLjava_util_Map2",
+    "org.apache.harmony.tests.java.util.jar.ManifestTest#testNul",
+    "org.apache.harmony.tests.java.util.jar.ManifestTest#testRead",
+    "org.apache.harmony.tests.java.util.jar.ManifestTest#testStreamConstructor",
+    "org.apache.harmony.tests.java.util.zip.DeflaterInputStreamTest#testSkip",
+    "org.apache.harmony.tests.java.util.zip.DeflaterTest#test_setLevelI",
+    "org.apache.harmony.tests.java.util.zip.DeflaterTest#test_setStrategyI",
+    "org.apache.harmony.tests.java.util.zip.GZIPOutputStreamTest#testFlush",
+    "org.apache.harmony.tests.java.util.zip.InflaterTest#test_end"
+  ]
 }
 ]
