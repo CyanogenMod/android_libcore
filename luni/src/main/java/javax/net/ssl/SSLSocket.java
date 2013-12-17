@@ -216,9 +216,29 @@ import java.net.UnknownHostException;
  *             <td>9+</td>
  *         </tr>
  *         <tr>
+ *             <td>TLS_DHE_DSS_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DHE_DSS_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
  *             <td>TLS_DHE_DSS_WITH_AES_256_CBC_SHA</td>
  *             <td>9+</td>
  *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DHE_DSS_WITH_AES_256_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DHE_DSS_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20+</td>
+ *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DHE_RSA_WITH_AES_128_CBC_SHA</td>
@@ -226,9 +246,29 @@ import java.net.UnknownHostException;
  *             <td>9+</td>
  *         </tr>
  *         <tr>
+ *             <td>TLS_DHE_RSA_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DHE_RSA_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
  *             <td>TLS_DHE_RSA_WITH_AES_256_CBC_SHA</td>
  *             <td>9+</td>
  *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DHE_RSA_WITH_AES_256_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DHE_RSA_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20+</td>
+ *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DH_anon_WITH_AES_128_CBC_SHA</td>
@@ -236,8 +276,28 @@ import java.net.UnknownHostException;
  *             <td></td>
  *         </tr>
  *         <tr>
+ *             <td>TLS_DH_anon_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DH_anon_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
  *             <td>TLS_DH_anon_WITH_AES_256_CBC_SHA</td>
  *             <td>9+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DH_anon_WITH_AES_256_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_DH_anon_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20+</td>
  *             <td></td>
  *         </tr>
  *         <tr>
@@ -251,9 +311,29 @@ import java.net.UnknownHostException;
  *             <td>11+</td>
  *         </tr>
  *         <tr>
+ *             <td>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
  *             <td>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</td>
  *             <td>11+</td>
  *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20+</td>
+ *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDHE_ECDSA_WITH_NULL_SHA</td>
@@ -276,9 +356,29 @@ import java.net.UnknownHostException;
  *             <td>11+</td>
  *         </tr>
  *         <tr>
+ *             <td>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
  *             <td>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA</td>
  *             <td>11+</td>
  *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20+</td>
+ *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDHE_RSA_WITH_NULL_SHA</td>
@@ -301,9 +401,29 @@ import java.net.UnknownHostException;
  *             <td>11+</td>
  *         </tr>
  *         <tr>
+ *             <td>TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA</td>
  *             <td>11+</td>
  *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20+</td>
+ *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_ECDSA_WITH_NULL_SHA</td>
@@ -326,9 +446,29 @@ import java.net.UnknownHostException;
  *             <td>11+</td>
  *         </tr>
  *         <tr>
+ *             <td>TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_AES_256_CBC_SHA</td>
  *             <td>11+</td>
  *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20+</td>
+ *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDH_RSA_WITH_NULL_SHA</td>
@@ -376,9 +516,34 @@ import java.net.UnknownHostException;
  *             <td>9+</td>
  *         </tr>
  *         <tr>
+ *             <td>TLS_RSA_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_RSA_WITH_AES_128_GCM_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
  *             <td>TLS_RSA_WITH_AES_256_CBC_SHA</td>
  *             <td>9+</td>
  *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_RSA_WITH_AES_256_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_RSA_WITH_AES_256_GCM_SHA384</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_RSA_WITH_NULL_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
  *         </tr>
  *     </tbody>
  * </table>
