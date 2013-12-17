@@ -1686,11 +1686,6 @@
   ]
 },
 {
-  description: "getExceptionTypes() error when throws clause contains an exception and its sublcass",
-  bug: 11647146,
-  name: "org.apache.harmony.tests.java.lang.reflect.ProxyTest#test_ProxyClass_withParentAndSubInThrowList"
-},
-{
   description: "Known failures in dealing with # in file / jar URLs",
   bug: 11664881,
   names: [
@@ -1699,24 +1694,6 @@
     "org.apache.harmony.tests.internal.net.www.protocol.file.FileURLConnectionTest#testHeaderFunctions",
     "org.apache.harmony.tests.java.lang.ClassLoaderTest#test_getResourceAsStream_withSharpChar",
     "org.apache.harmony.tests.java.lang.ClassTest#test_getResourceAsStream_withSharpChar"
-  ]
-},
-{
-  description: "Known failures in InputStreamReaderTest & OutputStreamWriterTest",
-  bug: 11665359,
-  names: [
-    "org.apache.harmony.tests.java.io.InputStreamReaderTest#test_getEncoding",
-    "org.apache.harmony.tests.java.io.InputStreamReaderTest#test_read_1",
-    "org.apache.harmony.tests.java.io.InputStreamReaderTest#test_read_specialCharset",
-    "org.apache.harmony.tests.java.io.OutputStreamWriterTest#test_getEncoding"
-  ]
-},
-{
-  description: "Known failures in PipedInputStreamTest & PipedWriterTest",
-  bug: 11666814,
-  names: [
-    "org.apache.harmony.tests.java.io.PipedInputStreamTest#test_receive",
-    "org.apache.harmony.tests.java.io.PipedWriterTest#test_flushAfterClose"
   ]
 },
 {
@@ -1753,10 +1730,5 @@
     "org.apache.harmony.tests.java.net.URLTest#test_sameFileLjava_net_URL",
     "org.apache.harmony.tests.java.net.URLDecoderTest#test_decodeLjava_lang_String_Ljava_lang_String"
   ]
-},
-{
-  description: "Known failure in CookieManagerTest",
-  bug: 11689102,
-  name: "org.apache.harmony.tests.java.net.CookieManagerTest#test_Put_Get_LURI_LMap"
 }
 ]
