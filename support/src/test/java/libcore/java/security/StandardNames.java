@@ -637,18 +637,8 @@ public final class StandardNames extends Assert {
     }
 
     static {
-        // Note these are added in priority order as defined by RI 7 documentation.
-        // defaultCipherSuites.
-        //
         // NOTE: This list needs to be kept in sync with Javadoc of javax.net.ssl.SSLSocket and
         // javax.net.ssl.SSLEngine.
-        addNeither("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384");
-        addNeither("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384");
-        addNeither("TLS_RSA_WITH_AES_256_CBC_SHA256");
-        addNeither("TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384");
-        addNeither("TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384");
-        addNeither("TLS_DHE_RSA_WITH_AES_256_CBC_SHA256");
-        addNeither("TLS_DHE_DSS_WITH_AES_256_CBC_SHA256");
         addOpenSsl("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
         addOpenSsl("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
         addOpenSsl("TLS_RSA_WITH_AES_256_CBC_SHA");
@@ -656,13 +646,6 @@ public final class StandardNames extends Assert {
         addOpenSsl("TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
         addOpenSsl("TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
         addOpenSsl("TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
-        addRi(     "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256");
-        addRi(     "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
-        addRi(     "TLS_RSA_WITH_AES_128_CBC_SHA256");
-        addRi(     "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256");
-        addRi(     "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256");
-        addRi(     "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256");
-        addRi(     "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256");
         addBoth(   "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_RSA_WITH_AES_128_CBC_SHA");
@@ -683,21 +666,54 @@ public final class StandardNames extends Assert {
         addBoth(   "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_RC4_128_MD5");
+
+        // TLSv1.2 cipher suites
+        addBoth(   "TLS_RSA_WITH_NULL_SHA256");
+        addBoth(   "TLS_RSA_WITH_AES_128_CBC_SHA256");
+        addOpenSsl("TLS_RSA_WITH_AES_256_CBC_SHA256");
+        addOpenSsl("TLS_RSA_WITH_AES_128_GCM_SHA256");
+        addOpenSsl("TLS_RSA_WITH_AES_256_GCM_SHA384");
+        addBoth(   "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256");
+        addOpenSsl("TLS_DHE_RSA_WITH_AES_256_CBC_SHA256");
+        addOpenSsl("TLS_DHE_RSA_WITH_AES_128_GCM_SHA256");
+        addOpenSsl("TLS_DHE_RSA_WITH_AES_256_GCM_SHA384");
+        addBoth(   "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256");
+        addOpenSsl("TLS_DHE_DSS_WITH_AES_256_CBC_SHA256");
+        addOpenSsl("TLS_DHE_DSS_WITH_AES_128_GCM_SHA256");
+        addOpenSsl("TLS_DHE_DSS_WITH_AES_256_GCM_SHA384");
+        addBoth(   "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256");
+        addOpenSsl("TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384");
+        addOpenSsl("TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256");
+        addOpenSsl("TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384");
+        addBoth(   "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256");
+        addOpenSsl("TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384");
+        addOpenSsl("TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256");
+        addOpenSsl("TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384");
+        addBoth(   "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
+        addOpenSsl("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384");
+        addOpenSsl("TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256");
+        addOpenSsl("TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384");
+        addBoth(   "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256");
+        addOpenSsl("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384");
+        addOpenSsl("TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256");
+        addOpenSsl("TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384");
+        addBoth(   "TLS_DH_anon_WITH_AES_128_CBC_SHA256");
+        addOpenSsl("TLS_DH_anon_WITH_AES_256_CBC_SHA256");
+        addOpenSsl("TLS_DH_anon_WITH_AES_128_GCM_SHA256");
+        addOpenSsl("TLS_DH_anon_WITH_AES_256_GCM_SHA384");
+
         // RFC 5746's Signaling Cipher Suite Value to indicate a request for secure renegotiation
         addBoth(CIPHER_SUITE_SECURE_RENEGOTIATION);
 
         // non-defaultCipherSuites
-        addNeither("TLS_DH_anon_WITH_AES_256_CBC_SHA256");
         addOpenSsl("TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
         addOpenSsl("TLS_DH_anon_WITH_AES_256_CBC_SHA");
-        addRi(     "TLS_DH_anon_WITH_AES_128_CBC_SHA256");
         addBoth(   "TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_DH_anon_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_ECDH_anon_WITH_RC4_128_SHA");
         addBoth(   "SSL_DH_anon_WITH_RC4_128_MD5");
         addBoth(   "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_DH_anon_WITH_3DES_EDE_CBC_SHA");
-        addRi(     "TLS_RSA_WITH_NULL_SHA256");
         addBoth(   "TLS_ECDHE_ECDSA_WITH_NULL_SHA");
         addBoth(   "TLS_ECDHE_RSA_WITH_NULL_SHA");
         addBoth(   "SSL_RSA_WITH_NULL_SHA");
@@ -820,12 +836,13 @@ public final class StandardNames extends Assert {
             new ArrayList<String>(CIPHER_SUITES_DEFAULT);
     public static final Set<String> CIPHER_SUITES_SSLENGINE = new HashSet<String>(CIPHER_SUITES);
     static {
-        // No Elliptic Curve support on SSLEngine based provider
+        // No Elliptic Curve or TLSv1.2 cipher suite support on SSLEngine based provider
         if (!IS_RI) {
             Iterator<String> i = CIPHER_SUITES_SSLENGINE.iterator();
             while (i.hasNext()) {
                 String cs = i.next();
-                if (cs.startsWith("TLS_EC") || cs.equals(CIPHER_SUITE_SECURE_RENEGOTIATION)) {
+                if (cs.startsWith("TLS_EC") || cs.contains("_SHA256") || cs.contains("_SHA384")
+                        || cs.equals(CIPHER_SUITE_SECURE_RENEGOTIATION)) {
                     i.remove();
                 }
             }
@@ -833,7 +850,8 @@ public final class StandardNames extends Assert {
             i = CIPHER_SUITES_DEFAULT_SSLENGINE.iterator();
             while (i.hasNext()) {
                 String cs = i.next();
-                if (cs.startsWith("TLS_EC") || cs.equals(CIPHER_SUITE_SECURE_RENEGOTIATION)) {
+                if (cs.startsWith("TLS_EC") || cs.contains("_SHA256") || cs.contains("_SHA384")
+                        || cs.equals(CIPHER_SUITE_SECURE_RENEGOTIATION)) {
                     i.remove();
                 }
             }
