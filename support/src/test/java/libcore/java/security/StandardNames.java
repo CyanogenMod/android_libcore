@@ -541,7 +541,9 @@ public final class StandardNames extends Assert {
     public static final Set<String> SSL_SOCKET_PROTOCOLS_CLIENT_DEFAULT =
             new HashSet<String>(Arrays.asList(
                 "SSLv3",
-                "TLSv1"));
+                "TLSv1",
+                "TLSv1.1",
+                "TLSv1.2"));
     public static final Set<String> SSL_SOCKET_PROTOCOLS_SERVER_DEFAULT =
             new HashSet<String>(Arrays.asList(
                 "SSLv3",
