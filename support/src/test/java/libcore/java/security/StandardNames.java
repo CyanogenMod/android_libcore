@@ -784,7 +784,13 @@ public final class StandardNames extends Assert {
                             "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
                             "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
                             "SSL_RSA_WITH_3DES_EDE_CBC_SHA")
-            : Arrays.asList("TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+            : Arrays.asList("TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                            "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+                            "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                            "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                            "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+                            "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+                            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
                             "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
                             "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
                             "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
@@ -796,6 +802,8 @@ public final class StandardNames extends Assert {
                             "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
                             "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
                             "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA",
+                            "TLS_RSA_WITH_AES_128_GCM_SHA256",
+                            "TLS_RSA_WITH_AES_256_GCM_SHA384",
                             "TLS_RSA_WITH_AES_128_CBC_SHA",
                             "TLS_RSA_WITH_AES_256_CBC_SHA",
                             "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
@@ -826,11 +834,15 @@ public final class StandardNames extends Assert {
             new HashSet<String>(Arrays.asList("RC4_128",
                                               "3DES_EDE_CBC",
                                               "AES_128_CBC",
-                                              "AES_256_CBC"));
+                                              "AES_256_CBC",
+                                              "AES_128_GCM",
+                                              "AES_256_GCM"));
 
     private static final Set<String> PERMITTED_DEFAULT_MACS =
             new HashSet<String>(Arrays.asList("MD5",
-                                              "SHA"));
+                                              "SHA",
+                                              "SHA256",
+                                              "SHA384"));
 
     public static final List<String> CIPHER_SUITES_DEFAULT_SSLENGINE =
             new ArrayList<String>(CIPHER_SUITES_DEFAULT);
