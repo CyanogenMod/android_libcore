@@ -55,12 +55,12 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>TLSv1.1</td>
  *             <td>16+</td>
- *             <td></td>
+ *             <td>20+</td>
  *         </tr>
  *         <tr>
  *             <td>TLSv1.2</td>
  *             <td>16+</td>
- *             <td></td>
+ *             <td>20+</td>
  *         </tr>
  *     </tbody>
  * </table>
