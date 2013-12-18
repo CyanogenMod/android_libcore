@@ -163,30 +163,6 @@ public class AttributesTest extends TestCase {
     }
 
     /**
-     * java.util.jar.Attributes#putAll(java.util.Map)
-     */
-    public void test_putAllLjava_util_Map2() {
-        // Regression for HARMONY-464
-        try {
-            new Attributes().putAll((Map) null);
-            fail("ClassCastException expected");
-        } catch (ClassCastException e) {
-        }
-        // verify that special care for null is done in the Attributes.putAll()
-        // method
-        try {
-            new Attributes() {
-                @Override
-                public void putAll(Map<?, ?> attrib) {
-                    map.putAll(attrib);
-                }
-            }.putAll((Map<?, ?>) null);
-            fail("NullPointerException expected");
-        } catch (NullPointerException e) {
-        }
-    }
-
-    /**
      * java.util.jar.Attributes#remove(java.lang.Object)
      */
     public void test_removeLjava_lang_Object() {
