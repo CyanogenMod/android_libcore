@@ -806,11 +806,6 @@ public final class StandardNames extends Assert {
                             "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
                             "SSL_RSA_WITH_RC4_128_SHA",
                             "SSL_RSA_WITH_RC4_128_MD5",
-                            "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
-                            "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
-                            "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
-                            "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
-                            "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
                             CIPHER_SUITE_SECURE_RENEGOTIATION);
 
     private static final Set<String> PERMITTED_DEFAULT_KEY_EXCHANGE_ALGS =
@@ -824,7 +819,6 @@ public final class StandardNames extends Assert {
 
     private static final Set<String> PERMITTED_DEFAULT_BULK_ENCRYPTION_CIPHERS =
             new HashSet<String>(Arrays.asList("RC4_128",
-                                              "3DES_EDE_CBC",
                                               "AES_128_CBC",
                                               "AES_256_CBC",
                                               "AES_128_GCM",
