@@ -138,7 +138,7 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>9+</td>
- *             <td>9+</td>
+ *             <td>9-19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DHE_RSA_WITH_DES_CBC_SHA</td>
@@ -183,7 +183,7 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>SSL_RSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>9+</td>
- *             <td>9+</td>
+ *             <td>9-19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_RSA_WITH_DES_CBC_SHA</td>
@@ -303,7 +303,7 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>11+</td>
- *             <td>11+</td>
+ *             <td>11-19</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA</td>
@@ -348,7 +348,7 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>11+</td>
- *             <td>11+</td>
+ *             <td>11-19</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA</td>
@@ -596,7 +596,7 @@ import java.net.UnknownHostException;
  *             <td>DES-CBC3-SHA</td>
  *             <td>SSL_RSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>1+</td>
- *             <td>1+</td>
+ *             <td>1-19</td>
  *         </tr>
  *         <tr>
  *             <td>DHE-DSS-AES128-SHA</td>
@@ -632,7 +632,7 @@ import java.net.UnknownHostException;
  *             <td>EDH-DSS-DES-CBC3-SHA</td>
  *             <td>SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>1+</td>
- *             <td>1+</td>
+ *             <td>1-19</td>
  *         </tr>
  *         <tr>
  *             <td>EDH-RSA-DES-CBC-SHA</td>
@@ -644,7 +644,7 @@ import java.net.UnknownHostException;
  *             <td>EDH-RSA-DES-CBC3-SHA</td>
  *             <td>SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>1+</td>
- *             <td>1+</td>
+ *             <td>1-19</td>
  *         </tr>
  *         <tr>
  *             <td>EXP-DES-CBC-SHA</td>
