@@ -811,11 +811,9 @@ public final class StandardNames extends Assert {
     private static final Set<String> PERMITTED_DEFAULT_KEY_EXCHANGE_ALGS =
             new HashSet<String>(Arrays.asList("RSA",
                                               "DHE_RSA",
-                                              "ECDH_RSA",
+                                              "DHE_DSS",
                                               "ECDHE_RSA",
-                                              "ECDH_ECDSA",
-                                              "ECDHE_ECDSA",
-                                              "DHE_DSS"));
+                                              "ECDHE_ECDSA"));
 
     private static final Set<String> PERMITTED_DEFAULT_BULK_ENCRYPTION_CIPHERS =
             new HashSet<String>(Arrays.asList("RC4_128",
