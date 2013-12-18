@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.harmony.archive.tests.java.util.jar;
+package org.apache.harmony.tests.java.util.jar;
 
 import tests.support.resource.Support_Resources;
 import java.io.File;
