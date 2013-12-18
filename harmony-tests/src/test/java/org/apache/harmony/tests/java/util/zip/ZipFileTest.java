@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.harmony.archive.tests.java.util.zip;
+package org.apache.harmony.tests.java.util.zip;
 
 import tests.support.Support_PlatformFile;
 import tests.support.resource.Support_Resources;
