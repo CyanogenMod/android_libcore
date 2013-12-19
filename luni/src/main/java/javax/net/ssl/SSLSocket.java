@@ -203,7 +203,7 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>SSL_RSA_WITH_RC4_128_MD5</td>
  *             <td>9+</td>
- *             <td>9+</td>
+ *             <td>9-19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_RSA_WITH_RC4_128_SHA</td>
@@ -686,7 +686,7 @@ import java.net.UnknownHostException;
  *             <td>RC4-MD5</td>
  *             <td>SSL_RSA_WITH_RC4_128_MD5</td>
  *             <td>1+</td>
- *             <td>1+</td>
+ *             <td>1-19</td>
  *         </tr>
  *         <tr>
  *             <td>RC4-SHA</td>
