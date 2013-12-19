@@ -805,7 +805,6 @@ public final class StandardNames extends Assert {
                             "TLS_RSA_WITH_AES_128_CBC_SHA",
                             "TLS_RSA_WITH_AES_256_CBC_SHA",
                             "SSL_RSA_WITH_RC4_128_SHA",
-                            "SSL_RSA_WITH_RC4_128_MD5",
                             CIPHER_SUITE_SECURE_RENEGOTIATION);
 
     private static final Set<String> PERMITTED_DEFAULT_KEY_EXCHANGE_ALGS =
@@ -823,8 +822,7 @@ public final class StandardNames extends Assert {
                                               "AES_256_GCM"));
 
     private static final Set<String> PERMITTED_DEFAULT_MACS =
-            new HashSet<String>(Arrays.asList("MD5",
-                                              "SHA",
+            new HashSet<String>(Arrays.asList("SHA",
                                               "SHA256",
                                               "SHA384"));
 
