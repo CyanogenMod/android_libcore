@@ -20,17 +20,36 @@ package org.apache.harmony.tests.java.util.zip;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterInputStream;
 
 import junit.framework.TestCase;
+import libcore.io.Streams;
 
 public class DeflaterInputStreamTest extends TestCase {
 
-    String testStr = "Hi,this is a test";
+    private static final String TEST_STR = "Hi,this is a test";
 
-    InputStream is;
+    private static final byte[] TEST_STRING_DEFLATED_BYTES = {
+            120, -100, -13, -56, -44, 41, -55, -56, 44, 86,
+            0, -94, 68, -123, -110, -44, -30, 18, 0, 52,
+            34, 5, -13 };
+
+    private InputStream is;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        is = new ByteArrayInputStream(TEST_STR.getBytes("UTF-8"));
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        is.close();
+        super.tearDown();
+    }
 
     /**
      * DeflaterInputStream#available()
@@ -42,7 +61,7 @@ public class DeflaterInputStreamTest extends TestCase {
         assertEquals(120, dis.read());
         assertEquals(1, dis.available());
         assertEquals(22, dis.read(buf, 0, 1024));
-        assertEquals(1, dis.available());
+        assertEquals(0, dis.available());
         assertEquals(-1, dis.read());
         assertEquals(0, dis.available());
         dis.close();
@@ -122,6 +141,40 @@ public class DeflaterInputStreamTest extends TestCase {
         }
     }
 
+    public void testRead_golden() throws Exception {
+        DeflaterInputStream dis = new DeflaterInputStream(is);
+        byte[] contents = Streams.readFully(dis);
+        assertTrue(Arrays.equals(TEST_STRING_DEFLATED_BYTES, contents));
+
+        byte[] result = new byte[32];
+        dis = new DeflaterInputStream(new ByteArrayInputStream(TEST_STR.getBytes("UTF-8")));
+        int count = 0;
+        int bytesRead = 0;
+        while ((bytesRead = dis.read(result, count, 4)) != -1) {
+            count += bytesRead;
+        }
+        assertEquals(23, count);
+        byte[] splicedResult = new byte[23];
+        System.arraycopy(result, 0, splicedResult, 0, 23);
+        assertTrue(Arrays.equals(TEST_STRING_DEFLATED_BYTES, splicedResult));
+    }
+
+    public void testRead_leavesBufUnmodified() throws Exception {
+        DeflaterInputStreamWithPublicBuffer dis = new DeflaterInputStreamWithPublicBuffer(is);
+        byte[] contents = Streams.readFully(dis);
+        assertTrue(Arrays.equals(TEST_STRING_DEFLATED_BYTES, contents));
+
+        // protected field buf is a part of the public API of this class.
+        // we guarantee that it's only used as an input buffer, and not for
+        // anything else.
+        byte[] buf = dis.getBuffer();
+        byte[] expected = TEST_STR.getBytes("UTF-8");
+
+        byte[] splicedBuf = new byte[expected.length];
+        System.arraycopy(buf, 0, splicedBuf, 0, buf.length);
+        assertTrue(Arrays.equals(buf, splicedBuf));
+    }
+
     /**
      * DeflaterInputStream#read(byte[], int, int)
      */
@@ -132,13 +185,13 @@ public class DeflaterInputStreamTest extends TestCase {
         assertEquals(23, dis.read(buf1, 0, 256));
         dis = new DeflaterInputStream(is);
         assertEquals(8, dis.read(buf2, 0, 256));
-        is = new ByteArrayInputStream(testStr.getBytes("UTF-8"));
+        is = new ByteArrayInputStream(TEST_STR.getBytes("UTF-8"));
         dis = new DeflaterInputStream(is);
         assertEquals(1, dis.available());
         assertEquals(120, dis.read());
         assertEquals(1, dis.available());
         assertEquals(22, dis.read(buf2, 0, 256));
-        assertEquals(1, dis.available());
+        assertEquals(0, dis.available());
         assertEquals(-1, dis.read());
         assertEquals(0, dis.available());
         try {
@@ -252,21 +305,15 @@ public class DeflaterInputStreamTest extends TestCase {
         dis.skip(1);
         assertEquals(1, dis.available());
         assertEquals(22, dis.read(buf, 0, 1024));
-        assertEquals(1, dis.available());
-        dis.skip(1);
         assertEquals(0, dis.available());
-        is = new ByteArrayInputStream(testStr.getBytes("UTF-8"));
+        assertEquals(0, dis.available());
+        is = new ByteArrayInputStream(TEST_STR.getBytes("UTF-8"));
         dis = new DeflaterInputStream(is);
         assertEquals(1, dis.available());
         dis.skip(56);
         assertEquals(0, dis.available());
         assertEquals(-1, dis.read(buf, 0, 1024));
-        try {
-            dis.skip(-1);
-            fail("should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
+
         assertEquals(0, dis.available());
         // can still skip
         dis.skip(1);
@@ -277,14 +324,8 @@ public class DeflaterInputStreamTest extends TestCase {
         } catch (IOException e) {
             // expected
         }
-        try {
-            dis.skip(-1);
-            fail("should throw IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
 
-        is = new ByteArrayInputStream(testStr.getBytes("UTF-8"));
+        is = new ByteArrayInputStream(TEST_STR.getBytes("UTF-8"));
         dis = new DeflaterInputStream(is);
         assertEquals(23, dis.skip(Long.MAX_VALUE));
         assertEquals(0, dis.available());
@@ -372,15 +413,14 @@ public class DeflaterInputStreamTest extends TestCase {
         }
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        is = new ByteArrayInputStream(testStr.getBytes("UTF-8"));
-    }
+    public static final class DeflaterInputStreamWithPublicBuffer extends DeflaterInputStream {
 
-    @Override
-    protected void tearDown() throws Exception {
-        is.close();
-        super.tearDown();
+        public DeflaterInputStreamWithPublicBuffer(InputStream in) {
+            super(in);
+        }
+
+        public byte[] getBuffer() {
+            return buf;
+        }
     }
 }
