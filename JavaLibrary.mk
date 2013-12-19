@@ -332,7 +332,7 @@ LOCAL_DROIDDOC_OPTIONS := \
  -offlinemode \
  -title "libcore" \
  -proofread $(OUT_DOCS)/$(LOCAL_MODULE)-proofread.txt \
- -todo ../$(LOCAL_MODULE)-docs-todo.html \
+ -todo $(OUT_DOCS)/$(LOCAL_MODULE)-docs-todo.html \
  -hdf android.whichdoc offline
 
 LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR:=build/tools/droiddoc/templates-sdk
