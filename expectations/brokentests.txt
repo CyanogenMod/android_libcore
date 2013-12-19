@@ -879,7 +879,6 @@
     "org.apache.harmony.tests.java.util.jar.ManifestTest#testStreamConstructor",
     "org.apache.harmony.tests.java.util.zip.DeflaterTest#test_setLevelI",
     "org.apache.harmony.tests.java.util.zip.DeflaterTest#test_setStrategyI",
-    "org.apache.harmony.tests.java.util.zip.GZIPOutputStreamTest#testFlush",
     "org.apache.harmony.tests.java.util.zip.InflaterTest#test_end"
   ]
 }

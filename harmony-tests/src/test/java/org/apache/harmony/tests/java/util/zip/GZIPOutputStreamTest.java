@@ -161,17 +161,21 @@ public class GZIPOutputStreamTest extends junit.framework.TestCase {
         }
     }
 
-    public void testFlush() throws IOException {
+    public void testSyncFlush() throws IOException {
         PipedOutputStream pout = new PipedOutputStream();
         PipedInputStream pin = new PipedInputStream(pout);
-        GZIPOutputStream out = new GZIPOutputStream(pout);
+        GZIPOutputStream out = new GZIPOutputStream(pout, true /* syncFlush */);
         GZIPInputStream in = new GZIPInputStream(pin);
 
         out.write(1);
         out.write(2);
         out.write(3);
         out.flush();
-        assertEquals(1, in.read()); // without flush, this blocks forever!!
+        // flush() is guaranteed to flush data only if syncFlush is true.
+        // The default flush param is NO_FLUSH so it's up to the deflater to
+        // decide how much input it wants to read before generating a compressed
+        // block.
+        assertEquals(1, in.read());
         assertEquals(2, in.read());
         assertEquals(3, in.read());
     }
