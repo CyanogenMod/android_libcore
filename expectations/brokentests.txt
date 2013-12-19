@@ -873,13 +873,9 @@
   bug: 12189307,
   result: EXEC_FAILED,
   names: [
-    "org.apache.harmony.tests.java.util.jar.AttributesTest#test_putAllLjava_util_Map2",
     "org.apache.harmony.tests.java.util.jar.ManifestTest#testNul",
     "org.apache.harmony.tests.java.util.jar.ManifestTest#testRead",
-    "org.apache.harmony.tests.java.util.jar.ManifestTest#testStreamConstructor",
-    "org.apache.harmony.tests.java.util.zip.DeflaterTest#test_setLevelI",
-    "org.apache.harmony.tests.java.util.zip.DeflaterTest#test_setStrategyI",
-    "org.apache.harmony.tests.java.util.zip.InflaterTest#test_end"
+    "org.apache.harmony.tests.java.util.jar.ManifestTest#testStreamConstructor"
   ]
 }
 ]

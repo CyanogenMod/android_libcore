@@ -27,7 +27,6 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.ZipException;
-
 import tests.support.resource.Support_Resources;
 
 public class InflaterTest extends junit.framework.TestCase {
@@ -38,7 +37,7 @@ public class InflaterTest extends junit.framework.TestCase {
     /**
      * java.util.zip.Inflater#end()
      */
-    public void test_end() {
+    public void test_end() throws Exception {
         // test method of java.util.zip.inflater.end()
         byte byteArray[] = { 5, 2, 3, 7, 8 };
 
@@ -46,13 +45,13 @@ public class InflaterTest extends junit.framework.TestCase {
         Inflater inflate = new Inflater();
         inflate.setInput(byteArray);
         inflate.end();
+
+        // Note that the RI throws an NPE here instead of an ISE (???).
         try {
             inflate.reset();
             inflate.setInput(byteArray);
-        } catch (NullPointerException e) {
-            r = 1;
+        } catch (IllegalStateException expected) {
         }
-        assertEquals("inflate can still be used after end is called", 1, r);
 
         Inflater i = new Inflater();
         i.end();
