@@ -171,8 +171,8 @@ public class DeflaterInputStreamTest extends TestCase {
         byte[] expected = TEST_STR.getBytes("UTF-8");
 
         byte[] splicedBuf = new byte[expected.length];
-        System.arraycopy(buf, 0, splicedBuf, 0, buf.length);
-        assertTrue(Arrays.equals(buf, splicedBuf));
+        System.arraycopy(buf, 0, splicedBuf, 0, splicedBuf.length);
+        assertTrue(Arrays.equals(expected, splicedBuf));
     }
 
     /**
