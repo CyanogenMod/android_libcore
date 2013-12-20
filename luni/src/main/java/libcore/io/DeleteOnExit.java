@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.harmony.luni.util;
+package libcore.io;
 
 
 import java.io.File;
@@ -34,11 +34,6 @@ public class DeleteOnExit extends Thread {
     private static DeleteOnExit instance;
 
     /**
-     * Our list of files scheduled for deletion.
-     */
-    private ArrayList<String> files = new ArrayList<String>();
-
-    /**
      * Returns our singleton instance, creating it if necessary.
      */
     public static synchronized DeleteOnExit getInstance() {
@@ -51,12 +46,21 @@ public class DeleteOnExit extends Thread {
     }
 
     /**
+     * Our list of files scheduled for deletion.
+     */
+    private final ArrayList<String> files = new ArrayList<String>();
+
+
+    private DeleteOnExit() {
+    }
+
+    /**
      * Schedules a file for deletion.
      *
      * @param filename The file to delete.
      */
     public void addFile(String filename) {
-        synchronized(files) {
+        synchronized (files) {
             if (!files.contains(filename)) {
                 files.add(filename);
             }
