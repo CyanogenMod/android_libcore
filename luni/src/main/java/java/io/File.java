@@ -23,12 +23,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import libcore.io.DeleteOnExit;
 import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.io.StructStat;
 import libcore.io.StructStatVfs;
-import org.apache.harmony.luni.util.DeleteOnExit;
 import static libcore.io.OsConstants.*;
 
 /**
