@@ -20,9 +20,11 @@ package java.util.zip;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import libcore.io.Memory;
+import libcore.io.Streams;
 
 /**
  * The {@code GZIPInputStream} class is used to read data stored in the GZIP
@@ -43,6 +45,9 @@ import libcore.io.Memory;
  *     zis.close();
  * }
  * </pre>
+ *
+ * <p>Note that this class ignores all remaining data at the end of the last
+ * GZIP member.
  */
 public class GZIPInputStream extends InflaterInputStream {
     private static final int FCOMMENT = 16;
@@ -52,6 +57,8 @@ public class GZIPInputStream extends InflaterInputStream {
     private static final int FHCRC = 2;
 
     private static final int FNAME = 8;
+
+    private static final int GZIP_TRAILER_SIZE = 8;
 
     /**
      * The magic header for the GZIP format.
@@ -94,49 +101,14 @@ public class GZIPInputStream extends InflaterInputStream {
      */
     public GZIPInputStream(InputStream is, int size) throws IOException {
         super(is, new Inflater(true), size);
-        byte[] header = new byte[10];
-        readFully(header, 0, header.length);
-        short magic = Memory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
+
+        byte[] header = readHeader(is);
+        final short magic = Memory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
         if (magic != (short) GZIP_MAGIC) {
             throw new IOException(String.format("unknown format (magic number %x)", magic));
         }
-        int flags = header[3];
-        boolean hcrc = (flags & FHCRC) != 0;
-        if (hcrc) {
-            crc.update(header, 0, header.length);
-        }
-        if ((flags & FEXTRA) != 0) {
-            readFully(header, 0, 2);
-            if (hcrc) {
-                crc.update(header, 0, 2);
-            }
-            int length = Memory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN) & 0xffff;
-            while (length > 0) {
-                int max = length > buf.length ? buf.length : length;
-                int result = in.read(buf, 0, max);
-                if (result == -1) {
-                    throw new EOFException();
-                }
-                if (hcrc) {
-                    crc.update(buf, 0, result);
-                }
-                length -= result;
-            }
-        }
-        if ((flags & FNAME) != 0) {
-            readZeroTerminated(hcrc);
-        }
-        if ((flags & FCOMMENT) != 0) {
-            readZeroTerminated(hcrc);
-        }
-        if (hcrc) {
-            readFully(header, 0, 2);
-            short crc16 = Memory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
-            if ((short) crc.getValue() != crc16) {
-                throw new IOException("CRC mismatch");
-            }
-            crc.reset();
-        }
+
+        parseGzipHeader(is, header, crc, buf);
     }
 
     /**
@@ -171,9 +143,103 @@ public class GZIPInputStream extends InflaterInputStream {
 
         if (eos) {
             verifyCrc();
+            eos = maybeReadNextMember();
+            if (!eos) {
+                crc.reset();
+                inf.reset();
+                eof = false;
+                len = 0;
+            }
         }
 
         return bytesRead;
+    }
+
+    private boolean maybeReadNextMember() throws IOException {
+        // If we have any unconsumed data in the inflater buffer, we have to
+        // scan that first. The fact that we've reached here implies we've
+        // successfully consumed the GZIP trailer.
+        final int remaining = inf.getRemaining() - GZIP_TRAILER_SIZE;
+        if (remaining > 0) {
+            // NOTE: This prevents us from creating multiple layers of nested
+            // PushbackInputStreams if we have multiple members in this stream.
+            if (!(in instanceof PushbackInputStream)) {
+                in = new PushbackInputStream(in, BUF_SIZE);
+            }
+            ((PushbackInputStream) in).unread(buf,
+                    inf.getCurrentOffset() + GZIP_TRAILER_SIZE, remaining);
+        }
+
+        final byte[] buffer;
+        try {
+            buffer = readHeader(in);
+        } catch (EOFException eof) {
+            // We've reached the end of the stream and there are no more members
+            // to read. Note that we might also hit this if there are fewer than
+            // GZIP_HEADER_LENGTH bytes at the end of a member. We don't care
+            // because we're specified to ignore all data at the end of the last
+            // gzip record.
+            return true;
+        }
+
+        final short magic = Memory.peekShort(buffer, 0, ByteOrder.LITTLE_ENDIAN);
+        if (magic != (short) GZIP_MAGIC) {
+            // Don't throw here because we've already read one valid member
+            // from this stream.
+            return true;
+        }
+
+        // We've encountered the gzip magic number, so we assume there's another
+        // member in the stream.
+        parseGzipHeader(in, buffer, crc, buf);
+        return false;
+    }
+
+    private static byte[] readHeader(InputStream in) throws IOException {
+        byte[] header = new byte[10];
+        Streams.readFully(in, header, 0, header.length);
+        return header;
+    }
+
+    private static void parseGzipHeader(InputStream in, byte[] header,
+            CRC32 crc, byte[] scratch) throws IOException {
+        final byte flags = header[3];
+        final boolean hcrc = (flags & FHCRC) != 0;
+        if (hcrc) {
+            crc.update(header, 0, header.length);
+        }
+        if ((flags & FEXTRA) != 0) {
+            Streams.readFully(in, header, 0, 2);
+            if (hcrc) {
+                crc.update(header, 0, 2);
+            }
+            int length = Memory.peekShort(scratch, 0, ByteOrder.LITTLE_ENDIAN) & 0xffff;
+            while (length > 0) {
+                int max = length > scratch.length ? scratch.length : length;
+                int result = in.read(scratch, 0, max);
+                if (result == -1) {
+                    throw new EOFException();
+                }
+                if (hcrc) {
+                    crc.update(scratch, 0, result);
+                }
+                length -= result;
+            }
+        }
+        if ((flags & FNAME) != 0) {
+            readZeroTerminated(in, crc, hcrc);
+        }
+        if ((flags & FCOMMENT) != 0) {
+            readZeroTerminated(in, crc, hcrc);
+        }
+        if (hcrc) {
+            Streams.readFully(in, header, 0, 2);
+            short crc16 = Memory.peekShort(scratch, 0, ByteOrder.LITTLE_ENDIAN);
+            if ((short) crc.getValue() != crc16) {
+                throw new IOException("CRC mismatch");
+            }
+            crc.reset();
+        }
     }
 
     private void verifyCrc() throws IOException {
@@ -184,7 +250,7 @@ public class GZIPInputStream extends InflaterInputStream {
         int copySize = (size > trailerSize) ? trailerSize : size;
 
         System.arraycopy(buf, len - size, b, 0, copySize);
-        readFully(b, copySize, trailerSize - copySize);
+        Streams.readFully(in, b, copySize, trailerSize - copySize);
 
         if (Memory.peekInt(b, 0, ByteOrder.LITTLE_ENDIAN) != (int) crc.getValue()) {
             throw new IOException("CRC mismatch");
@@ -194,20 +260,11 @@ public class GZIPInputStream extends InflaterInputStream {
         }
     }
 
-    private void readFully(byte[] buffer, int offset, int length) throws IOException {
+    private static void readZeroTerminated(InputStream in, CRC32 crc, boolean hcrc)
+            throws IOException {
         int result;
-        while (length > 0) {
-            result = in.read(buffer, offset, length);
-            if (result == -1) {
-                throw new EOFException();
-            }
-            offset += result;
-            length -= result;
-        }
-    }
-
-    private void readZeroTerminated(boolean hcrc) throws IOException {
-        int result;
+        // TODO: Fix these single byte reads. This method is used to consume the
+        // header FNAME & FCOMMENT which aren't widely used in gzip files.
         while ((result = in.read()) > 0) {
             if (hcrc) {
                 crc.update(result);
