@@ -170,6 +170,15 @@ public class Inflater {
     }
 
     /**
+     * Returns the offset of the next byte to read in the underlying buffer.
+     *
+     * For internal use only.
+     */
+    synchronized int getCurrentOffset() {
+        return inRead;
+    }
+
+    /**
      * Returns the total number of bytes of input read by this {@code Inflater}. This
      * method is limited to 32 bits; use {@link #getBytesRead} instead.
      */
