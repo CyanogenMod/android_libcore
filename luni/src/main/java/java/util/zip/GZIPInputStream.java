@@ -102,13 +102,18 @@ public class GZIPInputStream extends InflaterInputStream {
     public GZIPInputStream(InputStream is, int size) throws IOException {
         super(is, new Inflater(true), size);
 
-        byte[] header = readHeader(is);
-        final short magic = Memory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
-        if (magic != (short) GZIP_MAGIC) {
-            throw new IOException(String.format("unknown format (magic number %x)", magic));
-        }
+        try {
+            byte[] header = readHeader(is);
+            final short magic = Memory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
+            if (magic != (short) GZIP_MAGIC) {
+                throw new IOException(String.format("unknown format (magic number %x)", magic));
+            }
 
-        parseGzipHeader(is, header, crc, buf);
+            parseGzipHeader(is, header, crc, buf);
+        } catch (IOException e) {
+            close(); // release the inflater
+            throw e;
+        }
     }
 
     /**
