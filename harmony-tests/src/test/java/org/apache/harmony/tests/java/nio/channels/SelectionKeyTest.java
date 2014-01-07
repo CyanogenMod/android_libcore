@@ -24,9 +24,7 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-
 import junit.framework.TestCase;
-import tests.support.Support_PortManager;
 
 /*
  * Tests for SelectionKey and its default implementation
@@ -295,10 +293,9 @@ public class SelectionKeyTest extends TestCase {
      * @tests java.nio.channels.SelectionKey#readyOps()
      */
     public void test_readyOps() throws IOException {
-        int port = Support_PortManager.getNextPort();
-        ServerSocket ss = new ServerSocket(port);
+        ServerSocket ss = new ServerSocket(0);
         try {
-            sc.connect(new InetSocketAddress(LOCAL_ADDR, port));
+            sc.connect(new InetSocketAddress(LOCAL_ADDR, ss.getLocalPort()));
             assertEquals(0, selectionKey.readyOps());
             assertFalse(selectionKey.isConnectable());
             selector.select();

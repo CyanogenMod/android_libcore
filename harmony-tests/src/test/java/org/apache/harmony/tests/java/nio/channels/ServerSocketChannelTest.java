@@ -32,9 +32,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
-
 import junit.framework.TestCase;
-import tests.support.Support_PortManager;
 
 /*
  * test for ServerSocketChannel
@@ -47,17 +45,12 @@ public class ServerSocketChannelTest extends TestCase {
 
     private static final int TIME_UNIT = 200;
 
-    private InetSocketAddress localAddr1;
-
     private ServerSocketChannel serverChannel;
 
     private SocketChannel clientChannel;
 
     protected void setUp() throws Exception {
         super.setUp();
-        this.localAddr1 = new InetSocketAddress(
-                "127.0.0.1", Support_PortManager
-                        .getNextPort());
         this.serverChannel = ServerSocketChannel.open();
         this.clientChannel = SocketChannel.open();
     }
@@ -243,7 +236,7 @@ public class ServerSocketChannelTest extends TestCase {
     public void testAccept_Block_NoConnect() throws IOException {
         assertTrue(this.serverChannel.isBlocking());
         ServerSocket gotSocket = this.serverChannel.socket();
-        gotSocket.bind(localAddr1);
+        gotSocket.bind(null);
         // blocking mode , will block and wait for ever...
         // so must close the server channel with another thread.
         new Thread() {
@@ -267,7 +260,7 @@ public class ServerSocketChannelTest extends TestCase {
 
     public void testAccept_NonBlock_NoConnect() throws IOException {
         ServerSocket gotSocket = this.serverChannel.socket();
-        gotSocket.bind(localAddr1);
+        gotSocket.bind(null);
         this.serverChannel.configureBlocking(false);
         // non-blocking mode , will immediately return
         assertNull(this.serverChannel.accept());
@@ -277,13 +270,13 @@ public class ServerSocketChannelTest extends TestCase {
      * @tests ServerSocketChannel#accept().socket()
      */
     public void test_read_Blocking_RealData() throws IOException {
-        serverChannel.socket().bind(localAddr1);
+        serverChannel.socket().bind(null);
         ByteBuffer buf = ByteBuffer.allocate(CAPACITY_NORMAL);
 
         for (int i = 0; i < CAPACITY_NORMAL; i++) {
             buf.put((byte) i);
         }
-        clientChannel.connect(localAddr1);
+        clientChannel.connect(serverChannel.socket().getLocalSocketAddress());
         Socket serverSocket = serverChannel.accept().socket();
         InputStream in = serverSocket.getInputStream();
         buf.flip();
@@ -316,13 +309,13 @@ public class ServerSocketChannelTest extends TestCase {
      */
     public void test_read_NonBlocking_RealData() throws Exception {
         serverChannel.configureBlocking(false);
-        serverChannel.socket().bind(localAddr1);
+        serverChannel.socket().bind(null);
         ByteBuffer buf = ByteBuffer.allocate(CAPACITY_NORMAL);
         for (int i = 0; i < CAPACITY_NORMAL; i++) {
             buf.put((byte) i);
         }
         buf.flip();
-        clientChannel.connect(localAddr1);
+        clientChannel.connect(serverChannel.socket().getLocalSocketAddress());
         Socket serverSocket = serverChannel.accept().socket();
         InputStream in = serverSocket.getInputStream();
         clientChannel.write(buf);
@@ -336,13 +329,13 @@ public class ServerSocketChannelTest extends TestCase {
     public void test_write_Blocking_RealData() throws IOException {
         assertTrue(serverChannel.isBlocking());
         ServerSocket serverSocket = serverChannel.socket();
-        serverSocket.bind(localAddr1);
+        serverSocket.bind(null);
 
         byte[] writeContent = new byte[CAPACITY_NORMAL];
         for (int i = 0; i < writeContent.length; i++) {
             writeContent[i] = (byte) i;
         }
-        clientChannel.connect(localAddr1);
+        clientChannel.connect(serverChannel.socket().getLocalSocketAddress());
         Socket socket = serverChannel.accept().socket();
         OutputStream out = socket.getOutputStream();
         out.write(writeContent);
@@ -358,13 +351,13 @@ public class ServerSocketChannelTest extends TestCase {
     public void test_write_NonBlocking_RealData() throws Exception {
         serverChannel.configureBlocking(false);
         ServerSocket serverSocket = serverChannel.socket();
-        serverSocket.bind(localAddr1);
+        serverSocket.bind(null);
 
         byte[] writeContent = new byte[CAPACITY_NORMAL];
         for (int i = 0; i < CAPACITY_NORMAL; i++) {
             writeContent[i] = (byte) i;
         }
-        clientChannel.connect(localAddr1);
+        clientChannel.connect(serverSocket.getLocalSocketAddress());
         Socket clientSocket = serverChannel.accept().socket();
         OutputStream out = clientSocket.getOutputStream();
         out.write(writeContent);
@@ -378,13 +371,13 @@ public class ServerSocketChannelTest extends TestCase {
      */
     public void test_read_LByteBuffer_Blocking_ReadWriteRealLargeData()
             throws IOException, InterruptedException {
-        serverChannel.socket().bind(localAddr1);
+        serverChannel.socket().bind(null);
         ByteBuffer buf = ByteBuffer.allocate(CAPACITY_64KB);
         for (int i = 0; i < CAPACITY_64KB; i++) {
             buf.put((byte) i);
         }
         buf.flip();
-        clientChannel.connect(localAddr1);
+        clientChannel.connect(serverChannel.socket().getLocalSocketAddress());
         WriteChannelThread writeThread = new WriteChannelThread(clientChannel, buf);
         writeThread.start();
         Socket socket = serverChannel.accept().socket();
@@ -423,13 +416,13 @@ public class ServerSocketChannelTest extends TestCase {
     public void test_read_LByteBuffer_NonBlocking_ReadWriteRealLargeData()
             throws Exception {
         serverChannel.configureBlocking(false);
-        serverChannel.socket().bind(localAddr1);
+        serverChannel.socket().bind(null);
         ByteBuffer buf = ByteBuffer.allocate(CAPACITY_64KB);
         for (int i = 0; i < CAPACITY_64KB; i++) {
             buf.put((byte) i);
         }
         buf.flip();
-        clientChannel.connect(localAddr1);
+        clientChannel.connect(serverChannel.socket().getLocalSocketAddress());
         WriteChannelThread writeThread = new WriteChannelThread(clientChannel, buf);
         writeThread.start();
         Socket socket = serverChannel.accept().socket();
@@ -448,12 +441,12 @@ public class ServerSocketChannelTest extends TestCase {
     public void test_write_LByteBuffer_NonBlocking_ReadWriteRealLargeData()
             throws Exception {
         serverChannel.configureBlocking(false);
-        serverChannel.socket().bind(localAddr1);
+        serverChannel.socket().bind(null);
         byte[] writeContent = new byte[CAPACITY_64KB];
         for (int i = 0; i < writeContent.length; i++) {
             writeContent[i] = (byte) i;
         }
-        clientChannel.connect(localAddr1);
+        clientChannel.connect(serverChannel.socket().getLocalSocketAddress());
         Socket socket = serverChannel.accept().socket();
         WriteSocketThread writeThread = new WriteSocketThread(socket, writeContent);
         writeThread.start();
@@ -491,12 +484,12 @@ public class ServerSocketChannelTest extends TestCase {
      */
     public void test_write_LByteBuffer_Blocking_ReadWriteRealLargeData()
             throws Exception {
-        serverChannel.socket().bind(localAddr1);
+        serverChannel.socket().bind(null);
         byte[] writeContent = new byte[CAPACITY_64KB];
         for (int i = 0; i < writeContent.length; i++) {
             writeContent[i] = (byte) i;
         }
-        clientChannel.connect(localAddr1);
+        clientChannel.connect(serverChannel.socket().getLocalSocketAddress());
         Socket socket = serverChannel.accept().socket();
         WriteSocketThread writeThread = new WriteSocketThread(socket, writeContent);
         writeThread.start();
@@ -539,7 +532,7 @@ public class ServerSocketChannelTest extends TestCase {
         ServerSocketChannel sc = ServerSocketChannel.open();
         try {
             ServerSocket ss = sc.socket();
-            ss.bind(localAddr1);
+            ss.bind(null);
             sc.configureBlocking(false);
             ss.setSoTimeout(SO_TIMEOUT);
             SocketChannel client = sc.accept();
@@ -604,7 +597,7 @@ public class ServerSocketChannelTest extends TestCase {
         // regression test for Harmony-748
         serverChannel.configureBlocking(false);
         ServerSocket gotSocket = serverChannel.socket();
-        gotSocket.bind(localAddr1);
+        gotSocket.bind(null);
         try {
             gotSocket.accept();
             fail("Should throw an IllegalBlockingModeException");
@@ -627,7 +620,7 @@ public class ServerSocketChannelTest extends TestCase {
         // regression test for Harmony-748
         serverChannel.configureBlocking(true);
         ServerSocket gotSocket = serverChannel.socket();
-        gotSocket.bind(localAddr1);
+        gotSocket.bind(null);
         serverChannel.close();
         try {
             gotSocket.accept();
@@ -640,11 +633,11 @@ public class ServerSocketChannelTest extends TestCase {
      * Regression test for HARMONY-4961
      */
     public void test_socket_getLocalPort() throws IOException {
-        serverChannel.socket().bind(localAddr1);
-        clientChannel.connect(localAddr1);
+        serverChannel.socket().bind(null);
+        clientChannel.connect(serverChannel.socket().getLocalSocketAddress());
         SocketChannel myChannel = serverChannel.accept();
         int port = myChannel.socket().getLocalPort();
-        assertEquals(localAddr1.getPort(), port);
+        assertEquals(serverChannel.socket().getLocalPort(), port);
         myChannel.close();
         clientChannel.close();
         serverChannel.close();
