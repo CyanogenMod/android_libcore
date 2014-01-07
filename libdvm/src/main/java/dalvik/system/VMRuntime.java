@@ -265,4 +265,11 @@ public final class VMRuntime {
      * already loaded. Typically used after Zygote preloading.
      */
     public native void preloadDexCaches();
+
+    /**
+     * Register application info
+     */
+    public static void registerAppInfo(String appDir, String processName) {
+        // Nothing to do in dalvik.
+    }
 }
