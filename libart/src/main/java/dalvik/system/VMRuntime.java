@@ -268,4 +268,9 @@ public final class VMRuntime {
      * already loaded. Typically used after Zygote preloading.
      */
     public native void preloadDexCaches();
+
+    /**
+     * Register application info
+     */
+    public static native void registerAppInfo(String appDir, String processName);
 }
