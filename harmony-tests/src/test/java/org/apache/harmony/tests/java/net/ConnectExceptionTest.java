@@ -18,10 +18,6 @@
 package org.apache.harmony.tests.java.net;
 
 import java.net.ConnectException;
-import java.net.InetAddress;
-import java.net.Socket;
-
-import tests.support.Support_PortManager;
 
 public class ConnectExceptionTest extends junit.framework.TestCase {
 

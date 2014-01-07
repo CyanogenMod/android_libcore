@@ -20,7 +20,7 @@ package org.apache.harmony.tests.java.nio.channels;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.Inet6Address;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -33,14 +33,11 @@ import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
-import java.security.Permission;
-
 import junit.framework.TestCase;
-import tests.support.Support_PortManager;
+import libcore.io.IoUtils;
 
 /**
  * Test for DatagramChannel
- *
  */
 public class DatagramChannelTest extends TestCase {
 
@@ -56,64 +53,45 @@ public class DatagramChannelTest extends TestCase {
 
     private static final int TIME_UNIT = 500;
 
-    private InetSocketAddress localAddr1;
+    private InetSocketAddress datagramSocket1Address;
+    private InetSocketAddress datagramSocket2Address;
 
-    private InetSocketAddress localAddr2;
+    private InetSocketAddress channel1Address;
+    private InetSocketAddress channel2Address;
 
     private DatagramChannel channel1;
-
     private DatagramChannel channel2;
 
     private DatagramSocket datagramSocket1;
-
     private DatagramSocket datagramSocket2;
-
-    // The port to be used in test cases.
-    private int testPort;
 
     protected void setUp() throws Exception {
         super.setUp();
-        this.channel1 = DatagramChannel.open();
-        this.channel2 = DatagramChannel.open();
-        int[] ports = Support_PortManager.getNextPortsForUDP(5);
-        this.localAddr1 = new InetSocketAddress("127.0.0.1", ports[0]);
-        this.localAddr2 = new InetSocketAddress("127.0.0.1", ports[1]);
-        this.datagramSocket1 = new DatagramSocket(ports[2]);
-        this.datagramSocket2 = new DatagramSocket(ports[3]);
-        testPort = ports[4];
+
+        channel1 = DatagramChannel.open();
+        channel2 = DatagramChannel.open();
+
+        channel1.socket().bind(new InetSocketAddress(Inet6Address.LOOPBACK, 0));
+        channel2.socket().bind(new InetSocketAddress(Inet6Address.LOOPBACK, 0));
+
+        channel1Address = (InetSocketAddress) channel1.socket().getLocalSocketAddress();
+        channel2Address = (InetSocketAddress) channel2.socket().getLocalSocketAddress();
+
+        this.datagramSocket1 = new DatagramSocket(0, Inet6Address.LOOPBACK);
+        this.datagramSocket2 = new DatagramSocket(0, Inet6Address.LOOPBACK);
+
+        datagramSocket1Address = (InetSocketAddress) datagramSocket1.getLocalSocketAddress();
+        datagramSocket2Address = (InetSocketAddress) datagramSocket2.getLocalSocketAddress();
     }
 
     protected void tearDown() throws Exception {
-        if (null != this.channel1) {
-            try {
-                this.channel1.close();
-            } catch (Exception e) {
-                //ignore
-            }
-        }
-        if (null != this.channel2) {
-            try {
-                this.channel2.close();
-            } catch (Exception e) {
-                //ignore
-            }
-        }
-        if (null != this.datagramSocket1) {
-            try {
-                this.datagramSocket1.close();
-            } catch (Exception e) {
-                //ignore
-            }
-        }
-        if (null != this.datagramSocket2) {
-            try {
-                this.datagramSocket2.close();
-            } catch (Exception e) {
-                //ignore
-            }
-        }
-        localAddr1 = null;
-        localAddr2 = null;
+        IoUtils.closeQuietly(channel1);
+        IoUtils.closeQuietly(channel2);
+        IoUtils.closeQuietly(datagramSocket1);
+        IoUtils.closeQuietly(datagramSocket2);
+
+        datagramSocket1Address = null;
+        datagramSocket2Address = null;
         super.tearDown();
     }
 
@@ -151,7 +129,6 @@ public class DatagramChannelTest extends TestCase {
      */
     public void testReadByteBufferArray() throws IOException {
         final int testNum = 0;
-        long readres = testNum;
         MockDatagramChannel testMock = new MockDatagramChannel(SelectorProvider
                 .provider());
         MockDatagramChannel testMocknull = new MockDatagramChannel(null);
@@ -163,6 +140,8 @@ public class DatagramChannelTest extends TestCase {
         } catch (NullPointerException e) {
             // correct
         }
+
+        long readres;
         try {
             readres = testMock.read(readBuf);
             fail("Should throw NPE");
@@ -173,9 +152,9 @@ public class DatagramChannelTest extends TestCase {
         try {
             readres = this.channel1.read(readBuf);
             fail("Should throw NotYetConnectedException");
-        } catch (NotYetConnectedException e) {
-            // correct
+        } catch (NotYetConnectedException expected) {
         }
+
         readres = testMock.read(readBuf);
         assertEquals(testNum, readres);
         readres = testMocknull.read(readBuf);
@@ -194,20 +173,17 @@ public class DatagramChannelTest extends TestCase {
         try {
             this.channel1.read(readBuf);
             fail("Should throw NPE");
-        } catch (NullPointerException e) {
-            // correct
+        } catch (NullPointerException expected) {
         }
         try {
             testMock.read(readBuf);
             fail("Should throw NPE");
-        } catch (NullPointerException e) {
-            // correct
+        } catch (NullPointerException expected) {
         }
         try {
             testMocknull.read(readBuf);
             fail("Should throw NPE");
-        } catch (NullPointerException e) {
-            // correct
+        } catch (NullPointerException expected) {
         }
     }
 
@@ -284,11 +260,13 @@ public class DatagramChannelTest extends TestCase {
      *
      * @throws SocketException
      */
-    public void testSocket_BasicStatusBeforeConnect() throws SocketException {
-        assertFalse(this.channel1.isConnected());// not connected
-        DatagramSocket s1 = this.channel1.socket();
+    public void testSocket_BasicStatusBeforeConnect() throws Exception {
+        final DatagramChannel dc = DatagramChannel.open();
+
+        assertFalse(dc.isConnected());// not connected
+        DatagramSocket s1 = dc.socket();
         assertSocketBeforeConnect(s1);
-        DatagramSocket s2 = this.channel1.socket();
+        DatagramSocket s2 = dc.socket();
         // same
         assertSame(s1, s2);
     }
@@ -299,21 +277,25 @@ public class DatagramChannelTest extends TestCase {
      * @throws IOException
      */
     public void testSocket_Block_BasicStatusAfterConnect() throws IOException {
-        this.channel1.connect(localAddr1);
-        DatagramSocket s1 = this.channel1.socket();
+        final DatagramChannel dc = DatagramChannel.open();
+
+        dc.connect(datagramSocket1Address);
+        DatagramSocket s1 = dc.socket();
         assertSocketAfterConnect(s1);
-        DatagramSocket s2 = this.channel1.socket();
+        DatagramSocket s2 = dc.socket();
         // same
         assertSame(s1, s2);
     }
 
     public void testSocket_NonBlock_BasicStatusAfterConnect()
             throws IOException {
-        this.channel1.connect(localAddr1);
-        this.channel1.configureBlocking(false);
-        DatagramSocket s1 = this.channel1.socket();
+        final DatagramChannel dc = DatagramChannel.open();
+        dc.connect(datagramSocket1Address);
+        dc.configureBlocking(false);
+
+        DatagramSocket s1 = dc.socket();
         assertSocketAfterConnect(s1);
-        DatagramSocket s2 = this.channel1.socket();
+        DatagramSocket s2 = dc.socket();
         // same
         assertSame(s1, s2);
     }
@@ -336,13 +318,13 @@ public class DatagramChannelTest extends TestCase {
      */
     public void testSocket_Block_ActionsAfterConnect() throws IOException {
         assertFalse(this.channel1.isConnected());// not connected
-        this.channel1.connect(localAddr1);
+        this.channel1.connect(datagramSocket1Address);
         DatagramSocket s = this.channel1.socket();
         assertSocketActionAfterConnect(s);
     }
 
     public void testSocket_NonBlock_ActionsAfterConnect() throws IOException {
-        this.channel1.connect(localAddr1);
+        this.channel1.connect(datagramSocket1Address);
         this.channel1.configureBlocking(false);
         DatagramSocket s = this.channel1.socket();
         assertSocketActionAfterConnect(s);
@@ -375,14 +357,12 @@ public class DatagramChannelTest extends TestCase {
         assertTrue(s.isConnected());
         assertFalse(s.getBroadcast());
         assertFalse(s.getReuseAddress());
-        assertSame(s.getInetAddress(), localAddr1.getAddress());
-        assertEquals(s.getLocalAddress(), localAddr1.getAddress());
         assertNotNull(s.getLocalSocketAddress());
-        assertEquals(s.getPort(), localAddr1.getPort());
+        assertEquals(s.getPort(), datagramSocket1Address.getPort());
         assertTrue(s.getReceiveBufferSize() >= 8192);
         // not same , but equals
-        assertNotSame(s.getRemoteSocketAddress(), (SocketAddress) localAddr1);
-        assertEquals(s.getRemoteSocketAddress(), (SocketAddress) localAddr1);
+        assertNotSame(s.getRemoteSocketAddress(), datagramSocket1Address);
+        assertEquals(s.getRemoteSocketAddress(), datagramSocket1Address);
         assertFalse(s.getReuseAddress());
         assertTrue(s.getSendBufferSize() >= 8192);
         assertEquals(s.getSoTimeout(), 0);
@@ -391,7 +371,7 @@ public class DatagramChannelTest extends TestCase {
 
     private void assertSocketActionBeforeConnect(DatagramSocket s)
             throws IOException {
-        s.connect(localAddr2);
+        s.connect(datagramSocket2Address);
         assertFalse(this.channel1.isConnected());
         assertFalse(s.isConnected());
 
@@ -406,12 +386,12 @@ public class DatagramChannelTest extends TestCase {
 
     private void assertSocketActionAfterConnect(DatagramSocket s)
             throws IOException {
-        assertEquals(s.getPort(), localAddr1.getPort());
-        s.connect(localAddr2);
+        assertEquals(s.getPort(), datagramSocket1Address.getPort());
+        s.connect(datagramSocket2Address);
         assertTrue(this.channel1.isConnected());
         assertTrue(s.isConnected());
         // not changed
-        assertEquals(s.getPort(), localAddr1.getPort());
+        assertEquals(s.getPort(), datagramSocket1Address.getPort());
 
         s.disconnect();
         assertFalse(this.channel1.isConnected());
@@ -420,29 +400,6 @@ public class DatagramChannelTest extends TestCase {
         s.close();
         assertTrue(s.isClosed());
         assertFalse(this.channel1.isOpen());
-    }
-
-    // -------------------------------------------------------------------
-    // Test for configureBlocking()
-    // -------------------------------------------------------------------
-
-    public void testConfigureBlocking_Read() throws Exception {
-        assertTrue(this.channel1.isBlocking());
-        ByteBuffer buf = ByteBuffer.allocate(CAPACITY_1KB);
-        new Thread() {
-            public void run() {
-                try {
-                    sleep(TIME_UNIT * 5);
-                    channel1.configureBlocking(false);
-                    assertFalse(channel1.isBlocking());
-                    datagramSocket1.close();
-                } catch (Exception e) {
-                    // do nothing
-                }
-            }
-        }.start();
-        SocketAddress addr = channel1.receive(buf);
-        assertNull(addr);
     }
 
     // -------------------------------------------------------------------
@@ -572,7 +529,7 @@ public class DatagramChannelTest extends TestCase {
         this.channel1.close();
         assertFalse(this.channel1.isOpen());
         try {
-            this.channel1.connect(localAddr1);
+            this.channel1.connect(datagramSocket1Address);
             fail("Should throw ClosedChannelException."); //$NON-NLS-1$
         } catch (ClosedChannelException e) {
             // OK.
@@ -587,11 +544,11 @@ public class DatagramChannelTest extends TestCase {
      */
     public void testConnect_IllegalStateException() throws IOException {
         assertFalse(this.channel1.isConnected());
-        this.channel1.connect(localAddr1);
+        this.channel1.connect(datagramSocket1Address);
         assertTrue(this.channel1.isConnected());
         // connect after connected.
         try {
-            this.channel1.connect(localAddr1);
+            this.channel1.connect(datagramSocket1Address);
             fail("Should throw IllegalStateException."); //$NON-NLS-1$
         } catch (IllegalStateException e) {
             // OK.
@@ -606,14 +563,14 @@ public class DatagramChannelTest extends TestCase {
      */
     public void testConnect_CheckOpenBeforeStatus() throws IOException {
         assertFalse(this.channel1.isConnected());
-        this.channel1.connect(localAddr1);
+        this.channel1.connect(datagramSocket1Address);
         assertTrue(this.channel1.isConnected());
         // connect after connected.
         this.channel1.close();
         assertFalse(this.channel1.isOpen());
         // checking open is before checking status.
         try {
-            this.channel1.connect(localAddr1);
+            this.channel1.connect(datagramSocket1Address);
             fail("Should throw ClosedChannelException."); //$NON-NLS-1$
         } catch (ClosedChannelException e) {
             // OK.
@@ -636,7 +593,7 @@ public class DatagramChannelTest extends TestCase {
     private void connectLocalServer() throws IOException {
         assertFalse(this.channel1.isConnected());
         assertTrue(this.datagramSocket1.isBound());
-        assertSame(this.channel1, this.channel1.connect(localAddr1));
+        assertSame(this.channel1, this.channel1.connect(datagramSocket1Address));
         assertTrue(this.channel1.isConnected());
     }
 
@@ -644,7 +601,7 @@ public class DatagramChannelTest extends TestCase {
         assertFalse(this.channel1.isConnected());
         this.datagramSocket1.close();
         assertTrue(this.datagramSocket1.isClosed());
-        assertSame(this.channel1, this.channel1.connect(localAddr1));
+        assertSame(this.channel1, this.channel1.connect(datagramSocket1Address));
         assertTrue(this.channel1.isConnected());
     }
 
@@ -785,43 +742,38 @@ public class DatagramChannelTest extends TestCase {
         assertNull(this.channel1.receive(dst));
     }
 
-    /**
-     * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
-     */
-    public void testReceive_UnconnectedBufZero() throws Exception {
-        assertFalse(this.channel1.isConnected());
+    public void testReceive_UnboundBufZero() throws Exception {
+        DatagramChannel dc = DatagramChannel.open();
+
+        assertFalse(dc.isConnected());
+        assertFalse(dc.socket().isBound());
         ByteBuffer dst = ByteBuffer.allocateDirect(CAPACITY_ZERO);
-        assertNull(this.channel1.receive(dst));
+        assertNull(dc.receive(dst));
     }
 
-    /**
-     * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
-     */
-    public void testReceive_UnconnectedBufNotEmpty() throws Exception {
-        assertFalse(this.channel1.isConnected());
+    public void testReceive_UnboundBufNotEmpty() throws Exception {
+        DatagramChannel dc = DatagramChannel.open();
+        assertFalse(dc.isConnected());
+        assertFalse(dc.socket().isBound());
+
         ByteBuffer dst = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
         // buf is not empty
         dst.put((byte) 88);
         assertEquals(dst.position() + CAPACITY_NORMAL - 1, dst.limit());
-        assertNull(this.channel1.receive(dst));
+        assertNull(dc.receive(dst));
     }
 
-    /**
-     * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
-     */
-    public void testReceive_UnconnectedBufFull() throws Exception {
-        assertFalse(this.channel1.isConnected());
+    public void testReceive_UnboundBufFull() throws Exception {
+        DatagramChannel dc = DatagramChannel.open();
+
+        assertFalse(dc.isConnected());
+        assertFalse(dc.socket().isBound());
         ByteBuffer dst = ByteBuffer.allocateDirect(CAPACITY_ONE);
+
         // buf is full
         dst.put((byte) 88);
         assertEquals(dst.position(), dst.limit());
-        assertNull(this.channel1.receive(dst));
+        assertNull(dc.receive(dst));
     }
 
     /**
@@ -1141,21 +1093,21 @@ public class DatagramChannelTest extends TestCase {
      */
     public void testSend_NoServerBlockingCommon() throws IOException {
         ByteBuffer writeBuf = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
-        sendDataBlocking(localAddr1, writeBuf);
+        sendDataBlocking(datagramSocket1Address, writeBuf);
     }
 
     public void testSend_NoServerNonblockingCommon() throws IOException {
         ByteBuffer writeBuf = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
-        sendDataNonBlocking(localAddr1, writeBuf);
+        sendDataNonBlocking(datagramSocket1Address, writeBuf);
     }
 
     public void testSend_NoServerTwice() throws IOException {
         ByteBuffer writeBuf = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
-        sendDataBlocking(localAddr1, writeBuf);
+        sendDataBlocking(datagramSocket1Address, writeBuf);
         // can not buffer twice!
-        assertEquals(0, this.channel1.send(writeBuf, localAddr1));
+        assertEquals(0, this.channel1.send(writeBuf, datagramSocket1Address));
         try {
-            channel1.send(writeBuf, localAddr2);
+            channel1.send(writeBuf, datagramSocket2Address);
             fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // correct
@@ -1164,11 +1116,11 @@ public class DatagramChannelTest extends TestCase {
 
     public void testSend_NoServerNonBlockingTwice() throws IOException {
         ByteBuffer writeBuf = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
-        sendDataNonBlocking(localAddr1, writeBuf);
+        sendDataNonBlocking(datagramSocket1Address, writeBuf);
         // can not buffer twice!
-        assertEquals(0, this.channel1.send(writeBuf, localAddr1));
+        assertEquals(0, this.channel1.send(writeBuf, datagramSocket1Address));
         try {
-            channel1.send(writeBuf, localAddr2);
+            channel1.send(writeBuf, datagramSocket2Address);
             fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // correct
@@ -1177,7 +1129,7 @@ public class DatagramChannelTest extends TestCase {
 
     public void testSend_NoServerBufNull() throws IOException {
         try {
-            sendDataBlocking(localAddr1, null);
+            sendDataBlocking(datagramSocket1Address, null);
             fail("Should throw a NPE here.");
         } catch (NullPointerException e) {
             // correct
@@ -1187,14 +1139,14 @@ public class DatagramChannelTest extends TestCase {
     public void testSend_NoServerBufNullTwice() throws IOException {
         ByteBuffer writeBuf = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
         try {
-            sendDataBlocking(localAddr1, null);
+            sendDataBlocking(datagramSocket1Address, null);
             fail("Should throw a NPE here.");
         } catch (NullPointerException e) {
             // correct
         }
-        sendDataBlocking(localAddr1, writeBuf);
+        sendDataBlocking(datagramSocket1Address, writeBuf);
         try {
-            channel1.send(null, localAddr2);
+            channel1.send(null, datagramSocket2Address);
             fail("Should throw NPE");
         } catch (NullPointerException e) {
             // correct
@@ -1219,7 +1171,7 @@ public class DatagramChannelTest extends TestCase {
         } catch (NullPointerException e) {
             // correct
         }
-        sendDataBlocking(localAddr1, writeBuf);
+        sendDataBlocking(datagramSocket1Address, writeBuf);
         try {
             channel1.send(writeBuf, null);
             fail("Should throw NPE");
@@ -1233,62 +1185,47 @@ public class DatagramChannelTest extends TestCase {
     // -------------------------------------------------------------------
 
     public void testReceiveSend_Block_Normal() throws Exception {
-        this.channel1.socket().bind(localAddr2);
-        sendByChannel("some normal string in testReceiveSend_Normal",
-                localAddr2);
-        receiveByChannel(CAPACITY_NORMAL, localAddr2,
+        sendOnChannel2("some normal string in testReceiveSend_Normal",
+                channel1Address);
+        receiveOnChannel1AndClose(CAPACITY_NORMAL, channel2Address,
                 "some normal string in testReceiveSend_Normal");
-    }
-
-    public void testReceiveSend_Block_NotBound() throws Exception {
-        // not bound
-        sendByChannel("some normal string in testReceiveSend_Normal",
-                localAddr2);
-        ByteBuffer buf = ByteBuffer.allocate(CAPACITY_NORMAL);
-        assertNull(channel1.receive(buf));
-        assertFalse(channel1.socket().isBound());
     }
 
     public void testReceiveSend_NonBlock_NotBound() throws Exception {
         // not bound
         this.channel1.configureBlocking(false);
         this.channel2.configureBlocking(false);
-        sendByChannel("some normal string in testReceiveSend_Normal",
-                localAddr2);
+        sendOnChannel2("some normal string in testReceiveSend_Normal",
+                datagramSocket2Address);
         ByteBuffer buf = ByteBuffer.wrap(new byte[CAPACITY_NORMAL]);
-        assertNull((InetSocketAddress) this.channel1.receive(buf));
+        assertNull(this.channel1.receive(buf));
     }
 
     public void testReceiveSend_Block_Normal_S2C() throws Exception {
-        this.channel1.socket().bind(localAddr2);
-        sendByDatagramSocket(
-                "some normal string in testReceiveSend_Normal_S2C", localAddr2);
-        receiveByChannel(CAPACITY_NORMAL, localAddr2,
+        sendOnDatagramSocket1(
+                "some normal string in testReceiveSend_Normal_S2C", channel1Address);
+        receiveOnChannel1AndClose(CAPACITY_NORMAL, datagramSocket1Address,
                 "some normal string in testReceiveSend_Normal_S2C");
     }
 
     public void testReceiveSend_Block_Normal_C2S() throws Exception {
-        this.datagramSocket1 = new DatagramSocket(localAddr2.getPort());
         String str1 = "some normal string in testReceiveSend_Normal_C2S";
-        sendByChannel(str1, localAddr2);
-        receiveByDatagramSocket(CAPACITY_NORMAL, localAddr2, str1);
+        sendOnChannel2(str1, datagramSocket1Address);
+        receiveOnDatagramSocket1(CAPACITY_NORMAL, str1);
     }
 
     public void testReceiveSend_NonBlock_Normal_C2S() throws Exception {
         this.channel1.configureBlocking(false);
         this.channel2.configureBlocking(false);
-        this.datagramSocket1 = new DatagramSocket(localAddr2.getPort());
         String str1 = "some normal string in testReceiveSend_Normal_C2S";
-        sendByChannel(str1, localAddr2);
-        receiveByDatagramSocket(CAPACITY_NORMAL, localAddr2, str1);
+        sendOnChannel2(str1, datagramSocket1Address);
+        receiveOnDatagramSocket1(CAPACITY_NORMAL, str1);
     }
 
     public void testReceiveSend_Normal_S2S() throws Exception {
         String msg = "normal string in testReceiveSend_Normal_S2S";
-        this.datagramSocket1 = new DatagramSocket(testPort);
         DatagramPacket rdp = new DatagramPacket(msg.getBytes(), msg.length(),
-                localAddr2);
-        datagramSocket2 = new DatagramSocket(localAddr2.getPort());
+                datagramSocket2Address);
         this.datagramSocket1.send(rdp);
         byte[] buf = new byte[CAPACITY_NORMAL];
         this.datagramSocket2.setSoTimeout(TIME_UNIT);
@@ -1298,53 +1235,45 @@ public class DatagramChannelTest extends TestCase {
     }
 
     public void testReceiveSend_Block_Empty() throws Exception {
-        this.channel1.socket().bind(localAddr2);
-        sendByChannel("", localAddr2);
-        receiveByChannel(CAPACITY_NORMAL, localAddr2, "");
+        sendOnChannel2("", channel1Address);
+        receiveOnChannel1AndClose(CAPACITY_NORMAL, channel2Address, "");
     }
 
     public void testReceiveSend_NonBlock_Empty() throws Exception {
         this.channel1.configureBlocking(false);
         this.channel2.configureBlocking(false);
-        this.channel1.socket().bind(localAddr2);
-        sendByChannel("", localAddr2);
-        receiveByChannel(CAPACITY_NORMAL, localAddr2, "");
+        sendOnChannel2("", channel1Address);
+        receiveOnChannel1AndClose(CAPACITY_NORMAL, channel2Address, "");
     }
 
     public void testReceiveSend_Block_Empty_S2C() throws Exception {
-        this.channel1.socket().bind(localAddr2);
-        sendByDatagramSocket("", localAddr2);
-        receiveByChannel(CAPACITY_NORMAL, localAddr2, "");
+        sendOnDatagramSocket1("", channel1Address);
+        receiveOnChannel1AndClose(CAPACITY_NORMAL, datagramSocket1Address, "");
     }
 
     public void testReceiveSend_NonBlock_Empty_S2C() throws Exception {
         this.channel1.configureBlocking(false);
         this.channel2.configureBlocking(false);
-        this.channel1.socket().bind(localAddr2);
-        sendByDatagramSocket("", localAddr2);
-        receiveByChannel(CAPACITY_NORMAL, localAddr2, "");
+        sendOnDatagramSocket1("", channel1Address);
+        receiveOnChannel1AndClose(CAPACITY_NORMAL, datagramSocket1Address, "");
     }
 
     public void testReceiveSend_Block_Empty_C2S() throws Exception {
-        this.datagramSocket1 = new DatagramSocket(localAddr2.getPort());
-        sendByChannel("", localAddr2);
-        receiveByDatagramSocket(CAPACITY_NORMAL, localAddr2, "");
+        sendOnChannel2("", datagramSocket1Address);
+        receiveOnDatagramSocket1(CAPACITY_NORMAL, "");
     }
 
     public void testReceiveSend_NonBlock_Empty_C2S() throws Exception {
         this.channel1.configureBlocking(false);
         this.channel2.configureBlocking(false);
-        this.datagramSocket1 = new DatagramSocket(localAddr2.getPort());
-        sendByChannel("", localAddr2);
-        receiveByDatagramSocket(CAPACITY_NORMAL, localAddr2, "");
+        sendOnChannel2("", datagramSocket1Address);
+        receiveOnDatagramSocket1(CAPACITY_NORMAL, "");
     }
 
     public void testReceiveSend_Empty_S2S() throws Exception {
         String msg = "";
-        this.datagramSocket1 = new DatagramSocket(testPort);
         DatagramPacket rdp = new DatagramPacket(msg.getBytes(), msg.length(),
-                localAddr2);
-        datagramSocket2 = new DatagramSocket(localAddr2.getPort());
+                datagramSocket2Address);
         this.datagramSocket1.send(rdp);
         byte[] buf = new byte[CAPACITY_NORMAL];
         this.datagramSocket2.setSoTimeout(TIME_UNIT);
@@ -1354,29 +1283,25 @@ public class DatagramChannelTest extends TestCase {
     }
 
     public void testReceiveSend_Block_Oversize() throws Exception {
-        this.channel1.socket().bind(localAddr2);
-        sendByChannel("0123456789", localAddr2);
-        receiveByChannel(5, localAddr2, "01234");
+        sendOnChannel2("0123456789", channel1Address);
+        receiveOnChannel1AndClose(5, channel2Address, "01234");
     }
 
     public void testReceiveSend_Block_Oversize_C2S() throws Exception {
-        this.datagramSocket1 = new DatagramSocket(localAddr2.getPort());
-        sendByChannel("0123456789", localAddr2);
-        receiveByDatagramSocket(5, localAddr2, "01234");
+        sendOnChannel2("0123456789", datagramSocket1Address);
+        receiveOnDatagramSocket1(5, "01234");
     }
 
     public void testReceiveSend_NonBlock_Oversize_C2S() throws Exception {
         this.channel1.configureBlocking(false);
         this.channel2.configureBlocking(false);
-        this.datagramSocket1 = new DatagramSocket(localAddr2.getPort());
-        sendByChannel("0123456789", localAddr2);
-        receiveByDatagramSocket(5, localAddr2, "01234");
+        sendOnChannel2("0123456789", datagramSocket1Address);
+        receiveOnDatagramSocket1(5, "01234");
     }
 
     public void testReceiveSend_Block_Oversize_S2C() throws Exception {
-        this.channel1.socket().bind(localAddr2);
-        sendByDatagramSocket("0123456789", localAddr2);
-        receiveByChannel(5, localAddr2, "01234");
+        sendOnDatagramSocket1("0123456789", channel1Address);
+        receiveOnChannel1AndClose(5, datagramSocket1Address, "01234");
     }
 
     public void testReceiveSend_8K() throws Exception {
@@ -1385,9 +1310,9 @@ public class DatagramChannelTest extends TestCase {
             str8k.append('a');
         }
         String str = str8k.toString();
-        this.channel1.socket().bind(localAddr2);
-        sendByChannel(str, localAddr2);
-        receiveByChannel(8 * CAPACITY_1KB, localAddr2, str);
+
+        sendOnChannel2(str, channel1Address);
+        receiveOnChannel1AndClose(8 * CAPACITY_1KB, channel2Address, str);
     }
 
     public void testReceiveSend_64K() throws Exception {
@@ -1398,56 +1323,44 @@ public class DatagramChannelTest extends TestCase {
         String str = str64k.toString();
         try {
             Thread.sleep(TIME_UNIT);
-            channel2.send(ByteBuffer.wrap(str.getBytes()), localAddr1);
+            channel2.send(ByteBuffer.wrap(str.getBytes()), datagramSocket1Address);
             fail("Should throw SocketException!");
         } catch (SocketException e) {
             //expected
         }
     }
 
-    private void sendByChannel(String data, InetSocketAddress address)
-            throws Exception {
-        try {
-            assertEquals(data.length(), this.channel2.send(ByteBuffer.wrap(data
-                    .getBytes()), address));
-        } finally {
-            this.channel2.close();
-        }
+    private void sendOnChannel2(String data, SocketAddress address)
+            throws IOException {
+        assertEquals(data.length(), channel2.send(ByteBuffer.wrap(data.getBytes()), address));
     }
 
-    private void sendByDatagramSocket(String data, InetSocketAddress address)
+    private void sendOnDatagramSocket1(String data, InetSocketAddress address)
             throws Exception {
-        this.datagramSocket1 = new DatagramSocket(testPort);
-        DatagramPacket rdp = new DatagramPacket(data.getBytes(), data.length(),
-                address);
+        DatagramPacket rdp = new DatagramPacket(data.getBytes(), data.length(), address);
         this.datagramSocket1.send(rdp);
     }
 
-    private void receiveByChannel(int bufSize, InetSocketAddress address,
-            String expectedString) throws IOException {
+    private void receiveOnChannel1AndClose(int bufSize,
+            InetSocketAddress expectedAddress, String expectedString) throws IOException {
         try {
             ByteBuffer buf = ByteBuffer.wrap(new byte[bufSize]);
-            InetSocketAddress returnAddr = null;
+            InetSocketAddress senderAddr = null;
             long startTime = System.currentTimeMillis();
             do {
-                returnAddr = (InetSocketAddress) this.channel1.receive(buf);
+                senderAddr = (InetSocketAddress) this.channel1.receive(buf);
                 // continue loop when channel1 is non-blocking and no data was
                 // received.
-                if (channel1.isBlocking() || null != returnAddr) {
+                if (channel1.isBlocking() || senderAddr != null) {
                     break;
                 }
                 // avoid dead loop
                 assertTimeout(startTime, 10000);
             } while (true);
-            int length = returnAddr.getAddress().getAddress().length;
-            for (int i = 0; i < length; i++) {
-                assertEquals(returnAddr.getAddress().getAddress()[i],
-                        InetAddress.getByName("127.0.0.1").getAddress()[i]);
-            }
-            // port is NOT equal
-            assertFalse(returnAddr.getPort() == address.getPort());
-            assertEquals(new String(buf.array(), 0, bufSize).trim(),
-                    expectedString);
+
+            assertEquals(senderAddr.getAddress(), Inet6Address.LOOPBACK);
+            assertEquals(expectedAddress.getPort(), senderAddr.getPort());
+            assertEquals(new String(buf.array(), 0, buf.position()), expectedString);
         } finally {
             this.channel1.close();
         }
@@ -1464,8 +1377,7 @@ public class DatagramChannelTest extends TestCase {
         }
     }
 
-    private void receiveByDatagramSocket(int bufSize,
-            InetSocketAddress address, String expectedString)
+    private void receiveOnDatagramSocket1(int bufSize, String expectedString)
             throws IOException {
         byte[] buf = new byte[bufSize];
         this.datagramSocket1.setSoTimeout(6000);
@@ -1474,28 +1386,27 @@ public class DatagramChannelTest extends TestCase {
         assertEquals(new String(buf, 0, bufSize).trim(), expectedString);
     }
 
-    public void testRead_NoSecurity() throws Exception {
+    public void testRead_fromSend() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(CAPACITY_NORMAL);
         String strHello = "hello";
-        localAddr1 = new InetSocketAddress("127.0.0.1", testPort);
-        this.channel1.socket().bind(localAddr1);
-        this.channel2.socket().bind(localAddr2);
-        this.channel1.connect(localAddr2);
-        this.channel2.send(ByteBuffer.wrap(strHello.getBytes()), localAddr1);
+
+        this.channel1.connect(channel2Address);
+        this.channel2.send(ByteBuffer.wrap(strHello.getBytes()), channel1Address);
+
         assertEquals(strHello.length(), this.channel1.read(buf));
         assertAscii(buf, strHello);
     }
 
     public void testReceive_Peek_NoSecurity_Nonblocking() throws Exception {
         String strHello = "hello";
-        localAddr1 = new InetSocketAddress("127.0.0.1", testPort);
-        this.channel1.socket().bind(localAddr1);
-        sendByChannel(strHello, localAddr1);
+
+        sendOnChannel2(strHello, channel1Address);
         this.channel1.configureBlocking(false);
         // for accepted addr, no problem.
         ByteBuffer buf = ByteBuffer.allocate(CAPACITY_NORMAL);
+
         InetSocketAddress source = (InetSocketAddress) this.channel1.receive(buf);
-        assertEquals(localAddr1.getAddress(), source.getAddress());
+        assertEquals(channel2Address, source);
         assertAscii(buf, strHello);
     }
 
@@ -1532,18 +1443,18 @@ public class DatagramChannelTest extends TestCase {
      */
     public void testWriteByteBuffer_Block() throws IOException {
         ByteBuffer writeBuf = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
-        connectWriteBuf(localAddr1, writeBuf);
+        connectWriteBuf(datagramSocket1Address, writeBuf);
     }
 
     public void testWriteByteBuffer_NonBlock() throws IOException {
         ByteBuffer writeBuf = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
         this.channel1.configureBlocking(false);
-        connectWriteBuf(localAddr1, writeBuf);
+        connectWriteBuf(datagramSocket1Address, writeBuf);
     }
 
     public void testWriteByteBuffer_Block_closed() throws IOException {
         ByteBuffer writeBuf = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
-        InetSocketAddress ipAddr = localAddr1;
+        InetSocketAddress ipAddr = datagramSocket1Address;
         noconnectWrite(writeBuf);
         this.channel1.connect(ipAddr);
         assertTrue(this.channel1.isConnected());
@@ -1558,7 +1469,7 @@ public class DatagramChannelTest extends TestCase {
 
     public void testWriteByteBuffer_NonBlock_closed() throws IOException {
         ByteBuffer writeBuf = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
-        InetSocketAddress ipAddr = localAddr1;
+        InetSocketAddress ipAddr = datagramSocket1Address;
         // non block mode
         this.channel1.configureBlocking(false);
         noconnectWrite(writeBuf);
@@ -1575,7 +1486,7 @@ public class DatagramChannelTest extends TestCase {
 
     public void testWriteByteBuffer_Block_BufNull() throws IOException {
         ByteBuffer writeBuf = ByteBuffer.allocateDirect(0);
-        InetSocketAddress ipAddr = localAddr1;
+        InetSocketAddress ipAddr = datagramSocket1Address;
         try {
             this.channel1.write((ByteBuffer) null);
             fail("Should throw NPE.");
@@ -1602,7 +1513,7 @@ public class DatagramChannelTest extends TestCase {
 
     public void testWriteByteBuffer_NonBlock_BufNull() throws IOException {
         ByteBuffer writeBuf = ByteBuffer.allocateDirect(0);
-        InetSocketAddress ipAddr = localAddr1;
+        InetSocketAddress ipAddr = datagramSocket1Address;
 
         // non block mode
         this.channel1.configureBlocking(false);
@@ -1638,7 +1549,7 @@ public class DatagramChannelTest extends TestCase {
         ByteBuffer[] writeBuf = new ByteBuffer[2];
         writeBuf[0] = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
         writeBuf[1] = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
-        InetSocketAddress ipAddr = localAddr1;
+        InetSocketAddress ipAddr = datagramSocket1Address;
         try {
             this.channel1.write(writeBuf, 0, 2);
             fail("Should throw NotYetConnectedException.");
@@ -1657,7 +1568,7 @@ public class DatagramChannelTest extends TestCase {
         ByteBuffer[] writeBuf = new ByteBuffer[2];
         writeBuf[0] = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
         writeBuf[1] = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
-        InetSocketAddress ipAddr = localAddr1;
+        InetSocketAddress ipAddr = datagramSocket1Address;
         // non-block mode
         this.channel1.configureBlocking(false);
         try {
@@ -1679,7 +1590,7 @@ public class DatagramChannelTest extends TestCase {
         ByteBuffer[] writeBuf = new ByteBuffer[2];
         writeBuf[0] = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
         writeBuf[1] = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
-        InetSocketAddress ipAddr = localAddr1;
+        InetSocketAddress ipAddr = datagramSocket1Address;
         try {
             this.channel1.write(writeBuf, -1, 2);
             fail("should throw IndexOutOfBoundsException");
@@ -1704,7 +1615,7 @@ public class DatagramChannelTest extends TestCase {
         ByteBuffer[] writeBuf = new ByteBuffer[2];
         writeBuf[0] = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
         writeBuf[1] = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
-        InetSocketAddress ipAddr = localAddr1;
+        InetSocketAddress ipAddr = datagramSocket1Address;
         this.channel1.connect(ipAddr);
         assertTrue(this.channel1.isConnected());
         try {
@@ -1746,7 +1657,7 @@ public class DatagramChannelTest extends TestCase {
             throws IOException {
         ByteBuffer[] writeBuf = new ByteBuffer[2];
         writeBuf[0] = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
-        InetSocketAddress ipAddr = localAddr1;
+        InetSocketAddress ipAddr = datagramSocket1Address;
         this.channel1.connect(ipAddr);
         assertTrue(this.channel1.isConnected());
         try {
@@ -1785,7 +1696,7 @@ public class DatagramChannelTest extends TestCase {
         } catch (NotYetConnectedException e) {
             // correct
         }
-        this.channel1.connect(localAddr1);
+        this.channel1.connect(datagramSocket1Address);
         assertTrue(this.channel1.isConnected());
         this.channel1.configureBlocking(false);
         // note : blocking-mode will make the read process endless!
@@ -1801,7 +1712,7 @@ public class DatagramChannelTest extends TestCase {
 
     public void testReadByteBuffer_bufNull() throws IOException {
         ByteBuffer readBuf = ByteBuffer.allocateDirect(0);
-        InetSocketAddress ipAddr = localAddr1;
+        InetSocketAddress ipAddr = datagramSocket1Address;
         try {
             this.channel1.read(readBuf);
             fail("should throw NotYetConnectedException");
@@ -1829,7 +1740,7 @@ public class DatagramChannelTest extends TestCase {
         ByteBuffer[] readBuf = new ByteBuffer[2];
         readBuf[0] = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
         readBuf[1] = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
-        InetSocketAddress ipAddr = localAddr1;
+        InetSocketAddress ipAddr = datagramSocket1Address;
         try {
             this.channel1.read(readBuf, 0, 2);
             fail("should throw NotYetConnectedException");
@@ -1867,7 +1778,7 @@ public class DatagramChannelTest extends TestCase {
     public void testReadByteBufferArrayIntInt_BufNull() throws IOException {
         ByteBuffer[] readBuf = new ByteBuffer[2];
         readBuf[0] = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
-        InetSocketAddress ipAddr = localAddr1;
+        InetSocketAddress ipAddr = datagramSocket1Address;
         try {
             this.channel1.read(null, 0, 0);
             fail("should throw NPE");
@@ -1904,26 +1815,37 @@ public class DatagramChannelTest extends TestCase {
     // test read and write
     // -------------------------------------------------------------------
 
-    public void testReadWrite_configureBlock() throws Exception {
+    public static class A {
+        protected int z;
+    }
+
+    public static class B extends A {
+        protected int z;
+
+        void foo() {
+            super.z+=1;
+        }
+    }
+
+
+    public void testReadWrite_asyncClose() throws Exception {
         byte[] targetArray = new byte[2];
-        // bind and connect
-        this.channel1.socket().bind(localAddr2);
-        this.channel1.connect(localAddr1);
-        this.channel2.socket().bind(localAddr1);
-        this.channel2.connect(localAddr2);
         ByteBuffer targetBuf = ByteBuffer.wrap(targetArray);
+
+        channel2.connect(channel1Address);
+        channel1.connect(channel2Address);
 
         new Thread() {
             public void run() {
                 try {
                     Thread.sleep(TIME_UNIT);
-                    channel1.configureBlocking(false);
                     channel1.close();
                 } catch (Exception e) {
                     //ignore
                 }
             }
         }.start();
+
         try {
             this.channel1.read(targetBuf);
             fail("should throw AsynchronousCloseException");
@@ -1935,11 +1857,9 @@ public class DatagramChannelTest extends TestCase {
     public void testReadWrite_Block_Zero() throws Exception {
         byte[] sourceArray = new byte[0];
         byte[] targetArray = new byte[0];
-        // bind and connect
-        this.channel1.socket().bind(localAddr2);
-        this.channel1.connect(localAddr1);
-        this.channel2.socket().bind(localAddr1);
-        this.channel2.connect(localAddr2);
+
+        channel1.connect(channel2Address);
+        channel2.connect(channel1Address);
 
         // write
         ByteBuffer sourceBuf = ByteBuffer.wrap(sourceArray);
@@ -1959,11 +1879,8 @@ public class DatagramChannelTest extends TestCase {
             sourceArray[i] = (byte) i;
         }
 
-        // bind and connect
-        this.channel1.socket().bind(localAddr2);
-        this.channel1.connect(localAddr1);
-        this.channel2.socket().bind(localAddr1);
-        this.channel2.connect(localAddr2);
+        channel1.connect(channel2Address);
+        channel2.connect(channel1Address);
 
         readWriteReadData(this.channel1, sourceArray, this.channel2,
                 targetArray, CAPACITY_NORMAL, "testReadWrite_Block_Normal");
@@ -1974,12 +1891,8 @@ public class DatagramChannelTest extends TestCase {
         byte[] sourceArray = "".getBytes();
         byte[] targetArray = new byte[CAPACITY_NORMAL];
 
-        // bind and connect
-
-        this.channel1.socket().bind(localAddr2);
-        this.channel1.connect(localAddr1);
-        this.channel2.socket().bind(localAddr1);
-        this.channel2.connect(localAddr2);
+        channel1.connect(channel2Address);
+        channel2.connect(channel1Address);
 
         // write
         ByteBuffer sourceBuf = ByteBuffer.wrap(sourceArray);
@@ -1996,12 +1909,8 @@ public class DatagramChannelTest extends TestCase {
         byte[] sourceArray = "".getBytes();
         byte[] targetArray = new byte[CAPACITY_NORMAL];
 
-        // bind and connect
-
-        this.channel1.socket().bind(localAddr2);
-        this.channel1.connect(localAddr1);
-        this.channel2.socket().bind(localAddr1);
-        this.channel2.connect(localAddr2);
+        channel1.connect(channel2Address);
+        channel2.connect(channel1Address);
 
         // write
         ByteBuffer sourceBuf = ByteBuffer.wrap(sourceArray);
@@ -2039,11 +1948,8 @@ public class DatagramChannelTest extends TestCase {
             sourceArray[i] = (byte) i;
         }
 
-        // bind and connect
-        this.channel1.socket().bind(localAddr2);
-        this.channel1.connect(localAddr1);
-        this.channel2.socket().bind(localAddr1);
-        this.channel2.connect(localAddr2);
+        channel1.connect(channel2Address);
+        channel2.connect(channel1Address);
 
         readWriteReadData(this.channel1, sourceArray, this.channel2,
                 targetArray, 8 * CAPACITY_1KB, "testReadWrite_Block_8KB");
@@ -2089,18 +1995,14 @@ public class DatagramChannelTest extends TestCase {
             sourceArray[i] = (byte) i;
         }
 
-        // bind and connect
-        this.channel1.socket().bind(localAddr2);
-        this.channel1.connect(localAddr1);
-        this.channel2.socket().bind(localAddr1);
-        this.channel2.connect(localAddr2);
+        channel1.connect(channel2Address);
 
         // write
         ByteBuffer sourceBuf = ByteBuffer.wrap(sourceArray);
         try {
             channel1.write(sourceBuf);
             fail("Should throw IOException");
-        } catch (IOException e) {
+        } catch (IOException expected) {
             // too big
         }
     }
@@ -2112,11 +2014,8 @@ public class DatagramChannelTest extends TestCase {
             sourceArray[i] = (byte) i;
         }
 
-        // bind and connect
-        this.channel1.socket().bind(localAddr2);
-        this.channel1.connect(localAddr1);
-        this.channel2.socket().bind(localAddr1);
-        this.channel2.connect(localAddr1);// the different addr
+        this.channel1.connect(channel1.socket().getLocalSocketAddress());
+        this.channel2.connect(datagramSocket1Address); // the different addr
 
         // write
         ByteBuffer sourceBuf = ByteBuffer.wrap(sourceArray);
@@ -2129,35 +2028,39 @@ public class DatagramChannelTest extends TestCase {
         closeBlockedReaderChannel2(targetBuf);
     }
 
-    public void testReadWrite_Block_WriterNotBind() throws Exception {
+    public void testReadWrite_Block_WriterNotBound() throws Exception {
         byte[] sourceArray = new byte[CAPACITY_NORMAL];
         byte[] targetArray = new byte[CAPACITY_NORMAL];
         for (int i = 0; i < sourceArray.length; i++) {
             sourceArray[i] = (byte) i;
         }
 
-        // bind and connect
-        this.channel1.connect(localAddr1);
-        this.channel2.socket().bind(localAddr1);
-        this.channel2.connect(localAddr2);
+        DatagramChannel dc = DatagramChannel.open();
+        // The writer isn't bound, but is connected.
+        dc.connect(channel1Address);
 
         // write
         ByteBuffer sourceBuf = ByteBuffer.wrap(sourceArray);
-        assertEquals(CAPACITY_NORMAL, this.channel1.write(sourceBuf));
+        assertEquals(CAPACITY_NORMAL, dc.write(sourceBuf));
+
+        // Connect channel2 after data has been written.
+        channel2.connect(dc.socket().getLocalSocketAddress());
 
         // read
         ByteBuffer targetBuf = ByteBuffer.wrap(targetArray);
         closeBlockedReaderChannel2(targetBuf);
     }
 
-    public void testReadWrite_Block_WriterBindLater() throws Exception {
+    // NOTE: The original harmony test tested that things still work
+    // if there's no socket bound at the the address we're connecting to.
+    //
+    // It isn't really feasible to implement that in a non-racy way.
+    public void testReadWrite_Block_WriterConnectLater() throws Exception {
 
         byte[] targetArray = new byte[CAPACITY_NORMAL];
 
-        // bind and connect
-        // writer channel1 is bound later
-        this.channel2.socket().bind(localAddr1);
-        this.channel2.connect(localAddr2);
+        // The reader is bound & connected to channel1.
+        channel2.connect(channel1Address);
 
         // read
         ByteBuffer targetBuf = ByteBuffer.wrap(targetArray);
@@ -2170,8 +2073,8 @@ public class DatagramChannelTest extends TestCase {
                     for (int i = 0; i < sourceArray.length; i++) {
                         sourceArray[i] = (byte) i;
                     }
-                    channel1.socket().bind(localAddr2);
-                    channel1.connect(localAddr1);
+
+                    channel1.connect(channel2Address);
                     // write later
                     ByteBuffer sourceBuf = ByteBuffer.wrap(sourceArray);
                     assertEquals(CAPACITY_NORMAL, channel1.write(sourceBuf));
@@ -2184,6 +2087,7 @@ public class DatagramChannelTest extends TestCase {
         int count = 0;
         int total = 0;
         long beginTime = System.currentTimeMillis();
+
         while (total < CAPACITY_NORMAL && (count = channel2.read(targetBuf)) != -1) {
             total = total + count;
             // 3s timeout to avoid dead loop
@@ -2199,21 +2103,21 @@ public class DatagramChannelTest extends TestCase {
         for (int i = 0; i < targetArray.length; i++) {
             assertEquals(targetArray[i], (byte) i);
         }
-
     }
 
-    public void testReadWrite_Block_ReaderNotBind() throws Exception {
+    // NOTE: The original harmony test tested that things still work
+    // if there's no socket bound at the the address we're connecting to.
+    //
+    // It isn't really feasible to implement that in a non-racy way.
+    public void testReadWrite_Block_ReaderNotConnected() throws Exception {
         byte[] sourceArray = new byte[CAPACITY_NORMAL];
         byte[] targetArray = new byte[CAPACITY_NORMAL];
         for (int i = 0; i < sourceArray.length; i++) {
             sourceArray[i] = (byte) i;
         }
 
-        // bind and connect
-        this.channel1.socket().bind(localAddr2);
-        this.channel1.connect(localAddr1);
-        // reader channel2 is not bound
-        this.channel2.connect(localAddr2);
+        // reader channel2 is not connected.
+        this.channel1.connect(channel2Address);
 
         // write
         ByteBuffer sourceBuf = ByteBuffer.wrap(sourceArray);
@@ -2221,24 +2125,29 @@ public class DatagramChannelTest extends TestCase {
 
         // read
         ByteBuffer targetBuf = ByteBuffer.wrap(targetArray);
-        closeBlockedReaderChannel2(targetBuf);
-
+        try {
+            this.channel2.read(targetBuf);
+            fail();
+        } catch (NotYetConnectedException expected) {
+        }
     }
 
     private void closeBlockedReaderChannel2(ByteBuffer targetBuf)
             throws IOException {
+        assertTrue(this.channel2.isBlocking());
+
         new Thread() {
             public void run() {
                 try {
                     Thread.sleep(TIME_UNIT);
-                    channel2.close();
-                } catch (Exception e) {
-                    // do nothing
+                } catch (InterruptedException ie) {
+                    fail();
                 }
+                IoUtils.closeQuietly(channel2);
             }
         }.start();
+
         try {
-            assertTrue(this.channel2.isBlocking());
             this.channel2.read(targetBuf);
             fail("Should throw AsynchronousCloseException");
         } catch (AsynchronousCloseException e) {
@@ -2259,11 +2168,8 @@ public class DatagramChannelTest extends TestCase {
         this.channel1.configureBlocking(false);
         this.channel2.configureBlocking(false);
 
-        // bind and connect
-        this.channel1.socket().bind(localAddr2);
-        this.channel1.connect(localAddr1);
-        this.channel2.socket().bind(localAddr1);
-        this.channel2.connect(localAddr2);
+        channel1.connect(channel2Address);
+        channel2.connect(channel1Address);
 
         readWriteReadData(this.channel1, sourceArray, this.channel2,
                 targetArray, CAPACITY_NORMAL, "testReadWrite_NonBlock_Normal");
@@ -2280,10 +2186,8 @@ public class DatagramChannelTest extends TestCase {
         this.channel2.configureBlocking(false);
 
         // bind and connect
-        this.channel1.socket().bind(localAddr2);
-        this.channel1.connect(localAddr1);
-        this.channel2.socket().bind(localAddr1);
-        this.channel2.connect(localAddr2);
+        channel1.connect(channel2Address);
+        channel2.connect(channel1Address);
 
         readWriteReadData(this.channel1, sourceArray, this.channel2,
                 targetArray, 8 * CAPACITY_1KB, "testReadWrite_NonBlock_8KB");
@@ -2299,11 +2203,8 @@ public class DatagramChannelTest extends TestCase {
         this.channel1.configureBlocking(false);
         this.channel2.configureBlocking(false);
 
-        // bind and connect
-        this.channel1.socket().bind(localAddr2);
-        this.channel1.connect(localAddr1);
-        this.channel2.socket().bind(localAddr1);
-        this.channel2.connect(localAddr1);// the different addr
+        channel1.connect(channel2Address);
+        channel2.connect(datagramSocket1Address);// the different addr
 
         // write
         ByteBuffer sourceBuf = ByteBuffer.wrap(sourceArray);
@@ -2314,31 +2215,37 @@ public class DatagramChannelTest extends TestCase {
         assertEquals(0, this.channel2.read(targetBuf));
     }
 
-    public void testReadWrite_NonBlock_WriterNotBind() throws Exception {
+
+    public void testReadWrite_NonBlock_WriterNotBound() throws Exception {
         byte[] sourceArray = new byte[CAPACITY_NORMAL];
         byte[] targetArray = new byte[CAPACITY_NORMAL];
         for (int i = 0; i < sourceArray.length; i++) {
             sourceArray[i] = (byte) i;
         }
 
-        this.channel1.configureBlocking(false);
-        this.channel2.configureBlocking(false);
-
-        // bind and connect
-        this.channel1.connect(localAddr1);
-        this.channel2.socket().bind(localAddr1);
-        this.channel2.connect(localAddr2);
+        DatagramChannel dc = DatagramChannel.open();
+        // The writer isn't bound, but is connected.
+        dc.connect(channel1Address);
+        dc.configureBlocking(false);
+        channel2.configureBlocking(false);
 
         // write
         ByteBuffer sourceBuf = ByteBuffer.wrap(sourceArray);
-        assertEquals(CAPACITY_NORMAL, this.channel1.write(sourceBuf));
+        assertEquals(CAPACITY_NORMAL, dc.write(sourceBuf));
+
+        // Connect channel2 after data has been written.
+        channel2.connect(dc.socket().getLocalSocketAddress());
 
         // read
         ByteBuffer targetBuf = ByteBuffer.wrap(targetArray);
         assertEquals(0, this.channel2.read(targetBuf));
     }
 
-    public void testReadWrite_NonBlock_ReaderNotBind() throws Exception {
+    // NOTE: The original harmony test tested that things still work
+    // if there's no socket bound at the the address we're connecting to.
+    //
+    // It isn't really feasible to implement that in a non-racy way.
+    public void testReadWrite_NonBlock_ReaderNotConnected() throws Exception {
         byte[] sourceArray = new byte[CAPACITY_NORMAL];
         byte[] targetArray = new byte[CAPACITY_NORMAL];
         for (int i = 0; i < sourceArray.length; i++) {
@@ -2348,10 +2255,7 @@ public class DatagramChannelTest extends TestCase {
         this.channel1.configureBlocking(false);
         this.channel2.configureBlocking(false);
 
-        // bind and connect
-        this.channel1.socket().bind(localAddr2);
-        this.channel1.connect(localAddr1);
-        this.channel2.connect(localAddr2);
+        channel1.connect(channel2Address);
 
         // write
         ByteBuffer sourceBuf = ByteBuffer.wrap(sourceArray);
@@ -2359,7 +2263,12 @@ public class DatagramChannelTest extends TestCase {
 
         // read
         ByteBuffer targetBuf = ByteBuffer.wrap(targetArray);
-        assertEquals(0, this.channel2.read(targetBuf));
+
+        try {
+            assertEquals(0, this.channel2.read(targetBuf));
+            fail();
+        } catch (NotYetConnectedException expected) {
+        }
     }
 
     public void test_write_LBuffer_positioned() throws Exception {
@@ -2367,7 +2276,7 @@ public class DatagramChannelTest extends TestCase {
         int position = 16;
         DatagramChannel dc = DatagramChannel.open();
         byte[] sourceArray = new byte[CAPACITY_NORMAL];
-        dc.connect(localAddr1);
+        dc.connect(datagramSocket1Address);
         // write
         ByteBuffer sourceBuf = ByteBuffer.wrap(sourceArray);
         sourceBuf.position(position);
@@ -2384,7 +2293,7 @@ public class DatagramChannelTest extends TestCase {
         // send ByteBuffer whose position is not zero
         ByteBuffer sourceBuf = ByteBuffer.wrap(sourceArray);
         sourceBuf.position(position);
-        int ret = dc.send(sourceBuf, localAddr1);
+        int ret = dc.send(sourceBuf, datagramSocket1Address);
         // assert send (256 - 16) bytes
         assertEquals(CAPACITY_NORMAL - position, ret);
         // assert the position of ByteBuffer has been set
@@ -2395,11 +2304,10 @@ public class DatagramChannelTest extends TestCase {
      * @tests DatagramChannel#read(ByteBuffer[])
      */
     public void test_read_$LByteBuffer() throws Exception {
+        channel1.connect(channel2Address);
+        channel2.connect(channel1Address);
+
         // regression test for Harmony-754
-        channel2.socket().bind(localAddr1);
-        channel1.socket().bind(localAddr2);
-        channel1.connect(localAddr1);
-        channel2.connect(localAddr2);
         channel2.write(ByteBuffer.allocate(CAPACITY_NORMAL));
 
         ByteBuffer[] readBuf = new ByteBuffer[2];
@@ -2414,11 +2322,10 @@ public class DatagramChannelTest extends TestCase {
      * @tests DatagramChannel#read(ByteBuffer[],int,int)
      */
     public void test_read_$LByteBufferII() throws Exception {
+        channel1.connect(channel2Address);
+        channel2.connect(channel1Address);
+
         // regression test for Harmony-754
-        channel2.socket().bind(localAddr1);
-        channel1.socket().bind(localAddr2);
-        channel1.connect(localAddr1);
-        channel2.connect(localAddr2);
         channel2.write(ByteBuffer.allocate(CAPACITY_NORMAL));
 
         ByteBuffer[] readBuf = new ByteBuffer[2];
@@ -2474,7 +2381,7 @@ public class DatagramChannelTest extends TestCase {
         } catch (IllegalArgumentException e){
             // expected
         }
-        channel.connect(localAddr1);
+        channel.connect(datagramSocket1Address);
         try{
             channel.read(c.asReadOnlyBuffer());
             fail("Should throw IllegalArgumentException");
@@ -2491,13 +2398,13 @@ public class DatagramChannelTest extends TestCase {
         channel1.close();
         ByteBuffer buf = ByteBuffer.allocate(CAPACITY_NORMAL);
         try {
-            channel1.send(buf, localAddr1);
+            channel1.send(buf, datagramSocket1Address);
             fail("Should throw ClosedChannelException");
         } catch (ClosedChannelException e) {
             //pass
         }
         try {
-            channel1.send(null,localAddr1);
+            channel1.send(null, datagramSocket1Address);
             fail("Should throw NullPointerException");
         } catch (NullPointerException e) {
             //pass

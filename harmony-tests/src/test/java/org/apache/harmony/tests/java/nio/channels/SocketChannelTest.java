@@ -41,9 +41,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
-
 import junit.framework.TestCase;
-import tests.support.Support_PortManager;
 
 /**
  * Tests for SocketChannel and its default implementation.
@@ -53,7 +51,6 @@ public class SocketChannelTest extends TestCase {
     private static final int CAPACITY_NORMAL = 200;
 
     private InetSocketAddress localAddr1;
-
     private InetSocketAddress localAddr2;
 
     private SocketChannel channel1;
@@ -70,13 +67,13 @@ public class SocketChannelTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        this.localAddr1 = new InetSocketAddress("127.0.0.1",
-                Support_PortManager.getNextPort());
-        this.localAddr2 = new InetSocketAddress("127.0.0.1",
-                Support_PortManager.getNextPort());
         this.channel1 = SocketChannel.open();
         this.channel2 = SocketChannel.open();
-        this.server1 = new ServerSocket(localAddr1.getPort());
+        this.server1 = new ServerSocket(0);
+        this.localAddr1 = new InetSocketAddress("127.0.0.1", server1.getLocalPort());
+
+        this.server2 = new ServerSocket(0);
+        this.localAddr2 = new InetSocketAddress("127.0.0.1", server2.getLocalPort());
     }
 
     protected void tearDown() throws Exception {
@@ -166,8 +163,7 @@ public class SocketChannelTest extends TestCase {
         MockSocketChannel testMSChannelnull = new MockSocketChannel(null);
         MockSocketChannel testMSChannel = new MockSocketChannel(
                 SelectorProvider.provider());
-        ServerSocket testServer = new ServerSocket(Support_PortManager
-                .getNextPort());
+        ServerSocket testServer = new ServerSocket(0);
         try {
             try {
                 this.channel1.read(byteBuf);
@@ -508,7 +504,6 @@ public class SocketChannelTest extends TestCase {
     private void assertSocketAction_Block_BeforeConnect(Socket s)
             throws IOException {
         assertFalse(this.channel1.isConnected());
-        this.server2 = new ServerSocket(localAddr2.getPort());
         s.connect(localAddr2);
         assertTrue(this.channel1.isConnected());
         assertTrue(s.isConnected());
@@ -530,7 +525,6 @@ public class SocketChannelTest extends TestCase {
     private void assertSocketAction_NonBlock_BeforeConnect(Socket s)
             throws IOException {
         assertFalse(this.channel1.isConnected());
-        this.server2 = new ServerSocket(localAddr2.getPort());
         try {
             s.connect(localAddr2);
             fail("Should throw IllegalBlockingModeException");
@@ -1419,8 +1413,10 @@ public class SocketChannelTest extends TestCase {
 
     private void ensureServerOpen() throws IOException {
         ensureServerClosed();
-        this.server1 = new ServerSocket(localAddr1.getPort());
-        this.server2 = new ServerSocket(localAddr2.getPort());
+        this.server1 = new ServerSocket(0);
+        this.localAddr1 = new InetSocketAddress("127.0.0.1", server1.getLocalPort());
+        this.server2 = new ServerSocket(0);
+        this.localAddr2 = new InetSocketAddress("127.0.0.1", server2.getLocalPort());
         assertTrue(this.server1.isBound());
         assertTrue(this.server2.isBound());
     }
@@ -2734,9 +2730,9 @@ public class SocketChannelTest extends TestCase {
      */
     public void test_writev() throws Exception {
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(localAddr2);
+        ssc.socket().bind(null);
         SocketChannel sc = SocketChannel.open();
-        sc.connect(localAddr2);
+        sc.connect(ssc.socket().getLocalSocketAddress());
         SocketChannel sock = ssc.accept();
         ByteBuffer[] buf = { ByteBuffer.allocate(10), ByteBuffer.allocateDirect(20) };
 
@@ -3059,9 +3055,9 @@ public class SocketChannelTest extends TestCase {
             throws Exception {
         // regression 1 for HARMONY-549
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(localAddr2);
+        ssc.socket().bind(null);
         SocketChannel sc = SocketChannel.open();
-        sc.connect(localAddr2);
+        sc.connect(ssc.socket().getLocalSocketAddress());
         ssc.accept().close();
         ByteBuffer[] buf = { ByteBuffer.allocate(10) };
         assertEquals(-1, sc.read(buf, 0, 1));
@@ -3075,9 +3071,9 @@ public class SocketChannelTest extends TestCase {
     public void test_socketChannel_write_ByteBufferII() throws Exception {
         // regression 2 for HARMONY-549
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(localAddr2);
+        ssc.socket().bind(null);
         SocketChannel sc = SocketChannel.open();
-        sc.connect(localAddr2);
+        sc.connect(ssc.socket().getLocalSocketAddress());
         SocketChannel sock = ssc.accept();
         ByteBuffer[] buf = { ByteBuffer.allocate(10), null };
         try {
@@ -3098,9 +3094,9 @@ public class SocketChannelTest extends TestCase {
     public void test_socketChannel_read_ByteBufferII_bufNULL() throws Exception {
         // regression 3 for HARMONY-549
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(localAddr2);
+        ssc.socket().bind(null);
         SocketChannel sc = SocketChannel.open();
-        sc.connect(localAddr2);
+        sc.connect(ssc.socket().getLocalSocketAddress());
         ssc.accept();
         ByteBuffer[] buf = new ByteBuffer[2];
         buf[0] = ByteBuffer.allocate(1);
@@ -3121,9 +3117,9 @@ public class SocketChannelTest extends TestCase {
     public void test_socketChannel_write_close() throws Exception {
         // regression 4 for HARMONY-549
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(localAddr2);
+        ssc.socket().bind(null);
         SocketChannel sc = SocketChannel.open();
-        sc.connect(localAddr2);
+        sc.connect(ssc.socket().getLocalSocketAddress());
         SocketChannel sock = ssc.accept();
         ByteBuffer buf = null;
         ssc.close();
@@ -3147,9 +3143,9 @@ public class SocketChannelTest extends TestCase {
         ByteBuffer readBuf = ByteBuffer.allocate(11);
         ByteBuffer buf = ByteBuffer.wrap(testStr.getBytes());
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(localAddr2);
+        ssc.socket().bind(null);
         SocketChannel sc = SocketChannel.open();
-        sc.connect(localAddr2);
+        sc.connect(ssc.socket().getLocalSocketAddress());
         buf.position(2);
         ssc.accept().write(buf);
         assertEquals(9, sc.read(readBuf));
