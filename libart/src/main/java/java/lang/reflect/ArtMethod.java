@@ -70,7 +70,6 @@ public final class ArtMethod {
     private String[] dexCacheStrings;
     Class<?>[] dexCacheResolvedTypes;
     private ArtMethod[] dexCacheResolvedMethods;
-    private Object[] dexCacheInitializedStaticStorage;
 
     /**
      * Only created by art directly.
