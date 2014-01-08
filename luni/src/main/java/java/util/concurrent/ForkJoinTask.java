@@ -74,10 +74,9 @@ import java.lang.reflect.Constructor;
  * but doing do requires three further considerations: (1) Completion
  * of few if any <em>other</em> tasks should be dependent on a task
  * that blocks on external synchronization or I/O. Event-style async
- * tasks that are never joined (for example, those subclassing {@link
- * CountedCompleter}) often fall into this category.  (2) To minimize
- * resource impact, tasks should be small; ideally performing only the
- * (possibly) blocking action. (3) Unless the {@link
+ * tasks that are never joined often fall into this category.
+ * (2) To minimize resource impact, tasks should be small; ideally
+ * performing only the (possibly) blocking action. (3) Unless the {@link
  * ForkJoinPool.ManagedBlocker} API is used, or the number of possibly
  * blocked tasks is known to be less than the pool's {@link
  * ForkJoinPool#getParallelism} level, the pool cannot guarantee that
@@ -120,13 +119,11 @@ import java.lang.reflect.Constructor;
  * <p>The ForkJoinTask class is not usually directly subclassed.
  * Instead, you subclass one of the abstract classes that support a
  * particular style of fork/join processing, typically {@link
- * RecursiveAction} for most computations that do not return results,
- * {@link RecursiveTask} for those that do, and {@link
- * CountedCompleter} for those in which completed actions trigger
- * other actions.  Normally, a concrete ForkJoinTask subclass declares
- * fields comprising its parameters, established in a constructor, and
- * then defines a {@code compute} method that somehow uses the control
- * methods supplied by this base class.
+ * RecursiveAction} for most computations that do not return results
+ * and {@link RecursiveTask} for those that do. Normally, a concrete
+ * ForkJoinTask subclass declares fields comprising its parameters,
+ * established in a constructor, and then defines a {@code compute}
+ * method that somehow uses the control methods supplied by this base class.
  *
  * <p>Method {@link #join} and its variants are appropriate for use
  * only when completion dependencies are acyclic; that is, the
@@ -178,7 +175,6 @@ import java.lang.reflect.Constructor;
  * execution. Serialization is not relied on during execution itself.
  *
  * @since 1.7
- * @hide
  * @author Doug Lea
  */
 public abstract class ForkJoinTask<V> implements Future<V>, Serializable {

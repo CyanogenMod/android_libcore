@@ -56,8 +56,6 @@ import java.util.Queue;
  * actions subsequent to the access or removal of that element from
  * the {@code ConcurrentLinkedDeque} in another thread.
  *
- * @hide
- *
  * @since 1.7
  * @author Doug Lea
  * @author Martin Buchholz
