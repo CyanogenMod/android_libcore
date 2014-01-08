@@ -43,9 +43,6 @@ final class DexCache {
     /** Lazily initialized dex file wrapper. Volatile to avoid double-check locking issues. */
     private volatile Dex dex;
 
-    /** Indexed by the type index array of locations of initialized static storage. */
-    Object[] initializedStaticStorage;
-
     /** The location of the associated dex file. */
     String location;
 
