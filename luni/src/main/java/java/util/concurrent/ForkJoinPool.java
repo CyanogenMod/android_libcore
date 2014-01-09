@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  * ForkJoinPool}s may also be appropriate for use with event-style
  * tasks that are never joined.
  *
- * <p>A static {@link #commonPool()} is available and appropriate for
+ * <p>A static {@code commonPool()} is available and appropriate for
  * most applications. The common pool is used by any ForkJoinTask that
  * is not explicitly submitted to a specified pool. Using the common
  * pool normally reduces resource usage (its threads are slowly
@@ -2907,7 +2907,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      * Possibly initiates an orderly shutdown in which previously
      * submitted tasks are executed, but no new tasks will be
      * accepted. Invocation has no effect on execution state if this
-     * is the {@link #commonPool()}, and no additional effect if
+     * is the {@code commonPool()}, and no additional effect if
      * already shut down.  Tasks that are in the process of being
      * submitted concurrently during the course of this method may or
      * may not be rejected.
@@ -2920,7 +2920,7 @@ public class ForkJoinPool extends AbstractExecutorService {
     /**
      * Possibly attempts to cancel and/or stop all tasks, and reject
      * all subsequently submitted tasks.  Invocation has no effect on
-     * execution state if this is the {@link #commonPool()}, and no
+     * execution state if this is the {@code commonPool()}, and no
      * additional effect if already shut down. Otherwise, tasks that
      * are in the process of being submitted or executed concurrently
      * during the course of this method may or may not be
@@ -2979,8 +2979,8 @@ public class ForkJoinPool extends AbstractExecutorService {
     /**
      * Blocks until all tasks have completed execution after a
      * shutdown request, or the timeout occurs, or the current thread
-     * is interrupted, whichever happens first. Because the {@link
-     * #commonPool()} never terminates until program shutdown, when
+     * is interrupted, whichever happens first. Because the {@code
+     * commonPool()} never terminates until program shutdown, when
      * applied to the common pool, this method is equivalent to {@link
      * #awaitQuiescence(long, TimeUnit)} but always returns {@code false}.
      *
@@ -3064,7 +3064,7 @@ public class ForkJoinPool extends AbstractExecutorService {
 
     /**
      * Waits and/or attempts to assist performing tasks indefinitely
-     * until the {@link #commonPool()} {@link #isQuiescent}.
+     * until the {@code commonPool()} {@link #isQuiescent}.
      */
     static void quiesceCommonPool() {
         common.awaitQuiescence(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
