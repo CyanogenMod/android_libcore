@@ -127,7 +127,6 @@ import java.util.concurrent.TimeUnit;
  * or internal resources have been exhausted.
  *
  * @since 1.7
- * @hide
  * @author Doug Lea
  */
 public class ForkJoinPool extends AbstractExecutorService {
@@ -213,8 +212,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      * choosing existing queues, and may be randomly repositioned upon
      * contention with other submitters.  In essence, submitters act
      * like workers except that they are restricted to executing local
-     * tasks that they submitted (or in the case of CountedCompleters,
-     * others with the same root task).  However, because most
+     * tasks that they submitted. However, because most
      * shared/external queue operations are more expensive than
      * internal, and because, at steady state, external submitters
      * will compete for CPU with workers, ForkJoinTask.join and
@@ -418,12 +416,6 @@ public class ForkJoinPool extends AbstractExecutorService {
      * is usually a good idea).  (4) We bound the number of attempts
      * to find work (see MAX_HELP) and fall back to suspending the
      * worker and if necessary replacing it with another.
-     *
-     * Helping actions for CountedCompleters are much simpler: Method
-     * helpComplete can take and execute any task with the same root
-     * as the task being waited on. However, this still entails some
-     * traversal of completer chains, so is less efficient than using
-     * CountedCompleters without explicit joins.
      *
      * It is impossible to keep exactly the target parallelism number
      * of threads running at any given time.  Determining the

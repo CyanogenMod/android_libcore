@@ -1485,7 +1485,6 @@ public abstract class AbstractQueuedSynchronizer
      *         current thread, and {@code false} if the current thread
      *         is at the head of the queue or the queue is empty
      * @since 1.7
-     * @hide
      */
     public final boolean hasQueuedPredecessors() {
         // The correctness of this depends on head being initialized

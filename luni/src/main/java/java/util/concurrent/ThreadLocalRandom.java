@@ -30,7 +30,6 @@ import java.util.Random;
  * generation methods.
  *
  * @since 1.7
- * @hide
  * @author Doug Lea
  */
 public class ThreadLocalRandom extends Random {

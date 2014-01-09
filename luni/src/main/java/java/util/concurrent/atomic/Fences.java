@@ -453,7 +453,6 @@ package java.util.concurrent.atomic;
  *
  * </dl>
  *
- * @since 1.7
  * @hide
  * @author Doug Lea
  */
