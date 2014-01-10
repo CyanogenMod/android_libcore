@@ -53,15 +53,15 @@ public class ICUTest extends junit.framework.TestCase {
   public void test_localeFromString() throws Exception {
     // localeFromString is pretty lenient. Some of these can't be round-tripped
     // through Locale.toString.
-    assertEquals(Locale.ENGLISH, ICU.localeFromString("en"));
-    assertEquals(Locale.ENGLISH, ICU.localeFromString("en_"));
-    assertEquals(Locale.ENGLISH, ICU.localeFromString("en__"));
-    assertEquals(Locale.US, ICU.localeFromString("en_US"));
-    assertEquals(Locale.US, ICU.localeFromString("en_US_"));
-    assertEquals(new Locale("", "US", ""), ICU.localeFromString("_US"));
-    assertEquals(new Locale("", "US", ""), ICU.localeFromString("_US_"));
-    assertEquals(new Locale("", "", "POSIX"), ICU.localeFromString("__POSIX"));
-    assertEquals(new Locale("aa", "BB", "CC"), ICU.localeFromString("aa_BB_CC"));
+    assertEquals(Locale.ENGLISH, ICU.localeFromIcuLocaleId("en"));
+    assertEquals(Locale.ENGLISH, ICU.localeFromIcuLocaleId("en_"));
+    assertEquals(Locale.ENGLISH, ICU.localeFromIcuLocaleId("en__"));
+    assertEquals(Locale.US, ICU.localeFromIcuLocaleId("en_US"));
+    assertEquals(Locale.US, ICU.localeFromIcuLocaleId("en_US_"));
+    assertEquals(new Locale("", "US", ""), ICU.localeFromIcuLocaleId("_US"));
+    assertEquals(new Locale("", "US", ""), ICU.localeFromIcuLocaleId("_US_"));
+    assertEquals(new Locale("", "", "POSIX"), ICU.localeFromIcuLocaleId("__POSIX"));
+    assertEquals(new Locale("aa", "BB", "CC"), ICU.localeFromIcuLocaleId("aa_BB_CC"));
   }
 
   public void test_getScript_addLikelySubtags() throws Exception {
