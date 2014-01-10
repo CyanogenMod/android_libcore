@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.TreeMap;
 import junit.framework.TestCase;
 
 /**
@@ -988,9 +989,9 @@ public class JSONObjectTest extends TestCase {
         ArrayList<Object> list = new ArrayList<Object>();
         list.add("a");
         list.add(new ArrayList<String>());
-        HashMap<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new TreeMap<String, Object>();
         map.put("x", "l");
         map.put("y", list);
-        assertEquals("{\"y\":[\"a\",[]],\"x\":\"l\"}", new JSONObject(map).toString());
+        assertEquals("{\"x\":\"l\",\"y\":[\"a\",[]]}", new JSONObject(map).toString());
     }
 }
