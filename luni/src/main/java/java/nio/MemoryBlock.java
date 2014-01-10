@@ -24,7 +24,11 @@ import java.nio.channels.FileChannel.MapMode;
 import libcore.io.ErrnoException;
 import libcore.io.Libcore;
 import libcore.io.Memory;
-import static libcore.io.OsConstants.*;
+
+import static libcore.io.OsConstants.MAP_PRIVATE;
+import static libcore.io.OsConstants.MAP_SHARED;
+import static libcore.io.OsConstants.PROT_READ;
+import static libcore.io.OsConstants.PROT_WRITE;
 
 class MemoryBlock {
     /**
@@ -85,6 +89,11 @@ class MemoryBlock {
     private static class UnmanagedBlock extends MemoryBlock {
         private UnmanagedBlock(long address, long byteCount) {
             super(address, byteCount);
+        }
+
+        @Override
+        public void free() {
+            address = 0;
         }
     }
 
