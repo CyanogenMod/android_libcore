@@ -124,8 +124,8 @@ public class Thread implements Runnable {
      */
     public static final int NORM_PRIORITY = 5;
 
-    /* some of these are accessed directly by the VM; do not rename them */
-    private volatile int nativePeer;
+    /* Some of these are accessed directly by the VM; do not rename them. */
+    private volatile long nativePeer;
     volatile ThreadGroup group;
     volatile boolean daemon;
     volatile String name;
