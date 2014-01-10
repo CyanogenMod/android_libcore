@@ -283,6 +283,12 @@ public class JSONObject {
      * mapped to {@code name}. In aggregate, this allows values to be added to a
      * mapping one at a time.
      *
+     * <p> Note that {@link #append(String, Object)} provides better semantics.
+     * In particular, the mapping for {@code name} will <b>always</b> be a
+     * {@link JSONArray}. Using {@code accumulate} will result in either a
+     * {@link JSONArray} or a mapping whose type is the type of {@code value}
+     * depending on the number of calls to it.
+     *
      * @param value a {@link JSONObject}, {@link JSONArray}, String, Boolean,
      *     Integer, Long, Double, {@link #NULL} or null. May not be {@link
      *     Double#isNaN() NaNs} or {@link Double#isInfinite() infinities}.
@@ -293,20 +299,45 @@ public class JSONObject {
             return put(name, value);
         }
 
-        // check in accumulate, since array.put(Object) doesn't do any checking
-        if (value instanceof Number) {
-            JSON.checkDouble(((Number) value).doubleValue());
-        }
-
         if (current instanceof JSONArray) {
             JSONArray array = (JSONArray) current;
-            array.put(value);
+            array.checkedPut(value);
         } else {
             JSONArray array = new JSONArray();
-            array.put(current);
-            array.put(value);
+            array.checkedPut(current);
+            array.checkedPut(value);
             nameValuePairs.put(name, array);
         }
+        return this;
+    }
+
+    /**
+     * Appends values to the array mapped to {@code name}. A new {@link JSONArray}
+     * mapping for {@code name} will be inserted if no mapping exists. If the existing
+     * mapping for {@code name} is not a {@link JSONArray}, a {@link JSONException}
+     * will be thrown.
+     *
+     * @throws JSONException if {@code name} is {@code null} or if the mapping for
+     *         {@code name} is non-null and is not a {@link JSONArray}.
+     *
+     * @hide
+     */
+    public JSONObject append(String name, Object value) throws JSONException {
+        Object current = nameValuePairs.get(checkName(name));
+
+        final JSONArray array;
+        if (current instanceof JSONArray) {
+            array = (JSONArray) current;
+        } else if (current == null) {
+            JSONArray newArray = new JSONArray();
+            nameValuePairs.put(name, newArray);
+            array = newArray;
+        } else {
+            throw new JSONException("Key " + name + " is not a JSONArray");
+        }
+
+        array.checkedPut(value);
+
         return this;
     }
 
