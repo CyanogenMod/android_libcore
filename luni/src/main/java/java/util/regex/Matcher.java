@@ -276,8 +276,6 @@ public final class Matcher implements MatchResult {
      * walk through the input and replace all matches of the {@code Pattern}
      * with something else.
      *
-     * @param buffer
-     *            the {@code StringBuffer} to append to.
      * @return the {@code StringBuffer}.
      * @throws IllegalStateException
      *             if no successful match has been made.
@@ -325,8 +323,6 @@ public final class Matcher implements MatchResult {
 
     /**
      * Returns the {@link Pattern} instance used inside this matcher.
-     *
-     * @return the {@code Pattern} instance.
      */
     public Pattern pattern() {
         return pattern;
@@ -334,7 +330,8 @@ public final class Matcher implements MatchResult {
 
     /**
      * Returns the text that matched a given group of the regular expression.
-     * Explicit capturing groups in the pattern are numbered left to right in order
+     *
+     * <p>Explicit capturing groups in the pattern are numbered left to right in order
      * of their <i>opening</i> parenthesis, starting at 1.
      * The special group 0 represents the entire match (as if the entire pattern is surrounded
      * by an implicit capturing group).
@@ -367,7 +364,6 @@ public final class Matcher implements MatchResult {
     /**
      * Returns the text that matched the whole regular expression.
      *
-     * @return the text.
      * @throws IllegalStateException
      *             if no successful match has been made.
      */
@@ -393,7 +389,7 @@ public final class Matcher implements MatchResult {
     }
 
     /**
-     * Returns the next occurrence of the {@link Pattern} in the input. If a
+     * Moves to the next occurrence of the pattern in the input. If a
      * previous match was successful, the method continues the search from the
      * first character following that match in the input. Otherwise it searches
      * either from the region start (if one has been set), or from position 0.
@@ -437,12 +433,8 @@ public final class Matcher implements MatchResult {
 
     /**
      * Returns the index of the first character of the text that matched a given
-     * group.
+     * group. See {@link #group} for an explanation of group indexes.
      *
-     * @param group
-     *            the group, ranging from 0 to groupCount() - 1, with 0
-     *            representing the whole pattern.
-     * @return the character index.
      * @throws IllegalStateException
      *             if no successful match has been made.
      */
@@ -453,12 +445,8 @@ public final class Matcher implements MatchResult {
 
     /**
      * Returns the index of the first character following the text that matched
-     * a given group.
+     * a given group. See {@link #group} for an explanation of group indexes.
      *
-     * @param group
-     *            the group, ranging from 0 to groupCount() - 1, with 0
-     *            representing the whole pattern.
-     * @return the character index.
      * @throws IllegalStateException
      *             if no successful match has been made.
      */
@@ -470,11 +458,6 @@ public final class Matcher implements MatchResult {
     /**
      * Returns a replacement string for the given one that has all backslashes
      * and dollar signs escaped.
-     *
-     * @param s
-     *            the input string.
-     * @return the input string, with all backslashes and dollar signs having
-     *         been escaped.
      */
     public static String quoteReplacement(String s) {
         StringBuilder result = new StringBuilder(s.length());
@@ -492,7 +475,6 @@ public final class Matcher implements MatchResult {
      * Returns the index of the first character of the text that matched the
      * whole regular expression.
      *
-     * @return the character index.
      * @throws IllegalStateException
      *             if no successful match has been made.
      */
@@ -503,8 +485,6 @@ public final class Matcher implements MatchResult {
     /**
      * Returns the number of groups in the results, which is always equal to
      * the number of groups in the original regular expression.
-     *
-     * @return the number of groups.
      */
     public int groupCount() {
         synchronized (this) {
@@ -516,7 +496,6 @@ public final class Matcher implements MatchResult {
      * Returns the index of the first character following the text that matched
      * the whole regular expression.
      *
-     * @return the character index.
      * @throws IllegalStateException
      *             if no successful match has been made.
      */
@@ -529,7 +508,6 @@ public final class Matcher implements MatchResult {
      * that is independent from this matcher. The new object is unaffected when
      * the state of this matcher changes.
      *
-     * @return the new {@code MatchResult}.
      * @throws IllegalStateException
      *             if no successful match has been made.
      */
@@ -544,8 +522,6 @@ public final class Matcher implements MatchResult {
      * '^' and '$' meta-characters, otherwise not. Anchoring bounds are enabled
      * by default.
      *
-     * @param value
-     *            the new value for anchoring bounds.
      * @return the {@code Matcher} itself.
      */
     public Matcher useAnchoringBounds(boolean value) {
@@ -572,8 +548,6 @@ public final class Matcher implements MatchResult {
      * region are subject to lookahead and lookbehind, otherwise they are not.
      * Transparent bounds are disabled by default.
      *
-     * @param value
-     *            the new value for transparent bounds.
      * @return the {@code Matcher} itself.
      */
     public Matcher useTransparentBounds(boolean value) {
