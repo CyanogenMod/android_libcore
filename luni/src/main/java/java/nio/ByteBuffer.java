@@ -609,6 +609,17 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
     @Override public abstract boolean isDirect();
 
     /**
+     * Indicates whether this buffer is still valid.
+     *
+     * @return {@code true} if this buffer is valid, {@code false} if the
+     *         buffer was invalidated and should not be used anymore.
+     * @hide
+     */
+    public boolean isValid() {
+        return true;
+    }
+
+    /**
      * Returns the byte order used by this buffer when converting bytes from/to
      * other primitive types.
      * <p>
