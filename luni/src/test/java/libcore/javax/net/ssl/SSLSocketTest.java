@@ -16,6 +16,7 @@
 
 package libcore.javax.net.ssl;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,12 +33,12 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import javax.net.ServerSocketFactory;
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.KeyManager;
@@ -54,6 +55,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 import junit.framework.TestCase;
+import libcore.io.IoUtils;
 import libcore.io.Streams;
 import libcore.java.security.StandardNames;
 import libcore.java.security.TestKeyStore;
@@ -1289,6 +1291,120 @@ public class SSLSocketTest extends TestCase {
         assertTrue(test.server.getSession().isValid());
         assertTrue(test.client.getSession().isValid());
         test.close();
+    }
+
+    public void test_SSLSocket_ClientHello_size() throws Exception {
+        // This test checks the size of ClientHello of the default SSLSocket. TLS/SSL handshakes
+        // with older/unpatched F5/BIG-IP appliances are known to stall and time out when
+        // the fragment containing ClientHello is between 256 and 511 (inclusive) bytes long.
+        //
+        // Since there's no straightforward way to obtain a ClientHello from SSLSocket, this test
+        // does the following:
+        // 1. Creates a listening server socket (a plain one rather than a TLS/SSL one).
+        // 2. Creates a client SSLSocket, which connects to the server socket and initiates the
+        //    TLS/SSL handshake.
+        // 3. Makes the server socket accept an incoming connection on the server socket, and reads
+        //    the first chunk of data received. This chunk is assumed to be the ClientHello.
+        // NOTE: Steps 2 and 3 run concurrently.
+        ServerSocket listeningSocket = null;
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+        // Some Socket operations are not interruptible via Thread.interrupt for some reason. To
+        // work around, we unblock these sockets using Socket.close.
+        final Socket[] sockets = new Socket[2];
+        try {
+            // 1. Create the listening server socket.
+            listeningSocket = ServerSocketFactory.getDefault().createServerSocket(0);
+            final ServerSocket finalListeningSocket = listeningSocket;
+            // 2. (in background) Wait for an incoming connection and read its first chunk.
+            final Future<byte[]> readFirstReceivedChunkFuture =
+                    executorService.submit(new Callable<byte[]>() {
+                        @Override
+                        public byte[] call() throws Exception {
+                            Socket socket = finalListeningSocket.accept();
+                            sockets[1] = socket;
+                            try {
+                                byte[] buffer = new byte[64 * 1024];
+                                int bytesRead = socket.getInputStream().read(buffer);
+                                if (bytesRead == -1) {
+                                    throw new EOFException("Failed to read anything");
+                                }
+                                return Arrays.copyOf(buffer, bytesRead);
+                            } finally {
+                                IoUtils.closeQuietly(socket);
+                            }
+                        }
+                    });
+
+            // 3. Create a client socket, connect it to the server socket, and start the TLS/SSL
+            //    handshake.
+            executorService.submit(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    SSLContext sslContext = SSLContext.getInstance("TLS");
+                    sslContext.init(null, null, null);
+                    SSLSocket client = (SSLSocket) sslContext.getSocketFactory().createSocket();
+                    sockets[0] = client;
+                    try {
+                        // Enable SNI extension on the socket (this is typically enabled by default)
+                        // to increase the size of ClientHello.
+                        try {
+                            Method setHostname =
+                                    client.getClass().getMethod("setHostname", String.class);
+                            setHostname.invoke(client, "sslsockettest.androidcts.google.com");
+                        } catch (NoSuchMethodException ignored) {}
+
+                        // Enable Session Tickets extension on the socket (this is typically enabled
+                        // by default) to increase the size of ClientHello.
+                        try {
+                            Method setUseSessionTickets =
+                                    client.getClass().getMethod(
+                                            "setUseSessionTickets", boolean.class);
+                            setUseSessionTickets.invoke(client, true);
+                        } catch (NoSuchMethodException ignored) {}
+
+                        client.connect(finalListeningSocket.getLocalSocketAddress());
+                        // Initiate the TLS/SSL handshake which is expected to fail as soon as the
+                        // server socket receives a ClientHello.
+                        try {
+                            client.startHandshake();
+                            fail();
+                            return null;
+                        } catch (IOException expected) {}
+                        return null;
+                    } finally {
+                        IoUtils.closeQuietly(client);
+
+                        // Cancel the reading task. If this task succeeded, then the reading task
+                        // is done and this will have no effect. If this task failed prematurely,
+                        // then the reading task might get unblocked (we're interrupting the thread
+                        // it's running on), will fail early, and we'll thus save some time in this
+                        // test.
+                        readFirstReceivedChunkFuture.cancel(true);
+                    }
+                }
+            });
+
+            // Wait for the ClientHello to arrive
+            byte[] clientHello = readFirstReceivedChunkFuture.get(10, TimeUnit.SECONDS);
+
+            // Check for ClientHello length that may cause handshake to fail/time out with older
+            // F5/BIG-IP appliances.
+            assertEquals("TLS record type: handshake", 22, clientHello[0]);
+            int fragmentLength = ((clientHello[3] & 0xff) << 8) | (clientHello[4] & 0xff);
+            if ((fragmentLength >= 256) && (fragmentLength <= 511)) {
+                fail("Fragment containing ClientHello is of dangerous length: "
+                        + fragmentLength + " bytes");
+            }
+        } finally {
+            executorService.shutdownNow();
+            IoUtils.closeQuietly(listeningSocket);
+            IoUtils.closeQuietly(sockets[0]);
+            IoUtils.closeQuietly(sockets[1]);
+            if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+                fail("Timed out while waiting for the test to shut down");
+            }
+        }
     }
 
     /**
