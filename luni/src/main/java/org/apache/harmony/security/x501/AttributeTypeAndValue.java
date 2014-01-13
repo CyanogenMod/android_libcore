@@ -287,6 +287,8 @@ public final class AttributeTypeAndValue {
             } else {
                 if (X500Principal.CANONICAL.equals(attrFormat)) {
                     sb.append(value.makeCanonical());
+                } else if (X500Principal.RFC2253.equals(attrFormat)) {
+                    sb.append(value.getRFC2253String());
                 } else {
                     sb.append(value.escapedString);
                 }
