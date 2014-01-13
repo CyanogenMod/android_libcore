@@ -30,6 +30,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.MappedByteBuffer;
+import java.nio.NioUtils;
 import java.nio.ReadOnlyBufferException;
 import java.nio.ShortBuffer;
 import java.nio.channels.FileChannel;
@@ -883,4 +884,224 @@ public class BufferTest extends TestCase {
         assertEquals(SizeOf.LONG, 1 << LongBuffer.allocate(0).getElementSizeShift());
         assertEquals(SizeOf.DOUBLE, 1 << DoubleBuffer.allocate(0).getElementSizeShift());
     }
+
+    public void testFreed() {
+        ByteBuffer b = ByteBuffer.allocateDirect(1);
+        NioUtils.freeDirectBuffer(b);
+        assertFalse(b.isValid());
+        try {
+            b.compact();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.duplicate();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        testFailForPutMethods(b);
+        testFailForAsMethods(b);
+        testFailForGetMethods(b);
+    }
+
+    private void testFailForPutMethods(ByteBuffer b) {
+        try {
+            b.put((byte) 0);
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.put(0, (byte) 0);
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.put(new byte[1]);
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.put(new byte[1], 0, 1);
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.put(ByteBuffer.allocate(1));
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.putChar('a');
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.putChar(0, 'a');
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.putDouble(0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.putDouble(0, 0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.putFloat(0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.putFloat(0, 0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.putInt(0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.putInt(0, 0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.putLong(0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.putLong(0, 0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.putShort((short) 0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.putShort(0, (short) 0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    private void testFailForGetMethods(ByteBuffer b) {
+        try {
+            b.get();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.get(0);
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.get(new byte[1]);
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.get(new byte[1], 0, 1);
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.getChar();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.getChar(0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.getDouble();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.getDouble(0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.getFloat();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.getFloat(0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.getInt();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.getInt(0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.getLong();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.getLong(0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.getShort();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.getShort(0);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    private void testFailForAsMethods(ByteBuffer b) {
+        try {
+            b.asCharBuffer();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.asDoubleBuffer();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.asFloatBuffer();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.asIntBuffer();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.asLongBuffer();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.asReadOnlyBuffer();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            b.asShortBuffer();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
+
 }
