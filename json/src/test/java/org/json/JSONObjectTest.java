@@ -994,4 +994,39 @@ public class JSONObjectTest extends TestCase {
         map.put("y", list);
         assertEquals("{\"x\":\"l\",\"y\":[\"a\",[]]}", new JSONObject(map).toString());
     }
+
+    public void testAppendExistingInvalidKey() throws JSONException {
+        JSONObject object = new JSONObject();
+        object.put("foo", 5);
+        try {
+            object.append("foo", 6);
+            fail();
+        } catch (JSONException expected) {
+        }
+    }
+
+    public void testAppendExistingArray() throws JSONException {
+        JSONArray array = new JSONArray();
+        JSONObject object = new JSONObject();
+        object.put("foo", array);
+        object.append("foo", 5);
+        assertEquals("[5]", array.toString());
+    }
+
+    public void testAppendPutArray() throws JSONException {
+        JSONObject object = new JSONObject();
+        object.append("foo", 5);
+        assertEquals("{\"foo\":[5]}", object.toString());
+        object.append("foo", new JSONArray());
+        assertEquals("{\"foo\":[5,[]]}", object.toString());
+    }
+
+    public void testAppendNull() {
+        JSONObject object = new JSONObject();
+        try {
+            object.append(null, 5);
+            fail();
+        } catch (JSONException e) {
+        }
+    }
 }
