@@ -20,6 +20,7 @@
 #include "JniConstants.h"
 #include "ScopedUtfChars.h"
 #include "unicode/uchar.h"
+#include "unicode/uscript.h"
 #include <math.h>
 #include <stdio.h> // For BUFSIZ
 #include <stdlib.h>
@@ -124,7 +125,7 @@ static jboolean Character_isLowerCaseImpl(JNIEnv*, jclass, jint codePoint) {
     return u_islower(codePoint);
 }
 
-static int Character_forNameImpl(JNIEnv* env, jclass, jstring javaBlockName) {
+static int Character_unicodeBlockForName(JNIEnv* env, jclass, jstring javaBlockName) {
     ScopedUtfChars blockName(env, javaBlockName);
     if (blockName.c_str() == NULL) {
         return 0;
@@ -132,8 +133,27 @@ static int Character_forNameImpl(JNIEnv* env, jclass, jstring javaBlockName) {
     return u_getPropertyValueEnum(UCHAR_BLOCK, blockName.c_str());
 }
 
-static int Character_ofImpl(JNIEnv*, jclass, jint codePoint) {
+static int Character_unicodeBlockForCodePoint(JNIEnv*, jclass, jint codePoint) {
     return ublock_getCode(codePoint);
+}
+
+static int Character_unicodeScriptForName(JNIEnv* env, jclass, jstring javaScriptName) {
+    ScopedUtfChars scriptName(env, javaScriptName);
+    if (scriptName.c_str() == NULL) {
+        return -1;
+    }
+
+    return u_getPropertyValueEnum(UCHAR_SCRIPT, scriptName.c_str());
+}
+
+static int Character_unicodeScriptForCodePoint(JNIEnv*, jclass, jint codePoint) {
+    UErrorCode status = U_ZERO_ERROR;
+    const UScriptCode script = uscript_getScript(codePoint, &status);
+    if (status != U_ZERO_ERROR) {
+        return -1;
+    }
+
+    return script;
 }
 
 static jboolean Character_isAlphabetic(JNIEnv*, jclass, jint codePoint) {
@@ -146,7 +166,6 @@ static jboolean Character_isIdeographic(JNIEnv*, jclass, jint codePoint) {
 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Character, digitImpl, "!(II)I"),
-    NATIVE_METHOD(Character, forNameImpl, "(Ljava/lang/String;)I"),
     NATIVE_METHOD(Character, getDirectionalityImpl, "!(I)B"),
     NATIVE_METHOD(Character, getNameImpl, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Character, getNumericValueImpl, "!(I)I"),
@@ -166,10 +185,13 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Character, isUnicodeIdentifierStartImpl, "!(I)Z"),
     NATIVE_METHOD(Character, isUpperCaseImpl, "!(I)Z"),
     NATIVE_METHOD(Character, isWhitespaceImpl, "!(I)Z"),
-    NATIVE_METHOD(Character, ofImpl, "!(I)I"),
     NATIVE_METHOD(Character, toLowerCaseImpl, "!(I)I"),
     NATIVE_METHOD(Character, toTitleCaseImpl, "!(I)I"),
     NATIVE_METHOD(Character, toUpperCaseImpl, "!(I)I"),
+    NATIVE_METHOD(Character, unicodeBlockForName, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(Character, unicodeBlockForCodePoint, "!(I)I"),
+    NATIVE_METHOD(Character, unicodeScriptForName, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(Character, unicodeScriptForCodePoint, "!(I)I"),
 };
 void register_java_lang_Character(JNIEnv* env) {
     jniRegisterNativeMethods(env, "java/lang/Character", gMethods, NELEM(gMethods));
