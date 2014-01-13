@@ -283,7 +283,7 @@ public class JSONObject {
      * mapped to {@code name}. In aggregate, this allows values to be added to a
      * mapping one at a time.
      *
-     * <p> Note that {@link #append(String, Object)} provides better semantics.
+     * <p> Note that {@code append(String, Object)} provides better semantics.
      * In particular, the mapping for {@code name} will <b>always</b> be a
      * {@link JSONArray}. Using {@code accumulate} will result in either a
      * {@link JSONArray} or a mapping whose type is the type of {@code value}
@@ -293,6 +293,8 @@ public class JSONObject {
      *     Integer, Long, Double, {@link #NULL} or null. May not be {@link
      *     Double#isNaN() NaNs} or {@link Double#isInfinite() infinities}.
      */
+    // TODO: Change {@code append) to {@link #append} when append is
+    // unhidden.
     public JSONObject accumulate(String name, Object value) throws JSONException {
         Object current = nameValuePairs.get(checkName(name));
         if (current == null) {
