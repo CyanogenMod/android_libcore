@@ -17,6 +17,7 @@
 
 package tests.api.javax.net.ssl;
 
+import libcore.java.security.StandardNames;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -88,7 +89,21 @@ public class SSLSessionTest extends TestCase {
      * javax.net.ssl.SSLSession#getCipherSuite()
      */
     public void test_getCipherSuite() {
-        assertEquals(CIPHER_SUITE, clientSession.getCipherSuite());
+        // Identify the expected cipher suite from the expected list of cipher suites enabled by
+        // default.
+        // This test class initializes the server with an RSA key. Thus, only cipher suites that
+        // authenticate the server using RSA are expected to be used.
+        String expectedCipherSuite = null;
+        for (String cipherSuite : StandardNames.CIPHER_SUITES_DEFAULT) {
+            if (cipherSuite.contains("_RSA_")) {
+                expectedCipherSuite = cipherSuite;
+                break;
+            }
+        }
+        if (expectedCipherSuite == null) {
+            fail("Failed to identify expected cipher suite");
+        }
+        assertEquals(expectedCipherSuite, clientSession.getCipherSuite());
     }
 
     /**
@@ -384,7 +399,6 @@ public class SSLSessionTest extends TestCase {
             + "uJk07h3IZnNxE+/IKgeMTP/H4+jmyT4mhsexJ2BFHeiKF1KT/FMcJdSi+ZK5yoNVcYuY8aZbx0Ef"
             + "lHorCXAmLFB0W6Cz4KPP01nD9YBB4olxiK1t7m0AU9zscdivNiuUaB5OIEr+JuZ6dNw=";
 
-    private static final String CIPHER_SUITE = "SSL_RSA_WITH_RC4_128_MD5";
     /**
      * Defines the keystore contents for the server, JKS version. Holds just a
      * single self-generated key. The subject name is "Test Server".
