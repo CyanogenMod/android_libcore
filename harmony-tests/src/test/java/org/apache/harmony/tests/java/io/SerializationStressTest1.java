@@ -275,8 +275,6 @@ public class SerializationStressTest1 extends SerializationStressTest {
         private static class MyException extends java.io.IOException {
         }
 
-        ;
-
         // A primitive instance variable exposes a bug in the serialization
         // spec.
         // Primitive instance variables are written without primitive data tags
@@ -346,8 +344,6 @@ public class SerializationStressTest1 extends SerializationStressTest {
         private static class MyException extends java.io.IOException {
             private Object notSerializable = new Object();
         }
-
-        ;
 
         public boolean anInstanceVar = false;
 
@@ -1436,10 +1432,10 @@ public class SerializationStressTest1 extends SerializationStressTest {
             boolean causedException = false;
             try {
                 dump(objToSave);
-            } catch (java.io.StreamCorruptedException e) {
+            } catch (MyUnserializableExceptionWhenDumping.MyException e) {
                 causedException = true;
             }
-            ;
+
             assertTrue("Should have caused an exception when dumping",
                     causedException);
             // As the stream is corrupted, reading the stream will have
