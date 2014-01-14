@@ -124,13 +124,6 @@ public class ProviderServiceTest extends TestCase {
 
         Object o = s.newInstance(null);
         assertTrue("incorrect instance", o instanceof RandomImpl);
-
-        try {
-            o = s.newInstance(new Object());
-            fail("No expected NoSuchAlgorithmException");
-        } catch (NoSuchAlgorithmException e) {
-        }
-
     }
 
     public void testGetAlgorithm() {
