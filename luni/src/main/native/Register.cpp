@@ -69,7 +69,6 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
     REGISTER(register_libcore_io_AsynchronousCloseMonitor);
     REGISTER(register_libcore_io_Memory);
     REGISTER(register_libcore_io_Posix);
-    REGISTER(register_libcore_util_CharsetUtils);
     REGISTER(register_org_apache_harmony_dalvik_NativeTestTarget);
     REGISTER(register_org_apache_harmony_xml_ExpatParser);
     REGISTER(register_sun_misc_Unsafe);

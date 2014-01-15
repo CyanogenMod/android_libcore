@@ -23,33 +23,33 @@ package libcore.util;
  */
 public final class CharsetUtils {
     /**
-     * Returns a new byte array containing the bytes corresponding to the given characters,
-     * encoded in US-ASCII. Unrepresentable characters are replaced by (byte) '?'.
+     * Returns a new byte array containing the bytes corresponding to the characters in the given
+     * string, encoded in US-ASCII. Unrepresentable characters are replaced by (byte) '?'.
      */
-    public static native byte[] toAsciiBytes(char[] chars, int offset, int length);
+    public static native byte[] toAsciiBytes(String s, int offset, int length);
 
     /**
-     * Returns a new byte array containing the bytes corresponding to the given characters,
-     * encoded in ISO-8859-1. Unrepresentable characters are replaced by (byte) '?'.
+     * Returns a new byte array containing the bytes corresponding to the characters in the given
+     * string, encoded in ISO-8859-1. Unrepresentable characters are replaced by (byte) '?'.
      */
-    public static native byte[] toIsoLatin1Bytes(char[] chars, int offset, int length);
+    public static native byte[] toIsoLatin1Bytes(String s, int offset, int length);
 
     /**
-     * Returns a new byte array containing the bytes corresponding to the given characters,
-     * encoded in UTF-8. All characters are representable in UTF-8.
+     * Returns a new byte array containing the bytes corresponding to the characters in the given
+     * string, encoded in UTF-8. All characters are representable in UTF-8.
      */
-    public static native byte[] toUtf8Bytes(char[] chars, int offset, int length);
+    public static native byte[] toUtf8Bytes(String s, int offset, int length);
 
     /**
-     * Returns a new byte array containing the bytes corresponding to the given characters,
-     * encoded in UTF-16BE. All characters are representable in UTF-16BE.
+     * Returns a new byte array containing the bytes corresponding to the characters in the given
+     * string, encoded in UTF-16BE. All characters are representable in UTF-16BE.
      */
-    public static byte[] toBigEndianUtf16Bytes(char[] chars, int offset, int length) {
+    public static byte[] toBigEndianUtf16Bytes(String s, int offset, int length) {
         byte[] result = new byte[length * 2];
         int end = offset + length;
         int resultIndex = 0;
         for (int i = offset; i < end; ++i) {
-            char ch = chars[i];
+            char ch = s.charAt(i);
             result[resultIndex++] = (byte) (ch >> 8);
             result[resultIndex++] = (byte) ch;
         }

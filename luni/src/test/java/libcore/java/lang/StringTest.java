@@ -173,47 +173,6 @@ public class StringTest extends TestCase {
     }
 
     /**
-     * Tests a widely assumed performance characteristic of String.substring():
-     * that it reuses the original's backing array. Although behavior should be
-     * correct even if this test fails, many applications may suffer
-     * significant performance degradation.
-     */
-    public void testSubstringSharesBackingArray() throws IllegalAccessException {
-        String abcdefghij = "ABCDEFGHIJ";
-        String cdefg = abcdefghij.substring(2, 7);
-        assertSame(getBackingArray(abcdefghij), getBackingArray(cdefg));
-    }
-
-    /**
-     * Tests a widely assumed performance characteristic of string's copy
-     * constructor: that it ensures the backing array is the same length as the
-     * string. Although behavior should be correct even if this test fails,
-     * many applications may suffer significant performance degradation.
-     */
-    public void testStringCopiesAvoidHeapRetention() throws IllegalAccessException {
-        String abcdefghij = "ABCDEFGHIJ";
-        assertSame(getBackingArray(abcdefghij), getBackingArray(new String(abcdefghij)));
-
-        String cdefg = abcdefghij.substring(2, 7);
-        assertSame(getBackingArray(abcdefghij), getBackingArray(cdefg));
-        assertEquals(5, getBackingArray(new String(cdefg)).length);
-    }
-
-    /**
-     * Uses reflection to return the char[] backing the given string. This
-     * returns the actual backing array; which must not be modified.
-     */
-    private char[] getBackingArray(String string) throws IllegalAccessException {
-        for (Field f : String.class.getDeclaredFields()) {
-            if (!Modifier.isStatic(f.getModifiers()) && f.getType() == char[].class) {
-                f.setAccessible(true);
-                return (char[]) f.get(string);
-            }
-        }
-        throw new UnsupportedOperationException("No chars[] field on String!");
-    }
-
-    /**
      * Test that strings interned manually and then later loaded as literals
      * maintain reference equality. http://b/3098960
      */
