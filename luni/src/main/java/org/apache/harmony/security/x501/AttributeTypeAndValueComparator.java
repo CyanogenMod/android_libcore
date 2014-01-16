@@ -30,27 +30,26 @@ import org.apache.harmony.security.utils.ObjectIdentifier;
  * AttributeTypeAndValue comparator
  *
  */
-public class AttributeTypeAndValueComparator implements Comparator, Serializable {
+public class AttributeTypeAndValueComparator implements Comparator<AttributeTypeAndValue>,
+        Serializable {
 
     private static final long serialVersionUID = -1286471842007103132L;
 
     /**
      * compares two AttributeTypeAndValues
      *
-     * @param obj1
+     * @param atav1
      *            first AttributeTypeAndValue
-     * @param obj2
+     * @param atav2
      *            second AttributeTypeAndValue
      * @return -1 of first AttributeTypeAndValue "less" than second
      *         AttributeTypeAndValue 1 otherwise, 0 if they are equal
      */
-    public int compare(Object obj1, Object obj2) {
-        if (obj1 == obj2) {
+    public int compare(AttributeTypeAndValue atav1, AttributeTypeAndValue atav2) {
+        if (atav1 == atav2) {
             return 0;
         }
 
-        AttributeTypeAndValue atav1 = (AttributeTypeAndValue) obj1;
-        AttributeTypeAndValue atav2 = (AttributeTypeAndValue) obj2;
         String kw1 = atav1.getType().getName();
         String kw2 = atav2.getType().getName();
         if (kw1 != null && kw2 == null) {

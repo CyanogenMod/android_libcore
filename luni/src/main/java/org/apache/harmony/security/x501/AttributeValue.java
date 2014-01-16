@@ -37,7 +37,11 @@ public final class AttributeValue {
 
     public boolean wasEncoded;
 
+    private boolean hasConsecutiveSpaces;
+
     public final String escapedString;
+
+    private String rfc2253String;
 
     private String hexString;
 
@@ -197,8 +201,9 @@ public final class AttributeValue {
      * Escapes:
      * 1) chars ",", "+", """, "\", "<", ">", ";" (RFC 2253)
      * 2) chars "#", "=" (required by RFC 1779)
-     * 3) a space char at the beginning or end
-     * 4) according to the requirement to be RFC 1779 compatible:
+     * 3) leading or trailing spaces
+     * 4) consecutive spaces (RFC 1779)
+     * 5) according to the requirement to be RFC 1779 compatible:
      *    '#' char is escaped in any position
      */
     private String makeEscaped(String name) {
@@ -208,14 +213,35 @@ public final class AttributeValue {
         }
         StringBuilder buf = new StringBuilder(length * 2);
 
+        // Keeps track of whether we are escaping spaces.
+        boolean escapeSpaces = false;
+
         for (int index = 0; index < length; index++) {
             char ch = name.charAt(index);
             switch (ch) {
             case ' ':
-                if (index == 0 || index == (length - 1)) {
-                    // escape first or last space
+                /*
+                 * We should escape spaces in the following cases:
+                 *   1) at the beginning
+                 *   2) at the end
+                 *   3) consecutive spaces
+                 * Since multiple spaces at the beginning or end will be covered by
+                 * 3, we don't need a special case to check for that. Note that RFC 2253
+                 * doesn't escape consecutive spaces, so they are removed in
+                 * getRFC2253String instead of making two different strings here.
+                 */
+                if (index < (length - 1)) {
+                    boolean nextIsSpace = name.charAt(index + 1) == ' ';
+                    escapeSpaces = escapeSpaces || nextIsSpace || index == 0;
+                    hasConsecutiveSpaces |= nextIsSpace;
+                } else {
+                    escapeSpaces = true;
+                }
+
+                if (escapeSpaces) {
                     buf.append('\\');
                 }
+
                 buf.append(' ');
                 break;
 
@@ -240,6 +266,10 @@ public final class AttributeValue {
             default:
                 buf.append(ch);
                 break;
+            }
+
+            if (escapeSpaces && ch != ' ') {
+                escapeSpaces = false;
             }
         }
 
@@ -294,5 +324,51 @@ public final class AttributeValue {
         buf.setLength(bufLength + 1);
 
         return buf.toString();
+    }
+
+    /**
+     * Removes escape sequences used in RFC1779 escaping but not in RFC2253 and
+     * returns the RFC2253 string to the caller..
+     */
+    public String getRFC2253String() {
+        if (!hasConsecutiveSpaces) {
+            return escapedString;
+        }
+
+        if (rfc2253String == null) {
+            // Scan backwards first since runs of spaces at the end are escaped.
+            int lastIndex = escapedString.length() - 2;
+            for (int i = lastIndex; i > 0; i -= 2) {
+                if (escapedString.charAt(i) == '\\' && escapedString.charAt(i + 1) == ' ') {
+                    lastIndex = i - 1;
+                }
+            }
+
+            boolean beginning = true;
+            StringBuilder sb = new StringBuilder(escapedString.length());
+            for (int i = 0; i < escapedString.length(); i++) {
+                char ch = escapedString.charAt(i);
+                if (ch != '\\') {
+                    sb.append(ch);
+                    beginning = false;
+                } else {
+                    char nextCh = escapedString.charAt(i + 1);
+                    if (nextCh == ' ') {
+                        if (beginning || i > lastIndex) {
+                            sb.append(ch);
+                        }
+                        sb.append(nextCh);
+                    } else {
+                        sb.append(ch);
+                        sb.append(nextCh);
+                        beginning = false;
+                    }
+
+                    i++;
+                }
+            }
+            rfc2253String = sb.toString();
+        }
+        return rfc2253String;
     }
 }
