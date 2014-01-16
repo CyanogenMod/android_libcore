@@ -19,6 +19,7 @@ package org.apache.harmony.tests.javax.security.auth.x500;
 
 import javax.security.auth.x500.X500Principal;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -2016,7 +2017,7 @@ public class X500PrincipalTest extends TestCase {
         String dn = "CN=\"B   A\"";
         X500Principal principal = new X500Principal(dn);
         String s = principal.getName(X500Principal.RFC1779);
-        assertEquals("CN=B   A", s);
+        assertEquals("CN=\"B   A\"", s);
 
     }
 
@@ -2068,7 +2069,7 @@ public class X500PrincipalTest extends TestCase {
         String dn = "CN=\\  B";
         X500Principal principal = new X500Principal(dn);
         String s = principal.getName(X500Principal.RFC2253);
-        assertEquals("CN=\\  B", s);
+        assertEquals("CN=\\ \\ B", s);
 
     }
 
@@ -2299,7 +2300,7 @@ public class X500PrincipalTest extends TestCase {
         list.add("2.5.4.6=A", "C=A", "C=A", "c=a");
         list.add("2.5.4.9=A", "STREET=A", "STREET=A", "street=a");
         list.add("0.9.2342.19200300.100.1.25=A", "DC=A",
-                "OID.0.9.2342.19200300.100.1.25=A", "dc=a");
+                "OID.0.9.2342.19200300.100.1.25=A", "dc=#160141");
         list.add("0.9.2342.19200300.100.1.1=A", "UID=A",
                 "OID.0.9.2342.19200300.100.1.1=A", "uid=a");
 
@@ -2319,8 +2320,8 @@ public class X500PrincipalTest extends TestCase {
                 "2.5.4.43=#130141");
         list.add("GENERATION=A", "2.5.4.44=#130141", "OID.2.5.4.44=A",
                 "2.5.4.44=#130141");
-        list.add("EMAILADDRESS=A", "1.2.840.113549.1.9.1=#130141",
-                "OID.1.2.840.113549.1.9.1=A", "1.2.840.113549.1.9.1=#130141",
+        list.add("EMAILADDRESS=A", "1.2.840.113549.1.9.1=#160141",
+                "OID.1.2.840.113549.1.9.1=A", "1.2.840.113549.1.9.1=#160141",
                 null, (byte) 0x05); //FIXME bug???
         list.add("SERIALNUMBER=A", "2.5.4.5=#130141", "OID.2.5.4.5=A",
                 "2.5.4.5=#130141");
@@ -2433,7 +2434,7 @@ public class X500PrincipalTest extends TestCase {
         //
         //
         list.add("CN=#130141", "CN=A", "CN=A", "cn=a"); // ASN1 Printable hex string = 'A'
-        list.add("CN=#140141", "CN=A", "CN=A", "cn=#140141", new byte[] { 0x30,
+        list.add("CN=#140141", "CN=A", "CN=A", "cn=a", new byte[] { 0x30,
                 0x0C, 0x31, 0x0A, 0x30, 0x08, 0x06, 0x03, 0x55, 0x04, 0x03,
                 0x14, 0x01, 0x41 }); // ASN1 Teletex hex string = 'A'
 
@@ -2525,9 +2526,9 @@ public class X500PrincipalTest extends TestCase {
 
         // AttributeValue : RFC 1779 compatibility
         list.add("CN=  A  ", "CN=A", "CN=A", "cn=a"); // leading & trailing spaces
-        list.add("CN=\\  A  ", "CN=\\  A", "CN=\"  A\"", "cn=a", null,
+        list.add("CN=\\  A  ", "CN=\\ \\ A", "CN=\"  A\"", "cn=a", null,
                 (byte) 0x01); // escaped leading space
-        list.add("CN=  A \\ ", "CN=A \\ ", "CN=\"A  \"", "cn=a", null,
+        list.add("CN=  A \\ ", "CN=A\\ \\ ", "CN=\"A  \"", "cn=a", null,
                 (byte) 0x01); // escaped trailing space
 
         list.add("CN=  \"A\"  ", "CN=A", "CN=A", "cn=a"); // leading & trailing spaces
@@ -2549,22 +2550,22 @@ public class X500PrincipalTest extends TestCase {
                 if (!rfc2253.equals(p.getName(X500Principal.RFC2253))) {
                     if (!testing || ((mask & 0x01) == 0)) {
 
-                        errorMsg.append("RFC2253: " + i);
-                        errorMsg.append("\tparm: '" + dn + "'");
+                        errorMsg.append("\nRFC2253: " + i);
+                        errorMsg.append(" \tparm: '" + dn + "'");
                         errorMsg.append("\t\texpected: '" + rfc2253 + "'");
                         errorMsg.append("\treturned: '"
-                                + p.getName(X500Principal.RFC2253) + "'\n");
+                                + p.getName(X500Principal.RFC2253) + "'");
                     }
                 }
 
                 if (!rfc1779.equals(p.getName(X500Principal.RFC1779))) {
                     if (!testing || ((mask & 0x02) == 0)) {
 
-                        errorMsg.append("RFC1779: " + i);
-                        errorMsg.append("\tparm: '" + dn + "'");
-                        errorMsg.append("\t\texpected: " + rfc1779 + "'");
+                        errorMsg.append("\nRFC1779: " + i);
+                        errorMsg.append(" \tparm: '" + dn + "'");
+                        errorMsg.append("\t\texpected: '" + rfc1779 + "'");
                         errorMsg.append("\treturned: '"
-                                + p.getName(X500Principal.RFC1779) + "'\n");
+                                + p.getName(X500Principal.RFC1779) + "'");
                     }
                 }
 
@@ -2572,12 +2573,11 @@ public class X500PrincipalTest extends TestCase {
                     if (!canonical.equals(p.getName(X500Principal.CANONICAL))) {
                         if (!testing || ((mask & 0x04) == 0)) {
 
-                            errorMsg.append("CANONICAL: " + i);
+                            errorMsg.append("\nCANONICAL: " + i);
                             errorMsg.append("\tparm: '" + dn + "'");
-                            errorMsg.append("\t\texpected: " + canonical + "'");
+                            errorMsg.append("\t\texpected: '" + canonical + "'");
                             errorMsg.append("\treturned: '"
-                                    + p.getName(X500Principal.CANONICAL)
-                                    + "'\n");
+                                    + p.getName(X500Principal.CANONICAL) + "'");
                         }
                     }
                 }
@@ -2586,8 +2586,8 @@ public class X500PrincipalTest extends TestCase {
                     if (!Arrays.equals(encoded, p.getEncoded())) {
                         if (!testing || ((mask & 0x08) == 0)) {
 
-                            errorMsg.append("Unexpected encoding for: " + i
-                                    + ", dn= '" + dn + "'\n");
+                            errorMsg.append("\nUnexpected encoding for: " + i
+                                    + ", dn= '" + dn + "'");
 
                             System.out.println("\nI " + i);
                             byte[] enc = p.getEncoded();
@@ -2599,12 +2599,12 @@ public class X500PrincipalTest extends TestCase {
                     }
                 }
             } catch (IllegalArgumentException e) {
-                errorMsg.append("IllegalArgumentException: " + i);
-                errorMsg.append("\tparm: '" + dn + "'\n");
-            } catch (Exception e) {
-                errorMsg.append("Exception: " + i);
+                errorMsg.append("\nIllegalArgumentException: " + i);
                 errorMsg.append("\tparm: '" + dn + "'");
-                errorMsg.append("\texcep: " + e.getClass().getName() + "\n");
+            } catch (Exception e) {
+                errorMsg.append("\nException: " + i);
+                errorMsg.append("\tparm: '" + dn + "'");
+                errorMsg.append("\texcep: " + e.getClass().getName());
             }
         }
 
@@ -2715,7 +2715,7 @@ public class X500PrincipalTest extends TestCase {
         list.add(new byte[] { 0x30, 0x0C, 0x31, 0x0A, 0x30, 0x08, 0x06, 0x03,
                 0x55, 0x04, 0x03,
                 // TeletexString
-                0x14, 0x01, 0x5A }, "CN=Z", "CN=Z", "cn=#14015a");
+                0x14, 0x01, 0x5A }, "CN=Z", "CN=Z", "cn=z");
         //FIXME:compatibility        list.add(new byte[] { 0x30, 0x0C, 0x31, 0x0A, 0x30, 0x08, 0x06, 0x03,
         //                0x55, 0x04, 0x03,
         //                // UniversalString
@@ -2814,7 +2814,7 @@ public class X500PrincipalTest extends TestCase {
         list.add(new byte[] { 0x30, 0x0E, 0x31, 0x0C, 0x30, 0x0A, 0x06, 0x03,
                 0x55, 0x04, 0x03,
                 // UTF8String: two space chars at the beginning
-                0x0C, 0x03, 0x20, 0x20, 0x5A }, "CN=\\  Z", "CN=\"  Z\"",
+                0x0C, 0x03, 0x20, 0x20, 0x5A }, "CN=\\ \\ Z", "CN=\"  Z\"",
                 "cn=z", (byte) 0x01);
         list.add(new byte[] { 0x30, 0x0D, 0x31, 0x0B, 0x30, 0x09, 0x06, 0x03,
                 0x55, 0x04, 0x03,
@@ -2823,7 +2823,7 @@ public class X500PrincipalTest extends TestCase {
         list.add(new byte[] { 0x30, 0x0E, 0x31, 0x0C, 0x30, 0x0A, 0x06, 0x03,
                 0x55, 0x04, 0x03,
                 // UTF8String: two space chars at the end
-                0x0C, 0x03, 0x5A, 0x20, 0x20 }, "CN=Z \\ ", "CN=\"Z  \"",
+                0x0C, 0x03, 0x5A, 0x20, 0x20 }, "CN=Z\\ \\ ", "CN=\"Z  \"",
                 "cn=z", (byte) 0x01);
 
         // special chars
@@ -2898,7 +2898,7 @@ public class X500PrincipalTest extends TestCase {
         list.add(new byte[] { 0x30, 0x0F, 0x31, 0x0D, 0x30, 0x0B, 0x06, 0x03,
                 0x55, 0x04, 0x03,
                 // UTF8String: 'Z  Z' no escaping
-                0x0C, 0x04, 0x5A, 0x20, 0x20, 0x5A }, "CN=Z  Z", "CN=Z  Z",
+                0x0C, 0x04, 0x5A, 0x20, 0x20, 0x5A }, "CN=Z  Z", "CN=\"Z  Z\"",
                 "cn=z z", (byte) 0x02);
         list.add(new byte[] { 0x30, 0x0F, 0x31, 0x0D, 0x30, 0x0B, 0x06, 0x03,
                 0x55, 0x04, 0x03,
