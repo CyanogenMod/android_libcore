@@ -17,6 +17,7 @@
 
 package javax.crypto;
 
+import java.io.BufferedInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,11 +35,8 @@ import libcore.io.Streams;
  * CipherInputStream} tries to read the data an decrypt them before returning.
  */
 public class CipherInputStream extends FilterInputStream {
-
-    private static final int I_BUFFER_SIZE = 20;
-
     private final Cipher cipher;
-    private final byte[] inputBuffer = new byte[I_BUFFER_SIZE];
+    private final byte[] inputBuffer;
     private byte[] outputBuffer;
     private int outputIndex; // index of the first byte to return from outputBuffer
     private int outputLength; // count of the bytes to return from outputBuffer
@@ -60,6 +58,11 @@ public class CipherInputStream extends FilterInputStream {
     public CipherInputStream(InputStream is, Cipher c) {
         super(is);
         this.cipher = c;
+        int blockSize = Math.max(c.getBlockSize(), 1);
+        int bufferSize = Math.max(blockSize,
+                BufferedInputStream.DEFAULT_BUFFER_SIZE / blockSize * blockSize);
+        inputBuffer = new byte[bufferSize];
+        outputBuffer = new byte[bufferSize + ((blockSize > 1) ? 2 * blockSize : 0)];
     }
 
     /**
@@ -76,19 +79,13 @@ public class CipherInputStream extends FilterInputStream {
     }
 
     /**
-     * Reads the next byte from this cipher input stream.
-     *
-     * @return the next byte, or {@code -1} if the end of the stream is reached.
-     * @throws IOException
-     *             if an error occurs.
+     * Attempts to fill the input buffer and process some data through the
+     * cipher. Returns {@code true} if output from the cipher is available to
+     * use.
      */
-    @Override
-    public int read() throws IOException {
+    private boolean fillBuffer() throws IOException {
         if (finished) {
-            return (outputIndex == outputLength) ? -1 : outputBuffer[outputIndex++] & 0xFF;
-        }
-        if (outputIndex < outputLength) {
-            return outputBuffer[outputIndex++] & 0xFF;
+            return false;
         }
         outputIndex = 0;
         outputLength = 0;
@@ -107,7 +104,7 @@ public class CipherInputStream extends FilterInputStream {
                     throw new IOException("Error while finalizing cipher", e);
                 }
                 finished = true;
-                break;
+                return outputLength != 0;
             }
             try {
                 outputLength = cipher.update(inputBuffer, 0, byteCount, outputBuffer, 0);
@@ -115,7 +112,25 @@ public class CipherInputStream extends FilterInputStream {
                 throw new AssertionError(e);  // should not happen since we sized with getOutputSize
             }
         }
-        return read();
+        return true;
+    }
+
+    /**
+     * Reads the next byte from this cipher input stream.
+     *
+     * @return the next byte, or {@code -1} if the end of the stream is reached.
+     * @throws IOException
+     *             if an error occurs.
+     */
+    @Override
+    public int read() throws IOException {
+        if (in == null) {
+            throw new NullPointerException("in == null");
+        }
+        if (outputIndex == outputLength && !fillBuffer()) {
+            return -1;
+        }
+        return outputBuffer[outputIndex++] & 0xFF;
     }
 
     /**
@@ -137,18 +152,18 @@ public class CipherInputStream extends FilterInputStream {
         if (in == null) {
             throw new NullPointerException("in == null");
         }
-
-        int i;
-        for (i = 0; i < len; ++i) {
-            int b = read();
-            if (b == -1) {
-                return (i == 0) ? -1 : i;
-            }
-            if (buf != null) {
-                buf[off+i] = (byte) b;
-            }
+        if (outputIndex == outputLength && !fillBuffer()) {
+            return -1;
         }
-        return i;
+        int available = outputLength - outputIndex;
+        if (available < len) {
+            len = available;
+        }
+        if (buf != null) {
+            System.arraycopy(outputBuffer, outputIndex, buf, off, len);
+        }
+        outputIndex += len;
+        return len;
     }
 
     @Override
@@ -158,7 +173,7 @@ public class CipherInputStream extends FilterInputStream {
 
     @Override
     public int available() throws IOException {
-        return 0;
+        return outputLength - outputIndex;
     }
 
     /**
