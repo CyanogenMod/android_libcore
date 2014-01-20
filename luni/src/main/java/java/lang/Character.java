@@ -1923,7 +1923,9 @@ public final class Character implements Serializable, Comparable<Character> {
          * Returns the {@link UnicodeScript} value that the given Unicode code
          * point is assigned to.
          *
-         * @throws IllegalArgumentException if {@codePoint} is not a valid Unicode code point.
+         * @throws IllegalArgumentException if {@code Point} is not a valid Unicode code point.
+         *
+         * @since 1.7
          */
         public static UnicodeScript of(int codePoint) {
             checkValidCodePoint(codePoint);
