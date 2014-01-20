@@ -24,16 +24,19 @@ import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.DatagramSocketImpl;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.PlainDatagramSocketImpl;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.AlreadyConnectedException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.NotYetConnectedException;
+import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Arrays;
 import libcore.io.ErrnoException;
@@ -100,6 +103,26 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         return socket;
     }
 
+    /** @hide Until ready for a public API change */
+    @Override
+    synchronized public DatagramChannel bind(SocketAddress local) throws IOException {
+        checkOpen();
+        if (isBound) {
+            throw new AlreadyBoundException();
+        }
+
+        if (local == null) {
+            local = new InetSocketAddress(Inet4Address.ANY, 0);
+        } else if (!(local instanceof InetSocketAddress)) {
+            throw new UnsupportedAddressTypeException();
+        }
+
+        InetSocketAddress localAddress = (InetSocketAddress) local;
+        IoBridge.bind(fd, localAddress.getAddress(), localAddress.getPort());
+        onBind(true /* updateSocketState */);
+        return this;
+    }
+
     /**
      * Initialise the isBound, localAddress and localPort state from the file descriptor. Used when
      * some or all of the bound state has been left to the OS to decide, or when the Socket handled
@@ -123,6 +146,13 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         if (updateSocketState && socket != null) {
             socket.onBind(localAddress, localPort);
         }
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    synchronized public SocketAddress getLocalAddress() throws IOException {
+        checkOpen();
+        return isBound ? new InetSocketAddress(localAddress, localPort) : null;
     }
 
     @Override
@@ -544,40 +574,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         @Override
         public DatagramChannel getChannel() {
             return channelImpl;
-        }
-
-        @Override
-        public boolean isBound() {
-            return channelImpl.isBound;
-        }
-
-        @Override
-        public boolean isConnected() {
-            return channelImpl.isConnected();
-        }
-
-        @Override
-        public InetAddress getInetAddress() {
-            if (channelImpl.connectAddress == null) {
-                return null;
-            }
-            return channelImpl.connectAddress.getAddress();
-        }
-
-        @Override public InetAddress getLocalAddress() {
-            try {
-                return IoBridge.getSocketLocalAddress(channelImpl.fd);
-            } catch (SocketException ex) {
-                return null;
-            }
-        }
-
-        @Override
-        public int getPort() {
-            if (channelImpl.connectAddress == null) {
-                return -1;
-            }
-            return channelImpl.connectAddress.getPort();
         }
 
         @Override

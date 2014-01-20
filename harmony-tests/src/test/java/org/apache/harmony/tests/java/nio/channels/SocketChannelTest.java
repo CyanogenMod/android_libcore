@@ -30,6 +30,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.AlreadyConnectedException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ConnectionPendingException;
@@ -150,6 +151,87 @@ public class SocketChannelTest extends TestCase {
             fail("Should throw an IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // correct
+        }
+    }
+
+    public void testBind_Null() throws Exception {
+        assertNull(channel1.getLocalAddress());
+
+        channel1.bind(null);
+
+        InetSocketAddress localAddress = (InetSocketAddress) channel1.getLocalAddress();
+        assertTrue(localAddress.getAddress().isAnyLocalAddress());
+        assertTrue(localAddress.getPort() > 0);
+    }
+
+    public void testBind_Failure() throws Exception {
+        assertNull(channel1.getLocalAddress());
+
+        try {
+            // Bind to a local address that is in use
+            channel1.bind(localAddr1);
+            fail();
+        } catch (IOException expected) {
+        }
+    }
+
+    public void testBind_Closed() throws Exception {
+        channel1.close();
+
+        try {
+            channel1.bind(null);
+            fail();
+        } catch (ClosedChannelException expected) {
+        }
+    }
+
+    public void testBind_Twice() throws Exception {
+        channel1.bind(null);
+
+        try {
+            channel1.bind(null);
+            fail();
+        } catch (AlreadyBoundException expected) {
+        }
+    }
+
+    public void testBind_explicitPort() throws Exception {
+        ServerSocketChannel portPickingChannel = ServerSocketChannel.open();
+        // Have the OS find a free port.
+        portPickingChannel.bind(null);
+        InetSocketAddress address = (InetSocketAddress) portPickingChannel.getLocalAddress();
+        assertTrue(address.getPort() > 0);
+        portPickingChannel.close();
+
+        // There is a risk of flakiness here if the port is allocated to something else between
+        // close() and bind().
+        InetSocketAddress bindAddress = new InetSocketAddress("localhost", address.getPort());
+        // Allow the socket to bind to a port we know is already in use.
+        channel1.socket().setReuseAddress(true);
+        channel1.bind(bindAddress);
+
+        InetSocketAddress boundAddress = (InetSocketAddress) channel1.getLocalAddress();
+        assertEquals(bindAddress.getHostName(), boundAddress.getHostName());
+        assertEquals(bindAddress.getPort(), boundAddress.getPort());
+    }
+
+    public void test_getLocalSocketAddress_afterClose() throws IOException {
+        SocketChannel sc = SocketChannel.open();
+        assertNull(sc.getLocalAddress());
+
+        InetSocketAddress bindAddr = new InetSocketAddress("localhost", 0);
+        sc.bind(bindAddr);
+
+        assertNotNull(sc.getLocalAddress());
+
+        sc.close();
+
+        assertFalse(sc.isOpen());
+
+        try {
+            sc.getLocalAddress();
+            fail();
+        } catch (ClosedChannelException expected) {
         }
     }
 
@@ -1800,7 +1882,7 @@ public class SocketChannelTest extends TestCase {
         ServerSocket serversocket = theServerChannel.socket();
         serversocket.setReuseAddress(true);
         // Bind the socket
-        serversocket.bind(address);
+        theServerChannel.bind(address);
 
         boolean doneNonBlockingConnect = false;
         // Loop so that we make sure we're definitely testing finishConnect()
@@ -2121,8 +2203,7 @@ public class SocketChannelTest extends TestCase {
         ByteBuffer buffer = ByteBuffer.allocateDirect(128);
 
         ServerSocketChannel server = ServerSocketChannel.open();
-        server.socket().bind(
-                new InetSocketAddress(InetAddress.getLocalHost(), 0), 5);
+        server.bind(new InetSocketAddress(InetAddress.getLocalHost(), 0), 5);
         Socket client = new Socket(InetAddress.getLocalHost(), server.socket()
                 .getLocalPort());
         client.setTcpNoDelay(false);
@@ -2740,9 +2821,9 @@ public class SocketChannelTest extends TestCase {
      */
     public void test_writev() throws Exception {
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(null);
+        ssc.bind(null);
         SocketChannel sc = SocketChannel.open();
-        sc.connect(ssc.socket().getLocalSocketAddress());
+        sc.connect(ssc.getLocalAddress());
         SocketChannel sock = ssc.accept();
         ByteBuffer[] buf = { ByteBuffer.allocate(10), ByteBuffer.allocateDirect(20) };
 
@@ -2767,10 +2848,10 @@ public class SocketChannelTest extends TestCase {
     public void test_writev2() throws Exception {
         ServerSocketChannel ssc = ServerSocketChannel.open();
         ssc.configureBlocking(false);
-        ssc.socket().bind(null);
+        ssc.bind(null);
         SocketChannel sc = SocketChannel.open();
         sc.configureBlocking(false);
-        boolean connected = sc.connect(ssc.socket().getLocalSocketAddress());
+        boolean connected = sc.connect(ssc.getLocalAddress());
         SocketChannel sock = ssc.accept();
         if (!connected) {
             sc.finishConnect();
@@ -2805,10 +2886,10 @@ public class SocketChannelTest extends TestCase {
     public void test_write$NonBlockingException() throws Exception {
         ServerSocketChannel ssc = ServerSocketChannel.open();
         ssc.configureBlocking(false);
-        ssc.socket().bind(null);
+        ssc.bind(null);
         SocketChannel sc = SocketChannel.open();
         sc.configureBlocking(false);
-        boolean connected = sc.connect(ssc.socket().getLocalSocketAddress());
+        boolean connected = sc.connect(ssc.getLocalAddress());
         SocketChannel sock = ssc.accept();
         if (!connected) {
             sc.finishConnect();
@@ -2841,9 +2922,9 @@ public class SocketChannelTest extends TestCase {
     public void test_write$LByteBuffer2() throws IOException {
         // Set-up
         ServerSocketChannel server = ServerSocketChannel.open();
-        server.socket().bind(null);
+        server.bind(null);
         SocketChannel client = SocketChannel.open();
-        client.connect(server.socket().getLocalSocketAddress());
+        client.connect(server.getLocalAddress());
         SocketChannel worker = server.accept();
 
         // Test overlapping buffers
@@ -2873,9 +2954,9 @@ public class SocketChannelTest extends TestCase {
     public void test_write$LByteBuffer_buffers() throws IOException {
         // Set-up
         ServerSocketChannel server = ServerSocketChannel.open();
-        server.socket().bind(null);
+        server.bind(null);
         SocketChannel client = SocketChannel.open();
-        client.connect(server.socket().getLocalSocketAddress());
+        client.connect(server.getLocalAddress());
         SocketChannel worker = server.accept();
 
         // A variety of buffer types to write
@@ -2915,9 +2996,9 @@ public class SocketChannelTest extends TestCase {
     public void test_write$LByteBuffer_writes() throws IOException {
         // Set-up
         ServerSocketChannel server = ServerSocketChannel.open();
-        server.socket().bind(null);
+        server.bind(null);
         SocketChannel client = SocketChannel.open();
-        client.connect(server.socket().getLocalSocketAddress());
+        client.connect(server.getLocalAddress());
         SocketChannel worker = server.accept();
 
         // Data to write
@@ -2942,7 +3023,7 @@ public class SocketChannelTest extends TestCase {
 
         // Read what we wrote and check it
         ByteBuffer readBuffer = ByteBuffer.allocate(1024);
-        while (EOF != worker.read(readBuffer)) {};
+        while (EOF != worker.read(readBuffer)) {}
         readBuffer.flip();
         assertEquals(ByteBuffer.wrap(data), readBuffer);
 
@@ -2957,10 +3038,10 @@ public class SocketChannelTest extends TestCase {
     public void test_write$LByteBuffer_invalid() throws IOException {
         // Set-up
         ServerSocketChannel server = ServerSocketChannel.open();
-        server.socket().bind(null);
+        server.bind(null);
 
         SocketChannel client = SocketChannel.open();
-        client.connect(server.socket().getLocalSocketAddress());
+        client.connect(server.getLocalAddress());
 
         SocketChannel worker = server.accept();
 
@@ -2968,32 +3049,27 @@ public class SocketChannelTest extends TestCase {
         try {
             client.write((ByteBuffer[]) null);
             fail("Should throw a NPE");
-        } catch (NullPointerException e) {
-            // expected
+        } catch (NullPointerException expected) {
         }
         try {
             client.write((ByteBuffer[]) null, 0, 0);
             fail("Should throw a NPE");
-        } catch (NullPointerException e) {
-            // expected
+        } catch (NullPointerException expected) {
         }
         try {
             client.write((ByteBuffer[]) null, 1, 0);
             fail("Should throw a NPE");
-        } catch (NullPointerException e) {
-            // expected
+        } catch (NullPointerException expected) {
         }
         try {
             client.write((ByteBuffer[]) null, 0, 1);
             fail("Should throw a NPE");
-        } catch (NullPointerException e) {
-            // expected
+        } catch (NullPointerException expected) {
         }
         try {
             client.write((ByteBuffer[]) null, 1, 1);
             fail("Should throw a NPE");
-        } catch (NullPointerException e) {
-            // expected
+        } catch (NullPointerException expected) {
         }
 
         ByteBuffer[] buffers = new ByteBuffer[1];
@@ -3065,9 +3141,9 @@ public class SocketChannelTest extends TestCase {
             throws Exception {
         // regression 1 for HARMONY-549
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(null);
+        ssc.bind(null);
         SocketChannel sc = SocketChannel.open();
-        sc.connect(ssc.socket().getLocalSocketAddress());
+        sc.connect(ssc.getLocalAddress());
         ssc.accept().close();
         ByteBuffer[] buf = { ByteBuffer.allocate(10) };
         assertEquals(-1, sc.read(buf, 0, 1));
@@ -3081,16 +3157,15 @@ public class SocketChannelTest extends TestCase {
     public void test_socketChannel_write_ByteBufferII() throws Exception {
         // regression 2 for HARMONY-549
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(null);
+        ssc.bind(null);
         SocketChannel sc = SocketChannel.open();
-        sc.connect(ssc.socket().getLocalSocketAddress());
+        sc.connect(ssc.getLocalAddress());
         SocketChannel sock = ssc.accept();
         ByteBuffer[] buf = { ByteBuffer.allocate(10), null };
         try {
             sc.write(buf, 0, 2);
             fail("should throw NPE");
-        } catch (NullPointerException e) {
-            // expected
+        } catch (NullPointerException expected) {
         }
         ssc.close();
         sc.close();
@@ -3104,9 +3179,9 @@ public class SocketChannelTest extends TestCase {
     public void test_socketChannel_read_ByteBufferII_bufNULL() throws Exception {
         // regression 3 for HARMONY-549
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(null);
+        ssc.bind(null);
         SocketChannel sc = SocketChannel.open();
-        sc.connect(ssc.socket().getLocalSocketAddress());
+        sc.connect(ssc.getLocalAddress());
         ssc.accept();
         ByteBuffer[] buf = new ByteBuffer[2];
         buf[0] = ByteBuffer.allocate(1);
@@ -3114,8 +3189,7 @@ public class SocketChannelTest extends TestCase {
         try {
             sc.read(buf, 0, 2);
             fail("should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // expected
+        } catch (NullPointerException expected) {
         }
         ssc.close();
         sc.close();
@@ -3127,9 +3201,9 @@ public class SocketChannelTest extends TestCase {
     public void test_socketChannel_write_close() throws Exception {
         // regression 4 for HARMONY-549
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(null);
+        ssc.bind(null);
         SocketChannel sc = SocketChannel.open();
-        sc.connect(ssc.socket().getLocalSocketAddress());
+        sc.connect(ssc.getLocalAddress());
         SocketChannel sock = ssc.accept();
         ByteBuffer buf = null;
         ssc.close();
@@ -3137,8 +3211,7 @@ public class SocketChannelTest extends TestCase {
         try {
             sc.write(buf);
             fail("should throw NPE");
-        } catch (NullPointerException e) {
-            // expected
+        } catch (NullPointerException expected) {
         }
         sock.close();
     }
@@ -3153,9 +3226,9 @@ public class SocketChannelTest extends TestCase {
         ByteBuffer readBuf = ByteBuffer.allocate(11);
         ByteBuffer buf = ByteBuffer.wrap(testStr.getBytes());
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.socket().bind(null);
+        ssc.bind(null);
         SocketChannel sc = SocketChannel.open();
-        sc.connect(ssc.socket().getLocalSocketAddress());
+        sc.connect(ssc.getLocalAddress());
         buf.position(2);
         ssc.accept().write(buf);
         assertEquals(9, sc.read(readBuf));

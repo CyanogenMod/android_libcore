@@ -48,9 +48,33 @@ public class DatagramChannelTest extends junit.framework.TestCase {
         DatagramChannel dc = DatagramChannel.open();
         try {
             dc.configureBlocking(false);
-            dc.socket().bind(null);
+            dc.bind(null);
             // Should return immediately, since we're non-blocking.
             assertNull(dc.receive(ByteBuffer.allocate(2048)));
+        } finally {
+            dc.close();
+        }
+    }
+
+    public void testInitialState() throws Exception {
+        DatagramChannel dc = DatagramChannel.open();
+        try {
+            assertNull(dc.getLocalAddress());
+
+            DatagramSocket socket = dc.socket();
+            assertFalse(socket.isBound());
+            assertFalse(socket.getBroadcast());
+            assertFalse(socket.isClosed());
+            assertFalse(socket.isConnected());
+            assertEquals(0, socket.getLocalPort());
+            assertTrue(socket.getLocalAddress().isAnyLocalAddress());
+            assertNull(socket.getLocalSocketAddress());
+            assertNull(socket.getInetAddress());
+            assertEquals(-1, socket.getPort());
+            assertNull(socket.getRemoteSocketAddress());
+            assertFalse(socket.getReuseAddress());
+
+            assertSame(dc, socket.getChannel());
         } finally {
             dc.close();
         }
