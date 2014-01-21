@@ -207,7 +207,7 @@ public class EnumTest extends TestCase {
     public void test_compatibilitySerialization_inClass_Complex_Harmony() throws Exception {
         // TODO migrate to the new testing framework 
         assertTrue(SerializationTester.assertCompabilityEquals(new MockEnum2(),
-                "serialization/org/apache/harmony/luni/tests/java/lang/EnumTest.harmony.ser"));
+                "serialization/org/apache/harmony/tests/java/lang/EnumTest.harmony.ser"));
     }
 
     /**
