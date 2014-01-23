@@ -1535,7 +1535,6 @@ public final class Character implements Serializable, Comparable<Character> {
      * don't have a corresponding {@code UnicodeScript} will be in {@code UNKNOWN}.
      *
      * @since 1.7
-     * @hide
      */
     public static enum UnicodeScript {
         /** ISO 15924 English name "Arabic" */

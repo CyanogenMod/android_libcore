@@ -249,7 +249,6 @@ public final class Locale implements Cloneable, Serializable {
      *
      * See {@link #getExtension(char)} and {@link Builder#setExtension(char, String)}.
      *
-     * @hide
      * @since 1.7
      */
     public static final char PRIVATE_USE_EXTENSION = 'x';
@@ -260,7 +259,6 @@ public final class Locale implements Cloneable, Serializable {
      *
      * See {@link #getExtension(char)} and {@link Builder#setExtension(char, String)}.
      *
-     * @hide
      * @since 1.7
      */
     public static final char UNICODE_LOCALE_EXTENSION = 'u';
@@ -293,7 +291,6 @@ public final class Locale implements Cloneable, Serializable {
      * the structured state (keywords and attributes) specified therein.
      *
      * @since 1.7
-     * @hide
      */
     public static final class Builder {
         private String language;
@@ -773,7 +770,6 @@ public final class Locale implements Cloneable, Serializable {
      *
      * @throws NullPointerException if {@code languageTag} is {@code null}.
      *
-     * @hide
      * @since 1.7
      */
     public static Locale forLanguageTag(String languageTag) {
@@ -1177,7 +1173,6 @@ public final class Locale implements Cloneable, Serializable {
      * If set, the script code will be a title cased string of length 4, as per the ISO 15924
      * specification.
      *
-     * @hide
      * @since 1.7
      */
     public String getScript() {
@@ -1187,7 +1182,6 @@ public final class Locale implements Cloneable, Serializable {
     /**
      * Equivalent to {@code getDisplayScript(Locale.getDefault()))}
      *
-     * @hide
      * @since 1.7
      */
     public String getDisplayScript() {
@@ -1199,7 +1193,6 @@ public final class Locale implements Cloneable, Serializable {
      * script code is unknown, the return value of this method is the same as that of
      * {@link #getScript()}.
      *
-     * @hide
      * @since 1.7
      */
     public String getDisplayScript(Locale locale) {
@@ -1236,7 +1229,6 @@ public final class Locale implements Cloneable, Serializable {
      * For example, we do not require scripts to be a registered ISO 15924 scripts or
      * languages to appear in the ISO-639-2 code list.
      *
-     * @hide
      * @since 1.7
      */
     public String toLanguageTag() {
@@ -1253,7 +1245,6 @@ public final class Locale implements Cloneable, Serializable {
      * See <a href="https://tools.ietf.org/html/bcp47#section-2.1">
      *     the IETF BCP-47 specification</a> (Section 2.2.6) for details.
      *
-     * @hide
      * @since 1.7
      */
     public Set<Character> getExtensionKeys() {
@@ -1268,7 +1259,6 @@ public final class Locale implements Cloneable, Serializable {
      * locale extension can be fetched using {@link #getUnicodeLocaleAttributes()},
      * {@link #getUnicodeLocaleKeys()}  and {@link #getUnicodeLocaleType}.
      *
-     * @hide
      * @since 1.7
      */
     public String getExtension(char extensionKey) {
@@ -1281,7 +1271,6 @@ public final class Locale implements Cloneable, Serializable {
      * For more information about types and keywords, see {@link Builder#setUnicodeLocaleKeyword}
      * and <a href="http://www.unicode.org/reports/tr35/#BCP47">Unicode Technical Standard #35</a>
      *
-     * @hide
      * @since 1.7
      */
     public String getUnicodeLocaleType(String keyWord) {
@@ -1294,7 +1283,6 @@ public final class Locale implements Cloneable, Serializable {
      * For more information about attributes, see {@link Builder#addUnicodeLocaleAttribute}
      * and <a href="http://www.unicode.org/reports/tr35/#BCP47">Unicode Technical Standard #35</a>
      *
-     * @hide
      * @since 1.7
      */
     public Set<String> getUnicodeLocaleAttributes() {
@@ -1307,7 +1295,6 @@ public final class Locale implements Cloneable, Serializable {
      * For more information about types and keywords, see {@link Builder#setUnicodeLocaleKeyword}
      * and <a href="http://www.unicode.org/reports/tr35/#BCP47">Unicode Technical Standard #35</a>
      *
-     * @hide
      * @since 1.7
      */
     public Set<String> getUnicodeLocaleKeys() {
