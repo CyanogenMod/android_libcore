@@ -2,6 +2,7 @@ LOCAL_PATH:= $(call my-dir)
 ##################################################
 include $(CLEAR_VARS)
 
+ifeq ($(LIBCORE_SKIP_TESTS),)
 # Only compile source java files in this apk.
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
@@ -30,3 +31,4 @@ LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
 	caliper-prebuilt:libs/caliper.jar
 
 include $(BUILD_MULTI_PREBUILT)
+endif
