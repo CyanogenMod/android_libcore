@@ -85,6 +85,22 @@ public final class System {
     private static final String lineSeparator;
     private static Properties systemProperties;
 
+    /**
+     * Dedicated lock for GC / Finalization logic.
+     */
+    private static final Object lock = new Object();
+
+    /**
+     * Whether or not we need to do a GC before running the finalizers.
+     */
+    private static boolean runGC;
+
+    /**
+     * If we just ran finalization, we might want to do a GC to free the finalized objects.
+     * This lets us do gc/runFinlization/gc sequences but prevents back to back System.gc().
+     */
+    private static boolean justRanFinalization;
+
     static {
         err = new PrintStream(new FileOutputStream(FileDescriptor.err));
         out = new PrintStream(new FileOutputStream(FileDescriptor.out));
@@ -249,7 +265,18 @@ public final class System {
      * that the garbage collector will actually be run.
      */
     public static void gc() {
-        Runtime.getRuntime().gc();
+        boolean shouldRunGC;
+        synchronized(lock) {
+            shouldRunGC = justRanFinalization;
+            if (shouldRunGC) {
+                justRanFinalization = false;
+            } else {
+                runGC = true;
+            }
+        }
+        if (shouldRunGC) {
+            Runtime.getRuntime().gc();
+        }
     }
 
     /**
@@ -628,7 +655,18 @@ public final class System {
      * to perform any outstanding object finalization.
      */
     public static void runFinalization() {
+        boolean shouldRunGC;
+        synchronized(lock) {
+            shouldRunGC = runGC;
+            runGC = false;
+        }
+        if (shouldRunGC) {
+            Runtime.getRuntime().gc();
+        }
         Runtime.getRuntime().runFinalization();
+        synchronized(lock) {
+            justRanFinalization = true;
+        }
     }
 
     /**
