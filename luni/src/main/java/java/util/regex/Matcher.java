@@ -329,49 +329,6 @@ public final class Matcher implements MatchResult {
     }
 
     /**
-     * Returns the text that matched a given group of the regular expression.
-     *
-     * <p>Explicit capturing groups in the pattern are numbered left to right in order
-     * of their <i>opening</i> parenthesis, starting at 1.
-     * The special group 0 represents the entire match (as if the entire pattern is surrounded
-     * by an implicit capturing group).
-     * For example, "a((b)c)" matching "abc" would give the following groups:
-     * <pre>
-     * 0 "abc"
-     * 1 "bc"
-     * 2 "b"
-     * </pre>
-     *
-     * <p>An optional capturing group that failed to match as part of an overall
-     * successful match (for example, "a(b)?c" matching "ac") returns null.
-     * A capturing group that matched the empty string (for example, "a(b?)c" matching "ac")
-     * returns the empty string.
-     *
-     * @throws IllegalStateException
-     *             if no successful match has been made.
-     */
-    public String group(int group) {
-        ensureMatch();
-        int from = matchOffsets[group * 2];
-        int to = matchOffsets[(group * 2) + 1];
-        if (from == -1 || to == -1) {
-            return null;
-        } else {
-            return input.substring(from, to);
-        }
-    }
-
-    /**
-     * Returns the text that matched the whole regular expression.
-     *
-     * @throws IllegalStateException
-     *             if no successful match has been made.
-     */
-    public String group() {
-        return group(0);
-    }
-
-    /**
      * Returns true if there is another match in the input, starting
      * from the given position. The region is ignored.
      *
@@ -432,30 +389,6 @@ public final class Matcher implements MatchResult {
     }
 
     /**
-     * Returns the index of the first character of the text that matched a given
-     * group. See {@link #group} for an explanation of group indexes.
-     *
-     * @throws IllegalStateException
-     *             if no successful match has been made.
-     */
-    public int start(int group) throws IllegalStateException {
-        ensureMatch();
-        return matchOffsets[group * 2];
-    }
-
-    /**
-     * Returns the index of the first character following the text that matched
-     * a given group. See {@link #group} for an explanation of group indexes.
-     *
-     * @throws IllegalStateException
-     *             if no successful match has been made.
-     */
-    public int end(int group) {
-        ensureMatch();
-        return matchOffsets[(group * 2) + 1];
-    }
-
-    /**
      * Returns a replacement string for the given one that has all backslashes
      * and dollar signs escaped.
      */
@@ -469,38 +402,6 @@ public final class Matcher implements MatchResult {
             result.append(c);
         }
         return result.toString();
-    }
-
-    /**
-     * Returns the index of the first character of the text that matched the
-     * whole regular expression.
-     *
-     * @throws IllegalStateException
-     *             if no successful match has been made.
-     */
-    public int start() {
-        return start(0);
-    }
-
-    /**
-     * Returns the number of groups in the results, which is always equal to
-     * the number of groups in the original regular expression.
-     */
-    public int groupCount() {
-        synchronized (this) {
-            return groupCountImpl(address);
-        }
-    }
-
-    /**
-     * Returns the index of the first character following the text that matched
-     * the whole regular expression.
-     *
-     * @throws IllegalStateException
-     *             if no successful match has been made.
-     */
-    public int end() {
-        return end(0);
     }
 
     /**
@@ -638,6 +539,78 @@ public final class Matcher implements MatchResult {
         return getClass().getName() + "[pattern=" + pattern() +
             " region=" + regionStart() + "," + regionEnd() +
             " lastmatch=" + (matchFound ? group() : "") + "]";
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException if no successful match has been made.
+     */
+    public int end() {
+        return end(0);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException if no successful match has been made.
+     */
+    public int end(int group) {
+        ensureMatch();
+        return matchOffsets[(group * 2) + 1];
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException if no successful match has been made.
+     */
+    public String group() {
+        return group(0);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException if no successful match has been made.
+     */
+    public String group(int group) {
+        ensureMatch();
+        int from = matchOffsets[group * 2];
+        int to = matchOffsets[(group * 2) + 1];
+        if (from == -1 || to == -1) {
+            return null;
+        } else {
+            return input.substring(from, to);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int groupCount() {
+        synchronized (this) {
+            return groupCountImpl(address);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException if no successful match has been made.
+     */
+    public int start() {
+        return start(0);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException if no successful match has been made.
+     */
+    public int start(int group) throws IllegalStateException {
+        ensureMatch();
+        return matchOffsets[group * 2];
     }
 
     private static native void closeImpl(long addr);
