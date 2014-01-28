@@ -32,7 +32,7 @@ class MatchResultImpl implements MatchResult {
 
     /**
      * Holds the offsets of the groups in the input text. The first two
-     * elements specifiy start and end of the zero group, the next two specify
+     * elements specify start and end of the zero group, the next two specify
      * group 1, and so on.
      */
     private int[] offsets;
