@@ -461,6 +461,9 @@ final class FileChannelImpl extends FileChannel {
                 throw errnoException.rethrowAsIOException();
             }
         }
+        if (position() > size) {
+            position(size);
+        }
         return this;
     }
 
