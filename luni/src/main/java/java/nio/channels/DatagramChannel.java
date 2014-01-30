@@ -19,6 +19,8 @@ package java.nio.channels;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketOption;
 import java.nio.ByteBuffer;
@@ -42,7 +44,7 @@ import java.util.Set;
  * same time.
  */
 public abstract class DatagramChannel extends AbstractSelectableChannel
-        implements ByteChannel, ScatteringByteChannel, GatheringByteChannel, NetworkChannel {
+        implements ByteChannel, ScatteringByteChannel, GatheringByteChannel, MulticastChannel {
 
     /**
      * Constructs a new {@code DatagramChannel}.
@@ -125,6 +127,24 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
     /** @hide Until ready for a public API change */
     @Override
     public Set<SocketOption<?>> supportedOptions() {
+        // This method was added for interoperability with Java 7, where it is abstract. It is
+        // concrete here to avoid breaking existing Android applications that extend this class.
+        throw new UnsupportedOperationException("Subclasses must override this method");
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    public MembershipKey join(InetAddress groupAddress, NetworkInterface networkInterface)
+            throws IOException {
+        // This method was added for interoperability with Java 7, where it is abstract. It is
+        // concrete here to avoid breaking existing Android applications that extend this class.
+        throw new UnsupportedOperationException("Subclasses must override this method");
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    public MembershipKey join(InetAddress groupAddress, NetworkInterface networkInterface,
+            InetAddress sourceAddress) throws IOException {
         // This method was added for interoperability with Java 7, where it is abstract. It is
         // concrete here to avoid breaking existing Android applications that extend this class.
         throw new UnsupportedOperationException("Subclasses must override this method");

@@ -27,6 +27,7 @@ import java.net.DatagramSocketImpl;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.PlainDatagramSocketImpl;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -37,7 +38,9 @@ import java.nio.channels.AlreadyConnectedException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.IllegalBlockingModeException;
+import java.nio.channels.MembershipKey;
 import java.nio.channels.NotYetConnectedException;
+import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Arrays;
@@ -76,6 +79,9 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
 
     private final Object readLock = new Object();
     private final Object writeLock = new Object();
+
+    // A helper to manage multicast group membership. Created as required.
+    private MulticastMembershipHandler multicastMembershipHandler;
 
     /*
      * Constructor
@@ -122,6 +128,9 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         }
 
         InetSocketAddress localAddress = (InetSocketAddress) local;
+        if (localAddress.isUnresolved()) {
+            throw new UnresolvedAddressException();
+        }
         IoBridge.bind(fd, localAddress.getAddress(), localAddress.getPort());
         onBind(true /* updateSocketState */);
         return this;
@@ -516,6 +525,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         // A closed channel is not connected.
         onDisconnect(true /* updateSocketState */);
         IoBridge.closeSocket(fd);
+        multicastMembershipHandler = null;
 
         if (socket != null && !socket.isClosed()) {
             socket.onClose();
@@ -529,7 +539,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
     /*
      * Status check, must be open.
      */
-    private void checkOpen() throws IOException {
+    private void checkOpen() throws ClosedChannelException {
         if (!isOpen()) {
             throw new ClosedChannelException();
         }
@@ -559,6 +569,52 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
      */
     public FileDescriptor getFD() {
         return fd;
+    }
+
+    @Override
+    synchronized public MembershipKey join(InetAddress groupAddress,
+        NetworkInterface networkInterface) throws IOException {
+
+        checkOpen();
+        ensureMembershipHandlerExists();
+        return multicastMembershipHandler.addAnySourceMembership(networkInterface, groupAddress);
+    }
+
+    @Override
+    synchronized public MembershipKey join(
+            InetAddress groupAddress, NetworkInterface networkInterface, InetAddress sourceAddress)
+            throws IOException {
+        checkOpen();
+        ensureMembershipHandlerExists();
+        return multicastMembershipHandler.addSourceSpecificMembership(
+                networkInterface, groupAddress, sourceAddress);
+    }
+
+    synchronized void multicastDrop(MembershipKeyImpl membershipKey) {
+        ensureMembershipHandlerExists();
+        multicastMembershipHandler.dropMembership(membershipKey);
+    }
+
+    synchronized void multicastBlock(MembershipKeyImpl membershipKey, InetAddress sourceAddress)
+            throws SocketException {
+
+        ensureMembershipHandlerExists();
+        multicastMembershipHandler.block(membershipKey, sourceAddress);
+    }
+
+    synchronized void multicastUnblock(MembershipKeyImpl membershipKey, InetAddress sourceAddress) {
+        ensureMembershipHandlerExists();
+        multicastMembershipHandler.unblock(membershipKey, sourceAddress);
+    }
+
+    /**
+     * Creates the {@code multicastMembershipHandler} if one doesn't already exist. Callers must
+     * handle synchronization.
+     */
+    private void ensureMembershipHandlerExists() {
+        if (multicastMembershipHandler == null) {
+            multicastMembershipHandler = new MulticastMembershipHandler(this);
+        }
     }
 
     /*

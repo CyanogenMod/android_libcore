@@ -229,6 +229,9 @@ public class MulticastSocket extends DatagramSocket {
 
     private void checkJoinOrLeave(InetAddress groupAddr) throws IOException {
         checkOpen();
+        if (groupAddr == null) {
+            throw new IllegalArgumentException("groupAddress == null");
+        }
         if (!groupAddr.isMulticastAddress()) {
             throw new IOException("Not a multicast group: " + groupAddr);
         }

@@ -19,13 +19,17 @@ package libcore.java.nio.channels;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.SocketOption;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.UnresolvedAddressException;
 import java.util.Enumeration;
 import java.util.Set;
 
@@ -446,4 +450,120 @@ public class DatagramChannelTest extends junit.framework.TestCase {
         dc.close();
     }
 
+    public void test_bind_unresolvedAddress() throws IOException {
+        DatagramChannel dc = DatagramChannel.open();
+        try {
+            dc.bind(new InetSocketAddress("unresolvedname", 31415));
+            fail();
+        } catch (UnresolvedAddressException expected) {
+        }
+
+        assertNull(dc.getLocalAddress());
+        assertTrue(dc.isOpen());
+        assertFalse(dc.isConnected());
+
+        dc.close();
+    }
+
+    public void test_bind_noReuseAddress() throws Exception {
+        DatagramChannel dc1 = DatagramChannel.open();
+        dc1.setOption(StandardSocketOptions.SO_REUSEADDR, false);
+        DatagramChannel dc2 = DatagramChannel.open();
+        dc1.setOption(StandardSocketOptions.SO_REUSEADDR, false);
+
+        dc1.bind(null);
+
+        try {
+            dc2.bind(dc1.getLocalAddress());
+            fail();
+        } catch (IOException expected) {}
+
+        dc1.close();
+        dc2.close();
+    }
+
+    public void test_bind_withReuseAddress() throws Exception {
+        DatagramChannel dc1 = DatagramChannel.open();
+        dc1.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+        DatagramChannel dc2 = DatagramChannel.open();
+        dc2.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+
+        dc1.bind(null);
+        dc2.bind(dc1.getLocalAddress());
+
+        dc1.close();
+        dc2.close();
+    }
+
+    public void test_bind_any_IPv4() throws Exception {
+        test_bind_any(InetAddress.getByName("0.0.0.0"));
+    }
+
+    public void test_bind_any_IPv6() throws Exception {
+        test_bind_any(InetAddress.getByName("::"));
+    }
+
+    private void test_bind_any(InetAddress bindAddress) throws Exception {
+        DatagramChannel dc = DatagramChannel.open();
+        dc.bind(new InetSocketAddress(bindAddress, 0));
+
+        assertTrue(dc.isOpen());
+        assertFalse(dc.isConnected());
+
+        InetSocketAddress actualAddress = (InetSocketAddress) dc.getLocalAddress();
+        assertTrue(actualAddress.getAddress().isAnyLocalAddress());
+        assertTrue(actualAddress.getPort() > 0);
+
+        dc.close();
+    }
+
+    public void test_bind_loopback_IPv4() throws Exception {
+        test_bind(InetAddress.getByName("127.0.0.1"));
+    }
+
+    public void test_bind_loopback_IPv6() throws Exception {
+        test_bind(InetAddress.getByName("::1"));
+    }
+
+    public void test_bind_IPv4() throws Exception {
+        InetAddress bindAddress = getNonLoopbackNetworkInterfaceAddress(true /* ipv4 */);
+        test_bind(bindAddress);
+    }
+
+    public void test_bind_IPv6() throws Exception {
+        InetAddress bindAddress = getNonLoopbackNetworkInterfaceAddress(false /* ipv4 */);
+        test_bind(bindAddress);
+    }
+
+    private void test_bind(InetAddress bindAddress) throws IOException {
+        DatagramChannel dc = DatagramChannel.open();
+        dc.bind(new InetSocketAddress(bindAddress, 0));
+
+        InetSocketAddress actualAddress = (InetSocketAddress) dc.getLocalAddress();
+        assertEquals(bindAddress, actualAddress.getAddress());
+        assertTrue(actualAddress.getPort() > 0);
+
+        dc.close();
+    }
+
+    private static InetAddress getNonLoopbackNetworkInterfaceAddress(boolean ipv4)
+            throws SocketException {
+
+        Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+        while (networkInterfaces.hasMoreElements()) {
+            NetworkInterface networkInterface = networkInterfaces.nextElement();
+            if (networkInterface.isLoopback() || !networkInterface.isUp()) {
+                continue;
+            }
+            Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
+            while (inetAddresses.hasMoreElements()) {
+                InetAddress inetAddress = inetAddresses.nextElement();
+                if ( (ipv4 && inetAddress instanceof Inet4Address)
+                        || (!ipv4 && inetAddress instanceof Inet6Address)) {
+                    return inetAddress;
+                }
+            }
+        }
+        return null;
+    }
 }

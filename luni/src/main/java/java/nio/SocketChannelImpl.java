@@ -157,6 +157,9 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         }
 
         InetSocketAddress localAddress = (InetSocketAddress) local;
+        if (localAddress.isUnresolved()) {
+            throw new UnresolvedAddressException();
+        }
         IoBridge.bind(fd, localAddress.getAddress(), localAddress.getPort());
         onBind(true /* updateSocketState */);
         return this;

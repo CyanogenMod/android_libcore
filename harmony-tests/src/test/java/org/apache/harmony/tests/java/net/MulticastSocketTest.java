@@ -34,14 +34,6 @@ import java.util.Enumeration;
 
 public class MulticastSocketTest extends junit.framework.TestCase {
 
-    private boolean atLeastTwoInterfaces = false;
-
-    private NetworkInterface networkInterface1 = null;
-
-    private NetworkInterface networkInterface2 = null;
-
-    private NetworkInterface IPV6networkInterface1 = null;
-
     private static InetAddress lookup(String s) {
         try {
             return InetAddress.getByName(s);
@@ -127,6 +119,10 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         }
     }
 
+    private NetworkInterface loopbackInterface;
+    private NetworkInterface networkInterface1;
+    private NetworkInterface IPV6networkInterface1;
+
     public void test_Constructor() throws IOException {
         // regression test for 497
         MulticastSocket s = new MulticastSocket();
@@ -188,11 +184,9 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         assertEquals("getNetworkInterface did not return interface set by setNeworkInterface",
                 networkInterface1, mss.getNetworkInterface());
 
-        if (atLeastTwoInterfaces) {
-            mss.setNetworkInterface(networkInterface2);
-            assertEquals("getNetworkInterface did not return network interface set by second setNetworkInterface call",
-                    networkInterface2, mss.getNetworkInterface());
-        }
+        mss.setNetworkInterface(loopbackInterface);
+        assertEquals("getNetworkInterface did not return network interface set by second setNetworkInterface call",
+                loopbackInterface, mss.getNetworkInterface());
         mss.close();
 
         mss = new MulticastSocket(0);
@@ -331,18 +325,9 @@ public class MulticastSocketTest extends junit.framework.TestCase {
     }
 
     public void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface() throws Exception {
-        // if there is more than one network interface then check that
-        // we can join on specific interfaces and that we only receive
-        // if data is received on that interface
-        if (!atLeastTwoInterfaces) {
-            return;
-        }
-        // set up server on first interfaces
-        NetworkInterface loopbackInterface = NetworkInterface.getByInetAddress(
-                InetAddress.getByName("127.0.0.1"));
-
-        boolean anyLoop = networkInterface1.equals(loopbackInterface) ||
-                networkInterface2.equals(loopbackInterface);
+        // Check that we can join on specific interfaces and that we only receive if data is
+        // received on that interface. This test is only really useful on devices with multiple
+        // non-loopback interfaces.
 
         ArrayList<NetworkInterface> realInterfaces = new ArrayList<NetworkInterface>();
         Enumeration<NetworkInterface> theInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -355,6 +340,11 @@ public class MulticastSocketTest extends junit.framework.TestCase {
 
         for (int i = 0; i < realInterfaces.size(); i++) {
             NetworkInterface thisInterface = realInterfaces.get(i);
+            if (!thisInterface.supportsMulticast()) {
+                // Skip interfaces that do not support multicast - there's no point in proving
+                // they cannot send / receive multicast messages.
+                continue;
+            }
 
             // get the first address on the interface
 
@@ -367,34 +357,20 @@ public class MulticastSocketTest extends junit.framework.TestCase {
             if (addresses.hasMoreElements()) {
                 InetAddress firstAddress = addresses.nextElement();
                 if (firstAddress instanceof Inet4Address) {
-                    group = InetAddress.getByName("224.0.0.4");
-                    if (anyLoop) {
-                        if (networkInterface1.equals(loopbackInterface)) {
-                            sendingInterface = networkInterface2;
-                        } else {
-                            sendingInterface = networkInterface1;
-                        }
-                    } else {
-                        if (i == 1) {
-                            sendingInterface = networkInterface2;
-                        } else {
-                            sendingInterface = networkInterface1;
-                        }
-                    }
+                    group = GOOD_IPv4;
+                    sendingInterface = networkInterface1;
                 } else {
                     // if this interface only seems to support IPV6 addresses
-                    group = InetAddress.getByName("FF01:0:0:0:0:0:2:8001");
+                    group = GOOD_IPv6;
                     sendingInterface = IPV6networkInterface1;
                 }
             }
-
 
             MulticastServer server = new MulticastServer(group, 0, thisInterface);
             server.start();
             Thread.sleep(1000);
 
-            // Now send out a package on interface
-            // networkInterface 1. We should
+            // Now send out a package on interface networkInterface 1. We should
             // only see the packet if we send it on interface 1
             MulticastSocket mss = new MulticastSocket(0);
             mss.setNetworkInterface(sendingInterface);
@@ -430,7 +406,7 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         MulticastSocket mss = new MulticastSocket(0);
         SocketAddress groupSockAddr = new InetSocketAddress(group, mss.getLocalPort());
         mss.joinGroup(groupSockAddr, networkInterface1);
-        mss.joinGroup(groupSockAddr, networkInterface2);
+        mss.joinGroup(groupSockAddr, loopbackInterface);
         try {
             mss.joinGroup(groupSockAddr, networkInterface1);
             fail("Did not get expected exception when joining for second time on same interface");
@@ -501,7 +477,6 @@ public class MulticastSocketTest extends junit.framework.TestCase {
     }
 
     private void test_leaveGroupLjava_net_SocketAddressLjava_net_NetworkInterface(InetAddress group, InetAddress group2) throws Exception {
-        String msg = null;
         SocketAddress groupSockAddr = null;
         SocketAddress groupSockAddr2 = null;
 
@@ -524,14 +499,13 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         }
 
         mss.leaveGroup(groupSockAddr, networkInterface1);
-        if (atLeastTwoInterfaces) {
-            mss.joinGroup(groupSockAddr, networkInterface1);
-            try {
-                mss.leaveGroup(groupSockAddr, networkInterface2);
-                fail("Did not get exception when trying to leave group on wrong interface " +
-                        "joined on [" + networkInterface1 + "] left on [" + networkInterface2 + "]");
-            } catch (IOException expected) {
-            }
+
+        mss.joinGroup(groupSockAddr, networkInterface1);
+        try {
+            mss.leaveGroup(groupSockAddr, loopbackInterface);
+            fail("Did not get exception when trying to leave group on wrong interface " +
+                    "joined on [" + networkInterface1 + "] left on [" + loopbackInterface + "]");
+        } catch (IOException expected) {
         }
     }
 
@@ -806,51 +780,55 @@ public class MulticastSocketTest extends junit.framework.TestCase {
 
     @Override
     protected void setUp() throws Exception {
+        // The loopback interface isn't actually useful for sending/receiving multicast messages
+        // but it can be used as a dummy for tests where that does not matter.
+        loopbackInterface = NetworkInterface.getByInetAddress(InetAddress.getLoopbackAddress());
+        assertNotNull(loopbackInterface);
+        assertTrue(loopbackInterface.isLoopback());
+        assertFalse(loopbackInterface.supportsMulticast());
+
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 
         // only consider interfaces that have addresses associated with them.
         // Otherwise tests don't work so well
-        if ( interfaces != null) {
+        if (interfaces != null) {
             boolean atLeastOneInterface = false;
-            while ( interfaces.hasMoreElements() && (atLeastOneInterface == false)) {
-                networkInterface1 =  interfaces.nextElement();
-                if (isUpAndHasAddresses(networkInterface1)) {
+            while (interfaces.hasMoreElements() && (atLeastOneInterface == false)) {
+                networkInterface1 = interfaces.nextElement();
+                if (willWorkForMulticast(networkInterface1)) {
                     atLeastOneInterface = true;
                 }
             }
 
-            assertTrue(atLeastOneInterface);
+            assertTrue("Test environment must have at least one environment capable of multicast",
+                    atLeastOneInterface);
 
-            atLeastTwoInterfaces = false;
-            if ( interfaces.hasMoreElements()) {
-                while ( interfaces.hasMoreElements() && (atLeastTwoInterfaces == false)) {
-                    networkInterface2 =  interfaces.nextElement();
-                    if (isUpAndHasAddresses(networkInterface2)) {
-                        atLeastTwoInterfaces = true;
-                    }
-                }
-            }
-
-            // first the first interface that supports IPV6 if one exists
-             interfaces = NetworkInterface.getNetworkInterfaces();
+            // Find the first multicast-compatible interface that supports IPV6 if one exists
+            interfaces = NetworkInterface.getNetworkInterfaces();
 
             boolean found = false;
-            while ( interfaces.hasMoreElements() && !found) {
+            while (interfaces.hasMoreElements() && !found) {
                 NetworkInterface nextInterface = interfaces.nextElement();
-                Enumeration<InetAddress> addresses = nextInterface.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    final InetAddress nextAddress = addresses.nextElement();
-                    if (nextAddress instanceof Inet6Address) {
-                        IPV6networkInterface1 = nextInterface;
-                        found = true;
-                        break;
+                if (willWorkForMulticast(nextInterface)) {
+                    Enumeration<InetAddress> addresses = nextInterface.getInetAddresses();
+                    while (addresses.hasMoreElements()) {
+                        final InetAddress nextAddress = addresses.nextElement();
+                        if (nextAddress instanceof Inet6Address) {
+                            IPV6networkInterface1 = nextInterface;
+                            found = true;
+                            break;
+                        }
                     }
                 }
             }
         }
     }
 
-    private static boolean isUpAndHasAddresses(NetworkInterface iface) throws IOException {
-        return iface.isUp() && iface.getInetAddresses().hasMoreElements();
+    private static boolean willWorkForMulticast(NetworkInterface iface) throws IOException {
+        return iface.isUp()
+                // Typically loopback interfaces do not support multicast, but we rule them out
+                // explicitly anyway.
+                && !iface.isLoopback() && iface.supportsMulticast()
+                && iface.getInetAddresses().hasMoreElements();
     }
 }

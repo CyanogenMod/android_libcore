@@ -26,6 +26,7 @@ import java.net.StandardSocketOptions;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.UnresolvedAddressException;
 import java.util.Enumeration;
 import java.util.Set;
 
@@ -61,6 +62,20 @@ public class ServerSocketChannelTest extends junit.framework.TestCase {
         } finally {
             ssc.close();
         }
+    }
+
+    public void test_bind_unresolvedAddress() throws IOException {
+        ServerSocketChannel ssc = ServerSocketChannel.open();
+        try {
+            ssc.bind(new InetSocketAddress("unresolvedname", 31415));
+            fail();
+        } catch (UnresolvedAddressException expected) {
+        }
+
+        assertNull(ssc.getLocalAddress());
+        assertTrue(ssc.isOpen());
+
+        ssc.close();
     }
 
     public void test_bind_nullBindsToAll() throws Exception {
