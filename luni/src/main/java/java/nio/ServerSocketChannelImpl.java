@@ -19,11 +19,9 @@ package java.nio;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.net.PlainServerSocketImpl;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.SocketImpl;
 import java.net.SocketTimeoutException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.IllegalBlockingModeException;
@@ -41,27 +39,24 @@ import static libcore.io.OsConstants.*;
 final class ServerSocketChannelImpl extends ServerSocketChannel implements FileDescriptorChannel {
 
     private final ServerSocketAdapter socket;
-    private final SocketImpl impl;
-
-    private boolean isBound = false;
 
     private final Object acceptLock = new Object();
 
     public ServerSocketChannelImpl(SelectorProvider sp) throws IOException {
         super(sp);
         this.socket = new ServerSocketAdapter(this);
-        this.impl = socket.getImpl$();
     }
 
     @Override public ServerSocket socket() {
         return socket;
     }
 
-    @Override public SocketChannel accept() throws IOException {
+    @Override
+    public SocketChannel accept() throws IOException {
         if (!isOpen()) {
             throw new ClosedChannelException();
         }
-        if (!isBound) {
+        if (!socket.isBound()) {
             throw new NotYetBoundException();
         }
 
@@ -81,9 +76,9 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
                 }
             }
         } finally {
-            end(result.socket().isConnected());
+            end(result.isConnected());
         }
-        return result.socket().isConnected() ? result : null;
+        return result.isConnected() ? result : null;
     }
 
     private boolean shouldThrowSocketTimeoutExceptionFromAccept(SocketTimeoutException e) {
@@ -100,17 +95,19 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
     }
 
     @Override protected void implConfigureBlocking(boolean blocking) throws IOException {
-        IoUtils.setBlocking(impl.getFD$(), blocking);
+        IoUtils.setBlocking(socket.getFD$(), blocking);
     }
 
+    @Override
     synchronized protected void implCloseSelectableChannel() throws IOException {
         if (!socket.isClosed()) {
             socket.close();
         }
     }
 
+    @Override
     public FileDescriptor getFD() {
-        return impl.getFD$();
+        return socket.getFD$();
     }
 
     private static class ServerSocketAdapter extends ServerSocket {
@@ -120,13 +117,8 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
             this.channelImpl = aChannelImpl;
         }
 
-        @Override public void bind(SocketAddress localAddress, int backlog) throws IOException {
-            super.bind(localAddress, backlog);
-            channelImpl.isBound = true;
-        }
-
         @Override public Socket accept() throws IOException {
-            if (!channelImpl.isBound) {
+            if (!isBound()) {
                 throw new IllegalBlockingModeException();
             }
             SocketChannel sc = channelImpl.accept();
@@ -142,9 +134,12 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
             try {
                 synchronized (this) {
                     super.implAccept(clientSocket);
-                    clientSocketChannel.setConnected();
-                    clientSocketChannel.setBound(true);
-                    clientSocketChannel.finishAccept();
+
+                    // Sync the client socket's associated channel state with the Socket and OS.
+                    InetSocketAddress remoteAddress =
+                            new InetSocketAddress(
+                                    clientSocket.getInetAddress(), clientSocket.getPort());
+                    clientSocketChannel.onAccept(remoteAddress, false /* updateSocketState */);
                 }
                 connectOK = true;
             } finally {
@@ -159,23 +154,17 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
             return channelImpl;
         }
 
-        @Override public boolean isBound() {
-            return channelImpl.isBound;
-        }
-
-        @Override public void bind(SocketAddress localAddress) throws IOException {
-            super.bind(localAddress);
-            channelImpl.isBound = true;
-        }
-
         @Override public void close() throws IOException {
             synchronized (channelImpl) {
+                super.close();
                 if (channelImpl.isOpen()) {
                     channelImpl.close();
-                } else {
-                    super.close();
                 }
             }
+        }
+
+        private FileDescriptor getFD$() {
+            return super.getImpl$().getFD$();
         }
     }
 }

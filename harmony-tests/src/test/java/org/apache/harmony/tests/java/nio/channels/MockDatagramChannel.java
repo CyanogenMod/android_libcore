@@ -30,50 +30,62 @@ class MockDatagramChannel extends DatagramChannel {
         super(arg0);
     }
 
+    @Override
     public DatagramSocket socket() {
         return null;
     }
 
+    @Override
     public boolean isConnected() {
         return false;
     }
 
+    @Override
     public DatagramChannel connect(SocketAddress arg0) throws IOException {
         return null;
     }
 
+    @Override
     public DatagramChannel disconnect() throws IOException {
         return null;
     }
 
+    @Override
     public SocketAddress receive(ByteBuffer arg0) throws IOException {
         return null;
     }
 
+    @Override
     public int send(ByteBuffer arg0, SocketAddress arg1) throws IOException {
         return 0;
     }
 
+    @Override
     public int read(ByteBuffer arg0) throws IOException {
         return 0;
     }
 
+    @Override
     public long read(ByteBuffer[] arg0, int arg1, int arg2) throws IOException {
         return 0;
     }
 
+    @Override
     public int write(ByteBuffer arg0) throws IOException {
         return 0;
     }
 
+    @Override
     public long write(ByteBuffer[] arg0, int arg1, int arg2) throws IOException {
         return 0;
     }
 
+    @Override
     protected void implCloseSelectableChannel() throws IOException {
         // empty
     }
 
+    @Override
     protected void implConfigureBlocking(boolean arg0) throws IOException {
         // empty
     }

@@ -257,24 +257,39 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.socket()'
-     *
-     * @throws SocketException
      */
     public void testSocket_BasicStatusBeforeConnect() throws Exception {
         final DatagramChannel dc = DatagramChannel.open();
 
         assertFalse(dc.isConnected());// not connected
         DatagramSocket s1 = dc.socket();
-        assertSocketBeforeConnect(s1);
+
+        assertFalse(s1.isBound());
+        assertFalse(s1.isClosed());
+        assertFalse(s1.isConnected());
+        assertFalse(s1.getBroadcast());
+        assertFalse(s1.getReuseAddress());
+        assertNull(s1.getInetAddress());
+        assertTrue(s1.getLocalAddress().isAnyLocalAddress());
+        assertEquals(s1.getLocalPort(), 0);
+        assertNull(s1.getLocalSocketAddress());
+        assertEquals(s1.getPort(), -1);
+        assertTrue(s1.getReceiveBufferSize() >= 8192);
+        assertNull(s1.getRemoteSocketAddress());
+        assertFalse(s1.getReuseAddress());
+        assertTrue(s1.getSendBufferSize() >= 8192);
+        assertEquals(s1.getSoTimeout(), 0);
+        assertEquals(s1.getTrafficClass(), 0);
+
         DatagramSocket s2 = dc.socket();
         // same
         assertSame(s1, s2);
+
+        dc.close();
     }
 
     /**
      * Test method for 'DatagramChannelImpl.socket()'
-     *
-     * @throws IOException
      */
     public void testSocket_Block_BasicStatusAfterConnect() throws IOException {
         final DatagramChannel dc = DatagramChannel.open();
@@ -285,10 +300,11 @@ public class DatagramChannelTest extends TestCase {
         DatagramSocket s2 = dc.socket();
         // same
         assertSame(s1, s2);
+
+        dc.close();
     }
 
-    public void testSocket_NonBlock_BasicStatusAfterConnect()
-            throws IOException {
+    public void testSocket_NonBlock_BasicStatusAfterConnect() throws IOException {
         final DatagramChannel dc = DatagramChannel.open();
         dc.connect(datagramSocket1Address);
         dc.configureBlocking(false);
@@ -298,60 +314,11 @@ public class DatagramChannelTest extends TestCase {
         DatagramSocket s2 = dc.socket();
         // same
         assertSame(s1, s2);
+
+        dc.close();
     }
 
-    /**
-     * Test method for 'DatagramChannelImpl.socket()'
-     *
-     * @throws IOException
-     */
-    public void testSocket_ActionsBeforeConnect() throws IOException {
-        assertFalse(this.channel1.isConnected());// not connected
-        DatagramSocket s = this.channel1.socket();
-        assertSocketActionBeforeConnect(s);
-    }
-
-    /**
-     * Test method for 'DatagramChannelImpl.socket()'
-     *
-     * @throws IOException
-     */
-    public void testSocket_Block_ActionsAfterConnect() throws IOException {
-        assertFalse(this.channel1.isConnected());// not connected
-        this.channel1.connect(datagramSocket1Address);
-        DatagramSocket s = this.channel1.socket();
-        assertSocketActionAfterConnect(s);
-    }
-
-    public void testSocket_NonBlock_ActionsAfterConnect() throws IOException {
-        this.channel1.connect(datagramSocket1Address);
-        this.channel1.configureBlocking(false);
-        DatagramSocket s = this.channel1.socket();
-        assertSocketActionAfterConnect(s);
-    }
-
-    private void assertSocketBeforeConnect(DatagramSocket s)
-            throws SocketException {
-        assertFalse(s.isBound());
-        assertFalse(s.isClosed());
-        assertFalse(s.isConnected());
-        assertFalse(s.getBroadcast());
-        assertFalse(s.getReuseAddress());
-        assertNull(s.getInetAddress());
-        assertTrue(s.getLocalAddress().isAnyLocalAddress());
-        assertEquals(s.getLocalPort(), 0);
-        assertNull(s.getLocalSocketAddress());
-        assertEquals(s.getPort(), -1);
-        assertTrue(s.getReceiveBufferSize() >= 8192);
-        assertNull(s.getRemoteSocketAddress());
-        assertFalse(s.getReuseAddress());
-        assertTrue(s.getSendBufferSize() >= 8192);
-        assertEquals(s.getSoTimeout(), 0);
-        assertEquals(s.getTrafficClass(), 0);
-    }
-
-    private void assertSocketAfterConnect(DatagramSocket s)
-            throws SocketException {
+    private void assertSocketAfterConnect(DatagramSocket s) throws SocketException {
         assertTrue(s.isBound());
         assertFalse(s.isClosed());
         assertTrue(s.isConnected());
@@ -369,25 +336,51 @@ public class DatagramChannelTest extends TestCase {
         assertEquals(s.getTrafficClass(), 0);
     }
 
-    private void assertSocketActionBeforeConnect(DatagramSocket s)
-            throws IOException {
+    /**
+     * Test method for 'DatagramChannelImpl.socket()'
+     */
+    public void testSocket_ActionsBeforeConnect() throws IOException {
+        assertFalse(channel1.isConnected());// not connected
+        assertTrue(channel1.isBlocking());
+        DatagramSocket s = channel1.socket();
+
         s.connect(datagramSocket2Address);
-        assertFalse(this.channel1.isConnected());
-        assertFalse(s.isConnected());
+        assertTrue(channel1.isConnected());
+        assertTrue(s.isConnected());
 
         s.disconnect();
-        assertFalse(this.channel1.isConnected());
+        assertFalse(channel1.isConnected());
         assertFalse(s.isConnected());
 
         s.close();
         assertTrue(s.isClosed());
-        assertFalse(this.channel1.isOpen());
+        assertFalse(channel1.isOpen());
     }
 
-    private void assertSocketActionAfterConnect(DatagramSocket s)
-            throws IOException {
+    /**
+     * Test method for 'DatagramChannelImpl.socket()'
+     */
+    public void testSocket_Block_ActionsAfterConnect() throws IOException {
+        assertFalse(this.channel1.isConnected());// not connected
+        this.channel1.connect(datagramSocket1Address);
+        DatagramSocket s = this.channel1.socket();
+        assertSocketActionAfterConnect(s);
+    }
+
+    public void testSocket_NonBlock_ActionsAfterConnect() throws IOException {
+        this.channel1.connect(datagramSocket1Address);
+        this.channel1.configureBlocking(false);
+        DatagramSocket s = this.channel1.socket();
+        assertSocketActionAfterConnect(s);
+    }
+
+    private void assertSocketActionAfterConnect(DatagramSocket s) throws IOException {
         assertEquals(s.getPort(), datagramSocket1Address.getPort());
-        s.connect(datagramSocket2Address);
+        try {
+            s.connect(datagramSocket2Address);
+            fail();
+        } catch (IllegalStateException expected) {}
+
         assertTrue(this.channel1.isConnected());
         assertTrue(s.isConnected());
         // not changed
@@ -408,8 +401,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.isConnected()'
-     *
-     * @throws IOException
      */
     public void testIsConnected_WithServer() throws IOException {
         connectLocalServer();
@@ -444,8 +435,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.connect(SocketAddress)'
-     *
-     * @throws IOException
      */
     public void testConnect_NonBlockWithServer() throws IOException {
         // Non blocking mode
@@ -457,8 +446,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.connect(SocketAddress)'
-     *
-     * @throws IOException
      */
     public void testConnect_Null() throws IOException {
         assertFalse(this.channel1.isConnected());
@@ -472,8 +459,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.connect(SocketAddress)'
-     *
-     * @throws IOException
      */
     public void testConnect_UnsupportedType() throws IOException {
         assertFalse(this.channel1.isConnected());
@@ -495,8 +480,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.connect(SocketAddress)'
-     *
-     * @throws IOException
      */
     public void testConnect_Unresolved() throws IOException {
         assertFalse(this.channel1.isConnected());
@@ -520,9 +503,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.connect(SocketAddress)'
-     *
-     * @throws IOException
-     *
      */
     public void testConnect_ClosedChannelException() throws IOException {
         assertFalse(this.channel1.isConnected());
@@ -538,9 +518,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.connect(SocketAddress)'
-     *
-     * @throws IOException
-     *
      */
     public void testConnect_IllegalStateException() throws IOException {
         assertFalse(this.channel1.isConnected());
@@ -557,9 +534,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.connect(SocketAddress)'
-     *
-     * @throws IOException
-     *
      */
     public void testConnect_CheckOpenBeforeStatus() throws IOException {
         assertFalse(this.channel1.isConnected());
@@ -611,8 +585,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.disconnect()'
-     *
-     * @throws IOException
      */
     public void testDisconnect_BeforeConnect() throws IOException {
         assertFalse(this.channel1.isConnected());
@@ -622,8 +594,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.disconnect()'
-     *
-     * @throws IOException
      */
     public void testDisconnect_UnconnectedClosed() throws IOException {
         assertFalse(this.channel1.isConnected());
@@ -635,8 +605,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.disconnect()'
-     *
-     * @throws IOException
      */
     public void testDisconnect_BlockWithServerChannelClosed()
             throws IOException {
@@ -649,8 +617,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.disconnect()'
-     *
-     * @throws IOException
      */
     public void testDisconnect_NonBlockWithServerChannelClosed()
             throws IOException {
@@ -663,8 +629,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.disconnect()'
-     *
-     * @throws IOException
      */
     public void testDisconnect_BlockWithServerServerClosed() throws IOException {
         assertTrue(this.channel1.isBlocking());
@@ -678,8 +642,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.disconnect()'
-     *
-     * @throws IOException
      */
     public void testDisconnect_NonBlockWithServerServerClosed()
             throws IOException {
@@ -699,8 +661,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_UnconnectedNull() throws Exception {
         assertFalse(this.channel1.isConnected());
@@ -714,8 +674,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_UnconnectedReadonly() throws Exception {
         assertFalse(this.channel1.isConnected());
@@ -732,8 +690,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_UnconnectedBufEmpty() throws Exception {
         this.channel1.configureBlocking(false);
@@ -749,6 +705,8 @@ public class DatagramChannelTest extends TestCase {
         assertFalse(dc.socket().isBound());
         ByteBuffer dst = ByteBuffer.allocateDirect(CAPACITY_ZERO);
         assertNull(dc.receive(dst));
+
+        dc.close();
     }
 
     public void testReceive_UnboundBufNotEmpty() throws Exception {
@@ -761,6 +719,8 @@ public class DatagramChannelTest extends TestCase {
         dst.put((byte) 88);
         assertEquals(dst.position() + CAPACITY_NORMAL - 1, dst.limit());
         assertNull(dc.receive(dst));
+
+        dc.close();
     }
 
     public void testReceive_UnboundBufFull() throws Exception {
@@ -774,12 +734,12 @@ public class DatagramChannelTest extends TestCase {
         dst.put((byte) 88);
         assertEquals(dst.position(), dst.limit());
         assertNull(dc.receive(dst));
+
+        dc.close();
     }
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_UnconnectedClose() throws Exception {
         assertFalse(this.channel1.isConnected());
@@ -796,8 +756,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_UnconnectedCloseNull() throws Exception {
         assertFalse(this.channel1.isConnected());
@@ -814,8 +772,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_UnconnectedCloseReadonly() throws Exception {
         assertFalse(this.channel1.isConnected());
@@ -834,8 +790,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_NonBlockNoServerBufEmpty() throws Exception {
         this.channel1.configureBlocking(false);
@@ -844,8 +798,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_BlockNoServerNull() throws Exception {
         assertTrue(this.channel1.isBlocking());
@@ -854,8 +806,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_NonBlockNoServerNull() throws Exception {
         this.channel1.configureBlocking(false);
@@ -864,8 +814,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_BlockNoServerReadonly() throws Exception {
         assertTrue(this.channel1.isBlocking());
@@ -874,8 +822,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_NonBlockNoServerReadonly() throws Exception {
         this.channel1.configureBlocking(false);
@@ -884,8 +830,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_NonBlockNoServerBufZero() throws Exception {
         this.channel1.configureBlocking(false);
@@ -894,8 +838,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_NonBlockNoServerBufNotEmpty() throws Exception {
         this.channel1.configureBlocking(false);
@@ -907,8 +849,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_NonBlockNoServerBufFull() throws Exception {
         this.channel1.configureBlocking(false);
@@ -919,8 +859,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_BlockNoServerChannelClose() throws Exception {
         assertTrue(this.channel1.isBlocking());
@@ -929,8 +867,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_NonBlockNoServerChannelClose() throws Exception {
         this.channel1.configureBlocking(false);
@@ -939,8 +875,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_BlockNoServerCloseNull() throws Exception {
         assertTrue(this.channel1.isBlocking());
@@ -949,8 +883,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_NonBlockNoServerCloseNull() throws Exception {
         this.channel1.configureBlocking(false);
@@ -959,8 +891,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_NonBlockNoServerCloseReadonly() throws Exception {
         this.channel1.configureBlocking(false);
@@ -969,8 +899,6 @@ public class DatagramChannelTest extends TestCase {
 
     /**
      * Test method for 'DatagramChannelImpl.receive(ByteBuffer)'
-     *
-     * @throws Exception
      */
     public void testReceive_BlockNoServerCloseReadonly() throws Exception {
         assertTrue(this.channel1.isBlocking());
@@ -1345,7 +1273,7 @@ public class DatagramChannelTest extends TestCase {
             InetSocketAddress expectedAddress, String expectedString) throws IOException {
         try {
             ByteBuffer buf = ByteBuffer.wrap(new byte[bufSize]);
-            InetSocketAddress senderAddr = null;
+            InetSocketAddress senderAddr;
             long startTime = System.currentTimeMillis();
             do {
                 senderAddr = (InetSocketAddress) this.channel1.receive(buf);
@@ -2049,6 +1977,8 @@ public class DatagramChannelTest extends TestCase {
         // read
         ByteBuffer targetBuf = ByteBuffer.wrap(targetArray);
         closeBlockedReaderChannel2(targetBuf);
+
+        dc.close();
     }
 
     // NOTE: The original harmony test tested that things still work
@@ -2239,6 +2169,8 @@ public class DatagramChannelTest extends TestCase {
         // read
         ByteBuffer targetBuf = ByteBuffer.wrap(targetArray);
         assertEquals(0, this.channel2.read(targetBuf));
+
+        dc.close();
     }
 
     // NOTE: The original harmony test tested that things still work
@@ -2333,7 +2265,7 @@ public class DatagramChannelTest extends TestCase {
         readBuf[1] = ByteBuffer.allocateDirect(CAPACITY_NORMAL);
 
         channel1.configureBlocking(true);
-        assertEquals(CAPACITY_NORMAL, channel1.read(readBuf,0,2));
+        assertEquals(CAPACITY_NORMAL, channel1.read(readBuf, 0, 2));
     }
 
     /**
@@ -2443,6 +2375,8 @@ public class DatagramChannelTest extends TestCase {
         } catch (IllegalBlockingModeException e) {
             // expected
         }
+
+        channel.close();
     }
 
     public void test_bounded_harmony6493() throws IOException {
