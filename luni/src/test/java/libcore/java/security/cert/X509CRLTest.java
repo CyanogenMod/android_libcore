@@ -362,13 +362,16 @@ public class X509CRLTest extends TestCase {
         assertEquals(1, entries.size());
         for (X509CRLEntry e : entries) {
             assertRsaCrlEntry(f, e);
+            assertRsaCrlEntry(f, crlRsa.getRevokedCertificate(e.getSerialNumber()));
         }
 
         X509CRL crlRsaDsa = getCRL(f, CRL_RSA_DSA);
         Set<? extends X509CRLEntry> entries2 = crlRsaDsa.getRevokedCertificates();
         assertEquals(2, entries2.size());
         assertRsaCrlEntry(f, crlRsaDsa.getRevokedCertificate(rsaCert));
+        assertRsaCrlEntry(f, crlRsaDsa.getRevokedCertificate(rsaCert.getSerialNumber()));
         assertDsaCrlEntry(f, crlRsaDsa.getRevokedCertificate(dsaCert));
+        assertDsaCrlEntry(f, crlRsaDsa.getRevokedCertificate(dsaCert.getSerialNumber()));
     }
 
     private void getSigAlgParams(CertificateFactory f) throws Exception {
