@@ -363,7 +363,8 @@ public class ServerSocketTest extends junit.framework.TestCase {
         s = new ServerSocket(0);
         try {
             int portNumber = s.getLocalPort();
-            assertEquals("ServerSocket[addr=0.0.0.0/0.0.0.0,port=0,localport="
+            // In IPv6, the all-zeros-address is written as "::"
+            assertEquals("ServerSocket[addr=::/::,port=0,localport="
                     + portNumber + "]", s.toString());
         } finally {
             s.close();
