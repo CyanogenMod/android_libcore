@@ -24,12 +24,13 @@
 #include "JniException.h"
 #include "NetworkUtilities.h"
 #include "Portability.h"
+#include "readlink.h"
 #include "ScopedBytes.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
-#include "UniquePtr.h"
 #include "toStringArray.h"
+#include "UniquePtr.h"
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -1042,6 +1043,20 @@ static jint Posix_readBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBy
     return throwIfMinusOne(env, "read", TEMP_FAILURE_RETRY(read(fd, bytes.get() + byteOffset, byteCount)));
 }
 
+static jstring Posix_readlink(JNIEnv* env, jobject, jstring javaPath) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return NULL;
+    }
+
+    std::string result;
+    if (!readlink(path.c_str(), result)) {
+        throwErrnoException(env, "readlink");
+        return NULL;
+    }
+    return env->NewStringUTF(result.c_str());
+}
+
 static jint Posix_readv(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
     IoVec<ScopedBytesRW> ioVec(env, env->GetArrayLength(buffers));
     if (!ioVec.init(buffers, offsets, byteCounts)) {
@@ -1430,6 +1445,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, preadBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIJ)I"),
     NATIVE_METHOD(Posix, pwriteBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIJ)I"),
     NATIVE_METHOD(Posix, readBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
+    NATIVE_METHOD(Posix, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, readv, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
     NATIVE_METHOD(Posix, recvfromBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetSocketAddress;)I"),
     NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),
