@@ -411,14 +411,15 @@ public class File implements Serializable, Comparable<File> {
      *             if an I/O error occurs.
      */
     public String getCanonicalPath() throws IOException {
-        return realpath(getAbsolutePath());
+        return canonicalizePath(getAbsolutePath());
     }
 
+    private static native String canonicalizePath(String path);
+
     /**
-     * TODO: move this stuff to libcore.os.
+     * TODO: move this to libcore.os.
      * @hide
      */
-    private static native String realpath(String path);
     private static native String readlink(String path);
 
     /**
