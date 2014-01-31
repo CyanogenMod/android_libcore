@@ -70,7 +70,7 @@ public class X509CRLImpl extends X509CRL {
     private byte[] tbsCertListEncoding;
     private final Extensions extensions;
     private X500Principal issuer;
-    private ArrayList entries;
+    private ArrayList<X509CRLEntryImpl> entries;
     private int entriesSize;
     private byte[] signature;
     private String sigAlgOID;
@@ -200,12 +200,12 @@ public class X509CRLImpl extends X509CRL {
      */
     private void retrieveEntries() {
         entriesRetrieved = true;
-        List rcerts = tbsCertList.getRevokedCertificates();
+        List<TBSCertList.RevokedCertificate> rcerts = tbsCertList.getRevokedCertificates();
         if (rcerts == null) {
             return;
         }
         entriesSize = rcerts.size();
-        entries = new ArrayList(entriesSize);
+        entries = new ArrayList<X509CRLEntryImpl>(entriesSize);
         // null means that revoked certificate issuer is the same as CRL issuer
         X500Principal rcertIssuer = null;
         for (int i=0; i<entriesSize; i++) {
@@ -254,7 +254,7 @@ public class X509CRLImpl extends X509CRL {
                 certIssuer = null;
             }
             for (int i=0; i<entriesSize; i++) {
-                X509CRLEntry entry = (X509CRLEntry) entries.get(i);
+                X509CRLEntry entry = entries.get(i);
                 // check the serial number of revoked certificate
                 if (serialN.equals(entry.getSerialNumber())) {
                     // revoked certificate issuer
@@ -275,7 +275,7 @@ public class X509CRLImpl extends X509CRL {
         } else {
             // search in CA's (non indirect) crl: just look up the serial number
             for (int i=0; i<entriesSize; i++) {
-                X509CRLEntry entry = (X509CRLEntry) entries.get(i);
+                X509CRLEntry entry = entries.get(i);
                 if (serialN.equals(entry.getSerialNumber())) {
                     return entry;
                 }
@@ -299,7 +299,7 @@ public class X509CRLImpl extends X509CRL {
         }
         if (isIndirectCRL) {
             for (int i = 0; i < nonIndirectEntriesSize; i++) {
-                X509CRLEntry entry = (X509CRLEntry) entries.get(i);
+                X509CRLEntry entry = entries.get(i);
                 if (serialNumber.equals(entry.getSerialNumber())
                         && entry.getCertificateIssuer() == null) {
                     return entry;
@@ -307,7 +307,7 @@ public class X509CRLImpl extends X509CRL {
             }
         } else {
             for (int i = 0; i < entriesSize; i++) {
-                X509CRLEntry entry = (X509CRLEntry) entries.get(i);
+                X509CRLEntry entry = entries.get(i);
                 if (serialNumber.equals(entry.getSerialNumber())) {
                     return entry;
                 }
@@ -327,7 +327,7 @@ public class X509CRLImpl extends X509CRL {
         if (entries == null) {
             return null;
         }
-        return new HashSet(entries);
+        return new HashSet<X509CRLEntryImpl>(entries);
     }
 
     /**
@@ -471,7 +471,7 @@ public class X509CRLImpl extends X509CRL {
      * @see java.security.cert.X509Extension#getNonCriticalExtensionOIDs()
      * method documentation for more info
      */
-    public Set getNonCriticalExtensionOIDs() {
+    public Set<String> getNonCriticalExtensionOIDs() {
         if (extensions == null) {
             return null;
         }
@@ -482,7 +482,7 @@ public class X509CRLImpl extends X509CRL {
      * @see java.security.cert.X509Extension#getCriticalExtensionOIDs()
      * method documentation for more info
      */
-    public Set getCriticalExtensionOIDs() {
+    public Set<String> getCriticalExtensionOIDs() {
         if (extensions == null) {
             return null;
         }
