@@ -297,10 +297,20 @@ public class X509CRLImpl extends X509CRL {
         if (entries == null) {
             return null;
         }
-        for (int i=0; i<nonIndirectEntriesSize; i++) {
-            X509CRLEntry entry = (X509CRLEntry) entries.get(i);
-            if (serialNumber.equals(entry.getSerialNumber())) {
-                return entry;
+        if (isIndirectCRL) {
+            for (int i = 0; i < nonIndirectEntriesSize; i++) {
+                X509CRLEntry entry = (X509CRLEntry) entries.get(i);
+                if (serialNumber.equals(entry.getSerialNumber())
+                        && entry.getCertificateIssuer() == null) {
+                    return entry;
+                }
+            }
+        } else {
+            for (int i = 0; i < entriesSize; i++) {
+                X509CRLEntry entry = (X509CRLEntry) entries.get(i);
+                if (serialNumber.equals(entry.getSerialNumber())) {
+                    return entry;
+                }
             }
         }
         return null;
