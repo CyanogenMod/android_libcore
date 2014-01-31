@@ -57,20 +57,21 @@ public class X500PrincipalTest extends TestCase {
      */
     public void testGetName() throws Exception {
         CertificateFactory certFactBC = CertificateFactory.getInstance("X.509", "BC");
-        CertificateFactory certFactDRL = CertificateFactory.getInstance("X.509", "DRLCertFactory");
+        CertificateFactory certFactOpenSSL = CertificateFactory.getInstance("X.509",
+                "AndroidOpenSSL");
 
         X509Certificate certBC = (X509Certificate)
                 certFactBC.generateCertificate(new ByteArrayInputStream(T61STRING_CERT));
-        X509Certificate certDRL = (X509Certificate)
-                certFactDRL.generateCertificate(new ByteArrayInputStream(T61STRING_CERT));
+        X509Certificate certOpenSSL = (X509Certificate)
+                certFactOpenSSL.generateCertificate(new ByteArrayInputStream(T61STRING_CERT));
 
-        assertEquals(certBC, certDRL);
+        assertEquals(certBC, certOpenSSL);
 
         assertEquals(certBC.getSubjectX500Principal(), certBC.getSubjectX500Principal());
-        assertEquals(certDRL.getIssuerX500Principal(), certDRL.getIssuerX500Principal());
+        assertEquals(certOpenSSL.getIssuerX500Principal(), certOpenSSL.getIssuerX500Principal());
 
-        assertEquals(certBC.getSubjectX500Principal(), certDRL.getSubjectX500Principal());
-        assertEquals(certBC.getIssuerX500Principal(), certDRL.getIssuerX500Principal());
+        assertEquals(certBC.getSubjectX500Principal(), certOpenSSL.getSubjectX500Principal());
+        assertEquals(certBC.getIssuerX500Principal(), certOpenSSL.getIssuerX500Principal());
 
         String[] formats = {
             X500Principal.CANONICAL,
@@ -79,9 +80,9 @@ public class X500PrincipalTest extends TestCase {
         };
         for (String format : formats) {
             assertEquals(certBC.getSubjectX500Principal().getName(format),
-                         certDRL.getSubjectX500Principal().getName(format));
+                         certOpenSSL.getSubjectX500Principal().getName(format));
             assertEquals(certBC.getIssuerX500Principal().getName(format),
-                         certDRL.getIssuerX500Principal().getName(format));
+                         certOpenSSL.getIssuerX500Principal().getName(format));
         }
         String expected = ""
                 + "cn=entrust.net certification authority (2048),"
