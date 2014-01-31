@@ -19,7 +19,6 @@ package libcore.java.nio.channels;
 
 import dalvik.annotation.BrokenTest;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -198,14 +197,12 @@ public class OldSocketChannelTest extends TestCase {
             // expected
         }
 
-        SocketChannel channel1IP = null;
         try {
-            channel1IP = SocketChannel.open(null);
+            SocketChannel.open(null);
             fail("Should throw an IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // correct
         }
-        assertNull(channel1IP);
     }
 
     private void ensureServerClosed() throws IOException {
@@ -355,48 +352,59 @@ public class OldSocketChannelTest extends TestCase {
             isConstructorCalled = true;
         }
 
+        @Override
         public Socket socket() {
             return null;
         }
 
+        @Override
         public boolean isConnected() {
             return false;
         }
 
+        @Override
         public boolean isConnectionPending() {
             return false;
         }
 
+        @Override
         public boolean connect(SocketAddress address) throws IOException {
             return false;
         }
 
+        @Override
         public boolean finishConnect() throws IOException {
             return false;
         }
 
+        @Override
         public int read(ByteBuffer target) throws IOException {
             return 0;
         }
 
+        @Override
         public long read(ByteBuffer[] targets, int offset, int length)
                 throws IOException {
             return 0;
         }
 
+        @Override
         public int write(ByteBuffer source) throws IOException {
             return 0;
         }
 
+        @Override
         public long write(ByteBuffer[] sources, int offset, int length)
                 throws IOException {
             return 0;
         }
 
+        @Override
         protected void implCloseSelectableChannel() throws IOException {
             // empty
         }
 
+        @Override
         protected void implConfigureBlocking(boolean blockingMode)
                 throws IOException {
             // empty

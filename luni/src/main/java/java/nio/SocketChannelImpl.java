@@ -18,6 +18,8 @@
 package java.nio;
 
 import java.io.FileDescriptor;
+import java.io.FilterInputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,7 +32,6 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketUtils;
-import java.net.UnknownHostException;
 import java.nio.channels.AlreadyConnectedException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ConnectionPendingException;
@@ -74,6 +75,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
     // The address to be connected.
     private InetSocketAddress connectAddress = null;
 
+    // The local address the socket is bound to.
     private InetAddress localAddress = null;
     private int localPort;
 
@@ -133,20 +135,34 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         return socket;
     }
 
+    /**
+     * Initialise the isBound, localAddress and localPort state from the file descriptor. Used when
+     * some or all of the bound state has been left to the OS to decide, or when the Socket handled
+     * bind() or connect().
+     *
+     * @param updateSocketState
+     *      if the associated socket (if present) needs to be updated
+     * @hide package visible for other nio classes
+     */
+    void onBind(boolean updateSocketState) {
+        SocketAddress sa;
+        try {
+            sa = Libcore.os.getsockname(fd);
+        } catch (ErrnoException errnoException) {
+            throw new AssertionError(errnoException);
+        }
+        isBound = true;
+        InetSocketAddress localSocketAddress = (InetSocketAddress) sa;
+        localAddress = localSocketAddress.getAddress();
+        localPort = localSocketAddress.getPort();
+        if (updateSocketState && socket != null) {
+            socket.onBind(localAddress, localPort);
+        }
+    }
+
     @Override
     synchronized public boolean isConnected() {
         return status == SOCKET_STATUS_CONNECTED;
-    }
-
-    /*
-     * Status setting used by other class.
-     */
-    synchronized void setConnected() {
-        status = SOCKET_STATUS_CONNECTED;
-    }
-
-    void setBound(boolean flag) {
-        isBound = flag;
     }
 
     @Override
@@ -169,16 +185,22 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
             normalAddr = InetAddress.getLocalHost();
         }
 
+        boolean isBlocking = isBlocking();
         boolean finished = false;
+        int newStatus;
         try {
-            if (isBlocking()) {
+            if (isBlocking) {
                 begin();
             }
-            finished = IoBridge.connect(fd, normalAddr, port);
-            isBound = finished;
+            // When in blocking mode, IoBridge.connect() will return without an exception when the
+            // socket is connected. When in non-blocking mode it will return without an exception
+            // without knowing the result of the connection attempt, which could still be going on.
+            IoBridge.connect(fd, normalAddr, port);
+            newStatus = isBlocking ? SOCKET_STATUS_CONNECTED : SOCKET_STATUS_PENDING;
+            finished = true;
         } catch (IOException e) {
             if (isEINPROGRESS(e)) {
-                status = SOCKET_STATUS_PENDING;
+                newStatus = SOCKET_STATUS_PENDING;
             } else {
                 if (isOpen()) {
                     close();
@@ -187,26 +209,36 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
                 throw e;
             }
         } finally {
-            if (isBlocking()) {
+            if (isBlocking) {
                 end(finished);
             }
         }
 
-        initLocalAddressAndPort();
-        connectAddress = inetSocketAddress;
-        if (socket != null) {
-            socket.socketImpl().initRemoteAddressAndPort(connectAddress.getAddress(),
-                    connectAddress.getPort());
+        // If the channel was not bound, a connection attempt will have caused an implicit bind() to
+        // take place. Keep the local address state held by the channel and the socket up to date.
+        if (!isBound) {
+            onBind(true /* updateSocketState */);
         }
 
-        synchronized (this) {
-            if (isBlocking()) {
-                status = (finished ? SOCKET_STATUS_CONNECTED : SOCKET_STATUS_UNCONNECTED);
-            } else {
-                status = SOCKET_STATUS_PENDING;
-            }
+        // Keep the connected state held by the channel and the socket up to date.
+        onConnectStatusChanged(inetSocketAddress, newStatus, true /* updateSocketState */);
+
+        return status == SOCKET_STATUS_CONNECTED;
+    }
+
+    /**
+     * Initialise the connect() state with the supplied information.
+     *
+     * @param updateSocketState
+     *     if the associated socket (if present) needs to be updated
+     * @hide package visible for other nio classes
+     */
+    void onConnectStatusChanged(InetSocketAddress address, int status, boolean updateSocketState) {
+        this.status = status;
+        connectAddress = address;
+        if (status == SOCKET_STATUS_CONNECTED && updateSocketState && socket != null) {
+            socket.onConnect(connectAddress.getAddress(), connectAddress.getPort());
         }
-        return finished;
     }
 
     private boolean isEINPROGRESS(IOException e) {
@@ -220,21 +252,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
             }
         }
         return false;
-    }
-
-    private void initLocalAddressAndPort() {
-        SocketAddress sa;
-        try {
-            sa = Libcore.os.getsockname(fd);
-        } catch (ErrnoException errnoException) {
-            throw new AssertionError(errnoException);
-        }
-        InetSocketAddress isa = (InetSocketAddress) sa;
-        localAddress = isa.getAddress();
-        localPort = isa.getPort();
-        if (socket != null) {
-            socket.socketImpl().initLocalPort(localPort);
-        }
     }
 
     @Override
@@ -257,7 +274,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
             InetAddress inetAddress = connectAddress.getAddress();
             int port = connectAddress.getPort();
             finished = IoBridge.isConnected(fd, inetAddress, port, 0, 0); // Return immediately.
-            isBound = finished;
         } catch (ConnectException e) {
             if (isOpen()) {
                 close();
@@ -270,13 +286,11 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
 
         synchronized (this) {
             status = (finished ? SOCKET_STATUS_CONNECTED : status);
-            isBound = finished;
+            if (finished && socket != null) {
+                socket.onConnect(connectAddress.getAddress(), connectAddress.getPort());
+            }
         }
         return finished;
-    }
-
-    void finishAccept() {
-        initLocalAddressAndPort();
     }
 
     @Override
@@ -447,23 +461,17 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
     }
 
     /*
-     * Get local address.
-     */
-    public InetAddress getLocalAddress() throws UnknownHostException {
-        return isBound ? localAddress : Inet4Address.ANY;
-    }
-
-    /*
      * Do really closing action here.
      */
     @Override
     protected synchronized void implCloseSelectableChannel() throws IOException {
         if (status != SOCKET_STATUS_CLOSED) {
             status = SOCKET_STATUS_CLOSED;
+            // IoBridge.closeSocket(fd) is idempotent: It is safe to call on an already-closed file
+            // descriptor.
+            IoBridge.closeSocket(fd);
             if (socket != null && !socket.isClosed()) {
-                socket.close();
-            } else {
-                IoBridge.closeSocket(fd);
+                socket.onClose();
             }
         }
     }
@@ -479,6 +487,12 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         return fd;
     }
 
+    /* @hide used by ServerSocketChannelImpl to sync channel state during accept() */
+    public void onAccept(InetSocketAddress remoteAddress, boolean updateSocketState) {
+        onBind(updateSocketState);
+        onConnectStatusChanged(remoteAddress, SOCKET_STATUS_CONNECTED, updateSocketState);
+    }
+
     /*
      * Adapter classes for internal socket.
      */
@@ -486,15 +500,24 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         private final SocketChannelImpl channel;
         private final PlainSocketImpl socketImpl;
 
-        SocketAdapter(PlainSocketImpl socketImpl, SocketChannelImpl channel) throws SocketException {
+        SocketAdapter(PlainSocketImpl socketImpl, SocketChannelImpl channel)
+                throws SocketException {
             super(socketImpl);
             this.socketImpl = socketImpl;
             this.channel = channel;
             SocketUtils.setCreated(this);
-        }
 
-        PlainSocketImpl socketImpl() {
-            return socketImpl;
+            // Sync state socket state with the channel it is being created from
+            if (channel.isBound) {
+                onBind(channel.localAddress, channel.localPort);
+            }
+            if (channel.isConnected()) {
+                onConnect(channel.connectAddress.getAddress(), channel.connectAddress.getPort());
+            }
+            if (!channel.isOpen()) {
+                onClose();
+            }
+
         }
 
         @Override
@@ -514,11 +537,7 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
 
         @Override
         public InetAddress getLocalAddress() {
-            try {
-                return channel.getLocalAddress();
-            } catch (UnknownHostException e) {
-                return null;
-            }
+            return channel.localAddress != null ? channel.localAddress : Inet4Address.ANY;
         }
 
         @Override
@@ -530,10 +549,11 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
                 throw new AlreadyConnectedException();
             }
             super.connect(remoteAddr, timeout);
-            channel.initLocalAddressAndPort();
+            channel.onBind(false);
             if (super.isConnected()) {
-                channel.setConnected();
-                channel.isBound = super.isBound();
+                InetSocketAddress remoteInetAddress = (InetSocketAddress) remoteAddr;
+                channel.onConnectStatusChanged(
+                        remoteInetAddress, SOCKET_STATUS_CONNECTED, false /* updateSocketState */);
             }
         }
 
@@ -546,47 +566,29 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
                 throw new ConnectionPendingException();
             }
             super.bind(localAddr);
-            channel.initLocalAddressAndPort();
-            channel.isBound = true;
+            channel.onBind(false);
         }
 
         @Override
         public void close() throws IOException {
             synchronized (channel) {
+                super.close();
                 if (channel.isOpen()) {
+                    // channel.close() recognizes the socket is closed and avoids recursion. There
+                    // is no channel.onClose() because the "closed" field is private.
                     channel.close();
-                } else {
-                    super.close();
                 }
-                channel.status = SocketChannelImpl.SOCKET_STATUS_CLOSED;
             }
         }
 
         @Override
         public OutputStream getOutputStream() throws IOException {
-            checkOpenAndConnected();
-            if (isOutputShutdown()) {
-                throw new SocketException("Socket output is shutdown");
-            }
-            return new SocketChannelOutputStream(channel);
+            return new BlockingCheckOutputStream(super.getOutputStream(), channel);
         }
 
         @Override
         public InputStream getInputStream() throws IOException {
-            checkOpenAndConnected();
-            if (isInputShutdown()) {
-                throw new SocketException("Socket input is shutdown");
-            }
-            return new SocketChannelInputStream(channel);
-        }
-
-        private void checkOpenAndConnected() throws SocketException {
-            if (!channel.isOpen()) {
-                throw new SocketException("Socket is closed");
-            }
-            if (!channel.isConnected()) {
-                throw new SocketException("Socket is not connected");
-            }
+            return new BlockingCheckInputStream(super.getInputStream(), channel);
         }
 
         @Override
@@ -596,86 +598,92 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
     }
 
     /*
-     * This output stream delegates all operations to the associated channel.
      * Throws an IllegalBlockingModeException if the channel is in non-blocking
      * mode when performing write operations.
      */
-    private static class SocketChannelOutputStream extends OutputStream {
+    private static class BlockingCheckOutputStream extends FilterOutputStream {
         private final SocketChannel channel;
 
-        public SocketChannelOutputStream(SocketChannel channel) {
+        public BlockingCheckOutputStream(OutputStream out, SocketChannel channel) {
+            super(out);
             this.channel = channel;
-        }
-
-        /*
-         * Closes this stream and channel.
-         *
-         * @throws IOException thrown if an error occurs during the close
-         */
-        @Override
-        public void close() throws IOException {
-            channel.close();
         }
 
         @Override
         public void write(byte[] buffer, int offset, int byteCount) throws IOException {
-            Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
-            ByteBuffer buf = ByteBuffer.wrap(buffer, offset, byteCount);
-            if (!channel.isBlocking()) {
-                throw new IllegalBlockingModeException();
-            }
-            channel.write(buf);
+            checkBlocking();
+            out.write(buffer, offset, byteCount);
         }
 
         @Override
         public void write(int oneByte) throws IOException {
+            checkBlocking();
+            out.write(oneByte);
+        }
+
+        @Override
+        public void write(byte[] buffer) throws IOException {
+            checkBlocking();
+            out.write(buffer);
+        }
+
+        @Override
+        public void close() throws IOException {
+            super.close();
+            // channel.close() recognizes the socket is closed and avoids recursion. There is no
+            // channel.onClose() because the "closed" field is private.
+            channel.close();
+        }
+
+        private void checkBlocking() {
             if (!channel.isBlocking()) {
                 throw new IllegalBlockingModeException();
             }
-            ByteBuffer buffer = ByteBuffer.allocate(1);
-            buffer.put(0, (byte) (oneByte & 0xFF));
-            channel.write(buffer);
         }
     }
 
     /*
-     * This input stream delegates all operations to the associated channel.
      * Throws an IllegalBlockingModeException if the channel is in non-blocking
      * mode when performing read operations.
      */
-    private static class SocketChannelInputStream extends InputStream {
+    private static class BlockingCheckInputStream extends FilterInputStream {
         private final SocketChannel channel;
 
-        public SocketChannelInputStream(SocketChannel channel) {
+        public BlockingCheckInputStream(InputStream in, SocketChannel channel) {
+            super(in);
             this.channel = channel;
-        }
-
-        /*
-         * Closes this stream and channel.
-         */
-        @Override
-        public void close() throws IOException {
-            channel.close();
         }
 
         @Override
         public int read() throws IOException {
-            if (!channel.isBlocking()) {
-                throw new IllegalBlockingModeException();
-            }
-            ByteBuffer buf = ByteBuffer.allocate(1);
-            int result = channel.read(buf);
-            return (result == -1) ? result : (buf.get(0) & 0xff);
+            checkBlocking();
+            return in.read();
         }
 
         @Override
         public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-            Arrays.checkOffsetAndCount(buffer.length, byteOffset, byteCount);
+            checkBlocking();
+            return in.read(buffer, byteOffset, byteCount);
+        }
+
+        @Override
+        public int read(byte[] buffer) throws IOException {
+            checkBlocking();
+            return in.read(buffer);
+        }
+
+        @Override
+        public void close() throws IOException {
+            super.close();
+            // channel.close() recognizes the socket is closed and avoids recursion. There is no
+            // channel.onClose() because the "closed" field is private.
+            channel.close();
+        }
+
+        private void checkBlocking() {
             if (!channel.isBlocking()) {
                 throw new IllegalBlockingModeException();
             }
-            ByteBuffer buf = ByteBuffer.wrap(buffer, byteOffset, byteCount);
-            return channel.read(buf);
         }
     }
 }

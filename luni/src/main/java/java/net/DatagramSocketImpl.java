@@ -268,4 +268,40 @@ public abstract class DatagramSocketImpl implements SocketOptions {
      *                if an error occurs while peeking at the data.
      */
     protected abstract int peekData(DatagramPacket pack) throws IOException;
+
+    /**
+     * Initialize the bind() state.
+     * @hide used in java.nio.
+     */
+    protected void onBind(InetAddress localAddress, int localPort) {
+        // Do not add any code to these methods. They are concrete only to preserve API
+        // compatibility.
+    }
+
+    /**
+     * Initialize the connect() state.
+     * @hide used in java.nio.
+     */
+    protected void onConnect(InetAddress remoteAddress, int remotePort) {
+        // Do not add any code to these methods. They are concrete only to preserve API
+        // compatibility.
+    }
+
+    /**
+     * Initialize the disconnected state.
+     * @hide used in java.nio.
+     */
+    protected void onDisconnect() {
+        // Do not add any code to these methods. They are concrete only to preserve API
+        // compatibility.
+    }
+
+    /**
+     * Initialize the closed state.
+     * @hide used in java.nio.
+     */
+    protected void onClose() {
+        // Do not add any code to these methods. They are concrete only to preserve API
+        // compatibility.
+    }
 }

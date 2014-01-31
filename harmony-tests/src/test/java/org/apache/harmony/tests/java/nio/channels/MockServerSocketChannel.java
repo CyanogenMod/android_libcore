@@ -29,17 +29,21 @@ class MockServerSocketChannel extends ServerSocketChannel {
         super(arg0);
     }
 
+    @Override
     public ServerSocket socket() {
         return null;
     }
 
+    @Override
     public SocketChannel accept() throws IOException {
         return null;
     }
 
+    @Override
     protected void implCloseSelectableChannel() throws IOException {
     }
 
+    @Override
     protected void implConfigureBlocking(boolean arg0) throws IOException {
     }
 

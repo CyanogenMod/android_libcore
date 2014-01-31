@@ -70,7 +70,7 @@ public class SocketTest extends junit.framework.TestCase {
         public void run() {
             try {
 
-                ServerSocket socket = null;
+                ServerSocket socket;
                 switch (serverSocketConstructor) {
                     case FIRST_TIME:
                         socket = new ServerSocket(port, backlog,
@@ -537,7 +537,7 @@ public class SocketTest extends junit.framework.TestCase {
         assertTrue("Failed to create socket", client.getPort() == serverPort);
         client.close();
 
-        Socket theSocket = null;
+        Socket theSocket;
         try {
             theSocket = new Socket("127.0.0.1", serverPort, InetAddress
                     .getLocalHost(), 0);
@@ -627,9 +627,7 @@ public class SocketTest extends junit.framework.TestCase {
      */
     public void test_ConstructorLjava_net_Proxy_Exception() {
 
-        SocketAddress addr1 = InetSocketAddress.createUnresolved("127.0.0.1",
-                80);
-        SocketAddress addr2 = new InetSocketAddress("localhost", 80);
+        SocketAddress addr1 = InetSocketAddress.createUnresolved("127.0.0.1", 80);
 
         Proxy proxy1 = new Proxy(Proxy.Type.HTTP, addr1);
         // IllegalArgumentException test
@@ -1215,7 +1213,7 @@ public class SocketTest extends junit.framework.TestCase {
         OutputStream theOutput = worker.getOutputStream();
 
         // Send the regular data
-        byte[] sendBytes = new String("Test").getBytes();
+        byte[] sendBytes = "Test".getBytes();
         theOutput.write(sendBytes);
         theOutput.flush();
 
@@ -1268,7 +1266,7 @@ public class SocketTest extends junit.framework.TestCase {
         theOutput = worker.getOutputStream();
 
         // Send the regular data
-        sendBytes = new String("Test - Urgent Data").getBytes();
+        sendBytes = "Test - Urgent Data".getBytes();
         theOutput.write(sendBytes);
 
         // Send the urgent data (one byte) which should be received
@@ -1325,7 +1323,7 @@ public class SocketTest extends junit.framework.TestCase {
         theOutput = worker.getOutputStream();
 
         // Send the regular data
-        sendBytes = new String("Test - Urgent Data").getBytes();
+        sendBytes = "Test - Urgent Data".getBytes();
         theOutput.write(sendBytes);
 
         // Send the urgent data (one byte) which should be received
@@ -1421,7 +1419,7 @@ public class SocketTest extends junit.framework.TestCase {
         server.close();
 
         // Regression test for HARMONY-1136
-        new TestSocket((SocketImpl) null).setKeepAlive(true);
+        new TestSocket(null).setKeepAlive(true);
     }
 
     public void test_setOOBInlineZ() throws Exception {
@@ -1556,7 +1554,7 @@ public class SocketTest extends junit.framework.TestCase {
         client.shutdownInput();
 
         // send the regular data
-        String sendString = new String("Test");
+        String sendString = "Test";
         theOutput.write(sendString.getBytes());
         theOutput.flush();
 
@@ -1596,7 +1594,7 @@ public class SocketTest extends junit.framework.TestCase {
         worker.shutdownOutput();
 
         // send the regular data
-        String sendString = new String("Test");
+        String sendString = "Test";
         try {
             theOutput.write(sendString.getBytes());
             theOutput.flush();

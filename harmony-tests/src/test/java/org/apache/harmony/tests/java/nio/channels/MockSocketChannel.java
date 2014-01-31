@@ -30,45 +30,56 @@ class MockSocketChannel extends SocketChannel {
         super(arg0);
     }
 
+    @Override
     public Socket socket() {
         return null;
     }
 
+    @Override
     public boolean isConnected() {
         return false;
     }
 
+    @Override
     public boolean isConnectionPending() {
         return false;
     }
 
+    @Override
     public boolean connect(SocketAddress arg0) throws IOException {
         return false;
     }
 
+    @Override
     public boolean finishConnect() throws IOException {
         return false;
     }
 
+    @Override
     public int read(ByteBuffer arg0) throws IOException {
         return 0;
     }
 
+    @Override
     public long read(ByteBuffer[] arg0, int arg1, int arg2) throws IOException {
         return 0;
     }
 
+    @Override
     public int write(ByteBuffer arg0) throws IOException {
         return 0;
     }
 
+    @Override
     public long write(ByteBuffer[] arg0, int arg1, int arg2) throws IOException {
         return 0;
     }
 
+    @Override
     protected void implCloseSelectableChannel() throws IOException {
     }
 
+    @Override
     protected void implConfigureBlocking(boolean arg0) throws IOException {
     }
 
