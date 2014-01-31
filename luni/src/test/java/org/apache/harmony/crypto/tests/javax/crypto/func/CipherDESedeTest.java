@@ -18,7 +18,7 @@ package org.apache.harmony.crypto.tests.javax.crypto.func;
 import junit.framework.TestCase;
 
 public class CipherDESedeTest extends TestCase {
-// 80 cases checked
+// 120 cases checked
     public void test_DESedeNoISO() {
         CipherSymmetricKeyThread DESedeNoISO = new CipherSymmetricKeyThread(
                 "DESede", new int[] {112, 168},// Keysize must be 112 or 168.
@@ -26,7 +26,8 @@ public class CipherDESedeTest extends TestCase {
                         "ECB", "CBC", "CFB", "CFB8", "CFB16", "CFB24", "CFB32",
                         "CFB40", "CFB48", "CFB56", "CFB64", "OFB", "OFB8",
                         "OFB16", "OFB24", "OFB32", "OFB40", "OFB48", "OFB56",
-                        "OFB64"}, new String[] {"NoPadding", "PKCS5Padding"});
+                        "OFB64"},
+                new String[] {"NoPadding", "PKCS5Padding", "PKCS7Padding"});
 
         DESedeNoISO.launcher();
 
