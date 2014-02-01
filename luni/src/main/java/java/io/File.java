@@ -417,12 +417,6 @@ public class File implements Serializable, Comparable<File> {
     private static native String canonicalizePath(String path);
 
     /**
-     * TODO: move this to libcore.os.
-     * @hide
-     */
-    private static native String readlink(String path);
-
-    /**
      * Returns a new file created using the canonical path of this file.
      * Equivalent to {@code new File(this.getCanonicalPath())}.
      *
