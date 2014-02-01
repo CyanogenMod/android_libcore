@@ -22,7 +22,6 @@
 #include "JniException.h"
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
-#include "readlink.h"
 #include "toStringArray.h"
 
 #include <string>
@@ -38,20 +37,6 @@
 #include <time.h>
 #include <unistd.h>
 #include <utime.h>
-
-static jstring File_readlink(JNIEnv* env, jclass, jstring javaPath) {
-  ScopedUtfChars path(env, javaPath);
-  if (path.c_str() == NULL) {
-    return NULL;
-  }
-
-  std::string result;
-  if (!readlink(path.c_str(), result)) {
-    jniThrowIOException(env, errno);
-    return NULL;
-  }
-  return env->NewStringUTF(result.c_str());
-}
 
 static jstring File_canonicalizePath(JNIEnv* env, jclass, jstring javaPath) {
   ScopedUtfChars path(env, javaPath);
@@ -165,7 +150,6 @@ static jobjectArray File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
 static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(File, canonicalizePath, "(Ljava/lang/String;)Ljava/lang/String;"),
   NATIVE_METHOD(File, listImpl, "(Ljava/lang/String;)[Ljava/lang/String;"),
-  NATIVE_METHOD(File, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),
   NATIVE_METHOD(File, setLastModifiedImpl, "(Ljava/lang/String;J)Z"),
 };
 void register_java_io_File(JNIEnv* env) {
