@@ -18,7 +18,7 @@ package org.apache.harmony.crypto.tests.javax.crypto.func;
 import junit.framework.TestCase;
 
 public class CipherAesTest extends TestCase {
-// 216 cases checked
+// 324 cases checked
     public void test_AesNoISO() {
         CipherSymmetricKeyThread aesNoISO = new CipherSymmetricKeyThread("AES",
                 new int[] {128, 192, 256}, // Keysize must be 128, 192, 256.
@@ -29,7 +29,8 @@ public class CipherAesTest extends TestCase {
                         "CFB128", "OFB", "OFB8", "OFB16", "OFB24", "OFB32",
                         "OFB40", "OFB48", "OFB56", "OFB64", "OFB72", "OFB80",
                         "OFB88", "OFB96", "OFB104", "OFB112", "OFB120",
-                        "OFB128"}, new String[] {"NoPadding", "PKCS5Padding"});
+                        "OFB128"},
+                new String[] {"NoPadding", "PKCS5Padding", "PKCS7Padding"});
 
         aesNoISO.launcher();
 
