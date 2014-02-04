@@ -175,6 +175,11 @@ public class BlockGuardOs extends ForwardingOs {
         return os.poll(fds, timeoutMs);
     }
 
+    @Override public void posix_fallocate(FileDescriptor fd, long offset, long length) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        os.posix_fallocate(fd, offset, length);
+    }
+
     @Override public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.pread(fd, buffer, offset);

@@ -92,6 +92,7 @@ public final class Posix implements Os {
     public native FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
     public native FileDescriptor[] pipe() throws ErrnoException;
     public native int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException;
+    public native void posix_fallocate(FileDescriptor fd, long offset, long length) throws ErrnoException;
     public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException {
         if (buffer.isDirect()) {
             return preadBytes(fd, buffer, buffer.position(), buffer.remaining(), offset);
