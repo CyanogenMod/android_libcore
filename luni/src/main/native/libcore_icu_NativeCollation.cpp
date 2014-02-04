@@ -179,7 +179,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NativeCollation, closeElements, "(J)V"),
     NATIVE_METHOD(NativeCollation, compare, "(JLjava/lang/String;Ljava/lang/String;)I"),
     NATIVE_METHOD(NativeCollation, getAttribute, "(JI)I"),
-    NATIVE_METHOD(NativeCollation, getCollationElementIterator, "(JLjava/lang/String;)I"),
+    NATIVE_METHOD(NativeCollation, getCollationElementIterator, "(JLjava/lang/String;)J"),
     NATIVE_METHOD(NativeCollation, getMaxExpansion, "(JI)I"),
     NATIVE_METHOD(NativeCollation, getOffset, "(J)I"),
     NATIVE_METHOD(NativeCollation, getRules, "(J)Ljava/lang/String;"),
