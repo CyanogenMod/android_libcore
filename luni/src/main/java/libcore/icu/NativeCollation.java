@@ -23,7 +23,7 @@ public final class NativeCollation {
     public static native void closeCollator(long address);
     public static native int compare(long address, String source, String target);
     public static native int getAttribute(long address, int type);
-    public static native int getCollationElementIterator(long address, String source);
+    public static native long getCollationElementIterator(long address, String source);
     public static native String getRules(long address);
     public static native byte[] getSortKey(long address, String source);
     public static native long openCollator(String locale);
