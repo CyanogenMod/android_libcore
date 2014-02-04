@@ -1291,7 +1291,7 @@ static void ExpatAttributes_freeAttributes(JNIEnv*, jobject, jlong pointer) {
 static void ExpatParser_staticInitialize(JNIEnv* env, jobject classObject, jstring empty) {
     jclass clazz = reinterpret_cast<jclass>(classObject);
     startElementMethod = env->GetMethodID(clazz, "startElement",
-        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V");
+        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JI)V");
     if (startElementMethod == NULL) return;
 
     endElementMethod = env->GetMethodID(clazz, "endElement",
