@@ -32,10 +32,10 @@ public class MemoryTest extends TestCase {
         int scale = SizeOf.INT;
         VMRuntime runtime = VMRuntime.getRuntime();
         byte[] array = (byte[]) runtime.newNonMovableArray(byte.class, scale * values.length + 1);
-        int base_ptr = (int) runtime.addressOf(array);
+        long base_ptr = runtime.addressOf(array);
 
         for (int ptr_offset = 0; ptr_offset < 2; ++ptr_offset) {
-            int ptr = base_ptr + ptr_offset; // To test aligned and unaligned accesses.
+            long ptr = base_ptr + ptr_offset; // To test aligned and unaligned accesses.
             Arrays.fill(array, (byte) 0);
 
             // Regular copy.
@@ -57,7 +57,7 @@ public class MemoryTest extends TestCase {
         }
     }
 
-    private void assertIntsEqual(int[] expectedValues, int ptr, boolean swap) {
+    private void assertIntsEqual(int[] expectedValues, long ptr, boolean swap) {
         for (int i = 0; i < expectedValues.length; ++i) {
             assertEquals(expectedValues[i], Memory.peekInt(ptr + SizeOf.INT * i, swap));
         }
@@ -73,10 +73,10 @@ public class MemoryTest extends TestCase {
         int scale = SizeOf.LONG;
         VMRuntime runtime = VMRuntime.getRuntime();
         byte[] array = (byte[]) runtime.newNonMovableArray(byte.class, scale * values.length + 1);
-        int base_ptr = (int) runtime.addressOf(array);
+        long base_ptr = runtime.addressOf(array);
 
         for (int ptr_offset = 0; ptr_offset < 2; ++ptr_offset) {
-            int ptr = base_ptr + ptr_offset; // To test aligned and unaligned accesses.
+            long ptr = base_ptr + ptr_offset; // To test aligned and unaligned accesses.
             Arrays.fill(array, (byte) 0);
 
             // Regular copy.
@@ -98,7 +98,7 @@ public class MemoryTest extends TestCase {
         }
     }
 
-    private void assertLongsEqual(long[] expectedValues, int ptr, boolean swap) {
+    private void assertLongsEqual(long[] expectedValues, long ptr, boolean swap) {
       for (int i = 0; i < expectedValues.length; ++i) {
         assertEquals(expectedValues[i], Memory.peekLong(ptr + SizeOf.LONG * i, swap));
       }
@@ -111,10 +111,10 @@ public class MemoryTest extends TestCase {
         int scale = SizeOf.SHORT;
         VMRuntime runtime = VMRuntime.getRuntime();
         byte[] array = (byte[]) runtime.newNonMovableArray(byte.class, scale * values.length + 1);
-        int base_ptr = (int) runtime.addressOf(array);
+        long base_ptr = runtime.addressOf(array);
 
         for (int ptr_offset = 0; ptr_offset < 2; ++ptr_offset) {
-            int ptr = base_ptr + ptr_offset; // To test aligned and unaligned accesses.
+            long ptr = base_ptr + ptr_offset; // To test aligned and unaligned accesses.
             Arrays.fill(array, (byte) 0);
 
             // Regular copy.
@@ -136,7 +136,7 @@ public class MemoryTest extends TestCase {
         }
     }
 
-    private void assertShortsEqual(short[] expectedValues, int ptr, boolean swap) {
+    private void assertShortsEqual(short[] expectedValues, long ptr, boolean swap) {
         for (int i = 0; i < expectedValues.length; ++i) {
             assertEquals(expectedValues[i], Memory.peekShort(ptr + SizeOf.SHORT * i, swap));
         }
