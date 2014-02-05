@@ -397,46 +397,61 @@ public class Cipher {
 
     private static Engine.SpiAndProvider tryTransform(Key key, Provider provider, String transform,
             String[] transformParts, NeedToSet type) {
-        Engine.SpiAndProvider sap;
-        ArrayList<Provider.Service> services = ENGINE.getServices(transform, provider);
+        if (provider != null) {
+            Provider.Service service = provider.getService(SERVICE, transform);
+            if (service == null) {
+                return null;
+            }
+            return tryTransformWithProvider(key, transformParts, type, service);
+        }
+        ArrayList<Provider.Service> services = ENGINE.getServices(transform);
         if (services == null) {
             return null;
         }
         for (Provider.Service service : services) {
-            try {
-                if (key != null && !service.supportsParameter(key)) {
-                    continue;
-                }
-
-                /*
-                 * Check to see if the Cipher even supports the attributes
-                 * before trying to instantiate it.
-                 */
-                if (!matchAttribute(service, ATTRIBUTE_MODES, transformParts[1])
-                        || !matchAttribute(service, ATTRIBUTE_PADDINGS, transformParts[2])) {
-                    continue;
-                }
-
-                sap = ENGINE.getInstance(service, null);
-                if (sap.spi == null || sap.provider == null) {
-                    continue;
-                }
-                if (!(sap.spi instanceof CipherSpi)) {
-                    continue;
-                }
-                CipherSpi spi = (CipherSpi) sap.spi;
-                if (((type == NeedToSet.MODE) || (type == NeedToSet.BOTH))
-                        && (transformParts[1] != null)) {
-                    spi.engineSetMode(transformParts[1]);
-                }
-                if (((type == NeedToSet.PADDING) || (type == NeedToSet.BOTH))
-                        && (transformParts[2] != null)) {
-                    spi.engineSetPadding(transformParts[2]);
-                }
+            Engine.SpiAndProvider sap = tryTransformWithProvider(key, transformParts, type, service);
+            if (sap != null) {
                 return sap;
-            } catch (NoSuchAlgorithmException ignored) {
-            } catch (NoSuchPaddingException ignored) {
             }
+        }
+        return null;
+    }
+
+    private static Engine.SpiAndProvider tryTransformWithProvider(Key key, String[] transformParts,
+            NeedToSet type, Provider.Service service) {
+        try {
+            if (key != null && !service.supportsParameter(key)) {
+                return null;
+            }
+
+            /*
+             * Check to see if the Cipher even supports the attributes before
+             * trying to instantiate it.
+             */
+            if (!matchAttribute(service, ATTRIBUTE_MODES, transformParts[1])
+                    || !matchAttribute(service, ATTRIBUTE_PADDINGS, transformParts[2])) {
+                return null;
+            }
+
+            Engine.SpiAndProvider sap = ENGINE.getInstance(service, null);
+            if (sap.spi == null || sap.provider == null) {
+                return sap;
+            }
+            if (!(sap.spi instanceof CipherSpi)) {
+                return sap;
+            }
+            CipherSpi spi = (CipherSpi) sap.spi;
+            if (((type == NeedToSet.MODE) || (type == NeedToSet.BOTH))
+                    && (transformParts[1] != null)) {
+                spi.engineSetMode(transformParts[1]);
+            }
+            if (((type == NeedToSet.PADDING) || (type == NeedToSet.BOTH))
+                    && (transformParts[2] != null)) {
+                spi.engineSetPadding(transformParts[2]);
+            }
+            return sap;
+        } catch (NoSuchAlgorithmException ignored) {
+        } catch (NoSuchPaddingException ignored) {
         }
         return null;
     }
