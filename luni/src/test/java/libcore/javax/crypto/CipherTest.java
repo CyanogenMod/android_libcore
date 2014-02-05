@@ -26,6 +26,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.PublicKey;
@@ -830,6 +831,59 @@ public final class CipherTest extends TestCase {
         }
 
         public abstract void setup();
+    }
+
+    public void testCipher_getInstance_SuppliedProviderNotRegistered_Success() throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.AllKeyTypes.class.getName());
+            }
+        };
+
+        {
+            Cipher c = Cipher.getInstance("FOO", mockProvider);
+            c.init(Cipher.ENCRYPT_MODE, new MockKey());
+            assertEquals(mockProvider, c.getProvider());
+        }
+    }
+
+    public void testCipher_getInstance_SuppliedProviderNotRegistered_MultipartTransform_Success()
+            throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.AllKeyTypes.class.getName());
+            }
+        };
+
+        {
+            Cipher c = Cipher.getInstance("FOO/FOO/FOO", mockProvider);
+            c.init(Cipher.ENCRYPT_MODE, new MockKey());
+            assertEquals(mockProvider, c.getProvider());
+        }
+    }
+
+    public void testCipher_getInstance_OnlyUsesSpecifiedProvider_SameNameAndClass_Success()
+            throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.AllKeyTypes.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProvider);
+        try {
+            {
+                Provider mockProvider2 = new MockProvider("MockProvider") {
+                    public void setup() {
+                        put("Cipher.FOO", MockCipherSpi.AllKeyTypes.class.getName());
+                    }
+                };
+                Cipher c = Cipher.getInstance("FOO", mockProvider2);
+                assertEquals(mockProvider2, c.getProvider());
+            }
+        } finally {
+            Security.removeProvider(mockProvider.getName());
+        }
     }
 
     public void testCipher_getInstance_DelayedInitialization_KeyType() throws Exception {

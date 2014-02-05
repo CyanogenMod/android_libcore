@@ -51,12 +51,16 @@ public class MockCipherSpi extends CipherSpi {
 
     @Override
     protected void engineSetMode(String mode) throws NoSuchAlgorithmException {
-        throw new UnsupportedOperationException("not implemented");
+        if (!"FOO".equals(mode)) {
+            throw new UnsupportedOperationException("not implemented");
+        }
     }
 
     @Override
     protected void engineSetPadding(String padding) throws NoSuchPaddingException {
-        throw new UnsupportedOperationException("not implemented");
+        if (!"FOO".equals(padding)) {
+            throw new UnsupportedOperationException("not implemented");
+        }
     }
 
     @Override

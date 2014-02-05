@@ -26,7 +26,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Objects;
 
 /**
  * This class implements common functionality for Provider supplied
@@ -93,19 +92,15 @@ public class Engine {
     private static final class ServiceCacheEntry {
         /** used to test for cache hit */
         private final String algorithm;
-        /** used to test for cache hit */
-        private final Provider provider;
         /** used to test for cache validity */
         private final int cacheVersion;
         /** cached result */
         private final ArrayList<Provider.Service> services;
 
         private ServiceCacheEntry(String algorithm,
-                                  Provider provider,
                                   int cacheVersion,
                                   ArrayList<Provider.Service> services) {
             this.algorithm = algorithm;
-            this.provider = provider;
             this.cacheVersion = cacheVersion;
             this.services = services;
         }
@@ -139,7 +134,7 @@ public class Engine {
         if (algorithm == null) {
             throw new NoSuchAlgorithmException("Null algorithm name");
         }
-        ArrayList<Provider.Service> services = getServices(algorithm, null);
+        ArrayList<Provider.Service> services = getServices(algorithm);
         if (services == null) {
             throw notFound(this.serviceName, algorithm);
         }
@@ -159,32 +154,19 @@ public class Engine {
     /**
      * Returns a list of all possible matches for a given algorithm.
      */
-    public ArrayList<Provider.Service> getServices(String algorithm, Provider provider) {
+    public ArrayList<Provider.Service> getServices(String algorithm) {
         int newCacheVersion = Services.getCacheVersion();
         ServiceCacheEntry cacheEntry = this.serviceCache;
         final String algoUC = algorithm.toUpperCase(Locale.US);
         if (cacheEntry != null
                 && cacheEntry.algorithm.equalsIgnoreCase(algoUC)
-                && Objects.equals(cacheEntry.provider, provider)
                 && newCacheVersion == cacheEntry.cacheVersion) {
             return cacheEntry.services;
         }
         String name = this.serviceName + "." + algoUC;
         ArrayList<Provider.Service> services = Services.getServices(name);
-        if (provider == null || services == null) {
-            this.serviceCache = new ServiceCacheEntry(algoUC, provider, newCacheVersion, services);
-            return services;
-        }
-        ArrayList<Provider.Service> filteredServices = new ArrayList<Provider.Service>(
-                services.size());
-        for (Provider.Service service : services) {
-            if (provider.equals(service.getProvider())) {
-                filteredServices.add(service);
-            }
-        }
-        this.serviceCache = new ServiceCacheEntry(algoUC, provider, newCacheVersion,
-                filteredServices);
-        return filteredServices;
+        this.serviceCache = new ServiceCacheEntry(algoUC, newCacheVersion, services);
+        return services;
     }
 
     /**
