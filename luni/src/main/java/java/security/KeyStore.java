@@ -159,7 +159,8 @@ public class KeyStore {
 
     /**
      * Returns a new instance of {@code KeyStore} from the specified provider
-     * with the given type.
+     * with the given type. The {@code provider} supplied does not have to be
+     * registered.
      *
      * @param type
      *            the type of the returned {@code KeyStore}.

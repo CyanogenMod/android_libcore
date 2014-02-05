@@ -148,7 +148,8 @@ public abstract class Signature extends SignatureSpi {
 
     /**
      * Returns a new instance of {@code Signature} that utilizes the specified
-     * algorithm from the specified provider.
+     * algorithm from the specified provider. The {@code provider} supplied
+     * does not have to be registered.
      *
      * @param algorithm
      *            the name of the algorithm to use.

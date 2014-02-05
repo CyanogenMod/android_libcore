@@ -140,7 +140,8 @@ public class CertPathValidator {
 
     /**
      * Returns a new certification path validator for the specified algorithm
-     * from the specified provider.
+     * from the specified provider. The {@code provider} supplied does not
+     * have to be registered.
      *
      * @param algorithm
      *            the algorithm name.
