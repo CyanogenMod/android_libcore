@@ -139,7 +139,8 @@ public class KeyAgreement {
 
     /**
      * Create a new {@code KeyAgreement} for the specified algorithm from the
-     * specified provider.
+     * specified provider. The {@code provider} supplied does not have to be
+     * registered.
      *
      * @param algorithm
      *            the name of the key agreement algorithm to create.

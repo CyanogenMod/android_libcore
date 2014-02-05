@@ -129,7 +129,8 @@ public class AlgorithmParameterGenerator {
 
     /**
      * Returns a new instance of {@code AlgorithmParameterGenerator} from the
-     * specified provider for the specified algorithm.
+     * specified provider for the specified algorithm. The {@code provider}
+     * supplied does not have to be registered.
      *
      * @param algorithm
      *            the name of the algorithm to use.
