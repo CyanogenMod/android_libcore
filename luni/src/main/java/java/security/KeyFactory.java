@@ -112,7 +112,8 @@ public class KeyFactory {
 
     /**
      * Returns a new instance of {@code KeyFactory} that utilizes the specified
-     * algorithm from the specified provider.
+     * algorithm from the specified provider. The {@code provider} supplied
+     * does not have to be registered.
      *
      * @param algorithm
      *            the name of the algorithm.

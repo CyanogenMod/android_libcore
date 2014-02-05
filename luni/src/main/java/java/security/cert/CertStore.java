@@ -151,7 +151,9 @@ public class CertStore {
 
     /**
      * Creates a new {@code CertStore} instance from the specified provider with
-     * the specified type and initialized with the specified parameters.
+     * the specified type and initialized with the specified parameters. The
+     * {@code provider} supplied does not have to be registered.
+     *
      * @param type
      *            the certificate store type.
      * @param params

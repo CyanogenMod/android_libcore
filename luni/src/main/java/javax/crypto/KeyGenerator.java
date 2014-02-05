@@ -137,7 +137,8 @@ public class KeyGenerator {
 
     /**
      * Creates a new {@code KeyGenerator} instance that provides the specified
-     * key algorithm from the specified provider.
+     * key algorithm from the specified provider. The {@code provider}
+     * supplied does not have to be registered.
      *
      * @param algorithm
      *            the name of the requested key algorithm.

@@ -142,6 +142,7 @@ public class ExemptionMechanism {
     /**
      * Returns a new {@code ExemptionMechanism} instance that provides the
      * specified exemption mechanism algorithm from the specified provider.
+     * The {@code provider} supplied does not have to be registered.
      *
      * @param algorithm
      *            the name of the requested exemption mechanism.
