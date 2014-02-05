@@ -141,7 +141,8 @@ public class Mac implements Cloneable {
 
     /**
      * Creates a new {@code Mac} instance that provides the specified MAC
-     * algorithm from the specified provider.
+     * algorithm from the specified provider. The {@code provider} supplied
+     * does not have to be registered.
      *
      * @param algorithm
      *            the name of the requested MAC algorithm.

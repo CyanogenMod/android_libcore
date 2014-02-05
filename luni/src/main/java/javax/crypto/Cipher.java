@@ -243,7 +243,8 @@ public class Cipher {
     }
 
     /**
-     * Creates a new cipher for the specified transformation.
+     * Creates a new cipher for the specified transformation. The
+     * {@code provider} supplied does not have to be registered.
      *
      * @param transformation
      *            the name of the transformation to create a cipher for.
