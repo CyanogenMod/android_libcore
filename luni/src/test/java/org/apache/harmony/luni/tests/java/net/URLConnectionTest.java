@@ -851,40 +851,13 @@ public class URLConnectionTest extends TestCase {
         ((HttpURLConnection) uc).disconnect();
     }
 
-    public void test_getOutputStream() throws IOException {
-        String posted = "this is a test";
-        URLConnection uc3 = new URL("http://www.google.com/ie").openConnection();
-        uc3.setDoOutput(true);
-        uc3.connect();
-
-        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(uc3
-                .getOutputStream()), posted.getBytes().length);
-
-        w.write(posted);
-        w.flush();
-        w.close();
-
-        int code = ((HttpURLConnection) uc3).getResponseCode();
-
-        // writing to url not allowed
-        assertEquals("Got different responseCode ", 405, code);
-
-        // try exception testing
-        try {
-            fileURLCon.setDoOutput(true);
-            fileURLCon.connect();
-            fileURLCon.getInputStream().close();
-            fileURLCon.getOutputStream();
-        } catch (UnknownServiceException expected) {
-        }
-
+    public void test_getOutputStream_failAfterDisconnect() throws IOException {
         ((HttpURLConnection) uc2).disconnect();
 
         try {
             uc2.getOutputStream();
-            fail("Exception expected");
-        } catch (IOException e) {
-            // ok
+            fail();
+        } catch (IOException expected) {
         }
     }
 
