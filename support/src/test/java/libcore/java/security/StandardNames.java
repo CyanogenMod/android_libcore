@@ -519,6 +519,12 @@ public final class StandardNames extends Assert {
             if (Security.getProvider("AndroidKeyStore") != null) {
                 provide("KeyStore", "AndroidKeyStore");
             }
+
+            // TimaKeyStore provider
+            if (Security.getProvider("TimaKeyStore") != null) {
+                provide("KeyStore", "TimaKeyStore");
+            }
+
         }
     }
 
