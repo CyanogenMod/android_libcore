@@ -69,7 +69,7 @@ import java.util.Locale;
  *
  * }</pre>
  */
-public class Engine {
+public final class Engine {
 
     /**
      * Access to package visible api in java.security
