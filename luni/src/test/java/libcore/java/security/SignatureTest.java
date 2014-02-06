@@ -18,6 +18,7 @@ package libcore.java.security;
 
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
+import java.security.InvalidParameterException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -38,10 +39,173 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import junit.framework.TestCase;
 
 public class SignatureTest extends TestCase {
+    private static abstract class MockProvider extends Provider {
+        public MockProvider(String name) {
+            super(name, 1.0, "Mock provider used for testing");
+            setup();
+        }
+
+        public abstract void setup();
+    }
+
+    public void testSignature_getInstance_SuppliedProviderNotRegistered_Success() throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.FOO", MockSignatureSpi.AllKeyTypes.class.getName());
+            }
+        };
+
+        {
+            Signature s = Signature.getInstance("FOO", mockProvider);
+            s.initSign(new MockPrivateKey());
+            assertEquals(mockProvider, s.getProvider());
+        }
+    }
+
+    public void testSignature_getInstance_OnlyUsesSpecifiedProvider_SameNameAndClass_Success()
+            throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.FOO", MockSignatureSpi.AllKeyTypes.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProvider);
+        try {
+            {
+                Provider mockProvider2 = new MockProvider("MockProvider") {
+                    public void setup() {
+                        put("Signature.FOO", MockSignatureSpi.AllKeyTypes.class.getName());
+                    }
+                };
+                Signature s = Signature.getInstance("FOO", mockProvider2);
+                assertEquals(mockProvider2, s.getProvider());
+            }
+        } finally {
+            Security.removeProvider(mockProvider.getName());
+        }
+    }
+
+    public void testSignature_getInstance_DelayedInitialization_KeyType() throws Exception {
+        Provider mockProviderSpecific = new MockProvider("MockProviderSpecific") {
+            public void setup() {
+                put("Signature.FOO", MockSignatureSpi.SpecificKeyTypes.class.getName());
+                put("Signature.FOO SupportedKeyClasses", this.getClass().getPackage().getName()
+                        + ".MockPrivateKey");
+            }
+        };
+        Provider mockProviderAll = new MockProvider("MockProviderAll") {
+            public void setup() {
+                put("Signature.FOO", MockSignatureSpi.AllKeyTypes.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProviderSpecific);
+        Security.addProvider(mockProviderAll);
+
+        try {
+            {
+                Signature s = Signature.getInstance("FOO");
+                s.initSign(new MockPrivateKey());
+                assertEquals(mockProviderSpecific, s.getProvider());
+            }
+
+            {
+                Signature s = Signature.getInstance("FOO");
+                s.initSign(new PrivateKey() {
+                    @Override
+                    public String getAlgorithm() {
+                        throw new UnsupportedOperationException("not implemented");
+                    }
+
+                    @Override
+                    public String getFormat() {
+                        throw new UnsupportedOperationException("not implemented");
+                    }
+
+                    @Override
+                    public byte[] getEncoded() {
+                        throw new UnsupportedOperationException("not implemented");
+                    }
+                });
+                assertEquals(mockProviderAll, s.getProvider());
+            }
+
+            {
+                Signature s = Signature.getInstance("FOO");
+                assertEquals(mockProviderSpecific, s.getProvider());
+            }
+        } finally {
+            Security.removeProvider(mockProviderSpecific.getName());
+            Security.removeProvider(mockProviderAll.getName());
+        }
+    }
+
+    private static class MySignature extends Signature {
+        protected MySignature(String algorithm) {
+            super(algorithm);
+        }
+
+        @Override
+        protected void engineInitVerify(PublicKey publicKey) throws InvalidKeyException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void engineInitSign(PrivateKey privateKey) throws InvalidKeyException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void engineUpdate(byte b) throws SignatureException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void engineUpdate(byte[] b, int off, int len) throws SignatureException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected byte[] engineSign() throws SignatureException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected boolean engineVerify(byte[] sigBytes) throws SignatureException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void engineSetParameter(String param, Object value) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected Object engineGetParameter(String param) throws InvalidParameterException {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public void testSignature_getProvider_Subclass() throws Exception {
+        Provider mockProviderNonSpi = new MockProvider("MockProviderNonSpi") {
+            public void setup() {
+                put("Signature.FOO", MySignature.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProviderNonSpi);
+
+        try {
+            Signature s = new MySignature("FOO");
+            assertNull(s.getProvider());
+        } finally {
+            Security.removeProvider(mockProviderNonSpi.getName());
+        }
+    }
 
     // 20 bytes for DSA
     private final byte[] DATA = new byte[20];
