@@ -93,8 +93,13 @@ public class SignatureTest extends TestCase {
         Provider mockProviderSpecific = new MockProvider("MockProviderSpecific") {
             public void setup() {
                 put("Signature.FOO", MockSignatureSpi.SpecificKeyTypes.class.getName());
-                put("Signature.FOO SupportedKeyClasses", this.getClass().getPackage().getName()
-                        + ".MockPrivateKey");
+                put("Signature.FOO SupportedKeyClasses", MockPrivateKey.class.getName());
+            }
+        };
+        Provider mockProviderSpecific2 = new MockProvider("MockProviderSpecific2") {
+            public void setup() {
+                put("Signature.FOO", MockSignatureSpi.SpecificKeyTypes2.class.getName());
+                put("Signature.FOO SupportedKeyClasses", MockPrivateKey2.class.getName());
             }
         };
         Provider mockProviderAll = new MockProvider("MockProviderAll") {
@@ -104,6 +109,7 @@ public class SignatureTest extends TestCase {
         };
 
         Security.addProvider(mockProviderSpecific);
+        Security.addProvider(mockProviderSpecific2);
         Security.addProvider(mockProviderAll);
 
         try {
@@ -111,6 +117,18 @@ public class SignatureTest extends TestCase {
                 Signature s = Signature.getInstance("FOO");
                 s.initSign(new MockPrivateKey());
                 assertEquals(mockProviderSpecific, s.getProvider());
+
+                try {
+                    s.initSign(new MockPrivateKey2());
+                    assertEquals(mockProviderSpecific2, s.getProvider());
+                    if (StandardNames.IS_RI) {
+                        fail("RI was broken before; fix tests now that it works!");
+                    }
+                } catch (InvalidKeyException e) {
+                    if (!StandardNames.IS_RI) {
+                        fail("Non-RI should select the right provider");
+                    }
+                }
             }
 
             {
@@ -140,6 +158,7 @@ public class SignatureTest extends TestCase {
             }
         } finally {
             Security.removeProvider(mockProviderSpecific.getName());
+            Security.removeProvider(mockProviderSpecific2.getName());
             Security.removeProvider(mockProviderAll.getName());
         }
     }
