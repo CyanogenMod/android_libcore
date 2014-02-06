@@ -29,7 +29,7 @@ public final class StructUcred {
   /** The peer process' gid. */
   public final int gid;
 
-  private StructUcred(int pid, int uid, int gid) {
+  public StructUcred(int pid, int uid, int gid) {
     this.pid = pid;
     this.uid = uid;
     this.gid = gid;
