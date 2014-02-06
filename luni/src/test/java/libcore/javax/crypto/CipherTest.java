@@ -940,6 +940,23 @@ public final class CipherTest extends TestCase {
         }
     }
 
+    public void testCipher_getInstance_WrongType_Failure() throws Exception {
+        Provider mockProviderInvalid = new MockProvider("MockProviderInvalid") {
+            public void setup() {
+                put("Cipher.FOO", Object.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProviderInvalid);
+        try {
+            Cipher.getInstance("FOO");
+            fail("Should not find any matching providers");
+        } catch (NoSuchAlgorithmException expected) {
+        } finally {
+            Security.removeProvider(mockProviderInvalid.getName());
+        }
+    }
+
     public void test_getInstance() throws Exception {
         final ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
         PrintStream out = new PrintStream(errBuffer);
