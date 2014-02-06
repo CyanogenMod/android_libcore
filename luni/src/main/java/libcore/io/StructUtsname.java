@@ -37,7 +37,7 @@ public final class StructUtsname {
     /** The machine architecture, such as "armv7l" or "x86_64". */
     public final String machine;
 
-    StructUtsname(String sysname, String nodename, String release, String version, String machine) {
+    public StructUtsname(String sysname, String nodename, String release, String version, String machine) {
         this.sysname = sysname;
         this.nodename = nodename;
         this.release = release;

@@ -53,7 +53,7 @@ public final class StructStatVfs {
   /** Maximum filename length. */
   public final long f_namemax; /*unsigned long*/
 
-  StructStatVfs(long f_bsize, long f_frsize, long f_blocks, long f_bfree, long f_bavail,
+  public StructStatVfs(long f_bsize, long f_frsize, long f_blocks, long f_bfree, long f_bavail,
                 long f_files, long f_ffree, long f_favail,
                 long f_fsid, long f_flag, long f_namemax) {
     this.f_bsize = f_bsize;
