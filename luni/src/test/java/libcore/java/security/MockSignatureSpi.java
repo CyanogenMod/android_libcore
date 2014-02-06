@@ -32,7 +32,16 @@ public class MockSignatureSpi extends SignatureSpi {
         @Override
         public void checkKeyType(Key key) throws InvalidKeyException {
             if (!(key instanceof MockPrivateKey)) {
-                throw new InvalidKeyException("Must be a mock key!");
+                throw new InvalidKeyException("Must be MockPrivateKey!");
+            }
+        }
+    }
+
+    public static class SpecificKeyTypes2 extends MockSignatureSpi {
+        @Override
+        public void checkKeyType(Key key) throws InvalidKeyException {
+            if (!(key instanceof MockPrivateKey2)) {
+                throw new InvalidKeyException("Must be MockPrivateKey2!");
             }
         }
     }
