@@ -23,9 +23,11 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
+import java.security.ProviderException;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.ArrayList;
 import org.apache.harmony.security.fortress.Engine;
 
 /**
@@ -35,20 +37,31 @@ import org.apache.harmony.security.fortress.Engine;
  */
 public class KeyAgreement {
 
+    // The service name.
+    private static final String SERVICE = "KeyAgreement";
+
     // Used to access common engine functionality
-    private static final Engine ENGINE = new Engine("KeyAgreement");
+    private static final Engine ENGINE = new Engine(SERVICE);
 
     // Store SecureRandom
     private static final SecureRandom RANDOM = new SecureRandom();
 
     // Store used provider
-    private final Provider provider;
+    private Provider provider;
+
+    // Provider that was requested during creation.
+    private final Provider specifiedProvider;
 
     // Store used spi implementation
-    private final KeyAgreementSpi spiImpl;
+    private KeyAgreementSpi spiImpl;
 
     // Store used algorithm name
     private final String algorithm;
+
+    /**
+     * Lock held while the SPI is initializing.
+     */
+    private final Object initLock = new Object();
 
     /**
      * Creates a new {@code KeyAgreement} instance.
@@ -62,9 +75,9 @@ public class KeyAgreement {
      */
     protected KeyAgreement(KeyAgreementSpi keyAgreeSpi, Provider provider,
             String algorithm) {
-        this.provider = provider;
-        this.algorithm = algorithm;
         this.spiImpl = keyAgreeSpi;
+        this.specifiedProvider = provider;
+        this.algorithm = algorithm;
     }
 
     /**
@@ -82,6 +95,7 @@ public class KeyAgreement {
      * @return the provider for this {@code KeyAgreement} instance.
      */
     public final Provider getProvider() {
+        getSpi();
         return provider;
     }
 
@@ -96,13 +110,8 @@ public class KeyAgreement {
      * @throws NullPointerException
      *             if the specified algorithm is {@code null}.
      */
-    public static final KeyAgreement getInstance(String algorithm)
-            throws NoSuchAlgorithmException {
-        if (algorithm == null) {
-            throw new NullPointerException("algorithm == null");
-        }
-        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
-        return new KeyAgreement((KeyAgreementSpi) sap.spi, sap.provider, algorithm);
+    public static final KeyAgreement getInstance(String algorithm) throws NoSuchAlgorithmException {
+        return getKeyAgreement(algorithm, null);
     }
 
     /**
@@ -124,9 +133,8 @@ public class KeyAgreement {
      * @throws IllegalArgumentException
      *             if the specified provider name is {@code null} or empty.
      */
-    public static final KeyAgreement getInstance(String algorithm,
-            String provider) throws NoSuchAlgorithmException,
-            NoSuchProviderException {
+    public static final KeyAgreement getInstance(String algorithm, String provider)
+            throws NoSuchAlgorithmException, NoSuchProviderException {
         if (provider == null || provider.isEmpty()) {
             throw new IllegalArgumentException("Provider is null or empty");
         }
@@ -134,7 +142,7 @@ public class KeyAgreement {
         if (impProvider == null) {
             throw new NoSuchProviderException(provider);
         }
-        return getInstance(algorithm, impProvider);
+        return getKeyAgreement(algorithm, impProvider);
     }
 
     /**
@@ -156,29 +164,108 @@ public class KeyAgreement {
      * @throws NullPointerException
      *             if the specified algorithm name is {@code null}.
      */
-    public static final KeyAgreement getInstance(String algorithm,
-            Provider provider) throws NoSuchAlgorithmException {
+    public static final KeyAgreement getInstance(String algorithm, Provider provider)
+            throws NoSuchAlgorithmException {
         if (provider == null) {
             throw new IllegalArgumentException("provider == null");
         }
+        return getKeyAgreement(algorithm, provider);
+    }
+
+    private static KeyAgreement getKeyAgreement(String algorithm, Provider provider)
+            throws NoSuchAlgorithmException {
         if (algorithm == null) {
             throw new NullPointerException("algorithm == null");
         }
-        Object spi = ENGINE.getInstance(algorithm, provider, null);
-        return new KeyAgreement((KeyAgreementSpi) spi, provider, algorithm);
+
+        if (tryAlgorithm(null, provider, algorithm) == null) {
+            if (provider == null) {
+                throw new NoSuchAlgorithmException("No provider found for " + algorithm);
+            } else {
+                throw new NoSuchAlgorithmException("Provider " + provider.getName()
+                        + " does not provide " + algorithm);
+            }
+        }
+        return new KeyAgreement(null, provider, algorithm);
+    }
+
+    private static Engine.SpiAndProvider tryAlgorithm(Key key, Provider provider, String algorithm) {
+        if (provider != null) {
+            Provider.Service service = provider.getService(SERVICE, algorithm);
+            if (service == null) {
+                return null;
+            }
+            return tryAlgorithmWithProvider(key, service);
+        }
+        ArrayList<Provider.Service> services = ENGINE.getServices(algorithm);
+        if (services == null) {
+            return null;
+        }
+        for (Provider.Service service : services) {
+            Engine.SpiAndProvider sap = tryAlgorithmWithProvider(key, service);
+            if (sap != null) {
+                return sap;
+            }
+        }
+        return null;
+    }
+
+    private static Engine.SpiAndProvider tryAlgorithmWithProvider(Key key, Provider.Service service) {
+        try {
+            if (key != null && !service.supportsParameter(key)) {
+                return null;
+            }
+
+            Engine.SpiAndProvider sap = ENGINE.getInstance(service, null);
+            if (sap.spi == null || sap.provider == null) {
+                return null;
+            }
+            if (!(sap.spi instanceof KeyAgreementSpi)) {
+                return null;
+            }
+            return sap;
+        } catch (NoSuchAlgorithmException ignored) {
+        }
+        return null;
+    }
+
+    /**
+     * Makes sure a KeyAgreementSpi that matches this type is selected.
+     */
+    private KeyAgreementSpi getSpi(Key key) {
+        synchronized (initLock) {
+            if (spiImpl != null && key == null) {
+                return spiImpl;
+            }
+
+            final Engine.SpiAndProvider sap = tryAlgorithm(key, specifiedProvider, algorithm);
+            if (sap == null) {
+                throw new ProviderException("No provider for " + getAlgorithm());
+            }
+
+            spiImpl = (KeyAgreementSpi) sap.spi;
+            provider = sap.provider;
+
+            return spiImpl;
+        }
+    }
+
+    /**
+     * Convenience call when the Key is not available.
+     */
+    private KeyAgreementSpi getSpi() {
+        return getSpi(null);
     }
 
     /**
      * Initializes this {@code KeyAgreement} with the specified key.
      *
-     * @param key
-     *            the key to initialize this key agreement.
-     * @throws InvalidKeyException
-     *             if the specified key cannot be used to initialize this key
-     *             agreement.
+     * @param key the key to initialize this key agreement.
+     * @throws InvalidKeyException if the specified key cannot be used to
+     *             initialize this key agreement.
      */
     public final void init(Key key) throws InvalidKeyException {
-        spiImpl.engineInit(key, RANDOM);//new SecureRandom());
+        getSpi(key).engineInit(key, RANDOM);//new SecureRandom());
     }
 
     /**
@@ -195,7 +282,7 @@ public class KeyAgreement {
      */
     public final void init(Key key, SecureRandom random)
             throws InvalidKeyException {
-        spiImpl.engineInit(key, random);
+        getSpi(key).engineInit(key, random);
     }
 
     /**
@@ -215,7 +302,7 @@ public class KeyAgreement {
      */
     public final void init(Key key, AlgorithmParameterSpec params)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
-        spiImpl.engineInit(key, params, RANDOM);//new SecureRandom());
+        getSpi(key).engineInit(key, params, RANDOM);//new SecureRandom());
     }
 
     /**
@@ -238,7 +325,7 @@ public class KeyAgreement {
     public final void init(Key key, AlgorithmParameterSpec params,
             SecureRandom random) throws InvalidKeyException,
             InvalidAlgorithmParameterException {
-        spiImpl.engineInit(key, params, random);
+        getSpi(key).engineInit(key, params, random);
     }
 
     /**
@@ -260,7 +347,7 @@ public class KeyAgreement {
      */
     public final Key doPhase(Key key, boolean lastPhase)
             throws InvalidKeyException, IllegalStateException {
-        return spiImpl.engineDoPhase(key, lastPhase);
+        return getSpi().engineDoPhase(key, lastPhase);
     }
 
     /**
@@ -271,7 +358,7 @@ public class KeyAgreement {
      *             if this key agreement is not complete.
      */
     public final byte[] generateSecret() throws IllegalStateException {
-        return spiImpl.engineGenerateSecret();
+        return getSpi().engineGenerateSecret();
     }
 
     /**
@@ -290,7 +377,7 @@ public class KeyAgreement {
      */
     public final int generateSecret(byte[] sharedSecret, int offset)
             throws IllegalStateException, ShortBufferException {
-        return spiImpl.engineGenerateSecret(sharedSecret, offset);
+        return getSpi().engineGenerateSecret(sharedSecret, offset);
     }
 
     /**
@@ -312,7 +399,7 @@ public class KeyAgreement {
     public final SecretKey generateSecret(String algorithm)
             throws IllegalStateException, NoSuchAlgorithmException,
             InvalidKeyException {
-        return spiImpl.engineGenerateSecret(algorithm);
+        return getSpi().engineGenerateSecret(algorithm);
     }
 
 }
