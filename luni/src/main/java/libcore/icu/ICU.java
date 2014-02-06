@@ -171,10 +171,8 @@ public final class ICU {
    * by {@code toString}. This is very lenient, and doesn't care what's between the underscores:
    * this method can parse strings that {@code Locale.toString} won't produce.
    * Used to remove duplication.
-   *
-   * Package visible for testing.
    */
-  static Locale localeFromIcuLocaleId(String localeId) {
+  public static Locale localeFromIcuLocaleId(String localeId) {
     // @ == ULOC_KEYWORD_SEPARATOR_UNICODE (uloc.h).
     final int extensionsIndex = localeId.indexOf('@');
 
