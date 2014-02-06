@@ -70,7 +70,7 @@ public final class StructStat {
     /** Number of blocks allocated for this object. */
     public final long st_blocks; /*blkcnt_t*/
 
-    StructStat(long st_dev, long st_ino, int st_mode, long st_nlink, int st_uid, int st_gid,
+    public StructStat(long st_dev, long st_ino, int st_mode, long st_nlink, int st_uid, int st_gid,
             long st_rdev, long st_size, long st_atime, long st_mtime, long st_ctime,
             long st_blksize, long st_blocks) {
         this.st_dev = st_dev;
