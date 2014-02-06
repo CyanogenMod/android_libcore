@@ -38,7 +38,17 @@ public class MockCipherSpi extends CipherSpi {
         @Override
         public void checkKeyType(Key key) throws InvalidKeyException {
             if (!(key instanceof MockKey)) {
-                throw new InvalidKeyException("Must be a mock key!");
+                throw new InvalidKeyException("Must be MockKey!");
+            }
+        }
+    }
+
+    public static class SpecificKeyTypes2 extends MockCipherSpi {
+        @Override
+        public void checkKeyType(Key key) throws InvalidKeyException {
+            System.err.println("Checking key of type " + key.getClass().getName());
+            if (!(key instanceof MockKey2)) {
+                throw new InvalidKeyException("Must be MockKey2!");
             }
         }
     }
