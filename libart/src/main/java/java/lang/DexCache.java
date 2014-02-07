@@ -71,7 +71,7 @@ final class DexCache {
     String[] strings;
 
     /** Holds C pointer to dexFile. */
-    private int dexFile;
+    private long dexFile;
 
     // Only created by the VM.
     private DexCache() {}
