@@ -19,21 +19,85 @@
 #include "ucol_imp.h"
 #include "unicode/ucol.h"
 #include "unicode/ucoleitr.h"
+#include <cutils/log.h>
+
+// Manages a UCollationElements instance along with the jchar
+// array it is iterating over. The associated array can be unpinned
+// only after a call to ucol_closeElements. This means we have to
+// keep a reference to the string (so that it isn't collected) and
+// make a call to GetStringChars to ensure the underlying array is
+// pinned.
+class CollationElements {
+public:
+    CollationElements()
+        : mElements(NULL), mString(NULL), mChars(NULL) {
+    }
+
+    UCollationElements* get() const {
+        return mElements;
+    }
+
+    // Starts a new iteration sequence over the string |string|. If
+    // we have a valid UCollationElements object, we call ucol_setText
+    // on it. Otherwise, we create a new object with the specified
+    // collator.
+    UErrorCode start(JNIEnv* env, jstring string, UCollator* collator) {
+        release(env, false /* don't close the collator */);
+        mChars = env->GetStringChars(string, NULL);
+        if (mChars != NULL) {
+            mString = static_cast<jstring>(env->NewGlobalRef(string));
+            const size_t size = env->GetStringLength(string);
+
+            UErrorCode status = U_ZERO_ERROR;
+            // If we don't have a UCollationElements object yet, create
+            // a new one. If we do, reset it.
+            if (mElements == NULL) {
+                mElements = ucol_openElements(collator, mChars, size, &status);
+            } else {
+               ucol_setText(mElements, mChars, size, &status);
+            }
+
+            return status;
+        }
+
+        return U_ILLEGAL_ARGUMENT_ERROR;
+    }
+
+    void release(JNIEnv* env, bool closeCollator) {
+        if (mElements != NULL && closeCollator) {
+            ucol_closeElements(mElements);
+        }
+
+        if (mChars != NULL) {
+            env->ReleaseStringChars(mString, mChars);
+            env->DeleteGlobalRef(mString);
+            mChars = NULL;
+            mString = NULL;
+        }
+    }
+
+private:
+    UCollationElements* mElements;
+    jstring mString;
+    const jchar* mChars;
+};
 
 static UCollator* toCollator(jlong address) {
     return reinterpret_cast<UCollator*>(static_cast<uintptr_t>(address));
 }
 
-static UCollationElements* toCollationElements(jlong address) {
-    return reinterpret_cast<UCollationElements*>(static_cast<uintptr_t>(address));
+static CollationElements* toCollationElements(jlong address) {
+    return reinterpret_cast<CollationElements*>(static_cast<uintptr_t>(address));
 }
 
 static void NativeCollation_closeCollator(JNIEnv*, jclass, jlong address) {
     ucol_close(toCollator(address));
 }
 
-static void NativeCollation_closeElements(JNIEnv*, jclass, jlong address) {
-    ucol_closeElements(toCollationElements(address));
+static void NativeCollation_closeElements(JNIEnv* env, jclass, jlong address) {
+    CollationElements* elements = toCollationElements(address);
+    elements->release(env, true /* close collator */);
+    delete elements;
 }
 
 static jint NativeCollation_compare(JNIEnv* env, jclass, jlong address, jstring javaLhs, jstring javaRhs) {
@@ -60,18 +124,23 @@ static jlong NativeCollation_getCollationElementIterator(JNIEnv* env, jclass, jl
     if (source.get() == NULL) {
         return -1;
     }
-    UErrorCode status = U_ZERO_ERROR;
-    UCollationElements* result = ucol_openElements(toCollator(address), source.get(), source.size(), &status);
+
+    UniquePtr<CollationElements> ce(new CollationElements);
+    UErrorCode status = ce->start(env, javaSource, toCollator(address));
     maybeThrowIcuException(env, "ucol_openElements", status);
-    return static_cast<jlong>(reinterpret_cast<uintptr_t>(result));
+    if (status == U_ZERO_ERROR) {
+        return static_cast<jlong>(reinterpret_cast<uintptr_t>(ce.release()));
+    }
+
+    return 0L;
 }
 
 static jint NativeCollation_getMaxExpansion(JNIEnv*, jclass, jlong address, jint order) {
-    return ucol_getMaxExpansion(toCollationElements(address), order);
+    return ucol_getMaxExpansion(toCollationElements(address)->get(), order);
 }
 
 static jint NativeCollation_getOffset(JNIEnv*, jclass, jlong address) {
-    return ucol_getOffset(toCollationElements(address));
+    return ucol_getOffset(toCollationElements(address)->get());
 }
 
 static jstring NativeCollation_getRules(JNIEnv* env, jclass, jlong address) {
@@ -106,7 +175,7 @@ static jbyteArray NativeCollation_getSortKey(JNIEnv* env, jclass, jlong address,
 
 static jint NativeCollation_next(JNIEnv* env, jclass, jlong address) {
     UErrorCode status = U_ZERO_ERROR;
-    jint result = ucol_next(toCollationElements(address), &status);
+    jint result = ucol_next(toCollationElements(address)->get(), &status);
     maybeThrowIcuException(env, "ucol_next", status);
     return result;
 }
@@ -136,13 +205,13 @@ static jlong NativeCollation_openCollatorFromRules(JNIEnv* env, jclass, jstring 
 
 static jint NativeCollation_previous(JNIEnv* env, jclass, jlong address) {
     UErrorCode status = U_ZERO_ERROR;
-    jint result = ucol_previous(toCollationElements(address), &status);
+    jint result = ucol_previous(toCollationElements(address)->get(), &status);
     maybeThrowIcuException(env, "ucol_previous", status);
     return result;
 }
 
 static void NativeCollation_reset(JNIEnv*, jclass, jlong address) {
-    ucol_reset(toCollationElements(address));
+    ucol_reset(toCollationElements(address)->get());
 }
 
 static jlong NativeCollation_safeClone(JNIEnv* env, jclass, jlong address) {
@@ -160,7 +229,7 @@ static void NativeCollation_setAttribute(JNIEnv* env, jclass, jlong address, jin
 
 static void NativeCollation_setOffset(JNIEnv* env, jclass, jlong address, jint offset) {
     UErrorCode status = U_ZERO_ERROR;
-    ucol_setOffset(toCollationElements(address), offset, &status);
+    ucol_setOffset(toCollationElements(address)->get(), offset, &status);
     maybeThrowIcuException(env, "ucol_setOffset", status);
 }
 
@@ -169,8 +238,7 @@ static void NativeCollation_setText(JNIEnv* env, jclass, jlong address, jstring 
     if (source.get() == NULL) {
         return;
     }
-    UErrorCode status = U_ZERO_ERROR;
-    ucol_setText(toCollationElements(address), source.get(), source.size(), &status);
+    UErrorCode status = toCollationElements(address)->start(env, javaSource, NULL);
     maybeThrowIcuException(env, "ucol_setText", status);
 }
 
