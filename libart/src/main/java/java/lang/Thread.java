@@ -712,8 +712,9 @@ public class Thread implements Runnable {
      * Blocks the current Thread (<code>Thread.currentThread()</code>) until
      * the receiver finishes its execution and dies.
      *
-     * @throws InterruptedException if <code>interrupt()</code> was called for
-     *         the receiver while it was in the <code>join()</code> call
+     * @throws InterruptedException if the current thread has been interrupted.
+     *         The interrupted status of the current thread will be cleared before the exception is
+     *         thrown.
      * @see Object#notifyAll
      * @see java.lang.ThreadDeath
      */
@@ -730,9 +731,12 @@ public class Thread implements Runnable {
      * the receiver finishes its execution and dies or the specified timeout
      * expires, whatever happens first.
      *
+     * <p>A timeout of zero means the calling thread should wait forever unless interrupted.
+     *
      * @param millis The maximum time to wait (in milliseconds).
-     * @throws InterruptedException if <code>interrupt()</code> was called for
-     *         the receiver while it was in the <code>join()</code> call
+     * @throws InterruptedException if the current thread has been interrupted.
+     *         The interrupted status of the current thread will be cleared before the exception is
+     *         thrown.
      * @see Object#notifyAll
      * @see java.lang.ThreadDeath
      */
@@ -745,10 +749,13 @@ public class Thread implements Runnable {
      * the receiver finishes its execution and dies or the specified timeout
      * expires, whatever happens first.
      *
+     * <p>A timeout of zero means the calling thread should wait forever unless interrupted.
+     *
      * @param millis The maximum time to wait (in milliseconds).
      * @param nanos Extra nanosecond precision
-     * @throws InterruptedException if <code>interrupt()</code> was called for
-     *         the receiver while it was in the <code>join()</code> call
+     * @throws InterruptedException if the current thread has been interrupted.
+     *         The interrupted status of the current thread will be cleared before the exception is
+     *         thrown.
      * @see Object#notifyAll
      * @see java.lang.ThreadDeath
      */
@@ -969,9 +976,9 @@ public class Thread implements Runnable {
      *
      * @param time
      *            The time to sleep in milliseconds.
-     * @throws InterruptedException
-     *             if <code>interrupt()</code> was called for this Thread while
-     *             it was sleeping
+     * @throws InterruptedException if the current thread has been interrupted.
+     *            The interrupted status of the current thread will be cleared before the exception
+     *            is thrown.
      * @see Thread#interrupt()
      */
     public static void sleep(long time) throws InterruptedException {
@@ -987,9 +994,9 @@ public class Thread implements Runnable {
      *            The time to sleep in milliseconds.
      * @param nanos
      *            Extra nanosecond precision
-     * @throws InterruptedException
-     *             if <code>interrupt()</code> was called for this Thread while
-     *             it was sleeping
+     * @throws InterruptedException if the current thread has been interrupted.
+     *            The interrupted status of the current thread will be cleared before the exception
+     *            is thrown.
      * @see Thread#interrupt()
      */
     public static void sleep(long millis, int nanos) throws InterruptedException {
