@@ -93,15 +93,16 @@ public class SelectorTest extends TestCase {
     // http://code.google.com/p/android/issues/detail?id=15388
     public void testInterrupted() throws IOException {
         Selector selector = Selector.open();
+        Thread.currentThread().interrupt();
         try {
-            Thread.currentThread().interrupt();
             int count = selector.select();
             assertEquals(0, count);
             assertTrue(Thread.currentThread().isInterrupted());
         } finally {
+            // Clear the interrupted thread state so that it does not interfere with later tests.
+            Thread.interrupted();
+
             selector.close();
-            // Clear the interrupted thread state so it does not interfere with later tests.
-            assertTrue(Thread.interrupted());
         }
     }
 
