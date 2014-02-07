@@ -97,8 +97,11 @@ public class SelectorTest extends TestCase {
             Thread.currentThread().interrupt();
             int count = selector.select();
             assertEquals(0, count);
+            assertTrue(Thread.currentThread().isInterrupted());
         } finally {
             selector.close();
+            // Clear the interrupted thread state so it does not interfere with later tests.
+            assertTrue(Thread.interrupted());
         }
     }
 
