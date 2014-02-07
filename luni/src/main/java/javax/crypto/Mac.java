@@ -24,8 +24,10 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
+import java.security.ProviderException;
 import java.security.Security;
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.ArrayList;
 import org.apache.harmony.security.fortress.Engine;
 
 
@@ -35,17 +37,28 @@ import org.apache.harmony.security.fortress.Engine;
  */
 public class Mac implements Cloneable {
 
+    // The service name.
+    private static final String SERVICE = "Mac";
+
     //Used to access common engine functionality
-    private static final Engine ENGINE = new Engine("Mac");
+    private static final Engine ENGINE = new Engine(SERVICE);
 
     // Store used provider
-    private final Provider provider;
+    private Provider provider;
+
+    // Provider that was requested during creation.
+    private final Provider specifiedProvider;
 
     // Store used spi implementation
-    private final MacSpi spiImpl;
+    private MacSpi spiImpl;
 
     // Store used algorithm name
     private final String algorithm;
+
+    /**
+     * Lock held while the SPI is initializing.
+     */
+    private final Object initLock = new Object();
 
     // Store Mac state (initialized or not initialized)
     private boolean isInitMac;
@@ -61,7 +74,7 @@ public class Mac implements Cloneable {
      *            the name of the MAC algorithm.
      */
     protected Mac(MacSpi macSpi, Provider provider, String algorithm) {
-        this.provider = provider;
+        this.specifiedProvider = provider;
         this.algorithm = algorithm;
         this.spiImpl = macSpi;
         this.isInitMac = false;
@@ -82,6 +95,7 @@ public class Mac implements Cloneable {
      * @return the provider of this {@code Mac} instance.
      */
     public final Provider getProvider() {
+        getSpi();
         return provider;
     }
 
@@ -100,11 +114,7 @@ public class Mac implements Cloneable {
      */
     public static final Mac getInstance(String algorithm)
             throws NoSuchAlgorithmException {
-        if (algorithm == null) {
-            throw new NullPointerException("algorithm == null");
-        }
-        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
-        return new Mac((MacSpi) sap.spi, sap.provider, algorithm);
+        return getMac(algorithm, null);
     }
 
     /**
@@ -136,7 +146,7 @@ public class Mac implements Cloneable {
         if (impProvider == null) {
             throw new NoSuchProviderException(provider);
         }
-        return getInstance(algorithm, impProvider);
+        return getMac(algorithm, impProvider);
     }
 
     /**
@@ -163,11 +173,102 @@ public class Mac implements Cloneable {
         if (provider == null) {
             throw new IllegalArgumentException("provider == null");
         }
+        return getMac(algorithm, provider);
+    }
+
+    private static Mac getMac(String algorithm, Provider provider)
+            throws NoSuchAlgorithmException {
         if (algorithm == null) {
             throw new NullPointerException("algorithm == null");
         }
-        Object spi = ENGINE.getInstance(algorithm, provider, null);
-        return new Mac((MacSpi) spi, provider, algorithm);
+
+        if (tryAlgorithm(null, provider, algorithm) == null) {
+            if (provider == null) {
+                throw new NoSuchAlgorithmException("No provider found for " + algorithm);
+            } else {
+                throw new NoSuchAlgorithmException("Provider " + provider.getName()
+                        + " does not provide " + algorithm);
+            }
+        }
+        return new Mac(null, provider, algorithm);
+    }
+
+    private static Engine.SpiAndProvider tryAlgorithm(Key key, Provider provider, String algorithm) {
+        if (provider != null) {
+            Provider.Service service = provider.getService(SERVICE, algorithm);
+            if (service == null) {
+                return null;
+            }
+            return tryAlgorithmWithProvider(key, service);
+        }
+        ArrayList<Provider.Service> services = ENGINE.getServices(algorithm);
+        if (services == null) {
+            return null;
+        }
+        for (Provider.Service service : services) {
+            Engine.SpiAndProvider sap = tryAlgorithmWithProvider(key, service);
+            if (sap != null) {
+                return sap;
+            }
+        }
+        return null;
+    }
+
+    private static Engine.SpiAndProvider tryAlgorithmWithProvider(Key key, Provider.Service service) {
+        try {
+            if (key != null && !service.supportsParameter(key)) {
+                return null;
+            }
+
+            Engine.SpiAndProvider sap = ENGINE.getInstance(service, null);
+            if (sap.spi == null || sap.provider == null) {
+                return null;
+            }
+            if (!(sap.spi instanceof MacSpi)) {
+                return null;
+            }
+            return sap;
+        } catch (NoSuchAlgorithmException ignored) {
+        }
+        return null;
+    }
+
+    /**
+     * Makes sure a MacSpi that matches this type is selected.
+     */
+    private MacSpi getSpi(Key key) {
+        synchronized (initLock) {
+            if (spiImpl != null && provider != null && key == null) {
+                return spiImpl;
+            }
+
+            if (algorithm == null) {
+                return null;
+            }
+
+            final Engine.SpiAndProvider sap = tryAlgorithm(key, specifiedProvider, algorithm);
+            if (sap == null) {
+                throw new ProviderException("No provider for " + getAlgorithm());
+            }
+
+            /*
+             * Set our Spi if we've never been initialized or if we have the Spi
+             * specified and have a null provider.
+             */
+            if (spiImpl == null || provider != null) {
+                spiImpl = (MacSpi) sap.spi;
+            }
+            provider = sap.provider;
+
+            return spiImpl;
+        }
+    }
+
+    /**
+     * Convenience call when the Key is not available.
+     */
+    private MacSpi getSpi() {
+        return getSpi(null);
     }
 
     /**
@@ -176,7 +277,7 @@ public class Mac implements Cloneable {
      * @return the length of this MAC (in bytes).
      */
     public final int getMacLength() {
-        return spiImpl.engineGetMacLength();
+        return getSpi().engineGetMacLength();
     }
 
     /**
@@ -199,7 +300,7 @@ public class Mac implements Cloneable {
         if (key == null) {
             throw new InvalidKeyException("key == null");
         }
-        spiImpl.engineInit(key, params);
+        getSpi(key).engineInit(key, params);
         isInitMac = true;
     }
 
@@ -220,7 +321,7 @@ public class Mac implements Cloneable {
             throw new InvalidKeyException("key == null");
         }
         try {
-            spiImpl.engineInit(key, null);
+            getSpi(key).engineInit(key, null);
             isInitMac = true;
         } catch (InvalidAlgorithmParameterException e) {
             throw new RuntimeException(e);
@@ -239,7 +340,7 @@ public class Mac implements Cloneable {
         if (!isInitMac) {
             throw new IllegalStateException();
         }
-        spiImpl.engineUpdate(input);
+        getSpi().engineUpdate(input);
     }
 
     /**
@@ -270,7 +371,7 @@ public class Mac implements Cloneable {
                                                + " input.length=" + input.length
                                                + " offset=" + offset + ", len=" + len);
         }
-        spiImpl.engineUpdate(input, offset, len);
+        getSpi().engineUpdate(input, offset, len);
     }
 
     /**
@@ -286,7 +387,7 @@ public class Mac implements Cloneable {
             throw new IllegalStateException();
         }
         if (input != null) {
-            spiImpl.engineUpdate(input, 0, input.length);
+            getSpi().engineUpdate(input, 0, input.length);
         }
     }
 
@@ -305,7 +406,7 @@ public class Mac implements Cloneable {
             throw new IllegalStateException();
         }
         if (input != null) {
-            spiImpl.engineUpdate(input);
+            getSpi().engineUpdate(input);
         } else {
             throw new IllegalArgumentException("input == null");
         }
@@ -327,7 +428,7 @@ public class Mac implements Cloneable {
         if (!isInitMac) {
             throw new IllegalStateException();
         }
-        return spiImpl.engineDoFinal();
+        return getSpi().engineDoFinal();
     }
 
     /**
@@ -362,11 +463,12 @@ public class Mac implements Cloneable {
         if ((outOffset < 0) || (outOffset >= output.length)) {
             throw new ShortBufferException("Incorrect outOffset: " + outOffset);
         }
-        int t = spiImpl.engineGetMacLength();
+        MacSpi spi = getSpi();
+        int t = spi.engineGetMacLength();
         if (t > (output.length - outOffset)) {
             throw new ShortBufferException("Output buffer is short. Needed " + t + " bytes.");
         }
-        byte[] result = spiImpl.engineDoFinal();
+        byte[] result = spi.engineDoFinal();
         System.arraycopy(result, 0, output, outOffset, result.length);
 
     }
@@ -390,10 +492,11 @@ public class Mac implements Cloneable {
         if (!isInitMac) {
             throw new IllegalStateException();
         }
+        MacSpi spi = getSpi();
         if (input != null) {
-            spiImpl.engineUpdate(input, 0, input.length);
+            spi.engineUpdate(input, 0, input.length);
         }
-        return spiImpl.engineDoFinal();
+        return spi.engineDoFinal();
     }
 
     /**
@@ -404,7 +507,7 @@ public class Mac implements Cloneable {
      * initialized with different parameters.
      */
     public final void reset() {
-        spiImpl.engineReset();
+        getSpi().engineReset();
     }
 
     /**
@@ -416,7 +519,11 @@ public class Mac implements Cloneable {
      */
     @Override
     public final Object clone() throws CloneNotSupportedException {
-        MacSpi newSpiImpl = (MacSpi)spiImpl.clone();
+        MacSpi newSpiImpl = null;
+        final MacSpi spi = getSpi();
+        if (spi != null) {
+            newSpiImpl = (MacSpi) spi.clone();
+        }
         Mac mac = new Mac(newSpiImpl, this.provider, this.algorithm);
         mac.isInitMac = this.isInitMac;
         return mac;
