@@ -40,7 +40,7 @@ import java.nio.channels.spi.SelectorProvider;
  * same time.
  */
 public abstract class DatagramChannel extends AbstractSelectableChannel
-        implements ByteChannel, ScatteringByteChannel, GatheringByteChannel {
+        implements ByteChannel, ScatteringByteChannel, GatheringByteChannel, NetworkChannel {
 
     /**
      * Constructs a new {@code DatagramChannel}.
@@ -87,6 +87,22 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
      * @return the related DatagramSocket instance.
      */
     public abstract DatagramSocket socket();
+
+    /** @hide Until ready for a public API change */
+    @Override
+    public DatagramChannel bind(SocketAddress local) throws IOException {
+        // This method was added for interoperability with Java 7, where it is abstract. It is
+        // concrete here to avoid breaking existing Android applications that extend this class.
+        throw new UnsupportedOperationException("Subclasses must override this method");
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    public SocketAddress getLocalAddress() throws IOException {
+        // This method was added for interoperability with Java 7, where it is abstract. It is
+        // concrete here to avoid breaking existing Android applications that extend this class.
+        throw new UnsupportedOperationException("Subclasses must override this method");
+    }
 
     /**
      * Returns whether this channel's socket is connected or not.

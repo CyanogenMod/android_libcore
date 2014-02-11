@@ -875,5 +875,13 @@
     "org.apache.harmony.tests.java.util.jar.ManifestTest#testRead",
     "org.apache.harmony.tests.java.util.jar.ManifestTest#testStreamConstructor"
   ]
+},
+{
+  description: "Potentially flakey because they rely on a specific local TCP port being free.",
+  result: EXEC_FAILED,
+  names: [
+      "org.apache.harmony.tests.java.nio.channels.ServerSocketChannelTest#test_bind_explicitPort",
+      "org.apache.harmony.tests.java.nio.channels.SocketChannelTest#testBind_ExplicitFreePort"
+  ]
 }
 ]
