@@ -164,8 +164,8 @@ public class ServerSocket implements Closeable {
     }
 
     /**
-     * Gets the local IP address of this server socket or {@code null} if the
-     * socket is unbound. This is useful for multihomed hosts.
+     * Gets the local IP address of this server socket if this socket has ever been bound,
+     * {@code null} otherwise. This is useful for multihomed hosts.
      *
      * @return the local address of this server socket.
      */
@@ -177,8 +177,9 @@ public class ServerSocket implements Closeable {
     }
 
     /**
-     * Gets the local port of this server socket or {@code -1} if the socket is
-     * unbound.
+     * Gets the local port of this server socket or {@code -1} if the socket is not bound.
+     * If the socket has ever been bound this method will return the local port it was bound to,
+     * even after it has been closed.
      *
      * @return the local port this server is listening on.
      */
@@ -342,8 +343,9 @@ public class ServerSocket implements Closeable {
     }
 
     /**
-     * Gets the local socket address of this server socket or {@code null} if
-     * the socket is unbound. This is useful on multihomed hosts.
+     * Gets the local socket address of this server socket or {@code null} if the socket is unbound.
+     * This is useful on multihomed hosts. If the socket has ever been bound this method will return
+     * the local address it was bound to, even after it has been closed.
      *
      * @return the local socket address and port this socket is bound to.
      */
