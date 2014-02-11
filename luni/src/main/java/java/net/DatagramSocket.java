@@ -176,8 +176,8 @@ public class DatagramSocket implements Closeable {
     }
 
     /**
-     * Returns the local address to which this socket is bound,
-     * or {@code null} if this socket is closed.
+     * Returns the local address to which this socket is bound, a wildcard address if this
+     * socket is not yet bound, or {@code null} if this socket is closed.
      */
     public InetAddress getLocalAddress() {
         try {
@@ -588,10 +588,11 @@ public class DatagramSocket implements Closeable {
     }
 
     /**
-     * Returns the {@code SocketAddress} this socket is bound to, or null for an unbound socket.
+     * Returns the {@code SocketAddress} this socket is bound to, or {@code null} for an unbound or
+     * closed socket.
      */
     public SocketAddress getLocalSocketAddress() {
-        if (!isBound()) {
+        if (isClosed() || !isBound()) {
             return null;
         }
         return new InetSocketAddress(getLocalAddress(), getLocalPort());

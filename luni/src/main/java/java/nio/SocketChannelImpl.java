@@ -32,6 +32,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketUtils;
+import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.AlreadyConnectedException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ConnectionPendingException;
@@ -135,6 +136,28 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         return socket;
     }
 
+    /** @hide Until ready for a public API change */
+    @Override
+    synchronized public final SocketChannel bind(SocketAddress local) throws IOException {
+        if (!isOpen()) {
+            throw new ClosedChannelException();
+        }
+        if (isBound) {
+            throw new AlreadyBoundException();
+        }
+
+        if (local == null) {
+            local = new InetSocketAddress(Inet4Address.ANY, 0);
+        } else if (!(local instanceof InetSocketAddress)) {
+            throw new UnsupportedAddressTypeException();
+        }
+
+        InetSocketAddress localAddress = (InetSocketAddress) local;
+        IoBridge.bind(fd, localAddress.getAddress(), localAddress.getPort());
+        onBind(true /* updateSocketState */);
+        return this;
+    }
+
     /**
      * Initialise the isBound, localAddress and localPort state from the file descriptor. Used when
      * some or all of the bound state has been left to the OS to decide, or when the Socket handled
@@ -158,6 +181,15 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         if (updateSocketState && socket != null) {
             socket.onBind(localAddress, localPort);
         }
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    synchronized public SocketAddress getLocalAddress() throws IOException {
+        if (!isOpen()) {
+            throw new ClosedChannelException();
+        }
+        return isBound ? new InetSocketAddress(localAddress, localPort) : null;
     }
 
     @Override
@@ -523,21 +555,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         @Override
         public SocketChannel getChannel() {
             return channel;
-        }
-
-        @Override
-        public boolean isBound() {
-            return channel.isBound;
-        }
-
-        @Override
-        public boolean isConnected() {
-            return channel.isConnected();
-        }
-
-        @Override
-        public InetAddress getLocalAddress() {
-            return channel.localAddress != null ? channel.localAddress : Inet4Address.ANY;
         }
 
         @Override
