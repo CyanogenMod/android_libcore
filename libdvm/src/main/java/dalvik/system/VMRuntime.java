@@ -320,7 +320,7 @@ public final class VMRuntime {
     /**
      * Register application info
      */
-    public static void registerAppInfo(String appDir, String processName) {
+    public static void registerAppInfo(String appDir, String processName, String pkgname) {
         // Nothing to do in dalvik.
     }
 }
