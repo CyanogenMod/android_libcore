@@ -59,15 +59,46 @@ public final class ThreadTest extends TestCase {
     }
 
     public void testThreadSleep() throws Exception {
-       int millis = 1000;
-       long start = System.currentTimeMillis();
+        int millis = 1000;
+        long start = System.currentTimeMillis();
 
-       Thread.sleep(millis);
+        Thread.sleep(millis);
 
-       long elapsed = System.currentTimeMillis() - start;
-       long offBy = Math.abs(elapsed - millis);
+        long elapsed = System.currentTimeMillis() - start;
+        long offBy = Math.abs(elapsed - millis);
 
-       assertTrue("Actual sleep off by " + offBy + " ms", offBy <= 250);
+        assertTrue("Actual sleep off by " + offBy + " ms", offBy <= 250);
+    }
+
+    public void testThreadInterrupted() throws Exception {
+        Thread.currentThread().interrupt();
+        try {
+            Thread.sleep(0);
+            fail();
+        } catch (InterruptedException e) {
+            assertFalse(Thread.currentThread().isInterrupted());
+        }
+    }
+
+    public void testThreadSleepIllegalArguments() throws Exception {
+
+        try {
+            Thread.sleep(-1);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+
+        try {
+            Thread.sleep(0, -1);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+
+        try {
+            Thread.sleep(0, 1000000);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
     }
 
     public void testThreadWakeup() throws Exception {
