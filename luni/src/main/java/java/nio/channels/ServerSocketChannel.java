@@ -20,8 +20,10 @@ package java.nio.channels;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.SocketAddress;
+import java.net.SocketOption;
 import java.nio.channels.spi.AbstractSelectableChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.Set;
 
 /**
  * A {@code ServerSocketChannel} is a partial abstraction of a selectable,
@@ -124,6 +126,30 @@ public abstract class ServerSocketChannel extends AbstractSelectableChannel
     /** @hide Until ready for a public API change */
      @Override
     public SocketAddress getLocalAddress() throws IOException {
+        // This method was added for interoperability with Java 7, where it is abstract. It is
+        // concrete here to avoid breaking existing Android applications that extend this class.
+        throw new UnsupportedOperationException("Subclasses must override this method");
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    public <T> T getOption(SocketOption<T> option) throws IOException {
+        // This method was added for interoperability with Java 7, where it is abstract. It is
+        // concrete here to avoid breaking existing Android applications that extend this class.
+        throw new UnsupportedOperationException("Subclasses must override this method");
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    public <T> ServerSocketChannel setOption(SocketOption<T> option, T value) throws IOException {
+        // This method was added for interoperability with Java 7, where it is abstract. It is
+        // concrete here to avoid breaking existing Android applications that extend this class.
+        throw new UnsupportedOperationException("Subclasses must override this method");
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    public Set<SocketOption<?>> supportedOptions() {
         // This method was added for interoperability with Java 7, where it is abstract. It is
         // concrete here to avoid breaking existing Android applications that extend this class.
         throw new UnsupportedOperationException("Subclasses must override this method");
