@@ -24,11 +24,15 @@ import java.net.Socket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.SocketOption;
+import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.Selector;
 import java.nio.channels.SelectionKey;
+import java.util.Set;
+
 import tests.io.MockOs;
 
 import static libcore.io.OsConstants.*;
@@ -256,4 +260,307 @@ public class SocketChannelTest extends junit.framework.TestCase {
     ss.close();
     sc.close();
   }
+
+  public void test_supportedOptions() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+    Set<SocketOption<?>> options = sc.supportedOptions();
+
+    // Probe some values. This is not intended to be complete.
+    assertTrue(options.contains(StandardSocketOptions.SO_REUSEADDR));
+    assertFalse(options.contains(StandardSocketOptions.IP_MULTICAST_TTL));
+  }
+
+  public void test_getOption_unsupportedOption() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+    try {
+      sc.getOption(StandardSocketOptions.IP_MULTICAST_TTL);
+      fail();
+    } catch (UnsupportedOperationException expected) {
+    }
+
+    sc.close();
+  }
+
+  public void test_getOption_afterClose() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+    sc.close();
+
+    try {
+      sc.getOption(StandardSocketOptions.SO_RCVBUF);
+      fail();
+    } catch (ClosedChannelException expected) {
+    }
+  }
+
+  public void test_setOption_afterClose() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+    sc.close();
+
+    try {
+      sc.setOption(StandardSocketOptions.SO_RCVBUF, 1234);
+      fail();
+    } catch (ClosedChannelException expected) {
+    }
+  }
+
+  public void test_getOption_SO_RCVBUF_defaults() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+
+    int value = sc.getOption(StandardSocketOptions.SO_RCVBUF);
+    assertTrue(value > 0);
+    assertEquals(value, sc.socket().getReceiveBufferSize());
+
+    sc.close();
+  }
+
+  public void test_setOption_SO_RCVBUF_afterOpen() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+
+    trySetReceiveBufferSizeOption(sc);
+
+    sc.close();
+  }
+
+  private static void trySetReceiveBufferSizeOption(SocketChannel sc) throws IOException {
+    int initialValue = sc.getOption(StandardSocketOptions.SO_RCVBUF);
+    try {
+      sc.setOption(StandardSocketOptions.SO_RCVBUF, -1);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    int actualValue = sc.getOption(StandardSocketOptions.SO_RCVBUF);
+    assertEquals(initialValue, actualValue);
+    assertEquals(initialValue, sc.socket().getReceiveBufferSize());
+
+    int newBufferSize = initialValue - 1;
+    sc.setOption(StandardSocketOptions.SO_RCVBUF, newBufferSize);
+    actualValue = sc.getOption(StandardSocketOptions.SO_RCVBUF);
+    // The Linux Kernel actually doubles the value it is given and may choose to ignore it.
+    // This assertion may be brittle.
+    assertTrue(actualValue != initialValue);
+    assertEquals(actualValue, sc.socket().getReceiveBufferSize());
+  }
+
+  public void test_getOption_SO_SNDBUF_defaults() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+
+    int bufferSize = sc.getOption(StandardSocketOptions.SO_SNDBUF);
+    assertTrue(bufferSize > 0);
+    assertEquals(bufferSize, sc.socket().getSendBufferSize());
+
+    sc.close();
+  }
+
+  public void test_setOption_SO_SNDBUF_afterOpen() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+
+    trySetSendBufferSizeOption(sc);
+
+    sc.close();
+  }
+
+  private static void trySetSendBufferSizeOption(SocketChannel sc) throws IOException {
+    int initialValue = sc.getOption(StandardSocketOptions.SO_SNDBUF);
+    try {
+      sc.setOption(StandardSocketOptions.SO_SNDBUF, -1);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    int actualValue = sc.getOption(StandardSocketOptions.SO_SNDBUF);
+    assertEquals(initialValue, actualValue);
+    assertEquals(initialValue, sc.socket().getSendBufferSize());
+
+    int newValue = initialValue - 1;
+    sc.setOption(StandardSocketOptions.SO_SNDBUF, newValue);
+    actualValue = sc.getOption(StandardSocketOptions.SO_SNDBUF);
+    // The Linux Kernel actually doubles the value it is given and may choose to ignore it.
+    // This assertion may be brittle.
+    assertTrue(actualValue != initialValue);
+    assertEquals(actualValue, sc.socket().getSendBufferSize());
+  }
+
+  public void test_getOption_SO_KEEPALIVE_defaults() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+
+    assertFalse(sc.getOption(StandardSocketOptions.SO_KEEPALIVE));
+
+    sc.close();
+  }
+
+  public void test_setOption_SO_KEEPALIVE_afterOpen() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+
+    trySetSoKeepaliveOption(sc);
+
+    sc.close();
+  }
+
+  private static void trySetSoKeepaliveOption(SocketChannel sc) throws IOException {
+    boolean initialValue = sc.getOption(StandardSocketOptions.SO_KEEPALIVE);
+
+    sc.setOption(StandardSocketOptions.SO_KEEPALIVE, !initialValue);
+    boolean actualValue = sc.getOption(StandardSocketOptions.SO_KEEPALIVE);
+    assertEquals(!initialValue, actualValue);
+  }
+
+  public void test_setOption_SO_KEEPALIVE_afterBind() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+    sc.bind(null);
+
+    trySetSoKeepaliveOption(sc);
+
+    sc.close();
+  }
+
+  public void test_getOption_IP_TOS_defaults() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+
+    int value = sc.getOption(StandardSocketOptions.IP_TOS);
+    assertEquals(0, value);
+    assertEquals(value, sc.socket().getTrafficClass());
+
+    sc.close();
+  }
+
+  public void test_setOption_IP_TOS_afterOpen() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+
+    trySetTosOption(sc);
+
+    sc.close();
+  }
+
+  private static void trySetTosOption(SocketChannel sc) throws IOException {
+    int initialValue = sc.getOption(StandardSocketOptions.IP_TOS);
+    try {
+      sc.setOption(StandardSocketOptions.IP_TOS, -1);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    assertEquals(initialValue, (int) sc.getOption(StandardSocketOptions.IP_TOS));
+    assertEquals(initialValue, sc.socket().getTrafficClass());
+
+    try {
+      sc.setOption(StandardSocketOptions.IP_TOS, 256);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    assertEquals(initialValue, (int) sc.getOption(StandardSocketOptions.IP_TOS));
+    assertEquals(initialValue, sc.socket().getTrafficClass());
+
+    int newValue = (initialValue + 1) % 255;
+    sc.setOption(StandardSocketOptions.IP_TOS, newValue);
+    assertEquals(newValue, (int) sc.getOption(StandardSocketOptions.IP_TOS));
+    assertEquals(newValue, sc.socket().getTrafficClass());
+  }
+
+  public void test_setOption_IP_TOS_afterBind() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+    sc.bind(null);
+
+    trySetTosOption(sc);
+
+    sc.close();
+  }
+
+  public void test_getOption_SO_LINGER_defaults() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+
+    int value = sc.getOption(StandardSocketOptions.SO_LINGER);
+    assertTrue(value < 0);
+    assertEquals(value, sc.socket().getSoLinger());
+
+    sc.close();
+  }
+
+  public void test_setOption_SO_LINGER_afterOpen() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+
+    trySetLingerOption(sc);
+
+    sc.close();
+  }
+
+  private static void trySetLingerOption(SocketChannel sc) throws IOException {
+    int initialValue = sc.getOption(StandardSocketOptions.SO_LINGER);
+    // Any negative value disables the setting, -1 is used to report SO_LINGER being disabled.
+    sc.setOption(StandardSocketOptions.SO_LINGER, -2);
+    int soLingerDisabled = -1;
+    assertEquals(soLingerDisabled, (int) sc.getOption(StandardSocketOptions.SO_LINGER));
+    assertEquals(soLingerDisabled, sc.socket().getSoLinger());
+
+    sc.setOption(StandardSocketOptions.SO_LINGER, 65536);
+    assertEquals(65535, (int) sc.getOption(StandardSocketOptions.SO_LINGER));
+    assertEquals(65535, sc.socket().getSoLinger());
+
+    int newValue = (initialValue + 1) % 65535;
+    sc.setOption(StandardSocketOptions.SO_LINGER, newValue);
+    assertEquals(newValue, (int) sc.getOption(StandardSocketOptions.SO_LINGER));
+    assertEquals(newValue, sc.socket().getSoLinger());
+  }
+
+  public void test_setOption_SO_LINGER_afterBind() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+    sc.bind(null);
+
+    trySetLingerOption(sc);
+
+    sc.close();
+  }
+
+  public void test_getOption_SO_REUSEADDR_defaults() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+
+    boolean value = sc.getOption(StandardSocketOptions.SO_REUSEADDR);
+    assertFalse(value);
+    assertFalse(sc.socket().getReuseAddress());
+
+    sc.close();
+  }
+
+  public void test_setOption_SO_REUSEADDR_afterOpen() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+
+    boolean initialValue = sc.getOption(StandardSocketOptions.SO_REUSEADDR);
+    sc.setOption(StandardSocketOptions.SO_REUSEADDR, !initialValue);
+    assertEquals(!initialValue, (boolean) sc.getOption(StandardSocketOptions.SO_REUSEADDR));
+    assertEquals(!initialValue, sc.socket().getReuseAddress());
+
+    sc.close();
+  }
+
+  public void test_getOption_TCP_NODELAY_defaults() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+
+    boolean value = sc.getOption(StandardSocketOptions.TCP_NODELAY);
+    assertFalse(value);
+    assertFalse(sc.socket().getTcpNoDelay());
+
+    sc.close();
+  }
+
+  public void test_setOption_TCP_NODELAY_afterOpen() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+
+    trySetNoDelay(sc);
+
+    sc.close();
+  }
+
+  private static void trySetNoDelay(SocketChannel sc) throws IOException {
+    boolean initialValue = sc.getOption(StandardSocketOptions.TCP_NODELAY);
+    sc.setOption(StandardSocketOptions.TCP_NODELAY, !initialValue);
+    assertEquals(!initialValue, (boolean) sc.getOption(StandardSocketOptions.TCP_NODELAY));
+    assertEquals(!initialValue, sc.socket().getTcpNoDelay());
+  }
+
+  public void test_setOption_TCP_NODELAY_afterBind() throws Exception {
+    SocketChannel sc = SocketChannel.open();
+    sc.bind(null);
+
+    trySetNoDelay(sc);
+
+    sc.close();
+  }
+
 }
