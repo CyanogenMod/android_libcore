@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import org.apache.harmony.security.fortress.Engine;
+import org.apache.harmony.security.fortress.Engine.SpiAndProvider;
 
 /**
  * {@code Signature} is an engine class which is capable of creating and
@@ -171,13 +172,17 @@ public abstract class Signature extends SignatureSpi {
             throw new NoSuchAlgorithmException("Unknown algorithm: " + algorithm);
         }
 
-        if (tryAlgorithm(null, provider, algorithm) == null) {
+        SpiAndProvider spiAndProvider = tryAlgorithm(null, provider, algorithm);
+        if (spiAndProvider == null) {
             if (provider == null) {
                 throw new NoSuchAlgorithmException("No provider found for " + algorithm);
             } else {
                 throw new NoSuchAlgorithmException("Provider " + provider.getName()
                         + " does not provide " + algorithm);
             }
+        }
+        if (spiAndProvider.spi instanceof Signature) {
+            return (Signature) spiAndProvider.spi;
         }
         return new SignatureImpl(algorithm, provider);
     }
