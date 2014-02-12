@@ -23,7 +23,9 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.SocketOption;
 import java.net.SocketTimeoutException;
+import java.net.StandardSocketOptions;
 import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.IllegalBlockingModeException;
@@ -32,6 +34,8 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.Set;
+
 import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import static libcore.io.OsConstants.*;
@@ -78,6 +82,25 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
             throw new ClosedChannelException();
         }
         return socket.getLocalSocketAddress();
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    public <T> T getOption(SocketOption<T> option) throws IOException {
+        return NioUtils.getSocketOption(this, StandardSocketOptions.SERVER_SOCKET_OPTIONS, option);
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    public <T> ServerSocketChannel setOption(SocketOption<T> option, T value) throws IOException {
+        NioUtils.setSocketOption(this, StandardSocketOptions.SERVER_SOCKET_OPTIONS, option, value);
+        return this;
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    public Set<SocketOption<?>> supportedOptions() {
+        return StandardSocketOptions.SERVER_SOCKET_OPTIONS;
     }
 
     @Override

@@ -30,6 +30,8 @@ import java.net.InetSocketAddress;
 import java.net.PlainDatagramSocketImpl;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.SocketOption;
+import java.net.StandardSocketOptions;
 import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.AlreadyConnectedException;
 import java.nio.channels.ClosedChannelException;
@@ -39,6 +41,8 @@ import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Arrays;
+import java.util.Set;
+
 import libcore.io.ErrnoException;
 import libcore.io.IoBridge;
 import libcore.io.IoUtils;
@@ -153,6 +157,28 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
     synchronized public SocketAddress getLocalAddress() throws IOException {
         checkOpen();
         return isBound ? new InetSocketAddress(localAddress, localPort) : null;
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    public <T> T getOption(SocketOption<T> option) throws IOException {
+        return NioUtils.getSocketOption(
+                this, StandardSocketOptions.DATAGRAM_SOCKET_OPTIONS, option);
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    public <T> DatagramChannel setOption(SocketOption<T> option, T value) throws IOException {
+        checkOpen();
+        NioUtils.setSocketOption(
+                this, StandardSocketOptions.DATAGRAM_SOCKET_OPTIONS, option, value);
+        return this;
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    public Set<SocketOption<?>> supportedOptions() {
+        return StandardSocketOptions.DATAGRAM_SOCKET_OPTIONS;
     }
 
     @Override

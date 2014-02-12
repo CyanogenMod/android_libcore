@@ -351,7 +351,8 @@ public class MulticastSocket extends DatagramSocket {
     /**
      * Disables multicast loopback if {@code disable == true}.
      * See {@link SocketOptions#IP_MULTICAST_LOOP}, and note that the sense of this is the
-     * opposite of the underlying Unix {@code IP_MULTICAST_LOOP}.
+     * opposite of the underlying Unix {@code IP_MULTICAST_LOOP}: true means disabled, false
+     * means enabled.
      *
      * @throws SocketException if an error occurs.
      */
