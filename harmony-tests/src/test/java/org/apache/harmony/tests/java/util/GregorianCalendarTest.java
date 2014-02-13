@@ -683,7 +683,7 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         g = new GregorianCalendar(TimeZone.getTimeZone("Europe/London"),
                 new Locale("fr", "CA"));
         minimalDaysInFirstWeek = g.getMinimalDaysInFirstWeek();
-        assertEquals(4, minimalDaysInFirstWeek);
+        assertEquals(1, minimalDaysInFirstWeek);
 
     }
 
