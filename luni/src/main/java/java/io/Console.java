@@ -16,9 +16,7 @@
 package java.io;
 
 import java.util.Formatter;
-import libcore.io.ErrnoException;
 import libcore.io.Libcore;
-import static libcore.io.OsConstants.*;
 
 /**
  * Provides access to the console, if available. The system-wide instance can
@@ -48,12 +46,12 @@ public final class Console implements Flushable {
         }
         try {
             return new Console(System.in, System.out);
-        } catch (IOException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new AssertionError(ex);
         }
     }
 
-    private Console(InputStream in, OutputStream out) throws IOException {
+    private Console(InputStream in, OutputStream out) throws UnsupportedEncodingException {
         this.reader = new ConsoleReader(in);
         this.writer = new ConsoleWriter(out);
     }
@@ -181,7 +179,7 @@ public final class Console implements Flushable {
     }
 
     private static class ConsoleReader extends BufferedReader {
-        public ConsoleReader(InputStream in) throws IOException {
+        public ConsoleReader(InputStream in) throws UnsupportedEncodingException {
             super(new InputStreamReader(in, System.getProperty("file.encoding")), 256);
             lock = CONSOLE_LOCK;
         }
