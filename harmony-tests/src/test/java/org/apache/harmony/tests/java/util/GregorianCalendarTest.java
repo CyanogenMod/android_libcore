@@ -208,23 +208,23 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         gc1 = new GregorianCalendar(AMERICA_NEW_YORK);
         gc1.set(1999, Calendar.APRIL, 3, 16, 0); // day before DST change
         gc1.add(Calendar.MILLISECOND, 24 * 60 * 60 * 1000);
-        assertEquals("Wrong time after MILLISECOND change", 16, gc1
+        assertEquals("Wrong time after MILLISECOND change", 17, gc1
                 .get(Calendar.HOUR_OF_DAY));
         gc1.set(1999, Calendar.APRIL, 3, 16, 0); // day before DST change
         gc1.add(Calendar.SECOND, 24 * 60 * 60);
-        assertEquals("Wrong time after SECOND change", 16, gc1
+        assertEquals("Wrong time after SECOND change", 17, gc1
                 .get(Calendar.HOUR_OF_DAY));
         gc1.set(1999, Calendar.APRIL, 3, 16, 0); // day before DST change
         gc1.add(Calendar.MINUTE, 24 * 60);
-        assertEquals("Wrong time after MINUTE change", 16, gc1
+        assertEquals("Wrong time after MINUTE change", 17, gc1
                 .get(Calendar.HOUR_OF_DAY));
         gc1.set(1999, Calendar.APRIL, 3, 16, 0); // day before DST change
         gc1.add(Calendar.HOUR, 24);
-        assertEquals("Wrong time after HOUR change", 16, gc1
+        assertEquals("Wrong time after HOUR change", 17, gc1
                 .get(Calendar.HOUR_OF_DAY));
         gc1.set(1999, Calendar.APRIL, 3, 16, 0); // day before DST change
         gc1.add(Calendar.HOUR_OF_DAY, 24);
-        assertEquals("Wrong time after HOUR_OF_DAY change", 16, gc1
+        assertEquals("Wrong time after HOUR_OF_DAY change", 17, gc1
                 .get(Calendar.HOUR_OF_DAY));
 
         gc1.set(1999, Calendar.APRIL, 3, 16, 0); // day before DST change
