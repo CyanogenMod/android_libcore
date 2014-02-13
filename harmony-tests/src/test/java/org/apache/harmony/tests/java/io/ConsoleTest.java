@@ -58,10 +58,6 @@ public class ConsoleTest extends TestCase {
         super.tearDown();
     }
 
-    public void test_getConsole() throws Exception {
-        assertNotNull(System.console());
-    }
-
     public void test_flush() {
         console.flush();
         assertFalse(console.writer().checkError());
