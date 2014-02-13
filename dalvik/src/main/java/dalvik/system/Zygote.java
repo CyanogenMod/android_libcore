@@ -122,21 +122,37 @@ public class Zygote {
      * @param seInfo null-ok a string specifying SELinux information for
      * the new process.
      * @param niceName null-ok a string specifying the process name.
+     * @param fdsToClose an array of ints, holding one or more POSIX
+     * file descriptor numbers that are to be closed by the child
+     * (and replaced by /dev/null) after forking.  An integer value
+     * of -1 in any entry in the array means "ignore this one".
      *
      * @return 0 if this is the child, pid of the child
      * if this is the parent, or -1 on error.
      */
     public static int forkAndSpecialize(int uid, int gid, int[] gids, int debugFlags,
-            int[][] rlimits, int mountExternal, String seInfo, String niceName) {
+          int[][] rlimits, int mountExternal, String seInfo, String niceName, int[] fdsToClose) {
         preFork();
-        int pid = nativeForkAndSpecialize(
-                uid, gid, gids, debugFlags, rlimits, mountExternal, seInfo, niceName);
+        int pid = nativeForkAndSpecialize_new(
+                  uid, gid, gids, debugFlags, rlimits, mountExternal, seInfo, niceName, fdsToClose);
         postFork();
         return pid;
     }
 
+    public static int forkAndSpecialize(int uid, int gid, int[] gids, int debugFlags,
+          int[][] rlimits, int mountExternal, String seInfo, String niceName) {
+        preFork();
+        int pid = nativeForkAndSpecialize(
+                  uid, gid, gids, debugFlags, rlimits, mountExternal, seInfo, niceName);
+        postFork();
+        return pid;
+    }
+
+    native public static int nativeForkAndSpecialize_new(int uid, int gid, int[] gids, int debugFlags,
+          int[][] rlimits, int mountExternal, String seInfo, String niceName, int[] fdsToClose);
+
     native public static int nativeForkAndSpecialize(int uid, int gid, int[] gids, int debugFlags,
-            int[][] rlimits, int mountExternal, String seInfo, String niceName);
+          int[][] rlimits, int mountExternal, String seInfo, String niceName);
 
     /**
      * Special method to start the system server process. In addition to the
