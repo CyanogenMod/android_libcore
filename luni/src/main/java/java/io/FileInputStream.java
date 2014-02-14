@@ -75,7 +75,7 @@ public class FileInputStream extends InputStream {
         if (file == null) {
             throw new NullPointerException("file == null");
         }
-        this.fd = IoBridge.open(file.getAbsolutePath(), O_RDONLY);
+        this.fd = IoBridge.open(file.getPath(), O_RDONLY);
         this.shouldClose = true;
         guard.open("close");
     }
