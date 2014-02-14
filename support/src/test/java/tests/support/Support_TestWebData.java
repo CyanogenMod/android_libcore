@@ -19,7 +19,6 @@ package tests.support;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -30,6 +29,12 @@ import java.util.Date;
 public class Support_TestWebData {
   public final static byte[] test1 = utfBytes();
   public final static byte[] test2 = newBinaryFile(8192);
+
+  // Although the tests report the content length of this file as being large, a file is created
+  // that is much shorter. Actually creating a large file is not practical during tests. This
+  // file should only be used for checking header information.
+  private static final long TEST_3_CONTENT_LENGTH = ((long) Integer.MAX_VALUE) + 1;
+  public final static byte[] test3 = newBinaryFile(3);
 
   private static byte[] utfBytes() {
     try {
@@ -53,7 +58,8 @@ public class Support_TestWebData {
   // Array of all test data
   public final static byte[][] tests = {
     test1,
-    test2
+    test2,
+    test3,
   };
 
   /**
@@ -62,7 +68,9 @@ public class Support_TestWebData {
   public static Support_TestWebData[] testParams = {
     new Support_TestWebData(test1.length, 14000000, "test1", "text/html", false, 0),
     new Support_TestWebData(test2.length, 14000002, "test2", "unknown/unknown", false,
-            new Date().getTime() + 100000)
+            new Date().getTime() + 100000),
+    new Support_TestWebData(TEST_3_CONTENT_LENGTH, 14000004, "test3", "unknown/unknown", false,
+            new Date().getTime() + 100000),
   };
 
   /**
@@ -85,7 +93,7 @@ public class Support_TestWebData {
    * Creates a data package with information used by the server when responding
    * to requests
    */
-  Support_TestWebData(int length, int lastModified, String name, String type, boolean isDir, long expDate) {
+  Support_TestWebData(long length, int lastModified, String name, String type, boolean isDir, long expDate) {
     testLength = length;
     testLastModified = lastModified;
     testName = name;

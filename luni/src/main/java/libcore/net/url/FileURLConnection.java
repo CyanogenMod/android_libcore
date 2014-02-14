@@ -42,7 +42,7 @@ public class FileURLConnection extends URLConnection {
 
     private InputStream is;
 
-    private int length = -1;
+    private long length = -1;
 
     private boolean isDir;
 
@@ -80,21 +80,31 @@ public class FileURLConnection extends URLConnection {
             // use -1 for the contentLength
         } else {
             is = new BufferedInputStream(new FileInputStream(f));
-            long lengthAsLong = f.length();
-            length = lengthAsLong <= Integer.MAX_VALUE ? (int) lengthAsLong : Integer.MAX_VALUE;
+            length = f.length();
         }
         connected = true;
+    }
+
+    /**
+     * Returns the length of the file in bytes, or {@code -1} if the length cannot be
+     * represented as an {@code int}. See {@link #getContentLengthLong()} for a method that can
+     * handle larger files.
+     */
+    @Override
+    public int getContentLength() {
+        long length = getContentLengthLong();
+        return length <= Integer.MAX_VALUE ? (int) length : -1;
     }
 
     /**
      * Returns the length of the file in bytes.
      *
      * @return the length of the file
-     *
-     * @see #getContentType()
+     * @since 1.7
+     * @hide Until ready for a public API change
      */
     @Override
-    public int getContentLength() {
+    public long getContentLengthLong() {
         try {
             if (!connected) {
                 connect();
