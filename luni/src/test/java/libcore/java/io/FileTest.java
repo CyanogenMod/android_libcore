@@ -16,11 +16,9 @@
 
 package libcore.java.io;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
-import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.UUID;
 import libcore.io.Libcore;
@@ -62,7 +60,13 @@ public class FileTest extends junit.framework.TestCase {
         assertTrue(createDeepStructure(base).exists());
     }
 
-    // readlink(2) is a special case,.
+    /*
+     * readlink(2) is a special case,.
+     *
+     * This test assumes you can create symbolic links in the temporary directory. This
+     * isn't true on Android if you're using /sdcard (which is used if this test is
+     * run using vogar). It will work in /data/data/ though.
+     */
     public void test_longReadlink() throws Exception {
         File base = createTemporaryDirectory();
         File target = createDeepStructure(base);
@@ -144,10 +148,14 @@ public class FileTest extends junit.framework.TestCase {
         new MyFile("");
     }
 
-    // http://b/3047893 - getCanonicalPath wasn't actually resolving symbolic links.
+    /*
+     * http://b/3047893 - getCanonicalPath wasn't actually resolving symbolic links.
+     *
+     * This test assumes you can create symbolic links in the temporary directory. This
+     * isn't true on Android if you're using /sdcard (which is used if this test is
+     * run using vogar). It will work in /data/data/ though.
+     */
     public void test_getCanonicalPath() throws Exception {
-        // This assumes you can create symbolic links in the temporary directory. This isn't
-        // true on Android if you're using /sdcard. It will work in /data/local though.
         File base = createTemporaryDirectory();
         File target = new File(base, "target");
         target.createNewFile(); // The RI won't follow a dangling symlink, which seems like a bug!
@@ -208,16 +216,9 @@ public class FileTest extends junit.framework.TestCase {
     }
 
     public void test_getAbsolutePath() throws Exception {
-        String originalUserDir = System.getProperty("user.dir");
-        try {
-            File f = new File("poop");
-            System.setProperty("user.dir", "/a");
-            assertEquals("/a/poop", f.getAbsolutePath());
-            System.setProperty("user.dir", "/b");
-            assertEquals("/b/poop", f.getAbsolutePath());
-        } finally {
-            System.setProperty("user.dir", originalUserDir);
-        }
+        String userDir = System.getProperty("user.dir");
+        File f = new File("poop");
+        assertEquals(userDir + File.separator + "poop", f.getAbsolutePath());
     }
 
     public void test_getSpace() throws Exception {
