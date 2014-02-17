@@ -19,17 +19,58 @@ package libcore.java.util.prefs;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.prefs.FilePreferencesImpl;
 import java.util.prefs.Preferences;
+import java.util.prefs.PreferencesFactory;
 import junit.framework.TestCase;
+import libcore.io.IoUtils;
 
 public final class PreferencesTest extends TestCase {
+
+    /**
+     * A preferences factory rooted at a given path.
+     */
+    public static final class TestPreferencesFactory implements PreferencesFactory {
+        private final Preferences userPrefs;
+        private final Preferences systemPrefs;
+
+        public TestPreferencesFactory(String root) {
+            userPrefs = new FilePreferencesImpl(root + "/user", true);
+            systemPrefs = new FilePreferencesImpl(root + "/system", false);
+        }
+
+        public Preferences userRoot() {
+            return userPrefs;
+        }
+
+        public Preferences systemRoot() {
+            return systemPrefs;
+        }
+    }
+
+    private PreferencesFactory defaultFactory;
+    private File temporaryDirectory;
+
+    @Override
+    public void setUp() throws Exception {
+        temporaryDirectory = IoUtils.createTemporaryDirectory("PreferencesTest");
+        defaultFactory = Preferences.setPreferencesFactory(
+                new TestPreferencesFactory(temporaryDirectory.getAbsolutePath()));
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        Preferences.setPreferencesFactory(defaultFactory);
+    }
 
     /**
      * The preferences API is designed to be hostile towards files that exist
      * where it wants to store its XML data. http://b/3431233
      */
     public void testPreferencesClobbersExistingFiles() throws Exception {
-        File userPrefs = new File(System.getProperty("user.home") + "/.java/.userPrefs/prefs.xml");
+        final File userPrefsDir = new File(temporaryDirectory + "/user");
+        final File userPrefs = new File(userPrefsDir, "prefs.xml");
+        assertTrue(userPrefs.createNewFile());
         FileWriter writer = new FileWriter(userPrefs);
         writer.write("lamb");
         writer.close();

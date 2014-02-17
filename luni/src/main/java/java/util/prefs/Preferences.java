@@ -98,8 +98,17 @@ public abstract class Preferences {
      */
     public static final int MAX_VALUE_LENGTH = 8192;
 
-    //factory used to get user/system prefs root
-    private static final PreferencesFactory factory = findPreferencesFactory();
+    // factory used to get user/system prefs root
+    private static volatile PreferencesFactory factory = findPreferencesFactory();
+
+    /**
+     * @hide for testing only.
+     */
+    public static PreferencesFactory setPreferencesFactory(PreferencesFactory pf) {
+        PreferencesFactory previous = factory;
+        factory = pf;
+        return previous;
+    }
 
     private static PreferencesFactory findPreferencesFactory() {
         // Try the system property first...
@@ -780,6 +789,11 @@ public abstract class Preferences {
     public abstract void sync() throws BackingStoreException;
 
     /**
+     * <strong>Legacy code; do not use.</strong> On Android, the Preference nodes
+     * corresponding to the "system" and "user" preferences are stored in sections
+     * of the file system that are inaccessible to apps. Further, allowing apps to set
+     * "system wide" preferences is contrary to android's security model.
+     *
      * Returns the system preference node for the package of the given class.
      * The absolute path of the returned node is one slash followed by the given
      * class's full package name, replacing each period character ('.') with
@@ -796,11 +810,16 @@ public abstract class Preferences {
      * @throws NullPointerException
      *             if the given class is {@code null}.
      */
-    public static Preferences systemNodeForPackage (Class<?> c) {
+    public static Preferences systemNodeForPackage(Class<?> c) {
         return factory.systemRoot().node(getNodeName(c));
     }
 
     /**
+     * <strong>Legacy code; do not use.</strong> On Android, the Preference nodes
+     * corresponding to the "system" and "user" preferences are stored in sections
+     * of the file system that are inaccessible to apps. Further, allowing apps to set
+     * "system wide" preferences is contrary to android's security model.
+     *
      * Returns the root node of the system preference hierarchy.
      *
      * @return the system preference hierarchy root node.
@@ -810,6 +829,13 @@ public abstract class Preferences {
     }
 
     /**
+     *
+     * <strong>Legacy code; do not use.</strong> On Android, the Preference nodes
+     * corresponding to the "system" and "user" preferences are stored in sections
+     * of the file system that are inaccessible to apps. Further, allowing apps to set
+     * "system wide" preferences is contrary to android's security model.
+     *
+     * <p>
      * Returns the user preference node for the package of the given class.
      * The absolute path of the returned node is one slash followed by the given
      * class's full package name, replacing each period character ('.') with
@@ -820,13 +846,11 @@ public abstract class Preferences {
      * by this method won't necessarily be persisted until the method {@code
      * flush()} is invoked.
      *
-     * @param c
-     *            the given class.
      * @return the user preference node for the package of the given class.
      * @throws NullPointerException
      *             if the given class is {@code null}.
      */
-    public static Preferences userNodeForPackage (Class<?> c) {
+    public static Preferences userNodeForPackage(Class<?> c) {
         return factory.userRoot().node(getNodeName(c));
     }
 
@@ -840,6 +864,11 @@ public abstract class Preferences {
     }
 
     /**
+     * <strong>Legacy code; do not use.</strong> On Android, the Preference nodes
+     * corresponding to the "system" and "user" preferences are stored in sections
+     * of the file system that are inaccessible to apps. Further, allowing apps to set
+     * "system wide" preferences is contrary to android's security model.
+     *
      * Returns the root node of the user preference hierarchy.
      *
      * @return the user preference hierarchy root node.
