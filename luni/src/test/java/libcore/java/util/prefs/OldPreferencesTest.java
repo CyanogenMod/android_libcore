@@ -16,6 +16,7 @@
 
 package libcore.java.util.prefs;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -25,7 +26,9 @@ import java.util.prefs.NodeChangeListener;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
+import java.util.prefs.PreferencesFactory;
 import junit.framework.TestCase;
+import libcore.io.IoUtils;
 
 public final class OldPreferencesTest extends TestCase {
 
@@ -48,14 +51,25 @@ public final class OldPreferencesTest extends TestCase {
         longValue = value.toString();
     }
 
-    @Override protected void setUp() throws Exception {
+    private PreferencesFactory defaultFactory;
+
+    @Override
+    protected void setUp() throws Exception {
         super.setUp();
+        final File tmpDir = IoUtils.createTemporaryDirectory("OldPreferenceTest");
+        defaultFactory = Preferences.setPreferencesFactory(
+                new PreferencesTest.TestPreferencesFactory(tmpDir.getAbsolutePath()));
 
         Preferences pref = Preferences.userNodeForPackage(Preferences.class);
         for (String child : pref.childrenNames()) {
             pref.node(child).removeNode();
         }
         pref.clear();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        Preferences.setPreferencesFactory(defaultFactory);
     }
 
     public void testAbstractMethods() throws IOException, BackingStoreException {
