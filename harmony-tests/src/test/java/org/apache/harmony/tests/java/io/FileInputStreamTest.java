@@ -17,25 +17,89 @@
 
 package org.apache.harmony.tests.java.io;
 
-import junit.framework.TestCase;
-import tests.support.Support_PlatformFile;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import junit.framework.TestCase;
 
 public class FileInputStreamTest extends TestCase {
 
-    public String fileName;
+    private String fileName;
 
     private java.io.InputStream is;
 
-    byte[] ibuf = new byte[4096];
+    private static final String INPUT =
+             "Test_All_Tests\n" +
+             "Test_BufferedInputStream\n" +
+             "Test_java_io_BufferedOutputStream\n" +
+             "Test_java_io_ByteArrayInputStream\n" +
+             "Test_java_io_ByteArrayOutputStream\n" +
+             "Test_java_io_DataInputStream\n" +
+             "Test_java_io_File\n" +
+             "Test_java_io_FileDescriptor\n" +
+             "Test_java_io_FileInputStream\n" +
+             "Test_java_io_FileNotFoundException\n" +
+             "Test_java_io_FileOutputStream\n" +
+             "Test_java_io_FilterInputStream\n" +
+             "Test_java_io_FilterOutputStream\n" +
+             "Test_java_io_InputStream\n" +
+             "Test_java_io_IOException\n" +
+             "Test_java_io_OutputStream\n" +
+             "Test_java_io_PrintStream\n" +
+             "Test_java_io_RandomAccessFile\n" +
+             "Test_java_io_SyncFailedException\n" +
+             "Test_java_lang_AbstractMethodError\n" +
+             "Test_java_lang_ArithmeticException\n" +
+             "Test_java_lang_ArrayIndexOutOfBoundsException\n" +
+             "Test_java_lang_ArrayStoreException\n" +
+             "Test_java_lang_Boolean\n" +
+             "Test_java_lang_Byte\n" +
+             "Test_java_lang_Character\n" +
+             "Test_All_Tests\n" +
+             "Test_BufferedInputStream\n" +
+             "Test_java_io_BufferedOutputStream\n" +
+             "Test_java_io_ByteArrayInputStream\n" +
+             "Test_java_io_ByteArrayOutputStream\n" +
+             "Test_java_io_DataInputStream\n" +
+             "Test_java_io_File\n" +
+             "Test_java_io_FileDescriptor\n" +
+             "Test_java_io_FileInputStream\n" +
+             "Test_java_io_FileNotFoundException\n" +
+             "Test_java_io_FileOutputStream\n" +
+             "Test_java_io_FilterInputStream\n" +
+             "Test_java_io_FilterOutputStream\n" +
+             "Test_java_io_InputStream\n" +
+             "Test_java_io_IOException\n" +
+             "Test_java_io_OutputStream\n" +
+             "Test_java_io_PrintStream\n" +
+             "Test_java_io_RandomAccessFile\n" +
+             "Test_java_io_SyncFailedException\n" +
+             "Test_java_lang_AbstractMethodError\n" +
+             "Test_java_lang_ArithmeticException\n" +
+             "Test_java_lang_ArrayIndexOutOfBoundsException\n" +
+             "Test_java_lang_ArrayStoreException\n" +
+             "Test_java_lang_Boolean\n" +
+             "Test_java_lang_Byte\n" +
+             "Test_java_lang_Character\n";
 
-    public String fileString = "Test_All_Tests\nTest_java_io_BufferedInputStream\nTest_java_io_BufferedOutputStream\nTest_java_io_ByteArrayInputStream\nTest_java_io_ByteArrayOutputStream\nTest_java_io_DataInputStream\nTest_java_io_File\nTest_java_io_FileDescriptor\nTest_FileInputStream\nTest_java_io_FileNotFoundException\nTest_java_io_FileOutputStream\nTest_java_io_FilterInputStream\nTest_java_io_FilterOutputStream\nTest_java_io_InputStream\nTest_java_io_IOException\nTest_java_io_OutputStream\nTest_java_io_PrintStream\nTest_java_io_RandomAccessFile\nTest_java_io_SyncFailedException\nTest_java_lang_AbstractMethodError\nTest_java_lang_ArithmeticException\nTest_java_lang_ArrayIndexOutOfBoundsException\nTest_java_lang_ArrayStoreException\nTest_java_lang_Boolean\nTest_java_lang_Byte\nTest_java_lang_Character\nTest_java_lang_Class\nTest_java_lang_ClassCastException\nTest_java_lang_ClassCircularityError\nTest_java_lang_ClassFormatError\nTest_java_lang_ClassLoader\nTest_java_lang_ClassNotFoundException\nTest_java_lang_CloneNotSupportedException\nTest_java_lang_Double\nTest_java_lang_Error\nTest_java_lang_Exception\nTest_java_lang_ExceptionInInitializerError\nTest_java_lang_Float\nTest_java_lang_IllegalAccessError\nTest_java_lang_IllegalAccessException\nTest_java_lang_IllegalArgumentException\nTest_java_lang_IllegalMonitorStateException\nTest_java_lang_IllegalThreadStateException\nTest_java_lang_IncompatibleClassChangeError\nTest_java_lang_IndexOutOfBoundsException\nTest_java_lang_InstantiationError\nTest_java_lang_InstantiationException\nTest_java_lang_Integer\nTest_java_lang_InternalError\nTest_java_lang_InterruptedException\nTest_java_lang_LinkageError\nTest_java_lang_Long\nTest_java_lang_Math\nTest_java_lang_NegativeArraySizeException\nTest_java_lang_NoClassDefFoundError\nTest_java_lang_NoSuchFieldError\nTest_java_lang_NoSuchMethodError\nTest_java_lang_NullPointerException\nTest_java_lang_Number\nTest_java_lang_NumberFormatException\nTest_java_lang_Object\nTest_java_lang_OutOfMemoryError\nTest_java_lang_RuntimeException\nTest_java_lang_SecurityManager\nTest_java_lang_Short\nTest_java_lang_StackOverflowError\nTest_java_lang_String\nTest_java_lang_StringBuffer\nTest_java_lang_StringIndexOutOfBoundsException\nTest_java_lang_System\nTest_java_lang_Thread\nTest_java_lang_ThreadDeath\nTest_java_lang_ThreadGroup\nTest_java_lang_Throwable\nTest_java_lang_UnknownError\nTest_java_lang_UnsatisfiedLinkError\nTest_java_lang_VerifyError\nTest_java_lang_VirtualMachineError\nTest_java_lang_vm_Image\nTest_java_lang_vm_MemorySegment\nTest_java_lang_vm_ROMStoreException\nTest_java_lang_vm_VM\nTest_java_lang_Void\nTest_java_net_BindException\nTest_java_net_ConnectException\nTest_java_net_DatagramPacket\nTest_java_net_DatagramSocket\nTest_java_net_DatagramSocketImpl\nTest_java_net_InetAddress\nTest_java_net_NoRouteToHostException\nTest_java_net_PlainDatagramSocketImpl\nTest_java_net_PlainSocketImpl\nTest_java_net_Socket\nTest_java_net_SocketException\nTest_java_net_SocketImpl\nTest_java_net_SocketInputStream\nTest_java_net_SocketOutputStream\nTest_java_net_UnknownHostException\nTest_java_util_ArrayEnumerator\nTest_java_util_Date\nTest_java_util_EventObject\nTest_java_util_HashEnumerator\nTest_java_util_Hashtable\nTest_java_util_Properties\nTest_java_util_ResourceBundle\nTest_java_util_tm\nTest_java_util_Vector\n";
+    @Override
+    protected void setUp() throws IOException {
+        File f = File.createTempFile("FileInputStreamTest", "tst");
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(f.getAbsolutePath());
+            fos.write(INPUT.getBytes(StandardCharsets.US_ASCII));
+        } finally {
+            fos.close();
+        }
+
+        fileName = f.getAbsolutePath();
+    }
 
     /**
      * java.io.FileInputStream#FileInputStream(java.io.File)
@@ -96,8 +160,7 @@ public class FileInputStreamTest extends TestCase {
     public void test_available() throws IOException {
         try {
             is = new FileInputStream(fileName);
-            assertTrue("Returned incorrect number of available bytes", is
-                    .available() == fileString.length());
+            assertTrue(is.available() == INPUT.length());
         } finally {
             try {
                 is.close();
@@ -150,7 +213,7 @@ public class FileInputStreamTest extends TestCase {
         InputStreamReader isr = new InputStreamReader(new FileInputStream(fileName));
         int c = isr.read();
         isr.close();
-        assertTrue("read returned incorrect char", c == fileString.charAt(0));
+        assertEquals(INPUT.charAt(0), c);
     }
 
     /**
@@ -159,11 +222,11 @@ public class FileInputStreamTest extends TestCase {
     public void test_read$B() throws IOException {
         byte[] buf1 = new byte[100];
         is = new FileInputStream(fileName);
-        is.skip(3000);
+        is.skip(500);
         is.read(buf1);
         is.close();
-        assertTrue("Failed to read correct data", new String(buf1, 0,
-                buf1.length).equals(fileString.substring(3000, 3100)));
+        assertEquals(INPUT.substring(500, 600),
+                new String(buf1, 0, buf1.length, StandardCharsets.US_ASCII));
     }
 
     /**
@@ -172,11 +235,11 @@ public class FileInputStreamTest extends TestCase {
     public void test_read$BII() throws IOException {
         byte[] buf1 = new byte[100];
         is = new FileInputStream(fileName);
-        is.skip(3000);
+        is.skip(500);
         is.read(buf1, 0, buf1.length);
         is.close();
-        assertTrue("Failed to read correct data", new String(buf1, 0,
-                buf1.length).equals(fileString.substring(3000, 3100)));
+        assertEquals(INPUT.substring(500, 600),
+                new String(buf1, 0, buf1.length, StandardCharsets.US_ASCII));
 
         // Regression test for HARMONY-285
         File tmpFile = File.createTempFile("FileOutputStream", "tmp");
@@ -319,8 +382,9 @@ public class FileInputStreamTest extends TestCase {
         is.skip(1000);
         is.read(buf1, 0, buf1.length);
         is.close();
-        assertTrue("Failed to skip to correct position", new String(buf1, 0,
-                buf1.length).equals(fileString.substring(1000, 1010)));
+        assertEquals(INPUT.substring(1000, 1010),
+                new String(buf1, 0, buf1.length, StandardCharsets.US_ASCII));
+
     }
 
     /**
@@ -414,31 +478,5 @@ public class FileInputStreamTest extends TestCase {
         r = fis.read(bs);
         assertEquals(110, fis.getChannel().position());
         fis.close();
-    }
-
-    /**
-     * Sets up the fixture, for example, open a network connection. This method
-     * is called before a test is executed.
-     */
-    protected void setUp() throws IOException {
-        fileName = System.getProperty("user.dir");
-        String separator = System.getProperty("file.separator");
-        if (fileName.charAt(fileName.length() - 1) == separator.charAt(0))
-            fileName = Support_PlatformFile.getNewPlatformFile(fileName,
-                    "input.tst");
-        else
-            fileName = Support_PlatformFile.getNewPlatformFile(fileName
-                    + separator, "input.tst");
-        java.io.OutputStream fos = new java.io.FileOutputStream(fileName);
-        fos.write(fileString.getBytes());
-        fos.close();
-    }
-
-    /**
-     * Tears down the fixture, for example, close a network connection. This
-     * method is called after a test is executed.
-     */
-    protected void tearDown() {
-        new File(fileName).delete();
     }
 }

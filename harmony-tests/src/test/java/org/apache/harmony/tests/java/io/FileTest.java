@@ -17,9 +17,6 @@
 
 package org.apache.harmony.tests.java.io;
 
-import junit.framework.TestCase;
-import org.apache.harmony.testframework.serialization.SerializationTest;
-import tests.support.Support_PlatformFile;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
@@ -32,7 +29,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import junit.framework.TestCase;
 import libcore.io.Libcore;
+import org.apache.harmony.testframework.serialization.SerializationTest;
 
 public class FileTest extends TestCase {
 
@@ -1873,9 +1872,7 @@ public class FileTest extends TestCase {
     public void test_setLastModifiedJ() throws IOException {
         File f1 = null;
         try {
-            f1 = new File(Support_PlatformFile.getNewPlatformFile(
-                    "harmony-test-FileTest_setLastModified", ".tmp"));
-            f1.createNewFile();
+            f1 = File.createTempFile("harmony-test-FileTest_setLastModified", ".tmp");
             long orgTime = f1.lastModified();
             // Subtracting 100 000 milliseconds from the orgTime of File f1
             f1.setLastModified(orgTime - 100000);
@@ -1930,7 +1927,7 @@ public class FileTest extends TestCase {
     /**
      * java.io.File#setReadOnly()
      */
-    public void test_setReadOnly() throws IOException, InterruptedException {
+    public void test_setReadOnly() throws Exception {
         File f1 = null;
         File f2 = null;
         if (Libcore.os.getuid() == 0) {
@@ -1954,23 +1951,16 @@ public class FileTest extends TestCase {
             } catch (IOException e) {
                 // Expected
             }
-            Runtime r = Runtime.getRuntime();
-            Process p;
-            boolean onUnix = File.separatorChar == '/';
-            if (onUnix) {
-                p = r.exec("chmod +w " + f1.getAbsolutePath());
-            } else {
-                p = r.exec("attrib -r \"" + f1.getAbsolutePath() + "\"");
-            }
-            p.waitFor();
+
+            Libcore.os.chmod(f1.getAbsolutePath(), 666);
+
             // Assert is flawed because canWrite does not work.
             // assertTrue("File f1 Is Set To ReadOnly." , f1.canWrite());
             FileOutputStream fos = new FileOutputStream(f1);
             fos.write(fileString.getBytes());
             fos.close();
-            assertTrue("File Was Not Able To Be Written To.",
-                    f1.length() == fileString.length());
-            assertTrue("File f1 Did Not Delete", f1.delete());
+            assertEquals(fileString.length(), f1.length());
+            assertTrue(f1.delete());
 
             // Assert is flawed because canWrite does not work.
             // assertTrue("File f2 Is Set To ReadOnly." , f2.canWrite());
@@ -1990,19 +1980,15 @@ public class FileTest extends TestCase {
             } catch (IOException e) {
                 // Expected
             }
-            r = Runtime.getRuntime();
-            if (onUnix) {
-                p = r.exec("chmod +w " + f2.getAbsolutePath());
-            } else {
-                p = r.exec("attrib -r \"" + f2.getAbsolutePath() + "\"");
-            }
-            p.waitFor();
-            assertTrue("File f2 Is Set To ReadOnly.", f2.canWrite());
+
+            Libcore.os.chmod(f2.getAbsolutePath(), 666);
+            assertTrue(f2.canWrite());
             fos = new FileOutputStream(f2);
             fos.write(fileString.getBytes());
             fos.close();
             f2.setReadOnly();
-            assertTrue("File f2 Did Not Delete", f2.delete());
+            assertTrue(f2.delete());
+
             // Similarly, trying to delete a read-only directory should succeed
             f2 = new File(tempDirectory, "deltestdir");
             f2.mkdir();
@@ -2166,12 +2152,7 @@ public class FileTest extends TestCase {
 
     // Regression test for HARMONY-4493
     public void test_list_withUnicodeFileName() throws Exception {
-        File rootDir = new File("P");
-        if (!rootDir.exists()) {
-            rootDir.mkdir();
-            rootDir.deleteOnExit();
-        }
-
+        File rootDir = new File(System.getProperty("java.io.tmpdir")).getAbsoluteFile();
         String dirName = new String("src\u3400");
         File dir = new File(rootDir, dirName);
         if (!dir.exists()) {

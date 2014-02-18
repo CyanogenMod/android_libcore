@@ -17,21 +17,14 @@
 
 package libcore.java.util.zip;
 
-import tests.support.Support_PlatformFile;
-import tests.support.resource.Support_Resources;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.Permission;
-import java.util.Enumeration;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+import tests.support.resource.Support_Resources;
 
 public class OldZipFileTest extends junit.framework.TestCase {
 
@@ -150,24 +143,15 @@ public class OldZipFileTest extends junit.framework.TestCase {
     @Override
     protected void setUp() throws IOException {
         // Create a local copy of the file since some tests want to alter information.
-        tempFileName = System.getProperty("java.io.tmpdir");
-        String separator = System.getProperty("file.separator");
-        if (tempFileName.charAt(tempFileName.length() - 1) == separator.charAt(0)) {
-            tempFileName = Support_PlatformFile.getNewPlatformFile(tempFileName, "gabba.zip");
-        } else {
-            tempFileName = Support_PlatformFile.getNewPlatformFile(
-                    tempFileName + separator, "gabba.zip");
-        }
-
-        File f = new File(tempFileName);
-        f.delete();
+        File tempFile = File.createTempFile("OldZipFileTest", "zip");
+        tempFileName = tempFile.getAbsolutePath();
         InputStream is = Support_Resources.getStream("hyts_ZipFile.zip");
-        FileOutputStream fos = new FileOutputStream(f);
+        FileOutputStream fos = new FileOutputStream(tempFile);
         byte[] rbuf = getAllBytesFromStream(is);
         fos.write(rbuf, 0, rbuf.length);
         is.close();
         fos.close();
-        zfile = new ZipFile(f);
+        zfile = new ZipFile(tempFile);
     }
 
     /**
@@ -179,18 +163,5 @@ public class OldZipFileTest extends junit.framework.TestCase {
         // Note zfile is a user-defined zip file used by other tests and
         // should not be deleted
         zfile.close();
-        tempFileName = System.getProperty("java.io.tmpdir");
-        String separator = System.getProperty("file.separator");
-        if (tempFileName.charAt(tempFileName.length() - 1) == separator
-                .charAt(0)) {
-            tempFileName = Support_PlatformFile.getNewPlatformFile(
-                    tempFileName, "gabba.zip");
-        } else {
-            tempFileName = Support_PlatformFile.getNewPlatformFile(
-                    tempFileName + separator, "gabba.zip");
-        }
-
-        File f = new File(tempFileName);
-        f.delete();
     }
 }

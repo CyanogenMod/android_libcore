@@ -17,9 +17,6 @@
 
 package org.apache.harmony.tests.java.util.zip;
 
-import tests.support.Support_PlatformFile;
-import tests.support.resource.Support_Resources;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,6 +30,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import libcore.java.lang.ref.FinalizationTester;
+import tests.support.resource.Support_Resources;
 
 public class ZipFileTest extends junit.framework.TestCase {
 
@@ -438,68 +436,26 @@ public class ZipFileTest extends junit.framework.TestCase {
         is.close();
     }
 
-	/**
-     * Sets up the fixture, for example, open a network connection. This method
-     * is called before a test is executed.
-     */
     @Override
-    protected void setUp() {
-        try {
-            // Create a local copy of the file since some tests want to alter
-            // information.
-            tempFileName = System.getProperty("java.io.tmpdir");
-            String separator = System.getProperty("file.separator");
-            if (tempFileName.charAt(tempFileName.length() - 1) == separator
-                    .charAt(0)) {
-                tempFileName = Support_PlatformFile.getNewPlatformFile(
-                        tempFileName, "gabba.zip");
-            } else {
-                tempFileName = Support_PlatformFile.getNewPlatformFile(
-                        tempFileName + separator, "gabba.zip");
-            }
-
-            File f = new File(tempFileName);
-            f.delete();
-            InputStream is = Support_Resources.getStream("hyts_ZipFile.zip");
-            FileOutputStream fos = new FileOutputStream(f);
-            byte[] rbuf = getAllBytesFromStream(is);
-            fos.write(rbuf, 0, rbuf.length);
-            is.close();
-            fos.close();
-            zfile = new ZipFile(f);
-        } catch (Exception e) {
-            System.out.println("Exception during ZipFile setup:");
-            e.printStackTrace();
-        }
+    protected void setUp() throws IOException {
+        // Create a local copy of the file since some tests want to alter information.
+        File tempFile = File.createTempFile("OldZipFileTest", "zip");
+        tempFileName = tempFile.getAbsolutePath();
+        InputStream is = Support_Resources.getStream("hyts_ZipFile.zip");
+        FileOutputStream fos = new FileOutputStream(tempFile);
+        byte[] rbuf = getAllBytesFromStream(is);
+        fos.write(rbuf, 0, rbuf.length);
+        is.close();
+        fos.close();
+        zfile = new ZipFile(tempFile);
     }
 
-    /**
-     * Tears down the fixture, for example, close a network connection. This
-     * method is called after a test is executed.
-     */
     @Override
-    protected void tearDown() {
-        try {
-            if (zfile != null) {
-                // Note zfile is a user-defined zip file used by other tests and
-                // should not be deleted
-                zfile.close();
-                tempFileName = System.getProperty("java.io.tmpdir");
-                String separator = System.getProperty("file.separator");
-                if (tempFileName.charAt(tempFileName.length() - 1) == separator
-                        .charAt(0)) {
-                    tempFileName = Support_PlatformFile.getNewPlatformFile(
-                            tempFileName, "gabba.zip");
-                } else {
-                    tempFileName = Support_PlatformFile.getNewPlatformFile(
-                            tempFileName + separator, "gabba.zip");
-                }
-
-                File f = new File(tempFileName);
-                f.delete();
-            }
-        } catch (Exception e) {
+    protected void tearDown() throws IOException {
+        // Note zfile is a user-defined zip file used by other tests and
+        // should not be deleted
+        if (zfile != null) {
+            zfile.close();
         }
     }
-
 }
