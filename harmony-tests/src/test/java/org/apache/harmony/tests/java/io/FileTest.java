@@ -2009,7 +2009,11 @@ public class FileTest extends TestCase {
      * java.io.File#toString()
      */
     public void test_toString() {
-        String fileName = System.getProperty("user.home") + File.separator + "input.tst";
+        String fileName = System.getProperty("user.home");
+        if (!fileName.endsWith(File.separator)) {
+            fileName += File.separator;
+        }
+        fileName += "input.tst";
         File f = new File(fileName);
         assertEquals("Incorrect string returned", fileName, f.toString());
 
