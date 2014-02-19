@@ -18,7 +18,6 @@
 package libcore.java.io;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -27,16 +26,6 @@ import static tests.support.Support_Exec.execAndGetOutput;
 import static tests.support.Support_Exec.javaProcessBuilder;
 
 public class OldFileTest extends TestCase {
-
-    /** Location to store tests in */
-    private File tempDirectory;
-
-    /** Temp file that does exist */
-    private File tempFile;
-
-    /** File separator */
-    private String slash = File.separator;
-
     public String fileString = "Test_All_Tests\nTest_java_io_BufferedInputStream\nTest_java_io_BufferedOutputStream\nTest_java_io_ByteArrayInputStream\nTest_java_io_ByteArrayOutputStream\nTest_java_io_DataInputStream\nTest_File\nTest_FileDescriptor\nTest_FileInputStream\nTest_FileNotFoundException\nTest_FileOutputStream\nTest_java_io_FilterInputStream\nTest_java_io_FilterOutputStream\nTest_java_io_InputStream\nTest_java_io_IOException\nTest_java_io_OutputStream\nTest_java_io_PrintStream\nTest_java_io_RandomAccessFile\nTest_java_io_SyncFailedException\nTest_java_lang_AbstractMethodError\nTest_java_lang_ArithmeticException\nTest_java_lang_ArrayIndexOutOfBoundsException\nTest_java_lang_ArrayStoreException\nTest_java_lang_Boolean\nTest_java_lang_Byte\nTest_java_lang_Character\nTest_java_lang_Class\nTest_java_lang_ClassCastException\nTest_java_lang_ClassCircularityError\nTest_java_lang_ClassFormatError\nTest_java_lang_ClassLoader\nTest_java_lang_ClassNotFoundException\nTest_java_lang_CloneNotSupportedException\nTest_java_lang_Double\nTest_java_lang_Error\nTest_java_lang_Exception\nTest_java_lang_ExceptionInInitializerError\nTest_java_lang_Float\nTest_java_lang_IllegalAccessError\nTest_java_lang_IllegalAccessException\nTest_java_lang_IllegalArgumentException\nTest_java_lang_IllegalMonitorStateException\nTest_java_lang_IllegalThreadStateException\nTest_java_lang_IncompatibleClassChangeError\nTest_java_lang_IndexOutOfBoundsException\nTest_java_lang_InstantiationError\nTest_java_lang_InstantiationException\nTest_java_lang_Integer\nTest_java_lang_InternalError\nTest_java_lang_InterruptedException\nTest_java_lang_LinkageError\nTest_java_lang_Long\nTest_java_lang_Math\nTest_java_lang_NegativeArraySizeException\nTest_java_lang_NoClassDefFoundError\nTest_java_lang_NoSuchFieldError\nTest_java_lang_NoSuchMethodError\nTest_java_lang_NullPointerException\nTest_java_lang_Number\nTest_java_lang_NumberFormatException\nTest_java_lang_Object\nTest_java_lang_OutOfMemoryError\nTest_java_lang_RuntimeException\nTest_java_lang_SecurityManager\nTest_java_lang_Short\nTest_java_lang_StackOverflowError\nTest_java_lang_String\nTest_java_lang_StringBuffer\nTest_java_lang_StringIndexOutOfBoundsException\nTest_java_lang_System\nTest_java_lang_Thread\nTest_java_lang_ThreadDeath\nTest_java_lang_ThreadGroup\nTest_java_lang_Throwable\nTest_java_lang_UnknownError\nTest_java_lang_UnsatisfiedLinkError\nTest_java_lang_VerifyError\nTest_java_lang_VirtualMachineError\nTest_java_lang_vm_Image\nTest_java_lang_vm_MemorySegment\nTest_java_lang_vm_ROMStoreException\nTest_java_lang_vm_VM\nTest_java_lang_Void\nTest_java_net_BindException\nTest_java_net_ConnectException\nTest_java_net_DatagramPacket\nTest_java_net_DatagramSocket\nTest_java_net_DatagramSocketImpl\nTest_java_net_InetAddress\nTest_java_net_NoRouteToHostException\nTest_java_net_PlainDatagramSocketImpl\nTest_java_net_PlainSocketImpl\nTest_java_net_Socket\nTest_java_net_SocketException\nTest_java_net_SocketImpl\nTest_java_net_SocketInputStream\nTest_java_net_SocketOutputStream\nTest_java_net_UnknownHostException\nTest_java_util_ArrayEnumerator\nTest_java_util_Date\nTest_java_util_EventObject\nTest_java_util_HashEnumerator\nTest_java_util_Hashtable\nTest_java_util_Properties\nTest_java_util_ResourceBundle\nTest_java_util_tm\nTest_java_util_Vector\n";
 
     private static String platformId = "Android"
@@ -72,76 +61,66 @@ public class OldFileTest extends TestCase {
     }
 
     public void test_ConstructorLjava_io_FileLjava_lang_String() throws Exception {
-        String error;
-        String dirName = System.getProperty("java.io.tmpdir");
-        System.setProperty("user.dir", dirName);
+        String tmpDirName = System.getProperty("java.io.tmpdir");
 
-        File d = new File(dirName);
+        File d = new File(tmpDirName);
         File f = new File(d, "input.tst");
-        if (!dirName.regionMatches((dirName.length() - 1), slash, 0, 1))
-            dirName += slash;
-        dirName += "input.tst";
-        error = String.format("Test 1: Incorrect file created: %s; %s expected.", f.getPath(), dirName);
-        assertTrue(error, f.getPath().equals(dirName));
+
+        if (!tmpDirName.endsWith(File.separator)) {
+            tmpDirName += File.separator;
+        }
+        tmpDirName += "input.tst";
+
+        assertEquals(tmpDirName, f.getPath());
 
         String fileName = null;
         try {
             f = new File(d, fileName);
-            fail("Test 2: NullPointerException expected.");
-        } catch (NullPointerException e) {
+            fail();
+        } catch (NullPointerException expected) {
         }
 
-        d = null;
         f = new File(d, "input.tst");
-        error = String.format("Test 3: Incorrect file created: %s; %s expected.",
-                f.getAbsolutePath(), dirName);
-        assertTrue(error, f.getAbsolutePath().equals(dirName));
+        assertEquals(tmpDirName, f.getAbsolutePath());
 
         // Regression test for Harmony-382
         File s = null;
         f = new File("/abc");
         d = new File(s, "/abc");
-        assertEquals("Test 4: Incorrect file created;",
-                f.getAbsolutePath(), d.getAbsolutePath());
+        assertEquals(f.getAbsolutePath(), d.getAbsolutePath());
     }
 
     public void test_ConstructorLjava_lang_StringLjava_lang_String() throws IOException {
-        String dirName = null;
+        String tmpDir = System.getProperty("java.io.tmpdir");
+        if (!tmpDir.endsWith(File.separator)) {
+            tmpDir += File.separator;
+        }
+
+        String dirName = tmpDir;
         String fileName = "input.tst";
-
-        String userDir = System.getProperty("java.io.tmpdir");
-        System.setProperty("user.dir", userDir);
-
-        File f = new File(dirName, fileName);
-        if (!userDir.regionMatches((userDir.length() - 1), slash, 0, 1))
-            userDir += slash;
-        userDir += "input.tst";
-        String error = String.format("Test 1: Incorrect file created: %s; %s expected.",
-                f.getAbsolutePath(), userDir);
-        assertTrue(error, f.getAbsolutePath().equals(userDir));
+        File f = new File(tmpDir, fileName);
+        tmpDir += "input.tst";
+        assertEquals(tmpDir, f.getAbsolutePath());
 
         dirName = System.getProperty("java.io.tmpdir");
         fileName = null;
         try {
             f = new File(dirName, fileName);
-            fail("Test 2: NullPointerException expected.");
-        } catch (NullPointerException e) {
+            fail();
+        } catch (NullPointerException expected) {
             // Expected.
         }
 
         fileName = "input.tst";
         f = new File(dirName, fileName);
-        assertTrue("Test 3: Incorrect file created.", f.getPath()
-                .equals(userDir));
+        assertEquals(tmpDir, f.getPath());
 
         // Regression test for Harmony-382
         String s = null;
         f = new File("/abc");
         File d = new File(s, "/abc");
-        assertEquals("Test 4: Incorrect file created;", d.getAbsolutePath(), f
-                .getAbsolutePath());
-        assertEquals("Test3: Created Incorrect File", "/abc", f
-                .getAbsolutePath());
+        assertEquals(d.getAbsolutePath(), f.getAbsolutePath());
+        assertEquals("/abc", f.getAbsolutePath());
     }
 
     public void test_createTempFileLjava_lang_StringLjava_lang_String() {
@@ -170,8 +149,7 @@ public class OldFileTest extends TestCase {
     public void test_toURL3() throws MalformedURLException {
         File dir = new File(""); // current directory
         String newDirURL = dir.toURL().toString();
-        assertTrue("Test 1: URL does not end with slash.",
-                newDirURL.endsWith("/"));
+        assertTrue("Test 1: URL does not end with slash.", newDirURL.endsWith(File.separator));
     }
 
     public void test_deleteOnExit() throws IOException, InterruptedException {
@@ -199,43 +177,5 @@ public class OldFileTest extends TestCase {
 
         assertFalse(dir.exists());
         assertFalse(subDir.exists());
-    }
-
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        // Make sure that system properties are set correctly
-        String userDir = System.getProperty("java.io.tmpdir");
-        if (userDir == null)
-            throw new Exception("System property java.io.tmpdir not defined.");
-        System.setProperty("java.io.tmpdir", userDir);
-
-        /** Setup the temporary directory */
-        if (!userDir.regionMatches((userDir.length() - 1), slash, 0, 1))
-            userDir += slash;
-        tempDirectory = new File(userDir + "tempDir"
-                + String.valueOf(System.currentTimeMillis()));
-        if (!tempDirectory.mkdir())
-            System.out.println("Setup for OldFileTest failed (1).");
-
-        /** Setup the temporary file */
-        tempFile = new File(tempDirectory, "tempfile");
-        FileOutputStream tempStream;
-        try {
-            tempStream = new FileOutputStream(tempFile.getPath(), false);
-            tempStream.close();
-        } catch (IOException e) {
-            System.out.println("Setup for OldFileTest failed (2).");
-            return;
-        }
-    }
-
-    protected void tearDown() {
-        if (tempFile.exists() && !tempFile.delete())
-            System.out
-                    .println("OldFileTest.tearDown() failed, could not delete file!");
-        if (!tempDirectory.delete())
-            System.out
-                    .println("OldFileTest.tearDown() failed, could not delete directory!");
     }
 }
