@@ -18,12 +18,13 @@
 package org.apache.harmony.tests.java.io;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import junit.framework.TestCase;
-import tests.support.Support_PlatformFile;
 
 public class FilterInputStreamTest extends TestCase {
 
@@ -34,19 +35,95 @@ public class FilterInputStreamTest extends TestCase {
     }
 
     private String fileName;
-
     private InputStream is;
+    private static final String INPUT =
+             "Test_All_Tests\n" +
+             "Test_BufferedInputStream\n" +
+             "Test_java_io_BufferedOutputStream\n" +
+             "Test_java_io_ByteArrayInputStream\n" +
+             "Test_java_io_ByteArrayOutputStream\n" +
+             "Test_java_io_DataInputStream\n" +
+             "Test_java_io_File\n" +
+             "Test_java_io_FileDescriptor\n" +
+             "Test_java_io_FileInputStream\n" +
+             "Test_java_io_FileNotFoundException\n" +
+             "Test_java_io_FileOutputStream\n" +
+             "Test_java_io_FilterInputStream\n" +
+             "Test_java_io_FilterOutputStream\n" +
+             "Test_java_io_InputStream\n" +
+             "Test_java_io_IOException\n" +
+             "Test_java_io_OutputStream\n" +
+             "Test_java_io_PrintStream\n" +
+             "Test_java_io_RandomAccessFile\n" +
+             "Test_java_io_SyncFailedException\n" +
+             "Test_java_lang_AbstractMethodError\n" +
+             "Test_java_lang_ArithmeticException\n" +
+             "Test_java_lang_ArrayIndexOutOfBoundsException\n" +
+             "Test_java_lang_ArrayStoreException\n" +
+             "Test_java_lang_Boolean\n" +
+             "Test_java_lang_Byte\n" +
+             "Test_java_lang_Character\n" +
+             "Test_All_Tests\n" +
+             "Test_BufferedInputStream\n" +
+             "Test_java_io_BufferedOutputStream\n" +
+             "Test_java_io_ByteArrayInputStream\n" +
+             "Test_java_io_ByteArrayOutputStream\n" +
+             "Test_java_io_DataInputStream\n" +
+             "Test_java_io_File\n" +
+             "Test_java_io_FileDescriptor\n" +
+             "Test_java_io_FileInputStream\n" +
+             "Test_java_io_FileNotFoundException\n" +
+             "Test_java_io_FileOutputStream\n" +
+             "Test_java_io_FilterInputStream\n" +
+             "Test_java_io_FilterOutputStream\n" +
+             "Test_java_io_InputStream\n" +
+             "Test_java_io_IOException\n" +
+             "Test_java_io_OutputStream\n" +
+             "Test_java_io_PrintStream\n" +
+             "Test_java_io_RandomAccessFile\n" +
+             "Test_java_io_SyncFailedException\n" +
+             "Test_java_lang_AbstractMethodError\n" +
+             "Test_java_lang_ArithmeticException\n" +
+             "Test_java_lang_ArrayIndexOutOfBoundsException\n" +
+             "Test_java_lang_ArrayStoreException\n" +
+             "Test_java_lang_Boolean\n" +
+             "Test_java_lang_Byte\n" +
+             "Test_java_lang_Character\n";
 
-    byte[] ibuf = new byte[4096];
+    /**
+     * Sets up the fixture, for example, open a network connection. This method
+     * is called before a test is executed.
+     */
+    @Override
+    protected void setUp() throws IOException {
+        File temp = File.createTempFile("FilterInputStreamTest", "tst");
+        fileName = temp.getAbsolutePath();
+        OutputStream fos = new FileOutputStream(temp.getAbsolutePath());
+        fos.write(INPUT.getBytes(StandardCharsets.US_ASCII));
+        fos.close();
+        is = new MyFilterInputStream(new java.io.FileInputStream(fileName));
+    }
 
-    public String fileString = "Test_All_Tests\nTest_java_io_BufferedInputStream\nTest_java_io_BufferedOutputStream\nTest_java_io_ByteArrayInputStream\nTest_java_io_ByteArrayOutputStream\nTest_java_io_DataInputStream\nTest_java_io_File\nTest_java_io_FileDescriptor\nTest_java_io_FileInputStream\nTest_java_io_FileNotFoundException\nTest_java_io_FileOutputStream\nTest_FilterInputStream\nTest_java_io_FilterOutputStream\nTest_java_io_InputStream\nTest_java_io_IOException\nTest_java_io_OutputStream\nTest_java_io_PrintStream\nTest_java_io_RandomAccessFile\nTest_java_io_SyncFailedException\nTest_java_lang_AbstractMethodError\nTest_java_lang_ArithmeticException\nTest_java_lang_ArrayIndexOutOfBoundsException\nTest_java_lang_ArrayStoreException\nTest_java_lang_Boolean\nTest_java_lang_Byte\nTest_java_lang_Character\nTest_java_lang_Class\nTest_java_lang_ClassCastException\nTest_java_lang_ClassCircularityError\nTest_java_lang_ClassFormatError\nTest_java_lang_ClassLoader\nTest_java_lang_ClassNotFoundException\nTest_java_lang_CloneNotSupportedException\nTest_java_lang_Double\nTest_java_lang_Error\nTest_java_lang_Exception\nTest_java_lang_ExceptionInInitializerError\nTest_java_lang_Float\nTest_java_lang_IllegalAccessError\nTest_java_lang_IllegalAccessException\nTest_java_lang_IllegalArgumentException\nTest_java_lang_IllegalMonitorStateException\nTest_java_lang_IllegalThreadStateException\nTest_java_lang_IncompatibleClassChangeError\nTest_java_lang_IndexOutOfBoundsException\nTest_java_lang_InstantiationError\nTest_java_lang_InstantiationException\nTest_java_lang_Integer\nTest_java_lang_InternalError\nTest_java_lang_InterruptedException\nTest_java_lang_LinkageError\nTest_java_lang_Long\nTest_java_lang_Math\nTest_java_lang_NegativeArraySizeException\nTest_java_lang_NoClassDefFoundError\nTest_java_lang_NoSuchFieldError\nTest_java_lang_NoSuchMethodError\nTest_java_lang_NullPointerException\nTest_java_lang_Number\nTest_java_lang_NumberFormatException\nTest_java_lang_Object\nTest_java_lang_OutOfMemoryError\nTest_java_lang_RuntimeException\nTest_java_lang_SecurityManager\nTest_java_lang_Short\nTest_java_lang_StackOverflowError\nTest_java_lang_String\nTest_java_lang_StringBuffer\nTest_java_lang_StringIndexOutOfBoundsException\nTest_java_lang_System\nTest_java_lang_Thread\nTest_java_lang_ThreadDeath\nTest_java_lang_ThreadGroup\nTest_java_lang_Throwable\nTest_java_lang_UnknownError\nTest_java_lang_UnsatisfiedLinkError\nTest_java_lang_VerifyError\nTest_java_lang_VirtualMachineError\nTest_java_lang_vm_Image\nTest_java_lang_vm_MemorySegment\nTest_java_lang_vm_ROMStoreException\nTest_java_lang_vm_VM\nTest_java_lang_Void\nTest_java_net_BindException\nTest_java_net_ConnectException\nTest_java_net_DatagramPacket\nTest_java_net_DatagramSocket\nTest_java_net_DatagramSocketImpl\nTest_java_net_InetAddress\nTest_java_net_NoRouteToHostException\nTest_java_net_PlainDatagramSocketImpl\nTest_java_net_PlainSocketImpl\nTest_java_net_Socket\nTest_java_net_SocketException\nTest_java_net_SocketImpl\nTest_java_net_SocketInputStream\nTest_java_net_SocketOutputStream\nTest_java_net_UnknownHostException\nTest_java_util_ArrayEnumerator\nTest_java_util_Date\nTest_java_util_EventObject\nTest_java_util_HashEnumerator\nTest_java_util_Hashtable\nTest_java_util_Properties\nTest_java_util_ResourceBundle\nTest_java_util_tm\nTest_java_util_Vector\n";
+    /**
+     * Tears down the fixture, for example, close a network connection. This
+     * method is called after a test is executed.
+     */
+    @Override
+    protected void tearDown() {
+        try {
+            is.close();
+        } catch (Exception e) {
+            // Ignored
+        }
+        new File(fileName).delete();
+    }
 
     /**
      * java.io.FilterInputStream#available()
      */
     public void test_available() throws IOException {
         assertTrue("Returned incorrect number of available bytes", is
-                .available() == fileString.length());
+                .available() == INPUT.length());
     }
 
     /**
@@ -82,7 +159,7 @@ public class FilterInputStreamTest extends TestCase {
      */
     public void test_read() throws Exception {
         int c = is.read();
-        assertTrue("read returned incorrect char", c == fileString.charAt(0));
+        assertTrue("read returned incorrect char", c == INPUT.charAt(0));
     }
 
     /**
@@ -92,7 +169,7 @@ public class FilterInputStreamTest extends TestCase {
         byte[] buf1 = new byte[100];
         is.read(buf1);
         assertTrue("Failed to read correct data", new String(buf1, 0,
-                buf1.length, "UTF-8").equals(fileString.substring(0, 100)));
+                buf1.length, "UTF-8").equals(INPUT.substring(0, 100)));
     }
 
     /**
@@ -100,11 +177,11 @@ public class FilterInputStreamTest extends TestCase {
      */
     public void test_read$BII() throws Exception {
         byte[] buf1 = new byte[100];
-        is.skip(3000);
+        is.skip(500);
         is.mark(1000);
         is.read(buf1, 0, buf1.length);
         assertTrue("Failed to read correct data", new String(buf1, 0,
-                buf1.length, "UTF-8").equals(fileString.substring(3000, 3100)));
+                buf1.length, "UTF-8").equals(INPUT.substring(500, 600)));
     }
 
     /**
@@ -127,41 +204,6 @@ public class FilterInputStreamTest extends TestCase {
         is.skip(1000);
         is.read(buf1, 0, buf1.length);
         assertTrue("Failed to skip to correct position", new String(buf1, 0,
-                buf1.length, "UTF-8").equals(fileString.substring(1000, 1010)));
-    }
-
-    /**
-     * Sets up the fixture, for example, open a network connection. This method
-     * is called before a test is executed.
-     */
-    @Override
-    protected void setUp() throws IOException {
-        fileName = System.getProperty("user.dir");
-        String separator = System.getProperty("file.separator");
-        if (fileName.charAt(fileName.length() - 1) == separator.charAt(0)) {
-            fileName = Support_PlatformFile.getNewPlatformFile(fileName,
-                    "input.tst");
-        } else {
-            fileName = Support_PlatformFile.getNewPlatformFile(fileName
-                    + separator, "input.tst");
-        }
-        java.io.OutputStream fos = new java.io.FileOutputStream(fileName);
-        fos.write(fileString.getBytes("UTF-8"));
-        fos.close();
-        is = new MyFilterInputStream(new java.io.FileInputStream(fileName));
-    }
-
-    /**
-     * Tears down the fixture, for example, close a network connection. This
-     * method is called after a test is executed.
-     */
-    @Override
-    protected void tearDown() {
-        try {
-            is.close();
-        } catch (Exception e) {
-            // Ignored
-        }
-        new File(fileName).delete();
+                buf1.length, "UTF-8").equals(INPUT.substring(1000, 1010)));
     }
 }

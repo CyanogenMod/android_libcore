@@ -17,99 +17,73 @@
 
 package org.apache.harmony.tests.java.io;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-
+import java.nio.charset.StandardCharsets;
 import junit.framework.TestCase;
 
 public class FileDescriptorTest extends TestCase {
 
-    private static String platformId = "JDK"
-            + System.getProperty("java.vm.version").replace('.', '-');
-
-    FileOutputStream fos;
-
-    BufferedOutputStream os;
-
-    FileInputStream fis;
-
-    File f;
-
-    /**
-     * java.io.FileDescriptor#FileDescriptor()
-     */
-    public void test_Constructor() {
-        FileDescriptor fd = new FileDescriptor();
-        assertTrue("Failed to create FileDescriptor",
-                fd instanceof FileDescriptor);
-    }
-
-    /**
-     * java.io.FileDescriptor#sync()
-     */
     public void test_sync() throws IOException {
-        f = new File(System.getProperty("user.dir"), "fd" + platformId + ".tst");
-        f.delete();
-        fos = new FileOutputStream(f.getPath());
-        fos.write("Test String".getBytes());
-        fis = new FileInputStream(f.getPath());
-        FileDescriptor fd = fos.getFD();
-        fd.sync();
-        int length = "Test String".length();
-        assertEquals("Bytes were not written after sync", length, fis
-                .available());
+        File f = File.createTempFile("FileDescriptorText", "txt");
 
-        // Regression test for Harmony-1494
-        fd = fis.getFD();
-        fd.sync();
-        assertEquals("Bytes were not written after sync", length, fis
-                .available());
+        FileOutputStream fos = null;
+        FileInputStream fis = null;
+        RandomAccessFile raf = null;
 
-        RandomAccessFile raf = new RandomAccessFile(f, "r");
-        fd = raf.getFD();
-        fd.sync();
-        raf.close();
+        try {
+            fos = new FileOutputStream(f.getAbsolutePath());
+            fos.write("Test String".getBytes(StandardCharsets.US_ASCII));
+
+            fis = new FileInputStream(f.getPath());
+            FileDescriptor fd = fos.getFD();
+            fd.sync();
+
+            int length = "Test String".length();
+            assertEquals(length, fis.available());
+
+            // Regression test for Harmony-1494
+            fd = fis.getFD();
+            fd.sync();
+            assertEquals(length, fis.available());
+
+            raf = new RandomAccessFile(f, "r");
+            fd = raf.getFD();
+            fd.sync();
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
+            if (fis != null) {
+                fis.close();
+            }
+            if (raf != null) {
+                raf.close();
+            }
+        }
     }
 
     /**
      * java.io.FileDescriptor#valid()
      */
     public void test_valid() throws IOException {
-        f = new File(System.getProperty("user.dir"), "fd.tst");
-        f.delete();
-        os = new BufferedOutputStream(fos = new FileOutputStream(f.getPath()),
-                4096);
-        FileDescriptor fd = fos.getFD();
-        assertTrue("Valid fd returned false", fd.valid());
-        os.close();
-        assertTrue("Invalid fd returned true", !fd.valid());
-    }
+        File f = File.createTempFile("FileDescriptorText", "txt");
 
-    /**
-     * Tears down the fixture, for example, close a network connection. This
-     * method is called after a test is executed.
-     */
-    protected void tearDown() {
+        FileOutputStream fos = null;
         try {
-            os.close();
-        } catch (Exception e) {
-        }
-        try {
-            fis.close();
-        } catch (Exception e) {
-        }
-        try {
+            fos = new FileOutputStream(f.getAbsolutePath());
+            FileDescriptor fd = fos.getFD();
+            assertTrue(fd.valid());
             fos.close();
-        } catch (Exception e) {
-        }
-        try {
-            f.delete();
-        } catch (Exception e) {
+            assertFalse(fd.valid());
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
         }
     }
 }
