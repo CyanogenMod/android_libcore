@@ -60,7 +60,7 @@ public class DeflaterOutputStreamTest extends TestCase {
         }
     }
 
-    private byte outPutBuf[] = new byte[500];
+    private final byte outputBuf[] = new byte[500];
 
     @Override
     protected void setUp() {
@@ -70,11 +70,11 @@ public class DeflaterOutputStreamTest extends TestCase {
         Deflater deflate = new Deflater(1);
         deflate.setInput(byteArray);
         while (!(deflate.needsInput())) {
-            x += deflate.deflate(outPutBuf, x, outPutBuf.length - x);
+            x += deflate.deflate(outputBuf, x, outputBuf.length - x);
         }
         deflate.finish();
         while (!(deflate.finished())) {
-            x = x + deflate.deflate(outPutBuf, x, outPutBuf.length - x);
+            x = x + deflate.deflate(outputBuf, x, outputBuf.length - x);
         }
         deflate.end();
     }
@@ -85,7 +85,7 @@ public class DeflaterOutputStreamTest extends TestCase {
      */
     public void test_ConstructorLjava_io_OutputStreamLjava_util_zip_Deflater() throws Exception {
         byte byteArray[] = { 1, 3, 4, 7, 8 };
-        File f1 = new File("hyts_ConstruOD.tst");
+        File f1 = File.createTempFile("hyts_ConstruOD", ".tst");
         FileOutputStream fos = new FileOutputStream(f1);
         Deflater defl = null;
         MyDeflaterOutputStream dos;
@@ -111,7 +111,7 @@ public class DeflaterOutputStreamTest extends TestCase {
      * java.util.zip.DeflaterOutputStream#DeflaterOutputStream(java.io.OutputStream)
      */
     public void test_ConstructorLjava_io_OutputStream() throws Exception {
-        File f1 = new File("hyts_ConstruO.tst");
+        File f1 = File.createTempFile("hyts_ConstruO", ".tst");
         FileOutputStream fos = new FileOutputStream(f1);
         MyDeflaterOutputStream dos = new MyDeflaterOutputStream(fos);
 
@@ -119,7 +119,7 @@ public class DeflaterOutputStreamTest extends TestCase {
         // buffer.
         assertEquals("Incorrect Buffer Size", 512, dos.getProtectedBuf().length);
 
-        dos.write(outPutBuf);
+        dos.write(outputBuf);
         dos.close();
         f1.delete();
     }
@@ -134,7 +134,7 @@ public class DeflaterOutputStreamTest extends TestCase {
         int negBuf = -5;
         int zeroBuf = 0;
         byte byteArray[] = { 1, 3, 4, 7, 8, 3, 6 };
-        File f1 = new File("hyts_ConstruODI.tst");
+        File f1 = File.createTempFile("hyts_ConstruODI", ".tst");
         FileOutputStream fos = new FileOutputStream(f1);
         Deflater defl = null;
         MyDeflaterOutputStream dos;
@@ -237,7 +237,7 @@ public class DeflaterOutputStreamTest extends TestCase {
         // Need test to see if method finish() actually finishes
         // Only testing possible errors, not if it actually works
 
-        File f1 = new File("finish.tst");
+        File f1 = File.createTempFile("finish", ".tst");
         FileOutputStream fos1 = new FileOutputStream(f1);
         DeflaterOutputStream dos = new DeflaterOutputStream(fos1);
         byte byteArray[] = { 1, 3, 4, 6 };
@@ -285,7 +285,7 @@ public class DeflaterOutputStreamTest extends TestCase {
      * java.util.zip.DeflaterOutputStream#write(int)
      */
     public void test_writeI() throws Exception {
-        File f1 = new File("writeI1.tst");
+        File f1 = File.createTempFile("writeIL", ".tst");
         FileOutputStream fos = new FileOutputStream(f1);
         DeflaterOutputStream dos = new DeflaterOutputStream(fos);
         for (int i = 0; i < 3; i++) {
@@ -324,7 +324,7 @@ public class DeflaterOutputStreamTest extends TestCase {
         byte byteArray[] = { 1, 3, 4, 7, 8, 3, 6 };
 
         // Test to see if the correct bytes are saved.
-        File f1 = new File("writeBII.tst");
+        File f1 = File.createTempFile("writeBII", ".tst");
         FileOutputStream fos1 = new FileOutputStream(f1);
         DeflaterOutputStream dos1 = new DeflaterOutputStream(fos1);
         dos1.write(byteArray, 2, 3);
@@ -340,7 +340,7 @@ public class DeflaterOutputStreamTest extends TestCase {
         f1.delete();
 
         // Test for trying to write more bytes than available from the array
-        File f2 = new File("writeBII2.tst");
+        File f2 = File.createTempFile("writeBII2", ".tst");
         FileOutputStream fos2 = new FileOutputStream(f2);
         DeflaterOutputStream dos2 = new DeflaterOutputStream(fos2);
         try {

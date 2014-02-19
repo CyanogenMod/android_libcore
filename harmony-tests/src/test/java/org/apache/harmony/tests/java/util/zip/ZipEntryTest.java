@@ -16,48 +16,25 @@
  */
 package org.apache.harmony.tests.java.util.zip;
 
-import java.util.TimeZone;
-import java.util.zip.ZipEntry;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
+import java.util.TimeZone;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import libcore.io.Streams;
 import tests.support.resource.Support_Resources;
 
 public class ZipEntryTest extends junit.framework.TestCase {
-
-    public byte[] getAllBytesFromStream(InputStream is) throws IOException {
-        ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        byte[] buf = new byte[512];
-        int iRead;
-        int off;
-        while (is.available() > 0) {
-            iRead = is.read(buf, 0, buf.length);
-            if (iRead > 0) bs.write(buf, 0, iRead);
-        }
-        return bs.toByteArray();
-    }
-
     // zip file hyts_ZipFile.zip must be included as a resource
-    java.util.zip.ZipEntry zentry;
+    private ZipEntry zentry;
+    private ZipFile zfile;
 
-    java.util.zip.ZipFile zfile;
-
-    private static final String platformId = System.getProperty(
-            "com.ibm.oti.configuration", "JDK")
-            + System.getProperty("java.vm.version");
-
-    static final String tempFileName = platformId + "zfzezi.zip";
-
-    long orgSize;
-
-    long orgCompressedSize;
-
-    long orgCrc;
-
-    long orgTime;
-
-    String orgComment;
+    private long orgSize;
+    private long orgCompressedSize;
+    private long orgCrc;
+    private long orgTime;
 
     /**
      * java.util.zip.ZipEntry#ZipEntry(java.lang.String)
@@ -442,47 +419,26 @@ public class ZipEntryTest extends junit.framework.TestCase {
         assertEquals(extraB.length, zeOutput.getExtra().length);
     }
 
-    /**
-     * Sets up the fixture, for example, open a network connection. This method
-     * is called before a test is executed.
-     */
-
     @Override
-    protected void setUp() {
-        java.io.File f = null;
-        try {
-            // Create a local copy of the file since some tests want to alter
-            // information.
-            f = new java.io.File(tempFileName);
-            // Create absolute filename as ZipFile does not resolve using
-            // user.dir
-            f = new java.io.File(f.getAbsolutePath());
-            f.delete();
-            java.io.InputStream is = Support_Resources
-                    .getStream("hyts_ZipFile.zip");
-            java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
-            byte[] rbuf = getAllBytesFromStream(is);
-            fos.write(rbuf, 0, rbuf.length);
-            is.close();
-            fos.close();
-            zfile = new java.util.zip.ZipFile(f);
-            zentry = zfile.getEntry("File1.txt");
-            orgSize = zentry.getSize();
-            orgCompressedSize = zentry.getCompressedSize();
-            orgCrc = zentry.getCrc();
-            orgTime = zentry.getTime();
-            orgComment = zentry.getComment();
-        } catch (Exception e) {
-            System.out.println("Exception during ZipFile setup <"
-                    + f.getAbsolutePath() + ">: ");
-            e.printStackTrace();
-        }
-    }
+    protected void setUp() throws Exception {
+        // Create a local copy of the file since some tests want to alter
+        // information.
+        final File f = File.createTempFile("ZipEntryTest", ".zip");
+        InputStream is = Support_Resources.getStream("hyts_ZipFile.zip");
 
-    /**
-     * Tears down the fixture, for example, close a network connection. This
-     * method is called after a test is executed.
-     */
+        FileOutputStream fos = new java.io.FileOutputStream(f);
+        Streams.copy(is, fos);
+        is.close();
+        fos.close();
+
+        zfile = new ZipFile(f);
+        zentry = zfile.getEntry("File1.txt");
+
+        orgSize = zentry.getSize();
+        orgCompressedSize = zentry.getCompressedSize();
+        orgCrc = zentry.getCrc();
+        orgTime = zentry.getTime();
+    }
 
     @Override
     protected void tearDown() {
@@ -490,11 +446,8 @@ public class ZipEntryTest extends junit.framework.TestCase {
             if (zfile != null) {
                 zfile.close();
             }
-            java.io.File f = new java.io.File(tempFileName);
-            f.delete();
-        } catch (java.io.IOException e) {
-            System.out.println("Exception during tearDown");
+        } catch (IOException ignored) {
         }
     }
-
 }
+

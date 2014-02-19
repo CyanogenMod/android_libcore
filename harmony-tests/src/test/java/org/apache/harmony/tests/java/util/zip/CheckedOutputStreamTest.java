@@ -32,7 +32,8 @@ public class CheckedOutputStreamTest extends junit.framework.TestCase {
     public void test_ConstructorLjava_io_OutputStreamLjava_util_zip_Checksum() {
         // test method java.util.zip.checkedOutputStream.constructor
         try {
-            FileOutputStream outFile = new FileOutputStream("chkOut.txt");
+            FileOutputStream outFile = new FileOutputStream(
+                    File.createTempFile("CheckedOutputStreamTest", ".txt"));
             CheckedOutputStream chkOut = new CheckedOutputStream(outFile,
                     new CRC32());
             assertEquals("the checkSum value of the constructor is not 0", 0, chkOut
@@ -53,7 +54,8 @@ public class CheckedOutputStreamTest extends junit.framework.TestCase {
         // test method java.util.zip.checkedOutputStream.getChecksum()
         byte byteArray[] = { 1, 2, 3, 'e', 'r', 't', 'g', 3, 6 };
         try {
-            FileOutputStream outFile = new FileOutputStream("chkOut.txt");
+            FileOutputStream outFile = new FileOutputStream(
+                    File.createTempFile("CheckedOutputStreamTest", ".txt"));
             CheckedOutputStream chkOut = new CheckedOutputStream(outFile,
                     new Adler32());
             chkOut.write(byteArray[4]);
@@ -85,7 +87,8 @@ public class CheckedOutputStreamTest extends junit.framework.TestCase {
         // test method java.util.zip.checkedOutputStream.writeI()
         byte byteArray[] = { 1, 2, 3, 'e', 'r', 't', 'g', 3, 6 };
         try {
-            FileOutputStream outFile = new FileOutputStream("chkOut.txt");
+            FileOutputStream outFile = new FileOutputStream(
+                    File.createTempFile("CheckedOutputStreamTest", ".txt"));
             CheckedOutputStream chkOut = new CheckedOutputStream(outFile,
                     new CRC32());
             for (byte element : byteArray) {
@@ -109,7 +112,8 @@ public class CheckedOutputStreamTest extends junit.framework.TestCase {
         // test method java.util.zip.checkOutputStream.writeBII()
         byte byteArray[] = { 1, 2, 3, 'e', 'r', 't', 'g', 3, 6 };
         try {
-            FileOutputStream outFile = new FileOutputStream("chkOut.txt");
+            FileOutputStream outFile = new FileOutputStream(
+                    File.createTempFile("CheckedOutputStreamTest", ".txt"));
             CheckedOutputStream chkOut = new CheckedOutputStream(outFile,
                     new CRC32());
             chkOut.write(byteArray, 4, 5);
@@ -133,19 +137,4 @@ public class CheckedOutputStreamTest extends junit.framework.TestCase {
             fail("Index for write is out of bounds");
         }
     }
-
-    @Override
-    protected void setUp() {
-    }
-
-    @Override
-    protected void tearDown() {
-        try {
-            File deletedFile = new File("chkOut.txt");
-            deletedFile.delete();
-        } catch (SecurityException e) {
-            fail("Cannot delete file for security reasons");
-        }
-    }
-
 }
