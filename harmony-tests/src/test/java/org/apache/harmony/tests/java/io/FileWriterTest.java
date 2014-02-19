@@ -29,18 +29,11 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 public class FileWriterTest extends TestCase {
-
-    FileWriter fw;
-
-    FileInputStream fis;
-
-    BufferedWriter bw;
-
-    File f;
-
-    FileOutputStream fos;
-
-    BufferedReader br;
+    private FileInputStream fis;
+    private BufferedWriter bw;
+    private File f;
+    private FileOutputStream fos;
+    private BufferedReader br;
 
     /**
      * java.io.FileWriter#FileWriter(java.io.File)
@@ -169,13 +162,8 @@ public class FileWriterTest extends TestCase {
      * is called before a test is executed.
      */
     @Override
-    protected void setUp() {
-        f = new File(System.getProperty("user.home"), "writer.tst");
-        if (f.exists()) {
-            if (!f.delete()) {
-                fail("Unable to delete test file");
-            }
-        }
+    protected void setUp() throws Exception {
+        f = File.createTempFile("FileWriterTest", "tst");
     }
 
     /**

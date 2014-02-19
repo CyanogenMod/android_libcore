@@ -17,11 +17,6 @@
 package org.apache.harmony.tests.java.util.jar;
 
 
-import junit.framework.TestCase;
-
-import tests.support.Support_PlatformFile;
-import tests.support.resource.Support_Resources;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,6 +35,8 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+import junit.framework.TestCase;
+import tests.support.resource.Support_Resources;
 
 
 public class JarFileTest extends TestCase {
@@ -476,9 +473,7 @@ public class JarFileTest extends TestCase {
             ByteArrayOutputStream manOut = new ByteArrayOutputStream();
             manifest.write(manOut);
             byte[] manBytes = manOut.toByteArray();
-            File file = File.createTempFile(
-                    Support_PlatformFile.getNewPlatformFile("hyts_manifest1",
-                            ""), ".jar");
+            File file = File.createTempFile("hyts_manifest1", ".jar");
             JarOutputStream jarOut = new JarOutputStream(new FileOutputStream(
                     file.getAbsolutePath()));
             ZipEntry entry = new ZipEntry("META-INF/");
