@@ -115,7 +115,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
             throw new IllegalArgumentException("Invalid mode: " + mode);
         }
         this.mode = flags;
-        this.fd = IoBridge.open(file.getAbsolutePath(), flags);
+        this.fd = IoBridge.open(file.getPath(), flags);
 
         // if we are in "rws" mode, attempt to sync file+metadata
         if (syncMetadata) {

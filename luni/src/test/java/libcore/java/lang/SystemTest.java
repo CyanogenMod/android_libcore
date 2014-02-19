@@ -22,6 +22,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Formatter;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.TestCase;
 
@@ -33,11 +34,11 @@ public class SystemTest extends TestCase {
             // use System.getProperty. Now they should use System.lineSeparator instead, and the
             // "line.separator" property has no effect after the VM has started.
 
-            // Test System.lineSeparator directly.
+            // Test that System.lineSeparator is not changed when the corresponding
+            // system property is changed.
             assertEquals("\n", System.lineSeparator());
             System.setProperty("line.separator", "poop");
             assertEquals("\n", System.lineSeparator());
-            assertFalse(System.lineSeparator().equals(System.getProperty("line.separator")));
 
             // java.io.BufferedWriter --- uses System.lineSeparator on Android but not on RI.
             StringWriter sw = new StringWriter();
@@ -45,23 +46,19 @@ public class SystemTest extends TestCase {
             bw.newLine();
             bw.flush();
             assertEquals(System.lineSeparator(), sw.toString());
-            assertFalse(System.lineSeparator().equals(System.getProperty("line.separator")));
 
             // java.io.PrintStream --- uses System.lineSeparator on Android but not on RI.
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             new PrintStream(baos).println();
             assertEquals(System.lineSeparator(), new String(baos.toByteArray(), "UTF-8"));
-            assertFalse(System.lineSeparator().equals(System.getProperty("line.separator")));
 
             // java.io.PrintWriter --- uses System.lineSeparator on Android but not on RI.
             sw = new StringWriter();
             new PrintWriter(sw).println();
             assertEquals(System.lineSeparator(), sw.toString());
-            assertFalse(System.lineSeparator().equals(System.getProperty("line.separator")));
 
             // java.util.Formatter --- uses System.lineSeparator on both.
             assertEquals(System.lineSeparator(), new Formatter().format("%n").toString());
-            assertFalse(System.lineSeparator().equals(System.getProperty("line.separator")));
         } finally {
             System.setProperty("line.separator", "\n");
         }
@@ -150,5 +147,23 @@ public class SystemTest extends TestCase {
         }
 
         done.set(true);
+    }
+
+    public void testSystemProperties_immtuable() {
+        String userDir = System.getProperty("user.dir");
+        System.setProperty("user.dir", "not poop");
+        assertEquals(userDir, System.getProperty("user.dir"));
+
+        System.getProperties().setProperty("user.dir", "hmmph");
+        assertEquals(userDir, System.getProperty("user.dir"));
+
+        System.getProperties().clear();
+        assertEquals(userDir, System.getProperty("user.dir"));
+
+        Properties p = new Properties();
+        p.setProperty("user.dir", "meh");
+        System.setProperties(p);
+
+        assertEquals(userDir, System.getProperty("user.dir"));
     }
 }
