@@ -308,12 +308,22 @@ public abstract class URLConnection {
 
     /**
      * Returns the content length in bytes specified by the response header field
-     * {@code content-length} or {@code -1} if this field is not set.
-     *
-     * @return the value of the response header field {@code content-length}.
+     * {@code content-length} or {@code -1} if this field is not set or cannot be represented as an
+     * {@code int}.
      */
     public int getContentLength() {
         return getHeaderFieldInt("Content-Length", -1);
+    }
+
+    /**
+     * Returns the content length in bytes specified by the response header field
+     * {@code content-length} or {@code -1} if this field is not set.
+     *
+     * @since 1.7
+     * @hide Until ready for a public API change
+     */
+    public long getContentLengthLong() {
+        return getHeaderFieldLong("Content-Length", -1);
     }
 
     /**
@@ -531,7 +541,7 @@ public abstract class URLConnection {
     /**
      * Returns the specified header value as a number. Returns the {@code
      * defaultValue} if no such header field could be found or the value could
-     * not be parsed as an {@code Integer}.
+     * not be parsed as an {@code int}.
      *
      * @param field
      *            the header field name whose value is needed.
@@ -542,6 +552,27 @@ public abstract class URLConnection {
     public int getHeaderFieldInt(String field, int defaultValue) {
         try {
             return Integer.parseInt(getHeaderField(field));
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Returns the specified header value as a number. Returns the {@code
+     * defaultValue} if no such header field could be found or the value could
+     * not be parsed as a {@code long}.
+     *
+     * @param field
+     *            the header field name whose value is needed.
+     * @param defaultValue
+     *            the default value if no field has been found.
+     * @return the value of the specified header field as a number.
+     * @since 1.7
+     * @hide Until ready for a public API change
+     */
+    public long getHeaderFieldLong(String field, long defaultValue) {
+        try {
+            return Long.parseLong(getHeaderField(field));
         } catch (NumberFormatException e) {
             return defaultValue;
         }
