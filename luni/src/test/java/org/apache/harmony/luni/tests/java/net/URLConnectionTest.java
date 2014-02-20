@@ -209,9 +209,13 @@ public class URLConnectionTest extends TestCase {
 
     URL url2;
 
+    URL url3;
+
     URLConnection uc;
 
     URLConnection uc2;
+
+    URLConnection uc3;
 
     Support_TestWebServer server;
 
@@ -225,6 +229,8 @@ public class URLConnectionTest extends TestCase {
         uc = url.openConnection();
         url2 =  new URL("http://localhost:" + port + "/test2");
         uc2 = url2.openConnection();
+        url3 =  new URL("http://localhost:" + port + "/test3");
+        uc3 = url3.openConnection();
 
         fileURL = createTempHelloWorldFile();
         fileURLCon = fileURL.openConnection();
@@ -239,6 +245,7 @@ public class URLConnectionTest extends TestCase {
         server.close();
         ((HttpURLConnection) uc).disconnect();
         ((HttpURLConnection) uc2).disconnect();
+        ((HttpURLConnection) uc3).disconnect();
     }
 
     /**
@@ -472,8 +479,22 @@ public class URLConnectionTest extends TestCase {
         assertEquals(Support_TestWebData.test1.length, uc.getContentLength());
         assertEquals(Support_TestWebData.test2.length, uc2.getContentLength());
 
-        assertNotNull(jarURLCon.getContentLength());
-        assertNotNull(gifURLCon.getContentLength());
+        assertTrue(jarURLCon.getContentLength() > 0);
+        assertTrue(gifURLCon.getContentLength() > 0);
+
+        fileURLCon.getInputStream().close();
+    }
+
+    /**
+     * {@link java.net.URLConnection#getContentLengthLong()}
+     */
+    public void test_getContentLengthLong() throws Exception {
+        assertEquals(testString.getBytes().length, fileURLCon.getContentLengthLong());
+        assertEquals(Support_TestWebData.test1.length, uc.getContentLengthLong());
+        assertEquals(Support_TestWebData.test2.length, uc2.getContentLengthLong());
+
+        assertTrue(jarURLCon.getContentLength() > 0);
+        assertTrue(gifURLCon.getContentLength() > 0);
 
         fileURLCon.getInputStream().close();
     }
@@ -719,17 +740,17 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @throws IOException
      * {@link java.net.URLConnection#getHeaderFieldInt(String, int)}
      */
     public void test_getHeaderFieldInt() throws IOException, ParseException {
-        Support_TestWebData params = Support_TestWebData.testParams[1];
+        // Test getHeaderFieldInt() can read an int value.
+        Support_TestWebData params1 = Support_TestWebData.testParams[1];
+        int hf = uc2.getHeaderFieldInt("Content-Length", Integer.MIN_VALUE);
+        assertEquals(params1.testLength, hf);
 
-        int hf = 0;
+        // The remaining fields should be invalid or missing. Confirm the default is returned.
         hf = uc2.getHeaderFieldInt("Content-Encoding", Integer.MIN_VALUE);
         assertEquals(Integer.MIN_VALUE, hf);
-        hf = uc2.getHeaderFieldInt("Content-Length", Integer.MIN_VALUE);
-        assertEquals(params.testLength, hf);
         hf = uc2.getHeaderFieldInt("Content-Type", Integer.MIN_VALUE);
         assertEquals(Integer.MIN_VALUE, hf);
         hf = uc2.getHeaderFieldInt("Date", Integer.MIN_VALUE);
@@ -745,6 +766,43 @@ public class URLConnectionTest extends TestCase {
         hf = uc2.getHeaderFieldInt("DoesNotExist", Integer.MIN_VALUE);
         assertEquals(Integer.MIN_VALUE, hf);
 
+        // Test getHeaderFieldInt() for a value outside of the range of int.
+        Support_TestWebData params2 = Support_TestWebData.testParams[2];
+        hf = uc3.getHeaderFieldInt("Content-Length", Integer.MIN_VALUE);
+        assertEquals(Integer.MIN_VALUE, hf);
+    }
+
+    /**
+     * {@link java.net.URLConnection#getHeaderFieldLong(String, long)}
+     */
+    public void test_getHeaderFieldLong() throws IOException, ParseException {
+        // Test getHeaderFieldLong() can read an int value.
+        Support_TestWebData params0 = Support_TestWebData.testParams[0];
+        long hf = uc.getHeaderFieldLong("Content-Length", Long.MIN_VALUE);
+        assertEquals(params0.testLength, hf);
+
+        // Test getHeaderFieldLong() for a value outside of the range of int.
+        Support_TestWebData params2 = Support_TestWebData.testParams[2];
+        hf = uc3.getHeaderFieldLong("Content-Length", Long.MIN_VALUE);
+        assertEquals(params2.testLength, hf);
+
+        // The remaining fields should be invalid or missing. Confirm the default is returned.
+        hf = uc3.getHeaderFieldLong("Content-Encoding", Long.MIN_VALUE);
+        assertEquals(Long.MIN_VALUE, hf);
+        hf = uc3.getHeaderFieldInt("Content-Type", Integer.MIN_VALUE);
+        assertEquals(Integer.MIN_VALUE, hf);
+        hf = uc3.getHeaderFieldInt("Date", Integer.MIN_VALUE);
+        assertEquals(Integer.MIN_VALUE, hf);
+        hf = uc3.getHeaderFieldInt("Expires", Integer.MIN_VALUE);
+        assertEquals(Integer.MIN_VALUE, hf);
+        hf = uc3.getHeaderFieldInt("SERVER", Integer.MIN_VALUE);
+        assertEquals(Integer.MIN_VALUE, hf);
+        hf = uc3.getHeaderFieldInt("Last-Modified", Integer.MIN_VALUE);
+        assertEquals(Integer.MIN_VALUE, hf);
+        hf = uc3.getHeaderFieldInt("accept-ranges", Integer.MIN_VALUE);
+        assertEquals(Integer.MIN_VALUE, hf);
+        hf = uc3.getHeaderFieldInt("DoesNotExist", Integer.MIN_VALUE);
+        assertEquals(Integer.MIN_VALUE, hf);
     }
 
     /**
@@ -1253,7 +1311,7 @@ public class URLConnectionTest extends TestCase {
         String cts = System.getProperty("java.io.tmpdir");
         File tmpDir = new File(cts);
         Support_Resources.copyFile(tmpDir, null, "Harmony.GIF");
-        URL fUrl1 = new URL("file:/" + tmpDir.getPath()
+        URL fUrl1 = new URL("file://" + tmpDir.getPath()
                 + "/Harmony.GIF");
         URLConnection con1 = fUrl1.openConnection();
         return con1;
