@@ -708,10 +708,20 @@ public final class AnnotationAccess {
         } else if (type.isEnum()) {
             int fieldIndex = reader.readEnum();
             FieldId fieldId = dex.fieldIds().get(fieldIndex);
-            String enumName = dex.strings().get(fieldId.getNameIndex());
-            @SuppressWarnings({"unchecked", "rawtypes"}) // Class.isEnum is the runtime check
-            Class<? extends Enum> enumType = (Class<? extends Enum>) type;
-            return Enum.valueOf(enumType, enumName);
+            String fieldName = dex.strings().get(fieldId.getNameIndex());
+            Field field;
+            try {
+                field = type.getDeclaredField(fieldName);
+                return field.get(null);
+            } catch (NoSuchFieldException e) {
+                NoSuchFieldError error = new NoSuchFieldError();
+                error.initCause(e);
+                throw error;
+            } catch (IllegalAccessException e) {
+                IllegalAccessError error = new IllegalAccessError();
+                error.initCause(e);
+                throw error;
+            }
         } else if (type.isAnnotation()) {
             @SuppressWarnings("unchecked") // Class.isAnnotation is the runtime check
             Class<? extends Annotation> annotationClass = (Class<? extends Annotation>) type;
