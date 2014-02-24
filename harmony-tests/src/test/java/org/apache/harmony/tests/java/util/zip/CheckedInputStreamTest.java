@@ -18,27 +18,14 @@ package org.apache.harmony.tests.java.util.zip;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
-
 import junit.framework.TestCase;
 import tests.support.resource.Support_Resources;
 
 public class CheckedInputStreamTest extends TestCase {
-
-    @Override
-    protected void tearDown() {
-        try {
-            File deletedFile = new File("empty.txt");
-            deletedFile.delete();
-        } catch (SecurityException e) {
-            fail("Cannot delete file for security reasons");
-        }
-
-    }
 
     /**
      * java.util.zip.CheckedInputStream#CheckedInputStream(java.io.InputStream,
@@ -57,10 +44,8 @@ public class CheckedInputStreamTest extends TestCase {
      */
     public void test_getChecksum() throws Exception {
         byte outBuf[] = new byte[100];
-        // testing getChecksum for an empty file
-        FileOutputStream outEmp = new FileOutputStream("empty.txt");
-        outEmp.close();
-        InputStream inEmp = new FileInputStream("empty.txt");
+        File f = File.createTempFile("CheckedInputStreamTest", ".txt");
+        InputStream inEmp = new FileInputStream(f);
         CheckedInputStream checkEmpty = new CheckedInputStream(inEmp, new CRC32());
         while (checkEmpty.read() >= 0) {
         }
