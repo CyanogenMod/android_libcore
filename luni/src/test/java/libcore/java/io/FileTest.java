@@ -217,8 +217,12 @@ public class FileTest extends junit.framework.TestCase {
 
     public void test_getAbsolutePath() throws Exception {
         String userDir = System.getProperty("user.dir");
+        if (!userDir.endsWith(File.separator)) {
+            userDir = userDir + File.separator;
+        }
+
         File f = new File("poop");
-        assertEquals(userDir + File.separator + "poop", f.getAbsolutePath());
+        assertEquals(userDir + "poop", f.getAbsolutePath());
     }
 
     public void test_getSpace() throws Exception {

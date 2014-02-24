@@ -91,8 +91,9 @@ public class FileOutputStreamTest extends TestCase {
         String fileName = f.getAbsolutePath();
         fos = new FileOutputStream(fileName);
 
-        // Regression test for HARMONY-4012
-        new FileOutputStream("nul");
+        // Harmony 4012.
+        fos = new FileOutputStream("/dev/null");
+        fos.close();
     }
 
     /**
@@ -196,14 +197,13 @@ public class FileOutputStreamTest extends TestCase {
                 .length()).equals(fileString));
 
         // Regression test for HARMONY-285
-        File file = new File("FileOutputStream.tmp");
-        file.deleteOnExit();
+        File file = File.createTempFile("FileOutputStreamTest", ".tmp");
         FileOutputStream out = new FileOutputStream(file);
         try {
             out.write(null, 0, 0);
-            fail("Should throw NullPointerException");
-        } catch (NullPointerException e) {
-            // Expected
+            fail();
+        } catch (NullPointerException expected) {
+
         } finally {
             out.close();
             file.delete();
