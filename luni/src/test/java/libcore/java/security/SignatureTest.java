@@ -22,6 +22,7 @@ import java.security.InvalidParameterException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.PublicKey;
@@ -39,6 +40,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import junit.framework.TestCase;
 
 public class SignatureTest extends TestCase {
@@ -323,6 +329,8 @@ public class SignatureTest extends TestCase {
             // http://code.google.com/p/android/issues/detail?id=34933
             sig.verify(signature);
         }
+
+        testSignature_MultipleThreads_Misuse(sig);
     }
 
     private static final byte[] PK_BYTES = hexToBytes(
@@ -1608,5 +1616,34 @@ public class SignatureTest extends TestCase {
         Signature signature = Signature.getInstance(oid, "BC");
         assertNotNull(oid, signature);
         assertEquals(oid, signature.getAlgorithm());
+    }
+
+    private final int THREAD_COUNT = 10;
+
+    private void testSignature_MultipleThreads_Misuse(final Signature s) throws Exception {
+        ExecutorService es = Executors.newFixedThreadPool(THREAD_COUNT);
+
+        final CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
+        final byte[] message = new byte[64];
+
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            es.submit(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    // Try to make sure all the threads are ready first.
+                    latch.countDown();
+                    latch.await();
+
+                    for (int j = 0; j < 100; j++) {
+                        s.update(message);
+                        s.sign();
+                    }
+
+                    return null;
+                }
+            });
+        }
+        es.shutdown();
+        assertTrue("Test should not timeout", es.awaitTermination(1, TimeUnit.MINUTES));
     }
 }
