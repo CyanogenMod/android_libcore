@@ -47,7 +47,8 @@ public class GZIPOutputStreamTest extends junit.framework.TestCase {
      */
     public void test_ConstructorLjava_io_OutputStream() {
         try {
-            FileOutputStream outFile = new FileOutputStream("GZIPOutCon.txt");
+            FileOutputStream outFile = new FileOutputStream(
+                    File.createTempFile("GZIPCon", ".txt"));
             TestGZIPOutputStream outGZIP = new TestGZIPOutputStream(outFile);
             assertNotNull("the constructor for GZIPOutputStream is null",
                     outGZIP);
@@ -66,7 +67,8 @@ public class GZIPOutputStreamTest extends junit.framework.TestCase {
      */
     public void test_ConstructorLjava_io_OutputStreamI() {
         try {
-            FileOutputStream outFile = new FileOutputStream("GZIPOutCon.txt");
+            FileOutputStream outFile = new FileOutputStream(
+                    File.createTempFile("GZIPOutCon", ".txt"));
             TestGZIPOutputStream outGZIP = new TestGZIPOutputStream(outFile,
                     100);
             assertNotNull("the constructor for GZIPOutputStream is null",
@@ -87,7 +89,8 @@ public class GZIPOutputStreamTest extends junit.framework.TestCase {
         // test method java.util.zip.GZIPOutputStream.finish()
         byte byteArray[] = { 3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w' };
         try {
-            FileOutputStream outFile = new FileOutputStream("GZIPOutFinish.txt");
+            FileOutputStream outFile = new FileOutputStream(
+                    File.createTempFile("GZIPOutFinish", ".txt"));
             TestGZIPOutputStream outGZIP = new TestGZIPOutputStream(outFile);
 
             outGZIP.finish();
@@ -114,7 +117,8 @@ public class GZIPOutputStreamTest extends junit.framework.TestCase {
         // test method java.util.zip.GZIPOutputStream.close()
         byte byteArray[] = { 3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w' };
         try {
-            FileOutputStream outFile = new FileOutputStream("GZIPOutClose2.txt");
+            FileOutputStream outFile = new FileOutputStream(
+                    File.createTempFile("GZIPOutClose2", ".txt"));
             TestGZIPOutputStream outGZIP = new TestGZIPOutputStream(outFile);
             outGZIP.close();
             int r = 0;
@@ -138,7 +142,8 @@ public class GZIPOutputStreamTest extends junit.framework.TestCase {
         // test method java.util.zip.GZIPOutputStream.writeBII
         byte byteArray[] = { 3, 5, 2, 'r', 'g', 'e', 'f', 'd', 'e', 'w' };
         try {
-            FileOutputStream outFile = new FileOutputStream("GZIPOutWrite.txt");
+            FileOutputStream outFile = new FileOutputStream(
+                    File.createTempFile("GZIPOutWrite", ".txt"));
             TestGZIPOutputStream outGZIP = new TestGZIPOutputStream(outFile);
             outGZIP.write(byteArray, 0, 10);
             // ran JDK and found this CRC32 value is 3097700292
@@ -179,26 +184,4 @@ public class GZIPOutputStreamTest extends junit.framework.TestCase {
         assertEquals(2, in.read());
         assertEquals(3, in.read());
     }
-
-    @Override
-    protected void setUp() {
-    }
-
-    @Override
-    protected void tearDown() {
-
-        try {
-            File dFile = new File("GZIPOutCon.txt");
-            dFile.delete();
-            File dFile2 = new File("GZIPOutFinish.txt");
-            dFile2.delete();
-            File dFile3 = new File("GZIPOutWrite.txt");
-            dFile3.delete();
-            File dFile4 = new File("GZIPOutClose2.txt");
-            dFile4.delete();
-        } catch (SecurityException e) {
-            fail("Cannot delete file for security reasons");
-        }
-    }
-
 }
