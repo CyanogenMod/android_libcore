@@ -37,6 +37,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.HandshakeCompletedEvent;
@@ -1243,7 +1244,7 @@ public class SSLSocketTest extends TestCase {
 
     /**
      * b/7014266 Test to confirm that an SSLSocket.close() on one
-     * thread will interupt another thread blocked reading on the same
+     * thread will interrupt another thread blocked reading on the same
      * socket.
      */
     public void test_SSLSocket_interrupt_read() throws Exception {
@@ -1254,7 +1255,16 @@ public class SSLSocketTest extends TestCase {
                                                                 c.host.getHostName(),
                                                                 c.port,
                                                                 false);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        // Create our own thread group so we can inspect the stack state later.
+        final ThreadGroup clientGroup = new ThreadGroup("client");
+        ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(clientGroup, r);
+            }
+        });
+
         Future<Void> clientFuture = executor.submit(new Callable<Void>() {
             @Override public Void call() throws Exception {
                 try {
@@ -1272,6 +1282,26 @@ public class SSLSocketTest extends TestCase {
 
         SSLSocket server = (SSLSocket) c.serverSocket.accept();
         server.startHandshake();
+
+        /*
+         * Wait for the client to at least be in the "read" method before
+         * calling close()
+         */
+        Thread[] threads = new Thread[1];
+        clientGroup.enumerate(threads);
+        if (threads[0] != null) {
+            boolean clientInRead = false;
+            while (!clientInRead) {
+                StackTraceElement[] elements = threads[0].getStackTrace();
+                for (StackTraceElement element : elements) {
+                    if ("read".equals(element.getMethodName())) {
+                        clientInRead = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         wrapping.close();
         clientFuture.get();
         server.close();
