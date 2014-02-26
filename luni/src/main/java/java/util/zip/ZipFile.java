@@ -357,6 +357,9 @@ public class ZipFile implements Closeable, ZipConstants {
 
         raf.seek(0);
         final int headerMagic = Integer.reverseBytes(raf.readInt());
+        if (headerMagic == ENDSIG) {
+            throw new ZipException("Empty zip archive not supported");
+        }
         if (headerMagic != LOCSIG) {
             throw new ZipException("Not a zip archive");
         }
