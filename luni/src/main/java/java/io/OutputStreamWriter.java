@@ -122,8 +122,8 @@ public class OutputStreamWriter extends Writer {
     }
 
     /**
-     * Closes this writer. This implementation flushes the buffer as well as the
-     * target stream. The target stream is then closed and the resources for the
+     * Closes this writer. This implementation flushes the buffer but <strong>does not</strong>
+     * flush the target stream. The target stream is then closed and the resources for the
      * buffer and converter are released.
      *
      * <p>Only the first invocation of this method has any effect. Subsequent calls
