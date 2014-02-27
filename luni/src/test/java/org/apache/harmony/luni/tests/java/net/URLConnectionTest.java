@@ -16,7 +16,6 @@
 
 package org.apache.harmony.luni.tests.java.net;
 
-import dalvik.annotation.BrokenTest;
 import junit.framework.TestCase;
 import tests.support.Support_Configuration;
 import tests.support.Support_TestWebData;
@@ -442,7 +441,7 @@ public class URLConnectionTest extends TestCase {
      * @throws IOException
      * {@link java.net.URLConnection#getContentEncoding()}
      */
-    @BrokenTest("Fails in CTS, passes in CoreTestRunner")
+    // broken test - Fails in CTS, passes in CoreTestRunner
     public void test_getContentEncoding() throws IOException {
         // faulty setup
         try {

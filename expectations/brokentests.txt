@@ -883,5 +883,71 @@
       "org.apache.harmony.tests.java.nio.channels.ServerSocketChannelTest#test_bind_explicitPort",
       "org.apache.harmony.tests.java.nio.channels.SocketChannelTest#testBind_ExplicitFreePort"
   ]
+},
+{
+  description: "Fails in CTS, passes in CoreTestRunner.",
+  result: EXEC_FAILED,
+  names: [
+      "org.apache.harmony.tests.java.net.URLConnection#test_getContentEncoding",
+      "libcore.java.text.OldNumberFormatTest#test_parseLjava_lang_String",
+      "libcore.java.nio.channels.OldSocketChannelTest#test_writeLjava_nio_ByteBuffer_Nonblocking_HugeData",
+      "org.apache.harmony.tests.java.lang.ProcessManagerTest#testSleep",
+      "libcore.java.security.cert.OldPKIXParametersTest#testPKIXParametersKeyStore04"
+  ]
+},
+{
+  description: "Suffers from DH slowness, disabling for now.",
+  result: EXEC_FAILED,
+  names: [
+      "libcore.java.security.OldDHTest#testDHGen",
+      "libcore.java.security.OldKeyPairGeneratorTestDH#testKeyPairGenerator",
+      "libcore.javax.crypto.spec.KeyPairGeneratorTestDH#testKeyPairGenerator",
+      "libcore.javax.crypto.spec.AlgorithmParametersTestDH#testAlgorithmParameters",
+      "libcore.javax.crypto.spec.AlgorithmParameterGeneratorTestDH#testAlgorithmParameterGenerator"
+  ]
+},
+{
+  description: "Destroys MD5 provider, hurts succeeding tests",
+  result: EXEC_FAILED,
+  names: [
+      "tests.api.javax.security.cert.X509CertificateTest#testVerifyPublicKey",
+      "tests.api.javax.security.cert.X509CertificateTest#testVerifyPublicKeyString"
+  ]
+},
+{
+  description: "Suffers from side effect of other, currently unknown test",
+  result: EXEC_FAILED,
+  names: [
+      "org.apache.harmony.luni.tests.internal.net.www.protocol.http.HttpURLConnectionTest#testProxyAuthorization"
+  ]
+},
+{
+  description: "Support_TestWebServer requires isolation.",
+  result: EXEC_FAILED,
+  names: [
+      "libcore.java.net.OldURLClassLoaderTest#test_findResourceLjava_lang_String"
+  ]
+},
+{
+  description: "This test affects tests that are run after this one due to caching in URLConnection.",
+  result: EXEC_FAILED,
+  names: [
+      "org.apache.harmony.luni.tests.java.net.ContentHandlerFactoryTest#test_createContentHandler"
+  ]
+},
+{
+  description: "Causes OutOfMemoryError to test finalization",
+  result: EXEC_FAILED,
+  names: [
+      "org.apache.harmony.tests.java.lang.ref.SoftReferenceTest#test_get_SoftReference",
+      "org.apache.harmony.crypto.tests.javax.crypto#ExemptionMechanismTest#test_finalize"
+  ]
+},
+{
+  description: "Causes open dex file error",
+  result: EXEC_FAILED,
+  names: [
+      "org.apache.harmony.tests.java.lang.reflect.GenericSignatureFormatErrorTest#test_signatureFormatError"
+  ]
 }
 ]

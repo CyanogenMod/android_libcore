@@ -15,7 +15,6 @@
  */
 package libcore.java.security;
 
-import dalvik.annotation.BrokenTest;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -24,7 +23,7 @@ import tests.security.KeyAgreementHelper;
 
 public class OldKeyPairGeneratorTestDH extends TestCase {
 
-    @BrokenTest("Takes ages due to DH computations. Disabling for now.")
+    // Broken Test: Takes ages due to DH computations. Disabling for now.
     public void testKeyPairGenerator() throws NoSuchAlgorithmException {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("DH");
 

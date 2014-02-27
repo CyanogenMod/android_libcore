@@ -17,7 +17,6 @@
 
 package libcore.java.nio.channels;
 
-import dalvik.annotation.BrokenTest;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -235,7 +234,7 @@ public class OldSocketChannelTest extends TestCase {
         return connected;
     }
 
-    @BrokenTest("Occasionally fail in CTS, but works in CoreTestRunner")
+    // Broken Test: Occasionally fail in CTS, but works in CoreTestRunner
     public void test_writeLjava_nio_ByteBuffer_Nonblocking_HugeData() throws IOException {
         // initialize write content
         ByteBuffer writeContent = ByteBuffer.allocate(CAPACITY_HUGE);

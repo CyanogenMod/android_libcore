@@ -26,7 +26,7 @@ public class AlgorithmParameterGeneratorTestDH extends
         super("DH", new AlgorithmParameterKeyAgreementHelper("DH"));
     }
 
-    @BrokenTest("Suffers from DH slowness, disabling for now")
+    // Broken Test: Suffers from DH slowness, disabling for now
     public void testAlgorithmParameterGenerator() {
         super.testAlgorithmParameterGenerator();
     }

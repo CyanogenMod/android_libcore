@@ -15,7 +15,6 @@
  */
 package libcore.javax.crypto.spec;
 
-import dalvik.annotation.BrokenTest;
 import java.security.NoSuchAlgorithmException;
 import tests.security.KeyAgreementHelper;
 import tests.security.KeyPairGeneratorTest;
@@ -26,7 +25,7 @@ public class KeyPairGeneratorTestDH extends KeyPairGeneratorTest {
         super("DH", new KeyAgreementHelper("DH"));
     }
 
-    @BrokenTest("Takes ages due to DH computations. Disabling for now.")
+    // Broken Test: Takes ages due to DH computations. Disabling for now.
     public void testKeyPairGenerator() throws NoSuchAlgorithmException {
         super.testKeyPairGenerator();
     }
