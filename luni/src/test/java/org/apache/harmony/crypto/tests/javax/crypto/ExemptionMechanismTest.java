@@ -17,8 +17,6 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
-import dalvik.annotation.SideEffect;
-
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -186,7 +184,7 @@ public class ExemptionMechanismTest extends TestCase {
         }
     }
 
-    @SideEffect("Causes OutOfMemoryError to test finalization")
+    // Side Effect: Causes OutOfMemoryError to test finalization
     public void test_finalize () {
         Mock_ExemptionMechanism mem = new Mock_ExemptionMechanism(null, null, "Name");
         assertNotNull(mem);

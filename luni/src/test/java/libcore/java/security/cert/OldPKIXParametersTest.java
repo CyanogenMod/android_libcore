@@ -22,7 +22,6 @@
 
 package libcore.java.security.cert;
 
-import dalvik.annotation.BrokenTest;
 import java.io.ByteArrayInputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
@@ -176,7 +175,7 @@ public class OldPKIXParametersTest extends TestCase {
      * @throws InvalidAlgorithmParameterException
      * @throws KeyStoreException
      */
-    @BrokenTest("Fails in CTS environment, but passes in CoreTestRunner")
+    // Broken Test: Fails in CTS environment, but passes in CoreTestRunner
     public final void testPKIXParametersKeyStore04() throws Exception {
 
 

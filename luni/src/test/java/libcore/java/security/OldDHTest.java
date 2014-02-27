@@ -15,7 +15,6 @@
  */
 package libcore.java.security;
 
-import dalvik.annotation.BrokenTest;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.KeyPair;
@@ -27,7 +26,7 @@ import junit.framework.TestCase;
 
 public class OldDHTest extends TestCase {
 
-    @BrokenTest("Suffers from DH slowness, disabling for now")
+    // BrokenTest Suffers from DH slowness, disabling for now
     public void testDHGen() throws Exception {
         KeyPairGenerator gen = null;
         try {
