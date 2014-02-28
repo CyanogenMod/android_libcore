@@ -223,6 +223,13 @@ public final class VMRuntime {
     public native Object newNonMovableArray(Class<?> componentType, int length);
 
     /**
+     * Returns an array of at least minLength, but potentially larger. The increased size comes from
+     * avoiding any padding after the array. The amount of padding varies depending on the
+     * componentType and the memory allocator implementation.
+     */
+    public native Object newUnpaddedArray(Class<?> componentType, int minLength);
+
+    /**
      * Returns the address of array[0]. This differs from using JNI in that JNI might lie and
      * give you the address of a copy of the array when in forcecopy mode.
      */
