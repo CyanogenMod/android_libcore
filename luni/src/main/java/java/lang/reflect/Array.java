@@ -352,16 +352,16 @@ public final class Array {
     public static Object newInstance(Class<?> componentType, int size) throws NegativeArraySizeException {
         if (!componentType.isPrimitive()) {
             return createObjectArray(componentType, size);
-        } else if (componentType == boolean.class) {
-            return new boolean[size];
-        } else if (componentType == byte.class) {
-            return new byte[size];
         } else if (componentType == char.class) {
             return new char[size];
-        } else if (componentType == short.class) {
-            return new short[size];
         } else if (componentType == int.class) {
             return new int[size];
+        } else if (componentType == byte.class) {
+            return new byte[size];
+        } else if (componentType == boolean.class) {
+            return new boolean[size];
+        } else if (componentType == short.class) {
+            return new short[size];
         } else if (componentType == long.class) {
             return new long[size];
         } else if (componentType == float.class) {
