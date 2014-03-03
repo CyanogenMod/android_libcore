@@ -31,6 +31,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.Selector;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.UnresolvedAddressException;
 import java.util.Set;
 
 import tests.io.MockOs;
@@ -160,6 +161,21 @@ public class SocketChannelTest extends junit.framework.TestCase {
     } finally {
       sc.close();
     }
+  }
+
+  public void test_bind_unresolvedAddress() throws IOException {
+    SocketChannel sc = SocketChannel.open();
+    try {
+      sc.bind(new InetSocketAddress("unresolvedname", 31415));
+      fail();
+    } catch (UnresolvedAddressException expected) {
+    }
+
+    assertNull(sc.getLocalAddress());
+    assertTrue(sc.isOpen());
+    assertFalse(sc.isConnected());
+
+    sc.close();
   }
 
   /** Checks that the SocketChannel and associated Socket agree on the socket state. */

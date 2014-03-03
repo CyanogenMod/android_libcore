@@ -71,16 +71,20 @@ public final class IoBridge {
 
 
     public static void bind(FileDescriptor fd, InetAddress address, int port) throws SocketException {
-        if (address instanceof Inet6Address && ((Inet6Address) address).getScopeId() == 0) {
-            // Linux won't let you bind a link-local address without a scope id. Find one.
-            NetworkInterface nif = NetworkInterface.getByInetAddress(address);
-            if (nif == null) {
-                throw new SocketException("Can't bind to a link-local address without a scope id: " + address);
-            }
-            try {
-                address = Inet6Address.getByAddress(address.getHostName(), address.getAddress(), nif.getIndex());
-            } catch (UnknownHostException ex) {
-                throw new AssertionError(ex); // Can't happen.
+        if (address instanceof Inet6Address) {
+            Inet6Address inet6Address = (Inet6Address) address;
+            if (inet6Address.getScopeId() == 0 && inet6Address.isLinkLocalAddress()) {
+                // Linux won't let you bind a link-local address without a scope id.
+                // Find one.
+                NetworkInterface nif = NetworkInterface.getByInetAddress(address);
+                if (nif == null) {
+                    throw new SocketException("Can't bind to a link-local address without a scope id: " + address);
+                }
+                try {
+                    address = Inet6Address.getByAddress(address.getHostName(), address.getAddress(), nif.getIndex());
+                } catch (UnknownHostException ex) {
+                    throw new AssertionError(ex); // Can't happen.
+                }
             }
         }
         try {
@@ -225,6 +229,10 @@ public final class IoBridge {
     // Socket options used by java.net but not exposed in SocketOptions.
     public static final int JAVA_MCAST_JOIN_GROUP = 19;
     public static final int JAVA_MCAST_LEAVE_GROUP = 20;
+    public static final int JAVA_MCAST_JOIN_SOURCE_GROUP = 21;
+    public static final int JAVA_MCAST_LEAVE_SOURCE_GROUP = 22;
+    public static final int JAVA_MCAST_BLOCK_SOURCE = 23;
+    public static final int JAVA_MCAST_UNBLOCK_SOURCE = 24;
     public static final int JAVA_IP_MULTICAST_TTL = 17;
 
     /**
@@ -368,13 +376,43 @@ public final class IoBridge {
             return;
         case IoBridge.JAVA_MCAST_JOIN_GROUP:
         case IoBridge.JAVA_MCAST_LEAVE_GROUP:
+        {
             StructGroupReq groupReq = (StructGroupReq) value;
             int level = (groupReq.gr_group instanceof Inet4Address) ? IPPROTO_IP : IPPROTO_IPV6;
             int op = (option == JAVA_MCAST_JOIN_GROUP) ? MCAST_JOIN_GROUP : MCAST_LEAVE_GROUP;
             Libcore.os.setsockoptGroupReq(fd, level, op, groupReq);
             return;
+        }
+        case IoBridge.JAVA_MCAST_JOIN_SOURCE_GROUP:
+        case IoBridge.JAVA_MCAST_LEAVE_SOURCE_GROUP:
+        case IoBridge.JAVA_MCAST_BLOCK_SOURCE:
+        case IoBridge.JAVA_MCAST_UNBLOCK_SOURCE:
+        {
+            StructGroupSourceReq groupSourceReq = (StructGroupSourceReq) value;
+            int level = (groupSourceReq.gsr_group instanceof Inet4Address)
+                ? IPPROTO_IP : IPPROTO_IPV6;
+            int op = getGroupSourceReqOp(option);
+            Libcore.os.setsockoptGroupSourceReq(fd, level, op, groupSourceReq);
+            return;
+        }
         default:
             throw new SocketException("Unknown socket option: " + option);
+        }
+    }
+
+    private static int getGroupSourceReqOp(int javaValue) {
+        switch (javaValue) {
+            case IoBridge.JAVA_MCAST_JOIN_SOURCE_GROUP:
+                return MCAST_JOIN_SOURCE_GROUP;
+            case IoBridge.JAVA_MCAST_LEAVE_SOURCE_GROUP:
+                return MCAST_LEAVE_SOURCE_GROUP;
+            case IoBridge.JAVA_MCAST_BLOCK_SOURCE:
+                return MCAST_BLOCK_SOURCE;
+            case IoBridge.JAVA_MCAST_UNBLOCK_SOURCE:
+                return MCAST_UNBLOCK_SOURCE;
+            default:
+                throw new AssertionError(
+                        "Unknown java value for setsocketopt op lookup: " + javaValue);
         }
     }
 

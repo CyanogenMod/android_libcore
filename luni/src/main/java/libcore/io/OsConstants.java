@@ -250,6 +250,10 @@ public final class OsConstants {
     public static final int MAP_SHARED = placeholder();
     public static final int MCAST_JOIN_GROUP = placeholder();
     public static final int MCAST_LEAVE_GROUP = placeholder();
+    public static final int MCAST_JOIN_SOURCE_GROUP = placeholder();
+    public static final int MCAST_LEAVE_SOURCE_GROUP = placeholder();
+    public static final int MCAST_BLOCK_SOURCE = placeholder();
+    public static final int MCAST_UNBLOCK_SOURCE = placeholder();
     public static final int MCL_CURRENT = placeholder();
     public static final int MCL_FUTURE = placeholder();
     public static final int MSG_CTRUNC = placeholder();

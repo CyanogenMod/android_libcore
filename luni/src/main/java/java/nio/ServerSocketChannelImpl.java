@@ -32,6 +32,7 @@ import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.NotYetBoundException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Set;
@@ -67,8 +68,14 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
         if (socket.isBound()) {
             throw new AlreadyBoundException();
         }
-        if (localAddr != null && !(localAddr instanceof InetSocketAddress)) {
-            throw new UnsupportedAddressTypeException();
+        if (localAddr != null) {
+            if (!(localAddr instanceof InetSocketAddress)) {
+                throw new UnsupportedAddressTypeException();
+            }
+            InetSocketAddress localInetAddress = (InetSocketAddress) localAddr;
+            if (localInetAddress.isUnresolved()) {
+                throw new UnresolvedAddressException();
+            }
         }
 
         socket.bind(localAddr, backlog);
