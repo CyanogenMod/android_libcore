@@ -310,6 +310,18 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
 #if defined(MCAST_LEAVE_GROUP)
     initConstant(env, c, "MCAST_LEAVE_GROUP", MCAST_LEAVE_GROUP);
 #endif
+#if defined(MCAST_JOIN_SOURCE_GROUP)
+    initConstant(env, c, "MCAST_JOIN_SOURCE_GROUP", MCAST_JOIN_SOURCE_GROUP);
+#endif
+#if defined(MCAST_LEAVE_SOURCE_GROUP)
+    initConstant(env, c, "MCAST_LEAVE_SOURCE_GROUP", MCAST_LEAVE_SOURCE_GROUP);
+#endif
+#if defined(MCAST_BLOCK_SOURCE)
+    initConstant(env, c, "MCAST_BLOCK_SOURCE", MCAST_BLOCK_SOURCE);
+#endif
+#if defined(MCAST_UNBLOCK_SOURCE)
+    initConstant(env, c, "MCAST_UNBLOCK_SOURCE", MCAST_UNBLOCK_SOURCE);
+#endif
     initConstant(env, c, "MCL_CURRENT", MCL_CURRENT);
     initConstant(env, c, "MCL_FUTURE", MCL_FUTURE);
     initConstant(env, c, "MSG_CTRUNC", MSG_CTRUNC);
