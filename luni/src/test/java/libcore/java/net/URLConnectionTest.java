@@ -1072,7 +1072,11 @@ public final class URLConnectionTest extends TestCase {
         server.play();
 
         HttpURLConnection urlConnection = (HttpURLConnection) server.getUrl("/").openConnection();
-        urlConnection.setChunkedStreamingMode(1);
+        // Later releases of Android ignore the value for chunkLength if it is > 0 and default to
+        // a fixed chunkLength. During the change-over period while the chunkLength indicates the
+        // chunk buffer size (inc. header) the chunkLength has to be >= 8. This enables the flush()
+        // to dictate the size of the chunks.
+        urlConnection.setChunkedStreamingMode(50 /* chunkLength */);
         urlConnection.setDoOutput(true);
         OutputStream outputStream = urlConnection.getOutputStream();
         String outputString = "ABCDEFGH";
