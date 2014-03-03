@@ -26,7 +26,9 @@ public final class FinalizationTester {
     private FinalizationTester() {}
 
     public static void induceFinalization() {
-        System.gc();
+        // System.gc() does not garbage collect every time. Runtime.gc() is
+        // more likely to perfom a gc.
+        Runtime.getRuntime().gc();
         enqueueReferences();
         System.runFinalization();
     }
