@@ -168,6 +168,7 @@ public final class Posix implements Os {
     public native void setsockoptInt(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
     public native void setsockoptIpMreqn(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
     public native void setsockoptGroupReq(FileDescriptor fd, int level, int option, StructGroupReq value) throws ErrnoException;
+    public native void setsockoptGroupSourceReq(FileDescriptor fd, int level, int option, StructGroupSourceReq value) throws ErrnoException;
     public native void setsockoptLinger(FileDescriptor fd, int level, int option, StructLinger value) throws ErrnoException;
     public native void setsockoptTimeval(FileDescriptor fd, int level, int option, StructTimeval value) throws ErrnoException;
     public native void setuid(int uid) throws ErrnoException;
