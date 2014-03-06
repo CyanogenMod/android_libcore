@@ -95,9 +95,9 @@ public final class IoBridge {
      * Connects socket 'fd' to 'inetAddress' on 'port', with no timeout. The lack of a timeout
      * means this method won't throw SocketTimeoutException.
      */
-    public static boolean connect(FileDescriptor fd, InetAddress inetAddress, int port) throws SocketException {
+    public static void connect(FileDescriptor fd, InetAddress inetAddress, int port) throws SocketException {
         try {
-            return IoBridge.connect(fd, inetAddress, port, 0);
+            IoBridge.connect(fd, inetAddress, port, 0);
         } catch (SocketTimeoutException ex) {
             throw new AssertionError(ex); // Can't happen for a connect without a timeout.
         }
@@ -107,9 +107,9 @@ public final class IoBridge {
      * Connects socket 'fd' to 'inetAddress' on 'port', with a the given 'timeoutMs'.
      * Use timeoutMs == 0 for a blocking connect with no timeout.
      */
-    public static boolean connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws SocketException, SocketTimeoutException {
+    public static void connect(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws SocketException, SocketTimeoutException {
         try {
-            return connectErrno(fd, inetAddress, port, timeoutMs);
+            connectErrno(fd, inetAddress, port, timeoutMs);
         } catch (ErrnoException errnoException) {
             throw new ConnectException(connectDetail(inetAddress, port, timeoutMs, errnoException), errnoException);
         } catch (SocketException ex) {
@@ -121,11 +121,11 @@ public final class IoBridge {
         }
     }
 
-    private static boolean connectErrno(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws ErrnoException, IOException {
+    private static void connectErrno(FileDescriptor fd, InetAddress inetAddress, int port, int timeoutMs) throws ErrnoException, IOException {
         // With no timeout, just call connect(2) directly.
         if (timeoutMs == 0) {
             Libcore.os.connect(fd, inetAddress, port);
-            return true;
+            return;
         }
 
         // For connect with a timeout, we:
@@ -143,7 +143,7 @@ public final class IoBridge {
         try {
             Libcore.os.connect(fd, inetAddress, port);
             IoUtils.setBlocking(fd, true); // 4. set the socket back to blocking.
-            return true; // We connected immediately.
+            return; // We connected immediately.
         } catch (ErrnoException errnoException) {
             if (errnoException.errno != EINPROGRESS) {
                 throw errnoException;
@@ -160,7 +160,6 @@ public final class IoBridge {
             }
         } while (!IoBridge.isConnected(fd, inetAddress, port, timeoutMs, remainingTimeoutMs));
         IoUtils.setBlocking(fd, true); // 4. set the socket back to blocking.
-        return true; // Or we'd have thrown.
     }
 
     private static String connectDetail(InetAddress inetAddress, int port, int timeoutMs, ErrnoException cause) {

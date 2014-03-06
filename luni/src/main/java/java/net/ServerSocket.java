@@ -21,6 +21,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
 
+import libcore.io.IoBridge;
+
 /**
  * This class represents a server-side socket that waits for incoming client
  * connections. A {@code ServerSocket} handles the requests and sends back an
@@ -48,6 +50,8 @@ public class ServerSocket implements Closeable {
     private boolean isBound;
 
     private boolean isClosed;
+
+    private InetAddress localAddress;
 
     /**
      * Constructs a new unbound {@code ServerSocket}.
@@ -99,13 +103,21 @@ public class ServerSocket implements Closeable {
             impl.create(true);
             try {
                 impl.bind(addr, port);
-                isBound = true;
+                readBackBindState();
                 impl.listen(backlog > 0 ? backlog : DEFAULT_BACKLOG);
             } catch (IOException e) {
                 close();
                 throw e;
             }
         }
+    }
+
+    /**
+     * Read the cached isBound and localAddress state from the underlying OS socket.
+     */
+    private void readBackBindState() throws SocketException {
+        localAddress = IoBridge.getSocketLocalAddress(impl.fd);
+        isBound = true;
     }
 
     /**
@@ -161,7 +173,7 @@ public class ServerSocket implements Closeable {
         if (!isBound()) {
             return null;
         }
-        return impl.getInetAddress();
+        return localAddress;
     }
 
     /**
@@ -300,9 +312,12 @@ public class ServerSocket implements Closeable {
         if (isBound()) {
             throw new BindException("Socket is already bound");
         }
-        int port = 0;
-        InetAddress addr = Inet4Address.ANY;
-        if (localAddr != null) {
+        InetAddress addr;
+        int port;
+        if (localAddr == null) {
+            addr = Inet4Address.ANY;
+            port = 0;
+        } else {
             if (!(localAddr instanceof InetSocketAddress)) {
                 throw new IllegalArgumentException("Local address not an InetSocketAddress: " +
                         localAddr.getClass());
@@ -317,7 +332,7 @@ public class ServerSocket implements Closeable {
         synchronized (this) {
             try {
                 impl.bind(addr, port);
-                isBound = true;
+                readBackBindState();
                 impl.listen(backlog > 0 ? backlog : DEFAULT_BACKLOG);
             } catch (IOException e) {
                 close();
@@ -336,7 +351,7 @@ public class ServerSocket implements Closeable {
         if (!isBound()) {
             return null;
         }
-        return new InetSocketAddress(getInetAddress(), getLocalPort());
+        return new InetSocketAddress(localAddress, getLocalPort());
     }
 
     /**
