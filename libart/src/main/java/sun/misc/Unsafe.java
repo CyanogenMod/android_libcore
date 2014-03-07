@@ -81,12 +81,7 @@ public final class Unsafe {
         if (component == null) {
             throw new IllegalArgumentException("Valid for array classes only: " + clazz);
         }
-        // TODO: make the following not specific to the object model.
-        int offset = 12;
-        if (component == long.class || component == double.class) {
-            offset += 4;  // 4 bytes of padding.
-        }
-        return offset;
+        return getArrayBaseOffsetForComponentType(component);
     }
 
     /**
@@ -100,20 +95,11 @@ public final class Unsafe {
       if (component == null) {
           throw new IllegalArgumentException("Valid for array classes only: " + clazz);
       }
-      // TODO: make the following not specific to the object model.
-      if (!component.isPrimitive()) {
-          return 4;
-      } else  if (component == long.class || component == double.class) {
-          return 8;
-      } else if (component == int.class || component == float.class) {
-          return 4;
-      } else if (component == char.class || component == short.class) {
-          return 2;
-      } else {
-          // component == byte.class || component == boolean.class.
-          return 1;
-      }
+      return getArrayIndexScaleForComponentType(component);
     }
+
+    private static native int getArrayBaseOffsetForComponentType(Class component_class);
+    private static native int getArrayIndexScaleForComponentType(Class component_class);
 
     /**
      * Performs a compare-and-set operation on an <code>int</code>
