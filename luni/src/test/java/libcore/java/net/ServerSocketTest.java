@@ -17,6 +17,8 @@
 package libcore.java.net;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -42,5 +44,35 @@ public class ServerSocketTest extends junit.framework.TestCase {
         new Socket(ss.getInetAddress(), ss.getLocalPort());
         t.join();
         assertEquals(0, result[0].getSoTimeout());
+    }
+
+    public void testInitialState() throws Exception {
+        ServerSocket ss = new ServerSocket();
+        try {
+            assertFalse(ss.isBound());
+            assertFalse(ss.isClosed());
+            assertEquals(-1, ss.getLocalPort());
+            assertNull(ss.getLocalSocketAddress());
+            assertNull(ss.getInetAddress());
+            assertTrue(ss.getReuseAddress());
+            assertNull(ss.getChannel());
+        } finally {
+            ss.close();
+        }
+    }
+
+    public void testStateAfterClose() throws Exception {
+        ServerSocket ss = new ServerSocket();
+        ss.bind(new InetSocketAddress(Inet4Address.getLocalHost(), 0));
+        InetSocketAddress boundAddress = (InetSocketAddress) ss.getLocalSocketAddress();
+        ss.close();
+
+        assertTrue(ss.isBound());
+        assertTrue(ss.isClosed());
+        assertEquals(boundAddress.getAddress(), ss.getInetAddress());
+        assertEquals(boundAddress.getPort(), ss.getLocalPort());
+
+        InetSocketAddress localAddressAfterClose = (InetSocketAddress) ss.getLocalSocketAddress();
+        assertEquals(boundAddress, localAddressAfterClose);
     }
 }

@@ -22,12 +22,15 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
+import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.NotYetBoundException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.channels.spi.SelectorProvider;
 import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
@@ -51,6 +54,32 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
         return socket;
     }
 
+    /** @hide Until ready for a public API change */
+    @Override
+    public final ServerSocketChannel bind(SocketAddress localAddr, int backlog) throws IOException {
+        if (!isOpen()) {
+            throw new ClosedChannelException();
+        }
+        if (socket.isBound()) {
+            throw new AlreadyBoundException();
+        }
+        if (localAddr != null && !(localAddr instanceof InetSocketAddress)) {
+            throw new UnsupportedAddressTypeException();
+        }
+
+        socket.bind(localAddr, backlog);
+        return this;
+    }
+
+    /** @hide Until ready for a public API change */
+    @Override
+    public SocketAddress getLocalAddress() throws IOException {
+        if (!isOpen()) {
+            throw new ClosedChannelException();
+        }
+        return socket.getLocalSocketAddress();
+    }
+
     @Override
     public SocketChannel accept() throws IOException {
         if (!isOpen()) {
@@ -60,7 +89,7 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
             throw new NotYetBoundException();
         }
 
-        // Create an empty socket channel. This will be populated by ServerSocketAdapter.accept.
+        // Create an empty socket channel. This will be populated by ServerSocketAdapter.implAccept.
         SocketChannelImpl result = new SocketChannelImpl(provider(), false);
         try {
             begin();
