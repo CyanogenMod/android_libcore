@@ -205,6 +205,11 @@ public class BlockGuardOs extends ForwardingOs {
         return os.read(fd, bytes, byteOffset, byteCount);
     }
 
+    @Override public String readlink(String path) throws ErrnoException {
+      BlockGuard.getThreadPolicy().onReadFromDisk();
+      return os.readlink(path);
+    }
+
     @Override public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.readv(fd, buffers, offsets, byteCounts);
