@@ -1016,6 +1016,14 @@ static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint time
     return rc;
 }
 
+static void Posix_posix_fallocate(JNIEnv* env, jobject, jobject javaFd, jlong offset, jlong length) {
+    int fd = jniGetFDFromFileDescriptor(env, javaFd);
+    errno = TEMP_FAILURE_RETRY(posix_fallocate64(fd, offset, length));
+    if (errno != 0) {
+        throwErrnoException(env, "posix_fallocate");
+    }
+}
+
 static jint Posix_preadBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jlong offset) {
     ScopedBytesRW bytes(env, javaBytes);
     if (bytes.get() == NULL) {
@@ -1442,6 +1450,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, open, "(Ljava/lang/String;II)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, pipe, "()[Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, poll, "([Llibcore/io/StructPollfd;I)I"),
+    NATIVE_METHOD(Posix, posix_fallocate, "(Ljava/io/FileDescriptor;JJ)V"),
     NATIVE_METHOD(Posix, preadBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIJ)I"),
     NATIVE_METHOD(Posix, pwriteBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIJ)I"),
     NATIVE_METHOD(Posix, readBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
