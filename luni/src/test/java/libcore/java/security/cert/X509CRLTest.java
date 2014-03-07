@@ -36,6 +36,7 @@ import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -316,6 +317,22 @@ public class X509CRLTest extends TestCase {
         assertEquals(result1, result2);
     }
 
+    /*
+     * This is needed because the certificate revocation in our CRL can be a
+     * couple seconds ahead of the lastUpdate time in the CRL.
+     */
+    private static void assertDateSlightlyBefore(Date expected, Date actual) throws Exception {
+        Calendar c = Calendar.getInstance();
+
+        // Make sure it's within 2 seconds of expected.
+        c.setTime(expected);
+        c.add(Calendar.SECOND, -2);
+        assertTrue(actual.after(c.getTime()));
+
+        // Before or equal...
+        assertTrue(actual.before(expected) || actual.equals(expected));
+    }
+
     private void assertRsaCrlEntry(CertificateFactory f, X509CRLEntry rsaEntry) throws Exception {
         assertNotNull(rsaEntry);
 
@@ -324,7 +341,7 @@ public class X509CRLTest extends TestCase {
         Date expectedDate = dates.get("lastUpdate");
 
         assertEquals(rsaCert.getSerialNumber(), rsaEntry.getSerialNumber());
-        assertDateEquals(expectedDate, rsaEntry.getRevocationDate());
+        assertDateSlightlyBefore(expectedDate, rsaEntry.getRevocationDate());
         assertNull(rsaEntry.getCertificateIssuer());
         assertFalse(rsaEntry.hasExtensions());
         assertNull(rsaEntry.getCriticalExtensionOIDs());
@@ -334,12 +351,14 @@ public class X509CRLTest extends TestCase {
     }
 
     private void assertDsaCrlEntry(CertificateFactory f, X509CRLEntry dsaEntry) throws Exception {
+        assertNotNull(dsaEntry);
+
         X509Certificate dsaCert = getCertificate(f, CERT_DSA);
         Map<String, Date> dates = getCrlDates(CRL_RSA_DSA_DATES);
         Date expectedDate = dates.get("lastUpdate");
 
         assertEquals(dsaCert.getSerialNumber(), dsaEntry.getSerialNumber());
-        assertDateEquals(expectedDate, dsaEntry.getRevocationDate());
+        assertDateSlightlyBefore(expectedDate, dsaEntry.getRevocationDate());
         assertNull(dsaEntry.getCertificateIssuer());
         assertTrue(dsaEntry.hasExtensions());
         /* TODO: get the OID */
