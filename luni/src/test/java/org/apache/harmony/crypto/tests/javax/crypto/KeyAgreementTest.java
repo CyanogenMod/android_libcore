@@ -22,6 +22,8 @@
 
 package org.apache.harmony.crypto.tests.javax.crypto;
 
+import org.apache.harmony.security.tests.support.SpiEngUtils;
+import org.apache.harmony.security.tests.support.TestKeyPair;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -31,6 +33,7 @@ import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.DSAParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
@@ -40,12 +43,10 @@ import javax.crypto.KeyAgreementSpi;
 import javax.crypto.ShortBufferException;
 import javax.crypto.interfaces.DHPrivateKey;
 import javax.crypto.spec.DHParameterSpec;
-
-import org.apache.harmony.crypto.tests.support.MyKeyAgreementSpi;
-import org.apache.harmony.security.tests.support.SpiEngUtils;
-import org.apache.harmony.security.tests.support.TestKeyPair;
-
 import junit.framework.TestCase;
+import libcore.java.security.StandardNames;
+import libcore.javax.crypto.MockKey;
+import libcore.javax.crypto.MockKey2;
 
 
 /**
@@ -676,4 +677,127 @@ public class KeyAgreementTest extends TestCase {
             //expected
         }
     }
+
+    private static abstract class MockProvider extends Provider {
+        public MockProvider(String name) {
+            super(name, 1.0, "Mock provider used for testing");
+            setup();
+        }
+
+        public abstract void setup();
+    }
+
+    public void testKeyAgreement_getInstance_SuppliedProviderNotRegistered_Success()
+            throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("KeyAgreement.FOO", MockKeyAgreementSpi.AllKeyTypes.class.getName());
+            }
+        };
+
+        {
+            KeyAgreement s = KeyAgreement.getInstance("FOO", mockProvider);
+            s.init(new MockKey());
+            assertEquals(mockProvider, s.getProvider());
+        }
+    }
+
+    public void testKeyAgreement_getInstance_OnlyUsesSpecifiedProvider_SameNameAndClass_Success()
+            throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("KeyAgreement.FOO", MockKeyAgreementSpi.AllKeyTypes.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProvider);
+        try {
+            {
+                Provider mockProvider2 = new MockProvider("MockProvider") {
+                    public void setup() {
+                        put("KeyAgreement.FOO", MockKeyAgreementSpi.AllKeyTypes.class.getName());
+                    }
+                };
+                KeyAgreement s = KeyAgreement.getInstance("FOO", mockProvider2);
+                assertEquals(mockProvider2, s.getProvider());
+            }
+        } finally {
+            Security.removeProvider(mockProvider.getName());
+        }
+    }
+
+    public void testKeyAgreement_getInstance_DelayedInitialization_KeyType() throws Exception {
+        Provider mockProviderSpecific = new MockProvider("MockProviderSpecific") {
+            public void setup() {
+                put("KeyAgreement.FOO", MockKeyAgreementSpi.SpecificKeyTypes.class.getName());
+                put("KeyAgreement.FOO SupportedKeyClasses", MockKey.class.getName());
+            }
+        };
+        Provider mockProviderSpecific2 = new MockProvider("MockProviderSpecific2") {
+            public void setup() {
+                put("KeyAgreement.FOO", MockKeyAgreementSpi.SpecificKeyTypes2.class.getName());
+                put("KeyAgreement.FOO SupportedKeyClasses", MockKey2.class.getName());
+            }
+        };
+        Provider mockProviderAll = new MockProvider("MockProviderAll") {
+            public void setup() {
+                put("KeyAgreement.FOO", MockKeyAgreementSpi.AllKeyTypes.class.getName());
+            }
+        };
+
+        Security.addProvider(mockProviderSpecific);
+        Security.addProvider(mockProviderSpecific2);
+        Security.addProvider(mockProviderAll);
+
+        try {
+            {
+                KeyAgreement s = KeyAgreement.getInstance("FOO");
+                s.init(new MockKey());
+                assertEquals(mockProviderSpecific, s.getProvider());
+
+                try {
+                    s.init(new MockKey2());
+                    assertEquals(mockProviderSpecific2, s.getProvider());
+                    if (StandardNames.IS_RI) {
+                        fail("RI was broken before; fix tests now that it works!");
+                    }
+                } catch (InvalidKeyException e) {
+                    if (!StandardNames.IS_RI) {
+                        fail("Non-RI should select the right provider");
+                    }
+                }
+            }
+
+            {
+                KeyAgreement s = KeyAgreement.getInstance("FOO");
+                s.init(new PrivateKey() {
+                    @Override
+                    public String getAlgorithm() {
+                        throw new UnsupportedOperationException("not implemented");
+                    }
+
+                    @Override
+                    public String getFormat() {
+                        throw new UnsupportedOperationException("not implemented");
+                    }
+
+                    @Override
+                    public byte[] getEncoded() {
+                        throw new UnsupportedOperationException("not implemented");
+                    }
+                });
+                assertEquals(mockProviderAll, s.getProvider());
+            }
+
+            {
+                KeyAgreement s = KeyAgreement.getInstance("FOO");
+                assertEquals(mockProviderSpecific, s.getProvider());
+            }
+        } finally {
+            Security.removeProvider(mockProviderSpecific.getName());
+            Security.removeProvider(mockProviderSpecific2.getName());
+            Security.removeProvider(mockProviderAll.getName());
+        }
+    }
+
 }
