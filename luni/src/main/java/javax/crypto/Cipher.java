@@ -139,6 +139,11 @@ public class Cipher {
     private CipherSpi spiImpl;
 
     /**
+     * The SPI implementation.
+     */
+    private final CipherSpi specifiedSpi;
+
+    /**
      * The transformation.
      */
     private final String transformation;
@@ -176,7 +181,7 @@ public class Cipher {
             throw new NullPointerException("provider == null");
         }
         this.specifiedProvider = provider;
-        this.spiImpl = cipherSpi;
+        this.specifiedSpi = cipherSpi;
         this.transformation = transformation;
         this.transformParts = null;
     }
@@ -185,6 +190,7 @@ public class Cipher {
         this.transformation = transformation;
         this.transformParts = transformParts;
         this.specifiedProvider = provider;
+        this.specifiedSpi = null;
     }
 
 
@@ -336,6 +342,10 @@ public class Cipher {
      * Makes sure a CipherSpi that matches this type is selected.
      */
     private CipherSpi getSpi(Key key) {
+        if (specifiedSpi != null) {
+            return specifiedSpi;
+        }
+
         synchronized (initLock) {
             if (spiImpl != null && key == null) {
                 return spiImpl;
