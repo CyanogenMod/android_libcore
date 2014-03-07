@@ -128,7 +128,8 @@ public class CertificateFactory {
 
     /**
      * Creates a new {@code CertificateFactory} instance from the specified
-     * provider that provides the requested certificate type.
+     * provider that provides the requested certificate type. The
+     * {@code provider} supplied does not have to be registered.
      *
      * @param type
      *            the certificate type.

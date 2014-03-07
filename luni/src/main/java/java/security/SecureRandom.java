@@ -190,7 +190,8 @@ public class SecureRandom extends Random {
 
     /**
      * Returns a new instance of {@code SecureRandom} that utilizes the
-     * specified algorithm from the specified provider.
+     * specified algorithm from the specified provider. The
+     * {@code provider} supplied does not have to be registered.
      *
      * @param algorithm
      *            the name of the algorithm to use.
