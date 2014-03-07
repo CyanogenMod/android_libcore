@@ -30,20 +30,15 @@ import java.util.Set;
  * TODO some sync mechanism with backend, Performance - check file edit date
  *
  * @since 1.4
+ *
+ * @hide
  */
-class FilePreferencesImpl extends AbstractPreferences {
-
+public class FilePreferencesImpl extends AbstractPreferences {
     //prefs file name
     private static final String PREFS_FILE_NAME = "prefs.xml";
 
-    //home directory for user prefs
-    private static String USER_HOME = System.getProperty("user.home") + "/.java/.userPrefs";
-
-    //home directory for system prefs
-    private static String SYSTEM_HOME = System.getProperty("java.home") + "/.systemPrefs";
-
     //file path for this preferences node
-    private String path;
+    private final String path;
 
     //internal cache for prefs key-value pair
     private Properties prefs;
@@ -67,13 +62,15 @@ class FilePreferencesImpl extends AbstractPreferences {
      */
 
     /**
-     * Construct root <code>FilePreferencesImpl</code> instance, construct
-     * user root if userNode is true, system root otherwise
+     * Construct root <code>FilePreferencesImpl</code> instance rooted
+     * at the given path.
+     *
+     * @hide
      */
-    FilePreferencesImpl(boolean userNode) {
+    public FilePreferencesImpl(String path, boolean isUserNode) {
         super(null, "");
-        this.userNode = userNode;
-        path = userNode ? USER_HOME : SYSTEM_HOME;
+        this.path = path;
+        this.userNode = isUserNode;
         initPrefs();
     }
 

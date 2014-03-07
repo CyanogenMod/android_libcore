@@ -24,10 +24,12 @@ package java.util.prefs;
  */
 class FilePreferencesFactoryImpl implements PreferencesFactory {
     //  user root preferences
-    private static final Preferences USER_ROOT = new FilePreferencesImpl(true);
+    private static final Preferences USER_ROOT = new FilePreferencesImpl(
+            System.getProperty("user.home") + "/.java/.userPrefs", true);
 
     //  system root preferences
-    private static final Preferences SYSTEM_ROOT = new FilePreferencesImpl(false);
+    private static final Preferences SYSTEM_ROOT = new FilePreferencesImpl(
+            System.getProperty("java.home") + "/.systemPrefs", false);
 
     public FilePreferencesFactoryImpl() {
     }
@@ -39,5 +41,4 @@ class FilePreferencesFactoryImpl implements PreferencesFactory {
     public Preferences systemRoot() {
         return SYSTEM_ROOT;
     }
-
 }
