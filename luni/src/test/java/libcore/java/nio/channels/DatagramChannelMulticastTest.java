@@ -78,7 +78,7 @@ public class DatagramChannelMulticastTest extends TestCase {
         }
       }
 
-      assertTrue("Test environment must have at least one environment capable of multicast",
+      assertTrue("Test environment must have at least one network interface capable of multicast",
               atLeastOneInterface);
 
       // Find the first multicast-compatible interface that supports IPV6 if one exists
