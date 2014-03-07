@@ -40,95 +40,95 @@
 #include <utime.h>
 
 static jstring File_readlink(JNIEnv* env, jclass, jstring javaPath) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return NULL;
-    }
+  ScopedUtfChars path(env, javaPath);
+  if (path.c_str() == NULL) {
+    return NULL;
+  }
 
-    std::string result;
-    if (!readlink(path.c_str(), result)) {
-        jniThrowIOException(env, errno);
-        return NULL;
-    }
-    return env->NewStringUTF(result.c_str());
+  std::string result;
+  if (!readlink(path.c_str(), result)) {
+    jniThrowIOException(env, errno);
+    return NULL;
+  }
+  return env->NewStringUTF(result.c_str());
 }
 
-static jstring File_realpath(JNIEnv* env, jclass, jstring javaPath) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return NULL;
-    }
+static jstring File_canonicalizePath(JNIEnv* env, jclass, jstring javaPath) {
+  ScopedUtfChars path(env, javaPath);
+  if (path.c_str() == NULL) {
+    return NULL;
+  }
 
-    extern bool realpath(const char* path, std::string& resolved);
-    std::string result;
-    if (!realpath(path.c_str(), result)) {
-        jniThrowIOException(env, errno);
-        return NULL;
-    }
-    return env->NewStringUTF(result.c_str());
+  extern bool canonicalize_path(const char* path, std::string& resolved);
+  std::string result;
+  if (!canonicalize_path(path.c_str(), result)) {
+    jniThrowIOException(env, errno);
+    return NULL;
+  }
+  return env->NewStringUTF(result.c_str());
 }
 
 static jboolean File_setLastModifiedImpl(JNIEnv* env, jclass, jstring javaPath, jlong ms) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return JNI_FALSE;
-    }
+  ScopedUtfChars path(env, javaPath);
+  if (path.c_str() == NULL) {
+    return JNI_FALSE;
+  }
 
-    // We want to preserve the access time.
-    struct stat sb;
-    if (stat(path.c_str(), &sb) == -1) {
-        return JNI_FALSE;
-    }
+  // We want to preserve the access time.
+  struct stat sb;
+  if (stat(path.c_str(), &sb) == -1) {
+    return JNI_FALSE;
+  }
 
-    // TODO: we could get microsecond resolution with utimes(3), "legacy" though it is.
-    utimbuf times;
-    times.actime = sb.st_atime;
-    times.modtime = static_cast<time_t>(ms / 1000);
-    return (utime(path.c_str(), &times) == 0);
+  // TODO: we could get microsecond resolution with utimes(3), "legacy" though it is.
+  utimbuf times;
+  times.actime = sb.st_atime;
+  times.modtime = static_cast<time_t>(ms / 1000);
+  return (utime(path.c_str(), &times) == 0);
 }
 
 // Iterates over the filenames in the given directory.
 class ScopedReaddir {
-public:
-    ScopedReaddir(const char* path) {
-        mDirStream = opendir(path);
-        mIsBad = (mDirStream == NULL);
+ public:
+  ScopedReaddir(const char* path) {
+    mDirStream = opendir(path);
+    mIsBad = (mDirStream == NULL);
+  }
+
+  ~ScopedReaddir() {
+    if (mDirStream != NULL) {
+      closedir(mDirStream);
     }
+  }
 
-    ~ScopedReaddir() {
-        if (mDirStream != NULL) {
-            closedir(mDirStream);
-        }
+  // Returns the next filename, or NULL.
+  const char* next() {
+    if (mIsBad) {
+      return NULL;
     }
-
-    // Returns the next filename, or NULL.
-    const char* next() {
-        if (mIsBad) {
-            return NULL;
-        }
-        errno = 0;
-        dirent* result = readdir(mDirStream);
-        if (result != NULL) {
-            return result->d_name;
-        }
-        if (errno != 0) {
-            mIsBad = true;
-        }
-        return NULL;
+    errno = 0;
+    dirent* result = readdir(mDirStream);
+    if (result != NULL) {
+      return result->d_name;
     }
-
-    // Has an error occurred on this stream?
-    bool isBad() const {
-        return mIsBad;
+    if (errno != 0) {
+      mIsBad = true;
     }
+    return NULL;
+  }
 
-private:
-    DIR* mDirStream;
-    bool mIsBad;
+  // Has an error occurred on this stream?
+  bool isBad() const {
+    return mIsBad;
+  }
 
-    // Disallow copy and assignment.
-    ScopedReaddir(const ScopedReaddir&);
-    void operator=(const ScopedReaddir&);
+ private:
+  DIR* mDirStream;
+  bool mIsBad;
+
+  // Disallow copy and assignment.
+  ScopedReaddir(const ScopedReaddir&);
+  void operator=(const ScopedReaddir&);
 };
 
 typedef std::vector<std::string> DirEntries;
@@ -136,38 +136,38 @@ typedef std::vector<std::string> DirEntries;
 // Reads the directory referred to by 'pathBytes', adding each directory entry
 // to 'entries'.
 static bool readDirectory(JNIEnv* env, jstring javaPath, DirEntries& entries) {
-    ScopedUtfChars path(env, javaPath);
-    if (path.c_str() == NULL) {
-        return false;
-    }
+  ScopedUtfChars path(env, javaPath);
+  if (path.c_str() == NULL) {
+    return false;
+  }
 
-    ScopedReaddir dir(path.c_str());
-    const char* filename;
-    while ((filename = dir.next()) != NULL) {
-        if (strcmp(filename, ".") != 0 && strcmp(filename, "..") != 0) {
-            // TODO: this hides allocation failures from us. Push directory iteration up into Java?
-            entries.push_back(filename);
-        }
+  ScopedReaddir dir(path.c_str());
+  const char* filename;
+  while ((filename = dir.next()) != NULL) {
+    if (strcmp(filename, ".") != 0 && strcmp(filename, "..") != 0) {
+      // TODO: this hides allocation failures from us. Push directory iteration up into Java?
+      entries.push_back(filename);
     }
-    return !dir.isBad();
+  }
+  return !dir.isBad();
 }
 
 static jobjectArray File_listImpl(JNIEnv* env, jclass, jstring javaPath) {
-    // Read the directory entries into an intermediate form.
-    DirEntries entries;
-    if (!readDirectory(env, javaPath, entries)) {
-        return NULL;
-    }
-    // Translate the intermediate form into a Java String[].
-    return toStringArray(env, entries);
+  // Read the directory entries into an intermediate form.
+  DirEntries entries;
+  if (!readDirectory(env, javaPath, entries)) {
+    return NULL;
+  }
+  // Translate the intermediate form into a Java String[].
+  return toStringArray(env, entries);
 }
 
 static JNINativeMethod gMethods[] = {
-    NATIVE_METHOD(File, listImpl, "(Ljava/lang/String;)[Ljava/lang/String;"),
-    NATIVE_METHOD(File, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),
-    NATIVE_METHOD(File, realpath, "(Ljava/lang/String;)Ljava/lang/String;"),
-    NATIVE_METHOD(File, setLastModifiedImpl, "(Ljava/lang/String;J)Z"),
+  NATIVE_METHOD(File, canonicalizePath, "(Ljava/lang/String;)Ljava/lang/String;"),
+  NATIVE_METHOD(File, listImpl, "(Ljava/lang/String;)[Ljava/lang/String;"),
+  NATIVE_METHOD(File, readlink, "(Ljava/lang/String;)Ljava/lang/String;"),
+  NATIVE_METHOD(File, setLastModifiedImpl, "(Ljava/lang/String;J)Z"),
 };
 void register_java_io_File(JNIEnv* env) {
-    jniRegisterNativeMethods(env, "java/io/File", gMethods, NELEM(gMethods));
+  jniRegisterNativeMethods(env, "java/io/File", gMethods, NELEM(gMethods));
 }
