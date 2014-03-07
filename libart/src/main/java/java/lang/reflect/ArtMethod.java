@@ -42,38 +42,99 @@ import libcore.util.EmptyArray;
  * @hide
  */
 public final class ArtMethod {
+    /* A note on the field order here, it reflects the same field order as laid out by ART. */
 
     /** Method's declaring class */
     private Class<?> declaringClass;
-    /** Method access flags (modifiers) */
-    private int accessFlags;
-    /** DexFile index */
-    private int methodDexIndex;
-    /** Dispatch table entry */
-    private int methodIndex;
-    /** DexFile offset of CodeItem for this Method */
-    private int codeItemOffset;
-    /* ART compiler meta-data */
-    private int frameSizeInBytes;
-    private int coreSpillMask;
-    private int fpSpillMask;
-    private int mappingTable;
-    private int gcMap;
-    private int vmapTable;
-    /** ART: compiled managed code associated with this Method */
-    private int entryPointFromCompiledCode;
-    /** ART: entry point from interpreter associated with this Method */
-    private int entryPointFromInterpreter;
-    /** ART: if this is a native method, the native code that will be invoked */
-    private int nativeMethod;
-    /* ART: dex cache fast access */
-    private String[] dexCacheStrings;
-    Class<?>[] dexCacheResolvedTypes;
+
+    /** Short-cut to declaringClass.dexCache.resolvedMethods */
     private ArtMethod[] dexCacheResolvedMethods;
 
+    /** Short-cut to declaringClass.dexCache.resolvedTypes */
+    /* package */ Class<?>[] dexCacheResolvedTypes;
+
+    /** Short-cut to declaringClass.dexCache.strings */
+    private String[] dexCacheStrings;
+
     /**
-     * Only created by art directly.
+     * Method dispatch from the interpreter invokes this pointer which may cause a bridge into
+     * compiled code.
      */
+    private long entryPointFromInterpreter;
+
+    /**
+     * Pointer to JNI function registered to this method, or a function to resolve the JNI function.
+     */
+    private long entryPointFromJni;
+
+    /**
+     * Method dispatch from portable compiled code invokes this pointer which may cause bridging
+     * into quick compiled code or the interpreter.
+     */
+    private long entryPointFromPortableCompiledCode;
+
+    /**
+     * Method dispatch from quick compiled code invokes this pointer which may cause bridging
+     * into portable compiled code or the interpreter.
+     */
+    private long entryPointFromQuickCompiledCode;
+
+    /**
+     * Pointer to a data structure created by the compiler and used by the garbage collector to
+     * determine which registers hold live references to objects within the heap.
+     */
+    private long gcMap;
+
+    /* Quick compiler meta-data. TODO: merge and place in native heap. */
+
+    /**
+     * Pointer to a data structure created by the quick compiler to map between dex PCs and
+     * native PCs, and vice-versa.
+     */
+    private long quickMappingTable;
+
+    /**
+     * Pointer to a data structure used by the quick compiler to map between dalvik and machine
+     * registers.
+     */
+    private long quickVmapTable;
+
+    /* End of quick compiler meta-data. */
+
+    /** Bits encoding access (e.g. public, private) as well as other runtime specific flags */
+    private int accessFlags;
+
+    /* Dex file fields. The defining dex file is available via declaringClass.dexCache */
+
+    /** The offset of the code item associated with this method within its defining dex file */
+    private int dexCodeItemOffset;
+
+    /** The method index of this method within its defining dex file */
+    private int dexMethodIndex;
+
+    /* End of dex file fields. */
+
+    /**
+     * Entry within a dispatch table for this method. For static/direct methods the index is
+     * into the declaringClass.directMethods, for virtual methods the vtable and for
+     * interface methods the ifTable.
+     */
+    private int methodIndex;
+
+    /* Quick compiler meta-data. TODO: merge and place in native heap. */
+
+    /** Bit map of spilled machine registers. */
+    private int quickCoreSpillMask;
+
+    /** Bit map of spilled floating point machine registers. */
+    private int quickFpSpillMask;
+
+    /** Fixed frame size for this method when executed. */
+    private int quickFrameSizeInBytes;
+
+    /* End of quick compiler meta-data. */
+
+    /** Only created by ART directly. */
     private ArtMethod() {}
 
     Class getDeclaringClass() {
@@ -85,7 +146,7 @@ public final class ArtMethod {
     }
 
     int getDexMethodIndex() {
-        return methodDexIndex;
+        return dexMethodIndex;
     }
 
     public static String getMethodName(ArtMethod artMethod) {
@@ -126,7 +187,7 @@ public final class ArtMethod {
 
     Class<?>[] getParameterTypes() {
         Dex dex = getDeclaringClass().getDex();
-        short[] types = dex.parameterTypeIndicesFromMethodIndex(methodDexIndex);
+        short[] types = dex.parameterTypeIndicesFromMethodIndex(dexMethodIndex);
         if (types.length == 0) {
             return EmptyArray.CLASS;
         }
@@ -140,7 +201,7 @@ public final class ArtMethod {
 
     Class<?> getReturnType() {
         Dex dex = declaringClass.getDex();
-        int returnTypeIndex = dex.returnTypeIndexFromMethodIndex(methodDexIndex);
+        int returnTypeIndex = dex.returnTypeIndexFromMethodIndex(dexMethodIndex);
         // Note, in the case of a Proxy the dex cache types are equal.
         return getDexCacheType(dex, returnTypeIndex);
     }
@@ -152,7 +213,7 @@ public final class ArtMethod {
      */
     int compareParameters(Class<?>[] params) {
         Dex dex = getDeclaringClass().getDex();
-        short[] types = dex.parameterTypeIndicesFromMethodIndex(methodDexIndex);
+        short[] types = dex.parameterTypeIndicesFromMethodIndex(dexMethodIndex);
         int length = Math.min(types.length, params.length);
         for (int i = 0; i < length; i++) {
             Class<?> aType = getDexCacheType(dex, types[i]);
@@ -168,7 +229,7 @@ public final class ArtMethod {
     }
 
     Annotation[][] getParameterAnnotations() {
-        return AnnotationAccess.getParameterAnnotations(declaringClass, methodDexIndex);
+        return AnnotationAccess.getParameterAnnotations(declaringClass, dexMethodIndex);
     }
 
     /**
@@ -210,7 +271,7 @@ public final class ArtMethod {
             // Proxy method's declaring class' dex cache refers to that of Proxy. The local cache in
             // Method refers to the original interface's dex cache and is ensured to be resolved by
             // proxy generation.
-            return dexCacheResolvedMethods[methodDexIndex];
+            return dexCacheResolvedMethods[dexMethodIndex];
         }
         return this;
     }
