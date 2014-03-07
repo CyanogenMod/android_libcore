@@ -279,5 +279,5 @@ public final class VMRuntime {
     /**
      * Register application info
      */
-    public static native void registerAppInfo(String appDir, String processName);
+    public static native void registerAppInfo(String appDir, String processName, String pkgname);
 }
