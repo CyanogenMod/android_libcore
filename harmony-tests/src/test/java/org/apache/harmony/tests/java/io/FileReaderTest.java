@@ -87,13 +87,8 @@ public class FileReaderTest extends TestCase {
      * Sets up the fixture, for example, open a network connection. This method
      * is called before a test is executed.
      */
-    protected void setUp() {
-        f = new File(System.getProperty("user.home"), "reader.tst");
-        if (f.exists()) {
-            if (!f.delete()) {
-                fail("Unable to delete test file");
-            }
-        }
+    protected void setUp() throws IOException {
+        f = File.createTempFile("FileReaderTest", "tst");
     }
 
     /**

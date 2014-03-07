@@ -36,9 +36,7 @@ import java.util.zip.ZipFile;
 
 public class JarURLConnectionTest extends junit.framework.TestCase {
 
-    JarURLConnection juc;
-
-    URLConnection uc;
+    private JarURLConnection juc;
 
     private URL copyAndOpenResourceStream(String jarFile, String inFile)
             throws MalformedURLException {
@@ -209,18 +207,16 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
      */
     public void test_getInputStream_DeleteJarFileUsingURLConnection()
             throws Exception {
-        String jarFileName = "file.jar";
-        String entry = "text.txt";
-        File file = new File(jarFileName);
-        FileOutputStream jarFile = new FileOutputStream(jarFileName);
+        File file = File.createTempFile("JarUrlConnectionTest", "jar");
+        FileOutputStream jarFile = new FileOutputStream(file);
         JarOutputStream out = new JarOutputStream(new BufferedOutputStream(
                 jarFile));
-        JarEntry jarEntry = new JarEntry(entry);
+        JarEntry jarEntry = new JarEntry("entry.txt");
         out.putNextEntry(jarEntry);
         out.write(new byte[] { 'a', 'b', 'c' });
         out.close();
 
-        URL url = new URL("jar:file:" + jarFileName + "!/" + entry);
+        URL url = new URL("jar:file:" + file.getAbsolutePath() + "!/entry.txt");
         URLConnection conn = url.openConnection();
         conn.setUseCaches(false);
         InputStream is = conn.getInputStream();
@@ -312,11 +308,5 @@ public class JarURLConnectionTest extends junit.framework.TestCase {
             InputStream is = url.openStream();
             is.close();
         }
-    }
-
-    protected void setUp() {
-    }
-
-    protected void tearDown() {
     }
 }

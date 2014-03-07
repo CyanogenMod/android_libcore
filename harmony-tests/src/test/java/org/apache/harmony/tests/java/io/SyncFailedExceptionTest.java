@@ -31,8 +31,8 @@ public class SyncFailedExceptionTest extends junit.framework.TestCase {
         // Test for method java.io.SyncFailedException(java.lang.String)
         File f = null;
         try {
-            f = new File(System.getProperty("user.dir"), "synfail.tst");
-            FileOutputStream fos = new FileOutputStream(f.getPath());
+            f = File.createTempFile("SyncFailedExceptionTest", "tst");
+            FileOutputStream fos = new FileOutputStream(f.getAbsolutePath());
             FileDescriptor fd = fos.getFD();
             fos.close();
             fd.sync();
@@ -42,19 +42,5 @@ public class SyncFailedExceptionTest extends junit.framework.TestCase {
         }
 
         fail("Failed to generate expected Exception");
-    }
-
-    /**
-     * Sets up the fixture, for example, open a network connection. This method
-     * is called before a test is executed.
-     */
-    protected void setUp() {
-    }
-
-    /**
-     * Tears down the fixture, for example, close a network connection. This
-     * method is called after a test is executed.
-     */
-    protected void tearDown() {
     }
 }
