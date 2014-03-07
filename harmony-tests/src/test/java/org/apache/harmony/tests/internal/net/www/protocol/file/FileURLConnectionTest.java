@@ -76,7 +76,10 @@ public class FileURLConnectionTest extends TestCase {
         conn = new FileURLConnection(url);
         assertNotNull(conn.getInputStream());
         assertEquals(conn.getContentType(), conn.getHeaderField("content-type"));
-        assertEquals(Integer.toString(conn.getContentLength()), conn.getHeaderField("content-length"));
+        assertEquals(Integer.toString(conn.getContentLength()),
+                conn.getHeaderField("content-length"));
+        assertEquals(Long.toString(conn.getContentLengthLong()),
+                conn.getHeaderField("content-length"));
         assertEquals(conn.getHeaderField(0), conn.getHeaderField("content-type"));
         assertEquals(conn.getHeaderField(1), conn.getHeaderField("content-length"));
         assertEquals(conn.getHeaderField(2), conn.getHeaderField("last-modified"));
