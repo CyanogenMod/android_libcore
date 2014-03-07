@@ -21,10 +21,10 @@ import java.nio.ByteBuffer;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import org.apache.harmony.security.fortress.Engine;
-
 
 /**
  * {@code Signature} is an engine class which is capable of creating and
@@ -39,13 +39,13 @@ public abstract class Signature extends SignatureSpi {
     private static final String SERVICE = "Signature";
 
     // Used to access common engine functionality
-    private static Engine ENGINE = new Engine(SERVICE);
+    private static final Engine ENGINE = new Engine(SERVICE);
 
     // The provider
-    private Provider provider;
+    Provider provider;
 
     // The algorithm.
-    private String algorithm;
+    final String algorithm;
 
     /**
      * Constant that indicates that this {@code Signature} instance has not yet
@@ -101,16 +101,7 @@ public abstract class Signature extends SignatureSpi {
         if (algorithm == null) {
             throw new NullPointerException("algorithm == null");
         }
-        Engine.SpiAndProvider sap = ENGINE.getInstance(algorithm, null);
-        Object spi = sap.spi;
-        Provider provider = sap.provider;
-        if (spi instanceof Signature) {
-            Signature result = (Signature) spi;
-            result.algorithm = algorithm;
-            result.provider = provider;
-            return result;
-        }
-        return new SignatureImpl((SignatureSpi) spi, provider, algorithm);
+        return getSignature(algorithm, null);
     }
 
     /**
@@ -143,7 +134,7 @@ public abstract class Signature extends SignatureSpi {
         if (p == null) {
             throw new NoSuchProviderException(provider);
         }
-        return getSignatureInstance(algorithm, p);
+        return getSignature(algorithm, p);
     }
 
     /**
@@ -171,19 +162,64 @@ public abstract class Signature extends SignatureSpi {
         if (provider == null) {
             throw new IllegalArgumentException("provider == null");
         }
-        return getSignatureInstance(algorithm, provider);
+        return getSignature(algorithm, provider);
     }
 
-    private static Signature getSignatureInstance(String algorithm,
-            Provider provider) throws NoSuchAlgorithmException {
-        Object spi = ENGINE.getInstance(algorithm, provider, null);
-        if (spi instanceof Signature) {
-            Signature result = (Signature) spi;
-            result.algorithm = algorithm;
-            result.provider = provider;
-            return result;
+    private static Signature getSignature(String algorithm, Provider provider)
+            throws NoSuchAlgorithmException {
+        if (algorithm == null || algorithm.isEmpty()) {
+            throw new NoSuchAlgorithmException("Unknown algorithm: " + algorithm);
         }
-        return new SignatureImpl((SignatureSpi) spi, provider, algorithm);
+
+        if (tryAlgorithm(null, provider, algorithm) == null) {
+            if (provider == null) {
+                throw new NoSuchAlgorithmException("No provider found for " + algorithm);
+            } else {
+                throw new NoSuchAlgorithmException("Provider " + provider.getName()
+                        + " does not provide " + algorithm);
+            }
+        }
+        return new SignatureImpl(algorithm, provider);
+    }
+
+    private static Engine.SpiAndProvider tryAlgorithm(Key key, Provider provider, String algorithm) {
+        if (provider != null) {
+            Provider.Service service = provider.getService(SERVICE, algorithm);
+            if (service == null) {
+                return null;
+            }
+            return tryAlgorithmWithProvider(key, service);
+        }
+        ArrayList<Provider.Service> services = ENGINE.getServices(algorithm);
+        if (services == null) {
+            return null;
+        }
+        for (Provider.Service service : services) {
+            Engine.SpiAndProvider sap = tryAlgorithmWithProvider(key, service);
+            if (sap != null) {
+                return sap;
+            }
+        }
+        return null;
+    }
+
+    private static Engine.SpiAndProvider tryAlgorithmWithProvider(Key key, Provider.Service service) {
+        try {
+            if (key != null && !service.supportsParameter(key)) {
+                return null;
+            }
+
+            Engine.SpiAndProvider sap = ENGINE.getInstance(service, null);
+            if (sap.spi == null || sap.provider == null) {
+                return null;
+            }
+            if (!(sap.spi instanceof SignatureSpi)) {
+                return null;
+            }
+            return sap;
+        } catch (NoSuchAlgorithmException ignored) {
+        }
+        return null;
     }
 
     /**
@@ -192,7 +228,15 @@ public abstract class Signature extends SignatureSpi {
      * @return the provider associated with this {@code Signature}.
      */
     public final Provider getProvider() {
+        ensureProviderChosen();
         return provider;
+    }
+
+    /**
+     * This makes sure the provider is chosen since Signature is abstract and
+     * getProvider is final but we need to support late binding.
+     */
+    void ensureProviderChosen() {
     }
 
     /**
@@ -238,10 +282,10 @@ public abstract class Signature extends SignatureSpi {
     public final void initVerify(Certificate certificate)
             throws InvalidKeyException {
         if (certificate instanceof X509Certificate) {
-            Set ce = ((X509Certificate) certificate).getCriticalExtensionOIDs();
+            Set<String> ce = ((X509Certificate) certificate).getCriticalExtensionOIDs();
             boolean critical = false;
             if (ce != null && !ce.isEmpty()) {
-                for (Iterator i = ce.iterator(); i.hasNext();) {
+                for (Iterator<String> i = ce.iterator(); i.hasNext();) {
                     if ("2.5.29.15".equals(i.next())) {
                         //KeyUsage OID = 2.5.29.15
                         critical = true;
@@ -584,79 +628,114 @@ public abstract class Signature extends SignatureSpi {
     }
 
     /**
-     *
      * Internal Signature implementation
-     *
      */
     private static class SignatureImpl extends Signature {
 
-        private final SignatureSpi spiImpl;
+        /**
+         * Lock held while the SPI is initializing.
+         */
+        private final Object initLock = new Object();
 
-        public SignatureImpl(SignatureSpi signatureSpi, Provider provider,
-                String algorithm) {
+        private SignatureSpi spiImpl;
+
+        public SignatureImpl(String algorithm, Provider provider) {
             super(algorithm);
             super.provider = provider;
-            spiImpl = signatureSpi;
+        }
+
+        private SignatureImpl(String algorithm, Provider provider, SignatureSpi spi) {
+            this(algorithm, provider);
+            spiImpl = spi;
+        }
+
+        @Override
+        void ensureProviderChosen() {
+            getSpi(null);
         }
 
         @Override
         protected byte[] engineSign() throws SignatureException {
-            return spiImpl.engineSign();
+            return getSpi().engineSign();
         }
 
         @Override
         protected void engineUpdate(byte arg0) throws SignatureException {
-            spiImpl.engineUpdate(arg0);
+            getSpi().engineUpdate(arg0);
         }
 
         @Override
         protected boolean engineVerify(byte[] arg0) throws SignatureException {
-            return spiImpl.engineVerify(arg0);
+            return getSpi().engineVerify(arg0);
         }
 
         @Override
-        protected void engineUpdate(byte[] arg0, int arg1, int arg2)
-                throws SignatureException {
-            spiImpl.engineUpdate(arg0, arg1, arg2);
+        protected void engineUpdate(byte[] arg0, int arg1, int arg2) throws SignatureException {
+            getSpi().engineUpdate(arg0, arg1, arg2);
         }
 
         @Override
-        protected void engineInitSign(PrivateKey arg0)
-                throws InvalidKeyException {
-            spiImpl.engineInitSign(arg0);
+        protected void engineInitSign(PrivateKey arg0) throws InvalidKeyException {
+            getSpi(arg0).engineInitSign(arg0);
         }
 
         @Override
-        protected void engineInitVerify(PublicKey arg0)
-                throws InvalidKeyException {
-            spiImpl.engineInitVerify(arg0);
+        protected void engineInitVerify(PublicKey arg0) throws InvalidKeyException {
+            getSpi(arg0).engineInitVerify(arg0);
         }
 
         @Override
-        protected Object engineGetParameter(String arg0)
-                throws InvalidParameterException {
-            return spiImpl.engineGetParameter(arg0);
+        protected Object engineGetParameter(String arg0) throws InvalidParameterException {
+            return getSpi().engineGetParameter(arg0);
         }
 
         @Override
         protected void engineSetParameter(String arg0, Object arg1)
                 throws InvalidParameterException {
-            spiImpl.engineSetParameter(arg0, arg1);
+            getSpi().engineSetParameter(arg0, arg1);
         }
 
         @Override
         protected void engineSetParameter(AlgorithmParameterSpec arg0)
                 throws InvalidAlgorithmParameterException {
-            spiImpl.engineSetParameter(arg0);
+            getSpi().engineSetParameter(arg0);
         }
 
         @Override
         public Object clone() throws CloneNotSupportedException {
             if (spiImpl instanceof Cloneable) {
                 SignatureSpi spi = (SignatureSpi) spiImpl.clone();
-                return new SignatureImpl(spi, getProvider(), getAlgorithm());
+                return new SignatureImpl(getAlgorithm(), getProvider(), spiImpl);
             }
             throw new CloneNotSupportedException();
+        }
+
+        /**
+         * Makes sure a CipherSpi that matches this type is selected.
+         */
+        private SignatureSpi getSpi(Key key) {
+            synchronized (initLock) {
+                if (spiImpl != null) {
+                    return spiImpl;
+                }
+
+                final Engine.SpiAndProvider sap = tryAlgorithm(key, provider, algorithm);
+                if (sap == null) {
+                    throw new ProviderException("No provider for " + getAlgorithm());
+                }
+
+                spiImpl = (SignatureSpi) sap.spi;
+                provider = sap.provider;
+
+                return spiImpl;
+            }
+        }
+
+        /**
+         * Convenience call when the Key is not available.
+         */
+        private SignatureSpi getSpi() {
+            return getSpi(null);
         }
     }
 }
