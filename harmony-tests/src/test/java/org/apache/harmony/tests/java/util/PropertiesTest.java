@@ -17,7 +17,6 @@
 
 package org.apache.harmony.tests.java.util;
 
-import tests.support.resource.Support_Resources;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,10 +34,10 @@ import java.util.HashSet;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
+import tests.support.resource.Support_Resources;
 
 public class PropertiesTest extends junit.framework.TestCase {
 
@@ -88,8 +87,8 @@ public class PropertiesTest extends junit.framework.TestCase {
         while (propertyNames.hasMoreElements()) {
             propertyName = (String) propertyNames.nextElement();
             assertEquals("failed to construct correct properties",
-                    systemProperties.get(propertyName), properties
-                    .getProperty(propertyName));
+                    systemProperties.getProperty(propertyName),
+                    properties.getProperty(propertyName));
         }
     }
 
