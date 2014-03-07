@@ -637,11 +637,14 @@ public abstract class Signature extends SignatureSpi {
          */
         private final Object initLock = new Object();
 
+        // The provider specified when creating this instance.
+        private final Provider specifiedProvider;
+
         private SignatureSpi spiImpl;
 
         public SignatureImpl(String algorithm, Provider provider) {
             super(algorithm);
-            super.provider = provider;
+            this.specifiedProvider = provider;
         }
 
         private SignatureImpl(String algorithm, Provider provider, SignatureSpi spi) {
@@ -715,11 +718,11 @@ public abstract class Signature extends SignatureSpi {
          */
         private SignatureSpi getSpi(Key key) {
             synchronized (initLock) {
-                if (spiImpl != null) {
+                if (spiImpl != null && key == null) {
                     return spiImpl;
                 }
 
-                final Engine.SpiAndProvider sap = tryAlgorithm(key, provider, algorithm);
+                final Engine.SpiAndProvider sap = tryAlgorithm(key, specifiedProvider, algorithm);
                 if (sap == null) {
                     throw new ProviderException("No provider for " + getAlgorithm());
                 }

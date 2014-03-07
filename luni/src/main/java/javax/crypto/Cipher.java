@@ -129,6 +129,11 @@ public class Cipher {
     private Provider provider;
 
     /**
+     * The provider specified when instance created.
+     */
+    private final Provider specifiedProvider;
+
+    /**
      * The SPI implementation.
      */
     private CipherSpi spiImpl;
@@ -170,7 +175,7 @@ public class Cipher {
         if (!(cipherSpi instanceof NullCipherSpi) && provider == null) {
             throw new NullPointerException("provider == null");
         }
-        this.provider = provider;
+        this.specifiedProvider = provider;
         this.spiImpl = cipherSpi;
         this.transformation = transformation;
         this.transformParts = null;
@@ -179,7 +184,7 @@ public class Cipher {
     private Cipher(String transformation, String[] transformParts, Provider provider) {
         this.transformation = transformation;
         this.transformParts = transformParts;
-        this.provider = provider;
+        this.specifiedProvider = provider;
     }
 
 
@@ -332,11 +337,12 @@ public class Cipher {
      */
     private CipherSpi getSpi(Key key) {
         synchronized (initLock) {
-            if (spiImpl != null) {
+            if (spiImpl != null && key == null) {
                 return spiImpl;
             }
 
-            final Engine.SpiAndProvider sap = tryCombinations(key, provider, transformParts);
+            final Engine.SpiAndProvider sap = tryCombinations(key, specifiedProvider,
+                    transformParts);
             if (sap == null) {
                 throw new ProviderException("No provider for " + transformation);
             }
