@@ -234,6 +234,16 @@ public class HttpCookieTest extends TestCase {
         assertFalse(cookie.getSecure());
     }
 
+    public void test_Is_SetHttpOnly() {
+        HttpCookie cookie = new HttpCookie("testName", "value");
+        assertFalse(cookie.isHttpOnly());
+
+        cookie.setHttpOnly(true);
+        assertTrue(cookie.isHttpOnly());
+        cookie.setHttpOnly(false);
+        assertFalse(cookie.isHttpOnly());
+    }
+
     /**
      * java.net.HttpCookie#getPath(), setPath(String)
      * @since 1.6
@@ -793,6 +803,32 @@ public class HttpCookieTest extends TestCase {
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }
+    }
+
+    public void test_Parse_httpOnly() {
+        // Default is !httpOnly.
+        List<HttpCookie> list = HttpCookie.parse("Set-Cookie: SID=31d4d96e407aad42");
+        HttpCookie cookie = list.get(0);
+        assertFalse(cookie.isHttpOnly());
+
+        // Well formed, simple.
+        list = HttpCookie.parse("Set-Cookie: SID=31d4d96e407aad42; HttpOnly");
+        cookie = list.get(0);
+        assertTrue(cookie.isHttpOnly());
+
+        // Well formed, other attributes present.
+        list = HttpCookie.parse("Set-Cookie: SID=31d4d96e407aad42; Path=/; Secure; HttpOnly");
+        cookie = list.get(0);
+        assertTrue(cookie.isHttpOnly());
+        assertTrue(cookie.getSecure());
+        assertEquals("/", cookie.getPath());
+
+        // Mangled spacing, casing and attributes that have an (ignored) value.
+        list = HttpCookie.parse("Set-Cookie:SID=31d4d96e407aad42;Path=/;secure=false;httponly=false");
+        cookie = list.get(0);
+        assertTrue(cookie.isHttpOnly());
+        assertTrue(cookie.getSecure());
+        assertEquals("/", cookie.getPath());
     }
 
     /**
