@@ -140,7 +140,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         return socket;
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     synchronized public final SocketChannel bind(SocketAddress local) throws IOException {
         if (!isOpen()) {
@@ -190,7 +189,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         }
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     synchronized public SocketAddress getLocalAddress() throws IOException {
         if (!isOpen()) {
@@ -199,20 +197,17 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         return isBound ? new InetSocketAddress(localAddress, localPort) : null;
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public <T> T getOption(SocketOption<T> option) throws IOException {
         return NioUtils.getSocketOption(this, StandardSocketOptions.SOCKET_OPTIONS, option);
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public <T> SocketChannel setOption(SocketOption<T> option, T value) throws IOException {
         NioUtils.setSocketOption(this, StandardSocketOptions.SOCKET_OPTIONS, option, value);
         return this;
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public Set<SocketOption<?>> supportedOptions() {
         return StandardSocketOptions.SOCKET_OPTIONS;

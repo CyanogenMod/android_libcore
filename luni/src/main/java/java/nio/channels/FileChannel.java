@@ -76,9 +76,8 @@ import java.nio.channels.spi.AbstractInterruptibleChannel;
  * stream and vice versa; this includes modifications to the file position,
  * content, size, etc.
  */
-// TODO: Remove ByteChannel when SeekableByteChannel is unhidden.
 public abstract class FileChannel extends AbstractInterruptibleChannel
-        implements GatheringByteChannel, ScatteringByteChannel, ByteChannel, SeekableByteChannel {
+        implements GatheringByteChannel, ScatteringByteChannel, SeekableByteChannel {
 
     /**
      * {@code MapMode} defines file mapping mode constants.

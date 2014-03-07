@@ -26,7 +26,6 @@ import java.util.Set;
  * A common interface for channels that are backed by network sockets.
  *
  * @since 1.7
- * @hide Until ready for a public API change
  */
 public interface NetworkChannel extends AutoCloseable, Channel, Closeable {
 
@@ -46,7 +45,6 @@ public interface NetworkChannel extends AutoCloseable, Channel, Closeable {
    *     if the channel is already bound.
    * @throws IOException
    *     if another I/O error occurs.
-   * @hide Until ready for a public API change
    */
   NetworkChannel bind(SocketAddress local) throws IOException;
 
@@ -64,7 +62,6 @@ public interface NetworkChannel extends AutoCloseable, Channel, Closeable {
    *     if the channel is closed.
    * @throws IOException
    *     if another I/O error occurs.
-   * @hide Until ready for a public API change
    */
   SocketAddress getLocalAddress() throws IOException;
 
@@ -77,7 +74,6 @@ public interface NetworkChannel extends AutoCloseable, Channel, Closeable {
    *     if the socket is closed
    * @throws IOException
    *     if the value cannot be read.
-   * @hide Until ready for a public API change
    * @see java.net.StandardSocketOptions
    */
   <T> T getOption(SocketOption<T> option) throws IOException;
@@ -94,15 +90,12 @@ public interface NetworkChannel extends AutoCloseable, Channel, Closeable {
    *     if the socket is closed
    * @throws IOException
    *     if the value cannot be written.
-   * @hide Until ready for a public API change
    * @see java.net.StandardSocketOptions
    */
   <T> NetworkChannel setOption(SocketOption<T> option, T value) throws IOException;
 
   /**
    * Returns the set of socket options supported by this channel.
-   *
-   * @hide Until ready for a public API change
    */
   Set<SocketOption<?>> supportedOptions();
 }
