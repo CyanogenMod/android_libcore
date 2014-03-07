@@ -441,22 +441,34 @@ public final class StandardNames extends Assert {
             // Needed by our OpenSSL provider
             provide("Cipher", "AES/CBC/NOPADDING");
             provide("Cipher", "AES/CBC/PKCS5PADDING");
+            provide("Cipher", "AES/CBC/PKCS7PADDING");
             provide("Cipher", "AES/CFB/NOPADDING");
             provide("Cipher", "AES/CFB/PKCS5PADDING");
+            provide("Cipher", "AES/CFB/PKCS7PADDING");
             provide("Cipher", "AES/CTR/NOPADDING");
             provide("Cipher", "AES/CTR/PKCS5PADDING");
+            provide("Cipher", "AES/CTR/PKCS7PADDING");
             provide("Cipher", "AES/ECB/NOPADDING");
             provide("Cipher", "AES/ECB/PKCS5PADDING");
+            provide("Cipher", "AES/ECB/PKCS7PADDING");
             provide("Cipher", "AES/OFB/NOPADDING");
             provide("Cipher", "AES/OFB/PKCS5PADDING");
+            provide("Cipher", "AES/OFB/PKCS7PADDING");
             provide("Cipher", "DESEDE/CBC/NOPADDING");
             provide("Cipher", "DESEDE/CBC/PKCS5PADDING");
+            provide("Cipher", "DESEDE/CBC/PKCS7PADDING");
             provide("Cipher", "DESEDE/CFB/NOPADDING");
             provide("Cipher", "DESEDE/CFB/PKCS5PADDING");
+            provide("Cipher", "DESEDE/CFB/PKCS7PADDING");
             provide("Cipher", "DESEDE/ECB/NOPADDING");
             provide("Cipher", "DESEDE/ECB/PKCS5PADDING");
+            provide("Cipher", "DESEDE/ECB/PKCS7PADDING");
             provide("Cipher", "DESEDE/OFB/NOPADDING");
             provide("Cipher", "DESEDE/OFB/PKCS5PADDING");
+            provide("Cipher", "DESEDE/OFB/PKCS7PADDING");
+
+            // Provided by our OpenSSL provider
+            provideCipherPaddings("AES", new String[] { "PKCS7Padding" });
 
             // removed LDAP
             unprovide("CertStore", "LDAP");

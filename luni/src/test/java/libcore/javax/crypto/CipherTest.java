@@ -97,12 +97,16 @@ public final class CipherTest extends TestCase {
                 return false;
             }
         }
-        // stream modes CFB, CTR, CTS, OFB with PKCS5Padding don't really make sense
+        // stream modes CFB, CTR, CTS, OFB with PKCS5Padding or PKCS7Padding don't really make sense
         if (!provider.equals("AndroidOpenSSL") &&
             (algorithm.equals("AES/CFB/PKCS5PADDING")
+             || algorithm.equals("AES/CFB/PKCS7PADDING")
              || algorithm.equals("AES/CTR/PKCS5PADDING")
+             || algorithm.equals("AES/CTR/PKCS7PADDING")
              || algorithm.equals("AES/CTS/PKCS5PADDING")
-             || algorithm.equals("AES/OFB/PKCS5PADDING"))) {
+             || algorithm.equals("AES/CTS/PKCS7PADDING")
+             || algorithm.equals("AES/OFB/PKCS5PADDING")
+             || algorithm.equals("AES/OFB/PKCS7PADDING"))) {
             return false;
         }
         return true;
@@ -276,16 +280,22 @@ public final class CipherTest extends TestCase {
     static {
         setExpectedBlockSize("AES", 16);
         setExpectedBlockSize("AES/CBC/PKCS5PADDING", 16);
+        setExpectedBlockSize("AES/CBC/PKCS7PADDING", 16);
         setExpectedBlockSize("AES/CBC/NOPADDING", 16);
         setExpectedBlockSize("AES/CFB/PKCS5PADDING", 16);
+        setExpectedBlockSize("AES/CFB/PKCS7PADDING", 16);
         setExpectedBlockSize("AES/CFB/NOPADDING", 16);
         setExpectedBlockSize("AES/CTR/PKCS5PADDING", 16);
+        setExpectedBlockSize("AES/CTR/PKCS7PADDING", 16);
         setExpectedBlockSize("AES/CTR/NOPADDING", 16);
         setExpectedBlockSize("AES/CTS/PKCS5PADDING", 16);
+        setExpectedBlockSize("AES/CTS/PKCS7PADDING", 16);
         setExpectedBlockSize("AES/CTS/NOPADDING", 16);
         setExpectedBlockSize("AES/ECB/PKCS5PADDING", 16);
+        setExpectedBlockSize("AES/ECB/PKCS7PADDING", 16);
         setExpectedBlockSize("AES/ECB/NOPADDING", 16);
         setExpectedBlockSize("AES/OFB/PKCS5PADDING", 16);
+        setExpectedBlockSize("AES/OFB/PKCS7PADDING", 16);
         setExpectedBlockSize("AES/OFB/NOPADDING", 16);
         setExpectedBlockSize("GCM", 16);
         setExpectedBlockSize("PBEWITHMD5AND128BITAES-CBC-OPENSSL", 16);
@@ -317,16 +327,22 @@ public final class CipherTest extends TestCase {
 
         setExpectedBlockSize("DESEDE", 8);
         setExpectedBlockSize("DESEDE/CBC/PKCS5PADDING", 8);
+        setExpectedBlockSize("DESEDE/CBC/PKCS7PADDING", 8);
         setExpectedBlockSize("DESEDE/CBC/NOPADDING", 8);
         setExpectedBlockSize("DESEDE/CFB/PKCS5PADDING", 8);
+        setExpectedBlockSize("DESEDE/CFB/PKCS7PADDING", 8);
         setExpectedBlockSize("DESEDE/CFB/NOPADDING", 8);
         setExpectedBlockSize("DESEDE/CTR/PKCS5PADDING", 8);
+        setExpectedBlockSize("DESEDE/CTR/PKCS7PADDING", 8);
         setExpectedBlockSize("DESEDE/CTR/NOPADDING", 8);
         setExpectedBlockSize("DESEDE/CTS/PKCS5PADDING", 8);
+        setExpectedBlockSize("DESEDE/CTS/PKCS7PADDING", 8);
         setExpectedBlockSize("DESEDE/CTS/NOPADDING", 8);
         setExpectedBlockSize("DESEDE/ECB/PKCS5PADDING", 8);
+        setExpectedBlockSize("DESEDE/ECB/PKCS7PADDING", 8);
         setExpectedBlockSize("DESEDE/ECB/NOPADDING", 8);
         setExpectedBlockSize("DESEDE/OFB/PKCS5PADDING", 8);
+        setExpectedBlockSize("DESEDE/OFB/PKCS7PADDING", 8);
         setExpectedBlockSize("DESEDE/OFB/NOPADDING", 8);
         setExpectedBlockSize("PBEWITHSHAAND2-KEYTRIPLEDES-CBC", 8);
         setExpectedBlockSize("PBEWITHSHAAND3-KEYTRIPLEDES-CBC", 8);
@@ -427,11 +443,17 @@ public final class CipherTest extends TestCase {
 
         setExpectedOutputSize("AES", Cipher.ENCRYPT_MODE, 16);
         setExpectedOutputSize("AES/CBC/PKCS5PADDING", Cipher.ENCRYPT_MODE, 16);
+        setExpectedOutputSize("AES/CBC/PKCS7PADDING", Cipher.ENCRYPT_MODE, 16);
         setExpectedOutputSize("AES/CFB/PKCS5PADDING", Cipher.ENCRYPT_MODE, 16);
+        setExpectedOutputSize("AES/CFB/PKCS7PADDING", Cipher.ENCRYPT_MODE, 16);
         setExpectedOutputSize("AES/CTR/PKCS5PADDING", Cipher.ENCRYPT_MODE, 16);
+        setExpectedOutputSize("AES/CTR/PKCS7PADDING", Cipher.ENCRYPT_MODE, 16);
         setExpectedOutputSize("AES/CTS/PKCS5PADDING", Cipher.ENCRYPT_MODE, 16);
+        setExpectedOutputSize("AES/CTS/PKCS7PADDING", Cipher.ENCRYPT_MODE, 16);
         setExpectedOutputSize("AES/ECB/PKCS5PADDING", Cipher.ENCRYPT_MODE, 16);
+        setExpectedOutputSize("AES/ECB/PKCS7PADDING", Cipher.ENCRYPT_MODE, 16);
         setExpectedOutputSize("AES/OFB/PKCS5PADDING", Cipher.ENCRYPT_MODE, 16);
+        setExpectedOutputSize("AES/OFB/PKCS7PADDING", Cipher.ENCRYPT_MODE, 16);
         setExpectedOutputSize("GCM", Cipher.ENCRYPT_MODE, GCM_TAG_SIZE_BITS / 8);
         setExpectedOutputSize("PBEWITHMD5AND128BITAES-CBC-OPENSSL", 16);
         setExpectedOutputSize("PBEWITHMD5AND192BITAES-CBC-OPENSSL", 16);
@@ -444,17 +466,27 @@ public final class CipherTest extends TestCase {
         setExpectedOutputSize("PBEWITHSHAAND256BITAES-CBC-BC", 16);
         // AndroidOpenSSL returns zero for the non-block ciphers
         setExpectedOutputSize("AES/CFB/PKCS5PADDING", Cipher.ENCRYPT_MODE, "AndroidOpenSSL", 0);
+        setExpectedOutputSize("AES/CFB/PKCS7PADDING", Cipher.ENCRYPT_MODE, "AndroidOpenSSL", 0);
         setExpectedOutputSize("AES/CTR/PKCS5PADDING", Cipher.ENCRYPT_MODE, "AndroidOpenSSL", 0);
+        setExpectedOutputSize("AES/CTR/PKCS7PADDING", Cipher.ENCRYPT_MODE, "AndroidOpenSSL", 0);
         setExpectedOutputSize("AES/CTS/PKCS5PADDING", Cipher.ENCRYPT_MODE, "AndroidOpenSSL", 0);
+        setExpectedOutputSize("AES/CTS/PKCS7PADDING", Cipher.ENCRYPT_MODE, "AndroidOpenSSL", 0);
         setExpectedOutputSize("AES/OFB/PKCS5PADDING", Cipher.ENCRYPT_MODE, "AndroidOpenSSL", 0);
+        setExpectedOutputSize("AES/OFB/PKCS7PADDING", Cipher.ENCRYPT_MODE, "AndroidOpenSSL", 0);
 
         setExpectedOutputSize("AES", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("AES/CBC/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("AES/CBC/PKCS7PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("AES/CFB/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("AES/CFB/PKCS7PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("AES/CTR/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("AES/CTR/PKCS7PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("AES/CTS/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("AES/CTS/PKCS7PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("AES/ECB/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("AES/ECB/PKCS7PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("AES/OFB/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("AES/OFB/PKCS7PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("GCM", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("PBEWITHMD5AND128BITAES-CBC-OPENSSL", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("PBEWITHMD5AND192BITAES-CBC-OPENSSL", Cipher.DECRYPT_MODE, 0);
@@ -467,9 +499,13 @@ public final class CipherTest extends TestCase {
         setExpectedOutputSize("PBEWITHSHAAND256BITAES-CBC-BC", Cipher.DECRYPT_MODE, 0);
         // AndroidOpenSSL returns the block size for the block ciphers
         setExpectedOutputSize("AES/CBC/PKCS5PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 16);
+        setExpectedOutputSize("AES/CBC/PKCS7PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 16);
         setExpectedOutputSize("AES/ECB/PKCS5PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 16);
+        setExpectedOutputSize("AES/ECB/PKCS7PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 16);
         setExpectedOutputSize("DESEDE/CBC/PKCS5PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 8);
+        setExpectedOutputSize("DESEDE/CBC/PKCS7PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 8);
         setExpectedOutputSize("DESEDE/ECB/PKCS5PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 8);
+        setExpectedOutputSize("DESEDE/ECB/PKCS7PADDING", Cipher.DECRYPT_MODE, "AndroidOpenSSL", 8);
 
         if (StandardNames.IS_RI) {
             setExpectedOutputSize("AESWRAP", Cipher.WRAP_MODE, 8);
@@ -503,11 +539,17 @@ public final class CipherTest extends TestCase {
 
         setExpectedOutputSize("DESEDE", Cipher.ENCRYPT_MODE, 8);
         setExpectedOutputSize("DESEDE/CBC/PKCS5PADDING", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("DESEDE/CBC/PKCS7PADDING", Cipher.ENCRYPT_MODE, 8);
         setExpectedOutputSize("DESEDE/CFB/PKCS5PADDING", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("DESEDE/CFB/PKCS7PADDING", Cipher.ENCRYPT_MODE, 8);
         setExpectedOutputSize("DESEDE/CTR/PKCS5PADDING", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("DESEDE/CTR/PKCS7PADDING", Cipher.ENCRYPT_MODE, 8);
         setExpectedOutputSize("DESEDE/CTS/PKCS5PADDING", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("DESEDE/CTS/PKCS7PADDING", Cipher.ENCRYPT_MODE, 8);
         setExpectedOutputSize("DESEDE/ECB/PKCS5PADDING", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("DESEDE/ECB/PKCS7PADDING", Cipher.ENCRYPT_MODE, 8);
         setExpectedOutputSize("DESEDE/OFB/PKCS5PADDING", Cipher.ENCRYPT_MODE, 8);
+        setExpectedOutputSize("DESEDE/OFB/PKCS7PADDING", Cipher.ENCRYPT_MODE, 8);
         setExpectedOutputSize("PBEWITHSHAAND2-KEYTRIPLEDES-CBC", Cipher.ENCRYPT_MODE, 8);
         setExpectedOutputSize("PBEWITHSHAAND3-KEYTRIPLEDES-CBC", Cipher.ENCRYPT_MODE, 8);
         setExpectedOutputSize("PBEWITHMD5ANDTRIPLEDES", Cipher.ENCRYPT_MODE, 8);
@@ -515,11 +557,17 @@ public final class CipherTest extends TestCase {
 
         setExpectedOutputSize("DESEDE", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("DESEDE/CBC/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("DESEDE/CBC/PKCS7PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("DESEDE/CFB/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("DESEDE/CFB/PKCS7PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("DESEDE/CTR/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("DESEDE/CTR/PKCS7PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("DESEDE/CTS/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("DESEDE/CTS/PKCS7PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("DESEDE/ECB/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("DESEDE/ECB/PKCS7PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("DESEDE/OFB/PKCS5PADDING", Cipher.DECRYPT_MODE, 0);
+        setExpectedOutputSize("DESEDE/OFB/PKCS7PADDING", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("PBEWITHSHAAND2-KEYTRIPLEDES-CBC", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("PBEWITHSHAAND3-KEYTRIPLEDES-CBC", Cipher.DECRYPT_MODE, 0);
         setExpectedOutputSize("PBEWITHMD5ANDTRIPLEDES", Cipher.DECRYPT_MODE, 0);
@@ -708,6 +756,7 @@ public final class CipherTest extends TestCase {
         }
         if (algorithm.equals("AES/CBC/NOPADDING")
             || algorithm.equals("AES/CBC/PKCS5PADDING")
+            || algorithm.equals("AES/CBC/PKCS7PADDING")
             || algorithm.equals("AES/CFB/NOPADDING")
             || algorithm.equals("AES/CTR/NOPADDING")
             || algorithm.equals("AES/CTS/NOPADDING")
@@ -718,6 +767,7 @@ public final class CipherTest extends TestCase {
         }
         if (algorithm.equals("DESEDE/CBC/NOPADDING")
             || algorithm.equals("DESEDE/CBC/PKCS5PADDING")
+            || algorithm.equals("DESEDE/CBC/PKCS7PADDING")
             || algorithm.equals("DESEDE/CFB/NOPADDING")
             || algorithm.equals("DESEDE/CTR/NOPADDING")
             || algorithm.equals("DESEDE/CTS/NOPADDING")
@@ -986,7 +1036,8 @@ public final class CipherTest extends TestCase {
                      getExpectedBlockSize(algorithm, encryptMode, providerName), c.getBlockSize());
         assertEquals(cipherID + " getOutputSize(0) encryptMode",
                      getExpectedOutputSize(algorithm, encryptMode, providerName), c.getOutputSize(0));
-        if (algorithm.endsWith("/PKCS5PADDING") && isStreamMode(algorithm)) {
+        if ((algorithm.endsWith("/PKCS5PADDING") || algorithm.endsWith("/PKCS7PADDING"))
+                && isStreamMode(algorithm)) {
             assertEquals(getExpectedOutputSize(algorithm, encryptMode, providerName),
                     c.doFinal(new byte[1]).length);
         }
@@ -2334,7 +2385,7 @@ public final class CipherTest extends TestCase {
     };
 
     private static class CipherTestParam {
-        public final String mode;
+        public final String transformation;
 
         public final byte[] key;
 
@@ -2346,9 +2397,9 @@ public final class CipherTest extends TestCase {
 
         public final byte[] plaintextPadded;
 
-        public CipherTestParam(String mode, byte[] key, byte[] iv, byte[] plaintext,
+        public CipherTestParam(String transformation, byte[] key, byte[] iv, byte[] plaintext,
                 byte[] plaintextPadded, byte[] ciphertext) {
-            this.mode = mode;
+            this.transformation = transformation;
             this.key = key;
             this.iv = iv;
             this.plaintext = plaintext;
@@ -2359,13 +2410,24 @@ public final class CipherTest extends TestCase {
 
     private static List<CipherTestParam> CIPHER_TEST_PARAMS = new ArrayList<CipherTestParam>();
     static {
-        CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/ECB", AES_128_KEY,
+        CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/ECB/PKCS5Padding", AES_128_KEY,
+                null,
+                AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext,
+                AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext_Padded,
+                AES_128_ECB_PKCS5Padding_TestVector_1_Encrypted));
+        // PKCS#5 is assumed to be equivalent to PKCS#7 -- same test vectors are thus used for both.
+        CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/ECB/PKCS7Padding", AES_128_KEY,
                 null,
                 AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext,
                 AES_128_ECB_PKCS5Padding_TestVector_1_Plaintext_Padded,
                 AES_128_ECB_PKCS5Padding_TestVector_1_Encrypted));
         if (IS_UNLIMITED) {
-            CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/CBC", AES_256_KEY,
+            CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/CBC/PKCS5Padding", AES_256_KEY,
+                    AES_256_CBC_PKCS5Padding_TestVector_1_IV,
+                    AES_256_CBC_PKCS5Padding_TestVector_1_Plaintext,
+                    AES_256_CBC_PKCS5Padding_TestVector_1_Plaintext_Padded,
+                    AES_256_CBC_PKCS5Padding_TestVector_1_Ciphertext));
+            CIPHER_TEST_PARAMS.add(new CipherTestParam("AES/CBC/PKCS7Padding", AES_256_KEY,
                     AES_256_CBC_PKCS5Padding_TestVector_1_IV,
                     AES_256_CBC_PKCS5Padding_TestVector_1_Plaintext,
                     AES_256_CBC_PKCS5Padding_TestVector_1_Plaintext_Padded,
@@ -2386,7 +2448,7 @@ public final class CipherTest extends TestCase {
             try {
                 checkCipher(p, provider);
             } catch (Exception e) {
-                out.append("Error encountered checking " + p.mode + ", keySize="
+                out.append("Error encountered checking " + p.transformation + ", keySize="
                         + (p.key.length * 8)
                         + " with provider " + provider + "\n");
 
@@ -2401,7 +2463,7 @@ public final class CipherTest extends TestCase {
 
     private void checkCipher(CipherTestParam p, String provider) throws Exception {
         SecretKey key = new SecretKeySpec(p.key, "AES");
-        Cipher c = Cipher.getInstance(p.mode + "/PKCS5Padding", provider);
+        Cipher c = Cipher.getInstance(p.transformation, provider);
         AlgorithmParameterSpec spec = null;
         if (p.iv != null) {
             spec = new IvParameterSpec(p.iv);
@@ -2486,7 +2548,8 @@ public final class CipherTest extends TestCase {
                     Arrays.toString(Arrays.copyOfRange(actualPlaintext, 1, p.plaintext.length + 1)));
         }
 
-        Cipher cNoPad = Cipher.getInstance(p.mode + "/NoPadding", provider);
+        Cipher cNoPad = Cipher.getInstance(
+                getCipherTransformationWithNoPadding(p.transformation), provider);
         cNoPad.init(Cipher.DECRYPT_MODE, key, spec);
 
         final byte[] actualPlaintextPadded = cNoPad.doFinal(p.ciphertext);
@@ -2514,6 +2577,23 @@ public final class CipherTest extends TestCase {
                             + Arrays.toString(sk.getEncoded()) + " decryptedKey.getEncoded()="
                             + Arrays.toString(decryptedKey.getEncoded()), sk, decryptedKey);
         }
+    }
+
+    /**
+     * Gets the Cipher transformation with the same algorithm and mode as the provided one but
+     * which uses no padding.
+     */
+    private static String getCipherTransformationWithNoPadding(String transformation) {
+        // The transformation is assumed to be in the Algorithm/Mode/Padding format.
+        int paddingModeDelimiterIndex = transformation.lastIndexOf('/');
+        if (paddingModeDelimiterIndex == -1) {
+            fail("No padding mode delimiter: " + transformation);
+        }
+        String paddingMode = transformation.substring(paddingModeDelimiterIndex + 1);
+        if (!paddingMode.toLowerCase().endsWith("padding")) {
+            fail("No padding mode specified:" + transformation);
+        }
+        return transformation.substring(0, paddingModeDelimiterIndex) + "/NoPadding";
     }
 
     public void testCipher_updateAAD_BeforeInit_Failure() throws Exception {
@@ -2605,7 +2685,7 @@ public final class CipherTest extends TestCase {
             try {
                 checkCipher_ShortBlock_Failure(p, provider);
             } catch (Exception e) {
-                out.append("Error encountered checking " + p.mode + ", keySize="
+                out.append("Error encountered checking " + p.transformation + ", keySize="
                         + (p.key.length * 8)
                         + " with provider " + provider + "\n");
                 e.printStackTrace(out);
@@ -2619,7 +2699,8 @@ public final class CipherTest extends TestCase {
 
     private void checkCipher_ShortBlock_Failure(CipherTestParam p, String provider) throws Exception {
         SecretKey key = new SecretKeySpec(p.key, "AES");
-        Cipher c = Cipher.getInstance(p.mode + "/NoPadding", provider);
+        Cipher c = Cipher.getInstance(
+                getCipherTransformationWithNoPadding(p.transformation), provider);
         if (c.getBlockSize() == 0) {
             return;
         }

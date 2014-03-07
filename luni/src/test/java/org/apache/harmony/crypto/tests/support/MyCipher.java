@@ -52,7 +52,8 @@ public class MyCipher extends CipherSpi {
     @Override
     protected void engineSetPadding(String padding)
             throws NoSuchPaddingException {
-        if (!"PKCS5Padding".equals(padding)) {
+        if ((!"PKCS5Padding".equals(padding))
+                && (!"PKCS7Padding".equals(padding))) {
             throw new  NoSuchPaddingException(padding);
         }
     }
