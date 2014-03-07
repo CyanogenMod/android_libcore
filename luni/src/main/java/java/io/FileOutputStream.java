@@ -85,7 +85,7 @@ public class FileOutputStream extends OutputStream {
             throw new NullPointerException("file == null");
         }
         this.mode = O_WRONLY | O_CREAT | (append ? O_APPEND : O_TRUNC);
-        this.fd = IoBridge.open(file.getAbsolutePath(), mode);
+        this.fd = IoBridge.open(file.getPath(), mode);
         this.shouldClose = true;
         this.guard.open("close");
     }
