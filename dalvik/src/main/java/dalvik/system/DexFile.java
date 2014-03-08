@@ -313,4 +313,11 @@ public final class DexFile {
      */
     public static native boolean isDexOptNeeded(String fileName)
             throws FileNotFoundException, IOException;
+
+    /**
+     * @hide
+     **/
+    public static native boolean isDexOptNeededInternal(String fileName, String pkgname,
+            boolean defer)
+            throws FileNotFoundException, IOException;
 }
