@@ -119,7 +119,7 @@ class BreakIteratorAccessor {
   } \
   return reinterpret_cast<uintptr_t>(it)
 
-static jint NativeBreakIterator_cloneImpl(JNIEnv* env, jclass, jlong address) {
+static jlong NativeBreakIterator_cloneImpl(JNIEnv* env, jclass, jlong address) {
   BreakIteratorAccessor it(env, address);
   return reinterpret_cast<uintptr_t>(it->clone());
 }
