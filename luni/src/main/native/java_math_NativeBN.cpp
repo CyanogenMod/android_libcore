@@ -108,18 +108,24 @@ static void NativeBN_BN_copy(JNIEnv* env, jclass, jlong to, jlong from) {
   throwExceptionIfNecessary(env);
 }
 
-static void NativeBN_putULongInt(JNIEnv* env, jclass, jlong a0, unsigned long long dw, jboolean neg) {
+static void NativeBN_putULongInt(JNIEnv* env, jclass, jlong a0, jlong java_dw, jboolean neg) {
     if (!oneValidHandle(env, a0)) return;
-    unsigned int hi = dw >> 32; // This shifts without sign extension.
-    int lo = (int)dw; // This truncates implicitly.
+
+    uint64_t dw = java_dw;
 
     // cf. litEndInts2bn:
     BIGNUM* a = toBigNum(a0);
     bn_check_top(a);
-    if (bn_wexpand(a, 2) != NULL) {
+    if (bn_wexpand(a, 8/BN_BYTES) != NULL) {
+#ifdef __LP64__
+      a->d[0] = dw;
+#else
+      unsigned int hi = dw >> 32; // This shifts without sign extension.
+      int lo = (int)dw; // This truncates implicitly.
       a->d[0] = lo;
       a->d[1] = hi;
-      a->top = 2;
+#endif
+      a->top = 8 / BN_BYTES;
       a->neg = neg;
       bn_correct_top(a);
     } else {
@@ -127,7 +133,7 @@ static void NativeBN_putULongInt(JNIEnv* env, jclass, jlong a0, unsigned long lo
     }
 }
 
-static void NativeBN_putLongInt(JNIEnv* env, jclass cls, jlong a, long long dw) {
+static void NativeBN_putLongInt(JNIEnv* env, jclass cls, jlong a, jlong dw) {
   if (dw >= 0) {
     NativeBN_putULongInt(env, cls, a, dw, JNI_FALSE);
   } else {
@@ -187,11 +193,25 @@ static void NativeBN_litEndInts2bn(JNIEnv* env, jclass, jintArray arr, int len, 
     if (scopedArray.get() == NULL) {
       return;
     }
-
-    static_assert(sizeof(BN_ULONG) == sizeof(jint), "BN_ULONG is not 32-bit!");
-    const BN_ULONG* tmpInts = reinterpret_cast<const BN_ULONG*>(scopedArray.get());
-    if ((tmpInts != NULL) && (bn_wexpand(ret, len) != NULL)) {
+#ifdef __LP64__
+    const int wlen = (len + 1) / 2;
+#else
+    const int wlen = len;
+#endif
+    const unsigned int* tmpInts = reinterpret_cast<const unsigned int*>(scopedArray.get());
+    if ((tmpInts != NULL) && (bn_wexpand(ret, wlen) != NULL)) {
+#ifdef __LP64__
+      if (len % 2) {
+        ret->d[wlen - 1] = tmpInts[--len];
+      }
+      if (len > 0) {
+        for (int i = len - 2; i >= 0; i -= 2) {
+          ret->d[i/2] = ((unsigned long long)tmpInts[i+1] << 32) | tmpInts[i];
+        }
+      }
+#else
       int i = len; do { i--; ret->d[i] = tmpInts[i]; } while (i > 0);
+#endif
       ret->top = len;
       ret->neg = neg;
       // need to call this due to clear byte at top if avoiding
@@ -207,35 +227,39 @@ static void NativeBN_litEndInts2bn(JNIEnv* env, jclass, jintArray arr, int len, 
 }
 
 
-#define BYTES2INT(bytes, k) \
+#ifdef __LP64__
+#define BYTES2ULONG(bytes, k) \
+    ((bytes[k + 7] & 0xffULL)       | (bytes[k + 6] & 0xffULL) <<  8 | (bytes[k + 5] & 0xffULL) << 16 | (bytes[k + 4] & 0xffULL) << 24 | \
+     (bytes[k + 3] & 0xffULL) << 32 | (bytes[k + 2] & 0xffULL) << 40 | (bytes[k + 1] & 0xffULL) << 48 | (bytes[k + 0] & 0xffULL) << 56)
+#else
+#define BYTES2ULONG(bytes, k) \
     ((bytes[k + 3] & 0xff) | (bytes[k + 2] & 0xff) << 8 | (bytes[k + 1] & 0xff) << 16 | (bytes[k + 0] & 0xff) << 24)
-
+#endif
 static void negBigEndianBytes2bn(JNIEnv*, jclass, const unsigned char* bytes, int bytesLen, jlong ret0) {
   BIGNUM* ret = toBigNum(ret0);
 
-  // We rely on: (BN_BITS2 == 32), i.e. BN_ULONG is unsigned int and has 4 bytes:
   bn_check_top(ret);
   // FIXME: assert bytesLen > 0
-  int intLen = (bytesLen + 3) / 4;
+  int wLen = (bytesLen + BN_BYTES - 1) / BN_BYTES;
   int firstNonzeroDigit = -2;
-  if (bn_wexpand(ret, intLen) != NULL) {
+  if (bn_wexpand(ret, wLen) != NULL) {
     BN_ULONG* d = ret->d;
     BN_ULONG di;
-    ret->top = intLen;
-    int highBytes = bytesLen % 4;
+    ret->top = wLen;
+    int highBytes = bytesLen % BN_BYTES;
     int k = bytesLen;
     // Put bytes to the int array starting from the end of the byte array
     int i = 0;
     while (k > highBytes) {
-      k -= 4;
-      di = BYTES2INT(bytes, k);
+      k -= BN_BYTES;
+      di = BYTES2ULONG(bytes, k);
       if (di != 0) {
         d[i] = -di;
         firstNonzeroDigit = i;
         i++;
         while (k > highBytes) {
-          k -= 4;
-          d[i] = ~BYTES2INT(bytes, k);
+          k -= BN_BYTES;
+          d[i] = ~BYTES2ULONG(bytes, k);
           i++;
         }
         break;
@@ -287,28 +311,25 @@ static void NativeBN_twosComp2bn(JNIEnv* env, jclass cls, jbyteArray arr, int by
   throwExceptionIfNecessary(env);
 }
 
-static long long NativeBN_longInt(JNIEnv* env, jclass, jlong a0) {
+static jlong NativeBN_longInt(JNIEnv* env, jclass, jlong a0) {
   if (!oneValidHandle(env, a0)) return -1;
+
   BIGNUM* a = toBigNum(a0);
   bn_check_top(a);
-  int intLen = a->top;
-  BN_ULONG* d = a->d;
-  switch (intLen) {
-    case 0:
-      return 0;
-    case 1:
-      if (!a->neg) {
-        return d[0] & 0X00000000FFFFFFFFLL;
-      } else {
-        return -(d[0] & 0X00000000FFFFFFFFLL);
-      }
-    default:
-      if (!a->neg) {
-        return ((long long)d[1] << 32) | (d[0] & 0XFFFFFFFFLL);
-      } else {
-        return -(((long long)d[1] << 32) | (d[0] & 0XFFFFFFFFLL));
-      }
+  int wLen = a->top;
+  if (wLen == 0) {
+    return 0;
   }
+
+#ifdef __LP64__
+  jlong result = a->d[0];
+#else
+  jlong result = static_cast<jlong>(a->d[0]) & 0xffffffff;
+  if (wLen > 1) {
+    result |= static_cast<jlong>(a->d[1]) << 32;
+  }
+#endif
+  return a->neg ? -result : result;
 }
 
 static char* leadingZerosTrimmed(char* s) {
@@ -367,11 +388,11 @@ static jintArray NativeBN_bn2litEndInts(JNIEnv* env, jclass, jlong a0) {
   if (!oneValidHandle(env, a0)) return NULL;
   BIGNUM* a = toBigNum(a0);
   bn_check_top(a);
-  int len = a->top;
-  if (len == 0) {
+  int wLen = a->top;
+  if (wLen == 0) {
     return NULL;
   }
-  jintArray result = env->NewIntArray(len);
+  jintArray result = env->NewIntArray(wLen * BN_BYTES/sizeof(unsigned int));
   if (result == NULL) {
     return NULL;
   }
@@ -379,11 +400,15 @@ static jintArray NativeBN_bn2litEndInts(JNIEnv* env, jclass, jlong a0) {
   if (ints.get() == NULL) {
     return NULL;
   }
-  BN_ULONG* ulongs = reinterpret_cast<BN_ULONG*>(ints.get());
-  if (ulongs == NULL) {
+  unsigned int* uints = reinterpret_cast<unsigned int*>(ints.get());
+  if (uints == NULL) {
     return NULL;
   }
-  int i = len; do { i--; ulongs[i] = a->d[i]; } while (i > 0);
+#ifdef __LP64__
+  int i = wLen; do { i--; uints[i*2+1] = a->d[i] >> 32; uints[i*2] = a->d[i]; } while (i > 0);
+#else
+  int i = wLen; do { i--; uints[i] = a->d[i]; } while (i > 0);
+#endif
   return result;
 }
 
@@ -403,15 +428,13 @@ static void NativeBN_BN_set_negative(JNIEnv* env, jclass, jlong b, int n) {
 }
 
 static int NativeBN_bitLength(JNIEnv* env, jclass, jlong a0) {
-// We rely on: (BN_BITS2 == 32), i.e. BN_ULONG is unsigned int and has 4 bytes:
-//
   if (!oneValidHandle(env, a0)) return JNI_FALSE;
   BIGNUM* a = toBigNum(a0);
   bn_check_top(a);
-  int intLen = a->top;
-  if (intLen == 0) return 0;
+  int wLen = a->top;
+  if (wLen == 0) return 0;
   BN_ULONG* d = a->d;
-  int i = intLen - 1;
+  int i = wLen - 1;
   BN_ULONG msd = d[i]; // most significant digit
   if (a->neg) {
     // Handle negative values correctly:
@@ -420,7 +443,7 @@ static int NativeBN_bitLength(JNIEnv* env, jclass, jlong a0) {
     do { i--; } while (!((i < 0) || (d[i] != 0)));
     if (i < 0) msd--; // Only if all lower significant digits are 0 we decrement the most significant one.
   }
-  return (intLen - 1) * 32 + BN_num_bits_word(msd);
+  return (wLen - 1) * BN_BYTES * 8 + BN_num_bits_word(msd);
 }
 
 static jboolean NativeBN_BN_is_bit_set(JNIEnv* env, jclass, jlong a, int n) {
