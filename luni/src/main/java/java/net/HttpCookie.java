@@ -53,10 +53,12 @@ import libcore.util.Objects;
  *         in this format is {@code 1}.
  * </ul>
  *
- * <p>This implementation silently discards unrecognized attributes. In
- * particular, the {@code HttpOnly} attribute is widely served but isn't in any
- * of the above specs. It was introduced by Internet Explorer to prevent server
- * cookies from being exposed in the DOM to JavaScript, etc.
+ * <p>Support for the "HttpOnly" attribute specified in
+ * <a href="http://tools.ietf.org/html/rfc6265">RFC 6265</a> is also included. RFC 6265 is intended
+ * to obsolete RFC 2965. Support for features from RFC 2965 that have been deprecated by RFC 6265
+ * such as Cookie2, Set-Cookie2 headers and version information remain supported by this class.
+ *
+ * <p>This implementation silently discards unrecognized attributes.
  *
  * @since 1.6
  */
@@ -65,16 +67,17 @@ public final class HttpCookie implements Cloneable {
     private static final Set<String> RESERVED_NAMES = new HashSet<String>();
 
     static {
-        RESERVED_NAMES.add("comment");    //           RFC 2109  RFC 2965
-        RESERVED_NAMES.add("commenturl"); //                     RFC 2965
-        RESERVED_NAMES.add("discard");    //                     RFC 2965
-        RESERVED_NAMES.add("domain");     // Netscape  RFC 2109  RFC 2965
+        RESERVED_NAMES.add("comment");    //           RFC 2109  RFC 2965  RFC 6265
+        RESERVED_NAMES.add("commenturl"); //                     RFC 2965  RFC 6265
+        RESERVED_NAMES.add("discard");    //                     RFC 2965  RFC 6265
+        RESERVED_NAMES.add("domain");     // Netscape  RFC 2109  RFC 2965  RFC 6265
         RESERVED_NAMES.add("expires");    // Netscape
-        RESERVED_NAMES.add("max-age");    //           RFC 2109  RFC 2965
-        RESERVED_NAMES.add("path");       // Netscape  RFC 2109  RFC 2965
-        RESERVED_NAMES.add("port");       //                     RFC 2965
-        RESERVED_NAMES.add("secure");     // Netscape  RFC 2109  RFC 2965
-        RESERVED_NAMES.add("version");    //           RFC 2109  RFC 2965
+        RESERVED_NAMES.add("httponly");   //                               RFC 6265
+        RESERVED_NAMES.add("max-age");    //           RFC 2109  RFC 2965  RFC 6265
+        RESERVED_NAMES.add("path");       // Netscape  RFC 2109  RFC 2965  RFC 6265
+        RESERVED_NAMES.add("port");       //                     RFC 2965  RFC 6265
+        RESERVED_NAMES.add("secure");     // Netscape  RFC 2109  RFC 2965  RFC 6265
+        RESERVED_NAMES.add("version");    //           RFC 2109  RFC 2965  RFC 6265
     }
 
     /**
@@ -340,6 +343,8 @@ public final class HttpCookie implements Cloneable {
                 cookie.portList = value != null ? value : "";
             } else if (name.equals("secure")) {
                 cookie.secure = true;
+            } else if (name.equals("httponly")) {
+                cookie.httpOnly = true;
             } else if (name.equals("version") && !hasVersion) {
                 cookie.version = Integer.parseInt(value);
             }
@@ -430,6 +435,7 @@ public final class HttpCookie implements Cloneable {
     private String path;
     private String portList;
     private boolean secure;
+    private boolean httpOnly;
     private String value;
     private int version = 1;
 
@@ -541,6 +547,28 @@ public final class HttpCookie implements Cloneable {
      */
     public boolean getSecure() {
         return secure;
+    }
+
+    /**
+     * Returns the {@code HttpOnly} attribute. If {@code true} the cookie should not be accessible
+     * to scripts in a browser.
+     *
+     * @since 1.7
+     * @hide Until ready for an API update
+     */
+    public boolean isHttpOnly() {
+        return httpOnly;
+    }
+
+    /**
+     * Returns the {@code HttpOnly} attribute. If {@code true} the cookie should not be accessible
+     * to scripts in a browser.
+     *
+     * @since 1.7
+     * @hide Until ready for an API update
+     */
+    public void setHttpOnly(boolean httpOnly) {
+        this.httpOnly = httpOnly;
     }
 
     /**
@@ -698,7 +726,21 @@ public final class HttpCookie implements Cloneable {
 
     /**
      * Returns a string representing this cookie in the format used by the
-     * {@code Cookie} header line in an HTTP request.
+     * {@code Cookie} header line in an HTTP request as specified by RFC 2965 section 3.3.4.
+     *
+     * <p>The resulting string does not include a "Cookie:" prefix or any version information.
+     * The returned {@code String} is not suitable for passing to {@link #parse(String)}: Several of
+     * the attributes that would be needed to preserve all of the cookie's information are omitted.
+     * The String is formatted for an HTTP request not an HTTP response.
+     *
+     * <p>The attributes included and the format depends on the cookie's {@code version}:
+     * <ul>
+     *     <li>Version 0: Includes only the name and value. Conforms to RFC 2965 (for
+     *     version 0 cookies). This should also be used to conform with RFC 6265.
+     *     </li>
+     *     <li>Version 1: Includes the name and value, and Path, Domain and Port attributes.
+     *     Conforms to RFC 2965 (for version 1 cookies).</li>
+     * </ul>
      */
     @Override public String toString() {
         if (version == 0) {
