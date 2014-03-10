@@ -203,6 +203,15 @@ static jint ICU_getCurrencyFractionDigits(JNIEnv* env, jclass, jstring javaCurre
   return ucurr_getDefaultFractionDigits(icuCurrencyCode.getTerminatedBuffer(), &status);
 }
 
+static jint ICU_getCurrencyNumericCode(JNIEnv* env, jclass, jstring javaCurrencyCode) {
+  ScopedJavaUnicodeString currencyCode(env, javaCurrencyCode);
+  if (!currencyCode.valid()) {
+    return 0;
+  }
+  UnicodeString icuCurrencyCode(currencyCode.unicodeString());
+  return ucurr_getNumericCode(icuCurrencyCode.getTerminatedBuffer());
+}
+
 // TODO: rewrite this with int32_t ucurr_forLocale(const char* locale, UChar* buff, int32_t buffCapacity, UErrorCode* ec)...
 static jstring ICU_getCurrencyCode(JNIEnv* env, jclass, jstring javaCountryCode) {
     UErrorCode status = U_ZERO_ERROR;
@@ -764,6 +773,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, getCurrencyCode, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getCurrencyDisplayName, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getCurrencyFractionDigits, "(Ljava/lang/String;)I"),
+    NATIVE_METHOD(ICU, getCurrencyNumericCode, "(Ljava/lang/String;)I"),
     NATIVE_METHOD(ICU, getCurrencySymbol, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getDisplayCountryNative, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getDisplayLanguageNative, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),

@@ -67,6 +67,13 @@ public class CurrencyTest extends junit.framework.TestCase {
         assertEquals(-1, Currency.getInstance("XXX").getDefaultFractionDigits());
     }
 
+    public void test_getNumericCode() throws Exception {
+        assertEquals(840, Currency.getInstance("USD").getNumericCode());
+        assertEquals(826, Currency.getInstance("GBP").getNumericCode());
+        assertEquals(999, Currency.getInstance("XXX").getNumericCode());
+        assertEquals(0, Currency.getInstance("XFU").getNumericCode());
+    }
+
     // http://code.google.com/p/android/issues/detail?id=38622
     public void test_getSymbol_38622() throws Exception {
         // The CLDR data had the Portuguese symbol for "EUR" in pt, not in pt_PT.
