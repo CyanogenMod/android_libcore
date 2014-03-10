@@ -2198,16 +2198,15 @@ public final class URLConnectionTest extends TestCase {
         }
     }
 
+    // http://code.google.com/p/android/issues/detail?id=16895
     public void testUrlWithSpaceInHostViaHttpProxy() throws Exception {
         server.enqueue(new MockResponse());
         server.play();
         URLConnection urlConnection = new URL("http://and roid.com/")
                 .openConnection(server.toProxyAddress());
-        try {
-            urlConnection.getInputStream();
-            fail(); // the RI makes a bogus proxy request for "GET http://and roid.com/ HTTP/1.1"
-        } catch (UnknownHostException expected) {
-        }
+
+        // This test is to check that a NullPointerException is not thrown.
+        urlConnection.getInputStream();
     }
 
     public void testSslFallback() throws Exception {
