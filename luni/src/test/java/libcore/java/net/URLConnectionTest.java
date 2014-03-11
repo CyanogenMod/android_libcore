@@ -74,9 +74,9 @@ import libcore.java.security.TestKeyStore;
 import libcore.javax.net.ssl.TestSSLContext;
 import tests.net.StuckServer;
 
-import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AFTER_READING_REQUEST;
 import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_END;
 import static com.google.mockwebserver.SocketPolicy.DISCONNECT_AT_START;
+import static com.google.mockwebserver.SocketPolicy.FAIL_HANDSHAKE;
 import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_INPUT_AT_END;
 import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_OUTPUT_AT_END;
 
@@ -335,49 +335,6 @@ public final class URLConnectionTest extends TestCase {
         assertEquals(0, server.takeRequest().getSequenceNumber());
     }
 
-    public void testRetryableRequestBodyAfterBrokenConnection() throws Exception {
-        // Use SSL to make an alternate route available.
-        TestSSLContext testSSLContext = TestSSLContext.create();
-        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
-
-        server.enqueue(new MockResponse().setBody("abc").setSocketPolicy(
-            DISCONNECT_AFTER_READING_REQUEST));
-        server.enqueue(new MockResponse().setBody("abc"));
-        server.play();
-
-        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("").openConnection();
-        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
-        connection.setDoOutput(true);
-        OutputStream out = connection.getOutputStream();
-        out.write(new byte[] {1, 2, 3});
-        out.close();
-        assertContent("abc", connection);
-
-        assertEquals(0, server.takeRequest().getSequenceNumber());
-        assertEquals(0, server.takeRequest().getSequenceNumber());
-    }
-
-    public void testNonRetryableRequestBodyAfterBrokenConnection() throws Exception {
-        TestSSLContext testSSLContext = TestSSLContext.create();
-        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
-        server.enqueue(new MockResponse().setBody("abc")
-            .setSocketPolicy(DISCONNECT_AFTER_READING_REQUEST));
-        server.play();
-
-        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/a").openConnection();
-        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
-        connection.setDoOutput(true);
-        connection.setFixedLengthStreamingMode(3);
-        OutputStream out = connection.getOutputStream();
-        out.write(new byte[] {1, 2, 3});
-        out.close();
-        try {
-            connection.getInputStream();
-            fail();
-        } catch (IOException expected) {
-        }
-    }
-
     enum WriteKind { BYTE_BY_BYTE, SMALL_BUFFERS, LARGE_BUFFERS }
 
     public void test_chunkedUpload_byteByByte() throws Exception {
@@ -516,28 +473,6 @@ public final class URLConnectionTest extends TestCase {
             fail("without an SSL socket factory, the connection should fail");
         } catch (SSLException expected) {
         }
-    }
-
-    public void testConnectViaHttpsWithSSLFallback() throws IOException, InterruptedException {
-        TestSSLContext testSSLContext = TestSSLContext.create();
-
-        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
-        server.enqueue(new MockResponse().setSocketPolicy(DISCONNECT_AT_START));
-        server.enqueue(new MockResponse().setBody("this response comes via SSL"));
-        server.play();
-
-        HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/foo").openConnection();
-        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
-
-        assertContent("this response comes via SSL", connection);
-
-        // The first request will be an incomplete (bookkeeping) request
-        // that the server disconnected from at start.
-        server.takeRequest();
-
-        // The request will be retried.
-        RecordedRequest request = server.takeRequest();
-        assertEquals("GET /foo HTTP/1.1", request.getRequestLine());
     }
 
     /**
@@ -1126,25 +1061,33 @@ public final class URLConnectionTest extends TestCase {
     }
 
     /**
-     * Obnoxiously test that the chunk sizes transmitted exactly equal the
-     * requested data+chunk header size. Although setChunkedStreamingMode()
-     * isn't specific about whether the size applies to the data or the
-     * complete chunk, the RI interprets it as a complete chunk.
+     * Test that request body chunking works. This test has been relaxed from treating
+     * the {@link java.net.HttpURLConnection#setChunkedStreamingMode(int)}
+     * chunk length as being fixed because OkHttp no longer guarantees
+     * the fixed chunk size. Instead, we check that chunking takes place
+     * and we force the chunk size with flushes.
      */
     public void testSetChunkedStreamingMode() throws IOException, InterruptedException {
         server.enqueue(new MockResponse());
         server.play();
 
         HttpURLConnection urlConnection = (HttpURLConnection) server.getUrl("/").openConnection();
-        urlConnection.setChunkedStreamingMode(8);
+        urlConnection.setChunkedStreamingMode(1);
         urlConnection.setDoOutput(true);
         OutputStream outputStream = urlConnection.getOutputStream();
-        outputStream.write("ABCDEFGHIJKLMNOPQ".getBytes("US-ASCII"));
+        String outputString = "ABCDEFGH";
+        byte[] outputBytes = outputString.getBytes("US-ASCII");
+        int targetChunkSize = 3;
+        for (int i = 0; i < outputBytes.length; i += targetChunkSize) {
+            int count = i + targetChunkSize < outputBytes.length ? 3 : outputBytes.length - i;
+            outputStream.write(outputBytes, i, count);
+            outputStream.flush();
+        }
         assertEquals(200, urlConnection.getResponseCode());
 
         RecordedRequest request = server.takeRequest();
-        assertEquals("ABCDEFGHIJKLMNOPQ", new String(request.getBody(), "US-ASCII"));
-        assertEquals(Arrays.asList(3, 3, 3, 3, 3, 2), request.getChunkSizes());
+        assertEquals(outputString, new String(request.getBody(), "US-ASCII"));
+        assertEquals(Arrays.asList(3, 3, 2), request.getChunkSizes());
     }
 
     public void testAuthenticateWithFixedLengthStreaming() throws Exception {
@@ -2266,7 +2209,7 @@ public final class URLConnectionTest extends TestCase {
     public void testSslFallback() throws Exception {
         TestSSLContext testSSLContext = TestSSLContext.create();
         server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
-        server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.FAIL_HANDSHAKE));
+        server.enqueue(new MockResponse().setSocketPolicy(FAIL_HANDSHAKE));
         server.enqueue(new MockResponse().setBody("This required a 2nd handshake"));
         server.play();
 
