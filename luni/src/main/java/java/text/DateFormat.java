@@ -457,6 +457,12 @@ public abstract class DateFormat extends Format {
     }
 
     /**
+     * @hide for internal use only.
+     */
+    public static final void set24HourTimePref(boolean is24Hour) {
+    }
+
+    /**
      * Returns the {@code NumberFormat} used by this {@code DateFormat}.
      *
      * @return the {@code NumberFormat} used by this date format.
