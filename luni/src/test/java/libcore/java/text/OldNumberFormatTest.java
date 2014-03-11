@@ -16,7 +16,6 @@
  */
 package libcore.java.text;
 
-import dalvik.annotation.BrokenTest;
 import java.text.ChoiceFormat;
 import java.text.DecimalFormat;
 import java.text.FieldPosition;
@@ -729,7 +728,7 @@ public class OldNumberFormatTest extends TestCase {
                 + " instead of Integer.MIN_VALUE", result == 0);
     }
 
-    @BrokenTest("Fails in CTS, passes in CoreTestRunner")
+    // Broken Test: Fails in CTS, passes in CoreTestRunner
     public void test_parseLjava_lang_String() {
         NumberFormat nf1 = NumberFormat.getInstance();
         try {

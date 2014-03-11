@@ -17,7 +17,6 @@
 
 package libcore.java.net;
 
-import dalvik.annotation.SideEffect;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -207,7 +206,7 @@ public class OldURLClassLoaderTest extends junit.framework.TestCase {
         }
     }
 
-    @SideEffect("Support_TestWebServer requires isolation.")
+    // SideEffect: Support_TestWebServer requires isolation.
     public void test_findResourceLjava_lang_String() throws Exception {
         File tmp = File.createTempFile("test", ".txt");
 
@@ -232,7 +231,7 @@ public class OldURLClassLoaderTest extends junit.framework.TestCase {
     /**
      * Regression for Harmony-2237
      */
-    @SideEffect("Support_TestWebServer requires isolation.")
+    // SideEffect: Support_TestWebServer requires isolation.
     public void test_findResource_String() throws Exception {
         File tempFile1 = File.createTempFile("textFile", ".txt");
         tempFile1.createNewFile();
