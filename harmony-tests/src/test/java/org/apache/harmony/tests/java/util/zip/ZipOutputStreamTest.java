@@ -41,13 +41,6 @@ public class ZipOutputStreamTest extends junit.framework.TestCase {
      * java.util.zip.ZipOutputStream#close()
      */
     public void test_close() throws Exception {
-        try {
-            zos.close();
-            fail("Close on empty stream failed to throw exception");
-        } catch (ZipException e) {
-            // expected
-        }
-
         zos = new ZipOutputStream(bos);
         zos.putNextEntry(new ZipEntry("XX"));
         zos.closeEntry();
