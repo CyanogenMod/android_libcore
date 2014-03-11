@@ -453,6 +453,7 @@ public final class ICU {
   public static native String getCurrencyCode(String countryCode);
   public static native String getCurrencyDisplayName(String locale, String currencyCode);
   public static native int getCurrencyFractionDigits(String currencyCode);
+  public static native int getCurrencyNumericCode(String currencyCode);
   public static native String getCurrencySymbol(String locale, String currencyCode);
 
   public static native String getDisplayCountryNative(String countryCode, String locale);
