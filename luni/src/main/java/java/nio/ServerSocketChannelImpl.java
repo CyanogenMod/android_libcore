@@ -59,7 +59,6 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
         return socket;
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public final ServerSocketChannel bind(SocketAddress localAddr, int backlog) throws IOException {
         if (!isOpen()) {
@@ -82,7 +81,6 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
         return this;
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public SocketAddress getLocalAddress() throws IOException {
         if (!isOpen()) {
@@ -91,20 +89,17 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
         return socket.getLocalSocketAddress();
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public <T> T getOption(SocketOption<T> option) throws IOException {
         return NioUtils.getSocketOption(this, StandardSocketOptions.SERVER_SOCKET_OPTIONS, option);
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public <T> ServerSocketChannel setOption(SocketOption<T> option, T value) throws IOException {
         NioUtils.setSocketOption(this, StandardSocketOptions.SERVER_SOCKET_OPTIONS, option, value);
         return this;
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public Set<SocketOption<?>> supportedOptions() {
         return StandardSocketOptions.SERVER_SOCKET_OPTIONS;

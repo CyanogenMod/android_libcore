@@ -32,7 +32,6 @@ import libcore.io.IoBridge;
  * for each type of socket.
  *
  * @since 1.7
- * @hide Until ready for a public API change
  */
 public final class StandardSocketOptions {
 

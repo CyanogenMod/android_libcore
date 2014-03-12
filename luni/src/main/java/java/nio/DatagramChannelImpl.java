@@ -113,7 +113,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         return socket;
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     synchronized public DatagramChannel bind(SocketAddress local) throws IOException {
         checkOpen();
@@ -161,21 +160,18 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         }
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     synchronized public SocketAddress getLocalAddress() throws IOException {
         checkOpen();
         return isBound ? new InetSocketAddress(localAddress, localPort) : null;
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public <T> T getOption(SocketOption<T> option) throws IOException {
         return NioUtils.getSocketOption(
                 this, StandardSocketOptions.DATAGRAM_SOCKET_OPTIONS, option);
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public <T> DatagramChannel setOption(SocketOption<T> option, T value) throws IOException {
         checkOpen();
@@ -184,7 +180,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         return this;
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public Set<SocketOption<?>> supportedOptions() {
         return StandardSocketOptions.DATAGRAM_SOCKET_OPTIONS;

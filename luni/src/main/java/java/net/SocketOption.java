@@ -27,7 +27,6 @@ package java.net;
  *
  * @param <T> the type of the value
  * @since 1.7
- * @hide Until ready for a public API change
  */
 public interface SocketOption<T> {
 

@@ -92,7 +92,6 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
      */
     public abstract DatagramSocket socket();
 
-    /** @hide Until ready for a public API change */
     @Override
     public DatagramChannel bind(SocketAddress local) throws IOException {
         // This method was added for interoperability with Java 7, where it is abstract. It is
@@ -100,7 +99,6 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
         throw new UnsupportedOperationException("Subclasses must override this method");
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public SocketAddress getLocalAddress() throws IOException {
         // This method was added for interoperability with Java 7, where it is abstract. It is
@@ -108,7 +106,6 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
         throw new UnsupportedOperationException("Subclasses must override this method");
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public <T> T getOption(SocketOption<T> option) throws IOException {
         // This method was added for interoperability with Java 7, where it is abstract. It is
@@ -116,7 +113,6 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
         throw new UnsupportedOperationException("Subclasses must override this method");
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public <T> DatagramChannel setOption(SocketOption<T> option, T value) throws IOException {
         // This method was added for interoperability with Java 7, where it is abstract. It is
@@ -124,7 +120,6 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
         throw new UnsupportedOperationException("Subclasses must override this method");
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public Set<SocketOption<?>> supportedOptions() {
         // This method was added for interoperability with Java 7, where it is abstract. It is

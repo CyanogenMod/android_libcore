@@ -101,7 +101,6 @@ public class FileURLConnection extends URLConnection {
      *
      * @return the length of the file
      * @since 1.7
-     * @hide Until ready for a public API change
      */
     @Override
     public long getContentLengthLong() {

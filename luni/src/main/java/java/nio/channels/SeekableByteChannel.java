@@ -33,7 +33,6 @@ import java.nio.ByteBuffer;
  * {@link #truncate}, {@link #position} and {@link #write} for details. The current size can also
  * be queried.
  *
- * @hide Until ready for a public API change
  * @since 1.7
  */
 public interface SeekableByteChannel extends ByteChannel {
