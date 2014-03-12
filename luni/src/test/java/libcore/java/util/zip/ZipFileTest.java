@@ -23,8 +23,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -161,7 +168,7 @@ public final class ZipFileTest extends TestCase {
         }
 
         assertEquals(expectedLength, count);
-
+        zip.close();
     }
 
     public void testInflatingStreamsRequiringZipRefill() throws IOException {
@@ -210,6 +217,96 @@ public final class ZipFileTest extends TestCase {
         }
     }
 
+    public void testNullCharset() throws IOException {
+        try {
+            new ZipFile(createTemporaryZipFile(), null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    // Tests that non-UTF8 encoded zip files can be interpreted. Relies on ZipOutputStream.
+    public void testNonUtf8Encoding() throws IOException {
+        Charset charset = Charset.forName("Cp437");
+        String encodingDependentString = "\u00FB";
+        assertEncodingDiffers(encodingDependentString, charset, StandardCharsets.US_ASCII,
+                StandardCharsets.UTF_8);
+        String name = "name" + encodingDependentString;
+        String comment = "comment" + encodingDependentString;
+
+        File result = createTemporaryZipFile();
+        OutputStream os = new BufferedOutputStream(new FileOutputStream(result));
+        ZipOutputStream out = new ZipOutputStream(os, charset);
+        out.setComment(comment);
+        ZipEntry writeEntry = new ZipEntry(name);
+        writeEntry.setComment(comment);
+        out.putNextEntry(writeEntry);
+        out.write("FileContentsIrrelevant".getBytes());
+        out.closeEntry();
+        out.close();
+
+        ZipFile zipFile = new ZipFile(result, StandardCharsets.US_ASCII);
+        assertNull(zipFile.getEntry(name));
+        assertFalse(zipFile.getComment().equals(comment));
+        zipFile.close();
+
+        zipFile = new ZipFile(result, charset);
+        ZipEntry readEntry = zipFile.getEntry(name);
+        assertNotNull(readEntry);
+        assertEquals(name, readEntry.getName());
+        assertEquals(comment, readEntry.getComment());
+        assertEquals(comment, zipFile.getComment());
+        zipFile.close();
+    }
+
+    // Tests that UTF8 encoded zip files can be interpreted when the constructor is provided with a
+    // non-UTF-8 encoding. Relies on ZipOutputStream.
+    public void testUtf8EncodingOverridesConstructor() throws IOException {
+        Charset charset = Charset.forName("Cp437");
+        String encodingDependentString = "\u00FB";
+        assertEncodingDiffers(encodingDependentString, charset, StandardCharsets.UTF_8);
+        String name = "name" + encodingDependentString;
+        String comment = "comment" + encodingDependentString;
+
+        File result = createTemporaryZipFile();
+        OutputStream os = new BufferedOutputStream(new FileOutputStream(result));
+        ZipOutputStream out = new ZipOutputStream(os, StandardCharsets.UTF_8);
+        // The file comment does not get meta-data about the character encoding.
+        out.setComment(comment);
+        // The entry will be tagged as being UTF-8 encoded.
+        ZipEntry writeEntry = new ZipEntry(name);
+        writeEntry.setComment(comment);
+        out.putNextEntry(writeEntry);
+        out.write("FileContentsIrrelevant".getBytes());
+        out.closeEntry();
+        out.close();
+
+        ZipFile zipFile = new ZipFile(result, charset);
+        // The entry should be found, because it should be tagged as being UTF-8 encoded.
+        ZipEntry readEntry = zipFile.getEntry(name);
+        assertNotNull(readEntry);
+        assertEquals(name, readEntry.getName());
+        assertEquals(comment, readEntry.getComment());
+        // We expect the comment to be mangled because it is not tagged.
+        assertFalse(zipFile.getComment().equals(comment));
+        zipFile.close();
+    }
+
+    /**
+     * Asserts the byte encoding for the string is different for all the supplied character
+     * sets.
+     */
+    private void assertEncodingDiffers(String string, Charset... charsets) {
+        Set<List<Byte>> encodings = new HashSet<List<Byte>>();
+        for (int i = 0; i < charsets.length; i++) {
+            List<Byte> byteList = new ArrayList<Byte>();
+            for (byte b : string.getBytes(charsets[i])) {
+                byteList.add(b);
+            }
+            assertTrue("Encoding has been seen before", encodings.add(byteList));
+        }
+    }
+
     /**
      * Compresses the given number of files, each of the given size, into a .zip archive.
      */
@@ -219,21 +316,23 @@ public final class ZipFileTest extends TestCase {
         byte[] writeBuffer = new byte[8192];
         Random random = new Random();
 
-        ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(result)));
-        for (int entry = 0; entry < entryCount; ++entry) {
-            ZipEntry ze = new ZipEntry(Integer.toHexString(entry));
-            out.putNextEntry(ze);
+        ZipOutputStream out = createZipOutputStream(result);
+        try {
+            for (int entry = 0; entry < entryCount; ++entry) {
+                ZipEntry ze = new ZipEntry(Integer.toHexString(entry));
+                out.putNextEntry(ze);
 
-            for (int i = 0; i < entrySize; i += writeBuffer.length) {
-                random.nextBytes(writeBuffer);
-                int byteCount = Math.min(writeBuffer.length, entrySize - i);
-                out.write(writeBuffer, 0, byteCount);
+                for (int i = 0; i < entrySize; i += writeBuffer.length) {
+                    random.nextBytes(writeBuffer);
+                    int byteCount = Math.min(writeBuffer.length, entrySize - i);
+                    out.write(writeBuffer, 0, byteCount);
+                }
+
+                out.closeEntry();
             }
-
-            out.closeEntry();
+        } finally {
+            out.close();
         }
-
-        out.close();
         return result;
     }
 
