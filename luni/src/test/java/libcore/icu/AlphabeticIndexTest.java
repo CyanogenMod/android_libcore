@@ -52,11 +52,9 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
     // Kanji (sorts to inflow section)
     assertHasLabel(ja, "\u65e5", "");
 
-    // This doesn't work correctly with ICU 52, see b/13434905.
-    //
     // http://bugs.icu-project.org/trac/ticket/10423 / http://b/10809397
-    // assertHasLabel(ja, "\u95c7", "");
-    // assertHasLabel(ja, "\u308f", "Hirigana wa");
+    assertHasLabel(ja, "\u95c7", "");
+    assertHasLabel(ja, "\u308f", "わ");
 
     // English
     assertHasLabel(ja, "Smith", "S");
