@@ -1134,5 +1134,15 @@ public class LocaleTest extends junit.framework.TestCase {
         b.setLanguage("en").setExtension('x', "fooo-baar");
         assertEquals("en__#x-fooo-baar", b.build().toString());
     }
+
+    // Tests cases where our "guess" for the output size is incorrect.
+    //
+    // https://b.corp.google.com/issue?id=13414549
+    public void test_toLanguageTag_largerTag() {
+        Locale posix = new Locale.Builder()
+                .setLanguage("en").setRegion("US").setVariant("POSIX")
+                .build();
+        assertEquals("en-US-u-va-posix", posix.toLanguageTag());
+    }
 }
 
