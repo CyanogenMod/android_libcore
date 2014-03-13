@@ -156,7 +156,7 @@ public final class NativeDecimalFormat implements Cloneable {
             this.address = open(pattern, dfs.getCurrencySymbol(),
                     dfs.getDecimalSeparator(), dfs.getDigit(), dfs.getExponentSeparator(),
                     dfs.getGroupingSeparator(), dfs.getInfinity(),
-                    dfs.getInternationalCurrencySymbol(), dfs.getMinusSign(),
+                    dfs.getInternationalCurrencySymbol(), dfs.getMinusSignString(),
                     dfs.getMonetaryDecimalSeparator(), dfs.getNaN(), dfs.getPatternSeparator(),
                     dfs.getPercent(), dfs.getPerMill(), dfs.getZeroDigit());
             this.lastPattern = pattern;
@@ -267,7 +267,7 @@ public final class NativeDecimalFormat implements Cloneable {
     public void setDecimalFormatSymbols(final DecimalFormatSymbols dfs) {
         setDecimalFormatSymbols(this.address, dfs.getCurrencySymbol(), dfs.getDecimalSeparator(),
                 dfs.getDigit(), dfs.getExponentSeparator(), dfs.getGroupingSeparator(),
-                dfs.getInfinity(), dfs.getInternationalCurrencySymbol(), dfs.getMinusSign(),
+                dfs.getInfinity(), dfs.getInternationalCurrencySymbol(), dfs.getMinusSignString(),
                 dfs.getMonetaryDecimalSeparator(), dfs.getNaN(), dfs.getPatternSeparator(),
                 dfs.getPercent(), dfs.getPerMill(), dfs.getZeroDigit());
     }
@@ -620,13 +620,13 @@ public final class NativeDecimalFormat implements Cloneable {
     private static native String getTextAttribute(long addr, int symbol);
     private static native long open(String pattern, String currencySymbol,
             char decimalSeparator, char digit, String exponentSeparator, char groupingSeparator,
-            String infinity, String internationalCurrencySymbol, char minusSign,
+            String infinity, String internationalCurrencySymbol, String minusSign,
             char monetaryDecimalSeparator, String nan, char patternSeparator, char percent,
             char perMill, char zeroDigit);
     private static native Number parse(long addr, String string, ParsePosition position, boolean parseBigDecimal);
     private static native void setDecimalFormatSymbols(long addr, String currencySymbol,
             char decimalSeparator, char digit, String exponentSeparator, char groupingSeparator,
-            String infinity, String internationalCurrencySymbol, char minusSign,
+            String infinity, String internationalCurrencySymbol, String minusSign,
             char monetaryDecimalSeparator, String nan, char patternSeparator, char percent,
             char perMill, char zeroDigit);
     private static native void setSymbol(long addr, int symbol, String str);
