@@ -50,7 +50,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
     private char percent;
     private char perMill;
     private char monetarySeparator;
-    private char minusSign;
+    private String minusSign;
     private String infinity, NaN, currencySymbol, intlCurrencySymbol;
 
     private transient Currency currency;
@@ -288,6 +288,16 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      * @return the minus sign as a character.
      */
     public char getMinusSign() {
+        if (minusSign.length() == 1) {
+            return minusSign.charAt(0);
+        }
+
+        throw new UnsupportedOperationException(
+                "Minus sign spans multiple characters: " + minusSign);
+    }
+
+    /** @hide */
+    public String getMinusSignString() {
         return minusSign;
     }
 
@@ -366,7 +376,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         result = 31*result + percent;
         result = 31*result + perMill;
         result = 31*result + monetarySeparator;
-        result = 31*result + minusSign;
+        result = 31*result + minusSign.hashCode();
         result = 31*result + exponentSeparator.hashCode();
         result = 31*result + infinity.hashCode();
         result = 31*result + NaN.hashCode();
@@ -487,7 +497,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      *            the minus sign character.
      */
     public void setMinusSign(char value) {
-        this.minusSign = value;
+        this.minusSign = String.valueOf(value);
     }
 
     /**
