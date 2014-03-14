@@ -66,16 +66,16 @@ public class NumberFormatTest extends junit.framework.TestCase {
 
     public void test_getIntegerInstance_ar() throws Exception {
         NumberFormat numberFormat = NumberFormat.getNumberInstance(new Locale("ar"));
-        assertEquals("#0.###;#0.###-", ((DecimalFormat) numberFormat).toPattern());
+        assertEquals("#,##0.###", ((DecimalFormat) numberFormat).toPattern());
         NumberFormat integerFormat = NumberFormat.getIntegerInstance(new Locale("ar"));
-        assertEquals("#0;#0-", ((DecimalFormat) integerFormat).toPattern());
+        assertEquals("#,##0", ((DecimalFormat) integerFormat).toPattern());
     }
 
     public void test_numberLocalization() throws Exception {
         Locale arabic = new Locale("ar");
         NumberFormat nf = NumberFormat.getNumberInstance(arabic);
         assertEquals('\u0660', new DecimalFormatSymbols(arabic).getZeroDigit());
-        assertEquals("١٢٣٤٥٦٧٨٩٠", nf.format(1234567890));
+        assertEquals("١٬٢٣٤٬٥٦٧٬٨٩٠", nf.format(1234567890));
     }
 
     // Formatting percentages is confusing but deliberate.

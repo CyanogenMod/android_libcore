@@ -48,9 +48,9 @@ public class LocaleDataTest extends junit.framework.TestCase {
         assertEquals("Sun", l.shortStandAloneWeekdayNames[1]);
         assertEquals("S", l.tinyStandAloneWeekdayNames[1]);
 
-        assertEquals("Yesterday", l.yesterday);
-        assertEquals("Today", l.today);
-        assertEquals("Tomorrow", l.tomorrow);
+        assertEquals("yesterday", l.yesterday);
+        assertEquals("today", l.today);
+        assertEquals("tomorrow", l.tomorrow);
     }
 
     public void test_de_DE() throws Exception {
