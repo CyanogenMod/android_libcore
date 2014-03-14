@@ -2065,7 +2065,7 @@ public final class Formatter implements Closeable, Flushable {
         formatToken.setPrecision(FormatToken.UNSET);
 
         int startIndex = 0;
-        if (result.charAt(0) == localeData.minusSign) {
+        if (startsWithMinusSign(result, localeData.minusSign)) {
             if (formatToken.flagParenthesis) {
                 return wrapParentheses(result);
             }
@@ -2081,14 +2081,29 @@ public final class Formatter implements Closeable, Flushable {
         }
 
         char firstChar = result.charAt(0);
-        if (formatToken.flagZero && (firstChar == '+' || firstChar == localeData.minusSign)) {
-            startIndex = 1;
+        if (formatToken.flagZero && (firstChar == '+' ||
+                startsWithMinusSign(result, localeData.minusSign))) {
+            startIndex = localeData.minusSign.length();
         }
 
         if (conversionType == 'a' || conversionType == 'A') {
             startIndex += 2;
         }
         return padding(result, startIndex);
+    }
+
+    private static boolean startsWithMinusSign(CharSequence cs, String minusSign) {
+        if (cs.length() < minusSign.length()) {
+            return false;
+        }
+
+        for (int i = 0; i < minusSign.length(); ++i) {
+            if (minusSign.charAt(i) != cs.charAt(i)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private void transformE(StringBuilder result) {
