@@ -92,7 +92,7 @@ public class OldTimeZoneTest extends TestCase {
     public void test_getDisplayNameLjava_util_Locale() {
         TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
         assertEquals("Pacific Standard Time", tz.getDisplayName(new Locale("US")));
-        assertEquals("heure normale du Pacifique", tz.getDisplayName(Locale.FRANCE));
+        assertEquals("heure normale du Pacifique nord-américain", tz.getDisplayName(Locale.FRANCE));
     }
 
     public void test_getDisplayNameZI() {
@@ -113,7 +113,7 @@ public class OldTimeZoneTest extends TestCase {
         // ICU zone/root.txt patched to allow metazone names.
         assertEquals("PST",             tz.getDisplayName(false, 0, Locale.FRANCE));
         assertEquals("heure avanc\u00e9e du Pacifique", tz.getDisplayName(true,  1, Locale.FRANCE));
-        assertEquals("heure normale du Pacifique", tz.getDisplayName(false, 1, Locale.FRANCE));
+        assertEquals("heure normale du Pacifique nord-américain", tz.getDisplayName(false, 1, Locale.FRANCE));
     }
 
     public void test_getID() {
