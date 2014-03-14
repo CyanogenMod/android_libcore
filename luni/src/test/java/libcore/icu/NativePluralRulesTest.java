@@ -21,7 +21,6 @@ import java.util.Locale;
 public class NativePluralRulesTest extends junit.framework.TestCase {
     public void testEnglish() throws Exception {
         NativePluralRules npr = NativePluralRules.forLocale(new Locale("en", "US"));
-        assertEquals(NativePluralRules.OTHER, npr.quantityForInt(-1));
         assertEquals(NativePluralRules.OTHER, npr.quantityForInt(0));
         assertEquals(NativePluralRules.ONE, npr.quantityForInt(1));
         assertEquals(NativePluralRules.OTHER, npr.quantityForInt(2));
@@ -29,7 +28,6 @@ public class NativePluralRulesTest extends junit.framework.TestCase {
 
     public void testCzech() throws Exception {
         NativePluralRules npr = NativePluralRules.forLocale(new Locale("cs", "CZ"));
-        assertEquals(NativePluralRules.OTHER, npr.quantityForInt(-1));
         assertEquals(NativePluralRules.OTHER, npr.quantityForInt(0));
         assertEquals(NativePluralRules.ONE, npr.quantityForInt(1));
         assertEquals(NativePluralRules.FEW, npr.quantityForInt(2));
@@ -40,7 +38,6 @@ public class NativePluralRulesTest extends junit.framework.TestCase {
 
     public void testArabic() throws Exception {
         NativePluralRules npr = NativePluralRules.forLocale(new Locale("ar"));
-        assertEquals(NativePluralRules.OTHER, npr.quantityForInt(-1));
         assertEquals(NativePluralRules.ZERO, npr.quantityForInt(0));
         assertEquals(NativePluralRules.ONE, npr.quantityForInt(1));
         assertEquals(NativePluralRules.TWO, npr.quantityForInt(2));
@@ -62,6 +59,7 @@ public class NativePluralRulesTest extends junit.framework.TestCase {
         assertEquals(NativePluralRules.ONE, he.quantityForInt(1));
         assertEquals(NativePluralRules.TWO, he.quantityForInt(2));
         assertEquals(NativePluralRules.OTHER, he.quantityForInt(3));
-        assertEquals(NativePluralRules.MANY, he.quantityForInt(10));
+        assertEquals(NativePluralRules.OTHER, he.quantityForInt(10));
     }
 }
+

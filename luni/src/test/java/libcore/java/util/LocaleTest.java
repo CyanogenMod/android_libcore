@@ -74,12 +74,12 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("Macau", new Locale("", "MO").getDisplayCountry(Locale.US));
         assertEquals("Palestine", new Locale("", "PS").getDisplayCountry(Locale.US));
 
-        assertEquals("Cocos [Keeling] Islands", new Locale("", "CC").getDisplayCountry(Locale.US));
-        assertEquals("Congo [DRC]", new Locale("", "CD").getDisplayCountry(Locale.US));
-        assertEquals("Congo [Republic]", new Locale("", "CG").getDisplayCountry(Locale.US));
-        assertEquals("Falkland Islands [Islas Malvinas]", new Locale("", "FK").getDisplayCountry(Locale.US));
-        assertEquals("Macedonia [FYROM]", new Locale("", "MK").getDisplayCountry(Locale.US));
-        assertEquals("Myanmar [Burma]", new Locale("", "MM").getDisplayCountry(Locale.US));
+        assertEquals("Cocos (Keeling) Islands", new Locale("", "CC").getDisplayCountry(Locale.US));
+        assertEquals("Congo (DRC)", new Locale("", "CD").getDisplayCountry(Locale.US));
+        assertEquals("Congo (Republic)", new Locale("", "CG").getDisplayCountry(Locale.US));
+        assertEquals("Falkland Islands (Islas Malvinas)", new Locale("", "FK").getDisplayCountry(Locale.US));
+        assertEquals("Macedonia (FYROM)", new Locale("", "MK").getDisplayCountry(Locale.US));
+        assertEquals("Myanmar (Burma)", new Locale("", "MM").getDisplayCountry(Locale.US));
         assertEquals("Taiwan", new Locale("", "TW").getDisplayCountry(Locale.US));
     }
 
@@ -1145,4 +1145,3 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("en-US-u-va-posix", posix.toLanguageTag());
     }
 }
-
