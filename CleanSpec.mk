@@ -47,6 +47,7 @@
 #$(call add-clean-step, rm -rf $(OUT)/obj/SHARED_LIBRARIES/libdvm*)
 $(call add-clean-step, rm -rf $(OUT)/system/framework/conscrypt-nojarjar.jar)
 $(call add-clean-step, rm -rf $(OUT)/system/framework/conscrypt-nojarjar.jar)
+$(call add-clean-step, rm -rf $(OUT)/system/etc/security/cacerts/*)
 # ************************************************
 # NEWER CLEAN STEPS MUST BE AT THE END OF THE LIST
 # ************************************************
