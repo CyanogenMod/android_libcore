@@ -283,6 +283,8 @@ static void negBigEndianBytes2bn(JNIEnv*, jclass, const unsigned char* bytes, in
         d[i] = -di;
       }
     }
+    // The top may have superfluous zeros, so fix it.
+    bn_correct_top(ret);
   }
 }
 
