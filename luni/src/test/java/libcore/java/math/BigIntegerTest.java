@@ -156,4 +156,32 @@ public class BigIntegerTest extends junit.framework.TestCase {
         assertTrue(b.isProbablePrime(100));
       }
     }
+
+    public void test_negativeValues_superfluousZeros() throws Exception {
+        byte[] trimmedBytes = new byte[] {
+                (byte) 0xae, (byte) 0x0f, (byte) 0xa1, (byte) 0x93
+        };
+        byte[] extraZeroesBytes = new byte[] {
+                (byte) 0xff, (byte) 0xae, (byte) 0x0f, (byte) 0xa1, (byte) 0x93
+        };
+
+        BigInteger trimmed = new BigInteger(trimmedBytes);
+        BigInteger extraZeroes = new BigInteger(extraZeroesBytes);
+
+        assertEquals(trimmed, extraZeroes);
+    }
+
+    public void test_positiveValues_superfluousZeros() throws Exception {
+        byte[] trimmedBytes = new byte[] {
+                (byte) 0x2e, (byte) 0x0f, (byte) 0xa1, (byte) 0x93
+        };
+        byte[] extraZeroesBytes = new byte[] {
+                (byte) 0x00, (byte) 0x2e, (byte) 0x0f, (byte) 0xa1, (byte) 0x93
+        };
+
+        BigInteger trimmed = new BigInteger(trimmedBytes);
+        BigInteger extraZeroes = new BigInteger(extraZeroesBytes);
+
+        assertEquals(trimmed, extraZeroes);
+    }
 }
