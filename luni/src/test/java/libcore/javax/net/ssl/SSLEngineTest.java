@@ -28,6 +28,7 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSession;
+import javax.net.ssl.X509ExtendedKeyManager;
 import junit.framework.TestCase;
 import libcore.java.security.StandardNames;
 import libcore.java.security.TestKeyStore;
@@ -93,14 +94,43 @@ public class SSLEngineTest extends TestCase {
         // Create a TestSSLContext where the KeyManager returns wrong (randomly generated) private
         // keys, matching the algorithm and parameters of the correct keys.
         // I couldn't find a more elegant way to achieve this other than temporarily replacing the
-        // first element of TestKeyStore.keyManagers while invoking TestSSLContext.create.
+        // first X509ExtendedKeyManager element of TestKeyStore.keyManagers while invoking
+        // TestSSLContext.create.
         TestSSLContext cWithWrongPrivateKeys;
         {
-            KeyManager originalKeyManager = testKeyStore.keyManagers[0];
-            testKeyStore.keyManagers[0] =
-                    new RandomPrivateKeyX509ExtendedKeyManager(c.serverKeyManager);
+            // Create a RandomPrivateKeyX509ExtendedKeyManager based on the first
+            // X509ExtendedKeyManager in c.serverKeyManagers.
+            KeyManager randomPrivateKeyX509ExtendedKeyManager = null;
+            for (KeyManager keyManager : c.serverKeyManagers) {
+              if (keyManager instanceof X509ExtendedKeyManager) {
+                randomPrivateKeyX509ExtendedKeyManager =
+                    new RandomPrivateKeyX509ExtendedKeyManager((X509ExtendedKeyManager) keyManager);
+                break;
+              }
+            }
+            if (randomPrivateKeyX509ExtendedKeyManager == null) {
+              fail("No X509ExtendedKeyManager in c.serverKeyManagers");
+            }
+
+            // Find the first X509ExtendedKeyManager in testKeyStore.keyManagers
+            int replaceIndex = -1;
+            for (int i = 0; i < testKeyStore.keyManagers.length; i++) {
+              KeyManager keyManager = testKeyStore.keyManagers[i];
+              if (keyManager instanceof X509ExtendedKeyManager) {
+                replaceIndex = i;
+                break;
+              }
+            }
+            if (replaceIndex == -1) {
+              fail("No X509ExtendedKeyManager in testKeyStore.keyManagers");
+            }
+
+            // Temporarily substitute the RandomPrivateKeyX509ExtendedKeyManager in place of the
+            // original X509ExtendedKeyManager.
+            KeyManager originalKeyManager = testKeyStore.keyManagers[replaceIndex];
+            testKeyStore.keyManagers[replaceIndex] = randomPrivateKeyX509ExtendedKeyManager;
             cWithWrongPrivateKeys = TestSSLContext.create(testKeyStore, testKeyStore);
-            testKeyStore.keyManagers[0] = originalKeyManager;
+            testKeyStore.keyManagers[replaceIndex] = originalKeyManager;
         }
 
         String[] cipherSuites = c.clientContext.createSSLEngine().getSupportedCipherSuites();
