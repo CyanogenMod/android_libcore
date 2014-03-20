@@ -458,9 +458,9 @@ public class GregorianCalendar extends Calendar {
         complete();
     }
 
-    private void fullFieldsCalc(long timeVal, int zoneOffset) {
+    private void fullFieldsCalc(int zoneOffset) {
         int millis = (int) (time % 86400000);
-        long days = timeVal / 86400000;
+        long days = time / 86400000;
 
         if (millis < 0) {
             millis += 86400000;
@@ -477,9 +477,9 @@ public class GregorianCalendar extends Calendar {
             days++;
         }
 
-        int dayOfYear = computeYearAndDay(days, timeVal + zoneOffset);
+        int dayOfYear = computeYearAndDay(days, time + zoneOffset);
         fields[DAY_OF_YEAR] = dayOfYear;
-        if(fields[YEAR] == changeYear && gregorianCutover <= timeVal + zoneOffset){
+        if(fields[YEAR] == changeYear && gregorianCutover <= time + zoneOffset){
             dayOfYear += currentYearSkew;
         }
         int month = dayOfYear / 32;
@@ -507,10 +507,10 @@ public class GregorianCalendar extends Calendar {
                 days++;
             }
             if (oldDays != days) {
-                dayOfYear = computeYearAndDay(days, timeVal - zoneOffset
+                dayOfYear = computeYearAndDay(days, time - zoneOffset
                         + dstOffset);
                 fields[DAY_OF_YEAR] = dayOfYear;
-                if(fields[YEAR] == changeYear && gregorianCutover <= timeVal - zoneOffset + dstOffset){
+                if(fields[YEAR] == changeYear && gregorianCutover <= time - zoneOffset + dstOffset){
                     dayOfYear += currentYearSkew;
                 }
                 month = dayOfYear / 32;
@@ -570,7 +570,7 @@ public class GregorianCalendar extends Calendar {
         fields[DST_OFFSET] = dstOffset;
         fields[ZONE_OFFSET] = zoneOffset;
 
-        fullFieldsCalc(time, zoneOffset);
+        fullFieldsCalc(zoneOffset);
 
         for (int i = 0; i < FIELD_COUNT; i++) {
             isSet[i] = true;
