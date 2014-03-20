@@ -179,7 +179,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
                 groupingSeparator == obj.groupingSeparator &&
                 infinity.equals(obj.infinity) &&
                 intlCurrencySymbol.equals(obj.intlCurrencySymbol) &&
-                minusSign == obj.minusSign &&
+                minusSign.equals(obj.minusSign) &&
                 monetarySeparator == obj.monetarySeparator &&
                 NaN.equals(obj.NaN) &&
                 patternSeparator == obj.patternSeparator &&
