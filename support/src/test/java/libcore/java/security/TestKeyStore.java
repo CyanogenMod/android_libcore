@@ -154,11 +154,16 @@ public final class TestKeyStore extends Assert {
                 .signer(ROOT_CA.getPrivateKey("RSA", "RSA"))
                 .rootCa(ROOT_CA.getRootCertificate("RSA"))
                 .build();
-        SERVER = new Builder()
-                .aliasPrefix("server")
-                .signer(INTERMEDIATE_CA.getPrivateKey("RSA", "RSA"))
-                .rootCa(INTERMEDIATE_CA.getRootCertificate("RSA"))
-                .build();
+        try {
+            SERVER = new Builder()
+                    .aliasPrefix("server")
+                    .signer(INTERMEDIATE_CA.getPrivateKey("RSA", "RSA"))
+                    .rootCa(INTERMEDIATE_CA.getRootCertificate("RSA"))
+                    .addSubjectAltNameIpAddress(InetAddress.getLocalHost().getAddress())
+                    .build();
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
         CLIENT = new TestKeyStore(createClient(INTERMEDIATE_CA.keyStore), null, null);
         CLIENT_CERTIFICATE = new Builder()
                 .aliasPrefix("client")
