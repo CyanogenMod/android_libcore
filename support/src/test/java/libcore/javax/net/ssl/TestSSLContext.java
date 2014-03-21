@@ -33,7 +33,6 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509TrustManager;
 import junit.framework.Assert;
 import libcore.java.security.StandardNames;
@@ -81,8 +80,8 @@ public final class TestSSLContext extends Assert {
     public final char[] clientStorePassword;
     public final KeyStore serverKeyStore;
     public final char[] serverStorePassword;
-    public final X509ExtendedKeyManager clientKeyManager;
-    public final X509ExtendedKeyManager serverKeyManager;
+    public final KeyManager[] clientKeyManagers;
+    public final KeyManager[] serverKeyManagers;
     public final X509TrustManager clientTrustManager;
     public final X509TrustManager serverTrustManager;
     public final SSLContext clientContext;
@@ -95,8 +94,8 @@ public final class TestSSLContext extends Assert {
                            char[] clientStorePassword,
                            KeyStore serverKeyStore,
                            char[] serverStorePassword,
-                           X509ExtendedKeyManager clientKeyManager,
-                           X509ExtendedKeyManager serverKeyManager,
+                           KeyManager[] clientKeyManagers,
+                           KeyManager[] serverKeyManagers,
                            X509TrustManager clientTrustManager,
                            X509TrustManager serverTrustManager,
                            SSLContext clientContext,
@@ -108,8 +107,8 @@ public final class TestSSLContext extends Assert {
         this.clientStorePassword = clientStorePassword;
         this.serverKeyStore = serverKeyStore;
         this.serverStorePassword = serverStorePassword;
-        this.clientKeyManager = clientKeyManager;
-        this.serverKeyManager = serverKeyManager;
+        this.clientKeyManagers = clientKeyManagers;
+        this.serverKeyManagers = serverKeyManagers;
         this.clientTrustManager = clientTrustManager;
         this.serverTrustManager = serverTrustManager;
         this.clientContext = clientContext;
@@ -148,8 +147,8 @@ public final class TestSSLContext extends Assert {
                 createSSLContext(protocol, server.keyManagers, server.trustManagers);
         return create(client.keyStore, client.storePassword,
                       server.keyStore, server.storePassword,
-                      client.keyManagers[0],
-                      server.keyManagers[0],
+                      client.keyManagers,
+                      server.keyManagers,
                       client.trustManagers[0],
                       server.trustManagers[0],
                       clientContext,
@@ -161,8 +160,8 @@ public final class TestSSLContext extends Assert {
      */
     public static TestSSLContext create(KeyStore clientKeyStore, char[] clientStorePassword,
                                         KeyStore serverKeyStore, char[] serverStorePassword,
-                                        KeyManager clientKeyManagers,
-                                        KeyManager serverKeyManagers,
+                                        KeyManager[] clientKeyManagers,
+                                        KeyManager[] serverKeyManagers,
                                         TrustManager clientTrustManagers,
                                         TrustManager serverTrustManagers,
                                         SSLContext clientContext,
@@ -175,8 +174,8 @@ public final class TestSSLContext extends Assert {
 
             return new TestSSLContext(clientKeyStore, clientStorePassword,
                                       serverKeyStore, serverStorePassword,
-                                      (X509ExtendedKeyManager) clientKeyManagers,
-                                      (X509ExtendedKeyManager) serverKeyManagers,
+                                      clientKeyManagers,
+                                      serverKeyManagers,
                                       (X509TrustManager) clientTrustManagers,
                                       (X509TrustManager) serverTrustManagers,
                                       clientContext, serverContext,

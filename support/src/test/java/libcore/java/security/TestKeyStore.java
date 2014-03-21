@@ -102,7 +102,6 @@ public final class TestKeyStore extends Assert {
     public final char[] keyPassword;
     public final KeyManager[] keyManagers;
     public final TrustManager[] trustManagers;
-    public final TestKeyManager keyManager;
     public final TestTrustManager trustManager;
 
     private TestKeyStore(KeyStore keyStore, char[] storePassword, char[] keyPassword) {
@@ -111,7 +110,6 @@ public final class TestKeyStore extends Assert {
         this.keyPassword = keyPassword;
         this.keyManagers = createKeyManagers(keyStore, storePassword);
         this.trustManagers = createTrustManagers(keyStore);
-        this.keyManager = (TestKeyManager)keyManagers[0];
         this.trustManager = (TestTrustManager)trustManagers[0];
     }
 
