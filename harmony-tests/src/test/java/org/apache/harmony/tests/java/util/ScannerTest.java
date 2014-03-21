@@ -25,9 +25,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
@@ -39,12 +39,12 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,10 +52,9 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.Scanner;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
-import java.util.Scanner;
-
 import junit.framework.TestCase;
 
 public class ScannerTest extends TestCase {
@@ -1058,27 +1057,20 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextInt(10));
 
-        /*
-         * There are three types of negative prefix all in all. '' '-' '(' There
-         * are three types of negative suffix all in all. '' '-' ')' '(' and ')'
-         * must be used togethor. Prefix '-' and suffix '-' must be used
-         * exclusively.
-         */
-
-        /*
-         * According to Integer regular expression: Integer :: = ( [-+]? (*
-         * Numeral ) ) | LocalPositivePrefix Numeral LocalPositiveSuffix |
-         * LocalNegativePrefix Numeral LocalNegativeSuffix 123- should be
-         * recognized by scanner with locale ar_AE, (123) shouble be recognized
-         * by scanner with locale mk_MK. But this is not the case on RI.
-         */
-        s = new Scanner("-123 123- -123-");
+        s = new Scanner("-123 123-");
         s.useLocale(new Locale("ar", "AE"));
-        assertEquals(-123, s.nextInt(10));
-        // The following test case fails on RI
-        assertEquals(-123, s.nextInt(10));
+        assertEquals(-123, s.nextInt());
         try {
-            s.nextInt(10);
+            s.nextInt();
+            fail();
+        } catch (InputMismatchException expected) {
+        }
+
+        s = new Scanner("-123 -123-");
+        s.useLocale(new Locale("ar", "AE"));
+        assertEquals(-123, s.nextInt());
+        try {
+            s.nextInt();
             fail();
         } catch (InputMismatchException expected) {
         }
@@ -1244,24 +1236,17 @@ public class ScannerTest extends TestCase {
         s.useLocale(Locale.CHINESE);
         assertEquals(12300, s.nextInt());
 
-        /*
-         * There are three types of negative prefix all in all. '' '-' '(' There
-         * are three types of negative suffix all in all. '' '-' ')' '(' and ')'
-         * must be used togethor. Prefix '-' and suffix '-' must be used
-         * exclusively.
-         */
-
-        /*
-         * According to Integer regular expression: Integer :: = ( [-+]? (*
-         * Numeral ) ) | LocalPositivePrefix Numeral LocalPositiveSuffix |
-         * LocalNegativePrefix Numeral LocalNegativeSuffix 123- should be
-         * recognized by scanner with locale ar_AE, (123) shouble be recognized
-         * by scanner with locale mk_MK. But this is not the case on RI.
-         */
-        s = new Scanner("-123 123- -123-");
+        s = new Scanner("-123 123-");
         s.useLocale(new Locale("ar", "AE"));
         assertEquals(-123, s.nextInt());
-        // The following test case fails on RI
+        try {
+            s.nextInt();
+            fail();
+        } catch (InputMismatchException expected) {
+        }
+
+        s = new Scanner("-123 -123-");
+        s.useLocale(new Locale("ar", "AE"));
         assertEquals(-123, s.nextInt());
         try {
             s.nextInt();
@@ -3259,26 +3244,19 @@ public class ScannerTest extends TestCase {
         assertTrue(s.hasNextInt(10));
         assertEquals(12300, s.nextInt(10));
 
-        /*
-         * There are three types of negative prefix all in all. '' '-' '(' There
-         * are three types of negative suffix all in all. '' '-' ')' '(' and ')'
-         * must be used together. Prefix '-' and suffix '-' must be used
-         * exclusively.
-         */
-
-        /*
-         * According to Integer regular expression: Integer :: = ( [-+]? (*
-         * Numeral ) ) | LocalPositivePrefix Numeral LocalPositiveSuffix |
-         * LocalNegativePrefix Numeral LocalNegativeSuffix 123- should be
-         * recognized by scanner with locale ar_AE, (123) should be recognized
-         * by scanner with locale mk_MK. But this is not the case on RI.
-         */
-        s = new Scanner("-123 123- -123-");
+        s = new Scanner("-123 123-");
         s.useLocale(new Locale("ar", "AE"));
         assertTrue(s.hasNextInt(10));
         assertEquals(-123, s.nextInt(10));
-        // The following test case fails on RI
-        assertTrue(s.hasNextInt(10));
+        assertFalse(s.hasNextInt(10));
+        try {
+            s.nextInt(10);
+            fail();
+        } catch (InputMismatchException expected) {
+        }
+
+        s = new Scanner("-123 -123-");
+        s.useLocale(new Locale("ar", "AE"));
         assertEquals(-123, s.nextInt(10));
         assertFalse(s.hasNextInt(10));
         try {
@@ -3452,25 +3430,19 @@ public class ScannerTest extends TestCase {
         assertTrue(s.hasNextInt());
         assertEquals(12300, s.nextInt());
 
-        /*
-         * There are three types of negative prefix all in all. '' '-' '(' There
-         * are three types of negative suffix all in all. '' '-' ')' '(' and ')'
-         * must be used togethor. Prefix '-' and suffix '-' must be used
-         * exclusively.
-         */
-
-        /*
-         * According to Integer regular expression: Integer :: = ( [-+]? (*
-         * Numeral ) ) | LocalPositivePrefix Numeral LocalPositiveSuffix |
-         * LocalNegativePrefix Numeral LocalNegativeSuffix 123- should be
-         * recognized by scanner with locale ar_AE, (123) shouble be recognized
-         * by scanner with locale mk_MK. But this is not the case on RI.
-         */
-        s = new Scanner("-123 123- -123-");
+        s = new Scanner("-123 123-");
         s.useLocale(new Locale("ar", "AE"));
         assertTrue(s.hasNextInt());
         assertEquals(-123, s.nextInt());
-        // The following test case fails on RI
+        assertFalse(s.hasNextInt());
+        try {
+            s.nextInt();
+            fail();
+        } catch (InputMismatchException expected) {
+        }
+
+        s = new Scanner("-123 -123-");
+        s.useLocale(new Locale("ar", "AE"));
         assertTrue(s.hasNextInt());
         assertEquals(-123, s.nextInt());
         assertFalse(s.hasNextInt());
