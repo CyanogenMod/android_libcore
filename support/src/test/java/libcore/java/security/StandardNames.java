@@ -577,6 +577,12 @@ public final class StandardNames extends Assert {
              * do to disable general use of SSLv2.
              */
             SSL_SOCKET_PROTOCOLS.add("SSLv2Hello");
+
+            // RI doesn't support these by default.
+            SSL_SOCKET_PROTOCOLS_CLIENT_DEFAULT.remove("TLSv1.1");
+            SSL_SOCKET_PROTOCOLS_CLIENT_DEFAULT.remove("TLSv1.2");
+            SSL_SOCKET_PROTOCOLS_SERVER_DEFAULT.remove("TLSv1.1");
+            SSL_SOCKET_PROTOCOLS_SERVER_DEFAULT.remove("TLSv1.2");
         }
     }
 
@@ -657,13 +663,13 @@ public final class StandardNames extends Assert {
     static {
         // NOTE: This list needs to be kept in sync with Javadoc of javax.net.ssl.SSLSocket and
         // javax.net.ssl.SSLEngine.
-        addOpenSsl("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
-        addOpenSsl("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
-        addOpenSsl("TLS_RSA_WITH_AES_256_CBC_SHA");
-        addOpenSsl("TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
-        addOpenSsl("TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
-        addOpenSsl("TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
-        addOpenSsl("TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_RSA_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_RSA_WITH_AES_128_CBC_SHA");
@@ -688,35 +694,35 @@ public final class StandardNames extends Assert {
         // TLSv1.2 cipher suites
         addBoth(   "TLS_RSA_WITH_NULL_SHA256");
         addBoth(   "TLS_RSA_WITH_AES_128_CBC_SHA256");
-        addOpenSsl("TLS_RSA_WITH_AES_256_CBC_SHA256");
+        addBoth(   "TLS_RSA_WITH_AES_256_CBC_SHA256");
         addOpenSsl("TLS_RSA_WITH_AES_128_GCM_SHA256");
         addOpenSsl("TLS_RSA_WITH_AES_256_GCM_SHA384");
         addBoth(   "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256");
-        addOpenSsl("TLS_DHE_RSA_WITH_AES_256_CBC_SHA256");
+        addBoth(   "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256");
         addOpenSsl("TLS_DHE_RSA_WITH_AES_128_GCM_SHA256");
         addOpenSsl("TLS_DHE_RSA_WITH_AES_256_GCM_SHA384");
         addBoth(   "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256");
-        addOpenSsl("TLS_DHE_DSS_WITH_AES_256_CBC_SHA256");
+        addBoth(   "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256");
         addOpenSsl("TLS_DHE_DSS_WITH_AES_128_GCM_SHA256");
         addOpenSsl("TLS_DHE_DSS_WITH_AES_256_GCM_SHA384");
         addBoth(   "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256");
-        addOpenSsl("TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384");
+        addBoth(   "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384");
         addOpenSsl("TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256");
         addOpenSsl("TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384");
         addBoth(   "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256");
-        addOpenSsl("TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384");
+        addBoth(   "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384");
         addOpenSsl("TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256");
         addOpenSsl("TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384");
         addBoth(   "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
-        addOpenSsl("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384");
+        addBoth(   "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384");
         addOpenSsl("TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256");
         addOpenSsl("TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384");
         addBoth(   "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256");
-        addOpenSsl("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384");
+        addBoth(   "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384");
         addOpenSsl("TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256");
         addOpenSsl("TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384");
         addBoth(   "TLS_DH_anon_WITH_AES_128_CBC_SHA256");
-        addOpenSsl("TLS_DH_anon_WITH_AES_256_CBC_SHA256");
+        addBoth(   "TLS_DH_anon_WITH_AES_256_CBC_SHA256");
         addOpenSsl("TLS_DH_anon_WITH_AES_128_GCM_SHA256");
         addOpenSsl("TLS_DH_anon_WITH_AES_256_GCM_SHA384");
 
@@ -724,8 +730,8 @@ public final class StandardNames extends Assert {
         addBoth(CIPHER_SUITE_SECURE_RENEGOTIATION);
 
         // non-defaultCipherSuites
-        addOpenSsl("TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
-        addOpenSsl("TLS_DH_anon_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
+        addBoth(   "TLS_DH_anon_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_DH_anon_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_ECDH_anon_WITH_RC4_128_SHA");
@@ -781,27 +787,34 @@ public final class StandardNames extends Assert {
     // NOTE: This list needs to be kept in sync with Javadoc of javax.net.ssl.SSLSocket and
     // javax.net.ssl.SSLEngine.
     public static final List<String> CIPHER_SUITES_DEFAULT = (IS_RI)
-            ? Arrays.asList("TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-                            "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
-                            "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
-                            "SSL_RSA_WITH_RC4_128_SHA",
-                            "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
-                            "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
-                            "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
-                            "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
-                            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-                            "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
-                            "TLS_ECDH_RSA_WITH_RC4_128_SHA",
-                            "TLS_EMPTY_RENEGOTIATION_INFO_SCSV",
-                            "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
-                            "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
+            ? Arrays.asList("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+                            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                            "TLS_RSA_WITH_AES_256_CBC_SHA",
+                            "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
+                            "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA",
+                            "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+                            "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
                             "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+                            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
                             "TLS_RSA_WITH_AES_128_CBC_SHA",
-                            "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
-                            "SSL_RSA_WITH_RC4_128_MD5",
+                            "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
+                            "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
+                            "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
                             "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+                            "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
+                            "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+                            "SSL_RSA_WITH_RC4_128_SHA",
+                            "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
+                            "TLS_ECDH_RSA_WITH_RC4_128_SHA",
+                            "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
+                            "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
+                            "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+                            "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
+                            "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
+                            "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
                             "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
-                            "SSL_RSA_WITH_3DES_EDE_CBC_SHA")
+                            "SSL_RSA_WITH_RC4_128_MD5",
+                            "TLS_EMPTY_RENEGOTIATION_INFO_SCSV")
             : Arrays.asList("TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
                             "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
                             "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
