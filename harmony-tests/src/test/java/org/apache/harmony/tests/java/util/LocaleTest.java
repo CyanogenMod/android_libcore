@@ -175,7 +175,7 @@ public class LocaleTest extends junit.framework.TestCase {
 
         // Regression for Harmony-1146
         Locale l_countryCD = new Locale("", "CD");
-        assertEquals("Congo [DRC]",
+        assertEquals("Congo (DRC)",
                 l_countryCD.getDisplayCountry());
     }
 

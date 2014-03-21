@@ -174,16 +174,16 @@ public class NumberFormatTest extends junit.framework.TestCase {
         format = (DecimalFormat) NumberFormat.getIntegerInstance(arLocale);
         assertEquals(
                 "Test7: NumberFormat.getIntegerInstance(new Locale(\"ar\", \"AE\")).toPattern() returned wrong pattern",
-                "#0;#0-", format.toPattern());
+                "#,##0", format.toPattern());
         assertEquals(
                 "Test8: NumberFormat.getIntegerInstance(new Locale(\"ar\", \"AE\")).format(-35.76) returned wrong value",
-                "\u0666-", format.format(-6));
+                "\u200f-\u0666", format.format(-6));
         assertEquals(
                 "Test9: NumberFormat.getIntegerInstance(new Locale(\"ar\", \"AE\")).parse(\"-36-\") returned wrong number",
-                new Long(-36), format.parse("36-"));
+                new Long(36), format.parse("36-"));
         assertEquals(
                 "Test10: NumberFormat.getIntegerInstance(new Locale(\"ar\", \"AE\")).parseObject(\"36-\") returned wrong number",
-                new Long(-36), format.parseObject("36-"));
+                new Long(36), format.parseObject("36-"));
 
         assertEquals(
                 "Test11: NumberFormat.getIntegerInstance(new Locale(\"ar\", \"AE\")).getMaximumFractionDigits() returned wrong value",
