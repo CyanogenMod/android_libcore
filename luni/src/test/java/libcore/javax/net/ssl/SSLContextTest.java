@@ -21,12 +21,13 @@ import java.security.Provider;
 import libcore.java.security.StandardNames;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSessionContext;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import junit.framework.TestCase;
 
 public class SSLContextTest extends TestCase {
@@ -131,6 +132,24 @@ public class SSLContextTest extends TestCase {
                 }
             } else {
                 sslContext.init(null, null, null);
+            }
+        }
+    }
+
+    public void test_SSLContext_init_withoutX509() throws Exception {
+        // Assert that SSLContext.init works fine even when provided with KeyManagers and
+        // TrustManagers which don't include the X.509 ones.
+        KeyManager[] keyManagers = new KeyManager[] {new KeyManager() {}};
+        TrustManager[] trustManagers = new TrustManager[] {new TrustManager() {}};
+        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+            SSLContext sslContext = SSLContext.getInstance(protocol);
+            if (protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                try {
+                    sslContext.init(keyManagers, trustManagers, null);
+                } catch (KeyManagementException expected) {
+                }
+            } else {
+                sslContext.init(keyManagers, trustManagers, null);
             }
         }
     }
