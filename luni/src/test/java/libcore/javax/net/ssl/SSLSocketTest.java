@@ -652,9 +652,8 @@ public class SSLSocketTest extends TestCase {
             @Override public Void call() throws Exception {
                 try {
                     server.startHandshake();
-                    assertFalse(StandardNames.IS_RI);
+                    fail();
                 } catch (SSLHandshakeException expected) {
-                    assertTrue(StandardNames.IS_RI);
                 }
                 return null;
             }
@@ -799,7 +798,10 @@ public class SSLSocketTest extends TestCase {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<Void> future = executor.submit(new Callable<Void>() {
             @Override public Void call() throws Exception {
-                server.startHandshake();
+                try {
+                    server.startHandshake();
+                } catch (SSLHandshakeException expected) {
+                }
                 return null;
             }
         });

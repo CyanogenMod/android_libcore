@@ -543,12 +543,18 @@ public final class StandardNames extends Assert {
     public static final Set<String> KEY_TYPES = new HashSet<String>(Arrays.asList(
         "RSA",
         "DSA",
-        // DH_* are specified by standard names, but do not seem to be supported by RI
-        // "DH_RSA",
-        // "DH_DSA",
+        "DH_RSA",
+        "DH_DSA",
         "EC",
         "EC_EC",
         "EC_RSA"));
+    static {
+        if (IS_RI) {
+            // DH_* are specified by standard names, but do not seem to be supported by RI
+            KEY_TYPES.remove("DH_RSA");
+            KEY_TYPES.remove("DH_DSA");
+        }
+    }
 
     public static final Set<String> SSL_SOCKET_PROTOCOLS = new HashSet<String>(Arrays.asList(
         // "SSLv2",
