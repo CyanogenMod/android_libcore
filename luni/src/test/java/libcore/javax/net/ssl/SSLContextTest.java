@@ -282,8 +282,16 @@ public class SSLContextTest extends TestCase {
         assertNull(testContext.clientStorePassword);
         assertNotNull(testContext.serverKeyStore);
         assertEquals(StandardNames.IS_RI, testContext.serverStorePassword != null);
-        assertNotNull(testContext.clientKeyManager);
-        assertNotNull(testContext.serverKeyManager);
+        assertNotNull(testContext.clientKeyManagers);
+        assertNotNull(testContext.serverKeyManagers);
+        if (testContext.clientKeyManagers.length == 0) {
+          fail("No client KeyManagers");
+        }
+        if (testContext.serverKeyManagers.length == 0) {
+          fail("No server KeyManagers");
+        }
+        assertNotNull(testContext.clientKeyManagers[0]);
+        assertNotNull(testContext.serverKeyManagers[0]);
         assertNotNull(testContext.clientTrustManager);
         assertNotNull(testContext.serverTrustManager);
         assertNotNull(testContext.clientContext);
