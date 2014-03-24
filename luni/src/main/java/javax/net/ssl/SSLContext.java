@@ -314,16 +314,33 @@ public class SSLContext {
     }
 
     /**
-     * Initializes this {@code SSLContext} instance. All of the arguments are
-     * optional, and the security providers will be searched for the required
-     * implementations of the needed algorithms.
+     * Initializes this {@code SSLContext} instance. Three aspects of the context can be configured
+     * during initialization:
+     * <ul>
+     *   <li>Providers of key material for key exchange and peer authentication
+     *       ({@link KeyManager} instances),</li>
+     *   <li>Providers of trust decisions about peers ({@link TrustManager} instances),
+     *   </li>
+     *   <li>Provider of randomness ({@link SecureRandom} instance).</li>
+     * </ul>
+     *
+     * <p>For each type of {@code KeyManager} or {@code TrustManager} used by this context, only the
+     * first matching instance from {@code km} or {@code tm} will be used. For example, only the
+     * first instance of {@link X509TrustManager} from {@code tm} will be used.
+     *
+     * <p>For any parameter set to {@code null} defaults will be used. In that case, the installed
+     * security providers will be searched for the highest priority implementation of the required
+     * primitives. For {@code km} and {@code tm}, the highest priority implementation
+     * of {@link KeyManagerFactory} and {@link TrustManagerFactory} will be used to obtain the
+     * required types of {@code KeyManager} and {@code TrustManager}. For {@code sr}, the default
+     * {@code SecureRandom} implementation will be used.
      *
      * @param km
-     *            the key sources or {@code null}.
+     *            the key sources or {@code null} for default.
      * @param tm
-     *            the trust decision sources or {@code null}.
+     *            the trust decision sources or {@code null} for default.
      * @param sr
-     *            the randomness source or {@code null.}
+     *            the randomness source or {@code null} for default.
      * @throws KeyManagementException
      *             if initializing this instance fails.
      */
