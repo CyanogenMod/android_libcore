@@ -443,6 +443,18 @@ public abstract class SSLEngine {
     public abstract SSLSession getSession();
 
     /**
+     * Returns the SSL session for this engine instance. Does not cause the
+     * handshake to start if it has not already started.
+     *
+     * @return the SSL session for this engine instance.
+     * @since 1.7
+     * @hide
+     */
+    public SSLSession getHandshakeSession() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Returns the SSL cipher suite names that are supported by this engine.
      * These cipher suites can be enabled using
      * {@link #setEnabledCipherSuites(String[])}.
