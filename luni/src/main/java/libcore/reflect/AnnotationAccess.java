@@ -183,16 +183,16 @@ public final class AnnotationAccess {
 
     private static com.android.dex.Annotation getMethodAnnotation(
             AnnotatedElement element, Class<? extends Annotation> annotationClass) {
+        int annotationSetOffset = getAnnotationSetOffset(element);
+        if (annotationSetOffset == 0) {
+            return null; // no annotation
+        }
+
         Class<?> dexClass = getDexClass(element);
         Dex dex = dexClass.getDex();
         int annotationTypeIndex = getTypeIndex(dex, annotationClass);
         if (annotationTypeIndex == -1) {
             return null; // The dex file doesn't use this annotation.
-        }
-
-        int annotationSetOffset = getAnnotationSetOffset(element);
-        if (annotationSetOffset == 0) {
-            return null; // no annotation
         }
 
         Dex.Section setIn = dex.open(annotationSetOffset); // annotation_set_item
@@ -228,18 +228,21 @@ public final class AnnotationAccess {
         int methodsSize = directoryIn.readInt();
         directoryIn.readInt(); // parameters size
 
-        int fieldIndex = element instanceof Field ? ((Field) element).getDexFieldIndex() : -1;
-        for (int i = 0; i < fieldsSize; i++) {
-            int candidateFieldIndex = directoryIn.readInt();
-            int annotationSetOffset = directoryIn.readInt();
-            if (candidateFieldIndex == fieldIndex) {
-                return annotationSetOffset;
-            }
-        }
-        // we must read all fields prior to methods, if we were searching for a field then we missed
         if (element instanceof Field) {
+            int fieldIndex = ((Field) element).getDexFieldIndex();
+            for (int i = 0; i < fieldsSize; i++) {
+                int candidateFieldIndex = directoryIn.readInt();
+                int annotationSetOffset = directoryIn.readInt();
+                if (candidateFieldIndex == fieldIndex) {
+                    return annotationSetOffset;
+                }
+            }
+            // if we were searching for a field then we missed
             return 0;
         }
+
+        // Skip through the fields without reading them and look for constructors or methods.
+        directoryIn.skip(8 * fieldsSize);
 
         int methodIndex= element instanceof Method ? ((Method) element).getDexMethodIndex()
                                                    : ((Constructor<?>) element).getDexMethodIndex();
