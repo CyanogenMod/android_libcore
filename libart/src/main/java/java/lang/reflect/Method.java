@@ -367,8 +367,13 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @throws InvocationTargetException
      *             if an exception was thrown by the invoked method
      */
-    public native Object invoke(Object receiver, Object... args)
-        throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+    public Object invoke(Object receiver, Object... args)
+            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        return invoke(receiver, args, isAccessible());
+    }
+
+    private native Object invoke(Object receiver, Object[] args, boolean accessible)
+            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 
     /**
      * Returns a string containing a concise, human-readable description of this

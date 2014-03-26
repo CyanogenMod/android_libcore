@@ -39,6 +39,7 @@ public abstract class Enum<E extends Enum<E>> implements Serializable, Comparabl
             }
             try {
                 Method method = enumType.getDeclaredMethod("values", EmptyArray.CLASS);
+                method.setAccessible(true);
                 return (Object[]) method.invoke((Object[]) null);
             } catch (NoSuchMethodException impossible) {
                 throw new AssertionError("impossible", impossible);
