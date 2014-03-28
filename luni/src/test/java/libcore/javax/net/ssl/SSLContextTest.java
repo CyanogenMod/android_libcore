@@ -16,18 +16,31 @@
 
 package libcore.javax.net.ssl;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
+import java.security.Security;
+import java.security.UnrecoverableKeyException;
+import java.util.concurrent.Callable;
 import libcore.java.security.StandardNames;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
 import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.KeyManagerFactorySpi;
+import javax.net.ssl.ManagerFactoryParameters;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSessionContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.TrustManagerFactorySpi;
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 public class SSLContextTest extends TestCase {
@@ -122,34 +135,183 @@ public class SSLContextTest extends TestCase {
         assertEquals(StandardNames.JSSE_PROVIDER_NAME, provider.getName());
     }
 
-    public void test_SSLContext_init() throws Exception {
+    public void test_SSLContext_init_Default() throws Exception {
+        // Assert that initializing a default SSLContext fails because it's supposed to be
+        // initialized already.
+        SSLContext sslContext = SSLContext.getInstance(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT);
+        try {
+            sslContext.init(null, null, null);
+            fail();
+        } catch (KeyManagementException expected) {}
+        try {
+            sslContext.init(new KeyManager[0], new TrustManager[0], null);
+            fail();
+        } catch (KeyManagementException expected) {}
+        try {
+            sslContext.init(
+                    new KeyManager[] {new KeyManager() {}},
+                    new TrustManager[] {new TrustManager() {}},
+                    null);
+            fail();
+        } catch (KeyManagementException expected) {}
+    }
+
+    public void test_SSLContext_init_withNullManagerArrays() throws Exception {
+        // Assert that SSLContext.init works fine even when provided with null arrays of
+        // KeyManagers and TrustManagers.
+        // The contract of SSLContext.init is that it will for default X.509 KeyManager and
+        // TrustManager from the highest priority KeyManagerFactory and TrustManagerFactory.
         for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
-            SSLContext sslContext = SSLContext.getInstance(protocol);
             if (protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
-                try {
-                    sslContext.init(null, null, null);
-                } catch (KeyManagementException expected) {
-                }
-            } else {
-                sslContext.init(null, null, null);
+                // Default SSLContext is provided in an already initialized state
+                continue;
             }
+            SSLContext sslContext = SSLContext.getInstance(protocol);
+            sslContext.init(null, null, null);
         }
+    }
+
+    public void test_SSLContext_init_withEmptyManagerArrays() throws Exception {
+        // Assert that SSLContext.init works fine even when provided with empty arrays of
+        // KeyManagers and TrustManagers.
+        // The contract of SSLContext.init is that it will not look for default X.509 KeyManager and
+        // TrustManager.
+        // This test thus installs a Provider of KeyManagerFactory and TrustManagerFactory whose
+        // factories throw exceptions which will make this test fail if the factories are used.
+        Provider provider = new ThrowExceptionKeyAndTrustManagerFactoryProvider();
+        invokeWithHighestPrioritySecurityProvider(provider, new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                assertEquals(
+                        ThrowExceptionKeyAndTrustManagerFactoryProvider.class,
+                        TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+                                .getProvider().getClass());
+                assertEquals(
+                        ThrowExceptionKeyAndTrustManagerFactoryProvider.class,
+                        KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
+                                .getProvider().getClass());
+
+                KeyManager[] keyManagers = new KeyManager[0];
+                TrustManager[] trustManagers = new TrustManager[0];
+                for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+                    if (protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                        // Default SSLContext is provided in an already initialized state
+                        continue;
+                    }
+                    SSLContext sslContext = SSLContext.getInstance(protocol);
+                    sslContext.init(keyManagers, trustManagers, null);
+                }
+
+                return null;
+            }
+        });
     }
 
     public void test_SSLContext_init_withoutX509() throws Exception {
         // Assert that SSLContext.init works fine even when provided with KeyManagers and
         // TrustManagers which don't include the X.509 ones.
-        KeyManager[] keyManagers = new KeyManager[] {new KeyManager() {}};
-        TrustManager[] trustManagers = new TrustManager[] {new TrustManager() {}};
-        for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
-            SSLContext sslContext = SSLContext.getInstance(protocol);
-            if (protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
-                try {
+        // The contract of SSLContext.init is that it will not look for default X.509 KeyManager and
+        // TrustManager.
+        // This test thus installs a Provider of KeyManagerFactory and TrustManagerFactory whose
+        // factories throw exceptions which will make this test fail if the factories are used.
+        Provider provider = new ThrowExceptionKeyAndTrustManagerFactoryProvider();
+        invokeWithHighestPrioritySecurityProvider(provider, new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                assertEquals(
+                        ThrowExceptionKeyAndTrustManagerFactoryProvider.class,
+                        TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+                                .getProvider().getClass());
+                assertEquals(
+                        ThrowExceptionKeyAndTrustManagerFactoryProvider.class,
+                        KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
+                                .getProvider().getClass());
+
+                KeyManager[] keyManagers = new KeyManager[] {new KeyManager() {}};
+                TrustManager[] trustManagers = new TrustManager[] {new TrustManager() {}};
+                for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+                    if (protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
+                        // Default SSLContext is provided in an already initialized state
+                        continue;
+                    }
+                    SSLContext sslContext = SSLContext.getInstance(protocol);
                     sslContext.init(keyManagers, trustManagers, null);
-                } catch (KeyManagementException expected) {
                 }
-            } else {
-                sslContext.init(keyManagers, trustManagers, null);
+
+                return null;
+            }
+        });
+    }
+
+    public static class ThrowExceptionKeyAndTrustManagerFactoryProvider extends Provider {
+        public ThrowExceptionKeyAndTrustManagerFactoryProvider() {
+            super("ThrowExceptionKeyAndTrustManagerProvider",
+                    1.0,
+                    "SSLContextTest fake KeyManagerFactory  and TrustManagerFactory provider");
+
+            put("TrustManagerFactory." + TrustManagerFactory.getDefaultAlgorithm(),
+                    ThrowExceptionTrustManagagerFactorySpi.class.getName());
+            put("TrustManagerFactory.PKIX", ThrowExceptionTrustManagagerFactorySpi.class.getName());
+
+            put("KeyManagerFactory." + KeyManagerFactory.getDefaultAlgorithm(),
+                    ThrowExceptionKeyManagagerFactorySpi.class.getName());
+            put("KeyManagerFactory.PKIX", ThrowExceptionKeyManagagerFactorySpi.class.getName());
+        }
+    }
+
+    public static class ThrowExceptionTrustManagagerFactorySpi extends TrustManagerFactorySpi {
+        @Override
+        protected void engineInit(KeyStore ks) throws KeyStoreException {
+            fail();
+        }
+
+        @Override
+        protected void engineInit(ManagerFactoryParameters spec)
+                throws InvalidAlgorithmParameterException {
+            fail();
+        }
+
+        @Override
+        protected TrustManager[] engineGetTrustManagers() {
+            throw new AssertionFailedError();
+        }
+    }
+
+    public static class ThrowExceptionKeyManagagerFactorySpi extends KeyManagerFactorySpi {
+        @Override
+        protected void engineInit(KeyStore ks, char[] password) throws KeyStoreException,
+                NoSuchAlgorithmException, UnrecoverableKeyException {
+            fail();
+        }
+
+        @Override
+        protected void engineInit(ManagerFactoryParameters spec)
+                throws InvalidAlgorithmParameterException {
+            fail();
+        }
+
+        @Override
+        protected KeyManager[] engineGetKeyManagers() {
+            throw new AssertionFailedError();
+        }
+    }
+
+    /**
+     * Installs the specified security provider as the highest provider, invokes the provided
+     * {@link Callable}, and removes the provider.
+     *
+     * @return result returned by the {@code callable}.
+     */
+    private static <T> T invokeWithHighestPrioritySecurityProvider(
+            Provider provider, Callable<T> callable) throws Exception {
+        int providerPosition = -1;
+        try {
+            providerPosition = Security.insertProviderAt(provider, 1);
+            assertEquals(1, providerPosition);
+            return callable.call();
+        } finally {
+            if (providerPosition != -1) {
+                Security.removeProvider(provider.getName());
             }
         }
     }
