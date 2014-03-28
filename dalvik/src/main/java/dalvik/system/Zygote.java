@@ -53,12 +53,6 @@ public class Zygote {
     /** All multi-user external storage should be mounted. */
     public static final int MOUNT_EXTERNAL_MULTIUSER_ALL = 3;
 
-    /**
-     * When set by the system server, all subsequent apps will be launched in
-     * VM safe mode.
-     */
-    public static boolean systemInSafeMode = false;
-
     private Zygote() {}
 
     private static void preFork() {
