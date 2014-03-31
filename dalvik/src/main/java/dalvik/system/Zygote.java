@@ -87,23 +87,6 @@ public class Zygote {
     }
 
     /**
-     * Forks a new Zygote instance, but does not leave the zygote mode.
-     * The current VM must have been started with the -Xzygote flag. The
-     * new child is expected to eventually call forkAndSpecialize()
-     *
-     * @return 0 if this is the child, pid of the child
-     * if this is the parent, or -1 on error
-     */
-    public static int fork() {
-        preFork();
-        int pid = nativeFork();
-        postFork();
-        return pid;
-    }
-
-    native public static int nativeFork();
-
-    /**
      * Forks a new VM instance.  The current VM must have been started
      * with the -Xzygote flag. <b>NOTE: new instance keeps all
      * root capabilities. The new process is expected to call capset()</b>.
