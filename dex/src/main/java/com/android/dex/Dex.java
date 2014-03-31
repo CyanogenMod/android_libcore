@@ -469,7 +469,7 @@ public final class Dex {
     }
 
     /**
-     * Look up a type index index from a class def index.
+     * Look up an annotation directory offset from a class def index.
      */
     public int annotationDirectoryOffsetFromClassDefIndex(int classDefIndex) {
         checkBounds(classDefIndex, tableOfContents.classDefs.size);
