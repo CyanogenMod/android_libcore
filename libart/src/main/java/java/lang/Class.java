@@ -1551,6 +1551,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (isPrimitive() || isInterface() || isArray() || Modifier.isAbstract(accessFlags)) {
             throw new InstantiationException(this + " cannot be instantiated");
         }
+        Class<?> caller = VMStack.getStackClass1();
+        if (!caller.canAccess(this)) {
+          throw new IllegalAccessException(this + " is not accessible from " + caller);
+        }
         Constructor<T> init;
         try {
             init = getDeclaredConstructor();
@@ -1559,6 +1563,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
                 new InstantiationException(this + " has no zero argument constructor");
             t.initCause(e);
             throw t;
+        }
+        if (!caller.canAccessMember(this, init.getAccessFlags())) {
+          throw new IllegalAccessException(init + " is not accessible from " + caller);
         }
         try {
             return init.newInstance(null, init.isAccessible());
