@@ -136,11 +136,11 @@ public class Object {
     // Uncomment the following two fields to enable brooks pointers.
     // Meant to do "#ifdef USE_BROOKS_POINTER ... #endif" but no macros.
     //
-    // Note names use a 'x' prefix and the _x_brooks_ptr_ field is of
+    // Note names use a 'x' prefix and the _x_rb_ptr_ field is of
     // type int instead of Object to go with the alphabetical/by-type
     // field order.
-    // private transient int shadow$_x_brooks_ptr_;
-    // private transient int shadow$_x_padding_;
+    // private transient int shadow$_x_rb_ptr_;
+    // private transient int shadow$_x_xpadding_;
 
     /**
      * Constructs a new instance of {@code Object}.
