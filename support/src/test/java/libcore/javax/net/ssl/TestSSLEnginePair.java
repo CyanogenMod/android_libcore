@@ -73,7 +73,7 @@ public final class TestSSLEnginePair extends Assert {
         int applicationBufferSize = session.getApplicationBufferSize();
         ByteBuffer scratch = ByteBuffer.allocate(applicationBufferSize);
 
-        SSLEngine client = c.clientContext.createSSLEngine();
+        SSLEngine client = c.clientContext.createSSLEngine(c.host.getHostName(), c.port);
         SSLEngine server = c.serverContext.createSSLEngine();
         client.setUseClientMode(true);
         server.setUseClientMode(false);

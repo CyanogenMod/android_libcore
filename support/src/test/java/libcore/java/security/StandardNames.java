@@ -583,12 +583,6 @@ public final class StandardNames extends Assert {
              * do to disable general use of SSLv2.
              */
             SSL_SOCKET_PROTOCOLS.add("SSLv2Hello");
-
-            // RI doesn't support these by default.
-            SSL_SOCKET_PROTOCOLS_CLIENT_DEFAULT.remove("TLSv1.1");
-            SSL_SOCKET_PROTOCOLS_CLIENT_DEFAULT.remove("TLSv1.2");
-            SSL_SOCKET_PROTOCOLS_SERVER_DEFAULT.remove("TLSv1.1");
-            SSL_SOCKET_PROTOCOLS_SERVER_DEFAULT.remove("TLSv1.2");
         }
     }
 
@@ -596,12 +590,8 @@ public final class StandardNames extends Assert {
     public static final Set<String> SSL_SOCKET_PROTOCOLS_DEFAULT_SSLENGINE =
             new HashSet<String>(SSL_SOCKET_PROTOCOLS_CLIENT_DEFAULT);
     static {
-        // No TLSv1.1 or TLSv1.2 support on SSLEngine based provider
-        if (!IS_RI) {
-            SSL_SOCKET_PROTOCOLS_SSLENGINE.remove("TLSv1.1");
-            SSL_SOCKET_PROTOCOLS_SSLENGINE.remove("TLSv1.2");
-            SSL_SOCKET_PROTOCOLS_DEFAULT_SSLENGINE.remove("TLSv1.1");
-            SSL_SOCKET_PROTOCOLS_DEFAULT_SSLENGINE.remove("TLSv1.2");
+        if (IS_RI) {
+            SSL_SOCKET_PROTOCOLS_DEFAULT_SSLENGINE.add("SSLv2Hello");
         }
     }
 
@@ -790,16 +780,47 @@ public final class StandardNames extends Assert {
         CIPHER_SUITES = (IS_RI) ? CIPHER_SUITES_RI : CIPHER_SUITES_OPENSSL;
     }
 
+    /**
+     * Cipher suites that are not negotiated when TLSv1.2 is selected on the RI.
+     */
+    public static final List<String> CIPHER_SUITES_OBSOLETE_TLS12 =
+            Arrays.asList(
+                    "SSL_RSA_WITH_DES_CBC_SHA",
+                    "SSL_DHE_RSA_WITH_DES_CBC_SHA",
+                    "SSL_DHE_DSS_WITH_DES_CBC_SHA",
+                    "SSL_DH_anon_WITH_DES_CBC_SHA",
+                    "SSL_RSA_EXPORT_WITH_RC4_40_MD5",
+                    "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5",
+                    "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
+                    "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA",
+                    "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA",
+                    "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA"
+            );
+
     // NOTE: This list needs to be kept in sync with Javadoc of javax.net.ssl.SSLSocket and
     // javax.net.ssl.SSLEngine.
     public static final List<String> CIPHER_SUITES_DEFAULT = (IS_RI)
-            ? Arrays.asList("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+            ? Arrays.asList("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+                            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+                            "TLS_RSA_WITH_AES_256_CBC_SHA256",
+                            "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384",
+                            "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
+                            "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
+                            "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
+                            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
                             "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
                             "TLS_RSA_WITH_AES_256_CBC_SHA",
                             "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
                             "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA",
                             "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
                             "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+                            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+                            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+                            "TLS_RSA_WITH_AES_128_CBC_SHA256",
+                            "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256",
+                            "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256",
+                            "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
+                            "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
                             "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
                             "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
                             "TLS_RSA_WITH_AES_128_CBC_SHA",
