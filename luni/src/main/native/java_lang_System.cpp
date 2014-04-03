@@ -34,6 +34,10 @@
 #include <time.h>
 #include <unistd.h>
 
+#if defined(HAVE_ANDROID_OS)
+extern "C" void android_get_LD_LIBRARY_PATH(char*, size_t);
+#endif
+
 static void System_log(JNIEnv* env, jclass, jchar type, jstring javaMessage, jthrowable exception) {
     ScopedUtfChars message(env, javaMessage);
     if (message.c_str() == NULL) {
@@ -81,6 +85,18 @@ static jobjectArray System_specialProperties(JNIEnv* env, jclass) {
 
     properties.push_back("android.zlib.version=" ZLIB_VERSION);
     properties.push_back("android.openssl.version=" OPENSSL_VERSION_TEXT);
+
+    const char* library_path = getenv("LD_LIBRARY_PATH");
+#if defined(HAVE_ANDROID_OS)
+    if (library_path == NULL) {
+        android_get_LD_LIBRARY_PATH(path, sizeof(path));
+        library_path = path;
+    }
+#endif
+    if (library_path == NULL) {
+        library_path = "";
+    }
+    properties.push_back(std::string("java.library.path=") + library_path);
 
     return toStringArray(env, properties);
 }
