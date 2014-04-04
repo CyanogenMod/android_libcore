@@ -174,7 +174,7 @@ public class StringTest extends TestCase {
 
     /**
      * Tests a widely assumed performance characteristic of String.substring():
-     * that it reuses the original's backing array. Although behaviour should be
+     * that it reuses the original's backing array. Although behavior should be
      * correct even if this test fails, many applications may suffer
      * significant performance degradation.
      */
@@ -187,7 +187,7 @@ public class StringTest extends TestCase {
     /**
      * Tests a widely assumed performance characteristic of string's copy
      * constructor: that it ensures the backing array is the same length as the
-     * string. Although behaviour should be correct even if this test fails,
+     * string. Although behavior should be correct even if this test fails,
      * many applications may suffer significant performance degradation.
      */
     public void testStringCopiesAvoidHeapRetention() throws IllegalAccessException {
@@ -243,33 +243,43 @@ public class StringTest extends TestCase {
     };
 
     public void testCaseMapping_tr_TR() {
-        Locale trTR = new Locale("tr", "TR");
-        assertEquals(LATIN_SMALL_I, LATIN_SMALL_I.toLowerCase(trTR));
-        assertEquals(LATIN_SMALL_I, LATIN_CAPITAL_I_WITH_DOT_ABOVE.toLowerCase(trTR));
-        assertEquals(LATIN_SMALL_DOTLESS_I, LATIN_SMALL_DOTLESS_I.toLowerCase(trTR));
+        Locale tr_TR = new Locale("tr", "TR");
+        assertEquals(LATIN_SMALL_I, LATIN_SMALL_I.toLowerCase(tr_TR));
+        assertEquals(LATIN_SMALL_I, LATIN_CAPITAL_I_WITH_DOT_ABOVE.toLowerCase(tr_TR));
+        assertEquals(LATIN_SMALL_DOTLESS_I, LATIN_SMALL_DOTLESS_I.toLowerCase(tr_TR));
 
-        assertEquals(LATIN_CAPITAL_I, LATIN_CAPITAL_I.toUpperCase(trTR));
-        assertEquals(LATIN_CAPITAL_I_WITH_DOT_ABOVE, LATIN_CAPITAL_I_WITH_DOT_ABOVE.toUpperCase(trTR));
-        assertEquals(LATIN_CAPITAL_I_WITH_DOT_ABOVE, LATIN_SMALL_I.toUpperCase(trTR));
+        assertEquals(LATIN_CAPITAL_I, LATIN_CAPITAL_I.toUpperCase(tr_TR));
+        assertEquals(LATIN_CAPITAL_I_WITH_DOT_ABOVE, LATIN_CAPITAL_I_WITH_DOT_ABOVE.toUpperCase(tr_TR));
+        assertEquals(LATIN_CAPITAL_I_WITH_DOT_ABOVE, LATIN_SMALL_I.toUpperCase(tr_TR));
 
-        assertEquals(LATIN_CAPITAL_I, LATIN_SMALL_DOTLESS_I.toUpperCase(trTR));
-        assertEquals(LATIN_SMALL_DOTLESS_I, LATIN_CAPITAL_I.toLowerCase(trTR));
+        assertEquals(LATIN_CAPITAL_I, LATIN_SMALL_DOTLESS_I.toUpperCase(tr_TR));
+        assertEquals(LATIN_SMALL_DOTLESS_I, LATIN_CAPITAL_I.toLowerCase(tr_TR));
     }
 
     public void testCaseMapping_en_US() {
-        Locale enUs = new Locale("en", "US");
-        assertEquals(LATIN_CAPITAL_I, LATIN_SMALL_I.toUpperCase(enUs));
-        assertEquals(LATIN_CAPITAL_I, LATIN_CAPITAL_I.toUpperCase(enUs));
-        assertEquals(LATIN_CAPITAL_I_WITH_DOT_ABOVE, LATIN_CAPITAL_I_WITH_DOT_ABOVE.toUpperCase(enUs));
+        Locale en_US = new Locale("en", "US");
+        assertEquals(LATIN_CAPITAL_I, LATIN_SMALL_I.toUpperCase(en_US));
+        assertEquals(LATIN_CAPITAL_I, LATIN_CAPITAL_I.toUpperCase(en_US));
+        assertEquals(LATIN_CAPITAL_I_WITH_DOT_ABOVE, LATIN_CAPITAL_I_WITH_DOT_ABOVE.toUpperCase(en_US));
 
-        assertEquals(LATIN_SMALL_I, LATIN_SMALL_I.toLowerCase(enUs));
-        assertEquals(LATIN_SMALL_I, LATIN_CAPITAL_I.toLowerCase(enUs));
-        assertEquals(LATIN_SMALL_DOTLESS_I, LATIN_SMALL_DOTLESS_I.toLowerCase(enUs));
+        assertEquals(LATIN_SMALL_I, LATIN_SMALL_I.toLowerCase(en_US));
+        assertEquals(LATIN_SMALL_I, LATIN_CAPITAL_I.toLowerCase(en_US));
+        assertEquals(LATIN_SMALL_DOTLESS_I, LATIN_SMALL_DOTLESS_I.toLowerCase(en_US));
 
-        assertEquals(LATIN_CAPITAL_I, LATIN_SMALL_DOTLESS_I.toUpperCase(enUs));
+        assertEquals(LATIN_CAPITAL_I, LATIN_SMALL_DOTLESS_I.toUpperCase(en_US));
         // http://b/3325799: the RI fails this because it's using an obsolete version of the Unicode rules.
         // Android correctly preserves canonical equivalence. (See the separate test for tr_TR.)
-        assertEquals(LATIN_SMALL_I + COMBINING_DOT_ABOVE, LATIN_CAPITAL_I_WITH_DOT_ABOVE.toLowerCase(enUs));
+        assertEquals(LATIN_SMALL_I + COMBINING_DOT_ABOVE, LATIN_CAPITAL_I_WITH_DOT_ABOVE.toLowerCase(en_US));
+    }
+
+    public void testCaseMapping_el() {
+        Locale el_GR = new Locale("el", "GR");
+        assertEquals("ΟΔΟΣ ΟΔΟΣ ΣΟ ΣΟ OΣ ΟΣ Σ ΕΞ", "ΟΔΌΣ Οδός Σο ΣΟ oΣ ΟΣ σ ἕξ".toUpperCase(el_GR));
+        assertEquals("ΟΔΟΣ ΟΔΟΣ ΣΟ ΣΟ OΣ ΟΣ Σ ΕΞ", "ΟΔΌΣ Οδός Σο ΣΟ oΣ ΟΣ σ ἕξ".toUpperCase(el_GR));
+        assertEquals("ΟΔΟΣ ΟΔΟΣ ΣΟ ΣΟ OΣ ΟΣ Σ ΕΞ", "ΟΔΌΣ Οδός Σο ΣΟ oΣ ΟΣ σ ἕξ".toUpperCase(el_GR));
+
+        Locale en_US = new Locale("en", "US");
+        assertEquals("ΟΔΌΣ ΟΔΌΣ ΣΟ ΣΟ OΣ ΟΣ Σ ἝΞ", "ΟΔΌΣ Οδός Σο ΣΟ oΣ ΟΣ σ ἕξ".toUpperCase(en_US));
     }
 
     public void testEqualsIgnoreCase_tr_TR() {
