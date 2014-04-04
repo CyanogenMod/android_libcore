@@ -18,6 +18,7 @@ package java.lang;
 
 import java.util.Locale;
 import libcore.icu.ICU;
+import libcore.icu.Transliterator;
 
 /**
  * Performs case operations as described by http://unicode.org/reports/tr21/tr21-5.html.
@@ -45,6 +46,7 @@ class CaseMapper {
      */
     public static String toLowerCase(Locale locale, String s, char[] value, int offset, int count) {
         // Punt hard cases to ICU4C.
+        // Note that Greek isn't a particularly hard case for toLowerCase, only toUpperCase.
         String languageCode = locale.getLanguage();
         if (languageCode.equals("tr") || languageCode.equals("az") || languageCode.equals("lt")) {
             return ICU.toLowerCase(s, locale.toString());
@@ -139,10 +141,19 @@ class CaseMapper {
         return index;
     }
 
+    private static final ThreadLocal<Transliterator> EL_UPPER = new ThreadLocal<Transliterator>() {
+        @Override protected Transliterator initialValue() {
+            return new Transliterator("el-Upper");
+        }
+    };
+
     public static String toUpperCase(Locale locale, String s, char[] value, int offset, int count) {
         String languageCode = locale.getLanguage();
         if (languageCode.equals("tr") || languageCode.equals("az") || languageCode.equals("lt")) {
             return ICU.toUpperCase(s, locale.toString());
+        }
+        if (languageCode.equals("el")) {
+            return EL_UPPER.get().transliterate(s);
         }
 
         char[] output = null;
