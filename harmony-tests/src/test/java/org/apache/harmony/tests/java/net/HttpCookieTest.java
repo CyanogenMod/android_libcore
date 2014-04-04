@@ -590,8 +590,7 @@ public class HttpCookieTest extends TestCase {
         list = HttpCookie
                 .parse("Set-Cookie:name=test;max-age=-12345;");
         cookie = list.get(0);
-        // This currently fails, we accept a negative max-age.
-        assertEquals(0, cookie.getMaxAge());
+        assertEquals(-12345, cookie.getMaxAge());
         assertTrue(cookie.hasExpired());
 
         // Locale does not affect version 1 cookie.
@@ -694,6 +693,15 @@ public class HttpCookieTest extends TestCase {
         list = HttpCookie.parse("Set-Cookie:name=test;Max-Age=-1000");
         cookie = list.get(0);
         assertEquals(-1000, cookie.getMaxAge());
+
+        // TODO: Uncomment when Long.parseLong() accepts numbers with a leading +
+        // list = HttpCookie.parse("Set-Cookie:name=test;max-age=+12345;");
+        // cookie = list.get(0);
+        // assertEquals(12345, cookie.getMaxAge());
+
+        list = HttpCookie.parse("Set-Cookie:name=test;max-age=0;");
+        cookie = list.get(0);
+        assertEquals(0, cookie.getMaxAge());
 
         // Check portlist
         list = HttpCookie.parse("Set-Cookie:name=tes,t;port");

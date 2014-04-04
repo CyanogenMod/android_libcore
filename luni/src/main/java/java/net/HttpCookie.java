@@ -335,8 +335,18 @@ public final class HttpCookie implements Cloneable {
                     }
                 }
             } else if (name.equals("max-age") && cookie.maxAge == -1L) {
-                hasMaxAge = true;
-                cookie.maxAge = Long.parseLong(value);
+                // RFCs 2109 and 2965 suggests a zero max-age as a way of deleting a cookie.
+                // RFC 6265 specifies the value must be > 0 but also describes what to do if the
+                // value is negative, zero or non-numeric in section 5.2.2. The RI does none of this
+                // and accepts negative, positive values and throws an IllegalArgumentException
+                // if the value is non-numeric.
+                try {
+                    long maxAge = Long.parseLong(value);
+                    hasMaxAge = true;
+                    cookie.maxAge = maxAge;
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid max-age: " + value);
+                }
             } else if (name.equals("path") && cookie.path == null) {
                 cookie.path = value;
             } else if (name.equals("port") && cookie.portList == null) {
