@@ -328,7 +328,7 @@
   name: "tests.java.sql.DatabaseMetaDataTest#test_getColumnsArbitrary"
 },
 {
-  description: "Wildcard operator does not seem wo work correctly.",
+  description: "Wildcard operator does not seem to work correctly.",
   result: EXEC_FAILED,
   name: "tests.java.sql.DatabaseMetaDataTest#test_getColumnsSpecific"
 },
@@ -1691,9 +1691,7 @@
   names: [
     "org.apache.harmony.tests.internal.net.www.protocol.file.FileURLConnectionTest#testGetContentType",
     "org.apache.harmony.tests.internal.net.www.protocol.file.FileURLConnectionTest#testGetInputStream",
-    "org.apache.harmony.tests.internal.net.www.protocol.file.FileURLConnectionTest#testHeaderFunctions",
-    "org.apache.harmony.tests.java.lang.ClassLoaderTest#test_getResourceAsStream_withSharpChar",
-    "org.apache.harmony.tests.java.lang.ClassTest#test_getResourceAsStream_withSharpChar"
+    "org.apache.harmony.tests.internal.net.www.protocol.file.FileURLConnectionTest#testHeaderFunctions"
   ]
 },
 {
