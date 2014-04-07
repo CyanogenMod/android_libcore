@@ -18,6 +18,7 @@
 package org.apache.harmony.tests.java.lang;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -37,17 +38,16 @@ import java.util.Vector;
 
 public class ClassTest extends junit.framework.TestCase {
 
-    public static final String FILENAME = ClassTest.class.getPackage().getName().replace('.', '/') + "/test#.properties";
+    // Relative resource paths.
+    private static final String SHARP_RESOURCE_RELATIVE_NAME = "test#.properties";
+    private static final String RESOURCE_RELATIVE_NAME = "test.properties";
 
-    static class StaticMember$Class {
-        class Member2$A {
-        }
-    }
-
-    class Member$Class {
-        class Member3$B {
-        }
-    }
+    // Absolute resource paths.
+    private static final String ABS_PATH =
+            ClassTest.class.getPackage().getName().replace('.', '/');
+    public static final String SHARP_RESOURCE_ABS_NAME =
+            ABS_PATH + "/" + SHARP_RESOURCE_RELATIVE_NAME;
+    public static final String RESOURCE_ABS_NAME = ABS_PATH + "/" + RESOURCE_RELATIVE_NAME;
 
     public static class TestClass {
         @SuppressWarnings("unused")
@@ -565,15 +565,31 @@ public class ClassTest extends junit.framework.TestCase {
 
     // Regression Test for JIRA-2047
     public void test_getResourceAsStream_withSharpChar() throws Exception {
-        InputStream in = getClass().getResourceAsStream("/" + FILENAME);
+        // Class.getResourceAsStream() requires a leading "/" for absolute paths.
+        assertNull(getClass().getResourceAsStream(SHARP_RESOURCE_ABS_NAME));
+        assertResourceExists("/" + SHARP_RESOURCE_ABS_NAME);
+        assertResourceExists(SHARP_RESOURCE_RELATIVE_NAME);
+
+
+        InputStream in =
+                this.getClass().getClassLoader().getResourceAsStream(SHARP_RESOURCE_ABS_NAME);
         assertNotNull(in);
         in.close();
+    }
 
-        in = getClass().getResourceAsStream(FILENAME);
-        assertNull(in);
+    public void test_getResourceAsStream() throws Exception {
+        // Class.getResourceAsStream() requires a leading "/" for absolute paths.
+        assertNull(getClass().getResourceAsStream(RESOURCE_ABS_NAME));
+        assertResourceExists("/" + RESOURCE_ABS_NAME);
+        assertResourceExists(RESOURCE_RELATIVE_NAME);
 
-        in = this.getClass().getClassLoader().getResourceAsStream(
-                FILENAME);
+        InputStream in = this.getClass().getClassLoader().getResourceAsStream(RESOURCE_ABS_NAME);
+        assertNotNull(in);
+        in.close();
+    }
+
+    private void assertResourceExists(String resourceName) throws IOException {
+        InputStream in = getClass().getResourceAsStream(resourceName);
         assertNotNull(in);
         in.close();
     }
