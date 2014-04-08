@@ -356,6 +356,11 @@ public final class System {
         }
         p.put("java.home", javaHome);
 
+        String ldLibraryPath = getenv("LD_LIBRARY_PATH");
+        if (ldLibraryPath != null) {
+            p.put("java.library.path", ldLibraryPath);
+        }
+
         p.put("java.specification.name", "Dalvik Core Library");
         p.put("java.specification.vendor", projectName);
         p.put("java.specification.version", "0.9");
