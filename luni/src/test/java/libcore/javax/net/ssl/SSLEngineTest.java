@@ -82,9 +82,7 @@ public class SSLEngineTest extends TestCase {
                 .ca(true)
                 .build();
         test_SSLEngine_getSupportedCipherSuites_connect(testKeyStore, false);
-        if (StandardNames.IS_RI) {
-            test_SSLEngine_getSupportedCipherSuites_connect(testKeyStore, true);
-        }
+        test_SSLEngine_getSupportedCipherSuites_connect(testKeyStore, true);
     }
     private void test_SSLEngine_getSupportedCipherSuites_connect(TestKeyStore testKeyStore,
                                                                  boolean secureRenegotiation)
@@ -133,8 +131,12 @@ public class SSLEngineTest extends TestCase {
             testKeyStore.keyManagers[replaceIndex] = originalKeyManager;
         }
 
+        // To catch all the errors.
+        StringBuilder error = new StringBuilder();
+
         String[] cipherSuites = c.clientContext.createSSLEngine().getSupportedCipherSuites();
         for (String cipherSuite : cipherSuites) {
+            try {
             // Skip cipher suites that are obsoleted.
             if (StandardNames.IS_RI && "TLSv1.2".equals(c.clientContext.getProtocol())
                     && StandardNames.CIPHER_SUITES_OBSOLETE_TLS12.contains(cipherSuite)) {
@@ -201,8 +203,20 @@ public class SSLEngineTest extends TestCase {
                     assertNotConnected(p);
                 } catch (IOException expected) {}
             }
+            } catch (Exception e) {
+                String message = ("Problem trying to connect cipher suite " + cipherSuite);
+                System.out.println(message);
+                e.printStackTrace();
+                error.append(message);
+                error.append('\n');
+            }
         }
         c.close();
+        
+        if (error.length() > 0) {
+            throw new Exception("One or more problems in "
+                    + "test_SSLEngine_getSupportedCipherSuites_connect:\n" + error);
+        }
     }
 
     private static void assertSendsCorrectly(final byte[] sourceBytes, SSLEngine source,
@@ -389,17 +403,34 @@ public class SSLEngineTest extends TestCase {
     }
 
     public void test_SSLEngine_setUseClientMode() throws Exception {
+        boolean[] finished;
+
         // client is client, server is server
-        assertConnected(test_SSLEngine_setUseClientMode(true, false));
+        finished = new boolean[2];
+        assertConnected(test_SSLEngine_setUseClientMode(true, false, finished));
+        assertTrue(finished[0]);
+        assertTrue(finished[1]);
 
         // client is server, server is client
-        assertConnected(test_SSLEngine_setUseClientMode(false, true));
+        finished = new boolean[2];
+        assertConnected(test_SSLEngine_setUseClientMode(false, true, finished));
+        assertTrue(finished[0]);
+        assertTrue(finished[1]);
 
         // both are client
-        assertNotConnected(test_SSLEngine_setUseClientMode(true, true));
+        /*
+         * Our implementation throws an SSLHandshakeException, but RI just
+         * stalls forever
+         */
+        try {
+            assertNotConnected(test_SSLEngine_setUseClientMode(true, true, null));
+            assertTrue(StandardNames.IS_RI);
+        } catch (SSLHandshakeException maybeExpected) {
+            assertFalse(StandardNames.IS_RI);
+        }
 
         // both are server
-        assertNotConnected(test_SSLEngine_setUseClientMode(false, false));
+        assertNotConnected(test_SSLEngine_setUseClientMode(false, false, null));
     }
 
     public void test_SSLEngine_setUseClientMode_afterHandshake() throws Exception {
@@ -419,7 +450,8 @@ public class SSLEngineTest extends TestCase {
     }
 
     private TestSSLEnginePair test_SSLEngine_setUseClientMode(final boolean clientClientMode,
-                                                              final boolean serverClientMode)
+                                                              final boolean serverClientMode,
+                                                              final boolean[] finished)
             throws Exception {
         TestSSLContext c;
         if (!clientClientMode && serverClientMode) {
@@ -434,7 +466,7 @@ public class SSLEngineTest extends TestCase {
                 client.setUseClientMode(clientClientMode);
                 server.setUseClientMode(serverClientMode);
             }
-        });
+        }, finished);
     }
 
     public void test_SSLEngine_clientAuth() throws Exception {

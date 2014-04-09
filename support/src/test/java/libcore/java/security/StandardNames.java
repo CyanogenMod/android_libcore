@@ -887,28 +887,6 @@ public final class StandardNames extends Assert {
     public static final List<String> CIPHER_SUITES_DEFAULT_SSLENGINE =
             new ArrayList<String>(CIPHER_SUITES_DEFAULT);
     public static final Set<String> CIPHER_SUITES_SSLENGINE = new HashSet<String>(CIPHER_SUITES);
-    static {
-        // No Elliptic Curve or TLSv1.2 cipher suite support on SSLEngine based provider
-        if (!IS_RI) {
-            Iterator<String> i = CIPHER_SUITES_SSLENGINE.iterator();
-            while (i.hasNext()) {
-                String cs = i.next();
-                if (cs.startsWith("TLS_EC") || cs.contains("_SHA256") || cs.contains("_SHA384")
-                        || cs.equals(CIPHER_SUITE_SECURE_RENEGOTIATION)) {
-                    i.remove();
-                }
-            }
-
-            i = CIPHER_SUITES_DEFAULT_SSLENGINE.iterator();
-            while (i.hasNext()) {
-                String cs = i.next();
-                if (cs.startsWith("TLS_EC") || cs.contains("_SHA256") || cs.contains("_SHA384")
-                        || cs.equals(CIPHER_SUITE_SECURE_RENEGOTIATION)) {
-                    i.remove();
-                }
-            }
-        }
-    }
 
     public static final Map<String, Class<? extends KeySpec>> PRIVATE_KEY_SPEC_CLASSES;
     public static final Map<String, Class<? extends KeySpec>> PUBLIC_KEY_SPEC_CLASSES;
