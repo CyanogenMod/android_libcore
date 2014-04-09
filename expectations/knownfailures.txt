@@ -1700,8 +1700,6 @@
   description: "Known failures in SerializationStressTest",
   bug: 11668227,
   names: [
-    "org.apache.harmony.tests.java.io.SerializationStressTest3#test_18_113_writeObject",
-    "org.apache.harmony.tests.java.io.SerializationStressTest3#test_18_115_writeObject",
     "org.apache.harmony.tests.java.io.SerializationStressTest4#test_writeObject_Collections_UnmodifiableMap_UnmodifiableEntrySet"
   ]
 },
