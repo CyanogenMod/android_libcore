@@ -350,9 +350,25 @@ public final class URLTest extends TestCase {
         }
     }
 
-    public void testNegativePort() throws Exception {
+    public void testPortWithMinusSign() throws Exception {
         try {
             new URL("http://host:-2/");
+            fail();
+        } catch (MalformedURLException expected) {
+        }
+    }
+
+    public void testPortWithPlusSign() throws Exception {
+        try {
+            new URL("http://host:+2/");
+            fail();
+        } catch (MalformedURLException expected) {
+        }
+    }
+
+    public void testPortNonASCII() throws Exception {
+        try {
+            new URL("http://host:١٢٣/"); // 123 in arabic
             fail();
         } catch (MalformedURLException expected) {
         }
