@@ -1030,13 +1030,14 @@ public final class Locale implements Cloneable, Serializable {
     /**
      * Returns this locale's language name, country name, and variant, localized
      * to {@code locale}. The exact output form depends on whether this locale
-     * corresponds to a specific language, country and variant.
+     * corresponds to a specific language, script, country and variant.
      *
      * <p>For example:
      * <ul>
      * <li>{@code new Locale("en").getDisplayName(Locale.US)} -> {@code English}
      * <li>{@code new Locale("en", "US").getDisplayName(Locale.US)} -> {@code English (United States)}
      * <li>{@code new Locale("en", "US", "POSIX").getDisplayName(Locale.US)} -> {@code English (United States,Computer)}
+     * <li>{@code Locale.fromLanguageTag("zh-Hant-CN").getDisplayName(Locale.US)} -> {@code Chinese (Traditional Han,China)}
      * <li>{@code new Locale("en").getDisplayName(Locale.FRANCE)} -> {@code anglais}
      * <li>{@code new Locale("en", "US").getDisplayName(Locale.FRANCE)} -> {@code anglais (États-Unis)}
      * <li>{@code new Locale("en", "US", "POSIX").getDisplayName(Locale.FRANCE)} -> {@code anglais (États-Unis,informatique)}.
@@ -1055,12 +1056,14 @@ public final class Locale implements Cloneable, Serializable {
                 buffer.append(" (");
             }
             String displayScript = getDisplayScript(locale);
-            buffer.append(displayScript.isEmpty() ? countryCode : displayScript);
+            buffer.append(displayScript.isEmpty() ? scriptCode : displayScript);
             ++count;
         }
         if (!countryCode.isEmpty()) {
             if (count == 1) {
                 buffer.append(" (");
+            } else if (count == 2) {
+                buffer.append(",");
             }
             String displayCountry = getDisplayCountry(locale);
             buffer.append(displayCountry.isEmpty() ? countryCode : displayCountry);
@@ -1069,7 +1072,7 @@ public final class Locale implements Cloneable, Serializable {
         if (!variantCode.isEmpty()) {
             if (count == 1) {
                 buffer.append(" (");
-            } else if (count == 2) {
+            } else if (count == 2 || count == 3) {
                 buffer.append(",");
             }
             String displayVariant = getDisplayVariant(locale);

@@ -69,6 +69,22 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("Deutsch", Locale.GERMAN.getDisplayLanguage(Locale.GERMAN));
     }
 
+    // https://b/issue?id=13790528
+    public void test_getDisplayName_withScriptsAndVariants() throws Exception {
+        // Script + Country.
+        assertEquals("Chinese (Traditional Han,China)",
+                Locale.forLanguageTag("zh-Hant-CN").getDisplayName(Locale.US));
+        // Script + Variant.
+        assertEquals("Chinese (Traditional Han,VARIANT)",
+                Locale.forLanguageTag("zh-Hant-VARIANT").getDisplayName(Locale.US));
+        // Country + Variant.
+        assertEquals("Chinese (China,VARIANT)",
+                Locale.forLanguageTag("zh-CN-VARIANT").getDisplayName(Locale.US));
+        // Script + Country + variant.
+        assertEquals("Chinese (Traditional Han,China,VARIANT)",
+                Locale.forLanguageTag("zh-Hant-CN-VARIANT").getDisplayName(Locale.US));
+    }
+
     public void test_getDisplayCountry_8870289() throws Exception {
         assertEquals("Hong Kong", new Locale("", "HK").getDisplayCountry(Locale.US));
         assertEquals("Macau", new Locale("", "MO").getDisplayCountry(Locale.US));
