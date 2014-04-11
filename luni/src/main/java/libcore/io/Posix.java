@@ -17,6 +17,7 @@
 package libcore.io;
 
 import java.io.FileDescriptor;
+import java.io.InterruptedIOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -84,6 +85,7 @@ public final class Posix implements Os {
     public native StructStat lstat(String path) throws ErrnoException;
     public native void mincore(long address, long byteCount, byte[] vector) throws ErrnoException;
     public native void mkdir(String path, int mode) throws ErrnoException;
+    public native void mkfifo(String path, int mode) throws ErrnoException;
     public native void mlock(long address, long byteCount) throws ErrnoException;
     public native long mmap(long address, long byteCount, int prot, int flags, FileDescriptor fd, long offset) throws ErrnoException;
     public native void msync(long address, long byteCount, int flags) throws ErrnoException;
@@ -93,44 +95,44 @@ public final class Posix implements Os {
     public native FileDescriptor[] pipe() throws ErrnoException;
     public native int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException;
     public native void posix_fallocate(FileDescriptor fd, long offset, long length) throws ErrnoException;
-    public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException {
+    public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException, InterruptedIOException {
         if (buffer.isDirect()) {
             return preadBytes(fd, buffer, buffer.position(), buffer.remaining(), offset);
         } else {
             return preadBytes(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining(), offset);
         }
     }
-    public int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException {
+    public int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException, InterruptedIOException {
         // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
         return preadBytes(fd, bytes, byteOffset, byteCount, offset);
     }
-    private native int preadBytes(FileDescriptor fd, Object buffer, int bufferOffset, int byteCount, long offset) throws ErrnoException;
-    public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException {
+    private native int preadBytes(FileDescriptor fd, Object buffer, int bufferOffset, int byteCount, long offset) throws ErrnoException, InterruptedIOException;
+    public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException, InterruptedIOException {
         if (buffer.isDirect()) {
             return pwriteBytes(fd, buffer, buffer.position(), buffer.remaining(), offset);
         } else {
             return pwriteBytes(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining(), offset);
         }
     }
-    public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException {
+    public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException, InterruptedIOException {
         // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
         return pwriteBytes(fd, bytes, byteOffset, byteCount, offset);
     }
-    private native int pwriteBytes(FileDescriptor fd, Object buffer, int bufferOffset, int byteCount, long offset) throws ErrnoException;
-    public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
+    private native int pwriteBytes(FileDescriptor fd, Object buffer, int bufferOffset, int byteCount, long offset) throws ErrnoException, InterruptedIOException;
+    public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException, InterruptedIOException {
         if (buffer.isDirect()) {
             return readBytes(fd, buffer, buffer.position(), buffer.remaining());
         } else {
             return readBytes(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining());
         }
     }
-    public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException {
+    public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException, InterruptedIOException {
         // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
         return readBytes(fd, bytes, byteOffset, byteCount);
     }
-    private native int readBytes(FileDescriptor fd, Object buffer, int offset, int byteCount) throws ErrnoException;
+    private native int readBytes(FileDescriptor fd, Object buffer, int offset, int byteCount) throws ErrnoException, InterruptedIOException;
     public native String readlink(String path) throws ErrnoException;
-    public native int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
+    public native int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException, InterruptedIOException;
     public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException {
         if (buffer.isDirect()) {
             return recvfromBytes(fd, buffer, buffer.position(), buffer.remaining(), flags, srcAddress);
@@ -193,17 +195,17 @@ public final class Posix implements Os {
     public native StructUtsname uname();
     public native void unsetenv(String name) throws ErrnoException;
     public native int waitpid(int pid, MutableInt status, int options) throws ErrnoException;
-    public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
+    public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException, InterruptedIOException {
         if (buffer.isDirect()) {
             return writeBytes(fd, buffer, buffer.position(), buffer.remaining());
         } else {
             return writeBytes(fd, NioUtils.unsafeArray(buffer), NioUtils.unsafeArrayOffset(buffer) + buffer.position(), buffer.remaining());
         }
     }
-    public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException {
+    public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException, InterruptedIOException {
         // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
         return writeBytes(fd, bytes, byteOffset, byteCount);
     }
-    private native int writeBytes(FileDescriptor fd, Object buffer, int offset, int byteCount) throws ErrnoException;
-    public native int writev(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
+    private native int writeBytes(FileDescriptor fd, Object buffer, int offset, int byteCount) throws ErrnoException, InterruptedIOException;
+    public native int writev(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException, InterruptedIOException;
 }

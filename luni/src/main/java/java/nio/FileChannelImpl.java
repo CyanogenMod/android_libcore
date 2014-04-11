@@ -50,7 +50,7 @@ final class FileChannelImpl extends FileChannel {
         }
     };
 
-    private final Object stream;
+    private final Closeable ioObject;
     private final FileDescriptor fd;
     private final int mode;
 
@@ -61,9 +61,9 @@ final class FileChannelImpl extends FileChannel {
      * Create a new file channel implementation class that wraps the given
      * fd and operates in the specified mode.
      */
-    public FileChannelImpl(Object stream, FileDescriptor fd, int mode) {
+    public FileChannelImpl(Closeable ioObject, FileDescriptor fd, int mode) {
         this.fd = fd;
-        this.stream = stream;
+        this.ioObject = ioObject;
         this.mode = mode;
     }
 
@@ -86,9 +86,7 @@ final class FileChannelImpl extends FileChannel {
     }
 
     protected void implCloseChannel() throws IOException {
-        if (stream instanceof Closeable) {
-            ((Closeable) stream).close();
-        }
+        ioObject.close();
     }
 
     private FileLock basicLock(long position, long size, boolean shared, boolean wait) throws IOException {

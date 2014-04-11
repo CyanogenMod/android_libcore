@@ -16,7 +16,7 @@
 
 #define LOG_TAG "Posix"
 
-#include "AsynchronousSocketCloseMonitor.h"
+#include "AsynchronousCloseMonitor.h"
 #include "cutils/log.h"
 #include "ExecStrings.h"
 #include "JNIHelp.h"
@@ -68,31 +68,77 @@ struct addrinfo_deleter {
 };
 
 /**
- * Used to retry networking system calls that can return EINTR. Unlike TEMP_FAILURE_RETRY,
- * this also handles the case where the reason for failure is that another thread called
- * Socket.close. This macro also throws exceptions on failure.
+ * Used to retry networking system calls that can be interrupted with a signal. Unlike
+ * TEMP_FAILURE_RETRY, this also handles the case where
+ * AsynchronousCloseMonitor::signalBlockedThreads(fd) is used to signal a close() or
+ * Thread.interrupt(). Other signals that result in an EINTR result are ignored and the system call
+ * is retried.
  *
- * Returns the result of 'exp', though a Java exception will be pending if the result is -1.
+ * Returns the result of the system call though a Java exception will be pending if the result is
+ * -1:  a SocketException if signaled via AsynchronousCloseMonitor, or ErrnoException for other
+ * failures.
  */
 #define NET_FAILURE_RETRY(jni_env, return_type, syscall_name, java_fd, ...) ({ \
     return_type _rc = -1; \
     do { \
+        bool _wasSignaled; \
+        int _syscallErrno; \
         { \
             int _fd = jniGetFDFromFileDescriptor(jni_env, java_fd); \
-            AsynchronousSocketCloseMonitor _monitor(_fd); \
+            AsynchronousCloseMonitor _monitor(_fd); \
             _rc = syscall_name(_fd, __VA_ARGS__); \
+            _syscallErrno = errno; \
+            _wasSignaled = _monitor.wasSignaled(); \
         } \
-        if (_rc == -1) { \
-            if (jniGetFDFromFileDescriptor(jni_env, java_fd) == -1) { \
-                jniThrowException(jni_env, "java/net/SocketException", "Socket closed"); \
+        if (_wasSignaled) { \
+            jniThrowException(jni_env, "java/net/SocketException", "Socket closed"); \
+            break; \
+        } \
+        if (_rc == -1 && _syscallErrno != EINTR) { \
+            /* TODO: with a format string we could show the arguments too, like strace(1). */ \
+            throwErrnoException(jni_env, # syscall_name); \
+            break; \
+        } \
+    } while (_rc == -1); /* _syscallErrno == EINTR && !_wasSignaled */ \
+    _rc; })
+
+/**
+ * Used to retry system calls that can be interrupted with a signal. Unlike TEMP_FAILURE_RETRY, this
+ * also handles the case where AsynchronousCloseMonitor::signalBlockedThreads(fd) is used to signal
+ * a close() or Thread.interrupt(). Other signals that result in an EINTR result are ignored and the
+ * system call is retried.
+ *
+ * Returns the result of the system call though a Java exception will be pending if the result is
+ * -1: an IOException if the file descriptor is already closed, a InterruptedIOException if signaled
+ * via AsynchronousCloseMonitor, or ErrnoException for other failures.
+ */
+#define IO_FAILURE_RETRY(jni_env, return_type, syscall_name, java_fd, ...) ({ \
+    return_type _rc = -1; \
+    int _fd = jniGetFDFromFileDescriptor(jni_env, java_fd); \
+    if (_fd == -1) { \
+        jniThrowException(jni_env, "java/io/IOException", "File descriptor closed"); \
+    } else { \
+        do { \
+            bool _wasSignaled; \
+            int _syscallErrno; \
+            { \
+                int _fd = jniGetFDFromFileDescriptor(jni_env, java_fd); \
+                AsynchronousCloseMonitor _monitor(_fd); \
+                _rc = syscall_name(_fd, __VA_ARGS__); \
+                _syscallErrno = errno; \
+                _wasSignaled = _monitor.wasSignaled(); \
+            } \
+            if (_wasSignaled) { \
+                jniThrowException(jni_env, "java/io/InterruptedIOException", # syscall_name " interrupted"); \
                 break; \
-            } else if (errno != EINTR) { \
+            } \
+            if (_rc == -1 && _syscallErrno != EINTR) { \
                 /* TODO: with a format string we could show the arguments too, like strace(1). */ \
                 throwErrnoException(jni_env, # syscall_name); \
                 break; \
             } \
-        } \
-    } while (_rc == -1); \
+        } while (_rc == -1); /* && _syscallErrno == EINTR && !_wasSignaled */ \
+    } \
     _rc; })
 
 static void throwException(JNIEnv* env, jclass exceptionClass, jmethodID ctor3, jmethodID ctor2,
@@ -907,6 +953,14 @@ static void Posix_mkdir(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     throwIfMinusOne(env, "mkdir", TEMP_FAILURE_RETRY(mkdir(path.c_str(), mode)));
 }
 
+static void Posix_mkfifo(JNIEnv* env, jobject, jstring javaPath, jint mode) {
+    ScopedUtfChars path(env, javaPath);
+    if (path.c_str() == NULL) {
+        return;
+    }
+    throwIfMinusOne(env, "mkfifo", TEMP_FAILURE_RETRY(mkfifo(path.c_str(), mode)));
+}
+
 static void Posix_mlock(JNIEnv* env, jobject, jlong address, jlong byteCount) {
     void* ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(address));
     throwIfMinusOne(env, "mlock", TEMP_FAILURE_RETRY(mlock(ptr, byteCount)));
@@ -990,11 +1044,9 @@ static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint time
         ++count;
     }
 
-    // Since we don't know which fds -- if any -- are sockets, be conservative and register
-    // all fds for asynchronous socket close monitoring.
-    std::vector<AsynchronousSocketCloseMonitor*> monitors;
+    std::vector<AsynchronousCloseMonitor*> monitors;
     for (size_t i = 0; i < count; ++i) {
-        monitors.push_back(new AsynchronousSocketCloseMonitor(fds[i].fd));
+        monitors.push_back(new AsynchronousCloseMonitor(fds[i].fd));
     }
     int rc = poll(fds.get(), count, timeoutMs);
     for (size_t i = 0; i < monitors.size(); ++i) {
@@ -1029,8 +1081,7 @@ static jint Posix_preadBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaB
     if (bytes.get() == NULL) {
         return -1;
     }
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfMinusOne(env, "pread", TEMP_FAILURE_RETRY(pread64(fd, bytes.get() + byteOffset, byteCount, offset)));
+    return IO_FAILURE_RETRY(env, ssize_t, pread64, javaFd, bytes.get() + byteOffset, byteCount, offset);
 }
 
 static jint Posix_pwriteBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray javaBytes, jint byteOffset, jint byteCount, jlong offset) {
@@ -1038,8 +1089,7 @@ static jint Posix_pwriteBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray j
     if (bytes.get() == NULL) {
         return -1;
     }
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfMinusOne(env, "pwrite", TEMP_FAILURE_RETRY(pwrite64(fd, bytes.get() + byteOffset, byteCount, offset)));
+    return IO_FAILURE_RETRY(env, ssize_t, pwrite64, javaFd, bytes.get() + byteOffset, byteCount, offset);
 }
 
 static jint Posix_readBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount) {
@@ -1047,8 +1097,7 @@ static jint Posix_readBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBy
     if (bytes.get() == NULL) {
         return -1;
     }
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfMinusOne(env, "read", TEMP_FAILURE_RETRY(read(fd, bytes.get() + byteOffset, byteCount)));
+    return IO_FAILURE_RETRY(env, ssize_t, read, javaFd, bytes.get() + byteOffset, byteCount);
 }
 
 static jstring Posix_readlink(JNIEnv* env, jobject, jstring javaPath) {
@@ -1070,8 +1119,7 @@ static jint Posix_readv(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffe
     if (!ioVec.init(buffers, offsets, byteCounts)) {
         return -1;
     }
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfMinusOne(env, "readv", TEMP_FAILURE_RETRY(readv(fd, ioVec.get(), ioVec.size())));
+    return IO_FAILURE_RETRY(env, ssize_t, readv, javaFd, ioVec.get(), ioVec.size());
 }
 
 static jint Posix_recvfromBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jint flags, jobject javaInetSocketAddress) {
@@ -1417,8 +1465,7 @@ static jint Posix_writeBytes(JNIEnv* env, jobject, jobject javaFd, jbyteArray ja
     if (bytes.get() == NULL) {
         return -1;
     }
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfMinusOne(env, "write", TEMP_FAILURE_RETRY(write(fd, bytes.get() + byteOffset, byteCount)));
+    return IO_FAILURE_RETRY(env, ssize_t, write, javaFd, bytes.get() + byteOffset, byteCount);
 }
 
 static jint Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buffers, jintArray offsets, jintArray byteCounts) {
@@ -1426,8 +1473,7 @@ static jint Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buff
     if (!ioVec.init(buffers, offsets, byteCounts)) {
         return -1;
     }
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    return throwIfMinusOne(env, "writev", TEMP_FAILURE_RETRY(writev(fd, ioVec.get(), ioVec.size())));
+    return IO_FAILURE_RETRY(env, ssize_t, writev, javaFd, ioVec.get(), ioVec.size());
 }
 
 static JNINativeMethod gMethods[] = {
@@ -1486,6 +1532,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, lstat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
     NATIVE_METHOD(Posix, mincore, "(JJ[B)V"),
     NATIVE_METHOD(Posix, mkdir, "(Ljava/lang/String;I)V"),
+    NATIVE_METHOD(Posix, mkfifo, "(Ljava/lang/String;I)V"),
     NATIVE_METHOD(Posix, mlock, "(JJ)V"),
     NATIVE_METHOD(Posix, mmap, "(JJIILjava/io/FileDescriptor;J)J"),
     NATIVE_METHOD(Posix, msync, "(JJI)V"),

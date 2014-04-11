@@ -17,6 +17,7 @@
 package libcore.io;
 
 import java.io.FileDescriptor;
+import java.io.InterruptedIOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -82,6 +83,7 @@ public interface Os {
     public StructStat lstat(String path) throws ErrnoException;
     public void mincore(long address, long byteCount, byte[] vector) throws ErrnoException;
     public void mkdir(String path, int mode) throws ErrnoException;
+    public void mkfifo(String path, int mode) throws ErrnoException;
     public void mlock(long address, long byteCount) throws ErrnoException;
     public long mmap(long address, long byteCount, int prot, int flags, FileDescriptor fd, long offset) throws ErrnoException;
     public void msync(long address, long byteCount, int flags) throws ErrnoException;
@@ -92,14 +94,14 @@ public interface Os {
     /* TODO: if we used the non-standard ppoll(2) behind the scenes, we could take a long timeout. */
     public int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException;
     public void posix_fallocate(FileDescriptor fd, long offset, long length) throws ErrnoException;
-    public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException;
-    public int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException;
-    public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException;
-    public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException;
-    public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException;
-    public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
+    public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException, InterruptedIOException;
+    public int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException, InterruptedIOException;
+    public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException, InterruptedIOException;
+    public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException, InterruptedIOException;
+    public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException, InterruptedIOException;
+    public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException, InterruptedIOException;
     public String readlink(String path) throws ErrnoException;
-    public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
+    public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException, InterruptedIOException;
     public int recvfrom(FileDescriptor fd, ByteBuffer buffer, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException;
     public int recvfrom(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetSocketAddress srcAddress) throws ErrnoException, SocketException;
     public void remove(String path) throws ErrnoException;
@@ -136,7 +138,7 @@ public interface Os {
     public StructUtsname uname();
     public void unsetenv(String name) throws ErrnoException;
     public int waitpid(int pid, MutableInt status, int options) throws ErrnoException;
-    public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException;
-    public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException;
-    public int writev(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException;
+    public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException, InterruptedIOException;
+    public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException, InterruptedIOException;
+    public int writev(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException, InterruptedIOException;
 }
