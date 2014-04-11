@@ -529,9 +529,33 @@ public final class URITest extends TestCase {
         assertEquals("b/c", a.relativize(b).toString()); // RI assumes a directory
     }
 
-    public void testParseServerAuthorityInvalidAuthority() throws Exception {
+    public void testParseServerAuthorityInvalidPortMinus() throws Exception {
         URI uri = new URI("http://host:-2/");
         assertEquals("host:-2", uri.getAuthority());
+        assertNull(uri.getHost());
+        assertEquals(-1, uri.getPort());
+        try {
+            uri.parseServerAuthority();
+            fail();
+        } catch (URISyntaxException expected) {
+        }
+    }
+
+    public void testParseServerAuthorityInvalidPortPlus() throws Exception {
+        URI uri = new URI("http://host:+2/");
+        assertEquals("host:+2", uri.getAuthority());
+        assertNull(uri.getHost());
+        assertEquals(-1, uri.getPort());
+        try {
+            uri.parseServerAuthority();
+            fail();
+        } catch (URISyntaxException expected) {
+        }
+    }
+
+    public void testParseServerAuthorityInvalidPortNonASCII() throws Exception {
+        URI uri = new URI("http://host:١٢٣/"); // 123 in arabic
+        assertEquals("host:١٢٣", uri.getAuthority());
         assertNull(uri.getHost());
         assertEquals(-1, uri.getPort());
         try {
