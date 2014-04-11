@@ -131,9 +131,11 @@ public abstract class URLStreamHandler {
             host = spec.substring(hostStart, hostEnd);
             int portStart = hostEnd + 1;
             if (portStart < fileStart) {
-                port = Integer.parseInt(spec.substring(portStart, fileStart));
-                if (port < 0) {
-                    throw new IllegalArgumentException("port < 0: " + port);
+                char firstPortChar = spec.charAt(portStart);
+                if (firstPortChar >= '0' && firstPortChar <= '9') {
+                    port = Integer.parseInt(spec.substring(portStart, fileStart));
+                } else {
+                    throw new IllegalArgumentException("invalid port: " + port);
                 }
             }
             path = null;
