@@ -461,11 +461,14 @@ public final class URI implements Comparable<URI>, Serializable {
 
             if (index < (temp.length() - 1)) { // port part is not empty
                 try {
-                    tempPort = Integer.parseInt(temp.substring(index + 1));
-                    if (tempPort < 0) {
+                    char firstPortChar = temp.charAt(index + 1);
+                    if (firstPortChar >= '0' && firstPortChar <= '9') {
+                        // allow only digits, no signs
+                        tempPort = Integer.parseInt(temp.substring(index + 1));
+                    } else {
                         if (forceServer) {
                             throw new URISyntaxException(authority,
-                                    "Invalid port number", hostIndex + index + 1);
+                                "Invalid port number", hostIndex + index + 1);
                         }
                         return;
                     }
