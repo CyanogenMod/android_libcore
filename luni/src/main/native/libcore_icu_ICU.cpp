@@ -761,6 +761,23 @@ static jstring ICU_getBestDateTimePatternNative(JNIEnv* env, jclass, jstring jav
   return env->NewString(result.getBuffer(), result.length());
 }
 
+static void ICU_setDefaultLocale(JNIEnv* env, jclass, jstring javaLocaleName) {
+  Locale locale = getLocale(env, javaLocaleName);
+  UErrorCode status = U_ZERO_ERROR;
+
+  // TODO: Should we check whether locale.isBogus() here ? ICU will
+  // accept bogus locales as the default without complaint. It
+  // shouldn't make a difference in practice, users that set a bogus
+  // locale as the default shouldn't have any realistic expectation that
+  // things like defaults etc. will work correctly.
+  Locale::setDefault(locale, status);
+  maybeThrowIcuException(env, "Locale::setDefault", status);
+}
+
+static jstring ICU_getDefaultLocale(JNIEnv* env, jclass) {
+  return env->NewStringUTF(Locale::getDefault().getName());
+}
+
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, addLikelySubtags, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getAvailableBreakIteratorLocalesNative, "()[Ljava/lang/String;"),
@@ -777,6 +794,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, getCurrencyFractionDigits, "(Ljava/lang/String;)I"),
     NATIVE_METHOD(ICU, getCurrencyNumericCode, "(Ljava/lang/String;)I"),
     NATIVE_METHOD(ICU, getCurrencySymbol, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(ICU, getDefaultLocale, "()Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getDisplayCountryNative, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getDisplayLanguageNative, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getDisplayScriptNative, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
@@ -791,6 +809,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, languageTagForLocale, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, localeForLanguageTag, "(Ljava/lang/String;Z)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, initLocaleDataNative, "(Ljava/lang/String;Llibcore/icu/LocaleData;)Z"),
+    NATIVE_METHOD(ICU, setDefaultLocale, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(ICU, toLowerCase, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, toUpperCase, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
 };
