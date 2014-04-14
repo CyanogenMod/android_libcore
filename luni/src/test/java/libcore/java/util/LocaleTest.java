@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Set;
 import java.util.TreeMap;
+import libcore.icu.ICU;
 
 public class LocaleTest extends junit.framework.TestCase {
     // http://b/2611311; if there's no display language/country/variant, use the raw codes.
@@ -1159,5 +1160,26 @@ public class LocaleTest extends junit.framework.TestCase {
                 .setLanguage("en").setRegion("US").setVariant("POSIX")
                 .build();
         assertEquals("en-US-u-va-posix", posix.toLanguageTag());
+    }
+
+    public void test_setDefault_setsICUDefaultLocale() {
+        Locale l = Locale.getDefault();
+
+        try {
+            Locale.setDefault(Locale.GERMANY);
+            assertEquals("de_DE", ICU.getDefaultLocale());
+
+            try {
+                Locale.setDefault(null);
+                fail();
+            } catch (NullPointerException expected) {
+                assertEquals(Locale.GERMANY, Locale.getDefault());
+            }
+
+            Locale.setDefault(new Locale("bogus", "LOCALE"));
+            assertEquals("bogus__LOCALE", ICU.getDefaultLocale());
+        } finally {
+            Locale.setDefault(l);
+        }
     }
 }

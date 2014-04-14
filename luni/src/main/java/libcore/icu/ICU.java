@@ -474,4 +474,7 @@ public final class ICU {
   public static native String languageTagForLocale(String locale);
 
   static native boolean initLocaleDataNative(String locale, LocaleData result);
+
+  public static native void setDefaultLocale(String locale);
+  public static native String getDefaultLocale();
 }

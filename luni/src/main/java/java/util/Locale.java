@@ -1324,6 +1324,7 @@ public final class Locale implements Cloneable, Serializable {
             throw new NullPointerException("locale == null");
         }
         defaultLocale = locale;
+        ICU.setDefaultLocale(ICU.localeIdFromLocale(locale));
     }
 
     /**
