@@ -365,6 +365,28 @@ public final class Integer extends Number implements Comparable<Integer> {
         return parse(string, i, radix, negative);
     }
 
+    /**
+     * Parses the specified string as a positive integer value using the
+     * specified radix. 0 is considered a positive integer.
+     * <p>
+     * This method behaves the same as {@link #parseInt(String, int)} except
+     * that it disallows leading '+' and '-' characters. See that method for
+     * error conditions.
+     *
+     * @see #parseInt(String, int)
+     *
+     * @hide
+     */
+    public static int parsePositiveInt(String string, int radix) throws NumberFormatException {
+        if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
+            throw new NumberFormatException("Invalid radix: " + radix);
+        }
+        if (string == null || string.length() == 0) {
+            throw invalidInt(string);
+        }
+        return parse(string, 0, radix, false);
+    }
+
     private static int parse(String string, int offset, int radix, boolean negative) throws NumberFormatException {
         int max = Integer.MIN_VALUE / radix;
         int result = 0, length = string.length();
