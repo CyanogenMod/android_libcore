@@ -50,4 +50,26 @@ public class IntegerTest extends junit.framework.TestCase {
         assertTrue(Integer.compare(min,  zero) < 0);
         assertTrue(Integer.compare(min,  max)  < 0);
     }
+
+    public void test_parsePositiveInt() throws Exception {
+        assertEquals(0, Integer.parsePositiveInt("0", 10));
+        assertEquals(473, Integer.parsePositiveInt("473", 10));
+        assertEquals(255, Integer.parsePositiveInt("FF", 16));
+
+        try {
+            Integer.parsePositiveInt("-1", 10);
+            fail();
+        } catch (NumberFormatException e) {}
+
+        try {
+            Integer.parsePositiveInt("+1", 10);
+            fail();
+        } catch (NumberFormatException e) {}
+
+        try {
+            Integer.parsePositiveInt("+0", 16);
+            fail();
+        } catch (NumberFormatException e) {}
+    }
+
 }
