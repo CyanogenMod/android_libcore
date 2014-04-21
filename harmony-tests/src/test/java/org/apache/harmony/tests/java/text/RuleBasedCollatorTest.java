@@ -250,14 +250,9 @@ public class RuleBasedCollatorTest extends TestCase {
     }
   }
 
-  public void testEmptyStringException() {
-    //Regression for HARMONY-241
-    try {
-      new RuleBasedCollator("");
-      fail();
-    } catch (ParseException e) {
-      assertEquals("java.text.ParseException", e.getClass().getName());
-      assertEquals(0, e.getErrorOffset());
-    }
+  public void testEmptyRules() throws Exception {
+    new RuleBasedCollator("");
+    new RuleBasedCollator(" ");
+    new RuleBasedCollator("# This is a comment.");
   }
 }
