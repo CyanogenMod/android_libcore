@@ -43,6 +43,11 @@ import libcore.icu.CollationElementIteratorICU;
  * "&#92;u0086b": the first collation element is collation_element('a'), the
  * second one is collation_element('e'), and the third collation element is
  * collation_element('b').
+ *
+ * <p>Note that calls to {@code next} and {@code previous} can not be mixed.
+ * To change iteration direction, {@code reset}, {@code setOffset} or {@code setText}
+ * must be called to reset the iterator. If a change of direction is done without one
+ * of these calls, the result is undefined.
  */
 public final class CollationElementIterator {
 
@@ -61,7 +66,7 @@ public final class CollationElementIterator {
     }
 
     /**
-     * Obtains the maximum length of any expansion sequence that ends with the
+     * Returns the maximum length of any expansion sequence that ends with the
      * specified collation element. Returns {@code 1} if there is no expansion
      * with this collation element as the last element.
      *
@@ -69,15 +74,13 @@ public final class CollationElementIterator {
      *            a collation element that has been previously obtained from a
      *            call to either the {@link #next()} or {@link #previous()}
      *            method.
-     * @return the maximum length of any expansion sequence ending with the
-     *         specified collation element.
      */
     public int getMaxExpansion(int order) {
         return this.icuIterator.getMaxExpansion(order);
     }
 
     /**
-     * Obtains the character offset in the source string corresponding to the
+     * Returns the character offset in the source string corresponding to the
      * next collation element. This value could be any of:
      * <ul>
      * <li>The index of the first character in the source string that matches
@@ -94,42 +97,33 @@ public final class CollationElementIterator {
      * <li>The length of the source string, if iteration has reached the end.
      * </li>
      * </ul>
-     *
-     * @return The position of the collation element in the source string that
-     *         will be returned by the next invocation of the {@link #next()}
-     *         method.
      */
     public int getOffset() {
         return this.icuIterator.getOffset();
     }
 
     /**
-     * Obtains the next collation element in the source string.
-     *
-     * @return the next collation element or {@code NULLORDER} if the end
-     *         of the iteration has been reached.
+     * Returns the next collation element in the source string or {@code NULLORDER} if
+     * the end of the iteration has been reached.
      */
     public int next() {
         return this.icuIterator.next();
     }
 
     /**
-     * Obtains the previous collation element in the source string.
-     *
-     * @return the previous collation element, or {@code NULLORDER} when
-     *         the start of the iteration has been reached.
+     * Returns the previous collation element in the source string or {@code NULLORDER} if
+     * the start of the iteration has been reached.
      */
     public int previous() {
         return this.icuIterator.previous();
     }
 
     /**
-     * Obtains the primary order of the specified collation element, i.e. the
+     * Returns the primary order of the specified collation element, i.e. the
      * first 16 bits. This value is unsigned.
      *
      * @param order
      *            the element of the collation.
-     * @return the element's 16 bit primary order.
      */
     public static final int primaryOrder(int order) {
         return CollationElementIteratorICU.primaryOrder(order);
@@ -149,12 +143,11 @@ public final class CollationElementIterator {
     }
 
     /**
-     * Obtains the secondary order of the specified collation element, i.e. the
+     * Returns the secondary order of the specified collation element, i.e. the
      * 16th to 23th bits, inclusive. This value is unsigned.
      *
      * @param order
      *            the element of the collator.
-     * @return the 8 bit secondary order of the element.
      */
     public static final short secondaryOrder(int order) {
         return (short) CollationElementIteratorICU.secondaryOrder(order);
@@ -209,12 +202,11 @@ public final class CollationElementIterator {
     }
 
     /**
-     * Obtains the tertiary order of the specified collation element, i.e. the
+     * Returns the tertiary order of the specified collation element, i.e. the
      * last 8 bits. This value is unsigned.
      *
      * @param order
      *            the element of the collation.
-     * @return the 8 bit tertiary order of the element.
      */
     public static final short tertiaryOrder(int order) {
         return (short) CollationElementIteratorICU.tertiaryOrder(order);
