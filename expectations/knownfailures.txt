@@ -939,49 +939,6 @@
   name: "libcore.java.sql.OldStatementTest#testGetUpdateCount"
 },
 {
-  description: "Handshake Status is never finished. NPE in ClientSessionContext$HostAndPort.hashCode() when host
-                is null",
-  bug: 3403706,
-  name: "tests.api.javax.net.ssl.SSLEngineTest#testHandshake"
-},
-{
-  description: "com.android.org.conscrypt.SSLEngineImpl#getDelegatedTask() throws NPE instead of
-                returning null",
-  bug: 3403706,
-  name: "tests.api.javax.net.ssl.SSLEngineTest#test_getDelegatedTask"
-},
-{
-  description: "Fixed in DonutBurger, boundary checks missing",
-  bug: 3403706,
-  name: "tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_02"
-},
-{
-  description: "Fixed on DonutBurger, Wrong Exception thrown",
-  bug: 3403706,
-  names: [
-    "tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_03",
-    "tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_04",
-    "tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_ByteBuffer$ByteBuffer_02",
-    "tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_ByteBuffer$ByteBuffer_03",
-    "tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_ByteBuffer_ByteBuffer_02",
-    "tests.api.javax.net.ssl.SSLEngineTest#test_unwrap_ByteBuffer_ByteBuffer_03"
-  ]
-},
-{
-  description: "Fixed in DonutBurger, boundary checks missing",
-  bug: 3403706,
-  name: "tests.api.javax.net.ssl.SSLEngineTest#test_wrap_02"
-},
-{
-  description: "Fixed on DonutBurger, Wrong Exception thrown",
-  bug: 3403706,
-  names: [
-    "tests.api.javax.net.ssl.SSLEngineTest#test_wrap_04",
-    "tests.api.javax.net.ssl.SSLEngineTest#test_wrap_ByteBuffer$ByteBuffer_03",
-    "tests.api.javax.net.ssl.SSLEngineTest#test_wrap_ByteBuffer_ByteBuffer_03"
-  ]
-},
-{
   description: "ManagerFactoryParameters object is not supported and InvalidAlgorithmParameterException was
                 thrown.",
   bug: 3403706,
@@ -991,26 +948,6 @@
   description: "HostnameVerifier doesn't verify IP addresses",
   bug: 3299188,
   name: "tests.api.javax.net.ssl.HostnameVerifierTest#testVerifyIpAddress"
-},
-{
-  description: "NO SERVER CERTIFICATE FOUND - selectSuite should not pick a suite that needs a certificate if it is missing",
-  bug: 3045163,
-  name: "libcore.javax.net.ssl.SSLEngineTest#test_SSLEngine_beginHandshake_noKeyStore"
-},
-{
-  description: "AlertException instead of SSLException",
-  bug: 3045163,
-  name: "libcore.javax.net.ssl.SSLEngineTest#test_SSLEngine_setEnableSessionCreation_client"
-},
-{
-  description: "SSLException instead of failure to handshake",
-  bug: 3045163,
-  name: "libcore.javax.net.ssl.SSLEngineTest#test_SSLEngine_setEnableSessionCreation_server"
-},
-{
-  description: "SSLHandshakeException instead of failure to handshake",
-  bug: 3045163,
-  name: "libcore.javax.net.ssl.SSLEngineTest#test_SSLEngine_setUseClientMode"
 },
 {
   description: "method test fails once in a while. Cannot be sure that exception is thrown in every test execution.",

@@ -141,7 +141,7 @@ public final class TestSSLContext extends Assert {
      * TestSSLContext creation method that allows separate creation of server key store
      */
     public static TestSSLContext create(TestKeyStore client, TestKeyStore server) {
-        String protocol = "TLS";
+        String protocol = "TLSv1.2";
         SSLContext clientContext =
                 createSSLContext(protocol, client.keyManagers, client.trustManagers);
         SSLContext serverContext =
