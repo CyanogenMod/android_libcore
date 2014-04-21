@@ -246,9 +246,19 @@ public class SSLSocketTest extends TestCase {
         ssl.setEnabledProtocols(ssl.getSupportedProtocols());
 
         // Check that setEnabledProtocols affects getEnabledProtocols
-        String[] protocols = new String[] { ssl.getSupportedProtocols()[0] };
-        ssl.setEnabledProtocols(protocols);
-        assertEquals(Arrays.asList(protocols), Arrays.asList(ssl.getEnabledProtocols()));
+        for (String protocol : ssl.getSupportedProtocols()) {
+            if ("SSLv2Hello".equals(protocol)) {
+                try {
+                    ssl.setEnabledProtocols(new String[] { protocol });
+                    fail("Should fail when SSLv2Hello is set by itself");
+                } catch (IllegalArgumentException expected) {}
+            } else {
+                String[] protocols = new String[] { protocol };
+                ssl.setEnabledProtocols(protocols);
+                assertEquals(Arrays.deepToString(protocols),
+                        Arrays.deepToString(ssl.getEnabledProtocols()));
+            }
+        }
     }
 
     public void test_SSLSocket_getSession() throws Exception {

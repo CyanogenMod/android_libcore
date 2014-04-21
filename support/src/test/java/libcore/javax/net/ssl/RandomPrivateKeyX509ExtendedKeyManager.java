@@ -21,6 +21,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
+import java.security.interfaces.ECPrivateKey;
 import java.security.spec.DSAParameterSpec;
 import java.security.spec.DSAPrivateKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
@@ -70,6 +71,10 @@ public class RandomPrivateKeyX509ExtendedKeyManager extends ForwardingX509Extend
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(keyAlgorithm);
         keyPairGenerator.initialize(new DSAParameterSpec(
             originalKeySpec.getP(), originalKeySpec.getQ(), originalKeySpec.getG()));
+        result = keyPairGenerator.generateKeyPair().getPrivate();
+      } else if ("EC".equals(keyAlgorithm)) {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(keyAlgorithm);
+        keyPairGenerator.initialize(((ECPrivateKey) originalPrivateKey).getParams());
         result = keyPairGenerator.generateKeyPair().getPrivate();
       } else {
         Assert.fail("Unsupported key algorithm: " + originalPrivateKey.getAlgorithm());
