@@ -16,7 +16,6 @@
 #include "ScopedStringChars.h"
 #include "ScopedUtfChars.h"
 #include "UniquePtr.h"
-#include "ucol_imp.h"
 #include "unicode/ucol.h"
 #include "unicode/ucoleitr.h"
 #include <cutils/log.h>
@@ -155,7 +154,8 @@ static jbyteArray NativeCollation_getSortKey(JNIEnv* env, jclass, jlong address,
         return NULL;
     }
     const UCollator* collator  = toCollator(address);
-    uint8_t byteArray[UCOL_MAX_BUFFER * 2];
+    // The buffer size prevents reallocation for most strings.
+    uint8_t byteArray[128];
     UniquePtr<uint8_t[]> largerByteArray;
     uint8_t* usedByteArray = byteArray;
     size_t byteArraySize = ucol_getSortKey(collator, source.get(), source.size(), usedByteArray, sizeof(byteArray) - 1);
