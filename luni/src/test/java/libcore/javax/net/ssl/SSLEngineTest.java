@@ -82,9 +82,7 @@ public class SSLEngineTest extends TestCase {
                 .ca(true)
                 .build();
         test_SSLEngine_getSupportedCipherSuites_connect(testKeyStore, false);
-        if (StandardNames.IS_RI) {
-            test_SSLEngine_getSupportedCipherSuites_connect(testKeyStore, true);
-        }
+        test_SSLEngine_getSupportedCipherSuites_connect(testKeyStore, true);
     }
     private void test_SSLEngine_getSupportedCipherSuites_connect(TestKeyStore testKeyStore,
                                                                  boolean secureRenegotiation)
@@ -133,86 +131,96 @@ public class SSLEngineTest extends TestCase {
             testKeyStore.keyManagers[replaceIndex] = originalKeyManager;
         }
 
+        // To catch all the errors.
+        StringBuilder error = new StringBuilder();
+
         String[] cipherSuites = c.clientContext.createSSLEngine().getSupportedCipherSuites();
         for (String cipherSuite : cipherSuites) {
-            boolean errorExpected = StandardNames.IS_RI && cipherSuite.endsWith("_SHA256");
             try {
-                /*
-                 * TLS_EMPTY_RENEGOTIATION_INFO_SCSV cannot be used on
-                 * its own, but instead in conjunction with other
-                 * cipher suites.
-                 */
-                if (cipherSuite.equals(StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION)) {
-                    continue;
+            // Skip cipher suites that are obsoleted.
+            if (StandardNames.IS_RI && "TLSv1.2".equals(c.clientContext.getProtocol())
+                    && StandardNames.CIPHER_SUITES_OBSOLETE_TLS12.contains(cipherSuite)) {
+                continue;
+            }
+            /*
+             * TLS_EMPTY_RENEGOTIATION_INFO_SCSV cannot be used on
+             * its own, but instead in conjunction with other
+             * cipher suites.
+             */
+            if (cipherSuite.equals(StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION)) {
+                continue;
+            }
+            /*
+             * Kerberos cipher suites require external setup. See "Kerberos Requirements" in
+             * https://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html
+             * #KRBRequire
+             */
+            if (cipherSuite.startsWith("TLS_KRB5_")) {
+                continue;
+            }
+
+            final String[] cipherSuiteArray
+                    = (secureRenegotiation
+                       ? new String[] { cipherSuite,
+                                        StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION }
+                       : new String[] { cipherSuite });
+
+            // Check that handshake succeeds.
+            TestSSLEnginePair pair = TestSSLEnginePair.create(c, new TestSSLEnginePair.Hooks() {
+                @Override
+                void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
+                    client.setEnabledCipherSuites(cipherSuiteArray);
+                    server.setEnabledCipherSuites(cipherSuiteArray);
                 }
-                /*
-                 * Kerberos cipher suites require external setup. See "Kerberos Requirements" in
-                 * https://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html
-                 * #KRBRequire
-                 */
-                if (cipherSuite.startsWith("TLS_KRB5_")) {
-                    continue;
-                }
+            });
+            assertConnected(pair);
 
-                final String[] cipherSuiteArray
-                        = (secureRenegotiation
-                           ? new String[] { cipherSuite,
-                                            StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION }
-                           : new String[] { cipherSuite });
+            boolean needsRecordSplit =
+                    ("TLS".equalsIgnoreCase(c.clientContext.getProtocol())
+                            || "SSLv3".equalsIgnoreCase(c.clientContext.getProtocol()))
+                    && cipherSuite.contains("_CBC_");
 
-                // Check that handshake succeeds.
-                TestSSLEnginePair pair = TestSSLEnginePair.create(c, new TestSSLEnginePair.Hooks() {
-                    @Override
-                    void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
-                        client.setEnabledCipherSuites(cipherSuiteArray);
-                        server.setEnabledCipherSuites(cipherSuiteArray);
-                    }
-                });
-                assertConnected(pair);
+            assertSendsCorrectly("This is the client. Hello!".getBytes(),
+                    pair.client, pair.server, needsRecordSplit);
+            assertSendsCorrectly("This is the server. Hi!".getBytes(),
+                    pair.server, pair.client, needsRecordSplit);
 
-                boolean needsRecordSplit =
-                        ("TLS".equalsIgnoreCase(c.clientContext.getProtocol())
-                                || "SSLv3".equalsIgnoreCase(c.clientContext.getProtocol()))
-                        && cipherSuite.contains("_CBC_");
-
-                assertSendsCorrectly("This is the client. Hello!".getBytes(),
-                        pair.client, pair.server, needsRecordSplit);
-                assertSendsCorrectly("This is the server. Hi!".getBytes(),
-                        pair.server, pair.client, needsRecordSplit);
-                assertFalse(errorExpected);
-
-                // Check that handshake fails when the server does not possess the private key
-                // corresponding to the server's certificate. This is achieved by using SSLContext
-                // cWithWrongPrivateKeys whose KeyManager returns wrong private keys that match
-                // the algorithm (and parameters) of the correct keys.
-                if (!cipherSuite.contains("_anon_")) {
-                    // The identity of the server is verified only in non-anonymous key exchanges.
-                    try {
-                        TestSSLEnginePair p = TestSSLEnginePair.create(
-                                cWithWrongPrivateKeys, new TestSSLEnginePair.Hooks() {
-                            @Override
-                                    void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
-                                client.setEnabledCipherSuites(cipherSuiteArray);
-                                server.setEnabledCipherSuites(cipherSuiteArray);
-                            }
-                        });
-                        assertConnected(p);
-                        fail("Handshake succeeded for " + cipherSuite
-                                + " despite server not having the correct private key");
-                    } catch (IOException expected) {}
-                }
-            } catch (Exception maybeExpected) {
-                if (!errorExpected) {
-                    throw new Exception("Problem trying to connect cipher suite " + cipherSuite,
-                                        maybeExpected);
-                }
+            // Check that handshake fails when the server does not possess the private key
+            // corresponding to the server's certificate. This is achieved by using SSLContext
+            // cWithWrongPrivateKeys whose KeyManager returns wrong private keys that match
+            // the algorithm (and parameters) of the correct keys.
+            if (!cipherSuite.contains("_anon_")) {
+                // The identity of the server is verified only in non-anonymous key exchanges.
+                try {
+                    TestSSLEnginePair p = TestSSLEnginePair.create(
+                            cWithWrongPrivateKeys, new TestSSLEnginePair.Hooks() {
+                        @Override
+                                void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
+                            client.setEnabledCipherSuites(cipherSuiteArray);
+                            server.setEnabledCipherSuites(cipherSuiteArray);
+                        }
+                    });
+                    assertNotConnected(p);
+                } catch (IOException expected) {}
+            }
+            } catch (Exception e) {
+                String message = ("Problem trying to connect cipher suite " + cipherSuite);
+                System.out.println(message);
+                e.printStackTrace();
+                error.append(message);
+                error.append('\n');
             }
         }
         c.close();
+        
+        if (error.length() > 0) {
+            throw new Exception("One or more problems in "
+                    + "test_SSLEngine_getSupportedCipherSuites_connect:\n" + error);
+        }
     }
 
-    private void assertSendsCorrectly(final byte[] sourceBytes, SSLEngine source, SSLEngine dest,
-            boolean needsRecordSplit) throws SSLException {
+    private static void assertSendsCorrectly(final byte[] sourceBytes, SSLEngine source,
+            SSLEngine dest, boolean needsRecordSplit) throws SSLException {
         ByteBuffer sourceOut = ByteBuffer.wrap(sourceBytes);
         SSLSession sourceSession = source.getSession();
         ByteBuffer sourceToDest = ByteBuffer.allocate(sourceSession.getPacketBufferSize());
@@ -327,9 +335,19 @@ public class SSLEngineTest extends TestCase {
         e.setEnabledProtocols(e.getSupportedProtocols());
 
         // Check that setEnabledProtocols affects getEnabledProtocols
-        String[] protocols = new String[] { e.getSupportedProtocols()[0] };
-        e.setEnabledProtocols(protocols);
-        assertEquals(Arrays.asList(protocols), Arrays.asList(e.getEnabledProtocols()));
+        for (String protocol : e.getSupportedProtocols()) {
+            if ("SSLv2Hello".equals(protocol)) {
+                try {
+                    e.setEnabledProtocols(new String[] { protocol });
+                    fail("Should fail when SSLv2Hello is set by itself");
+                } catch (IllegalArgumentException expected) {}
+            } else {
+                String[] protocols = new String[] { protocol };
+                e.setEnabledProtocols(protocols);
+                assertEquals(Arrays.deepToString(protocols),
+                        Arrays.deepToString(e.getEnabledProtocols()));
+            }
+        }
 
         c.close();
     }
@@ -385,17 +403,34 @@ public class SSLEngineTest extends TestCase {
     }
 
     public void test_SSLEngine_setUseClientMode() throws Exception {
+        boolean[] finished;
+
         // client is client, server is server
-        assertConnected(test_SSLEngine_setUseClientMode(true, false));
+        finished = new boolean[2];
+        assertConnected(test_SSLEngine_setUseClientMode(true, false, finished));
+        assertTrue(finished[0]);
+        assertTrue(finished[1]);
 
         // client is server, server is client
-        assertConnected(test_SSLEngine_setUseClientMode(false, true));
+        finished = new boolean[2];
+        assertConnected(test_SSLEngine_setUseClientMode(false, true, finished));
+        assertTrue(finished[0]);
+        assertTrue(finished[1]);
 
         // both are client
-        assertNotConnected(test_SSLEngine_setUseClientMode(true, true));
+        /*
+         * Our implementation throws an SSLHandshakeException, but RI just
+         * stalls forever
+         */
+        try {
+            assertNotConnected(test_SSLEngine_setUseClientMode(true, true, null));
+            assertTrue(StandardNames.IS_RI);
+        } catch (SSLHandshakeException maybeExpected) {
+            assertFalse(StandardNames.IS_RI);
+        }
 
         // both are server
-        assertNotConnected(test_SSLEngine_setUseClientMode(false, false));
+        assertNotConnected(test_SSLEngine_setUseClientMode(false, false, null));
     }
 
     public void test_SSLEngine_setUseClientMode_afterHandshake() throws Exception {
@@ -415,7 +450,8 @@ public class SSLEngineTest extends TestCase {
     }
 
     private TestSSLEnginePair test_SSLEngine_setUseClientMode(final boolean clientClientMode,
-                                                              final boolean serverClientMode)
+                                                              final boolean serverClientMode,
+                                                              final boolean[] finished)
             throws Exception {
         TestSSLContext c;
         if (!clientClientMode && serverClientMode) {
@@ -430,7 +466,7 @@ public class SSLEngineTest extends TestCase {
                 client.setUseClientMode(clientClientMode);
                 server.setUseClientMode(serverClientMode);
             }
-        });
+        }, finished);
     }
 
     public void test_SSLEngine_clientAuth() throws Exception {
