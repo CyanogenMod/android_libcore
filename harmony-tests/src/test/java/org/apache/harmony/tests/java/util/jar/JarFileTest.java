@@ -98,6 +98,8 @@ public class JarFileTest extends TestCase {
 
     private static final String INVALID_CHAIN_JAR = "hyts_signed_invalidChain.jar";
 
+    private static final String AMBIGUOUS_SIGNERS_JAR = "hyts_signed_ambiguousSignerArray.jar";
+
     private File resources;
 
     // custom security manager
@@ -713,6 +715,15 @@ public class JarFileTest extends TestCase {
         assertEquals(Arrays.deepToString(result.certificates), 1, result.certificates.length);
         assertEquals(Arrays.deepToString(result.signers), 1, result.signers.length);
         assertEquals(1, result.signers[0].getSignerCertPath().getCertificates().size());
+    }
+
+    public void testJarFile_Signed_AmbiguousSigners() throws Exception {
+        Results result = getSignedJarCerts(AMBIGUOUS_SIGNERS_JAR, false);
+        assertNotNull(result);
+        assertEquals(Arrays.deepToString(result.certificates), 2, result.certificates.length);
+        assertEquals(Arrays.deepToString(result.signers), 2, result.signers.length);
+        assertEquals(1, result.signers[0].getSignerCertPath().getCertificates().size());
+        assertEquals(1, result.signers[1].getSignerCertPath().getCertificates().size());
     }
 
     /*
