@@ -487,6 +487,12 @@ import libcore.icu.NativeDecimalFormat;
  * <em>escapes</em> the following character. If there is no character after
  * the pad escape, then the pattern is illegal.</li>
  * </ul>
+ *
+ * <h4>Serialization</h4>
+ * <p>
+ * Features marked as <strong><font color="red">NEW</font></strong> and patterns that use
+ * characters not documented above are unlikely to serialize/deserialize correctly.
+ *
  * <h4>Synchronization</h4>
  * <p>
  * {@code DecimalFormat} objects are not synchronized. Multiple threads should
@@ -587,6 +593,9 @@ public class DecimalFormat extends NumberFormat {
      *            if the pattern cannot be parsed.
      */
     public void applyPattern(String pattern) {
+        // The underlying ICU4C accepts a super-set of the pattern spec documented by the Android
+        // APIs. For example, rounding increments (pattern characters '1'-'9'). They will work but
+        // see class doc for issues with serialization/deserialization they may cause.
         ndf.applyPattern(pattern);
         updateFieldsFromNative();
     }
@@ -653,9 +662,6 @@ public class DecimalFormat extends NumberFormat {
         if (object == null) {
             throw new NullPointerException("object == null");
         }
-        if (roundingMode == RoundingMode.UNNECESSARY && (object instanceof Float || object instanceof Double)) {
-            checkRoundingUnnecessary(((Number) object).doubleValue());
-        }
         return ndf.formatToCharacterIterator(object);
     }
 
@@ -668,31 +674,9 @@ public class DecimalFormat extends NumberFormat {
         }
     }
 
-    private void checkRoundingUnnecessary(Object value) {
-        // ICU4C doesn't support this rounding mode, so we have to fake it.
-        // This implementation reduces code duplication, but adds boxing
-        // overhead and sends you all the way back through. But since we
-        // have to format your string multiple times in this mode, you're already
-        // screwed performance-wise.
-        try {
-            setRoundingMode(RoundingMode.UP);
-            String upResult = format(value, new StringBuffer(), new FieldPosition(0)).toString();
-            setRoundingMode(RoundingMode.DOWN);
-            String downResult = format(value, new StringBuffer(), new FieldPosition(0)).toString();
-            if (!upResult.equals(downResult)) {
-                throw new ArithmeticException("rounding mode UNNECESSARY but rounding required");
-            }
-        } finally {
-            setRoundingMode(RoundingMode.UNNECESSARY);
-        }
-    }
-
     @Override
     public StringBuffer format(double value, StringBuffer buffer, FieldPosition position) {
         checkBufferAndFieldPosition(buffer, position);
-        if (roundingMode == RoundingMode.UNNECESSARY) {
-            checkRoundingUnnecessary(value);
-        }
         buffer.append(ndf.formatDouble(value, position));
         return buffer;
     }
@@ -700,9 +684,6 @@ public class DecimalFormat extends NumberFormat {
     @Override
     public StringBuffer format(long value, StringBuffer buffer, FieldPosition position) {
         checkBufferAndFieldPosition(buffer, position);
-        if (roundingMode == RoundingMode.UNNECESSARY) {
-            checkRoundingUnnecessary(value);
-        }
         buffer.append(ndf.formatLong(value, position));
         return buffer;
     }
@@ -1216,10 +1197,11 @@ public class DecimalFormat extends NumberFormat {
             throw new NullPointerException("roundingMode == null");
         }
         this.roundingMode = roundingMode;
-        if (roundingMode != RoundingMode.UNNECESSARY) { // ICU4C doesn't support UNNECESSARY.
-            double roundingIncrement = 1.0 / Math.pow(10, Math.max(0, getMaximumFractionDigits()));
-            ndf.setRoundingMode(roundingMode, roundingIncrement);
-        }
+        // DecimalFormat does not allow specification of a rounding increment.  If anything other
+        // than 0.0 is used here the resulting DecimalFormat cannot be deserialized because the
+        // serialization format does not include rounding increment information.
+        double roundingIncrement = 0.0;
+        ndf.setRoundingMode(roundingMode, roundingIncrement);
     }
 
     public String toString() { return ndf.toString(); }

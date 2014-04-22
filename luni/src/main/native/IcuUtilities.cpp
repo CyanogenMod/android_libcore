@@ -65,6 +65,8 @@ bool maybeThrowIcuException(JNIEnv* env, const char* function, UErrorCode error)
     exceptionClass = "java/lang/ArrayIndexOutOfBoundsException";
   } else if (error == U_UNSUPPORTED_ERROR) {
     exceptionClass = "java/lang/UnsupportedOperationException";
+  } else if (error == U_FORMAT_INEXACT_ERROR) {
+    exceptionClass = "java/lang/ArithmeticException";
   }
   jniThrowExceptionFmt(env, exceptionClass, "%s failed: %s", function, u_errorName(error));
   return true;

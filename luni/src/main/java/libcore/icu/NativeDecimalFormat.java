@@ -562,6 +562,7 @@ public final class NativeDecimalFormat implements Cloneable {
         case HALF_EVEN: nativeRoundingMode = 4; break;
         case HALF_DOWN: nativeRoundingMode = 5; break;
         case HALF_UP: nativeRoundingMode = 6; break;
+        case UNNECESSARY: nativeRoundingMode = 7; break;
         default: throw new AssertionError();
         }
         setRoundingMode(address, nativeRoundingMode, roundingIncrement);
