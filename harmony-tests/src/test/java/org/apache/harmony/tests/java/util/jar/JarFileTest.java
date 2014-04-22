@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.CodeSigner;
 import java.security.Permission;
 import java.security.cert.Certificate;
 import java.util.Arrays;
@@ -646,11 +647,16 @@ public class JarFileTest extends TestCase {
                         + jarName + "\"", foundCerts);
     }
 
-    private Certificate[] getSignedJarCerts(String jarName, boolean chainCheck) throws Exception {
+    private static class Results {
+        public Certificate[] certificates;
+        public CodeSigner[] signers;
+    }
+
+    private Results getSignedJarCerts(String jarName, boolean chainCheck) throws Exception {
         Support_Resources.copyFile(resources, null, jarName);
 
         File file = new File(resources, jarName);
-        Certificate[] foundCerts = null;
+        Results results = new Results();
 
         JarFile jarFile = new JarFile(file, true, ZipFile.OPEN_READ, chainCheck);
         try {
@@ -663,8 +669,10 @@ public class JarFileTest extends TestCase {
                 is.skip(entry.getSize());
                 is.close();
                 Certificate[] certs = entry.getCertificates();
+                CodeSigner[] signers = entry.getCodeSigners();
                 if (certs != null && certs.length > 0) {
-                    foundCerts = certs;
+                    results.certificates = certs;
+                    results.signers = signers;
                     break;
                 }
             }
@@ -672,31 +680,39 @@ public class JarFileTest extends TestCase {
             jarFile.close();
         }
 
-        return foundCerts;
+        return results;
     }
 
     public void testJarFile_Signed_ValidChain_NoCheck() throws Exception {
-        Certificate[] certs = getSignedJarCerts(VALID_CHAIN_JAR, false);
-        assertNotNull(certs);
-        assertEquals(Arrays.deepToString(certs), 2, certs.length);
+        Results result = getSignedJarCerts(VALID_CHAIN_JAR, false);
+        assertNotNull(result);
+        assertEquals(Arrays.deepToString(result.certificates), 2, result.certificates.length);
+        assertEquals(Arrays.deepToString(result.signers), 1, result.signers.length);
+        assertEquals(2, result.signers[0].getSignerCertPath().getCertificates().size());
     }
 
     public void testJarFile_Signed_ValidChain_Check() throws Exception {
-        Certificate[] certs = getSignedJarCerts(VALID_CHAIN_JAR, true);
-        assertNotNull(certs);
-        assertEquals(Arrays.deepToString(certs), 2, certs.length);
+        Results result = getSignedJarCerts(VALID_CHAIN_JAR, true);
+        assertNotNull(result);
+        assertEquals(Arrays.deepToString(result.certificates), 2, result.certificates.length);
+        assertEquals(Arrays.deepToString(result.signers), 1, result.signers.length);
+        assertEquals(2, result.signers[0].getSignerCertPath().getCertificates().size());
     }
 
     public void testJarFile_Signed_InvalidChain_NoCheck() throws Exception {
-        Certificate[] certs = getSignedJarCerts(INVALID_CHAIN_JAR, false);
-        assertNotNull(certs);
-        assertEquals(Arrays.deepToString(certs), 2, certs.length);
+        Results result = getSignedJarCerts(INVALID_CHAIN_JAR, false);
+        assertNotNull(result);
+        assertEquals(Arrays.deepToString(result.certificates), 2, result.certificates.length);
+        assertEquals(Arrays.deepToString(result.signers), 1, result.signers.length);
+        assertEquals(2, result.signers[0].getSignerCertPath().getCertificates().size());
     }
 
     public void testJarFile_Signed_InvalidChain_Check() throws Exception {
-        Certificate[] certs = getSignedJarCerts(INVALID_CHAIN_JAR, true);
-        assertNotNull(certs);
-        assertEquals(Arrays.deepToString(certs), 1, certs.length);
+        Results result = getSignedJarCerts(INVALID_CHAIN_JAR, true);
+        assertNotNull(result);
+        assertEquals(Arrays.deepToString(result.certificates), 1, result.certificates.length);
+        assertEquals(Arrays.deepToString(result.signers), 1, result.signers.length);
+        assertEquals(1, result.signers[0].getSignerCertPath().getCertificates().size());
     }
 
     /*
