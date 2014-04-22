@@ -578,13 +578,19 @@ public class SSLEngineTest extends TestCase {
     }
 
     public void test_SSLEngine_setEnableSessionCreation_server() throws Exception {
-        TestSSLEnginePair p = TestSSLEnginePair.create(new TestSSLEnginePair.Hooks() {
-            @Override
-            void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
-                server.setEnableSessionCreation(false);
-            }
-        });
-        assertNotConnected(p);
+        try {
+            TestSSLEnginePair p = TestSSLEnginePair.create(new TestSSLEnginePair.Hooks() {
+                @Override
+                void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
+                    server.setEnableSessionCreation(false);
+                }
+            });
+            // For some reason, the RI doesn't throw an SSLException.
+            assertTrue(StandardNames.IS_RI);
+            assertNotConnected(p);
+        } catch (SSLException maybeExpected) {
+            assertFalse(StandardNames.IS_RI);
+        }
     }
 
     public void test_SSLEngine_setEnableSessionCreation_client() throws Exception {
