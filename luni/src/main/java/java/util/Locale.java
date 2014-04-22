@@ -80,21 +80,25 @@ import libcore.icu.ICU;
  *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-1-8">CLDR 1.8</a></td>
  *     <td><a href="http://www.unicode.org/versions/Unicode5.2.0/">Unicode 5.2</a></td></tr>
  * <tr><td>Android 4.0 (Ice Cream Sandwich)</td>
- *     <td>ICU 4.6</td>
+ *     <td><a href="http://site.icu-project.org/download/46">ICU 4.6</a></td>
  *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-1-9">CLDR 1.9</a></td>
  *     <td><a href="http://www.unicode.org/versions/Unicode6.0.0/">Unicode 6.0</a></td></tr>
  * <tr><td>Android 4.1 (Jelly Bean)</td>
- *     <td>ICU 4.8</td>
+ *     <td><a href="http://site.icu-project.org/download/48">ICU 4.8</a></td>
  *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-2-0">CLDR 2.0</a></td>
  *     <td><a href="http://www.unicode.org/versions/Unicode6.0.0/">Unicode 6.0</a></td></tr>
  * <tr><td>Android 4.3 (Jelly Bean MR2)</td>
- *     <td>ICU 50</td>
+ *     <td><a href="http://site.icu-project.org/download/50">ICU 50</a></td>
  *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-22-1">CLDR 22.1</a></td>
  *     <td><a href="http://www.unicode.org/versions/Unicode6.2.0/">Unicode 6.2</a></td></tr>
  * <tr><td>Android 4.4 (KitKat)</td>
- *     <td>ICU 51</td>
+ *     <td><a href="http://site.icu-project.org/download/51">ICU 51</a></td>
  *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-23">CLDR 23</a></td>
  *     <td><a href="http://www.unicode.org/versions/Unicode6.2.0/">Unicode 6.2</a></td></tr>
+ * <tr><td>Android 4.? (STOPSHIP)</td>
+ *     <td><a href="http://site.icu-project.org/download/53">ICU 53</a></td>
+ *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-25">CLDR 25</a></td>
+ *     <td><a href="http://www.unicode.org/versions/Unicode6.2.0/">Unicode 6.3</a></td></tr>
  * </table>
  *
  * <a name="default_locale"><h3>Be wary of the default locale</h3></a>
