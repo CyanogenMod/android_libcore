@@ -87,16 +87,51 @@ public final class StrictJarFile {
     }
 
     /**
-     * Return all certificates for a given {@link ZipEntry} belonging to this jar.
+     * Return all certificate chains for a given {@link ZipEntry} belonging to this jar.
      * This method MUST be called only after fully exhausting the InputStream belonging
      * to this entry.
      *
      * Returns {@code null} if this jar file isn't signed or if this method is
      * called before the stream is processed.
      */
+    public Certificate[][] getCertificateChains(ZipEntry ze) {
+        if (isSigned) {
+            return verifier.getCertificateChains(ze.getName());
+        }
+
+        return null;
+    }
+
+    /**
+     * Return all certificates for a given {@link ZipEntry} belonging to this jar.
+     * This method MUST be called only after fully exhausting the InputStream belonging
+     * to this entry.
+     *
+     * Returns {@code null} if this jar file isn't signed or if this method is
+     * called before the stream is processed.
+     *
+     * @deprecated Switch callers to use getCertificateChains instead
+     */
+    @Deprecated
     public Certificate[] getCertificates(ZipEntry ze) {
         if (isSigned) {
-            return verifier.getCertificates(ze.getName());
+            Certificate[][] certChains = verifier.getCertificateChains(ze.getName());
+
+            // Measure number of certs.
+            int count = 0;
+            for (Certificate[] chain : certChains) {
+                count += chain.length;
+            }
+
+            // Create new array and copy all the certs into it.
+            Certificate[] certs = new Certificate[count];
+            int i = 0;
+            for (Certificate[] chain : certChains) {
+                System.arraycopy(chain, 0, certs, i, chain.length);
+                i += chain.length;
+            }
+
+            return certs;
         }
 
         return null;

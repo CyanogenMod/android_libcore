@@ -122,6 +122,7 @@ public class StrictJarFileTest extends TestCase {
             jarFile.getInputStream(zipEntry).skip(Long.MAX_VALUE);
             if ("Test.class".equals(zipEntry.getName())) {
                 assertNotNull(jarFile.getCertificates(zipEntry));
+                assertNotNull(jarFile.getCertificateChains(zipEntry));
             }
         }
     }
