@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.Permission;
 import java.security.cert.Certificate;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.jar.Attributes;
@@ -92,6 +93,10 @@ public class JarFileTest extends TestCase {
     private final String emptyEntry2 = "svgtest.js";
 
     private final String emptyEntry3 = "svgunit.js";
+
+    private static final String VALID_CHAIN_JAR = "hyts_signed_validChain.jar";
+
+    private static final String INVALID_CHAIN_JAR = "hyts_signed_invalidChain.jar";
 
     private File resources;
 
@@ -629,6 +634,59 @@ public class JarFileTest extends TestCase {
         assertTrue(
                 "No certificates found during signed jar test for jar \""
                         + jarName + "\"", foundCerts);
+    }
+
+    private Certificate[] getSignedJarCerts(String jarName, boolean chainCheck) throws Exception {
+        Support_Resources.copyFile(resources, null, jarName);
+
+        File file = new File(resources, jarName);
+        Certificate[] foundCerts = null;
+
+        JarFile jarFile = new JarFile(file, true, ZipFile.OPEN_READ, chainCheck);
+        try {
+
+            Enumeration<JarEntry> e = jarFile.entries();
+            while (e.hasMoreElements()) {
+                JarEntry entry = e.nextElement();
+                InputStream is = jarFile.getInputStream(entry);
+                // Skip bytes because we have to read the entire file for it to read signatures.
+                is.skip(entry.getSize());
+                is.close();
+                Certificate[] certs = entry.getCertificates();
+                if (certs != null && certs.length > 0) {
+                    foundCerts = certs;
+                    break;
+                }
+            }
+        } finally {
+            jarFile.close();
+        }
+
+        return foundCerts;
+    }
+
+    public void testJarFile_Signed_ValidChain_NoCheck() throws Exception {
+        Certificate[] certs = getSignedJarCerts(VALID_CHAIN_JAR, false);
+        assertNotNull(certs);
+        assertEquals(Arrays.deepToString(certs), 2, certs.length);
+    }
+
+    public void testJarFile_Signed_ValidChain_Check() throws Exception {
+        Certificate[] certs = getSignedJarCerts(VALID_CHAIN_JAR, true);
+        assertNotNull(certs);
+        assertEquals(Arrays.deepToString(certs), 2, certs.length);
+    }
+
+    public void testJarFile_Signed_InvalidChain_NoCheck() throws Exception {
+        Certificate[] certs = getSignedJarCerts(INVALID_CHAIN_JAR, false);
+        assertNotNull(certs);
+        assertEquals(Arrays.deepToString(certs), 2, certs.length);
+    }
+
+    public void testJarFile_Signed_InvalidChain_Check() throws Exception {
+        Certificate[] certs = getSignedJarCerts(INVALID_CHAIN_JAR, true);
+        assertNotNull(certs);
+        assertEquals(Arrays.deepToString(certs), 1, certs.length);
     }
 
     /*
