@@ -37,15 +37,6 @@ import java.text.CharacterIterator;
 * @stable ICU 2.4
 */
 public final class CollationElementIteratorICU {
-    // public data member -------------------------------------------
-
-    /**
-     * @stable ICU 2.4
-     */
-    public static final int NULLORDER = 0xFFFFFFFF;
-
-    // public methods -----------------------------------------------
-
     /**
      * Reset the collation elements to their initial state.
      * This will move the 'cursor' to the beginning of the text.
