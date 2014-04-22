@@ -24,7 +24,7 @@ import java.text.RuleBasedCollator;
 
 public class OldCollationKeyTest extends junit.framework.TestCase {
 
-    public void test_toByteArray() {
+    public void test_toByteArray() throws ParseException {
         // Test for method byte [] java.text.CollationKey.toByteArray()
         Collator collator = Collator.getInstance();
         collator.setStrength(Collator.PRIMARY);
@@ -32,12 +32,7 @@ public class OldCollationKeyTest extends junit.framework.TestCase {
         byte[] bytes = key1.toByteArray();
         assertTrue("Not enough bytes", bytes.length >= 3);
 
-        try {
-            collator = new RuleBasedCollator("= 1 , 2 ; 3 , 4 < 5 ; 6 , 7");
-        } catch (ParseException e) {
-            fail("ParseException");
-            return;
-        }
+        collator = new RuleBasedCollator("&0 = 1 , 2 ; 3 , 4 < 5 ; 6 , 7");
         /*
          * CollationElementIterator it =
          * ((RuleBasedCollator)collator).getCollationElementIterator("1234567");

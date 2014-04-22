@@ -66,6 +66,8 @@ public class CollationElementIteratorTest extends TestCase {
 
     int offset = iterator.getOffset();
     assertEquals(text.length(), offset);
+
+    iterator.reset();
     order = iterator.previous();
 
     while (order != CollationElementIterator.NULLORDER) {
@@ -91,6 +93,8 @@ public class CollationElementIteratorTest extends TestCase {
 
     int offset = iterator.getOffset();
     assertEquals(text.length(), offset);
+
+    iterator.reset();
     order = iterator.previous();
 
     while (order != CollationElementIterator.NULLORDER) {
@@ -176,19 +180,31 @@ public class CollationElementIteratorTest extends TestCase {
     RuleBasedCollator rbColl = (RuleBasedCollator) Collator.getInstance(new Locale("es", "", "TRADITIONAL"));
     String text = "cha";
     CollationElementIterator iterator = rbColl.getCollationElementIterator(text);
+    iterator.setOffset(0);
+    assertEquals(0, iterator.getOffset());
     iterator.setOffset(1);
-    assertEquals(1, iterator.getOffset());
+    assertEquals(0, iterator.getOffset());
+    iterator.setOffset(2);
+    assertEquals(2, iterator.getOffset());
   }
 
   public void testSetTextString() {
     RuleBasedCollator rbColl = (RuleBasedCollator) Collator.getInstance(new Locale("es", "", "TRADITIONAL"));
     String text = "caa";
     CollationElementIterator iterator = rbColl.getCollationElementIterator(text);
+    iterator.setOffset(0);
+    assertEquals(0, iterator.getOffset());
     iterator.setOffset(1);
     assertEquals(1, iterator.getOffset());
+    iterator.setOffset(2);
+    assertEquals(2, iterator.getOffset());
     iterator.setText("cha");
+    iterator.setOffset(0);
+    assertEquals(0, iterator.getOffset());
     iterator.setOffset(1);
-    assertEquals(1, iterator.getOffset());
+    assertEquals(0, iterator.getOffset());
+    iterator.setOffset(2);
+    assertEquals(2, iterator.getOffset());
   }
 
   public void testSetTextCharacterIterator() {

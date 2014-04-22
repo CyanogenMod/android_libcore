@@ -1,13 +1,13 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,9 +23,6 @@ import java.util.Locale;
 
 public class CollatorTest extends junit.framework.TestCase {
 
-	/**
-	 * @tests java.text.Collator#clone()
-	 */
 	public void test_clone() {
 		Collator c = Collator.getInstance(Locale.GERMAN);
 		Collator c2 = (Collator) c.clone();
@@ -33,9 +30,6 @@ public class CollatorTest extends junit.framework.TestCase {
 		assertTrue("Clones were equivalent", c != c2);
 	}
 
-	/**
-	 * @tests java.text.Collator#compare(java.lang.Object, java.lang.Object)
-	 */
 	public void test_compareLjava_lang_ObjectLjava_lang_Object() {
 		Collator c = Collator.getInstance(Locale.FRENCH);
 		Object o, o2;
@@ -119,9 +113,6 @@ public class CollatorTest extends junit.framework.TestCase {
 		fail("Failed to throw ClassCastException");
 	}
 
-	/**
-	 * @tests java.text.Collator#equals(java.lang.Object)
-	 */
 	public void test_equalsLjava_lang_Object() {
 		Collator c = Collator.getInstance(Locale.ENGLISH);
 		Collator c2 = (Collator) c.clone();
@@ -130,9 +121,6 @@ public class CollatorTest extends junit.framework.TestCase {
 		assertTrue("Collators with different strengths equal", !c.equals(c2));
 	}
 
-	/**
-	 * @tests java.text.Collator#equals(java.lang.String, java.lang.String)
-	 */
 	public void test_equalsLjava_lang_StringLjava_lang_String() {
 		Collator c = Collator.getInstance(Locale.FRENCH);
 
@@ -168,10 +156,6 @@ public class CollatorTest extends junit.framework.TestCase {
 		assertTrue("d) Failed on equivalence", c.equals("e", "e"));
 	}
 
-	/**
-	 * @tests java.text.Collator#getAvailableLocales()
-	 */
-	//FIXME This test fails on Harmony ClassLibrary
 	public void failing_test_getAvailableLocales() {
 		Locale[] locales = Collator.getAvailableLocales();
 		assertTrue("No locales", locales.length > 0);
@@ -199,10 +183,6 @@ public class CollatorTest extends junit.framework.TestCase {
 		assertTrue("Missing locales", english && german);
 	}
 
-	/**
-	 * @tests java.text.Collator#getDecomposition()
-	 */
-	//FIXME This test fails on Harmony ClassLibrary
 	public void failing_test_getDecomposition() {
 		RuleBasedCollator collator;
 		try {
@@ -215,40 +195,21 @@ public class CollatorTest extends junit.framework.TestCase {
 				collator.getDecomposition() == Collator.CANONICAL_DECOMPOSITION);
 	}
 
-	/**
-	 * @tests java.text.Collator#getInstance()
-	 */
 	public void test_getInstance() {
 		Collator c1 = Collator.getInstance();
 		Collator c2 = Collator.getInstance(Locale.getDefault());
 		assertTrue("Wrong locale", c1.equals(c2));
 	}
 
-	/**
-	 * @tests java.text.Collator#getInstance(java.util.Locale)
-	 */
 	public void test_getInstanceLjava_util_Locale() {
 		assertTrue("Used to test", true);
 	}
 
-	/**
-	 * @tests java.text.Collator#getStrength()
-	 */
-	public void test_getStrength() {
-		RuleBasedCollator collator;
-		try {
-			collator = new RuleBasedCollator("; \u0300 < a, A < b < c < d");
-		} catch (ParseException e) {
-			fail("ParseException");
-			return;
-		}
+	public void test_getStrength() throws ParseException {
+		RuleBasedCollator collator = new RuleBasedCollator("&9 ; \u0300 < a, A < b < c < d");
 		assertTrue("Wrong default", collator.getStrength() == Collator.TERTIARY);
 	}
 
-	/**
-	 * @tests java.text.Collator#setDecomposition(int)
-	 */
-	//FIXME This test fails on Harmony ClassLibrary
 	public void failing_test_setDecompositionI() {
 		Collator c = Collator.getInstance(Locale.FRENCH);
 		c.setStrength(Collator.IDENTICAL);
@@ -267,9 +228,6 @@ public class CollatorTest extends junit.framework.TestCase {
 				"\u2163", "IV")); // roman number "IV"
 	}
 
-	/**
-	 * @tests java.text.Collator#setStrength(int)
-	 */
 	public void test_setStrengthI() {
 		assertTrue("Used to test", true);
 	}
