@@ -24,8 +24,8 @@ import libcore.icu.RuleBasedCollatorICU;
  * It is based on the ICU RuleBasedCollator which implements the
  * CLDR and Unicode collation algorithms.
  *
- * <p>Most of the time, you create a {@link Collator} instance for a {@link Locale}
- * by calling the {@link Collator.getInstance} factory method.
+ * <p>Most of the time, you create a {@link Collator} instance for a {@link java.util.Locale}
+ * by calling the {@link Collator#getInstance} factory method.
  * You can construct a {@code RuleBasedCollator} if you need a custom sort order.
  *
  * <p>The root collator's sort order is the CLDR root collation order
