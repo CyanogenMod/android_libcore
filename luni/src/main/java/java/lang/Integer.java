@@ -366,6 +366,15 @@ public final class Integer extends Number implements Comparable<Integer> {
     }
 
     /**
+     * Equivalent to {@code parsePositiveInt(string, 10)}.
+     *
+     * @see #parsePositiveInt(String, int)
+     */
+    public static int parsePositiveInt(String string) throws NumberFormatException {
+        return parsePositiveInt(string, 10);
+    }
+
+    /**
      * Parses the specified string as a positive integer value using the
      * specified radix. 0 is considered a positive integer.
      * <p>
