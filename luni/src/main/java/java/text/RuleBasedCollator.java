@@ -20,243 +20,60 @@ package java.text;
 import libcore.icu.RuleBasedCollatorICU;
 
 /**
- * A concrete implementation class for {@code Collation}.
- * <p>
- * {@code RuleBasedCollator} has the following restrictions for efficiency
- * (other subclasses may be used for more complex languages):
- * <ol>
- * <li> If a French secondary ordering is specified it applies to the whole
- * collator object.</li>
- * <li> All non-mentioned Unicode characters are at the end of the collation
- * order.</li>
- * <li> If a character is not located in the {@code RuleBasedCollator}, the
- * default Unicode Collation Algorithm (UCA) rule-based table is automatically
- * searched as a backup.</li>
- * </ol>
- * <p>
- * The collation table is composed of a list of collation rules, where each rule
- * is of three forms:
+ * A concrete subclass of {@link Collator}.
+ * It is based on the ICU RuleBasedCollator which implements the
+ * CLDR and Unicode collation algorithms.
+ *
+ * <p>Most of the time, you create a {@link Collator} instance for a {@link Locale}
+ * by calling the {@link Collator.getInstance} factory method.
+ * You can construct a {@code RuleBasedCollator} if you need a custom sort order.
+ *
+ * <p>The root collator's sort order is the CLDR root collation order
+ * which in turn is the Unicode default sort order with a few modifications.
+ * A {@code RuleBasedCollator} is built from a rule {@code String} which changes the
+ * sort order of some characters and strings relative to the default order.
+ *
+ * <p>A rule string usually contains one or more rule chains.
+ * A rule chain consists of a reset followed by one or more rules.
+ * The reset anchors the following rules in the default sort order.
+ * The rules change the order of the their characters and strings
+ * relative to the reset point.
+ *
+ * <p>A reset is an ampersand {@code &amp;} followed by one or more characters for the reset position.
+ * A rule is a relation operator, which specifies the level of difference,
+ * also followed by one or more characters.
+ * A multi-character rule creates a "contraction".
+ * A multi-character reset position usually creates "expansions".
+ *
+ * <p>For example, the following rules
+ * make "ä" sort with a diacritic-like (secondary) difference from "ae"
+ * (like in German phonebook sorting),
+ * and make "å" and "aa" sort as a base letter (primary) after "z" (like in Danish).
+ * Uppercase forms sort with a case-like (tertiary) difference after their lowercase forms.
+ *
  * <blockquote>
  * <pre>
- * &lt;modifier&gt;
- * &lt;relation&gt; &lt;text-argument&gt;
- * &lt;reset&gt; &lt;text-argument&gt;
+ * &amp;AE&lt;&lt;ä &lt;&lt;&lt;Ä
+ * &amp;z&lt;å&lt;&lt;&lt;Å&lt;&lt;&lt;aa&lt;&lt;&lt;Aa&lt;&lt;&lt;AA
  * </pre>
  * </blockquote>
- * <p>
- * The rule elements are defined as follows:
- * <ul type="disc">
- * <li><strong>Modifier</strong>: There is a single modifier which is used to
- * specify that all accents (secondary differences) are backwards:
- * <ul type=square>
- * <li>'@' : Indicates that accents are sorted backwards, as in French.
- * </ul>
- * </li>
- * <li><strong>Relation</strong>: The relations are the following:
- * <ul type=square>
- * <li>'&lt;' : Greater, as a letter difference (primary)
- * <li>';' : Greater, as an accent difference (secondary)
- * <li>',' : Greater, as a case difference (tertiary)
- * <li>'=' : Equal
- * </ul>
- * </li>
- * <li><strong>Text-Argument</strong>: A text-argument is any sequence of
- * characters, excluding special characters (that is, common whitespace
- * characters [0009-000D, 0020] and rule syntax characters [0021-002F,
- * 003A-0040, 005B-0060, 007B-007E]). If those characters are desired, you can
- * put them in single quotes (for example, use '&amp;' for ampersand). Note that
- * unquoted white space characters are ignored; for example, {@code b c} is
- * treated as {@code bc}.</li>
- * <li><strong>Reset</strong>: There is a single reset which is used primarily
- * for contractions and expansions, but which can also be used to add a
- * modification at the end of a set of rules:
- * <ul type=square>
- * <li>'&amp;' : Indicates that the next rule follows the position to where the reset
- * text-argument would be sorted.
- * </ul>
- * </li>
- * </ul>
- * <p>
- * This sounds more complicated than it is in practice. For example, the
- * following are equivalent ways of expressing the same thing:
- * <blockquote>
  *
- * <pre>
- * a < b < c
- * a < b & b < c
- * a < c & a < b
- * </pre>
- *
- * </blockquote>
- * <p>
- * Notice that the order is important, as the subsequent item goes immediately
- * after the text-argument. The following are not equivalent:
- * <blockquote>
- *
- * <pre>
- * a < b & a < c
- * a < c & a < b
- * </pre>
- *
- * </blockquote>
- * <p>
- * Either the text-argument must already be present in the sequence, or some
- * initial substring of the text-argument must be present. For example
- * {@code "a < b & ae < e"} is valid since "a" is present in the sequence before
- * "ae" is reset. In this latter case, "ae" is not entered and treated as a
- * single character; instead, "e" is sorted as if it were expanded to two
- * characters: "a" followed by an "e". This difference appears in natural
- * languages: in traditional Spanish "ch" is treated as if it contracts to a
- * single character (expressed as {@code "c < ch < d"}), while in traditional
- * German a-umlaut is treated as if it expands to two characters (expressed as
- * {@code "a,A < b,B  ... & ae;\u00e3 & AE;\u00c3"}, where \u00e3 and \u00c3
- * are the escape sequences for a-umlaut).
- * <h4>Ignorable Characters</h4>
- * <p>
- * For ignorable characters, the first rule must start with a relation (the
- * examples we have used above are really fragments; {@code "a < b"} really
- * should be {@code "< a < b"}). If, however, the first relation is not
- * {@code "<"}, then all text-arguments up to the first {@code "<"} are
- * ignorable. For example, {@code ", - < a < b"} makes {@code "-"} an ignorable
- * character.
- * <h4>Normalization and Accents</h4>
- * <p>
- * {@code RuleBasedCollator} automatically processes its rule table to include
- * both pre-composed and combining-character versions of accented characters.
- * Even if the provided rule string contains only base characters and separate
- * combining accent characters, the pre-composed accented characters matching
- * all canonical combinations of characters from the rule string will be entered
- * in the table.
- * <p>
- * This allows you to use a RuleBasedCollator to compare accented strings even
- * when the collator is set to NO_DECOMPOSITION. However, if the strings to be
- * collated contain combining sequences that may not be in canonical order, you
- * should set the collator to CANONICAL_DECOMPOSITION to enable sorting of
- * combining sequences. For more information, see <a
- * href="http://www.aw.com/devpress">The Unicode Standard, Version 3.0</a>.
- * <h4>Errors</h4>
- * <p>
- * The following rules are not valid:
- * <ul type="disc">
- * <li>A text-argument contains unquoted punctuation symbols, for example
- * {@code "a < b-c < d"}.</li>
- * <li>A relation or reset character is not followed by a text-argument, for
- * example {@code "a < , b"}.</li>
- * <li>A reset where the text-argument (or an initial substring of the
- * text-argument) is not already in the sequence or allocated in the default UCA
- * table, for example {@code "a < b & e < f"}.</li>
+ * <p>For details see
+ * <ul>
+ *   <li>CLDR <a href="http://www.unicode.org/reports/tr35/tr35-collation.html#Rules">Collation Rule Syntax</a>
+ *   <li>ICU User Guide <a href="http://userguide.icu-project.org/collation/customization">Collation Customization</a>
  * </ul>
- * <p>
- * If you produce one of these errors, {@code RuleBasedCollator} throws a
+ *
+ * <p>Note: earlier versions of {@code RuleBasedCollator} up to and including Android 4.4 (KitKat)
+ * allowed the omission of the reset from the first rule chain.
+ * This was interpreted as an implied reset after the last non-Han script in the default order.
+ * However, this is not a useful reset position, except for large tailorings of
+ * Han characters themselves.
+ * Starting with the CLDR 24 collation specification and the ICU 53 implementation,
+ * the initial reset is required.
+ *
+ * <p>If the rule string does not follow the syntax, then {@code RuleBasedCollator} throws a
  * {@code ParseException}.
- * <h4>Examples</h4>
- * <p>
- * Normally, to create a rule-based collator object, you will use
- * {@code Collator}'s factory method {@code getInstance}. However, to create a
- * rule-based collator object with specialized rules tailored to your needs, you
- * construct the {@code RuleBasedCollator} with the rules contained in a
- * {@code String} object. For example:
- * <blockquote>
- *
- * <pre>
- * String Simple = "< a < b < c < d";
- * RuleBasedCollator mySimple = new RuleBasedCollator(Simple);
- * </pre>
- *
- * </blockquote>
- * <p>
- * Or:
- * <blockquote>
- *
- * <pre>
- * String Norwegian = "< a,A< b,B< c,C< d,D< e,E< f,F< g,G< h,H< i,I"
- *         + "< j,J< k,K< l,L< m,M< n,N< o,O< p,P< q,Q< r,R"
- *         + "< s,S< t,T< u,U< v,V< w,W< x,X< y,Y< z,Z"
- *         + "< \u00E5=a\u030A,\u00C5=A\u030A"
- *         + ";aa,AA< \u00E6,\u00C6< \u00F8,\u00D8";
- * RuleBasedCollator myNorwegian = new RuleBasedCollator(Norwegian);
- * </pre>
- *
- * </blockquote>
- * <p>
- * Combining {@code Collator}s is as simple as concatenating strings. Here is
- * an example that combines two {@code Collator}s from two different locales:
- * <blockquote>
- *
- * <pre>
- * // Create an en_US Collator object
- * RuleBasedCollator en_USCollator = (RuleBasedCollator)Collator
- *         .getInstance(new Locale("en", "US", ""));
- *
- * // Create a da_DK Collator object
- * RuleBasedCollator da_DKCollator = (RuleBasedCollator)Collator
- *         .getInstance(new Locale("da", "DK", ""));
- *
- * // Combine the two collators
- * // First, get the collation rules from en_USCollator
- * String en_USRules = en_USCollator.getRules();
- *
- * // Second, get the collation rules from da_DKCollator
- * String da_DKRules = da_DKCollator.getRules();
- *
- * RuleBasedCollator newCollator = new RuleBasedCollator(en_USRules + da_DKRules);
- * // newCollator has the combined rules
- * </pre>
- *
- * </blockquote>
- * <p>
- * The next example shows to make changes on an existing table to create a new
- * {@code Collator} object. For example, add {@code "& C < ch, cH, Ch, CH"} to
- * the {@code en_USCollator} object to create your own:
- * <blockquote>
- *
- * <pre>
- * // Create a new Collator object with additional rules
- * String addRules = "& C < ch, cH, Ch, CH";
- *
- * RuleBasedCollator myCollator = new RuleBasedCollator(en_USCollator + addRules);
- * // myCollator contains the new rules
- * </pre>
- *
- * </blockquote>
- * <p>
- * The following example demonstrates how to change the order of non-spacing
- * accents:
- * <blockquote>
- *
- * <pre>
- * // old rule
- * String oldRules = "= \u00a8 ; \u00af ; \u00bf" + "< a , A ; ae, AE ; \u00e6 , \u00c6"
- *         + "< b , B < c, C < e, E & C < d, D";
- *
- * // change the order of accent characters
- * String addOn = "& \u00bf ; \u00af ; \u00a8;";
- *
- * RuleBasedCollator myCollator = new RuleBasedCollator(oldRules + addOn);
- * </pre>
- *
- * </blockquote>
- * <p>
- * The last example shows how to put new primary ordering in before the default
- * setting. For example, in the Japanese {@code Collator}, you can either sort
- * English characters before or after Japanese characters:
- * <blockquote>
- *
- * <pre>
- * // get en_US Collator rules
- * RuleBasedCollator en_USCollator = (RuleBasedCollator)
- *     Collator.getInstance(Locale.US);
- *
- * // add a few Japanese character to sort before English characters
- * // suppose the last character before the first base letter 'a' in
- * // the English collation rule is \u30A2
- * String jaString = "& \u30A2 , \u30FC < \u30C8";
- *
- * RuleBasedCollator myJapaneseCollator =
- *     new RuleBasedCollator(en_USCollator.getRules() + jaString);
- * </pre>
- *
- * </blockquote>
  */
 public class RuleBasedCollator extends Collator {
     RuleBasedCollator(RuleBasedCollatorICU wrapper) {
@@ -265,13 +82,11 @@ public class RuleBasedCollator extends Collator {
 
     /**
      * Constructs a new instance of {@code RuleBasedCollator} using the
-     * specified {@code rules}. The {@code rules} are usually either
-     * hand-written based on the {@link RuleBasedCollator class description} or
-     * the result of a former {@link #getRules()} call.
+     * specified {@code rules}. (See the {@link RuleBasedCollator class description}.)
      * <p>
-     * Note that the {@code rules} are actually interpreted as a delta to the
-     * standard Unicode Collation Algorithm (UCA). This differs
-     * slightly from other implementations which work with full {@code rules}
+     * Note that the {@code rules} are interpreted as a delta to the
+     * default sort order. This differs
+     * from other implementations which work with full {@code rules}
      * specifications and may result in different behavior.
      *
      * @param rules
@@ -286,6 +101,7 @@ public class RuleBasedCollator extends Collator {
         if (rules == null) {
             throw new NullPointerException("rules == null");
         }
+        // icu4c is fine with empty rules, but the RI isn't.
         if (rules.isEmpty()) {
             throw new ParseException("empty rules", 0);
         }
@@ -336,14 +152,9 @@ public class RuleBasedCollator extends Collator {
     /**
      * Returns the collation rules of this collator. These {@code rules} can be
      * fed into the {@code RuleBasedCollator(String)} constructor.
-     * <p>
-     * Note that the {@code rules} are actually interpreted as a delta to the
-     * standard Unicode Collation Algorithm (UCA). Hence, an empty {@code rules}
-     * string results in the default UCA rules being applied. This differs
-     * slightly from other implementations which work with full {@code rules}
-     * specifications and may result in different behavior.
      *
-     * @return the collation rules.
+     * <p>The returned string will be empty unless you constructed the instance yourself.
+     * The string forms of the collation rules are omitted to save space on the device.
      */
     public String getRules() {
         return icuColl.getRules();
@@ -367,13 +178,6 @@ public class RuleBasedCollator extends Collator {
      * the collation rules, strength and decomposition mode for this
      * {@code RuleBasedCollator}. See the {@code Collator} class description
      * for an example of use.
-     * <p>
-     * General recommendation: If comparisons are to be done with the same strings
-     * multiple times, it is more efficient to generate {@code CollationKey}
-     * objects for the strings and use
-     * {@code CollationKey.compareTo(CollationKey)} for the comparisons. If each
-     * string is compared to only once, using
-     * {@code RuleBasedCollator.compare(String, String)} has better performance.
      *
      * @param source
      *            the source text.
