@@ -125,7 +125,7 @@ public final class TestSSLEnginePair extends Assert {
         if (finished != null) {
             assertEquals(2, finished.length);
             finished[0] = clientFinished[0];
-            finished[1] = clientFinished[0];
+            finished[1] = serverFinished[0];
         }
         return new SSLEngine[] { server, client };
     }
