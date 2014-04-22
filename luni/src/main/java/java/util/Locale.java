@@ -98,7 +98,7 @@ import libcore.icu.ICU;
  * <tr><td>Android 4.? (STOPSHIP)</td>
  *     <td><a href="http://site.icu-project.org/download/53">ICU 53</a></td>
  *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-25">CLDR 25</a></td>
- *     <td><a href="http://www.unicode.org/versions/Unicode6.2.0/">Unicode 6.3</a></td></tr>
+ *     <td><a href="http://www.unicode.org/versions/Unicode6.3.0/">Unicode 6.3</a></td></tr>
  * </table>
  *
  * <a name="default_locale"><h3>Be wary of the default locale</h3></a>
