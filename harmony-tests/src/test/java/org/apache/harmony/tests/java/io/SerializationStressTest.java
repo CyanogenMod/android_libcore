@@ -184,9 +184,9 @@ public class SerializationStressTest extends junit.framework.TestCase implements
         symbols.setZoneStrings(new String[][] { { "a", "b", "c", "d", "e" },
                 { "f", "g", "h", "i", "j" } });
         ((java.text.SimpleDateFormat) DATEFORM).setDateFormatSymbols(symbols);
-        DATEFORM.setNumberFormat(new java.text.DecimalFormat("#.#;'-'#.#"));
+        DATEFORM.setNumberFormat(new java.text.DecimalFormat("#0.#"));
         DATEFORM.setTimeZone(TimeZone.getTimeZone("EST"));
-        ((java.text.DecimalFormat) NUMBERFORM).applyPattern("#.#;'-'#.#");
+        ((java.text.DecimalFormat) NUMBERFORM).applyPattern("#0.#");
         MESSAGE.setFormat(0, DATEFORM);
         MESSAGE.setFormat(1, DATEFORM);
     }
