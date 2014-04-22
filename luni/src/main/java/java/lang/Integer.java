@@ -369,6 +369,8 @@ public final class Integer extends Number implements Comparable<Integer> {
      * Equivalent to {@code parsePositiveInt(string, 10)}.
      *
      * @see #parsePositiveInt(String, int)
+     *
+     * @hide
      */
     public static int parsePositiveInt(String string) throws NumberFormatException {
         return parsePositiveInt(string, 10);
