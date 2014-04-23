@@ -21,62 +21,41 @@ import java.util.Vector;
 
 public class ThreadGroupTest extends junit.framework.TestCase {
 
-    class MyThread extends Thread {
-        public volatile int heartBeat = 0;
+    private TestThreadDefaultUncaughtExceptionHandler testThreadDefaultUncaughtExceptionHandler;
+    private ThreadGroup rootThreadGroup;
+    private ThreadGroup initialThreadGroup;
+    private Thread.UncaughtExceptionHandler originalThreadDefaultUncaughtExceptionHandler;
 
-        public MyThread(ThreadGroup group, String name)
-                throws SecurityException, IllegalThreadStateException {
-            super(group, name);
+    @Override
+    protected void setUp() {
+        initialThreadGroup = Thread.currentThread().getThreadGroup();
+        rootThreadGroup = initialThreadGroup;
+        while (rootThreadGroup.getParent() != null) {
+            rootThreadGroup = rootThreadGroup.getParent();
         }
 
-        @Override
-        public void run() {
-            while (true) {
-                heartBeat++;
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                }
-            }
-        }
-
-        public boolean isActivelyRunning() {
-            long MAX_WAIT = 100;
-            return isActivelyRunning(MAX_WAIT);
-        }
-
-        public boolean isActivelyRunning(long maxWait) {
-            int beat = heartBeat;
-            long start = System.currentTimeMillis();
-            do {
-                Thread.yield();
-                int beat2 = heartBeat;
-                if (beat != beat2) {
-                    return true;
-                }
-            } while (System.currentTimeMillis() - start < maxWait);
-            return false;
-        }
-
+        // When running as a CTS test Android will by default treat an uncaught exception as a
+        // fatal application error and kill the test. To avoid this the default
+        // UncaughtExceptionHandler is replaced for the duration of the test (if one exists). It
+        // also allows us to test that ultimately the default handler is called if a ThreadGroup's
+        // UncaughtExceptionHandler doesn't handle an exception.
+        originalThreadDefaultUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+        testThreadDefaultUncaughtExceptionHandler = new TestThreadDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(testThreadDefaultUncaughtExceptionHandler);
     }
 
-    private ThreadGroup rootThreadGroup = null;
+    @Override
+    protected void tearDown() {
+        // Reset the uncaughtExceptionHandler to what it was when the test began.
+        Thread.setDefaultUncaughtExceptionHandler(originalThreadDefaultUncaughtExceptionHandler);
+    }
 
-    private ThreadGroup initialThreadGroup = null;
-
-    /**
-     * java.lang.ThreadGroup#ThreadGroup(java.lang.String)
-     */
+    // Test for method java.lang.ThreadGroup(java.lang.String)
     public void test_ConstructorLjava_lang_String() {
-        // Test for method java.lang.ThreadGroup(java.lang.String)
-
-        // Unfortunately we have to use other APIs as well as we test the
-        // constructor
-
-        ThreadGroup newGroup = null;
-        ThreadGroup initial = getInitialThreadGroup();
+        // Unfortunately we have to use other APIs as well as we test the constructor
+        ThreadGroup initial = initialThreadGroup;
         final String name = "Test name";
-        newGroup = new ThreadGroup(name);
+        ThreadGroup newGroup = new ThreadGroup(name);
         assertTrue(
                 "Has to be possible to create a subgroup of current group using simple constructor",
                 newGroup.getParent() == initial);
@@ -84,39 +63,28 @@ public class ThreadGroupTest extends junit.framework.TestCase {
 
         // cleanup
         newGroup.destroy();
-
     }
 
-    /**
-     * java.lang.ThreadGroup#ThreadGroup(java.lang.ThreadGroup,
-     *java.lang.String)
-     */
+    // Test for method java.lang.ThreadGroup(java.lang.ThreadGroup, java.lang.String)
     public void test_ConstructorLjava_lang_ThreadGroupLjava_lang_String() {
-        // Test for method java.lang.ThreadGroup(java.lang.ThreadGroup,
-        // java.lang.String)
-
-        // Unfortunately we have to use other APIs as well as we test the
-        // constructor
-
+        // Unfortunately we have to use other APIs as well as we test the constructor
         ThreadGroup newGroup = null;
-
         try {
             newGroup = new ThreadGroup(null, null);
         } catch (NullPointerException e) {
         }
-        assertNull("Can't create a ThreadGroup with a null parent",
-                newGroup);
+        assertNull("Can't create a ThreadGroup with a null parent", newGroup);
 
-        newGroup = new ThreadGroup(getInitialThreadGroup(), null);
+        newGroup = new ThreadGroup(initialThreadGroup, null);
         assertTrue("Has to be possible to create a subgroup of current group",
                 newGroup.getParent() == Thread.currentThread().getThreadGroup());
 
         // Lets start all over
         newGroup.destroy();
 
-        newGroup = new ThreadGroup(getRootThreadGroup(), "a name here");
+        newGroup = new ThreadGroup(rootThreadGroup, "a name here");
         assertTrue("Has to be possible to create a subgroup of root group",
-                newGroup.getParent() == getRootThreadGroup());
+                newGroup.getParent() == rootThreadGroup);
 
         // Lets start all over
         newGroup.destroy();
@@ -126,16 +94,11 @@ public class ThreadGroupTest extends junit.framework.TestCase {
         } catch (IllegalThreadStateException e) {
             newGroup = null;
         }
-        ;
-        assertNull("Can't create a subgroup of a destroyed group",
-                newGroup);
+        assertNull("Can't create a subgroup of a destroyed group", newGroup);
     }
 
-    /**
-     * java.lang.ThreadGroup#activeCount()
-     */
+    // Test for method int java.lang.ThreadGroup.activeCount()
     public void test_activeCount() {
-        // Test for method int java.lang.ThreadGroup.activeCount()
         ThreadGroup tg = new ThreadGroup("activeCount");
         Thread t1 = new Thread(tg, new Runnable() {
             public void run() {
@@ -159,13 +122,9 @@ public class ThreadGroupTest extends junit.framework.TestCase {
         tg.destroy();
     }
 
-    /**
-     * java.lang.ThreadGroup#destroy()
-     */
+    // Test for method void java.lang.ThreadGroup.destroy()
     public void test_destroy() {
-        // Test for method void java.lang.ThreadGroup.destroy()
-
-        final ThreadGroup originalCurrent = getInitialThreadGroup();
+        final ThreadGroup originalCurrent = initialThreadGroup;
         ThreadGroup testRoot = new ThreadGroup(originalCurrent, "Test group");
         final int DEPTH = 4;
         final Vector<ThreadGroup> subgroups = buildRandomTreeUnder(testRoot, DEPTH);
@@ -175,15 +134,13 @@ public class ThreadGroupTest extends junit.framework.TestCase {
 
         for (int i = 0; i < subgroups.size(); i++) {
             ThreadGroup child = subgroups.elementAt(i);
-            assertEquals("Destroyed child can't have children", 0, child
-                    .activeCount());
+            assertEquals("Destroyed child can't have children", 0, child.activeCount());
             boolean passed = false;
             try {
                 child.destroy();
             } catch (IllegalThreadStateException e) {
                 passed = true;
             }
-            ;
             assertTrue("Destroyed child can't be destroyed again", passed);
         }
 
@@ -202,7 +159,6 @@ public class ThreadGroupTest extends junit.framework.TestCase {
         } catch (IllegalThreadStateException e) {
             passed = true;
         }
-        ;
         assertTrue("Daemon should have been destroyed already", passed);
 
         passed = false;
@@ -211,7 +167,6 @@ public class ThreadGroupTest extends junit.framework.TestCase {
         } catch (IllegalThreadStateException e) {
             passed = true;
         }
-        ;
         assertTrue("Daemon parent should have been destroyed automatically",
                 passed);
 
@@ -231,12 +186,7 @@ public class ThreadGroupTest extends junit.framework.TestCase {
         noOp.start();
 
         // Wait for the no-op thread to run inside daemon ThreadGroup
-        try {
-            noOp.join();
-        } catch (InterruptedException ie) {
-            fail("Should not be interrupted");
-        }
-        ;
+        waitForThreadToDieUninterrupted(noOp);
 
         passed = false;
         try {
@@ -244,10 +194,7 @@ public class ThreadGroupTest extends junit.framework.TestCase {
         } catch (IllegalThreadStateException e) {
             passed = true;
         }
-        ;
-        assertTrue(
-                "Daemon group should have been destroyed already when last thread died",
-                passed);
+        assertTrue("Daemon group should have been destroyed already when last thread died", passed);
 
         testRoot = new ThreadGroup(originalCurrent, "Test group (daemon)");
         noOp = new Thread(testRoot, null, "no-op thread") {
@@ -261,8 +208,7 @@ public class ThreadGroupTest extends junit.framework.TestCase {
             }
         };
 
-        // Has to execute the next lines in an interval < the sleep interval of
-        // the no-op thread
+        // Has to execute the next lines in an interval < the sleep interval of the no-op thread
         noOp.start();
         passed = false;
         try {
@@ -272,29 +218,18 @@ public class ThreadGroupTest extends junit.framework.TestCase {
         }
         assertTrue("Can't destroy a ThreadGroup that has threads", passed);
 
-        // But after the thread dies, we have to be able to destroy the thread
-        // group
-        try {
-            noOp.join();
-        } catch (InterruptedException ie) {
-            fail("Should not be interrupted");
-        }
-        ;
+        // But after the thread dies, we have to be able to destroy the thread group
+        waitForThreadToDieUninterrupted(noOp);
         passed = true;
         try {
             testRoot.destroy();
         } catch (IllegalThreadStateException its) {
             passed = false;
         }
-        assertTrue(
-                "Should be able to destroy a ThreadGroup that has no threads",
-                passed);
-
+        assertTrue("Should be able to destroy a ThreadGroup that has no threads", passed);
     }
 
-    /**
-     * java.lang.ThreadGroup#destroy()
-     */
+    // Test for method java.lang.ThreadGroup.destroy()
     public void test_destroy_subtest0() {
         ThreadGroup group1 = new ThreadGroup("test_destroy_subtest0");
         group1.destroy();
@@ -305,13 +240,9 @@ public class ThreadGroupTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * java.lang.ThreadGroup#getMaxPriority()
-     */
+    // Test for method int java.lang.ThreadGroup.getMaxPriority()
     public void test_getMaxPriority() {
-        // Test for method int java.lang.ThreadGroup.getMaxPriority()
-
-        final ThreadGroup originalCurrent = getInitialThreadGroup();
+        final ThreadGroup originalCurrent = initialThreadGroup;
         ThreadGroup testRoot = new ThreadGroup(originalCurrent, "Test group");
 
         boolean passed = true;
@@ -322,38 +253,26 @@ public class ThreadGroupTest extends junit.framework.TestCase {
         }
         assertTrue("Should be able to set priority", passed);
 
-        assertTrue("New value should be the same as we set", testRoot
-                .getMaxPriority() == Thread.MIN_PRIORITY);
+        assertTrue("New value should be the same as we set",
+                testRoot.getMaxPriority() == Thread.MIN_PRIORITY);
 
         testRoot.destroy();
-
     }
 
-    /**
-     * java.lang.ThreadGroup#getName()
-     */
+    // Test for method java.lang.String java.lang.ThreadGroup.getName()
     public void test_getName() {
-        // Test for method java.lang.String java.lang.ThreadGroup.getName()
-
-        final ThreadGroup originalCurrent = getInitialThreadGroup();
+        final ThreadGroup originalCurrent = initialThreadGroup;
         final String name = "Test group";
         final ThreadGroup testRoot = new ThreadGroup(originalCurrent, name);
 
-        assertTrue("Setting a name&getting does not work", testRoot.getName()
-                .equals(name));
+        assertTrue("Setting a name&getting does not work", testRoot.getName().equals(name));
 
         testRoot.destroy();
-
     }
 
-    /**
-     * java.lang.ThreadGroup#getParent()
-     */
+    // Test for method java.lang.ThreadGroup java.lang.ThreadGroup.getParent()
     public void test_getParent() {
-        // Test for method java.lang.ThreadGroup
-        // java.lang.ThreadGroup.getParent()
-
-        final ThreadGroup originalCurrent = getInitialThreadGroup();
+        final ThreadGroup originalCurrent = initialThreadGroup;
         ThreadGroup testRoot = new ThreadGroup(originalCurrent, "Test group");
 
         assertTrue("Parent is wrong", testRoot.getParent() == originalCurrent);
@@ -381,38 +300,16 @@ public class ThreadGroupTest extends junit.framework.TestCase {
         testRoot.destroy();
     }
 
-    /**
-     * java.lang.ThreadGroup#isDaemon()
-     */
-    public void test_isDaemon() {
-        // Test for method boolean java.lang.ThreadGroup.isDaemon()
-
-        daemonTests();
-
-    }
-
-    /**
-     * java.lang.ThreadGroup#list()
-     */
+    // Test for method void java.lang.ThreadGroup.list()
     public void test_list() {
-        // Test for method void java.lang.ThreadGroup.list()
-
-        final ThreadGroup originalCurrent = getInitialThreadGroup();
-        // wipeSideEffectThreads destroy all side effect of threads created in
-        // java.lang.Thread
-        boolean result = wipeSideEffectThreads(originalCurrent);
-        if (result == false) {
-            fail("wipe threads in test_list() not successful");
-        }
-        final ThreadGroup testRoot = new ThreadGroup(originalCurrent,
-                "Test group");
+        final ThreadGroup originalCurrent = initialThreadGroup;
+        final ThreadGroup testRoot = new ThreadGroup(originalCurrent, "Test group");
 
         // First save the original System.out
         java.io.PrintStream originalOut = System.out;
 
         try {
-            java.io.ByteArrayOutputStream contentsStream = new java.io.ByteArrayOutputStream(
-                    100);
+            java.io.ByteArrayOutputStream contentsStream = new java.io.ByteArrayOutputStream(100);
             java.io.PrintStream newOut = new java.io.PrintStream(contentsStream);
 
             // We have to "redirect" System.out to test the method 'list'
@@ -421,13 +318,11 @@ public class ThreadGroupTest extends junit.framework.TestCase {
             originalCurrent.list();
 
             /*
-                * The output has to look like this
-                *
-                * java.lang.ThreadGroup[name=main,maxpri=10] Thread[main,5,main]
-                * java.lang.ThreadGroup[name=Test group,maxpri=10]
-                *
-                */
-
+             * The output has to look like this:
+             *
+             * java.lang.ThreadGroup[name=main,maxpri=10] Thread[main,5,main]
+             * java.lang.ThreadGroup[name=Test group,maxpri=10]
+             */
             String contents = new String(contentsStream.toByteArray());
             boolean passed = (contents.indexOf("ThreadGroup[name=main") != -1) &&
                     (contents.indexOf("Thread[") != -1) &&
@@ -442,17 +337,11 @@ public class ThreadGroupTest extends junit.framework.TestCase {
             // No matter what, we need to restore the original System.out
             System.setOut(originalOut);
         }
-
     }
 
-    /**
-     * java.lang.ThreadGroup#parentOf(java.lang.ThreadGroup)
-     */
+    // Test for method boolean java.lang.ThreadGroup.parentOf(java.lang.ThreadGroup)
     public void test_parentOfLjava_lang_ThreadGroup() {
-        // Test for method boolean
-        // java.lang.ThreadGroup.parentOf(java.lang.ThreadGroup)
-
-        final ThreadGroup originalCurrent = getInitialThreadGroup();
+        final ThreadGroup originalCurrent = initialThreadGroup;
         final ThreadGroup testRoot = new ThreadGroup(originalCurrent,
                 "Test group");
         final int DEPTH = 4;
@@ -460,8 +349,7 @@ public class ThreadGroupTest extends junit.framework.TestCase {
 
         final ThreadGroup[] allChildren = allGroups(testRoot);
         for (ThreadGroup element : allChildren) {
-            assertTrue("Have to be parentOf all children", testRoot
-                    .parentOf(element));
+            assertTrue("Have to be parentOf all children", testRoot.parentOf(element));
         }
 
         assertTrue("Have to be parentOf itself", testRoot.parentOf(testRoot));
@@ -471,14 +359,20 @@ public class ThreadGroupTest extends junit.framework.TestCase {
                 !arrayIncludes(groups(testRoot.getParent()), testRoot));
     }
 
-    /**
-     * java.lang.ThreadGroup#setDaemon(boolean)
-     */
-    public void test_setDaemonZ() {
-        // Test for method void java.lang.ThreadGroup.setDaemon(boolean)
+    // Test for method boolean java.lang.ThreadGroup.isDaemon() and
+    // void java.lang.ThreadGroup.setDaemon(boolean)
+    public void test_setDaemon_isDaemon() {
+        final ThreadGroup originalCurrent = initialThreadGroup;
+        final ThreadGroup testRoot = new ThreadGroup(originalCurrent,
+                "Test group");
 
-        daemonTests();
+        testRoot.setDaemon(true);
+        assertTrue("Setting daemon&getting does not work", testRoot.isDaemon());
 
+        testRoot.setDaemon(false);
+        assertTrue("Setting daemon&getting does not work", !testRoot.isDaemon());
+
+        testRoot.destroy();
     }
 
     /*
@@ -501,13 +395,9 @@ public class ThreadGroupTest extends junit.framework.TestCase {
         assertFalse(ctg.isDaemon());
     }
 
-    /**
-     * java.lang.ThreadGroup#setMaxPriority(int)
-     */
+    // Test for method void java.lang.ThreadGroup.setMaxPriority(int)
     public void test_setMaxPriorityI() {
-        // Test for method void java.lang.ThreadGroup.setMaxPriority(int)
-
-        final ThreadGroup originalCurrent = getInitialThreadGroup();
+        final ThreadGroup originalCurrent = initialThreadGroup;
         ThreadGroup testRoot = new ThreadGroup(originalCurrent, "Test group");
 
         boolean passed;
@@ -529,8 +419,7 @@ public class ThreadGroupTest extends junit.framework.TestCase {
         passed = testRoot.getMaxPriority() == Thread.MIN_PRIORITY;
         assertTrue(
                 "setMaxPriority: Any value smaller than MIN_PRIORITY is adjusted to MIN_PRIORITY. Before: "
-                        + currentMax + " , after: " + testRoot.getMaxPriority(),
-                passed);
+                        + currentMax + " , after: " + testRoot.getMaxPriority(), passed);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -579,8 +468,7 @@ public class ThreadGroupTest extends junit.framework.TestCase {
 
         assertTrue(
                 "Priority of leaf child group has to be much smaller than original root group",
-                current.getMaxPriority() == testRoot.getMaxPriority()
-                        - TOTAL_DEPTH);
+                current.getMaxPriority() == testRoot.getMaxPriority() - TOTAL_DEPTH);
 
         testRoot.destroy();
 
@@ -599,351 +487,184 @@ public class ThreadGroupTest extends junit.framework.TestCase {
         testRoot.destroy();
     }
 
-    /**
-     * java.lang.ThreadGroup#uncaughtException(java.lang.Thread,
-     *java.lang.Throwable)
+    /*
+     * Test for method void java.lang.ThreadGroup.uncaughtException(java.lang.Thread,
+     * java.lang.Throwable)
+     * Tests if a Thread tells its ThreadGroup about ThreadDeath.
      */
-    @SuppressWarnings("deprecation")
-    public void test_uncaughtExceptionLjava_lang_ThreadLjava_lang_Throwable() {
-        // Test for method void
-        // java.lang.ThreadGroup.uncaughtException(java.lang.Thread,
-        // java.lang.Throwable)
+    public void test_uncaughtException_threadDeath() {
+        final boolean[] passed = new boolean[1];
 
-        final ThreadGroup originalCurrent = getInitialThreadGroup();
+        ThreadGroup testRoot = new ThreadGroup(rootThreadGroup,
+                "Test Forcing a throw of ThreadDeath") {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                if (e instanceof ThreadDeath) {
+                    passed[0] = true;
+                }
+                // always forward, any exception
+                super.uncaughtException(t, e);
+            }
+        };
 
-        // indices for the array defined below
-        final int TEST_DEATH = 0;
-        final int TEST_OTHER = 1;
-        final int TEST_EXCEPTION_IN_UNCAUGHT = 2;
-        final int TEST_OTHER_THEN_DEATH = 3;
-        final int TEST_FORCING_THROW_THREAD_DEATH = 4;
-        final int TEST_KILLING = 5;
-        final int TEST_DEATH_AFTER_UNCAUGHT = 6;
+        final ThreadDeath threadDeath = new ThreadDeath();
+        Thread thread = new Thread(testRoot, null, "suicidal thread") {
+            @Override
+            public void run() {
+                throw threadDeath;
+            }
+        };
+        thread.start();
+        waitForThreadToDieUninterrupted(thread);
+        testThreadDefaultUncaughtExceptionHandler.assertWasCalled(thread, threadDeath);
 
-        final boolean[] passed = new boolean[] { false, false, false, false,
-                false, false, false };
+        testRoot.destroy();
+        assertTrue(
+                "Any thread should notify its ThreadGroup about its own death, even if suicide:"
+                        + testRoot, passed[0]);
+    }
 
-        ThreadGroup testRoot;
-        Thread thread;
+    /*
+     * Test for method void java.lang.ThreadGroup.uncaughtException(java.lang.Thread,
+     * java.lang.Throwable)
+     * Test if a Thread tells its ThreadGroup about a natural (non-exception) death.
+     */
+    public void test_uncaughtException_naturalDeath() {
+        final boolean[] failed = new boolean[1];
 
+        ThreadGroup testRoot = new ThreadGroup(initialThreadGroup, "Test ThreadDeath") {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                failed[0] = true;
+
+                // always forward any exception
+                super.uncaughtException(t, e);
+            }
+        };
+
+        Thread thread = new Thread(testRoot, null, "no-op thread");
+        thread.start();
+        waitForThreadToDieUninterrupted(thread);
+        testThreadDefaultUncaughtExceptionHandler.assertWasNotCalled();
+        testRoot.destroy();
+        assertFalse("A thread should not call uncaughtException when it dies:"
+                + testRoot, failed[0]);
+    }
+
+    /*
+     * Test for method void java.lang.ThreadGroup.uncaughtException(java.lang.Thread,
+     * java.lang.Throwable)
+     * Test if a Thread tells its ThreadGroup about an Exception
+     */
+    public void test_uncaughtException_runtimeException() {
         // Our own exception class
         class TestException extends RuntimeException {
             private static final long serialVersionUID = 1L;
         }
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // - - - - - - -
-        testRoot = new ThreadGroup(originalCurrent,
-                "Test killing a Thread, forcing it to throw ThreadDeath") {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                if (e instanceof ThreadDeath) {
-                    passed[TEST_KILLING] = true;
-                }
-                // always forward, any exception
-                super.uncaughtException(t, e);
-            }
-        };
+        final boolean[] passed = new boolean[1];
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // - - - - - - -
-        testRoot = new ThreadGroup(originalCurrent,
-                "Test Forcing a throw of ThreadDeath") {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                if (e instanceof ThreadDeath) {
-                    passed[TEST_FORCING_THROW_THREAD_DEATH] = true;
-                }
-                // always forward, any exception
-                super.uncaughtException(t, e);
-            }
-        };
-
-        // Test if a Thread tells its ThreadGroup about ThreadDeath
-        thread = new Thread(testRoot, null, "suicidal thread") {
-            @Override
-            public void run() {
-                throw new ThreadDeath();
-            }
-        };
-        thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException ie) {
-            fail("Should not have been interrupted");
-        }
-        testRoot.destroy();
-        assertTrue(
-                "Any thread should notify its ThreadGroup about its own death, even if suicide:"
-                        + testRoot, passed[TEST_FORCING_THROW_THREAD_DEATH]);
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // - - - - - - -
-
-        testRoot = new ThreadGroup(originalCurrent, "Test ThreadDeath") {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                passed[TEST_DEATH] = false;
-                // always forward, any exception
-                super.uncaughtException(t, e);
-            }
-        };
-
-        // Test if a Thread tells its ThreadGroup about ThreadDeath
-        passed[TEST_DEATH] = true;
-        thread = new Thread(testRoot, null, "no-op thread");
-        thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException ie) {
-            fail("Should not have been interrupted");
-        }
-        testRoot.destroy();
-        assertTrue("A thread should not call uncaughtException when it dies:"
-                + testRoot, passed[TEST_DEATH]);
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // - - - - - - -
-
-        testRoot = new ThreadGroup(originalCurrent, "Test other Exception") {
+        ThreadGroup testRoot = new ThreadGroup(initialThreadGroup, "Test other Exception") {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
                 if (e instanceof TestException) {
-                    passed[TEST_OTHER] = true;
-                } else {
-                    // only forward exceptions other than our test
-                    super.uncaughtException(t, e);
+                    passed[0] = true;
                 }
+                // always forward any exception
+                super.uncaughtException(t, e);
             }
         };
 
-        // Test if a Thread tells its ThreadGroup about an Exception
-        thread = new Thread(testRoot, null, "no-op thread") {
+        final TestException testException = new TestException();
+        Thread thread = new Thread(testRoot, null, "RuntimeException thread") {
             @Override
             public void run() {
-                throw new TestException();
+                throw testException;
             }
         };
         thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException ie) {
-            fail("Should not have been interrupted");
-        }
+        waitForThreadToDieUninterrupted(thread);
+        testThreadDefaultUncaughtExceptionHandler.assertWasCalled(thread, testException);
         testRoot.destroy();
         assertTrue(
                 "Any thread should notify its ThreadGroup about an uncaught exception:"
-                        + testRoot, passed[TEST_OTHER]);
+                        + testRoot, passed[0]);
+    }
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // - - - - - - -
-
-        // Our own uncaught exception class
-        class UncaughtException extends TestException {
+    /*
+     * Test for method void java.lang.ThreadGroup.uncaughtException(java.lang.Thread,
+     * java.lang.Throwable)
+     * Test if a handler doesn't pass on the exception to super.uncaughtException that's ok.
+     */
+    public void test_uncaughtException_exceptionHandledByHandler() {
+        // Our own exception class
+        class TestException extends RuntimeException {
             private static final long serialVersionUID = 1L;
         }
 
-        testRoot = new ThreadGroup(originalCurrent,
-                "Test Exception in uncaught exception") {
+        ThreadGroup testRoot = new ThreadGroup(initialThreadGroup, "Test other Exception") {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
-                if (e instanceof TestException) {
-                    passed[TEST_EXCEPTION_IN_UNCAUGHT] = true;
-                    // Let's simulate an error inside our uncaughtException
-                    // method.
-                    // This should be no-op according to the spec
-                    throw new UncaughtException();
-                }
-                // only forward exceptions other than our test
-                super.uncaughtException(t, e);
-            }
-        };
-
-        // Test if an Exception in uncaughtException is really a no-op
-        thread = new Thread(testRoot, null, "no-op thread") {
-            @Override
-            public void run() {
-                try {
-                    throw new TestException();
-                } catch (UncaughtException ue) {
-                    // any exception in my ThreadGroup's uncaughtException must
-                    // not be propagated.
-                    // If it gets propagated and we detected that, the test failed
-                    passed[TEST_EXCEPTION_IN_UNCAUGHT] = false;
-                }
-            }
-        };
-        thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException ie) {
-            fail("Should not have been interrupted");
-        }
-        testRoot.destroy();
-        assertTrue(
-                "Any uncaughtException in uncaughtException should be no-op:"
-                        + testRoot, passed[TEST_EXCEPTION_IN_UNCAUGHT]);
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // - - - - - - -
-
-        // This is a mix of 2 of the tests above. It is assumed that ThreadDeath
-        // and any random exception do work , tested separately. Now we test
-        // if after an uncaughtException is forwarded to the ThreadGroup and
-        // the Thread dies, if ThreadDeath is also forwarded. It should be
-        // (so that a ThreadGroup can know its Thread died)
-        testRoot = new ThreadGroup(originalCurrent,
-                "Test Uncaught followed by ThreadDeath") {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                if (e instanceof ThreadDeath) {
-                    passed[TEST_DEATH_AFTER_UNCAUGHT] = true;
-                }
-                if (e instanceof TestException) {
-                    passed[TEST_OTHER_THEN_DEATH] = true;
-                } else {
-                    // only forward exceptions other than our test
+                // Swallow TestException and always forward any other exception
+                if (!(e instanceof TestException)) {
                     super.uncaughtException(t, e);
                 }
             }
         };
 
-        // Test if a Thread tells its ThreadGroup about an Exception and also
-        // ThreadDeath
-        thread = new Thread(testRoot, null, "no-op thread") {
+        final TestException testException = new TestException();
+        Thread thread = new Thread(testRoot, null, "RuntimeException thread") {
             @Override
             public void run() {
-                throw new TestException();
+                throw testException;
             }
         };
         thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException ie) {
-            fail("Should not have been interrupted");
-        }
+        waitForThreadToDieUninterrupted(thread);
+        testThreadDefaultUncaughtExceptionHandler.assertWasNotCalled();
         testRoot.destroy();
     }
 
-    @Override
-    protected void setUp() {
-        initialThreadGroup = Thread.currentThread().getThreadGroup();
-        rootThreadGroup = initialThreadGroup;
-        while (rootThreadGroup.getParent() != null) {
-            rootThreadGroup = rootThreadGroup.getParent();
-        }
-    }
-
-    @Override
-    protected void tearDown() {
-        try {
-            // Give the threads a chance to die.
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-        }
-    }
-
-    private Thread[] threads(ThreadGroup parent) {
-        // No API to get the count of immediate children only ?
-        int count = parent.activeCount();
-        Thread[] all = new Thread[count];
-        int actualSize = parent.enumerate(all, false);
-        Thread[] result;
-        if (actualSize == all.length) {
-            result = all;
-        } else {
-            result = new Thread[actualSize];
-            System.arraycopy(all, 0, result, 0, actualSize);
+    /*
+     * Test for method void java.lang.ThreadGroup.uncaughtException(java.lang.Thread,
+     * java.lang.Throwable)
+     * Tests an exception thrown by the handler itself.
+     */
+    public void test_uncaughtException_exceptionInUncaughtException() {
+        // Our own uncaught exception classes
+        class UncaughtException extends RuntimeException {
+            private static final long serialVersionUID = 1L;
         }
 
-        return result;
+        ThreadGroup testRoot = new ThreadGroup(initialThreadGroup,
+                "Test Exception in uncaught exception") {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                // This should be no-op according to the spec
+                throw new UncaughtException();
+            }
+        };
 
+        Thread thread = new Thread(testRoot, null, "no-op thread") {
+            @Override
+            public void run() {
+                throw new RuntimeException();
+            }
+        };
+        thread.start();
+        waitForThreadToDieUninterrupted(thread);
+        testThreadDefaultUncaughtExceptionHandler.assertWasNotCalled();
+        testRoot.destroy();
     }
 
-    private ThreadGroup getInitialThreadGroup() {
-        return initialThreadGroup;
-    }
-
-    private ThreadGroup[] allGroups(ThreadGroup parent) {
+    private static ThreadGroup[] allGroups(ThreadGroup parent) {
         int count = parent.activeGroupCount();
         ThreadGroup[] all = new ThreadGroup[count];
         parent.enumerate(all, true);
         return all;
     }
 
-    private void daemonTests() {
-        // Test for method void java.lang.ThreadGroup.setDaemon(boolean)
-
-        final ThreadGroup originalCurrent = getInitialThreadGroup();
-        final ThreadGroup testRoot = new ThreadGroup(originalCurrent,
-                "Test group");
-
-        testRoot.setDaemon(true);
-        assertTrue("Setting daemon&getting does not work", testRoot.isDaemon());
-
-        testRoot.setDaemon(false);
-        assertTrue("Setting daemon&getting does not work", !testRoot.isDaemon());
-
-        testRoot.destroy();
-
-    }
-
-    private boolean wipeAllThreads(final ThreadGroup aGroup) {
-        boolean ok = true;
-        Thread[] threads = threads(aGroup);
-        for (Thread t : threads) {
-            ok = ok && wipeThread(t);
-        }
-
-        // Recursively for subgroups (if any)
-        ThreadGroup[] children = groups(aGroup);
-        for (ThreadGroup element : children) {
-            ok = ok && wipeAllThreads(element);
-        }
-
-        return ok;
-
-    }
-
-    private boolean wipeSideEffectThreads(ThreadGroup aGroup) {
-        boolean ok = true;
-        Thread[] threads = threads(aGroup);
-        for (Thread t : threads) {
-            if (t.getName().equals("SimpleThread")
-                    || t.getName().equals("Bogus Name")
-                    || t.getName().equals("Testing")
-                    || t.getName().equals("foo")
-                    || t.getName().equals("Test Group")
-                    || t.getName().equals("Squawk")
-                    || t.getName().equals("Thread-1")
-                    || t.getName().equals("firstOne")
-                    || t.getName().equals("secondOne")
-                    || t.getName().equals("Thread-16")
-                    || t.getName().equals("Thread-14")) {
-                ok = ok && wipeThread(t);
-            }
-        }
-
-        // Recursively for subgroups (if any)
-        ThreadGroup[] children = groups(aGroup);
-
-        for (ThreadGroup element : children) {
-            ok = ok && wipeSideEffectThreads(element);
-            if (element.getName().equals("Test Group")
-                    || element.getName().equals("foo")
-                    || element.getName().equals("jp")) {
-                element.destroy();
-            }
-        }
-        try {
-            // Give the threads a chance to die.
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-        }
-        return ok;
-    }
-
-    private void asyncBuildRandomTreeUnder(final ThreadGroup aGroup,
+    private static void asyncBuildRandomTreeUnder(final ThreadGroup aGroup,
             final int depth, final Vector<ThreadGroup> allCreated) {
         if (depth <= 0) {
             return;
@@ -969,7 +690,7 @@ public class ThreadGroupTest extends junit.framework.TestCase {
 
     }
 
-    private Vector<ThreadGroup> asyncBuildRandomTreeUnder(final ThreadGroup aGroup,
+    private static Vector<ThreadGroup> asyncBuildRandomTreeUnder(final ThreadGroup aGroup,
             final int depth) {
         Vector<ThreadGroup> result = new Vector<ThreadGroup>();
         asyncBuildRandomTreeUnder(aGroup, depth, result);
@@ -977,19 +698,7 @@ public class ThreadGroupTest extends junit.framework.TestCase {
 
     }
 
-    private boolean allSuspended(Vector<MyThread> threads) {
-        for (int i = 0; i < threads.size(); i++) {
-            MyThread t = threads.elementAt(i);
-            if (t.isActivelyRunning()) {
-                return false;
-            }
-        }
-
-        return true;
-
-    }
-
-    private ThreadGroup[] groups(ThreadGroup parent) {
+    private static ThreadGroup[] groups(ThreadGroup parent) {
         // No API to get the count of immediate children only ?
         int count = parent.activeGroupCount();
         ThreadGroup[] all = new ThreadGroup[count];
@@ -1013,57 +722,11 @@ public class ThreadGroupTest extends junit.framework.TestCase {
 
     }
 
-    private Vector<MyThread> populateGroupsWithThreads(final ThreadGroup aGroup,
-            final int threadCount) {
-        Vector<MyThread> result = new Vector<MyThread>();
-        populateGroupsWithThreads(aGroup, threadCount, result);
-        return result;
-
-    }
-
-    private void populateGroupsWithThreads(final ThreadGroup aGroup,
-            final int threadCount, final Vector<MyThread> allCreated) {
-        for (int i = 0; i < threadCount; i++) {
-            final int iClone = i;
-            final String name = "(MyThread)N =" + iClone + "/" + threadCount
-                    + " ,Vector size at creation: " + allCreated.size();
-
-            MyThread t = new MyThread(aGroup, name);
-            allCreated.addElement(t);
-        }
-
-        // Recursively for subgroups (if any)
-        ThreadGroup[] children = groups(aGroup);
-        for (ThreadGroup element : children) {
-            populateGroupsWithThreads(element, threadCount, allCreated);
-        }
-
-    }
-
-    private int random(int max) {
-
+    private static int random(int max) {
         return 1 + ((new Object()).hashCode() % max);
-
     }
 
-    @SuppressWarnings("deprecation")
-    private boolean wipeThread(Thread t) {
-        t.stop();
-        try {
-            t.join(1000);
-        } catch (InterruptedException ie) {
-            fail("Should not have been interrupted");
-        }
-        // The thread had plenty (subjective) of time to die so there
-        // is a problem.
-        if (t.isAlive()) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private Vector<ThreadGroup> buildRandomTreeUnder(ThreadGroup aGroup, int depth) {
+    private static Vector<ThreadGroup> buildRandomTreeUnder(ThreadGroup aGroup, int depth) {
         Vector<ThreadGroup> result = asyncBuildRandomTreeUnder(aGroup, depth);
         while (true) {
             int sizeBefore = result.size();
@@ -1087,24 +750,46 @@ public class ThreadGroupTest extends junit.framework.TestCase {
 
     }
 
-    private boolean arrayIncludes(Object[] array, Object toTest) {
+    private static boolean arrayIncludes(Object[] array, Object toTest) {
         for (Object element : array) {
             if (element == toTest) {
                 return true;
             }
         }
-
         return false;
     }
 
-    protected void myassertTrue(String msg, boolean b) {
-        // This method is defined here just to solve a visibility problem
-        // of protected methods with inner types
-        assertTrue(msg, b);
+    private static void waitForThreadToDieUninterrupted(Thread thread) {
+        try {
+            thread.join();
+        } catch (InterruptedException ie) {
+            fail("Should not have been interrupted");
+        }
     }
 
-    private ThreadGroup getRootThreadGroup() {
-        return rootThreadGroup;
+    private static class TestThreadDefaultUncaughtExceptionHandler
+            implements Thread.UncaughtExceptionHandler {
 
+        private boolean called;
+        private Throwable ex;
+        private Thread thread;
+
+        @Override
+        public void uncaughtException(Thread thread, Throwable ex) {
+            this.called = true;
+            this.thread = thread;
+            this.ex = ex;
+        }
+
+        public void assertWasCalled(Thread thread, Throwable ex) {
+            assertTrue(called);
+            assertSame(this.thread, thread);
+            assertSame(this.ex, ex);
+        }
+
+        public void assertWasNotCalled() {
+            assertFalse(called);
+        }
     }
+
 }
