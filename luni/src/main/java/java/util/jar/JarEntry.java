@@ -20,6 +20,7 @@ package java.util.jar;
 import java.io.IOException;
 import java.security.CodeSigner;
 import java.security.cert.CertPath;
+import java.security.cert.CertPathValidator;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -113,8 +114,12 @@ public class JarEntry extends ZipEntry {
      * entry or {@code null} if none exists. Make sure that the everything is
      * read from the input stream before calling this method, or else the method
      * returns {@code null}.
+     * <p>
+     * This method returns all the signers' unverified chains concatenated
+     * together in one array. To know which certificates were tied to the
+     * private keys that made the signatures on this entry, see
+     * {@link #getCodeSigners()} instead.
      *
-     * @return the certificate for this entry.
      * @see java.security.cert.Certificate
      */
     public Certificate[] getCertificates() {
@@ -157,8 +162,14 @@ public class JarEntry extends ZipEntry {
      * JAR file. If there is no such code signer, it returns {@code null}. Make
      * sure that the everything is read from the input stream before calling
      * this method, or else the method returns {@code null}.
+     * <p>
+     * Only the digital signature on the entry is cryptographically verified.
+     * None of the certificates in the the {@link CertPath} returned from
+     * {@link CodeSigner#getSignerCertPath()} are verified and must be verified
+     * by the caller if needed. See {@link CertPathValidator} for more
+     * information.
      *
-     * @return the code signers for the JAR entry.
+     * @return an array of CodeSigner for this JAR entry.
      * @see CodeSigner
      */
     public CodeSigner[] getCodeSigners() {
