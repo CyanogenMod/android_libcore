@@ -318,6 +318,6 @@ public final class DexFile {
      * @hide
      **/
     public static native boolean isDexOptNeededInternal(String fileName, String pkgname,
-            boolean defer)
+            String instructionSet, boolean defer)
             throws FileNotFoundException, IOException;
 }
