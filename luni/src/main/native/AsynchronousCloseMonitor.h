@@ -14,47 +14,53 @@
  * limitations under the License.
  */
 
-#ifndef ASYNCHRONOUS_SOCKET_CLOSE_MONITOR_H_included
-#define ASYNCHRONOUS_SOCKET_CLOSE_MONITOR_H_included
+#ifndef ASYNCHRONOUS_CLOSE_MONITOR_H_included
+#define ASYNCHRONOUS_CLOSE_MONITOR_H_included
 
 #include "ScopedPthreadMutexLock.h"
 #include <pthread.h>
 
 /**
- * AsynchronousSocketCloseMonitor helps implement Java's asynchronous Socket.close semantics.
+ * AsynchronousCloseMonitor helps implement Java's asynchronous close semantics.
  *
- * AsynchronousSocketCloseMonitor::init must be called before anything else.
+ * AsynchronousCloseMonitor::init must be called before anything else.
  *
- * Every blocking network I/O operation must be surrounded by an AsynchronousSocketCloseMonitor
+ * Every blocking I/O operation must be surrounded by an AsynchronousCloseMonitor
  * instance. For example:
  *
  *   {
- *     AsynchronousSocketCloseMonitor monitor(fd);
+ *     AsynchronousCloseMonitor monitor(fd);
  *     byteCount = ::read(fd, buf, sizeof(buf));
  *   }
  *
  * To interrupt all threads currently blocked on file descriptor 'fd', call signalBlockedThreads:
  *
- *   AsynchronousSocketCloseMonitor::signalBlockedThreads(fd);
+ *   AsynchronousCloseMonitor::signalBlockedThreads(fd);
+ *
+ * To test to see if the interruption was due to the signalBlockedThreads call:
+ *
+ *   monitor.wasSignaled();
  */
-class AsynchronousSocketCloseMonitor {
+class AsynchronousCloseMonitor {
 public:
-    AsynchronousSocketCloseMonitor(int fd);
-    ~AsynchronousSocketCloseMonitor();
+    AsynchronousCloseMonitor(int fd);
+    ~AsynchronousCloseMonitor();
+    bool wasSignaled() const;
 
     static void init();
 
     static void signalBlockedThreads(int fd);
 
 private:
-    AsynchronousSocketCloseMonitor* mPrev;
-    AsynchronousSocketCloseMonitor* mNext;
+    AsynchronousCloseMonitor* mPrev;
+    AsynchronousCloseMonitor* mNext;
     pthread_t mThread;
     int mFd;
+    bool mSignaled;
 
     // Disallow copy and assignment.
-    AsynchronousSocketCloseMonitor(const AsynchronousSocketCloseMonitor&);
-    void operator=(const AsynchronousSocketCloseMonitor&);
+    AsynchronousCloseMonitor(const AsynchronousCloseMonitor&);
+    void operator=(const AsynchronousCloseMonitor&);
 };
 
-#endif  // ASYNCHRONOUS_SOCKET_CLOSE_MONITOR_H_included
+#endif  // ASYNCHRONOUS_CLOSE_MONITOR_H_included

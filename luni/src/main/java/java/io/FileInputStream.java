@@ -21,10 +21,8 @@ import dalvik.system.CloseGuard;
 
 import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
-import java.util.Arrays;
 import libcore.io.ErrnoException;
 import libcore.io.IoBridge;
-import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.io.Streams;
 import static libcore.io.OsConstants.*;
@@ -118,7 +116,7 @@ public class FileInputStream extends InputStream {
                 channel.close();
             }
             if (shouldClose) {
-                IoUtils.close(fd);
+                IoBridge.closeAndSignalBlockedThreads(fd);
             } else {
                 // An owned fd has been invalidated by IoUtils.close, but
                 // we need to explicitly stop using an unowned fd (http://b/4361076).
