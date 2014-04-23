@@ -403,22 +403,6 @@ public abstract class TimeZone implements Serializable, Cloneable {
     }
 
     /**
-     * Returns true if this timezone is in a daylight savings time period for or if it will be in at
-     * any time in the future.
-     *
-     * <p>The default implementation is equivalent to:
-     * <br />{@code return useDaylightTime() || inDaylightTime(new Date());}
-     *
-     * <p>See {@link #useDaylightTime()} and {@link #inDaylightTime(Date)} for more information.
-     *
-     * @since 1.7
-     * @hide Until ready for an API update
-     */
-    public boolean observesDaylightTime() {
-        return useDaylightTime() || inDaylightTime(new Date());
-    }
-
-    /**
      * Returns true if {@code time} is in a daylight savings time period for
      * this time zone.
      */
