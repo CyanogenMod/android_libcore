@@ -78,7 +78,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     public synchronized void close() {
         guard.close();
         try {
-            IoBridge.closeSocket(fd);
+            IoBridge.closeAndSignalBlockedThreads(fd);
         } catch (IOException ignored) {
         }
     }

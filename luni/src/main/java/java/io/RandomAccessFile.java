@@ -25,7 +25,6 @@ import java.nio.charset.ModifiedUtf8;
 import java.util.Arrays;
 import libcore.io.ErrnoException;
 import libcore.io.IoBridge;
-import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.io.Memory;
 import libcore.io.SizeOf;
@@ -163,7 +162,7 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
                 channel.close();
                 channel = null;
             }
-            IoUtils.close(fd);
+            IoBridge.closeAndSignalBlockedThreads(fd);
         }
     }
 

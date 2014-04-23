@@ -16,6 +16,7 @@
 
 package java.nio;
 
+import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.net.SocketOption;
@@ -48,8 +49,8 @@ public final class NioUtils {
     /**
      * Helps bridge between io and nio.
      */
-    public static FileChannel newFileChannel(Object stream, FileDescriptor fd, int mode) {
-        return new FileChannelImpl(stream, fd, mode);
+    public static FileChannel newFileChannel(Closeable ioObject, FileDescriptor fd, int mode) {
+        return new FileChannelImpl(ioObject, fd, mode);
     }
 
     /**
