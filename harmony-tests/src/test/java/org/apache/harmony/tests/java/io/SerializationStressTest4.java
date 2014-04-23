@@ -721,35 +721,6 @@ public class SerializationStressTest4 extends SerializationStressTest {
 
     }
 
-    public void test_writeObject_Collections_UnmodifiableMap_UnmodifiableEntrySet() throws Exception {
-        // Test for method void
-        // java.io.ObjectOutputStream.writeObject(java.util.Collections.UnmodifiableMap.UnmodifiableEntrySet)
-
-        Object objToSave = null;
-        Object objLoaded = null;
-
-
-            objToSave = java.util.Collections.unmodifiableMap(MAP).entrySet();
-            if (DEBUG)
-                System.out.println("Obj = " + objToSave);
-            objLoaded = dumpAndReload(objToSave);
-
-            // Has to have worked
-            boolean equals;
-            equals = ((java.util.Collection) objToSave).size() == ((java.util.Collection) objLoaded)
-                    .size();
-            if (equals) {
-                java.util.Iterator iter1 = ((java.util.Collection) objToSave)
-                        .iterator(), iter2 = ((java.util.Collection) objLoaded)
-                        .iterator();
-                while (iter1.hasNext())
-                    equals = equals && iter1.next().equals(iter2.next());
-            }
-            assertTrue(MSG_TEST_FAILED + objToSave, equals);
-
-
-    }
-
     public void test_writeObject_NumberFormat() {
         // Test for method void
         // java.io.ObjectOutputStream.writeObject(java.text.NumberFormat)
