@@ -520,9 +520,9 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
     protected synchronized void implCloseSelectableChannel() throws IOException {
         if (status != SOCKET_STATUS_CLOSED) {
             status = SOCKET_STATUS_CLOSED;
-            // IoBridge.closeSocket(fd) is idempotent: It is safe to call on an already-closed file
-            // descriptor.
-            IoBridge.closeSocket(fd);
+            // IoBridge.closeAndSignalBlockedThreads(fd) is idempotent: It is safe to call on an
+            // already-closed file descriptor.
+            IoBridge.closeAndSignalBlockedThreads(fd);
             if (socket != null && !socket.isClosed()) {
                 socket.onClose();
             }

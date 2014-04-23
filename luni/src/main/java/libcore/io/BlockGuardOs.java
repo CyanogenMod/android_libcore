@@ -19,6 +19,7 @@ package libcore.io;
 import dalvik.system.BlockGuard;
 import dalvik.system.SocketTagger;
 import java.io.FileDescriptor;
+import java.io.InterruptedIOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
@@ -158,6 +159,11 @@ public class BlockGuardOs extends ForwardingOs {
         os.mkdir(path, mode);
     }
 
+    @Override public void mkfifo(String path, int mode) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        os.mkfifo(path, mode);
+    }
+
     @Override public FileDescriptor open(String path, int flags, int mode) throws ErrnoException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         if ((mode & O_ACCMODE) != O_RDONLY) {
@@ -180,32 +186,32 @@ public class BlockGuardOs extends ForwardingOs {
         os.posix_fallocate(fd, offset, length);
     }
 
-    @Override public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException {
+    @Override public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException, InterruptedIOException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.pread(fd, buffer, offset);
     }
 
-    @Override public int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException {
+    @Override public int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException, InterruptedIOException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.pread(fd, bytes, byteOffset, byteCount, offset);
     }
 
-    @Override public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException {
+    @Override public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException, InterruptedIOException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         return os.pwrite(fd, buffer, offset);
     }
 
-    @Override public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException {
+    @Override public int pwrite(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException, InterruptedIOException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         return os.pwrite(fd, bytes, byteOffset, byteCount, offset);
     }
 
-    @Override public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
+    @Override public int read(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException, InterruptedIOException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.read(fd, buffer);
     }
 
-    @Override public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException {
+    @Override public int read(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException, InterruptedIOException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.read(fd, bytes, byteOffset, byteCount);
     }
@@ -215,7 +221,7 @@ public class BlockGuardOs extends ForwardingOs {
       return os.readlink(path);
     }
 
-    @Override public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException {
+    @Override public int readv(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException, InterruptedIOException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.readv(fd, buffers, offsets, byteCounts);
     }
@@ -283,17 +289,17 @@ public class BlockGuardOs extends ForwardingOs {
         os.symlink(oldPath, newPath);
     }
 
-    @Override public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException {
+    @Override public int write(FileDescriptor fd, ByteBuffer buffer) throws ErrnoException, InterruptedIOException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         return os.write(fd, buffer);
     }
 
-    @Override public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException {
+    @Override public int write(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount) throws ErrnoException, InterruptedIOException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         return os.write(fd, bytes, byteOffset, byteCount);
     }
 
-    @Override public int writev(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException {
+    @Override public int writev(FileDescriptor fd, Object[] buffers, int[] offsets, int[] byteCounts) throws ErrnoException, InterruptedIOException {
         BlockGuard.getThreadPolicy().onWriteToDisk();
         return os.writev(fd, buffers, offsets, byteCounts);
     }

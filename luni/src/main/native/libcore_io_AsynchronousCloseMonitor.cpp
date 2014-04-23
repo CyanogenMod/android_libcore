@@ -16,20 +16,20 @@
 
 #define LOG_TAG "AsynchronousCloseMonitor"
 
-#include "AsynchronousSocketCloseMonitor.h"
+#include "AsynchronousCloseMonitor.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "jni.h"
 
 static void AsynchronousCloseMonitor_signalBlockedThreads(JNIEnv* env, jclass, jobject javaFd) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    AsynchronousSocketCloseMonitor::signalBlockedThreads(fd);
+    AsynchronousCloseMonitor::signalBlockedThreads(fd);
 }
 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(AsynchronousCloseMonitor, signalBlockedThreads, "(Ljava/io/FileDescriptor;)V"),
 };
 void register_libcore_io_AsynchronousCloseMonitor(JNIEnv* env) {
-    AsynchronousSocketCloseMonitor::init();
+    AsynchronousCloseMonitor::init();
     jniRegisterNativeMethods(env, "libcore/io/AsynchronousCloseMonitor", gMethods, NELEM(gMethods));
 }

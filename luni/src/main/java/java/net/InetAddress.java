@@ -28,8 +28,6 @@ import java.io.Serializable;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -734,7 +732,7 @@ public class InetAddress implements Serializable {
             }
         }
 
-        IoBridge.closeSocket(fd);
+        IoBridge.closeAndSignalBlockedThreads(fd);
 
         return reached;
     }

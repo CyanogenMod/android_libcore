@@ -519,7 +519,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
     @Override protected synchronized void implCloseSelectableChannel() throws IOException {
         // A closed channel is not connected.
         onDisconnect(true /* updateSocketState */);
-        IoBridge.closeSocket(fd);
+        IoBridge.closeAndSignalBlockedThreads(fd);
         multicastMembershipHandler = null;
 
         if (socket != null && !socket.isClosed()) {
