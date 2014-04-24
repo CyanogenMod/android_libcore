@@ -378,6 +378,39 @@ public final class Long extends Number implements Comparable<Long> {
         return result;
     }
 
+    /**
+     * Equivalent to {@code parsePositiveLong(string, 10)}.
+     *
+     * @see #parsePositiveLong(String, int)
+     *
+     * @hide
+     */
+    public static long parsePositiveLong(String string) throws NumberFormatException {
+        return parsePositiveLong(string, 10);
+    }
+
+    /**
+     * Parses the specified string as a positive long value using the
+     * specified radix. 0 is considered a positive long.
+     * <p>
+     * This method behaves the same as {@link #parseLong(String, int)} except
+     * that it disallows leading '+' and '-' characters. See that method for
+     * error conditions.
+     *
+     * @see #parseLong(String, int)
+     *
+     * @hide
+     */
+    public static long parsePositiveLong(String string, int radix) throws NumberFormatException {
+        if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
+            throw new NumberFormatException("Invalid radix: " + radix);
+        }
+        if (string == null || string.length() == 0) {
+            throw invalidLong(string);
+        }
+        return parse(string, 0, radix, false);
+    }
+
     @Override
     public short shortValue() {
         return (short) value;
