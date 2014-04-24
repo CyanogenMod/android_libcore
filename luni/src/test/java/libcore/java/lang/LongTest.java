@@ -20,7 +20,7 @@ import java.util.Properties;
 
 public class LongTest extends junit.framework.TestCase {
 
-    public void test_SystemProperties() {
+    public void testSystemProperties() {
         Properties originalProperties = System.getProperties();
         try {
             Properties testProperties = new Properties();
@@ -34,7 +34,7 @@ public class LongTest extends junit.framework.TestCase {
         }
     }
 
-    public void test_compare() throws Exception {
+    public void testCompare() throws Exception {
         final long min = Long.MIN_VALUE;
         final long zero = 0L;
         final long max = Long.MAX_VALUE;
@@ -49,7 +49,7 @@ public class LongTest extends junit.framework.TestCase {
         assertTrue(Long.compare(min,  max)  < 0);
     }
 
-    public void test_signum() throws Exception {
+    public void testSignum() throws Exception {
         assertEquals(0, Long.signum(0));
         assertEquals(1, Long.signum(1));
         assertEquals(-1, Long.signum(-1));
@@ -57,7 +57,7 @@ public class LongTest extends junit.framework.TestCase {
         assertEquals(-1, Long.signum(Long.MIN_VALUE));
     }
 
-    public void test_parsePositiveLong() throws Exception {
+    public void testParsePositiveLong() throws Exception {
         assertEquals(0, Long.parsePositiveLong("0", 10));
         assertEquals(473, Long.parsePositiveLong("473", 10));
         assertEquals(255, Long.parsePositiveLong("FF", 16));
@@ -76,6 +76,64 @@ public class LongTest extends junit.framework.TestCase {
             Long.parsePositiveLong("+0", 16);
             fail();
         } catch (NumberFormatException e) {}
+    }
+
+    public void testParseLong() throws Exception {
+        assertEquals(0, Long.parseLong("+0", 10));
+        assertEquals(473, Long.parseLong("+473", 10));
+        assertEquals(255, Long.parseLong("+FF", 16));
+        assertEquals(102, Long.parseLong("+1100110", 2));
+        assertEquals(Long.MAX_VALUE, Long.parseLong("+" + Long.MAX_VALUE, 10));
+        assertEquals(411787, Long.parseLong("Kona", 27));
+        assertEquals(411787, Long.parseLong("+Kona", 27));
+        assertEquals(-145, Long.parseLong("-145", 10));
+
+        try {
+            Long.parseLong("--1", 10); // multiple sign chars
+            fail();
+        } catch (NumberFormatException expected) {}
+
+        try {
+            Long.parseLong("++1", 10); // multiple sign chars
+            fail();
+        } catch (NumberFormatException expected) {}
+
+        try {
+            Long.parseLong("Kona", 10); // base to small
+            fail();
+        } catch (NumberFormatException expected) {}
+    }
+
+    public void testDecodeLong() throws Exception {
+        assertEquals(0, Long.decode("+0").longValue());
+        assertEquals(473, Long.decode("+473").longValue());
+        assertEquals(255, Long.decode("+0xFF").longValue());
+        assertEquals(16, Long.decode("+020").longValue());
+        assertEquals(Long.MAX_VALUE, Long.decode("+" + Long.MAX_VALUE).longValue());
+        assertEquals(-73, Long.decode("-73").longValue());
+        assertEquals(-255, Long.decode("-0xFF").longValue());
+        assertEquals(255, Long.decode("+#FF").longValue());
+        assertEquals(-255, Long.decode("-#FF").longValue());
+
+        try {
+            Long.decode("--1"); // multiple sign chars
+            fail();
+        } catch (NumberFormatException expected) {}
+
+        try {
+            Long.decode("++1"); // multiple sign chars
+            fail();
+        } catch (NumberFormatException expected) {}
+
+        try {
+            Long.decode("+-1"); // multiple sign chars
+            fail();
+        } catch (NumberFormatException expected) {}
+
+        try {
+            Long.decode("Kona"); // invalid number
+            fail();
+        } catch (NumberFormatException expected) {}
     }
 
 }
