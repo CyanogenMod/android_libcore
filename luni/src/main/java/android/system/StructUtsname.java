@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package libcore.io;
+package android.system;
 
 /**
  * Information returned by uname(2). Corresponds to C's
  * {@code struct utsname} from
  * <a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/sys_utsname.h.html">&lt;sys/utsname.h&gt;</a>
+ *
+ * @hide
  */
 public final class StructUtsname {
     /** The OS name, such as "Linux". */

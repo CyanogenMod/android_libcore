@@ -17,19 +17,19 @@
 
 package java.net;
 
+import android.system.ErrnoException;
 import dalvik.system.CloseGuard;
 import java.io.FileDescriptor;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-import libcore.io.ErrnoException;
 import libcore.io.IoBridge;
 import libcore.io.Libcore;
 import libcore.io.Memory;
 import libcore.io.Streams;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * @hide used in java.nio.

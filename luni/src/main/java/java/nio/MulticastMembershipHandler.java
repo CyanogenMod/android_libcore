@@ -1,5 +1,7 @@
 package java.nio;
 
+import android.system.StructGroupReq;
+import android.system.StructGroupSourceReq;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -8,10 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import libcore.io.IoBridge;
-import libcore.io.StructGroupReq;
-import libcore.io.StructGroupSourceReq;
 
 /**
  * A helper class for {@link DatagramChannelImpl} that keeps track of multicast group

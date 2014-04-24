@@ -21,7 +21,7 @@ package libcore.io;
  * {@code struct stat} from
  * <a href="http://www.opengroup.org/onlinepubs/000095399/basedefs/sys/stat.h.html">&lt;stat.h&gt;</a>
  */
-public final class StructStat {
+public /* not final for android.system.StructStat */ class StructStat {
     /** Device ID of device containing file. */
     public final long st_dev; /*dev_t*/
 

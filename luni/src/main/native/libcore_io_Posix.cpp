@@ -1025,7 +1025,7 @@ static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint time
     static jfieldID eventsFid = env->GetFieldID(JniConstants::structPollfdClass, "events", "S");
     static jfieldID reventsFid = env->GetFieldID(JniConstants::structPollfdClass, "revents", "S");
 
-    // Turn the Java libcore.io.StructPollfd[] into a C++ struct pollfd[].
+    // Turn the Java android.system.StructPollfd[] into a C++ struct pollfd[].
     size_t arrayLength = env->GetArrayLength(javaStructs);
     UniquePtr<struct pollfd[]> fds(new struct pollfd[arrayLength]);
     memset(fds.get(), 0, sizeof(struct pollfd) * arrayLength);
@@ -1057,7 +1057,7 @@ static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint time
         return -1;
     }
 
-    // Update the revents fields in the Java libcore.io.StructPollfd[].
+    // Update the revents fields in the Java android.system.StructPollfd[].
     for (size_t i = 0; i < count; ++i) {
         ScopedLocalRef<jobject> javaStruct(env, env->GetObjectArrayElement(javaStructs, i));
         if (javaStruct.get() == NULL) {
@@ -1493,14 +1493,14 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, fchown, "(Ljava/io/FileDescriptor;II)V"),
     NATIVE_METHOD(Posix, fcntlVoid, "(Ljava/io/FileDescriptor;I)I"),
     NATIVE_METHOD(Posix, fcntlLong, "(Ljava/io/FileDescriptor;IJ)I"),
-    NATIVE_METHOD(Posix, fcntlFlock, "(Ljava/io/FileDescriptor;ILlibcore/io/StructFlock;)I"),
+    NATIVE_METHOD(Posix, fcntlFlock, "(Ljava/io/FileDescriptor;ILandroid/system/StructFlock;)I"),
     NATIVE_METHOD(Posix, fdatasync, "(Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(Posix, fstat, "(Ljava/io/FileDescriptor;)Llibcore/io/StructStat;"),
-    NATIVE_METHOD(Posix, fstatvfs, "(Ljava/io/FileDescriptor;)Llibcore/io/StructStatVfs;"),
+    NATIVE_METHOD(Posix, fstat, "(Ljava/io/FileDescriptor;)Landroid/system/StructStat;"),
+    NATIVE_METHOD(Posix, fstatvfs, "(Ljava/io/FileDescriptor;)Landroid/system/StructStatVfs;"),
     NATIVE_METHOD(Posix, fsync, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, ftruncate, "(Ljava/io/FileDescriptor;J)V"),
     NATIVE_METHOD(Posix, gai_strerror, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(Posix, getaddrinfo, "(Ljava/lang/String;Llibcore/io/StructAddrinfo;)[Ljava/net/InetAddress;"),
+    NATIVE_METHOD(Posix, getaddrinfo, "(Ljava/lang/String;Landroid/system/StructAddrinfo;)[Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, getegid, "()I"),
     NATIVE_METHOD(Posix, geteuid, "()I"),
     NATIVE_METHOD(Posix, getgid, "()I"),
@@ -1509,27 +1509,27 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, getpeername, "(Ljava/io/FileDescriptor;)Ljava/net/SocketAddress;"),
     NATIVE_METHOD(Posix, getpid, "()I"),
     NATIVE_METHOD(Posix, getppid, "()I"),
-    NATIVE_METHOD(Posix, getpwnam, "(Ljava/lang/String;)Llibcore/io/StructPasswd;"),
-    NATIVE_METHOD(Posix, getpwuid, "(I)Llibcore/io/StructPasswd;"),
+    NATIVE_METHOD(Posix, getpwnam, "(Ljava/lang/String;)Landroid/system/StructPasswd;"),
+    NATIVE_METHOD(Posix, getpwuid, "(I)Landroid/system/StructPasswd;"),
     NATIVE_METHOD(Posix, getsockname, "(Ljava/io/FileDescriptor;)Ljava/net/SocketAddress;"),
     NATIVE_METHOD(Posix, getsockoptByte, "(Ljava/io/FileDescriptor;II)I"),
     NATIVE_METHOD(Posix, getsockoptInAddr, "(Ljava/io/FileDescriptor;II)Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, getsockoptInt, "(Ljava/io/FileDescriptor;II)I"),
-    NATIVE_METHOD(Posix, getsockoptLinger, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructLinger;"),
-    NATIVE_METHOD(Posix, getsockoptTimeval, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructTimeval;"),
-    NATIVE_METHOD(Posix, getsockoptUcred, "(Ljava/io/FileDescriptor;II)Llibcore/io/StructUcred;"),
+    NATIVE_METHOD(Posix, getsockoptLinger, "(Ljava/io/FileDescriptor;II)Landroid/system/StructLinger;"),
+    NATIVE_METHOD(Posix, getsockoptTimeval, "(Ljava/io/FileDescriptor;II)Landroid/system/StructTimeval;"),
+    NATIVE_METHOD(Posix, getsockoptUcred, "(Ljava/io/FileDescriptor;II)Landroid/system/StructUcred;"),
     NATIVE_METHOD(Posix, gettid, "()I"),
     NATIVE_METHOD(Posix, getuid, "()I"),
     NATIVE_METHOD(Posix, if_indextoname, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, inet_pton, "(ILjava/lang/String;)Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, ioctlInetAddress, "(Ljava/io/FileDescriptor;ILjava/lang/String;)Ljava/net/InetAddress;"),
-    NATIVE_METHOD(Posix, ioctlInt, "(Ljava/io/FileDescriptor;ILlibcore/util/MutableInt;)I"),
+    NATIVE_METHOD(Posix, ioctlInt, "(Ljava/io/FileDescriptor;ILandroid/util/MutableInt;)I"),
     NATIVE_METHOD(Posix, isatty, "(Ljava/io/FileDescriptor;)Z"),
     NATIVE_METHOD(Posix, kill, "(II)V"),
     NATIVE_METHOD(Posix, lchown, "(Ljava/lang/String;II)V"),
     NATIVE_METHOD(Posix, listen, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(Posix, lseek, "(Ljava/io/FileDescriptor;JI)J"),
-    NATIVE_METHOD(Posix, lstat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
+    NATIVE_METHOD(Posix, lstat, "(Ljava/lang/String;)Landroid/system/StructStat;"),
     NATIVE_METHOD(Posix, mincore, "(JJ[B)V"),
     NATIVE_METHOD(Posix, mkdir, "(Ljava/lang/String;I)V"),
     NATIVE_METHOD(Posix, mkfifo, "(Ljava/lang/String;I)V"),
@@ -1540,7 +1540,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, munmap, "(JJ)V"),
     NATIVE_METHOD(Posix, open, "(Ljava/lang/String;II)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, pipe, "()[Ljava/io/FileDescriptor;"),
-    NATIVE_METHOD(Posix, poll, "([Llibcore/io/StructPollfd;I)I"),
+    NATIVE_METHOD(Posix, poll, "([Landroid/system/StructPollfd;I)I"),
     NATIVE_METHOD(Posix, posix_fallocate, "(Ljava/io/FileDescriptor;JJ)V"),
     NATIVE_METHOD(Posix, preadBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIJ)I"),
     NATIVE_METHOD(Posix, pwriteBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIJ)I"),
@@ -1550,7 +1550,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, recvfromBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetSocketAddress;)I"),
     NATIVE_METHOD(Posix, remove, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, rename, "(Ljava/lang/String;Ljava/lang/String;)V"),
-    NATIVE_METHOD(Posix, sendfile, "(Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Llibcore/util/MutableLong;J)J"),
+    NATIVE_METHOD(Posix, sendfile, "(Ljava/io/FileDescriptor;Ljava/io/FileDescriptor;Landroid/util/MutableLong;J)J"),
     NATIVE_METHOD(Posix, sendtoBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIILjava/net/InetAddress;I)I"),
     NATIVE_METHOD(Posix, setegid, "(I)V"),
     NATIVE_METHOD(Posix, setenv, "(Ljava/lang/String;Ljava/lang/String;Z)V"),
@@ -1561,16 +1561,16 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, setsockoptIfreq, "(Ljava/io/FileDescriptor;IILjava/lang/String;)V"),
     NATIVE_METHOD(Posix, setsockoptInt, "(Ljava/io/FileDescriptor;III)V"),
     NATIVE_METHOD(Posix, setsockoptIpMreqn, "(Ljava/io/FileDescriptor;III)V"),
-    NATIVE_METHOD(Posix, setsockoptGroupReq, "(Ljava/io/FileDescriptor;IILlibcore/io/StructGroupReq;)V"),
-    NATIVE_METHOD(Posix, setsockoptGroupSourceReq, "(Ljava/io/FileDescriptor;IILlibcore/io/StructGroupSourceReq;)V"),
-    NATIVE_METHOD(Posix, setsockoptLinger, "(Ljava/io/FileDescriptor;IILlibcore/io/StructLinger;)V"),
-    NATIVE_METHOD(Posix, setsockoptTimeval, "(Ljava/io/FileDescriptor;IILlibcore/io/StructTimeval;)V"),
+    NATIVE_METHOD(Posix, setsockoptGroupReq, "(Ljava/io/FileDescriptor;IILandroid/system/StructGroupReq;)V"),
+    NATIVE_METHOD(Posix, setsockoptGroupSourceReq, "(Ljava/io/FileDescriptor;IILandroid/system/StructGroupSourceReq;)V"),
+    NATIVE_METHOD(Posix, setsockoptLinger, "(Ljava/io/FileDescriptor;IILandroid/system/StructLinger;)V"),
+    NATIVE_METHOD(Posix, setsockoptTimeval, "(Ljava/io/FileDescriptor;IILandroid/system/StructTimeval;)V"),
     NATIVE_METHOD(Posix, setuid, "(I)V"),
     NATIVE_METHOD(Posix, shutdown, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(Posix, socket, "(III)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, socketpair, "(IIILjava/io/FileDescriptor;Ljava/io/FileDescriptor;)V"),
-    NATIVE_METHOD(Posix, stat, "(Ljava/lang/String;)Llibcore/io/StructStat;"),
-    NATIVE_METHOD(Posix, statvfs, "(Ljava/lang/String;)Llibcore/io/StructStatVfs;"),
+    NATIVE_METHOD(Posix, stat, "(Ljava/lang/String;)Landroid/system/StructStat;"),
+    NATIVE_METHOD(Posix, statvfs, "(Ljava/lang/String;)Landroid/system/StructStatVfs;"),
     NATIVE_METHOD(Posix, strerror, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, strsignal, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, symlink, "(Ljava/lang/String;Ljava/lang/String;)V"),
@@ -1578,9 +1578,9 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, tcdrain, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, tcsendbreak, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(Posix, umaskImpl, "(I)I"),
-    NATIVE_METHOD(Posix, uname, "()Llibcore/io/StructUtsname;"),
+    NATIVE_METHOD(Posix, uname, "()Landroid/system/StructUtsname;"),
     NATIVE_METHOD(Posix, unsetenv, "(Ljava/lang/String;)V"),
-    NATIVE_METHOD(Posix, waitpid, "(ILlibcore/util/MutableInt;I)I"),
+    NATIVE_METHOD(Posix, waitpid, "(ILandroid/util/MutableInt;I)I"),
     NATIVE_METHOD(Posix, writeBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
     NATIVE_METHOD(Posix, writev, "(Ljava/io/FileDescriptor;[Ljava/lang/Object;[I[I)I"),
 };

@@ -17,11 +17,12 @@
 
 package java.nio;
 
+import android.system.ErrnoException;
 import java.io.FileDescriptor;
 import java.io.FilterInputStream;
 import java.io.FilterOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.Inet4Address;
@@ -42,17 +43,15 @@ import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.NoConnectionPendingException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.spi.SelectorProvider;
 import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
-import java.nio.channels.spi.SelectorProvider;
 import java.util.Arrays;
 import java.util.Set;
-
-import libcore.io.ErrnoException;
-import libcore.io.Libcore;
 import libcore.io.IoBridge;
 import libcore.io.IoUtils;
-import static libcore.io.OsConstants.*;
+import libcore.io.Libcore;
+import static android.system.OsConstants.*;
 
 /*
  * The default implementation class of java.nio.channels.SocketChannel.

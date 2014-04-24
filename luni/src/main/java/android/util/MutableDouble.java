@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package libcore.util;
+package android.util;
 
-public final class MutableByte {
-    public byte value;
+/**
+ * @hide
+ */
+public final class MutableDouble {
+  public double value;
 
-    public MutableByte(byte value) {
-        this.value = value;
-    }
+  public MutableDouble(double value) {
+    this.value = value;
+  }
 }

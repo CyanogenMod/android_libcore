@@ -17,9 +17,9 @@
 
 package java.io;
 
-import libcore.io.ErrnoException;
+import android.system.ErrnoException;
 import libcore.io.Libcore;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * Wraps a Unix file descriptor. It's possible to get the file descriptor used by some

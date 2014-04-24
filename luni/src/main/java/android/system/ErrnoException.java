@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package libcore.util;
+package android.system;
 
-public final class MutableChar {
-    public char value;
+/**
+ * @hide
+ */
+public final class ErrnoException extends libcore.io.ErrnoException {
+  public ErrnoException(String functionName, int errno) {
+    super(functionName, errno);
+  }
 
-    public MutableChar(char value) {
-        this.value = value;
-    }
+  public ErrnoException(String functionName, int errno, Throwable cause) {
+    super(functionName, errno, cause);
+  }
 }

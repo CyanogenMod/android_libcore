@@ -17,6 +17,7 @@
 
 package java.net;
 
+import android.system.ErrnoException;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -26,10 +27,9 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * This class is used to represent a network interface of the local device. An

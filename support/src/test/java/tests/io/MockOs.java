@@ -16,6 +16,8 @@
 
 package tests.io;
 
+import android.system.ErrnoException;
+import android.system.OsConstants;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,10 +26,8 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
-import libcore.io.ErrnoException;
 import libcore.io.Libcore;
 import libcore.io.Os;
-import libcore.io.OsConstants;
 
 /**
  * A mocking interceptor that wraps another {@link Os} to add faults. This can

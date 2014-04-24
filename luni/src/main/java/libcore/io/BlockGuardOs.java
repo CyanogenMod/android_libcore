@@ -16,6 +16,12 @@
 
 package libcore.io;
 
+import android.system.ErrnoException;
+import android.system.StructLinger;
+import android.system.StructPollfd;
+import android.system.StructStat;
+import android.system.StructStatVfs;
+import android.util.MutableLong;
 import dalvik.system.BlockGuard;
 import dalvik.system.SocketTagger;
 import java.io.FileDescriptor;
@@ -24,8 +30,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-import libcore.util.MutableLong;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * Informs BlockGuard of any activity it should be aware of.

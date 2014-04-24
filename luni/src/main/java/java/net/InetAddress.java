@@ -17,6 +17,9 @@
 
 package java.net;
 
+import android.system.ErrnoException;
+import android.system.GaiException;
+import android.system.StructAddrinfo;
 import dalvik.system.BlockGuard;
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -28,16 +31,13 @@ import java.io.Serializable;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
-import libcore.io.ErrnoException;
-import libcore.io.GaiException;
+import java.util.concurrent.CountDownLatch;
+import java.util.List;
 import libcore.io.IoBridge;
 import libcore.io.Libcore;
 import libcore.io.Memory;
-import libcore.io.StructAddrinfo;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * An Internet Protocol (IP) address. This can be either an IPv4 address or an IPv6 address, and

@@ -17,19 +17,19 @@ package libcore.java.nio.channels;
 
 import junit.framework.TestCase;
 
+import android.system.ErrnoException;
+import android.system.OsConstants;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
-import libcore.io.ErrnoException;
 import libcore.io.Libcore;
-import libcore.io.OsConstants;
 
 import static libcore.io.IoUtils.closeQuietly;
 

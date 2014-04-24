@@ -16,6 +16,7 @@
 
 package libcore.io;
 
+import android.system.StructUcred;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -26,8 +27,7 @@ import java.net.ServerSocket;
 import java.net.SocketAddress;
 import java.util.Locale;
 import junit.framework.TestCase;
-
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 public class OsTest extends TestCase {
   public void testIsSocket() throws Exception {
