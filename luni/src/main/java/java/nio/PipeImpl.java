@@ -16,16 +16,16 @@
 
 package java.nio;
 
+import android.system.ErrnoException;
 import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.channels.Pipe;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
-import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /*
  * Implements {@link java.nio.channels.Pipe}.

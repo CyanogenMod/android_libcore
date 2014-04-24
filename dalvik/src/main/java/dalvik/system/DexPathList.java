@@ -16,6 +16,8 @@
 
 package dalvik.system;
 
+import android.system.ErrnoException;
+import android.system.StructStat;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -26,11 +28,9 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipFile;
-import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
-import libcore.io.StructStat;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * A pair of lists of entries, associated with a {@code ClassLoader}.

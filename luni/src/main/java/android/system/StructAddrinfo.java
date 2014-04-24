@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package libcore.io;
+package android.system;
 
 import java.net.InetAddress;
 
@@ -23,6 +23,8 @@ import java.net.InetAddress;
  * <a href="http://pubs.opengroup.org/onlinepubs/009695399/basedefs/netdb.h.html">&lt;netdb.h&gt;</a>
  *
  * TODO: we currently only _take_ a StructAddrinfo; getaddrinfo returns an InetAddress[].
+ *
+ * @hide
  */
 public final class StructAddrinfo {
     /** Flags describing the kind of lookup to be done. (Such as AI_ADDRCONFIG.) */

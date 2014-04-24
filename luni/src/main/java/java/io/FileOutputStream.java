@@ -22,7 +22,7 @@ import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import libcore.io.IoBridge;
 
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * An output stream that writes bytes to a file. If the output file exists, it

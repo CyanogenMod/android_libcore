@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package libcore.io;
+package android.system;
 
 /**
  * Corresponds to C's {@code struct ucred}.
+ *
+ * @hide
  */
 public final class StructUcred {
   /** The peer's process id. */

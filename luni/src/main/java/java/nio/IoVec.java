@@ -16,10 +16,10 @@
 
 package java.nio;
 
+import android.system.ErrnoException;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import libcore.io.Libcore;
-import libcore.io.ErrnoException;
 
 /**
  * Used to implement java.nio read(ByteBuffer[])/write(ByteBuffer[]) operations as POSIX readv(2)
