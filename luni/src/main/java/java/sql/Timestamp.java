@@ -408,7 +408,7 @@ public class Timestamp extends Date {
             throw new IllegalArgumentException("Argument cannot be null");
         }
 
-        // omit trailing whitespace
+        // Omit trailing whitespace
         s = s.trim();
         if (!Pattern.matches(TIME_FORMAT_REGEX, s)) {
             throw badTimestampString(s);
@@ -424,14 +424,14 @@ public class Timestamp extends Date {
          * with the ParsePosition indicating the index of the "." which should
          * precede the nanoseconds value
          */
-        Date theDate;
+        Date date;
         try {
-            theDate = df.parse(s, pp);
+            date = df.parse(s, pp);
         } catch (Exception e) {
             throw badTimestampString(s);
         }
 
-        if (theDate == null) {
+        if (date == null) {
             throw badTimestampString(s);
         }
 
@@ -445,66 +445,38 @@ public class Timestamp extends Date {
          */
         int position = pp.getIndex();
         int remaining = s.length() - position;
-        int theNanos;
+        int nanos;
 
         if (remaining == 0) {
             // First, allow for the case where no fraction of a second is given:
-            theNanos = 0;
+            nanos = 0;
         } else {
-            /*
-             * Case where fraction of a second is specified: Require 1 character
-             * plus the "." in the remaining part of the string...
-             */
-            if ((s.length() - position) < ".n".length()) {
+            // Validate the string is in the range ".0" to ".999999999"
+            if (remaining < 2 || remaining > 10 || s.charAt(position) != '.') {
                 throw badTimestampString(s);
             }
-
-            /*
-             * If we're strict, we should not allow any EXTRA characters after
-             * the 9 digits
-             */
-            if ((s.length() - position) > ".nnnnnnnnn".length()) {
-                throw badTimestampString(s);
-            }
-
-            // Require the next character to be a "."
-            if (s.charAt(position) != '.') {
-                throw new NumberFormatException("Bad input string format: expected '.' not '" +
-                        s.charAt(position) + "' in \"" + s + "\"");
-            }
-            // Get the length of the number string - need to account for the '.'
-            int nanoLength = s.length() - position - 1;
-
-            // Get the 9 characters following the "." as an integer
-            String theNanoString = s.substring(position + 1, position + 1
-                    + nanoLength);
-            /*
-             * We must adjust for the cases where the nanos String was not 9
-             * characters long by padding out with zeros
-             */
-            theNanoString = theNanoString + "000000000";
-            theNanoString = theNanoString.substring(0, 9);
-
             try {
-                theNanos = Integer.parseInt(theNanoString);
-            } catch (Exception e) {
-                // If we get here, the string was not a number
+                nanos = Integer.parsePositiveInt(s.substring(position + 1));
+            } catch (NumberFormatException e) {
                 throw badTimestampString(s);
+            }
+            // We must adjust for the cases where the nanos String was not 9
+            // characters long (i.e. ".123" means 123000000 nanos)
+            if (nanos != 0) {
+                for (int i = remaining - 1; i < 9; i++) {
+                    nanos *= 10;
+                }
             }
         }
 
-        if (theNanos < 0 || theNanos > 999999999) {
-            throw badTimestampString(s);
-        }
+        Timestamp timestamp = new Timestamp(date.getTime());
+        timestamp.setNanos(nanos);
 
-        Timestamp theTimestamp = new Timestamp(theDate.getTime());
-        theTimestamp.setNanos(theNanos);
-
-        return theTimestamp;
+        return timestamp;
     }
 
     private static IllegalArgumentException badTimestampString(String s) {
-        throw new IllegalArgumentException("Timestamp format must be " +
+        return new IllegalArgumentException("Timestamp format must be " +
                 "yyyy-MM-dd HH:mm:ss.fffffffff; was '" + s + "'");
     }
 }
