@@ -108,12 +108,9 @@ public class SocketHandler extends StreamHandler {
         // check the validity of the port number
         int p = 0;
         try {
-            p = Integer.parseInt(port);
+            p = Integer.parsePositiveInt(port);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Illegal port argument");
-        }
-        if (p <= 0) {
-            throw new IllegalArgumentException("Illegal port argument");
+            throw new IllegalArgumentException("Illegal port argument " + port);
         }
         // establish the network connection
         try {
