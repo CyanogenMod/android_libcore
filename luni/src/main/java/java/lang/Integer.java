@@ -126,7 +126,8 @@ public final class Integer extends Number implements Comparable<Integer> {
 
     /**
      * Compares two {@code int} values.
-     * @return 0 if lhs = rhs, less than 0 if lhs &lt; rhs, and greater than 0 if lhs &gt; rhs.
+     * @return 0 if lhs = rhs, less than 0 if lhs &lt; rhs, and greater than 0
+     *         if lhs &gt; rhs.
      * @since 1.7
      */
     public static int compare(int lhs, int rhs) {
@@ -140,24 +141,26 @@ public final class Integer extends Number implements Comparable<Integer> {
     /**
      * Parses the specified string and returns a {@code Integer} instance if the
      * string can be decoded into an integer value. The string may be an
-     * optional minus sign "-" followed by a hexadecimal ("0x..." or "#..."),
-     * octal ("0..."), or decimal ("...") representation of an integer.
+     * optional sign character ("-" or "+") followed by a hexadecimal ("0x..."
+     * or "#..."), octal ("0..."), or decimal ("...") representation of an
+     * integer.
      *
      * @param string
      *            a string representation of an integer value.
      * @return an {@code Integer} containing the value represented by
      *         {@code string}.
      * @throws NumberFormatException
-     *             if {@code string} cannot be parsed as an integer value.
+     *            if {@code string} cannot be parsed as an integer value.
      */
     public static Integer decode(String string) throws NumberFormatException {
-        int length = string.length(), i = 0;
+        int length = string.length();
         if (length == 0) {
             throw invalidInt(string);
         }
+        int i = 0;
         char firstDigit = string.charAt(i);
         boolean negative = firstDigit == '-';
-        if (negative) {
+        if (negative || firstDigit == '+') {
             if (length == 1) {
                 throw invalidInt(string);
             }
@@ -319,8 +322,8 @@ public final class Integer extends Number implements Comparable<Integer> {
 
     /**
      * Parses the specified string as a signed decimal integer value. The ASCII
-     * character \u002d ('-') is recognized as the minus sign.
-     *
+     * characters \u002d ('-') and \u002b ('+') are recognized as the minus and
+     * plus signs.
      * @param string
      *            the string representation of an integer value.
      * @return the primitive integer value represented by {@code string}.
@@ -333,7 +336,8 @@ public final class Integer extends Number implements Comparable<Integer> {
 
     /**
      * Parses the specified string as a signed integer value using the specified
-     * radix. The ASCII character \u002d ('-') is recognized as the minus sign.
+     * radix. The ASCII characters \u002d ('-') and \u002b ('+') are recognized
+     * as the minus and plus signs.
      *
      * @param string
      *            the string representation of an integer value.
@@ -350,19 +354,17 @@ public final class Integer extends Number implements Comparable<Integer> {
         if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX) {
             throw new NumberFormatException("Invalid radix: " + radix);
         }
-        if (string == null) {
-            throw invalidInt(string);
-        }
-        int length = string.length(), i = 0;
-        if (length == 0) {
-            throw invalidInt(string);
-        }
-        boolean negative = string.charAt(i) == '-';
-        if (negative && ++i == length) {
+        if (string == null || string.isEmpty()) {
             throw invalidInt(string);
         }
 
-        return parse(string, i, radix, negative);
+        char firstChar = string.charAt(0);
+        int firstDigitIndex = (firstChar == '-' || firstChar == '+') ? 1 : 0;
+        if (firstDigitIndex == string.length()) {
+            throw invalidInt(string);
+        }
+
+        return parse(string, firstDigitIndex, radix, firstChar == '-');
     }
 
     /**
@@ -400,7 +402,8 @@ public final class Integer extends Number implements Comparable<Integer> {
 
     private static int parse(String string, int offset, int radix, boolean negative) throws NumberFormatException {
         int max = Integer.MIN_VALUE / radix;
-        int result = 0, length = string.length();
+        int result = 0;
+        int length = string.length();
         while (offset < length) {
             int digit = Character.digit(string.charAt(offset++), radix);
             if (digit == -1) {
