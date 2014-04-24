@@ -182,28 +182,17 @@ public final class UUID implements Serializable, Comparable<UUID> {
             throw new NullPointerException("uuid == null");
         }
 
-        int[] position = new int[5];
-        int lastPosition = 1;
-        int startPosition = 0;
-
-        int i = 0;
-        for (; i < position.length && lastPosition > 0; i++) {
-            position[i] = uuid.indexOf("-", startPosition);
-            lastPosition = position[i];
-            startPosition = position[i] + 1;
-        }
-
-        // should have and only can have four "-" in UUID
-        if (i != position.length || lastPosition != -1) {
+        String[] parts = uuid.split("-");
+        if (parts.length != 5) {
             throw new IllegalArgumentException("Invalid UUID: " + uuid);
         }
 
-        long m1 = Long.parseLong(uuid.substring(0, position[0]), 16);
-        long m2 = Long.parseLong(uuid.substring(position[0] + 1, position[1]), 16);
-        long m3 = Long.parseLong(uuid.substring(position[1] + 1, position[2]), 16);
+        long m1 = Long.parsePositiveLong(parts[0], 16);
+        long m2 = Long.parsePositiveLong(parts[1], 16);
+        long m3 = Long.parsePositiveLong(parts[2], 16);
 
-        long lsb1 = Long.parseLong(uuid.substring(position[2] + 1, position[3]), 16);
-        long lsb2 = Long.parseLong(uuid.substring(position[3] + 1), 16);
+        long lsb1 = Long.parsePositiveLong(parts[3], 16);
+        long lsb2 = Long.parsePositiveLong(parts[4], 16);
 
         long msb = (m1 << 32) | (m2 << 16) | m3;
         long lsb = (lsb1 << 48) | lsb2;

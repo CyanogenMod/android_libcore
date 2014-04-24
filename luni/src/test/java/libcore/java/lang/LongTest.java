@@ -56,4 +56,26 @@ public class LongTest extends junit.framework.TestCase {
         assertEquals(1, Long.signum(Long.MAX_VALUE));
         assertEquals(-1, Long.signum(Long.MIN_VALUE));
     }
+
+    public void test_parsePositiveLong() throws Exception {
+        assertEquals(0, Long.parsePositiveLong("0", 10));
+        assertEquals(473, Long.parsePositiveLong("473", 10));
+        assertEquals(255, Long.parsePositiveLong("FF", 16));
+
+        try {
+            Long.parsePositiveLong("-1", 10);
+            fail();
+        } catch (NumberFormatException e) {}
+
+        try {
+            Long.parsePositiveLong("+1", 10);
+            fail();
+        } catch (NumberFormatException e) {}
+
+        try {
+            Long.parsePositiveLong("+0", 16);
+            fail();
+        } catch (NumberFormatException e) {}
+    }
+
 }
