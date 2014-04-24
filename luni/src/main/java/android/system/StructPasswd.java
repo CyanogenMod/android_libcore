@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package libcore.io;
+package android.system;
 
 /**
  * Information returned by getpwnam(3) and getpwuid(3). Corresponds to C's
  * {@code struct passwd} from
  * <a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/pwd.h.html">&lt;pwd.h&gt;</a>
+ *
+ * @hide
  */
 public final class StructPasswd {
     public String pw_name;

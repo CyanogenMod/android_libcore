@@ -16,23 +16,23 @@
 
 package java.lang;
 
+import android.system.ErrnoException;
+import android.util.MutableInt;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
-import libcore.util.MutableInt;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * Manages child processes.

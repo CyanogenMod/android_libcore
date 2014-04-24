@@ -16,16 +16,16 @@
 
 package libcore.io;
 
+import android.system.ErrnoException;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
-import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
-import libcore.io.ErrnoException;
+import java.nio.NioUtils;
 import libcore.io.Libcore;
 import libcore.io.Memory;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * A memory-mapped file. Use {@link #mmap} to map a file, {@link #close} to unmap a file,

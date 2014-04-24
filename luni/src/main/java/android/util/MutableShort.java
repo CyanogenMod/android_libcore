@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package libcore.io;
-
-import java.net.InetAddress;
+package android.util;
 
 /**
- * Corresponds to C's {@code struct group_req}.
+ * @hide
  */
-public final class StructGroupReq {
-    public final int gr_interface;
-    public final InetAddress gr_group;
+public final class MutableShort {
+  public short value;
 
-    public StructGroupReq(int gr_interface, InetAddress gr_group) {
-        this.gr_interface = gr_interface;
-        this.gr_group = gr_group;
-    }
-
-    @Override public String toString() {
-        return "StructGroupReq[gr_interface=" + gr_interface + ",gr_group=" + gr_group + "]";
-    }
+  public MutableShort(short value) {
+    this.value = value;
+  }
 }

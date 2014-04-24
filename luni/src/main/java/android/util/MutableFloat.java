@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package libcore.util;
+package android.util;
 
-public final class MutableShort {
-    public short value;
+/**
+ * @hide
+ */
+public final class MutableFloat {
+  public float value;
 
-    public MutableShort(short value) {
-        this.value = value;
-    }
+  public MutableFloat(float value) {
+    this.value = value;
+  }
 }

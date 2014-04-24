@@ -17,18 +17,18 @@
 
 package java.nio;
 
+import android.system.ErrnoException;
 import dalvik.system.VMRuntime;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.channels.FileChannel.MapMode;
-import libcore.io.ErrnoException;
 import libcore.io.Libcore;
 import libcore.io.Memory;
 
-import static libcore.io.OsConstants.MAP_PRIVATE;
-import static libcore.io.OsConstants.MAP_SHARED;
-import static libcore.io.OsConstants.PROT_READ;
-import static libcore.io.OsConstants.PROT_WRITE;
+import static android.system.OsConstants.MAP_PRIVATE;
+import static android.system.OsConstants.MAP_SHARED;
+import static android.system.OsConstants.PROT_READ;
+import static android.system.OsConstants.PROT_WRITE;
 
 class MemoryBlock {
     /**

@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package libcore.util;
+package android.util;
 
-public final class MutableBoolean {
-    public boolean value;
+/**
+ * @hide
+ */
+public final class MutableLong {
+  public long value;
 
-    public MutableBoolean(boolean value) {
-        this.value = value;
-    }
+  public MutableLong(long value) {
+    this.value = value;
+  }
 }

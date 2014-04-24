@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package libcore.util;
+package android.util;
 
-public final class MutableLong {
-    public long value;
+/**
+ * @hide
+ */
+public final class MutableInt {
+  public int value;
 
-    public MutableLong(long value) {
-        this.value = value;
-    }
+  public MutableInt(int value) {
+    this.value = value;
+  }
 }

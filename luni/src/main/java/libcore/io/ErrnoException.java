@@ -20,11 +20,11 @@ import java.io.IOException;
 import java.net.SocketException;
 
 /**
- * A checked exception thrown when {@link Os} methods fail. This exception contains the native
+ * An unchecked exception thrown when {@link Os} methods fail. This exception contains the native
  * errno value, for comparison against the constants in {@link OsConstants}, should sophisticated
  * callers need to adjust their behavior based on the exact failure.
  */
-public final class ErrnoException extends Exception {
+public /* not final for android.system.ErrnoException */ class ErrnoException extends Exception {
     private final String functionName;
     public final int errno;
 

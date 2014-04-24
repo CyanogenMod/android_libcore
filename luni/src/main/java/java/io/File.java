@@ -17,6 +17,9 @@
 
 package java.io;
 
+import android.system.ErrnoException;
+import android.system.StructStat;
+import android.system.StructStatVfs;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -24,12 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import libcore.io.DeleteOnExit;
-import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
-import libcore.io.StructStat;
-import libcore.io.StructStatVfs;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * An "abstract" representation of a file system entity identified by a

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package libcore.io;
+package android.system;
 
 import java.io.FileDescriptor;
 
 /**
  * Corresponds to C's {@code struct pollfd} from
  * <a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/poll.h.html">&lt;poll.h&gt;</a>
+ *
+ * @hide
  */
 public final class StructPollfd {
     /** The file descriptor to poll. */

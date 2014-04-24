@@ -19,13 +19,13 @@ package java.io;
 
 import dalvik.system.CloseGuard;
 
-import java.nio.NioUtils;
+import android.system.ErrnoException;
 import java.nio.channels.FileChannel;
-import libcore.io.ErrnoException;
+import java.nio.NioUtils;
 import libcore.io.IoBridge;
 import libcore.io.Libcore;
 import libcore.io.Streams;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * An input stream that reads bytes from a file.

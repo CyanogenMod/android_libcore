@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package libcore.io;
+package android.system;
 
 /**
  * Information returned/taken by fcntl(2) F_GETFL and F_SETFL. Corresponds to C's
  * {@code struct flock} from
  * <a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/fcntl.h.html">&lt;fcntl.h&gt;</a>
+ *
+ * @hide
  */
 public final class StructFlock {
     /** The operation type, one of F_RDLCK, F_WRLCK, or F_UNLCK. */

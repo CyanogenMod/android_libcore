@@ -16,15 +16,15 @@
 
 package dalvik.system;
 
+import android.system.ErrnoException;
+import android.system.StructStat;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import libcore.io.ErrnoException;
 import libcore.io.Libcore;
-import libcore.io.StructStat;
 
 /**
  * Manipulates DEX files. The class is similar in principle to

@@ -17,6 +17,7 @@
 
 package java.nio;
 
+import android.system.ErrnoException;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -32,14 +33,12 @@ import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.NotYetBoundException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.spi.SelectorProvider;
 import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
-import java.nio.channels.spi.SelectorProvider;
 import java.util.Set;
-
-import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * The default ServerSocketChannel.
