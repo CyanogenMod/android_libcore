@@ -15,9 +15,11 @@
  */
 package java.nio;
 
+import android.system.ErrnoException;
+import android.system.StructPollfd;
 import java.io.FileDescriptor;
-import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.io.IOException;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.IllegalSelectorException;
 import java.nio.channels.SelectionKey;
@@ -32,20 +34,18 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UnsafeArrayList;
-import libcore.io.ErrnoException;
 import libcore.io.IoBridge;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
-import libcore.io.StructPollfd;
 
+import static android.system.OsConstants.EINTR;
+import static android.system.OsConstants.POLLHUP;
+import static android.system.OsConstants.POLLIN;
+import static android.system.OsConstants.POLLOUT;
 import static java.nio.channels.SelectionKey.OP_ACCEPT;
 import static java.nio.channels.SelectionKey.OP_CONNECT;
 import static java.nio.channels.SelectionKey.OP_READ;
 import static java.nio.channels.SelectionKey.OP_WRITE;
-import static libcore.io.OsConstants.EINTR;
-import static libcore.io.OsConstants.POLLHUP;
-import static libcore.io.OsConstants.POLLIN;
-import static libcore.io.OsConstants.POLLOUT;
 
 /*
  * Default implementation of java.nio.channels.Selector

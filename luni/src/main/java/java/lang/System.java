@@ -32,6 +32,9 @@
 
 package java.lang;
 
+import android.system.ErrnoException;
+import android.system.StructPasswd;
+import android.system.StructUtsname;
 import dalvik.system.VMRuntime;
 import dalvik.system.VMStack;
 import java.io.BufferedInputStream;
@@ -39,8 +42,8 @@ import java.io.Console;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.channels.Channel;
 import java.nio.channels.spi.SelectorProvider;
@@ -51,10 +54,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import libcore.icu.ICU;
-import libcore.io.ErrnoException;
 import libcore.io.Libcore;
-import libcore.io.StructPasswd;
-import libcore.io.StructUtsname;
 
 /**
  * Provides access to system-related information and resources including

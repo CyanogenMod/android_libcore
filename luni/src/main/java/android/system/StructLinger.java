@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package libcore.io;
+package android.system;
 
 /**
  * Corresponds to C's {@code struct linger} from
  * <a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/sys_socket.h.html">&lt;sys/socket.h&gt;</a>
+ *
+ * @hide
  */
 public final class StructLinger {
     /** Whether or not linger is enabled. Non-zero is on. */

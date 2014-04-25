@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package libcore.util;
+package android.system;
 
-public final class MutableFloat {
-    public float value;
-
-    public MutableFloat(float value) {
-        this.value = value;
-    }
+/**
+ * File information returned by fstatvfs(2) and statvfs(2).
+ *
+ * @hide
+ */
+public final class StructStatVfs extends libcore.io.StructStatVfs {
+  public StructStatVfs(long f_bsize, long f_frsize, long f_blocks, long f_bfree, long f_bavail,
+                       long f_files, long f_ffree, long f_favail,
+                       long f_fsid, long f_flag, long f_namemax) {
+    super(f_bsize, f_frsize, f_blocks, f_bfree, f_bavail,
+          f_files, f_ffree, f_favail,
+          f_fsid, f_flag, f_namemax);
+  }
 }

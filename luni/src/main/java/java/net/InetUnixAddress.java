@@ -18,7 +18,7 @@ package java.net;
 
 import java.nio.charset.StandardCharsets;
 
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * An AF_UNIX address. See {@link InetAddress}.

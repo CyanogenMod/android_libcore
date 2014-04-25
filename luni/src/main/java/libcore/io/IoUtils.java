@@ -25,7 +25,7 @@ import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 public final class IoUtils {
     private static final Random TEMPORARY_DIRECTORY_PRNG = new Random();

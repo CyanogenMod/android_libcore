@@ -17,9 +17,10 @@
 
 package java.nio;
 
+import android.system.ErrnoException;
 import java.io.FileDescriptor;
-import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.io.IOException;
 import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -40,13 +41,11 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.MembershipKey;
 import java.nio.channels.NotYetConnectedException;
+import java.nio.channels.spi.SelectorProvider;
 import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
-import java.nio.channels.spi.SelectorProvider;
 import java.util.Arrays;
 import java.util.Set;
-
-import libcore.io.ErrnoException;
 import libcore.io.IoBridge;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;

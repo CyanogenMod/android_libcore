@@ -17,6 +17,9 @@
 
 package java.nio;
 
+import android.system.ErrnoException;
+import android.system.StructFlock;
+import android.util.MutableLong;
 import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -32,11 +35,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import libcore.io.ErrnoException;
 import libcore.io.Libcore;
-import libcore.io.StructFlock;
-import libcore.util.MutableLong;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * Our concrete implementation of the abstract FileChannel class.

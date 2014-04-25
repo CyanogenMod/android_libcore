@@ -20,7 +20,7 @@ package java.net;
 import java.io.ObjectStreamException;
 import java.nio.ByteOrder;
 import libcore.io.Memory;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * An IPv4 address. See {@link InetAddress}.

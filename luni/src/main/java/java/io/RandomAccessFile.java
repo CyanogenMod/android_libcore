@@ -17,18 +17,18 @@
 
 package java.io;
 
+import android.system.ErrnoException;
 import dalvik.system.CloseGuard;
 import java.nio.ByteOrder;
-import java.nio.NioUtils;
 import java.nio.channels.FileChannel;
 import java.nio.charset.ModifiedUtf8;
+import java.nio.NioUtils;
 import java.util.Arrays;
-import libcore.io.ErrnoException;
 import libcore.io.IoBridge;
 import libcore.io.Libcore;
 import libcore.io.Memory;
 import libcore.io.SizeOf;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * Allows reading from and writing to a file in a random-access manner. This is

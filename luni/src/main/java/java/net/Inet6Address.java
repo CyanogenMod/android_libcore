@@ -23,7 +23,7 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.util.Arrays;
 import java.util.Enumeration;
-import static libcore.io.OsConstants.*;
+import static android.system.OsConstants.*;
 
 /**
  * An IPv6 address. See {@link InetAddress}.

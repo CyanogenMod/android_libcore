@@ -48,7 +48,7 @@ import java.util.StringTokenizer;
 import libcore.io.IoUtils;
 import libcore.io.Libcore;
 import libcore.util.EmptyArray;
-import static libcore.io.OsConstants._SC_NPROCESSORS_CONF;
+import static android.system.OsConstants._SC_NPROCESSORS_CONF;
 
 /**
  * Allows Java applications to interface with the environment in which they are
