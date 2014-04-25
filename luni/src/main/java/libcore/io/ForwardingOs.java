@@ -115,6 +115,7 @@ public class ForwardingOs implements Os {
     public FileDescriptor[] pipe() throws ErrnoException { return os.pipe(); }
     public int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException { return os.poll(fds, timeoutMs); }
     public void posix_fallocate(FileDescriptor fd, long offset, long length) throws ErrnoException { os.posix_fallocate(fd, offset, length); }
+    public int prctl(int option, long arg2, long arg3, long arg4, long arg5) throws ErrnoException { return os.prctl(option, arg2, arg3, arg4, arg5); };
     public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException, InterruptedIOException { return os.pread(fd, buffer, offset); }
     public int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException, InterruptedIOException { return os.pread(fd, bytes, byteOffset, byteCount, offset); }
     public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException, InterruptedIOException { return os.pwrite(fd, buffer, offset); }

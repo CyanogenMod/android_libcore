@@ -44,6 +44,7 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#include <sys/prctl.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
@@ -1076,6 +1077,13 @@ static void Posix_posix_fallocate(JNIEnv* env, jobject, jobject javaFd, jlong of
     }
 }
 
+static jint Posix_prctl(JNIEnv* env, jobject, jint option, jlong arg2, jlong arg3, jlong arg4, jlong arg5) {
+    int result = prctl(static_cast<int>(option),
+                       static_cast<unsigned long>(arg2), static_cast<unsigned long>(arg3),
+                       static_cast<unsigned long>(arg4), static_cast<unsigned long>(arg5));
+    return throwIfMinusOne(env, "prctl", result);
+}
+
 static jint Posix_preadBytes(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jlong offset) {
     ScopedBytesRW bytes(env, javaBytes);
     if (bytes.get() == NULL) {
@@ -1542,6 +1550,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, pipe, "()[Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, poll, "([Landroid/system/StructPollfd;I)I"),
     NATIVE_METHOD(Posix, posix_fallocate, "(Ljava/io/FileDescriptor;JJ)V"),
+    NATIVE_METHOD(Posix, prctl, "(IJJJJ)I"),
     NATIVE_METHOD(Posix, preadBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIJ)I"),
     NATIVE_METHOD(Posix, pwriteBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;IIJ)I"),
     NATIVE_METHOD(Posix, readBytes, "(Ljava/io/FileDescriptor;Ljava/lang/Object;II)I"),
