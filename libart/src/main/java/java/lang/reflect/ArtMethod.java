@@ -85,22 +85,6 @@ public final class ArtMethod {
      */
     private long gcMap;
 
-    /* Quick compiler meta-data. TODO: merge and place in native heap. */
-
-    /**
-     * Pointer to a data structure created by the quick compiler to map between dex PCs and
-     * native PCs, and vice-versa.
-     */
-    private long quickMappingTable;
-
-    /**
-     * Pointer to a data structure used by the quick compiler to map between dalvik and machine
-     * registers.
-     */
-    private long quickVmapTable;
-
-    /* End of quick compiler meta-data. */
-
     /** Bits encoding access (e.g. public, private) as well as other runtime specific flags */
     private int accessFlags;
 
