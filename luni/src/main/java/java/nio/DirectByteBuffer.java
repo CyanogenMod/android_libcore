@@ -26,7 +26,6 @@ class DirectByteBuffer extends MappedByteBuffer {
   // This is the offset into {@code Buffer.block} at which this buffer logically starts.
   // TODO: rewrite this so we set 'block' to an OffsetMemoryBlock?
   protected final int offset;
-  private boolean freed;
 
   private final boolean isReadOnly;
 
@@ -280,8 +279,8 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   /** @hide */
-  @Override public final boolean isValid() {
-    return !freed;
+  @Override public final boolean isAccessible() {
+    return !block.isFreed();
   }
 
   /**
@@ -289,10 +288,7 @@ class DirectByteBuffer extends MappedByteBuffer {
    * buffer will throw {@link IllegalStateException}.
    */
   public final void free() {
-    if (!freed) {
-      block.free();
-      freed = true;
-    }
+    block.free();
   }
 
   @Override public final CharBuffer asCharBuffer() {
@@ -545,7 +541,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   private void checkNotFreed() {
-    if (freed) {
+    if (block.isFreed()) {
       throw new IllegalStateException("buffer was freed");
     }
   }

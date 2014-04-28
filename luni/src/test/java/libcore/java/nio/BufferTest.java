@@ -731,7 +731,7 @@ public class BufferTest extends TestCase {
         Class<?> c = Class.forName("java.nio.DirectByteBuffer");
         Constructor<?> ctor = c.getDeclaredConstructor(long.class, int.class);
         ctor.setAccessible(true);
-        ByteBuffer bb = (ByteBuffer) ctor.newInstance(0, 0);
+        ByteBuffer bb = (ByteBuffer) ctor.newInstance(1, 0);
 
         try {
             bb.array();
@@ -886,43 +886,52 @@ public class BufferTest extends TestCase {
     }
 
     public void testFreed() {
-        ByteBuffer b = ByteBuffer.allocateDirect(1);
-        NioUtils.freeDirectBuffer(b);
-        assertFalse(b.isValid());
-        try {
-            b.compact();
-            fail();
-        } catch (IllegalStateException expected) {
+        ByteBuffer b1 = ByteBuffer.allocateDirect(1);
+        ByteBuffer b2 = b1.duplicate();
+        NioUtils.freeDirectBuffer(b1);
+        for (ByteBuffer b: new ByteBuffer[] { b1, b2 }) {
+            assertFalse(b.isAccessible());
+            try {
+                b.compact();
+                fail();
+            } catch (IllegalStateException expected) {
+            }
+            try {
+                b.duplicate();
+                fail();
+            } catch (IllegalStateException expected) {
+            }
+            testFailForPutMethods(b);
+            testFailForAsMethods(b);
+            testFailForGetMethods(b);
+            NioUtils.freeDirectBuffer(b); // should be able to free twice
         }
-        try {
-            b.duplicate();
-            fail();
-        } catch (IllegalStateException expected) {
-        }
-        testFailForPutMethods(b);
-        testFailForAsMethods(b);
-        testFailForGetMethods(b);
     }
 
     private void testFailForPutMethods(ByteBuffer b) {
         try {
             b.put((byte) 0);
+            fail();
         } catch (IllegalStateException expected) {
         }
         try {
             b.put(0, (byte) 0);
+            fail();
         } catch (IllegalStateException expected) {
         }
         try {
             b.put(new byte[1]);
+            fail();
         } catch (IllegalStateException expected) {
         }
         try {
             b.put(new byte[1], 0, 1);
+            fail();
         } catch (IllegalStateException expected) {
         }
         try {
             b.put(ByteBuffer.allocate(1));
+            fail();
         } catch (IllegalStateException expected) {
         }
         try {
@@ -990,18 +999,22 @@ public class BufferTest extends TestCase {
     private void testFailForGetMethods(ByteBuffer b) {
         try {
             b.get();
+            fail();
         } catch (IllegalStateException expected) {
         }
         try {
             b.get(0);
+            fail();
         } catch (IllegalStateException expected) {
         }
         try {
             b.get(new byte[1]);
+            fail();
         } catch (IllegalStateException expected) {
         }
         try {
             b.get(new byte[1], 0, 1);
+            fail();
         } catch (IllegalStateException expected) {
         }
         try {
