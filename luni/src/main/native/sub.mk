@@ -11,6 +11,7 @@ LOCAL_SRC_FILES := \
     NetworkUtilities.cpp \
     Register.cpp \
     ZipUtilities.cpp \
+    android_system_OsConstants.cpp \
     canonicalize_path.cpp \
     cbigint.cpp \
     java_io_Console.cpp \
@@ -50,7 +51,6 @@ LOCAL_SRC_FILES := \
     libcore_icu_Transliterator.cpp \
     libcore_io_AsynchronousCloseMonitor.cpp \
     libcore_io_Memory.cpp \
-    libcore_io_OsConstants.cpp \
     libcore_io_Posix.cpp \
     org_apache_harmony_xml_ExpatParser.cpp \
     readlink.cpp \
