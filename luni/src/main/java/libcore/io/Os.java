@@ -108,6 +108,7 @@ public interface Os {
     /* TODO: if we used the non-standard ppoll(2) behind the scenes, we could take a long timeout. */
     public int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException;
     public void posix_fallocate(FileDescriptor fd, long offset, long length) throws ErrnoException;
+    public int prctl(int option, long arg2, long arg3, long arg4, long arg5) throws ErrnoException;
     public int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException, InterruptedIOException;
     public int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException, InterruptedIOException;
     public int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException, InterruptedIOException;

@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#include <sys/prctl.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -361,6 +362,9 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "POLLRDNORM", POLLRDNORM);
     initConstant(env, c, "POLLWRBAND", POLLWRBAND);
     initConstant(env, c, "POLLWRNORM", POLLWRNORM);
+#if defined(PR_SET_NO_NEW_PRIVS)
+    initConstant(env, c, "PR_SET_NO_NEW_PRIVS", PR_SET_NO_NEW_PRIVS);
+#endif
     initConstant(env, c, "PROT_EXEC", PROT_EXEC);
     initConstant(env, c, "PROT_NONE", PROT_NONE);
     initConstant(env, c, "PROT_READ", PROT_READ);
