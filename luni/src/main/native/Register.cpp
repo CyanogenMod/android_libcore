@@ -33,6 +33,7 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
     ScopedLocalFrame localFrame(env);
 
 #define REGISTER(FN) extern void FN(JNIEnv*); FN(env)
+    REGISTER(register_android_system_OsConstants);
     REGISTER(register_java_io_Console);
     REGISTER(register_java_io_File);
     REGISTER(register_java_io_ObjectStreamClass);
@@ -70,7 +71,6 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
     REGISTER(register_libcore_icu_Transliterator);
     REGISTER(register_libcore_io_AsynchronousCloseMonitor);
     REGISTER(register_libcore_io_Memory);
-    REGISTER(register_libcore_io_OsConstants);
     REGISTER(register_libcore_io_Posix);
     REGISTER(register_org_apache_harmony_dalvik_NativeTestTarget);
     REGISTER(register_org_apache_harmony_xml_ExpatParser);
