@@ -16,6 +16,7 @@
 
 package libcore.io;
 
+import android.system.ErrnoException;
 import android.system.StructGroupReq;
 import android.system.StructGroupSourceReq;
 import android.system.StructLinger;
