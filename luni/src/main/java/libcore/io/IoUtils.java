@@ -16,6 +16,7 @@
 
 package libcore.io;
 
+import android.system.StructStat;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
