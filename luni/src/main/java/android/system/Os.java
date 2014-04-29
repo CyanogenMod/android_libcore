@@ -112,6 +112,7 @@ public final class Os {
   public static FileDescriptor[] pipe() throws ErrnoException { return Libcore.os.pipe(); }
   public static int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException { return Libcore.os.poll(fds, timeoutMs); }
   public static void posix_fallocate(FileDescriptor fd, long offset, long length) throws ErrnoException { Libcore.os.posix_fallocate(fd, offset, length); }
+  public static int prctl(int option, long arg2, long arg3, long arg4, long arg5) throws ErrnoException { return Libcore.os.prctl(option, arg2, arg3, arg4, arg5); };
   public static int pread(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException, InterruptedIOException { return Libcore.os.pread(fd, buffer, offset); }
   public static int pread(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, long offset) throws ErrnoException, InterruptedIOException { return Libcore.os.pread(fd, bytes, byteOffset, byteCount, offset); }
   public static int pwrite(FileDescriptor fd, ByteBuffer buffer, long offset) throws ErrnoException, InterruptedIOException { return Libcore.os.pwrite(fd, buffer, offset); }
