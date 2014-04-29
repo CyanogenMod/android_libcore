@@ -702,7 +702,7 @@ public class JarFileTest extends TestCase {
     }
 
     public void testJarFile_Signed_AmbiguousSigners() throws Exception {
-        Results result = getSignedJarCerts(AMBIGUOUS_SIGNERS_JAR, false);
+        Results result = getSignedJarCerts(AMBIGUOUS_SIGNERS_JAR);
         assertNotNull(result);
         assertEquals(Arrays.deepToString(result.certificates), 2, result.certificates.length);
         assertEquals(Arrays.deepToString(result.signers), 2, result.signers.length);
