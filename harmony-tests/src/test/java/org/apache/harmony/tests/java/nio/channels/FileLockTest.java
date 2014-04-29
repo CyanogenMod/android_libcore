@@ -75,6 +75,7 @@ public class FileLockTest extends TestCase {
 	public void test_Constructor_Ljava_nio_channels_FileChannelJJZ() {
 		FileLock fileLock1 = new MockFileLock(null, 0, 0, false);
 		assertNull(fileLock1.channel());
+		assertNull(fileLock1.acquiredBy());
 
 		try {
 			new MockFileLock(readWriteChannel, -1, 0, false);
@@ -104,6 +105,15 @@ public class FileLockTest extends TestCase {
 		assertSame(readWriteChannel, mockLock.channel());
 		FileLock lock = new MockFileLock(null, 0, 10, true);
 		assertNull(lock.channel());
+	}
+
+	/**
+	 * @tests java.nio.channels.FileLock#acquiredBy()
+	 */
+	public void test_acquiredBy() {
+		assertSame(readWriteChannel, mockLock.acquiredBy());
+		FileLock lock = new MockFileLock(null, 0, 10, true);
+		assertNull(lock.acquiredBy());
 	}
 
 	/**

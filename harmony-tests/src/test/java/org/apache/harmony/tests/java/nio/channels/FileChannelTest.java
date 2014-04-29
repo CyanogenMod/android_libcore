@@ -786,6 +786,7 @@ public class FileChannelTest extends TestCase {
         // shared lock, but it works on Windows & Linux.
         assertTrue(fileLock.isShared());
         assertSame(readOnlyFileChannel, fileLock.channel());
+        assertSame(readOnlyFileChannel, fileLock.acquiredBy());
         assertEquals(POSITION, fileLock.position());
         assertEquals(SIZE, fileLock.size());
     }
@@ -800,6 +801,7 @@ public class FileChannelTest extends TestCase {
         assertTrue(fileLock.isValid());
         assertFalse(fileLock.isShared());
         assertSame(writeOnlyFileChannel, fileLock.channel());
+        assertSame(writeOnlyFileChannel, fileLock.acquiredBy());
         assertEquals(POSITION, fileLock.position());
         assertEquals(SIZE, fileLock.size());
     }
@@ -816,6 +818,7 @@ public class FileChannelTest extends TestCase {
         assertEquals(POSITION, fileLock.position());
         assertEquals(SIZE, fileLock.size());
         assertSame(readOnlyFileChannel, fileLock.channel());
+        assertSame(readOnlyFileChannel, fileLock.acquiredBy());
     }
 
     /**
@@ -994,6 +997,7 @@ public class FileChannelTest extends TestCase {
         // shared lock, but it works on Windows & Linux.
         assertTrue(fileLock.isShared());
         assertSame(readOnlyFileChannel, fileLock.channel());
+        assertSame(readOnlyFileChannel, fileLock.acquiredBy());
         assertEquals(POSITION, fileLock.position());
         assertEquals(SIZE, fileLock.size());
     }
@@ -1008,6 +1012,7 @@ public class FileChannelTest extends TestCase {
         assertTrue(fileLock.isValid());
         assertFalse(fileLock.isShared());
         assertSame(writeOnlyFileChannel, fileLock.channel());
+        assertSame(writeOnlyFileChannel, fileLock.acquiredBy());
         assertEquals(POSITION, fileLock.position());
         assertEquals(SIZE, fileLock.size());
     }
@@ -1024,6 +1029,7 @@ public class FileChannelTest extends TestCase {
         assertEquals(POSITION, fileLock.position());
         assertEquals(SIZE, fileLock.size());
         assertSame(readOnlyFileChannel, fileLock.channel());
+        assertSame(readOnlyFileChannel, fileLock.acquiredBy());
     }
 
     /**
