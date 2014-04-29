@@ -167,6 +167,14 @@ public final class ICU {
   }
 
   /**
+   * The new code from master breaks libcore.icu.ICUTest#test_localeFromString,
+   * which expects the old API. Retain this for 4.4
+   */
+  public static Locale localeFromString(String localeName) {
+      return localeFromIcuLocaleId(localeName);
+  }
+
+  /**
    * Returns the appropriate {@code Locale} given a {@code String} of the form returned
    * by {@code toString}. This is very lenient, and doesn't care what's between the underscores:
    * this method can parse strings that {@code Locale.toString} won't produce.
