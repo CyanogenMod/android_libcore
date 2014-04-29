@@ -196,16 +196,6 @@ public class JarFile extends ZipFile {
      *             If the file cannot be read.
      */
     public JarFile(File file, boolean verify, int mode) throws IOException {
-        this(file, verify, mode, false);
-    }
-
-    /**
-     * See previous constructor for other parameter definitions.
-     * @param chainCheck
-     *            whether or not to check certificate chain signatures
-     * @hide
-     */
-    public JarFile(File file, boolean verify, int mode, boolean chainCheck) throws IOException {
         super(file, mode);
 
         // Step 1: Scan the central directory for meta entries (MANIFEST.mf
@@ -225,7 +215,7 @@ public class JarFile extends ZipFile {
             // We create the manifest straight away, so that we can create
             // the jar verifier as well.
             manifest = new Manifest(metaEntries.get(MANIFEST_NAME), true);
-            verifier = new JarVerifier(getName(), manifest, metaEntries, chainCheck);
+            verifier = new JarVerifier(getName(), manifest, metaEntries);
         } else {
             verifier = null;
             manifestBytes = metaEntries.get(MANIFEST_NAME);
@@ -257,17 +247,7 @@ public class JarFile extends ZipFile {
      *             If file cannot be opened or read.
      */
     public JarFile(String filename, boolean verify) throws IOException {
-        this(filename, verify, false);
-    }
-
-    /**
-     * See previous constructor for other parameter definitions.
-     * @param chainCheck
-     *            whether or not to check certificate chain signatures
-     * @hide
-     */
-    public JarFile(String filename, boolean verify, boolean chainCheck) throws IOException {
-        this(new File(filename), verify, ZipFile.OPEN_READ, chainCheck);
+        this(new File(filename), verify, ZipFile.OPEN_READ);
     }
 
     /**

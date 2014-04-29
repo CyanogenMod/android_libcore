@@ -654,13 +654,13 @@ public class JarFileTest extends TestCase {
         public CodeSigner[] signers;
     }
 
-    private Results getSignedJarCerts(String jarName, boolean chainCheck) throws Exception {
+    private Results getSignedJarCerts(String jarName) throws Exception {
         Support_Resources.copyFile(resources, null, jarName);
 
         File file = new File(resources, jarName);
         Results results = new Results();
 
-        JarFile jarFile = new JarFile(file, true, ZipFile.OPEN_READ, chainCheck);
+        JarFile jarFile = new JarFile(file, true, ZipFile.OPEN_READ);
         try {
 
             Enumeration<JarEntry> e = jarFile.entries();
@@ -685,36 +685,20 @@ public class JarFileTest extends TestCase {
         return results;
     }
 
-    public void testJarFile_Signed_ValidChain_NoCheck() throws Exception {
-        Results result = getSignedJarCerts(VALID_CHAIN_JAR, false);
+    public void testJarFile_Signed_ValidChain() throws Exception {
+        Results result = getSignedJarCerts(VALID_CHAIN_JAR);
         assertNotNull(result);
         assertEquals(Arrays.deepToString(result.certificates), 2, result.certificates.length);
         assertEquals(Arrays.deepToString(result.signers), 1, result.signers.length);
         assertEquals(2, result.signers[0].getSignerCertPath().getCertificates().size());
     }
 
-    public void testJarFile_Signed_ValidChain_Check() throws Exception {
-        Results result = getSignedJarCerts(VALID_CHAIN_JAR, true);
+    public void testJarFile_Signed_InvalidChain() throws Exception {
+        Results result = getSignedJarCerts(INVALID_CHAIN_JAR);
         assertNotNull(result);
         assertEquals(Arrays.deepToString(result.certificates), 2, result.certificates.length);
         assertEquals(Arrays.deepToString(result.signers), 1, result.signers.length);
         assertEquals(2, result.signers[0].getSignerCertPath().getCertificates().size());
-    }
-
-    public void testJarFile_Signed_InvalidChain_NoCheck() throws Exception {
-        Results result = getSignedJarCerts(INVALID_CHAIN_JAR, false);
-        assertNotNull(result);
-        assertEquals(Arrays.deepToString(result.certificates), 2, result.certificates.length);
-        assertEquals(Arrays.deepToString(result.signers), 1, result.signers.length);
-        assertEquals(2, result.signers[0].getSignerCertPath().getCertificates().size());
-    }
-
-    public void testJarFile_Signed_InvalidChain_Check() throws Exception {
-        Results result = getSignedJarCerts(INVALID_CHAIN_JAR, true);
-        assertNotNull(result);
-        assertEquals(Arrays.deepToString(result.certificates), 1, result.certificates.length);
-        assertEquals(Arrays.deepToString(result.signers), 1, result.signers.length);
-        assertEquals(1, result.signers[0].getSignerCertPath().getCertificates().size());
     }
 
     public void testJarFile_Signed_AmbiguousSigners() throws Exception {
