@@ -54,18 +54,27 @@ public class JarUtils {
         new int[] {1, 2, 840, 113549, 1, 9, 4};
 
     /**
+     * @see #verifySignature(InputStream, InputStream, boolean)
+     */
+    public static Certificate[] verifySignature(InputStream signature, InputStream signatureBlock)
+            throws IOException, GeneralSecurityException {
+        return verifySignature(signature, signatureBlock, false);
+    }
+
+    /**
      * This method handle all the work with  PKCS7, ASN1 encoding, signature verifying,
      * and certification path building.
      * See also PKCS #7: Cryptographic Message Syntax Standard:
      * http://www.ietf.org/rfc/rfc2315.txt
      * @param signature - the input stream of signature file to be verified
      * @param signatureBlock - the input stream of corresponding signature block file
+     * @param chainCheck - whether to validate certificate chain signatures
      * @return array of certificates used to verify the signature file
      * @throws IOException - if some errors occurs during reading from the stream
      * @throws GeneralSecurityException - if signature verification process fails
      */
     public static Certificate[] verifySignature(InputStream signature, InputStream
-            signatureBlock) throws IOException, GeneralSecurityException {
+            signatureBlock, boolean chainCheck) throws IOException, GeneralSecurityException {
 
         BerInputStream bis = new BerInputStream(signatureBlock);
         ContentInfo info = (ContentInfo)ContentInfo.ASN1.decode(bis);
@@ -223,11 +232,11 @@ public class JarUtils {
             throw new SecurityException("Incorrect signature");
         }
 
-        return createChain(certs[issuerSertIndex], certs);
+        return createChain(certs[issuerSertIndex], certs, chainCheck);
     }
 
     private static X509Certificate[] createChain(X509Certificate signer,
-            X509Certificate[] candidates) {
+            X509Certificate[] candidates, boolean chainCheck) {
         Principal issuer = signer.getIssuerDN();
 
         // Signer is self-signed
@@ -239,9 +248,10 @@ public class JarUtils {
         chain.add(0, signer);
 
         X509Certificate issuerCert;
+        X509Certificate subjectCert = signer;
         int count = 1;
         while (true) {
-            issuerCert = findCert(issuer, candidates);
+            issuerCert = findCert(issuer, candidates, subjectCert, chainCheck);
             if( issuerCert == null) {
                 break;
             }
@@ -251,13 +261,22 @@ public class JarUtils {
             if (issuerCert.getSubjectDN().equals(issuer)) {
                 break;
             }
+            subjectCert = issuerCert;
         }
         return chain.toArray(new X509Certificate[count]);
     }
 
-    private static X509Certificate findCert(Principal issuer, X509Certificate[] candidates) {
+    private static X509Certificate findCert(Principal issuer, X509Certificate[] candidates,
+            X509Certificate subjectCert, boolean chainCheck) {
         for (int i = 0; i < candidates.length; i++) {
             if (issuer.equals(candidates[i].getSubjectDN())) {
+                if (chainCheck) {
+                    try {
+                        subjectCert.verify(candidates[i].getPublicKey());
+                    } catch (Exception e) {
+                        continue;
+                    }
+                }
                 return candidates[i];
             }
         }
