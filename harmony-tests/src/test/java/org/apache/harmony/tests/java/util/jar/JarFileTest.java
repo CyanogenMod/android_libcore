@@ -26,6 +26,7 @@ import java.net.URL;
 import java.security.CodeSigner;
 import java.security.Permission;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -688,17 +689,23 @@ public class JarFileTest extends TestCase {
     public void testJarFile_Signed_ValidChain() throws Exception {
         Results result = getSignedJarCerts(VALID_CHAIN_JAR);
         assertNotNull(result);
-        assertEquals(Arrays.deepToString(result.certificates), 2, result.certificates.length);
+        assertEquals(Arrays.deepToString(result.certificates), 3, result.certificates.length);
         assertEquals(Arrays.deepToString(result.signers), 1, result.signers.length);
-        assertEquals(2, result.signers[0].getSignerCertPath().getCertificates().size());
+        assertEquals(3, result.signers[0].getSignerCertPath().getCertificates().size());
+        assertEquals("CN=fake-chain", ((X509Certificate) result.certificates[0]).getSubjectDN().toString());
+        assertEquals("CN=intermediate1", ((X509Certificate) result.certificates[1]).getSubjectDN().toString());
+        assertEquals("CN=root1", ((X509Certificate) result.certificates[2]).getSubjectDN().toString());
     }
 
     public void testJarFile_Signed_InvalidChain() throws Exception {
         Results result = getSignedJarCerts(INVALID_CHAIN_JAR);
         assertNotNull(result);
-        assertEquals(Arrays.deepToString(result.certificates), 2, result.certificates.length);
+        assertEquals(Arrays.deepToString(result.certificates), 3, result.certificates.length);
         assertEquals(Arrays.deepToString(result.signers), 1, result.signers.length);
-        assertEquals(2, result.signers[0].getSignerCertPath().getCertificates().size());
+        assertEquals(3, result.signers[0].getSignerCertPath().getCertificates().size());
+        assertEquals("CN=fake-chain", ((X509Certificate) result.certificates[0]).getSubjectDN().toString());
+        assertEquals("CN=intermediate1", ((X509Certificate) result.certificates[1]).getSubjectDN().toString());
+        assertEquals("CN=root1", ((X509Certificate) result.certificates[2]).getSubjectDN().toString());
     }
 
     public void testJarFile_Signed_AmbiguousSigners() throws Exception {
