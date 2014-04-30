@@ -63,7 +63,7 @@ public final class StrictJarFile {
             // or manifests, so it's best to throw as early as possible.
             HashMap<String, byte[]> metaEntries = getMetaEntries();
             this.manifest = new Manifest(metaEntries.get(JarFile.MANIFEST_NAME), true);
-            this.verifier = new JarVerifier(fileName, manifest, metaEntries, true);
+            this.verifier = new JarVerifier(fileName, manifest, metaEntries);
 
             isSigned = verifier.readCertificates() && verifier.isSignedJar();
         } catch (IOException ioe) {
