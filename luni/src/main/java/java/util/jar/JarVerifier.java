@@ -75,9 +75,6 @@ class JarVerifier {
     private final Hashtable<String, Certificate[]> verifiedEntries =
             new Hashtable<String, Certificate[]>();
 
-    /** Whether or not to check certificate chain signatures. */
-    private final boolean chainCheck;
-
     /**
      * Stores and a hash and a message digest and verifies that massage digest
      * matches the hash.
@@ -150,27 +147,16 @@ class JarVerifier {
     }
 
     /**
-     * Convenience constructor for backward compatibility.
-     */
-    JarVerifier(String name, Manifest manifest, HashMap<String, byte[]> metaEntries) {
-        this(name, manifest, metaEntries, false);
-    }
-
-    /**
      * Constructs and returns a new instance of {@code JarVerifier}.
      *
      * @param name
      *            the name of the JAR file being verified.
-     * @param chainCheck
-     *            whether to check the certificate chain signatures
      */
-    JarVerifier(String name, Manifest manifest, HashMap<String, byte[]> metaEntries,
-            boolean chainCheck) {
+    JarVerifier(String name, Manifest manifest, HashMap<String, byte[]> metaEntries) {
         jarName = name;
         this.manifest = manifest;
         this.metaEntries = metaEntries;
         this.mainAttributesEnd = manifest.getMainAttributesEnd();
-        this.chainCheck = chainCheck;
     }
 
     /**
@@ -309,8 +295,14 @@ class JarVerifier {
         try {
             Certificate[] signerCertChain = JarUtils.verifySignature(
                     new ByteArrayInputStream(sfBytes),
-                    new ByteArrayInputStream(sBlockBytes),
-                    chainCheck);
+                    new ByteArrayInputStream(sBlockBytes));
+            /*
+             * Recursive call in loading security provider related class which
+             * is in a signed JAR.
+             */
+            if (metaEntries == null) {
+                return;
+            }
             if (signerCertChain != null) {
                 certificates.put(signatureFile, signerCertChain);
             }
