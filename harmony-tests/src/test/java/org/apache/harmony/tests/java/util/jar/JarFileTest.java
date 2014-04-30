@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.Permission;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -678,25 +679,36 @@ public class JarFileTest extends TestCase {
     public void testJarFile_Signed_ValidChain_NoCheck() throws Exception {
         Certificate[] certs = getSignedJarCerts(VALID_CHAIN_JAR, false);
         assertNotNull(certs);
-        assertEquals(Arrays.deepToString(certs), 2, certs.length);
+        assertEquals(Arrays.deepToString(certs), 3, certs.length);
+        assertEquals("CN=fake-chain", ((X509Certificate) certs[0]).getSubjectDN().toString());
+        assertEquals("CN=intermediate1", ((X509Certificate) certs[1]).getSubjectDN().toString());
+        assertEquals("CN=root1", ((X509Certificate) certs[2]).getSubjectDN().toString());
     }
 
     public void testJarFile_Signed_ValidChain_Check() throws Exception {
         Certificate[] certs = getSignedJarCerts(VALID_CHAIN_JAR, true);
         assertNotNull(certs);
-        assertEquals(Arrays.deepToString(certs), 2, certs.length);
+        assertEquals(Arrays.deepToString(certs), 3, certs.length);
+        assertEquals("CN=fake-chain", ((X509Certificate) certs[0]).getSubjectDN().toString());
+        assertEquals("CN=intermediate1", ((X509Certificate) certs[1]).getSubjectDN().toString());
+        assertEquals("CN=root1", ((X509Certificate) certs[2]).getSubjectDN().toString());
     }
 
     public void testJarFile_Signed_InvalidChain_NoCheck() throws Exception {
         Certificate[] certs = getSignedJarCerts(INVALID_CHAIN_JAR, false);
         assertNotNull(certs);
-        assertEquals(Arrays.deepToString(certs), 2, certs.length);
+        assertEquals(Arrays.deepToString(certs), 3, certs.length);
+        assertEquals("CN=fake-chain", ((X509Certificate) certs[0]).getSubjectDN().toString());
+        assertEquals("CN=intermediate1", ((X509Certificate) certs[1]).getSubjectDN().toString());
+        assertEquals("CN=root1", ((X509Certificate) certs[2]).getSubjectDN().toString());
     }
 
     public void testJarFile_Signed_InvalidChain_Check() throws Exception {
         Certificate[] certs = getSignedJarCerts(INVALID_CHAIN_JAR, true);
         assertNotNull(certs);
-        assertEquals(Arrays.deepToString(certs), 1, certs.length);
+        assertEquals(Arrays.deepToString(certs), 2, certs.length);
+        assertEquals("CN=fake-chain", ((X509Certificate) certs[0]).getSubjectDN().toString());
+        assertEquals("CN=intermediate1", ((X509Certificate) certs[1]).getSubjectDN().toString());
     }
 
     /*
