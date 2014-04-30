@@ -78,6 +78,9 @@ class JarVerifier {
 
     int mainAttributesEnd;
 
+    /** Whether or not to check certificate chain signatures. */
+    private final boolean chainCheck;
+
     /**
      * Stores and a hash and a message digest and verifies that massage digest
      * matches the hash.
@@ -147,13 +150,23 @@ class JarVerifier {
     }
 
     /**
+     * Convenience constructor for backward compatibility.
+     */
+    JarVerifier(String name) {
+        this(name, false);
+    }
+
+    /**
      * Constructs and returns a new instance of {@code JarVerifier}.
      *
      * @param name
      *            the name of the JAR file being verified.
+     * @param chainCheck
+     *            whether to check the certificate chain signatures
      */
-    JarVerifier(String name) {
+    JarVerifier(String name, boolean chainCheck) {
         jarName = name;
+        this.chainCheck = chainCheck;
     }
 
     /**
@@ -292,7 +305,8 @@ class JarVerifier {
         try {
             Certificate[] signerCertChain = JarUtils.verifySignature(
                     new ByteArrayInputStream(sfBytes),
-                    new ByteArrayInputStream(sBlockBytes));
+                    new ByteArrayInputStream(sBlockBytes),
+                    chainCheck);
             /*
              * Recursive call in loading security provider related class which
              * is in a signed JAR.
