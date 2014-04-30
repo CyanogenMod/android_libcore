@@ -184,19 +184,9 @@ public class JarFile extends ZipFile {
      *             If the file cannot be read.
      */
     public JarFile(File file, boolean verify, int mode) throws IOException {
-        this(file, verify, mode, false);
-    }
-
-    /**
-     * See previous constructor for other parameter definitions.
-     * @param chainCheck
-     *            whether or not to check certificate chain signatures
-     * @hide
-     */
-    public JarFile(File file, boolean verify, int mode, boolean chainCheck) throws IOException {
         super(file, mode);
         if (verify) {
-            verifier = new JarVerifier(file.getPath(), chainCheck);
+            verifier = new JarVerifier(file.getPath());
         }
         readMetaEntries();
     }
@@ -226,19 +216,9 @@ public class JarFile extends ZipFile {
      *             If file cannot be opened or read.
      */
     public JarFile(String filename, boolean verify) throws IOException {
-        this(filename, verify, false);
-    }
-
-    /**
-     * See previous constructor for other parameter definitions.
-     * @param chainCheck
-     *            whether or not to check certificate chain signatures
-     * @hide
-     */
-    public JarFile(String filename, boolean verify, boolean chainCheck) throws IOException {
         super(filename);
         if (verify) {
-            verifier = new JarVerifier(filename, chainCheck);
+            verifier = new JarVerifier(filename);
         }
         readMetaEntries();
     }
