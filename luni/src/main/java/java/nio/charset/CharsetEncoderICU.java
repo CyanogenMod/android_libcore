@@ -40,7 +40,7 @@ final class CharsetEncoderICU extends CharsetEncoder {
 
     private static final int INPUT_OFFSET = 0;
     private static final int OUTPUT_OFFSET = 1;
-    private static final int INVALID_CHAR_COUNT = 2;
+    private static final int INVALID_CHARS = 2;
     /*
      * data[INPUT_OFFSET]   = on input contains the start of input and on output the number of input chars consumed
      * data[OUTPUT_OFFSET]  = on input contains the start of output and on output the number of output bytes written
@@ -118,7 +118,7 @@ final class CharsetEncoderICU extends CharsetEncoder {
         NativeConverter.resetCharToByte(converterHandle);
         data[INPUT_OFFSET] = 0;
         data[OUTPUT_OFFSET] = 0;
-        data[INVALID_CHAR_COUNT] = 0;
+        data[INVALID_CHARS] = 0;
         output = null;
         input = null;
         allocatedInput = null;
@@ -135,15 +135,15 @@ final class CharsetEncoderICU extends CharsetEncoder {
             data[INPUT_OFFSET] = 0;
 
             data[OUTPUT_OFFSET] = getArray(out);
-            data[INVALID_CHAR_COUNT] = 0; // Make sure we don't see earlier errors.
+            data[INVALID_CHARS] = 0; // Make sure we don't see earlier errors.
 
             int error = NativeConverter.encode(converterHandle, input, inEnd, output, outEnd, data, true);
             if (ICU.U_FAILURE(error)) {
                 if (error == ICU.U_BUFFER_OVERFLOW_ERROR) {
                     return CoderResult.OVERFLOW;
                 } else if (error == ICU.U_TRUNCATED_CHAR_FOUND) {
-                    if (data[INVALID_CHAR_COUNT] > 0) {
-                        return CoderResult.malformedForLength(data[INVALID_CHAR_COUNT]);
+                    if (data[INPUT_OFFSET] > 0) {
+                        return CoderResult.malformedForLength(data[INPUT_OFFSET]);
                     }
                 }
             }
@@ -161,7 +161,7 @@ final class CharsetEncoderICU extends CharsetEncoder {
 
         data[INPUT_OFFSET] = getArray(in);
         data[OUTPUT_OFFSET]= getArray(out);
-        data[INVALID_CHAR_COUNT] = 0; // Make sure we don't see earlier errors.
+        data[INVALID_CHARS] = 0; // Make sure we don't see earlier errors.
 
         try {
             int error = NativeConverter.encode(converterHandle, input, inEnd, output, outEnd, data, false);
@@ -169,9 +169,9 @@ final class CharsetEncoderICU extends CharsetEncoder {
                 if (error == ICU.U_BUFFER_OVERFLOW_ERROR) {
                     return CoderResult.OVERFLOW;
                 } else if (error == ICU.U_INVALID_CHAR_FOUND) {
-                    return CoderResult.unmappableForLength(data[INVALID_CHAR_COUNT]);
+                    return CoderResult.unmappableForLength(data[INVALID_CHARS]);
                 } else if (error == ICU.U_ILLEGAL_CHAR_FOUND) {
-                    return CoderResult.malformedForLength(data[INVALID_CHAR_COUNT]);
+                    return CoderResult.malformedForLength(data[INVALID_CHARS]);
                 } else {
                     throw new AssertionError(error);
                 }
@@ -240,17 +240,7 @@ final class CharsetEncoderICU extends CharsetEncoder {
     }
 
     private void setPosition(CharBuffer in) {
-        int position = in.position() + data[INPUT_OFFSET] - data[INVALID_CHAR_COUNT];
-        if (position < 0) {
-            // The calculated position might be negative if we encountered an
-            // invalid char that spanned input buffers. We adjust it to 0 in this case.
-            //
-            // NOTE: The API doesn't allow us to adjust the position of the previous
-            // input buffer. (Doing that wouldn't serve any useful purpose anyway.)
-            position = 0;
-        }
-
-        in.position(position);
+        in.position(in.position() + data[INPUT_OFFSET] - data[INVALID_CHARS]);
         // release reference to input array, which may not be ours
         input = null;
     }

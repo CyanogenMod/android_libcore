@@ -16,7 +16,6 @@
 
 package org.apache.harmony.nio_char.tests.java.nio.charset;
 
-import junit.framework.TestCase;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -27,11 +26,13 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnmappableCharacterException;
 
+import junit.framework.TestCase;
+
 public class ASCIICharsetEncoderTest extends TestCase {
 
 	// charset for ascii
-	private final Charset cs = Charset.forName("ascii");
-    private final CharsetEncoder encoder = cs.newEncoder();
+	private static final Charset cs = Charset.forName("ascii");
+    private static final CharsetEncoder encoder = cs.newEncoder();
     private static final int MAXCODEPOINT = 0x7F;
 	/*
 	 * @see CharsetEncoderTest#setUp()
@@ -82,21 +83,15 @@ public class ASCIICharsetEncoderTest extends TestCase {
 		}
 		encoder.reset();
 		ByteBuffer out = ByteBuffer.allocate(10);
-		assertEquals(CoderResult.UNDERFLOW,
-                encoder.encode(CharBuffer.wrap("\ud800"), out, true));
-        assertTrue(encoder.flush(out).isMalformed());
+		assertTrue(encoder.encode(CharBuffer.wrap("\ud800"), out, true)
+				.isMalformed());
+		encoder.flush(out);
 		encoder.reset();
-
 		out = ByteBuffer.allocate(10);
-        CharBuffer buffer1 = CharBuffer.wrap("\ud800");
-        CharBuffer buffer2 = CharBuffer.wrap("\udc00");
-		assertSame(CoderResult.UNDERFLOW, encoder.encode(buffer1, out, false));
-        // We consume the entire input buffer because we're in an underflow
-        // state. We can't make a decision on whether the char in this buffer
-        // is unmappable or malformed without looking at the next input buffer.
-        assertEquals(1, buffer1.position());
-		assertTrue(encoder.encode(buffer2, out, true).isUnmappable());
-        assertEquals(0, buffer2.position());
+		assertSame(CoderResult.UNDERFLOW, encoder.encode(CharBuffer
+				.wrap("\ud800"), out, false));
+		assertTrue(encoder.encode(CharBuffer.wrap("\udc00"), out, true)
+				.isMalformed());
 	}
 
     public void testEncodeMapping() throws CharacterCodingException {
