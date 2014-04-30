@@ -16,6 +16,8 @@
 
 package android.system;
 
+import libcore.util.Objects;
+
 /**
  * File information returned by fstatvfs(2) and statvfs(2).
  *
@@ -69,5 +71,9 @@ public final class StructStatVfs {
     this.f_fsid = f_fsid;
     this.f_flag = f_flag;
     this.f_namemax = f_namemax;
+  }
+
+  @Override public String toString() {
+    return Objects.toString(this);
   }
 }

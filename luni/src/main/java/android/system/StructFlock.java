@@ -16,6 +16,8 @@
 
 package android.system;
 
+import libcore.util.Objects;
+
 /**
  * Information returned/taken by fcntl(2) F_GETFL and F_SETFL. Corresponds to C's
  * {@code struct flock} from
@@ -24,18 +26,22 @@ package android.system;
  * @hide
  */
 public final class StructFlock {
-    /** The operation type, one of F_RDLCK, F_WRLCK, or F_UNLCK. */
-    public short l_type;
+  /** The operation type, one of F_RDLCK, F_WRLCK, or F_UNLCK. */
+  public short l_type;
 
-    /** How to interpret l_start, one of SEEK_CUR, SEEK_END, SEEK_SET. */
-    public short l_whence;
+  /** How to interpret l_start, one of SEEK_CUR, SEEK_END, SEEK_SET. */
+  public short l_whence;
 
-    /** Start offset. */
-    public long l_start; /*off_t*/
+  /** Start offset. */
+  public long l_start; /*off_t*/
 
-    /** Byte count to operate on. */
-    public long l_len; /*off_t*/
+  /** Byte count to operate on. */
+  public long l_len; /*off_t*/
 
-    /** Process blocking our lock (filled in by F_GETLK, otherwise unused). */
-    public int l_pid; /*pid_t*/
+  /** Process blocking our lock (filled in by F_GETLK, otherwise unused). */
+  public int l_pid; /*pid_t*/
+
+  @Override public String toString() {
+    return Objects.toString(this);
+  }
 }

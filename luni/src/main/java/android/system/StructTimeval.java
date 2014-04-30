@@ -16,6 +16,8 @@
 
 package android.system;
 
+import libcore.util.Objects;
+
 /**
  * Corresponds to C's {@code struct timeval} from
  * <a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/sys_time.h.html">&lt;sys/time.h&gt;</a>
@@ -34,7 +36,6 @@ public final class StructTimeval {
     this.tv_usec = tv_usec;
   }
 
-
   public static StructTimeval fromMillis(long millis) {
     long tv_sec = millis / 1000;
     long tv_usec = (millis - (tv_sec * 1000)) * 1000;
@@ -46,6 +47,6 @@ public final class StructTimeval {
   }
 
   @Override public String toString() {
-    return "StructTimeval[tv_sec=" + tv_sec + ",tv_usec=" + tv_usec + "]";
+    return Objects.toString(this);
   }
 }
