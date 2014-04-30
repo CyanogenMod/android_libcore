@@ -17,6 +17,7 @@
 package android.system;
 
 import java.net.InetAddress;
+import libcore.util.Objects;
 
 /**
  * Corresponds to C's {@code struct group_req}.
@@ -24,15 +25,15 @@ import java.net.InetAddress;
  * @hide
  */
 public final class StructGroupReq {
-    public final int gr_interface;
-    public final InetAddress gr_group;
+  public final int gr_interface;
+  public final InetAddress gr_group;
 
-    public StructGroupReq(int gr_interface, InetAddress gr_group) {
-        this.gr_interface = gr_interface;
-        this.gr_group = gr_group;
-    }
+  public StructGroupReq(int gr_interface, InetAddress gr_group) {
+    this.gr_interface = gr_interface;
+    this.gr_group = gr_group;
+  }
 
-    @Override public String toString() {
-        return "StructGroupReq[gr_interface=" + gr_interface + ",gr_group=" + gr_group + "]";
-    }
+  @Override public String toString() {
+    return Objects.toString(this);
+  }
 }

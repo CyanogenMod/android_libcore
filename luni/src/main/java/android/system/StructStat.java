@@ -16,6 +16,8 @@
 
 package android.system;
 
+import libcore.util.Objects;
+
 /**
  * File information returned by fstat(2), lstat(2), and stat(2). Corresponds to C's
  * {@code struct stat} from
@@ -88,5 +90,9 @@ public final class StructStat {
     this.st_ctime = st_ctime;
     this.st_blksize = st_blksize;
     this.st_blocks = st_blocks;
+  }
+
+  @Override public String toString() {
+    return Objects.toString(this);
   }
 }
