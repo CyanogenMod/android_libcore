@@ -16,6 +16,8 @@
 
 package android.system;
 
+import libcore.util.Objects;
+
 /**
  * Corresponds to C's {@code struct ucred}.
  *
@@ -38,6 +40,6 @@ public final class StructUcred {
   }
 
   @Override public String toString() {
-    return "StructUcred[pid=" + pid + ",uid=" + uid + ",gid=" + gid + "]";
+    return Objects.toString(this);
   }
 }
