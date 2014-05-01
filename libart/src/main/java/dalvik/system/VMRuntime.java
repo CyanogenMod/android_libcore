@@ -16,6 +16,9 @@
 
 package dalvik.system;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Provides an interface to VM-global, Dalvik-specific features.
  * An application cannot create its own Runtime instance, and must obtain
@@ -29,6 +32,17 @@ public final class VMRuntime {
      * Holds the VMRuntime singleton.
      */
     private static final VMRuntime THE_ONE = new VMRuntime();
+
+    private static final Map<String, String> ABI_TO_INSTRUCTION_SET_MAP
+            = new HashMap<String, String>();
+    static {
+        ABI_TO_INSTRUCTION_SET_MAP.put("armeabi", "arm");
+        ABI_TO_INSTRUCTION_SET_MAP.put("armeabi-v7a", "arm");
+        ABI_TO_INSTRUCTION_SET_MAP.put("mips", "mips");
+        ABI_TO_INSTRUCTION_SET_MAP.put("x86", "x86");
+        ABI_TO_INSTRUCTION_SET_MAP.put("x86_64", "x86_64");
+        ABI_TO_INSTRUCTION_SET_MAP.put("arm64-v8a", "arm64");
+    }
 
     private int targetSdkVersion;
 
@@ -280,4 +294,20 @@ public final class VMRuntime {
      * Register application info
      */
     public static native void registerAppInfo(String appDir, String processName, String pkgname);
+
+    /**
+     * Returns the runtime instruction set corresponding to a given ABI. Multiple
+     * compatible ABIs might map to the same instruction set. For example
+     * {@code armeabi-v7a} and {@code armeabi} might map to the instruction set {@code arm}.
+     *
+     * This influences the compilation of the applications classes.
+     */
+    public static String getInstructionSet(String abi) {
+        final String instructionSet = ABI_TO_INSTRUCTION_SET_MAP.get(abi);
+        if (instructionSet == null) {
+            throw new IllegalArgumentException("Unsupported ABI: " + abi);
+        }
+
+        return instructionSet;
+    }
 }
