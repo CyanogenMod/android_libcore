@@ -146,9 +146,6 @@ public class Object {
      * Constructs a new instance of {@code Object}.
      */
     public Object() {
-      if (shadow$_klass_.isFinalizable()) {
-        java.lang.ref.FinalizerReference.add(this);
-      }
     }
 
     /**
