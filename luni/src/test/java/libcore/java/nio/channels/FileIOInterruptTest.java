@@ -690,7 +690,6 @@ public class FileIOInterruptTest extends TestCase {
     try {
       thread.join(5000);
     } catch (InterruptedException ignored) {
-      ignored.printStackTrace();
     }
 
     if (thread.isAlive()) {
