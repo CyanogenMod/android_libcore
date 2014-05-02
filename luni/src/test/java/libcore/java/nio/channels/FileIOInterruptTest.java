@@ -17,7 +17,6 @@ package libcore.java.nio.channels;
 
 import junit.framework.TestCase;
 
-import android.system.ErrnoException;
 import android.system.OsConstants;
 import java.io.File;
 import java.io.FileInputStream;
@@ -90,6 +89,9 @@ public class FileIOInterruptTest extends TestCase {
     super.tearDown();
     fifoFile.delete();
     VOGAR_DEVICE_TEMP_DIR.delete();
+
+    // Clear the interrupted state, if set.
+    Thread.interrupted();
   }
 
   public void testStreamRead_exceptionWhenAlreadyClosed() throws Exception {
@@ -208,6 +210,43 @@ public class FileIOInterruptTest extends TestCase {
     fifoWriter.tidyUp();
   }
 
+  public void testChannelRead_exceptionWhenAlreadyInterrupted() throws Exception {
+    testChannelRead_exceptionWhenAlreadyInterrupted(ChannelReader.Method.READ);
+  }
+
+  public void testChannelReadV_exceptionWhenAlreadyInterrupted() throws Exception {
+    testChannelRead_exceptionWhenAlreadyInterrupted(ChannelReader.Method.READV);
+  }
+
+  private void testChannelRead_exceptionWhenAlreadyInterrupted(ChannelReader.Method method)
+      throws Exception {
+    FifoWriter fifoWriter = new FifoWriter(fifoFile);
+    fifoWriter.start();
+    FileInputStream fis = new FileInputStream(fifoFile);
+    FileChannel fileInputChannel = fis.getChannel();
+
+    Thread.currentThread().interrupt();
+
+    ByteBuffer buffer = ByteBuffer.allocateDirect(10);
+    try {
+      if (method == ChannelReader.Method.READ) {
+        fileInputChannel.read(buffer);
+      } else {
+        ByteBuffer buffer2 = ByteBuffer.allocateDirect(10);
+        fileInputChannel.read(new ByteBuffer[] { buffer, buffer2});
+      }
+      fail();
+    } catch (IOException expected) {
+      assertSame(ClosedByInterruptException.class, expected.getClass());
+    }
+
+    // Check but also clear the interrupted status, so we can wait for the FifoWriter thread in
+    // tidyUp().
+    assertTrue(Thread.interrupted());
+
+    fifoWriter.tidyUp();
+  }
+
   public void testChannelRead_exceptionOnCloseWhenBlocked() throws Exception {
     testChannelRead_exceptionOnCloseWhenBlocked(ChannelReader.Method.READ);
   }
@@ -299,6 +338,43 @@ public class FileIOInterruptTest extends TestCase {
     } catch (IOException expected) {
       assertSame(ClosedChannelException.class, expected.getClass());
     }
+
+    fifoReader.tidyUp();
+  }
+
+  public void testChannelWrite_exceptionWhenAlreadyInterrupted() throws Exception {
+    testChannelWrite_exceptionWhenAlreadyInterrupted(ChannelWriter.Method.WRITE);
+  }
+
+  public void testChannelWriteV_exceptionWhenAlreadyInterrupted() throws Exception {
+    testChannelWrite_exceptionWhenAlreadyInterrupted(ChannelWriter.Method.WRITEV);
+  }
+
+  private void testChannelWrite_exceptionWhenAlreadyInterrupted(ChannelWriter.Method method)
+      throws Exception {
+    FifoReader fifoReader = new FifoReader(fifoFile);
+    fifoReader.start();
+    FileOutputStream fos = new FileOutputStream(fifoFile);
+    FileChannel fileInputChannel = fos.getChannel();
+
+    Thread.currentThread().interrupt();
+
+    ByteBuffer buffer = ByteBuffer.allocateDirect(10);
+    try {
+      if (method == ChannelWriter.Method.WRITE) {
+        fileInputChannel.write(buffer);
+      } else {
+        ByteBuffer buffer2 = ByteBuffer.allocateDirect(10);
+        fileInputChannel.write(new ByteBuffer[] { buffer, buffer2 });
+      }
+      fail();
+    } catch (IOException expected) {
+      assertSame(ClosedByInterruptException.class, expected.getClass());
+    }
+
+    // Check but also clear the interrupted status, so we can wait for the FifoReader thread in
+    // tidyUp().
+    assertTrue(Thread.interrupted());
 
     fifoReader.tidyUp();
   }
@@ -608,9 +684,13 @@ public class FileIOInterruptTest extends TestCase {
   }
 
   private static void waitToDie(Thread thread) {
+    // Protect against this thread already being interrupted, which would prevent the test waiting
+    // for the requested time.
+    assertFalse(Thread.currentThread().isInterrupted());
     try {
       thread.join(5000);
     } catch (InterruptedException ignored) {
+      ignored.printStackTrace();
     }
 
     if (thread.isAlive()) {
@@ -619,6 +699,8 @@ public class FileIOInterruptTest extends TestCase {
   }
 
   private static void delay(int millis) {
+    // Protect against this thread being interrupted, which would prevent us waiting.
+    assertFalse(Thread.currentThread().isInterrupted());
     try {
       Thread.sleep(millis);
     } catch (InterruptedException ignored) {
