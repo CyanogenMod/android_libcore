@@ -21,9 +21,7 @@ import com.google.mockwebserver.MockResponse;
 import com.google.mockwebserver.MockWebServer;
 import com.google.mockwebserver.RecordedRequest;
 import com.google.mockwebserver.SocketPolicy;
-import dalvik.system.CloseGuard;
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +29,6 @@ import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.CacheRequest;
 import java.net.CacheResponse;
-import java.net.ConnectException;
 import java.net.HttpRetryException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -68,9 +65,8 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import junit.framework.TestCase;
-import libcore.java.lang.ref.FinalizationTester;
 import libcore.java.security.TestKeyStore;
+import libcore.java.util.AbstractResourceLeakageDetectorTestCase;
 import libcore.javax.net.ssl.TestSSLContext;
 import tests.net.StuckServer;
 
@@ -80,7 +76,8 @@ import static com.google.mockwebserver.SocketPolicy.FAIL_HANDSHAKE;
 import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_INPUT_AT_END;
 import static com.google.mockwebserver.SocketPolicy.SHUTDOWN_OUTPUT_AT_END;
 
-public final class URLConnectionTest extends TestCase {
+public final class URLConnectionTest extends AbstractResourceLeakageDetectorTestCase {
+
     private MockWebServer server;
     private HttpResponseCache cache;
     private String hostName;
@@ -101,8 +98,10 @@ public final class URLConnectionTest extends TestCase {
         System.clearProperty("https.proxyHost");
         System.clearProperty("https.proxyPort");
         server.shutdown();
+        server = null;
         if (cache != null) {
             cache.delete();
+            cache = null;
         }
         super.tearDown();
     }
@@ -797,47 +796,17 @@ public final class URLConnectionTest extends TestCase {
     }
 
     public void testDisconnectAfterOnlyResponseCodeCausesNoCloseGuardWarning() throws IOException {
-        CloseGuardGuard guard = new CloseGuardGuard();
+        server.enqueue(new MockResponse()
+                .setBody(gzip("ABCABCABC".getBytes("UTF-8")))
+                .addHeader("Content-Encoding: gzip"));
+        server.play();
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
         try {
-            server.enqueue(new MockResponse()
-                           .setBody(gzip("ABCABCABC".getBytes("UTF-8")))
-                           .addHeader("Content-Encoding: gzip"));
-            server.play();
-
-            HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
             assertEquals(200, connection.getResponseCode());
-            connection.disconnect();
-            connection = null;
-            assertFalse(guard.wasCloseGuardCalled());
         } finally {
-            guard.close();
+            connection.disconnect();
         }
-    }
-
-    public static class CloseGuardGuard implements Closeable, CloseGuard.Reporter  {
-        private final CloseGuard.Reporter oldReporter = CloseGuard.getReporter();
-
-        private AtomicBoolean closeGuardCalled = new AtomicBoolean();
-
-        public CloseGuardGuard() {
-            CloseGuard.setReporter(this);
-        }
-
-        @Override public void report(String message, Throwable allocationSite) {
-            oldReporter.report(message, allocationSite);
-            closeGuardCalled.set(true);
-        }
-
-        public boolean wasCloseGuardCalled() {
-            FinalizationTester.induceFinalization();
-            close();
-            return closeGuardCalled.get();
-        }
-
-        @Override public void close() {
-            CloseGuard.setReporter(oldReporter);
-        }
-
     }
 
     public void testDefaultRequestProperty() throws Exception {
@@ -2272,11 +2241,15 @@ public final class URLConnectionTest extends TestCase {
         HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
         connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
         connection.connect();
-        assertNotNull(connection.getHostnameVerifier());
-        assertNull(connection.getLocalCertificates());
-        assertNotNull(connection.getServerCertificates());
-        assertNotNull(connection.getCipherSuite());
-        assertNotNull(connection.getPeerPrincipal());
+        try {
+            assertNotNull(connection.getHostnameVerifier());
+            assertNull(connection.getLocalCertificates());
+            assertNotNull(connection.getServerCertificates());
+            assertNotNull(connection.getCipherSuite());
+            assertNotNull(connection.getPeerPrincipal());
+        } finally {
+            connection.disconnect();
+        }
     }
 
     /**

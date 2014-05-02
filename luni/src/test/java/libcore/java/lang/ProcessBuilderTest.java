@@ -22,10 +22,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import libcore.dalvik.system.CloseGuardTester;
+import libcore.java.util.AbstractResourceLeakageDetectorTestCase;
 import static tests.support.Support_Exec.execAndCheckOutput;
 
-public class ProcessBuilderTest extends junit.framework.TestCase {
+public class ProcessBuilderTest extends AbstractResourceLeakageDetectorTestCase {
 
     private static String shell() {
         String deviceSh = "/system/bin/sh";
@@ -84,14 +84,8 @@ public class ProcessBuilderTest extends junit.framework.TestCase {
     }
 
     public void testDestroyDoesNotLeak() throws IOException {
-        CloseGuardTester closeGuardTester = new CloseGuardTester();
-        try {
-            Process process = new ProcessBuilder(shell(), "-c", "echo out; echo err 1>&2").start();
-            process.destroy();
-            closeGuardTester.assertEverythingWasClosed();
-        } finally {
-            closeGuardTester.close();
-        }
+        Process process = new ProcessBuilder(shell(), "-c", "echo out; echo err 1>&2").start();
+        process.destroy();
     }
 
     public void testEnvironmentMapForbidsNulls() throws Exception {
