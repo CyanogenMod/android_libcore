@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import libcore.io.BufferIterator;
 import libcore.io.HeapBufferIterator;
+import libcore.io.IoUtils;
 import libcore.io.Streams;
 
 /**
@@ -199,7 +200,19 @@ public class ZipFile implements Closeable, ZipConstants {
 
         raf = new RandomAccessFile(filename, "r");
 
-        readCentralDir();
+        // Make sure to close the RandomAccessFile if reading the central directory fails.
+        boolean mustCloseFile = true;
+        try {
+            readCentralDir();
+
+            // Read succeeded so do not close the underlying RandomAccessFile.
+            mustCloseFile = false;
+        } finally {
+            if (mustCloseFile) {
+                IoUtils.closeQuietly(raf);
+            }
+        }
+
         guard.open("close");
     }
 
