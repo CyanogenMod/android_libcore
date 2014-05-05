@@ -110,16 +110,16 @@ public class SSLEngineResult {
     public SSLEngineResult(SSLEngineResult.Status status,
             SSLEngineResult.HandshakeStatus handshakeStatus, int bytesConsumed, int bytesProduced) {
         if (status == null) {
-            throw new IllegalArgumentException("status is null");
+            throw new IllegalArgumentException("status == null");
         }
         if (handshakeStatus == null) {
-            throw new IllegalArgumentException("handshakeStatus is null");
+            throw new IllegalArgumentException("handshakeStatus == null");
         }
         if (bytesConsumed < 0) {
-            throw new IllegalArgumentException("bytesConsumed is negative");
+            throw new IllegalArgumentException("bytesConsumed < 0: " + bytesConsumed);
         }
         if (bytesProduced < 0) {
-            throw new IllegalArgumentException("bytesProduced is negative");
+            throw new IllegalArgumentException("bytesProduced < 0: " + bytesProduced);
         }
         this.status = status;
         this.handshakeStatus = handshakeStatus;
