@@ -20,8 +20,7 @@ import java.util.Locale;
 
 public class AlphabeticIndexTest extends junit.framework.TestCase {
   private static AlphabeticIndex.ImmutableIndex createIndex(Locale locale) {
-    return new AlphabeticIndex(locale).addLabels(Locale.US)
-        .getImmutableIndex();
+    return new AlphabeticIndex(locale).addLabels(Locale.US).getImmutableIndex();
   }
 
   private static void assertHasLabel(AlphabeticIndex.ImmutableIndex ii, String string, String expectedLabel) {
@@ -111,8 +110,8 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
     // German: [A-Z] (no ß or umlauted characters in standard alphabet)
     AlphabeticIndex.ImmutableIndex de = createIndex(Locale.GERMAN);
     assertHasLabel(de, "ßind", "S");
+    // We no longer split out "S", "Sch", and "St".
     assertHasLabel(de, "Sacher", "S");
-    // "Sch" and "St" are also options for lists by last name.
     assertHasLabel(de, "Schiller", "S");
     assertHasLabel(de, "Steiff", "S");
   }
@@ -141,14 +140,19 @@ public class AlphabeticIndexTest extends junit.framework.TestCase {
 
   public void test_zh_CN() throws Exception {
     // Simplified Chinese (default collator Pinyin): [A-Z]
-    // Shen/Chen (simplified): should be, usually, 'S' for name collator and 'C' for apps/other
     AlphabeticIndex.ImmutableIndex zh_CN = createIndex(new Locale("zh", "CN"));
 
     // Jia/Gu: should be, usually, 'J' for name collator and 'G' for apps/other
     assertHasLabel(zh_CN, "\u8d3e", "J");
 
-    // Shen/Chen
-    assertHasLabel(zh_CN, "\u6c88", "C"); // icu4c 50 does not specialize for names.
+    // Shen/Chen (simplified): should usually be 'S' for names and 'C' for apps/other.
+    // icu4c does not specialize for names and defaults to 'C'.
+    // Some OEMs prefer to default to 'S'.
+    // We allow either to pass CTS since neither choice is right all the time.
+    // assertHasLabel(zh_CN, "\u6c88", "C");
+    String shenChenLabel = zh_CN.getBucketLabel(zh_CN.getBucketIndex("\u6c88"));
+    assertTrue(shenChenLabel.equals("C") || shenChenLabel.equals("S"));
+
     // Shen/Chen (traditional)
     assertHasLabel(zh_CN, "\u700b", "S");
   }
