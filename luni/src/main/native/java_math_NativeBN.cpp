@@ -212,7 +212,7 @@ static void NativeBN_litEndInts2bn(JNIEnv* env, jclass, jintArray arr, int len, 
 #else
       int i = len; do { i--; ret->d[i] = tmpInts[i]; } while (i > 0);
 #endif
-      ret->top = len;
+      ret->top = wlen;
       ret->neg = neg;
       // need to call this due to clear byte at top if avoiding
       // having the top bit set (-ve number)
