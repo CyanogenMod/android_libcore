@@ -19,9 +19,8 @@ package android.system;
 import libcore.util.Objects;
 
 /**
- * Information returned by getpwnam(3) and getpwuid(3). Corresponds to C's
- * {@code struct passwd} from
- * <a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/pwd.h.html">&lt;pwd.h&gt;</a>
+ * Information returned by {@link Os#getpwnam} and {@link Os#getpwuid}. Corresponds to C's
+ * {@code struct passwd} from {@code &lt;pwd.h&gt;}.
  *
  * @hide
  */
@@ -32,6 +31,9 @@ public final class StructPasswd {
   public final String pw_dir;
   public final String pw_shell;
 
+  /**
+   * Constructs an instance with the given field values.
+   */
   public StructPasswd(String pw_name, int pw_uid, int pw_gid, String pw_dir, String pw_shell) {
     this.pw_name = pw_name;
     this.pw_uid = pw_uid;

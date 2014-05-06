@@ -20,8 +20,8 @@ import java.io.FileDescriptor;
 import libcore.util.Objects;
 
 /**
- * Corresponds to C's {@code struct pollfd} from
- * <a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/poll.h.html">&lt;poll.h&gt;</a>
+ * Used as an in/out parameter to {@link Os#poll}.
+ * Corresponds to C's {@code struct pollfd} from {@code &lt;poll.h&gt;}.
  *
  * @hide
  */

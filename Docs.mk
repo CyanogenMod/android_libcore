@@ -19,6 +19,7 @@ libcore_to_document := \
    json/src/main/java \
    libdvm/src/main/java/dalvik \
    libdvm/src/main/java/java \
+   luni/src/main/java/android \
    luni/src/main/java/java \
    luni/src/main/java/javax \
    luni/src/main/java/org/xml/sax \
