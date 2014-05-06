@@ -23,6 +23,7 @@
 package org.apache.harmony.security.x509;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 import org.apache.harmony.security.asn1.ASN1Boolean;
 import org.apache.harmony.security.asn1.ASN1OctetString;
@@ -49,7 +50,7 @@ import org.apache.harmony.security.utils.Array;
  *  }
  * </pre>
  */
-public final class Extension {
+public final class Extension implements java.security.cert.Extension {
     // critical constants
     public static final boolean CRITICAL = true;
     public static final boolean NON_CRITICAL = false;
@@ -145,7 +146,8 @@ public final class Extension {
     /**
      * Returns the value of extnID field of the structure.
      */
-    public String getExtnID() {
+    @Override
+    public String getId() {
         if (extnID_str == null) {
             extnID_str = ObjectIdentifier.toString(extnID);
         }
@@ -155,14 +157,16 @@ public final class Extension {
     /**
      * Returns the value of critical field of the structure.
      */
-    public boolean getCritical() {
+    @Override
+    public boolean isCritical() {
         return critical;
     }
 
     /**
      * Returns the value of extnValue field of the structure.
      */
-    public byte[] getExtnValue() {
+    @Override
+    public byte[] getValue() {
         return extnValue;
     }
 
@@ -185,6 +189,11 @@ public final class Extension {
             encoding = Extension.ASN1.encode(this);
         }
         return encoding;
+    }
+
+    @Override
+    public void encode(OutputStream out) throws IOException {
+        out.write(getEncoded());
     }
 
     @Override public boolean equals(Object ext) {
@@ -287,7 +296,7 @@ public final class Extension {
     }
 
     public void dumpValue(StringBuilder sb, String prefix) {
-        sb.append("OID: ").append(getExtnID()).append(", Critical: ").append(critical).append('\n');
+        sb.append("OID: ").append(getId()).append(", Critical: ").append(critical).append('\n');
         if (!valueDecoded) {
             try {
                 decodeExtensionValue();
