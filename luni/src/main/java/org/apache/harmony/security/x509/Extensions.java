@@ -136,8 +136,8 @@ public final class Extensions {
         Set<String> localNoncritical = new HashSet<String>(size);
         Boolean localHasUnsupported = Boolean.FALSE;
         for (Extension extension : extensions) {
-            String oid = extension.getExtnID();
-            if (extension.getCritical()) {
+            String oid = extension.getId();
+            if (extension.isCritical()) {
                 if (!SUPPORTED_CRITICAL.contains(oid)) {
                     localHasUnsupported = Boolean.TRUE;
                 }
@@ -162,7 +162,7 @@ public final class Extensions {
         if (localOidMap == null) {
             localOidMap = new HashMap<String, Extension>();
             for (Extension extension : extensions) {
-                localOidMap.put(extension.getExtnID(), extension);
+                localOidMap.put(extension.getId(), extension);
             }
             this.oidMap = localOidMap;
         }
@@ -311,7 +311,7 @@ public final class Extensions {
         }
 
         Collection<List<?>> collection = ((GeneralNames) GeneralNames.ASN1.decode(extension
-                .getExtnValue())).getPairsList();
+                .getValue())).getPairsList();
 
         /*
          * If the extension had any invalid entries, we may have an empty
