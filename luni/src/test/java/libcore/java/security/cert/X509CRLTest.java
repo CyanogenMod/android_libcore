@@ -30,6 +30,7 @@ import java.security.Provider;
 import java.security.Security;
 import java.security.SignatureException;
 import java.security.cert.CRL;
+import java.security.cert.CRLReason;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
@@ -342,6 +343,7 @@ public class X509CRLTest extends TestCase {
 
         assertEquals(rsaCert.getSerialNumber(), rsaEntry.getSerialNumber());
         assertDateSlightlyBefore(expectedDate, rsaEntry.getRevocationDate());
+        assertNull(rsaEntry.getRevocationReason());
         assertNull(rsaEntry.getCertificateIssuer());
         assertFalse(rsaEntry.hasExtensions());
         assertNull(rsaEntry.getCriticalExtensionOIDs());
@@ -359,12 +361,16 @@ public class X509CRLTest extends TestCase {
 
         assertEquals(dsaCert.getSerialNumber(), dsaEntry.getSerialNumber());
         assertDateSlightlyBefore(expectedDate, dsaEntry.getRevocationDate());
+        assertEquals(CRLReason.CESSATION_OF_OPERATION, dsaEntry.getRevocationReason());
         assertNull(dsaEntry.getCertificateIssuer());
         assertTrue(dsaEntry.hasExtensions());
-        /* TODO: get the OID */
         assertNotNull(dsaEntry.getCriticalExtensionOIDs());
-        /* TODO: get the OID */
+        assertEquals(0, dsaEntry.getCriticalExtensionOIDs().size());
         assertNotNull(dsaEntry.getNonCriticalExtensionOIDs());
+        assertEquals(1, dsaEntry.getNonCriticalExtensionOIDs().size());
+        assertTrue(Arrays.toString(dsaEntry.getNonCriticalExtensionOIDs().toArray()),
+                dsaEntry.getNonCriticalExtensionOIDs().contains("2.5.29.21"));
+        System.out.println(Arrays.toString(dsaEntry.getExtensionValue("2.5.29.21")));
 
         assertNotNull(dsaEntry.toString());
     }

@@ -18,6 +18,7 @@
 package org.apache.harmony.security.x509;
 
 import java.io.IOException;
+import java.security.cert.CRLReason;
 import org.apache.harmony.security.asn1.ASN1Enumerated;
 import org.apache.harmony.security.asn1.ASN1Type;
 
@@ -69,6 +70,14 @@ public final class ReasonCode extends ExtensionValue {
             encoding = ASN1.encode(new byte[] { code });
         }
         return encoding;
+    }
+
+    public CRLReason getReason() {
+        CRLReason[] values = CRLReason.values();
+        if (code < 0 || code > values.length) {
+            return null;
+        }
+        return values[code];
     }
 
     @Override public void dumpValue(StringBuilder sb, String prefix) {
