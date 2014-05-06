@@ -882,7 +882,7 @@ public final class Dex {
         /**
          * Returns the number of bytes used by this section.
          */
-        public int used () {
+        public int used() {
             return data.position() - initialPosition;
         }
     }
@@ -896,7 +896,7 @@ public final class Dex {
         @Override public int size() {
             return tableOfContents.stringIds.size;
         }
-    };
+    }
 
     private final class TypeIndexToDescriptorIndexTable extends AbstractList<Integer>
             implements RandomAccess {
@@ -906,7 +906,7 @@ public final class Dex {
         @Override public int size() {
             return tableOfContents.typeIds.size;
         }
-    };
+    }
 
     private final class TypeIndexToDescriptorTable extends AbstractList<String>
             implements RandomAccess {
@@ -916,7 +916,7 @@ public final class Dex {
         @Override public int size() {
             return tableOfContents.typeIds.size;
         }
-    };
+    }
 
     private final class ProtoIdTable extends AbstractList<ProtoId> implements RandomAccess {
         @Override public ProtoId get(int index) {
@@ -927,7 +927,7 @@ public final class Dex {
         @Override public int size() {
             return tableOfContents.protoIds.size;
         }
-    };
+    }
 
     private final class FieldIdTable extends AbstractList<FieldId> implements RandomAccess {
         @Override public FieldId get(int index) {
@@ -938,7 +938,7 @@ public final class Dex {
         @Override public int size() {
             return tableOfContents.fieldIds.size;
         }
-    };
+    }
 
     private final class MethodIdTable extends AbstractList<MethodId> implements RandomAccess {
         @Override public MethodId get(int index) {
@@ -949,7 +949,7 @@ public final class Dex {
         @Override public int size() {
             return tableOfContents.methodIds.size;
         }
-    };
+    }
 
     private final class ClassDefIterator implements Iterator<ClassDef> {
         private final Dex.Section in = open(tableOfContents.classDefs.off);
@@ -971,7 +971,7 @@ public final class Dex {
             public void remove() {
             throw new UnsupportedOperationException();
         }
-    };
+    }
 
     private final class ClassDefIterable implements Iterable<ClassDef> {
         public Iterator<ClassDef> iterator() {
@@ -979,5 +979,5 @@ public final class Dex {
                ? Collections.<ClassDef>emptySet().iterator()
                : new ClassDefIterator();
         }
-    };
+    }
 }
