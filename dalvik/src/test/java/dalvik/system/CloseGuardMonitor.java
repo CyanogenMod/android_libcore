@@ -47,7 +47,7 @@ public class CloseGuardMonitor implements Runnable {
    * <p>Is thread safe as this will be called during finalization and so there are no guarantees
    * as to whether it will be called concurrently or not.
    */
-  private final List<Throwable> closeGuardAllocationSites = new CopyOnWriteArrayList<Throwable>();
+  private final List<Throwable> closeGuardAllocationSites = new CopyOnWriteArrayList<>();
 
   /**
    * Default constructor required for reflection.
@@ -75,7 +75,7 @@ public class CloseGuardMonitor implements Runnable {
   @Override
   public void run() {
     // Create a weak reference to an object so that we can detect when it is garbage collected.
-    WeakReference<Object> reference = new WeakReference<Object>(new Object());
+    WeakReference<Object> reference = new WeakReference<>(new Object());
 
     try {
       // 'Force' a GC and finalize to cause CloseGuards to report warnings. Doesn't loop
