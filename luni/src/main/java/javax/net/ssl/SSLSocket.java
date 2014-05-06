@@ -865,7 +865,6 @@ public abstract class SSLSocket extends Socket {
      *
      * @return the session object.
      * @since 1.7
-     * @hide
      */
     public SSLSession getHandshakeSession() {
         throw new UnsupportedOperationException();

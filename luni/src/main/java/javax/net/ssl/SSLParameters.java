@@ -146,7 +146,6 @@ public class SSLParameters {
      *
      * @see #setEndpointIdentificationAlgorithm(String)
      * @since 1.7
-     * @hide
      */
     public String getEndpointIdentificationAlgorithm() {
         return endpointIdentificationAlgorithm;
@@ -158,7 +157,6 @@ public class SSLParameters {
      *
      * @see #getEndpointIdentificationAlgorithm()
      * @since 1.7
-     * @hide
      */
     public void setEndpointIdentificationAlgorithm(String endpointIdentificationAlgorithm) {
         this.endpointIdentificationAlgorithm = endpointIdentificationAlgorithm;
