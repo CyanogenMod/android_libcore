@@ -17,25 +17,81 @@
 package android.system;
 
 /**
+ * Constants and helper functions for use with {@link Os}.
  * @hide
  */
 public final class OsConstants {
-    private OsConstants() { }
+    private OsConstants() {
+    }
 
+    /**
+     * Tests whether the given mode is a block device.
+     */
     public static boolean S_ISBLK(int mode) { return (mode & S_IFMT) == S_IFBLK; }
+
+    /**
+     * Tests whether the given mode is a character device.
+     */
     public static boolean S_ISCHR(int mode) { return (mode & S_IFMT) == S_IFCHR; }
+
+    /**
+     * Tests whether the given mode is a directory.
+     */
     public static boolean S_ISDIR(int mode) { return (mode & S_IFMT) == S_IFDIR; }
+
+    /**
+     * Tests whether the given mode is a FIFO.
+     */
     public static boolean S_ISFIFO(int mode) { return (mode & S_IFMT) == S_IFIFO; }
+
+    /**
+     * Tests whether the given mode is a regular file.
+     */
     public static boolean S_ISREG(int mode) { return (mode & S_IFMT) == S_IFREG; }
+
+    /**
+     * Tests whether the given mode is a symbolic link.
+     */
     public static boolean S_ISLNK(int mode) { return (mode & S_IFMT) == S_IFLNK; }
+
+    /**
+     * Tests whether the given mode is a socket.
+     */
     public static boolean S_ISSOCK(int mode) { return (mode & S_IFMT) == S_IFSOCK; }
 
+    /**
+     * Extracts the exit status of a child. Only valid if WIFEXITED returns true.
+     */
     public static int WEXITSTATUS(int status) { return (status & 0xff00) >> 8; }
+
+    /**
+     * Tests whether the child dumped core. Only valid if WIFSIGNALED returns true.
+     */
     public static boolean WCOREDUMP(int status) { return (status & 0x80) != 0; }
+
+    /**
+     * Returns the signal that caused the child to exit. Only valid if WIFSIGNALED returns true.
+     */
     public static int WTERMSIG(int status) { return status & 0x7f; }
+
+    /**
+     * Returns the signal that cause the child to stop. Only valid if WIFSTOPPED returns true.
+     */
     public static int WSTOPSIG(int status) { return WEXITSTATUS(status); }
+
+    /**
+     * Tests whether the child exited normally.
+     */
     public static boolean WIFEXITED(int status) { return (WTERMSIG(status) == 0); }
+
+    /**
+     * Tests whether the child was stopped (not terminated) by a signal.
+     */
     public static boolean WIFSTOPPED(int status) { return (WTERMSIG(status) == 0x7f); }
+
+    /**
+     * Tests whether the child was terminated by a signal.
+     */
     public static boolean WIFSIGNALED(int status) { return (WTERMSIG(status + 1) >= 2); }
 
     public static final int AF_INET = placeholder();
@@ -499,6 +555,10 @@ public final class OsConstants {
     public static final int _SC_XOPEN_VERSION = placeholder();
     public static final int _SC_XOPEN_XCU_VERSION = placeholder();
 
+    /**
+     * Returns the string name of a getaddrinfo(3) error value.
+     * For example, "EAI_AGAIN".
+     */
     public static String gaiName(int error) {
         if (error == EAI_AGAIN) {
             return "EAI_AGAIN";
@@ -536,6 +596,10 @@ public final class OsConstants {
         return null;
     }
 
+    /**
+     * Returns the string name of an errno value.
+     * For example, "EACCES". See {@link Os#strerror} for human-readable errno descriptions.
+     */
     public static String errnoName(int errno) {
         if (errno == E2BIG) {
             return "E2BIG";

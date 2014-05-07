@@ -19,9 +19,8 @@ package android.system;
 import libcore.util.Objects;
 
 /**
- * File information returned by fstat(2), lstat(2), and stat(2). Corresponds to C's
- * {@code struct stat} from
- * <a href="http://www.opengroup.org/onlinepubs/000095399/basedefs/sys/stat.h.html">&lt;stat.h&gt;</a>
+ * File information returned by {@link Os#fstat}, {@link Os#lstat}, and {@link Os#stat}.
+ * Corresponds to C's {@code struct stat} from {@code &lt;stat.h&gt;}.
  *
  * @hide
  */
@@ -74,6 +73,9 @@ public final class StructStat {
   /** Number of blocks allocated for this object. */
   public final long st_blocks; /*blkcnt_t*/
 
+  /**
+   * Constructs an instance with the given field values.
+   */
   public StructStat(long st_dev, long st_ino, int st_mode, long st_nlink, int st_uid, int st_gid,
                     long st_rdev, long st_size, long st_atime, long st_mtime, long st_ctime,
                     long st_blksize, long st_blocks) {
