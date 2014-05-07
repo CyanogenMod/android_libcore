@@ -19,9 +19,8 @@ package android.system;
 import libcore.util.Objects;
 
 /**
- * Information returned by uname(2). Corresponds to C's
- * {@code struct utsname} from
- * <a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/sys_utsname.h.html">&lt;sys/utsname.h&gt;</a>
+ * Information returned by {@link Os#uname}.
+ * Corresponds to C's {@code struct utsname} from {@code &lt;sys/utsname.h&gt;}.
  *
  * @hide
  */
@@ -41,6 +40,9 @@ public final class StructUtsname {
   /** The machine architecture, such as "armv7l" or "x86_64". */
   public final String machine;
 
+  /**
+   * Constructs an instance with the given field values.
+   */
   public StructUtsname(String sysname, String nodename, String release, String version, String machine) {
     this.sysname = sysname;
     this.nodename = nodename;
