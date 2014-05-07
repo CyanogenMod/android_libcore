@@ -28,6 +28,7 @@ public class ReferenceQueue<T> {
     private static final int NANOS_PER_MILLI = 1000000;
 
     private Reference<? extends T> head;
+    private Reference<? extends T> tail;
 
     /**
      * Constructs a new instance of this class.
@@ -48,18 +49,16 @@ public class ReferenceQueue<T> {
             return null;
         }
 
-        Reference<? extends T> ret;
+        Reference<? extends T> ret = head;
 
-        ret = head;
-
-        if (head == head.queueNext) {
+        if (head == tail) {
+            tail = null;
             head = null;
         } else {
             head = head.queueNext;
         }
 
         ret.queueNext = null;
-
         return ret;
     }
 
@@ -133,12 +132,16 @@ public class ReferenceQueue<T> {
      *            reference object to be enqueued.
      */
     synchronized void enqueue(Reference<? extends T> reference) {
-        if (head == null) {
-            reference.queueNext = reference;
+        if (tail == null) {
+            head = reference;
         } else {
-            reference.queueNext = head;
+            tail.queueNext = reference;
         }
-        head = reference;
+
+        // The newly enqueued reference becomes the new tail, and always
+        // points to itself.
+        tail = reference;
+        tail.queueNext = reference;
         notify();
     }
 
