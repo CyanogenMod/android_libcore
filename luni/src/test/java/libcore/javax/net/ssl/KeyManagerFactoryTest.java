@@ -45,8 +45,8 @@ public class KeyManagerFactoryTest extends TestCase {
     private static TestKeyStore getTestKeyStore() throws Exception {
         if (TEST_KEY_STORE == null) {
             TEST_KEY_STORE = new TestKeyStore.Builder()
-                    .keyAlgorithms("RSA", "DSA", "EC", "EC_RSA")
-                    .aliasPrefix("rsa-dsa-ec")
+                    .keyAlgorithms("RSA", "DH_RSA", "DSA", "DH_DSA", "EC", "EC_RSA")
+                    .aliasPrefix("rsa-dsa-ec-dh")
                     .build();
         }
         return TEST_KEY_STORE;
