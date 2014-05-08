@@ -28,6 +28,11 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import libcore.net.UriCodec;
 
 /**
@@ -38,15 +43,43 @@ import libcore.net.UriCodec;
  */
 public class FileURLConnection extends URLConnection {
 
+    private static final Comparator<String> HEADER_COMPARATOR = new Comparator<String>() {
+        @Override
+        public int compare(String a, String b) {
+            if (a == b) {
+                return 0;
+            } else if (a == null) {
+                return -1;
+            } else if (b == null) {
+                return 1;
+            } else {
+                return String.CASE_INSENSITIVE_ORDER.compare(a, b);
+            }
+        }
+    };
+
     private String filename;
 
     private InputStream is;
 
     private long length = -1;
 
+    private long lastModified = -1;
+
     private boolean isDir;
 
     private FilePermission permission;
+
+    /**
+     * A set of three key value pairs representing the headers we support.
+     */
+    private final String[] headerKeysAndValues;
+
+    private static final int CONTENT_TYPE_VALUE_IDX = 1;
+    private static final int CONTENT_LENGTH_VALUE_IDX = 3;
+    private static final int LAST_MODIFIED_VALUE_IDX = 5;
+
+    private Map<String, List<String>> headerFields;
 
     /**
      * Creates an instance of <code>FileURLConnection</code> for establishing
@@ -61,6 +94,10 @@ public class FileURLConnection extends URLConnection {
             filename = "";
         }
         filename = UriCodec.decode(filename);
+        headerKeysAndValues = new String[] {
+                "content-type", null,
+                "content-length", null,
+                "last-modified", null };
     }
 
     /**
@@ -74,15 +111,105 @@ public class FileURLConnection extends URLConnection {
     @Override
     public void connect() throws IOException {
         File f = new File(filename);
+        IOException error = null;
         if (f.isDirectory()) {
             isDir = true;
             is = getDirectoryListing(f);
             // use -1 for the contentLength
+            lastModified = f.lastModified();
+            headerKeysAndValues[CONTENT_TYPE_VALUE_IDX] = "text/html";
         } else {
-            is = new BufferedInputStream(new FileInputStream(f));
-            length = f.length();
+            try {
+                is = new BufferedInputStream(new FileInputStream(f));
+            } catch (IOException ioe) {
+                error = ioe;
+            }
+
+            if (error == null) {
+                length = f.length();
+                lastModified = f.lastModified();
+                headerKeysAndValues[CONTENT_TYPE_VALUE_IDX] = getContentTypeForPlainFiles();
+            } else {
+                headerKeysAndValues[CONTENT_TYPE_VALUE_IDX] = "content/unknown";
+            }
         }
+
+        headerKeysAndValues[CONTENT_LENGTH_VALUE_IDX] = String.valueOf(length);
+        headerKeysAndValues[LAST_MODIFIED_VALUE_IDX] = String.valueOf(lastModified);
+
         connected = true;
+        if (error != null) {
+            throw error;
+        }
+    }
+
+    @Override
+    public String getHeaderField(String key) {
+        if (!connected) {
+            try {
+                connect();
+            } catch (IOException ioe) {
+                return null;
+            }
+        }
+
+        for (int i = 0; i < headerKeysAndValues.length; i += 2) {
+            if (headerKeysAndValues[i].equalsIgnoreCase(key)) {
+                return headerKeysAndValues[i + 1];
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public String getHeaderFieldKey(int position) {
+        if (!connected) {
+            try {
+                connect();
+            } catch (IOException ioe) {
+                return null;
+            }
+        }
+
+        if (position < 0 || position > headerKeysAndValues.length / 2) {
+            return null;
+        }
+
+        return headerKeysAndValues[position * 2];
+    }
+
+    @Override
+    public String getHeaderField(int position) {
+        if (!connected) {
+            try {
+                connect();
+            } catch (IOException ioe) {
+                return null;
+            }
+        }
+
+        if (position < 0 || position > headerKeysAndValues.length / 2) {
+            return null;
+        }
+
+        return headerKeysAndValues[(position * 2) + 1];
+    }
+
+    @Override
+    public Map<String, List<String>> getHeaderFields() {
+        if (headerFields == null) {
+            final TreeMap<String, List<String>> headerFieldsMap = new TreeMap<>(HEADER_COMPARATOR);
+
+            for (int i = 0; i < headerKeysAndValues.length; i+=2) {
+                headerFieldsMap.put(headerKeysAndValues[i],
+                        Collections.singletonList(headerKeysAndValues[i + 1]));
+            }
+
+            headerFields = Collections.unmodifiableMap(headerFieldsMap);
+        }
+
+        return headerFields;
     }
 
     /**
@@ -123,16 +250,11 @@ public class FileURLConnection extends URLConnection {
      */
     @Override
     public String getContentType() {
-        try {
-            if (!connected) {
-                connect();
-            }
-        } catch (IOException e) {
-            return "content/unknown";
-        }
-        if (isDir) {
-            return "text/plain";
-        }
+        // The content-type header field is always at position 0.
+        return getHeaderField(0);
+    }
+
+    private String getContentTypeForPlainFiles() {
         String result = guessContentTypeFromName(url.getFile());
         if (result != null) {
             return result;
