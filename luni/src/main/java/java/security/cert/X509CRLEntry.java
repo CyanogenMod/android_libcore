@@ -17,10 +17,13 @@
 
 package java.security.cert;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Date;
 import javax.security.auth.x500.X500Principal;
+import org.apache.harmony.security.asn1.ASN1OctetString;
+import org.apache.harmony.security.x509.ReasonCode;
 
 /**
  * Abstract base class for entries in a certificate revocation list (CRL).
@@ -121,5 +124,25 @@ public abstract class X509CRLEntry implements X509Extension {
      * @return a string representation of this instance.
      */
     public abstract String toString();
-}
 
+    /**
+     * Returns the reason this CRL entry was revoked. If the implementation
+     * doesn't support reasons, this will return {@code null}.
+     *
+     * @since 1.7
+     * @hide
+     */
+    public CRLReason getRevocationReason() {
+        byte[] reasonBytes = getExtensionValue("2.5.29.21");
+        if (reasonBytes == null) {
+            return null;
+        }
+
+        try {
+            byte[] rawBytes = (byte[]) ASN1OctetString.getInstance().decode(reasonBytes);
+            return new ReasonCode(rawBytes).getReason();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+}

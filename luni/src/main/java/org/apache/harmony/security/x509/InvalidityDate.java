@@ -44,6 +44,13 @@ public final class InvalidityDate extends ExtensionValue {
     }
 
     /**
+     * Constructs the object from a date instance.
+     */
+    public InvalidityDate(Date date) {
+        this.date = (Date) date.clone();
+    }
+
+    /**
      * Returns the invalidity date.
      */
     public Date getDate() {
