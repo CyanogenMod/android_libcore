@@ -69,17 +69,15 @@ import java.net.NetworkInterface;
  * information.
  *
  * @since 1.7
- * @hide Until ready for a public API change
  */
 public interface MulticastChannel extends NetworkChannel {
 
-  // @hide Until ready for a public API change
-  // /**
-  //  * {@inheritDoc}
-  //  *
-  //  * If the channel is currently part of one or more multicast groups then the memberships are
-  // * dropped and any associated {@code MembershipKey} objects are invalidated.
-  // */
+  /**
+   * {@inheritDoc}
+   *
+   * If the channel is currently part of one or more multicast groups then the memberships are
+   * dropped and any associated {@code MembershipKey} objects are invalidated.
+   */
   void close() throws IOException;
 
   /**
@@ -112,7 +110,6 @@ public interface MulticastChannel extends NetworkChannel {
    *         if the channel is closed
    * @throws IOException
    *         if some other I/O error occurs
-   * @hide Until ready for a public API change
    */
   MembershipKey join(InetAddress groupAddress, NetworkInterface networkInterface)
       throws IOException;
@@ -151,7 +148,6 @@ public interface MulticastChannel extends NetworkChannel {
    *         if the channel is closed
    * @throws IOException
    *         if some other I/O error occurs
-   * @hide Until ready for a public API change
    */
   MembershipKey join(
       InetAddress groupAddress, NetworkInterface networkInterface, InetAddress sourceAddress)

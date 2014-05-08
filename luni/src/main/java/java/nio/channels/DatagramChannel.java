@@ -127,7 +127,6 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
         throw new UnsupportedOperationException("Subclasses must override this method");
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public MembershipKey join(InetAddress groupAddress, NetworkInterface networkInterface)
             throws IOException {
@@ -136,7 +135,6 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
         throw new UnsupportedOperationException("Subclasses must override this method");
     }
 
-    /** @hide Until ready for a public API change */
     @Override
     public MembershipKey join(InetAddress groupAddress, NetworkInterface networkInterface,
             InetAddress sourceAddress) throws IOException {

@@ -108,7 +108,6 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
      * by the zip file then {@code charset} is used to decode them.
      *
      * @since 1.7
-     * @hide Until ready for an API update
      */
     public ZipInputStream(InputStream stream, Charset charset) {
         super(new PushbackInputStream(stream, BUF_SIZE), new Inflater(true));
