@@ -54,6 +54,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -371,9 +372,14 @@ public final class TestKeyStore extends Assert {
                 for (String keyAlgorithm : keyAlgorithms) {
                     String publicAlias  = aliasPrefix + "-public-"  + keyAlgorithm;
                     String privateAlias = aliasPrefix + "-private-" + keyAlgorithm;
-                    if (keyAlgorithm.equals("EC_RSA") && signer == null && rootCa == null) {
+                    if ((keyAlgorithm.equals("EC_RSA") || keyAlgorithm.equals("DH_RSA"))
+                            && signer == null && rootCa == null) {
                         createKeys(keyStore, keyAlgorithm, publicAlias, privateAlias,
                                    privateKey(keyStore, keyPassword, "RSA", "RSA"));
+                        continue;
+                    } else if (keyAlgorithm.equals("DH_DSA") && signer == null && rootCa == null) {
+                        createKeys(keyStore, keyAlgorithm, publicAlias, privateAlias,
+                                privateKey(keyStore, keyPassword, "DSA", "DSA"));
                         continue;
                     }
                     createKeys(keyStore, keyAlgorithm, publicAlias, privateAlias, signer);
@@ -436,8 +442,14 @@ public final class TestKeyStore extends Assert {
                 if (keyAlgorithm.equals("RSA")) {
                     // 512 breaks SSL_RSA_EXPORT_* on RI and TLS_ECDHE_RSA_WITH_RC4_128_SHA for us
                     keySize =  1024;
+                } else if (keyAlgorithm.equals("DH_RSA")) {
+                    keySize = 512;
+                    keyAlgorithm = "DH";
                 } else if (keyAlgorithm.equals("DSA")) {
                     keySize = 512;
+                } else if (keyAlgorithm.equals("DH_DSA")) {
+                    keySize = 512;
+                    keyAlgorithm = "DH";
                 } else if (keyAlgorithm.equals("EC")) {
                     keySize = 256;
                 } else if (keyAlgorithm.equals("EC_RSA")) {
@@ -686,7 +698,7 @@ public final class TestKeyStore extends Assert {
                     continue;
                 }
                 if (found != null) {
-                    throw new IllegalStateException("KeyStore has more than one private key for "
+                    throw new IllegalStateException("KeyStore has more than one private key for"
                                                     + " keyAlgorithm: " + keyAlgorithm
                                                     + " signatureAlgorithm: " + signatureAlgorithm
                                                     + "\nfirst: " + found.getPrivateKey()
@@ -695,13 +707,14 @@ public final class TestKeyStore extends Assert {
                 found = privateKey;
             }
             if (found == null) {
-                throw new IllegalStateException("KeyStore contained no private key for "
+                throw new IllegalStateException("KeyStore contained no private key for"
                                                 + " keyAlgorithm: " + keyAlgorithm
                                                 + " signatureAlgorithm: " + signatureAlgorithm);
             }
             return found;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Problem getting key for " + keyAlgorithm
+                    + " and signature " + signatureAlgorithm, e);
         }
     }
 
