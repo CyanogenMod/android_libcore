@@ -114,7 +114,6 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
      * comments.
      *
      * @since 1.7
-     * @hide Until ready for an API update
      */
     public ZipOutputStream(OutputStream os, Charset charset) {
         super(os, new Deflater(Deflater.DEFAULT_COMPRESSION, true));

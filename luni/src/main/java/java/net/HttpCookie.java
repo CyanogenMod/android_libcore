@@ -564,7 +564,6 @@ public final class HttpCookie implements Cloneable {
      * to scripts in a browser.
      *
      * @since 1.7
-     * @hide Until ready for an API update
      */
     public boolean isHttpOnly() {
         return httpOnly;
@@ -575,7 +574,6 @@ public final class HttpCookie implements Cloneable {
      * to scripts in a browser.
      *
      * @since 1.7
-     * @hide Until ready for an API update
      */
     public void setHttpOnly(boolean httpOnly) {
         this.httpOnly = httpOnly;
