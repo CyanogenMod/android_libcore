@@ -1664,6 +1664,7 @@
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testDeltaCRLs_InvaliddeltaCRLTest4",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testDeltaCRLs_InvaliddeltaCRLTest6",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testDeltaCRLs_InvaliddeltaCRLTest9",
+    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDeltaCRLs_ValiddeltaCRLTest5",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_InvalidIDPwithindirectCRLTest23",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_InvalidcRLIssuerTest34",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_InvaliddistributionPointTest2",
