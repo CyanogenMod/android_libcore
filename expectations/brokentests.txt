@@ -875,5 +875,13 @@
     "org.apache.harmony.tests.java.util.jar.ManifestTest#testRead",
     "org.apache.harmony.tests.java.util.jar.ManifestTest#testStreamConstructor"
   ]
+},
+{
+  description: "The ResourceBundle code under test is probably not used much on Android and needs a lot of attention.",
+  bug: 13747957,
+  result: EXEC_FAILED,
+  names: [
+      "org.apache.harmony.tests.java.util.ControlTest#test_needsReload_LStringLLocaleLStringLClassLoaderResourceBundleJ"
+  ]
 }
 ]
