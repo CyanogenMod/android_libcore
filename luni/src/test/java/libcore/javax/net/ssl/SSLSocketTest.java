@@ -686,9 +686,10 @@ public class SSLSocketTest extends TestCase {
         } catch (SSLHandshakeException expected) {
             assertTrue(expected.getCause() instanceof CertificateException);
         }
+        future.get();
         client.close();
         server.close();
-        future.get();
+        c.close();
     }
 
     public void test_SSLSocket_clientAuth() throws Exception {
@@ -821,6 +822,7 @@ public class SSLSocketTest extends TestCase {
             @Override public Void call() throws Exception {
                 try {
                     server.startHandshake();
+                    fail();
                 } catch (SSLHandshakeException expected) {
                 }
                 return null;
