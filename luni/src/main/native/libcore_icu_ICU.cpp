@@ -27,6 +27,7 @@
 #include "UniquePtr.h"
 #include "cutils/log.h"
 #include "toStringArray.h"
+#include "unicode/brkiter.h"
 #include "unicode/calendar.h"
 #include "unicode/datefmt.h"
 #include "unicode/dcfmtsym.h"
@@ -414,17 +415,6 @@ static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, URes
   }
 }
 
-static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, UResourceBundle* bundle, const char* key) {
-  UErrorCode status = U_ZERO_ERROR;
-  int charCount;
-  const UChar* chars = ures_getStringByKey(bundle, key, &charCount, &status);
-  if (U_SUCCESS(status)) {
-    setStringField(env, obj, fieldName, env->NewString(chars, charCount));
-  } else {
-    ALOGE("Error setting String field %s from ICU resource (key %s): %s", fieldName, key, u_errorName(status));
-  }
-}
-
 static void setCharField(JNIEnv* env, jobject obj, const char* fieldName, const UnicodeString& value) {
     if (value.length() == 0) {
         return;
@@ -535,32 +525,38 @@ static bool getDateTimePatterns(JNIEnv* env, jobject localeData, const char* loc
   return true;
 }
 
-static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, const char* locale_name) {
+static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, Locale& locale, const char* locale_name) {
   UErrorCode status = U_ZERO_ERROR;
   ScopedResourceBundle root(ures_open(NULL, locale_name, &status));
-  if (U_FAILURE(status)) {
-    return false;
-  }
   ScopedResourceBundle fields(ures_getByKey(root.get(), "fields", NULL, &status));
-  if (U_FAILURE(status)) {
-    return false;
-  }
   ScopedResourceBundle day(ures_getByKey(fields.get(), "day", NULL, &status));
-  if (U_FAILURE(status)) {
-    return false;
-  }
   ScopedResourceBundle relative(ures_getByKey(day.get(), "relative", NULL, &status));
   if (U_FAILURE(status)) {
     return false;
   }
-  // bn_BD only has a "-2" entry.
-  if (relative.hasKey("-1") && relative.hasKey("0") && relative.hasKey("1")) {
-    setStringField(env, localeData, "yesterday", relative.get(), "-1");
-    setStringField(env, localeData, "today", relative.get(), "0");
-    setStringField(env, localeData, "tomorrow", relative.get(), "1");
-    return true;
+
+  UnicodeString yesterday(ures_getUnicodeStringByKey(relative.get(), "-1", &status));
+  UnicodeString today(ures_getUnicodeStringByKey(relative.get(), "0", &status));
+  UnicodeString tomorrow(ures_getUnicodeStringByKey(relative.get(), "1", &status));
+  if (U_FAILURE(status)) {
+    ALOGE("Error getting yesterday/today/tomorrow: %s", u_errorName(status));
+    return false;
   }
-  return false;
+
+  // We title-case the strings so they have consistent capitalization (http://b/14493853).
+  UniquePtr<BreakIterator> brk(BreakIterator::createSentenceInstance(locale, status));
+  if (U_FAILURE(status)) {
+    ALOGE("Error getting yesterday/today/tomorrow break iterator: %s", u_errorName(status));
+    return false;
+  }
+  yesterday.toTitle(brk.get(), locale, U_TITLECASE_NO_LOWERCASE | U_TITLECASE_NO_BREAK_ADJUSTMENT);
+  today.toTitle(brk.get(), locale, U_TITLECASE_NO_LOWERCASE | U_TITLECASE_NO_BREAK_ADJUSTMENT);
+  tomorrow.toTitle(brk.get(), locale, U_TITLECASE_NO_LOWERCASE | U_TITLECASE_NO_BREAK_ADJUSTMENT);
+
+  setStringField(env, localeData, "yesterday", yesterday);
+  setStringField(env, localeData, "today", today);
+  setStringField(env, localeData, "tomorrow", tomorrow);
+  return true;
 }
 
 static jboolean ICU_initLocaleDataNative(JNIEnv* env, jclass, jstring javaLocaleName, jobject localeData) {
@@ -571,6 +567,8 @@ static jboolean ICU_initLocaleDataNative(JNIEnv* env, jclass, jstring javaLocale
     if (localeName.size() >= ULOC_FULLNAME_CAPACITY) {
         return JNI_FALSE; // ICU has a fixed-length limit.
     }
+
+    Locale locale = getLocale(env, javaLocaleName);
 
     // Get the DateTimePatterns.
     UErrorCode status = U_ZERO_ERROR;
@@ -589,7 +587,7 @@ static jboolean ICU_initLocaleDataNative(JNIEnv* env, jclass, jstring javaLocale
     // Get the "Yesterday", "Today", and "Tomorrow" strings.
     bool foundYesterdayTodayAndTomorrow = false;
     for (LocaleNameIterator it(localeName.c_str(), status); it.HasNext(); it.Up()) {
-      if (getYesterdayTodayAndTomorrow(env, localeData, it.Get())) {
+      if (getYesterdayTodayAndTomorrow(env, localeData, locale, it.Get())) {
         foundYesterdayTodayAndTomorrow = true;
         break;
       }
@@ -600,7 +598,6 @@ static jboolean ICU_initLocaleDataNative(JNIEnv* env, jclass, jstring javaLocale
     }
 
     status = U_ZERO_ERROR;
-    Locale locale = getLocale(env, javaLocaleName);
     UniquePtr<Calendar> cal(Calendar::createInstance(locale, status));
     if (U_FAILURE(status)) {
         return JNI_FALSE;
