@@ -46,6 +46,10 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
     }
 
     public void testSerialization() throws Exception {
+        // Set the default locale. The default locale determines what strings are used by the
+        // DateFormatSymbols after deserialization.
+        Locale.setDefault(Locale.US);
+
         // The Polish language needs stand-alone month and weekday names.
         Locale pl = new Locale("pl");
         DateFormatSymbols originalDfs = new DateFormatSymbols(pl);
