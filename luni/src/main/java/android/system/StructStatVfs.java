@@ -19,7 +19,7 @@ package android.system;
 import libcore.util.Objects;
 
 /**
- * File information returned by fstatvfs(2) and statvfs(2).
+ * File information returned by {@link Os#fstatvfs} and {@link Os#statvfs}.
  *
  * @hide
  */
@@ -57,6 +57,9 @@ public final class StructStatVfs {
   /** Maximum filename length. */
   public final long f_namemax; /*unsigned long*/
 
+  /**
+   * Constructs an instance with the given field values.
+   */
   public StructStatVfs(long f_bsize, long f_frsize, long f_blocks, long f_bfree, long f_bavail,
                 long f_files, long f_ffree, long f_favail,
                 long f_fsid, long f_flag, long f_namemax) {

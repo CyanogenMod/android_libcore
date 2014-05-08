@@ -29,13 +29,23 @@ import libcore.io.Libcore;
  */
 public final class ErrnoException extends Exception {
   private final String functionName;
+
+  /**
+   * The errno value, for comparison with the {@code E} constants in {@link OsConstants}.
+   */
   public final int errno;
 
+  /**
+   * Constructs an instance with the given function name and errno value.
+   */
   public ErrnoException(String functionName, int errno) {
     this.functionName = functionName;
     this.errno = errno;
   }
 
+  /**
+   * Constructs an instance with the given function name, errno value, and cause.
+   */
   public ErrnoException(String functionName, int errno, Throwable cause) {
     super(cause);
     this.functionName = functionName;
@@ -56,12 +66,18 @@ public final class ErrnoException extends Exception {
     return functionName + " failed: " + errnoName + " (" + description + ")";
   }
 
+  /**
+   * @hide - internal use only.
+   */
   public IOException rethrowAsIOException() throws IOException {
     IOException newException = new IOException(getMessage());
     newException.initCause(this);
     throw newException;
   }
 
+  /**
+   * @hide - internal use only.
+   */
   public SocketException rethrowAsSocketException() throws SocketException {
     throw new SocketException(getMessage(), this);
   }

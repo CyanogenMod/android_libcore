@@ -34,11 +34,17 @@ public final class GaiException extends RuntimeException {
    */
   public final int error;
 
+  /**
+   * Constructs an instance with the given function name and error value.
+   */
   public GaiException(String functionName, int error) {
     this.functionName = functionName;
     this.error = error;
   }
 
+  /**
+   * Constructs an instance with the given function name, error value, and cause.
+   */
   public GaiException(String functionName, int error, Throwable cause) {
     super(cause);
     this.functionName = functionName;
@@ -59,12 +65,18 @@ public final class GaiException extends RuntimeException {
     return functionName + " failed: " + gaiName + " (" + description + ")";
   }
 
+  /**
+   * @hide - internal use only.
+   */
   public UnknownHostException rethrowAsUnknownHostException(String detailMessage) throws UnknownHostException {
     UnknownHostException newException = new UnknownHostException(detailMessage);
     newException.initCause(this);
     throw newException;
   }
 
+  /**
+   * @hide - internal use only.
+   */
   public UnknownHostException rethrowAsUnknownHostException() throws UnknownHostException {
     throw rethrowAsUnknownHostException(getMessage());
   }
