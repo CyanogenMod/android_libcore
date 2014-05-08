@@ -204,13 +204,13 @@ public final class ProxyTest extends TestCase {
 
     public void test_getProxyClass_nullInterfaces() {
         try {
-            Proxy.getProxyClass(null, new Class<?>[] { null });
+            Proxy.getProxyClass(loader, new Class<?>[] { null });
             fail();
         } catch (NullPointerException expected) {
         }
 
         try {
-            Proxy.getProxyClass(null, Echo.class, null);
+            Proxy.getProxyClass(loader, Echo.class, null);
             fail();
         } catch (NullPointerException expected) {
         }
@@ -218,16 +218,16 @@ public final class ProxyTest extends TestCase {
 
     public void test_getProxyClass_duplicateInterfaces() {
         try {
-            Proxy.getProxyClass(null, Echo.class, Echo.class);
+            Proxy.getProxyClass(loader, Echo.class, Echo.class);
             fail();
         } catch (IllegalArgumentException expected) {
         }
     }
 
     public void test_getProxyClass_caching() throws Exception {
-        Class<?> proxy1 = Proxy.getProxyClass(null, Echo.class, ReturnsInt.class);
-        Class<?> proxy2 = Proxy.getProxyClass(null, Echo.class, ReturnsInt.class);
-        Class<?> proxy3 = Proxy.getProxyClass(null, ReturnsInt.class, Echo.class);
+        Class<?> proxy1 = Proxy.getProxyClass(loader, Echo.class, ReturnsInt.class);
+        Class<?> proxy2 = Proxy.getProxyClass(loader, Echo.class, ReturnsInt.class);
+        Class<?> proxy3 = Proxy.getProxyClass(loader, ReturnsInt.class, Echo.class);
 
         assertSame(proxy1, proxy2);
         assertTrue(!proxy2.equals(proxy3));
