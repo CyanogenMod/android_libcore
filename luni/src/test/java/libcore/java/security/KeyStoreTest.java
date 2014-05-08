@@ -46,6 +46,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,7 +56,16 @@ import junit.framework.TestCase;
 
 public class KeyStoreTest extends TestCase {
 
-    private static PrivateKeyEntry PRIVATE_KEY;
+    private static HashMap<String, PrivateKeyEntry> sPrivateKeys
+            = new HashMap<String, PrivateKeyEntry>();
+
+    private static TestKeyStore TEST_KEY_STORE = new TestKeyStore.Builder()
+            .keyAlgorithms("RSA", "DH_RSA", "DSA", "EC")
+            .aliasPrefix("rsa-dsa-ec-dh")
+            .build();
+
+    private static final String[] KEY_TYPES = new String[] { "DH", "DSA", "RSA", "EC" };
+
     private static PrivateKeyEntry PRIVATE_KEY_2;
 
     private static SecretKey SECRET_KEY;
@@ -87,10 +97,26 @@ public class KeyStoreTest extends TestCase {
     private static final ProtectionParameter PARAM_BAD = new PasswordProtection(PASSWORD_BAD);
 
     private static PrivateKeyEntry getPrivateKey() {
-        if (PRIVATE_KEY == null) {
-            PRIVATE_KEY = TestKeyStore.getServer().getPrivateKey("RSA", "RSA");
+        return getPrivateKey("RSA");
+    }
+
+    private static PrivateKeyEntry getPrivateKey(String keyType) {
+        PrivateKeyEntry entry = sPrivateKeys.get(keyType);
+        if (entry == null) {
+            if ("RSA".equals(keyType)) {
+                entry = TEST_KEY_STORE.getPrivateKey("RSA", "RSA");
+            } else if ("DH".equals(keyType)) {
+                entry = TEST_KEY_STORE.getPrivateKey("DH", "RSA");
+            } else if ("DSA".equals(keyType)) {
+                entry = TEST_KEY_STORE.getPrivateKey("DSA", "DSA");
+            } else if ("EC".equals(keyType)) {
+                entry = TEST_KEY_STORE.getPrivateKey("EC", "EC");
+            } else {
+                throw new IllegalArgumentException("Unexpected key type " + keyType);
+            }
+            sPrivateKeys.put(keyType, entry);
         }
-        return PRIVATE_KEY;
+        return entry;
     }
 
     private static PrivateKeyEntry getPrivateKey2() {
@@ -341,9 +367,14 @@ public class KeyStoreTest extends TestCase {
         ks.setCertificateEntry(alias, certificate);
     }
 
+
     public static void assertPrivateKey(Key actual)
             throws Exception {
         assertEquals(getPrivateKey().getPrivateKey(), actual);
+    }
+    public static void assertPrivateKey(String keyType, Key actual)
+            throws Exception {
+        assertEquals(getPrivateKey(keyType).getPrivateKey(), actual);
     }
     public static void assertPrivateKey2(Key actual)
             throws Exception {
@@ -2183,8 +2214,10 @@ public class KeyStoreTest extends TestCase {
                 continue;
             }
             if (isNullPasswordAllowed(keyStore) || isKeyPasswordIgnored(keyStore)) {
-                keyStore.setEntry(ALIAS_PRIVATE, getPrivateKey(), null);
-                assertPrivateKey(keyStore.getKey(ALIAS_PRIVATE, null));
+                for (String keyType : KEY_TYPES) {
+                    keyStore.setEntry(ALIAS_PRIVATE, getPrivateKey(keyType), null);
+                    assertPrivateKey(keyType, keyStore.getKey(ALIAS_PRIVATE, null));
+                }
             } else {
                 try {
                     keyStore.setEntry(ALIAS_PRIVATE, getPrivateKey(), null);
