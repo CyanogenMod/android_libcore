@@ -1729,5 +1729,40 @@
     "org.apache.harmony.tests.java.net.URLTest#test_sameFileLjava_net_URL",
     "org.apache.harmony.tests.java.net.URLDecoderTest#test_decodeLjava_lang_String_Ljava_lang_String"
   ]
+},
+{
+  description: "Known failures in klp-modular-dev branch being suppressed for dory.",
+  bug: 14674275,
+  names: [
+    "libcore.java.lang.reflect.ClassLoaderReflectionTest#testConstructorsOfDifferentClassLoadersAreNotEqual",
+    "libcore.java.lang.reflect.ClassLoaderReflectionTest#testFieldsOfDifferentClassLoadersAreNotEqual",
+    "libcore.java.lang.reflect.MethodTest#testEqualMethodEqualsAndHashCode",
+    "libcore.java.lang.reflect.MethodTest#testHashCodeSpec",
+    "libcore.java.lang.reflect.ProxyTest#testDeclaredExceptionIntersectedByExactReturnTypes",
+    "libcore.java.lang.reflect.ProxyTest#testReturnTypeDoesNotSatisfyAllConstraintsWithLenientCaller",
+    "libcore.java.net.ConcurrentCloseTest#test_connect",
+    "libcore.java.net.ConcurrentCloseTest#test_connect_nonBlocking",
+    "libcore.java.net.ConcurrentCloseTest#test_connect_timeout",
+    "libcore.java.net.InetAddressTest#test_isReachable",
+    "libcore.java.net.OldSocketTest#test_ConstructorLjava_lang_StringILjava_net_InetAddressI2",
+    "libcore.java.net.OldSocketTest#test_connectLjava_net_SocketAddressI",
+    "libcore.java.net.URLConnectionTest#testConnectViaHttpProxyToHttpsUsingBadProxyAndHttpResponseCache",
+    "org.apache.harmony.luni.tests.java.net.URLConnectionTest#test_getLastModified",
+    "org.apache.harmony.tests.java.net.DatagramSocketTest#test_setBroadcastZ",
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_joinGroupLjava_net_InetAddress_IPv4",
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_joinGroupLjava_net_InetAddress_IPv6",
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv4",
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv6",
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_multiple_joins_IPv4",
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_multiple_joins_IPv6",
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_leaveGroupLjava_net_InetAddress_IPv4",
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_leaveGroupLjava_net_InetAddress_IPv6",
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_leaveGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv4",
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_leaveGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv6",
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_sendLjava_net_DatagramPacketB_IPv4",
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_sendLjava_net_DatagramPacketB_IPv6",
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_setLoopbackModeSendReceive_IPv4",
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_setLoopbackModeSendReceive_IPv6"
+  ]
 }
 ]
