@@ -1764,5 +1764,10 @@
     "org.apache.harmony.tests.java.net.MulticastSocketTest#test_setLoopbackModeSendReceive_IPv4",
     "org.apache.harmony.tests.java.net.MulticastSocketTest#test_setLoopbackModeSendReceive_IPv6"
   ]
+},
+{
+  description: "Known failure in GregorianCalendarTest",
+  bug: 12778197,
+  name: "org.apache.harmony.tests.java.util.GregorianCalendarTest#test_computeTime"
 }
 ]
