@@ -17,7 +17,6 @@
 package android.util;
 
 /**
- * @hide
  */
 public final class MutableChar {
   public char value;

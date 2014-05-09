@@ -17,7 +17,6 @@
 package android.util;
 
 /**
- * @hide
  */
 public final class MutableLong {
   public long value;

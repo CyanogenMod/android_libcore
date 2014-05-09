@@ -47,8 +47,6 @@ import libcore.io.Libcore;
  * primitives used to implement the higher-level APIs.
  *
  * <p>The corresponding constants can be found in {@link OsConstants}.
- *
- * @hide
  */
 public final class Os {
   private Os() {}

@@ -21,8 +21,6 @@ import libcore.util.Objects;
 /**
  * File information returned by {@link Os#fstat}, {@link Os#lstat}, and {@link Os#stat}.
  * Corresponds to C's {@code struct stat} from {@code &lt;stat.h&gt;}.
- *
- * @hide
  */
 public final class StructStat {
   /** Device ID of device containing file. */

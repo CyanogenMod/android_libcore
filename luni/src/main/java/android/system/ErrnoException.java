@@ -24,8 +24,6 @@ import libcore.io.Libcore;
  * A checked exception thrown when {@link Os} methods fail. This exception contains the native
  * errno value, for comparison against the constants in {@link OsConstants}, should sophisticated
  * callers need to adjust their behavior based on the exact failure.
- *
- * @hide
  */
 public final class ErrnoException extends Exception {
   private final String functionName;

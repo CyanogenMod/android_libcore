@@ -18,7 +18,6 @@ package android.system;
 
 /**
  * Constants and helper functions for use with {@link Os}.
- * @hide
  */
 public final class OsConstants {
     private OsConstants() {

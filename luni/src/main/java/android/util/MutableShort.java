@@ -17,7 +17,6 @@
 package android.util;
 
 /**
- * @hide
  */
 public final class MutableShort {
   public short value;

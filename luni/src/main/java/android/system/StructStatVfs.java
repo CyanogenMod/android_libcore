@@ -20,8 +20,6 @@ import libcore.util.Objects;
 
 /**
  * File information returned by {@link Os#fstatvfs} and {@link Os#statvfs}.
- *
- * @hide
  */
 public final class StructStatVfs {
   /** File system block size (used for block counts). */
