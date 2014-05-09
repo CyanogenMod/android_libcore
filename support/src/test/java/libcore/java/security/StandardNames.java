@@ -722,6 +722,14 @@ public final class StandardNames extends Assert {
         addOpenSsl("TLS_DH_anon_WITH_AES_128_GCM_SHA256");
         addOpenSsl("TLS_DH_anon_WITH_AES_256_GCM_SHA384");
 
+        // Pre-Shared Key (PSK) cipher suites
+        addOpenSsl("TLS_PSK_WITH_RC4_128_SHA");
+        addOpenSsl("TLS_PSK_WITH_3DES_EDE_CBC_SHA");
+        addOpenSsl("TLS_PSK_WITH_AES_128_CBC_SHA");
+        addOpenSsl("TLS_PSK_WITH_AES_256_CBC_SHA");
+        addOpenSsl("TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256");
+        addOpenSsl("TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA384");
+
         // RFC 5746's Signaling Cipher Suite Value to indicate a request for secure renegotiation
         addBoth(CIPHER_SUITE_SECURE_RENEGOTIATION);
 

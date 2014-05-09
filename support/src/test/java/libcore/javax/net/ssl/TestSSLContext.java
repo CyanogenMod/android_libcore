@@ -141,15 +141,27 @@ public final class TestSSLContext extends Assert {
      * TestSSLContext creation method that allows separate creation of server key store
      */
     public static TestSSLContext create(TestKeyStore client, TestKeyStore server) {
+        return createWithAdditionalKeyManagers(client, server, null, null);
+    }
+
+    /**
+     * TestSSLContext creation method that allows separate creation of server key store and
+     * the use of additional {@code KeyManager} instances
+     */
+    public static TestSSLContext createWithAdditionalKeyManagers(
+            TestKeyStore client, TestKeyStore server,
+            KeyManager[] additionalClientKeyManagers, KeyManager[] additionalServerKeyManagers) {
         String protocol = "TLSv1.2";
+        KeyManager[] clientKeyManagers = concat(client.keyManagers, additionalClientKeyManagers);
+        KeyManager[] serverKeyManagers = concat(server.keyManagers, additionalServerKeyManagers);
         SSLContext clientContext =
-                createSSLContext(protocol, client.keyManagers, client.trustManagers);
+                createSSLContext(protocol, clientKeyManagers, client.trustManagers);
         SSLContext serverContext =
-                createSSLContext(protocol, server.keyManagers, server.trustManagers);
+                createSSLContext(protocol, serverKeyManagers, server.trustManagers);
         return create(client.keyStore, client.storePassword,
                       server.keyStore, server.storePassword,
-                      client.keyManagers,
-                      server.keyManagers,
+                      clientKeyManagers,
+                      serverKeyManagers,
                       client.trustManagers[0],
                       server.trustManagers[0],
                       clientContext,
@@ -295,5 +307,18 @@ public final class TestSSLContext extends Assert {
                 return set(sf.createSocket(s, host, port, autoClose));
             }
         };
+    }
+
+    private static KeyManager[] concat(KeyManager[] a, KeyManager[] b) {
+        if ((a == null) || (a.length == 0)) {
+            return b;
+        }
+        if ((b == null) || (b.length == 0)) {
+            return a;
+        }
+        KeyManager[] result = new KeyManager[a.length + b.length];
+        System.arraycopy(a, 0, result, 0, a.length);
+        System.arraycopy(b, 0, result, a.length, b.length);
+        return result;
     }
 }
