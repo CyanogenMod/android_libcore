@@ -1623,15 +1623,6 @@
   ]
 },
 {
-  description: "Known failures in dealing with # in file / jar URLs",
-  bug: 11664881,
-  names: [
-    "org.apache.harmony.tests.internal.net.www.protocol.file.FileURLConnectionTest#testGetContentType",
-    "org.apache.harmony.tests.internal.net.www.protocol.file.FileURLConnectionTest#testGetInputStream",
-    "org.apache.harmony.tests.internal.net.www.protocol.file.FileURLConnectionTest#testHeaderFunctions"
-  ]
-},
-{
   description: "Known failures in SerializationStressTest",
   bug: 11668227,
   names: [
