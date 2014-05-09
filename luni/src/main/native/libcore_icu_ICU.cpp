@@ -525,7 +525,7 @@ static bool getDateTimePatterns(JNIEnv* env, jobject localeData, const char* loc
   return true;
 }
 
-static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, Locale& locale, const char* locale_name) {
+static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, const Locale& locale, const char* locale_name) {
   UErrorCode status = U_ZERO_ERROR;
   ScopedResourceBundle root(ures_open(NULL, locale_name, &status));
   ScopedResourceBundle fields(ures_getByKey(root.get(), "fields", NULL, &status));
