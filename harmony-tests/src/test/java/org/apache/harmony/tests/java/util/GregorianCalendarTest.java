@@ -697,20 +697,22 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
                 new Locale("en", "GB")
         );
         g.clear();
-        g.set(2006, 02, 26, 01, 50, 00);
+        g.set(2006, Calendar.MARCH, 26, 01, 50, 00);
         assertEquals(1143337800000L, g.getTimeInMillis());
 
         GregorianCalendar g1 = new GregorianCalendar(
-                TimeZone.getTimeZone("Europe/Moscow")
-        );
+                TimeZone.getTimeZone("Europe/Moscow"));
         g1.clear();
-        g1.set(2006, 02, 26, 02, 20, 00); // in the DST transition interval
+        g1.set(2006, Calendar.MARCH, 26, 02, 20, 00);
         assertEquals(1143328800000L, g1.getTimeInMillis());
         assertEquals(3, g1.get(Calendar.HOUR_OF_DAY));
+        assertEquals(20, g1.get(Calendar.MINUTE));
+
         g1.clear();
-        g1.set(2006, 9, 29, 02, 50, 00); // transition from DST
+        g1.set(2006, Calendar.OCTOBER, 29, 02, 50, 00);
         assertEquals(1162079400000L, g1.getTimeInMillis());
         assertEquals(2, g1.get(Calendar.HOUR_OF_DAY));
+        assertEquals(50, g1.get(Calendar.MINUTE));
         // End of regression test
     }
 
