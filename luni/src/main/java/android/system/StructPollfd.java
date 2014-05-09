@@ -22,8 +22,6 @@ import libcore.util.Objects;
 /**
  * Used as an in/out parameter to {@link Os#poll}.
  * Corresponds to C's {@code struct pollfd} from {@code &lt;poll.h&gt;}.
- *
- * @hide
  */
 public final class StructPollfd {
   /** The file descriptor to poll. */
