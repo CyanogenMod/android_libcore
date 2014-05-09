@@ -620,6 +620,19 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
     }
 
     /**
+     * Sets buffer accessibility (only supported for direct byte buffers). If
+     * {@code accessible} is {@code false}, {@link #isAccessible} will return
+     * false, and any attempt to access the buffer will throw an exception. If
+     * {@code true}, the buffer will become useable again, unless it has been
+     * freed.
+     *
+     * @hide
+     */
+    public void setAccessible(boolean accessible) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Returns the byte order used by this buffer when converting bytes from/to
      * other primitive types.
      * <p>
