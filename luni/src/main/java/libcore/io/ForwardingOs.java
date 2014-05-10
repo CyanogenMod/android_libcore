@@ -100,6 +100,7 @@ public class ForwardingOs implements Os {
     public boolean isatty(FileDescriptor fd) { return os.isatty(fd); }
     public void kill(int pid, int signal) throws ErrnoException { os.kill(pid, signal); }
     public void lchown(String path, int uid, int gid) throws ErrnoException { os.lchown(path, uid, gid); }
+    public void link(String oldPath, String newPath) throws ErrnoException { os.link(oldPath, newPath); }
     public void listen(FileDescriptor fd, int backlog) throws ErrnoException { os.listen(fd, backlog); }
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException { return os.lseek(fd, offset, whence); }
     public StructStat lstat(String path) throws ErrnoException { return os.lstat(path); }
