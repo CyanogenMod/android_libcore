@@ -922,6 +922,18 @@ static void Posix_lchown(JNIEnv* env, jobject, jstring javaPath, jint uid, jint 
     throwIfMinusOne(env, "lchown", TEMP_FAILURE_RETRY(lchown(path.c_str(), uid, gid)));
 }
 
+static void Posix_link(JNIEnv* env, jobject, jstring javaOldPath, jstring javaNewPath) {
+    ScopedUtfChars oldPath(env, javaOldPath);
+    if (oldPath.c_str() == NULL) {
+        return;
+    }
+    ScopedUtfChars newPath(env, javaNewPath);
+    if (newPath.c_str() == NULL) {
+        return;
+    }
+    throwIfMinusOne(env, "link", TEMP_FAILURE_RETRY(link(oldPath.c_str(), newPath.c_str())));
+}
+
 static void Posix_listen(JNIEnv* env, jobject, jobject javaFd, jint backlog) {
     int fd = jniGetFDFromFileDescriptor(env, javaFd);
     throwIfMinusOne(env, "listen", TEMP_FAILURE_RETRY(listen(fd, backlog)));
@@ -1535,6 +1547,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, isatty, "(Ljava/io/FileDescriptor;)Z"),
     NATIVE_METHOD(Posix, kill, "(II)V"),
     NATIVE_METHOD(Posix, lchown, "(Ljava/lang/String;II)V"),
+    NATIVE_METHOD(Posix, link, "(Ljava/lang/String;Ljava/lang/String;)V"),
     NATIVE_METHOD(Posix, listen, "(Ljava/io/FileDescriptor;I)V"),
     NATIVE_METHOD(Posix, lseek, "(Ljava/io/FileDescriptor;JI)J"),
     NATIVE_METHOD(Posix, lstat, "(Ljava/lang/String;)Landroid/system/StructStat;"),

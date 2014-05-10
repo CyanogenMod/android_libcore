@@ -251,6 +251,11 @@ public final class Os {
   public static void lchown(String path, int uid, int gid) throws ErrnoException { Libcore.os.lchown(path, uid, gid); }
 
   /**
+   * See <a href="http://man7.org/linux/man-pages/man2/link.2.html">link(2)</a>.
+   */
+  public static void link(String oldPath, String newPath) throws ErrnoException { Libcore.os.link(oldPath, newPath); }
+
+  /**
    * See <a href="http://man7.org/linux/man-pages/man2/listen.2.html">listen(2)</a>.
    */
   public static void listen(FileDescriptor fd, int backlog) throws ErrnoException { Libcore.os.listen(fd, backlog); }

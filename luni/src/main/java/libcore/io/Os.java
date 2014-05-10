@@ -92,6 +92,7 @@ public interface Os {
     public boolean isatty(FileDescriptor fd);
     public void kill(int pid, int signal) throws ErrnoException;
     public void lchown(String path, int uid, int gid) throws ErrnoException;
+    public void link(String oldPath, String newPath) throws ErrnoException;
     public void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
     public StructStat lstat(String path) throws ErrnoException;
