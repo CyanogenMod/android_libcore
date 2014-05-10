@@ -149,6 +149,11 @@ public class BlockGuardOs extends ForwardingOs {
         os.lchown(path, uid, gid);
     }
 
+    @Override public void link(String oldPath, String newPath) throws ErrnoException {
+        BlockGuard.getThreadPolicy().onWriteToDisk();
+        os.link(oldPath, newPath);
+    }
+
     @Override public long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException {
         BlockGuard.getThreadPolicy().onReadFromDisk();
         return os.lseek(fd, offset, whence);
