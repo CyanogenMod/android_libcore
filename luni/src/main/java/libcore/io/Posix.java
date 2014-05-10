@@ -94,6 +94,7 @@ public final class Posix implements Os {
     public native boolean isatty(FileDescriptor fd);
     public native void kill(int pid, int signal) throws ErrnoException;
     public native void lchown(String path, int uid, int gid) throws ErrnoException;
+    public native void link(String oldPath, String newPath) throws ErrnoException;
     public native void listen(FileDescriptor fd, int backlog) throws ErrnoException;
     public native long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException;
     public native StructStat lstat(String path) throws ErrnoException;
