@@ -26,7 +26,6 @@ class DirectByteBuffer extends MappedByteBuffer {
   // This is the offset into {@code Buffer.block} at which this buffer logically starts.
   // TODO: rewrite this so we set 'block' to an OffsetMemoryBlock?
   protected final int offset;
-  private boolean freed;
 
   private final boolean isReadOnly;
 
@@ -64,7 +63,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer compact() {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -89,7 +88,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override byte[] protectedArray() {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -110,7 +109,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public final ByteBuffer get(byte[] dst, int dstOffset, int byteCount) {
-    checkNotFreed();
+    checkIsAccessible();
     checkGetBounds(1, dst.length, dstOffset, byteCount);
     this.block.peekByteArray(offset + position, dst, dstOffset, byteCount);
     position += byteCount;
@@ -118,49 +117,49 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   final void get(char[] dst, int dstOffset, int charCount) {
-    checkNotFreed();
+    checkIsAccessible();
     int byteCount = checkGetBounds(SizeOf.CHAR, dst.length, dstOffset, charCount);
     this.block.peekCharArray(offset + position, dst, dstOffset, charCount, order.needsSwap);
     position += byteCount;
   }
 
   final void get(double[] dst, int dstOffset, int doubleCount) {
-    checkNotFreed();
+    checkIsAccessible();
     int byteCount = checkGetBounds(SizeOf.DOUBLE, dst.length, dstOffset, doubleCount);
     this.block.peekDoubleArray(offset + position, dst, dstOffset, doubleCount, order.needsSwap);
     position += byteCount;
   }
 
   final void get(float[] dst, int dstOffset, int floatCount) {
-    checkNotFreed();
+    checkIsAccessible();
     int byteCount = checkGetBounds(SizeOf.FLOAT, dst.length, dstOffset, floatCount);
     this.block.peekFloatArray(offset + position, dst, dstOffset, floatCount, order.needsSwap);
     position += byteCount;
   }
 
   final void get(int[] dst, int dstOffset, int intCount) {
-    checkNotFreed();
+    checkIsAccessible();
     int byteCount = checkGetBounds(SizeOf.INT, dst.length, dstOffset, intCount);
     this.block.peekIntArray(offset + position, dst, dstOffset, intCount, order.needsSwap);
     position += byteCount;
   }
 
   final void get(long[] dst, int dstOffset, int longCount) {
-    checkNotFreed();
+    checkIsAccessible();
     int byteCount = checkGetBounds(SizeOf.LONG, dst.length, dstOffset, longCount);
     this.block.peekLongArray(offset + position, dst, dstOffset, longCount, order.needsSwap);
     position += byteCount;
   }
 
   final void get(short[] dst, int dstOffset, int shortCount) {
-    checkNotFreed();
+    checkIsAccessible();
     int byteCount = checkGetBounds(SizeOf.SHORT, dst.length, dstOffset, shortCount);
     this.block.peekShortArray(offset + position, dst, dstOffset, shortCount, order.needsSwap);
     position += byteCount;
   }
 
   @Override public final byte get() {
-    checkNotFreed();
+    checkIsAccessible();
     if (position == limit) {
       throw new BufferUnderflowException();
     }
@@ -168,13 +167,13 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public final byte get(int index) {
-    checkNotFreed();
+    checkIsAccessible();
     checkIndex(index);
     return this.block.peekByte(offset + index);
   }
 
   @Override public final char getChar() {
-    checkNotFreed();
+    checkIsAccessible();
     int newPosition = position + SizeOf.CHAR;
     if (newPosition > limit) {
       throw new BufferUnderflowException();
@@ -185,13 +184,13 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public final char getChar(int index) {
-    checkNotFreed();
+    checkIsAccessible();
     checkIndex(index, SizeOf.CHAR);
     return (char) this.block.peekShort(offset + index, order);
   }
 
   @Override public final double getDouble() {
-    checkNotFreed();
+    checkIsAccessible();
     int newPosition = position + SizeOf.DOUBLE;
     if (newPosition > limit) {
       throw new BufferUnderflowException();
@@ -202,13 +201,13 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public final double getDouble(int index) {
-    checkNotFreed();
+    checkIsAccessible();
     checkIndex(index, SizeOf.DOUBLE);
     return Double.longBitsToDouble(this.block.peekLong(offset + index, order));
   }
 
   @Override public final float getFloat() {
-    checkNotFreed();
+    checkIsAccessible();
     int newPosition = position + SizeOf.FLOAT;
     if (newPosition > limit) {
       throw new BufferUnderflowException();
@@ -219,13 +218,13 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public final float getFloat(int index) {
-    checkNotFreed();
+    checkIsAccessible();
     checkIndex(index, SizeOf.FLOAT);
     return Float.intBitsToFloat(this.block.peekInt(offset + index, order));
   }
 
   @Override public final int getInt() {
-    checkNotFreed();
+    checkIsAccessible();
     int newPosition = position + SizeOf.INT;
     if (newPosition > limit) {
       throw new BufferUnderflowException();
@@ -236,13 +235,13 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public final int getInt(int index) {
-    checkNotFreed();
+    checkIsAccessible();
     checkIndex(index, SizeOf.INT);
     return this.block.peekInt(offset + index, order);
   }
 
   @Override public final long getLong() {
-    checkNotFreed();
+    checkIsAccessible();
     int newPosition = position + SizeOf.LONG;
     if (newPosition > limit) {
       throw new BufferUnderflowException();
@@ -253,13 +252,13 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public final long getLong(int index) {
-    checkNotFreed();
+    checkIsAccessible();
     checkIndex(index, SizeOf.LONG);
     return this.block.peekLong(offset + index, order);
   }
 
   @Override public final short getShort() {
-    checkNotFreed();
+    checkIsAccessible();
     int newPosition = position + SizeOf.SHORT;
     if (newPosition > limit) {
       throw new BufferUnderflowException();
@@ -270,7 +269,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public final short getShort(int index) {
-    checkNotFreed();
+    checkIsAccessible();
     checkIndex(index, SizeOf.SHORT);
     return this.block.peekShort(offset + index, order);
   }
@@ -280,8 +279,13 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   /** @hide */
-  @Override public final boolean isValid() {
-    return !freed;
+  @Override public final boolean isAccessible() {
+    return block.isAccessible();
+  }
+
+  /** @hide */
+  @Override public void setAccessible(boolean accessible) {
+    block.setAccessible(accessible);
   }
 
   /**
@@ -289,10 +293,7 @@ class DirectByteBuffer extends MappedByteBuffer {
    * buffer will throw {@link IllegalStateException}.
    */
   public final void free() {
-    if (!freed) {
-      block.free();
-      freed = true;
-    }
+    block.free();
   }
 
   @Override public final CharBuffer asCharBuffer() {
@@ -326,7 +327,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer put(byte value) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -338,7 +339,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer put(int index, byte value) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -348,7 +349,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer put(byte[] src, int srcOffset, int byteCount) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -359,49 +360,49 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   final void put(char[] src, int srcOffset, int charCount) {
-    checkNotFreed();
+    checkIsAccessible();
     int byteCount = checkPutBounds(SizeOf.CHAR, src.length, srcOffset, charCount);
     this.block.pokeCharArray(offset + position, src, srcOffset, charCount, order.needsSwap);
     position += byteCount;
   }
 
   final void put(double[] src, int srcOffset, int doubleCount) {
-    checkNotFreed();
+    checkIsAccessible();
     int byteCount = checkPutBounds(SizeOf.DOUBLE, src.length, srcOffset, doubleCount);
     this.block.pokeDoubleArray(offset + position, src, srcOffset, doubleCount, order.needsSwap);
     position += byteCount;
   }
 
   final void put(float[] src, int srcOffset, int floatCount) {
-    checkNotFreed();
+    checkIsAccessible();
     int byteCount = checkPutBounds(SizeOf.FLOAT, src.length, srcOffset, floatCount);
     this.block.pokeFloatArray(offset + position, src, srcOffset, floatCount, order.needsSwap);
     position += byteCount;
   }
 
   final void put(int[] src, int srcOffset, int intCount) {
-    checkNotFreed();
+    checkIsAccessible();
     int byteCount = checkPutBounds(SizeOf.INT, src.length, srcOffset, intCount);
     this.block.pokeIntArray(offset + position, src, srcOffset, intCount, order.needsSwap);
     position += byteCount;
   }
 
   final void put(long[] src, int srcOffset, int longCount) {
-    checkNotFreed();
+    checkIsAccessible();
     int byteCount = checkPutBounds(SizeOf.LONG, src.length, srcOffset, longCount);
     this.block.pokeLongArray(offset + position, src, srcOffset, longCount, order.needsSwap);
     position += byteCount;
   }
 
   final void put(short[] src, int srcOffset, int shortCount) {
-    checkNotFreed();
+    checkIsAccessible();
     int byteCount = checkPutBounds(SizeOf.SHORT, src.length, srcOffset, shortCount);
     this.block.pokeShortArray(offset + position, src, srcOffset, shortCount, order.needsSwap);
     position += byteCount;
   }
 
   @Override public ByteBuffer putChar(char value) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -415,7 +416,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer putChar(int index, char value) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -425,7 +426,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer putDouble(double value) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -439,7 +440,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer putDouble(int index, double value) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -449,7 +450,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer putFloat(float value) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -463,7 +464,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer putFloat(int index, float value) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -473,7 +474,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer putInt(int value) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -487,7 +488,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer putInt(int index, int value) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -497,7 +498,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer putLong(long value) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -511,7 +512,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer putLong(int index, long value) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -521,7 +522,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer putShort(short value) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -535,7 +536,7 @@ class DirectByteBuffer extends MappedByteBuffer {
   }
 
   @Override public ByteBuffer putShort(int index, short value) {
-    checkNotFreed();
+    checkIsAccessible();
     if (isReadOnly) {
       throw new ReadOnlyBufferException();
     }
@@ -544,8 +545,15 @@ class DirectByteBuffer extends MappedByteBuffer {
     return this;
   }
 
+  private void checkIsAccessible() {
+    checkNotFreed();
+    if (!block.isAccessible()) {
+      throw new IllegalStateException("buffer is inaccessible");
+    }
+  }
+
   private void checkNotFreed() {
-    if (freed) {
+    if (block.isFreed()) {
       throw new IllegalStateException("buffer was freed");
     }
   }
