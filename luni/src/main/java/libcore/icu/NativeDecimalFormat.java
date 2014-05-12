@@ -415,6 +415,10 @@ public final class NativeDecimalFormat implements Cloneable {
     }
 
     public int getGroupingSize() {
+        // Work around http://bugs.icu-project.org/trac/ticket/10864 in icu4c 53.
+        if (!isGroupingUsed()) {
+            return 0;
+        }
         return getAttribute(this.address, UNUM_GROUPING_SIZE);
     }
 
