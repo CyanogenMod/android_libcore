@@ -1688,7 +1688,10 @@
     "org.apache.harmony.tests.java.net.MulticastSocketTest#test_sendLjava_net_DatagramPacketB_IPv4",
     "org.apache.harmony.tests.java.net.MulticastSocketTest#test_sendLjava_net_DatagramPacketB_IPv6",
     "org.apache.harmony.tests.java.net.MulticastSocketTest#test_setLoopbackModeSendReceive_IPv4",
-    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_setLoopbackModeSendReceive_IPv6"
+    "org.apache.harmony.tests.java.net.MulticastSocketTest#test_setLoopbackModeSendReceive_IPv6",
+    "tests.api.internal.net.www.protocol.file.FileURLConnectionTest#testGetContentType",
+    "tests.api.internal.net.www.protocol.file.FileURLConnectionTest#testGetInputStream",
+    "tests.api.internal.net.www.protocol.file.FileURLConnectionTest#testHeaderFunctions"
   ]
 },
 {
