@@ -1657,7 +1657,7 @@
   ]
 },
 {
-  description: "Known failures in klp-modular-dev branch being suppressed for dory.",
+  description: "Known failures in klp-modular-dev branch being suppressed for dory / molly.",
   bug: 14674275,
   names: [
     "libcore.java.lang.reflect.ClassLoaderReflectionTest#testConstructorsOfDifferentClassLoadersAreNotEqual",
@@ -1674,6 +1674,7 @@
     "libcore.java.net.OldSocketTest#test_connectLjava_net_SocketAddressI",
     "libcore.java.net.URLConnectionTest#testConnectViaHttpProxyToHttpsUsingBadProxyAndHttpResponseCache",
     "org.apache.harmony.luni.tests.java.net.URLConnectionTest#test_getLastModified",
+    "org.apache.harmony.tests.java.lang.reflect.FieldTest#testProtectedFieldAccess",
     "org.apache.harmony.tests.java.net.DatagramSocketTest#test_setBroadcastZ",
     "org.apache.harmony.tests.java.net.MulticastSocketTest#test_joinGroupLjava_net_InetAddress_IPv4",
     "org.apache.harmony.tests.java.net.MulticastSocketTest#test_joinGroupLjava_net_InetAddress_IPv6",
