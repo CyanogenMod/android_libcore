@@ -760,7 +760,7 @@ public abstract class DateFormat extends Format {
         /**
          * Marks the time zone part of a date.
          */
-        public static final Field TIME_ZONE = new Field("time zone", Calendar.ZONE_OFFSET);
+        public static final Field TIME_ZONE = new Field("time zone", -1);
 
         /**
          * The calendar field that this field represents.
