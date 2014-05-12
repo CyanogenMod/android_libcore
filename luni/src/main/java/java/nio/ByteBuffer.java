@@ -609,14 +609,27 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
     @Override public abstract boolean isDirect();
 
     /**
-     * Indicates whether this buffer is still valid.
+     * Indicates whether this buffer is still accessible.
      *
-     * @return {@code true} if this buffer is valid, {@code false} if the
-     *         buffer was invalidated and should not be used anymore.
+     * @return {@code true} if this buffer is accessible, {@code false} if the
+     *         buffer was made inaccessible (e.g. freed) and should not be used.
      * @hide
      */
-    public boolean isValid() {
+    public boolean isAccessible() {
         return true;
+    }
+
+    /**
+     * Sets buffer accessibility (only supported for direct byte buffers). If
+     * {@code accessible} is {@code false}, {@link #isAccessible} will return
+     * false, and any attempt to access the buffer will throw an exception. If
+     * {@code true}, the buffer will become useable again, unless it has been
+     * freed.
+     *
+     * @hide
+     */
+    public void setAccessible(boolean accessible) {
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -753,6 +766,10 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      *                if no changes may be made to the contents of this buffer.
      */
     public ByteBuffer put(ByteBuffer src) {
+        if (!src.isAccessible() || !isAccessible()) {
+            throw new IllegalStateException("buffer is inaccessible");
+        }
+
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
