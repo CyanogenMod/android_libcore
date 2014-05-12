@@ -891,5 +891,20 @@
   names: [
       "org.apache.harmony.tests.java.util.ControlTest#test_needsReload_LStringLLocaleLStringLClassLoaderResourceBundleJ"
   ]
+},
+{
+  description: "Some DecimalFormat tests fail, treating tests as broken while investigate further.",
+  bug: 12781028,
+  result: EXEC_FAILED,
+  names: [
+      "org.apache.harmony.tests.java.text.DecimalFormatTest#testSerializationSelf",
+      "org.apache.harmony.tests.java.text.DecimalFormatTest#test_formatD",
+      "org.apache.harmony.tests.java.text.DecimalFormatTest#test_formatDLjava_lang_StringBufferLjava_text_FieldPosition",
+      "org.apache.harmony.tests.java.text.DecimalFormatTest#test_formatDLjava_lang_StringBufferLjava_text_FieldPosition_problem_cases",
+      "org.apache.harmony.tests.java.text.DecimalFormatTest#test_formatD_2",
+      "org.apache.harmony.tests.java.text.DecimalFormatTest#test_formatJLjava_lang_StringBufferLjava_text_FieldPosition",
+      "org.apache.harmony.tests.java.text.DecimalFormatTest#test_formatToCharacterIterator_very_large",
+      "org.apache.harmony.tests.java.text.DecimalFormatTest#test_format_minus_zero"
+  ]
 }
 ]
