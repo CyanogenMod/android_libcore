@@ -49,12 +49,8 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.ARABIC, Character.UnicodeBlock.of((char) 0x6ff));
         assertEquals(Character.UnicodeBlock.SYRIAC, Character.UnicodeBlock.of((char) 0x700));
         assertEquals(Character.UnicodeBlock.SYRIAC, Character.UnicodeBlock.of((char) 0x74f));
-        assertNull(Character.UnicodeBlock.of((char) 0x750));
-        assertNull(Character.UnicodeBlock.of((char) 0x77f));
         assertEquals(Character.UnicodeBlock.THAANA, Character.UnicodeBlock.of((char) 0x780));
         assertEquals(Character.UnicodeBlock.THAANA, Character.UnicodeBlock.of((char) 0x7bf));
-        assertNull(Character.UnicodeBlock.of((char) 0x7c0));
-        assertNull(Character.UnicodeBlock.of((char) 0x8ff));
         assertEquals(Character.UnicodeBlock.DEVANAGARI, Character.UnicodeBlock.of((char) 0x900));
         assertEquals(Character.UnicodeBlock.DEVANAGARI, Character.UnicodeBlock.of((char) 0x97f));
         assertEquals(Character.UnicodeBlock.BENGALI, Character.UnicodeBlock.of((char) 0x980));
@@ -89,8 +85,6 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.HANGUL_JAMO, Character.UnicodeBlock.of((char) 0x11ff));
         assertEquals(Character.UnicodeBlock.ETHIOPIC, Character.UnicodeBlock.of((char) 0x1200));
         assertEquals(Character.UnicodeBlock.ETHIOPIC, Character.UnicodeBlock.of((char) 0x137f));
-        assertNull(Character.UnicodeBlock.of((char) 0x1380));
-        assertNull(Character.UnicodeBlock.of((char) 0x139f));
         assertEquals(Character.UnicodeBlock.CHEROKEE, Character.UnicodeBlock.of((char) 0x13a0));
         assertEquals(Character.UnicodeBlock.CHEROKEE, Character.UnicodeBlock.of((char) 0x13ff));
         assertEquals(Character.UnicodeBlock.UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS, Character.UnicodeBlock.of((char) 0x1400));
@@ -111,22 +105,14 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.KHMER, Character.UnicodeBlock.of((char) 0x17ff));
         assertEquals(Character.UnicodeBlock.MONGOLIAN, Character.UnicodeBlock.of((char) 0x1800));
         assertEquals(Character.UnicodeBlock.MONGOLIAN, Character.UnicodeBlock.of((char) 0x18af));
-        assertNull(Character.UnicodeBlock.of((char) 0x18b0));
-        assertNull(Character.UnicodeBlock.of((char) 0x18ff));
         assertEquals(Character.UnicodeBlock.LIMBU, Character.UnicodeBlock.of((char) 0x1900));
         assertEquals(Character.UnicodeBlock.LIMBU, Character.UnicodeBlock.of((char) 0x194f));
         assertEquals(Character.UnicodeBlock.TAI_LE, Character.UnicodeBlock.of((char) 0x1950));
         assertEquals(Character.UnicodeBlock.TAI_LE, Character.UnicodeBlock.of((char) 0x197f));
-        assertNull(Character.UnicodeBlock.of((char) 0x1980));
-        assertNull(Character.UnicodeBlock.of((char) 0x19df));
         assertEquals(Character.UnicodeBlock.KHMER_SYMBOLS, Character.UnicodeBlock.of((char) 0x19e0));
         assertEquals(Character.UnicodeBlock.KHMER_SYMBOLS, Character.UnicodeBlock.of((char) 0x19ff));
-        assertNull(Character.UnicodeBlock.of((char) 0x1a00));
-        assertNull(Character.UnicodeBlock.of((char) 0x1cff));
         assertEquals(Character.UnicodeBlock.PHONETIC_EXTENSIONS, Character.UnicodeBlock.of((char) 0x1d00));
         assertEquals(Character.UnicodeBlock.PHONETIC_EXTENSIONS, Character.UnicodeBlock.of((char) 0x1d7f));
-        assertNull(Character.UnicodeBlock.of((char) 0x1d80));
-        assertNull(Character.UnicodeBlock.of((char) 0x1dff));
         assertEquals(Character.UnicodeBlock.LATIN_EXTENDED_ADDITIONAL, Character.UnicodeBlock.of((char) 0x1e00));
         assertEquals(Character.UnicodeBlock.LATIN_EXTENDED_ADDITIONAL, Character.UnicodeBlock.of((char) 0x1eff));
         assertEquals(Character.UnicodeBlock.GREEK_EXTENDED, Character.UnicodeBlock.of((char) 0x1f00));
@@ -179,14 +165,10 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.SUPPLEMENTAL_MATHEMATICAL_OPERATORS, Character.UnicodeBlock.of((char) 0x2aff));
         assertEquals(Character.UnicodeBlock.MISCELLANEOUS_SYMBOLS_AND_ARROWS, Character.UnicodeBlock.of((char) 0x2b00));
         assertEquals(Character.UnicodeBlock.MISCELLANEOUS_SYMBOLS_AND_ARROWS, Character.UnicodeBlock.of((char) 0x2bff));
-        assertNull(Character.UnicodeBlock.of((char) 0x2c00));
-        assertNull(Character.UnicodeBlock.of((char) 0x2e7f));
         assertEquals(Character.UnicodeBlock.CJK_RADICALS_SUPPLEMENT, Character.UnicodeBlock.of((char) 0x2e80));
         assertEquals(Character.UnicodeBlock.CJK_RADICALS_SUPPLEMENT, Character.UnicodeBlock.of((char) 0x2eff));
         assertEquals(Character.UnicodeBlock.KANGXI_RADICALS, Character.UnicodeBlock.of((char) 0x2f00));
         assertEquals(Character.UnicodeBlock.KANGXI_RADICALS, Character.UnicodeBlock.of((char) 0x2fdf));
-        assertNull(Character.UnicodeBlock.of((char) 0x2fe0));
-        assertNull(Character.UnicodeBlock.of((char) 0x2fef));
         assertEquals(Character.UnicodeBlock.IDEOGRAPHIC_DESCRIPTION_CHARACTERS, Character.UnicodeBlock.of((char) 0x2ff0));
         assertEquals(Character.UnicodeBlock.IDEOGRAPHIC_DESCRIPTION_CHARACTERS, Character.UnicodeBlock.of((char) 0x2fff));
         assertEquals(Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION, Character.UnicodeBlock.of((char) 0x3000));
@@ -203,8 +185,6 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.KANBUN, Character.UnicodeBlock.of((char) 0x319f));
         assertEquals(Character.UnicodeBlock.BOPOMOFO_EXTENDED, Character.UnicodeBlock.of((char) 0x31a0));
         assertEquals(Character.UnicodeBlock.BOPOMOFO_EXTENDED, Character.UnicodeBlock.of((char) 0x31bf));
-        assertNull(Character.UnicodeBlock.of((char) 0x31c0));
-        assertNull(Character.UnicodeBlock.of((char) 0x31ef));
         assertEquals(Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS, Character.UnicodeBlock.of((char) 0x31f0));
         assertEquals(Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS, Character.UnicodeBlock.of((char) 0x31ff));
         assertEquals(Character.UnicodeBlock.ENCLOSED_CJK_LETTERS_AND_MONTHS, Character.UnicodeBlock.of((char) 0x3200));
@@ -221,12 +201,8 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.YI_SYLLABLES, Character.UnicodeBlock.of((char) 0xa48f));
         assertEquals(Character.UnicodeBlock.YI_RADICALS, Character.UnicodeBlock.of((char) 0xa490));
         assertEquals(Character.UnicodeBlock.YI_RADICALS, Character.UnicodeBlock.of((char) 0xa4cf));
-        assertNull(Character.UnicodeBlock.of((char) 0xa4d0));
-        assertNull(Character.UnicodeBlock.of((char) 0xabff));
         assertEquals(Character.UnicodeBlock.HANGUL_SYLLABLES, Character.UnicodeBlock.of((char) 0xac00));
         assertEquals(Character.UnicodeBlock.HANGUL_SYLLABLES, Character.UnicodeBlock.of((char) 0xd7af));
-        assertNull(Character.UnicodeBlock.of((char) 0xd7b0));
-        assertNull(Character.UnicodeBlock.of((char) 0xd7ff));
         assertEquals(Character.UnicodeBlock.HIGH_SURROGATES, Character.UnicodeBlock.of((char) 0xd800));
         assertEquals(Character.UnicodeBlock.HIGH_SURROGATES, Character.UnicodeBlock.of((char) 0xdb7f));
         assertEquals(Character.UnicodeBlock.HIGH_PRIVATE_USE_SURROGATES, Character.UnicodeBlock.of((char) 0xdb80));
@@ -243,8 +219,6 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.ARABIC_PRESENTATION_FORMS_A, Character.UnicodeBlock.of((char) 0xfdff));
         assertEquals(Character.UnicodeBlock.VARIATION_SELECTORS, Character.UnicodeBlock.of((char) 0xfe00));
         assertEquals(Character.UnicodeBlock.VARIATION_SELECTORS, Character.UnicodeBlock.of((char) 0xfe0f));
-        assertNull(Character.UnicodeBlock.of((char) 0xfe10));
-        assertNull(Character.UnicodeBlock.of((char) 0xfe1f));
         assertEquals(Character.UnicodeBlock.COMBINING_HALF_MARKS, Character.UnicodeBlock.of((char) 0xfe20));
         assertEquals(Character.UnicodeBlock.COMBINING_HALF_MARKS, Character.UnicodeBlock.of((char) 0xfe2f));
         assertEquals(Character.UnicodeBlock.CJK_COMPATIBILITY_FORMS, Character.UnicodeBlock.of((char) 0xfe30));
@@ -257,6 +231,10 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS, Character.UnicodeBlock.of((char) 0xffef));
         assertEquals(Character.UnicodeBlock.SPECIALS, Character.UnicodeBlock.of((char) 0xfff0));
         assertEquals(Character.UnicodeBlock.SPECIALS, Character.UnicodeBlock.of((char) 0xffff));
+
+        // Negative test: The range [0x0860, 0x08A0) is currently unassigned.
+        assertEquals(null, Character.UnicodeBlock.of((char) 0x0860));
+        assertEquals(null, Character.UnicodeBlock.of((char) 0x089F));
     }
 
     public void test_ofI() {
@@ -288,12 +266,8 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.ARABIC, Character.UnicodeBlock.of(0x6ff));
         assertEquals(Character.UnicodeBlock.SYRIAC, Character.UnicodeBlock.of(0x700));
         assertEquals(Character.UnicodeBlock.SYRIAC, Character.UnicodeBlock.of(0x74f));
-        assertNull(Character.UnicodeBlock.of(0x750));
-        assertNull(Character.UnicodeBlock.of(0x77f));
         assertEquals(Character.UnicodeBlock.THAANA, Character.UnicodeBlock.of(0x780));
         assertEquals(Character.UnicodeBlock.THAANA, Character.UnicodeBlock.of(0x7bf));
-        assertNull(Character.UnicodeBlock.of(0x7c0));
-        assertNull(Character.UnicodeBlock.of(0x8ff));
         assertEquals(Character.UnicodeBlock.DEVANAGARI, Character.UnicodeBlock.of(0x900));
         assertEquals(Character.UnicodeBlock.DEVANAGARI, Character.UnicodeBlock.of(0x97f));
         assertEquals(Character.UnicodeBlock.BENGALI, Character.UnicodeBlock.of(0x980));
@@ -328,8 +302,6 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.HANGUL_JAMO, Character.UnicodeBlock.of(0x11ff));
         assertEquals(Character.UnicodeBlock.ETHIOPIC, Character.UnicodeBlock.of(0x1200));
         assertEquals(Character.UnicodeBlock.ETHIOPIC, Character.UnicodeBlock.of(0x137f));
-        assertNull(Character.UnicodeBlock.of(0x1380));
-        assertNull(Character.UnicodeBlock.of(0x139f));
         assertEquals(Character.UnicodeBlock.CHEROKEE, Character.UnicodeBlock.of(0x13a0));
         assertEquals(Character.UnicodeBlock.CHEROKEE, Character.UnicodeBlock.of(0x13ff));
         assertEquals(Character.UnicodeBlock.UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS, Character.UnicodeBlock.of(0x1400));
@@ -350,22 +322,14 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.KHMER, Character.UnicodeBlock.of(0x17ff));
         assertEquals(Character.UnicodeBlock.MONGOLIAN, Character.UnicodeBlock.of(0x1800));
         assertEquals(Character.UnicodeBlock.MONGOLIAN, Character.UnicodeBlock.of(0x18af));
-        assertNull(Character.UnicodeBlock.of(0x18b0));
-        assertNull(Character.UnicodeBlock.of(0x18ff));
         assertEquals(Character.UnicodeBlock.LIMBU, Character.UnicodeBlock.of(0x1900));
         assertEquals(Character.UnicodeBlock.LIMBU, Character.UnicodeBlock.of(0x194f));
         assertEquals(Character.UnicodeBlock.TAI_LE, Character.UnicodeBlock.of(0x1950));
         assertEquals(Character.UnicodeBlock.TAI_LE, Character.UnicodeBlock.of(0x197f));
-        assertNull(Character.UnicodeBlock.of(0x1980));
-        assertNull(Character.UnicodeBlock.of(0x19df));
         assertEquals(Character.UnicodeBlock.KHMER_SYMBOLS, Character.UnicodeBlock.of(0x19e0));
         assertEquals(Character.UnicodeBlock.KHMER_SYMBOLS, Character.UnicodeBlock.of(0x19ff));
-        assertNull(Character.UnicodeBlock.of(0x1a00));
-        assertNull(Character.UnicodeBlock.of(0x1cff));
         assertEquals(Character.UnicodeBlock.PHONETIC_EXTENSIONS, Character.UnicodeBlock.of(0x1d00));
         assertEquals(Character.UnicodeBlock.PHONETIC_EXTENSIONS, Character.UnicodeBlock.of(0x1d7f));
-        assertNull(Character.UnicodeBlock.of(0x1d80));
-        assertNull(Character.UnicodeBlock.of(0x1dff));
         assertEquals(Character.UnicodeBlock.LATIN_EXTENDED_ADDITIONAL, Character.UnicodeBlock.of(0x1e00));
         assertEquals(Character.UnicodeBlock.LATIN_EXTENDED_ADDITIONAL, Character.UnicodeBlock.of(0x1eff));
         assertEquals(Character.UnicodeBlock.GREEK_EXTENDED, Character.UnicodeBlock.of(0x1f00));
@@ -418,14 +382,10 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.SUPPLEMENTAL_MATHEMATICAL_OPERATORS, Character.UnicodeBlock.of(0x2aff));
         assertEquals(Character.UnicodeBlock.MISCELLANEOUS_SYMBOLS_AND_ARROWS, Character.UnicodeBlock.of(0x2b00));
         assertEquals(Character.UnicodeBlock.MISCELLANEOUS_SYMBOLS_AND_ARROWS, Character.UnicodeBlock.of(0x2bff));
-        assertNull(Character.UnicodeBlock.of(0x2c00));
-        assertNull(Character.UnicodeBlock.of(0x2e7f));
         assertEquals(Character.UnicodeBlock.CJK_RADICALS_SUPPLEMENT, Character.UnicodeBlock.of(0x2e80));
         assertEquals(Character.UnicodeBlock.CJK_RADICALS_SUPPLEMENT, Character.UnicodeBlock.of(0x2eff));
         assertEquals(Character.UnicodeBlock.KANGXI_RADICALS, Character.UnicodeBlock.of(0x2f00));
         assertEquals(Character.UnicodeBlock.KANGXI_RADICALS, Character.UnicodeBlock.of(0x2fdf));
-        assertNull(Character.UnicodeBlock.of(0x2fe0));
-        assertNull(Character.UnicodeBlock.of(0x2fef));
         assertEquals(Character.UnicodeBlock.IDEOGRAPHIC_DESCRIPTION_CHARACTERS, Character.UnicodeBlock.of(0x2ff0));
         assertEquals(Character.UnicodeBlock.IDEOGRAPHIC_DESCRIPTION_CHARACTERS, Character.UnicodeBlock.of(0x2fff));
         assertEquals(Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION, Character.UnicodeBlock.of(0x3000));
@@ -442,8 +402,6 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.KANBUN, Character.UnicodeBlock.of(0x319f));
         assertEquals(Character.UnicodeBlock.BOPOMOFO_EXTENDED, Character.UnicodeBlock.of(0x31a0));
         assertEquals(Character.UnicodeBlock.BOPOMOFO_EXTENDED, Character.UnicodeBlock.of(0x31bf));
-        assertNull(Character.UnicodeBlock.of(0x31c0));
-        assertNull(Character.UnicodeBlock.of(0x31ef));
         assertEquals(Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS, Character.UnicodeBlock.of(0x31f0));
         assertEquals(Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS, Character.UnicodeBlock.of(0x31ff));
         assertEquals(Character.UnicodeBlock.ENCLOSED_CJK_LETTERS_AND_MONTHS, Character.UnicodeBlock.of(0x3200));
@@ -460,12 +418,8 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.YI_SYLLABLES, Character.UnicodeBlock.of(0xa48f));
         assertEquals(Character.UnicodeBlock.YI_RADICALS, Character.UnicodeBlock.of(0xa490));
         assertEquals(Character.UnicodeBlock.YI_RADICALS, Character.UnicodeBlock.of(0xa4cf));
-        assertNull(Character.UnicodeBlock.of(0xa4d0));
-        assertNull(Character.UnicodeBlock.of(0xabff));
         assertEquals(Character.UnicodeBlock.HANGUL_SYLLABLES, Character.UnicodeBlock.of(0xac00));
         assertEquals(Character.UnicodeBlock.HANGUL_SYLLABLES, Character.UnicodeBlock.of(0xd7af));
-        assertNull(Character.UnicodeBlock.of(0xd7b0));
-        assertNull(Character.UnicodeBlock.of(0xd7ff));
         assertEquals(Character.UnicodeBlock.HIGH_SURROGATES, Character.UnicodeBlock.of(0xd800));
         assertEquals(Character.UnicodeBlock.HIGH_SURROGATES, Character.UnicodeBlock.of(0xdb7f));
         assertEquals(Character.UnicodeBlock.HIGH_PRIVATE_USE_SURROGATES, Character.UnicodeBlock.of(0xdb80));
@@ -482,8 +436,6 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.ARABIC_PRESENTATION_FORMS_A, Character.UnicodeBlock.of(0xfdff));
         assertEquals(Character.UnicodeBlock.VARIATION_SELECTORS, Character.UnicodeBlock.of(0xfe00));
         assertEquals(Character.UnicodeBlock.VARIATION_SELECTORS, Character.UnicodeBlock.of(0xfe0f));
-        assertNull(Character.UnicodeBlock.of(0xfe10));
-        assertNull(Character.UnicodeBlock.of(0xfe1f));
         assertEquals(Character.UnicodeBlock.COMBINING_HALF_MARKS, Character.UnicodeBlock.of(0xfe20));
         assertEquals(Character.UnicodeBlock.COMBINING_HALF_MARKS, Character.UnicodeBlock.of(0xfe2f));
         assertEquals(Character.UnicodeBlock.CJK_COMPATIBILITY_FORMS, Character.UnicodeBlock.of(0xfe30));
@@ -502,64 +454,44 @@ public class Character_UnicodeBlockTest extends TestCase {
         assertEquals(Character.UnicodeBlock.LINEAR_B_IDEOGRAMS, Character.UnicodeBlock.of(0x100ff));
         assertEquals(Character.UnicodeBlock.AEGEAN_NUMBERS, Character.UnicodeBlock.of(0x10100));
         assertEquals(Character.UnicodeBlock.AEGEAN_NUMBERS, Character.UnicodeBlock.of(0x1013f));
-        assertNull(Character.UnicodeBlock.of(0x10140));
-        assertNull(Character.UnicodeBlock.of(0x102ff));
         assertEquals(Character.UnicodeBlock.OLD_ITALIC, Character.UnicodeBlock.of(0x10300));
         assertEquals(Character.UnicodeBlock.OLD_ITALIC, Character.UnicodeBlock.of(0x1032f));
         assertEquals(Character.UnicodeBlock.GOTHIC, Character.UnicodeBlock.of(0x10330));
         assertEquals(Character.UnicodeBlock.GOTHIC, Character.UnicodeBlock.of(0x1034f));
-        assertNull(Character.UnicodeBlock.of(0x10350));
-        assertNull(Character.UnicodeBlock.of(0x1037f));
         assertEquals(Character.UnicodeBlock.UGARITIC, Character.UnicodeBlock.of(0x10380));
         assertEquals(Character.UnicodeBlock.UGARITIC, Character.UnicodeBlock.of(0x1039f));
-        assertNull(Character.UnicodeBlock.of(0x103a0));
-        assertNull(Character.UnicodeBlock.of(0x103ff));
         assertEquals(Character.UnicodeBlock.DESERET, Character.UnicodeBlock.of(0x10400));
         assertEquals(Character.UnicodeBlock.DESERET, Character.UnicodeBlock.of(0x1044f));
         assertEquals(Character.UnicodeBlock.SHAVIAN, Character.UnicodeBlock.of(0x10450));
         assertEquals(Character.UnicodeBlock.SHAVIAN, Character.UnicodeBlock.of(0x1047f));
         assertEquals(Character.UnicodeBlock.OSMANYA, Character.UnicodeBlock.of(0x10480));
         assertEquals(Character.UnicodeBlock.OSMANYA, Character.UnicodeBlock.of(0x104af));
-        assertNull(Character.UnicodeBlock.of(0x104b0));
-        assertNull(Character.UnicodeBlock.of(0x107ff));
         assertEquals(Character.UnicodeBlock.CYPRIOT_SYLLABARY, Character.UnicodeBlock.of(0x10800));
         assertEquals(Character.UnicodeBlock.CYPRIOT_SYLLABARY, Character.UnicodeBlock.of(0x1083f));
-        assertNull(Character.UnicodeBlock.of(0x10840));
-        assertNull(Character.UnicodeBlock.of(0x1cfff));
         assertEquals(Character.UnicodeBlock.BYZANTINE_MUSICAL_SYMBOLS, Character.UnicodeBlock.of(0x1d000));
         assertEquals(Character.UnicodeBlock.BYZANTINE_MUSICAL_SYMBOLS, Character.UnicodeBlock.of(0x1d0ff));
         assertEquals(Character.UnicodeBlock.MUSICAL_SYMBOLS, Character.UnicodeBlock.of(0x1d100));
         assertEquals(Character.UnicodeBlock.MUSICAL_SYMBOLS, Character.UnicodeBlock.of(0x1d1ff));
-        assertNull(Character.UnicodeBlock.of(0x1d200));
-        assertNull(Character.UnicodeBlock.of(0x1d2ff));
         assertEquals(Character.UnicodeBlock.TAI_XUAN_JING_SYMBOLS, Character.UnicodeBlock.of(0x1d300));
         assertEquals(Character.UnicodeBlock.TAI_XUAN_JING_SYMBOLS, Character.UnicodeBlock.of(0x1d35f));
-        assertNull(Character.UnicodeBlock.of(0x1d360));
-        assertNull(Character.UnicodeBlock.of(0x1d3ff));
         assertEquals(Character.UnicodeBlock.MATHEMATICAL_ALPHANUMERIC_SYMBOLS, Character.UnicodeBlock.of(0x1d400));
         assertEquals(Character.UnicodeBlock.MATHEMATICAL_ALPHANUMERIC_SYMBOLS, Character.UnicodeBlock.of(0x1d7ff));
-        assertNull(Character.UnicodeBlock.of(0x1d800));
-        assertNull(Character.UnicodeBlock.of(0x1ffff));
         assertEquals(Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B, Character.UnicodeBlock.of(0x20000));
         assertEquals(Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B, Character.UnicodeBlock.of(0x2a6df));
-        assertNull(Character.UnicodeBlock.of(0x2a6e0));
-        assertNull(Character.UnicodeBlock.of(0x2f7ff));
         assertEquals(Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT, Character.UnicodeBlock.of(0x2f800));
         assertEquals(Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT, Character.UnicodeBlock.of(0x2fa1f));
-        assertNull(Character.UnicodeBlock.of(0x2fa20));
-        assertNull(Character.UnicodeBlock.of(0xdffff));
         assertEquals(Character.UnicodeBlock.TAGS, Character.UnicodeBlock.of(0xe0000));
         assertEquals(Character.UnicodeBlock.TAGS, Character.UnicodeBlock.of(0xe007f));
-        assertNull(Character.UnicodeBlock.of(0xe0080));
-        assertNull(Character.UnicodeBlock.of(0xe00ff));
         assertEquals(Character.UnicodeBlock.VARIATION_SELECTORS_SUPPLEMENT, Character.UnicodeBlock.of(0xe0100));
         assertEquals(Character.UnicodeBlock.VARIATION_SELECTORS_SUPPLEMENT, Character.UnicodeBlock.of(0xe01ef));
-        assertNull(Character.UnicodeBlock.of(0xe01f0));
-        assertNull(Character.UnicodeBlock.of(0xeffff));
         assertEquals(Character.UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_A, Character.UnicodeBlock.of(0xf0000));
         assertEquals(Character.UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_A, Character.UnicodeBlock.of(0xfffff));
         assertEquals(Character.UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_B, Character.UnicodeBlock.of(0x100000));
         assertEquals(Character.UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_B, Character.UnicodeBlock.of(0x10ffff));
+
+        // Negative test: The range [0x0860, 0x08A0) is currently unassigned.
+        assertEquals(null, Character.UnicodeBlock.of((char) 0x0860));
+        assertEquals(null, Character.UnicodeBlock.of((char) 0x089F));
     }
 
     public void test_ofIExceptions() {
@@ -572,7 +504,6 @@ public class Character_UnicodeBlockTest extends TestCase {
 
     @SuppressWarnings("deprecation")
     public void test_forNameLjava_lang_String() {
-        assertEquals(Character.UnicodeBlock.SURROGATES_AREA, Character.UnicodeBlock.forName("SURROGATES_AREA"));
         assertEquals(Character.UnicodeBlock.BASIC_LATIN, Character.UnicodeBlock.forName("BASIC_LATIN"));
         assertEquals(Character.UnicodeBlock.BASIC_LATIN, Character.UnicodeBlock.forName("Basic Latin"));
         assertEquals(Character.UnicodeBlock.BASIC_LATIN, Character.UnicodeBlock.forName("BasicLatin"));
@@ -867,14 +798,25 @@ public class Character_UnicodeBlockTest extends TestCase {
     public void test_forNameLjava_lang_StringExceptions() {
         try {
             Character.UnicodeBlock.forName(null);
-            fail("No NPE");
-        } catch (NullPointerException e) {
+            fail();
+        } catch (NullPointerException expected) {
         }
 
         try {
             Character.UnicodeBlock.forName("INVALID_NAME");
-            fail("No illegal argument exception");
-        } catch (IllegalArgumentException e) {
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+
+        // We don't map "SURROGATES_AREA" to the deprecated SURROGATES_AREA
+        // enum value. ICU doesn't have any block corresponding to this since it's
+        // now split into low surrogates and the high (normal/private use)
+        // surrogates. Also, the only API that makes any reference to this goes
+        // directly to ICU anyway.
+        try {
+            Character.UnicodeBlock.forName("SURROGATES_AREA");
+            fail();
+        } catch (IllegalArgumentException expected) {
         }
     }
 }
