@@ -1654,5 +1654,10 @@
     "org.apache.harmony.tests.java.net.URLTest#test_sameFileLjava_net_URL",
     "org.apache.harmony.tests.java.net.URLDecoderTest#test_decodeLjava_lang_String_Ljava_lang_String"
   ]
+},
+{
+  description: "Known failure in GregorianCalendarTest",
+  bug: 12778197,
+  name: "org.apache.harmony.tests.java.util.GregorianCalendarTest#test_computeTime"
 }
 ]
