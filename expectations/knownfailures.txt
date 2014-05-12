@@ -1774,5 +1774,10 @@
   description: "Known failure in GregorianCalendarTest",
   bug: 12778197,
   name: "org.apache.harmony.tests.java.util.GregorianCalendarTest#test_computeTime"
+},
+{
+  description: "Environment specific Console test suppressed for dory / molly",
+  bug: 12491103,
+  name: "org.apache.harmony.tests.java.io.ConsoleTest#test_readPassword_LString_LObject"
 }
 ]
