@@ -240,11 +240,9 @@ public class HashtableTest extends junit.framework.TestCase {
 
         assertEquals("All keys not retrieved", 10, ht10.size());
 
-        // cast Enumeration to Iterator
-        Iterator iterator = (Iterator) elms;
-        assertFalse(iterator.hasNext());
+        assertFalse(elms.hasMoreElements());
         try {
-            iterator.next();
+            elms.nextElement();
             fail("should throw NoSuchElementException");
         } catch (NoSuchElementException e) {
             // Expected
@@ -431,11 +429,9 @@ public class HashtableTest extends junit.framework.TestCase {
 
         assertEquals("All keys not retrieved", 10, ht10.size());
 
-        // cast Enumeration to Iterator
-        Iterator iterator = (Iterator) keys;
-        assertFalse(iterator.hasNext());
+        assertFalse(keys.hasMoreElements());
         try {
-            iterator.next();
+            keys.nextElement();
             fail("should throw NoSuchElementException");
         } catch (NoSuchElementException e) {
             // Expected
@@ -832,41 +828,17 @@ public class HashtableTest extends junit.framework.TestCase {
         String value = "value";
         hashTable.put(key, value);
 
-        Iterator iterator = (Iterator) hashTable.keys();
-        assertTrue(iterator.hasNext());
-        try {
-            iterator.remove();
-            fail("should throw UnsupportedOperationException");
-        } catch (UnsupportedOperationException e) {
-            // Expected
-        }
-        iterator.next();
-        try {
-            iterator.remove();
-            fail("should throw UnsupportedOperationException");
-        } catch (UnsupportedOperationException e) {
-            // Expected
-        }
-        assertFalse(iterator.hasNext());
+        Enumeration enumeration = hashTable.keys();
+        assertTrue(enumeration.hasMoreElements());
+        enumeration.nextElement();
+        assertFalse(enumeration.hasMoreElements());
 
-        iterator = (Iterator) hashTable.elements();
-        assertTrue(iterator.hasNext());
-        try {
-            iterator.remove();
-            fail("should throw UnsupportedOperationException");
-        } catch (UnsupportedOperationException e) {
-            // Expected
-        }
-        iterator.next();
-        try {
-            iterator.remove();
-            fail("should throw UnsupportedOperationException");
-        } catch (UnsupportedOperationException e) {
-            // Expected
-        }
-        assertFalse(iterator.hasNext());
+        enumeration = hashTable.elements();
+        assertTrue(enumeration.hasMoreElements());
+        enumeration.nextElement();
+        assertFalse(enumeration.hasMoreElements());
 
-        iterator = hashTable.keySet().iterator();
+        Iterator iterator = hashTable.keySet().iterator();
         assertTrue(iterator.hasNext());
         try {
             iterator.remove();
@@ -883,80 +855,38 @@ public class HashtableTest extends junit.framework.TestCase {
             hashTable.put(key + i, value + i);
         }
 
-        // cast Enumeration to Iterator
-        Enumeration enumeration = hashTable.keys();
-        iterator = (Iterator) enumeration;
+        enumeration = hashTable.keys();
         assertTrue(enumeration.hasMoreElements());
-        assertTrue(iterator.hasNext());
         for (int i = 0; i < 10; i++) {
-            if (i % 2 == 0) {
-                enumeration.nextElement();
-            } else {
-                iterator.next();
-            }
+            enumeration.nextElement();
         }
         assertFalse(enumeration.hasMoreElements());
-        assertFalse(iterator.hasNext());
         try {
             enumeration.nextElement();
             fail("should throw NoSuchElementException");
         } catch (NoSuchElementException e) {
             // Expected
         }
-        try {
-            iterator.next();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
-        }
 
-        // cast Enumeration to Iterator
         enumeration = hashTable.elements();
-        iterator = (Iterator) enumeration;
         assertTrue(enumeration.hasMoreElements());
-        assertTrue(iterator.hasNext());
         for (int i = 0; i < 10; i++) {
-            if (i % 2 == 0) {
-                enumeration.nextElement();
-            } else {
-                iterator.next();
-            }
+            enumeration.nextElement();
         }
         assertFalse(enumeration.hasMoreElements());
-        assertFalse(iterator.hasNext());
         try {
             enumeration.nextElement();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
-        }
-        try {
-            iterator.next();
             fail("should throw NoSuchElementException");
         } catch (NoSuchElementException e) {
             // Expected
         }
 
-        // cast Iterator to Enumeration
-        enumeration = (Enumeration) hashTable.keySet().iterator();
-        iterator = (Iterator) enumeration;
-        assertTrue(enumeration.hasMoreElements());
+        iterator = hashTable.keySet().iterator();
         assertTrue(iterator.hasNext());
         for (int i = 0; i < 10; i++) {
-            if (i % 2 == 0) {
-                enumeration.nextElement();
-            } else {
-                iterator.next();
-            }
+            iterator.next();
         }
-        assertFalse(enumeration.hasMoreElements());
         assertFalse(iterator.hasNext());
-        try {
-            enumeration.nextElement();
-            fail("should throw NoSuchElementException");
-        } catch (NoSuchElementException e) {
-            // Expected
-        }
         try {
             iterator.next();
             fail("should throw NoSuchElementException");
