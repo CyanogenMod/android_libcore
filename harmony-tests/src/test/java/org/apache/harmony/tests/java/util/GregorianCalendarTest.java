@@ -157,7 +157,6 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         assertEquals(34, c1.get(Calendar.MINUTE));
         c1.setTimeZone(new SimpleTimeZone(60000, "ONE MINUTE"));
         assertEquals(35, c1.get(Calendar.MINUTE));
-
     }
 
     /**
@@ -750,28 +749,5 @@ public class GregorianCalendarTest extends junit.framework.TestCase {
         assertEquals(0, gc.get(Calendar.SECOND));
         gc.set(1582, Calendar.OCTOBER, 14, 0, 0, 0);
         assertEquals(24, gc.get(Calendar.DAY_OF_MONTH));
-
-        // Regression test for HARMONY-2422
-        gc = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-        gc.set(GregorianCalendar.ZONE_OFFSET, -1);
-        assertEquals(-1, gc.get(GregorianCalendar.ZONE_OFFSET));
-        gc.set(GregorianCalendar.ZONE_OFFSET, 1);
-        assertEquals(1, gc.get(GregorianCalendar.ZONE_OFFSET));
-        gc.set(GregorianCalendar.ZONE_OFFSET, 0);
-        assertEquals(0, gc.get(GregorianCalendar.ZONE_OFFSET));
-    }
-
-    /**
-     * Sets up the fixture, for example, open a network connection. This method
-     * is called before a test is executed.
-     */
-    protected void setUp() {
-    }
-
-    /**
-     * Tears down the fixture, for example, close a network connection. This
-     * method is called after a test is executed.
-     */
-    protected void tearDown() {
     }
 }
