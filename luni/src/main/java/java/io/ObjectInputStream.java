@@ -1736,9 +1736,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
      */
     protected Class<?> resolveProxyClass(String[] interfaceNames)
             throws IOException, ClassNotFoundException {
-        // TODO: This method is opportunity for performance enhancement
-        //       We can cache the classloader and recently used interfaces.
-        ClassLoader loader = ClassLoader.getSystemClassLoader();
+        ClassLoader loader = callerClassLoader;
         Class<?>[] interfaces = new Class<?>[interfaceNames.length];
         for (int i = 0; i < interfaceNames.length; i++) {
             interfaces[i] = Class.forName(interfaceNames[i], false, loader);
