@@ -76,7 +76,8 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
         pr.enqueue();
 
         try {
-            assertNull("Remove failed.", rq.poll().get());
+            assertTrue("Remove failed.", ((Boolean) rq.poll().get())
+                    .booleanValue());
         } catch (Exception e) {
             fail("Exception during the test : " + e.getMessage());
         }
@@ -88,11 +89,11 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
         }
 
         try {
-            assertTrue("Remove failed.", ((Boolean) rq.poll().get())
-                    .booleanValue());
+            assertNull("Remove failed.", rq.poll().get());
         } catch (Exception e) {
             fail("Exception during the test : " + e.getMessage());
         }
+
         assertNull(rq.poll());
 
         sr.enqueue();
@@ -182,11 +183,11 @@ public class ReferenceQueueTest extends junit.framework.TestCase {
 
         try {
             Reference result = rq.remove(1L);
-            assertTrue((Boolean)result.get());
+            assertNull(result.get());
             result = rq.remove(1L);
             assertEquals(obj, result.get());
             result = rq.remove(1L);
-            assertNull(result.get());
+            assertTrue((Boolean)result.get());
         } catch (IllegalArgumentException e1) {
             fail("IllegalArgumentException was thrown.");
         } catch (InterruptedException e1) {
