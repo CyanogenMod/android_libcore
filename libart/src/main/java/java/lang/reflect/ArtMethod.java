@@ -105,19 +105,6 @@ public final class ArtMethod {
      */
     private int methodIndex;
 
-    /* Quick compiler meta-data. TODO: merge and place in native heap. */
-
-    /** Bit map of spilled machine registers. */
-    private int quickCoreSpillMask;
-
-    /** Bit map of spilled floating point machine registers. */
-    private int quickFpSpillMask;
-
-    /** Fixed frame size for this method when executed. */
-    private int quickFrameSizeInBytes;
-
-    /* End of quick compiler meta-data. */
-
     /** Only created by ART directly. */
     private ArtMethod() {}
 
