@@ -897,7 +897,7 @@ public final class StandardNames extends Assert {
         MINIMUM_KEY_SIZE = new HashMap<String, Integer>();
         PRIVATE_KEY_SPEC_CLASSES.put("RSA", RSAPrivateCrtKeySpec.class);
         PUBLIC_KEY_SPEC_CLASSES.put("RSA", RSAPublicKeySpec.class);
-        MINIMUM_KEY_SIZE.put("RSA", 256);
+        MINIMUM_KEY_SIZE.put("RSA", 512);
         PRIVATE_KEY_SPEC_CLASSES.put("DSA", DSAPrivateKeySpec.class);
         PUBLIC_KEY_SPEC_CLASSES.put("DSA", DSAPublicKeySpec.class);
         MINIMUM_KEY_SIZE.put("DSA", 512);
