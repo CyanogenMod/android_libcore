@@ -25,6 +25,7 @@
 #include "NetworkUtilities.h"
 #include "Portability.h"
 #include "readlink.h"
+#include "../../bionic/libc/dns/include/resolv_netid.h"  // For android_getaddrinfofornet.
 #include "ScopedBytes.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
@@ -645,7 +646,8 @@ static jstring Posix_gai_strerror(JNIEnv* env, jobject, jint error) {
     return env->NewStringUTF(gai_strerror(error));
 }
 
-static jobjectArray Posix_getaddrinfo(JNIEnv* env, jobject, jstring javaNode, jobject javaHints) {
+static jobjectArray Posix_android_getaddrinfo(JNIEnv* env, jobject, jstring javaNode,
+        jobject javaHints, jint netId) {
     ScopedUtfChars node(env, javaNode);
     if (node.c_str() == NULL) {
         return NULL;
@@ -665,10 +667,10 @@ static jobjectArray Posix_getaddrinfo(JNIEnv* env, jobject, jstring javaNode, jo
 
     addrinfo* addressList = NULL;
     errno = 0;
-    int rc = getaddrinfo(node.c_str(), NULL, &hints, &addressList);
+    int rc = android_getaddrinfofornet(node.c_str(), NULL, &hints, netId, 0, &addressList);
     UniquePtr<addrinfo, addrinfo_deleter> addressListDeleter(addressList);
     if (rc != 0) {
-        throwGaiException(env, "getaddrinfo", rc);
+        throwGaiException(env, "android_getaddrinfo", rc);
         return NULL;
     }
 
@@ -678,7 +680,7 @@ static jobjectArray Posix_getaddrinfo(JNIEnv* env, jobject, jstring javaNode, jo
         if (ai->ai_family == AF_INET || ai->ai_family == AF_INET6) {
             ++addressCount;
         } else {
-            ALOGE("getaddrinfo unexpected ai_family %i", ai->ai_family);
+            ALOGE("android_getaddrinfo unexpected ai_family %i", ai->ai_family);
         }
     }
     if (addressCount == 0) {
@@ -696,7 +698,7 @@ static jobjectArray Posix_getaddrinfo(JNIEnv* env, jobject, jstring javaNode, jo
     for (addrinfo* ai = addressList; ai != NULL; ai = ai->ai_next) {
         if (ai->ai_family != AF_INET && ai->ai_family != AF_INET6) {
             // Unknown address family. Skip this address.
-            ALOGE("getaddrinfo unexpected ai_family %i", ai->ai_family);
+            ALOGE("android_getaddrinfo unexpected ai_family %i", ai->ai_family);
             continue;
         }
 
@@ -1499,6 +1501,7 @@ static jint Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buff
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, accept, "(Ljava/io/FileDescriptor;Ljava/net/InetSocketAddress;)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, access, "(Ljava/lang/String;I)Z"),
+    NATIVE_METHOD(Posix, android_getaddrinfo, "(Ljava/lang/String;Landroid/system/StructAddrinfo;I)[Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, bind, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
     NATIVE_METHOD(Posix, chmod, "(Ljava/lang/String;I)V"),
     NATIVE_METHOD(Posix, chown, "(Ljava/lang/String;II)V"),
@@ -1520,7 +1523,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, fsync, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, ftruncate, "(Ljava/io/FileDescriptor;J)V"),
     NATIVE_METHOD(Posix, gai_strerror, "(I)Ljava/lang/String;"),
-    NATIVE_METHOD(Posix, getaddrinfo, "(Ljava/lang/String;Landroid/system/StructAddrinfo;)[Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, getegid, "()I"),
     NATIVE_METHOD(Posix, geteuid, "()I"),
     NATIVE_METHOD(Posix, getgid, "()I"),

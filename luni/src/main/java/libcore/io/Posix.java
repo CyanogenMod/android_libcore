@@ -46,6 +46,7 @@ public final class Posix implements Os {
 
     public native FileDescriptor accept(FileDescriptor fd, InetSocketAddress peerAddress) throws ErrnoException, SocketException;
     public native boolean access(String path, int mode) throws ErrnoException;
+    public native InetAddress[] android_getaddrinfo(String node, StructAddrinfo hints, int netId) throws GaiException;
     public native void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException;
     public native void chmod(String path, int mode) throws ErrnoException;
     public native void chown(String path, int uid, int gid) throws ErrnoException;
@@ -67,7 +68,6 @@ public final class Posix implements Os {
     public native void fsync(FileDescriptor fd) throws ErrnoException;
     public native void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public native String gai_strerror(int error);
-    public native InetAddress[] getaddrinfo(String node, StructAddrinfo hints) throws GaiException;
     public native int getegid();
     public native int geteuid();
     public native int getgid();

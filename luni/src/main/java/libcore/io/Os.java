@@ -43,6 +43,7 @@ import java.nio.ByteBuffer;
 public interface Os {
     public FileDescriptor accept(FileDescriptor fd, InetSocketAddress peerAddress) throws ErrnoException, SocketException;
     public boolean access(String path, int mode) throws ErrnoException;
+    public InetAddress[] android_getaddrinfo(String node, StructAddrinfo hints, int netId) throws GaiException;
     public void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException;
     public void chmod(String path, int mode) throws ErrnoException;
     public void chown(String path, int uid, int gid) throws ErrnoException;
@@ -64,7 +65,6 @@ public interface Os {
     public void fsync(FileDescriptor fd) throws ErrnoException;
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException;
     public String gai_strerror(int error);
-    public InetAddress[] getaddrinfo(String node, StructAddrinfo hints) throws GaiException;
     public int getegid();
     public int geteuid();
     public int getgid();

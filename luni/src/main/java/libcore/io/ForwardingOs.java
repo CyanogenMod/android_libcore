@@ -52,6 +52,7 @@ public class ForwardingOs implements Os {
 
     public FileDescriptor accept(FileDescriptor fd, InetSocketAddress peerAddress) throws ErrnoException, SocketException { return os.accept(fd, peerAddress); }
     public boolean access(String path, int mode) throws ErrnoException { return os.access(path, mode); }
+    public InetAddress[] android_getaddrinfo(String node, StructAddrinfo hints, int netId) throws GaiException { return os.android_getaddrinfo(node, hints, netId); }
     public void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException { os.bind(fd, address, port); }
     public void chmod(String path, int mode) throws ErrnoException { os.chmod(path, mode); }
     public void chown(String path, int uid, int gid) throws ErrnoException { os.chown(path, uid, gid); }
@@ -73,7 +74,6 @@ public class ForwardingOs implements Os {
     public void fsync(FileDescriptor fd) throws ErrnoException { os.fsync(fd); }
     public void ftruncate(FileDescriptor fd, long length) throws ErrnoException { os.ftruncate(fd, length); }
     public String gai_strerror(int error) { return os.gai_strerror(error); }
-    public InetAddress[] getaddrinfo(String node, StructAddrinfo hints) throws GaiException { return os.getaddrinfo(node, hints); }
     public int getegid() { return os.getegid(); }
     public int geteuid() { return os.geteuid(); }
     public int getgid() { return os.getgid(); }

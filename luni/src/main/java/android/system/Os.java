@@ -61,6 +61,8 @@ public final class Os {
    */
   public static boolean access(String path, int mode) throws ErrnoException { return Libcore.os.access(path, mode); }
 
+  /** @hide */ public static InetAddress[] android_getaddrinfo(String node, StructAddrinfo hints, int netId) throws GaiException { return Libcore.os.android_getaddrinfo(node, hints, netId); }
+
   /**
    * See <a href="http://man7.org/linux/man-pages/man2/bind.2.html">bind(2)</a>.
    */
@@ -154,8 +156,6 @@ public final class Os {
    * See <a href="http://man7.org/linux/man-pages/man3/gai_strerror.3.html">gai_strerror(3)</a>.
    */
   public static String gai_strerror(int error) { return Libcore.os.gai_strerror(error); }
-
-  /** @hide */ public static InetAddress[] getaddrinfo(String node, StructAddrinfo hints) throws GaiException { return Libcore.os.getaddrinfo(node, hints); }
 
   /**
    * See <a href="http://man7.org/linux/man-pages/man2/getegid.2.html">getegid(2)</a>.

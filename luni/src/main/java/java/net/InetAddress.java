@@ -127,6 +127,9 @@ public class InetAddress implements Serializable {
 
     private static final long serialVersionUID = 3286316764910316507L;
 
+    /** Using NetID of NETID_UNSET indicates resolution should be done on default network. */
+    private static final int NETID_UNSET = 0;
+
     private int family;
 
     byte[] ipaddress;
@@ -209,14 +212,29 @@ public class InetAddress implements Serializable {
      * @throws UnknownHostException if the address lookup fails.
      */
     public static InetAddress[] getAllByName(String host) throws UnknownHostException {
-        return getAllByNameImpl(host).clone();
+        return getAllByNameImpl(host, NETID_UNSET).clone();
     }
 
     /**
-     * Returns the InetAddresses for {@code host}. The returned array is shared
-     * and must be cloned before it is returned to application code.
+     * Operates identically to {@code getAllByName} except host resolution is
+     * performed on the network designated by {@code netId}.
+     *
+     * @param host the hostname or literal IP string to be resolved.
+     * @param netId the network to use for host resolution.
+     * @return the array of addresses associated with the specified host.
+     * @throws UnknownHostException if the address lookup fails.
+     * @hide internal use only
      */
-    private static InetAddress[] getAllByNameImpl(String host) throws UnknownHostException {
+    public static InetAddress[] getAllByNameOnNet(String host, int netId) throws UnknownHostException {
+        return getAllByNameImpl(host, netId).clone();
+    }
+
+    /**
+     * Returns the InetAddresses for {@code host} on network {@code netId}. The
+     * returned array is shared and must be cloned before it is returned to
+     * application code.
+     */
+    private static InetAddress[] getAllByNameImpl(String host, int netId) throws UnknownHostException {
         if (host == null || host.isEmpty()) {
             return loopbackAddresses();
         }
@@ -231,7 +249,7 @@ public class InetAddress implements Serializable {
             return new InetAddress[] { result };
         }
 
-        return lookupHostByName(host).clone();
+        return lookupHostByName(host, netId).clone();
     }
 
     private static InetAddress makeInetAddress(byte[] bytes, String hostName) throws UnknownHostException {
@@ -264,7 +282,7 @@ public class InetAddress implements Serializable {
         hints.ai_flags = AI_NUMERICHOST;
         InetAddress[] addresses = null;
         try {
-            addresses = Libcore.os.getaddrinfo(address, hints);
+            addresses = Libcore.os.android_getaddrinfo(address, hints, NETID_UNSET);
         } catch (GaiException ignored) {
         }
         return (addresses != null) ? addresses[0] : null;
@@ -284,7 +302,22 @@ public class InetAddress implements Serializable {
      *             if the address lookup fails.
      */
     public static InetAddress getByName(String host) throws UnknownHostException {
-        return getAllByNameImpl(host)[0];
+        return getAllByNameImpl(host, NETID_UNSET)[0];
+    }
+
+    /**
+     * Operates identically to {@code getByName} except host resolution is
+     * performed on the network designated by {@code netId}.
+     *
+     * @param host
+     *            the hostName to be resolved to an address or {@code null}.
+     * @param netId the network to use for host resolution.
+     * @return the {@code InetAddress} instance representing the host.
+     * @throws UnknownHostException if the address lookup fails.
+     * @hide internal use only
+     */
+    public static InetAddress getByNameOnNet(String host, int netId) throws UnknownHostException {
+        return getAllByNameImpl(host, netId)[0];
     }
 
     /**
@@ -360,7 +393,7 @@ public class InetAddress implements Serializable {
      */
     public static InetAddress getLocalHost() throws UnknownHostException {
         String host = Libcore.os.uname().nodename;
-        return lookupHostByName(host)[0];
+        return lookupHostByName(host, NETID_UNSET)[0];
     }
 
     /**
@@ -377,12 +410,14 @@ public class InetAddress implements Serializable {
      * Resolves a hostname to its IP addresses using a cache.
      *
      * @param host the hostname to resolve.
+     * @param netId the network to perform resolution upon.
      * @return the IP addresses of the host.
      */
-    private static InetAddress[] lookupHostByName(String host) throws UnknownHostException {
+    private static InetAddress[] lookupHostByName(String host, int netId)
+            throws UnknownHostException {
         BlockGuard.getThreadPolicy().onNetwork();
         // Do we have a result cached?
-        Object cachedResult = addressCache.get(host);
+        Object cachedResult = addressCache.get(host, netId);
         if (cachedResult != null) {
             if (cachedResult instanceof InetAddress[]) {
                 // A cached positive result.
@@ -400,12 +435,12 @@ public class InetAddress implements Serializable {
             // for SOCK_STREAM and one for SOCK_DGRAM. Since we do not return the family
             // anyway, just pick one.
             hints.ai_socktype = SOCK_STREAM;
-            InetAddress[] addresses = Libcore.os.getaddrinfo(host, hints);
+            InetAddress[] addresses = Libcore.os.android_getaddrinfo(host, hints, netId);
             // TODO: should getaddrinfo set the hostname of the InetAddresses it returns?
             for (InetAddress address : addresses) {
                 address.hostName = host;
             }
-            addressCache.put(host, addresses);
+            addressCache.put(host, netId, addresses);
             return addresses;
         } catch (GaiException gaiException) {
             // If the failure appears to have been a lack of INTERNET permission, throw a clear
@@ -418,7 +453,7 @@ public class InetAddress implements Serializable {
             }
             // Otherwise, throw an UnknownHostException.
             String detailMessage = "Unable to resolve host \"" + host + "\": " + Libcore.os.gai_strerror(gaiException.error);
-            addressCache.putUnknownHost(host, detailMessage);
+            addressCache.putUnknownHost(host, netId, detailMessage);
             throw gaiException.rethrowAsUnknownHostException(detailMessage);
         }
     }

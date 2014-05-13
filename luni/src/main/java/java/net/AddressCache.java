@@ -37,8 +37,36 @@ class AddressCache {
     private static final long TTL_NANOS = 2 * 1000000000L;
 
     // The actual cache.
-    private final BasicLruCache<String, AddressCacheEntry> cache
-            = new BasicLruCache<String, AddressCacheEntry>(MAX_ENTRIES);
+    private final BasicLruCache<AddressCacheKey, AddressCacheEntry> cache
+            = new BasicLruCache<AddressCacheKey, AddressCacheEntry>(MAX_ENTRIES);
+
+    static class AddressCacheKey {
+        private final String mHostname;
+        private final int mNetId;
+
+        AddressCacheKey(String hostname, int netId) {
+            mHostname = hostname;
+            mNetId = netId;
+        }
+
+        @Override public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof AddressCacheKey)) {
+                return false;
+            }
+            AddressCacheKey lhs = (AddressCacheKey) o;
+            return mHostname.equals(lhs.mHostname) && mNetId == lhs.mNetId;
+        }
+
+        @Override public int hashCode() {
+            int result = 17;
+            result = 31 * result + mNetId;
+            result = 31 * result + mHostname.hashCode();
+            return result;
+        }
+    }
 
     static class AddressCacheEntry {
         // Either an InetAddress[] for a positive entry,
@@ -67,12 +95,12 @@ class AddressCache {
     }
 
     /**
-     * Returns the cached InetAddress[] associated with 'hostname'. Returns null if nothing is known
-     * about 'hostname'. Returns a String suitable for use as an UnknownHostException detail
-     * message if 'hostname' is known not to exist.
+     * Returns the cached InetAddress[] for 'hostname' on network 'netId'. Returns null
+     * if nothing is known about 'hostname'. Returns a String suitable for use as an
+     * UnknownHostException detail message if 'hostname' is known not to exist.
      */
-    public Object get(String hostname) {
-        AddressCacheEntry entry = cache.get(hostname);
+    public Object get(String hostname, int netId) {
+        AddressCacheEntry entry = cache.get(new AddressCacheKey(hostname, netId));
         // Do we have a valid cache entry?
         if (entry != null && entry.expiryNanos >= System.nanoTime()) {
             return entry.value;
@@ -86,15 +114,15 @@ class AddressCache {
      * Associates the given 'addresses' with 'hostname'. The association will expire after a
      * certain length of time.
      */
-    public void put(String hostname, InetAddress[] addresses) {
-        cache.put(hostname, new AddressCacheEntry(addresses));
+    public void put(String hostname, int netId, InetAddress[] addresses) {
+        cache.put(new AddressCacheKey(hostname, netId), new AddressCacheEntry(addresses));
     }
 
     /**
      * Records that 'hostname' is known not to have any associated addresses. (I.e. insert a
      * negative cache entry.)
      */
-    public void putUnknownHost(String hostname, String detailMessage) {
-        cache.put(hostname, new AddressCacheEntry(detailMessage));
+    public void putUnknownHost(String hostname, int netId, String detailMessage) {
+        cache.put(new AddressCacheKey(hostname, netId), new AddressCacheEntry(detailMessage));
     }
 }
