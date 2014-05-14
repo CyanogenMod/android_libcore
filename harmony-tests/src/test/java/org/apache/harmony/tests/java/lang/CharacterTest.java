@@ -80,7 +80,6 @@ public class CharacterTest extends TestCase {
     }
 
     public void test_charCountI() {
-
         for (int c = '\u0000'; c <= '\uFFFF'; c++) {
             assertEquals(1, Character.charCount(c));
         }
@@ -109,14 +108,11 @@ public class CharacterTest extends TestCase {
 
     @SuppressWarnings("cast")
     public void test_codePointAtLjava_lang_CharSequenceI() {
-
-        assertEquals('a', Character.codePointAt((CharSequence) "abc", 0));
-        assertEquals('b', Character.codePointAt((CharSequence) "abc", 1));
-        assertEquals('c', Character.codePointAt((CharSequence) "abc", 2));
-        assertEquals(0x10000, Character.codePointAt(
-                (CharSequence) "\uD800\uDC00", 0));
-        assertEquals('\uDC00', Character.codePointAt(
-                (CharSequence) "\uD800\uDC00", 1));
+        assertEquals('a', Character.codePointAt("abc", 0));
+        assertEquals('b', Character.codePointAt("abc", 1));
+        assertEquals('c', Character.codePointAt("abc", 2));
+        assertEquals(0x10000, Character.codePointAt("\uD800\uDC00", 0));
+        assertEquals('\uDC00', Character.codePointAt("\uD800\uDC00", 1));
 
         try {
             Character.codePointAt((CharSequence) null, 0);
@@ -125,27 +121,24 @@ public class CharacterTest extends TestCase {
         }
 
         try {
-            Character.codePointAt((CharSequence) "abc", -1);
+            Character.codePointAt("abc", -1);
             fail("No IOOBE, negative index.");
         } catch (IndexOutOfBoundsException e) {
         }
 
         try {
-            Character.codePointAt((CharSequence) "abc", 4);
+            Character.codePointAt("abc", 4);
             fail("No IOOBE, index too large.");
         } catch (IndexOutOfBoundsException e) {
         }
     }
 
     public void test_codePointAt$CI() {
-
         assertEquals('a', Character.codePointAt("abc".toCharArray(), 0));
         assertEquals('b', Character.codePointAt("abc".toCharArray(), 1));
         assertEquals('c', Character.codePointAt("abc".toCharArray(), 2));
-        assertEquals(0x10000, Character.codePointAt("\uD800\uDC00"
-                .toCharArray(), 0));
-        assertEquals('\uDC00', Character.codePointAt("\uD800\uDC00"
-                .toCharArray(), 1));
+        assertEquals(0x10000, Character.codePointAt("\uD800\uDC00".toCharArray(), 0));
+        assertEquals('\uDC00', Character.codePointAt("\uD800\uDC00".toCharArray(), 1));
 
         try {
             Character.codePointAt((char[]) null, 0);
@@ -167,19 +160,15 @@ public class CharacterTest extends TestCase {
     }
 
     public void test_codePointAt$CII() {
-
         assertEquals('a', Character.codePointAt("abc".toCharArray(), 0, 3));
         assertEquals('b', Character.codePointAt("abc".toCharArray(), 1, 3));
         assertEquals('c', Character.codePointAt("abc".toCharArray(), 2, 3));
-        assertEquals(0x10000, Character.codePointAt("\uD800\uDC00"
-                .toCharArray(), 0, 2));
-        assertEquals('\uDC00', Character.codePointAt("\uD800\uDC00"
-                .toCharArray(), 1, 2));
-        assertEquals('\uD800', Character.codePointAt("\uD800\uDC00"
-                .toCharArray(), 0, 1));
+        assertEquals(0x10000, Character.codePointAt("\uD800\uDC00".toCharArray(), 0, 2));
+        assertEquals('\uDC00', Character.codePointAt("\uD800\uDC00".toCharArray(), 1, 2));
+        assertEquals('\uD800', Character.codePointAt("\uD800\uDC00".toCharArray(), 0, 1));
 
         try {
-            Character.codePointAt((char[]) null, 0, 1);
+            Character.codePointAt(null, 0, 1);
             fail("No NPE.");
         } catch (NullPointerException e) {
         }
@@ -211,14 +200,11 @@ public class CharacterTest extends TestCase {
 
     @SuppressWarnings("cast")
     public void test_codePointBeforeLjava_lang_CharSequenceI() {
-
-        assertEquals('a', Character.codePointBefore((CharSequence) "abc", 1));
-        assertEquals('b', Character.codePointBefore((CharSequence) "abc", 2));
-        assertEquals('c', Character.codePointBefore((CharSequence) "abc", 3));
-        assertEquals(0x10000, Character.codePointBefore(
-                (CharSequence) "\uD800\uDC00", 2));
-        assertEquals('\uD800', Character.codePointBefore(
-                (CharSequence) "\uD800\uDC00", 1));
+        assertEquals('a', Character.codePointBefore("abc", 1));
+        assertEquals('b', Character.codePointBefore("abc", 2));
+        assertEquals('c', Character.codePointBefore("abc", 3));
+        assertEquals(0x10000, Character.codePointBefore("\uD800\uDC00", 2));
+        assertEquals('\uD800', Character.codePointBefore("\uD800\uDC00", 1));
 
         try {
             Character.codePointBefore((CharSequence) null, 0);
@@ -227,27 +213,24 @@ public class CharacterTest extends TestCase {
         }
 
         try {
-            Character.codePointBefore((CharSequence) "abc", 0);
+            Character.codePointBefore("abc", 0);
             fail("No IOOBE, index below one.");
         } catch (IndexOutOfBoundsException e) {
         }
 
         try {
-            Character.codePointBefore((CharSequence) "abc", 4);
+            Character.codePointBefore("abc", 4);
             fail("No IOOBE, index too large.");
         } catch (IndexOutOfBoundsException e) {
         }
     }
 
     public void test_codePointBefore$CI() {
-
         assertEquals('a', Character.codePointBefore("abc".toCharArray(), 1));
         assertEquals('b', Character.codePointBefore("abc".toCharArray(), 2));
         assertEquals('c', Character.codePointBefore("abc".toCharArray(), 3));
-        assertEquals(0x10000, Character.codePointBefore("\uD800\uDC00"
-                .toCharArray(), 2));
-        assertEquals('\uD800', Character.codePointBefore("\uD800\uDC00"
-                .toCharArray(), 1));
+        assertEquals(0x10000, Character.codePointBefore("\uD800\uDC00".toCharArray(), 2));
+        assertEquals('\uD800', Character.codePointBefore("\uD800\uDC00".toCharArray(), 1));
 
         try {
             Character.codePointBefore((char[]) null, 0);
@@ -269,19 +252,15 @@ public class CharacterTest extends TestCase {
     }
 
     public void test_codePointBefore$CII() {
-
         assertEquals('a', Character.codePointBefore("abc".toCharArray(), 1, 0));
         assertEquals('b', Character.codePointBefore("abc".toCharArray(), 2, 0));
         assertEquals('c', Character.codePointBefore("abc".toCharArray(), 3, 0));
-        assertEquals(0x10000, Character.codePointBefore("\uD800\uDC00"
-                .toCharArray(), 2, 0));
-        assertEquals('\uDC00', Character.codePointBefore("\uD800\uDC00"
-                .toCharArray(), 2, 1));
-        assertEquals('\uD800', Character.codePointBefore("\uD800\uDC00"
-                .toCharArray(), 1, 0));
+        assertEquals(0x10000, Character.codePointBefore("\uD800\uDC00".toCharArray(), 2, 0));
+        assertEquals('\uDC00', Character.codePointBefore("\uD800\uDC00".toCharArray(), 2, 1));
+        assertEquals('\uD800', Character.codePointBefore("\uD800\uDC00".toCharArray(), 1, 0));
 
         try {
-            Character.codePointBefore((char[]) null, 1, 0);
+            Character.codePointBefore(null, 1, 0);
             fail("No NPE.");
         } catch (NullPointerException e) {
         }
@@ -355,14 +334,10 @@ public class CharacterTest extends TestCase {
     }
 
     public void test_toCharsI() {
-        assertTrue(Arrays.equals(new char[] { '\uD800', '\uDC00' }, Character
-                .toChars(0x10000)));
-        assertTrue(Arrays.equals(new char[] { '\uD800', '\uDC01' }, Character
-                .toChars(0x10001)));
-        assertTrue(Arrays.equals(new char[] { '\uD801', '\uDC01' }, Character
-                .toChars(0x10401)));
-        assertTrue(Arrays.equals(new char[] { '\uDBFF', '\uDFFF' }, Character
-                .toChars(0x10FFFF)));
+        assertTrue(Arrays.equals(new char[] { '\uD800', '\uDC00' }, Character.toChars(0x10000)));
+        assertTrue(Arrays.equals(new char[] { '\uD800', '\uDC01' }, Character.toChars(0x10001)));
+        assertTrue(Arrays.equals(new char[] { '\uD801', '\uDC01' }, Character.toChars(0x10401)));
+        assertTrue(Arrays.equals(new char[] { '\uDBFF', '\uDFFF' }, Character.toChars(0x10FFFF)));
 
         try {
             Character.toChars(Integer.MAX_VALUE);
@@ -431,7 +406,7 @@ public class CharacterTest extends TestCase {
         assertEquals(2, result);
 
         try {
-            Character.offsetByCodePoints((CharSequence) null, 0, 1);
+            Character.offsetByCodePoints(null, 0, 1);
             fail();
         } catch (NullPointerException e) {
         }
@@ -462,48 +437,37 @@ public class CharacterTest extends TestCase {
     }
 
     public void test_offsetByCodePoints$CIIII() {
-        int result = Character.offsetByCodePoints("a\uD800\uDC00b"
-                .toCharArray(), 0, 4, 0, 2);
+        int result = Character.offsetByCodePoints("a\uD800\uDC00b".toCharArray(), 0, 4, 0, 2);
         assertEquals(3, result);
 
-        result = Character.offsetByCodePoints("a\uD800\uDC00b".toCharArray(),
-                0, 4, 0, 3);
+        result = Character.offsetByCodePoints("a\uD800\uDC00b".toCharArray(), 0, 4, 0, 3);
         assertEquals(4, result);
 
-        result = Character.offsetByCodePoints("a\uD800\uDC00b\uD800c"
-                .toCharArray(), 0, 5, 0, 3);
+        result = Character.offsetByCodePoints("a\uD800\uDC00b\uD800c".toCharArray(), 0, 5, 0, 3);
         assertEquals(4, result);
 
-        result = Character
-                .offsetByCodePoints("abcd".toCharArray(), 0, 4, 3, -1);
+        result = Character.offsetByCodePoints("abcd".toCharArray(), 0, 4, 3, -1);
         assertEquals(2, result);
 
-        result = Character
-                .offsetByCodePoints("abcd".toCharArray(), 1, 2, 3, -2);
+        result = Character.offsetByCodePoints("abcd".toCharArray(), 1, 2, 3, -2);
         assertEquals(1, result);
 
-        result = Character.offsetByCodePoints("a\uD800\uDC00b".toCharArray(),
-                0, 4, 3, -1);
+        result = Character.offsetByCodePoints("a\uD800\uDC00b".toCharArray(), 0, 4, 3, -1);
         assertEquals(1, result);
 
-        result = Character.offsetByCodePoints("a\uD800\uDC00b".toCharArray(),
-                0, 2, 2, -1);
+        result = Character.offsetByCodePoints("a\uD800\uDC00b".toCharArray(), 0, 2, 2, -1);
         assertEquals(1, result);
 
-        result = Character.offsetByCodePoints("a\uD800\uDC00b".toCharArray(),
-                0, 4, 3, 0);
+        result = Character.offsetByCodePoints("a\uD800\uDC00b".toCharArray(), 0, 4, 3, 0);
         assertEquals(3, result);
 
-        result = Character.offsetByCodePoints("\uD800\uDC00bc".toCharArray(),
-                0, 4, 3, 0);
+        result = Character.offsetByCodePoints("\uD800\uDC00bc".toCharArray(), 0, 4, 3, 0);
         assertEquals(3, result);
 
-        result = Character.offsetByCodePoints("a\uDC00bc".toCharArray(), 0, 4,
-                3, -1);
+        result = Character.offsetByCodePoints("a\uDC00bc".toCharArray(), 0, 4, 3, -1);
         assertEquals(2, result);
 
-        result = Character.offsetByCodePoints("a\uD800bc".toCharArray(), 0, 4,
-                3, -1);
+        result = Character.offsetByCodePoints("a\uD800bc".toCharArray(), 0, 4, 3, -1);
         assertEquals(2, result);
 
         try {
@@ -590,7 +554,6 @@ public class CharacterTest extends TestCase {
     }
 
     public void test_codePointAt_Invalid() {
-
         try {
             Character.codePointAt(null, 6, 4);
             fail("Expected IndexOutOfBoundsException");
@@ -624,8 +587,7 @@ public class CharacterTest extends TestCase {
      * java.lang.Character#charValue()
      */
     public void test_charValue() {
-        assertEquals("Incorrect char value returned", 'T', new Character('T')
-                .charValue());
+        assertEquals("Incorrect char value returned", 'T', new Character('T').charValue());
     }
 
     /**
@@ -638,12 +600,9 @@ public class CharacterTest extends TestCase {
         Character z = new Character('d');
 
         assertEquals("Returned false for same Character", 0, c.compareTo(c));
-        assertEquals("Returned false for identical Character",
-                0, c.compareTo(x));
-        assertTrue("Returned other than less than for lesser char", c
-                .compareTo(y) > 0);
-        assertTrue("Returned other than greater than for greater char", c
-                .compareTo(z) < 0);
+        assertEquals("Returned false for identical Character", 0, c.compareTo(x));
+        assertTrue("Returned other than less than for lesser char", c.compareTo(y) > 0);
+        assertTrue("Returned other than greater than for greater char", c.compareTo(z) < 0);
     }
 
     /**
@@ -675,10 +634,8 @@ public class CharacterTest extends TestCase {
      */
     public void test_equalsLjava_lang_Object() {
         // Test for method boolean java.lang.Character.equals(java.lang.Object)
-        assertTrue("Equality test failed", new Character('A')
-                .equals(new Character('A')));
-        assertTrue("Equality test failed", !(new Character('A')
-                .equals(new Character('a'))));
+        assertTrue("Equality test failed", new Character('A').equals(new Character('A')));
+        assertFalse("Equality test failed", (new Character('A').equals(new Character('a'))));
     }
 
     /**
@@ -692,8 +649,7 @@ public class CharacterTest extends TestCase {
                     Character.forDigit(i, hexChars.length) == hexChars[i]);
         }
 
-        char decimalChars[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8',
-                '9' };
+        char decimalChars[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
         for (int i = 0; i < decimalChars.length; i++) {
             assertTrue(
                     "Returned incorrect char for " + Integer.toString(i),
@@ -706,18 +662,13 @@ public class CharacterTest extends TestCase {
      * java.lang.Character#getNumericValue(char)
      */
     public void test_getNumericValueC() {
-        assertEquals("Returned incorrect numeric value 1", 1, Character
-                .getNumericValue('1'));
-        assertEquals("Returned incorrect numeric value 2", 15, Character
-                .getNumericValue('F'));
-        assertEquals("Returned incorrect numeric value 3", -1, Character
-                .getNumericValue('\u221e'));
-        assertEquals("Returned incorrect numeric value 4", -2, Character
-                .getNumericValue('\u00be'));
-        assertEquals("Returned incorrect numeric value 5", 10000, Character
-                .getNumericValue('\u2182'));
-        assertEquals("Returned incorrect numeric value 6", 2, Character
-                .getNumericValue('\uff12'));
+        assertEquals("Returned incorrect numeric value 1", 1, Character.getNumericValue('1'));
+        assertEquals("Returned incorrect numeric value 2", 15, Character.getNumericValue('F'));
+        assertEquals("Returned incorrect numeric value 3", -1, Character.getNumericValue('\u221e'));
+        assertEquals("Returned incorrect numeric value 4", -2, Character.getNumericValue('\u00be'));
+        assertEquals("Returned incorrect numeric value 5", 10000,
+                Character.getNumericValue('\u2182'));
+        assertEquals("Returned incorrect numeric value 6", 2, Character.getNumericValue('\uff12'));
     }
 
     /**
@@ -746,9 +697,7 @@ public class CharacterTest extends TestCase {
         assertEquals(10, Character.getNumericValue(0x0061));
         assertEquals(35, Character.getNumericValue(0x007A));
         assertEquals(10, Character.getNumericValue(0xFF21));
-
-        //FIXME depends on ICU4J
-        //assertEquals(35, Character.getNumericValue(0xFF3A));
+        assertEquals(35, Character.getNumericValue(0xFF3A));
 
         assertEquals(10, Character.getNumericValue(0xFF41));
         assertEquals(35, Character.getNumericValue(0xFF5A));
@@ -776,12 +725,11 @@ public class CharacterTest extends TestCase {
                 Character.getType('_') == Character.CONNECTOR_PUNCTUATION);
         assertTrue("Returned incorrect type for: $",
                 Character.getType('$') == Character.CURRENCY_SYMBOL);
-        assertTrue("Returned incorrect type for: \u2029", Character
-                .getType('\u2029') == Character.PARAGRAPH_SEPARATOR);
+        assertTrue("Returned incorrect type for: \u2029",
+                Character.getType('\u2029') == Character.PARAGRAPH_SEPARATOR);
 
         assertEquals("Wrong constant for FORMAT", 16, Character.FORMAT);
-        assertEquals("Wrong constant for PRIVATE_USE",
-                18, Character.PRIVATE_USE);
+        assertEquals("Wrong constant for PRIVATE_USE", 18, Character.PRIVATE_USE);
     }
 
     /**
@@ -893,8 +841,7 @@ public class CharacterTest extends TestCase {
      * java.lang.Character#hashCode()
      */
     public void test_hashCode() {
-        assertEquals("Incorrect hash returned",
-                89, new Character('Y').hashCode());
+        assertEquals("Incorrect hash returned", 89, new Character('Y').hashCode());
     }
 
     /**
@@ -902,8 +849,7 @@ public class CharacterTest extends TestCase {
      */
     public void test_isDefinedC() {
         assertTrue("Defined character returned false", Character.isDefined('v'));
-        assertTrue("Defined character returned false", Character
-                .isDefined('\u6039'));
+        assertTrue("Defined character returned false", Character.isDefined('\u6039'));
     }
 
     /**
@@ -924,7 +870,7 @@ public class CharacterTest extends TestCase {
      */
     public void test_isDigitC() {
         assertTrue("Digit returned false", Character.isDigit('1'));
-        assertTrue("Non-Digit returned false", !Character.isDigit('A'));
+        assertFalse("Non-Digit returned false", Character.isDigit('A'));
     }
 
     /**
@@ -966,24 +912,23 @@ public class CharacterTest extends TestCase {
      * java.lang.Character#isIdentifierIgnorable(char)
      */
     public void test_isIdentifierIgnorableC() {
-        assertTrue("Ignorable whitespace returned false", Character
-                .isIdentifierIgnorable('\u0007'));
+        assertTrue("Ignorable whitespace returned false",
+                Character.isIdentifierIgnorable('\u0007'));
         assertTrue("Ignorable non - whitespace  control returned false",
                 Character.isIdentifierIgnorable('\u000f'));
-        assertTrue("Ignorable join control returned false", Character
-                .isIdentifierIgnorable('\u200e'));
+        assertTrue("Ignorable join control returned false",
+                Character.isIdentifierIgnorable('\u200e'));
 
         // the spec is wrong, and our implementation is correct
-        assertTrue("Ignorable bidi control returned false", Character
-                .isIdentifierIgnorable('\u202b'));
+        assertTrue("Ignorable bidi control returned false",
+                Character.isIdentifierIgnorable('\u202b'));
 
-        assertTrue("Ignorable format control returned false", Character
-                .isIdentifierIgnorable('\u206c'));
-        assertTrue("Ignorable zero-width no-break returned false", Character
-                .isIdentifierIgnorable('\ufeff'));
+        assertTrue("Ignorable format control returned false",
+                Character.isIdentifierIgnorable('\u206c'));
+        assertTrue("Ignorable zero-width no-break returned false",
+                Character.isIdentifierIgnorable('\ufeff'));
 
-        assertTrue("Non-Ignorable returned true", !Character
-                .isIdentifierIgnorable('\u0065'));
+        assertFalse("Non-Ignorable returned true", Character.isIdentifierIgnorable('\u0065'));
     }
 
     /**
@@ -1035,13 +980,13 @@ public class CharacterTest extends TestCase {
      */
     public void test_isISOControlC() {
         // Test for method boolean java.lang.Character.isISOControl(char)
-        for (int i = 0; i < 32; i++)
-            assertTrue("ISOConstrol char returned false", Character
-                    .isISOControl((char) i));
+        for (int i = 0; i < 32; i++) {
+            assertTrue("ISOConstrol char returned false", Character.isISOControl((char) i));
+        }
 
-        for (int i = 127; i < 160; i++)
-            assertTrue("ISOConstrol char returned false", Character
-                    .isISOControl((char) i));
+        for (int i = 127; i < 160; i++) {
+            assertTrue("ISOConstrol char returned false", Character.isISOControl((char) i));
+        }
     }
 
     /**
@@ -1049,18 +994,17 @@ public class CharacterTest extends TestCase {
      */
     public void test_isISOControlI() {
         // Test for method boolean java.lang.Character.isISOControl(char)
-        for (int i = 0; i < 32; i++)
-            assertTrue("ISOConstrol char returned false", Character
-                    .isISOControl(i));
+        for (int i = 0; i < 32; i++) {
+            assertTrue("ISOConstrol char returned false", Character.isISOControl(i));
+        }
 
-        for (int i = 127; i < 160; i++)
-            assertTrue("ISOConstrol char returned false", Character
-                    .isISOControl(i));
+        for (int i = 127; i < 160; i++) {
+            assertTrue("ISOConstrol char returned false", Character.isISOControl(i));
+        }
 
-        for (int i = 160; i < 260; i++)
-            assertFalse("Not ISOConstrol char returned true", Character
-                    .isISOControl(i));
-
+        for (int i = 160; i < 260; i++) {
+            assertFalse("Not ISOConstrol char returned true", Character.isISOControl(i));
+        }
     }
 
 
@@ -1069,14 +1013,11 @@ public class CharacterTest extends TestCase {
      */
     public void test_isJavaIdentifierPartC() {
         assertTrue("letter returned false", Character.isJavaIdentifierPart('l'));
-        assertTrue("currency returned false", Character
-                .isJavaIdentifierPart('$'));
+        assertTrue("currency returned false", Character.isJavaIdentifierPart('$'));
         assertTrue("digit returned false", Character.isJavaIdentifierPart('9'));
-        assertTrue("connecting char returned false", Character
-                .isJavaIdentifierPart('_'));
-        assertTrue("ignorable control returned true", !Character
-                .isJavaIdentifierPart('\u200b'));
-        assertTrue("semi returned true", !Character.isJavaIdentifierPart(';'));
+        assertTrue("connecting char returned false", Character.isJavaIdentifierPart('_'));
+        assertTrue("ignorable control returned false", Character.isJavaIdentifierPart('\u200b'));
+        assertFalse("semi returned true", Character.isJavaIdentifierPart(';'));
     }
 
     /**
@@ -1123,7 +1064,6 @@ public class CharacterTest extends TestCase {
         assertTrue(Character.isJavaIdentifierPart(0x00AD));
         assertTrue(Character.isJavaIdentifierPart(0xE007F));
 
-        //RI fails because 0x200B changes category in Unicode 4.1
         assertTrue(Character.isJavaIdentifierPart(0x200B));
     }
 
@@ -1131,16 +1071,12 @@ public class CharacterTest extends TestCase {
      * java.lang.Character#isJavaIdentifierStart(char)
      */
     public void test_isJavaIdentifierStartC() {
-        assertTrue("letter returned false", Character
-                .isJavaIdentifierStart('l'));
-        assertTrue("currency returned false", Character
-                .isJavaIdentifierStart('$'));
-        assertTrue("connecting char returned false", Character
-                .isJavaIdentifierStart('_'));
-        assertTrue("digit returned true", !Character.isJavaIdentifierStart('9'));
-        assertTrue("ignorable control returned true", !Character
-                .isJavaIdentifierStart('\u200b'));
-        assertTrue("semi returned true", !Character.isJavaIdentifierStart(';'));
+        assertTrue("letter returned false", Character.isJavaIdentifierStart('l'));
+        assertTrue("currency returned false", Character.isJavaIdentifierStart('$'));
+        assertTrue("connecting char returned false", Character.isJavaIdentifierStart('_'));
+        assertFalse("digit returned true", Character.isJavaIdentifierStart('9'));
+        assertFalse("ignorable control returned true", Character.isJavaIdentifierStart('\u200b'));
+        assertFalse("semi returned true", Character.isJavaIdentifierStart(';'));
     }
 
     /**
@@ -1184,13 +1120,11 @@ public class CharacterTest extends TestCase {
     public void test_isJavaLetterC() {
         assertTrue("letter returned false", Character.isJavaLetter('l'));
         assertTrue("currency returned false", Character.isJavaLetter('$'));
-        assertTrue("connecting char returned false", Character
-                .isJavaLetter('_'));
+        assertTrue("connecting char returned false", Character.isJavaLetter('_'));
 
-        assertTrue("digit returned true", !Character.isJavaLetter('9'));
-        assertTrue("ignored control returned true", !Character
-                .isJavaLetter('\u200b'));
-        assertTrue("semi returned true", !Character.isJavaLetter(';'));
+        assertFalse("digit returned true", Character.isJavaLetter('9'));
+        assertFalse("ignored control returned true", Character.isJavaLetter('\u200b'));
+        assertFalse("semi returned true", Character.isJavaLetter(';'));
     }
 
     /**
@@ -1199,12 +1133,10 @@ public class CharacterTest extends TestCase {
     @SuppressWarnings("deprecation")
     public void test_isJavaLetterOrDigitC() {
         assertTrue("letter returned false", Character.isJavaLetterOrDigit('l'));
-        assertTrue("currency returned false", Character
-                .isJavaLetterOrDigit('$'));
+        assertTrue("currency returned false", Character.isJavaLetterOrDigit('$'));
         assertTrue("digit returned false", Character.isJavaLetterOrDigit('9'));
-        assertTrue("connecting char returned false", Character
-                .isJavaLetterOrDigit('_'));
-        assertTrue("semi returned true", !Character.isJavaLetterOrDigit(';'));
+        assertTrue("connecting char returned false", Character.isJavaLetterOrDigit('_'));
+        assertFalse("semi returned true", Character.isJavaLetterOrDigit(';'));
     }
 
     /**
@@ -1212,7 +1144,7 @@ public class CharacterTest extends TestCase {
      */
     public void test_isLetterC() {
         assertTrue("Letter returned false", Character.isLetter('L'));
-        assertTrue("Non-Letter returned true", !Character.isLetter('9'));
+        assertFalse("Non-Letter returned true", Character.isLetter('9'));
     }
 
     /**
@@ -1237,8 +1169,8 @@ public class CharacterTest extends TestCase {
     public void test_isLetterOrDigitC() {
         assertTrue("Digit returned false", Character.isLetterOrDigit('9'));
         assertTrue("Letter returned false", Character.isLetterOrDigit('K'));
-        assertTrue("Control returned true", !Character.isLetterOrDigit('\n'));
-        assertTrue("Punctuation returned true", !Character.isLetterOrDigit('?'));
+        assertFalse("Control returned true", Character.isLetterOrDigit('\n'));
+        assertFalse("Punctuation returned true", Character.isLetterOrDigit('?'));
     }
 
     /**
@@ -1268,7 +1200,7 @@ public class CharacterTest extends TestCase {
      */
     public void test_isLowerCaseC() {
         assertTrue("lower returned false", Character.isLowerCase('a'));
-        assertTrue("upper returned true", !Character.isLowerCase('T'));
+        assertFalse("upper returned true", Character.isLowerCase('T'));
     }
 
     /**
@@ -1293,7 +1225,7 @@ public class CharacterTest extends TestCase {
     public void test_isSpaceC() {
         // Test for method boolean java.lang.Character.isSpace(char)
         assertTrue("space returned false", Character.isSpace('\n'));
-        assertTrue("non-space returned true", !Character.isSpace('T'));
+        assertFalse("non-space returned true", Character.isSpace('T'));
     }
 
     /**
@@ -1301,7 +1233,7 @@ public class CharacterTest extends TestCase {
      */
     public void test_isSpaceCharC() {
         assertTrue("space returned false", Character.isSpaceChar('\u0020'));
-        assertTrue("non-space returned true", !Character.isSpaceChar('\n'));
+        assertFalse("non-space returned true", Character.isSpaceChar('\n'));
     }
 
     /**
@@ -1337,9 +1269,11 @@ public class CharacterTest extends TestCase {
             if (Character.isTitleCase(c)) {
                 tnum++;
                 int i;
-                for (i = 0; i < tChars.length; i++)
-                    if (tChars[i] == c)
+                for (i = 0; i < tChars.length; i++) {
+                    if (tChars[i] == c) {
                         i = tChars.length + 1;
+                    }
+                }
                 if (i < tChars.length) {
                     fail("Non Title Case char returned true");
                 }
@@ -1359,8 +1293,8 @@ public class CharacterTest extends TestCase {
                 0x1fa9, 0x1faa, 0x1fab, 0x1fac, 0x1fad, 0x1fae, 0x1faf, 0x1fbc,
                 0x1fcc, 0x1ffc };
 
-        for (int i = 0; i < titleCaseCharacters.length; i++) {
-            assertTrue(Character.isTitleCase(titleCaseCharacters[i]));
+        for (int titleCaseCharacter : titleCaseCharacters) {
+            assertTrue(Character.isTitleCase(titleCaseCharacter));
         }
 
         assertFalse(Character.isTitleCase(0x110000));
@@ -1372,7 +1306,7 @@ public class CharacterTest extends TestCase {
     public void test_isUnicodeIdentifierPartC() {
         assertTrue("'a' returned false", Character.isUnicodeIdentifierPart('a'));
         assertTrue("'2' returned false", Character.isUnicodeIdentifierPart('2'));
-        assertTrue("'+' returned true", !Character.isUnicodeIdentifierPart('+'));
+        assertFalse("'+' returned true", Character.isUnicodeIdentifierPart('+'));
     }
 
     /**
@@ -1426,19 +1360,15 @@ public class CharacterTest extends TestCase {
      * java.lang.Character#isUnicodeIdentifierStart(char)
      */
     public void test_isUnicodeIdentifierStartC() {
-        assertTrue("'a' returned false", Character
-                .isUnicodeIdentifierStart('a'));
-        assertTrue("'2' returned true", !Character
-                .isUnicodeIdentifierStart('2'));
-        assertTrue("'+' returned true", !Character
-                .isUnicodeIdentifierStart('+'));
+        assertTrue("'a' returned false", Character.isUnicodeIdentifierStart('a'));
+        assertFalse("'2' returned true", Character.isUnicodeIdentifierStart('2'));
+        assertFalse("'+' returned true", Character.isUnicodeIdentifierStart('+'));
     }
 
     /**
      * java.lang.Character#isUnicodeIdentifierStart(int)
      */
     public void test_isUnicodeIdentifierStart_I() {
-
         assertTrue(Character.isUnicodeIdentifierStart((int) 'a'));
         assertFalse(Character.isUnicodeIdentifierStart((int) '2'));
         assertFalse(Character.isUnicodeIdentifierStart((int) '+'));
@@ -1466,7 +1396,7 @@ public class CharacterTest extends TestCase {
      * java.lang.Character#isUpperCase(char)
      */
     public void test_isUpperCaseC() {
-        assertTrue("Incorrect case value", !Character.isUpperCase('t'));
+        assertFalse("Incorrect case value", Character.isUpperCase('t'));
         assertTrue("Incorrect case value", Character.isUpperCase('T'));
     }
 
@@ -1490,7 +1420,7 @@ public class CharacterTest extends TestCase {
      */
     public void test_isWhitespaceC() {
         assertTrue("space returned false", Character.isWhitespace('\n'));
-        assertTrue("non-space returned true", !Character.isWhitespace('T'));
+        assertFalse("non-space returned true", Character.isWhitespace('T'));
     }
 
     /**
@@ -1522,8 +1452,7 @@ public class CharacterTest extends TestCase {
 
         assertFalse(Character.isWhitespace(0xFEFF));
 
-        //FIXME depend on ICU4J
-        //assertFalse(Character.isWhitespace(0x2007));
+        assertFalse(Character.isWhitespace(0x2007));
 
     }
 
@@ -1578,12 +1507,9 @@ public class CharacterTest extends TestCase {
      * java.lang.Character#toTitleCase(char)
      */
     public void test_toTitleCaseC() {
-        assertEquals("Incorrect title case for a",
-                'A', Character.toTitleCase('a'));
-        assertEquals("Incorrect title case for A",
-                'A', Character.toTitleCase('A'));
-        assertEquals("Incorrect title case for 1",
-                '1', Character.toTitleCase('1'));
+        assertEquals("Incorrect title case for a", 'A', Character.toTitleCase('a'));
+        assertEquals("Incorrect title case for A", 'A', Character.toTitleCase('A'));
+        assertEquals("Incorrect title case for 1", '1', Character.toTitleCase('1'));
     }
 
     /**
@@ -1606,12 +1532,9 @@ public class CharacterTest extends TestCase {
      */
     public void test_toUpperCaseC() {
         // Test for method char java.lang.Character.toUpperCase(char)
-        assertEquals("Incorrect upper case for a",
-                'A', Character.toUpperCase('a'));
-        assertEquals("Incorrect upper case for A",
-                'A', Character.toUpperCase('A'));
-        assertEquals("Incorrect upper case for 1",
-                '1', Character.toUpperCase('1'));
+        assertEquals("Incorrect upper case for a", 'A', Character.toUpperCase('a'));
+        assertEquals("Incorrect upper case for A", 'A', Character.toUpperCase('A'));
+        assertEquals("Incorrect upper case for 1", '1', Character.toUpperCase('1'));
     }
 
     /**
@@ -1633,101 +1556,82 @@ public class CharacterTest extends TestCase {
      * java.lang.Character#getDirectionality(int)
      */
     public void test_isDirectionaliy_I() {
-        assertEquals(Character.DIRECTIONALITY_UNDEFINED, Character
-                .getDirectionality(0xFFFE));
-        assertEquals(Character.DIRECTIONALITY_UNDEFINED, Character
-                .getDirectionality(0x30000));
-        assertEquals(Character.DIRECTIONALITY_UNDEFINED, Character
-                .getDirectionality(0x110000));
-        assertEquals(Character.DIRECTIONALITY_UNDEFINED, Character
-                .getDirectionality(-1));
+        assertEquals(Character.DIRECTIONALITY_UNDEFINED, Character.getDirectionality(0xFFFE));
+        assertEquals(Character.DIRECTIONALITY_UNDEFINED, Character.getDirectionality(0x30000));
+        assertEquals(Character.DIRECTIONALITY_UNDEFINED, Character.getDirectionality(0x110000));
+        assertEquals(Character.DIRECTIONALITY_UNDEFINED, Character.getDirectionality(-1));
 
-        assertEquals(Character.DIRECTIONALITY_LEFT_TO_RIGHT, Character
-                .getDirectionality(0x0041));
-        assertEquals(Character.DIRECTIONALITY_LEFT_TO_RIGHT, Character
-                .getDirectionality(0x10000));
-        assertEquals(Character.DIRECTIONALITY_LEFT_TO_RIGHT, Character
-                .getDirectionality(0x104A9));
+        assertEquals(Character.DIRECTIONALITY_LEFT_TO_RIGHT, Character.getDirectionality(0x0041));
+        assertEquals(Character.DIRECTIONALITY_LEFT_TO_RIGHT, Character.getDirectionality(0x10000));
+        assertEquals(Character.DIRECTIONALITY_LEFT_TO_RIGHT, Character.getDirectionality(0x104A9));
 
-        assertEquals(Character.DIRECTIONALITY_RIGHT_TO_LEFT, Character
-                .getDirectionality(0xFB4F));
-        assertEquals(Character.DIRECTIONALITY_RIGHT_TO_LEFT, Character
-                .getDirectionality(0x10838));
+        assertEquals(Character.DIRECTIONALITY_RIGHT_TO_LEFT, Character.getDirectionality(0xFB4F));
+        assertEquals(Character.DIRECTIONALITY_RIGHT_TO_LEFT, Character.getDirectionality(0x10838));
         // Unicode standard 5.1 changed category of unicode point 0x0600 from AL to AN
-        assertEquals(Character.DIRECTIONALITY_ARABIC_NUMBER, Character
-                .getDirectionality(0x0600));
-        assertEquals(Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC, Character
-                .getDirectionality(0xFEFC));
+        assertEquals(Character.DIRECTIONALITY_ARABIC_NUMBER, Character.getDirectionality(0x0600));
+        assertEquals(Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC,
+                Character.getDirectionality(0xFEFC));
 
-        assertEquals(Character.DIRECTIONALITY_EUROPEAN_NUMBER, Character
-                .getDirectionality(0x2070));
-        assertEquals(Character.DIRECTIONALITY_EUROPEAN_NUMBER, Character
-                .getDirectionality(0x1D7FF));
+        assertEquals(Character.DIRECTIONALITY_EUROPEAN_NUMBER, Character.getDirectionality(0x2070));
+        assertEquals(Character.DIRECTIONALITY_EUROPEAN_NUMBER,
+                Character.getDirectionality(0x1D7FF));
 
-        //RI fails ,this is non-bug difference between Unicode 4.0 and 4.1
-        assertEquals(Character.DIRECTIONALITY_EUROPEAN_NUMBER_SEPARATOR, Character
-                .getDirectionality(0x002B));
-        assertEquals(Character.DIRECTIONALITY_EUROPEAN_NUMBER_SEPARATOR, Character
-                .getDirectionality(0xFF0B));
+        assertEquals(Character.DIRECTIONALITY_EUROPEAN_NUMBER_SEPARATOR,
+                Character.getDirectionality(0x002B));
+        assertEquals(Character.DIRECTIONALITY_EUROPEAN_NUMBER_SEPARATOR,
+                Character.getDirectionality(0xFF0B));
 
-        assertEquals(Character.DIRECTIONALITY_EUROPEAN_NUMBER_TERMINATOR, Character
-                .getDirectionality(0x0023));
-        assertEquals(Character.DIRECTIONALITY_EUROPEAN_NUMBER_TERMINATOR, Character
-                .getDirectionality(0x17DB));
+        assertEquals(Character.DIRECTIONALITY_EUROPEAN_NUMBER_TERMINATOR,
+                Character.getDirectionality(0x0023));
+        assertEquals(Character.DIRECTIONALITY_EUROPEAN_NUMBER_TERMINATOR,
+                Character.getDirectionality(0x17DB));
 
-        assertEquals(Character.DIRECTIONALITY_ARABIC_NUMBER, Character
-                .getDirectionality(0x0660));
-        assertEquals(Character.DIRECTIONALITY_ARABIC_NUMBER, Character
-                .getDirectionality(0x066C));
+        assertEquals(Character.DIRECTIONALITY_ARABIC_NUMBER, Character.getDirectionality(0x0660));
+        assertEquals(Character.DIRECTIONALITY_ARABIC_NUMBER, Character.getDirectionality(0x066C));
 
-        assertEquals(Character.DIRECTIONALITY_COMMON_NUMBER_SEPARATOR, Character
-                .getDirectionality(0x002C));
-        assertEquals(Character.DIRECTIONALITY_COMMON_NUMBER_SEPARATOR, Character
-                .getDirectionality(0xFF1A));
+        assertEquals(Character.DIRECTIONALITY_COMMON_NUMBER_SEPARATOR,
+                Character.getDirectionality(0x002C));
+        assertEquals(Character.DIRECTIONALITY_COMMON_NUMBER_SEPARATOR,
+                Character.getDirectionality(0xFF1A));
 
-        assertEquals(Character.DIRECTIONALITY_NONSPACING_MARK, Character
-                .getDirectionality(0x17CE));
-        assertEquals(Character.DIRECTIONALITY_NONSPACING_MARK, Character
-                .getDirectionality(0xE01DB));
+        assertEquals(Character.DIRECTIONALITY_NONSPACING_MARK, Character.getDirectionality(0x17CE));
+        assertEquals(Character.DIRECTIONALITY_NONSPACING_MARK,
+                Character.getDirectionality(0xE01DB));
 
-        assertEquals(Character.DIRECTIONALITY_BOUNDARY_NEUTRAL, Character
-                .getDirectionality(0x0000));
-        assertEquals(Character.DIRECTIONALITY_BOUNDARY_NEUTRAL, Character
-                .getDirectionality(0xE007F));
+        assertEquals(Character.DIRECTIONALITY_BOUNDARY_NEUTRAL,
+                Character.getDirectionality(0x0000));
+        assertEquals(Character.DIRECTIONALITY_BOUNDARY_NEUTRAL,
+                Character.getDirectionality(0xE007F));
 
-        assertEquals(Character.DIRECTIONALITY_PARAGRAPH_SEPARATOR, Character
-                .getDirectionality(0x000A));
-        assertEquals(Character.DIRECTIONALITY_PARAGRAPH_SEPARATOR, Character
-                .getDirectionality(0x2029));
+        assertEquals(Character.DIRECTIONALITY_PARAGRAPH_SEPARATOR,
+                Character.getDirectionality(0x000A));
+        assertEquals(Character.DIRECTIONALITY_PARAGRAPH_SEPARATOR,
+                Character.getDirectionality(0x2029));
 
-        assertEquals(Character.DIRECTIONALITY_SEGMENT_SEPARATOR, Character
-                .getDirectionality(0x0009));
-        assertEquals(Character.DIRECTIONALITY_SEGMENT_SEPARATOR, Character
-                .getDirectionality(0x001F));
+        assertEquals(Character.DIRECTIONALITY_SEGMENT_SEPARATOR,
+                Character.getDirectionality(0x0009));
+        assertEquals(Character.DIRECTIONALITY_SEGMENT_SEPARATOR,
+                Character.getDirectionality(0x001F));
 
-        assertEquals(Character.DIRECTIONALITY_WHITESPACE, Character
-                .getDirectionality(0x0020));
-        assertEquals(Character.DIRECTIONALITY_WHITESPACE, Character
-                .getDirectionality(0x3000));
+        assertEquals(Character.DIRECTIONALITY_WHITESPACE, Character.getDirectionality(0x0020));
+        assertEquals(Character.DIRECTIONALITY_WHITESPACE, Character.getDirectionality(0x3000));
 
-        assertEquals(Character.DIRECTIONALITY_OTHER_NEUTRALS, Character
-                .getDirectionality(0x2FF0));
-        assertEquals(Character.DIRECTIONALITY_OTHER_NEUTRALS, Character
-                .getDirectionality(0x1D356));
+        assertEquals(Character.DIRECTIONALITY_OTHER_NEUTRALS, Character.getDirectionality(0x2FF0));
+        assertEquals(Character.DIRECTIONALITY_OTHER_NEUTRALS, Character.getDirectionality(0x1D356));
 
-        assertEquals(Character.DIRECTIONALITY_LEFT_TO_RIGHT_EMBEDDING, Character
-                .getDirectionality(0x202A));
+        assertEquals(Character.DIRECTIONALITY_LEFT_TO_RIGHT_EMBEDDING,
+                Character.getDirectionality(0x202A));
 
-        assertEquals(Character.DIRECTIONALITY_LEFT_TO_RIGHT_OVERRIDE, Character
-                .getDirectionality(0x202D));
+        assertEquals(Character.DIRECTIONALITY_LEFT_TO_RIGHT_OVERRIDE,
+                Character.getDirectionality(0x202D));
 
-        assertEquals(Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING, Character
-                .getDirectionality(0x202B));
+        assertEquals(Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING,
+                Character.getDirectionality(0x202B));
 
-        assertEquals(Character.DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE, Character
-                .getDirectionality(0x202E));
+        assertEquals(Character.DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE,
+                Character.getDirectionality(0x202E));
 
-        assertEquals(Character.DIRECTIONALITY_POP_DIRECTIONAL_FORMAT, Character
-                .getDirectionality(0x202C));
+        assertEquals(Character.DIRECTIONALITY_POP_DIRECTIONAL_FORMAT,
+                Character.getDirectionality(0x202C));
     }
 }
