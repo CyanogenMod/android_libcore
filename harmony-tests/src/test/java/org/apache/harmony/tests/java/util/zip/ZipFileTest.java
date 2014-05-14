@@ -17,75 +17,37 @@
 
 package org.apache.harmony.tests.java.util.zip;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.Permission;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+import libcore.io.Streams;
 import libcore.java.lang.ref.FinalizationTester;
 import tests.support.resource.Support_Resources;
 
 public class ZipFileTest extends junit.framework.TestCase {
 
-    public byte[] getAllBytesFromStream(InputStream is) throws IOException {
-        ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        byte[] buf = new byte[512];
-        int iRead;
-        int off;
-        while (is.available() > 0) {
-            iRead = is.read(buf, 0, buf.length);
-            if (iRead > 0) bs.write(buf, 0, iRead);
-        }
-        return bs.toByteArray();
-    }
-
     // the file hyts_zipFile.zip in setup must be included as a resource
     private String tempFileName;
-
     private ZipFile zfile;
-
-    // custom security manager
-    SecurityManager sm = new SecurityManager() {
-        final String forbidenPermissionAction = "read";
-
-
-
-        public void checkPermission(Permission perm) {
-            // only check if it's a FilePermission because Locale checks
-            // for a PropertyPermission with action"read" to get system props.
-            if (perm instanceof FilePermission
-                    && perm.getActions().equals(forbidenPermissionAction)) {
-                throw new SecurityException();
-            }
-        }
-    };
-
-    /**
-     * java.util.zip.ZipFile#ZipFile(java.io.File)
-     */
-    public void test_ConstructorLjava_io_File() {
-        // Test for method java.util.zip.ZipFile(java.io.File)
-        assertTrue("Used to test", true);
-    }
 
     /**
      * java.util.zip.ZipFile#ZipFile(java.io.File, int)
      */
     public void test_ConstructorLjava_io_FileI() throws IOException {
         zfile.close(); // about to reopen the same temp file
+
         File file = new File(tempFileName);
         ZipFile zip = new ZipFile(file, ZipFile.OPEN_DELETE | ZipFile.OPEN_READ);
         zip.close();
         assertTrue("Zip should not exist", !file.exists());
+
         file = new File(tempFileName);
-        file.delete();
         try {
             zip = new ZipFile(file, ZipFile.OPEN_READ);
             fail("IOException expected");
@@ -106,14 +68,12 @@ public class ZipFileTest extends junit.framework.TestCase {
      * java.util.zip.ZipFile#ZipFile(java.lang.String)
      */
     public void test_ConstructorLjava_lang_String() throws IOException {
-        System.setProperty("user.dir", System.getProperty("java.io.tmpdir"));
-
         zfile.close(); // about to reopen the same temp file
         ZipFile zip = new ZipFile(tempFileName);
         zip.close();
         File file = File.createTempFile("zip", "tmp");
         try {
-            zip = new ZipFile(file.getName());
+            zip = new ZipFile(file.getAbsolutePath());
             fail("ZipException expected");
         } catch (ZipException ee) {
             // expected
@@ -441,10 +401,12 @@ public class ZipFileTest extends junit.framework.TestCase {
         // Create a local copy of the file since some tests want to alter information.
         File tempFile = File.createTempFile("OldZipFileTest", "zip");
         tempFileName = tempFile.getAbsolutePath();
+
+
         InputStream is = Support_Resources.getStream("hyts_ZipFile.zip");
         FileOutputStream fos = new FileOutputStream(tempFile);
-        byte[] rbuf = getAllBytesFromStream(is);
-        fos.write(rbuf, 0, rbuf.length);
+        Streams.copy(is, fos);
+
         is.close();
         fos.close();
         zfile = new ZipFile(tempFile);
@@ -452,8 +414,6 @@ public class ZipFileTest extends junit.framework.TestCase {
 
     @Override
     protected void tearDown() throws IOException {
-        // Note zfile is a user-defined zip file used by other tests and
-        // should not be deleted
         if (zfile != null) {
             zfile.close();
         }

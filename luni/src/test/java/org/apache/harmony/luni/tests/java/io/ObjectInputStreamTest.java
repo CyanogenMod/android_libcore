@@ -1001,8 +1001,7 @@ public class ObjectInputStreamTest extends TestCase implements
 
     // Regression Test for JIRA 2192
     public void test_readObject_withPrimitiveClass() throws Exception {
-        File file = new File("test.ser");
-        file.deleteOnExit();
+        File file = File.createTempFile("ObjectInputStreamTest", ".ser");
         Test test = new Test();
         ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(
                 file));
