@@ -170,7 +170,8 @@ public class X509CertificateTest extends TestCase {
         final InputStream ris = Support_Resources.getStream("x509/cert-rsa-dates.txt");
         try {
             // notBefore=Dec 26 00:19:14 2012 GMT
-            final SimpleDateFormat sdf = new SimpleDateFormat("MMM dd HH:mm:ss yyyy zzz");
+            final SimpleDateFormat sdf =
+                    new SimpleDateFormat("MMM dd HH:mm:ss yyyy zzz", Locale.US);
 
             final BufferedReader buf = new BufferedReader(new InputStreamReader(ris));
             String line = buf.readLine();

@@ -1168,6 +1168,8 @@ public class SimpleDateFormat extends DateFormat {
         if (foundGMT) {
             offset += 3;
         }
+
+        // Check for an offset, which may have been preceded by "GMT"
         char sign;
         if (offset < string.length() && ((sign = string.charAt(offset)) == '+' || sign == '-')) {
             ParsePosition position = new ParsePosition(offset + 1);
@@ -1195,10 +1197,14 @@ public class SimpleDateFormat extends DateFormat {
             calendar.setTimeZone(new SimpleTimeZone(raw, ""));
             return position.getIndex();
         }
+
+        // If there was "GMT" but no offset.
         if (foundGMT) {
             calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
             return offset;
         }
+
+        // Exhaustively look for the string in this DateFormat's localized time zone strings.
         for (String[] row : formatData.internalZoneStrings()) {
             for (int i = TimeZoneNames.LONG_NAME; i < TimeZoneNames.NAME_COUNT; ++i) {
                 if (row[i] == null) {
