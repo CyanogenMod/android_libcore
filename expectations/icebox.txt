@@ -189,23 +189,6 @@
   name: "tests.api.javax.xml.parsers.SAXParserTest#test_parseLjava_io_InputStreamLorg_xml_sax_helpers_DefaultHandlerLjava_lang_String"
 },
 {
-  description: "these enforce a bug where an exception is incorrectly unthrown, but should maybe be fixed for
-                compatibility.",
-  result: EXEC_FAILED,
-  name: "org.apache.harmony.luni.tests.java.util.TreeMapTest#test_headMapLjava_lang_ObjectZL",
-  substring: "java.lang.IllegalArgumentException: null not in range ...5)"
-},
-{
-  description: "these enforce a bug where an exception is incorrectly unthrown, but should maybe be fixed for
-                compatibility.",
-  result: EXEC_FAILED,
-  names: [
-    "org.apache.harmony.luni.tests.java.util.TreeMapTest#test_tailMapLjava_lang_ObjectZL",
-    "org.apache.harmony.luni.tests.java.util.TreeMapTest#test_descendingMap_subMap"
-  ],
-  substring: "java.lang.IllegalArgumentException: 5 not in range (5..."
-},
-{
   description: "BouncyCastle allows unrecognized algorithms, but RI does not, not clear if this is a bug",
   result: EXEC_FAILED,
   name: "org.apache.harmony.crypto.tests.javax.crypto.KeyAgreementTest#test_generateSecretLjava_lang_String",
