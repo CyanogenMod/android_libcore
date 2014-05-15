@@ -18,11 +18,13 @@
 package java.net;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import libcore.net.UriCodec;
 
 /**
  * This class establishes a connection to a {@code jar:} URL using the {@code
@@ -64,12 +66,13 @@ public abstract class JarURLConnection extends URLConnection {
      */
     protected JarURLConnection(URL url) throws MalformedURLException {
         super(url);
-        file = url.getFile();
+        file = decode(url.getFile());
+
         int sepIdx;
         if ((sepIdx = file.indexOf("!/")) < 0) {
             throw new MalformedURLException();
         }
-        fileURL = new URL(url.getFile().substring(0,sepIdx));
+        fileURL = new URL(file.substring(0, sepIdx));
         sepIdx += 2;
         if (file.length() == sepIdx) {
             return;
@@ -189,4 +192,17 @@ public abstract class JarURLConnection extends URLConnection {
         Manifest m = getJarFile().getManifest();
         return (m == null) ? null : m.getMainAttributes();
     }
+
+    private static String decode(String encoded) throws MalformedURLException {
+        try {
+            // "+" means "+" in URLs. i.e. like RFC 3986, not like
+            // MIME application/x-www-form-urlencoded
+            final boolean convertPlus = false;
+            return UriCodec.decode(
+                    encoded, convertPlus, StandardCharsets.UTF_8, true /* throwOnFailure */);
+        } catch (IllegalArgumentException e) {
+            throw new MalformedURLException("Unable to decode URL", e);
+        }
+    }
+
 }
