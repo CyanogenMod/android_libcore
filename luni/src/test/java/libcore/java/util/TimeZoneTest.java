@@ -57,6 +57,7 @@ public class TimeZoneTest extends TestCase {
 
     // http://code.google.com/p/android/issues/detail?id=14395
     public void testPreHistoricInDaylightTime() throws Exception {
+        Locale.setDefault(Locale.US);
         TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
         TimeZone.setDefault(tz);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");

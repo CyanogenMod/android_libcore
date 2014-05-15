@@ -122,7 +122,7 @@ public class X509CRLTest extends TestCase {
 
     private Map<String, Date> getCrlDates(String name) throws Exception {
         Map<String, Date> dates = new HashMap<String, Date>();
-        final SimpleDateFormat sdf = new SimpleDateFormat("MMM dd HH:mm:ss yyyy zzz");
+        final SimpleDateFormat sdf = new SimpleDateFormat("MMM dd HH:mm:ss yyyy zzz", Locale.US);
 
         final InputStream ris = Support_Resources.getStream(name);
         try {
