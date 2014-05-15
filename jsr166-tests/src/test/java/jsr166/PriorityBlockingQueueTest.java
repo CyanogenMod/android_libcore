@@ -25,18 +25,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class PriorityBlockingQueueTest extends JSR166TestCase {
 
-    public static class Generic extends BlockingQueueTest {
-        protected BlockingQueue emptyCollection() {
-            return new PriorityBlockingQueue();
-        }
-    }
-
-    public static class InitialCapacity extends BlockingQueueTest {
-        protected BlockingQueue emptyCollection() {
-            return new PriorityBlockingQueue(SIZE);
-        }
-    }
-
     private static final int NOCAP = Integer.MAX_VALUE;
 
     /** Sample Comparator */
