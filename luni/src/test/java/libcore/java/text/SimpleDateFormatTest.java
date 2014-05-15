@@ -80,27 +80,12 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
     // The RI fails this test because it doesn't fully support UTS #35.
     // https://code.google.com/p/android/issues/detail?id=39616
     public void testFiveCount_parsing() throws Exception {
-      // It's pretty silly to try to parse the shortest names, because they're almost always ambiguous.
-      try {
-        parseDate(Locale.ENGLISH, "MMMMM", "J");
-        fail();
-      } catch (junit.framework.AssertionFailedError expected) {
-      }
-      try {
-        parseDate(Locale.ENGLISH, "LLLLL", "J");
-        fail();
-      } catch (junit.framework.AssertionFailedError expected) {
-      }
-      try {
-        parseDate(Locale.ENGLISH, "EEEEE", "T");
-        fail();
-      } catch (junit.framework.AssertionFailedError expected) {
-      }
-      try {
-        parseDate(Locale.ENGLISH, "ccccc", "T");
-        fail();
-      } catch (junit.framework.AssertionFailedError expected) {
-      }
+      // It's pretty silly to try to parse the shortest names, because they're almost always
+      // ambiguous.
+      assertCannotParse(Locale.ENGLISH, "MMMMM", "J");
+      assertCannotParse(Locale.ENGLISH, "LLLLL", "J");
+      assertCannotParse(Locale.ENGLISH, "EEEEE", "T");
+      assertCannotParse(Locale.ENGLISH, "ccccc", "T");
     }
 
     // The RI fails this test because it doesn't fully support UTS #35.
@@ -197,6 +182,13 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         return dateFormat.format(new Date(0));
     }
 
+    private static void assertCannotParse(Locale l, String fmt, String value) {
+        SimpleDateFormat sdf = new SimpleDateFormat(fmt, l);
+        ParsePosition pp = new ParsePosition(0);
+        Date d = sdf.parse(value, pp);
+        assertNull("Value " + value + " must not parse in locale " + l + " with format " + fmt, d);
+    }
+
     private static Calendar parseDate(Locale l, String fmt, String value) {
         SimpleDateFormat sdf = new SimpleDateFormat(fmt, l);
         ParsePosition pp = new ParsePosition(0);
@@ -215,21 +207,37 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         String date = "2010-12-23 12:44:57.0 CET";
         // ICU considers "CET" (Central European Time) to be common in Britain...
         assertEquals(1293104697000L, parseDate(Locale.UK, fmt, date).getTimeInMillis());
-        // ...but not in the US. Check we can parse such a date anyway.
-        assertEquals(1293104697000L, parseDate(Locale.US, fmt, date).getTimeInMillis());
+        // ...but not in the US.
+        assertCannotParse(Locale.US, fmt, date);
     }
 
+    // In Honeycomb, only one Olson id was associated with CET (or any other "uncommon"
+    // abbreviation). This was changed after KitKat to avoid Java hacks on top of ICU data.
+    // ICU data only provides abbreviations for timezones in the locales where they would
+    // not be ambiguous to most people of that locale.
     public void testFormattingUncommonTimeZoneAbbreviations() {
-        // In Honeycomb, only one Olson id was associated with CET (or any
-        // other "uncommon" abbreviation).
         String fmt = "yyyy-MM-dd HH:mm:ss.SSS z";
-        String date = "1970-01-01 01:00:00.000 CET";
-        SimpleDateFormat sdf = new SimpleDateFormat(fmt, Locale.US);
+        String unambiguousDate = "1970-01-01 01:00:00.000 CET";
+        String ambiguousDate = "1970-01-01 01:00:00.000 GMT+01:00";
+
+        // The locale to use when formatting. Not every Locale renders "Europe/Berlin" as "CET". The
+        // UK is one that does, the US is one that does not.
+        Locale cetUnambiguousLocale = Locale.UK;
+        Locale cetAmbiguousLocale = Locale.US;
+
+        SimpleDateFormat sdf = new SimpleDateFormat(fmt, cetUnambiguousLocale);
         sdf.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
-        assertEquals(date, sdf.format(new Date(0)));
-        sdf = new SimpleDateFormat(fmt, Locale.US);
+        assertEquals(unambiguousDate, sdf.format(new Date(0)));
+        sdf = new SimpleDateFormat(fmt, cetUnambiguousLocale);
         sdf.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));
-        assertEquals(date, sdf.format(new Date(0)));
+        assertEquals(unambiguousDate, sdf.format(new Date(0)));
+
+        sdf = new SimpleDateFormat(fmt, cetAmbiguousLocale);
+        sdf.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
+        assertEquals(ambiguousDate, sdf.format(new Date(0)));
+        sdf = new SimpleDateFormat(fmt, cetAmbiguousLocale);
+        sdf.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));
+        assertEquals(ambiguousDate, sdf.format(new Date(0)));
     }
 
     // http://code.google.com/p/android/issues/detail?id=8258
@@ -268,17 +276,6 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         assertEquals("2010-07-07T19:44:48-0700", sdf.format(date));
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         assertEquals("2010-07-08T02:44:48+0000", sdf.format(date));
-    }
-
-    /**
-     * Africa/Cairo standard time is EET and daylight time is EEST. They no
-     * longer use their DST zone but we should continue to parse it properly.
-     */
-    public void testObsoleteDstZoneName() throws Exception {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm zzzz", Locale.US);
-        Date normal = format.parse("1970-01-01T00:00 EET");
-        Date dst = format.parse("1970-01-01T00:00 EEST");
-        assertEquals(60 * 60 * 1000, normal.getTime() - dst.getTime());
     }
 
     public void testDstZoneNameWithNonDstTimestamp() throws Exception {
