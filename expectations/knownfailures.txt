@@ -18,11 +18,6 @@
   bug: 40103
 },
 {
-  description: "our regex implementation calls toString on CharSequences",
-  name: "org.apache.harmony.luni.tests.java.util.ScannerParseLargeFileBenchmarkTest#testParseLargeFile",
-  bug: 10133206
-},
-{
   description: "Method.getExceptionTypes() broken on proxy-generated classes",
   name: "libcore.java.lang.reflect.AnnotationsTest#testProxyMethodGetExceptions",
   bug: 5392273
@@ -191,12 +186,7 @@
   description: "Math failures when running on the host",
   names: [
     "libcore.java.lang.OldAndroidStrictMathTest#testLog1pD",
-    "libcore.java.lang.OldAndroidStrictMathTest#testRintD",
-    "org.apache.harmony.luni.tests.java.lang.MathTest#test_cbrt_D",
-    "org.apache.harmony.luni.tests.java.lang.MathTest#test_powDD",
-    "org.apache.harmony.luni.tests.java.lang.MathTest#test_sinh_D",
-    "org.apache.harmony.luni.tests.java.lang.StrictMathTest#test_log1p_D",
-    "org.apache.harmony.luni.tests.java.lang.StrictMathTest#test_rintD"
+    "libcore.java.lang.OldAndroidStrictMathTest#testRintD"
   ],
   bug: 2931959,
   modes: [ "host" ]
