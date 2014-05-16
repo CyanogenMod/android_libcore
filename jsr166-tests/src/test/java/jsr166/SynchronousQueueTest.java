@@ -24,18 +24,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class SynchronousQueueTest extends JSR166TestCase {
 
-    public static class Fair extends BlockingQueueTest {
-        protected BlockingQueue emptyCollection() {
-            return new SynchronousQueue(true);
-        }
-    }
-
-    public static class NonFair extends BlockingQueueTest {
-        protected BlockingQueue emptyCollection() {
-            return new SynchronousQueue(false);
-        }
-    }
-
     /**
      * Any SynchronousQueue is both empty and full
      */
