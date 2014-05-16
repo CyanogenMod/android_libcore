@@ -6,9 +6,7 @@
   description: "four known CharsetDecoder-/CharsetEncoder-related failures",
   names: [
     "org.apache.harmony.tests.java.nio.charset.ASCIICharsetEncoderTest#testCanEncodeSurrogate",
-    "org.apache.harmony.tests.java.nio.charset.ASCIICharsetEncoderTest#testMultiStepEncode",
-    "org.apache.harmony.tests.java.nio.charset.CharsetDecoderTest#testInvalidDecoding",
-    "org.apache.harmony.tests.java.nio.charset.CharsetDecoderTest#test_decode"
+    "org.apache.harmony.tests.java.nio.charset.ASCIICharsetEncoderTest#testMultiStepEncode"
   ],
   bug: 10729779
 },
@@ -33,14 +31,6 @@
   bug: 4471249
 },
 {
-  description: "Investigate InterruptedIOException + InputStream.read(), OutputStream.write()",
-  names: [
-    "libcore.java.io.InterruptedStreamTest#testInterruptSocketInputStream",
-    "libcore.java.io.InterruptedStreamTest#testInterruptSocketOutputStream"
-  ],
-  bug: 4181738
-},
-{
   description: "SimpleDateFormat assumes DST always uses 60 minute offset; this fails for zones like Lord Howe Daylight Time",
   name: "libcore.java.text.SimpleDateFormatTest#testDstZoneWithNonDstTimestampForNonHourDstZone",
   bug: 4723412
@@ -49,11 +39,6 @@
   description: "Expat uses an unbounded number of global references",
   name: "libcore.xml.ExpatSaxParserTest#testGlobalReferenceTableOverflow",
   bug: 2772628
-},
-{
-  description: "Test fails, Intermediate certificate lacks BasicConstraints",
-  name: "com.android.org.bouncycastle.jce.provider.PKIXCertPathValidatorSpiTest#testTrustAndRemoteCertificatesWithDifferentEncodings",
-  bug: 3474648
 },
 {
   description: "DHParametersHelper.generateSafePrimes sometimes takes long time, other times takes a very long time",
@@ -74,58 +59,9 @@
   bug: 3387758
 },
 {
-  description: "URLConnection fails on URLs containing {}",
-  name: "libcore.java.net.URLConnectionTest#testMalformedUrl",
-  bug: 1158780,
-  substring: "java.net.URISyntaxException"
-},
-{
   description: "KxmlParser doesn't expose DTD text",
   name: "libcore.xml.KxmlPullParserDtdTest#testDoctypeWithNextToken",
   bug: 3241492
-},
-{
-  description: "Expat relaxed is different from Kxml relaxed",
-  names: [
-    "libcore.xml.ExpatPullParserTest#testAttributeNoValueWithRelaxed",
-    "libcore.xml.ExpatPullParserTest#testAttributeUnquotedValueWithRelaxed",
-    "libcore.xml.ExpatPullParserTest#testMissingEntitiesWithRelaxed",
-    "libcore.xml.ExpatPullParserTest#testUnterminatedEntityWithRelaxed"
-  ],
-  bug: 3090550
-},
-{
-  description: "ExpatPullParser doesn't support nextToken() or line numbers",
-  names: [
-    "libcore.xml.ExpatPullParserDtdTest#testDoctypeWithNextToken",
-    "libcore.xml.ExpatPullParserTest#testCdataUsingNextToken",
-    "libcore.xml.ExpatPullParserTest#testCommentUsingNextToken",
-    "libcore.xml.ExpatPullParserTest#testCustomEntitiesAreNotEvaluated",
-    "libcore.xml.ExpatPullParserTest#testCustomEntitiesUsingNext",
-    "libcore.xml.ExpatPullParserTest#testCustomEntitiesUsingNextToken",
-    "libcore.xml.ExpatPullParserTest#testEmptyCdataUsingNextToken",
-    "libcore.xml.ExpatPullParserTest#testEmptyComment",
-    "libcore.xml.ExpatPullParserTest#testEmptyEntityReferenceUsingNext",
-    "libcore.xml.ExpatPullParserTest#testEmptyEntityReferenceUsingNextToken",
-    "libcore.xml.ExpatPullParserTest#testEntityInAttributeUsingNextToken",
-    "libcore.xml.ExpatPullParserTest#testLinesAndColumns",
-    "libcore.xml.ExpatPullParserTest#testMissingEntitiesInAttributesUsingNextToken",
-    "libcore.xml.ExpatPullParserTest#testMissingEntitiesInAttributesUsingNextTokenWithRelaxed",
-    "libcore.xml.ExpatPullParserTest#testMissingEntitiesInAttributesUsingNextWithRelaxed",
-    "libcore.xml.ExpatPullParserTest#testMissingEntitiesUsingNextToken",
-    "libcore.xml.ExpatPullParserTest#testMissingEntitiesUsingNextTokenWithRelaxed",
-    "libcore.xml.ExpatPullParserTest#testProcessingInstructionUsingNextToken",
-    "libcore.xml.ExpatPullParserTest#testRegularNumericEntities",
-    "libcore.xml.ExpatPullParserTest#testWhitespaceUsingNextToken",
-    "libcore.xml.ExpatPullParserTest#testXmlDeclaration",
-    "libcore.xml.ExpatPullParserTest#testXmlDeclarationExtraAttributes"
-  ],
-  bug: 3090550
-},
-{
-  description: "ExpatPullParser doesn't handle surrogates properly",
-  name: "libcore.xml.ExpatPullParserTest#testCharacterReferenceOfLastUtf16Surrogate",
-  bug: 3090550
 },
 {
   description: "RandomAccessFile missing finalizer",
@@ -141,19 +77,6 @@
   description: "Root locale uses INF for infinity but unknown locales use \u221e",
   name: "libcore.java.text.DecimalFormatSymbolsTest#test_getInstance_unknown_or_invalid_locale",
   bug: 3056617
-},
-{
-  description: "Minimal days in first week is broken",
-  names: [
-    "libcore.java.text.OldSimpleDateFormatTest#testFormattingWeekOfYear",
-    "libcore.java.text.OldSimpleDateFormatTest#testDefaultMinimalDaysInFirstWeek"
-  ],
-  bug: 1613709
-},
-{
-  description: "Custom SimpleTimeZones not honored by SimpleDateFormat",
-  name: "libcore.java.text.OldSimpleDateFormatTest#testFormattingTimezones",
-  bug: 3049014
 },
 {
   description: "NaN character not found when deserializing DecimalFormatSymbols",
@@ -194,7 +117,6 @@
 {
   description: "Double.parseDouble().toString does wrong rounding",
   names: [
-    "libcore.java.lang.OldDoubleTest#test_parseDoubleLjava_lang_String",
     "libcore.java.lang.DoubleTest#testParseLargestSubnormalDoublePrecision"
   ],
   bug: 1607938
@@ -249,16 +171,6 @@
   modes: [ "host" ]
 },
 {
-  description: "Defining classes from byte[] not supported in Android",
-  result: EXEC_FAILED,
-  name: "libcore.java.lang.OldClassTest#test_getClasses_subtest0"
-},
-{
-  description: "There is no protection domain set in Android.",
-  result: EXEC_FAILED,
-  name: "libcore.java.lang.OldClassTest#test_getProtectionDomain"
-},
-{
   description: "Runtime.getRuntime().traceMethodCalls(true) doesn't return on the host, fails in CTS",
   bug: 3447964,
   name: "libcore.java.lang.OldRuntimeTest#test_traceMethodCalls"
@@ -270,35 +182,14 @@
   name: "org.apache.harmony.tests.java.util.ResourceBundleTest#test_getBundleLjava_lang_StringLjava_util_LocaleLjava_lang_ClassLoader"
 },
 {
-  description: "Fails (probably) because no protection domain is set.",
-  result: EXEC_FAILED,
-  names: [
-    "org.apache.harmony.security.tests.java.security.AccessController2Test#test_checkPermission_InvalidPermission",
-    "org.apache.harmony.security.tests.java.security.AccessController2Test#test_doPrivilegedLjava_security_PrivilegedAction",
-    "org.apache.harmony.security.tests.java.security.AccessController2Test#test_doPrivilegedLjava_security_PrivilegedActionLjava_security_AccessControlContext",
-    "org.apache.harmony.security.tests.java.security.AccessController2Test#test_doPrivilegedLjava_security_PrivilegedExceptionAction",
-    "org.apache.harmony.security.tests.java.security.AccessController2Test#test_doPrivilegedLjava_security_PrivilegedExceptionActionLjava_security_AccessControlContext"
-  ]
-},
-{
   description: "Android throws IllegalArgumentException, RI throws NullPointerException",
   result: EXEC_FAILED,
   name: "org.apache.harmony.security.tests.java.security.SignatureTest#testUpdatebyteArrayintint2"
 },
 {
-  description: "Android doesn't support protection domains.",
-  result: EXEC_FAILED,
-  name: "org.apache.harmony.tests.java.security.PermissionCollectionTest#test_impliesLjava_security_Permission"
-},
-{
   description: "Android doesn't allow null parent.",
   result: EXEC_FAILED,
   name: "tests.java.security.SecureClassLoaderTest#testSecureClassLoaderClassLoader"
-},
-{
-  description: "Not all Drivers are loaded in testsetup. ClassLoader issue in DriverManager.",
-  result: EXEC_FAILED,
-  name: "org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testDeregisterDriver"
 },
 {
   description: "not supported",
@@ -777,19 +668,9 @@
   ]
 },
 {
-  description: "res.close() does not wrap up",
-  bug: 3403706,
-  name: "libcore.java.sql.OldResultSetTest#testAfterLast"
-},
-{
   description: "statement.close() does not wrap up",
   bug: 3403706,
   name: "libcore.java.sql.OldResultSetTest#testBeforeFirst"
-},
-{
-  description: "Not supported",
-  bug: 3403706,
-  name: "libcore.java.sql.OldResultSetTest#testClearWarnings"
 },
 {
   description: "Resultset.close() does not wrap up",
@@ -1610,13 +1491,6 @@
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testVerifyingPathswithSelfIssuedCertificates_InvalidBasicSelfIssuedOldWithNewTest2",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testVerifyingPathswithSelfIssuedCertificates_ValidBasicSelfIssuedCRLSigningKeyTest6",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testVerifyingPathswithSelfIssuedCertificates_ValidBasicSelfIssuedNewWithOldTest4"
-  ]
-},
-{
-  description: "Known failures in SerializationStressTest",
-  bug: 11668227,
-  names: [
-    "org.apache.harmony.tests.java.io.SerializationStressTest4#test_writeObject_Collections_UnmodifiableMap_UnmodifiableEntrySet"
   ]
 },
 {
