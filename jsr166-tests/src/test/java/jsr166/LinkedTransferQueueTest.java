@@ -24,12 +24,10 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class LinkedTransferQueueTest extends JSR166TestCase {
+public class LinkedTransferQueueTest extends BlockingQueueTest {
 
-    public static class Generic extends BlockingQueueTest {
-        protected BlockingQueue emptyCollection() {
-            return new LinkedTransferQueue();
-        }
+    protected BlockingQueue emptyCollection() {
+        return new LinkedTransferQueue();
     }
 
     /**

@@ -24,18 +24,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class LinkedBlockingQueueTest extends JSR166TestCase {
 
-    public static class Unbounded extends BlockingQueueTest {
-        protected BlockingQueue emptyCollection() {
-            return new LinkedBlockingQueue();
-        }
-    }
-
-    public static class Bounded extends BlockingQueueTest {
-        protected BlockingQueue emptyCollection() {
-            return new LinkedBlockingQueue(SIZE);
-        }
-    }
-
     /**
      * Returns a new queue of given size containing consecutive
      * Integers 0 ... n.

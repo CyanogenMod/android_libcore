@@ -23,18 +23,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class LinkedBlockingDequeTest extends JSR166TestCase {
 
-    public static class Unbounded extends BlockingQueueTest {
-        protected BlockingQueue emptyCollection() {
-            return new LinkedBlockingDeque();
-        }
-    }
-
-    public static class Bounded extends BlockingQueueTest {
-        protected BlockingQueue emptyCollection() {
-            return new LinkedBlockingDeque(SIZE);
-        }
-    }
-
     /**
      * Returns a new deque of given size containing consecutive
      * Integers 0 ... n.
