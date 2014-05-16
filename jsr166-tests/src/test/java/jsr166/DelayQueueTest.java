@@ -22,15 +22,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class DelayQueueTest extends JSR166TestCase {
+public class DelayQueueTest extends BlockingQueueTest {
 
-    public static class Generic extends BlockingQueueTest {
-        protected BlockingQueue emptyCollection() {
-            return new DelayQueue();
-        }
-        protected PDelay makeElement(int i) {
-            return new PDelay(i);
-        }
+    protected BlockingQueue emptyCollection() {
+        return new DelayQueue();
+    }
+
+    protected PDelay makeElement(int i) {
+        return new PDelay(i);
     }
 
     private static final int NOCAP = Integer.MAX_VALUE;
