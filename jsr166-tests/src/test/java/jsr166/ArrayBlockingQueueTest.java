@@ -24,18 +24,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class ArrayBlockingQueueTest extends JSR166TestCase {
 
-    public static class Fair extends BlockingQueueTest {
-        protected BlockingQueue emptyCollection() {
-            return new ArrayBlockingQueue(SIZE, true);
-        }
-    }
-
-    public static class NonFair extends BlockingQueueTest {
-        protected BlockingQueue emptyCollection() {
-            return new ArrayBlockingQueue(SIZE, false);
-        }
-    }
-
     /**
      * Returns a new queue of given size containing consecutive
      * Integers 0 ... n.
