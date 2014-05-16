@@ -89,6 +89,21 @@ public final class VMRuntime {
     public native String vmLibrary();
 
     /**
+     * Returns the VM's instruction set.
+     */
+    public native String vmInstructionSet();
+
+    /**
+     * Returns whether the VM is running in 64-bit mode.
+     */
+    public native boolean is64Bit();
+
+    /**
+     * Returns whether the VM is running with JNI checking enabled.
+     */
+    public native boolean isCheckJniEnabled();
+
+    /**
      * Gets the current ideal heap utilization, represented as a number
      * between zero and one.  After a GC happens, the Dalvik heap may
      * be resized so that (size of live objects) / (size of heap) is
