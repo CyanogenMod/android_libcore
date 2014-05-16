@@ -87,41 +87,10 @@
   substring: "java.lang.ClassCastException: org.apache.harmony.xml.dom.EntityReferenceImpl"
 },
 {
-  description: "Dalvik doesn't support XML Schemas, DTDs or validation",
-  bug: 3268630,
-  name: "libcore.xml.DeclarationTest.testGetXmlVersion",
-  substring: "This implementation doesn't parse the version from the XML declaration"
-},
-{
-  description: "the lack of schema parsing also extends to XML parsing in prefs",
-  result: EXEC_FAILED,
-  name: "org.apache.harmony.prefs.tests.java.util.prefs.PreferencesTest#testImportPreferences",
-  substring: "junit.framework.AssertionFailedError: should throw InvalidPreferencesFormatException"
-},
-{
   description: "many tests attempt to fork a Java executable, but fork the wrong one",
   result: "EXEC_FAILED",
   failure: "should fork a dalvikvm, not a JVM",
   substring: "/system/bin.*IOException"
-},
-{
-  description: "a low impact bug, we can't produce tiny random, probable prime big integers",
-  result: EXEC_FAILED,
-  name: "org.apache.harmony.tests.java.math.BigIntegerTest#test_ConstructorIILjava_util_Random",
-  substring: "junit.framework.AssertionFailedError: Random number one is too big"
-},
-{
-  description: "we don't support CANON_EQ in regex
-                http://code.google.com/p/android/issues/detail?id=8592",
-  result: EXEC_FAILED,
-  names: [
-    "org.apache.harmony.tests.java.util.regex.PatternTest#testCanonEqFlagWithSupplementaryCharacters",
-    "org.apache.harmony.tests.java.util.regex.PatternTest#testCanonEqFlag",
-    "org.apache.harmony.tests.java.util.regex.PatternErrorTest#testCompileErrors",
-    "org.apache.harmony.tests.java.util.regex.PatternTest#testCompileNonCaptGroup",
-    "org.apache.harmony.tests.java.util.regex.PatternTest#testIndexesCanonicalEq"
-  ],
-  substring: "UnsupportedOperationException: CANON_EQ flag not supported"
 },
 {
   description: "low-impact XML bugs:",
@@ -169,13 +138,6 @@
     "tests.api.javax.xml.parsers.SAXParserTest#testIsXIncludeAware"
   ],
   substring: "java.lang.UnsupportedOperationException: This parser does not support specification \"Unknown\" version \"0.0\""
-},
-{
-  description: "a low-impact bug: \"Shared FileDescriptors get closed too early\"
-                  http://code.google.com/p/android/issues/detail?id=5923",
-  result: EXEC_FAILED,
-  name: "java.io.FileDescriptor.Finalize",
-  pattern: ".*java.io.IOException.*openCheck.*"
 },
 {
   description: "a low-impact bug, also present in Crockford's implementation of org.json",
