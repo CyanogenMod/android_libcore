@@ -59,7 +59,7 @@ public final class VMRuntimeTest extends TestCase {
         try {
             Object array = VMRuntime.getRuntime().newNonMovableArray(void.class, 0);
             assertTrue(false);
-        } catch (IllegalArgumentException expected) {
+        } catch (NoClassDefFoundError expected) {
         }
 
         int maxLengthForLoop = 16 * 1024;
@@ -113,7 +113,7 @@ public final class VMRuntimeTest extends TestCase {
         try {
             Object array = VMRuntime.getRuntime().newUnpaddedArray(void.class, 0);
             assertTrue(false);
-        } catch (IllegalArgumentException expected) {
+        } catch (NoClassDefFoundError expected) {
         }
 
         int maxLengthForLoop = 16 * 1024;
