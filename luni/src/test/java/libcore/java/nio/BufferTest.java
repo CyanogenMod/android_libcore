@@ -731,7 +731,7 @@ public class BufferTest extends TestCase {
         Class<?> c = Class.forName("java.nio.DirectByteBuffer");
         Constructor<?> ctor = c.getDeclaredConstructor(long.class, int.class);
         ctor.setAccessible(true);
-        ByteBuffer bb = (ByteBuffer) ctor.newInstance(1, 0);
+        ByteBuffer bb = (ByteBuffer) ctor.newInstance(0, 0);
 
         try {
             bb.array();
