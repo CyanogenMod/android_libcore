@@ -8,11 +8,6 @@
   bug: 5834665
 },
 {
-  description: "FIONREAD/SIOCINQ returns the wrong result on sockets (5731252 is the root cause of 5534202)",
-  name: "libcore.java.net.SocketTest#testAvailable",
-  bug: 5731252
-},
-{
   description: "libcore.java.net.URLConnectionTest#testServerShutdownInput fails on ICL27 mysid-userdebug (5534202 is caused by 5731252)",
   name: "libcore.java.net.URLConnectionTest#testServerShutdownInput",
   bug: 5534202

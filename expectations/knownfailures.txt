@@ -3,22 +3,9 @@
  */
 [
 {
-  description: "four known CharsetDecoder-/CharsetEncoder-related failures",
-  names: [
-    "org.apache.harmony.tests.java.nio.charset.ASCIICharsetEncoderTest#testCanEncodeSurrogate",
-    "org.apache.harmony.tests.java.nio.charset.ASCIICharsetEncoderTest#testMultiStepEncode"
-  ],
-  bug: 10729779
-},
-{
   description: "can't compile a pattern with negative look-behind and quantifiers with upper bounds",
   name: "org.apache.harmony.regex.tests.java.util.regex.PatternTest#test_bug_40103",
   bug: 40103
-},
-{
-  description: "Method.getExceptionTypes() broken on proxy-generated classes",
-  name: "libcore.java.lang.reflect.AnnotationsTest#testProxyMethodGetExceptions",
-  bug: 5392273
 },
 {
   description: "Package.getPackages(), ClassLoader.getPackages() both omit results",
@@ -26,42 +13,9 @@
   bug: 5171136
 },
 {
-  description: "Deserialization shouldn't set transient fields",
-  name: "libcore.java.io.SerializationTest#testSerializeFieldMadeTransient",
-  bug: 4471249
-},
-{
-  description: "SimpleDateFormat assumes DST always uses 60 minute offset; this fails for zones like Lord Howe Daylight Time",
-  name: "libcore.java.text.SimpleDateFormatTest#testDstZoneWithNonDstTimestampForNonHourDstZone",
-  bug: 4723412
-},
-{
-  description: "Expat uses an unbounded number of global references",
-  name: "libcore.xml.ExpatSaxParserTest#testGlobalReferenceTableOverflow",
-  bug: 2772628
-},
-{
-  description: "DHParametersHelper.generateSafePrimes sometimes takes long time, other times takes a very long time",
-  name: "org.apache.harmony.crypto.tests.javax.crypto.interfaces.DHPrivateKeyTest#test_getParams",
-  bug: 3474446
-},
-{
   description: "KeyAgreementFunctionalTest times out even with an absurdly long timeout",
   name: "org.apache.harmony.crypto.tests.javax.crypto.func.KeyAgreementFunctionalTest#test_KeyAgreement",
   bug: 3473300
-},
-{
-  name: "libcore.java.lang.StringTest#testCaseMapping_en_US",
-  bug: 3387655
-},
-{
-  name: "libcore.java.io.FileTest#test_emptyFilename",
-  bug: 3387758
-},
-{
-  description: "KxmlParser doesn't expose DTD text",
-  name: "libcore.xml.KxmlPullParserDtdTest#testDoctypeWithNextToken",
-  bug: 3241492
 },
 {
   description: "RandomAccessFile missing finalizer",
@@ -72,11 +26,6 @@
   description: "ICU seems to treat unknown and invalid locales differently",
   name: "libcore.java.text.DateFormatSymbolsTest#test_getInstance_unknown_locale",
   bug: 2541757
-},
-{
-  description: "Root locale uses INF for infinity but unknown locales use \u221e",
-  name: "libcore.java.text.DecimalFormatSymbolsTest#test_getInstance_unknown_or_invalid_locale",
-  bug: 3056617
 },
 {
   description: "NaN character not found when deserializing DecimalFormatSymbols",
@@ -115,27 +64,14 @@
   modes: [ "host" ]
 },
 {
-  description: "Double.parseDouble().toString does wrong rounding",
-  names: [
-    "libcore.java.lang.DoubleTest#testParseLargestSubnormalDoublePrecision"
-  ],
-  bug: 1607938
-},
-{
   description: "We fake support for these by substituting similar (but not identical) charsets",
   names: [
     "libcore.java.nio.charset.OldCharset_MultiByte_Big5#test_Decode",
     "libcore.java.nio.charset.OldCharset_MultiByte_Big5#test_Encode",
-    "libcore.java.nio.charset.OldCharset_MultiByte_EUC_JP#test_CodecDynamic",
-    "libcore.java.nio.charset.OldCharset_MultiByte_EUC_JP#test_Decode",
-    "libcore.java.nio.charset.OldCharset_MultiByte_EUC_JP#test_Encode",
     "libcore.java.nio.charset.OldCharset_MultiByte_GB2312#test_Decode",
     "libcore.java.nio.charset.OldCharset_MultiByte_GB2312#test_Encode",
     "libcore.java.nio.charset.OldCharset_MultiByte_GB2312#test_nameMatch",
-    "libcore.java.nio.charset.OldCharset_MultiByte_GBK#test_Decode",
     "libcore.java.nio.charset.OldCharset_MultiByte_GBK#test_Encode",
-    "libcore.java.nio.charset.OldCharset_MultiByte_ISO_2022_JP#test_Decode",
-    "libcore.java.nio.charset.OldCharset_MultiByte_ISO_2022_JP#test_Encode",
     "libcore.java.nio.charset.OldCharset_MultiByte_x_windows_950#test_Encode",
     "libcore.java.nio.charset.OldCharset_MultiByte_x_windows_950#test_nameMatch"
   ],
@@ -816,11 +752,6 @@
   name: "tests.api.javax.net.ssl.TrustManagerFactory1Test#test_initLjavax_net_ssl_ManagerFactoryParameters"
 },
 {
-  description: "HostnameVerifier doesn't verify IP addresses",
-  bug: 3299188,
-  name: "tests.api.javax.net.ssl.HostnameVerifierTest#testVerifyIpAddress"
-},
-{
   description: "method test fails once in a while. Cannot be sure that exception is thrown in every test execution.",
   bug: 3403706,
   name: "libcore.sqlite.OldDatabaseTest#testBusy_handler"
@@ -1460,27 +1391,11 @@
   description: "Android's PKIX validation fails on many NIST PKIX tests",
   bug: 8030138,
   names: [
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testBasicCertificateRevocationTests_InvalidLongSerialNumberTest18",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testBasicCertificateRevocationTests_InvalidNegativeSerialNumberTest15",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testBasicCertificateRevocationTests_InvalidRevokedCATest2",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testBasicCertificateRevocationTests_InvalidRevokedEETest3",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testBasicCertificateRevocationTests_InvalidSeparateCertificateandCRLKeysTest20",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testBasicCertificateRevocationTests_InvalidSeparateCertificateandCRLKeysTest21",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testBasicCertificateRevocationTests_InvalidUnknownCRLEntryExtensionTest8",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testBasicCertificateRevocationTests_ValidSeparateCertificateandCRLKeysTest19",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDeltaCRLs_InvaliddeltaCRLTest3",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testDeltaCRLs_InvaliddeltaCRLTest4",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDeltaCRLs_InvaliddeltaCRLTest6",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDeltaCRLs_InvaliddeltaCRLTest9",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testDeltaCRLs_ValiddeltaCRLTest5",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_InvalidIDPwithindirectCRLTest23",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_InvalidcRLIssuerTest34",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_InvaliddistributionPointTest2",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_InvaliddistributionPointTest6",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_InvalidonlySomeReasonsTest15",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_InvalidonlySomeReasonsTest16",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_InvalidonlySomeReasonsTest20",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_InvalidonlySomeReasonsTest21",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_ValidIDPwithindirectCRLTest24",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_ValidIDPwithindirectCRLTest25",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_ValidcRLIssuerTest28",
@@ -1489,7 +1404,6 @@
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testDistributionPoints_ValidcRLIssuerTest33",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testKeyUsage_ValidSelfIssuedDNnameConstraintsTest19",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testVerifyingNameChaining_ValidRFC3280OptionalAttributeTypesTest8",
-    "libcore.java.security.cert.X509CertificateNistPkitsTest#testVerifyingPathswithSelfIssuedCertificates_InvalidBasicSelfIssuedOldWithNewTest2",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testVerifyingPathswithSelfIssuedCertificates_ValidBasicSelfIssuedCRLSigningKeyTest6",
     "libcore.java.security.cert.X509CertificateNistPkitsTest#testVerifyingPathswithSelfIssuedCertificates_ValidBasicSelfIssuedNewWithOldTest4"
   ]
