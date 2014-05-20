@@ -49,13 +49,16 @@ public class InetAddressTest extends junit.framework.TestCase {
         "1234",
         "0", // Single out the deprecated form of the ANY address.
 
-        // Hex.
+        // Hex. Not supported by Android but supported by the RI.
         "0x1.0x2.0x3.0x4",
         "0x7f.0x00.0x00.0x01",
         "7f.0.0.1",
 
-        // Octal.
-        "0177.00.00.01", // Historically, this would have been interpreted as 127.0.0.1.
+        // Octal. Not supported by Android but supported by the RI. In the RI, if any of the numbers
+        // cannot be treated as a decimal the entire IP is interpreted differently, leading to
+        // "0177.00.00.01" -> 177.0.0.1, but "0177.0x0.00.01" -> 127.0.0.1.
+        // Android does not do this.
+        "0256.00.00.01", // Historically, this could have been interpreted as 174.0.0.1.
 
         // Negative numbers.
         "-1.0.0.1",
@@ -89,6 +92,9 @@ public class InetAddressTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException expected) {
         }
 
+        // Android does not recognize Octal (leading 0) cases: they are treated as decimal.
+        assertEquals("/177.0.0.1", InetAddress.parseNumericAddress("0177.00.00.01").toString());
+
         for (String invalid : INVALID_IPv4_NUMERIC_ADDRESSES) {
             try {
                 InetAddress.parseNumericAddress(invalid);
@@ -120,6 +126,9 @@ public class InetAddressTest extends junit.framework.TestCase {
 
         // Negative test
         assertFalse(InetAddress.isNumeric("example.com"));
+
+        // Android does not handle Octal (leading 0) cases: they are treated as decimal.
+        assertTrue(InetAddress.isNumeric("0177.00.00.01")); // Interpreted as 177.0.0.1
 
         for (String invalid : INVALID_IPv4_NUMERIC_ADDRESSES) {
             assertFalse(invalid, InetAddress.isNumeric(invalid));
