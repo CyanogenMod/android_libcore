@@ -352,14 +352,6 @@ public abstract class MessageDigest extends MessageDigestSpi {
         }
     }
 
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        if (this instanceof Cloneable) {
-            return super.clone();
-        }
-        throw new CloneNotSupportedException();
-    }
-
     /**
      * Updates this {@code MessageDigest} using the given {@code input}.
      *
@@ -421,12 +413,8 @@ public abstract class MessageDigest extends MessageDigestSpi {
         // Returns a clone if the spiImpl is cloneable
         @Override
         public Object clone() throws CloneNotSupportedException {
-            if (spiImpl instanceof Cloneable) {
-                MessageDigestSpi spi = (MessageDigestSpi) spiImpl.clone();
-                return new MessageDigestImpl(spi, getProvider(), getAlgorithm());
-            }
-
-            throw new CloneNotSupportedException();
+            MessageDigestSpi spi = (MessageDigestSpi) spiImpl.clone();
+            return new MessageDigestImpl(spi, getProvider(), getAlgorithm());
         }
     }
 }
