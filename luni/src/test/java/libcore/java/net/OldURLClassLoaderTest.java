@@ -25,15 +25,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
-import java.security.Permission;
 import java.security.PermissionCollection;
-import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.Manifest;
-import org.apache.harmony.security.tests.support.TestCertUtils;
-import tests.support.Support_Configuration;
 import tests.support.Support_TestWebData;
 import tests.support.Support_TestWebServer;
 import tests.support.resource.Support_Resources;
@@ -41,15 +37,6 @@ import tests.support.resource.Support_Resources;
 public class OldURLClassLoaderTest extends junit.framework.TestCase {
 
     URLClassLoader ucl;
-    SecurityManager sm = new SecurityManager() {
-
-        public void checkPermission(Permission perm) {
-        }
-
-        public void checkCreateClassLoader() {
-            throw new SecurityException();
-        }
-    };
 
     /**
      * java.net.URLClassLoader#URLClassLoader(java.net.URL[])
@@ -57,8 +44,8 @@ public class OldURLClassLoaderTest extends junit.framework.TestCase {
     public void test_Constructor$Ljava_net_URL() throws MalformedURLException {
         URL[] u = new URL[0];
         ucl = new URLClassLoader(u);
-        assertTrue("Failed to set parent", ucl != null
-                && ucl.getParent() == URLClassLoader.getSystemClassLoader());
+        assertTrue("Failed to set parent",
+                ucl.getParent() == URLClassLoader.getSystemClassLoader());
 
 
         URL [] urls = {new URL("http://foo.com/foo"),
@@ -86,7 +73,6 @@ public class OldURLClassLoaderTest extends junit.framework.TestCase {
      * java.net.URLClassLoader#findResources(java.lang.String)
      */
     public void test_findResourcesLjava_lang_String() throws Exception {
-        Enumeration<URL> res = null;
         String[] resValues = { "This is a test resource file.",
                 "This is a resource from a subdir"};
 
@@ -114,7 +100,7 @@ public class OldURLClassLoaderTest extends junit.framework.TestCase {
         urls[1] = new URL("file://" + subDir.getAbsolutePath() + "/");
 
         ucl = new URLClassLoader(urls);
-        res = ucl.findResources("test0");
+        Enumeration<URL> res = ucl.findResources("test0");
         assertNotNull("Failed to locate resources", res);
 
         int i = 0;
@@ -249,19 +235,17 @@ public class OldURLClassLoaderTest extends junit.framework.TestCase {
                     "/tests/resources/hyts_patch.jar");
             Support_Resources.copyLocalFileto(tempFile2, is);
             String tempPath2 = tempFile2.getAbsolutePath();
-            String tempPath3 = "http://localhost:" + port + "/";
             URLClassLoader urlLoader = getURLClassLoader(tempPath1, tempPath2);
-            assertNull("Found inexistant resource",
-                    urlLoader.findResource("XXX"));
+            assertNull("Found nonexistent resource", urlLoader.findResource("XXX"));
             assertNotNull("Couldn't find resource from directory",
                     urlLoader.findResource(tempFile1.getName()));
-            assertNotNull("Couldn't find resource from jar",
-                    urlLoader.findResource("Blah.txt"));
+            assertNotNull("Couldn't find resource from jar", urlLoader.findResource("Blah.txt"));
+
+            String tempPath3 = "http://localhost:" + port + "/";
             urlLoader = getURLClassLoader(tempPath1, tempPath2, tempPath3);
-            assertNotNull("Couldn't find resource from web",
-                    urlLoader.findResource("test1"));
-            assertNull("Found inexistant resource from web",
-                    urlLoader.findResource("test3"));
+            assertNotNull("Couldn't find resource from web", urlLoader.findResource("test1"));
+            // Attempt to find a resource using a URL that will produce a 404.
+            assertNull("Found nonexistent resource from web", urlLoader.findResource("test9999"));
         } finally {
             server.close();
         }
