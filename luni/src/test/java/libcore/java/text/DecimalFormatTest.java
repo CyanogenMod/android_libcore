@@ -21,7 +21,9 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.FieldPosition;
 import java.text.NumberFormat;
+import java.text.ParsePosition;
 import java.util.Currency;
 import java.util.Locale;
 
@@ -196,5 +198,66 @@ public class DecimalFormatTest extends junit.framework.TestCase {
         // These shouldn't make valgrind unhappy.
         df.setCurrency(Currency.getInstance("CHF"));
         df.setCurrency(Currency.getInstance("GBP"));
+    }
+
+    // Check we don't crash on null inputs.
+    public void testBug15081434() throws Exception {
+      DecimalFormat df = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
+      try {
+        df.parse(null);
+        fail();
+      } catch (NullPointerException expected) {
+      }
+
+      try {
+        df.applyLocalizedPattern(null);
+        fail();
+      } catch (NullPointerException expected) {
+      }
+
+      try {
+        df.applyPattern(null);
+        fail();
+      } catch (NullPointerException expected) {
+      }
+
+      try {
+        df.applyPattern(null);
+        fail();
+      } catch (NullPointerException expected) {
+      }
+
+      try {
+        df.format(null, new StringBuffer(), new FieldPosition(0));
+        fail();
+      } catch (IllegalArgumentException expected) {
+      }
+
+      try {
+        df.parse(null, new ParsePosition(0));
+        fail();
+      } catch (NullPointerException expected) {
+      }
+
+      // This just ignores null.
+      df.setDecimalFormatSymbols(null);
+
+      try {
+        df.setCurrency(null);
+        fail();
+      } catch (NullPointerException expected) {
+      }
+
+      // These just ignore null.
+      df.setNegativePrefix(null);
+      df.setNegativeSuffix(null);
+      df.setPositivePrefix(null);
+      df.setPositiveSuffix(null);
+
+      try {
+        df.setRoundingMode(null);
+        fail();
+      } catch (NullPointerException expected) {
+      }
     }
 }
