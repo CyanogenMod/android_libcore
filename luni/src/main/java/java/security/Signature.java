@@ -624,14 +624,6 @@ public abstract class Signature extends SignatureSpi {
         return engineGetParameter(param);
     }
 
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        if (this instanceof Cloneable) {
-            return super.clone();
-        }
-        throw new CloneNotSupportedException();
-    }
-
     /**
      * Internal Signature implementation
      */
@@ -711,11 +703,8 @@ public abstract class Signature extends SignatureSpi {
 
         @Override
         public Object clone() throws CloneNotSupportedException {
-            if (spiImpl instanceof Cloneable) {
-                SignatureSpi spi = (SignatureSpi) spiImpl.clone();
-                return new SignatureImpl(getAlgorithm(), getProvider(), spiImpl);
-            }
-            throw new CloneNotSupportedException();
+            SignatureSpi spi = (SignatureSpi) spiImpl.clone();
+            return new SignatureImpl(getAlgorithm(), getProvider(), spi);
         }
 
         /**
