@@ -766,15 +766,14 @@ public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer
      *                if no changes may be made to the contents of this buffer.
      */
     public ByteBuffer put(ByteBuffer src) {
-        if (!src.isAccessible() || !isAccessible()) {
-            throw new IllegalStateException("buffer is inaccessible");
-        }
-
         if (isReadOnly()) {
             throw new ReadOnlyBufferException();
         }
         if (src == this) {
             throw new IllegalArgumentException("src == this");
+        }
+        if (!src.isAccessible() || !isAccessible()) {
+            throw new IllegalStateException("buffer is inaccessible");
         }
         int srcByteCount = src.remaining();
         if (srcByteCount > remaining()) {
