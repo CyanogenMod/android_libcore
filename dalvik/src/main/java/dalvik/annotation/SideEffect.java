@@ -27,6 +27,8 @@ import java.lang.annotation.Target;
  * isolated manner.
  *
  * @hide
+ *
+ * @deprecated - use expectations/brokentests.txt instead
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.TYPE })

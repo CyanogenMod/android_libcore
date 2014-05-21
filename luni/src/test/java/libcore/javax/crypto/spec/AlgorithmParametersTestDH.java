@@ -15,7 +15,6 @@
  */
 package libcore.javax.crypto.spec;
 
-import dalvik.annotation.BrokenTest;
 import java.math.BigInteger;
 import javax.crypto.spec.DHParameterSpec;
 import tests.security.AlgorithmParameterKeyAgreementHelper;
@@ -61,7 +60,7 @@ public class AlgorithmParametersTestDH extends AlgorithmParametersTest {
 
     }
 
-    @BrokenTest("Suffers from DH slowness, disabling for now")
+    // Broken Test: Suffers from DH slowness, disabling for now
     public void testAlgorithmParameters() {
         super.testAlgorithmParameters();
     }

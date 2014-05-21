@@ -1,7 +1,5 @@
 package org.apache.harmony.luni.tests.java.net;
 
-import dalvik.annotation.SideEffect;
-
 import junit.framework.TestCase;
 
 import tests.support.Support_Configuration;
@@ -24,9 +22,9 @@ public class ContentHandlerFactoryTest extends TestCase {
     boolean isGetContentCalled = false;
     boolean isCreateContentHandlerCalled = false;
 
-    @SideEffect("This test affects tests that are run after this one." +
-            " The reason are side effects due to caching in URLConnection." +
-            " Maybe this test needs to be run in isolation.")
+    // SideEffect: This test affects tests that are run after this one.
+    // The reason are side effects due to caching in URLConnection.
+    // Maybe this test needs to be run in isolation.
     public void test_createContentHandler() throws IOException {
 
         TestContentHandlerFactory factory =  new TestContentHandlerFactory();

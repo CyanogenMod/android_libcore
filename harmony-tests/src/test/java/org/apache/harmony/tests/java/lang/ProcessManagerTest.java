@@ -16,8 +16,6 @@
 
 package org.apache.harmony.tests.java.lang;
 
-import dalvik.annotation.BrokenTest;
-
 import junit.framework.TestCase;
 
 import java.io.BufferedReader;
@@ -47,7 +45,7 @@ public class ProcessManagerTest extends TestCase {
         assertEquals(greeting, readLine(process));
     }
 
-    @BrokenTest("Sporadic failures in CTS, but not in CoreTestRunner")
+    // BrokenTest: Sporadic failures in CTS, but not in CoreTestRunner
     public void testSleep() throws IOException {
         String[] commands = { "sleep", "1" };
         process = Runtime.getRuntime().exec(commands, null, null);

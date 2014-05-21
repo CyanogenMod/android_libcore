@@ -16,8 +16,6 @@
  */
 package org.apache.harmony.tests.java.lang.ref;
 
-import dalvik.annotation.SideEffect;
-
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
@@ -79,7 +77,7 @@ public class SoftReferenceTest extends junit.framework.TestCase {
         assertTrue("Same object not returned.", bool == sr.get());
     }
 
-    @SideEffect("Causes OutOfMemoryError to test finalization")
+    // SideEffect: Causes OutOfMemoryError to test finalization
     public void test_get_SoftReference() {
 
         class TestObject {
