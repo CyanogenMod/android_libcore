@@ -28,12 +28,16 @@ import java.util.prefs.NodeChangeListener;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
+import java.util.prefs.PreferencesFactory;
+
 import junit.framework.TestCase;
 import libcore.io.IoUtils;
 
 public final class OldAbstractPreferencesTest extends TestCase {
 
     static final String nodeName = "mock";
+
+    private PreferencesFactory defaultFactory;
 
     AbstractPreferences pref;
     AbstractPreferences root;
@@ -42,9 +46,9 @@ public final class OldAbstractPreferencesTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        File rootDir = IoUtils.createTemporaryDirectory("OldAbstractPreferencesTest");
-        Preferences.setPreferencesFactory(
-                new PreferencesTest.TestPreferencesFactory(rootDir.getAbsolutePath()));
+        File tmpDir = IoUtils.createTemporaryDirectory("OldAbstractPreferencesTest");
+        defaultFactory = Preferences.setPreferencesFactory(
+                new PreferencesTest.TestPreferencesFactory(tmpDir.getAbsolutePath()));
 
         root = (AbstractPreferences) Preferences.userRoot();
         assertEquals(0, root.childrenNames().length);
@@ -52,6 +56,12 @@ public final class OldAbstractPreferencesTest extends TestCase {
 
         parent = (AbstractPreferences) Preferences.userNodeForPackage(getClass());
         pref = (AbstractPreferences) parent.node(nodeName);
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        Preferences.setPreferencesFactory(defaultFactory);
+        super.tearDown();
     }
 
     public void testToString() {
