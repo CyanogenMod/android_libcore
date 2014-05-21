@@ -80,7 +80,7 @@ public final class OldResultSetTest extends OldSQLTest {
 
         try {
             target.close();
-            target.beforeFirst();
+            target.afterLast();
             fail("Should get SQLException");
         } catch (SQLException e) {
         }
