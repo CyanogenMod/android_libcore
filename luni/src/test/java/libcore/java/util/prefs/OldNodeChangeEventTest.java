@@ -16,14 +16,35 @@
 
 package libcore.java.util.prefs;
 
+import java.io.File;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.NodeChangeEvent;
 import java.util.prefs.NodeChangeListener;
 import java.util.prefs.Preferences;
+import java.util.prefs.PreferencesFactory;
+
 import junit.framework.TestCase;
 
+import libcore.io.IoUtils;
+
 public final class OldNodeChangeEventTest extends TestCase {
+
+    private PreferencesFactory defaultFactory;
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        File tmpDir = IoUtils.createTemporaryDirectory("OldNodeChangeEventTest");
+        defaultFactory = Preferences.setPreferencesFactory(
+                new PreferencesTest.TestPreferencesFactory(tmpDir.getAbsolutePath()));
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        Preferences.setPreferencesFactory(defaultFactory);
+        super.tearDown();
+    }
 
     public void testGetChild() throws BackingStoreException {
         AbstractPreferences parent = (AbstractPreferences) Preferences
