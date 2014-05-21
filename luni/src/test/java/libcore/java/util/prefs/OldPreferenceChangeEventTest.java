@@ -16,13 +16,34 @@
 
 package libcore.java.util.prefs;
 
+import java.io.File;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
+import java.util.prefs.PreferencesFactory;
+
 import junit.framework.TestCase;
 
+import libcore.io.IoUtils;
+
 public final class OldPreferenceChangeEventTest extends TestCase {
+
+    private PreferencesFactory defaultFactory;
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        File tmpDir = IoUtils.createTemporaryDirectory("OldPreferenceChangeEventTest");
+        defaultFactory = Preferences.setPreferencesFactory(
+                new PreferencesTest.TestPreferencesFactory(tmpDir.getAbsolutePath()));
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        Preferences.setPreferencesFactory(defaultFactory);
+        super.tearDown();
+    }
 
     public void testGetKey() {
         AbstractPreferences parent = (AbstractPreferences) Preferences
