@@ -22,9 +22,6 @@
 
 package tests.api.javax.security.cert;
 
-import dalvik.annotation.BrokenTest;
-import dalvik.annotation.SideEffect;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -661,7 +658,7 @@ public class X509CertificateTest extends TestCase {
      * @throws CertificateException
      * {@link Certificate#verify(PublicKey)}
      */
-    @SideEffect("Destroys MD5 provider, hurts succeeding tests")
+    // Side Effect: Destroys MD5 provider, hurts succeeding tests
     public void testVerifyPublicKey() throws InvalidKeyException,
             NoSuchAlgorithmException, NoSuchProviderException,
             SignatureException, CertificateException {
@@ -744,7 +741,7 @@ public class X509CertificateTest extends TestCase {
      * @throws CertificateException
      * {@link Certificate#verify(PublicKey, String)}
      */
-    @SideEffect("Destroys MD5 provider, hurts succeeding tests")
+    // SideEffect: Destroys MD5 provider, hurts succeeding tests
     public void testVerifyPublicKeyString() throws InvalidKeyException,
             java.security.cert.CertificateException, NoSuchAlgorithmException,
             NoSuchProviderException, SignatureException, IOException,
