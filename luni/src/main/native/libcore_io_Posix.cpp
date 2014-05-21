@@ -93,6 +93,7 @@ struct addrinfo_deleter {
         } \
         if (_wasSignaled) { \
             jniThrowException(jni_env, "java/net/SocketException", "Socket closed"); \
+            _rc = -1; \
             break; \
         } \
         if (_rc == -1 && _syscallErrno != EINTR) { \
@@ -131,6 +132,7 @@ struct addrinfo_deleter {
             } \
             if (_wasSignaled) { \
                 jniThrowException(jni_env, "java/io/InterruptedIOException", # syscall_name " interrupted"); \
+                _rc = -1; \
                 break; \
             } \
             if (_rc == -1 && _syscallErrno != EINTR) { \
