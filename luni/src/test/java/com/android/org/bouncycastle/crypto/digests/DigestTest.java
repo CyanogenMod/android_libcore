@@ -36,7 +36,7 @@ public class DigestTest extends TestCase {
      * @param newDigest The new digest implementation, provided by OpenSSL
      */
     public void doTestMessageDigest(Digest oldDigest, Digest newDigest) {
-        final int ITERATIONS = 10;
+        final int ITERATIONS = 100;
 
         byte[] data = new byte[1024];
 
