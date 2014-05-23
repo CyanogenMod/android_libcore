@@ -149,8 +149,12 @@ public class SystemTest extends TestCase {
         done.set(true);
     }
 
-    public void testSystemProperties_immtuable() {
+    public void testSystemProperties_immutable() {
+        // Android-specific: The RI does not have a concept of immutable properties.
+
+        // user.dir is an immutable property
         String userDir = System.getProperty("user.dir");
+        assertNotNull(userDir);
         System.setProperty("user.dir", "not poop");
         assertEquals(userDir, System.getProperty("user.dir"));
 
@@ -165,5 +169,57 @@ public class SystemTest extends TestCase {
         System.setProperties(p);
 
         assertEquals(userDir, System.getProperty("user.dir"));
+    }
+
+    public void testSystemProperties_setProperties_null() {
+        // user.dir is an immutable property
+        String userDir = System.getProperty("user.dir");
+        assertNotNull(userDir);
+
+        // Add a non-standard property
+        System.setProperty("p1", "v1");
+
+        // Reset using setProperties(null)
+        System.setProperties(null);
+
+        // All the immutable properties should be reset.
+        assertEquals(userDir, System.getProperty("user.dir"));
+        // Non-standard properties are cleared.
+        assertNull(System.getProperty("p1"));
+    }
+
+    public void testSystemProperties_setProperties_nonNull() {
+        String userDir = System.getProperty("user.dir");
+
+        Properties newProperties = new Properties();
+        // Immutable property
+        newProperties.setProperty("user.dir", "v1");
+        // Non-standard property
+        newProperties.setProperty("p1", "v2");
+
+        System.setProperties(newProperties);
+
+        // Android-specific: The RI makes the setProperties() argument the system properties object,
+        // Android makes a new Properties object and copies the properties.
+        assertNotSame(newProperties, System.getProperties());
+        // Android-specific: The RI does not have a concept of immutable properties.
+        assertEquals(userDir, System.getProperty("user.dir"));
+
+        assertEquals("v2", System.getProperty("p1"));
+    }
+
+    public void testSystemProperties_getProperties_clear() {
+        String userDir = System.getProperty("user.dir");
+        assertNotNull(userDir);
+        System.setProperty("p1", "v1");
+
+        Properties properties = System.getProperties();
+        assertEquals("v1", properties.getProperty("p1"));
+
+        properties.clear();
+
+        // Android-specific: The RI clears everything, Android resets to immutable defaults.
+        assertEquals(userDir, System.getProperty("user.dir"));
+        assertNull(System.getProperty("p1"));
     }
 }
