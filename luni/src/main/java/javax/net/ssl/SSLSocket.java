@@ -501,14 +501,14 @@ import java.net.UnknownHostException;
  *             <td></td>
  *         </tr>
  *         <tr>
- *             <td>TLS_EMPTY_RENEGOTIATION_INFO_SCSV</td>
- *             <td>11+</td>
- *             <td>11+</td>
- *         </tr>
- *         <tr>
  *             <td>TLS_ECDH_anon_WITH_RC4_128_SHA</td>
  *             <td>11+</td>
  *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_EMPTY_RENEGOTIATION_INFO_SCSV</td>
+ *             <td>11+</td>
+ *             <td>11+</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_RSA_WITH_AES_128_CBC_SHA</td>
