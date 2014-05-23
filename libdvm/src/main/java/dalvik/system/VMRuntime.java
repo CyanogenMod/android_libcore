@@ -94,13 +94,6 @@ public final class VMRuntime {
     }
 
     /**
-     * Returns the VM's internal flags.
-     */
-    public String vmFlags() {
-        return "";
-    }
-
-    /**
      * Returns whether the VM is running in 64-bit mode.
      */
     public boolean is64Bit() {
