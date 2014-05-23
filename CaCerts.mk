@@ -50,10 +50,9 @@ cacerts: $(cacerts_target)
 # This is so that build/target/product/core.mk can use cacerts in PRODUCT_PACKAGES
 ALL_MODULES.cacerts.INSTALLED := $(cacerts_target)
 
-ifeq ($(WITH_HOST_DALVIK),true)
 cacerts_host_directory := $(HOST_OUT)/etc/security/cacerts
 $(foreach cacert, $(cacerts), $(eval $(call include-prebuilt-with-destination-directory,host-cacert-$(notdir $(cacert)),$(cacert),$(cacerts_host_directory))))
-endif
+
 cacerts_host := $(addprefix $(cacerts_host_directory)/,$(foreach cacert,$(cacerts),$(notdir $(cacert))))
 .PHONY: cacerts-host
 cacerts-host: $(cacerts_host)
