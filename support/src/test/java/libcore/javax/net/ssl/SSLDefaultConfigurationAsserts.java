@@ -133,14 +133,14 @@ public abstract class SSLDefaultConfigurationAsserts extends Assert {
     assertFalse(sslEngine.getUseClientMode());
     assertSSLEngineSSLParameters(sslEngine.getSSLParameters());
 
-    StandardNames.assertSSLEngineDefaultCipherSuites(sslEngine.getEnabledCipherSuites());
-    StandardNames.assertSSLEngineSupportedCipherSuites(sslEngine.getSupportedCipherSuites());
+    StandardNames.assertDefaultCipherSuites(sslEngine.getEnabledCipherSuites());
+    StandardNames.assertSupportedCipherSuites(sslEngine.getSupportedCipherSuites());
     assertContainsAll("Unsupported enabled cipher suites",
         sslEngine.getSupportedCipherSuites(),
         sslEngine.getEnabledCipherSuites());
 
     StandardNames.assertSSLEngineDefaultProtocols(sslEngine.getEnabledProtocols());
-    StandardNames.assertSSLEngineSupportedProtocols(sslEngine.getSupportedProtocols());
+    StandardNames.assertSupportedProtocols(sslEngine.getSupportedProtocols());
     assertContainsAll("Unsupported enabled protocols",
         sslEngine.getSupportedProtocols(),
         sslEngine.getEnabledProtocols());
@@ -185,7 +185,7 @@ public abstract class SSLDefaultConfigurationAsserts extends Assert {
    * {@link SSLEngine}.
    */
   public static void assertSSLEngineSSLParameters(SSLParameters sslParameters) {
-    StandardNames.assertSSLEngineDefaultCipherSuites(sslParameters.getCipherSuites());
+    StandardNames.assertDefaultCipherSuites(sslParameters.getCipherSuites());
     StandardNames.assertSSLEngineDefaultProtocols(sslParameters.getProtocols());
     assertFalse(sslParameters.getWantClientAuth());
     assertFalse(sslParameters.getNeedClientAuth());
