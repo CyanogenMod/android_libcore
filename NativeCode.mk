@@ -114,6 +114,7 @@ endif # LIBCORE_SKIP_TESTS
 
 ifeq ($(WITH_HOST_DALVIK),true)
     include $(CLEAR_VARS)
+    LOCAL_CLANG := true
     LOCAL_SRC_FILES += $(core_src_files)
     LOCAL_CFLAGS += $(core_cflags)
     LOCAL_C_INCLUDES += $(core_c_includes)
@@ -128,6 +129,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
 
     ifeq ($(LIBCORE_SKIP_TESTS),)
     include $(CLEAR_VARS)
+    LOCAL_CLANG := true
     LOCAL_SRC_FILES += $(core_test_files)
     LOCAL_CFLAGS += $(core_cflags)
     LOCAL_C_INCLUDES += libcore/include external/openssl/include
