@@ -32,7 +32,7 @@ public class ECParameterSpec implements AlgorithmParameterSpec {
     // Cofactor
     private final int cofactor;
     // Name of curve if available.
-    private final String curveName;
+    private String curveName;
 
     /**
      * Creates a new {@code ECParameterSpec} with the specified elliptic curve,
@@ -52,23 +52,10 @@ public class ECParameterSpec implements AlgorithmParameterSpec {
      */
     public ECParameterSpec(EllipticCurve curve, ECPoint generator,
             BigInteger order, int cofactor) {
-        this(curve, generator, order, cofactor, null);
-    }
-
-    /**
-     * Creates a new {@code ECParameterSpec} with the specified named curve
-     * and all of its parameters.
-     *
-     * @see #ECParameterSpec(EllipticCurve, ECPoint, BigInteger, int)
-     * @hide
-     */
-    public ECParameterSpec(EllipticCurve curve, ECPoint generator,
-            BigInteger order, int cofactor, String curveName) {
         this.curve = curve;
         this.generator = generator;
         this.order = order;
         this.cofactor = cofactor;
-        this.curveName = curveName;
         // throw NullPointerException if curve, generator or order is null
         if (this.curve == null) {
             throw new NullPointerException("curve == null");
@@ -122,6 +109,15 @@ public class ECParameterSpec implements AlgorithmParameterSpec {
      */
     public BigInteger getOrder() {
         return order;
+    }
+
+    /**
+     * Used to set the curve name if available.
+     *
+     * @hide
+     */
+    public void setCurveName(String curveName) {
+        this.curveName = curveName;
     }
 
     /**
