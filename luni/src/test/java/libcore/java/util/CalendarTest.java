@@ -187,8 +187,10 @@ public class CalendarTest extends junit.framework.TestCase {
                 + "10000000500000001000000200000000178";
         Calendar calendar = new GregorianCalendar(1970, 1, 1, 0, 0, 0);
         calendar.setTimeZone(TimeZone.getTimeZone("GMT-08:00"));
-        // Starting from ICU4.8 release, the default minimalDaysInFirstWeek changed from 4 to 1.
+        // Calendar fields firstDayOfWeek and minimalDaysInFirstWeek are are sensitive to the Locale
+        // and ICU data. Specifying the values here makes the serialized form stable.
         calendar.setMinimalDaysInFirstWeek(4);
+        calendar.setFirstDayOfWeek(Calendar.SUNDAY);
         new SerializationTester<Calendar>(calendar, s).test();
     }
 
