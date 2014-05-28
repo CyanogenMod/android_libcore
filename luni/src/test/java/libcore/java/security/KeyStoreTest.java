@@ -56,20 +56,17 @@ import junit.framework.TestCase;
 
 public class KeyStoreTest extends TestCase {
 
-    private static HashMap<String, PrivateKeyEntry> sPrivateKeys
+    private static final HashMap<String, PrivateKeyEntry> sPrivateKeys
             = new HashMap<String, PrivateKeyEntry>();
 
-    private static TestKeyStore TEST_KEY_STORE = new TestKeyStore.Builder()
-            .keyAlgorithms("RSA", "DH_RSA", "DSA", "EC")
-            .aliasPrefix("rsa-dsa-ec-dh")
-            .build();
+    private static TestKeyStore sTestKeyStore;
 
     private static final String[] KEY_TYPES = new String[] { "DH", "DSA", "RSA", "EC" };
 
-    private static PrivateKeyEntry PRIVATE_KEY_2;
+    private static PrivateKeyEntry sPrivateKey2;
 
-    private static SecretKey SECRET_KEY;
-    private static SecretKey SECRET_KEY_2;
+    private static SecretKey sSecretKey;
+    private static SecretKey sSecretKey2;
 
     private static final String ALIAS_PRIVATE = "private";
     private static final String ALIAS_CERTIFICATE = "certificate";
@@ -101,16 +98,25 @@ public class KeyStoreTest extends TestCase {
     }
 
     private static PrivateKeyEntry getPrivateKey(String keyType) {
+        // Avoiding initialization of TestKeyStore in the static initializer: it breaks CTS tests
+        // by causing a NetworkOnMainThreadException.
+        if (sTestKeyStore == null) {
+            sTestKeyStore = new TestKeyStore.Builder()
+                .keyAlgorithms("RSA", "DH_RSA", "DSA", "EC")
+                .aliasPrefix("rsa-dsa-ec-dh")
+                .build();
+        }
+
         PrivateKeyEntry entry = sPrivateKeys.get(keyType);
         if (entry == null) {
             if ("RSA".equals(keyType)) {
-                entry = TEST_KEY_STORE.getPrivateKey("RSA", "RSA");
+                entry = sTestKeyStore.getPrivateKey("RSA", "RSA");
             } else if ("DH".equals(keyType)) {
-                entry = TEST_KEY_STORE.getPrivateKey("DH", "RSA");
+                entry = sTestKeyStore.getPrivateKey("DH", "RSA");
             } else if ("DSA".equals(keyType)) {
-                entry = TEST_KEY_STORE.getPrivateKey("DSA", "DSA");
+                entry = sTestKeyStore.getPrivateKey("DSA", "DSA");
             } else if ("EC".equals(keyType)) {
-                entry = TEST_KEY_STORE.getPrivateKey("EC", "EC");
+                entry = sTestKeyStore.getPrivateKey("EC", "EC");
             } else {
                 throw new IllegalArgumentException("Unexpected key type " + keyType);
             }
@@ -120,24 +126,24 @@ public class KeyStoreTest extends TestCase {
     }
 
     private static PrivateKeyEntry getPrivateKey2() {
-        if (PRIVATE_KEY_2 == null) {
-            PRIVATE_KEY_2 = TestKeyStore.getClientCertificate().getPrivateKey("RSA", "RSA");
+        if (sPrivateKey2 == null) {
+            sPrivateKey2 = TestKeyStore.getClientCertificate().getPrivateKey("RSA", "RSA");
         }
-        return PRIVATE_KEY_2;
+        return sPrivateKey2;
     }
 
     private static SecretKey getSecretKey() {
-        if (SECRET_KEY == null) {
-            SECRET_KEY = generateSecretKey();
+        if (sSecretKey == null) {
+            sSecretKey = generateSecretKey();
         }
-        return SECRET_KEY;
+        return sSecretKey;
     }
 
     private static SecretKey getSecretKey2() {
-        if (SECRET_KEY_2 == null) {
-            SECRET_KEY_2 = generateSecretKey();
+        if (sSecretKey2 == null) {
+            sSecretKey2 = generateSecretKey();
         }
-        return SECRET_KEY_2;
+        return sSecretKey2;
     }
 
     private static SecretKey generateSecretKey() {
