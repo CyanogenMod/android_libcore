@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -586,15 +585,6 @@ public final class StandardNames extends Assert {
         }
     }
 
-    public static final Set<String> SSL_SOCKET_PROTOCOLS_SSLENGINE = new HashSet<String>(SSL_SOCKET_PROTOCOLS);
-    public static final Set<String> SSL_SOCKET_PROTOCOLS_DEFAULT_SSLENGINE =
-            new HashSet<String>(SSL_SOCKET_PROTOCOLS_CLIENT_DEFAULT);
-    static {
-        if (IS_RI) {
-            SSL_SOCKET_PROTOCOLS_DEFAULT_SSLENGINE.add("SSLv2Hello");
-        }
-    }
-
     /**
      * Valid values for X509TrustManager.checkClientTrusted authType,
      * either the algorithm of the public key or UNKNOWN.
@@ -884,10 +874,6 @@ public final class StandardNames extends Assert {
                                               "SHA256",
                                               "SHA384"));
 
-    public static final List<String> CIPHER_SUITES_DEFAULT_SSLENGINE =
-            new ArrayList<String>(CIPHER_SUITES_DEFAULT);
-    public static final Set<String> CIPHER_SUITES_SSLENGINE = new HashSet<String>(CIPHER_SUITES);
-
     public static final Map<String, Class<? extends KeySpec>> PRIVATE_KEY_SPEC_CLASSES;
     public static final Map<String, Class<? extends KeySpec>> PUBLIC_KEY_SPEC_CLASSES;
     public static final Map<String, Integer> MINIMUM_KEY_SIZE;
@@ -999,29 +985,10 @@ public final class StandardNames extends Assert {
     }
 
     /**
-     * Asserts that the protocols array is non-null and that all of its contents are protocols
-     * supported by {@link javax.net.ssl.SSLEngine}.
-     */
-    public static void assertSSLEngineValidProtocols(String[] protocols) {
-        assertValidProtocols(SSL_SOCKET_PROTOCOLS_SSLENGINE, protocols);
-    }
-
-    /**
      * Asserts that the provided list of protocols matches the supported list of protocols.
-     *
-     * <p>This list may be different than the one supported by {@link javax.net.ssl.SSLEngine} --
-     * see {@link #assertSSLEngineSupportedProtocols(String[])}.
      */
     public static void assertSupportedProtocols(String[] protocols) {
         assertSupportedProtocols(SSL_SOCKET_PROTOCOLS, protocols);
-    }
-
-    /**
-     * Asserts that the provided list of protocols matches the supported list of protocols for
-     * {@link javax.net.ssl.SSLEngine}.
-     */
-    public static void assertSSLEngineSupportedProtocols(String[] protocols) {
-        assertSupportedProtocols(SSL_SOCKET_PROTOCOLS_SSLENGINE, protocols);
     }
 
     /**
@@ -1047,8 +1014,8 @@ public final class StandardNames extends Assert {
      * {@link javax.net.ssl.SSLEngine} and no other ones.
      */
     public static void assertSSLEngineDefaultProtocols(String[] protocols) {
-        assertSSLEngineValidProtocols(protocols);
-        assertSupportedProtocols(SSL_SOCKET_PROTOCOLS_DEFAULT_SSLENGINE, protocols);
+        assertValidProtocols(protocols);
+        assertSupportedProtocols(SSL_SOCKET_PROTOCOLS_CLIENT_DEFAULT, protocols);
     }
 
     /**
@@ -1059,26 +1026,10 @@ public final class StandardNames extends Assert {
     }
 
     /**
-     * Asserts that the provided list of cipher suites contains only the cipher suites supported by
-     * {@link javax.net.ssl.SSLEngine}.
-     */
-    public static void assertSSLEngineValidCipherSuites(String[] cipherSuites) {
-        assertValidCipherSuites(CIPHER_SUITES_SSLENGINE, cipherSuites);
-    }
-
-    /**
      * Assert that the provided list of cipher suites matches the supported list.
      */
     public static void assertSupportedCipherSuites(String[] cipherSuites) {
         assertSupportedCipherSuites(CIPHER_SUITES, cipherSuites);
-    }
-
-    /**
-     * Asserts that the provided list of cipher suites matches the supported list of cipher suites
-     * for {@link javax.net.ssl.SSLEngine}.
-     */
-    public static void assertSSLEngineSupportedCipherSuites(String[] cipherSuites) {
-        assertSupportedCipherSuites(CIPHER_SUITES_SSLENGINE, cipherSuites);
     }
 
     /**
@@ -1088,29 +1039,6 @@ public final class StandardNames extends Assert {
     public static void assertDefaultCipherSuites(String[] cipherSuites) {
         assertValidCipherSuites(cipherSuites);
         assertEquals(CIPHER_SUITES_DEFAULT, Arrays.asList(cipherSuites));
-
-        // Assert that all the cipher suites are permitted to be in the default list.
-        // This assertion is a backup for the stricter assertion above.
-        //
-        // There is no point in asserting this for the RI as it's outside of our control.
-        if (!IS_RI) {
-            List<String> disallowedDefaultCipherSuites = new ArrayList<String>();
-            for (String cipherSuite : cipherSuites) {
-                if (!isPermittedDefaultCipherSuite(cipherSuite)) {
-                    disallowedDefaultCipherSuites.add(cipherSuite);
-                }
-            }
-            assertEquals(Collections.EMPTY_LIST, disallowedDefaultCipherSuites);
-        }
-    }
-
-    /**
-     * Assert cipher suites match the default list in content and priority order and contain
-     * only cipher suites permitted by default for {@link javax.net.ssl.SSLEngine}.
-     */
-    public static void assertSSLEngineDefaultCipherSuites(String[] cipherSuites) {
-        assertSSLEngineValidCipherSuites(cipherSuites);
-        assertEquals(CIPHER_SUITES_DEFAULT_SSLENGINE, Arrays.asList(cipherSuites));
 
         // Assert that all the cipher suites are permitted to be in the default list.
         // This assertion is a backup for the stricter assertion above.
