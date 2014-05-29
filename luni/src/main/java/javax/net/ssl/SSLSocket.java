@@ -346,6 +346,16 @@ import java.net.UnknownHostException;
  *             <td>11+</td>
  *         </tr>
  *         <tr>
+ *             <td>TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA384</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
  *             <td>TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>11+</td>
  *             <td>11-19</td>
@@ -509,6 +519,26 @@ import java.net.UnknownHostException;
  *             <td>TLS_EMPTY_RENEGOTIATION_INFO_SCSV</td>
  *             <td>11+</td>
  *             <td>11+</td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_PSK_WITH_3DES_EDE_CBC_SHA</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_PSK_WITH_AES_128_CBC_SHA</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_PSK_WITH_AES_256_CBC_SHA</td>
+ *             <td>20+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
+ *             <td>TLS_PSK_WITH_RC4_128_SHA</td>
+ *             <td>20+</td>
+ *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_RSA_WITH_AES_128_CBC_SHA</td>
