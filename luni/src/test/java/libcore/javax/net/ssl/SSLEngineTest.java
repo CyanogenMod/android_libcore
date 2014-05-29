@@ -19,6 +19,8 @@ package libcore.javax.net.ssl;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -87,7 +89,16 @@ public class SSLEngineTest extends TestCase {
     private void test_SSLEngine_getSupportedCipherSuites_connect(TestKeyStore testKeyStore,
                                                                  boolean secureRenegotiation)
             throws Exception {
-        TestSSLContext c = TestSSLContext.create(testKeyStore, testKeyStore);
+        KeyManager pskKeyManager = PSKKeyManagerProxy.getConscryptPSKKeyManager(
+                new PSKKeyManagerProxy() {
+            @Override
+            protected SecretKey getKey(String identityHint, String identity, SSLEngine engine) {
+                return new SecretKeySpec("Just an arbitrary key".getBytes(), "RAW");
+            }
+        });
+        TestSSLContext c = TestSSLContext.createWithAdditionalKeyManagers(
+                testKeyStore, testKeyStore,
+                new KeyManager[] {pskKeyManager}, new KeyManager[] {pskKeyManager});
 
         // Create a TestSSLContext where the KeyManager returns wrong (randomly generated) private
         // keys, matching the algorithm and parameters of the correct keys.
@@ -189,8 +200,14 @@ public class SSLEngineTest extends TestCase {
             // corresponding to the server's certificate. This is achieved by using SSLContext
             // cWithWrongPrivateKeys whose KeyManager returns wrong private keys that match
             // the algorithm (and parameters) of the correct keys.
-            if (!cipherSuite.contains("_anon_")) {
-                // The identity of the server is verified only in non-anonymous key exchanges.
+            boolean serverAuthenticatedUsingPublicKey = true;
+            if (cipherSuite.contains("_anon_")) {
+                serverAuthenticatedUsingPublicKey = false;
+            } else if ((cipherSuite.startsWith("TLS_PSK_"))
+                    || (cipherSuite.startsWith("TLS_ECDHE_PSK_"))) {
+                serverAuthenticatedUsingPublicKey = false;
+            }
+            if (serverAuthenticatedUsingPublicKey) {
                 try {
                     TestSSLEnginePair p = TestSSLEnginePair.create(
                             cWithWrongPrivateKeys, new TestSSLEnginePair.Hooks() {
