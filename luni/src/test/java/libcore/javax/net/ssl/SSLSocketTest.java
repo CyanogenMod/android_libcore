@@ -40,6 +40,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
@@ -99,7 +101,17 @@ public class SSLSocketTest extends TestCase {
         byte[] clientToServer = clientToServerString.getBytes();
         byte[] serverToClient = serverToClientString.getBytes();
 
-        TestSSLContext c = TestSSLContext.create(testKeyStore, testKeyStore);
+        KeyManager pskKeyManager = PSKKeyManagerProxy.getConscryptPSKKeyManager(
+                new PSKKeyManagerProxy() {
+            @Override
+            protected SecretKey getKey(String identityHint, String identity, Socket socket) {
+                return new SecretKeySpec("Just an arbitrary key".getBytes(), "RAW");
+            }
+        });
+        TestSSLContext c = TestSSLContext.createWithAdditionalKeyManagers(
+                testKeyStore, testKeyStore,
+                new KeyManager[] {pskKeyManager}, new KeyManager[] {pskKeyManager});
+
         String[] cipherSuites = c.clientContext.getSocketFactory().getSupportedCipherSuites();
 
         for (String cipherSuite : cipherSuites) {
