@@ -16,6 +16,8 @@
 
 package libcore.icu;
 
+import java.text.BreakIterator;
+import java.text.Collator;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -42,12 +44,12 @@ public class ICUTest extends junit.framework.TestCase {
   }
 
   public void test_getBestDateTimePattern() throws Exception {
-    assertEquals("d MMMM", ICU.getBestDateTimePattern("MMMMd", "ca_ES"));
-    assertEquals("d 'de' MMMM", ICU.getBestDateTimePattern("MMMMd", "es_ES"));
-    assertEquals("d. MMMM", ICU.getBestDateTimePattern("MMMMd", "de_CH"));
-    assertEquals("MMMM d", ICU.getBestDateTimePattern("MMMMd", "en_US"));
-    assertEquals("d LLLL", ICU.getBestDateTimePattern("MMMMd", "fa_IR"));
-    assertEquals("M月d日", ICU.getBestDateTimePattern("MMMMd", "ja_JP"));
+    assertEquals("d MMMM", ICU.getBestDateTimePattern("MMMMd", new Locale("ca", "ES")));
+    assertEquals("d 'de' MMMM", ICU.getBestDateTimePattern("MMMMd", new Locale("es", "ES")));
+    assertEquals("d. MMMM", ICU.getBestDateTimePattern("MMMMd", new Locale("de", "CH")));
+    assertEquals("MMMM d", ICU.getBestDateTimePattern("MMMMd", new Locale("en", "US")));
+    assertEquals("d LLLL", ICU.getBestDateTimePattern("MMMMd", new Locale("fa", "IR")));
+    assertEquals("M月d日", ICU.getBestDateTimePattern("MMMMd", new Locale("ja", "JP")));
   }
 
   public void test_localeFromString() throws Exception {
@@ -73,7 +75,7 @@ public class ICUTest extends junit.framework.TestCase {
   }
 
   private String best(Locale l, String skeleton) {
-    return ICU.getBestDateTimePattern(skeleton, l.toString());
+    return ICU.getBestDateTimePattern(skeleton, l);
   }
 
   public void test_getDateFormatOrder() throws Exception {
@@ -122,5 +124,96 @@ public class ICUTest extends junit.framework.TestCase {
       fail();
     } catch (IllegalArgumentException expected) {
     }
+  }
+
+  public void testScriptsPassedToIcu() throws Exception {
+    Locale sr_Cyrl_BA = Locale.forLanguageTag("sr-Cyrl-BA");
+    Locale sr_Cyrl_ME = Locale.forLanguageTag("sr-Cyrl-ME");
+    Locale sr_Latn_BA = Locale.forLanguageTag("sr-Latn-BA");
+    Locale sr_Latn_ME = Locale.forLanguageTag("sr-Latn-ME");
+
+    assertEquals("sr_BA_#Cyrl", sr_Cyrl_BA.toString());
+    assertEquals("Cyrl",        sr_Cyrl_BA.getScript());
+
+    assertEquals("sr_ME_#Cyrl", sr_Cyrl_ME.toString());
+    assertEquals("Cyrl",        sr_Cyrl_ME.getScript());
+
+    assertEquals("sr_BA_#Latn", sr_Latn_BA.toString());
+    assertEquals("Latn",        sr_Latn_BA.getScript());
+
+    assertEquals("sr_ME_#Latn", sr_Latn_ME.toString());
+    assertEquals("Latn",        sr_Latn_ME.getScript());
+
+    assertEquals("Српски",              sr_Cyrl_BA.getDisplayLanguage(sr_Cyrl_BA));
+    assertEquals("Босна и Херцеговина", sr_Cyrl_BA.getDisplayCountry(sr_Cyrl_BA));
+    assertEquals("Ћирилица",            sr_Cyrl_BA.getDisplayScript(sr_Cyrl_BA));
+    assertEquals("",                    sr_Cyrl_BA.getDisplayVariant(sr_Cyrl_BA));
+
+    assertEquals("Српски",    sr_Cyrl_ME.getDisplayLanguage(sr_Cyrl_ME));
+    assertEquals("Црна Гора", sr_Cyrl_ME.getDisplayCountry(sr_Cyrl_ME));
+    assertEquals("Ћирилица",  sr_Cyrl_ME.getDisplayScript(sr_Cyrl_ME));
+    assertEquals("",          sr_Cyrl_ME.getDisplayVariant(sr_Cyrl_ME));
+
+    assertEquals("Srpski",              sr_Latn_BA.getDisplayLanguage(sr_Latn_BA));
+    assertEquals("Bosna i Hercegovina", sr_Latn_BA.getDisplayCountry(sr_Latn_BA));
+    assertEquals("Latinica",            sr_Latn_BA.getDisplayScript(sr_Latn_BA));
+    assertEquals("",                    sr_Latn_BA.getDisplayVariant(sr_Latn_BA));
+
+    assertEquals("Srpski",    sr_Latn_ME.getDisplayLanguage(sr_Latn_ME));
+    assertEquals("Crna Gora", sr_Latn_ME.getDisplayCountry(sr_Latn_ME));
+    assertEquals("Latinica",  sr_Latn_ME.getDisplayScript(sr_Latn_ME));
+    assertEquals("",          sr_Latn_ME.getDisplayVariant(sr_Latn_ME));
+
+    assertEquals("BIH", sr_Cyrl_BA.getISO3Country());
+    assertEquals("srp", sr_Cyrl_BA.getISO3Language());
+    assertEquals("MNE", sr_Cyrl_ME.getISO3Country());
+    assertEquals("srp", sr_Cyrl_ME.getISO3Language());
+    assertEquals("BIH", sr_Latn_BA.getISO3Country());
+    assertEquals("srp", sr_Latn_BA.getISO3Language());
+    assertEquals("MNE", sr_Latn_ME.getISO3Country());
+    assertEquals("srp", sr_Latn_ME.getISO3Language());
+
+    BreakIterator.getCharacterInstance(sr_Cyrl_BA);
+    BreakIterator.getCharacterInstance(sr_Cyrl_ME);
+    BreakIterator.getCharacterInstance(sr_Latn_BA);
+    BreakIterator.getCharacterInstance(sr_Latn_ME);
+
+    BreakIterator.getLineInstance(sr_Cyrl_BA);
+    BreakIterator.getLineInstance(sr_Cyrl_ME);
+    BreakIterator.getLineInstance(sr_Latn_BA);
+    BreakIterator.getLineInstance(sr_Latn_ME);
+
+    BreakIterator.getSentenceInstance(sr_Cyrl_BA);
+    BreakIterator.getSentenceInstance(sr_Cyrl_ME);
+    BreakIterator.getSentenceInstance(sr_Latn_BA);
+    BreakIterator.getSentenceInstance(sr_Latn_ME);
+
+    BreakIterator.getWordInstance(sr_Cyrl_BA);
+    BreakIterator.getWordInstance(sr_Cyrl_ME);
+    BreakIterator.getWordInstance(sr_Latn_BA);
+    BreakIterator.getWordInstance(sr_Latn_ME);
+
+    Collator.getInstance(sr_Cyrl_BA);
+    Collator.getInstance(sr_Cyrl_ME);
+    Collator.getInstance(sr_Latn_BA);
+    Collator.getInstance(sr_Latn_ME);
+
+    // TODO: This needs to be fixed. We shouldn't output attribute key
+    // expansions in the language tag or the toString output. The tests
+    // will fail with something like:
+    //
+    // expected:<de-u-co[-phonebk-kf-upper-kn]> but was:
+    // <de-u-co[lcasefirst-upper-collation-phonebook-colnumeric-yes]>
+    Locale l = Locale.forLanguageTag("de-u-co-phonebk-kf-upper-kn");
+    assertEquals("de__#u-co-phonebk-kf-upper-kn", l.toString());
+    assertEquals("de-u-co-phonebk-kf-upper-kn", l.toLanguageTag());
+
+    Collator c = Collator.getInstance(l);
+    assertTrue(c.compare("2", "11") < 0);
+    assertTrue(c.compare("11", "ae") < 0);
+    assertTrue(c.compare("ae", "Ä") < 0);
+    assertTrue(c.compare("Ä", "ä") < 0);
+    assertTrue(c.compare("ä", "AF") < 0);
+    assertTrue(c.compare("AF", "af") < 0);
   }
 }
