@@ -320,6 +320,12 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
 
     public void testServerShutdownOutput() throws Exception {
         // This test causes MockWebServer to log a "connection failed" stack trace
+
+        // Setting the server workerThreads to 1 ensures the responses are generated in the order
+        // the requests are accepted by the server. Without this the second and third requests made
+        // by the client (the request for "/b" and the retry for "/b" when the bad socket is
+        // detected) can be handled by the server out of order leading to test failure.
+        server.setWorkerThreads(1);
         server.enqueue(new MockResponse()
                 .setBody("Output shutdown after this response")
                 .setSocketPolicy(SHUTDOWN_OUTPUT_AT_END));
