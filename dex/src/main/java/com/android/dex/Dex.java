@@ -422,7 +422,10 @@ public final class Dex {
         }
         position = parametersOffset;
         int size = data.getInt(position);
-        if (size <= 0) {
+        if (size == 0) {
+            return EMPTY_SHORT_ARRAY;
+        }
+        if (size < 0) {
             throw new AssertionError("Unexpected parameter type list size: " + size);
         }
         position += SizeOf.UINT;
