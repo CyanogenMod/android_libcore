@@ -594,8 +594,7 @@ static jint Posix_fcntlFlock(JNIEnv* env, jobject, jobject javaFd, jint cmd, job
     lock.l_len = env->GetLongField(javaFlock, lenFid);
     lock.l_pid = env->GetIntField(javaFlock, pidFid);
 
-    int fd = jniGetFDFromFileDescriptor(env, javaFd);
-    int rc = throwIfMinusOne(env, "fcntl", TEMP_FAILURE_RETRY(fcntl(fd, cmd, &lock)));
+    int rc = IO_FAILURE_RETRY(env, int, fcntl, javaFd, cmd, &lock);
     if (rc != -1) {
         env->SetShortField(javaFlock, typeFid, lock.l_type);
         env->SetShortField(javaFlock, whenceFid, lock.l_whence);
