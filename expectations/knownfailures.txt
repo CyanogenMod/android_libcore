@@ -1441,5 +1441,29 @@
   description: "Known failure in GregorianCalendarTest",
   bug: 12778197,
   name: "org.apache.harmony.tests.java.util.GregorianCalendarTest#test_computeTime"
+},
+{
+  description: "Failures in external/okhttp tests on Android. Some are flakes. To be investigated",
+  bug: 14462336,
+  names: [
+    "com.squareup.okhttp.internal.http.HttpOverHttp20Draft09Test#acceptAndTransmitCookies",
+    "com.squareup.okhttp.internal.http.HttpOverHttp20Draft09Test#authenticate",
+    "com.squareup.okhttp.internal.http.HttpOverHttp20Draft09Test#conditionalCache",
+    "com.squareup.okhttp.internal.http.HttpOverHttp20Draft09Test#get",
+    "com.squareup.okhttp.internal.http.HttpOverHttp20Draft09Test#noDefaultContentLengthOnPost",
+    "com.squareup.okhttp.internal.http.HttpOverHttp20Draft09Test#readResponseHeaderTimeout",
+    "com.squareup.okhttp.internal.http.HttpOverHttp20Draft09Test#readTimeoutOnSlowConnection",
+    "com.squareup.okhttp.internal.http.HttpOverHttp20Draft09Test#responseCachedWithoutConsumingFullBody",
+    "com.squareup.okhttp.internal.http.HttpOverHttp20Draft09Test#responsesAreCached",
+    "com.squareup.okhttp.internal.http.HttpOverHttp20Draft09Test#serverSendsPushPromise_GET",
+    "com.squareup.okhttp.internal.http.HttpOverHttp20Draft09Test#serverSendsPushPromise_HEAD",
+    "com.squareup.okhttp.internal.http.HttpOverHttp20Draft09Test#synchronousSpdyRequest",
+    "com.squareup.okhttp.internal.http.HttpResponseCacheTest#setIfModifiedSince",
+    "com.squareup.okhttp.internal.http.URLConnectionTest#sslFallbackNotUsedWhenRecycledConnectionFails",
+    "com.squareup.okhttp.internal.spdy.SpdyConnectionTest#initialSettingsWithWindowSizeAdjustsConnection",
+    "com.squareup.okhttp.internal.spdy.SpdyConnectionTest#pushPromiseStream",
+    "com.squareup.okhttp.internal.spdy.SpdyConnectionTest#replyWithNoData",
+    "com.squareup.okhttp.internal.spdy.SpdyConnectionTest#serverClosesClientInputStream"
+  ]
 }
 ]
