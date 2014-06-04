@@ -23,9 +23,11 @@ import android.util.MutableLong;
 import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.channels.FileLockInterruptionException;
 import java.nio.channels.NonReadableChannelException;
 import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.OverlappingFileLockException;
@@ -164,7 +166,11 @@ final class FileChannelImpl extends FileChannel {
                 resultLock = basicLock(position, size, shared, true);
                 completed = true;
             } finally {
-                end(completed);
+                try {
+                    end(completed);
+                } catch (ClosedByInterruptException e) {
+                    throw new FileLockInterruptionException();
+                }
             }
         }
         return resultLock;
