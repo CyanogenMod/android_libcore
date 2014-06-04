@@ -1504,5 +1504,10 @@
   description: "Suppression of a test that proves there is a known bug with Matcher",
   bug: 14865710,
   name: "org.apache.harmony.tests.java.util.ScannerParseLargeFileBenchmarkTest#testParseLargeFile"
+},
+{
+  description: "Large test that ends in a timeout during CTS runs",
+  bug: 5513723,
+  name: "libcore.java.security.KeyPairGeneratorTest#test_getInstance"
 }
 ]
