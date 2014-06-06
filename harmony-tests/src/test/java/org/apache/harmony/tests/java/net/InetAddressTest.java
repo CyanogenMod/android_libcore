@@ -349,8 +349,9 @@ public class InetAddressTest extends junit.framework.TestCase {
         } catch (IllegalArgumentException e) {
             // correct
         }
-        // tests nowhere
-        ia = Inet4Address.getByName("1.1.1.1");
+        // tests unreachable address. 192.0.2.1 is reserved by RFC 5737
+        // and should not be used outside of example code / docs.
+        ia = Inet4Address.getByName("192.0.2.1");
         assertFalse(ia.isReachable(1000));
         assertFalse(ia.isReachable(null, 0, 1000));
 
