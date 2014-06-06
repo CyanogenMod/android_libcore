@@ -584,27 +584,14 @@ public final class System {
     }
 
     /**
-     * Loads and links the dynamic library that is identified through the
-     * specified path. This method is similar to {@link #loadLibrary(String)},
-     * but it accepts a full path specification whereas {@code loadLibrary} just
-     * accepts the name of the library to load.
-     *
-     * @param pathName
-     *            the path of the file to be loaded.
+     * See {@link Runtime#load}.
      */
     public static void load(String pathName) {
         Runtime.getRuntime().load(pathName, VMStack.getCallingClassLoader());
     }
 
     /**
-     * Loads and links the library with the specified name. The mapping of the
-     * specified library name to the full path for loading the library is
-     * implementation-dependent.
-     *
-     * @param libName
-     *            the name of the library to load.
-     * @throws UnsatisfiedLinkError
-     *             if the library could not be loaded.
+     * See {@link Runtime#loadLibrary}.
      */
     public static void loadLibrary(String libName) {
         Runtime.getRuntime().loadLibrary(libName, VMStack.getCallingClassLoader());
@@ -722,24 +709,15 @@ public final class System {
 
     /**
      * Returns the platform specific file name format for the shared library
-     * named by the argument.
-     *
-     * @param userLibName
-     *            the name of the library to look up.
-     * @return the platform specific filename for the library.
+     * named by the argument. On Android, this would turn {@code "MyLibrary"} into
+     * {@code "libMyLibrary.so"}.
      */
-    public static native String mapLibraryName(String userLibName);
+    public static native String mapLibraryName(String nickname);
 
     /**
-     * Sets the value of the named static field in the receiver to the passed in
-     * argument.
-     *
-     * @param fieldName
-     *            the name of the field to set, one of in, out, or err
-     * @param stream
-     *            the new value of the field
+     * Used to set System.err, System.in, and System.out.
      */
-    private static native void setFieldImpl(String fieldName, String signature, Object stream);
+    private static native void setFieldImpl(String field, String signature, Object stream);
 
     /**
      * A properties class that prohibits changes to any of the properties
