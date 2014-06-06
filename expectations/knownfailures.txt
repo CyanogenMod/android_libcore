@@ -1441,10 +1441,5 @@
   description: "Known failure in GregorianCalendarTest",
   bug: 12778197,
   name: "org.apache.harmony.tests.java.util.GregorianCalendarTest#test_computeTime"
-},
-{
-  description: "Large test that ends in a timeout during CTS runs",
-  bug: 5513723,
-  name: "libcore.java.security.KeyPairGeneratorTest#test_getInstance"
 }
 ]
