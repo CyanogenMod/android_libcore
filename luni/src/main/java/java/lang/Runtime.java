@@ -307,57 +307,64 @@ public class Runtime {
     }
 
     /**
-     * Loads and links the dynamic library that is identified through the
-     * specified path. This method is similar to {@link #loadLibrary(String)},
-     * but it accepts a full path specification whereas {@code loadLibrary} just
-     * accepts the name of the library to load.
+     * Loads the shared library found at the given absolute path.
+     * This should be of the form {@code /path/to/library/libMyLibrary.so}.
+     * Most callers should use {@link #loadLibrary(String)} instead, and
+     * let the system find the correct file to load.
      *
-     * @param pathName
-     *            the absolute (platform dependent) path to the library to load.
-     * @throws UnsatisfiedLinkError
-     *             if the library can not be loaded.
+     * @throws UnsatisfiedLinkError if the library can not be loaded,
+     * either because it's not found or because there is something wrong with it.
      */
-    public void load(String pathName) {
-        load(pathName, VMStack.getCallingClassLoader());
+    public void load(String absolutePath) {
+        load(absolutePath, VMStack.getCallingClassLoader());
     }
 
     /*
-     * Loads and links the given library without security checks.
+     * Loads the given shared library using the given ClassLoader.
      */
-    void load(String pathName, ClassLoader loader) {
-        if (pathName == null) {
-            throw new NullPointerException("pathName == null");
+    void load(String absolutePath, ClassLoader loader) {
+        if (absolutePath == null) {
+            throw new NullPointerException("absolutePath == null");
         }
-        String error = doLoad(pathName, loader);
+        String error = doLoad(absolutePath, loader);
         if (error != null) {
             throw new UnsatisfiedLinkError(error);
         }
     }
 
     /**
-     * Loads and links the library with the specified name. The mapping of the
-     * specified library name to the full path for loading the library is
-     * implementation-dependent.
+     * Loads a shared library. Class loaders have some influence over this
+     * process, but for a typical Android app, it works as follows:
      *
-     * @param libName
-     *            the name of the library to load.
-     * @throws UnsatisfiedLinkError
-     *             if the library can not be loaded.
+     * <p>Given the name {@code "MyLibrary"}, that string will be passed to
+     * {@link System#mapLibraryName}. That means it would be a mistake
+     * for the caller to include the usual {@code "lib"} prefix and {@code ".so"}
+     * suffix.
+     *
+     * <p>That file will then be searched for on the application's native library
+     * search path. This consists of the application's own native library directory
+     * followed by the system's native library directories.
+     *
+     * @throws UnsatisfiedLinkError if the library can not be loaded,
+     * either because it's not found or because there is something wrong with it.
      */
-    public void loadLibrary(String libName) {
-        loadLibrary(libName, VMStack.getCallingClassLoader());
+    public void loadLibrary(String nickname) {
+        loadLibrary(nickname, VMStack.getCallingClassLoader());
     }
 
     /*
-     * Searches for a library, then loads and links it without security checks.
+     * Searches for and loads the given shared library using the given ClassLoader.
      */
     void loadLibrary(String libraryName, ClassLoader loader) {
         if (loader != null) {
             String filename = loader.findLibrary(libraryName);
             if (filename == null) {
-                throw new UnsatisfiedLinkError("Couldn't load " + libraryName +
-                                               " from loader " + loader +
-                                               ": findLibrary returned null");
+                // It's not necessarily true that the ClassLoader used
+                // System.mapLibraryName, but the default setup does, and it's
+                // misleading to say we didn't find "libMyLibrary.so" when we
+                // actually searched for "liblibMyLibrary.so.so".
+                throw new UnsatisfiedLinkError(loader + " couldn't find \"" +
+                                               System.mapLibraryName(libraryName) + "\"");
             }
             String error = doLoad(filename, loader);
             if (error != null) {
