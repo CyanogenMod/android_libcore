@@ -1465,10 +1465,5 @@
     "com.squareup.okhttp.internal.spdy.SpdyConnectionTest#replyWithNoData",
     "com.squareup.okhttp.internal.spdy.SpdyConnectionTest#serverClosesClientInputStream"
   ]
-},
-{
-  description: "Large test that ends in a timeout during CTS runs",
-  bug: 5513723,
-  name: "libcore.java.security.KeyPairGeneratorTest#test_getInstance"
 }
 ]

@@ -53,59 +53,81 @@ import junit.framework.TestCase;
 
 public class KeyPairGeneratorTest extends TestCase {
 
-    public void test_getInstance() throws Exception {
-        Provider[] providers = Security.getProviders();
-        for (Provider provider : providers) {
-            Set<Provider.Service> services = provider.getServices();
-            for (Provider.Service service : services) {
-                String type = service.getType();
-                if (!type.equals("KeyPairGenerator")) {
-                    continue;
+    public void test_providerCount() {
+        // If this fails remember to add/remove _provider methods below. This test is sharded
+        // because it takes so long.
+        assertEquals(4, Security.getProviders().length);
+    }
+
+    public void test_getInstance_provider0() throws Exception {
+        test_getInstance(Security.getProviders()[0]);
+    }
+
+    public void test_getInstance_provider1() throws Exception {
+        test_getInstance(Security.getProviders()[1]);
+    }
+
+    public void test_getInstance_provider2() throws Exception {
+        test_getInstance(Security.getProviders()[2]);
+    }
+
+    public void test_getInstance_provider3() throws Exception {
+        test_getInstance(Security.getProviders()[3]);
+    }
+
+    private void test_getInstance(Provider provider) throws Exception {
+        Set<Provider.Service> services = provider.getServices();
+        for (Provider.Service service : services) {
+            String type = service.getType();
+            if (!type.equals("KeyPairGenerator")) {
+                continue;
+            }
+            String algorithm = service.getAlgorithm();
+
+            // AndroidKeyStore is tested in CTS.
+            if ("AndroidKeyStore".equals(provider.getName())) {
+                continue;
+            }
+
+            AlgorithmParameterSpec params = null;
+
+            // TODO: detect if we're running in vogar and run the full test
+            if ("DH".equals(algorithm)) {
+                // Disabled because this takes too long on devices.
+                // TODO: Re-enable DH test. http://b/5513723.
+                // params = getDHParams();
+                continue;
+            }
+
+            try {
+                // KeyPairGenerator.getInstance(String)
+                KeyPairGenerator kpg1 = KeyPairGenerator.getInstance(algorithm);
+                assertEquals(algorithm, kpg1.getAlgorithm());
+                if (params != null) {
+                    kpg1.initialize(params);
                 }
-                String algorithm = service.getAlgorithm();
+                test_KeyPairGenerator(kpg1);
 
-                // AndroidKeyStore is tested in CTS.
-                if ("AndroidKeyStore".equals(provider.getName())) {
-                    continue;
+                // KeyPairGenerator.getInstance(String, Provider)
+                KeyPairGenerator kpg2 = KeyPairGenerator.getInstance(algorithm, provider);
+                assertEquals(algorithm, kpg2.getAlgorithm());
+                assertEquals(provider, kpg2.getProvider());
+                if (params != null) {
+                    kpg2.initialize(params);
                 }
+                test_KeyPairGenerator(kpg2);
 
-                AlgorithmParameterSpec params = null;
-
-                // TODO: detect if we're running in vogar and run the full test
-                if ("DH".equals(algorithm)) {
-                    params = getDHParams();
+                // KeyPairGenerator.getInstance(String, String)
+                KeyPairGenerator kpg3 = KeyPairGenerator.getInstance(algorithm,
+                                                                    provider.getName());
+                assertEquals(algorithm, kpg3.getAlgorithm());
+                assertEquals(provider, kpg3.getProvider());
+                if (params != null) {
+                    kpg3.initialize(params);
                 }
-
-                try {
-                    // KeyPairGenerator.getInstance(String)
-                    KeyPairGenerator kpg1 = KeyPairGenerator.getInstance(algorithm);
-                    assertEquals(algorithm, kpg1.getAlgorithm());
-                    if (params != null) {
-                        kpg1.initialize(params);
-                    }
-                    test_KeyPairGenerator(kpg1);
-
-                    // KeyPairGenerator.getInstance(String, Provider)
-                    KeyPairGenerator kpg2 = KeyPairGenerator.getInstance(algorithm, provider);
-                    assertEquals(algorithm, kpg2.getAlgorithm());
-                    assertEquals(provider, kpg2.getProvider());
-                    if (params != null) {
-                        kpg2.initialize(params);
-                    }
-                    test_KeyPairGenerator(kpg2);
-
-                    // KeyPairGenerator.getInstance(String, String)
-                    KeyPairGenerator kpg3 = KeyPairGenerator.getInstance(algorithm,
-                                                                        provider.getName());
-                    assertEquals(algorithm, kpg3.getAlgorithm());
-                    assertEquals(provider, kpg3.getProvider());
-                    if (params != null) {
-                        kpg3.initialize(params);
-                    }
-                    test_KeyPairGenerator(kpg3);
-                } catch (Exception e) {
-                    throw new Exception("Problem testing KeyPairGenerator." + algorithm, e);
-                }
+                test_KeyPairGenerator(kpg3);
+            } catch (Exception e) {
+                throw new Exception("Problem testing KeyPairGenerator." + algorithm, e);
             }
         }
     }
@@ -340,8 +362,6 @@ public class KeyPairGeneratorTest extends TestCase {
 
     public void testDSAGeneratorWithParams() throws Exception {
         final DSAParameterSpec dsaSpec = new DSAParameterSpec(DSA_P, DSA_Q, DSA_G);
-
-        boolean failure = false;
 
         final Provider[] providers = Security.getProviders();
         for (final Provider p : providers) {
