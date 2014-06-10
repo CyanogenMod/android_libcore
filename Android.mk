@@ -55,23 +55,21 @@ endif
 # "m dalvik-host" for quick minimal host build
 #
 
-ifeq ($(WITH_HOST_DALVIK),true)
-    .PHONY: dalvik-host
-    dalvik-host: \
-        dalvik \
-        $(HOST_OUT)/bin/dalvikvm \
-        $(HOST_OUT)/bin/dexopt \
-        $(HOST_OUT)/lib/libjavacore.so \
-        $(HOST_OUT)/lib/libjavacrypto.so \
-        $(HOST_OUT)/lib/libjavacoretests.so \
-        cacerts-host \
-        core-hostdex \
-        conscrypt-hostdex \
-        okhttp-hostdex \
-        bouncycastle-hostdex \
-        apache-xml-hostdex \
-        apache-harmony-tests-hostdex \
-        $(call intermediates-dir-for,JAVA_LIBRARIES,core-tests,,COMMON)/classes.jar
-endif
+.PHONY: dalvik-host
+dalvik-host: \
+    dalvik \
+    $(HOST_OUT)/bin/dalvikvm \
+    $(HOST_OUT)/bin/dexopt \
+    $(HOST_OUT)/lib/libjavacore.so \
+    $(HOST_OUT)/lib/libjavacrypto.so \
+    $(HOST_OUT)/lib/libjavacoretests.so \
+    cacerts-host \
+    core-hostdex \
+    conscrypt-hostdex \
+    okhttp-hostdex \
+    bouncycastle-hostdex \
+    apache-xml-hostdex \
+    apache-harmony-tests-hostdex \
+    $(call intermediates-dir-for,JAVA_LIBRARIES,core-tests,,COMMON)/classes.jar
 
 include $(subdir_makefiles)

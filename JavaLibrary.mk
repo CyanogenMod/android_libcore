@@ -167,38 +167,36 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := dex-host
 include $(BUILD_HOST_JAVA_LIBRARY)
 
-ifeq ($(WITH_HOST_DALVIK),true)
+# Definitions to make the core library.
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(libdvm_core_src_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := core-hostdex
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_REQUIRED_MODULES := tzdata-host
+include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 
-    # Definitions to make the core library.
-    include $(CLEAR_VARS)
-    LOCAL_SRC_FILES := $(libdvm_core_src_files)
-    LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
-    LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVACFLAGS := $(local_javac_flags)
-    LOCAL_DX_FLAGS := --core-library
-    LOCAL_MODULE_TAGS := optional
-    LOCAL_MODULE := core-hostdex
-    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
-    LOCAL_REQUIRED_MODULES := tzdata-host
-    include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(libart_core_src_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := core-libart-hostdex
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_REQUIRED_MODULES := tzdata-host
+# Should not be dex-preopted as it isn't really a Dalvik boot jar or a
+# regular java library, but part of the image for ART.
+LOCAL_DEX_PREOPT := false
+include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 
-    include $(CLEAR_VARS)
-    LOCAL_SRC_FILES := $(libart_core_src_files)
-    LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
-    LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVACFLAGS := $(local_javac_flags)
-    LOCAL_DX_FLAGS := --core-library
-    LOCAL_MODULE_TAGS := optional
-    LOCAL_MODULE := core-libart-hostdex
-    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
-    LOCAL_REQUIRED_MODULES := tzdata-host
-    # Should not be dex-preopted as it isn't really a Dalvik boot jar or a
-    # regular java library, but part of the image for ART.
-    LOCAL_DEX_PREOPT := false
-    include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
-
-    # Make the core-tests library.
-    ifeq ($(LIBCORE_SKIP_TESTS),)
+# Make the core-tests library.
+ifeq ($(LIBCORE_SKIP_TESTS),)
     include $(CLEAR_VARS)
     LOCAL_SRC_FILES := $(test_src_files)
     LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
@@ -209,10 +207,10 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_MODULE := core-tests-hostdex
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
     include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
-    endif
+endif
 
-    # Make the core-tests-support library.
-    ifeq ($(LIBCORE_SKIP_TESTS),)
+# Make the core-tests-support library.
+ifeq ($(LIBCORE_SKIP_TESTS),)
     include $(CLEAR_VARS)
     LOCAL_SRC_FILES := $(call all-test-java-files-under,support)
     LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
@@ -222,7 +220,6 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_MODULE := core-tests-support-hostdex
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
     include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
-    endif
 endif
 
 #
