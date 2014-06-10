@@ -19,6 +19,8 @@ package org.apache.harmony.tests.java.lang;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 public class RuntimeTest extends junit.framework.TestCase {
@@ -82,14 +84,6 @@ public class RuntimeTest extends junit.framework.TestCase {
     }
 
     /**
-     * java.lang.Runtime#freeMemory()
-     */
-    public void test_freeMemory() {
-        // Test for method long java.lang.Runtime.freeMemory()
-        assertTrue("freeMemory returned nonsense value", r.freeMemory() > 0);
-    }
-
-    /**
      * java.lang.Runtime#gc()
      */
     public void test_gc() {
@@ -142,12 +136,28 @@ public class RuntimeTest extends junit.framework.TestCase {
     }
 
     /**
-     * java.lang.Runtime#totalMemory()
+     * java.lang.Runtime#freeMemory() / java.lang.Runtime#totalMemory() /
+     * java.lang.Runtime#maxMemory()
      */
-    public void test_totalMemory() {
-        // Test for method long java.lang.Runtime.totalMemory()
-        assertTrue("totalMemory returned nonsense value", r.totalMemory() >= r
-                .freeMemory());
+    public void test_memory() {
+        assertTrue("freeMemory <= 0", r.freeMemory() > 0);
+        assertTrue("totalMemory() < freeMemory()", r.totalMemory() >= r.freeMemory());
+        assertTrue("maxMemory() < totalMemory()", r.maxMemory() >= r.totalMemory());
+    }
+
+    public void test_freeMemory() {
+        // Heap might grow or do GC at any time, so we can't really test a lot. Hence we are just
+        // doing some basic sanity checks here.
+        long freeBefore = r.freeMemory();
+        List<byte[]> arrays = new ArrayList<byte[]>();
+        for (int i = 1; i < 10; i++) {
+            arrays.add(new byte[10000]);
+        }
+        long freeAfter =  r.freeMemory();
+
+        // If totalMemory() has grown/shrunk freeMemory() might have gone down or up, but the
+        // freeMemory is unlikely to stay the same.
+        assertTrue("free memory must change with allocations", freeAfter != freeBefore);
     }
 
     public RuntimeTest() {
