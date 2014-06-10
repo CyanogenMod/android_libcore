@@ -61,6 +61,8 @@
 #include <termios.h>
 #include <unistd.h>
 
+#define __unused __attribute__((__unused__))
+
 #define TO_JAVA_STRING(NAME, EXP) \
         jstring NAME = env->NewStringUTF(EXP); \
         if (NAME == NULL) return NULL;
