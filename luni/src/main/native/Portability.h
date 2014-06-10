@@ -64,7 +64,6 @@ static inline int mincore(void* addr, size_t length, unsigned char* vec) {
 // For statfs(3).
 #include <sys/param.h>
 #include <sys/mount.h>
-#define f_frsize f_bsize // TODO: close enough?
 
 #else
 
