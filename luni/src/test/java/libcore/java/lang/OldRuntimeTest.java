@@ -34,28 +34,6 @@ public class OldRuntimeTest extends junit.framework.TestCase {
 
     InputStream is;
 
-    public void test_freeMemory() {
-        // Heap might grow or do GC at any time,
-        // so we can't really test a lot. Hence
-        // we are just doing some basic sanity
-        // checks here.
-        assertTrue("must have some free memory",
-                r.freeMemory() > 0);
-
-        assertTrue("must not exceed total memory",
-                r.freeMemory() < r.totalMemory());
-
-        long before = r.totalMemory() - r.freeMemory();
-        Vector<byte[]> v = new Vector<byte[]>();
-        for (int i = 1; i < 10; i++) {
-            v.addElement(new byte[10000]);
-        }
-        long after =  r.totalMemory() - r.freeMemory();
-
-        assertTrue("free memory must change with allocations",
-                after != before);
-    }
-
     public void test_getRuntime() {
         // Test for method java.lang.Runtime java.lang.Runtime.getRuntime()
         assertNotNull(Runtime.getRuntime());
@@ -449,10 +427,6 @@ public class OldRuntimeTest extends junit.framework.TestCase {
             Thread.currentThread().sleep(1000);
         } catch (InterruptedException ie) {
         }
-    }
-
-    public void test_maxMemory() {
-        assertTrue(Runtime.getRuntime().maxMemory() < Long.MAX_VALUE);
     }
 
     public void test_traceInstructions() {
