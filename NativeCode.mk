@@ -112,22 +112,21 @@ endif # LIBCORE_SKIP_TESTS
 # Build for the host.
 #
 
-ifeq ($(WITH_HOST_DALVIK),true)
-    include $(CLEAR_VARS)
-    LOCAL_CLANG := true
-    LOCAL_SRC_FILES += $(core_src_files)
-    LOCAL_CFLAGS += $(core_cflags)
-    LOCAL_C_INCLUDES += $(core_c_includes)
-    LOCAL_CPPFLAGS += $(core_cppflags)
-    LOCAL_LDLIBS += -ldl -lpthread -lrt
-    LOCAL_MODULE_TAGS := optional
-    LOCAL_MODULE := libjavacore
-    LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
-    LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libexpat-host libicuuc-host libicui18n-host libcrypto-host libz-host
-    LOCAL_STATIC_LIBRARIES += $(core_static_libraries) libziparchive-host libutils
-    include $(BUILD_HOST_SHARED_LIBRARY)
+include $(CLEAR_VARS)
+LOCAL_CLANG := true
+LOCAL_SRC_FILES += $(core_src_files)
+LOCAL_CFLAGS += $(core_cflags)
+LOCAL_C_INCLUDES += $(core_c_includes)
+LOCAL_CPPFLAGS += $(core_cppflags)
+LOCAL_LDLIBS += -ldl -lpthread
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := libjavacore
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
+LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libexpat-host libicuuc-host libicui18n-host libcrypto-host libz-host
+LOCAL_STATIC_LIBRARIES += $(core_static_libraries) libziparchive-host libutils
+include $(BUILD_HOST_SHARED_LIBRARY)
 
-    ifeq ($(LIBCORE_SKIP_TESTS),)
+ifeq ($(LIBCORE_SKIP_TESTS),)
     include $(CLEAR_VARS)
     LOCAL_CLANG := true
     LOCAL_SRC_FILES += $(core_test_files)
@@ -140,5 +139,4 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
     LOCAL_SHARED_LIBRARIES := libcrypto-host
     include $(BUILD_HOST_SHARED_LIBRARY)
-    endif # LIBCORE_SKIP_TESTS
-endif
+endif # LIBCORE_SKIP_TESTS

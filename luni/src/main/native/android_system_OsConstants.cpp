@@ -30,15 +30,19 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#ifndef __APPLE__
 #include <sys/prctl.h>
+#endif
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 // After the others because these are not necessarily self-contained in glibc.
+#ifndef __APPLE__
 #include <linux/if_addr.h>
 #include <linux/rtnetlink.h>
+#endif
 
 #include <net/if.h> // After <sys/socket.h> to work around a Mac header file bug.
 
@@ -229,14 +233,30 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
 #if defined(IFA_F_DADFAILED)
     initConstant(env, c, "IFA_F_DADFAILED", IFA_F_DADFAILED);
 #endif
+#if defined(IFA_F_DEPRECATED)
     initConstant(env, c, "IFA_F_DEPRECATED", IFA_F_DEPRECATED);
+#endif
+#if defined(IFA_F_HOMEADDRESS)
     initConstant(env, c, "IFA_F_HOMEADDRESS", IFA_F_HOMEADDRESS);
+#endif
+#if defined(IFA_F_NODAD)
     initConstant(env, c, "IFA_F_NODAD", IFA_F_NODAD);
+#endif
+#if defined(IFA_F_OPTIMISTIC)
     initConstant(env, c, "IFA_F_OPTIMISTIC", IFA_F_OPTIMISTIC);
+#endif
+#if defined(IFA_F_PERMANENT)
     initConstant(env, c, "IFA_F_PERMANENT", IFA_F_PERMANENT);
+#endif
+#if defined(IFA_F_SECONDARY)
     initConstant(env, c, "IFA_F_SECONDARY", IFA_F_SECONDARY);
+#endif
+#if defined(IFA_F_TEMPORARY)
     initConstant(env, c, "IFA_F_TEMPORARY", IFA_F_TEMPORARY);
+#endif
+#if defined(IDA_F_TENTATIVE)
     initConstant(env, c, "IFA_F_TENTATIVE", IFA_F_TENTATIVE);
+#endif
     initConstant(env, c, "IFF_ALLMULTI", IFF_ALLMULTI);
 #if defined(IFF_AUTOMEDIA)
     initConstant(env, c, "IFF_AUTOMEDIA", IFF_AUTOMEDIA);
@@ -370,11 +390,21 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "PROT_READ", PROT_READ);
     initConstant(env, c, "PROT_WRITE", PROT_WRITE);
     initConstant(env, c, "R_OK", R_OK);
+#if defined(RT_SCOPE_HOST)
     initConstant(env, c, "RT_SCOPE_HOST", RT_SCOPE_HOST);
+#endif
+#if defined(RT_SCOPE_LINK)
     initConstant(env, c, "RT_SCOPE_LINK", RT_SCOPE_LINK);
+#endif
+#if defined(RT_SCOPE_NOWHERE)
     initConstant(env, c, "RT_SCOPE_NOWHERE", RT_SCOPE_NOWHERE);
+#endif
+#if defined(RT_SCOPE_SITE)
     initConstant(env, c, "RT_SCOPE_SITE", RT_SCOPE_SITE);
+#endif
+#if defined(RT_SCOPE_UNIVERSE)
     initConstant(env, c, "RT_SCOPE_UNIVERSE", RT_SCOPE_UNIVERSE);
+#endif
     initConstant(env, c, "SEEK_CUR", SEEK_CUR);
     initConstant(env, c, "SEEK_END", SEEK_END);
     initConstant(env, c, "SEEK_SET", SEEK_SET);
@@ -441,8 +471,12 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "SO_KEEPALIVE", SO_KEEPALIVE);
     initConstant(env, c, "SO_LINGER", SO_LINGER);
     initConstant(env, c, "SO_OOBINLINE", SO_OOBINLINE);
+#if defined(SO_PASSCRED)
     initConstant(env, c, "SO_PASSCRED", SO_PASSCRED);
+#endif
+#if defined(SO_PEERCRED)
     initConstant(env, c, "SO_PEERCRED", SO_PEERCRED);
+#endif
     initConstant(env, c, "SO_RCVBUF", SO_RCVBUF);
     initConstant(env, c, "SO_RCVLOWAT", SO_RCVLOWAT);
     initConstant(env, c, "SO_RCVTIMEO", SO_RCVTIMEO);
