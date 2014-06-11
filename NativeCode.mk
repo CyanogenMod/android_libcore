@@ -118,7 +118,10 @@ LOCAL_SRC_FILES += $(core_src_files)
 LOCAL_CFLAGS += $(core_cflags)
 LOCAL_C_INCLUDES += $(core_c_includes)
 LOCAL_CPPFLAGS += $(core_cppflags)
-LOCAL_LDLIBS += -ldl -lpthread -lrt
+LOCAL_LDLIBS += -ldl -lpthread
+ifeq ($(HOST_OS),linux)
+LOCAL_LDLIBS += -lrt
+endif
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacore
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
