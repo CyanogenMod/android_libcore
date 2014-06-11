@@ -22,15 +22,9 @@ import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.IllformedLocaleException;
 import java.util.Locale;
-import java.util.Map;
 import java.util.MissingResourceException;
-import java.util.Set;
-import java.util.TreeMap;
-import libcore.icu.ICU;
 
 public class LocaleTest extends junit.framework.TestCase {
     // http://b/2611311; if there's no display language/country/variant, use the raw codes.
@@ -198,90 +192,6 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("eng", new Locale("en", "").getISO3Language());
         assertEquals("eng", new Locale("en", "CA").getISO3Language());
         assertEquals("eng", new Locale("en", "XX").getISO3Language());
-    }
-
-    public void test_serializeExtensions() {
-        Map<Character, String> extensions = new TreeMap<Character, String>();
-
-        extensions.put('x', "fooo-baar-baaz");
-        assertEquals("x-fooo-baar-baaz", Locale.serializeExtensions(extensions));
-
-        extensions.put('y', "gaaa-caar-caaz");
-        // Must show up in lexical order.
-        assertEquals("x-fooo-baar-baaz-y-gaaa-caar-caaz",
-                Locale.serializeExtensions(extensions));
-    }
-
-    public void test_parseSerializedExtensions() {
-        Map<Character, String> extensions = new HashMap<Character, String>();
-
-        Locale.parseSerializedExtensions("x-foo", extensions);
-        assertEquals("foo", extensions.get('x'));
-
-        extensions.clear();
-        Locale.parseSerializedExtensions("x-foo-y-bar-z-baz", extensions);
-        assertEquals("foo", extensions.get('x'));
-        assertEquals("bar", extensions.get('y'));
-        assertEquals("baz", extensions.get('z'));
-
-        extensions.clear();
-        Locale.parseSerializedExtensions("x-fooo-baar-baaz", extensions);
-        assertEquals("fooo-baar-baaz", extensions.get('x'));
-
-        extensions.clear();
-        Locale.parseSerializedExtensions("x-fooo-baar-baaz-y-gaaa-caar-caaz", extensions);
-        assertEquals("fooo-baar-baaz", extensions.get('x'));
-        assertEquals("gaaa-caar-caaz", extensions.get('y'));
-    }
-
-    public void test_parseUnicodeExtension() {
-        Map<String, String> keywords = new HashMap<String, String>();
-        Set<String> attributes = new HashSet<String>();
-
-        // Only attributes.
-        Locale.parseUnicodeExtension("foooo".split("-"), keywords, attributes);
-        assertTrue(attributes.contains("foooo"));
-        assertTrue(keywords.isEmpty());
-
-        attributes.clear();
-        keywords.clear();
-        Locale.parseUnicodeExtension("foooo-baa-baaabaaa".split("-"),
-                keywords, attributes);
-        assertTrue(attributes.contains("foooo"));
-        assertTrue(attributes.contains("baa"));
-        assertTrue(attributes.contains("baaabaaa"));
-        assertTrue(keywords.isEmpty());
-
-        // Only keywords
-        attributes.clear();
-        keywords.clear();
-        Locale.parseUnicodeExtension("ko-koko".split("-"), keywords, attributes);
-        assertTrue(attributes.isEmpty());
-        assertEquals("koko", keywords.get("ko"));
-
-        attributes.clear();
-        keywords.clear();
-        Locale.parseUnicodeExtension("ko-koko-kokoko".split("-"), keywords, attributes);
-        assertTrue(attributes.isEmpty());
-        assertEquals("koko-kokoko", keywords.get("ko"));
-
-        attributes.clear();
-        keywords.clear();
-        Locale.parseUnicodeExtension("ko-koko-kokoko-ba-baba-bababa".split("-"),
-                keywords, attributes);
-        assertTrue(attributes.isEmpty());
-        assertEquals("koko-kokoko", keywords.get("ko"));
-        assertEquals("baba-bababa", keywords.get("ba"));
-
-        // A mixture of attributes and keywords.
-        attributes.clear();
-        keywords.clear();
-        Locale.parseUnicodeExtension("attri1-attri2-k1-type1-type1-k2-type2".split("-"),
-                keywords, attributes);
-        assertTrue(attributes.contains("attri1"));
-        assertTrue(attributes.contains("attri2"));
-        assertEquals("type1-type1", keywords.get("k1"));
-        assertEquals("type2", keywords.get("k2"));
     }
 
     public void test_Builder_setLanguage() {
@@ -1105,7 +1015,7 @@ public class LocaleTest extends junit.framework.TestCase {
     }
 
     public void test_toString() {
-                Locale.Builder b = new Locale.Builder();
+        Locale.Builder b = new Locale.Builder();
 
         // Empty builder.
         Locale l = b.build();
@@ -1165,20 +1075,5 @@ public class LocaleTest extends junit.framework.TestCase {
                 .setLanguage("en").setRegion("US").setVariant("POSIX")
                 .build();
         assertEquals("en-US-u-va-posix", posix.toLanguageTag());
-    }
-
-    public void test_setDefault_setsICUDefaultLocale() {
-        Locale.setDefault(Locale.GERMANY);
-        assertEquals("de_DE", ICU.getDefaultLocale());
-
-        try {
-            Locale.setDefault(null);
-            fail();
-        } catch (NullPointerException expected) {
-            assertEquals(Locale.GERMANY, Locale.getDefault());
-        }
-
-        Locale.setDefault(new Locale("bogus", "LOCALE"));
-        assertEquals("bogus__LOCALE", ICU.getDefaultLocale());
     }
 }
