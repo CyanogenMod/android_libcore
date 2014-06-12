@@ -70,10 +70,6 @@ public final class ICU {
     return localeFromIcuLocaleId(icuLocaleId);
   }
 
-  public static String toLanguageTag(Locale locale) {
-    return languageTagForLocale(localeIdFromLocale(locale));
-  }
-
   private static final int IDX_LANGUAGE = 0;
   private static final int IDX_SCRIPT = 1;
   private static final int IDX_REGION = 2;
@@ -239,7 +235,8 @@ public final class ICU {
 
     return new Locale(outputArray[IDX_LANGUAGE], outputArray[IDX_REGION],
         outputArray[IDX_VARIANT], outputArray[IDX_SCRIPT],
-        unicodeAttributeSet, unicodeKeywordsMap, extensionsMap, false);
+        unicodeAttributeSet, unicodeKeywordsMap, extensionsMap,
+        true /* has validated fields */);
   }
 
   /**
@@ -471,7 +468,6 @@ public final class ICU {
   private static native String[] getISOCountriesNative();
 
   private static native String localeForLanguageTag(String languageTag, boolean strict);
-  public static native String languageTagForLocale(String locale);
 
   static native boolean initLocaleDataNative(String locale, LocaleData result);
 
