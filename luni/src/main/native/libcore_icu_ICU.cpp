@@ -166,36 +166,6 @@ static jstring ICU_localeForLanguageTag(JNIEnv* env, jclass, jstring languageTag
     return env->NewStringUTF(&buffer[0]);
 }
 
-static jstring ICU_languageTagForLocale(JNIEnv* env, jclass, jstring javaLocaleId) {
-    ScopedUtfChars localeID(env, javaLocaleId);
-
-    // In most common cases, the BCP 47 tag will be the same size as the ICU
-    // locale ID
-    const size_t initialBufferSize = localeID.size() + 1;
-    std::vector<char> buffer(initialBufferSize);
-
-    UErrorCode status = U_ZERO_ERROR;
-    const size_t outputLength = uloc_toLanguageTag(localeID.c_str(),
-            &buffer[0], buffer.size(), false /* strict */, &status);
-    if (status == U_BUFFER_OVERFLOW_ERROR) {
-        buffer.resize(outputLength + 1);
-        status = U_ZERO_ERROR;
-        uloc_toLanguageTag(localeID.c_str(), &buffer[0], buffer.size(),
-                false /* strict */, &status);
-    }
-
-    if (status == U_STRING_NOT_TERMINATED_WARNING) {
-        buffer.resize(buffer.size() + 1);
-        buffer[buffer.size() -1] = '\0';
-    }
-
-    if (maybeThrowIcuException(env, "ICU::languageTagForLocale", status)) {
-        return NULL;
-    }
-
-    return env->NewStringUTF(&buffer[0]);
-}
-
 static jint ICU_getCurrencyFractionDigits(JNIEnv* env, jclass, jstring javaCurrencyCode) {
   ScopedJavaUnicodeString currencyCode(env, javaCurrencyCode);
   if (!currencyCode.valid()) {
@@ -803,7 +773,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, getIcuVersion, "()Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getScript, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getUnicodeVersion, "()Ljava/lang/String;"),
-    NATIVE_METHOD(ICU, languageTagForLocale, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, localeForLanguageTag, "(Ljava/lang/String;Z)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, initLocaleDataNative, "(Ljava/lang/String;Llibcore/icu/LocaleData;)Z"),
     NATIVE_METHOD(ICU, setDefaultLocale, "(Ljava/lang/String;)V"),
