@@ -65,13 +65,15 @@ static inline int mincore(void* addr, size_t length, unsigned char* vec) {
 #include <sys/param.h>
 #include <sys/mount.h>
 
-#else
+#else  // defined(__APPLE__)
 
 // Bionic or glibc.
 
 #include <byteswap.h>
 #include <sys/sendfile.h>
 #include <sys/statvfs.h>
+
+#endif  // defined(__APPLE__)
 
 #if !defined(__BIONIC__)
 #include <netdb.h>
@@ -80,8 +82,6 @@ inline int android_getaddrinfofornet(const char *hostname, const char *servname,
     const struct addrinfo *hints, unsigned /*netid*/, unsigned /*mark*/, struct addrinfo **res) {
   return getaddrinfo(hostname, servname, hints, res);
 }
-#endif
-
-#endif
+#endif  // !defined(__BIONIC__)
 
 #endif  // PORTABILITY_H_included
