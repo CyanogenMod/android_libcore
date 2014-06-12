@@ -1074,6 +1074,6 @@ public class LocaleTest extends junit.framework.TestCase {
         Locale posix = new Locale.Builder()
                 .setLanguage("en").setRegion("US").setVariant("POSIX")
                 .build();
-        assertEquals("en-US-u-va-posix", posix.toLanguageTag());
+        assertEquals("en-US-POSIX", posix.toLanguageTag());
     }
 }
