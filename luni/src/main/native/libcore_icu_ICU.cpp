@@ -131,23 +131,23 @@ static jstring ICU_localeForLanguageTag(JNIEnv* env, jclass, jstring languageTag
     int32_t parsedLength = 0;
 
     UErrorCode status = U_ZERO_ERROR;
-    while (true) {
-        const size_t outputLength = uloc_forLanguageTag(languageTagChars.c_str(),
-               &buffer[0], buffer.size(), &parsedLength, &status);
-        if (U_FAILURE(status)) {
-            return NULL;
-        }
-
-        // Assume that we've run out of buffer space when this happens. Double
-        // the buffer size and try again. This should happen very infrequently.
-        if (outputLength == buffer.size()) {
-            buffer.resize(buffer.size() << 1);
-        } else {
-            break;
-        }
+    size_t outputLength = uloc_forLanguageTag(languageTagChars.c_str(), &buffer[0],
+                                              buffer.size(), &parsedLength, &status);
+    // Note that we always allocate 1 char more than ICU asks us for,
+    // so that we can cleanly assert that it didn't overflow after the
+    // second call to uloc_forLanguageTag.
+    if (status == U_STRING_NOT_TERMINATED_WARNING) {
+        const size_t unterminated_size = buffer.size();
+        buffer.resize(unterminated_size + 1);
+        buffer[unterminated_size] = '\0';
+    } else if (status == U_BUFFER_OVERFLOW_ERROR) {
+        buffer.resize(outputLength + 1);
+        status = U_ZERO_ERROR;
+        outputLength = uloc_forLanguageTag(languageTagChars.c_str(), &buffer[0], buffer.size(),
+                                           &parsedLength, &status);
     }
 
-    if (parsedLength < 0) {
+    if (U_FAILURE(status) || outputLength >= buffer.size()) {
         return NULL;
     }
 
