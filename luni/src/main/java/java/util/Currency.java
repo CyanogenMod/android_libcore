@@ -131,6 +131,7 @@ public final class Currency implements Serializable {
      * zero is returned.
      *
      * @since 1.7
+     * @hide 1.7
      */
     public int getNumericCode() {
         return ICU.getCurrencyNumericCode(currencyCode);

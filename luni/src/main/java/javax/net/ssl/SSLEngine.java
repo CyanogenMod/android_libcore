@@ -448,6 +448,7 @@ public abstract class SSLEngine {
      *
      * @return the SSL session for this engine instance.
      * @since 1.7
+     * @hide 1.7
      */
     public SSLSession getHandshakeSession() {
         throw new UnsupportedOperationException();

@@ -36,6 +36,7 @@ import java.net.NetworkInterface;
  * Multicast Source Filters</a> for concepts and terminology associated with multicast membership.
  *
  * @since 1.7
+ * @hide 1.7
  */
 public abstract class MembershipKey {
 

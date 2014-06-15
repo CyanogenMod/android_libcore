@@ -132,6 +132,7 @@ public class ZipFile implements Closeable, ZipConstants {
      * @throws ZipException if a zip error occurs.
      * @throws IOException if an {@code IOException} occurs.
      * @since 1.7
+     * @hide 1.7
      */
     public ZipFile(File file, Charset charset) throws ZipException, IOException {
         this(file, OPEN_READ, charset);
@@ -178,6 +179,7 @@ public class ZipFile implements Closeable, ZipConstants {
      *
      * @throws IOException if an {@code IOException} occurs.
      * @since 1.7
+     * @hide 1.7
      */
     public ZipFile(File file, int mode, Charset charset) throws IOException {
         filename = file.getPath();

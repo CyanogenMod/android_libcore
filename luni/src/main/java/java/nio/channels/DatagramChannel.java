@@ -92,6 +92,10 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
      */
     public abstract DatagramSocket socket();
 
+    /**
+     * @since 1.7
+     * @hide 1.7
+     */
     @Override
     public DatagramChannel bind(SocketAddress local) throws IOException {
         // This method was added for interoperability with Java 7, where it is abstract. It is
@@ -99,6 +103,10 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
         throw new UnsupportedOperationException("Subclasses must override this method");
     }
 
+    /**
+     * @since 1.7
+     * @hide 1.7
+     */
     @Override
     public SocketAddress getLocalAddress() throws IOException {
         // This method was added for interoperability with Java 7, where it is abstract. It is
@@ -106,6 +114,10 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
         throw new UnsupportedOperationException("Subclasses must override this method");
     }
 
+    /**
+     * @since 1.7
+     * @hide 1.7
+     */
     @Override
     public <T> T getOption(SocketOption<T> option) throws IOException {
         // This method was added for interoperability with Java 7, where it is abstract. It is
@@ -113,6 +125,10 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
         throw new UnsupportedOperationException("Subclasses must override this method");
     }
 
+    /**
+     * @since 1.7
+     * @hide 1.7
+     */
     @Override
     public <T> DatagramChannel setOption(SocketOption<T> option, T value) throws IOException {
         // This method was added for interoperability with Java 7, where it is abstract. It is
@@ -120,6 +136,10 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
         throw new UnsupportedOperationException("Subclasses must override this method");
     }
 
+    /**
+     * @since 1.7
+     * @hide 1.7
+     */
     @Override
     public Set<SocketOption<?>> supportedOptions() {
         // This method was added for interoperability with Java 7, where it is abstract. It is
@@ -127,6 +147,10 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
         throw new UnsupportedOperationException("Subclasses must override this method");
     }
 
+    /**
+     * @since 1.7
+     * @hide 1.7
+     */
     @Override
     public MembershipKey join(InetAddress groupAddress, NetworkInterface networkInterface)
             throws IOException {
@@ -135,6 +159,10 @@ public abstract class DatagramChannel extends AbstractSelectableChannel
         throw new UnsupportedOperationException("Subclasses must override this method");
     }
 
+    /**
+     * @since 1.7
+     * @hide 1.7
+     */
     @Override
     public MembershipKey join(InetAddress groupAddress, NetworkInterface networkInterface,
             InetAddress sourceAddress) throws IOException {

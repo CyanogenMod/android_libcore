@@ -27,6 +27,7 @@ import java.security.cert.X509Certificate;
  *
  * @see SSLParameters#setEndpointIdentificationAlgorithm(String)
  * @since 1.7
+ * @hide 1.7
  */
 public abstract class X509ExtendedTrustManager implements X509TrustManager {
     /**

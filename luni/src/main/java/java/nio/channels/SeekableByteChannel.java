@@ -34,6 +34,7 @@ import java.nio.ByteBuffer;
  * be queried.
  *
  * @since 1.7
+ * @hide 1.7
  */
 public interface SeekableByteChannel extends ByteChannel {
 

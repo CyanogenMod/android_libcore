@@ -27,6 +27,7 @@ package java.net;
  *
  * @param <T> the type of the value
  * @since 1.7
+ * @hide 1.7
  */
 public interface SocketOption<T> {
 

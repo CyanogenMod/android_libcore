@@ -26,6 +26,7 @@ import java.util.Set;
  * A common interface for channels that are backed by network sockets.
  *
  * @since 1.7
+ * @hide 1.7
  */
 public interface NetworkChannel extends AutoCloseable, Channel, Closeable {
 
@@ -45,14 +46,14 @@ public interface NetworkChannel extends AutoCloseable, Channel, Closeable {
    *     if the channel is already bound.
    * @throws IOException
    *     if another I/O error occurs.
+   * @hide 1.7
    */
   NetworkChannel bind(SocketAddress local) throws IOException;
 
   /**
    * Returns the local socket address the channel is bound to. The socket may be bound explicitly
-   * via {@link #bind(java.net.SocketAddress)} or similar methods, or as a side-effect when other
-   * methods are called, depending on the implementation. If the channel is not bound {@code null}
-   * is returned.
+   * with {@code bind} or as a side-effect when other methods are called, depending on the
+   * implementation. If the channel is not bound {@code null} is returned.
    *
    * <p>If IP is being used, the returned object will be a subclass of
    * {@link java.net.InetSocketAddress}
@@ -62,6 +63,7 @@ public interface NetworkChannel extends AutoCloseable, Channel, Closeable {
    *     if the channel is closed.
    * @throws IOException
    *     if another I/O error occurs.
+   * @hide 1.7
    */
   SocketAddress getLocalAddress() throws IOException;
 
@@ -75,6 +77,7 @@ public interface NetworkChannel extends AutoCloseable, Channel, Closeable {
    * @throws IOException
    *     if the value cannot be read.
    * @see java.net.StandardSocketOptions
+   * @hide 1.7
    */
   <T> T getOption(SocketOption<T> option) throws IOException;
 
@@ -91,11 +94,13 @@ public interface NetworkChannel extends AutoCloseable, Channel, Closeable {
    * @throws IOException
    *     if the value cannot be written.
    * @see java.net.StandardSocketOptions
+   * @hide 1.7
    */
   <T> NetworkChannel setOption(SocketOption<T> option, T value) throws IOException;
 
   /**
    * Returns the set of socket options supported by this channel.
+   * @hide 1.7
    */
   Set<SocketOption<?>> supportedOptions();
 }
