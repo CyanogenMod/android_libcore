@@ -106,13 +106,13 @@ public class StringCaseMappingBenchmark extends SimpleBenchmark {
 
     public void timeToUpperCase_ICU(int reps) {
         for (int i = 0; i < reps; ++i) {
-            libcore.icu.ICU.toUpperCase(s.value, Locale.US.toString());
+            libcore.icu.ICU.toUpperCase(s.value, Locale.US);
         }
     }
 
     public void timeToLowerCase_ICU(int reps) {
         for (int i = 0; i < reps; ++i) {
-            libcore.icu.ICU.toLowerCase(s.value, Locale.US.toString());
+            libcore.icu.ICU.toLowerCase(s.value, Locale.US);
         }
     }
 

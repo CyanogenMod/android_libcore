@@ -268,13 +268,9 @@ public abstract class BreakIterator implements Cloneable {
     /**
      * Returns a new instance of {@code BreakIterator} to iterate over
      * characters using the given locale.
-     *
-     * @param where
-     *            the given locale.
-     * @return a new instance of {@code BreakIterator} using the given locale.
      */
-    public static BreakIterator getCharacterInstance(Locale where) {
-        return new RuleBasedBreakIterator(NativeBreakIterator.getCharacterInstance(where));
+    public static BreakIterator getCharacterInstance(Locale locale) {
+        return new RuleBasedBreakIterator(NativeBreakIterator.getCharacterInstance(locale));
     }
 
     /**
@@ -290,14 +286,9 @@ public abstract class BreakIterator implements Cloneable {
     /**
      * Returns a new instance of {@code BreakIterator} to iterate over
      * line breaks using the given locale.
-     *
-     * @param where
-     *            the given locale.
-     * @return a new instance of {@code BreakIterator} using the given locale.
-     * @throws NullPointerException if {@code where} is {@code null}.
      */
-    public static BreakIterator getLineInstance(Locale where) {
-        return new RuleBasedBreakIterator(NativeBreakIterator.getLineInstance(where));
+    public static BreakIterator getLineInstance(Locale locale) {
+        return new RuleBasedBreakIterator(NativeBreakIterator.getLineInstance(locale));
     }
 
     /**
@@ -313,14 +304,9 @@ public abstract class BreakIterator implements Cloneable {
     /**
      * Returns a new instance of {@code BreakIterator} to iterate over
      * sentence-breaks using the given locale.
-     *
-     * @param where
-     *            the given locale.
-     * @return a new instance of {@code BreakIterator} using the given locale.
-     * @throws NullPointerException if {@code where} is {@code null}.
      */
-    public static BreakIterator getSentenceInstance(Locale where) {
-        return new RuleBasedBreakIterator(NativeBreakIterator.getSentenceInstance(where));
+    public static BreakIterator getSentenceInstance(Locale locale) {
+        return new RuleBasedBreakIterator(NativeBreakIterator.getSentenceInstance(locale));
     }
 
     /**
@@ -336,14 +322,9 @@ public abstract class BreakIterator implements Cloneable {
     /**
      * Returns a new instance of {@code BreakIterator} to iterate over
      * word-breaks using the given locale.
-     *
-     * @param where
-     *            the given locale.
-     * @return a new instance of {@code BreakIterator} using the given locale.
-     * @throws NullPointerException if {@code where} is {@code null}.
      */
-    public static BreakIterator getWordInstance(Locale where) {
-        return new RuleBasedBreakIterator(NativeBreakIterator.getWordInstance(where));
+    public static BreakIterator getWordInstance(Locale locale) {
+        return new RuleBasedBreakIterator(NativeBreakIterator.getWordInstance(locale));
     }
 
     /**

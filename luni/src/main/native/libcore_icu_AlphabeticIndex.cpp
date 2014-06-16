@@ -20,6 +20,7 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
+#include "ScopedIcuLocale.h"
 #include "ScopedJavaUnicodeString.h"
 #include "unicode/alphaindex.h"
 #include "unicode/uniset.h"
@@ -28,9 +29,13 @@ static AlphabeticIndex* fromPeer(jlong peer) {
   return reinterpret_cast<AlphabeticIndex*>(static_cast<uintptr_t>(peer));
 }
 
-static jlong AlphabeticIndex_create(JNIEnv* env, jclass, jstring javaLocale) {
+static jlong AlphabeticIndex_create(JNIEnv* env, jclass, jstring javaLocaleName) {
   UErrorCode status = U_ZERO_ERROR;
-  AlphabeticIndex* ai = new AlphabeticIndex(getLocale(env, javaLocale), status);
+  ScopedIcuLocale icuLocale(env, javaLocaleName);
+  if (!icuLocale.valid()) {
+    return 0;
+  }
+  AlphabeticIndex* ai = new AlphabeticIndex(icuLocale.locale(), status);
   if (maybeThrowIcuException(env, "AlphabeticIndex", status)) {
     return 0;
   }
@@ -53,10 +58,14 @@ static void AlphabeticIndex_setMaxLabelCount(JNIEnv* env, jclass, jlong peer, ji
   maybeThrowIcuException(env, "AlphabeticIndex::setMaxLabelCount", status);
 }
 
-static void AlphabeticIndex_addLabels(JNIEnv* env, jclass, jlong peer, jstring javaLocale) {
+static void AlphabeticIndex_addLabels(JNIEnv* env, jclass, jlong peer, jstring javaLocaleName) {
   AlphabeticIndex* ai = fromPeer(peer);
+  ScopedIcuLocale icuLocale(env, javaLocaleName);
+  if (!icuLocale.valid()) {
+    return;
+  }
   UErrorCode status = U_ZERO_ERROR;
-  ai->addLabels(getLocale(env, javaLocale), status);
+  ai->addLabels(icuLocale.locale(), status);
   maybeThrowIcuException(env, "AlphabeticIndex::addLabels", status);
 }
 

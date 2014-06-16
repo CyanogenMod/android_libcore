@@ -10,6 +10,8 @@
 
 package libcore.icu;
 
+import java.util.Locale;
+
 /**
 * Package static class for declaring all native methods for collation use.
 * @author syn wee quek
@@ -26,7 +28,10 @@ public final class NativeCollation {
     public static native long getCollationElementIterator(long address, String source);
     public static native String getRules(long address);
     public static native byte[] getSortKey(long address, String source);
-    public static native long openCollator(String locale);
+    public static long openCollator(Locale locale) {
+      return openCollator(locale.toLanguageTag());
+    }
+    private static native long openCollator(String languageTag);
     public static native long openCollatorFromRules(String rules, int normalizationMode, int collationStrength);
     public static native long safeClone(long address);
     public static native void setAttribute(long address, int type, int value);

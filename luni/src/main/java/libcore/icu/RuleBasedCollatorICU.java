@@ -52,7 +52,7 @@ public final class RuleBasedCollatorICU implements Cloneable {
     }
 
     public RuleBasedCollatorICU(Locale locale) {
-        address = NativeCollation.openCollator(locale.toString());
+        address = NativeCollation.openCollator(locale);
     }
 
     private RuleBasedCollatorICU(long address) {

@@ -138,23 +138,23 @@ public final class NativeBreakIterator implements Cloneable {
     }
 
     public int preceding(int offset) {
-      return precedingImpl(this.address, this.string, offset);
+        return precedingImpl(this.address, this.string, offset);
     }
 
-    public static NativeBreakIterator getCharacterInstance(Locale where) {
-        return new NativeBreakIterator(getCharacterInstanceImpl(where.toString()), BI_CHAR_INSTANCE);
+    public static NativeBreakIterator getCharacterInstance(Locale locale) {
+        return new NativeBreakIterator(getCharacterInstanceImpl(locale.toLanguageTag()), BI_CHAR_INSTANCE);
     }
 
-    public static NativeBreakIterator getLineInstance(Locale where) {
-        return new NativeBreakIterator(getLineInstanceImpl(where.toString()), BI_LINE_INSTANCE);
+    public static NativeBreakIterator getLineInstance(Locale locale) {
+        return new NativeBreakIterator(getLineInstanceImpl(locale.toLanguageTag()), BI_LINE_INSTANCE);
     }
 
-    public static NativeBreakIterator getSentenceInstance(Locale where) {
-        return new NativeBreakIterator(getSentenceInstanceImpl(where.toString()), BI_SENT_INSTANCE);
+    public static NativeBreakIterator getSentenceInstance(Locale locale) {
+        return new NativeBreakIterator(getSentenceInstanceImpl(locale.toLanguageTag()), BI_SENT_INSTANCE);
     }
 
-    public static NativeBreakIterator getWordInstance(Locale where) {
-        return new NativeBreakIterator(getWordInstanceImpl(where.toString()), BI_WORD_INSTANCE);
+    public static NativeBreakIterator getWordInstance(Locale locale) {
+        return new NativeBreakIterator(getWordInstanceImpl(locale.toLanguageTag()), BI_WORD_INSTANCE);
     }
 
     private static native long getCharacterInstanceImpl(String locale);
