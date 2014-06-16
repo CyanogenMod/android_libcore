@@ -180,11 +180,12 @@ static jint NativeCollation_next(JNIEnv* env, jclass, jlong address) {
     return result;
 }
 
-static jlong NativeCollation_openCollator(JNIEnv* env, jclass, jstring localeName) {
-    ScopedUtfChars localeChars(env, localeName);
+static jlong NativeCollation_openCollator(JNIEnv* env, jclass, jstring javaLocaleName) {
+    ScopedUtfChars localeChars(env, javaLocaleName);
     if (localeChars.c_str() == NULL) {
         return 0;
     }
+
     UErrorCode status = U_ZERO_ERROR;
     UCollator* c = ucol_open(localeChars.c_str(), &status);
     maybeThrowIcuException(env, "ucol_open", status);

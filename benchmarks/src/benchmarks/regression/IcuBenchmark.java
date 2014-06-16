@@ -26,7 +26,7 @@ import libcore.icu.ICU;
 public class IcuBenchmark extends SimpleBenchmark {
   public void time_getBestDateTimePattern(int reps) throws Exception {
     for (int rep = 0; rep < reps; ++rep) {
-      ICU.getBestDateTimePattern("dEEEMMM", "US");
+      ICU.getBestDateTimePattern("dEEEMMM", new Locale("en", "US"));
     }
   }
 }
