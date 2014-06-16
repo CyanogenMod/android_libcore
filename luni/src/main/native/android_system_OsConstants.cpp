@@ -254,7 +254,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
 #if defined(IFA_F_TEMPORARY)
     initConstant(env, c, "IFA_F_TEMPORARY", IFA_F_TEMPORARY);
 #endif
-#if defined(IDA_F_TENTATIVE)
+#if defined(IFA_F_TENTATIVE)
     initConstant(env, c, "IFA_F_TENTATIVE", IFA_F_TENTATIVE);
 #endif
     initConstant(env, c, "IFF_ALLMULTI", IFF_ALLMULTI);
@@ -390,19 +390,15 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "PROT_READ", PROT_READ);
     initConstant(env, c, "PROT_WRITE", PROT_WRITE);
     initConstant(env, c, "R_OK", R_OK);
-#if defined(RT_SCOPE_HOST)
+// NOTE: The RT_* constants are not preprocessor defines, they're enum
+// members. The best we can do (barring UAPI / kernel version checks) is
+// to hope they exist on all host linuxes we're building on. These
+// constants have been around since 2.6.35 at least, so we should be ok.
+#if !defined(__APPLE__)
     initConstant(env, c, "RT_SCOPE_HOST", RT_SCOPE_HOST);
-#endif
-#if defined(RT_SCOPE_LINK)
     initConstant(env, c, "RT_SCOPE_LINK", RT_SCOPE_LINK);
-#endif
-#if defined(RT_SCOPE_NOWHERE)
     initConstant(env, c, "RT_SCOPE_NOWHERE", RT_SCOPE_NOWHERE);
-#endif
-#if defined(RT_SCOPE_SITE)
     initConstant(env, c, "RT_SCOPE_SITE", RT_SCOPE_SITE);
-#endif
-#if defined(RT_SCOPE_UNIVERSE)
     initConstant(env, c, "RT_SCOPE_UNIVERSE", RT_SCOPE_UNIVERSE);
 #endif
     initConstant(env, c, "SEEK_CUR", SEEK_CUR);
