@@ -18,7 +18,6 @@
 package org.apache.harmony.tests.java.net;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.BindException;
 import java.net.DatagramPacket;
 import java.net.Inet4Address;
@@ -29,8 +28,10 @@ import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 public class MulticastSocketTest extends junit.framework.TestCase {
 
@@ -52,158 +53,124 @@ public class MulticastSocketTest extends junit.framework.TestCase {
     private static InetAddress GOOD_IPv6 = lookup("ff05::7:7");
     private static InetAddress BAD_IPv6 = lookup("ff05::7:8");
 
-    static class MulticastServer extends Thread {
+    private NetworkInterface loopbackInterface;
+    private NetworkInterface ipv4NetworkInterface;
+    private NetworkInterface ipv6NetworkInterface;
 
-        public final MulticastSocket ms;
-        public final byte[] rbuf = new byte[512];
-        public final DatagramPacket rdp;
-        private final InetAddress groupAddr;
-        private final NetworkInterface groupNI;
+    @Override
+    protected void setUp() throws Exception {
+        // The loopback interface isn't actually useful for sending/receiving multicast messages
+        // but it can be used as a dummy for tests where that does not matter.
+        loopbackInterface = NetworkInterface.getByInetAddress(InetAddress.getLoopbackAddress());
+        assertNotNull(loopbackInterface);
+        assertTrue(loopbackInterface.isLoopback());
+        assertFalse(loopbackInterface.supportsMulticast());
 
-        private volatile boolean running = true;
+        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+        assertNotNull(interfaces);
 
-        public MulticastServer(InetAddress anAddress, int aPort) throws java.io.IOException {
-            rbuf[0] = -1;
-            rdp = new DatagramPacket(rbuf, rbuf.length);
-            ms = new MulticastSocket(aPort);
-            ms.setSoTimeout(2000);
-
-            groupAddr = anAddress;
-            groupNI = null;
-
-            ms.joinGroup(groupAddr);
-        }
-
-        public MulticastServer(InetAddress anAddress, int aPort,
-                NetworkInterface netInterface) throws java.io.IOException {
-            rbuf[0] = -1;
-            rdp = new DatagramPacket(rbuf, rbuf.length);
-            ms = new MulticastSocket(aPort);
-            ms.setSoTimeout(2000);
-
-            groupAddr = anAddress;
-            groupNI = netInterface;
-
-            ms.joinGroup(new InetSocketAddress(groupAddr, ms.getLocalPort()), groupNI);
-        }
-
-        public void run() {
-            try {
-                byte[] tmpbuf = new byte[512];
-                DatagramPacket tmpPack = new DatagramPacket(tmpbuf, tmpbuf.length);
-
-                while (running) {
-                    try {
-                        ms.receive(tmpPack);
-                        System.arraycopy(tmpPack.getData(), 0, rdp.getData(), rdp.getOffset(),
-                                tmpPack.getLength());
-                        rdp.setLength(tmpPack.getLength());
-                        rdp.setAddress(tmpPack.getAddress());
-                        rdp.setPort(tmpPack.getPort());
-                    } catch (InterruptedIOException e) {
+        while (interfaces.hasMoreElements()
+                && (ipv4NetworkInterface == null || ipv6NetworkInterface == null)) {
+            NetworkInterface nextInterface = interfaces.nextElement();
+            if (willWorkForMulticast(nextInterface)) {
+                Enumeration<InetAddress> addresses = nextInterface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    final InetAddress nextAddress = addresses.nextElement();
+                    if (nextAddress instanceof Inet6Address && ipv6NetworkInterface == null) {
+                        ipv6NetworkInterface = nextInterface;
+                    } else if (nextAddress instanceof Inet4Address && ipv4NetworkInterface == null) {
+                        ipv4NetworkInterface = nextInterface;
                     }
                 }
-            } catch (java.io.IOException e) {
-                fail();
-            } finally {
-                ms.close();
             }
         }
-
-        public void stopServer() {
-            running = false;
-            try {
-                ms.leaveGroup(groupAddr);
-            } catch (IOException e) {
-            }
-        }
+        assertTrue("Test environment must have at least one interface capable of multicast for IPv4"
+                + " and IPv6",
+                ipv4NetworkInterface != null && ipv6NetworkInterface != null);
     }
 
-    private NetworkInterface loopbackInterface;
-    private NetworkInterface networkInterface1;
-    private NetworkInterface IPV6networkInterface1;
-
     public void test_Constructor() throws IOException {
-        // regression test for 497
+        // Regression test for 497.
         MulticastSocket s = new MulticastSocket();
-        // regression test for Harmony-1162
+        // Regression test for Harmony-1162.
         assertTrue(s.getReuseAddress());
+
+        s.close();
     }
 
     public void test_ConstructorI() throws IOException {
         MulticastSocket orig = new MulticastSocket();
         int port = orig.getLocalPort();
         orig.close();
-        MulticastSocket dup = null;
-        try {
-            dup = new MulticastSocket(port);
-            // regression test for Harmony-1162
-            assertTrue(dup.getReuseAddress());
-        } catch (IOException e) {
-            fail("duplicate binding not allowed: " + e);
-        }
-        if (dup != null) {
-            dup.close();
-        }
+
+        MulticastSocket dup = new MulticastSocket(port);
+        // Regression test for Harmony-1162.
+        assertTrue(dup.getReuseAddress());
+        dup.close();
     }
 
     public void test_getInterface() throws Exception {
-        // validate that we get the expected response when one was not set
+        // Validate that we get the expected response when one was not set.
         MulticastSocket mss = new MulticastSocket(0);
-        // we expect an ANY address in this case
+        // We expect an ANY address in this case.
         assertTrue(mss.getInterface().isAnyLocalAddress());
 
-        // validate that we get the expected response when we set via
-        // setInterface
-        Enumeration addresses = networkInterface1.getInetAddresses();
+        // Validate that we get the expected response when we set via setInterface.
+        Enumeration addresses = ipv4NetworkInterface.getInetAddresses();
         if (addresses.hasMoreElements()) {
             InetAddress firstAddress = (InetAddress) addresses.nextElement();
             mss.setInterface(firstAddress);
-            assertEquals("getNetworkInterface did not return interface set by setInterface", firstAddress, mss.getInterface());
+            assertEquals("getNetworkInterface did not return interface set by setInterface",
+                    firstAddress, mss.getInterface());
 
             mss.close();
             mss = new MulticastSocket(0);
-            mss.setNetworkInterface(networkInterface1);
-            assertEquals("getInterface did not return interface set by setNetworkInterface", networkInterface1, NetworkInterface.getByInetAddress(mss.getInterface()));
+            mss.setNetworkInterface(ipv4NetworkInterface);
+            assertEquals("getInterface did not return interface set by setNetworkInterface",
+                    ipv4NetworkInterface, NetworkInterface.getByInetAddress(mss.getInterface()));
         }
 
         mss.close();
     }
 
     public void test_getNetworkInterface() throws IOException {
-        // validate that we get the expected response when one was not set
+        // Validate that we get the expected response when one was not set.
         MulticastSocket mss = new MulticastSocket(0);
         NetworkInterface theInterface = mss.getNetworkInterface();
-        assertTrue("network interface returned wrong network interface when not set:" + theInterface,
+        assertTrue(
+                "network interface returned wrong network interface when not set:" + theInterface,
                 theInterface.getInetAddresses().hasMoreElements());
-        InetAddress firstAddress = (InetAddress) theInterface.getInetAddresses().nextElement();
-        // validate we the first address in the network interface is the ANY address
+        InetAddress firstAddress = theInterface.getInetAddresses().nextElement();
+        // Validate we the first address in the network interface is the ANY address.
         assertTrue(firstAddress.isAnyLocalAddress());
 
-        mss.setNetworkInterface(networkInterface1);
+        mss.setNetworkInterface(ipv4NetworkInterface);
         assertEquals("getNetworkInterface did not return interface set by setNeworkInterface",
-                networkInterface1, mss.getNetworkInterface());
+                ipv4NetworkInterface, mss.getNetworkInterface());
 
         mss.setNetworkInterface(loopbackInterface);
-        assertEquals("getNetworkInterface did not return network interface set by second setNetworkInterface call",
+        assertEquals(
+                "getNetworkInterface did not return network interface set by second"
+                        + " setNetworkInterface call",
                 loopbackInterface, mss.getNetworkInterface());
         mss.close();
 
-        mss = new MulticastSocket(0);
-        if (IPV6networkInterface1 != null) {
-            mss.setNetworkInterface(IPV6networkInterface1);
+        if (ipv6NetworkInterface != null) {
+            mss = new MulticastSocket(0);
+            mss.setNetworkInterface(ipv6NetworkInterface);
             assertEquals("getNetworkInterface did not return interface set by setNeworkInterface",
-                    IPV6networkInterface1, mss.getNetworkInterface());
+                    ipv6NetworkInterface, mss.getNetworkInterface());
+            mss.close();
         }
 
-        // validate that we get the expected response when we set via setInterface
+        // Validate that we get the expected response when we set via setInterface.
         mss = new MulticastSocket(0);
-        Enumeration addresses = networkInterface1.getInetAddresses();
+        Enumeration addresses = ipv4NetworkInterface.getInetAddresses();
         if (addresses.hasMoreElements()) {
             firstAddress = (InetAddress) addresses.nextElement();
             mss.setInterface(firstAddress);
             assertEquals("getNetworkInterface did not return interface set by setInterface",
-                    networkInterface1, mss.getNetworkInterface());
+                    ipv4NetworkInterface, mss.getNetworkInterface());
         }
         mss.close();
     }
@@ -214,12 +181,14 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         assertEquals("Returned incorrect 1st TTL", 120, mss.getTimeToLive());
         mss.setTimeToLive(220);
         assertEquals("Returned incorrect 2nd TTL", 220, mss.getTimeToLive());
+        mss.close();
     }
 
     public void test_getTTL() throws Exception {
         MulticastSocket mss = new MulticastSocket();
         mss.setTTL((byte) 120);
         assertEquals("Returned incorrect TTL", 120, mss.getTTL());
+        mss.close();
     }
 
     public void test_joinGroupLjava_net_InetAddress_IPv4() throws Exception {
@@ -231,19 +200,23 @@ public class MulticastSocketTest extends junit.framework.TestCase {
     }
 
     private void test_joinGroupLjava_net_InetAddress(InetAddress group) throws Exception {
-        MulticastServer server = new MulticastServer(group, 0);
-        server.start();
-        Thread.sleep(1000);
+        MulticastSocket receivingSocket = createReceivingSocket(0);
+        receivingSocket.joinGroup(group);
+
         String msg = "Hello World";
-        MulticastSocket mss = new MulticastSocket(server.ms.getLocalPort());
-        DatagramPacket sdp = new DatagramPacket(msg.getBytes(), msg.length(), group,
-                server.ms.getLocalPort());
-        mss.send(sdp, (byte) 10);
-        Thread.sleep(1000);
-        String receivedMessage = new String(server.rdp.getData(), 0, server.rdp.getLength());
+        MulticastSocket sendingSocket = new MulticastSocket(receivingSocket.getLocalPort());
+        InetSocketAddress groupAddress =
+                new InetSocketAddress(group, receivingSocket.getLocalPort());
+        DatagramPacket sdp = createSendDatagramPacket(groupAddress, msg);
+        sendingSocket.send(sdp, (byte) 10 /* ttl */);
+
+        DatagramPacket rdp = createReceiveDatagramPacket();
+        receivingSocket.receive(rdp);
+        String receivedMessage = extractMessage(rdp);
         assertEquals("Group member did not recv data", msg, receivedMessage);
-        mss.close();
-        server.stopServer();
+
+        sendingSocket.close();
+        receivingSocket.close();
     }
 
     public void test_joinGroup_null_null() throws Exception {
@@ -276,52 +249,64 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         mss.close();
     }
 
-    public void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv4() throws Exception {
-        test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface(GOOD_IPv4, BAD_IPv4);
+    public void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv4()
+            throws Exception {
+        test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface(
+                ipv4NetworkInterface, GOOD_IPv4, BAD_IPv4);
     }
 
-    public void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv6() throws Exception {
-        test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface(GOOD_IPv6, BAD_IPv6);
+    public void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv6()
+            throws Exception {
+        test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface(
+                ipv6NetworkInterface, GOOD_IPv6, BAD_IPv6);
     }
 
-    private void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface(InetAddress group, InetAddress group2) throws Exception {
+    private void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface(
+            NetworkInterface networkInterface, InetAddress group, InetAddress group2)
+            throws Exception {
         // Check that we can join a group using a null network interface.
-        MulticastSocket mss = new MulticastSocket(0);
-        SocketAddress groupSockAddr = new InetSocketAddress(group, mss.getLocalPort());
+        MulticastSocket sendingSocket = new MulticastSocket(0);
+        SocketAddress groupSockAddr = new InetSocketAddress(group, sendingSocket.getLocalPort());
+        sendingSocket.joinGroup(groupSockAddr, null);
+        sendingSocket.setTimeToLive(2);
 
-        mss.joinGroup(groupSockAddr, null);
-        mss.setTimeToLive(2);
-        Thread.sleep(1000);
+        MulticastSocket receivingSocket = createReceivingSocket(0);
+        InetSocketAddress groupAddress =
+                new InetSocketAddress(group, receivingSocket.getLocalPort());
+        receivingSocket.joinGroup(groupAddress, networkInterface);
 
-        // set up the server and join the group on networkInterface1
-        MulticastServer server = new MulticastServer(group, 0, networkInterface1);
-        server.start();
-        Thread.sleep(1000);
         String msg = "Hello World";
-        DatagramPacket sdp = new DatagramPacket(msg.getBytes(), msg.length(), group,
-                server.ms.getLocalPort());
-        mss.setTimeToLive(2);
-        mss.send(sdp);
-        Thread.sleep(1000);
-        // now validate that we received the data as expected
-        assertEquals("Group member did not recv data", msg, new String(server.rdp.getData(), 0, server.rdp.getLength()));
-        server.stopServer();
-        mss.close();
+        DatagramPacket sdp = createSendDatagramPacket(groupAddress, msg);
+        sendingSocket.send(sdp);
 
-        server = new MulticastServer(group, 0, networkInterface1);
-        server.start();
-        Thread.sleep(1000);
+        DatagramPacket rdp = createReceiveDatagramPacket();
+        receivingSocket.receive(rdp);
+        // Now validate that we received the data as expected.
+        assertEquals("Group member did not recv data", msg, extractMessage(rdp));
+        receivingSocket.close();
+        sendingSocket.close();
 
-        mss = new MulticastSocket(0);
-        mss.setTimeToLive(10);
+        receivingSocket = createReceivingSocket(0);
+        groupAddress = new InetSocketAddress(group, receivingSocket.getLocalPort());
+        receivingSocket.joinGroup(groupAddress, networkInterface);
+
+        sendingSocket = new MulticastSocket(0);
+        sendingSocket.setTimeToLive(10);
         msg = "Hello World - Different Group";
-        sdp = new DatagramPacket(msg.getBytes(), msg.length(), group2, server.ms.getLocalPort());
-        mss.send(sdp);
-        Thread.sleep(1000);
-        assertFalse("Group member received data when sent on different group: ",
-                new String(server.rdp.getData(), 0, server.rdp.getLength()).equals(msg));
-        server.stopServer();
-        mss.close();
+        InetSocketAddress group2Address =
+                new InetSocketAddress(group2, receivingSocket.getLocalPort());
+        sdp = createSendDatagramPacket(group2Address, msg);
+        sendingSocket.send(sdp);
+
+        rdp = createReceiveDatagramPacket();
+        try {
+            receivingSocket.receive(rdp);
+            fail("Expected timeout");
+        } catch (SocketTimeoutException expected) {
+        }
+
+        receivingSocket.close();
+        sendingSocket.close();
     }
 
     public void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface() throws Exception {
@@ -329,27 +314,19 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         // received on that interface. This test is only really useful on devices with multiple
         // non-loopback interfaces.
 
-        ArrayList<NetworkInterface> realInterfaces = new ArrayList<NetworkInterface>();
+        List<NetworkInterface> realInterfaces = new ArrayList<NetworkInterface>();
         Enumeration<NetworkInterface> theInterfaces = NetworkInterface.getNetworkInterfaces();
         while (theInterfaces.hasMoreElements()) {
             NetworkInterface thisInterface = theInterfaces.nextElement();
-            if (thisInterface.getInetAddresses().hasMoreElements()) {
+            // Skip interfaces that do not support multicast - there's no point in proving
+            // they cannot send / receive multicast messages.
+            if (willWorkForMulticast(thisInterface)) {
                 realInterfaces.add(thisInterface);
             }
         }
 
-        for (int i = 0; i < realInterfaces.size(); i++) {
-            NetworkInterface thisInterface = realInterfaces.get(i);
-            if (!thisInterface.supportsMulticast()) {
-                // Skip interfaces that do not support multicast - there's no point in proving
-                // they cannot send / receive multicast messages.
-                continue;
-            }
-
-            // get the first address on the interface
-
-            // start server which is joined to the group and has
-            // only asked for packets on this interface
+        for (NetworkInterface thisInterface : realInterfaces) {
+            // Find a suitable group IP and interface to use to sent packets to thisInterface.
             Enumeration<InetAddress> addresses = thisInterface.getInetAddresses();
 
             NetworkInterface sendingInterface = null;
@@ -358,57 +335,69 @@ public class MulticastSocketTest extends junit.framework.TestCase {
                 InetAddress firstAddress = addresses.nextElement();
                 if (firstAddress instanceof Inet4Address) {
                     group = GOOD_IPv4;
-                    sendingInterface = networkInterface1;
+                    sendingInterface = ipv4NetworkInterface;
                 } else {
                     // if this interface only seems to support IPV6 addresses
                     group = GOOD_IPv6;
-                    sendingInterface = IPV6networkInterface1;
+                    sendingInterface = ipv6NetworkInterface;
                 }
             }
 
-            MulticastServer server = new MulticastServer(group, 0, thisInterface);
-            server.start();
-            Thread.sleep(1000);
+            // Create a receivingSocket which is joined to the group and has only asked for packets
+            // on thisInterface.
+            MulticastSocket receivingSocket = createReceivingSocket(0);
+            InetSocketAddress groupAddress =
+                    new InetSocketAddress(group, receivingSocket.getLocalPort());
+            receivingSocket.joinGroup(groupAddress, thisInterface);
 
-            // Now send out a package on interface networkInterface 1. We should
-            // only see the packet if we send it on interface 1
-            MulticastSocket mss = new MulticastSocket(0);
-            mss.setNetworkInterface(sendingInterface);
-            String msg = "Hello World - Again" + thisInterface.getName();
-            DatagramPacket sdp = new DatagramPacket(msg.getBytes(), msg.length(), group,
-                    server.ms.getLocalPort());
-            mss.send(sdp);
-            Thread.sleep(1000);
-            if (thisInterface.equals(sendingInterface)) {
+            // Now send out a packet on sendingInterface. We should only see the packet if we send
+            // it on thisInterface.
+            MulticastSocket sendingSocket = new MulticastSocket(0);
+            sendingSocket.setNetworkInterface(sendingInterface);
+            String msg = "Hello World - Again " + thisInterface.getName();
+            DatagramPacket sdp = createSendDatagramPacket(groupAddress, msg);
+            sendingSocket.send(sdp);
+
+            DatagramPacket rdp = createReceiveDatagramPacket();
+            try {
+                receivingSocket.receive(rdp);
+
+                // If the packet is received....
+                assertEquals(thisInterface, sendingInterface);
                 assertEquals("Group member did not recv data when bound on specific interface",
-                        msg, new String(server.rdp.getData(), 0, server.rdp.getLength()));
-            } else {
-                assertFalse("Group member received data on other interface when only asked for it on one interface: ",
-                        new String(server.rdp.getData(), 0, server.rdp.getLength()).equals(msg));
+                        msg, extractMessage(rdp));
+            } catch (SocketTimeoutException e) {
+                // If the packet was not received...
+                assertTrue(!thisInterface.equals(sendingInterface));
             }
 
-            server.stopServer();
-            mss.close();
+            receivingSocket.close();
+            sendingSocket.close();
         }
     }
 
-    public void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_multiple_joins_IPv4() throws Exception {
-        test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_multiple_joins(GOOD_IPv4);
+    public void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_multiple_joins_IPv4()
+            throws Exception {
+        test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_multiple_joins(
+                ipv4NetworkInterface, GOOD_IPv4);
     }
 
-    public void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_multiple_joins_IPv6() throws Exception {
-        test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_multiple_joins(GOOD_IPv6);
+    public void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_multiple_joins_IPv6()
+            throws Exception {
+        test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_multiple_joins(
+                ipv6NetworkInterface, GOOD_IPv6);
     }
 
-    private void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_multiple_joins(InetAddress group) throws Exception {
-        // validate that we can join the same address on two
-        // different interfaces but not on the same interface
+    private void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_multiple_joins(
+            NetworkInterface networkInterface, InetAddress group) throws Exception {
+        // Validate that we can join the same address on two different interfaces but not on the
+        // same interface.
         MulticastSocket mss = new MulticastSocket(0);
         SocketAddress groupSockAddr = new InetSocketAddress(group, mss.getLocalPort());
-        mss.joinGroup(groupSockAddr, networkInterface1);
+        mss.joinGroup(groupSockAddr, networkInterface);
         mss.joinGroup(groupSockAddr, loopbackInterface);
         try {
-            mss.joinGroup(groupSockAddr, networkInterface1);
+            mss.joinGroup(groupSockAddr, networkInterface);
             fail("Did not get expected exception when joining for second time on same interface");
         } catch (IOException e) {
         }
@@ -426,9 +415,9 @@ public class MulticastSocketTest extends junit.framework.TestCase {
     private void test_leaveGroupLjava_net_InetAddress(InetAddress group) throws Exception {
         String msg = "Hello World";
         MulticastSocket mss = new MulticastSocket(0);
-        DatagramPacket sdp = new DatagramPacket(msg.getBytes(), msg.length(), group,
-                mss.getLocalPort());
-        mss.send(sdp, (byte) 10);
+        InetSocketAddress groupAddress = new InetSocketAddress(group, mss.getLocalPort());
+        DatagramPacket sdp = createSendDatagramPacket(groupAddress, msg);
+        mss.send(sdp, (byte) 10 /* ttl */);
         try {
             // Try to leave a group we didn't join.
             mss.leaveGroup(group);
@@ -468,15 +457,21 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         mss.close();
     }
 
-    public void test_leaveGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv4() throws Exception {
-        test_leaveGroupLjava_net_SocketAddressLjava_net_NetworkInterface(GOOD_IPv4, BAD_IPv4);
+    public void test_leaveGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv4()
+            throws Exception {
+        test_leaveGroupLjava_net_SocketAddressLjava_net_NetworkInterface(
+                ipv4NetworkInterface, GOOD_IPv4, BAD_IPv4);
     }
 
-    public void test_leaveGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv6() throws Exception {
-        test_leaveGroupLjava_net_SocketAddressLjava_net_NetworkInterface(GOOD_IPv6, BAD_IPv6);
+    public void test_leaveGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv6()
+            throws Exception {
+        test_leaveGroupLjava_net_SocketAddressLjava_net_NetworkInterface(
+                ipv6NetworkInterface, GOOD_IPv6, BAD_IPv6);
     }
 
-    private void test_leaveGroupLjava_net_SocketAddressLjava_net_NetworkInterface(InetAddress group, InetAddress group2) throws Exception {
+    private void test_leaveGroupLjava_net_SocketAddressLjava_net_NetworkInterface(
+            NetworkInterface networkInterface, InetAddress group, InetAddress group2)
+            throws Exception {
         SocketAddress groupSockAddr = null;
         SocketAddress groupSockAddr2 = null;
 
@@ -491,20 +486,20 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         }
 
         groupSockAddr2 = new InetSocketAddress(group2, mss.getLocalPort());
-        mss.joinGroup(groupSockAddr, networkInterface1);
+        mss.joinGroup(groupSockAddr, networkInterface);
         try {
-            mss.leaveGroup(groupSockAddr2, networkInterface1);
+            mss.leaveGroup(groupSockAddr2, networkInterface);
             fail("Did not get exception when trying to leave group that was never joined");
         } catch (IOException expected) {
         }
 
-        mss.leaveGroup(groupSockAddr, networkInterface1);
+        mss.leaveGroup(groupSockAddr, networkInterface);
 
-        mss.joinGroup(groupSockAddr, networkInterface1);
+        mss.joinGroup(groupSockAddr, networkInterface);
         try {
             mss.leaveGroup(groupSockAddr, loopbackInterface);
             fail("Did not get exception when trying to leave group on wrong interface " +
-                    "joined on [" + networkInterface1 + "] left on [" + loopbackInterface + "]");
+                    "joined on [" + networkInterface + "] left on [" + loopbackInterface + "]");
         } catch (IOException expected) {
         }
     }
@@ -519,31 +514,36 @@ public class MulticastSocketTest extends junit.framework.TestCase {
 
     private void test_sendLjava_net_DatagramPacketB(InetAddress group) throws Exception {
         String msg = "Hello World";
-        MulticastSocket mss = new MulticastSocket(0);
-        MulticastServer server = new MulticastServer(group, mss.getLocalPort());
-        server.start();
-        Thread.sleep(200);
-        DatagramPacket sdp = new DatagramPacket(msg.getBytes(), msg.length(), group, mss.getLocalPort());
-        mss.send(sdp, (byte) 10);
-        Thread.sleep(1000);
-        mss.close();
-        byte[] data = server.rdp.getData();
-        int length = server.rdp.getLength();
-        assertEquals("Failed to send data. Received " + length, msg, new String(data, 0, length));
-        server.stopServer();
+        MulticastSocket sendingSocket = new MulticastSocket(0);
+        MulticastSocket receivingSocket = createReceivingSocket(sendingSocket.getLocalPort());
+        receivingSocket.joinGroup(group);
+
+        InetSocketAddress groupAddress = new InetSocketAddress(group, sendingSocket.getLocalPort());
+        DatagramPacket sdp = createSendDatagramPacket(groupAddress, msg);
+        sendingSocket.send(sdp, (byte) 10 /* ttl */);
+        sendingSocket.close();
+
+        DatagramPacket rdp = createReceiveDatagramPacket();
+        receivingSocket.receive(rdp);
+        String receivedMessage = extractMessage(rdp);
+        assertEquals("Failed to send data. Received " + rdp.getLength(), msg, receivedMessage);
+        receivingSocket.close();
     }
 
     public void test_setInterfaceLjava_net_InetAddress() throws Exception {
         MulticastSocket mss = new MulticastSocket();
         mss.setInterface(InetAddress.getLocalHost());
         InetAddress theInterface = mss.getInterface();
-        // under IPV6 we are not guarrenteed to get the same address back as
-        // the address, all we should be guaranteed is that we get an
-        // address on the same interface
+        // Under IPV6 we are not guaranteed to get the same address back as the address that was
+        // set, all we should be guaranteed is that we get an address on the same interface.
         if (theInterface instanceof Inet6Address) {
-            assertTrue("Failed to return correct interface IPV6", NetworkInterface.getByInetAddress(mss.getInterface()).equals(NetworkInterface.getByInetAddress(theInterface)));
+            assertEquals("Failed to return correct interface IPV6",
+                    NetworkInterface.getByInetAddress(mss.getInterface()),
+                    NetworkInterface.getByInetAddress(theInterface));
         } else {
-            assertTrue("Failed to return correct interface IPV4 got:" + mss.getInterface() + " excpeted: " + InetAddress.getLocalHost(), mss.getInterface().equals(InetAddress.getLocalHost()));
+            assertTrue("Failed to return correct interface IPV4 got:" + mss.getInterface() +
+                    " expected: " + InetAddress.getLocalHost(),
+                    mss.getInterface().equals(InetAddress.getLocalHost()));
         }
         mss.close();
     }
@@ -556,7 +556,7 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         test_setInterface_unbound_address(GOOD_IPv6);
     }
 
-    // Regression test for Harmony-2410
+    // Regression test for Harmony-2410.
     private void test_setInterface_unbound_address(InetAddress address) throws Exception {
         MulticastSocket mss = new MulticastSocket();
         try {
@@ -568,7 +568,7 @@ public class MulticastSocketTest extends junit.framework.TestCase {
     }
 
     public void test_setNetworkInterfaceLjava_net_NetworkInterface_null() throws Exception {
-        // validate that null interface is handled ok
+        // Validate that null interface is handled ok.
         MulticastSocket mss = new MulticastSocket();
         try {
             mss.setNetworkInterface(null);
@@ -579,10 +579,11 @@ public class MulticastSocketTest extends junit.framework.TestCase {
     }
 
     public void test_setNetworkInterfaceLjava_net_NetworkInterface_round_trip() throws Exception {
-        // validate that we can get and set the interface
+        // Validate that we can get and set the interface.
         MulticastSocket mss = new MulticastSocket();
-        mss.setNetworkInterface(networkInterface1);
-        assertEquals("Interface did not seem to be set by setNeworkInterface", networkInterface1, mss.getNetworkInterface());
+        mss.setNetworkInterface(ipv4NetworkInterface);
+        assertEquals("Interface did not seem to be set by setNeworkInterface",
+                ipv4NetworkInterface, mss.getNetworkInterface());
         mss.close();
     }
 
@@ -594,35 +595,35 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         test_setNetworkInterfaceLjava_net_NetworkInterface(GOOD_IPv6);
     }
 
-    private void test_setNetworkInterfaceLjava_net_NetworkInterface(InetAddress group) throws IOException, InterruptedException {
-        // set up the server and join the group
+    private void test_setNetworkInterfaceLjava_net_NetworkInterface(InetAddress group)
+            throws IOException, InterruptedException {
+        // Set up the receiving socket and join the group.
         Enumeration theInterfaces = NetworkInterface.getNetworkInterfaces();
         while (theInterfaces.hasMoreElements()) {
             NetworkInterface thisInterface = (NetworkInterface) theInterfaces.nextElement();
             if (thisInterface.getInetAddresses().hasMoreElements() && thisInterface.isUp()) {
                 if ((!(thisInterface.getInetAddresses().nextElement()).isLoopbackAddress())) {
-                    MulticastServer server = new MulticastServer(group, 0);
-                    server.start();
-                    // give the server some time to start up
-                    Thread.sleep(1000);
+                    MulticastSocket receivingSocket = createReceivingSocket(0);
+                    InetSocketAddress groupAddress =
+                            new InetSocketAddress(group, receivingSocket.getLocalPort());
+                    receivingSocket.joinGroup(groupAddress, thisInterface);
 
-                    // Send the packets on a particular interface. The
-                    // source address in the received packet
-                    // should be one of the addresses for the interface
-                    // set
-                    MulticastSocket mss = new MulticastSocket(0);
-                    mss.setNetworkInterface(thisInterface);
+                    // Send the packets on a particular interface. The source address in the
+                    // received packet should be one of the addresses for the interface set.
+                    MulticastSocket sendingSocket = new MulticastSocket(0);
+                    sendingSocket.setNetworkInterface(thisInterface);
                     String msg = thisInterface.getName();
-                    byte theBytes[] = msg.getBytes();
-                    DatagramPacket sdp = new DatagramPacket(theBytes, theBytes.length, group,
-                            server.ms.getLocalPort());
-                    mss.send(sdp);
-                    Thread.sleep(1000);
-                    String receivedMessage = new String(server.rdp.getData(), 0, server.rdp.getLength());
-                    assertEquals("Group member did not recv data sent on a specific interface", msg, receivedMessage);
-                    // stop the server
-                    server.stopServer();
-                    mss.close();
+                    DatagramPacket sdp = createSendDatagramPacket(groupAddress, msg);
+                    sendingSocket.send(sdp);
+
+                    DatagramPacket rdp = createReceiveDatagramPacket();
+                    receivingSocket.receive(rdp);
+                    String receivedMessage = extractMessage(rdp);
+                    assertEquals("Group member did not recv data sent on a specific interface",
+                            msg, receivedMessage);
+                    // Stop the server.
+                    receivingSocket.close();
+                    sendingSocket.close();
                 }
             }
         }
@@ -651,24 +652,28 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         assertTrue("should be bound", ms.isBound() && !ms.isClosed() && !ms.isConnected());
         ms.close();
         assertTrue("should be closed", ms.isClosed());
+
         ms = new MulticastSocket(0);
         assertTrue("should be bound", ms.isBound() && !ms.isClosed() && !ms.isConnected());
         ms.close();
         assertTrue("should be closed", ms.isClosed());
+
         ms = new MulticastSocket(0);
         assertTrue("should be bound", ms.isBound() && !ms.isClosed() && !ms.isConnected());
         ms.close();
         assertTrue("should be closed", ms.isClosed());
+
         try {
-            ms = new MulticastSocket(new InetSocketAddress("unresolvedname", 31415));
+            new MulticastSocket(new InetSocketAddress("unresolvedname", 31415));
             fail();
         } catch (IOException expected) {
         }
 
-        // regression test for Harmony-1162
+        // Regression test for Harmony-1162.
         InetSocketAddress addr = new InetSocketAddress("0.0.0.0", 0);
         MulticastSocket s = new MulticastSocket(addr);
         assertTrue(s.getReuseAddress());
+        s.close();
     }
 
     public void test_getLoopbackMode() throws Exception {
@@ -699,129 +704,69 @@ public class MulticastSocketTest extends junit.framework.TestCase {
     }
 
     private void test_setLoopbackModeSendReceive(InetAddress group) throws IOException {
+        // Test send receive.
         final String message = "Hello, world!";
 
-        // test send receive
         MulticastSocket socket = new MulticastSocket(0);
         socket.setLoopbackMode(false); // false indicates doing loop back
         socket.joinGroup(group);
 
-        // send the datagram
-        byte[] sendData = message.getBytes();
-        DatagramPacket sendDatagram = new DatagramPacket(sendData, 0, sendData.length,
-                new InetSocketAddress(group, socket.getLocalPort()));
+        // Send the datagram.
+        InetSocketAddress groupAddress = new InetSocketAddress(group, socket.getLocalPort());
+        DatagramPacket sendDatagram = createSendDatagramPacket(groupAddress, message);
         socket.send(sendDatagram);
 
-        // receive the datagram
-        byte[] recvData = new byte[100];
-        DatagramPacket recvDatagram = new DatagramPacket(recvData, recvData.length);
-        socket.setSoTimeout(5000); // prevent eternal block in
+        // Receive the datagram.
+        DatagramPacket recvDatagram = createReceiveDatagramPacket();
+        socket.setSoTimeout(5000); // Prevent eternal block in.
         socket.receive(recvDatagram);
-        String recvMessage = new String(recvData, 0, recvDatagram.getLength());
+        String recvMessage = extractMessage(recvDatagram);
         assertEquals(message, recvMessage);
         socket.close();
     }
 
     public void test_setReuseAddressZ() throws Exception {
-        // test case were we set it to false
-        MulticastSocket theSocket1 = null;
-        MulticastSocket theSocket2 = null;
+        // Test case were we to set ReuseAddress to false.
+        MulticastSocket theSocket1 = new MulticastSocket(null);
+        theSocket1.setReuseAddress(false);
+
+        MulticastSocket theSocket2 = new MulticastSocket(null);
+        theSocket2.setReuseAddress(false);
+
+        InetSocketAddress addr = new InetSocketAddress(Inet4Address.getLocalHost(), 0);
+        theSocket1.bind(addr);
+        addr = new InetSocketAddress(Inet4Address.getLocalHost(), theSocket1.getLocalPort());
         try {
-            theSocket1 = new MulticastSocket(null);
-            theSocket2 = new MulticastSocket(null);
-            theSocket1.setReuseAddress(false);
-            theSocket2.setReuseAddress(false);
-            InetSocketAddress addr = new InetSocketAddress(Inet4Address.getLocalHost(), 0);
-            theSocket1.bind(addr);
-            addr = new InetSocketAddress(Inet4Address.getLocalHost(), theSocket1.getLocalPort());
             theSocket2.bind(addr);
-            fail("No exception when trying to connect to do duplicate socket bind with re-useaddr set to false");
+            fail("No exception when trying to connect to do duplicate socket bind with re-useaddr"
+                    + " set to false");
         } catch (BindException expected) {
         }
-        if (theSocket1 != null) {
-            theSocket1.close();
-        }
-        if (theSocket2 != null) {
-            theSocket2.close();
-        }
+        theSocket1.close();
+        theSocket2.close();
 
-        // test case were we set it to true
+        // Test case were we set it to true.
         theSocket1 = new MulticastSocket(null);
         theSocket2 = new MulticastSocket(null);
         theSocket1.setReuseAddress(true);
         theSocket2.setReuseAddress(true);
-        InetSocketAddress addr = new InetSocketAddress(Inet4Address.getLocalHost(), 0);
+        addr = new InetSocketAddress(Inet4Address.getLocalHost(), 0);
         theSocket1.bind(addr);
         addr = new InetSocketAddress(Inet4Address.getLocalHost(), theSocket1.getLocalPort());
         theSocket2.bind(addr);
 
-        if (theSocket1 != null) {
-            theSocket1.close();
-        }
-        if (theSocket2 != null) {
-            theSocket2.close();
-        }
+        theSocket1.close();
+        theSocket2.close();
 
-        // test the default case which we expect to be
-        // the same on all platforms
+        // Test the default case which we expect to be the same on all platforms.
         theSocket1 = new MulticastSocket(null);
         theSocket2 = new MulticastSocket(null);
         addr = new InetSocketAddress(Inet4Address.getLocalHost(), 0);
         theSocket1.bind(addr);
         addr = new InetSocketAddress(Inet4Address.getLocalHost(), theSocket1.getLocalPort());
         theSocket2.bind(addr);
-        if (theSocket1 != null) {
-            theSocket1.close();
-        }
-        if (theSocket2 != null) {
-            theSocket2.close();
-        }
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        // The loopback interface isn't actually useful for sending/receiving multicast messages
-        // but it can be used as a dummy for tests where that does not matter.
-        loopbackInterface = NetworkInterface.getByInetAddress(InetAddress.getLoopbackAddress());
-        assertNotNull(loopbackInterface);
-        assertTrue(loopbackInterface.isLoopback());
-        assertFalse(loopbackInterface.supportsMulticast());
-
-        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-
-        // only consider interfaces that have addresses associated with them.
-        // Otherwise tests don't work so well
-        if (interfaces != null) {
-            boolean atLeastOneInterface = false;
-            while (interfaces.hasMoreElements() && (atLeastOneInterface == false)) {
-                networkInterface1 = interfaces.nextElement();
-                if (willWorkForMulticast(networkInterface1)) {
-                    atLeastOneInterface = true;
-                }
-            }
-
-            assertTrue("Test environment must have at least one environment capable of multicast",
-                    atLeastOneInterface);
-
-            // Find the first multicast-compatible interface that supports IPV6 if one exists
-            interfaces = NetworkInterface.getNetworkInterfaces();
-
-            boolean found = false;
-            while (interfaces.hasMoreElements() && !found) {
-                NetworkInterface nextInterface = interfaces.nextElement();
-                if (willWorkForMulticast(nextInterface)) {
-                    Enumeration<InetAddress> addresses = nextInterface.getInetAddresses();
-                    while (addresses.hasMoreElements()) {
-                        final InetAddress nextAddress = addresses.nextElement();
-                        if (nextAddress instanceof Inet6Address) {
-                            IPV6networkInterface1 = nextInterface;
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+        theSocket1.close();
+        theSocket2.close();
     }
 
     private static boolean willWorkForMulticast(NetworkInterface iface) throws IOException {
@@ -831,4 +776,26 @@ public class MulticastSocketTest extends junit.framework.TestCase {
                 && !iface.isLoopback() && iface.supportsMulticast()
                 && iface.getInetAddresses().hasMoreElements();
     }
+
+    private static MulticastSocket createReceivingSocket(int aPort) throws IOException {
+        MulticastSocket ms = new MulticastSocket(aPort);
+        ms.setSoTimeout(2000);
+        return ms;
+    }
+
+    private static DatagramPacket createReceiveDatagramPacket() {
+        byte[] rbuf = new byte[512];
+        return new DatagramPacket(rbuf, rbuf.length);
+    }
+
+    private static DatagramPacket createSendDatagramPacket(
+            InetSocketAddress groupAndPort, String msg) {
+        return new DatagramPacket(
+                msg.getBytes(), msg.length(), groupAndPort.getAddress(), groupAndPort.getPort());
+    }
+
+    private static String extractMessage(DatagramPacket rdp) {
+        return new String(rdp.getData(), 0, rdp.getLength());
+    }
+
 }
