@@ -20,6 +20,7 @@
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "JniException.h"
+#include "ScopedIcuLocale.h"
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
@@ -59,11 +60,14 @@ static bool setStringArrayElement(JNIEnv* env, jobjectArray array, int i, const 
   return true;
 }
 
-static void TimeZoneNames_fillZoneStrings(JNIEnv* env, jclass, jstring localeName, jobjectArray result) {
-  Locale locale = getLocale(env, localeName);
+static void TimeZoneNames_fillZoneStrings(JNIEnv* env, jclass, jstring javaLocaleName, jobjectArray result) {
+  ScopedIcuLocale icuLocale(env, javaLocaleName);
+  if (!icuLocale.valid()) {
+    return;
+  }
 
   UErrorCode status = U_ZERO_ERROR;
-  UniquePtr<TimeZoneNames> names(TimeZoneNames::createInstance(locale, status));
+  UniquePtr<TimeZoneNames> names(TimeZoneNames::createInstance(icuLocale.locale(), status));
   if (maybeThrowIcuException(env, "TimeZoneNames::createInstance", status)) {
     return;
   }
@@ -118,11 +122,14 @@ static void TimeZoneNames_fillZoneStrings(JNIEnv* env, jclass, jstring localeNam
   }
 }
 
-static jstring TimeZoneNames_getExemplarLocation(JNIEnv* env, jclass, jstring javaLocale, jstring javaTz) {
-  Locale locale = getLocale(env, javaLocale);
+static jstring TimeZoneNames_getExemplarLocation(JNIEnv* env, jclass, jstring javaLocaleName, jstring javaTz) {
+  ScopedIcuLocale icuLocale(env, javaLocaleName);
+  if (!icuLocale.valid()) {
+    return NULL;
+  }
 
   UErrorCode status = U_ZERO_ERROR;
-  UniquePtr<TimeZoneNames> names(TimeZoneNames::createInstance(locale, status));
+  UniquePtr<TimeZoneNames> names(TimeZoneNames::createInstance(icuLocale.locale(), status));
   if (maybeThrowIcuException(env, "TimeZoneNames::createInstance", status)) {
     return NULL;
   }

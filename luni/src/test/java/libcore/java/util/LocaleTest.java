@@ -39,9 +39,22 @@ public class LocaleTest extends junit.framework.TestCase {
         // and variant, but a display name made up of the raw strings.
         // Newer releases return slightly different results, but no less unreasonable.
         assertEquals("aabbcc", invalid.getDisplayLanguage());
-        assertEquals("", invalid.getDisplayCountry());
-        assertEquals("DDEEFF_GGHHII", invalid.getDisplayVariant());
-        assertEquals("aabbcc (DDEEFF,DDEEFF_GGHHII)", invalid.getDisplayName());
+        assertEquals("DDEEFF", invalid.getDisplayCountry());
+        assertEquals("GGHHII", invalid.getDisplayVariant());
+        assertEquals("aabbcc (DDEEFF,GGHHII)", invalid.getDisplayName());
+    }
+
+    public void test_getDisplayName_emptyCodes() {
+        Locale emptyLanguage = new Locale("", "DdeEFf");
+        assertEquals("", emptyLanguage.getDisplayLanguage());
+
+        Locale emptyCountry = new Locale("AaBbCc", "");
+        assertEquals("", emptyCountry.getDisplayCountry());
+
+        Locale emptyCountryAndLanguage = new Locale("", "", "Farl");
+        assertEquals("", emptyCountryAndLanguage.getDisplayLanguage());
+        assertEquals("", emptyCountryAndLanguage.getDisplayCountry());
+        assertEquals("Farl", emptyCountryAndLanguage.getDisplayVariant());
     }
 
     // http://b/2611311; if there's no display language/country/variant, use the raw codes.
@@ -53,8 +66,8 @@ public class LocaleTest extends junit.framework.TestCase {
 
         assertEquals("xx", unknown.getDisplayLanguage());
         assertEquals("YY", unknown.getDisplayCountry());
-        assertEquals("TRADITIONAL", unknown.getDisplayVariant());
-        assertEquals("xx (YY,TRADITIONAL)", unknown.getDisplayName());
+        assertEquals("Traditional", unknown.getDisplayVariant());
+        assertEquals("xx (YY,Traditional)", unknown.getDisplayName());
     }
 
     public void test_getDisplayName_easy() throws Exception {

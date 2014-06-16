@@ -28,10 +28,6 @@
 #include "unicode/uloc.h"
 #include "unicode/ustring.h"
 
-Locale getLocale(JNIEnv* env, jstring localeName) {
-  return Locale::createFromName(ScopedUtfChars(env, localeName).c_str());
-}
-
 jobjectArray fromStringEnumeration(JNIEnv* env, UErrorCode& status, const char* provider, StringEnumeration* se) {
   if (maybeThrowIcuException(env, provider, status)) {
     return NULL;

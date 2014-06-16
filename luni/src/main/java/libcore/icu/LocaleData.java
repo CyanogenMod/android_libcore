@@ -176,8 +176,8 @@ public final class LocaleData {
         }
 
         // Get the "h:mm a" and "HH:mm" 12- and 24-hour time format strings.
-        localeData.timeFormat12 = ICU.getBestDateTimePattern("hm", locale.toString());
-        localeData.timeFormat24 = ICU.getBestDateTimePattern("Hm", locale.toString());
+        localeData.timeFormat12 = ICU.getBestDateTimePattern("hm", locale);
+        localeData.timeFormat24 = ICU.getBestDateTimePattern("Hm", locale);
 
         // Fix up a couple of patterns.
         if (localeData.fullTimeFormat != null) {
