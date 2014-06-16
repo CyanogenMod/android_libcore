@@ -1503,6 +1503,22 @@
   name: "org.apache.harmony.tests.java.io.ConsoleTest#test_readPassword_LString_LObject"
 },
 {
+  description: "Some tests take too long on clockwork devices. Suppressed on klp-modular-dev.",
+  bug: 5513723,
+  names: [
+    "libcore.java.security.KeyPairGeneratorTest#test_getInstance_provider0",
+    "libcore.java.security.KeyPairGeneratorTest#test_getInstance_provider1",
+    "libcore.java.security.KeyPairGeneratorTest#test_getInstance_provider2",
+    "libcore.java.security.KeyPairGeneratorTest#test_getInstance_provider3",
+    "libcore.java.security.KeyPairGeneratorTest#test_getInstance_provider4",
+    "libcore.java.security.KeyPairGeneratorTest#test_getInstance_provider5",
+    "libcore.java.security.KeyPairGeneratorTest#test_getInstance_provider6",
+    "libcore.java.security.KeyPairGeneratorTest#test_getInstance_provider7",
+    "libcore.java.security.KeyPairGeneratorTest#test_getInstance_provider8",
+    "libcore.java.security.KeyPairGeneratorTest#test_getInstance_provider9"
+  ]
+},
+{
   description: "Suppression of a test that proves there is a known bug with Matcher",
   bug: 14865710,
   name: "org.apache.harmony.tests.java.util.ScannerParseLargeFileBenchmarkTest#testParseLargeFile"
