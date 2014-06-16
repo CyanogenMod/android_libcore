@@ -19,6 +19,9 @@ package java.nio.channels;
 /**
  * An {@code AlreadyBoundException} is thrown when an attempt is made to bind a NetworkChannel that
  * is already bound.
+ *
+ * @since 1.7
+ * @hide 1.7
  */
 public class AlreadyBoundException extends IllegalStateException {
 

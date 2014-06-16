@@ -50,6 +50,7 @@ import java.util.concurrent.locks.LockSupport;
  * the {@code LinkedTransferQueue} in another thread.
  *
  * @since 1.7
+ * @hide 1.7
  * @author Doug Lea
  * @param <E> the type of elements held in this collection
  */

@@ -320,6 +320,7 @@ public abstract class URLConnection {
      * {@code content-length} or {@code -1} if this field is not set.
      *
      * @since 1.7
+     * @hide 1.7
      */
     public long getContentLengthLong() {
         return getHeaderFieldLong("Content-Length", -1);
@@ -567,6 +568,7 @@ public abstract class URLConnection {
      *            the default value if no field has been found.
      * @return the value of the specified header field as a number.
      * @since 1.7
+     * @hide 1.7
      */
     public long getHeaderFieldLong(String field, long defaultValue) {
         try {

@@ -77,7 +77,7 @@ import java.nio.channels.spi.AbstractInterruptibleChannel;
  * content, size, etc.
  */
 public abstract class FileChannel extends AbstractInterruptibleChannel
-        implements GatheringByteChannel, ScatteringByteChannel, SeekableByteChannel {
+        implements ByteChannel, GatheringByteChannel, ScatteringByteChannel, SeekableByteChannel {
 
     /**
      * {@code MapMode} defines file mapping mode constants.

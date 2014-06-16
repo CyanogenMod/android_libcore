@@ -69,6 +69,7 @@ import java.net.NetworkInterface;
  * information.
  *
  * @since 1.7
+ * @hide 1.7
  */
 public interface MulticastChannel extends NetworkChannel {
 
@@ -110,6 +111,8 @@ public interface MulticastChannel extends NetworkChannel {
    *         if the channel is closed
    * @throws IOException
    *         if some other I/O error occurs
+   * @since 1.7
+   * @hide 1.7
    */
   MembershipKey join(InetAddress groupAddress, NetworkInterface networkInterface)
       throws IOException;
@@ -148,6 +151,8 @@ public interface MulticastChannel extends NetworkChannel {
    *         if the channel is closed
    * @throws IOException
    *         if some other I/O error occurs
+   * @since 1.7
+   * @hide 1.7
    */
   MembershipKey join(
       InetAddress groupAddress, NetworkInterface networkInterface, InetAddress sourceAddress)

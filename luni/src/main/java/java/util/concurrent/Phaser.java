@@ -227,6 +227,7 @@ import java.util.concurrent.locks.LockSupport;
  * of participants.
  *
  * @since 1.7
+ * @hide 1.7
  * @author Doug Lea
  */
 public class Phaser {

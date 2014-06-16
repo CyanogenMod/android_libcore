@@ -18,6 +18,7 @@ package java.util.concurrent;
  * {@linkplain ForkJoinPool#ForkJoinPool use it} in a {@code ForkJoinPool}.
  *
  * @since 1.7
+ * @hide 1.7
  * @author Doug Lea
  */
 public class ForkJoinWorkerThread extends Thread {
