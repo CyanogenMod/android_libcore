@@ -260,4 +260,19 @@ public class DecimalFormatTest extends junit.framework.TestCase {
       } catch (NullPointerException expected) {
       }
     }
+
+    // Confirm correct fractional digit handling in NumberFormat.getCurrencyInstance() /
+    // DecimalFormat.
+    public void testBug71369() {
+        final String nonBreakingSpace = "\u00A0";
+
+        NumberFormat numberFormat = NumberFormat.getCurrencyInstance(Locale.GERMAN);
+        numberFormat.setCurrency(Currency.getInstance("USD"));
+
+        assertEquals("2,01" + nonBreakingSpace + "$", numberFormat.format(2.01));
+
+        numberFormat.setMinimumFractionDigits(0);
+        numberFormat.setMaximumFractionDigits(0);
+        assertEquals("2" + nonBreakingSpace + "$", numberFormat.format(2.01));
+    }
 }
