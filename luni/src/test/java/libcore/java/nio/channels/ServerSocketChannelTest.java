@@ -21,8 +21,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
-import java.net.SocketOption;
-import java.net.StandardSocketOptions;
+import java.net.SocketException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -36,7 +35,7 @@ public class ServerSocketChannelTest extends junit.framework.TestCase {
         ServerSocketChannel ssc = ServerSocketChannel.open();
         try {
             ssc.configureBlocking(false);
-            ssc.bind(null);
+            ssc.socket().bind(null);
             // Should return immediately, since we're non-blocking.
             assertNull(ssc.accept());
         } finally {
@@ -48,7 +47,7 @@ public class ServerSocketChannelTest extends junit.framework.TestCase {
     public void test_open_initialState() throws Exception {
         ServerSocketChannel ssc = ServerSocketChannel.open();
         try {
-            assertNull(ssc.getLocalAddress());
+            assertNull(ssc.socket().getLocalSocketAddress());
 
             ServerSocket socket = ssc.socket();
             assertFalse(socket.isBound());
@@ -67,12 +66,12 @@ public class ServerSocketChannelTest extends junit.framework.TestCase {
     public void test_bind_unresolvedAddress() throws IOException {
         ServerSocketChannel ssc = ServerSocketChannel.open();
         try {
-            ssc.bind(new InetSocketAddress("unresolvedname", 31415));
+            ssc.socket().bind(new InetSocketAddress("unresolvedname", 31415));
             fail();
-        } catch (UnresolvedAddressException expected) {
+        } catch (SocketException expected) {
         }
 
-        assertNull(ssc.getLocalAddress());
+        assertNull(ssc.socket().getLocalSocketAddress());
         assertTrue(ssc.isOpen());
 
         ssc.close();
@@ -80,8 +79,8 @@ public class ServerSocketChannelTest extends junit.framework.TestCase {
 
     public void test_bind_nullBindsToAll() throws Exception {
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.bind(null);
-        InetSocketAddress boundAddress = (InetSocketAddress) ssc.getLocalAddress();
+        ssc.socket().bind(null);
+        InetSocketAddress boundAddress = (InetSocketAddress) ssc.socket().getLocalSocketAddress();
         assertTrue(boundAddress.getAddress().isAnyLocalAddress());
         assertFalse(boundAddress.getAddress().isLinkLocalAddress());
         assertFalse(boundAddress.getAddress().isLoopbackAddress());
@@ -106,8 +105,8 @@ public class ServerSocketChannelTest extends junit.framework.TestCase {
 
     public void test_bind_loopback() throws Exception {
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
-        InetSocketAddress boundAddress = (InetSocketAddress) ssc.getLocalAddress();
+        ssc.socket().bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
+        InetSocketAddress boundAddress = (InetSocketAddress) ssc.socket().getLocalSocketAddress();
         assertFalse(boundAddress.getAddress().isAnyLocalAddress());
         assertFalse(boundAddress.getAddress().isLinkLocalAddress());
         assertTrue(boundAddress.getAddress().isLoopbackAddress());
@@ -146,102 +145,4 @@ public class ServerSocketChannelTest extends junit.framework.TestCase {
             return false;
         }
     }
-
-    public void test_supportedOptions() throws Exception {
-        ServerSocketChannel ssc = ServerSocketChannel.open();
-        Set<SocketOption<?>> options = ssc.supportedOptions();
-
-        // Probe some values. This is not intended to be complete.
-        assertTrue(options.contains(StandardSocketOptions.SO_REUSEADDR));
-        assertFalse(options.contains(StandardSocketOptions.IP_MULTICAST_TTL));
-    }
-
-    public void test_getOption_unsupportedOption() throws Exception {
-        ServerSocketChannel ssc = ServerSocketChannel.open();
-        try {
-            ssc.getOption(StandardSocketOptions.IP_MULTICAST_TTL);
-            fail();
-        } catch (UnsupportedOperationException expected) {}
-
-        ssc.close();
-    }
-
-    public void test_getOption_afterClose() throws Exception {
-        ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.close();
-
-        try {
-            ssc.getOption(StandardSocketOptions.SO_RCVBUF);
-            fail();
-        } catch (ClosedChannelException expected) {}
-    }
-
-    public void test_setOption_afterClose() throws Exception {
-        ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.close();
-
-        try {
-            ssc.setOption(StandardSocketOptions.SO_RCVBUF, 1234);
-            fail();
-        } catch (ClosedChannelException expected) {}
-    }
-
-    public void test_getOption_SO_RCVBUF_defaults() throws Exception {
-        ServerSocketChannel ssc = ServerSocketChannel.open();
-
-        int value = ssc.getOption(StandardSocketOptions.SO_RCVBUF);
-        assertTrue(value > 0);
-        assertEquals(value, ssc.socket().getReceiveBufferSize());
-
-        ssc.close();
-    }
-
-    public void test_setOption_SO_RCVBUF_afterOpen() throws Exception {
-        ServerSocketChannel ssc = ServerSocketChannel.open();
-
-        trySetReceiveBufferSizeOption(ssc);
-
-        ssc.close();
-    }
-
-    private static void trySetReceiveBufferSizeOption(ServerSocketChannel ssc) throws IOException {
-        int initialValue = ssc.getOption(StandardSocketOptions.SO_RCVBUF);
-        try {
-            ssc.setOption(StandardSocketOptions.SO_RCVBUF, -1);
-            fail();
-        } catch (IllegalArgumentException expected) {}
-        int actualValue = ssc.getOption(StandardSocketOptions.SO_RCVBUF);
-        assertEquals(initialValue, actualValue);
-        assertEquals(initialValue, ssc.socket().getReceiveBufferSize());
-
-        int newBufferSize = initialValue - 1;
-        ssc.setOption(StandardSocketOptions.SO_RCVBUF, newBufferSize);
-        actualValue = ssc.getOption(StandardSocketOptions.SO_RCVBUF);
-        // The Linux Kernel actually doubles the value it is given and may choose to ignore it.
-        // This assertion may be brittle.
-        assertTrue(actualValue != initialValue);
-        assertEquals(actualValue, ssc.socket().getReceiveBufferSize());
-    }
-
-    public void test_getOption_SO_REUSEADDR_defaults() throws Exception {
-        ServerSocketChannel ssc = ServerSocketChannel.open();
-
-        boolean value = ssc.getOption(StandardSocketOptions.SO_REUSEADDR);
-        assertTrue(value);
-        assertTrue(ssc.socket().getReuseAddress());
-
-        ssc.close();
-    }
-
-    public void test_setOption_SO_REUSEADDR_afterOpen() throws Exception {
-        ServerSocketChannel ssc = ServerSocketChannel.open();
-
-        boolean initialValue = ssc.getOption(StandardSocketOptions.SO_REUSEADDR);
-        ssc.setOption(StandardSocketOptions.SO_REUSEADDR, !initialValue);
-        assertEquals(!initialValue, (boolean) ssc.getOption(StandardSocketOptions.SO_REUSEADDR));
-        assertEquals(!initialValue, ssc.socket().getReuseAddress());
-
-        ssc.close();
-    }
-
 }
