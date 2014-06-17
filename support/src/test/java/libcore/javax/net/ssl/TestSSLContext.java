@@ -33,7 +33,6 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509ExtendedTrustManager;
 import javax.net.ssl.X509TrustManager;
 import junit.framework.Assert;
 import libcore.java.security.StandardNames;
@@ -83,8 +82,8 @@ public final class TestSSLContext extends Assert {
     public final char[] serverStorePassword;
     public final KeyManager[] clientKeyManagers;
     public final KeyManager[] serverKeyManagers;
-    public final X509ExtendedTrustManager clientTrustManager;
-    public final X509ExtendedTrustManager serverTrustManager;
+    public final X509TrustManager clientTrustManager;
+    public final X509TrustManager serverTrustManager;
     public final SSLContext clientContext;
     public final SSLContext serverContext;
     public final SSLServerSocket serverSocket;
@@ -97,8 +96,8 @@ public final class TestSSLContext extends Assert {
                            char[] serverStorePassword,
                            KeyManager[] clientKeyManagers,
                            KeyManager[] serverKeyManagers,
-                           X509ExtendedTrustManager clientTrustManager,
-                           X509ExtendedTrustManager serverTrustManager,
+                           X509TrustManager clientTrustManager,
+                           X509TrustManager serverTrustManager,
                            SSLContext clientContext,
                            SSLContext serverContext,
                            SSLServerSocket serverSocket,
@@ -189,8 +188,8 @@ public final class TestSSLContext extends Assert {
                                       serverKeyStore, serverStorePassword,
                                       clientKeyManagers,
                                       serverKeyManagers,
-                                      (X509ExtendedTrustManager) clientTrustManagers,
-                                      (X509ExtendedTrustManager) serverTrustManagers,
+                                      (X509TrustManager) clientTrustManagers,
+                                      (X509TrustManager) serverTrustManagers,
                                       clientContext, serverContext,
                                       serverSocket, host, port);
         } catch (RuntimeException e) {
