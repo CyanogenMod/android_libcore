@@ -456,6 +456,13 @@ public final class ICU {
 
   static native boolean initLocaleDataNative(String locale, LocaleData result);
 
+  /**
+   * Takes a BCP-47 language tag (Locale.toLanguageTag()). e.g. en-US, not en_US
+   */
   public static native void setDefaultLocale(String languageTag);
+
+  /**
+   * Returns a locale name, not a BCP-47 language tag. e.g. en_US not en-US.
+   */
   public static native String getDefaultLocale();
 }
