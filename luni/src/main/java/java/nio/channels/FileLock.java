@@ -114,17 +114,6 @@ public abstract class FileLock implements AutoCloseable {
     }
 
     /**
-     * Returns the {@link Channel} that holds this lock.
-     *
-     * @since 1.7
-     * @hide 1.7
-     */
-    // Add "This method has been superseded by {@link #acquiredBy()}." to channel when unhiding.
-    public Channel acquiredBy() {
-        return channel;
-    }
-
-    /**
      * Returns the lock's starting position in the file.
      *
      * @return the lock position.

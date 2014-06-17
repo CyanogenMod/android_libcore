@@ -24,10 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.SocketOption;
 import java.net.SocketTimeoutException;
-import java.net.StandardSocketOptions;
-import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.NotYetBoundException;
@@ -56,52 +53,6 @@ final class ServerSocketChannelImpl extends ServerSocketChannel implements FileD
 
     @Override public ServerSocket socket() {
         return socket;
-    }
-
-    @Override
-    public final ServerSocketChannel bind(SocketAddress localAddr, int backlog) throws IOException {
-        if (!isOpen()) {
-            throw new ClosedChannelException();
-        }
-        if (socket.isBound()) {
-            throw new AlreadyBoundException();
-        }
-        if (localAddr != null) {
-            if (!(localAddr instanceof InetSocketAddress)) {
-                throw new UnsupportedAddressTypeException();
-            }
-            InetSocketAddress localInetAddress = (InetSocketAddress) localAddr;
-            if (localInetAddress.isUnresolved()) {
-                throw new UnresolvedAddressException();
-            }
-        }
-
-        socket.bind(localAddr, backlog);
-        return this;
-    }
-
-    @Override
-    public SocketAddress getLocalAddress() throws IOException {
-        if (!isOpen()) {
-            throw new ClosedChannelException();
-        }
-        return socket.getLocalSocketAddress();
-    }
-
-    @Override
-    public <T> T getOption(SocketOption<T> option) throws IOException {
-        return NioUtils.getSocketOption(this, StandardSocketOptions.SERVER_SOCKET_OPTIONS, option);
-    }
-
-    @Override
-    public <T> ServerSocketChannel setOption(SocketOption<T> option, T value) throws IOException {
-        NioUtils.setSocketOption(this, StandardSocketOptions.SERVER_SOCKET_OPTIONS, option, value);
-        return this;
-    }
-
-    @Override
-    public Set<SocketOption<?>> supportedOptions() {
-        return StandardSocketOptions.SERVER_SOCKET_OPTIONS;
     }
 
     @Override
