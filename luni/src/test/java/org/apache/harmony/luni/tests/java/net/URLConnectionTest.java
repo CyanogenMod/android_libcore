@@ -484,20 +484,6 @@ public class URLConnectionTest extends TestCase {
         fileURLCon.getInputStream().close();
     }
 
-    /**
-     * {@link java.net.URLConnection#getContentLengthLong()}
-     */
-    public void test_getContentLengthLong() throws Exception {
-        assertEquals(testString.getBytes().length, fileURLCon.getContentLengthLong());
-        assertEquals(Support_TestWebData.test1.length, uc.getContentLengthLong());
-        assertEquals(Support_TestWebData.test2.length, uc2.getContentLengthLong());
-
-        assertTrue(jarURLCon.getContentLength() > 0);
-        assertTrue(gifURLCon.getContentLength() > 0);
-
-        fileURLCon.getInputStream().close();
-    }
-
     public void test_getContentType() throws Exception {
         assertTrue("getContentType failed: " + fileURLCon.getContentType(),
                 fileURLCon.getContentType().contains("text/plain"));
@@ -768,39 +754,6 @@ public class URLConnectionTest extends TestCase {
         // Test getHeaderFieldInt() for a value outside of the range of int.
         Support_TestWebData params2 = Support_TestWebData.testParams[2];
         hf = uc3.getHeaderFieldInt("Content-Length", Integer.MIN_VALUE);
-        assertEquals(Integer.MIN_VALUE, hf);
-    }
-
-    /**
-     * {@link java.net.URLConnection#getHeaderFieldLong(String, long)}
-     */
-    public void test_getHeaderFieldLong() throws IOException, ParseException {
-        // Test getHeaderFieldLong() can read an int value.
-        Support_TestWebData params0 = Support_TestWebData.testParams[0];
-        long hf = uc.getHeaderFieldLong("Content-Length", Long.MIN_VALUE);
-        assertEquals(params0.testLength, hf);
-
-        // Test getHeaderFieldLong() for a value outside of the range of int.
-        Support_TestWebData params2 = Support_TestWebData.testParams[2];
-        hf = uc3.getHeaderFieldLong("Content-Length", Long.MIN_VALUE);
-        assertEquals(params2.testLength, hf);
-
-        // The remaining fields should be invalid or missing. Confirm the default is returned.
-        hf = uc3.getHeaderFieldLong("Content-Encoding", Long.MIN_VALUE);
-        assertEquals(Long.MIN_VALUE, hf);
-        hf = uc3.getHeaderFieldInt("Content-Type", Integer.MIN_VALUE);
-        assertEquals(Integer.MIN_VALUE, hf);
-        hf = uc3.getHeaderFieldInt("Date", Integer.MIN_VALUE);
-        assertEquals(Integer.MIN_VALUE, hf);
-        hf = uc3.getHeaderFieldInt("Expires", Integer.MIN_VALUE);
-        assertEquals(Integer.MIN_VALUE, hf);
-        hf = uc3.getHeaderFieldInt("SERVER", Integer.MIN_VALUE);
-        assertEquals(Integer.MIN_VALUE, hf);
-        hf = uc3.getHeaderFieldInt("Last-Modified", Integer.MIN_VALUE);
-        assertEquals(Integer.MIN_VALUE, hf);
-        hf = uc3.getHeaderFieldInt("accept-ranges", Integer.MIN_VALUE);
-        assertEquals(Integer.MIN_VALUE, hf);
-        hf = uc3.getHeaderFieldInt("DoesNotExist", Integer.MIN_VALUE);
         assertEquals(Integer.MIN_VALUE, hf);
     }
 
