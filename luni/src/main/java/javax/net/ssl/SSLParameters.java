@@ -139,28 +139,4 @@ public class SSLParameters {
         this.wantClientAuth = wantClientAuth;
         this.needClientAuth = false;
     }
-
-    /**
-     * Returns a string indicating the endpoint identification algorithm to be
-     * used to identify the remote endpoint.
-     *
-     * @see #setEndpointIdentificationAlgorithm(String)
-     * @since 1.7
-     * @hide
-     */
-    public String getEndpointIdentificationAlgorithm() {
-        return endpointIdentificationAlgorithm;
-    }
-
-    /**
-     * Sets the endpoint identification algorithm to be used to identify the
-     * remote endpoint.
-     *
-     * @see #getEndpointIdentificationAlgorithm()
-     * @since 1.7
-     * @hide
-     */
-    public void setEndpointIdentificationAlgorithm(String endpointIdentificationAlgorithm) {
-        this.endpointIdentificationAlgorithm = endpointIdentificationAlgorithm;
-    }
 }
