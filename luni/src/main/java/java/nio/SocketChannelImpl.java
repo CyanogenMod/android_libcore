@@ -32,10 +32,7 @@ import java.net.PlainSocketImpl;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.SocketOption;
 import java.net.SocketUtils;
-import java.net.StandardSocketOptions;
-import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.AlreadyConnectedException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ConnectionPendingException;
@@ -139,30 +136,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         return socket;
     }
 
-    @Override
-    synchronized public final SocketChannel bind(SocketAddress local) throws IOException {
-        if (!isOpen()) {
-            throw new ClosedChannelException();
-        }
-        if (isBound) {
-            throw new AlreadyBoundException();
-        }
-
-        if (local == null) {
-            local = new InetSocketAddress(Inet4Address.ANY, 0);
-        } else if (!(local instanceof InetSocketAddress)) {
-            throw new UnsupportedAddressTypeException();
-        }
-
-        InetSocketAddress localAddress = (InetSocketAddress) local;
-        if (localAddress.isUnresolved()) {
-            throw new UnresolvedAddressException();
-        }
-        IoBridge.bind(fd, localAddress.getAddress(), localAddress.getPort());
-        onBind(true /* updateSocketState */);
-        return this;
-    }
-
     /**
      * Initialise the isBound, localAddress and localPort state from the file descriptor. Used when
      * some or all of the bound state has been left to the OS to decide, or when the Socket handled
@@ -186,30 +159,6 @@ class SocketChannelImpl extends SocketChannel implements FileDescriptorChannel {
         if (updateSocketState && socket != null) {
             socket.onBind(localAddress, localPort);
         }
-    }
-
-    @Override
-    synchronized public SocketAddress getLocalAddress() throws IOException {
-        if (!isOpen()) {
-            throw new ClosedChannelException();
-        }
-        return isBound ? new InetSocketAddress(localAddress, localPort) : null;
-    }
-
-    @Override
-    public <T> T getOption(SocketOption<T> option) throws IOException {
-        return NioUtils.getSocketOption(this, StandardSocketOptions.SOCKET_OPTIONS, option);
-    }
-
-    @Override
-    public <T> SocketChannel setOption(SocketOption<T> option, T value) throws IOException {
-        NioUtils.setSocketOption(this, StandardSocketOptions.SOCKET_OPTIONS, option, value);
-        return this;
-    }
-
-    @Override
-    public Set<SocketOption<?>> supportedOptions() {
-        return StandardSocketOptions.SOCKET_OPTIONS;
     }
 
     @Override

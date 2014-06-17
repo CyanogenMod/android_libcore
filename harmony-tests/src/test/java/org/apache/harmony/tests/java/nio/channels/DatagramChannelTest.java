@@ -25,7 +25,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
@@ -72,11 +71,11 @@ public class DatagramChannelTest extends TestCase {
         channel1 = DatagramChannel.open();
         channel2 = DatagramChannel.open();
 
-        channel1.bind(new InetSocketAddress(Inet6Address.LOOPBACK, 0));
-        channel2.bind(new InetSocketAddress(Inet6Address.LOOPBACK, 0));
+        channel1.socket().bind(new InetSocketAddress(Inet6Address.LOOPBACK, 0));
+        channel2.socket().bind(new InetSocketAddress(Inet6Address.LOOPBACK, 0));
 
-        channel1Address = (InetSocketAddress) channel1.getLocalAddress();
-        channel2Address = (InetSocketAddress) channel2.getLocalAddress();
+        channel1Address = (InetSocketAddress) channel1.socket().getLocalSocketAddress();
+        channel2Address = (InetSocketAddress) channel2.socket().getLocalSocketAddress();
 
         this.datagramSocket1 = new DatagramSocket(0, Inet6Address.LOOPBACK);
         this.datagramSocket2 = new DatagramSocket(0, Inet6Address.LOOPBACK);
@@ -1943,7 +1942,7 @@ public class DatagramChannelTest extends TestCase {
             sourceArray[i] = (byte) i;
         }
 
-        this.channel1.connect(channel1.getLocalAddress());
+        this.channel1.connect(channel1.socket().getLocalSocketAddress());
         this.channel2.connect(datagramSocket1Address); // the different addr
 
         // write
@@ -1973,7 +1972,7 @@ public class DatagramChannelTest extends TestCase {
         assertEquals(CAPACITY_NORMAL, dc.write(sourceBuf));
 
         // Connect channel2 after data has been written.
-        channel2.connect(dc.getLocalAddress());
+        channel2.connect(dc.socket().getLocalSocketAddress());
 
         // read
         ByteBuffer targetBuf = ByteBuffer.wrap(targetArray);
@@ -2165,7 +2164,7 @@ public class DatagramChannelTest extends TestCase {
         assertEquals(CAPACITY_NORMAL, dc.write(sourceBuf));
 
         // Connect channel2 after data has been written.
-        channel2.connect(dc.getLocalAddress());
+        channel2.connect(dc.socket().getLocalSocketAddress());
 
         // read
         ByteBuffer targetBuf = ByteBuffer.wrap(targetArray);
@@ -2383,8 +2382,8 @@ public class DatagramChannelTest extends TestCase {
     public void test_bounded_harmony6493() throws IOException {
         DatagramChannel server = DatagramChannel.open();
         InetSocketAddress addr = new InetSocketAddress("localhost", 0);
-        server.bind(addr);
-        SocketAddress boundedAddress = server.getLocalAddress();
+        server.socket().bind(addr);
+        SocketAddress boundedAddress = server.socket().getLocalSocketAddress();
 
         DatagramChannel client = DatagramChannel.open();
         ByteBuffer sent = ByteBuffer.allocate(1024);
@@ -2400,11 +2399,11 @@ public class DatagramChannelTest extends TestCase {
     public void test_bind_null() throws Exception {
         DatagramChannel dc = DatagramChannel.open();
         try {
-            assertNull(dc.getLocalAddress());
+            assertNull(dc.socket().getLocalSocketAddress());
 
-            dc.bind(null);
+            dc.socket().bind(null);
 
-            InetSocketAddress localAddress = (InetSocketAddress) dc.getLocalAddress();
+            InetSocketAddress localAddress = (InetSocketAddress) dc.socket().getLocalSocketAddress();
             assertTrue(localAddress.getAddress().isAnyLocalAddress());
             assertTrue(localAddress.getPort() > 0);
         } finally {
@@ -2416,7 +2415,7 @@ public class DatagramChannelTest extends TestCase {
         DatagramChannel dc = DatagramChannel.open();
         try {
             // Bind to a local address that is in use
-            dc.bind(channel1Address);
+            dc.socket().bind(channel1Address);
             fail();
         } catch (IOException expected) {
         } finally {
@@ -2429,38 +2428,25 @@ public class DatagramChannelTest extends TestCase {
         dc.close();
 
         try {
-            dc.bind(null);
+            dc.socket().bind(null);
             fail();
-        } catch (ClosedChannelException expected) {
-        } finally {
-            dc.close();
-        }
-    }
-
-    public void test_bind_twice() throws Exception {
-        DatagramChannel dc = DatagramChannel.open();
-        dc.bind(null);
-
-        try {
-            dc.bind(null);
-            fail();
-        } catch (AlreadyBoundException expected) {
+        } catch (IOException expected) {
         } finally {
             dc.close();
         }
     }
 
     public void test_bind_explicitPort() throws Exception {
-        InetSocketAddress address = (InetSocketAddress) channel1.getLocalAddress();
+        InetSocketAddress address = (InetSocketAddress) channel1.socket().getLocalSocketAddress();
         assertTrue(address.getPort() > 0);
 
         DatagramChannel dc = DatagramChannel.open();
         // Allow the socket to bind to a port we know is already in use.
         dc.socket().setReuseAddress(true);
         InetSocketAddress bindAddress = new InetSocketAddress("localhost", address.getPort());
-        dc.bind(bindAddress);
+        dc.socket().bind(bindAddress);
 
-        InetSocketAddress boundAddress = (InetSocketAddress) dc.getLocalAddress();
+        InetSocketAddress boundAddress = (InetSocketAddress) dc.socket().getLocalSocketAddress();
         assertEquals(bindAddress.getHostName(), boundAddress.getHostName());
         assertEquals(bindAddress.getPort(), boundAddress.getPort());
 
@@ -2471,16 +2457,16 @@ public class DatagramChannelTest extends TestCase {
     /** Checks that the SocketChannel and associated Socket agree on the socket state. */
     public void test_bind_socketSync() throws IOException {
         DatagramChannel dc = DatagramChannel.open();
-        assertNull(dc.getLocalAddress());
+        assertNull(dc.socket().getLocalSocketAddress());
 
         DatagramSocket socket = dc.socket();
         assertNull(socket.getLocalSocketAddress());
         assertFalse(socket.isBound());
 
         InetSocketAddress bindAddr = new InetSocketAddress("localhost", 0);
-        dc.bind(bindAddr);
+        dc.socket().bind(bindAddr);
 
-        InetSocketAddress actualAddr = (InetSocketAddress) dc.getLocalAddress();
+        InetSocketAddress actualAddr = (InetSocketAddress) dc.socket().getLocalSocketAddress();
         assertEquals(actualAddr, socket.getLocalSocketAddress());
         assertEquals(bindAddr.getHostName(), actualAddr.getHostName());
         assertTrue(socket.isBound());
@@ -2499,14 +2485,14 @@ public class DatagramChannelTest extends TestCase {
      */
     public void test_bind_socketSyncAfterBind() throws IOException {
         DatagramChannel dc = DatagramChannel.open();
-        assertNull(dc.getLocalAddress());
+        assertNull(dc.socket().getLocalSocketAddress());
 
         InetSocketAddress bindAddr = new InetSocketAddress("localhost", 0);
-        dc.bind(bindAddr);
+        dc.socket().bind(bindAddr);
 
         // Socket creation after bind().
         DatagramSocket socket = dc.socket();
-        InetSocketAddress actualAddr = (InetSocketAddress) dc.getLocalAddress();
+        InetSocketAddress actualAddr = (InetSocketAddress) dc.socket().getLocalSocketAddress();
         assertEquals(actualAddr, socket.getLocalSocketAddress());
         assertEquals(bindAddr.getHostName(), actualAddr.getHostName());
         assertTrue(socket.isBound());
@@ -2521,21 +2507,17 @@ public class DatagramChannelTest extends TestCase {
 
     public void test_getLocalSocketAddress_afterClose() throws IOException {
         DatagramChannel dc = DatagramChannel.open();
-        assertNull(dc.getLocalAddress());
+        assertNull(dc.socket().getLocalSocketAddress());
 
         InetSocketAddress bindAddr = new InetSocketAddress("localhost", 0);
-        dc.bind(bindAddr);
+        dc.socket().bind(bindAddr);
 
-        assertNotNull(dc.getLocalAddress());
+        assertNotNull(dc.socket().getLocalSocketAddress());
 
         dc.close();
 
         assertFalse(dc.isOpen());
 
-        try {
-            dc.getLocalAddress();
-            fail();
-        } catch (ClosedChannelException expected) {
-        }
+        dc.socket().getLocalSocketAddress();
     }
 }
