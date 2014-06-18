@@ -261,8 +261,7 @@ public class DecimalFormatTest extends junit.framework.TestCase {
       }
     }
 
-    // Confirm correct fractional digit handling in NumberFormat.getCurrencyInstance() /
-    // DecimalFormat.
+    // Confirm the fraction digits do not change when the currency is changed.
     public void testBug71369() {
         final String nonBreakingSpace = "\u00A0";
 
@@ -273,6 +272,14 @@ public class DecimalFormatTest extends junit.framework.TestCase {
 
         numberFormat.setMinimumFractionDigits(0);
         numberFormat.setMaximumFractionDigits(0);
-        assertEquals("2" + nonBreakingSpace + "$", numberFormat.format(2.01));
+
+        String expected = "2" + nonBreakingSpace + "$";
+        assertEquals(expected, numberFormat.format(2.01));
+
+        // Changing the currency must not reset the digits.
+        numberFormat.setCurrency(Currency.getInstance("EUR"));
+        numberFormat.setCurrency(Currency.getInstance("USD"));
+
+        assertEquals(expected, numberFormat.format(2.01));
     }
 }
