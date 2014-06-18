@@ -24,17 +24,77 @@ public class SystemArrayCopyBenchmark extends SimpleBenchmark {
           "2048", "4096", "8192", "16384", "32768", "65536", "131072", "262144"})
   int arrayLength;
 
-  // This copies a char array indirectly via String.getChars() as the
-  // System.arraycopy() call site optimization currently works within
-  // the core libraries only. Add direct System.arraycopy() benchmarks
-  // (including ones for other primitive types) later once this
-  // limitation goes away.
-  public void timeStringCharArrayCopy(int reps) {
+  // Provides benchmarking for different types of arrays using the arraycopy function.
+
+  public void timeSystemCharArrayCopy(int reps) {
     final int len = arrayLength;
+    char[] src = new char[len];
     char[] dst = new char[len];
-    String str = new String(new char[len]);
     for (int rep = 0; rep < reps; ++rep) {
-      str.getChars(0, len, dst, 0);
+      System.arraycopy(src, 0, dst, 0, len);
+    }
+  }
+
+  public void timeSystemByteArrayCopy(int reps) {
+    final int len = arrayLength;
+    byte[] src = new byte[len];
+    byte[] dst = new byte[len];
+    for (int rep = 0; rep < reps; ++rep) {
+      System.arraycopy(src, 0, dst, 0, len);
+    }
+  }
+
+  public void timeSystemShortArrayCopy(int reps) {
+    final int len = arrayLength;
+    short[] src = new short[len];
+    short[] dst = new short[len];
+    for (int rep = 0; rep < reps; ++rep) {
+      System.arraycopy(src, 0, dst, 0, len);
+    }
+  }
+
+  public void timeSystemIntArrayCopy(int reps) {
+    final int len = arrayLength;
+    int[] src = new int[len];
+    int[] dst = new int[len];
+    for (int rep = 0; rep < reps; ++rep) {
+      System.arraycopy(src, 0, dst, 0, len);
+    }
+  }
+
+  public void timeSystemLongArrayCopy(int reps) {
+    final int len = arrayLength;
+    long[] src = new long[len];
+    long[] dst = new long[len];
+    for (int rep = 0; rep < reps; ++rep) {
+      System.arraycopy(src, 0, dst, 0, len);
+    }
+  }
+
+  public void timeSystemFloatArrayCopy(int reps) {
+    final int len = arrayLength;
+    float[] src = new float[len];
+    float[] dst = new float[len];
+    for (int rep = 0; rep < reps; ++rep) {
+      System.arraycopy(src, 0, dst, 0, len);
+    }
+  }
+
+  public void timeSystemDoubleArrayCopy(int reps) {
+    final int len = arrayLength;
+    double[] src = new double[len];
+    double[] dst = new double[len];
+    for (int rep = 0; rep < reps; ++rep) {
+      System.arraycopy(src, 0, dst, 0, len);
+    }
+  }
+
+  public void timeSystemBooleanArrayCopy(int reps) {
+    final int len = arrayLength;
+    boolean[] src = new boolean[len];
+    boolean[] dst = new boolean[len];
+    for (int rep = 0; rep < reps; ++rep) {
+      System.arraycopy(src, 0, dst, 0, len);
     }
   }
 }
