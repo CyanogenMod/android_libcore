@@ -17,8 +17,8 @@ libcore_to_document := \
    dalvik/src/main/java/dalvik/annotation \
    dalvik/src/main/java/dalvik/bytecode \
    json/src/main/java \
-   libdvm/src/main/java/dalvik \
-   libdvm/src/main/java/java \
+   libart/src/main/java/dalvik \
+   libart/src/main/java/java \
    luni/src/main/java/android \
    luni/src/main/java/java \
    luni/src/main/java/javax \
