@@ -124,21 +124,21 @@ public class DecimalFormatTest extends junit.framework.TestCase {
         df.setMaximumFractionDigits(2);
         df.setMultiplier(2);
         assertEquals(df.format(BigDecimal.valueOf(0.16)),
-        df.format(BigDecimal.valueOf(0.16).doubleValue()));
+                df.format(BigDecimal.valueOf(0.16).doubleValue()));
         assertEquals(df.format(BigDecimal.valueOf(0.0293)),
-        df.format(BigDecimal.valueOf(0.0293).doubleValue()));
+                df.format(BigDecimal.valueOf(0.0293).doubleValue()));
         assertEquals(df.format(BigDecimal.valueOf(0.006)),
-        df.format(BigDecimal.valueOf(0.006).doubleValue()));
+                df.format(BigDecimal.valueOf(0.006).doubleValue()));
         assertEquals(df.format(BigDecimal.valueOf(0.00283)),
-        df.format(BigDecimal.valueOf(0.00283).doubleValue()));
+                df.format(BigDecimal.valueOf(0.00283).doubleValue()));
         assertEquals(df.format(BigDecimal.valueOf(1.60)),
         df.format(BigDecimal.valueOf(1.60).doubleValue()));
         assertEquals(df.format(BigDecimal.valueOf(15)),
-        df.format(BigDecimal.valueOf(15).doubleValue()));
+                df.format(BigDecimal.valueOf(15).doubleValue()));
         assertEquals(df.format(BigDecimal.valueOf(170)),
-        df.format(BigDecimal.valueOf(170).doubleValue()));
+                df.format(BigDecimal.valueOf(170).doubleValue()));
         assertEquals(df.format(BigDecimal.valueOf(234.56)),
-        df.format(BigDecimal.valueOf(234.56).doubleValue()));
+                df.format(BigDecimal.valueOf(234.56).doubleValue()));
         assertEquals(df.format(BigDecimal.valueOf(0)),
         df.format(BigDecimal.valueOf(0).doubleValue()));
         assertEquals(df.format(BigDecimal.valueOf(-1)),
@@ -146,11 +146,11 @@ public class DecimalFormatTest extends junit.framework.TestCase {
         assertEquals(df.format(BigDecimal.valueOf(-10000)),
         df.format(BigDecimal.valueOf(-10000).doubleValue()));
         assertEquals(df.format(BigDecimal.valueOf(-0.001)),
-        df.format(BigDecimal.valueOf(-0.001).doubleValue()));
+                df.format(BigDecimal.valueOf(-0.001).doubleValue()));
         assertEquals(df.format(BigDecimal.valueOf(1234567890.1234567)),
-        df.format(BigDecimal.valueOf(1234567890.1234567).doubleValue()));
+                df.format(BigDecimal.valueOf(1234567890.1234567).doubleValue()));
         assertEquals(df.format(BigDecimal.valueOf(1.234567E100)),
-        df.format(BigDecimal.valueOf(1.234567E100).doubleValue()));
+                df.format(BigDecimal.valueOf(1.234567E100).doubleValue()));
     }
 
     private void assertBigDecimalWithFraction(BigDecimal bd, String expectedResult, int fraction) {
@@ -281,5 +281,41 @@ public class DecimalFormatTest extends junit.framework.TestCase {
         numberFormat.setCurrency(Currency.getInstance("USD"));
 
         assertEquals(expected, numberFormat.format(2.01));
+    }
+
+    // Confirm the currency symbol used by a format is determined by the locale of the format
+    // not the current default Locale.
+    public void testSetCurrency_symbolOrigin() {
+        Currency currency = Currency.getInstance("CNY");
+        Locale locale1 = Locale.CHINA;
+        Locale locale2 = Locale.US;
+        String locale1Symbol = currency.getSymbol(locale1);
+        String locale2Symbol = currency.getSymbol(locale2);
+        // This test only works if we can tell where the symbol came from, which requires they are
+        // different across the two locales chosen.
+        assertFalse(locale1Symbol.equals(locale2Symbol));
+
+        Locale originalLocale = Locale.getDefault();
+        try {
+            Locale.setDefault(locale1);
+            String amountDefaultLocale1 =
+                    formatArbitraryCurrencyAmountInLocale(currency, locale2);
+
+            Locale.setDefault(locale2);
+            String amountDefaultLocale2 =
+                    formatArbitraryCurrencyAmountInLocale(currency, locale2);
+
+            // This used to fail because Currency.getSymbol() was used without providing the
+            // format's locale.
+            assertEquals(amountDefaultLocale1, amountDefaultLocale2);
+        } finally {
+            Locale.setDefault(originalLocale);
+        }
+    }
+
+    private String formatArbitraryCurrencyAmountInLocale(Currency currency, Locale locale) {
+        NumberFormat localeCurrencyFormat = NumberFormat.getCurrencyInstance(locale);
+        localeCurrencyFormat.setCurrency(currency);
+        return localeCurrencyFormat.format(1000);
     }
 }
