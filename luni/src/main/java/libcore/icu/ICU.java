@@ -434,17 +434,9 @@ public final class ICU {
 
   private static native String getDisplayScriptNative(String targetLanguageTag, String languageTag);
 
-  public static String getISO3Country(Locale locale) {
-    return getISO3CountryNative(locale.toLanguageTag());
-  }
+  public static native String getISO3Country(String languageTag);
 
-  private static native String getISO3CountryNative(String languageTag);
-
-  public static String getISO3Language(Locale locale) {
-    return getISO3LanguageNative(locale.toLanguageTag());
-  }
-
-  private static native String getISO3LanguageNative(String languageTag);
+  public static native String getISO3Language(String languageTag);
 
   public static native String addLikelySubtags(String locale);
   public static native String getScript(String locale);
