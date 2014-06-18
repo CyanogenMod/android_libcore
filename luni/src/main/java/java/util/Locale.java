@@ -1171,7 +1171,10 @@ public final class Locale implements Cloneable, Serializable {
      * @throws MissingResourceException if there's no 3-letter country code for this locale.
      */
     public String getISO3Country() {
-        String code = ICU.getISO3Country(this);
+        // The results of getISO3Country do not depend on the languageCode,
+        // so we pass an arbitrarily selected language code here. This guards
+        // against errors caused by malformed or invalid language codes.
+        String code = ICU.getISO3Country("en-" + countryCode);
         if (!countryCode.isEmpty() && code.isEmpty()) {
             throw new MissingResourceException("No 3-letter country code for locale: " + this, "FormatData_" + this, "ShortCountry");
         }
@@ -1191,8 +1194,9 @@ public final class Locale implements Cloneable, Serializable {
             return "";
         }
 
-        String code = ICU.getISO3Language(this);
-
+        // The results of getISO3Language do not depend on the country code
+        // or any of the other locale fields, so we pass just the language here.
+        String code = ICU.getISO3Language(languageCode);
         if (!languageCode.isEmpty() && code.isEmpty()) {
             throw new MissingResourceException("No 3-letter language code for locale: " + this, "FormatData_" + this, "ShortLanguage");
         }
