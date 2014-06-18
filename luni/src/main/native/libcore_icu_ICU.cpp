@@ -328,7 +328,7 @@ static jstring ICU_getDisplayVariantNative(JNIEnv* env, jclass, jstring javaTarg
   return env->NewString(str.getBuffer(), str.length());
 }
 
-static jstring ICU_getISO3CountryNative(JNIEnv* env, jclass, jstring javaLanguageTag) {
+static jstring ICU_getISO3Country(JNIEnv* env, jclass, jstring javaLanguageTag) {
   ScopedIcuLocale icuLocale(env, javaLanguageTag);
   if (!icuLocale.valid()) {
     return NULL;
@@ -336,7 +336,7 @@ static jstring ICU_getISO3CountryNative(JNIEnv* env, jclass, jstring javaLanguag
   return env->NewStringUTF(icuLocale.locale().getISO3Country());
 }
 
-static jstring ICU_getISO3LanguageNative(JNIEnv* env, jclass, jstring javaLanguageTag) {
+static jstring ICU_getISO3Language(JNIEnv* env, jclass, jstring javaLanguageTag) {
   ScopedIcuLocale icuLocale(env, javaLanguageTag);
   if (!icuLocale.valid()) {
     return NULL;
@@ -813,8 +813,8 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, getDisplayLanguageNative, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getDisplayScriptNative, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getDisplayVariantNative, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
-    NATIVE_METHOD(ICU, getISO3CountryNative, "(Ljava/lang/String;)Ljava/lang/String;"),
-    NATIVE_METHOD(ICU, getISO3LanguageNative, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(ICU, getISO3Country, "(Ljava/lang/String;)Ljava/lang/String;"),
+    NATIVE_METHOD(ICU, getISO3Language, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getISOCountriesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getISOLanguagesNative, "()[Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getIcuVersion, "()Ljava/lang/String;"),

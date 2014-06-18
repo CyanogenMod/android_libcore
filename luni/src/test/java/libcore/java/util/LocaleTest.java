@@ -186,6 +186,10 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("CAN", new Locale("", "CA").getISO3Country());
         assertEquals("CAN", new Locale("en", "CA").getISO3Country());
         assertEquals("CAN", new Locale("xx", "CA").getISO3Country());
+
+        // 3 letter country codes.
+        assertEquals("CAN", new Locale("en", "CAN").getISO3Country());
+        assertEquals("CAN", new Locale("frankenderp", "CAN").getISO3Country());
     }
 
     public void test_getISO3Language() {
@@ -205,6 +209,10 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("eng", new Locale("en", "").getISO3Language());
         assertEquals("eng", new Locale("en", "CA").getISO3Language());
         assertEquals("eng", new Locale("en", "XX").getISO3Language());
+
+        // 3 letter language code.
+        assertEquals("eng", new Locale("eng", "USA").getISO3Language());
+        assertEquals("eng", new Locale("eng", "US").getISO3Language());
     }
 
     public void test_Builder_setLanguage() {
