@@ -703,7 +703,7 @@ public abstract class Signature extends SignatureSpi {
 
         @Override
         public Object clone() throws CloneNotSupportedException {
-            SignatureSpi spi = (SignatureSpi) spiImpl.clone();
+            SignatureSpi spi = spiImpl != null ? (SignatureSpi) spiImpl.clone() : null;
             return new SignatureImpl(getAlgorithm(), getProvider(), spi);
         }
 
