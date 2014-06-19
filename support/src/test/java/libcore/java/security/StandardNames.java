@@ -717,8 +717,8 @@ public final class StandardNames extends Assert {
         addOpenSsl("TLS_PSK_WITH_3DES_EDE_CBC_SHA");
         addOpenSsl("TLS_PSK_WITH_AES_128_CBC_SHA");
         addOpenSsl("TLS_PSK_WITH_AES_256_CBC_SHA");
-        addOpenSsl("TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256");
-        addOpenSsl("TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA384");
+        addOpenSsl("TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA");
+        addOpenSsl("TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA");
 
         // RFC 5746's Signaling Cipher Suite Value to indicate a request for secure renegotiation
         addBoth(CIPHER_SUITE_SECURE_RENEGOTIATION);
