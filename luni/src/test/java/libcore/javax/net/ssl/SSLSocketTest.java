@@ -192,6 +192,16 @@ public class SSLSocketTest extends TestCase {
         assertNotSame(ssl.getEnabledCipherSuites(), ssl.getEnabledCipherSuites());
     }
 
+    public void test_SSLSocket_setEnabledCipherSuites_storesCopy() throws Exception {
+        SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        SSLSocket ssl = (SSLSocket) sf.createSocket();
+        String[] array = new String[] {ssl.getEnabledCipherSuites()[0]};
+        String originalFirstElement = array[0];
+        ssl.setEnabledCipherSuites(array);
+        array[0] = "Modified after having been set";
+        assertEquals(originalFirstElement, ssl.getEnabledCipherSuites()[0]);
+    }
+
     public void test_SSLSocket_setEnabledCipherSuites() throws Exception {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
@@ -232,6 +242,16 @@ public class SSLSocketTest extends TestCase {
         SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket ssl = (SSLSocket) sf.createSocket();
         assertNotSame(ssl.getEnabledProtocols(), ssl.getEnabledProtocols());
+    }
+
+    public void test_SSLSocket_setEnabledProtocols_storesCopy() throws Exception {
+        SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        SSLSocket ssl = (SSLSocket) sf.createSocket();
+        String[] array = new String[] {ssl.getEnabledProtocols()[0]};
+        String originalFirstElement = array[0];
+        ssl.setEnabledProtocols(array);
+        array[0] = "Modified after having been set";
+        assertEquals(originalFirstElement, ssl.getEnabledProtocols()[0]);
     }
 
     public void test_SSLSocket_setEnabledProtocols() throws Exception {
