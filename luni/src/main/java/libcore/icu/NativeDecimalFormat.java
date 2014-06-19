@@ -475,9 +475,9 @@ public final class NativeDecimalFormat implements Cloneable {
         setAttribute(this.address, UNUM_DECIMAL_ALWAYS_SHOWN, i);
     }
 
-    public void setCurrency(Currency currency) {
-        setSymbol(this.address, UNUM_CURRENCY_SYMBOL, currency.getSymbol());
-        setSymbol(this.address, UNUM_INTL_CURRENCY_SYMBOL, currency.getCurrencyCode());
+    public void setCurrency(String currencySymbol, String currencyCode) {
+        setSymbol(this.address, UNUM_CURRENCY_SYMBOL, currencySymbol);
+        setSymbol(this.address, UNUM_INTL_CURRENCY_SYMBOL, currencyCode);
     }
 
     public void setGroupingSize(int value) {
