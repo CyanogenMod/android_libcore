@@ -28,7 +28,18 @@ import java.util.Set;
 
 public class CurrencyTest extends junit.framework.TestCase {
 
-    private static Locale defaultLocale = Locale.getDefault();
+    private Locale originalLocale;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        originalLocale = Locale.getDefault();
+    }
+
+    @Override
+    protected void tearDown() {
+        Locale.setDefault(originalLocale);
+    }
 
     /**
      * java.util.Currency#getInstance(java.lang.String)
@@ -146,14 +157,16 @@ public class CurrencyTest extends junit.framework.TestCase {
         assertEquals("currUS.getSymbol()", "$", currUS.getSymbol());
         // END android-changed
 
-        // test what happens if this is an invalid locale,
-        // one with Korean country but an India language
+        // Test what happens if the default is an invalid locale, one with the country Korea (KR)
+        // but a currently unsupported language. "kr" == Kanuri (Korean is actually "ko").
+        // All these values are those defined in the "root" locale or the currency code if one isn't
+        // defined.
         Locale.setDefault(new Locale("kr", "KR"));
         // BEGIN android-changed
         assertEquals("currK.getSymbol()", "\u20a9", currK.getSymbol());
         assertEquals("currI.getSymbol()", "IEP", currI.getSymbol());
+        assertEquals("currUS.getSymbol()", "US$", currUS.getSymbol());
         // END android-changed
-        assertEquals("currUS.getSymbol()", "$", currUS.getSymbol());
     }
 
     /**
@@ -161,7 +174,7 @@ public class CurrencyTest extends junit.framework.TestCase {
      */
     public void test_getSymbolLjava_util_Locale() {
         //Tests was simplified because java specification not
-        // includes strong requirements for returnig symbol.
+        // includes strong requirements for returning symbol.
         // on android platform used wrong character for yen
         // sign: \u00a5 instead of \uffe5
         Locale[] desiredLocales = new Locale[]{
@@ -243,8 +256,6 @@ public class CurrencyTest extends junit.framework.TestCase {
             for (i = 0; i < loc1.length; i++) {
                 flag = false;
                 for  (j = 0; j < yen.length; j++) {
-                    byte[] b1 = null;
-                    byte[] b2 = null;
                     if (currJ.getSymbol(loc1[i]).equals(yen[j])) {
                         flag = true;
                         break;
@@ -390,39 +401,5 @@ public class CurrencyTest extends junit.framework.TestCase {
             assertEquals("For locale " + l + " Currency.toString method returns wrong value",
                     Currency.getInstance(l).toString(), d);
         }
-    }
-
-    protected void setUp() {
-        Locale.setDefault(defaultLocale);
-    }
-
-    protected void tearDown() {
-    }
-
-    /**
-     * Helper method to display Currency info
-     *
-     * @param c
-     */
-    private void printCurrency(Currency c) {
-        System.out.println();
-        System.out.println(c.getCurrencyCode());
-        System.out.println(c.getSymbol());
-        System.out.println(c.getDefaultFractionDigits());
-    }
-
-    /**
-     * helper method to display Locale info
-     */
-    private static void printLocale(Locale loc) {
-        System.out.println();
-        System.out.println(loc.getDisplayName());
-        System.out.println(loc.getCountry());
-        System.out.println(loc.getLanguage());
-        System.out.println(loc.getDisplayCountry());
-        System.out.println(loc.getDisplayLanguage());
-        System.out.println(loc.getDisplayName());
-        System.out.println(loc.getISO3Country());
-        System.out.println(loc.getISO3Language());
     }
 }
