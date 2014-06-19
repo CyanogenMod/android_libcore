@@ -111,7 +111,7 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
      * parameter types of this constructor. If the constructor was declared with
      * no parameters, an empty array will be returned.
      */
-    public Class<?>[] getParameterTypes() {
+    @Override public Class<?>[] getParameterTypes() {
         return super.getParameterTypes();
     }
 
