@@ -135,7 +135,7 @@ public abstract class AbstractMethod extends AccessibleObject {
      *
      * @return the parameter types
      */
-    public Class<?>[] getParameterTypes() {
+    Class<?>[] getParameterTypes() {
         return artMethod.getParameterTypes();
     }
 
