@@ -900,8 +900,9 @@ public class DecimalFormat extends NumberFormat {
      */
     @Override
     public void setCurrency(Currency currency) {
-        ndf.setCurrency(Currency.getInstance(currency.getCurrencyCode()));
-        symbols.setCurrency(currency);
+        Currency instance = Currency.getInstance(currency.getCurrencyCode());
+        symbols.setCurrency(instance);
+        ndf.setCurrency(symbols.getCurrencySymbol(), currency.getCurrencyCode());
     }
 
     /**
