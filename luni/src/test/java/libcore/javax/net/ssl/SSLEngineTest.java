@@ -282,6 +282,16 @@ public class SSLEngineTest extends TestCase {
         c.close();
     }
 
+    public void test_SSLEngine_setEnabledCipherSuites_storesCopy() throws Exception {
+        TestSSLContext c = TestSSLContext.create();
+        SSLEngine e = c.clientContext.createSSLEngine();
+        String[] array = new String[] {e.getEnabledCipherSuites()[0]};
+        String originalFirstElement = array[0];
+        e.setEnabledCipherSuites(array);
+        array[0] = "Modified after having been set";
+        assertEquals(originalFirstElement, e.getEnabledCipherSuites()[0]);
+    }
+
     public void test_SSLEngine_setEnabledCipherSuites() throws Exception {
         TestSSLContext c = TestSSLContext.create();
         SSLEngine e = c.clientContext.createSSLEngine();
@@ -326,6 +336,16 @@ public class SSLEngineTest extends TestCase {
         SSLEngine e = c.clientContext.createSSLEngine();
         assertNotSame(e.getEnabledProtocols(), e.getEnabledProtocols());
         c.close();
+    }
+
+    public void test_SSLEngine_setEnabledProtocols_storesCopy() throws Exception {
+        TestSSLContext c = TestSSLContext.create();
+        SSLEngine e = c.clientContext.createSSLEngine();
+        String[] array = new String[] {e.getEnabledProtocols()[0]};
+        String originalFirstElement = array[0];
+        e.setEnabledProtocols(array);
+        array[0] = "Modified after having been set";
+        assertEquals(originalFirstElement, e.getEnabledProtocols()[0]);
     }
 
     public void test_SSLEngine_setEnabledProtocols() throws Exception {

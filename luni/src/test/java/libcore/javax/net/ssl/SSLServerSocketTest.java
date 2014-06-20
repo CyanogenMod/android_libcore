@@ -36,11 +36,31 @@ public class SSLServerSocketTest extends TestCase {
     assertEquals(Arrays.asList(cipherSuites), Arrays.asList(socket.getEnabledCipherSuites()));
   }
 
+  public void testSetEnabledCipherSuitesStoresCopy() throws Exception {
+      SSLServerSocket socket =
+              (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket();
+      String[] array = new String[] {socket.getEnabledCipherSuites()[0]};
+      String originalFirstElement = array[0];
+      socket.setEnabledCipherSuites(array);
+      array[0] = "Modified after having been set";
+      assertEquals(originalFirstElement, socket.getEnabledCipherSuites()[0]);
+  }
+
   public void testSetEnabledProtocolsAffectsGetter() throws Exception {
     SSLServerSocket socket =
         (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket();
     String[] protocols = new String[] {socket.getSupportedProtocols()[0]};
     socket.setEnabledProtocols(protocols);
     assertEquals(Arrays.asList(protocols), Arrays.asList(socket.getEnabledProtocols()));
+  }
+
+  public void testSetEnabledProtocolsStoresCopy() throws Exception {
+      SSLServerSocket socket =
+              (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket();
+      String[] array = new String[] {socket.getEnabledProtocols()[0]};
+      String originalFirstElement = array[0];
+      socket.setEnabledProtocols(array);
+      array[0] = "Modified after having been set";
+      assertEquals(originalFirstElement, socket.getEnabledProtocols()[0]);
   }
 }
