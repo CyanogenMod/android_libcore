@@ -131,7 +131,6 @@ package java.util.concurrent;
  * }}</pre>
  *
  * @since 1.7
- * @hide 1.7
  * @author Doug Lea
  */
 public abstract class RecursiveAction extends ForkJoinTask<Void> {

@@ -57,7 +57,6 @@ import java.util.Queue;
  * the {@code ConcurrentLinkedDeque} in another thread.
  *
  * @since 1.7
- * @hide 1.7
  * @author Doug Lea
  * @author Martin Buchholz
  * @param <E> the type of elements held in this collection

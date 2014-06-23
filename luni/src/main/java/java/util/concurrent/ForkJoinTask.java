@@ -175,7 +175,6 @@ import java.lang.reflect.Constructor;
  * execution. Serialization is not relied on during execution itself.
  *
  * @since 1.7
- * @hide 1.7
  * @author Doug Lea
  */
 public abstract class ForkJoinTask<V> implements Future<V>, Serializable {

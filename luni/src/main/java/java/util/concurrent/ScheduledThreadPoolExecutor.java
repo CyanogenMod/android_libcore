@@ -690,7 +690,6 @@ public class ScheduledThreadPoolExecutor
      * @param value if {@code true}, remove on cancellation, else don't
      * @see #getRemoveOnCancelPolicy
      * @since 1.7
-     * @hide 1.7
      */
     public void setRemoveOnCancelPolicy(boolean value) {
         removeOnCancel = value;
@@ -705,7 +704,6 @@ public class ScheduledThreadPoolExecutor
      *         from the queue
      * @see #setRemoveOnCancelPolicy
      * @since 1.7
-     * @hide 1.7
      */
     public boolean getRemoveOnCancelPolicy() {
         return removeOnCancel;
