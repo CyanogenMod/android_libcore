@@ -127,48 +127,17 @@ public final class Console implements Flushable {
     }
 
     /**
-     * Reads a password from the console. The password will not be echoed to the display.
-     *
-     * @return a character array containing the password, or null at EOF.
+     * This method is unimplemented on Android.
      */
     public char[] readPassword() {
-        synchronized (CONSOLE_LOCK) {
-            int previousState = setEcho(false, 0);
-            try {
-                String password = readLine();
-                writer.println(); // We won't have echoed the user's newline.
-                return (password == null) ? null : password.toCharArray();
-            } finally {
-                setEcho(true, previousState);
-            }
-        }
+        throw new UnsupportedOperationException();
     }
-
-    private static int setEcho(boolean on, int previousState) {
-        try {
-            return setEchoImpl(on, previousState);
-        } catch (IOException ex) {
-            throw new IOError(ex);
-        }
-    }
-    private static native int setEchoImpl(boolean on, int previousState) throws IOException;
 
     /**
-     * Reads a password from the console. The password will not be echoed to the display.
-     * A formatted prompt is also displayed.
-     *
-     * @param format the format string (see {@link java.util.Formatter#format})
-     * @param args
-     *            the list of arguments passed to the formatter. If there are
-     *            more arguments than required by {@code format},
-     *            additional arguments are ignored.
-     * @return a character array containing the password, or null at EOF.
+     * This method is unimplemented on Android.
      */
     public char[] readPassword(String format, Object... args) {
-        synchronized (CONSOLE_LOCK) {
-            format(format, args);
-            return readPassword();
-        }
+        throw new UnsupportedOperationException();
     }
 
     /**

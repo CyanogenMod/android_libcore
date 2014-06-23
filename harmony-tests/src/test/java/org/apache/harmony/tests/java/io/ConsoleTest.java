@@ -95,12 +95,6 @@ public class ConsoleTest extends TestCase {
         assertEquals("2 Please input a line of string to test:", prompt);
     }
 
-    public void test_readPassword_LString_LObject() {
-        console.readPassword("%d", 3);
-        String prompt = new String(((ByteArrayOutputStream) out).toByteArray());
-        assertEquals("3\n", prompt);
-    }
-
     /**
      * {@link java.io.Console#writer()}
      */
