@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import libcore.java.lang.ref.FinalizationTester;
 
 import tests.support.Support_MapTest2;
 
@@ -204,13 +205,18 @@ public class WeakHashMapTest extends junit.framework.TestCase {
         values = null;
         keyArray[50] = null;
 
-        int count = 0;
+        FinalizationTester.induceFinalization();
+        long startTime = System.currentTimeMillis();
+        // We use a busy wait loop here since we can not know when the ReferenceQueue
+        // daemon will enqueue the cleared references on their internal reference
+        // queues. The current timeout is 5 seconds.
         do {
-            System.gc();
-            System.gc();
-            Runtime.getRuntime().runFinalization();
-            count++;
-        } while (count <= 5 && entrySet.size() == 100);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+            }
+        } while (entrySet.size() != 99 &&
+                 System.currentTimeMillis() - startTime < 5000);
 
         assertTrue(
                 "Incorrect number of entries returned after gc--wanted 99, got: "
