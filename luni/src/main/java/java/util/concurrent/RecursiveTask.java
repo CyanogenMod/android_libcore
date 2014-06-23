@@ -34,7 +34,6 @@ package java.util.concurrent;
  * sequentially solve rather than subdividing.
  *
  * @since 1.7
- * @hide 1.7
  * @author Doug Lea
  */
 public abstract class RecursiveTask<V> extends ForkJoinTask<V> {
