@@ -102,7 +102,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      *            the locale.
      */
     public DateFormatSymbols(Locale locale) {
-        this.locale = locale;
+        this.locale = LocaleData.mapInvalidAndNullLocales(locale);
         this.localPatternChars = SimpleDateFormat.PATTERN_CHARS;
 
         this.localeData = LocaleData.get(locale);
@@ -152,7 +152,12 @@ public class DateFormatSymbols implements Serializable, Cloneable {
 
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
-        this.localeData = LocaleData.get(locale);
+
+        // NOTE: We don't serialize the locale we were created with, so we can't
+        // get back the localeData object we want. This is broken for callers that
+        // access this field directly (i.e, SimpleDateFormat). We should ideally
+        // have serialized the locale we were created with.
+        this.localeData = LocaleData.get(Locale.getDefault());
     }
 
     private void writeObject(ObjectOutputStream oos) throws IOException {
