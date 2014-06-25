@@ -149,25 +149,25 @@ public abstract interface ObjectStreamConstants {
     // Flags that indicate if the object was serializable, externalizable
     // and had a writeObject method when dumped.
     /**
-     * Bit mask for the {@code flag} field in ObjectStreamClass. Indicates
-     * that a serializable class has its own {@code writeObject} method.
+     * Bit mask for the {@code flag} field in {@link ObjectStreamClass}. Indicates
+     * that a {@link Serializable} class has its own {@code writeObject} method.
      */
     public static final byte SC_WRITE_METHOD = 0x01; // If SC_SERIALIZABLE
 
     /**
-     * Bit mask for the {@code flag} field in ObjectStreamClass. Indicates
-     * that a class is serializable.
+     * Bit mask for the {@code flag} field in {@link ObjectStreamClass}. Indicates
+     * that a class implements {@link Serializable} but not {@link Externalizable}.
      */
     public static final byte SC_SERIALIZABLE = 0x02;
 
     /**
-     * Bit mask for the {@code flag} field in ObjectStreamClass. Indicates
-     * that a class is externalizable.
+     * Bit mask for the {@code flag} field in {@link ObjectStreamClass}. Indicates
+     * that a class implements {@link Externalizable}.
      */
     public static final byte SC_EXTERNALIZABLE = 0x04;
 
     /**
-     * Bit mask for the {@code flag} field in ObjectStreamClass. Indicates
+     * Bit mask for the {@code flag} field in {@link ObjectStreamClass}. Indicates
      * that an externalizable class is written in block data mode.
      */
     public static final byte SC_BLOCK_DATA = 0x08; // If SC_EXTERNALIZABLE
@@ -178,7 +178,7 @@ public abstract interface ObjectStreamConstants {
     public static final byte TC_ENUM = 0x7E;
 
     /**
-     * Bit mask for the {@code flag} field in ObjectStreamClass. Indicates
+     * Bit mask for the {@code flag} field in {@link ObjectStreamClass}. Indicates
      * that a class is an enum type.
      */
     public static final byte SC_ENUM = 0x10;
