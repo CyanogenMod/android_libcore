@@ -868,7 +868,7 @@ static jint Posix_gettid(JNIEnv* env __unused, jobject) {
   int rc = pthread_threadid_np(NULL, &owner);  // Requires Mac OS 10.6
   if (rc != 0) {
     throwErrnoException(env, "gettid");
-    return NULL;
+    return 0;
   }
   return static_cast<jint>(owner);
 #else
