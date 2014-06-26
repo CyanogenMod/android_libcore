@@ -376,4 +376,71 @@ public class StringTest extends TestCase {
         assertEquals("[-77, -10, -64, -76]", Arrays.toString("出来".getBytes("gbk")));
         assertEquals("[-77, -10]", Arrays.toString("出".getBytes("gbk")));
     }
+
+    public void test_compareTo() throws Exception {
+        // For strings where a character differs, the result is
+        // the difference between the characters.
+        assertEquals(-1, "a".compareTo("b"));
+        assertEquals(-2, "a".compareTo("c"));
+        assertEquals(1, "b".compareTo("a"));
+        assertEquals(2, "c".compareTo("a"));
+
+        // For strings where the characters match up to the length of the shorter,
+        // the result is the difference between the strings' lengths.
+        assertEquals(0, "a".compareTo("a"));
+        assertEquals(-1, "a".compareTo("aa"));
+        assertEquals(-1, "a".compareTo("az"));
+        assertEquals(-2, "a".compareTo("aaa"));
+        assertEquals(-2, "a".compareTo("azz"));
+        assertEquals(-3, "a".compareTo("aaaa"));
+        assertEquals(-3, "a".compareTo("azzz"));
+        assertEquals(0, "a".compareTo("a"));
+        assertEquals(1, "aa".compareTo("a"));
+        assertEquals(1, "az".compareTo("a"));
+        assertEquals(2, "aaa".compareTo("a"));
+        assertEquals(2, "azz".compareTo("a"));
+        assertEquals(3, "aaaa".compareTo("a"));
+        assertEquals(3, "azzz".compareTo("a"));
+    }
+
+    public void test_compareToIgnoreCase() throws Exception {
+        // For strings where a character differs, the result is
+        // the difference between the characters.
+        assertEquals(-1, "a".compareToIgnoreCase("b"));
+        assertEquals(-1, "a".compareToIgnoreCase("B"));
+        assertEquals(-2, "a".compareToIgnoreCase("c"));
+        assertEquals(-2, "a".compareToIgnoreCase("C"));
+        assertEquals(1, "b".compareToIgnoreCase("a"));
+        assertEquals(1, "B".compareToIgnoreCase("a"));
+        assertEquals(2, "c".compareToIgnoreCase("a"));
+        assertEquals(2, "C".compareToIgnoreCase("a"));
+
+        // For strings where the characters match up to the length of the shorter,
+        // the result is the difference between the strings' lengths.
+        assertEquals(0, "a".compareToIgnoreCase("a"));
+        assertEquals(0, "a".compareToIgnoreCase("A"));
+        assertEquals(0, "A".compareToIgnoreCase("a"));
+        assertEquals(0, "A".compareToIgnoreCase("A"));
+        assertEquals(-1, "a".compareToIgnoreCase("aa"));
+        assertEquals(-1, "a".compareToIgnoreCase("aA"));
+        assertEquals(-1, "a".compareToIgnoreCase("Aa"));
+        assertEquals(-1, "a".compareToIgnoreCase("az"));
+        assertEquals(-1, "a".compareToIgnoreCase("aZ"));
+        assertEquals(-2, "a".compareToIgnoreCase("aaa"));
+        assertEquals(-2, "a".compareToIgnoreCase("AAA"));
+        assertEquals(-2, "a".compareToIgnoreCase("azz"));
+        assertEquals(-2, "a".compareToIgnoreCase("AZZ"));
+        assertEquals(-3, "a".compareToIgnoreCase("aaaa"));
+        assertEquals(-3, "a".compareToIgnoreCase("AAAA"));
+        assertEquals(-3, "a".compareToIgnoreCase("azzz"));
+        assertEquals(-3, "a".compareToIgnoreCase("AZZZ"));
+        assertEquals(1, "aa".compareToIgnoreCase("a"));
+        assertEquals(1, "aA".compareToIgnoreCase("a"));
+        assertEquals(1, "Aa".compareToIgnoreCase("a"));
+        assertEquals(1, "az".compareToIgnoreCase("a"));
+        assertEquals(2, "aaa".compareToIgnoreCase("a"));
+        assertEquals(2, "azz".compareToIgnoreCase("a"));
+        assertEquals(3, "aaaa".compareToIgnoreCase("a"));
+        assertEquals(3, "azzz".compareToIgnoreCase("a"));
+    }
 }
