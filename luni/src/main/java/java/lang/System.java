@@ -192,7 +192,7 @@ public final class System {
         if (src.getClass() != dst.getClass() || dst.getClass() != Object[].class ||
             dst.getClass().isAssignableFrom(src.getClass())) {
             // Call the native version if we can't easily deal with it here.
-            arraycopy(src, srcPos, dst, dstPos, length);
+            arraycopy((Object) src, srcPos, (Object) dst, dstPos, length);
         }
         if (src == null) {
             throw new NullPointerException("src == null");
@@ -223,7 +223,7 @@ public final class System {
             }
         } else {
             // Call the native version for longer arrays.
-            arraycopy(src, srcPos, dst, dstPos, length);
+            arraycopy((Object) src, srcPos, (Object) dst, dstPos, length);
         }
     }
 
@@ -497,7 +497,7 @@ public final class System {
      * (non-native) version of arraycopy() instead of the native
      * version. See b/7103825.
      */
-    private static final int ARRAYCOPY_SHORT_FLOAT_ARRAY_THRESHOLD = 2;
+    private static final int ARRAYCOPY_SHORT_FLOAT_ARRAY_THRESHOLD = 16;
 
     /**
      * The float[] specialized version of arraycopy().
