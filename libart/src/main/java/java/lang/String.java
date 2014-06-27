@@ -31,23 +31,22 @@ import java.util.regex.Pattern;
 import libcore.util.EmptyArray;
 
 /**
- * An immutable sequence of characters/code units ({@code char}s). A
- * {@code String} is represented by array of UTF-16 values, such that
- * Unicode supplementary characters (code points) are stored/encoded as
- * surrogate pairs via Unicode code units ({@code char}).
+ * An immutable sequence of UTF-16 {@code char}s.
+ * See {@link Character} for details about the relationship between {@code char} and
+ * Unicode code points.
  *
  * <a name="backing_array"><h3>Backing Arrays</h3></a>
- * This class is implemented using a char[]. The length of the array may exceed
+ * This class is implemented using a {@code char[]}. The length of the array may exceed
  * the length of the string. For example, the string "Hello" may be backed by
  * the array {@code ['H', 'e', 'l', 'l', 'o', 'W'. 'o', 'r', 'l', 'd']} with
  * offset 0 and length 5.
  *
- * <p>Multiple strings can share the same char[] because strings are immutable.
+ * <p>Multiple strings can share the same {@code char[]} because strings are immutable.
  * The {@link #substring} method <strong>always</strong> returns a string that
  * shares the backing array of its source string. Generally this is an
- * optimization: fewer character arrays need to be allocated, and less copying
+ * optimization: fewer {@code char[]}s need to be allocated, and less copying
  * is necessary. But this can also lead to unwanted heap retention. Taking a
- * short substring of long string means that the long shared char[] won't be
+ * short substring of long string means that the long shared {@code char[]} won't be
  * garbage until both strings are garbage. This typically happens when parsing
  * small substrings out of a large input. To avoid this where necessary, call
  * {@code new String(longString.subString(...))}. The string copy constructor
@@ -64,23 +63,12 @@ public final class String implements Serializable, Comparable<String>, CharSeque
 
     private static final char REPLACEMENT_CHAR = (char) 0xfffd;
 
-    /**
-     * CaseInsensitiveComparator compares Strings ignoring the case of the
-     * characters.
-     */
     private static final class CaseInsensitiveComparator implements
             Comparator<String>, Serializable {
         private static final long serialVersionUID = 8575799808933029326L;
 
         /**
-         * Compare the two objects to determine the relative ordering.
-         *
-         * @param o1
-         *            an Object to compare
-         * @param o2
-         *            an Object to compare
-         * @return an int < 0 if object1 is less than object2, 0 if they are
-         *         equal, and > 0 if object1 is greater
+         * See {@link java.lang.String#compareToIgnoreCase}.
          *
          * @exception ClassCastException
          *                if objects are not the correct type
@@ -91,7 +79,9 @@ public final class String implements Serializable, Comparable<String>, CharSeque
     }
 
     /**
-     * A comparator ignoring the case of the characters.
+     * Compares strings using {@link #compareToIgnoreCase}.
+     * This is not suitable for case-insensitive string comparison for all locales.
+     * Use a {@link java.text.Collator} instead.
      */
     public static final Comparator<String> CASE_INSENSITIVE_ORDER = new CaseInsensitiveComparator();
 
@@ -131,7 +121,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
 
     /**
      * Converts the byte array to a string, setting the high byte of every
-     * character to the specified value.
+     * {@code char} to the specified value.
      *
      * @param data
      *            the byte array to convert to a string.
@@ -161,7 +151,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
 
     /**
      * Converts the byte array to a string, setting the high byte of every
-     * character to {@code high}.
+     * {@code char} to {@code high}.
      *
      * @throws NullPointerException
      *             if {@code data == null}.
@@ -220,7 +210,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      * Converts the byte array to a string using the given charset.
      *
      * <p>The behavior when the bytes cannot be decoded by the given charset
-     * is to replace malformed input and unmappable characters with the charset's default
+     * is to replace malformed input and unmappable code points with the charset's default
      * replacement string. Use {@link java.nio.charset.CharsetDecoder} for more control.
      *
      * @throws IndexOutOfBoundsException
@@ -382,8 +372,8 @@ outer:
     }
 
     /**
-     * Initializes this string to contain the characters in the specified
-     * character array. Modifying the character array after creating the string
+     * Initializes this string to contain the given {@code char}s.
+     * Modifying the array after creating the string
      * has no effect on the string.
      *
      * @throws NullPointerException if {@code data == null}
@@ -393,8 +383,8 @@ outer:
     }
 
     /**
-     * Initializes this string to contain the specified characters in the
-     * character array. Modifying the character array after creating the string
+     * Initializes this string to contain the given {@code char}s.
+     * Modifying the array after creating the string
      * has no effect on the string.
      *
      * @throws NullPointerException
@@ -414,7 +404,7 @@ outer:
 
     /*
      * Internal version of the String(char[], int, int) constructor.
-     * Does not range check, null check, or copy the character array.
+     * Does not range check, null check, or copy the array.
      */
     String(int offset, int charCount, char[] chars) {
         this.value = chars;
@@ -423,8 +413,8 @@ outer:
     }
 
     /**
-     * Constructs a new string with the same sequence of characters as {@code
-     * toCopy}. The returned string's <a href="#backing_array">backing array</a>
+     * Constructs a copy of the given string.
+     * The returned string's <a href="#backing_array">backing array</a>
      * is no larger than necessary.
      */
     public String(String toCopy) {
@@ -496,7 +486,7 @@ outer:
     }
 
     /**
-     * Returns the character at {@code index}.
+     * Returns the {@code char} at {@code index}.
      * @throws IndexOutOfBoundsException if {@code index < 0} or {@code index >= length()}.
      */
     public char charAt(int index) {
@@ -533,44 +523,36 @@ outer:
     }
 
     /**
-     * Compares the specified string to this string using the Unicode values of
-     * the characters. Returns 0 if the strings contain the same characters in
-     * the same order. Returns a negative integer if the first non-equal
-     * character in this string has a Unicode value which is less than the
-     * Unicode value of the character at the same position in the specified
-     * string, or if this string is a prefix of the specified string. Returns a
-     * positive integer if the first non-equal character in this string has a
-     * Unicode value which is greater than the Unicode value of the character at
-     * the same position in the specified string, or if the specified string is
-     * a prefix of this string.
+     * Compares this string to the given string.
      *
-     * @param string
-     *            the string to compare.
-     * @return 0 if the strings are equal, a negative integer if this string is
-     *         before the specified string, or a positive integer if this string
-     *         is after the specified string.
+     * <p>The strings are compared one {@code char} at a time.
+     * In the discussion of the return value below, note that {@code char} does not
+     * mean code point, though this should only be visible for surrogate pairs.
+     *
+     * <p>If there is an index at which the two strings differ, the result is
+     * the difference between the two {@code char}s at the lowest such index.
+     * If not, but the lengths of the strings differ, the result is the difference
+     * between the two strings' lengths.
+     * If the strings are the same length and every {@code char} is the same, the result is 0.
+     *
      * @throws NullPointerException
      *             if {@code string} is {@code null}.
      */
     public native int compareTo(String string);
 
     /**
-     * Compares the specified string to this string using the Unicode values of
-     * the characters, ignoring case differences. Returns 0 if the strings
-     * contain the same characters in the same order. Returns a negative integer
-     * if the first non-equal character in this string has a Unicode value which
-     * is less than the Unicode value of the character at the same position in
-     * the specified string, or if this string is a prefix of the specified
-     * string. Returns a positive integer if the first non-equal character in
-     * this string has a Unicode value which is greater than the Unicode value
-     * of the character at the same position in the specified string, or if the
-     * specified string is a prefix of this string.
+     * Compares this string to the given string, ignoring case differences.
      *
-     * @param string
-     *            the string to compare.
-     * @return 0 if the strings are equal, a negative integer if this string is
-     *         before the specified string, or a positive integer if this string
-     *         is after the specified string.
+     * <p>The strings are compared one {@code char} at a time. This is not suitable
+     * for case-insensitive string comparison for all locales.
+     * Use a {@link java.text.Collator} instead.
+     *
+     * <p>If there is an index at which the two strings differ, the result is
+     * the difference between the two {@code char}s at the lowest such index.
+     * If not, but the lengths of the strings differ, the result is the difference
+     * between the two strings' lengths.
+     * If the strings are the same length and every {@code char} is the same, the result is 0.
+     *
      * @throws NullPointerException
      *             if {@code string} is {@code null}.
      */
@@ -611,13 +593,10 @@ outer:
     }
 
     /**
-     * Creates a new string containing the characters in the specified character
-     * array. Modifying the character array after creating the string has no
+     * Creates a new string by copying the given {@code char[]}.
+     * Modifying the array after creating the string has no
      * effect on the string.
      *
-     * @param data
-     *            the array of characters.
-     * @return the new string.
      * @throws NullPointerException
      *             if {@code data} is {@code null}.
      */
@@ -626,17 +605,10 @@ outer:
     }
 
     /**
-     * Creates a new string containing the specified characters in the character
-     * array. Modifying the character array after creating the string has no
+     * Creates a new string by copying the given subsequence of the given {@code char[]}.
+     * Modifying the array after creating the string has no
      * effect on the string.
-     *
-     * @param data
-     *            the array of characters.
-     * @param start
-     *            the starting offset in the character array.
-     * @param length
-     *            the number of characters to use.
-     * @return the new string.
+
      * @throws NullPointerException
      *             if {@code data} is {@code null}.
      * @throws IndexOutOfBoundsException
@@ -651,10 +623,6 @@ outer:
      * Compares the specified string to this string to determine if the
      * specified string is a suffix.
      *
-     * @param suffix
-     *            the suffix to look for.
-     * @return {@code true} if the specified string is a suffix of this string,
-     *         {@code false} otherwise.
      * @throws NullPointerException
      *             if {@code suffix} is {@code null}.
      */
@@ -663,15 +631,9 @@ outer:
     }
 
     /**
-     * Compares the specified object to this string and returns true if they are
-     * equal. The object must be an instance of string with the same characters
-     * in the same order.
-     *
-     * @param other
-     *            the object to compare.
-     * @return {@code true} if the specified object is equal to this string,
-     *         {@code false} otherwise.
-     * @see #hashCode
+     * Compares the given object to this string and returns true if they are
+     * equal. The object must be an instance of {@code String} with the same length,
+     * where for every index, {@code charAt} on each string returns the same value.
      */
     @Override public boolean equals(Object other) {
         if (other == this) {
@@ -710,13 +672,11 @@ outer:
     }
 
     /**
-     * Compares the specified string to this string ignoring the case of the
-     * characters and returns true if they are equal.
+     * Compares the given string to this string ignoring case.
      *
-     * @param string
-     *            the string to compare.
-     * @return {@code true} if the specified string is equal to this string,
-     *         {@code false} otherwise.
+     * <p>The strings are compared one {@code char} at a time. This is not suitable
+     * for case-insensitive string comparison for all locales.
+     * Use a {@link java.text.Collator} instead.
      */
     @FindBugsSuppressWarnings("ES_COMPARING_PARAMETER_STRING_WITH_EQ")
     public boolean equalsIgnoreCase(String string) {
@@ -740,17 +700,17 @@ outer:
     }
 
     /**
-     * Mangles this string into a byte array by stripping the high order bits from
-     * each character. Use {@link #getBytes()} or {@link #getBytes(String)} instead.
+     * Mangles a subsequence of this string into a byte array by stripping the high order bits from
+     * each {@code char}. Use {@link #getBytes()} or {@link #getBytes(String)} instead.
      *
      * @param start
-     *            the starting offset of characters to copy.
+     *            the start offset in this string.
      * @param end
-     *            the ending offset of characters to copy.
+     *            the end+1 offset in this string.
      * @param data
      *            the destination byte array.
      * @param index
-     *            the starting offset in the destination byte array.
+     *            the start offset in the destination byte array.
      * @throws NullPointerException
      *             if {@code data} is {@code null}.
      * @throws IndexOutOfBoundsException
@@ -760,7 +720,6 @@ outer:
      */
     @Deprecated
     public void getBytes(int start, int end, byte[] data, int index) {
-        // Note: last character not copied!
         if (start >= 0 && start <= end && end <= count) {
             end += offset;
             try {
@@ -776,7 +735,7 @@ outer:
     }
 
     /**
-     * Returns a new byte array containing the characters of this string encoded using the
+     * Returns a new byte array containing the code points in this string encoded using the
      * system's {@link java.nio.charset.Charset#defaultCharset default charset}.
      *
      * <p>The behavior when this string cannot be represented in the system's default charset
@@ -788,7 +747,7 @@ outer:
     }
 
     /**
-     * Returns a new byte array containing the characters of this string encoded using the
+     * Returns a new byte array containing the code points of this string encoded using the
      * named charset.
      *
      * <p>The behavior when this string cannot be represented in the named charset
@@ -801,11 +760,11 @@ outer:
     }
 
     /**
-     * Returns a new byte array containing the characters of this string encoded using the
+     * Returns a new byte array containing the code points of this string encoded using the
      * given charset.
      *
      * <p>The behavior when this string cannot be represented in the given charset
-     * is to replace malformed input and unmappable characters with the charset's default
+     * is to replace malformed input and unmappable code points with the charset's default
      * replacement byte array. Use {@link java.nio.charset.CharsetEncoder} for more control.
      *
      * @since 1.6
@@ -830,17 +789,17 @@ outer:
     }
 
     /**
-     * Copies the specified characters in this string to the character array
-     * starting at the specified offset in the character array.
+     * Copies the given subsequence of this string to the given array
+     * starting at the given offset.
      *
      * @param start
-     *            the starting offset of characters to copy.
+     *            the start offset in this string.
      * @param end
-     *            the ending offset of characters to copy.
+     *            the end+1 offset in this string.
      * @param buffer
-     *            the destination character array.
+     *            the destination array.
      * @param index
-     *            the starting offset in the character array.
+     *            the start offset in the destination array.
      * @throws NullPointerException
      *             if {@code buffer} is {@code null}.
      * @throws IndexOutOfBoundsException
@@ -849,7 +808,6 @@ outer:
      *             index}
      */
     public void getChars(int start, int end, char[] buffer, int index) {
-        // Note: last character not copied!
         if (start >= 0 && start <= end && end <= count) {
             System.arraycopy(value, start + offset, buffer, index, end - start);
         } else {
@@ -859,12 +817,11 @@ outer:
     }
 
     /**
-     * Version of getChars without bounds checks, for use by other classes
+     * getChars without bounds checks, for use by other classes
      * within the java.lang package only.  The caller is responsible for
      * ensuring that start >= 0 && start <= end && end <= count.
      */
     void _getChars(int start, int end, char[] buffer, int index) {
-        // NOTE last character not copied!
         System.arraycopy(value, start + offset, buffer, index, end - start);
     }
 
@@ -885,14 +842,9 @@ outer:
     }
 
     /**
-     * Searches in this string for the first index of the specified character.
-     * The search for the character starts at the beginning and moves towards
+     * Returns the first index of the given code point, or -1.
+     * The search starts at the beginning and moves towards
      * the end of this string.
-     *
-     * @param c
-     *            the character to find.
-     * @return the index in this string of the specified character, -1 if the
-     *         character isn't found.
      */
     public int indexOf(int c) {
         // TODO: just "return indexOf(c, 0);" when the JIT can inline that deep.
@@ -903,16 +855,9 @@ outer:
     }
 
     /**
-     * Searches in this string for the index of the specified character. The
-     * search for the character starts at the specified offset and moves towards
+     * Returns the next index of the given code point, or -1. The
+     * search starts at the given offset and moves towards
      * the end of this string.
-     *
-     * @param c
-     *            the character to find.
-     * @param start
-     *            the starting offset.
-     * @return the index in this string of the specified character, -1 if the
-     *         character isn't found.
      */
     public int indexOf(int c, int start) {
         if (c > 0xffff) {
@@ -933,14 +878,10 @@ outer:
     }
 
     /**
-     * Searches in this string for the first index of the specified string. The
-     * search for the string starts at the beginning and moves towards the end
+     * Returns the first index of the given string, or -1. The
+     * search starts at the beginning and moves towards the end
      * of this string.
      *
-     * @param string
-     *            the string to find.
-     * @return the index of the first character of the specified string in this
-     *         string, -1 if the specified string is not a substring.
      * @throws NullPointerException
      *             if {@code string} is {@code null}.
      */
@@ -976,16 +917,10 @@ outer:
     }
 
     /**
-     * Searches in this string for the index of the specified string. The search
-     * for the string starts at the specified offset and moves towards the end
+     * Returns the next index of the given string in this string, or -1. The search
+     * for the string starts at the given offset and moves towards the end
      * of this string.
      *
-     * @param subString
-     *            the string to find.
-     * @param start
-     *            the starting offset.
-     * @return the index of the first character of the specified string in this
-     *         string, -1 if the specified string is not a substring.
      * @throws NullPointerException
      *             if {@code subString} is {@code null}.
      */
@@ -1048,7 +983,7 @@ outer:
 
     /**
      * Returns the last index of the code point {@code c}, or -1.
-     * The search for the character starts at the end and moves towards the
+     * The search starts at the end and moves towards the
      * beginning of this string.
      */
     public int lastIndexOf(int c) {
@@ -1068,7 +1003,7 @@ outer:
 
     /**
      * Returns the last index of the code point {@code c}, or -1.
-     * The search for the character starts at offset {@code start} and moves towards
+     * The search starts at offset {@code start} and moves towards
      * the beginning of this string.
      */
     public int lastIndexOf(int c, int start) {
@@ -1101,14 +1036,10 @@ outer:
     }
 
     /**
-     * Searches in this string for the last index of the specified string. The
-     * search for the string starts at the end and moves towards the beginning
+     * Returns the index of the start of the last match for the given string in this string, or -1.
+     * The search for the string starts at the end and moves towards the beginning
      * of this string.
      *
-     * @param string
-     *            the string to find.
-     * @return the index of the first character of the specified string in this
-     *         string, -1 if the specified string is not a substring.
      * @throws NullPointerException
      *             if {@code string} is {@code null}.
      */
@@ -1118,16 +1049,11 @@ outer:
     }
 
     /**
-     * Searches in this string for the index of the specified string. The search
-     * for the string starts at the specified offset and moves towards the
-     * beginning of this string.
+     * Returns the index of the start of the previous match for the given string in this string,
+     * or -1.
+     * The search for the string starts at the given index and moves towards the beginning
+     * of this string.
      *
-     * @param subString
-     *            the string to find.
-     * @param start
-     *            the starting offset.
-     * @return the index of the first character of the specified string in this
-     *         string , -1 if the specified string is not a substring.
      * @throws NullPointerException
      *             if {@code subString} is {@code null}.
      */
@@ -1164,26 +1090,21 @@ outer:
     }
 
     /**
-     * Returns the number of characters in this string.
+     * Returns the number of {@code char}s in this string. If this string contains surrogate pairs,
+     * this is not the same as the number of code points.
      */
     public int length() {
         return count;
     }
 
     /**
-     * Compares the specified string to this string and compares the specified
-     * range of characters to determine if they are the same.
+     * Returns true if the given subsequence of the given string matches this string starting
+     * at the given offset.
      *
-     * @param thisStart
-     *            the starting offset in this string.
-     * @param string
-     *            the string to compare.
-     * @param start
-     *            the starting offset in the specified string.
-     * @param length
-     *            the number of characters to compare.
-     * @return {@code true} if the ranges of characters are equal, {@code false}
-     *         otherwise
+     * @param thisStart the start offset in this string.
+     * @param string the other string.
+     * @param start the start offset in {@code string}.
+     * @param length the number of {@code char}s to compare.
      * @throws NullPointerException
      *             if {@code string} is {@code null}.
      */
@@ -1212,22 +1133,21 @@ outer:
     }
 
     /**
-     * Compares the specified string to this string and compares the specified
-     * range of characters to determine if they are the same. When ignoreCase is
-     * true, the case of the characters is ignored during the comparison.
+     * Returns true if the given subsequence of the given string matches this string starting
+     * at the given offset.
+     *
+     * <p>If ignoreCase is true, case is ignored during the comparison.
+     * The strings are compared one {@code char} at a time. This is not suitable
+     * for case-insensitive string comparison for all locales.
+     * Use a {@link java.text.Collator} instead.
      *
      * @param ignoreCase
-     *            specifies if case should be ignored.
-     * @param thisStart
-     *            the starting offset in this string.
-     * @param string
-     *            the string to compare.
-     * @param start
-     *            the starting offset in the specified string.
-     * @param length
-     *            the number of characters to compare.
-     * @return {@code true} if the ranges of characters are equal, {@code false}
-     *         otherwise.
+     *     specifies if case should be ignored (use {@link java.text.Collator} instead for
+     *     non-ASCII case insensitivity).
+     * @param thisStart the start offset in this string.
+     * @param string the other string.
+     * @param start the start offset in {@code string}.
+     * @param length the number of {@code char}s to compare.
      * @throws NullPointerException
      *             if {@code string} is {@code null}.
      */
@@ -1259,14 +1179,7 @@ outer:
     }
 
     /**
-     * Copies this string replacing occurrences of the specified character with
-     * another character.
-     *
-     * @param oldChar
-     *            the character to replace.
-     * @param newChar
-     *            the replacement character.
-     * @return a new string with occurrences of oldChar replaced by newChar.
+     * Returns a copy of this string after replacing occurrences of the given {@char} with another.
      */
     public String replace(char oldChar, char newChar) {
         char[] buffer = value;
@@ -1295,15 +1208,10 @@ outer:
     }
 
     /**
-     * Copies this string replacing occurrences of the specified target sequence
-     * with another sequence. The string is processed from the beginning to the
+     * Returns a copy of this string after replacing occurrences of {@code target} replaced
+     * with {@code replacement}. The string is processed from the beginning to the
      * end.
      *
-     * @param target
-     *            the sequence to replace.
-     * @param replacement
-     *            the replacement sequence.
-     * @return the resulting string.
      * @throws NullPointerException
      *             if {@code target} or {@code replacement} is {@code null}.
      */
@@ -1324,11 +1232,11 @@ outer:
 
         String replacementString = replacement.toString();
 
-        // The empty target matches at the start and end and between each character.
+        // The empty target matches at the start and end and between each char.
         int targetLength = targetString.length();
         if (targetLength == 0) {
-            // The result contains the original 'count' characters, a copy of the
-            // replacement string before every one of those characters, and a final
+            // The result contains the original 'count' chars, a copy of the
+            // replacement string before every one of those chars, and a final
             // copy of the replacement string at the end.
             int resultLength = count + (count + 1) * replacementString.length();
             StringBuilder result = new StringBuilder(resultLength);
@@ -1344,7 +1252,7 @@ outer:
         StringBuilder result = new StringBuilder(count);
         int searchStart = 0;
         do {
-            // Copy characters before the match...
+            // Copy chars before the match...
             result.append(value, offset + searchStart, matchStart - searchStart);
             // Insert the replacement...
             result.append(replacementString);
@@ -1389,13 +1297,9 @@ outer:
     }
 
     /**
-     * Returns a string containing a suffix of this string. The returned string
-     * shares this string's <a href="#backing_array">backing array</a>.
+     * Returns a string containing a suffix of this string starting at {@code start}.
+     * The returned string shares this string's <a href="#backing_array">backing array</a>.
      *
-     * @param start
-     *            the offset of the first character.
-     * @return a new string containing the characters from start to the end of
-     *         the string.
      * @throws IndexOutOfBoundsException
      *             if {@code start < 0} or {@code start > length()}.
      */
@@ -1410,24 +1314,18 @@ outer:
     }
 
     /**
-     * Returns a string containing a subsequence of characters from this string.
-     * The returned string shares this string's <a href="#backing_array">backing
-     * array</a>.
+     * Returns a string containing the given subsequence of this string.
+     * The returned string shares this string's <a href="#backing_array">backing array</a>.
      *
-     * @param start
-     *            the offset of the first character.
-     * @param end
-     *            the offset one past the last character.
-     * @return a new string containing the characters from start to end - 1
+     * @param start the start offset.
+     * @param end the end+1 offset.
      * @throws IndexOutOfBoundsException
-     *             if {@code start < 0}, {@code start > end} or {@code end >
-     *             length()}.
+     *             if {@code start < 0}, {@code start > end} or {@code end > length()}.
      */
     public String substring(int start, int end) {
         if (start == 0 && end == count) {
             return this;
         }
-        // NOTE last character not copied!
         // Fast range check.
         if (start >= 0 && start <= end && end <= count) {
             return new String(offset + start, end - start, value);
@@ -1436,8 +1334,8 @@ outer:
     }
 
     /**
-     * Returns a new {@code char} array containing a copy of the characters in this string.
-     * This is expensive and rarely useful. If you just want to iterate over the characters in
+     * Returns a new {@code char} array containing a copy of the {@code char}s in this string.
+     * This is expensive and rarely useful. If you just want to iterate over the {@code char}s in
      * the string, use {@link #charAt} instead.
      */
     public char[] toCharArray() {
@@ -1509,11 +1407,8 @@ outer:
     }
 
     /**
-     * Copies this string removing white space characters from the beginning and
-     * end of the string.
-     *
-     * @return a new string with characters <code><= \\u0020</code> removed from
-     *         the beginning and the end.
+     * Returns a string with no code points <code><= \\u0020</code> at
+     * the beginning or end.
      */
     public String trim() {
         int start = offset, last = offset + count - 1;
@@ -1531,13 +1426,10 @@ outer:
     }
 
     /**
-     * Creates a new string containing the characters in the specified character
-     * array. Modifying the character array after creating the string has no
+     * Returns a new string containing the same {@code char}s as the given
+     * array. Modifying the array after creating the string has no
      * effect on the string.
      *
-     * @param data
-     *            the array of characters.
-     * @return the new string.
      * @throws NullPointerException
      *             if {@code data} is {@code null}.
      */
@@ -1546,20 +1438,12 @@ outer:
     }
 
     /**
-     * Creates a new string containing the specified characters in the character
-     * array. Modifying the character array after creating the string has no
+     * Returns a new string containing the same {@code char}s as the given
+     * subset of the given array. Modifying the array after creating the string has no
      * effect on the string.
      *
-     * @param data
-     *            the array of characters.
-     * @param start
-     *            the starting offset in the character array.
-     * @param length
-     *            the number of characters to use.
-     * @return the new string.
      * @throws IndexOutOfBoundsException
-     *             if {@code length < 0}, {@code start < 0} or {@code start +
-     *             length > data.length}
+     *             if {@code length < 0}, {@code start < 0} or {@code start + length > data.length}
      * @throws NullPointerException
      *             if {@code data} is {@code null}.
      */
@@ -1568,11 +1452,7 @@ outer:
     }
 
     /**
-     * Converts the specified character to its string representation.
-     *
-     * @param value
-     *            the character.
-     * @return the character converted to a string.
+     * Returns a new string of just the given {@code char}.
      */
     public static String valueOf(char value) {
         String s;
@@ -1586,44 +1466,28 @@ outer:
     }
 
     /**
-     * Converts the specified double to its string representation.
-     *
-     * @param value
-     *            the double.
-     * @return the double converted to a string.
+     * Returns the string representation of the given double.
      */
     public static String valueOf(double value) {
         return Double.toString(value);
     }
 
     /**
-     * Converts the specified float to its string representation.
-     *
-     * @param value
-     *            the float.
-     * @return the float converted to a string.
+     * Returns the string representation of the given float.
      */
     public static String valueOf(float value) {
         return Float.toString(value);
     }
 
     /**
-     * Converts the specified integer to its string representation.
-     *
-     * @param value
-     *            the integer.
-     * @return the integer converted to a string.
+     * Returns the string representation of the given int.
      */
     public static String valueOf(int value) {
         return Integer.toString(value);
     }
 
     /**
-     * Converts the specified long to its string representation.
-     *
-     * @param value
-     *            the long.
-     * @return the long converted to a string.
+     * Returns the string representation of the given long.
      */
     public static String valueOf(long value) {
         return Long.toString(value);
@@ -1656,36 +1520,27 @@ outer:
     }
 
     /**
-     * Returns whether the characters in the StringBuffer {@code strbuf} are the
-     * same as those in this string.
+     * Returns true if the {@code char}s in the given {@code StringBuffer} are the same
+     * as those in this string.
      *
-     * @param strbuf
-     *            the StringBuffer to compare this string to.
-     * @return {@code true} if the characters in {@code strbuf} are identical to
-     *         those in this string. If they are not, {@code false} will be
-     *         returned.
      * @throws NullPointerException
-     *             if {@code strbuf} is {@code null}.
+     *             if {@code sb} is {@code null}.
      * @since 1.4
      */
-    public boolean contentEquals(StringBuffer strbuf) {
-        synchronized (strbuf) {
-            int size = strbuf.length();
+    public boolean contentEquals(StringBuffer sb) {
+        synchronized (sb) {
+            int size = sb.length();
             if (count != size) {
                 return false;
             }
-            return regionMatches(0, new String(0, size, strbuf.getValue()), 0,
-                    size);
+            return regionMatches(0, new String(0, size, sb.getValue()), 0, size);
         }
     }
 
     /**
-     * Compares a {@code CharSequence} to this {@code String} to determine if
-     * their contents are equal.
+     * Returns true if the {@code char}s in the given {@code CharSequence} are the same
+     * as those in this string.
      *
-     * @param cs
-     *            the character sequence to compare to.
-     * @return {@code true} if equal, otherwise {@code false}
      * @since 1.5
      */
     public boolean contentEquals(CharSequence cs) {
@@ -1804,14 +1659,8 @@ outer:
     }
 
     /**
-     * Has the same result as the substring function, but is present so that
-     * string may implement the CharSequence interface.
+     * Equivalent to {@link #substring(int, int)} but needed to implement {@code CharSequence}.
      *
-     * @param start
-     *            the offset the first character.
-     * @param end
-     *            the offset of one past the last character to include.
-     * @return the subsequence requested.
      * @throws IndexOutOfBoundsException
      *             if {@code start < 0}, {@code end < 0}, {@code start > end} or
      *             {@code end > length()}.
@@ -1872,13 +1721,8 @@ outer:
     }
 
     /**
-     * Determines if this {@code String} contains the sequence of characters in
-     * the {@code CharSequence} passed.
+     * Returns true if this string contains the {@code chars}s from the given {@code CharSequence}.
      *
-     * @param cs
-     *            the character sequence to search for.
-     * @return {@code true} if the sequence of characters are contained in this
-     *         string, otherwise {@code false}.
      * @since 1.5
      */
     public boolean contains(CharSequence cs) {
