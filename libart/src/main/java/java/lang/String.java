@@ -1179,7 +1179,7 @@ outer:
     }
 
     /**
-     * Returns a copy of this string after replacing occurrences of the given {@char} with another.
+     * Returns a copy of this string after replacing occurrences of the given {@code char} with another.
      */
     public String replace(char oldChar, char newChar) {
         char[] buffer = value;
