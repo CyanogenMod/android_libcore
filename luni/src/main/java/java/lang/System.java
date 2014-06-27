@@ -176,58 +176,6 @@ public final class System {
         Object dst, int dstPos, int length);
 
     /**
-     * The type object array length threshold below which to use a Java
-     * (non-native) version of arraycopy() instead of the native
-     * version.
-     */
-
-    private static final int ARRAYCOPY_SHORT_T_ARRAY_THRESHOLD = 32;
-
-    /**
-     * An arraycopy variant that applies when both input arguments are compatible object arrays.
-     *
-     * @hide internal use only
-     */
-    public static <T> void arraycopy(T[] src, int srcPos, T[] dst, int dstPos, int length) {
-        if (src.getClass() != dst.getClass() || dst.getClass() != Object[].class ||
-            dst.getClass().isAssignableFrom(src.getClass())) {
-            // Call the native version if we can't easily deal with it here.
-            arraycopy((Object) src, srcPos, (Object) dst, dstPos, length);
-        }
-        if (src == null) {
-            throw new NullPointerException("src == null");
-        }
-        if (dst == null) {
-            throw new NullPointerException("dst == null");
-        }
-        if (srcPos < 0 || dstPos < 0 || length < 0 ||
-            srcPos > src.length - length || dstPos > dst.length - length) {
-            throw new ArrayIndexOutOfBoundsException(
-                "src.length=" + src.length + " srcPos=" + srcPos +
-                " dst.length=" + dst.length + " dstPos=" + dstPos + " length=" + length);
-        }
-        if (length <= ARRAYCOPY_SHORT_T_ARRAY_THRESHOLD) {
-            // Copy object by object for shorter arrays.
-            if (src == dst && srcPos < dstPos && dstPos < srcPos + length) {
-                // Copy backward (to avoid overwriting elements before
-                // they are copied in case of an overlap on the same
-                // array.)
-                for (int i = length - 1; i >= 0; --i) {
-                    dst[dstPos + i] = src[srcPos + i];
-                }
-            } else {
-                // Copy forward.
-                for (int i = 0; i < length; ++i) {
-                    dst[dstPos + i] = src[srcPos + i];
-                }
-            }
-        } else {
-            // Call the native version for longer arrays.
-            arraycopy((Object) src, srcPos, (Object) dst, dstPos, length);
-        }
-    }
-
-    /**
      * The char array length threshold below which to use a Java
      * (non-native) version of arraycopy() instead of the native
      * version. See b/7103825.
