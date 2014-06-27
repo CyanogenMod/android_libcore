@@ -571,7 +571,7 @@ public class GregorianCalendar extends Calendar {
 
         // We unconditionally overwrite DST_OFFSET and ZONE_OFFSET with
         // values from the timezone that's currently in use. This gives us
-        // much more consistent behaviour, and matches ICU4J behaviour (though
+        // much more consistent behavior, and matches ICU4J behavior (though
         // it is inconsistent with the RI).
         //
         // Anything callers can do with ZONE_OFFSET they can do by constructing
