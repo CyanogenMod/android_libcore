@@ -92,7 +92,7 @@ public final class DateIntervalFormat {
     // This is not the behavior of icu4c's DateIntervalFormat, but it's the historical behavior
     // of Android's DateUtils.formatDateRange.
     if (startMs != endMs && endsAtMidnight &&
-        ((flags & FORMAT_SHOW_TIME) == 0 || julianDay(startCalendar) == julianDay(endCalendar))) {
+        ((flags & FORMAT_SHOW_TIME) == 0 || dayDistance(startCalendar, endCalendar) <= 1)) {
       endCalendar.roll(Calendar.DAY_OF_MONTH, false);
       endMs -= DAY_IN_MS;
     }
@@ -224,8 +224,12 @@ public final class DateIntervalFormat {
     return c.get(Calendar.YEAR) == now.get(Calendar.YEAR);
   }
 
+  private static int dayDistance(Calendar c1, Calendar c2) {
+    return julianDay(c2) - julianDay(c1);
+  }
+
   private static int julianDay(Calendar c) {
-    long utcMs = c.get(Calendar.MILLISECOND) + c.get(Calendar.ZONE_OFFSET);
+    long utcMs = c.getTimeInMillis() + c.get(Calendar.ZONE_OFFSET) + c.get(Calendar.DST_OFFSET);
     return (int) (utcMs / DAY_IN_MS) + EPOCH_JULIAN_DAY;
   }
 
