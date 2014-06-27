@@ -38,6 +38,7 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
     c.set(Calendar.HOUR_OF_DAY, 3);
     c.set(Calendar.MINUTE, 30);
     c.set(Calendar.SECOND, 15);
+    c.set(Calendar.MILLISECOND, 0);
     long timeWithCurrentYear = c.getTimeInMillis();
 
     c.set(Calendar.YEAR, 2009);
@@ -169,6 +170,7 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
     Locale l = Locale.US;
     TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
     Calendar c = Calendar.getInstance(tz, l);
+    c.clear();
     c.set(2042, Calendar.JANUARY, 19, 3, 30);
     long jan_19_2042 = c.getTimeInMillis();
     c.set(2046, Calendar.OCTOBER, 4, 3, 30);
@@ -261,6 +263,45 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
     assertEquals("January 1, 1970, 22:00 – January 2, 1970, 00:30", formatDateRange(l, utc, 22 * HOUR, 24 * HOUR + 30 * MINUTE, flags));
   }
 
+  // The fix for http://b/10560853 didn't work except for the day around the epoch, which was
+  // all the unit test checked!
+  public void test_single_day_events_later_than_epoch() throws Exception {
+    Locale l = Locale.US;
+    TimeZone utc = TimeZone.getTimeZone("UTC");
+
+    int flags = FORMAT_SHOW_TIME | FORMAT_24HOUR | FORMAT_SHOW_DATE;
+
+    Calendar c = Calendar.getInstance(utc, l);
+    c.clear();
+    c.set(1980, Calendar.JANUARY, 1, 0, 0);
+    long jan_1_1980 = c.getTimeInMillis();
+    assertEquals("January 1, 1980, 22:00 – 00:00",
+                 formatDateRange(l, utc, jan_1_1980 + 22 * HOUR, jan_1_1980 + 24 * HOUR, flags));
+    assertEquals("January 1, 1980, 22:00 – January 2, 1980, 00:30",
+                 formatDateRange(l, utc, jan_1_1980 + 22 * HOUR, jan_1_1980 + 24 * HOUR + 30 * MINUTE, flags));
+  }
+
+  // The fix for http://b/10560853 didn't work except for UTC, which was
+  // all the unit test checked!
+  public void test_single_day_events_not_in_UTC() throws Exception {
+    Locale l = Locale.US;
+    TimeZone pacific = TimeZone.getTimeZone("America/Los_Angeles");
+
+    int flags = FORMAT_SHOW_TIME | FORMAT_24HOUR | FORMAT_SHOW_DATE;
+
+    Calendar c = Calendar.getInstance(pacific, l);
+    c.clear();
+    c.set(1980, Calendar.JANUARY, 1, 0, 0);
+    long jan_1_1980 = c.getTimeInMillis();
+    assertEquals("January 1, 1980, 22:00 – 00:00",
+                 formatDateRange(l, pacific, jan_1_1980 + 22 * HOUR, jan_1_1980 + 24 * HOUR, flags));
+
+    c.set(1980, Calendar.JULY, 1, 0, 0);
+    long jul_1_1980 = c.getTimeInMillis();
+    assertEquals("July 1, 1980, 22:00 – 00:00",
+                 formatDateRange(l, pacific, jul_1_1980 + 22 * HOUR, jul_1_1980 + 24 * HOUR, flags));
+  }
+
   // http://b/10209343 - even if the caller didn't explicitly ask us to include the year,
   // we should do so for years other than the current year.
   public void test10209343_when_not_this_year() {
@@ -343,6 +384,7 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
   public void test12004664() throws Exception {
     TimeZone utc = TimeZone.getTimeZone("UTC");
     Calendar c = Calendar.getInstance(utc, Locale.US);
+    c.clear();
     c.set(Calendar.YEAR, 1980);
     c.set(Calendar.MONTH, Calendar.FEBRUARY);
     c.set(Calendar.DAY_OF_MONTH, 10);
