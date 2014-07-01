@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -47,6 +48,7 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLProtocolException;
+import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -1235,6 +1237,81 @@ public class SSLSocketTest extends TestCase {
         future.get();
         client.close();
         server.close();
+        c.close();
+    }
+
+    public void test_SSLSocket_reusedNpnSocket() throws Exception {
+        if (StandardNames.IS_RI) {
+            // RI does not support NPN/ALPN
+            return;
+        }
+
+        byte[] npnProtocols = new byte[] {
+                8, 'h', 't', 't', 'p', '/', '1', '.', '1'
+        };
+
+        final TestSSLContext c = TestSSLContext.create();
+        SSLSocket client = (SSLSocket) c.clientContext.getSocketFactory().createSocket();
+
+        // Reflection is used so this can compile on the RI
+        String expectedClassName = "com.android.org.conscrypt.OpenSSLSocketImpl";
+        Class<?> actualClass = client.getClass();
+        assertEquals(expectedClassName, actualClass.getName());
+        Method setNpnProtocols = actualClass.getMethod("setNpnProtocols", byte[].class);
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        // First connection with NPN set on client and server
+        {
+            setNpnProtocols.invoke(client, npnProtocols);
+            client.connect(new InetSocketAddress(c.host, c.port));
+
+            final SSLSocket server = (SSLSocket) c.serverSocket.accept();
+            assertEquals(expectedClassName, server.getClass().getName());
+            setNpnProtocols.invoke(server, npnProtocols);
+
+            Future<Void> future = executor.submit(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    server.startHandshake();
+                    return null;
+                }
+            });
+            client.startHandshake();
+
+            future.get();
+            client.close();
+            server.close();
+        }
+
+        // Second connection with client NPN already set on the SSL context, but
+        // without server NPN set.
+        {
+            SSLServerSocket serverSocket = (SSLServerSocket) c.serverContext
+                    .getServerSocketFactory().createServerSocket(0);
+            InetAddress host = InetAddress.getLocalHost();
+            int port = serverSocket.getLocalPort();
+
+            client = (SSLSocket) c.clientContext.getSocketFactory().createSocket();
+            client.connect(new InetSocketAddress(host, port));
+
+            final SSLSocket server = (SSLSocket) serverSocket.accept();
+
+            Future<Void> future = executor.submit(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    server.startHandshake();
+                    return null;
+                }
+            });
+            client.startHandshake();
+
+            future.get();
+            client.close();
+            server.close();
+            serverSocket.close();
+        }
+
         c.close();
     }
 

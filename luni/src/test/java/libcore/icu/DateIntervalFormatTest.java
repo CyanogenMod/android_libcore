@@ -36,7 +36,7 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
   public void test_formatDateInterval() throws Exception {
     TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
 
-    Calendar c = Calendar.getInstance(tz);
+    Calendar c = Calendar.getInstance(tz, Locale.US);
     c.set(Calendar.MONTH, Calendar.JANUARY);
     c.set(Calendar.DAY_OF_MONTH, 19);
     c.set(Calendar.HOUR_OF_DAY, 3);
@@ -172,7 +172,7 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
   public void test8862241() throws Exception {
     Locale l = Locale.US;
     TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
-    Calendar c = Calendar.getInstance(tz);
+    Calendar c = Calendar.getInstance(tz, l);
     c.set(2042, Calendar.JANUARY, 19, 3, 30);
     long jan_19_2042 = c.getTimeInMillis();
     c.set(2046, Calendar.OCTOBER, 4, 3, 30);
@@ -293,7 +293,7 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
     // Construct a date in the current year (whenever the test happens to be run).
     Locale l = Locale.US;
     TimeZone utc = TimeZone.getTimeZone("UTC");
-    Calendar c = Calendar.getInstance(utc);
+    Calendar c = Calendar.getInstance(utc, l);
     c.set(Calendar.MONTH, Calendar.FEBRUARY);
     c.set(Calendar.DAY_OF_MONTH, 10);
     c.set(Calendar.HOUR_OF_DAY, 0);
@@ -322,5 +322,52 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
     // (And you can't avoid that --- icu4c steps in and overrides you.)
     assertEquals(String.format("February 10, 1980 – February 10, %d", c.get(Calendar.YEAR)),
                  formatDateRange(l, utc, oldYear, thisYear, FORMAT_SHOW_DATE | FORMAT_NO_YEAR));
+  }
+
+  // http://b/8467515 - yet another y2k38 bug report.
+  public void test8467515() throws Exception {
+    Locale l = Locale.US;
+    TimeZone utc = TimeZone.getTimeZone("UTC");
+    int flags = FORMAT_SHOW_DATE | FORMAT_SHOW_WEEKDAY | FORMAT_SHOW_YEAR | FORMAT_ABBREV_MONTH | FORMAT_ABBREV_WEEKDAY;
+    long t;
+
+    Calendar calendar = Calendar.getInstance(utc, l);
+    calendar.clear();
+
+    calendar.set(2038, Calendar.JANUARY, 19, 12, 0, 0);
+    t = calendar.getTimeInMillis();
+    assertEquals("Tue, Jan 19, 2038", formatDateRange(l, utc, t, t, flags));
+
+    calendar.set(1900, Calendar.JANUARY, 1, 0, 0, 0);
+    t = calendar.getTimeInMillis();
+    assertEquals("Mon, Jan 1, 1900", formatDateRange(l, utc, t, t, flags));
+  }
+
+  // http://b/12004664
+  public void test12004664() throws Exception {
+    TimeZone utc = TimeZone.getTimeZone("UTC");
+    Calendar c = Calendar.getInstance(utc, Locale.US);
+    c.set(Calendar.YEAR, 1980);
+    c.set(Calendar.MONTH, Calendar.FEBRUARY);
+    c.set(Calendar.DAY_OF_MONTH, 10);
+    c.set(Calendar.HOUR_OF_DAY, 0);
+    long thisYear = c.getTimeInMillis();
+
+    int flags = FORMAT_SHOW_DATE | FORMAT_SHOW_WEEKDAY | FORMAT_SHOW_YEAR;
+    assertEquals("Sunday, February 10, 1980", formatDateRange(new Locale("en", "US"), utc, thisYear, thisYear, flags));
+
+    // If we supported non-Gregorian calendars, this is what that we'd expect for these locales.
+    // This is really the correct behavior, but since java.util.Calendar currently only supports
+    // the Gregorian calendar, we want to deliberately force icu4c to agree, otherwise we'd have
+    // a mix of calendars throughout an app's UI depending on whether Java or native code formatted
+    // the date.
+    //assertEquals("یکشنبه ۲۱ بهمن ۱۳۵۸ ه‍.ش.", formatDateRange(new Locale("fa"), utc, thisYear, thisYear, flags));
+    //assertEquals("AP ۱۳۵۸ سلواغه ۲۱, یکشنبه", formatDateRange(new Locale("ps"), utc, thisYear, thisYear, flags));
+    //assertEquals("วันอาทิตย์ 10 กุมภาพันธ์ 2523", formatDateRange(new Locale("th"), utc, thisYear, thisYear, flags));
+
+    // For now, here are the localized Gregorian strings instead...
+    assertEquals("یکشنبه ۱۰ فوریهٔ ۱۹۸۰", formatDateRange(new Locale("fa"), utc, thisYear, thisYear, flags));
+    assertEquals("یکشنبه د ۱۹۸۰ د فبروري ۱۰", formatDateRange(new Locale("ps"), utc, thisYear, thisYear, flags));
+    assertEquals("วันอาทิตย์ 10 กุมภาพันธ์ 1980", formatDateRange(new Locale("th"), utc, thisYear, thisYear, flags));
   }
 }
