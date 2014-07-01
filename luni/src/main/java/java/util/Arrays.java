@@ -26,14 +26,14 @@ import java.lang.reflect.Array;
  * @since 1.2
  */
 public class Arrays {
-    private static class ArrayList<E> extends AbstractList<E> implements
+    private static class ArrayAdapter<E> extends AbstractList<E> implements
             List<E>, Serializable, RandomAccess {
 
         private static final long serialVersionUID = -2764017481108945198L;
 
         private final E[] a;
 
-        ArrayList(E[] storage) {
+        ArrayAdapter(E[] storage) {
             if (storage == null) {
                 throw new NullPointerException("storage == null");
             }
@@ -152,7 +152,7 @@ public class Arrays {
      */
     @SafeVarargs
     public static <T> List<T> asList(T... array) {
-        return new ArrayList<T>(array);
+        return new ArrayAdapter<T>(array);
     }
 
     /**
