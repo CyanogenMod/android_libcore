@@ -889,19 +889,6 @@ public abstract class SSLSocket extends Socket {
     public abstract SSLSession getSession();
 
     /**
-     * Returns the {@code SSLSession} for this connection. It will not initiate
-     * the handshake and thus will not block until the handshake has been
-     * established.
-     *
-     * @return the session object.
-     * @since 1.7
-     * @hide
-     */
-    public SSLSession getHandshakeSession() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
      * Registers the specified listener to receive notification on completion of
      * a handshake on this connection.
      *
