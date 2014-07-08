@@ -225,13 +225,8 @@ public class FileURLConnection extends URLConnection {
 
     /**
      * Returns the length of the file in bytes.
-     *
-     * @return the length of the file
-     * @since 1.7
-     * @hide Until ready for a public API change
      */
-    @Override
-    public long getContentLengthLong() {
+    private long getContentLengthLong() {
         try {
             if (!connected) {
                 connect();

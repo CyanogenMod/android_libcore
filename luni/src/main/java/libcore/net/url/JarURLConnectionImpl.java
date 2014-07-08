@@ -265,25 +265,12 @@ public class JarURLConnectionImpl extends JarURLConnection {
      */
     @Override
     public int getContentLength() {
-        long length = getContentLengthLong();
-        return length > Integer.MAX_VALUE ? -1 : (int) length;
-    }
-
-    /**
-     * Returns the content length of the resource. Test cases reveal that if the URL is referring to
-     * a Jar file, this method answers a content-length returned by URLConnection. For a jar entry
-     * it should return the entry's size. Otherwise, it will return -1.
-     *
-     * @hide Until ready for a public API change
-     */
-    @Override
-    public long getContentLengthLong() {
         try {
             connect();
             if (jarEntry == null) {
-                return jarFileURLConnection.getContentLengthLong();
+                return jarFileURLConnection.getContentLength();
             }
-            return getJarEntry().getSize();
+            return (int) getJarEntry().getSize();
         } catch (IOException e) {
             // Ignored
         }
