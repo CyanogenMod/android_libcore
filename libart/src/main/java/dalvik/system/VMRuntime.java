@@ -39,6 +39,7 @@ public final class VMRuntime {
         ABI_TO_INSTRUCTION_SET_MAP.put("armeabi", "arm");
         ABI_TO_INSTRUCTION_SET_MAP.put("armeabi-v7a", "arm");
         ABI_TO_INSTRUCTION_SET_MAP.put("mips", "mips");
+        ABI_TO_INSTRUCTION_SET_MAP.put("mips64", "mips64");
         ABI_TO_INSTRUCTION_SET_MAP.put("x86", "x86");
         ABI_TO_INSTRUCTION_SET_MAP.put("x86_64", "x86_64");
         ABI_TO_INSTRUCTION_SET_MAP.put("arm64-v8a", "arm64");
@@ -324,5 +325,15 @@ public final class VMRuntime {
         }
 
         return instructionSet;
+    }
+
+    public static boolean is64BitInstructionSet(String instructionSet) {
+        return "arm64".equals(instructionSet) ||
+                "x86_64".equals(instructionSet) ||
+                "mips64".equals(instructionSet);
+    }
+
+    public static boolean is64BitAbi(String abi) {
+        return is64BitInstructionSet(getInstructionSet(abi));
     }
 }
