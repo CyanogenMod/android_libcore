@@ -90,7 +90,7 @@ public class SocketTest extends junit.framework.TestCase {
         // Open a local server port.
         ServerSocketChannel ssc = ServerSocketChannel.open();
         InetSocketAddress listenAddr = new InetSocketAddress(host, 0);
-        ssc.bind(listenAddr, 0);
+        ssc.socket().bind(listenAddr, 0);
         ServerSocket ss = ssc.socket();
 
         // Open a socket to the local port.
@@ -110,7 +110,7 @@ public class SocketTest extends junit.framework.TestCase {
             in.socket().setTcpNoDelay(false);
         }
 
-        InetSocketAddress listenAddress = (InetSocketAddress) in.getLocalAddress();
+        InetSocketAddress listenAddress = (InetSocketAddress) in.socket().getLocalSocketAddress();
         InetSocketAddress outRemoteAddress = (InetSocketAddress) out.socket().getRemoteSocketAddress();
         InetSocketAddress outLocalAddress = (InetSocketAddress) out.socket().getLocalSocketAddress();
         InetSocketAddress inLocalAddress = (InetSocketAddress) in.socket().getLocalSocketAddress();

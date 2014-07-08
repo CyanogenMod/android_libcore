@@ -32,14 +32,10 @@ import java.net.NetworkInterface;
 import java.net.PlainDatagramSocketImpl;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.SocketOption;
-import java.net.StandardSocketOptions;
-import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.AlreadyConnectedException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.IllegalBlockingModeException;
-import java.nio.channels.MembershipKey;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.spi.SelectorProvider;
 import java.nio.channels.UnresolvedAddressException;
@@ -79,9 +75,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
     private final Object readLock = new Object();
     private final Object writeLock = new Object();
 
-    // A helper to manage multicast group membership. Created as required.
-    private MulticastMembershipHandler multicastMembershipHandler;
-
     /*
      * Constructor
      */
@@ -112,29 +105,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         return socket;
     }
 
-    /** @hide Until ready for a public API change */
-    @Override
-    synchronized public DatagramChannel bind(SocketAddress local) throws IOException {
-        checkOpen();
-        if (isBound) {
-            throw new AlreadyBoundException();
-        }
-
-        if (local == null) {
-            local = new InetSocketAddress(Inet4Address.ANY, 0);
-        } else if (!(local instanceof InetSocketAddress)) {
-            throw new UnsupportedAddressTypeException();
-        }
-
-        InetSocketAddress localAddress = (InetSocketAddress) local;
-        if (localAddress.isUnresolved()) {
-            throw new UnresolvedAddressException();
-        }
-        IoBridge.bind(fd, localAddress.getAddress(), localAddress.getPort());
-        onBind(true /* updateSocketState */);
-        return this;
-    }
-
     /**
      * Initialise the isBound, localAddress and localPort state from the file descriptor. Used when
      * some or all of the bound state has been left to the OS to decide, or when the Socket handled
@@ -161,34 +131,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
     }
 
     /** @hide Until ready for a public API change */
-    @Override
-    synchronized public SocketAddress getLocalAddress() throws IOException {
-        checkOpen();
-        return isBound ? new InetSocketAddress(localAddress, localPort) : null;
-    }
-
-    /** @hide Until ready for a public API change */
-    @Override
-    public <T> T getOption(SocketOption<T> option) throws IOException {
-        return NioUtils.getSocketOption(
-                this, StandardSocketOptions.DATAGRAM_SOCKET_OPTIONS, option);
-    }
-
-    /** @hide Until ready for a public API change */
-    @Override
-    public <T> DatagramChannel setOption(SocketOption<T> option, T value) throws IOException {
-        checkOpen();
-        NioUtils.setSocketOption(
-                this, StandardSocketOptions.DATAGRAM_SOCKET_OPTIONS, option, value);
-        return this;
-    }
-
-    /** @hide Until ready for a public API change */
-    @Override
-    public Set<SocketOption<?>> supportedOptions() {
-        return StandardSocketOptions.DATAGRAM_SOCKET_OPTIONS;
-    }
-
     @Override
     synchronized public boolean isConnected() {
         return connected;
@@ -524,7 +466,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         // A closed channel is not connected.
         onDisconnect(true /* updateSocketState */);
         IoBridge.closeAndSignalBlockedThreads(fd);
-        multicastMembershipHandler = null;
 
         if (socket != null && !socket.isClosed()) {
             socket.onClose();
@@ -568,52 +509,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
      */
     public FileDescriptor getFD() {
         return fd;
-    }
-
-    @Override
-    synchronized public MembershipKey join(InetAddress groupAddress,
-        NetworkInterface networkInterface) throws IOException {
-
-        checkOpen();
-        ensureMembershipHandlerExists();
-        return multicastMembershipHandler.addAnySourceMembership(networkInterface, groupAddress);
-    }
-
-    @Override
-    synchronized public MembershipKey join(
-            InetAddress groupAddress, NetworkInterface networkInterface, InetAddress sourceAddress)
-            throws IOException {
-        checkOpen();
-        ensureMembershipHandlerExists();
-        return multicastMembershipHandler.addSourceSpecificMembership(
-                networkInterface, groupAddress, sourceAddress);
-    }
-
-    synchronized void multicastDrop(MembershipKeyImpl membershipKey) {
-        ensureMembershipHandlerExists();
-        multicastMembershipHandler.dropMembership(membershipKey);
-    }
-
-    synchronized void multicastBlock(MembershipKeyImpl membershipKey, InetAddress sourceAddress)
-            throws SocketException {
-
-        ensureMembershipHandlerExists();
-        multicastMembershipHandler.block(membershipKey, sourceAddress);
-    }
-
-    synchronized void multicastUnblock(MembershipKeyImpl membershipKey, InetAddress sourceAddress) {
-        ensureMembershipHandlerExists();
-        multicastMembershipHandler.unblock(membershipKey, sourceAddress);
-    }
-
-    /**
-     * Creates the {@code multicastMembershipHandler} if one doesn't already exist. Callers must
-     * handle synchronization.
-     */
-    private void ensureMembershipHandlerExists() {
-        if (multicastMembershipHandler == null) {
-            multicastMembershipHandler = new MulticastMembershipHandler(this);
-        }
     }
 
     /*
