@@ -78,14 +78,6 @@ public final class ZipOutputStreamTest extends TestCase {
         }
     }
 
-    public void testNullCharset() throws IOException {
-        try {
-            new ZipOutputStream(new ByteArrayOutputStream(), null);
-            fail();
-        } catch (NullPointerException expected) {
-        }
-    }
-
     /** Regression test for null comment causing a NullPointerException during write. */
     public void testNullComment() throws IOException {
         ZipOutputStream out = new ZipOutputStream(new ByteArrayOutputStream());
@@ -94,55 +86,5 @@ public final class ZipOutputStreamTest extends TestCase {
         out.write(new byte[1]);
         out.closeEntry();
         out.finish();
-    }
-
-    /** Contrived test to force a longer name than can be stored. */
-    public void testLongName() throws IOException {
-        int maxNameBytes = 0xffff; // 2 bytes
-        String longName = createString(maxNameBytes);
-
-        ZipEntry entry = new ZipEntry(longName);
-
-        // Using UTF-16 will result in name bytes twice as large as is supported by Zip.
-        // UTF-16 is an unlikely character set to actually want to use with Zip but enables
-        // the edge-case behavior required without using direct field access.
-        ZipOutputStream out = new ZipOutputStream(
-                new ByteArrayOutputStream(), StandardCharsets.UTF_16);
-        try {
-            out.putNextEntry(entry);
-            fail();
-        } catch (IllegalArgumentException expected) {
-        }
-    }
-
-    /** Contrived test to force a longer comment than can be stored. */
-    public void testLongComment() throws IOException {
-        int maxCommentBytes = 0xffff; // 2 bytes
-        String longComment = createString(maxCommentBytes);
-
-        ZipEntry entry = new ZipEntry("name");
-        // setComment() should pass, because it is at the limit of what ZipEntry will detect as
-        // valid (since it uses UTF-8 as a worst-case guess).
-        entry.setComment(longComment);
-
-        // Using UTF-16 will result in comment bytes twice as large as is supported by Zip.
-        // UTF-16 is an unlikely character set to actually want to use with Zip but enables
-        // the edge-case behavior required without using direct field access.
-        ZipOutputStream out = new ZipOutputStream(
-                new ByteArrayOutputStream(), StandardCharsets.UTF_16);
-        try {
-            out.putNextEntry(entry);
-            fail();
-        } catch (IllegalArgumentException expected) {
-        }
-    }
-
-    private static String createString(int numChars) {
-        char c = 'a';
-        StringBuilder sb = new StringBuilder(numChars);
-        for (int i = 0; i < numChars; i++) {
-            sb.append(c);
-        }
-        return sb.toString();
     }
 }

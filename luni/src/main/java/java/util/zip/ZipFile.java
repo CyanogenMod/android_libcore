@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -98,8 +97,6 @@ public class ZipFile implements Closeable, ZipConstants {
 
     private final String filename;
 
-    private final Charset charset;
-
     private File fileToDeleteOnClose;
 
     private RandomAccessFile raf;
@@ -119,23 +116,7 @@ public class ZipFile implements Closeable, ZipConstants {
      * @throws IOException if an {@code IOException} occurs.
      */
     public ZipFile(File file) throws ZipException, IOException {
-        this(file, OPEN_READ, StandardCharsets.UTF_8);
-    }
-
-    /**
-     * Constructs a new {@code ZipFile} allowing read access to the contents of the given file.
-     *
-     * <p>The {@code charset} is used to decode the file comment if one exists. If the character
-     * encoding for entry names and comments is not explicitly marked as UTF-8 by the zip file
-     * then {@code charset} is used to decode them.
-     *
-     * @throws ZipException if a zip error occurs.
-     * @throws IOException if an {@code IOException} occurs.
-     * @since 1.7
-     * @hide Until ready for an API update
-     */
-    public ZipFile(File file, Charset charset) throws ZipException, IOException {
-        this(file, OPEN_READ, charset);
+        this(file, OPEN_READ);
     }
 
     /**
@@ -146,7 +127,7 @@ public class ZipFile implements Closeable, ZipConstants {
      * @throws IOException if an IOException occurs.
      */
     public ZipFile(String name) throws IOException {
-        this(new File(name), OPEN_READ, StandardCharsets.UTF_8);
+        this(new File(name), OPEN_READ);
     }
 
     /**
@@ -162,31 +143,7 @@ public class ZipFile implements Closeable, ZipConstants {
      * @throws IOException if an {@code IOException} occurs.
      */
     public ZipFile(File file, int mode) throws IOException {
-        this(file, mode, StandardCharsets.UTF_8);
-    }
-
-    /**
-     * Constructs a new {@code ZipFile} allowing access to the given file.
-     *
-     * <p>The {@code mode} must be either {@code OPEN_READ} or {@code OPEN_READ|OPEN_DELETE}.
-     * If the {@code OPEN_DELETE} flag is supplied, the file will be deleted at or before the
-     * time that the {@code ZipFile} is closed (the contents will remain accessible until
-     * this {@code ZipFile} is closed); it also calls {@code File.deleteOnExit}.
-     *
-     * <p>The {@code charset} is used to decode the file comment if one exists. If the character
-     * encoding for entry names and comments is not explicitly marked as UTF-8 by the zip file
-     * then {@code charset} is used to decode them.
-     *
-     * @throws IOException if an {@code IOException} occurs.
-     * @since 1.7
-     * @hide Until ready for an API update
-     */
-    public ZipFile(File file, int mode, Charset charset) throws IOException {
         filename = file.getPath();
-        if (charset == null) {
-            throw new NullPointerException("charset == null");
-        }
-        this.charset = charset;
         if (mode != OPEN_READ && mode != (OPEN_READ | OPEN_DELETE)) {
             throw new IllegalArgumentException("Bad mode: " + mode);
         }
@@ -467,7 +424,7 @@ public class ZipFile implements Closeable, ZipConstants {
         if (commentLength > 0) {
             byte[] commentBytes = new byte[commentLength];
             raf.readFully(commentBytes);
-            comment = new String(commentBytes, 0, commentBytes.length, charset);
+            comment = new String(commentBytes, 0, commentBytes.length, StandardCharsets.UTF_8);
         }
 
         // Seek to the first CDE and read all entries.
@@ -478,7 +435,7 @@ public class ZipFile implements Closeable, ZipConstants {
         BufferedInputStream bufferedStream = new BufferedInputStream(rafStream, 4096);
         byte[] hdrBuf = new byte[CENHDR]; // Reuse the same buffer for each entry.
         for (int i = 0; i < numEntries; ++i) {
-            ZipEntry newEntry = new ZipEntry(hdrBuf, bufferedStream, charset);
+            ZipEntry newEntry = new ZipEntry(hdrBuf, bufferedStream, StandardCharsets.UTF_8);
             if (newEntry.localHeaderRelOffset >= centralDirOffset) {
                 throw new ZipException("Local file header offset is after central directory");
             }

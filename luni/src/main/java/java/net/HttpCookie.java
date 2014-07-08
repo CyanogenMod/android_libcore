@@ -560,28 +560,6 @@ public final class HttpCookie implements Cloneable {
     }
 
     /**
-     * Returns the {@code HttpOnly} attribute. If {@code true} the cookie should not be accessible
-     * to scripts in a browser.
-     *
-     * @since 1.7
-     * @hide Until ready for an API update
-     */
-    public boolean isHttpOnly() {
-        return httpOnly;
-    }
-
-    /**
-     * Returns the {@code HttpOnly} attribute. If {@code true} the cookie should not be accessible
-     * to scripts in a browser.
-     *
-     * @since 1.7
-     * @hide Until ready for an API update
-     */
-    public void setHttpOnly(boolean httpOnly) {
-        this.httpOnly = httpOnly;
-    }
-
-    /**
      * Returns the value of this cookie.
      */
     public String getValue() {
