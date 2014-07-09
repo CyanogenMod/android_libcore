@@ -254,7 +254,6 @@ public final class Locale implements Cloneable, Serializable {
      * See {@link #getExtension(char)} and {@link Builder#setExtension(char, String)}.
      *
      * @since 1.7
-     * @hide 1.7
      */
     public static final char PRIVATE_USE_EXTENSION = 'x';
 
@@ -265,7 +264,6 @@ public final class Locale implements Cloneable, Serializable {
      * See {@link #getExtension(char)} and {@link Builder#setExtension(char, String)}.
      *
      * @since 1.7
-     * @hide 1.7
      */
     public static final char UNICODE_LOCALE_EXTENSION = 'u';
 
@@ -297,7 +295,6 @@ public final class Locale implements Cloneable, Serializable {
      * the structured state (keywords and attributes) specified therein.
      *
      * @since 1.7
-     * @hide 1.7
      */
     public static final class Builder {
         private String language;
@@ -788,7 +785,6 @@ public final class Locale implements Cloneable, Serializable {
      * @throws NullPointerException if {@code languageTag} is {@code null}.
      *
      * @since 1.7
-     * @hide 1.7
      */
     public static Locale forLanguageTag(String languageTag) {
         if (languageTag == null) {
@@ -1243,7 +1239,6 @@ public final class Locale implements Cloneable, Serializable {
      * specification.
      *
      * @since 1.7
-     * @hide 1.7
      */
     public String getScript() {
         return scriptCode;
@@ -1253,7 +1248,6 @@ public final class Locale implements Cloneable, Serializable {
      * Equivalent to {@code getDisplayScript(Locale.getDefault()))}
      *
      * @since 1.7
-     * @hide 1.7
      */
     public String getDisplayScript() {
         return getDisplayScript(getDefault());
@@ -1265,7 +1259,6 @@ public final class Locale implements Cloneable, Serializable {
      * {@link #getScript()}.
      *
      * @since 1.7
-     * @hide 1.7
      */
     public String getDisplayScript(Locale locale) {
         if (scriptCode.isEmpty()) {
@@ -1301,7 +1294,6 @@ public final class Locale implements Cloneable, Serializable {
      * languages to appear in the ISO-639-2 code list.
      *
      * @since 1.7
-     * @hide 1.7
      */
     public String toLanguageTag() {
         if (cachedLanguageTag == null) {
@@ -1517,7 +1509,6 @@ public final class Locale implements Cloneable, Serializable {
      *     the IETF BCP-47 specification</a> (Section 2.2.6) for details.
      *
      * @since 1.7
-     * @hide 1.7
      */
     public Set<Character> getExtensionKeys() {
         return extensions.keySet();
@@ -1532,7 +1523,6 @@ public final class Locale implements Cloneable, Serializable {
      * {@link #getUnicodeLocaleKeys()}  and {@link #getUnicodeLocaleType}.
      *
      * @since 1.7
-     * @hide 1.7
      */
     public String getExtension(char extensionKey) {
         return extensions.get(extensionKey);
@@ -1545,7 +1535,6 @@ public final class Locale implements Cloneable, Serializable {
      * and <a href="http://www.unicode.org/reports/tr35/#BCP47">Unicode Technical Standard #35</a>
      *
      * @since 1.7
-     * @hide 1.7
      */
     public String getUnicodeLocaleType(String keyWord) {
         return unicodeKeywords.get(keyWord);
@@ -1558,7 +1547,6 @@ public final class Locale implements Cloneable, Serializable {
      * and <a href="http://www.unicode.org/reports/tr35/#BCP47">Unicode Technical Standard #35</a>
      *
      * @since 1.7
-     * @hide 1.7
      */
     public Set<String> getUnicodeLocaleAttributes() {
         return unicodeAttributes;
@@ -1571,7 +1559,6 @@ public final class Locale implements Cloneable, Serializable {
      * and <a href="http://www.unicode.org/reports/tr35/#BCP47">Unicode Technical Standard #35</a>
      *
      * @since 1.7
-     * @hide 1.7
      */
     public Set<String> getUnicodeLocaleKeys() {
         return unicodeKeywords.keySet();
