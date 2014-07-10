@@ -98,6 +98,22 @@ package java.lang.ref;
 public abstract class Reference<T> {
 
     /**
+     * Forces JNI path.
+     * If GC is not in progress (ie: not going through slow path), the referent
+     * can be quickly returned through intrinsic without passing through JNI.
+     * This flag forces the JNI path so that it can be tested and benchmarked.
+     */
+    private static boolean disableIntrinsic = false;
+
+    /**
+     * Slow path flag for the reference processor.
+     * Used by the reference processor to determine whether or not the referent
+     * can be immediately returned. Because the referent might get swept during
+     * GC, the slow path, which passes through JNI, must be taken.
+     */
+    private static boolean slowPathEnabled = false;
+
+    /**
      * The object to which this reference refers.
      * VM requirement: this field <em>must</em> be called "referent"
      * and be an object.
