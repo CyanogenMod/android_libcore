@@ -57,8 +57,8 @@ LOCAL_SRC_FILES := \
     valueOf.cpp \
 
 LOCAL_C_INCLUDES += \
-    external/icu4c/common \
-    external/icu4c/i18n \
+    external/icu/icu4c/source/common \
+    external/icu/icu4c/source/i18n \
     external/openssl/include \
     external/zlib \
     system/core/include \
