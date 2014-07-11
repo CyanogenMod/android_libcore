@@ -863,6 +863,15 @@ public final class StandardNames extends Assert {
                             "SSL_RSA_WITH_RC4_128_SHA",
                             CIPHER_SUITE_SECURE_RENEGOTIATION);
 
+    // NOTE: This list needs to be kept in sync with Javadoc of javax.net.ssl.SSLSocket and
+    // javax.net.ssl.SSLEngine.
+    public static final List<String> CIPHER_SUITES_DEFAULT_PSK = Arrays.asList(
+            "TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA",
+            "TLS_PSK_WITH_AES_128_CBC_SHA",
+            "TLS_PSK_WITH_AES_256_CBC_SHA"
+            );
+
     private static final Set<String> PERMITTED_DEFAULT_KEY_EXCHANGE_ALGS =
             new HashSet<String>(Arrays.asList("RSA",
                                               "DHE_RSA",
