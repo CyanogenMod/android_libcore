@@ -348,6 +348,7 @@ public final class Security {
      * Sets the value of the specified security property.
      */
     public static void setProperty(String key, String value) {
+        Services.setNeedRefresh();
         secprops.put(key, value);
     }
 
