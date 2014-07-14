@@ -22,6 +22,7 @@ import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import javax.net.SocketFactory;
+import org.apache.harmony.security.fortress.Services;
 
 /**
  * The abstract factory implementation to create {@code SSLSocket}s.
@@ -34,6 +35,8 @@ public abstract class SSLSocketFactory extends SocketFactory {
 
     private static String defaultName;
 
+    private static int lastCacheVersion = -1;
+
     /**
      * Returns the default {@code SSLSocketFactory} instance. The default is
      * defined by the security property {@code 'ssl.SocketFactory.provider'}.
@@ -41,6 +44,12 @@ public abstract class SSLSocketFactory extends SocketFactory {
      * @return the default ssl socket factory instance.
      */
     public static synchronized SocketFactory getDefault() {
+        int newCacheVersion = Services.getCacheVersion();
+        if (lastCacheVersion != newCacheVersion) {
+            defaultSocketFactory = null;
+            defaultName = null;
+            lastCacheVersion = newCacheVersion;
+        }
         if (defaultSocketFactory != null) {
             return defaultSocketFactory;
         }
