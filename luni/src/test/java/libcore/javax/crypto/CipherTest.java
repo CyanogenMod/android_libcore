@@ -1213,11 +1213,19 @@ public final class CipherTest extends TestCase {
         if (!isOnlyWrappingAlgorithm(algorithm)) {
             c.init(Cipher.ENCRYPT_MODE, encryptKey, encryptSpec);
             byte[] cipherText = c.doFinal(getActualPlainText(algorithm));
+            byte[] cipherText2 = c.doFinal(getActualPlainText(algorithm));
+            assertEquals(cipherID,
+                         Arrays.toString(cipherText),
+                         Arrays.toString(cipherText2));
             c.init(Cipher.DECRYPT_MODE, getDecryptKey(algorithm), decryptSpec);
             byte[] decryptedPlainText = c.doFinal(cipherText);
             assertEquals(cipherID,
                          Arrays.toString(getExpectedPlainText(algorithm, providerName)),
                          Arrays.toString(decryptedPlainText));
+            byte[] decryptedPlainText2 = c.doFinal(cipherText);
+            assertEquals(cipherID,
+                         Arrays.toString(decryptedPlainText),
+                         Arrays.toString(decryptedPlainText2));
         }
     }
 
