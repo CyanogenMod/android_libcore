@@ -107,22 +107,38 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("Taiwan", new Locale("", "TW").getDisplayCountry(Locale.US));
     }
 
-    public void test_tl() throws Exception {
+    public void test_tl_and_fil() throws Exception {
         // In jb-mr1, we had a last-minute hack to always return "Filipino" because
-        // icu4c 4.8 didn't have any localizations for fil. (http://b/7291355)
+        // icu4c 4.8 didn't have any localizations for fil. (http://b/7291355).
+        //
+        // After the icu4c 4.9 upgrade, we could localize "fil" correctly, though we
+        // needed another hack to supply "fil" instead of "tl" to icu4c. (http://b/8023288).
+        //
+        // These hacks have now been reverted, so "tl" really does represent
+        // tagalog and not filipino.
         Locale tl = new Locale("tl");
         Locale tl_PH = new Locale("tl", "PH");
-        assertEquals("Filipino", tl.getDisplayLanguage(Locale.ENGLISH));
-        assertEquals("Filipino", tl_PH.getDisplayLanguage(Locale.ENGLISH));
-        assertEquals("Filipino", tl.getDisplayLanguage(tl));
-        assertEquals("Filipino", tl_PH.getDisplayLanguage(tl_PH));
+        assertEquals("Tagalog", tl.getDisplayLanguage(Locale.ENGLISH));
+        assertEquals("Tagalog", tl_PH.getDisplayLanguage(Locale.ENGLISH));
+        assertEquals("tl", tl.getDisplayLanguage(tl));
+        assertEquals("tl", tl_PH.getDisplayLanguage(tl_PH));
 
-        // After the icu4c 4.9 upgrade, we could localize "fil" correctly, though we
-        // needed another hack to supply "fil" instead of "tl" to icu4c. (http://b/8023288)
         Locale es_MX = new Locale("es", "MX");
-        assertEquals("filipino", tl.getDisplayLanguage(es_MX));
-        assertEquals("filipino", tl_PH.getDisplayLanguage(es_MX));
-      }
+        assertEquals("tagalo", tl.getDisplayLanguage(es_MX));
+        assertEquals("tagalo", tl_PH.getDisplayLanguage(es_MX));
+
+        // Assert that we can deal with "fil" correctly, since we've switched
+        // to using "fil" for Filipino, and not "tl". (http://b/15873165).
+        Locale fil = new Locale("fil");
+        Locale fil_PH = new Locale("fil", "PH");
+        assertEquals("Filipino", fil.getDisplayLanguage(Locale.ENGLISH));
+        assertEquals("Filipino", fil_PH.getDisplayLanguage(Locale.ENGLISH));
+        assertEquals("Filipino", fil.getDisplayLanguage(fil));
+        assertEquals("Filipino", fil_PH.getDisplayLanguage(fil_PH));
+
+        assertEquals("filipino", fil.getDisplayLanguage(es_MX));
+        assertEquals("filipino", fil_PH.getDisplayLanguage(es_MX));
+    }
 
     // http://b/3452611; Locale.getDisplayLanguage fails for the obsolete language codes.
     public void test_getDisplayName_obsolete() throws Exception {
