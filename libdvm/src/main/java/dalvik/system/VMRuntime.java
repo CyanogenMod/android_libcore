@@ -370,4 +370,12 @@ public final class VMRuntime {
 
         return instructionSet;
     }
+
+    public static boolean is64BitInstructionSet(String instructionSet) {
+        return false;
+    }
+
+    public static boolean is64BitAbi(String abi) {
+        return false;
+    }
 }
