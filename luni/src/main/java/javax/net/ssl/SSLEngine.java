@@ -544,12 +544,12 @@ import java.nio.ByteBuffer;
  *         <tr>
  *             <td>TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA</td>
  *             <td>21+</td>
- *             <td></td>
+ *             <td>21+</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA</td>
  *             <td>21+</td>
- *             <td></td>
+ *             <td>21+</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_NULL_WITH_NULL_NULL</td>
@@ -564,12 +564,12 @@ import java.nio.ByteBuffer;
  *         <tr>
  *             <td>TLS_PSK_WITH_AES_128_CBC_SHA</td>
  *             <td>21+</td>
- *             <td></td>
+ *             <td>21+</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_PSK_WITH_AES_256_CBC_SHA</td>
  *             <td>21+</td>
- *             <td></td>
+ *             <td>21+</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_PSK_WITH_RC4_128_SHA</td>
@@ -638,6 +638,9 @@ import java.nio.ByteBuffer;
  *         </tr>
  *     </tbody>
  * </table>
+ *
+ * <p><em>NOTE</em>: PSK cipher suites are enabled by default only if the {@code SSLContext} through
+ * which the engine was created has been initialized with a {@code PSKKeyManager}.
  *
  * @since 1.5
  */
