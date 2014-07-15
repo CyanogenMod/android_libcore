@@ -47,6 +47,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.crypto.interfaces.DHPrivateKey;
+import javax.crypto.interfaces.DHPublicKey;
 import javax.crypto.spec.DHParameterSpec;
 
 import junit.framework.TestCase;
@@ -91,12 +93,8 @@ public class KeyPairGeneratorTest extends TestCase {
 
             AlgorithmParameterSpec params = null;
 
-            // TODO: detect if we're running in vogar and run the full test
             if ("DH".equals(algorithm)) {
-                // Disabled because this takes too long on devices.
-                // TODO: Re-enable DH test. http://b/5513723.
-                // params = getDHParams();
-                continue;
+                params = getDHParams();
             }
 
             try {
@@ -183,6 +181,14 @@ public class KeyPairGeneratorTest extends TestCase {
         test_KeyPair(kpg, kpg.generateKeyPair());
 
         String algorithm = kpg.getAlgorithm();
+
+        // TODO: detect if we're running in vogar and run the full test
+        if ("DH".equals(algorithm)) {
+            // Disabled because this takes too long on devices.
+            // TODO: Re-enable DH test. http://b/5513723.
+            return;
+        }
+
         List<Integer> keySizes = getKeySizes(algorithm);
         for (int keySize : keySizes) {
             kpg.initialize(keySize);
@@ -228,6 +234,17 @@ public class KeyPairGeneratorTest extends TestCase {
             expectedAlgorithm = "DH";
         }
         assertEquals(expectedAlgorithm, k.getAlgorithm().toUpperCase());
+        if (expectedAlgorithm.equals("DH")) {
+            if (k instanceof DHPublicKey) {
+                DHPublicKey dhPub = (DHPublicKey) k;
+                assertEquals(dhPub.getParams().getP(), getDHParams().getP());
+            } else if (k instanceof DHPrivateKey) {
+                DHPrivateKey dhPriv = (DHPrivateKey) k;
+                assertEquals(dhPriv.getParams().getP(), getDHParams().getP());
+            } else {
+                fail("not a public or private key!?");
+            }
+        }
         assertNotNull(k.getEncoded());
         assertNotNull(k.getFormat());
 
@@ -309,7 +326,7 @@ public class KeyPairGeneratorTest extends TestCase {
      *
      * openssl gendh 512 | openssl dhparams -C
      */
-    private static AlgorithmParameterSpec getDHParams() {
+    private static DHParameterSpec getDHParams() {
         BigInteger p = new BigInteger("E7AB1768BD75CD24700960FFA32D3F1557344E587101237532CC641646ED7A7C104743377F6D46251698B665CE2A6CBAB6714C2569A7D2CA22C0CF03FA40AC93", 16);
         BigInteger g = new BigInteger("02", 16);
         return new DHParameterSpec(p, g, 512);
