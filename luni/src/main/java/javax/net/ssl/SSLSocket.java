@@ -348,12 +348,12 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA</td>
  *             <td>21+</td>
- *             <td></td>
+ *             <td>21+</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA</td>
  *             <td>21+</td>
- *             <td></td>
+ *             <td>21+</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA</td>
@@ -528,12 +528,12 @@ import java.net.UnknownHostException;
  *         <tr>
  *             <td>TLS_PSK_WITH_AES_128_CBC_SHA</td>
  *             <td>21+</td>
- *             <td></td>
+ *             <td>21+</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_PSK_WITH_AES_256_CBC_SHA</td>
  *             <td>21+</td>
- *             <td></td>
+ *             <td>21+</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_PSK_WITH_RC4_128_SHA</td>
@@ -577,6 +577,9 @@ import java.net.UnknownHostException;
  *         </tr>
  *     </tbody>
  * </table>
+ *
+ * <p><em>NOTE</em>: PSK cipher suites are enabled by default only if the {@code SSLContext} through
+ * which the socket was created has been initialized with a {@code PSKKeyManager}.
  *
  * <p>API Levels 1 to 8 use OpenSSL names for cipher suites. The table below
  * lists these OpenSSL names and their corresponding standard names used in API
