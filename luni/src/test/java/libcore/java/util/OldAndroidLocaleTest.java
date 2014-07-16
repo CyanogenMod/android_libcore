@@ -76,9 +76,16 @@ public class OldAndroidLocaleTest extends TestCase {
 
     // This one makes sure we have all necessary locales installed.
     public void testICULocales() {
-        String[] locales = new String[] {
-                // List of locales currently required for Android.
-                "en_US", "es_US", "en_GB", "fr_FR", "de_DE", "de_AT", "cs_CZ", "nl_NL" };
+        // List of locales currently required for Android.
+        Locale[] locales = new Locale[] {
+                new Locale("en", "US"),
+                new Locale("es", "US"),
+                new Locale("en", "GB"),
+                new Locale("fr", "FR"),
+                new Locale("de", "DE"),
+                new Locale("de", "AT"),
+                new Locale("cs", "CZ"),
+                new Locale("nl", "NL") };
 
         String[] mondays = new String[] {
                 "Monday", "lunes", "Monday", "lundi", "Montag", "Montag", "pond\u011bl\u00ed", "maandag" };
@@ -87,14 +94,12 @@ public class OldAndroidLocaleTest extends TestCase {
                 "USD", "USD", "GBP", "EUR", "EUR", "EUR", "CZK", "EUR"};
 
         for (int i = 0; i < locales.length; i++) {
-            Locale l = new Locale(locales[i].substring(0, 2), locales[i].substring(3));
+            final Locale l = locales[i];
 
-            // Check language part of locale.
             DateFormatSymbols d = new DateFormatSymbols(l);
             assertEquals("Monday name for " + locales[i] + " must match",
                     mondays[i], d.getWeekdays()[2]);
 
-            // Check country part of locale.
             Currency c = Currency.getInstance(l);
             assertEquals("Currency code for " + locales[i] + " must match",
                     currencies[i], c.getCurrencyCode());
