@@ -24,9 +24,9 @@ import java.io.File;
  * installed as part of an application.
  *
  * <p>This class loader requires an application-private, writable directory to
- * cache optimized classes. Use {@code Context.getDir(String, int)} to create
+ * cache optimized classes. Use {@code Context.getCodeCacheDir()} to create
  * such a directory: <pre>   {@code
- *   File dexOutputDir = context.getDir("dex", 0);
+ *   File dexOutputDir = context.getCodeCacheDir();
  * }</pre>
  *
  * <p><strong>Do not cache optimized classes on external storage.</strong>
