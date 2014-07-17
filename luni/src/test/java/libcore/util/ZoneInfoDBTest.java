@@ -77,6 +77,24 @@ public class ZoneInfoDBTest extends junit.framework.TestCase {
     }
   }
 
+  // Confirms any caching that exists correctly handles TimeZone mutability.
+  public void testTimeZoneMutability() throws Exception {
+    ZoneInfoDB.TzData data = new ZoneInfoDB.TzData(TZDATA_IN_ROOT);
+    String tzId = "Europe/London";
+    ZoneInfo first = data.makeTimeZone(tzId);
+    ZoneInfo second = data.makeTimeZone(tzId);
+    assertNotSame(first, second);
+
+    assertTrue(first.hasSameRules(second));
+
+    first.setID("Not Europe/London");
+
+    assertFalse(first.getID().equals(second.getID()));
+
+    first.setRawOffset(3600);
+    assertFalse(first.getRawOffset() == second.getRawOffset());
+  }
+
   private static String makeCorruptFile() throws Exception {
     return makeTemporaryFile("invalid content".getBytes());
   }
