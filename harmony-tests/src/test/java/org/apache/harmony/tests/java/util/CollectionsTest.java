@@ -23,8 +23,9 @@ import tests.support.Support_CollectionTest;
 import tests.support.Support_ListTest;
 import tests.support.Support_SetTest;
 import tests.support.Support_UnmodifiableCollectionTest;
-import tests.support.Support_UnmodifiableMapTest;
+
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
@@ -38,6 +39,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -67,7 +69,7 @@ public class CollectionsTest extends junit.framework.TestCase {
 
     private HashMap hm;
 
-    private Object[] objArray;
+    private Integer[] objArray;
 
     private Object[] myobjArray;
 
@@ -125,10 +127,10 @@ public class CollectionsTest extends junit.framework.TestCase {
             colSize = c.size();
             normalCountingList = new ArrayList(colSize);
             offsetCountingList = new ArrayList(colSize);
-            for (int counter = 0; counter < colSize; counter++)
-                normalCountingList.add(new Integer(counter));
-            for (int counter = 0; counter < colSize; counter++)
-                offsetCountingList.add(new Integer(counter + colSize));
+            for (int i = 0; i < colSize; i++)
+                normalCountingList.add(new Integer(i));
+            for (int i = 0; i < colSize; i++)
+                offsetCountingList.add(new Integer(i + colSize));
             col.clear();
             if (offset)
                 col.addAll(offsetCountingList);
@@ -208,12 +210,12 @@ public class CollectionsTest extends junit.framework.TestCase {
             mapSize = m.size();
             normalCountingMap = new HashMap(mapSize);
             offsetCountingMap = new HashMap(mapSize);
-            for (int counter = 0; counter < mapSize; counter++) {
-                myInt = new Integer(counter);
+            for (int i = 0; i < mapSize; i++) {
+                myInt = new Integer(i);
                 normalCountingMap.put(myInt, myInt);
             }
-            for (int counter = 0; counter < mapSize; counter++) {
-                myInt = new Integer(counter + mapSize);
+            for (int i = 0; i < mapSize; i++) {
+                myInt = new Integer(i + mapSize);
                 offsetCountingMap.put(myInt, myInt);
             }
             map.clear();
@@ -241,21 +243,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-    public static class CollectionTest extends junit.framework.TestCase {
-
-        Collection col; // must contain the Integers 0 to 99
-
-        public CollectionTest(String p1) {
-            super(p1);
-        }
-
-        public CollectionTest(String p1, Collection c) {
-            super(p1);
-            col = c;
-        }
-
-    }
-
     static class MyInt {
         int data;
 
@@ -268,10 +255,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * java.util.Collections#binarySearch(java.util.List,
-     *        java.lang.Object)
-     */
     public void test_binarySearchLjava_util_ListLjava_lang_Object() {
         // Test for method int
         // java.util.Collections.binarySearch(java.util.List, java.lang.Object)
@@ -284,17 +267,13 @@ public class CollectionsTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             //Expected
         }
-        for (int counter = 0; counter < llSize; counter++) {
+        for (int i = 0; i < llSize; i++) {
             assertEquals("Returned incorrect binary search item position", ll
-                    .get(counter), ll.get(Collections.binarySearch(ll, ll
-                    .get(counter))));
+                    .get(i), ll.get(Collections.binarySearch(ll, ll
+                    .get(i))));
         }
     }
 
-    /**
-     * java.util.Collections#binarySearch(java.util.List,
-     *        java.lang.Object, java.util.Comparator)
-     */
     public void test_binarySearchLjava_util_ListLjava_lang_ObjectLjava_util_Comparator() {
         // Test for method int
         // java.util.Collections.binarySearch(java.util.List, java.lang.Object,
@@ -310,12 +289,12 @@ public class CollectionsTest extends junit.framework.TestCase {
         } catch (NullPointerException e) {
             //Expected
         }
-        for (int counter = 0; counter < rSize; counter++) {
+        for (int i = 0; i < rSize; i++) {
             assertEquals(
                     "Returned incorrect binary search item position using custom comparator",
-                    myReversedLinkedList.get(counter), myReversedLinkedList
+                    myReversedLinkedList.get(i), myReversedLinkedList
                     .get(Collections.binarySearch(myReversedLinkedList,
-                            myReversedLinkedList.get(counter), comp)));
+                            myReversedLinkedList.get(i), comp)));
         }
     }
 
@@ -327,9 +306,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * java.util.Collections#copy(java.util.List, java.util.List)
-     */
     public void test_copyLjava_util_ListLjava_util_List() {
         // Test for method void java.util.Collections.copy(java.util.List,
         // java.util.List)
@@ -355,9 +331,9 @@ public class CollectionsTest extends junit.framework.TestCase {
         al.add(extraElement);
         al.add(extraElement2);
         Collections.copy(al, ll);
-        for (int counter = 0; counter < llSize; counter++) {
+        for (int i = 0; i < llSize; i++) {
             assertEquals("Elements do not match after copying collection", ll
-                    .get(counter), al.get(counter));
+                    .get(i), al.get(i));
         }
         assertTrue("Elements after copied elements affected by copy",
                 extraElement == al.get(llSize)
@@ -399,9 +375,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * java.util.Collections#copy(java.util.List, java.util.List)
-     */
     public void test_copy_check_index() {
         ArrayList a1 = new ArrayList();
         a1.add("one");
@@ -420,9 +393,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         assertEquals("aa", a2.get(0));
     }
 
-    /**
-     * java.util.Collections#enumeration(java.util.Collection)
-     */
     public void test_enumerationLjava_util_Collection() {
         // Test for method java.util.Enumeration
         // java.util.Collections.enumeration(java.util.Collection)
@@ -438,9 +408,6 @@ public class CollectionsTest extends junit.framework.TestCase {
                 count);
     }
 
-    /**
-     * java.util.Collections#fill(java.util.List, java.lang.Object)
-     */
     public void test_fillLjava_util_ListLjava_lang_Object() {
         // Test for method void java.util.Collections.fill(java.util.List,
         // java.lang.Object)
@@ -476,9 +443,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * java.util.Collections#max(java.util.Collection)
-     */
     public void test_maxLjava_util_Collection() {
         // Test for method java.lang.Object
         // java.util.Collections.max(java.util.Collection)
@@ -507,10 +471,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * java.util.Collections#max(java.util.Collection,
-     *        java.util.Comparator)
-     */
     public void test_maxLjava_util_CollectionLjava_util_Comparator() {
         // Test for method java.lang.Object
         // java.util.Collections.max(java.util.Collection, java.util.Comparator)
@@ -523,9 +483,6 @@ public class CollectionsTest extends junit.framework.TestCase {
                 myobjArray[0]);
     }
 
-    /**
-     * java.util.Collections#min(java.util.Collection)
-     */
     public void test_minLjava_util_Collection() {
         // Test for method java.lang.Object
         // java.util.Collections.min(java.util.Collection)
@@ -534,10 +491,6 @@ public class CollectionsTest extends junit.framework.TestCase {
                 objArray[0]);
     }
 
-    /**
-     * java.util.Collections#min(java.util.Collection,
-     *        java.util.Comparator)
-     */
     public void test_minLjava_util_CollectionLjava_util_Comparator() {
         // Test for method java.lang.Object
         // java.util.Collections.min(java.util.Collection, java.util.Comparator)
@@ -550,16 +503,13 @@ public class CollectionsTest extends junit.framework.TestCase {
                 myobjArray[objArray.length - 1]);
     }
 
-    /**
-     * java.util.Collections#nCopies(int, java.lang.Object)
-     */
     public void test_nCopiesILjava_lang_Object() {
         // Test for method java.util.List java.util.Collections.nCopies(int,
         // java.lang.Object)
         Object o = new Object();
         List l = Collections.nCopies(100, o);
-        Iterator i = l.iterator();
-        Object first = i.next();
+        Iterator iterator = l.iterator();
+        Object first = iterator.next();
         assertEquals("Returned list consists of copies not refs", first, o);
         assertEquals("Returned list of incorrect size", 100, l.size());
         assertTrue("Contains", l.contains(o));
@@ -569,10 +519,10 @@ public class CollectionsTest extends junit.framework.TestCase {
         assertTrue("null nCopies contains null", Collections.nCopies(2, null)
                 .contains(null));
         l = Collections.nCopies(20, null);
-        i = l.iterator();
-        for (int counter = 0; i.hasNext(); counter++) {
-            assertTrue("List is too large", counter < 20);
-            assertNull("Element should be null: " + counter, i.next());
+        iterator = l.iterator();
+        for (int i = 0; iterator.hasNext(); i++) {
+            assertTrue("List is too large", i < 20);
+            assertNull("Element should be null: " + i, iterator.next());
         }
         try {
             l.add(o);
@@ -588,9 +538,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * java.util.Collections#reverse(java.util.List)
-     */
     public void test_reverseLjava_util_List() {
         // Test for method void java.util.Collections.reverse(java.util.List)
         try {
@@ -617,9 +564,6 @@ public class CollectionsTest extends junit.framework.TestCase {
                 + myList.get(1), myList.get(1));
     }
 
-    /**
-     * java.util.Collections#reverseOrder()
-     */
     public void test_reverseOrder() {
         // Test for method java.util.Comparator
         // java.util.Collections.reverseOrder()
@@ -628,14 +572,11 @@ public class CollectionsTest extends junit.framework.TestCase {
         LinkedList list2 = new LinkedList(ll);
         Collections.sort(list2, comp);
         final int llSize = ll.size();
-        for (int counter = 0; counter < llSize; counter++)
+        for (int i = 0; i < llSize; i++)
             assertEquals("New comparator does not reverse sorting order", list2
-                    .get(llSize - counter - 1), ll.get(counter));
+                    .get(llSize - i - 1), ll.get(i));
     }
 
-    /**
-     * java.util.Collections#shuffle(java.util.List)
-     */
     public void test_shuffleLjava_util_List() {
         // Test for method void java.util.Collections.shuffle(java.util.List)
         // Assumes ll is sorted and has no duplicate keys and is large ( > 20
@@ -682,15 +623,15 @@ public class CollectionsTest extends junit.framework.TestCase {
         else
             Collections.shuffle(list, new Random(200));
 
-        for (int counter = 0; counter < size - 1; counter++) {
-            if (((Integer) list.get(counter)).compareTo((Integer) list.get(counter + 1)) > 0) {
+        for (int i = 0; i < size - 1; i++) {
+            if (((Integer) list.get(i)).compareTo((Integer) list.get(i + 1)) > 0) {
                 sorted = false;
             }
         }
         assertFalse("Shuffling sorted " + type
                 + " list resulted in sorted list (should be unlikely)", sorted);
-        for (int counter = 0; counter < 20; counter++) {
-            index = 30031 * counter % (size + 1); // 30031 is a large prime
+        for (int i = 0; i < 20; i++) {
+            index = 30031 * i % (size + 1); // 30031 is a large prime
             if (list.get(index) != ll.get(index))
                 allMatch = false;
         }
@@ -698,9 +639,6 @@ public class CollectionsTest extends junit.framework.TestCase {
                 + " list", allMatch);
     }
 
-    /**
-     * java.util.Collections#shuffle(java.util.List, java.util.Random)
-     */
     public void test_shuffleLjava_util_ListLjava_util_Random() {
         // Test for method void java.util.Collections.shuffle(java.util.List,
         // java.util.Random)
@@ -731,9 +669,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         assertEquals("acb", l.get(0).toString() + l.get(1) + l.get(2));
     }
 
-    /**
-     * java.util.Collections#singleton(java.lang.Object)
-     */
     public void test_singletonLjava_lang_Object() {
         // Test for method java.util.Set
         // java.util.Collections.singleton(java.lang.Object)
@@ -754,9 +689,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * java.util.Collections#sort(java.util.List)
-     */
     public void test_sortLjava_util_List() {
         // Test for method void java.util.Collections.sort(java.util.List)
         // assumes no duplicate keys in ll
@@ -771,22 +703,19 @@ public class CollectionsTest extends junit.framework.TestCase {
         Collections.shuffle(ll);
         Collections.sort(ll);
         Collections.sort(reversedLinkedList);
-        for (int counter = 0; counter < llSize - 1; counter++) {
+        for (int i = 0; i < llSize - 1; i++) {
             assertTrue(
                     "Sorting shuffled list resulted in unsorted list",
-                    ((Integer) ll.get(counter)).compareTo((Integer) ll.get(counter + 1)) < 0);
+                    ((Integer) ll.get(i)).compareTo((Integer) ll.get(i + 1)) < 0);
         }
 
-        for (int counter = 0; counter < rllSize - 1; counter++) {
+        for (int i = 0; i < rllSize - 1; i++) {
             assertTrue("Sorting reversed list resulted in unsorted list",
-                    ((Integer) reversedLinkedList.get(counter))
-                            .compareTo((Integer) reversedLinkedList.get(counter + 1)) < 0);
+                    ((Integer) reversedLinkedList.get(i))
+                            .compareTo((Integer) reversedLinkedList.get(i + 1)) < 0);
         }
     }
 
-    /**
-     * java.util.Collections#sort(java.util.List, java.util.Comparator)
-     */
     public void test_sortLjava_util_ListLjava_util_Comparator() {
         // Test for method void java.util.Collections.sort(java.util.List,
         // java.util.Comparator)
@@ -801,11 +730,11 @@ public class CollectionsTest extends junit.framework.TestCase {
         Collections.sort(myll, comp);
         final int llSize = myll.size();
 
-        for (int counter = 0; counter < llSize - 1; counter++) {
+        for (int i = 0; i < llSize - 1; i++) {
             assertTrue(
                     "Sorting shuffled list with custom comparator resulted in unsorted list",
-                    ((MyInt) myll.get(counter)).compareTo((MyInt) myll
-                            .get(counter + 1)) >= 0);
+                    ((MyInt) myll.get(i)).compareTo((MyInt) myll
+                            .get(i + 1)) >= 0);
         }
 
         ArrayList al = new ArrayList();
@@ -834,9 +763,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * java.util.Collections#swap(java.util.List, int, int)
-     */
     public void test_swapLjava_util_ListII() {
         // Test for method swap(java.util.List, int, int)
 
@@ -897,10 +823,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * java.util.Collections#replaceAll(java.util.List, java.lang.Object,
-     *        java.lang.Object)
-     */
     public void test_replaceAllLjava_util_ListLjava_lang_ObjectLjava_lang_Object() {
         // Test for method replaceAll(java.util.List, java.lang.Object,
         // java.lang.Object)
@@ -998,9 +920,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * java.util.Collections#rotate(java.util.List, int)
-     */
     public void test_rotateLjava_util_ListI() {
         // Test for method rotate(java.util.List, int)
 
@@ -1081,9 +1000,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         return buffer.toString();
     }
 
-    /**
-     * java.util.Collections#rotate(java.util.List, int)
-     */
     public void test_rotate2() {
         List list = new ArrayList();
         try {
@@ -1112,10 +1028,6 @@ public class CollectionsTest extends junit.framework.TestCase {
                 (String) list.get(4));
     }
 
-    /**
-     * java.util.Collections#indexOfSubList(java.util.List,
-     *        java.util.List)
-     */
     public void test_indexOfSubListLjava_util_ListLjava_util_List() {
         // Test for method int indexOfSubList(java.util.List, java.util.List)
         List list = new ArrayList();
@@ -1146,10 +1058,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         testwithCharList(8, "", "SUBLIST", true);
     }
 
-    /**
-     * java.util.Collections#indexOfSubList(java.util.List,
-     *        java.util.List)
-     */
     public void test_indexOfSubList2() {
         ArrayList sub = new ArrayList();
         sub.add(new Integer(1));
@@ -1205,7 +1113,6 @@ public class CollectionsTest extends junit.framework.TestCase {
                 .indexOfSubList(src, sub2));
     }
 
-
     private void testwithCharList(int count, String string1, String string2,
             boolean first) {
         char[] chars = string1.toCharArray();
@@ -1229,10 +1136,6 @@ public class CollectionsTest extends junit.framework.TestCase {
                     sublist));
     }
 
-    /**
-     * java.util.Collections#lastIndexOfSubList(java.util.List,
-     *        java.util.List)
-     */
     public void test_lastIndexOfSubListLjava_util_ListLjava_util_List() {
         // Test for method int lastIndexOfSubList(java.util.List,
         // java.util.List)
@@ -1264,10 +1167,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         testwithCharList(8, "", "SUBLIST", false);
     }
 
-    /**
-     * java.util.Collections#lastIndexOfSubList(java.util.List,
-     *        java.util.List)
-     */
     public void test_lastIndexOfSubList2() {
         ArrayList sub = new ArrayList();
         sub.add(new Integer(1));
@@ -1337,9 +1236,6 @@ public class CollectionsTest extends junit.framework.TestCase {
                 Collections.lastIndexOfSubList(src, sub2));
     }
 
-    /**
-     * java.util.Collections#list(java.util.Enumeration)
-     */
     public void test_listLjava_util_Enumeration() {
         // Test for method java.util.ArrayList list(java.util.Enumeration)
 
@@ -1355,9 +1251,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * java.util.Collections#synchronizedCollection(java.util.Collection)
-     */
     public void test_synchronizedCollectionLjava_util_Collection() {
         // Test for method java.util.Collection
         // java.util.Collections.synchronizedCollection(java.util.Collection)
@@ -1415,9 +1308,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         assertTrue("should contain self ref", synchCol.toString().indexOf("(this") > -1);
     }
 
-    /**
-     * java.util.Collections#synchronizedList(java.util.List)
-     */
     public void test_synchronizedListLjava_util_List() {
         try {
             Collections.synchronizedList(null);
@@ -1505,9 +1395,6 @@ public class CollectionsTest extends junit.framework.TestCase {
                 synchList.get(25));
     }
 
-    /**
-     * java.util.Collections#synchronizedMap(java.util.Map)
-     */
     public void test_synchronizedMapLjava_util_Map() {
         // Test for method java.util.Map
         // java.util.Collections.synchronizedMap(java.util.Map)
@@ -1561,7 +1448,7 @@ public class CollectionsTest extends junit.framework.TestCase {
             smallMap.put(objArray[i].toString(), objArray[i]);
         }
         synchMap = Collections.synchronizedMap(smallMap);
-        new Support_UnmodifiableMapTest("", synchMap).runTest();
+        new MapTestSupport(synchMap).runTest();
         synchMap.keySet().remove(objArray[50].toString());
         assertNull(
                 "Removing a key from the keySet of the synchronized map did not remove it from the synchronized map: ",
@@ -1571,9 +1458,17 @@ public class CollectionsTest extends junit.framework.TestCase {
                 smallMap.get(objArray[50].toString()));
     }
 
-    /**
-     * java.util.Collections#synchronizedSet(java.util.Set)
-     */
+    public void test_unmodifiableMap_LinkedHashMap() {
+        // LinkedHashMap has a well defined iteration order and shows ordering issues with
+        // entrySet() / keySet() methods: iterator(), toArray(T[]) and toArray(). See bug 72073.
+        LinkedHashMap<String, Integer> smallMap = new LinkedHashMap<String, Integer>();
+        for (int i = 0; i < 100; i++) {
+            Integer object = objArray[i];
+            smallMap.put(object.toString(), object);
+        }
+        new MapTestSupport(smallMap).runTest();
+    }
+
     public void test_synchronizedSetLjava_util_Set() {
         // Test for method java.util.Set
         // java.util.Collections.synchronizedSet(java.util.Set)
@@ -1631,9 +1526,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         assertTrue("should contain self ref", mySet.toString().indexOf("(this") > -1);
     }
 
-    /**
-     * java.util.Collections#synchronizedSortedMap(java.util.SortedMap)
-     */
     public void test_synchronizedSortedMapLjava_util_SortedMap() {
         // Test for method java.util.SortedMap
         // java.util.Collections.synchronizedSortedMap(java.util.SortedMap)
@@ -1679,7 +1571,7 @@ public class CollectionsTest extends junit.framework.TestCase {
             smallMap.put(objArray[i].toString(), objArray[i]);
         }
         synchMap = Collections.synchronizedSortedMap(smallMap);
-        new Support_UnmodifiableMapTest("", synchMap).runTest();
+        new MapTestSupport(synchMap).runTest();
         synchMap.keySet().remove(objArray[50].toString());
         assertNull(
                 "Removing a key from the keySet of the synchronized map did not remove it from the synchronized map",
@@ -1689,9 +1581,6 @@ public class CollectionsTest extends junit.framework.TestCase {
                 smallMap.get(objArray[50].toString()));
     }
 
-    /**
-     * java.util.Collections#synchronizedSortedSet(java.util.SortedSet)
-     */
     public void test_synchronizedSortedSetLjava_util_SortedSet() {
         // Test for method java.util.SortedSet
         // java.util.Collections.synchronizedSortedSet(java.util.SortedSet)
@@ -1733,9 +1622,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-    /**
-     * java.util.Collections#unmodifiableCollection(java.util.Collection)
-     */
     public void test_unmodifiableCollectionLjava_util_Collection() {
         // Test for method java.util.Collection
         // java.util.Collections.unmodifiableCollection(java.util.Collection)
@@ -1743,9 +1629,9 @@ public class CollectionsTest extends junit.framework.TestCase {
         Collection c = Collections.unmodifiableCollection(ll);
         assertTrue("Returned collection is of incorrect size", c.size() == ll
                 .size());
-        Iterator i = ll.iterator();
-        while (i.hasNext())
-            assertTrue("Returned list missing elements", c.contains(i.next()));
+        Iterator iterator = ll.iterator();
+        while (iterator.hasNext())
+            assertTrue("Returned list missing elements", c.contains(iterator.next()));
         try {
             c.add(new Object());
         } catch (UnsupportedOperationException e) {
@@ -1772,16 +1658,13 @@ public class CollectionsTest extends junit.framework.TestCase {
                 .contains(new Integer(20)));
 
         myCollection = new ArrayList();
-        for (int counter = 0; counter < 100; counter++) {
-            myCollection.add(objArray[counter]);
+        for (int i = 0; i < 100; i++) {
+            myCollection.add(objArray[i]);
         }
         new Support_UnmodifiableCollectionTest("", Collections
                 .unmodifiableCollection(myCollection)).runTest();
     }
 
-    /**
-     * java.util.Collections#unmodifiableList(java.util.List)
-     */
     public void test_unmodifiableListLjava_util_List() {
         // Test for method java.util.List
         // java.util.Collections.unmodifiableList(java.util.List)
@@ -1801,9 +1684,9 @@ public class CollectionsTest extends junit.framework.TestCase {
                 "Returned List should not implement Random Access interface",
                 !(c instanceof RandomAccess));
 
-        Iterator i = ll.iterator();
-        while (i.hasNext())
-            assertTrue("Returned list missing elements", c.contains(i.next()));
+        Iterator iterator = ll.iterator();
+        while (iterator.hasNext())
+            assertTrue("Returned list missing elements", c.contains(iterator.next()));
         try {
             c.add(new Object());
         } catch (UnsupportedOperationException e) {
@@ -1833,8 +1716,8 @@ public class CollectionsTest extends junit.framework.TestCase {
                 c instanceof RandomAccess);
 
         smallList = new ArrayList();
-        for (int counter = 0; counter < 100; counter++) {
-            smallList.add(objArray[counter]);
+        for (int i = 0; i < 100; i++) {
+            smallList.add(objArray[i]);
         }
         List myList = Collections.unmodifiableList(smallList);
         assertTrue("List should not contain null", !myList.contains(null));
@@ -1845,25 +1728,22 @@ public class CollectionsTest extends junit.framework.TestCase {
         assertTrue("get failed on unmodifiable list", myList.get(50).equals(
                 new Integer(50)));
         ListIterator listIterator = myList.listIterator();
-        for (int counter = 0; listIterator.hasNext(); counter++) {
+        for (int i = 0; listIterator.hasNext(); i++) {
             assertTrue("List has wrong elements", ((Integer) listIterator
-                    .next()).intValue() == counter);
+                    .next()).intValue() == i);
         }
         new Support_UnmodifiableCollectionTest("", smallList).runTest();
     }
 
-    /**
-     * java.util.Collections#unmodifiableMap(java.util.Map)
-     */
     public void test_unmodifiableMapLjava_util_Map() {
         // Test for method java.util.Map
         // java.util.Collections.unmodifiableMap(java.util.Map)
         boolean exception = false;
         Map c = Collections.unmodifiableMap(hm);
         assertTrue("Returned map is of incorrect size", c.size() == hm.size());
-        Iterator i = hm.keySet().iterator();
-        while (i.hasNext()) {
-            Object x = i.next();
+        Iterator iterator = hm.keySet().iterator();
+        while (iterator.hasNext()) {
+            Object x = iterator.next();
             assertTrue("Returned map missing elements", c.get(x).equals(
                     hm.get(x)));
         }
@@ -1885,8 +1765,8 @@ public class CollectionsTest extends junit.framework.TestCase {
         assertTrue("Allowed modification of map", exception);
 
         exception = false;
-        Iterator it = c.entrySet().iterator();
-        Map.Entry entry = (Map.Entry) it.next();
+        Iterator entrySetIterator = c.entrySet().iterator();
+        Map.Entry entry = (Map.Entry) entrySetIterator.next();
         try {
             entry.setValue("modified");
         } catch (UnsupportedOperationException e) {
@@ -1927,26 +1807,21 @@ public class CollectionsTest extends junit.framework.TestCase {
                 .equals(new Long(30)));
 
         smallMap = new HashMap();
-        for (int counter = 0; counter < 100; counter++) {
-            smallMap.put(objArray[counter].toString(), objArray[counter]);
+        for (int i = 0; i < 100; i++) {
+            smallMap.put(objArray[i].toString(), objArray[i]);
         }
-        unmodMap = Collections.unmodifiableMap(smallMap);
-        new Support_UnmodifiableMapTest("", unmodMap).runTest();
-
+        new MapTestSupport(smallMap).runTest();
     }
 
-    /**
-     * java.util.Collections#unmodifiableSet(java.util.Set)
-     */
     public void test_unmodifiableSetLjava_util_Set() {
         // Test for method java.util.Set
         // java.util.Collections.unmodifiableSet(java.util.Set)
         boolean exception = false;
         Set c = Collections.unmodifiableSet(s);
         assertTrue("Returned set is of incorrect size", c.size() == s.size());
-        Iterator i = ll.iterator();
-        while (i.hasNext())
-            assertTrue("Returned set missing elements", c.contains(i.next()));
+        Iterator iterator = ll.iterator();
+        while (iterator.hasNext())
+            assertTrue("Returned set missing elements", c.contains(iterator.next()));
         try {
             c.add(new Object());
         } catch (UnsupportedOperationException e) {
@@ -1969,16 +1844,13 @@ public class CollectionsTest extends junit.framework.TestCase {
         assertTrue("Should contain null", mySet.contains(null));
 
         mySet = new TreeSet();
-        for (int counter = 0; counter < 100; counter++) {
-            mySet.add(objArray[counter]);
+        for (int i = 0; i < 100; i++) {
+            mySet.add(objArray[i]);
         }
         new Support_UnmodifiableCollectionTest("", Collections
                 .unmodifiableSet(mySet)).runTest();
     }
 
-    /**
-     * java.util.Collections#unmodifiableSortedMap(java.util.SortedMap)
-     */
     public void test_unmodifiableSortedMapLjava_util_SortedMap() {
         // Test for method java.util.SortedMap
         // java.util.Collections.unmodifiableSortedMap(java.util.SortedMap)
@@ -2012,9 +1884,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         fail("Allowed modification of map");
     }
 
-    /**
-     * java.util.Collections#unmodifiableSortedSet(java.util.SortedSet)
-     */
     public void test_unmodifiableSortedSetLjava_util_SortedSet() {
         // Test for method java.util.SortedSet
         // java.util.Collections.unmodifiableSortedSet(java.util.SortedSet)
@@ -2115,10 +1984,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
-
-    /**
-     * java.util.Collections#checkType(Object, Class)
-     */
     public void test_checkType_Ljava_lang_Object_Ljava_lang_Class() throws Exception {
         Method m = Collections.class.getDeclaredMethod("checkType", Object.class, Class.class);
         m.setAccessible(true);
@@ -2257,9 +2122,6 @@ public class CollectionsTest extends junit.framework.TestCase {
         SerializationTest.verifySelf(set);
     }
 
-    /**
-     * {@link java.util.Collections#asLifoQueue(Deque)
-     */
     public void test_asLifoQueue() throws Exception {
         Integer testInt[] = new Integer[100];
         Integer test101 = new Integer(101);
@@ -2300,7 +2162,6 @@ public class CollectionsTest extends junit.framework.TestCase {
     @SuppressWarnings({ "unchecked", "boxing" })
     public void testSerializationSelf_asLifoQueue() throws Exception {
         Integer testInt[] = new Integer[100];
-        Integer test101 = new Integer(101);
         for (int i = 0; i < testInt.length; i++) {
             testInt[i] = new Integer(i);
         }
@@ -2320,23 +2181,18 @@ public class CollectionsTest extends junit.framework.TestCase {
         });
     }
 
-    /**
-     * java.util.Collections#emptyList()
-     */
     public void test_emptyList() {
         List<String> list = Collections.emptyList();
         assertTrue("should be true", list.isEmpty());
     }
 
-    /**
-     * Sets up the fixture, for example, open a network connection. This method
-     * is called before a test is executed.
-     */
-    protected void setUp() {
-        objArray = new Object[1000];
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        objArray = new Integer[1000];
         myobjArray = new Object[1000];
         for (int i = 0; i < objArray.length; i++) {
-            objArray[i] = new Integer(i);
+            objArray[i] = i;
             myobjArray[i] = new MyInt(i);
         }
 
@@ -2360,23 +2216,170 @@ public class CollectionsTest extends junit.framework.TestCase {
     }
 
     /**
-     * Tears down the fixture, for example, close a network connection. This
-     * method is called after a test is executed.
+     * A class shared by various Map-related tests that checks the properties and contents of a
+     * supplied Map and compares the some methods to the same map when wrapped with
+     * {@link Collections#unmodifiableMap(java.util.Map)}.
      */
-    protected void tearDown() {
-        objArray = null;
-        myobjArray = null;
+    static class MapTestSupport {
 
-        ll = null;
-        myll = null;
-        reversedLinkedList = null;
-        myReversedLinkedList = null;
-        s = null;
-        mys = null;
-        hm = null;
-    }
+        // must be a map containing the string keys "0"-"99" paired with the Integer
+        // values Integer(0) to Integer(99)
+        private final Map<String, Integer> modifiableMap;
+        private final Map<String, Integer> unmodifiableMap;
 
-    protected void doneSuite() {
-        objArray = null;
+        public MapTestSupport(Map<String, Integer> modifiableMap) {
+            this.modifiableMap = modifiableMap;
+            unmodifiableMap = Collections.unmodifiableMap(modifiableMap);
+        }
+
+        public void runTest() {
+            testContents(modifiableMap);
+            testContents(unmodifiableMap);
+
+            // values()
+            new Support_UnmodifiableCollectionTest("values() from map test", modifiableMap.values())
+                    .runTest();
+            new Support_UnmodifiableCollectionTest("values() from unmodifiable map test",
+                    unmodifiableMap.values()).runTest();
+
+            // entrySet()
+            testEntrySet(modifiableMap.entrySet(), unmodifiableMap.entrySet());
+
+            // keySet()
+            testKeySet(modifiableMap.keySet(), unmodifiableMap.keySet());
+        }
+
+        private static void testContents(Map<String, Integer> map) {
+            // size
+            assertTrue("Size should return 100, returned: " + map.size(), map.size() == 100);
+
+            // containsKey
+            assertTrue("Should contain the key \"0\"", map.containsKey("0"));
+            assertTrue("Should contain the key \"50\"", map.containsKey("50"));
+            assertTrue("Should not contain the key \"100\"", !map.containsKey("100"));
+
+            // containsValue
+            assertTrue("Should contain the value 0", map.containsValue(0));
+            assertTrue("Should contain the value 50", map.containsValue(50));
+            assertTrue("Should not contain value 100", !map.containsValue(100));
+
+            // get
+            assertTrue("getting \"0\" didn't return 0", map.get("0") == 0);
+            assertTrue("getting \"50\" didn't return 50", map.get("50") == 50);
+            assertNull("getting \"100\" didn't return null", map.get("100"));
+
+            // isEmpty
+            assertTrue("should have returned false to isEmpty", !map.isEmpty());
+        }
+
+        private static void testEntrySet(
+                Set<Map.Entry<String, Integer>> referenceEntrySet,
+                Set<Map.Entry<String, Integer>> entrySet) {
+            // entrySet should be a set of mappings {"0", 0}, {"1",1}... {"99", 99}
+            assertEquals(100, referenceEntrySet.size());
+            assertEquals(100, entrySet.size());
+
+            // The ordering may be undefined for a map implementation but the ordering must be the
+            // same across iterator(), toArray() and toArray(T[]) for a given map *and* the same for the
+            // modifiable and unmodifiable map.
+            crossCheckOrdering(referenceEntrySet, entrySet, Map.Entry.class);
+        }
+
+        private static void testKeySet(Set<String> referenceKeySet, Set<String> keySet) {
+            // keySet should be a set of the strings "0" to "99"
+            testKeySetContents(referenceKeySet);
+            testKeySetContents(keySet);
+
+            // The ordering may be undefined for a map implementation but the ordering must be the
+            // same across iterator(), toArray() and toArray(T[]) for a given map *and* the same for the
+            // modifiable and unmodifiable map.
+            crossCheckOrdering(referenceKeySet, keySet, String.class);
+        }
+
+        private static void testKeySetContents(Set<String> keySet) {
+            // contains
+            assertTrue("should contain \"0\"", keySet.contains("0"));
+            assertTrue("should contain \"50\"", keySet.contains("50"));
+            assertTrue("should not contain \"100\"", !keySet.contains("100"));
+
+            // containsAll
+            HashSet<String> hs = new HashSet<String>();
+            hs.add("0");
+            hs.add("25");
+            hs.add("99");
+            assertTrue("Should contain set of \"0\", \"25\", and \"99\"", keySet.containsAll(hs));
+            hs.add("100");
+            assertTrue("Should not contain set of \"0\", \"25\", \"99\" and \"100\"",
+                    !keySet.containsAll(hs));
+
+            // isEmpty
+            assertTrue("Should not be empty", !keySet.isEmpty());
+
+            // size
+            assertEquals("Returned wrong size.", 100, keySet.size());
+        }
+
+        private static <T> void crossCheckOrdering(Set<T> set1, Set<T> set2, Class<?> elementType) {
+            Iterator<T> set1Iterator = set1.iterator();
+            Iterator<T> set2Iterator = set2.iterator();
+
+            T[] zeroLengthArray = createArray(elementType, 0);
+            T[] set1TypedArray1 = set1.toArray(zeroLengthArray);
+            assertEquals(set1.size(), set1TypedArray1.length);
+
+            // Compare set1.iterator(), set2.iterator() and set1.toArray(new T[0])
+            int entryCount = 0;
+            while (set1Iterator.hasNext()) {
+                T set1Entry = set1Iterator.next();
+                T set2Entry = set2Iterator.next();
+
+                // Compare set1 with set2
+                assertEquals(set1Entry, set2Entry);
+
+                // Compare the iterator with the array. The arrays will be checked against each other.
+                assertEquals(set1Entry, set1TypedArray1[entryCount]);
+
+                entryCount++;
+            }
+            assertFalse(set2Iterator.hasNext());
+            assertEquals(set1.size(), entryCount);
+
+            // Compare the various arrays with each other.
+
+            // set1.toArray(new T[size])
+            T[] parameterArray1 = createArray(elementType, set1.size());
+            T[] set1TypedArray2 = set1.toArray(parameterArray1);
+            assertSame(set1TypedArray2, parameterArray1);
+            assertArrayEquals(set1TypedArray1, set1TypedArray2);
+
+            // set1.toArray()
+            Object[] set1UntypedArray = set1.toArray();
+            assertEquals(set1.size(), set1UntypedArray.length);
+            assertArrayEquals(set1TypedArray1, set1UntypedArray);
+
+            // set2.toArray(new T[0])
+            T[] set2TypedArray1 = set2.toArray(zeroLengthArray);
+            assertEquals(set1.size(), set2TypedArray1.length);
+            assertArrayEquals(set1TypedArray1, set2TypedArray1);
+
+            // set2.toArray(new T[size])
+            T[] parameterArray2 = createArray(elementType, set2.size());
+            T[] set2TypedArray2 = set1.toArray(parameterArray2);
+            assertSame(set2TypedArray2, parameterArray2);
+            assertArrayEquals(set1TypedArray1, set1TypedArray2);
+
+            // set2.toArray()
+            Object[] set2UntypedArray = set2.toArray();
+            assertArrayEquals(set1TypedArray1, set2UntypedArray);
+        }
+
+        private static <T> void assertArrayEquals(T[] array1, T[] array2) {
+            assertTrue(Arrays.equals(array1, array2));
+        }
+
+        @SuppressWarnings("unchecked")
+        private static <T> T[] createArray(Class<?> elementType, int size) {
+            return (T[]) Array.newInstance(elementType, size);
+        }
     }
 }
