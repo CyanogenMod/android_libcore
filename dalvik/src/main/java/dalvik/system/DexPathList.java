@@ -51,6 +51,9 @@ import static android.system.OsConstants.*;
     /** class definition context */
     private final ClassLoader definingContext;
 
+    /** List of dexfiles. */
+    private final List<File> dexFiles;
+
     /**
      * List of dex/resource (class path) elements.
      * Should be called pathElements, but the Facebook app uses reflection
@@ -59,7 +62,7 @@ import static android.system.OsConstants.*;
     private final Element[] dexElements;
 
     /** List of native library directories. */
-    private final File[] nativeLibraryDirectories;
+    private final List<File> nativeLibraryDirectories;
 
     /**
      * Exceptions thrown during creation of the dexElements list.
@@ -106,7 +109,9 @@ import static android.system.OsConstants.*;
 
         this.definingContext = definingContext;
         ArrayList<IOException> suppressedExceptions = new ArrayList<IOException>();
-        this.dexElements = makeDexElements(splitDexPath(dexPath), optimizedDirectory,
+        // save dexPath for BaseDexClassLoader
+        this.dexFiles = splitDexPath(dexPath);
+        this.dexElements = makeDexElements(dexFiles, optimizedDirectory,
                                            suppressedExceptions);
         if (suppressedExceptions.size() > 0) {
             this.dexElementsSuppressedExceptions =
@@ -118,15 +123,25 @@ import static android.system.OsConstants.*;
     }
 
     @Override public String toString() {
+        File[] nativeLibraryDirectoriesArray =
+                nativeLibraryDirectories.toArray(new File[nativeLibraryDirectories.size()]);
+
         return "DexPathList[" + Arrays.toString(dexElements) +
-            ",nativeLibraryDirectories=" + Arrays.toString(nativeLibraryDirectories) + "]";
+            ",nativeLibraryDirectories=" + Arrays.toString(nativeLibraryDirectoriesArray) + "]";
     }
 
     /**
      * For BaseDexClassLoader.getLdLibraryPath.
      */
-    public File[] getNativeLibraryDirectories() {
+    public List<File> getNativeLibraryDirectories() {
         return nativeLibraryDirectories;
+    }
+
+    /**
+     * For BaseDexClassLoader.getDexPath.
+     */
+    public List<File> getDexFiles() {
+        return dexFiles;
     }
 
     /**
@@ -135,7 +150,7 @@ import static android.system.OsConstants.*;
      * and readable files. (That is, directories are not included in the
      * result.)
      */
-    private static ArrayList<File> splitDexPath(String path) {
+    private static List<File> splitDexPath(String path) {
         return splitPaths(path, null, false);
     }
 
@@ -146,7 +161,7 @@ import static android.system.OsConstants.*;
      * from the system library path, and pruning out any elements that
      * do not refer to existing and readable directories.
      */
-    private static File[] splitLibraryPath(String path) {
+    private static List<File> splitLibraryPath(String path) {
         // Native libraries may exist in both the system and
         // application library paths, and we use this search order:
         //
@@ -154,8 +169,7 @@ import static android.system.OsConstants.*;
         //   2. the VM's library path from the system property for system libraries
         //
         // This order was reversed prior to Gingerbread; see http://b/2933456.
-        ArrayList<File> result = splitPaths(path, System.getProperty("java.library.path"), true);
-        return result.toArray(new File[result.size()]);
+        return splitPaths(path, System.getProperty("java.library.path"), true);
     }
 
     /**
@@ -167,9 +181,8 @@ import static android.system.OsConstants.*;
      * are empty or {@code null}, or all elements get pruned out, then
      * this returns a zero-element list.
      */
-    private static ArrayList<File> splitPaths(String path1, String path2,
-            boolean wantDirectories) {
-        ArrayList<File> result = new ArrayList<File>();
+    private static List<File> splitPaths(String path1, String path2, boolean wantDirectories) {
+        List<File> result = new ArrayList<File>();
 
         splitAndAdd(path1, wantDirectories, result);
         splitAndAdd(path2, wantDirectories, result);
@@ -181,7 +194,7 @@ import static android.system.OsConstants.*;
      * and filtering and adding to a result.
      */
     private static void splitAndAdd(String searchPath, boolean directoriesOnly,
-            ArrayList<File> resultList) {
+            List<File> resultList) {
         if (searchPath == null) {
             return;
         }
@@ -200,8 +213,8 @@ import static android.system.OsConstants.*;
      * Makes an array of dex/resource path elements, one per element of
      * the given array.
      */
-    private static Element[] makeDexElements(ArrayList<File> files, File optimizedDirectory,
-                                             ArrayList<IOException> suppressedExceptions) {
+    private static Element[] makeDexElements(List<File> files, File optimizedDirectory,
+                                             List<IOException> suppressedExceptions) {
         ArrayList<Element> elements = new ArrayList<Element>();
         /*
          * Open all files and load the (direct or contained) dex files
