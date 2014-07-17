@@ -51,7 +51,7 @@ public final class ZoneInfo extends TimeZone {
     private final byte[] mTypes;
     private final byte[] mIsDsts;
 
-    public static TimeZone makeTimeZone(String id, BufferIterator it) {
+    public static ZoneInfo makeTimeZone(String id, BufferIterator it) {
         // Variable names beginning tzh_ correspond to those in "tzfile.h".
 
         // Check tzh_magic.
@@ -300,5 +300,14 @@ public final class ZoneInfo extends TimeZone {
             ",mDstSavings=" + mDstSavings +
             ",transitions=" + mTransitions.length +
             "]";
+    }
+
+    @Override
+    public Object clone() {
+        // Overridden for documentation. The default clone() behavior is exactly what we want.
+        // Though mutable, the arrays of offset data are treated as immutable. Only ID and
+        // mRawOffset are mutable in this class, and those are an immutable object and a primitive
+        // respectively.
+        return super.clone();
     }
 }

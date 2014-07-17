@@ -329,7 +329,6 @@ public abstract class TimeZone implements Serializable, Cloneable {
         }
 
         // Special cases? These can clone an existing instance.
-        // TODO: should we just add a cache to ZoneInfoDB instead?
         if (id.length() == 3) {
             if (id.equals("GMT")) {
                 return (TimeZone) GMT.clone();
