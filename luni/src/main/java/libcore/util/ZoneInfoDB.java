@@ -229,9 +229,9 @@ public final class ZoneInfoDB {
     }
 
     public ZoneInfo makeTimeZone(String id) throws IOException {
-        ZoneInfo zoneInfo = cache.get(id);
-        // The object from the cache is cloned because TimeZone / ZoneInfo are mutable.
-        return zoneInfo == null ? null : (ZoneInfo) zoneInfo.clone();
+      ZoneInfo zoneInfo = cache.get(id);
+      // The object from the cache is cloned because TimeZone / ZoneInfo are mutable.
+      return zoneInfo == null ? null : (ZoneInfo) zoneInfo.clone();
     }
   }
 
