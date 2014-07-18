@@ -1212,7 +1212,7 @@ public class Collections {
                 int length = c.size();
                 Object[] result = new Object[length];
                 Iterator<?> it = iterator();
-                for (int i = length; --i >= 0;) {
+                for (int i = 0; i < length; i++) {
                     result[i] = it.next();
                 }
                 return result;
