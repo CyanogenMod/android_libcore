@@ -22,7 +22,6 @@ package java.util;
  * See {@link Locale} and {@link Locale.Builder}.
  *
  * @since 1.7
- * @hide 1.7
  */
 public class IllformedLocaleException extends RuntimeException {
 
