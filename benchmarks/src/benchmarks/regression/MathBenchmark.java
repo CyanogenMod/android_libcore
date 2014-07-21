@@ -30,339 +30,456 @@ public class MathBenchmark extends SimpleBenchmark {
     private final int i = 1;
     private final long l = 1L;
 
-    public void timeAbsD(int reps) {
+    // NOTE: To avoid the benchmarked function from being optimized away, we store the result
+    // and use it as the benchmark's return value. This is good enough for now but may not be in
+    // the future, a smart compiler could determine that the result value will depend on whether
+    // we get into the loop or not and turn the whole loop into an if statement.
+
+    public double timeAbsD(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.abs(d);
+            result = Math.abs(d);
         }
+        return result;
     }
 
-    public void timeAbsF(int reps) {
+    public float timeAbsF(int reps) {
+        float result = f;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.abs(f);
+            result = Math.abs(f);
         }
+        return result;
     }
 
-    public void timeAbsI(int reps) {
+    public int timeAbsI(int reps) {
+        int result = i;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.abs(i);
+            result = Math.abs(i);
         }
+        return result;
     }
 
-    public void timeAbsL(int reps) {
+    public long timeAbsL(int reps) {
+        long result = l;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.abs(l);
+            result = Math.abs(l);
         }
+        return result;
     }
 
-    public void timeAcos(int reps) {
+    public double timeAcos(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.acos(d);
+            result = Math.acos(d);
         }
+        return result;
     }
 
-    public void timeAsin(int reps) {
+    public double timeAsin(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.asin(d);
+            result = Math.asin(d);
         }
+        return result;
     }
 
-    public void timeAtan(int reps) {
+    public double timeAtan(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.atan(d);
+            result = Math.atan(d);
         }
+        return result;
     }
 
-    public void timeAtan2(int reps) {
+    public double timeAtan2(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.atan2(3, 4);
+            result = Math.atan2(3, 4);
         }
+        return result;
     }
 
-    public void timeCbrt(int reps) {
+    public double timeCbrt(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.cbrt(d);
+            result = Math.cbrt(d);
         }
+        return result;
     }
 
-    public void timeCeil(int reps) {
+    public double timeCeil(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.ceil(d);
+            result = Math.ceil(d);
         }
+        return result;
     }
 
-    public void timeCopySignD(int reps) {
+    public double timeCopySignD(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.copySign(d, d);
+            result = Math.copySign(d, d);
         }
+        return result;
     }
 
-    public void timeCopySignF(int reps) {
+    public float timeCopySignF(int reps) {
+        float result = f;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.copySign(f, f);
+            result = Math.copySign(f, f);
         }
+        return result;
     }
 
-    public void timeCopySignD_strict(int reps) {
+    public double timeCopySignD_strict(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            StrictMath.copySign(d, d);
+            result = StrictMath.copySign(d, d);
         }
+        return result;
     }
 
-    public void timeCopySignF_strict(int reps) {
+    public float timeCopySignF_strict(int reps) {
+        float result = f;
         for (int rep = 0; rep < reps; ++rep) {
-            StrictMath.copySign(f, f);
+            result = StrictMath.copySign(f, f);
         }
+        return result;
     }
 
-    public void timeCos(int reps) {
+    public double timeCos(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.cos(d);
+            result = Math.cos(d);
         }
+        return result;
     }
 
-    public void timeCosh(int reps) {
+    public double timeCosh(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.cosh(d);
+            result = Math.cosh(d);
         }
+        return result;
     }
 
-    public void timeExp(int reps) {
+    public double timeExp(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.exp(d);
+            result = Math.exp(d);
         }
+        return result;
     }
 
-    public void timeExpm1(int reps) {
+    public double timeExpm1(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.expm1(d);
+            result = Math.expm1(d);
         }
+        return result;
     }
 
-    public void timeFloor(int reps) {
+    public double timeFloor(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.floor(d);
+            result = Math.floor(d);
         }
+        return result;
     }
 
-    public void timeGetExponentD(int reps) {
+    public int timeGetExponentD(int reps) {
+        int result = i;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.getExponent(d);
+            result = Math.getExponent(d);
         }
+        return result;
     }
 
-    public void timeGetExponentF(int reps) {
+    public int timeGetExponentF(int reps) {
+        int result = i;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.getExponent(f);
+            result = Math.getExponent(f);
         }
+        return result;
     }
 
-    public void timeHypot(int reps) {
+    public double timeHypot(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.hypot(d, d);
+            result = Math.hypot(d, d);
         }
+        return result;
     }
 
-    public void timeIEEEremainder(int reps) {
+    public double timeIEEEremainder(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.IEEEremainder(d, d);
+            result = Math.IEEEremainder(d, d);
         }
+        return result;
     }
 
-    public void timeLog(int reps) {
+    public double timeLog(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.log(d);
+            result = Math.log(d);
         }
+        return result;
     }
 
-    public void timeLog10(int reps) {
+    public double timeLog10(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.log10(d);
+            result = Math.log10(d);
         }
+        return result;
     }
 
-    public void timeLog1p(int reps) {
+    public double timeLog1p(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.log1p(d);
+            result = Math.log1p(d);
         }
+        return result;
     }
 
-    public void timeMaxD(int reps) {
+    public double timeMaxD(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.max(d, d);
+            result = Math.max(d, d);
         }
+        return result;
     }
 
-    public void timeMaxF(int reps) {
+    public float timeMaxF(int reps) {
+        float result = f;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.max(f, f);
+            result = Math.max(f, f);
         }
+        return result;
     }
 
-    public void timeMaxI(int reps) {
+    public int timeMaxI(int reps) {
+        int result = i;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.max(i, i);
+            result = Math.max(i, i);
         }
+        return result;
     }
 
-    public void timeMaxL(int reps) {
+    public long timeMaxL(int reps) {
+        long result = l;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.max(l, l);
+            result = Math.max(l, l);
         }
+        return result;
     }
 
-    public void timeMinD(int reps) {
+    public double timeMinD(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.min(d, d);
+            result = Math.min(d, d);
         }
+        return result;
     }
 
-    public void timeMinF(int reps) {
+    public float timeMinF(int reps) {
+        float result = f;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.min(f, f);
+            result = Math.min(f, f);
         }
+        return result;
     }
 
-    public void timeMinI(int reps) {
+    public int timeMinI(int reps) {
+        int result = i;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.min(i, i);
+            result = Math.min(i, i);
         }
+        return result;
     }
 
-    public void timeMinL(int reps) {
+    public long timeMinL(int reps) {
+        long result = l;
         for (int rep = 0; rep < reps; ++rep) {
             Math.min(l, l);
         }
+        return result;
     }
 
-    public void timeNextAfterD(int reps) {
+    public double timeNextAfterD(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.nextAfter(d, d);
+            result = Math.nextAfter(d, d);
         }
+        return result;
     }
 
-    public void timeNextAfterF(int reps) {
+    public float timeNextAfterF(int reps) {
+        float result = f;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.nextAfter(f, f);
+            result = Math.nextAfter(f, f);
         }
+        return result;
     }
 
-    public void timeNextUpD(int reps) {
+    public double timeNextUpD(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.nextUp(d);
+            result = Math.nextUp(d);
         }
+        return result;
     }
 
-    public void timeNextUpF(int reps) {
+    public float timeNextUpF(int reps) {
+        float result = f;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.nextUp(f);
+            result = Math.nextUp(f);
         }
+        return result;
     }
 
-    public void timePow(int reps) {
+    public double timePow(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.pow(d, d);
+            result = Math.pow(d, d);
         }
+        return result;
     }
 
-    public void timeRandom(int reps) {
+    public double timeRandom(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.random();
+            result = Math.random();
         }
+        return result;
     }
 
-    public void timeRint(int reps) {
+    public double timeRint(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.rint(d);
+            result = Math.rint(d);
         }
+        return result;
     }
 
-    public void timeRoundD(int reps) {
+    public long timeRoundD(int reps) {
+        long result = l;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.round(d);
+            result = Math.round(d);
         }
+        return result;
     }
 
-    public void timeRoundF(int reps) {
+    public int timeRoundF(int reps) {
+        int result = i;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.round(f);
+            result = Math.round(f);
         }
+        return result;
     }
 
-    public void timeScalbD(int reps) {
+    public double timeScalbD(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.scalb(d, 5);
+            result = Math.scalb(d, 5);
         }
+        return result;
     }
 
-    public void timeScalbF(int reps) {
+    public float timeScalbF(int reps) {
+        float result = f;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.scalb(f, 5);
+            result = Math.scalb(f, 5);
         }
+        return result;
     }
 
-    public void timeSignumD(int reps) {
+    public double timeSignumD(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.signum(d);
+            result = Math.signum(d);
         }
+        return result;
     }
 
-    public void timeSignumF(int reps) {
+    public float timeSignumF(int reps) {
+        float result = f;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.signum(f);
+            result = Math.signum(f);
         }
+        return result;
     }
 
-    public void timeSin(int reps) {
+    public double timeSin(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.sin(d);
+            result = Math.sin(d);
         }
+        return result;
     }
 
-    public void timeSinh(int reps) {
+    public double timeSinh(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.sinh(d);
+            result = Math.sinh(d);
         }
+        return result;
     }
 
-    public void timeSqrt(int reps) {
+    public double timeSqrt(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.sqrt(d);
+            result = Math.sqrt(d);
         }
+        return result;
     }
 
-    public void timeTan(int reps) {
+    public double timeTan(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.tan(d);
+            result = Math.tan(d);
         }
+        return result;
     }
 
-    public void timeTanh(int reps) {
+    public double timeTanh(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.tanh(d);
+            result = Math.tanh(d);
         }
+        return result;
     }
 
-    public void timeToDegrees(int reps) {
+    public double timeToDegrees(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.toDegrees(d);
+            result = Math.toDegrees(d);
         }
+        return result;
     }
 
-    public void timeToRadians(int reps) {
+    public double timeToRadians(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.toRadians(d);
+            result = Math.toRadians(d);
         }
+        return result;
     }
 
-    public void timeUlpD(int reps) {
+    public double timeUlpD(int reps) {
+        double result = d;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.ulp(d);
+            result = Math.ulp(d);
         }
+        return result;
     }
 
-    public void timeUlpF(int reps) {
+    public float timeUlpF(int reps) {
+        float result = f;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.ulp(f);
+            result = Math.ulp(f);
         }
+        return result;
     }
 }
