@@ -116,56 +116,6 @@ static jstring ICU_getScript(JNIEnv* env, jclass, jstring javaLocaleName) {
   return env->NewStringUTF(icuLocale.locale().getScript());
 }
 
-static jstring ICU_localeForLanguageTag(JNIEnv* env, jclass, jstring languageTag, jboolean strict) {
-    ScopedUtfChars languageTagChars(env, languageTag);
-    if (languageTagChars.c_str() == NULL) {
-      return NULL;
-    }
-
-    // Naively assume that in the average case, the size of
-    // the normalized language tag will be very nearly the same as the
-    // size of the input. This is generally true for language
-    // tags that are "simple" language-region-variant combinations
-    // that don't contain any grandfathered tags.
-    const size_t initialBufferSize = languageTagChars.size() + 32;
-    std::vector<char> buffer(initialBufferSize);
-    int32_t parsedLength = 0;
-
-    UErrorCode status = U_ZERO_ERROR;
-    size_t outputLength = uloc_forLanguageTag(languageTagChars.c_str(), &buffer[0],
-                                              buffer.size(), &parsedLength, &status);
-    // Note that we always allocate 1 char more than ICU asks us for,
-    // so that we can cleanly assert that it didn't overflow after the
-    // second call to uloc_forLanguageTag.
-    if (status == U_STRING_NOT_TERMINATED_WARNING) {
-        const size_t unterminated_size = buffer.size();
-        buffer.resize(unterminated_size + 1);
-        buffer[unterminated_size] = '\0';
-    } else if (status == U_BUFFER_OVERFLOW_ERROR) {
-        buffer.resize(outputLength + 1);
-        status = U_ZERO_ERROR;
-        outputLength = uloc_forLanguageTag(languageTagChars.c_str(), &buffer[0], buffer.size(),
-                                           &parsedLength, &status);
-    }
-
-    if (U_FAILURE(status) || outputLength >= buffer.size()) {
-        return NULL;
-    }
-
-    // By default, ICU will ignore all subtags starting at the first unparseable
-    // or invalid subtag. Our "strict" mode is specified to throw an error if
-    // that happens.
-    //
-    // NOTE: The cast is safe because parsedLength can never be negative thanks
-    // to the check above. ICU does not document any negative return values for
-    // that field, but check for it anyway.
-    if ((strict == JNI_TRUE) && (static_cast<uint32_t>(parsedLength) != languageTagChars.size())) {
-        return NULL;
-    }
-
-    return env->NewStringUTF(&buffer[0]);
-}
-
 static jint ICU_getCurrencyFractionDigits(JNIEnv* env, jclass, jstring javaCurrencyCode) {
   ScopedJavaUnicodeString currencyCode(env, javaCurrencyCode);
   if (!currencyCode.valid()) {
@@ -820,7 +770,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(ICU, getIcuVersion, "()Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getScript, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, getUnicodeVersion, "()Ljava/lang/String;"),
-    NATIVE_METHOD(ICU, localeForLanguageTag, "(Ljava/lang/String;Z)Ljava/lang/String;"),
     NATIVE_METHOD(ICU, initLocaleDataNative, "(Ljava/lang/String;Llibcore/icu/LocaleData;)Z"),
     NATIVE_METHOD(ICU, setDefaultLocale, "(Ljava/lang/String;)V"),
     NATIVE_METHOD(ICU, toLowerCase, "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"),
