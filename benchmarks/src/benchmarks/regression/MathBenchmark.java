@@ -302,7 +302,7 @@ public class MathBenchmark extends SimpleBenchmark {
     public long timeMinL(int reps) {
         long result = l;
         for (int rep = 0; rep < reps; ++rep) {
-            Math.min(l, l);
+            result = Math.min(l, l);
         }
         return result;
     }
