@@ -331,7 +331,16 @@ public class GregorianCalendar extends Calendar {
         setTimeInMillis(System.currentTimeMillis());
     }
 
-    GregorianCalendar(boolean ignored) {
+    /**
+     * A minimum-cost constructor that does not initialize the current time or perform any date
+     * calculations. For use internally when the time will be set later. Other constructors, such as
+     * {@link GregorianCalendar#GregorianCalendar()}, set the time to the current system clock
+     * and recalculate the fields incurring unnecessary cost when the time or fields will be set
+     * later.
+     *
+     * @hide used internally
+     */
+    public GregorianCalendar(boolean ignored) {
         super(TimeZone.getDefault());
         setFirstDayOfWeek(SUNDAY);
         setMinimalDaysInFirstWeek(1);
