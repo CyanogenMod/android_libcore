@@ -58,18 +58,6 @@ public final class ICU {
     return isoCountries.clone();
   }
 
-  public static Locale forLanguageTag(String languageTag, boolean strict) {
-    final String icuLocaleId = localeForLanguageTag(languageTag, strict);
-    if (icuLocaleId == null) {
-      // TODO: We should probably return "und" here. From what I can tell,
-      // this happens only when the language in the languageTag is bad.
-      // Investigate this a bit more.
-      return null;
-    }
-
-    return localeFromIcuLocaleId(icuLocaleId);
-  }
-
   private static final int IDX_LANGUAGE = 0;
   private static final int IDX_SCRIPT = 1;
   private static final int IDX_REGION = 2;
@@ -443,8 +431,6 @@ public final class ICU {
 
   private static native String[] getISOLanguagesNative();
   private static native String[] getISOCountriesNative();
-
-  private static native String localeForLanguageTag(String languageTag, boolean strict);
 
   static native boolean initLocaleDataNative(String locale, LocaleData result);
 

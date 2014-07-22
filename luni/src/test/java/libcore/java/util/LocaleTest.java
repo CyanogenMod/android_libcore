@@ -541,13 +541,6 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("eng", l.getLanguage());
         assertEquals("419", l.getCountry());
 
-        // IND is an invalid region code so ICU helpfully tries to parse it as
-        // a 3 letter language code, even if it isn't a valid ISO-639-3 code
-        // either.
-        l =  fromLanguageTag("en-USB", useBuilder);
-        assertEquals("usb", l.getLanguage());
-        assertEquals("", l.getCountry());
-
         // Script tags shouldn't be mis-recognized as regions.
         l =  fromLanguageTag("en-Latn", useBuilder);
         assertEquals("en", l.getLanguage());
@@ -612,16 +605,24 @@ public class LocaleTest extends junit.framework.TestCase {
         } catch (IllformedLocaleException expected) {
         }
 
-        // Ill-formed extension with long subtag.
+        // Two extension keys in a row (i.e, another case of an ill-formed
+        // empty exception).
         try {
-            fromLanguageTag("en-f-fooobaaaz", true);
+            fromLanguageTag("en-f-g-fo-baar", true);
             fail();
         } catch (IllformedLocaleException expected) {
         }
 
-        // Ill-formed extension key.
+        // Dangling empty key after a well formed extension.
         try {
-            fromLanguageTag("en-9-baa", true);
+            fromLanguageTag("en-f-fo-baar-g", true);
+            fail();
+        } catch (IllformedLocaleException expected) {
+        }
+
+        // Ill-formed extension with long subtag.
+        try {
+            fromLanguageTag("en-f-fooobaaaz", true);
             fail();
         } catch (IllformedLocaleException expected) {
         }
@@ -700,7 +701,7 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("en", l.getLanguage());
         assertEquals("Latn", l.getScript());
         assertEquals("GB", l.getCountry());
-        assertEquals("FOOOO_POSIX", l.getVariant());
+        assertEquals("FOOOO", l.getVariant());
         assertEquals("fo-bar-baaz", l.getExtension('g'));
 
         // Multiple extensions
@@ -708,7 +709,7 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("en", l.getLanguage());
         assertEquals("Latn", l.getScript());
         assertEquals("US", l.getCountry());
-        assertEquals("FOOOO_POSIX", l.getVariant());
+        assertEquals("FOOOO", l.getVariant());
         assertEquals("fo-bar", l.getExtension('g'));
         assertEquals("go-gaz", l.getExtension('h'));
 
@@ -738,6 +739,13 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("", l.getScript());
         assertEquals("", l.getCountry());
         assertEquals("fo", l.getExtension('f'));
+
+        l = fromLanguageTag("en-f-fo-x-a-b-c-d-e-fo", useBuilder);
+        assertEquals("en", l.getLanguage());
+        assertEquals("", l.getScript());
+        assertEquals("", l.getCountry());
+        assertEquals("fo", l.getExtension('f'));
+        assertEquals("a-b-c-d-e-fo", l.getExtension('x'));
     }
 
     public void test_forLanguageTag() {
@@ -782,7 +790,7 @@ public class LocaleTest extends junit.framework.TestCase {
 
     public void test_setLanguageTag_malformedTags() {
         Locale l = fromLanguageTag("a", false);
-        assertEquals("", l.getLanguage());
+        assertEquals("und", l.getLanguage());
         assertEquals("", l.getCountry());
         assertEquals("", l.getVariant());
         assertEquals("", l.getScript());
@@ -1112,5 +1120,23 @@ public class LocaleTest extends junit.framework.TestCase {
                 .setLanguage("en").setRegion("US").setVariant("POSIX")
                 .build();
         assertEquals("en-US-POSIX", posix.toLanguageTag());
+    }
+
+    public void test_forLanguageTag_grandFatheredLocale() {
+        // Regular grandfathered locale.
+        Locale gaulish = Locale.forLanguageTag("cel-gaulish");
+        assertEquals("xtg", gaulish.getLanguage());
+        assertEquals("cel-gaulish", gaulish.getExtension(Locale.PRIVATE_USE_EXTENSION));
+        assertEquals("", gaulish.getCountry());
+        assertEquals("", gaulish.getScript());
+        assertEquals("", gaulish.getVariant());
+
+        // Irregular grandfathered locale.
+        Locale enochian = Locale.forLanguageTag("i-enochian");
+        assertEquals("und", enochian.getLanguage());
+        assertEquals("i-enochian", enochian.getExtension(Locale.PRIVATE_USE_EXTENSION));
+        assertEquals("", enochian.getCountry());
+        assertEquals("", enochian.getScript());
+        assertEquals("", enochian.getVariant());
     }
 }

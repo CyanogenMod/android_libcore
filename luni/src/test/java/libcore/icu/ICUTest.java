@@ -198,12 +198,6 @@ public class ICUTest extends junit.framework.TestCase {
     Collator.getInstance(sr_Latn_BA);
     Collator.getInstance(sr_Latn_ME);
 
-    // TODO: This needs to be fixed. We shouldn't output attribute key
-    // expansions in the language tag or the toString output. The tests
-    // will fail with something like:
-    //
-    // expected:<de-u-co[-phonebk-kf-upper-kn]> but was:
-    // <de-u-co[lcasefirst-upper-collation-phonebook-colnumeric-yes]>
     Locale l = Locale.forLanguageTag("de-u-co-phonebk-kf-upper-kn");
     assertEquals("de__#u-co-phonebk-kf-upper-kn", l.toString());
     assertEquals("de-u-co-phonebk-kf-upper-kn", l.toLanguageTag());
