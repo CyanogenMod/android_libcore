@@ -1991,7 +1991,10 @@ public final class Locale implements Cloneable, Serializable {
         return sb.toString();
     }
 
-    private static String adjustLanguageCode(String languageCode) {
+    /**
+     * @hide for internal use only.
+     */
+    public static String adjustLanguageCode(String languageCode) {
         String adjusted = languageCode.toLowerCase(Locale.US);
         // Map new language codes to the obsolete language
         // codes so the correct resource bundles will be used.
