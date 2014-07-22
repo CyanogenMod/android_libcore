@@ -105,7 +105,7 @@ public class RuleBasedCollatorTest extends TestCase {
 
   public void testGetCollationElementIteratorString() throws Exception {
     {
-      Locale locale = new Locale("es", "", "TRADITIONAL");
+      Locale locale = Locale.forLanguageTag("es-u-co-trad");
       RuleBasedCollator coll = (RuleBasedCollator) Collator.getInstance(locale);
       String source = "cha";
       CollationElementIterator iterator = coll.getCollationElementIterator(source);
@@ -147,7 +147,7 @@ public class RuleBasedCollatorTest extends TestCase {
 
   public void testGetCollationElementIteratorCharacterIterator() throws Exception {
     {
-      Locale locale = new Locale("es", "", "TRADITIONAL");
+      Locale locale = Locale.forLanguageTag("es-u-co-trad");
       RuleBasedCollator coll = (RuleBasedCollator) Collator.getInstance(locale);
       String text = "cha";
       StringCharacterIterator source = new StringCharacterIterator(text);
