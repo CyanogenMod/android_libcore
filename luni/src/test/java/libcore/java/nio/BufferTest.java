@@ -20,6 +20,8 @@ import junit.framework.TestCase;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.nio.Buffer;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -600,17 +602,31 @@ public class BufferTest extends TestCase {
         assertTrue(b.isDirect());
         // Check the buffer has an array of the right size.
         assertTrue(b.hasArray());
-        assertEquals(0, b.arrayOffset());
         byte[] array = b.array();
-        assertEquals(10, array.length);
+        assertTrue(array.length >= b.capacity());
+        assertEquals(10, b.capacity());
         // Check that writes to the array show up in the buffer.
         assertEquals(0, b.get(0));
-        array[0] = 1;
+        array[b.arrayOffset()] = 1;
         assertEquals(1, b.get(0));
         // Check that writes to the buffer show up in the array.
-        assertEquals(1, array[0]);
+        assertEquals(1, array[b.arrayOffset()]);
         b.put(0, (byte) 0);
-        assertEquals(0, array[0]);
+        assertEquals(0, array[b.arrayOffset()]);
+    }
+
+    // Test that direct byte buffers are 8 byte aligned.
+    // http://b/16449607
+    public void testDirectByteBufferAlignment() throws Exception {
+        ByteBuffer b = ByteBuffer.allocateDirect(10);
+        Field addressField = Buffer.class.getDeclaredField("effectiveDirectAddress");
+        assertTrue(addressField != null);
+        addressField.setAccessible(true);
+        long address = addressField.getLong(b);
+        // Check that the address field is aligned by 8.
+        // Normally reading this field happens in native code by calling
+        // GetDirectBufferAddress.
+        assertEquals(0, address % 8);
     }
 
     public void testSliceOffset() throws Exception {
@@ -618,14 +634,12 @@ public class BufferTest extends TestCase {
         ByteBuffer buffer = ByteBuffer.allocate(10);
         buffer.get();
         ByteBuffer slice = buffer.slice();
-        assertEquals(0, buffer.arrayOffset());
-        assertEquals(1, slice.arrayOffset());
+        assertEquals(buffer.arrayOffset() + 1, slice.arrayOffset());
 
         ByteBuffer directBuffer = ByteBuffer.allocateDirect(10);
         directBuffer.get();
         ByteBuffer directSlice = directBuffer.slice();
-        assertEquals(0, directBuffer.arrayOffset());
-        assertEquals(1, directSlice.arrayOffset());
+        assertEquals(directBuffer.arrayOffset() + 1, directSlice.arrayOffset());
     }
 
     // http://code.google.com/p/android/issues/detail?id=16184
