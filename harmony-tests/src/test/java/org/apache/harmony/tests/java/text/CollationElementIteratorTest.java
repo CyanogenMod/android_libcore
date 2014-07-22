@@ -125,7 +125,8 @@ public class CollationElementIteratorTest extends TestCase {
 
   public void testGetMaxExpansion() {
     String text = "cha";
-    RuleBasedCollator rbColl = (RuleBasedCollator) Collator.getInstance(new Locale("es", "", "TRADITIONAL"));
+    RuleBasedCollator rbColl = (RuleBasedCollator) Collator.getInstance(
+            Locale.forLanguageTag("es-u-co-trad"));
     CollationElementIterator iterator = rbColl.getCollationElementIterator(text);
     int order = iterator.next();
     while (order != CollationElementIterator.NULLORDER) {
@@ -177,7 +178,8 @@ public class CollationElementIteratorTest extends TestCase {
   }
 
   public void testSetOffset() {
-    RuleBasedCollator rbColl = (RuleBasedCollator) Collator.getInstance(new Locale("es", "", "TRADITIONAL"));
+    RuleBasedCollator rbColl = (RuleBasedCollator) Collator.getInstance(
+            Locale.forLanguageTag("es-u-co-trad"));
     String text = "cha";
     CollationElementIterator iterator = rbColl.getCollationElementIterator(text);
     iterator.setOffset(0);
@@ -189,7 +191,8 @@ public class CollationElementIteratorTest extends TestCase {
   }
 
   public void testSetTextString() {
-    RuleBasedCollator rbColl = (RuleBasedCollator) Collator.getInstance(new Locale("es", "", "TRADITIONAL"));
+    RuleBasedCollator rbColl = (RuleBasedCollator) Collator.getInstance(
+            Locale.forLanguageTag("es-u-co-trad"));
     String text = "caa";
     CollationElementIterator iterator = rbColl.getCollationElementIterator(text);
     iterator.setOffset(0);
@@ -208,7 +211,8 @@ public class CollationElementIteratorTest extends TestCase {
   }
 
   public void testSetTextCharacterIterator() {
-    RuleBasedCollator rbColl = (RuleBasedCollator) Collator.getInstance(new Locale("es", "", "TRADITIONAL"));
+    RuleBasedCollator rbColl = (RuleBasedCollator) Collator.getInstance(
+            Locale.forLanguageTag("es-u-co-trad"));
     String text = "caa";
     CollationElementIterator iterator = rbColl.getCollationElementIterator(text);
     iterator.setOffset(1);
