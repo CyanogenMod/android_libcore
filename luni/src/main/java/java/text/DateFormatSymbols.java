@@ -156,7 +156,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         // NOTE: We don't serialize the locale we were created with, so we can't
         // get back the localeData object we want. This is broken for callers that
         // access this field directly (i.e, SimpleDateFormat). We should ideally
-        // have serialized the locale we were created with.
+        // have serialized the locale we were created with. See b/16502916.
         this.localeData = LocaleData.get(Locale.getDefault());
     }
 
