@@ -19,6 +19,7 @@ package javax.crypto;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -29,6 +30,7 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import libcore.io.IoUtils;
 
 /**
  * A {@code SealedObject} is a wrapper around a {@code serializable} object
@@ -57,14 +59,21 @@ public class SealedObject implements Serializable {
     private String paramsAlg;
 
     private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
-        // We do unshared reads here to ensure we have our own clones of the byte[]s.
-        encodedParams = (byte[]) s.readUnshared();
-        encryptedContent = (byte[]) s.readUnshared();
-        // These are regular shared reads because the algorithms used by a given stream are
-        // almost certain to the be same for each object, and String is immutable anyway,
-        // so there's no security concern about sharing.
-        sealAlg = (String) s.readObject();
-        paramsAlg = (String) s.readObject();
+        // This implementation is based on the latest recommendations for safe deserialization at
+        // the time of writing. See the Serialization spec section A.6.
+        ObjectInputStream.GetField fields = s.readFields();
+
+        // The mutable byte arrays are cloned and the immutable strings are not.
+        this.encodedParams = getSafeCopy(fields, "encodedParams");
+        this.encryptedContent = getSafeCopy(fields, "encryptedContent");
+        this.paramsAlg = (String) fields.get("paramsAlg", null);
+        this.sealAlg = (String) fields.get("sealAlg", null);
+    }
+
+    private static byte[] getSafeCopy(ObjectInputStream.GetField fields, String fieldName)
+            throws IOException {
+        byte[] fieldValue = (byte[]) fields.get(fieldName, null);
+        return fieldValue != null ? fieldValue.clone() : null;
     }
 
     /**
@@ -87,13 +96,14 @@ public class SealedObject implements Serializable {
      *             if the cipher is {@code null}.
      */
     public SealedObject(Serializable object, Cipher c)
-                throws IOException, IllegalBlockSizeException {
+            throws IOException, IllegalBlockSizeException {
         if (c == null) {
             throw new NullPointerException("c == null");
         }
+        ObjectOutputStream oos = null;
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            oos = new ObjectOutputStream(bos);
             oos.writeObject(object);
             oos.flush();
             AlgorithmParameters ap = c.getParameters();
@@ -105,6 +115,8 @@ public class SealedObject implements Serializable {
             // should be never thrown because the cipher
             // should be initialized for encryption
             throw new IOException(e.toString());
+        } finally {
+            IoUtils.closeQuietly(oos);
         }
     }
 
@@ -119,8 +131,10 @@ public class SealedObject implements Serializable {
         if (so == null) {
             throw new NullPointerException("so == null");
         }
-        this.encryptedContent = so.encryptedContent;
-        this.encodedParams = so.encodedParams;
+        // For safety: clone the mutable arrays so that each object has its own independent copy of
+        // the data.
+        this.encryptedContent = so.encryptedContent != null ? so.encryptedContent.clone() : null;
+        this.encodedParams = so.encodedParams != null ? so.encodedParams.clone() : null;
         this.sealAlg = so.sealAlg;
         this.paramsAlg = so.paramsAlg;
     }
@@ -158,18 +172,14 @@ public class SealedObject implements Serializable {
         try {
             Cipher cipher = Cipher.getInstance(sealAlg);
             if ((paramsAlg != null) && (paramsAlg.length() != 0)) {
-                AlgorithmParameters params =
-                    AlgorithmParameters.getInstance(paramsAlg);
+                AlgorithmParameters params = AlgorithmParameters.getInstance(paramsAlg);
                 params.init(encodedParams);
                 cipher.init(Cipher.DECRYPT_MODE, key, params);
             } else {
                 cipher.init(Cipher.DECRYPT_MODE, key);
             }
             byte[] serialized = cipher.doFinal(encryptedContent);
-            ObjectInputStream ois =
-                    new ObjectInputStream(
-                            new ByteArrayInputStream(serialized));
-            return ois.readObject();
+            return readSerialized(serialized);
         } catch (NoSuchPaddingException e)  {
             // should not be thrown because cipher text was made
             // with existing padding
@@ -186,7 +196,7 @@ public class SealedObject implements Serializable {
             // should not be thrown because the cipher text
             // was correctly made
             throw new NoSuchAlgorithmException(e.toString());
-        } catch (IllegalStateException  e) {
+        } catch (IllegalStateException e) {
             // should never be thrown because cipher is initialized
             throw new NoSuchAlgorithmException(e.toString());
         }
@@ -217,10 +227,7 @@ public class SealedObject implements Serializable {
             throw new NullPointerException("c == null");
         }
         byte[] serialized = c.doFinal(encryptedContent);
-        ObjectInputStream ois =
-                new ObjectInputStream(
-                        new ByteArrayInputStream(serialized));
-        return ois.readObject();
+        return readSerialized(serialized);
     }
 
     /**
@@ -253,18 +260,14 @@ public class SealedObject implements Serializable {
         try {
             Cipher cipher = Cipher.getInstance(sealAlg, provider);
             if ((paramsAlg != null) && (paramsAlg.length() != 0)) {
-                AlgorithmParameters params =
-                    AlgorithmParameters.getInstance(paramsAlg);
+                AlgorithmParameters params = AlgorithmParameters.getInstance(paramsAlg);
                 params.init(encodedParams);
                 cipher.init(Cipher.DECRYPT_MODE, key, params);
             } else {
                 cipher.init(Cipher.DECRYPT_MODE, key);
             }
             byte[] serialized = cipher.doFinal(encryptedContent);
-            ObjectInputStream ois =
-                    new ObjectInputStream(
-                            new ByteArrayInputStream(serialized));
-            return ois.readObject();
+            return readSerialized(serialized);
         } catch (NoSuchPaddingException e)  {
             // should not be thrown because cipher text was made
             // with existing padding
@@ -284,6 +287,17 @@ public class SealedObject implements Serializable {
         } catch (IllegalStateException  e) {
             // should never be thrown because cipher is initialized
             throw new NoSuchAlgorithmException(e.toString());
+        }
+    }
+
+    private static Object readSerialized(byte[] serialized)
+            throws IOException, ClassNotFoundException {
+        ObjectInputStream ois = null;
+        try {
+            ois = new ObjectInputStream(new ByteArrayInputStream(serialized));
+            return ois.readObject();
+        } finally {
+            IoUtils.closeQuietly(ois);
         }
     }
 }
