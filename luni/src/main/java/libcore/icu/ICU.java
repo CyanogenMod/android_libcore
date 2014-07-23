@@ -432,7 +432,7 @@ public final class ICU {
   private static native String[] getISOLanguagesNative();
   private static native String[] getISOCountriesNative();
 
-  static native boolean initLocaleDataNative(String locale, LocaleData result);
+  static native boolean initLocaleDataNative(String languageTag, LocaleData result);
 
   /**
    * Takes a BCP-47 language tag (Locale.toLanguageTag()). e.g. en-US, not en_US

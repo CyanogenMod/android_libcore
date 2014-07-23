@@ -81,6 +81,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      *            the locale.
      */
     public DecimalFormatSymbols(Locale locale) {
+        locale = LocaleData.mapInvalidAndNullLocales(locale);
         LocaleData localeData = LocaleData.get(locale);
         this.zeroDigit = localeData.zeroDigit;
         this.digit = '#';
