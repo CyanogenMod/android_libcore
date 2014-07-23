@@ -112,27 +112,36 @@ public final class LocaleData {
     private LocaleData() {
     }
 
+    public static Locale mapInvalidAndNullLocales(Locale locale) {
+        if (locale == null) {
+            return Locale.getDefault();
+        }
+
+        if ("und".equals(locale.toLanguageTag())) {
+            return Locale.ROOT;
+        }
+
+        return locale;
+    }
+
     /**
      * Returns a shared LocaleData for the given locale.
      */
     public static LocaleData get(Locale locale) {
-        if (locale == null) {
-            locale = Locale.getDefault();
-        }
-        String localeName = locale.toString();
+        final String languageTag = locale.toLanguageTag();
         synchronized (localeDataCache) {
-            LocaleData localeData = localeDataCache.get(localeName);
+            LocaleData localeData = localeDataCache.get(languageTag);
             if (localeData != null) {
                 return localeData;
             }
         }
         LocaleData newLocaleData = initLocaleData(locale);
         synchronized (localeDataCache) {
-            LocaleData localeData = localeDataCache.get(localeName);
+            LocaleData localeData = localeDataCache.get(languageTag);
             if (localeData != null) {
                 return localeData;
             }
-            localeDataCache.put(localeName, newLocaleData);
+            localeDataCache.put(languageTag, newLocaleData);
             return newLocaleData;
         }
     }
@@ -171,7 +180,7 @@ public final class LocaleData {
 
     private static LocaleData initLocaleData(Locale locale) {
         LocaleData localeData = new LocaleData();
-        if (!ICU.initLocaleDataNative(locale.toString(), localeData)) {
+        if (!ICU.initLocaleDataNative(locale.toLanguageTag(), localeData)) {
             throw new AssertionError("couldn't initialize LocaleData for locale " + locale);
         }
 

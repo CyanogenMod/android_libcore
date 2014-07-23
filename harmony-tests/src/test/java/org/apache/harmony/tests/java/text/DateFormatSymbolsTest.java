@@ -88,7 +88,7 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
 
         Locale locale = new Locale("not exist language", "not exist country");
         DateFormatSymbols symbols = DateFormatSymbols.getInstance(locale);
-        assertNotNull(symbols);
+        assertEquals(DateFormatSymbols.getInstance(Locale.ROOT), symbols);
     }
 
     /**
