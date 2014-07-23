@@ -513,16 +513,16 @@ static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, const 
   return true;
 }
 
-static jboolean ICU_initLocaleDataNative(JNIEnv* env, jclass, jstring javaLocaleName, jobject localeData) {
-    ScopedUtfChars localeName(env, javaLocaleName);
-    if (localeName.c_str() == NULL) {
+static jboolean ICU_initLocaleDataNative(JNIEnv* env, jclass, jstring javaLanguageTag, jobject localeData) {
+    ScopedUtfChars languageTag(env, javaLanguageTag);
+    if (languageTag.c_str() == NULL) {
         return JNI_FALSE;
     }
-    if (localeName.size() >= ULOC_FULLNAME_CAPACITY) {
+    if (languageTag.size() >= ULOC_FULLNAME_CAPACITY) {
         return JNI_FALSE; // ICU has a fixed-length limit.
     }
 
-    ScopedIcuLocale icuLocale(env, javaLocaleName);
+    ScopedIcuLocale icuLocale(env, javaLanguageTag);
     if (!icuLocale.valid()) {
       return JNI_FALSE;
     }
@@ -530,27 +530,27 @@ static jboolean ICU_initLocaleDataNative(JNIEnv* env, jclass, jstring javaLocale
     // Get the DateTimePatterns.
     UErrorCode status = U_ZERO_ERROR;
     bool foundDateTimePatterns = false;
-    for (LocaleNameIterator it(localeName.c_str(), status); it.HasNext(); it.Up()) {
+    for (LocaleNameIterator it(icuLocale.locale().getBaseName(), status); it.HasNext(); it.Up()) {
       if (getDateTimePatterns(env, localeData, it.Get())) {
           foundDateTimePatterns = true;
           break;
       }
     }
     if (!foundDateTimePatterns) {
-        ALOGE("Couldn't find ICU DateTimePatterns for %s", localeName.c_str());
+        ALOGE("Couldn't find ICU DateTimePatterns for %s", languageTag.c_str());
         return JNI_FALSE;
     }
 
     // Get the "Yesterday", "Today", and "Tomorrow" strings.
     bool foundYesterdayTodayAndTomorrow = false;
-    for (LocaleNameIterator it(localeName.c_str(), status); it.HasNext(); it.Up()) {
+    for (LocaleNameIterator it(icuLocale.locale().getBaseName(), status); it.HasNext(); it.Up()) {
       if (getYesterdayTodayAndTomorrow(env, localeData, icuLocale.locale(), it.Get())) {
         foundYesterdayTodayAndTomorrow = true;
         break;
       }
     }
     if (!foundYesterdayTodayAndTomorrow) {
-      ALOGE("Couldn't find ICU yesterday/today/tomorrow for %s", localeName.c_str());
+      ALOGE("Couldn't find ICU yesterday/today/tomorrow for %s", languageTag.c_str());
       return JNI_FALSE;
     }
 
@@ -621,14 +621,14 @@ static jboolean ICU_initLocaleDataNative(JNIEnv* env, jclass, jstring javaLocale
     setNumberPatterns(env, localeData, icuLocale.locale());
     setDecimalFormatSymbolsData(env, localeData, icuLocale.locale());
 
-    jstring countryCode = env->NewStringUTF(Locale::createFromName(localeName.c_str()).getCountry());
+    jstring countryCode = env->NewStringUTF(icuLocale.locale().getCountry());
     jstring internationalCurrencySymbol = ICU_getCurrencyCode(env, NULL, countryCode);
     env->DeleteLocalRef(countryCode);
     countryCode = NULL;
 
     jstring currencySymbol = NULL;
     if (internationalCurrencySymbol != NULL) {
-        currencySymbol = ICU_getCurrencySymbol(env, NULL, javaLocaleName, internationalCurrencySymbol);
+        currencySymbol = ICU_getCurrencySymbol(env, NULL, javaLanguageTag, internationalCurrencySymbol);
     } else {
         internationalCurrencySymbol = env->NewStringUTF("XXX");
     }
