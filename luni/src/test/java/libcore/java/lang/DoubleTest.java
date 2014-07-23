@@ -127,4 +127,19 @@ public class DoubleTest extends TestCase {
         assertEquals(2.2250738585072014E-308, Double.parseDouble("2.22507385850720129978001e-308"));
         assertEquals(-2.2250738585072014E-308, Double.parseDouble("-2.2250738585072012e-308"));
     }
+
+    // https://code.google.com/p/android/issues/detail?id=71216
+    public void testParse_bug71216() {
+        try {
+            Double.parseDouble("73706943-9580-4406-a02f-0304e4324844");
+            fail();
+        } catch (NumberFormatException expected) {
+        }
+
+        try {
+            Double.parseDouble("bade999999999999999999999999999999");
+            fail();
+        } catch (NumberFormatException expected) {
+        }
+    }
 }
