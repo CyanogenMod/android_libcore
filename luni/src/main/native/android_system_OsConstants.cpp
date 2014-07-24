@@ -382,8 +382,12 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "POLLRDNORM", POLLRDNORM);
     initConstant(env, c, "POLLWRBAND", POLLWRBAND);
     initConstant(env, c, "POLLWRNORM", POLLWRNORM);
+#if defined(PR_GET_DUMPABLE)
     initConstant(env, c, "PR_GET_DUMPABLE", PR_GET_DUMPABLE);
+#endif
+#if defined(PR_SET_DUMPABLE)
     initConstant(env, c, "PR_SET_DUMPABLE", PR_SET_DUMPABLE);
+#endif
 #if defined(PR_SET_NO_NEW_PRIVS)
     initConstant(env, c, "PR_SET_NO_NEW_PRIVS", PR_SET_NO_NEW_PRIVS);
 #endif
