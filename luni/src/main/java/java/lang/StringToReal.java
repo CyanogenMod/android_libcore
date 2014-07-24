@@ -122,19 +122,19 @@ final class StringToReal {
                     result.e = -result.e;
                 }
             } catch (NumberFormatException ex) {
-                // We already checked the string, so the exponent must have been out of range for an int.
+                // We already checked the string, so the exponent must have been out of range for an
+                // int.
                 if (negativeExponent) {
                     result.zero = true;
                 } else {
                     result.infinity = true;
                 }
-                return result;
+                // Fall through: We want to check the content of the mantissa and throw an
+                // exception if it contains invalid characters. For example: "JUNK" * 10^12 should
+                // be treated as an error, not as infinity.
             }
         } else {
             end = length;
-        }
-        if (length == 0) {
-            throw invalidReal(s, isDouble);
         }
 
         int start = 0;
@@ -151,7 +151,19 @@ final class StringToReal {
             throw invalidReal(s, isDouble);
         }
 
-        int decimal = s.indexOf('.');
+        // Confirm that the mantissa should parse.
+        int decimal = -1;
+        for (int i = start; i < end; i++) {
+            char mc = s.charAt(i);
+            if (mc == '.') {
+                if (decimal != -1) {
+                    throw invalidReal(s, isDouble);
+                }
+                decimal = i;
+            } else if (mc < '0' || mc > '9') {
+                throw invalidReal(s, isDouble);
+            }
+        }
         if (decimal > -1) {
             result.e -= end - decimal - 1;
             s = s.substring(start, decimal) + s.substring(decimal + 1, end);
@@ -159,8 +171,15 @@ final class StringToReal {
             s = s.substring(start, end);
         }
 
-        if ((length = s.length()) == 0) {
+        length = s.length();
+        if (length == 0) {
             throw invalidReal(s, isDouble);
+        }
+
+        // All syntactic checks that might throw an exception are above. If we have established
+        // one of the non-exception error conditions we can stop here.
+        if (result.infinity || result.zero) {
+            return result;
         }
 
         end = length;
