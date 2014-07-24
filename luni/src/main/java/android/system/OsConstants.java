@@ -352,6 +352,8 @@ public final class OsConstants {
     public static final int POLLRDNORM = placeholder();
     public static final int POLLWRBAND = placeholder();
     public static final int POLLWRNORM = placeholder();
+    public static final int PR_GET_DUMPABLE = placeholder();
+    public static final int PR_SET_DUMPABLE = placeholder();
     public static final int PR_SET_NO_NEW_PRIVS = placeholder();
     public static final int PROT_EXEC = placeholder();
     public static final int PROT_NONE = placeholder();
