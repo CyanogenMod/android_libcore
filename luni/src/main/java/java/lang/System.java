@@ -180,7 +180,7 @@ public final class System {
      * (non-native) version of arraycopy() instead of the native
      * version. See b/7103825.
      */
-    private static final int ARRAYCOPY_SHORT_CHAR_ARRAY_THRESHOLD = 16;
+    private static final int ARRAYCOPY_SHORT_CHAR_ARRAY_THRESHOLD = 32;
 
     /**
      * The char[] specialized version of arraycopy().
@@ -233,7 +233,7 @@ public final class System {
      * (non-native) version of arraycopy() instead of the native
      * version. See b/7103825.
      */
-    private static final int ARRAYCOPY_SHORT_BYTE_ARRAY_THRESHOLD = 16;
+    private static final int ARRAYCOPY_SHORT_BYTE_ARRAY_THRESHOLD = 32;
 
     /**
      * The byte[] specialized version of arraycopy().
@@ -286,7 +286,7 @@ public final class System {
      * (non-native) version of arraycopy() instead of the native
      * version. See b/7103825.
      */
-    private static final int ARRAYCOPY_SHORT_SHORT_ARRAY_THRESHOLD = 16;
+    private static final int ARRAYCOPY_SHORT_SHORT_ARRAY_THRESHOLD = 32;
 
     /**
      * The short[] specialized version of arraycopy().
@@ -445,7 +445,7 @@ public final class System {
      * (non-native) version of arraycopy() instead of the native
      * version. See b/7103825.
      */
-    private static final int ARRAYCOPY_SHORT_FLOAT_ARRAY_THRESHOLD = 16;
+    private static final int ARRAYCOPY_SHORT_FLOAT_ARRAY_THRESHOLD = 32;
 
     /**
      * The float[] specialized version of arraycopy().
@@ -498,7 +498,7 @@ public final class System {
      * (non-native) version of arraycopy() instead of the native
      * version. See b/7103825.
      */
-    private static final int ARRAYCOPY_SHORT_DOUBLE_ARRAY_THRESHOLD = 64;
+    private static final int ARRAYCOPY_SHORT_DOUBLE_ARRAY_THRESHOLD = 32;
 
     /**
      * The double[] specialized version of arraycopy().
@@ -551,7 +551,7 @@ public final class System {
      * (non-native) version of arraycopy() instead of the native
      * version. See b/7103825.
      */
-    private static final int ARRAYCOPY_SHORT_BOOLEAN_ARRAY_THRESHOLD = 128;
+    private static final int ARRAYCOPY_SHORT_BOOLEAN_ARRAY_THRESHOLD = 32;
 
     /**
      * The boolean[] specialized version of arraycopy().
