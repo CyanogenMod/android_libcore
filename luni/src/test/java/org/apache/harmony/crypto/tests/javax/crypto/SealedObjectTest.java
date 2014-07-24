@@ -165,6 +165,34 @@ public class SealedObjectTest extends TestCase {
                 + "in cipher.", algorithm, so.getAlgorithm());
     }
 
+    // https://code.google.com/p/android/issues/detail?id=73235
+    public void testGetAlgorithmAfterSerialization() throws Exception {
+        String secret = "secret string";
+        String algorithm = "DES";
+        KeyGenerator kg = KeyGenerator.getInstance(algorithm);
+        Key key = kg.generateKey();
+
+        Cipher cipher = Cipher.getInstance(algorithm);
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        SealedObject so = new SealedObject(secret, cipher);
+
+        assertEquals("The algorithm name should be the same as used "
+                + "in cipher.", algorithm, so.getAlgorithm());
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(so);
+        oos.close();
+
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
+        SealedObject readSo = (SealedObject) ois.readObject();
+        ois.close();
+
+        // Bug 73235 would swap the Cipher algorithm and parameters. Parameters is not public but
+        // algorithm is so we check that.
+        assertEquals(so.getAlgorithm(), readSo.getAlgorithm());
+    }
+
     /**
      * getObject(Key key) method testing. Tests if the object sealed with
      * encryption algorithm and specified parameters can be retrieved by
