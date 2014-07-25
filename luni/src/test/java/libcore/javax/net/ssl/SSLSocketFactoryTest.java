@@ -205,6 +205,7 @@ public class SSLSocketFactoryTest extends TestCase {
             fail("Cannot find a way to clear out the SocketFactory provider");
         }
 
+        assertNull(Security.getProperty(SSL_PROPERTY));
         return origProvider;
     }
 
