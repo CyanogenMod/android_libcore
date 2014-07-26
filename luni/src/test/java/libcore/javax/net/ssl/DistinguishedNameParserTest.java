@@ -19,38 +19,50 @@ package libcore.javax.net.ssl;
 import javax.net.ssl.DistinguishedNameParser;
 import javax.security.auth.x500.X500Principal;
 import junit.framework.TestCase;
+import java.util.Arrays;
 
 public final class DistinguishedNameParserTest extends TestCase {
-    public void testGetFirstCn() {
-        assertFirstCn("", null);
-        assertFirstCn("ou=xxx", null);
-        assertFirstCn("ou=xxx,cn=xxx", "xxx");
-        assertFirstCn("ou=xxx+cn=yyy,cn=zzz+cn=abc", "yyy");
-        assertFirstCn("cn=a,cn=b", "a");
-        assertFirstCn("cn=Cc,cn=Bb,cn=Aa", "Cc");
-        assertFirstCn("cn=imap.gmail.com", "imap.gmail.com");
+    public void testGetCns() {
+        assertCns("");
+        assertCns("ou=xxx");
+        assertCns("ou=xxx,cn=xxx", "xxx");
+        assertCns("ou=xxx+cn=yyy,cn=zzz+cn=abc", "yyy", "zzz", "abc");
+        assertCns("cn=a,cn=b", "a", "b");
+        assertCns("cn=Cc,cn=Bb,cn=Aa", "Cc", "Bb", "Aa");
+        assertCns("cn=imap.gmail.com", "imap.gmail.com");
+        assertCns("l=\"abcn=a,b\", cn=c", "c");
     }
 
-    public void testGetFirstCnWithOid() {
-        assertFirstCn("2.5.4.3=a,ou=xxx", "a");
+    public void testGetCnsWithOid() {
+        assertCns("2.5.4.3=a,ou=xxx", "a");
     }
 
-    public void testGetFirstCnWithQuotedStrings() {
-        assertFirstCn("cn=\"\\\" a ,=<>#;\"", "\" a ,=<>#;");
-        assertFirstCn("cn=abc\\,def", "abc,def");
+    public void testGetCnsWithQuotedStrings() {
+        assertCns("cn=\"\\\" a ,=<>#;\"", "\" a ,=<>#;");
+        assertCns("cn=abc\\,def", "abc,def");
     }
 
-    public void testGetFirstCnWithUtf8() {
-        assertFirstCn("cn=Lu\\C4\\8Di\\C4\\87", "\u004c\u0075\u010d\u0069\u0107");
+    public void testGetCnsWithUtf8() {
+        assertCns("cn=Lu\\C4\\8Di\\C4\\87", "\u004c\u0075\u010d\u0069\u0107");
     }
 
-    public void testGetFirstCnWithWhitespace() {
-        assertFirstCn("ou=a, cn=  a  b  ,o=x", "a  b");
-        assertFirstCn("cn=\"  a  b  \" ,o=x", "  a  b  ");
+    public void testGetCnsWithWhitespace() {
+        assertCns("ou=a, cn=  a  b  ,o=x", "a  b");
+        assertCns("cn=\"  a  b  \" ,o=x", "  a  b  ");
     }
 
-    private void assertFirstCn(String dn, String expected) {
+    private void assertCns(String dn, String... expected) {
         X500Principal principal = new X500Principal(dn);
-        assertEquals(dn, expected, new DistinguishedNameParser(principal).findMostSpecific("cn"));
+        DistinguishedNameParser parser = new DistinguishedNameParser(principal);
+
+        // Test getAllMostSpecificFirst
+        assertEquals(dn, Arrays.asList(expected), parser.getAllMostSpecificFirst("cn"));
+
+        // Test findMostSpecific
+        if (expected.length > 0) {
+            assertEquals(dn, expected[0], parser.findMostSpecific("cn"));
+        } else {
+            assertNull(dn, parser.findMostSpecific("cn"));
+        }
     }
 }

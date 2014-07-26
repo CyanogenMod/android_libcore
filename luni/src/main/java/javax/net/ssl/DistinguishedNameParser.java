@@ -17,6 +17,9 @@
 
 package javax.net.ssl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import javax.security.auth.x500.X500Principal;
 
 /**
@@ -405,5 +408,72 @@ public final class DistinguishedNameParser {
                 throw new IllegalStateException("Malformed DN: " + dn);
             }
         }
+    }
+
+    /**
+     * Parses the DN and returns all values for an attribute type, in
+     * the order of decreasing significance (most significant first).
+     *
+     * @param attributeType attribute type to look for (e.g. "ca")
+     */
+    public List<String> getAllMostSpecificFirst(String attributeType) {
+        // Initialize internal state.
+        pos = 0;
+        beg = 0;
+        end = 0;
+        cur = 0;
+        chars = dn.toCharArray();
+        List<String> result = Collections.emptyList();
+
+        String attType = nextAT();
+        if (attType == null) {
+            return result;
+        }
+        while (pos < length) {
+            String attValue = "";
+
+            switch (chars[pos]) {
+            case '"':
+                attValue = quotedAV();
+                break;
+            case '#':
+                attValue = hexAV();
+                break;
+            case '+':
+            case ',':
+            case ';': // compatibility with RFC 1779: semicolon can separate RDNs
+                //empty attribute value
+                break;
+            default:
+                attValue = escapedAV();
+            }
+
+            // Values are ordered from most specific to least specific
+            // due to the RFC2253 formatting. So take the first match
+            // we see.
+            if (attributeType.equalsIgnoreCase(attType)) {
+                if (result.isEmpty()) {
+                    result = new ArrayList<String>();
+                }
+                result.add(attValue);
+            }
+
+            if (pos >= length) {
+                break;
+            }
+
+            if (chars[pos] == ',' || chars[pos] == ';') {
+            } else if (chars[pos] != '+') {
+                throw new IllegalStateException("Malformed DN: " + dn);
+            }
+
+            pos++;
+            attType = nextAT();
+            if (attType == null) {
+                throw new IllegalStateException("Malformed DN: " + dn);
+            }
+        }
+
+        return result;
     }
 }
