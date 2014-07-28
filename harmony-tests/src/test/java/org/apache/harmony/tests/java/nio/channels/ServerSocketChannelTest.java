@@ -657,20 +657,35 @@ public class ServerSocketChannelTest extends TestCase {
      * @tests ServerSocketChannel#socket().getSoTimeout()
      */
     public void test_accept_SOTIMEOUT() throws IOException {
-        // regression test for Harmony-707
-        final int SO_TIMEOUT = 10;
+        // Regression test for Harmony-707
+        // The timeout actually used may be different from the one set due to
+        // rounding by the Linux Kernel (see sock_set_timeout() in net/core/sock.c).
+        // getSoTimeout() can return a different value from the one set with
+        // setSoTimeout(). Consequently we do not check for equality with what was
+        // set.
+
         ServerSocketChannel sc = ServerSocketChannel.open();
         try {
             sc.socket().bind(null);
+
+            // Non blocking mode, accept() will return NULL since there are no pending connections.
             sc.configureBlocking(false);
+
             ServerSocket ss = sc.socket();
+
+            int defaultTimeout = ss.getSoTimeout();
+            assertEquals(0, defaultTimeout);
+            // The timeout value is unimportant, providing it is large enough to be accepted
+            // by the Kernel as distinct from the default.
+            final int SO_TIMEOUT = 200;
             ss.setSoTimeout(SO_TIMEOUT);
+            int nonDefaultTimeout = ss.getSoTimeout();
+            assertTrue(nonDefaultTimeout != defaultTimeout);
+
             SocketChannel client = sc.accept();
-            // non blocking mode, returns null since there are no pending connections.
             assertNull(client);
-            int soTimeout = ss.getSoTimeout();
-            // Harmony fails here.
-            assertEquals(SO_TIMEOUT, soTimeout);
+            // Confirm the timeout was unchanged.
+            assertEquals(nonDefaultTimeout, ss.getSoTimeout());
         } finally {
             sc.close();
         }
