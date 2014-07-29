@@ -2530,25 +2530,28 @@ public final class Character implements Serializable, Comparable<Character> {
     }
 
     /**
-     * Gets the Unicode directionality of the specified character.
-     *
-     * @param codePoint
-     *            the Unicode code point to get the directionality of.
-     * @return the Unicode directionality of {@code codePoint}.
+     * Returns the Unicode directionality of the given code point.
+     * This will be one of the {@code DIRECTIONALITY_} constants.
+     * For characters whose directionality is undefined, or whose
+     * directionality has no appropriate constant in this class,
+     * {@code DIRECTIONALITY_UNDEFINED} is returned.
      */
     public static byte getDirectionality(int codePoint) {
         if (getType(codePoint) == Character.UNASSIGNED) {
             return Character.DIRECTIONALITY_UNDEFINED;
         }
 
-        byte directionality = getDirectionalityImpl(codePoint);
-        if (directionality == -1) {
-            return -1;
+        byte directionality = getIcuDirectionality(codePoint);
+        if (directionality >= 0 && directionality < DIRECTIONALITY.length) {
+            return DIRECTIONALITY[directionality];
         }
-        return DIRECTIONALITY[directionality];
+        return Character.DIRECTIONALITY_UNDEFINED;
     }
 
-    private static native byte getDirectionalityImpl(int codePoint);
+    /**
+     * @hide - internal use only.
+     */
+    public static native byte getIcuDirectionality(int codePoint);
 
     /**
      * Indicates whether the specified character is mirrored.
