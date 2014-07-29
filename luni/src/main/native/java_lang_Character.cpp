@@ -33,7 +33,7 @@ static jint Character_getTypeImpl(JNIEnv*, jclass, jint codePoint) {
     return u_charType(codePoint);
 }
 
-static jbyte Character_getDirectionalityImpl(JNIEnv*, jclass, jint codePoint) {
+static jbyte Character_getIcuDirectionality(JNIEnv*, jclass, jint codePoint) {
     return u_charDirection(codePoint);
 }
 
@@ -166,7 +166,7 @@ static jboolean Character_isIdeographic(JNIEnv*, jclass, jint codePoint) {
 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Character, digitImpl, "!(II)I"),
-    NATIVE_METHOD(Character, getDirectionalityImpl, "!(I)B"),
+    NATIVE_METHOD(Character, getIcuDirectionality, "!(I)B"),
     NATIVE_METHOD(Character, getNameImpl, "(I)Ljava/lang/String;"),
     NATIVE_METHOD(Character, getNumericValueImpl, "!(I)I"),
     NATIVE_METHOD(Character, getTypeImpl, "!(I)I"),
