@@ -277,4 +277,16 @@ public class CharacterTest extends junit.framework.TestCase {
       }
     }
   }
+
+  // http://b/15492712
+  public void test_getDirectionality() throws Exception {
+    // We shouldn't throw an exception for any code point.
+    for (int c = '\u0000'; c <= Character.MAX_VALUE; ++c) {
+      Character.getDirectionality(c);
+    }
+    assertEquals(Character.DIRECTIONALITY_UNDEFINED, Character.getDirectionality(0x2066));
+    assertEquals(Character.DIRECTIONALITY_UNDEFINED, Character.getDirectionality(0x2067));
+    assertEquals(Character.DIRECTIONALITY_UNDEFINED, Character.getDirectionality(0x2068));
+    assertEquals(Character.DIRECTIONALITY_UNDEFINED, Character.getDirectionality(0x2069));
+  }
 }
