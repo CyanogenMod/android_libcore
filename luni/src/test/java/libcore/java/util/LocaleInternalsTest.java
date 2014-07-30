@@ -16,6 +16,7 @@
 
 package libcore.java.util;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -68,7 +69,7 @@ public class LocaleInternalsTest extends TestCase {
         // Only attributes.
         Locale.parseUnicodeExtension("foooo".split("-"), keywords, attributes);
         assertTrue(attributes.contains("foooo"));
-        assertTrue(keywords.isEmpty());
+        assertEquals(Collections.EMPTY_SET, keywords.keySet());
 
         attributes.clear();
         keywords.clear();
@@ -77,7 +78,7 @@ public class LocaleInternalsTest extends TestCase {
         assertTrue(attributes.contains("foooo"));
         assertTrue(attributes.contains("baa"));
         assertTrue(attributes.contains("baaabaaa"));
-        assertTrue(keywords.isEmpty());
+        assertEquals(Collections.EMPTY_SET, keywords.keySet());
 
         // Only keywords
         attributes.clear();
@@ -123,6 +124,6 @@ public class LocaleInternalsTest extends TestCase {
         }
 
         Locale.setDefault(new Locale("bogus", "LOCALE"));
-        assertEquals("bogus__LOCALE", ICU.getDefaultLocale());
+        assertEquals("und", ICU.getDefaultLocale());
     }
 }
