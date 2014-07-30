@@ -63,7 +63,7 @@ import org.apache.harmony.luni.internal.util.TimezoneGetter;
  *
  * @see Calendar
  * @see GregorianCalendar
- * @see SimpleDateFormat
+ * @see java.text.SimpleDateFormat
  */
 public abstract class TimeZone implements Serializable, Cloneable {
     private static final long serialVersionUID = 3581463369166924961L;
@@ -206,27 +206,48 @@ public abstract class TimeZone implements Serializable, Cloneable {
         // upgrade to icu4c 50 and rewrite the underlying native code. See also the
         // "element[j] != null" check in SimpleDateFormat.parseTimeZone, and the extra work in
         // DateFormatSymbols.getZoneStrings.
-
-        int offset = getRawOffset();
+        int offsetMillis = getRawOffset();
         if (daylightTime) {
-            offset += getDSTSavings();
+            offsetMillis += getDSTSavings();
         }
-        offset /= 60000;
+        return createGmtOffsetString(true /* includeGmt */, true /* includeMinuteSeparator */,
+                offsetMillis);
+    }
+
+    /**
+     * Returns a string representation of an offset from UTC.
+     *
+     * <p>The format is "[GMT](+|-)HH[:]MM". The output is not localized.
+     *
+     * @param includeGmt true to include "GMT", false to exclude
+     * @param includeMinuteSeparator true to include the separator between hours and minutes, false
+     *     to exclude.
+     * @param offsetMillis the offset from UTC
+     *
+     * @hide used internally by SimpleDateFormat
+     */
+    public static String createGmtOffsetString(boolean includeGmt,
+            boolean includeMinuteSeparator, int offsetMillis) {
+        int offsetMinutes = offsetMillis / 60000;
         char sign = '+';
-        if (offset < 0) {
+        if (offsetMinutes < 0) {
             sign = '-';
-            offset = -offset;
+            offsetMinutes = -offsetMinutes;
         }
         StringBuilder builder = new StringBuilder(9);
-        builder.append("GMT");
+        if (includeGmt) {
+            builder.append("GMT");
+        }
         builder.append(sign);
-        appendNumber(builder, 2, offset / 60);
-        builder.append(':');
-        appendNumber(builder, 2, offset % 60);
+        appendNumber(builder, 2, offsetMinutes / 60);
+        if (includeMinuteSeparator) {
+            builder.append(':');
+        }
+        appendNumber(builder, 2, offsetMinutes % 60);
         return builder.toString();
     }
 
-    private void appendNumber(StringBuilder builder, int count, int value) {
+    private static void appendNumber(StringBuilder builder, int count, int value) {
         String string = Integer.toString(value);
         for (int i = 0; i < count - string.length(); i++) {
             builder.append('0');

@@ -46,8 +46,8 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
     }
 
     public void testSerialization() throws Exception {
-        // Set the default locale. The default locale determines what strings are used by the
-        // DateFormatSymbols after deserialization.
+        // Set the default locale. The default locale used to determine what strings were used by
+        // the DateFormatSymbols after deserialization. See http://b/16502916
         Locale.setDefault(Locale.US);
 
         // The Polish language needs stand-alone month and weekday names.
@@ -64,17 +64,16 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
         DateFormatSymbols deserializedDfs = (DateFormatSymbols) in.readObject();
         assertEquals(-1, in.read());
 
-        // The two objects should claim to be equal, even though they aren't really.
+        // The two objects be equal.
         assertEquals(originalDfs, deserializedDfs);
 
         // The original differentiates between regular month names and stand-alone month names...
         assertEquals("stycznia", formatDate(pl, "MMMM", originalDfs));
         assertEquals("stycze\u0144", formatDate(pl, "LLLL", originalDfs));
 
-        // But the deserialized object is screwed because the RI's serialized form doesn't
-        // contain the locale or the necessary strings. Don't serialize DateFormatSymbols, folks!
+        // And so does the deserialized version.
         assertEquals("stycznia", formatDate(pl, "MMMM", deserializedDfs));
-        assertEquals("January", formatDate(pl, "LLLL", deserializedDfs));
+        assertEquals("stycze\u0144", formatDate(pl, "LLLL", deserializedDfs));
     }
 
     private String formatDate(Locale l, String fmt, DateFormatSymbols dfs) {

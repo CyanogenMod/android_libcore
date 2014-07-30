@@ -740,15 +740,9 @@ public class SimpleDateFormat extends DateFormat {
             TimeZone tz = calendar.getTimeZone();
             boolean daylight = (calendar.get(Calendar.DST_OFFSET) != 0);
             int style = count < 4 ? TimeZone.SHORT : TimeZone.LONG;
-            if (!formatData.customZoneStrings) {
-                buffer.append(tz.getDisplayName(daylight, style, formatData.locale));
-                return;
-            }
-            // We can't call TimeZone.getDisplayName() because it would not use
-            // the custom DateFormatSymbols of this SimpleDateFormat.
-            String custom = TimeZoneNames.getDisplayName(formatData.zoneStrings, tz.getID(), daylight, style);
-            if (custom != null) {
-                buffer.append(custom);
+            String zoneString = formatData.getTimeZoneDisplayName(tz, daylight, style);
+            if (zoneString != null) {
+                buffer.append(zoneString);
                 return;
             }
         }
@@ -759,21 +753,11 @@ public class SimpleDateFormat extends DateFormat {
     // See http://www.unicode.org/reports/tr35/#Date_Format_Patterns for the different counts.
     // @param generalTimeZone "GMT-08:00" rather than "-0800".
     private void appendNumericTimeZone(StringBuffer buffer, int count, boolean generalTimeZone) {
-        int offset = calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET);
-        char sign = '+';
-        if (offset < 0) {
-            sign = '-';
-            offset = -offset;
-        }
-        if (generalTimeZone || count == 4) {
-            buffer.append("GMT");
-        }
-        buffer.append(sign);
-        appendNumber(buffer, 2, offset / 3600000);
-        if (generalTimeZone || count >= 4) {
-            buffer.append(':');
-        }
-        appendNumber(buffer, 2, (offset % 3600000) / 60000);
+        int offsetMillis = calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET);
+        boolean includeGmt = generalTimeZone || count == 4;
+        boolean includeMinuteSeparator = generalTimeZone || count >= 4;
+        buffer.append(TimeZone.createGmtOffsetString(includeGmt,  includeMinuteSeparator,
+                offsetMillis));
     }
 
     private void appendMilliseconds(StringBuffer buffer, int count, int value) {

@@ -16,8 +16,6 @@
  */
 package org.apache.harmony.tests.java.text;
 
-import java.io.File;
-import java.net.URL;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -25,7 +23,6 @@ import java.io.ObjectOutputStream;
 import java.text.DateFormatSymbols;
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.ServiceConfigurationError;
 
 public class DateFormatSymbolsTest extends junit.framework.TestCase {
 
@@ -402,13 +399,6 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
         dfs = new DateFormatSymbols(new Locale("en", "us"));
     }
 
-    /**
-     * Tears down the fixture, for example, close a network connection. This
-     * method is called after a test is executed.
-     */
-    protected void tearDown() {
-    }
-
     // Test serialization mechanism of DateFormatSymbols
     public void test_serialization() throws Exception {
         DateFormatSymbols symbols = new DateFormatSymbols(Locale.FRANCE);
@@ -426,7 +416,6 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
         DateFormatSymbols symbolsD = (DateFormatSymbols) objectIStream
                 .readObject();
 
-        // The associated currency will not persist
         String[][] zoneStringsD = symbolsD.getZoneStrings();
         assertNotNull(zoneStringsD);
         assertEquals(symbols, symbolsD);
