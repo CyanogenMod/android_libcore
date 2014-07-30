@@ -231,7 +231,7 @@ final class CharsetEncoderICU extends CharsetEncoder {
 
     private void setPosition(ByteBuffer out) {
         if (out.hasArray()) {
-            out.position(out.position() + data[OUTPUT_OFFSET] - out.arrayOffset());
+            out.position(data[OUTPUT_OFFSET] - out.arrayOffset());
         } else {
             out.put(output, 0, data[OUTPUT_OFFSET]);
         }
