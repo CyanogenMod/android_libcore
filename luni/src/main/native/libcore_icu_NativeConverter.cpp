@@ -214,7 +214,7 @@ static jint NativeConverter_encode(JNIEnv* env, jclass, jlong address,
     UErrorCode errorCode = U_ZERO_ERROR;
     ucnv_fromUnicode(cnv , &cTarget, cTargetLimit, &mySource, mySourceLimit, NULL, (UBool) flush, &errorCode);
     *sourceOffset = (mySource - uSource.get()) - *sourceOffset;
-    *targetOffset = (reinterpret_cast<jbyte*>(cTarget) - uTarget.get()) - *targetOffset;
+    *targetOffset = (reinterpret_cast<jbyte*>(cTarget) - uTarget.get());
 
     // If there was an error, count the problematic characters.
     if (errorCode == U_ILLEGAL_CHAR_FOUND || errorCode == U_INVALID_CHAR_FOUND ||
