@@ -75,7 +75,6 @@ static void TimeZoneNames_fillZoneStrings(JNIEnv* env, jclass, jstring javaLocal
   const UDate now(Calendar::getNow());
 
   static const UnicodeString kUtc("UTC", 3, US_INV);
-  static const UnicodeString pacific_apia("Pacific/Apia", 12, US_INV);
 
   size_t id_count = env->GetArrayLength(result);
   for (size_t i = 0; i < id_count; ++i) {
@@ -104,11 +103,6 @@ static void TimeZoneNames_fillZoneStrings(JNIEnv* env, jclass, jstring javaLocal
       // every language).
       // TODO: check CLDR doesn't actually have this somewhere.
       long_std = short_std = long_dst = short_dst = kUtc;
-    } else if (zone_id.unicodeString() == pacific_apia) {
-      // icu4c 50 doesn't know Samoa has DST yet. http://b/7955614
-      if (long_dst.isBogus()) {
-        long_dst = "Samoa Daylight Time";
-      }
     }
 
     bool okay =
