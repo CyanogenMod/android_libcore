@@ -1988,7 +1988,7 @@ public final class Locale implements Cloneable, Serializable {
 
         if (subtagsForKeyword.size() > 0) {
             keywords.put(lastKeyword, joinBcp47Subtags(subtagsForKeyword));
-        } else {
+        } else if (lastKeyword != null) {
             keywords.put(lastKeyword, "");
         }
     }
