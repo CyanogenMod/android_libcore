@@ -74,6 +74,14 @@ public class ICUTest extends junit.framework.TestCase {
     assertEquals("Hebr", ICU.getScript(ICU.addLikelySubtags("iw_IL")));
   }
 
+  public void test_addLikelySubtags() throws Exception {
+    assertEquals("Latn", ICU.addLikelySubtags(new Locale("en", "US")).getScript());
+    assertEquals("Hebr", ICU.addLikelySubtags(new Locale("he")).getScript());
+    assertEquals("Hebr", ICU.addLikelySubtags(new Locale("he", "IL")).getScript());
+    assertEquals("Hebr", ICU.addLikelySubtags(new Locale("iw")).getScript());
+    assertEquals("Hebr", ICU.addLikelySubtags(new Locale("iw", "IL")).getScript());
+  }
+
   private String best(Locale l, String skeleton) {
     return ICU.getBestDateTimePattern(skeleton, l);
   }
