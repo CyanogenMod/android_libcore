@@ -426,7 +426,21 @@ public final class ICU {
 
   public static native String getISO3Language(String languageTag);
 
+  public static Locale addLikelySubtags(Locale locale) {
+      return Locale.forLanguageTag(addLikelySubtags(locale.toLanguageTag()).replace('_', '-'));
+  }
+
+  /**
+   * @deprecated use {@link #addLikelySubtags(java.util.Locale)} instead.
+   */
+  @Deprecated
   public static native String addLikelySubtags(String locale);
+
+  /**
+   * @deprecated use {@link java.util.Locale#getScript()} instead. This has been kept
+   *     around only for the support library.
+   */
+  @Deprecated
   public static native String getScript(String locale);
 
   private static native String[] getISOLanguagesNative();
