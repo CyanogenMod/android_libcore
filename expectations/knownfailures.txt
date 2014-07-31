@@ -1374,6 +1374,11 @@
   ]
 },
 {
+  description: "ScannerParseLargeFileBenchmark can cause a failure due to a timeout",
+  bug: 14865710,
+  name: "org.apache.harmony.tests.java.util.ScannerParseLargeFileBenchmarkTest"
+},
+{
   description: "Known failure in GregorianCalendarTest",
   bug: 12778197,
   name: "org.apache.harmony.tests.java.util.GregorianCalendarTest#test_computeTime"
