@@ -62,14 +62,14 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     transient LocaleData localeData;
 
     // Localized display names.
-    String[][] zoneStrings;
+    private String[][] zoneStrings;
 
     /*
      * Locale, necessary to lazily load time zone strings. Added to the serialized form for
      * Android's L release. May be null if the object was deserialized using data from older
      * releases. See b/16502916.
      */
-    final Locale locale;
+    private final Locale locale;
 
     /**
      * Gets zone strings, initializing them if necessary. Does not create
