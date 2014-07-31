@@ -32,83 +32,21 @@ import java.util.TimeZone;
 
 public class SimpleDateFormatTest extends junit.framework.TestCase {
 
-    private static SimpleDateFormat format = new SimpleDateFormat("", Locale.ENGLISH);
+    private SimpleDateFormat format;
 
-    private static SimpleDateFormat pFormat = new SimpleDateFormat("", Locale.ENGLISH);
+    private SimpleDateFormat pFormat;
 
     private TimeZone previousDefaultTimeZone;
 
     @Override public void setUp() {
         previousDefaultTimeZone = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
+        format = new SimpleDateFormat("", Locale.ENGLISH);
+        pFormat = new SimpleDateFormat("", Locale.ENGLISH);
     }
 
     @Override public void tearDown() {
         TimeZone.setDefault(previousDefaultTimeZone);
-    }
-
-    static class TestFormat extends junit.framework.TestCase {
-        boolean testsFailed = false;
-
-        public TestFormat(String name) {
-            super(name);
-        }
-
-        public void test(String pattern, Calendar cal, String expected, int field) {
-            StringBuffer buffer = new StringBuffer();
-            FieldPosition position = new FieldPosition(field);
-            format.applyPattern(pattern);
-            format.format(cal.getTime(), buffer, position);
-            String result = buffer.toString();
-            if (!System.getProperty("java.vendor", "None").substring(0, 3).equals("Sun")) {
-                assertTrue("Wrong format: \"" + pattern + "\" expected: "
-                        + expected + " result: " + result, result.equals(expected));
-                assertEquals("Wrong begin position: " + pattern + "\n" +
-                             "expected: " + expected + "\n" +
-                             "field: " + field, 1, position.getBeginIndex());
-                assertTrue("Wrong end position: " + pattern + " expected: "
-                        + expected + " field: " + field,
-                        position.getEndIndex() == result.length());
-            } else {
-                // Print the failure but don't use assert as this
-                // will stop subsequent tests from running
-                if (!result.equals(expected)) {
-                    System.out
-                            .println("Wrong format: \"" + pattern
-                                    + "\" expected: " + expected + " result: "
-                                    + result);
-                    testsFailed = true;
-                }
-            }
-        }
-
-        public boolean testsFailed() {
-            return testsFailed;
-        }
-
-        public void parse(String pattern, String input, Date expected,
-                int start, int end) {
-            pFormat.applyPattern(pattern);
-            ParsePosition position = new ParsePosition(start);
-            Date result = pFormat.parse(input, position);
-            assertTrue("Wrong result: " + pattern + " input: " + input
-                    + " expected: " + expected + " result: " + result, expected
-                    .equals(result));
-            assertTrue("Wrong end position: " + pattern + " input: " + input,
-                    position.getIndex() == end);
-        }
-
-        public void verifyFormatTimezone(String timeZoneId, String expected1,
-                String expected2, Date date) {
-            format.setTimeZone(SimpleTimeZone.getTimeZone(timeZoneId));
-            format.applyPattern("z, zzzz");
-            assertEquals("Test z for TimeZone : " + timeZoneId, expected1,
-                    format.format(date));
-
-            format.applyPattern("Z, ZZZZ");
-            assertEquals("Test Z for TimeZone : " + timeZoneId, expected2,
-                    format.format(date));
-        }
     }
 
     public void test_Constructor() {
@@ -117,10 +55,8 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         assertTrue("Wrong class", f2.getClass() == SimpleDateFormat.class);
         assertTrue("Wrong default", f2.equals(DateFormat.getDateTimeInstance(
                 DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault())));
-        assertTrue("Wrong symbols", f2.getDateFormatSymbols().equals(
-                new DateFormatSymbols()));
-        assertTrue("Doesn't work",
-                f2.format(new Date()).getClass() == String.class);
+        assertTrue("Wrong symbols", f2.getDateFormatSymbols().equals(new DateFormatSymbols()));
+        assertTrue("Doesn't work", f2.format(new Date()).getClass() == String.class);
     }
 
     public void test_ConstructorLjava_lang_String() {
@@ -128,17 +64,13 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         SimpleDateFormat f2 = new SimpleDateFormat("yyyy");
         assertTrue("Wrong class", f2.getClass() == SimpleDateFormat.class);
         assertEquals("Wrong pattern", "yyyy", f2.toPattern());
-        assertTrue("Wrong locale", f2.equals(new SimpleDateFormat("yyyy",
-                Locale.getDefault())));
-        assertTrue("Wrong symbols", f2.getDateFormatSymbols().equals(
-                new DateFormatSymbols()));
-        assertTrue("Doesn't work",
-                f2.format(new Date()).getClass() == String.class);
+        assertTrue("Wrong locale", f2.equals(new SimpleDateFormat("yyyy", Locale.getDefault())));
+        assertTrue("Wrong symbols", f2.getDateFormatSymbols().equals(new DateFormatSymbols()));
+        assertTrue("Doesn't work", f2.format(new Date()).getClass() == String.class);
 
         // Invalid constructor value.
         try {
-            new SimpleDateFormat(
-                    "this is an invalid simple date format");
+            new SimpleDateFormat("this is an invalid simple date format");
             fail("Expected test_ConstructorLjava_lang_String to throw IAE.");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -296,7 +228,8 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         SimpleDateFormat clone = (SimpleDateFormat) format.clone();
         assertTrue("clone has not equal hash code", clone.hashCode() == format.hashCode());
         format.format(new Date());
-        assertTrue("clone has not equal hash code after format", clone.hashCode() == format.hashCode());
+        assertTrue("clone has not equal hash code after format",
+                clone.hashCode() == format.hashCode());
         DateFormatSymbols symbols = new DateFormatSymbols(Locale.ENGLISH);
         symbols.setEras(new String[] { "Before", "After" });
         SimpleDateFormat format2 = new SimpleDateFormat("y'y'yy", symbols);
@@ -326,119 +259,133 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
                 "test_formatLjava_util_DateLjava_lang_StringBufferLjava_text_FieldPosition")
                 .t_format_with_FieldPosition();
 
-        TestFormat test = new TestFormat(
-                "test_formatLjava_util_DateLjava_lang_StringBufferLjava_text_FieldPosition");
-
         Calendar cal = new GregorianCalendar(1999, Calendar.JUNE, 2, 15, 3, 6);
-        test.test(" G", cal, " AD", DateFormat.ERA_FIELD);
-        test.test(" GG", cal, " AD", DateFormat.ERA_FIELD);
-        test.test(" GGG", cal, " AD", DateFormat.ERA_FIELD);
-        test.test(" G", new GregorianCalendar(-1999, Calendar.JUNE, 2), " BC", DateFormat.ERA_FIELD);
+        assertFormat(" G", cal, " AD", DateFormat.ERA_FIELD);
+        assertFormat(" GG", cal, " AD", DateFormat.ERA_FIELD);
+        assertFormat(" GGG", cal, " AD", DateFormat.ERA_FIELD);
+        assertFormat(" G", new GregorianCalendar(-1999, Calendar.JUNE, 2), " BC",
+                DateFormat.ERA_FIELD);
 
         // This assumes Unicode behavior where 'y' and 'yyy' don't truncate,
         // which means that it will fail on the RI.
-        test.test(" y", cal, " 1999", DateFormat.YEAR_FIELD);
-        test.test(" yy", cal, " 99", DateFormat.YEAR_FIELD);
-        test.test(" yy", new GregorianCalendar(2001, Calendar.JUNE, 2), " 01", DateFormat.YEAR_FIELD);
-        test.test(" yy", new GregorianCalendar(2000, Calendar.JUNE, 2), " 00", DateFormat.YEAR_FIELD);
-        test.test(" yyy", new GregorianCalendar(2000, Calendar.JUNE, 2), " 2000", DateFormat.YEAR_FIELD);
-        test.test(" yyy", cal, " 1999", DateFormat.YEAR_FIELD);
-        test.test(" yyyy", cal, " 1999", DateFormat.YEAR_FIELD);
-        test.test(" yyyyy", cal, " 01999", DateFormat.YEAR_FIELD);
+        assertFormat(" y", cal, " 1999", DateFormat.YEAR_FIELD);
+        assertFormat(" yy", cal, " 99", DateFormat.YEAR_FIELD);
+        assertFormat(" yy", new GregorianCalendar(2001, Calendar.JUNE, 2), " 01",
+                DateFormat.YEAR_FIELD);
+        assertFormat(" yy", new GregorianCalendar(2000, Calendar.JUNE, 2), " 00",
+                DateFormat.YEAR_FIELD);
+        assertFormat(" yyy", new GregorianCalendar(2000, Calendar.JUNE, 2), " 2000",
+                DateFormat.YEAR_FIELD);
+        assertFormat(" yyy", cal, " 1999", DateFormat.YEAR_FIELD);
+        assertFormat(" yyyy", cal, " 1999", DateFormat.YEAR_FIELD);
+        assertFormat(" yyyyy", cal, " 01999", DateFormat.YEAR_FIELD);
 
-        test.test(" M", cal, " 6", DateFormat.MONTH_FIELD);
-        test.test(" M", new GregorianCalendar(1999, Calendar.NOVEMBER, 2), " 11", DateFormat.MONTH_FIELD);
-        test.test(" MM", cal, " 06", DateFormat.MONTH_FIELD);
-        test.test(" MMM", cal, " Jun", DateFormat.MONTH_FIELD);
-        test.test(" MMMM", cal, " June", DateFormat.MONTH_FIELD);
-        test.test(" MMMMM", cal, " J", DateFormat.MONTH_FIELD);
+        assertFormat(" M", cal, " 6", DateFormat.MONTH_FIELD);
+        assertFormat(" M", new GregorianCalendar(1999, Calendar.NOVEMBER, 2), " 11",
+                DateFormat.MONTH_FIELD);
+        assertFormat(" MM", cal, " 06", DateFormat.MONTH_FIELD);
+        assertFormat(" MMM", cal, " Jun", DateFormat.MONTH_FIELD);
+        assertFormat(" MMMM", cal, " June", DateFormat.MONTH_FIELD);
+        assertFormat(" MMMMM", cal, " J", DateFormat.MONTH_FIELD);
 
-        test.test(" d", cal, " 2", DateFormat.DATE_FIELD);
-        test.test(" d", new GregorianCalendar(1999, Calendar.NOVEMBER, 12), " 12", DateFormat.DATE_FIELD);
-        test.test(" dd", cal, " 02", DateFormat.DATE_FIELD);
-        test.test(" dddd", cal, " 0002", DateFormat.DATE_FIELD);
+        assertFormat(" d", cal, " 2", DateFormat.DATE_FIELD);
+        assertFormat(" d", new GregorianCalendar(1999, Calendar.NOVEMBER, 12), " 12",
+                DateFormat.DATE_FIELD);
+        assertFormat(" dd", cal, " 02", DateFormat.DATE_FIELD);
+        assertFormat(" dddd", cal, " 0002", DateFormat.DATE_FIELD);
 
-        test.test(" h", cal, " 3", DateFormat.HOUR1_FIELD);
-        test.test(" h", new GregorianCalendar(1999, Calendar.NOVEMBER, 12), " 12", DateFormat.HOUR1_FIELD);
-        test.test(" hh", cal, " 03", DateFormat.HOUR1_FIELD);
-        test.test(" hhhh", cal, " 0003", DateFormat.HOUR1_FIELD);
+        assertFormat(" h", cal, " 3", DateFormat.HOUR1_FIELD);
+        assertFormat(" h", new GregorianCalendar(1999, Calendar.NOVEMBER, 12), " 12",
+                DateFormat.HOUR1_FIELD);
+        assertFormat(" hh", cal, " 03", DateFormat.HOUR1_FIELD);
+        assertFormat(" hhhh", cal, " 0003", DateFormat.HOUR1_FIELD);
 
-        test.test(" H", cal, " 15", DateFormat.HOUR_OF_DAY0_FIELD);
-        test.test(" H", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 4, 0), " 4", DateFormat.HOUR_OF_DAY0_FIELD);
-        test.test(" H", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 12, 0), " 12", DateFormat.HOUR_OF_DAY0_FIELD);
-        test.test(" H", new GregorianCalendar(1999, Calendar.NOVEMBER, 12), " 0", DateFormat.HOUR_OF_DAY0_FIELD);
-        test.test(" HH", cal, " 15", DateFormat.HOUR_OF_DAY0_FIELD);
-        test.test(" HHHH", cal, " 0015", DateFormat.HOUR_OF_DAY0_FIELD);
+        assertFormat(" H", cal, " 15", DateFormat.HOUR_OF_DAY0_FIELD);
+        assertFormat(" H", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 4, 0), " 4",
+                DateFormat.HOUR_OF_DAY0_FIELD);
+        assertFormat(" H", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 12, 0), " 12",
+                DateFormat.HOUR_OF_DAY0_FIELD);
+        assertFormat(" H", new GregorianCalendar(1999, Calendar.NOVEMBER, 12), " 0",
+                DateFormat.HOUR_OF_DAY0_FIELD);
+        assertFormat(" HH", cal, " 15", DateFormat.HOUR_OF_DAY0_FIELD);
+        assertFormat(" HHHH", cal, " 0015", DateFormat.HOUR_OF_DAY0_FIELD);
 
-        test.test(" m", cal, " 3", DateFormat.MINUTE_FIELD);
-        test.test(" m", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 4, 47), " 47", DateFormat.MINUTE_FIELD);
-        test.test(" mm", cal, " 03", DateFormat.MINUTE_FIELD);
-        test.test(" mmmm", cal, " 0003", DateFormat.MINUTE_FIELD);
+        assertFormat(" m", cal, " 3", DateFormat.MINUTE_FIELD);
+        assertFormat(" m", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 4, 47), " 47",
+                DateFormat.MINUTE_FIELD);
+        assertFormat(" mm", cal, " 03", DateFormat.MINUTE_FIELD);
+        assertFormat(" mmmm", cal, " 0003", DateFormat.MINUTE_FIELD);
 
-        test.test(" s", cal, " 6", DateFormat.SECOND_FIELD);
-        test.test(" s", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 4, 47, 13), " 13", DateFormat.SECOND_FIELD);
-        test.test(" ss", cal, " 06", DateFormat.SECOND_FIELD);
-        test.test(" ssss", cal, " 0006", DateFormat.SECOND_FIELD);
+        assertFormat(" s", cal, " 6", DateFormat.SECOND_FIELD);
+        assertFormat(" s", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 4, 47, 13), " 13",
+                DateFormat.SECOND_FIELD);
+        assertFormat(" ss", cal, " 06", DateFormat.SECOND_FIELD);
+        assertFormat(" ssss", cal, " 0006", DateFormat.SECOND_FIELD);
 
-        test.test(" S", cal, " 0", DateFormat.MILLISECOND_FIELD);
+        assertFormat(" S", cal, " 0", DateFormat.MILLISECOND_FIELD);
         Calendar temp = new GregorianCalendar();
         temp.set(Calendar.MILLISECOND, 961);
 
-        test.test(" SS", temp, " 96", DateFormat.MILLISECOND_FIELD);
-        test.test(" SSSS", cal, " 0000", DateFormat.MILLISECOND_FIELD);
+        assertFormat(" SS", temp, " 96", DateFormat.MILLISECOND_FIELD);
+        assertFormat(" SSSS", cal, " 0000", DateFormat.MILLISECOND_FIELD);
 
-        test.test(" SS", cal, " 00", DateFormat.MILLISECOND_FIELD);
+        assertFormat(" SS", cal, " 00", DateFormat.MILLISECOND_FIELD);
 
-        test.test(" E", cal, " Wed", DateFormat.DAY_OF_WEEK_FIELD);
-        test.test(" EE", cal, " Wed", DateFormat.DAY_OF_WEEK_FIELD);
-        test.test(" EEE", cal, " Wed", DateFormat.DAY_OF_WEEK_FIELD);
-        test.test(" EEEE", cal, " Wednesday", DateFormat.DAY_OF_WEEK_FIELD);
-        test.test(" EEEEE", cal, " W", DateFormat.DAY_OF_WEEK_FIELD);
+        assertFormat(" E", cal, " Wed", DateFormat.DAY_OF_WEEK_FIELD);
+        assertFormat(" EE", cal, " Wed", DateFormat.DAY_OF_WEEK_FIELD);
+        assertFormat(" EEE", cal, " Wed", DateFormat.DAY_OF_WEEK_FIELD);
+        assertFormat(" EEEE", cal, " Wednesday", DateFormat.DAY_OF_WEEK_FIELD);
+        assertFormat(" EEEEE", cal, " W", DateFormat.DAY_OF_WEEK_FIELD);
 
-        test.test(" D", cal, " 153", DateFormat.DAY_OF_YEAR_FIELD);
-        test.test(" DD", cal, " 153", DateFormat.DAY_OF_YEAR_FIELD);
-        test.test(" DDDD", cal, " 0153", DateFormat.DAY_OF_YEAR_FIELD);
+        assertFormat(" D", cal, " 153", DateFormat.DAY_OF_YEAR_FIELD);
+        assertFormat(" DD", cal, " 153", DateFormat.DAY_OF_YEAR_FIELD);
+        assertFormat(" DDDD", cal, " 0153", DateFormat.DAY_OF_YEAR_FIELD);
 
-        test.test(" F", cal, " 1", DateFormat.DAY_OF_WEEK_IN_MONTH_FIELD);
-        test.test(" F", new GregorianCalendar(1999, Calendar.NOVEMBER, 14), " 2", DateFormat.DAY_OF_WEEK_IN_MONTH_FIELD);
-        test.test(" FF", cal, " 01", DateFormat.DAY_OF_WEEK_IN_MONTH_FIELD);
-        test.test(" FFFF", cal, " 0001", DateFormat.DAY_OF_WEEK_IN_MONTH_FIELD);
+        assertFormat(" F", cal, " 1", DateFormat.DAY_OF_WEEK_IN_MONTH_FIELD);
+        assertFormat(" F", new GregorianCalendar(1999, Calendar.NOVEMBER, 14), " 2",
+                DateFormat.DAY_OF_WEEK_IN_MONTH_FIELD);
+        assertFormat(" FF", cal, " 01", DateFormat.DAY_OF_WEEK_IN_MONTH_FIELD);
+        assertFormat(" FFFF", cal, " 0001", DateFormat.DAY_OF_WEEK_IN_MONTH_FIELD);
 
         cal.setMinimalDaysInFirstWeek(1);
         cal.setFirstDayOfWeek(1);
 
-        test.test(" w", cal, " 23", DateFormat.WEEK_OF_YEAR_FIELD);
-        test.test(" ww", cal, " 23", DateFormat.WEEK_OF_YEAR_FIELD);
-        test.test(" wwww", cal, " 0023", DateFormat.WEEK_OF_YEAR_FIELD);
+        assertFormat(" w", cal, " 23", DateFormat.WEEK_OF_YEAR_FIELD);
+        assertFormat(" ww", cal, " 23", DateFormat.WEEK_OF_YEAR_FIELD);
+        assertFormat(" wwww", cal, " 0023", DateFormat.WEEK_OF_YEAR_FIELD);
 
-        test.test(" W", cal, " 1", DateFormat.WEEK_OF_MONTH_FIELD);
-        test.test(" WW", cal, " 01", DateFormat.WEEK_OF_MONTH_FIELD);
-        test.test(" WWWW", cal, " 0001", DateFormat.WEEK_OF_MONTH_FIELD);
+        assertFormat(" W", cal, " 1", DateFormat.WEEK_OF_MONTH_FIELD);
+        assertFormat(" WW", cal, " 01", DateFormat.WEEK_OF_MONTH_FIELD);
+        assertFormat(" WWWW", cal, " 0001", DateFormat.WEEK_OF_MONTH_FIELD);
 
-        test.test(" a", cal, " PM", DateFormat.AM_PM_FIELD);
-        test.test(" a", new GregorianCalendar(1999, Calendar.NOVEMBER, 14), " AM", DateFormat.AM_PM_FIELD);
-        test.test(" a", new GregorianCalendar(1999, Calendar.NOVEMBER, 14, 12, 0), " PM", DateFormat.AM_PM_FIELD);
-        test.test(" aa", cal, " PM", DateFormat.AM_PM_FIELD);
-        test.test(" aaa", cal, " PM", DateFormat.AM_PM_FIELD);
-        test.test(" aaaa", cal, " PM", DateFormat.AM_PM_FIELD);
-        test.test(" aaaaa", cal, " PM", DateFormat.AM_PM_FIELD);
+        assertFormat(" a", cal, " PM", DateFormat.AM_PM_FIELD);
+        assertFormat(" a", new GregorianCalendar(1999, Calendar.NOVEMBER, 14), " AM",
+                DateFormat.AM_PM_FIELD);
+        assertFormat(" a", new GregorianCalendar(1999, Calendar.NOVEMBER, 14, 12, 0), " PM",
+                DateFormat.AM_PM_FIELD);
+        assertFormat(" aa", cal, " PM", DateFormat.AM_PM_FIELD);
+        assertFormat(" aaa", cal, " PM", DateFormat.AM_PM_FIELD);
+        assertFormat(" aaaa", cal, " PM", DateFormat.AM_PM_FIELD);
+        assertFormat(" aaaaa", cal, " PM", DateFormat.AM_PM_FIELD);
 
-        test.test(" k", cal, " 15", DateFormat.HOUR_OF_DAY1_FIELD);
-        test.test(" k", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 4, 0), " 4", DateFormat.HOUR_OF_DAY1_FIELD);
-        test.test(" k", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 12, 0), " 12", DateFormat.HOUR_OF_DAY1_FIELD);
-        test.test(" k", new GregorianCalendar(1999, Calendar.NOVEMBER, 12), " 24", DateFormat.HOUR_OF_DAY1_FIELD);
-        test.test(" kk", cal, " 15", DateFormat.HOUR_OF_DAY1_FIELD);
-        test.test(" kkkk", cal, " 0015", DateFormat.HOUR_OF_DAY1_FIELD);
+        assertFormat(" k", cal, " 15", DateFormat.HOUR_OF_DAY1_FIELD);
+        assertFormat(" k", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 4, 0), " 4",
+                DateFormat.HOUR_OF_DAY1_FIELD);
+        assertFormat(" k", new GregorianCalendar(1999, Calendar.NOVEMBER, 12, 12, 0), " 12",
+                DateFormat.HOUR_OF_DAY1_FIELD);
+        assertFormat(" k", new GregorianCalendar(1999, Calendar.NOVEMBER, 12), " 24",
+                DateFormat.HOUR_OF_DAY1_FIELD);
+        assertFormat(" kk", cal, " 15", DateFormat.HOUR_OF_DAY1_FIELD);
+        assertFormat(" kkkk", cal, " 0015", DateFormat.HOUR_OF_DAY1_FIELD);
 
-        test.test(" K", cal, " 3", DateFormat.HOUR0_FIELD);
-        test.test(" K", new GregorianCalendar(1999, Calendar.NOVEMBER, 12), " 0", DateFormat.HOUR0_FIELD);
-        test.test(" KK", cal, " 03", DateFormat.HOUR0_FIELD);
-        test.test(" KKKK", cal, " 0003", DateFormat.HOUR0_FIELD);
+        assertFormat(" K", cal, " 3", DateFormat.HOUR0_FIELD);
+        assertFormat(" K", new GregorianCalendar(1999, Calendar.NOVEMBER, 12), " 0",
+                DateFormat.HOUR0_FIELD);
+        assertFormat(" KK", cal, " 03", DateFormat.HOUR0_FIELD);
+        assertFormat(" KKKK", cal, " 0003", DateFormat.HOUR0_FIELD);
 
         format.applyPattern("'Mkz''':.@5");
         assertEquals("Wrong output", "Mkz':.@5", format.format(new Date()));
-
-        assertTrue("Tests failed", !test.testsFailed());
 
         // Test invalid args to format.
         SimpleDateFormat dateFormat = new SimpleDateFormat();
@@ -449,50 +396,62 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         }
     }
 
-    public void test_format_time_zones() throws Exception {
-        TestFormat test = new TestFormat("test_format_time_zones");
+    private void assertFormat(String pattern, Calendar cal, String expected, int field) {
+        StringBuffer buffer = new StringBuffer();
+        FieldPosition position = new FieldPosition(field);
+        format.applyPattern(pattern);
+        format.format(cal.getTime(), buffer, position);
+        String result = buffer.toString();
+        assertTrue("Wrong format: \"" + pattern + "\" expected: " + expected + " result: " + result,
+                result.equals(expected));
+        assertEquals("Wrong begin position: " + pattern + "\n" + "expected: " + expected + "\n" +
+                "field: " + field, 1, position.getBeginIndex());
+        assertTrue("Wrong end position: " + pattern + " expected: " + expected + " field: " + field,
+                position.getEndIndex() == result.length());
+    }
 
+    public void test_format_time_zones() throws Exception {
         Calendar cal = new GregorianCalendar(1999, Calendar.JUNE, 2, 15, 3, 6);
 
         format.setTimeZone(TimeZone.getTimeZone("EST"));
-        test.test(" z", cal, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" z", cal, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
         Calendar temp2 = new GregorianCalendar(1999, Calendar.JANUARY, 12);
-        test.test(" z", temp2, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
-        test.test(" zz", cal, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
-        test.test(" zzz", cal, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
-        test.test(" zzzz", cal, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
-        test.test(" zzzz", temp2, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
-        test.test(" zzzzz", cal, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" z", temp2, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" zz", cal, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" zzz", cal, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" zzzz", cal, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" zzzz", temp2, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" zzzzz", cal, " GMT-05:00", DateFormat.TIMEZONE_FIELD);
 
         format.setTimeZone(TimeZone.getTimeZone("America/New_York"));
-        test.test(" z", cal, " EDT", DateFormat.TIMEZONE_FIELD);
-        test.test(" z", temp2, " EST", DateFormat.TIMEZONE_FIELD);
-        test.test(" zz", cal, " EDT", DateFormat.TIMEZONE_FIELD);
-        test.test(" zzz", cal, " EDT", DateFormat.TIMEZONE_FIELD);
-        test.test(" zzzz", cal, " Eastern Daylight Time", DateFormat.TIMEZONE_FIELD);
-        test.test(" zzzz", temp2, " Eastern Standard Time", DateFormat.TIMEZONE_FIELD);
-        test.test(" zzzzz", cal, " Eastern Daylight Time", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" z", cal, " EDT", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" z", temp2, " EST", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" zz", cal, " EDT", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" zzz", cal, " EDT", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" zzzz", cal, " Eastern Daylight Time", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" zzzz", temp2, " Eastern Standard Time", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" zzzzz", cal, " Eastern Daylight Time", DateFormat.TIMEZONE_FIELD);
 
         TimeZone tz0001 = new SimpleTimeZone(60000, "ONE MINUTE");
         TimeZone tz0130 = new SimpleTimeZone(5400000, "ONE HOUR, THIRTY");
         TimeZone tzMinus0130 = new SimpleTimeZone(-5400000, "NEG ONE HOUR, THIRTY");
 
         format.setTimeZone(tz0001);
-//        test.test(" Z", cal, " +0001", DateFormat.TIMEZONE_FIELD);
-//        test.test(" ZZZZ", cal, " GMT+00:01", DateFormat.TIMEZONE_FIELD);
-//        test.test(" ZZZZZ", cal, " +00:01", DateFormat.TIMEZONE_FIELD);
+//        test(" Z", cal, " +0001", DateFormat.TIMEZONE_FIELD);
+//        test(" ZZZZ", cal, " GMT+00:01", DateFormat.TIMEZONE_FIELD);
+//        test(" ZZZZZ", cal, " +00:01", DateFormat.TIMEZONE_FIELD);
         format.setTimeZone(tz0130);
-//        test.test(" Z", cal, " +0130", DateFormat.TIMEZONE_FIELD);
+//        test(" Z", cal, " +0130", DateFormat.TIMEZONE_FIELD);
         format.setTimeZone(tzMinus0130);
-//        test.test(" Z", cal, " -0130", DateFormat.TIMEZONE_FIELD);
+//        test(" Z", cal, " -0130", DateFormat.TIMEZONE_FIELD);
 
         format.setTimeZone(tz0001);
-        test.test(" z", cal, " GMT+00:01", DateFormat.TIMEZONE_FIELD);
-        test.test(" zzzz", cal, " GMT+00:01", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" z", cal, " GMT+00:01", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" zzzz", cal, " GMT+00:01", DateFormat.TIMEZONE_FIELD);
         format.setTimeZone(tz0130);
-        test.test(" z", cal, " GMT+01:30", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" z", cal, " GMT+01:30", DateFormat.TIMEZONE_FIELD);
         format.setTimeZone(tzMinus0130);
-        test.test(" z", cal, " GMT-01:30", DateFormat.TIMEZONE_FIELD);
+        assertFormat(" z", cal, " GMT-01:30", DateFormat.TIMEZONE_FIELD);
     }
 
     public void test_timeZoneFormatting() {
@@ -500,31 +459,48 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         Date summerDate = new GregorianCalendar(1999, Calendar.JUNE, 2, 15, 3, 6).getTime();
         Date winterDate = new GregorianCalendar(1999, Calendar.JANUARY, 12).getTime();
 
-        TestFormat test = new TestFormat(
-                "test_formatLjava_util_DateLjava_lang_StringBufferLjava_text_FieldPosition");
+        verifyFormatTimezone(
+                "America/Los_Angeles", "PDT, Pacific Daylight Time", "-0700, GMT-07:00",
+                summerDate);
+        verifyFormatTimezone(
+                "America/Los_Angeles", "PST, Pacific Standard Time", "-0800, GMT-08:00",
+                winterDate);
 
-        test.verifyFormatTimezone("America/Los_Angeles", "PDT, Pacific Daylight Time", "-0700, GMT-07:00", summerDate);
-        test.verifyFormatTimezone("America/Los_Angeles", "PST, Pacific Standard Time", "-0800, GMT-08:00", winterDate);
+        verifyFormatTimezone("GMT-7", "GMT-07:00, GMT-07:00", "-0700, GMT-07:00", summerDate);
+        verifyFormatTimezone("GMT-7", "GMT-07:00, GMT-07:00", "-0700, GMT-07:00", winterDate);
 
-        test.verifyFormatTimezone("GMT-7", "GMT-07:00, GMT-07:00", "-0700, GMT-07:00", summerDate);
-        test.verifyFormatTimezone("GMT-7", "GMT-07:00, GMT-07:00", "-0700, GMT-07:00", winterDate);
-
-        test.verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00", "+1400, GMT+14:00", summerDate);
-        test.verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00", "+1400, GMT+14:00", winterDate);
+        verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00", "+1400, GMT+14:00", summerDate);
+        verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00", "+1400, GMT+14:00", winterDate);
 
         // this fails on the RI!
-        test.verifyFormatTimezone("America/Detroit", "EDT, Eastern Daylight Time", "-0400, GMT-04:00", summerDate);
-        test.verifyFormatTimezone("America/Detroit", "EST, Eastern Standard Time", "-0500, GMT-05:00", winterDate);
+        verifyFormatTimezone("America/Detroit", "EDT, Eastern Daylight Time", "-0400, GMT-04:00",
+                summerDate);
+        verifyFormatTimezone("America/Detroit", "EST, Eastern Standard Time", "-0500, GMT-05:00",
+                winterDate);
 
         // Pacific/Kiritimati is one of the timezones supported only in mJava
-        test.verifyFormatTimezone("Pacific/Kiritimati", "GMT+14:00, Line Islands Time", "+1400, GMT+14:00", summerDate);
-        test.verifyFormatTimezone("Pacific/Kiritimati", "GMT+14:00, Line Islands Time", "+1400, GMT+14:00", winterDate);
+        verifyFormatTimezone(
+                "Pacific/Kiritimati", "GMT+14:00, Line Islands Time", "+1400, GMT+14:00",
+                summerDate);
+        verifyFormatTimezone(
+                "Pacific/Kiritimati", "GMT+14:00, Line Islands Time", "+1400, GMT+14:00",
+                winterDate);
 
-        test.verifyFormatTimezone("EST", "GMT-05:00, GMT-05:00", "-0500, GMT-05:00", summerDate);
-        test.verifyFormatTimezone("EST", "GMT-05:00, GMT-05:00", "-0500, GMT-05:00", winterDate);
+        verifyFormatTimezone("EST", "GMT-05:00, GMT-05:00", "-0500, GMT-05:00", summerDate);
+        verifyFormatTimezone("EST", "GMT-05:00, GMT-05:00", "-0500, GMT-05:00", winterDate);
 
-        test.verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00", "+1400, GMT+14:00", summerDate);
-        test.verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00", "+1400, GMT+14:00", winterDate);
+        verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00", "+1400, GMT+14:00", summerDate);
+        verifyFormatTimezone("GMT+14", "GMT+14:00, GMT+14:00", "+1400, GMT+14:00", winterDate);
+    }
+
+    private void verifyFormatTimezone(String timeZoneId, String expected1, String expected2,
+            Date date) {
+        format.setTimeZone(SimpleTimeZone.getTimeZone(timeZoneId));
+        format.applyPattern("z, zzzz");
+        assertEquals("Test z for TimeZone : " + timeZoneId, expected1, format.format(date));
+
+        format.applyPattern("Z, ZZZZ");
+        assertEquals("Test Z for TimeZone : " + timeZoneId, expected2, format.format(date));
     }
 
     public void test_get2DigitYearStart() {
@@ -535,8 +511,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         Calendar cal = new GregorianCalendar();
         int year = cal.get(Calendar.YEAR);
         cal.setTime(date);
-        assertTrue("Wrong default year start",
-                cal.get(Calendar.YEAR) == (year - 80));
+        assertTrue("Wrong default year start", cal.get(Calendar.YEAR) == (year - 80));
     }
 
     public void test_getDateFormatSymbols() {
@@ -551,131 +526,108 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         // Test for method java.util.Date
         // java.text.SimpleDateFormat.parse(java.lang.String,
         // java.text.ParsePosition)
-        TestFormat test = new TestFormat(
-                "test_formatLjava_util_DateLjava_lang_StringBufferLjava_text_FieldPosition");
-
         Calendar cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
         Date time = cal.getTime();
-        test.parse("h", " 12", time, 1, 3);
-        test.parse("H", " 0", time, 1, 2);
-        test.parse("k", " 24", time, 1, 3);
-        test.parse("K", " 0", time, 1, 2);
+        assertParse("h", " 12", time, 1, 3);
+        assertParse("H", " 0", time, 1, 2);
+        assertParse("k", " 24", time, 1, 3);
+        assertParse("K", " 0", time, 1, 2);
 
         cal = new GregorianCalendar(1970, Calendar.JANUARY, 1, 1, 0);
         time = cal.getTime();
-        test.parse("h", "1", time, 0, 1);
-        test.parse("H", "1 ", time, 0, 1);
-        test.parse("k", "1", time, 0, 1);
-        test.parse("K", "1", time, 0, 1);
+        assertParse("h", "1", time, 0, 1);
+        assertParse("H", "1 ", time, 0, 1);
+        assertParse("k", "1", time, 0, 1);
+        assertParse("K", "1", time, 0, 1);
 
         cal = new GregorianCalendar(1970, Calendar.JANUARY, 1, 11, 0);
         time = cal.getTime();
-        test.parse("h", "0011 ", time, 0, 4);
-        test.parse("K", "11", time, 0, 2);
+        assertParse("h", "0011 ", time, 0, 4);
+        assertParse("K", "11", time, 0, 2);
         cal = new GregorianCalendar(1970, Calendar.JANUARY, 1, 23, 0);
         time = cal.getTime();
-        test.parse("H", "23", time, 0, 2);
-        test.parse("k", "23", time, 0, 2);
+        assertParse("H", "23", time, 0, 2);
+        assertParse("k", "23", time, 0, 2);
 
-        test.parse("h a", " 3 AM", new GregorianCalendar(1970,
+        assertParse("h a", " 3 AM", new GregorianCalendar(1970,
                 Calendar.JANUARY, 1, 3, 0).getTime(), 1, 5);
-        test.parse("K a", " 3 pm ", new GregorianCalendar(1970,
+        assertParse("K a", " 3 pm ", new GregorianCalendar(1970,
                 Calendar.JANUARY, 1, 15, 0).getTime(), 1, 5);
-        test.parse("m:s", "0:59 ", new GregorianCalendar(1970,
+        assertParse("m:s", "0:59 ", new GregorianCalendar(1970,
                 Calendar.JANUARY, 1, 0, 0, 59).getTime(), 0, 4);
-        test.parse("m:s", "59:0", new GregorianCalendar(1970, Calendar.JANUARY,
+        assertParse("m:s", "59:0", new GregorianCalendar(1970, Calendar.JANUARY,
                 1, 0, 59, 0).getTime(), 0, 4);
-        test.parse("ms", "059", new GregorianCalendar(1970, Calendar.JANUARY,
+        assertParse("ms", "059", new GregorianCalendar(1970, Calendar.JANUARY,
                 1, 0, 0, 59).getTime(), 0, 3);
 
         cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
-        test.parse("S", "0", cal.getTime(), 0, 1);
+        assertParse("S", "0", cal.getTime(), 0, 1);
         cal.setTimeZone(TimeZone.getTimeZone("HST"));
         cal.set(Calendar.MILLISECOND, 999);
-        test.parse("S z", "999 HST", cal.getTime(), 0, 7);
+        assertParse("S z", "999 HST", cal.getTime(), 0, 7);
 
         cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
         cal.set(Calendar.ERA, GregorianCalendar.BC);
-        test.parse("G", "Bc ", cal.getTime(), 0, 2);
+        assertParse("G", "Bc ", cal.getTime(), 0, 2);
 
-        test.parse("y", "00", new GregorianCalendar(2000, Calendar.JANUARY, 1)
-                .getTime(), 0, 2);
-        test.parse("y", "99", new GregorianCalendar(1999, Calendar.JANUARY, 1)
-                .getTime(), 0, 2);
-        test.parse("y", "1", new GregorianCalendar(1, Calendar.JANUARY, 1)
-                .getTime(), 0, 1);
-        test.parse("y", "-1", new GregorianCalendar(-1, Calendar.JANUARY, 1)
-                .getTime(), 0, 2);
-        test.parse("y", "001", new GregorianCalendar(1, Calendar.JANUARY, 1)
-                .getTime(), 0, 3);
-        test.parse("y", "2005",
-                new GregorianCalendar(2005, Calendar.JANUARY, 1).getTime(), 0,
-                4);
-        test.parse("yy", "00", new GregorianCalendar(2000, Calendar.JANUARY, 1)
-                .getTime(), 0, 2);
-        test.parse("yy", "99", new GregorianCalendar(1999, Calendar.JANUARY, 1)
-                .getTime(), 0, 2);
-        test.parse("yy", "1", new GregorianCalendar(1, Calendar.JANUARY, 1)
-                .getTime(), 0, 1);
-        test.parse("yy", "-1", new GregorianCalendar(-1, Calendar.JANUARY, 1)
-                .getTime(), 0, 2);
-        test.parse("yy", "001", new GregorianCalendar(1, Calendar.JANUARY, 1)
-                .getTime(), 0, 3);
-        test.parse("yy", "2005", new GregorianCalendar(2005, Calendar.JANUARY,
-                1).getTime(), 0, 4);
-        test.parse("yyy", "99", new GregorianCalendar(99, Calendar.JANUARY, 1)
-                .getTime(), 0, 2);
-        test.parse("yyy", "1", new GregorianCalendar(1, Calendar.JANUARY, 1)
-                .getTime(), 0, 1);
-        test.parse("yyy", "-1", new GregorianCalendar(-1, Calendar.JANUARY, 1)
-                .getTime(), 0, 2);
-        test.parse("yyy", "001", new GregorianCalendar(1, Calendar.JANUARY, 1)
-                .getTime(), 0, 3);
-        test.parse("yyy", "2005", new GregorianCalendar(2005, Calendar.JANUARY,
-                1).getTime(), 0, 4);
-        test.parse("yyyy", "99", new GregorianCalendar(99, Calendar.JANUARY, 1)
-                .getTime(), 0, 2);
-        test.parse("yyyy", "  1999", new GregorianCalendar(1999,
-                Calendar.JANUARY, 1).getTime(), 2, 6);
-        test.parse("MM'M'", "4M",
-                new GregorianCalendar(1970, Calendar.APRIL, 1).getTime(), 0, 2);
-        test.parse("MMM", "Feb", new GregorianCalendar(1970, Calendar.FEBRUARY,
-                1).getTime(), 0, 3);
-        test.parse("MMMM d", "April 14 ", new GregorianCalendar(1970,
-                Calendar.APRIL, 14).getTime(), 0, 8);
-        test.parse("MMMMd", "April14 ", new GregorianCalendar(1970,
-                Calendar.APRIL, 14).getTime(), 0, 7);
-        test.parse("E w", "Mon 12", new GregorianCalendar(1970, Calendar.MARCH,
-                16).getTime(), 0, 6);
-        test.parse("Ew", "Mon12", new GregorianCalendar(1970, Calendar.MARCH,
-                16).getTime(), 0, 5);
-        test.parse("M EE ''W", "5 Tue '2", new GregorianCalendar(1970,
-                Calendar.MAY, 5).getTime(), 0, 8);
-        test.parse("MEE''W", "5Tue'2", new GregorianCalendar(1970,
-                Calendar.MAY, 5).getTime(), 0, 6);
-        test.parse("MMM EEE F", " JUL Sunday 3", new GregorianCalendar(1970,
-                Calendar.JULY, 19).getTime(), 1, 13);
-        test.parse("MMMEEEF", " JULSunday3", new GregorianCalendar(1970,
-                Calendar.JULY, 19).getTime(), 1, 11);
+        assertParse("y", "00", new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime(), 0, 2);
+        assertParse("y", "99", new GregorianCalendar(1999, Calendar.JANUARY, 1).getTime(), 0, 2);
+        assertParse("y", "1", new GregorianCalendar(1, Calendar.JANUARY, 1).getTime(), 0, 1);
+        assertParse("y", "-1", new GregorianCalendar(-1, Calendar.JANUARY, 1).getTime(), 0, 2);
+        assertParse("y", "001", new GregorianCalendar(1, Calendar.JANUARY, 1).getTime(), 0, 3);
+        assertParse("y", "2005", new GregorianCalendar(2005, Calendar.JANUARY, 1).getTime(), 0, 4);
+        assertParse("yy", "00", new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime(), 0, 2);
+        assertParse("yy", "99", new GregorianCalendar(1999, Calendar.JANUARY, 1).getTime(), 0, 2);
+        assertParse("yy", "1", new GregorianCalendar(1, Calendar.JANUARY, 1).getTime(), 0, 1);
+        assertParse("yy", "-1", new GregorianCalendar(-1, Calendar.JANUARY, 1).getTime(), 0, 2);
+        assertParse("yy", "001", new GregorianCalendar(1, Calendar.JANUARY, 1).getTime(), 0, 3);
+        assertParse("yy", "2005", new GregorianCalendar(2005, Calendar.JANUARY, 1).getTime(), 0, 4);
+        assertParse("yyy", "99", new GregorianCalendar(99, Calendar.JANUARY, 1).getTime(), 0, 2);
+        assertParse("yyy", "1", new GregorianCalendar(1, Calendar.JANUARY, 1).getTime(), 0, 1);
+        assertParse("yyy", "-1", new GregorianCalendar(-1, Calendar.JANUARY, 1).getTime(), 0, 2);
+        assertParse("yyy", "001", new GregorianCalendar(1, Calendar.JANUARY, 1).getTime(), 0, 3);
+        assertParse("yyy", "2005", new GregorianCalendar(2005, Calendar.JANUARY, 1).getTime(),
+                0, 4);
+        assertParse("yyyy", "99", new GregorianCalendar(99, Calendar.JANUARY, 1).getTime(), 0, 2);
+        assertParse("yyyy", "  1999", new GregorianCalendar(1999, Calendar.JANUARY, 1).getTime(),
+                2, 6);
+        assertParse("MM'M'", "4M", new GregorianCalendar(1970, Calendar.APRIL, 1).getTime(), 0, 2);
+        assertParse("MMM", "Feb", new GregorianCalendar(1970, Calendar.FEBRUARY, 1).getTime(),
+                0, 3);
+        assertParse("MMMM d", "April 14 ",
+                new GregorianCalendar(1970, Calendar.APRIL, 14).getTime(), 0, 8);
+        assertParse("MMMMd", "April14 ", new GregorianCalendar(1970, Calendar.APRIL, 14).getTime(),
+                0, 7);
+        assertParse("E w", "Mon 12", new GregorianCalendar(1970, Calendar.MARCH, 16).getTime(),
+                0, 6);
+        assertParse("Ew", "Mon12", new GregorianCalendar(1970, Calendar.MARCH, 16).getTime(), 0, 5);
+        assertParse("M EE ''W", "5 Tue '2", new GregorianCalendar(1970, Calendar.MAY, 5).getTime(),
+                0, 8);
+        assertParse("MEE''W", "5Tue'2", new GregorianCalendar(1970, Calendar.MAY, 5).getTime(),
+                0, 6);
+        assertParse("MMM EEE F", " JUL Sunday 3",
+                new GregorianCalendar(1970, Calendar.JULY, 19).getTime(), 1, 13);
+        assertParse("MMMEEEF", " JULSunday3",
+                new GregorianCalendar(1970, Calendar.JULY, 19).getTime(), 1, 11);
 
         cal = new GregorianCalendar(1970, Calendar.JANUARY, 1);
         cal.setTimeZone(TimeZone.getTimeZone("GMT+0:1"));
         cal.set(Calendar.DAY_OF_YEAR, 243);
-        test.parse("D z", "243 GMT+0:0", cal.getTime(), 0, 11);
+        assertParse("D z", "243 GMT+0:0", cal.getTime(), 0, 11);
         cal.setTimeZone(TimeZone.getTimeZone("EST"));
         cal.set(1970, Calendar.JANUARY, 1, 4, 30);
-        test.parse("h:m z", "4:30 GMT-5 ", cal.getTime(), 0, 10);
-        test.parse("h z", "14 GMT-24 ", new Date(51840000), 0, 9);
-        test.parse("h z", "14 GMT-23 ", new Date(133200000), 0, 9);
-        test.parse("h z", "14 GMT-0001 ", new Date(54000000), 0, 11);
-        test.parse("h z", "14 GMT+24 ", new Date(48960000), 0, 9);
-        test.parse("h z", "14 GMT+23 ", new Date(-32400000), 0, 9);
-        test.parse("h z", "14 GMT+0001 ", new Date(46800000), 0, 11);
-        test.parse("h z", "14 +0001 ", new Date(46800000), 0, 8);
-        test.parse("h z", "14 -0001 ", new Date(54000000), 0, 8);
+        assertParse("h:m z", "4:30 GMT-5 ", cal.getTime(), 0, 10);
+        assertParse("h z", "14 GMT-24 ", new Date(51840000), 0, 9);
+        assertParse("h z", "14 GMT-23 ", new Date(133200000), 0, 9);
+        assertParse("h z", "14 GMT-0001 ", new Date(54000000), 0, 11);
+        assertParse("h z", "14 GMT+24 ", new Date(48960000), 0, 9);
+        assertParse("h z", "14 GMT+23 ", new Date(-32400000), 0, 9);
+        assertParse("h z", "14 GMT+0001 ", new Date(46800000), 0, 11);
+        assertParse("h z", "14 +0001 ", new Date(46800000), 0, 8);
+        assertParse("h z", "14 -0001 ", new Date(54000000), 0, 8);
 
-        test.parse("yyyyMMddHHmmss", "19990913171901", new GregorianCalendar(
-                1999, Calendar.SEPTEMBER, 13, 17, 19, 01).getTime(), 0, 14);
+        assertParse("yyyyMMddHHmmss", "19990913171901",
+                new GregorianCalendar(1999, Calendar.SEPTEMBER, 13, 17, 19, 1).getTime(), 0, 14);
 
         Date d = new Date(1015822800000L);
         SimpleDateFormat df = new SimpleDateFormat("", new Locale("en", "US"));
@@ -758,12 +710,21 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         }
     }
 
+    private void assertParse(String pattern, String input, Date expected, int start, int end) {
+        pFormat.applyPattern(pattern);
+        ParsePosition position = new ParsePosition(start);
+        Date result = pFormat.parse(input, position);
+        assertTrue("Wrong result: " + pattern + " input: " + input + " expected: " + expected +
+                " result: " + result, expected.equals(result));
+        assertTrue("Wrong end position: " + pattern + " input: " + input,
+                position.getIndex() == end);
+    }
+
     public void test_set2DigitYearStartLjava_util_Date() {
         // Test for method void
         // java.text.SimpleDateFormat.set2DigitYearStart(java.util.Date)
         SimpleDateFormat f1 = new SimpleDateFormat("yy");
-        f1.set2DigitYearStart(new GregorianCalendar(1950, Calendar.JANUARY, 1)
-                .getTime());
+        f1.set2DigitYearStart(new GregorianCalendar(1950, Calendar.JANUARY, 1).getTime());
         Calendar cal = new GregorianCalendar();
         try {
             cal.setTime(f1.parse("49"));
@@ -792,8 +753,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         DateFormatSymbols newSym = f1.getDateFormatSymbols();
         assertTrue("Set incorrectly", newSym.equals(symbols));
         assertTrue("Not a clone", f1.getDateFormatSymbols() != symbols);
-        String result = f1.format(new GregorianCalendar(1999, Calendar.JUNE,
-                12, 3, 0).getTime());
+        String result = f1.format(new GregorianCalendar(1999, Calendar.JUNE, 12, 3, 0).getTime());
         assertEquals("Incorrect symbols used", "morning", result);
         symbols.setEras(new String[] { "before", "after" });
         assertTrue("Identical symbols", !f1.getDateFormatSymbols().equals(symbols));
@@ -833,8 +793,7 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         char allowed_chars[] = { 0x9, 0x20 };
         String allowed_char_names[] = { "tab", "space" };
         for (int i = 0; i < allowed_chars.length; i++) {
-            Date expected = new GregorianCalendar(1970, Calendar.JANUARY, 1, 9,
-                    7, 6).getTime();
+            Date expected = new GregorianCalendar(1970, Calendar.JANUARY, 1, 9, 7, 6).getTime();
             ParsePosition pp = new ParsePosition(0);
             Date d = df.parse(allowed_chars[i] + "9:07:06", pp);
             assertNotNull("hour may be prefixed by " + allowed_char_names[i], d);
@@ -842,19 +801,17 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
 
             pp = new ParsePosition(0);
             d = df.parse("09:" + allowed_chars[i] + "7:06", pp);
-            assertNotNull("minute may be prefixed by " + allowed_char_names[i],
-                    d);
+            assertNotNull("minute may be prefixed by " + allowed_char_names[i], d);
             assertEquals(expected, d);
 
             pp = new ParsePosition(0);
             d = df.parse("09:07:" + allowed_chars[i] + "6", pp);
-            assertNotNull("second may be prefixed by " + allowed_char_names[i],
-                    d);
+            assertNotNull("second may be prefixed by " + allowed_char_names[i], d);
             assertEquals(expected, d);
         }
 
         char not_allowed_chars[] = {
-        // whitespace
+                // whitespace
                 0x1c, 0x1d, 0x1e, 0x1f, 0xa, 0xb, 0xc, 0xd, 0x2001, 0x2002,
                 0x2003, 0x2004, 0x2005, 0x2006, 0x2008, 0x2009, 0x200a, 0x200b,
                 0x2028, 0x2029, 0x3000,
