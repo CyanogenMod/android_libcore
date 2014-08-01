@@ -43,27 +43,6 @@
   bug: 3042192
 },
 {
-  description: "Cookie tests failing on the host",
-  bug: 3041920,
-  names: [
-    "libcore.java.net.CookiesTest#testNetscapeResponse",
-    "libcore.java.net.CookiesTest#testQuotedAttributeValues",
-    "libcore.java.net.CookiesTest#testRfc2109Response",
-    "libcore.java.net.CookiesTest#testRfc2965Response",
-    "libcore.java.net.CookiesTest#testSendingCookiesFromStore"
-  ],
-  modes: [ "host" ]
-},
-{
-  description: "Math failures when running on the host",
-  names: [
-    "libcore.java.lang.OldAndroidStrictMathTest#testLog1pD",
-    "libcore.java.lang.OldAndroidStrictMathTest#testRintD"
-  ],
-  bug: 2931959,
-  modes: [ "host" ]
-},
-{
   description: "We fake support for these by substituting similar (but not identical) charsets",
   names: [
     "libcore.java.nio.charset.OldCharset_MultiByte_Big5#test_Decode",
@@ -93,18 +72,6 @@
     "org.apache.harmony.tests.java.nio.charset.CharsetTest#test_X_UTF_32LE_BOM"
   ],
   bug: 2702411
-},
-{
-  description: "HTTPS proxy broken on host",
-  names: [
-    "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testConsequentProxyConnection",
-    "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testProxyAuthConnection",
-    "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testProxyAuthConnection_doOutput",
-    "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testProxyConnection",
-    "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testProxyConnection_Not_Found_Response"
-  ],
-  bug: 3032875,
-  modes: [ "host" ]
 },
 {
   description: "Runtime.getRuntime().traceMethodCalls(true) doesn't return on the host, fails in CTS",
