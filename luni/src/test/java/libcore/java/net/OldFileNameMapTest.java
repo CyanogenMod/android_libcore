@@ -22,19 +22,11 @@ import java.net.FileNameMap;
 import java.net.URLConnection;
 
 public class OldFileNameMapTest extends TestCase {
-
-    public void test_getContentTypeFor() {
-        String [] files = {"text", "txt", "htm", "html"};
-
-        String [] mimeTypes = {"text/plain", "text/plain",
-                "text/html", "text/html"};
-
-        FileNameMap fileNameMap = URLConnection.getFileNameMap();
-
-        for(int i = 0; i < files.length; i++) {
-            String mimeType = fileNameMap.getContentTypeFor("test." + files[i]);
-            assertEquals("getContentTypeFor returns incorrect MIME type for " +
-                    files[i], mimeTypes[i], mimeType);
-        }
-    }
+  public void test_getContentTypeFor() {
+    FileNameMap map = URLConnection.getFileNameMap();
+    assertEquals("text/plain", map.getContentTypeFor("test.text"));
+    assertEquals("text/plain", map.getContentTypeFor("test.txt"));
+    assertEquals("text/html", map.getContentTypeFor("test.htm"));
+    assertEquals("text/html", map.getContentTypeFor("test.html"));
+  }
 }
