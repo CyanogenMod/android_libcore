@@ -134,7 +134,6 @@ public final class MimeUtils {
         add("application/x-dms", "dms");
         add("application/x-doom", "wad");
         add("application/x-dvi", "dvi");
-        add("application/x-flac", "flac");
         add("application/x-font", "pfa");
         add("application/x-font", "pfb");
         add("application/x-font", "gsf");
@@ -218,6 +217,8 @@ public final class MimeUtils {
         add("audio/amr", "amr");
         add("audio/amr-wb", "awb");
         add("audio/basic", "snd");
+        add("audio/flac", "flac");
+        add("application/x-flac", "flac");
         add("audio/imelody", "imy");
         add("audio/midi", "mid");
         add("audio/midi", "midi");
@@ -379,18 +380,17 @@ public final class MimeUtils {
     }
 
     private static void add(String mimeType, String extension) {
-        //
-        // if we have an existing x --> y mapping, we do not want to
-        // override it with another mapping x --> ?
-        // this is mostly because of the way the mime-type map below
-        // is constructed (if a mime type maps to several extensions
-        // the first extension is considered the most popular and is
-        // added first; we do not want to overwrite it later).
-        //
+        // If we have an existing x -> y mapping, we do not want to
+        // override it with another mapping x -> y2.
+        // If a mime type maps to several extensions
+        // the first extension added is considered the most popular
+        // so we do not want to overwrite it later.
         if (!mimeTypeToExtensionMap.containsKey(mimeType)) {
             mimeTypeToExtensionMap.put(mimeType, extension);
         }
-        extensionToMimeTypeMap.put(extension, mimeType);
+        if (!extensionToMimeTypeMap.containsKey(extension)) {
+            extensionToMimeTypeMap.put(extension, mimeType);
+        }
     }
 
     private static InputStream getContentTypesPropertiesStream() {
