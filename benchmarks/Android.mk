@@ -15,7 +15,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
 LOCAL_JAVA_LIBRARIES := \
 	bouncycastle \
 	conscrypt \
-	core
+	core-libart
 
 LOCAL_MODULE_TAGS := tests
 
