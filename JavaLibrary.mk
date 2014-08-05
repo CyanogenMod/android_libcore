@@ -62,7 +62,6 @@ ifneq ($(EMMA_INSTRUMENT_STATIC),true)
 endif
 endif
 
-libdvm_core_src_files += $(common_core_src_files) $(call all-main-java-files-under,libdvm)
 libart_core_src_files += $(common_core_src_files) $(call all-main-java-files-under,libart)
 
 local_javac_flags=-encoding UTF-8
@@ -74,18 +73,6 @@ local_javac_flags+=-Xmaxwarns 9999999
 #
 
 # Definitions to make the core library.
-
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(libdvm_core_src_files)
-LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
-LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVACFLAGS := $(local_javac_flags)
-LOCAL_DX_FLAGS := --core-library
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE := core
-LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
-LOCAL_REQUIRED_MODULES := tzdata
-include $(BUILD_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(libart_core_src_files)
@@ -108,7 +95,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(test_src_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit okhttp
+LOCAL_JAVA_LIBRARIES := bouncycastle core-libart core-junit okhttp
 LOCAL_STATIC_JAVA_LIBRARIES := core-tests-support sqlite-jdbc mockwebserver nist-pkix-tests
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE := core-tests
@@ -122,7 +109,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-test-java-files-under,support)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := bouncycastle core core-junit
+LOCAL_JAVA_LIBRARIES := bouncycastle core-libart core-junit
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE := core-tests-support
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
@@ -135,7 +122,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES :=  $(call all-test-java-files-under, jsr166-tests)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core core-junit
+LOCAL_JAVA_LIBRARIES := core-libart core-junit
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE := jsr166-tests
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
@@ -168,18 +155,6 @@ LOCAL_MODULE := dex-host
 include $(BUILD_HOST_JAVA_LIBRARY)
 
 # Definitions to make the core library.
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(libdvm_core_src_files)
-LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
-LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVACFLAGS := $(local_javac_flags)
-LOCAL_DX_FLAGS := --core-library
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE := core-hostdex
-LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
-LOCAL_REQUIRED_MODULES := tzdata-host
-include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
-
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(libart_core_src_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
