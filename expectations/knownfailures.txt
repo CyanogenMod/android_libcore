@@ -1371,12 +1371,5 @@
   names: [
     "com.squareup.okhttp.internal.http.URLConnectionTest#sslFallbackNotUsedWhenRecycledConnectionFails"
   ]
-},
-{
-  description: "The test relies on SimpleDateFormat zzz producing GMT not GMT+00:00 as it does on Android. Android issue 66136.",
-  bug: 14462336,
-  names: [
-    "com.squareup.okhttp.internal.http.HttpResponseCacheTest#setIfModifiedSince"
-  ]
 }
 ]
