@@ -46,8 +46,16 @@ import libcore.reflect.Types;
  */
 public abstract class AbstractMethod extends AccessibleObject {
 
+    /**
+     * Hidden to workaround b/16828157.
+     * @hide
+     */
     protected final ArtMethod artMethod;
 
+    /**
+     * Hidden to workaround b/16828157.
+     * @hide
+     */
     protected AbstractMethod(ArtMethod artMethod) {
         if (artMethod == null) {
             throw new NullPointerException("artMethod == null");
