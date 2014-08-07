@@ -17,10 +17,10 @@
 package libcore.java.security.cert;
 
 import com.android.org.bouncycastle.asn1.x509.BasicConstraints;
+import com.android.org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
 import com.android.org.bouncycastle.asn1.x509.X509Extensions;
 import com.android.org.bouncycastle.x509.X509V3CertificateGenerator;
 import com.android.org.bouncycastle.x509.extension.AuthorityKeyIdentifierStructure;
-import com.android.org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -571,7 +571,7 @@ public class CertificateFactoryTest extends TestCase {
         }
 
         certGen.addExtension(X509Extensions.SubjectKeyIdentifier, false,
-                new SubjectKeyIdentifierStructure(keyPair.getPublic()));
+                SubjectKeyIdentifier.getInstance(keyPair.getPublic().getEncoded()));
         certGen.addExtension(X509Extensions.BasicConstraints, true, basicConstraints);
 
         X509Certificate cert = certGen.generate(caKey);
