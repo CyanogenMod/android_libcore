@@ -32,7 +32,8 @@ static void throwIoException(JNIEnv* env, const int32_t errorCode) {
   jniThrowException(env, "java/io/IOException", ErrorCodeString(errorCode));
 }
 
-static jobject newZipEntry(JNIEnv* env, const ZipEntry& entry, jstring entryName) {
+static jobject newZipEntry(JNIEnv* env, const ZipEntry& entry, jstring entryName,
+                           const uint16_t nameLength) {
   ScopedLocalRef<jclass> zipEntryClass(env, env->FindClass("java/util/zip/ZipEntry"));
   const jmethodID zipEntryCtor = env->GetMethodID(zipEntryClass.get(), "<init>",
                                    "(Ljava/lang/String;Ljava/lang/String;JJJIII[BIJJ)V");
@@ -48,6 +49,7 @@ static jobject newZipEntry(JNIEnv* env, const ZipEntry& entry, jstring entryName
                         static_cast<jint>(0),  // time
                         static_cast<jint>(0),  // modData
                         NULL,  // byte[] extra
+                        static_cast<jint>(nameLength),
                         static_cast<jlong>(-1),  // local header offset
                         static_cast<jlong>(entry.offset));
 }
@@ -133,7 +135,7 @@ static jobject StrictJarFile_nativeNextEntry(JNIEnv* env, jobject, jlong iterati
   entryNameCString[entryName.name_length] = '\0';
   ScopedLocalRef<jstring> entryNameString(env, env->NewStringUTF(entryNameCString.get()));
 
-  return newZipEntry(env, data, entryNameString.get());
+  return newZipEntry(env, data, entryNameString.get(), entryName.name_length);
 }
 
 static jobject StrictJarFile_nativeFindEntry(JNIEnv* env, jobject, jlong nativeHandle,
@@ -150,7 +152,7 @@ static jobject StrictJarFile_nativeFindEntry(JNIEnv* env, jobject, jlong nativeH
     return NULL;
   }
 
-  return newZipEntry(env, data, entryName);
+  return newZipEntry(env, data, entryName, entryNameChars.size());
 }
 
 static void StrictJarFile_nativeClose(JNIEnv*, jobject, jlong nativeHandle) {
