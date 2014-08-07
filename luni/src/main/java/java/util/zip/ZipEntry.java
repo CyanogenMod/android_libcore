@@ -52,6 +52,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
 
     byte[] extra;
 
+    int nameLength = -1;
     long localHeaderRelOffset = -1;
 
     long dataOffset = -1;
@@ -68,7 +69,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
 
     ZipEntry(String name, String comment, long crc, long compressedSize,
             long size, int compressionMethod, int time, int modDate, byte[] extra,
-            long localHeaderRelOffset, long dataOffset) {
+            int nameLength, long localHeaderRelOffset, long dataOffset) {
         this.name = name;
         this.comment = comment;
         this.crc = crc;
@@ -78,6 +79,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
         this.time = time;
         this.modDate = modDate;
         this.extra = extra;
+        this.nameLength = nameLength;
         this.localHeaderRelOffset = localHeaderRelOffset;
         this.dataOffset = dataOffset;
     }
@@ -338,6 +340,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
         compressionMethod = ze.compressionMethod;
         modDate = ze.modDate;
         extra = ze.extra;
+        nameLength = ze.nameLength;
         localHeaderRelOffset = ze.localHeaderRelOffset;
         dataOffset = ze.dataOffset;
     }
@@ -409,7 +412,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
         compressedSize = ((long) it.readInt()) & 0xffffffffL;
         size = ((long) it.readInt()) & 0xffffffffL;
 
-        int nameLength = it.readShort() & 0xffff;
+        nameLength = it.readShort() & 0xffff;
         int extraLength = it.readShort() & 0xffff;
         int commentByteCount = it.readShort() & 0xffff;
 
