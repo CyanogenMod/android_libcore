@@ -664,14 +664,14 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("en", l.getLanguage());
         assertEquals("Latn", l.getScript());
         assertEquals("US", l.getCountry());
-        assertEquals("FOOOO", l.getVariant());
+        assertEquals("foooo", l.getVariant());
 
         // Variant with multiple subtags.
         l = fromLanguageTag("en-Latn-US-foooo-gfffh", useBuilder);
         assertEquals("en", l.getLanguage());
         assertEquals("Latn", l.getScript());
         assertEquals("US", l.getCountry());
-        assertEquals("FOOOO_GFFFH", l.getVariant());
+        assertEquals("foooo_gfffh", l.getVariant());
 
         // Variant with 3 subtags. POSIX shouldn't be recognized
         // as a region or a script.
@@ -701,7 +701,7 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("en", l.getLanguage());
         assertEquals("Latn", l.getScript());
         assertEquals("GB", l.getCountry());
-        assertEquals("FOOOO", l.getVariant());
+        assertEquals("foooo", l.getVariant());
         assertEquals("fo-bar-baaz", l.getExtension('g'));
 
         // Multiple extensions
@@ -709,7 +709,7 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("en", l.getLanguage());
         assertEquals("Latn", l.getScript());
         assertEquals("US", l.getCountry());
-        assertEquals("FOOOO", l.getVariant());
+        assertEquals("foooo", l.getVariant());
         assertEquals("fo-bar", l.getExtension('g'));
         assertEquals("go-gaz", l.getExtension('h'));
 
@@ -1138,5 +1138,12 @@ public class LocaleTest extends junit.framework.TestCase {
         assertEquals("", enochian.getCountry());
         assertEquals("", enochian.getScript());
         assertEquals("", enochian.getVariant());
+    }
+
+    // Test case from http://b/16811867
+    public void testVariantsCaseSensitive() {
+        final Locale locale = new Locale("en", "US", "variant");
+        assertEquals("variant", locale.getVariant());
+        assertEquals(locale, Locale.forLanguageTag(locale.toLanguageTag()));
     }
 }
