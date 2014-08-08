@@ -2080,7 +2080,7 @@ public final class Locale implements Cloneable, Serializable {
     /**
      * Scans elements of {@code subtags} in the range {@code [startIndex, endIndex)}
      * and appends valid variant subtags upto the first invalid subtag  (if any) to
-     * {@code normalizedVariants}. All appended variant subtags are converted to uppercase.
+     * {@code normalizedVariants}.
      */
     private static void extractVariantSubtags(String[] subtags, int startIndex, int endIndex,
             List<String> normalizedVariants) {
@@ -2088,7 +2088,7 @@ public final class Locale implements Cloneable, Serializable {
             final String subtag = subtags[i];
 
             if (Builder.isValidVariantSubtag(subtag)) {
-                normalizedVariants.add(subtag.toUpperCase(Locale.ROOT));
+                normalizedVariants.add(subtag);
             } else {
                 break;
             }
