@@ -71,6 +71,13 @@ public class AccessibleObject implements AnnotatedElement {
      * IllegalAccessExceptions}.
      */
     public void setAccessible(boolean flag) {
+        try {
+          if (equals(Class.class.getDeclaredConstructor())) {
+            throw new SecurityException("Can't make class constructor accessible");
+          }
+        } catch (NoSuchMethodException e) {
+          throw new AssertionError("Couldn't find class constructor");
+        }
         this.flag = flag;
      }
 
