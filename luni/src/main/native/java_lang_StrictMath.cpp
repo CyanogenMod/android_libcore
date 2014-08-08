@@ -34,26 +34,6 @@ static jdouble StrictMath_tan(JNIEnv*, jclass, jdouble a) {
     return ieee_tan(a);
 }
 
-static jdouble StrictMath_asin(JNIEnv*, jclass, jdouble a) {
-    return ieee_asin(a);
-}
-
-static jdouble StrictMath_acos(JNIEnv*, jclass, jdouble a) {
-    return ieee_acos(a);
-}
-
-static jdouble StrictMath_atan(JNIEnv*, jclass, jdouble a) {
-    return ieee_atan(a);
-}
-
-static jdouble StrictMath_exp(JNIEnv*, jclass, jdouble a) {
-    return ieee_exp(a);
-}
-
-static jdouble StrictMath_log(JNIEnv*, jclass, jdouble a) {
-    return ieee_log(a);
-}
-
 static jdouble StrictMath_sqrt(JNIEnv*, jclass, jdouble a) {
     return ieee_sqrt(a);
 }
@@ -74,44 +54,12 @@ static jdouble StrictMath_rint(JNIEnv*, jclass, jdouble a) {
     return ieee_rint(a);
 }
 
-static jdouble StrictMath_atan2(JNIEnv*, jclass, jdouble a, jdouble b) {
-    return ieee_atan2(a, b);
-}
-
 static jdouble StrictMath_pow(JNIEnv*, jclass, jdouble a, jdouble b) {
     return ieee_pow(a,b);
 }
 
-static jdouble StrictMath_sinh(JNIEnv*, jclass, jdouble a) {
-    return ieee_sinh(a);
-}
-
-static jdouble StrictMath_tanh(JNIEnv*, jclass, jdouble a) {
-    return ieee_tanh(a);
-}
-
-static jdouble StrictMath_cosh(JNIEnv*, jclass, jdouble a) {
-    return ieee_cosh(a);
-}
-
-static jdouble StrictMath_log10(JNIEnv*, jclass, jdouble a) {
-    return ieee_log10(a);
-}
-
-static jdouble StrictMath_cbrt(JNIEnv*, jclass, jdouble a) {
-    return ieee_cbrt(a);
-}
-
-static jdouble StrictMath_expm1(JNIEnv*, jclass, jdouble a) {
-    return ieee_expm1(a);
-}
-
 static jdouble StrictMath_hypot(JNIEnv*, jclass, jdouble a, jdouble b) {
     return ieee_hypot(a, b);
-}
-
-static jdouble StrictMath_log1p(JNIEnv*, jclass, jdouble a) {
-    return ieee_log1p(a);
 }
 
 static jdouble StrictMath_nextafter(JNIEnv*, jclass, jdouble a, jdouble b) {
@@ -120,29 +68,16 @@ static jdouble StrictMath_nextafter(JNIEnv*, jclass, jdouble a, jdouble b) {
 
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(StrictMath, IEEEremainder, "!(DD)D"),
-    NATIVE_METHOD(StrictMath, acos, "!(D)D"),
-    NATIVE_METHOD(StrictMath, asin, "!(D)D"),
-    NATIVE_METHOD(StrictMath, atan, "!(D)D"),
-    NATIVE_METHOD(StrictMath, atan2, "!(DD)D"),
-    NATIVE_METHOD(StrictMath, cbrt, "!(D)D"),
     NATIVE_METHOD(StrictMath, ceil, "!(D)D"),
     NATIVE_METHOD(StrictMath, cos, "!(D)D"),
-    NATIVE_METHOD(StrictMath, cosh, "!(D)D"),
-    NATIVE_METHOD(StrictMath, exp, "!(D)D"),
-    NATIVE_METHOD(StrictMath, expm1, "!(D)D"),
     NATIVE_METHOD(StrictMath, floor, "!(D)D"),
     NATIVE_METHOD(StrictMath, hypot, "!(DD)D"),
-    NATIVE_METHOD(StrictMath, log, "!(D)D"),
-    NATIVE_METHOD(StrictMath, log10, "!(D)D"),
-    NATIVE_METHOD(StrictMath, log1p, "!(D)D"),
     NATIVE_METHOD(StrictMath, nextafter, "!(DD)D"),
     NATIVE_METHOD(StrictMath, pow, "!(DD)D"),
     NATIVE_METHOD(StrictMath, rint, "!(D)D"),
     NATIVE_METHOD(StrictMath, sin, "!(D)D"),
-    NATIVE_METHOD(StrictMath, sinh, "!(D)D"),
     NATIVE_METHOD(StrictMath, sqrt, "!(D)D"),
     NATIVE_METHOD(StrictMath, tan, "!(D)D"),
-    NATIVE_METHOD(StrictMath, tanh, "!(D)D"),
 };
 void register_java_lang_StrictMath(JNIEnv* env) {
     jniRegisterNativeMethods(env, "java/lang/StrictMath", gMethods, NELEM(gMethods));
