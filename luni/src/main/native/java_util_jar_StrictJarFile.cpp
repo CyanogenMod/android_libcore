@@ -70,26 +70,20 @@ static jlong StrictJarFile_nativeOpenJarFile(JNIEnv* env, jobject, jstring fileN
 
 class IterationHandle {
  public:
-  IterationHandle(const char* prefix) :
-    cookie_(NULL), prefix_(strdup(prefix)) {
+  IterationHandle() :
+    cookie_(NULL) {
   }
 
   void** CookieAddress() {
     return &cookie_;
   }
 
-  const char* Prefix() const {
-    return prefix_;
-  }
-
   ~IterationHandle() {
-    free(prefix_);
     EndIteration(cookie_);
   }
 
  private:
   void* cookie_;
-  char* prefix_;
 };
 
 
@@ -100,14 +94,14 @@ static jlong StrictJarFile_nativeStartIteration(JNIEnv* env, jobject, jlong nati
     return static_cast<jlong>(-1);
   }
 
-  IterationHandle* handle = new IterationHandle(prefixChars.c_str());
+  IterationHandle* handle = new IterationHandle();
   int32_t error = 0;
   if (prefixChars.size() == 0) {
     error = StartIteration(reinterpret_cast<ZipArchiveHandle>(nativeHandle),
                            handle->CookieAddress(), NULL);
   } else {
     error = StartIteration(reinterpret_cast<ZipArchiveHandle>(nativeHandle),
-                           handle->CookieAddress(), handle->Prefix());
+                           handle->CookieAddress(), prefixChars.c_str());
   }
 
   if (error) {
