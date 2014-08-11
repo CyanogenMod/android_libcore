@@ -62,11 +62,11 @@ public final class ZoneInfoDB {
     /**
      * The 'ids' array contains time zone ids sorted alphabetically, for binary searching.
      * The other two arrays are in the same order. 'byteOffsets' gives the byte offset
-     * of each time zone, and 'rawUtcOffsets' gives the time zone's raw UTC offset.
+     * of each time zone, and 'rawUtcOffsetsCache' gives the time zone's raw UTC offset.
      */
     private String[] ids;
     private int[] byteOffsets;
-    private int[] rawUtcOffsets;
+    private int[] rawUtcOffsetsCache; // Access this via getRawUtcOffsets instead.
 
     /**
      * ZoneInfo objects are worth caching because they are expensive to create.
@@ -104,7 +104,7 @@ public final class ZoneInfoDB {
       version = "missing";
       zoneTab = "# Emergency fallback data.\n";
       ids = new String[] { "GMT" };
-      byteOffsets = rawUtcOffsets = new int[1];
+      byteOffsets = rawUtcOffsetsCache = new int[1];
     }
 
     private boolean loadData(String path) {
@@ -171,7 +171,6 @@ public final class ZoneInfoDB {
       int idOffset = 0;
 
       byteOffsets = new int[entryCount];
-      rawUtcOffsets = new int[entryCount];
 
       for (int i = 0; i < entryCount; i++) {
         it.readByteArray(idBytes, 0, idBytes.length);
@@ -183,7 +182,7 @@ public final class ZoneInfoDB {
         if (length < 44) {
           throw new AssertionError("length in index file < sizeof(tzhead)");
         }
-        rawUtcOffsets[i] = it.readInt();
+        it.skip(4); // Skip the unused 4 bytes that used to be the raw offset.
 
         // Don't include null chars in the String
         int len = idBytes.length;
@@ -210,14 +209,31 @@ public final class ZoneInfoDB {
       return ids.clone();
     }
 
-    public String[] getAvailableIDs(int rawOffset) {
+    public String[] getAvailableIDs(int rawUtcOffset) {
       List<String> matches = new ArrayList<String>();
-      for (int i = 0, end = rawUtcOffsets.length; i < end; ++i) {
-        if (rawUtcOffsets[i] == rawOffset) {
+      int[] rawUtcOffsets = getRawUtcOffsets();
+      for (int i = 0; i < rawUtcOffsets.length; ++i) {
+        if (rawUtcOffsets[i] == rawUtcOffset) {
           matches.add(ids[i]);
         }
       }
       return matches.toArray(new String[matches.size()]);
+    }
+
+    private synchronized int[] getRawUtcOffsets() {
+      if (rawUtcOffsetsCache != null) {
+        return rawUtcOffsetsCache;
+      }
+      rawUtcOffsetsCache = new int[ids.length];
+      for (int i = 0; i < ids.length; ++i) {
+        // This creates a TimeZone, which is quite expensive. Hence the cache.
+        // Note that icu4c does the same (without the cache), so if you're
+        // switching this code over to icu4j you should check its performance.
+        // Telephony shouldn't care, but someone converting a bunch of calendar
+        // events might.
+        rawUtcOffsetsCache[i] = cache.get(ids[i]).getRawOffset();
+      }
+      return rawUtcOffsetsCache;
     }
 
     public String getVersion() {
