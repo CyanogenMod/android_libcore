@@ -79,4 +79,12 @@ public class CurrencyTest extends junit.framework.TestCase {
         assertEquals("€", Currency.getInstance(pt_PT).getSymbol(pt_BR));
         assertEquals("€", Currency.getInstance(pt_PT).getSymbol(pt_PT));
     }
+
+    public void test_nullLocales() {
+        Currency currency = Currency.getInstance(Locale.getDefault());
+        try {
+            currency.getSymbol(null);
+            fail();
+        } catch (NullPointerException expected) {}
+    }
 }

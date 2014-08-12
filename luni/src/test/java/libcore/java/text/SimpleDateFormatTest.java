@@ -350,4 +350,21 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         assertEquals(1376927400000L, sdf.parse("19. Aug 2013 8:50").getTime());
         assertEquals(1376927400000L, sdf.parse("19. Aug. 2013 8:50").getTime());
     }
+
+    public void test_nullLocales() {
+        try {
+            SimpleDateFormat.getDateInstance(DateFormat.SHORT, null);
+            fail();
+        } catch (NullPointerException expected) {}
+
+        try {
+            SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, null);
+            fail();
+        } catch (NullPointerException expected) {}
+
+        try {
+            SimpleDateFormat.getTimeInstance(DateFormat.SHORT, null);
+            fail();
+        } catch (NullPointerException expected) {}
+    }
 }

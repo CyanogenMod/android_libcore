@@ -727,6 +727,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
      */
     protected Calendar(TimeZone timezone, Locale locale) {
         this(timezone);
+        locale = LocaleData.mapInvalidAndNullLocales(locale);
         LocaleData localeData = LocaleData.get(locale);
         setFirstDayOfWeek(localeData.firstDayOfWeek.intValue());
         setMinimalDaysInFirstWeek(localeData.minimalDaysInFirstWeek.intValue());
