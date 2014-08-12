@@ -1803,7 +1803,7 @@ public final class StrictMath {
      * <li>{@code rint(NaN) = NaN}</li>
      * </ul>
      *
-     * @param d
+     * @param x
      *            the value to be rounded.
      * @return the closest integer to the argument (as a double).
      */
