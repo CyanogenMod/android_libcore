@@ -281,6 +281,18 @@ public final class DexFile {
         }
     }
 
+
+    /*
+     * Open a DEX file.  The value returned is a magic VM cookie.  On
+     * failure, an IOException is thrown.
+     */
+    private static long openDexFile(String sourceName, String outputName, int flags) throws IOException {
+        // Use absolute paths to enable the use of relative paths when testing on host.
+        return openDexFileNative(new File(sourceName).getAbsolutePath(),
+                                 (outputName == null) ? null : new File(outputName).getAbsolutePath(),
+                                 flags);
+    }
+
     private static native void closeDexFile(long cookie);
     private static native Class defineClassNative(String name, ClassLoader loader, long cookie)
             throws ClassNotFoundException, NoClassDefFoundError;
@@ -289,7 +301,7 @@ public final class DexFile {
      * Open a DEX file.  The value returned is a magic VM cookie.  On
      * failure, an IOException is thrown.
      */
-    private static native long openDexFile(String sourceName, String outputName, int flags);
+    private static native long openDexFileNative(String sourceName, String outputName, int flags);
 
     /**
      * Returns true if the VM believes that the apk/jar file is out of date
