@@ -351,6 +351,17 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
         assertEquals(1376927400000L, sdf.parse("19. Aug. 2013 8:50").getTime());
     }
 
+    // http://b/16969112
+    public void test_fractionalSeconds() throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+        assertEquals("1970-01-02 02:17:36.7", sdf.format(sdf.parse("1970-01-02 02:17:36.7")));
+
+        // We only have millisecond precision for Date objects, so we'll lose
+        // information from the fractional seconds section of the string presentation.
+        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        assertEquals("1970-01-02 02:17:36.789000", sdf.format(sdf.parse("1970-01-02 02:17:36.789564")));
+    }
+
     public void test_nullLocales() {
         try {
             SimpleDateFormat.getDateInstance(DateFormat.SHORT, null);
