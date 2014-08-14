@@ -51,41 +51,77 @@ public class DexClassLoaderTest extends TestCase {
     private static final File DEX_FILE = new File(TMP_DIR, DEX_NAME);
     private static final File JAR2_FILE = new File(TMP_DIR, JAR2_NAME);
     private static final File DEX2_FILE = new File(TMP_DIR, DEX2_NAME);
-    private static final File OPTIMIZED_DIR = new File(TMP_DIR, "optimized");
+    private static final File DEFAULT_OPTIMIZED_DIR = new File(TMP_DIR, "optimized");
+    // Init tests need to use different optimized directories because the tests are executed in the
+    // same runtime. This means we can't reliably count the number of generated file since they
+    // might be cached by the runtime.
+    private static final File INIT1_OPTIMIZED_DIR = new File(TMP_DIR, "optimized_init1");
+    private static final File INIT2_OPTIMIZED_DIR = new File(TMP_DIR, "optimized_init2");
 
     private static enum Configuration {
         /** just one classpath element, a raw dex file */
-        ONE_DEX(1),
+        ONE_DEX(1, DEX_FILE),
+        ONE_DEX_INIT(INIT1_OPTIMIZED_DIR, 1, DEX_FILE),
 
         /** just one classpath element, a jar file */
-        ONE_JAR(1),
+        ONE_JAR(1, JAR_FILE),
+        ONE_JAR_INIT(INIT1_OPTIMIZED_DIR, 1, JAR_FILE),
 
         /** two classpath elements, both raw dex files */
-        TWO_DEX(2),
+        TWO_DEX(2, DEX_FILE, DEX2_FILE),
+        TWO_DEX_INIT(INIT2_OPTIMIZED_DIR, 2, DEX_FILE, DEX2_FILE),
 
         /** two classpath elements, both jar files */
-        TWO_JAR(2);
+        TWO_JAR(2, JAR_FILE, JAR2_FILE),
+        TWO_JAR_INIT(INIT2_OPTIMIZED_DIR, 2, JAR_FILE, JAR2_FILE);
 
         public final int expectedFiles;
+        public final File optimizedDir;
+        public final String path;
 
-        Configuration(int expectedFiles) {
+        Configuration(int expectedFiles, File... files) {
+            this(DEFAULT_OPTIMIZED_DIR, expectedFiles, files);
+        }
+
+        Configuration(File optimizedDir, int expectedFiles, File... files) {
+            assertTrue(files != null && files.length > 0);
+
             this.expectedFiles = expectedFiles;
+            this.optimizedDir = optimizedDir;
+            String path = files[0].getAbsolutePath();
+            for (int i = 1; i < files.length; i++) {
+                path += File.pathSeparator + files[i].getAbsolutePath();
+            }
+            this.path = path;
         }
     }
 
     protected void setUp() throws Exception {
-        TMP_DIR.mkdirs();
+        assertTrue(TMP_DIR.exists() || TMP_DIR.mkdirs());
+        assertTrue(DEFAULT_OPTIMIZED_DIR.exists() || DEFAULT_OPTIMIZED_DIR.mkdirs());
+        assertTrue(INIT1_OPTIMIZED_DIR.exists() || INIT1_OPTIMIZED_DIR.mkdirs());
+        assertTrue(INIT2_OPTIMIZED_DIR.exists() || INIT2_OPTIMIZED_DIR.mkdirs());
 
         ClassLoader cl = DexClassLoaderTest.class.getClassLoader();
         copyResource(cl, JAR_NAME, JAR_FILE);
         copyResource(cl, DEX_NAME, DEX_FILE);
         copyResource(cl, JAR2_NAME, JAR2_FILE);
         copyResource(cl, DEX2_NAME, DEX2_FILE);
+    }
 
-        OPTIMIZED_DIR.mkdirs();
-        File[] files = OPTIMIZED_DIR.listFiles();
+    protected void tearDown() {
+        cleanUpDir(DEFAULT_OPTIMIZED_DIR);
+        cleanUpDir(INIT1_OPTIMIZED_DIR);
+        cleanUpDir(INIT2_OPTIMIZED_DIR);
+    }
+
+    private void cleanUpDir(File dir) {
+        if (!dir.isDirectory()) {
+            return;
+        }
+        File[] files = dir.listFiles();
         for (File file : files) {
-            file.delete();
+            assertTrue(file.delete());
         }
     }
 
@@ -113,24 +149,8 @@ public class DexClassLoaderTest extends TestCase {
      * @param config how to configure the classpath
      */
     private static DexClassLoader createInstance(Configuration config) {
-        File file1;
-        File file2;
-
-        switch (config) {
-            case ONE_DEX: file1 = DEX_FILE; file2 = null;      break;
-            case ONE_JAR: file1 = JAR_FILE; file2 = null;      break;
-            case TWO_DEX: file1 = DEX_FILE; file2 = DEX2_FILE; break;
-            case TWO_JAR: file1 = JAR_FILE; file2 = JAR2_FILE; break;
-            default: throw new AssertionError("shouldn't happen");
-        }
-
-        String path = file1.getAbsolutePath();
-        if (file2 != null) {
-            path += File.pathSeparator + file2.getAbsolutePath();
-        }
-
         return new DexClassLoader(
-            path, OPTIMIZED_DIR.getAbsolutePath(), null,
+            config.path, config.optimizedDir.getAbsolutePath(), null,
             ClassLoader.getSystemClassLoader());
     }
 
@@ -166,7 +186,7 @@ public class DexClassLoaderTest extends TestCase {
         createInstance(config);
 
         int expectedFiles = config.expectedFiles;
-        int actualFiles = OPTIMIZED_DIR.listFiles().length;
+        int actualFiles = config.optimizedDir.listFiles().length;
 
         assertEquals(expectedFiles, actualFiles);
     }
@@ -255,7 +275,7 @@ public class DexClassLoaderTest extends TestCase {
     // ONE_JAR
 
     public void test_oneJar_init() throws Exception {
-        test_init(Configuration.ONE_JAR);
+        test_init(Configuration.ONE_JAR_INIT);
     }
 
     public void test_oneJar_simpleUse() throws Exception {
@@ -285,7 +305,7 @@ public class DexClassLoaderTest extends TestCase {
     // ONE_DEX
 
     public void test_oneDex_init() throws Exception {
-        test_init(Configuration.ONE_DEX);
+        test_init(Configuration.ONE_DEX_INIT);
     }
 
     public void test_oneDex_simpleUse() throws Exception {
@@ -315,7 +335,7 @@ public class DexClassLoaderTest extends TestCase {
     // TWO_JAR
 
     public void test_twoJar_init() throws Exception {
-        test_init(Configuration.TWO_JAR);
+        test_init(Configuration.TWO_JAR_INIT);
     }
 
     public void test_twoJar_simpleUse() throws Exception {
@@ -367,7 +387,7 @@ public class DexClassLoaderTest extends TestCase {
     // TWO_DEX
 
     public void test_twoDex_init() throws Exception {
-        test_init(Configuration.TWO_DEX);
+        test_init(Configuration.TWO_DEX_INIT);
     }
 
     public void test_twoDex_simpleUse() throws Exception {
