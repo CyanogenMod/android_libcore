@@ -907,8 +907,7 @@ public class SimpleDateFormat extends DateFormat {
                 field = Calendar.SECOND;
                 break;
             case MILLISECOND_FIELD:
-                field = Calendar.MILLISECOND;
-                break;
+                return parseFractionalSeconds(string, offset, absolute);
             case STAND_ALONE_DAY_OF_WEEK_FIELD:
                 return parseDayOfWeek(string, offset, true);
             case DAY_OF_WEEK_FIELD:
@@ -951,6 +950,31 @@ public class SimpleDateFormat extends DateFormat {
             return parseNumber(absolute, string, offset, field, 0);
         }
         return offset;
+    }
+
+    /**
+     * Parses the fractional seconds section of a formatted date and assigns
+     * it to the {@code Calendar.MILLISECOND} field. Note that fractional seconds
+     * are somewhat unique, because they are zero suffixed.
+     */
+    private int parseFractionalSeconds(String string, int offset, int count) {
+        final ParsePosition parsePosition = new ParsePosition(offset);
+        final Number fractionalSeconds = parseNumber(count, string, parsePosition);
+        if (fractionalSeconds == null) {
+            return -parsePosition.getErrorIndex() - 1;
+        }
+
+        // NOTE: We could've done this using two parses instead. The first parse
+        // looking at |count| digits (to verify the date matched the format), and
+        // then a second parse that consumed just the first three digits. That
+        // would've avoided the floating point arithmetic, but would've demanded
+        // that we round values ourselves.
+        final double result = fractionalSeconds.doubleValue();
+        final int numDigitsParsed = parsePosition.getIndex() - offset;
+        final double divisor = Math.pow(10, numDigitsParsed);
+
+        calendar.set(Calendar.MILLISECOND, (int) ((result / divisor) * 1000));
+        return parsePosition.getIndex();
     }
 
     private int parseDayOfWeek(String string, int offset, boolean standAlone) {
