@@ -238,4 +238,21 @@ public class CalendarTest extends junit.framework.TestCase {
       cal.set(Calendar.HOUR_OF_DAY, 1);
       assertEquals(32400000, cal.getTimeInMillis());
     }
+
+    // http://b/16938922.
+    //
+    // TODO: This is for backwards compatibility only. Seems like a better idea to throw
+    // here. We should add a targetSdkVersion based check and throw for each of these
+    // cases.
+    public void test_nullLocale() {
+        assertEquals(
+                Calendar.getInstance(Locale.getDefault()),
+                Calendar.getInstance((Locale) null));
+        assertEquals(
+                Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault()),
+                Calendar.getInstance(TimeZone.getDefault(), null));
+        assertEquals(
+                new GregorianCalendar(Locale.getDefault()),
+                new GregorianCalendar((Locale) null));
+    }
 }
