@@ -99,4 +99,31 @@ public class NumberFormatTest extends junit.framework.TestCase {
         } catch (NullPointerException expected) {
         }
     }
+
+    public void test_nullLocales() {
+        try {
+            NumberFormat.getInstance(null);
+            fail();
+        } catch (NullPointerException expected) {}
+
+        try {
+            NumberFormat.getIntegerInstance(null);
+            fail();
+        } catch (NullPointerException expected) {}
+
+        try {
+            NumberFormat.getCurrencyInstance(null);
+            fail();
+        } catch (NullPointerException expected) {}
+
+        try {
+            NumberFormat.getPercentInstance(null);
+            fail();
+        } catch (NullPointerException expected) {}
+
+        try {
+            NumberFormat.getNumberInstance(null);
+            fail();
+        } catch (NullPointerException expected) {}
+    }
 }
