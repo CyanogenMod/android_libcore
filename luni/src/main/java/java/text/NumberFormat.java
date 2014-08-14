@@ -353,6 +353,10 @@ public abstract class NumberFormat extends Format {
      * @return a {@code NumberFormat} for handling currency values.
      */
     public static NumberFormat getCurrencyInstance(Locale locale) {
+        if (locale == null) {
+            throw new NullPointerException("locale == null");
+        }
+
         return getInstance(LocaleData.get(locale).currencyPattern, locale);
     }
 
@@ -376,6 +380,10 @@ public abstract class NumberFormat extends Format {
      * @return a {@code NumberFormat} for handling integers.
      */
     public static NumberFormat getIntegerInstance(Locale locale) {
+        if (locale == null) {
+            throw new NullPointerException("locale == null");
+        }
+
         NumberFormat result = getInstance(LocaleData.get(locale).integerPattern, locale);
         result.setParseIntegerOnly(true);
         return result;
@@ -469,6 +477,9 @@ public abstract class NumberFormat extends Format {
      * @return a {@code NumberFormat} for handling {@code Number} objects.
      */
     public static NumberFormat getNumberInstance(Locale locale) {
+        if (locale == null) {
+            throw new NullPointerException("locale == null");
+        }
         return getInstance(LocaleData.get(locale).numberPattern, locale);
     }
 
@@ -496,6 +507,10 @@ public abstract class NumberFormat extends Format {
      * treated as 5,300%, which is rarely what you intended.
      */
     public static NumberFormat getPercentInstance(Locale locale) {
+        if (locale == null) {
+            throw new NullPointerException("locale == null");
+        }
+
         return getInstance(LocaleData.get(locale).percentPattern, locale);
     }
 

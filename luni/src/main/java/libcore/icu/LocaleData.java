@@ -128,6 +128,10 @@ public final class LocaleData {
      * Returns a shared LocaleData for the given locale.
      */
     public static LocaleData get(Locale locale) {
+        if (locale == null) {
+            throw new NullPointerException("locale == null");
+        }
+
         final String languageTag = locale.toLanguageTag();
         synchronized (localeDataCache) {
             LocaleData localeData = localeDataCache.get(languageTag);
