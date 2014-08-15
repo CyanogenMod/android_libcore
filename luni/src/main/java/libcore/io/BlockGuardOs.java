@@ -31,6 +31,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import static android.system.OsConstants.*;
+import static dalvik.system.BlockGuard.DISALLOW_NETWORK;
 
 /**
  * Informs BlockGuard of any activity it should be aware of.
@@ -79,15 +80,17 @@ public class BlockGuardOs extends ForwardingOs {
 
     @Override public void close(FileDescriptor fd) throws ErrnoException {
         try {
-            if (S_ISSOCK(Libcore.os.fstat(fd).st_mode)) {
+            // The usual case is that this _isn't_ a socket, so getsockopt will throw,
+            // and that's really expensive. Try to avoid asking if we don't care.
+            if ((BlockGuard.getThreadPolicy().getPolicyMask() & DISALLOW_NETWORK) != 0) {
                 if (isLingerSocket(fd)) {
                     // If the fd is a socket with SO_LINGER set, we might block indefinitely.
                     // We allow non-linger sockets so that apps can close their network
                     // connections in methods like onDestroy which will run on the UI thread.
                     BlockGuard.getThreadPolicy().onNetwork();
                 }
-                untagSocket(fd);
             }
+            untagSocket(fd);
         } catch (ErrnoException ignored) {
             // We're called via Socket.close (which doesn't ask for us to be called), so we
             // must not throw here, because Socket.close must not throw if asked to close an
