@@ -873,8 +873,9 @@ static jint Posix_gettid(JNIEnv* env __unused, jobject) {
     return 0;
   }
   return static_cast<jint>(owner);
+#elif defined(__BIONIC__)
+  return gettid();
 #else
-  // Neither bionic nor glibc exposes gettid(2).
   return syscall(__NR_gettid);
 #endif
 }
