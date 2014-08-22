@@ -450,6 +450,29 @@ class LocaleNameIterator {
   DISALLOW_COPY_AND_ASSIGN(LocaleNameIterator);
 };
 
+static bool getAmPmMarkersNarrow(JNIEnv* env, jobject localeData, const char* locale_name) {
+  UErrorCode status = U_ZERO_ERROR;
+  ScopedResourceBundle root(ures_open(NULL, locale_name, &status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+  ScopedResourceBundle calendar(ures_getByKey(root.get(), "calendar", NULL, &status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+  ScopedResourceBundle gregorian(ures_getByKey(calendar.get(), "gregorian", NULL, &status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+  ScopedResourceBundle amPmMarkersNarrow(ures_getByKey(gregorian.get(), "AmPmMarkersNarrow", NULL, &status));
+  if (U_FAILURE(status)) {
+    return false;
+  }
+  setStringField(env, localeData, "narrowAm", amPmMarkersNarrow.get(), 0);
+  setStringField(env, localeData, "narrowPm", amPmMarkersNarrow.get(), 1);
+  return true;
+}
+
 static bool getDateTimePatterns(JNIEnv* env, jobject localeData, const char* locale_name) {
   UErrorCode status = U_ZERO_ERROR;
   ScopedResourceBundle root(ures_open(NULL, locale_name, &status));
@@ -493,14 +516,14 @@ static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, const 
   UnicodeString today(ures_getUnicodeStringByKey(relative.get(), "0", &status));
   UnicodeString tomorrow(ures_getUnicodeStringByKey(relative.get(), "1", &status));
   if (U_FAILURE(status)) {
-    ALOGE("Error getting yesterday/today/tomorrow: %s", u_errorName(status));
+    ALOGE("Error getting yesterday/today/tomorrow for %s: %s", locale_name, u_errorName(status));
     return false;
   }
 
   // We title-case the strings so they have consistent capitalization (http://b/14493853).
   UniquePtr<BreakIterator> brk(BreakIterator::createSentenceInstance(locale, status));
   if (U_FAILURE(status)) {
-    ALOGE("Error getting yesterday/today/tomorrow break iterator: %s", u_errorName(status));
+    ALOGE("Error getting yesterday/today/tomorrow break iterator for %s: %s", locale_name, u_errorName(status));
     return false;
   }
   yesterday.toTitle(brk.get(), locale, U_TITLECASE_NO_LOWERCASE | U_TITLECASE_NO_BREAK_ADJUSTMENT);
@@ -551,6 +574,19 @@ static jboolean ICU_initLocaleDataNative(JNIEnv* env, jclass, jstring javaLangua
     }
     if (!foundYesterdayTodayAndTomorrow) {
       ALOGE("Couldn't find ICU yesterday/today/tomorrow for %s", languageTag.c_str());
+      return JNI_FALSE;
+    }
+
+    // Get the narrow "AM" and "PM" strings.
+    bool foundAmPmMarkersNarrow = false;
+    for (LocaleNameIterator it(icuLocale.locale().getBaseName(), status); it.HasNext(); it.Up()) {
+      if (getAmPmMarkersNarrow(env, localeData, it.Get())) {
+        foundAmPmMarkersNarrow = true;
+        break;
+      }
+    }
+    if (!foundAmPmMarkersNarrow) {
+      ALOGE("Couldn't find ICU AmPmMarkersNarrow for %s", languageTag.c_str());
       return JNI_FALSE;
     }
 
