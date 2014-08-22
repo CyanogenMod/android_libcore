@@ -185,26 +185,46 @@ public class ObjectStreamClass implements Serializable {
         return constructor;
     }
 
-    Field getReflectionField(ObjectStreamField osf) {
+    /**
+     * Returns the {@link Field} referred to by {@link ObjectStreamField} for the class described by
+     * this {@link ObjectStreamClass}. A {@code null} value is returned if the local definition of
+     * the field does not meet the criteria for a serializable / deserializable field, i.e. the
+     * field must be non-static and non-transient. Caching of each field lookup is performed. The
+     * first time a field is returned it is made accessible with a call to
+     * {@link Field#setAccessible(boolean)}.
+     */
+    Field checkAndGetReflectionField(ObjectStreamField osf) {
         synchronized (reflectionFields) {
             Field field = reflectionFields.get(osf);
-            if (field != null) {
+            // null might indicate a cache miss or a hit and a non-serializable field so we
+            // check for a mapping.
+            if (field != null || reflectionFields.containsKey(osf)) {
                 return field;
             }
         }
 
+        Field field;
         try {
             Class<?> declaringClass = forClass();
-            Field field = declaringClass.getDeclaredField(osf.getName());
-            field.setAccessible(true);
-            synchronized (reflectionFields) {
-                reflectionFields.put(osf, field);
+            field = declaringClass.getDeclaredField(osf.getName());
+
+            int modifiers = field.getModifiers();
+            if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
+                // No serialization or deserialization of transient or static fields!
+                // See http://b/4471249 and http://b/17202597.
+                field = null;
+            } else {
+                field.setAccessible(true);
             }
-            return reflectionFields.get(osf);
         } catch (NoSuchFieldException ex) {
             // The caller messed up. We'll return null and won't try to resolve this again.
-            return null;
+            field = null;
         }
+
+        synchronized (reflectionFields) {
+            reflectionFields.put(osf, field);
+        }
+        return field;
     }
 
     /*
