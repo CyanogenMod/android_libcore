@@ -76,11 +76,13 @@ public class Support_DecimalFormat extends Support_Format {
     // test currency instance with TR Locale
     number = new Double(350.76);
     format = (DecimalFormat) NumberFormat.getCurrencyInstance(new Locale("tr", "TR"));
-    text = "350,76" + "\u00a0" + "TL";
-    t_FormatWithField(22, format, number, text, NumberFormat.Field.INTEGER, 0, 3);
-    t_FormatWithField(22, format, number, text, NumberFormat.Field.DECIMAL_SEPARATOR, 3, 4);
-    t_FormatWithField(22, format, number, text, NumberFormat.Field.FRACTION, 4, 6);
-    t_FormatWithField(23, format, number, text, NumberFormat.Field.CURRENCY, 7, 9);
+    // Turkey either uses "123,45 TL" or "₺123,45"; google3 uses the former because most
+    // platforms' fonts don't include U+20BA TURKISH LIRA SIGN. http://b/16727554.
+    text = "₺350,76";
+    t_FormatWithField(23, format, number, text, NumberFormat.Field.CURRENCY, 0, 1);
+    t_FormatWithField(22, format, number, text, NumberFormat.Field.INTEGER, 1, 4);
+    t_FormatWithField(22, format, number, text, NumberFormat.Field.DECIMAL_SEPARATOR, 4, 5);
+    t_FormatWithField(22, format, number, text, NumberFormat.Field.FRACTION, 5, 7);
 
     // test fields that are not included in the formatted text
     t_FormatWithField(25, format, number, text, NumberFormat.Field.GROUPING_SEPARATOR, 0, 0);
