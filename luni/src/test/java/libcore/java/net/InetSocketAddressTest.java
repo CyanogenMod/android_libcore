@@ -140,13 +140,14 @@ public class InetSocketAddressTest extends TestCase {
         InetSocketAddress isa1 = new InetSocketAddress("localhost", 80);
         assertFalse(isa1.isUnresolved());
 
-        InetSocketAddress sockAddr = new InetSocketAddress("unknown.host", 1000);
+        InetSocketAddress sockAddr = new InetSocketAddress("unknown.host.google.com", 1000);
         assertTrue(sockAddr.isUnresolved());
     }
 
     public void test_getHostString() throws Exception {
         // When we have a hostname, we'll get it back because that doesn't cost a DNS lookup...
         InetSocketAddress hasHostname = InetSocketAddress.createUnresolved("some host", 1234);
+        assertTrue(hasHostname.isUnresolved());
         assertEquals("some host", hasHostname.getHostString());
         assertEquals("some host", hasHostname.getHostName());
         // When we don't have a hostname, whether or not we do the reverse lookup is the difference
