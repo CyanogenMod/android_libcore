@@ -80,17 +80,18 @@ public class BlockGuardOs extends ForwardingOs {
 
     @Override public void close(FileDescriptor fd) throws ErrnoException {
         try {
-            // The usual case is that this _isn't_ a socket, so getsockopt will throw,
-            // and that's really expensive. Try to avoid asking if we don't care.
-            if ((BlockGuard.getThreadPolicy().getPolicyMask() & DISALLOW_NETWORK) != 0) {
+            // The usual case is that this _isn't_ a socket, so the getsockopt(2) call in
+            // isLingerSocket will throw, and that's really expensive. Try to avoid asking
+            // if we don't care.
+            if (fd.isSocket()) {
                 if (isLingerSocket(fd)) {
                     // If the fd is a socket with SO_LINGER set, we might block indefinitely.
                     // We allow non-linger sockets so that apps can close their network
                     // connections in methods like onDestroy which will run on the UI thread.
                     BlockGuard.getThreadPolicy().onNetwork();
                 }
+                untagSocket(fd);
             }
-            untagSocket(fd);
         } catch (ErrnoException ignored) {
             // We're called via Socket.close (which doesn't ask for us to be called), so we
             // must not throw here, because Socket.close must not throw if asked to close an

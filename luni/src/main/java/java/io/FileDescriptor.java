@@ -105,6 +105,15 @@ public final class FileDescriptor {
         this.descriptor = fd;
     }
 
+    /**
+     * @hide internal use only
+     */
+    public boolean isSocket() {
+        return isSocket(descriptor);
+    }
+
+    private static native boolean isSocket(int fd);
+
     @Override public String toString() {
         return "FileDescriptor[" + descriptor + "]";
     }
