@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package libcore.java.net;
+package libcore.net;
 
 import junit.framework.TestCase;
 
@@ -25,6 +25,12 @@ public class MimeUtilsTest extends TestCase {
     assertEquals("audio/flac", MimeUtils.guessMimeTypeFromExtension("flac"));
     assertEquals("flac", MimeUtils.guessExtensionFromMimeType("audio/flac"));
     assertEquals("flac", MimeUtils.guessExtensionFromMimeType("application/x-flac"));
+  }
+
+  public void test_16978217() {
+    assertEquals("image/x-ms-bmp", MimeUtils.guessMimeTypeFromExtension("bmp"));
+    assertEquals("image/x-icon", MimeUtils.guessMimeTypeFromExtension("ico"));
+    assertEquals("video/mp2ts", MimeUtils.guessMimeTypeFromExtension("ts"));
   }
 
   public void testCommon() {
