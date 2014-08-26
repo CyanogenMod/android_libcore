@@ -49,10 +49,8 @@ public final class MimeUtils {
 
         add("application/andrew-inset", "ez");
         add("application/dsptype", "tsp");
-        add("application/futuresplash", "spl");
         add("application/hta", "hta");
         add("application/mac-binhex40", "hqx");
-        add("application/mac-compactpro", "cpt");
         add("application/mathematica", "nb");
         add("application/msaccess", "mdb");
         add("application/oda", "oda");
@@ -140,7 +138,9 @@ public final class MimeUtils {
         add("application/x-font", "pcf");
         add("application/x-font", "pcf.Z");
         add("application/x-freemind", "mm");
+        // application/futuresplash isn't IANA, so application/x-futuresplash should come first.
         add("application/x-futuresplash", "spl");
+        add("application/futuresplash", "spl");
         add("application/x-gnumeric", "gnumeric");
         add("application/x-go-sgf", "sgf");
         add("application/x-graphing-calculator", "gcf");
@@ -250,8 +250,12 @@ public final class MimeUtils {
         add("audio/x-scpls", "pls");
         add("audio/x-sd2", "sd2");
         add("audio/x-wav", "wav");
+        // image/bmp isn't IANA, so image/x-ms-bmp should come first.
+        add("image/x-ms-bmp", "bmp");
         add("image/bmp", "bmp");
         add("image/gif", "gif");
+        // image/ico isn't IANA, so image/x-icon should come first.
+        add("image/x-icon", "ico");
         add("image/ico", "cur");
         add("image/ico", "ico");
         add("image/ief", "ief");
@@ -273,10 +277,8 @@ public final class MimeUtils {
         add("image/x-coreldrawpattern", "pat");
         add("image/x-coreldrawtemplate", "cdt");
         add("image/x-corelphotopaint", "cpt");
-        add("image/x-icon", "ico");
         add("image/x-jg", "art");
         add("image/x-jng", "jng");
-        add("image/x-ms-bmp", "bmp");
         add("image/x-photoshop", "psd");
         add("image/x-portable-anymap", "pnm");
         add("image/x-portable-bitmap", "pbm");
@@ -308,7 +310,6 @@ public final class MimeUtils {
         add("text/plain", "po");     // reserve "pot" for vnd.ms-powerpoint
         add("text/richtext", "rtx");
         add("text/rtf", "rtf");
-        add("text/texmacs", "ts");
         add("text/text", "phps");
         add("text/tab-separated-values", "tsv");
         add("text/xml", "xml");
