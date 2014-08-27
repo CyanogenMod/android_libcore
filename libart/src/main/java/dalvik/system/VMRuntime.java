@@ -33,6 +33,10 @@ public final class VMRuntime {
      */
     private static final VMRuntime THE_ONE = new VMRuntime();
 
+    // Note: Instruction set names are used to construct the names of some
+    // system properties. To be sure that the properties stay valid the
+    // instruction set name should not exceed 7 characters. See installd
+    // and the package manager for the actual propeties.
     private static final Map<String, String> ABI_TO_INSTRUCTION_SET_MAP
             = new HashMap<String, String>();
     static {
