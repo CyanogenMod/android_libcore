@@ -950,9 +950,11 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
         for (ObjectStreamField fieldDesc : classDesc.fields()) {
             try {
                 Class<?> type = fieldDesc.getTypeInternal();
-                Field field = classDesc.getReflectionField(fieldDesc);
+                Field field = classDesc.checkAndGetReflectionField(fieldDesc);
                 if (field == null) {
-                    throw new InvalidClassException(classDesc.getName() + " doesn't have a field " + fieldDesc.getName() + " of type " + type);
+                    throw new InvalidClassException(classDesc.getName()
+                            + " doesn't have a serializable field " + fieldDesc.getName()
+                            + " of type " + type);
                 }
                 if (type == byte.class) {
                     output.writeByte(field.getByte(obj));
@@ -1750,7 +1752,7 @@ public class ObjectOutputStream extends OutputStream implements ObjectOutput, Ob
         // Only write field "name" for enum class, which is the second field of
         // enum, that is fields[1]. Ignore all non-fields and fields.length < 2
         if (fields != null && fields.length > 1) {
-            Field field = classDesc.getSuperclass().getReflectionField(fields[1]);
+            Field field = classDesc.getSuperclass().checkAndGetReflectionField(fields[1]);
             if (field == null) {
                 throw new NoSuchFieldError();
             }
