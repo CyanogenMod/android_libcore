@@ -261,15 +261,15 @@ public class FileHandler extends StreamHandler {
         boolean hasUniqueID = false;
         boolean hasGeneration = false;
 
-        // TODO privilege code?
+        String homePath = System.getProperty("user.home");
+        if (homePath == null) {
+            throw new NullPointerException("System property \"user.home\" is null");
+        }
+        boolean homePathHasSepEnd = homePath.endsWith(File.separator);
 
         String tempPath = System.getProperty("java.io.tmpdir");
-        boolean tempPathHasSepEnd = (tempPath == null ? false : tempPath
-                .endsWith(File.separator));
-
-        String homePath = System.getProperty("user.home");
-        boolean homePathHasSepEnd = (homePath == null ? false : homePath
-                .endsWith(File.separator));
+        tempPath = tempPath == null ? homePath : tempPath;
+        boolean tempPathHasSepEnd = tempPath.endsWith(File.separator);
 
         StringBuilder sb = new StringBuilder();
         pattern = pattern.replace('/', File.separatorChar);
