@@ -1346,6 +1346,37 @@
   name: "org.apache.harmony.tests.java.util.ScannerParseLargeFileBenchmarkTest"
 },
 {
+  description: "external/apache-harmony tests for java.sql are broken for various reasons. java.sql is not a high enough priority to fix.",
+  bug: 17342415,
+  names: [
+    "com.android.org.apache.harmony.sql.tests.java.sql.DataTruncationTest#testGetDataSize",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DataTruncationTest#testGetIndex",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DataTruncationTest#testGetParameter",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DataTruncationTest#testGetRead",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DataTruncationTest#testGetTransferSize",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DateTest#test_valueOf_IllegalArgumentException",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testDeregisterDriver",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testGetConnectionString",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testGetConnectionStringProperties",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testGetConnectionStringStringString",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testGetDriver",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testGetDrivers",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testGetLogStream",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testGetLogWriter",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testGetLoginTimeout",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testPrintln",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testRegisterDriver",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testSetLogStream",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testSetLogWriter",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testSetLoginTimeout",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#test_getConnection_LStringLProperties",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#test_initClass",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#test_registerDriver_MultiTimes",
+    "com.android.org.apache.harmony.sql.tests.java.sql.TimestampTest#testCompareToDate",
+    "com.android.org.apache.harmony.sql.tests.java.sql.TimestampTest#testOverridingTimestamp"
+  ]
+},
+{
   description: "Known failure in GregorianCalendarTest",
   bug: 12778197,
   name: "org.apache.harmony.tests.java.util.GregorianCalendarTest#test_computeTime"
