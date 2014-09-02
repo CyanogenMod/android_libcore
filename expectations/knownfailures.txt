@@ -1377,6 +1377,55 @@
   ]
 },
 {
+  description: "java.util.logging: Android introduced config fallback behavior in LogManager.readConfiguration()",
+  bug: 13882147,
+  names: [
+    "com.android.org.apache.harmony.logging.tests.java.util.logging.LogManagerTest#testNotExistConfigFile",
+    "com.android.org.apache.harmony.logging.tests.java.util.logging.LoggerTest#testGetLogger_Empty",
+    "com.android.org.apache.harmony.logging.tests.java.util.logging.LoggerTest#testGetLogger_Null",
+    "com.android.org.apache.harmony.logging.tests.java.util.logging.LoggerTest#testGetLoggerWithRes_InvalidRes",
+    "com.android.org.apache.harmony.logging.tests.java.util.logging.LoggerTest#testGetLoggerWithRes_Empty"
+  ]
+},
+{
+  description: "java.util.logging: Android's user.home system property cannot be cleared",
+  bug: 13882147,
+  names: [
+    "com.android.org.apache.harmony.logging.tests.java.util.logging.FileHandlerTest#testConstructor_NoUsrHome",
+    "com.android.org.apache.harmony.logging.tests.java.util.logging.FileHandlerTest#testConstructor_NoTmpDir_NoUsrHome"
+  ]
+},
+{
+  description: "java.util.logging: Android's user.home system property points to root (/) dir",
+  bug: 13882147,
+  name: "com.android.org.apache.harmony.logging.tests.java.util.logging.FileHandlerTest#testConstructor_NoTmpDir"
+},
+{
+  description: "java.util.logging: The defaults for FileHandler don't work on Android because they try to write to the read-only user.home dir",
+  bug: 13882147,
+  name: "com.android.org.apache.harmony.logging.tests.java.util.logging.FileHandlerTest#testDefaultValue"
+},
+{
+  description: "java.util.logging: Android's classes have been stubbed in places.",
+  bug: 13882147,
+  names: [
+    "com.android.org.apache.harmony.logging.tests.java.util.logging.LogManagerTest#testGetLoggingMXBean"
+  ]
+},
+{
+  description: "java.util.logging: the serialized form references org.apache not com.android.org.apache",
+  bug: 13882147,
+  name: "com.android.org.apache.harmony.logging.tests.java.util.logging.LevelTest#testSerializationCompatibility"
+},
+{
+  description: "java.util.logging: Tests that require java.util.logging code changes to fix.",
+  bug: 13882147,
+  names: [
+    "com.android.org.apache.harmony.logging.tests.java.util.logging.SocketHandlerTest#testConstructor_NoProperties",
+    "com.android.org.apache.harmony.logging.tests.java.util.logging.XMLFormatterTest#test_TestFileHandlerClass_constructor"
+  ]
+},
+{
   description: "Known failure in GregorianCalendarTest",
   bug: 12778197,
   name: "org.apache.harmony.tests.java.util.GregorianCalendarTest#test_computeTime"
