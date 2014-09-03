@@ -59,10 +59,11 @@ public final class ZygoteHooks {
 
     /**
      * Called by the zygote in the child process after every fork. The debug
-     * flags from {@code debugFlags} are applied to the child process.
+     * flags from {@code debugFlags} are applied to the child process. The string
+     * {@code instructionSet} determines whether to use a native bridge.
      */
-    public void postForkChild(int debugFlags) {
-        nativePostForkChild(token, debugFlags);
+    public void postForkChild(int debugFlags, String instructionSet) {
+        nativePostForkChild(token, debugFlags, instructionSet);
     }
 
     /**
@@ -75,7 +76,8 @@ public final class ZygoteHooks {
     }
 
     private static native long nativePreFork();
-    private static native void nativePostForkChild(long token, int debugFlags);
+    private static native void nativePostForkChild(long token, int debugFlags,
+                                                   String instructionSet);
 
     /**
      * We must not fork until we're single-threaded again. Wait until /proc shows we're
