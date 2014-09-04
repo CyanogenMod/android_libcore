@@ -98,7 +98,13 @@ public final class FinalizerReference<T> extends Reference<T> {
                     FinalizerReference<Sentinel> sentinelReference = (FinalizerReference<Sentinel>) r;
                     sentinelReference.referent = null;
                     sentinelReference.zombie = sentinel;
-                    sentinelReference.enqueueInternal();
+                    // Make a single element list, then enqueue the reference on the daemon unenqueued
+                    // list. This is required instead of enqueuing directly on the finalizer queue
+                    // since there could be recently freed objects in the unqueued list which are not
+                    // yet on the finalizer queue. This could cause the sentinel to run before the
+                    // objects are finalized. b/17381967
+                    sentinelReference.pendingNext = sentinelReference;
+                    ReferenceQueue.add(sentinelReference);
                     return;
                 }
             }
