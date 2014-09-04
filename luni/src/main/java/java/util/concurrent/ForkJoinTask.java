@@ -32,8 +32,8 @@ import java.lang.reflect.Constructor;
  *
  * <p>A "main" {@code ForkJoinTask} begins execution when it is
  * explicitly submitted to a {@link ForkJoinPool}, or, if not already
- * engaged in a ForkJoin computation, commenced in the {@link
- * ForkJoinPool#commonPool()} via {@link #fork}, {@link #invoke}, or
+ * engaged in a ForkJoin computation, commenced in the {@code
+ * ForkJoinPool.commonPool()} via {@link #fork}, {@link #invoke}, or
  * related methods.  Once started, it will usually in turn start other
  * subtasks.  As indicated by the name of this class, many programs
  * using {@code ForkJoinTask} employ only methods {@link #fork} and
@@ -138,9 +138,9 @@ import java.lang.reflect.Constructor;
  * may be of use in constructing custom subclasses for problems that
  * are not statically structured as DAGs. To support such usages, a
  * ForkJoinTask may be atomically <em>tagged</em> with a {@code short}
- * value using {@link #setForkJoinTaskTag} or {@link
- * #compareAndSetForkJoinTaskTag} and checked using {@link
- * #getForkJoinTaskTag}. The ForkJoinTask implementation does not use
+ * value using {@code setForkJoinTaskTag} or {@code
+ * compareAndSetForkJoinTaskTag} and checked using {@code
+ * getForkJoinTaskTag}. The ForkJoinTask implementation does not use
  * these {@code protected} methods or tags for any purpose, but they
  * may be of use in the construction of specialized subclasses.  For
  * example, parallel graph traversals can use the supplied methods to
@@ -645,8 +645,8 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
 
     /**
      * Arranges to asynchronously execute this task in the pool the
-     * current task is running in, if applicable, or using the {@link
-     * ForkJoinPool#commonPool()} if not {@link #inForkJoinPool}.  While
+     * current task is running in, if applicable, or using the {@code
+     * ForkJoinPool.commonPool()} if not {@link #inForkJoinPool}.  While
      * it is not necessarily enforced, it is a usage error to fork a
      * task more than once unless it has completed and been
      * reinitialized.  Subsequent modifications to the state of this
