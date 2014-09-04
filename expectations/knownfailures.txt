@@ -1418,14 +1418,6 @@
   name: "com.android.org.apache.harmony.logging.tests.java.util.logging.LevelTest#testSerializationCompatibility"
 },
 {
-  description: "java.util.logging: Tests that require java.util.logging code changes to fix.",
-  bug: 13882147,
-  names: [
-    "com.android.org.apache.harmony.logging.tests.java.util.logging.SocketHandlerTest#testConstructor_NoProperties",
-    "com.android.org.apache.harmony.logging.tests.java.util.logging.XMLFormatterTest#test_TestFileHandlerClass_constructor"
-  ]
-},
-{
   description: "Known failure in GregorianCalendarTest",
   bug: 12778197,
   name: "org.apache.harmony.tests.java.util.GregorianCalendarTest#test_computeTime"
