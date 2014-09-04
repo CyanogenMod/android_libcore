@@ -39,6 +39,7 @@ import libcore.io.IoUtils;
 import libcore.io.Libcore;
 
 import static android.system.OsConstants.EINTR;
+import static android.system.OsConstants.POLLERR;
 import static android.system.OsConstants.POLLHUP;
 import static android.system.OsConstants.POLLIN;
 import static android.system.OsConstants.POLLOUT;
@@ -259,7 +260,7 @@ final class SelectorImpl extends AbstractSelector {
 
             int ops = key.interestOpsNoCheck();
             int selectedOps = 0;
-            if ((pollFd.revents & POLLHUP) != 0) {
+            if ((pollFd.revents & POLLHUP) != 0 || (pollFd.revents & POLLERR) != 0) {
                 // If there was an error condition, we definitely want to wake listeners,
                 // regardless of what they're waiting for. Failure is always interesting.
                 selectedOps |= ops;
