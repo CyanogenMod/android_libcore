@@ -17,6 +17,7 @@
 
 package java.util.logging;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.ResourceBundle;
@@ -50,7 +51,7 @@ public class XMLFormatter extends Formatter {
         // call a method of LogRecord to ensure not null
         long time = r.getMillis();
         // format to date
-        String date = MessageFormat.format("{0, date} {0, time}", new Object[] { new Date(time) });
+        String date = MessageFormat.format("{0, date} {0, time}", new Date(time));
         String nl = System.lineSeparator();
 
         StringBuilder sb = new StringBuilder();
@@ -59,21 +60,21 @@ public class XMLFormatter extends Formatter {
         append(sb, 1, "millis", time);
         append(sb, 1, "sequence", r.getSequenceNumber());
         if (r.getLoggerName() != null) {
-            append(sb, 1, "logger", r.getLoggerName());
+            escapeAndAppend(sb, 1, "logger", r.getLoggerName());
         }
         append(sb, 1, "level", r.getLevel().getName());
         if (r.getSourceClassName() != null) {
             append(sb, 1, "class", r.getSourceClassName());
         }
         if (r.getSourceMethodName() != null) {
-            append(sb, 1, "method", r.getSourceMethodName());
+            escapeAndAppend(sb, 1, "method", r.getSourceMethodName());
         }
         append(sb, 1, "thread", r.getThreadID());
         formatMessages(r, sb);
         Object[] params = r.getParameters();
         if (params != null) {
             for (Object element : params) {
-                append(sb, 1, "param", element);
+                escapeAndAppend(sb, 1, "param", element);
             }
         }
         formatThrowable(r, sb);
@@ -96,14 +97,14 @@ public class XMLFormatter extends Formatter {
 
             if (message == null) {
                 message = pattern;
-                append(sb, 1, "message", message);
+                escapeAndAppend(sb, 1, "message", message);
             } else {
-                append(sb, 1, "message", message);
-                append(sb, 1, "key", pattern);
-                append(sb, 1, "catalog", r.getResourceBundleName());
+                escapeAndAppend(sb, 1, "message", message);
+                escapeAndAppend(sb, 1, "key", pattern);
+                escapeAndAppend(sb, 1, "catalog", r.getResourceBundleName());
             }
         } else if (pattern != null) {
-            append(sb, 1, "message", pattern);
+            escapeAndAppend(sb, 1, "message", pattern);
         } else {
             sb.append(indent).append("<message/>");
         }
@@ -114,13 +115,13 @@ public class XMLFormatter extends Formatter {
         if ((t = r.getThrown()) != null) {
             String nl = System.lineSeparator();
             sb.append(indent).append("<exception>").append(nl);
-            append(sb, 2, "message", t.toString());
+            escapeAndAppend(sb, 2, "message", t.toString());
             // format throwable's stack trace
             StackTraceElement[] elements = t.getStackTrace();
             for (StackTraceElement e : elements) {
                 sb.append(indent).append(indent).append("<frame>").append(nl);
                 append(sb, 3, "class", e.getClassName());
-                append(sb, 3, "method", e.getMethodName());
+                escapeAndAppend(sb, 3, "method", e.getMethodName());
                 append(sb, 3, "line", e.getLineNumber());
                 sb.append(indent).append(indent).append("</frame>").append(nl);
             }
@@ -136,6 +137,49 @@ public class XMLFormatter extends Formatter {
         sb.append(value);
         sb.append("</").append(tag).append(">");
         sb.append(System.lineSeparator());
+    }
+
+    private static void escapeAndAppend(StringBuilder sb, int indentCount, String tag, Object value) {
+        if (value == null) {
+            append(sb, indentCount, tag, value);
+        } else {
+            for (int i = 0; i < indentCount; ++i) {
+                sb.append(indent);
+            }
+            sb.append("<").append(tag).append(">");
+            try {
+                escapeXml(sb, value.toString());
+            } catch (IOException e) {
+                throw new AssertionError();
+            }
+            sb.append("</").append(tag).append(">");
+            sb.append(System.lineSeparator());
+        }
+    }
+
+    private static void escapeXml(Appendable valueBuilder, String value) throws IOException {
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            switch (c) {
+                case '\"':
+                    valueBuilder.append("&quot;");
+                    break;
+                case '>':
+                    valueBuilder.append("&gt;");
+                    break;
+                case '<':
+                    valueBuilder.append("&lt;");
+                    break;
+                case '&':
+                    valueBuilder.append("&amp;");
+                    break;
+                case '\'':
+                    valueBuilder.append("&apos;");
+                    break;
+                default:
+                    valueBuilder.append(c);
+            }
+        }
     }
 
     /**

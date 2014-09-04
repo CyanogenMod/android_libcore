@@ -106,9 +106,13 @@ public class SocketHandler extends StreamHandler {
             throw new IllegalArgumentException("host == null || host.isEmpty()");
         }
         // check the validity of the port number
-        int p = 0;
+        int p;
         try {
             p = Integer.parsePositiveInt(port);
+            // Must be >= 0 to get this far. 0 is invalid too.
+            if (p == 0) {
+                throw new IllegalArgumentException("Illegal port argument " + port);
+            }
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Illegal port argument " + port);
         }
