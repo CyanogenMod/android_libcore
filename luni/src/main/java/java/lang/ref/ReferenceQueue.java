@@ -153,9 +153,18 @@ public class ReferenceQueue<T> {
             if (unenqueued == null) {
                 unenqueued = list;
             } else {
-                Reference<?> next = unenqueued.pendingNext;
-                unenqueued.pendingNext = list.pendingNext;
-                list.pendingNext = next;
+                // Find the last element in unenqueued.
+                Reference<?> last = unenqueued;
+                while (last.pendingNext != unenqueued) {
+                  last = last.pendingNext;
+                }
+                // Add our list to the end. Update the pendingNext to point back to enqueued.
+                last.pendingNext = list;
+                last = list;
+                while (last.pendingNext != list) {
+                    last = last.pendingNext;
+                }
+                last.pendingNext = unenqueued;
             }
             ReferenceQueue.class.notifyAll();
         }
