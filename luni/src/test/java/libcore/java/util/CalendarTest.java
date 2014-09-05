@@ -17,6 +17,7 @@
 package libcore.java.util;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -245,14 +246,21 @@ public class CalendarTest extends junit.framework.TestCase {
     // here. We should add a targetSdkVersion based check and throw for each of these
     // cases.
     public void test_nullLocale() {
-        assertEquals(
+        assertCalendarConfigEquals(
                 Calendar.getInstance(Locale.getDefault()),
                 Calendar.getInstance((Locale) null));
-        assertEquals(
+        assertCalendarConfigEquals(
                 Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault()),
                 Calendar.getInstance(TimeZone.getDefault(), null));
-        assertEquals(
+        assertCalendarConfigEquals(
                 new GregorianCalendar(Locale.getDefault()),
                 new GregorianCalendar((Locale) null));
+    }
+
+    public void assertCalendarConfigEquals(Calendar a, Calendar b) {
+        Date d = new Date();
+        a.setTime(d);
+        b.setTime(d);
+        assertEquals(a, b);
     }
 }
