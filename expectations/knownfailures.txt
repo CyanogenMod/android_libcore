@@ -1439,5 +1439,12 @@
   description: "Known failure in GregorianCalendarTest",
   bug: 12778197,
   name: "org.apache.harmony.tests.java.util.GregorianCalendarTest#test_computeTime"
+},
+{
+  description: "libcore.java.text.DecimalFormatSymbolsTest#test_getInstance_unknown_or_invalid_locale assumes fallback to locale other than en_US_POSIX.",
+  bug: 17374604,
+  names: [
+    "libcore.java.text.DecimalFormatSymbolsTest#test_getInstance_unknown_or_invalid_locale"
+  ]
 }
 ]
