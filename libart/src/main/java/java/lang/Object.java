@@ -273,6 +273,12 @@ public class Object {
      * @see #equals
      */
     public int hashCode() {
+        int lockWord = shadow$_monitor_;
+        final int lockWordMask = 0xC0000000;  // Top 2 bits.
+        final int lockWordStateHash = 0x80000000;  // Top 2 bits are value 2 (kStateHash).
+        if ((lockWord & lockWordMask) == lockWordStateHash) {
+            return lockWord & ~lockWordMask;
+        }
         return System.identityHashCode(this);
     }
 
