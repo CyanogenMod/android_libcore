@@ -24,17 +24,20 @@ import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
 public class DecimalFormatSymbolsTest extends junit.framework.TestCase {
+    public void test_getInstance_unknown_or_invalid_locale() throws Exception {
+        // http://b/17374604: this test passes on the host but fails on the target.
+        // ICU uses setlocale(3) to determine its default locale, and glibc (on my box at least)
+        // returns "en_US.UTF-8". bionic before L returned NULL and in L returns "C.UTF-8", both
+        // of which get treated as "en_US_POSIX". What that means for this test is that you get
+        // "INF" for infinity instead of "\u221e".
+        // On the RI, this test fails for a different reason: their DecimalFormatSymbols.equals
+        // appears to be broken. It could be that they're accidentally checking the Locale field?
+        checkLocaleIsEquivalentToRoot(new Locale("xx", "XX"));
+        checkLocaleIsEquivalentToRoot(new Locale("not exist language", "not exist country"));
+    }
     private void checkLocaleIsEquivalentToRoot(Locale locale) {
         DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance(locale);
         assertEquals(DecimalFormatSymbols.getInstance(Locale.ROOT), dfs);
-    }
-    public void test_getInstance_unknown_or_invalid_locale() throws Exception {
-        // TODO: we fail these tests because ROOT has "INF" for infinity but 'dfs' has "\u221e".
-        // On the RI, ROOT has "\u221e" too, but DecimalFormatSymbols.equals appears to be broken;
-        // it returns false for objects that -- if you compare their externally visible state --
-        // are equal. It could be that they're accidentally checking the Locale.
-        checkLocaleIsEquivalentToRoot(new Locale("xx", "XX"));
-        checkLocaleIsEquivalentToRoot(new Locale("not exist language", "not exist country"));
     }
 
     // http://code.google.com/p/android/issues/detail?id=14495

@@ -1458,5 +1458,12 @@
   names: [
     "com.squareup.okhttp.internal.http.HttpResponseCacheTest#setIfModifiedSince"
   ]
+},
+{
+  description: "libcore.java.text.DecimalFormatSymbolsTest#test_getInstance_unknown_or_invalid_locale assumes fallback to locale other than en_US_POSIX.",
+  bug: 17374604,
+  names: [
+    "libcore.java.text.DecimalFormatSymbolsTest#test_getInstance_unknown_or_invalid_locale"
+  ]
 }
 ]
