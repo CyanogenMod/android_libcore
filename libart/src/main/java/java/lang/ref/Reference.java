@@ -199,7 +199,19 @@ public abstract class Reference<T> {
      * @return the referent to which reference refers, or {@code null} if the
      *         object has been cleared.
      */
-    public native T get();
+    public T get() {
+        return getReferent();
+    }
+
+    /**
+     * Returns the referent of the reference object.
+     *
+     * @return the referent to which reference refers, or {@code null} if the
+     *         object has been cleared. Required since the compiler
+     *         intrisifies getReferent() since we can't intrinsify Reference.get()
+     *         due to incorrect devirtualization (and inlining) of PhantomReference.get().
+     */
+    private final native T getReferent();
 
     /**
      * Checks whether the reference object has been enqueued.
