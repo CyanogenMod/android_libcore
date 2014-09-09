@@ -1436,6 +1436,23 @@
   ]
 },
 {
+  description: "java.util.beans: the harmony tests were broken by Android commit 19a270e90b1e992c1f6639f355ae13564c2f3a6a",
+  bug: 17394106,
+  names: [
+    "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testSerialization",
+    "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testGetPropertyChangeListener_String_Normal",
+    "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testAddPropertyChangeListener_PropertyChangeListener_String_Normal",
+    "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testAddPropertyChangeListener_PropertyChangeListener_Normal"
+  ]
+},
+{
+  description: "java.util.beans: the serialized form references org.apache not com.android.org.apache",
+  bug: 17394106,
+  names: [
+    "com.android.org.apache.harmony.beans.tests.java.beans.PropertyChangeSupportTest#testSerializationCompatibility"
+  ]
+},
+{
   description: "Known failure in GregorianCalendarTest",
   bug: 12778197,
   name: "org.apache.harmony.tests.java.util.GregorianCalendarTest#test_computeTime"
