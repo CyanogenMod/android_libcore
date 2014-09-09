@@ -1354,6 +1354,7 @@
     "com.android.org.apache.harmony.sql.tests.java.sql.DataTruncationTest#testGetParameter",
     "com.android.org.apache.harmony.sql.tests.java.sql.DataTruncationTest#testGetRead",
     "com.android.org.apache.harmony.sql.tests.java.sql.DataTruncationTest#testGetTransferSize",
+    "com.android.org.apache.harmony.sql.tests.java.sql.DataTruncationTest#testDataTruncationintbooleanbooleanintint",
     "com.android.org.apache.harmony.sql.tests.java.sql.DateTest#test_valueOf_IllegalArgumentException",
     "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testDeregisterDriver",
     "com.android.org.apache.harmony.sql.tests.java.sql.DriverManagerTest#testGetConnectionString",
