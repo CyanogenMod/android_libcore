@@ -56,28 +56,63 @@ import junit.framework.TestCase;
 public class KeyPairGeneratorTest extends TestCase {
 
     public void test_providerCount() {
-        // If this fails remember to add/remove _provider methods below. This test is sharded
-        // because it takes so long.
-        assertEquals(4, Security.getProviders().length);
+        Provider[] providers = Security.getProviders();
+        // We expect there to be at least one provider.
+        assertTrue(providers.length > 0);
+        // If this fails remember to add _provider methods below. This test is sharded because it
+        // takes a long time to execute.
+        assertTrue(providers.length < 10);
     }
 
     public void test_getInstance_provider0() throws Exception {
-        test_getInstance(Security.getProviders()[0]);
+        test_getInstance(0);
     }
 
     public void test_getInstance_provider1() throws Exception {
-        test_getInstance(Security.getProviders()[1]);
+        test_getInstance(1);
     }
 
     public void test_getInstance_provider2() throws Exception {
-        test_getInstance(Security.getProviders()[2]);
+        test_getInstance(2);
     }
 
     public void test_getInstance_provider3() throws Exception {
-        test_getInstance(Security.getProviders()[3]);
+        test_getInstance(3);
     }
 
-    private void test_getInstance(Provider provider) throws Exception {
+    public void test_getInstance_provider4() throws Exception {
+        test_getInstance(4);
+    }
+
+    public void test_getInstance_provider5() throws Exception {
+        test_getInstance(5);
+    }
+
+    public void test_getInstance_provider6() throws Exception {
+        test_getInstance(6);
+    }
+
+    public void test_getInstance_provider7() throws Exception {
+        test_getInstance(7);
+    }
+
+    public void test_getInstance_provider8() throws Exception {
+        test_getInstance(8);
+    }
+
+    public void test_getInstance_provider9() throws Exception {
+        test_getInstance(9);
+    }
+
+    private void test_getInstance(int providerIndex) throws Exception {
+        Provider[] providers = Security.getProviders();
+        if (providerIndex >= providers.length) {
+            // Providers can be added by vendors and other tests. We do not
+            // specify a fixed number and silenty pass if the provider at the
+            // specified index does not exist.
+            return;
+        }
+        Provider provider = providers[providerIndex];
         Set<Provider.Service> services = provider.getServices();
         for (Provider.Service service : services) {
             String type = service.getType();
