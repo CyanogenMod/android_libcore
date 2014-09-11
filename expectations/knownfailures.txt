@@ -1452,6 +1452,7 @@
   description: "SpdyConnection issue https://github.com/square/okhttp/issues/644 crashes the test app. Android does not provide SPDY/HTTP_2 connections by default so have been suppressed.",
   bug: 14462336,
   names: [
+    "com.squareup.okhttp.ConnectionPoolTest",
     "com.squareup.okhttp.internal.spdy.SpdyConnectionTest",
     "com.squareup.okhttp.internal.http.HttpOverHttp20Draft09Test",
     "com.squareup.okhttp.internal.http.HttpOverSpdy3Test",
