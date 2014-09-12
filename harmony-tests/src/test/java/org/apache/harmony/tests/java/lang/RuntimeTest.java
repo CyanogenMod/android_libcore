@@ -145,21 +145,6 @@ public class RuntimeTest extends junit.framework.TestCase {
         assertTrue("maxMemory() < totalMemory()", r.maxMemory() >= r.totalMemory());
     }
 
-    public void test_freeMemory() {
-        // Heap might grow or do GC at any time, so we can't really test a lot. Hence we are just
-        // doing some basic sanity checks here.
-        long freeBefore = r.freeMemory();
-        List<byte[]> arrays = new ArrayList<byte[]>();
-        for (int i = 1; i < 10; i++) {
-            arrays.add(new byte[10000]);
-        }
-        long freeAfter =  r.freeMemory();
-
-        // If totalMemory() has grown/shrunk freeMemory() might have gone down or up, but the
-        // freeMemory is unlikely to stay the same.
-        assertTrue("free memory must change with allocations", freeAfter != freeBefore);
-    }
-
     public RuntimeTest() {
     }
 
