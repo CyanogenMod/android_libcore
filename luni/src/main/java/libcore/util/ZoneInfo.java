@@ -156,22 +156,21 @@ public final class ZoneInfo extends TimeZone {
             mOffsets[i] -= mRawOffset;
         }
 
-        // Is this zone still observing DST?
+        // Is this zone observing DST currently or in the future?
         // We don't care if they've historically used it: most places have at least once.
-        // We want to know whether the last "schedule info" (the unix times in the mTransitions
-        // array) is in the future. If it is, DST is still relevant.
         // See http://code.google.com/p/android/issues/detail?id=877.
         // This test means that for somewhere like Morocco, which tried DST in 2009 but has
         // no future plans (and thus no future schedule info) will report "true" from
         // useDaylightTime at the start of 2009 but "false" at the end. This seems appropriate.
         boolean usesDst = false;
-        long currentUnixTime = System.currentTimeMillis() / 1000;
-        if (mTransitions.length > 0) {
-            // (We're really dealing with uint32_t values, so long is most convenient in Java.)
-            long latestScheduleTime = ((long) mTransitions[mTransitions.length - 1]) & 0xffffffff;
-            if (currentUnixTime < latestScheduleTime) {
+        int currentUnixTimeSeconds = (int) (System.currentTimeMillis() / 1000);
+        int i = mTransitions.length - 1;
+        while (i >= 0 && mTransitions[i] >= currentUnixTimeSeconds) {
+            if (mIsDsts[mTypes[i]] > 0) {
                 usesDst = true;
+                break;
             }
+            i--;
         }
         mUseDst = usesDst;
 
