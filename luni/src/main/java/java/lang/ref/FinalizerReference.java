@@ -83,12 +83,18 @@ public final class FinalizerReference<T> extends Reference<T> {
      * Waits for all currently-enqueued references to be finalized.
      */
     public static void finalizeAllEnqueued() throws InterruptedException {
-        Sentinel sentinel = new Sentinel();
-        enqueueSentinelReference(sentinel);
+        // Alloate a new sentinel, this creates a FinalizerReference.
+        Sentinel sentinel;
+        // Keep looping until we safely enqueue our sentinel FinalizerReference.
+        // This is done to prevent races where the GC updates the pendingNext
+        // before we get the chance.
+        do {
+            sentinel = new Sentinel();
+        } while (!enqueueSentinelReference(sentinel));
         sentinel.awaitFinalization();
     }
 
-    private static void enqueueSentinelReference(Sentinel sentinel) {
+    private static boolean enqueueSentinelReference(Sentinel sentinel) {
         synchronized (LIST_LOCK) {
             // When a finalizable object is allocated, a FinalizerReference is added to the list.
             // We search the list for that FinalizerReference (it should be at or near the head),
@@ -103,9 +109,15 @@ public final class FinalizerReference<T> extends Reference<T> {
                     // since there could be recently freed objects in the unqueued list which are not
                     // yet on the finalizer queue. This could cause the sentinel to run before the
                     // objects are finalized. b/17381967
-                    sentinelReference.pendingNext = sentinelReference;
+                    // Make circular list if unenqueued goes through native so that we can prevent
+                    // races where the GC updates the pendingNext before we do. If it is non null, then
+                    // we update the pending next to make a circular list while holding a lock.
+                    // b/17462553
+                    if (!sentinelReference.makeCircularListIfUnenqueued()) {
+                        return false;
+                    }
                     ReferenceQueue.add(sentinelReference);
-                    return;
+                    return true;
                 }
             }
         }
@@ -113,6 +125,8 @@ public final class FinalizerReference<T> extends Reference<T> {
         // It must be on the list.
         throw new AssertionError("newly-created live Sentinel not on list!");
     }
+
+    private native boolean makeCircularListIfUnenqueued();
 
     /**
      * A marker object that we can immediately enqueue. When this object's
