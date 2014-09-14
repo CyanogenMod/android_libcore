@@ -41,7 +41,7 @@ public class CertificateRevocationExceptionTest extends TestCase implements Seri
         extensions.put("2.5.29.21", getReasonExtension());
         extensions.put("2.5.29.24", getInvalidityExtension());
         return new CertificateRevokedException(
-                        new Date(108, 0, 1, 14, 34, 11),
+                        new Date(1199226851000L),
                         CRLReason.CESSATION_OF_OPERATION,
                         new X500Principal("CN=test1"),
                         extensions);
