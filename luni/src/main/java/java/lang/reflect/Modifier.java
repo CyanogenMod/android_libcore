@@ -106,7 +106,7 @@ public class Modifier {
      * require they implement.
      * @hide
      */
-    public static final int MIRANDA = 0x8000;
+    public static final int MIRANDA = 0x200000;
 
     /**
      * Dex addition to mark instance constructors and static class
