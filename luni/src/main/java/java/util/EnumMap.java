@@ -36,9 +36,9 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
 
     private Class<K> keyType;
 
-    transient Enum[] keys;
+    transient K[] keys;
 
-    transient Object[] values;
+    transient V[] values;
 
     transient boolean[] hasMapping;
 
@@ -48,8 +48,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
 
     private transient EnumMapEntrySet<K, V> entrySet = null;
 
-    private static class Entry<KT extends Enum<KT>, VT> extends
-            MapEntry<KT, VT> {
+    private static class Entry<KT extends Enum<KT>, VT> extends MapEntry<KT, VT> {
         private final EnumMap<KT, VT> enumMap;
 
         private final int ordinal;
@@ -57,10 +56,9 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
         Entry(KT theKey, VT theValue, EnumMap<KT, VT> em) {
             super(theKey, theValue);
             enumMap = em;
-            ordinal = ((Enum) theKey).ordinal();
+            ordinal = theKey.ordinal();
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public boolean equals(Object object) {
             if (!enumMap.hasMapping[ordinal]) {
@@ -68,7 +66,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
             }
             boolean isEqual = false;
             if (object instanceof Map.Entry) {
-                Map.Entry<KT, VT> entry = (Map.Entry<KT, VT>) object;
+                Map.Entry<?, ?> entry = (Map.Entry<?, ?>) object;
                 Object enumKey = entry.getKey();
                 if (key.equals(enumKey)) {
                     Object theValue = entry.getValue();
@@ -84,37 +82,32 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
 
         @Override
         public int hashCode() {
-            return (enumMap.keys[ordinal] == null ? 0 : enumMap.keys[ordinal]
-                    .hashCode())
+            return (enumMap.keys[ordinal] == null ? 0 : enumMap.keys[ordinal].hashCode())
                     ^ (enumMap.values[ordinal] == null ? 0
                             : enumMap.values[ordinal].hashCode());
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public KT getKey() {
             checkEntryStatus();
-            return (KT) enumMap.keys[ordinal];
+            return enumMap.keys[ordinal];
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public VT getValue() {
             checkEntryStatus();
-            return (VT) enumMap.values[ordinal];
+            return enumMap.values[ordinal];
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public VT setValue(VT value) {
             checkEntryStatus();
-            return enumMap.put((KT) enumMap.keys[ordinal], value);
+            return enumMap.put(enumMap.keys[ordinal], value);
         }
 
         @Override
         public String toString() {
-            StringBuilder result = new StringBuilder(enumMap.keys[ordinal]
-                    .toString());
+            StringBuilder result = new StringBuilder(enumMap.keys[ordinal].toString());
             result.append("=");
             result.append(enumMap.values[ordinal] == null
                     ? "null" : enumMap.values[ordinal].toString());
@@ -128,8 +121,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
         }
     }
 
-    private static class EnumMapIterator<E, KT extends Enum<KT>, VT> implements
-            Iterator<E> {
+    private static class EnumMapIterator<E, KT extends Enum<KT>, VT> implements Iterator<E> {
         int position = 0;
 
         int prePosition = -1;
@@ -153,13 +145,12 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
             return position != length;
         }
 
-        @SuppressWarnings("unchecked")
         public E next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
             prePosition = position++;
-            return type.get(new MapEntry(enumMap.keys[prePosition],
+            return type.get(new MapEntry<KT, VT>(enumMap.keys[prePosition],
                     enumMap.values[prePosition]));
         }
 
@@ -172,13 +163,12 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public String toString() {
             if (prePosition == -1) {
                 return super.toString();
             }
             return type.get(
-                    new MapEntry(enumMap.keys[prePosition],
+                    new MapEntry<KT, VT>(enumMap.keys[prePosition],
                             enumMap.values[prePosition])).toString();
         }
 
@@ -208,8 +198,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public Iterator iterator() {
+        public Iterator<KT> iterator() {
             return new EnumMapIterator<KT, KT, VT>(
                     new MapEntry.Type<KT, KT, VT>() {
                         public KT get(MapEntry<KT, VT> entry) {
@@ -219,7 +208,6 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public boolean remove(Object object) {
             if (contains(object)) {
                 enumMap.remove(object);
@@ -252,9 +240,8 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
             return enumMap.containsValue(object);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        public Iterator iterator() {
+        public Iterator<VT> iterator() {
             return new EnumMapIterator<VT, KT, VT>(
                     new MapEntry.Type<VT, KT, VT>() {
                         public VT get(MapEntry<KT, VT> entry) {
@@ -296,15 +283,14 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
             super(value, em);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public E next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
             prePosition = position++;
-            return type.get(new Entry<KT, VT>((KT) enumMap.keys[prePosition],
-                    (VT) enumMap.values[prePosition], enumMap));
+            return type.get(new EnumMap.Entry<KT, VT>(enumMap.keys[prePosition],
+                    enumMap.values[prePosition], enumMap));
         }
     }
 
@@ -325,8 +311,8 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
         public boolean contains(Object object) {
             boolean isEqual = false;
             if (object instanceof Map.Entry) {
-                Object enumKey = ((Map.Entry) object).getKey();
-                Object enumValue = ((Map.Entry) object).getValue();
+                Object enumKey = ((Map.Entry<?, ?>) object).getKey();
+                Object enumValue = ((Map.Entry<?, ?>) object).getValue();
                 if (enumMap.containsKey(enumKey)) {
                     VT value = enumMap.get(enumKey);
                     if (value == null) {
@@ -352,7 +338,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
         @Override
         public boolean remove(Object object) {
             if (contains(object)) {
-                enumMap.remove(((Map.Entry) object).getKey());
+                enumMap.remove(((Map.Entry<?, ?>) object).getKey());
                 return true;
             }
             return false;
@@ -369,21 +355,22 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
             return toArray(entryArray);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        public Object[] toArray(Object[] array) {
+        public <T> T[] toArray(T[] array) {
             int size = enumMap.size();
             int index = 0;
-            Object[] entryArray = array;
+            T[] entryArray = array;
             if (size > array.length) {
                 Class<?> clazz = array.getClass().getComponentType();
-                entryArray = (Object[]) Array.newInstance(clazz, size);
+                @SuppressWarnings("unchecked") T[] newArray = (T[]) Array.newInstance(clazz, size);
+                entryArray = newArray;
             }
             Iterator<Map.Entry<KT, VT>> iter = iterator();
             for (; index < size; index++) {
                 Map.Entry<KT, VT> entry = iter.next();
-                entryArray[index] = new MapEntry<KT, VT>(entry.getKey(), entry
-                        .getValue());
+                @SuppressWarnings("unchecked") T newEntry =
+                        (T) new MapEntry<KT, VT>(entry.getKey(), entry.getValue());
+                entryArray[index] = newEntry;
             }
             if (index < array.length) {
                 entryArray[index] = null;
@@ -431,22 +418,27 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
      * @throws NullPointerException
      *             if {@code map} is {@code null}.
      */
-    @SuppressWarnings("unchecked")
     public EnumMap(Map<K, ? extends V> map) {
         if (map instanceof EnumMap) {
-            initialization((EnumMap<K, V>) map);
+            @SuppressWarnings("unchecked") EnumMap<K, ? extends V> enumMap =
+                    (EnumMap<K, ? extends V>) map;
+            initialization(enumMap);
         } else {
             if (map.isEmpty()) {
                 throw new IllegalArgumentException("map is empty");
             }
             Iterator<K> iter = map.keySet().iterator();
             K enumKey = iter.next();
-            Class clazz = enumKey.getClass();
-            if (clazz.isEnum()) {
-                initialization(clazz);
-            } else {
-                initialization(clazz.getSuperclass());
+            // Confirm the key is actually an enum: Throw ClassCastException if not.
+            Enum.class.cast(enumKey);
+            Class<?> clazz = enumKey.getClass();
+            if (!clazz.isEnum()) {
+                // Each enum value can have its own subclass. In this case we want the abstract
+                // super-class which has the values() method.
+                clazz = clazz.getSuperclass();
             }
+            @SuppressWarnings("unchecked") Class<K> enumClass = (Class<K>) clazz;
+            initialization(enumClass);
             putAllImpl(map);
         }
     }
@@ -469,11 +461,10 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
      *
      * @return a shallow copy of this {@code EnumMap}.
      */
-    @SuppressWarnings("unchecked")
     @Override
     public EnumMap<K, V> clone() {
         try {
-            EnumMap<K, V> enumMap = (EnumMap<K, V>) super.clone();
+            @SuppressWarnings("unchecked") EnumMap<K, V> enumMap = (EnumMap<K, V>) super.clone();
             enumMap.initialization(this);
             return enumMap;
         } catch (CloneNotSupportedException e) {
@@ -553,7 +544,6 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
      * @see #hashCode()
      * @see #entrySet()
      */
-    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(Object object) {
         if (this == object) {
@@ -562,7 +552,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
         if (!(object instanceof EnumMap)) {
             return super.equals(object);
         }
-        EnumMap<K, V> enumMap = (EnumMap<K, V>) object;
+        @SuppressWarnings("unchecked") EnumMap<K, V> enumMap = (EnumMap<K, V>) object;
         if (keyType != enumMap.keyType || size() != enumMap.size()) {
             return false;
         }
@@ -579,13 +569,12 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
      *         if no mapping for the specified key is found.
      */
     @Override
-    @SuppressWarnings("unchecked")
     public V get(Object key) {
         if (!isValidKeyType(key)) {
             return null;
         }
         int keyOrdinal = ((Enum) key).ordinal();
-        return (V) values[keyOrdinal];
+        return values[keyOrdinal];
     }
 
     /**
@@ -627,7 +616,6 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
      *                support {@code null} keys or values.
      */
     @Override
-    @SuppressWarnings("unchecked")
     public V put(K key, V value) {
         return putImpl(key, value);
     }
@@ -649,7 +637,6 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
      *                support {@code null} keys or values.
      */
     @Override
-    @SuppressWarnings("unchecked")
     public void putAll(Map<? extends K, ? extends V> map) {
         putAllImpl(map);
     }
@@ -665,7 +652,6 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
      *                if removing from this {@code EnumMap} is not supported.
      */
     @Override
-    @SuppressWarnings("unchecked")
     public V remove(Object key) {
         if (!isValidKeyType(key)) {
             return null;
@@ -675,7 +661,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
             hasMapping[keyOrdinal] = false;
             mappingsCount--;
         }
-        V oldValue = (V) values[keyOrdinal];
+        V oldValue = values[keyOrdinal];
         values[keyOrdinal] = null;
         return oldValue;
     }
@@ -716,35 +702,29 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
         stream.defaultReadObject();
         initialization(keyType);
         int elementCount = stream.readInt();
-        Enum<K> enumKey;
-        Object value;
+        K enumKey;
+        V value;
         for (int i = elementCount; i > 0; i--) {
-            enumKey = (Enum<K>) stream.readObject();
-            value = stream.readObject();
-            putImpl((K) enumKey, (V) value);
+            enumKey = (K) stream.readObject();
+            value = (V) stream.readObject();
+            putImpl(enumKey, value);
         }
     }
 
     private void writeObject(ObjectOutputStream stream) throws IOException {
         stream.defaultWriteObject();
         stream.writeInt(mappingsCount);
-        Iterator<Map.Entry<K, V>> iterator = entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<K, V> entry = iterator.next();
+        for (Map.Entry<K, V> entry : entrySet()) {
             stream.writeObject(entry.getKey());
             stream.writeObject(entry.getValue());
         }
     }
 
     private boolean isValidKeyType(Object key) {
-        if (key != null && keyType.isInstance(key)) {
-            return true;
-        }
-        return false;
+        return key != null && keyType.isInstance(key);
     }
 
-    @SuppressWarnings("unchecked")
-    private void initialization(EnumMap enumMap) {
+    private void initialization(EnumMap<K, ? extends V> enumMap) {
         keyType = enumMap.keyType;
         keys = enumMap.keys;
         enumSize = enumMap.enumSize;
@@ -757,20 +737,19 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
         keyType = type;
         keys = Enum.getSharedConstants(keyType);
         enumSize = keys.length;
-        values = new Object[enumSize];
+        // The value array is actually Object[] for speed of creation. It is treated as a V[]
+        // because it is safe to do so and eliminates unchecked warning suppression throughout.
+        @SuppressWarnings("unchecked") V[] valueArray = (V[]) new Object[enumSize];
+        values = valueArray;
         hasMapping = new boolean[enumSize];
     }
 
-    @SuppressWarnings("unchecked")
-    private void putAllImpl(Map map) {
-        Iterator iter = map.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry entry = (Map.Entry) iter.next();
-            putImpl((K) entry.getKey(), (V) entry.getValue());
+    private void putAllImpl(Map<? extends K, ? extends V> map) {
+        for (Map.Entry<? extends K, ? extends V> entry : map.entrySet()) {
+            putImpl(entry.getKey(), entry.getValue());
         }
     }
 
-    @SuppressWarnings("unchecked")
     private V putImpl(K key, V value) {
         if (key == null) {
             throw new NullPointerException("key == null");
@@ -781,7 +760,7 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements
             hasMapping[keyOrdinal] = true;
             mappingsCount++;
         }
-        V oldValue = (V) values[keyOrdinal];
+        V oldValue = values[keyOrdinal];
         values[keyOrdinal] = value;
         return oldValue;
     }
