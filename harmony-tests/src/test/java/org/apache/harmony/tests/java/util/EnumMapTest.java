@@ -233,6 +233,17 @@ public class EnumMapTest extends TestCase {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public void testConstructor_badMapArg() {
+        HashMap badMap = new HashMap();
+        badMap.put("NotAnEnum", "Value");
+        try {
+            new EnumMap<Color, String>(badMap);
+            fail();
+        } catch (ClassCastException expected) {
+        }
+    }
+
     /**
      * java.util.EnumMap#clear()
      */
