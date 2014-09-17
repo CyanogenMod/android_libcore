@@ -26,31 +26,21 @@ import libcore.io.IoUtils;
 
 public class FilePreferencesImplTest extends TestCase {
 
-    private String prevFactory;
     private Preferences uroot;
     private Preferences sroot;
-    private PreferencesFactory defaultFactory;
 
     @Override
     protected void setUp() throws Exception {
-        prevFactory = System.getProperty("java.util.prefs.PreferencesFactory");
-        System.setProperty("java.util.prefs.PreferencesFactory", "java.util.prefs.FilePreferencesFactoryImpl");
+        File tmpDir = IoUtils.createTemporaryDirectory("FilePreferencesImplTest");
+        AbstractPreferencesTest.TestPreferencesFactory factory
+                = new AbstractPreferencesTest.TestPreferencesFactory(tmpDir.getAbsolutePath());
 
-        File tmpDir = IoUtils.createTemporaryDirectory("OldAbstractPreferencesTest");
-        defaultFactory = Preferences.setPreferencesFactory(
-                new AbstractPreferencesTest.TestPreferencesFactory(tmpDir.getAbsolutePath()));
-
-        uroot = Preferences.userRoot().node("harmony_test");
-        sroot = Preferences.systemRoot().node("harmony_test");
+        uroot = factory.userRoot().node("harmony_test");
+        sroot = factory.systemRoot().node("harmony_test");
     }
 
     @Override
     protected void tearDown() throws Exception {
-        Preferences.setPreferencesFactory(defaultFactory);
-        if (prevFactory != null) {
-            System.setProperty("java.util.prefs.PreferencesFactory", prevFactory);
-        }
-
         uroot.removeNode();
         sroot.removeNode();
         uroot = null;
