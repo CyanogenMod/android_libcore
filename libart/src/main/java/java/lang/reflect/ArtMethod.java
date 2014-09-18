@@ -70,8 +70,9 @@ public final class ArtMethod {
     /**
      * Method dispatch from portable compiled code invokes this pointer which may cause bridging
      * into quick compiled code or the interpreter.
+     * Uncomment to enable.
      */
-    private long entryPointFromPortableCompiledCode;
+    // private long entryPointFromPortableCompiledCode;
 
     /**
      * Method dispatch from quick compiled code invokes this pointer which may cause bridging
