@@ -192,6 +192,7 @@ public final class Daemons {
                 // The RI silently swallows these, but Android has always logged.
                 System.logE("Uncaught exception thrown by finalizer", ex);
             } finally {
+                // Done finalizing, stop holding the object as live.
                 finalizingObject = null;
             }
         }
@@ -207,24 +208,29 @@ public final class Daemons {
 
         @Override public void run() {
             while (isRunning()) {
-                Object object = waitForObject();
-                if (object == null) {
+                boolean waitSuccessful = waitForObject();
+                if (waitSuccessful == false) {
                     // We have been interrupted, need to see if this daemon has been stopped.
                     continue;
                 }
-                boolean finalized = waitForFinalization(object);
+                boolean finalized = waitForFinalization();
                 if (!finalized && !VMRuntime.getRuntime().isDebuggerActive()) {
-                    finalizerTimedOut(object);
-                    break;
+                    Object finalizedObject = FinalizerDaemon.INSTANCE.finalizingObject;
+                    // At this point we probably timed out, look at the object in case the finalize
+                    // just finished.
+                    if (finalizedObject != null) {
+                        finalizerTimedOut(finalizedObject);
+                        break;
+                    }
                 }
             }
         }
 
-        private Object waitForObject() {
+        private boolean waitForObject() {
             while (true) {
                 Object object = FinalizerDaemon.INSTANCE.finalizingObject;
                 if (object != null) {
-                    return object;
+                    return true;
                 }
                 synchronized (this) {
                     // wait until something is ready to be finalized
@@ -233,7 +239,7 @@ public final class Daemons {
                         wait();
                     } catch (InterruptedException e) {
                         // Daemon.stop may have interrupted us.
-                        return null;
+                        return false;
                     }
                 }
             }
@@ -257,9 +263,14 @@ public final class Daemons {
             }
         }
 
-        private boolean waitForFinalization(Object object) {
-            sleepFor(FinalizerDaemon.INSTANCE.finalizingStartedNanos, MAX_FINALIZE_NANOS);
-            return object != FinalizerDaemon.INSTANCE.finalizingObject;
+        private boolean waitForFinalization() {
+            long startTime = FinalizerDaemon.INSTANCE.finalizingStartedNanos;
+            sleepFor(startTime, MAX_FINALIZE_NANOS);
+            // If we are finalizing an object and the start time is the same, it must be that we
+            // timed out finalizing something. It may not be the same object that we started out
+            // with but this doesn't matter.
+            return FinalizerDaemon.INSTANCE.finalizingObject == null ||
+                   FinalizerDaemon.INSTANCE.finalizingStartedNanos != startTime;
         }
 
         private static void finalizerTimedOut(Object object) {
