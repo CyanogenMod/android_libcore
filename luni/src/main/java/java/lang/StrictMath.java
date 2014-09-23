@@ -16,8 +16,7 @@
  */
 
 /*
- * acos, asin, atan, cosh, sinh, tanh, exp, expm1, log, log10, log1p, cbrt,
- * ceil, floor, IEEEremainder, rint, nextafter, and hypot
+ * acos, asin, atan, cosh, sinh, tanh, exp, expm1, log, log10, log1p, and cbrt
  * have been implemented with the following license.
  * ====================================================
  * Copyright (C) 2004 by Sun Microsystems, Inc. All rights reserved.
@@ -601,71 +600,7 @@ public final class StrictMath {
      * <li>{@code ceil(NaN) = NaN}</li>
      * </ul>
      */
-    public static double ceil(double x) {
-        final long x_asRawLongBits = Double.doubleToRawLongBits(x);
-        int i0 = (int) (x_asRawLongBits >>> 32);
-        int i1 = (int) x_asRawLongBits;
-        final int j0 = ((i0 >> 20) & 0x7ff) - 0x3ff;
-
-        if (j0 < 20) {
-            // Case where x is not zero.
-            if (j0 < 0) {
-                // Case where absolute value of x is less than 1.
-                if (HUGE + x > 0.0) {
-                    if (i0 < 0) {
-                        i0 = 0x80000000;
-                        i1 = 0;
-                    } else if ((i0 | i1) != 0) {
-                        i0 = 0x3ff00000;
-                        i1 = 0;
-                    }
-                }
-            } else {
-                int i = (0x000fffff) >> j0;
-                if (((i0 & i) | i1) == 0) {
-                    return x;
-                } else if (HUGE + x > 0.0) {
-                    if (i0 > 0) {
-                        i0 += (0x00100000) >> j0;
-                    }
-                    i0 &= (~i);
-                    i1 = 0;
-                }
-            }
-        } else if (j0 > 51) {
-            if (j0 == 0x400) {
-                return x + x;
-            } else {
-                return x;
-            }
-        } else {
-            int i = (0xffffffff) >>> (j0 - 20);
-            if ((i1 & i) == 0) {
-                return x;
-            }
-            if (HUGE + x > 0.0) {
-                if (i0 > 0) {
-                    if (j0 == 20) {
-                        i0 += 1;
-                    } else {
-                        int j = i1 + (1 << (52 - j0));
-                        if ((j ^ Integer.MIN_VALUE) < (i1 ^ Integer.MIN_VALUE)) {
-                            // Carry value over for rounding purposes.
-                            i0 += 1;
-                        }
-                        i1 = j;
-                    }
-                }
-                i1 &= (~i);
-            }
-        }
-        x = Double.doubleToRawLongBits(i1);
-        long bits = Double.doubleToRawLongBits(x);
-        bits &= 0x00000000FFFFFFFF;
-        bits |= ((long) i0) << 32;
-        x = Double.longBitsToDouble(bits);
-        return x;
-    }
+    public static native double ceil(double d);
 
     private static final long ONEBITS = Double.doubleToRawLongBits(1.00000000000000000000e+00)
             & 0x00000000ffffffffL;
@@ -885,7 +820,7 @@ public final class StrictMath {
         xsb = highBits & 0x80000000; /* sign bit of x */
         y = xsb == 0 ? x : -x; /* y = |x| */
 
-        /* filter out HUGE and non-finite argument */
+        /* filter out huge and non-finite argument */
         if (hx >= 0x4043687A) { /* if |x|>=56*ln2 */
             if (hx >= 0x40862E42) { /* if |x|>=709.78... */
                 if (hx >= 0x7ff00000) {
@@ -996,72 +931,7 @@ public final class StrictMath {
      * <li>{@code floor(NaN) = NaN}</li>
      * </ul>
      */
-    public static double floor(double x) {
-        final long x_asRawLongBits = Double.doubleToRawLongBits(x);
-        int i0 = (int) (x_asRawLongBits >>> 32);
-        int i1 = (int) x_asRawLongBits;
-        int j0 = ((i0 >> 20) & 0x7ff) - 0x3ff;
-
-        if (j0 < 20) {
-            // Case where x is not zero.
-            if (j0 < 0) {
-                // Case where absolute value of x is less than 1.
-                if (HUGE + x > 0.0) {
-                    if (i0 >= 0) {
-                        i0 = 0;
-                        i1 = 0;
-                    } else if (((i0 & 0x7fffffff) | i1) != 0) {
-                        i0 = 0xbff00000;
-                        i1 = 0;
-                    }
-                }
-            } else {
-                int i = (0x000fffff) >> j0;
-                if (((i0 & i) | i1) == 0) {
-                    return x;
-                }
-                if (HUGE + x > 0.0) {
-                    if (i0 < 0) {
-                        i0 += (0x00100000) >> j0;
-                    }
-                    i0 &= (~i);
-                    i1 = 0;
-                }
-            }
-        } else if (j0 > 51) {
-            if (j0 == 0x400) {
-                return x + x;
-            } else {
-                return x;
-            }
-        } else {
-            int i = (0xffffffff) >>> (j0 - 20);
-            if ((i1 & i) == 0) {
-                return x;
-            }
-            if (HUGE + x > 0.0) {
-                if (i0 < 0) {
-                    if (j0 == 20) {
-                        i0 += 1;
-                    } else {
-                        int j = i1 + (1 << (52 - j0));
-                        if (j < i1) {
-                            // Carry value over for rounding purposes.
-                            i0 += 1;
-                        }
-                        i1 = j;
-                    }
-                }
-                i1 &= (~i);
-            }
-        }
-        x = Double.doubleToRawLongBits(i1);
-        long bits = Double.doubleToRawLongBits(x);
-        bits &= 0x00000000FFFFFFFF;
-        bits |= ((long) i0) << 32;
-        x = Double.longBitsToDouble(bits);
-        return x;
-    }
+    public static native double floor(double d);
 
     /**
      * Returns {@code sqrt(}<i>{@code x}</i><sup>{@code 2}</sup>{@code +} <i>
@@ -1085,134 +955,7 @@ public final class StrictMath {
      *         <i> {@code y}</i><sup>{@code 2}</sup>{@code )} value of the
      *         arguments.
      */
-    public static double hypot(double x, double y) {
-        double a;
-        double b;
-        double t1;
-        double t2;
-        double y1;
-        double y2;
-        double w;
-        int j;
-        long bits;
-        x = StrictMath.abs(x);
-        y = StrictMath.abs(y);
-        // Convert x and y to long values for bitwise manipulation.
-        long x_asRawLongBits = Double.doubleToRawLongBits(x);
-        long y_asRawLongBits = Double.doubleToRawLongBits(y);
-        long ha = (x_asRawLongBits >> 32) & 0x7fffffff;
-        long hb = (y_asRawLongBits >> 32) & 0x7fffffff;
-        // Ensures that a is always the larger value.
-        if (hb > ha) {
-            a = y;
-            b = x;
-            j = (int) ha;
-            ha = hb;
-            hb = j;
-        } else {
-            a = x;
-            b = y;
-        }
-        // Deals with edge case where x is significantly larger than y.
-        if ((ha - hb) > 0x3c00000) {
-            if (a + b == Double.NEGATIVE_INFINITY) {
-                return Double.POSITIVE_INFINITY;
-            } else {
-                return a + b;
-            }
-        }
-        int k = 0;
-        // Deals with edge cases where numbers are infinite or invalid.
-        if (ha > 0x5f300000) {
-            if (ha >= 0x7ff00000) {
-                w = a + b;
-                if (((ha & 0xfffff) | Double.doubleToRawLongBits(a)) == 0) {
-                    w = a;
-                }
-                if (((hb ^ 0x7ff00000) | Double.doubleToRawLongBits(b)) == 0) {
-                    w = b;
-                }
-                return w;
-            }
-            // Scale a and b by 2**-600.
-            ha -= 0x25800000;
-            hb -= 0x25800000;
-            k += 600;
-            bits = Double.doubleToRawLongBits(a);
-            bits &= 0x00000000FFFFFFFF;
-            bits |= ((long) ha) << 32;
-            a = Double.longBitsToDouble(bits);
-
-            bits = Double.doubleToRawLongBits(b);
-            bits &= 0x00000000FFFFFFFF;
-            bits |= ((long) hb) << 32;
-            b = Double.longBitsToDouble(bits);
-        }
-        // Deals with cases where lesser number is abnormally small.
-        if (hb < 0x20b00000) {
-            if (hb <= 0x000fffff) {
-                if ((hb | (Double.doubleToRawLongBits(b))) == 0) {
-                    return a;
-                }
-                t1 = 0;
-                bits = Double.doubleToRawLongBits(t1);
-                bits &= 0x00000000FFFFFFFF;
-                bits |= ((long) 0x7fd00000) << 32;
-                t1 = Double.longBitsToDouble(bits);
-                b *= t1;
-                a *= t1;
-                k -= 1022;
-            } else {
-                ha += 0x25800000;
-                hb += 0x25800000;
-                k -= 600;
-                bits = Double.doubleToRawLongBits(a);
-                bits &= 0x00000000FFFFFFFF;
-                bits |= ((long) ha) << 32;
-                a = Double.longBitsToDouble(bits);
-                bits = Double.doubleToRawLongBits(b);
-                bits &= 0x00000000FFFFFFFF;
-                bits |= ((long) hb) << 32;
-                b = Double.longBitsToDouble(bits);
-            }
-        }
-        // Deals with cases where both numbers are not overly large or small.
-        w = a - b;
-        if (w > b) {
-            t1 = 0;
-            bits = Double.doubleToRawLongBits(t1);
-            bits &= 0x00000000FFFFFFFF;
-            bits |= ((long) ha) << 32;
-            t1 = Double.longBitsToDouble(bits);
-            t2 = a - t1;
-            w = StrictMath.sqrt(t1 * t1 - (b * (-b) - t2 * (a + t1)));
-        } else {
-            a = a + a;
-            y1 = 0;
-            bits = Double.doubleToRawLongBits(y1);
-            bits &= 0x00000000FFFFFFFF;
-            bits |= ((long) hb) << 32;
-            y1 = Double.longBitsToDouble(bits);
-            y2 = b - y1;
-            t1 = 0;
-            bits = Double.doubleToRawLongBits(t1);
-            bits &= 0x00000000FFFFFFFF;
-            bits |= ((long) ha + 0x00100000) << 32;
-            t1 = Double.longBitsToDouble(bits);
-            t2 = a - t1;
-            w = StrictMath.sqrt(t1 * y1 - (w * (-w) - (t1 * y2 + t2 * b)));
-        }
-        if (k != 0) {
-            t1 = 1.0;
-            bits = Double.doubleToRawLongBits(t1);
-            bits &= 0x00000000FFFFFFFF;
-            bits |= ((long) (k << 20)) << 32;
-            t1 = Double.longBitsToDouble(bits);
-            return t1 * w;
-        } else {
-            return w;
-        }
-    }
+    public static native double hypot(double x, double y);
 
     /**
      * Returns the remainder of dividing {@code x} by {@code y} using the IEEE
@@ -1239,72 +982,7 @@ public final class StrictMath {
      *            the denominator of the operation.
      * @return the IEEE754 floating point reminder of of {@code x/y}.
      */
-    public static double IEEEremainder(double x, double y) {
-        final double zero = 0.0;
-        // Convert x and y to long data types.
-        final long x_asRawLongBits = Double.doubleToRawLongBits(x);
-        int hx = (int) (x_asRawLongBits >>> 32);
-        int lx = (int) x_asRawLongBits;
-        final long y_asRawLongBits = Double.doubleToRawLongBits(y);
-        int hy = (int) (y_asRawLongBits >>> 32);
-        int ly = (int) y_asRawLongBits;
-        long sx = hx & 0x80000000;
-        hy &= 0x7fffffff;
-        hx &= 0x7fffffff;
-
-        // Deals with edge cases like y = 0 and x or y is NaN.
-        if ((hy | ly) == 0) {
-            return (x * y) / (x * y);
-        }
-        if ((hx >= 0x7ff00000) || ((hy >= 0x7ff00000) && (((hy - 0x7ff00000) | ly) != 0))) {
-            return (x * y) / (x * y);
-        }
-        if (hy <= 0x7fdfffff) {
-            x = x % (y + y);
-        }
-        if (((hx - hy) | (lx - ly)) == 0) {
-            return zero * x;
-        }
-
-        // Ensures positive remainders are returned.
-        double x1 = x;
-        double y1 = y;
-        x = StrictMath.abs(x);
-        y = StrictMath.abs(y);
-        double z = x;
-        if (hy < 0x00200000) {
-            if (x + x > y) {
-                z -= y;
-                if (z + z >= y) {
-                    z -= y;
-                }
-            }
-        } else {
-            double y_half = 0.5 * y;
-            if (x > y_half) {
-                z -= y;
-                if (z >= y_half) {
-                    z -= y;
-                }
-            }
-        }
-
-        long bits = Double.doubleToRawLongBits(z);
-        bits &= 0x00000000FFFFFFFF;
-        bits |= ((long) (sx)) << 32;
-        z = Double.longBitsToDouble(bits);
-
-        if (x < y && x1 < 0) {
-            if ((y - x) < x) {
-                z *= -1;
-            }
-        } else if (x >= y && x1 < 0) {
-            if ((x - y) > y / 2) {
-                z *= -1;
-            }
-        }
-        return z;
-    }
+    public static native double IEEEremainder(double x, double y);
 
     private static final double LG1 = 6.666666666666735130e-01;
     private static final double LG2 = 3.999999999940941908e-01;
@@ -1807,87 +1485,7 @@ public final class StrictMath {
      *            the value to be rounded.
      * @return the closest integer to the argument (as a double).
      */
-    public static double rint(double x) {
-        double w;
-        double t;
-        long bits;
-        // Magic numbers from the fdlibm code.
-        double m0 = 4.50359962737049600000e+15;
-        double m1 = -4.50359962737049600000e+15;
-
-        // Converting x to a long type for bitwise operations.
-        final long x_asRawLongBits = Double.doubleToRawLongBits(x);
-        int i0 = (int) (x_asRawLongBits >>> 32);
-        int i1 = (int) x_asRawLongBits;
-        int sx = (i0 >> 31) & 1;
-        int j0 = ((i0 >> 20) & 0x7ff) - 0x3ff;
-
-        if (j0 < 20) {
-            if (j0 < 0) {
-                if (((i0 & 0x7fffffff) | i1) == 0) {
-                    return x;
-                }
-                i1 |= (i0 & 0x0fffff);
-                i0 &= 0xfffe0000;
-                i0 |= ((i1 | -i1) >> 12) & 0x80000;
-
-                // Convert x to long and replace its upper bits with i0.
-                bits = Double.doubleToRawLongBits(x);
-                bits &= 0x00000000FFFFFFFF;
-                bits |= ((long) (i0)) << 32;
-                x = Double.longBitsToDouble(bits);
-
-                if (sx == 0) {
-                    w = m0 + x;
-                    t = w - m0;
-                } else {
-                    w = m1 + x;
-                    t = w - m1;
-                }
-                i0 = (int) (Double.doubleToRawLongBits(t) >>> 32);
-                bits = Double.doubleToRawLongBits(t);
-                bits &= 0x00000000FFFFFFFF;
-                bits |= ((long) ((i0 & 0x7fffffff) | (sx << 31))) << 32;
-                t = Double.longBitsToDouble(bits);
-                return t;
-            } else {
-                int i = (0x000fffff) >> j0;
-                if (((i0 & i) | i1) == 0) {
-                    return x;
-                }
-                i >>= 1;
-                if (((i0 & i) | i1) != 0) {
-                    if (j0 == 19) {
-                        i1 = 0x40000000;
-                    } else {
-                        i0 = (i0 & (~i)) | ((0x20000) >> j0);
-                    }
-                }
-            }
-        } else if (j0 > 51) {
-            if (j0 == 0x400) {
-                return x + x;
-            } else {
-                return x;
-            }
-        } else {
-            int i = ((int) (0xffffffff)) >> (j0 - 20);
-            if ((i1 & i) == 0) {
-                return x;
-            }
-            i >>= 1;
-            if ((i1 & i) != 0) {
-                i1 = (i1 & (~i)) | ((0x40000000) >> (j0 - 20));
-            }
-        }
-        if (sx == 0) {
-            w = m0 + x;
-            return w - m0;
-        } else {
-            w = m1 + x;
-            return w - m1;
-        }
-    }
+    public static native double rint(double d);
 
     /**
      * Returns the result of rounding the argument to an integer. The result is
@@ -2249,73 +1847,7 @@ public final class StrictMath {
         return Math.ulp(f);
     }
 
-    /**
-     * Returns the next machine floating-point number of x in the direction
-     * toward y.
-     */
-    private static double nextafter(double x, double y) {
-        double small = 1.4e-45;
-        long bits;
-        boolean raise = false;
-        boolean lower = false;
-        final long x_asRawLongBits = Double.doubleToRawLongBits(x);
-        final long y_asRawLongBits = Double.doubleToRawLongBits(y);
-        int hx = (int) x_asRawLongBits;
-        int lx = ((int) (x_asRawLongBits >>> 32)) & 0x7fffffff;
-        int hy = (int) y_asRawLongBits;
-        int ly = ((int) (y_asRawLongBits >>> 32)) & 0x7fffffff;
-        int ix = hx & 0x7fffffff;
-        int iy = hy & 0x7fffffff;
-        // Deals with edge cases where x and y are 0, invalid, or equal.
-        if (Double.isNaN(x) || Double.isNaN(y)) {
-            return Double.NaN;
-        }
-        if (x == y) {
-            return x;
-        }
-        if ((ix | lx) == 0) {
-            return small;
-        }
-        // Sets boolean to adjust return value depending on the signs of x and y.
-        if (x >= 0) {
-            if (x > y || ((hx == hy) && (lx > ly))) {
-                lower = true;
-            } else {
-                raise = true;
-            }
-        } else {
-            if (x > y || ((hx == hy) && (lx > ly))) {
-                raise = true;
-            } else {
-                lower = true;
-            }
-        }
-        hy = hx & 0x7ff00000;
-        if (hy >= 0x7ff00000) {
-            return x + x;
-        }
-        if (hy < 0x00100000) {
-            y = x * x;
-            if (y != x) {
-                bits = Double.doubleToRawLongBits(y);
-                bits &= 0x00000000FFFFFFFF;
-                bits |= ((long) (hy)) << 32;
-                y = Double.longBitsToDouble(bits);
-                return y;
-            }
-        }
-        // Adjust the return value if necessary.
-        bits = Double.doubleToRawLongBits(x);
-        bits &= 0x00000000FFFFFFFF;
-        if (lower) {
-            bits -= 1;
-        }
-        if (raise) {
-            bits += 1;
-        }
-        x = Double.longBitsToDouble(bits);
-        return x;
-    }
+    private static native double nextafter(double x, double y);
 
     /**
      * Returns a double with the given magnitude and the sign of {@code sign}.
