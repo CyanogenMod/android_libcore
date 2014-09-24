@@ -28,6 +28,18 @@
 #include <openssl/err.h>
 #include <stdio.h>
 
+#if defined(OPENSSL_IS_BORINGSSL)
+/* BoringSSL no longer exports |bn_check_top|. */
+static void bn_check_top(const BIGNUM* bn) {
+  /* This asserts that |bn->top| (which contains the number of elements of
+   * |bn->d| that are valid) is minimal. In other words, that there aren't
+   * superfluous zeros. */
+  if (bn != NULL && bn->top != 0 && bn->d[bn->top-1] == 0) {
+    abort();
+  }
+}
+#endif
+
 struct BN_CTX_Deleter {
   void operator()(BN_CTX* p) const {
     BN_CTX_free(p);
@@ -109,28 +121,32 @@ static void NativeBN_BN_copy(JNIEnv* env, jclass, jlong to, jlong from) {
 }
 
 static void NativeBN_putULongInt(JNIEnv* env, jclass, jlong a0, jlong java_dw, jboolean neg) {
-    if (!oneValidHandle(env, a0)) return;
+  if (!oneValidHandle(env, a0)) return;
 
-    uint64_t dw = java_dw;
+  uint64_t dw = java_dw;
+  BIGNUM* a = toBigNum(a0);
+  int ok;
 
-    // cf. litEndInts2bn:
-    BIGNUM* a = toBigNum(a0);
-    bn_check_top(a);
-    if (bn_wexpand(a, 8/BN_BYTES) != NULL) {
-#ifdef __LP64__
+  static_assert(sizeof(dw) == sizeof(BN_ULONG) ||
+                sizeof(dw) == 2*sizeof(BN_ULONG), "Unknown BN configuration");
+
+  if (sizeof(dw) == sizeof(BN_ULONG)) {
+    ok = BN_set_word(a, dw);
+  } else if (sizeof(dw) == 2 * sizeof(BN_ULONG)) {
+    ok = (bn_wexpand(a, 2) != NULL);
+    if (ok) {
       a->d[0] = dw;
-#else
-      unsigned int hi = dw >> 32; // This shifts without sign extension.
-      int lo = (int)dw; // This truncates implicitly.
-      a->d[0] = lo;
-      a->d[1] = hi;
-#endif
-      a->top = 8 / BN_BYTES;
-      a->neg = neg;
+      a->d[1] = dw >> 32;
+      a->top = 2;
       bn_correct_top(a);
-    } else {
-      throwExceptionIfNecessary(env);
     }
+  }
+
+  BN_set_negative(a, neg);
+
+  if (!ok) {
+    throwExceptionIfNecessary(env);
+  }
 }
 
 static void NativeBN_putLongInt(JNIEnv* env, jclass cls, jlong a, jlong dw) {
@@ -240,25 +256,25 @@ static void negBigEndianBytes2bn(JNIEnv*, jclass, const unsigned char* bytes, in
 
   bn_check_top(ret);
   // FIXME: assert bytesLen > 0
-  int wLen = (bytesLen + BN_BYTES - 1) / BN_BYTES;
+  int wLen = (bytesLen + sizeof(BN_ULONG) - 1) / sizeof(BN_ULONG);
   int firstNonzeroDigit = -2;
   if (bn_wexpand(ret, wLen) != NULL) {
     BN_ULONG* d = ret->d;
     BN_ULONG di;
     ret->top = wLen;
-    int highBytes = bytesLen % BN_BYTES;
+    int highBytes = bytesLen % sizeof(BN_ULONG);
     int k = bytesLen;
     // Put bytes to the int array starting from the end of the byte array
     int i = 0;
     while (k > highBytes) {
-      k -= BN_BYTES;
+      k -= sizeof(BN_ULONG);
       di = BYTES2ULONG(bytes, k);
       if (di != 0) {
         d[i] = -di;
         firstNonzeroDigit = i;
         i++;
         while (k > highBytes) {
-          k -= BN_BYTES;
+          k -= sizeof(BN_ULONG);
           d[i] = ~BYTES2ULONG(bytes, k);
           i++;
         }
@@ -394,7 +410,7 @@ static jintArray NativeBN_bn2litEndInts(JNIEnv* env, jclass, jlong a0) {
   if (wLen == 0) {
     return NULL;
   }
-  jintArray result = env->NewIntArray(wLen * BN_BYTES/sizeof(unsigned int));
+  jintArray result = env->NewIntArray(wLen * sizeof(BN_ULONG)/sizeof(unsigned int));
   if (result == NULL) {
     return NULL;
   }
@@ -445,7 +461,7 @@ static int NativeBN_bitLength(JNIEnv* env, jclass, jlong a0) {
     do { i--; } while (!((i < 0) || (d[i] != 0)));
     if (i < 0) msd--; // Only if all lower significant digits are 0 we decrement the most significant one.
   }
-  return (wLen - 1) * BN_BYTES * 8 + BN_num_bits_word(msd);
+  return (wLen - 1) * sizeof(BN_ULONG) * 8 + BN_num_bits_word(msd);
 }
 
 static jboolean NativeBN_BN_is_bit_set(JNIEnv* env, jclass, jlong a, int n) {
