@@ -28,19 +28,6 @@ public final class ZygoteHooks {
     private long token;
 
     /**
-     * Temporary hack: check time since start time and log if over a fixed threshold.
-     *
-     */
-    private static void checkTime(long startTime, String where) {
-        long now = System.nanoTime();
-        long msDuration = (now - startTime) / (1000 * 1000);
-        if (msDuration > 1000) {
-            // If we are taking more than a second, log about it.
-            System.logW("Slow operation: " + msDuration + "ms so far, now at " + where);
-        }
-    }
-
-    /**
      * Called by the zygote prior to every fork. Each call to {@code preFork}
      * is followed by a matching call to {@link #postForkChild(int)} on the child
      * process and {@link #postForkCommon()} on both the parent and the child
@@ -48,13 +35,9 @@ public final class ZygoteHooks {
      * the child process.
      */
     public void preFork() {
-        long startTime = System.nanoTime();
         Daemons.stop();
-        checkTime(startTime, "ZygoteHooks.Daemons.stop");
         waitUntilAllThreadsStopped();
-        checkTime(startTime, "ZygoteHooks.waituntilallthreadsstopped");
         token = nativePreFork();
-        checkTime(startTime, "ZygoteHooks.Daemons.nativePreFork");
     }
 
     /**

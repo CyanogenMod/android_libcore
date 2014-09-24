@@ -35,47 +35,20 @@ public final class Daemons {
     private static final int NANOS_PER_SECOND = NANOS_PER_MILLI * 1000;
     private static final long MAX_FINALIZE_NANOS = 10L * NANOS_PER_SECOND;
 
-    /**
-     * Temporary hack: check time since start time and log if over a fixed threshold.
-     *
-     * @return void
-     */
-    private static void checkTime(long startTime, String where) {
-        long now = System.nanoTime();
-        long msDuration = (now - startTime) / (1000 * 1000);
-        if (msDuration > 1000) {
-            // If we are taking more than a second, log about it.
-            System.logW("Slow operation: " + msDuration + "ms so far, now at " + where);
-        }
-    }
-
-
     public static void start() {
-        long startTime = System.nanoTime();
         ReferenceQueueDaemon.INSTANCE.start();
-        checkTime(startTime, "Daemons.ReferenceQueueDaemonStart");
         FinalizerDaemon.INSTANCE.start();
-        checkTime(startTime, "Daemons.FinalizerQueueDaemonStart");
         FinalizerWatchdogDaemon.INSTANCE.start();
-        checkTime(startTime, "Daemons.FinalizerWatchdogQueueDaemonStart");
         HeapTrimmerDaemon.INSTANCE.start();
-        checkTime(startTime, "Daemons.HeapTrimmerDaemonStart");
         GCDaemon.INSTANCE.start();
-        checkTime(startTime, "Daemons.GCDaemonStart");
     }
 
     public static void stop() {
-        long startTime = System.nanoTime();
         ReferenceQueueDaemon.INSTANCE.stop();
-        checkTime(startTime, "Daemons.ReferenceQueueDaemonStop");
         FinalizerDaemon.INSTANCE.stop();
-        checkTime(startTime, "Daemons.FinalizerDaemonStop");
         FinalizerWatchdogDaemon.INSTANCE.stop();
-        checkTime(startTime, "Daemons.FinalizerWatchdogDaemonStop");
         HeapTrimmerDaemon.INSTANCE.stop();
-        checkTime(startTime, "Daemons.HeapTrimmerDaemonStop");
         GCDaemon.INSTANCE.stop();
-        checkTime(startTime, "Daemons.GCDaemonStop");
     }
 
     /**
