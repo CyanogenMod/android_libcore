@@ -84,7 +84,11 @@ static jobjectArray System_specialProperties(JNIEnv* env, jclass) {
     properties.push_back(std::string("user.dir=") + getcwd(path, sizeof(path)));
 
     properties.push_back("android.zlib.version=" ZLIB_VERSION);
+#if defined(OPENSSL_IS_BORINGSSL)
+    properties.push_back("android.openssl.version=BoringSSL");
+#else
     properties.push_back("android.openssl.version=" OPENSSL_VERSION_TEXT);
+#endif
 
     const char* library_path = getenv("LD_LIBRARY_PATH");
 #if defined(HAVE_ANDROID_OS)
