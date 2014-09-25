@@ -232,7 +232,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private transient int objectSize;
 
-    /** Primitive type value, or 0 if not a primitive type; set for generated primitive classes. */
+    /**
+     * The lower 16 bits is the primitive type value, or 0 if not a primitive type; set for
+     * generated primitive classes.
+     */
     private transient int primitiveType;
 
     /** Bitmap of offsets of iFields. */
@@ -1510,7 +1513,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * Tests whether this {@code Class} represents a primitive type.
      */
     public boolean isPrimitive() {
-      return primitiveType != 0;
+      return (primitiveType & 0xFFFF) != 0;
     }
 
     /**
