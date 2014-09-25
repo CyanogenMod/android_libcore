@@ -154,19 +154,20 @@ public class Support_DecimalFormat extends Support_Format {
 
   private static Vector<FieldContainer> getPositiveCurrencyVectorTR() {
     Vector<FieldContainer> v = new Vector<FieldContainer>();
-    v.add(new FieldContainer(0, 3, NumberFormat.Field.INTEGER));
-    v.add(new FieldContainer(3, 4, NumberFormat.Field.DECIMAL_SEPARATOR));
-    v.add(new FieldContainer(4, 6, NumberFormat.Field.FRACTION));
-    v.add(new FieldContainer(7, 9, NumberFormat.Field.CURRENCY));
+    v.add(new FieldContainer(0, 1, NumberFormat.Field.CURRENCY));
+    v.add(new FieldContainer(1, 4, NumberFormat.Field.INTEGER));
+    v.add(new FieldContainer(4, 5, NumberFormat.Field.DECIMAL_SEPARATOR));
+    v.add(new FieldContainer(5, 7, NumberFormat.Field.FRACTION));
     return v;
   }
 
   private static Vector<FieldContainer> getNegativeCurrencyVectorTR() {
     Vector<FieldContainer> v = new Vector<FieldContainer>();
-    v.add(new FieldContainer(1, 4, NumberFormat.Field.INTEGER));
-    v.add(new FieldContainer(4, 5, NumberFormat.Field.DECIMAL_SEPARATOR));
-    v.add(new FieldContainer(5, 7, NumberFormat.Field.FRACTION));
-    v.add(new FieldContainer(8, 10, NumberFormat.Field.CURRENCY));
+    v.add(new FieldContainer(0, 1, NumberFormat.Field.SIGN));
+    v.add(new FieldContainer(1, 2, NumberFormat.Field.CURRENCY));
+    v.add(new FieldContainer(2, 5, NumberFormat.Field.INTEGER));
+    v.add(new FieldContainer(5, 6, NumberFormat.Field.DECIMAL_SEPARATOR));
+    v.add(new FieldContainer(6, 8, NumberFormat.Field.FRACTION));
     return v;
   }
 
@@ -181,6 +182,7 @@ public class Support_DecimalFormat extends Support_Format {
 
   private static Vector<FieldContainer> getNegativeCurrencyVectorUS() {
     Vector<FieldContainer> v = new Vector<FieldContainer>();
+    v.add(new FieldContainer(0, 1, NumberFormat.Field.SIGN));
     v.add(new FieldContainer(1, 2, NumberFormat.Field.CURRENCY));
     v.add(new FieldContainer(2, 5, NumberFormat.Field.INTEGER));
     v.add(new FieldContainer(5, 6, NumberFormat.Field.DECIMAL_SEPARATOR));
