@@ -27,9 +27,13 @@ import java.text.DecimalFormatSymbols;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
+import java.util.ArrayList;
 import java.util.Currency;
+import java.util.List;
 import java.util.Locale;
 
+import junit.framework.Assert;
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 import org.apache.harmony.testframework.serialization.SerializationTest;
@@ -1039,188 +1043,295 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("-1.000000000000000000000000000000", df.format(-1.0));
     }
 
-    // icu4c and the RI disagree about these patterns, and I'm not yet sure which is correct.
-    public void test_formatDouble_scientificNotationProblemCases() {
-        final DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
-        DecimalFormat df = new DecimalFormat("##0.0E0", dfs);
-        assertEquals("##0.0E0: 123.0", "123E0", df.format(123.0));
-        assertEquals("##0.0E0: 1234.0", "1.234E3", df.format(1234.0));
-        assertEquals("##0.0E0: 12346.0", "12.35E3", df.format(12346.0));
-
-        df = new DecimalFormat("#00.0##E0", dfs);
-        assertEquals("#00.0##E0: 0.1", ".100E0", df.format(0.1));
-        assertEquals("#00.0##E0: 0.12", ".120E0", df.format(0.12));
-        assertEquals("#00.0##E0: 0.123", ".123E0", df.format(0.123));
-        assertEquals("#00.0##E0: 0.1234", ".1234E0", df.format(0.1234));
-        assertEquals("#00.0##E0: 0.1234567", ".123457E0", df.format(0.1234567));
-        assertEquals("#00.0##E0: 0.01", "10.0E-3", df.format(0.01));
-        assertEquals("#00.0##E0: 0.012", "12.0E-3", df.format(0.012));
-        assertEquals("#00.0##E0: 0.0123", "12.3E-3", df.format(0.0123));
-        assertEquals("#00.0##E0: 0.01234", "12.34E-3", df.format(0.01234));
-        assertEquals("#00.0##E0: 0.01234567", "12.3457E-3", df.format(0.01234567));
-        assertEquals("#00.0##E0: 0.001", "1.00E-3", df.format(0.001));
-        assertEquals("#00.0##E0: 0.0012", "1.20E-3", df.format(0.0012));
-        assertEquals("#00.0##E0: 0.00123", "1.23E-3", df.format(0.00123));
-        assertEquals("#00.0##E0: 0.001234", "1.234E-3", df.format(0.001234));
-        assertEquals("#00.0##E0: 0.001234567", "1.23457E-3", df.format(0.001234567));
-        assertEquals("#00.0##E0: 0.0001", "100E-6", df.format(0.0001));
-        assertEquals("#00.0##E0: 0.00012", "120E-6", df.format(0.00012));
-        assertEquals("#00.0##E0: 0.000123", "123E-6", df.format(0.000123));
-        assertEquals("#00.0##E0: 0.0001234", "123.4E-6", df.format(0.0001234));
-        assertEquals("#00.0##E0: 0.0001234567", "123.457E-6", df.format(0.0001234567));
-
-        assertEquals("#00.0##E0: 0.0", "0.00E0", df.format(0.0));
-        assertEquals("#00.0##E0: 1.0", "1.00E0", df.format(1.0));
-        assertEquals("#00.0##E0: 12.0", "12.0E0", df.format(12.0));
-        assertEquals("#00.0##E0: 123.0", "123E0", df.format(123.0));
-        assertEquals("#00.0##E0: 1234.0", "1.234E3", df.format(1234.0));
-        assertEquals("#00.0##E0: 12345.0", "12.345E3", df.format(12345.0));
-        assertEquals("#00.0##E0: 123456.0", "123.456E3", df.format(123456.0));
-        assertEquals("#00.0##E0: 1234567.0", "1.23457E6", df.format(1234567.0));
-        assertEquals("#00.0##E0: 12345678.0", "12.3457E6", df.format(12345678.0));
-        assertEquals("#00.0##E0: 99999999.0", "100E6", df.format(99999999.0));
-
-        df = new DecimalFormat("#.0E0", dfs);
-        assertEquals("#.0E0: 0.0", ".0E0", df.format(0.0));
-        assertEquals("#.0E0: 1.0", ".1E1", df.format(1.0));
-        assertEquals("#.0E0: 12.0", ".12E2", df.format(12.0));
-        assertEquals("#.0E0: 123.0", ".12E3", df.format(123.0));
-        assertEquals("#.0E0: 1234.0", ".12E4", df.format(1234.0));
-        assertEquals("#.0E0: 9999.0", ".1E5", df.format(9999.0));
-
-        df = new DecimalFormat("0.E0", dfs);
-        assertEquals("0.E0: 0.0", "0.E0", df.format(0.0));
-        assertEquals("0.E0: 1.0", "1.E0", df.format(1.0));
-        assertEquals("0.E0: 12.0", "1.E1", df.format(12.0));
-        assertEquals("0.E0: 123.0", "1.E2", df.format(123.0));
-        assertEquals("0.E0: 1234.0", "1.E3", df.format(1234.0));
-        assertEquals("0.E0: 9999.0", "1.E4", df.format(9999.0));
-
-        df = new DecimalFormat("##0.00#E0", dfs);
-        assertEquals("##0.00#E0: 0.1", ".100E0", df.format(0.1));
-        assertEquals("##0.00#E0: 0.1234567", ".123457E0", df.format(0.1234567));
-        assertEquals("##0.00#E0: 0.9999999", "1.00E0", df.format(0.9999999));
-        assertEquals("##0.00#E0: 0.01", "10.0E-3", df.format(0.01));
-        assertEquals("##0.00#E0: 0.01234567", "12.3457E-3", df.format(0.01234567));
-        assertEquals("##0.00#E0: 0.09999999", ".100E0", df.format(0.09999999));
-        assertEquals("##0.00#E0: 0.001", "1.00E-3", df.format(0.001));
-        assertEquals("##0.00#E0: 0.001234567", "1.23457E-3", df.format(0.001234567));
-        assertEquals("##0.00#E0: 0.009999999", "10.0E-3", df.format(0.009999999));
-        assertEquals("##0.00#E0: 0.0001", "100E-6", df.format(0.0001));
-        assertEquals("##0.00#E0: 0.0001234567", "123.457E-6", df.format(0.0001234567));
-        assertEquals("##0.00#E0: 0.0009999999", "1.00E-3", df.format(0.0009999999));
-
-        df = new DecimalFormat("###0.00#E0", dfs);
-        assertEquals("###0.00#E0: 0.1", ".100E0", df.format(0.1));
-        assertEquals("###0.00#E0: 0.12345678", ".1234568E0", df.format(0.12345678));
-        assertEquals("###0.00#E0: 0.99999999", "1.00E0", df.format(0.99999999));
-        assertEquals("###0.00#E0: 0.01", "100E-4", df.format(0.01));
-        assertEquals("###0.00#E0: 0.012345678", "123.4568E-4", df.format(0.012345678));
-        assertEquals("###0.00#E0: 0.099999999", ".100E0", df.format(0.099999999));
-        assertEquals("###0.00#E0: 0.001", "10.0E-4", df.format(0.001));
-        assertEquals("###0.00#E0: 0.0012345678", "12.34568E-4", df.format(0.0012345678));
-        assertEquals("###0.00#E0: 0.0099999999", "100E-4", df.format(0.0099999999));
-        assertEquals("###0.00#E0: 0.0001", "1.00E-4", df.format(0.0001));
-        assertEquals("###0.00#E0: 0.00012345678", "1.234568E-4", df.format(0.00012345678));
-        assertEquals("###0.00#E0: 0.00099999999", "10.0E-4", df.format(0.00099999999));
-        assertEquals("###0.00#E0: 0.00001", "1000E-8", df.format(0.00001));
-        assertEquals("###0.00#E0: 0.000012345678", "1234.568E-8", df.format(0.000012345678));
-        assertEquals("###0.00#E0: 0.000099999999", "1.00E-4", df.format(0.000099999999));
-
-        df = new DecimalFormat("###0.0#E0", dfs);
-        assertEquals("###0.0#E0: 0.1", ".10E0", df.format(0.1));
-        assertEquals("###0.0#E0: 0.1234567", ".123457E0", df.format(0.1234567));
-        assertEquals("###0.0#E0: 0.9999999", "1.0E0", df.format(0.9999999));
-        assertEquals("###0.0#E0: 0.01", "100E-4", df.format(0.01));
-        assertEquals("###0.0#E0: 0.01234567", "123.457E-4", df.format(0.01234567));
-        assertEquals("###0.0#E0: 0.09999999", ".10E0", df.format(0.09999999));
-        assertEquals("###0.0#E0: 0.001", "10E-4", df.format(0.001));
-        assertEquals("###0.0#E0: 0.001234567", "12.3457E-4", df.format(0.001234567));
-        assertEquals("###0.0#E0: 0.009999999", "100E-4", df.format(0.009999999));
-        assertEquals("###0.0#E0: 0.0001", "1.0E-4", df.format(0.0001));
-        assertEquals("###0.0#E0: 0.0001234567", "1.23457E-4", df.format(0.0001234567));
-        assertEquals("###0.0#E0: 0.0009999999", "10E-4", df.format(0.0009999999));
-        assertEquals("###0.0#E0: 0.00001", "1000E-8", df.format(0.00001));
-        assertEquals("###0.0#E0: 0.00001234567", "1234.57E-8", df.format(0.00001234567));
-        assertEquals("###0.0#E0: 0.00009999999", "1.0E-4", df.format(0.00009999999));
-    }
-
     public void test_formatDouble_withFieldPosition() {
         new Support_DecimalFormat(
                 "test_formatDLjava_lang_StringBufferLjava_text_FieldPosition")
                 .t_format_with_FieldPosition();
     }
 
+    // This test serves as a regression test for Android's behavior.
+    // There are many patterns that produce different output from the RI but are sometimes the
+    // consequence of Android following the ICU DecimalFormat rules.
     public void test_formatDouble_scientificNotation() {
+        FormatTester formatTester = new FormatTester();
         final DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
 
         DecimalFormat df = new DecimalFormat("00.0#E0", dfs);
-        assertEquals("00.0#E0: 0.0", "00.0E0", df.format(0.0));
-        assertEquals("00.0#E0: 1.0", "10.0E-1", df.format(1.0));
-        assertEquals("00.0#E0: 12.0", "12.0E0", df.format(12.0));
-        assertEquals("00.0#E0: 123.0", "12.3E1", df.format(123.0));
-        assertEquals("00.0#E0: 1234.0", "12.34E2", df.format(1234.0));
-        assertEquals("00.0#E0: 12346.0", "12.35E3", df.format(12346.0));
-        assertEquals("00.0#E0: 99999.0", "10.0E4", df.format(99999.0));
-        assertEquals("00.0#E0: 1.2", "12.0E-1", df.format(1.2));
-        assertEquals("00.0#E0: 12.3", "12.3E0", df.format(12.3));
-        assertEquals("00.0#E0: 123.4", "12.34E1", df.format(123.4));
-        assertEquals("00.0#E0: 1234.6", "12.35E2", df.format(1234.6));
-        assertEquals("00.0#E0: 9999.9", "10.0E3", df.format(9999.9));
-        assertEquals("00.0#E0: 0.1", "10.0E-2", df.format(0.1));
-        assertEquals("00.0#E0: 0.12", "12.0E-2", df.format(0.12));
-        assertEquals("00.0#E0: 0.123", "12.3E-2", df.format(0.123));
-        assertEquals("00.0#E0: 0.1234", "12.34E-2", df.format(0.1234));
-        assertEquals("00.0#E0: 0.12346", "12.35E-2", df.format(0.12346));
-        assertEquals("00.0#E0: 0.99999", "10.0E-1", df.format(0.99999));
-        assertEquals("00.0#E0: -1.0", "-10.0E-1", df.format(-1.0));
-        assertEquals("00.0#E0: -12.0", "-12.0E0", df.format(-12.0));
-        assertEquals("00.0#E0: -123.0", "-12.3E1", df.format(-123.0));
-        assertEquals("00.0#E0: -1234.0", "-12.34E2", df.format(-1234.0));
-        assertEquals("00.0#E0: -12346.0", "-12.35E3", df.format(-12346.0));
-        assertEquals("00.0#E0: -99999.0", "-10.0E4", df.format(-99999.0));
+        // ["00.0#E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=2,
+        // maxFractionDigits=2,minIntegerDigits=2,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit was not explicitly set: The exponent can be any integer.
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (2) + "max fractional digits (2) == 4
+        formatTester.format(df, "00.0E0", 0.0);
+        formatTester.format(df, "10.0E-1", 1.0);
+        formatTester.format(df, "12.0E0", 12.0);
+        formatTester.format(df, "12.3E1", 123.0);
+        formatTester.format(df, "12.34E2", 1234.0);
+        formatTester.format(df, "12.35E3", 12346.0);
+        formatTester.format(df, "10.0E4", 99999.0);
+        formatTester.format(df, "12.0E-1", 1.2);
+        formatTester.format(df, "12.3E0", 12.3);
+        formatTester.format(df, "12.34E1", 123.4);
+        formatTester.format(df, "12.35E2", 1234.6);
+        formatTester.format(df, "10.0E3", 9999.9);
+        formatTester.format(df, "10.0E-2", 0.1);
+        formatTester.format(df, "12.0E-2", 0.12);
+        formatTester.format(df, "12.3E-2", 0.123);
+        formatTester.format(df, "12.34E-2", 0.1234);
+        formatTester.format(df, "12.35E-2", 0.12346);
+        formatTester.format(df, "10.0E-1", 0.99999);
+        formatTester.format(df, "-10.0E-1", -1.0);
+        formatTester.format(df, "-12.0E0", -12.0);
+        formatTester.format(df, "-12.3E1", -123.0);
+        formatTester.format(df, "-12.34E2", -1234.0);
+        formatTester.format(df, "-12.35E3", -12346.0);
+        formatTester.format(df, "-10.0E4", -99999.0);
+
+        df = new DecimalFormat("#00.0##E0", dfs);
+        // ["#00.0##E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=3,
+        // maxFractionDigits=3,minIntegerDigits=2,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit count is set: The exponent must be a multiple of it (3).
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (2) + "max fractional digits (3) == 5
+        formatTester.format(df, "100E-3", 0.1);
+        formatTester.format(df, "120E-3", 0.12);
+        formatTester.format(df, "123E-3", 0.123);
+        formatTester.format(df, "123.4E-3", 0.1234);
+        formatTester.format(df, "123.46E-3", 0.1234567);
+        formatTester.format(df, "10E-3", 0.01);
+        formatTester.format(df, "12E-3", 0.012);
+        formatTester.format(df, "12.3E-3", 0.0123);
+        formatTester.format(df, "12.34E-3", 0.01234);
+        formatTester.format(df, "12.346E-3", 0.01234567);
+        formatTester.format(df, "1.0E-3", 0.001);
+        formatTester.format(df, "1.2E-3", 0.0012);
+        formatTester.format(df, "1.23E-3", 0.00123);
+        formatTester.format(df, "1.234E-3", 0.001234);
+        formatTester.format(df, "1.2346E-3", 0.001234567);
+        formatTester.format(df, "100E-6", 0.0001);
+        formatTester.format(df, "120E-6", 0.00012);
+        formatTester.format(df, "123E-6", 0.000123);
+        formatTester.format(df, "123.4E-6", 0.0001234);
+        formatTester.format(df, "123.46E-6", 0.0001234567);
+        formatTester.format(df, "0.0E0", 0.0);
+        formatTester.format(df, "1.0E0", 1.0);
+        formatTester.format(df, "12E0", 12.0);
+        formatTester.format(df, "123E0", 123.0);
+        formatTester.format(df, "1.234E3", 1234.0);
+        formatTester.format(df, "12.345E3", 12345.0);
+        formatTester.format(df, "123.46E3", 123456.0);
+        formatTester.format(df, "1.2346E6", 1234567.0);
+        formatTester.format(df, "12.346E6", 12345678.0);
+        formatTester.format(df, "100E6", 99999999.0);
+
+        df = new DecimalFormat("#.0E0", dfs);
+        // ["#.0E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=1,
+        // maxFractionDigits=1,minIntegerDigits=0,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit count is set: The exponent must be a multiple of it (1).
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (0) + "max fractional digits (1) == 1
+        formatTester.format(df, "0.0E0", 0.0);
+        formatTester.format(df, "1.0E0", 1.0);
+        formatTester.format(df, "1.0E1", 12.0);
+        formatTester.format(df, "1.0E2", 123.0);
+        formatTester.format(df, "1.0E3", 1234.0);
+        formatTester.format(df, "1.0E4", 9999.0);
+
+        df = new DecimalFormat("0.E0", dfs);
+        // ["0.E0",isDecimalSeparatorAlwaysShown=true,groupingSize=0,multiplier=1,negativePrefix=-,
+        // negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=1,maxFractionDigits=0,
+        // minIntegerDigits=1,minFractionDigits=0,grouping=false]
+        // Because maximum integer digit was not explicitly set: The exponent can be any integer.
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (1) + "max fractional digits (0) == 1
+        formatTester.format(df, "0E0", 0.0);
+        formatTester.format(df, "1E0", 1.0);
+        formatTester.format(df, "1E1", 12.0);
+        formatTester.format(df, "1E2", 123.0);
+        formatTester.format(df, "1E3", 1234.0);
+        formatTester.format(df, "1E4", 9999.0);
+
+        df = new DecimalFormat("##0.00#E0", dfs);
+        // ["##0.00#E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=3,
+        // maxFractionDigits=3,minIntegerDigits=1,minFractionDigits=2,grouping=false]
+        // Because maximum integer digit count is set: The exponent must be a multiple of it (3).
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (1) + "max fractional digits (3) == 4
+        formatTester.format(df, "100E-3", 0.1);
+        formatTester.format(df, "123.5E-3", 0.1234567);
+        formatTester.format(df, "1.00E0", 0.9999999);
+        formatTester.format(df, "10.0E-3", 0.01);
+        formatTester.format(df, "12.35E-3", 0.01234567);
+        formatTester.format(df, "100E-3", 0.09999999);
+        formatTester.format(df, "1.00E-3", 0.001);
+        formatTester.format(df, "1.235E-3", 0.001234567);
+        formatTester.format(df, "10.0E-3", 0.009999999);
+        formatTester.format(df, "100E-6", 0.0001);
+        formatTester.format(df, "123.5E-6", 0.0001234567);
+        formatTester.format(df, "1.00E-3", 0.0009999999);
+
+        df = new DecimalFormat("###0.00#E0", dfs);
+        // ["###0.00#E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=4,
+        // maxFractionDigits=3,minIntegerDigits=1,minFractionDigits=2,grouping=false]
+        // Because maximum integer digit count is set: The exponent must be a multiple of it (4).
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (1) + "max fractional digits (3) == 4
+        formatTester.format(df, "1000E-4", 0.1);
+        formatTester.format(df, "1235E-4", 0.12345678);
+        formatTester.format(df, "1.00E0", 0.99999999);
+        formatTester.format(df, "100E-4", 0.01);
+        formatTester.format(df, "123.5E-4", 0.012345678);
+        formatTester.format(df, "1000E-4", 0.099999999);
+        formatTester.format(df, "10.0E-4", 0.001);
+        formatTester.format(df, "12.35E-4", 0.0012345678);
+        formatTester.format(df, "100E-4", 0.0099999999);
+        formatTester.format(df, "1.00E-4", 0.0001);
+        formatTester.format(df, "1.235E-4", 0.00012345678);
+        formatTester.format(df, "10.0E-4", 0.00099999999);
+        formatTester.format(df, "1000E-8", 0.00001);
+        formatTester.format(df, "1235E-8", 0.000012345678);
+        formatTester.format(df, "1.00E-4", 0.000099999999);
+
+        df = new DecimalFormat("###0.0#E0", dfs);
+        // ["###0.0#E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=4,
+        // maxFractionDigits=2,minIntegerDigits=1,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit count is set: The exponent must be a multiple of it (4).
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (1) + "max fractional digits (2) == 3
+        formatTester.format(df, "1000E-4", 0.1);
+        formatTester.format(df, "1230E-4", 0.1234567);
+        formatTester.format(df, "1.0E0", 0.9999999);
+        formatTester.format(df, "100E-4", 0.01);
+        formatTester.format(df, "123E-4", 0.01234567);
+        formatTester.format(df, "1000E-4", 0.09999999);
+        formatTester.format(df, "10E-4", 0.001);
+        formatTester.format(df, "12.3E-4", 0.001234567);
+        formatTester.format(df, "100E-4", 0.009999999);
+        formatTester.format(df, "1.0E-4", 0.0001);
+        formatTester.format(df, "1.23E-4", 0.0001234567);
+        formatTester.format(df, "10E-4", 0.0009999999);
+        formatTester.format(df, "1000E-8", 0.00001);
+        formatTester.format(df, "1230E-8", 0.00001234567);
+        formatTester.format(df, "1.0E-4", 0.00009999999);
 
         df = new DecimalFormat("##0.0E0", dfs);
-        assertEquals("##0.0E0: 0.0", "0.0E0", df.format(0.0));
-        assertEquals("##0.0E0: 1.0", "1.0E0", df.format(1.0));
-        assertEquals("##0.0E0: 12.0", "12E0", df.format(12.0));
-        assertEquals("##0.0E0: 99999.0", "100E3", df.format(99999.0));
-        assertEquals("##0.0E0: 999999.0", "1.0E6", df.format(999999.0));
+        // ["##0.0E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=3,
+        // maxFractionDigits=1,minIntegerDigits=1,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit count is set: The exponent must be a multiple of it (3).
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (1) + "max fractional digits (1) == 2
+        formatTester.format(df, "0.0E0", 0.0);
+        formatTester.format(df, "1.0E0", 1.0);
+        formatTester.format(df, "12E0", 12.0);
+        formatTester.format(df, "120E0", 123.0);
+        formatTester.format(df, "1.2E3", 1234.0);
+        formatTester.format(df, "12E3", 12346.0);
+        formatTester.format(df, "100E3", 99999.0);
+        formatTester.format(df, "1.0E6", 999999.0);
 
         df = new DecimalFormat("0.#E0", dfs);
-        assertEquals("0.#E0: 0.0", "0E0", df.format(0.0));
-        assertEquals("0.#E0: 1.0", "1E0", df.format(1.0));
-        assertEquals("0.#E0: 12.0", "1.2E1", df.format(12.0));
-        assertEquals("0.#E0: 123.0", "1.2E2", df.format(123.0));
-        assertEquals("0.#E0: 1234.0", "1.2E3", df.format(1234.0));
-        assertEquals("0.#E0: 9999.0", "1E4", df.format(9999.0));
+        // ["0.#E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=1,
+        // maxFractionDigits=1,minIntegerDigits=1,minFractionDigits=0,grouping=false]
+        // Because maximum integer digit was not explicitly set: The exponent can be any integer.
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (1) + "max fractional digits (1) == 2
+        formatTester.format(df, "0E0", 0.0);
+        formatTester.format(df, "1E0", 1.0);
+        formatTester.format(df, "1.2E1", 12.0);
+        formatTester.format(df, "1.2E2", 123.0);
+        formatTester.format(df, "1.2E3", 1234.0);
+        formatTester.format(df, "1E4", 9999.0);
 
         df = new DecimalFormat(".0E0", dfs);
-        assertEquals(".0E0: 0.0", ".0E0", df.format(0.0));
-        assertEquals(".0E0: 1.0", ".1E1", df.format(1.0));
-        assertEquals(".0E0: 12.0", ".1E2", df.format(12.0));
-        assertEquals(".0E0: 123.0", ".1E3", df.format(123.0));
-        assertEquals(".0E0: 1234.0", ".1E4", df.format(1234.0));
-        assertEquals(".0E0: 9999.0", ".1E5", df.format(9999.0));
+        // [".0E0",isDecimalSeparatorAlwaysShown=true,groupingSize=0,multiplier=1,negativePrefix=-,
+        // negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=0,maxFractionDigits=1,
+        // minIntegerDigits=0,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit was not explicitly set: The exponent can be any integer.
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (0) + "max fractional digits (1) == 2
+        formatTester.format(df, ".0E0", 0.0);
+        formatTester.format(df, ".1E1", 1.0);
+        formatTester.format(df, ".1E2", 12.0);
+        formatTester.format(df, ".1E3", 123.0);
+        formatTester.format(df, ".1E4", 1234.0);
+        formatTester.format(df, ".1E5", 9999.0);
+
+        formatTester.throwFailures();
     }
 
     public void test_formatDouble_scientificNotationMinusZero() throws Exception {
+        FormatTester formatTester = new FormatTester();
         final DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
 
         DecimalFormat df = new DecimalFormat("00.0#E0", dfs);
-        assertEquals("00.0#E0: -0.0", "-00.0E0", df.format(-0.0));
+        // ["00.0#E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=2,
+        // maxFractionDigits=2,minIntegerDigits=2,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit was not explicitly set: The exponent can be any integer.
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (2) + "max fractional digits (2) == 4
+        formatTester.format(df, "-00.0E0", -0.0);
 
         df = new DecimalFormat("##0.0E0", dfs);
-        assertEquals("##0.0E0: -0.0", "-0.0E0", df.format(-0.0));
+        // ["##0.0E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=3,
+        // maxFractionDigits=1,minIntegerDigits=1,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit count is set: The exponent must be a multiple of it (3).
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (1) + "max fractional digits (1) == 2
+        formatTester.format(df, "-0.0E0", -0.0);
 
         df = new DecimalFormat("#.0E0", dfs);
-        assertEquals("#.0E0: -0.0", "-.0E0", df.format(-0.0));
+        // ["#.0E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=1,
+        // maxFractionDigits=1,minIntegerDigits=0,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit count is set: The exponent must be a multiple of it (1).
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (0) + "max fractional digits (1) == 2
+        formatTester.format(df, "-0.0E0", -0.0);
 
         df = new DecimalFormat("0.#E0", dfs);
-        assertEquals("0.#E0: -0.0", "-0E0", df.format(-0.0));
+        // ["0.#E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=1,
+        // maxFractionDigits=1,minIntegerDigits=1,minFractionDigits=0,grouping=false]
+        // Because maximum integer digit was not explicitly set: The exponent can be any integer.
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (1) + "max fractional digits (1) == 2
+        formatTester.format(df, "-0E0", -0.0);
 
         df = new DecimalFormat(".0E0", dfs);
-        assertEquals(".0E0: -0.0", "-.0E0", df.format(-0.0));
+        // [".0E0",isDecimalSeparatorAlwaysShown=true,groupingSize=0,multiplier=1,negativePrefix=-,
+        // negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=0,maxFractionDigits=1,
+        // minIntegerDigits=0,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit was not explicitly set: The exponent can be any integer.
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (0) + "max fractional digits (1) == 1
+        formatTester.format(df, "-.0E0", -0.0);
+
+        formatTester.throwFailures();
     }
 
     public void test_formatLong_maximumIntegerDigits() {
@@ -1243,61 +1354,115 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("00.7", df.format(0.7));
     }
 
+    // See also the _formatDouble tests. This tests a subset of patterns / values.
     public void test_formatLong_scientificNotation() {
+        FormatTester formatTester = new FormatTester();
         final DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
 
         DecimalFormat df = new DecimalFormat("00.0#E0", dfs);
-        assertEquals("00.0#E0: 0", "00.0E0", df.format(0));
-        assertEquals("00.0#E0: 1", "10.0E-1", df.format(1));
-        assertEquals("00.0#E0: 12", "12.0E0", df.format(12));
-        assertEquals("00.0#E0: 123", "12.3E1", df.format(123));
-        assertEquals("00.0#E0: 1234", "12.34E2", df.format(1234));
-        assertEquals("00.0#E0: 12346", "12.35E3", df.format(12346));
-        assertEquals("00.0#E0: 99999", "10.0E4", df.format(99999));
-        assertEquals("00.0#E0: -1", "-10.0E-1", df.format(-1));
-        assertEquals("00.0#E0: -12", "-12.0E0", df.format(-12));
-        assertEquals("00.0#E0: -123", "-12.3E1", df.format(-123));
-        assertEquals("00.0#E0: -1234", "-12.34E2", df.format(-1234));
-        assertEquals("00.0#E0: -12346", "-12.35E3", df.format(-12346));
-        assertEquals("00.0#E0: -99999", "-10.0E4", df.format(-99999));
+        // ["00.0#E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=2,
+        // maxFractionDigits=2,minIntegerDigits=2,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit was not explicitly set: The exponent can be any integer.
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (2) + "max fractional digits (2) == 4
+        formatTester.format(df, "00.0E0", 0);
+        formatTester.format(df, "10.0E-1", 1);
+        formatTester.format(df, "12.0E0", 12);
+        formatTester.format(df, "12.3E1", 123);
+        formatTester.format(df, "12.34E2", 1234);
+        formatTester.format(df, "12.35E3", 12346);
+        formatTester.format(df, "10.0E4", 99999);
+        formatTester.format(df, "-10.0E-1", -1);
+        formatTester.format(df, "-12.0E0", -12);
+        formatTester.format(df, "-12.3E1", -123);
+        formatTester.format(df, "-12.34E2", -1234);
+        formatTester.format(df, "-12.35E3", -12346);
+        formatTester.format(df, "-10.0E4", -99999);
 
         df = new DecimalFormat("##0.0E0", dfs);
-        assertEquals("##0.0E0: 0", "0.0E0", df.format(0));
-        assertEquals("##0.0E0: 1", "1.0E0", df.format(1));
-        assertEquals("##0.0E0: 12", "12E0", df.format(12));
-        assertEquals("##0.0E0: 123", "123E0", df.format(123));
-        assertEquals("##0.0E0: 1234", "1.234E3", df.format(1234));
-        assertEquals("##0.0E0: 12346", "12.35E3", df.format(12346));
-        assertEquals("##0.0E0: 99999", "100E3", df.format(99999));
-        assertEquals("##0.0E0: 999999", "1.0E6", df.format(999999));
+        // ["##0.0E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=3,
+        // maxFractionDigits=1,minIntegerDigits=1,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit count is set: The exponent must be a multiple of it (3).
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (1) + "max fractional digits (1) == 2
+        formatTester.format(df, "0.0E0", 0);
+        formatTester.format(df, "1.0E0", 1);
+        formatTester.format(df, "12E0", 12);
+        formatTester.format(df, "120E0", 123);
+        formatTester.format(df, "1.2E3", 1234);
+        formatTester.format(df, "12E3", 12346);
+        formatTester.format(df, "100E3", 99999);
+        formatTester.format(df, "1.0E6", 999999);
 
         df = new DecimalFormat("#00.0##E0", dfs);
-        assertEquals("#00.0##E0: 0", "0.00E0", df.format(0));
-        assertEquals("#00.0##E0: 1", "1.00E0", df.format(1));
-        assertEquals("#00.0##E0: 12", "12.0E0", df.format(12));
-        assertEquals("#00.0##E0: 123", "123E0", df.format(123));
-        assertEquals("#00.0##E0: 1234", "1.234E3", df.format(1234));
-        assertEquals("#00.0##E0: 12345", "12.345E3", df.format(12345));
-        assertEquals("#00.0##E0: 123456", "123.456E3", df.format(123456));
-        assertEquals("#00.0##E0: 1234567", "1.23457E6", df.format(1234567));
-        assertEquals("#00.0##E0: 12345678", "12.3457E6", df.format(12345678));
-        assertEquals("#00.0##E0: 99999999", "100E6", df.format(99999999));
+        // ["##0.0E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=3,
+        // maxFractionDigits=1,minIntegerDigits=1,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit count is set: The exponent must be a multiple of it (3).
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (2) + "max fractional digits (3) == 5
+        formatTester.format(df, "0.0E0", 0);
+        formatTester.format(df, "1.0E0", 1);
+        formatTester.format(df, "12E0", 12);
+        formatTester.format(df, "123E0", 123);
+        formatTester.format(df, "1.234E3", 1234);
+        formatTester.format(df, "12.345E3", 12345);
+        formatTester.format(df, "123.46E3", 123456);
+        formatTester.format(df, "1.2346E6", 1234567);
+        formatTester.format(df, "12.346E6", 12345678);
+        formatTester.format(df, "100E6", 99999999);
 
         df = new DecimalFormat("#.0E0", dfs);
-        assertEquals("#.0E0: 0", ".0E0", df.format(0));
-        assertEquals("#.0E0: 1", ".1E1", df.format(1));
-        assertEquals("#.0E0: 12", ".12E2", df.format(12));
-        assertEquals("#.0E0: 123", ".12E3", df.format(123));
-        assertEquals("#.0E0: 1234", ".12E4", df.format(1234));
-        assertEquals("#.0E0: 9999", ".1E5", df.format(9999));
+        // ["#.0E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=1,
+        // maxFractionDigits=1,minIntegerDigits=0,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit count is set: The exponent must be a multiple of it (1).
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (0) + "max fractional digits (1) == 1
+        formatTester.format(df, "0.0E0", 0);
+        formatTester.format(df, "1.0E0", 1);
+        formatTester.format(df, "1.0E1", 12);
+        formatTester.format(df, "1.0E2", 123);
+        formatTester.format(df, "1.0E3", 1234);
+        formatTester.format(df, "1.0E4", 9999);
 
         df = new DecimalFormat("0.#E0", dfs);
-        assertEquals("0.#E0: 0", "0E0", df.format(0));
-        assertEquals("0.#E0: 1", "1E0", df.format(1));
-        assertEquals("0.#E0: 12", "1.2E1", df.format(12));
-        assertEquals("0.#E0: 123", "1.2E2", df.format(123));
-        assertEquals("0.#E0: 1234", "1.2E3", df.format(1234));
-        assertEquals("0.#E0: 9999", "1E4", df.format(9999));
+        // ["0.#E0",isDecimalSeparatorAlwaysShown=false,groupingSize=0,multiplier=1,
+        // negativePrefix=-,negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=1,
+        // maxFractionDigits=1,minIntegerDigits=1,minFractionDigits=0,grouping=false]
+        // Because maximum integer digit was not explicitly set: The exponent can be any integer.
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (1) + "max fractional digits (1) == 2
+        formatTester.format(df, "0E0", 0);
+        formatTester.format(df, "1E0", 1);
+        formatTester.format(df, "1.2E1", 12);
+        formatTester.format(df, "1.2E2", 123);
+        formatTester.format(df, "1.2E3", 1234);
+        formatTester.format(df, "1E4", 9999);
+
+        df = new DecimalFormat(".0E0", dfs);
+        // [".0E0",isDecimalSeparatorAlwaysShown=true,groupingSize=0,multiplier=1,negativePrefix=-,
+        // negativeSuffix=,positivePrefix=,positiveSuffix=,maxIntegerDigits=0,maxFractionDigits=1,
+        // minIntegerDigits=0,minFractionDigits=1,grouping=false]
+        // Because maximum integer digit was not explicitly set: The exponent can be any integer.
+        // Scientific notation => use significant digit logic
+        // '@' not present: Significant digits: Min: 1,
+        // Max: "min integer digits" (0) + "max fractional digits (1) == 1
+        formatTester.format(df, ".0E0", 0);
+        formatTester.format(df, ".1E1", 1);
+        formatTester.format(df, ".1E2", 12);
+        formatTester.format(df, ".1E3", 123);
+        formatTester.format(df, ".1E4", 1234);
+        formatTester.format(df, ".1E5", 9999);
+
+        formatTester.throwFailures();
     }
 
     public void test_formatDouble_wideRange() {
@@ -2226,5 +2391,41 @@ public class DecimalFormatTest extends TestCase {
         assertEquals("Incorrect RoundingMode behavior after applyPattern", ".73", result);
         result = decimalFormat.format(0.467);
         assertEquals("Incorrect RoundingMode behavior after applyPattern", ".47", result);
+    }
+
+    private static class FormatTester {
+        private List<AssertionFailedError> failures = new ArrayList<AssertionFailedError>();
+
+        public void format(DecimalFormat format, String expected, double value) {
+            try {
+                Assert.assertEquals(format.toPattern() + ": " + value, expected,
+                        format.format(value));
+            } catch (AssertionFailedError e) {
+                failures.add(e);
+            }
+        }
+
+        public void format(DecimalFormat format, String expected, int value) {
+            try {
+                Assert.assertEquals(format.toPattern() + ": " + value, expected,
+                        format.format(value));
+            } catch (AssertionFailedError e) {
+                failures.add(e);
+            }
+        }
+
+        public void throwFailures() throws AssertionFailedError {
+            if (failures.isEmpty()) {
+                return;
+            }
+            if (failures.size() == 1) {
+                throw failures.get(0);
+            }
+            AssertionFailedError combined = new AssertionFailedError("Multiple format failures");
+            for (AssertionFailedError failure : failures) {
+                combined.addSuppressed(failure);
+            }
+            throw combined;
+        }
     }
 }
