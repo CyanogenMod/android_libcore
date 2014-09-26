@@ -1465,78 +1465,241 @@ public class DecimalFormatTest extends TestCase {
         formatTester.throwFailures();
     }
 
-    public void test_formatDouble_wideRange() {
+    // Demonstrates that fraction digit rounding occurs as expected with 1, 10 and 14 fraction
+    // digits, using numbers that are well within the precision of IEEE 754.
+    public void test_formatDouble_maxFractionDigits() {
         final DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
         DecimalFormat format = new DecimalFormat("#0.#", dfs);
+        format.setGroupingUsed(false);
         format.setMaximumIntegerDigits(400);
-        format.setMaximumFractionDigits(400);
+        format.setMaximumFractionDigits(1);
 
-        for (int i = 0; i < 309; i++) {
-            String tval = "1";
-            for (int j = 0; j < i; j++) {
-                tval += "0";
-            }
-            double d = Double.parseDouble(tval);
-            String result = format.format(d);
-            assertEquals(i + ") e:" + tval + " r:" + result, tval, result);
-        }
-        for (int i = 0; i < 322; i++) {
-            String tval = "0.";
-            for (int j = 0; j < i; j++) {
-                tval += "0";
-            }
-            tval += "1";
-            double d = Double.parseDouble(tval);
-            String result = format.format(d);
-            assertEquals(i + ") e:" + tval + " r:" + result, tval, result);
+        assertEquals("1", format.format(0.99));
+        assertEquals("1", format.format(0.95));
+        assertEquals("0.9", format.format(0.94));
+        assertEquals("0.9", format.format(0.90));
+
+        assertEquals("0.2", format.format(0.19));
+        assertEquals("0.2", format.format(0.15));
+        assertEquals("0.1", format.format(0.14));
+        assertEquals("0.1", format.format(0.10));
+
+        format.setMaximumFractionDigits(10);
+        assertEquals("1", format.format(0.99999999999));
+        assertEquals("1", format.format(0.99999999995));
+        assertEquals("0.9999999999", format.format(0.99999999994));
+        assertEquals("0.9999999999", format.format(0.99999999990));
+
+        assertEquals("0.1111111112", format.format(0.11111111119));
+        assertEquals("0.1111111112", format.format(0.11111111115));
+        assertEquals("0.1111111111", format.format(0.11111111114));
+        assertEquals("0.1111111111", format.format(0.11111111110));
+
+        format.setMaximumFractionDigits(14);
+        assertEquals("1", format.format(0.999999999999999));
+        assertEquals("1", format.format(0.999999999999995));
+        assertEquals("0.99999999999999", format.format(0.999999999999994));
+        assertEquals("0.99999999999999", format.format(0.999999999999990));
+
+        assertEquals("0.11111111111112", format.format(0.111111111111119));
+        assertEquals("0.11111111111112", format.format(0.111111111111115));
+        assertEquals("0.11111111111111", format.format(0.111111111111114));
+        assertEquals("0.11111111111111", format.format(0.111111111111110));
+    }
+
+    // This demonstrates rounding at the 15th decimal digit. By setting the maximum fraction digits
+    // we force rounding at a point just below the full IEEE 754 precision. IEEE 754 should be
+    // precise to just above 15 decimal digits.
+    // df.format() with no limits always emits up to 16 decimal digits, slightly above what IEEE 754
+    // can store precisely.
+    public void test_formatDouble_roundingTo15Digits() throws Exception {
+        final DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
+        DecimalFormat df = new DecimalFormat("#.#", dfs);
+        df.setMaximumIntegerDigits(400);
+        df.setGroupingUsed(false);
+
+        df.setMaximumFractionDigits(0);
+        assertEquals("1000000000000000", df.format(999999999999999.9));
+        df.setMaximumFractionDigits(1);
+        assertEquals("100000000000000", df.format(99999999999999.99));
+        df.setMaximumFractionDigits(2);
+        assertEquals("10000000000000", df.format(9999999999999.999));
+        df.setMaximumFractionDigits(3);
+        assertEquals("1000000000000", df.format(999999999999.9999));
+        df.setMaximumFractionDigits(4);
+        assertEquals("100000000000", df.format(99999999999.99999));
+        df.setMaximumFractionDigits(5);
+        assertEquals("10000000000", df.format(9999999999.999999));
+        df.setMaximumFractionDigits(6);
+        assertEquals("1000000000", df.format(999999999.9999999));
+        df.setMaximumFractionDigits(7);
+        assertEquals("100000000", df.format(99999999.99999999));
+        df.setMaximumFractionDigits(8);
+        assertEquals("10000000", df.format(9999999.999999999));
+        df.setMaximumFractionDigits(9);
+        assertEquals("1000000", df.format(999999.9999999999));
+        df.setMaximumFractionDigits(10);
+        assertEquals("100000", df.format(99999.99999999999));
+        df.setMaximumFractionDigits(11);
+        assertEquals("10000", df.format(9999.999999999999));
+        df.setMaximumFractionDigits(12);
+        assertEquals("1000", df.format(999.9999999999999));
+        df.setMaximumFractionDigits(13);
+        assertEquals("100", df.format(99.99999999999999));
+        df.setMaximumFractionDigits(14);
+        assertEquals("10", df.format(9.999999999999999));
+        df.setMaximumFractionDigits(15);
+        assertEquals("1", df.format(0.9999999999999999));
+    }
+
+    // This checks formatting over most of the representable IEEE 754 range using a formatter that
+    // should be performing no lossy rounding.
+    // It checks that the formatted double can be parsed to get the original double.
+    // IEEE 754 can represent values from (decimal) ~2.22507E−308 to ~1.79769E308 to full precision.
+    // Close to zero it can go down to 4.94066E-324 with a loss of precision.
+    // At the extremes of the double range this test will not be testing doubles that exactly
+    // represent powers of 10. The test is only interested in whether the doubles closest
+    // to powers of 10 that can be represented can each be turned into a string and read back again
+    // to arrive at the original double.
+    public void test_formatDouble_wideRange() throws Exception {
+        for (int i = -324; i < 309; i++) {
+            // Generate a decimal number we are interested in: 1 * 10^i
+            String stringForm = "1e" + i;
+            BigDecimal bigDecimal = new BigDecimal(stringForm);
+
+            // Obtain the nearest double representation of the decimal number.
+            // This is lossy because going from BigDecimal -> double is inexact, but we should
+            // arrive at a number that is as close as possible to the decimal value. We assume that
+            // BigDecimal is capable of this, but it is not critical to this test if it gets it a
+            // little wrong, though it may mean we are testing a double value different from the one
+            // we thought we were.
+            double d = bigDecimal.doubleValue();
+
+            assertDecimalFormatIsLossless(d);
         }
     }
 
-    public void test_formatDouble_varyingScaleProblemCases() throws Exception {
-        final DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
-        DecimalFormat format = new DecimalFormat("#0.#", dfs);
-        format.setMaximumIntegerDigits(400);
-        format.setMaximumFractionDigits(400);
-
-        assertEquals("999999999999999", format.format(999999999999999.));
-        assertEquals("999999999999999.9", format.format(999999999999999.9));
-        assertEquals("99999999999999.98", format.format(99999999999999.99));
-        assertEquals("9999999999999.998", format.format(9999999999999.999));
-        assertEquals("999999999999.9999", format.format(999999999999.9999));
-        assertEquals("99999999999.99998", format.format(99999999999.99999));
-        assertEquals("9999999999.999998", format.format(9999999999.999999));
-        assertEquals("999999999.9999999", format.format(999999999.9999999));
-        assertEquals("99999999.99999999", format.format(99999999.99999999));
-        assertEquals("9999999.999999998", format.format(9999999.999999999));
-        assertEquals("99999.99999999999", format.format(99999.99999999999));
-        assertEquals("9999.999999999998", format.format(9999.999999999999));
-        assertEquals("999.9999999999999", format.format(999.9999999999999));
-        assertEquals("99.99999999999999", format.format(99.99999999999999));
-        assertEquals("9.999999999999998", format.format(9.999999999999999));
-        assertEquals("0.9999999999999999", format.format(.9999999999999999));
+    // This test is a regression test for http://b/17656132.
+    // It checks hand-picked values can be formatted and parsed to get the original double.
+    // The formatter as configured should perform no rounding.
+    public void test_formatDouble_roundingProblemCases() throws Exception {
+        // Most of the double literals below are not exactly representable in IEEE 754 but
+        // it should not matter to this test.
+        assertDecimalFormatIsLossless(999999999999999.9);
+        assertDecimalFormatIsLossless(99999999999999.99);
+        assertDecimalFormatIsLossless(9999999999999.999);
+        assertDecimalFormatIsLossless(999999999999.9999);
+        assertDecimalFormatIsLossless(99999999999.99999);
+        assertDecimalFormatIsLossless(9999999999.999999);
+        assertDecimalFormatIsLossless(999999999.9999999);
+        assertDecimalFormatIsLossless(99999999.99999999);
+        assertDecimalFormatIsLossless(9999999.999999999);
+        assertDecimalFormatIsLossless(999999.9999999999);
+        assertDecimalFormatIsLossless(99999.99999999999);
+        assertDecimalFormatIsLossless(9999.999999999999);
+        assertDecimalFormatIsLossless(999.9999999999999);
+        assertDecimalFormatIsLossless(99.99999999999999);
+        assertDecimalFormatIsLossless(9.999999999999999);
+        assertDecimalFormatIsLossless(0.9999999999999999);
     }
 
+    // This test checks hand-picked values can be formatted and parsed to get the original double.
+    // The formatter as configured should perform no rounding.
+    // These numbers are not affected by http://b/17656132.
     public void test_formatDouble_varyingScale() throws Exception {
+        // Most of the double literals below are not exactly representable in IEEE 754 but
+        // it should not matter to this test.
+
+        assertDecimalFormatIsLossless(999999999999999.);
+
+        assertDecimalFormatIsLossless(123456789012345.);
+        assertDecimalFormatIsLossless(12345678901234.5);
+        assertDecimalFormatIsLossless(1234567890123.25);
+        assertDecimalFormatIsLossless(999999999999.375);
+        assertDecimalFormatIsLossless(99999999999.0625);
+        assertDecimalFormatIsLossless(9999999999.03125);
+        assertDecimalFormatIsLossless(999999999.015625);
+        assertDecimalFormatIsLossless(99999999.0078125);
+        assertDecimalFormatIsLossless(9999999.00390625);
+        assertDecimalFormatIsLossless(999999.001953125);
+        assertDecimalFormatIsLossless(9999.00048828125);
+        assertDecimalFormatIsLossless(999.000244140625);
+        assertDecimalFormatIsLossless(99.0001220703125);
+        assertDecimalFormatIsLossless(9.00006103515625);
+        assertDecimalFormatIsLossless(0.000030517578125);
+    }
+
+    private static void assertDecimalFormatIsLossless(double d) throws Exception {
         final DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
         DecimalFormat format = new DecimalFormat("#0.#", dfs);
+        format.setGroupingUsed(false);
         format.setMaximumIntegerDigits(400);
         format.setMaximumFractionDigits(400);
 
-        assertEquals("123456789012345", format.format(123456789012345.));
-        assertEquals("12345678901234.5", format.format(12345678901234.5));
-        assertEquals("1234567890123.25", format.format(1234567890123.25));
-        assertEquals("999999999999.375", format.format(999999999999.375));
-        assertEquals("99999999999.0625", format.format(99999999999.0625));
-        assertEquals("9999999999.03125", format.format(9999999999.03125));
-        assertEquals("999999999.015625", format.format(999999999.015625));
-        assertEquals("99999999.0078125", format.format(99999999.0078125));
-        assertEquals("9999999.00390625", format.format(9999999.00390625));
-        assertEquals("999999.001953125", format.format(999999.001953125));
-        assertEquals("9999.00048828125", format.format(9999.00048828125));
-        assertEquals("999.000244140625", format.format(999.000244140625));
-        assertEquals("99.0001220703125", format.format(99.0001220703125));
-        assertEquals("9.00006103515625", format.format(9.00006103515625));
-        assertEquals("0.000030517578125", format.format(0.000030517578125));
+        // Every floating point binary can be represented exactly in decimal if you have enough
+        // digits. This shows the value actually being tested.
+        String testId = "decimalValue: " + new BigDecimal(d);
+
+        // As a sanity check we try out parseDouble() with the string generated by
+        // Double.toString(). Strictly speaking Double.toString() is probably not guaranteed to be
+        // lossless, but in reality it probably is, or at least is close enough.
+        assertDoubleEqual(
+                testId + " failed parseDouble(toString()) sanity check",
+                d, Double.parseDouble(Double.toString(d)));
+
+        // Format the number: If this is lossy it is a problem. We are trying to check that it
+        // doesn't lose any unnecessary precision.
+        String result = format.format(d);
+
+        // Here we use Double.parseDouble() which should able to parse a number we know was
+        // representable as a double into the original double. If parseDouble() is not implemented
+        // correctly the test is invalid.
+        double doubleParsed = Double.parseDouble(result);
+        assertDoubleEqual(testId + " (format() produced " + result + ")",
+                d, doubleParsed);
+
+        // For completeness we try to parse using the formatter too. If this fails but the format
+        // above didn't it may be a problem with parse(), or with format() that we didn't spot.
+        assertDoubleEqual(testId + " failed parse(format()) check",
+                d, format.parse(result).doubleValue());
+    }
+
+    private static void assertDoubleEqual(String message, double d, double doubleParsed) {
+        assertEquals(message,
+                createPrintableDouble(d),createPrintableDouble(doubleParsed));
+    }
+
+    private static String createPrintableDouble(double d) {
+        return Double.toString(d) + "(" + Long.toHexString(Double.doubleToRawLongBits(d)) + ")";
+    }
+
+    // Concise demonstration of http://b/17656132 using hard-coded expected values.
+    public void test_formatDouble_bug17656132() {
+        final DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.US);
+        DecimalFormat df = new DecimalFormat("#0.#", dfs);
+        df.setGroupingUsed(false);
+        df.setMaximumIntegerDigits(400);
+        df.setMaximumFractionDigits(400);
+
+        // The expected values below come from the RI and are correct 16 decimal digit
+        // representations of the formatted value. Android does something different.
+        // The decimal value given in each comment is the actual double value as represented by
+        // IEEE 754. See new BigDecimal(double).
+
+        // double: 999999999999999.9 is decimal 999999999999999.875
+        assertEquals("999999999999999.9", df.format(999999999999999.9));
+        // double: 99999999999999.98 is decimal 99999999999999.984375
+        assertEquals("99999999999999.98", df.format(99999999999999.98));
+        // double 9999999999999.998 is decimal 9999999999999.998046875
+        assertEquals("9999999999999.998", df.format(9999999999999.998));
+        // double 999999999999.9999 is decimal 999999999999.9998779296875
+        assertEquals("999999999999.9999", df.format(999999999999.9999));
+        // double 99999999999.99998 is decimal 99999999999.9999847412109375
+        assertEquals("99999999999.99998", df.format(99999999999.99998));
+        // double 9999999999.999998 is decimal 9999999999.9999980926513671875
+        assertEquals("9999999999.999998", df.format(9999999999.999998));
+        // double 1E23 is decimal 99999999999999991611392
+        assertEquals("9999999999999999", df.format(1E23));
     }
 
     public void test_getDecimalFormatSymbols() {
