@@ -336,4 +336,17 @@ public final class VMRuntime {
     public static boolean is64BitAbi(String abi) {
         return is64BitInstructionSet(getInstructionSet(abi));
     }
+
+    /**
+     * Return false if the boot class path for the given instruction
+     * set mapped from disk storage, versus being interpretted from
+     * dirty pages in memory.
+     */
+    public static native boolean isBootClassPathOnDisk(String instructionSet);
+
+    /**
+     * Returns the instruction set of the current runtime.
+     */
+    public static native String getCurrentInstructionSet();
+
 }
