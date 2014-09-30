@@ -137,6 +137,10 @@ public final class DefaultHostnameVerifier implements HostnameVerifier {
             return hostName.equals(cn);
         }
 
+        if (!containsAtLeastTwoDomainNameLabelsExcludingRoot(cn)) {
+            return false; // reject matches where the wildcard pattern consists of only one label.
+        }
+
         if (cn.startsWith("*.") && hostName.regionMatches(0, cn, 2, cn.length() - 2)) {
             return true; // "*.foo.com" matches "foo.com"
         }
@@ -161,6 +165,29 @@ public final class DefaultHostnameVerifier implements HostnameVerifier {
             return false; // suffix after '*' doesn't match
         }
 
+        return true;
+    }
+
+    /**
+     * Checks whether the provided hostname consists of at least two domain name labels, excluding
+     * the root label.
+     *
+     * <p>For example, this method returns {@code true} for {@code www.android.com} and
+     * {@code foo.com} and {@code foo.com.}, and returns {@code false} for {@code foo} and
+     * {@code foo.}.
+     */
+    private static boolean containsAtLeastTwoDomainNameLabelsExcludingRoot(String hostname) {
+        int delimiterIndex = hostname.indexOf('.');
+        if (delimiterIndex == -1) {
+            // No delimiters -- only one label
+            return false;
+        }
+        if (delimiterIndex == hostname.length() - 1) {
+            // Only one delimiter at the every end of the hostname -- this is an absolute hostname
+            // consisting of one label
+            return false;
+        }
+        // At least two labels
         return true;
     }
 }
