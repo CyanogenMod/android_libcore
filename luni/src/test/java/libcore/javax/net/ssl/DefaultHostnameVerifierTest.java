@@ -129,6 +129,17 @@ public final class DefaultHostnameVerifierTest extends TestCase {
         assertFalse(verifier.verifyHostName("a.b.c.d", "*.c.d"));
     }
 
+    public void testWildcardsRejectedForSingleLabelPatterns() {
+        assertFalse(verifier.verifyHostName("d", "*"));
+        assertFalse(verifier.verifyHostName("d.", "*."));
+        assertFalse(verifier.verifyHostName("d", "d*"));
+        assertFalse(verifier.verifyHostName("d.", "d*."));
+        assertFalse(verifier.verifyHostName("d", "*d"));
+        assertFalse(verifier.verifyHostName("d.", "*d."));
+        assertFalse(verifier.verifyHostName("ddd", "d*d"));
+        assertFalse(verifier.verifyHostName("ddd.", "d*d."));
+    }
+
     public void testVerifyHostName() {
         assertTrue(verifier.verifyHostName("a.b.c.d", "a.b.c.d"));
         assertTrue(verifier.verifyHostName("a.b.c.d", "*.b.c.d"));
