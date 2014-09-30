@@ -153,6 +153,33 @@ public final class DefaultHostnameVerifierTest extends TestCase {
         assertFalse(verifier.verifyHostName("imap.google.com", "a*.google.com"));
         assertFalse(verifier.verifyHostName("imap.google.com", "ix*.google.com"));
         assertTrue(verifier.verifyHostName("imap.google.com", "iMap.Google.Com"));
+        assertTrue(verifier.verifyHostName("weird", "weird"));
+        assertFalse(verifier.verifyHostName("weird", "weird*"));
+        assertFalse(verifier.verifyHostName("weird", "*weird"));
+        assertFalse(verifier.verifyHostName("weird", "weird."));
+        assertFalse(verifier.verifyHostName("weird", "weird*."));
+        assertFalse(verifier.verifyHostName("weird", "weird.*"));
+    }
+
+    public void testVerifyAbsoluteHostName() {
+        assertTrue(verifier.verifyHostName("a.b.c.d.", "a.b.c.d"));
+        assertTrue(verifier.verifyHostName("a.b.c.d.", "*.b.c.d"));
+        assertFalse(verifier.verifyHostName("a.b.c.d.", "*.*.c.d"));
+        assertTrue(verifier.verifyHostName("imap.google.com.", "imap.google.com"));
+        assertFalse(verifier.verifyHostName("imap2.google.com.", "imap.google.com"));
+        assertTrue(verifier.verifyHostName("imap.google.com.", "*.google.com"));
+        assertTrue(verifier.verifyHostName("imap2.google.com.", "*.google.com"));
+        assertFalse(verifier.verifyHostName("imap.google.com.", "*.googl.com"));
+        assertFalse(verifier.verifyHostName("imap2.google2.com.", "*.google3.com"));
+        assertFalse(verifier.verifyHostName("imap.google.com.", "a*.google.com"));
+        assertFalse(verifier.verifyHostName("imap.google.com.", "ix*.google.com"));
+        assertTrue(verifier.verifyHostName("imap.google.com.", "iMap.Google.Com"));
+        assertTrue(verifier.verifyHostName("weird.", "weird"));
+        assertTrue(verifier.verifyHostName("weird.", "weird*"));
+        assertTrue(verifier.verifyHostName("weird.", "*weird"));
+        assertTrue(verifier.verifyHostName("weird.", "weird."));
+        assertTrue(verifier.verifyHostName("weird.", "weird*."));
+        assertFalse(verifier.verifyHostName("weird.", "weird.*"));
     }
 
     public void testSubjectOnlyCert() throws Exception {

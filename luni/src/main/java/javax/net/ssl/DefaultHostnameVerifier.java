@@ -131,6 +131,14 @@ public final class DefaultHostnameVerifier implements HostnameVerifier {
             return false;
         }
 
+        if (hostName.endsWith(".") && !cn.endsWith(".")) {
+            // "www.android.com." matches "www.android.com"
+            // This is needed because server certificates do not normally contain absolute names
+            // or patterns. Connections via absolute hostnames should be supported and even
+            // preferred over those via relative hostnames, to avoid DNS suffixes being appended.
+            cn += '.';
+        }
+
         cn = cn.toLowerCase(Locale.US);
 
         if (!cn.contains("*")) {
