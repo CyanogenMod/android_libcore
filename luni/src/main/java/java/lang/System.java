@@ -763,6 +763,7 @@ public final class System {
         }
 
         StructUtsname info = Libcore.os.uname();
+        p.put("os.arch", info.machine);
         p.put("os.name", info.sysname);
         p.put("os.version", info.release);
 
@@ -778,11 +779,17 @@ public final class System {
         return p;
     }
 
+    /**
+     * Inits an unchangeable system property with the given value.
+     * This is useful when the environment needs to change under native bridge emulation.
+     */
+    private static void initUnchangeableSystemProperty(String name, String value) {
+        checkPropertyName(name);
+        unchangeableSystemProperties.put(name, value);
+    }
+
     private static Properties createSystemProperties() {
         Properties p = new PropertiesWithNonOverrideableDefaults(unchangeableSystemProperties);
-
-        // "os.arch" is a property that changes under native bridge emulation.
-        p.put("os.arch", Libcore.os.uname().machine);
 
         // On Android, each app gets its own temporary directory.
         // (See android.app.ActivityThread.) This is just a fallback default,
