@@ -53,7 +53,7 @@ public final class StrictJarFile {
     private final CloseGuard guard = CloseGuard.get();
     private boolean closed;
 
-    public StrictJarFile(String fileName) throws IOException {
+    public StrictJarFile(String fileName) throws IOException, SecurityException {
         this.nativeHandle = nativeOpenJarFile(fileName);
         this.raf = new RandomAccessFile(fileName, "r");
 
@@ -66,9 +66,10 @@ public final class StrictJarFile {
             this.verifier = new JarVerifier(fileName, manifest, metaEntries);
 
             isSigned = verifier.readCertificates() && verifier.isSignedJar();
-        } catch (IOException ioe) {
+        } catch (IOException | SecurityException e) {
             nativeClose(this.nativeHandle);
-            throw ioe;
+            IoUtils.closeQuietly(this.raf);
+            throw e;
         }
 
         guard.open("close");
