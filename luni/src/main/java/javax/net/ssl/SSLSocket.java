@@ -521,6 +521,11 @@ import java.net.UnknownHostException;
  *             <td>11+</td>
  *         </tr>
  *         <tr>
+ *             <td>TLS_FALLBACK_SCSV</td>
+ *             <td>21+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
  *             <td>TLS_PSK_WITH_3DES_EDE_CBC_SHA</td>
  *             <td>21+</td>
  *             <td></td>

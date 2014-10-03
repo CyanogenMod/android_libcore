@@ -82,6 +82,14 @@ public final class StandardNames extends Assert {
             = "TLS_EMPTY_RENEGOTIATION_INFO_SCSV";
 
     /**
+     * From https://tools.ietf.org/html/draft-ietf-tls-downgrade-scsv-00 it is a
+     * signaling cipher suite value (SCSV) to indicate that this request is a
+     * protocol fallback (e.g., TLS 1.0 -> SSL 3.0) because the server didn't respond
+     * to the first request.
+     */
+    public static final String CIPHER_SUITE_FALLBACK = "TLS_FALLBACK_SCSV";
+
+    /**
      * A map from algorithm type (e.g. Cipher) to a set of algorithms (e.g. AES, DES, ...)
      */
     public static final Map<String,Set<String>> PROVIDER_ALGORITHMS
@@ -722,6 +730,10 @@ public final class StandardNames extends Assert {
 
         // RFC 5746's Signaling Cipher Suite Value to indicate a request for secure renegotiation
         addBoth(CIPHER_SUITE_SECURE_RENEGOTIATION);
+
+        // From https://tools.ietf.org/html/draft-ietf-tls-downgrade-scsv-00 to indicate
+        // TLS fallback request
+        addOpenSsl(CIPHER_SUITE_FALLBACK);
 
         // non-defaultCipherSuites
         addBoth(   "TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
