@@ -84,32 +84,6 @@ public class RuntimeTest extends junit.framework.TestCase {
     }
 
     /**
-     * java.lang.Runtime#gc()
-     */
-    public void test_gc() {
-        // Test for method void java.lang.Runtime.gc()
-        try {
-            r.gc(); // ensure all garbage objects have been collected
-            r.gc(); // two GCs force collection phase to complete
-            long firstRead = r.totalMemory() - r.freeMemory();
-            Vector<StringBuffer> v = new Vector<StringBuffer>();
-            for (int i = 1; i < 10; i++)
-                v.addElement(new StringBuffer(10000));
-            long secondRead = r.totalMemory() - r.freeMemory();
-            v = null;
-            r.gc();
-            r.gc();
-            assertTrue("object memory did not grow", secondRead > firstRead);
-            assertTrue("space was not reclaimed", (r.totalMemory() - r
-                    .freeMemory()) < secondRead);
-        } catch (OutOfMemoryError oome) {
-            System.out.println("Out of memory during freeMemory test");
-            r.gc();
-            r.gc();
-        }
-    }
-
-    /**
      * java.lang.Runtime#getRuntime()
      */
     public void test_getRuntime() {
