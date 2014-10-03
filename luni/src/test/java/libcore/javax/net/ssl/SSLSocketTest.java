@@ -126,6 +126,14 @@ public class SSLSocketTest extends TestCase {
                     continue;
                 }
                 /*
+                 * Similarly with the TLS_FALLBACK_SCSV suite, it is not
+                 * a selectable suite, but is used in conjunction with
+                 * other cipher suites.
+                 */
+                if (cipherSuite.equals(StandardNames.CIPHER_SUITE_FALLBACK)) {
+                    continue;
+                }
+                /*
                  * Kerberos cipher suites require external setup. See "Kerberos Requirements" in
                  * https://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html
                  * #KRBRequire
@@ -1560,6 +1568,90 @@ public class SSLSocketTest extends TestCase {
                 fail("Timed out while waiting for the test to shut down");
             }
         }
+    }
+
+    public void test_SSLSocket_sendsTlsFallbackScsv_Fallback_Success() throws Exception {
+        TestSSLContext context = TestSSLContext.create();
+
+        final SSLSocket client = (SSLSocket)
+            context.clientContext.getSocketFactory().createSocket(context.host, context.port);
+        final SSLSocket server = (SSLSocket) context.serverSocket.accept();
+
+        final String[] serverCipherSuites = server.getEnabledCipherSuites();
+        final String[] clientCipherSuites = new String[serverCipherSuites.length + 1];
+        System.arraycopy(serverCipherSuites, 0, clientCipherSuites, 0, serverCipherSuites.length);
+        clientCipherSuites[serverCipherSuites.length] = StandardNames.CIPHER_SUITE_FALLBACK;
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        Future<Void> s = executor.submit(new Callable<Void>() {
+                public Void call() throws Exception {
+                    server.setEnabledProtocols(new String[] { "TLSv1.2" });
+                    server.setEnabledCipherSuites(serverCipherSuites);
+                    server.startHandshake();
+                    return null;
+                }
+            });
+        Future<Void> c = executor.submit(new Callable<Void>() {
+                public Void call() throws Exception {
+                    client.setEnabledProtocols(new String[] { "TLSv1.2" });
+                    client.setEnabledCipherSuites(clientCipherSuites);
+                    client.startHandshake();
+                    return null;
+                }
+            });
+        executor.shutdown();
+
+        s.get();
+        c.get();
+        client.close();
+        server.close();
+        context.close();
+    }
+
+    public void test_SSLSocket_sendsTlsFallbackScsv_InappropriateFallback_Failure() throws Exception {
+        TestSSLContext context = TestSSLContext.create();
+
+        final SSLSocket client = (SSLSocket)
+            context.clientContext.getSocketFactory().createSocket(context.host, context.port);
+        final SSLSocket server = (SSLSocket) context.serverSocket.accept();
+
+        final String[] serverCipherSuites = server.getEnabledCipherSuites();
+        final String[] clientCipherSuites = new String[serverCipherSuites.length + 1];
+        System.arraycopy(serverCipherSuites, 0, clientCipherSuites, 0, serverCipherSuites.length);
+        clientCipherSuites[serverCipherSuites.length] = StandardNames.CIPHER_SUITE_FALLBACK;
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        Future<Void> s = executor.submit(new Callable<Void>() {
+                public Void call() throws Exception {
+                    server.setEnabledProtocols(new String[] { "TLSv1", "SSLv3" });
+                    server.setEnabledCipherSuites(serverCipherSuites);
+                    try {
+                        server.startHandshake();
+                        fail("Should result in inappropriate fallback");
+                    } catch (SSLHandshakeException expected) {
+                    }
+                    return null;
+                }
+            });
+        Future<Void> c = executor.submit(new Callable<Void>() {
+                public Void call() throws Exception {
+                    client.setEnabledProtocols(new String[] { "SSLv3" });
+                    client.setEnabledCipherSuites(clientCipherSuites);
+                    try {
+                        client.startHandshake();
+                        fail("Should receive TLS alert inappropriate fallback");
+                    } catch (SSLHandshakeException expected) {
+                    }
+                    return null;
+                }
+            });
+        executor.shutdown();
+
+        s.get();
+        c.get();
+        client.close();
+        server.close();
+        context.close();
     }
 
     /**
