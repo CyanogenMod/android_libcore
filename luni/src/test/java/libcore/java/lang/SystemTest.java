@@ -171,6 +171,20 @@ public class SystemTest extends TestCase {
         assertEquals(userDir, System.getProperty("user.dir"));
     }
 
+    public void testSystemProperties_mutable() {
+        // We allow "java.io.tmpdir" and "user.home" to be changed however
+        // we can't test for "java.io.tmpdir" consistently across test runners because
+        // it will be immutable if set on the dalvikvm command line "-Djava.io.tmpdir="
+        // like vogar does.
+        String oldUserHome = System.getProperty("user.home");
+        try {
+            System.setProperty("user.home", "/user/home");
+            assertEquals("/user/home", System.getProperty("user.home"));
+        } finally {
+            System.setProperty("user.home", oldUserHome);
+        }
+    }
+
     public void testSystemProperties_setProperties_null() {
         // user.dir is an immutable property
         String userDir = System.getProperty("user.dir");
