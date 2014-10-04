@@ -756,7 +756,6 @@ public final class System {
 
         try {
             StructPasswd passwd = Libcore.os.getpwuid(Libcore.os.getuid());
-            p.put("user.home", passwd.pw_dir);
             p.put("user.name", passwd.pw_name);
         } catch (ErrnoException exception) {
             throw new AssertionError(exception);
@@ -788,13 +787,23 @@ public final class System {
         unchangeableSystemProperties.put(name, value);
     }
 
-    private static Properties createSystemProperties() {
-        Properties p = new PropertiesWithNonOverrideableDefaults(unchangeableSystemProperties);
-
+    private static void setDefaultChangeableProperties(Properties p) {
         // On Android, each app gets its own temporary directory.
         // (See android.app.ActivityThread.) This is just a fallback default,
         // useful only on the host.
         p.put("java.io.tmpdir", "/tmp");
+
+        // Android has always had an empty "user.home" (see docs for getProperty).
+        // This is not useful for normal android apps which need to use android specific
+        // APIs such as {@code Context.getFilesDir} and {@code Context.getCacheDir} but
+        // we make it changeable for backward compatibility, so that they can change it
+        // to a writeable location if required.
+        p.put("user.home", "");
+    }
+
+    private static Properties createSystemProperties() {
+        Properties p = new PropertiesWithNonOverrideableDefaults(unchangeableSystemProperties);
+        setDefaultChangeableProperties(p);
         return p;
     }
 
@@ -1068,6 +1077,9 @@ public final class System {
                 new PropertiesWithNonOverrideableDefaults(unchangeableSystemProperties);
         if (p != null) {
             userProperties.putAll(p);
+        } else {
+            // setProperties(null) is documented to restore defaults.
+            setDefaultChangeableProperties(userProperties);
         }
 
         systemProperties = userProperties;
