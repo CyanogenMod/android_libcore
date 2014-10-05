@@ -114,7 +114,7 @@ public class RuntimeTest extends junit.framework.TestCase {
      * java.lang.Runtime#maxMemory()
      */
     public void test_memory() {
-        assertTrue("freeMemory <= 0", r.freeMemory() > 0);
+        assertTrue("freeMemory < 0", r.freeMemory() >= 0);
         assertTrue("totalMemory() < freeMemory()", r.totalMemory() >= r.freeMemory());
         assertTrue("maxMemory() < totalMemory()", r.maxMemory() >= r.totalMemory());
     }
