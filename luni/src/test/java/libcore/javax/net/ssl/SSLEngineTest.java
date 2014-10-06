@@ -154,11 +154,11 @@ public class SSLEngineTest extends TestCase {
                 continue;
             }
             /*
-             * TLS_EMPTY_RENEGOTIATION_INFO_SCSV cannot be used on
-             * its own, but instead in conjunction with other
-             * cipher suites.
+             * Signaling Cipher Suite Values (SCSV) cannot be used on their own, but instead in
+             * conjunction with other cipher suites.
              */
-            if (cipherSuite.equals(StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION)) {
+            if (cipherSuite.equals(StandardNames.CIPHER_SUITE_SECURE_RENEGOTIATION)
+                    || cipherSuite.equals(StandardNames.CIPHER_SUITE_FALLBACK)) {
                 continue;
             }
             /*
