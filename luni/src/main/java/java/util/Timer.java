@@ -25,7 +25,7 @@ package java.util;
  * <p>Each timer has one thread on which tasks are executed sequentially. When
  * this thread is busy running a task, runnable tasks may be subject to delays.
  *
- * <p>One-shot are scheduled to run at an absolute time or after a relative
+ * <p>One-shot tasks are scheduled to run at an absolute time or after a relative
  * delay.
  *
  * <p>Recurring tasks are scheduled with either a fixed period or a fixed rate:
