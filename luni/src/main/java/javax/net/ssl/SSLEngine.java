@@ -542,6 +542,11 @@ import java.nio.ByteBuffer;
  *             <td>20+</td>
  *         </tr>
  *         <tr>
+ *             <td>TLS_FALLBACK_SCSV</td>
+ *             <td>21+</td>
+ *             <td></td>
+ *         </tr>
+ *         <tr>
  *             <td>TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA</td>
  *             <td>21+</td>
  *             <td>21+</td>
