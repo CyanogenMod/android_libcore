@@ -42,6 +42,7 @@ import java.net.PasswordAuthentication;
 import java.net.ProtocolException;
 import java.net.Proxy;
 import java.net.ResponseCache;
+import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URL;
@@ -68,17 +69,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import javax.net.SocketFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import junit.framework.TestCase;
 import libcore.java.lang.ref.FinalizationTester;
+import libcore.java.security.StandardNames;
 import libcore.java.security.TestKeyStore;
 import libcore.javax.net.ssl.TestSSLContext;
 import libcore.net.http.HttpResponseCache;
@@ -514,7 +518,14 @@ public final class URLConnectionTest extends TestCase {
     public void testConnectViaHttpsWithSSLFallback() throws IOException, InterruptedException {
         TestSSLContext testSSLContext = TestSSLContext.create();
 
-        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+        // This server socket factory only supports SSLv3. This is to avoid issues due to SCSV
+        // checks. See https://tools.ietf.org/html/draft-ietf-tls-downgrade-scsv-00
+        SSLSocketFactory serverSocketFactory =
+                new LimitedProtocolsSocketFactory(
+                        testSSLContext.serverContext.getSocketFactory(),
+                        "SSLv3");
+
+        server.useHttps(serverSocketFactory, false);
         server.enqueue(new MockResponse().setSocketPolicy(DISCONNECT_AT_START));
         server.enqueue(new MockResponse().setBody("this response comes via SSL"));
         server.play();
@@ -2197,13 +2208,24 @@ public final class URLConnectionTest extends TestCase {
 
     public void testSslFallback() throws Exception {
         TestSSLContext testSSLContext = TestSSLContext.create();
-        server.useHttps(testSSLContext.serverContext.getSocketFactory(), false);
+
+        // This server socket factory only supports SSLv3. This is to avoid issues due to SCSV
+        // checks. See https://tools.ietf.org/html/draft-ietf-tls-downgrade-scsv-00
+        SSLSocketFactory serverSocketFactory =
+                new LimitedProtocolsSocketFactory(
+                        testSSLContext.serverContext.getSocketFactory(),
+                        "SSLv3");
+
+        server.useHttps(serverSocketFactory, false);
         server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.FAIL_HANDSHAKE));
         server.enqueue(new MockResponse().setBody("This required a 2nd handshake"));
         server.play();
 
         HttpsURLConnection connection = (HttpsURLConnection) server.getUrl("/").openConnection();
-        connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        // Keep track of the client sockets created so that we can interrogate them.
+        RecordingSocketFactory clientSocketFactory =
+                new RecordingSocketFactory(testSSLContext.clientContext.getSocketFactory());
+        connection.setSSLSocketFactory(clientSocketFactory);
         assertEquals("This required a 2nd handshake",
                 readAscii(connection.getInputStream(), Integer.MAX_VALUE));
 
@@ -2212,6 +2234,26 @@ public final class URLConnectionTest extends TestCase {
         RecordedRequest retry = server.takeRequest();
         assertEquals(0, retry.getSequenceNumber());
         assertEquals("SSLv3", retry.getSslProtocol());
+
+        // Confirm the client fallback looks ok.
+        List<SSLSocket> createdSockets = clientSocketFactory.getCreatedSockets();
+        assertEquals(2, createdSockets.size());
+        SSLSocket clientSocket1 = createdSockets.get(0);
+        List<String> clientSocket1EnabledProtocols = Arrays.asList(
+                clientSocket1.getEnabledProtocols());
+        assertContains(clientSocket1EnabledProtocols, "TLSv1");
+        List<String> clientSocket1EnabledCiphers =
+                Arrays.asList(clientSocket1.getEnabledCipherSuites());
+        assertContainsNoneMatching(
+                clientSocket1EnabledCiphers, StandardNames.CIPHER_SUITE_FALLBACK);
+
+        SSLSocket clientSocket2 = createdSockets.get(1);
+        List<String> clientSocket2EnabledProtocols =
+                Arrays.asList(clientSocket2.getEnabledProtocols());
+        assertContainsNoneMatching(clientSocket2EnabledProtocols, "TLSv1");
+        List<String> clientSocket2EnabledCiphers =
+                Arrays.asList(clientSocket2.getEnabledCipherSuites());
+        assertContains(clientSocket2EnabledCiphers, StandardNames.CIPHER_SUITE_FALLBACK);
     }
 
     public void testInspectSslBeforeConnect() throws Exception {
@@ -2291,12 +2333,12 @@ public final class URLConnectionTest extends TestCase {
         assertContent(expected, connection, Integer.MAX_VALUE);
     }
 
-    private void assertContains(List<String> headers, String header) {
-        assertTrue(headers.toString(), headers.contains(header));
+    private void assertContains(List<String> list, String value) {
+        assertTrue(list.toString(), list.contains(value));
     }
 
-    private void assertContainsNoneMatching(List<String> headers, String pattern) {
-        for (String header : headers) {
+    private void assertContainsNoneMatching(List<String> list, String pattern) {
+        for (String header : list) {
             if (header.matches(pattern)) {
                 fail("Header " + header + " matches " + pattern);
             }
@@ -2445,4 +2487,183 @@ public final class URLConnectionTest extends TestCase {
                     : null;
         }
     }
+
+    /**
+     * An SSLSocketFactory that delegates all calls.
+     */
+    private static class DelegatingSSLSocketFactory extends SSLSocketFactory {
+
+        protected final SSLSocketFactory delegate;
+
+        public DelegatingSSLSocketFactory(SSLSocketFactory delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public String[] getDefaultCipherSuites() {
+            return delegate.getDefaultCipherSuites();
+        }
+
+        @Override
+        public String[] getSupportedCipherSuites() {
+            return delegate.getSupportedCipherSuites();
+        }
+
+        @Override
+        public Socket createSocket(Socket s, String host, int port, boolean autoClose)
+                throws IOException {
+            return delegate.createSocket(s, host, port, autoClose);
+        }
+
+        @Override
+        public Socket createSocket() throws IOException {
+            return delegate.createSocket();
+        }
+
+        @Override
+        public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+            return delegate.createSocket(host, port);
+        }
+
+        @Override
+        public Socket createSocket(String host, int port, InetAddress localHost,
+                int localPort) throws IOException, UnknownHostException {
+            return delegate.createSocket(host, port, localHost, localPort);
+        }
+
+        @Override
+        public Socket createSocket(InetAddress host, int port) throws IOException {
+            return delegate.createSocket(host, port);
+        }
+
+        @Override
+        public Socket createSocket(InetAddress address, int port,
+                InetAddress localAddress, int localPort) throws IOException {
+            return delegate.createSocket(address, port, localAddress, localPort);
+        }
+
+    }
+
+    /**
+     * An SSLSocketFactory that delegates calls but limits the enabled protocols for any created
+     * sockets.
+     */
+    private static class LimitedProtocolsSocketFactory extends DelegatingSSLSocketFactory {
+
+        private final String[] protocols;
+
+        private LimitedProtocolsSocketFactory(SSLSocketFactory delegate, String... protocols) {
+            super(delegate);
+            this.protocols = protocols;
+        }
+
+        @Override
+        public Socket createSocket(Socket s, String host, int port, boolean autoClose)
+                throws IOException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket(s, host, port, autoClose);
+            socket.setEnabledProtocols(protocols);
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket() throws IOException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket();
+            socket.setEnabledProtocols(protocols);
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket(host, port);
+            socket.setEnabledProtocols(protocols);
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket(String host, int port, InetAddress localHost,
+                int localPort) throws IOException, UnknownHostException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket(host, port, localHost, localPort);
+            socket.setEnabledProtocols(protocols);
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket(InetAddress host, int port) throws IOException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket(host, port);
+            socket.setEnabledProtocols(protocols);
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket(InetAddress address, int port,
+                InetAddress localAddress, int localPort) throws IOException {
+            SSLSocket socket =
+                    (SSLSocket) delegate.createSocket(address, port, localAddress, localPort);
+            socket.setEnabledProtocols(protocols);
+            return socket;
+        }
+    }
+
+    /**
+     * An SSLSocketFactory that delegates calls and keeps a record of any sockets created.
+     */
+    private static class RecordingSocketFactory extends DelegatingSSLSocketFactory {
+
+        private final List<SSLSocket> createdSockets = new ArrayList<SSLSocket>();
+
+        private RecordingSocketFactory(SSLSocketFactory delegate) {
+            super(delegate);
+        }
+
+        @Override
+        public Socket createSocket(Socket s, String host, int port, boolean autoClose)
+                throws IOException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket(s, host, port, autoClose);
+            createdSockets.add(socket);
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket() throws IOException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket();
+            createdSockets.add(socket);
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket(host, port);
+            createdSockets.add(socket);
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket(String host, int port, InetAddress localHost,
+                int localPort) throws IOException, UnknownHostException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket(host, port, localHost, localPort);
+            createdSockets.add(socket);
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket(InetAddress host, int port) throws IOException {
+            SSLSocket socket = (SSLSocket) delegate.createSocket(host, port);
+            createdSockets.add(socket);
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket(InetAddress address, int port,
+                InetAddress localAddress, int localPort) throws IOException {
+            SSLSocket socket =
+                    (SSLSocket) delegate.createSocket(address, port, localAddress, localPort);
+            createdSockets.add(socket);
+            return socket;
+        }
+
+        public List<SSLSocket> getCreatedSockets() {
+            return createdSockets;
+        }
+    }
+
 }

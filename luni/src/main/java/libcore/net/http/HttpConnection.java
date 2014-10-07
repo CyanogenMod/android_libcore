@@ -203,6 +203,27 @@ final class HttpConnection {
             openSslSocket.setHostname(address.uriHost);
             // use SSLSocketFactory default enabled protocols
         } else {
+            // In accordance with https://tools.ietf.org/html/draft-ietf-tls-downgrade-scsv-00
+            // the SCSV cipher is added to signal that a protocol fallback has taken place.
+            final String fallbackScsv = "TLS_FALLBACK_SCSV";
+            boolean socketSupportsFallbackScsv = false;
+            String[] supportedCipherSuites = unverifiedSocket.getSupportedCipherSuites();
+            for (int i = supportedCipherSuites.length - 1; i >= 0; i--) {
+                String supportedCipherSuite = supportedCipherSuites[i];
+                if (fallbackScsv.equals(supportedCipherSuite)) {
+                    socketSupportsFallbackScsv = true;
+                    break;
+                }
+            }
+            if (socketSupportsFallbackScsv) {
+                // Add the SCSV cipher to the set of enabled ciphers.
+                String[] enabledCipherSuites = unverifiedSocket.getEnabledCipherSuites();
+                String[] newEnabledCipherSuites = new String[enabledCipherSuites.length + 1];
+                System.arraycopy(enabledCipherSuites, 0,
+                        newEnabledCipherSuites, 0, enabledCipherSuites.length);
+                newEnabledCipherSuites[newEnabledCipherSuites.length - 1] = fallbackScsv;
+                unverifiedSocket.setEnabledCipherSuites(newEnabledCipherSuites);
+            }
             unverifiedSocket.setEnabledProtocols(new String [] { "SSLv3" });
         }
         // force handshake, which can throw
