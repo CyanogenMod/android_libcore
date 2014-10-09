@@ -903,10 +903,9 @@ public class FileTest extends TestCase {
     public void test_getParent() {
         File f = new File("p.tst");
         assertNull("Incorrect path returned", f.getParent());
-        f = new File(System.getProperty("user.home"), "p.tst");
+        f = new File("/user/home/p.tst");
         assertEquals("Incorrect path returned",
-                System.getProperty("user.home"), f.getParent());
-        f.delete();
+                "/user/home", f.getParent());
 
         File f1 = new File("/directory");
         assertEquals("Wrong parent test 1", File.separator, f1.getParent());
