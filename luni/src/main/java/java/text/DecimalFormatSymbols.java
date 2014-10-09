@@ -47,7 +47,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
     private char decimalSeparator;
     private char groupingSeparator;
     private char patternSeparator;
-    private char percent;
+    private String percent;
     private char perMill;
     private char monetarySeparator;
     private String minusSign;
@@ -306,6 +306,11 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         return minusSign;
     }
 
+    /** @hide */
+    public String getPercentString() {
+        return percent;
+    }
+
     /**
      * Returns the character which represents the decimal point in a monetary
      * value.
@@ -341,7 +346,10 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      * @return the percent character.
      */
     public char getPercent() {
-        return percent;
+        if (percent.length() == 1) {
+            return percent.charAt(0);
+        }
+        throw new UnsupportedOperationException("Percent spans multiple characters: " + percent);
     }
 
     /**
@@ -378,7 +386,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         result = 31*result + decimalSeparator;
         result = 31*result + groupingSeparator;
         result = 31*result + patternSeparator;
-        result = 31*result + percent;
+        result = 31*result + percent.hashCode();
         result = 31*result + perMill;
         result = 31*result + monetarySeparator;
         result = 31*result + minusSign.hashCode();
@@ -544,7 +552,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
      *            the percent character.
      */
     public void setPercent(char value) {
-        this.percent = value;
+        this.percent = String.valueOf(value);
     }
 
     /**

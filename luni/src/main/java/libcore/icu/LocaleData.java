@@ -96,7 +96,7 @@ public final class LocaleData {
     public char decimalSeparator;
     public char groupingSeparator;
     public char patternSeparator;
-    public char percent;
+    public String percent;
     public char perMill;
     public char monetarySeparator;
     public String minusSign;

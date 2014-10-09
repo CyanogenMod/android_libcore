@@ -406,7 +406,7 @@ static void setDecimalFormatSymbolsData(JNIEnv* env, jobject obj, Locale& locale
     setCharField(env, obj, "decimalSeparator", dfs.getSymbol(DecimalFormatSymbols::kDecimalSeparatorSymbol));
     setCharField(env, obj, "groupingSeparator", dfs.getSymbol(DecimalFormatSymbols::kGroupingSeparatorSymbol));
     setCharField(env, obj, "patternSeparator", dfs.getSymbol(DecimalFormatSymbols::kPatternSeparatorSymbol));
-    setCharField(env, obj, "percent", dfs.getSymbol(DecimalFormatSymbols::kPercentSymbol));
+    setStringField(env, obj, "percent", dfs.getSymbol(DecimalFormatSymbols::kPercentSymbol));
     setCharField(env, obj, "perMill", dfs.getSymbol(DecimalFormatSymbols::kPerMillSymbol));
     setCharField(env, obj, "monetarySeparator", dfs.getSymbol(DecimalFormatSymbols::kMonetarySeparatorSymbol));
     setStringField(env, obj, "minusSign", dfs.getSymbol(DecimalFormatSymbols:: kMinusSignSymbol));
