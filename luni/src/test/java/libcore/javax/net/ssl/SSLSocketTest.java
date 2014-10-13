@@ -1608,6 +1608,42 @@ public class SSLSocketTest extends TestCase {
         context.close();
     }
 
+    // Confirms that communication without the TLS_FALLBACK_SCSV cipher works as it always did.
+    public void test_SSLSocket_sendsNoTlsFallbackScsv_Fallback_Success() throws Exception {
+        TestSSLContext context = TestSSLContext.create();
+
+        final SSLSocket client = (SSLSocket)
+            context.clientContext.getSocketFactory().createSocket(context.host, context.port);
+        final SSLSocket server = (SSLSocket) context.serverSocket.accept();
+
+        // Confirm absence of TLS_FALLBACK_SCSV.
+        assertFalse(Arrays.asList(client.getEnabledCipherSuites())
+                .contains(StandardNames.CIPHER_SUITE_FALLBACK));
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        Future<Void> s = executor.submit(new Callable<Void>() {
+                public Void call() throws Exception {
+                    server.setEnabledProtocols(new String[] { "TLSv1", "SSLv3" });
+                    server.startHandshake();
+                    return null;
+                }
+            });
+        Future<Void> c = executor.submit(new Callable<Void>() {
+                public Void call() throws Exception {
+                    client.setEnabledProtocols(new String[] { "SSLv3" });
+                    client.startHandshake();
+                    return null;
+                }
+            });
+        executor.shutdown();
+
+        s.get();
+        c.get();
+        client.close();
+        server.close();
+        context.close();
+    }
+
     public void test_SSLSocket_sendsTlsFallbackScsv_InappropriateFallback_Failure() throws Exception {
         TestSSLContext context = TestSSLContext.create();
 
@@ -1616,6 +1652,8 @@ public class SSLSocketTest extends TestCase {
         final SSLSocket server = (SSLSocket) context.serverSocket.accept();
 
         final String[] serverCipherSuites = server.getEnabledCipherSuites();
+
+        // Add TLS_FALLBACK_SCSV
         final String[] clientCipherSuites = new String[serverCipherSuites.length + 1];
         System.arraycopy(serverCipherSuites, 0, clientCipherSuites, 0, serverCipherSuites.length);
         clientCipherSuites[serverCipherSuites.length] = StandardNames.CIPHER_SUITE_FALLBACK;

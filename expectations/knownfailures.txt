@@ -1473,6 +1473,19 @@
   ]
 },
 {
+  description: "Some OkHttp tests were written before the introduction of TLS_FALLBACK_SCSV and have only been fixed for APIs used by Android",
+  bug: 17962997,
+  names: [
+    "com.squareup.okhttp.SyncApiTest#recoverFromTlsHandshakeFailure",
+    "com.squareup.okhttp.AsyncApiTest#recoverFromTlsHandshakeFailure"
+  ]
+},
+{
+  description: "JavaApiConverterTest#createOkResponse_fromJavaHttpsUrlConnection works independently but fails when run with some other test(s).",
+  bug: 17962997,
+  name: "com.squareup.okhttp.internal.http.JavaApiConverterTest#createOkResponse_fromJavaHttpsUrlConnection"
+},
+{
   description: "Okhttp test hardcodes the TLS version expected.",
   bug: 14462336,
   names: [
