@@ -22,7 +22,9 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 import org.kxml2.io.KXmlSerializer;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xmlpull.v1.XmlSerializer;
 import static tests.support.Support_Xml.domOf;
 
@@ -87,12 +89,67 @@ public final class KxmlSerializerTest extends TestCase {
         return serializer;
     }
 
+    public String fromCodePoint(int codePoint) {
+        if (codePoint > Character.MAX_VALUE) {
+            return new String(Character.toChars(codePoint));
+        }
+        return Character.toString((char) codePoint);
+    }
+
+    // http://b/17960630
+    public void testSpeakNoEvilMonkeys() throws Exception {
+        StringWriter stringWriter = new StringWriter();
+        XmlSerializer serializer = new KXmlSerializer();
+        serializer.setOutput(stringWriter);
+        serializer.startDocument("UTF-8", null);
+        serializer.startTag(NAMESPACE, "tag");
+        serializer.attribute(NAMESPACE, "attr", "a\ud83d\ude4ab");
+        serializer.text("c\ud83d\ude4ad");
+        serializer.cdsect("e\ud83d\ude4af");
+        serializer.endTag(NAMESPACE, "tag");
+        serializer.endDocument();
+        assertXmlEquals("<tag attr=\"a&#128586;b\">" +
+                        "c&#128586;d" +
+                        "<![CDATA[e]]>&#128586;<![CDATA[f]]>" +
+                        "</tag>", stringWriter.toString());
+
+        // Check we can parse what we just output.
+        Document doc = domOf(stringWriter.toString());
+        Node root = doc.getDocumentElement();
+        assertEquals("a\ud83d\ude4ab", root.getAttributes().getNamedItem("attr").getNodeValue());
+        Text text = (Text) root.getFirstChild();
+        assertEquals("c\ud83d\ude4ade\ud83d\ude4af", text.getNodeValue());
+    }
+
+    public void testBadSurrogates() throws Exception {
+        StringWriter stringWriter = new StringWriter();
+        XmlSerializer serializer = new KXmlSerializer();
+        serializer.setOutput(stringWriter);
+        serializer.startDocument("UTF-8", null);
+        serializer.startTag(NAMESPACE, "tag");
+        try {
+            serializer.attribute(NAMESPACE, "attr", "a\ud83d\u0040b");
+        } catch (IllegalArgumentException expected) {
+        }
+        try {
+            serializer.text("c\ud83d\u0040d");
+        } catch (IllegalArgumentException expected) {
+        }
+        try {
+            serializer.cdsect("e\ud83d\u0040f");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    // Cover all the BMP code points plus a few that require us to use surrogates.
+    private static int MAX_TEST_CODE_POINT = 0x10008;
+
     public void testInvalidCharactersInText() throws IOException {
         XmlSerializer serializer = newSerializer();
         serializer.startTag(NAMESPACE, "root");
-        for (int ch = 0; ch <= 0xffff; ++ch) {
-            final String s = Character.toString((char) ch);
-            if (isValidXmlCodePoint(ch)) {
+        for (int c = 0; c <= MAX_TEST_CODE_POINT; ++c) {
+            final String s = fromCodePoint(c);
+            if (isValidXmlCodePoint(c)) {
                 serializer.text("a" + s + "b");
             } else {
                 try {
@@ -108,9 +165,9 @@ public final class KxmlSerializerTest extends TestCase {
     public void testInvalidCharactersInAttributeValues() throws IOException {
         XmlSerializer serializer = newSerializer();
         serializer.startTag(NAMESPACE, "root");
-        for (int ch = 0; ch <= 0xffff; ++ch) {
-            final String s = Character.toString((char) ch);
-            if (isValidXmlCodePoint(ch)) {
+        for (int c = 0; c <= MAX_TEST_CODE_POINT; ++c) {
+            final String s = fromCodePoint(c);
+            if (isValidXmlCodePoint(c)) {
                 serializer.attribute(NAMESPACE, "a", "a" + s + "b");
             } else {
                 try {
@@ -126,9 +183,9 @@ public final class KxmlSerializerTest extends TestCase {
     public void testInvalidCharactersInCdataSections() throws IOException {
         XmlSerializer serializer = newSerializer();
         serializer.startTag(NAMESPACE, "root");
-        for (int ch = 0; ch <= 0xffff; ++ch) {
-            final String s = Character.toString((char) ch);
-            if (isValidXmlCodePoint(ch)) {
+        for (int c = 0; c <= MAX_TEST_CODE_POINT; ++c) {
+            final String s = fromCodePoint(c);
+            if (isValidXmlCodePoint(c)) {
                 serializer.cdsect("a" + s + "b");
             } else {
                 try {
