@@ -764,7 +764,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         int initial_size = virtualMethods == null ? 0 : virtualMethods.length;
         initial_size += directMethods == null ? 0 : directMethods.length;
         ArrayList<Method> methods = new ArrayList<Method>(initial_size);
-        getDeclaredMethods(false, methods);
+        getDeclaredMethodsUnchecked(false, methods);
         Method[] result = methods.toArray(new Method[methods.size()]);
         for (Method m : result) {
             // Throw NoClassDefFoundError if types cannot be resolved.
@@ -776,10 +776,14 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     }
 
     /**
-     * Returns the list of methods without performing any security checks
-     * first. If no methods exist, an empty array is returned.
+     * Populates a list of methods without performing any security or type
+     * resolution checks first. If no methods exist, the list is not modified.
+     *
+     * @param publicOnly Whether to return only public methods.
+     * @param methods A list to populate with declared methods.
+     * @hide
      */
-    private void getDeclaredMethods(boolean publicOnly, List<Method> methods) {
+    public void getDeclaredMethodsUnchecked(boolean publicOnly, List<Method> methods) {
         if (virtualMethods != null) {
             for (ArtMethod m : virtualMethods) {
                 int modifiers = m.getAccessFlags();
@@ -832,11 +836,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * superclasses, and all implemented interfaces, including overridden methods.
      */
     private void getPublicMethodsInternal(List<Method> result) {
-        getDeclaredMethods(true, result);
+        getDeclaredMethodsUnchecked(true, result);
         if (!isInterface()) {
             // Search superclasses, for interfaces don't search java.lang.Object.
             for (Class<?> c = superClass; c != null; c = c.superClass) {
-                c.getDeclaredMethods(true, result);
+                c.getDeclaredMethodsUnchecked(true, result);
             }
         }
         // Search iftable which has a flattened and uniqued list of interfaces.
@@ -844,7 +848,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (iftable != null) {
             for (int i = 0; i < iftable.length; i += 2) {
                 Class<?> ifc = (Class<?>) iftable[i];
-                ifc.getDeclaredMethods(true, result);
+                ifc.getDeclaredMethodsUnchecked(true, result);
             }
         }
     }
@@ -902,7 +906,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         int initial_size = sFields == null ? 0 : sFields.length;
         initial_size += iFields == null ? 0 : iFields.length;
         ArrayList<Field> fields = new ArrayList(initial_size);
-        getDeclaredFields(false, fields);
+        getDeclaredFieldsUnchecked(false, fields);
         Field[] result = fields.toArray(new Field[fields.size()]);
         for (Field f : result) {
             f.getType();  // Throw NoClassDefFoundError if type cannot be resolved.
@@ -910,7 +914,15 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         return result;
     }
 
-    private void getDeclaredFields(boolean publicOnly, List<Field> fields) {
+    /**
+     * Populates a list of fields without performing any security or type
+     * resolution checks first. If no fields exist, the list is not modified.
+     *
+     * @param publicOnly Whether to return only public fields.
+     * @param fields A list to populate with declared fields.
+     * @hide
+     */
+    public void getDeclaredFieldsUnchecked(boolean publicOnly, List<Field> fields) {
         if (iFields != null) {
             for (ArtField f : iFields) {
                 if (!publicOnly || Modifier.isPublic(f.getAccessFlags())) {
@@ -1103,7 +1115,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     private void getPublicFieldsRecursive(List<Field> result) {
         // search superclasses
         for (Class<?> c = this; c != null; c = c.superClass) {
-            c.getDeclaredFields(true, result);
+            c.getDeclaredFieldsUnchecked(true, result);
         }
 
         // search iftable which has a flattened and uniqued list of interfaces
@@ -1111,7 +1123,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (iftable != null) {
             for (int i = 0; i < iftable.length; i += 2) {
                 Class<?> ifc = (Class<?>) iftable[i];
-                ifc.getDeclaredFields(true, result);
+                ifc.getDeclaredFieldsUnchecked(true, result);
             }
         }
     }
