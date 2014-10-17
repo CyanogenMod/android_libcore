@@ -133,7 +133,7 @@ public class CertBlacklistTest extends TestCase {
 
     private Set<String> getPubkeyBlacklist(String path) throws IOException {
         // set our blacklist path
-        CertBlacklist bl = new CertBlacklist(path, CertBlacklist.DEFAULT_SERIAL_BLACKLIST_PATH);
+        CertBlacklist bl = new CertBlacklist(path, "");
         // call readPubkeyBlacklist
         Set<byte[]> arr = bl.pubkeyBlacklist;
         // convert the results to a hashset of strings
@@ -146,7 +146,7 @@ public class CertBlacklistTest extends TestCase {
 
     private Set<String> getSerialBlacklist(String path) throws IOException {
         // set our blacklist path
-        CertBlacklist bl = new CertBlacklist(CertBlacklist.DEFAULT_PUBKEY_BLACKLIST_PATH, path);
+        CertBlacklist bl = new CertBlacklist("", path);
         // call readPubkeyBlacklist
         Set<BigInteger> arr = bl.serialBlacklist;
         // convert the results to a hashset of strings
@@ -231,8 +231,7 @@ public class CertBlacklistTest extends TestCase {
         // write that to the test blacklist
         writeBlacklist(new HashSet<String>());
         // set our blacklist path
-        CertBlacklist bl = new CertBlacklist(tmpFile.getCanonicalPath(),
-                                             CertBlacklist.DEFAULT_SERIAL_BLACKLIST_PATH);
+        CertBlacklist bl = new CertBlacklist(tmpFile.getCanonicalPath(), "");
         // check to make sure it isn't blacklisted
         assertEquals(bl.isPublicKeyBlackListed(pk), false);
     }
@@ -247,8 +246,7 @@ public class CertBlacklistTest extends TestCase {
         testBlackList.add(hash);
         writeBlacklist(testBlackList);
         // set our blacklist path
-        CertBlacklist bl = new CertBlacklist(tmpFile.getCanonicalPath(),
-                                             CertBlacklist.DEFAULT_SERIAL_BLACKLIST_PATH);
+        CertBlacklist bl = new CertBlacklist(tmpFile.getCanonicalPath(), "");
         // check to make sure it isn't blacklited
         assertTrue(bl.isPublicKeyBlackListed(pk));
     }
