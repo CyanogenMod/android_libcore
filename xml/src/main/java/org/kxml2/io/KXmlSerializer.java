@@ -125,14 +125,18 @@ public class KXmlSerializer implements XmlSerializer {
                     // otherwise generate.
                     // Note: tab, newline, and carriage return have already been
                     // handled above.
-                    boolean valid = (c >= 0x20 && c <= 0xd7ff) || (c >= 0xe000 && c <= 0xfffd);
-                    if (!valid) {
-                        reportInvalidCharacter(c);
-                    }
-                    if (unicode || c < 127) {
-                        writer.write(c);
+                    boolean allowedInXml = (c >= 0x20 && c <= 0xd7ff) || (c >= 0xe000 && c <= 0xfffd);
+                    if (allowedInXml) {
+                        if (unicode || c < 127) {
+                            writer.write(c);
+                        } else {
+                            writer.write("&#" + ((int) c) + ";");
+                        }
+                    } else if (Character.isHighSurrogate(c) && i < s.length() - 1) {
+                        writeSurrogate(c, s.charAt(i + 1));
+                        ++i;
                     } else {
-                        writer.write("&#" + ((int) c) + ";");
+                        reportInvalidCharacter(c);
                     }
                     // END android-changed
             }
@@ -141,7 +145,7 @@ public class KXmlSerializer implements XmlSerializer {
 
     // BEGIN android-added
     private static void reportInvalidCharacter(char ch) {
-        throw new IllegalArgumentException("Illegal character (" + Integer.toHexString((int) ch) + ")");
+        throw new IllegalArgumentException("Illegal character (U+" + Integer.toHexString((int) ch) + ")");
     }
     // END android-added
 
@@ -548,21 +552,40 @@ public class KXmlSerializer implements XmlSerializer {
         // BEGIN android-changed: ]]> is not allowed within a CDATA,
         // so break and start a new one when necessary.
         data = data.replace("]]>", "]]]]><![CDATA[>");
-        char[] chars = data.toCharArray();
-        // We also aren't allowed any invalid characters.
-        for (char ch : chars) {
-            boolean valid = (ch >= 0x20 && ch <= 0xd7ff) ||
+        writer.write("<![CDATA[");
+        for (int i = 0; i < data.length(); ++i) {
+            char ch = data.charAt(i);
+            boolean allowedInCdata = (ch >= 0x20 && ch <= 0xd7ff) ||
                     (ch == '\t' || ch == '\n' || ch == '\r') ||
                     (ch >= 0xe000 && ch <= 0xfffd);
-            if (!valid) {
+            if (allowedInCdata) {
+                writer.write(ch);
+            } else if (Character.isHighSurrogate(ch) && i < data.length() - 1) {
+                // Character entities aren't valid in CDATA, so break out for this.
+                writer.write("]]>");
+                writeSurrogate(ch, data.charAt(++i));
+                writer.write("<![CDATA[");
+            } else {
                 reportInvalidCharacter(ch);
             }
         }
-        writer.write("<![CDATA[");
-        writer.write(chars, 0, chars.length);
         writer.write("]]>");
         // END android-changed
     }
+
+    // BEGIN android-added
+    private void writeSurrogate(char high, char low) throws IOException {
+        if (!Character.isLowSurrogate(low)) {
+            throw new IllegalArgumentException("Bad surrogate pair (U+" + Integer.toHexString((int) high) +
+                                               " U+" + Integer.toHexString((int) low) + ")");
+        }
+        // Java-style surrogate pairs aren't allowed in XML. We could use the > 3-byte encodings, but that
+        // seems likely to upset anything expecting modified UTF-8 rather than "real" UTF-8. It seems more
+        // conservative in a Java environment to use an entity reference instead.
+        int codePoint = Character.toCodePoint(high, low);
+        writer.write("&#" + codePoint + ";");
+    }
+    // END android-added
 
     public void comment(String comment) throws IOException {
         check(false);
