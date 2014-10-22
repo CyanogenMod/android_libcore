@@ -41,7 +41,7 @@ import libcore.icu.ICU;
  * rewriting happens even if you construct your own {@code Locale} object, not just for
  * instances returned by the various lookup methods.
  *
- * <a name="available_locales"><h3>Available locales</h3></a>
+ * <a name="available_locales"></a><h3>Available locales</h3>
  * <p>This class' constructors do no error checking. You can create a {@code Locale} for languages
  * and countries that don't exist, and you can create instances for combinations that don't
  * exist (such as "de_US" for "German as spoken in the US").
@@ -60,7 +60,7 @@ import libcore.icu.ICU;
  * device you're running on, or {@link Locale#getAvailableLocales} to get a list of all the locales
  * available on the device you're running on.
  *
- * <a name="locale_data"><h3>Locale data</h3></a>
+ * <a name="locale_data"></a><h3>Locale data</h3>
  * <p>Note that locale data comes solely from ICU. User-supplied locale service providers (using
  * the {@code java.text.spi} or {@code java.util.spi} mechanisms) are not supported.
  *
@@ -101,7 +101,7 @@ import libcore.icu.ICU;
  *     <td><a href="http://www.unicode.org/versions/Unicode6.3.0/">Unicode 6.3</a></td></tr>
  * </table>
  *
- * <a name="default_locale"><h3>Be wary of the default locale</h3></a>
+ * <a name="default_locale"></a><h3>Be wary of the default locale</h3>
  * <p>Note that there are many convenience methods that automatically use the default locale, but
  * using them may lead to subtle bugs.
  *

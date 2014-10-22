@@ -45,7 +45,7 @@ import libcore.util.EmptyArray;
  * behavior. Any locale-specific behavior is defined by the pattern that you
  * provide as well as the subformats used for inserted arguments.
  *
- * <h4><a name="patterns">Patterns and their interpretation</a></h4>
+ * <h4><a name="patterns"></a>Patterns and their interpretation</h4>
  *
  * {@code MessageFormat} uses patterns of the following form:
  * <blockquote>
@@ -321,7 +321,7 @@ import libcore.util.EmptyArray;
  * // result now equals {new String("z")}
  * </pre>
  * </blockquote>
- * <h4><a name="synchronization">Synchronization</a></h4>
+ * <h4><a name="synchronization"></a>Synchronization</h4>
  * <p>
  * Message formats are not synchronized. It is recommended to create separate
  * format instances for each thread. If multiple threads access a format
