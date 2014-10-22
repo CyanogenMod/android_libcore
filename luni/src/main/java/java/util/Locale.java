@@ -95,7 +95,7 @@ import libcore.icu.ICU;
  *     <td><a href="http://site.icu-project.org/download/51">ICU 51</a></td>
  *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-23">CLDR 23</a></td>
  *     <td><a href="http://www.unicode.org/versions/Unicode6.2.0/">Unicode 6.2</a></td></tr>
- * <tr><td>Android 4.? (STOPSHIP)</td>
+ * <tr><td>Android 5.0 (Lollipop)</td>
  *     <td><a href="http://site.icu-project.org/download/53">ICU 53</a></td>
  *     <td><a href="http://cldr.unicode.org/index/downloads/cldr-25">CLDR 25</a></td>
  *     <td><a href="http://www.unicode.org/versions/Unicode6.3.0/">Unicode 6.3</a></td></tr>
