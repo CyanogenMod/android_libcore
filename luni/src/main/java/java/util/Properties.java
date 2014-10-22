@@ -52,7 +52,7 @@ import org.xml.sax.SAXParseException;
  * values to be used when a given key is not found in this {@code Properties}
  * instance.
  *
- * <a name="character_encoding"><h3>Character Encoding</h3></a>
+ * <a name="character_encoding"></a><h3>Character Encoding</h3>
  * <p>Note that in some cases {@code Properties} uses ISO-8859-1 instead of UTF-8.
  * ISO-8859-1 is only capable of representing a tiny subset of Unicode.
  * Use either the {@code loadFromXML}/{@code storeToXML} methods (which use UTF-8 by

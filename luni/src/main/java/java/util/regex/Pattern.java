@@ -183,7 +183,7 @@ import java.io.Serializable;
  * <tr> <td> <i>a</i>|<i>b</i> </td> <td>Either expression <i>a</i> or expression <i>b</i>.</td> </tr>
  * </table>
  *
- * <a name="flags"><h3>Flags</h3></a>
+ * <a name="flags"></a><h3>Flags</h3>
  * <p><table>
  * <tr> <td> (?dimsux-dimsux:<i>a</i>) </td> <td>Evaluates the expression <i>a</i> with the given flags enabled/disabled.</td> </tr>
  * <tr> <td> (?dimsux-dimsux) </td> <td>Evaluates the rest of the pattern with the given flags enabled/disabled.</td> </tr>
