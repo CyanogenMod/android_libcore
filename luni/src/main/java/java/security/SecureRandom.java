@@ -46,8 +46,8 @@ import org.apache.harmony.security.provider.crypto.SHA1PRNG_SecureRandomImpl;
  * For deriving keys from passwords, see
  * {@link javax.crypto.SecretKeyFactory}.
  *
- * <h3><a name="insecure_seed">Seeding {@code SecureRandom} may be
- * insecure</a></h3>
+ * <h3><a name="insecure_seed"></a>Seeding {@code SecureRandom} may be
+ * insecure</h3>
  * A seed is an array of bytes used to bootstrap random number generation.
  * To produce cryptographically secure random numbers, both the seed and the
  * algorithm must be secure.
