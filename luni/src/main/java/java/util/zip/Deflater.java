@@ -51,7 +51,7 @@ import libcore.util.EmptyArray;
  * {@link DeflaterOutputStream} to handle all this for you. {@link DeflaterOutputStream} also helps
  * minimize memory requirements&nbsp;&mdash; the sample code above is very expensive.
  *
- * <a name="compression_level"><h3>Compression levels</h3></a>
+ * <a name="compression_level"></a><h3>Compression levels</h3>
  * <p>A compression level must be {@link #DEFAULT_COMPRESSION} to compromise between speed and
  * compression (currently equivalent to level 6), or between 0 ({@link #NO_COMPRESSION}, where
  * the input is simply copied) and 9 ({@link #BEST_COMPRESSION}). Level 1 ({@link #BEST_SPEED})

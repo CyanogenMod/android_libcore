@@ -46,7 +46,7 @@ import java.util.Arrays;
  * point or a UTF-16 unit that's part of a surrogate pair. The {@code int} type
  * is used to represent all Unicode code points.
  *
- * <a name="unicode_categories"><h3>Unicode categories</h3></a>
+ * <a name="unicode_categories"></a><h3>Unicode categories</h3>
  * <p>Here's a list of the Unicode character categories and the corresponding Java constant,
  * grouped semantically to provide a convenient overview. This table is also useful in
  * conjunction with {@code \p} and {@code \P} in {@link java.util.regex.Pattern regular expressions}.

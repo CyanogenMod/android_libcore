@@ -373,11 +373,11 @@ import libcore.icu.NativeDecimalFormat;
  * digits is fixed at one and there is no exponent grouping.
  * <li>Exponential patterns may not contain grouping separators.
  * </ul>
- * <a name="sigdig">
+ * <a name="sigdig"></a>
  * <h4> <strong><font color="red">NEW</font>&nbsp;</strong> Significant
  * Digits</h4>
  * <p>
- * </a> {@code DecimalFormat} has two ways of controlling how many digits are
+ * {@code DecimalFormat} has two ways of controlling how many digits are
  * shown: (a) significant digit counts or (b) integer and fraction digit counts.
  * Integer and fraction digit counts are described above. When a formatter uses
  * significant digits counts, the number of integer and fraction digits is not
