@@ -88,14 +88,11 @@ public final class LocaleData {
     public String shortDateFormat4;
 
     // Used by DateFormat to implement 12- and 24-hour SHORT and MEDIUM.
+    // The first two are also used directly by frameworks code.
     public String timeFormat_hm;
     public String timeFormat_Hm;
     public String timeFormat_hms;
     public String timeFormat_Hms;
-
-    // Used by android.text.format.DateFormat.getTimeFormat.
-    public String timeFormat12; // "hh:mm a"
-    public String timeFormat24; // "HH:mm"
 
     // Used by DecimalFormatSymbols.
     public char zeroDigit;
@@ -213,12 +210,6 @@ public final class LocaleData {
         localeData.timeFormat_Hm = ICU.getBestDateTimePattern("Hm", locale);
         localeData.timeFormat_hms = ICU.getBestDateTimePattern("hms", locale);
         localeData.timeFormat_Hms = ICU.getBestDateTimePattern("Hms", locale);
-        // We could move callers over to the other fields, but these seem simpler and discourage
-        // people from shooting themselves in the foot by learning about patterns and skeletons.
-        // TODO: the right fix here is probably to move callers over to java.text.DateFormat,
-        // so nothing outside libcore references these any more.
-        localeData.timeFormat12 = localeData.timeFormat_hm;
-        localeData.timeFormat24 = localeData.timeFormat_Hm;
 
         // Fix up a couple of patterns.
         if (localeData.fullTimeFormat != null) {
