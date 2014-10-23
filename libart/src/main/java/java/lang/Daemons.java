@@ -317,11 +317,9 @@ public final class Daemons {
 
     private static class GCDaemon extends Daemon {
         private static final GCDaemon INSTANCE = new GCDaemon();
-        private int count = 0;
 
         public void requestGC() {
             synchronized (this) {
-                ++count;
                 notify();
             }
         }
@@ -330,11 +328,8 @@ public final class Daemons {
             while (isRunning()) {
                 try {
                     synchronized (this) {
-                        // Wait until a request comes in, unless we have a pending request.
-                        while (count == 0) {
-                            wait();
-                        }
-                        --count;
+                        // Wait until a request comes in.
+                        wait();
                     }
                     VMRuntime.getRuntime().concurrentGC();
                 } catch (InterruptedException ignored) {
