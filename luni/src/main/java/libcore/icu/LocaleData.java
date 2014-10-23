@@ -87,6 +87,12 @@ public final class LocaleData {
     // Used by android.text.format.DateFormat.getDateFormatStringForSetting.
     public String shortDateFormat4;
 
+    // Used by DateFormat to implement 12- and 24-hour SHORT and MEDIUM.
+    public String timeFormat_hm;
+    public String timeFormat_Hm;
+    public String timeFormat_hms;
+    public String timeFormat_Hms;
+
     // Used by android.text.format.DateFormat.getTimeFormat.
     public String timeFormat12; // "hh:mm a"
     public String timeFormat24; // "HH:mm"
@@ -175,12 +181,22 @@ public final class LocaleData {
     public String getTimeFormat(int style) {
         switch (style) {
         case DateFormat.SHORT:
-            return shortTimeFormat;
+            if (DateFormat.is24Hour == null) {
+                return shortTimeFormat;
+            } else {
+                return DateFormat.is24Hour ? timeFormat_Hm : timeFormat_hm;
+            }
         case DateFormat.MEDIUM:
-            return mediumTimeFormat;
+            if (DateFormat.is24Hour == null) {
+                return mediumTimeFormat;
+            } else {
+                return DateFormat.is24Hour ? timeFormat_Hms : timeFormat_hms;
+            }
         case DateFormat.LONG:
+            // CLDR doesn't really have anything we can use to obey the 12-/24-hour preference.
             return longTimeFormat;
         case DateFormat.FULL:
+            // CLDR doesn't really have anything we can use to obey the 12-/24-hour preference.
             return fullTimeFormat;
         }
         throw new AssertionError();
@@ -192,9 +208,17 @@ public final class LocaleData {
             throw new AssertionError("couldn't initialize LocaleData for locale " + locale);
         }
 
-        // Get the "h:mm a" and "HH:mm" 12- and 24-hour time format strings.
-        localeData.timeFormat12 = ICU.getBestDateTimePattern("hm", locale);
-        localeData.timeFormat24 = ICU.getBestDateTimePattern("Hm", locale);
+        // Get the SHORT and MEDIUM 12- and 24-hour time format strings.
+        localeData.timeFormat_hm = ICU.getBestDateTimePattern("hm", locale);
+        localeData.timeFormat_Hm = ICU.getBestDateTimePattern("Hm", locale);
+        localeData.timeFormat_hms = ICU.getBestDateTimePattern("hms", locale);
+        localeData.timeFormat_Hms = ICU.getBestDateTimePattern("Hms", locale);
+        // We could move callers over to the other fields, but these seem simpler and discourage
+        // people from shooting themselves in the foot by learning about patterns and skeletons.
+        // TODO: the right fix here is probably to move callers over to java.text.DateFormat,
+        // so nothing outside libcore references these any more.
+        localeData.timeFormat12 = localeData.timeFormat_hm;
+        localeData.timeFormat24 = localeData.timeFormat_Hm;
 
         // Fix up a couple of patterns.
         if (localeData.fullTimeFormat != null) {
