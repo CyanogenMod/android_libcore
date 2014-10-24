@@ -834,8 +834,8 @@ public class HttpsURLConnectionTest extends TestCase {
         }
 
         @Override
-        public SocketPolicy peekSocketPolicy() {
-            return delegates.getFirst().peekSocketPolicy();
+        public MockResponse peek() {
+            return delegates.getFirst().peek();
         }
     }
 
@@ -888,8 +888,8 @@ public class HttpsURLConnectionTest extends TestCase {
         }
 
         @Override
-        public SocketPolicy peekSocketPolicy() {
-            return SocketPolicy.UPGRADE_TO_SSL_AT_END;
+        public MockResponse peek() {
+            return new MockResponse().setSocketPolicy(SocketPolicy.UPGRADE_TO_SSL_AT_END);
         }
 
         private void log(String msg) {
@@ -939,8 +939,8 @@ public class HttpsURLConnectionTest extends TestCase {
         }
 
         @Override
-        public SocketPolicy peekSocketPolicy() {
-            return SocketPolicy.DISCONNECT_AT_END;
+        public MockResponse peek() {
+            return new MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_END);
         }
 
         private void log(String msg) {
