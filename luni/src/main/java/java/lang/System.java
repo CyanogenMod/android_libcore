@@ -886,7 +886,7 @@ public final class System {
 
     /**
      * Sets the value of a particular system property. Most system properties
-     * are read only and cannot be cleared or modified. See {@link #setProperty} for a
+     * are read only and cannot be cleared or modified. See {@link #getProperty} for a
      * list of such properties.
      *
      * @return the old value of the property or {@code null} if the property
@@ -899,7 +899,7 @@ public final class System {
 
     /**
      * Removes a specific system property. Most system properties
-     * are read only and cannot be cleared or modified. See {@link #setProperty} for a
+     * are read only and cannot be cleared or modified. See {@link #getProperty} for a
      * list of such properties.
      *
      * @return the property value or {@code null} if the property didn't exist.
@@ -1061,7 +1061,7 @@ public final class System {
     /**
      * Attempts to set all system properties. Copies all properties from
      * {@code p} and discards system properties that are read only and cannot
-     * be modified. See {@link #setProperty} for a list of such properties.
+     * be modified. See {@link #getProperty} for a list of such properties.
      */
     public static void setProperties(Properties p) {
         PropertiesWithNonOverrideableDefaults userProperties =
