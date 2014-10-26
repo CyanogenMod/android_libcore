@@ -120,34 +120,22 @@ public class MathTest extends junit.framework.TestCase {
      */
     public void test_cbrt_D() {
         //Test for special situations
-        assertTrue("Should return Double.NaN", Double.isNaN(Math
-                .cbrt(Double.NaN)));
-        assertEquals("Should return Double.POSITIVE_INFINITY",
-                Double.POSITIVE_INFINITY, Math
-                .cbrt(Double.POSITIVE_INFINITY), 0D);
-        assertEquals("Should return Double.NEGATIVE_INFINITY",
-                Double.NEGATIVE_INFINITY, Math
-                .cbrt(Double.NEGATIVE_INFINITY), 0D);
-        assertEquals(Double.doubleToLongBits(0.0), Double.doubleToLongBits(Math
-                .cbrt(0.0)));
-        assertEquals(Double.doubleToLongBits(+0.0), Double.doubleToLongBits(Math
-                .cbrt(+0.0)));
-        assertEquals(Double.doubleToLongBits(-0.0), Double.doubleToLongBits(Math
-                .cbrt(-0.0)));
+        assertTrue(Double.isNaN(Math.cbrt(Double.NaN)));
+        assertEquals(Double.POSITIVE_INFINITY, Math.cbrt(Double.POSITIVE_INFINITY), 0D);
+        assertEquals(Double.NEGATIVE_INFINITY, Math.cbrt(Double.NEGATIVE_INFINITY), 0D);
+        assertEquals(Double.doubleToLongBits(0.0), Double.doubleToLongBits(Math.cbrt(0.0)));
+        assertEquals(Double.doubleToLongBits(+0.0), Double.doubleToLongBits(Math.cbrt(+0.0)));
+        assertEquals(Double.doubleToLongBits(-0.0), Double.doubleToLongBits(Math.cbrt(-0.0)));
 
-        assertEquals("Should return 3.0", 3.0, Math.cbrt(27.0), 0D);
-        assertEquals("Should return 23.111993172558684", 23.111993172558684,
-                Math.cbrt(12345.6), 0D);
-        assertEquals("Should return 5.643803094122362E102",
-                5.643803094122362E102, Math.cbrt(Double.MAX_VALUE), 0D);
-        assertEquals("Should return 0.01", 0.01, Math.cbrt(0.000001), 0D);
+        assertEquals(3.0, Math.cbrt(27.0), 0D);
+        assertEquals(23.111993172558684, Math.cbrt(12345.6), Math.ulp(23.111993172558684));
+        assertEquals(5.643803094122362E102, Math.cbrt(Double.MAX_VALUE), 0D);
+        assertEquals(0.01, Math.cbrt(0.000001), 0D);
 
-        assertEquals("Should return -3.0", -3.0, Math.cbrt(-27.0), 0D);
-        assertEquals("Should return -23.111993172558684", -23.111993172558684,
-                Math.cbrt(-12345.6), 0D);
-        assertEquals("Should return 1.7031839360032603E-108",
-                1.7031839360032603E-108, Math.cbrt(Double.MIN_VALUE), 0D);
-        assertEquals("Should return -0.01", -0.01, Math.cbrt(-0.000001), 0D);
+        assertEquals(-3.0, Math.cbrt(-27.0), 0D);
+        assertEquals(-23.111993172558684, Math.cbrt(-12345.6), Math.ulp(-23.111993172558684));
+        assertEquals(1.7031839360032603E-108, Math.cbrt(Double.MIN_VALUE), 0D);
+        assertEquals(-0.01, Math.cbrt(-0.000001), 0D);
     }
 
     /**
@@ -1703,32 +1691,20 @@ public class MathTest extends junit.framework.TestCase {
      */
     public void test_sinh_D() {
         // Test for special situations
-        assertTrue("Should return NaN", Double.isNaN(Math.sinh(Double.NaN)));
-        assertEquals("Should return POSITIVE_INFINITY",
-                Double.POSITIVE_INFINITY, Math.sinh(Double.POSITIVE_INFINITY), 0D);
-        assertEquals("Should return NEGATIVE_INFINITY",
-                Double.NEGATIVE_INFINITY, Math.sinh(Double.NEGATIVE_INFINITY), 0D);
-        assertEquals(Double.doubleToLongBits(0.0), Double.doubleToLongBits(Math
-                .sinh(0.0)));
-        assertEquals(Double.doubleToLongBits(+0.0), Double
-                .doubleToLongBits(Math.sinh(+0.0)));
-        assertEquals(Double.doubleToLongBits(-0.0), Double
-                .doubleToLongBits(Math.sinh(-0.0)));
+        assertTrue(Double.isNaN(Math.sinh(Double.NaN)));
+        assertEquals(Double.POSITIVE_INFINITY, Math.sinh(Double.POSITIVE_INFINITY), 0D);
+        assertEquals(Double.NEGATIVE_INFINITY, Math.sinh(Double.NEGATIVE_INFINITY), 0D);
+        assertEquals(Double.doubleToLongBits(0.0), Double.doubleToLongBits(Math.sinh(0.0)));
+        assertEquals(Double.doubleToLongBits(+0.0), Double.doubleToLongBits(Math.sinh(+0.0)));
+        assertEquals(Double.doubleToLongBits(-0.0), Double.doubleToLongBits(Math.sinh(-0.0)));
 
-        assertEquals("Should return POSITIVE_INFINITY",
-                Double.POSITIVE_INFINITY, Math.sinh(1234.56), 0D);
-        assertEquals("Should return NEGATIVE_INFINITY",
-                Double.NEGATIVE_INFINITY, Math.sinh(-1234.56), 0D);
-        assertEquals("Should return 1.0000000000001666E-6",
-                1.0000000000001666E-6, Math.sinh(0.000001), 0D);
-        assertEquals("Should return -1.0000000000001666E-6",
-                -1.0000000000001666E-6, Math.sinh(-0.000001), 0D);
-        assertEquals("Should return 5.115386441963859", 5.115386441963859, Math
-                .sinh(2.33482), 0D);
-        assertEquals("Should return POSITIVE_INFINITY",
-                Double.POSITIVE_INFINITY, Math.sinh(Double.MAX_VALUE), 0D);
-        assertEquals("Should return 4.9E-324", 4.9E-324, Math
-                .sinh(Double.MIN_VALUE), 0D);
+        assertEquals(Double.POSITIVE_INFINITY, Math.sinh(1234.56), 0D);
+        assertEquals(Double.NEGATIVE_INFINITY, Math.sinh(-1234.56), 0D);
+        assertEquals(1.0000000000001666E-6, Math.sinh(0.000001), 0D);
+        assertEquals(-1.0000000000001666E-6, Math.sinh(-0.000001), 0D);
+        assertEquals(5.115386441963859, Math.sinh(2.33482), Math.ulp(5.115386441963859));
+        assertEquals(Double.POSITIVE_INFINITY, Math.sinh(Double.MAX_VALUE), 0D);
+        assertEquals(4.9E-324, Math.sinh(Double.MIN_VALUE), 0D);
     }
 
     /**
