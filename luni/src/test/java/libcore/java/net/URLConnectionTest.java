@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
@@ -780,7 +781,9 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
     }
 
     public void testDisconnectedConnection() throws IOException {
-        server.enqueue(new MockResponse().setBody("ABCDEFGHIJKLMNOPQR"));
+        server.enqueue(new MockResponse()
+                .throttleBody(2, 100, TimeUnit.MILLISECONDS)
+                .setBody("ABCD"));
         server.play();
 
         HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
@@ -788,6 +791,9 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         assertEquals('A', (char) in.read());
         connection.disconnect();
         try {
+            // Reading 'B' may succeed if it's buffered.
+            in.read();
+            // But 'C' shouldn't be buffered (the response is throttled) and this should fail.
             in.read();
             fail("Expected a connection closed exception");
         } catch (IOException expected) {
@@ -2211,8 +2217,6 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         assertEquals("This required a 2nd handshake",
                 readAscii(connection.getInputStream(), Integer.MAX_VALUE));
 
-        RecordedRequest first = server.takeRequest();
-        assertEquals(0, first.getSequenceNumber());
         RecordedRequest retry = server.takeRequest();
         assertEquals(0, retry.getSequenceNumber());
         assertEquals("SSLv3", retry.getSslProtocol());
