@@ -571,7 +571,10 @@ public final class URI implements Comparable<URI>, Serializable {
 
     private boolean isValidDomainName(String host) {
         try {
-            UriCodec.validateSimple(host, "-.");
+            // The RFCs don't permit underscores in hostnames, but URI has to because
+            // a certain large website doesn't seem to care about standards and specs.
+            // See bugs 18023709, 17579865 and 18016625.
+            UriCodec.validateSimple(host, "_-.");
         } catch (URISyntaxException e) {
             return false;
         }
