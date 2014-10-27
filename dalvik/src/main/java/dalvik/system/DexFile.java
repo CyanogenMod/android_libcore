@@ -80,7 +80,7 @@ public final class DexFile {
         mCookie = openDexFile(fileName, null, 0);
         mFileName = fileName;
         guard.open("close");
-        //System.out.println("DEX FILE cookie is " + mCookie);
+        //System.out.println("DEX FILE cookie is " + mCookie + " fileName=" + fileName);
     }
 
     /**
@@ -111,7 +111,7 @@ public final class DexFile {
         mCookie = openDexFile(sourceName, outputName, flags);
         mFileName = sourceName;
         guard.open("close");
-        //System.out.println("DEX FILE cookie is " + mCookie);
+        //System.out.println("DEX FILE cookie is " + mCookie + " sourceName=" + sourceName + " outputName=" + outputName);
     }
 
     /**
@@ -158,6 +158,10 @@ public final class DexFile {
      */
     public String getName() {
         return mFileName;
+    }
+
+    @Override public String toString() {
+        return getName();
     }
 
     /**
