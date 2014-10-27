@@ -41,8 +41,7 @@ import libcore.io.MemoryMappedFile;
  */
 public final class ZoneInfoDB {
   private static final TzData DATA =
-      new TzData(System.getenv("ANDROID_DATA") + "/misc/zoneinfo/tzdata",
-                 System.getenv("ANDROID_ROOT") + "/usr/share/zoneinfo/tzdata");
+      new TzData(System.getenv("ANDROID_ROOT") + "/usr/share/zoneinfo/tzdata");
 
   public static class TzData {
     /**
