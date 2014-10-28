@@ -24,7 +24,7 @@ public class LocaleDataTest extends junit.framework.TestCase {
     for (Locale l : Locale.getAvailableLocales()) {
       LocaleData d = LocaleData.get(l);
       // System.err.format("%20s %s %s %s\n", l, d.yesterday, d.today, d.tomorrow);
-      // System.err.format("%20s %10s %10s\n", l, d.timeFormat12, d.timeFormat24);
+      // System.err.format("%20s %10s %10s\n", l, d.timeFormat_hm, d.timeFormat_Hm);
     }
   }
 
@@ -124,11 +124,11 @@ public class LocaleDataTest extends junit.framework.TestCase {
   // http://b/7924970
   public void testTimeFormat12And24() throws Exception {
     LocaleData en_US = LocaleData.get(Locale.US);
-    assertEquals("h:mm a", en_US.timeFormat12);
-    assertEquals("HH:mm", en_US.timeFormat24);
+    assertEquals("h:mm a", en_US.timeFormat_hm);
+    assertEquals("HH:mm", en_US.timeFormat_Hm);
 
     LocaleData ja_JP = LocaleData.get(Locale.JAPAN);
-    assertEquals("aK:mm", ja_JP.timeFormat12);
-    assertEquals("H:mm", ja_JP.timeFormat24);
+    assertEquals("aK:mm", ja_JP.timeFormat_hm);
+    assertEquals("H:mm", ja_JP.timeFormat_Hm);
   }
 }
