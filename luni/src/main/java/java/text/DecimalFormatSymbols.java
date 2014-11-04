@@ -189,7 +189,7 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
                 NaN.equals(obj.NaN) &&
                 patternSeparator == obj.patternSeparator &&
                 perMill == obj.perMill &&
-                percent == obj.percent &&
+                percent.equals(obj.percent) &&
                 zeroDigit == obj.zeroDigit;
     }
 
