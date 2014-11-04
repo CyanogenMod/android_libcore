@@ -149,6 +149,27 @@ public class SSLContextTest extends TestCase {
                 sslContext);
     }
 
+    public void test_SSLContext_init_correctProtocolVersionsEnabled() throws Exception {
+        for (String tlsVersion : StandardNames.SSL_CONTEXT_PROTOCOLS) {
+            // Don't test the "Default" instance.
+            if (StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT.equals(tlsVersion)) {
+                continue;
+            }
+
+            SSLContext context = SSLContext.getInstance(tlsVersion);
+            context.init(null, null, null);
+
+            StandardNames.assertSSLContextEnabledProtocols(tlsVersion, ((SSLSocket) (context.getSocketFactory()
+                    .createSocket())).getEnabledProtocols());
+            StandardNames.assertSSLContextEnabledProtocols(tlsVersion, ((SSLServerSocket) (context
+                    .getServerSocketFactory().createServerSocket())).getEnabledProtocols());
+            StandardNames.assertSSLContextEnabledProtocols(tlsVersion, context.getDefaultSSLParameters()
+                    .getProtocols());
+            StandardNames.assertSSLContextEnabledProtocols(tlsVersion, context.createSSLEngine()
+                    .getEnabledProtocols());
+        }
+    }
+
     private static void assertEnabledCipherSuites(
             List<String> expectedCipherSuites, SSLContext sslContext) throws Exception {
         assertContentsInOrder(
