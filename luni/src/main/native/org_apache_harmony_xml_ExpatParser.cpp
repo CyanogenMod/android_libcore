@@ -24,10 +24,11 @@
 #include "ScopedPrimitiveArray.h"
 #include "ScopedStringChars.h"
 #include "ScopedUtfChars.h"
-#include "UniquePtr.h"
 #include "jni.h"
 #include "cutils/log.h"
 #include "unicode/unistr.h"
+
+#include <memory>
 
 #include <string.h>
 #include <libexpat/expat.h>
@@ -253,7 +254,7 @@ static int hashString(const char* s) {
  */
 static InternedString* newInternedString(JNIEnv* env, const char* bytes, int hash) {
     // Allocate a new wrapper.
-    UniquePtr<InternedString> wrapper(new InternedString);
+    std::unique_ptr<InternedString> wrapper(new InternedString);
     if (wrapper.get() == NULL) {
         jniThrowOutOfMemoryError(env, NULL);
         return NULL;
@@ -962,7 +963,7 @@ static void notationDecl(void* data, const char* name, const char* /*base*/, con
 static jlong ExpatParser_initialize(JNIEnv* env, jobject object, jstring javaEncoding,
         jboolean processNamespaces) {
     // Allocate parsing context.
-    UniquePtr<ParsingContext> context(new ParsingContext(object));
+    std::unique_ptr<ParsingContext> context(new ParsingContext(object));
     if (context.get() == NULL) {
         jniThrowOutOfMemoryError(env, NULL);
         return 0;

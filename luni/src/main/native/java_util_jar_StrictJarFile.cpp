@@ -17,13 +17,13 @@
 
 #define LOG_TAG "StrictJarFile"
 
+#include <memory>
 #include <string>
 
 #include "JNIHelp.h"
 #include "JniConstants.h"
 #include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
-#include "UniquePtr.h"
 #include "jni.h"
 #include "ziparchive/zip_archive.h"
 #include "cutils/log.h"
@@ -124,7 +124,7 @@ static jobject StrictJarFile_nativeNextEntry(JNIEnv* env, jobject, jlong iterati
     return NULL;
   }
 
-  UniquePtr<char[]> entryNameCString(new char[entryName.name_length + 1]);
+  std::unique_ptr<char[]> entryNameCString(new char[entryName.name_length + 1]);
   memcpy(entryNameCString.get(), entryName.name, entryName.name_length);
   entryNameCString[entryName.name_length] = '\0';
   ScopedLocalRef<jstring> entryNameString(env, env->NewStringUTF(entryNameCString.get()));

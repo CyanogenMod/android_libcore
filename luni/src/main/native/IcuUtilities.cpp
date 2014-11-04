@@ -22,7 +22,6 @@
 #include "JniException.h"
 #include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
-#include "UniquePtr.h"
 #include "cutils/log.h"
 #include "unicode/strenum.h"
 #include "unicode/uloc.h"

@@ -16,6 +16,8 @@
 
 #define LOG_TAG "TimeZoneNames"
 
+#include <memory>
+
 #include "IcuUtilities.h"
 #include "JNIHelp.h"
 #include "JniConstants.h"
@@ -24,7 +26,6 @@
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
-#include "UniquePtr.h"
 #include "unicode/calendar.h"
 #include "unicode/timezone.h"
 #include "unicode/tznames.h"
@@ -67,7 +68,7 @@ static void TimeZoneNames_fillZoneStrings(JNIEnv* env, jclass, jstring javaLocal
   }
 
   UErrorCode status = U_ZERO_ERROR;
-  UniquePtr<TimeZoneNames> names(TimeZoneNames::createInstance(icuLocale.locale(), status));
+  std::unique_ptr<TimeZoneNames> names(TimeZoneNames::createInstance(icuLocale.locale(), status));
   if (maybeThrowIcuException(env, "TimeZoneNames::createInstance", status)) {
     return;
   }
@@ -123,7 +124,7 @@ static jstring TimeZoneNames_getExemplarLocation(JNIEnv* env, jclass, jstring ja
   }
 
   UErrorCode status = U_ZERO_ERROR;
-  UniquePtr<TimeZoneNames> names(TimeZoneNames::createInstance(icuLocale.locale(), status));
+  std::unique_ptr<TimeZoneNames> names(TimeZoneNames::createInstance(icuLocale.locale(), status));
   if (maybeThrowIcuException(env, "TimeZoneNames::createInstance", status)) {
     return NULL;
   }
