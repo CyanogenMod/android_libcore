@@ -21,7 +21,6 @@
 #include "Portability.h"
 #include "ScopedBytes.h"
 #include "ScopedPrimitiveArray.h"
-#include "UniquePtr.h"
 
 #include <errno.h>
 #include <stdlib.h>

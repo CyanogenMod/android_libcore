@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include "UniquePtr.h"
-
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
@@ -24,6 +22,7 @@
 #include <openssl/engine.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
+#include <memory>
 
 #define DYNAMIC_ENGINE
 #define TEST_ENGINE_ID   "javacoretests"
@@ -34,7 +33,7 @@ struct RSA_Delete {
         RSA_free(p);
     }
 };
-typedef UniquePtr<RSA, RSA_Delete> Unique_RSA;
+typedef std::unique_ptr<RSA, RSA_Delete> Unique_RSA;
 
 static const char* HMAC_TAG = "-HMAC-";
 static const size_t HMAC_TAG_LEN = strlen(HMAC_TAG);

@@ -25,7 +25,7 @@
 #include <errno.h>
 
 static jlong Inflater_createStream(JNIEnv* env, jobject, jboolean noHeader) {
-    UniquePtr<NativeZipStream> jstream(new NativeZipStream);
+    std::unique_ptr<NativeZipStream> jstream(new NativeZipStream);
     if (jstream.get() == NULL) {
         jniThrowOutOfMemoryError(env, NULL);
         return -1;
