@@ -1464,6 +1464,7 @@
     "com.squareup.okhttp.internal.spdy.SpdyConnectionTest",
     "com.squareup.okhttp.internal.http.HttpOverHttp20Draft09Test",
     "com.squareup.okhttp.internal.http.HttpOverSpdy3Test",
+    "com.squareup.okhttp.internal.http.ResponseCacheAdapterTest",
     "com.squareup.okhttp.internal.http.URLConnectionTest#npnSetsProtocolHeader_SPDY_3",
     "com.squareup.okhttp.internal.http.URLConnectionTest#npnSetsProtocolHeader_HTTP_2",
     "com.squareup.okhttp.internal.http.URLConnectionTest#zeroLengthPost_SPDY_3",
