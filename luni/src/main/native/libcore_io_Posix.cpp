@@ -31,7 +31,6 @@
 #include "ScopedPrimitiveArray.h"
 #include "ScopedUtfChars.h"
 #include "toStringArray.h"
-#include "UniquePtr.h"
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -61,7 +60,7 @@
 #include <sys/wait.h>
 #include <termios.h>
 #include <unistd.h>
-
+#include <memory>
 
 #ifndef __unused
 #define __unused __attribute__((__unused__))
@@ -451,7 +450,7 @@ private:
     }
 
     JNIEnv* mEnv;
-    UniquePtr<char[]> mBuffer;
+    std::unique_ptr<char[]> mBuffer;
     size_t mBufferSize;
     struct passwd mPwd;
     struct passwd* mResult;
@@ -684,7 +683,7 @@ static jobjectArray Posix_android_getaddrinfo(JNIEnv* env, jobject, jstring java
     addrinfo* addressList = NULL;
     errno = 0;
     int rc = android_getaddrinfofornet(node.c_str(), NULL, &hints, netId, 0, &addressList);
-    UniquePtr<addrinfo, addrinfo_deleter> addressListDeleter(addressList);
+    std::unique_ptr<addrinfo, addrinfo_deleter> addressListDeleter(addressList);
     if (rc != 0) {
         throwGaiException(env, "android_getaddrinfo", rc);
         return NULL;
@@ -1069,7 +1068,7 @@ static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint time
 
     // Turn the Java android.system.StructPollfd[] into a C++ struct pollfd[].
     size_t arrayLength = env->GetArrayLength(javaStructs);
-    UniquePtr<struct pollfd[]> fds(new struct pollfd[arrayLength]);
+    std::unique_ptr<struct pollfd[]> fds(new struct pollfd[arrayLength]);
     memset(fds.get(), 0, sizeof(struct pollfd) * arrayLength);
     size_t count = 0; // Some trailing array elements may be irrelevant. (See below.)
     for (size_t i = 0; i < arrayLength; ++i) {

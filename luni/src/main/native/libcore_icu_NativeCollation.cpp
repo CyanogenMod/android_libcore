@@ -15,10 +15,10 @@
 #include "JniException.h"
 #include "ScopedStringChars.h"
 #include "ScopedUtfChars.h"
-#include "UniquePtr.h"
 #include "unicode/ucol.h"
 #include "unicode/ucoleitr.h"
 #include <cutils/log.h>
+#include <memory>
 
 // Manages a UCollationElements instance along with the jchar
 // array it is iterating over. The associated array can be unpinned
@@ -124,7 +124,7 @@ static jlong NativeCollation_getCollationElementIterator(JNIEnv* env, jclass, jl
         return -1;
     }
 
-    UniquePtr<CollationElements> ce(new CollationElements);
+    std::unique_ptr<CollationElements> ce(new CollationElements);
     UErrorCode status = ce->start(env, javaSource, toCollator(address));
     maybeThrowIcuException(env, "ucol_openElements", status);
     if (status == U_ZERO_ERROR) {
@@ -156,7 +156,7 @@ static jbyteArray NativeCollation_getSortKey(JNIEnv* env, jclass, jlong address,
     const UCollator* collator  = toCollator(address);
     // The buffer size prevents reallocation for most strings.
     uint8_t byteArray[128];
-    UniquePtr<uint8_t[]> largerByteArray;
+    std::unique_ptr<uint8_t[]> largerByteArray;
     uint8_t* usedByteArray = byteArray;
     size_t byteArraySize = ucol_getSortKey(collator, source.get(), source.size(), usedByteArray, sizeof(byteArray) - 1);
     if (byteArraySize > sizeof(byteArray) - 1) {
