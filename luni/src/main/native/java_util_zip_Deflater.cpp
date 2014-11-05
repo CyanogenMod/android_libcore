@@ -40,7 +40,7 @@ static jint Deflater_getAdlerImpl(JNIEnv*, jobject, jlong handle) {
 }
 
 static jlong Deflater_createStream(JNIEnv * env, jobject, jint level, jint strategy, jboolean noHeader) {
-    UniquePtr<NativeZipStream> jstream(new NativeZipStream);
+    std::unique_ptr<NativeZipStream> jstream(new NativeZipStream);
     if (jstream.get() == NULL) {
         jniThrowOutOfMemoryError(env, NULL);
         return -1;

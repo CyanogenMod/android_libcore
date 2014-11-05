@@ -23,7 +23,6 @@
 #include "ScopedPrimitiveArray.h"
 #include "ScopedStringChars.h"
 #include "ScopedUtfChars.h"
-#include "UniquePtr.h"
 #include "cutils/log.h"
 #include "toStringArray.h"
 #include "unicode/ucnv.h"
@@ -32,6 +31,7 @@
 #include "unicode/ustring.h"
 #include "unicode/utypes.h"
 
+#include <memory>
 #include <vector>
 
 #include <stdlib.h>
@@ -150,7 +150,7 @@ static jstring getJavaCanonicalName(JNIEnv* env, const char* icuCanonicalName) {
   if (name == NULL) {
     name = icuCanonicalName;
   }
-  UniquePtr<char[]> result(new char[2 + strlen(name) + 1]);
+  std::unique_ptr<char[]> result(new char[2 + strlen(name) + 1]);
   strcpy(&result[0], "x-");
   strcat(&result[0], name);
   return env->NewStringUTF(&result[0]);

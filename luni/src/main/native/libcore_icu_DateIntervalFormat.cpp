@@ -20,7 +20,6 @@
 #include "JniConstants.h"
 #include "ScopedIcuLocale.h"
 #include "ScopedJavaUnicodeString.h"
-#include "UniquePtr.h"
 #include "cutils/log.h"
 #include "unicode/dtitvfmt.h"
 

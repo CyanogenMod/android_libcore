@@ -25,7 +25,6 @@
 #include "ScopedJavaUnicodeString.h"
 #include "ScopedLocalRef.h"
 #include "ScopedUtfChars.h"
-#include "UniquePtr.h"
 #include "cutils/log.h"
 #include "toStringArray.h"
 #include "unicode/brkiter.h"
@@ -62,6 +61,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+#include <memory>
 #include <vector>
 
 class ScopedResourceBundle {
@@ -379,7 +379,7 @@ static void setNumberPatterns(JNIEnv* env, jobject obj, Locale& locale) {
     UErrorCode status = U_ZERO_ERROR;
 
     UnicodeString pattern;
-    UniquePtr<DecimalFormat> fmt(static_cast<DecimalFormat*>(NumberFormat::createInstance(locale, UNUM_CURRENCY, status)));
+    std::unique_ptr<DecimalFormat> fmt(static_cast<DecimalFormat*>(NumberFormat::createInstance(locale, UNUM_CURRENCY, status)));
     pattern = fmt->toPattern(pattern.remove());
     setStringField(env, obj, "currencyPattern", pattern);
 
@@ -514,7 +514,7 @@ static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, const 
   }
 
   // We title-case the strings so they have consistent capitalization (http://b/14493853).
-  UniquePtr<BreakIterator> brk(BreakIterator::createSentenceInstance(locale, status));
+  std::unique_ptr<BreakIterator> brk(BreakIterator::createSentenceInstance(locale, status));
   if (U_FAILURE(status)) {
     ALOGE("Error getting yesterday/today/tomorrow break iterator for %s: %s", locale_name, u_errorName(status));
     return false;
@@ -584,7 +584,7 @@ static jboolean ICU_initLocaleDataNative(JNIEnv* env, jclass, jstring javaLangua
     }
 
     status = U_ZERO_ERROR;
-    UniquePtr<Calendar> cal(Calendar::createInstance(icuLocale.locale(), status));
+    std::unique_ptr<Calendar> cal(Calendar::createInstance(icuLocale.locale(), status));
     if (U_FAILURE(status)) {
         return JNI_FALSE;
     }
@@ -739,7 +739,7 @@ static jstring ICU_getBestDateTimePatternNative(JNIEnv* env, jclass, jstring jav
   }
 
   UErrorCode status = U_ZERO_ERROR;
-  UniquePtr<DateTimePatternGenerator> generator(DateTimePatternGenerator::createInstance(icuLocale.locale(), status));
+  std::unique_ptr<DateTimePatternGenerator> generator(DateTimePatternGenerator::createInstance(icuLocale.locale(), status));
   if (maybeThrowIcuException(env, "DateTimePatternGenerator::createInstance", status)) {
     return NULL;
   }
