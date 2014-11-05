@@ -64,13 +64,6 @@
 #include <unistd.h>
 #include <vector>
 
-// TODO: put this in a header file and use it everywhere!
-// DISALLOW_COPY_AND_ASSIGN disallows the copy and operator= functions.
-// It goes in the private: declarations in a class.
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-    TypeName(const TypeName&); \
-    void operator=(const TypeName&)
-
 class ScopedResourceBundle {
  public:
   ScopedResourceBundle(UResourceBundle* bundle) : bundle_(bundle) {
