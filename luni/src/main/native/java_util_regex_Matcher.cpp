@@ -23,7 +23,6 @@
 #include "JniConstants.h"
 #include "JniException.h"
 #include "ScopedPrimitiveArray.h"
-#include "UniquePtr.h"
 #include "jni.h"
 #include "unicode/parseerr.h"
 #include "unicode/regex.h"

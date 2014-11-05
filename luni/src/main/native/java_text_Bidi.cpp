@@ -22,14 +22,14 @@
 #include "JniConstants.h"
 #include "JniException.h"
 #include "ScopedPrimitiveArray.h"
-#include "UniquePtr.h"
 #include "unicode/ubidi.h"
 
 #include <stdlib.h>
 #include <string.h>
+#include <memory>
 
 struct BiDiData {
-    BiDiData(UBiDi* biDi) : mBiDi(biDi), mEmbeddingLevels(NULL) {
+    BiDiData(UBiDi* biDi) : mBiDi(biDi) {
     }
 
     ~BiDiData() {
@@ -50,7 +50,7 @@ struct BiDiData {
 
 private:
     UBiDi* mBiDi;
-    UniquePtr<jbyte[]> mEmbeddingLevels;
+    std::unique_ptr<jbyte[]> mEmbeddingLevels;
 
     // Disallow copy and assignment.
     BiDiData(const BiDiData&);
@@ -98,7 +98,7 @@ static jlong Bidi_ubidi_setLine(JNIEnv* env, jclass, jlong ptr, jint start, jint
     if (maybeThrowIcuException(env, "ubidi_openSized", status)) {
         return 0;
     }
-    UniquePtr<BiDiData> lineData(new BiDiData(sized));
+    std::unique_ptr<BiDiData> lineData(new BiDiData(sized));
     ubidi_setLine(uBiDi(ptr), start, limit, lineData->uBiDi(), &status);
     maybeThrowIcuException(env, "ubidi_setLine", status);
     return reinterpret_cast<uintptr_t>(lineData.release());
@@ -168,7 +168,7 @@ static jintArray Bidi_ubidi_reorderVisual(JNIEnv* env, jclass, jbyteArray javaLe
 
     const UBiDiLevel* levels = reinterpret_cast<const UBiDiLevel*>(levelBytes.get());
 
-    UniquePtr<int[]> indexMap(new int[length]);
+    std::unique_ptr<int[]> indexMap(new int[length]);
     ubidi_reorderVisual(levels, length, &indexMap[0]);
 
     jintArray result = env->NewIntArray(length);

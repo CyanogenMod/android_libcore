@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <memory>
 #include <vector>
 
 #include "cutils/log.h"
@@ -36,7 +37,6 @@
 #include "unicode/numfmt.h"
 #include "unicode/unum.h"
 #include "unicode/ustring.h"
-#include "UniquePtr.h"
 #include "valueOf.h"
 
 static DecimalFormat* toDecimalFormat(jlong addr) {
@@ -179,7 +179,7 @@ static jstring NativeDecimalFormat_getTextAttribute(JNIEnv* env, jclass, jlong a
     UNumberFormatTextAttribute attr = static_cast<UNumberFormatTextAttribute>(javaAttr);
 
     // Find out how long the result will be...
-    UniquePtr<UChar[]> chars;
+    std::unique_ptr<UChar[]> chars;
     uint32_t charCount = 0;
     uint32_t desiredCount = unum_getTextAttribute(fmt, attr, chars.get(), charCount, &status);
     if (status == U_BUFFER_OVERFLOW_ERROR) {
