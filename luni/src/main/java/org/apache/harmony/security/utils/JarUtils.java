@@ -31,6 +31,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.Signature;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -82,8 +83,10 @@ public class JarUtils {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         int i = 0;
         for (org.apache.harmony.security.x509.Certificate encCert : encCerts) {
-            final InputStream is = new ByteArrayInputStream(encCert.getEncoded());
-            certs[i++] = (X509Certificate) cf.generateCertificate(is);
+            final byte[] encoded = encCert.getEncoded();
+            final InputStream is = new ByteArrayInputStream(encoded);
+            certs[i++] = new VerbatimX509Certificate((X509Certificate) cf.generateCertificate(is),
+                    encoded);
         }
 
         List<SignerInfo> sigInfos = signedData.getSignerInfos();
@@ -264,4 +267,22 @@ public class JarUtils {
         return null;
     }
 
+    /**
+     * For legacy reasons we need to return exactly the original encoded
+     * certificate bytes, instead of letting the underlying implementation have
+     * a shot at re-encoding the data.
+     */
+    private static class VerbatimX509Certificate extends WrappedX509Certificate {
+        private byte[] encodedVerbatim;
+
+        public VerbatimX509Certificate(X509Certificate wrapped, byte[] encodedVerbatim) {
+            super(wrapped);
+            this.encodedVerbatim = encodedVerbatim;
+        }
+
+        @Override
+        public byte[] getEncoded() throws CertificateEncodingException {
+            return encodedVerbatim;
+        }
+    }
 }
