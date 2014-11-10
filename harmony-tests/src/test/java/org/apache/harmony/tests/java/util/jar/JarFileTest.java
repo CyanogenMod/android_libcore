@@ -24,7 +24,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.CodeSigner;
+import java.security.InvalidKeyException;
+import java.security.InvalidParameterException;
 import java.security.Permission;
+import java.security.PrivateKey;
+import java.security.Provider;
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.SignatureException;
+import java.security.SignatureSpi;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -1013,5 +1021,74 @@ public class JarFileTest extends TestCase {
         zipEntry = jarFile.getJarEntry(emptyEntry3);
         res = jarFile.getInputStream(zipEntry).read();
         assertEquals("Wrong length of empty jar entry", -1, res);
+    }
+
+    public void testJarFile_BadSignatureProvider_Success() throws Exception {
+        Security.insertProviderAt(new JarFileBadProvider(), 1);
+        try {
+            // Needs a JAR with "RSA" as digest encryption algorithm
+            checkSignedJar(jarName6);
+        } finally {
+            Security.removeProvider(JarFileBadProvider.NAME);
+        }
+    }
+
+    public static class JarFileBadProvider extends Provider {
+        public static final String NAME = "JarFileBadProvider";
+
+        public JarFileBadProvider() {
+            super(NAME, 1.0, "Bad provider for JarFileTest");
+
+            put("Signature.RSA", NotReallyASignature.class.getName());
+        }
+
+        /**
+         * This should never be instantiated, so everything throws an exception.
+         */
+        public static class NotReallyASignature extends SignatureSpi {
+            @Override
+            protected void engineInitVerify(PublicKey publicKey) throws InvalidKeyException {
+                fail("Should not call this provider");
+            }
+
+            @Override
+            protected void engineInitSign(PrivateKey privateKey) throws InvalidKeyException {
+                fail("Should not call this provider");
+            }
+
+            @Override
+            protected void engineUpdate(byte b) throws SignatureException {
+                fail("Should not call this provider");
+            }
+
+            @Override
+            protected void engineUpdate(byte[] b, int off, int len) throws SignatureException {
+                fail("Should not call this provider");
+            }
+
+            @Override
+            protected byte[] engineSign() throws SignatureException {
+                fail("Should not call this provider");
+                return null;
+            }
+
+            @Override
+            protected boolean engineVerify(byte[] sigBytes) throws SignatureException {
+                fail("Should not call this provider");
+                return false;
+            }
+
+            @Override
+            protected void engineSetParameter(String param, Object value)
+                    throws InvalidParameterException {
+                fail("Should not call this provider");
+            }
+
+            @Override
+            protected Object engineGetParameter(String param) throws InvalidParameterException {
+                fail("Should not call this provider");
+                return null;
+            }
+        }
     }
 }
