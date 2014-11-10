@@ -27,6 +27,12 @@ public class MimeUtilsTest extends TestCase {
     assertEquals("flac", MimeUtils.guessExtensionFromMimeType("application/x-flac"));
   }
 
+  // https://code.google.com/p/android/issues/detail?id=78909
+  public void test_78909() {
+    assertEquals("mka", MimeUtils.guessExtensionFromMimeType("audio/x-matroska"));
+    assertEquals("mkv", MimeUtils.guessExtensionFromMimeType("video/x-matroska"));
+  }
+
   public void test_16978217() {
     assertEquals("image/x-ms-bmp", MimeUtils.guessMimeTypeFromExtension("bmp"));
     assertEquals("image/x-icon", MimeUtils.guessMimeTypeFromExtension("ico"));
