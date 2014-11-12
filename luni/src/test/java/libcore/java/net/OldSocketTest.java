@@ -37,6 +37,7 @@ import java.net.UnknownHostException;
 import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.SocketChannel;
 import java.security.Permission;
+import tests.net.StuckServer;
 import tests.support.Support_Configuration;
 
 public class OldSocketTest extends OldSocketTestCase {
@@ -931,25 +932,15 @@ public class OldSocketTest extends OldSocketTestCase {
         }
 
         // start by validating the error checks
-        int portNumber = 0;
+
+        byte[] theBytes = { 0, 0, 0, 0 };
+        SocketAddress theAddress = new InetSocketAddress(InetAddress.getLocalHost(), 0);
+        SocketAddress nonConnectableAddress = new InetSocketAddress(InetAddress.getByAddress(theBytes), 0);
+        SocketAddress nonReachableAddress = new InetSocketAddress(StuckServer.UNREACHABLE_ADDRESS, 0);
+        SocketAddress invalidType = new mySocketAddress();
+
         Socket theSocket = null;
         ServerSocket serverSocket = null;
-        SocketAddress theAddress = null;
-        SocketAddress nonConnectableAddress = null;
-        SocketAddress nonReachableAddress = null;
-        SocketAddress invalidType = null;
-        // byte[] theBytes = {-1,-1,-1,-1};
-        byte[] theBytes = { 0, 0, 0, 0 };
-        theAddress = new InetSocketAddress(InetAddress.getLocalHost(),
-                portNumber);
-        nonConnectableAddress = new InetSocketAddress(InetAddress
-                .getByAddress(theBytes), portNumber);
-        nonReachableAddress = new InetSocketAddress(InetAddress
-                .getByName(Support_Configuration.ResolvedNotExistingHost),
-                portNumber);
-
-        invalidType = new mySocketAddress();
-
         try {
             theSocket = new Socket();
             theSocket.connect(null);
@@ -1164,7 +1155,7 @@ public class OldSocketTest extends OldSocketTestCase {
         byte[] theBytes = { 0, 0, 0, 0 };
         SocketAddress theAddress = new InetSocketAddress(InetAddress.getLocalHost(), 0);
         SocketAddress nonConnectableAddress = new InetSocketAddress(InetAddress.getByAddress(theBytes), 0);
-        SocketAddress nonReachableAddress = new InetSocketAddress(InetAddress.getByName(Support_Configuration.ResolvedNotExistingHost), 0);
+        SocketAddress nonReachableAddress = new InetSocketAddress(StuckServer.UNREACHABLE_ADDRESS, 0);
         SocketAddress invalidType = new mySocketAddress();
 
         Socket theSocket = null;
