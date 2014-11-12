@@ -156,6 +156,26 @@ public class ReflectionBenchmark extends SimpleBenchmark {
         }
     }
 
+    public void timeGetInstanceField(int reps) throws Exception {
+        for (int rep = 0; rep < reps; ++rep) {
+            // The field here (and in timeGetStaticField) were chosen to be
+            // ~75% down the bottom of the alphabetically sorted field list.
+            // It's hard to construct a "fair" test case without resorting to
+            // a class whose field names are created algorithmically.
+            //
+            // TODO: Write a test script that generates both the classes we're
+            // reflecting on and the test case for each of its fields.
+            R.class.getField("mtextAppearanceLargePopupMenu");
+        }
+    }
+
+    public void timeGetStaticField(int reps) throws Exception {
+        for (int rep = 0; rep < reps; ++rep) {
+            R.class.getField("weekNumberColor");
+        }
+    }
+
+
     public static class C {
         public static int sf = 0;
         public int f = 0;
