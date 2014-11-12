@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 /**
@@ -28,6 +29,19 @@ import java.util.ArrayList;
  */
 public final class StuckServer {
     private static final boolean DEBUG = false;
+
+    // RFC 5737 implies this network -- "test net 1" -- will be unreachable.
+    // (There are two other networks to try if we have trouble with this one.)
+    // We've had trouble with 10.* in the past (because test labs running CTS often use
+    // net 10!) but hopefully this network will be better.
+    public static final InetAddress UNREACHABLE_ADDRESS;
+    static {
+        try {
+            UNREACHABLE_ADDRESS = InetAddress.getByAddress(new byte[] { (byte) 192, 0, 2, 0 });
+        } catch (UnknownHostException ex) {
+            throw new AssertionError(ex);
+        }
+    }
 
     private ServerSocket serverSocket;
     private InetSocketAddress address;
@@ -57,12 +71,7 @@ public final class StuckServer {
             }
         } else {
             // In general, though, you don't want to rely on listen(2) backlog. http://b/6971145.
-            // RFC 5737 implies this network will be unreachable. (There are two other networks
-            // to try if we have trouble with this one.)
-            // We've had trouble with 10.* in the past (because test labs running CTS often use
-            // net 10!) but hopefully this network will be better.
-            InetAddress testNet1 = InetAddress.getByAddress(new byte[] { (byte) 192, 0, 2, 0 });
-            this.address = new InetSocketAddress(testNet1, 80);
+            this.address = new InetSocketAddress(UNREACHABLE_ADDRESS, 80);
         }
     }
 
