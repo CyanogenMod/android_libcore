@@ -75,11 +75,6 @@ public class Support_Configuration {
 
     public static String IPv6GlobalAddressJcl4 = "2001:4860:8004::67"; // ipv6.google.com
 
-    // ip address that resolves to a host that is not present on the local
-    // network
-    // this allows us to check the timeouts for connect
-    public static String ResolvedNotExistingHost = "9.26.194.72";
-
     // BEGIN android-changed
     /**
      * An address that resolves to more than one IP address so that the
@@ -277,11 +272,6 @@ public class Support_Configuration {
         value = props.get("URLConnectionDate");
         if (value != null) {
             URLConnectionDate = Long.parseLong(value);
-        }
-
-        value = props.get("ResolvedNotExistingHost");
-        if (value != null) {
-            ResolvedNotExistingHost = value;
         }
 
         value = props.get("InetAlias1");
