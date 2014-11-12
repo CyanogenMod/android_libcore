@@ -16,6 +16,8 @@
 
 package libcore.javax.net.ssl;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,6 +66,9 @@ import libcore.io.IoUtils;
 import libcore.io.Streams;
 import libcore.java.security.StandardNames;
 import libcore.java.security.TestKeyStore;
+import libcore.tlswire.handshake.HandshakeMessage;
+import libcore.tlswire.record.TlsProtocols;
+import libcore.tlswire.record.TlsRecord;
 
 public class SSLSocketTest extends TestCase {
 
@@ -1549,12 +1554,18 @@ public class SSLSocketTest extends TestCase {
             });
 
             // Wait for the ClientHello to arrive
-            byte[] clientHello = readFirstReceivedChunkFuture.get(10, TimeUnit.SECONDS);
+            byte[] firstReceivedChunk = readFirstReceivedChunkFuture.get(10, TimeUnit.SECONDS);
 
             // Check for ClientHello length that may cause handshake to fail/time out with older
             // F5/BIG-IP appliances.
-            assertEquals("TLS record type: handshake", 22, clientHello[0]);
-            int fragmentLength = ((clientHello[3] & 0xff) << 8) | (clientHello[4] & 0xff);
+            TlsRecord firstReceivedTlsRecord = TlsRecord.read(
+                    new DataInputStream(new ByteArrayInputStream(firstReceivedChunk)));
+            assertEquals("TLS record type", TlsProtocols.HANDSHAKE, firstReceivedTlsRecord.type);
+            HandshakeMessage handshakeMessage = HandshakeMessage.read(
+                    new DataInputStream(new ByteArrayInputStream(firstReceivedTlsRecord.fragment)));
+            assertEquals("HandshakeMessage type",
+                    HandshakeMessage.TYPE_CLIENT_HELLO, handshakeMessage.type);
+            int fragmentLength = firstReceivedTlsRecord.fragment.length;
             if ((fragmentLength >= 256) && (fragmentLength <= 511)) {
                 fail("Fragment containing ClientHello is of dangerous length: "
                         + fragmentLength + " bytes");
