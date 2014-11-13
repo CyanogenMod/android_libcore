@@ -47,6 +47,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.UnrecoverableEntryException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
@@ -260,6 +261,7 @@ public final class TestKeyStore extends Assert {
         private X500Principal subject;
         private int keyUsage;
         private boolean ca;
+        private PrivateKeyEntry privateEntry;
         private PrivateKeyEntry signer;
         private Certificate rootCa;
         private final List<KeyPurposeId> extendedKeyUsages = new ArrayList<KeyPurposeId>();
@@ -311,6 +313,12 @@ public final class TestKeyStore extends Assert {
         /** true If the keys being created are for a CA */
         public Builder ca(boolean ca) {
             this.ca = ca;
+            return this;
+        }
+
+        /** a private key entry to use for the generation of the certificate */
+        public Builder privateEntry(PrivateKeyEntry privateEntry) {
+            this.privateEntry = privateEntry;
             return this;
         }
 
@@ -368,21 +376,32 @@ public final class TestKeyStore extends Assert {
                     }
                 }
 
+                /*
+                 * This is not implemented for other key types because the logic
+                 * would be long to write and it's not needed currently.
+                 */
+                if (privateEntry != null
+                        && (keyAlgorithms.length != 1 || !"RSA".equals(keyAlgorithms[0]))) {
+                    throw new IllegalStateException(
+                            "Only reusing an existing key is implemented for RSA");
+                }
+
                 KeyStore keyStore = createKeyStore();
                 for (String keyAlgorithm : keyAlgorithms) {
                     String publicAlias  = aliasPrefix + "-public-"  + keyAlgorithm;
                     String privateAlias = aliasPrefix + "-private-" + keyAlgorithm;
                     if ((keyAlgorithm.equals("EC_RSA") || keyAlgorithm.equals("DH_RSA"))
                             && signer == null && rootCa == null) {
-                        createKeys(keyStore, keyAlgorithm, publicAlias, privateAlias,
-                                   privateKey(keyStore, keyPassword, "RSA", "RSA"));
+                        createKeys(keyStore, keyAlgorithm, publicAlias, privateAlias, null,
+                                privateKey(keyStore, keyPassword, "RSA", "RSA"));
                         continue;
                     } else if (keyAlgorithm.equals("DH_DSA") && signer == null && rootCa == null) {
-                        createKeys(keyStore, keyAlgorithm, publicAlias, privateAlias,
+                        createKeys(keyStore, keyAlgorithm, publicAlias, privateAlias, null,
                                 privateKey(keyStore, keyPassword, "DSA", "DSA"));
                         continue;
                     }
-                    createKeys(keyStore, keyAlgorithm, publicAlias, privateAlias, signer);
+                    createKeys(keyStore, keyAlgorithm, publicAlias, privateAlias, privateEntry,
+                            signer);
                 }
                 if (rootCa != null) {
                     keyStore.setCertificateEntry(aliasPrefix
@@ -416,6 +435,7 @@ public final class TestKeyStore extends Assert {
                 String keyAlgorithm,
                 String publicAlias,
                 String privateAlias,
+                PrivateKeyEntry privateEntry,
                 PrivateKeyEntry signer) throws Exception {
             PrivateKey caKey;
             X509Certificate caCert;
@@ -430,41 +450,50 @@ public final class TestKeyStore extends Assert {
                 caCertChain = (X509Certificate[])signer.getCertificateChain();
             }
 
-            PrivateKey privateKey;
+            final PrivateKey privateKey;
+            final PublicKey publicKey;
             X509Certificate x509c;
             if (publicAlias == null && privateAlias == null) {
                 // don't want anything apparently
                 privateKey = null;
+                publicKey = null;
                 x509c = null;
             } else {
-                // 1.) we make the keys
-                int keySize;
-                if (keyAlgorithm.equals("RSA")) {
-                    // 512 breaks SSL_RSA_EXPORT_* on RI and TLS_ECDHE_RSA_WITH_RC4_128_SHA for us
-                    keySize =  1024;
-                } else if (keyAlgorithm.equals("DH_RSA")) {
-                    keySize = 512;
-                    keyAlgorithm = "DH";
-                } else if (keyAlgorithm.equals("DSA")) {
-                    keySize = 512;
-                } else if (keyAlgorithm.equals("DH_DSA")) {
-                    keySize = 512;
-                    keyAlgorithm = "DH";
-                } else if (keyAlgorithm.equals("EC")) {
-                    keySize = 256;
-                } else if (keyAlgorithm.equals("EC_RSA")) {
-                    keySize = 256;
-                    keyAlgorithm = "EC";
+                if (privateEntry == null) {
+                    // 1a.) we make the keys
+                    int keySize;
+                    if (keyAlgorithm.equals("RSA")) {
+                        // 512 breaks SSL_RSA_EXPORT_* on RI and
+                        // TLS_ECDHE_RSA_WITH_RC4_128_SHA for us
+                        keySize = 1024;
+                    } else if (keyAlgorithm.equals("DH_RSA")) {
+                        keySize = 512;
+                        keyAlgorithm = "DH";
+                    } else if (keyAlgorithm.equals("DSA")) {
+                        keySize = 512;
+                    } else if (keyAlgorithm.equals("DH_DSA")) {
+                        keySize = 512;
+                        keyAlgorithm = "DH";
+                    } else if (keyAlgorithm.equals("EC")) {
+                        keySize = 256;
+                    } else if (keyAlgorithm.equals("EC_RSA")) {
+                        keySize = 256;
+                        keyAlgorithm = "EC";
+                    } else {
+                        throw new IllegalArgumentException("Unknown key algorithm " + keyAlgorithm);
+                    }
+
+                    KeyPairGenerator kpg = KeyPairGenerator.getInstance(keyAlgorithm);
+                    kpg.initialize(keySize, new SecureRandom());
+
+                    KeyPair kp = kpg.generateKeyPair();
+                    privateKey = kp.getPrivate();
+                    publicKey = kp.getPublic();
                 } else {
-                    throw new IllegalArgumentException("Unknown key algorithm " + keyAlgorithm);
+                    // 1b.) we use the previous keys
+                    privateKey = privateEntry.getPrivateKey();
+                    publicKey = privateEntry.getCertificate().getPublicKey();
                 }
-
-                KeyPairGenerator kpg = KeyPairGenerator.getInstance(keyAlgorithm);
-                kpg.initialize(keySize, new SecureRandom());
-
-                KeyPair kp = kpg.generateKeyPair();
-                privateKey = kp.getPrivate();
-                PublicKey publicKey  = kp.getPublic();
 
                 // 2.) use keys to make certificate
                 X500Principal issuer = ((caCert != null)
@@ -815,6 +844,24 @@ public final class TestKeyStore extends Assert {
             }
             return found;
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Return an {@code X509Certificate that matches the given {@code alias}.
+     */
+    public KeyStore.Entry getEntryByAlias(String alias) {
+        return entryByAlias(keyStore, alias);
+    }
+
+    /**
+     * Finds an entry in the keystore by the given alias.
+     */
+    public static KeyStore.Entry entryByAlias(KeyStore keyStore, String alias) {
+        try {
+            return keyStore.getEntry(alias, null);
+        } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException e) {
             throw new RuntimeException(e);
         }
     }
