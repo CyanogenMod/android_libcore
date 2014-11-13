@@ -198,8 +198,8 @@ public class JarUtils {
                 }
             }
 
-            // RFC 3852 section 9.2: it authAttrs is present, it must have a
-            // message digest entry.
+            // RFC 2315 section 9.1: if authenticatedAttributes is present, it
+            // must have a message-digest attribute.
             if (existingDigest == null) {
                 throw new SecurityException("Missing MessageDigest in Authenticated Attributes");
             }
