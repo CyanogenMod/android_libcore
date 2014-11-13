@@ -51,6 +51,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -941,20 +942,42 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * may return a non-public member.
      */
     private Field getDeclaredFieldInternal(String name) {
+
         if (iFields != null) {
-            for (ArtField f : iFields) {
-                if (f.getName().equals(name)) {
-                    return new Field(f);
-                }
+            final ArtField matched = findByName(name, iFields);
+            if (matched != null) {
+                return new Field(matched);
             }
         }
         if (sFields != null) {
-            for (ArtField f : sFields) {
-                if (f.getName().equals(name)) {
-                    return new Field(f);
-                }
+            final ArtField matched = findByName(name, sFields);
+            if (matched != null) {
+                return new Field(matched);
             }
         }
+
+        return null;
+    }
+
+    /**
+     * Performs a binary search through {@code fields} for a field whose name
+     * is {@code name}. Returns {@code null} if no matching field exists.
+     */
+    private static ArtField findByName(String name, ArtField[] fields) {
+        int low = 0, high = fields.length - 1;
+        while (low <= high) {
+            final int mid = (low + high) >>> 1;
+            final ArtField f = fields[mid];
+            final int result = f.getName().compareTo(name);
+            if (result < 0) {
+                low = mid + 1;
+            } else if (result == 0) {
+                return f;
+            } else {
+                high = mid - 1;
+            }
+        }
+
         return null;
     }
 
