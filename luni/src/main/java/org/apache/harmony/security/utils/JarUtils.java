@@ -249,6 +249,10 @@ public class JarUtils {
             }
             chain.add(issuerCert);
             count++;
+            /* Prevent growing infinitely if there is a loop */
+            if (count > candidates.length) {
+                break;
+            }
             issuer = issuerCert.getIssuerDN();
             if (issuerCert.getSubjectDN().equals(issuer)) {
                 break;
