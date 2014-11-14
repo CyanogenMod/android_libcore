@@ -30,8 +30,6 @@ import java.util.Random;
 import static android.system.OsConstants.*;
 
 public final class IoUtils {
-    private static final Random TEMPORARY_DIRECTORY_PRNG = new Random();
-
     private IoUtils() {
     }
 
@@ -142,7 +140,7 @@ public final class IoUtils {
      */
     public static File createTemporaryDirectory(String prefix) {
         while (true) {
-            String candidateName = prefix + TEMPORARY_DIRECTORY_PRNG.nextInt();
+            String candidateName = prefix + Math.randomIntInternal();
             File result = new File(System.getProperty("java.io.tmpdir"), candidateName);
             if (result.mkdir()) {
                 return result;
