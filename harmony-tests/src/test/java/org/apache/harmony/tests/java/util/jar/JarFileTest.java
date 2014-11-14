@@ -37,7 +37,14 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -96,6 +103,27 @@ public class JarFileTest extends TestCase {
     private final String integrateJarEntry = "Test.class";
 
     private final String emptyEntryJar = "EmptyEntries_signed.jar";
+
+    /*
+     * /usr/bin/openssl genrsa 2048 > root1.pem
+     * /usr/bin/openssl req -new -key root1.pem -out root1.csr -subj '/CN=root1'
+     * /usr/bin/openssl x509 -req -days 3650 -in root1.csr -signkey root1.pem -out root1.crt
+     * /usr/bin/openssl genrsa 2048 > root2.pem
+     * /usr/bin/openssl req -new -key root2.pem -out root2.csr -subj '/CN=root2'
+     * echo 4000 > root1.srl
+     * echo 8000 > root2.srl
+     * /usr/bin/openssl x509 -req -days 3650 -in root2.csr -CA root1.crt -CAkey root1.pem -out root2.crt
+     * /usr/bin/openssl x509 -req -days 3650 -in root1.csr -CA root2.crt -CAkey root2.pem -out root1.crt
+     * /usr/bin/openssl genrsa 2048 > signer.pem
+     * /usr/bin/openssl req -new -key signer.pem -out signer.csr -subj '/CN=signer'
+     * /usr/bin/openssl x509 -req -days 3650 -in signer.csr -CA root1.crt -CAkey root1.pem -out signer.crt
+     * /usr/bin/openssl pkcs12 -inkey signer.pem -in signer.crt -export -out signer.p12 -name signer -passout pass:certloop
+     * keytool -importkeystore -srckeystore signer.p12 -srcstoretype PKCS12 -destkeystore signer.jks -srcstorepass certloop -deststorepass certloop
+     * cat signer.crt root1.crt root2.crt > chain.crt
+     * zip -d hyts_certLoop.jar 'META-INF/*'
+     * jarsigner -keystore signer.jks -certchain chain.crt -storepass certloop hyts_certLoop.jar signer
+     */
+    private final String certLoopJar = "hyts_certLoop.jar";
 
     private final String emptyEntry1 = "subfolder/internalSubset01.js";
 
@@ -616,6 +644,9 @@ public class JarFileTest extends TestCase {
 
         // JAR with a signature that has PKCS#7 Authenticated Attributes
         checkSignedJar(authAttrsJar);
+
+        // JAR with certificates that loop
+        checkSignedJar(certLoopJar, 3);
     }
 
     /**
@@ -628,29 +659,52 @@ public class JarFileTest extends TestCase {
         checkSignedJar(jarName9);
     }
 
+    /**
+     * Checks that a JAR is signed correctly with a signature length of 1.
+     */
     private void checkSignedJar(String jarName) throws Exception {
+        checkSignedJar(jarName, 1);
+    }
+
+    /**
+     * Checks that a JAR is signed correctly with a signature length of sigLength.
+     */
+    private void checkSignedJar(String jarName, final int sigLength) throws Exception {
         Support_Resources.copyFile(resources, null, jarName);
 
-        File file = new File(resources, jarName);
-        boolean foundCerts = false;
+        final File file = new File(resources, jarName);
 
-        JarFile jarFile = new JarFile(file, true);
-        try {
-
-            Enumeration<JarEntry> e = jarFile.entries();
-            while (e.hasMoreElements()) {
-                JarEntry entry = e.nextElement();
-                InputStream is = jarFile.getInputStream(entry);
-                is.skip(100000);
-                is.close();
-                Certificate[] certs = entry.getCertificates();
-                if (certs != null && certs.length > 0) {
-                    foundCerts = true;
-                    break;
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Boolean> future = executor.submit(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                JarFile jarFile = new JarFile(file, true);
+                try {
+                    Enumeration<JarEntry> e = jarFile.entries();
+                    while (e.hasMoreElements()) {
+                        JarEntry entry = e.nextElement();
+                        InputStream is = jarFile.getInputStream(entry);
+                        is.skip(100000);
+                        is.close();
+                        Certificate[] certs = entry.getCertificates();
+                        if (certs != null && certs.length > 0) {
+                            assertEquals(sigLength, certs.length);
+                            return true;
+                        }
+                    }
+                    return false;
+                } finally {
+                    jarFile.close();
                 }
             }
-        } finally {
-            jarFile.close();
+        });
+        executor.shutdown();
+        final boolean foundCerts;
+        try {
+            foundCerts = future.get(10, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            fail("Could not finish building chain; possibly confused by loops");
+            return; // Not actually reached.
         }
 
         assertTrue(
