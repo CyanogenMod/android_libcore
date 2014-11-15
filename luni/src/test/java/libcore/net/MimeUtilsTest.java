@@ -48,4 +48,8 @@ public class MimeUtilsTest extends TestCase {
     assertEquals("png", MimeUtils.guessExtensionFromMimeType("image/png"));
     assertEquals("zip", MimeUtils.guessExtensionFromMimeType("application/zip"));
   }
+
+  public void test_18390752() {
+    assertEquals("jpg", MimeUtils.guessExtensionFromMimeType("image/jpeg"));
+  }
 }
