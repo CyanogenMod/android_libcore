@@ -1678,6 +1678,10 @@ public class SSLSocketTest extends TestCase {
                         server.startHandshake();
                         fail("Should result in inappropriate fallback");
                     } catch (SSLHandshakeException expected) {
+                        Throwable cause = expected.getCause();
+                        assertEquals(SSLProtocolException.class, cause.getClass());
+                        assertTrue(cause.getMessage(),
+                                cause.getMessage().contains("inappropriate fallback"));
                     }
                     return null;
                 }
@@ -1690,6 +1694,10 @@ public class SSLSocketTest extends TestCase {
                         client.startHandshake();
                         fail("Should receive TLS alert inappropriate fallback");
                     } catch (SSLHandshakeException expected) {
+                        Throwable cause = expected.getCause();
+                        assertEquals(SSLProtocolException.class, cause.getClass());
+                        assertTrue(cause.getMessage(),
+                                cause.getMessage().contains("inappropriate fallback"));
                     }
                     return null;
                 }
