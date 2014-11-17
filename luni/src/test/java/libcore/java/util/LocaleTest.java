@@ -20,6 +20,7 @@ import java.text.BreakIterator;
 import java.text.Collator;
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.IllformedLocaleException;
@@ -1145,5 +1146,23 @@ public class LocaleTest extends junit.framework.TestCase {
         final Locale locale = new Locale("en", "US", "variant");
         assertEquals("variant", locale.getVariant());
         assertEquals(locale, Locale.forLanguageTag(locale.toLanguageTag()));
+    }
+
+    public void testArabicDigits() throws Exception {
+        // ar-DZ uses latn digits by default, but we can override that.
+        Locale ar_DZ = Locale.forLanguageTag("ar-DZ");
+        Locale ar_DZ_arab = Locale.forLanguageTag("ar-DZ-u-nu-arab");
+        Locale ar_DZ_latn = Locale.forLanguageTag("ar-DZ-u-nu-latn");
+        assertEquals('0', new DecimalFormatSymbols(ar_DZ).getZeroDigit());
+        assertEquals('\u0660', new DecimalFormatSymbols(ar_DZ_arab).getZeroDigit());
+        assertEquals('0', new DecimalFormatSymbols(ar_DZ_latn).getZeroDigit());
+
+        // ar-EG uses arab digits by default, but we can override that.
+        Locale ar_EG = Locale.forLanguageTag("ar-EG");
+        Locale ar_EG_arab = Locale.forLanguageTag("ar-EG-u-nu-arab");
+        Locale ar_EG_latn = Locale.forLanguageTag("ar-EG-u-nu-latn");
+        assertEquals('\u0660', new DecimalFormatSymbols(ar_EG).getZeroDigit());
+        assertEquals('\u0660', new DecimalFormatSymbols(ar_EG_arab).getZeroDigit());
+        assertEquals('0', new DecimalFormatSymbols(ar_EG_latn).getZeroDigit());
     }
 }
