@@ -24,7 +24,7 @@ import java.util.Arrays;
 public class SSLServerSocketTest extends TestCase {
 
   public void testDefaultConfiguration() throws Exception {
-    SSLDefaultConfigurationAsserts.assertSSLServerSocket(
+    SSLConfigurationAsserts.assertSSLServerSocketDefaultConfiguration(
         (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket());
   }
 

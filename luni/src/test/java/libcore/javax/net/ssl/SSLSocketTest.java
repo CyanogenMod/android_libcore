@@ -73,7 +73,7 @@ import libcore.tlswire.record.TlsRecord;
 public class SSLSocketTest extends TestCase {
 
     public void test_SSLSocket_defaultConfiguration() throws Exception {
-        SSLDefaultConfigurationAsserts.assertSSLSocket(
+        SSLConfigurationAsserts.assertSSLSocketDefaultConfiguration(
                 (SSLSocket) SSLSocketFactory.getDefault().createSocket());
     }
 
