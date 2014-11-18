@@ -709,14 +709,12 @@ public final class StandardNames extends Assert {
         addBoth(   "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
-        addBoth(   "TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
         addBoth(   "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_RSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_DHE_RSA_WITH_AES_128_CBC_SHA");
-        addBoth(   "TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
         addBoth(   "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA");
         addBoth(   "TLS_ECDHE_RSA_WITH_RC4_128_SHA");
         addBoth(   "SSL_RSA_WITH_RC4_128_SHA");
@@ -728,7 +726,6 @@ public final class StandardNames extends Assert {
         addBoth(   "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA");
-        addBoth(   "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA");
         addBoth(   "SSL_RSA_WITH_RC4_128_MD5");
 
         // TLSv1.2 cipher suites
@@ -741,10 +738,6 @@ public final class StandardNames extends Assert {
         addBoth(   "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256");
         addOpenSsl("TLS_DHE_RSA_WITH_AES_128_GCM_SHA256");
         addOpenSsl("TLS_DHE_RSA_WITH_AES_256_GCM_SHA384");
-        addBoth(   "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256");
-        addBoth(   "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256");
-        addOpenSsl("TLS_DHE_DSS_WITH_AES_128_GCM_SHA256");
-        addOpenSsl("TLS_DHE_DSS_WITH_AES_256_GCM_SHA384");
         addBoth(   "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256");
         addBoth(   "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384");
         addOpenSsl("TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256");
@@ -799,13 +792,11 @@ public final class StandardNames extends Assert {
         addBoth(   "SSL_RSA_WITH_NULL_MD5");
         addBoth(   "SSL_RSA_WITH_DES_CBC_SHA");
         addBoth(   "SSL_DHE_RSA_WITH_DES_CBC_SHA");
-        addBoth(   "SSL_DHE_DSS_WITH_DES_CBC_SHA");
         addBoth(   "SSL_DH_anon_WITH_DES_CBC_SHA");
         addBoth(   "SSL_RSA_EXPORT_WITH_RC4_40_MD5");
         addBoth(   "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5");
         addBoth(   "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA");
         addBoth(   "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA");
-        addBoth(   "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA");
         addBoth(   "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA");
 
         // Android does not have Keberos support
@@ -819,6 +810,17 @@ public final class StandardNames extends Assert {
         addRi(     "TLS_KRB5_EXPORT_WITH_RC4_40_MD5");
         addRi(     "TLS_KRB5_EXPORT_WITH_DES_CBC_40_SHA");
         addRi(     "TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5");
+
+        // Android does not have DSS support
+        addRi(     "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA");
+        addRi(     "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA");
+        addRi(     "SSL_DHE_DSS_WITH_DES_CBC_SHA");
+        addRi(     "TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
+        addRi(     "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256");
+        addNeither("TLS_DHE_DSS_WITH_AES_128_GCM_SHA256");
+        addRi(     "TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
+        addRi(     "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256");
+        addNeither("TLS_DHE_DSS_WITH_AES_256_GCM_SHA384");
 
         // Dropped
         addNeither("SSL_DH_DSS_EXPORT_WITH_DES40_CBC_SHA");
@@ -910,8 +912,6 @@ public final class StandardNames extends Assert {
                             "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
                             "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
                             "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-                            "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
-                            "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
                             "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
                             "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
                             "TLS_RSA_WITH_AES_128_GCM_SHA256",
