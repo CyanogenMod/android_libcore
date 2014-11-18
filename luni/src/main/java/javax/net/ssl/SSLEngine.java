@@ -62,6 +62,7 @@ import java.nio.ByteBuffer;
  * </table>
  *
  * <h4>Cipher suites</h4>
+ * <!-- STOPSHIP: Update this table to reflect the removal of DSS cipher suites. -->
  * <table>
  *     <thead>
  *         <tr>
