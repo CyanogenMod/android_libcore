@@ -91,7 +91,16 @@ import libcore.icu.TimeZoneNames;
  * <tr> <td>{@code ''}</td> <td>single quote</td>           <td>(Literal)</td>     <td>{@code 'o''clock'}:o'clock</td> </tr>
  * </table>
  *
- * <p>Fractional seconds are handled specially: they're zero-padded on the <i>right</i>.
+ * <p>Note that {@code 'S'} represents fractional seconds and not millisecond values.
+ * They will be padded on the left or on the right or both depending on the number of
+ * {@code 'S'} in the pattern. For example, the number of fractional seconds in a
+ * {@code Date} where {@code Date.getTime() == 1000006} are {@code 0.006} or
+ * {@code (6 / 1000)}. This leads to the following formatting:
+ * <ul>
+ *     <li> {@code "S" => "0"} </li>
+ *     <li> {@code "SSS" => "006" } </li>
+ *     <li> {@code "SSSSSS" => "006000" }</li>
+ * </ul>
  *
  * <p>The two pattern characters {@code L} and {@code c} are ICU-compatible extensions, not
  * available in the RI or in Android before Android 2.3 (Gingerbread, API level 9). These
