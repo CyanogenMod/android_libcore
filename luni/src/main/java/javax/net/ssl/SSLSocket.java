@@ -106,6 +106,7 @@ import java.net.UnknownHostException;
  * standard names for cipher suites since API Level 9, as listed in the table
  * below. Prior to API Level 9, non-standard (OpenSSL) names had been used (see
  * the table following this table).
+ * <!-- STOPSHIP: Update this table to reflect the removal of DSS cipher suites. -->
  * <table>
  *     <thead>
  *         <tr>
