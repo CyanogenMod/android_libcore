@@ -210,7 +210,7 @@ public class SSLSocketFactoryTest extends TestCase {
     }
 
     public void test_SSLSocketFactory_defaultConfiguration() throws Exception {
-        SSLDefaultConfigurationAsserts.assertSSLSocketFactory(
+        SSLConfigurationAsserts.assertSSLSocketFactoryDefaultConfiguration(
                 (SSLSocketFactory) SSLSocketFactory.getDefault());
     }
 
