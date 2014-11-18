@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 public class SSLServerSocketFactoryTest extends TestCase {
 
   public void testDefaultConfiguration() throws Exception {
-    SSLDefaultConfigurationAsserts.assertSSLServerSocketFactory(
+    SSLConfigurationAsserts.assertSSLServerSocketFactoryDefaultConfiguration(
         (SSLServerSocketFactory) SSLServerSocketFactory.getDefault());
   }
 }

@@ -26,7 +26,6 @@ import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import libcore.io.IoUtils;
@@ -82,14 +81,14 @@ public class SSLContextTest extends TestCase {
     }
 
     public void test_SSLContext_defaultConfiguration() throws Exception {
-        SSLDefaultConfigurationAsserts.assertSSLContext(SSLContext.getDefault());
+        SSLConfigurationAsserts.assertSSLContextDefaultConfiguration(SSLContext.getDefault());
 
         for (String protocol : StandardNames.SSL_CONTEXT_PROTOCOLS) {
             SSLContext sslContext = SSLContext.getInstance(protocol);
             if (!protocol.equals(StandardNames.SSL_CONTEXT_PROTOCOLS_DEFAULT)) {
                 sslContext.init(null, null, null);
             }
-            SSLDefaultConfigurationAsserts.assertSSLContext(sslContext);
+            SSLConfigurationAsserts.assertSSLContextDefaultConfiguration(sslContext);
         }
     }
 

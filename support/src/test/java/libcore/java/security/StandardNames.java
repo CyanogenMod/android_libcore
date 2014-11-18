@@ -556,6 +556,7 @@ public final class StandardNames extends Assert {
             provideSslContextEnabledProtocols("TLSv1", TLSVersion.SSLv3, TLSVersion.TLSv1);
             provideSslContextEnabledProtocols("TLSv1.1", TLSVersion.SSLv3, TLSVersion.TLSv11);
             provideSslContextEnabledProtocols("TLSv1.2", TLSVersion.SSLv3, TLSVersion.TLSv12);
+            provideSslContextEnabledProtocols("Default", TLSVersion.SSLv3, TLSVersion.TLSv1);
         } else {
             provideSslContextEnabledProtocols("SSL", TLSVersion.SSLv3, TLSVersion.TLSv12);
             provideSslContextEnabledProtocols("SSLv3", TLSVersion.SSLv3, TLSVersion.TLSv12);
@@ -563,6 +564,7 @@ public final class StandardNames extends Assert {
             provideSslContextEnabledProtocols("TLSv1", TLSVersion.TLSv1, TLSVersion.TLSv12);
             provideSslContextEnabledProtocols("TLSv1.1", TLSVersion.TLSv1, TLSVersion.TLSv12);
             provideSslContextEnabledProtocols("TLSv1.2", TLSVersion.TLSv1, TLSVersion.TLSv12);
+            provideSslContextEnabledProtocols("Default", TLSVersion.TLSv1, TLSVersion.TLSv12);
         }
     }
 
@@ -989,7 +991,8 @@ public final class StandardNames extends Assert {
      * suites in a test for those that want to verify separately that
      * all cipher suites were included.
      */
-    public static Set<String> assertValidCipherSuites(Set<String> expected, String[] cipherSuites) {
+    private static Set<String> assertValidCipherSuites(
+            Set<String> expected, String[] cipherSuites) {
         assertNotNull(cipherSuites);
         assertTrue(cipherSuites.length != 0);
 
@@ -1011,7 +1014,7 @@ public final class StandardNames extends Assert {
      * assertSupportedCipherSuites additionally verifies that all
      * supported cipher suites where in the input array.
      */
-    public static void assertSupportedCipherSuites(Set<String> expected, String[] cipherSuites) {
+    private static void assertSupportedCipherSuites(Set<String> expected, String[] cipherSuites) {
         Set<String> remainingCipherSuites = assertValidCipherSuites(expected, cipherSuites);
         assertEquals("Missing cipher suites", Collections.EMPTY_SET, remainingCipherSuites);
         assertEquals(expected.size(), cipherSuites.length);
@@ -1024,7 +1027,7 @@ public final class StandardNames extends Assert {
      * those that want to verify separately that all protocols were
      * included.
      */
-    public static Set<String> assertValidProtocols(Set<String> expected, String[] protocols) {
+    private static Set<String> assertValidProtocols(Set<String> expected, String[] protocols) {
         assertNotNull(protocols);
         assertTrue(protocols.length != 0);
 
@@ -1045,18 +1048,10 @@ public final class StandardNames extends Assert {
      * assertSupportedProtocols additionally verifies that all
      * supported protocols where in the input array.
      */
-    public static void assertSupportedProtocols(Set<String> expected, String[] protocols) {
+    private static void assertSupportedProtocols(Set<String> expected, String[] protocols) {
         Set<String> remainingProtocols = assertValidProtocols(expected, protocols);
         assertEquals("Missing protocols", Collections.EMPTY_SET, remainingProtocols);
         assertEquals(expected.size(), protocols.length);
-    }
-
-    /**
-     * Asserts that the protocols array is non-null and that all of its contents are supported
-     * protocols.
-     */
-    public static void assertValidProtocols(String[] protocols) {
-        assertValidProtocols(SSL_SOCKET_PROTOCOLS, protocols);
     }
 
     /**
@@ -1064,33 +1059,6 @@ public final class StandardNames extends Assert {
      */
     public static void assertSupportedProtocols(String[] protocols) {
         assertSupportedProtocols(SSL_SOCKET_PROTOCOLS, protocols);
-    }
-
-    /**
-     * Asserts that the protocols array contains all the protocols enabled by default for client use
-     * and no other ones.
-     */
-    public static void assertDefaultProtocolsClient(String[] protocols) {
-        assertValidProtocols(protocols);
-        assertSupportedProtocols(SSL_SOCKET_PROTOCOLS_CLIENT_DEFAULT, protocols);
-    }
-
-    /**
-     * Asserts that the protocols array contains all the protocols enabled by default for server use
-     * and no other ones.
-     */
-    public static void assertDefaultProtocolsServer(String[] protocols) {
-        assertValidProtocols(protocols);
-        assertSupportedProtocols(SSL_SOCKET_PROTOCOLS_SERVER_DEFAULT, protocols);
-    }
-
-    /**
-     * Asserts that the protocols array contains all the protocols enabled by default for
-     * {@link javax.net.ssl.SSLEngine} and no other ones.
-     */
-    public static void assertSSLEngineDefaultProtocols(String[] protocols) {
-        assertValidProtocols(protocols);
-        assertSupportedProtocols(SSL_SOCKET_PROTOCOLS_CLIENT_DEFAULT, protocols);
     }
 
     /**
