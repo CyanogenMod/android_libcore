@@ -65,7 +65,7 @@ public class SSLEngineTest extends TestCase {
     }
 
     public void test_SSLEngine_defaultConfiguration() throws Exception {
-        SSLDefaultConfigurationAsserts.assertSSLEngine(
+        SSLConfigurationAsserts.assertSSLEngineDefaultConfiguration(
                 TestSSLContext.create().clientContext.createSSLEngine());
     }
 
