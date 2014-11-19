@@ -1241,6 +1241,12 @@ public class OldSocketTest extends OldSocketTestCase {
             theSocket.connect(nonReachableAddress, 200);
             theSocket.close();
             fail("No interrupted exception when connecting to address nobody listening on with short timeout 200: ");
+        } catch (ConnectException ce) {
+            // some networks will quickly reset the TCP connection attempt to this fake IP
+            assertTrue(
+                    "Wrong exception when connecting to address nobody listening on with short timeout 200: "
+                            + ce.toString(),
+                    (ce.getMessage() != null && ce.getMessage().contains("ECONNREFUSED")));
         } catch (Exception e) {
             assertTrue(
                     "Wrong exception when connecting to address nobody listening on with short timeout 200: "
@@ -1256,6 +1262,12 @@ public class OldSocketTest extends OldSocketTestCase {
             theSocket.connect(nonReachableAddress, 40);
             theSocket.close();
             fail("No interrupted exception when connecting to address nobody listening on with short timeout 40: ");
+        } catch (ConnectException ce) {
+            // some networks will quickly reset the TCP connection attempt to this fake IP
+            assertTrue(
+                    "Wrong exception when connecting to address nobody listening on with short timeout 40: "
+                            + ce.toString(),
+                    (ce.getMessage() != null && ce.getMessage().contains("ECONNREFUSED")));
         } catch (Exception e) {
             assertTrue(
                     "Wrong exception when connecting to address nobody listening on with short timeout 40: "
