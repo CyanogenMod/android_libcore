@@ -22,6 +22,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
+import java.util.Currency;
 import java.util.Locale;
 
 public class NumberFormatTest extends junit.framework.TestCase {
@@ -80,6 +81,7 @@ public class NumberFormatTest extends junit.framework.TestCase {
 
     // Formatting percentages is confusing but deliberate.
     // Ensure we don't accidentally "fix" this.
+    // https://code.google.com/p/android/issues/detail?id=10333
     public void test_10333() throws Exception {
         NumberFormat nf = NumberFormat.getPercentInstance(Locale.US);
         assertEquals("15%", nf.format(0.15));
@@ -91,6 +93,7 @@ public class NumberFormatTest extends junit.framework.TestCase {
         }
     }
 
+    // https://code.google.com/p/android/issues/detail?id=62269
     public void test_62269() throws Exception {
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
         try {
@@ -125,5 +128,29 @@ public class NumberFormatTest extends junit.framework.TestCase {
             NumberFormat.getNumberInstance(null);
             fail();
         } catch (NullPointerException expected) {}
+    }
+
+    // https://code.google.com/p/android/issues/detail?id=79925
+    public void test_setCurrency() throws Exception {
+        NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);
+        nf.setCurrency(Currency.getInstance("AMD"));
+        assertEquals("AMD50.00", nf.format(50.0));
+
+        DecimalFormatSymbols decimalFormatSymbols = ((DecimalFormat) nf).getDecimalFormatSymbols();
+        decimalFormatSymbols.setCurrencySymbol("");
+        ((DecimalFormat) nf).setDecimalFormatSymbols(decimalFormatSymbols);
+        assertEquals("50.00", nf.format(50.0));
+
+        nf.setCurrency(Currency.getInstance("AMD"));
+        assertEquals("AMD50.00", nf.format(50.0));
+
+        nf.setCurrency(Currency.getInstance("AMD"));
+        assertEquals("AMD50.00", nf.format(50.0));
+
+        nf.setCurrency(Currency.getInstance("USD"));
+        assertEquals("$50.00", nf.format(50.0));
+
+        nf.setCurrency(Currency.getInstance("AMD"));
+        assertEquals("AMD50.00", nf.format(50.0));
     }
 }
