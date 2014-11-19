@@ -114,15 +114,18 @@ public final class DefaultHostnameVerifierTest extends TestCase {
     public void testWildcardMatchesWildcardSuffix() {
         assertTrue(verifier.verifyHostName("b.c.d", "*.b.c.d"));
         assertTrue(verifier.verifyHostName("imap.google.com", "*.imap.google.com"));
+        assertFalse(verifier.verifyHostName("imap.google.com.au", "*.imap.google.com"));
     }
 
     public void testWildcardMatchingSubstring() {
         assertTrue(verifier.verifyHostName("b.c.d", "b*.c.d"));
         assertTrue(verifier.verifyHostName("imap.google.com", "ima*.google.com"));
+        assertFalse(verifier.verifyHostName("imap.google.com.au", "ima*.google.com"));
     }
 
     public void testWildcardMatchingEmptySubstring() {
         assertTrue(verifier.verifyHostName("imap.google.com", "imap*.google.com"));
+        assertFalse(verifier.verifyHostName("imap.google.com.au", "imap*.google.com"));
     }
 
     public void testWildcardMatchesChildDomain() {
