@@ -414,9 +414,6 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         if (currency == null) {
             throw new NullPointerException("currency == null");
         }
-        if (currency == this.currency) {
-            return;
-        }
         this.currency = currency;
         intlCurrencySymbol = currency.getCurrencyCode();
         currencySymbol = currency.getSymbol(locale);
