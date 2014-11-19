@@ -19,6 +19,24 @@ package libcore.icu;
 import java.util.Locale;
 
 public class NativePluralRulesTest extends junit.framework.TestCase {
+    public void testNegatives() throws Exception {
+        // icu4c's behavior changed, but we prefer to preserve compatibility.
+        NativePluralRules en_US = NativePluralRules.forLocale(new Locale("en", "US"));
+        assertEquals(NativePluralRules.OTHER, en_US.quantityForInt(2));
+        assertEquals(NativePluralRules.ONE, en_US.quantityForInt(1));
+        assertEquals(NativePluralRules.OTHER, en_US.quantityForInt(0));
+        assertEquals(NativePluralRules.OTHER, en_US.quantityForInt(-1));
+        assertEquals(NativePluralRules.OTHER, en_US.quantityForInt(-2));
+
+        NativePluralRules ar = NativePluralRules.forLocale(new Locale("ar"));
+        assertEquals(NativePluralRules.ZERO, ar.quantityForInt(0));
+        assertEquals(NativePluralRules.OTHER, ar.quantityForInt(-1)); // Not ONE.
+        assertEquals(NativePluralRules.OTHER, ar.quantityForInt(-2)); // Not TWO.
+        assertEquals(NativePluralRules.OTHER, ar.quantityForInt(-3)); // Not FEW.
+        assertEquals(NativePluralRules.OTHER, ar.quantityForInt(-11)); // Not MANY.
+        assertEquals(NativePluralRules.OTHER, ar.quantityForInt(-100));
+    }
+
     public void testEnglish() throws Exception {
         NativePluralRules npr = NativePluralRules.forLocale(new Locale("en", "US"));
         assertEquals(NativePluralRules.OTHER, npr.quantityForInt(0));
