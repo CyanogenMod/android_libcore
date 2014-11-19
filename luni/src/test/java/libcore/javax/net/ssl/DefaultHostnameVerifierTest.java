@@ -154,9 +154,11 @@ public final class DefaultHostnameVerifierTest extends TestCase {
         assertFalse(verifier.verifyHostName("imap.google.com", "ix*.google.com"));
         assertTrue(verifier.verifyHostName("imap.google.com", "iMap.Google.Com"));
         assertTrue(verifier.verifyHostName("weird", "weird"));
+        assertFalse(verifier.verifyHostName("weird", "weird."));
+
+        // Wildcards rejected for domain names consisting of fewer than two labels (excluding root).
         assertFalse(verifier.verifyHostName("weird", "weird*"));
         assertFalse(verifier.verifyHostName("weird", "*weird"));
-        assertFalse(verifier.verifyHostName("weird", "weird."));
         assertFalse(verifier.verifyHostName("weird", "weird*."));
         assertFalse(verifier.verifyHostName("weird", "weird.*"));
     }
@@ -175,10 +177,12 @@ public final class DefaultHostnameVerifierTest extends TestCase {
         assertFalse(verifier.verifyHostName("imap.google.com.", "ix*.google.com"));
         assertTrue(verifier.verifyHostName("imap.google.com.", "iMap.Google.Com"));
         assertTrue(verifier.verifyHostName("weird.", "weird"));
-        assertTrue(verifier.verifyHostName("weird.", "weird*"));
-        assertTrue(verifier.verifyHostName("weird.", "*weird"));
         assertTrue(verifier.verifyHostName("weird.", "weird."));
-        assertTrue(verifier.verifyHostName("weird.", "weird*."));
+
+        // Wildcards rejected for domain names consisting of fewer than two labels (excluding root).
+        assertFalse(verifier.verifyHostName("weird.", "*weird"));
+        assertFalse(verifier.verifyHostName("weird.", "weird*"));
+        assertFalse(verifier.verifyHostName("weird.", "weird*."));
         assertFalse(verifier.verifyHostName("weird.", "weird.*"));
     }
 
