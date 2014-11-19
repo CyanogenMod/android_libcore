@@ -137,7 +137,7 @@ public final class DefaultHostnameVerifier implements HostnameVerifier {
             return hostName.equals(cn);
         }
 
-        if (cn.startsWith("*.") && hostName.regionMatches(0, cn, 2, cn.length() - 2)) {
+        if (cn.startsWith("*.") && hostName.equals(cn.substring(2))) {
             return true; // "*.foo.com" matches "foo.com"
         }
 
