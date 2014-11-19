@@ -55,6 +55,10 @@ public final class NativePluralRules {
      * to the first rule that matches the given value.
      */
     public int quantityForInt(int value) {
+        // Pre-L compatibility. http://b/18429565.
+        if (value < 0) {
+            return OTHER;
+        }
         return quantityForIntImpl(address, value);
     }
 
