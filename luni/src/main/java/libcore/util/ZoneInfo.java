@@ -360,8 +360,14 @@ public final class ZoneInfo extends TimeZone {
         private int gmtOffsetSeconds;
 
         public WallTime() {
-            this.calendar = new GregorianCalendar(false);
+            this.calendar = createGregorianCalendar();
             calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+        }
+
+        // LayoutLib replaces this method via bytecode manipulation, since the
+        // minimum-cost constructor is not available on host machines.
+        private static GregorianCalendar createGregorianCalendar() {
+            return new GregorianCalendar(false);
         }
 
         /**
