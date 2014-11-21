@@ -2192,13 +2192,10 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
     public void testSslFallback() throws Exception {
         TestSSLContext testSSLContext = TestSSLContext.create();
 
-        // Android now disables SSLv3 by default. To test fallback we re-enable it for the server.
-        // This can be removed once OkHttp is updated to support other fallback protocols.
         SSLSocketFactory serverSocketFactory =
                 new LimitedProtocolsSocketFactory(
                         testSSLContext.serverContext.getSocketFactory(),
                         "TLSv1", "SSLv3");
-
         server.useHttps(serverSocketFactory, false);
         server.enqueue(new MockResponse().setSocketPolicy(FAIL_HANDSHAKE));
         server.enqueue(new MockResponse().setBody("This required a 2nd handshake"));
@@ -2208,7 +2205,9 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         // Keeps track of the client sockets created so that we can interrogate them.
         final boolean disableFallbackScsv = true;
         FallbackTestClientSocketFactory clientSocketFactory = new FallbackTestClientSocketFactory(
-                testSSLContext.clientContext.getSocketFactory(), disableFallbackScsv);
+                new LimitedProtocolsSocketFactory(
+                        testSSLContext.clientContext.getSocketFactory(), "TLSv1", "SSLv3"),
+                disableFallbackScsv);
         connection.setSSLSocketFactory(clientSocketFactory);
         assertEquals("This required a 2nd handshake",
                 readAscii(connection.getInputStream(), Integer.MAX_VALUE));
@@ -2224,14 +2223,14 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
                 (TlsFallbackDisabledScsvSSLSocket) createdSockets.get(0);
         List<String> clientSocket1EnabledProtocols = Arrays.asList(
                 clientSocket1.getEnabledProtocols());
-        assertContains(clientSocket1EnabledProtocols, "TLSv1.2");
+        assertContains(clientSocket1EnabledProtocols, "TLSv1");
         assertFalse(clientSocket1.wasTlsFallbackScsvSet());
 
         TlsFallbackDisabledScsvSSLSocket clientSocket2 =
                 (TlsFallbackDisabledScsvSSLSocket) createdSockets.get(1);
         List<String> clientSocket2EnabledProtocols =
                 Arrays.asList(clientSocket2.getEnabledProtocols());
-        assertContainsNoneMatching(clientSocket2EnabledProtocols, "TLSv1.2");
+        assertContainsNoneMatching(clientSocket2EnabledProtocols, "TLSv1");
         assertTrue(clientSocket2.wasTlsFallbackScsvSet());
     }
 
