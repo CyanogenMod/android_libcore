@@ -84,9 +84,6 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-libart
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_REQUIRED_MODULES := tzdata
-# Should not be dex-preopted as it isn't really a Dalvik boot jar or a
-# regular java library, but part of the image for ART.
-LOCAL_DEX_PREOPT := false
 include $(BUILD_JAVA_LIBRARY)
 
 ifeq ($(LIBCORE_SKIP_TESTS),)
@@ -165,9 +162,6 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-libart-hostdex
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_REQUIRED_MODULES := tzdata-host
-# Should not be dex-preopted as it isn't really a Dalvik boot jar or a
-# regular java library, but part of the image for ART.
-LOCAL_DEX_PREOPT := false
 include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 
 # Make the core-tests library.
