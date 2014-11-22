@@ -965,6 +965,7 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
 
         RecordedRequest request = server.takeRequest();
         assertContains(request.getHeaders(), "Accept-Encoding: gzip");
+        assertEquals("gzip", connection.getContentEncoding());
     }
 
     public void testGzipAndConnectionReuseWithFixedLength() throws Exception {

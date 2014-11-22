@@ -438,39 +438,6 @@ public class URLConnectionTest extends TestCase {
     }
 
     /**
-     * @throws IOException
-     * {@link java.net.URLConnection#getContentEncoding()}
-     */
-    // broken test - Fails in CTS, passes in CoreTestRunner
-    public void test_getContentEncoding() throws IOException {
-        // faulty setup
-        try {
-
-        fileURLCon.getContentEncoding();
-        fail("Exception expected");
-        } catch (Throwable e) {
-            //ok
-        }
-
-        // positive case
-
-        URL url = new URL("http://www.amazon.com/");
-
-        URLConnection con = url.openConnection();
-        con.setRequestProperty("Accept-Encoding", "gzip");
-        con.connect();
-
-        assertEquals(con.getContentEncoding(), "gzip");
-
-
-        uc2.setRequestProperty("Accept-Encoding", "bla");
-        uc2.connect();
-
-        assertNull(uc2.getContentEncoding());
-
-    }
-
-    /**
      * {@link java.net.URLConnection#getContentLength()}
      */
     public void test_getContentLength() throws Exception {
@@ -831,34 +798,6 @@ public class URLConnectionTest extends TestCase {
         } catch (UnsupportedOperationException e) {
             // Expected
         }
-    }
-
-    /**
-     * @throws IOException
-     * {@link java.net.URLConnection#getLastModified()}
-     */
-    public void test_getLastModified() throws IOException {
-
-        URL url4 = new URL(Support_Configuration.hTTPURLwLastModified);
-        URLConnection uc4 = url4.openConnection();
-
-        uc4.connect();
-
-        if (uc4.getLastModified() == 0) {
-            System.out
-                    .println("WARNING: Server does not support 'Last-Modified', test_getLastModified() not run");
-            return;
-        }
-
-        long millis = uc4.getHeaderFieldDate("Last-Modified", 0);
-
-        assertEquals(
-                "Returned wrong getLastModified value.  Wanted: "
-                        + " got: " + uc4.getLastModified(),
-                millis, uc4.getLastModified());
-
-
-        ((HttpURLConnection) uc).disconnect();
     }
 
     public void test_getOutputStream_failAfterDisconnect() throws IOException {

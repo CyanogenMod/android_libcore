@@ -91,8 +91,6 @@ public class Support_Configuration {
     // than one addresses returned for this host name as needed by a test
     // END android-changed
 
-    public static String hTTPURLwLastModified = "http://www.php.net/manual/en/function.explode.php";
-
     public static int SpecialInetTestAddressNumber = 4;
 
     /**
