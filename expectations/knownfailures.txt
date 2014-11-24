@@ -1505,5 +1505,20 @@
   names: [
     "libcore.java.text.DecimalFormatSymbolsTest#test_getInstance_unknown_or_invalid_locale"
   ]
+},
+{
+  description: "libcore test failures on devices with a constrained (48mb) max heap size.",
+  bug : 18256012,
+  names: [
+    "com.squareup.okhttp.internal.spdy.Http20Draft09Test#tooLargeDataFrame",
+    "com.squareup.okhttp.internal.spdy.Spdy3Test#tooLargeDataFrame",
+    "libcore.java.util.zip.GZIPInputStreamTest#testLongMessage",
+    "libcore.java.util.zip.GZIPOutputStreamTest#testLongMessage",
+    "libcore.java.util.zip.ZipFileTest#testZip64Support",
+    "libcore.java.util.zip.ZipFileTest#testZipFileWithLotsOfEntries",
+    "libcore.java.util.zip.ZipInputStreamTest#testLongMessage",
+    "libcore.java.util.zip.ZipOutputStreamTest#testLongMessage"
+  ]
 }
 ]
+
