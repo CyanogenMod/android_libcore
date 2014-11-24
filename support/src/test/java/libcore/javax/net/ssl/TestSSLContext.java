@@ -53,7 +53,8 @@ public final class TestSSLContext extends Assert {
     private static final boolean IS_RI = StandardNames.IS_RI;
     public static final int EXPECTED_DEFAULT_CLIENT_SSL_SESSION_CACHE_SIZE = (IS_RI) ? 0 : 10;
     public static final int EXPECTED_DEFAULT_SERVER_SSL_SESSION_CACHE_SIZE = (IS_RI) ? 0 : 100;
-    public static final int EXPECTED_DEFAULT_SSL_SESSION_CACHE_TIMEOUT = (IS_RI) ? 86400 : 0;
+    public static final int EXPECTED_DEFAULT_SSL_SESSION_CACHE_TIMEOUT =
+            (IS_RI) ? 24 * 3600 : 8 * 3600;
 
     /**
      * The Android SSLSocket and SSLServerSocket implementations are
