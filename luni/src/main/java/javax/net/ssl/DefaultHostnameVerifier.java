@@ -38,6 +38,7 @@ public final class DefaultHostnameVerifier implements HostnameVerifier {
     private static final int ALT_DNS_NAME = 2;
     private static final int ALT_IPA_NAME = 7;
 
+    @Override
     public final boolean verify(String host, SSLSession session) {
         try {
             Certificate[] certificates = session.getPeerCertificates();
@@ -47,7 +48,7 @@ public final class DefaultHostnameVerifier implements HostnameVerifier {
         }
     }
 
-    public boolean verify(String host, X509Certificate certificate) {
+    private boolean verify(String host, X509Certificate certificate) {
         return InetAddress.isNumeric(host)
                 ? verifyIpAddress(host, certificate)
                 : verifyHostName(host, certificate);
@@ -126,7 +127,7 @@ public final class DefaultHostnameVerifier implements HostnameVerifier {
      * @param cn certificate host name. May include wildcards like
      *     {@code *.android.com}.
      */
-    public boolean verifyHostName(String hostName, String cn) {
+    private boolean verifyHostName(String hostName, String cn) {
         if (hostName == null || hostName.isEmpty() || cn == null || cn.isEmpty()) {
             return false;
         }
