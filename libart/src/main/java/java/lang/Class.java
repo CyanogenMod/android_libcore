@@ -138,6 +138,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private transient DexCache dexCache;
 
+    /** Short-cut to dexCache.strings */
+    private transient String[] dexCacheStrings;
+
     /** static, private, and &lt;init&gt; methods. */
     private transient ArtMethod[] directMethods;
 
@@ -453,7 +456,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @hide
      */
     public String getDexCacheString(Dex dex, int dexStringIndex) {
-        String[] dexCacheStrings = dexCache.strings;
         String s = dexCacheStrings[dexStringIndex];
         if (s == null) {
             s = dex.strings().get(dexStringIndex).intern();
