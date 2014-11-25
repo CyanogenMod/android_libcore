@@ -22,6 +22,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -30,21 +31,32 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import javax.net.ssl.DefaultHostnameVerifier;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSessionContext;
 import javax.security.auth.x500.X500Principal;
 import junit.framework.TestCase;
 
+/**
+ * Tests for the platform-default {@link HostnameVerifier} as provided by
+ * {@link HttpsURLConnection#getDefaultHostnameVerifier()}.
+ */
 public final class DefaultHostnameVerifierTest extends TestCase {
     private static final int ALT_UNKNOWN = 0;
     private static final int ALT_DNS_NAME = 2;
     private static final int ALT_IPA_NAME = 7;
 
-    private final DefaultHostnameVerifier verifier = new DefaultHostnameVerifier();
+    private final HostnameVerifier verifier = HttpsURLConnection.getDefaultHostnameVerifier();
 
     public void testVerify() {
-        assertTrue(verifier.verify("imap.g.com", new StubX509Certificate("cn=imap.g.com")));
-        assertFalse(verifier.verify("imap.g.com", new StubX509Certificate("cn=imap2.g.com")));
-        assertFalse(verifier.verify("imap.g.com", new StubX509Certificate("cn=sub.imap.g.com")));
+        assertTrue(verifyWithServerCertificate(
+                "imap.g.com", new StubX509Certificate("cn=imap.g.com")));
+        assertFalse(verifyWithServerCertificate(
+                "imap.g.com", new StubX509Certificate("cn=imap2.g.com")));
+        assertFalse(verifyWithServerCertificate(
+                "imap.g.com", new StubX509Certificate("cn=sub.imap.g.com")));
     }
 
     /**
@@ -52,32 +64,33 @@ public final class DefaultHostnameVerifierTest extends TestCase {
      * be used as the identity and the CN should be ignored.
      */
     public void testSubjectAltNameAndCn() {
-        assertFalse(verifier.verify("imap.g.com", new StubX509Certificate("")
+        assertFalse(verifyWithServerCertificate("imap.g.com", new StubX509Certificate("")
                 .addSubjectAlternativeName(ALT_DNS_NAME, "a.y.com")));
-        assertFalse(verifier.verify("imap.g.com", new StubX509Certificate("cn=imap.g.com")
-                .addSubjectAlternativeName(ALT_DNS_NAME, "a.y.com")));
-        assertTrue(verifier.verify("imap.g.com", new StubX509Certificate("")
+        assertFalse(
+                verifyWithServerCertificate("imap.g.com", new StubX509Certificate("cn=imap.g.com")
+                        .addSubjectAlternativeName(ALT_DNS_NAME, "a.y.com")));
+        assertTrue(verifyWithServerCertificate("imap.g.com", new StubX509Certificate("")
                 .addSubjectAlternativeName(ALT_DNS_NAME, "imap.g.com")));
     }
 
     public void testSubjectAltNameWithWildcard() {
-        assertTrue(verifier.verify("imap.g.com", new StubX509Certificate("")
+        assertTrue(verifyWithServerCertificate("imap.g.com", new StubX509Certificate("")
                 .addSubjectAlternativeName(ALT_DNS_NAME, "*.g.com")));
     }
 
     public void testSubjectAltNameWithIpAddress() {
-        assertTrue(verifier.verify("1.2.3.4", new StubX509Certificate("")
+        assertTrue(verifyWithServerCertificate("1.2.3.4", new StubX509Certificate("")
                 .addSubjectAlternativeName(ALT_IPA_NAME, "1.2.3.4")));
-        assertFalse(verifier.verify("1.2.3.5", new StubX509Certificate("")
+        assertFalse(verifyWithServerCertificate("1.2.3.5", new StubX509Certificate("")
                 .addSubjectAlternativeName(ALT_IPA_NAME, "1.2.3.4")));
-        assertTrue(verifier.verify("192.168.100.1", new StubX509Certificate("")
+        assertTrue(verifyWithServerCertificate("192.168.100.1", new StubX509Certificate("")
                 .addSubjectAlternativeName(ALT_IPA_NAME, "1.2.3.4")
                 .addSubjectAlternativeName(ALT_IPA_NAME, "192.168.100.1")));
     }
 
     public void testUnknownSubjectAltName() {
         // Has unknown subject alternative names
-        assertTrue(verifier.verify("imap.g.com", new StubX509Certificate("")
+        assertTrue(verifyWithServerCertificate("imap.g.com", new StubX509Certificate("")
                 .addSubjectAlternativeName(ALT_UNKNOWN, "random string 1")
                 .addSubjectAlternativeName(ALT_UNKNOWN, "random string 2")
                 .addSubjectAlternativeName(ALT_DNS_NAME, "a.b.c.d")
@@ -85,7 +98,7 @@ public final class DefaultHostnameVerifierTest extends TestCase {
                 .addSubjectAlternativeName(ALT_DNS_NAME, "imap.g.com")
                 .addSubjectAlternativeName(ALT_IPA_NAME, "2.33.44.55")
                 .addSubjectAlternativeName(ALT_UNKNOWN, "random string 3")));
-        assertTrue(verifier.verify("2.33.44.55", new StubX509Certificate("")
+        assertTrue(verifyWithServerCertificate("2.33.44.55", new StubX509Certificate("")
                 .addSubjectAlternativeName(ALT_UNKNOWN, "random string 1")
                 .addSubjectAlternativeName(ALT_UNKNOWN, "random string 2")
                 .addSubjectAlternativeName(ALT_DNS_NAME, "a.b.c.d")
@@ -93,7 +106,7 @@ public final class DefaultHostnameVerifierTest extends TestCase {
                 .addSubjectAlternativeName(ALT_DNS_NAME, "imap.g.com")
                 .addSubjectAlternativeName(ALT_IPA_NAME, "2.33.44.55")
                 .addSubjectAlternativeName(ALT_UNKNOWN, "random string 3")));
-        assertFalse(verifier.verify("g.com", new StubX509Certificate("")
+        assertFalse(verifyWithServerCertificate("g.com", new StubX509Certificate("")
                 .addSubjectAlternativeName(ALT_UNKNOWN, "random string 1")
                 .addSubjectAlternativeName(ALT_UNKNOWN, "random string 2")
                 .addSubjectAlternativeName(ALT_DNS_NAME, "a.b.c.d")
@@ -101,7 +114,7 @@ public final class DefaultHostnameVerifierTest extends TestCase {
                 .addSubjectAlternativeName(ALT_DNS_NAME, "imap.g.com")
                 .addSubjectAlternativeName(ALT_IPA_NAME, "2.33.44.55")
                 .addSubjectAlternativeName(ALT_UNKNOWN, "random string 3")));
-        assertFalse(verifier.verify("2.33.44.1", new StubX509Certificate("")
+        assertFalse(verifyWithServerCertificate("2.33.44.1", new StubX509Certificate("")
                 .addSubjectAlternativeName(ALT_UNKNOWN, "random string 1")
                 .addSubjectAlternativeName(ALT_UNKNOWN, "random string 2")
                 .addSubjectAlternativeName(ALT_DNS_NAME, "a.b.c.d")
@@ -112,81 +125,81 @@ public final class DefaultHostnameVerifierTest extends TestCase {
     }
 
     public void testWildcardMatchesWildcardSuffix() {
-        assertTrue(verifier.verifyHostName("b.c.d", "*.b.c.d"));
-        assertTrue(verifier.verifyHostName("imap.google.com", "*.imap.google.com"));
-        assertFalse(verifier.verifyHostName("imap.google.com.au", "*.imap.google.com"));
+        assertTrue(verifyWithDomainNamePattern("b.c.d", "*.b.c.d"));
+        assertTrue(verifyWithDomainNamePattern("imap.google.com", "*.imap.google.com"));
+        assertFalse(verifyWithDomainNamePattern("imap.google.com.au", "*.imap.google.com"));
     }
 
     public void testWildcardMatchingSubstring() {
-        assertTrue(verifier.verifyHostName("b.c.d", "b*.c.d"));
-        assertTrue(verifier.verifyHostName("imap.google.com", "ima*.google.com"));
-        assertFalse(verifier.verifyHostName("imap.google.com.au", "ima*.google.com"));
+        assertTrue(verifyWithDomainNamePattern("b.c.d", "b*.c.d"));
+        assertTrue(verifyWithDomainNamePattern("imap.google.com", "ima*.google.com"));
+        assertFalse(verifyWithDomainNamePattern("imap.google.com.au", "ima*.google.com"));
     }
 
     public void testWildcardMatchingEmptySubstring() {
-        assertTrue(verifier.verifyHostName("imap.google.com", "imap*.google.com"));
-        assertFalse(verifier.verifyHostName("imap.google.com.au", "imap*.google.com"));
+        assertTrue(verifyWithDomainNamePattern("imap.google.com", "imap*.google.com"));
+        assertFalse(verifyWithDomainNamePattern("imap.google.com.au", "imap*.google.com"));
     }
 
     public void testWildcardMatchesChildDomain() {
-        assertFalse(verifier.verifyHostName("a.b.c.d", "*.c.d"));
+        assertFalse(verifyWithDomainNamePattern("a.b.c.d", "*.c.d"));
     }
 
     public void testWildcardsRejectedForSingleLabelPatterns() {
-        assertFalse(verifier.verifyHostName("d", "*"));
-        assertFalse(verifier.verifyHostName("d.", "*."));
-        assertFalse(verifier.verifyHostName("d", "d*"));
-        assertFalse(verifier.verifyHostName("d.", "d*."));
-        assertFalse(verifier.verifyHostName("d", "*d"));
-        assertFalse(verifier.verifyHostName("d.", "*d."));
-        assertFalse(verifier.verifyHostName("ddd", "d*d"));
-        assertFalse(verifier.verifyHostName("ddd.", "d*d."));
+        assertFalse(verifyWithDomainNamePattern("d", "*"));
+        assertFalse(verifyWithDomainNamePattern("d.", "*."));
+        assertFalse(verifyWithDomainNamePattern("d", "d*"));
+        assertFalse(verifyWithDomainNamePattern("d.", "d*."));
+        assertFalse(verifyWithDomainNamePattern("d", "*d"));
+        assertFalse(verifyWithDomainNamePattern("d.", "*d."));
+        assertFalse(verifyWithDomainNamePattern("ddd", "d*d"));
+        assertFalse(verifyWithDomainNamePattern("ddd.", "d*d."));
     }
 
     public void testVerifyHostName() {
-        assertTrue(verifier.verifyHostName("a.b.c.d", "a.b.c.d"));
-        assertTrue(verifier.verifyHostName("a.b.c.d", "*.b.c.d"));
-        assertFalse(verifier.verifyHostName("a.b.c.d", "*.*.c.d"));
-        assertTrue(verifier.verifyHostName("imap.google.com", "imap.google.com"));
-        assertFalse(verifier.verifyHostName("imap2.google.com", "imap.google.com"));
-        assertTrue(verifier.verifyHostName("imap.google.com", "*.google.com"));
-        assertTrue(verifier.verifyHostName("imap2.google.com", "*.google.com"));
-        assertFalse(verifier.verifyHostName("imap.google.com", "*.googl.com"));
-        assertFalse(verifier.verifyHostName("imap2.google2.com", "*.google3.com"));
-        assertFalse(verifier.verifyHostName("imap.google.com", "a*.google.com"));
-        assertFalse(verifier.verifyHostName("imap.google.com", "ix*.google.com"));
-        assertTrue(verifier.verifyHostName("imap.google.com", "iMap.Google.Com"));
-        assertTrue(verifier.verifyHostName("weird", "weird"));
-        assertFalse(verifier.verifyHostName("weird", "weird."));
+        assertTrue(verifyWithDomainNamePattern("a.b.c.d", "a.b.c.d"));
+        assertTrue(verifyWithDomainNamePattern("a.b.c.d", "*.b.c.d"));
+        assertFalse(verifyWithDomainNamePattern("a.b.c.d", "*.*.c.d"));
+        assertTrue(verifyWithDomainNamePattern("imap.google.com", "imap.google.com"));
+        assertFalse(verifyWithDomainNamePattern("imap2.google.com", "imap.google.com"));
+        assertTrue(verifyWithDomainNamePattern("imap.google.com", "*.google.com"));
+        assertTrue(verifyWithDomainNamePattern("imap2.google.com", "*.google.com"));
+        assertFalse(verifyWithDomainNamePattern("imap.google.com", "*.googl.com"));
+        assertFalse(verifyWithDomainNamePattern("imap2.google2.com", "*.google3.com"));
+        assertFalse(verifyWithDomainNamePattern("imap.google.com", "a*.google.com"));
+        assertFalse(verifyWithDomainNamePattern("imap.google.com", "ix*.google.com"));
+        assertTrue(verifyWithDomainNamePattern("imap.google.com", "iMap.Google.Com"));
+        assertTrue(verifyWithDomainNamePattern("weird", "weird"));
+        assertFalse(verifyWithDomainNamePattern("weird", "weird."));
 
         // Wildcards rejected for domain names consisting of fewer than two labels (excluding root).
-        assertFalse(verifier.verifyHostName("weird", "weird*"));
-        assertFalse(verifier.verifyHostName("weird", "*weird"));
-        assertFalse(verifier.verifyHostName("weird", "weird*."));
-        assertFalse(verifier.verifyHostName("weird", "weird.*"));
+        assertFalse(verifyWithDomainNamePattern("weird", "weird*"));
+        assertFalse(verifyWithDomainNamePattern("weird", "*weird"));
+        assertFalse(verifyWithDomainNamePattern("weird", "weird*."));
+        assertFalse(verifyWithDomainNamePattern("weird", "weird.*"));
     }
 
     public void testVerifyAbsoluteHostName() {
-        assertTrue(verifier.verifyHostName("a.b.c.d.", "a.b.c.d"));
-        assertTrue(verifier.verifyHostName("a.b.c.d.", "*.b.c.d"));
-        assertFalse(verifier.verifyHostName("a.b.c.d.", "*.*.c.d"));
-        assertTrue(verifier.verifyHostName("imap.google.com.", "imap.google.com"));
-        assertFalse(verifier.verifyHostName("imap2.google.com.", "imap.google.com"));
-        assertTrue(verifier.verifyHostName("imap.google.com.", "*.google.com"));
-        assertTrue(verifier.verifyHostName("imap2.google.com.", "*.google.com"));
-        assertFalse(verifier.verifyHostName("imap.google.com.", "*.googl.com"));
-        assertFalse(verifier.verifyHostName("imap2.google2.com.", "*.google3.com"));
-        assertFalse(verifier.verifyHostName("imap.google.com.", "a*.google.com"));
-        assertFalse(verifier.verifyHostName("imap.google.com.", "ix*.google.com"));
-        assertTrue(verifier.verifyHostName("imap.google.com.", "iMap.Google.Com"));
-        assertTrue(verifier.verifyHostName("weird.", "weird"));
-        assertTrue(verifier.verifyHostName("weird.", "weird."));
+        assertTrue(verifyWithDomainNamePattern("a.b.c.d.", "a.b.c.d"));
+        assertTrue(verifyWithDomainNamePattern("a.b.c.d.", "*.b.c.d"));
+        assertFalse(verifyWithDomainNamePattern("a.b.c.d.", "*.*.c.d"));
+        assertTrue(verifyWithDomainNamePattern("imap.google.com.", "imap.google.com"));
+        assertFalse(verifyWithDomainNamePattern("imap2.google.com.", "imap.google.com"));
+        assertTrue(verifyWithDomainNamePattern("imap.google.com.", "*.google.com"));
+        assertTrue(verifyWithDomainNamePattern("imap2.google.com.", "*.google.com"));
+        assertFalse(verifyWithDomainNamePattern("imap.google.com.", "*.googl.com"));
+        assertFalse(verifyWithDomainNamePattern("imap2.google2.com.", "*.google3.com"));
+        assertFalse(verifyWithDomainNamePattern("imap.google.com.", "a*.google.com"));
+        assertFalse(verifyWithDomainNamePattern("imap.google.com.", "ix*.google.com"));
+        assertTrue(verifyWithDomainNamePattern("imap.google.com.", "iMap.Google.Com"));
+        assertTrue(verifyWithDomainNamePattern("weird.", "weird"));
+        assertTrue(verifyWithDomainNamePattern("weird.", "weird."));
 
         // Wildcards rejected for domain names consisting of fewer than two labels (excluding root).
-        assertFalse(verifier.verifyHostName("weird.", "*weird"));
-        assertFalse(verifier.verifyHostName("weird.", "weird*"));
-        assertFalse(verifier.verifyHostName("weird.", "weird*."));
-        assertFalse(verifier.verifyHostName("weird.", "weird.*"));
+        assertFalse(verifyWithDomainNamePattern("weird.", "*weird"));
+        assertFalse(verifyWithDomainNamePattern("weird.", "weird*"));
+        assertFalse(verifyWithDomainNamePattern("weird.", "weird*."));
+        assertFalse(verifyWithDomainNamePattern("weird.", "weird.*"));
     }
 
     public void testSubjectOnlyCert() throws Exception {
@@ -210,8 +223,8 @@ public final class DefaultHostnameVerifierTest extends TestCase {
                 + "rs2oQLwOLnuifH52ey9+tJguabo+brlYYigAuWWFEzJfBzikDkIwnE/L7wlrypIk\n"
                 + "taXDWI4=\n"
                 + "-----END CERTIFICATE-----");
-        assertTrue(verifier.verify("www.example.com", cert));
-        assertFalse(verifier.verify("www2.example.com", cert));
+        assertTrue(verifyWithServerCertificate("www.example.com", cert));
+        assertFalse(verifyWithServerCertificate("www2.example.com", cert));
     }
 
     public void testSubjectAltOnlyCert() throws Exception {
@@ -234,8 +247,8 @@ public final class DefaultHostnameVerifierTest extends TestCase {
                 + "JPRynf9244Pn0Sr/wsnmdsTRFIFYynrc51hQ7DkwbUxpcaewkZzilru/SwZ3+pPT\n"
                 + "9JSqm5hJ1pg5WDlPkW7c/1VA0/141N52Q8MIU+2ZpuOj\n"
                 + "-----END CERTIFICATE-----");
-        assertTrue(verifier.verify("www.example.com", cert));
-        assertFalse(verifier.verify("www2.example.com", cert));
+        assertTrue(verifyWithServerCertificate("www.example.com", cert));
+        assertFalse(verifyWithServerCertificate("www2.example.com", cert));
     }
 
     public void testSubjectWithAltNamesCert() throws Exception {
@@ -261,10 +274,10 @@ public final class DefaultHostnameVerifierTest extends TestCase {
                 + "hrTVypLSoRXuTB2aWilu4p6aNh84xTdyqo2avtNr2MiQMZIcdamBq8LdBIAShFXI\n"
                 + "h5G2eVGXH/Y=\n"
                 + "-----END CERTIFICATE-----");
-        assertFalse(verifier.verify("www.example.com", cert));
-        assertTrue(verifier.verify("www2.example.com", cert));
-        assertTrue(verifier.verify("www3.example.com", cert));
-        assertFalse(verifier.verify("www4.example.com", cert));
+        assertFalse(verifyWithServerCertificate("www.example.com", cert));
+        assertTrue(verifyWithServerCertificate("www2.example.com", cert));
+        assertTrue(verifyWithServerCertificate("www3.example.com", cert));
+        assertFalse(verifyWithServerCertificate("www4.example.com", cert));
     }
 
     public void testSubjectWithWildAltNamesCert() throws Exception {
@@ -289,11 +302,11 @@ public final class DefaultHostnameVerifierTest extends TestCase {
                 + "Y3R0HZvKzNIU3pwAm69HCJoG+/9MZEIDJb0WJc5UygxDT45XE9zQMQe4dBOTaNXT\n"
                 + "+ntgaB62kE10HzrzpqXAgoAWxWK4RzFcUpBWw9qYq9xOCewJ\n"
                 + "-----END CERTIFICATE-----");
-        assertFalse(verifier.verify("www.example.com", cert));
-        assertFalse(verifier.verify("www2.example.com", cert));
-        assertTrue(verifier.verify("www.example2.com", cert));
-        assertTrue(verifier.verify("abc.example2.com", cert));
-        assertFalse(verifier.verify("www.example3.com", cert));
+        assertFalse(verifyWithServerCertificate("www.example.com", cert));
+        assertFalse(verifyWithServerCertificate("www2.example.com", cert));
+        assertTrue(verifyWithServerCertificate("www.example2.com", cert));
+        assertTrue(verifyWithServerCertificate("abc.example2.com", cert));
+        assertFalse(verifyWithServerCertificate("www.example3.com", cert));
     }
 
     public void testWildAltNameOnlyCert() throws Exception {
@@ -316,9 +329,9 @@ public final class DefaultHostnameVerifierTest extends TestCase {
                 + "va++ow5r1VxQXFJc0ZPzsDo+6TlktoDHaRQJGMqQomqHWT4i7F5UZgf6BHGfEUPU\n"
                 + "qep+GsF3QRHSBtpObWkVDZNFvky3a1iZ2q25+hFIqQ==\n"
                 + "-----END CERTIFICATE-----");
-        assertTrue(verifier.verify("www.example.com", cert));
-        assertTrue(verifier.verify("www2.example.com", cert));
-        assertFalse(verifier.verify("www.example2.com", cert));
+        assertTrue(verifyWithServerCertificate("www.example.com", cert));
+        assertTrue(verifyWithServerCertificate("www2.example.com", cert));
+        assertFalse(verifyWithServerCertificate("www.example2.com", cert));
     }
 
     public void testAltIpOnlyCert() throws Exception {
@@ -341,13 +354,164 @@ public final class DefaultHostnameVerifierTest extends TestCase {
                 + "WPjHQcWfpkFzAF5wyOq0kveVfx0g5xPhOVDd+U+q7WastbXICpCoHp9FxISmZVik\n"
                 + "sAyifp8agkYdzaSh55fFmKXlFnRsQw==\n"
                 + "-----END CERTIFICATE-----");
-        assertTrue(verifier.verify("192.168.10.1", cert));
-        assertFalse(verifier.verify("192.168.10.2", cert));
+        assertTrue(verifyWithServerCertificate("192.168.10.1", cert));
+        assertFalse(verifyWithServerCertificate("192.168.10.2", cert));
+    }
+
+    /**
+     * Verifies the provided hostname against the provided domain name pattern from server
+     * certificate.
+     */
+    private boolean verifyWithDomainNamePattern(String hostname, String pattern) {
+        StubSSLSession session = new StubSSLSession();
+
+        // Verify using a certificate where the pattern is in the CN
+        session.peerCertificates = new Certificate[] {
+                new StubX509Certificate("cn=" + pattern)
+        };
+        boolean resultWhenPatternInCn = verifier.verify(hostname, session);
+
+        // Verify using a certificate where the pattern is in a DNS SubjectAltName
+        session.peerCertificates = new Certificate[] {
+                new StubX509Certificate("ou=test")
+                        .addSubjectAlternativeName(ALT_DNS_NAME, pattern)
+        };
+        boolean resultWhenPatternInSubjectAltName = verifier.verify(hostname, session);
+
+        // Assert that in both cases the verifier gives the same result
+        if (resultWhenPatternInCn != resultWhenPatternInSubjectAltName) {
+            fail("Different results between pattern in CN and SubjectAltName."
+                    + " hostname : " + hostname + ", pattern: " + pattern
+                    + ", when pattern in CN: " + resultWhenPatternInCn
+                    + ", when pattern in SubjectAltName: " + resultWhenPatternInSubjectAltName);
+        }
+        return resultWhenPatternInCn;
+    }
+
+    /**
+     * Verifies the provided hostname against the provided server certificate.
+     */
+    private boolean verifyWithServerCertificate(String hostname, X509Certificate certificate) {
+        StubSSLSession session = new StubSSLSession();
+        session.peerCertificates =
+                (certificate != null) ? new Certificate[] {certificate} : new Certificate[0];
+        return verifier.verify(hostname, session);
     }
 
     X509Certificate parseCertificate(String encoded) throws Exception {
         InputStream in = new ByteArrayInputStream(encoded.getBytes(StandardCharsets.US_ASCII));
         return (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(in);
+    }
+
+    private static class StubSSLSession implements SSLSession {
+
+        public Certificate[] peerCertificates = new Certificate[0];
+
+        @Override
+        public int getApplicationBufferSize() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getCipherSuite() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public long getCreationTime() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public byte[] getId() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public long getLastAccessedTime() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Certificate[] getLocalCertificates() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Principal getLocalPrincipal() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int getPacketBufferSize() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public javax.security.cert.X509Certificate[] getPeerCertificateChain()
+                throws SSLPeerUnverifiedException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Certificate[] getPeerCertificates() throws SSLPeerUnverifiedException {
+            return peerCertificates;
+        }
+
+        @Override
+        public String getPeerHost() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int getPeerPort() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Principal getPeerPrincipal() throws SSLPeerUnverifiedException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getProtocol() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public SSLSessionContext getSessionContext() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object getValue(String name) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String[] getValueNames() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void invalidate() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isValid() {
+            return true;
+        }
+
+        @Override
+        public void putValue(String name, Object value) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void removeValue(String name) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private static class StubX509Certificate extends X509Certificate {
