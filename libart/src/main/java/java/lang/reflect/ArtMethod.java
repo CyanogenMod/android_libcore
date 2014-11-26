@@ -53,9 +53,6 @@ public final class ArtMethod {
     /** Short-cut to declaringClass.dexCache.resolvedTypes */
     /* package */ Class<?>[] dexCacheResolvedTypes;
 
-    /** Short-cut to declaringClass.dexCache.strings */
-    private String[] dexCacheStrings;
-
     /** Bits encoding access (e.g. public, private) as well as other runtime specific flags */
     private int accessFlags;
 
@@ -180,12 +177,7 @@ public final class ArtMethod {
      * Method we can avoid one indirection.
      */
     private String getDexCacheString(Dex dex, int dexStringIndex) {
-        String s = (String) dexCacheStrings[dexStringIndex];
-        if (s == null) {
-            s = dex.strings().get(dexStringIndex).intern();
-            dexCacheStrings[dexStringIndex] = s;
-        }
-        return s;
+        return declaringClass.getDexCacheString(dex, dexStringIndex);
     }
 
     /**
