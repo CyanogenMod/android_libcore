@@ -258,8 +258,8 @@ public class TimeZoneTest extends TestCase {
     // http://b/7955614
     public void testApia() throws Exception {
         TimeZone tz = TimeZone.getTimeZone("Pacific/Apia");
-        assertEquals("Samoa Daylight Time", tz.getDisplayName(true, TimeZone.LONG, Locale.US));
-        assertEquals("Samoa Standard Time", tz.getDisplayName(false, TimeZone.LONG, Locale.US));
+        assertEquals("Apia Daylight Time", tz.getDisplayName(true, TimeZone.LONG, Locale.US));
+        assertEquals("Apia Standard Time", tz.getDisplayName(false, TimeZone.LONG, Locale.US));
         assertEquals("GMT+14:00", tz.getDisplayName(true, TimeZone.SHORT, Locale.US));
         assertEquals("GMT+13:00", tz.getDisplayName(false, TimeZone.SHORT, Locale.US));
     }
