@@ -152,24 +152,24 @@ public class ICUTest extends junit.framework.TestCase {
     assertEquals("sr_ME_#Latn", sr_Latn_ME.toString());
     assertEquals("Latn",        sr_Latn_ME.getScript());
 
-    assertEquals("Српски",              sr_Cyrl_BA.getDisplayLanguage(sr_Cyrl_BA));
+    assertEquals("српски",              sr_Cyrl_BA.getDisplayLanguage(sr_Cyrl_BA));
     assertEquals("Босна и Херцеговина", sr_Cyrl_BA.getDisplayCountry(sr_Cyrl_BA));
-    assertEquals("Ћирилица",            sr_Cyrl_BA.getDisplayScript(sr_Cyrl_BA));
+    assertEquals("ћирилица",            sr_Cyrl_BA.getDisplayScript(sr_Cyrl_BA));
     assertEquals("",                    sr_Cyrl_BA.getDisplayVariant(sr_Cyrl_BA));
 
-    assertEquals("Српски",    sr_Cyrl_ME.getDisplayLanguage(sr_Cyrl_ME));
+    assertEquals("српски",    sr_Cyrl_ME.getDisplayLanguage(sr_Cyrl_ME));
     assertEquals("Црна Гора", sr_Cyrl_ME.getDisplayCountry(sr_Cyrl_ME));
-    assertEquals("Ћирилица",  sr_Cyrl_ME.getDisplayScript(sr_Cyrl_ME));
+    assertEquals("ћирилица",  sr_Cyrl_ME.getDisplayScript(sr_Cyrl_ME));
     assertEquals("",          sr_Cyrl_ME.getDisplayVariant(sr_Cyrl_ME));
 
-    assertEquals("Srpski",              sr_Latn_BA.getDisplayLanguage(sr_Latn_BA));
+    assertEquals("srpski",              sr_Latn_BA.getDisplayLanguage(sr_Latn_BA));
     assertEquals("Bosna i Hercegovina", sr_Latn_BA.getDisplayCountry(sr_Latn_BA));
-    assertEquals("Latinica",            sr_Latn_BA.getDisplayScript(sr_Latn_BA));
+    assertEquals("latinica",            sr_Latn_BA.getDisplayScript(sr_Latn_BA));
     assertEquals("",                    sr_Latn_BA.getDisplayVariant(sr_Latn_BA));
 
-    assertEquals("Srpski",    sr_Latn_ME.getDisplayLanguage(sr_Latn_ME));
+    assertEquals("srpski",    sr_Latn_ME.getDisplayLanguage(sr_Latn_ME));
     assertEquals("Crna Gora", sr_Latn_ME.getDisplayCountry(sr_Latn_ME));
-    assertEquals("Latinica",  sr_Latn_ME.getDisplayScript(sr_Latn_ME));
+    assertEquals("latinica",  sr_Latn_ME.getDisplayScript(sr_Latn_ME));
     assertEquals("",          sr_Latn_ME.getDisplayVariant(sr_Latn_ME));
 
     assertEquals("BIH", sr_Cyrl_BA.getISO3Country());
