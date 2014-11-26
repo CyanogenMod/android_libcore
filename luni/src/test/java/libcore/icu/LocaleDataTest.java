@@ -73,7 +73,7 @@ public class LocaleDataTest extends junit.framework.TestCase {
 
     assertEquals("leden", l.longStandAloneMonthNames[0]);
     assertEquals("led", l.shortStandAloneMonthNames[0]);
-    assertEquals("l", l.tinyStandAloneMonthNames[0]);
+    assertEquals("1", l.tinyStandAloneMonthNames[0]);
   }
 
   public void test_ko_KR() throws Exception {
