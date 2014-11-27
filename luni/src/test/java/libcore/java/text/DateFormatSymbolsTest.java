@@ -154,9 +154,9 @@ public class DateFormatSymbolsTest extends junit.framework.TestCase {
             // Pacific/Apia is somewhat arbitrary; we just want a zone we have to generate
             // "GMT" strings for the short names.
             if (row[0].equals("Pacific/Apia")) {
-                assertEquals("Samoa Standard Time", row[1]);
+                assertEquals("Apia Standard Time", row[1]);
                 assertEquals("GMT+13:00", row[2]);
-                assertEquals("Samoa Daylight Time", row[3]);
+                assertEquals("Apia Daylight Time", row[3]);
                 assertEquals("GMT+14:00", row[4]);
             }
         }
