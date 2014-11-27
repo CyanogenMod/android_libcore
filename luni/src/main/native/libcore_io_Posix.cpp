@@ -127,32 +127,27 @@ struct addrinfo_deleter {
  */
 #define IO_FAILURE_RETRY(jni_env, return_type, syscall_name, java_fd, ...) ({ \
     return_type _rc = -1; \
-    int _fd = jniGetFDFromFileDescriptor(jni_env, java_fd); \
-    if (_fd == -1) { \
-        jniThrowException(jni_env, "java/io/IOException", "File descriptor closed"); \
-    } else { \
-        do { \
-            bool _wasSignaled; \
-            int _syscallErrno; \
-            { \
-                int _fd = jniGetFDFromFileDescriptor(jni_env, java_fd); \
-                AsynchronousCloseMonitor _monitor(_fd); \
-                _rc = syscall_name(_fd, __VA_ARGS__); \
-                _syscallErrno = errno; \
-                _wasSignaled = _monitor.wasSignaled(); \
-            } \
-            if (_wasSignaled) { \
-                jniThrowException(jni_env, "java/io/InterruptedIOException", # syscall_name " interrupted"); \
-                _rc = -1; \
-                break; \
-            } \
-            if (_rc == -1 && _syscallErrno != EINTR) { \
-                /* TODO: with a format string we could show the arguments too, like strace(1). */ \
-                throwErrnoException(jni_env, # syscall_name); \
-                break; \
-            } \
-        } while (_rc == -1); /* && _syscallErrno == EINTR && !_wasSignaled */ \
-    } \
+    do { \
+        bool _wasSignaled; \
+        int _syscallErrno; \
+        { \
+            int _fd = jniGetFDFromFileDescriptor(jni_env, java_fd); \
+            AsynchronousCloseMonitor _monitor(_fd); \
+            _rc = syscall_name(_fd, __VA_ARGS__); \
+            _syscallErrno = errno; \
+            _wasSignaled = _monitor.wasSignaled(); \
+        } \
+        if (_wasSignaled) { \
+            jniThrowException(jni_env, "java/io/InterruptedIOException", # syscall_name " interrupted"); \
+            _rc = -1; \
+            break; \
+        } \
+        if (_rc == -1 && _syscallErrno != EINTR) { \
+            /* TODO: with a format string we could show the arguments too, like strace(1). */ \
+            throwErrnoException(jni_env, # syscall_name); \
+            break; \
+        } \
+    } while (_rc == -1); /* && _syscallErrno == EINTR && !_wasSignaled */ \
     _rc; })
 
 static void throwException(JNIEnv* env, jclass exceptionClass, jmethodID ctor3, jmethodID ctor2,
