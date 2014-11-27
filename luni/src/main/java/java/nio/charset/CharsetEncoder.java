@@ -199,8 +199,10 @@ public abstract class CharsetEncoder {
         onMalformedInput(CodingErrorAction.REPORT);
         onUnmappableCharacter(CodingErrorAction.REPORT);
         try {
-            encode(cb);
-            return true;
+            ByteBuffer buf = encode(cb);
+            // b/18474439: ICU will return U_ZERO_ERROR but produce an output buffer
+            // of size zero when it encounters an ignorable codepoint.
+            return buf.hasRemaining();
         } catch (CharacterCodingException e) {
             return false;
         } finally {
