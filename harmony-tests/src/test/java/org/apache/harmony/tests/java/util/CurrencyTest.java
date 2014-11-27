@@ -154,7 +154,7 @@ public class CurrencyTest extends junit.framework.TestCase {
         // BEGIN android-changed
         assertEquals("currK.getSymbol()", "\u20a9", currK.getSymbol());
         assertEquals("currI.getSymbol()", "IEP", currI.getSymbol());
-        assertEquals("currUS.getSymbol()", "$", currUS.getSymbol());
+        assertEquals("currUS.getSymbol()", "US$", currUS.getSymbol());
         // END android-changed
 
         // Test what happens if the default is an invalid locale, one with the country Korea (KR)
@@ -220,7 +220,7 @@ public class CurrencyTest extends junit.framework.TestCase {
         // \u00a5 and \uffe5 are actually the same symbol, just different code points.
         // But the RI returns the \uffe5 and Android returns those with \u00a5
         String[] yen     = new String[] {"JPY", "\u00a5", "\u00a5JP", "JP\u00a5", "\uffe5", "\uffe5JP", "JP\uffe5"};
-        String[] dollar  = new String[] {"USD", "$", "US$", "$US"};
+        String[] dollar  = new String[] {"USD", "$", "US$", "$US", "$ US"};
         // BEGIN android-changed
         // Starting CLDR 1.7 release, currency symbol for CAD changed to CA$ in some locales such as ja.
         String[] cDollar = new String[] {"CA$", "CAD", "$", "Can$", "$CA"};
