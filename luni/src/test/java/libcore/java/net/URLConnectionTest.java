@@ -2078,6 +2078,19 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         connection.disconnect();
     }
 
+    public void testLastModified() throws Exception {
+        server.enqueue(new MockResponse()
+                .addHeader("Last-Modified", "Wed, 27 Nov 2013 11:26:00 GMT")
+                .setBody("Hello"));
+        server.play();
+
+        HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
+        connection.connect();
+
+        assertEquals(1385551560000L, connection.getLastModified());
+        assertEquals(1385551560000L, connection.getHeaderFieldDate("Last-Modified", -1));
+    }
+
     public void testClientSendsContentLength() throws Exception {
         server.enqueue(new MockResponse().setBody("A"));
         server.play();
