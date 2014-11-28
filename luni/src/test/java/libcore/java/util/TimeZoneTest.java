@@ -73,6 +73,12 @@ public class TimeZoneTest extends TestCase {
         assertFalse(tz.inDaylightTime(date));
     }
 
+    public void testGetDisplayNameShort_nonHourOffsets() {
+        TimeZone iranTz = TimeZone.getTimeZone("Asia/Tehran");
+        assertEquals("GMT+03:30", iranTz.getDisplayName(false, TimeZone.SHORT, Locale.UK));
+        assertEquals("GMT+04:30", iranTz.getDisplayName(true, TimeZone.SHORT, Locale.UK));
+    }
+
     public void testPreHistoricOffsets() throws Exception {
         // "Africa/Bissau" has just a few transitions and hasn't changed in a long time.
         // 1912-01-01 00:02:19-0100 ... 1912-01-01 00:02:20-0100
