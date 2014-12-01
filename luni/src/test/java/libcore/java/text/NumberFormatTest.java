@@ -17,6 +17,7 @@
 package libcore.java.text;
 
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.FieldPosition;
@@ -91,6 +92,18 @@ public class NumberFormatTest extends junit.framework.TestCase {
             fail();
         } catch (IllegalArgumentException expected) {
         }
+    }
+
+    public void testPercentageRounding() throws Exception {
+        NumberFormat nf = NumberFormat.getPercentInstance(Locale.US);
+        assertEquals("15%", nf.format(0.149));
+        assertEquals("14%", nf.format(0.142));
+
+        nf.setRoundingMode(RoundingMode.UP);
+        assertEquals("15%", nf.format(0.142));
+
+        nf.setRoundingMode(RoundingMode.DOWN);
+        assertEquals("14%", nf.format(0.149));
     }
 
     // https://code.google.com/p/android/issues/detail?id=62269
