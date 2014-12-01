@@ -492,6 +492,9 @@ public abstract class NumberFormat extends Format {
      * to format floating-point numbers typically between 0 and 1 (with 1 being 100%).
      * A value such as 0.53 will be treated as 53%, but 53.0 (or the integer 53) will be
      * treated as 5,300%, which is rarely what you intended.
+     *
+     * <p>Non-integer percentages will be rounded according to the rounding mode,
+     * so by default 0.142 will be 14% but 0.148 will be 15%.
      */
     public static final NumberFormat getPercentInstance() {
         return getPercentInstance(Locale.getDefault());
@@ -505,6 +508,9 @@ public abstract class NumberFormat extends Format {
      * to format floating-point numbers typically between 0 and 1 (with 1 being 100%).
      * A value such as 0.53 will be treated as 53%, but 53.0 (or the integer 53) will be
      * treated as 5,300%, which is rarely what you intended.
+     *
+     * <p>Non-integer percentages will be rounded according to the rounding mode,
+     * so by default 0.142 will be 14% but 0.148 will be 15%.
      */
     public static NumberFormat getPercentInstance(Locale locale) {
         if (locale == null) {
