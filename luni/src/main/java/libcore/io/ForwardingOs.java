@@ -67,7 +67,7 @@ public class ForwardingOs implements Os {
     public void fchown(FileDescriptor fd, int uid, int gid) throws ErrnoException { os.fchown(fd, uid, gid); }
     public int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException { return os.fcntlVoid(fd, cmd); }
     public int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException { return os.fcntlLong(fd, cmd, arg); }
-    public int fcntlFlock(FileDescriptor fd, int cmd, StructFlock arg) throws ErrnoException { return os.fcntlFlock(fd, cmd, arg); }
+    public int fcntlFlock(FileDescriptor fd, int cmd, StructFlock arg) throws ErrnoException, InterruptedIOException { return os.fcntlFlock(fd, cmd, arg); }
     public void fdatasync(FileDescriptor fd) throws ErrnoException { os.fdatasync(fd); }
     public StructStat fstat(FileDescriptor fd) throws ErrnoException { return os.fstat(fd); }
     public StructStatVfs fstatvfs(FileDescriptor fd) throws ErrnoException { return os.fstatvfs(fd); }

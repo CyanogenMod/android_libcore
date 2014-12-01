@@ -16,20 +16,6 @@
 
 package android.system;
 
-import android.system.ErrnoException;
-import android.system.GaiException;
-import android.system.StructAddrinfo;
-import android.system.StructFlock;
-import android.system.StructGroupReq;
-import android.system.StructGroupSourceReq;
-import android.system.StructLinger;
-import android.system.StructPasswd;
-import android.system.StructPollfd;
-import android.system.StructStat;
-import android.system.StructStatVfs;
-import android.system.StructTimeval;
-import android.system.StructUcred;
-import android.system.StructUtsname;
 import android.util.MutableInt;
 import android.util.MutableLong;
 import java.io.FileDescriptor;
@@ -125,7 +111,7 @@ public final class Os {
 
   /** @hide */ public static int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException { return Libcore.os.fcntlVoid(fd, cmd); }
   /** @hide */ public static int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException { return Libcore.os.fcntlLong(fd, cmd, arg); }
-  /** @hide */ public static int fcntlFlock(FileDescriptor fd, int cmd, StructFlock arg) throws ErrnoException { return Libcore.os.fcntlFlock(fd, cmd, arg); }
+  /** @hide */ public static int fcntlFlock(FileDescriptor fd, int cmd, StructFlock arg) throws ErrnoException, InterruptedIOException { return Libcore.os.fcntlFlock(fd, cmd, arg); }
 
   /**
    * See <a href="http://man7.org/linux/man-pages/man2/fdatasync.2.html">fdatasync(2)</a>.
