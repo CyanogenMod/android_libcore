@@ -119,9 +119,10 @@ public class OldSocketTest extends OldSocketTestCase {
     }
 
     public void test_ConstructorLjava_lang_StringILjava_net_InetAddressI2() throws IOException {
-        Socket s1 = new Socket("www.google.com", 80, null, 0);
+        int sport = startServer("Cons String,I,InetAddress,I");
+        Socket s1 = new Socket(InetAddress.getLocalHost(), sport, null, 0);
         try {
-            Socket s2 = new Socket("www.google.com", 80, null, s1.getLocalPort());
+            Socket s2 = new Socket(InetAddress.getLocalHost(), sport, null, s1.getLocalPort());
             try {
                 s2.close();
             } catch (IOException ignored) {
