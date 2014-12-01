@@ -104,6 +104,9 @@ public class NumberFormatTest extends junit.framework.TestCase {
 
         nf.setRoundingMode(RoundingMode.DOWN);
         assertEquals("14%", nf.format(0.149));
+
+        nf.setMaximumFractionDigits(1);
+        assertEquals("14.9%", nf.format(0.149));
     }
 
     // https://code.google.com/p/android/issues/detail?id=62269
