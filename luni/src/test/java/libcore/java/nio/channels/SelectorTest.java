@@ -146,32 +146,43 @@ public class SelectorTest extends TestCase {
     }
 
     public void test_57456() throws Exception {
-      Selector selector = Selector.open();
-      ServerSocketChannel ssc = ServerSocketChannel.open();
+        Selector selector = Selector.open();
+        ServerSocketChannel ssc = ServerSocketChannel.open();
 
-      try {
-        // Connect.
-        ssc.configureBlocking(false);
-        ssc.socket().bind(null);
-        SocketChannel sc = SocketChannel.open();
-        sc.connect(ssc.socket().getLocalSocketAddress());
-        sc.finishConnect();
+        try {
+            // Connect.
+            ssc.configureBlocking(false);
+            ssc.socket().bind(null);
+            SocketChannel sc = SocketChannel.open();
+            sc.connect(ssc.socket().getLocalSocketAddress());
+            sc.finishConnect();
 
-        // Switch to non-blocking so we can use a Selector.
-        sc.configureBlocking(false);
+            // Switch to non-blocking so we can use a Selector.
+            sc.configureBlocking(false);
 
-        // Have the 'server' write something.
-        ssc.accept().write(ByteBuffer.allocate(128));
+            // Have the 'server' write something.
+            ssc.accept().write(ByteBuffer.allocate(128));
 
-        // At this point, the client should be able to read or write immediately.
-        // (It shouldn't be able to connect because it's already connected.)
-        SelectionKey key = sc.register(selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-        assertEquals(1, selector.select());
-        assertEquals(SelectionKey.OP_READ | SelectionKey.OP_WRITE, key.readyOps());
-        assertEquals(0, selector.select());
-      } finally {
+            // At this point, the client should be able to read or write immediately.
+            // (It shouldn't be able to connect because it's already connected.)
+            SelectionKey key = sc.register(selector,
+                    SelectionKey.OP_CONNECT | SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+            assertEquals(1, selector.select());
+            assertEquals(SelectionKey.OP_READ | SelectionKey.OP_WRITE, key.readyOps());
+            assertEquals(0, selector.select());
+        } finally {
+            selector.close();
+            ssc.close();
+        }
+    }
+
+    // http://code.google.com/p/android/issues/detail?id=80785
+    public void test_80785() throws Exception {
+        Selector selector = Selector.open();
         selector.close();
-        ssc.close();
-      }
+
+        // Historically on android this did not throw an exception. Due to the bug it would throw
+        // an (undeclared) IOException.
+        selector.wakeup();
     }
 }
