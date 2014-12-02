@@ -86,6 +86,32 @@ public class SSLEngineTest extends TestCase {
         test_SSLEngine_getSupportedCipherSuites_connect(testKeyStore, false);
         test_SSLEngine_getSupportedCipherSuites_connect(testKeyStore, true);
     }
+
+    // http://b/18554122
+    public void test_SSLEngine_underflowsOnEmptyBuffersDuringHandshake() throws Exception {
+        final SSLEngine sslEngine = SSLContext.getDefault().createSSLEngine();
+        sslEngine.setUseClientMode(false);
+        ByteBuffer input = ByteBuffer.allocate(1024);
+        input.flip();
+        ByteBuffer output = ByteBuffer.allocate(1024);
+        sslEngine.beginHandshake();
+        assertEquals(SSLEngineResult.HandshakeStatus.NEED_UNWRAP, sslEngine.getHandshakeStatus());
+        SSLEngineResult result = sslEngine.unwrap(input, output);
+        assertEquals(SSLEngineResult.Status.BUFFER_UNDERFLOW, result.getStatus());
+        assertEquals(SSLEngineResult.HandshakeStatus.NEED_UNWRAP, result.getHandshakeStatus());
+    }
+
+    // http://b/18554122
+    public void test_SSLEngine_underflowsOnEmptyBuffersAfterHandshake() throws Exception {
+        // Note that create performs the handshake.
+        final TestSSLEnginePair engines = TestSSLEnginePair.create(null /* hooks */);
+        ByteBuffer input = ByteBuffer.allocate(1024);
+        input.flip();
+        ByteBuffer output = ByteBuffer.allocate(1024);
+        assertEquals(SSLEngineResult.Status.BUFFER_UNDERFLOW,
+                engines.client.unwrap(input, output).getStatus());
+    }
+
     private void test_SSLEngine_getSupportedCipherSuites_connect(TestKeyStore testKeyStore,
                                                                  boolean secureRenegotiation)
             throws Exception {
