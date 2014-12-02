@@ -28,6 +28,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.security.Principal;
@@ -1578,6 +1579,28 @@ public class SSLSocketTest extends TestCase {
             if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
                 fail("Timed out while waiting for the test to shut down");
             }
+        }
+    }
+
+    // http://b/18428603
+    public void test_SSLSocket_getPortWithSNI() throws Exception {
+        TestSSLContext context = TestSSLContext.create();
+
+        SSLSocket client = null;
+        try {
+            client = (SSLSocket) context.clientContext.getSocketFactory().createSocket();
+            client.connect(new InetSocketAddress(context.host, context.port));
+            try {
+                // This is crucial to reproducing issue 18428603.
+                Method setHostname = client.getClass().getMethod("setHostname", String.class);
+                setHostname.invoke(client, "sslsockettest.androidcts.google.com");
+            } catch (NoSuchMethodException ignored) {
+            }
+
+            assertTrue(client.getPort() > 0);
+        } finally {
+            client.close();
+            context.close();
         }
     }
 
