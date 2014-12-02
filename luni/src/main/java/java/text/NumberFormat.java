@@ -494,7 +494,8 @@ public abstract class NumberFormat extends Format {
      * treated as 5,300%, which is rarely what you intended.
      *
      * <p>Non-integer percentages will be rounded according to the rounding mode,
-     * so by default 0.142 will be 14% but 0.148 will be 15%.
+     * so by default 0.142 will be 14% but 0.148 will be 15%. If you want fractional
+     * percentages, use {@link #setMaximumFractionDigits}.
      */
     public static final NumberFormat getPercentInstance() {
         return getPercentInstance(Locale.getDefault());
@@ -510,7 +511,8 @@ public abstract class NumberFormat extends Format {
      * treated as 5,300%, which is rarely what you intended.
      *
      * <p>Non-integer percentages will be rounded according to the rounding mode,
-     * so by default 0.142 will be 14% but 0.148 will be 15%.
+     * so by default 0.142 will be 14% but 0.148 will be 15%. If you want fractional
+     * percentages, use {@link #setMaximumFractionDigits}.
      */
     public static NumberFormat getPercentInstance(Locale locale) {
         if (locale == null) {
