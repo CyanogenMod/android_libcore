@@ -27,33 +27,41 @@ public class CipherSuite {
     // https://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml
     private static final CipherSuite[] CIPHER_SUITES = new CipherSuite[] {
         new CipherSuite(0x0000, "TLS_NULL_WITH_NULL_NULL"),
-        new CipherSuite(0x0001, "TLS_RSA_WITH_NULL_MD5"),
-        new CipherSuite(0x0002, "TLS_RSA_WITH_NULL_SHA"),
-        new CipherSuite(0x0003, "TLS_RSA_EXPORT_WITH_RC4_40_MD5"),
-        new CipherSuite(0x0004, "TLS_RSA_WITH_RC4_128_MD5"),
-        new CipherSuite(0x0005, "TLS_RSA_WITH_RC4_128_SHA"),
+        new CipherSuite(0x0001, "TLS_RSA_WITH_NULL_MD5", "SSL_RSA_WITH_NULL_MD5"),
+        new CipherSuite(0x0002, "TLS_RSA_WITH_NULL_SHA", "SSL_RSA_WITH_NULL_SHA"),
+        new CipherSuite(0x0003, "TLS_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_EXPORT_WITH_RC4_40_MD5"),
+        new CipherSuite(0x0004, "TLS_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_RC4_128_MD5"),
+        new CipherSuite(0x0005, "TLS_RSA_WITH_RC4_128_SHA", "SSL_RSA_WITH_RC4_128_SHA"),
         new CipherSuite(0x0006, "TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5"),
         new CipherSuite(0x0007, "TLS_RSA_WITH_IDEA_CBC_SHA"),
-        new CipherSuite(0x0008, "TLS_RSA_EXPORT_WITH_DES40_CBC_SHA"),
-        new CipherSuite(0x0009, "TLS_RSA_WITH_DES_CBC_SHA"),
-        new CipherSuite(0x000a, "TLS_RSA_WITH_3DES_EDE_CBC_SHA"),
+        new CipherSuite(0x0008, "TLS_RSA_EXPORT_WITH_DES40_CBC_SHA",
+                "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA"),
+        new CipherSuite(0x0009, "TLS_RSA_WITH_DES_CBC_SHA", "SSL_RSA_WITH_DES_CBC_SHA"),
+        new CipherSuite(0x000a, "TLS_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_3DES_EDE_CBC_SHA"),
         new CipherSuite(0x000b, "TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA"),
         new CipherSuite(0x000c, "TLS_DH_DSS_WITH_DES_CBC_SHA"),
         new CipherSuite(0x000d, "TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA"),
         new CipherSuite(0x000e, "TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA"),
         new CipherSuite(0x000f, "TLS_DH_RSA_WITH_DES_CBC_SHA"),
         new CipherSuite(0x0010, "TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA"),
-        new CipherSuite(0x0011, "TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA"),
-        new CipherSuite(0x0012, "TLS_DHE_DSS_WITH_DES_CBC_SHA"),
-        new CipherSuite(0x0013, "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA"),
-        new CipherSuite(0x0014, "TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA"),
-        new CipherSuite(0x0015, "TLS_DHE_RSA_WITH_DES_CBC_SHA"),
-        new CipherSuite(0x0016, "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA"),
-        new CipherSuite(0x0017, "TLS_DH_anon_EXPORT_WITH_RC4_40_MD5"),
-        new CipherSuite(0x0018, "TLS_DH_anon_WITH_RC4_128_MD5"),
-        new CipherSuite(0x0019, "TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA"),
-        new CipherSuite(0x001a, "TLS_DH_anon_WITH_DES_CBC_SHA"),
-        new CipherSuite(0x001b, "TLS_DH_anon_WITH_3DES_EDE_CBC_SHA"),
+        new CipherSuite(0x0011, "TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA",
+                "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA"),
+        new CipherSuite(0x0012, "TLS_DHE_DSS_WITH_DES_CBC_SHA", "SSL_DHE_DSS_WITH_DES_CBC_SHA"),
+        new CipherSuite(0x0013, "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
+                "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA"),
+        new CipherSuite(0x0014, "TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA",
+                "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA"),
+        new CipherSuite(0x0015, "TLS_DHE_RSA_WITH_DES_CBC_SHA", "SSL_DHE_RSA_WITH_DES_CBC_SHA"),
+        new CipherSuite(0x0016, "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
+                "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA"),
+        new CipherSuite(0x0017, "TLS_DH_anon_EXPORT_WITH_RC4_40_MD5",
+                "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5"),
+        new CipherSuite(0x0018, "TLS_DH_anon_WITH_RC4_128_MD5", "SSL_DH_anon_WITH_RC4_128_MD5"),
+        new CipherSuite(0x0019, "TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA",
+                "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA"),
+        new CipherSuite(0x001a, "TLS_DH_anon_WITH_DES_CBC_SHA", "SSL_DH_anon_WITH_DES_CBC_SHA"),
+        new CipherSuite(0x001b, "TLS_DH_anon_WITH_3DES_EDE_CBC_SHA",
+                "SSL_DH_anon_WITH_3DES_EDE_CBC_SHA"),
         new CipherSuite(0x001e, "TLS_KRB5_WITH_DES_CBC_SHA"),
         new CipherSuite(0x001f, "TLS_KRB5_WITH_3DES_EDE_CBC_SHA"),
         new CipherSuite(0x0020, "TLS_KRB5_WITH_RC4_128_SHA"),
@@ -369,59 +377,38 @@ public class CipherSuite {
                 throw new RuntimeException(
                         "Cipher suite multiply defined: " + Integer.toHexString(cipherSuite.code));
             }
-            if (byName.put(cipherSuite.name, cipherSuite) != null) {
+            String name = cipherSuite.name;
+            if (byName.put(name, cipherSuite) != null) {
                 throw new RuntimeException(
                         "Cipher suite multiply defined: " + cipherSuite.name);
             }
+            String androidName = cipherSuite.getAndroidName();
+            if (!name.equals(androidName)) {
+                if (byName.put(androidName, cipherSuite) != null) {
+                    throw new RuntimeException(
+                            "Cipher suite multiply defined: " + cipherSuite.androidName);
+                }
+            }
         }
-
-        // Add alternative names used in Android's platform-default TLS/SSL stack.
-        addAltName(byName,
-                "TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA", "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA");
-        addAltName(byName,
-                "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA");
-        addAltName(byName, "TLS_DHE_DSS_WITH_DES_CBC_SHA", "SSL_DHE_DSS_WITH_DES_CBC_SHA");
-        addAltName(byName,
-                "TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA", "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA");
-        addAltName(byName,
-                "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA");
-        addAltName(byName, "TLS_DHE_RSA_WITH_DES_CBC_SHA", "SSL_DHE_RSA_WITH_DES_CBC_SHA");
-        addAltName(byName,
-                "TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA", "SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA");
-        addAltName(byName,
-                "TLS_DH_anon_EXPORT_WITH_RC4_40_MD5", "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5");
-        addAltName(byName,
-                "TLS_DH_anon_WITH_3DES_EDE_CBC_SHA", "SSL_DH_anon_WITH_3DES_EDE_CBC_SHA");
-        addAltName(byName, "TLS_DH_anon_WITH_DES_CBC_SHA", "SSL_DH_anon_WITH_DES_CBC_SHA");
-        addAltName(byName, "TLS_DH_anon_WITH_RC4_128_MD5", "SSL_DH_anon_WITH_RC4_128_MD5");
-        addAltName(byName,
-                "TLS_RSA_EXPORT_WITH_DES40_CBC_SHA", "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA");
-        addAltName(byName, "TLS_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_EXPORT_WITH_RC4_40_MD5");
-        addAltName(byName, "TLS_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_3DES_EDE_CBC_SHA");
-        addAltName(byName, "TLS_RSA_WITH_DES_CBC_SHA", "SSL_RSA_WITH_DES_CBC_SHA");
-        addAltName(byName, "TLS_RSA_WITH_NULL_MD5", "SSL_RSA_WITH_NULL_MD5");
-        addAltName(byName, "TLS_RSA_WITH_NULL_SHA", "SSL_RSA_WITH_NULL_SHA");
-        addAltName(byName, "TLS_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_RC4_128_MD5");
-        addAltName(byName, "TLS_RSA_WITH_RC4_128_SHA", "SSL_RSA_WITH_RC4_128_SHA");
 
         CODE_TO_CIPHER_SUITE = byCode;
         NAME_TO_CIPHER_SUITE = byName;
     }
 
-    private static void addAltName(Map<String, CipherSuite> byName, String name, String altName) {
-        CipherSuite cipherSuite = byName.get(name);
-        if (cipherSuite == null) {
-            throw new IllegalArgumentException("Cipher suite not found: " + name);
-        }
-        byName.put(altName, cipherSuite);
-    }
-
     public final int code;
     public final String name;
+    private final String androidName;
 
     private CipherSuite(int code, String name) {
         this.code = code;
         this.name = name;
+        this.androidName = null;
+    }
+
+    private CipherSuite(int code, String name, String androidName) {
+        this.code = code;
+        this.name = name;
+        this.androidName = androidName;
     }
 
     public static CipherSuite valueOf(String name) {
@@ -438,6 +425,10 @@ public class CipherSuite {
             return result;
         }
         return new CipherSuite(code, Integer.toHexString(code));
+    }
+
+    public String getAndroidName() {
+        return (androidName != null) ? androidName : name;
     }
 
     @Override
