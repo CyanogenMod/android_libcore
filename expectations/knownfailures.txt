@@ -1520,5 +1520,14 @@
   names: [
     "org.apache.harmony.tests.java.util.HashMapTest#test_EntrySet"
   ]
+},
+{
+  description: "Differences between glibc and bionic",
+  modes_variants: [[host, X64]],
+  bug: 18087920,
+  result: EXEC_FAILED,
+  names: [
+    "org.apache.harmony.tests.java.lang.MathTest#test_cbrt_D"
+  ]
 }
 ]
