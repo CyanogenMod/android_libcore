@@ -142,13 +142,6 @@
   ]
 },
 {
-  description: "This test affects tests that are run after this one due to caching in URLConnection.",
-  result: EXEC_FAILED,
-  names: [
-      "org.apache.harmony.luni.tests.java.net.ContentHandlerFactoryTest#test_createContentHandler"
-  ]
-},
-{
   description: "Causes OutOfMemoryError to test finalization",
   result: EXEC_FAILED,
   names: [
