@@ -124,25 +124,70 @@ public final class DefaultHostnameVerifierTest extends TestCase {
                 .addSubjectAlternativeName(ALT_UNKNOWN, "random string 3")));
     }
 
-    public void testWildcardMatchesWildcardSuffix() {
-        assertTrue(verifyWithDomainNamePattern("b.c.d", "*.b.c.d"));
-        assertTrue(verifyWithDomainNamePattern("imap.google.com", "*.imap.google.com"));
+    public void testWildcardsRejectedForIpAddress() {
+        assertFalse(verifyWithServerCertificate("1.2.3.4", new StubX509Certificate("cn=*.2.3.4")));
+        assertFalse(verifyWithServerCertificate("1.2.3.4", new StubX509Certificate("cn=*.2.3.4")
+                .addSubjectAlternativeName(ALT_IPA_NAME, "*.2.3.4")
+                .addSubjectAlternativeName(ALT_DNS_NAME, "*.2.3.4")));
+        assertFalse(verifyWithServerCertificate(
+                "2001:1234::1", new StubX509Certificate("cn=*:1234::1")));
+        assertFalse(verifyWithServerCertificate(
+                "2001:1234::1", new StubX509Certificate("cn=*:1234::1")
+                .addSubjectAlternativeName(ALT_IPA_NAME, "*:1234::1")
+                .addSubjectAlternativeName(ALT_DNS_NAME, "*:1234::1")));
     }
 
-    public void testWildcardMatchingSubstring() {
-        assertTrue(verifyWithDomainNamePattern("b.c.d", "b*.c.d"));
-        assertTrue(verifyWithDomainNamePattern("imap.google.com", "ima*.google.com"));
+    public void testNullParameters() {
+        // Confirm that neither of the parameters used later in the test cause the verifier to blow
+        // up
+        String hostname = "www.example.com";
+        StubSSLSession session = new StubSSLSession();
+        session.peerCertificates =
+                new Certificate[] {new StubX509Certificate("cn=www.example.com")};
+        verifier.verify(hostname, session);
+
+        try {
+            verifier.verify(hostname, null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        try {
+            verifier.verify(null, session);
+            fail();
+        } catch (NullPointerException expected) {
+        }
     }
 
-    public void testWildcardMatchingEmptySubstring() {
-        assertTrue(verifyWithDomainNamePattern("imap.google.com", "imap*.google.com"));
+    public void testInvalidDomainNames() {
+        assertFalse(verifyWithDomainNamePattern("", ""));
+        assertFalse(verifyWithDomainNamePattern(".test.example.com", ".test.example.com"));
+        assertFalse(verifyWithDomainNamePattern("ex*ample.com", "ex*ample.com"));
+        assertFalse(verifyWithDomainNamePattern("example.com..", "example.com."));
+        assertFalse(verifyWithDomainNamePattern("example.com.", "example.com.."));
     }
 
-    public void testWildcardMatchesChildDomain() {
-        assertFalse(verifyWithDomainNamePattern("a.b.c.d", "*.c.d"));
+    public void testWildcardCharacterMustBeLeftMostLabelOnly() {
+        assertFalse(verifyWithDomainNamePattern("test.www.example.com", "test.*.example.com"));
+        assertFalse(verifyWithDomainNamePattern("www.example.com", "www.*.com"));
+        assertFalse(verifyWithDomainNamePattern("www.example.com", "www.example.*"));
+        assertFalse(verifyWithDomainNamePattern("www.example.com", "*www.example.com"));
+        assertFalse(verifyWithDomainNamePattern("www.example.com", "*w.example.com"));
+        assertFalse(verifyWithDomainNamePattern("www.example.com", "w*w.example.com"));
+        assertFalse(verifyWithDomainNamePattern("www.example.com", "w*.example.com"));
+        assertFalse(verifyWithDomainNamePattern("www.example.com", "www*.example.com"));
     }
 
-    public void testWildcardsRejectedForSingleLabelPatterns() {
+    public void testWildcardCannotMatchEmptyLabel() {
+        assertFalse(verifyWithDomainNamePattern("example.com", "*.example.com"));
+        assertFalse(verifyWithDomainNamePattern(".example.com", "*.example.com"));
+    }
+
+    public void testWildcardCannotMatchChildDomain() {
+        assertFalse(verifyWithDomainNamePattern("sub.www.example.com", "*.example.com"));
+    }
+
+    public void testWildcardRejectedForSingleLabelPatterns() {
         assertFalse(verifyWithDomainNamePattern("d", "*"));
         assertFalse(verifyWithDomainNamePattern("d.", "*."));
         assertFalse(verifyWithDomainNamePattern("d", "d*"));
@@ -167,7 +212,7 @@ public final class DefaultHostnameVerifierTest extends TestCase {
         assertFalse(verifyWithDomainNamePattern("imap.google.com", "ix*.google.com"));
         assertTrue(verifyWithDomainNamePattern("imap.google.com", "iMap.Google.Com"));
         assertTrue(verifyWithDomainNamePattern("weird", "weird"));
-        assertFalse(verifyWithDomainNamePattern("weird", "weird."));
+        assertTrue(verifyWithDomainNamePattern("weird", "weird."));
 
         // Wildcards rejected for domain names consisting of fewer than two labels (excluding root).
         assertFalse(verifyWithDomainNamePattern("weird", "weird*"));
@@ -364,7 +409,7 @@ public final class DefaultHostnameVerifierTest extends TestCase {
 
         // Verify using a certificate where the pattern is in the CN
         session.peerCertificates = new Certificate[] {
-                new StubX509Certificate("cn=" + pattern)
+                new StubX509Certificate("cn=\"" + pattern + "\"")
         };
         boolean resultWhenPatternInCn = verifier.verify(hostname, session);
 
