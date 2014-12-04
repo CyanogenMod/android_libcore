@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package tests.api.javax.net.ssl;
+package org.apache.harmony.tests.javax.net.ssl;
 
 import dalvik.annotation.KnownFailure;
 import java.io.IOException;

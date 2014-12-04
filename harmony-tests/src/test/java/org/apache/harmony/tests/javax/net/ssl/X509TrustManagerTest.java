@@ -1,4 +1,4 @@
-package tests.api.javax.net.ssl;
+package org.apache.harmony.tests.javax.net.ssl;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateException;
