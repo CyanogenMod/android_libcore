@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package tests.api.javax.net.ssl;
+package org.apache.harmony.tests.javax.net.ssl;
 
 import libcore.java.security.StandardNames;
 import java.io.ByteArrayInputStream;
@@ -38,8 +38,8 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import junit.framework.TestCase;
 import libcore.io.Base64;
-import tests.api.javax.net.ssl.HandshakeCompletedEventTest.MyHandshakeListener;
-import tests.api.javax.net.ssl.HandshakeCompletedEventTest.TestTrustManager;
+import org.apache.harmony.tests.javax.net.ssl.HandshakeCompletedEventTest.MyHandshakeListener;
+import org.apache.harmony.tests.javax.net.ssl.HandshakeCompletedEventTest.TestTrustManager;
 
 public class SSLSessionTest extends TestCase {
 

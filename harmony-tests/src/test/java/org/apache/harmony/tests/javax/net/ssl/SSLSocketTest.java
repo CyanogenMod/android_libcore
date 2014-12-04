@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tests.api.javax.net.ssl;
+package org.apache.harmony.tests.javax.net.ssl;
 
 import dalvik.annotation.AndroidOnly;
 import java.io.ByteArrayInputStream;
@@ -37,8 +37,8 @@ import javax.net.ssl.TrustManager;
 import javax.security.cert.X509Certificate;
 import junit.framework.TestCase;
 import libcore.io.Base64;
-import tests.api.javax.net.ssl.HandshakeCompletedEventTest.TestTrustManager;
 import libcore.java.security.StandardNames;
+import org.apache.harmony.tests.javax.net.ssl.HandshakeCompletedEventTest.TestTrustManager;
 
 public class SSLSocketTest extends TestCase {
 

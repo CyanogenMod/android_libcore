@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.api.javax.net.ssl;
+package org.apache.harmony.tests.javax.net.ssl;
 
 import java.io.IOException;
 import java.net.InetAddress;
