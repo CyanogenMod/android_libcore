@@ -29,7 +29,7 @@
  *
  */
 
-package tests.api.javax.net.ssl;
+package org.apache.harmony.tests.javax.net.ssl;
 
 /**
  * Some X509 certificates to test against.
