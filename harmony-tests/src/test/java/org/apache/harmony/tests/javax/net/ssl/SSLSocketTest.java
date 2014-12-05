@@ -158,7 +158,7 @@ public class SSLSocketTest extends TestCase {
         }
 
         try {
-            getSSLSocket("bla-bla", sport);
+            getSSLSocket("1.2.3.4hello", sport);
             fail();
         } catch (UnknownHostException expected) {
         }
@@ -199,7 +199,7 @@ public class SSLSocketTest extends TestCase {
         }
 
         try {
-            getSSLSocket("bla-bla", sport, InetAddress.getLocalHost(), 0);
+            getSSLSocket("1.2.3.4hello", sport, InetAddress.getLocalHost(), 0);
             fail();
         } catch (UnknownHostException expected) {
         }

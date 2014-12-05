@@ -24,31 +24,25 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
-import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
 import org.apache.harmony.testframework.serialization.SerializationTest;
 import org.apache.harmony.testframework.serialization.SerializationTest.SerializableAssert;
 
-import tests.support.Support_Configuration;
 
 public class InetAddressTest extends junit.framework.TestCase {
 
     /**
      * java.net.InetAddress#getByName(String)
      */
-    public void test_getByNameUnknownHostException() {
+    public void test_getByName_exceptionContainsUsefulMessage() {
         // Related to HARMONY-5784
-
-        // loop a few times to flex the negative cache paths
-        for (int i = 0; i < 5; i++) {
-            try {
-                InetAddress.getByName("unknown.unknown.bad");
-                fail("An UnknownHostException should have been thrown");
-            } catch (UnknownHostException e) {
-                assertTrue(e.getMessage().contains("unknown.unknown.bad"));
-            }
+        try {
+            InetAddress.getByName("1.2.3.4hello");
+            fail();
+        } catch (UnknownHostException e) {
+            assertTrue(e.getMessage().contains("1.2.3.4hello"));
         }
     }
 
