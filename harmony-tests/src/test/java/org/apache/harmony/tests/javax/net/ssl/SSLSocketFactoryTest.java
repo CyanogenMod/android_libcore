@@ -61,52 +61,42 @@ public class SSLSocketFactoryTest extends TestCase {
     /**
      * javax.net.ssl.SSLSocketFactory#createSocket(Socket s, String host, int port, boolean autoClose)
      */
-    public void test_createSocket() {
+    public void test_createSocket() throws Exception {
         SSLSocketFactory sf = (SSLSocketFactory)SSLSocketFactory.getDefault();
         int sport = startServer("test_createSocket()");
         int[] invalid = {
                 Integer.MIN_VALUE, -1, 65536, Integer.MAX_VALUE
         };
-        try {
-            Socket st = new Socket("localhost", sport);
-            Socket s = sf.createSocket(st, "localhost", sport, false);
-            assertFalse(s.isClosed());
-        } catch (Exception ex) {
-            fail("Unexpected exception " + ex);
-        }
-        try {
-            Socket st = new Socket("localhost", sport);
-            Socket s = sf.createSocket(st, "localhost", sport, true);
-            s.close();
-            assertTrue(st.isClosed());
-        } catch (Exception ex) {
-            fail("Unexpected exception " + ex);
-        }
+
+
+        Socket st = new Socket("localhost", sport);
+        Socket s = sf.createSocket(st, "localhost", sport, false);
+        assertFalse(s.isClosed());
+
+        st = new Socket("localhost", sport);
+        s = sf.createSocket(st, "localhost", sport, true);
+        s.close();
+        assertTrue(st.isClosed());
+
         try {
             sf.createSocket(null, "localhost", sport, true);
-            fail("IOException wasn't thrown");
-        } catch (IOException ioe) {
-            // expected
-        } catch (NullPointerException e) {
-            // expected
+            fail();
+        } catch (NullPointerException expected) {
         }
+
         for (int i = 0; i < invalid.length; i++) {
             try {
-                Socket s = sf.createSocket(new Socket(), "localhost", 1080, false);
-                fail("IOException wasn't thrown");
-            } catch (IOException ioe) {
-                // expected
+                s = sf.createSocket(new Socket(), "localhost", 1080, false);
+                fail();
+            } catch (IOException expected) {
             }
         }
 
         try {
-            Socket st = new Socket("bla-bla", sport);
-            Socket s = sf.createSocket(st, "bla-bla", sport, false);
-            fail("UnknownHostException wasn't thrown: " + "bla-bla");
-        } catch (UnknownHostException uhe) {
-            // expected
-        } catch (Exception e) {
-            fail(e + " was thrown instead of UnknownHostException");
+            st = new Socket("1.2.3.4hello", sport);
+            s = sf.createSocket(st, "1.2.3.4hello", sport, false);
+            fail();
+        } catch (UnknownHostException expected) {
         }
     }
 
