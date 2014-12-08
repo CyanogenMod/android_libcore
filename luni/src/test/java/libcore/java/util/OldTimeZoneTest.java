@@ -108,7 +108,7 @@ public class OldTimeZoneTest extends TestCase {
         TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
         assertEquals("Pacific Daylight Time", tz.getDisplayName(true,  TimeZone.LONG, Locale.US));
         assertEquals("Pacific Standard Time", tz.getDisplayName(false, TimeZone.LONG, Locale.UK));
-        assertEquals("heure avanc\u00e9e du Pacifique",
+        assertEquals("heure d’été du Pacifique",
                 tz.getDisplayName(true,  TimeZone.LONG, Locale.FRANCE));
         assertEquals("heure normale du Pacifique nord-américain",
                 tz.getDisplayName(false, TimeZone.LONG, Locale.FRANCE));
@@ -123,18 +123,6 @@ public class OldTimeZoneTest extends TestCase {
         assertEquals("GMT-07:00", tz.getDisplayName(true, TimeZone.SHORT, Locale.FRANCE));
         assertEquals("GMT-08:00", tz.getDisplayName(false, TimeZone.SHORT, Locale.UK));
         assertEquals("GMT-07:00", tz.getDisplayName(true, TimeZone.SHORT, Locale.UK));
-
-        // The RI behavior mentioned above does not appear to be because "PST" is a legacy
-        // three-character timezone supported by the RI: it happens for "Asia/Tehran"/"IRST" too
-        // (IRST is not a legacy code). The RI may just use a different dataset that has "PST" /
-        // "IRST" as valid translations (even for scripts like Chinese).
-        TimeZone iranTz = TimeZone.getTimeZone("Asia/Tehran");
-        assertEquals("Iran Summer Time", iranTz.getDisplayName(true, TimeZone.LONG, Locale.UK));
-        assertEquals("Iran Daylight Time", iranTz.getDisplayName(true, TimeZone.LONG, Locale.US));
-        assertEquals("Iran Standard Time", iranTz.getDisplayName(false, TimeZone.LONG, Locale.UK));
-        assertEquals("Iran Standard Time", iranTz.getDisplayName(false, TimeZone.LONG, Locale.US));
-        assertEquals("GMT+03:30", iranTz.getDisplayName(false, TimeZone.SHORT, Locale.UK));
-        assertEquals("GMT+04:30", iranTz.getDisplayName(true, TimeZone.SHORT, Locale.UK));
     }
 
     public void test_getID() {
