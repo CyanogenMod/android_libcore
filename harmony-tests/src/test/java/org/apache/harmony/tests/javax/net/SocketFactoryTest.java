@@ -65,7 +65,7 @@ public class SocketFactoryTest extends TestCase {
         assertTrue("Failed to create socket", s.getPort() == sport);
 
         try {
-            sf.createSocket("bla-bla", sport);
+            sf.createSocket("1.2.3.4hello", sport);
             fail("UnknownHostException wasn't thrown");
         } catch (UnknownHostException expected) {
         }
@@ -180,7 +180,7 @@ public class SocketFactoryTest extends TestCase {
         assertTrue("1: Failed to create socket", s.getPort() == sport);
 
         try {
-            sf.createSocket("bla-bla", sport, InetAddress.getLocalHost(), 0);
+            sf.createSocket("1.2.3.4hello", sport, InetAddress.getLocalHost(), 0);
             fail("UnknownHostException wasn't thrown");
         } catch (UnknownHostException expected) {
         }
