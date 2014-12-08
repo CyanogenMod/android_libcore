@@ -301,16 +301,12 @@ public class PlainSocketImpl extends SocketImpl {
      * Gets the InetAddress of the SOCKS proxy server.
      */
     private InetAddress socksGetServerAddress() throws UnknownHostException {
-        String proxyName;
         // get socks server address from proxy. It is unnecessary to check
         // "socksProxyHost" property, since all proxy setting should be
         // determined by ProxySelector.
-        InetSocketAddress addr = (InetSocketAddress) proxy.address();
-        proxyName = addr.getHostName();
-        if (proxyName == null) {
-            proxyName = addr.getAddress().getHostAddress();
-        }
-        return InetAddress.getByName(proxyName);
+        InetSocketAddress socketAddress = (InetSocketAddress) proxy.address();
+        InetAddress address = socketAddress.getAddress();
+        return (address != null) ? address : InetAddress.getByName(socketAddress.getHostName());
     }
 
     /**
