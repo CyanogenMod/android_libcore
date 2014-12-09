@@ -41,6 +41,7 @@ public class OldCookieHandlerTest extends TestCase {
             CookieHandler.setDefault(mch);
 
             MockWebServer server = new MockWebServer();
+            server.play();
             server.enqueue(new MockResponse().addHeader("Set-Cookie2: a=\"android\"; "
                     + "Comment=\"this cookie is delicious\"; "
                     + "CommentURL=\"http://google.com/\"; "
@@ -51,7 +52,6 @@ public class OldCookieHandlerTest extends TestCase {
                     + "Port=\"80,443," + server.getPort() + "\"; "
                     + "Secure; "
                     + "Version=\"1\""));
-            server.play();
 
             URLConnection connection = server.getUrl("/path/foo").openConnection();
             connection.getContent();
