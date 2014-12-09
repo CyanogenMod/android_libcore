@@ -20,11 +20,14 @@ import android.system.StructUcred;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.InetUnixAddress;
 import java.net.ServerSocket;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import junit.framework.TestCase;
 import static android.system.OsConstants.*;
@@ -77,7 +80,7 @@ public class OsTest extends TestCase {
           assertEquals(Libcore.os.getgid(), credentials.gid);
 
           byte[] request = new byte[256];
-          int requestLength = Libcore.os.read(clientFd, request, 0, request.length);
+          Libcore.os.read(clientFd, request, 0, request.length);
 
           String s = new String(request, "UTF-8");
           byte[] response = s.toUpperCase(Locale.ROOT).getBytes("UTF-8");
@@ -134,5 +137,121 @@ public class OsTest extends TestCase {
   public void test_strsignal() throws Exception {
     assertEquals("Killed", Libcore.os.strsignal(9));
     assertEquals("Unknown signal -1", Libcore.os.strsignal(-1));
+  }
+
+  public void test_byteBufferPositions_write_pwrite() throws Exception {
+    FileOutputStream fos = new FileOutputStream(new File("/dev/null"));
+    FileDescriptor fd = fos.getFD();
+    final byte[] contents = new String("goodbye, cruel world").getBytes(StandardCharsets.US_ASCII);
+    ByteBuffer byteBuffer = ByteBuffer.wrap(contents);
+
+    byteBuffer.position(0);
+    int written = Libcore.os.write(fd, byteBuffer);
+    assertTrue(written > 0);
+    assertEquals(written, byteBuffer.position());
+
+    byteBuffer.position(4);
+    written = Libcore.os.write(fd, byteBuffer);
+    assertTrue(written > 0);
+    assertEquals(written + 4, byteBuffer.position());
+
+    byteBuffer.position(0);
+    written = Libcore.os.pwrite(fd, byteBuffer, 64 /* offset */);
+    assertTrue(written > 0);
+    assertEquals(written, byteBuffer.position());
+
+    byteBuffer.position(4);
+    written = Libcore.os.pwrite(fd, byteBuffer, 64 /* offset */);
+    assertTrue(written > 0);
+    assertEquals(written + 4, byteBuffer.position());
+
+    fos.close();
+  }
+
+  public void test_byteBufferPositions_read_pread() throws Exception {
+    FileInputStream fis = new FileInputStream(new File("/dev/zero"));
+    FileDescriptor fd = fis.getFD();
+    ByteBuffer byteBuffer = ByteBuffer.allocate(64);
+
+    byteBuffer.position(0);
+    int read = Libcore.os.read(fd, byteBuffer);
+    assertTrue(read > 0);
+    assertEquals(read, byteBuffer.position());
+
+    byteBuffer.position(4);
+    read = Libcore.os.read(fd, byteBuffer);
+    assertTrue(read > 0);
+    assertEquals(read + 4, byteBuffer.position());
+
+    byteBuffer.position(0);
+    read = Libcore.os.pread(fd, byteBuffer, 64 /* offset */);
+    assertTrue(read > 0);
+    assertEquals(read, byteBuffer.position());
+
+    byteBuffer.position(4);
+    read = Libcore.os.pread(fd, byteBuffer, 64 /* offset */);
+    assertTrue(read > 0);
+    assertEquals(read + 4, byteBuffer.position());
+
+    fis.close();
+  }
+
+  public void test_byteBufferPositions_sendto_recvfrom() throws Exception {
+    final FileDescriptor serverFd = Libcore.os.socket(AF_INET6, SOCK_STREAM, 0);
+    Libcore.os.bind(serverFd, InetAddress.getLoopbackAddress(), 0);
+    Libcore.os.listen(serverFd, 5);
+
+    InetSocketAddress address = (InetSocketAddress) Libcore.os.getsockname(serverFd);
+
+    final Thread server = new Thread(new Runnable() {
+      public void run() {
+        try {
+          InetSocketAddress peerAddress = new InetSocketAddress();
+          FileDescriptor clientFd = Libcore.os.accept(serverFd, peerAddress);
+
+          // Attempt to receive a maximum of 24 bytes from the client, and then
+          // close the connection.
+          ByteBuffer buffer = ByteBuffer.allocate(16);
+          int received = Libcore.os.recvfrom(clientFd, buffer, 0, null);
+          assertTrue(received > 0);
+          assertEquals(received, buffer.position());
+
+          ByteBuffer buffer2 = ByteBuffer.allocate(16);
+          buffer2.position(8);
+          received = Libcore.os.recvfrom(clientFd, buffer2, 0, null);
+          assertTrue(received > 0);
+          assertEquals(received + 8, buffer.position());
+
+          Libcore.os.close(clientFd);
+        } catch (Exception ex) {
+          throw new RuntimeException(ex);
+        }
+      }
+    });
+
+
+    server.start();
+
+    FileDescriptor clientFd = Libcore.os.socket(AF_INET6, SOCK_STREAM, 0);
+    Libcore.os.connect(clientFd, address.getAddress(), address.getPort());
+
+    final byte[] bytes = "good bye, cruel black hole with fancy distortion".getBytes(StandardCharsets.US_ASCII);
+    assertTrue(bytes.length > 24);
+
+    ByteBuffer input = ByteBuffer.wrap(bytes);
+    input.position(0);
+    input.limit(16);
+
+    int sent = Libcore.os.sendto(clientFd, input, 0, address.getAddress(), address.getPort());
+    assertTrue(sent > 0);
+    assertEquals(sent, input.position());
+
+    input.position(16);
+    input.limit(24);
+    sent = Libcore.os.sendto(clientFd, input, 0, address.getAddress(), address.getPort());
+    assertTrue(sent > 0);
+    assertEquals(sent + 16, input.position());
+
+    Libcore.os.close(clientFd);
   }
 }
