@@ -274,15 +274,9 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
     private SocketAddress receiveDirectImpl(ByteBuffer target, boolean loop) throws IOException {
         SocketAddress retAddr = null;
         DatagramPacket receivePacket = new DatagramPacket(EmptyArray.BYTE, 0);
-        int oldposition = target.position();
-        int received;
         do {
-            received = IoBridge.recvfrom(false, fd, target, 0, receivePacket, isConnected());
+            IoBridge.recvfrom(false, fd, target, 0, receivePacket, isConnected());
             if (receivePacket.getAddress() != null) {
-                // copy the data of received packet
-                if (received > 0) {
-                    target.position(oldposition + received);
-                }
                 retAddr = receivePacket.getSocketAddress();
                 break;
             }
@@ -309,11 +303,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
             int sendCount = 0;
             try {
                 begin();
-                int oldPosition = source.position();
                 sendCount = IoBridge.sendto(fd, source, 0, isa.getAddress(), isa.getPort());
-                if (sendCount > 0) {
-                    source.position(oldPosition + sendCount);
-                }
                 if (!isBound) {
                     onBind(true /* updateSocketState */);
                 }
@@ -336,10 +326,6 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
         int readCount;
         if (target.isDirect() || target.hasArray()) {
             readCount = readImpl(target);
-            if (readCount > 0) {
-                target.position(target.position() + readCount);
-            }
-
         } else {
             byte[] readArray = new byte[target.remaining()];
             ByteBuffer readBuffer = ByteBuffer.wrap(readArray);
@@ -406,11 +392,7 @@ class DatagramChannelImpl extends DatagramChannel implements FileDescriptorChann
             return 0;
         }
 
-        int writeCount = writeImpl(src);
-        if (writeCount > 0) {
-            src.position(src.position() + writeCount);
-        }
-        return writeCount;
+        return writeImpl(src);
     }
 
     /**
