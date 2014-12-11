@@ -25,7 +25,6 @@
 #include "NetworkUtilities.h"
 #include "Portability.h"
 #include "readlink.h"
-#include "../../bionic/libc/dns/include/resolv_netid.h"  // For android_getaddrinfofornet.
 #include "ScopedBytes.h"
 #include "ScopedLocalRef.h"
 #include "ScopedPrimitiveArray.h"
