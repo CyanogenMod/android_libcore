@@ -202,7 +202,8 @@ final class HttpConnection {
             openSslSocket.setUseSessionTickets(true);
             openSslSocket.setHostname(address.uriHost);
             // use SSLSocketFactory default enabled protocols
-        } else {
+        }
+        if (!tlsTolerant) {
             // In accordance with https://tools.ietf.org/html/draft-ietf-tls-downgrade-scsv-00
             // the SCSV cipher is added to signal that a protocol fallback has taken place.
             final String fallbackScsv = "TLS_FALLBACK_SCSV";
