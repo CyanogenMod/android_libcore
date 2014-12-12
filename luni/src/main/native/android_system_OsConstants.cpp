@@ -362,6 +362,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "NI_NUMERICSERV", NI_NUMERICSERV);
     initConstant(env, c, "O_ACCMODE", O_ACCMODE);
     initConstant(env, c, "O_APPEND", O_APPEND);
+    initConstant(env, c, "O_CLOEXEC", O_CLOEXEC);
     initConstant(env, c, "O_CREAT", O_CREAT);
     initConstant(env, c, "O_EXCL", O_EXCL);
     initConstant(env, c, "O_NOCTTY", O_NOCTTY);

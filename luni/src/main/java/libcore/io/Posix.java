@@ -107,7 +107,7 @@ public final class Posix implements Os {
     public native void munlock(long address, long byteCount) throws ErrnoException;
     public native void munmap(long address, long byteCount) throws ErrnoException;
     public native FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
-    public native FileDescriptor[] pipe() throws ErrnoException;
+    public native FileDescriptor[] pipe2(int flags) throws ErrnoException;
     public native int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException;
     public native void posix_fallocate(FileDescriptor fd, long offset, long length) throws ErrnoException;
     public native int prctl(int option, long arg2, long arg3, long arg4, long arg5) throws ErrnoException;
