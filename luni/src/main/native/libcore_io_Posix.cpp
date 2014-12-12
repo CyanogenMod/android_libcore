@@ -1594,7 +1594,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, munlock, "(JJ)V"),
     NATIVE_METHOD(Posix, munmap, "(JJ)V"),
     NATIVE_METHOD(Posix, open, "(Ljava/lang/String;II)Ljava/io/FileDescriptor;"),
-    NATIVE_METHOD(Posix, pipe2, "()[Ljava/io/FileDescriptor;"),
+    NATIVE_METHOD(Posix, pipe2, "(I)[Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, poll, "([Landroid/system/StructPollfd;I)I"),
     NATIVE_METHOD(Posix, posix_fallocate, "(Ljava/io/FileDescriptor;JJ)V"),
     NATIVE_METHOD(Posix, prctl, "(IJJJJ)I"),
