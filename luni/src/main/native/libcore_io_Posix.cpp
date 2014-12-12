@@ -1036,6 +1036,9 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
 }
 
 static jobjectArray Posix_pipe2(JNIEnv* env, jobject, jint flags) {
+#ifdef __APPLE__
+    jniThrowException(env, "java/lang/UnsupportedOperationException", "no pipe2 on Mac OS");
+#else
     int fds[2];
     throwIfMinusOne(env, "pipe2", TEMP_FAILURE_RETRY(pipe2(&fds[0], flags)));
     jobjectArray result = env->NewObjectArray(2, JniConstants::fileDescriptorClass, NULL);
@@ -1053,6 +1056,7 @@ static jobjectArray Posix_pipe2(JNIEnv* env, jobject, jint flags) {
         }
     }
     return result;
+#endif
 }
 
 static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint timeoutMs) {
