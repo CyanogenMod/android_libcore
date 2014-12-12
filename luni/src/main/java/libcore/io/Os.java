@@ -105,7 +105,7 @@ public interface Os {
     public void munlock(long address, long byteCount) throws ErrnoException;
     public void munmap(long address, long byteCount) throws ErrnoException;
     public FileDescriptor open(String path, int flags, int mode) throws ErrnoException;
-    public FileDescriptor[] pipe() throws ErrnoException;
+    public FileDescriptor[] pipe2(int flags) throws ErrnoException;
     /* TODO: if we used the non-standard ppoll(2) behind the scenes, we could take a long timeout. */
     public int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException;
     public void posix_fallocate(FileDescriptor fd, long offset, long length) throws ErrnoException;

@@ -1035,9 +1035,9 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
     return fd != -1 ? jniCreateFileDescriptor(env, fd) : NULL;
 }
 
-static jobjectArray Posix_pipe(JNIEnv* env, jobject) {
+static jobjectArray Posix_pipe2(JNIEnv* env, jobject, jint flags) {
     int fds[2];
-    throwIfMinusOne(env, "pipe", TEMP_FAILURE_RETRY(pipe(&fds[0])));
+    throwIfMinusOne(env, "pipe2", TEMP_FAILURE_RETRY(pipe2(&fds[0], flags)));
     jobjectArray result = env->NewObjectArray(2, JniConstants::fileDescriptorClass, NULL);
     if (result == NULL) {
         return NULL;
@@ -1594,7 +1594,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, munlock, "(JJ)V"),
     NATIVE_METHOD(Posix, munmap, "(JJ)V"),
     NATIVE_METHOD(Posix, open, "(Ljava/lang/String;II)Ljava/io/FileDescriptor;"),
-    NATIVE_METHOD(Posix, pipe, "()[Ljava/io/FileDescriptor;"),
+    NATIVE_METHOD(Posix, pipe2, "()[Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, poll, "([Landroid/system/StructPollfd;I)I"),
     NATIVE_METHOD(Posix, posix_fallocate, "(Ljava/io/FileDescriptor;JJ)V"),
     NATIVE_METHOD(Posix, prctl, "(IJJJJ)I"),
