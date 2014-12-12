@@ -302,7 +302,9 @@ public final class Os {
   /**
    * See <a href="http://man7.org/linux/man-pages/man2/pipe.2.html">pipe(2)</a>.
    */
-  public static FileDescriptor[] pipe() throws ErrnoException { return Libcore.os.pipe(); }
+  public static FileDescriptor[] pipe() throws ErrnoException { return Libcore.os.pipe2(0); }
+
+  /** @hide */ public static FileDescriptor[] pipe2(int flags) throws ErrnoException { return Libcore.os.pipe2(flags); }
 
   /**
    * See <a href="http://man7.org/linux/man-pages/man2/poll.2.html">poll(2)</a>.

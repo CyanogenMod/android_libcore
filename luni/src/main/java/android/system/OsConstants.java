@@ -331,6 +331,7 @@ public final class OsConstants {
     public static final int NI_NUMERICSERV = placeholder();
     public static final int O_ACCMODE = placeholder();
     public static final int O_APPEND = placeholder();
+    /** @hide */ public static final int O_CLOEXEC = placeholder();
     public static final int O_CREAT = placeholder();
     public static final int O_EXCL = placeholder();
     public static final int O_NOCTTY = placeholder();
