@@ -20,6 +20,7 @@ import dalvik.system.VMRuntime;
 import java.lang.ref.FinalizerReference;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.TimeoutException;
 import libcore.util.EmptyArray;
 
@@ -323,11 +324,16 @@ public final class Daemons {
 
     private static class GCDaemon extends Daemon {
         private static final GCDaemon INSTANCE = new GCDaemon();
+        private static final AtomicBoolean atomicBoolean = new AtomicBoolean();
 
         public void requestGC() {
+            if (atomicBoolean.getAndSet(true)) {
+              return;
+            }
             synchronized (this) {
                 notify();
             }
+            atomicBoolean.set(false);
         }
 
         @Override public void run() {
