@@ -130,7 +130,7 @@ static jstring System_mapLibraryName(JNIEnv* env, jclass, jstring javaName) {
         return NULL;
     }
     char* mappedName = NULL;
-    asprintf(&mappedName, OS_SHARED_LIB_FORMAT_STR, name.c_str());
+    asprintf(&mappedName, "lib%s.so", name.c_str());
     jstring result = env->NewStringUTF(mappedName);
     free(mappedName);
     return result;
