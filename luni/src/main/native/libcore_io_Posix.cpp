@@ -1038,6 +1038,7 @@ static jobject Posix_open(JNIEnv* env, jobject, jstring javaPath, jint flags, ji
 static jobjectArray Posix_pipe2(JNIEnv* env, jobject, jint flags __unused) {
 #ifdef __APPLE__
     jniThrowException(env, "java/lang/UnsupportedOperationException", "no pipe2 on Mac OS");
+    return NULL;
 #else
     int fds[2];
     throwIfMinusOne(env, "pipe2", TEMP_FAILURE_RETRY(pipe2(&fds[0], flags)));
