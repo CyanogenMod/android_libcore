@@ -159,7 +159,7 @@ public class InetSocketAddress extends SocketAddress {
      * @since 1.7
      */
     public final String getHostString() {
-        return (hostname != null) ? hostname : addr.getHostAddress();
+        return (hostname != null) ? hostname : addr.getHostString();
     }
 
     /**
