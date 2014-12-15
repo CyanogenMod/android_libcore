@@ -57,13 +57,6 @@ LOCAL_SRC_FILES := \
     sun_misc_Unsafe.cpp \
     valueOf.cpp \
 
-LOCAL_C_INCLUDES += \
-    external/icu/icu4c/source/common \
-    external/icu/icu4c/source/i18n \
-    external/openssl/include \
-    external/zlib \
-    system/core/include \
-
 LOCAL_STATIC_LIBRARIES += \
     libfdlibm \
 

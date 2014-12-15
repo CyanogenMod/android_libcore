@@ -97,7 +97,7 @@ include $(CLEAR_VARS)
 LOCAL_CFLAGS += $(core_cflags)
 LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_SRC_FILES += $(core_test_files)
-LOCAL_C_INCLUDES += libcore/include external/openssl/include
+LOCAL_C_INCLUDES += libcore/include
 LOCAL_SHARED_LIBRARIES += libcrypto
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacoretests
@@ -136,7 +136,7 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     LOCAL_CLANG := true
     LOCAL_SRC_FILES += $(core_test_files)
     LOCAL_CFLAGS += $(core_cflags)
-    LOCAL_C_INCLUDES += libcore/include external/openssl/include
+    LOCAL_C_INCLUDES += libcore/include
     LOCAL_CPPFLAGS += $(core_cppflags)
     LOCAL_LDLIBS += -ldl -lpthread
     LOCAL_MODULE_TAGS := optional
