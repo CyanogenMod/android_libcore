@@ -19,6 +19,7 @@ package libcore.java.net;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.Collections;
@@ -310,5 +311,17 @@ public class InetAddressTest extends junit.framework.TestCase {
             assertNotNull(result);
             assertEquals(resultStrings[i], result);
         }
+    }
+
+    public void test_getHostString() throws Exception {
+        InetAddress inetAddress = InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 });
+        assertEquals("127.0.0.1", inetAddress.getHostString());
+        assertEquals("localhost", inetAddress.getHostName());
+        assertEquals("localhost", inetAddress.getHostString());
+
+        inetAddress = InetAddress.getByName("127.0.0.1");
+        assertEquals("127.0.0.1", inetAddress.getHostString());
+        assertEquals("localhost", inetAddress.getHostName());
+        assertEquals("localhost", inetAddress.getHostString());
     }
 }

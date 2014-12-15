@@ -344,6 +344,19 @@ public class InetAddress implements Serializable {
     }
 
     /**
+     * Returns the hostname if known, or the result of {@code #getHostAddress}.
+     * Unlike {@link #getHostName}, this method will never cause a DNS lookup.
+     *
+     * @hide For libcore situations that must avoid DNS lookups.
+     */
+    public String getHostString() {
+        if (hostName == null) {
+            return getHostAddress();
+        }
+        return hostName;
+    }
+
+    /**
      * Returns the fully qualified hostname corresponding to this IP address.
      */
     public String getCanonicalHostName() {
