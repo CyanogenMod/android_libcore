@@ -17,8 +17,8 @@
 package libcore.tlswire.handshake;
 
 import libcore.tlswire.util.TlsProtocolVersion;
-import libcore.tlswire.util.HexEncoding;
 import libcore.tlswire.util.IoUtils;
+import libcore.util.HexEncoding;
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
@@ -98,8 +98,8 @@ public class ClientHello extends HandshakeMessage {
     @Override
     public String toString() {
         return "ClientHello{client version: " + clientVersion
-                + ", random: " + HexEncoding.encode(random)
-                + ", sessionId: " + HexEncoding.encode(sessionId)
+                + ", random: " + new String(HexEncoding.encode(random))
+                + ", sessionId: " + new String(HexEncoding.encode(sessionId))
                 + ", cipher suites: " + cipherSuites
                 + ", compression methods: " + compressionMethods
                 + ((extensions != null) ? (", extensions: " + String.valueOf(extensions)) : "")
