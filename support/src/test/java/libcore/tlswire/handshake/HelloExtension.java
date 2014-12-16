@@ -16,8 +16,8 @@
 
 package libcore.tlswire.handshake;
 
-import libcore.tlswire.util.HexEncoding;
 import libcore.tlswire.util.IoUtils;
+import libcore.util.HexEncoding;
 import java.io.DataInput;
 import java.io.IOException;
 import java.util.HashMap;
