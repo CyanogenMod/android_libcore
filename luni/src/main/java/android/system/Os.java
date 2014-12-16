@@ -308,6 +308,10 @@ public final class Os {
 
   /**
    * See <a href="http://man7.org/linux/man-pages/man2/poll.2.html">poll(2)</a>.
+   *
+   * <p>Note that in Lollipop this could throw an {@code ErrnoException} with {@code EINTR}.
+   * In later releases, the implementation will automatically just restart the system call with
+   * an appropriately reduced timeout.
    */
   public static int poll(StructPollfd[] fds, int timeoutMs) throws ErrnoException { return Libcore.os.poll(fds, timeoutMs); }
 

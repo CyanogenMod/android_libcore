@@ -225,11 +225,7 @@ public final class IoBridge {
             if (!fd.valid()) {
                 throw new SocketException("Socket closed");
             }
-            if (errnoException.errno == EINTR) {
-                return false; // Punt and ask the caller to try again.
-            } else {
-                cause = errnoException;
-            }
+            cause = errnoException;
         }
         String detail = connectDetail(inetAddress, port, timeoutMs, cause);
         if (cause.errno == ETIMEDOUT) {
