@@ -112,6 +112,8 @@ endif # LIBCORE_SKIP_TESTS
 # Build for the host.
 #
 
+ifeq ($(HOST_OS),linux)
+
 include $(CLEAR_VARS)
 LOCAL_CLANG := true
 LOCAL_SRC_FILES += $(core_src_files)
@@ -146,3 +148,5 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     LOCAL_CXX_STL := libc++
     include $(BUILD_HOST_SHARED_LIBRARY)
 endif # LIBCORE_SKIP_TESTS
+
+endif # HOST_OS == linux
