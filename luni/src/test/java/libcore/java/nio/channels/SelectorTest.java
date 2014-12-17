@@ -15,7 +15,6 @@
  */
 package libcore.java.nio.channels;
 
-import android.system.OsConstants;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -28,7 +27,6 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import junit.framework.TestCase;
-import libcore.io.Libcore;
 import tests.net.StuckServer;
 
 public class SelectorTest extends TestCase {
@@ -69,25 +67,6 @@ public class SelectorTest extends TestCase {
             selector.close();
             ss.close();
         }
-    }
-
-    // http://b/6453247
-    // This test won't work on the host until/unless we start using libcorkscrew there.
-    // The runtime itself blocks SIGQUIT, so that doesn't cause poll(2) to EINTR directly.
-    // The EINTR is caused by the way libcorkscrew works.
-    public void testEINTR() throws Exception {
-        Selector selector = Selector.open();
-        new Thread(new Runnable() {
-            @Override public void run() {
-                try {
-                    Thread.sleep(2000);
-                    Libcore.os.kill(Libcore.os.getpid(), OsConstants.SIGQUIT);
-                } catch (Exception ex) {
-                    fail();
-                }
-            }
-        }).start();
-        assertEquals(0, selector.select());
     }
 
     // http://code.google.com/p/android/issues/detail?id=15388
