@@ -763,6 +763,10 @@ static jobject Posix_getpeername(JNIEnv* env, jobject, jobject javaFd) {
   return doGetSockName(env, javaFd, false);
 }
 
+static jint Posix_getpgid(JNIEnv* env, jobject, jint pid) {
+    return throwIfMinusOne(env, "getpgid", TEMP_FAILURE_RETRY(getpgid(pid)));
+}
+
 static jint Posix_getpid(JNIEnv*, jobject) {
     return TEMP_FAILURE_RETRY(getpid());
 }
@@ -1308,6 +1312,18 @@ static void Posix_setgid(JNIEnv* env, jobject, jint gid) {
     throwIfMinusOne(env, "setgid", TEMP_FAILURE_RETRY(setgid(gid)));
 }
 
+static void Posix_setpgid(JNIEnv* env, jobject, jint pid, int pgid) {
+    throwIfMinusOne(env, "setpgid", TEMP_FAILURE_RETRY(setpgid(pid, pgid)));
+}
+
+static void Posix_setregid(JNIEnv* env, jobject, jint rgid, int egid) {
+    throwIfMinusOne(env, "setregid", TEMP_FAILURE_RETRY(setregid(rgid, egid)));
+}
+
+static void Posix_setreuid(JNIEnv* env, jobject, jint ruid, int euid) {
+    throwIfMinusOne(env, "setreuid", TEMP_FAILURE_RETRY(setreuid(ruid, euid)));
+}
+
 static jint Posix_setsid(JNIEnv* env, jobject) {
     return throwIfMinusOne(env, "setsid", TEMP_FAILURE_RETRY(setsid()));
 }
@@ -1602,6 +1618,7 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, getenv, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, getnameinfo, "(Ljava/net/InetAddress;I)Ljava/lang/String;"),
     NATIVE_METHOD(Posix, getpeername, "(Ljava/io/FileDescriptor;)Ljava/net/SocketAddress;"),
+    NATIVE_METHOD(Posix, getpgid, "(I)I"),
     NATIVE_METHOD(Posix, getpid, "()I"),
     NATIVE_METHOD(Posix, getppid, "()I"),
     NATIVE_METHOD(Posix, getpwnam, "(Ljava/lang/String;)Landroid/system/StructPasswd;"),
@@ -1653,6 +1670,9 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, setenv, "(Ljava/lang/String;Ljava/lang/String;Z)V"),
     NATIVE_METHOD(Posix, seteuid, "(I)V"),
     NATIVE_METHOD(Posix, setgid, "(I)V"),
+    NATIVE_METHOD(Posix, setpgid, "(II)V"),
+    NATIVE_METHOD(Posix, setregid, "(II)V"),
+    NATIVE_METHOD(Posix, setreuid, "(II)V"),
     NATIVE_METHOD(Posix, setsid, "()I"),
     NATIVE_METHOD(Posix, setsockoptByte, "(Ljava/io/FileDescriptor;III)V"),
     NATIVE_METHOD(Posix, setsockoptIfreq, "(Ljava/io/FileDescriptor;IILjava/lang/String;)V"),
