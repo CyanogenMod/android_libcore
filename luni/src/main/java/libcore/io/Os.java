@@ -72,6 +72,7 @@ public interface Os {
     /* TODO: break into getnameinfoHost and getnameinfoService? */
     public String getnameinfo(InetAddress address, int flags) throws GaiException;
     public SocketAddress getpeername(FileDescriptor fd) throws ErrnoException;
+    public int getpgid(int pid) throws ErrnoException;
     public int getpid();
     public int getppid();
     public StructPasswd getpwnam(String name) throws ErrnoException;
@@ -129,6 +130,9 @@ public interface Os {
     public void setenv(String name, String value, boolean overwrite) throws ErrnoException;
     public void seteuid(int euid) throws ErrnoException;
     public void setgid(int gid) throws ErrnoException;
+    public void setpgid(int pid, int pgid) throws ErrnoException;
+    public void setregid(int rgid, int egid) throws ErrnoException;
+    public void setreuid(int ruid, int euid) throws ErrnoException;
     public int setsid() throws ErrnoException;
     public void setsockoptByte(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
     public void setsockoptIfreq(FileDescriptor fd, int level, int option, String value) throws ErrnoException;
