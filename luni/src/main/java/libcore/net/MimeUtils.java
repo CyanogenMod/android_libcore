@@ -149,6 +149,7 @@ public final class MimeUtils {
         add("application/x-gtar", "gtar");
         add("application/x-gtar", "taz");
         add("application/x-hdf", "hdf");
+        add("application/x-hwp", "hwp"); // http://b/18788282.
         add("application/x-ica", "ica");
         add("application/x-internet-signup", "ins");
         add("application/x-internet-signup", "isp");
