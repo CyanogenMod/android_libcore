@@ -171,6 +171,11 @@ public final class Os {
   public static SocketAddress getpeername(FileDescriptor fd) throws ErrnoException { return Libcore.os.getpeername(fd); }
 
   /**
+   * See <a href="http://man7.org/linux/man-pages/man2/getpgid.2.html">getpgid(2)</a>.
+   */
+  /** @hide */ public static int getpgid(int pid) throws ErrnoException { return Libcore.os.getpgid(pid); }
+
+  /**
    * See <a href="http://man7.org/linux/man-pages/man2/getpid.2.html">getpid(2)</a>.
    */
   public static int getpid() { return Libcore.os.getpid(); }
@@ -419,6 +424,21 @@ public final class Os {
    * See <a href="http://man7.org/linux/man-pages/man2/setgid.2.html">setgid(2)</a>.
    */
   public static void setgid(int gid) throws ErrnoException { Libcore.os.setgid(gid); }
+
+  /**
+   * See <a href="http://man7.org/linux/man-pages/man2/setpgid.2.html">setpgid(2)</a>.
+   */
+  /** @hide */ public static void setpgid(int pid, int pgid) throws ErrnoException { Libcore.os.setpgid(pid, pgid); }
+
+  /**
+   * See <a href="http://man7.org/linux/man-pages/man2/setregid.2.html">setregid(2)</a>.
+   */
+  /** @hide */ public static void setregid(int rgid, int egid) throws ErrnoException { Libcore.os.setregid(rgid, egid); }
+
+  /**
+   * See <a href="http://man7.org/linux/man-pages/man2/setreuid.2.html">setreuid(2)</a>.
+   */
+  /** @hide */ public static void setreuid(int ruid, int euid) throws ErrnoException { Libcore.os.setreuid(ruid, euid); }
 
   /**
    * See <a href="http://man7.org/linux/man-pages/man2/setsid.2.html">setsid(2)</a>.

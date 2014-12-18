@@ -80,6 +80,7 @@ public class ForwardingOs implements Os {
     public String getenv(String name) { return os.getenv(name); }
     public String getnameinfo(InetAddress address, int flags) throws GaiException { return os.getnameinfo(address, flags); }
     public SocketAddress getpeername(FileDescriptor fd) throws ErrnoException { return os.getpeername(fd); }
+    public int getpgid(int pid) throws ErrnoException { return os.getpgid(pid); }
     public int getpid() { return os.getpid(); }
     public int getppid() { return os.getppid(); }
     public StructPasswd getpwnam(String name) throws ErrnoException { return os.getpwnam(name); }
@@ -136,6 +137,9 @@ public class ForwardingOs implements Os {
     public void setenv(String name, String value, boolean overwrite) throws ErrnoException { os.setenv(name, value, overwrite); }
     public void seteuid(int euid) throws ErrnoException { os.seteuid(euid); }
     public void setgid(int gid) throws ErrnoException { os.setgid(gid); }
+    public void setpgid(int pid, int pgid) throws ErrnoException { os.setpgid(pid, pgid); }
+    public void setregid(int rgid, int egid) throws ErrnoException { os.setregid(rgid, egid); }
+    public void setreuid(int ruid, int euid) throws ErrnoException { os.setregid(ruid, euid); }
     public int setsid() throws ErrnoException { return os.setsid(); }
     public void setsockoptByte(FileDescriptor fd, int level, int option, int value) throws ErrnoException { os.setsockoptByte(fd, level, option, value); }
     public void setsockoptIfreq(FileDescriptor fd, int level, int option, String value) throws ErrnoException { os.setsockoptIfreq(fd, level, option, value); }

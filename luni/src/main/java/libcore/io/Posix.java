@@ -74,6 +74,7 @@ public final class Posix implements Os {
     public native String getenv(String name);
     public native String getnameinfo(InetAddress address, int flags) throws GaiException;
     public native SocketAddress getpeername(FileDescriptor fd) throws ErrnoException;
+    public native int getpgid(int pid);
     public native int getpid();
     public native int getppid();
     public native StructPasswd getpwnam(String name) throws ErrnoException;
@@ -210,6 +211,9 @@ public final class Posix implements Os {
     public native void setenv(String name, String value, boolean overwrite) throws ErrnoException;
     public native void seteuid(int euid) throws ErrnoException;
     public native void setgid(int gid) throws ErrnoException;
+    public native void setpgid(int pid, int pgid) throws ErrnoException;
+    public native void setregid(int rgid, int egid) throws ErrnoException;
+    public native void setreuid(int ruid, int euid) throws ErrnoException;
     public native int setsid() throws ErrnoException;
     public native void setsockoptByte(FileDescriptor fd, int level, int option, int value) throws ErrnoException;
     public native void setsockoptIfreq(FileDescriptor fd, int level, int option, String value) throws ErrnoException;
