@@ -40,16 +40,14 @@ public final class Daemons {
         ReferenceQueueDaemon.INSTANCE.start();
         FinalizerDaemon.INSTANCE.start();
         FinalizerWatchdogDaemon.INSTANCE.start();
-        HeapTrimmerDaemon.INSTANCE.start();
-        GCDaemon.INSTANCE.start();
+        HeapTaskDaemon.INSTANCE.start();
     }
 
     public static void stop() {
+        HeapTaskDaemon.INSTANCE.stop();
         ReferenceQueueDaemon.INSTANCE.stop();
         FinalizerDaemon.INSTANCE.stop();
         FinalizerWatchdogDaemon.INSTANCE.stop();
-        HeapTrimmerDaemon.INSTANCE.stop();
-        GCDaemon.INSTANCE.stop();
     }
 
     /**
@@ -292,45 +290,38 @@ public final class Daemons {
         }
     }
 
-    // Invoked by the GC to request that the HeapTrimmerDaemon thread attempt to trim the heap.
+    // Adds a heap trim task ot the heap event processor, not called from java. Left for
+    // compatibility purposes due to reflection.
     public static void requestHeapTrim() {
-        synchronized (HeapTrimmerDaemon.INSTANCE) {
-            HeapTrimmerDaemon.INSTANCE.notify();
-        }
+        VMRuntime.getRuntime().requestHeapTrim();
     }
 
-    private static class HeapTrimmerDaemon extends Daemon {
-        private static final HeapTrimmerDaemon INSTANCE = new HeapTrimmerDaemon();
-
-        @Override public void run() {
-            while (isRunning()) {
-                try {
-                    synchronized (this) {
-                        wait();
-                    }
-                    VMRuntime.getRuntime().trimHeap();
-                } catch (InterruptedException ignored) {
-                }
-            }
-        }
+    // Adds a concurrent GC request task ot the heap event processor, not called from java. Left
+    // for compatibility purposes due to reflection.
+    public static void requestGC() {
+        VMRuntime.getRuntime().requestConcurrentGC();
     }
 
-    private static class GCDaemon extends Daemon {
-        private static final GCDaemon INSTANCE = new GCDaemon();
+    private static class HeapTaskDaemon extends Daemon {
+        private static final HeapTaskDaemon INSTANCE = new HeapTaskDaemon();
 
         // Overrides the Daemon.interupt method which is called from Daemons.stop.
-        public void interrupt(Thread thread) {
-            // Notifies the daemon thread.
-            VMRuntime.getRuntime().requestConcurrentGC();
+        public synchronized void interrupt(Thread thread) {
+            VMRuntime.getRuntime().stopHeapTaskProcessor();
         }
 
         @Override public void run() {
-            while (isRunning()) {
-                VMRuntime.getRuntime().waitForConcurrentGCRequest();
+            synchronized (this) {
                 if (isRunning()) {
-                    VMRuntime.getRuntime().concurrentGC();
+                  // Needs to be synchronized or else we there is a race condition where we start
+                  // the thread, call stopHeapTaskProcessor before we start the heap task
+                  // processor, resulting in a deadlock since startHeapTaskProcessor restarts it
+                  // while the other thread is waiting in Daemons.stop().
+                  VMRuntime.getRuntime().startHeapTaskProcessor();
                 }
             }
+            // This runs tasks until we are stopped and there is no more pending task.
+            VMRuntime.getRuntime().runHeapTasks();
         }
     }
 }
