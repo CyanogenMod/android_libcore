@@ -74,6 +74,8 @@ public final class MimeUtils {
         add("application/vnd.oasis.opendocument.graphics", "odg");
         add("application/vnd.oasis.opendocument.graphics-template", "otg");
         add("application/vnd.oasis.opendocument.image", "odi");
+        add("application/vnd.oasis.opendocument.presentation", "odp");
+        add("application/vnd.oasis.opendocument.presentation-template", "otp");
         add("application/vnd.oasis.opendocument.spreadsheet", "ods");
         add("application/vnd.oasis.opendocument.spreadsheet-template", "ots");
         add("application/vnd.oasis.opendocument.text", "odt");
