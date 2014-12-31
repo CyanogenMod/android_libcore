@@ -810,7 +810,9 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
     }
 
     /**
-     * Returns a shallow copy of this {@code Calendar} with the same properties.
+     * Returns a partially deep copy of this {@code Calendar}; all fields from
+     * from the {@code Calendar} class are cloned (deep copy) but fields from
+     * subclasses aren't (shallow copy).
      */
     @Override
     public Object clone() {
