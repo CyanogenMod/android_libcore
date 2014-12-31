@@ -20,6 +20,7 @@ import com.google.caliper.Param;
 import com.google.caliper.SimpleBenchmark;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.Vector;
@@ -28,25 +29,49 @@ public class CollectionsBenchmark extends SimpleBenchmark {
     @Param({"4", "16", "64", "256", "1024"})
     private int arrayListLength;
 
-    public void timeSort_arrayList(int nreps) {
-        List<Integer> input = buildList(arrayListLength, true /* use array list */);
+    public static Comparator<Integer> REVERSE = new Comparator<Integer>() {
+        @Override
+        public int compare(Integer lhs, Integer rhs) {
+            int lhsAsInt = lhs.intValue();
+            int rhsAsInt = rhs.intValue();
+            return rhsAsInt < lhsAsInt ? -1 : (lhsAsInt == rhsAsInt ? 0 : 1);
+        }
+    };
+
+
+    public void timeSort_arrayList(int nreps) throws Exception {
+        List<Integer> input = buildList(arrayListLength, ArrayList.class);
         for (int i = 0; i < nreps; ++i) {
             Collections.sort(input);
         }
     }
 
-    public void timeSort_vector(int nreps) {
-        List<Integer> input = buildList(arrayListLength, false /* use array list */);
+    public void timeSortWithComparator_arrayList(int nreps) throws Exception {
+        List<Integer> input = buildList(arrayListLength, ArrayList.class);
+        for (int i = 0; i < nreps; ++i) {
+            Collections.sort(input, REVERSE);
+        }
+    }
+
+    public void timeSort_vector(int nreps) throws Exception {
+        List<Integer> input = buildList(arrayListLength, Vector.class);
         for (int i = 0; i < nreps; ++i) {
             Collections.sort(input);
         }
     }
 
-    private static List<Integer> buildList(int arrayListLength, boolean useArrayList) {
+    public void timeSortWithComparator_vector(int nreps) throws Exception {
+        List<Integer> input = buildList(arrayListLength, Vector.class);
+        for (int i = 0; i < nreps; ++i) {
+            Collections.sort(input, REVERSE);
+        }
+    }
+
+    private static <T extends List<Integer>> List<Integer> buildList(
+            int arrayListLength, Class<T> listClass) throws Exception {
         Random random = new Random();
         random.setSeed(0);
-        List<Integer> list = useArrayList ? new ArrayList<Integer>(arrayListLength) :
-                new Vector<Integer>(arrayListLength);
+        List<Integer> list = listClass.newInstance();
         for (int i = 0; i < arrayListLength; ++i) {
             list.add(random.nextInt());
         }

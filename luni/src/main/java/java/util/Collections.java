@@ -1893,13 +1893,21 @@ public class Collections {
      */
     @SuppressWarnings("unchecked")
     public static <T> void sort(List<T> list, Comparator<? super T> comparator) {
-        T[] array = list.toArray((T[]) new Object[list.size()]);
-        Arrays.sort(array, comparator);
-        int i = 0;
-        ListIterator<T> it = list.listIterator();
-        while (it.hasNext()) {
-            it.next();
-            it.set(array[i++]);
+        if (list.getClass() == ArrayList.class) {
+            ArrayList<T> arrayList = (ArrayList<T>) list;
+            T[] array = (T[]) arrayList.array;
+            int end = arrayList.size();
+            Arrays.sort(array, 0, end, comparator);
+            arrayList.modCount++;
+        } else {
+            T[] array = list.toArray((T[]) new Object[list.size()]);
+            Arrays.sort(array, comparator);
+            int i = 0;
+            ListIterator<T> it = list.listIterator();
+            while (it.hasNext()) {
+                it.next();
+                it.set(array[i++]);
+            }
         }
     }
 
