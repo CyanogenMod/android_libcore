@@ -263,4 +263,76 @@ public class CalendarTest extends junit.framework.TestCase {
         b.setTime(d);
         assertEquals(a, b);
     }
+
+    public void testCloneMakesDeepCopyOfCalendarFields() {
+        FakeCalendar c = new FakeCalendar();
+        FakeCalendar c2 = (FakeCalendar) c.clone();
+
+        assertFalse(c.getTimeZone() == c2.getTimeZone());
+        assertEquals(c.getTimeZone(), c2.getTimeZone());
+
+        // The default clone() implementation makes a deep copy of calendar
+        // fields...
+        assertFalse(c.getCalenderFields() == c2.getCalenderFields());
+        // ,,, and a shallow copy of subclass fields.
+        assertSame(c.getSubclassFields(), c2.getSubclassFields());
+    }
+
+    public static class FakeCalendar extends Calendar {
+
+        private int[] subclassFields;
+
+        public FakeCalendar() {
+            super(TimeZone.getDefault(), Locale.getDefault());
+            subclassFields = new int[12];
+        }
+
+        public int[] getCalenderFields() {
+            return fields;
+        }
+
+        public int[] getSubclassFields() {
+            return subclassFields;
+        }
+
+        @Override
+        public void add(int field, int value) {
+
+        }
+
+        @Override
+        protected void computeFields() {
+
+        }
+
+        @Override
+        protected void computeTime() {
+
+        }
+
+        @Override
+        public int getGreatestMinimum(int field) {
+            return 0;
+        }
+
+        @Override
+        public int getLeastMaximum(int field) {
+            return 0;
+        }
+
+        @Override
+        public int getMaximum(int field) {
+            return 0;
+        }
+
+        @Override
+        public int getMinimum(int field) {
+            return 0;
+        }
+
+        @Override
+        public void roll(int field, boolean increment) {
+
+        }
+    }
 }
