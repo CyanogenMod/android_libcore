@@ -174,7 +174,7 @@ public final class ZoneInfo extends TimeZone {
         // no future plans (and thus no future schedule info) will report "true" from
         // useDaylightTime at the start of 2009 but "false" at the end. This seems appropriate.
         boolean usesDst = false;
-        int currentUnixTimeSeconds = (int) (System.currentTimeMillis() / 1000);
+        long currentUnixTimeSeconds = System.currentTimeMillis() / 1000;
         int i = mTransitions.length - 1;
         while (i >= 0 && mTransitions[i] >= currentUnixTimeSeconds) {
             if (mIsDsts[mTypes[i]] > 0) {
