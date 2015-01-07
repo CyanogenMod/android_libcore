@@ -1158,7 +1158,7 @@ public class Thread implements Runnable {
      *
      * @hide for Unsafe
      */
-    public void unpark() {
+    public final void unpark$() {
         synchronized (lock) {
             switch (parkState) {
                 case ParkState.PREEMPTIVELY_UNPARKED: {
@@ -1204,7 +1204,7 @@ public class Thread implements Runnable {
      *
      * @hide for Unsafe
      */
-    public void parkFor(long nanos) {
+    public final void parkFor$(long nanos) {
         synchronized (lock) {
             switch (parkState) {
                 case ParkState.PREEMPTIVELY_UNPARKED: {
@@ -1260,7 +1260,7 @@ public class Thread implements Runnable {
      *
      * @hide for Unsafe
      */
-    public void parkUntil(long time) {
+    public final void parkUntil$(long time) {
         synchronized (lock) {
             /*
              * Note: This conflates the two time bases of "wall clock"
@@ -1281,7 +1281,7 @@ public class Thread implements Runnable {
             if (delayMillis <= 0) {
                 parkState = ParkState.UNPARKED;
             } else {
-                parkFor(delayMillis * NANOS_PER_MILLI);
+                parkFor$(delayMillis * NANOS_PER_MILLI);
             }
         }
     }
