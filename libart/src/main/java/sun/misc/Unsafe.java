@@ -294,9 +294,9 @@ public final class Unsafe {
      */
     public void park(boolean absolute, long time) {
         if (absolute) {
-            Thread.currentThread().parkUntil(time);
+            Thread.currentThread().parkUntil$(time);
         } else {
-            Thread.currentThread().parkFor(time);
+            Thread.currentThread().parkFor$(time);
         }
     }
 
@@ -310,7 +310,7 @@ public final class Unsafe {
      */
     public void unpark(Object obj) {
         if (obj instanceof Thread) {
-            ((Thread) obj).unpark();
+            ((Thread) obj).unpark$();
         } else {
             throw new IllegalArgumentException("valid for Threads only");
         }
