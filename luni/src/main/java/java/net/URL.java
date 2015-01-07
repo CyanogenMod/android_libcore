@@ -331,7 +331,7 @@ public final class URL implements Serializable {
      * Virtual hosting permits unrelated sites to share an IP address. This
      * method could report two otherwise unrelated URLs to be equal because
      * they're hosted on the same server.</li>
-     * <li><strong>The network many not be available.</strong> Two URLs could be
+     * <li><strong>The network may not be available.</strong> Two URLs could be
      * equal when a network is available and unequal otherwise.</li>
      * <li><strong>The network may change.</strong> The IP address for a given
      * host name varies by network and over time. This is problematic for mobile
