@@ -134,8 +134,6 @@ public final class TestSSLEnginePair extends Assert {
         void beforeBeginHandshake(SSLEngine client, SSLEngine server) {}
     }
 
-    private static final ByteBuffer EMPTY_BYTE_BUFFER = ByteBuffer.allocate(0);
-
     private static boolean handshakeCompleted(SSLEngine engine,
                                               ByteBuffer output,
                                               ByteBuffer input,
@@ -165,9 +163,12 @@ public final class TestSSLEnginePair extends Assert {
                     if (input.remaining() == 0) {
                         return false;
                     }
+                    int inputPositionBefore = input.position();
                     SSLEngineResult unwrapResult = engine.unwrap(input, scratch);
                     assertEquals(SSLEngineResult.Status.OK, unwrapResult.getStatus());
                     assertEquals(0, scratch.position());
+                    assertEquals(0, unwrapResult.bytesProduced());
+                    assertEquals(input.position() - inputPositionBefore, unwrapResult.bytesConsumed());
                     assertFinishedOnce(finished, unwrapResult);
                     return true;
                 }
@@ -177,8 +178,15 @@ public final class TestSSLEnginePair extends Assert {
                     if (output.remaining() != output.capacity()) {
                         return false;
                     }
-                    SSLEngineResult wrapResult = engine.wrap(EMPTY_BYTE_BUFFER, output);
+                    ByteBuffer emptyByteBuffer = ByteBuffer.allocate(0);
+                    int inputPositionBefore = emptyByteBuffer.position();
+                    int outputPositionBefore = output.position();
+                    SSLEngineResult wrapResult = engine.wrap(emptyByteBuffer, output);
                     assertEquals(SSLEngineResult.Status.OK, wrapResult.getStatus());
+                    assertEquals(0, wrapResult.bytesConsumed());
+                    assertEquals(inputPositionBefore, emptyByteBuffer.position());
+                    assertEquals(output.position() - outputPositionBefore,
+                            wrapResult.bytesProduced());
                     assertFinishedOnce(finished, wrapResult);
                     return true;
                 }
