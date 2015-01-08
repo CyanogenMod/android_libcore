@@ -22,9 +22,11 @@
 #include <sys/types.h>
 
 static jboolean FileDescriptor_isSocket(JNIEnv*, jclass, jint fd) {
-  int error;
-  socklen_t error_length = sizeof(error);
-  return TEMP_FAILURE_RETRY(getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &error_length));
+  // If getsockopt succeeds, we know we're dealing with a socket.
+  // This is the cheapest way we know of to test whether an fd is a socket.
+  int option;
+  socklen_t option_length = sizeof(option);
+  return TEMP_FAILURE_RETRY(getsockopt(fd, SOL_SOCKET, SO_DEBUG, &option, &option_length)) == 0;
 }
 
 static JNINativeMethod gMethods[] = {
