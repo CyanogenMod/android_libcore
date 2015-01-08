@@ -147,6 +147,11 @@ public class ZipEntry implements ZipConstants, Cloneable {
     /**
      * Gets the name of this {@code ZipEntry}.
      *
+     * <p><em>Security note:</em> Entry names can represent relative paths. {@code foo/../bar} or
+     * {@code ../bar/baz}, for example. If the entry name is being used to construct a filename
+     * or as a path component, it must be validated or sanitized to ensure that files are not
+     * written outside of the intended destination directory.
+     *
      * @return the entry name.
      */
     public String getName() {
