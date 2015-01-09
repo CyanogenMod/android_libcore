@@ -30,14 +30,14 @@ public class FileDescriptorTest extends TestCase {
     new RandomAccessFile(f, "r").getFD().sync();
   }
 
-  public void test_isSocket() throws Exception {
+  public void test_isSocket$() throws Exception {
     File f = new File("/dev/null");
     FileInputStream fis = new FileInputStream(f);
-    assertFalse(fis.getFD().isSocket());
+    assertFalse(fis.getFD().isSocket$());
     fis.close();
 
     ServerSocket s = new ServerSocket();
-    assertTrue(s.getImpl$().getFD$().isSocket());
+    assertTrue(s.getImpl$().getFD$().isSocket$());
     s.close();
   }
 }
