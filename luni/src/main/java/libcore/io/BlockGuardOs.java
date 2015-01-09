@@ -83,7 +83,7 @@ public class BlockGuardOs extends ForwardingOs {
             // The usual case is that this _isn't_ a socket, so the getsockopt(2) call in
             // isLingerSocket will throw, and that's really expensive. Try to avoid asking
             // if we don't care.
-            if (fd.isSocket()) {
+            if (fd.isSocket$()) {
                 if (isLingerSocket(fd)) {
                     // If the fd is a socket with SO_LINGER set, we might block indefinitely.
                     // We allow non-linger sockets so that apps can close their network
