@@ -276,6 +276,12 @@ public final class VMRuntime {
     public native void clearGrowthLimit();
 
     /**
+     * Make the current growth limit the new non growth limit capacity by releasing pages which
+     * are after the growth limit but before the non growth limit capacity.
+     */
+    public native void clampGrowthLimit();
+
+    /**
      * Returns true if either a Java debugger or native debugger is active.
      */
     public native boolean isDebuggerActive();
