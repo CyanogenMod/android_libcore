@@ -121,6 +121,8 @@ LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_LDLIBS += -ldl -lpthread
 ifeq ($(HOST_OS),linux)
 LOCAL_LDLIBS += -lrt
+else ifeq ($(HOST_OS),darwin)
+LOCAL_LDFLAGS += -Wl,-lstdc++
 endif
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacore
