@@ -1529,5 +1529,12 @@
   names: [
     "org.apache.harmony.tests.java.lang.MathTest#test_cbrt_D"
   ]
+},
+{
+  description: "Recursive calls to Charset.forName from within providers will overflow the stack.",
+  result: EXEC_FAILED,
+  names: [
+    "org.apache.harmony.tests.java.nio.charset.CharsetTest#testForName_withProviderWithRecursiveCall"
+  ]
 }
 ]
