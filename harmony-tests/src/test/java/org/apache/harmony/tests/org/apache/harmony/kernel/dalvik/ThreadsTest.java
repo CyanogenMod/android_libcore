@@ -234,10 +234,10 @@ public class ThreadsTest extends TestCase {
              * Allow a bit more slop for the maximum on "expected
              * instantaneous" results.
              */
-            long minimum = (long) ((double) expectedMillis * 0.90);
+            long minimum = (long) ((double) expectedMillis * 0.80);
             long maximum =
-                Math.max((long) ((double) expectedMillis * 1.10), 10);
-            long waitMillis = Math.max(expectedMillis * 10, 10);
+                Math.max((long) ((double) expectedMillis * 1.20), 10);
+            long waitMillis = Math.max(expectedMillis * 10, 30);
             long duration = getDurationMillis(waitMillis);
 
             if (duration < minimum) {
