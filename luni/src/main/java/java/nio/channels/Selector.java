@@ -78,8 +78,11 @@ public abstract class Selector implements Closeable {
     public abstract boolean isOpen();
 
     /**
-     * Gets the set of registered keys. The set is immutable and is not thread-
-     * safe.
+     * Gets the set of registered keys.
+     *
+     * <p>The returned set cannot be changed directly but can be modified
+     * indirectly by operations on the Selector. It should therefore not be
+     * treated as thread-safe.
      *
      * @return the set of registered keys.
      */
@@ -127,9 +130,11 @@ public abstract class Selector implements Closeable {
     public abstract int select(long timeout) throws IOException;
 
     /**
-     * Gets the selection keys whose channels are ready for operation. The set
-     * is not thread-safe and no keys may be added to it. Removing keys is
-     * allowed.
+     * Gets the selection keys whose channels are ready for operation.
+     *
+     * <p>Keys cannot be added to the set directly. Keys can be removed.
+     * The set can be modified indirectly by operations on the Selector. It
+     * should therefore not be treated as thread-safe.
      *
      * @return the selection keys whose channels are ready for operation.
      * @throws ClosedSelectorException
