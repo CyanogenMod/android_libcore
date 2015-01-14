@@ -47,7 +47,7 @@ public class InetAddressTest extends junit.framework.TestCase {
     }
 
     public void test_equalsLjava_lang_Object() throws Exception {
-        InetAddress ia1 = InetAddress.getByName("localhost");
+        InetAddress ia1 = InetAddress.getByName("ip6-localhost");
         InetAddress ia2 = InetAddress.getByName("::1");
         assertEquals(ia2, ia1);
     }
