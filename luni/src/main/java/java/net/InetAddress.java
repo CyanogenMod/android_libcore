@@ -202,10 +202,10 @@ public class InetAddress implements Serializable {
     /**
      * Gets all IP addresses associated with the given {@code host} identified
      * by name or literal IP address. The IP address is resolved by the
-     * configured name service. If the host name is empty or {@code null} an
-     * {@code UnknownHostException} is thrown. If the host name is a literal IP
-     * address string an array with the corresponding single {@code InetAddress}
-     * is returned.
+     * configured name service. If the host name is empty or {@code null} the
+     * IP addresses of the loopback interfaces are returned. If the host name
+     * is a literal IP address string an array with the corresponding single
+     * {@code InetAddress} is returned.
      *
      * @param host the hostname or literal IP string to be resolved.
      * @return the array of addresses associated with the specified host.

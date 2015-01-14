@@ -43,7 +43,7 @@ public final class Inet6Address extends InetAddress {
      */
     public static final InetAddress LOOPBACK =
             new Inet6Address(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-                    "localhost", 0);
+                    "ip6-localhost", 0);
 
     private boolean scope_id_set;
     private int scope_id;
