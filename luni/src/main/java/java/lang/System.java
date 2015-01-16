@@ -50,6 +50,7 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -108,6 +109,33 @@ public final class System {
         unchangeableSystemProperties = initUnchangeableSystemProperties();
         systemProperties = createSystemProperties();
         lineSeparator = System.getProperty("line.separator");
+
+        addLegacyLocaleSystemProperties();
+    }
+
+    private static void addLegacyLocaleSystemProperties() {
+        final String locale = getProperty("user.locale", "");
+        if (!locale.isEmpty()) {
+            Locale l = Locale.forLanguageTag(locale);
+            initUnchangeableSystemProperty("user.language", l.getLanguage());
+            initUnchangeableSystemProperty("user.region", l.getCountry());
+            initUnchangeableSystemProperty("user.variant", l.getVariant());
+        } else {
+            // If "user.locale" isn't set we fall back to our old defaults of
+            // language="en" and region="US" (if unset) and don't attempt to set it.
+            // The Locale class will fall back to using user.language and
+            // user.region if unset.
+            final String language = getProperty("user.language", "");
+            final String region = getProperty("user.region", "");
+
+            if (language.isEmpty()) {
+                initUnchangeableSystemProperty("user.language", "en");
+            }
+
+            if (region.isEmpty()) {
+                initUnchangeableSystemProperty("user.region", "US");
+            }
+        }
     }
 
     /**
@@ -751,8 +779,6 @@ public final class System {
         p.put("java.vm.vendor.url", projectUrl);
 
         p.put("file.encoding", "UTF-8");
-        p.put("user.language", "en");
-        p.put("user.region", "US");
 
         try {
             StructPasswd passwd = Libcore.os.getpwuid(Libcore.os.getuid());
