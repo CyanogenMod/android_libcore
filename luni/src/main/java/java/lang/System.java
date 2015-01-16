@@ -753,6 +753,7 @@ public final class System {
         p.put("file.encoding", "UTF-8");
         p.put("user.language", "en");
         p.put("user.region", "US");
+        p.put("user.locale", "en-US");
 
         try {
             StructPasswd passwd = Libcore.os.getpwuid(Libcore.os.getuid());
