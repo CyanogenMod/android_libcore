@@ -109,9 +109,10 @@ public final class Os {
    */
   public static void fchown(FileDescriptor fd, int uid, int gid) throws ErrnoException { Libcore.os.fchown(fd, uid, gid); }
 
-  /** @hide */ public static int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException { return Libcore.os.fcntlVoid(fd, cmd); }
-  /** @hide */ public static int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException { return Libcore.os.fcntlLong(fd, cmd, arg); }
   /** @hide */ public static int fcntlFlock(FileDescriptor fd, int cmd, StructFlock arg) throws ErrnoException, InterruptedIOException { return Libcore.os.fcntlFlock(fd, cmd, arg); }
+  /** @hide */ public static int fcntlInt(FileDescriptor fd, int cmd, int arg) throws ErrnoException { return Libcore.os.fcntlInt(fd, cmd, arg); }
+  /** @hide */ public static int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException { return Libcore.os.fcntlLong(fd, cmd, arg); }
+  /** @hide */ public static int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException { return Libcore.os.fcntlVoid(fd, cmd); }
 
   /**
    * See <a href="http://man7.org/linux/man-pages/man2/fdatasync.2.html">fdatasync(2)</a>.

@@ -44,6 +44,20 @@ public class OsTest extends TestCase {
     s.close();
   }
 
+  public void testFcntlInt() throws Exception {
+    File f = File.createTempFile("OsTest", "tst");
+    FileInputStream fis = null;
+    try {
+      fis = new FileInputStream(f);
+      Libcore.os.fcntlInt(fis.getFD(), F_SETFD, FD_CLOEXEC);
+      int flags = Libcore.os.fcntlVoid(fis.getFD(), F_GETFD);
+      assertTrue((flags & FD_CLOEXEC) != 0);
+    } finally {
+      IoUtils.closeQuietly(fis);
+      f.delete();
+    }
+  }
+
   public void testUnixDomainSockets_in_file_system() throws Exception {
     String path = System.getProperty("java.io.tmpdir") + "/test_unix_socket";
     new File(path).delete();
