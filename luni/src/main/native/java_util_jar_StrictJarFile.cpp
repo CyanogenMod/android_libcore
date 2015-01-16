@@ -28,16 +28,15 @@
 #include "ziparchive/zip_archive.h"
 #include "cutils/log.h"
 
+// The method ID for ZipEntry.<init>(String,String,JJJIII[BJJ)
+static jmethodID zipEntryCtor;
+
 static void throwIoException(JNIEnv* env, const int32_t errorCode) {
   jniThrowException(env, "java/io/IOException", ErrorCodeString(errorCode));
 }
 
 static jobject newZipEntry(JNIEnv* env, const ZipEntry& entry, jstring entryName) {
-  ScopedLocalRef<jclass> zipEntryClass(env, env->FindClass("java/util/zip/ZipEntry"));
-  const jmethodID zipEntryCtor = env->GetMethodID(zipEntryClass.get(), "<init>",
-                                   "(Ljava/lang/String;Ljava/lang/String;JJJIII[BJJ)V");
-
-  return env->NewObject(zipEntryClass.get(),
+  return env->NewObject(JniConstants::zipEntryClass,
                         zipEntryCtor,
                         entryName,
                         NULL,  // comment
@@ -164,4 +163,7 @@ static JNINativeMethod gMethods[] = {
 void register_java_util_jar_StrictJarFile(JNIEnv* env) {
   jniRegisterNativeMethods(env, "java/util/jar/StrictJarFile", gMethods, NELEM(gMethods));
 
+  zipEntryCtor = env->GetMethodID(JniConstants::zipEntryClass, "<init>",
+      "(Ljava/lang/String;Ljava/lang/String;JJJIII[BJJ)V");
+  LOG_ALWAYS_FATAL_IF(zipEntryCtor == NULL, "Unable to find ZipEntry.<init>");
 }
