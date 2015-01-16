@@ -272,27 +272,17 @@ public final class Locale implements Cloneable, Serializable {
      */
     private static final String UNDETERMINED_LANGUAGE = "und";
 
-    private static Locale defaultLocale = getDefaultLocaleFromSystemProperties();
-
     /**
-     * Returns the default locale from system properties.
-     *
-     * @hide visible for testing.
+     * The current default locale. It is temporarily assigned to US because we
+     * need a default locale to lookup the real default locale.
      */
-    public static Locale getDefaultLocaleFromSystemProperties() {
-        final String languageTag = System.getProperty("user.locale", "");
+    private static Locale defaultLocale = US;
 
-        final Locale defaultLocale;
-        if (!languageTag.isEmpty()) {
-            defaultLocale = Locale.forLanguageTag(languageTag);
-        } else {
-            String language = System.getProperty("user.language", "en");
-            String region = System.getProperty("user.region", "US");
-            String variant = System.getProperty("user.variant", "");
-            defaultLocale = new Locale(language, region, variant);
-        }
-
-        return defaultLocale;
+    static {
+        String language = System.getProperty("user.language", "en");
+        String region = System.getProperty("user.region", "US");
+        String variant = System.getProperty("user.variant", "");
+        defaultLocale = new Locale(language, region, variant);
     }
 
     /**
