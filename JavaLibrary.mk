@@ -145,6 +145,8 @@ $(LOCAL_INTERMEDIATE_TARGETS): $(TMP_RESOURCE_DIR)$(TMP_RESOURCE_FILE)
 # Build for the host.
 #
 
+ifeq ($(HOST_OS),linux)
+
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-main-java-files-under, dex)
 LOCAL_MODULE_TAGS := optional
@@ -192,6 +194,8 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
     include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 endif
+
+endif # HOST_OS == linux
 
 #
 # Local droiddoc for faster libcore testing
