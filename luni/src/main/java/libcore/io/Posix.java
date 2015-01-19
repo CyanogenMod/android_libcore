@@ -59,9 +59,10 @@ public final class Posix implements Os {
     public native void execve(String filename, String[] argv, String[] envp) throws ErrnoException;
     public native void fchmod(FileDescriptor fd, int mode) throws ErrnoException;
     public native void fchown(FileDescriptor fd, int uid, int gid) throws ErrnoException;
-    public native int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException;
-    public native int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException;
     public native int fcntlFlock(FileDescriptor fd, int cmd, StructFlock arg) throws ErrnoException, InterruptedIOException;
+    public native int fcntlInt(FileDescriptor fd, int cmd, int arg) throws ErrnoException;
+    public native int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException;
+    public native int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException;
     public native void fdatasync(FileDescriptor fd) throws ErrnoException;
     public native StructStat fstat(FileDescriptor fd) throws ErrnoException;
     public native StructStatVfs fstatvfs(FileDescriptor fd) throws ErrnoException;
