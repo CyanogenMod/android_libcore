@@ -25,15 +25,14 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.spi.CharsetProvider;
 import java.nio.charset.UnsupportedCharsetException;
-import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.Vector;
+import libcore.java.nio.charset.SettableCharsetProvider;
 
 import junit.framework.TestCase;
 
@@ -819,51 +818,94 @@ public class CharsetTest extends TestCase {
 
   // Test the method isSupported(String) with charset supported by multiple providers.
   public void testIsSupported_And_ForName_NormalProvider() throws Exception {
-    assertTrue(Charset.isSupported("mockCharset10"));
-    // ignore case problem in mock, intended
-    assertTrue(Charset.isSupported("MockCharset11"));
-    assertTrue(Charset.isSupported("MockCharset12"));
-    assertTrue(Charset.isSupported("MOCKCharset10"));
-    // intended case problem in mock
-    assertTrue(Charset.isSupported("MOCKCharset11"));
-    assertTrue(Charset.isSupported("MOCKCharset12"));
+    SettableCharsetProvider.setDelegate(new MockCharsetProvider());
+    try {
+      assertTrue(Charset.isSupported("mockCharset10"));
+      // ignore case problem in mock, intended
+      assertTrue(Charset.isSupported("MockCharset11"));
+      assertTrue(Charset.isSupported("MockCharset12"));
+      assertTrue(Charset.isSupported("MOCKCharset10"));
+      // intended case problem in mock
+      assertTrue(Charset.isSupported("MOCKCharset11"));
+      assertTrue(Charset.isSupported("MOCKCharset12"));
 
-    assertTrue(Charset.forName("mockCharset10") instanceof MockCharset);
-    assertTrue(Charset.forName("mockCharset11") instanceof MockCharset);
-    assertTrue(Charset.forName("mockCharset12") instanceof MockCharset);
+      assertTrue(Charset.forName("mockCharset10") instanceof MockCharset);
+      assertTrue(Charset.forName("mockCharset11") instanceof MockCharset);
+      assertTrue(Charset.forName("mockCharset12") instanceof MockCharset);
 
-    assertTrue(Charset.forName("mockCharset10") == charset2);
-    // intended case problem in mock
-    Charset.forName("mockCharset11");
-    assertTrue(Charset.forName("mockCharset12") == charset2);
+      assertTrue(Charset.forName("mockCharset10") == charset2);
+      // intended case problem in mock
+      Charset.forName("mockCharset11");
+      assertTrue(Charset.forName("mockCharset12") == charset2);
+    } finally {
+      SettableCharsetProvider.clearDelegate();
+    }
   }
 
   // Test the method availableCharsets() with charset supported by multiple providers.
   public void testAvailableCharsets_NormalProvider() throws Exception {
-    assertTrue(Charset.availableCharsets().containsKey("mockCharset00"));
-    assertTrue(Charset.availableCharsets().containsKey("MOCKCharset00"));
-    assertTrue(Charset.availableCharsets().get("mockCharset00") instanceof MockCharset);
-    assertTrue(Charset.availableCharsets().get("MOCKCharset00") instanceof MockCharset);
-    assertFalse(Charset.availableCharsets().containsKey("mockCharset01"));
-    assertFalse(Charset.availableCharsets().containsKey("mockCharset02"));
+    SettableCharsetProvider.setDelegate(new MockCharsetProvider());
+    try {
+      assertTrue(Charset.availableCharsets().containsKey("mockCharset00"));
+      assertTrue(Charset.availableCharsets().containsKey("MOCKCharset00"));
+      assertTrue(Charset.availableCharsets().get("mockCharset00") instanceof MockCharset);
+      assertTrue(Charset.availableCharsets().get("MOCKCharset00") instanceof MockCharset);
+      assertFalse(Charset.availableCharsets().containsKey("mockCharset01"));
+      assertFalse(Charset.availableCharsets().containsKey("mockCharset02"));
 
-    assertTrue(Charset.availableCharsets().get("mockCharset10") == charset2);
-    assertTrue(Charset.availableCharsets().get("MOCKCharset10") == charset2);
-    assertFalse(Charset.availableCharsets().containsKey("mockCharset11"));
-    assertFalse(Charset.availableCharsets().containsKey("mockCharset12"));
+      assertTrue(Charset.availableCharsets().get("mockCharset10") == charset2);
+      assertTrue(Charset.availableCharsets().get("MOCKCharset10") == charset2);
+      assertFalse(Charset.availableCharsets().containsKey("mockCharset11"));
+      assertFalse(Charset.availableCharsets().containsKey("mockCharset12"));
 
-    assertTrue(Charset.availableCharsets().containsKey("mockCharset10"));
-    assertTrue(Charset.availableCharsets().containsKey("MOCKCharset10"));
-    assertTrue(Charset.availableCharsets().get("mockCharset10") == charset2);
-    assertFalse(Charset.availableCharsets().containsKey("mockCharset11"));
-    assertFalse(Charset.availableCharsets().containsKey("mockCharset12"));
+      assertTrue(Charset.availableCharsets().containsKey("mockCharset10"));
+      assertTrue(Charset.availableCharsets().containsKey("MOCKCharset10"));
+      assertTrue(Charset.availableCharsets().get("mockCharset10") == charset2);
+      assertFalse(Charset.availableCharsets().containsKey("mockCharset11"));
+      assertFalse(Charset.availableCharsets().containsKey("mockCharset12"));
+    } finally {
+      SettableCharsetProvider.clearDelegate();
+    }
   }
 
   // Test the method forName(String) when the charset provider supports a
   // built-in charset.
   public void testForName_DuplicateWithBuiltInCharset() throws Exception {
-    assertFalse(Charset.forName("us-ascii") instanceof MockCharset);
-    assertFalse(Charset.availableCharsets().get("us-ascii") instanceof MockCharset);
+    SettableCharsetProvider.setDelegate(new MockCharsetProviderASCII());
+    try {
+      assertFalse(Charset.forName("us-ascii") instanceof MockCharset);
+      assertFalse(Charset.availableCharsets().get("us-ascii") instanceof MockCharset);
+    } finally {
+      SettableCharsetProvider.clearDelegate();
+    }
+  }
+
+  // Fails on Android with a StackOverflowException.
+  public void testForName_withProviderWithRecursiveCall() throws Exception {
+    SettableCharsetProvider.setDelegate(new MockCharsetProviderWithRecursiveCall());
+    try {
+      Charset.forName("poop");
+      fail();
+    } catch (UnsupportedCharsetException expected) {
+    } finally {
+      SettableCharsetProvider.clearDelegate();
+    }
+  }
+
+  public static class MockCharsetProviderWithRecursiveCall extends CharsetProvider {
+      @Override
+      public Iterator<Charset> charsets() {
+          return null;
+      }
+
+      @Override
+      public Charset charsetForName(String charsetName) {
+          if (Charset.isSupported(charsetName)) {
+              return Charset.forName(charsetName);
+          }
+
+          return null;
+      }
   }
 
   public static class MockCharsetProvider extends CharsetProvider {
