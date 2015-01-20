@@ -43,13 +43,13 @@ public abstract class DatagramSocketImpl implements SocketOptions {
     }
 
     /**
-     * Binds the datagram socket to the given localhost/port. Sockets must be
+     * Binds the datagram socket to the given local host/port. Sockets must be
      * bound prior to attempting to send or receive data.
      *
      * @param port
-     *            the port on the localhost to bind.
+     *            the port on the local host to bind to.
      * @param addr
-     *            the address on the multihomed localhost to bind.
+     *            the address on the multihomed local host to bind to.
      * @throws SocketException
      *                if an error occurs while binding, for example, if the port
      *                has been already bound.
