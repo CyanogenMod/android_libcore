@@ -211,7 +211,7 @@ public class Socket implements Closeable {
     /**
      * Creates a new streaming socket connected to the target host specified by
      * the parameters {@code dstAddress} and {@code dstPort}. The socket is
-     * bound to any available port on the local host.
+     * bound to any available port on the local host using a wildcard address.
      *
      * @param dstAddress
      *            the target host address to connect to.
@@ -228,16 +228,18 @@ public class Socket implements Closeable {
 
     /**
      * Creates a new streaming socket connected to the target host specified by
-     * the parameters {@code dstAddress} and {@code dstPort}. On the local
-     * endpoint the socket is bound to the given address {@code localAddress} on
-     * port {@code localPort}.
+     * the parameters {@code dstAddress} and {@code dstPort}.
+     *
+     * <p>On the local endpoint the socket is bound to the given address {@code localAddress} on
+     * port {@code localPort}. If {@code localAddress} is {@code null} the socket will be bound to a
+     * wildcard address.
      *
      * @param dstAddress
      *            the target host address to connect to.
      * @param dstPort
      *            the port on the target host to connect to.
      * @param localAddress
-     *            the address on the local host to bind to.
+     *            the address on the local host to bind to, or null.
      * @param localPort
      *            the port on the local host to bind to.
      * @throws IOException
@@ -253,7 +255,7 @@ public class Socket implements Closeable {
     /**
      * Creates a new streaming or datagram socket connected to the target host
      * specified by the parameters {@code addr} and {@code port}. The socket is
-     * bound to any available port on the local host.
+     * bound to any available port on the local host using a wildcard address.
      *
      * @param addr
      *            the Internet address to connect to.
