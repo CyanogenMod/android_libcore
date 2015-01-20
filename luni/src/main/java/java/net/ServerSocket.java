@@ -65,8 +65,9 @@ public class ServerSocket implements Closeable {
     }
 
     /**
-     * Constructs a new {@code ServerSocket} instance bound to the given {@code port}.
-     * The backlog is set to 50. If {@code port == 0}, a port will be assigned by the OS.
+     * Constructs a new {@code ServerSocket} instance bound to the given {@code port} using a
+     * wildcard address. The backlog is set to 50. If {@code port == 0}, a port will be assigned by
+     * the OS.
      *
      * @throws IOException if an error occurs while creating the socket.
      */
@@ -75,8 +76,8 @@ public class ServerSocket implements Closeable {
     }
 
     /**
-     * Constructs a new {@code ServerSocket} instance bound to the given {@code port}.
-     * The backlog is set to {@code backlog}.
+     * Constructs a new {@code ServerSocket} instance bound to the given {@code port} using a
+     * wildcard address. The backlog is set to {@code backlog}.
      * If {@code port == 0}, a port will be assigned by the OS.
      *
      * @throws IOException if an error occurs while creating the socket.

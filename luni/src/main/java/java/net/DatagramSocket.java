@@ -56,7 +56,7 @@ public class DatagramSocket implements Closeable {
 
     /**
      * Constructs a UDP datagram socket which is bound to any available port on
-     * the localhost.
+     * the local host using a wildcard address.
      *
      * @throws SocketException
      *             if an error occurs while creating or binding the socket.
@@ -67,11 +67,11 @@ public class DatagramSocket implements Closeable {
 
     /**
      * Constructs a UDP datagram socket which is bound to the specific port
-     * {@code aPort} on the localhost. Valid values for {@code aPort} are
+     * {@code aPort} on the local host using a wildcard address. Valid values for {@code aPort} are
      * between 0 and 65535 inclusive.
      *
      * @param aPort
-     *            the port to bind on the localhost.
+     *            the port to bind on the local host.
      * @throws SocketException
      *             if an error occurs while creating or binding the socket.
      */
@@ -81,14 +81,14 @@ public class DatagramSocket implements Closeable {
     }
 
     /**
-     * Constructs a UDP datagram socket which is bound to the specific local
-     * address {@code addr} on port {@code aPort}. Valid values for {@code
-     * aPort} are between 0 and 65535 inclusive.
+     * Constructs a UDP datagram socket which is bound to the specific local address {@code addr} on
+     * port {@code aPort}. Valid values for {@code aPort} are between 0 and 65535 inclusive. If
+     * {@code addr} is {@code null} the socket will be bound to a wildcard address.
      *
      * @param aPort
-     *            the port to bind on the localhost.
+     *            the port to bind on the local host.
      * @param addr
-     *            the address to bind on the localhost.
+     *            the address to bind on the local host.
      * @throws SocketException
      *             if an error occurs while creating or binding the socket.
      */
