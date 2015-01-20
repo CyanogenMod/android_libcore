@@ -58,7 +58,6 @@ public interface Os {
     public void fchown(FileDescriptor fd, int uid, int gid) throws ErrnoException;
     public int fcntlFlock(FileDescriptor fd, int cmd, StructFlock arg) throws ErrnoException, InterruptedIOException;
     public int fcntlInt(FileDescriptor fd, int cmd, int arg) throws ErrnoException;
-    public int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException;
     public int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException;
     public void fdatasync(FileDescriptor fd) throws ErrnoException;
     public StructStat fstat(FileDescriptor fd) throws ErrnoException;
