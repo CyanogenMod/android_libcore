@@ -111,7 +111,6 @@ public final class Os {
 
   /** @hide */ public static int fcntlFlock(FileDescriptor fd, int cmd, StructFlock arg) throws ErrnoException, InterruptedIOException { return Libcore.os.fcntlFlock(fd, cmd, arg); }
   /** @hide */ public static int fcntlInt(FileDescriptor fd, int cmd, int arg) throws ErrnoException { return Libcore.os.fcntlInt(fd, cmd, arg); }
-  /** @hide */ public static int fcntlLong(FileDescriptor fd, int cmd, long arg) throws ErrnoException { return Libcore.os.fcntlLong(fd, cmd, arg); }
   /** @hide */ public static int fcntlVoid(FileDescriptor fd, int cmd) throws ErrnoException { return Libcore.os.fcntlVoid(fd, cmd); }
 
   /**
