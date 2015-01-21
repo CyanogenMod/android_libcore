@@ -780,7 +780,9 @@ public final class System {
 
     /**
      * Inits an unchangeable system property with the given value.
-     * This is useful when the environment needs to change under native bridge emulation.
+     *
+     * This is called from native code when the environment needs to change under native
+     * bridge emulation.
      */
     private static void initUnchangeableSystemProperty(String name, String value) {
         checkPropertyName(name);
