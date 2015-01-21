@@ -129,21 +129,6 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 include $(BUILD_STATIC_JAVA_LIBRARY)
 endif
 
-# This one's tricky. One of our tests needs to have a
-# resource with a "#" in its name, but Perforce doesn't
-# allow us to submit such a file. So we create it here
-# on-the-fly.
-TMP_RESOURCE_DIR := $(intermediates.COMMON)/tmp/
-TMP_RESOURCE_FILE := org/apache/harmony/luni/tests/java/lang/test\#.properties
-
-$(TMP_RESOURCE_DIR)$(TMP_RESOURCE_FILE):
-	@mkdir -p $(dir $@)
-	@echo "Hello, world!" > $@
-
-$(LOCAL_INTERMEDIATE_TARGETS): PRIVATE_EXTRA_JAR_ARGS := $(extra_jar_args) -C "$(TMP_RESOURCE_DIR)" "$(TMP_RESOURCE_FILE)"
-$(LOCAL_INTERMEDIATE_TARGETS): $(TMP_RESOURCE_DIR)$(TMP_RESOURCE_FILE)
-
-
 #
 # Build for the host.
 #

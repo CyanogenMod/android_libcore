@@ -40,11 +40,6 @@ import tests.support.resource.Support_Resources;
 
 @SuppressWarnings("deprecation")
 public class OldClassTest extends junit.framework.TestCase {
-
-    public static final String FILENAME =
-        OldClassTest.class.getPackage().getName().replace('.', '/') +
-        "/test#.properties";
-
     final String packageName = getClass().getPackage().getName();
     final String classNameInitError1 = packageName + ".TestClass1";
     final String classNameInitError2 = packageName + ".TestClass1B";
