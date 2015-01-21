@@ -86,7 +86,7 @@ public class ProcessTest extends junit.framework.TestCase {
     assertEquals("", received);
 
     String stderr = readAndCloseStream(p.getErrorStream());
-    assertTrue(stderr, stderr.contains("unrecognized option") || stderr.contains("invalid option"));
+    assertTrue(stderr, stderr.contains("no-such-option"));
 
     p.waitFor();
     p.destroy();
