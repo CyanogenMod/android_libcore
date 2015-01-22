@@ -272,17 +272,77 @@ public final class Locale implements Cloneable, Serializable {
      */
     private static final String UNDETERMINED_LANGUAGE = "und";
 
+
     /**
-     * The current default locale. It is temporarily assigned to US because we
-     * need a default locale to lookup the real default locale.
+     * Map of grandfathered language tags to their modern replacements.
      */
-    private static Locale defaultLocale = US;
+    private static final TreeMap<String, String> GRANDFATHERED_LOCALES;
+
+    /**
+     * The default locale, returned by {@code Locale.getDefault()}.
+     */
+    private static Locale defaultLocale;
 
     static {
-        String language = System.getProperty("user.language", "en");
-        String region = System.getProperty("user.region", "US");
-        String variant = System.getProperty("user.variant", "");
-        defaultLocale = new Locale(language, region, variant);
+        GRANDFATHERED_LOCALES = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+
+        // From http://tools.ietf.org/html/bcp47
+        //
+        // grandfathered = irregular           ; non-redundant tags registered
+        //               / regular             ; during the RFC 3066 era
+        //  irregular =
+        GRANDFATHERED_LOCALES.put("en-GB-oed", "en-GB-x-oed");
+        GRANDFATHERED_LOCALES.put("i-ami", "ami");
+        GRANDFATHERED_LOCALES.put("i-bnn", "bnn");
+        GRANDFATHERED_LOCALES.put("i-default", "en-x-i-default");
+        GRANDFATHERED_LOCALES.put("i-enochian", "und-x-i-enochian");
+        GRANDFATHERED_LOCALES.put("i-hak", "hak");
+        GRANDFATHERED_LOCALES.put("i-klingon", "tlh");
+        GRANDFATHERED_LOCALES.put("i-lux", "lb");
+        GRANDFATHERED_LOCALES.put("i-mingo", "see-x-i-mingo");
+        GRANDFATHERED_LOCALES.put("i-navajo", "nv");
+        GRANDFATHERED_LOCALES.put("i-pwn", "pwn");
+        GRANDFATHERED_LOCALES.put("i-tao", "tao");
+        GRANDFATHERED_LOCALES.put("i-tay", "tay");
+        GRANDFATHERED_LOCALES.put("i-tsu", "tsu");
+        GRANDFATHERED_LOCALES.put("sgn-BE-FR", "sfb");
+        GRANDFATHERED_LOCALES.put("sgn-BE-NL", "vgt");
+        GRANDFATHERED_LOCALES.put("sgn-CH-DE", "sgg");
+
+        // regular =
+        GRANDFATHERED_LOCALES.put("art-lojban", "jbo");
+        GRANDFATHERED_LOCALES.put("cel-gaulish", "xtg-x-cel-gaulish");
+        GRANDFATHERED_LOCALES.put("no-bok", "nb");
+        GRANDFATHERED_LOCALES.put("no-nyn", "nn");
+        GRANDFATHERED_LOCALES.put("zh-guoyu", "cmn");
+        GRANDFATHERED_LOCALES.put("zh-hakka", "hak");
+        GRANDFATHERED_LOCALES.put("zh-min", "nan-x-zh-min");
+        GRANDFATHERED_LOCALES.put("zh-min-nan", "nan");
+        GRANDFATHERED_LOCALES.put("zh-xiang", "hsn");
+
+        // Initialize the default locale from the system properties.
+        defaultLocale = getDefaultLocaleFromSystemProperties();
+    }
+
+    /**
+     * Returns the default locale from system properties.
+     *
+     * @hide visible for testing.
+     */
+    public static Locale getDefaultLocaleFromSystemProperties() {
+        final String languageTag = System.getProperty("user.locale", "");
+
+        final Locale defaultLocale;
+        if (!languageTag.isEmpty()) {
+            defaultLocale = Locale.forLanguageTag(languageTag);
+        } else {
+            String language = System.getProperty("user.language", "en");
+            String region = System.getProperty("user.region", "US");
+            String variant = System.getProperty("user.variant", "");
+            defaultLocale = new Locale(language, region, variant);
+        }
+
+        return defaultLocale;
     }
 
     /**
@@ -2018,49 +2078,6 @@ public final class Locale implements Cloneable, Serializable {
         }
 
         return adjusted;
-    }
-
-    /**
-     * Map of grandfathered language tags to their modern replacements.
-     */
-    private static final TreeMap<String, String> GRANDFATHERED_LOCALES;
-
-    static {
-        GRANDFATHERED_LOCALES = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
-
-        // From http://tools.ietf.org/html/bcp47
-        //
-        // grandfathered = irregular           ; non-redundant tags registered
-        //               / regular             ; during the RFC 3066 era
-        //  irregular =
-        GRANDFATHERED_LOCALES.put("en-GB-oed", "en-GB-x-oed");
-        GRANDFATHERED_LOCALES.put("i-ami", "ami");
-        GRANDFATHERED_LOCALES.put("i-bnn", "bnn");
-        GRANDFATHERED_LOCALES.put("i-default", "en-x-i-default");
-        GRANDFATHERED_LOCALES.put("i-enochian", "und-x-i-enochian");
-        GRANDFATHERED_LOCALES.put("i-hak", "hak");
-        GRANDFATHERED_LOCALES.put("i-klingon", "tlh");
-        GRANDFATHERED_LOCALES.put("i-lux", "lb");
-        GRANDFATHERED_LOCALES.put("i-mingo", "see-x-i-mingo");
-        GRANDFATHERED_LOCALES.put("i-navajo", "nv");
-        GRANDFATHERED_LOCALES.put("i-pwn", "pwn");
-        GRANDFATHERED_LOCALES.put("i-tao", "tao");
-        GRANDFATHERED_LOCALES.put("i-tay", "tay");
-        GRANDFATHERED_LOCALES.put("i-tsu", "tsu");
-        GRANDFATHERED_LOCALES.put("sgn-BE-FR", "sfb");
-        GRANDFATHERED_LOCALES.put("sgn-BE-NL", "vgt");
-        GRANDFATHERED_LOCALES.put("sgn-CH-DE", "sgg");
-
-        // regular =
-        GRANDFATHERED_LOCALES.put("art-lojban", "jbo");
-        GRANDFATHERED_LOCALES.put("cel-gaulish", "xtg-x-cel-gaulish");
-        GRANDFATHERED_LOCALES.put("no-bok", "nb");
-        GRANDFATHERED_LOCALES.put("no-nyn", "nn");
-        GRANDFATHERED_LOCALES.put("zh-guoyu", "cmn");
-        GRANDFATHERED_LOCALES.put("zh-hakka", "hak");
-        GRANDFATHERED_LOCALES.put("zh-min", "nan-x-zh-min");
-        GRANDFATHERED_LOCALES.put("zh-min-nan", "nan");
-        GRANDFATHERED_LOCALES.put("zh-xiang", "hsn");
     }
 
     private static String convertGrandfatheredTag(String original) {
