@@ -1029,4 +1029,13 @@ public class JSONObjectTest extends TestCase {
         } catch (JSONException e) {
         }
     }
+
+    // https://code.google.com/p/android/issues/detail?id=103641
+    public void testInvalidUnicodeEscape() {
+        try {
+            new JSONObject("{\"q\":\"\\u\", \"r\":[]}");
+            fail();
+        } catch (JSONException expected) {
+        }
+    }
 }
