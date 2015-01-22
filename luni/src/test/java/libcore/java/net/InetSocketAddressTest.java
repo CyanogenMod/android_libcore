@@ -63,7 +63,7 @@ public class InetSocketAddressTest extends TestCase {
         }
 
         InetSocketAddress isa = new InetSocketAddress((InetAddress)null, 80);
-        assertEquals("0.0.0.0", isa.getHostName());
+        assertEquals("::", isa.getHostName());
 
         try {
             new InetSocketAddress(InetAddress.getByName("localhost"), 65536);
@@ -80,7 +80,7 @@ public class InetSocketAddressTest extends TestCase {
 
     public void test_ConstructorI() {
         InetSocketAddress isa = new  InetSocketAddress(65535);
-        assertEquals("0.0.0.0", isa.getHostName());
+        assertEquals("::", isa.getHostName());
         assertEquals(65535, isa.getPort());
 
         try {

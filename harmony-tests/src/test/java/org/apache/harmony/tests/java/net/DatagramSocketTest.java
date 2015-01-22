@@ -745,12 +745,13 @@ public class DatagramSocketTest extends junit.framework.TestCase {
 
     public void test_getLocalSocketAddress_ANY() throws Exception {
         DatagramSocket s = new DatagramSocket(0);
-        try {
-            assertTrue("ANY address not IPv6: " + s.getLocalSocketAddress(),
-                    ((InetSocketAddress) s.getLocalSocketAddress()).getAddress() instanceof Inet6Address);
-        } finally {
-            s.close();
-        }
+        assertEquals("ANY address not IPv6: " + s.getLocalSocketAddress(),
+                Inet6Address.ANY, s.getLocalAddress());
+        s.close();
+        s = new DatagramSocket(0, null);
+        assertEquals(Inet6Address.ANY, s.getLocalAddress());
+        assertFalse(0 == s.getLocalPort());
+        s.close();
     }
 
     public void test_setReuseAddressZ() throws Exception {
