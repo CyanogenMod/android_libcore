@@ -41,7 +41,7 @@ public class Socket implements Closeable {
     private boolean isInputShutdown = false;
     private boolean isOutputShutdown = false;
 
-    private InetAddress localAddress = Inet4Address.ANY;
+    private InetAddress localAddress = Inet6Address.ANY;
 
     private final Object connectLock = new Object();
 
@@ -317,7 +317,7 @@ public class Socket implements Closeable {
         isConnected = false;
         // RI compatibility: the RI returns the any address (but the original local port) after
         // close.
-        localAddress = Inet4Address.ANY;
+        localAddress = Inet6Address.ANY;
         impl.close();
     }
 
@@ -332,7 +332,7 @@ public class Socket implements Closeable {
         isConnected = false;
         // RI compatibility: the RI returns the any address (but the original local port) after
         // close.
-        localAddress = Inet4Address.ANY;
+        localAddress = Inet6Address.ANY;
         impl.onClose();
     }
 
@@ -579,7 +579,7 @@ public class Socket implements Closeable {
             throw new IllegalArgumentException("Local port out of range: " + localPort);
         }
 
-        InetAddress addr = localAddress == null ? Inet4Address.ANY : localAddress;
+        InetAddress addr = localAddress == null ? Inet6Address.ANY : localAddress;
         synchronized (this) {
             impl.create(streaming);
             isCreated = true;
@@ -774,7 +774,7 @@ public class Socket implements Closeable {
         InetAddress addr;
         if (localAddr == null) {
             port = 0;
-            addr = Inet4Address.ANY;
+            addr = Inet6Address.ANY;
         } else {
             if (!(localAddr instanceof InetSocketAddress)) {
                 throw new IllegalArgumentException("Local address not an InetSocketAddress: " +
@@ -877,7 +877,7 @@ public class Socket implements Closeable {
                     // options on create
                     // impl.create(true);
                     if (!usingSocks()) {
-                        impl.bind(Inet4Address.ANY, 0);
+                        impl.bind(Inet6Address.ANY, 0);
                     }
                     isBound = true;
                 }
