@@ -24,5 +24,6 @@ $VOGAR \
   --classpath out/target/common/obj/JAVA_LIBRARIES/core-tests_intermediates/javalib.jar \
   --classpath out/target/common/obj/JAVA_LIBRARIES/sqlite-jdbc_intermediates/classes.jar \
   --classpath out/target/common/obj/JAVA_LIBRARIES/bouncycastle_intermediates/classes.jar \
+  --classpath out/target/common/obj/JAVA_LIBRARIES/okhttp_intermediates/classes.jar \
   $test_packages \
   || true
