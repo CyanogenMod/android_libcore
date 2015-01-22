@@ -77,7 +77,7 @@ public class DatagramSocket implements Closeable {
      */
     public DatagramSocket(int aPort) throws SocketException {
         checkPort(aPort);
-        createSocket(aPort, Inet4Address.ANY);
+        createSocket(aPort, Inet6Address.ANY);
     }
 
     /**
@@ -94,7 +94,7 @@ public class DatagramSocket implements Closeable {
      */
     public DatagramSocket(int aPort, InetAddress addr) throws SocketException {
         checkPort(aPort);
-        createSocket(aPort, (addr == null) ? Inet4Address.ANY : addr);
+        createSocket(aPort, (addr == null) ? Inet6Address.ANY : addr);
     }
 
     private void checkPort(int aPort) {
@@ -443,7 +443,7 @@ public class DatagramSocket implements Closeable {
 
     private void ensureBound() throws SocketException {
         if (!isBound()) {
-            impl.bind(0, Inet4Address.ANY);
+            impl.bind(0, Inet6Address.ANY);
             isBound = true;
         }
     }
@@ -467,7 +467,7 @@ public class DatagramSocket implements Closeable {
         InetAddress addr;
         if (localAddr == null) {
             localPort = 0;
-            addr = Inet4Address.ANY;
+            addr = Inet6Address.ANY;
         } else {
             if (!(localAddr instanceof InetSocketAddress)) {
                 throw new IllegalArgumentException("Local address not an InetSocketAddress: " +

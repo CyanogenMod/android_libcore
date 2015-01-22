@@ -67,7 +67,7 @@ public class InetSocketAddress extends SocketAddress {
         if (port < 0 || port > 65535) {
             throw new IllegalArgumentException("port=" + port);
         }
-        this.addr = (address == null) ? Inet4Address.ANY : address;
+        this.addr = (address == null) ? Inet6Address.ANY : address;
         this.hostname = null;
         this.port = port;
     }
