@@ -1005,8 +1005,7 @@ public class Cipher {
      *            the offset in the input to start.
      * @param inputLen
      *            the length of the input to transform.
-     * @return the transformed bytes in a new buffer, or {@code null} if the
-     *         input has zero length.
+     * @return the transformed bytes in a new buffer, or {@code null} if {@code inputLen} is zero.
      * @throws IllegalStateException
      *             if this cipher instance is not initialized for encryption or
      *             decryption.
@@ -1023,7 +1022,7 @@ public class Cipher {
             throw new IllegalArgumentException("input == null");
         }
         checkInputOffsetAndCount(input.length, inputOffset, inputLen);
-        if (input.length == 0) {
+        if (inputLen == 0) {
             return null;
         }
         return getSpi().engineUpdate(input, inputOffset, inputLen);

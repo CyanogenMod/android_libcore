@@ -2797,6 +2797,17 @@ public final class CipherTest extends TestCase {
         }
     }
 
+    public void testCipher_Update_WithZeroLengthInput_ReturnsNull() throws Exception {
+        SecretKey key = new SecretKeySpec(AES_128_KEY, "AES");
+        Cipher c = Cipher.getInstance("AES/ECB/NoPadding");
+        c.init(Cipher.ENCRYPT_MODE, key);
+        assertNull(c.update(new byte[0]));
+        assertNull(c.update(new byte[c.getBlockSize() * 2], 0, 0));
+
+        // Try with non-zero offset just in case the implementation mixes up offset and inputLen
+        assertNull(c.update(new byte[c.getBlockSize() * 2], 16, 0));
+    }
+
     private void checkCipher_ShortBlock_Failure(CipherTestParam p, String provider) throws Exception {
         SecretKey key = new SecretKeySpec(p.key, "AES");
         Cipher c = Cipher.getInstance(
