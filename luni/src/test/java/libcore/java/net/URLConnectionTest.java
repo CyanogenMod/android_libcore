@@ -2301,7 +2301,7 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         Set<String> enabledProtocols =
                 new HashSet<String>(Arrays.asList(socket.getEnabledProtocols()));
         Set<String> expectedProtocolsSet = new HashSet<String>(Arrays.asList(expectedEnabledProtocols));
-        assertEquals(enabledProtocols, expectedProtocolsSet);
+        assertEquals(expectedProtocolsSet, enabledProtocols);
         assertEquals(expectedWasFallbackScsvSet, socket.wasTlsFallbackScsvSet());
     }
 
