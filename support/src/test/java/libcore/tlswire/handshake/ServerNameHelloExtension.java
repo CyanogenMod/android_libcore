@@ -29,7 +29,7 @@ import java.util.List;
 public class ServerNameHelloExtension extends HelloExtension {
     private static final int TYPE_HOST_NAME = 0;
 
-    private List<String> hostnames;
+    public List<String> hostnames;
 
     @Override
     protected void parseData() throws IOException {
