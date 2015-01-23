@@ -1469,15 +1469,6 @@
   ]
 },
 {
-  description: "Differences between glibc and bionic.",
-  modes: [host],
-  bug: 18087920,
-  result: EXEC_FAILED,
-  names: [
-    "libcore.java.lang.DoubleTest#testParseLargestSubnormalDoublePrecision"
-  ]
-},
-{
   description: "Tests failing on host - needing investigation.",
   modes: [host],
   bug: 18547404,
