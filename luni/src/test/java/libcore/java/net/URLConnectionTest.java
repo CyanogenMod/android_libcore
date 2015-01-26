@@ -683,6 +683,139 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
     }
 
     /**
+     * Test Etag headers are returned correctly when a client-side cache is not installed.
+     * https://code.google.com/p/android/issues/detail?id=108949
+     */
+    public void testEtagHeaders_uncached() throws Exception {
+        final String etagValue1 = "686897696a7c876b7e";
+        final String body1 = "Response with etag 1";
+        final String etagValue2 = "686897696a7c876b7f";
+        final String body2 = "Response with etag 2";
+
+        server.enqueue(
+            new MockResponse()
+                .setBody(body1)
+                .setHeader("Content-Type", "text/plain")
+                .setHeader("Etag", etagValue1));
+        server.enqueue(
+            new MockResponse()
+                .setBody(body2)
+                .setHeader("Content-Type", "text/plain")
+                .setHeader("Etag", etagValue2));
+        server.play();
+
+        URL url = server.getUrl("/");
+        HttpURLConnection connection1 = (HttpURLConnection) url.openConnection();
+        assertEquals(etagValue1, connection1.getHeaderField("Etag"));
+        assertContent(body1, connection1);
+        connection1.disconnect();
+
+        // Discard the server-side record of the request made.
+        server.takeRequest();
+
+        HttpURLConnection connection2 = (HttpURLConnection) url.openConnection();
+        assertEquals(etagValue2, connection2.getHeaderField("Etag"));
+        assertContent(body2, connection2);
+        connection2.disconnect();
+
+        // Check the client did not cache.
+        RecordedRequest request = server.takeRequest();
+        assertNull(request.getHeader("If-None-Match"));
+    }
+
+    /**
+     * Test Etag headers are returned correctly when a client-side cache is installed and the server
+     * data is unchanged.
+     * https://code.google.com/p/android/issues/detail?id=108949
+     */
+    public void testEtagHeaders_cachedWithServerHit() throws Exception {
+        final String etagValue = "686897696a7c876b7e";
+        final String body = "Response with etag";
+
+        server.enqueue(
+            new MockResponse()
+                .setBody(body)
+                .setResponseCode(HttpURLConnection.HTTP_OK)
+                .setHeader("Content-Type", "text/plain")
+                .setHeader("Etag", etagValue));
+
+        server.enqueue(
+            new MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_NOT_MODIFIED));
+        server.play();
+
+        initResponseCache();
+
+        URL url = server.getUrl("/");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        assertEquals(etagValue, connection.getHeaderField("Etag"));
+        assertContent(body, connection);
+        connection.disconnect();
+
+        // Discard the server-side record of the request made.
+        server.takeRequest();
+
+        // Confirm the cached body is returned along with the original etag header.
+        HttpURLConnection cachedConnection = (HttpURLConnection) url.openConnection();
+        assertEquals(etagValue, cachedConnection.getHeaderField("Etag"));
+        assertContent(body, cachedConnection);
+        cachedConnection.disconnect();
+
+        // Check the client formatted the request correctly.
+        RecordedRequest request = server.takeRequest();
+        assertEquals(etagValue, request.getHeader("If-None-Match"));
+    }
+
+    /**
+     * Test Etag headers are returned correctly when a client-side cache is installed and the server
+     * data has changed.
+     * https://code.google.com/p/android/issues/detail?id=108949
+     */
+    public void testEtagHeaders_cachedWithServerMiss() throws Exception {
+        final String etagValue1 = "686897696a7c876b7e";
+        final String body1 = "Response with etag 1";
+        final String etagValue2 = "686897696a7c876b7f";
+        final String body2 = "Response with etag 2";
+
+        server.enqueue(
+            new MockResponse()
+                .setBody(body1)
+                .setResponseCode(HttpURLConnection.HTTP_OK)
+                .setHeader("Content-Type", "text/plain")
+                .setHeader("Etag", etagValue1));
+
+        server.enqueue(
+            new MockResponse()
+                .setBody(body2)
+                .setResponseCode(HttpURLConnection.HTTP_OK)
+                .setHeader("Content-Type", "text/plain")
+                .setHeader("Etag", etagValue2));
+
+        server.play();
+
+        initResponseCache();
+
+        URL url = server.getUrl("/");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        assertEquals(etagValue1, connection.getHeaderField("Etag"));
+        assertContent(body1, connection);
+        connection.disconnect();
+
+        // Discard the server-side record of the request made.
+        server.takeRequest();
+
+        // Confirm the new body is returned along with the new etag header.
+        HttpURLConnection cachedConnection = (HttpURLConnection) url.openConnection();
+        assertEquals(etagValue2, cachedConnection.getHeaderField("Etag"));
+        assertContent(body2, cachedConnection);
+        cachedConnection.disconnect();
+
+        // Check the client formatted the request correctly.
+        RecordedRequest request = server.takeRequest();
+        assertEquals(etagValue1, request.getHeader("If-None-Match"));
+    }
+
+    /**
      * Test which headers are sent unencrypted to the HTTP proxy.
      */
     public void testProxyConnectIncludesProxyHeadersOnly()
