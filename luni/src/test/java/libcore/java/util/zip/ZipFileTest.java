@@ -196,7 +196,7 @@ public final class ZipFileTest extends TestCase {
             ZipFile zipFile = new ZipFile(f);
             int entryCount = 0;
             for (Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements(); ) {
-                ZipEntry zipEntry = e.nextElement();
+                e.nextElement();
                 ++entryCount;
             }
             assertEquals(1024, entryCount);
@@ -204,18 +204,62 @@ public final class ZipFileTest extends TestCase {
         }
     }
 
-    public void testZip64Support() throws IOException {
+    public void testZip64Support_largeNumberOfEntries() throws IOException {
+        File file = createZipFile(65550, 2);
+        ZipFile zf = null;
         try {
-            createZipFile(64*1024, 0);
-            fail(); // Make this test more like testHugeZipFile when we have Zip64 support.
-        } catch (ZipException expected) {
+            zf = new ZipFile(file);
+            assertEquals(65550, zf.size());
+
+            Enumeration<? extends ZipEntry> entries = zf.entries();
+            assertTrue(entries.hasMoreElements());
+            ZipEntry ze = entries.nextElement();
+            assertEquals(2, ze.getSize());
+        } finally {
+            if (zf != null) {
+                zf.close();
+            }
+        }
+    }
+
+    public void testZip64Support_totalLargerThan4G() throws IOException {
+        final File file = createZipFile(5, 1073741824L);
+        ZipFile zf = null;
+        try {
+            zf = new ZipFile(file);
+            assertEquals(5, zf.size());
+            Enumeration<? extends ZipEntry> entries = zf.entries();
+            assertTrue(entries.hasMoreElements());
+            ZipEntry ze = entries.nextElement();
+            assertEquals(1073741824L, ze.getSize());
+        } finally {
+            if (zf != null) {
+                zf.close();
+            }
+        }
+    }
+
+    public void testZip64Support_hugeEntry() throws IOException {
+        final File file = createZipFile(1, 4294967410L);
+        ZipFile zf = null;
+        try {
+            zf = new ZipFile(file);
+            assertEquals(1, zf.size());
+            Enumeration<? extends ZipEntry> entries = zf.entries();
+            assertTrue(entries.hasMoreElements());
+            ZipEntry ze = entries.nextElement();
+            assertEquals(4294967410L, ze.getSize());
+        } finally {
+            if (zf != null) {
+                zf.close();
+            }
         }
     }
 
     /**
      * Compresses the given number of files, each of the given size, into a .zip archive.
      */
-    private static File createZipFile(int entryCount, int entrySize) throws IOException {
+    private static File createZipFile(int entryCount, long entrySize) throws IOException {
         File result = createTemporaryZipFile();
 
         byte[] writeBuffer = new byte[8192];
@@ -227,9 +271,9 @@ public final class ZipFileTest extends TestCase {
                 ZipEntry ze = new ZipEntry(Integer.toHexString(entry));
                 out.putNextEntry(ze);
 
-                for (int i = 0; i < entrySize; i += writeBuffer.length) {
+                for (long i = 0; i < entrySize; i += writeBuffer.length) {
                     random.nextBytes(writeBuffer);
-                    int byteCount = Math.min(writeBuffer.length, entrySize - i);
+                    int byteCount = (int) Math.min(writeBuffer.length, entrySize - i);
                     out.write(writeBuffer, 0, byteCount);
                 }
 
