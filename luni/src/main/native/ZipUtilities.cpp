@@ -32,7 +32,7 @@ void throwExceptionForZlibError(JNIEnv* env, const char* exceptionClassName, int
   }
 }
 
-NativeZipStream::NativeZipStream() : inCap(0) {
+NativeZipStream::NativeZipStream() : inCap(0), totalIn(0), totalOut(0) {
   // Let zlib use its default allocator.
   stream.opaque = Z_NULL;
   stream.zalloc = Z_NULL;
