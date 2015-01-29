@@ -37,6 +37,7 @@
     "java.util.zip.LargeZip",
     "java.util.zip.ZipFile.LargeZipFile",
     "java.util.zip.ZipFile.ManyEntries",
+    "libcore.java.lang.SystemTest_testArrayCopyConcurrentModification",
     "sun.nio.cs.FindOneCharEncoderBugs",
     "sun.nio.cs.SurrogateGB18030Test"
   ],
