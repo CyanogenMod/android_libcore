@@ -18,6 +18,7 @@
 #ifndef ZIP_UTILITIES_H_included
 #define ZIP_UTILITIES_H_included
 
+#include <cstdint>
 #include <memory>
 #include "jni.h"
 #include "zlib.h"
@@ -27,6 +28,8 @@ public:
     std::unique_ptr<jbyte[]> input;
     int inCap;
     z_stream stream;
+    uint64_t totalIn;
+    uint64_t totalOut;
 
     NativeZipStream();
     ~NativeZipStream();
