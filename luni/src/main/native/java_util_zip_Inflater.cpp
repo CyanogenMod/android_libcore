@@ -122,6 +122,9 @@ static jint Inflater_inflateImpl(JNIEnv* env, jobject recv, jbyteArray buf, int 
     jint bytesRead = stream->stream.next_in - initialNextIn;
     jint bytesWritten = stream->stream.next_out - initialNextOut;
 
+    stream->totalIn += bytesRead;
+    stream->totalOut += bytesWritten;
+
     static jfieldID inReadField = env->GetFieldID(JniConstants::inflaterClass, "inRead", "I");
     jint inReadValue = env->GetIntField(recv, inReadField);
     inReadValue += bytesRead;
@@ -145,6 +148,8 @@ static void Inflater_setDictionaryImpl(JNIEnv* env, jobject, jbyteArray dict, in
 
 static void Inflater_resetImpl(JNIEnv* env, jobject, jlong handle) {
     NativeZipStream* stream = toNativeZipStream(handle);
+    stream->totalIn = 0;
+    stream->totalOut = 0;
     int err = inflateReset(&stream->stream);
     if (err != Z_OK) {
         throwExceptionForZlibError(env, "java/lang/IllegalArgumentException", err, stream);
@@ -152,11 +157,11 @@ static void Inflater_resetImpl(JNIEnv* env, jobject, jlong handle) {
 }
 
 static jlong Inflater_getTotalOutImpl(JNIEnv*, jobject, jlong handle) {
-    return toNativeZipStream(handle)->stream.total_out;
+    return toNativeZipStream(handle)->totalOut;
 }
 
 static jlong Inflater_getTotalInImpl(JNIEnv*, jobject, jlong handle) {
-    return toNativeZipStream(handle)->stream.total_in;
+    return toNativeZipStream(handle)->totalIn;
 }
 
 static JNINativeMethod gMethods[] = {

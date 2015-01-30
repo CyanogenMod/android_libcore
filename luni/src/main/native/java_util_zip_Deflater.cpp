@@ -28,11 +28,11 @@ static void Deflater_setDictionaryImpl(JNIEnv* env, jobject, jbyteArray dict, in
 }
 
 static jlong Deflater_getTotalInImpl(JNIEnv*, jobject, jlong handle) {
-    return toNativeZipStream(handle)->stream.total_in;
+    return toNativeZipStream(handle)->totalIn;
 }
 
 static jlong Deflater_getTotalOutImpl(JNIEnv*, jobject, jlong handle) {
-    return toNativeZipStream(handle)->stream.total_out;
+    return toNativeZipStream(handle)->totalOut;
 }
 
 static jint Deflater_getAdlerImpl(JNIEnv*, jobject, jlong handle) {
@@ -101,6 +101,9 @@ static jint Deflater_deflateImpl(JNIEnv* env, jobject recv, jbyteArray buf, int 
     jint bytesRead = stream->stream.next_in - initialNextIn;
     jint bytesWritten = stream->stream.next_out - initialNextOut;
 
+    stream->totalIn += bytesRead;
+    stream->totalOut += bytesWritten;
+
     static jfieldID inReadField = env->GetFieldID(JniConstants::deflaterClass, "inRead", "I");
     jint inReadValue = env->GetIntField(recv, inReadField);
     inReadValue += bytesRead;
@@ -116,6 +119,8 @@ static void Deflater_endImpl(JNIEnv*, jobject, jlong handle) {
 
 static void Deflater_resetImpl(JNIEnv* env, jobject, jlong handle) {
     NativeZipStream* stream = toNativeZipStream(handle);
+    stream->totalIn = 0;
+    stream->totalOut = 0;
     int err = deflateReset(&stream->stream);
     if (err != Z_OK) {
         throwExceptionForZlibError(env, "java/lang/IllegalArgumentException", err, stream);
