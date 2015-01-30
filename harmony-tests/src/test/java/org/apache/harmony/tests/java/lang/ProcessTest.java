@@ -22,9 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import libcore.io.Libcore;
 
 public class ProcessTest extends junit.framework.TestCase {
-
+  // Test that failures to exec don't leave zombies lying around.
   public void test_55017() throws Exception {
     ArrayList<Process> children = new ArrayList<Process>();
     for (int i = 0; i < 256; ++i) {
@@ -36,13 +37,15 @@ public class ProcessTest extends junit.framework.TestCase {
     }
     assertEquals(0, children.size());
 
+    String pid = Integer.toString(Libcore.os.getpid());
     boolean onDevice = new File("/system/bin").exists();
-    String[] psCommand = onDevice ? new String[] { "ps" } : new String[] { "ps", "s" };
+    String[] psCommand = onDevice ? new String[] { "ps", "--ppid", pid }
+                                  : new String[] { "ps", "S", "--ppid", pid };
     Process ps = Runtime.getRuntime().exec(psCommand, null, null);
     int zombieCount = 0;
     for (String line : readAndCloseStream(ps.getInputStream()).split("\n")) {
       if (line.contains(" Z ") || line.contains(" Z+ ")) {
-          ++zombieCount;
+        ++zombieCount;
       }
     }
     assertEquals(0, zombieCount);
