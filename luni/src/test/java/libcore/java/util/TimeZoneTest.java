@@ -261,14 +261,6 @@ public class TimeZoneTest extends TestCase {
         assertEquals("", failures.toString());
     }
 
-    public void testSantiago() throws Exception {
-        TimeZone tz = TimeZone.getTimeZone("America/Santiago");
-        assertEquals("Chile Summer Time", tz.getDisplayName(true, TimeZone.LONG, Locale.US));
-        assertEquals("Chile Standard Time", tz.getDisplayName(false, TimeZone.LONG, Locale.US));
-        assertEquals("GMT-03:00", tz.getDisplayName(true, TimeZone.SHORT, Locale.US));
-        assertEquals("GMT-04:00", tz.getDisplayName(false, TimeZone.SHORT, Locale.US));
-    }
-
     // http://b/7955614
     public void testApia() throws Exception {
         TimeZone tz = TimeZone.getTimeZone("Pacific/Apia");
