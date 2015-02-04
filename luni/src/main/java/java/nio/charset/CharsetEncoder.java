@@ -455,6 +455,8 @@ public abstract class CharsetEncoder {
      * <p>
      * During the flush, the output buffer's position will be changed
      * accordingly, while its mark and limit will be intact.
+     * <p>
+     * This method is a no-op if the encoder has already been flushed.
      *
      * @param out
      *            the given output buffer.
@@ -466,6 +468,9 @@ public abstract class CharsetEncoder {
     public final CoderResult flush(ByteBuffer out) {
         if (state != FLUSHED && state != END_OF_INPUT) {
             throw illegalStateException();
+        }
+        if (state == FLUSHED) {
+            return CoderResult.UNDERFLOW;
         }
         CoderResult result = implFlush(out);
         if (result == CoderResult.UNDERFLOW) {
