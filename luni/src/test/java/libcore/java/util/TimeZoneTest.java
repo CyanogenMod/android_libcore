@@ -256,12 +256,12 @@ public class TimeZoneTest extends TestCase {
     }
 
     // http://b/7955614
-    public void testApia() throws Exception {
-        TimeZone tz = TimeZone.getTimeZone("Pacific/Apia");
-        assertEquals("Samoa Daylight Time", tz.getDisplayName(true, TimeZone.LONG, Locale.US));
-        assertEquals("Samoa Standard Time", tz.getDisplayName(false, TimeZone.LONG, Locale.US));
-        assertEquals("GMT+14:00", tz.getDisplayName(true, TimeZone.SHORT, Locale.US));
-        assertEquals("GMT+13:00", tz.getDisplayName(false, TimeZone.SHORT, Locale.US));
+    public void test_getDisplayName_GMT_short_names() throws Exception {
+        TimeZone tz = TimeZone.getTimeZone("America/Santiago");
+        assertEquals("Chile Summer Time", tz.getDisplayName(true, TimeZone.LONG, Locale.US));
+        assertEquals("Chile Standard Time", tz.getDisplayName(false, TimeZone.LONG, Locale.US));
+        assertEquals("GMT-03:00", tz.getDisplayName(true, TimeZone.SHORT, Locale.US));
+        assertEquals("GMT-03:00", tz.getDisplayName(false, TimeZone.SHORT, Locale.US));
     }
 
     private static boolean isGmtString(String s) {
