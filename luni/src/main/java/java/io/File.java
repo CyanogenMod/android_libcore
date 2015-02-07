@@ -123,6 +123,8 @@ public class File implements Serializable, Comparable<File> {
      *
      * @param path
      *            the path to be used for the file.
+     * @throws NullPointerException
+     *             if {@code path} is {@code null}.
      */
     public File(String path) {
         this.path = fixSlashes(path);
@@ -161,6 +163,8 @@ public class File implements Serializable, Comparable<File> {
      * @param uri
      *            the Unified Resource Identifier that is used to construct this
      *            file.
+     * @throws NullPointerException
+     *             if {@code uri == null}.
      * @throws IllegalArgumentException
      *             if {@code uri} does not comply with the conditions above.
      * @see #toURI
