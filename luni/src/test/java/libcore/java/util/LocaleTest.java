@@ -1172,18 +1172,18 @@ public class LocaleTest extends junit.framework.TestCase {
         final String userLocale = System.getProperty("user.locale", "");
         try {
             // Assert that user.locale gets priority.
-            System.setProperty("user.locale", "de-DE");
-            System.setProperty("user.language", "en");
-            System.setProperty("user.region", "US");
+            System.setUnchangeableSystemProperty("user.locale", "de-DE");
+            System.setUnchangeableSystemProperty("user.language", "en");
+            System.setUnchangeableSystemProperty("user.region", "US");
 
             Locale l = Locale.getDefaultLocaleFromSystemProperties();
             assertEquals("de", l.getLanguage());
             assertEquals("DE", l.getCountry());
 
             // Assert that it's parsed as a full language tag.
-            System.setProperty("user.locale", "de-Latn-DE");
-            System.setProperty("user.language", "en");
-            System.setProperty("user.region", "US");
+            System.setUnchangeableSystemProperty("user.locale", "de-Latn-DE");
+            System.setUnchangeableSystemProperty("user.language", "en");
+            System.setUnchangeableSystemProperty("user.region", "US");
 
             l = Locale.getDefaultLocaleFromSystemProperties();
             assertEquals("de", l.getLanguage());
@@ -1192,15 +1192,15 @@ public class LocaleTest extends junit.framework.TestCase {
 
             // Assert that we use "und" if we're faced with a bad language tag, and
             // that we don't end up with a null default locale or an exception.
-            System.setProperty("user.locale", "dexx-Latn-DE");
+            System.setUnchangeableSystemProperty("user.locale", "dexx-Latn-DE");
 
             l = Locale.getDefaultLocaleFromSystemProperties();
             assertEquals("und", l.getLanguage());
             assertEquals("DE", l.getCountry());
         } finally {
-            System.setProperty("user.language", userLanguage);
-            System.setProperty("user.region", userRegion);
-            System.setProperty("user.locale", userLocale);
+            System.setUnchangeableSystemProperty("user.language", userLanguage);
+            System.setUnchangeableSystemProperty("user.region", userRegion);
+            System.setUnchangeableSystemProperty("user.locale", userLocale);
         }
     }
 }
