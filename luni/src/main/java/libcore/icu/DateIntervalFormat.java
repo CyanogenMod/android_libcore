@@ -224,8 +224,18 @@ public final class DateIntervalFormat {
     return c.get(Calendar.YEAR) == now.get(Calendar.YEAR);
   }
 
-  private static int dayDistance(Calendar c1, Calendar c2) {
+  // Return the date difference for the two times in a given timezone.
+  public static int dayDistance(TimeZone tz, long startTime, long endTime) {
+    return julianDay(tz, endTime) - julianDay(tz, startTime);
+  }
+
+  public static int dayDistance(Calendar c1, Calendar c2) {
     return julianDay(c2) - julianDay(c1);
+  }
+
+  private static int julianDay(TimeZone tz, long time) {
+    long utcMs = time + tz.getOffset(time);
+    return (int) (utcMs / DAY_IN_MS) + EPOCH_JULIAN_DAY;
   }
 
   private static int julianDay(Calendar c) {
