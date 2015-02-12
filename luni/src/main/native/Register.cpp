@@ -67,6 +67,7 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
     REGISTER(register_libcore_icu_NativeIDN);
     REGISTER(register_libcore_icu_NativeNormalizer);
     REGISTER(register_libcore_icu_NativePluralRules);
+    REGISTER(register_libcore_icu_RelativeDateTimeFormatter);
     REGISTER(register_libcore_icu_TimeZoneNames);
     REGISTER(register_libcore_icu_Transliterator);
     REGISTER(register_libcore_io_AsynchronousCloseMonitor);
