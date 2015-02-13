@@ -71,7 +71,6 @@ core_cppflags += -std=gnu++11
 
 core_test_files := \
   luni/src/test/native/dalvik_system_JniTest.cpp \
-  luni/src/test/native/test_openssl_engine.cpp \
 
 #
 # Build for the target (device).
