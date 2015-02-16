@@ -37,8 +37,12 @@
 #
 # All subdirectories are optional (hence the "2> /dev/null"s below).
 
-define all-main-java-files-under
-$(foreach dir,$(1),$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && find $(dir)/src/main/java -name "*.java" 2> /dev/null)))
+define nonopenjdk-main-java-files-under
+$(foreach dir,$(1),$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && (find $(dir)/src/main/java -name "*.java" 2> /dev/null) | grep -v -f openjdk_java_files)))
+endef
+
+define openjdk-main-java-files-under
+$(foreach dir,$(1),$(patsubst ./%,%,$(shell cd $(LOCAL_PATH) && (find $(dir)/src/main/java -name "*.java" 2> /dev/null) | grep -f openjdk_java_files)))
 endef
 
 define all-test-java-files-under
@@ -50,19 +54,20 @@ $(shell cd $(LOCAL_PATH) && ls -d */src/$(1)/{java,resources} 2> /dev/null)
 endef
 
 # The Java files and their associated resources.
-common_core_src_files := $(call all-main-java-files-under,dalvik dex dom json luni xml)
+nojcore_src_files := $(call nonopenjdk-main-java-files-under,dalvik dex dom json luni xml)
+ojcore_src_files := $(call openjdk-main-java-files-under,ojluni)
 core_resource_dirs := $(call all-core-resource-dirs,main)
 test_resource_dirs := $(call all-core-resource-dirs,test)
 test_src_files := $(call all-test-java-files-under,dalvik dom harmony-tests json luni xml)
 
 ifeq ($(EMMA_INSTRUMENT),true)
 ifneq ($(EMMA_INSTRUMENT_STATIC),true)
-    common_core_src_files += $(call all-java-files-under, ../external/emma/core ../external/emma/pregenerated)
+    nojcore_src_files += $(call all-java-files-under, ../external/emma/core ../external/emma/pregenerated)
     core_resource_dirs += ../external/emma/core/res ../external/emma/pregenerated/res
 endif
 endif
 
-libart_core_src_files += $(common_core_src_files) $(call all-main-java-files-under,libart)
+libart_core_src_files := $(call nonopenjdk-main-java-files-under,libart)
 
 local_javac_flags=-encoding UTF-8
 #local_javac_flags+=-Xlint:all -Xlint:-serial,-deprecation,-unchecked
@@ -72,10 +77,34 @@ local_javac_flags+=-Xmaxwarns 9999999
 # Build for the target (device).
 #
 
-# Definitions to make the core library.
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(ojcore_src_files) $(nojcore_src_files) $(libart_core_src_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := core-all
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_REQUIRED_MODULES := tzdata
+include $(BUILD_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(libart_core_src_files)
+LOCAL_SRC_FILES := $(ojcore_src_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := core-oj
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_JAVA_LIBRARIES := core-all
+LOCAL_REQUIRED_MODULES := tzdata
+include $(BUILD_JAVA_LIBRARY)
+
+# Definitions to make the core library.
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(libart_core_src_files) $(nojcore_src_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
@@ -83,6 +112,7 @@ LOCAL_DX_FLAGS := --core-library
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-libart
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_JAVA_LIBRARIES := core-oj
 LOCAL_REQUIRED_MODULES := tzdata
 include $(BUILD_JAVA_LIBRARY)
 
@@ -92,7 +122,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(test_src_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core-libart okhttp core-junit bouncycastle
+LOCAL_JAVA_LIBRARIES := core-oj core-libart okhttp core-junit bouncycastle
 LOCAL_STATIC_JAVA_LIBRARIES := core-tests-support sqlite-jdbc mockwebserver nist-pkix-tests
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE := core-tests
@@ -106,7 +136,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-test-java-files-under,support)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core-libart core-junit bouncycastle
+LOCAL_JAVA_LIBRARIES := core-oj core-libart core-junit bouncycastle
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE := core-tests-support
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
@@ -119,7 +149,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES :=  $(call all-test-java-files-under, jsr166-tests)
 LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
-LOCAL_JAVA_LIBRARIES := core-libart core-junit
+LOCAL_JAVA_LIBRARIES := core-oj core-libart core-junit
 LOCAL_JAVACFLAGS := $(local_javac_flags)
 LOCAL_MODULE := jsr166-tests
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
@@ -146,14 +176,39 @@ $(LOCAL_INTERMEDIATE_TARGETS): $(TMP_RESOURCE_DIR)$(TMP_RESOURCE_FILE)
 #
 
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(call all-main-java-files-under, dex)
+LOCAL_SRC_FILES := $(call nonopenjdk-main-java-files-under, dex)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := dex-host
 include $(BUILD_HOST_JAVA_LIBRARY)
 
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(ojcore_src_files) $(nojcore_src_files) $(libart_core_src_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := core-all-hostdex
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_REQUIRED_MODULES := tzdata-host
+include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := $(ojcore_src_files)
+LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_JAVACFLAGS := $(local_javac_flags)
+LOCAL_DX_FLAGS := --core-library
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE := core-oj-hostdex
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_JAVA_LIBRARIES := core-all-hostdex
+LOCAL_REQUIRED_MODULES := tzdata-host
+include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
+
 # Definitions to make the core library.
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := $(libart_core_src_files)
+LOCAL_SRC_FILES := $(nojcore_src_files) $(libart_core_src_files)
 LOCAL_JAVA_RESOURCE_DIRS := $(core_resource_dirs)
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVACFLAGS := $(local_javac_flags)
@@ -161,6 +216,7 @@ LOCAL_DX_FLAGS := --core-library
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-libart-hostdex
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
+LOCAL_JAVA_LIBRARIES := core-oj-hostdex
 LOCAL_REQUIRED_MODULES := tzdata-host
 include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 
@@ -170,7 +226,7 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     LOCAL_SRC_FILES := $(test_src_files)
     LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
     LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVA_LIBRARIES := core-libart-hostdex okhttp-hostdex bouncycastle-hostdex core-junit-hostdex core-tests-support-hostdex
+    LOCAL_JAVA_LIBRARIES := core-oj-hostdex core-libart-hostdex okhttp-hostdex bouncycastle-hostdex core-junit-hostdex core-tests-support-hostdex
     LOCAL_STATIC_JAVA_LIBRARIES := sqlite-jdbc-host mockwebserver-host nist-pkix-tests-host
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_MODULE_TAGS := optional
@@ -185,7 +241,7 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
     LOCAL_SRC_FILES := $(call all-test-java-files-under,support)
     LOCAL_JAVA_RESOURCE_DIRS := $(test_resource_dirs)
     LOCAL_NO_STANDARD_LIBRARIES := true
-    LOCAL_JAVA_LIBRARIES := core-libart-hostdex core-junit-hostdex bouncycastle-hostdex
+    LOCAL_JAVA_LIBRARIES := core-oj-hostdex core-libart-hostdex core-junit-hostdex bouncycastle-hostdex
     LOCAL_JAVACFLAGS := $(local_javac_flags)
     LOCAL_MODULE_TAGS := optional
     LOCAL_MODULE := core-tests-support-hostdex
