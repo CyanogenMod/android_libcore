@@ -177,23 +177,26 @@ public abstract class Format implements Serializable, Cloneable {
     static boolean upTo(String string, ParsePosition position,
             StringBuffer buffer, char stop) {
         int index = position.getIndex(), length = string.length();
-        boolean lastQuote = false, quote = false;
+
+        int numConsecutiveQuotes = 0;
+        boolean quote = false;
         while (index < length) {
             char ch = string.charAt(index++);
             if (ch == '\'') {
-                if (lastQuote) {
+                ++numConsecutiveQuotes;
+                if (numConsecutiveQuotes != 0 && numConsecutiveQuotes % 2 == 0) {
                     buffer.append('\'');
                 }
                 quote = !quote;
-                lastQuote = true;
             } else if (ch == stop && !quote) {
                 position.setIndex(index);
                 return true;
             } else {
-                lastQuote = false;
+                numConsecutiveQuotes = 0;
                 buffer.append(ch);
             }
         }
+
         position.setIndex(index);
         return false;
     }
