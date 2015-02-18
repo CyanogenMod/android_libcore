@@ -1,2 +1,9 @@
 java/awt/font/NumericShaper.java
 java/awt/font/TextAttribute.java
+java/beans/ChangeListenerMap.java
+java/beans/IndexedPropertyChangeEvent.java
+java/beans/PropertyChangeEvent.java
+java/beans/PropertyChangeListener.java
+java/beans/PropertyChangeListenerProxy.java
+java/beans/PropertyChangeSupport.java
+java/util/EventListenerProxy.java
