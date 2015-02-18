@@ -466,4 +466,12 @@ public class ChoiceFormatTest extends TestCase {
 		assertEquals("GREATER_THAN_ONE", fmt.format(999999999D));
 		assertEquals("GREATER_THAN_ONE", fmt.format(Double.POSITIVE_INFINITY));
 	}
+
+    // http://b/19149384
+    public void testToPatternWithInfinities() {
+        final ChoiceFormat fmt = new ChoiceFormat(
+                "-\u221E<are negative|0<are fractions|1#is one|1.0<is 1+|\u221E<are many.");
+        assertEquals("-\u221E<are negative|0.0<are fractions|1.0#is one|1.0<is 1+|\u221E<are many.",
+                fmt.toPattern());
+    }
 }
