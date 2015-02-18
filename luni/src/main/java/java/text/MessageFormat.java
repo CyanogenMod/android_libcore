@@ -580,6 +580,12 @@ public class MessageFormat extends Format {
             }
             if (format instanceof ChoiceFormat) {
                 String result = format.format(arg);
+                // Escape quotes in the result because the ChoiceFormat would've already
+                // dealt with them for us. In other words, any quotes that are present in the
+                // result are due to escaped quotes in the original input. We should preserve
+                // them in the output instead of having them processed again with the message
+                // format we're creating below.
+                result = result.replace("'", "''");
                 MessageFormat mf = new MessageFormat(result);
                 mf.setLocale(locale);
                 mf.format(objects, buffer, passedField);
