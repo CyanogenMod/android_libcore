@@ -21,6 +21,7 @@ import java.text.ChoiceFormat;
 import java.text.FieldPosition;
 import java.text.MessageFormat;
 import java.text.ParsePosition;
+import java.util.Locale;
 
 import junit.framework.TestCase;
 
@@ -473,5 +474,16 @@ public class ChoiceFormatTest extends TestCase {
                 "-\u221E<are negative|0<are fractions|1#is one|1.0<is 1+|\u221E<are many.");
         assertEquals("-\u221E<are negative|0.0<are fractions|1.0#is one|1.0<is 1+|\u221E<are many.",
                 fmt.toPattern());
+    }
+
+    // http://b/19011159
+    public void testEscapedPatternWithConsecutiveQuotes() {
+        ChoiceFormat format = new ChoiceFormat("0#1'2''3'''4''''.");
+        String formatted = format.format(0);
+        assertEquals("12'3'4''.", formatted);
+
+        format = new ChoiceFormat("0#1'2''3'''''4''''.");
+        formatted = format.format(0);
+        assertEquals("12'3''4''.", formatted);
     }
 }
