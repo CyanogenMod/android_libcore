@@ -950,4 +950,12 @@ public class MessageFormatTest extends TestCase {
     String res = MessageFormat.format("bgcolor=\"{10}\"", messageArgs);
     assertEquals(res, "bgcolor=\"example10\"");
   }
+
+  // http://b/19011159
+  public void test19011159() {
+    final String pattern = "ab{0,choice,0#1'2''3'''4''''.}yz";
+    final MessageFormat format = new MessageFormat(pattern, Locale.ENGLISH);
+    final Object[] zero0 = new Object[] { 0 };
+    assertEquals("ab12'3'4''.yz", format.format(zero0));
+  }
 }
