@@ -51,10 +51,9 @@ import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.spi.LocaleServiceProvider;
+import libcore.icu.LocaleData;
+import libcore.icu.TimeZoneNames;
 import sun.util.LocaleServiceProviderPool;
-import sun.util.TimeZoneNameUtility;
-import sun.util.calendar.ZoneInfo;
-import sun.util.resources.LocaleData;
 
 /**
  * <code>DateFormatSymbols</code> is a public class for encapsulating
@@ -659,19 +658,18 @@ public class DateFormatSymbols implements Serializable, Cloneable {
             copyMembers(dfs, this);
             return;
         }
+        locale = LocaleData.mapInvalidAndNullLocales(locale);
+        LocaleData localeData = LocaleData.get(locale);
 
-        // Initialize the fields from the ResourceBundle for locale.
-        ResourceBundle resource = LocaleData.getDateFormatData(locale);
-
-        eras = resource.getStringArray("Eras");
-        months = resource.getStringArray("MonthNames");
-        shortMonths = resource.getStringArray("MonthAbbreviations");
-        ampms = resource.getStringArray("AmPmMarkers");
-        localPatternChars = resource.getString("DateTimePatternChars");
+        eras = localeData.eras;
+        months = localeData.longMonthNames;
+        shortMonths = localeData.shortMonthNames;
+        ampms = localeData.amPm;
+        localPatternChars = SimpleDateFormat.PATTERN_CHARS;
 
         // Day of week names are stored in a 1-based array.
-        weekdays = toOneBasedArray(resource.getStringArray("DayNames"));
-        shortWeekdays = toOneBasedArray(resource.getStringArray("DayAbbreviations"));
+        weekdays = localeData.longWeekdayNames;
+        shortWeekdays = localeData.shortWeekdayNames;
     }
 
     private static String[] toOneBasedArray(String[] src) {
@@ -730,10 +728,35 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         }
     }
 
-    private final String[][] getZoneStringsImpl(boolean needsCopy) {
+    private final synchronized String[][] internalZoneStrings() {
         if (zoneStrings == null) {
-            zoneStrings = TimeZoneNameUtility.getZoneStrings(locale);
+            zoneStrings = TimeZoneNames.getZoneStrings(locale);
+            // If icu4c doesn't have a name, our array contains a null. TimeZone.getDisplayName
+            // knows how to format GMT offsets (and, unlike icu4c, has accurate data). http://b/8128460.
+            for (String[] zone : zoneStrings) {
+                String id = zone[0];
+                if (zone[1] == null) {
+                    zone[1] =
+                        TimeZone.getTimeZone(id).getDisplayName(false, TimeZone.LONG, locale);
+                }
+                if (zone[2] == null) {
+                    zone[2] =
+                        TimeZone.getTimeZone(id).getDisplayName(false, TimeZone.SHORT, locale);
+                }
+                if (zone[3] == null) {
+                    zone[3] = TimeZone.getTimeZone(id).getDisplayName(true, TimeZone.LONG, locale);
+                }
+                if (zone[4] == null) {
+                    zone[4] =
+                        TimeZone.getTimeZone(id).getDisplayName(true, TimeZone.SHORT, locale);
+                }
+            }
         }
+        return zoneStrings;
+    }
+
+    private final String[][] getZoneStringsImpl(boolean needsCopy) {
+        String[][] zoneStrings = internalZoneStrings();
 
         if (!needsCopy) {
             return zoneStrings;
@@ -781,9 +804,7 @@ public class DateFormatSymbols implements Serializable, Cloneable {
      * @since 1.6
      */
     private void writeObject(ObjectOutputStream stream) throws IOException {
-        if (zoneStrings == null) {
-            zoneStrings = TimeZoneNameUtility.getZoneStrings(locale);
-        }
+        internalZoneStrings();
         stream.defaultWriteObject();
     }
 

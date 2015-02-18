@@ -52,9 +52,8 @@ import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import libcore.icu.LocaleData;
 import sun.util.calendar.CalendarUtils;
-import sun.util.calendar.ZoneInfoFile;
-import sun.util.resources.LocaleData;
 
 import static java.text.DateFormatSymbols.*;
 
@@ -408,6 +407,9 @@ import static java.text.DateFormatSymbols.*;
  */
 public class SimpleDateFormat extends DateFormat {
 
+    // 'L' and 'c' are ICU-compatible extensions for stand-alone month and stand-alone weekday.
+    static final String PATTERN_CHARS = "GyMdkHmsSEDFwWahKzZLc";
+
     // the official serial version ID which says cryptically
     // which version we're compatible with
     static final long serialVersionUID = 4774881970558875024L;
@@ -621,16 +623,17 @@ public class SimpleDateFormat extends DateFormat {
         /* try the cache first */
         String[] dateTimePatterns = cachedLocaleData.get(loc);
         if (dateTimePatterns == null) { /* cache miss */
-            ResourceBundle r = LocaleData.getDateFormatData(loc);
-            if (!isGregorianCalendar()) {
-                try {
-                    dateTimePatterns = r.getStringArray(getCalendarName() + ".DateTimePatterns");
-                } catch (MissingResourceException e) {
-                }
-            }
-            if (dateTimePatterns == null) {
-                dateTimePatterns = r.getStringArray("DateTimePatterns");
-            }
+            LocaleData localeData = LocaleData.get(loc);
+            dateTimePatterns = new String[9];
+            dateTimePatterns[DateFormat.SHORT + 4] = localeData.getDateFormat(DateFormat.SHORT);
+            dateTimePatterns[DateFormat.MEDIUM + 4] = localeData.getDateFormat(DateFormat.MEDIUM);
+            dateTimePatterns[DateFormat.LONG + 4] = localeData.getDateFormat(DateFormat.LONG);
+            dateTimePatterns[DateFormat.FULL + 4] = localeData.getDateFormat(DateFormat.FULL);
+            dateTimePatterns[DateFormat.SHORT] = localeData.getTimeFormat(DateFormat.SHORT);
+            dateTimePatterns[DateFormat.MEDIUM] = localeData.getTimeFormat(DateFormat.MEDIUM);
+            dateTimePatterns[DateFormat.LONG] = localeData.getTimeFormat(DateFormat.LONG);
+            dateTimePatterns[DateFormat.FULL] = localeData.getTimeFormat(DateFormat.FULL);
+            dateTimePatterns[8] = "%s %s";
             /* update cache */
             cachedLocaleData.putIfAbsent(loc, dateTimePatterns);
         }
@@ -1190,27 +1193,16 @@ public class SimpleDateFormat extends DateFormat {
 
         case PATTERN_ZONE_NAME: // 'z'
             if (current == null) {
-                if (formatData.locale == null || formatData.isZoneStringsSet) {
-                    int zoneIndex =
-                        formatData.getZoneIndex(calendar.getTimeZone().getID());
-                    if (zoneIndex == -1) {
-                        value = calendar.get(Calendar.ZONE_OFFSET) +
-                            calendar.get(Calendar.DST_OFFSET);
-                        buffer.append(ZoneInfoFile.toCustomID(value));
-                    } else {
-                        int index = (calendar.get(Calendar.DST_OFFSET) == 0) ? 1: 3;
-                        if (count < 4) {
-                            // Use the short name
-                            index++;
-                        }
-                        String[][] zoneStrings = formatData.getZoneStringsWrapper();
-                        buffer.append(zoneStrings[zoneIndex][index]);
-                    }
+                TimeZone tz = calendar.getTimeZone();
+                boolean daylight = (calendar.get(Calendar.DST_OFFSET) != 0);
+                int tzstyle = count < 4 ? TimeZone.SHORT : TimeZone.LONG;
+                String zoneString = tz.getDisplayName(daylight, tzstyle, formatData.locale);
+                if (zoneString != null) {
+                    buffer.append(zoneString);
                 } else {
-                    TimeZone tz = calendar.getTimeZone();
-                    boolean daylight = (calendar.get(Calendar.DST_OFFSET) != 0);
-                    int tzstyle = (count < 4 ? TimeZone.SHORT : TimeZone.LONG);
-                    buffer.append(tz.getDisplayName(daylight, tzstyle, formatData.locale));
+                    int offsetMillis = calendar.get(Calendar.ZONE_OFFSET) +
+                        calendar.get(Calendar.DST_OFFSET);
+                    buffer.append(TimeZone.createGmtOffsetString(true, true, offsetMillis));
                 }
             }
             break;

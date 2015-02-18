@@ -34,7 +34,6 @@ import sun.util.calendar.CalendarUtils;
 import sun.util.calendar.Era;
 import sun.util.calendar.Gregorian;
 import sun.util.calendar.LocalGregorianCalendar;
-import sun.util.calendar.ZoneInfo;
 import sun.util.resources.LocaleData;
 
 /**
@@ -1606,13 +1605,9 @@ class JapaneseImperialCalendar extends Calendar {
             zoneOffsets = new int[2];
         }
         if (tzMask != (ZONE_OFFSET_MASK|DST_OFFSET_MASK)) {
-            if (tz instanceof ZoneInfo) {
-                zoneOffset = ((ZoneInfo)tz).getOffsets(time, zoneOffsets);
-            } else {
-                zoneOffset = tz.getOffset(time);
-                zoneOffsets[0] = tz.getRawOffset();
-                zoneOffsets[1] = zoneOffset - zoneOffsets[0];
-            }
+            zoneOffset = tz.getOffset(time);
+            zoneOffsets[0] = tz.getRawOffset();
+            zoneOffsets[1] = zoneOffset - zoneOffsets[0];
         }
         if (tzMask != 0) {
             if (isFieldSet(tzMask, ZONE_OFFSET)) {
@@ -1946,11 +1941,7 @@ class JapaneseImperialCalendar extends Calendar {
         }
         int tzMask = fieldMask & (ZONE_OFFSET_MASK|DST_OFFSET_MASK);
         if (tzMask != (ZONE_OFFSET_MASK|DST_OFFSET_MASK)) {
-            if (zone instanceof ZoneInfo) {
-                ((ZoneInfo)zone).getOffsetsByWall(millis, zoneOffsets);
-            } else {
-                zone.getOffsets(millis - zone.getRawOffset(), zoneOffsets);
-            }
+            zone.getOffsets(millis - zone.getRawOffset(), zoneOffsets);
         }
         if (tzMask != 0) {
             if (isFieldSet(tzMask, ZONE_OFFSET)) {

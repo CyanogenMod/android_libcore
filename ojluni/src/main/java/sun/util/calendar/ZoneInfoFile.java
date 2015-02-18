@@ -30,7 +30,6 @@ import  java.io.FileInputStream;
 import  java.io.FileNotFoundException;
 import  java.io.IOException;
 import  java.lang.ref.SoftReference;
-import  java.nio.file.FileSystems;
 import  java.security.AccessController;
 import  java.security.PrivilegedAction;
 import  java.security.PrivilegedActionException;
@@ -480,7 +479,7 @@ public class ZoneInfoFile {
                 String zi = System.getProperty("java.home") +
                     File.separator + "lib" + File.separator + "zi";
                 try {
-                    zi = FileSystems.getDefault().getPath(zi).toRealPath().toString();
+                    zi = new File(zi).getCanonicalPath();
                 } catch(Exception e) {
                 }
                 return zi;

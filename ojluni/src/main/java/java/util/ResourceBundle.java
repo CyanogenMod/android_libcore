@@ -40,6 +40,7 @@
 
 package java.util;
 
+import dalvik.system.VMStack;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.ReferenceQueue;
@@ -57,7 +58,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.jar.JarEntry;
 
 import sun.reflect.CallerSensitive;
-import sun.reflect.Reflection;
 import sun.util.locale.BaseLocale;
 import sun.util.locale.LocaleObjectCache;
 
@@ -416,8 +416,7 @@ public abstract class ResourceBundle {
      * Automatic determination of the ClassLoader to be used to load
      * resources on behalf of the client.
      */
-    private static ClassLoader getLoader(Class<?> caller) {
-        ClassLoader cl = caller == null ? null : caller.getClassLoader();
+    private static ClassLoader getLoader(ClassLoader cl) {
         if (cl == null) {
             // When the caller's loader is the boot class loader, cl is null
             // here. In that case, ClassLoader.getSystemClassLoader() may
@@ -720,7 +719,7 @@ public abstract class ResourceBundle {
     {
         return getBundleImpl(baseName, Locale.getDefault(),
                              /* must determine loader here, else we break stack invariant */
-                             getLoader(Reflection.getCallerClass()),
+                             getLoader(VMStack.getCallingClassLoader()),
                              Control.INSTANCE);
     }
 
@@ -763,7 +762,7 @@ public abstract class ResourceBundle {
                                                  Control control) {
         return getBundleImpl(baseName, Locale.getDefault(),
                              /* must determine loader here, else we break stack invariant */
-                             getLoader(Reflection.getCallerClass()),
+                             getLoader(VMStack.getCallingClassLoader()),
                              control);
     }
 
@@ -794,7 +793,7 @@ public abstract class ResourceBundle {
     {
         return getBundleImpl(baseName, locale,
                              /* must determine loader here, else we break stack invariant */
-                             getLoader(Reflection.getCallerClass()),
+                             getLoader(VMStack.getCallingClassLoader()),
                              Control.INSTANCE);
     }
 
@@ -840,7 +839,7 @@ public abstract class ResourceBundle {
                                                  Control control) {
         return getBundleImpl(baseName, targetLocale,
                              /* must determine loader here, else we break stack invariant */
-                             getLoader(Reflection.getCallerClass()),
+                             getLoader(VMStack.getCallingClassLoader()),
                              control);
     }
 
@@ -1678,7 +1677,7 @@ public abstract class ResourceBundle {
      */
     @CallerSensitive
     public static final void clearCache() {
-        clearCache(getLoader(Reflection.getCallerClass()));
+        clearCache(getLoader(VMStack.getCallingClassLoader()));
     }
 
     /**

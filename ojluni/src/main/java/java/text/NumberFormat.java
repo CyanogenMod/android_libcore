@@ -54,8 +54,8 @@ import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.spi.LocaleServiceProvider;
+import libcore.icu.LocaleData;
 import sun.util.LocaleServiceProviderPool;
-import sun.util.resources.LocaleData;
 
 /**
  * <code>NumberFormat</code> is the abstract base class for all number
@@ -468,20 +468,6 @@ public abstract class NumberFormat extends Format  {
     }
 
     /**
-     * Returns a scientific format for the current default locale.
-     */
-    /*public*/ final static NumberFormat getScientificInstance() {
-        return getInstance(Locale.getDefault(Locale.Category.FORMAT), SCIENTIFICSTYLE);
-    }
-
-    /**
-     * Returns a scientific format for the specified locale.
-     */
-    /*public*/ static NumberFormat getScientificInstance(Locale inLocale) {
-        return getInstance(inLocale, SCIENTIFICSTYLE);
-    }
-
-    /**
      * Returns an array of all locales for which the
      * <code>get*Instance</code> methods of this class can return
      * localized instances.
@@ -758,8 +744,12 @@ public abstract class NumberFormat extends Format  {
         /* try the cache first */
         String[] numberPatterns = (String[])cachedLocaleData.get(desiredLocale);
         if (numberPatterns == null) { /* cache miss */
-            ResourceBundle resource = LocaleData.getNumberFormatData(desiredLocale);
-            numberPatterns = resource.getStringArray("NumberPatterns");
+            LocaleData data = LocaleData.get(desiredLocale);
+            numberPatterns = new String[4];
+            numberPatterns[NUMBERSTYLE] = data.numberPattern;
+            numberPatterns[CURRENCYSTYLE] = data.currencyPattern;
+            numberPatterns[PERCENTSTYLE] = data.percentPattern;
+            numberPatterns[INTEGERSTYLE] = data.integerPattern;
             /* update cache */
             cachedLocaleData.put(desiredLocale, numberPatterns);
         }
@@ -850,8 +840,7 @@ public abstract class NumberFormat extends Format  {
     private static final int NUMBERSTYLE = 0;
     private static final int CURRENCYSTYLE = 1;
     private static final int PERCENTSTYLE = 2;
-    private static final int SCIENTIFICSTYLE = 3;
-    private static final int INTEGERSTYLE = 4;
+    private static final int INTEGERSTYLE = 3;
 
     /**
      * True if the grouping (i.e. thousands) separator is used when

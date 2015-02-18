@@ -36,7 +36,6 @@ import sun.util.calendar.CalendarSystem;
 import sun.util.calendar.CalendarUtils;
 import sun.util.calendar.Era;
 import sun.util.calendar.Gregorian;
-import sun.util.calendar.ZoneInfo;
 
 /**
  * The class <code>Date</code> represents a specific instant
@@ -1165,12 +1164,8 @@ public class Date
     public int getTimezoneOffset() {
         int zoneOffset;
         if (cdate == null) {
-            TimeZone tz = TimeZone.getDefaultRef();
-            if (tz instanceof ZoneInfo) {
-                zoneOffset = ((ZoneInfo)tz).getOffsets(fastTime, null);
-            } else {
-                zoneOffset = tz.getOffset(fastTime);
-            }
+            GregorianCalendar cal = new GregorianCalendar(fastTime);
+            zoneOffset = -(cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET)) / 60000;
         } else {
             normalize();
             zoneOffset = cdate.getZoneOffset();

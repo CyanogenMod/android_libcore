@@ -53,9 +53,7 @@ import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import sun.util.BuddhistCalendar;
-import sun.util.calendar.ZoneInfo;
-import sun.util.resources.LocaleData;
+import libcore.icu.LocaleData;
 
 /**
  * The <code>Calendar</code> class is an abstract class that provides methods
@@ -1016,30 +1014,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
     private static Calendar createCalendar(TimeZone zone,
                                            Locale aLocale)
     {
-        Calendar cal = null;
-
-        String caltype = aLocale.getUnicodeLocaleType("ca");
-        if (caltype == null) {
-            // Calendar type is not specified.
-            // If the specified locale is a Thai locale,
-            // returns a BuddhistCalendar instance.
-            if ("th".equals(aLocale.getLanguage())
-                    && ("TH".equals(aLocale.getCountry()))) {
-                cal = new BuddhistCalendar(zone, aLocale);
-            } else {
-                cal = new GregorianCalendar(zone, aLocale);
-            }
-        } else if (caltype.equals("japanese")) {
-            cal = new JapaneseImperialCalendar(zone, aLocale);
-        } else if (caltype.equals("buddhist")) {
-            cal = new BuddhistCalendar(zone, aLocale);
-        } else {
-            // Unsupported calendar type.
-            // Use Gregorian calendar as a fallback.
-            cal = new GregorianCalendar(zone, aLocale);
-        }
-
-        return cal;
+        return new GregorianCalendar(zone, aLocale);
     }
 
     /**
@@ -1130,8 +1105,7 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
     public void setTimeInMillis(long millis) {
         // If we don't need to recalculate the calendar field values,
         // do nothing.
-        if (time == millis && isTimeSet && areFieldsSet && areAllFieldsSet
-            && (zone instanceof ZoneInfo) && !((ZoneInfo)zone).isDirty()) {
+        if (time == millis && isTimeSet && areFieldsSet && areAllFieldsSet) {
             return;
         }
         time = millis;
@@ -2587,10 +2561,10 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
         /* try to get the Locale data from the cache */
         int[] data = cachedLocaleData.get(desiredLocale);
         if (data == null) {  /* cache miss */
-            ResourceBundle bundle = LocaleData.getCalendarData(desiredLocale);
+            LocaleData localeData = LocaleData.get(desiredLocale);
             data = new int[2];
-            data[0] = Integer.parseInt(bundle.getString("firstDayOfWeek"));
-            data[1] = Integer.parseInt(bundle.getString("minimalDaysInFirstWeek"));
+            data[0] = localeData.firstDayOfWeek.intValue();
+            data[1] = localeData.minimalDaysInFirstWeek.intValue();
             cachedLocaleData.putIfAbsent(desiredLocale, data);
         }
         firstDayOfWeek = data[0];
@@ -2717,29 +2691,8 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
             catch (IllegalArgumentException e) {}
         }
 
-        // If this Calendar has a ZoneInfo, save it and set a
-        // SimpleTimeZone equivalent (as a single DST schedule) for
-        // backward compatibility.
-        TimeZone savedZone = null;
-        if (zone instanceof ZoneInfo) {
-            SimpleTimeZone stz = ((ZoneInfo)zone).getLastRuleInstance();
-            if (stz == null) {
-                stz = new SimpleTimeZone(zone.getRawOffset(), zone.getID());
-            }
-            savedZone = zone;
-            zone = stz;
-        }
-
         // Write out the 1.1 FCS object.
         stream.defaultWriteObject();
-
-        // Write out the ZoneInfo object
-        // 4802409: we write out even if it is null, a temporary workaround
-        // the real fix for bug 4844924 in corba-iiop
-        stream.writeObject(savedZone);
-        if (savedZone != null) {
-            zone = savedZone;
-        }
     }
 
     private static class CalendarAccessControlContext {
@@ -2781,33 +2734,6 @@ public abstract class Calendar implements Serializable, Cloneable, Comparable<Ca
         }
 
         serialVersionOnStream = currentSerialVersion;
-
-        // If there's a ZoneInfo object, use it for zone.
-        ZoneInfo zi = null;
-        try {
-            zi = AccessController.doPrivileged(
-                    new PrivilegedExceptionAction<ZoneInfo>() {
-                        public ZoneInfo run() throws Exception {
-                            return (ZoneInfo) input.readObject();
-                        }
-                    },
-                    CalendarAccessControlContext.INSTANCE);
-        } catch (PrivilegedActionException pae) {
-            Exception e = pae.getException();
-            if (!(e instanceof OptionalDataException)) {
-                if (e instanceof RuntimeException) {
-                    throw (RuntimeException) e;
-                } else if (e instanceof IOException) {
-                    throw (IOException) e;
-                } else if (e instanceof ClassNotFoundException) {
-                    throw (ClassNotFoundException) e;
-                }
-                throw new RuntimeException(e);
-            }
-        }
-        if (zi != null) {
-            zone = zi;
-        }
 
         // If the deserialized object has a SimpleTimeZone, try to
         // replace it with a ZoneInfo equivalent (as of 1.4) in order

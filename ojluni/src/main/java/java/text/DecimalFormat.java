@@ -52,7 +52,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import sun.util.resources.LocaleData;
+import libcore.icu.LocaleData;
 
 /**
  * <code>DecimalFormat</code> is a concrete subclass of
@@ -398,9 +398,7 @@ public class DecimalFormat extends NumberFormat {
         String pattern = cachedLocaleData.get(def);
         if (pattern == null) {  /* cache miss */
             // Get the pattern for the default locale.
-            ResourceBundle rb = LocaleData.getNumberFormatData(def);
-            String[] all = rb.getStringArray("NumberPatterns");
-            pattern = all[0];
+            pattern = LocaleData.get(def).numberPattern;
             /* update cache */
             cachedLocaleData.putIfAbsent(def, pattern);
         }

@@ -54,7 +54,6 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.spi.LocaleServiceProvider;
 import sun.util.LocaleServiceProviderPool;
-import sun.util.resources.LocaleData;
 
 
 /**

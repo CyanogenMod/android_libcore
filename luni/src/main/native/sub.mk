@@ -29,7 +29,6 @@ LOCAL_SRC_FILES := \
     java_math_NativeBN.cpp \
     java_nio_ByteOrder.cpp \
     java_nio_charset_Charsets.cpp \
-    java_text_Bidi.cpp \
     java_util_jar_StrictJarFile.cpp \
     java_util_regex_Matcher.cpp \
     java_util_regex_Pattern.cpp \
@@ -43,7 +42,6 @@ LOCAL_SRC_FILES := \
     libcore_icu_NativeBreakIterator.cpp \
     libcore_icu_NativeCollation.cpp \
     libcore_icu_NativeConverter.cpp \
-    libcore_icu_NativeDecimalFormat.cpp \
     libcore_icu_NativeIDN.cpp \
     libcore_icu_NativeNormalizer.cpp \
     libcore_icu_NativePluralRules.cpp \

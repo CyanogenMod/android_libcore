@@ -46,9 +46,9 @@ import java.util.Currency;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
+import libcore.icu.LocaleData;
 
 import sun.util.LocaleServiceProviderPool;
-import sun.util.resources.LocaleData;
 
 /**
  * This class represents the set of symbols (such as the decimal separator,
@@ -529,16 +529,22 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         boolean needCacheUpdate = false;
         Object[] data = cachedLocaleData.get(locale);
         if (data == null) {  /* cache miss */
-            // When numbering system is thai (Locale's extension contains u-nu-thai),
-            // we read the data from th_TH_TH.
-            Locale lookupLocale = locale;
-            String numberType = locale.getUnicodeLocaleType("nu");
-            if (numberType != null && numberType.equals("thai")) {
-                lookupLocale = new Locale("th", "TH", "TH");
-            }
+            locale = LocaleData.mapInvalidAndNullLocales(locale);
+            LocaleData localeData = LocaleData.get(locale);
             data = new Object[3];
-            ResourceBundle rb = LocaleData.getNumberFormatData(lookupLocale);
-            data[0] = rb.getStringArray("NumberElements");
+            String[] values = new String[11];
+            values[0] = localeData.decimalSeparator + "";
+            values[1] = localeData.groupingSeparator + "";
+            values[2] = localeData.patternSeparator + "";
+            values[3] = localeData.percent + "";
+            values[4] = localeData.zeroDigit + "";
+            values[5] = "#";
+            values[6] = localeData.minusSign;
+            values[7] = localeData.exponentSeparator;
+            values[8] = localeData.perMill + "";
+            values[9] = localeData.infinity;
+            values[10] = localeData.NaN;
+            data[0] = values;
             needCacheUpdate = true;
         }
 

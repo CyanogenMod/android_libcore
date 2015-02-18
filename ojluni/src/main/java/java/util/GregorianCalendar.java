@@ -47,7 +47,6 @@ import sun.util.calendar.CalendarUtils;
 import sun.util.calendar.Era;
 import sun.util.calendar.Gregorian;
 import sun.util.calendar.JulianCalendar;
-import sun.util.calendar.ZoneInfo;
 
 /**
  * <code>GregorianCalendar</code> is a concrete subclass of
@@ -718,6 +717,11 @@ public class GregorianCalendar extends Calendar {
         // should be changed to set() when this constructor is made
         // public.
         this.internalSet(MILLISECOND, millis);
+    }
+
+    GregorianCalendar(long milliseconds) {
+        this();
+        setTimeInMillis(milliseconds);
     }
 
 /////////////////
@@ -2272,13 +2276,9 @@ public class GregorianCalendar extends Calendar {
             zoneOffsets = new int[2];
         }
         if (tzMask != (ZONE_OFFSET_MASK|DST_OFFSET_MASK)) {
-            if (tz instanceof ZoneInfo) {
-                zoneOffset = ((ZoneInfo)tz).getOffsets(time, zoneOffsets);
-            } else {
-                zoneOffset = tz.getOffset(time);
-                zoneOffsets[0] = tz.getRawOffset();
-                zoneOffsets[1] = zoneOffset - zoneOffsets[0];
-            }
+            zoneOffset = tz.getOffset(time);
+            zoneOffsets[0] = tz.getRawOffset();
+            zoneOffsets[1] = zoneOffset - zoneOffsets[0];
         }
         if (tzMask != 0) {
             if (isFieldSet(tzMask, ZONE_OFFSET)) {
@@ -2727,13 +2727,9 @@ public class GregorianCalendar extends Calendar {
         }
         int tzMask = fieldMask & (ZONE_OFFSET_MASK|DST_OFFSET_MASK);
         if (tzMask != (ZONE_OFFSET_MASK|DST_OFFSET_MASK)) {
-            if (zone instanceof ZoneInfo) {
-                ((ZoneInfo)zone).getOffsetsByWall(millis, zoneOffsets);
-            } else {
-                int gmtOffset = isFieldSet(fieldMask, ZONE_OFFSET) ?
-                                    internalGet(ZONE_OFFSET) : zone.getRawOffset();
-                zone.getOffsets(millis - gmtOffset, zoneOffsets);
-            }
+            int gmtOffset = isFieldSet(fieldMask, ZONE_OFFSET) ?
+                                internalGet(ZONE_OFFSET) : zone.getRawOffset();
+            zone.getOffsets(millis - gmtOffset, zoneOffsets);
         }
         if (tzMask != 0) {
             if (isFieldSet(tzMask, ZONE_OFFSET)) {

@@ -48,6 +48,7 @@ import java.io.Serializable;
 import java.security.AccessController;
 import java.text.MessageFormat;
 import java.util.spi.LocaleNameProvider;
+import libcore.icu.ICU;
 
 import sun.security.action.GetPropertyAction;
 import sun.util.LocaleServiceProviderPool;
@@ -60,8 +61,6 @@ import sun.util.locale.LocaleSyntaxException;
 import sun.util.locale.LocaleUtils;
 import sun.util.locale.ParseStatus;
 import sun.util.locale.UnicodeLocaleExtension;
-import sun.util.resources.LocaleData;
-import sun.util.resources.OpenListResourceBundle;
 
 /**
  * A <code>Locale</code> object represents a specific geographical, political,
@@ -493,6 +492,11 @@ public final class Locale implements Cloneable, Serializable {
     /** Useful constant for country.
      */
     static public final Locale CANADA_FRENCH = createConstant("fr", "CA");
+
+    /**
+     * ISO 639-3 generic code for undetermined languages.
+     */
+    private static final String UNDETERMINED_LANGUAGE = "und";
 
     /**
      * Useful constant for the root locale.  The root locale is the locale whose
@@ -1562,22 +1566,68 @@ public final class Locale implements Cloneable, Serializable {
     }
 
     /**
-     * Returns a name for the locale's language that is appropriate for display to the
-     * user.
-     * If possible, the name returned will be localized according to inLocale.
-     * For example, if the locale is fr_FR and inLocale
-     * is en_US, getDisplayLanguage() will return "French"; if the locale is en_US and
-     * inLocale is fr_FR, getDisplayLanguage() will return "anglais".
-     * If the name returned cannot be localized according to inLocale,
-     * (say, we don't have a Japanese name for Croatian),
-     * this function falls back on the English name, and finally
-     * on the ISO code as a last-resort value.  If the locale doesn't specify a language,
-     * this function returns the empty string.
-     *
-     * @exception NullPointerException if <code>inLocale</code> is <code>null</code>
+     * Returns the name of this locale's language, localized to {@code locale}.
+     * If the language name is unknown, the language code is returned.
      */
-    public String getDisplayLanguage(Locale inLocale) {
-        return getDisplayString(baseLocale.getLanguage(), inLocale, DISPLAY_LANGUAGE);
+    public String getDisplayLanguage(Locale locale) {
+        String languageCode = baseLocale.getLanguage();
+        if (languageCode.isEmpty()) {
+            return "";
+        }
+
+        // Hacks for backward compatibility.
+        //
+        // Our language tag will contain "und" if the languageCode is invalid
+        // or missing. ICU will then return "langue indéterminée" or the equivalent
+        // display language for the indeterminate language code.
+        //
+        // Sigh... ugh... and what not.
+        final String normalizedLanguage = normalizeAndValidateLanguage(
+                languageCode, false /* strict */);
+        if (UNDETERMINED_LANGUAGE.equals(normalizedLanguage)) {
+            return languageCode;
+        }
+
+        // TODO: We need a new hack or a complete fix for http://b/8049507 --- We would
+        // cover the frameworks' tracks when they were using "tl" instead of "fil".
+        String result = ICU.getDisplayLanguage(this, locale);
+        if (result == null) { // TODO: do we need to do this, or does ICU do it for us?
+            result = ICU.getDisplayLanguage(this, Locale.getDefault());
+        }
+        return result;
+    }
+
+    private static String normalizeAndValidateLanguage(String language, boolean strict) {
+        if (language == null || language.isEmpty()) {
+            return "";
+        }
+
+        final String lowercaseLanguage = language.toLowerCase(Locale.ROOT);
+        if (!isValidBcp47Alpha(lowercaseLanguage, 2, 3)) {
+            if (strict) {
+                throw new IllformedLocaleException("Invalid language: " + language);
+            } else {
+                return UNDETERMINED_LANGUAGE;
+            }
+        }
+
+        return lowercaseLanguage;
+    }
+
+    /*
+     * Checks whether a given string is an ASCII alphanumeric string.
+     */
+    private static boolean isAsciiAlphaNum(String string) {
+        for (int i = 0; i < string.length(); i++) {
+            final char character = string.charAt(i);
+            if (!(character >= 'a' && character <= 'z' ||
+                    character >= 'A' && character <= 'Z' ||
+                    character >= '0' && character <= '9')) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -1593,17 +1643,25 @@ public final class Locale implements Cloneable, Serializable {
     }
 
     /**
-     * Returns a name for the locale's script that is appropriate
-     * for display to the user. If possible, the name will be
-     * localized for the given locale. Returns the empty string if
-     * this locale doesn't specify a script code.
+     * Returns the name of this locale's script code, localized to {@link Locale}. If the
+     * script code is unknown, the return value of this method is the same as that of
+     * {@link #getScript()}.
      *
-     * @return the display name of the script code for the current default locale
-     * @throws NullPointerException if <code>inLocale</code> is <code>null</code>
      * @since 1.7
      */
-    public String getDisplayScript(Locale inLocale) {
-        return getDisplayString(baseLocale.getScript(), inLocale, DISPLAY_SCRIPT);
+    public String getDisplayScript(Locale locale) {
+        String scriptCode = baseLocale.getScript();
+        if (scriptCode.isEmpty()) {
+            return "";
+        }
+
+        String result = ICU.getDisplayScript(this, locale);
+        if (result == null) { // TODO: do we need to do this, or does ICU do it for us?
+            result = ICU.getDisplayScript(this, Locale.getDefault());
+        }
+
+        return result;
+
     }
 
     /**
@@ -1621,63 +1679,81 @@ public final class Locale implements Cloneable, Serializable {
     public final String getDisplayCountry() {
         return getDisplayCountry(getDefault(Category.DISPLAY));
     }
-
     /**
-     * Returns a name for the locale's country that is appropriate for display to the
-     * user.
-     * If possible, the name returned will be localized according to inLocale.
-     * For example, if the locale is fr_FR and inLocale
-     * is en_US, getDisplayCountry() will return "France"; if the locale is en_US and
-     * inLocale is fr_FR, getDisplayCountry() will return "Etats-Unis".
-     * If the name returned cannot be localized according to inLocale.
-     * (say, we don't have a Japanese name for Croatia),
-     * this function falls back on the English name, and finally
-     * on the ISO code as a last-resort value.  If the locale doesn't specify a country,
-     * this function returns the empty string.
-     *
-     * @exception NullPointerException if <code>inLocale</code> is <code>null</code>
+     * Returns the name of this locale's country, localized to {@code locale}.
+     * Returns the empty string if this locale does not correspond to a specific
+     * country.
      */
-    public String getDisplayCountry(Locale inLocale) {
-        return getDisplayString(baseLocale.getRegion(), inLocale, DISPLAY_COUNTRY);
-    }
-
-    private String getDisplayString(String code, Locale inLocale, int type) {
-        if (code.length() == 0) {
+    public String getDisplayCountry(Locale locale) {
+        String countryCode = baseLocale.getRegion();
+        if (countryCode.isEmpty()) {
             return "";
         }
 
-        if (inLocale == null) {
-            throw new NullPointerException();
+        final String normalizedRegion = normalizeAndValidateRegion(
+                countryCode, false /* strict */);
+        if (normalizedRegion.isEmpty()) {
+            return countryCode;
         }
 
-        try {
-            OpenListResourceBundle bundle = LocaleData.getLocaleNames(inLocale);
-            String key = (type == DISPLAY_VARIANT ? "%%"+code : code);
-            String result = null;
+        String result = ICU.getDisplayCountry(this, locale);
+        if (result == null) { // TODO: do we need to do this, or does ICU do it for us?
+            result = ICU.getDisplayCountry(this, Locale.getDefault());
+        }
+        return result;
+    }
 
-            // Check whether a provider can provide an implementation that's closer
-            // to the requested locale than what the Java runtime itself can provide.
-            LocaleServiceProviderPool pool =
-                LocaleServiceProviderPool.getPool(LocaleNameProvider.class);
-            if (pool.hasProviders()) {
-                result = pool.getLocalizedObject(
-                                    LocaleNameGetter.INSTANCE,
-                                    inLocale, bundle, key,
-                                    type, code);
-            }
+    private static String normalizeAndValidateRegion(String region, boolean strict) {
+        if (region == null || region.isEmpty()) {
+            return "";
+        }
 
-            if (result == null) {
-                result = bundle.getString(key);
-            }
-
-            if (result != null) {
-                return result;
+        final String uppercaseRegion = region.toUpperCase(Locale.ROOT);
+        if (!isValidBcp47Alpha(uppercaseRegion, 2, 2) &&
+                !isUnM49AreaCode(uppercaseRegion)) {
+            if (strict) {
+                throw new IllformedLocaleException("Invalid region: " + region);
+            } else {
+                return "";
             }
         }
-        catch (Exception e) {
-            // just fall through
+
+        return uppercaseRegion;
+    }
+
+    private static boolean isValidBcp47Alpha(String string, int lowerBound, int upperBound) {
+        final int length = string.length();
+        if (length < lowerBound || length > upperBound) {
+            return false;
         }
-        return code;
+
+        for (int i = 0; i < length; ++i) {
+            final char character = string.charAt(i);
+            if (!(character >= 'a' && character <= 'z' ||
+                    character >= 'A' && character <= 'Z')) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * A UN M.49 is a 3 digit numeric code.
+     */
+    private static boolean isUnM49AreaCode(String code) {
+        if (code.length() != 3) {
+            return false;
+        }
+
+        for (int i = 0; i < 3; ++i) {
+            final char character = code.charAt(i);
+            if (!(character >= '0' && character <= '9')) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -1690,30 +1766,74 @@ public final class Locale implements Cloneable, Serializable {
     }
 
     /**
-     * Returns a name for the locale's variant code that is appropriate for display to the
-     * user.  If possible, the name will be localized for inLocale.  If the locale
-     * doesn't specify a variant code, this function returns the empty string.
+     * Returns the full variant name in the specified {@code Locale} for the variant code
+     * of this {@code Locale}. If there is no matching variant name, the variant code is
+     * returned.
      *
-     * @exception NullPointerException if <code>inLocale</code> is <code>null</code>
+     * @since 1.7
      */
-    public String getDisplayVariant(Locale inLocale) {
-        if (baseLocale.getVariant().length() == 0)
+    public String getDisplayVariant(Locale locale) {
+        String variantCode = baseLocale.getVariant();
+        if (variantCode.isEmpty()) {
             return "";
-
-        OpenListResourceBundle bundle = LocaleData.getLocaleNames(inLocale);
-
-        String names[] = getDisplayVariantArray(bundle, inLocale);
-
-        // Get the localized patterns for formatting a list, and use
-        // them to format the list.
-        String listPattern = null;
-        String listCompositionPattern = null;
-        try {
-            listPattern = bundle.getString("ListPattern");
-            listCompositionPattern = bundle.getString("ListCompositionPattern");
-        } catch (MissingResourceException e) {
         }
-        return formatList(names, listPattern, listCompositionPattern);
+
+        try {
+            normalizeAndValidateVariant(variantCode);
+        } catch (IllformedLocaleException ilfe) {
+            return variantCode;
+        }
+
+        String result = ICU.getDisplayVariant(this, locale);
+        if (result == null) { // TODO: do we need to do this, or does ICU do it for us?
+            result = ICU.getDisplayVariant(this, Locale.getDefault());
+        }
+
+        // The "old style" locale constructors allow us to pass in variants that aren't
+        // valid BCP-47 variant subtags. When that happens, toLanguageTag will not emit
+        // them. Note that we know variantCode.length() > 0 due to the isEmpty check at
+        // the beginning of this function.
+        if (result.isEmpty()) {
+            return variantCode;
+        }
+        return result;
+    }
+
+    private static String normalizeAndValidateVariant(String variant) {
+        if (variant == null || variant.isEmpty()) {
+            return "";
+        }
+
+        // Note that unlike extensions, we canonicalize to lower case alphabets
+        // and underscores instead of hyphens.
+        final String normalizedVariant = variant.replace('-', '_');
+        String[] subTags = normalizedVariant.split("_");
+
+        for (String subTag : subTags) {
+            if (!isValidVariantSubtag(subTag)) {
+                throw new IllformedLocaleException("Invalid variant: " + variant);
+            }
+        }
+
+        return normalizedVariant;
+    }
+
+    private static boolean isValidVariantSubtag(String subTag) {
+        // The BCP-47 spec states that :
+        // - Subtags can be between [5, 8] alphanumeric chars in length.
+        // - Subtags that start with a number are allowed to be 4 chars in length.
+        if (subTag.length() >= 5 && subTag.length() <= 8) {
+            if (isAsciiAlphaNum(subTag)) {
+                return true;
+            }
+        } else if (subTag.length() == 4) {
+            final char firstChar = subTag.charAt(0);
+            if ((firstChar >= '0' && firstChar <= '9') && isAsciiAlphaNum(subTag)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -1738,116 +1858,65 @@ public final class Locale implements Cloneable, Serializable {
     }
 
     /**
-     * Returns a name for the locale that is appropriate for display
-     * to the user.  This will be the values returned by
-     * getDisplayLanguage(), getDisplayScript(),getDisplayCountry(),
-     * and getDisplayVariant() assembled into a single string.
-     * The non-empty values are used in order,
-     * with the second and subsequent names in parentheses.  For example:
-     * <blockquote>
-     * language (script, country, variant)<br>
-     * language (country)<br>
-     * language (variant)<br>
-     * script (country)<br>
-     * country<br>
-     * </blockquote>
-     * depending on which fields are specified in the locale.  If the
-     * language, script, country, and variant fields are all empty,
-     * this function returns the empty string.
+     * Returns this locale's language name, country name, and variant, localized
+     * to {@code locale}. The exact output form depends on whether this locale
+     * corresponds to a specific language, script, country and variant.
      *
-     * @throws NullPointerException if <code>inLocale</code> is <code>null</code>
+     * <p>For example:
+     * <ul>
+     * <li>{@code new Locale("en").getDisplayName(Locale.US)} -> {@code English}
+     * <li>{@code new Locale("en", "US").getDisplayName(Locale.US)} -> {@code English (United States)}
+     * <li>{@code new Locale("en", "US", "POSIX").getDisplayName(Locale.US)} -> {@code English (United States,Computer)}
+     * <li>{@code Locale.fromLanguageTag("zh-Hant-CN").getDisplayName(Locale.US)} -> {@code Chinese (Traditional Han,China)}
+     * <li>{@code new Locale("en").getDisplayName(Locale.FRANCE)} -> {@code anglais}
+     * <li>{@code new Locale("en", "US").getDisplayName(Locale.FRANCE)} -> {@code anglais (États-Unis)}
+     * <li>{@code new Locale("en", "US", "POSIX").getDisplayName(Locale.FRANCE)} -> {@code anglais (États-Unis,informatique)}.
+     * </ul>
      */
-    public String getDisplayName(Locale inLocale) {
-        OpenListResourceBundle bundle = LocaleData.getLocaleNames(inLocale);
-
-        String languageName = getDisplayLanguage(inLocale);
-        String scriptName = getDisplayScript(inLocale);
-        String countryName = getDisplayCountry(inLocale);
-        String[] variantNames = getDisplayVariantArray(bundle, inLocale);
-
-        // Get the localized patterns for formatting a display name.
-        String displayNamePattern = null;
-        String listPattern = null;
-        String listCompositionPattern = null;
-        try {
-            displayNamePattern = bundle.getString("DisplayNamePattern");
-            listPattern = bundle.getString("ListPattern");
-            listCompositionPattern = bundle.getString("ListCompositionPattern");
-        } catch (MissingResourceException e) {
+    public String getDisplayName(Locale locale) {
+        int count = 0;
+        StringBuilder buffer = new StringBuilder();
+        String languageCode = baseLocale.getLanguage();
+        if (!languageCode.isEmpty()) {
+            String displayLanguage = getDisplayLanguage(locale);
+            buffer.append(displayLanguage.isEmpty() ? languageCode : displayLanguage);
+            ++count;
         }
-
-        // The display name consists of a main name, followed by qualifiers.
-        // Typically, the format is "MainName (Qualifier, Qualifier)" but this
-        // depends on what pattern is stored in the display locale.
-        String   mainName       = null;
-        String[] qualifierNames = null;
-
-        // The main name is the language, or if there is no language, the script,
-        // then if no script, the country. If there is no language/script/country
-        // (an anomalous situation) then the display name is simply the variant's
-        // display name.
-        if (languageName.length() == 0 && scriptName.length() == 0 && countryName.length() == 0) {
-            if (variantNames.length == 0) {
-                return "";
-            } else {
-                return formatList(variantNames, listPattern, listCompositionPattern);
+        String scriptCode = baseLocale.getScript();
+        if (!scriptCode.isEmpty()) {
+            if (count == 1) {
+                buffer.append(" (");
             }
+            String displayScript = getDisplayScript(locale);
+            buffer.append(displayScript.isEmpty() ? scriptCode : displayScript);
+            ++count;
         }
-        ArrayList<String> names = new ArrayList<>(4);
-        if (languageName.length() != 0) {
-            names.add(languageName);
-        }
-        if (scriptName.length() != 0) {
-            names.add(scriptName);
-        }
-        if (countryName.length() != 0) {
-            names.add(countryName);
-        }
-        if (variantNames.length != 0) {
-            for (String var : variantNames) {
-                names.add(var);
+        String countryCode = baseLocale.getRegion();
+        if (!countryCode.isEmpty()) {
+            if (count == 1) {
+                buffer.append(" (");
+            } else if (count == 2) {
+                buffer.append(",");
             }
+            String displayCountry = getDisplayCountry(locale);
+            buffer.append(displayCountry.isEmpty() ? countryCode : displayCountry);
+            ++count;
         }
-
-        // The first one in the main name
-        mainName = names.get(0);
-
-        // Others are qualifiers
-        int numNames = names.size();
-        qualifierNames = (numNames > 1) ?
-                names.subList(1, numNames).toArray(new String[numNames - 1]) : new String[0];
-
-        // Create an array whose first element is the number of remaining
-        // elements.  This serves as a selector into a ChoiceFormat pattern from
-        // the resource.  The second and third elements are the main name and
-        // the qualifier; if there are no qualifiers, the third element is
-        // unused by the format pattern.
-        Object[] displayNames = {
-            new Integer(qualifierNames.length != 0 ? 2 : 1),
-            mainName,
-            // We could also just call formatList() and have it handle the empty
-            // list case, but this is more efficient, and we want it to be
-            // efficient since all the language-only locales will not have any
-            // qualifiers.
-            qualifierNames.length != 0 ? formatList(qualifierNames, listPattern, listCompositionPattern) : null
-        };
-
-        if (displayNamePattern != null) {
-            return new MessageFormat(displayNamePattern).format(displayNames);
-        }
-        else {
-            // If we cannot get the message format pattern, then we use a simple
-            // hard-coded pattern.  This should not occur in practice unless the
-            // installation is missing some core files (FormatData etc.).
-            StringBuilder result = new StringBuilder();
-            result.append((String)displayNames[1]);
-            if (displayNames.length > 2) {
-                result.append(" (");
-                result.append((String)displayNames[2]);
-                result.append(')');
+        String variantCode = baseLocale.getVariant();
+        if (!variantCode.isEmpty()) {
+            if (count == 1) {
+                buffer.append(" (");
+            } else if (count == 2 || count == 3) {
+                buffer.append(",");
             }
-            return result.toString();
+            String displayVariant = getDisplayVariant(locale);
+            buffer.append(displayVariant.isEmpty() ? variantCode : displayVariant);
+            ++count;
         }
+        if (count > 1) {
+            buffer.append(")");
+        }
+        return buffer.toString();
     }
 
     /**
@@ -1919,26 +1988,6 @@ public final class Locale implements Cloneable, Serializable {
     private static Locale defaultLocale = null;
     private static Locale defaultDisplayLocale = null;
     private static Locale defaultFormatLocale = null;
-
-    /**
-     * Return an array of the display names of the variant.
-     * @param bundle the ResourceBundle to use to get the display names
-     * @return an array of display names, possible of zero length.
-     */
-    private String[] getDisplayVariantArray(OpenListResourceBundle bundle, Locale inLocale) {
-        // Split the variant name into tokens separated by '_'.
-        StringTokenizer tokenizer = new StringTokenizer(baseLocale.getVariant(), "_");
-        String[] names = new String[tokenizer.countTokens()];
-
-        // For each variant token, lookup the display name.  If
-        // not found, use the variant name itself.
-        for (int i=0; i<names.length; ++i) {
-            names[i] = getDisplayString(tokenizer.nextToken(),
-                                inLocale, DISPLAY_VARIANT);
-        }
-
-        return names;
-    }
 
     /**
      * Format a list using given pattern strings.
@@ -2136,6 +2185,24 @@ public final class Locale implements Cloneable, Serializable {
             extensions = LocaleExtensions.NUMBER_THAI;
         }
         return extensions;
+    }
+
+    /**
+     * @hide for internal use only.
+     */
+    public static String adjustLanguageCode(String languageCode) {
+        String adjusted = languageCode.toLowerCase(Locale.US);
+        // Map new language codes to the obsolete language
+        // codes so the correct resource bundles will be used.
+        if (languageCode.equals("he")) {
+            adjusted = "iw";
+        } else if (languageCode.equals("id")) {
+            adjusted = "in";
+        } else if (languageCode.equals("yi")) {
+            adjusted = "ji";
+        }
+
+        return adjusted;
     }
 
     /**

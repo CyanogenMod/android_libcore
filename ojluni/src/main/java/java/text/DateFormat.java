@@ -555,6 +555,16 @@ public abstract class DateFormat extends Format {
         return getDateTimeInstance(SHORT, SHORT);
     }
 
+    /** @hide */
+    public static Boolean is24Hour;
+
+    /**
+     * @hide for internal use only.
+     */
+    public static final void set24HourTimePref(boolean is24Hour) {
+        DateFormat.is24Hour = is24Hour;
+    }
+
     /**
      * Returns an array of all locales for which the
      * <code>get*Instance</code> methods of this class can return

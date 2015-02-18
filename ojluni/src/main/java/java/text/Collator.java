@@ -43,8 +43,8 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.spi.LocaleServiceProvider;
+import libcore.icu.RuleBasedCollatorICU;
 import sun.misc.SoftCache;
-import sun.util.resources.LocaleData;
 import sun.util.LocaleServiceProviderPool;
 
 
@@ -255,14 +255,8 @@ public abstract class Collator
 
         // Load the resource of the desired locale from resource
         // manager.
-        String colString = "";
-        try {
-            ResourceBundle resource = LocaleData.getCollationData(desiredLocale);
-
-            colString = resource.getString("Rule");
-        } catch (MissingResourceException e) {
-            // Use default values
-        }
+        RuleBasedCollatorICU icuColl = new RuleBasedCollatorICU(desiredLocale);
+        String colString = icuColl.getRules();
         try
         {
             result = new RuleBasedCollator( CollationRules.DEFAULTRULES +

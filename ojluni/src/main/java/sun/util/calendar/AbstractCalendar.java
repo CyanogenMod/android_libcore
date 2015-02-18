@@ -122,13 +122,9 @@ public abstract class AbstractCalendar extends CalendarSystem {
         TimeZone zi = date.getZone();
         if (zi != null) {
             int[] offsets = new int[2];
-            if (zi instanceof ZoneInfo) {
-                zoneOffset = ((ZoneInfo)zi).getOffsets(millis, offsets);
-            } else {
-                zoneOffset = zi.getOffset(millis);
-                offsets[0] = zi.getRawOffset();
-                offsets[1] = zoneOffset - offsets[0];
-            }
+            zoneOffset = zi.getOffset(millis);
+            offsets[0] = zi.getRawOffset();
+            offsets[1] = zoneOffset - offsets[0];
 
             // We need to calculate the given millis and time zone
             // offset separately for java.util.GregorianCalendar
@@ -188,23 +184,14 @@ public abstract class AbstractCalendar extends CalendarSystem {
                 // 2) 5:00pm during DST is still interpreted as 5:00pm ST
                 // 3) 1:30am during ending-DST transition is interpreted
                 //    as 1:30am ST (after transition)
-                if (zi instanceof ZoneInfo) {
-                    ((ZoneInfo)zi).getOffsetsByStandard(ms, offsets);
-                    zoneOffset = offsets[0];
-                } else {
-                    zoneOffset = zi.getOffset(ms - zi.getRawOffset());
-                }
+                zoneOffset = zi.getOffset(ms - zi.getRawOffset());
             } else {
                 // 1) 2:30am during starting-DST transition is
                 //    intrepreted as 3:30am DT
                 // 2) 5:00pm during DST is intrepreted as 5:00pm DT
                 // 3) 1:30am during ending-DST transition is interpreted
                 //    as 1:30am DT/0:30am ST (before transition)
-                if (zi instanceof ZoneInfo) {
-                    zoneOffset = ((ZoneInfo)zi).getOffsetsByWall(ms, offsets);
-                } else {
-                    zoneOffset = zi.getOffset(ms - zi.getRawOffset());
-                }
+                zoneOffset = zi.getOffset(ms - zi.getRawOffset());
             }
         }
         ms -= zoneOffset;

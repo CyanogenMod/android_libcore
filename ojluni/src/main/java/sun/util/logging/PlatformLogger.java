@@ -36,8 +36,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import sun.misc.JavaLangAccess;
-import sun.misc.SharedSecrets;
 
 /**
  * Platform logger provides an API for the JRE components to log
@@ -581,17 +579,11 @@ public class PlatformLogger {
             String sourceClassName = null;
             String sourceMethodName = null;
 
-            JavaLangAccess access = SharedSecrets.getJavaLangAccess();
             Throwable throwable = new Throwable();
-            int depth = access.getStackTraceDepth(throwable);
 
             String logClassName = "sun.util.logging.PlatformLogger";
             boolean lookingForLogger = true;
-            for (int ix = 0; ix < depth; ix++) {
-                // Calling getStackTraceElement directly prevents the VM
-                // from paying the cost of building the entire stack frame.
-                StackTraceElement frame =
-                    access.getStackTraceElement(throwable, ix);
+            for (StackTraceElement frame : throwable.getStackTrace()) {
                 String cname = frame.getClassName();
                 if (lookingForLogger) {
                     // Skip all frames until we have found the first logger frame.

@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 import libcore.icu.ICU;
 
 public class LocaleInternalsTest extends TestCase {
-
+/*
     public void test_serializeExtensions() {
         Map<Character, String> extensions = new TreeMap<Character, String>();
 
@@ -125,5 +125,5 @@ public class LocaleInternalsTest extends TestCase {
 
         Locale.setDefault(new Locale("bogus", "LOCALE"));
         assertEquals("und", ICU.getDefaultLocale());
-    }
+    } */
 }

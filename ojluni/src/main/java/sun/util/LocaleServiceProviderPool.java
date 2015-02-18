@@ -42,9 +42,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.spi.LocaleServiceProvider;
+import libcore.icu.ICU;
 
 import sun.util.logging.PlatformLogger;
-import sun.util.resources.LocaleData;
 import sun.util.resources.OpenListResourceBundle;
 
 /**
@@ -169,12 +169,13 @@ public final class LocaleServiceProviderPool {
                 java.text.spi.DateFormatSymbolsProvider.class,
                 java.text.spi.DecimalFormatSymbolsProvider.class,
                 java.text.spi.NumberFormatProvider.class,
-                java.util.spi.CurrencyNameProvider.class,
+                //java.util.spi.CurrencyNameProvider.class,
                 java.util.spi.LocaleNameProvider.class,
-                java.util.spi.TimeZoneNameProvider.class };
+                java.util.spi.TimeZoneNameProvider.class,
+            };
 
             // Normalize locales for look up
-            Locale[] allLocales = LocaleData.getAvailableLocales();
+            Locale[] allLocales = ICU.getAvailableLocales();
             Set<Locale> all = new HashSet<Locale>(allLocales.length);
             for (Locale locale : allLocales) {
                 all.add(getLookupLocale(locale));
@@ -263,7 +264,7 @@ public final class LocaleServiceProviderPool {
         if (availableJRELocales == null) {
             synchronized (LocaleServiceProviderPool.class) {
                 if (availableJRELocales == null) {
-                    Locale[] allLocales = LocaleData.getAvailableLocales();
+                    Locale[] allLocales = ICU.getAvailableLocales();
                     List<Locale> tmpList = new ArrayList<>(allLocales.length);
                     for (Locale locale : allLocales) {
                         tmpList.add(getLookupLocale(locale));
