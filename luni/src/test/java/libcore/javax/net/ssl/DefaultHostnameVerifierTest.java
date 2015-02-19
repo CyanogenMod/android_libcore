@@ -198,6 +198,11 @@ public final class DefaultHostnameVerifierTest extends TestCase {
         assertFalse(verifyWithDomainNamePattern("ddd.", "d*d."));
     }
 
+    public void testNoPrefixMatch() {
+        assertFalse(verifyWithDomainNamePattern("imap.google.com.au", "imap.google.com"));
+        assertFalse(verifyWithDomainNamePattern("imap.google.com.au", "*.google.com"));
+    }
+
     public void testVerifyHostName() {
         assertTrue(verifyWithDomainNamePattern("a.b.c.d", "a.b.c.d"));
         assertTrue(verifyWithDomainNamePattern("a.b.c.d", "*.b.c.d"));
