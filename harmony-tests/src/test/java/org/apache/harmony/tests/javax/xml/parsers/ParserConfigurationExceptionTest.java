@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tests.api.javax.xml.parsers;
+package org.apache.harmony.tests.javax.xml.parsers;
 
 import javax.xml.parsers.ParserConfigurationException;
 

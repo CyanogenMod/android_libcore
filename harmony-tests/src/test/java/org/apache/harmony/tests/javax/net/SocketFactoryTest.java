@@ -20,7 +20,7 @@
 * @version $Revision$
 */
 
-package tests.api.javax.net;
+package org.apache.harmony.tests.javax.net;
 
 import java.io.IOException;
 import java.net.InetAddress;

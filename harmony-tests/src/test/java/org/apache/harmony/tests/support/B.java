@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package tests.api.support;
+package org.apache.harmony.tests.support;
 
 public class B extends A {
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tests.api.javax.net.ssl;
+package org.apache.harmony.tests.javax.net.ssl;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
 
