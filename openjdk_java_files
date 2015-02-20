@@ -58,7 +58,6 @@ java/text/spi/CollatorProvider.java
 sun/text/normalizer/NormalizerBase.java
 java/text/CollationRules.java
 java/text/RuleBasedCollator.java
-java/text/RBCollationTables.java
 sun/text/normalizer/NormalizerImpl.java
 sun/text/normalizer/UCharacterIterator.java
 sun/text/normalizer/UnicodeSetIterator.java
@@ -73,9 +72,6 @@ sun/text/CollatorUtilities.java
 sun/text/UCompactIntArray.java
 sun/text/IntHashtable.java
 sun/text/normalizer/Replaceable.java
-java/text/RBTableBuilder.java
-sun/misc/SoftCache.java
-sun/text/ComposedCharIter.java
 java/text/MergeCollation.java
 java/text/PatternEntry.java
 java/text/DateFormat.java

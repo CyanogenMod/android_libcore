@@ -38,14 +38,9 @@
 
 package java.text;
 
-import java.text.spi.CollatorProvider;
 import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-import java.util.spi.LocaleServiceProvider;
+import libcore.icu.ICU;
 import libcore.icu.RuleBasedCollatorICU;
-import sun.misc.SoftCache;
-import sun.util.LocaleServiceProviderPool;
 
 
 /**
@@ -214,6 +209,12 @@ public abstract class Collator
      */
     public final static int FULL_DECOMPOSITION = 2;
 
+    RuleBasedCollatorICU icuColl;
+
+    Collator(RuleBasedCollatorICU icuColl) {
+      this.icuColl = icuColl;
+  }
+
     /**
      * Gets the Collator for the current default locale.
      * The default locale is determined by java.util.Locale.getDefault.
@@ -234,51 +235,10 @@ public abstract class Collator
     public static synchronized
     Collator getInstance(Locale desiredLocale)
     {
-        Collator result = (Collator) cache.get(desiredLocale);
-        if (result != null) {
-                 return (Collator)result.clone();  // make the world safe
+        if (desiredLocale == null) {
+            throw new NullPointerException("locale == null");
         }
-
-        // Check whether a provider can provide an implementation that's closer
-        // to the requested locale than what the Java runtime itself can provide.
-        LocaleServiceProviderPool pool =
-            LocaleServiceProviderPool.getPool(CollatorProvider.class);
-        if (pool.hasProviders()) {
-            Collator providersInstance = pool.getLocalizedObject(
-                                            CollatorGetter.INSTANCE,
-                                            desiredLocale,
-                                            desiredLocale);
-            if (providersInstance != null) {
-                return providersInstance;
-            }
-        }
-
-        // Load the resource of the desired locale from resource
-        // manager.
-        RuleBasedCollatorICU icuColl = new RuleBasedCollatorICU(desiredLocale);
-        String colString = icuColl.getRules();
-        try
-        {
-            result = new RuleBasedCollator( CollationRules.DEFAULTRULES +
-                                            colString,
-                                            CANONICAL_DECOMPOSITION );
-        }
-        catch(ParseException foo)
-        {
-            // predefined tables should contain correct grammar
-            try {
-                result = new RuleBasedCollator( CollationRules.DEFAULTRULES );
-            } catch (ParseException bar) {
-                // do nothing
-            }
-        }
-        // Now that RuleBasedCollator adds expansions for pre-composed characters
-        // into their decomposed equivalents, the default collators don't need
-        // to have decomposition turned on.  Laura, 5/5/98, bug 4114077
-        result.setDecomposition(NO_DECOMPOSITION);
-
-        cache.put(desiredLocale,result);
-        return (Collator)result.clone();
+        return new RuleBasedCollator(new RuleBasedCollatorICU(desiredLocale));
     }
 
     /**
@@ -361,7 +321,26 @@ public abstract class Collator
      */
     public synchronized int getStrength()
     {
-        return strength;
+        return strength_ICU_Java(icuColl.getStrength());
+    }
+
+    private int strength_ICU_Java(int value) {
+        int javaValue = value;
+        switch (value) {
+        case RuleBasedCollatorICU.VALUE_PRIMARY:
+            javaValue = Collator.PRIMARY;
+            break;
+        case RuleBasedCollatorICU.VALUE_SECONDARY:
+            javaValue = Collator.SECONDARY;
+            break;
+        case RuleBasedCollatorICU.VALUE_TERTIARY:
+            javaValue = Collator.TERTIARY;
+            break;
+        case RuleBasedCollatorICU.VALUE_IDENTICAL:
+            javaValue = Collator.IDENTICAL;
+            break;
+        }
+        return javaValue;
     }
 
     /**
@@ -378,12 +357,21 @@ public abstract class Collator
      * PRIMARY, SECONDARY, TERTIARY or IDENTICAL.
      */
     public synchronized void setStrength(int newStrength) {
-        if ((newStrength != PRIMARY) &&
-            (newStrength != SECONDARY) &&
-            (newStrength != TERTIARY) &&
-            (newStrength != IDENTICAL))
-            throw new IllegalArgumentException("Incorrect comparison level.");
-        strength = newStrength;
+        icuColl.setStrength(strength_Java_ICU(newStrength));
+    }
+
+    private int strength_Java_ICU(int value) {
+        switch (value) {
+        case Collator.PRIMARY:
+            return RuleBasedCollatorICU.VALUE_PRIMARY;
+        case Collator.SECONDARY:
+            return RuleBasedCollatorICU.VALUE_SECONDARY;
+        case Collator.TERTIARY:
+            return RuleBasedCollatorICU.VALUE_TERTIARY;
+        case Collator.IDENTICAL:
+            return RuleBasedCollatorICU.VALUE_IDENTICAL;
+        }
+        throw new IllegalArgumentException("Bad strength: " + value);
     }
 
     /**
@@ -407,7 +395,20 @@ public abstract class Collator
      */
     public synchronized int getDecomposition()
     {
-        return decmp;
+        return decompositionMode_ICU_Java(icuColl.getDecomposition());
+    }
+
+    private int decompositionMode_ICU_Java(int mode) {
+        int javaMode = mode;
+        switch (mode) {
+        case RuleBasedCollatorICU.VALUE_OFF:
+            javaMode = Collator.NO_DECOMPOSITION;
+            break;
+        case RuleBasedCollatorICU.VALUE_ON:
+            javaMode = Collator.CANONICAL_DECOMPOSITION;
+            break;
+        }
+        return javaMode;
     }
     /**
      * Set the decomposition mode of this Collator. See getDecomposition
@@ -421,11 +422,17 @@ public abstract class Collator
      * mode.
      */
     public synchronized void setDecomposition(int decompositionMode) {
-        if ((decompositionMode != NO_DECOMPOSITION) &&
-            (decompositionMode != CANONICAL_DECOMPOSITION) &&
-            (decompositionMode != FULL_DECOMPOSITION))
-            throw new IllegalArgumentException("Wrong decomposition mode.");
-        decmp = decompositionMode;
+        icuColl.setDecomposition(decompositionMode_Java_ICU(decompositionMode));
+    }
+
+    private int decompositionMode_Java_ICU(int mode) {
+        switch (mode) {
+        case Collator.CANONICAL_DECOMPOSITION:
+            return RuleBasedCollatorICU.VALUE_ON;
+        case Collator.NO_DECOMPOSITION:
+            return RuleBasedCollatorICU.VALUE_OFF;
+        }
+        throw new IllegalArgumentException("Bad mode: " + mode);
     }
 
     /**
@@ -442,9 +449,7 @@ public abstract class Collator
      *         <code>Collator</code> instances are available.
      */
     public static synchronized Locale[] getAvailableLocales() {
-        LocaleServiceProviderPool pool =
-            LocaleServiceProviderPool.getPool(CollatorProvider.class);
-        return pool.getAvailableLocales();
+        return ICU.getAvailableCollatorLocales();
     }
 
     /**
@@ -453,9 +458,11 @@ public abstract class Collator
     public Object clone()
     {
         try {
-            return (Collator)super.clone();
+            Collator clone = (Collator) super.clone();
+            clone.icuColl = (RuleBasedCollatorICU) icuColl.clone();
+            return clone;
         } catch (CloneNotSupportedException e) {
-            throw new InternalError();
+            throw new AssertionError(e);
         }
     }
 
@@ -471,8 +478,7 @@ public abstract class Collator
         if (that == null) return false;
         if (getClass() != that.getClass()) return false;
         Collator other = (Collator) that;
-        return ((strength == other.strength) &&
-                (decmp == other.decmp));
+        return icuColl == null ? other.icuColl == null : icuColl.equals(other.icuColl);
     }
 
     /**
@@ -488,13 +494,8 @@ public abstract class Collator
      */
     protected Collator()
     {
-        strength = TERTIARY;
-        decmp = CANONICAL_DECOMPOSITION;
+        icuColl = new RuleBasedCollatorICU(Locale.getDefault());
     }
-
-    private int strength = 0;
-    private int decmp = 0;
-    private static SoftCache cache = new SoftCache();
 
     //
     // FIXME: These three constants should be removed.
@@ -517,31 +518,4 @@ public abstract class Collator
      * @see java.text.Collator#compare
      */
     final static int GREATER = 1;
-
-    /**
-     * Obtains a Collator instance from a CollatorProvider
-     * implementation.
-     */
-    private static class CollatorGetter
-        implements LocaleServiceProviderPool.LocalizedObjectGetter<CollatorProvider, Collator> {
-        private static final CollatorGetter INSTANCE = new CollatorGetter();
-
-        public Collator getObject(CollatorProvider collatorProvider,
-                                Locale locale,
-                                String key,
-                                Object... params) {
-            assert params.length == 1;
-            Collator result = collatorProvider.getInstance(locale);
-            if (result != null) {
-                // put this Collator instance in the cache for two locales, one
-                // is for the desired locale, and the other is for the actual
-                // locale where the provider is found, which may be a fall back locale.
-                cache.put((Locale)params[0], result);
-                cache.put(locale, result);
-                return (Collator)result.clone();
-            }
-
-            return null;
-        }
-    }
  }
