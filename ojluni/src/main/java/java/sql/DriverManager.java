@@ -25,13 +25,15 @@
 
 package java.sql;
 
+import dalvik.system.VMStack;
+
 import java.util.Iterator;
 import java.util.ServiceLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.CopyOnWriteArrayList;
+
 import sun.reflect.CallerSensitive;
-import sun.reflect.Reflection;
 
 /**
  * <P>The basic service for managing a set of JDBC drivers.<br>
@@ -184,7 +186,7 @@ public class DriverManager {
     @CallerSensitive
     public static Connection getConnection(String url,
         java.util.Properties info) throws SQLException {
-        return (getConnection(url, info, Reflection.getCallerClass()));
+        return (getConnection(url, info, VMStack.getCallingClassLoader()));
     }
 
     /**
@@ -212,7 +214,7 @@ public class DriverManager {
             info.put("password", password);
         }
 
-        return (getConnection(url, info, Reflection.getCallerClass()));
+        return (getConnection(url, info, VMStack.getCallingClassLoader()));
     }
 
     /**
@@ -230,7 +232,7 @@ public class DriverManager {
         throws SQLException {
 
         java.util.Properties info = new java.util.Properties();
-        return (getConnection(url, info, Reflection.getCallerClass()));
+        return (getConnection(url, info, VMStack.getCallingClassLoader()));
     }
 
     /**
@@ -250,14 +252,14 @@ public class DriverManager {
 
         println("DriverManager.getDriver(\"" + url + "\")");
 
-        Class<?> callerClass = Reflection.getCallerClass();
+        ClassLoader callerClassLoader = VMStack.getCallingClassLoader();
 
         // Walk through the loaded registeredDrivers attempting to locate someone
         // who understands the given URL.
         for (DriverInfo aDriver : registeredDrivers) {
             // If the caller does not have permission to load the driver then
             // skip it.
-            if(isDriverAllowed(aDriver.driver, callerClass)) {
+            if(isDriverAllowed(aDriver.driver, callerClassLoader)) {
                 try {
                     if(aDriver.driver.acceptsURL(url)) {
                         // Success!
@@ -322,7 +324,7 @@ public class DriverManager {
 
         DriverInfo aDriver = new DriverInfo(driver);
         if(registeredDrivers.contains(aDriver)) {
-            if (isDriverAllowed(driver, Reflection.getCallerClass())) {
+            if (isDriverAllowed(driver, VMStack.getCallingClassLoader())) {
                  registeredDrivers.remove(aDriver);
             } else {
                 // If the caller does not have permission to load the driver then
@@ -347,13 +349,13 @@ public class DriverManager {
     public static java.util.Enumeration<Driver> getDrivers() {
         java.util.Vector<Driver> result = new java.util.Vector<Driver>();
 
-        Class<?> callerClass = Reflection.getCallerClass();
+        ClassLoader callerClassLoader = VMStack.getCallingClassLoader();
 
         // Walk through the loaded registeredDrivers.
         for(DriverInfo aDriver : registeredDrivers) {
             // If the caller does not have permission to load the driver then
             // skip it.
-            if(isDriverAllowed(aDriver.driver, callerClass)) {
+            if(isDriverAllowed(aDriver.driver, callerClassLoader)) {
                 result.addElement(aDriver.driver);
             } else {
                 println("    skipping: " + aDriver.getClass().getName());
@@ -448,13 +450,6 @@ public class DriverManager {
 
     //------------------------------------------------------------------------
 
-    // Indicates whether the class object that would be created if the code calling
-    // DriverManager is accessible.
-    private static boolean isDriverAllowed(Driver driver, Class<?> caller) {
-        ClassLoader callerCL = caller != null ? caller.getClassLoader() : null;
-        return isDriverAllowed(driver, callerCL);
-    }
-
     private static boolean isDriverAllowed(Driver driver, ClassLoader classLoader) {
         boolean result = false;
         if(driver != null) {
@@ -537,14 +532,13 @@ public class DriverManager {
 
     //  Worker method called by the public getConnection() methods.
     private static Connection getConnection(
-        String url, java.util.Properties info, Class<?> caller) throws SQLException {
+        String url, java.util.Properties info, ClassLoader callerCL) throws SQLException {
         /*
          * When callerCl is null, we should check the application's
          * (which is invoking this class indirectly)
          * classloader, so that the JDBC driver class outside rt.jar
          * can be loaded from here.
          */
-        ClassLoader callerCL = caller != null ? caller.getClassLoader() : null;
         synchronized (DriverManager.class) {
             // synchronize loading of the correct classloader.
             if (callerCL == null) {
