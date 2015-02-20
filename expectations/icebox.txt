@@ -73,7 +73,7 @@
 {
   description: "Dalvik doesn't support XML Schemas, DTDs or validation",
   bug: 3268630,
-  name: "tests.api.javax.xml.parsers.DocumentBuilderTest#testSetEntityResolver",
+  name: "org.apache.harmony.tests.api.javax.xml.parsers.DocumentBuilderTest#testSetEntityResolver",
   substring: "java.lang.ClassCastException: org.apache.harmony.xml.dom.EntityReferenceImpl"
 },
 {
@@ -122,10 +122,10 @@
   description: "low-impact XML bugs:",
   result: EXEC_FAILED,
   names: [
-    "tests.api.javax.xml.parsers.DocumentBuilderFactoryTest#test_isSetXIncludeAware",
-    "tests.api.javax.xml.parsers.DocumentBuilderTest#testIsXIncludeAware",
-    "tests.api.javax.xml.parsers.SAXParserFactoryTest#test_setIsXIncludeAware",
-    "tests.api.javax.xml.parsers.SAXParserTest#testIsXIncludeAware"
+    "org.apache.harmony.tests.api.javax.xml.parsers.DocumentBuilderFactoryTest#test_isSetXIncludeAware",
+    "org.apache.harmony.tests.api.javax.xml.parsers.DocumentBuilderTest#testIsXIncludeAware",
+    "org.apache.harmony.tests.api.javax.xml.parsers.SAXParserFactoryTest#test_setIsXIncludeAware",
+    "org.apache.harmony.tests.api.javax.xml.parsers.SAXParserTest#testIsXIncludeAware"
   ],
   substring: "java.lang.UnsupportedOperationException: This parser does not support specification \"Unknown\" version \"0.0\""
 },

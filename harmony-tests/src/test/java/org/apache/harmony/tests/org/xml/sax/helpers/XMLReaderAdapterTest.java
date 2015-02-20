@@ -74,7 +74,7 @@ public class XMLReaderAdapterTest extends TestCase {
 
     public void testXMLReaderAdapter() {
         System.setProperty("org.xml.sax.driver",
-                "tests.api.org.xml.sax.support.DoNothingXMLReader");
+                "org.apache.harmony.tests.org.xml.sax.support.DoNothingXMLReader");
 
         try {
             new XMLReaderAdapter();

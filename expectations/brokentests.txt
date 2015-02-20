@@ -123,8 +123,8 @@
   description: "Destroys MD5 provider, hurts succeeding tests",
   result: EXEC_FAILED,
   names: [
-      "tests.api.javax.security.cert.X509CertificateTest#testVerifyPublicKey",
-      "tests.api.javax.security.cert.X509CertificateTest#testVerifyPublicKeyString"
+      "org.apache.harmony.tests.api.javax.security.cert.X509CertificateTest#testVerifyPublicKey",
+      "org.apache.harmony.tests.api.javax.security.cert.X509CertificateTest#testVerifyPublicKeyString"
   ]
 },
 {
