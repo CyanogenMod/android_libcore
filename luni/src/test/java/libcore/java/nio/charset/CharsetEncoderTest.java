@@ -23,6 +23,7 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class CharsetEncoderTest extends junit.framework.TestCase {
@@ -214,5 +215,19 @@ public class CharsetEncoderTest extends junit.framework.TestCase {
         assertEquals(0x00, bb.get(1));
         assertEquals(0x00, bb.get(2));
         assertEquals(0x00, bb.get(3));
+    }
+
+    // http://b/19185235
+    public void testFlushWithIncompleteInput() {
+        CharsetEncoder encoder = StandardCharsets.UTF_8.newEncoder();
+        ByteBuffer output = ByteBuffer.allocate(10);
+        CoderResult result = encoder.encode(CharBuffer.wrap("\ud800"), output,
+                true /* endOfInput */);
+        assertTrue(result.isUnderflow());
+
+        result = encoder.flush(output);
+        assertTrue(result.isMalformed());
+        assertEquals(1, result.length());
+        assertEquals(0, output.position());
     }
 }
