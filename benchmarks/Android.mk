@@ -21,7 +21,8 @@ ifeq ($(LIBCORE_SKIP_TESTS),)
 include $(CLEAR_VARS)
 LOCAL_MODULE := benchmarks
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
-LOCAL_STATIC_JAVA_LIBRARIES := caliper-prebuilt core-tests
+# TODO: Remove icu4j from this deps list once it's in the boot classpath.
+LOCAL_STATIC_JAVA_LIBRARIES := caliper-prebuilt mockwebserver core-tests-support icu4j
 LOCAL_NO_STANDARD_LIBRARIES := true
 LOCAL_JAVA_LIBRARIES := core-libart conscrypt core-junit bouncycastle framework
 LOCAL_MODULE_TAGS := tests
