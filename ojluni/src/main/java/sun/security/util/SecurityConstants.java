@@ -73,6 +73,7 @@ public final class SecurityConstants {
     /**
      * Permission type used when AWT is not present.
      */
+    /* ----- BEGIN android -----
     private static class FakeAWTPermission extends BasicPermission {
         private static final long serialVersionUID = -1L;
         public FakeAWTPermission(String name) {
@@ -82,10 +83,12 @@ public final class SecurityConstants {
             return "(\"java.awt.AWTPermission\" \"" + getName() + "\")";
         }
     }
+    ----- END android ----- */
 
     /**
      * Permission factory used when AWT is not present.
      */
+    /* ----- BEGIN android -----
     private static class FakeAWTPermissionFactory
         implements PermissionFactory<FakeAWTPermission>
     {
@@ -94,22 +97,20 @@ public final class SecurityConstants {
             return new FakeAWTPermission(name);
         }
     }
+    ----- END android ----- */
 
     /**
      * AWT Permissions used in the JDK.
      */
+    /* ----- BEGIN android -----
     public static class AWT {
         private AWT() { }
 
-        /**
-         * The class name of the factory to create java.awt.AWTPermission objects.
-         */
+        // The class name of the factory to create java.awt.AWTPermission objects.
         private static final String AWTFactory = "sun.awt.AWTPermissionFactory";
 
-        /**
-         * The PermissionFactory to create AWT permissions (or fake permissions
-         * if AWT is not present).
-         */
+         // The PermissionFactory to create AWT permissions (or fake permissions
+         // if AWT is not present).
         private static final PermissionFactory<?> factory = permissionFactory();
 
         private static PermissionFactory<?> permissionFactory() {
@@ -182,6 +183,7 @@ public final class SecurityConstants {
         public static final Permission ACCESS_SYSTEM_TRAY_PERMISSION =
             newAWTPermission("accessSystemTray");
     }
+    ----- END android ----- */
 
     // java.net.URL
     public static final NetPermission SPECIFY_HANDLER_PERMISSION =

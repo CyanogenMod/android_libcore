@@ -77,6 +77,7 @@ public final class Security {
         boolean loadedProps = false;
         boolean overrideAll = false;
 
+        /* ----- BEGIN android -----
         // first load the system properties file
         // to determine the value of security.overridePropertiesFile
         File propFile = securityPropFile("java.security");
@@ -109,7 +110,24 @@ public final class Security {
                     }
                 }
             }
+        }*/
+
+        try {
+            /*
+             * Android keeps the property file in a jar resource.
+             */
+            InputStream propStream =
+                Security.class.getResourceAsStream("security.properties");
+            BufferedInputStream bufStream = new BufferedInputStream(propStream);
+            props.load(bufStream);
+            loadedProps = true;
+            bufStream.close();
+            propStream.close();
+        } catch (Exception ex) {
+            System.logE("Could not load 'security.properties'", ex);
         }
+        File propFile;
+        // ----- END android -----
 
         if ("true".equalsIgnoreCase(props.getProperty
                 ("security.overridePropertiesFile"))) {
@@ -192,12 +210,18 @@ public final class Security {
      * is not found.
      */
     private static void initializeStatic() {
+        /* ----- BEGIN android -----
         props.put("security.provider.1", "sun.security.provider.Sun");
         props.put("security.provider.2", "sun.security.rsa.SunRsaSign");
         props.put("security.provider.3", "com.sun.net.ssl.internal.ssl.Provider");
         props.put("security.provider.4", "com.sun.crypto.provider.SunJCE");
         props.put("security.provider.5", "sun.security.jgss.SunProvider");
-        props.put("security.provider.6", "com.sun.security.sasl.Provider");
+        props.put("security.provider.6", "com.sun.security.sasl.Provider"); */
+        props.put("security.provider.1", "com.android.org.conscrypt.OpenSSLProvider");
+        props.put("security.provider.2", "com.android.org.bouncycastle.jce.provider.BouncyCastleProvider");
+        props.put("security.provider.3", "org.apache.harmony.security.provider.crypto.CryptoProvider");
+        props.put("security.provider.4", "com.android.org.conscrypt.JSSEProvider");
+        // ----- END android -----
     }
 
     /**

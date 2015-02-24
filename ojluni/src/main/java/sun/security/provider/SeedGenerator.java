@@ -68,9 +68,11 @@ import java.io.*;
 import java.util.Properties;
 import java.util.Enumeration;
 import java.net.*;
+/* ----- BEGIN android -----
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+----- END android ----- */
 import java.util.Random;
 import sun.security.util.Debug;
 
@@ -179,6 +181,7 @@ abstract class SeedGenerator {
                         // The temporary dir
                         File f = new File(p.getProperty("java.io.tmpdir"));
                         int count = 0;
+                        /* ----- BEGIN android -----
                         try (DirectoryStream<Path> stream = Files.newDirectoryStream(f.toPath())) {
                             // We use a Random object to choose what file names
                             // should be used. Otherwise on a machine with too
@@ -193,6 +196,17 @@ abstract class SeedGenerator {
                                 if (count++ > 1024) {
                                     break;
                                 }
+                            }
+                        }
+                        ----- END android ----- */
+                        String[] sa = f.list();
+                        Random r = new Random();
+                        for(int i = 0; i < sa.length; i++) {
+                            if (count < 512 || r.nextBoolean()) {
+                                md.update(sa[i].getBytes());
+                            }
+                            if (count++ > 1024) {
+                                break;
                             }
                         }
                     } catch (Exception ex) {

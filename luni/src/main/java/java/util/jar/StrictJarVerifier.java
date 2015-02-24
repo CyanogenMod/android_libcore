@@ -17,7 +17,6 @@
 
 package java.util.jar;
 
-import org.apache.harmony.security.utils.JarUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,6 +25,7 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -33,6 +33,8 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import libcore.io.Base64;
+import sun.security.jca.Providers;
+import sun.security.pkcs.PKCS7;
 
 /**
  * Non-public class used by {@link JarFile} and {@link JarInputStream} to manage
@@ -48,7 +50,7 @@ import libcore.io.Base64;
  * files) agree with the JAR entries information found in the JAR manifest.
  * </ul>
  */
-class JarVerifier {
+class StrictJarVerifier {
     /**
      * List of accepted digest algorithms. This list is in order from most
      * preferred to least preferred.
@@ -61,7 +63,7 @@ class JarVerifier {
     };
 
     private final String jarName;
-    private final Manifest manifest;
+    private final StrictJarManifest manifest;
     private final HashMap<String, byte[]> metaEntries;
     private final int mainAttributesEnd;
 
@@ -151,7 +153,8 @@ class JarVerifier {
      * @param name
      *            the name of the JAR file being verified.
      */
-    JarVerifier(String name, Manifest manifest, HashMap<String, byte[]> metaEntries) {
+    StrictJarVerifier(String name, StrictJarManifest manifest,
+        HashMap<String, byte[]> metaEntries) {
         jarName = name;
         this.manifest = manifest;
         this.metaEntries = metaEntries;
@@ -291,23 +294,37 @@ class JarVerifier {
 
         byte[] sBlockBytes = metaEntries.get(certFile);
         try {
-            Certificate[] signerCertChain = JarUtils.verifySignature(
-                    new ByteArrayInputStream(sfBytes),
-                    new ByteArrayInputStream(sBlockBytes));
+            Object obj = null;
+            Certificate[] signerCertChain = null;
+            try {
+                obj = Providers.startJarVerification();
+                PKCS7 block = new PKCS7(sBlockBytes);
+                block.verify(sfBytes);
+                X509Certificate[] blockCerts = block.getCertificates();
+                if (blockCerts != null) {
+                    signerCertChain = new Certificate[blockCerts.length];
+                    for (int i = 0; i < blockCerts.length; ++i) {
+                        signerCertChain[i] = blockCerts[i];
+                    }
+                }
+            } finally {
+                Providers.stopJarVerification(obj);
+            }
             if (signerCertChain != null) {
                 certificates.put(signatureFile, signerCertChain);
             }
         } catch (IOException e) {
             return;
         } catch (GeneralSecurityException e) {
-            throw failedVerification(jarName, signatureFile);
+            e.printStackTrace();
+            throw failedVerification(jarName, signatureFile + e.getMessage());
         }
 
         // Verify manifest hash in .sf file
         Attributes attributes = new Attributes();
         HashMap<String, Attributes> entries = new HashMap<String, Attributes>();
         try {
-            ManifestReader im = new ManifestReader(sfBytes, attributes);
+            StrictJarManifestReader im = new StrictJarManifestReader(sfBytes, attributes);
             im.readEntries(entries, null);
         } catch (IOException e) {
             return;
@@ -341,7 +358,7 @@ class JarVerifier {
             Iterator<Map.Entry<String, Attributes>> it = entries.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry<String, Attributes> entry = it.next();
-                Manifest.Chunk chunk = manifest.getChunk(entry.getKey());
+                StrictJarManifest.Chunk chunk = manifest.getChunk(entry.getKey());
                 if (chunk == null) {
                     return;
                 }

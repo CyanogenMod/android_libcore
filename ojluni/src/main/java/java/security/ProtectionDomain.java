@@ -33,11 +33,12 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import sun.misc.JavaSecurityProtectionDomainAccess;
 import static sun.misc.JavaSecurityProtectionDomainAccess.ProtectionDomainCache;
-import sun.misc.SharedSecrets;
 import sun.security.util.Debug;
 import sun.security.util.SecurityConstants;
+/* ----- BEGIN android -----
 import sun.misc.JavaSecurityAccess;
 import sun.misc.SharedSecrets;
+----- END android ----- */
 
 /**
  *
@@ -61,6 +62,7 @@ import sun.misc.SharedSecrets;
 
 public class ProtectionDomain {
 
+    /* ----- BEGIN android -----
     static {
         // Set up JavaSecurityAccess in SharedSecrets
         SharedSecrets.setJavaSecurityAccess(
@@ -90,6 +92,7 @@ public class ProtectionDomain {
             }
        );
     }
+    ----- END android ----- */
 
     /* CodeSource */
     private CodeSource codesource ;
@@ -263,6 +266,7 @@ public class ProtectionDomain {
      */
     public boolean implies(Permission permission) {
 
+        /* ----- BEGIN android -----
         if (hasAllPerm) {
             // internal permission collection already has AllPermission -
             // no need to go to policy
@@ -276,6 +280,8 @@ public class ProtectionDomain {
             return permissions.implies(permission);
 
         return false;
+        ----- END android ----- */
+        return true;
     }
 
     // called by the VM -- do not remove
@@ -305,15 +311,20 @@ public class ProtectionDomain {
 
         // Check if policy is set; we don't want to load
         // the policy prematurely here
+        /* ----- BEGIN android -----
         PermissionCollection pc = Policy.isSet() && seeAllp() ?
                                       mergePermissions():
                                       getPermissions();
+        ----- END android ----- */
 
         return "ProtectionDomain "+
             " "+codesource+"\n"+
             " "+classloader+"\n"+
+        /* ----- BEGIN android -----
             " "+pals+"\n"+
-            " "+pc+"\n";
+            " "+pc+"\n";*/
+            " "+pals+"\n";
+        // ----- END android -----
     }
 
     /**
@@ -338,9 +349,12 @@ public class ProtectionDomain {
             return true;
         } else {
             if (debug != null) {
+                /* ----- BEGIN android -----
                 if (sm.getClass().getClassLoader() == null &&
                     Policy.getPolicyNoCheck().getClass().getClassLoader()
-                                                                == null) {
+                                                                == null) {*/
+                if (sm.getClass().getClassLoader() == null) {
+                // ----- END android ----
                     return true;
                 }
             } else {
@@ -360,6 +374,7 @@ public class ProtectionDomain {
         if (staticPermissions)
             return permissions;
 
+        /* ----- BEGIN android -----
         PermissionCollection perms =
             java.security.AccessController.doPrivileged
             (new java.security.PrivilegedAction<PermissionCollection>() {
@@ -368,6 +383,7 @@ public class ProtectionDomain {
                         return p.getPermissions(ProtectionDomain.this);
                     }
                 });
+        ----- END android ----- */
 
         Permissions mergedPerms = new Permissions();
         int swag = 32;
@@ -386,6 +402,8 @@ public class ProtectionDomain {
                 }
             }
         }
+
+        /* ----- BEGIN android -----
 
         //
         // Build a vector of Policy permissions for subsequent merge
@@ -436,6 +454,7 @@ public class ProtectionDomain {
                 mergedPerms.add(plVector.get(i));
             }
         }
+        ---- END android ----- */
         if (permissions != null) {
             for (int i = pdVector.size()-1; i >= 0; i--) {
                 mergedPerms.add(pdVector.get(i));
@@ -450,6 +469,7 @@ public class ProtectionDomain {
      */
     final class Key {}
 
+    /* ----- BEGIN android -----
     static {
         SharedSecrets.setJavaSecurityProtectionDomainAccess(
             new JavaSecurityProtectionDomainAccess() {
@@ -469,4 +489,5 @@ public class ProtectionDomain {
                 }
             });
     }
+    ----- END android ----- */
 }

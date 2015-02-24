@@ -110,4 +110,26 @@ public class ECParameterSpec implements AlgorithmParameterSpec {
     public int getCofactor() {
         return h;
     }
+    // ----- BEGIN android -----
+    private String curveName;
+
+    /**
+     * Used to set the curve name if available.
+     *
+     * @hide
+     */
+    public void setCurveName(String curveName) {
+        this.curveName = curveName;
+    }
+
+    /**
+     * Returns the name of the curve if this is a named curve. Returns
+     * {@code null} if this is not known to be a named curve.
+     *
+     * @hide
+     */
+    public String getCurveName() {
+        return curveName;
+    }
+    // ----- END android -----
 }

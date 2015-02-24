@@ -659,5 +659,10 @@ public class Attributes implements Map<Object,Object>, Cloneable {
          *      Java Product Versioning Specification</a>
          */
         public static final Name SPECIFICATION_VENDOR = new Name("Specification-Vendor");
+
+        /**
+         * @hide
+         */
+        public static final Name NAME = new Name("Name");
     }
 }

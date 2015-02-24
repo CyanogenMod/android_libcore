@@ -37,7 +37,9 @@ import java.security.CodeSource;
 import sun.misc.IOUtils;
 import sun.security.action.GetPropertyAction;
 import sun.security.util.ManifestEntryVerifier;
+/* ----- BEGIN android -----
 import sun.misc.SharedSecrets;
+----- END android ----- */
 
 /**
  * The <code>JarFile</code> class is used to read the contents of a jar file
@@ -59,6 +61,9 @@ import sun.misc.SharedSecrets;
  */
 public
 class JarFile extends ZipFile {
+    // ----- BEGIN android -----
+    static final String META_DIR = "META-INF/";
+    // ----- END android -----
     private SoftReference<Manifest> manRef;
     private JarEntry manEntry;
     private JarVerifier jv;
@@ -68,9 +73,11 @@ class JarFile extends ZipFile {
     private boolean hasClassPathAttribute;
 
     // Set up JavaUtilJarAccess in SharedSecrets
+    /* ----- BEGIN android -----
     static {
         SharedSecrets.setJavaUtilJarAccess(new JavaUtilJarAccessImpl());
     }
+    ----- END android ----- */
 
     /**
      * The JAR manifest file name.
@@ -190,7 +197,23 @@ class JarFile extends ZipFile {
         return man;
     }
 
-    private native String[] getMetaInfEntryNames();
+    /* ----- BEGIN android -----
+    private native String[] getMetaInfEntryNames();*/
+
+    private String[] getMetaInfEntryNames() {
+        List<String> list = new ArrayList<String>(8);
+
+        Enumeration<? extends ZipEntry> allEntries = entries();
+        while (allEntries.hasMoreElements()) {
+            ZipEntry ze = allEntries.nextElement();
+            if (ze.getName().startsWith(META_DIR)
+                    && ze.getName().length() > META_DIR.length()) {
+                list.add(ze.getName());
+            }
+        }
+        return list.toArray(new String[list.size()]);
+    }
+    // ----- END android -----
 
     /**
      * Returns the <code>JarEntry</code> for the given entry name or

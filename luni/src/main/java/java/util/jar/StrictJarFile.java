@@ -18,6 +18,8 @@
 package java.util.jar;
 
 import dalvik.system.CloseGuard;
+import java.io.ByteArrayInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -45,8 +47,7 @@ public final class StrictJarFile {
     // code, at the cost of some additional complexity.
     private final RandomAccessFile raf;
 
-    private final Manifest manifest;
-    private final JarVerifier verifier;
+    private final StrictJarVerifier verifier;
 
     private final boolean isSigned;
 
@@ -62,8 +63,9 @@ public final class StrictJarFile {
             // parse them. We never want to accept a JAR File with broken signatures
             // or manifests, so it's best to throw as early as possible.
             HashMap<String, byte[]> metaEntries = getMetaEntries();
-            this.manifest = new Manifest(metaEntries.get(JarFile.MANIFEST_NAME), true);
-            this.verifier = new JarVerifier(fileName, manifest, metaEntries);
+            StrictJarManifest manifest =
+                    new StrictJarManifest(metaEntries.get(JarFile.MANIFEST_NAME), true);
+            this.verifier = new StrictJarVerifier(fileName, manifest, metaEntries);
 
             isSigned = verifier.readCertificates() && verifier.isSignedJar();
         } catch (IOException ioe) {
@@ -72,10 +74,6 @@ public final class StrictJarFile {
         }
 
         guard.open("close");
-    }
-
-    public Manifest getManifest() {
-        return manifest;
     }
 
     public Iterator<ZipEntry> iterator() throws IOException {
@@ -141,12 +139,12 @@ public final class StrictJarFile {
         final InputStream is = getZipInputStream(ze);
 
         if (isSigned) {
-            JarVerifier.VerifierEntry entry = verifier.initEntry(ze.getName());
+            StrictJarVerifier.VerifierEntry entry = verifier.initEntry(ze.getName());
             if (entry == null) {
                 return is;
             }
 
-            return new JarFile.JarFileInputStream(is, ze.getSize(), entry);
+            return new JarFileInputStream(is, ze.getSize(), entry);
         }
 
         return is;
@@ -222,6 +220,87 @@ public final class StrictJarFile {
         }
 
         return metaEntries;
+    }
+
+    static final class JarFileInputStream extends FilterInputStream {
+        private final StrictJarVerifier.VerifierEntry entry;
+
+        private long count;
+        private boolean done = false;
+
+        JarFileInputStream(InputStream is, long size, StrictJarVerifier.VerifierEntry e) {
+            super(is);
+            entry = e;
+
+            count = size;
+        }
+
+        @Override
+        public int read() throws IOException {
+            if (done) {
+                return -1;
+            }
+            if (count > 0) {
+                int r = super.read();
+                if (r != -1) {
+                    entry.write(r);
+                    count--;
+                } else {
+                    count = 0;
+                }
+                if (count == 0) {
+                    done = true;
+                    entry.verify();
+                }
+                return r;
+            } else {
+                done = true;
+                entry.verify();
+                return -1;
+            }
+        }
+
+        @Override
+        public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+            if (done) {
+                return -1;
+            }
+            if (count > 0) {
+                int r = super.read(buffer, byteOffset, byteCount);
+                if (r != -1) {
+                    int size = r;
+                    if (count < size) {
+                        size = (int) count;
+                    }
+                    entry.write(buffer, byteOffset, size);
+                    count -= size;
+                } else {
+                    count = 0;
+                }
+                if (count == 0) {
+                    done = true;
+                    entry.verify();
+                }
+                return r;
+            } else {
+                done = true;
+                entry.verify();
+                return -1;
+            }
+        }
+
+        @Override
+        public int available() throws IOException {
+            if (done) {
+                return 0;
+            }
+            return super.available();
+        }
+
+        @Override
+        public long skip(long byteCount) throws IOException {
+            return Streams.skipByReading(this, byteCount);
+        }
     }
 
     private static native long nativeOpenJarFile(String fileName) throws IOException;
