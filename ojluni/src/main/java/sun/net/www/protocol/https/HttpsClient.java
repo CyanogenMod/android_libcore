@@ -115,7 +115,7 @@ final class HttpsClient extends HttpClient
 
     // default HostnameVerifier class canonical name
     private static final String defaultHVCanonicalName =
-            "javax.net.ssl.HttpsURLConnection.DefaultHostnameVerifier";
+            "javax.net.ssl.DefaultHostnameVerifier";
 
     /** Returns the default HTTPS port (443) */
     @Override
