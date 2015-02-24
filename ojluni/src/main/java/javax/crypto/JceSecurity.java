@@ -71,6 +71,7 @@ final class JceSecurity {
     private JceSecurity() {
     }
 
+    /* ----- BEGIN android -----
     static {
         try {
             AccessController.doPrivileged(new PrivilegedExceptionAction() {
@@ -90,6 +91,7 @@ final class JceSecurity {
             throw se;
         }
     }
+    ----- END android ----- */
 
     static Instance getInstance(String type, Class clazz, String algorithm,
             String provider) throws NoSuchAlgorithmException,
@@ -198,7 +200,11 @@ final class JceSecurity {
 
     // return whether this provider is properly signed and can be used by JCE
     static boolean canUseProvider(Provider p) {
+        /* ----- BEGIN android
         return getVerificationResult(p) == null;
+        */
+        return true;
+        // ----- END android -----
     }
 
     // dummy object to represent null

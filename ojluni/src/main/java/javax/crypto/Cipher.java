@@ -677,7 +677,11 @@ public class Cipher {
     // If the requested crypto service is export-controlled,
     // determine the maximum allowable keysize.
     private void initCryptoPermission() throws NoSuchAlgorithmException {
+        /* ----- BEGIN android -----
         if (JceSecurity.isRestricted() == false) {
+        */
+        if (true) {
+        // ----- END android -----
             cryptoPerm = CryptoAllPermission.INSTANCE;
             exmech = null;
             return;
@@ -2524,8 +2528,12 @@ public class Cipher {
      */
     public static final int getMaxAllowedKeyLength(String transformation)
             throws NoSuchAlgorithmException {
+        /* ----- BEGIN android -----
         CryptoPermission cp = getConfiguredPermission(transformation);
         return cp.getMaxKeySize();
+        */
+        return Integer.MAX_VALUE;
+        // ----- END android -----
     }
 
     /**
@@ -2548,8 +2556,12 @@ public class Cipher {
      */
     public static final AlgorithmParameterSpec getMaxAllowedParameterSpec(
             String transformation) throws NoSuchAlgorithmException {
+        /* ----- BEGIN android -----
         CryptoPermission cp = getConfiguredPermission(transformation);
         return cp.getAlgorithmParameterSpec();
+        */
+        return null;
+        // ----- END android -----
     }
 
     /**
