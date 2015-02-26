@@ -179,7 +179,7 @@ public class Proxy implements Serializable {
 
         Class<?> result;
         synchronized (loader.proxyCache) {
-            result = loader.proxyCache.get(interfaceSet);
+            result = loader.proxyCache.get(interfaceList);
             if (result == null) {
                 String name = baseName + nextClassNameIndex++;
                 result = generateProxy(name, interfaces, loader, methodsArray, exceptionsArray);
