@@ -491,6 +491,15 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "STDERR_FILENO", STDERR_FILENO);
     initConstant(env, c, "STDIN_FILENO", STDIN_FILENO);
     initConstant(env, c, "STDOUT_FILENO", STDOUT_FILENO);
+    initConstant(env, c, "ST_MANDLOCK", ST_MANDLOCK);
+    initConstant(env, c, "ST_NOATIME", ST_NOATIME);
+    initConstant(env, c, "ST_NODEV", ST_NODEV);
+    initConstant(env, c, "ST_NODIRATIME", ST_NODIRATIME);
+    initConstant(env, c, "ST_NOEXEC", ST_NOEXEC);
+    initConstant(env, c, "ST_NOSUID", ST_NOSUID);
+    initConstant(env, c, "ST_RDONLY", ST_RDONLY);
+    initConstant(env, c, "ST_RELATIME", ST_RELATIME);
+    initConstant(env, c, "ST_SYNCHRONOUS", ST_SYNCHRONOUS);
     initConstant(env, c, "S_IFBLK", S_IFBLK);
     initConstant(env, c, "S_IFCHR", S_IFCHR);
     initConstant(env, c, "S_IFDIR", S_IFDIR);
