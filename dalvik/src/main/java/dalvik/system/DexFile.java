@@ -34,7 +34,7 @@ import libcore.io.Libcore;
  * read-only by the VM.
  */
 public final class DexFile {
-    private long mCookie;
+    private Object mCookie;
     private final String mFileName;
     private final CloseGuard guard = CloseGuard.get();
 
@@ -175,10 +175,10 @@ public final class DexFile {
      *             normally should not happen
      */
     public void close() throws IOException {
-        if (mCookie != 0) {
+        if (mCookie != null) {
             guard.close();
             closeDexFile(mCookie);
-            mCookie = 0;
+            mCookie = null;
         }
     }
 
@@ -219,7 +219,7 @@ public final class DexFile {
         return defineClass(name, loader, mCookie, suppressed);
     }
 
-    private static Class defineClass(String name, ClassLoader loader, long cookie,
+    private static Class defineClass(String name, ClassLoader loader, Object cookie,
                                      List<Throwable> suppressed) {
         Class result = null;
         try {
@@ -290,22 +290,22 @@ public final class DexFile {
      * Open a DEX file.  The value returned is a magic VM cookie.  On
      * failure, an IOException is thrown.
      */
-    private static long openDexFile(String sourceName, String outputName, int flags) throws IOException {
+    private static Object openDexFile(String sourceName, String outputName, int flags) throws IOException {
         // Use absolute paths to enable the use of relative paths when testing on host.
         return openDexFileNative(new File(sourceName).getAbsolutePath(),
                                  (outputName == null) ? null : new File(outputName).getAbsolutePath(),
                                  flags);
     }
 
-    private static native void closeDexFile(long cookie);
-    private static native Class defineClassNative(String name, ClassLoader loader, long cookie)
+    private static native void closeDexFile(Object cookie);
+    private static native Class defineClassNative(String name, ClassLoader loader, Object cookie)
             throws ClassNotFoundException, NoClassDefFoundError;
-    private static native String[] getClassNameList(long cookie);
+    private static native String[] getClassNameList(Object cookie);
     /*
      * Open a DEX file.  The value returned is a magic VM cookie.  On
      * failure, an IOException is thrown.
      */
-    private static native long openDexFileNative(String sourceName, String outputName, int flags);
+    private static native Object openDexFileNative(String sourceName, String outputName, int flags);
 
     /**
      * Returns true if the VM believes that the apk/jar file is out of date
