@@ -23,6 +23,8 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
+
+import libcore.util.CountingOutputStream;
 import libcore.util.EmptyArray;
 
 /**
@@ -85,13 +87,38 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
 
     private final CRC32 crc = new CRC32();
 
-    private int offset = 0, curOffset = 0;
+    private long offset = 0;
 
     /** The charset-encoded name for the current entry. */
     private byte[] nameBytes;
 
     /** The charset-encoded comment for the current entry. */
     private byte[] entryCommentBytes;
+
+    private static final byte[] ZIP64_PLACEHOLDER_BYTES =
+            new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff };
+
+    /**
+     * Whether this zip file needs a Zip64 EOCD record / zip64 EOCD record locator. This
+     * will be true if we wrote an entry whose size or compressed size was too large for
+     * the standard zip format or if we exceeded the maximum number of entries allowed
+     * in the standard format.
+     */
+    private boolean archiveNeedsZip64EocdRecord;
+
+    /**
+     * Whether the current entry being processed needs a zip64 extended info record. This
+     * will be true if the entry is too large for the standard zip format or if the offset
+     * to the start of the current entry header is greater than 0xFFFFFFFF.
+     */
+    private boolean currentEntryNeedsZip64;
+
+    /**
+     * Whether we force all entries in this archive to have a zip64 extended info record.
+     * This of course implies that the {@code currentEntryNeedsZip64} and
+     * {@code archiveNeedsZip64EocdRecord} are always {@code true}.
+     */
+    private final boolean forceZip64;
 
     /**
      * Constructs a new {@code ZipOutputStream} that writes a zip file to the given
@@ -100,7 +127,15 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
      * <p>UTF-8 will be used to encode the file comment, entry names and comments.
      */
     public ZipOutputStream(OutputStream os) {
-        super(os, new Deflater(Deflater.DEFAULT_COMPRESSION, true));
+        this(os, false /* forceZip64 */);
+    }
+
+    /**
+     * @hide for testing only.
+     */
+    public ZipOutputStream(OutputStream os, boolean forceZip64) {
+        super(new CountingOutputStream(os), new Deflater(Deflater.DEFAULT_COMPRESSION, true));
+        this.forceZip64 = forceZip64;
     }
 
     /**
@@ -146,15 +181,30 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
                 throw new ZipException("Size mismatch");
             }
         }
-        curOffset = LOCHDR;
+
+        long curOffset = LOCHDR;
 
         // Write the DataDescriptor
         if (currentEntry.getMethod() != STORED) {
             curOffset += EXTHDR;
-            writeLong(out, EXTSIG);
-            writeLong(out, currentEntry.crc = crc.getValue());
-            writeLong(out, currentEntry.compressedSize = def.getTotalOut());
-            writeLong(out, currentEntry.size = def.getTotalIn());
+
+            // Data descriptor signature and CRC are 4 bytes each for both zip and zip64.
+            writeLongAsUint32(out, EXTSIG);
+            writeLongAsUint32(out, currentEntry.crc = crc.getValue());
+
+            currentEntry.compressedSize = def.getBytesWritten();
+            currentEntry.size = def.getBytesRead();
+
+            if (currentEntryNeedsZip64) {
+                // We need an additional 8 bytes to store 8 byte compressed / uncompressed
+                // sizes.
+                curOffset += 8;
+                writeLongAsUint64(out, currentEntry.compressedSize);
+                writeLongAsUint64(out, currentEntry.size);
+            } else {
+                writeLongAsUint32(out, currentEntry.compressedSize);
+                writeLongAsUint32(out, currentEntry.size);
+            }
         }
         // Update the CentralDirectory
         // http://www.pkware.com/documents/casestudies/APPNOTE.TXT
@@ -163,33 +213,54 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         // Some tools insist that the central directory have the UTF-8 flag.
         // http://code.google.com/p/android/issues/detail?id=20214
         flags |= ZipFile.GPBF_UTF8_FLAG;
-        writeLong(cDir, CENSIG);
-        writeShort(cDir, ZIP_VERSION_2_0); // Version this file was made by.
-        writeShort(cDir, ZIP_VERSION_2_0); // Minimum version needed to extract.
-        writeShort(cDir, flags);
-        writeShort(cDir, currentEntry.getMethod());
-        writeShort(cDir, currentEntry.time);
-        writeShort(cDir, currentEntry.modDate);
-        writeLong(cDir, crc.getValue());
+        writeLongAsUint32(cDir, CENSIG);
+        writeIntAsUint16(cDir, ZIP_VERSION_2_0); // Version this file was made by.
+        writeIntAsUint16(cDir, ZIP_VERSION_2_0); // Minimum version needed to extract.
+        writeIntAsUint16(cDir, flags);
+        writeIntAsUint16(cDir, currentEntry.getMethod());
+        writeIntAsUint16(cDir, currentEntry.time);
+        writeIntAsUint16(cDir, currentEntry.modDate);
+        writeLongAsUint32(cDir, crc.getValue());
+
         if (currentEntry.getMethod() == DEFLATED) {
-            curOffset += writeLong(cDir, def.getTotalOut());
-            writeLong(cDir, def.getTotalIn());
+            currentEntry.setCompressedSize(def.getBytesWritten());
+            currentEntry.setSize(def.getBytesRead());
+            curOffset += currentEntry.getCompressedSize();
         } else {
-            curOffset += writeLong(cDir, crc.tbytes);
-            writeLong(cDir, crc.tbytes);
-        }
-        curOffset += writeShort(cDir, nameBytes.length);
-        if (currentEntry.extra != null) {
-            curOffset += writeShort(cDir, currentEntry.extra.length);
-        } else {
-            writeShort(cDir, 0);
+            currentEntry.setCompressedSize(crc.tbytes);
+            currentEntry.setSize(crc.tbytes);
+            curOffset += currentEntry.getSize();
         }
 
-        writeShort(cDir, entryCommentBytes.length); // Comment length.
-        writeShort(cDir, 0); // Disk Start
-        writeShort(cDir, 0); // Internal File Attributes
-        writeLong(cDir, 0); // External File Attributes
-        writeLong(cDir, offset);
+        if (currentEntryNeedsZip64) {
+            // Refresh the extended info with the compressed size / size before
+            // writing it to the central directory.
+            Zip64.refreshZip64ExtendedInfo(currentEntry);
+
+            // NOTE: We would've written out the zip64 extended info locator to the entry
+            // extras while constructing the local file header. There's no need to do it again
+            // here. If we do, there will be a size mismatch since we're calculating offsets
+            // based on the *current* size of the extra data and not based on the size
+            // at the point of writing the LFH.
+            writeLongAsUint32(cDir, Zip64.MAX_ZIP_ENTRY_AND_ARCHIVE_SIZE);
+            writeLongAsUint32(cDir, Zip64.MAX_ZIP_ENTRY_AND_ARCHIVE_SIZE);
+        } else {
+            writeLongAsUint32(cDir, currentEntry.getCompressedSize());
+            writeLongAsUint32(cDir, currentEntry.getSize());
+        }
+
+        curOffset += writeIntAsUint16(cDir, nameBytes.length);
+        if (currentEntry.extra != null) {
+            curOffset += writeIntAsUint16(cDir, currentEntry.extra.length);
+        } else {
+            writeIntAsUint16(cDir, 0);
+        }
+
+        writeIntAsUint16(cDir, entryCommentBytes.length); // Comment length.
+        writeIntAsUint16(cDir, 0); // Disk Start
+        writeIntAsUint16(cDir, 0); // Internal File Attributes
+        writeLongAsUint32(cDir, 0); // External File Attributes
+        writeLongAsUint32(cDir, offset);
         cDir.write(nameBytes);
         nameBytes = null;
         if (currentEntry.extra != null) {
@@ -228,16 +299,32 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         if (currentEntry != null) {
             closeEntry();
         }
-        int cdirSize = cDir.size();
+
+        int cdirEntriesSize = cDir.size();
+        if (archiveNeedsZip64EocdRecord) {
+            Zip64.writeZip64EocdRecordAndLocator(cDir, entries.size(), offset, cdirEntriesSize);
+        }
+
         // Write Central Dir End
-        writeLong(cDir, ENDSIG);
-        writeShort(cDir, 0); // Disk Number
-        writeShort(cDir, 0); // Start Disk
-        writeShort(cDir, entries.size()); // Number of entries
-        writeShort(cDir, entries.size()); // Number of entries
-        writeLong(cDir, cdirSize); // Size of central dir
-        writeLong(cDir, offset); // Offset of central dir
-        writeShort(cDir, commentBytes.length);
+        writeLongAsUint32(cDir, ENDSIG);
+        writeIntAsUint16(cDir, 0); // Disk Number
+        writeIntAsUint16(cDir, 0); // Start Disk
+
+        // Instead of trying to figure out *why* this archive needed a zip64 eocd record,
+        // just delegate all these values to the zip64 eocd record.
+        if (archiveNeedsZip64EocdRecord) {
+            writeIntAsUint16(cDir, 0xFFFF); // Number of entries
+            writeIntAsUint16(cDir, 0xFFFF); // Number of entries
+            writeLongAsUint32(cDir, 0xFFFFFFFF); // Size of central dir
+            writeLongAsUint32(cDir, 0xFFFFFFFF); // Offset of central dir;
+        } else {
+            writeIntAsUint16(cDir, entries.size()); // Number of entries
+            writeIntAsUint16(cDir, entries.size()); // Number of entries
+            writeLongAsUint32(cDir, cdirEntriesSize); // Size of central dir
+            writeLongAsUint32(cDir, offset); // Offset of central dir
+        }
+
+        writeIntAsUint16(cDir, commentBytes.length);
         if (commentBytes.length > 0) {
             cDir.write(commentBytes);
         }
@@ -288,14 +375,8 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         }
 
         checkOpen();
+        checkAndSetZip64Requirements(ze);
 
-        if (entries.contains(ze.name)) {
-            throw new ZipException("Entry already exists: " + ze.name);
-        }
-        if (entries.size() == 64*1024-1) {
-            // TODO: support Zip64.
-            throw new ZipException("Too many entries for the zip file format's 16-bit entry count");
-        }
         nameBytes = ze.name.getBytes(StandardCharsets.UTF_8);
         checkSizeIsWithinShort("Name", nameBytes);
         entryCommentBytes = EmptyArray.BYTE;
@@ -310,6 +391,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         ze.setMethod(method);
 
         currentEntry = ze;
+        currentEntry.localHeaderRelOffset = offset;
         entries.add(currentEntry.name);
 
         // Local file header.
@@ -318,34 +400,88 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         // Java always outputs UTF-8 filenames. (Before Java 7, the RI didn't set this flag and used
         // modified UTF-8. From Java 7, when using UTF_8 it sets this flag and uses normal UTF-8.)
         flags |= ZipFile.GPBF_UTF8_FLAG;
-        writeLong(out, LOCSIG); // Entry header
-        writeShort(out, ZIP_VERSION_2_0); // Minimum version needed to extract.
-        writeShort(out, flags);
-        writeShort(out, method);
+        writeLongAsUint32(out, LOCSIG); // Entry header
+        writeIntAsUint16(out, ZIP_VERSION_2_0); // Minimum version needed to extract.
+        writeIntAsUint16(out, flags);
+        writeIntAsUint16(out, method);
         if (currentEntry.getTime() == -1) {
             currentEntry.setTime(System.currentTimeMillis());
         }
-        writeShort(out, currentEntry.time);
-        writeShort(out, currentEntry.modDate);
+        writeIntAsUint16(out, currentEntry.time);
+        writeIntAsUint16(out, currentEntry.modDate);
 
         if (method == STORED) {
-            writeLong(out, currentEntry.crc);
-            writeLong(out, currentEntry.size);
-            writeLong(out, currentEntry.size);
+            writeLongAsUint32(out, currentEntry.crc);
+
+            if (currentEntryNeedsZip64) {
+                // NOTE: According to the spec, we're allowed to use these fields under zip64
+                // as long as the sizes are <= 4G (and omit writing the zip64 extended information header).
+                //
+                // For simplicity, we write the zip64 extended info here even if we only need it
+                // in the central directory (i.e, the case where we're turning on zip64 because the
+                // offset to this entries LFH is > 0xFFFFFFFF).
+                out.write(ZIP64_PLACEHOLDER_BYTES);  // compressed size
+                out.write(ZIP64_PLACEHOLDER_BYTES);  // uncompressed size
+            } else {
+                writeLongAsUint32(out, currentEntry.size);
+                writeLongAsUint32(out, currentEntry.size);
+            }
         } else {
-            writeLong(out, 0);
-            writeLong(out, 0);
-            writeLong(out, 0);
+            writeLongAsUint32(out, 0);
+            writeLongAsUint32(out, 0);
+            writeLongAsUint32(out, 0);
         }
-        writeShort(out, nameBytes.length);
+
+        writeIntAsUint16(out, nameBytes.length);
+
+        if (currentEntryNeedsZip64) {
+            Zip64.insertZip64ExtendedInfoToExtras(currentEntry);
+        }
+
         if (currentEntry.extra != null) {
-            writeShort(out, currentEntry.extra.length);
+            writeIntAsUint16(out, currentEntry.extra.length);
         } else {
-            writeShort(out, 0);
+            writeIntAsUint16(out, 0);
         }
         out.write(nameBytes);
         if (currentEntry.extra != null) {
             out.write(currentEntry.extra);
+        }
+    }
+
+    private void checkAndSetZip64Requirements(ZipEntry entry) {
+        final long totalBytesWritten = getBytesWritten();
+        final long entriesWritten = entries.size();
+
+        currentEntryNeedsZip64 = false;
+        if (forceZip64) {
+            currentEntryNeedsZip64 = true;
+            archiveNeedsZip64EocdRecord = true;
+            return;
+        }
+
+        // In this particular case, we'll write a zip64 eocd record locator and a zip64 eocd
+        // record but we won't actually need zip64 extended info records for any of the individual
+        // entries (unless they trigger the checks below).
+        if (entriesWritten == 64*1024-1) {
+            archiveNeedsZip64EocdRecord = true;
+        }
+
+        // Check whether we'll need to write out a zip64 extended info record in both the local file header
+        // and the central directory. In addition, we will need a zip64 eocd record locator
+        // and record to mark this archive as zip64.
+        //
+        // TODO: This is an imprecise check. When method != STORED it's possible that the compressed
+        // size will be (slightly) larger than the actual size. How can we improve this ?
+        //
+        // TODO: Will we regret forcing zip64 for archive entries with unknown entry sizes ? This is
+        // standard "zip" behaviour on linux but i'm not sure if we'll end up breaking somebody as a
+        // result.
+        if (totalBytesWritten > Zip64.MAX_ZIP_ENTRY_AND_ARCHIVE_SIZE ||
+                (entry.getSize() > Zip64.MAX_ZIP_ENTRY_AND_ARCHIVE_SIZE) ||
+                (entry.getSize() == -1)) {
+            currentEntryNeedsZip64 = true;
+            archiveNeedsZip64EocdRecord = true;
         }
     }
 
@@ -386,7 +522,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         defaultCompressionMethod = method;
     }
 
-    private long writeLong(OutputStream os, long i) throws IOException {
+    static long writeLongAsUint32(OutputStream os, long i) throws IOException {
         // Write out the long value as an unsigned int
         os.write((int) (i & 0xFF));
         os.write((int) (i >> 8) & 0xFF);
@@ -395,7 +531,23 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         return i;
     }
 
-    private int writeShort(OutputStream os, int i) throws IOException {
+    static long writeLongAsUint64(OutputStream os, long i) throws IOException {
+        int i1 = (int) i;
+        os.write(i1 & 0xFF);
+        os.write((i1 >> 8) & 0xFF);
+        os.write((i1 >> 16) & 0xFF);
+        os.write((i1 >> 24) & 0xFF);
+
+        int i2 = (int) (i >> 32);
+        os.write(i2 & 0xFF);
+        os.write((i2 >> 8) & 0xFF);
+        os.write((i2 >> 16) & 0xFF);
+        os.write((i2 >> 24) & 0xFF);
+
+        return i;
+    }
+
+    static int writeIntAsUint16(OutputStream os, int i) throws IOException {
         os.write(i & 0xFF);
         os.write((i >> 8) & 0xFF);
         return i;
@@ -433,5 +585,12 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
             throw new IllegalArgumentException(property + " too long in UTF-8:" + bytes.length +
                                                " bytes");
         }
+    }
+
+    private long getBytesWritten() {
+        // This cast is somewhat messy but less error prone than keeping an
+        // CountingOutputStream reference around in addition to the FilterOutputStream's
+        // out.
+        return ((CountingOutputStream) out).getCount();
     }
 }
