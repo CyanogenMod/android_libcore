@@ -268,17 +268,10 @@ public class ZipEntry implements ZipConstants, Cloneable {
     /**
      * Sets the uncompressed size of this {@code ZipEntry}.
      *
-     * @param value
-     *            the uncompressed size for this entry.
-     * @throws IllegalArgumentException
-     *             if {@code value} < 0 or {@code value} > 0xFFFFFFFFL.
+     * @param value the uncompressed size for this entry.
      */
     public void setSize(long value) {
-        if (value >= 0 && value <= 0xFFFFFFFFL) {
-            size = value;
-        } else {
-            throw new IllegalArgumentException("Bad size: " + value);
-        }
+        size = value;
     }
 
     /**
@@ -380,7 +373,7 @@ public class ZipEntry implements ZipConstants, Cloneable {
      * On exit, "in" will be positioned at the start of the next entry
      * in the Central Directory.
      */
-    ZipEntry(byte[] cdeHdrBuf, InputStream cdStream, Charset defaultCharset) throws IOException {
+    ZipEntry(byte[] cdeHdrBuf, InputStream cdStream, Charset defaultCharset, boolean isZip64) throws IOException {
         Streams.readFully(cdStream, cdeHdrBuf, 0, cdeHdrBuf.length);
 
         BufferIterator it = HeapBufferIterator.iterator(cdeHdrBuf, 0, cdeHdrBuf.length,
@@ -438,6 +431,10 @@ public class ZipEntry implements ZipConstants, Cloneable {
             byte[] commentBytes = new byte[commentByteCount];
             Streams.readFully(cdStream, commentBytes, 0, commentByteCount);
             comment = new String(commentBytes, 0, commentBytes.length, charset);
+        }
+
+        if (isZip64) {
+            Zip64.parseZip64ExtendedInfo(this, true /* from central directory */);
         }
     }
 

@@ -1492,5 +1492,14 @@
   names: [
     "org.apache.harmony.tests.java.nio.charset.CharsetTest#testForName_withProviderWithRecursiveCall"
   ]
+},
+{
+  description: "Zip64 tests take too long to execute and need more than 5GB of space to run.",
+  result: EXEC_FAILED,
+  names: [
+    "libcore.java.util.zip.ZipFileTest#testZip64Support_largeNumberOfEntries",
+    "libcore.java.util.zip.ZipFileTest#testZip64Support_totalLargerThan4G",
+    "libcore.java.util.zip.ZipFileTest#testZip64Support_hugeEntry"
+  ]
 }
 ]
