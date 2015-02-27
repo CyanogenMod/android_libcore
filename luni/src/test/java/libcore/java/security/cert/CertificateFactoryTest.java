@@ -16,9 +16,11 @@
 
 package libcore.java.security.cert;
 
+import com.android.org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
 import com.android.org.bouncycastle.asn1.x509.BasicConstraints;
+import com.android.org.bouncycastle.asn1.x509.Extension;
 import com.android.org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
-import com.android.org.bouncycastle.asn1.x509.X509Extensions;
+import com.android.org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import com.android.org.bouncycastle.x509.X509V3CertificateGenerator;
 import com.android.org.bouncycastle.x509.extension.AuthorityKeyIdentifierStructure;
 
@@ -28,13 +30,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OptionalDataException;
-import java.io.StreamCorruptedException;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.Provider;
+import java.security.PublicKey;
 import java.security.Security;
 import java.security.cert.CertPath;
 import java.security.cert.Certificate;
@@ -554,25 +557,26 @@ public class CertificateFactoryTest extends TestCase {
 
         X509V3CertificateGenerator certGen = new X509V3CertificateGenerator();
 
+        PublicKey pubKey = keyPair.getPublic();
         certGen.setSerialNumber(serial);
         certGen.setIssuerDN(issuerPrincipal);
         certGen.setNotBefore(startDate);
         certGen.setNotAfter(expiryDate);
         certGen.setSubjectDN(subjectPrincipal);
-        certGen.setPublicKey(keyPair.getPublic());
+        certGen.setPublicKey(pubKey);
         certGen.setSignatureAlgorithm("SHA1withRSA");
 
         if (issuer != null) {
-            certGen.addExtension(X509Extensions.AuthorityKeyIdentifier, false,
+            certGen.addExtension(Extension.authorityKeyIdentifier, false,
                     new AuthorityKeyIdentifierStructure(issuer.certificate));
         } else {
-            certGen.addExtension(X509Extensions.AuthorityKeyIdentifier, false,
-                    new AuthorityKeyIdentifierStructure(keyPair.getPublic()));
+            certGen.addExtension(Extension.authorityKeyIdentifier, false,
+                    new AuthorityKeyIdentifier(generatePublicKeyDigest(pubKey)));
         }
 
-        certGen.addExtension(X509Extensions.SubjectKeyIdentifier, false,
-                SubjectKeyIdentifier.getInstance(keyPair.getPublic().getEncoded()));
-        certGen.addExtension(X509Extensions.BasicConstraints, true, basicConstraints);
+        certGen.addExtension(Extension.subjectKeyIdentifier, false,
+                new SubjectKeyIdentifier(generatePublicKeyDigest(pubKey)));
+        certGen.addExtension(Extension.basicConstraints, true, basicConstraints);
 
         X509Certificate cert = certGen.generate(caKey);
 
@@ -581,5 +585,19 @@ public class CertificateFactoryTest extends TestCase {
         holder.privateKey = keyPair.getPrivate();
 
         return holder;
+    }
+
+    /**
+     * Generates a type 1 key identifier according to RFC 3280 4.2.1.2.
+     */
+    private static byte[] generatePublicKeyDigest(PublicKey pubKey) {
+        SubjectPublicKeyInfo spki = SubjectPublicKeyInfo.getInstance(pubKey.getEncoded());
+        MessageDigest sha1digest;
+        try {
+            sha1digest = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-1 not available");
+        }
+        return sha1digest.digest(spki.getPublicKeyData().getBytes());
     }
 }
