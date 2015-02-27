@@ -278,11 +278,6 @@ public final class Locale implements Cloneable, Serializable {
      */
     private static final TreeMap<String, String> GRANDFATHERED_LOCALES;
 
-    /**
-     * The default locale, returned by {@code Locale.getDefault()}.
-     */
-    private static Locale defaultLocale;
-
     static {
         GRANDFATHERED_LOCALES = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
 
@@ -319,9 +314,14 @@ public final class Locale implements Cloneable, Serializable {
         GRANDFATHERED_LOCALES.put("zh-min", "nan-x-zh-min");
         GRANDFATHERED_LOCALES.put("zh-min-nan", "nan");
         GRANDFATHERED_LOCALES.put("zh-xiang", "hsn");
+    }
 
-        // Initialize the default locale from the system properties.
-        defaultLocale = getDefaultLocaleFromSystemProperties();
+    private static class NoImagePreloadHolder {
+        /**
+         * The default locale, returned by {@code Locale.getDefault()}.
+         * Initialize the default locale from the system properties.
+         */
+        private static Locale defaultLocale = Locale.getDefaultLocaleFromSystemProperties();
     }
 
     /**
@@ -1066,7 +1066,7 @@ public final class Locale implements Cloneable, Serializable {
      * Instead, use this method to look it up for each use.
      */
     public static Locale getDefault() {
-        return defaultLocale;
+        return NoImagePreloadHolder.defaultLocale;
     }
 
     /**
@@ -1660,7 +1660,7 @@ public final class Locale implements Cloneable, Serializable {
             throw new NullPointerException("locale == null");
         }
         String languageTag = locale.toLanguageTag();
-        defaultLocale = locale;
+        NoImagePreloadHolder.defaultLocale = locale;
         ICU.setDefaultLocale(languageTag);
     }
 
