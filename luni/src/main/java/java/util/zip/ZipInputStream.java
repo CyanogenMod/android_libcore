@@ -81,7 +81,9 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
 
     private ZipEntry currentEntry;
 
-    private final byte[] hdrBuf = new byte[LOCHDR - LOCVER];
+    private boolean currentEntryIsZip64;
+
+    private final byte[] hdrBuf = new byte[LOCHDR - LOCVER + 8];
 
     private final CRC32 crc = new CRC32();
 
@@ -159,7 +161,7 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         }
 
         try {
-            readAndVerifyDataDescriptor(inB, out);
+            readAndVerifyDataDescriptor(inB, out, currentEntryIsZip64);
         } catch (Exception e) {
             if (failure == null) { // otherwise we're already going to throw
                 failure = e;
@@ -183,16 +185,31 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
         }
     }
 
-    private void readAndVerifyDataDescriptor(int inB, int out) throws IOException {
+    private void readAndVerifyDataDescriptor(long inB, long out, boolean isZip64) throws IOException {
         if (hasDD) {
-            Streams.readFully(in, hdrBuf, 0, EXTHDR);
+            if (isZip64) {
+                // 8 additional bytes since the compressed / uncompressed size fields
+                // in the extended header are 8 bytes each, instead of 4 bytes each.
+                Streams.readFully(in, hdrBuf, 0, EXTHDR + 8);
+            } else {
+                Streams.readFully(in, hdrBuf, 0, EXTHDR);
+            }
+
             int sig = Memory.peekInt(hdrBuf, 0, ByteOrder.LITTLE_ENDIAN);
             if (sig != (int) EXTSIG) {
                 throw new ZipException(String.format("unknown format (EXTSIG=%x)", sig));
             }
             currentEntry.crc = ((long) Memory.peekInt(hdrBuf, EXTCRC, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
-            currentEntry.compressedSize = ((long) Memory.peekInt(hdrBuf, EXTSIZ, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
-            currentEntry.size = ((long) Memory.peekInt(hdrBuf, EXTLEN, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
+
+            if (isZip64) {
+                currentEntry.compressedSize = Memory.peekLong(hdrBuf, EXTSIZ, ByteOrder.LITTLE_ENDIAN);
+                // Note that we apply an adjustment of 4 bytes to the offset of EXTLEN to account
+                // for the 8 byte size for zip64.
+                currentEntry.size = Memory.peekLong(hdrBuf, EXTLEN + 4, ByteOrder.LITTLE_ENDIAN);
+            } else {
+                currentEntry.compressedSize = ((long) Memory.peekInt(hdrBuf, EXTSIZ, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
+                currentEntry.size = ((long) Memory.peekInt(hdrBuf, EXTLEN, ByteOrder.LITTLE_ENDIAN)) & 0xffffffffL;
+            }
         }
         if (currentEntry.crc != crc.getValue()) {
             throw new ZipException("CRC mismatch");
@@ -266,7 +283,11 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
             byte[] extraData = new byte[extraLength];
             Streams.readFully(in, extraData, 0, extraLength);
             currentEntry.setExtra(extraData);
+            currentEntryIsZip64 = Zip64.parseZip64ExtendedInfo(currentEntry, false /* from central directory */);
+        } else {
+            currentEntryIsZip64 = false;
         }
+
         return currentEntry;
     }
 
