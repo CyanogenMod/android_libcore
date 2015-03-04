@@ -59,12 +59,8 @@ public final class Daemons {
         private Thread thread;
         private String name;
 
-        public Daemon(String name) {
+        protected Daemon(String name) {
             this.name = name;
-        }
-
-        public Daemon() {
-            this.name = getClass().getSimpleName();
         }
 
         public synchronized void start() {
