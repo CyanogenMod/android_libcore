@@ -57,12 +57,21 @@ public final class Daemons {
      */
     private static abstract class Daemon implements Runnable {
         private Thread thread;
+        private String name;
+
+        public Daemon(String name) {
+            this.name = name;
+        }
+
+        public Daemon() {
+            this.name = getClass().getSimpleName();
+        }
 
         public synchronized void start() {
             if (thread != null) {
                 throw new IllegalStateException("already running");
             }
-            thread = new Thread(ThreadGroup.systemThreadGroup, this, getClass().getSimpleName());
+            thread = new Thread(ThreadGroup.systemThreadGroup, this, name);
             thread.setDaemon(true);
             thread.start();
         }
@@ -127,6 +136,10 @@ public final class Daemons {
     private static class ReferenceQueueDaemon extends Daemon {
         private static final ReferenceQueueDaemon INSTANCE = new ReferenceQueueDaemon();
 
+        ReferenceQueueDaemon() {
+            super("ReferenceQueueDaemon");
+        }
+
         @Override public void run() {
             while (isRunning()) {
                 Reference<?> list;
@@ -162,6 +175,10 @@ public final class Daemons {
         private final ReferenceQueue<Object> queue = FinalizerReference.queue;
         private volatile Object finalizingObject;
         private volatile long finalizingStartedNanos;
+
+        FinalizerDaemon() {
+            super("FinalizerDaemon");
+        }
 
         @Override public void run() {
             while (isRunning()) {
@@ -202,6 +219,10 @@ public final class Daemons {
      */
     private static class FinalizerWatchdogDaemon extends Daemon {
         private static final FinalizerWatchdogDaemon INSTANCE = new FinalizerWatchdogDaemon();
+
+        FinalizerWatchdogDaemon() {
+            super("FinalizerWatchdogDaemon");
+        }
 
         @Override public void run() {
             while (isRunning()) {
@@ -304,6 +325,10 @@ public final class Daemons {
 
     private static class HeapTaskDaemon extends Daemon {
         private static final HeapTaskDaemon INSTANCE = new HeapTaskDaemon();
+
+        HeapTaskDaemon() {
+            super("HeapTaskDaemon");
+        }
 
         // Overrides the Daemon.interupt method which is called from Daemons.stop.
         public synchronized void interrupt(Thread thread) {
