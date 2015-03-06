@@ -29,8 +29,8 @@
 
 // ICU documentation: http://icu-project.org/apiref/icu4c/classRegexMatcher.html
 
-static RegexMatcher* toRegexMatcher(jlong address) {
-    return reinterpret_cast<RegexMatcher*>(static_cast<uintptr_t>(address));
+static icu::RegexMatcher* toRegexMatcher(jlong address) {
+    return reinterpret_cast<icu::RegexMatcher*>(static_cast<uintptr_t>(address));
 }
 
 /**
@@ -74,7 +74,7 @@ public:
         maybeThrowIcuException(mEnv, "utext_close", mStatus);
     }
 
-    RegexMatcher* operator->() {
+    icu::RegexMatcher* operator->() {
         return mMatcher;
     }
 
@@ -106,7 +106,7 @@ private:
 
     JNIEnv* mEnv;
     jstring mJavaInput;
-    RegexMatcher* mMatcher;
+    icu::RegexMatcher* mMatcher;
     const jchar* mChars;
     UErrorCode mStatus;
     UText* mUText;
@@ -170,9 +170,9 @@ static jint Matcher_matchesImpl(JNIEnv* env, jclass, jlong addr, jstring javaTex
 }
 
 static jlong Matcher_openImpl(JNIEnv* env, jclass, jlong patternAddr) {
-    RegexPattern* pattern = reinterpret_cast<RegexPattern*>(static_cast<uintptr_t>(patternAddr));
+    icu::RegexPattern* pattern = reinterpret_cast<icu::RegexPattern*>(static_cast<uintptr_t>(patternAddr));
     UErrorCode status = U_ZERO_ERROR;
-    RegexMatcher* result = pattern->matcher(status);
+    icu::RegexMatcher* result = pattern->matcher(status);
     maybeThrowIcuException(env, "RegexPattern::matcher", status);
     return reinterpret_cast<uintptr_t>(result);
 }

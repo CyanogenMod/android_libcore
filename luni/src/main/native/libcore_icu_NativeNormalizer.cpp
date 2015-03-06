@@ -30,8 +30,8 @@ static jstring NativeNormalizer_normalizeImpl(JNIEnv* env, jclass, jstring s, ji
   }
   UNormalizationMode mode = static_cast<UNormalizationMode>(intMode);
   UErrorCode status = U_ZERO_ERROR;
-  UnicodeString dst;
-  Normalizer::normalize(src.unicodeString(), mode, 0, dst, status);
+  icu::UnicodeString dst;
+  icu::Normalizer::normalize(src.unicodeString(), mode, 0, dst, status);
   maybeThrowIcuException(env, "Normalizer::normalize", status);
   return dst.isBogus() ? NULL : env->NewString(dst.getBuffer(), dst.length());
 }
@@ -43,7 +43,7 @@ static jboolean NativeNormalizer_isNormalizedImpl(JNIEnv* env, jclass, jstring s
   }
   UNormalizationMode mode = static_cast<UNormalizationMode>(intMode);
   UErrorCode status = U_ZERO_ERROR;
-  UBool result = Normalizer::isNormalized(src.unicodeString(), mode, status);
+  UBool result = icu::Normalizer::isNormalized(src.unicodeString(), mode, status);
   maybeThrowIcuException(env, "Normalizer::isNormalized", status);
   return result;
 }

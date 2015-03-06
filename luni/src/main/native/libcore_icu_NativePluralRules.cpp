@@ -25,8 +25,8 @@
 
 #include <string>
 
-static PluralRules* toPluralRules(jlong address) {
-    return reinterpret_cast<PluralRules*>(static_cast<uintptr_t>(address));
+static icu::PluralRules* toPluralRules(jlong address) {
+    return reinterpret_cast<icu::PluralRules*>(static_cast<uintptr_t>(address));
 }
 
 static void NativePluralRules_finalizeImpl(JNIEnv*, jclass, jlong address) {
@@ -48,15 +48,15 @@ static jlong NativePluralRules_forLocaleImpl(JNIEnv* env, jclass, jstring javaLo
         localeName[1] = 'i';
     }
 
-    Locale locale = Locale::createFromName(localeName.c_str());
+    icu::Locale locale = icu::Locale::createFromName(localeName.c_str());
     UErrorCode status = U_ZERO_ERROR;
-    PluralRules* result = PluralRules::forLocale(locale, status);
+    icu::PluralRules* result = icu::PluralRules::forLocale(locale, status);
     maybeThrowIcuException(env, "PluralRules::forLocale", status);
     return reinterpret_cast<uintptr_t>(result);
 }
 
 static jint NativePluralRules_quantityForIntImpl(JNIEnv*, jclass, jlong address, jint value) {
-    UnicodeString keyword = toPluralRules(address)->select(value);
+    icu::UnicodeString keyword = toPluralRules(address)->select(value);
     if (keyword == "zero") {
         return 0;
     } else if (keyword == "one") {
