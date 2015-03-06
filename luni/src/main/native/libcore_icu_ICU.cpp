@@ -114,7 +114,7 @@ static jint ICU_getCurrencyFractionDigits(JNIEnv* env, jclass, jstring javaCurre
   if (!currencyCode.valid()) {
     return 0;
   }
-  UnicodeString icuCurrencyCode(currencyCode.unicodeString());
+  icu::UnicodeString icuCurrencyCode(currencyCode.unicodeString());
   UErrorCode status = U_ZERO_ERROR;
   return ucurr_getDefaultFractionDigits(icuCurrencyCode.getTerminatedBuffer(), &status);
 }
@@ -124,7 +124,7 @@ static jint ICU_getCurrencyNumericCode(JNIEnv* env, jclass, jstring javaCurrency
   if (!currencyCode.valid()) {
     return 0;
   }
-  UnicodeString icuCurrencyCode(currencyCode.unicodeString());
+  icu::UnicodeString icuCurrencyCode(currencyCode.unicodeString());
   return ucurr_getNumericCode(icuCurrencyCode.getTerminatedBuffer());
 }
 
@@ -180,7 +180,7 @@ static jstring getCurrencyName(JNIEnv* env, jstring javaLanguageTag, jstring jav
   if (!currencyCode.valid()) {
     return NULL;
   }
-  UnicodeString icuCurrencyCode(currencyCode.unicodeString());
+  icu::UnicodeString icuCurrencyCode(currencyCode.unicodeString());
   UErrorCode status = U_ZERO_ERROR;
   UBool isChoiceFormat = false;
   int32_t charCount;
@@ -221,7 +221,7 @@ static jstring ICU_getDisplayCountryNative(JNIEnv* env, jclass, jstring javaTarg
     return NULL;
   }
 
-  UnicodeString str;
+  icu::UnicodeString str;
   icuTargetLocale.locale().getDisplayCountry(icuLocale.locale(), str);
   return env->NewString(str.getBuffer(), str.length());
 }
@@ -236,7 +236,7 @@ static jstring ICU_getDisplayLanguageNative(JNIEnv* env, jclass, jstring javaTar
     return NULL;
   }
 
-  UnicodeString str;
+  icu::UnicodeString str;
   icuTargetLocale.locale().getDisplayLanguage(icuLocale.locale(), str);
   return env->NewString(str.getBuffer(), str.length());
 }
@@ -251,7 +251,7 @@ static jstring ICU_getDisplayScriptNative(JNIEnv* env, jclass, jstring javaTarge
     return NULL;
   }
 
-  UnicodeString str;
+  icu::UnicodeString str;
   icuTargetLocale.locale().getDisplayScript(icuLocale.locale(), str);
   return env->NewString(str.getBuffer(), str.length());
 }
@@ -266,7 +266,7 @@ static jstring ICU_getDisplayVariantNative(JNIEnv* env, jclass, jstring javaTarg
     return NULL;
   }
 
-  UnicodeString str;
+  icu::UnicodeString str;
   icuTargetLocale.locale().getDisplayVariant(icuLocale.locale(), str);
   return env->NewString(str.getBuffer(), str.length());
 }
@@ -288,11 +288,11 @@ static jstring ICU_getISO3Language(JNIEnv* env, jclass, jstring javaLanguageTag)
 }
 
 static jobjectArray ICU_getISOCountriesNative(JNIEnv* env, jclass) {
-    return toStringArray(env, Locale::getISOCountries());
+    return toStringArray(env, icu::Locale::getISOCountries());
 }
 
 static jobjectArray ICU_getISOLanguagesNative(JNIEnv* env, jclass) {
-    return toStringArray(env, Locale::getISOLanguages());
+    return toStringArray(env, icu::Locale::getISOLanguages());
 }
 
 static jobjectArray ICU_getAvailableLocalesNative(JNIEnv* env, jclass) {
@@ -336,7 +336,7 @@ static void setStringArrayField(JNIEnv* env, jobject obj, const char* fieldName,
     env->SetObjectField(obj, fid, value);
 }
 
-static void setStringArrayField(JNIEnv* env, jobject obj, const char* fieldName, const UnicodeString* valueArray, int32_t size) {
+static void setStringArrayField(JNIEnv* env, jobject obj, const char* fieldName, const icu::UnicodeString* valueArray, int32_t size) {
     ScopedLocalRef<jobjectArray> result(env, env->NewObjectArray(size, JniConstants::stringClass, NULL));
     for (int32_t i = 0; i < size ; i++) {
         ScopedLocalRef<jstring> s(env, env->NewString(valueArray[i].getBuffer(),valueArray[i].length()));
@@ -362,7 +362,7 @@ static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, URes
   }
 }
 
-static void setCharField(JNIEnv* env, jobject obj, const char* fieldName, const UnicodeString& value) {
+static void setCharField(JNIEnv* env, jobject obj, const char* fieldName, const icu::UnicodeString& value) {
     if (value.length() == 0) {
         return;
     }
@@ -370,43 +370,43 @@ static void setCharField(JNIEnv* env, jobject obj, const char* fieldName, const 
     env->SetCharField(obj, fid, value.charAt(0));
 }
 
-static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, const UnicodeString& value) {
+static void setStringField(JNIEnv* env, jobject obj, const char* fieldName, const icu::UnicodeString& value) {
     const UChar* chars = value.getBuffer();
     setStringField(env, obj, fieldName, env->NewString(chars, value.length()));
 }
 
-static void setNumberPatterns(JNIEnv* env, jobject obj, Locale& locale) {
+static void setNumberPatterns(JNIEnv* env, jobject obj, icu::Locale& locale) {
     UErrorCode status = U_ZERO_ERROR;
 
-    UnicodeString pattern;
-    std::unique_ptr<DecimalFormat> fmt(static_cast<DecimalFormat*>(NumberFormat::createInstance(locale, UNUM_CURRENCY, status)));
+    icu::UnicodeString pattern;
+    std::unique_ptr<icu::DecimalFormat> fmt(static_cast<icu::DecimalFormat*>(icu::NumberFormat::createInstance(locale, UNUM_CURRENCY, status)));
     pattern = fmt->toPattern(pattern.remove());
     setStringField(env, obj, "currencyPattern", pattern);
 
-    fmt.reset(static_cast<DecimalFormat*>(NumberFormat::createInstance(locale, UNUM_DECIMAL, status)));
+    fmt.reset(static_cast<icu::DecimalFormat*>(icu::NumberFormat::createInstance(locale, UNUM_DECIMAL, status)));
     pattern = fmt->toPattern(pattern.remove());
     setStringField(env, obj, "numberPattern", pattern);
 
-    fmt.reset(static_cast<DecimalFormat*>(NumberFormat::createInstance(locale, UNUM_PERCENT, status)));
+    fmt.reset(static_cast<icu::DecimalFormat*>(icu::NumberFormat::createInstance(locale, UNUM_PERCENT, status)));
     pattern = fmt->toPattern(pattern.remove());
     setStringField(env, obj, "percentPattern", pattern);
 }
 
-static void setDecimalFormatSymbolsData(JNIEnv* env, jobject obj, Locale& locale) {
+static void setDecimalFormatSymbolsData(JNIEnv* env, jobject obj, icu::Locale& locale) {
     UErrorCode status = U_ZERO_ERROR;
-    DecimalFormatSymbols dfs(locale, status);
+    icu::DecimalFormatSymbols dfs(locale, status);
 
-    setCharField(env, obj, "decimalSeparator", dfs.getSymbol(DecimalFormatSymbols::kDecimalSeparatorSymbol));
-    setCharField(env, obj, "groupingSeparator", dfs.getSymbol(DecimalFormatSymbols::kGroupingSeparatorSymbol));
-    setCharField(env, obj, "patternSeparator", dfs.getSymbol(DecimalFormatSymbols::kPatternSeparatorSymbol));
-    setStringField(env, obj, "percent", dfs.getSymbol(DecimalFormatSymbols::kPercentSymbol));
-    setCharField(env, obj, "perMill", dfs.getSymbol(DecimalFormatSymbols::kPerMillSymbol));
-    setCharField(env, obj, "monetarySeparator", dfs.getSymbol(DecimalFormatSymbols::kMonetarySeparatorSymbol));
-    setStringField(env, obj, "minusSign", dfs.getSymbol(DecimalFormatSymbols:: kMinusSignSymbol));
-    setStringField(env, obj, "exponentSeparator", dfs.getSymbol(DecimalFormatSymbols::kExponentialSymbol));
-    setStringField(env, obj, "infinity", dfs.getSymbol(DecimalFormatSymbols::kInfinitySymbol));
-    setStringField(env, obj, "NaN", dfs.getSymbol(DecimalFormatSymbols::kNaNSymbol));
-    setCharField(env, obj, "zeroDigit", dfs.getSymbol(DecimalFormatSymbols::kZeroDigitSymbol));
+    setCharField(env, obj, "decimalSeparator", dfs.getSymbol(icu::DecimalFormatSymbols::kDecimalSeparatorSymbol));
+    setCharField(env, obj, "groupingSeparator", dfs.getSymbol(icu::DecimalFormatSymbols::kGroupingSeparatorSymbol));
+    setCharField(env, obj, "patternSeparator", dfs.getSymbol(icu::DecimalFormatSymbols::kPatternSeparatorSymbol));
+    setStringField(env, obj, "percent", dfs.getSymbol(icu::DecimalFormatSymbols::kPercentSymbol));
+    setCharField(env, obj, "perMill", dfs.getSymbol(icu::DecimalFormatSymbols::kPerMillSymbol));
+    setCharField(env, obj, "monetarySeparator", dfs.getSymbol(icu::DecimalFormatSymbols::kMonetarySeparatorSymbol));
+    setStringField(env, obj, "minusSign", dfs.getSymbol(icu::DecimalFormatSymbols:: kMinusSignSymbol));
+    setStringField(env, obj, "exponentSeparator", dfs.getSymbol(icu::DecimalFormatSymbols::kExponentialSymbol));
+    setStringField(env, obj, "infinity", dfs.getSymbol(icu::DecimalFormatSymbols::kInfinitySymbol));
+    setStringField(env, obj, "NaN", dfs.getSymbol(icu::DecimalFormatSymbols::kNaNSymbol));
+    setCharField(env, obj, "zeroDigit", dfs.getSymbol(icu::DecimalFormatSymbols::kZeroDigitSymbol));
 }
 
 
@@ -495,7 +495,7 @@ static bool getDateTimePatterns(JNIEnv* env, jobject localeData, const char* loc
   return true;
 }
 
-static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, const Locale& locale, const char* locale_name) {
+static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, const icu::Locale& locale, const char* locale_name) {
   UErrorCode status = U_ZERO_ERROR;
   ScopedResourceBundle root(ures_open(NULL, locale_name, &status));
   ScopedResourceBundle fields(ures_getByKey(root.get(), "fields", NULL, &status));
@@ -505,16 +505,16 @@ static bool getYesterdayTodayAndTomorrow(JNIEnv* env, jobject localeData, const 
     return false;
   }
 
-  UnicodeString yesterday(ures_getUnicodeStringByKey(relative.get(), "-1", &status));
-  UnicodeString today(ures_getUnicodeStringByKey(relative.get(), "0", &status));
-  UnicodeString tomorrow(ures_getUnicodeStringByKey(relative.get(), "1", &status));
+  icu::UnicodeString yesterday(icu::ures_getUnicodeStringByKey(relative.get(), "-1", &status));
+  icu::UnicodeString today(icu::ures_getUnicodeStringByKey(relative.get(), "0", &status));
+  icu::UnicodeString tomorrow(icu::ures_getUnicodeStringByKey(relative.get(), "1", &status));
   if (U_FAILURE(status)) {
     ALOGE("Error getting yesterday/today/tomorrow for %s: %s", locale_name, u_errorName(status));
     return false;
   }
 
   // We title-case the strings so they have consistent capitalization (http://b/14493853).
-  std::unique_ptr<BreakIterator> brk(BreakIterator::createSentenceInstance(locale, status));
+  std::unique_ptr<icu::BreakIterator> brk(icu::BreakIterator::createSentenceInstance(locale, status));
   if (U_FAILURE(status)) {
     ALOGE("Error getting yesterday/today/tomorrow break iterator for %s: %s", locale_name, u_errorName(status));
     return false;
@@ -584,7 +584,7 @@ static jboolean ICU_initLocaleDataNative(JNIEnv* env, jclass, jstring javaLangua
     }
 
     status = U_ZERO_ERROR;
-    std::unique_ptr<Calendar> cal(Calendar::createInstance(icuLocale.locale(), status));
+    std::unique_ptr<icu::Calendar> cal(icu::Calendar::createInstance(icuLocale.locale(), status));
     if (U_FAILURE(status)) {
         return JNI_FALSE;
     }
@@ -594,54 +594,54 @@ static jboolean ICU_initLocaleDataNative(JNIEnv* env, jclass, jstring javaLangua
 
     // Get DateFormatSymbols.
     status = U_ZERO_ERROR;
-    DateFormatSymbols dateFormatSym(icuLocale.locale(), status);
+    icu::DateFormatSymbols dateFormatSym(icuLocale.locale(), status);
     if (U_FAILURE(status)) {
         return JNI_FALSE;
     }
 
     // Get AM/PM and BC/AD.
     int32_t count = 0;
-    const UnicodeString* amPmStrs = dateFormatSym.getAmPmStrings(count);
+    const icu::UnicodeString* amPmStrs = dateFormatSym.getAmPmStrings(count);
     setStringArrayField(env, localeData, "amPm", amPmStrs, count);
-    const UnicodeString* erasStrs = dateFormatSym.getEras(count);
+    const icu::UnicodeString* erasStrs = dateFormatSym.getEras(count);
     setStringArrayField(env, localeData, "eras", erasStrs, count);
 
-    const UnicodeString* longMonthNames =
-       dateFormatSym.getMonths(count, DateFormatSymbols::FORMAT, DateFormatSymbols::WIDE);
+    const icu::UnicodeString* longMonthNames =
+       dateFormatSym.getMonths(count, icu::DateFormatSymbols::FORMAT, icu::DateFormatSymbols::WIDE);
     setStringArrayField(env, localeData, "longMonthNames", longMonthNames, count);
-    const UnicodeString* shortMonthNames =
-        dateFormatSym.getMonths(count, DateFormatSymbols::FORMAT, DateFormatSymbols::ABBREVIATED);
+    const icu::UnicodeString* shortMonthNames =
+        dateFormatSym.getMonths(count, icu::DateFormatSymbols::FORMAT, icu::DateFormatSymbols::ABBREVIATED);
     setStringArrayField(env, localeData, "shortMonthNames", shortMonthNames, count);
-    const UnicodeString* tinyMonthNames =
-        dateFormatSym.getMonths(count, DateFormatSymbols::FORMAT, DateFormatSymbols::NARROW);
+    const icu::UnicodeString* tinyMonthNames =
+        dateFormatSym.getMonths(count, icu::DateFormatSymbols::FORMAT, icu::DateFormatSymbols::NARROW);
     setStringArrayField(env, localeData, "tinyMonthNames", tinyMonthNames, count);
-    const UnicodeString* longWeekdayNames =
-        dateFormatSym.getWeekdays(count, DateFormatSymbols::FORMAT, DateFormatSymbols::WIDE);
+    const icu::UnicodeString* longWeekdayNames =
+        dateFormatSym.getWeekdays(count, icu::DateFormatSymbols::FORMAT, icu::DateFormatSymbols::WIDE);
     setStringArrayField(env, localeData, "longWeekdayNames", longWeekdayNames, count);
-    const UnicodeString* shortWeekdayNames =
-        dateFormatSym.getWeekdays(count, DateFormatSymbols::FORMAT, DateFormatSymbols::ABBREVIATED);
+    const icu::UnicodeString* shortWeekdayNames =
+        dateFormatSym.getWeekdays(count, icu::DateFormatSymbols::FORMAT, icu::DateFormatSymbols::ABBREVIATED);
     setStringArrayField(env, localeData, "shortWeekdayNames", shortWeekdayNames, count);
-    const UnicodeString* tinyWeekdayNames =
-        dateFormatSym.getWeekdays(count, DateFormatSymbols::FORMAT, DateFormatSymbols::NARROW);
+    const icu::UnicodeString* tinyWeekdayNames =
+        dateFormatSym.getWeekdays(count, icu::DateFormatSymbols::FORMAT, icu::DateFormatSymbols::NARROW);
     setStringArrayField(env, localeData, "tinyWeekdayNames", tinyWeekdayNames, count);
 
-    const UnicodeString* longStandAloneMonthNames =
-        dateFormatSym.getMonths(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::WIDE);
+    const icu::UnicodeString* longStandAloneMonthNames =
+        dateFormatSym.getMonths(count, icu::DateFormatSymbols::STANDALONE, icu::DateFormatSymbols::WIDE);
     setStringArrayField(env, localeData, "longStandAloneMonthNames", longStandAloneMonthNames, count);
-    const UnicodeString* shortStandAloneMonthNames =
-        dateFormatSym.getMonths(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::ABBREVIATED);
+    const icu::UnicodeString* shortStandAloneMonthNames =
+        dateFormatSym.getMonths(count, icu::DateFormatSymbols::STANDALONE, icu::DateFormatSymbols::ABBREVIATED);
     setStringArrayField(env, localeData, "shortStandAloneMonthNames", shortStandAloneMonthNames, count);
-    const UnicodeString* tinyStandAloneMonthNames =
-        dateFormatSym.getMonths(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::NARROW);
+    const icu::UnicodeString* tinyStandAloneMonthNames =
+        dateFormatSym.getMonths(count, icu::DateFormatSymbols::STANDALONE, icu::DateFormatSymbols::NARROW);
     setStringArrayField(env, localeData, "tinyStandAloneMonthNames", tinyStandAloneMonthNames, count);
-    const UnicodeString* longStandAloneWeekdayNames =
-        dateFormatSym.getWeekdays(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::WIDE);
+    const icu::UnicodeString* longStandAloneWeekdayNames =
+        dateFormatSym.getWeekdays(count, icu::DateFormatSymbols::STANDALONE, icu::DateFormatSymbols::WIDE);
     setStringArrayField(env, localeData, "longStandAloneWeekdayNames", longStandAloneWeekdayNames, count);
-    const UnicodeString* shortStandAloneWeekdayNames =
-        dateFormatSym.getWeekdays(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::ABBREVIATED);
+    const icu::UnicodeString* shortStandAloneWeekdayNames =
+        dateFormatSym.getWeekdays(count, icu::DateFormatSymbols::STANDALONE, icu::DateFormatSymbols::ABBREVIATED);
     setStringArrayField(env, localeData, "shortStandAloneWeekdayNames", shortStandAloneWeekdayNames, count);
-    const UnicodeString* tinyStandAloneWeekdayNames =
-        dateFormatSym.getWeekdays(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::NARROW);
+    const icu::UnicodeString* tinyStandAloneWeekdayNames =
+        dateFormatSym.getWeekdays(count, icu::DateFormatSymbols::STANDALONE, icu::DateFormatSymbols::NARROW);
     setStringArrayField(env, localeData, "tinyStandAloneWeekdayNames", tinyStandAloneWeekdayNames, count);
 
     status = U_ZERO_ERROR;
@@ -680,8 +680,8 @@ static jstring ICU_toLowerCase(JNIEnv* env, jclass, jstring javaString, jstring 
   if (!icuLocale.valid()) {
     return NULL;
   }
-  UnicodeString& s(scopedString.unicodeString());
-  UnicodeString original(s);
+  icu::UnicodeString& s(scopedString.unicodeString());
+  icu::UnicodeString original(s);
   s.toLower(icuLocale.locale());
   return s == original ? javaString : env->NewString(s.getBuffer(), s.length());
 }
@@ -695,8 +695,8 @@ static jstring ICU_toUpperCase(JNIEnv* env, jclass, jstring javaString, jstring 
   if (!icuLocale.valid()) {
     return NULL;
   }
-  UnicodeString& s(scopedString.unicodeString());
-  UnicodeString original(s);
+  icu::UnicodeString& s(scopedString.unicodeString());
+  icu::UnicodeString original(s);
   s.toUpper(icuLocale.locale());
   return s == original ? javaString : env->NewString(s.getBuffer(), s.length());
 }
@@ -728,7 +728,7 @@ static jstring ICU_getUnicodeVersion(JNIEnv* env, jclass) {
 
 static jobject ICU_getAvailableCurrencyCodes(JNIEnv* env, jclass) {
   UErrorCode status = U_ZERO_ERROR;
-  UStringEnumeration e(ucurr_openISOCurrencies(UCURR_COMMON|UCURR_NON_DEPRECATED, &status));
+  icu::UStringEnumeration e(ucurr_openISOCurrencies(UCURR_COMMON|UCURR_NON_DEPRECATED, &status));
   return fromStringEnumeration(env, status, "ucurr_openISOCurrencies", &e);
 }
 
@@ -739,7 +739,7 @@ static jstring ICU_getBestDateTimePatternNative(JNIEnv* env, jclass, jstring jav
   }
 
   UErrorCode status = U_ZERO_ERROR;
-  std::unique_ptr<DateTimePatternGenerator> generator(DateTimePatternGenerator::createInstance(icuLocale.locale(), status));
+  std::unique_ptr<icu::DateTimePatternGenerator> generator(icu::DateTimePatternGenerator::createInstance(icuLocale.locale(), status));
   if (maybeThrowIcuException(env, "DateTimePatternGenerator::createInstance", status)) {
     return NULL;
   }
@@ -748,7 +748,7 @@ static jstring ICU_getBestDateTimePatternNative(JNIEnv* env, jclass, jstring jav
   if (!skeletonHolder.valid()) {
     return NULL;
   }
-  UnicodeString result(generator->getBestPattern(skeletonHolder.unicodeString(), status));
+  icu::UnicodeString result(generator->getBestPattern(skeletonHolder.unicodeString(), status));
   if (maybeThrowIcuException(env, "DateTimePatternGenerator::getBestPattern", status)) {
     return NULL;
   }
@@ -763,12 +763,12 @@ static void ICU_setDefaultLocale(JNIEnv* env, jclass, jstring javaLanguageTag) {
   }
 
   UErrorCode status = U_ZERO_ERROR;
-  Locale::setDefault(icuLocale.locale(), status);
+  icu::Locale::setDefault(icuLocale.locale(), status);
   maybeThrowIcuException(env, "Locale::setDefault", status);
 }
 
 static jstring ICU_getDefaultLocale(JNIEnv* env, jclass) {
-  return env->NewStringUTF(Locale::getDefault().getName());
+  return env->NewStringUTF(icu::Locale::getDefault().getName());
 }
 
 static JNINativeMethod gMethods[] = {

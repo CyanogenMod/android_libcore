@@ -28,8 +28,8 @@
 
 // ICU documentation: http://icu-project.org/apiref/icu4c/classBreakIterator.html
 
-static BreakIterator* toBreakIterator(jlong address) {
-  return reinterpret_cast<BreakIterator*>(static_cast<uintptr_t>(address));
+static icu::BreakIterator* toBreakIterator(jlong address) {
+  return reinterpret_cast<icu::BreakIterator*>(static_cast<uintptr_t>(address));
 }
 
 /**
@@ -77,7 +77,7 @@ class BreakIteratorAccessor {
     maybeThrowIcuException(mEnv, "utext_close", mStatus);
   }
 
-  BreakIterator* operator->() {
+  icu::BreakIterator* operator->() {
     return mBreakIterator;
   }
 
@@ -97,7 +97,7 @@ class BreakIteratorAccessor {
 
   JNIEnv* mEnv;
   jstring mJavaInput;
-  BreakIterator* mBreakIterator;
+  icu::BreakIterator* mBreakIterator;
   const jchar* mChars;
   UErrorCode mStatus;
   UText* mUText;
@@ -113,7 +113,7 @@ class BreakIteratorAccessor {
     return 0; \
   } \
   UErrorCode status = U_ZERO_ERROR; \
-  BreakIterator* it = F(icuLocale.locale(), status); \
+  icu::BreakIterator* it = F(icuLocale.locale(), status); \
   if (maybeThrowIcuException(env, "ubrk_open", status)) { \
     return 0; \
   } \
@@ -144,19 +144,19 @@ static jint NativeBreakIterator_followingImpl(JNIEnv* env, jclass, jlong address
 }
 
 static jlong NativeBreakIterator_getCharacterInstanceImpl(JNIEnv* env, jclass, jstring javaLocaleName) {
-  MAKE_BREAK_ITERATOR_INSTANCE(BreakIterator::createCharacterInstance);
+  MAKE_BREAK_ITERATOR_INSTANCE(icu::BreakIterator::createCharacterInstance);
 }
 
 static jlong NativeBreakIterator_getLineInstanceImpl(JNIEnv* env, jclass, jstring javaLocaleName) {
-  MAKE_BREAK_ITERATOR_INSTANCE(BreakIterator::createLineInstance);
+  MAKE_BREAK_ITERATOR_INSTANCE(icu::BreakIterator::createLineInstance);
 }
 
 static jlong NativeBreakIterator_getSentenceInstanceImpl(JNIEnv* env, jclass, jstring javaLocaleName) {
-  MAKE_BREAK_ITERATOR_INSTANCE(BreakIterator::createSentenceInstance);
+  MAKE_BREAK_ITERATOR_INSTANCE(icu::BreakIterator::createSentenceInstance);
 }
 
 static jlong NativeBreakIterator_getWordInstanceImpl(JNIEnv* env, jclass, jstring javaLocaleName) {
-  MAKE_BREAK_ITERATOR_INSTANCE(BreakIterator::createWordInstance);
+  MAKE_BREAK_ITERATOR_INSTANCE(icu::BreakIterator::createWordInstance);
 }
 
 static jboolean NativeBreakIterator_isBoundaryImpl(JNIEnv* env, jclass, jlong address, jstring javaInput, jint offset) {

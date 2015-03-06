@@ -35,7 +35,7 @@ static jlong DateIntervalFormat_createDateIntervalFormat(JNIEnv* env, jclass, js
   }
 
   UErrorCode status = U_ZERO_ERROR;
-  DateIntervalFormat* formatter(DateIntervalFormat::createInstance(skeletonHolder.unicodeString(), icuLocale.locale(), status));
+  icu::DateIntervalFormat* formatter(icu::DateIntervalFormat::createInstance(skeletonHolder.unicodeString(), icuLocale.locale(), status));
   if (maybeThrowIcuException(env, "DateIntervalFormat::createInstance", status)) {
     return 0;
   }
@@ -44,21 +44,21 @@ static jlong DateIntervalFormat_createDateIntervalFormat(JNIEnv* env, jclass, js
   if (!tzNameHolder.valid()) {
     return 0;
   }
-  formatter->adoptTimeZone(TimeZone::createTimeZone(tzNameHolder.unicodeString()));
+  formatter->adoptTimeZone(icu::TimeZone::createTimeZone(tzNameHolder.unicodeString()));
 
   return reinterpret_cast<uintptr_t>(formatter);
 }
 
 static void DateIntervalFormat_destroyDateIntervalFormat(JNIEnv*, jclass, jlong address) {
-  delete reinterpret_cast<DateIntervalFormat*>(address);
+  delete reinterpret_cast<icu::DateIntervalFormat*>(address);
 }
 
 static jstring DateIntervalFormat_formatDateInterval(JNIEnv* env, jclass, jlong address, jlong fromDate, jlong toDate) {
-  DateIntervalFormat* formatter(reinterpret_cast<DateIntervalFormat*>(address));
-  DateInterval date_interval(fromDate, toDate);
+  icu::DateIntervalFormat* formatter(reinterpret_cast<icu::DateIntervalFormat*>(address));
+  icu::DateInterval date_interval(fromDate, toDate);
 
-  UnicodeString s;
-  FieldPosition pos = 0;
+  icu::UnicodeString s;
+  icu::FieldPosition pos = 0;
   UErrorCode status = U_ZERO_ERROR;
   formatter->format(&date_interval, s, pos, status);
   if (maybeThrowIcuException(env, "DateIntervalFormat::format", status)) {

@@ -21,7 +21,7 @@
 #include "ustrenum.h" // For UStringEnumeration.
 #include "unicode/utypes.h" // For UErrorCode.
 
-extern jobjectArray fromStringEnumeration(JNIEnv* env, UErrorCode& status, const char* provider, StringEnumeration*);
+extern jobjectArray fromStringEnumeration(JNIEnv* env, UErrorCode& status, const char* provider, icu::StringEnumeration*);
 bool maybeThrowIcuException(JNIEnv* env, const char* function, UErrorCode error);
 
 #endif  // ICU_UTILITIES_H_included

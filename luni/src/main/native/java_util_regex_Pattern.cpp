@@ -27,8 +27,8 @@
 
 // ICU documentation: http://icu-project.org/apiref/icu4c/classRegexPattern.html
 
-static RegexPattern* toRegexPattern(jlong addr) {
-    return reinterpret_cast<RegexPattern*>(static_cast<uintptr_t>(addr));
+static icu::RegexPattern* toRegexPattern(jlong addr) {
+    return reinterpret_cast<icu::RegexPattern*>(static_cast<uintptr_t>(addr));
 }
 
 static const char* regexDetailMessage(UErrorCode status) {
@@ -86,8 +86,8 @@ static jlong Pattern_compileImpl(JNIEnv* env, jclass, jstring javaRegex, jint fl
     if (!regex.valid()) {
         return 0;
     }
-    UnicodeString& regexString(regex.unicodeString());
-    RegexPattern* result = RegexPattern::compile(regexString, flags, error, status);
+    icu::UnicodeString& regexString(regex.unicodeString());
+    icu::RegexPattern* result = icu::RegexPattern::compile(regexString, flags, error, status);
     if (!U_SUCCESS(status)) {
         throwPatternSyntaxException(env, status, javaRegex, error);
     }
