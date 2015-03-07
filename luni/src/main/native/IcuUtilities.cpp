@@ -27,7 +27,7 @@
 #include "unicode/uloc.h"
 #include "unicode/ustring.h"
 
-jobjectArray fromStringEnumeration(JNIEnv* env, UErrorCode& status, const char* provider, StringEnumeration* se) {
+jobjectArray fromStringEnumeration(JNIEnv* env, UErrorCode& status, const char* provider, icu::StringEnumeration* se) {
   if (maybeThrowIcuException(env, provider, status)) {
     return NULL;
   }
@@ -39,7 +39,7 @@ jobjectArray fromStringEnumeration(JNIEnv* env, UErrorCode& status, const char* 
 
   jobjectArray result = env->NewObjectArray(count, JniConstants::stringClass, NULL);
   for (int32_t i = 0; i < count; ++i) {
-    const UnicodeString* string = se->snext(status);
+    const icu::UnicodeString* string = se->snext(status);
     if (maybeThrowIcuException(env, "StringEnumeration::snext", status)) {
       return NULL;
     }
