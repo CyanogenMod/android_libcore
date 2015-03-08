@@ -39,15 +39,15 @@
 #include "unicode/ustring.h"
 #include "valueOf.h"
 
-static DecimalFormat* toDecimalFormat(jlong addr) {
-    return reinterpret_cast<DecimalFormat*>(static_cast<uintptr_t>(addr));
+static icu::DecimalFormat* toDecimalFormat(jlong addr) {
+    return reinterpret_cast<icu::DecimalFormat*>(static_cast<uintptr_t>(addr));
 }
 
 static UNumberFormat* toUNumberFormat(jlong addr) {
     return reinterpret_cast<UNumberFormat*>(static_cast<uintptr_t>(addr));
 }
 
-static DecimalFormatSymbols* makeDecimalFormatSymbols(JNIEnv* env,
+static icu::DecimalFormatSymbols* makeDecimalFormatSymbols(JNIEnv* env,
         jstring currencySymbol0, jchar decimalSeparator, jchar digit, jstring exponentSeparator0,
         jchar groupingSeparator0, jstring infinity0,
         jstring internationalCurrencySymbol0, jstring minusSign0,
@@ -60,35 +60,35 @@ static DecimalFormatSymbols* makeDecimalFormatSymbols(JNIEnv* env,
     ScopedJavaUnicodeString nan(env, nan0);
     ScopedJavaUnicodeString minusSign(env, minusSign0);
     ScopedJavaUnicodeString percent(env, percent0);
-    UnicodeString groupingSeparator(groupingSeparator0);
+    icu::UnicodeString groupingSeparator(groupingSeparator0);
 
-    DecimalFormatSymbols* result = new DecimalFormatSymbols;
-    result->setSymbol(DecimalFormatSymbols::kCurrencySymbol, currencySymbol.unicodeString());
-    result->setSymbol(DecimalFormatSymbols::kDecimalSeparatorSymbol, UnicodeString(decimalSeparator));
-    result->setSymbol(DecimalFormatSymbols::kDigitSymbol, UnicodeString(digit));
-    result->setSymbol(DecimalFormatSymbols::kExponentialSymbol, exponentSeparator.unicodeString());
-    result->setSymbol(DecimalFormatSymbols::kGroupingSeparatorSymbol, groupingSeparator);
-    result->setSymbol(DecimalFormatSymbols::kMonetaryGroupingSeparatorSymbol, groupingSeparator);
-    result->setSymbol(DecimalFormatSymbols::kInfinitySymbol, infinity.unicodeString());
-    result->setSymbol(DecimalFormatSymbols::kIntlCurrencySymbol, internationalCurrencySymbol.unicodeString());
-    result->setSymbol(DecimalFormatSymbols::kMinusSignSymbol, minusSign.unicodeString());
-    result->setSymbol(DecimalFormatSymbols::kMonetarySeparatorSymbol, UnicodeString(monetaryDecimalSeparator));
-    result->setSymbol(DecimalFormatSymbols::kNaNSymbol, nan.unicodeString());
-    result->setSymbol(DecimalFormatSymbols::kPatternSeparatorSymbol, UnicodeString(patternSeparator));
-    result->setSymbol(DecimalFormatSymbols::kPercentSymbol, percent.unicodeString());
-    result->setSymbol(DecimalFormatSymbols::kPerMillSymbol, UnicodeString(perMill));
+    icu::DecimalFormatSymbols* result = new icu::DecimalFormatSymbols;
+    result->setSymbol(icu::DecimalFormatSymbols::kCurrencySymbol, currencySymbol.unicodeString());
+    result->setSymbol(icu::DecimalFormatSymbols::kDecimalSeparatorSymbol, icu::UnicodeString(decimalSeparator));
+    result->setSymbol(icu::DecimalFormatSymbols::kDigitSymbol, icu::UnicodeString(digit));
+    result->setSymbol(icu::DecimalFormatSymbols::kExponentialSymbol, exponentSeparator.unicodeString());
+    result->setSymbol(icu::DecimalFormatSymbols::kGroupingSeparatorSymbol, groupingSeparator);
+    result->setSymbol(icu::DecimalFormatSymbols::kMonetaryGroupingSeparatorSymbol, groupingSeparator);
+    result->setSymbol(icu::DecimalFormatSymbols::kInfinitySymbol, infinity.unicodeString());
+    result->setSymbol(icu::DecimalFormatSymbols::kIntlCurrencySymbol, internationalCurrencySymbol.unicodeString());
+    result->setSymbol(icu::DecimalFormatSymbols::kMinusSignSymbol, minusSign.unicodeString());
+    result->setSymbol(icu::DecimalFormatSymbols::kMonetarySeparatorSymbol, icu::UnicodeString(monetaryDecimalSeparator));
+    result->setSymbol(icu::DecimalFormatSymbols::kNaNSymbol, nan.unicodeString());
+    result->setSymbol(icu::DecimalFormatSymbols::kPatternSeparatorSymbol, icu::UnicodeString(patternSeparator));
+    result->setSymbol(icu::DecimalFormatSymbols::kPercentSymbol, percent.unicodeString());
+    result->setSymbol(icu::DecimalFormatSymbols::kPerMillSymbol, icu::UnicodeString(perMill));
     // java.text.DecimalFormatSymbols just uses a zero digit,
     // but ICU >= 4.6 has a field for each decimal digit.
-    result->setSymbol(DecimalFormatSymbols::kZeroDigitSymbol, UnicodeString(zeroDigit + 0));
-    result->setSymbol(DecimalFormatSymbols::kOneDigitSymbol, UnicodeString(zeroDigit + 1));
-    result->setSymbol(DecimalFormatSymbols::kTwoDigitSymbol, UnicodeString(zeroDigit + 2));
-    result->setSymbol(DecimalFormatSymbols::kThreeDigitSymbol, UnicodeString(zeroDigit + 3));
-    result->setSymbol(DecimalFormatSymbols::kFourDigitSymbol, UnicodeString(zeroDigit + 4));
-    result->setSymbol(DecimalFormatSymbols::kFiveDigitSymbol, UnicodeString(zeroDigit + 5));
-    result->setSymbol(DecimalFormatSymbols::kSixDigitSymbol, UnicodeString(zeroDigit + 6));
-    result->setSymbol(DecimalFormatSymbols::kSevenDigitSymbol, UnicodeString(zeroDigit + 7));
-    result->setSymbol(DecimalFormatSymbols::kEightDigitSymbol, UnicodeString(zeroDigit + 8));
-    result->setSymbol(DecimalFormatSymbols::kNineDigitSymbol, UnicodeString(zeroDigit + 9));
+    result->setSymbol(icu::DecimalFormatSymbols::kZeroDigitSymbol, icu::UnicodeString(zeroDigit + 0));
+    result->setSymbol(icu::DecimalFormatSymbols::kOneDigitSymbol, icu::UnicodeString(zeroDigit + 1));
+    result->setSymbol(icu::DecimalFormatSymbols::kTwoDigitSymbol, icu::UnicodeString(zeroDigit + 2));
+    result->setSymbol(icu::DecimalFormatSymbols::kThreeDigitSymbol, icu::UnicodeString(zeroDigit + 3));
+    result->setSymbol(icu::DecimalFormatSymbols::kFourDigitSymbol, icu::UnicodeString(zeroDigit + 4));
+    result->setSymbol(icu::DecimalFormatSymbols::kFiveDigitSymbol, icu::UnicodeString(zeroDigit + 5));
+    result->setSymbol(icu::DecimalFormatSymbols::kSixDigitSymbol, icu::UnicodeString(zeroDigit + 6));
+    result->setSymbol(icu::DecimalFormatSymbols::kSevenDigitSymbol, icu::UnicodeString(zeroDigit + 7));
+    result->setSymbol(icu::DecimalFormatSymbols::kEightDigitSymbol, icu::UnicodeString(zeroDigit + 8));
+    result->setSymbol(icu::DecimalFormatSymbols::kNineDigitSymbol, icu::UnicodeString(zeroDigit + 9));
     return result;
 }
 
@@ -98,7 +98,7 @@ static void NativeDecimalFormat_setDecimalFormatSymbols(JNIEnv* env, jclass, jlo
         jstring internationalCurrencySymbol, jstring minusSign,
         jchar monetaryDecimalSeparator, jstring nan, jchar patternSeparator,
         jstring percent, jchar perMill, jchar zeroDigit) {
-    DecimalFormatSymbols* symbols = makeDecimalFormatSymbols(env,
+    icu::DecimalFormatSymbols* symbols = makeDecimalFormatSymbols(env,
             currencySymbol, decimalSeparator, digit, exponentSeparator, groupingSeparator,
             infinity, internationalCurrencySymbol, minusSign,
             monetaryDecimalSeparator, nan, patternSeparator, percent, perMill,
@@ -118,12 +118,12 @@ static jlong NativeDecimalFormat_open(JNIEnv* env, jclass, jstring pattern0,
     if (!pattern.valid()) {
       return 0;
     }
-    DecimalFormatSymbols* symbols = makeDecimalFormatSymbols(env,
+    icu::DecimalFormatSymbols* symbols = makeDecimalFormatSymbols(env,
             currencySymbol, decimalSeparator, digit, exponentSeparator, groupingSeparator,
             infinity, internationalCurrencySymbol, minusSign,
             monetaryDecimalSeparator, nan, patternSeparator, percent, perMill,
             zeroDigit);
-    DecimalFormat* fmt = new DecimalFormat(pattern.unicodeString(), symbols, parseError, status);
+    icu::DecimalFormat* fmt = new icu::DecimalFormat(pattern.unicodeString(), symbols, parseError, status);
     if (fmt == NULL) {
         delete symbols;
     }
@@ -136,8 +136,8 @@ static void NativeDecimalFormat_close(JNIEnv*, jclass, jlong addr) {
 }
 
 static void NativeDecimalFormat_setRoundingMode(JNIEnv*, jclass, jlong addr, jint mode, jdouble increment) {
-    DecimalFormat* fmt = toDecimalFormat(addr);
-    fmt->setRoundingMode(static_cast<DecimalFormat::ERoundingMode>(mode));
+    icu::DecimalFormat* fmt = toDecimalFormat(addr);
+    fmt->setRoundingMode(static_cast<icu::DecimalFormat::ERoundingMode>(mode));
     fmt->setRoundingIncrement(increment);
 }
 
@@ -197,7 +197,7 @@ static void NativeDecimalFormat_applyPatternImpl(JNIEnv* env, jclass, jlong addr
     if (!pattern.valid()) {
       return;
     }
-    DecimalFormat* fmt = toDecimalFormat(addr);
+    icu::DecimalFormat* fmt = toDecimalFormat(addr);
     UErrorCode status = U_ZERO_ERROR;
     const char* function;
     if (localized) {
@@ -211,8 +211,8 @@ static void NativeDecimalFormat_applyPatternImpl(JNIEnv* env, jclass, jlong addr
 }
 
 static jstring NativeDecimalFormat_toPatternImpl(JNIEnv* env, jclass, jlong addr, jboolean localized) {
-    DecimalFormat* fmt = toDecimalFormat(addr);
-    UnicodeString pattern;
+    icu::DecimalFormat* fmt = toDecimalFormat(addr);
+    icu::UnicodeString pattern;
     if (localized) {
         fmt->toLocalizedPattern(pattern);
     } else {
@@ -221,12 +221,12 @@ static jstring NativeDecimalFormat_toPatternImpl(JNIEnv* env, jclass, jlong addr
     return env->NewString(pattern.getBuffer(), pattern.length());
 }
 
-static jcharArray formatResult(JNIEnv* env, const UnicodeString& s, FieldPositionIterator* fpi, jobject javaFieldPositionIterator) {
+static jcharArray formatResult(JNIEnv* env, const icu::UnicodeString& s, icu::FieldPositionIterator* fpi, jobject javaFieldPositionIterator) {
     static jmethodID gFPI_setData = env->GetMethodID(JniConstants::fieldPositionIteratorClass, "setData", "([I)V");
 
     if (fpi != NULL) {
         std::vector<int32_t> data;
-        FieldPosition fp;
+        icu::FieldPosition fp;
         while (fpi->next(fp)) {
             data.push_back(fp.getField());
             data.push_back(fp.getBeginIndex());
@@ -258,10 +258,10 @@ static jcharArray formatResult(JNIEnv* env, const UnicodeString& s, FieldPositio
 template <typename T>
 static jcharArray format(JNIEnv* env, jlong addr, jobject javaFieldPositionIterator, T value) {
     UErrorCode status = U_ZERO_ERROR;
-    UnicodeString s;
-    DecimalFormat* fmt = toDecimalFormat(addr);
-    FieldPositionIterator nativeFieldPositionIterator;
-    FieldPositionIterator* fpi = javaFieldPositionIterator ? &nativeFieldPositionIterator : NULL;
+    icu::UnicodeString s;
+    icu::DecimalFormat* fmt = toDecimalFormat(addr);
+    icu::FieldPositionIterator nativeFieldPositionIterator;
+    icu::FieldPositionIterator* fpi = javaFieldPositionIterator ? &nativeFieldPositionIterator : NULL;
     fmt->format(value, s, fpi, status);
     if (maybeThrowIcuException(env, "DecimalFormat::format", status)) {
         return NULL;
@@ -282,7 +282,7 @@ static jcharArray NativeDecimalFormat_formatDigitList(JNIEnv* env, jclass, jlong
     if (chars.c_str() == NULL) {
         return NULL;
     }
-    StringPiece sp(chars.c_str());
+    icu::StringPiece sp(chars.c_str());
     return format(env, addr, javaFieldPositionIterator, sp);
 }
 
@@ -293,7 +293,7 @@ static jobject newBigDecimal(JNIEnv* env, const char* value, jsize len) {
     // value is a UTF-8 string of invariant characters, but isn't guaranteed to be
     // null-terminated.  NewStringUTF requires a terminated UTF-8 string.  So we copy the
     // data to jchars using UnicodeString, and call NewString instead.
-    UnicodeString tmp(value, len, UnicodeString::kInvariant);
+    icu::UnicodeString tmp(value, len, icu::UnicodeString::kInvariant);
     jobject str = env->NewString(tmp.getBuffer(), tmp.length());
     return env->NewObject(JniConstants::bigDecimalClass, gBigDecimal_init, str);
 }
@@ -318,9 +318,9 @@ static jobject NativeDecimalFormat_parse(JNIEnv* env, jclass, jlong addr, jstrin
         return NULL;
     }
 
-    Formattable res;
-    ParsePosition pp(parsePos);
-    DecimalFormat* fmt = toDecimalFormat(addr);
+    icu::Formattable res;
+    icu::ParsePosition pp(parsePos);
+    icu::DecimalFormat* fmt = toDecimalFormat(addr);
     fmt->parse(src.unicodeString(), res, pp);
 
     if (pp.getErrorIndex() == -1) {
@@ -332,7 +332,7 @@ static jobject NativeDecimalFormat_parse(JNIEnv* env, jclass, jlong addr, jstrin
 
     if (parseBigDecimal) {
         UErrorCode status = U_ZERO_ERROR;
-        StringPiece str = res.getDecimalNumber(status);
+        icu::StringPiece str = res.getDecimalNumber(status);
         if (U_SUCCESS(status)) {
             int len = str.length();
             const char* data = str.data();
@@ -348,15 +348,15 @@ static jobject NativeDecimalFormat_parse(JNIEnv* env, jclass, jlong addr, jstrin
     }
 
     switch (res.getType()) {
-        case Formattable::kDouble: return doubleValueOf(env, res.getDouble());
-        case Formattable::kLong:   return longValueOf(env, res.getLong());
-        case Formattable::kInt64:  return longValueOf(env, res.getInt64());
+        case icu::Formattable::kDouble: return doubleValueOf(env, res.getDouble());
+        case icu::Formattable::kLong:   return longValueOf(env, res.getLong());
+        case icu::Formattable::kInt64:  return longValueOf(env, res.getInt64());
         default:                   return NULL;
     }
 }
 
 static jlong NativeDecimalFormat_cloneImpl(JNIEnv*, jclass, jlong addr) {
-    DecimalFormat* fmt = toDecimalFormat(addr);
+    icu::DecimalFormat* fmt = toDecimalFormat(addr);
     return reinterpret_cast<uintptr_t>(fmt->clone());
 }
 

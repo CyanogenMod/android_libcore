@@ -36,7 +36,7 @@ class ScopedIcuLocale {
       return;
     }
 
-    mLocale = Locale::createFromName(localeName.c_str());
+    mLocale = icu::Locale::createFromName(localeName.c_str());
   }
 
   ~ScopedIcuLocale() {
@@ -46,13 +46,13 @@ class ScopedIcuLocale {
     return !mLocale.isBogus();
   }
 
-  Locale& locale() {
+  icu::Locale& locale() {
     return mLocale;
   }
 
  private:
   JNIEnv* const mEnv;
-  Locale mLocale;
+  icu::Locale mLocale;
 
   // Disallow copy and assignment.
   ScopedIcuLocale(const ScopedIcuLocale&);
