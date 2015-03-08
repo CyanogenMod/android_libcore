@@ -31,7 +31,7 @@ static jlong RelativeDateTimeFormatter_createRelativeDateTimeFormatter(JNIEnv* e
   }
 
   UErrorCode status = U_ZERO_ERROR;
-  RelativeDateTimeFormatter* formatter = new RelativeDateTimeFormatter(
+  icu::RelativeDateTimeFormatter* formatter = new icu::RelativeDateTimeFormatter(
       icuLocale.locale(), nullptr, static_cast<UDateRelativeDateTimeFormatterStyle>(style),
       static_cast<UDisplayContext>(capitalizationContext), status);
   if (maybeThrowIcuException(env, "RelativeDateTimeFormatter::RelativeDateTimeFormatter", status)) {
@@ -43,13 +43,13 @@ static jlong RelativeDateTimeFormatter_createRelativeDateTimeFormatter(JNIEnv* e
 
 static void RelativeDateTimeFormatter_destroyRelativeDateTimeFormatter(JNIEnv*, jclass,
     jlong formatterAddress) {
-  delete reinterpret_cast<RelativeDateTimeFormatter*>(static_cast<uintptr_t>(formatterAddress));
+  delete reinterpret_cast<icu::RelativeDateTimeFormatter*>(static_cast<uintptr_t>(formatterAddress));
 }
 
 static jstring RelativeDateTimeFormatter_formatWithRelativeUnit(JNIEnv* env, jclass,
     jlong formatterAddress, jint quantity, jint direction, jint unit) {
-  RelativeDateTimeFormatter* formatter(reinterpret_cast<RelativeDateTimeFormatter*>(formatterAddress));
-  UnicodeString s;
+  icu::RelativeDateTimeFormatter* formatter(reinterpret_cast<icu::RelativeDateTimeFormatter*>(formatterAddress));
+  icu::UnicodeString s;
   UErrorCode status = U_ZERO_ERROR;
   // RelativeDateTimeFormatter::format() takes a double-type quantity.
   formatter->format(static_cast<double>(quantity), static_cast<UDateDirection>(direction),
@@ -63,8 +63,8 @@ static jstring RelativeDateTimeFormatter_formatWithRelativeUnit(JNIEnv* env, jcl
 
 static jstring RelativeDateTimeFormatter_formatWithAbsoluteUnit(JNIEnv* env, jclass,
     jlong formatterAddress, jint direction, jint unit) {
-  RelativeDateTimeFormatter* formatter(reinterpret_cast<RelativeDateTimeFormatter*>(formatterAddress));
-  UnicodeString s;
+  icu::RelativeDateTimeFormatter* formatter(reinterpret_cast<icu::RelativeDateTimeFormatter*>(formatterAddress));
+  icu::UnicodeString s;
   UErrorCode status = U_ZERO_ERROR;
   formatter->format(static_cast<UDateDirection>(direction), static_cast<UDateAbsoluteUnit>(unit), s, status);
   if (maybeThrowIcuException(env, "RelativeDateTimeFormatter::format", status)) {
@@ -76,7 +76,7 @@ static jstring RelativeDateTimeFormatter_formatWithAbsoluteUnit(JNIEnv* env, jcl
 
 static jstring RelativeDateTimeFormatter_combineDateAndTime(JNIEnv* env, jclass,
     jlong formatterAddress, jstring relativeDateString0, jstring timeString0) {
-  RelativeDateTimeFormatter* formatter(reinterpret_cast<RelativeDateTimeFormatter*>(formatterAddress));
+  icu::RelativeDateTimeFormatter* formatter(reinterpret_cast<icu::RelativeDateTimeFormatter*>(formatterAddress));
   ScopedJavaUnicodeString relativeDateString(env, relativeDateString0);
   if (!relativeDateString.valid()) {
     return 0;
@@ -86,7 +86,7 @@ static jstring RelativeDateTimeFormatter_combineDateAndTime(JNIEnv* env, jclass,
   if (!timeString.valid()) {
     return 0;
   }
-  UnicodeString s;
+  icu::UnicodeString s;
   UErrorCode status = U_ZERO_ERROR;
   formatter->combineDateAndTime(relativeDateString.unicodeString(), timeString.unicodeString(), s, status);
   if (maybeThrowIcuException(env, "RelativeDateTimeFormatter::combineDateAndTime", status)) {

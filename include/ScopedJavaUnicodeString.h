@@ -45,11 +45,11 @@ class ScopedJavaUnicodeString {
     return (mString != NULL);
   }
 
-  const UnicodeString& unicodeString() const {
+  const icu::UnicodeString& unicodeString() const {
     return mUnicodeString;
   }
 
-  UnicodeString& unicodeString() {
+  icu::UnicodeString& unicodeString() {
     return mUnicodeString;
   }
 
@@ -57,7 +57,7 @@ class ScopedJavaUnicodeString {
   JNIEnv* mEnv;
   jstring mString;
   const UChar* mChars;
-  UnicodeString mUnicodeString;
+  icu::UnicodeString mUnicodeString;
 
   // Disallow copy and assignment.
   ScopedJavaUnicodeString(const ScopedJavaUnicodeString&);

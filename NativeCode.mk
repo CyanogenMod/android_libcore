@@ -67,7 +67,7 @@ core_c_includes := libcore/include $(LOCAL_C_INCLUDES)
 core_shared_libraries := $(LOCAL_SHARED_LIBRARIES)
 core_static_libraries := $(LOCAL_STATIC_LIBRARIES)
 core_cflags := $(LOCAL_CFLAGS) -Wall -Wextra -Werror
-core_cppflags += -std=gnu++11
+core_cppflags += -std=gnu++11 -DU_USING_ICU_NAMESPACE=0
 
 core_test_files := \
   luni/src/test/native/dalvik_system_JniTest.cpp \

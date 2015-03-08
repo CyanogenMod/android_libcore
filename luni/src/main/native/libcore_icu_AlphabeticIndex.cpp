@@ -25,8 +25,8 @@
 #include "unicode/alphaindex.h"
 #include "unicode/uniset.h"
 
-static AlphabeticIndex* fromPeer(jlong peer) {
-  return reinterpret_cast<AlphabeticIndex*>(static_cast<uintptr_t>(peer));
+static icu::AlphabeticIndex* fromPeer(jlong peer) {
+  return reinterpret_cast<icu::AlphabeticIndex*>(static_cast<uintptr_t>(peer));
 }
 
 static jlong AlphabeticIndex_create(JNIEnv* env, jclass, jstring javaLocaleName) {
@@ -35,7 +35,7 @@ static jlong AlphabeticIndex_create(JNIEnv* env, jclass, jstring javaLocaleName)
   if (!icuLocale.valid()) {
     return 0;
   }
-  AlphabeticIndex* ai = new AlphabeticIndex(icuLocale.locale(), status);
+  icu::AlphabeticIndex* ai = new icu::AlphabeticIndex(icuLocale.locale(), status);
   if (maybeThrowIcuException(env, "AlphabeticIndex", status)) {
     return 0;
   }
@@ -47,19 +47,19 @@ static void AlphabeticIndex_destroy(JNIEnv*, jclass, jlong peer) {
 }
 
 static jint AlphabeticIndex_getMaxLabelCount(JNIEnv*, jclass, jlong peer) {
-  AlphabeticIndex* ai = fromPeer(peer);
+  icu::AlphabeticIndex* ai = fromPeer(peer);
   return ai->getMaxLabelCount();
 }
 
 static void AlphabeticIndex_setMaxLabelCount(JNIEnv* env, jclass, jlong peer, jint count) {
-  AlphabeticIndex* ai = fromPeer(peer);
+  icu::AlphabeticIndex* ai = fromPeer(peer);
   UErrorCode status = U_ZERO_ERROR;
   ai->setMaxLabelCount(count, status);
   maybeThrowIcuException(env, "AlphabeticIndex::setMaxLabelCount", status);
 }
 
 static void AlphabeticIndex_addLabels(JNIEnv* env, jclass, jlong peer, jstring javaLocaleName) {
-  AlphabeticIndex* ai = fromPeer(peer);
+  icu::AlphabeticIndex* ai = fromPeer(peer);
   ScopedIcuLocale icuLocale(env, javaLocaleName);
   if (!icuLocale.valid()) {
     return;
@@ -71,14 +71,14 @@ static void AlphabeticIndex_addLabels(JNIEnv* env, jclass, jlong peer, jstring j
 
 static void AlphabeticIndex_addLabelRange(JNIEnv* env, jclass, jlong peer,
                                           jint codePointStart, jint codePointEnd) {
-  AlphabeticIndex* ai = fromPeer(peer);
+  icu::AlphabeticIndex* ai = fromPeer(peer);
   UErrorCode status = U_ZERO_ERROR;
-  ai->addLabels(UnicodeSet(codePointStart, codePointEnd), status);
+  ai->addLabels(icu::UnicodeSet(codePointStart, codePointEnd), status);
   maybeThrowIcuException(env, "AlphabeticIndex::addLabels", status);
 }
 
 static jint AlphabeticIndex_getBucketCount(JNIEnv* env, jclass, jlong peer) {
-  AlphabeticIndex* ai = fromPeer(peer);
+  icu::AlphabeticIndex* ai = fromPeer(peer);
   UErrorCode status = U_ZERO_ERROR;
   jint result = ai->getBucketCount(status);
   if (maybeThrowIcuException(env, "AlphabeticIndex::getBucketCount", status)) {
@@ -88,7 +88,7 @@ static jint AlphabeticIndex_getBucketCount(JNIEnv* env, jclass, jlong peer) {
 }
 
 static jint AlphabeticIndex_getBucketIndex(JNIEnv* env, jclass, jlong peer, jstring javaString) {
-  AlphabeticIndex* ai = fromPeer(peer);
+  icu::AlphabeticIndex* ai = fromPeer(peer);
   ScopedJavaUnicodeString string(env, javaString);
   if (!string.valid()) {
     return -1;
@@ -108,7 +108,7 @@ static jstring AlphabeticIndex_getBucketLabel(JNIEnv* env, jclass, jlong peer, j
   }
 
   // Iterate to the nth bucket.
-  AlphabeticIndex* ai = fromPeer(peer);
+  icu::AlphabeticIndex* ai = fromPeer(peer);
   UErrorCode status = U_ZERO_ERROR;
   ai->resetBucketIterator(status);
   if (maybeThrowIcuException(env, "AlphabeticIndex::resetBucketIterator", status)) {
@@ -129,31 +129,31 @@ static jstring AlphabeticIndex_getBucketLabel(JNIEnv* env, jclass, jlong peer, j
     return env->NewStringUTF("");
   }
 
-  const UnicodeString& label(ai->getBucketLabel());
+  const icu::UnicodeString& label(ai->getBucketLabel());
   return env->NewString(label.getBuffer(), label.length());
 }
 
 static jlong AlphabeticIndex_buildImmutableIndex(JNIEnv* env, jclass, jlong peer) {
-  AlphabeticIndex* ai = fromPeer(peer);
+  icu::AlphabeticIndex* ai = fromPeer(peer);
   UErrorCode status = U_ZERO_ERROR;
-  AlphabeticIndex::ImmutableIndex* ii = ai->buildImmutableIndex(status);
+  icu::AlphabeticIndex::ImmutableIndex* ii = ai->buildImmutableIndex(status);
   if (maybeThrowIcuException(env, "AlphabeticIndex::buildImmutableIndex", status)) {
     return 0;
   }
   return reinterpret_cast<uintptr_t>(ii);
 }
 
-static AlphabeticIndex::ImmutableIndex* immutableIndexFromPeer(jlong peer) {
-  return reinterpret_cast<AlphabeticIndex::ImmutableIndex*>(static_cast<uintptr_t>(peer));
+static icu::AlphabeticIndex::ImmutableIndex* immutableIndexFromPeer(jlong peer) {
+  return reinterpret_cast<icu::AlphabeticIndex::ImmutableIndex*>(static_cast<uintptr_t>(peer));
 }
 
 static jint ImmutableIndex_getBucketCount(JNIEnv*, jclass, jlong peer) {
-  AlphabeticIndex::ImmutableIndex* ii = immutableIndexFromPeer(peer);
+  icu::AlphabeticIndex::ImmutableIndex* ii = immutableIndexFromPeer(peer);
   return ii->getBucketCount();
 }
 
 static jint ImmutableIndex_getBucketIndex(JNIEnv* env, jclass, jlong peer, jstring javaString) {
-  AlphabeticIndex::ImmutableIndex* ii = immutableIndexFromPeer(peer);
+  icu::AlphabeticIndex::ImmutableIndex* ii = immutableIndexFromPeer(peer);
   ScopedJavaUnicodeString string(env, javaString);
   if (!string.valid()) {
     return -1;
@@ -167,8 +167,8 @@ static jint ImmutableIndex_getBucketIndex(JNIEnv* env, jclass, jlong peer, jstri
 }
 
 static jstring ImmutableIndex_getBucketLabel(JNIEnv* env, jclass, jlong peer, jint index) {
-  AlphabeticIndex::ImmutableIndex* ii = immutableIndexFromPeer(peer);
-  const AlphabeticIndex::Bucket* bucket = ii->getBucket(index);
+  icu::AlphabeticIndex::ImmutableIndex* ii = immutableIndexFromPeer(peer);
+  const icu::AlphabeticIndex::Bucket* bucket = ii->getBucket(index);
   if (bucket == NULL) {
     jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException", "Invalid index: %d", index);
     return NULL;
@@ -179,7 +179,7 @@ static jstring ImmutableIndex_getBucketLabel(JNIEnv* env, jclass, jlong peer, ji
     return env->NewStringUTF("");
   }
 
-  const UnicodeString& label(bucket->getLabel());
+  const icu::UnicodeString& label(bucket->getLabel());
   return env->NewString(label.getBuffer(), label.length());
 }
 
