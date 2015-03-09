@@ -40,9 +40,7 @@ package dalvik.system;
  *
  *       protected void finalize() throws Throwable {
  *           try {
- *               if (guard != null) {
- *                   guard.warnIfOpen();
- *               }
+ *               guard.warnIfOpen();
  *               cleanup();
  *           } finally {
  *               super.finalize();
@@ -76,9 +74,7 @@ package dalvik.system;
  *
  *       protected void finalize() throws Throwable {
  *           try {
- *               if (guard != null) {
- *                   guard.warnIfOpen();
- *               }
+ *               guard.warnIfOpen();
  *               cleanup();
  *           } finally {
  *               super.finalize();
