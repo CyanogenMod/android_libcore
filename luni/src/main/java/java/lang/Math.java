@@ -35,7 +35,9 @@ public final class Math {
      */
     public static final double PI = 3.141592653589793;
 
-    private static final Random INSTANCE = new Random();
+    private static class NoImagePreloadHolder {
+        private static final Random INSTANCE = new Random();
+    }
 
     /**
      * Prevents this class from being instantiated.
@@ -876,7 +878,7 @@ public final class Math {
      * @return a pseudo-random number.
      */
     public static double random() {
-        return INSTANCE.nextDouble();
+        return NoImagePreloadHolder.INSTANCE.nextDouble();
     }
 
     /**
@@ -886,14 +888,14 @@ public final class Math {
      * @hide for internal use only.
      */
     public static void setRandomSeedInternal(long seed) {
-        INSTANCE.setSeed(seed);
+        NoImagePreloadHolder.INSTANCE.setSeed(seed);
     }
 
     /**
      * @hide for internal use only.
      */
     public static int randomIntInternal() {
-        return INSTANCE.nextInt();
+        return NoImagePreloadHolder.INSTANCE.nextInt();
     }
 
     /**
