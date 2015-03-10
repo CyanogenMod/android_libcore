@@ -16,6 +16,7 @@
 
 package libcore.io;
 
+import android.system.NetlinkSocketAddress;
 import android.system.StructUcred;
 import java.io.File;
 import java.io.FileDescriptor;
@@ -267,5 +268,20 @@ public class OsTest extends TestCase {
     assertEquals(sent + 16, input.position());
 
     Libcore.os.close(clientFd);
+  }
+
+  public void test_NetlinkSocket() throws Exception {
+    FileDescriptor nlSocket = Libcore.os.socket(AF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE);
+    Libcore.os.bind(nlSocket, new NetlinkSocketAddress());
+    NetlinkSocketAddress address = (NetlinkSocketAddress) Libcore.os.getsockname(nlSocket);
+    assertTrue(address.getPortId() > 0);
+    assertEquals(0, address.getGroupsMask());
+
+    NetlinkSocketAddress nlKernel = new NetlinkSocketAddress();
+    Libcore.os.connect(nlSocket, nlKernel);
+    NetlinkSocketAddress nlPeer = (NetlinkSocketAddress) Libcore.os.getpeername(nlSocket);
+    assertEquals(0, nlPeer.getPortId());
+    assertEquals(0, nlPeer.getGroupsMask());
+    Libcore.os.close(nlSocket);
   }
 }
