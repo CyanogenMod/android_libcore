@@ -54,10 +54,12 @@ public class ForwardingOs implements Os {
     public boolean access(String path, int mode) throws ErrnoException { return os.access(path, mode); }
     public InetAddress[] android_getaddrinfo(String node, StructAddrinfo hints, int netId) throws GaiException { return os.android_getaddrinfo(node, hints, netId); }
     public void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException { os.bind(fd, address, port); }
+    public void bind(FileDescriptor fd, SocketAddress address) throws ErrnoException, SocketException { os.bind(fd, address); }
     public void chmod(String path, int mode) throws ErrnoException { os.chmod(path, mode); }
     public void chown(String path, int uid, int gid) throws ErrnoException { os.chown(path, uid, gid); }
     public void close(FileDescriptor fd) throws ErrnoException { os.close(fd); }
     public void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException { os.connect(fd, address, port); }
+    public void connect(FileDescriptor fd, SocketAddress address) throws ErrnoException, SocketException { os.connect(fd, address); }
     public FileDescriptor dup(FileDescriptor oldFd) throws ErrnoException { return os.dup(oldFd); }
     public FileDescriptor dup2(FileDescriptor oldFd, int newFd) throws ErrnoException { return os.dup2(oldFd, newFd); }
     public String[] environ() { return os.environ(); }

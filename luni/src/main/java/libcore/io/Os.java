@@ -45,10 +45,12 @@ public interface Os {
     public boolean access(String path, int mode) throws ErrnoException;
     public InetAddress[] android_getaddrinfo(String node, StructAddrinfo hints, int netId) throws GaiException;
     public void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException;
+    public void bind(FileDescriptor fd, SocketAddress address) throws ErrnoException, SocketException;
     public void chmod(String path, int mode) throws ErrnoException;
     public void chown(String path, int uid, int gid) throws ErrnoException;
     public void close(FileDescriptor fd) throws ErrnoException;
     public void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException;
+    public void connect(FileDescriptor fd, SocketAddress address) throws ErrnoException, SocketException;
     public FileDescriptor dup(FileDescriptor oldFd) throws ErrnoException;
     public FileDescriptor dup2(FileDescriptor oldFd, int newFd) throws ErrnoException;
     public String[] environ();

@@ -34,6 +34,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <linux/rtnetlink.h>
 #include <net/if.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -266,14 +267,25 @@ private:
 };
 
 static jobject makeSocketAddress(JNIEnv* env, const sockaddr_storage& ss) {
-    jint port;
-    jobject inetAddress = sockaddrToInetAddress(env, ss, &port);
-    if (inetAddress == NULL) {
-        return NULL;
+    if (ss.ss_family == AF_INET || ss.ss_family == AF_INET6 || ss.ss_family == AF_UNIX) {
+        jint port;
+        jobject inetAddress = sockaddrToInetAddress(env, ss, &port);
+        if (inetAddress == NULL) {
+            return NULL;  // Exception already thrown.
+        }
+        static jmethodID ctor = env->GetMethodID(JniConstants::inetSocketAddressClass,
+                "<init>", "(Ljava/net/InetAddress;I)V");
+        return env->NewObject(JniConstants::inetSocketAddressClass, ctor, inetAddress, port);
+    } else if (ss.ss_family == AF_NETLINK) {
+        const struct sockaddr_nl* nl_addr = reinterpret_cast<const struct sockaddr_nl*>(&ss);
+        static jmethodID ctor = env->GetMethodID(JniConstants::netlinkSocketAddressClass,
+                "<init>", "(II)V");
+        return env->NewObject(JniConstants::netlinkSocketAddressClass, ctor, 
+                static_cast<jint>(nl_addr->nl_pid), 
+                static_cast<jint>(nl_addr->nl_groups));
     }
-    static jmethodID ctor = env->GetMethodID(JniConstants::inetSocketAddressClass, "<init>",
-            "(Ljava/net/InetAddress;I)V");
-    return env->NewObject(JniConstants::inetSocketAddressClass, ctor, inetAddress, port);
+    jniThrowException(env, "java/lang/IllegalArgumentException", "unsupported ss_family");
+    return NULL;
 }
 
 static jobject makeStructPasswd(JNIEnv* env, const struct passwd& pw) {
@@ -384,6 +396,49 @@ static bool fillInetSocketAddress(JNIEnv* env, jint rc, jobject javaInetSocketAd
     return true;
 }
 
+static bool javaInetSocketAddressToSockaddr(
+        JNIEnv* env, jobject javaSocketAddress, sockaddr_storage& ss, socklen_t& sa_len) {
+    static jfieldID addressFid = env->GetFieldID(
+            JniConstants::inetSocketAddressClass, "addr", "Ljava/net/InetAddress;");
+    static jfieldID portFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "port", "I");
+    return inetAddressToSockaddr(env,
+            env->GetObjectField(javaSocketAddress, addressFid),
+            env->GetIntField(javaSocketAddress, portFid),
+            ss, sa_len);
+}
+
+static bool javaNetlinkSocketAddressToSockaddr(
+        JNIEnv* env, jobject javaSocketAddress, sockaddr_storage& ss, socklen_t& sa_len) {
+    static jfieldID nlPidFid = env->GetFieldID(
+            JniConstants::netlinkSocketAddressClass, "nlPortId", "I");
+    static jfieldID nlGroupsFid = env->GetFieldID(
+            JniConstants::netlinkSocketAddressClass, "nlGroupsMask", "I");
+
+    sockaddr_nl *nlAddr = reinterpret_cast<sockaddr_nl *>(&ss);
+    nlAddr->nl_family = AF_NETLINK;
+    nlAddr->nl_pid = env->GetIntField(javaSocketAddress, nlPidFid);
+    nlAddr->nl_groups = env->GetIntField(javaSocketAddress, nlGroupsFid);
+    sa_len = sizeof(sockaddr_nl);
+    return true;
+}
+
+static bool javaSocketAddressToSockaddr(
+        JNIEnv* env, jobject javaSocketAddress, sockaddr_storage& ss, socklen_t& sa_len) {
+    if (javaSocketAddress == NULL) {
+        jniThrowNullPointerException(env, NULL);
+        return false;
+    }
+
+    if (env->IsInstanceOf(javaSocketAddress, JniConstants::netlinkSocketAddressClass)) {
+        return javaNetlinkSocketAddressToSockaddr(env, javaSocketAddress, ss, sa_len);
+    } else if (env->IsInstanceOf(javaSocketAddress, JniConstants::inetSocketAddressClass)) {
+        return javaInetSocketAddressToSockaddr(env, javaSocketAddress, ss, sa_len);
+    }
+    jniThrowException(env, "java/lang/UnsupportedOperationException",
+            "unsupported SocketAddress subclass");
+    return false;
+}
+
 static jobject doStat(JNIEnv* env, jstring javaPath, bool isLstat) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -487,6 +542,19 @@ static void Posix_bind(JNIEnv* env, jobject, jobject javaFd, jobject javaAddress
     (void) NET_FAILURE_RETRY(env, int, bind, javaFd, sa, sa_len);
 }
 
+static void Posix_bindSocketAddress(
+        JNIEnv* env, jobject, jobject javaFd, jobject javaSocketAddress) {
+    sockaddr_storage ss;
+    socklen_t sa_len;
+    if (!javaSocketAddressToSockaddr(env, javaSocketAddress, ss, sa_len)) {
+        return;  // Exception already thrown.
+    }
+
+    const sockaddr* sa = reinterpret_cast<const sockaddr*>(&ss);
+    // We don't need the return value because we'll already have thrown.
+    (void) NET_FAILURE_RETRY(env, int, bind, javaFd, sa, sa_len);
+}
+
 static void Posix_chmod(JNIEnv* env, jobject, jstring javaPath, jint mode) {
     ScopedUtfChars path(env, javaPath);
     if (path.c_str() == NULL) {
@@ -521,6 +589,19 @@ static void Posix_connect(JNIEnv* env, jobject, jobject javaFd, jobject javaAddr
     if (!inetAddressToSockaddr(env, javaAddress, port, ss, sa_len)) {
         return;
     }
+    const sockaddr* sa = reinterpret_cast<const sockaddr*>(&ss);
+    // We don't need the return value because we'll already have thrown.
+    (void) NET_FAILURE_RETRY(env, int, connect, javaFd, sa, sa_len);
+}
+
+static void Posix_connectSocketAddress(
+        JNIEnv* env, jobject, jobject javaFd, jobject javaSocketAddress) {
+    sockaddr_storage ss;
+    socklen_t sa_len;
+    if (!javaSocketAddressToSockaddr(env, javaSocketAddress, ss, sa_len)) {
+        return;  // Exception already thrown.
+    }
+
     const sockaddr* sa = reinterpret_cast<const sockaddr*>(&ss);
     // We don't need the return value because we'll already have thrown.
     (void) NET_FAILURE_RETRY(env, int, connect, javaFd, sa, sa_len);
@@ -1587,15 +1668,20 @@ static jint Posix_writev(JNIEnv* env, jobject, jobject javaFd, jobjectArray buff
     return IO_FAILURE_RETRY(env, ssize_t, writev, javaFd, ioVec.get(), ioVec.size());
 }
 
+#define NATIVE_METHOD_OVERLOAD(className, functionName, signature, variant) \
+    { #functionName, signature, reinterpret_cast<void*>(className ## _ ## functionName ## variant) }
+
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Posix, accept, "(Ljava/io/FileDescriptor;Ljava/net/InetSocketAddress;)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, access, "(Ljava/lang/String;I)Z"),
     NATIVE_METHOD(Posix, android_getaddrinfo, "(Ljava/lang/String;Landroid/system/StructAddrinfo;I)[Ljava/net/InetAddress;"),
     NATIVE_METHOD(Posix, bind, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
+    NATIVE_METHOD_OVERLOAD(Posix, bind, "(Ljava/io/FileDescriptor;Ljava/net/SocketAddress;)V", SocketAddress),
     NATIVE_METHOD(Posix, chmod, "(Ljava/lang/String;I)V"),
     NATIVE_METHOD(Posix, chown, "(Ljava/lang/String;II)V"),
     NATIVE_METHOD(Posix, close, "(Ljava/io/FileDescriptor;)V"),
     NATIVE_METHOD(Posix, connect, "(Ljava/io/FileDescriptor;Ljava/net/InetAddress;I)V"),
+    NATIVE_METHOD_OVERLOAD(Posix, connect, "(Ljava/io/FileDescriptor;Ljava/net/SocketAddress;)V", SocketAddress),
     NATIVE_METHOD(Posix, dup, "(Ljava/io/FileDescriptor;)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, dup2, "(Ljava/io/FileDescriptor;I)Ljava/io/FileDescriptor;"),
     NATIVE_METHOD(Posix, environ, "()[Ljava/lang/String;"),
