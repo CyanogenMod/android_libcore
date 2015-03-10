@@ -48,10 +48,12 @@ public final class Posix implements Os {
     public native boolean access(String path, int mode) throws ErrnoException;
     public native InetAddress[] android_getaddrinfo(String node, StructAddrinfo hints, int netId) throws GaiException;
     public native void bind(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException;
+    public native void bind(FileDescriptor fd, SocketAddress address) throws ErrnoException, SocketException;
     public native void chmod(String path, int mode) throws ErrnoException;
     public native void chown(String path, int uid, int gid) throws ErrnoException;
     public native void close(FileDescriptor fd) throws ErrnoException;
     public native void connect(FileDescriptor fd, InetAddress address, int port) throws ErrnoException, SocketException;
+    public native void connect(FileDescriptor fd, SocketAddress address) throws ErrnoException, SocketException;
     public native FileDescriptor dup(FileDescriptor oldFd) throws ErrnoException;
     public native FileDescriptor dup2(FileDescriptor oldFd, int newFd) throws ErrnoException;
     public native String[] environ();

@@ -58,6 +58,7 @@ static void initConstant(JNIEnv* env, jclass c, const char* fieldName, int value
 static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "AF_INET", AF_INET);
     initConstant(env, c, "AF_INET6", AF_INET6);
+    initConstant(env, c, "AF_NETLINK", AF_NETLINK);
     initConstant(env, c, "AF_UNIX", AF_UNIX);
     initConstant(env, c, "AF_UNSPEC", AF_UNSPEC);
     initConstant(env, c, "AI_ADDRCONFIG", AI_ADDRCONFIG);
@@ -355,6 +356,7 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "MS_ASYNC", MS_ASYNC);
     initConstant(env, c, "MS_INVALIDATE", MS_INVALIDATE);
     initConstant(env, c, "MS_SYNC", MS_SYNC);
+    initConstant(env, c, "NETLINK_ROUTE", NETLINK_ROUTE);
     initConstant(env, c, "NI_DGRAM", NI_DGRAM);
     initConstant(env, c, "NI_NAMEREQD", NI_NAMEREQD);
     initConstant(env, c, "NI_NOFQDN", NI_NOFQDN);
@@ -407,6 +409,19 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "RT_SCOPE_NOWHERE", RT_SCOPE_NOWHERE);
     initConstant(env, c, "RT_SCOPE_SITE", RT_SCOPE_SITE);
     initConstant(env, c, "RT_SCOPE_UNIVERSE", RT_SCOPE_UNIVERSE);
+    initConstant(env, c, "RTMGRP_IPV4_IFADDR", RTMGRP_IPV4_IFADDR);
+    initConstant(env, c, "RTMGRP_IPV4_MROUTE", RTMGRP_IPV4_MROUTE);
+    initConstant(env, c, "RTMGRP_IPV4_ROUTE", RTMGRP_IPV4_ROUTE);
+    initConstant(env, c, "RTMGRP_IPV4_RULE", RTMGRP_IPV4_RULE);
+    initConstant(env, c, "RTMGRP_IPV6_IFADDR", RTMGRP_IPV6_IFADDR);
+    initConstant(env, c, "RTMGRP_IPV6_IFINFO", RTMGRP_IPV6_IFINFO);
+    initConstant(env, c, "RTMGRP_IPV6_MROUTE", RTMGRP_IPV6_MROUTE);
+    initConstant(env, c, "RTMGRP_IPV6_PREFIX", RTMGRP_IPV6_PREFIX);
+    initConstant(env, c, "RTMGRP_IPV6_ROUTE", RTMGRP_IPV6_ROUTE);
+    initConstant(env, c, "RTMGRP_LINK", RTMGRP_LINK);
+    initConstant(env, c, "RTMGRP_NEIGH", RTMGRP_NEIGH);
+    initConstant(env, c, "RTMGRP_NOTIFY", RTMGRP_NOTIFY);
+    initConstant(env, c, "RTMGRP_TC", RTMGRP_TC);
 #endif
     initConstant(env, c, "SEEK_CUR", SEEK_CUR);
     initConstant(env, c, "SEEK_END", SEEK_END);
