@@ -95,6 +95,7 @@ public final class OsConstants {
 
     public static final int AF_INET = placeholder();
     public static final int AF_INET6 = placeholder();
+    /** @hide */ public static final int AF_NETLINK = placeholder();
     public static final int AF_UNIX = placeholder();
     public static final int AF_UNSPEC = placeholder();
     public static final int AI_ADDRCONFIG = placeholder();
@@ -324,6 +325,7 @@ public final class OsConstants {
     public static final int MS_ASYNC = placeholder();
     public static final int MS_INVALIDATE = placeholder();
     public static final int MS_SYNC = placeholder();
+    /** @hide */ public static final int NETLINK_ROUTE = placeholder();
     public static final int NI_DGRAM = placeholder();
     public static final int NI_NAMEREQD = placeholder();
     public static final int NI_NOFQDN = placeholder();
@@ -365,6 +367,19 @@ public final class OsConstants {
     public static final int RT_SCOPE_NOWHERE = placeholder();
     public static final int RT_SCOPE_SITE = placeholder();
     public static final int RT_SCOPE_UNIVERSE = placeholder();
+    /** @hide */ public static final int RTMGRP_IPV4_IFADDR = placeholder();
+    /** @hide */ public static final int RTMGRP_IPV4_MROUTE = placeholder();
+    /** @hide */ public static final int RTMGRP_IPV4_ROUTE = placeholder();
+    /** @hide */ public static final int RTMGRP_IPV4_RULE = placeholder();
+    /** @hide */ public static final int RTMGRP_IPV6_IFADDR = placeholder();
+    /** @hide */ public static final int RTMGRP_IPV6_IFINFO = placeholder();
+    /** @hide */ public static final int RTMGRP_IPV6_MROUTE = placeholder();
+    /** @hide */ public static final int RTMGRP_IPV6_PREFIX = placeholder();
+    /** @hide */ public static final int RTMGRP_IPV6_ROUTE = placeholder();
+    /** @hide */ public static final int RTMGRP_LINK = placeholder();
+    /** @hide */ public static final int RTMGRP_NEIGH = placeholder();
+    /** @hide */ public static final int RTMGRP_NOTIFY = placeholder();
+    /** @hide */ public static final int RTMGRP_TC = placeholder();
     public static final int SEEK_CUR = placeholder();
     public static final int SEEK_END = placeholder();
     public static final int SEEK_SET = placeholder();
