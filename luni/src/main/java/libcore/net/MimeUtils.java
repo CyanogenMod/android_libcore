@@ -259,8 +259,9 @@ public final class MimeUtils {
         add("image/ico", "cur");
         add("image/ico", "ico");
         add("image/ief", "ief");
-        add("image/jpeg", "jpeg");
+        // add ".jpg" first so it will be the default for guessExtensionFromMimeType
         add("image/jpeg", "jpg");
+        add("image/jpeg", "jpeg");
         add("image/jpeg", "jpe");
         add("image/pcx", "pcx");
         add("image/png", "png");

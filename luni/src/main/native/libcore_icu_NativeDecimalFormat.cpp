@@ -52,13 +52,14 @@ static DecimalFormatSymbols* makeDecimalFormatSymbols(JNIEnv* env,
         jchar groupingSeparator0, jstring infinity0,
         jstring internationalCurrencySymbol0, jstring minusSign0,
         jchar monetaryDecimalSeparator, jstring nan0, jchar patternSeparator,
-        jchar percent, jchar perMill, jchar zeroDigit) {
+        jstring percent0, jchar perMill, jchar zeroDigit) {
     ScopedJavaUnicodeString currencySymbol(env, currencySymbol0);
     ScopedJavaUnicodeString exponentSeparator(env, exponentSeparator0);
     ScopedJavaUnicodeString infinity(env, infinity0);
     ScopedJavaUnicodeString internationalCurrencySymbol(env, internationalCurrencySymbol0);
     ScopedJavaUnicodeString nan(env, nan0);
     ScopedJavaUnicodeString minusSign(env, minusSign0);
+    ScopedJavaUnicodeString percent(env, percent0);
     UnicodeString groupingSeparator(groupingSeparator0);
 
     DecimalFormatSymbols* result = new DecimalFormatSymbols;
@@ -74,7 +75,7 @@ static DecimalFormatSymbols* makeDecimalFormatSymbols(JNIEnv* env,
     result->setSymbol(DecimalFormatSymbols::kMonetarySeparatorSymbol, UnicodeString(monetaryDecimalSeparator));
     result->setSymbol(DecimalFormatSymbols::kNaNSymbol, nan.unicodeString());
     result->setSymbol(DecimalFormatSymbols::kPatternSeparatorSymbol, UnicodeString(patternSeparator));
-    result->setSymbol(DecimalFormatSymbols::kPercentSymbol, UnicodeString(percent));
+    result->setSymbol(DecimalFormatSymbols::kPercentSymbol, percent.unicodeString());
     result->setSymbol(DecimalFormatSymbols::kPerMillSymbol, UnicodeString(perMill));
     // java.text.DecimalFormatSymbols just uses a zero digit,
     // but ICU >= 4.6 has a field for each decimal digit.
@@ -96,7 +97,7 @@ static void NativeDecimalFormat_setDecimalFormatSymbols(JNIEnv* env, jclass, jlo
         jchar groupingSeparator, jstring infinity,
         jstring internationalCurrencySymbol, jstring minusSign,
         jchar monetaryDecimalSeparator, jstring nan, jchar patternSeparator,
-        jchar percent, jchar perMill, jchar zeroDigit) {
+        jstring percent, jchar perMill, jchar zeroDigit) {
     DecimalFormatSymbols* symbols = makeDecimalFormatSymbols(env,
             currencySymbol, decimalSeparator, digit, exponentSeparator, groupingSeparator,
             infinity, internationalCurrencySymbol, minusSign,
@@ -110,7 +111,7 @@ static jlong NativeDecimalFormat_open(JNIEnv* env, jclass, jstring pattern0,
         jchar groupingSeparator, jstring infinity,
         jstring internationalCurrencySymbol, jstring minusSign,
         jchar monetaryDecimalSeparator, jstring nan, jchar patternSeparator,
-        jchar percent, jchar perMill, jchar zeroDigit) {
+        jstring percent, jchar perMill, jchar zeroDigit) {
     UErrorCode status = U_ZERO_ERROR;
     UParseError parseError;
     ScopedJavaUnicodeString pattern(env, pattern0);
@@ -368,10 +369,10 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(NativeDecimalFormat, formatDigitList, "(JLjava/lang/String;Llibcore/icu/NativeDecimalFormat$FieldPositionIterator;)[C"),
     NATIVE_METHOD(NativeDecimalFormat, getAttribute, "(JI)I"),
     NATIVE_METHOD(NativeDecimalFormat, getTextAttribute, "(JI)Ljava/lang/String;"),
-    NATIVE_METHOD(NativeDecimalFormat, open, "(Ljava/lang/String;Ljava/lang/String;CCLjava/lang/String;CLjava/lang/String;Ljava/lang/String;Ljava/lang/String;CLjava/lang/String;CCCC)J"),
+    NATIVE_METHOD(NativeDecimalFormat, open, "(Ljava/lang/String;Ljava/lang/String;CCLjava/lang/String;CLjava/lang/String;Ljava/lang/String;Ljava/lang/String;CLjava/lang/String;CLjava/lang/String;CC)J"),
     NATIVE_METHOD(NativeDecimalFormat, parse, "(JLjava/lang/String;Ljava/text/ParsePosition;Z)Ljava/lang/Number;"),
     NATIVE_METHOD(NativeDecimalFormat, setAttribute, "(JII)V"),
-    NATIVE_METHOD(NativeDecimalFormat, setDecimalFormatSymbols, "(JLjava/lang/String;CCLjava/lang/String;CLjava/lang/String;Ljava/lang/String;Ljava/lang/String;CLjava/lang/String;CCCC)V"),
+    NATIVE_METHOD(NativeDecimalFormat, setDecimalFormatSymbols, "(JLjava/lang/String;CCLjava/lang/String;CLjava/lang/String;Ljava/lang/String;Ljava/lang/String;CLjava/lang/String;CLjava/lang/String;CC)V"),
     NATIVE_METHOD(NativeDecimalFormat, setRoundingMode, "(JID)V"),
     NATIVE_METHOD(NativeDecimalFormat, setSymbol, "(JILjava/lang/String;)V"),
     NATIVE_METHOD(NativeDecimalFormat, setTextAttribute, "(JILjava/lang/String;)V"),

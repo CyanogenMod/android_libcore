@@ -830,8 +830,7 @@ public final class System {
      * Returns the value of a particular system property or {@code null} if no
      * such property exists.
      *
-     * <p>The following properties are always provided by the Dalvik VM <b>and
-     * cannot be modified</b>:
+     * <p>The following properties are always provided by the Dalvik VM:</p>
      * <p><table BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
      * <tr BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
      *     <td><b>Name</b></td>        <td><b>Meaning</b></td>                    <td><b>Example</b></td></tr>
@@ -872,8 +871,8 @@ public final class System {
      *
      * </table>
      *
-     * <p>It is an error to override anyone of these properties. Any attempt to
-     * do so will leave their values unchanged.
+     * <p> All of the above properties except for {@code user.home} and {@code java.io.tmpdir}
+     * <b>cannot be modified</b>. Any attempt to change them will be a no-op.
      *
      * @param propertyName
      *            the name of the system property to look up.
@@ -895,7 +894,7 @@ public final class System {
 
     /**
      * Sets the value of a particular system property. Most system properties
-     * are read only and cannot be cleared or modified. See {@link #setProperty} for a
+     * are read only and cannot be cleared or modified. See {@link #getProperty} for a
      * list of such properties.
      *
      * @return the old value of the property or {@code null} if the property
@@ -908,7 +907,7 @@ public final class System {
 
     /**
      * Removes a specific system property. Most system properties
-     * are read only and cannot be cleared or modified. See {@link #setProperty} for a
+     * are read only and cannot be cleared or modified. See {@link #getProperty} for a
      * list of such properties.
      *
      * @return the property value or {@code null} if the property didn't exist.
@@ -1070,7 +1069,7 @@ public final class System {
     /**
      * Attempts to set all system properties. Copies all properties from
      * {@code p} and discards system properties that are read only and cannot
-     * be modified. See {@link #setProperty} for a list of such properties.
+     * be modified. See {@link #getProperty} for a list of such properties.
      */
     public static void setProperties(Properties p) {
         PropertiesWithNonOverrideableDefaults userProperties =

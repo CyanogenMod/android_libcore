@@ -158,7 +158,7 @@ public final class NativeDecimalFormat implements Cloneable {
                     dfs.getGroupingSeparator(), dfs.getInfinity(),
                     dfs.getInternationalCurrencySymbol(), dfs.getMinusSignString(),
                     dfs.getMonetaryDecimalSeparator(), dfs.getNaN(), dfs.getPatternSeparator(),
-                    dfs.getPercent(), dfs.getPerMill(), dfs.getZeroDigit());
+                    dfs.getPercentString(), dfs.getPerMill(), dfs.getZeroDigit());
             this.lastPattern = pattern;
         } catch (NullPointerException npe) {
             throw npe;
@@ -269,7 +269,7 @@ public final class NativeDecimalFormat implements Cloneable {
                 dfs.getDigit(), dfs.getExponentSeparator(), dfs.getGroupingSeparator(),
                 dfs.getInfinity(), dfs.getInternationalCurrencySymbol(), dfs.getMinusSignString(),
                 dfs.getMonetaryDecimalSeparator(), dfs.getNaN(), dfs.getPatternSeparator(),
-                dfs.getPercent(), dfs.getPerMill(), dfs.getZeroDigit());
+                dfs.getPercentString(), dfs.getPerMill(), dfs.getZeroDigit());
     }
 
     public void setDecimalFormatSymbols(final LocaleData localeData) {
@@ -626,13 +626,13 @@ public final class NativeDecimalFormat implements Cloneable {
     private static native long open(String pattern, String currencySymbol,
             char decimalSeparator, char digit, String exponentSeparator, char groupingSeparator,
             String infinity, String internationalCurrencySymbol, String minusSign,
-            char monetaryDecimalSeparator, String nan, char patternSeparator, char percent,
+            char monetaryDecimalSeparator, String nan, char patternSeparator, String percent,
             char perMill, char zeroDigit);
     private static native Number parse(long addr, String string, ParsePosition position, boolean parseBigDecimal);
     private static native void setDecimalFormatSymbols(long addr, String currencySymbol,
             char decimalSeparator, char digit, String exponentSeparator, char groupingSeparator,
             String infinity, String internationalCurrencySymbol, String minusSign,
-            char monetaryDecimalSeparator, String nan, char patternSeparator, char percent,
+            char monetaryDecimalSeparator, String nan, char patternSeparator, String percent,
             char perMill, char zeroDigit);
     private static native void setSymbol(long addr, int symbol, String str);
     private static native void setAttribute(long addr, int symbol, int i);

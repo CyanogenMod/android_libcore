@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.security.Principal;
@@ -43,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.net.ServerSocketFactory;
+import javax.net.SocketFactory;
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.KeyManager;
@@ -1570,6 +1572,28 @@ public class SSLSocketTest extends TestCase {
         }
     }
 
+    // http://b/18428603
+    public void test_SSLSocket_getPortWithSNI() throws Exception {
+        TestSSLContext context = TestSSLContext.create();
+
+        SSLSocket client = null;
+        try {
+            client = (SSLSocket) context.clientContext.getSocketFactory().createSocket();
+            client.connect(new InetSocketAddress(context.host, context.port));
+            try {
+                // This is crucial to reproducing issue 18428603.
+                Method setHostname = client.getClass().getMethod("setHostname", String.class);
+                setHostname.invoke(client, "sslsockettest.androidcts.google.com");
+            } catch (NoSuchMethodException ignored) {
+            }
+
+            assertTrue(client.getPort() > 0);
+        } finally {
+            client.close();
+            context.close();
+        }
+    }
+
     public void test_SSLSocket_sendsTlsFallbackScsv_Fallback_Success() throws Exception {
         TestSSLContext context = TestSSLContext.create();
 
@@ -1667,6 +1691,10 @@ public class SSLSocketTest extends TestCase {
                         server.startHandshake();
                         fail("Should result in inappropriate fallback");
                     } catch (SSLHandshakeException expected) {
+                        Throwable cause = expected.getCause();
+                        assertEquals(SSLProtocolException.class, cause.getClass());
+                        assertTrue(cause.getMessage(),
+                                cause.getMessage().contains("inappropriate fallback"));
                     }
                     return null;
                 }
@@ -1679,6 +1707,10 @@ public class SSLSocketTest extends TestCase {
                         client.startHandshake();
                         fail("Should receive TLS alert inappropriate fallback");
                     } catch (SSLHandshakeException expected) {
+                        Throwable cause = expected.getCause();
+                        assertEquals(SSLProtocolException.class, cause.getClass());
+                        assertTrue(cause.getMessage(),
+                                cause.getMessage().contains("inappropriate fallback"));
                     }
                     return null;
                 }
@@ -1687,6 +1719,153 @@ public class SSLSocketTest extends TestCase {
 
         s.get();
         c.get();
+        client.close();
+        server.close();
+        context.close();
+    }
+
+    public void test_SSLSocket_ClientGetsAlertDuringHandshake_HasGoodExceptionMessage()
+            throws Exception {
+        TestSSLContext context = TestSSLContext.create();
+
+        final ServerSocket listener = ServerSocketFactory.getDefault().createServerSocket(0);
+        final SSLSocket client = (SSLSocket) context.clientContext.getSocketFactory().createSocket(
+                context.host, listener.getLocalPort());
+        final Socket server = listener.accept();
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        Future<Void> c = executor.submit(new Callable<Void>() {
+            public Void call() throws Exception {
+                try {
+                    client.startHandshake();
+                    fail("Should receive handshake exception");
+                } catch (SSLHandshakeException expected) {
+                    assertFalse(expected.getMessage().contains("SSL_ERROR_ZERO_RETURN"));
+                    assertFalse(expected.getMessage().contains("You should never see this."));
+                }
+                return null;
+            }
+        });
+        Future<Void> s = executor.submit(new Callable<Void>() {
+            public Void call() throws Exception {
+                // Wait until the client sends something.
+                byte[] scratch = new byte[8192];
+                server.getInputStream().read(scratch);
+
+                // Write a bogus TLS alert:
+                // TLSv1.2 Record Layer: Alert (Level: Warning, Description: Protocol Version)
+                server.getOutputStream().write(new byte[] {
+                        0x15, 0x03, 0x03, 0x00, 0x02, 0x01, 0x46
+                });
+
+                // TLSv1.2 Record Layer: Alert (Level: Warning, Description: Close Notify)
+                server.getOutputStream().write(new byte[] {
+                        0x15, 0x03, 0x03, 0x00, 0x02, 0x01, 0x00
+                });
+
+                return null;
+            }
+        });
+
+
+        executor.shutdown();
+        c.get(5, TimeUnit.SECONDS);
+        s.get(5, TimeUnit.SECONDS);
+        client.close();
+        server.close();
+        listener.close();
+        context.close();
+    }
+
+    public void test_SSLSocket_ServerGetsAlertDuringHandshake_HasGoodExceptionMessage()
+            throws Exception {
+        TestSSLContext context = TestSSLContext.create();
+
+        final Socket client = SocketFactory.getDefault().createSocket(context.host, context.port);
+        final SSLSocket server = (SSLSocket) context.serverSocket.accept();
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        Future<Void> s = executor.submit(new Callable<Void>() {
+            public Void call() throws Exception {
+                try {
+                    server.startHandshake();
+                    fail("Should receive handshake exception");
+                } catch (SSLHandshakeException expected) {
+                    assertFalse(expected.getMessage().contains("SSL_ERROR_ZERO_RETURN"));
+                    assertFalse(expected.getMessage().contains("You should never see this."));
+                }
+                return null;
+            }
+        });
+        Future<Void> c = executor.submit(new Callable<Void>() {
+            public Void call() throws Exception {
+                // Send bogus ClientHello:
+                // TLSv1.2 Record Layer: Handshake Protocol: Client Hello
+                client.getOutputStream().write(new byte[] {
+                        (byte) 0x16, (byte) 0x03, (byte) 0x01, (byte) 0x00, (byte) 0xb9,
+                        (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0xb5, (byte) 0x03,
+                        (byte) 0x03, (byte) 0x5a, (byte) 0x31, (byte) 0xba, (byte) 0x44,
+                        (byte) 0x24, (byte) 0xfd, (byte) 0xf0, (byte) 0x56, (byte) 0x46,
+                        (byte) 0xea, (byte) 0xee, (byte) 0x1c, (byte) 0x62, (byte) 0x8f,
+                        (byte) 0x18, (byte) 0x04, (byte) 0xbd, (byte) 0x1c, (byte) 0xbc,
+                        (byte) 0xbf, (byte) 0x6d, (byte) 0x84, (byte) 0x12, (byte) 0xe9,
+                        (byte) 0x94, (byte) 0xf5, (byte) 0x1c, (byte) 0x15, (byte) 0x3e,
+                        (byte) 0x79, (byte) 0x01, (byte) 0xe2, (byte) 0x00, (byte) 0x00,
+                        (byte) 0x28, (byte) 0xc0, (byte) 0x2b, (byte) 0xc0, (byte) 0x2c,
+                        (byte) 0xc0, (byte) 0x2f, (byte) 0xc0, (byte) 0x30, (byte) 0x00,
+                        (byte) 0x9e, (byte) 0x00, (byte) 0x9f, (byte) 0xc0, (byte) 0x09,
+                        (byte) 0xc0, (byte) 0x0a, (byte) 0xc0, (byte) 0x13, (byte) 0xc0,
+                        (byte) 0x14, (byte) 0x00, (byte) 0x33, (byte) 0x00, (byte) 0x39,
+                        (byte) 0xc0, (byte) 0x07, (byte) 0xc0, (byte) 0x11, (byte) 0x00,
+                        (byte) 0x9c, (byte) 0x00, (byte) 0x9d, (byte) 0x00, (byte) 0x2f,
+                        (byte) 0x00, (byte) 0x35, (byte) 0x00, (byte) 0x05, (byte) 0x00,
+                        (byte) 0xff, (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x64,
+                        (byte) 0x00, (byte) 0x0b, (byte) 0x00, (byte) 0x04, (byte) 0x03,
+                        (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x00, (byte) 0x0a,
+                        (byte) 0x00, (byte) 0x34, (byte) 0x00, (byte) 0x32, (byte) 0x00,
+                        (byte) 0x0e, (byte) 0x00, (byte) 0x0d, (byte) 0x00, (byte) 0x19,
+                        (byte) 0x00, (byte) 0x0b, (byte) 0x00, (byte) 0x0c, (byte) 0x00,
+                        (byte) 0x18, (byte) 0x00, (byte) 0x09, (byte) 0x00, (byte) 0x0a,
+                        (byte) 0x00, (byte) 0x16, (byte) 0x00, (byte) 0x17, (byte) 0x00,
+                        (byte) 0x08, (byte) 0x00, (byte) 0x06, (byte) 0x00, (byte) 0x07,
+                        (byte) 0x00, (byte) 0x14, (byte) 0x00, (byte) 0x15, (byte) 0x00,
+                        (byte) 0x04, (byte) 0x00, (byte) 0x05, (byte) 0x00, (byte) 0x12,
+                        (byte) 0x00, (byte) 0x13, (byte) 0x00, (byte) 0x01, (byte) 0x00,
+                        (byte) 0x02, (byte) 0x00, (byte) 0x03, (byte) 0x00, (byte) 0x0f,
+                        (byte) 0x00, (byte) 0x10, (byte) 0x00, (byte) 0x11, (byte) 0x00,
+                        (byte) 0x0d, (byte) 0x00, (byte) 0x20, (byte) 0x00, (byte) 0x1e,
+                        (byte) 0x06, (byte) 0x01, (byte) 0x06, (byte) 0x02, (byte) 0x06,
+                        (byte) 0x03, (byte) 0x05, (byte) 0x01, (byte) 0x05, (byte) 0x02,
+                        (byte) 0x05, (byte) 0x03, (byte) 0x04, (byte) 0x01, (byte) 0x04,
+                        (byte) 0x02, (byte) 0x04, (byte) 0x03, (byte) 0x03, (byte) 0x01,
+                        (byte) 0x03, (byte) 0x02, (byte) 0x03, (byte) 0x03, (byte) 0x02,
+                        (byte) 0x01, (byte) 0x02, (byte) 0x02, (byte) 0x02, (byte) 0x03,
+                });
+
+                // Wait until the server sends something.
+                byte[] scratch = new byte[8192];
+                client.getInputStream().read(scratch);
+
+                // Write a bogus TLS alert:
+                // TLSv1.2 Record Layer: Alert (Level: Warning, Description:
+                // Protocol Version)
+                client.getOutputStream().write(new byte[] {
+                        0x15, 0x03, 0x03, 0x00, 0x02, 0x01, 0x46
+                });
+
+                // TLSv1.2 Record Layer: Alert (Level: Warning, Description:
+                // Close Notify)
+                client.getOutputStream().write(new byte[] {
+                        0x15, 0x03, 0x03, 0x00, 0x02, 0x01, 0x00
+                });
+
+                return null;
+            }
+        });
+
+        executor.shutdown();
+        c.get(5, TimeUnit.SECONDS);
+        s.get(5, TimeUnit.SECONDS);
         client.close();
         server.close();
         context.close();

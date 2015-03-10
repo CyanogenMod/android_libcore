@@ -51,6 +51,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -137,6 +138,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private transient DexCache dexCache;
 
+    /** Short-cut to dexCache.strings */
+    private transient String[] dexCacheStrings;
+
     /** static, private, and &lt;init&gt; methods. */
     private transient ArtMethod[] directMethods;
 
@@ -165,9 +169,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * methods for the methods in the interface.
      */
     private transient Object[] ifTable;
-
-    /** Interface method table (imt), for quick "invoke-interface". */
-    private transient ArtMethod[] imTable;
 
     /** Lazily computed name of this class; always prefer calling getName(). */
     private transient String name;
@@ -455,7 +456,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @hide
      */
     public String getDexCacheString(Dex dex, int dexStringIndex) {
-        String[] dexCacheStrings = dexCache.strings;
         String s = dexCacheStrings[dexStringIndex];
         if (s == null) {
             s = dex.strings().get(dexStringIndex).intern();
@@ -764,7 +764,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         int initial_size = virtualMethods == null ? 0 : virtualMethods.length;
         initial_size += directMethods == null ? 0 : directMethods.length;
         ArrayList<Method> methods = new ArrayList<Method>(initial_size);
-        getDeclaredMethods(false, methods);
+        getDeclaredMethodsUnchecked(false, methods);
         Method[] result = methods.toArray(new Method[methods.size()]);
         for (Method m : result) {
             // Throw NoClassDefFoundError if types cannot be resolved.
@@ -776,10 +776,14 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     }
 
     /**
-     * Returns the list of methods without performing any security checks
-     * first. If no methods exist, an empty array is returned.
+     * Populates a list of methods without performing any security or type
+     * resolution checks first. If no methods exist, the list is not modified.
+     *
+     * @param publicOnly Whether to return only public methods.
+     * @param methods A list to populate with declared methods.
+     * @hide
      */
-    private void getDeclaredMethods(boolean publicOnly, List<Method> methods) {
+    public void getDeclaredMethodsUnchecked(boolean publicOnly, List<Method> methods) {
         if (virtualMethods != null) {
             for (ArtMethod m : virtualMethods) {
                 int modifiers = m.getAccessFlags();
@@ -832,11 +836,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * superclasses, and all implemented interfaces, including overridden methods.
      */
     private void getPublicMethodsInternal(List<Method> result) {
-        getDeclaredMethods(true, result);
+        getDeclaredMethodsUnchecked(true, result);
         if (!isInterface()) {
             // Search superclasses, for interfaces don't search java.lang.Object.
             for (Class<?> c = superClass; c != null; c = c.superClass) {
-                c.getDeclaredMethods(true, result);
+                c.getDeclaredMethodsUnchecked(true, result);
             }
         }
         // Search iftable which has a flattened and uniqued list of interfaces.
@@ -844,7 +848,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (iftable != null) {
             for (int i = 0; i < iftable.length; i += 2) {
                 Class<?> ifc = (Class<?>) iftable[i];
-                ifc.getDeclaredMethods(true, result);
+                ifc.getDeclaredMethodsUnchecked(true, result);
             }
         }
     }
@@ -902,7 +906,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         int initial_size = sFields == null ? 0 : sFields.length;
         initial_size += iFields == null ? 0 : iFields.length;
         ArrayList<Field> fields = new ArrayList(initial_size);
-        getDeclaredFields(false, fields);
+        getDeclaredFieldsUnchecked(false, fields);
         Field[] result = fields.toArray(new Field[fields.size()]);
         for (Field f : result) {
             f.getType();  // Throw NoClassDefFoundError if type cannot be resolved.
@@ -910,7 +914,15 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         return result;
     }
 
-    private void getDeclaredFields(boolean publicOnly, List<Field> fields) {
+    /**
+     * Populates a list of fields without performing any security or type
+     * resolution checks first. If no fields exist, the list is not modified.
+     *
+     * @param publicOnly Whether to return only public fields.
+     * @param fields A list to populate with declared fields.
+     * @hide
+     */
+    public void getDeclaredFieldsUnchecked(boolean publicOnly, List<Field> fields) {
         if (iFields != null) {
             for (ArtField f : iFields) {
                 if (!publicOnly || Modifier.isPublic(f.getAccessFlags())) {
@@ -932,20 +944,42 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * may return a non-public member.
      */
     private Field getDeclaredFieldInternal(String name) {
+
         if (iFields != null) {
-            for (ArtField f : iFields) {
-                if (f.getName().equals(name)) {
-                    return new Field(f);
-                }
+            final ArtField matched = findByName(name, iFields);
+            if (matched != null) {
+                return new Field(matched);
             }
         }
         if (sFields != null) {
-            for (ArtField f : sFields) {
-                if (f.getName().equals(name)) {
-                    return new Field(f);
-                }
+            final ArtField matched = findByName(name, sFields);
+            if (matched != null) {
+                return new Field(matched);
             }
         }
+
+        return null;
+    }
+
+    /**
+     * Performs a binary search through {@code fields} for a field whose name
+     * is {@code name}. Returns {@code null} if no matching field exists.
+     */
+    private static ArtField findByName(String name, ArtField[] fields) {
+        int low = 0, high = fields.length - 1;
+        while (low <= high) {
+            final int mid = (low + high) >>> 1;
+            final ArtField f = fields[mid];
+            final int result = f.getName().compareTo(name);
+            if (result < 0) {
+                low = mid + 1;
+            } else if (result == 0) {
+                return f;
+            } else {
+                high = mid - 1;
+            }
+        }
+
         return null;
     }
 
@@ -1103,7 +1137,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     private void getPublicFieldsRecursive(List<Field> result) {
         // search superclasses
         for (Class<?> c = this; c != null; c = c.superClass) {
-            c.getDeclaredFields(true, result);
+            c.getDeclaredFieldsUnchecked(true, result);
         }
 
         // search iftable which has a flattened and uniqued list of interfaces
@@ -1111,7 +1145,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (iftable != null) {
             for (int i = 0; i < iftable.length; i += 2) {
                 Class<?> ifc = (Class<?>) iftable[i];
-                ifc.getDeclaredFields(true, result);
+                ifc.getDeclaredFieldsUnchecked(true, result);
             }
         }
     }

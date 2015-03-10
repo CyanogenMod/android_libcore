@@ -378,4 +378,11 @@ public class SimpleDateFormatTest extends junit.framework.TestCase {
             fail();
         } catch (NullPointerException expected) {}
     }
+
+    // http://b/17431155
+    public void test_sl_dates() throws Exception {
+        DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, new Locale("sl"));
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+        assertEquals("1. 1. 70", df.format(0L));
+    }
 }

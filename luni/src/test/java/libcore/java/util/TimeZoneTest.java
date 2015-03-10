@@ -74,50 +74,29 @@ public class TimeZoneTest extends TestCase {
     }
 
     public void testPreHistoricOffsets() throws Exception {
-        // The "Asia/Saigon" time zone has just a few transitions, and hasn't changed in a
-        // long time, which is convenient for testing:
-        //
-        // libcore.util.ZoneInfo[Asia/Saigon,mRawOffset=25200000,mUseDst=false]
-        // 0 : time=-2005974400 Fri Jun 08 16:53:20 1906 GMT+00:00 = Fri Jun 08 23:59:40 1906 ICT isDst=0 offset=  380 gmtOffset=25580
-        // 1 : time=-1855983920 Fri Mar 10 16:54:40 1911 GMT+00:00 = Fri Mar 10 23:54:40 1911 ICT isDst=0 offset=    0 gmtOffset=25200
-        // 2 : time=-1819954800 Tue Apr 30 17:00:00 1912 GMT+00:00 = Wed May 01 01:00:00 1912 ICT isDst=0 offset= 3600 gmtOffset=28800
-        // 3 : time=-1220428800 Thu Apr 30 16:00:00 1931 GMT+00:00 = Thu Apr 30 23:00:00 1931 ICT isDst=0 offset=    0 gmtOffset=25200
-        TimeZone tz = TimeZone.getTimeZone("Asia/Saigon");
+        // "Africa/Bissau" has just a few transitions and hasn't changed in a long time.
+        // 1912-01-01 00:02:19-0100 ... 1912-01-01 00:02:20-0100
+        // 1974-12-31 23:59:59-0100 ... 1975-01-01 01:00:00+0000
+        TimeZone tz = TimeZone.getTimeZone("Africa/Bissau");
 
         // Times before our first transition should assume we're still following that transition.
-        // Note: the RI reports 25600 here because it has more transitions than we do.
-        assertNonDaylightOffset(25580, -2005975000L, tz);
+        assertNonDaylightOffset(-3600, parseIsoTime("1911-01-01T00:00:00.0+0000"), tz);
 
-        assertNonDaylightOffset(25580, -2005974400L, tz); // 0
-        assertNonDaylightOffset(25580, -2005974000L, tz);
+        assertNonDaylightOffset(-3600, parseIsoTime("1912-01-01T12:00:00.0-0100"), tz);
 
-        assertNonDaylightOffset(25200, -1855983920L, tz); // 1
-        assertNonDaylightOffset(25200, -1855983900L, tz);
-
-        assertNonDaylightOffset(28800, -1819954800L, tz); // 2
-        assertNonDaylightOffset(28800, -1819954000L, tz);
-
-        assertNonDaylightOffset(25200, -1220428800L, tz); // 3
-
-        // Times after out last transition should assume we're still following that transition.
-        assertNonDaylightOffset(25200, -1220428000L, tz);
-
-        // There are plenty more examples. "Africa/Bissau" is one:
-        //
-        // libcore.util.ZoneInfo[Africa/Bissau,mRawOffset=0,mUseDst=false]
-        // 0 : time=-1849388260 Fri May 26 01:02:20 1911 GMT+00:00 = Fri May 26 00:02:20 1911 GMT isDst=0 offset=-3600 gmtOffset=-3600
-        // 1 : time=  157770000 Wed Jan 01 01:00:00 1975 GMT+00:00 = Wed Jan 01 01:00:00 1975 GMT isDst=0 offset=    0 gmtOffset=0
-        tz = TimeZone.getTimeZone("Africa/Bissau");
-        assertNonDaylightOffset(-3600, -1849388300L, tz);
-        assertNonDaylightOffset(-3600, -1849388260L, tz); // 0
-        assertNonDaylightOffset(-3600, -1849388200L, tz);
-        assertNonDaylightOffset(0, 157770000L, tz); // 1
-        assertNonDaylightOffset(0, 157780000L, tz);
+        // Times after our last transition should assume we're still following that transition.
+        assertNonDaylightOffset(0, parseIsoTime("1980-01-01T00:00:00.0+0000"), tz);
     }
 
     private static void assertNonDaylightOffset(int expectedOffsetSeconds, long epochSeconds, TimeZone tz) {
-        assertEquals(expectedOffsetSeconds * 1000, tz.getOffset(epochSeconds * 1000));
+        assertEquals(expectedOffsetSeconds, tz.getOffset(epochSeconds * 1000) / 1000);
         assertFalse(tz.inDaylightTime(new Date(epochSeconds * 1000)));
+    }
+
+    private static long parseIsoTime(String isoTime) throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        Date date = sdf.parse(isoTime);
+        return date.getTime() / 1000;
     }
 
     public void testZeroTransitionZones() throws Exception {
@@ -276,21 +255,13 @@ public class TimeZoneTest extends TestCase {
         assertEquals("", failures.toString());
     }
 
-    public void testSantiago() throws Exception {
+    // http://b/7955614
+    public void test_getDisplayName_GMT_short_names() throws Exception {
         TimeZone tz = TimeZone.getTimeZone("America/Santiago");
         assertEquals("Chile Summer Time", tz.getDisplayName(true, TimeZone.LONG, Locale.US));
         assertEquals("Chile Standard Time", tz.getDisplayName(false, TimeZone.LONG, Locale.US));
         assertEquals("GMT-03:00", tz.getDisplayName(true, TimeZone.SHORT, Locale.US));
-        assertEquals("GMT-04:00", tz.getDisplayName(false, TimeZone.SHORT, Locale.US));
-    }
-
-    // http://b/7955614
-    public void testApia() throws Exception {
-        TimeZone tz = TimeZone.getTimeZone("Pacific/Apia");
-        assertEquals("Samoa Daylight Time", tz.getDisplayName(true, TimeZone.LONG, Locale.US));
-        assertEquals("Samoa Standard Time", tz.getDisplayName(false, TimeZone.LONG, Locale.US));
-        assertEquals("GMT+14:00", tz.getDisplayName(true, TimeZone.SHORT, Locale.US));
-        assertEquals("GMT+13:00", tz.getDisplayName(false, TimeZone.SHORT, Locale.US));
+        assertEquals("GMT-03:00", tz.getDisplayName(false, TimeZone.SHORT, Locale.US));
     }
 
     private static boolean isGmtString(String s) {

@@ -416,11 +416,13 @@ class DocumentBuilderImpl extends DocumentBuilder {
 
     private String resolveCharacterReference(String value, int base) {
         try {
-            int ch = Integer.parseInt(value, base);
-            if (ch < 0 || ch > Character.MAX_VALUE) {
-                return null;
+            int codePoint = Integer.parseInt(value, base);
+            if (Character.isBmpCodePoint(codePoint)) {
+                return String.valueOf((char) codePoint);
+            } else {
+                char[] surrogatePair = Character.toChars(codePoint);
+                return new String(surrogatePair);
             }
-            return String.valueOf((char) ch);
         } catch (NumberFormatException ex) {
             return null;
         }

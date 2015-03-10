@@ -323,9 +323,7 @@ final class FileChannelImpl extends FileChannel {
         } finally {
             end(completed && bytesRead >= 0);
         }
-        if (bytesRead > 0) {
-            buffer.position(buffer.position() + bytesRead);
-        }
+
         return bytesRead;
     }
 
@@ -507,9 +505,6 @@ final class FileChannelImpl extends FileChannel {
             completed = true;
         } finally {
             end(completed);
-        }
-        if (bytesWritten > 0) {
-            buffer.position(buffer.position() + bytesWritten);
         }
         return bytesWritten;
     }

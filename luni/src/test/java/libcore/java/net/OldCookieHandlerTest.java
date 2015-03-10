@@ -16,6 +16,9 @@
 
 package libcore.java.net;
 
+import com.google.mockwebserver.MockResponse;
+import com.google.mockwebserver.MockWebServer;
+
 import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.URI;
@@ -27,65 +30,57 @@ import tests.support.Support_Configuration;
 
 public class OldCookieHandlerTest extends TestCase {
 
-    URI getURI, putURI;
-    String link = "http://" + Support_Configuration.SpecialInetTestAddress + "/";
-    boolean isGetCalled = false;
-    boolean isPutCalled = false;
-    boolean completedSuccessfully = false;
-
     public void test_CookieHandler() {
         assertNull(CookieHandler.getDefault());
     }
 
-    public void test_get_put() {
+    public void test_get_put() throws Exception {
         MockCookieHandler mch = new MockCookieHandler();
         CookieHandler defaultHandler = CookieHandler.getDefault();
-        CookieHandler.setDefault(mch);
-
-        class TestThread extends Thread {
-            public void run() {
-                try {
-                    URL url = new URL(link);
-                    URLConnection conn = url.openConnection();
-                    conn.getContent();
-                    url = new URL(link);
-                    conn = url.openConnection();
-                    conn.getContent();
-                    completedSuccessfully = true;
-                } catch (Exception e) {
-                    e.printStackTrace();
-               }
-            }
-        }
         try {
-            TestThread thread = new TestThread();
+            CookieHandler.setDefault(mch);
 
-            thread.start();
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                fail("InterruptedException was thrown.");
-            }
+            MockWebServer server = new MockWebServer();
+            server.play();
+            server.enqueue(new MockResponse().addHeader("Set-Cookie2: a=\"android\"; "
+                    + "Comment=\"this cookie is delicious\"; "
+                    + "CommentURL=\"http://google.com/\"; "
+                    + "Discard; "
+                    + "Domain=\"" + server.getCookieDomain() + "\"; "
+                    + "Max-Age=\"60\"; "
+                    + "Path=\"/path\"; "
+                    + "Port=\"80,443," + server.getPort() + "\"; "
+                    + "Secure; "
+                    + "Version=\"1\""));
 
-            assertTrue(isGetCalled);
-            assertTrue(isPutCalled);
-            assertTrue(completedSuccessfully);
+            URLConnection connection = server.getUrl("/path/foo").openConnection();
+            connection.getContent();
+
+            assertTrue(mch.wasGetCalled());
+            assertTrue(mch.wasPutCalled());
         } finally {
             CookieHandler.setDefault(defaultHandler);
         }
     }
 
-    class MockCookieHandler extends CookieHandler {
+    private static class MockCookieHandler extends CookieHandler {
+        private boolean getCalled = false;
+        private boolean putCalled = false;
 
         public Map get(URI uri, Map requestHeaders) throws IOException {
-            getURI = uri;
-            isGetCalled = true;
+            getCalled = true;
             return requestHeaders;
         }
 
         public void put(URI uri, Map responseHeaders) throws IOException {
-            putURI = uri;
-            isPutCalled = true;
+            putCalled = true;
+        }
+
+        public boolean wasGetCalled() {
+            return getCalled;
+        }
+        public boolean wasPutCalled() {
+            return putCalled;
         }
     }
 }

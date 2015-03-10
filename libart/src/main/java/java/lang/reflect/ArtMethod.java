@@ -53,39 +53,6 @@ public final class ArtMethod {
     /** Short-cut to declaringClass.dexCache.resolvedTypes */
     /* package */ Class<?>[] dexCacheResolvedTypes;
 
-    /** Short-cut to declaringClass.dexCache.strings */
-    private String[] dexCacheStrings;
-
-    /**
-     * Method dispatch from the interpreter invokes this pointer which may cause a bridge into
-     * compiled code.
-     */
-    private long entryPointFromInterpreter;
-
-    /**
-     * Pointer to JNI function registered to this method, or a function to resolve the JNI function.
-     */
-    private long entryPointFromJni;
-
-    /**
-     * Method dispatch from portable compiled code invokes this pointer which may cause bridging
-     * into quick compiled code or the interpreter.
-     * Uncomment to enable.
-     */
-    // private long entryPointFromPortableCompiledCode;
-
-    /**
-     * Method dispatch from quick compiled code invokes this pointer which may cause bridging
-     * into portable compiled code or the interpreter.
-     */
-    private long entryPointFromQuickCompiledCode;
-
-    /**
-     * Pointer to a data structure created by the compiler and used by the garbage collector to
-     * determine which registers hold live references to objects within the heap.
-     */
-    private long gcMap;
-
     /** Bits encoding access (e.g. public, private) as well as other runtime specific flags */
     private int accessFlags;
 
@@ -210,12 +177,7 @@ public final class ArtMethod {
      * Method we can avoid one indirection.
      */
     private String getDexCacheString(Dex dex, int dexStringIndex) {
-        String s = (String) dexCacheStrings[dexStringIndex];
-        if (s == null) {
-            s = dex.strings().get(dexStringIndex).intern();
-            dexCacheStrings[dexStringIndex] = s;
-        }
-        return s;
+        return declaringClass.getDexCacheString(dex, dexStringIndex);
     }
 
     /**

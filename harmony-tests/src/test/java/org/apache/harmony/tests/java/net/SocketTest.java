@@ -274,7 +274,7 @@ public class SocketTest extends junit.framework.TestCase {
     public void test_connect_unknownhost() throws Exception {
         Socket socket = new Socket();
         try {
-            socket.connect(new InetSocketAddress("unknownhost.invalid", 12345));
+            socket.connect(new InetSocketAddress("1.2.3.4hello", 12345));
             fail();
         } catch (UnknownHostException expected) {
         }

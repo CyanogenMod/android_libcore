@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
@@ -641,42 +642,32 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
      * Tolerate bad https proxy response when using HttpResponseCache. http://b/6754912
      */
     public void testConnectViaHttpProxyToHttpsUsingBadProxyAndHttpResponseCache() throws Exception {
-        ProxyConfig proxyConfig = ProxyConfig.PROXY_SYSTEM_PROPERTY;
-
         TestSSLContext testSSLContext = TestSSLContext.create();
 
         initResponseCache();
 
         server.useHttps(testSSLContext.serverContext.getSocketFactory(), true);
+
+        // The inclusion of a body in the response to the CONNECT is key to reproducing b/6754912.
         MockResponse badProxyResponse = new MockResponse()
                 .setSocketPolicy(SocketPolicy.UPGRADE_TO_SSL_AT_END)
                 .clearHeaders()
-                .setBody("bogus proxy connect response content"); // Key to reproducing b/6754912
+                .setBody("bogus proxy connect response content");
 
-        // We enqueue the bad response twice because the connection will
-        // be retried with TLS_MODE_COMPATIBLE after the first connection
-        // fails.
         server.enqueue(badProxyResponse);
-        server.enqueue(badProxyResponse);
+        server.enqueue(new MockResponse().setBody("response"));
 
         server.play();
 
         URL url = new URL("https://android.com/foo");
+        ProxyConfig proxyConfig = ProxyConfig.PROXY_SYSTEM_PROPERTY;
         HttpsURLConnection connection = (HttpsURLConnection) proxyConfig.connect(server, url);
         connection.setSSLSocketFactory(testSSLContext.clientContext.getSocketFactory());
-
-        try {
-            connection.connect();
-            fail();
-        } catch (SSLHandshakeException expected) {
-            // Thrown when the connect causes SSLSocket.startHandshake() to throw
-            // when it sees the "bogus proxy connect response content"
-            // instead of a ServerHello handshake message.
-        }
+        connection.setHostnameVerifier(new RecordingHostnameVerifier());
+        assertContent("response", connection);
 
         RecordedRequest connect = server.takeRequest();
-        assertEquals("Connect line failure on proxy",
-                "CONNECT android.com:443 HTTP/1.1", connect.getRequestLine());
+        assertEquals("CONNECT android.com:443 HTTP/1.1", connect.getRequestLine());
         assertContains(connect.getHeaders(), "Host: android.com");
     }
 
@@ -780,7 +771,9 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
     }
 
     public void testDisconnectedConnection() throws IOException {
-        server.enqueue(new MockResponse().setBody("ABCDEFGHIJKLMNOPQR"));
+        server.enqueue(new MockResponse()
+                .throttleBody(2, 100, TimeUnit.MILLISECONDS)
+                .setBody("ABCD"));
         server.play();
 
         HttpURLConnection connection = (HttpURLConnection) server.getUrl("/").openConnection();
@@ -788,6 +781,9 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         assertEquals('A', (char) in.read());
         connection.disconnect();
         try {
+            // Reading 'B' may succeed if it's buffered.
+            in.read();
+            // But 'C' shouldn't be buffered (the response is throttled) and this should fail.
             in.read();
             fail("Expected a connection closed exception");
         } catch (IOException expected) {
@@ -965,6 +961,7 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
 
         RecordedRequest request = server.takeRequest();
         assertContains(request.getHeaders(), "Accept-Encoding: gzip");
+        assertEquals("gzip", connection.getContentEncoding());
     }
 
     public void testGzipAndConnectionReuseWithFixedLength() throws Exception {
@@ -2211,8 +2208,6 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
         assertEquals("This required a 2nd handshake",
                 readAscii(connection.getInputStream(), Integer.MAX_VALUE));
 
-        RecordedRequest first = server.takeRequest();
-        assertEquals(0, first.getSequenceNumber());
         RecordedRequest retry = server.takeRequest();
         assertEquals(0, retry.getSequenceNumber());
         assertEquals("SSLv3", retry.getSslProtocol());

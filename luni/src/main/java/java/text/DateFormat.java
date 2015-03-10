@@ -66,6 +66,13 @@ public abstract class DateFormat extends Format {
     private static final long serialVersionUID = 7218322306649953788L;
 
     /**
+     * A tri-state boolean. If we're running stand-alone this will be null.
+     * If we're running in an app, the frameworks will have told us the user preference.
+     * @hide
+     */
+    public static Boolean is24Hour;
+
+    /**
      * The calendar that this {@code DateFormat} uses to format a number
      * representing a date.
      */
@@ -466,6 +473,7 @@ public abstract class DateFormat extends Format {
      * @hide for internal use only.
      */
     public static final void set24HourTimePref(boolean is24Hour) {
+        DateFormat.is24Hour = is24Hour;
     }
 
     /**
