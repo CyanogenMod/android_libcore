@@ -208,7 +208,11 @@ public final class Posix implements Os {
         // This indirection isn't strictly necessary, but ensures that our public interface is type safe.
         return sendtoBytes(fd, bytes, byteOffset, byteCount, flags, inetAddress, port);
     }
+    public int sendto(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, SocketAddress address) throws ErrnoException, SocketException {
+        return sendtoBytes(fd, bytes, byteOffset, byteCount, flags, address);
+    }
     private native int sendtoBytes(FileDescriptor fd, Object buffer, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException, SocketException;
+    private native int sendtoBytes(FileDescriptor fd, Object buffer, int byteOffset, int byteCount, int flags, SocketAddress address) throws ErrnoException, SocketException;
     public native void setegid(int egid) throws ErrnoException;
     public native void setenv(String name, String value, boolean overwrite) throws ErrnoException;
     public native void seteuid(int euid) throws ErrnoException;
