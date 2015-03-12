@@ -62,7 +62,6 @@ import java.nio.ByteBuffer;
  * </table>
  *
  * <h4>Cipher suites</h4>
- * <!-- STOPSHIP: Update this table to reflect the removal of DSS cipher suites. -->
  * <table>
  *     <thead>
  *         <tr>
@@ -74,17 +73,17 @@ import java.nio.ByteBuffer;
  *     <tbody>
  *         <tr>
  *             <td>SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA</td>
- *             <td>9+</td>
+ *             <td>9-22</td>
  *             <td>9-19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA</td>
- *             <td>9+</td>
+ *             <td>9-22</td>
  *             <td>9-19</td>
  *         </tr>
  *         <tr>
  *             <td>SSL_DHE_DSS_WITH_DES_CBC_SHA</td>
- *             <td>9+</td>
+ *             <td>9-22</td>
  *             <td>9-19</td>
  *         </tr>
  *         <tr>
@@ -179,32 +178,32 @@ import java.nio.ByteBuffer;
  *         </tr>
  *         <tr>
  *             <td>TLS_DHE_DSS_WITH_AES_128_CBC_SHA</td>
- *             <td>9+</td>
- *             <td>9+</td>
+ *             <td>9-22</td>
+ *             <td>9-22</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DHE_DSS_WITH_AES_128_CBC_SHA256</td>
- *             <td>20+</td>
+ *             <td>20-22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DHE_DSS_WITH_AES_128_GCM_SHA256</td>
- *             <td>20+</td>
+ *             <td>20-22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DHE_DSS_WITH_AES_256_CBC_SHA</td>
- *             <td>9+</td>
- *             <td>20+</td>
+ *             <td>9-22</td>
+ *             <td>20-22</td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DHE_DSS_WITH_AES_256_CBC_SHA256</td>
- *             <td>20+</td>
+ *             <td>20-22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
  *             <td>TLS_DHE_DSS_WITH_AES_256_GCM_SHA384</td>
- *             <td>20+</td>
+ *             <td>20-22</td>
  *             <td></td>
  *         </tr>
  *         <tr>
