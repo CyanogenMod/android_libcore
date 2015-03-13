@@ -884,6 +884,24 @@ public class MacTest extends TestCase {
         public abstract void setup();
     }
 
+    public void testMac_getInstance_DoesNotSupportKeyClass_Success() throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Mac.FOO", MockMacSpi.AllKeyTypes.class.getName());
+                put("Mac.FOO SupportedKeyClasses", "None");
+            }
+        };
+
+        Security.addProvider(mockProvider);
+        try {
+            Mac s = Mac.getInstance("FOO", mockProvider);
+            s.init(new MockKey());
+            assertEquals(mockProvider, s.getProvider());
+        } finally {
+            Security.removeProvider(mockProvider.getName());
+        }
+    }
+
     public void testMac_getInstance_SuppliedProviderNotRegistered_Success() throws Exception {
         Provider mockProvider = new MockProvider("MockProvider") {
             public void setup() {

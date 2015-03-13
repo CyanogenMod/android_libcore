@@ -160,7 +160,7 @@ public class ProviderTest extends TestCase {
     public void test_Provider_Properties() throws Exception {
         /*
          * A useful reference on Provider properties
-         * <a href="http://java.sun.com/javase/6/docs/technotes/guides/security/crypto/HowToImplAProvider.html>
+         * <a href="http://java.sun.com/javase/6/docs/technotes/guides/security/crypto/HowToImplAProvider.html">
          * How to Implement a Provider in the Java &trade; Cryptography Architecture
          * </a>
          */

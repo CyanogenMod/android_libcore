@@ -71,6 +71,24 @@ public class SignatureTest extends TestCase {
         }
     }
 
+    public void testSignature_getInstance_DoesNotSupportKeyClass_Success() throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Signature.FOO", MockSignatureSpi.AllKeyTypes.class.getName());
+                put("Signature.FOO SupportedKeyClasses", "None");
+            }
+        };
+
+        Security.addProvider(mockProvider);
+        try {
+            Signature s = Signature.getInstance("FOO", mockProvider);
+            s.initSign(new MockPrivateKey());
+            assertEquals(mockProvider, s.getProvider());
+        } finally {
+            Security.removeProvider(mockProvider.getName());
+        }
+    }
+
     public void testSignature_getInstance_OnlyUsesSpecifiedProvider_SameNameAndClass_Success()
             throws Exception {
         Provider mockProvider = new MockProvider("MockProvider") {
