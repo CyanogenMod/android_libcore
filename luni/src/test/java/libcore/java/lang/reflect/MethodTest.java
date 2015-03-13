@@ -17,6 +17,7 @@
 package libcore.java.lang.reflect;
 
 import java.lang.reflect.Method;
+
 import junit.framework.TestCase;
 
 public final class MethodTest extends TestCase {
@@ -197,6 +198,23 @@ public final class MethodTest extends TestCase {
         assertEquals( "public java.lang.Process java.lang.Runtime.exec(java.lang.String[])"
                 + " throws java.io.IOException",
                 Runtime.class.getMethod("exec", new Class[] { String[].class }).toString());
+        // http://b/18488857
+        assertEquals(
+                "public int java.lang.String.compareTo(java.lang.Object)",
+                String.class.getMethod("compareTo", Object.class).toString());
+    }
+
+    // Tests that the "varargs" modifier is handled correctly.
+    // The underlying constant value for it is the same as for the "transient" field modifier.
+    // http://b/18488857
+    public void testVarargsModifier() throws NoSuchMethodException {
+        Method stringFormatMethod = String.class.getMethod(
+                "format", new Class[] { String.class, Object[].class });
+        assertTrue(stringFormatMethod.isVarArgs());
+        assertEquals(
+                "public static java.lang.String java.lang.String.format("
+                        + "java.lang.String,java.lang.Object[])",
+                stringFormatMethod.toString());
     }
 
     public static class MethodTestHelper {
