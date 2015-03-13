@@ -28,7 +28,6 @@ import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
-import java.util.Vector;
 
 import javax.crypto.ExemptionMechanism;
 import javax.crypto.ExemptionMechanismException;
@@ -37,7 +36,6 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.ShortBufferException;
 
 import org.apache.harmony.crypto.tests.support.MyExemptionMechanismSpi;
-import org.apache.harmony.crypto.tests.support.MyExemptionMechanismSpi.tmpKey;
 import org.apache.harmony.security.tests.support.SpiEngUtils;
 
 import junit.framework.TestCase;
@@ -168,45 +166,6 @@ public class ExemptionMechanismTest extends TestCase {
         em.genExemptionBlob(null, 0);
         em.genExemptionBlob(new byte[0], 0);
         em.genExemptionBlob(new byte[10], -5);
-    }
-
-    static boolean flag = false;
-
-    class Mock_ExemptionMechanism extends  ExemptionMechanism  {
-        protected Mock_ExemptionMechanism(ExemptionMechanismSpi exmechSpi, Provider provider, String mechanism) {
-            super(exmechSpi, provider, mechanism);
-        }
-
-        @Override
-        protected void finalize() {
-            flag = true;
-            super.finalize();
-        }
-    }
-
-    // Side Effect: Causes OutOfMemoryError to test finalization
-    public void test_finalize () {
-        Mock_ExemptionMechanism mem = new Mock_ExemptionMechanism(null, null, "Name");
-        assertNotNull(mem);
-        mem = null;
-        assertFalse(flag);
-        Vector v = new Vector();
-        int capacity;
-        try {
-            while(true) {
-                v.add(this);
-            }
-        } catch (OutOfMemoryError e) {
-            capacity = v.size();
-            v = null;
-        }
-
-        v = new Vector();
-        for (int i = 0; i < capacity/2; i++) {
-            v.add(this);
-        }
-        v = null;
-        assertTrue(flag);
     }
 
     class Mock_ExemptionMechanismSpi extends MyExemptionMechanismSpi {
