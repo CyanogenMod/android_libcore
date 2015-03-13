@@ -17,6 +17,8 @@
 package libcore.java.lang.reflect;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
 import junit.framework.TestCase;
 
 public final class FieldTest extends TestCase {
@@ -44,6 +46,56 @@ public final class FieldTest extends TestCase {
         Field f1 = FieldTestHelper.class.getField("a");
         Field f2 = FieldTestHelper.class.getField("b");
         assertFalse(f1.equals(f2));
+    }
+
+    // Tests that the "synthetic" modifier is handled correctly.
+    // It's supposed to be present but not shown in toString.
+    public void testSyntheticModifier() throws NoSuchFieldException {
+        Field valuesField = Thread.State.class.getDeclaredField("$VALUES");
+        // Check that this test makes sense.
+        assertTrue(valuesField.isSynthetic());
+        assertEquals(Modifier.SYNTHETIC, valuesField.getModifiers() & Modifier.SYNTHETIC);
+        assertEquals("private static final java.lang.Thread$State[] java.lang.Thread$State.$VALUES",
+                valuesField.toString());
+    }
+
+    // Ensure that the "enum constant" bit is not returned in toString.
+    public void testEnumValueField() throws NoSuchFieldException {
+        Field blockedField = Thread.State.class.getDeclaredField("BLOCKED");
+        assertTrue(Thread.State.class.getDeclaredField("BLOCKED").isEnumConstant());
+        assertEquals("public static final", Modifier.toString(blockedField.getModifiers()));
+        assertEquals(
+                "public static final java.lang.Thread$State java.lang.Thread$State.BLOCKED",
+                blockedField.toString());
+    }
+
+    class ClassWithATransientField {
+        private transient Class<String> transientField = String.class;
+    }
+
+    // Tests that the "transient" modifier is handled correctly.
+    // The underlying constant value for it is the same as for the "varargs" method modifier.
+    // http://b/18488857
+    public void testTransientModifier() throws NoSuchFieldException {
+        Field transientField = ClassWithATransientField.class.getDeclaredField("transientField");
+        // Check that this test makes sense.
+        assertEquals(Modifier.TRANSIENT, transientField.getModifiers() & Modifier.TRANSIENT);
+        assertEquals(
+                "private transient java.lang.Class "
+                        + "libcore.java.lang.reflect.FieldTest$ClassWithATransientField"
+                        + ".transientField",
+                transientField.toString());
+    }
+
+    public void testToGenericString() throws NoSuchFieldException {
+        Field transientField = ClassWithATransientField.class.getDeclaredField("transientField");
+        // Check that this test makes sense.
+        assertEquals(Modifier.TRANSIENT, transientField.getModifiers() & Modifier.TRANSIENT);
+        assertEquals(
+                "private transient java.lang.Class<java.lang.String> "
+                        + "libcore.java.lang.reflect.FieldTest$ClassWithATransientField"
+                        + ".transientField",
+                transientField.toGenericString());
     }
 
     static class FieldTestHelper {

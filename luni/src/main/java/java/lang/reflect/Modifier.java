@@ -302,4 +302,23 @@ public class Modifier {
         buf.setLength(buf.length() - 1);
         return buf.toString();
     }
+
+    /**
+     * Returns the modifiers for fields that can be present in a declaration.
+     * @hide
+     */
+    static String getDeclarationFieldModifiers(int modifiers) {
+        return Modifier.toString(modifiers & fieldModifiers());
+    }
+
+    /**
+     * Returns the modifiers for methods that can be present in a declaration.
+     * @hide
+     */
+    static String getDeclarationMethodModifiers(int modifiers) {
+        return Modifier.toString(modifiers & (
+                Modifier.isConstructor(modifiers)
+                        ? Modifier.constructorModifiers()
+                        : Modifier.methodModifiers()));
+    }
 }
