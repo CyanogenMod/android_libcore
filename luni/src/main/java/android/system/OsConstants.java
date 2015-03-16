@@ -96,6 +96,7 @@ public final class OsConstants {
     public static final int AF_INET = placeholder();
     public static final int AF_INET6 = placeholder();
     /** @hide */ public static final int AF_NETLINK = placeholder();
+    /** @hide */ public static final int AF_PACKET = placeholder();
     public static final int AF_UNIX = placeholder();
     public static final int AF_UNSPEC = placeholder();
     public static final int AI_ADDRCONFIG = placeholder();
@@ -105,6 +106,8 @@ public final class OsConstants {
     public static final int AI_NUMERICSERV = placeholder();
     public static final int AI_PASSIVE = placeholder();
     public static final int AI_V4MAPPED = placeholder();
+    /** @hide */ public static final int ARPHRD_ETHER = placeholder();
+    /** @hide */ public static final int ARPHRD_LOOPBACK = placeholder();
     public static final int CAP_AUDIT_CONTROL = placeholder();
     public static final int CAP_AUDIT_WRITE = placeholder();
     public static final int CAP_BLOCK_SUSPEND = placeholder();
@@ -228,6 +231,9 @@ public final class OsConstants {
     public static final int ESPIPE = placeholder();
     public static final int ESRCH = placeholder();
     public static final int ESTALE = placeholder();
+    /** @hide */ public static final int ETH_P_ARP = placeholder();
+    /** @hide */ public static final int ETH_P_IP = placeholder();
+    /** @hide */ public static final int ETH_P_IPV6 = placeholder();
     public static final int ETIME = placeholder();
     public static final int ETIMEDOUT = placeholder();
     public static final int ETXTBSY = placeholder();
