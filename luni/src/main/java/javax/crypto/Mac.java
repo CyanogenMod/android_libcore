@@ -199,7 +199,7 @@ public class Mac implements Cloneable {
             if (service == null) {
                 return null;
             }
-            return tryAlgorithmWithProvider(key, service);
+            return tryAlgorithmWithProvider(null, service);
         }
         ArrayList<Provider.Service> services = ENGINE.getServices(algorithm);
         if (services == null) {
