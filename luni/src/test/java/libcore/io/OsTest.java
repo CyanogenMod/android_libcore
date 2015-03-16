@@ -16,12 +16,15 @@
 
 package libcore.io;
 
+import android.system.ErrnoException;
 import android.system.NetlinkSocketAddress;
 import android.system.StructUcred;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.InetUnixAddress;
@@ -29,6 +32,7 @@ import java.net.ServerSocket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Locale;
 import junit.framework.TestCase;
 import static android.system.OsConstants.*;
@@ -211,9 +215,10 @@ public class OsTest extends TestCase {
     fis.close();
   }
 
-  public void test_byteBufferPositions_sendto_recvfrom() throws Exception {
-    final FileDescriptor serverFd = Libcore.os.socket(AF_INET6, SOCK_STREAM, 0);
-    Libcore.os.bind(serverFd, InetAddress.getLoopbackAddress(), 0);
+  static void checkByteBufferPositions_sendto_recvfrom(
+          int family, InetAddress loopback) throws Exception {
+    final FileDescriptor serverFd = Libcore.os.socket(family, SOCK_STREAM, 0);
+    Libcore.os.bind(serverFd, loopback, 0);
     Libcore.os.listen(serverFd, 5);
 
     InetSocketAddress address = (InetSocketAddress) Libcore.os.getsockname(serverFd);
@@ -247,7 +252,7 @@ public class OsTest extends TestCase {
 
     server.start();
 
-    FileDescriptor clientFd = Libcore.os.socket(AF_INET6, SOCK_STREAM, 0);
+    FileDescriptor clientFd = Libcore.os.socket(family, SOCK_STREAM, 0);
     Libcore.os.connect(clientFd, address.getAddress(), address.getPort());
 
     final byte[] bytes = "good bye, cruel black hole with fancy distortion".getBytes(StandardCharsets.US_ASCII);
@@ -283,5 +288,86 @@ public class OsTest extends TestCase {
     assertEquals(0, nlPeer.getPortId());
     assertEquals(0, nlPeer.getGroupsMask());
     Libcore.os.close(nlSocket);
+  }
+
+  public void test_byteBufferPositions_sendto_recvfrom_af_inet() throws Exception {
+    checkByteBufferPositions_sendto_recvfrom(AF_INET, InetAddress.getByName("127.0.0.1"));
+  }
+
+  public void test_byteBufferPositions_sendto_recvfrom_af_inet6() throws Exception {
+    checkByteBufferPositions_sendto_recvfrom(AF_INET6, InetAddress.getByName("::1"));
+  }
+
+  public void test_socketFamilies() throws Exception {
+    FileDescriptor fd = Libcore.os.socket(AF_INET6, SOCK_STREAM, 0);
+    Libcore.os.bind(fd, InetAddress.getByName("::"), 0);
+    InetSocketAddress localSocketAddress = (InetSocketAddress) Libcore.os.getsockname(fd);
+    assertEquals(Inet6Address.ANY, localSocketAddress.getAddress());
+
+    fd = Libcore.os.socket(AF_INET6, SOCK_STREAM, 0);
+    Libcore.os.bind(fd, InetAddress.getByName("0.0.0.0"), 0);
+    localSocketAddress = (InetSocketAddress) Libcore.os.getsockname(fd);
+    assertEquals(Inet6Address.ANY, localSocketAddress.getAddress());
+
+    fd = Libcore.os.socket(AF_INET, SOCK_STREAM, 0);
+    Libcore.os.bind(fd, InetAddress.getByName("0.0.0.0"), 0);
+    localSocketAddress = (InetSocketAddress) Libcore.os.getsockname(fd);
+    assertEquals(Inet4Address.ANY, localSocketAddress.getAddress());
+    try {
+      Libcore.os.bind(fd, InetAddress.getByName("::"), 0);
+      fail("Expected ErrnoException binding IPv4 socket to ::");
+    } catch (ErrnoException expected) {
+      assertEquals("Expected EAFNOSUPPORT binding IPv4 socket to ::", EAFNOSUPPORT, expected.errno);
+    }
+  }
+
+  private static void assertArrayEquals(byte[] expected, byte[] actual) {
+    assertTrue("Expected=" + Arrays.toString(expected) + ", actual=" + Arrays.toString(actual),
+               Arrays.equals(expected, actual));
+  }
+
+  private static void checkSocketPing(FileDescriptor fd, InetAddress to, byte[] packet,
+          byte type, byte responseType, boolean useSendto) throws Exception {
+    int len = packet.length;
+    packet[0] = type;
+    if (useSendto) {
+      assertEquals(len, Libcore.os.sendto(fd, packet, 0, len, 0, to, 0));
+    } else {
+      Libcore.os.connect(fd, to, 0);
+      assertEquals(len, Libcore.os.sendto(fd, packet, 0, len, 0, null, 0));
+    }
+
+    int icmpId = ((InetSocketAddress) Libcore.os.getsockname(fd)).getPort();
+    byte[] received = new byte[4096];
+    InetSocketAddress srcAddress = new InetSocketAddress();
+    assertEquals(len, Libcore.os.recvfrom(fd, received, 0, received.length, 0, srcAddress));
+    assertEquals(to, srcAddress.getAddress());
+    assertEquals(responseType, received[0]);
+    assertEquals(received[4], (byte) (icmpId >> 8));
+    assertEquals(received[5], (byte) (icmpId & 0xff));
+
+    received = Arrays.copyOf(received, len);
+    received[0] = (byte) type;
+    received[2] = received[3] = 0;  // Checksum.
+    received[4] = received[5] = 0;  // ICMP ID.
+    assertArrayEquals(packet, received);
+  }
+
+  public void test_socketPing() throws Exception {
+    final byte ICMP_ECHO = 8, ICMP_ECHOREPLY = 0;
+    final byte ICMPV6_ECHO_REQUEST = (byte) 128, ICMPV6_ECHO_REPLY = (byte) 129;
+    final byte[] packet = ("\000\000\000\000" +  // ICMP type, code.
+                           "\000\000\000\003" +  // ICMP ID (== port), sequence number.
+                           "Hello myself").getBytes(StandardCharsets.US_ASCII);
+
+    FileDescriptor fd = Libcore.os.socket(AF_INET6, SOCK_DGRAM, IPPROTO_ICMPV6);
+    InetAddress ipv6Loopback = InetAddress.getByName("::1");
+    checkSocketPing(fd, ipv6Loopback, packet, ICMPV6_ECHO_REQUEST, ICMPV6_ECHO_REPLY, true);
+    checkSocketPing(fd, ipv6Loopback, packet, ICMPV6_ECHO_REQUEST, ICMPV6_ECHO_REPLY, false);
+
+    fd = Libcore.os.socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP);
+    InetAddress ipv4Loopback = InetAddress.getByName("127.0.0.1");
+    checkSocketPing(fd, ipv4Loopback, packet, ICMP_ECHO, ICMP_ECHOREPLY, true);
+    checkSocketPing(fd, ipv4Loopback, packet, ICMP_ECHO, ICMP_ECHOREPLY, false);
   }
 }
