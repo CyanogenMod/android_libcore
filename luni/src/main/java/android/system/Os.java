@@ -410,6 +410,11 @@ public final class Os {
   public static int sendto(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, InetAddress inetAddress, int port) throws ErrnoException, SocketException { return Libcore.os.sendto(fd, bytes, byteOffset, byteCount, flags, inetAddress, port); }
 
   /**
+   * See <a href="http://man7.org/linux/man-pages/man2/sendto.2.html">sendto(2)</a>.
+   */
+  /** @hide */ public static int sendto(FileDescriptor fd, byte[] bytes, int byteOffset, int byteCount, int flags, SocketAddress address) throws ErrnoException, SocketException { return Libcore.os.sendto(fd, bytes, byteOffset, byteCount, flags, address); }
+
+  /**
    * See <a href="http://man7.org/linux/man-pages/man2/setegid.2.html">setegid(2)</a>.
    */
   public static void setegid(int egid) throws ErrnoException { Libcore.os.setegid(egid); }
