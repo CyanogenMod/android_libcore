@@ -160,7 +160,7 @@ public class WrappedX509Certificate extends X509Certificate {
     public void verify(PublicKey key, String sigProvider) throws CertificateException,
             NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException,
             SignatureException {
-        verify(key, sigProvider);
+        wrapped.verify(key, sigProvider);
     }
 
     @Override
