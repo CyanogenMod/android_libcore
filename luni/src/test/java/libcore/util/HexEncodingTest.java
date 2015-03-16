@@ -26,8 +26,10 @@ public class HexEncodingTest extends TestCase {
   public void testEncode() {
     final byte[] avocados = "avocados".getBytes(StandardCharsets.UTF_8);
 
-    assertArraysEqual("61766f6361646f73".toCharArray(), encode(avocados));
+    assertArraysEqual("61766F6361646F73".toCharArray(), encode(avocados));
     assertArraysEqual(avocados, decode(encode(avocados), false));
+    // Make sure we can handle lower case hex encodings as well.
+    assertArraysEqual(avocados, decode("61766f6361646f73".toCharArray(), false));
   }
 
   public void testDecode_allow4Bit() {
@@ -45,7 +47,7 @@ public class HexEncodingTest extends TestCase {
 
   public void testDecode_invalid() {
     try {
-      decode("deadbard".toCharArray(), false);
+      decode("DEADBARD".toCharArray(), false);
       fail();
     } catch (IllegalArgumentException expected) {
     }
@@ -54,13 +56,13 @@ public class HexEncodingTest extends TestCase {
     // commons uses Character.isDigit and would successfully decode a string with
     // arabic and devanagari characters.
     try {
-      decode("६१٧٥٥f6361646f73".toCharArray(), false);
+      decode("६१٧٥٥F6361646F73".toCharArray(), false);
       fail();
     } catch (IllegalArgumentException expected) {
     }
 
     try {
-      decode("#%6361646f73".toCharArray(), false);
+      decode("#%6361646F73".toCharArray(), false);
       fail();
     } catch (IllegalArgumentException expected) {
     }
