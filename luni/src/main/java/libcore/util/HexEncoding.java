@@ -24,7 +24,7 @@ public class HexEncoding {
     /** Hidden constructor to prevent instantiation. */
     private HexEncoding() {}
 
-    private static final char[] HEX_DIGITS = "0123456789abcdef".toCharArray();
+    private static final char[] HEX_DIGITS = "0123456789ABCDEF".toCharArray();
 
     /**
      * Encodes the provided data as a sequence of hexadecimal characters.
