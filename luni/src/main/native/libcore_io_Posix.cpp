@@ -333,8 +333,26 @@ static jobject makeSocketAddress(JNIEnv* env, const sockaddr_storage& ss) {
         return env->NewObject(JniConstants::netlinkSocketAddressClass, ctor, 
                 static_cast<jint>(nl_addr->nl_pid), 
                 static_cast<jint>(nl_addr->nl_groups));
+    } else if (ss.ss_family == AF_PACKET) {
+        const struct sockaddr_ll* sll = reinterpret_cast<const struct sockaddr_ll*>(&ss);
+        static jmethodID ctor = env->GetMethodID(JniConstants::packetSocketAddressClass,
+                "<init>", "(SISB[B)V");
+        ScopedLocalRef<jbyteArray> byteArray(env, env->NewByteArray(sll->sll_halen));
+        if (byteArray.get() == NULL) {
+            return NULL;
+        }
+        env->SetByteArrayRegion(byteArray.get(), 0, sll->sll_halen,
+                reinterpret_cast<const jbyte*>(sll->sll_addr));
+        jobject packetSocketAddress = env->NewObject(JniConstants::packetSocketAddressClass, ctor,
+                static_cast<jshort>(ntohs(sll->sll_protocol)),
+                static_cast<jint>(sll->sll_ifindex),
+                static_cast<jshort>(sll->sll_hatype),
+                static_cast<jbyte>(sll->sll_pkttype),
+                byteArray.get());
+        return packetSocketAddress;
     }
-    jniThrowException(env, "java/lang/IllegalArgumentException", "unsupported ss_family");
+    jniThrowExceptionFmt(env, "java/lang/IllegalArgumentException", "unsupported ss_family: %d",
+            ss.ss_family);
     return NULL;
 }
 
@@ -472,6 +490,42 @@ static bool javaNetlinkSocketAddressToSockaddr(
     return true;
 }
 
+static bool javaPacketSocketAddressToSockaddr(
+        JNIEnv* env, jobject javaSocketAddress, sockaddr_storage& ss, socklen_t& sa_len) {
+    static jfieldID protocolFid = env->GetFieldID(
+            JniConstants::packetSocketAddressClass, "sll_protocol", "S");
+    static jfieldID ifindexFid = env->GetFieldID(
+            JniConstants::packetSocketAddressClass, "sll_ifindex", "I");
+    static jfieldID hatypeFid = env->GetFieldID(
+            JniConstants::packetSocketAddressClass, "sll_hatype", "S");
+    static jfieldID pkttypeFid = env->GetFieldID(
+            JniConstants::packetSocketAddressClass, "sll_pkttype", "B");
+    static jfieldID addrFid = env->GetFieldID(
+            JniConstants::packetSocketAddressClass, "sll_addr", "[B");
+
+    sockaddr_ll *sll = reinterpret_cast<sockaddr_ll *>(&ss);
+    sll->sll_family = AF_PACKET;
+    sll->sll_protocol = ntohs(env->GetShortField(javaSocketAddress, protocolFid));
+    sll->sll_ifindex = env->GetIntField(javaSocketAddress, ifindexFid);
+    sll->sll_hatype = env->GetShortField(javaSocketAddress, hatypeFid);
+    sll->sll_pkttype = env->GetByteField(javaSocketAddress, pkttypeFid);
+
+    jbyteArray sllAddr = (jbyteArray) env->GetObjectField(javaSocketAddress, addrFid);
+    if (sllAddr == NULL) {
+        sll->sll_halen = 0;
+        memset(&sll->sll_addr, 0, sizeof(sll->sll_addr));
+    } else {
+        jsize len = env->GetArrayLength(sllAddr);
+        if ((size_t) len > sizeof(sll->sll_addr)) {
+            len = sizeof(sll->sll_addr);
+        }
+        sll->sll_halen = len;
+        env->GetByteArrayRegion(sllAddr, 0, len, (jbyte*) sll->sll_addr);
+    }
+    sa_len = sizeof(sockaddr_ll);
+    return true;
+}
+
 static bool javaSocketAddressToSockaddr(
         JNIEnv* env, jobject javaSocketAddress, sockaddr_storage& ss, socklen_t& sa_len) {
     if (javaSocketAddress == NULL) {
@@ -483,6 +537,8 @@ static bool javaSocketAddressToSockaddr(
         return javaNetlinkSocketAddressToSockaddr(env, javaSocketAddress, ss, sa_len);
     } else if (env->IsInstanceOf(javaSocketAddress, JniConstants::inetSocketAddressClass)) {
         return javaInetSocketAddressToSockaddr(env, javaSocketAddress, ss, sa_len);
+    } else if (env->IsInstanceOf(javaSocketAddress, JniConstants::packetSocketAddressClass)) {
+        return javaPacketSocketAddressToSockaddr(env, javaSocketAddress, ss, sa_len);
     }
     jniThrowException(env, "java/lang/UnsupportedOperationException",
             "unsupported SocketAddress subclass");
@@ -1599,6 +1655,9 @@ static void Posix_shutdown(JNIEnv* env, jobject, jobject javaFd, jint how) {
 }
 
 static jobject Posix_socket(JNIEnv* env, jobject, jint domain, jint type, jint protocol) {
+    if (domain == AF_PACKET) {
+        protocol = htons(protocol);  // Packet sockets specify the protocol in host byte order.
+    }
     int fd = throwIfMinusOne(env, "socket", TEMP_FAILURE_RETRY(socket(domain, type, protocol)));
     return fd != -1 ? jniCreateFileDescriptor(env, fd) : NULL;
 }
