@@ -847,6 +847,24 @@ public final class CipherTest extends TestCase {
         }
     }
 
+    public void testCipher_getInstance_DoesNotSupportKeyClass_Success() throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.AllKeyTypes.class.getName());
+                put("Cipher.FOO SupportedKeyClasses", "None");
+            }
+        };
+
+        Security.addProvider(mockProvider);
+        try {
+            Cipher c = Cipher.getInstance("FOO", mockProvider);
+            c.init(Cipher.ENCRYPT_MODE, new MockKey());
+            assertEquals(mockProvider, c.getProvider());
+        } finally {
+            Security.removeProvider(mockProvider.getName());
+        }
+    }
+
     public void testCipher_getInstance_SuppliedProviderNotRegistered_MultipartTransform_Success()
             throws Exception {
         Provider mockProvider = new MockProvider("MockProvider") {
