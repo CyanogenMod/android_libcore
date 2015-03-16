@@ -419,7 +419,7 @@ public class Cipher {
             if (service == null) {
                 return null;
             }
-            return tryTransformWithProvider(key, transformParts, type, service);
+            return tryTransformWithProvider(null, transformParts, type, service);
         }
         ArrayList<Provider.Service> services = ENGINE.getServices(transform);
         if (services == null) {
