@@ -464,15 +464,21 @@ static bool fillInetSocketAddress(JNIEnv* env, jint rc, jobject javaInetSocketAd
     return true;
 }
 
-static bool javaInetSocketAddressToSockaddr(
-        JNIEnv* env, jobject javaSocketAddress, sockaddr_storage& ss, socklen_t& sa_len) {
+static void javaInetSocketAddressToInetAddressAndPort(
+        JNIEnv* env, jobject javaInetSocketAddress, jobject& javaInetAddress, jint& port) {
     static jfieldID addressFid = env->GetFieldID(
             JniConstants::inetSocketAddressClass, "addr", "Ljava/net/InetAddress;");
     static jfieldID portFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "port", "I");
-    return inetAddressToSockaddr(env,
-            env->GetObjectField(javaSocketAddress, addressFid),
-            env->GetIntField(javaSocketAddress, portFid),
-            ss, sa_len);
+    javaInetAddress = env->GetObjectField(javaInetSocketAddress, addressFid);
+    port = env->GetIntField(javaInetSocketAddress, portFid);
+}
+
+static bool javaInetSocketAddressToSockaddr(
+        JNIEnv* env, jobject javaSocketAddress, sockaddr_storage& ss, socklen_t& sa_len) {
+    jobject javaInetAddress;
+    jint port;
+    javaInetSocketAddressToInetAddressAndPort(env, javaSocketAddress, javaInetAddress, port);
+    return inetAddressToSockaddr(env, javaInetAddress, port, ss, sa_len);
 }
 
 static bool javaNetlinkSocketAddressToSockaddr(
@@ -1459,6 +1465,15 @@ static jint Posix_sendtoBytes(JNIEnv* env, jobject, jobject javaFd, jobject java
 }
 
 static jint Posix_sendtoBytesSocketAddress(JNIEnv* env, jobject, jobject javaFd, jobject javaBytes, jint byteOffset, jint byteCount, jint flags, jobject javaSocketAddress) {
+    if (env->IsInstanceOf(javaSocketAddress, JniConstants::inetSocketAddressClass)) {
+        // Use the InetAddress version so we get the benefit of NET_IPV4_FALLBACK.
+        jobject javaInetAddress;
+        jint port;
+        javaInetSocketAddressToInetAddressAndPort(env, javaSocketAddress, javaInetAddress, port);
+        return Posix_sendtoBytes(env, NULL, javaFd, javaBytes, byteOffset, byteCount, flags,
+                                 javaInetAddress, port);
+    }
+
     ScopedBytesRO bytes(env, javaBytes);
     if (bytes.get() == NULL) {
         return -1;
