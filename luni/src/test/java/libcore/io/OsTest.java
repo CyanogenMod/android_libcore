@@ -321,14 +321,14 @@ public class OsTest extends TestCase {
     checkByteBufferPositions_sendto_recvfrom(AF_INET6, InetAddress.getByName("::1"));
   }
 
-  public void test_sendtoSocketAddress() throws Exception {
-    FileDescriptor recvFd = Libcore.os.socket(AF_INET6, SOCK_DGRAM, 0);
-    Libcore.os.bind(recvFd, InetAddress.getLoopbackAddress(), 0);
+  private void checkSendToSocketAddress(int family, InetAddress loopback) throws Exception {
+    FileDescriptor recvFd = Libcore.os.socket(family, SOCK_DGRAM, 0);
+    Libcore.os.bind(recvFd, loopback, 0);
     StructTimeval tv = StructTimeval.fromMillis(20);
     Libcore.os.setsockoptTimeval(recvFd, SOL_SOCKET, SO_RCVTIMEO, tv);
 
     InetSocketAddress to = ((InetSocketAddress) Libcore.os.getsockname(recvFd));
-    FileDescriptor sendFd = Libcore.os.socket(AF_INET6, SOCK_DGRAM, 0);
+    FileDescriptor sendFd = Libcore.os.socket(family, SOCK_DGRAM, 0);
     byte[] msg = ("Hello, I'm going to a socket address: " + to.toString()).getBytes("UTF-8");
     int len = msg.length;
 
@@ -336,7 +336,15 @@ public class OsTest extends TestCase {
     byte[] received = new byte[msg.length + 42];
     InetSocketAddress from = new InetSocketAddress();
     assertEquals(len, Libcore.os.recvfrom(recvFd, received, 0, received.length, 0, from));
-    assertEquals(InetAddress.getLoopbackAddress(), from.getAddress());
+    assertEquals(loopback, from.getAddress());
+  }
+
+  public void test_sendtoSocketAddress_af_inet() throws Exception {
+      checkSendToSocketAddress(AF_INET, InetAddress.getByName("127.0.0.1"));
+  }
+
+  public void test_sendtoSocketAddress_af_inet6() throws Exception {
+      checkSendToSocketAddress(AF_INET6, InetAddress.getByName("::1"));
   }
 
   public void test_socketFamilies() throws Exception {
