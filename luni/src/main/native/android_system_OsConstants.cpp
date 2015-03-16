@@ -38,6 +38,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include <net/if_arp.h>
+#include <linux/if_ether.h>
+
 // After the others because these are not necessarily self-contained in glibc.
 #ifndef __APPLE__
 #include <linux/if_addr.h>
@@ -58,6 +61,7 @@ static void initConstant(JNIEnv* env, jclass c, const char* fieldName, int value
 static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "AF_INET", AF_INET);
     initConstant(env, c, "AF_INET6", AF_INET6);
+    initConstant(env, c, "AF_PACKET", AF_PACKET);
     initConstant(env, c, "AF_NETLINK", AF_NETLINK);
     initConstant(env, c, "AF_UNIX", AF_UNIX);
     initConstant(env, c, "AF_UNSPEC", AF_UNSPEC);
@@ -70,6 +74,8 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
 #endif
     initConstant(env, c, "AI_PASSIVE", AI_PASSIVE);
     initConstant(env, c, "AI_V4MAPPED", AI_V4MAPPED);
+    initConstant(env, c, "ARPHRD_ETHER", ARPHRD_ETHER);
+    initConstant(env, c, "ARPHRD_LOOPBACK", ARPHRD_LOOPBACK);
 #if defined(CAP_LAST_CAP)
     initConstant(env, c, "CAP_AUDIT_CONTROL", CAP_AUDIT_CONTROL);
     initConstant(env, c, "CAP_AUDIT_WRITE", CAP_AUDIT_WRITE);
@@ -197,6 +203,9 @@ static void OsConstants_initConstants(JNIEnv* env, jclass c) {
     initConstant(env, c, "ESPIPE", ESPIPE);
     initConstant(env, c, "ESRCH", ESRCH);
     initConstant(env, c, "ESTALE", ESTALE);
+    initConstant(env, c, "ETH_P_ARP", ETH_P_ARP);
+    initConstant(env, c, "ETH_P_IP", ETH_P_IP);
+    initConstant(env, c, "ETH_P_IPV6", ETH_P_IPV6);
     initConstant(env, c, "ETIME", ETIME);
     initConstant(env, c, "ETIMEDOUT", ETIMEDOUT);
     initConstant(env, c, "ETXTBSY", ETXTBSY);
