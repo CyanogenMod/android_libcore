@@ -49,7 +49,6 @@ public class MulticastSocketTest extends junit.framework.TestCase {
 
     private static InetAddress GOOD_IPv4 = lookup("224.0.0.3");
     private static InetAddress BAD_IPv4 = lookup("224.0.0.4");
-
     private static InetAddress GOOD_IPv6 = lookup("ff05::7:7");
     private static InetAddress BAD_IPv6 = lookup("ff05::7:8");
 
@@ -87,14 +86,15 @@ public class MulticastSocketTest extends junit.framework.TestCase {
                     final InetAddress nextAddress = addresses.nextElement();
                     if (nextAddress instanceof Inet6Address && ipv6NetworkInterface == null) {
                         ipv6NetworkInterface = nextInterface;
-                    } else if (nextAddress instanceof Inet4Address && ipv4NetworkInterface == null) {
+                    } else if (nextAddress instanceof Inet4Address
+                            && ipv4NetworkInterface == null) {
                         ipv4NetworkInterface = nextInterface;
                     }
                 }
             }
         }
         assertTrue("Test environment must have at least one interface capable of multicast for IPv4"
-                + " and IPv6",
+                        + " and IPv6",
                 ipv4NetworkInterface != null && ipv6NetworkInterface != null);
     }
 
@@ -309,18 +309,31 @@ public class MulticastSocketTest extends junit.framework.TestCase {
                 ipv6NetworkInterface, GOOD_IPv6, BAD_IPv6);
     }
 
+    public void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv4_nullInterface()
+            throws Exception {
+        test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface(null, GOOD_IPv4, BAD_IPv4);
+    }
+
+    public void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface_IPv6_nullInterface()
+            throws Exception {
+        test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface(null, GOOD_IPv6, BAD_IPv6);
+    }
+
     private void test_joinGroupLjava_net_SocketAddressLjava_net_NetworkInterface(
             NetworkInterface networkInterface, InetAddress group, InetAddress group2)
             throws Exception {
-        // Check that we can join a group using a null network interface.
+        // Create the sending socket and specify the interface to use as needed (otherwise use the
+        // default).
         MulticastSocket sendingSocket = new MulticastSocket(0);
-        SocketAddress groupSockAddr = new InetSocketAddress(group, sendingSocket.getLocalPort());
-        sendingSocket.joinGroup(groupSockAddr, null);
+        if (networkInterface != null) {
+            sendingSocket.setNetworkInterface(networkInterface);
+        }
         sendingSocket.setTimeToLive(2);
 
         MulticastSocket receivingSocket = createReceivingSocket(0);
         InetSocketAddress groupAddress =
                 new InetSocketAddress(group, receivingSocket.getLocalPort());
+        // Join the group. A null network interface is valid and means "use default".
         receivingSocket.joinGroup(groupAddress, networkInterface);
 
         String msg = "Hello World";
@@ -334,12 +347,19 @@ public class MulticastSocketTest extends junit.framework.TestCase {
         receivingSocket.close();
         sendingSocket.close();
 
+        // Create the sending socket and specify the interface to use as needed (otherwise use the
+        // default).
+        sendingSocket = new MulticastSocket(0);
+        if (networkInterface != null) {
+            sendingSocket.setNetworkInterface(networkInterface);
+        }
+        sendingSocket.setTimeToLive(10);
+
         receivingSocket = createReceivingSocket(0);
         groupAddress = new InetSocketAddress(group, receivingSocket.getLocalPort());
+        // Join the group. A null network interface is valid and means "use default".
         receivingSocket.joinGroup(groupAddress, networkInterface);
 
-        sendingSocket = new MulticastSocket(0);
-        sendingSocket.setTimeToLive(10);
         msg = "Hello World - Different Group";
         InetSocketAddress group2Address =
                 new InetSocketAddress(group2, receivingSocket.getLocalPort());
