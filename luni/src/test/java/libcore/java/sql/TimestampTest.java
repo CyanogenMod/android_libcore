@@ -144,4 +144,12 @@ public final class TimestampTest extends TestCase {
     } catch (IllegalArgumentException expected) { }
   }
 
+  // http://b/19756610
+  public void testAsymmetricEquals() {
+    Timestamp timestamp = new Timestamp(0);
+    java.util.Date date = new java.util.Date(0);
+
+    assertTrue(date.equals(timestamp));
+    assertFalse(timestamp.equals(date));
+  }
 }
