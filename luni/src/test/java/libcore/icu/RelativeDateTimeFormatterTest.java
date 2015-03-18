@@ -344,65 +344,63 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
   }
 
   public void test_getRelativeTimeSpanStringGerman() throws Exception {
+    // Bug: 19744876
+    // We need to specify the timezone and the time explicitly. Otherwise it
+    // may not always give a correct answer of "tomorrow" by using
+    // (now + DAY_IN_MILLIS).
     Locale de_DE = new Locale("de", "DE");
-    final long now = System.currentTimeMillis();
-    TimeZone tz = TimeZone.getDefault();
+    TimeZone tz = TimeZone.getTimeZone("Europe/Berlin");
+    Calendar cal = Calendar.getInstance(tz, de_DE);
+    // Feb 5, 2015 at 10:50 CET
+    cal.set(2015, Calendar.FEBRUARY, 5, 10, 50, 0);
+    final long now = cal.getTimeInMillis();
 
     // 42 minutes ago
-    assertEquals("vor 42 Minuten",
-      getRelativeTimeSpanString(de_DE, tz, now - 42 * MINUTE_IN_MILLIS, now,
-                                MINUTE_IN_MILLIS, 0));
+    assertEquals("vor 42 Minuten", getRelativeTimeSpanString(de_DE, tz,
+        now - 42 * MINUTE_IN_MILLIS, now, MINUTE_IN_MILLIS, 0));
     // in 42 minutes
-    assertEquals("in 42 Minuten",
-      getRelativeTimeSpanString(de_DE, tz, now + 42 * MINUTE_IN_MILLIS, now,
-                                MINUTE_IN_MILLIS, 0));
+    assertEquals("in 42 Minuten", getRelativeTimeSpanString(de_DE, tz,
+        now + 42 * MINUTE_IN_MILLIS, now, MINUTE_IN_MILLIS, 0));
     // yesterday
-    assertEquals("Gestern",
-                 getRelativeTimeSpanString(de_DE, tz, now - DAY_IN_MILLIS, now,
-                                           DAY_IN_MILLIS, 0));
+    assertEquals("Gestern", getRelativeTimeSpanString(de_DE, tz,
+        now - DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
     // the day before yesterday
-    assertEquals("Vorgestern",
-                 getRelativeTimeSpanString(de_DE, tz, now - 2 * DAY_IN_MILLIS, now,
-                                           DAY_IN_MILLIS, 0));
+    assertEquals("Vorgestern", getRelativeTimeSpanString(de_DE, tz,
+        now - 2 * DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
     // tomorrow
-    assertEquals("Morgen",
-                 getRelativeTimeSpanString(de_DE, tz, now + DAY_IN_MILLIS, now,
-                                           DAY_IN_MILLIS, 0));
+    assertEquals("Morgen", getRelativeTimeSpanString(de_DE, tz,
+        now + DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
     // the day after tomorrow
-    assertEquals("Übermorgen",
-                 getRelativeTimeSpanString(de_DE, tz, now + 2 * DAY_IN_MILLIS, now,
-                                           DAY_IN_MILLIS, 0));
+    assertEquals("Übermorgen", getRelativeTimeSpanString(de_DE, tz,
+        now + 2 * DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
   }
 
   public void test_getRelativeTimeSpanStringFrench() throws Exception {
     Locale fr_FR = new Locale("fr", "FR");
-    final long now = System.currentTimeMillis();
-    TimeZone tz = TimeZone.getDefault();
+    TimeZone tz = TimeZone.getTimeZone("Europe/Paris");
+    Calendar cal = Calendar.getInstance(tz, fr_FR);
+    // Feb 5, 2015 at 10:50 CET
+    cal.set(2015, Calendar.FEBRUARY, 5, 10, 50, 0);
+    final long now = cal.getTimeInMillis();
 
     // 42 minutes ago
-    assertEquals("il y a 42 minutes",
-                 getRelativeTimeSpanString(fr_FR, tz, now - (42 * MINUTE_IN_MILLIS), now,
-                                           MINUTE_IN_MILLIS, 0));
+    assertEquals("il y a 42 minutes", getRelativeTimeSpanString(fr_FR, tz,
+        now - (42 * MINUTE_IN_MILLIS), now, MINUTE_IN_MILLIS, 0));
     // in 42 minutes
-    assertEquals("dans 42 minutes",
-                 getRelativeTimeSpanString(fr_FR, tz, now + (42 * MINUTE_IN_MILLIS), now,
-                                           MINUTE_IN_MILLIS, 0));
+    assertEquals("dans 42 minutes", getRelativeTimeSpanString(fr_FR, tz,
+        now + (42 * MINUTE_IN_MILLIS), now, MINUTE_IN_MILLIS, 0));
     // yesterday
-    assertEquals("Hier",
-                 getRelativeTimeSpanString(fr_FR, tz, now - DAY_IN_MILLIS, now,
-                                           DAY_IN_MILLIS, 0));
+    assertEquals("Hier", getRelativeTimeSpanString(fr_FR, tz,
+        now - DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
     // the day before yesterday
-    assertEquals("Avant-hier",
-                 getRelativeTimeSpanString(fr_FR, tz, now - 2 * DAY_IN_MILLIS, now,
-                                           DAY_IN_MILLIS, 0));
+    assertEquals("Avant-hier", getRelativeTimeSpanString(fr_FR, tz,
+        now - 2 * DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
     // tomorrow
-    assertEquals("Demain",
-                 getRelativeTimeSpanString(fr_FR, tz, now + DAY_IN_MILLIS, now,
-                                           DAY_IN_MILLIS, 0));
+    assertEquals("Demain", getRelativeTimeSpanString(fr_FR, tz,
+        now + DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
     // the day after tomorrow
-    assertEquals("Après-demain",
-                 getRelativeTimeSpanString(fr_FR, tz, now + 2 * DAY_IN_MILLIS, now,
-                                           DAY_IN_MILLIS, 0));
+    assertEquals("Après-demain", getRelativeTimeSpanString(fr_FR, tz,
+        now + 2 * DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
   }
 
   // Tests adopted from CTS tests for DateUtils.getRelativeDateTimeString.
