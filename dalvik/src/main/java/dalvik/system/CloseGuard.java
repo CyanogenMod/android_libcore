@@ -40,6 +40,7 @@ package dalvik.system;
  *
  *       protected void finalize() throws Throwable {
  *           try {
+ *               // Note that guard could be null if the constructor threw.
  *               if (guard != null) {
  *                   guard.warnIfOpen();
  *               }
@@ -76,6 +77,7 @@ package dalvik.system;
  *
  *       protected void finalize() throws Throwable {
  *           try {
+ *               // Note that guard could be null if the constructor threw.
  *               if (guard != null) {
  *                   guard.warnIfOpen();
  *               }
@@ -93,12 +95,6 @@ package dalvik.system;
  * not have a reference to the object to cleanup explicitly. When used
  * in a method, the call to {@code open} should occur just after
  * resource acquisition.
- *
- * <p>
- *
- * Note that the null check on {@code guard} in the finalizer is to
- * cover cases where a constructor throws an exception causing the
- * {@code guard} to be uninitialized.
  *
  * @hide
  */
