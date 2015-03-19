@@ -511,7 +511,7 @@ static bool javaPacketSocketAddressToSockaddr(
 
     sockaddr_ll *sll = reinterpret_cast<sockaddr_ll *>(&ss);
     sll->sll_family = AF_PACKET;
-    sll->sll_protocol = ntohs(env->GetShortField(javaSocketAddress, protocolFid));
+    sll->sll_protocol = htons(env->GetShortField(javaSocketAddress, protocolFid));
     sll->sll_ifindex = env->GetIntField(javaSocketAddress, ifindexFid);
     sll->sll_hatype = env->GetShortField(javaSocketAddress, hatypeFid);
     sll->sll_pkttype = env->GetByteField(javaSocketAddress, pkttypeFid);
