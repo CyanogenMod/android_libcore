@@ -295,12 +295,12 @@ public class OsTest extends TestCase {
 
   public void test_PacketSocketAddress() throws Exception {
     NetworkInterface lo = NetworkInterface.getByName("lo");
-    FileDescriptor fd = Libcore.os.socket(AF_PACKET, SOCK_DGRAM, (short) ETH_P_IPV6);
+    FileDescriptor fd = Libcore.os.socket(AF_PACKET, SOCK_DGRAM, ETH_P_IPV6);
     PacketSocketAddress addr = new PacketSocketAddress((short) ETH_P_IPV6, lo.getIndex());
     Libcore.os.bind(fd, addr);
 
     PacketSocketAddress bound = (PacketSocketAddress) Libcore.os.getsockname(fd);
-    assertEquals((short) ETH_P_IPV6, bound.sll_protocol);
+    assertEquals((short) ETH_P_IPV6, bound.sll_protocol);  // ETH_P_IPV6 is an int.
     assertEquals(lo.getIndex(), bound.sll_ifindex);
     assertEquals(ARPHRD_LOOPBACK, bound.sll_hatype);
     assertEquals(0, bound.sll_pkttype);
