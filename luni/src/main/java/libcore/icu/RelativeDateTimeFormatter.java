@@ -32,6 +32,7 @@ public final class RelativeDateTimeFormatter {
   // match the ones in DateUtils.java.
   public static final int FORMAT_SHOW_TIME = 0x00001;
   public static final int FORMAT_SHOW_YEAR = 0x00004;
+  public static final int FORMAT_NO_YEAR = 0x00008;
   public static final int FORMAT_SHOW_DATE = 0x00010;
   public static final int FORMAT_ABBREV_MONTH = 0x10000;
   public static final int FORMAT_NUMERIC_DATE = 0x20000;
@@ -222,6 +223,27 @@ public final class RelativeDateTimeFormatter {
     } else {
       // The duration is longer than a week and minResolution is not
       // WEEK_IN_MILLIS. Return the absolute date instead of relative time.
+
+      // Bug 19822016:
+      // If user doesn't supply the year display flag, we need to explicitly
+      // set that to show / hide the year based on time and now. Otherwise
+      // formatDateRange() would determine that based on the current system
+      // time and may give wrong results.
+      if ((flags & (FORMAT_NO_YEAR | FORMAT_SHOW_YEAR)) == 0) {
+          Calendar timeCalendar = new GregorianCalendar(false);
+          timeCalendar.setTimeZone(tz);
+          timeCalendar.setTimeInMillis(time);
+          Calendar nowCalendar = new GregorianCalendar(false);
+          nowCalendar.setTimeZone(tz);
+          nowCalendar.setTimeInMillis(now);
+
+          if (timeCalendar.get(Calendar.YEAR) != nowCalendar.get(Calendar.YEAR)) {
+              flags |= FORMAT_SHOW_YEAR;
+          } else {
+              flags |= FORMAT_NO_YEAR;
+          }
+      }
+
       return DateIntervalFormat.formatDateRange(locale, tz, time, time, flags);
     }
 
@@ -323,15 +345,12 @@ public final class RelativeDateTimeFormatter {
     } else {
       // We always use fixed flags to format the date clause. User-supplied
       // flags are ignored.
-      if (days == 0) {
-        // Same day
-        flags = FORMAT_SHOW_TIME;
-      } else if (timeCalendar.get(Calendar.YEAR) != nowCalendar.get(Calendar.YEAR)) {
+      if (timeCalendar.get(Calendar.YEAR) != nowCalendar.get(Calendar.YEAR)) {
         // Different years
         flags = FORMAT_SHOW_DATE | FORMAT_SHOW_YEAR | FORMAT_NUMERIC_DATE;
       } else {
         // Default
-        flags = FORMAT_SHOW_DATE | FORMAT_ABBREV_MONTH;
+        flags = FORMAT_SHOW_DATE | FORMAT_NO_YEAR | FORMAT_ABBREV_MONTH;
       }
 
       dateClause = DateIntervalFormat.formatDateRange(locale, tz, time, time, flags);

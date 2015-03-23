@@ -24,6 +24,8 @@ import static libcore.icu.RelativeDateTimeFormatter.getRelativeTimeSpanString;
 import static libcore.icu.RelativeDateTimeFormatter.FORMAT_ABBREV_ALL;
 import static libcore.icu.RelativeDateTimeFormatter.FORMAT_ABBREV_RELATIVE;
 import static libcore.icu.RelativeDateTimeFormatter.FORMAT_NUMERIC_DATE;
+import static libcore.icu.RelativeDateTimeFormatter.FORMAT_NO_YEAR;
+import static libcore.icu.RelativeDateTimeFormatter.FORMAT_SHOW_YEAR;
 import static libcore.icu.RelativeDateTimeFormatter.SECOND_IN_MILLIS;
 import static libcore.icu.RelativeDateTimeFormatter.MINUTE_IN_MILLIS;
 import static libcore.icu.RelativeDateTimeFormatter.HOUR_IN_MILLIS;
@@ -605,5 +607,58 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
     assertEquals("in 2 days, 10:24 AM",
                  getRelativeDateTimeString(en_US, tz, twoDaysLater2, now, MINUTE_IN_MILLIS,
                                            WEEK_IN_MILLIS, 0));
+  }
+
+  // b/19822016: show / hide the year based on the dates in the arguments.
+  public void test_bug19822016() throws Exception {
+    Locale en_US = new Locale("en", "US");
+    TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
+    Calendar cal = Calendar.getInstance(tz, en_US);
+    // Feb 5, 2012 at 10:50 PST
+    cal.set(2012, Calendar.FEBRUARY, 5, 10, 50, 0);
+    long base = cal.getTimeInMillis();
+
+    assertEquals("Feb 5, 5:50 AM", getRelativeDateTimeString(en_US, tz,
+        base - 5 * HOUR_IN_MILLIS, base, 0, MINUTE_IN_MILLIS, 0));
+    assertEquals("Jan 29, 10:50 AM", getRelativeDateTimeString(en_US, tz,
+        base - 7 * DAY_IN_MILLIS, base, 0, WEEK_IN_MILLIS, 0));
+    assertEquals("11/27/2011, 10:50 AM", getRelativeDateTimeString(en_US, tz,
+        base - 10 * WEEK_IN_MILLIS, base, 0, WEEK_IN_MILLIS, 0));
+
+    assertEquals("January 6", getRelativeTimeSpanString(en_US, tz,
+        base - 30 * DAY_IN_MILLIS, base, DAY_IN_MILLIS, 0));
+    assertEquals("January 6", getRelativeTimeSpanString(en_US, tz,
+        base - 30 * DAY_IN_MILLIS, base, DAY_IN_MILLIS, FORMAT_NO_YEAR));
+    assertEquals("January 6, 2012", getRelativeTimeSpanString(en_US, tz,
+        base - 30 * DAY_IN_MILLIS, base, DAY_IN_MILLIS, FORMAT_SHOW_YEAR));
+    assertEquals("December 7, 2011", getRelativeTimeSpanString(en_US, tz,
+        base - 60 * DAY_IN_MILLIS, base, DAY_IN_MILLIS, 0));
+    assertEquals("December 7, 2011", getRelativeTimeSpanString(en_US, tz,
+        base - 60 * DAY_IN_MILLIS, base, DAY_IN_MILLIS, FORMAT_SHOW_YEAR));
+    assertEquals("December 7", getRelativeTimeSpanString(en_US, tz,
+        base - 60 * DAY_IN_MILLIS, base, DAY_IN_MILLIS, FORMAT_NO_YEAR));
+
+    // Feb 5, 2018 at 10:50 PST
+    cal.set(2018, Calendar.FEBRUARY, 5, 10, 50, 0);
+    base = cal.getTimeInMillis();
+    assertEquals("Feb 5, 5:50 AM", getRelativeDateTimeString(en_US, tz,
+        base - 5 * HOUR_IN_MILLIS, base, 0, MINUTE_IN_MILLIS, 0));
+    assertEquals("Jan 29, 10:50 AM", getRelativeDateTimeString(en_US, tz,
+        base - 7 * DAY_IN_MILLIS, base, 0, WEEK_IN_MILLIS, 0));
+    assertEquals("11/27/2017, 10:50 AM", getRelativeDateTimeString(en_US, tz,
+        base - 10 * WEEK_IN_MILLIS, base, 0, WEEK_IN_MILLIS, 0));
+
+    assertEquals("January 6", getRelativeTimeSpanString(en_US, tz,
+        base - 30 * DAY_IN_MILLIS, base, DAY_IN_MILLIS, 0));
+    assertEquals("January 6", getRelativeTimeSpanString(en_US, tz,
+        base - 30 * DAY_IN_MILLIS, base, DAY_IN_MILLIS, FORMAT_NO_YEAR));
+    assertEquals("January 6, 2018", getRelativeTimeSpanString(en_US, tz,
+        base - 30 * DAY_IN_MILLIS, base, DAY_IN_MILLIS, FORMAT_SHOW_YEAR));
+    assertEquals("December 7, 2017", getRelativeTimeSpanString(en_US, tz,
+        base - 60 * DAY_IN_MILLIS, base, DAY_IN_MILLIS, 0));
+    assertEquals("December 7, 2017", getRelativeTimeSpanString(en_US, tz,
+        base - 60 * DAY_IN_MILLIS, base, DAY_IN_MILLIS, FORMAT_SHOW_YEAR));
+    assertEquals("December 7", getRelativeTimeSpanString(en_US, tz,
+        base - 60 * DAY_IN_MILLIS, base, DAY_IN_MILLIS, FORMAT_NO_YEAR));
   }
 }
