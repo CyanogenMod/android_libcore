@@ -64,6 +64,3 @@ LOCAL_STATIC_LIBRARIES += \
 LOCAL_SHARED_LIBRARIES += \
     liblog \
     libnativehelper \
-
-# Workaround to let libcore_icu_NativeIDN.cpp use the deprecated IDNA2003 API:
-LOCAL_CFLAGS += -Wno-deprecated-declarations
