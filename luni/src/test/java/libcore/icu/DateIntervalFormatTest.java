@@ -81,9 +81,9 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
     assertEquals("1/19/2009 – 2/9/2012", formatDateRange(en_US, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_YEAR | FORMAT_NUMERIC_DATE));
 
     assertEquals("19.1.2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + HOUR, FORMAT_SHOW_YEAR | FORMAT_NUMERIC_DATE));
-    assertEquals("19.01.2009 - 22.01.2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_YEAR | FORMAT_NUMERIC_DATE));
-    assertEquals("19.01.2009 - 22.04.2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_SHOW_YEAR | FORMAT_NUMERIC_DATE));
-    assertEquals("19.01.2009 - 09.02.2012", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_YEAR | FORMAT_NUMERIC_DATE));
+    assertEquals("19.01.2009 – 22.01.2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_YEAR | FORMAT_NUMERIC_DATE));
+    assertEquals("19.01.2009 – 22.04.2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_SHOW_YEAR | FORMAT_NUMERIC_DATE));
+    assertEquals("19.01.2009 – 09.02.2012", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_YEAR | FORMAT_NUMERIC_DATE));
 
     assertEquals("19/1/2009", formatDateRange(es_US, tz, fixedTime, fixedTime + HOUR, FORMAT_SHOW_YEAR | FORMAT_NUMERIC_DATE));
     assertEquals("19/1/2009–22/1/2009", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_YEAR | FORMAT_NUMERIC_DATE));
@@ -114,54 +114,54 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
 
     // The same tests but for de_DE.
 
-    assertEquals("19.-22. Januar 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * DAY, 0));
-    assertEquals("19.-22. Jan. 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
-    assertEquals("Mo., 19. - Do., 22. Jan. 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_WEEKDAY | FORMAT_ABBREV_ALL));
-    assertEquals("Montag, 19. - Donnerstag, 22. Januar 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_WEEKDAY));
+    assertEquals("19.–22. Januar 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * DAY, 0));
+    assertEquals("19.–22. Jan. 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
+    assertEquals("Mo., 19. – Do., 22. Jan. 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_WEEKDAY | FORMAT_ABBREV_ALL));
+    assertEquals("Montag, 19. – Donnerstag, 22. Januar 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_WEEKDAY));
 
-    assertEquals("19. Januar - 22. April 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * MONTH, 0));
-    assertEquals("19. Jan. - 22. Apr. 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
-    assertEquals("Mo., 19. Jan. - Mi., 22. Apr. 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_SHOW_WEEKDAY | FORMAT_ABBREV_ALL));
-    assertEquals("Januar-April 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_NO_MONTH_DAY));
+    assertEquals("19. Januar – 22. April 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * MONTH, 0));
+    assertEquals("19. Jan. – 22. Apr. 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
+    assertEquals("Mo., 19. Jan. – Mi., 22. Apr. 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_SHOW_WEEKDAY | FORMAT_ABBREV_ALL));
+    assertEquals("Januar–April 2009", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_NO_MONTH_DAY));
 
-    assertEquals("19. Jan. 2009 - 9. Feb. 2012", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
-    assertEquals("Jan. 2009 - Feb. 2012", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_NO_MONTH_DAY | FORMAT_ABBREV_ALL));
-    assertEquals("19. Januar 2009 - 9. Februar 2012", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * YEAR, 0));
-    assertEquals("Montag, 19. Januar 2009 - Donnerstag, 9. Februar 2012", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_WEEKDAY));
+    assertEquals("19. Jan. 2009 – 9. Feb. 2012", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
+    assertEquals("Jan. 2009 – Feb. 2012", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_NO_MONTH_DAY | FORMAT_ABBREV_ALL));
+    assertEquals("19. Januar 2009 – 9. Februar 2012", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * YEAR, 0));
+    assertEquals("Montag, 19. Januar 2009 – Donnerstag, 9. Februar 2012", formatDateRange(de_DE, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_WEEKDAY));
 
     // The same tests but for es_US.
 
-    assertEquals("19-22 de enero de 2009", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * DAY, 0));
-    assertEquals("19-22 de ene. de 2009", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
-    assertEquals("lun., 19 de ene.–jue., 22 de ene. de 2009", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_WEEKDAY | FORMAT_ABBREV_ALL));
+    assertEquals("19–22 de enero de 2009", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * DAY, 0));
+    assertEquals("19 – 22 de ene. de 2009", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
+    assertEquals("lun., 19 de ene. – jue., 22 de ene. de 2009", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_WEEKDAY | FORMAT_ABBREV_ALL));
     assertEquals("lunes, 19 de enero–jueves, 22 de enero de 2009", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_WEEKDAY));
 
     assertEquals("19 de enero–22 de abril de 2009", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * MONTH, 0));
-    assertEquals("19 de ene.–22 de abr. de 2009", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
-    assertEquals("lun., 19 de ene.–mié., 22 de abr. de 2009", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_SHOW_WEEKDAY | FORMAT_ABBREV_ALL));
+    assertEquals("19 de ene. – 22 de abr. de 2009", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
+    assertEquals("lun., 19 de ene. – mié., 22 de abr. de 2009", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_SHOW_WEEKDAY | FORMAT_ABBREV_ALL));
     assertEquals("enero–abril de 2009", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_NO_MONTH_DAY));
 
-    assertEquals("19 de ene. de 2009–9 de feb. de 2012", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
-    assertEquals("ene. de 09–feb. de 12", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_NO_MONTH_DAY | FORMAT_ABBREV_ALL));
+    assertEquals("19 de ene. de 2009 – 9 de feb. de 2012", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
+    assertEquals("ene. de 2009 – feb. de 2012", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_NO_MONTH_DAY | FORMAT_ABBREV_ALL));
     assertEquals("19 de enero de 2009–9 de febrero de 2012", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * YEAR, 0));
     assertEquals("lunes, 19 de enero de 2009–jueves, 9 de febrero de 2012", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_WEEKDAY));
 
     // The same tests but for es_ES.
 
     assertEquals("19–22 de enero de 2009", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * DAY, 0));
-    assertEquals("19–22 de ene. de 2009", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
-    assertEquals("lun., 19 ene.–jue., 22 ene. de 2009", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_WEEKDAY | FORMAT_ABBREV_ALL));
-    assertEquals("lunes, 19 enero–jueves, 22 enero de 2009", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_WEEKDAY));
+    assertEquals("19–22 ene. 2009", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
+    assertEquals("lun., 19 ene.–jue., 22 ene. 2009", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_WEEKDAY | FORMAT_ABBREV_ALL));
+    assertEquals("lunes, 19 de enero–jueves, 22 de enero de 2009", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * DAY, FORMAT_SHOW_WEEKDAY));
 
-    assertEquals("19 enero–22 abril de 2009", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * MONTH, 0));
-    assertEquals("19 ene.–22 abr. de 2009", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
-    assertEquals("lun., 19 ene.–mié., 22 abr. de 2009", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_SHOW_WEEKDAY | FORMAT_ABBREV_ALL));
+    assertEquals("19 de enero–22 de abril de 2009", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * MONTH, 0));
+    assertEquals("19 ene.–22 abr. 2009", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
+    assertEquals("lun., 19 ene.–mié., 22 abr. 2009", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_SHOW_WEEKDAY | FORMAT_ABBREV_ALL));
     assertEquals("enero–abril de 2009", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * MONTH, FORMAT_NO_MONTH_DAY));
 
-    assertEquals("19 ene. de 2009–9 feb. de 2012", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
+    assertEquals("19 ene. 2009–9 feb. 2012", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
     assertEquals("ene. 2009–feb. 2012", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_NO_MONTH_DAY | FORMAT_ABBREV_ALL));
-    assertEquals("19 enero de 2009–9 febrero de 2012", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * YEAR, 0));
-    assertEquals("lunes, 19 enero de 2009–jueves, 9 febrero de 2012", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_WEEKDAY));
+    assertEquals("19 de enero de 2009–9 de febrero de 2012", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * YEAR, 0));
+    assertEquals("lunes, 19 de enero de 2009–jueves, 9 de febrero de 2012", formatDateRange(es_ES, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_WEEKDAY));
   }
 
   // http://b/8862241 - we should be able to format dates past 2038.
@@ -406,7 +406,7 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
     // For now, here are the localized Gregorian strings instead...
     assertEquals("یکشنبه ۱۰ فوریهٔ ۱۹۸۰", formatDateRange(new Locale("fa"), utc, thisYear, thisYear, flags));
     assertEquals("یکشنبه د ۱۹۸۰ د فبروري ۱۰", formatDateRange(new Locale("ps"), utc, thisYear, thisYear, flags));
-    assertEquals("วันอาทิตย์ 10 กุมภาพันธ์ 1980", formatDateRange(new Locale("th"), utc, thisYear, thisYear, flags));
+    assertEquals("วันอาทิตย์ที่ 10 กุมภาพันธ์ ค.ศ. 1980", formatDateRange(new Locale("th"), utc, thisYear, thisYear, flags));
   }
 
   // http://b/13234532
