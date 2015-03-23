@@ -39,9 +39,18 @@ static jstring NativeIDN_convertImpl(JNIEnv* env, jclass, jstring javaSrc, jint 
     }
     UChar dst[256];
     UErrorCode status = U_ZERO_ERROR;
+
+    // We're stuck implementing IDNA-2003 for now since that's what we specify.
+    //
+    // TODO: Change our spec to IDNA-2008 + UTS-46 compatibility processing if
+    // it's safe enough.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     size_t resultLength = toAscii
         ? uidna_IDNToASCII(src.get(), src.size(), &dst[0], sizeof(dst), flags, NULL, &status)
         : uidna_IDNToUnicode(src.get(), src.size(), &dst[0], sizeof(dst), flags, NULL, &status);
+#pragma GCC diagnostic pop
+
     if (U_FAILURE(status)) {
         jniThrowException(env, "java/lang/IllegalArgumentException", u_errorName(status));
         return NULL;
