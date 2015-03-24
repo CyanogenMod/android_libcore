@@ -463,7 +463,7 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         // In this particular case, we'll write a zip64 eocd record locator and a zip64 eocd
         // record but we won't actually need zip64 extended info records for any of the individual
         // entries (unless they trigger the checks below).
-        if (entriesWritten == 64*1024-1) {
+        if (entriesWritten == 64*1024 - 1) {
             archiveNeedsZip64EocdRecord = true;
         }
 
@@ -473,13 +473,8 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         //
         // TODO: This is an imprecise check. When method != STORED it's possible that the compressed
         // size will be (slightly) larger than the actual size. How can we improve this ?
-        //
-        // TODO: Will we regret forcing zip64 for archive entries with unknown entry sizes ? This is
-        // standard "zip" behaviour on linux but i'm not sure if we'll end up breaking somebody as a
-        // result.
         if (totalBytesWritten > Zip64.MAX_ZIP_ENTRY_AND_ARCHIVE_SIZE ||
-                (entry.getSize() > Zip64.MAX_ZIP_ENTRY_AND_ARCHIVE_SIZE) ||
-                (entry.getSize() == -1)) {
+                (entry.getSize() > Zip64.MAX_ZIP_ENTRY_AND_ARCHIVE_SIZE)) {
             currentEntryNeedsZip64 = true;
             archiveNeedsZip64EocdRecord = true;
         }
@@ -564,6 +559,13 @@ public class ZipOutputStream extends DeflaterOutputStream implements ZipConstant
         Arrays.checkOffsetAndCount(buffer.length, offset, byteCount);
         if (currentEntry == null) {
             throw new ZipException("No active entry");
+        }
+
+        final long totalBytes = crc.tbytes + byteCount;
+        if ((totalBytes > Zip64.MAX_ZIP_ENTRY_AND_ARCHIVE_SIZE) && !currentEntryNeedsZip64) {
+            throw new IOException("Zip entry size (" + totalBytes +
+                    " bytes) cannot be represented in the zip format (needs Zip64)." +
+                    " Set the entry length using ZipEntry#setLength to use Zip64 where necessary.");
         }
 
         if (currentEntry.getMethod() == STORED) {
