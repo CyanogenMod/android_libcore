@@ -330,4 +330,20 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
 
         return result.toString();
     }
+
+    /**
+     * Attempts to set the accessible flag. Setting this to true prevents {@code
+     * IllegalAccessExceptions}.
+     */
+    public void setAccessible(boolean flag) {
+        Class<?> declaringClass = getDeclaringClass();
+        if (declaringClass == Class.class) {
+            throw new SecurityException("Can't make class constructor accessible");
+        } else if (declaringClass == Field.class) {
+            throw new SecurityException("Can't make field constructor accessible");
+        } else if (declaringClass == Method.class) {
+            throw new SecurityException("Can't make method constructor accessible");
+        }
+        super.setAccessible(flag);
+    }
 }
