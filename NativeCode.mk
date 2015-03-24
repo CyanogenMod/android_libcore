@@ -106,6 +106,37 @@ include $(BUILD_SHARED_LIBRARY)
 
 endif # LIBCORE_SKIP_TESTS
 
+# Set of gtest unit tests.
+include $(CLEAR_VARS)
+LOCAL_CFLAGS += $(core_cflags)
+LOCAL_CPPFLAGS += $(core_cppflags)
+LOCAL_SRC_FILES += \
+  luni/src/test/native/libcore_io_Memory_test.cpp \
+
+LOCAL_C_INCLUDES += libcore/include
+LOCAL_MODULE_TAGS := debug
+LOCAL_MODULE := libjavacore-unit-tests
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
+LOCAL_CXX_STL := libc++
+include $(BUILD_NATIVE_TEST)
+
+# Set of benchmarks for libjavacore functions.
+include $(CLEAR_VARS)
+LOCAL_CFLAGS += $(core_cflags)
+LOCAL_CPPFLAGS += $(core_cppflags)
+LOCAL_SRC_FILES += \
+  luni/src/benchmark/native/libcore_io_Memory_bench.cpp \
+
+LOCAL_C_INCLUDES += libcore/include bionic/benchmarks
+LOCAL_MODULE_TAGS := debug
+LOCAL_MODULE := libjavacore-benchmarks
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
+LOCAL_CXX_STL := libc++
+LOCAL_MULTILIB := both
+LOCAL_MODULE_STEM_32 := $(LOCAL_MODULE)32
+LOCAL_MODULE_STEM_64 := $(LOCAL_MODULE)64
+include $(BUILD_NATIVE_BENCHMARK)
+
 
 #
 # Build for the host.
