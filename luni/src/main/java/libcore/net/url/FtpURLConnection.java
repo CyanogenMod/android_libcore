@@ -17,6 +17,7 @@
 
 package libcore.net.url;
 
+import libcore.net.NetworkSecurityPolicy;
 import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
@@ -103,9 +104,15 @@ public class FtpURLConnection extends URLConnection {
      *
      * @param url
      */
-    protected FtpURLConnection(URL url) {
+    protected FtpURLConnection(URL url) throws IOException {
         super(url);
         hostName = url.getHost();
+        if (!NetworkSecurityPolicy.isCleartextTrafficPermitted()) {
+            // Cleartext network traffic is not permitted -- refuse this connection.
+            throw new IOException("Cleartext traffic not permitted: "
+                    + url.getProtocol() + "://" + hostName
+                    + ((url.getPort() >= 0) ? (":" + url.getPort()) : ""));
+        }
         String parse = url.getUserInfo();
         if (parse != null) {
             int split = parse.indexOf(':');
@@ -130,7 +137,7 @@ public class FtpURLConnection extends URLConnection {
      * @param url
      * @param proxy
      */
-    protected FtpURLConnection(URL url, Proxy proxy) {
+    protected FtpURLConnection(URL url, Proxy proxy) throws IOException {
         this(url);
         this.proxy = proxy;
     }
