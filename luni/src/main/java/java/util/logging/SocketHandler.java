@@ -17,6 +17,7 @@
 
 package java.util.logging;
 
+import libcore.net.NetworkSecurityPolicy;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -118,6 +119,9 @@ public class SocketHandler extends StreamHandler {
         }
         // establish the network connection
         try {
+            if (!NetworkSecurityPolicy.isCleartextTrafficPermitted()) {
+                throw new IOException("Cleartext traffic not permitted");
+            }
             this.socket = new Socket(host, p);
         } catch (IOException e) {
             getErrorManager().error("Failed to establish the network connection", e,
