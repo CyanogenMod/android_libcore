@@ -52,6 +52,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.security.auth.x500.X500Principal;
+
 import junit.framework.TestCase;
 import org.apache.harmony.security.asn1.ASN1Boolean;
 import org.apache.harmony.security.asn1.ASN1Integer;
@@ -79,44 +80,32 @@ public class X509CertSelectorTest extends TestCase {
 
     byte[][] constraintBytes = new byte[][] {
             {
-                    48, 34, -96, 15, 48, 13, -127, 8, 56, 50, 50, 46, 78,
-                    97, 109, 101, -128, 1, 0, -95, 15, 48, 13, -127, 8, 56,
-                    50, 50, 46, 78, 97, 109, 101, -128, 1, 0},
-            {
-                    48, 42, -96, 19, 48, 17, -127, 12, 114, 102, 99, 64,
-                    56, 50, 50, 46, 78, 97, 109, 101, -128, 1, 0, -95, 19,
-                    48, 17, -127, 12, 114, 102, 99, 64, 56, 50, 50, 46, 78,
-                    97, 109, 101, -128, 1, 0},
-            {
-                    48, 34, -96, 15, 48, 13, -126, 8, 78, 97, 109, 101, 46,
-                    111, 114, 103, -128, 1, 0, -95, 15, 48, 13, -126, 8,
-                    78, 97, 109, 101, 46, 111, 114, 103, -128, 1, 0},
-            {
-                    48, 42, -96, 19, 48, 17, -126, 12, 100, 78, 83, 46, 78,
-                    97, 109, 101, 46, 111, 114, 103, -128, 1, 0, -95, 19,
-                    48, 17, -126, 12, 100, 78, 83, 46, 78, 97, 109, 101,
-                    46, 111, 114, 103, -128, 1, 0},
-            {
-                    48, 54, -96, 25, 48, 23, -122, 18, 104, 116, 116, 112,
-                    58, 47, 47, 82, 101, 115, 111, 117, 114, 99, 101, 46,
-                    73, 100, -128, 1, 0, -95, 25, 48, 23, -122, 18, 104,
-                    116, 116, 112, 58, 47, 47, 82, 101, 115, 111, 117, 114,
-                    99, 101, 46, 73, 100, -128, 1, 0},
-            {
-                    48, 70, -96, 33, 48, 31, -122, 26, 104, 116, 116, 112,
-                    58, 47, 47, 117, 110, 105, 102, 111, 114, 109, 46, 82,
-                    101, 115, 111, 117, 114, 99, 101, 46, 73, 100, -128, 1,
-                    0, -95, 33, 48, 31, -122, 26, 104, 116, 116, 112, 58,
-                    47, 47, 117, 110, 105, 102, 111, 114, 109, 46, 82, 101,
-                    115, 111, 117, 114, 99, 101, 46, 73, 100, -128, 1, 0},
-            {
-                    48, 26, -96, 11, 48, 9, -121, 4, 1, 1, 1, 1, -128, 1,
-                    0, -95, 11, 48, 9, -121, 4, 1, 1, 1, 1, -128, 1, 0},
-            {
-                    48, 50, -96, 23, 48, 21, -121, 16, 1, 1, 1, 1, 1, 1, 1,
-                    1, 1, 1, 1, 1, 1, 1, 1, 1, -128, 1, 0, -95, 23, 48, 21,
-                    -121, 16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                    1, -128, 1, 0}};
+                    48, 28, -96, 12, 48, 10, -127, 8, 56, 50, 50, 46, 78,
+                    97, 109, 101, -95, 12, 48, 10, -127, 8, 56, 50, 50, 46, 78,
+                    97, 109, 101},
+            {       48, 36, -96, 16, 48, 14, -127, 12, 114, 102, 99, 64, 56, 50,
+                    50, 46, 78, 97, 109, 101, -95, 16, 48, 14, -127, 12, 114,
+                    102, 99, 64, 56, 50, 50, 46, 78, 97, 109, 101},
+            {       48, 28, -96, 12, 48, 10, -126, 8, 78, 97, 109, 101, 46, 111,
+                    114, 103, -95, 12, 48, 10, -126, 8, 78, 97, 109, 101, 46,
+                    111, 114, 103},
+            {       48, 36, -96, 16, 48, 14, -126, 12, 100, 78, 83, 46, 78, 97,
+                    109, 101, 46, 111, 114, 103, -95, 16, 48, 14, -126, 12, 100,
+                    78, 83, 46, 78, 97, 109, 101, 46, 111, 114, 103},
+            {       48, 34, -96, 15, 48, 13, -122, 11, 82, 101, 115, 111, 117,
+                    114, 99, 101, 46, 73, 100, -95, 15, 48, 13, -122, 11, 82,
+                    101, 115, 111, 117, 114, 99, 101, 46, 73, 100},
+            {       48, 50, -96, 23, 48, 21, -122, 19, 117, 110, 105, 102, 111,
+                    114, 109, 46, 82, 101, 115, 111, 117, 114, 99, 101, 46, 73,
+                    100, -95, 23, 48, 21, -122, 19, 117, 110, 105, 102, 111,
+                    114, 109, 46, 82, 101, 115, 111, 117, 114, 99, 101, 46, 73,
+                    100},
+            {       48, 20, -96, 8, 48, 6, -121, 4, 1, 1, 1, 1, -95, 8, 48, 6,
+                    -121, 4, 1, 1, 1, 1},
+            {       48, 44, -96, 20, 48, 18, -121, 16, 1, 1, 1, 1, 1, 1, 1, 1,
+                    1, 1, 1, 1, 1, 1, 1, 1, -95, 20, 48, 18, -121, 16, 1, 1, 1,
+                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            };
 
     /**
      * java.security.cert.X509CertSelector#addSubjectAlternativeName(int, byte[])
@@ -461,31 +450,38 @@ public class X509CertSelectorTest extends TestCase {
     public void test_getNameConstraints() throws IOException {
 
 // Used to generate following byte array
-//        GeneralName[] name_constraints = new GeneralName[] {
-//                new GeneralName(1, "822.Name"),
-//                new GeneralName(1, "rfc@822.Name"),
-//                new GeneralName(2, "Name.org"),
-//                new GeneralName(2, "dNS.Name.org"),
+//      org.bouncycastle.asn1.x509.GeneralName[] name_constraints =
+//          new org.bouncycastle.asn1.x509.GeneralName[] {
+//                new org.bouncycastle.asn1.x509.GeneralName(1, "822.Name"),
+//                new org.bouncycastle.asn1.x509.GeneralName(1, "rfc@822.Name"),
+//                new org.bouncycastle.asn1.x509.GeneralName(2, "Name.org"),
+//                new org.bouncycastle.asn1.x509.GeneralName(2, "dNS.Name.org"),
 //
-//                new GeneralName(6, "http://Resource.Id"),
-//                new GeneralName(6, "http://uniform.Resource.Id"),
-//                new GeneralName(7, "1.1.1.1"),
+//                new org.bouncycastle.asn1.x509.GeneralName(6, "Resource.Id"),
+//                new org.bouncycastle.asn1.x509.GeneralName(6,
+//                    "uniform.Resource.Id"),
+//                new org.bouncycastle.asn1.x509.GeneralName(7, "1.1.1.1"),
 //
-//                new GeneralName(new byte[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-//                        1, 1, 1, 1, 1 }), };
+//                new org.bouncycastle.asn1.x509.GeneralName(7,
+//                    new org.bouncycastle.asn1.DEROctetString(new byte[] {
+//                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 })),
+//          };
 //
 //        constraintBytes = new byte[name_constraints.length][];
 //
 //        for (int i = 0; i < name_constraints.length; i++) {
-//            GeneralSubtree subtree = new GeneralSubtree(name_constraints[i]);
-//            GeneralSubtrees subtrees = new GeneralSubtrees();
-//            subtrees.addSubtree(subtree);
-//            NameConstraints constraints = new NameConstraints(subtrees,
-//                    subtrees);
+//          org.bouncycastle.asn1.x509.GeneralSubtree subtree =
+//              new org.bouncycastle.asn1.x509.GeneralSubtree(
+//                  name_constraints[i]);
+//          org.bouncycastle.asn1.x509.GeneralSubtree[] subtrees =
+//              new org.bouncycastle.asn1.x509.GeneralSubtree[1];
+//          subtrees[0] = subtree;
+//          org.bouncycastle.asn1.x509.NameConstraints constraints =
+//              new org.bouncycastle.asn1.x509.NameConstraints(
+//                  subtrees, subtrees);
 //            constraintBytes[i] = constraints.getEncoded();
 //        }
 //        System.out.println("XXX"+Arrays.deepToString(constraintBytes)+"XXX");
-
         X509CertSelector selector = new X509CertSelector();
 
         for (int i = 0; i < constraintBytes.length; i++) {
@@ -1085,26 +1081,39 @@ public class X509CertSelectorTest extends TestCase {
      *        bytes)
      */
     public void test_setNameConstraintsLB$() throws IOException {
-//        GeneralName[] name_constraints = new GeneralName[] {
-//                new GeneralName(1, "822.Name"),
-//                new GeneralName(1, "rfc@822.Name"),
-//                new GeneralName(2, "Name.org"),
-//                new GeneralName(2, "dNS.Name.org"),
+   // Used to generate following byte array
+//    org.bouncycastle.asn1.x509.GeneralName[] name_constraints =
+//        new org.bouncycastle.asn1.x509.GeneralName[] {
+//              new org.bouncycastle.asn1.x509.GeneralName(1, "822.Name"),
+//              new org.bouncycastle.asn1.x509.GeneralName(1, "rfc@822.Name"),
+//              new org.bouncycastle.asn1.x509.GeneralName(2, "Name.org"),
+//              new org.bouncycastle.asn1.x509.GeneralName(2, "dNS.Name.org"),
 //
-//                new GeneralName(6, "http://Resource.Id"),
-//                new GeneralName(6, "http://uniform.Resource.Id"),
-//                new GeneralName(7, "1.1.1.1"),
+//              new org.bouncycastle.asn1.x509.GeneralName(6, "Resource.Id"),
+//              new org.bouncycastle.asn1.x509.GeneralName(6,
+//                  "uniform.Resource.Id"),
+//              new org.bouncycastle.asn1.x509.GeneralName(7, "1.1.1.1"),
 //
-//                new GeneralName(new byte[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-//                        1, 1, 1, 1, 1 }), };
+//              new org.bouncycastle.asn1.x509.GeneralName(7,
+//                  new org.bouncycastle.asn1.DEROctetString(new byte[] {
+//                      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 })),
+//        };
 //
-//        for (int i = 0; i < name_constraints.length; i++) {
-//            GeneralSubtree subtree = new GeneralSubtree(name_constraints[i]);
-//            GeneralSubtrees subtrees = new GeneralSubtrees();
-//            subtrees.addSubtree(subtree);
-//            NameConstraints constraints = new NameConstraints(subtrees,
-//                    subtrees);
-//        }
+//      constraintBytes = new byte[name_constraints.length][];
+//
+//      for (int i = 0; i < name_constraints.length; i++) {
+//        org.bouncycastle.asn1.x509.GeneralSubtree subtree =
+//            new org.bouncycastle.asn1.x509.GeneralSubtree(
+//                name_constraints[i]);
+//        org.bouncycastle.asn1.x509.GeneralSubtree[] subtrees =
+//            new org.bouncycastle.asn1.x509.GeneralSubtree[1];
+//        subtrees[0] = subtree;
+//        org.bouncycastle.asn1.x509.NameConstraints constraints =
+//            new org.bouncycastle.asn1.x509.NameConstraints(
+//                subtrees, subtrees);
+//          constraintBytes[i] = constraints.getEncoded();
+//      }
+//      System.out.println("XXX"+Arrays.deepToString(constraintBytes)+"XXX");
         X509CertSelector selector = new X509CertSelector();
 
         for (int i = 0; i < constraintBytes.length; i++) {
