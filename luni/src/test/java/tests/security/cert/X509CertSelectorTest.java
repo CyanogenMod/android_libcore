@@ -1498,7 +1498,7 @@ public class X509CertSelectorTest extends TestCase {
             assertEquals(validOIDs[i], selector.getSubjectPublicKeyAlgID());
         }
 
-        String[] invalidOIDs = { "0.20", "1.25", "2.39", "3.10" };
+        String[] invalidOIDs = { "3.20", "1.40", "3.10" };
         for (int i = 0; i < invalidOIDs.length; i++) {
             try {
                 selector.setSubjectPublicKeyAlgID(invalidOIDs[i]);
