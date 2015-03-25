@@ -118,7 +118,7 @@ public class FtpURLConnection extends URLConnection {
         }
         uri = null;
         try {
-            uri = url.toURI();
+            uri = url.toURILenient();
         } catch (URISyntaxException e) {
             // do nothing.
         }
