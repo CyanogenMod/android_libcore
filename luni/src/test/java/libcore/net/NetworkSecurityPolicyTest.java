@@ -70,6 +70,33 @@ public class NetworkSecurityPolicyTest extends TestCase {
         assertEquals(true, NetworkSecurityPolicy.isCleartextTrafficPermitted());
     }
 
+    public void testCleartextTrafficPolicyWithHttpURLConnection() throws Exception {
+        // Assert that client transmits some data when cleartext traffic is permitted.
+        NetworkSecurityPolicy.setCleartextTrafficPermitted(true);
+        try (CapturingServerSocket server = new CapturingServerSocket()) {
+            URL url = new URL("http://localhost:" + server.getPort() + "/test.txt");
+            try {
+                url.openConnection().getContent();
+                fail();
+            } catch (IOException expected) {
+            }
+            server.assertDataTransmittedByClient();
+        }
+
+        // Assert that client does not transmit any data when cleartext traffic is not permitted and
+        // that URLConnection.openConnection or getContent fail with an IOException.
+        NetworkSecurityPolicy.setCleartextTrafficPermitted(false);
+        try (CapturingServerSocket server = new CapturingServerSocket()) {
+            URL url = new URL("http://localhost:" + server.getPort() + "/test.txt");
+            try {
+                url.openConnection().getContent();
+                fail();
+            } catch (IOException expected) {
+            }
+            server.assertNoDataTransmittedByClient();
+        }
+    }
+
     public void testCleartextTrafficPolicyWithFtpURLConnection() throws Exception {
         // Assert that client transmits some data when cleartext traffic is permitted.
         NetworkSecurityPolicy.setCleartextTrafficPermitted(true);
@@ -91,6 +118,33 @@ public class NetworkSecurityPolicyTest extends TestCase {
             URL url = new URL("ftp://localhost:" + server.getPort() + "/test.txt");
             try {
                 url.openConnection().getContent();
+                fail();
+            } catch (IOException expected) {
+            }
+            server.assertNoDataTransmittedByClient();
+        }
+    }
+
+    public void testCleartextTrafficPolicyWithJarHttpURLConnection() throws Exception {
+        // Assert that client transmits some data when cleartext traffic is permitted.
+        NetworkSecurityPolicy.setCleartextTrafficPermitted(true);
+        try (CapturingServerSocket server = new CapturingServerSocket()) {
+            URL url = new URL("jar:http://localhost:" + server.getPort() + "/test.jar!/");
+            try {
+                ((JarURLConnection) url.openConnection()).getManifest();
+                fail();
+            } catch (IOException expected) {
+            }
+            server.assertDataTransmittedByClient();
+        }
+
+        // Assert that client does not transmit any data when cleartext traffic is not permitted and
+        // that JarURLConnection.openConnection or getManifest fail with an IOException.
+        NetworkSecurityPolicy.setCleartextTrafficPermitted(false);
+        try (CapturingServerSocket server = new CapturingServerSocket()) {
+            URL url = new URL("jar:http://localhost:" + server.getPort() + "/test.jar!/");
+            try {
+                ((JarURLConnection) url.openConnection()).getManifest();
                 fail();
             } catch (IOException expected) {
             }
