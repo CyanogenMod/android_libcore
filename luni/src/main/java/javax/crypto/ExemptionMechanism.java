@@ -361,9 +361,6 @@ public class ExemptionMechanism {
         return len;
     }
 
-    /**
-     * Override to clear any key state in the instance.
-     */
     @Override protected void finalize() {
         try {
             super.finalize();
