@@ -457,4 +457,7 @@ public final class ICU {
    * Returns a locale name, not a BCP-47 language tag. e.g. en_US not en-US.
    */
   public static native String getDefaultLocale();
+
+  /** Returns the TZData version as reported by ICU4C. */
+  public static native String getTZDataVersion();
 }

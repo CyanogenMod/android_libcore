@@ -20,6 +20,7 @@ import java.text.BreakIterator;
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.Locale;
+import libcore.util.ZoneInfoDB;
 
 public class ICUTest extends junit.framework.TestCase {
   public void test_getISOLanguages() throws Exception {
@@ -252,5 +253,12 @@ public class ICUTest extends junit.framework.TestCase {
     } finally {
       ICU.setDefaultLocale(initialDefaultLocale);
     }
+  }
+
+  /** Confirms that ICU agrees with the rest of libcore about the version of the TZ data in use. */
+  public void testTimeZoneDataVersion() {
+    String icu4cTzVersion = ICU.getTZDataVersion();
+    String zoneInfoTzVersion = ZoneInfoDB.getInstance().getVersion();
+    assertEquals(icu4cTzVersion, zoneInfoTzVersion);
   }
 }
