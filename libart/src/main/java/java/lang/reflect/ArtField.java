@@ -51,46 +51,4 @@ public final class ArtField {
      * Only created by art directly.
      */
     private ArtField() {}
-
-    public int getAccessFlags() {
-        return accessFlags;
-    }
-
-    int getDexFieldIndex() {
-        return fieldDexIndex;
-    }
-
-    int getOffset() {
-        return offset;
-    }
-
-    public String getName() {
-        if (fieldDexIndex == -1) {
-            // Proxy classes have 1 synthesized static field with no valid dex index
-            if (!declaringClass.isProxy()) {
-                throw new AssertionError();
-            }
-            return "throws";
-        }
-        Dex dex = declaringClass.getDex();
-        int nameIndex = dex.nameIndexFromFieldIndex(fieldDexIndex);
-        return declaringClass.getDexCacheString(dex, nameIndex);
-    }
-
-    Class<?> getDeclaringClass() {
-        return declaringClass;
-    }
-
-    Class<?> getType() {
-        if (fieldDexIndex == -1) {
-            // The type of the synthesized field in a Proxy class is Class[][]
-            if (!declaringClass.isProxy()) {
-                throw new AssertionError();
-            }
-            return Class[][].class;
-        }
-        Dex dex = declaringClass.getDex();
-        int typeIndex = dex.typeIndexFromFieldIndex(fieldDexIndex);
-        return declaringClass.getDexCacheType(dex, typeIndex);
-    }
 }
