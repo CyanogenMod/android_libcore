@@ -797,6 +797,12 @@ public final class System {
         p.put("android.icu.unicode.version", ICU.getUnicodeVersion());
         p.put("android.icu.cldr.version", ICU.getCldrVersion());
 
+        // Property override for ICU4J : this is the location of the ICU4C data. This
+        // is prioritized over the properties in ICUConfig.properties. The issue with using
+        // that is that it doesn't play well with jarjar and it needs complicated build rules
+        // to change its default value.
+        p.put("com.android.ibm.icu.impl.ICUBinary.dataPath", getenv("ANDROID_ROOT") + "/usr/icu");
+
         parsePropertyAssignments(p, specialProperties());
 
         // Override built-in properties with settings from the command line.
