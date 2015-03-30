@@ -86,8 +86,8 @@ class IdentityScope extends Identity {
         } else {
 
             try {
-                Class.forName(classname);
-            } catch (ClassNotFoundException e) {
+                scope = (IdentityScope) Class.forName(classname).newInstance();
+            } catch (Exception e) {
                 //Security.error("unable to establish a system scope from " +
                 //             classname);
                 e.printStackTrace();
