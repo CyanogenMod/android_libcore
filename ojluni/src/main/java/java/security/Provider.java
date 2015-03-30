@@ -27,11 +27,15 @@ package java.security;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import static java.util.Locale.ENGLISH;
+
 import java.lang.ref.*;
 import java.lang.reflect.*;
-
+import java.security.Security;
 import java.security.cert.CertStoreParameters;
+
 import javax.security.auth.login.Configuration;
 
 /**
@@ -88,6 +92,8 @@ public abstract class Provider extends Properties {
 
     // Declare serialVersionUID to be compatible with JDK1.1
     static final long serialVersionUID = -4298000515446427739L;
+
+    private volatile boolean registered = false;
 
     private static final sun.security.util.Debug debug =
         sun.security.util.Debug.getInstance
@@ -437,6 +443,7 @@ public abstract class Provider extends Properties {
 
     private void readObject(ObjectInputStream in)
                 throws IOException, ClassNotFoundException {
+        registered = false;
         Map<Object,Object> copy = new HashMap<>();
         for (Map.Entry<Object,Object> entry : super.entrySet()) {
             copy.put(entry.getKey(), entry.getValue());
@@ -457,9 +464,15 @@ public abstract class Provider extends Properties {
         for (Map.Entry e : ((Map<?,?>)t).entrySet()) {
             implPut(e.getKey(), e.getValue());
         }
+        if (registered) {
+            Security.increaseVersion();
+        }
     }
 
     private Object implRemove(Object key) {
+        if (registered) {
+            Security.increaseVersion();
+        }
         if (key instanceof String) {
             String keyString = (String)key;
             if (keyString.startsWith("Provider.")) {
@@ -479,6 +492,9 @@ public abstract class Provider extends Properties {
             String keyString = (String)key;
             if (keyString.startsWith("Provider.")) {
                 return null;
+            }
+            if (registered) {
+                Security.increaseVersion();
             }
             legacyChanged = true;
             if (legacyStrings == null) {
@@ -504,6 +520,9 @@ public abstract class Provider extends Properties {
         serviceSet = null;
         super.clear();
         putId();
+        if (registered) {
+          Security.increaseVersion();
+        }
     }
 
     // used as key in the serviceMap and legacyMap HashMaps
@@ -805,6 +824,9 @@ public abstract class Provider extends Properties {
             String key = type + "." + algorithm + " " + entry.getKey();
             super.put(key, entry.getValue());
         }
+        if (registered) {
+            Security.increaseVersion();
+        }
     }
 
     /**
@@ -822,6 +844,9 @@ public abstract class Provider extends Properties {
         for (Map.Entry<UString,String> entry : s.attributes.entrySet()) {
             String key = type + "." + algorithm + " " + entry.getKey();
             super.remove(key);
+        }
+        if (registered) {
+          Security.increaseVersion();
         }
     }
 
@@ -1474,6 +1499,27 @@ public abstract class Provider extends Properties {
                 + " -> " + className + aString + attrs + "\r\n";
         }
 
+    }
+
+    /**
+     * @hide
+     */
+    public void setRegistered() {
+        registered = true;
+    }
+
+    /**
+     * @hide
+     */
+    public void setUnregistered() {
+        registered = false;
+    }
+
+    /**
+     * @hide
+     */
+    public boolean isRegistered() {
+        return registered;
     }
 
 }

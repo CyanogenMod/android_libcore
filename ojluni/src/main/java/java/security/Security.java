@@ -27,9 +27,12 @@ package java.security;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.io.*;
 import java.net.URL;
+
 import sun.security.util.Debug;
 import sun.security.util.PropertyExpander;
 
@@ -45,6 +48,8 @@ import sun.security.jca.*;
  */
 
 public final class Security {
+
+    private static AtomicInteger version = new AtomicInteger();
 
     /* Are we debugging? -- for developers */
     private static final Debug sdebug =
@@ -388,6 +393,7 @@ public final class Security {
         if (list == newList) {
             return -1;
         }
+        increaseVersion();
         Providers.setProviderList(newList);
         return newList.getIndex(providerName) + 1;
     }
@@ -470,6 +476,7 @@ public final class Security {
         ProviderList list = Providers.getFullProviderList();
         ProviderList newList = ProviderList.remove(list, name);
         Providers.setProviderList(newList);
+        increaseVersion();
     }
 
     /**
@@ -1127,5 +1134,18 @@ public final class Security {
             }
         }
         return Collections.unmodifiableSet(result);
+    }
+
+    /**
+     * @hide
+     */
+    public static void increaseVersion() {
+        version.incrementAndGet();
+    }
+    /**
+     * @hide
+     */
+    public static int getVersion() {
+        return version.get();
     }
 }

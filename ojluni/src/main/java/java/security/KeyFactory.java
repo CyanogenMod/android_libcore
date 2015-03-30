@@ -26,10 +26,10 @@
 package java.security;
 
 import java.util.*;
-
 import java.security.Provider.Service;
 import java.security.spec.KeySpec;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPrivateKeySpec;
 
 import sun.security.util.Debug;
 import sun.security.jca.*;

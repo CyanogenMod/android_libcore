@@ -219,18 +219,6 @@ public class Cipher {
     // The OID for the KeyUsage extension in an X.509 v3 certificate
     private static final String KEY_USAGE_EXTENSION_OID = "2.5.29.15";
 
-    // next SPI  to try in provider selection
-    // null once provider is selected
-    private CipherSpi firstSpi;
-
-    // next service to try in provider selection
-    // null once provider is selected
-    private Service firstService;
-
-    // remaining services to try in provider selection
-    // null once provider is selected
-    private Iterator serviceIterator;
-
     // list of transform Strings to lookup in the provider
     private List transforms;
 
@@ -272,11 +260,7 @@ public class Cipher {
         this.lock = null;
     }
 
-    private Cipher(CipherSpi firstSpi, Service firstService,
-            Iterator serviceIterator, String transformation, List transforms) {
-        this.firstSpi = firstSpi;
-        this.firstService = firstService;
-        this.serviceIterator = serviceIterator;
+    private Cipher(String transformation, List transforms) {
         this.transforms = transforms;
         this.transformation = transformation;
         this.lock = new Object();
@@ -484,12 +468,7 @@ public class Cipher {
             throws NoSuchAlgorithmException, NoSuchPaddingException
     {
         List transforms = getTransforms(transformation);
-        List cipherServices = new ArrayList(transforms.size());
-        for (Iterator t = transforms.iterator(); t.hasNext(); ) {
-            Transform transform = (Transform)t.next();
-            cipherServices.add(new ServiceId("Cipher", transform.transform));
-        }
-        List services = GetInstance.getServices(cipherServices);
+        List services = getServices(transforms);
         // make sure there is at least one service from a signed provider
         // and that it can use the specified mode and padding
         Iterator t = services.iterator();
@@ -510,12 +489,12 @@ public class Cipher {
                 continue;
             }
             if (canuse == S_YES) {
-                return new Cipher(null, s, t, transformation, transforms);
+                return new Cipher(transformation, transforms);
             } else { // S_MAYBE, try out if it works
                 try {
                     CipherSpi spi = (CipherSpi)s.newInstance(null);
                     tr.setModePadding(spi);
-                    return new Cipher(spi, s, t, transformation, transforms);
+                    return new Cipher(transformation, transforms);
                 } catch (Exception e) {
                     failure = e;
                 }
@@ -523,6 +502,15 @@ public class Cipher {
         }
         throw new NoSuchAlgorithmException
             ("Cannot find any provider supporting " + transformation, failure);
+    }
+
+    static final List<Service> getServices(List<Transform> transforms) {
+        List<ServiceId> cipherServices =
+            new ArrayList<ServiceId>(transforms.size());
+        for (Transform transform : transforms) {
+            cipherServices.add(new ServiceId("Cipher", transform.transform));
+        }
+        return GetInstance.getServices(cipherServices);
     }
 
     /**
@@ -723,18 +711,7 @@ public class Cipher {
                 }
             }
             Exception lastException = null;
-            while ((firstService != null) || serviceIterator.hasNext()) {
-                Service s;
-                CipherSpi thisSpi;
-                if (firstService != null) {
-                    s = firstService;
-                    thisSpi = firstSpi;
-                    firstService = null;
-                    firstSpi = null;
-                } else {
-                    s = (Service)serviceIterator.next();
-                    thisSpi = null;
-                }
+            for (Service s : getServices(transforms)) {
                 if (JceSecurity.canUseProvider(s.getProvider()) == false) {
                     continue;
                 }
@@ -747,21 +724,16 @@ public class Cipher {
                     continue;
                 }
                 try {
-                    if (thisSpi == null) {
-                        Object obj = s.newInstance(null);
-                        if (obj instanceof CipherSpi == false) {
-                            continue;
-                        }
-                        thisSpi = (CipherSpi)obj;
+                    CipherSpi thisSpi;
+                    Object obj = s.newInstance(null);
+                    if (obj instanceof CipherSpi == false) {
+                        continue;
                     }
+                    thisSpi = (CipherSpi)obj;
                     tr.setModePadding(thisSpi);
                     initCryptoPermission();
                     spi = thisSpi;
                     provider = s.getProvider();
-                    // not needed any more
-                    firstService = null;
-                    serviceIterator = null;
-                    transforms = null;
                     return;
                 } catch (Exception e) {
                     lastException = e;
@@ -812,23 +784,12 @@ public class Cipher {
             AlgorithmParameters params, SecureRandom random)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
         synchronized (lock) {
-            if (spi != null) {
+            if (spi != null && (lock == null || key == null)) {
                 implInit(spi, initType, opmode, key, paramSpec, params, random);
                 return;
             }
             Exception lastException = null;
-            while ((firstService != null) || serviceIterator.hasNext()) {
-                Service s;
-                CipherSpi thisSpi;
-                if (firstService != null) {
-                    s = firstService;
-                    thisSpi = firstSpi;
-                    firstService = null;
-                    firstSpi = null;
-                } else {
-                    s = (Service)serviceIterator.next();
-                    thisSpi = null;
-                }
+            for (Service s : getServices(transforms)) {
                 // if provider says it does not support this key, ignore it
                 if (s.supportsParameter(key) == false) {
                     continue;
@@ -845,18 +806,13 @@ public class Cipher {
                     continue;
                 }
                 try {
-                    if (thisSpi == null) {
-                        thisSpi = (CipherSpi)s.newInstance(null);
-                    }
+                    CipherSpi thisSpi = (CipherSpi)s.newInstance(null);
                     tr.setModePadding(thisSpi);
                     initCryptoPermission();
                     implInit(thisSpi, initType, opmode, key, paramSpec,
                                                         params, random);
                     provider = s.getProvider();
                     this.spi = thisSpi;
-                    firstService = null;
-                    serviceIterator = null;
-                    transforms = null;
                     return;
                 } catch (Exception e) {
                     // NoSuchAlgorithmException from newInstance()
@@ -1209,7 +1165,7 @@ public class Cipher {
         initialized = false;
         checkOpmode(opmode);
 
-        if (spi != null) {
+        if (spi != null && (lock == null || key == null)) {
             checkCryptoPerm(spi, key);
             spi.engineInit(opmode, key, random);
         } else {

@@ -27,13 +27,12 @@ package java.security;
 
 import java.io.*;
 import java.util.*;
-
+import java.security.KeyStore;
 import java.security.KeyStore.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 
 import javax.crypto.SecretKey;
-
 import javax.security.auth.callback.*;
 
 /**
@@ -451,35 +450,34 @@ public abstract class KeyStoreSpi {
             return null;
         }
 
-        if (protParam == null) {
-            if (engineIsCertificateEntry(alias)) {
-                return new KeyStore.TrustedCertificateEntry
-                                (engineGetCertificate(alias));
-            } else {
-                throw new UnrecoverableKeyException
-                        ("requested entry requires a password");
-            }
+        if (protParam != null &&
+                !(protParam instanceof KeyStore.PasswordProtection)) {
+            throw new UnsupportedOperationException();
         }
 
-        if (protParam instanceof KeyStore.PasswordProtection) {
-            if (engineIsCertificateEntry(alias)) {
+        if (engineIsCertificateEntry(alias)) {
+            if (protParam == null) {
+                return new KeyStore.TrustedCertificateEntry
+                        (engineGetCertificate(alias));
+            } else {
                 throw new UnsupportedOperationException
                     ("trusted certificate entries are not password-protected");
-            } else if (engineIsKeyEntry(alias)) {
-                KeyStore.PasswordProtection pp =
-                        (KeyStore.PasswordProtection)protParam;
-                char[] password = pp.getPassword();
-
-                Key key = engineGetKey(alias, password);
-                if (key instanceof PrivateKey) {
-                    Certificate[] chain = engineGetCertificateChain(alias);
-                    return new KeyStore.PrivateKeyEntry((PrivateKey)key, chain);
-                } else if (key instanceof SecretKey) {
-                    return new KeyStore.SecretKeyEntry((SecretKey)key);
-                }
             }
+        } else if (engineIsKeyEntry(alias)) {
+          char[] password = null;
+          if (protParam != null) {
+              KeyStore.PasswordProtection pp =
+                      (KeyStore.PasswordProtection)protParam;
+              password = pp.getPassword();
+          }
+          Key key = engineGetKey(alias, password);
+          if (key instanceof PrivateKey) {
+              Certificate[] chain = engineGetCertificateChain(alias);
+              return new KeyStore.PrivateKeyEntry((PrivateKey)key, chain);
+          } else if (key instanceof SecretKey) {
+              return new KeyStore.SecretKeyEntry((SecretKey)key);
+          }
         }
-
         throw new UnsupportedOperationException();
     }
 
@@ -515,44 +513,27 @@ public abstract class KeyStoreSpi {
             pProtect = (KeyStore.PasswordProtection)protParam;
         }
 
+        char[] password = (pProtect == null) ? null : pProtect.getPassword();
         // set entry
         if (entry instanceof KeyStore.TrustedCertificateEntry) {
-            if (protParam != null && pProtect.getPassword() != null) {
-                // pre-1.5 style setCertificateEntry did not allow password
-                throw new KeyStoreException
-                    ("trusted certificate entries are not password-protected");
-            } else {
-                KeyStore.TrustedCertificateEntry tce =
-                        (KeyStore.TrustedCertificateEntry)entry;
-                engineSetCertificateEntry(alias, tce.getTrustedCertificate());
-                return;
-            }
+            KeyStore.TrustedCertificateEntry tce =
+                    (KeyStore.TrustedCertificateEntry)entry;
+            engineSetCertificateEntry(alias, tce.getTrustedCertificate());
+            return;
         } else if (entry instanceof KeyStore.PrivateKeyEntry) {
-            if (pProtect == null || pProtect.getPassword() == null) {
-                // pre-1.5 style setKeyEntry required password
-                throw new KeyStoreException
-                    ("non-null password required to create PrivateKeyEntry");
-            } else {
-                engineSetKeyEntry
-                    (alias,
-                    ((KeyStore.PrivateKeyEntry)entry).getPrivateKey(),
-                    pProtect.getPassword(),
-                    ((KeyStore.PrivateKeyEntry)entry).getCertificateChain());
-                return;
-            }
+            engineSetKeyEntry
+                (alias,
+                ((KeyStore.PrivateKeyEntry)entry).getPrivateKey(),
+                password,
+                ((KeyStore.PrivateKeyEntry)entry).getCertificateChain());
+            return;
         } else if (entry instanceof KeyStore.SecretKeyEntry) {
-            if (pProtect == null || pProtect.getPassword() == null) {
-                // pre-1.5 style setKeyEntry required password
-                throw new KeyStoreException
-                    ("non-null password required to create SecretKeyEntry");
-            } else {
-                engineSetKeyEntry
-                    (alias,
-                    ((KeyStore.SecretKeyEntry)entry).getSecretKey(),
-                    pProtect.getPassword(),
-                    (Certificate[])null);
-                return;
-            }
+            engineSetKeyEntry
+                (alias,
+                ((KeyStore.SecretKeyEntry)entry).getSecretKey(),
+                password,
+                (Certificate[])null);
+            return;
         }
 
         throw new KeyStoreException

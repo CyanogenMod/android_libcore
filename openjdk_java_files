@@ -660,3 +660,6 @@ sun/security/action/LoadLibraryAction.java
 sun/security/provider/VerificationProvider.java
 sun/security/rsa/SunRsaSignEntries.java
 sun/security/action/PutAllAction.java
+org/apache/harmony/security/fortress/Services.java
+org/apache/harmony/security/fortress/Engine.java
+org/apache/harmony/security/fortress/SecurityAccess.java
