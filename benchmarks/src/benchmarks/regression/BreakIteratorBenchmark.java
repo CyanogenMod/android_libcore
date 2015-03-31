@@ -61,10 +61,11 @@ public final class BreakIteratorBenchmark extends SimpleBenchmark {
 
     public void timeIcuBreakIterator(int nreps) {
         for (int i = 0; i < nreps; ++i) {
-            com.ibm.icu.text.BreakIterator it = com.ibm.icu.text.BreakIterator.getLineInstance(text.locale);
+            com.android.ibm.icu.text.BreakIterator it =
+                com.android.ibm.icu.text.BreakIterator.getLineInstance(text.locale);
             it.setText(text.text);
 
-            while (it.next() != com.ibm.icu.text.BreakIterator.DONE) {
+            while (it.next() != com.android.ibm.icu.text.BreakIterator.DONE) {
             }
         }
     }
