@@ -1510,7 +1510,8 @@ public class X500PrincipalTest extends TestCase {
         byte[] enc = principal.getEncoded();
         X500Principal principal2 = new X500Principal(enc);
         String s = principal2.getName(X500Principal.RFC1779);
-        assertEquals("OID.2.16.4.3=B + CN=A", s);
+        assertTrue("OID.2.16.4.3=B + CN=A".equals(s) ||
+            "CN=A + OID.2.16.4.3=B".equals(s));
 
     }
 
@@ -1528,7 +1529,8 @@ public class X500PrincipalTest extends TestCase {
         byte[] enc = principal.getEncoded();
         X500Principal principal2 = new X500Principal(enc);
         String s = principal2.getName(X500Principal.RFC2253);
-        assertEquals("2.16.4.3=#130142+CN=A", s);
+        assertTrue("2.16.4.3=#130142+CN=A".equals(s) ||
+            "CN=A+2.16.4.3=#130142".equals(s));
 
     }
 
