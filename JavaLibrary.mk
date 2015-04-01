@@ -90,9 +90,12 @@ define all-icu-subdir-with-subdir
 $(patsubst $(LOCAL_PATH)/%/$(2),%,$(wildcard $(LOCAL_PATH)/$(1)/$(2)))
 endef
 
-icu4j_resource_dirs := \
-    $(filter-out $(icu4j_root)/main/classes/localespi/%, \
-    $(call all-icu-subdir-with-subdir,$(icu4j_root)/main/classes/*/src,com/ibm/icu))
+icu4j_resource_dirs := $(call all-icu-subdir-with-subdir,$(icu4j_root)/main/classes/*/src,com/ibm/icu)
+icu4j_resource_dirs := $(filter-out $(icu4j_root)/main/classes/localespi/%, $(icu4j_resource_dirs))
+icu4j_resource_dirs := $(filter-out $(icu4j_root)/main/classes/charset/%, $(icu4j_resource_dirs))
+icu4j_resource_dirs := $(filter-out $(icu4j_root)/main/classes/translit/%, $(icu4j_resource_dirs))
+
+
 
 #
 # Build for the target (device).
