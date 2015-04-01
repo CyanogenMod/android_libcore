@@ -354,7 +354,7 @@ class ObjectIdentifier implements Serializable
      * @return components in an int array, if all the components are less than
      *         Integer.MAX_VALUE. Otherwise, null.
      */
-    private int[] toIntArray() {
+    public int[] toIntArray() {
         int length = encoding.length;
         int[] result = new int[20];
         int which = 0;
