@@ -121,7 +121,10 @@ public class KeyPairGeneratorTest extends TestCase {
             }
             String algorithm = service.getAlgorithm();
 
-            // AndroidKeyStore is tested in CTS.
+            // Do not test AndroidKeyStore's KeyPairGenerator. It cannot be initialized without
+            // providing AndroidKeyStore-specific algorithm parameters.
+            // It's OKish not to test AndroidKeyStore's KeyPairGenerator here because it's tested
+            // by cts/tests/test/keystore.
             if ("AndroidKeyStore".equals(provider.getName())) {
                 continue;
             }
