@@ -18,6 +18,8 @@ package dalvik.system;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Provides access to some VM-specific debug features. Though this class and
@@ -389,4 +391,57 @@ public final class VMDebug {
      * @param data the array into which the stats are written.
      */
     public static native void getHeapSpaceStats(long[] data);
+
+    /* Map from the names of the runtime stats supported by getRuntimeStat() to their IDs */
+    private static final HashMap<String, Integer> runtimeStatsMap = new HashMap<>();
+
+    static {
+        runtimeStatsMap.put("art.gc.gc-count", 0);
+        runtimeStatsMap.put("art.gc.gc-time", 1);
+        runtimeStatsMap.put("art.gc.bytes-allocated", 2);
+        runtimeStatsMap.put("art.gc.bytes-freed", 3);
+        runtimeStatsMap.put("art.gc.blocking-gc-count", 4);
+        runtimeStatsMap.put("art.gc.blocking-gc-time", 5);
+        runtimeStatsMap.put("art.gc.gc-count-rate-histogram", 6);
+        runtimeStatsMap.put("art.gc.blocking-gc-count-rate-histogram", 7);
+    }
+
+    /**
+     * Returns the value of a particular runtime statistic or {@code null} if no
+     * such runtime statistic exists.
+     *
+     * @param statName
+     *            the name of the runtime statistic to look up.
+     * @return the value of the runtime statistic.
+     */
+    public static String getRuntimeStat(String statName) {
+        if (statName == null) {
+            throw new NullPointerException("statName == null");
+        }
+        Integer statId = runtimeStatsMap.get(statName);
+        if (statId != null) {
+            return getRuntimeStatInternal(statId);
+        }
+        return null;
+    }
+
+    /**
+     * Returns a map of the names/values of the runtime statistics
+     * that {@link #getRuntimeStat()} supports.
+     *
+     * @return a map of the names/values of the supported runtime statistics.
+     */
+    public static Map<String, String> getRuntimeStats() {
+        HashMap<String, String> map = new HashMap<>();
+        String[] values = getRuntimeStatsInternal();
+        for (String name : runtimeStatsMap.keySet()) {
+            int id = runtimeStatsMap.get(name);
+            String value = values[id];
+            map.put(name, value);
+        }
+        return map;
+    }
+
+    private static native String getRuntimeStatInternal(int statId);
+    private static native String[] getRuntimeStatsInternal();
 }
