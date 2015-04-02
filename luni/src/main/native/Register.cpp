@@ -60,7 +60,6 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
     REGISTER(register_libcore_icu_AlphabeticIndex);
     REGISTER(register_libcore_icu_DateIntervalFormat);
     REGISTER(register_libcore_icu_ICU);
-    REGISTER(register_libcore_icu_NativeBreakIterator);
     REGISTER(register_libcore_icu_NativeCollation);
     REGISTER(register_libcore_icu_NativeConverter);
     REGISTER(register_libcore_icu_NativeDecimalFormat);
