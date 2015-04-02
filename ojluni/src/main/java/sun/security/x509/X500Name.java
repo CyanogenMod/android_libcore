@@ -1002,11 +1002,12 @@ public class X500Name implements GeneralNameInterface, Principal {
     static int countQuotes(String string, int from, int to) {
         int count = 0;
 
+        int escape = 0;
         for (int i = from; i < to; i++) {
-            if ((string.charAt(i) == '"' && i == from) ||
-                (string.charAt(i) == '"' && string.charAt(i-1) != '\\')) {
+            if (string.charAt(i) == '"' && escape % 2 == 0) {
                 count++;
             }
+            escape = (string.charAt(i) == '\\') ? escape + 1 : 0;
         }
 
         return count;
