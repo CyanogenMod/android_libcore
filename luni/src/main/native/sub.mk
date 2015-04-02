@@ -40,7 +40,6 @@ LOCAL_SRC_FILES := \
     libcore_icu_AlphabeticIndex.cpp \
     libcore_icu_DateIntervalFormat.cpp \
     libcore_icu_ICU.cpp \
-    libcore_icu_NativeBreakIterator.cpp \
     libcore_icu_NativeCollation.cpp \
     libcore_icu_NativeConverter.cpp \
     libcore_icu_NativeDecimalFormat.cpp \
