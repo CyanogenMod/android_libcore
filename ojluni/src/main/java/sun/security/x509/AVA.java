@@ -374,12 +374,12 @@ public class AVA implements DerEncoder {
                 PRESERVE_OLD_DC_ENCODING == false)) {
             // EmailAddress and DomainComponent must be IA5String
             return new DerValue(DerValue.tag_IA5String,
-                                        temp.toString().trim());
+                                        temp.toString());
         } else if (isPrintableString) {
-            return new DerValue(temp.toString().trim());
+            return new DerValue(temp.toString());
         } else {
             return new DerValue(DerValue.tag_UTF8String,
-                                        temp.toString().trim());
+                                        temp.toString());
         }
     }
 
