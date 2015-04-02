@@ -2210,7 +2210,7 @@ public class X500PrincipalTest extends TestCase {
         String dn = "CN=A\nB";
         X500Principal principal = new X500Principal(dn);
         String s = principal.getName(X500Principal.RFC1779);
-        assertEquals("CN=A\nB", s);
+        assertEquals("CN=\"A\nB\"", s);
     }
 
     /**
