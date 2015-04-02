@@ -1692,17 +1692,11 @@ public class X500PrincipalTest extends TestCase {
     /**
      * Inits X500Principal with the string with special characters - \\nB
      * gets Name in RFC2253 format
-     * compares with expected value of name - \\nB
+     * compares with expected value of name - \nB
      */
     public void testNameSpecialChars_RFC2253_01() throws Exception {
-
-        try {
-            // compatibility issue:
-            // don't accept escaped \n because it is not a special char
-            new X500Principal("CN=\\\nB");
-            fail("No expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
+        X500Principal p = new X500Principal("CN=\\\nB");
+        assertEquals("CN=\nB", p.getName(X500Principal.RFC2253));
     }
 
     /**
