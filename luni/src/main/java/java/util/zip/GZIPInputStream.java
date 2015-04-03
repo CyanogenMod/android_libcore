@@ -243,7 +243,7 @@ public class GZIPInputStream extends InflaterInputStream {
         }
         if (hcrc) {
             Streams.readFully(in, header, 0, 2);
-            short crc16 = Memory.peekShort(scratch, 0, ByteOrder.LITTLE_ENDIAN);
+            short crc16 = Memory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN);
             if ((short) crc.getValue() != crc16) {
                 throw new IOException("CRC mismatch");
             }
