@@ -416,7 +416,11 @@ public class Runtime {
         // So, find out what the native library search path is for the ClassLoader in question...
         String ldLibraryPath = null;
         String dexPath = null;
-        if (loader != null && loader instanceof BaseDexClassLoader) {
+        if (loader == null) {
+            // We use the given library path for the boot class loader. This is the path
+            // also used in loadLibraryName if loader is null.
+            ldLibraryPath = System.getProperty("java.library.path");
+        } else if (loader instanceof BaseDexClassLoader) {
             BaseDexClassLoader dexClassLoader = (BaseDexClassLoader) loader;
             ldLibraryPath = dexClassLoader.getLdLibraryPath();
             dexPath = dexClassLoader.getDexPath();
