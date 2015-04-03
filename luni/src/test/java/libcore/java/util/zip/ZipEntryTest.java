@@ -151,7 +151,8 @@ public class ZipEntryTest extends junit.framework.TestCase {
     byte[] maxLengthExtra = new byte[65530];
 
     File f = createTemporaryZipFile();
-    ZipOutputStream out = createZipOutputStream(f);
+    ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(f)),
+            true /* forceZip64 */);
     ZipEntry ze = new ZipEntry("x");
 
     ze.setExtra(maxLengthExtra);
@@ -163,7 +164,7 @@ public class ZipEntryTest extends junit.framework.TestCase {
   }
 
 
-    public void testTooLongComment() throws Exception {
+  public void testTooLongComment() throws Exception {
     String tooLongComment = makeString(65536, "z");
     ZipEntry ze = new ZipEntry("x");
     try {
