@@ -1154,6 +1154,9 @@ public final class CipherTest extends TestCase {
 
         final AlgorithmParameterSpec decryptSpec = getDecryptAlgorithmParameterSpec(encryptSpec, c);
         int decryptMode = getDecryptMode(algorithm);
+
+        test_Cipher_init_Decrypt_NullParameters(c, decryptMode, encryptKey, decryptSpec != null);
+
         c.init(decryptMode, encryptKey, decryptSpec);
         assertEquals(cipherID + " getBlockSize() decryptMode",
                      getExpectedBlockSize(algorithm, decryptMode, providerName), c.getBlockSize());
@@ -1281,6 +1284,53 @@ public final class CipherTest extends TestCase {
             c.init(encryptMode, encryptKey, (AlgorithmParameters) null, (SecureRandom) null);
         } catch (InvalidAlgorithmParameterException e) {
             if (!isPBE(c.getAlgorithm())) {
+                throw e;
+            }
+        }
+    }
+
+    private void test_Cipher_init_Decrypt_NullParameters(Cipher c, int decryptMode, Key encryptKey,
+            boolean needsParameters) throws Exception {
+        try {
+            c.init(decryptMode, encryptKey, (AlgorithmParameterSpec) null);
+            if (needsParameters) {
+                fail("Should throw InvalidAlgorithmParameterException with null parameters");
+            }
+        } catch (InvalidAlgorithmParameterException e) {
+            if (!needsParameters) {
+                throw e;
+            }
+        }
+
+        try {
+            c.init(decryptMode, encryptKey, (AlgorithmParameterSpec) null, (SecureRandom) null);
+            if (needsParameters) {
+                fail("Should throw InvalidAlgorithmParameterException with null parameters");
+            }
+        } catch (InvalidAlgorithmParameterException e) {
+            if (!needsParameters) {
+                throw e;
+            }
+        }
+
+        try {
+            c.init(decryptMode, encryptKey, (AlgorithmParameters) null);
+            if (needsParameters) {
+                fail("Should throw InvalidAlgorithmParameterException with null parameters");
+            }
+        } catch (InvalidAlgorithmParameterException e) {
+            if (!needsParameters) {
+                throw e;
+            }
+        }
+
+        try {
+            c.init(decryptMode, encryptKey, (AlgorithmParameters) null, (SecureRandom) null);
+            if (needsParameters) {
+                fail("Should throw InvalidAlgorithmParameterException with null parameters");
+            }
+        } catch (InvalidAlgorithmParameterException e) {
+            if (!needsParameters) {
                 throw e;
             }
         }
