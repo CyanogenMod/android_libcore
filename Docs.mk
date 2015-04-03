@@ -20,11 +20,20 @@ libcore_to_document := \
    libart/src/main/java/dalvik \
    libart/src/main/java/java \
    luni/src/main/java/android \
-   luni/src/main/java/java \
    luni/src/main/java/javax \
    luni/src/main/java/org/xml/sax \
    luni/src/main/java/org/w3c \
    xml/src/main/java/org/xmlpull/v1)
+
+# IcuIteratorWrapper.java references com.ibm.icu.text.BreakIterator,
+# which is renamed by our jarjar rule, and so unrecognizable by javadoc,
+# with annoying error: error: package com.ibm.icu.text does not exist.
+# We don't want to generate doc for this file anyway.
+libcore_to_document += \
+  $(filter-out luni/src/main/java/java/text/IcuIteratorWrapper.java,\
+    $(call find-files-in-subdirs, libcore, \
+      "*.java", \
+      luni/src/main/java/java))
 
 libcore_docs_include_once := 1
 endif # libcore_docs_include_once
