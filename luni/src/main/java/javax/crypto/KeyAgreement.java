@@ -252,8 +252,10 @@ public class KeyAgreement {
 
     /**
      * Convenience call when the Key is not available.
+     *
+     * @hide
      */
-    private KeyAgreementSpi getSpi() {
+    public KeyAgreementSpi getSpi() {
         return getSpi(null);
     }
 

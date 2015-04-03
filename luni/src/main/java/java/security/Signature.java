@@ -245,6 +245,15 @@ public abstract class Signature extends SignatureSpi {
     }
 
     /**
+     * Gets the SPI implementation backing this signature.
+     *
+     * @hide
+     */
+    public SignatureSpi getSpi() {
+        return null;
+    }
+
+    /**
      * Returns the name of the algorithm of this {@code Signature}.
      *
      * @return the name of the algorithm of this {@code Signature}.
@@ -730,8 +739,11 @@ public abstract class Signature extends SignatureSpi {
 
         /**
          * Convenience call when the Key is not available.
+         *
+         * @hide
          */
-        private SignatureSpi getSpi() {
+        @Override
+        public SignatureSpi getSpi() {
             return getSpi(null);
         }
     }
