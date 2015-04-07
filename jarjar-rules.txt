@@ -1,1 +1,1 @@
-rule com.ibm.icu.** com.android.ibm.icu.@1
+rule com.ibm.icu.** android.icu.@1
