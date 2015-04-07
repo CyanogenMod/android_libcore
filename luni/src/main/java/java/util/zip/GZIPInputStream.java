@@ -222,7 +222,7 @@ public class GZIPInputStream extends InflaterInputStream {
             if (hcrc) {
                 crc.update(header, 0, 2);
             }
-            int length = Memory.peekShort(scratch, 0, ByteOrder.LITTLE_ENDIAN) & 0xffff;
+            int length = Memory.peekShort(header, 0, ByteOrder.LITTLE_ENDIAN) & 0xffff;
             while (length > 0) {
                 int max = length > scratch.length ? scratch.length : length;
                 int result = in.read(scratch, 0, max);
