@@ -203,24 +203,31 @@ public class SSLEngineTest extends TestCase {
                        : new String[] { cipherSuite });
 
             // Check that handshake succeeds.
-            TestSSLEnginePair pair = TestSSLEnginePair.create(c, new TestSSLEnginePair.Hooks() {
-                @Override
-                void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
-                    client.setEnabledCipherSuites(cipherSuiteArray);
-                    server.setEnabledCipherSuites(cipherSuiteArray);
+            TestSSLEnginePair pair = null;
+            try {
+                pair = TestSSLEnginePair.create(c, new TestSSLEnginePair.Hooks() {
+                    @Override
+                    void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
+                        client.setEnabledCipherSuites(cipherSuiteArray);
+                        server.setEnabledCipherSuites(cipherSuiteArray);
+                    }
+                });
+                assertConnected(pair);
+
+                boolean needsRecordSplit =
+                        ("TLS".equalsIgnoreCase(c.clientContext.getProtocol())
+                                || "SSLv3".equalsIgnoreCase(c.clientContext.getProtocol()))
+                                && cipherSuite.contains("_CBC_");
+
+                assertSendsCorrectly("This is the client. Hello!".getBytes(),
+                        pair.client, pair.server, needsRecordSplit);
+                assertSendsCorrectly("This is the server. Hi!".getBytes(),
+                        pair.server, pair.client, needsRecordSplit);
+            } finally {
+                if (pair != null) {
+                    pair.close();
                 }
-            });
-            assertConnected(pair);
-
-            boolean needsRecordSplit =
-                    ("TLS".equalsIgnoreCase(c.clientContext.getProtocol())
-                            || "SSLv3".equalsIgnoreCase(c.clientContext.getProtocol()))
-                    && cipherSuite.contains("_CBC_");
-
-            assertSendsCorrectly("This is the client. Hello!".getBytes(),
-                    pair.client, pair.server, needsRecordSplit);
-            assertSendsCorrectly("This is the server. Hi!".getBytes(),
-                    pair.server, pair.client, needsRecordSplit);
+            }
 
             // Check that handshake fails when the server does not possess the private key
             // corresponding to the server's certificate. This is achieved by using SSLContext
@@ -234,17 +241,23 @@ public class SSLEngineTest extends TestCase {
                 serverAuthenticatedUsingPublicKey = false;
             }
             if (serverAuthenticatedUsingPublicKey) {
+                TestSSLEnginePair p = null;
                 try {
-                    TestSSLEnginePair p = TestSSLEnginePair.create(
+                    p = TestSSLEnginePair.create(
                             cWithWrongPrivateKeys, new TestSSLEnginePair.Hooks() {
-                        @Override
+                                @Override
                                 void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
-                            client.setEnabledCipherSuites(cipherSuiteArray);
-                            server.setEnabledCipherSuites(cipherSuiteArray);
-                        }
-                    });
+                                    client.setEnabledCipherSuites(cipherSuiteArray);
+                                    server.setEnabledCipherSuites(cipherSuiteArray);
+                                }
+                            });
                     assertNotConnected(p);
-                } catch (IOException expected) {}
+                } catch (IOException expected) {
+                } finally {
+                    if (p != null) {
+                        p.close();
+                    }
+                }
             }
             } catch (Exception e) {
                 String message = ("Problem trying to connect cipher suite " + cipherSuite);
@@ -432,21 +445,28 @@ public class SSLEngineTest extends TestCase {
             fail();
         } catch (IllegalStateException expected) {
         }
-
-        assertConnected(TestSSLEnginePair.create(null));
-
         c.close();
+
+        TestSSLEnginePair p = TestSSLEnginePair.create(null);
+        assertConnected(p);
+        p.close();
+
     }
 
     public void test_SSLEngine_beginHandshake_noKeyStore() throws Exception {
         TestSSLContext c = TestSSLContext.create(null, null, null, null, null, null, null, null,
                                                  SSLContext.getDefault(), SSLContext.getDefault());
+        SSLEngine[] p = null;
         try {
             // TODO Fix KnownFailure AlertException "NO SERVER CERTIFICATE FOUND"
             // ServerHandshakeImpl.selectSuite should not select a suite without a required cert
-            TestSSLEnginePair.connect(c, null);
+            p = TestSSLEnginePair.connect(c, null);
             fail();
         } catch (SSLHandshakeException expected) {
+        } finally {
+            if (p != null) {
+                TestSSLEnginePair.close(p);
+            }
         }
         c.close();
     }
@@ -456,6 +476,7 @@ public class SSLEngineTest extends TestCase {
         SSLEngine[] engines = TestSSLEnginePair.connect(c, null);
         assertConnected(engines[0], engines[1]);
         c.close();
+        TestSSLEnginePair.close(engines);
     }
 
     public void test_SSLEngine_getUseClientMode() throws Exception {
@@ -467,33 +488,47 @@ public class SSLEngineTest extends TestCase {
 
     public void test_SSLEngine_setUseClientMode() throws Exception {
         boolean[] finished;
+        TestSSLEnginePair p = null;
 
         // client is client, server is server
         finished = new boolean[2];
-        assertConnected(test_SSLEngine_setUseClientMode(true, false, finished));
+        p = test_SSLEngine_setUseClientMode(true, false, finished);
+        assertConnected(p);
         assertTrue(finished[0]);
         assertTrue(finished[1]);
+        p.close();
 
         // client is server, server is client
         finished = new boolean[2];
-        assertConnected(test_SSLEngine_setUseClientMode(false, true, finished));
+        p = test_SSLEngine_setUseClientMode(false, true, finished);
+        assertConnected(p);
         assertTrue(finished[0]);
         assertTrue(finished[1]);
+        p.close();
 
         // both are client
         /*
          * Our implementation throws an SSLHandshakeException, but RI just
          * stalls forever
          */
+        p = null;
         try {
-            assertNotConnected(test_SSLEngine_setUseClientMode(true, true, null));
+            p = test_SSLEngine_setUseClientMode(true, true, null);
+            assertNotConnected(p);
             assertTrue(StandardNames.IS_RI);
         } catch (SSLHandshakeException maybeExpected) {
             assertFalse(StandardNames.IS_RI);
+        } finally {
+            if (p != null) {
+                p.close();
+            }
+
         }
 
+        p = test_SSLEngine_setUseClientMode(false, false, null);
         // both are server
-        assertNotConnected(test_SSLEngine_setUseClientMode(false, false, null));
+        assertNotConnected(p);
+        p.close();
     }
 
     public void test_SSLEngine_setUseClientMode_afterHandshake() throws Exception {
@@ -510,6 +545,7 @@ public class SSLEngineTest extends TestCase {
             fail();
         } catch (IllegalArgumentException expected) {
         }
+        pair.close();
     }
 
     private TestSSLEnginePair test_SSLEngine_setUseClientMode(final boolean clientClientMode,
@@ -572,6 +608,7 @@ public class SSLEngineTest extends TestCase {
                                                     p.client.getSession().getLocalCertificates());
         clientAuthContext.close();
         c.close();
+        p.close();
     }
 
    /**
@@ -591,6 +628,7 @@ public class SSLEngineTest extends TestCase {
         });
         assertConnected(p);
         clientAuthContext.close();
+        p.close();
     }
 
    /**
@@ -604,8 +642,9 @@ public class SSLEngineTest extends TestCase {
         TestSSLContext clientAuthContext
                 = TestSSLContext.create(TestKeyStore.getClient(),
                                         TestKeyStore.getServer());
+        TestSSLEnginePair p = null;
         try {
-            TestSSLEnginePair.create(clientAuthContext,
+            p = TestSSLEnginePair.create(clientAuthContext,
                              new TestSSLEnginePair.Hooks() {
                 @Override
                 void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
@@ -616,6 +655,9 @@ public class SSLEngineTest extends TestCase {
         } catch (SSLHandshakeException expected) {
         } finally {
             clientAuthContext.close();
+            if (p != null) {
+                p.close();
+            }
         }
     }
 
@@ -624,11 +666,13 @@ public class SSLEngineTest extends TestCase {
         SSLEngine e = c.clientContext.createSSLEngine();
         assertTrue(e.getEnableSessionCreation());
         c.close();
+        TestSSLEnginePair.close(new SSLEngine[] { e });
     }
 
     public void test_SSLEngine_setEnableSessionCreation_server() throws Exception {
+        TestSSLEnginePair p = null;
         try {
-            TestSSLEnginePair p = TestSSLEnginePair.create(new TestSSLEnginePair.Hooks() {
+            p = TestSSLEnginePair.create(new TestSSLEnginePair.Hooks() {
                 @Override
                 void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
                     server.setEnableSessionCreation(false);
@@ -639,12 +683,17 @@ public class SSLEngineTest extends TestCase {
             assertNotConnected(p);
         } catch (SSLException maybeExpected) {
             assertFalse(StandardNames.IS_RI);
+        } finally {
+            if (p != null) {
+                p.close();
+            }
         }
     }
 
     public void test_SSLEngine_setEnableSessionCreation_client() throws Exception {
+        TestSSLEnginePair p = null;
         try {
-            TestSSLEnginePair.create(new TestSSLEnginePair.Hooks() {
+            p = TestSSLEnginePair.create(new TestSSLEnginePair.Hooks() {
                 @Override
                 void beforeBeginHandshake(SSLEngine client, SSLEngine server) {
                     client.setEnableSessionCreation(false);
@@ -652,6 +701,10 @@ public class SSLEngineTest extends TestCase {
             });
             fail();
         } catch (SSLException expected) {
+        } finally {
+            if (p != null) {
+                p.close();
+            }
         }
     }
 
@@ -735,5 +788,6 @@ public class SSLEngineTest extends TestCase {
         assertNotNull(test.server);
         assertNotNull(test.client);
         assertConnected(test);
+        test.close();
     }
 }
