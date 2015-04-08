@@ -1000,10 +1000,12 @@ public final class System {
     public static native int identityHashCode(Object anObject);
 
     /**
-     * Returns the system's line separator. On Android, this is {@code "\n"}. The value
-     * comes from the value of the {@code line.separator} system property when the VM
-     * starts. Later changes to the property will not affect the value returned by this
-     * method.
+     * Returns the system's line separator. On Android, this is {@code "\n"}. The value comes from
+     * the value of the {@code line.separator} system property.
+     *
+     * <p>On Android versions before Lollipop the {@code line.separator} system property can be
+     * modified but this method continues to return the original value. The system property cannot
+     * be modified on later versions of Android.
      * @since 1.7
      */
     public static String lineSeparator() {
