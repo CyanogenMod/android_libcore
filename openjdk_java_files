@@ -663,3 +663,14 @@ sun/security/action/PutAllAction.java
 org/apache/harmony/security/fortress/Services.java
 org/apache/harmony/security/fortress/Engine.java
 org/apache/harmony/security/fortress/SecurityAccess.java
+sun/security/util/Resources_zh_CN.java
+sun/security/util/Resources_es.java
+sun/security/util/Resources_pt_BR.java
+sun/security/util/Resources_it.java
+sun/security/util/Resources_fr.java
+sun/security/util/Resources_ja.java
+sun/security/util/Resources_zh_TW.java
+sun/security/util/Resources_de.java
+sun/security/util/Resources_sv.java
+sun/security/util/Resources_ko.java
+sun/security/util/Resources.java
