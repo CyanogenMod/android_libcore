@@ -801,7 +801,7 @@ public final class System {
         // is prioritized over the properties in ICUConfig.properties. The issue with using
         // that is that it doesn't play well with jarjar and it needs complicated build rules
         // to change its default value.
-        p.put("com.android.ibm.icu.impl.ICUBinary.dataPath", getenv("ANDROID_ROOT") + "/usr/icu");
+        p.put("android.icu.impl.ICUBinary.dataPath", getenv("ANDROID_ROOT") + "/usr/icu");
 
         parsePropertyAssignments(p, specialProperties());
 
