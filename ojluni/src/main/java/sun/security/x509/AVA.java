@@ -272,6 +272,19 @@ public class AVA implements DerEncoder {
                 break;
             }
 
+            // Android-changed: Add support for parsing hex strings that have
+            // spaces or '\n' in them.
+            if (c == ' ' || c == '\n') {
+                c = in.read();
+                // TODO: This code seems bogus, why is there a loop here ?
+                while (!isTerminator(c, format)) {
+                    if (c != ' ' && c != '\n') {
+                        throw new IOException("AVA parse, invalid hex " + "digit: "+ (char)c);
+                    }
+                }
+                break;
+            }
+
             int cVal = hexDigits.indexOf(Character.toUpperCase((char)c));
 
             if (cVal == -1) {
@@ -890,7 +903,7 @@ public class AVA implements DerEncoder {
          * the dotted-decimal form.
          */
         if ((typeAndValue.charAt(0) >= '0' && typeAndValue.charAt(0) <= '9') ||
-            !isDerString(value, true))
+            (!isDerString(value, true) && value.tag != DerValue.tag_T61String))
         {
             byte[] data = null;
             try {
