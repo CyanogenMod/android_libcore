@@ -489,7 +489,17 @@ public class Cipher {
                 continue;
             }
             if (canuse == S_YES) {
-                return new Cipher(transformation, transforms);
+                // Android changed: Check if the service is valid even if
+                // canuse == S_YES.
+                //
+                // TODO: Why is this necessary ?
+                try {
+                    // Check if service is valid.
+                    CipherSpi spi = (CipherSpi)s.newInstance(null);
+                    return new Cipher(transformation, transforms);
+                } catch (Exception e) {
+                    failure = e;
+                }
             } else { // S_MAYBE, try out if it works
                 try {
                     CipherSpi spi = (CipherSpi)s.newInstance(null);
