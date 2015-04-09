@@ -70,13 +70,10 @@ public final class ZygoteHooks {
      */
     private static void waitUntilAllThreadsStopped() {
         File tasks = new File("/proc/self/task");
+        // All Java daemons are stopped already. We're just waiting for their OS counterparts to
+        // finish as well. This shouldn't take much time so spinning is ok here.
         while (tasks.list().length > 1) {
-            try {
-                // Experimentally, booting and playing about with a stingray, I never saw us
-                // go round this loop more than once with a 10ms sleep.
-                Thread.sleep(10);
-            } catch (InterruptedException ignored) {
-            }
+          Thread.yield();
         }
     }
 }
