@@ -325,37 +325,44 @@ public final class DexFile {
             throws FileNotFoundException, IOException;
 
     /**
-     * See {@link #isDexOptNeededInternal(String, String, String, boolean)}.
+     * See {@link #getDexOptNeeded(String, String, String, boolean)}.
      *
      * @hide
      */
-    public static final byte UP_TO_DATE = 0;
+    public static final int NO_DEXOPT_NEEDED = 0;
 
     /**
-     * See {@link #isDexOptNeededInternal(String, String, String, boolean)}.
+     * See {@link #getDexOptNeeded(String, String, String, boolean)}.
      *
      * @hide
      */
-    public static final byte PATCHOAT_NEEDED = 1;
+    public static final int DEX2OAT_NEEDED = 1;
 
     /**
-     * See {@link #isDexOptNeededInternal(String, String, String, boolean)}.
+     * See {@link #getDexOptNeeded(String, String, String, boolean)}.
      *
      * @hide
      */
-    public static final byte DEXOPT_NEEDED = 2;
+    public static final int PATCHOAT_NEEDED = 2;
 
     /**
-     * Returns UP_TO_DATE if the VM believes that the apk/jar file
-     * is up to date, PATCHOAT_NEEDED if it believes that the file is up
-     * to date but it must be relocated to match the base address offset,
-     * and DEXOPT_NEEDED if it believes that it is out of date and should
-     * be passed through "dexopt" again.
+     * See {@link #getDexOptNeeded(String, String, String, boolean)}.
+     *
+     * @hide
+     */
+    public static final int SELF_PATCHOAT_NEEDED = 3;
+
+    /**
+     * Returns the VM's opinion of what kind of dexopt is needed to make the
+     * apk/jar file up to date.
      *
      * @param fileName the absolute path to the apk/jar file to examine.
-     * @return DEXOPT_NEEDED if dexopt should be called on the file,
-     *         PATCHOAT_NEEDED if we need to run "patchoat" on it and
-     *         UP_TO_DATE otherwise.
+     * @return NO_DEXOPT_NEEDED if the apk/jar is already up to date.
+     *         DEX2OAT_NEEDED if dex2oat should be called on the apk/jar file.
+     *         PATCHOAT_NEEDED if patchoat should be called on the apk/jar
+     *         file to patch the odex file along side the apk/jar.
+     *         SELF_PATCHOAT_NEEDED if selfpatchoat should be called on the
+     *         apk/jar file to patch the oat file in the dalvik cache.
      * @throws java.io.FileNotFoundException if fileName is not readable,
      *         not a file, or not present.
      * @throws java.io.IOException if fileName is not a valid apk/jar file or
@@ -366,7 +373,7 @@ public final class DexFile {
      *
      * @hide
      */
-    public static native byte isDexOptNeededInternal(String fileName, String pkgname,
+    public static native int getDexOptNeeded(String fileName, String pkgname,
             String instructionSet, boolean defer)
             throws FileNotFoundException, IOException;
 }
