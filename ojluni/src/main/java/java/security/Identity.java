@@ -296,6 +296,11 @@ public abstract class Identity implements Principal, Serializable {
     throws KeyManagementException {
         check("removeIdentityCertificate");
         if (certificates != null) {
+            // Android-changed: Throw a KeyManagementException if certificate is null or
+            // not contained within |certificates|.
+            if (certificate == null || !certificates.contains(certificate)) {
+                throw new KeyManagementException();
+            }
             certificates.removeElement(certificate);
         }
     }
