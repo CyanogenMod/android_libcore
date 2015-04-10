@@ -2494,12 +2494,17 @@ public class Cipher {
      */
     public static final int getMaxAllowedKeyLength(String transformation)
             throws NoSuchAlgorithmException {
-        /* ----- BEGIN android -----
-        CryptoPermission cp = getConfiguredPermission(transformation);
-        return cp.getMaxKeySize();
-        */
+        // Android-changed: Remove references to CryptoPermission and throw early
+        // if transformation == null or isn't valid.
+        //
+        // CryptoPermission cp = getConfiguredPermission(transformation);
+        // return cp.getMaxAllowedKeyLength();
+        if (transformation == null) {
+            throw new NullPointerException("transformation == null");
+        }
+        // Throws NoSuchAlgorithmException if necessary.
+        tokenizeTransformation(transformation);
         return Integer.MAX_VALUE;
-        // ----- END android -----
     }
 
     /**
@@ -2522,12 +2527,17 @@ public class Cipher {
      */
     public static final AlgorithmParameterSpec getMaxAllowedParameterSpec(
             String transformation) throws NoSuchAlgorithmException {
-        /* ----- BEGIN android -----
-        CryptoPermission cp = getConfiguredPermission(transformation);
-        return cp.getAlgorithmParameterSpec();
-        */
+        // Android-changed: Remove references to CryptoPermission and throw early
+        // if transformation == null or isn't valid.
+        //
+        // CryptoPermission cp = getConfiguredPermission(transformation);
+        // return cp.getAlgorithmParameterSpec();
+        if (transformation == null) {
+            throw new NullPointerException("transformation == null");
+        }
+        // Throws NoSuchAlgorithmException if necessary.
+        tokenizeTransformation(transformation);
         return null;
-        // ----- END android -----
     }
 
     /**
