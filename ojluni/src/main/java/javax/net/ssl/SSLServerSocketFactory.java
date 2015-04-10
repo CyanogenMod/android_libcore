@@ -103,8 +103,12 @@ public abstract class SSLServerSocketFactory extends ServerSocketFactory
                     return fac;
                 } catch (Exception e) {
                     log("SSLServerSocketFactory instantiation failed: " + e);
-                    theFactory = new DefaultSSLServerSocketFactory(e);
-                    return theFactory;
+
+                    // Android-changed: Fallback to the default SSLContext if an exception
+                    // is thrown during the initialization of ss.ServerSocketFactory.provider.
+                    //
+                    // theFactory = new DefaultSSLServerSocketFactory(e);
+                    // return theFactory;
                 }
             }
         }
