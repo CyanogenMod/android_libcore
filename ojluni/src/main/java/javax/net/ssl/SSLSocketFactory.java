@@ -45,7 +45,7 @@ public abstract class SSLSocketFactory extends SocketFactory
 {
     private static SSLSocketFactory theFactory;
 
-    private static boolean propertyChecked;
+    private static int lastVersion = -1;
 
     static final boolean DEBUG;
 
@@ -85,43 +85,58 @@ public abstract class SSLSocketFactory extends SocketFactory
      * @see SSLContext#getDefault
      */
     public static synchronized SocketFactory getDefault() {
-        if (theFactory != null) {
+        // Android-changed: Use security version instead of propertyChecked.
+        if (theFactory != null && lastVersion == Security.getVersion()) {
             return theFactory;
         }
 
-        if (propertyChecked == false) {
-            propertyChecked = true;
-            String clsName = getSecurityProperty("ssl.SocketFactory.provider");
-            if (clsName != null) {
-                log("setting up default SSLSocketFactory");
+        lastVersion = Security.getVersion();
+        theFactory = null;
+
+        String clsName = getSecurityProperty("ssl.SocketFactory.provider");
+        if (clsName != null) {
+            log("setting up default SSLSocketFactory");
+            try {
+                Class cls = null;
                 try {
-                    Class cls = null;
-                    try {
-                        cls = Class.forName(clsName);
-                    } catch (ClassNotFoundException e) {
-                        ClassLoader cl = ClassLoader.getSystemClassLoader();
-                        if (cl != null) {
-                            cls = cl.loadClass(clsName);
-                        }
+                    cls = Class.forName(clsName);
+                } catch (ClassNotFoundException e) {
+                    // Android-changed; Try the contextClassLoader first.
+                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                    if (cl == null) {
+                        cl = ClassLoader.getSystemClassLoader();
                     }
-                    log("class " + clsName + " is loaded");
-                    SSLSocketFactory fac = (SSLSocketFactory)cls.newInstance();
-                    log("instantiated an instance of class " + clsName);
-                    theFactory = fac;
-                    return fac;
-                } catch (Exception e) {
-                    log("SSLSocketFactory instantiation failed: " + e.toString());
-                    theFactory = new DefaultSSLSocketFactory(e);
+
+                    if (cl != null) {
+                        cls = Class.forName(clsName, true, cl);
+                    }
+                }
+                log("class " + clsName + " is loaded");
+                theFactory = (SSLSocketFactory)cls.newInstance();
+                log("instantiated an instance of class " + clsName);
+                if (theFactory != null) {
                     return theFactory;
                 }
+            } catch (Exception e) {
+                log("SSLSocketFactory instantiation failed: " + e.toString());
             }
         }
 
+
+        // Android-changed: Allow for {@code null} SSLContext.getDefault.
         try {
-            return SSLContext.getDefault().getSocketFactory();
+            SSLContext context = SSLContext.getDefault();
+            if (context != null) {
+                theFactory = context.getSocketFactory();
+            }
         } catch (NoSuchAlgorithmException e) {
-            return new DefaultSSLSocketFactory(e);
         }
+
+        if (theFactory == null) {
+            theFactory = new DefaultSSLSocketFactory(new IllegalStateException("No factory found."));
+        }
+
+        return theFactory;
     }
 
     static String getSecurityProperty(final String name) {
