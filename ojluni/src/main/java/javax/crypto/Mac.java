@@ -89,14 +89,6 @@ public class Mac implements Cloneable {
     // Has this object been initialized?
     private boolean initialized = false;
 
-    // next service to try in provider selection
-    // null once provider is selected
-    private Service firstService;
-
-    // remaining services to try in provider selection
-    // null once provider is selected
-    private Iterator serviceIterator;
-
     private final Object lock;
 
     /**
@@ -110,13 +102,10 @@ public class Mac implements Cloneable {
         this.spi = macSpi;
         this.provider = provider;
         this.algorithm = algorithm;
-        serviceIterator = null;
         lock = null;
     }
 
-    private Mac(Service s, Iterator t, String algorithm) {
-        firstService = s;
-        serviceIterator = t;
+    private Mac(String algorithm) {
         this.algorithm = algorithm;
         lock = new Object();
     }
@@ -171,7 +160,7 @@ public class Mac implements Cloneable {
             if (JceSecurity.canUseProvider(s.getProvider()) == false) {
                 continue;
             }
-            return new Mac(s, t, algorithm);
+            return new Mac(algorithm);
         }
         throw new NoSuchAlgorithmException
                                 ("Algorithm " + algorithm + " not available");
@@ -262,7 +251,7 @@ public class Mac implements Cloneable {
      * is not the first method called.
      */
     void chooseFirstProvider() {
-        if ((spi != null) || (serviceIterator == null)) {
+        if (spi != null || lock == null) {
             return;
         }
         synchronized (lock) {
@@ -282,14 +271,7 @@ public class Mac implements Cloneable {
                 }
             }
             Exception lastException = null;
-            while ((firstService != null) || serviceIterator.hasNext()) {
-                Service s;
-                if (firstService != null) {
-                    s = firstService;
-                    firstService = null;
-                } else {
-                    s = (Service)serviceIterator.next();
-                }
+            for (Service s : GetInstance.getServices("Mac", algorithm)) {
                 if (JceSecurity.canUseProvider(s.getProvider()) == false) {
                     continue;
                 }
@@ -300,9 +282,6 @@ public class Mac implements Cloneable {
                     }
                     spi = (MacSpi)obj;
                     provider = s.getProvider();
-                    // not needed any more
-                    firstService = null;
-                    serviceIterator = null;
                     return;
                 } catch (NoSuchAlgorithmException e) {
                     lastException = e;
@@ -320,19 +299,12 @@ public class Mac implements Cloneable {
     private void chooseProvider(Key key, AlgorithmParameterSpec params)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
         synchronized (lock) {
-            if (spi != null) {
+            if (spi != null && (key == null || lock == null)) {
                 spi.engineInit(key, params);
                 return;
             }
             Exception lastException = null;
-            while ((firstService != null) || serviceIterator.hasNext()) {
-                Service s;
-                if (firstService != null) {
-                    s = firstService;
-                    firstService = null;
-                } else {
-                    s = (Service)serviceIterator.next();
-                }
+            for (Service s : GetInstance.getServices("Mac", algorithm)) {
                 // if provider says it does not support this key, ignore it
                 if (s.supportsParameter(key) == false) {
                     continue;
@@ -345,8 +317,6 @@ public class Mac implements Cloneable {
                     spi.engineInit(key, params);
                     provider = s.getProvider();
                     this.spi = spi;
-                    firstService = null;
-                    serviceIterator = null;
                     return;
                 } catch (Exception e) {
                     // NoSuchAlgorithmException from newInstance()
@@ -404,7 +374,7 @@ public class Mac implements Cloneable {
      */
     public final void init(Key key) throws InvalidKeyException {
         try {
-            if (spi != null) {
+            if (spi != null && (key == null || lock == null)) {
                 spi.engineInit(key, null);
             } else {
                 chooseProvider(key, null);
@@ -429,7 +399,7 @@ public class Mac implements Cloneable {
      */
     public final void init(Key key, AlgorithmParameterSpec params)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
-        if (spi != null) {
+        if (spi != null && (key == null || lock == null)) {
             spi.engineInit(key, params);
         } else {
             chooseProvider(key, params);

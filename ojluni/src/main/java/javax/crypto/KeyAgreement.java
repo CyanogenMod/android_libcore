@@ -87,14 +87,6 @@ public class KeyAgreement {
     // The name of the key agreement algorithm.
     private final String algorithm;
 
-    // next service to try in provider selection
-    // null once provider is selected
-    private Service firstService;
-
-    // remaining services to try in provider selection
-    // null once provider is selected
-    private Iterator serviceIterator;
-
     private final Object lock;
 
     /**
@@ -112,9 +104,7 @@ public class KeyAgreement {
         lock = null;
     }
 
-    private KeyAgreement(Service s, Iterator t, String algorithm) {
-        firstService = s;
-        serviceIterator = t;
+    private KeyAgreement(String algorithm) {
         this.algorithm = algorithm;
         lock = new Object();
     }
@@ -173,7 +163,7 @@ public class KeyAgreement {
             if (JceSecurity.canUseProvider(s.getProvider()) == false) {
                 continue;
             }
-            return new KeyAgreement(s, t, algorithm);
+            return new KeyAgreement(algorithm);
         }
         throw new NoSuchAlgorithmException
                                 ("Algorithm " + algorithm + " not available");
@@ -295,14 +285,7 @@ public class KeyAgreement {
                 }
             }
             Exception lastException = null;
-            while ((firstService != null) || serviceIterator.hasNext()) {
-                Service s;
-                if (firstService != null) {
-                    s = firstService;
-                    firstService = null;
-                } else {
-                    s = (Service)serviceIterator.next();
-                }
+            for (Service s : GetInstance.getServices("KeyAgreement", algorithm)) {
                 if (JceSecurity.canUseProvider(s.getProvider()) == false) {
                     continue;
                 }
@@ -314,8 +297,6 @@ public class KeyAgreement {
                     spi = (KeyAgreementSpi)obj;
                     provider = s.getProvider();
                     // not needed any more
-                    firstService = null;
-                    serviceIterator = null;
                     return;
                 } catch (Exception e) {
                     lastException = e;
@@ -347,19 +328,12 @@ public class KeyAgreement {
             AlgorithmParameterSpec params, SecureRandom random)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
         synchronized (lock) {
-            if (spi != null) {
+            if (spi != null && key == null) {
                 implInit(spi, initType, key, params, random);
                 return;
             }
             Exception lastException = null;
-            while ((firstService != null) || serviceIterator.hasNext()) {
-                Service s;
-                if (firstService != null) {
-                    s = firstService;
-                    firstService = null;
-                } else {
-                    s = (Service)serviceIterator.next();
-                }
+            for (Service s : GetInstance.getServices("KeyAgreement", algorithm)) {
                 // if provider says it does not support this key, ignore it
                 if (s.supportsParameter(key) == false) {
                     continue;
@@ -372,8 +346,6 @@ public class KeyAgreement {
                     implInit(spi, initType, key, params, random);
                     provider = s.getProvider();
                     this.spi = spi;
-                    firstService = null;
-                    serviceIterator = null;
                     return;
                 } catch (Exception e) {
                     // NoSuchAlgorithmException from newInstance()
@@ -457,7 +429,7 @@ public class KeyAgreement {
      */
     public final void init(Key key, SecureRandom random)
             throws InvalidKeyException {
-        if (spi != null) {
+        if (spi != null && (key == null || lock == null)) {
             spi.engineInit(key, random);
         } else {
             try {
