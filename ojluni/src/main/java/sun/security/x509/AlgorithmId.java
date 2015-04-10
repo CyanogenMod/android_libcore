@@ -547,54 +547,81 @@ public class AlgorithmId implements Serializable, DerEncoder {
         // See if any of the installed providers supply a mapping from
         // the given algorithm name to an OID string
         String oidString;
-        if (!initOidTable) {
-            Provider[] provs = Security.getProviders();
-            for (int i=0; i<provs.length; i++) {
-                for (Enumeration<Object> enum_ = provs[i].keys();
-                     enum_.hasMoreElements(); ) {
-                    String alias = (String)enum_.nextElement();
-                    String upperCaseAlias = alias.toUpperCase(Locale.ENGLISH);
-                    int index;
-                    if (upperCaseAlias.startsWith("ALG.ALIAS") &&
-                            (index=upperCaseAlias.indexOf("OID.", 0)) != -1) {
-                        index += "OID.".length();
-                        if (index == alias.length()) {
-                            // invalid alias entry
-                            break;
-                        }
-                        if (oidTable == null) {
-                            oidTable = new HashMap<String,ObjectIdentifier>();
-                        }
-                        oidString = alias.substring(index);
-                        String stdAlgName = provs[i].getProperty(alias);
-                        if (stdAlgName != null) {
-                            stdAlgName = stdAlgName.toUpperCase(Locale.ENGLISH);
-                        }
-                        if (stdAlgName != null &&
-                                oidTable.get(stdAlgName) == null) {
-                            oidTable.put(stdAlgName,
-                                         new ObjectIdentifier(oidString));
+        synchronized (oidTable) {
+            // Android-changed: Update the table only if the OID changed. Also synchronize
+            // on oidTable for thread safety.
+            int currentVersion = Security.getVersion();
+            if (initOidTableVersion != currentVersion) {
+                Provider[] provs = Security.getProviders();
+                for (int i=0; i<provs.length; i++) {
+                    for (Enumeration<Object> enum_ = provs[i].keys();
+                         enum_.hasMoreElements(); ) {
+                        String alias = (String)enum_.nextElement();
+                        String upperCaseAlias = alias.toUpperCase(Locale.ENGLISH);
+                        int index;
+                        if (upperCaseAlias.startsWith("ALG.ALIAS")) {
+                            if ((index=upperCaseAlias.indexOf("OID.", 0)) != -1) {
+                                index += "OID.".length();
+                                if (index == alias.length()) {
+                                    // invalid alias entry
+                                    break;
+                                }
+                                oidString = alias.substring(index);
+                                String stdAlgName = provs[i].getProperty(alias);
+                                if (stdAlgName != null) {
+                                    stdAlgName = stdAlgName.toUpperCase(Locale.ENGLISH);
+                                }
+                                if (stdAlgName != null &&
+                                        oidTable.get(stdAlgName) == null) {
+                                    ObjectIdentifier oid =
+                                        new ObjectIdentifier(oidString);
+                                    oidTable.put(stdAlgName, oid);
+                                    nameTable.put(oid, stdAlgName);
+                                }
+                            } else {
+                                // Android-changed: If the alias isn't specified with an explicit
+                                // "OID." in the name, we still attempt to parse it as one.
+                                final int sep = alias.indexOf('.', "ALG.ALIAS.".length());
+                                String suffix = alias.substring(sep + 1);
+
+                                ObjectIdentifier oid = null;
+                                try {
+                                    oid = new ObjectIdentifier(suffix);
+                                } catch (IOException e) {
+                                    // Not an OID.
+                                }
+
+                                if (oid != null) {
+                                    String stdAlgName = provs[i].getProperty(alias);
+                                    if (stdAlgName != null) {
+                                        stdAlgName = stdAlgName.toUpperCase(Locale.ENGLISH);
+                                    }
+                                    if (stdAlgName != null && oidTable.get(stdAlgName) == null) {
+                                        oidTable.put(stdAlgName, oid);
+                                        nameTable.put(oid, stdAlgName);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
+
+                initOidTableVersion = currentVersion;
             }
 
-            if (oidTable == null) {
-                oidTable = new HashMap<String,ObjectIdentifier>(1);
-            }
-            initOidTable = true;
+            return oidTable.get(name.toUpperCase(Locale.ENGLISH));
         }
-
-        return oidTable.get(name.toUpperCase(Locale.ENGLISH));
     }
 
     private static ObjectIdentifier oid(int ... values) {
         return ObjectIdentifier.newInternal(values);
     }
 
-    private static boolean initOidTable = false;
-    private static Map<String,ObjectIdentifier> oidTable;
-    private static final Map<ObjectIdentifier,String> nameTable;
+    private static int initOidTableVersion = -1;
+    private static final Map<String,ObjectIdentifier> oidTable =
+        new HashMap<String,ObjectIdentifier>(1);
+    private static final Map<ObjectIdentifier,String> nameTable =
+        new HashMap<ObjectIdentifier,String>();
 
     /*****************************************************************/
 
@@ -855,7 +882,6 @@ public class AlgorithmId implements Serializable, DerEncoder {
      */
         sha1WithDSA_oid = ObjectIdentifier.newInternal(dsaWithSHA1_PKIX_data);
 
-        nameTable = new HashMap<ObjectIdentifier,String>();
         nameTable.put(MD5_oid, "MD5");
         nameTable.put(MD2_oid, "MD2");
         nameTable.put(SHA_oid, "SHA");
