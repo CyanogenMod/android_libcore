@@ -39,7 +39,6 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.ArtField;
 import java.lang.reflect.ArtMethod;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -146,16 +145,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     private transient ArtMethod[] directMethods;
 
     /**
-     * Instance fields. These describe the layout of the contents of an Object. Note that only the
-     * fields directly declared by this class are listed in iFields; fields declared by a
-     * superclass are listed in the superclass's Class.iFields.
-     *
-     * All instance fields that refer to objects are guaranteed to be at the beginning of the field
-     * list.  {@link Class#numReferenceInstanceFields} specifies the number of reference fields.
-     */
-    private transient ArtField[] iFields;
-
-    /**
      * The interface table (iftable_) contains pairs of a interface class and an array of the
      * interface methods. There is one pair per interface supported by this class.  That
      * means one pair for each interface we support directly, indirectly via superclass, or
@@ -173,9 +162,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     /** Lazily computed name of this class; always prefer calling getName(). */
     private transient String name;
-
-    /** Static fields */
-    private transient ArtField[] sFields;
 
     /** The superclass, or NULL if this is java.lang.Object, an interface or primitive type. */
     private transient Class<? super T> superClass;
@@ -196,6 +182,20 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     /** access flags; low 16 bits are defined by VM spec */
     private transient int accessFlags;
+
+    /**
+     * Instance fields. These describe the layout of the contents of an Object. Note that only the
+     * fields directly declared by this class are listed in iFields; fields declared by a
+     * superclass are listed in the superclass's Class.iFields.
+     *
+     * All instance fields that refer to objects are guaranteed to be at the beginning of the field
+     * list.  {@link Class#numReferenceInstanceFields} specifies the number of reference fields.
+     */
+    private transient long iFields;
+
+    /** Static fields */
+    private transient long sFields;
+
 
     /**
      * Total size of the Class instance; used when allocating storage on GC heap.
@@ -222,11 +222,17 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private transient volatile int dexTypeIndex;
 
+    /** Number of instance fields. */
+    private transient int numInstanceFields;
+
     /** Number of instance fields that are object references. */
     private transient int numReferenceInstanceFields;
 
     /** Number of static fields that are object references. */
     private transient int numReferenceStaticFields;
+
+    /** Number of static fields. */
+    private transient int numStaticFields;
 
     /**
      * Total object size; used when allocating storage on GC heap. For interfaces and abstract
