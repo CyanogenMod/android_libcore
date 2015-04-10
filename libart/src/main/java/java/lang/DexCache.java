@@ -89,6 +89,10 @@ final class DexCache {
         return result;
     }
 
+    native Class<?> getResolvedType(int typeIndex);
+    native String getResolvedString(int stringIndex);
+    native void setResolvedType(int typeIndex, Class<?> type);
+    native void setResolvedString(int stringIndex, String string);
     private native Dex getDexNative();
 }
 
