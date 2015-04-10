@@ -711,6 +711,16 @@ public abstract class Signature extends SignatureSpi {
      */
     public final void update(byte[] data, int off, int len)
             throws SignatureException {
+        // Android-changed: Check data, off & len early and throw an exception
+        // as soon as possible.
+        if (data == null) {
+            throw new IllegalArgumentException("data == null");
+        }
+
+        if (off < 0 || len < 0 || off + len > data.length) {
+            throw new IllegalArgumentException();
+        }
+
         if (state == SIGN || state == VERIFY) {
             engineUpdate(data, off, len);
         } else {
