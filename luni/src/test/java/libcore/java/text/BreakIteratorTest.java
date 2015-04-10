@@ -172,32 +172,4 @@ public class BreakIteratorTest extends junit.framework.TestCase {
             // Expected exception
         }
     }
-
-    // http://code.google.com/p/android/issues/detail?id=41143
-    // This code is inherently unsafe and crazy;
-    // we're just trying to provoke native crashes!
-    public void testConcurrentBreakIteratorAccess() throws Exception {
-        final BreakIterator it = BreakIterator.getCharacterInstance();
-
-        ArrayList<Thread> threads = new ArrayList<Thread>();
-        for (int i = 0; i < 10; ++i) {
-            Thread t = new Thread(new Runnable() {
-                public void run() {
-                    for (int i = 0; i < 4096; ++i) {
-                        it.setText("some example text");
-                        for (int index = it.first(); index != BreakIterator.DONE; index = it.next()) {
-                        }
-                    }
-                }
-            });
-            threads.add(t);
-        }
-
-        for (Thread t : threads) {
-            t.start();
-        }
-        for (Thread t : threads) {
-            t.join();
-        }
-    }
 }
