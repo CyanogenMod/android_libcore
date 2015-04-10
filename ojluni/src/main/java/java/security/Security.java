@@ -49,7 +49,7 @@ import sun.security.jca.*;
 
 public final class Security {
 
-    private static AtomicInteger version = new AtomicInteger();
+    private static final AtomicInteger version = new AtomicInteger();
 
     /* Are we debugging? -- for developers */
     private static final Debug sdebug =
@@ -823,6 +823,7 @@ public final class Security {
     public static void setProperty(String key, String datum) {
         check("setProperty."+key);
         props.put(key, datum);
+        increaseVersion();
         invalidateSMCache(key);  /* See below. */
     }
 
