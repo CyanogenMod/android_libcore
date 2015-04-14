@@ -169,6 +169,10 @@ public class StrictJarFileTest extends TestCase {
         assertThrowsOnInit("Modified_SF_EntryAttributes.jar");
     }
 
+    public void testJarSigning_removedEntry() throws Exception {
+        assertThrowsOnInit("removed.jar");
+    }
+
     private void assertThrowsOnInit(String name) throws Exception {
         Support_Resources.copyFile(resources, null,  name);
         try {
