@@ -143,6 +143,7 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
 
     assertEquals("19 de ene. de 2009 – 9 de feb. de 2012", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL));
     assertEquals("ene. de 2009 – feb. de 2012", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_NO_MONTH_DAY | FORMAT_ABBREV_ALL));
+
     assertEquals("19 de enero de 2009–9 de febrero de 2012", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * YEAR, 0));
     assertEquals("lunes, 19 de enero de 2009–jueves, 9 de febrero de 2012", formatDateRange(es_US, tz, fixedTime, fixedTime + 3 * YEAR, FORMAT_SHOW_WEEKDAY));
 
