@@ -38,7 +38,6 @@ LOCAL_SRC_FILES := \
     java_util_zip_Deflater.cpp \
     java_util_zip_Inflater.cpp \
     libcore_icu_AlphabeticIndex.cpp \
-    libcore_icu_DateIntervalFormat.cpp \
     libcore_icu_ICU.cpp \
     libcore_icu_NativeCollation.cpp \
     libcore_icu_NativeConverter.cpp \
@@ -46,7 +45,6 @@ LOCAL_SRC_FILES := \
     libcore_icu_NativeIDN.cpp \
     libcore_icu_NativeNormalizer.cpp \
     libcore_icu_NativePluralRules.cpp \
-    libcore_icu_RelativeDateTimeFormatter.cpp \
     libcore_icu_TimeZoneNames.cpp \
     libcore_icu_Transliterator.cpp \
     libcore_io_AsynchronousCloseMonitor.cpp \
