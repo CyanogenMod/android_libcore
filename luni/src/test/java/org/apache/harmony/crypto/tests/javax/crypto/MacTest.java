@@ -100,6 +100,12 @@ public class MacTest extends TestCase {
         macList.add(Mac.getInstance(defaultAlgorithm, defaultProvider));
         macList.add(Mac.getInstance(defaultAlgorithm, defaultProviderName));
         for (Provider p : Security.getProviders("Mac." + defaultAlgorithm)) {
+            // Do not test AndroidKeyStore's Mac. It cannot be initialized without providing an
+            // AndroidKeyStore-backed SecretKey instance. It's OKish not to test here because it's
+            // tested by cts/tests/test/keystore.
+            if ("AndroidKeyStore".equals(p.getName())) {
+                continue;
+            }
             macList.add(Mac.getInstance(defaultAlgorithm, p));
         }
         return macList.toArray(new Mac[macList.size()]);
@@ -845,6 +851,13 @@ public class MacTest extends TestCase {
         byte[] output = null;
         byte[] output2 = null;
         for (int i = 0; i < providers.length; i++) {
+            // Do not test AndroidKeyStore's Mac. It cannot be initialized without providing an
+            // AndroidKeyStore-backed SecretKey instance. It's OKish not to test here because it's
+            // tested by cts/tests/test/keystore.
+            if ("AndroidKeyStore".equals(providers[i].getName())) {
+                continue;
+            }
+
             System.out.println("provider = " + providers[i].getName());
             Mac mac = Mac.getInstance("HmacMD5", providers[i]);
             mac.init(key);
