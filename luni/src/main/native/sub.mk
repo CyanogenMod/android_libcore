@@ -30,8 +30,6 @@ LOCAL_SRC_FILES := \
     java_nio_ByteOrder.cpp \
     java_nio_charset_Charsets.cpp \
     java_util_jar_StrictJarFile.cpp \
-    java_util_regex_Matcher.cpp \
-    java_util_regex_Pattern.cpp \
     java_util_zip_Adler32.cpp \
     java_util_zip_CRC32.cpp \
     java_util_zip_Deflater.cpp \

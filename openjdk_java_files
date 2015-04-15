@@ -675,3 +675,10 @@ sun/security/util/Resources_sv.java
 sun/security/util/Resources_ko.java
 sun/security/util/Resources.java
 com/sun/security/cert/internal/x509/X509V1CertImpl.java
+java/util/regex/Matcher.java
+java/util/regex/Pattern.java
+java/util/regex/MatchResult.java
+java/util/regex/PatternSyntaxException.java
+java/util/regex/ASCII.java
+java/util/regex/UnicodeProp.java
+sun/text/Normalizer.java

@@ -172,7 +172,11 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @since   1.1
      */
     @SuppressWarnings("unchecked")
+    /* ----- BEGIN android -----
     public static final Class<Character> TYPE = Class.getPrimitiveClass("char");
+    */
+    public static final Class<Character> TYPE = (Class<Character>) char[].class.getComponentType();
+    // ----- END android -----
 
     /*
      * Normative general types
