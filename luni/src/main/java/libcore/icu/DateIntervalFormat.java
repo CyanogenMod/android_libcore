@@ -16,9 +16,12 @@
 
 package libcore.icu;
 
+import com.ibm.icu.impl.JavaTimeZone;
+import com.ibm.icu.util.Calendar;
+import com.ibm.icu.util.GregorianCalendar;
+import com.ibm.icu.util.ULocale;
+
 import java.text.FieldPosition;
-import java.util.Calendar;
-import java.util.Locale;
 import java.util.TimeZone;
 import libcore.util.BasicLruCache;
 
@@ -45,9 +48,6 @@ public final class DateIntervalFormat {
   public static final int FORMAT_NUMERIC_DATE   = 0x20000;
   public static final int FORMAT_ABBREV_ALL     = 0x80000;
 
-  private static final int DAY_IN_MS = 24 * 60 * 60 * 1000;
-  private static final int EPOCH_JULIAN_DAY = 2440588;
-
   private static final FormatterCache CACHED_FORMATTERS = new FormatterCache();
 
   static class FormatterCache extends BasicLruCache<String, com.ibm.icu.text.DateIntervalFormat> {
@@ -64,23 +64,24 @@ public final class DateIntervalFormat {
     if ((flags & FORMAT_UTC) != 0) {
       olsonId = "UTC";
     }
+    // We create a java.util.TimeZone here to use libcore's data and libcore's olson ID / pseudo-tz
+    // logic.
     TimeZone tz = (olsonId != null) ? TimeZone.getTimeZone(olsonId) : TimeZone.getDefault();
-    return formatDateRange(Locale.getDefault(), tz, startMs, endMs, flags);
+    com.ibm.icu.util.TimeZone icuTimeZone = icuTimeZone(tz);
+    ULocale icuLocale = ULocale.getDefault();
+    return formatDateRange(icuLocale, icuTimeZone, startMs, endMs, flags);
   }
 
   // This is our slightly more sensible internal API. (A truly sane replacement would take a
   // skeleton instead of int flags.)
-  public static String formatDateRange(Locale locale, TimeZone tz, long startMs, long endMs,
-      int flags) {
-    Calendar startCalendar = Calendar.getInstance(tz);
-    startCalendar.setTimeInMillis(startMs);
-
+  public static String formatDateRange(ULocale icuLocale, com.ibm.icu.util.TimeZone icuTimeZone,
+      long startMs, long endMs, int flags) {
+    Calendar startCalendar = createIcuCalendar(icuTimeZone, icuLocale, startMs);
     Calendar endCalendar;
     if (startMs == endMs) {
       endCalendar = startCalendar;
     } else {
-      endCalendar = Calendar.getInstance(tz);
-      endCalendar.setTimeInMillis(endMs);
+      endCalendar = createIcuCalendar(icuTimeZone, icuLocale, endMs);
     }
 
     boolean endsAtMidnight = isMidnight(endCalendar);
@@ -92,27 +93,26 @@ public final class DateIntervalFormat {
     if (startMs != endMs && endsAtMidnight &&
         ((flags & FORMAT_SHOW_TIME) == 0 || dayDistance(startCalendar, endCalendar) <= 1)) {
       endCalendar.roll(Calendar.DAY_OF_MONTH, false);
-      endMs -= DAY_IN_MS;
     }
 
     String skeleton = toSkeleton(startCalendar, endCalendar, flags);
     synchronized (CACHED_FORMATTERS) {
-      com.ibm.icu.text.DateIntervalFormat formatter = getFormatter(skeleton, locale, tz);
-      com.ibm.icu.util.Calendar scal = icuCalendar(startCalendar);
-      com.ibm.icu.util.Calendar ecal = icuCalendar(endCalendar);
-      return formatter.format(scal, ecal, new StringBuffer(), new FieldPosition(0)).toString();
+      com.ibm.icu.text.DateIntervalFormat formatter =
+          getFormatter(skeleton, icuLocale, icuTimeZone);
+      return formatter.format(startCalendar, endCalendar, new StringBuffer(),
+          new FieldPosition(0)).toString();
     }
   }
 
-  private static com.ibm.icu.text.DateIntervalFormat getFormatter(String skeleton, Locale locale,
-      TimeZone tz) {
-    String key = skeleton + "\t" + locale + "\t" + tz;
+  private static com.ibm.icu.text.DateIntervalFormat getFormatter(String skeleton, ULocale locale,
+      com.ibm.icu.util.TimeZone icuTimeZone) {
+    String key = skeleton + "\t" + locale + "\t" + icuTimeZone;
     com.ibm.icu.text.DateIntervalFormat formatter = CACHED_FORMATTERS.get(key);
     if (formatter != null) {
       return formatter;
     }
     formatter = com.ibm.icu.text.DateIntervalFormat.getInstance(skeleton, locale);
-    formatter.setTimeZone(icuTimeZone(tz));
+    formatter.setTimeZone(icuTimeZone);
     CACHED_FORMATTERS.put(key, formatter);
     return formatter;
   }
@@ -223,39 +223,30 @@ public final class DateIntervalFormat {
   }
 
   private static boolean isThisYear(Calendar c) {
-    Calendar now = Calendar.getInstance(c.getTimeZone());
+    Calendar now = (Calendar) c.clone();
+    now.setTimeInMillis(System.currentTimeMillis());
     return c.get(Calendar.YEAR) == now.get(Calendar.YEAR);
   }
 
-  // Return the date difference for the two times in a given timezone.
-  public static int dayDistance(TimeZone tz, long startTime, long endTime) {
-    return julianDay(tz, endTime) - julianDay(tz, startTime);
-  }
-
   public static int dayDistance(Calendar c1, Calendar c2) {
-    return julianDay(c2) - julianDay(c1);
+    return c2.get(Calendar.JULIAN_DAY) - c1.get(Calendar.JULIAN_DAY);
   }
 
-  private static int julianDay(TimeZone tz, long time) {
-    long utcMs = time + tz.getOffset(time);
-    return (int) (utcMs / DAY_IN_MS) + EPOCH_JULIAN_DAY;
+  /**
+   * Creates an immutable ICU timezone backed by the specified libcore timezone data. At the time of
+   * writing the libcore implementation is faster but restricted to 1902 - 2038.
+   * Callers must not modify the {@code tz} after calling this method.
+   */
+  static com.ibm.icu.util.TimeZone icuTimeZone(TimeZone tz) {
+    JavaTimeZone javaTimeZone = new JavaTimeZone(tz, null);
+    javaTimeZone.freeze(); // Optimization - allows the timezone to be copied cheaply.
+    return javaTimeZone;
   }
 
-  private static int julianDay(Calendar c) {
-    long utcMs = c.getTimeInMillis() + c.get(Calendar.ZONE_OFFSET) + c.get(Calendar.DST_OFFSET);
-    return (int) (utcMs / DAY_IN_MS) + EPOCH_JULIAN_DAY;
+  static Calendar createIcuCalendar(com.ibm.icu.util.TimeZone icuTimeZone, ULocale icuLocale,
+      long timeInMillis) {
+    Calendar calendar = new GregorianCalendar(icuTimeZone, icuLocale);
+    calendar.setTimeInMillis(timeInMillis);
+    return calendar;
   }
-
-  private static com.ibm.icu.util.TimeZone icuTimeZone(TimeZone tz) {
-    final int timezoneType = com.ibm.icu.util.TimeZone.TIMEZONE_JDK;
-    return com.ibm.icu.util.TimeZone.getTimeZone(tz.getID(), timezoneType);
-  }
-
-  private static com.ibm.icu.util.Calendar icuCalendar(Calendar cal) {
-    com.ibm.icu.util.TimeZone timeZone = icuTimeZone(cal.getTimeZone());
-    com.ibm.icu.util.Calendar result = com.ibm.icu.util.Calendar.getInstance(timeZone);
-    result.setTime(cal.getTime());
-    return result;
-  }
-
 }
