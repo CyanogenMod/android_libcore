@@ -124,22 +124,9 @@ static jlong System_nanoTime(JNIEnv*, jclass) {
 #endif
 }
 
-static jstring System_mapLibraryName(JNIEnv* env, jclass, jstring javaName) {
-    ScopedUtfChars name(env, javaName);
-    if (name.c_str() == NULL) {
-        return NULL;
-    }
-    char* mappedName = NULL;
-    asprintf(&mappedName, "lib%s.so", name.c_str());
-    jstring result = env->NewStringUTF(mappedName);
-    free(mappedName);
-    return result;
-}
-
 static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(System, currentTimeMillis, "!()J"),
     NATIVE_METHOD(System, log, "(CLjava/lang/String;Ljava/lang/Throwable;)V"),
-    NATIVE_METHOD(System, mapLibraryName, "(Ljava/lang/String;)Ljava/lang/String;"),
     NATIVE_METHOD(System, nanoTime, "!()J"),
     NATIVE_METHOD(System, setFieldImpl, "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V"),
     NATIVE_METHOD(System, specialProperties, "()[Ljava/lang/String;"),
