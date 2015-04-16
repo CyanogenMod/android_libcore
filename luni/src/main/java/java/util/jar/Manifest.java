@@ -41,8 +41,10 @@ public class Manifest implements Cloneable {
 
     private static final byte[] VALUE_SEPARATOR = new byte[] { ':', ' ' };
 
-    private final Attributes mainAttributes;
-    private final HashMap<String, Attributes> entries;
+    /* non-final for {@code #clone()} */
+    private Attributes mainAttributes;
+    /* non-final for {@code #clone()} */
+    private HashMap<String, Attributes> entries;
 
     static final class Chunk {
         final int start;
@@ -93,9 +95,7 @@ public class Manifest implements Cloneable {
      */
     @SuppressWarnings("unchecked")
     public Manifest(Manifest man) {
-        mainAttributes = (Attributes) man.mainAttributes.clone();
-        entries = (HashMap<String, Attributes>) ((HashMap<String, Attributes>) man
-                .getEntries()).clone();
+        cloneAttributesAndEntriesFrom(man);
     }
 
     Manifest(byte[] manifestBytes, boolean readChunks) throws IOException {
@@ -156,7 +156,21 @@ public class Manifest implements Cloneable {
      */
     @Override
     public Object clone() {
-        return new Manifest(this);
+        Manifest result;
+        try {
+            result = (Manifest) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(e);
+        }
+
+        result.cloneAttributesAndEntriesFrom(this);
+        return result;
+    }
+
+    private final void cloneAttributesAndEntriesFrom(Manifest other) {
+        mainAttributes = (Attributes) other.mainAttributes.clone();
+        entries = (HashMap<String, Attributes>) ((HashMap<String, Attributes>) other
+                .getEntries()).clone();
     }
 
     /**
