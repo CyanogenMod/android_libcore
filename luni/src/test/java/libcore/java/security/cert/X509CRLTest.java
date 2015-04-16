@@ -256,15 +256,7 @@ public class X509CRLTest extends TestCase {
 
     private void getSigAlgName(CertificateFactory f) throws Exception {
         X509CRL crlRsa = getCRL(f, CRL_RSA);
-
-        String actual = crlRsa.getSigAlgName().toUpperCase(Locale.US);
-
-        // Bouncycastle is broken
-        if ("BC".equals(f.getProvider().getName())) {
-            assertEquals("1.2.840.113549.1.1.5", actual);
-        } else {
-            assertEquals("SHA1WITHRSA", actual);
-        }
+        assertEquals("SHA1WITHRSA",  getCRL(f, CRL_RSA).getSigAlgName().toUpperCase(Locale.US));
     }
 
     private void getSigAlgOID(CertificateFactory f) throws Exception {
