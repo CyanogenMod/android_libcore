@@ -19,6 +19,7 @@ package libcore.java.util;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -112,5 +113,76 @@ public final class CollectionsTest extends TestCase {
             fail();
         } catch (ConcurrentModificationException expected) {
         }
+    }
+
+    /**
+     * A value type whose {@code compareTo} method returns one of {@code 0},
+     * {@code Integer.MIN_VALUE} and {@code Integer.MAX_VALUE}.
+     */
+    static final class IntegerWithExtremeComparator
+            implements Comparable<IntegerWithExtremeComparator> {
+        private final int value;
+
+        public IntegerWithExtremeComparator(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public int compareTo(IntegerWithExtremeComparator another) {
+            if (another.value == this.value) {
+                return 0;
+            } else if (another.value > this.value) {
+                return Integer.MIN_VALUE;
+            } else {
+                return Integer.MAX_VALUE;
+            }
+        }
+    }
+
+    // http://b/19749094
+    public void testBinarySearch_comparatorThatReturnsMinAndMaxValue() {
+        ArrayList<Integer> list = new ArrayList<Integer>(16);
+        list.add(4);
+        list.add(9);
+        list.add(11);
+        list.add(14);
+        list.add(16);
+
+        int index = Collections.binarySearch(list, 9, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer lhs, Integer rhs) {
+                final int compare = lhs.compareTo(rhs);
+                if (compare == 0) {
+                    return 0;
+                } else if (compare < 0) {
+                    return Integer.MIN_VALUE;
+                } else {
+                    return Integer.MAX_VALUE;
+                }
+            }
+        });
+        assertEquals(1, index);
+
+        ArrayList<IntegerWithExtremeComparator> list2 =
+                new ArrayList<IntegerWithExtremeComparator>();
+        list2.add(new IntegerWithExtremeComparator(4));
+        list2.add(new IntegerWithExtremeComparator(9));
+        list2.add(new IntegerWithExtremeComparator(11));
+        list2.add(new IntegerWithExtremeComparator(14));
+        list2.add(new IntegerWithExtremeComparator(16));
+
+        assertEquals(1, Collections.binarySearch(list2, new IntegerWithExtremeComparator(9)));
+    }
+
+    public void testBinarySearch_emptyCollection() {
+        assertEquals(-1, Collections.binarySearch(new ArrayList<Integer>(), 9));
+
+        assertEquals(-1, Collections.binarySearch(new ArrayList<Integer>(), 9,
+                new Comparator<Integer>() {
+                    @Override
+                    public int compare(Integer lhs, Integer rhs) {
+                        return lhs.compareTo(rhs);
+                    }
+                }));
     }
 }
