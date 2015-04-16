@@ -18,14 +18,14 @@ package benchmarks.regression;
 
 import com.google.caliper.SimpleBenchmark;
 
-import java.util.Locale;
-import java.util.TimeZone;
+import android.icu.util.ULocale;
+import android.icu.util.TimeZone;
 
 import static libcore.icu.DateIntervalFormat.*;
 
 public class DateIntervalFormatBenchmark extends SimpleBenchmark {
   public void timeDateIntervalFormat_formatDateRange_DATE(int reps) throws Exception {
-    Locale l = Locale.US;
+    ULocale l = ULocale.US;
     TimeZone utc = TimeZone.getTimeZone("UTC");
     int flags = FORMAT_SHOW_DATE | FORMAT_SHOW_WEEKDAY;
 
@@ -35,7 +35,7 @@ public class DateIntervalFormatBenchmark extends SimpleBenchmark {
   }
 
   public void timeDateIntervalFormat_formatDateRange_TIME(int reps) throws Exception {
-    Locale l = Locale.US;
+    ULocale l = ULocale.US;
     TimeZone utc = TimeZone.getTimeZone("UTC");
     int flags = FORMAT_SHOW_TIME | FORMAT_24HOUR;
 
@@ -45,7 +45,7 @@ public class DateIntervalFormatBenchmark extends SimpleBenchmark {
   }
 
   public void timeDateIntervalFormat_formatDateRange_DATE_TIME(int reps) throws Exception {
-    Locale l = Locale.US;
+    ULocale l = ULocale.US;
     TimeZone utc = TimeZone.getTimeZone("UTC");
     int flags = FORMAT_SHOW_DATE | FORMAT_SHOW_WEEKDAY | FORMAT_SHOW_TIME | FORMAT_24HOUR;
 
