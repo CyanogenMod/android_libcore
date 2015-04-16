@@ -16,13 +16,11 @@
 
 package libcore.icu;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Locale;
-import java.util.TimeZone;
 import libcore.util.BasicLruCache;
-import libcore.icu.DateIntervalFormat;
+
 import com.ibm.icu.text.DisplayContext;
+import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.ULocale;
 
 /**
@@ -49,6 +47,9 @@ public final class RelativeDateTimeFormatter {
   // YEAR_IN_MILLIS considers 364 days as a year. However, since this
   // constant comes from public API in DateUtils, it cannot be fixed here.
   public static final long YEAR_IN_MILLIS = WEEK_IN_MILLIS * 52;
+
+  private static final int DAY_IN_MS = 24 * 60 * 60 * 1000;
+  private static final int EPOCH_JULIAN_DAY = 2440588;
 
   private static final FormatterCache CACHED_FORMATTERS = new FormatterCache();
 
@@ -89,7 +90,7 @@ public final class RelativeDateTimeFormatter {
    * always // returns a string like '0 seconds/minutes/... ago' according to
    * minResolution.
    */
-  public static String getRelativeTimeSpanString(Locale locale, TimeZone tz, long time,
+  public static String getRelativeTimeSpanString(Locale locale, java.util.TimeZone tz, long time,
       long now, long minResolution, int flags) {
     if (locale == null) {
       throw new NullPointerException("locale == null");
@@ -97,6 +98,9 @@ public final class RelativeDateTimeFormatter {
     if (tz == null) {
       throw new NullPointerException("tz == null");
     }
+    ULocale icuLocale = ULocale.forLocale(locale);
+    com.ibm.icu.util.TimeZone icuTimeZone = DateIntervalFormat.icuTimeZone(tz);
+
     long duration = Math.abs(now - time);
     boolean past = (now >= time);
 
@@ -142,7 +146,7 @@ public final class RelativeDateTimeFormatter {
       count = (int)(duration / HOUR_IN_MILLIS);
       unit = com.ibm.icu.text.RelativeDateTimeFormatter.RelativeUnit.HOURS;
     } else if (duration < WEEK_IN_MILLIS && minResolution < WEEK_IN_MILLIS) {
-      count = Math.abs(DateIntervalFormat.dayDistance(tz, time, now));
+      count = Math.abs(dayDistance(icuTimeZone, time, now));
       unit = com.ibm.icu.text.RelativeDateTimeFormatter.RelativeUnit.DAYS;
 
       if (count == 2) {
@@ -156,14 +160,14 @@ public final class RelativeDateTimeFormatter {
         String str;
         if (past) {
           synchronized (CACHED_FORMATTERS) {
-            str = getFormatter(locale.toString(), style, capitalizationContext)
+            str = getFormatter(icuLocale, style, capitalizationContext)
                 .format(
                     com.ibm.icu.text.RelativeDateTimeFormatter.Direction.LAST_2,
                     com.ibm.icu.text.RelativeDateTimeFormatter.AbsoluteUnit.DAY);
           }
         } else {
           synchronized (CACHED_FORMATTERS) {
-            str = getFormatter(locale.toString(), style, capitalizationContext)
+            str = getFormatter(icuLocale, style, capitalizationContext)
                 .format(
                     com.ibm.icu.text.RelativeDateTimeFormatter.Direction.NEXT_2,
                     com.ibm.icu.text.RelativeDateTimeFormatter.AbsoluteUnit.DAY);
@@ -198,32 +202,28 @@ public final class RelativeDateTimeFormatter {
       // formatDateRange() would determine that based on the current system
       // time and may give wrong results.
       if ((flags & (FORMAT_NO_YEAR | FORMAT_SHOW_YEAR)) == 0) {
-          Calendar timeCalendar = new GregorianCalendar(false);
-          timeCalendar.setTimeZone(tz);
-          timeCalendar.setTimeInMillis(time);
-          Calendar nowCalendar = new GregorianCalendar(false);
-          nowCalendar.setTimeZone(tz);
-          nowCalendar.setTimeInMillis(now);
+        Calendar timeCalendar = DateIntervalFormat.createIcuCalendar(icuTimeZone, icuLocale, time);
+        Calendar nowCalendar = DateIntervalFormat.createIcuCalendar(icuTimeZone, icuLocale, now);
 
-          if (timeCalendar.get(Calendar.YEAR) != nowCalendar.get(Calendar.YEAR)) {
-              flags |= FORMAT_SHOW_YEAR;
-          } else {
-              flags |= FORMAT_NO_YEAR;
-          }
+        if (timeCalendar.get(Calendar.YEAR) != nowCalendar.get(Calendar.YEAR)) {
+          flags |= FORMAT_SHOW_YEAR;
+        } else {
+          flags |= FORMAT_NO_YEAR;
+        }
       }
 
-      return DateIntervalFormat.formatDateRange(locale, tz, time, time, flags);
+      return DateIntervalFormat.formatDateRange(icuLocale, icuTimeZone, time, time, flags);
     }
 
     if (relative) {
       synchronized (CACHED_FORMATTERS) {
-        return getFormatter(locale.toString(), style, capitalizationContext)
+        return getFormatter(icuLocale, style, capitalizationContext)
             .format(count, direction, unit);
       }
     } else {
       capitalizationContext = DisplayContext.CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE;
       synchronized (CACHED_FORMATTERS) {
-        return getFormatter(locale.toString(), style, capitalizationContext)
+        return getFormatter(icuLocale, style, capitalizationContext)
             .format(direction, aunit);
       }
     }
@@ -258,7 +258,7 @@ public final class RelativeDateTimeFormatter {
    * now - 2 hours, now, HOUR_IN_MILLIS, DAY_IN_MILLIS, 0), instead of '2
    * hours ago, 11:30 PM' even with minResolution being HOUR_IN_MILLIS.
    */
-  public static String getRelativeDateTimeString(Locale locale, TimeZone tz, long time,
+  public static String getRelativeDateTimeString(Locale locale, java.util.TimeZone tz, long time,
       long now, long minResolution, long transitionResolution, int flags) {
 
     if (locale == null) {
@@ -267,10 +267,12 @@ public final class RelativeDateTimeFormatter {
     if (tz == null) {
       throw new NullPointerException("tz == null");
     }
+    ULocale icuLocale = ULocale.forLocale(locale);
+    com.ibm.icu.util.TimeZone icuTimeZone = DateIntervalFormat.icuTimeZone(tz);
 
     // Get the time clause first.
-    String timeClause = DateIntervalFormat.formatDateRange(locale, tz, time, time,
-                                                           FORMAT_SHOW_TIME);
+    String timeClause = DateIntervalFormat.formatDateRange(icuLocale, icuTimeZone, time, time,
+        FORMAT_SHOW_TIME);
 
     long duration = Math.abs(now - time);
     // It doesn't make much sense to have results like: "1 week ago, 10:50 AM".
@@ -288,12 +290,8 @@ public final class RelativeDateTimeFormatter {
     // are currently using the _NONE option only.
     DisplayContext capitalizationContext = DisplayContext.CAPITALIZATION_NONE;
 
-    Calendar timeCalendar = new GregorianCalendar(false);
-    timeCalendar.setTimeZone(tz);
-    timeCalendar.setTimeInMillis(time);
-    Calendar nowCalendar = new GregorianCalendar(false);
-    nowCalendar.setTimeZone(tz);
-    nowCalendar.setTimeInMillis(now);
+    Calendar timeCalendar = DateIntervalFormat.createIcuCalendar(icuTimeZone, icuLocale, time);
+    Calendar nowCalendar = DateIntervalFormat.createIcuCalendar(icuTimeZone, icuLocale, now);
 
     int days = Math.abs(DateIntervalFormat.dayDistance(timeCalendar, nowCalendar));
 
@@ -318,12 +316,12 @@ public final class RelativeDateTimeFormatter {
         flags = FORMAT_SHOW_DATE | FORMAT_NO_YEAR | FORMAT_ABBREV_MONTH;
       }
 
-      dateClause = DateIntervalFormat.formatDateRange(locale, tz, time, time, flags);
+      dateClause = DateIntervalFormat.formatDateRange(icuLocale, icuTimeZone, time, time, flags);
     }
 
     // Combine the two clauses, such as '5 days ago, 10:50 AM'.
     synchronized (CACHED_FORMATTERS) {
-      return getFormatter(locale.toString(), style, capitalizationContext)
+      return getFormatter(icuLocale, style, capitalizationContext)
               .combineDateAndTime(dateClause, timeClause);
     }
   }
@@ -337,15 +335,26 @@ public final class RelativeDateTimeFormatter {
    * formatter->action().
    */
   private static com.ibm.icu.text.RelativeDateTimeFormatter getFormatter(
-      String localeName, com.ibm.icu.text.RelativeDateTimeFormatter.Style style,
+      ULocale locale, com.ibm.icu.text.RelativeDateTimeFormatter.Style style,
       DisplayContext capitalizationContext) {
-    String key = localeName + "\t" + style + "\t" + capitalizationContext;
+    String key = locale + "\t" + style + "\t" + capitalizationContext;
     com.ibm.icu.text.RelativeDateTimeFormatter formatter = CACHED_FORMATTERS.get(key);
     if (formatter == null) {
       formatter = com.ibm.icu.text.RelativeDateTimeFormatter.getInstance(
-          new ULocale(localeName), null, style, capitalizationContext);
+          locale, null, style, capitalizationContext);
       CACHED_FORMATTERS.put(key, formatter);
     }
     return formatter;
+  }
+
+  // Return the date difference for the two times in a given timezone.
+  private static int dayDistance(com.ibm.icu.util.TimeZone icuTimeZone, long startTime,
+      long endTime) {
+    return julianDay(icuTimeZone, endTime) - julianDay(icuTimeZone, startTime);
+  }
+
+  private static int julianDay(com.ibm.icu.util.TimeZone icuTimeZone, long time) {
+    long utcMs = time + icuTimeZone.getOffset(time);
+    return (int) (utcMs / DAY_IN_MS) + EPOCH_JULIAN_DAY;
   }
 }
