@@ -1426,21 +1426,21 @@ public class Collections {
         if (!(list instanceof RandomAccess)) {
             ListIterator<? extends Comparable<? super T>> it = list.listIterator();
             while (it.hasNext()) {
-                int result;
-                if ((result = -it.next().compareTo(object)) <= 0) {
-                    if (result == 0) {
-                        return it.previousIndex();
-                    }
+                final int result = it.next().compareTo(object);
+                if (result == 0) {
+                    return it.previousIndex();
+                } else if (result > 0) {
                     return -it.previousIndex() - 1;
                 }
             }
             return -list.size() - 1;
         }
 
-        int low = 0, mid = list.size(), high = mid - 1, result = -1;
+        int low = 0, mid = list.size(), high = mid - 1, result = 1;
         while (low <= high) {
             mid = (low + high) >>> 1;
-            if ((result = -list.get(mid).compareTo(object)) > 0) {
+            result = list.get(mid).compareTo(object);
+            if (result < 0) {
                 low = mid + 1;
             } else if (result == 0) {
                 return mid;
@@ -1448,7 +1448,7 @@ public class Collections {
                 high = mid - 1;
             }
         }
-        return -mid - (result < 0 ? 1 : 2);
+        return -mid - (result > 0 ? 1 : 2);
     }
 
     /**
@@ -1481,21 +1481,21 @@ public class Collections {
         if (!(list instanceof RandomAccess)) {
             ListIterator<? extends T> it = list.listIterator();
             while (it.hasNext()) {
-                int result;
-                if ((result = -comparator.compare(it.next(), object)) <= 0) {
-                    if (result == 0) {
-                        return it.previousIndex();
-                    }
+                final int result = comparator.compare(it.next(), object);
+                if (result == 0) {
+                    return it.previousIndex();
+                } else if (result > 0) {
                     return -it.previousIndex() - 1;
                 }
             }
             return -list.size() - 1;
         }
 
-        int low = 0, mid = list.size(), high = mid - 1, result = -1;
+        int low = 0, mid = list.size(), high = mid - 1, result = 1;
         while (low <= high) {
             mid = (low + high) >>> 1;
-            if ((result = -comparator.compare(list.get(mid), object)) > 0) {
+            result = comparator.compare(list.get(mid), object);
+            if (result < 0) {
                 low = mid + 1;
             } else if (result == 0) {
                 return mid;
@@ -1503,7 +1503,7 @@ public class Collections {
                 high = mid - 1;
             }
         }
-        return -mid - (result < 0 ? 1 : 2);
+        return -mid - (result > 0 ? 1 : 2);
     }
 
     /**
