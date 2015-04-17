@@ -532,25 +532,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      *
      * @param args the types of the parameters to the constructor.
      */
-    private Constructor<T> getDeclaredConstructorInternal(Class<?>[] args) {
-        if (directMethods != null) {
-            for (ArtMethod m : directMethods) {
-                int modifiers = m.getAccessFlags();
-                if (Modifier.isStatic(modifiers)) {
-                    // skip <clinit> which is a static constructor
-                    continue;
-                }
-                if (!Modifier.isConstructor(modifiers)) {
-                    continue;
-                }
-                if (!ArtMethod.equalConstructorParameters(m, args)) {
-                    continue;
-                }
-                return new Constructor<T>(m);
-            }
-        }
-        return null;
-    }
+    private native Constructor<T> getDeclaredConstructorInternal(Class<?>[] args);
 
     /**
      * Returns an array containing {@code Constructor} objects for all public
@@ -561,9 +543,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getDeclaredConstructors()
      */
     public Constructor<?>[] getConstructors() {
-        ArrayList<Constructor<T>> constructors = new ArrayList();
-        getDeclaredConstructors(true, constructors);
-        return constructors.toArray(new Constructor[constructors.size()]);
+        return getDeclaredConstructorsInternal(true);
     }
 
     /**
@@ -575,27 +555,10 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getConstructors()
      */
     public Constructor<?>[] getDeclaredConstructors() {
-        ArrayList<Constructor<T>> constructors = new ArrayList();
-        getDeclaredConstructors(false, constructors);
-        return constructors.toArray(new Constructor[constructors.size()]);
+        return getDeclaredConstructorsInternal(false);
     }
 
-    private void getDeclaredConstructors(boolean publicOnly, List<Constructor<T>> constructors) {
-        if (directMethods != null) {
-            for (ArtMethod m : directMethods) {
-                int modifiers = m.getAccessFlags();
-                if (!publicOnly || Modifier.isPublic(modifiers)) {
-                    if (Modifier.isStatic(modifiers)) {
-                        // skip <clinit> which is a static constructor
-                        continue;
-                    }
-                    if (Modifier.isConstructor(modifiers)) {
-                        constructors.add(new Constructor<T>(m));
-                    }
-                }
-            }
-        }
-    }
+    private native Constructor<?>[] getDeclaredConstructorsInternal(boolean publicOnly);
 
     /**
      * Returns a {@code Method} object which represents the method matching the
@@ -688,72 +651,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @param name the method name
      * @param args the method's parameter types
      */
-    private Method getDeclaredMethodInternal(String name, Class<?>[] args) {
-        // Covariant return types permit the class to define multiple
-        // methods with the same name and parameter types. Prefer to
-        // return a non-synthetic method in such situations. We may
-        // still return a synthetic method to handle situations like
-        // escalated visibility. We never return miranda methods that
-        // were synthesized by the runtime.
-        int skipModifiers = Modifier.MIRANDA | Modifier.SYNTHETIC;
-        ArtMethod artMethodResult = null;
-        if (virtualMethods != null) {
-            for (ArtMethod m : virtualMethods) {
-                ArtMethod nonProxyMethod = Class.findOverriddenMethodIfProxy(m);
-                String methodName = ArtMethod.getMethodName(nonProxyMethod);
-                if (!name.equals(methodName)) {
-                    continue;
-                }
-                if (!ArtMethod.equalMethodParameters(nonProxyMethod, args)) {
-                    continue;
-                }
-                int modifiers = m.getAccessFlags();
-                if ((modifiers & skipModifiers) == 0) {
-                    return new Method(m);
-                }
-                if ((modifiers & Modifier.MIRANDA) == 0) {
-                    // Remember as potential result if it's not a miranda method.
-                    artMethodResult = m;
-                }
-            }
-        }
-        if (artMethodResult == null) {
-            if (directMethods != null) {
-                for (ArtMethod m : directMethods) {
-                    int modifiers = m.getAccessFlags();
-                    if (Modifier.isConstructor(modifiers)) {
-                        continue;
-                    }
-                    ArtMethod nonProxyMethod = Class.findOverriddenMethodIfProxy(m);
-                    String methodName = ArtMethod.getMethodName(nonProxyMethod);
-                    if (!name.equals(methodName)) {
-                        continue;
-                    }
-                    if (!ArtMethod.equalMethodParameters(nonProxyMethod, args)) {
-                        continue;
-                    }
-                    if ((modifiers & skipModifiers) == 0) {
-                        return new Method(m);
-                    }
-                    // Direct methods cannot be miranda methods,
-                    // so this potential result must be synthetic.
-                    artMethodResult = m;
-                }
-            }
-        }
-        if (artMethodResult == null) {
-            return null;
-        }
-        return new Method(artMethodResult);
-    }
-
-    /**
-     * Returns the overridden method if the {@code method} is a proxy method,
-     * otherwise returns the {@code method}.
-     *
-     * @hide
-     */
-    public static native ArtMethod findOverriddenMethodIfProxy(ArtMethod method);
+    private native Method getDeclaredMethodInternal(String name, Class<?>[] args);
 
     /**
      * Returns an array containing {@code Method} objects for all methods
@@ -764,11 +662,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @see #getMethods()
      */
     public Method[] getDeclaredMethods() {
-        int initial_size = virtualMethods == null ? 0 : virtualMethods.length;
-        initial_size += directMethods == null ? 0 : directMethods.length;
-        ArrayList<Method> methods = new ArrayList<Method>(initial_size);
-        getDeclaredMethodsUnchecked(false, methods);
-        Method[] result = methods.toArray(new Method[methods.size()]);
+        Method[] result = getDeclaredMethodsUnchecked(false);
         for (Method m : result) {
             // Throw NoClassDefFoundError if types cannot be resolved.
             m.getReturnType();
@@ -786,30 +680,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @param methods A list to populate with declared methods.
      * @hide
      */
-    public void getDeclaredMethodsUnchecked(boolean publicOnly, List<Method> methods) {
-        if (virtualMethods != null) {
-            for (ArtMethod m : virtualMethods) {
-                int modifiers = m.getAccessFlags();
-                if (!publicOnly || Modifier.isPublic(modifiers)) {
-                    // Add non-miranda virtual methods.
-                    if ((modifiers & Modifier.MIRANDA) == 0) {
-                        methods.add(new Method(m));
-                    }
-                }
-            }
-        }
-        if (directMethods != null) {
-            for (ArtMethod m : directMethods) {
-                int modifiers = m.getAccessFlags();
-                if (!publicOnly || Modifier.isPublic(modifiers)) {
-                    // Add non-constructor direct/static methods.
-                    if (!Modifier.isConstructor(modifiers)) {
-                        methods.add(new Method(m));
-                    }
-                }
-            }
-        }
-    }
+    public native Method[] getDeclaredMethodsUnchecked(boolean publicOnly);
 
     /**
      * Returns an array containing {@code Method} objects for all public methods
@@ -839,11 +710,11 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * superclasses, and all implemented interfaces, including overridden methods.
      */
     private void getPublicMethodsInternal(List<Method> result) {
-        getDeclaredMethodsUnchecked(true, result);
+        Collections.addAll(result, getDeclaredMethodsUnchecked(true));
         if (!isInterface()) {
             // Search superclasses, for interfaces don't search java.lang.Object.
             for (Class<?> c = superClass; c != null; c = c.superClass) {
-                c.getDeclaredMethodsUnchecked(true, result);
+                Collections.addAll(result, c.getDeclaredMethodsUnchecked(true));
             }
         }
         // Search iftable which has a flattened and uniqued list of interfaces.
@@ -851,7 +722,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         if (iftable != null) {
             for (int i = 0; i < iftable.length; i += 2) {
                 Class<?> ifc = (Class<?>) iftable[i];
-                ifc.getDeclaredMethodsUnchecked(true, result);
+                Collections.addAll(result, ifc.getDeclaredMethodsUnchecked(true));
             }
         }
     }
@@ -1529,7 +1400,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
           throw new IllegalAccessException(init + " is not accessible from " + caller);
         }
         try {
-          return init.newInstance(null, init.isAccessible());
+          return init.newInstanceTwoFrames();
         } catch (InvocationTargetException e) {
           SneakyThrow.sneakyThrow(e.getCause());
           return null;  // Unreachable.
