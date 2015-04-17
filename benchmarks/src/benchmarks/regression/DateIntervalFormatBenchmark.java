@@ -21,7 +21,9 @@ import com.google.caliper.SimpleBenchmark;
 import android.icu.util.ULocale;
 import android.icu.util.TimeZone;
 
-import static libcore.icu.DateIntervalFormat.*;
+import libcore.icu.DateIntervalFormat;
+
+import static libcore.icu.DateUtilsBridge.*;
 
 public class DateIntervalFormatBenchmark extends SimpleBenchmark {
   public void timeDateIntervalFormat_formatDateRange_DATE(int reps) throws Exception {
@@ -30,7 +32,7 @@ public class DateIntervalFormatBenchmark extends SimpleBenchmark {
     int flags = FORMAT_SHOW_DATE | FORMAT_SHOW_WEEKDAY;
 
     for (int rep = 0; rep < reps; ++rep) {
-      formatDateRange(l, utc, 0L, 0L, flags);
+      DateIntervalFormat.formatDateRange(l, utc, 0L, 0L, flags);
     }
   }
 
@@ -40,7 +42,7 @@ public class DateIntervalFormatBenchmark extends SimpleBenchmark {
     int flags = FORMAT_SHOW_TIME | FORMAT_24HOUR;
 
     for (int rep = 0; rep < reps; ++rep) {
-      formatDateRange(l, utc, 0L, 0L, flags);
+      DateIntervalFormat.formatDateRange(l, utc, 0L, 0L, flags);
     }
   }
 
@@ -50,7 +52,7 @@ public class DateIntervalFormatBenchmark extends SimpleBenchmark {
     int flags = FORMAT_SHOW_DATE | FORMAT_SHOW_WEEKDAY | FORMAT_SHOW_TIME | FORMAT_24HOUR;
 
     for (int rep = 0; rep < reps; ++rep) {
-      formatDateRange(l, utc, 0L, 0L, flags);
+      DateIntervalFormat.formatDateRange(l, utc, 0L, 0L, flags);
     }
   }
 }
