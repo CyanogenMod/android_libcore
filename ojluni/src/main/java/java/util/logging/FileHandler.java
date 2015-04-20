@@ -493,11 +493,13 @@ public class FileHandler extends StreamHandler {
                     continue;
                 } else if (ch2 == 'h') {
                     file = new File(System.getProperty("user.home"));
-                    if (isSetUID()) {
-                        // Ok, we are in a set UID program.  For safety's sake
-                        // we disallow attempts to open files relative to %h.
-                        throw new IOException("can't use %h in set UID program");
-                    }
+                    // Android-changed: Don't make a special exemption for setuid programs.
+                    //
+                    // if (isSetUID()) {
+                    //     // Ok, we are in a set UID program.  For safety's sake
+                    //     // we disallow attempts to open files relative to %h.
+                    //     throw new IOException("can't use %h in set UID program");
+                    // }
                     ix++;
                     word = "";
                     continue;
@@ -624,5 +626,6 @@ public class FileHandler extends StreamHandler {
     }
 
     // Private native method to check if we are in a set UID program.
-    private static native boolean isSetUID();
+    // Android-changed: Not required.
+    // private static native boolean isSetUID();
 }

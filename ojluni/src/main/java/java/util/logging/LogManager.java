@@ -33,8 +33,6 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import sun.misc.JavaAWTAccess;
-import sun.misc.SharedSecrets;
 
 /**
  * There is a single global LogManager object that is used to
@@ -348,39 +346,8 @@ public class LogManager {
     // Returns the LoggerContext for the user code (i.e. application or AppContext).
     // Loggers are isolated from each AppContext.
     private LoggerContext getUserContext() {
-        LoggerContext context = null;
-
-        SecurityManager sm = System.getSecurityManager();
-        JavaAWTAccess javaAwtAccess = SharedSecrets.getJavaAWTAccess();
-        if (sm != null && javaAwtAccess != null) {
-            synchronized (javaAwtAccess) {
-                // AppContext.getAppContext() returns the system AppContext if called
-                // from a system thread but Logger.getLogger might be called from
-                // an applet code. Instead, find the AppContext of the applet code
-                // from the execution stack.
-                Object ecx = javaAwtAccess.getExecutionContext();
-                if (ecx == null) {
-                    // fall back to thread group seach of AppContext
-                    ecx = javaAwtAccess.getContext();
-                }
-                if (ecx != null) {
-                    context = (LoggerContext)javaAwtAccess.get(ecx, LoggerContext.class);
-                    if (context == null) {
-                        if (javaAwtAccess.isMainAppContext()) {
-                            context = userContext;
-                        } else {
-                            // Create a new LoggerContext for the applet.
-                            // The new logger context has its requiresDefaultLoggers
-                            // flag set to true - so that these loggers will be
-                            // lazily added when the context is firt accessed.
-                            context = new LoggerContext(true);
-                        }
-                        javaAwtAccess.put(ecx, LoggerContext.class, context);
-                    }
-                }
-            }
-        }
-        return context != null ? context : userContext;
+        // Android-changed: No AWT specific hooks.
+        return userContext;
     }
 
     private List<LoggerContext> contexts() {

@@ -24,13 +24,11 @@
  */
 
 package java.util.logging;
+import dalvik.system.VMStack;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.io.*;
-
-import sun.misc.JavaLangAccess;
-import sun.misc.SharedSecrets;
 
 /**
  * LogRecord objects are used to pass logging requests between
@@ -524,16 +522,17 @@ public class LogRecord implements java.io.Serializable {
     // Private method to infer the caller's class and method names
     private void inferCaller() {
         needToInferCaller = false;
-        JavaLangAccess access = SharedSecrets.getJavaLangAccess();
-        Throwable throwable = new Throwable();
-        int depth = access.getStackTraceDepth(throwable);
+        // Android-changed: Use VMStack.getThreadStackTrace.
+        StackTraceElement[] stack = VMStack.getThreadStackTrace(Thread.currentThread());
+        int depth = stack.length;
 
         boolean lookingForLogger = true;
         for (int ix = 0; ix < depth; ix++) {
             // Calling getStackTraceElement directly prevents the VM
             // from paying the cost of building the entire stack frame.
-            StackTraceElement frame =
-                access.getStackTraceElement(throwable, ix);
+            //
+            // Android-changed: Use value from getThreadStackTrace.
+            StackTraceElement frame = stack[ix];
             String cname = frame.getClassName();
             boolean isLoggerImpl = isLoggerImplFrame(cname);
             if (lookingForLogger) {

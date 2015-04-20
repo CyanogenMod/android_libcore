@@ -26,6 +26,7 @@
 
 package java.util.logging;
 
+import dalvik.system.VMStack;
 import java.lang.ref.WeakReference;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -36,7 +37,6 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.concurrent.CopyOnWriteArrayList;
 import sun.reflect.CallerSensitive;
-import sun.reflect.Reflection;
 
 /**
  * A Logger object is used to log messages for a specific
@@ -387,7 +387,9 @@ public class Logger {
         // would throw an IllegalArgumentException in the second call
         // because the wrapper would result in an attempt to replace
         // the existing "resourceBundleForFoo" with null.
-        return demandLogger(name, null, Reflection.getCallerClass());
+        //
+        // Android-changed: Use VMStack.getStackClass1.
+        return demandLogger(name, null, VMStack.getStackClass1());
     }
 
     /**
@@ -435,7 +437,8 @@ public class Logger {
     // adding a new Logger object is handled by LogManager.addLogger().
     @CallerSensitive
     public static Logger getLogger(String name, String resourceBundleName) {
-        Class<?> callerClass = Reflection.getCallerClass();
+        // Android-changed: Use VMStack.getStackClass1.
+        Class<?> callerClass = VMStack.getStackClass1();
         Logger result = demandLogger(name, resourceBundleName, callerClass);
 
         if (result.resourceBundleName == null) {
@@ -527,8 +530,9 @@ public class Logger {
         LogManager manager = LogManager.getLogManager();
         // cleanup some Loggers that have been GC'ed
         manager.drainLoggerRefQueueBounded();
+        // Android-changed: Use VMStack.getStackClass1.
         Logger result = new Logger(null, resourceBundleName,
-                                   Reflection.getCallerClass());
+                                   VMStack.getStackClass1());
         result.anonymous = true;
         Logger root = manager.getLogger("");
         result.doSetParent(root);
@@ -1472,8 +1476,13 @@ public class Logger {
                                                                     Locale locale,
                                                                     ClassLoader cl)
     {
+        // Android-changed: Use VMStack.getThreadStackTrace.
+        StackTraceElement[] stack = VMStack.getThreadStackTrace(Thread.currentThread());
         for (int ix = 0; ; ix++) {
-            Class<?> clz = sun.reflect.Reflection.getCallerClass(ix);
+            Class<?> clz = null;
+            try {
+                clz = Class.forName(stack[ix].getClassName());
+            } catch (ClassNotFoundException ignored) {}
             if (clz == null) {
                 break;
             }
