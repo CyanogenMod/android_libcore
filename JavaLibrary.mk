@@ -87,6 +87,7 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-all
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_REQUIRED_MODULES := tzdata
+LOCAL_CORE_LIBRARY := true
 include $(BUILD_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -100,6 +101,7 @@ LOCAL_MODULE := core-oj
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_JAVA_LIBRARIES := core-all
 LOCAL_REQUIRED_MODULES := tzdata
+LOCAL_CORE_LIBRARY := true
 include $(BUILD_JAVA_LIBRARY)
 
 # Definitions to make the core library.
@@ -191,6 +193,7 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := core-all-hostdex
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_REQUIRED_MODULES := tzdata-host
+LOCAL_CORE_LIBRARY := true
 include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -204,6 +207,7 @@ LOCAL_MODULE := core-oj-hostdex
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_JAVA_LIBRARIES := core-all-hostdex
 LOCAL_REQUIRED_MODULES := tzdata-host
+LOCAL_CORE_LIBRARY := true
 include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 
 # Definitions to make the core library.
