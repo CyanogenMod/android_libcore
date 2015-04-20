@@ -223,55 +223,29 @@ import java.lang.Double;
  */
 public abstract class Preferences {
 
-    private static final PreferencesFactory factory = factory();
+    // Android-changed: Not final for testing.
+    private static PreferencesFactory factory = factory();
 
+    // Android-changed: Collapse factory / factory1 into a single function, remove
+    // references to AccessController and hacks to use the context class-loader.
+    // Also remove references to the OS specific preferences implementation.
     private static PreferencesFactory factory() {
         // 1. Try user-specified system property
-        String factoryName = AccessController.doPrivileged(
-            new PrivilegedAction<String>() {
-                public String run() {
-                    return System.getProperty(
-                        "java.util.prefs.PreferencesFactory");}});
+        String factoryName = System.getProperty("java.util.prefs.PreferencesFactory");
         if (factoryName != null) {
-            // FIXME: This code should be run in a doPrivileged and
-            // not use the context classloader, to avoid being
-            // dependent on the invoking thread.
-            // Checking AllPermission also seems wrong.
             try {
                 return (PreferencesFactory)
                     Class.forName(factoryName, false,
                                   ClassLoader.getSystemClassLoader())
                     .newInstance();
             } catch (Exception ex) {
-                try {
-                    // workaround for javaws, plugin,
-                    // load factory class using non-system classloader
-                    SecurityManager sm = System.getSecurityManager();
-                    if (sm != null) {
-                        sm.checkPermission(new java.security.AllPermission());
-                    }
-                    return (PreferencesFactory)
-                        Class.forName(factoryName, false,
-                                      Thread.currentThread()
-                                      .getContextClassLoader())
-                        .newInstance();
-                } catch (Exception e) {
-                    InternalError error = new InternalError(
-                        "Can't instantiate Preferences factory "
-                        + factoryName);
-                    error.initCause(e);
-                    throw error;
-                }
+                InternalError error = new InternalError(
+                    "Can't instantiate Preferences factory " + factoryName);
+                error.initCause(ex);
+                throw error;
             }
         }
 
-        return AccessController.doPrivileged(
-            new PrivilegedAction<PreferencesFactory>() {
-                public PreferencesFactory run() {
-                    return factory1();}});
-    }
-
-    private static PreferencesFactory factory1() {
         // 2. Try service provider interface
         Iterator<PreferencesFactory> itr = ServiceLoader
             .load(PreferencesFactory.class, ClassLoader.getSystemClassLoader())
@@ -282,34 +256,23 @@ public abstract class Preferences {
             try {
                 return itr.next();
             } catch (ServiceConfigurationError sce) {
-                if (sce.getCause() instanceof SecurityException) {
-                    // Ignore the security exception, try the next provider
-                    continue;
-                }
                 throw sce;
             }
         }
 
-        // 3. Use platform-specific system-wide default
-        String osName = System.getProperty("os.name");
-        String platformFactory;
-        if (osName.startsWith("Windows")) {
-            platformFactory = "java.util.prefs.WindowsPreferencesFactory";
-        } else if (osName.contains("OS X")) {
-            platformFactory = "java.util.prefs.MacOSXPreferencesFactory";
-        } else {
-            platformFactory = "java.util.prefs.FileSystemPreferencesFactory";
-        }
-        try {
-            return (PreferencesFactory)
-                Class.forName(platformFactory, false, null).newInstance();
-        } catch (Exception e) {
-            InternalError error = new InternalError(
-                "Can't instantiate platform default Preferences factory "
-                + platformFactory);
-            error.initCause(e);
-            throw error;
-        }
+        // Android-changed: Remove support for OS Specific configuration options and
+        // just return a hard coded default.
+        return new FilePreferencesFactoryImpl();
+    }
+
+    /**
+     * @hide for testing only.
+     */
+    // Android-changed: Allow this to be set for testing.
+    public static PreferencesFactory setPreferencesFactory(PreferencesFactory pf) {
+        PreferencesFactory previous = factory;
+        factory = pf;
+        return previous;
     }
 
     /**
