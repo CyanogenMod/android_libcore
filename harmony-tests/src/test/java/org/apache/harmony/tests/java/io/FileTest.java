@@ -227,8 +227,8 @@ public class FileTest extends TestCase {
             assertEquals("wrong result 4", ref1.getPath(), file4.getPath());
         }
 
-        File ref2 = new File("/lib/content-types.properties");
-        File file5 = new File("/", "lib/content-types.properties");
+        File ref2 = new File("/lib/test_112270.properties");
+        File file5 = new File("/", "lib/test_112270.properties");
         assertEquals("wrong result 5", ref2.getPath(), file5.getPath());
     }
 
