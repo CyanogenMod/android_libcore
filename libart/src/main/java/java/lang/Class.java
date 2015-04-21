@@ -124,16 +124,16 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     private static final long serialVersionUID = 3206093459760846163L;
 
-    /** defining class loader, or NULL for the "bootstrap" system loader. */
+    /** defining class loader, or null for the "bootstrap" system loader. */
     private transient ClassLoader classLoader;
 
     /**
      * For array classes, the component class object for instanceof/checkcast (for String[][][],
-     * this will be String[][]). NULL for non-array classes.
+     * this will be String[][]). null for non-array classes.
      */
     private transient Class<?> componentType;
     /**
-     * DexCache of resolved constant pool entries. Will be null for certain VM-generated classes
+     * DexCache of resolved constant pool entries. Will be null for certain runtime-generated classes
      * e.g. arrays and primitive classes.
      */
     private transient DexCache dexCache;
@@ -163,7 +163,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /** Lazily computed name of this class; always prefer calling getName(). */
     private transient String name;
 
-    /** The superclass, or NULL if this is java.lang.Object, an interface or primitive type. */
+    /** The superclass, or null if this is java.lang.Object, an interface or primitive type. */
     private transient Class<? super T> superClass;
 
     /** If class verify fails, we must return same error on subsequent tries. */
@@ -253,7 +253,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     private transient int status;
 
     private Class() {
-        // Prevent this class to be instantiated, instance should be created by JVM only
+        // Prevent this class from being instantiated,
+        // instances should be created by the runtime only.
     }
 
     /**
@@ -290,6 +291,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * <p>If the class has not yet been loaded, it is loaded first, using the given class loader.
      * If the class has not yet been initialized and {@code shouldInitialize} is true,
      * the class will be initialized.
+     *
+     * <p>If the provided {@code classLoader} is null, the bootstrap
+     * class loader will be used to load the class.
      *
      * @throws ClassNotFoundException
      *             if the requested class cannot be found.
@@ -707,7 +711,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
         // return a non-synthetic method in such situations. We may
         // still return a synthetic method to handle situations like
         // escalated visibility. We never return miranda methods that
-        // were synthesized by the VM.
+        // were synthesized by the runtime.
         int skipModifiers = Modifier.MIRANDA | Modifier.SYNTHETIC;
         ArtMethod artMethodResult = null;
         if (virtualMethods != null) {
@@ -1603,7 +1607,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * object was created by the class loader of the class.
      */
     public Package getPackage() {
-        // TODO This might be a hack, but the VM doesn't have the necessary info.
+        // TODO This might be a hack, but the runtime doesn't have the necessary info.
         ClassLoader loader = getClassLoader();
         if (loader != null) {
             String packageName = getPackageName$();
