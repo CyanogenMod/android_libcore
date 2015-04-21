@@ -51,7 +51,7 @@ public abstract class X509Certificate extends Certificate {
             String classname = Security.getProperty("cert.provider.x509v1");
             Class cl = Class.forName(classname);
             constructor = cl.getConstructor(new Class[] {InputStream.class});
-        } catch (Throwable e) {
+        } catch (Exception|LinkageError e) {
         }
     }
 
@@ -80,7 +80,7 @@ public abstract class X509Certificate extends Certificate {
             try {
                 return (X509Certificate)
                     constructor.newInstance(new Object[] {inStream});
-            } catch (Throwable e) {
+            } catch (ReflectiveOperationException e) {
                 throw new CertificateException(e.getMessage());
             }
         }
