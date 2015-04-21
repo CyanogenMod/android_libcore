@@ -57,8 +57,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
             }
             int comparison = a.getName().compareTo(b.getName());
             if (comparison == 0) {
-                comparison = Class.findOverriddenMethodIfProxy(a.artMethod).compareParameters(
-                        Class.findOverriddenMethodIfProxy(b.artMethod).getParameterTypes());
+                comparison = a.compareParameters(b.getParameterTypes());
                 if (comparison == 0) {
                     // This is necessary for methods that have covariant return types.
                     Class<?> aReturnType = a.getReturnType();
@@ -77,12 +76,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
     /**
      * @hide
      */
-    public Method(ArtMethod artMethod) {
-        super(artMethod);
-    }
-
-    ArtMethod getArtMethod() {
-        return artMethod;
+    private Method() {
     }
 
     public Annotation[] getAnnotations() {
@@ -136,8 +130,9 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @return the name of this method
      */
     @Override public String getName() {
-        ArtMethod nonProxyMethod = Class.findOverriddenMethodIfProxy(artMethod);
-        return ArtMethod.getMethodName(nonProxyMethod);
+        Dex dex = declaringClassOfOverriddenMethod.getDex();
+        int nameIndex = dex.nameIndexFromMethodIndex(dexMethodIndex);
+        return declaringClassOfOverriddenMethod.getDexCacheString(dex, nameIndex);
     }
 
     /**
@@ -172,7 +167,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @return the parameter types
      */
     @Override public Class<?>[] getParameterTypes() {
-        return Class.findOverriddenMethodIfProxy(artMethod).getParameterTypes();
+        return super.getParameterTypes();
     }
 
     /**
@@ -182,8 +177,12 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @return the return type
      */
     public Class<?> getReturnType() {
-        return Class.findOverriddenMethodIfProxy(artMethod).getReturnType();
+        Dex dex = declaringClassOfOverriddenMethod.getDex();
+        int returnTypeIndex = dex.returnTypeIndexFromMethodIndex(dexMethodIndex);
+        // Note, in the case of a Proxy the dex cache types are equal.
+        return declaringClassOfOverriddenMethod.getDexCacheType(dex, returnTypeIndex);
     }
+
 
     /**
      * {@inheritDoc}
@@ -210,10 +209,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @hide needed by Proxy
      */
     boolean equalNameAndParameters(Method m) {
-        ArtMethod nonProxyThis = Class.findOverriddenMethodIfProxy(this.artMethod);
-        ArtMethod nonProxyM = Class.findOverriddenMethodIfProxy(m.artMethod);
-        return ArtMethod.getMethodName(nonProxyThis).equals(ArtMethod.getMethodName(nonProxyM)) &&
-                ArtMethod.equalMethodParameters(nonProxyThis, nonProxyM.getParameterTypes());
+        return getName().equals(m.getName()) && equalMethodParameters(m.getParameterTypes());
     }
 
     /**
@@ -313,7 +309,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @return an array of arrays of {@code Annotation} instances
      */
     public Annotation[][] getParameterAnnotations() {
-        return Class.findOverriddenMethodIfProxy(artMethod).getParameterAnnotations();
+        return super.getParameterAnnotations();
     }
 
     /**
@@ -370,12 +366,7 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @throws InvocationTargetException
      *             if an exception was thrown by the invoked method
      */
-    public Object invoke(Object receiver, Object... args)
-            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        return invoke(receiver, args, isAccessible());
-    }
-
-    private native Object invoke(Object receiver, Object[] args, boolean accessible)
+    public native Object invoke(Object receiver, Object... args)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 
     /**
