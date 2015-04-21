@@ -166,11 +166,7 @@ public class Proxy implements Serializable {
         Collections.sort(methods, ORDER_BY_SIGNATURE_AND_SUBTYPE);
         validateReturnTypes(methods);
         List<Class<?>[]> exceptions = deduplicateAndGetExceptions(methods);
-
-        ArtMethod[] methodsArray = new ArtMethod[methods.size()];
-        for (int i = 0; i < methodsArray.length; i++) {
-            methodsArray[i] = methods.get(i).getArtMethod();
-        }
+        Method[] methodsArray = methods.toArray(new Method[methods.size()]);
         Class<?>[][] exceptionsArray = exceptions.toArray(new Class<?>[exceptions.size()][]);
 
         String baseName = commonPackageName != null && !commonPackageName.isEmpty()
@@ -383,7 +379,7 @@ public class Proxy implements Serializable {
     }
 
     private static native Class<?> generateProxy(String name, Class<?>[] interfaces,
-                                                 ClassLoader loader, ArtMethod[] methods,
+                                                 ClassLoader loader, Method[] methods,
                                                  Class<?>[][] exceptions);
 
     /*
@@ -392,8 +388,8 @@ public class Proxy implements Serializable {
      */
     private static native void constructorPrototype(InvocationHandler h);
 
-    static Object invoke(Proxy proxy, ArtMethod method, Object[] args) throws Throwable {
+    private static Object invoke(Proxy proxy, Method method, Object[] args) throws Throwable {
         InvocationHandler h = proxy.h;
-        return h.invoke(proxy, new Method(method), args);
+        return h.invoke(proxy, method, args);
     }
 }
