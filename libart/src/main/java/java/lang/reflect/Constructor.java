@@ -49,11 +49,7 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
 
     private static final Comparator<Method> ORDER_BY_SIGNATURE = null; // Unused; must match Method.
 
-    /**
-     * @hide
-     */
-    public Constructor(ArtMethod artMethod) {
-        super(artMethod);
+    private Constructor() {
     }
 
     public Annotation[] getAnnotations() {
@@ -213,7 +209,7 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
      * @return an array of arrays of {@code Annotation} instances
      */
     public Annotation[][] getParameterAnnotations() {
-        return artMethod.getParameterAnnotations();
+        return super.getParameterAnnotations();
     }
 
     /**
@@ -283,13 +279,14 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
      *
      * @see AccessibleObject
      */
-    public T newInstance(Object... args) throws InstantiationException,
-            IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-      return newInstance(args, isAccessible());
-    }
+    public native T newInstance(Object... args) throws InstantiationException,
+            IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 
-    /** @hide */
-    public native T newInstance(Object[] args, boolean accessible) throws InstantiationException,
+    /**
+     * Special version that looks up two frames for access check. Used by Class.newInstance.
+     * @hide
+     */
+    public native T newInstanceTwoFrames(Object... args) throws InstantiationException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 
     /**
