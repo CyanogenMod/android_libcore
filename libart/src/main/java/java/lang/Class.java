@@ -418,24 +418,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             return null;
         }
 
-        ClassLoader loader = getClassLoaderImpl();
-        if (loader == null) {
-            loader = BootClassLoader.getInstance();
-        }
-        return loader;
-    }
-
-    /**
-     * This must be provided by the VM vendor, as it is used by other provided
-     * class implementations in this package. Outside of this class, it is used
-     * by SecurityManager.classLoaderDepth(),
-     * currentClassLoader() and currentLoadedClass(). Return the ClassLoader for
-     * this Class without doing any security checks. The bootstrap ClassLoader
-     * is returned, unlike getClassLoader() which returns null in place of the
-     * bootstrap ClassLoader.
-     */
-    ClassLoader getClassLoaderImpl() {
-        ClassLoader loader = classLoader;
+        final ClassLoader loader = classLoader;
         return loader == null ? BootClassLoader.getInstance() : loader;
     }
 
