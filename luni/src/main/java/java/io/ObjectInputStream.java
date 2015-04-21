@@ -1977,7 +1977,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
             // original/outside caller
             if (++nestedLevels == 1) {
                 // Remember the caller's class loader
-                callerClassLoader = VMStack.getClosestUserClassLoader(bootstrapLoader, systemLoader);
+                callerClassLoader = VMStack.getClosestUserClassLoader();
             }
 
             result = readNonPrimitiveContent(unshared);
@@ -2013,9 +2013,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
         }
         return result;
     }
-
-    private static final ClassLoader bootstrapLoader = Object.class.getClassLoader();
-    private static final ClassLoader systemLoader = ClassLoader.getSystemClassLoader();
 
     /**
      * Method to be overridden by subclasses to read the next object from the
