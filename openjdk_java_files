@@ -700,6 +700,7 @@ java/util/logging/SocketHandler.java
 java/util/logging/StreamHandler.java
 java/util/logging/XMLFormatter.java
 java/util/logging/Logging.java
+java/util/logging/LoggingProxyImpl.java
 java/util/prefs/AbstractPreferences.java
 java/util/prefs/BackingStoreException.java
 java/util/prefs/InvalidPreferencesFormatException.java
@@ -709,8 +710,8 @@ java/util/prefs/PreferenceChangeEvent.java
 java/util/prefs/PreferenceChangeListener.java
 java/util/prefs/PreferencesFactory.java
 java/util/prefs/Preferences.java
-java/util/prefs/XmlSupport.java
 java/util/prefs/Base64.java
+java/util/prefs/XmlSupport.java
 java/util/zip/CheckedInputStream.java
 java/util/zip/CheckedOutputStream.java
 java/util/zip/ZipException.java

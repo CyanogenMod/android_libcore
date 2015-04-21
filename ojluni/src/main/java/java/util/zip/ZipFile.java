@@ -36,11 +36,14 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.WeakHashMap;
 import java.security.AccessController;
 import sun.security.action.GetPropertyAction;
+
 import static java.util.zip.ZipConstants64.*;
 
 /**
@@ -197,6 +200,11 @@ class ZipFile implements ZipConstants, Closeable {
             throw new IllegalArgumentException("Illegal mode: 0x"+
                                                Integer.toHexString(mode));
         }
+
+        // Android-changed: Error out early if the file is too short.
+        if (file.length() < ZipConstants.ENDHDR) {
+            throw new ZipException("File too short to be a zip file: " + file.length());
+        }
         String name = file.getPath();
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -213,6 +221,29 @@ class ZipFile implements ZipConstants, Closeable {
         this.name = name;
         this.total = getTotal(jzfile);
         this.locsig = startsWithLOC(jzfile);
+        Enumeration<? extends ZipEntry> entries = entries();
+
+        // Android-changed: Error out early if the zipfile has no entries.
+        if (size() == 0 || !entries.hasMoreElements()) {
+            close();
+            throw new ZipException("No entries");
+        }
+
+        // Android-changed: Disallow duplicate entry names or entries that have a C
+        // string terminator in them.
+        Set<String> entryNames = new HashSet<String>();
+        while (entries.hasMoreElements()) {
+            String entryName = entries.nextElement().getName();
+            if (entryNames.contains(entryName)) {
+                close();
+                throw new ZipException("Duplicate entry name: " + entryName);
+            }
+            if (entryName.indexOf('\0') != -1) {
+                close();
+                throw new ZipException("Null in entry name: " + entryName);
+            }
+            entryNames.add(entryName);
+        }
     }
 
     /**

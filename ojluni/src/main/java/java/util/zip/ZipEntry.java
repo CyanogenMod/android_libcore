@@ -25,6 +25,7 @@
 
 package java.util.zip;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 /**
@@ -68,8 +69,11 @@ class ZipEntry implements ZipConstants, Cloneable {
         if (name == null) {
             throw new NullPointerException();
         }
-        if (name.length() > 0xFFFF) {
-            throw new IllegalArgumentException("entry name too long");
+
+        // Android-changed: Explicitly use UTF_8 instead of the default charset.
+        if (name.getBytes(StandardCharsets.UTF_8).length > 0xffff) {
+            throw new IllegalArgumentException(name + " too long: " +
+                    name.getBytes(StandardCharsets.UTF_8).length);
         }
         this.name = name;
     }
@@ -257,6 +261,18 @@ class ZipEntry implements ZipConstants, Cloneable {
      * @see #getComment()
      */
     public void setComment(String comment) {
+        // Android-changed: Explicitly allow null comments (or allow comments to be
+        // cleared).
+        if (comment == null) {
+            this.comment = null;
+            return;
+        }
+
+        // Android-changed: Explicitly use UTF-8.
+        if (comment.getBytes(StandardCharsets.UTF_8).length > 0xffff) {
+            throw new IllegalArgumentException(comment + " too long: " +
+                    comment.getBytes(StandardCharsets.UTF_8).length);
+        }
         this.comment = comment;
     }
 

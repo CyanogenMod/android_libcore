@@ -209,13 +209,14 @@ public final class ZipFileTest extends TestCase {
         }
     }
 
-    public void testZip64Support() throws IOException {
-        try {
-            createZipFile(64*1024, 0);
-            fail(); // Make this test more like testHugeZipFile when we have Zip64 support.
-        } catch (ZipException expected) {
-        }
-    }
+    // TODO: Port over the newer zip64 tests here.
+    //  public void testZip64Support() throws IOException {
+    //     try {
+    //         createZipFile(64*1024, 0);
+    //         fail();
+    //     } catch (ZipException expected) {
+    //     }
+    //  }
 
     /**
      * Compresses the given number of files, each of the given size, into a .zip archive.

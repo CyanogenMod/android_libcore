@@ -1219,6 +1219,6 @@ public abstract class Preferences {
     public static void importPreferences(InputStream is)
         throws IOException, InvalidPreferencesFormatException
     {
-        XmlSupport.importPreferences(is);
+      XMLParser.importPrefs(is);
     }
 }

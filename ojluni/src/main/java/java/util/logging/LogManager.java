@@ -31,6 +31,7 @@ import java.util.*;
 import java.security.*;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
@@ -1050,7 +1051,19 @@ public class LogManager {
             f = new File(f, "logging.properties");
             fname = f.getCanonicalPath();
         }
-        InputStream in = new FileInputStream(fname);
+
+        // Android-changed: Look in the boot class-path jar files for the logging.properties.
+        // It will not be present in the file system.
+        InputStream in;
+        try {
+            in = new FileInputStream(fname);
+        } catch (Exception e) {
+            in = LogManager.class.getResourceAsStream("logging.properties");
+            if (in == null) {
+                throw e;
+            }
+        }
+
         BufferedInputStream bin = new BufferedInputStream(in);
         try {
             readConfiguration(bin);
@@ -1269,9 +1282,15 @@ public class LogManager {
                 return (Filter) clz.newInstance();
             }
         } catch (Exception ex) {
-            // We got one of a variety of exceptions in creating the
-            // class or creating an instance.
-            // Drop through.
+            try {
+              Class<?> clz =
+                  Thread.currentThread().getContextClassLoader().loadClass(val);
+              return (Filter) clz.newInstance();
+            } catch (Exception innerE) {
+                // We got one of a variety of exceptions in creating the
+                // class or creating an instance.
+                // Drop through.
+            }
         }
         // We got an exception.  Return the defaultValue.
         return defaultValue;
@@ -1290,9 +1309,15 @@ public class LogManager {
                 return (Formatter) clz.newInstance();
             }
         } catch (Exception ex) {
-            // We got one of a variety of exceptions in creating the
-            // class or creating an instance.
-            // Drop through.
+            try {
+              Class<?> clz =
+                  Thread.currentThread().getContextClassLoader().loadClass(val);
+              return (Formatter) clz.newInstance();
+            } catch (Exception innerE) {
+                // We got one of a variety of exceptions in creating the
+                // class or creating an instance.
+                // Drop through.
+            }
         }
         // We got an exception.  Return the defaultValue.
         return defaultValue;
