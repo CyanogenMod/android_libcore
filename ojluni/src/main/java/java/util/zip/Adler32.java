@@ -25,8 +25,10 @@
 
 package java.util.zip;
 
+/* ----- BEGIN android -----
 import java.nio.ByteBuffer;
 import sun.nio.ch.DirectBuffer;
+----- END android ----- */
 
 /**
  * A class that can be used to compute the Adler-32 checksum of a data
@@ -38,7 +40,10 @@ import sun.nio.ch.DirectBuffer;
  */
 public
 class Adler32 implements Checksum {
-    private int adler = 1;
+    /* ----- BEGIN android -----
+    private int adler = 1;*/
+    private long adler = 1;
+    // ----- END android -----
 
     /**
      * Creates a new Adler32 object.
@@ -53,7 +58,10 @@ class Adler32 implements Checksum {
      * @param b the byte to update the checksum with
      */
     public void update(int b) {
-        adler = update(adler, b);
+        /* ----- BEGIN android -----
+        adler = update(adler, b);*/
+        adler = updateByteImpl(b, adler);
+        // ----- END android -----
     }
 
     /**
@@ -66,7 +74,10 @@ class Adler32 implements Checksum {
         if (off < 0 || len < 0 || off > b.length - len) {
             throw new ArrayIndexOutOfBoundsException();
         }
-        adler = updateBytes(adler, b, off, len);
+        /* ----- BEGIN android -----
+        adler = updateBytes(adler, b, off, len);*/
+        adler = updateImpl(b, off, len, adler);
+        // ----- END android -----
     }
 
     /**
@@ -75,7 +86,10 @@ class Adler32 implements Checksum {
      * @param b the byte array to update the checksum with
      */
     public void update(byte[] b) {
-        adler = updateBytes(adler, b, 0, b.length);
+        /* ----- BEGIN android -----
+        adler = updateBytes(adler, b, 0, b.length);*/
+        update(b, 0, b.length);
+        // ----- END android -----
     }
 
     /**
@@ -90,6 +104,7 @@ class Adler32 implements Checksum {
      *
      * @param buffer the ByteBuffer to update the checksum with
      */
+    /* ----- BEGIN android -----
     private void update(ByteBuffer buffer) {
         int pos = buffer.position();
         int limit = buffer.limit();
@@ -108,6 +123,7 @@ class Adler32 implements Checksum {
         }
         buffer.position(limit);
     }
+    ----- END android ----- */
 
     /**
      * Resets the checksum to initial value.
@@ -120,9 +136,13 @@ class Adler32 implements Checksum {
      * Returns the checksum value.
      */
     public long getValue() {
-        return (long)adler & 0xffffffffL;
+        /* ----- BEGIN android -----
+        return (long)adler & 0xffffffffL;*/
+        return adler;
+        // ----- END android -----
     }
 
+    /* ----- BEGIN android -----
     // Set up JavaUtilZipAccess in SharedSecrets
     static {
        sun.misc.SharedSecrets.setJavaUtilZipAccess(new sun.misc.JavaUtilZipAccess() {
@@ -136,5 +156,10 @@ class Adler32 implements Checksum {
     private native static int updateBytes(int adler, byte[] b, int off,
                                           int len);
     private native static int updateByteBuffer(int adler, long addr,
-                                               int off, int len);
+                                               int off, int len);*/
+    private native long updateImpl(byte[] buf, int offset, int byteCount, long adler1);
+
+    private native long updateByteImpl(int val, long adler1);
+    // ----- END android -----
+
 }

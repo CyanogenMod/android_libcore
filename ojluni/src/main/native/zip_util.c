@@ -584,15 +584,17 @@ readCEN(jzfile *zip, jint knownTotal)
         }
     }
 
-    if (cenlen > endpos)
+    if (cenlen > endpos) {
         ZIP_FORMAT_ERROR("invalid END header (bad central directory size)");
+    }
     cenpos = endpos - cenlen;
 
     /* Get position of first local file (LOC) header, taking into
      * account that there may be a stub prefixed to the zip file. */
     zip->locpos = cenpos - cenoff;
-    if (zip->locpos < 0)
+    if (zip->locpos < 0) {
         ZIP_FORMAT_ERROR("invalid END header (bad central directory offset)");
+    }
 
 #ifdef USE_MMAP
     if (zip->usemmap) {
@@ -680,19 +682,25 @@ readCEN(jzfile *zip, jint knownTotal)
         method = CENHOW(cp);
         nlen   = CENNAM(cp);
 
-        if (GETSIG(cp) != CENSIG)
+        if (GETSIG(cp) != CENSIG) {
             ZIP_FORMAT_ERROR("invalid CEN header (bad signature)");
-        if (CENFLG(cp) & 1)
+        }
+        if (CENFLG(cp) & 1) {
             ZIP_FORMAT_ERROR("invalid CEN header (encrypted entry)");
-        if (method != STORED && method != DEFLATED)
+        }
+        if (method != STORED && method != DEFLATED) {
             ZIP_FORMAT_ERROR("invalid CEN header (bad compression method)");
-        if (cp + CENHDR + nlen > cenend)
+        }
+        if (cp + CENHDR + nlen > cenend) {
             ZIP_FORMAT_ERROR("invalid CEN header (bad header size)");
+        }
 
         /* if the entry is metadata add it to our metadata names */
-        if (isMetaName((char *)cp+CENHDR, nlen))
-            if (addMetaName(zip, (char *)cp+CENHDR, nlen) != 0)
+        if (isMetaName((char *)cp+CENHDR, nlen)) {
+            if (addMetaName(zip, (char *)cp+CENHDR, nlen) != 0) {
                 goto Catch;
+            }
+        }
 
         /* Record the CEN offset and the name hash in our hash cell. */
         entries[i].cenpos = cenpos + (cp - cenbuf);
@@ -703,8 +711,9 @@ readCEN(jzfile *zip, jint knownTotal)
         entries[i].next = table[hsh];
         table[hsh] = i;
     }
-    if (cp != cenend)
+    if (cp != cenend) {
         ZIP_FORMAT_ERROR("invalid CEN header (bad header size)");
+    }
 
     zip->total = i;
     goto Finally;

@@ -29,12 +29,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "JNIHelp.h"
 #include "jlong.h"
 #include "jni.h"
 #include "jni_util.h"
 #include <zlib.h>
 
 #include "java_util_zip_Deflater.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 #define DEF_MEM_LEVEL 8
 
@@ -46,7 +50,7 @@ static jfieldID finishedID;
 static jfieldID bufID, offID, lenID;
 
 JNIEXPORT void JNICALL
-Java_java_util_zip_Deflater_initIDs(JNIEnv *env, jclass cls)
+Deflater_initIDs(JNIEnv *env, jclass cls)
 {
     levelID = (*env)->GetFieldID(env, cls, "level", "I");
     strategyID = (*env)->GetFieldID(env, cls, "strategy", "I");
@@ -59,7 +63,7 @@ Java_java_util_zip_Deflater_initIDs(JNIEnv *env, jclass cls)
 }
 
 JNIEXPORT jlong JNICALL
-Java_java_util_zip_Deflater_init(JNIEnv *env, jclass cls, jint level,
+Deflater_init(JNIEnv *env, jclass cls, jint level,
                                  jint strategy, jboolean nowrap)
 {
     z_stream *strm = calloc(1, sizeof(z_stream));
@@ -92,7 +96,7 @@ Java_java_util_zip_Deflater_init(JNIEnv *env, jclass cls, jint level,
 }
 
 JNIEXPORT void JNICALL
-Java_java_util_zip_Deflater_setDictionary(JNIEnv *env, jclass cls, jlong addr,
+Deflater_setDictionary(JNIEnv *env, jclass cls, jlong addr,
                                           jarray b, jint off, jint len)
 {
     Bytef *buf = (*env)->GetPrimitiveArrayCritical(env, b, 0);
@@ -115,7 +119,7 @@ Java_java_util_zip_Deflater_setDictionary(JNIEnv *env, jclass cls, jlong addr,
 }
 
 JNIEXPORT jint JNICALL
-Java_java_util_zip_Deflater_deflateBytes(JNIEnv *env, jobject this, jlong addr,
+Deflater_deflateBytes(JNIEnv *env, jobject this, jlong addr,
                                          jarray b, jint off, jint len, jint flush)
 {
     z_stream *strm = jlong_to_ptr(addr);
@@ -210,13 +214,13 @@ Java_java_util_zip_Deflater_deflateBytes(JNIEnv *env, jobject this, jlong addr,
 }
 
 JNIEXPORT jint JNICALL
-Java_java_util_zip_Deflater_getAdler(JNIEnv *env, jclass cls, jlong addr)
+Deflater_getAdler(JNIEnv *env, jclass cls, jlong addr)
 {
     return ((z_stream *)jlong_to_ptr(addr))->adler;
 }
 
 JNIEXPORT void JNICALL
-Java_java_util_zip_Deflater_reset(JNIEnv *env, jclass cls, jlong addr)
+Deflater_reset(JNIEnv *env, jclass cls, jlong addr)
 {
     if (deflateReset((z_stream *)jlong_to_ptr(addr)) != Z_OK) {
         JNU_ThrowInternalError(env, 0);
@@ -224,11 +228,25 @@ Java_java_util_zip_Deflater_reset(JNIEnv *env, jclass cls, jlong addr)
 }
 
 JNIEXPORT void JNICALL
-Java_java_util_zip_Deflater_end(JNIEnv *env, jclass cls, jlong addr)
+Deflater_end(JNIEnv *env, jclass cls, jlong addr)
 {
     if (deflateEnd((z_stream *)jlong_to_ptr(addr)) == Z_STREAM_ERROR) {
         JNU_ThrowInternalError(env, 0);
     } else {
         free((z_stream *)jlong_to_ptr(addr));
     }
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(Deflater, initIDs, "()V"),
+  NATIVE_METHOD(Deflater, init, "(IIZ)J"),
+  NATIVE_METHOD(Deflater, setDictionary, "(J[BII)V"),
+  NATIVE_METHOD(Deflater, deflateBytes, "(J[BIII)I"),
+  NATIVE_METHOD(Deflater, getAdler, "(J)I"),
+  NATIVE_METHOD(Deflater, reset, "(J)V"),
+  NATIVE_METHOD(Deflater, end, "(J)V"),
+};
+
+void register_java_util_zip_Deflater(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/util/zip/Deflater", gMethods, NELEM(gMethods));
 }

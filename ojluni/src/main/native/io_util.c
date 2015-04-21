@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include <stdio.h>
 
 #include "jni.h"
 #include "jni_util.h"

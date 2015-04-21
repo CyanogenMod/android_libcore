@@ -43,6 +43,8 @@ class ZipEntry implements ZipConstants, Cloneable {
     int flag = 0;       // general purpose flag
     byte[] extra;       // optional extra field data for entry
     String comment;     // optional comment string for entry
+    // Android-changed: Add dataOffset for internal use.
+    long dataOffset;
 
     /**
      * Compression method for uncompressed entries.
@@ -87,12 +89,18 @@ class ZipEntry implements ZipConstants, Cloneable {
         flag = e.flag;
         extra = e.extra;
         comment = e.comment;
+        dataOffset = e.dataOffset;
     }
 
     /*
      * Creates a new un-initialized zip entry
      */
     ZipEntry() {}
+
+    /** @hide */
+    public long getDataOffset() {
+        return dataOffset;
+    }
 
     /**
      * Returns the name of the entry.

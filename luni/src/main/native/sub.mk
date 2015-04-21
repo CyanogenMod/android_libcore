@@ -30,10 +30,6 @@ LOCAL_SRC_FILES := \
     java_nio_ByteOrder.cpp \
     java_nio_charset_Charsets.cpp \
     java_util_jar_StrictJarFile.cpp \
-    java_util_zip_Adler32.cpp \
-    java_util_zip_CRC32.cpp \
-    java_util_zip_Deflater.cpp \
-    java_util_zip_Inflater.cpp \
     libcore_icu_AlphabeticIndex.cpp \
     libcore_icu_DateIntervalFormat.cpp \
     libcore_icu_ICU.cpp \

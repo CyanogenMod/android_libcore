@@ -28,6 +28,15 @@
 #include "ziparchive/zip_archive.h"
 #include "cutils/log.h"
 
+static jfieldID nameID;
+static jfieldID timeID;
+static jfieldID crcID;
+static jfieldID sizeID;
+static jfieldID csizeID;
+static jfieldID methodID;
+static jfieldID dataOffsetID;
+static jmethodID zipEntryCtorID;
+
 static void throwIoException(JNIEnv* env, const int32_t errorCode) {
   jniThrowException(env, "java/io/IOException", ErrorCodeString(errorCode));
 }
@@ -53,31 +62,33 @@ static jobject constructString(JNIEnv* env, const char* name, const uint16_t nam
   return env->NewObject(stringClass.get(), stringCtor, javaNameBytes);
 }
 
-static jobject newZipEntry(JNIEnv* env, const ZipEntry& entry, const jobject entryName,
-                           const uint16_t nameLength) {
+static jobject newZipEntry(JNIEnv* env, const ZipEntry& entry, const jobject entryName) {
   ScopedLocalRef<jclass> zipEntryClass(env, env->FindClass("java/util/zip/ZipEntry"));
-  const jmethodID zipEntryCtor = env->GetMethodID(zipEntryClass.get(), "<init>",
-                                   "(Ljava/lang/String;Ljava/lang/String;JJJIII[BIJJ)V");
+  if (nameID == 0) {
+    nameID = env->GetFieldID(zipEntryClass.get(), "name", "Ljava/lang/String;");
+    timeID = env->GetFieldID(zipEntryClass.get(), "time", "J");
+    crcID = env->GetFieldID(zipEntryClass.get(), "crc", "J");
+    sizeID = env->GetFieldID(zipEntryClass.get(), "size", "J");
+    csizeID = env->GetFieldID(zipEntryClass.get(), "csize", "J");
+    methodID = env->GetFieldID(zipEntryClass.get(), "method", "I");
+    dataOffsetID = env->GetFieldID(zipEntryClass.get(), "dataOffset", "J");
+    zipEntryCtorID = env->GetMethodID(zipEntryClass.get(), "<init>","()V");
+  }
 
-  return env->NewObject(zipEntryClass.get(),
-                        zipEntryCtor,
-                        entryName,
-                        NULL,  // comment
-                        static_cast<jlong>(entry.crc32),
-                        static_cast<jlong>(entry.compressed_length),
-                        static_cast<jlong>(entry.uncompressed_length),
-                        static_cast<jint>(entry.method),
-                        static_cast<jint>(0),  // time
-                        static_cast<jint>(0),  // modData
-                        NULL,  // byte[] extra
-                        static_cast<jint>(nameLength),
-                        static_cast<jlong>(-1),  // local header offset
-                        static_cast<jlong>(entry.offset));
+  jobject result = env->NewObject(zipEntryClass.get(), zipEntryCtorID);
+  env->SetObjectField(result, nameID, entryName);
+  env->SetLongField(result, timeID, 0L);
+  env->SetLongField(result, crcID, entry.crc32);
+  env->SetLongField(result, sizeID, entry.uncompressed_length);
+  env->SetLongField(result, csizeID, entry.compressed_length);
+  env->SetIntField(result, methodID, entry.method);
+  env->SetLongField(result, dataOffsetID, entry.offset);
+  return result;
 }
 
 static jobject newZipEntry(JNIEnv* env, const ZipEntry& entry, const char* name,
                            const uint16_t nameLength) {
-  return newZipEntry(env, entry, constructString(env, name, nameLength), nameLength);
+  return newZipEntry(env, entry, constructString(env, name, nameLength));
 }
 
 static jlong StrictJarFile_nativeOpenJarFile(JNIEnv* env, jobject, jstring fileName) {
@@ -177,7 +188,7 @@ static jobject StrictJarFile_nativeFindEntry(JNIEnv* env, jobject, jlong nativeH
     return NULL;
   }
 
-  return newZipEntry(env, data, entryName, entryNameChars.size());
+  return newZipEntry(env, data, entryName);
 }
 
 static void StrictJarFile_nativeClose(JNIEnv*, jobject, jlong nativeHandle) {

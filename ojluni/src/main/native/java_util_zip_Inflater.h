@@ -12,7 +12,7 @@ extern "C" {
  * Method:    initIDs
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_java_util_zip_Inflater_initIDs
+JNIEXPORT void JNICALL Inflater_initIDs
   (JNIEnv *, jclass);
 
 /*
@@ -20,7 +20,7 @@ JNIEXPORT void JNICALL Java_java_util_zip_Inflater_initIDs
  * Method:    init
  * Signature: (Z)J
  */
-JNIEXPORT jlong JNICALL Java_java_util_zip_Inflater_init
+JNIEXPORT jlong JNICALL Inflater_init
   (JNIEnv *, jclass, jboolean);
 
 /*
@@ -28,7 +28,7 @@ JNIEXPORT jlong JNICALL Java_java_util_zip_Inflater_init
  * Method:    setDictionary
  * Signature: (J[BII)V
  */
-JNIEXPORT void JNICALL Java_java_util_zip_Inflater_setDictionary
+JNIEXPORT void JNICALL Inflater_setDictionary
   (JNIEnv *, jclass, jlong, jbyteArray, jint, jint);
 
 /*
@@ -36,7 +36,7 @@ JNIEXPORT void JNICALL Java_java_util_zip_Inflater_setDictionary
  * Method:    inflateBytes
  * Signature: (J[BII)I
  */
-JNIEXPORT jint JNICALL Java_java_util_zip_Inflater_inflateBytes
+JNIEXPORT jint JNICALL Inflater_inflateBytes
   (JNIEnv *, jobject, jlong, jbyteArray, jint, jint);
 
 /*
@@ -44,7 +44,7 @@ JNIEXPORT jint JNICALL Java_java_util_zip_Inflater_inflateBytes
  * Method:    getAdler
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_java_util_zip_Inflater_getAdler
+JNIEXPORT jint JNICALL Inflater_getAdler
   (JNIEnv *, jclass, jlong);
 
 /*
@@ -52,7 +52,7 @@ JNIEXPORT jint JNICALL Java_java_util_zip_Inflater_getAdler
  * Method:    reset
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_java_util_zip_Inflater_reset
+JNIEXPORT void JNICALL Inflater_reset
   (JNIEnv *, jclass, jlong);
 
 /*
@@ -60,7 +60,7 @@ JNIEXPORT void JNICALL Java_java_util_zip_Inflater_reset
  * Method:    end
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_java_util_zip_Inflater_end
+JNIEXPORT void JNICALL Inflater_end
   (JNIEnv *, jclass, jlong);
 
 #ifdef __cplusplus

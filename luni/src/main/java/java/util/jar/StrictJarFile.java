@@ -27,6 +27,7 @@ import java.security.cert.Certificate;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import libcore.io.IoUtils;
@@ -162,14 +163,14 @@ public final class StrictJarFile {
 
     private InputStream getZipInputStream(ZipEntry ze) {
         if (ze.getMethod() == ZipEntry.STORED) {
-            return new ZipFile.RAFStream(raf, ze.getDataOffset(),
+            return new RAFStream(raf, ze.getDataOffset(),
                     ze.getDataOffset() + ze.getSize());
         } else {
-            final ZipFile.RAFStream wrapped = new ZipFile.RAFStream(
+            final RAFStream wrapped = new RAFStream(
                     raf, ze.getDataOffset(), ze.getDataOffset() + ze.getCompressedSize());
 
             int bufSize = Math.max(1024, (int) Math.min(ze.getSize(), 65535L));
-            return new ZipFile.ZipInflaterInputStream(wrapped, new Inflater(true), bufSize, ze);
+            return new ZipInflaterInputStream(wrapped, new Inflater(true), bufSize, ze);
         }
     }
 
@@ -302,6 +303,107 @@ public final class StrictJarFile {
             return Streams.skipByReading(this, byteCount);
         }
     }
+
+    /** @hide */
+    public static class ZipInflaterInputStream extends InflaterInputStream {
+        private final ZipEntry entry;
+        private long bytesRead = 0;
+
+        public ZipInflaterInputStream(InputStream is, Inflater inf, int bsize, ZipEntry entry) {
+            super(is, inf, bsize);
+            this.entry = entry;
+        }
+
+        @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+            final int i;
+            try {
+                i = super.read(buffer, byteOffset, byteCount);
+            } catch (IOException e) {
+                throw new IOException("Error reading data for " + entry.getName() + " near offset "
+                        + bytesRead, e);
+            }
+            if (i == -1) {
+                if (entry.getSize() != bytesRead) {
+                    throw new IOException("Size mismatch on inflated file: " + bytesRead + " vs "
+                            + entry.getSize());
+                }
+            } else {
+                bytesRead += i;
+            }
+            return i;
+        }
+
+        @Override public int available() throws IOException {
+            if (closed) {
+                // Our superclass will throw an exception, but there's a jtreg test that
+                // explicitly checks that the InputStream returned from ZipFile.getInputStream
+                // returns 0 even when closed.
+                return 0;
+            }
+            return super.available() == 0 ? 0 : (int) (entry.getSize() - bytesRead);
+        }
+    }
+
+    /**
+     * Wrap a stream around a RandomAccessFile.  The RandomAccessFile is shared
+     * among all streams returned by getInputStream(), so we have to synchronize
+     * access to it.  (We can optimize this by adding buffering here to reduce
+     * collisions.)
+     *
+     * <p>We could support mark/reset, but we don't currently need them.
+     *
+     * @hide
+     */
+    public static class RAFStream extends InputStream {
+        private final RandomAccessFile sharedRaf;
+        private long endOffset;
+        private long offset;
+
+
+        public RAFStream(RandomAccessFile raf, long initialOffset, long endOffset) {
+            sharedRaf = raf;
+            offset = initialOffset;
+            this.endOffset = endOffset;
+        }
+
+        public RAFStream(RandomAccessFile raf, long initialOffset) throws IOException {
+            this(raf, initialOffset, raf.length());
+        }
+
+        @Override public int available() throws IOException {
+            return (offset < endOffset ? 1 : 0);
+        }
+
+        @Override public int read() throws IOException {
+            return Streams.readSingleByte(this);
+        }
+
+        @Override public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
+            synchronized (sharedRaf) {
+                final long length = endOffset - offset;
+                if (byteCount > length) {
+                    byteCount = (int) length;
+                }
+                sharedRaf.seek(offset);
+                int count = sharedRaf.read(buffer, byteOffset, byteCount);
+                if (count > 0) {
+                    offset += count;
+                    return count;
+                } else {
+                    return -1;
+                }
+            }
+        }
+
+        @Override public long skip(long byteCount) throws IOException {
+            if (byteCount > endOffset - offset) {
+                byteCount = endOffset - offset;
+            }
+            offset += byteCount;
+            return byteCount;
+        }
+    }
+
 
     private static native long nativeOpenJarFile(String fileName) throws IOException;
     private static native long nativeStartIteration(long nativeHandle, String prefix);

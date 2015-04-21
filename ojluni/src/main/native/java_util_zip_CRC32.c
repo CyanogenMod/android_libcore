@@ -27,14 +27,18 @@
  * Native method support for java.util.zip.CRC32
  */
 
+#include "JNIHelp.h"
 #include "jni.h"
 #include "jni_util.h"
 #include <zlib.h>
 
 #include "java_util_zip_CRC32.h"
 
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
+
 JNIEXPORT jint JNICALL
-Java_java_util_zip_CRC32_update(JNIEnv *env, jclass cls, jint crc, jint b)
+CRC32_update(JNIEnv *env, jclass cls, jint crc, jint b)
 {
     Bytef buf[1];
 
@@ -43,7 +47,7 @@ Java_java_util_zip_CRC32_update(JNIEnv *env, jclass cls, jint crc, jint b)
 }
 
 JNIEXPORT jint JNICALL
-Java_java_util_zip_CRC32_updateBytes(JNIEnv *env, jclass cls, jint crc,
+CRC32_updateBytes(JNIEnv *env, jclass cls, jint crc,
                                      jarray b, jint off, jint len)
 {
     Bytef *buf = (*env)->GetPrimitiveArrayCritical(env, b, 0);
@@ -57,4 +61,13 @@ Java_java_util_zip_CRC32_updateBytes(JNIEnv *env, jclass cls, jint crc,
 JNIEXPORT jint ZIP_CRC32(jint crc, const jbyte *buf, jint len)
 {
     return crc32(crc, (Bytef*)buf, len);
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(CRC32, update, "(II)I"),
+  NATIVE_METHOD(CRC32, updateBytes, "(I[BII)I"),
+};
+
+void register_java_util_zip_CRC32(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/util/zip/CRC32", gMethods, NELEM(gMethods));
 }

@@ -87,11 +87,8 @@ class ZipFile implements ZipConstants, Closeable {
     private static final boolean usemmap;
 
     static {
-        // A system prpperty to disable mmap use to avoid vm crash when
-        // in-use zip file is accidently overwritten by others.
-        String prop = sun.misc.VM.getSavedProperty("sun.zip.disableMemoryMapping");
-        usemmap = (prop == null ||
-                   !(prop.length() == 0 || prop.equalsIgnoreCase("true")));
+        // Android-changed: always use mmap.
+        usemmap = true;
     }
 
     /**
@@ -213,8 +210,6 @@ class ZipFile implements ZipConstants, Closeable {
         this.zc = ZipCoder.get(charset);
         long t0 = System.nanoTime();
         jzfile = open(name, mode, file.lastModified(), usemmap);
-        sun.misc.PerfCounter.getZipFileOpenTime().addElapsedTimeFrom(t0);
-        sun.misc.PerfCounter.getZipFileCount().increment();
         this.name = name;
         this.total = getTotal(jzfile);
         this.locsig = startsWithLOC(jzfile);
@@ -737,16 +732,6 @@ class ZipFile implements ZipConstants, Closeable {
         protected void finalize() {
             close();
         }
-    }
-
-    static {
-        sun.misc.SharedSecrets.setJavaUtilZipFileAccess(
-            new sun.misc.JavaUtilZipFileAccess() {
-                public boolean startsWithLocHeader(ZipFile zip) {
-                    return zip.startsWithLocHeader();
-                }
-             }
-        );
     }
 
     /**

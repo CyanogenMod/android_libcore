@@ -55,7 +55,9 @@ class InflaterInputStream extends FilterInputStream {
      */
     protected int len;
 
-    private boolean closed = false;
+    // Android-changed: closed is now protected.
+    protected boolean closed = false;
+
     // this flag is set to true after EOF has reached
     private boolean reachEOF = false;
 

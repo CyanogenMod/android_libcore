@@ -50,10 +50,6 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
     REGISTER(register_java_nio_ByteOrder);
     REGISTER(register_java_nio_charset_Charsets);
     REGISTER(register_java_util_jar_StrictJarFile);
-    REGISTER(register_java_util_zip_Adler32);
-    REGISTER(register_java_util_zip_CRC32);
-    REGISTER(register_java_util_zip_Deflater);
-    REGISTER(register_java_util_zip_Inflater);
     REGISTER(register_libcore_icu_AlphabeticIndex);
     REGISTER(register_libcore_icu_DateIntervalFormat);
     REGISTER(register_libcore_icu_ICU);
