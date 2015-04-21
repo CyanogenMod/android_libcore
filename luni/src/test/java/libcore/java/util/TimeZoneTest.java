@@ -310,4 +310,18 @@ public class TimeZoneTest extends TestCase {
         assertFalse(tz.inDaylightTime(new Date(2206292400000L)));
         assertEquals(-18000000, tz.getOffset(2206292400000L));
     }
+
+    public void testTimeZoneIDLocalization() {
+        Locale defaultLocale = Locale.getDefault();
+        try {
+            Locale.setDefault(new Locale("en"));
+            TimeZone en_timezone = TimeZone.getTimeZone("GMT+09:00");
+            Locale.setDefault(new Locale("ar"));
+            TimeZone ar_timezone = TimeZone.getTimeZone("GMT+09:00");
+
+            assertEquals(en_timezone.getID(), ar_timezone.getID());
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
+    }
 }
