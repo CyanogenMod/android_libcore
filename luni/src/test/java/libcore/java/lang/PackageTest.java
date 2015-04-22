@@ -25,9 +25,10 @@ public final class PackageTest extends TestCase {
     private static final List<Package> packages = Arrays.asList(Package.getPackages());
 
     public void test_getAnnotations() throws Exception {
-        // Package annotations aren't supported, but pre-ICS we crashed.
-        assertEquals(0, getClass().getPackage().getAnnotations().length);
-        assertEquals(0, getClass().getPackage().getDeclaredAnnotations().length);
+        // Pre-ICS we crashed. To pass, the package-info and TestPackageAnnotation classes must be
+        // on the classpath.
+        assertEquals(1, getClass().getPackage().getAnnotations().length);
+        assertEquals(1, getClass().getPackage().getDeclaredAnnotations().length);
     }
 
     public void testGetPackage() {

@@ -51,6 +51,7 @@ import java.net.URL;
 public class Package implements AnnotatedElement {
     private static final Annotation[] NO_ANNOTATIONS = new Annotation[0];
 
+    private final ClassLoader classLoader;
     private final String name;
     private final String specTitle;
     private final String specVersion;
@@ -60,8 +61,10 @@ public class Package implements AnnotatedElement {
     private final String implVendor;
     private final URL sealBase;
 
-    Package(String name, String specTitle, String specVersion, String specVendor,
-            String implTitle, String implVersion, String implVendor, URL sealBase) {
+    Package(ClassLoader classLoader, String name, String specTitle, String specVersion,
+            String specVendor, String implTitle, String implVersion, String implVendor,
+            URL sealBase) {
+        this.classLoader = classLoader;
         this.name = name;
         this.specTitle = specTitle;
         this.specVersion = specVersion;
@@ -96,14 +99,8 @@ public class Package implements AnnotatedElement {
      */
     public Annotation[] getAnnotations() {
         try {
-            ClassLoader classLoader = VMStack.getCallingClassLoader();
-            if (classLoader == null) {
-                classLoader = ClassLoader.getSystemClassLoader();
-            }
-            Class<?> c = Class.forName(getName() + ".package-info",
-                                       // TODO: It is unclear if we need to initialize here.
-                                       true,
-                                       classLoader);
+            Class<?> c = Class.forName(getName() + ".package-info", false /* initialize */,
+                    classLoader);
             return c.getAnnotations();
         } catch (Exception ex) {
             return NO_ANNOTATIONS;
