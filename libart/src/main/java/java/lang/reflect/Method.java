@@ -309,7 +309,8 @@ public final class Method extends AbstractMethod implements GenericDeclaration, 
      * @return an array of arrays of {@code Annotation} instances
      */
     public Annotation[][] getParameterAnnotations() {
-        return super.getParameterAnnotations();
+        return AnnotationAccess.getParameterAnnotations(
+            declaringClassOfOverriddenMethod, dexMethodIndex);
     }
 
     /**
