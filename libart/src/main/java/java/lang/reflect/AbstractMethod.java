@@ -49,7 +49,11 @@ public abstract class AbstractMethod extends AccessibleObject {
     /** Bits encoding access (e.g. public, private) as well as other runtime specific flags */
     protected int accessFlags;
 
-    /** The ArtMethod associated with this Method, requried for dispatching due to entrypoints */
+    /**
+     * The ArtMethod associated with this Method, requried for dispatching due to entrypoints
+     * Hidden to workaround b/16828157.
+     * @hide
+     */
     protected ArtMethod artMethod;
 
     /** Method's declaring class */
@@ -62,6 +66,10 @@ public abstract class AbstractMethod extends AccessibleObject {
     /** The method index of this method within its defining dex file */
     protected int dexMethodIndex;
 
+    /**
+     * Hidden to workaround b/16828157.
+     * @hide
+     */
     protected AbstractMethod() {
     }
 
@@ -209,10 +217,7 @@ public abstract class AbstractMethod extends AccessibleObject {
      *
      * @return an array of arrays of {@code Annotation} instances
      */
-    public Annotation[][] getParameterAnnotations() {
-        return AnnotationAccess.getParameterAnnotations(
-            declaringClassOfOverriddenMethod, dexMethodIndex);
-    }
+    public abstract Annotation[][] getParameterAnnotations();
 
     /**
      * Returns the constructor's signature in non-printable form. This is called
