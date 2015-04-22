@@ -22,12 +22,12 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.Charsets;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.regex.Pattern;
+import libcore.util.CharsetUtils;
 import libcore.util.EmptyArray;
 
 /**
@@ -337,12 +337,12 @@ outer:
             this.offset = 0;
             this.value = new char[byteCount];
             this.count = byteCount;
-            Charsets.isoLatin1BytesToChars(data, offset, byteCount, value);
+            CharsetUtils.isoLatin1BytesToChars(data, offset, byteCount, value);
         } else if (canonicalCharsetName.equals("US-ASCII")) {
             this.offset = 0;
             this.value = new char[byteCount];
             this.count = byteCount;
-            Charsets.asciiBytesToChars(data, offset, byteCount, value);
+            CharsetUtils.asciiBytesToChars(data, offset, byteCount, value);
         } else {
             CharBuffer cb = charset.decode(ByteBuffer.wrap(data, offset, byteCount));
             this.offset = 0;
@@ -772,13 +772,13 @@ outer:
     public byte[] getBytes(Charset charset) {
         String canonicalCharsetName = charset.name();
         if (canonicalCharsetName.equals("UTF-8")) {
-            return Charsets.toUtf8Bytes(value, offset, count);
+            return CharsetUtils.toUtf8Bytes(value, offset, count);
         } else if (canonicalCharsetName.equals("ISO-8859-1")) {
-            return Charsets.toIsoLatin1Bytes(value, offset, count);
+            return CharsetUtils.toIsoLatin1Bytes(value, offset, count);
         } else if (canonicalCharsetName.equals("US-ASCII")) {
-            return Charsets.toAsciiBytes(value, offset, count);
+            return CharsetUtils.toAsciiBytes(value, offset, count);
         } else if (canonicalCharsetName.equals("UTF-16BE")) {
-            return Charsets.toBigEndianUtf16Bytes(value, offset, count);
+            return CharsetUtils.toBigEndianUtf16Bytes(value, offset, count);
         } else {
             CharBuffer chars = CharBuffer.wrap(this.value, this.offset, this.count);
             ByteBuffer buffer = charset.encode(chars.asReadOnlyBuffer());

@@ -245,6 +245,6 @@ static JNINativeMethod gMethods[] = {
     NATIVE_METHOD(Charsets, toIsoLatin1Bytes, "([CII)[B"),
     NATIVE_METHOD(Charsets, toUtf8Bytes, "([CII)[B"),
 };
-void register_java_nio_charset_Charsets(JNIEnv* env) {
-    jniRegisterNativeMethods(env, "java/nio/charset/Charsets", gMethods, NELEM(gMethods));
+void register_libcore_util_CharsetUtils(JNIEnv* env) {
+    jniRegisterNativeMethods(env, "libcore/util/CharsetUtils", gMethods, NELEM(gMethods));
 }
