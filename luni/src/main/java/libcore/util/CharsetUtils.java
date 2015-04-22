@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package java.nio.charset;
+package libcore.util;
 
 /**
  * Various special-case charset conversions (for performance).
  *
  * @hide internal use only
  */
-public final class Charsets {
+public final class CharsetUtils {
     /**
      * Returns a new byte array containing the bytes corresponding to the given characters,
      * encoded in US-ASCII. Unrepresentable characters are replaced by (byte) '?'.
@@ -75,6 +75,6 @@ public final class Charsets {
      */
     public static native void isoLatin1BytesToChars(byte[] bytes, int offset, int length, char[] chars);
 
-    private Charsets() {
+    private CharsetUtils() {
     }
 }
