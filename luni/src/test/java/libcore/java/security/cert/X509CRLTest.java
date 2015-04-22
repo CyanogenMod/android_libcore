@@ -256,7 +256,7 @@ public class X509CRLTest extends TestCase {
 
     private void getSigAlgName(CertificateFactory f) throws Exception {
         X509CRL crlRsa = getCRL(f, CRL_RSA);
-        assertEquals("SHA1WITHRSA",  getCRL(f, CRL_RSA).getSigAlgName().toUpperCase(Locale.US));
+        assertEquals("SHA1WITHRSA",  getCRL(f, CRL_RSA).getSigAlgName().toUpperCase(Locale.ROOT));
     }
 
     private void getSigAlgOID(CertificateFactory f) throws Exception {
