@@ -292,7 +292,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * If the class has not yet been initialized and {@code shouldInitialize} is true,
      * the class will be initialized.
      *
-     * <p>If the provided {@code classLoader} is null, the bootstrap
+     * <p>If the provided {@code classLoader} is {@code null}, the bootstrap
      * class loader will be used to load the class.
      *
      * @throws ClassNotFoundException
@@ -307,7 +307,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
             ClassLoader classLoader) throws ClassNotFoundException {
 
         if (classLoader == null) {
-            classLoader = ClassLoader.getSystemClassLoader();
+            classLoader = BootClassLoader.getInstance();
         }
         // Catch an Exception thrown by the underlying native code. It wraps
         // up everything inside a ClassNotFoundException, even if e.g. an
@@ -527,8 +527,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     }
 
     /**
-     * Returns the constructor with the given parameters if it is defined by this class; null
-     * otherwise. This may return a non-public member.
+     * Returns the constructor with the given parameters if it is defined by this class;
+     * {@code null} otherwise. This may return a non-public member.
      *
      * @param args the types of the parameters to the constructor.
      */
@@ -645,7 +645,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     }
 
     /**
-     * Returns the method if it is defined by this class; null otherwise. This may return a
+     * Returns the method if it is defined by this class; {@code null} otherwise. This may return a
      * non-public member.
      *
      * @param name the method name
@@ -778,7 +778,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     public native Field[] getDeclaredFieldsUnchecked(boolean publicOnly);
 
     /**
-     * Returns the field if it is defined by this class; null otherwise. This
+     * Returns the field if it is defined by this class; {@code null} otherwise. This
      * may return a non-public member.
      */
     private native Field getDeclaredFieldInternal(String name);
@@ -1092,21 +1092,21 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     }
 
     /**
-     * Returns the simple name of a member or local class, or null otherwise.
+     * Returns the simple name of a member or local class, or {@code null} otherwise.
      */
     private String getInnerClassName() {
         return AnnotationAccess.getInnerClassName(this);
     }
 
     /**
-     * Returns null.
+     * Returns {@code null}.
      */
     public ProtectionDomain getProtectionDomain() {
         return null;
     }
 
     /**
-     * Returns the URL of the given resource, or null if the resource is not found.
+     * Returns the URL of the given resource, or {@code null} if the resource is not found.
      * The mapping between the resource name and the URL is managed by the class' class loader.
      *
      * @see ClassLoader
@@ -1137,8 +1137,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     }
 
     /**
-     * Returns a read-only stream for the contents of the given resource, or null if the resource
-     * is not found.
+     * Returns a read-only stream for the contents of the given resource, or {@code null} if the
+     * resource is not found.
      * The mapping between the resource name and the stream is managed by the class' class loader.
      *
      * @see ClassLoader
@@ -1169,8 +1169,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     }
 
     /**
-     * Returns null. (On Android, a {@code ClassLoader} can load classes from multiple dex files.
-     * All classes from any given dex file will have the same signers, but different dex
+     * Returns {@code null}. (On Android, a {@code ClassLoader} can load classes from multiple dex
+     * files. All classes from any given dex file will have the same signers, but different dex
      * files may have different signers. This does not fit well with the original
      * {@code ClassLoader}-based model of {@code getSigners}.)
      */
@@ -1471,7 +1471,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     }
 
     /**
-     * Returns the package name of this class. This returns null for classes in
+     * Returns the package name of this class. This returns {@code null} for classes in
      * the default package.
      *
      * @hide

@@ -96,7 +96,14 @@ public class Package implements AnnotatedElement {
      */
     public Annotation[] getAnnotations() {
         try {
-            Class<?> c = Class.forName(getName() + ".package-info");
+            ClassLoader classLoader = VMStack.getCallingClassLoader();
+            if (classLoader == null) {
+                classLoader = ClassLoader.getSystemClassLoader();
+            }
+            Class<?> c = Class.forName(getName() + ".package-info",
+                                       // TODO: It is unclear if we need to initialize here.
+                                       true,
+                                       classLoader);
             return c.getAnnotations();
         } catch (Exception ex) {
             return NO_ANNOTATIONS;
@@ -175,11 +182,11 @@ public class Package implements AnnotatedElement {
      * @see ClassLoader#getPackage(java.lang.String)
      */
     public static Package getPackage(String packageName) {
-        ClassLoader classloader = VMStack.getCallingClassLoader();
-        if (classloader == null) {
-            classloader = ClassLoader.getSystemClassLoader();
+        ClassLoader classLoader = VMStack.getCallingClassLoader();
+        if (classLoader == null) {
+            classLoader = ClassLoader.getSystemClassLoader();
         }
-        return classloader.getPackage(packageName);
+        return classLoader.getPackage(packageName);
     }
 
     /**
@@ -189,11 +196,11 @@ public class Package implements AnnotatedElement {
      * @see ClassLoader#getPackages
      */
     public static Package[] getPackages() {
-        ClassLoader classloader = VMStack.getCallingClassLoader();
-        if (classloader == null) {
-            classloader = ClassLoader.getSystemClassLoader();
+        ClassLoader classLoader = VMStack.getCallingClassLoader();
+        if (classLoader == null) {
+            classLoader = ClassLoader.getSystemClassLoader();
         }
-        return classloader.getPackages();
+        return classLoader.getPackages();
     }
 
     /**
