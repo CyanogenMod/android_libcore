@@ -31,9 +31,11 @@ import java.net.SocketImpl;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class SocketTest extends junit.framework.TestCase {
     // See http://b/2980559.
@@ -351,6 +353,37 @@ public class SocketTest extends junit.framework.TestCase {
         InetSocketAddress localAddressAfterClose = (InetSocketAddress) s.getLocalSocketAddress();
         assertTrue(localAddressAfterClose.getAddress().isAnyLocalAddress());
         assertEquals(boundAddress.getPort(), localAddressAfterClose.getPort());
+    }
+
+    public void testCloseDuringConnect() throws Exception {
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        final Socket s = new Socket();
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    // This address is reserved for documentation: should never be reachable.
+                    InetSocketAddress unreachableIp = new InetSocketAddress("192.0.2.0", 80);
+                    // This should never return.
+                    s.connect(unreachableIp, 0 /* infinite */);
+                    fail("Connect returned unexpectedly for: " + unreachableIp);
+                } catch (SocketException expected) {
+                    assertTrue(expected.getMessage().contains("Socket closed"));
+                    signal.countDown();
+                } catch (IOException e) {
+                    fail("Unexpected exception: " + e);
+                }
+            }
+        }.start();
+
+        // Wait for the connect() thread to run and start connect()
+        Thread.sleep(2000);
+
+        s.close();
+
+        boolean connectUnblocked = signal.await(2000, TimeUnit.MILLISECONDS);
+        assertTrue(connectUnblocked);
     }
 
     static class MockServer {
