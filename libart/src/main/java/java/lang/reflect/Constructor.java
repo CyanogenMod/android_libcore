@@ -209,7 +209,8 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
      * @return an array of arrays of {@code Annotation} instances
      */
     public Annotation[][] getParameterAnnotations() {
-        return super.getParameterAnnotations();
+        return AnnotationAccess.getParameterAnnotations(
+            declaringClassOfOverriddenMethod, dexMethodIndex);
     }
 
     /**
