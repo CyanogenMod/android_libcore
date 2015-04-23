@@ -23,21 +23,19 @@ import com.ibm.icu.text.DisplayContext;
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.ULocale;
 
+import static libcore.icu.DateUtilsBridge.FORMAT_ABBREV_ALL;
+import static libcore.icu.DateUtilsBridge.FORMAT_ABBREV_MONTH;
+import static libcore.icu.DateUtilsBridge.FORMAT_ABBREV_RELATIVE;
+import static libcore.icu.DateUtilsBridge.FORMAT_NO_YEAR;
+import static libcore.icu.DateUtilsBridge.FORMAT_NUMERIC_DATE;
+import static libcore.icu.DateUtilsBridge.FORMAT_SHOW_DATE;
+import static libcore.icu.DateUtilsBridge.FORMAT_SHOW_TIME;
+import static libcore.icu.DateUtilsBridge.FORMAT_SHOW_YEAR;
+
 /**
  * Exposes icu4j's RelativeDateTimeFormatter.
  */
 public final class RelativeDateTimeFormatter {
-
-  // Values from public API in DateUtils to be used in this class. They must
-  // match the ones in DateUtils.java.
-  public static final int FORMAT_SHOW_TIME = 0x00001;
-  public static final int FORMAT_SHOW_YEAR = 0x00004;
-  public static final int FORMAT_NO_YEAR = 0x00008;
-  public static final int FORMAT_SHOW_DATE = 0x00010;
-  public static final int FORMAT_ABBREV_MONTH = 0x10000;
-  public static final int FORMAT_NUMERIC_DATE = 0x20000;
-  public static final int FORMAT_ABBREV_RELATIVE = 0x40000;
-  public static final int FORMAT_ABBREV_ALL = 0x80000;
 
   public static final long SECOND_IN_MILLIS = 1000;
   public static final long MINUTE_IN_MILLIS = SECOND_IN_MILLIS * 60;
@@ -58,7 +56,7 @@ public final class RelativeDateTimeFormatter {
     FormatterCache() {
       super(8);
     }
-  };
+  }
 
   private RelativeDateTimeFormatter() {
   }
@@ -92,6 +90,14 @@ public final class RelativeDateTimeFormatter {
    */
   public static String getRelativeTimeSpanString(Locale locale, java.util.TimeZone tz, long time,
       long now, long minResolution, int flags) {
+    // Android has been inconsistent about capitalization in the past. e.g. bug http://b/20247811.
+    // Now we capitalize everything consistently.
+    final DisplayContext displayContext = DisplayContext.CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE;
+    return getRelativeTimeSpanString(locale, tz, time, now, minResolution, flags, displayContext);
+  }
+
+  public static String getRelativeTimeSpanString(Locale locale, java.util.TimeZone tz, long time,
+      long now, long minResolution, int flags, DisplayContext displayContext) {
     if (locale == null) {
       throw new NullPointerException("locale == null");
     }
@@ -99,30 +105,30 @@ public final class RelativeDateTimeFormatter {
       throw new NullPointerException("tz == null");
     }
     ULocale icuLocale = ULocale.forLocale(locale);
-    com.ibm.icu.util.TimeZone icuTimeZone = DateIntervalFormat.icuTimeZone(tz);
+    com.ibm.icu.util.TimeZone icuTimeZone = DateUtilsBridge.icuTimeZone(tz);
+    return getRelativeTimeSpanString(icuLocale, icuTimeZone, time, now, minResolution, flags,
+        displayContext);
+  }
+
+  private static String getRelativeTimeSpanString(ULocale icuLocale,
+      com.ibm.icu.util.TimeZone icuTimeZone, long time, long now, long minResolution, int flags,
+      DisplayContext displayContext) {
 
     long duration = Math.abs(now - time);
     boolean past = (now >= time);
 
     com.ibm.icu.text.RelativeDateTimeFormatter.Style style;
     if ((flags & (FORMAT_ABBREV_RELATIVE | FORMAT_ABBREV_ALL)) != 0) {
-        style = com.ibm.icu.text.RelativeDateTimeFormatter.Style.SHORT;
+      style = com.ibm.icu.text.RelativeDateTimeFormatter.Style.SHORT;
     } else {
-        style = com.ibm.icu.text.RelativeDateTimeFormatter.Style.LONG;
+      style = com.ibm.icu.text.RelativeDateTimeFormatter.Style.LONG;
     }
-
-    // We are currently using the _NONE and _FOR_BEGINNING_OF_SENTENCE for the
-    // capitalization. We use _NONE for relative time strings, and the latter
-    // to capitalize the first letter of strings that don't contain
-    // quantities, such as "Yesterday", "Today" and etc. This is for backward
-    // compatibility (see b/14493853).
-    DisplayContext capitalizationContext = DisplayContext.CAPITALIZATION_NONE;
 
     com.ibm.icu.text.RelativeDateTimeFormatter.Direction direction;
     if (past) {
-        direction = com.ibm.icu.text.RelativeDateTimeFormatter.Direction.LAST;
+      direction = com.ibm.icu.text.RelativeDateTimeFormatter.Direction.LAST;
     } else {
-        direction = com.ibm.icu.text.RelativeDateTimeFormatter.Direction.NEXT;
+      direction = com.ibm.icu.text.RelativeDateTimeFormatter.Direction.NEXT;
     }
 
     // 'relative' defaults to true as we are generating relative time span
@@ -156,18 +162,17 @@ public final class RelativeDateTimeFormatter {
         // because for locales that don't have special terms for "2 days ago",
         // icu4j returns an empty string instead of falling back to strings
         // like "2 days ago".
-        capitalizationContext = DisplayContext.CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE;
         String str;
         if (past) {
           synchronized (CACHED_FORMATTERS) {
-            str = getFormatter(icuLocale, style, capitalizationContext)
+            str = getFormatter(icuLocale, style, displayContext)
                 .format(
                     com.ibm.icu.text.RelativeDateTimeFormatter.Direction.LAST_2,
                     com.ibm.icu.text.RelativeDateTimeFormatter.AbsoluteUnit.DAY);
           }
         } else {
           synchronized (CACHED_FORMATTERS) {
-            str = getFormatter(icuLocale, style, capitalizationContext)
+            str = getFormatter(icuLocale, style, displayContext)
                 .format(
                     com.ibm.icu.text.RelativeDateTimeFormatter.Direction.NEXT_2,
                     com.ibm.icu.text.RelativeDateTimeFormatter.AbsoluteUnit.DAY);
@@ -176,11 +181,9 @@ public final class RelativeDateTimeFormatter {
         if (str != null && !str.isEmpty()) {
           return str;
         }
-        // Fall back to show something like "2 days ago". Reset the
-        // capitalization setting.
-        capitalizationContext = DisplayContext.CAPITALIZATION_NONE;
+        // Fall back to show something like "2 days ago".
       } else if (count == 1) {
-        // Show "Yesterday / Tomorrow" instead of "1 day ago / in 1 day".
+        // Show "Yesterday / Tomorrow" instead of "1 day ago / In 1 day".
         aunit = com.ibm.icu.text.RelativeDateTimeFormatter.AbsoluteUnit.DAY;
         relative = false;
       } else if (count == 0) {
@@ -193,6 +196,7 @@ public final class RelativeDateTimeFormatter {
       count = (int)(duration / WEEK_IN_MILLIS);
       unit = com.ibm.icu.text.RelativeDateTimeFormatter.RelativeUnit.WEEKS;
     } else {
+      Calendar timeCalendar = DateUtilsBridge.createIcuCalendar(icuTimeZone, icuLocale, time);
       // The duration is longer than a week and minResolution is not
       // WEEK_IN_MILLIS. Return the absolute date instead of relative time.
 
@@ -202,8 +206,7 @@ public final class RelativeDateTimeFormatter {
       // formatDateRange() would determine that based on the current system
       // time and may give wrong results.
       if ((flags & (FORMAT_NO_YEAR | FORMAT_SHOW_YEAR)) == 0) {
-        Calendar timeCalendar = DateIntervalFormat.createIcuCalendar(icuTimeZone, icuLocale, time);
-        Calendar nowCalendar = DateIntervalFormat.createIcuCalendar(icuTimeZone, icuLocale, now);
+        Calendar nowCalendar = DateUtilsBridge.createIcuCalendar(icuTimeZone, icuLocale, now);
 
         if (timeCalendar.get(Calendar.YEAR) != nowCalendar.get(Calendar.YEAR)) {
           flags |= FORMAT_SHOW_YEAR;
@@ -211,20 +214,16 @@ public final class RelativeDateTimeFormatter {
           flags |= FORMAT_NO_YEAR;
         }
       }
-
-      return DateIntervalFormat.formatDateRange(icuLocale, icuTimeZone, time, time, flags);
+      return DateTimeFormat.format(icuLocale, timeCalendar, flags, displayContext);
     }
 
-    if (relative) {
-      synchronized (CACHED_FORMATTERS) {
-        return getFormatter(icuLocale, style, capitalizationContext)
-            .format(count, direction, unit);
-      }
-    } else {
-      capitalizationContext = DisplayContext.CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE;
-      synchronized (CACHED_FORMATTERS) {
-        return getFormatter(icuLocale, style, capitalizationContext)
-            .format(direction, aunit);
+    synchronized (CACHED_FORMATTERS) {
+      com.ibm.icu.text.RelativeDateTimeFormatter formatter =
+          getFormatter(icuLocale, style, displayContext);
+      if (relative) {
+        return formatter.format(count, direction, unit);
+      } else {
+        return formatter.format(direction, aunit);
       }
     }
   }
@@ -268,11 +267,7 @@ public final class RelativeDateTimeFormatter {
       throw new NullPointerException("tz == null");
     }
     ULocale icuLocale = ULocale.forLocale(locale);
-    com.ibm.icu.util.TimeZone icuTimeZone = DateIntervalFormat.icuTimeZone(tz);
-
-    // Get the time clause first.
-    String timeClause = DateIntervalFormat.formatDateRange(icuLocale, icuTimeZone, time, time,
-        FORMAT_SHOW_TIME);
+    com.ibm.icu.util.TimeZone icuTimeZone = DateUtilsBridge.icuTimeZone(tz);
 
     long duration = Math.abs(now - time);
     // It doesn't make much sense to have results like: "1 week ago, 10:50 AM".
@@ -286,14 +281,10 @@ public final class RelativeDateTimeFormatter {
         style = com.ibm.icu.text.RelativeDateTimeFormatter.Style.LONG;
     }
 
-    // icu4j also has other options available to control the capitalization. We
-    // are currently using the _NONE option only.
-    DisplayContext capitalizationContext = DisplayContext.CAPITALIZATION_NONE;
+    Calendar timeCalendar = DateUtilsBridge.createIcuCalendar(icuTimeZone, icuLocale, time);
+    Calendar nowCalendar = DateUtilsBridge.createIcuCalendar(icuTimeZone, icuLocale, now);
 
-    Calendar timeCalendar = DateIntervalFormat.createIcuCalendar(icuTimeZone, icuLocale, time);
-    Calendar nowCalendar = DateIntervalFormat.createIcuCalendar(icuTimeZone, icuLocale, now);
-
-    int days = Math.abs(DateIntervalFormat.dayDistance(timeCalendar, nowCalendar));
+    int days = Math.abs(DateUtilsBridge.dayDistance(timeCalendar, nowCalendar));
 
     // Now get the date clause, either in relative format or the actual date.
     String dateClause;
@@ -304,7 +295,8 @@ public final class RelativeDateTimeFormatter {
       if (days > 0 && minResolution < DAY_IN_MILLIS) {
          minResolution = DAY_IN_MILLIS;
       }
-      dateClause = getRelativeTimeSpanString(locale, tz, time, now, minResolution, flags);
+      dateClause = getRelativeTimeSpanString(icuLocale, icuTimeZone, time, now, minResolution,
+          flags, DisplayContext.CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE);
     } else {
       // We always use fixed flags to format the date clause. User-supplied
       // flags are ignored.
@@ -316,8 +308,16 @@ public final class RelativeDateTimeFormatter {
         flags = FORMAT_SHOW_DATE | FORMAT_NO_YEAR | FORMAT_ABBREV_MONTH;
       }
 
-      dateClause = DateIntervalFormat.formatDateRange(icuLocale, icuTimeZone, time, time, flags);
+      dateClause = DateTimeFormat.format(icuLocale, timeCalendar, flags,
+          DisplayContext.CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE);
     }
+
+    String timeClause = DateTimeFormat.format(icuLocale, timeCalendar, FORMAT_SHOW_TIME,
+        DisplayContext.CAPITALIZATION_NONE);
+
+    // icu4j also has other options available to control the capitalization. We are currently using
+    // the _NONE option only.
+    DisplayContext capitalizationContext = DisplayContext.CAPITALIZATION_NONE;
 
     // Combine the two clauses, such as '5 days ago, 10:50 AM'.
     synchronized (CACHED_FORMATTERS) {
@@ -336,12 +336,12 @@ public final class RelativeDateTimeFormatter {
    */
   private static com.ibm.icu.text.RelativeDateTimeFormatter getFormatter(
       ULocale locale, com.ibm.icu.text.RelativeDateTimeFormatter.Style style,
-      DisplayContext capitalizationContext) {
-    String key = locale + "\t" + style + "\t" + capitalizationContext;
+      DisplayContext displayContext) {
+    String key = locale + "\t" + style + "\t" + displayContext;
     com.ibm.icu.text.RelativeDateTimeFormatter formatter = CACHED_FORMATTERS.get(key);
     if (formatter == null) {
       formatter = com.ibm.icu.text.RelativeDateTimeFormatter.getInstance(
-          locale, null, style, capitalizationContext);
+          locale, null, style, displayContext);
       CACHED_FORMATTERS.put(key, formatter);
     }
     return formatter;
