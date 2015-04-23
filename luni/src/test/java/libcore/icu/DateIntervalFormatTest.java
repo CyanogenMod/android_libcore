@@ -20,7 +20,8 @@ import android.icu.util.Calendar;
 import android.icu.util.TimeZone;
 import android.icu.util.ULocale;
 
-import static libcore.icu.DateIntervalFormat.*;
+import static libcore.icu.DateIntervalFormat.formatDateRange;
+import static libcore.icu.DateUtilsBridge.*;
 
 public class DateIntervalFormatTest extends junit.framework.TestCase {
   private static final long MINUTE = 60 * 1000;

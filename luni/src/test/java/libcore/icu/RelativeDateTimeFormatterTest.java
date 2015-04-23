@@ -16,22 +16,25 @@
 
 package libcore.icu;
 
+import android.icu.util.ULocale;
+
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
-import static libcore.icu.RelativeDateTimeFormatter.getRelativeDateTimeString;
-import static libcore.icu.RelativeDateTimeFormatter.getRelativeTimeSpanString;
-import static libcore.icu.RelativeDateTimeFormatter.FORMAT_ABBREV_ALL;
-import static libcore.icu.RelativeDateTimeFormatter.FORMAT_ABBREV_RELATIVE;
-import static libcore.icu.RelativeDateTimeFormatter.FORMAT_NUMERIC_DATE;
-import static libcore.icu.RelativeDateTimeFormatter.FORMAT_NO_YEAR;
-import static libcore.icu.RelativeDateTimeFormatter.FORMAT_SHOW_YEAR;
-import static libcore.icu.RelativeDateTimeFormatter.SECOND_IN_MILLIS;
-import static libcore.icu.RelativeDateTimeFormatter.MINUTE_IN_MILLIS;
-import static libcore.icu.RelativeDateTimeFormatter.HOUR_IN_MILLIS;
+
+import static libcore.icu.DateUtilsBridge.FORMAT_ABBREV_ALL;
+import static libcore.icu.DateUtilsBridge.FORMAT_ABBREV_RELATIVE;
+import static libcore.icu.DateUtilsBridge.FORMAT_NO_YEAR;
+import static libcore.icu.DateUtilsBridge.FORMAT_NUMERIC_DATE;
+import static libcore.icu.DateUtilsBridge.FORMAT_SHOW_YEAR;
 import static libcore.icu.RelativeDateTimeFormatter.DAY_IN_MILLIS;
+import static libcore.icu.RelativeDateTimeFormatter.HOUR_IN_MILLIS;
+import static libcore.icu.RelativeDateTimeFormatter.MINUTE_IN_MILLIS;
+import static libcore.icu.RelativeDateTimeFormatter.SECOND_IN_MILLIS;
 import static libcore.icu.RelativeDateTimeFormatter.WEEK_IN_MILLIS;
 import static libcore.icu.RelativeDateTimeFormatter.YEAR_IN_MILLIS;
+import static libcore.icu.RelativeDateTimeFormatter.getRelativeDateTimeString;
+import static libcore.icu.RelativeDateTimeFormatter.getRelativeTimeSpanString;
 
 public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
 
@@ -47,19 +50,19 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
     assertEquals("0 minutes ago",
                  getRelativeTimeSpanString(en_US, tz, baseTime - SECOND_IN_MILLIS, baseTime,
                                            MINUTE_IN_MILLIS, 0));
-    assertEquals("in 0 minutes",
+    assertEquals("In 0 minutes",
                  getRelativeTimeSpanString(en_US, tz, baseTime + SECOND_IN_MILLIS, baseTime,
                                            MINUTE_IN_MILLIS, 0));
 
     assertEquals("1 minute ago",
                  getRelativeTimeSpanString(en_US, tz, 0, MINUTE_IN_MILLIS, MINUTE_IN_MILLIS, 0));
-    assertEquals("in 1 minute",
+    assertEquals("In 1 minute",
                  getRelativeTimeSpanString(en_US, tz, MINUTE_IN_MILLIS, 0, MINUTE_IN_MILLIS, 0));
 
     assertEquals("42 minutes ago",
       getRelativeTimeSpanString(en_US, tz, baseTime - 42 * MINUTE_IN_MILLIS, baseTime,
                                 MINUTE_IN_MILLIS, 0));
-    assertEquals("in 42 minutes",
+    assertEquals("In 42 minutes",
       getRelativeTimeSpanString(en_US, tz, baseTime + 42 * MINUTE_IN_MILLIS, baseTime,
                                 MINUTE_IN_MILLIS, 0));
 
@@ -67,17 +70,17 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
     assertEquals("2 hours ago",
                  getRelativeTimeSpanString(en_US, tz, baseTime - TWO_HOURS_IN_MS, baseTime,
                                            MINUTE_IN_MILLIS, FORMAT_NUMERIC_DATE));
-    assertEquals("in 2 hours",
+    assertEquals("In 2 hours",
                  getRelativeTimeSpanString(en_US, tz, baseTime + TWO_HOURS_IN_MS, baseTime,
                                            MINUTE_IN_MILLIS, FORMAT_NUMERIC_DATE));
 
-    assertEquals("in 42 min.",
+    assertEquals("In 42 min.",
                  getRelativeTimeSpanString(en_US, tz, baseTime + (42 * MINUTE_IN_MILLIS), baseTime,
                                            MINUTE_IN_MILLIS, FORMAT_ABBREV_RELATIVE));
 
     assertEquals("Tomorrow",
                  getRelativeTimeSpanString(en_US, tz, DAY_IN_MILLIS, 0, DAY_IN_MILLIS, 0));
-    assertEquals("in 2 days",
+    assertEquals("In 2 days",
                  getRelativeTimeSpanString(en_US, tz, 2 * DAY_IN_MILLIS, 0, DAY_IN_MILLIS, 0));
     assertEquals("Yesterday",
                  getRelativeTimeSpanString(en_US, tz, 0, DAY_IN_MILLIS, DAY_IN_MILLIS, 0));
@@ -115,46 +118,46 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
   public void test_getRelativeTimeSpanString() throws Exception {
 
     test_getRelativeTimeSpanString_helper(0 * SECOND_IN_MILLIS, 0, "0 seconds ago", "0 seconds ago");
-    test_getRelativeTimeSpanString_helper(1 * MINUTE_IN_MILLIS, 0, "1 minute ago", "in 1 minute");
-    test_getRelativeTimeSpanString_helper(1 * MINUTE_IN_MILLIS, 0, "1 minute ago", "in 1 minute");
-    test_getRelativeTimeSpanString_helper(5 * DAY_IN_MILLIS, 0, "5 days ago", "in 5 days");
+    test_getRelativeTimeSpanString_helper(1 * MINUTE_IN_MILLIS, 0, "1 minute ago", "In 1 minute");
+    test_getRelativeTimeSpanString_helper(1 * MINUTE_IN_MILLIS, 0, "1 minute ago", "In 1 minute");
+    test_getRelativeTimeSpanString_helper(5 * DAY_IN_MILLIS, 0, "5 days ago", "In 5 days");
 
     test_getRelativeTimeSpanString_helper(0 * SECOND_IN_MILLIS, SECOND_IN_MILLIS, "0 seconds ago",
                                           "0 seconds ago");
     test_getRelativeTimeSpanString_helper(1 * SECOND_IN_MILLIS, SECOND_IN_MILLIS, "1 second ago",
-                                          "in 1 second");
+                                          "In 1 second");
     test_getRelativeTimeSpanString_helper(2 * SECOND_IN_MILLIS, SECOND_IN_MILLIS, "2 seconds ago",
-                                          "in 2 seconds");
+                                          "In 2 seconds");
     test_getRelativeTimeSpanString_helper(25 * SECOND_IN_MILLIS, SECOND_IN_MILLIS, "25 seconds ago",
-                                          "in 25 seconds");
+                                          "In 25 seconds");
     test_getRelativeTimeSpanString_helper(75 * SECOND_IN_MILLIS, SECOND_IN_MILLIS, "1 minute ago",
-                                          "in 1 minute");
+                                          "In 1 minute");
     test_getRelativeTimeSpanString_helper(5000 * SECOND_IN_MILLIS, SECOND_IN_MILLIS, "1 hour ago",
-                                          "in 1 hour");
+                                          "In 1 hour");
 
     test_getRelativeTimeSpanString_helper(0 * MINUTE_IN_MILLIS, MINUTE_IN_MILLIS, "0 minutes ago",
                                           "0 minutes ago");
     test_getRelativeTimeSpanString_helper(1 * MINUTE_IN_MILLIS, MINUTE_IN_MILLIS, "1 minute ago",
-                                          "in 1 minute");
+                                          "In 1 minute");
     test_getRelativeTimeSpanString_helper(2 * MINUTE_IN_MILLIS, MINUTE_IN_MILLIS, "2 minutes ago",
-                                          "in 2 minutes");
+                                          "In 2 minutes");
     test_getRelativeTimeSpanString_helper(25 * MINUTE_IN_MILLIS, MINUTE_IN_MILLIS, "25 minutes ago",
-                                          "in 25 minutes");
+                                          "In 25 minutes");
     test_getRelativeTimeSpanString_helper(75 * MINUTE_IN_MILLIS, MINUTE_IN_MILLIS, "1 hour ago",
-                                          "in 1 hour");
+                                          "In 1 hour");
     test_getRelativeTimeSpanString_helper(720 * MINUTE_IN_MILLIS, MINUTE_IN_MILLIS, "12 hours ago",
-                                          "in 12 hours");
+                                          "In 12 hours");
 
     test_getRelativeTimeSpanString_helper(0 * HOUR_IN_MILLIS, HOUR_IN_MILLIS, "0 hours ago",
                                           "0 hours ago");
     test_getRelativeTimeSpanString_helper(1 * HOUR_IN_MILLIS, HOUR_IN_MILLIS, "1 hour ago",
-                                          "in 1 hour");
+                                          "In 1 hour");
     test_getRelativeTimeSpanString_helper(2 * HOUR_IN_MILLIS, HOUR_IN_MILLIS, "2 hours ago",
-                                          "in 2 hours");
+                                          "In 2 hours");
     test_getRelativeTimeSpanString_helper(5 * HOUR_IN_MILLIS, HOUR_IN_MILLIS, "5 hours ago",
-                                          "in 5 hours");
+                                          "In 5 hours");
     test_getRelativeTimeSpanString_helper(20 * HOUR_IN_MILLIS, HOUR_IN_MILLIS, "20 hours ago",
-                                          "in 20 hours");
+                                          "In 20 hours");
 
     test_getRelativeTimeSpanString_helper(0 * DAY_IN_MILLIS, DAY_IN_MILLIS, "Today", "Today");
     test_getRelativeTimeSpanString_helper(20 * HOUR_IN_MILLIS, DAY_IN_MILLIS, "Yesterday",
@@ -162,68 +165,68 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
     test_getRelativeTimeSpanString_helper(24 * HOUR_IN_MILLIS, DAY_IN_MILLIS, "Yesterday",
                                           "Tomorrow");
     test_getRelativeTimeSpanString_helper(2 * DAY_IN_MILLIS, DAY_IN_MILLIS, "2 days ago",
-                                          "in 2 days");
+                                          "In 2 days");
     test_getRelativeTimeSpanString_helper(25 * DAY_IN_MILLIS, DAY_IN_MILLIS, "January 11",
                                           "March 2");
 
     test_getRelativeTimeSpanString_helper(0 * WEEK_IN_MILLIS, WEEK_IN_MILLIS, "0 weeks ago",
                                           "0 weeks ago");
     test_getRelativeTimeSpanString_helper(1 * WEEK_IN_MILLIS, WEEK_IN_MILLIS, "1 week ago",
-                                          "in 1 week");
+                                          "In 1 week");
     test_getRelativeTimeSpanString_helper(2 * WEEK_IN_MILLIS, WEEK_IN_MILLIS, "2 weeks ago",
-                                          "in 2 weeks");
+                                          "In 2 weeks");
     test_getRelativeTimeSpanString_helper(25 * WEEK_IN_MILLIS, WEEK_IN_MILLIS, "25 weeks ago",
-                                          "in 25 weeks");
+                                          "In 25 weeks");
 
     // duration >= minResolution
     test_getRelativeTimeSpanString_helper(30 * SECOND_IN_MILLIS, 0, "30 seconds ago",
-                                          "in 30 seconds");
+                                          "In 30 seconds");
     test_getRelativeTimeSpanString_helper(30 * MINUTE_IN_MILLIS, MINUTE_IN_MILLIS,
-                                          "30 minutes ago", "in 30 minutes");
+                                          "30 minutes ago", "In 30 minutes");
     test_getRelativeTimeSpanString_helper(30 * HOUR_IN_MILLIS, MINUTE_IN_MILLIS, "Yesterday",
                                           "Tomorrow");
     test_getRelativeTimeSpanString_helper(5 * DAY_IN_MILLIS, MINUTE_IN_MILLIS, "5 days ago",
-                                          "in 5 days");
+                                          "In 5 days");
     test_getRelativeTimeSpanString_helper(30 * WEEK_IN_MILLIS, MINUTE_IN_MILLIS, "July 10, 2014",
                                           "September 3");
     test_getRelativeTimeSpanString_helper(5 * 365 * DAY_IN_MILLIS, MINUTE_IN_MILLIS,
                                           "February 6, 2010", "February 4, 2020");
 
     test_getRelativeTimeSpanString_helper(60 * SECOND_IN_MILLIS, MINUTE_IN_MILLIS, "1 minute ago",
-                                          "in 1 minute");
+                                          "In 1 minute");
     test_getRelativeTimeSpanString_helper(120 * SECOND_IN_MILLIS - 1, MINUTE_IN_MILLIS,
-                                          "1 minute ago", "in 1 minute");
+                                          "1 minute ago", "In 1 minute");
     test_getRelativeTimeSpanString_helper(60 * MINUTE_IN_MILLIS, HOUR_IN_MILLIS, "1 hour ago",
-                                          "in 1 hour");
+                                          "In 1 hour");
     test_getRelativeTimeSpanString_helper(120 * MINUTE_IN_MILLIS - 1, HOUR_IN_MILLIS, "1 hour ago",
-                                          "in 1 hour");
+                                          "In 1 hour");
     test_getRelativeTimeSpanString_helper(2 * HOUR_IN_MILLIS, DAY_IN_MILLIS, "Today", "Today");
     test_getRelativeTimeSpanString_helper(12 * HOUR_IN_MILLIS, DAY_IN_MILLIS, "Yesterday",
                                           "Today");
     test_getRelativeTimeSpanString_helper(24 * HOUR_IN_MILLIS, DAY_IN_MILLIS, "Yesterday",
                                           "Tomorrow");
     test_getRelativeTimeSpanString_helper(48 * HOUR_IN_MILLIS, DAY_IN_MILLIS, "2 days ago",
-                                          "in 2 days");
+                                          "In 2 days");
     test_getRelativeTimeSpanString_helper(45 * HOUR_IN_MILLIS, DAY_IN_MILLIS, "2 days ago",
-                                          "in 2 days");
+                                          "In 2 days");
     test_getRelativeTimeSpanString_helper(7 * DAY_IN_MILLIS, WEEK_IN_MILLIS, "1 week ago",
-                                          "in 1 week");
+                                          "In 1 week");
     test_getRelativeTimeSpanString_helper(14 * DAY_IN_MILLIS - 1, WEEK_IN_MILLIS, "1 week ago",
-                                          "in 1 week");
+                                          "In 1 week");
 
     // duration < minResolution
     test_getRelativeTimeSpanString_helper(59 * SECOND_IN_MILLIS, MINUTE_IN_MILLIS, "0 minutes ago",
-                                          "in 0 minutes");
+                                          "In 0 minutes");
     test_getRelativeTimeSpanString_helper(59 * MINUTE_IN_MILLIS, HOUR_IN_MILLIS, "0 hours ago",
-                                          "in 0 hours");
+                                          "In 0 hours");
     test_getRelativeTimeSpanString_helper(HOUR_IN_MILLIS - 1, HOUR_IN_MILLIS, "0 hours ago",
-                                          "in 0 hours");
+                                          "In 0 hours");
     test_getRelativeTimeSpanString_helper(DAY_IN_MILLIS - 1, DAY_IN_MILLIS, "Yesterday",
                                           "Tomorrow");
     test_getRelativeTimeSpanString_helper(20 * SECOND_IN_MILLIS, WEEK_IN_MILLIS, "0 weeks ago",
-                                          "in 0 weeks");
+                                          "In 0 weeks");
     test_getRelativeTimeSpanString_helper(WEEK_IN_MILLIS - 1, WEEK_IN_MILLIS, "0 weeks ago",
-                                          "in 0 weeks");
+                                          "In 0 weeks");
   }
 
   public void test_getRelativeTimeSpanStringAbbrev() throws Exception {
@@ -232,45 +235,45 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
     test_getRelativeTimeSpanString_helper(0 * SECOND_IN_MILLIS, 0, flags, "0 sec. ago",
                                           "0 sec. ago");
     test_getRelativeTimeSpanString_helper(1 * MINUTE_IN_MILLIS, 0, flags, "1 min. ago",
-                                          "in 1 min.");
-    test_getRelativeTimeSpanString_helper(5 * DAY_IN_MILLIS, 0, flags, "5 days ago", "in 5 days");
+                                          "In 1 min.");
+    test_getRelativeTimeSpanString_helper(5 * DAY_IN_MILLIS, 0, flags, "5 days ago", "In 5 days");
 
     test_getRelativeTimeSpanString_helper(0 * SECOND_IN_MILLIS, SECOND_IN_MILLIS, flags,
                                           "0 sec. ago", "0 sec. ago");
     test_getRelativeTimeSpanString_helper(1 * SECOND_IN_MILLIS, SECOND_IN_MILLIS, flags,
-                                          "1 sec. ago", "in 1 sec.");
+                                          "1 sec. ago", "In 1 sec.");
     test_getRelativeTimeSpanString_helper(2 * SECOND_IN_MILLIS, SECOND_IN_MILLIS, flags,
-                                          "2 sec. ago", "in 2 sec.");
+                                          "2 sec. ago", "In 2 sec.");
     test_getRelativeTimeSpanString_helper(25 * SECOND_IN_MILLIS, SECOND_IN_MILLIS, flags,
-                                          "25 sec. ago", "in 25 sec.");
+                                          "25 sec. ago", "In 25 sec.");
     test_getRelativeTimeSpanString_helper(75 * SECOND_IN_MILLIS, SECOND_IN_MILLIS, flags,
-                                          "1 min. ago", "in 1 min.");
+                                          "1 min. ago", "In 1 min.");
     test_getRelativeTimeSpanString_helper(5000 * SECOND_IN_MILLIS, SECOND_IN_MILLIS, flags,
-                                          "1 hr. ago", "in 1 hr.");
+                                          "1 hr. ago", "In 1 hr.");
 
     test_getRelativeTimeSpanString_helper(0 * MINUTE_IN_MILLIS, MINUTE_IN_MILLIS, flags,
                                           "0 min. ago", "0 min. ago");
     test_getRelativeTimeSpanString_helper(1 * MINUTE_IN_MILLIS, MINUTE_IN_MILLIS, flags,
-                                          "1 min. ago", "in 1 min.");
+                                          "1 min. ago", "In 1 min.");
     test_getRelativeTimeSpanString_helper(2 * MINUTE_IN_MILLIS, MINUTE_IN_MILLIS, flags,
-                                          "2 min. ago", "in 2 min.");
+                                          "2 min. ago", "In 2 min.");
     test_getRelativeTimeSpanString_helper(25 * MINUTE_IN_MILLIS, MINUTE_IN_MILLIS, flags,
-                                          "25 min. ago", "in 25 min.");
+                                          "25 min. ago", "In 25 min.");
     test_getRelativeTimeSpanString_helper(75 * MINUTE_IN_MILLIS, MINUTE_IN_MILLIS, flags,
-                                          "1 hr. ago", "in 1 hr.");
+                                          "1 hr. ago", "In 1 hr.");
     test_getRelativeTimeSpanString_helper(720 * MINUTE_IN_MILLIS, MINUTE_IN_MILLIS, flags,
-                                          "12 hr. ago", "in 12 hr.");
+                                          "12 hr. ago", "In 12 hr.");
 
     test_getRelativeTimeSpanString_helper(0 * HOUR_IN_MILLIS, HOUR_IN_MILLIS, flags,
                                           "0 hr. ago", "0 hr. ago");
     test_getRelativeTimeSpanString_helper(1 * HOUR_IN_MILLIS, HOUR_IN_MILLIS, flags,
-                                          "1 hr. ago", "in 1 hr.");
+                                          "1 hr. ago", "In 1 hr.");
     test_getRelativeTimeSpanString_helper(2 * HOUR_IN_MILLIS, HOUR_IN_MILLIS, flags,
-                                          "2 hr. ago", "in 2 hr.");
+                                          "2 hr. ago", "In 2 hr.");
     test_getRelativeTimeSpanString_helper(5 * HOUR_IN_MILLIS, HOUR_IN_MILLIS, flags,
-                                          "5 hr. ago", "in 5 hr.");
+                                          "5 hr. ago", "In 5 hr.");
     test_getRelativeTimeSpanString_helper(20 * HOUR_IN_MILLIS, HOUR_IN_MILLIS, flags,
-                                          "20 hr. ago", "in 20 hr.");
+                                          "20 hr. ago", "In 20 hr.");
 
     test_getRelativeTimeSpanString_helper(0 * DAY_IN_MILLIS, DAY_IN_MILLIS, flags, "Today",
                                           "Today");
@@ -279,41 +282,41 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
     test_getRelativeTimeSpanString_helper(24 * HOUR_IN_MILLIS, DAY_IN_MILLIS, flags,
                                           "Yesterday", "Tomorrow");
     test_getRelativeTimeSpanString_helper(2 * DAY_IN_MILLIS, DAY_IN_MILLIS, flags,
-                                          "2 days ago", "in 2 days");
+                                          "2 days ago", "In 2 days");
     test_getRelativeTimeSpanString_helper(25 * DAY_IN_MILLIS, DAY_IN_MILLIS, flags,
                                           "January 11", "March 2");
 
     test_getRelativeTimeSpanString_helper(0 * WEEK_IN_MILLIS, WEEK_IN_MILLIS, flags,
                                           "0 wk. ago", "0 wk. ago");
     test_getRelativeTimeSpanString_helper(1 * WEEK_IN_MILLIS, WEEK_IN_MILLIS, flags,
-                                          "1 wk. ago", "in 1 wk.");
+                                          "1 wk. ago", "In 1 wk.");
     test_getRelativeTimeSpanString_helper(2 * WEEK_IN_MILLIS, WEEK_IN_MILLIS, flags,
-                                          "2 wk. ago", "in 2 wk.");
+                                          "2 wk. ago", "In 2 wk.");
     test_getRelativeTimeSpanString_helper(25 * WEEK_IN_MILLIS, WEEK_IN_MILLIS, flags,
-                                          "25 wk. ago", "in 25 wk.");
+                                          "25 wk. ago", "In 25 wk.");
 
     // duration >= minResolution
     test_getRelativeTimeSpanString_helper(30 * SECOND_IN_MILLIS, 0, flags, "30 sec. ago",
-                                          "in 30 sec.");
+                                          "In 30 sec.");
     test_getRelativeTimeSpanString_helper(30 * MINUTE_IN_MILLIS, MINUTE_IN_MILLIS, flags,
-                                          "30 min. ago", "in 30 min.");
+                                          "30 min. ago", "In 30 min.");
     test_getRelativeTimeSpanString_helper(30 * HOUR_IN_MILLIS, MINUTE_IN_MILLIS, flags,
                                           "Yesterday", "Tomorrow");
     test_getRelativeTimeSpanString_helper(5 * DAY_IN_MILLIS, MINUTE_IN_MILLIS, flags,
-                                          "5 days ago", "in 5 days");
+                                          "5 days ago", "In 5 days");
     test_getRelativeTimeSpanString_helper(30 * WEEK_IN_MILLIS, MINUTE_IN_MILLIS, flags,
                                           "July 10, 2014", "September 3");
     test_getRelativeTimeSpanString_helper(5 * 365 * DAY_IN_MILLIS, MINUTE_IN_MILLIS, flags,
                                           "February 6, 2010", "February 4, 2020");
 
     test_getRelativeTimeSpanString_helper(60 * SECOND_IN_MILLIS, MINUTE_IN_MILLIS, flags,
-                                          "1 min. ago", "in 1 min.");
+                                          "1 min. ago", "In 1 min.");
     test_getRelativeTimeSpanString_helper(120 * SECOND_IN_MILLIS - 1, MINUTE_IN_MILLIS, flags,
-                                          "1 min. ago", "in 1 min.");
+                                          "1 min. ago", "In 1 min.");
     test_getRelativeTimeSpanString_helper(60 * MINUTE_IN_MILLIS, HOUR_IN_MILLIS, flags,
-                                          "1 hr. ago", "in 1 hr.");
+                                          "1 hr. ago", "In 1 hr.");
     test_getRelativeTimeSpanString_helper(120 * MINUTE_IN_MILLIS - 1, HOUR_IN_MILLIS, flags,
-                                          "1 hr. ago", "in 1 hr.");
+                                          "1 hr. ago", "In 1 hr.");
     test_getRelativeTimeSpanString_helper(2 * HOUR_IN_MILLIS, DAY_IN_MILLIS, flags, "Today",
                                           "Today");
     test_getRelativeTimeSpanString_helper(12 * HOUR_IN_MILLIS, DAY_IN_MILLIS, flags,
@@ -321,27 +324,27 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
     test_getRelativeTimeSpanString_helper(24 * HOUR_IN_MILLIS, DAY_IN_MILLIS, flags,
                                           "Yesterday", "Tomorrow");
     test_getRelativeTimeSpanString_helper(48 * HOUR_IN_MILLIS, DAY_IN_MILLIS, flags,
-                                          "2 days ago", "in 2 days");
+                                          "2 days ago", "In 2 days");
     test_getRelativeTimeSpanString_helper(45 * HOUR_IN_MILLIS, DAY_IN_MILLIS, flags,
-                                          "2 days ago", "in 2 days");
+                                          "2 days ago", "In 2 days");
     test_getRelativeTimeSpanString_helper(7 * DAY_IN_MILLIS, WEEK_IN_MILLIS, flags,
-                                          "1 wk. ago", "in 1 wk.");
+                                          "1 wk. ago", "In 1 wk.");
     test_getRelativeTimeSpanString_helper(14 * DAY_IN_MILLIS - 1, WEEK_IN_MILLIS, flags,
-                                          "1 wk. ago", "in 1 wk.");
+                                          "1 wk. ago", "In 1 wk.");
 
     // duration < minResolution
     test_getRelativeTimeSpanString_helper(59 * SECOND_IN_MILLIS, MINUTE_IN_MILLIS, flags,
-                                          "0 min. ago", "in 0 min.");
+                                          "0 min. ago", "In 0 min.");
     test_getRelativeTimeSpanString_helper(59 * MINUTE_IN_MILLIS, HOUR_IN_MILLIS, flags,
-                                          "0 hr. ago", "in 0 hr.");
+                                          "0 hr. ago", "In 0 hr.");
     test_getRelativeTimeSpanString_helper(HOUR_IN_MILLIS - 1, HOUR_IN_MILLIS, flags,
-                                          "0 hr. ago", "in 0 hr.");
+                                          "0 hr. ago", "In 0 hr.");
     test_getRelativeTimeSpanString_helper(DAY_IN_MILLIS - 1, DAY_IN_MILLIS, flags,
                                           "Yesterday", "Tomorrow");
     test_getRelativeTimeSpanString_helper(20 * SECOND_IN_MILLIS, WEEK_IN_MILLIS, flags,
-                                          "0 wk. ago", "in 0 wk.");
+                                          "0 wk. ago", "In 0 wk.");
     test_getRelativeTimeSpanString_helper(WEEK_IN_MILLIS - 1, WEEK_IN_MILLIS, flags,
-                                          "0 wk. ago", "in 0 wk.");
+                                          "0 wk. ago", "In 0 wk.");
 
   }
 
@@ -358,21 +361,21 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
     final long now = cal.getTimeInMillis();
 
     // 42 minutes ago
-    assertEquals("vor 42 Minuten", getRelativeTimeSpanString(de_DE, tz,
+    assertEquals("Vor 42 Minuten", getRelativeTimeSpanString(de_DE, tz,
         now - 42 * MINUTE_IN_MILLIS, now, MINUTE_IN_MILLIS, 0));
-    // in 42 minutes
-    assertEquals("in 42 Minuten", getRelativeTimeSpanString(de_DE, tz,
+    // In 42 minutes
+    assertEquals("In 42 Minuten", getRelativeTimeSpanString(de_DE, tz,
         now + 42 * MINUTE_IN_MILLIS, now, MINUTE_IN_MILLIS, 0));
-    // yesterday
+    // Yesterday
     assertEquals("Gestern", getRelativeTimeSpanString(de_DE, tz,
         now - DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
-    // the day before yesterday
+    // The day before yesterday
     assertEquals("Vorgestern", getRelativeTimeSpanString(de_DE, tz,
         now - 2 * DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
-    // tomorrow
+    // Tomorrow
     assertEquals("Morgen", getRelativeTimeSpanString(de_DE, tz,
         now + DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
-    // the day after tomorrow
+    // The day after tomorrow
     assertEquals("Übermorgen", getRelativeTimeSpanString(de_DE, tz,
         now + 2 * DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
   }
@@ -386,21 +389,21 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
     final long now = cal.getTimeInMillis();
 
     // 42 minutes ago
-    assertEquals("il y a 42 minutes", getRelativeTimeSpanString(fr_FR, tz,
+    assertEquals("Il y a 42 minutes", getRelativeTimeSpanString(fr_FR, tz,
         now - (42 * MINUTE_IN_MILLIS), now, MINUTE_IN_MILLIS, 0));
-    // in 42 minutes
-    assertEquals("dans 42 minutes", getRelativeTimeSpanString(fr_FR, tz,
+    // In 42 minutes
+    assertEquals("Dans 42 minutes", getRelativeTimeSpanString(fr_FR, tz,
         now + (42 * MINUTE_IN_MILLIS), now, MINUTE_IN_MILLIS, 0));
-    // yesterday
+    // Yesterday
     assertEquals("Hier", getRelativeTimeSpanString(fr_FR, tz,
         now - DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
-    // the day before yesterday
+    // The day before yesterday
     assertEquals("Avant-hier", getRelativeTimeSpanString(fr_FR, tz,
         now - 2 * DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
-    // tomorrow
+    // Tomorrow
     assertEquals("Demain", getRelativeTimeSpanString(fr_FR, tz,
         now + DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
-    // the day after tomorrow
+    // The day after tomorrow
     assertEquals("Après-demain", getRelativeTimeSpanString(fr_FR, tz,
         now + 2 * DAY_IN_MILLIS, now, DAY_IN_MILLIS, 0));
   }
@@ -474,10 +477,10 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
                  getRelativeDateTimeString(en_US, tz, base - 5 * HOUR_IN_MILLIS, base, 0,
                                            WEEK_IN_MILLIS, 0));
 
-    // 1 hour after 2:00 AM should be formatted as 'in 1 hour, 4:00 AM'.
+    // 1 hour after 2:00 AM should be formatted as 'In 1 hour, 4:00 AM'.
     cal.set(2014, Calendar.MARCH, 9, 2, 0, 0);
     base = cal.getTimeInMillis();
-    assertEquals("in 1 hour, 4:00 AM",
+    assertEquals("In 1 hour, 4:00 AM",
                  getRelativeDateTimeString(en_US, tz, base + 1 * HOUR_IN_MILLIS, base, 0,
                                            WEEK_IN_MILLIS, 0));
 
@@ -491,16 +494,16 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
 
     cal.set(2014, Calendar.NOVEMBER, 2, 0, 45, 0);
     base = cal.getTimeInMillis();
-    // 45 minutes after 0:45 AM should be 'in 45 minutes, 1:30 AM'.
-    assertEquals("in 45 minutes, 1:30 AM",
+    // 45 minutes after 0:45 AM should be 'In 45 minutes, 1:30 AM'.
+    assertEquals("In 45 minutes, 1:30 AM",
                  getRelativeDateTimeString(en_US, tz, base + 45 * MINUTE_IN_MILLIS, base, 0,
                                            WEEK_IN_MILLIS, 0));
-    // 45 minutes later, it should be 'in 45 minutes, 1:15 AM'.
-    assertEquals("in 45 minutes, 1:15 AM",
+    // 45 minutes later, it should be 'In 45 minutes, 1:15 AM'.
+    assertEquals("In 45 minutes, 1:15 AM",
                  getRelativeDateTimeString(en_US, tz, base + 90 * MINUTE_IN_MILLIS,
                                            base + 45 * MINUTE_IN_MILLIS, 0, WEEK_IN_MILLIS, 0));
-    // Another 45 minutes later, it should be 'in 45 minutes, 2:00 AM'.
-    assertEquals("in 45 minutes, 2:00 AM",
+    // Another 45 minutes later, it should be 'In 45 minutes, 2:00 AM'.
+    assertEquals("In 45 minutes, 2:00 AM",
                  getRelativeDateTimeString(en_US, tz, base + 135 * MINUTE_IN_MILLIS,
                                            base + 90 * MINUTE_IN_MILLIS, 0, WEEK_IN_MILLIS, 0));
   }
@@ -596,7 +599,7 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
     Calendar twoDaysLaterCalendar1 = Calendar.getInstance(tz, en_US);
     twoDaysLaterCalendar1.set(2011, Calendar.SEPTEMBER, 4, 10, 22, 0);
     long twoDaysLater1 = twoDaysLaterCalendar1.getTimeInMillis();
-    assertEquals("in 2 days, 10:22 AM",
+    assertEquals("In 2 days, 10:22 AM",
                  getRelativeDateTimeString(en_US, tz, twoDaysLater1, now, MINUTE_IN_MILLIS,
                                            WEEK_IN_MILLIS, 0));
 
@@ -604,7 +607,7 @@ public class RelativeDateTimeFormatterTest extends junit.framework.TestCase {
     Calendar twoDaysLaterCalendar2 = Calendar.getInstance(tz, en_US);
     twoDaysLaterCalendar2.set(2011, Calendar.SEPTEMBER, 4, 10, 24, 0);
     long twoDaysLater2 = twoDaysLaterCalendar2.getTimeInMillis();
-    assertEquals("in 2 days, 10:24 AM",
+    assertEquals("In 2 days, 10:24 AM",
                  getRelativeDateTimeString(en_US, tz, twoDaysLater2, now, MINUTE_IN_MILLIS,
                                            WEEK_IN_MILLIS, 0));
   }
