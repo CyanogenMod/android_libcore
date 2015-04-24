@@ -116,7 +116,10 @@ public class OutputStreamWriter extends Writer {
      */
     public OutputStreamWriter(OutputStream out, CharsetEncoder charsetEncoder) {
         super(out);
-        charsetEncoder.charset();
+        if (charsetEncoder == null) {
+            throw new NullPointerException("charsetEncoder == null");
+        }
+
         this.out = out;
         encoder = charsetEncoder;
     }
