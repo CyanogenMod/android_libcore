@@ -249,6 +249,10 @@ public final class ZoneInfoDB {
       // The object from the cache is cloned because TimeZone / ZoneInfo are mutable.
       return zoneInfo == null ? null : (ZoneInfo) zoneInfo.clone();
     }
+
+    public boolean hasTimeZone(String id) throws IOException {
+      return cache.get(id) != null;
+    }
   }
 
   private ZoneInfoDB() {
