@@ -26,7 +26,6 @@
 package java.util;
 
 import java.util.Map.Entry;
-import sun.misc.SharedSecrets;
 
 /**
  * A specialized {@link Map} implementation for use with enum type keys.  All
@@ -747,8 +746,9 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V>
      * The result is uncloned, cached, and shared by all callers.
      */
     private static <K extends Enum<K>> K[] getKeyUniverse(Class<K> keyType) {
-        return SharedSecrets.getJavaLangAccess()
-                                        .getEnumConstantsShared(keyType);
+        // Android-changed: Use JavaLangAccess directly instead of going through
+        // SharedSecrets.
+        return JavaLangAccess.getEnumConstantsShared(keyType);
     }
 
     private static final long serialVersionUID = 458661240069192865L;

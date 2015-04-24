@@ -25,8 +25,6 @@
 
 package java.util;
 
-import sun.misc.SharedSecrets;
-
 /**
  * A specialized {@link Set} implementation for use with enum types.  All of
  * the elements in an enum set must come from a single enum type that is
@@ -385,8 +383,9 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
      * The result is uncloned, cached, and shared by all callers.
      */
     private static <E extends Enum<E>> E[] getUniverse(Class<E> elementType) {
-        return SharedSecrets.getJavaLangAccess()
-                                        .getEnumConstantsShared(elementType);
+        // Android-changed: Use JavaLangAccess directly instead of going via
+        // SharedSecrets.
+        return java.lang.JavaLangAccess.getEnumConstantsShared(elementType);
     }
 
     /**

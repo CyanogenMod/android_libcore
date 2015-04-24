@@ -41,7 +41,9 @@ import java.util.spi.CurrencyNameProvider;
 import java.util.spi.LocaleServiceProvider;
 import sun.util.LocaleServiceProviderPool;
 import sun.util.logging.PlatformLogger;
-import sun.util.resources.LocaleData;
+import libcore.icu.ICU;
+import libcore.icu.LocaleData;
+
 import sun.util.resources.OpenListResourceBundle;
 
 
@@ -193,8 +195,9 @@ public final class Currency implements Serializable {
             public Object run() {
                 String homeDir = System.getProperty("java.home");
                 try {
-                    String dataFile = homeDir + File.separator +
-                            "lib" + File.separator + "currency.data";
+                    // Android-changed: Look for the data file in /usr/share/..
+                    String dataFile = homeDir + File.separator + "usr" + File.separator + "share" +
+                            File.separator + "currency.data";
                     DataInputStream dis = new DataInputStream(
                         new BufferedInputStream(
                         new FileInputStream(dataFile)));
@@ -471,33 +474,17 @@ public final class Currency implements Serializable {
      * @exception NullPointerException if <code>locale</code> is null
      */
     public String getSymbol(Locale locale) {
-        try {
-            // Check whether a provider can provide an implementation that's closer
-            // to the requested locale than what the Java runtime itself can provide.
-            LocaleServiceProviderPool pool =
-                LocaleServiceProviderPool.getPool(CurrencyNameProvider.class);
-
-            if (pool.hasProviders()) {
-                // Assuming that all the country locales include necessary currency
-                // symbols in the Java runtime's resources,  so there is no need to
-                // examine whether Java runtime's currency resource bundle is missing
-                // names.  Therefore, no resource bundle is provided for calling this
-                // method.
-                String symbol = pool.getLocalizedObject(
-                                    CurrencyNameGetter.INSTANCE,
-                                    locale, (OpenListResourceBundle)null,
-                                    currencyCode, SYMBOL);
-                if (symbol != null) {
-                    return symbol;
-                }
-            }
-
-            ResourceBundle bundle = LocaleData.getCurrencyNames(locale);
-            return bundle.getString(currencyCode);
-        } catch (MissingResourceException e) {
-            // use currency code as symbol of last resort
-            return currencyCode;
+        // Android-changed: Use ICU4C for currency lookups
+        //
+        // Check the locale first, in case the locale has the same currency.
+        LocaleData localeData = LocaleData.get(locale);
+        if (localeData.internationalCurrencySymbol.equals(currencyCode)) {
+            return localeData.currencySymbol;
         }
+
+        // Try ICU, and fall back to the currency code if ICU has nothing.
+        String symbol = ICU.getCurrencySymbol(locale, currencyCode);
+        return symbol != null ? symbol : currencyCode;
     }
 
     /**
@@ -547,34 +534,8 @@ public final class Currency implements Serializable {
      * @since 1.7
      */
     public String getDisplayName(Locale locale) {
-        try {
-            OpenListResourceBundle bundle = LocaleData.getCurrencyNames(locale);
-            String result = null;
-            String bundleKey = currencyCode.toLowerCase(Locale.ROOT);
-
-            // Check whether a provider can provide an implementation that's closer
-            // to the requested locale than what the Java runtime itself can provide.
-            LocaleServiceProviderPool pool =
-                LocaleServiceProviderPool.getPool(CurrencyNameProvider.class);
-            if (pool.hasProviders()) {
-                result = pool.getLocalizedObject(
-                                    CurrencyNameGetter.INSTANCE,
-                                    locale, bundleKey, bundle, currencyCode, DISPLAYNAME);
-            }
-
-            if (result == null) {
-                result = bundle.getString(bundleKey);
-            }
-
-            if (result != null) {
-                return result;
-            }
-        } catch (MissingResourceException e) {
-            // fall through
-        }
-
-        // use currency code as symbol of last resort
-        return currencyCode;
+        // Android-changed: Use ICU4C to look up the currency display name.
+        return ICU.getCurrencyDisplayName(locale, currencyCode);
     }
 
     /**

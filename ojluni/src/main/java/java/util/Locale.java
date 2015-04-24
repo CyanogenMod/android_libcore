@@ -1520,6 +1520,11 @@ public final class Locale implements Cloneable, Serializable {
      * three-letter country abbreviation is not available for this locale.
      */
     public String getISO3Country() throws MissingResourceException {
+        // Android-changed : Hack for UN-M49 location codes.
+        if (baseLocale.getRegion().length() == 3) {
+            return baseLocale.getRegion();
+        }
+
         String country3 = getISO3Code(baseLocale.getRegion(), LocaleISOData.isoCountryTable);
         if (country3 == null) {
             throw new MissingResourceException("Couldn't find 3-letter country code for "

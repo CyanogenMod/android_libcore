@@ -102,6 +102,7 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_JAVA_LIBRARIES := core-all
 LOCAL_REQUIRED_MODULES := tzdata
 LOCAL_CORE_LIBRARY := true
+LOCAL_REQUIRED_MODULES := currency.data-target
 include $(BUILD_JAVA_LIBRARY)
 
 # Definitions to make the core library.
@@ -208,6 +209,7 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/JavaLibrary.mk
 LOCAL_JAVA_LIBRARIES := core-all-hostdex
 LOCAL_REQUIRED_MODULES := tzdata-host
 LOCAL_CORE_LIBRARY := true
+LOCAL_REQUIRED_MODULES := currency.data-target
 include $(BUILD_HOST_DALVIK_JAVA_LIBRARY)
 
 # Definitions to make the core library.

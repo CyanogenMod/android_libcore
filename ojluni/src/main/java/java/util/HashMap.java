@@ -802,7 +802,8 @@ public class HashMap<K,V>
         return result;
     }
 
-    static class Entry<K,V> implements Map.Entry<K,V> {
+    // Android-changed: Make HashMap.Entry public.
+    public static class Entry<K,V> implements Map.Entry<K,V> {
         final K key;
         V value;
         Entry<K,V> next;
@@ -1068,6 +1069,8 @@ public class HashMap<K,V>
      *
      * @return a set view of the mappings contained in this map
      */
+    // Android-changed: Changed type parameter from <? extends Entry<K, V>
+    // to a Map.Entry<K, V>.
     public Set<Map.Entry<K,V>> entrySet() {
         return entrySet0();
     }

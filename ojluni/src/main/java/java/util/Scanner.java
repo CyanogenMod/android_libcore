@@ -25,8 +25,9 @@
 
 package java.util;
 
+/* TODO(haaawk): UNCOMMENT LATER
 import java.nio.file.Path;
-import java.nio.file.Files;
+import java.nio.file.Files;*/
 import java.util.regex.*;
 import java.io.*;
 import java.math.*;
@@ -707,11 +708,12 @@ public final class Scanner implements Iterator<String>, Closeable {
      *
      * @since   1.7
      */
+    /* TODO(haaawk): UNCOMMENT LATER
     public Scanner(Path source)
         throws IOException
     {
         this(Files.newInputStream(source));
-    }
+    }*/
 
     /**
      * Constructs a new <code>Scanner</code> that produces values scanned
@@ -729,13 +731,14 @@ public final class Scanner implements Iterator<String>, Closeable {
      *          if the specified encoding is not found
      * @since   1.7
      */
+    /* TODO(haaawk): UNCOMMENT LATER
     public Scanner(Path source, String charsetName) throws IOException {
         this(Objects.requireNonNull(source), toCharset(charsetName));
     }
 
     private Scanner(Path source, Charset charset)  throws IOException {
         this(makeReadable(Files.newInputStream(source), charset));
-    }
+    }*/
 
     /**
      * Constructs a new <code>Scanner</code> that produces values scanned

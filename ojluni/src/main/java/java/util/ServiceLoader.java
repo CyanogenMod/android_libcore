@@ -534,6 +534,25 @@ public final class ServiceLoader<S>
     }
 
     /**
+     * Internal API to support built-in SPIs that check a system property first.
+     * Returns an instance specified by a property with the class' binary name, or null if
+     * no such property is set.
+     * @hide
+     */
+    public static <S> S loadFromSystemProperty(final Class<S> service) {
+        try {
+            final String className = System.getProperty(service.getName());
+            if (className != null) {
+                Class<?> c = ClassLoader.getSystemClassLoader().loadClass(className);
+                return (S) c.newInstance();
+            }
+            return null;
+        } catch (Exception e) {
+            throw new Error(e);
+        }
+    }
+
+    /**
      * Returns a string describing this service.
      *
      * @return  A descriptive string

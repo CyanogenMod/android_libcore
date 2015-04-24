@@ -259,7 +259,7 @@ public class Hashtable<K,V>
             initialCapacity = 1;
         this.loadFactor = loadFactor;
         table = new Entry[initialCapacity];
-        threshold = (int)Math.min(initialCapacity * loadFactor, MAX_ARRAY_SIZE + 1);
+        threshold = (initialCapacity <= MAX_ARRAY_SIZE + 1) ? initialCapacity : MAX_ARRAY_SIZE + 1;
         initHashSeedAsNeeded(initialCapacity);
     }
 
@@ -1035,7 +1035,8 @@ public class Hashtable<K,V>
     /**
      * Hashtable bucket collision list entry
      */
-    private static class Entry<K,V> implements Map.Entry<K,V> {
+    // Android-changed: make public.
+    public static class Entry<K,V> implements Map.Entry<K,V> {
         int hash;
         final K key;
         V value;

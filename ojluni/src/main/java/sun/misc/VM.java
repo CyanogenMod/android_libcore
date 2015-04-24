@@ -94,10 +94,6 @@ public class VM {
 
     /** @deprecated */
     @Deprecated
-    public static void registerVMNotification(VMNotification n) { }
-
-    /** @deprecated */
-    @Deprecated
     public static void asChange(int as_old, int as_new) { }
 
     /** @deprecated */
@@ -316,7 +312,9 @@ public class VM {
     //
     public static void initializeOSEnvironment() {
         if (!booted) {
+            /* ----- BEGIN android -----
             OSEnvironment.initialize();
+            ----- END android ----- */
         }
     }
 
@@ -390,15 +388,4 @@ public class VM {
     private final static int JVMTI_THREAD_STATE_BLOCKED_ON_MONITOR_ENTER = 0x0400;
     private final static int JVMTI_THREAD_STATE_WAITING_INDEFINITELY = 0x0010;
     private final static int JVMTI_THREAD_STATE_WAITING_WITH_TIMEOUT = 0x0020;
-
-    /*
-     * Returns the first non-null class loader up the execution stack,
-     * or null if only code from the null class loader is on the stack.
-     */
-    public static native ClassLoader latestUserDefinedLoader();
-
-    static {
-        initialize();
-    }
-    private native static void initialize();
 }

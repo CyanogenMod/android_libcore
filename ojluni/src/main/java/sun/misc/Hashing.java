@@ -25,6 +25,9 @@
 package sun.misc;
 
 import java.util.concurrent.ThreadLocalRandom;
+// ----- BEGIN android -----
+import java.lang.JavaLangAccess;
+// ----- END android -----
 
 /**
  * Hashing utilities.
@@ -207,25 +210,6 @@ public class Hashing {
     }
 
     /**
-     * Holds references to things that can't be initialized until after VM
-     * is fully booted.
-     */
-    private static class Holder {
-
-        /**
-         * Access to {@code String.hash32()}
-         */
-        static final JavaLangAccess LANG_ACCESS;
-
-        static {
-            LANG_ACCESS = SharedSecrets.getJavaLangAccess();
-            if (null == LANG_ACCESS) {
-                throw new Error("Shared secrets not initialized");
-            }
-        }
-    }
-
-    /**
      * Return a 32 bit hash value for the specified string. The algorithm is
      * unspecified but will be consistent within a VM instance.
      *
@@ -233,7 +217,8 @@ public class Hashing {
      * @return hash value of the string.
      */
     public static int stringHash32(String string) {
-        return Holder.LANG_ACCESS.getStringHash32(string);
+        // Android-changed: Access JavaLangAccess directly.
+        return JavaLangAccess.getStringHash32(string);
     }
 
     /**
