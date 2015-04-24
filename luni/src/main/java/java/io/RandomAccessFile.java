@@ -160,7 +160,6 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
         synchronized (this) {
             if (channel != null && channel.isOpen()) {
                 channel.close();
-                channel = null;
             }
             IoBridge.closeAndSignalBlockedThreads(fd);
         }
@@ -184,6 +183,10 @@ public class RandomAccessFile implements DataInput, DataOutput, Closeable {
      * as this file's file pointer offset (see {@link #getFilePointer()}). Any
      * changes made to this file's file pointer offset are also visible in the
      * file channel's position and vice versa.
+     *
+     * Closing the channel closes the RandomAccessFile as well. The instance
+     * of FileChannel returned is always the same even if the RandomAccessFile
+     * or the FileChannel have been closed.
      *
      * @return this file's file channel instance.
      */
