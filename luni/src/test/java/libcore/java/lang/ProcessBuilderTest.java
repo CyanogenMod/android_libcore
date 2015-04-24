@@ -28,7 +28,7 @@ import static tests.support.Support_Exec.execAndCheckOutput;
 public class ProcessBuilderTest extends AbstractResourceLeakageDetectorTestCase {
 
     private static String shell() {
-        String deviceSh = "/system/bin/sh";
+        String deviceSh = System.getenv("ANDROID_ROOT") + "/bin/sh";
         String desktopSh = "/bin/sh";
         return new File(deviceSh).exists() ? deviceSh : desktopSh;
     }
