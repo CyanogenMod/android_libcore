@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+
 import junit.framework.TestCase;
 import libcore.java.lang.ref.FinalizationTester;
 
@@ -73,6 +75,61 @@ public final class RandomAccessFileTest extends TestCase {
             FinalizationTester.induceFinalization();
         }
     }
+
+    // http://b/19892782
+    public void testCloseRaf_sameChannelReturned() throws Exception {
+        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+
+        FileChannel fileChannelBeforeClosing = raf.getChannel();
+        raf.close();
+        FileChannel fileChannelAfterClosing = raf.getChannel();
+        assertSame(fileChannelBeforeClosing, fileChannelAfterClosing);
+    }
+
+    // http://b/19892782
+    public void testCloseRaf_channelIsClosed() throws Exception {
+        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+
+        FileChannel fileChannelBeforeClosing = raf.getChannel();
+        raf.close();
+        FileChannel fileChannelAfterClosing = raf.getChannel();
+        assertFalse(fileChannelBeforeClosing.isOpen());
+    }
+
+    // http://b/19892782
+    public void testCloseFileChannel_sameChannelReturned() throws Exception {
+        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+
+        FileChannel fileChannelBeforeClosing = raf.getChannel();
+        fileChannelBeforeClosing.close();
+
+        FileChannel fileChannelAfterClosing = raf.getChannel();
+        assertSame(fileChannelBeforeClosing, fileChannelAfterClosing);
+    }
+
+    // http://b/19892782
+    public void testCloseFileChannel_returnedFileChannelIsClosed() throws Exception {
+        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+
+        FileChannel fileChannelBeforeClosing = raf.getChannel();
+        // This should close the Raf, and previous implementations wrongly returned a new
+        // open (but useless) channel in this case.
+        fileChannelBeforeClosing.close();
+        FileChannel fileChannelAfterClosing = raf.getChannel();
+        assertFalse(fileChannelBeforeClosing.isOpen());
+    }
+
+    // http://b/19892782
+    public void testCloseRafBeforeGetChannel_returnChannelWithCloseFdAfterClose() throws Exception {
+        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+        raf.close();
+        try {
+            raf.getChannel().size();
+            fail();
+        } catch (IOException expected) {
+        }
+    }
+
     private void createRandomAccessFile(File file) throws Exception {
         // TODO: fix our register maps and remove this otherwise unnecessary
         // indirection! (http://b/5412580)
