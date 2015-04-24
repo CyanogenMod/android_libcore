@@ -646,8 +646,8 @@ public abstract class ClassLoader {
                 throw new IllegalArgumentException("Package " + name + " already defined");
             }
 
-            Package newPackage = new Package(name, specTitle, specVersion, specVendor, implTitle,
-                    implVersion, implVendor, sealBase);
+            Package newPackage = new Package(this, name, specTitle, specVersion, specVendor,
+                    implTitle, implVersion, implVendor, sealBase);
 
             packages.put(name, newPackage);
 

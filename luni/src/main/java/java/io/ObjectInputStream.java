@@ -2255,8 +2255,6 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
 
             if (cls == null) {
                 // not primitive class
-                // Use the first non-null ClassLoader on the stack. If null, use
-                // the system class loader
                 cls = Class.forName(className, false, callerClassLoader);
             }
         }
