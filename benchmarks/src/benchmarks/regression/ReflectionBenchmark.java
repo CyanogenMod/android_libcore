@@ -156,6 +156,13 @@ public class ReflectionBenchmark extends SimpleBenchmark {
         }
     }
 
+    public void timeClass_classNewInstance(int reps) throws Exception {
+        Class<?> klass = C.class;
+        for (int rep = 0; rep < reps; ++rep) {
+            klass.newInstance();
+        }
+    }
+
     public void timeGetInstanceField(int reps) throws Exception {
         for (int rep = 0; rep < reps; ++rep) {
             // The field here (and in timeGetStaticField) were chosen to be
