@@ -284,13 +284,6 @@ public final class Constructor<T> extends AbstractMethod implements GenericDecla
             IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 
     /**
-     * Special version that looks up two frames for access check. Used by Class.newInstance.
-     * @hide
-     */
-    public native T newInstanceTwoFrames(Object... args) throws InstantiationException,
-            IllegalAccessException, IllegalArgumentException, InvocationTargetException;
-
-    /**
      * Returns a string containing a concise, human-readable description of this
      * constructor. The format of the string is:
      *

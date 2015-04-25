@@ -1379,33 +1379,7 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      * @throws InstantiationException
      *             if the instance cannot be created.
      */
-    public T newInstance() throws InstantiationException, IllegalAccessException {
-        if (isPrimitive() || isInterface() || isArray() || Modifier.isAbstract(accessFlags)) {
-            throw new InstantiationException(this + " cannot be instantiated");
-        }
-        Class<?> caller = VMStack.getStackClass1();
-        if (!caller.canAccess(this)) {
-          throw new IllegalAccessException(this + " is not accessible from " + caller);
-        }
-        Constructor<T> init;
-        try {
-            init = getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
-            InstantiationException t =
-                new InstantiationException(this + " has no zero argument constructor");
-            t.initCause(e);
-            throw t;
-        }
-        if (!caller.canAccessMember(this, init.getAccessFlags())) {
-          throw new IllegalAccessException(init + " is not accessible from " + caller);
-        }
-        try {
-          return init.newInstanceTwoFrames();
-        } catch (InvocationTargetException e) {
-          SneakyThrow.sneakyThrow(e.getCause());
-          return null;  // Unreachable.
-        }
-    }
+    public native T newInstance() throws InstantiationException, IllegalAccessException;
 
     private boolean canAccess(Class<?> c) {
         if(Modifier.isPublic(c.accessFlags)) {
