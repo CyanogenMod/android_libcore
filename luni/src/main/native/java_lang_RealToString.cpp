@@ -80,7 +80,7 @@ void RealToString_bigIntDigitGenerator(JNIEnv* env, jobject obj, jlong f, jint e
       *R = f;
       *mplus = *mminus = 1;
       simpleShiftLeftHighPrecision (mminus, RM_SIZE, e);
-      if (f != (2 << (p - 1)))
+      if (f != (INT64_C(1) << p))
         {
           simpleShiftLeftHighPrecision (R, RM_SIZE, e + 1);
           *S = 2;
@@ -103,7 +103,7 @@ void RealToString_bigIntDigitGenerator(JNIEnv* env, jobject obj, jlong f, jint e
     }
   else
     {
-      if (isDenormalized || (f != (2 << (p - 1))))
+      if (isDenormalized || (f != (INT64_C(1) << p)))
         {
           *R = f << 1;
           *S = 1;
