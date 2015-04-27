@@ -71,4 +71,14 @@ class InterruptedIOException extends IOException {
      * @serial
      */
     public int bytesTransferred = 0;
+
+    /**
+     * Constructs a new instance with given detail message and cause.
+     *
+     * @hide internal use only
+     */
+    // Android-added.
+    public InterruptedIOException(String detailMessage, Throwable cause) {
+        super(detailMessage, cause);
+    }
 }

@@ -511,45 +511,9 @@ public final class Console implements Flushable
         }
     }
 
-    // Set up JavaIOAccess in SharedSecrets
-    static {
-        try {
-            // Add a shutdown hook to restore console's echo state should
-            // it be necessary.
-            sun.misc.SharedSecrets.getJavaLangAccess()
-                .registerShutdownHook(0 /* shutdown hook invocation order */,
-                    false /* only register if shutdown is not in progress */,
-                    new Runnable() {
-                        public void run() {
-                            try {
-                                if (echoOff) {
-                                    echo(true);
-                                }
-                            } catch (IOException x) { }
-                        }
-                    });
-        } catch (IllegalStateException e) {
-            // shutdown is already in progress and console is first used
-            // by a shutdown hook
-        }
+    // Android-changed: Remove SharedSecrets setup and also the shutdown
+    // hook that's a no-op (but causes trouble when it's turned on).
 
-        sun.misc.SharedSecrets.setJavaIOAccess(new sun.misc.JavaIOAccess() {
-            public Console console() {
-                if (istty()) {
-                    if (cons == null)
-                        cons = new Console();
-                    return cons;
-                }
-                return null;
-            }
-
-            public Charset charset() {
-                // This method is called in sun.security.util.Password,
-                // cons already exists when this method is called
-                return cons.cs;
-            }
-        });
-    }
     private static Console cons;
     private native static boolean istty();
     private Console() {
@@ -574,5 +538,20 @@ public final class Console implements Flushable
                      readLock,
                      cs));
         rcb = new char[1024];
+    }
+
+    /*
+     * Android-changed: Added method for internal use only, and also in use
+     * by tests.
+     *
+     * @hide
+     */
+    public static synchronized Console getConsole() {
+        if (istty()) {
+            if (cons == null)
+                cons = new Console();
+            return cons;
+        }
+        return null;
     }
 }

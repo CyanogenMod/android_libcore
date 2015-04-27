@@ -32,9 +32,11 @@ package java.lang;
  *
  * @author   Mark Reinhold
  * @since    1.3
+ *
+ * @hide
  */
-
-class Shutdown {
+// Android-changed: Make class public.
+public class Shutdown {
 
     /* Shutdown state */
     private static final int RUNNING = 0;
@@ -90,8 +92,11 @@ class Shutdown {
      *        if registerShutdownInProgress is false and shutdown is in progress; or
      *        if registerShutdownInProgress is true and the shutdown process
      *           already passes the given slot
+     *
+     * @hide
      */
-    static void add(int slot, boolean registerShutdownInProgress, Runnable hook) {
+    // Android-changed: make public.
+    public static void add(int slot, boolean registerShutdownInProgress, Runnable hook) {
         synchronized (lock) {
             if (hooks[slot] != null)
                 throw new InternalError("Shutdown hook at slot " + slot + " already registered");

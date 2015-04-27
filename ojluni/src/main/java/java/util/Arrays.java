@@ -384,10 +384,8 @@ public class Arrays {
      * circular dependencies. To be removed in a future release.
      */
     static final class LegacyMergeSort {
-        private static final boolean userRequested =
-            java.security.AccessController.doPrivileged(
-                new sun.security.action.GetBooleanAction(
-                    "java.util.Arrays.useLegacyMergeSort")).booleanValue();
+        // Android-changed: Never use circular merge sort.
+        private static final boolean userRequested = false;
     }
 
     /*
