@@ -68,7 +68,7 @@ public class AtomicStampedReference<V> {
      * Typical usage is {@code int[1] holder; ref = v.get(holder); }.
      *
      * @param stampHolder an array of size of at least one.  On return,
-     * {@code stampholder[0]} will hold the value of the stamp.
+     * {@code stampHolder[0]} will hold the value of the stamp.
      * @return the current value of the reference
      */
     public V get(int[] stampHolder) {

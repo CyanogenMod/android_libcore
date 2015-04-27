@@ -5,6 +5,7 @@
  */
 
 package java.util.concurrent;
+
 import java.util.List;
 import java.util.Collection;
 
@@ -29,8 +30,8 @@ import java.util.Collection;
  * reclamation of its resources.
  *
  * <p>Method {@code submit} extends base method {@link
- * Executor#execute} by creating and returning a {@link Future} that
- * can be used to cancel execution and/or wait for completion.
+ * Executor#execute(Runnable)} by creating and returning a {@link Future}
+ * that can be used to cancel execution and/or wait for completion.
  * Methods {@code invokeAny} and {@code invokeAll} perform the most
  * commonly useful forms of bulk execution, executing a collection of
  * tasks and then waiting for at least one, or all, to
