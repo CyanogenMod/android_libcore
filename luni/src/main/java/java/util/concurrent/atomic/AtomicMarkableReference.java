@@ -68,7 +68,7 @@ public class AtomicMarkableReference<V> {
      * Typical usage is {@code boolean[1] holder; ref = v.get(holder); }.
      *
      * @param markHolder an array of size of at least one. On return,
-     * {@code markholder[0]} will hold the value of the mark.
+     * {@code markHolder[0]} will hold the value of the mark.
      * @return the current value of the reference
      */
     public V get(boolean[] markHolder) {

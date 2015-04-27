@@ -243,7 +243,7 @@ public abstract class AtomicLongFieldUpdater<T> {
         private final Class<T> tclass;
         private final Class<?> cclass;
 
-        CASUpdater(Class<T> tclass, String fieldName) {
+        CASUpdater(final Class<T> tclass, final String fieldName) {
             final Field field;
             final Class<?> caller;
             final int modifiers;
@@ -337,7 +337,7 @@ public abstract class AtomicLongFieldUpdater<T> {
         private final Class<T> tclass;
         private final Class<?> cclass;
 
-        LockedUpdater(Class<T> tclass, String fieldName) {
+        LockedUpdater(final Class<T> tclass, final String fieldName) {
             Field field = null;
             Class<?> caller = null;
             int modifiers = 0;

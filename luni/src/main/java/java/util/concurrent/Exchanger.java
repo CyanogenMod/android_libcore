@@ -6,9 +6,6 @@
  */
 
 package java.util.concurrent;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.LockSupport;
 
 /**
  * A synchronization point at which threads can pair and swap elements

@@ -12,14 +12,6 @@ import java.util.List;
 import java.util.RandomAccess;
 import java.lang.ref.WeakReference;
 import java.lang.ref.ReferenceQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantLock;
 import java.lang.reflect.Constructor;
 
@@ -177,6 +169,8 @@ import java.lang.reflect.Constructor;
  * @since 1.7
  * @author Doug Lea
  */
+// android-note: Removed references to hidden apis commonPool, CountedCompleter
+// etc.
 public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
 
     /*
@@ -407,11 +401,13 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
         final Throwable ex;
         ExceptionNode next;
         final long thrower;  // use id not ref to avoid weak cycles
+        final int hashCode;  // store task hashCode before weak ref disappears
         ExceptionNode(ForkJoinTask<?> task, Throwable ex, ExceptionNode next) {
             super(task, exceptionTableRefQueue);
             this.ex = ex;
             this.next = next;
             this.thrower = Thread.currentThread().getId();
+            this.hashCode = System.identityHashCode(task);
         }
     }
 
@@ -573,9 +569,9 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
     private static void expungeStaleExceptions() {
         for (Object x; (x = exceptionTableRefQueue.poll()) != null;) {
             if (x instanceof ExceptionNode) {
-                ForkJoinTask<?> key = ((ExceptionNode)x).get();
+                int hashCode = ((ExceptionNode)x).hashCode;
                 ExceptionNode[] t = exceptionTable;
-                int i = System.identityHashCode(key) & (t.length - 1);
+                int i = hashCode & (t.length - 1);
                 ExceptionNode e = t[i];
                 ExceptionNode pred = null;
                 while (e != null) {
@@ -1413,8 +1409,6 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
             try {
                 result = callable.call();
                 return true;
-            } catch (Error err) {
-                throw err;
             } catch (RuntimeException rex) {
                 throw rex;
             } catch (Exception ex) {

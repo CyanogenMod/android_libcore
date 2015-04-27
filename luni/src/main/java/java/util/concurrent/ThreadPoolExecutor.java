@@ -5,6 +5,7 @@
  */
 
 package java.util.concurrent;
+
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -582,7 +583,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
             this.thread = getThreadFactory().newThread(this);
         }
 
-        /** Delegates main run loop to outer runWorker  */
+        /** Delegates main run loop to outer runWorker. */
         public void run() {
             runWorker(this);
         }
@@ -1348,6 +1349,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * complete execution.  Use {@link #awaitTermination awaitTermination}
      * to do that.
      */
+    // android-note: Removed @throws SecurityException
     public void shutdown() {
         final ReentrantLock mainLock = this.mainLock;
         mainLock.lock();
@@ -1377,6 +1379,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * cancels tasks via {@link Thread#interrupt}, so any task that
      * fails to respond to interrupts may never terminate.
      */
+    // android-note: Removed @throws SecurityException
     public List<Runnable> shutdownNow() {
         List<Runnable> tasks;
         final ReentrantLock mainLock = this.mainLock;
