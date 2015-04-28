@@ -35,23 +35,6 @@ import libcore.util.EmptyArray;
  * See {@link Character} for details about the relationship between {@code char} and
  * Unicode code points.
  *
- * <a name="backing_array"><h3>Backing Arrays</h3></a>
- * This class is implemented using a {@code char[]}. The length of the array may exceed
- * the length of the string. For example, the string "Hello" may be backed by
- * the array {@code ['H', 'e', 'l', 'l', 'o', 'W'. 'o', 'r', 'l', 'd']} with
- * offset 0 and length 5.
- *
- * <p>Multiple strings can share the same {@code char[]} because strings are immutable.
- * The {@link #substring} method <strong>always</strong> returns a string that
- * shares the backing array of its source string. Generally this is an
- * optimization: fewer {@code char[]}s need to be allocated, and less copying
- * is necessary. But this can also lead to unwanted heap retention. Taking a
- * short substring of long string means that the long shared {@code char[]} won't be
- * garbage until both strings are garbage. This typically happens when parsing
- * small substrings out of a large input. To avoid this where necessary, call
- * {@code new String(longString.subString(...))}. The string copy constructor
- * always ensures that the backing array is no larger than necessary.
- *
  * @see StringBuffer
  * @see StringBuilder
  * @see Charset
@@ -93,10 +76,6 @@ public final class String implements Serializable, Comparable<String>, CharSeque
         }
     }
 
-    private final char[] value;
-
-    private final int offset;
-
     private final int count;
 
     private int hashCode;
@@ -105,9 +84,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      * Creates an empty string.
      */
     public String() {
-        value = EmptyArray.CHAR;
-        offset = 0;
-        count = 0;
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
@@ -116,7 +93,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      */
     @FindBugsSuppressWarnings("DM_DEFAULT_ENCODING")
     public String(byte[] data) {
-        this(data, 0, data.length);
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
@@ -133,7 +110,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      */
     @Deprecated
     public String(byte[] data, int high) {
-        this(data, high, 0, data.length);
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
@@ -146,7 +123,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      *             if {@code byteCount < 0 || offset < 0 || offset + byteCount > data.length}.
      */
     public String(byte[] data, int offset, int byteCount) {
-        this(data, offset, byteCount, Charset.defaultCharset());
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
@@ -162,16 +139,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      */
     @Deprecated
     public String(byte[] data, int high, int offset, int byteCount) {
-        if ((offset | byteCount) < 0 || byteCount > data.length - offset) {
-            throw failedBoundsCheck(data.length, offset, byteCount);
-        }
-        this.offset = 0;
-        this.value = new char[byteCount];
-        this.count = byteCount;
-        high <<= 8;
-        for (int i = 0; i < count; i++) {
-            value[i] = (char) (high + (data[offset++] & 0xff));
-        }
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
@@ -188,7 +156,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      *             if the named charset is not supported.
      */
     public String(byte[] data, int offset, int byteCount, String charsetName) throws UnsupportedEncodingException {
-        this(data, offset, byteCount, Charset.forNameUEE(charsetName));
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
@@ -203,7 +171,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      *             if {@code charsetName} is not supported.
      */
     public String(byte[] data, String charsetName) throws UnsupportedEncodingException {
-        this(data, 0, data.length, Charset.forNameUEE(charsetName));
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
@@ -221,144 +189,7 @@ public final class String implements Serializable, Comparable<String>, CharSeque
      * @since 1.6
      */
     public String(byte[] data, int offset, int byteCount, Charset charset) {
-        if ((offset | byteCount) < 0 || byteCount > data.length - offset) {
-            throw failedBoundsCheck(data.length, offset, byteCount);
-        }
-
-        // We inline UTF-8, ISO-8859-1, and US-ASCII decoders for speed and because 'count' and
-        // 'value' are final.
-        String canonicalCharsetName = charset.name();
-        if (canonicalCharsetName.equals("UTF-8")) {
-            byte[] d = data;
-            char[] v = new char[byteCount];
-
-            int idx = offset;
-            int last = offset + byteCount;
-            int s = 0;
-outer:
-            while (idx < last) {
-                byte b0 = d[idx++];
-                if ((b0 & 0x80) == 0) {
-                    // 0xxxxxxx
-                    // Range:  U-00000000 - U-0000007F
-                    int val = b0 & 0xff;
-                    v[s++] = (char) val;
-                } else if (((b0 & 0xe0) == 0xc0) || ((b0 & 0xf0) == 0xe0) ||
-                        ((b0 & 0xf8) == 0xf0) || ((b0 & 0xfc) == 0xf8) || ((b0 & 0xfe) == 0xfc)) {
-                    int utfCount = 1;
-                    if ((b0 & 0xf0) == 0xe0) utfCount = 2;
-                    else if ((b0 & 0xf8) == 0xf0) utfCount = 3;
-                    else if ((b0 & 0xfc) == 0xf8) utfCount = 4;
-                    else if ((b0 & 0xfe) == 0xfc) utfCount = 5;
-
-                    // 110xxxxx (10xxxxxx)+
-                    // Range:  U-00000080 - U-000007FF (count == 1)
-                    // Range:  U-00000800 - U-0000FFFF (count == 2)
-                    // Range:  U-00010000 - U-001FFFFF (count == 3)
-                    // Range:  U-00200000 - U-03FFFFFF (count == 4)
-                    // Range:  U-04000000 - U-7FFFFFFF (count == 5)
-
-                    if (idx + utfCount > last) {
-                        v[s++] = REPLACEMENT_CHAR;
-                        continue;
-                    }
-
-                    // Extract usable bits from b0
-                    int val = b0 & (0x1f >> (utfCount - 1));
-                    for (int i = 0; i < utfCount; ++i) {
-                        byte b = d[idx++];
-                        if ((b & 0xc0) != 0x80) {
-                            v[s++] = REPLACEMENT_CHAR;
-                            idx--; // Put the input char back
-                            continue outer;
-                        }
-                        // Push new bits in from the right side
-                        val <<= 6;
-                        val |= b & 0x3f;
-                    }
-
-                    // Note: Java allows overlong char
-                    // specifications To disallow, check that val
-                    // is greater than or equal to the minimum
-                    // value for each count:
-                    //
-                    // count    min value
-                    // -----   ----------
-                    //   1           0x80
-                    //   2          0x800
-                    //   3        0x10000
-                    //   4       0x200000
-                    //   5      0x4000000
-
-                    // Allow surrogate values (0xD800 - 0xDFFF) to
-                    // be specified using 3-byte UTF values only
-                    if ((utfCount != 2) && (val >= 0xD800) && (val <= 0xDFFF)) {
-                        v[s++] = REPLACEMENT_CHAR;
-                        continue;
-                    }
-
-                    // Reject chars greater than the Unicode maximum of U+10FFFF.
-                    if (val > 0x10FFFF) {
-                        v[s++] = REPLACEMENT_CHAR;
-                        continue;
-                    }
-
-                    // Encode chars from U+10000 up as surrogate pairs
-                    if (val < 0x10000) {
-                        v[s++] = (char) val;
-                    } else {
-                        int x = val & 0xffff;
-                        int u = (val >> 16) & 0x1f;
-                        int w = (u - 1) & 0xffff;
-                        int hi = 0xd800 | (w << 6) | (x >> 10);
-                        int lo = 0xdc00 | (x & 0x3ff);
-                        v[s++] = (char) hi;
-                        v[s++] = (char) lo;
-                    }
-                } else {
-                    // Illegal values 0x8*, 0x9*, 0xa*, 0xb*, 0xfd-0xff
-                    v[s++] = REPLACEMENT_CHAR;
-                }
-            }
-
-            if (s == byteCount) {
-                // We guessed right, so we can use our temporary array as-is.
-                this.offset = 0;
-                this.value = v;
-                this.count = s;
-            } else {
-                // Our temporary array was too big, so reallocate and copy.
-                this.offset = 0;
-                this.value = new char[s];
-                this.count = s;
-                System.arraycopy(v, 0, value, 0, s);
-            }
-        } else if (canonicalCharsetName.equals("ISO-8859-1")) {
-            this.offset = 0;
-            this.value = new char[byteCount];
-            this.count = byteCount;
-            CharsetUtils.isoLatin1BytesToChars(data, offset, byteCount, value);
-        } else if (canonicalCharsetName.equals("US-ASCII")) {
-            this.offset = 0;
-            this.value = new char[byteCount];
-            this.count = byteCount;
-            CharsetUtils.asciiBytesToChars(data, offset, byteCount, value);
-        } else {
-            CharBuffer cb = charset.decode(ByteBuffer.wrap(data, offset, byteCount));
-            this.offset = 0;
-            this.count = cb.length();
-            if (count > 0) {
-                // We could use cb.array() directly, but that would mean we'd have to trust
-                // the CharsetDecoder doesn't hang on to the CharBuffer and mutate it later,
-                // which would break String's immutability guarantee. It would also tend to
-                // mean that we'd be wasting memory because CharsetDecoder doesn't trim the
-                // array. So we copy.
-                this.value = new char[count];
-                System.arraycopy(cb.array(), 0, value, 0, count);
-            } else {
-                this.value = EmptyArray.CHAR;
-            }
-        }
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
@@ -368,7 +199,7 @@ outer:
      * @since 1.6
      */
     public String(byte[] data, Charset charset) {
-        this(data, 0, data.length, charset);
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
@@ -379,7 +210,7 @@ outer:
      * @throws NullPointerException if {@code data == null}
      */
     public String(char[] data) {
-        this(data, 0, data.length);
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
@@ -393,36 +224,25 @@ outer:
      *             if {@code charCount < 0 || offset < 0 || offset + charCount > data.length}
      */
     public String(char[] data, int offset, int charCount) {
-        if ((offset | charCount) < 0 || charCount > data.length - offset) {
-            throw failedBoundsCheck(data.length, offset, charCount);
-        }
-        this.offset = 0;
-        this.value = new char[charCount];
-        this.count = charCount;
-        System.arraycopy(data, offset, value, 0, count);
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /*
      * Internal version of the String(char[], int, int) constructor.
-     * Does not range check, null check, or copy the array.
+     * Does not range check or null check.
      */
+    // TODO: Replace calls to this with calls to StringFactory, will require
+    // splitting other files in java.lang.
     String(int offset, int charCount, char[] chars) {
-        this.value = chars;
-        this.offset = offset;
-        this.count = charCount;
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
-     * Constructs a copy of the given string.
-     * The returned string's <a href="#backing_array">backing array</a>
-     * is no larger than necessary.
+     * Constructs a new string with the same sequence of characters as {@code
+     * toCopy}.
      */
     public String(String toCopy) {
-        value = (toCopy.value.length == toCopy.count)
-                ? toCopy.value
-                : Arrays.copyOfRange(toCopy.value, toCopy.offset, toCopy.offset + toCopy.length());
-        offset = 0;
-        count = value.length;
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
@@ -430,11 +250,7 @@ outer:
      * {@code StringBuffer}.
      */
     public String(StringBuffer stringBuffer) {
-        offset = 0;
-        synchronized (stringBuffer) {
-            value = stringBuffer.shareValue();
-            count = stringBuffer.length();
-        }
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
@@ -451,20 +267,7 @@ outer:
      * @since 1.5
      */
     public String(int[] codePoints, int offset, int count) {
-        if (codePoints == null) {
-            throw new NullPointerException("codePoints == null");
-        }
-        if ((offset | count) < 0 || count > codePoints.length - offset) {
-            throw failedBoundsCheck(codePoints.length, offset, count);
-        }
-        this.offset = 0;
-        this.value = new char[count * 2];
-        int end = offset + count;
-        int c = 0;
-        for (int i = offset; i < end; i++) {
-            c += Character.toChars(codePoints[i], this.value, c);
-        }
-        this.count = c;
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
@@ -476,25 +279,16 @@ outer:
      * @since 1.5
      */
     public String(StringBuilder stringBuilder) {
-        if (stringBuilder == null) {
-            throw new NullPointerException("stringBuilder == null");
-        }
-        this.offset = 0;
-        this.count = stringBuilder.length();
-        this.value = new char[this.count];
-        stringBuilder.getChars(0, this.count, this.value, 0);
+        throw new UnsupportedOperationException("Use StringFactory instead.");
     }
 
     /**
      * Returns the {@code char} at {@code index}.
      * @throws IndexOutOfBoundsException if {@code index < 0} or {@code index >= length()}.
      */
-    public char charAt(int index) {
-        if (index < 0 || index >= count) {
-            throw indexAndLength(index);
-        }
-        return value[offset + index];
-    }
+    public native char charAt(int index);
+
+    native void setCharAt(int index, char c);
 
     private StringIndexOutOfBoundsException indexAndLength(int index) {
         throw new StringIndexOutOfBoundsException(this, index);
@@ -557,12 +351,11 @@ outer:
      *             if {@code string} is {@code null}.
      */
     public int compareToIgnoreCase(String string) {
-        int o1 = offset, o2 = string.offset, result;
-        int end = offset + (count < string.count ? count : string.count);
+        int result;
+        int end = count < string.count ? count : string.count;
         char c1, c2;
-        char[] target = string.value;
-        while (o1 < end) {
-            if ((c1 = value[o1++]) == (c2 = target[o2++])) {
+        for (int i = 0; i < end; ++i) {
+            if ((c1 = charAt(i)) == (c2 = string.charAt(i))) {
                 continue;
             }
             c1 = foldCase(c1);
@@ -582,15 +375,7 @@ outer:
      * @return a new string which is the concatenation of this string and the
      *         specified string.
      */
-    public String concat(String string) {
-        if (string.count > 0 && count > 0) {
-            char[] buffer = new char[count + string.count];
-            System.arraycopy(value, offset, buffer, 0, count);
-            System.arraycopy(string.value, string.offset, buffer, count, string.count);
-            return new String(0, buffer.length, buffer);
-        }
-        return count == 0 ? string : this;
-    }
+    public native String concat(String string);
 
     /**
      * Creates a new string by copying the given {@code char[]}.
@@ -601,7 +386,7 @@ outer:
      *             if {@code data} is {@code null}.
      */
     public static String copyValueOf(char[] data) {
-        return new String(data, 0, data.length);
+        return StringFactory.newStringFromChars(data, 0, data.length);
     }
 
     /**
@@ -616,7 +401,7 @@ outer:
      *             data.length}.
      */
     public static String copyValueOf(char[] data, int start, int length) {
-        return new String(data, start, length);
+        return StringFactory.newStringFromChars(data, start, length);
     }
 
     /**
@@ -654,16 +439,10 @@ outer:
             if (hashCode() != s.hashCode()) {
                 return false;
             }
-            char[] value1 = value;
-            int offset1 = offset;
-            char[] value2 = s.value;
-            int offset2 = s.offset;
-            for (int end = offset1 + count; offset1 < end; ) {
-                if (value1[offset1] != value2[offset2]) {
+            for (int i = 0; i < count; ++i) {
+                if (charAt(i) != s.charAt(i)) {
                     return false;
                 }
-                offset1++;
-                offset2++;
             }
             return true;
         } else {
@@ -686,12 +465,9 @@ outer:
         if (string == null || count != string.count) {
             return false;
         }
-        int o1 = offset, o2 = string.offset;
-        int end = offset + count;
-        char[] target = string.value;
-        while (o1 < end) {
-            char c1 = value[o1++];
-            char c2 = target[o2++];
+        for (int i = 0; i < count; ++i) {
+            char c1 = charAt(i);
+            char c2 = string.charAt(i);
             if (c1 != c2 && foldCase(c1) != foldCase(c2)) {
                 return false;
             }
@@ -721,10 +497,9 @@ outer:
     @Deprecated
     public void getBytes(int start, int end, byte[] data, int index) {
         if (start >= 0 && start <= end && end <= count) {
-            end += offset;
             try {
-                for (int i = offset + start; i < end; i++) {
-                    data[index++] = (byte) value[i];
+                for (int i = start; i < end; ++i) {
+                    data[index++] = (byte) charAt(i);
                 }
             } catch (ArrayIndexOutOfBoundsException ignored) {
                 throw failedBoundsCheck(data.length, index, end - start);
@@ -772,16 +547,15 @@ outer:
     public byte[] getBytes(Charset charset) {
         String canonicalCharsetName = charset.name();
         if (canonicalCharsetName.equals("UTF-8")) {
-            return CharsetUtils.toUtf8Bytes(value, offset, count);
+            return CharsetUtils.toUtf8Bytes(this, 0, count);
         } else if (canonicalCharsetName.equals("ISO-8859-1")) {
-            return CharsetUtils.toIsoLatin1Bytes(value, offset, count);
+            return CharsetUtils.toIsoLatin1Bytes(this, 0, count);
         } else if (canonicalCharsetName.equals("US-ASCII")) {
-            return CharsetUtils.toAsciiBytes(value, offset, count);
+            return CharsetUtils.toAsciiBytes(this, 0, count);
         } else if (canonicalCharsetName.equals("UTF-16BE")) {
-            return CharsetUtils.toBigEndianUtf16Bytes(value, offset, count);
+            return CharsetUtils.toBigEndianUtf16Bytes(this, 0, count);
         } else {
-            CharBuffer chars = CharBuffer.wrap(this.value, this.offset, this.count);
-            ByteBuffer buffer = charset.encode(chars.asReadOnlyBuffer());
+            ByteBuffer buffer = charset.encode(this);
             byte[] bytes = new byte[buffer.limit()];
             buffer.get(bytes);
             return bytes;
@@ -809,7 +583,16 @@ outer:
      */
     public void getChars(int start, int end, char[] buffer, int index) {
         if (start >= 0 && start <= end && end <= count) {
-            System.arraycopy(value, start + offset, buffer, index, end - start);
+            if (buffer == null) {
+                throw new NullPointerException("buffer == null");
+            }
+            if (index < 0) {
+                throw new IndexOutOfBoundsException("index < 0");
+            }
+            if (end - start > buffer.length - index) {
+                throw new ArrayIndexOutOfBoundsException("end - start > buffer.length - index");
+            }
+            getCharsNoCheck(start, end, buffer, index);
         } else {
             // We throw StringIndexOutOfBoundsException rather than System.arraycopy's AIOOBE.
             throw startEndAndLength(start, end);
@@ -821,9 +604,7 @@ outer:
      * within the java.lang package only.  The caller is responsible for
      * ensuring that start >= 0 && start <= end && end <= count.
      */
-    void _getChars(int start, int end, char[] buffer, int index) {
-        System.arraycopy(value, start + offset, buffer, index, end - start);
-    }
+    native void getCharsNoCheck(int start, int end, char[] buffer, int index);
 
     @Override public int hashCode() {
         int hash = hashCode;
@@ -831,10 +612,8 @@ outer:
             if (count == 0) {
                 return 0;
             }
-            final int end = count + offset;
-            final char[] chars = value;
-            for (int i = offset; i < end; ++i) {
-                hash = 31*hash + chars[i];
+            for (int i = 0; i < count; ++i) {
+                hash = 31 * hash + charAt(i);
             }
             hashCode = hash;
         }
@@ -893,21 +672,17 @@ outer:
             if (subCount > _count) {
                 return -1;
             }
-            char[] target = string.value;
-            int subOffset = string.offset;
-            char firstChar = target[subOffset];
-            int end = subOffset + subCount;
+            char firstChar = string.charAt(0);
             while (true) {
                 int i = indexOf(firstChar, start);
                 if (i == -1 || subCount + i > _count) {
                     return -1; // handles subCount > count || start >= count
                 }
-                int o1 = offset + i, o2 = subOffset;
-                char[] _value = value;
-                while (++o2 < end && _value[++o1] == target[o2]) {
+                int o1 = i, o2 = 0;
+                while (++o2 < subCount && charAt(++o1) == string.charAt(o2)) {
                     // Intentionally empty
                 }
-                if (o2 == end) {
+                if (o2 == subCount) {
                     return i;
                 }
                 start = i + 1;
@@ -934,21 +709,17 @@ outer:
             if (subCount + start > _count) {
                 return -1;
             }
-            char[] target = subString.value;
-            int subOffset = subString.offset;
-            char firstChar = target[subOffset];
-            int end = subOffset + subCount;
+            char firstChar = subString.charAt(0);
             while (true) {
                 int i = indexOf(firstChar, start);
                 if (i == -1 || subCount + i > _count) {
                     return -1; // handles subCount > count || start >= count
                 }
-                int o1 = offset + i, o2 = subOffset;
-                char[] _value = value;
-                while (++o2 < end && _value[++o1] == target[o2]) {
+                int o1 = i, o2 = 0;
+                while (++o2 < subCount && charAt(++o1) == subString.charAt(o2)) {
                     // Intentionally empty
                 }
-                if (o2 == end) {
+                if (o2 == subCount) {
                     return i;
                 }
                 start = i + 1;
@@ -991,11 +762,9 @@ outer:
             return lastIndexOfSupplementary(c, Integer.MAX_VALUE);
         }
         int _count = count;
-        int _offset = offset;
-        char[] _value = value;
-        for (int i = _offset + _count - 1; i >= _offset; --i) {
-            if (_value[i] == c) {
-                return i - _offset;
+        for (int i = _count - 1; i >= 0; --i) {
+            if (charAt(i) == c) {
+                return i;
             }
         }
         return -1;
@@ -1011,15 +780,13 @@ outer:
             return lastIndexOfSupplementary(c, start);
         }
         int _count = count;
-        int _offset = offset;
-        char[] _value = value;
         if (start >= 0) {
             if (start >= _count) {
                 start = _count - 1;
             }
-            for (int i = _offset + start; i >= _offset; --i) {
-                if (_value[i] == c) {
-                    return i - _offset;
+            for (int i = start; i >= 0; --i) {
+                if (charAt(i) == c) {
+                    return i;
                 }
             }
         }
@@ -1031,7 +798,7 @@ outer:
             return -1;
         }
         char[] chars = Character.toChars(c);
-        String needle = new String(0, chars.length, chars);
+        String needle = StringFactory.newStringFromChars(0, chars.length, chars);
         return lastIndexOf(needle, start);
     }
 
@@ -1065,20 +832,17 @@ outer:
                     start = count - subCount;
                 }
                 // count and subCount are both >= 1
-                char[] target = subString.value;
-                int subOffset = subString.offset;
-                char firstChar = target[subOffset];
-                int end = subOffset + subCount;
+                char firstChar = subString.charAt(0);
                 while (true) {
                     int i = lastIndexOf(firstChar, start);
                     if (i == -1) {
                         return -1;
                     }
-                    int o1 = offset + i, o2 = subOffset;
-                    while (++o2 < end && value[++o1] == target[o2]) {
+                    int o1 = i, o2 = 0;
+                    while (++o2 < subCount && charAt(++o1) == subString.charAt(o2)) {
                         // Intentionally empty
                     }
-                    if (o2 == end) {
+                    if (o2 == subCount) {
                         return i;
                     }
                     start = i - 1;
@@ -1121,11 +885,8 @@ outer:
         if (length <= 0) {
             return true;
         }
-        int o1 = offset + thisStart, o2 = string.offset + start;
-        char[] value1 = value;
-        char[] value2 = string.value;
         for (int i = 0; i < length; ++i) {
-            if (value1[o1 + i] != value2[o2 + i]) {
+            if (charAt(thisStart + i) != string.charAt(start + i)) {
                 return false;
             }
         }
@@ -1164,13 +925,10 @@ outer:
         if (start < 0 || length > string.count - start) {
             return false;
         }
-        thisStart += offset;
-        start += string.offset;
         int end = thisStart + length;
-        char[] target = string.value;
         while (thisStart < end) {
-            char c1 = value[thisStart++];
-            char c2 = target[start++];
+            char c1 = charAt(thisStart++);
+            char c2 = string.charAt(start++);
             if (c1 != c2 && foldCase(c1) != foldCase(c2)) {
                 return false;
             }
@@ -1182,29 +940,20 @@ outer:
      * Returns a copy of this string after replacing occurrences of the given {@code char} with another.
      */
     public String replace(char oldChar, char newChar) {
-        char[] buffer = value;
-        int _offset = offset;
+        String s = null;
         int _count = count;
-
-        int idx = _offset;
-        int last = _offset + _count;
         boolean copied = false;
-        while (idx < last) {
-            if (buffer[idx] == oldChar) {
+        for (int i = 0; i < _count; ++i) {
+            if (charAt(i) == oldChar) {
                 if (!copied) {
-                    char[] newBuffer = new char[_count];
-                    System.arraycopy(buffer, _offset, newBuffer, 0, _count);
-                    buffer = newBuffer;
-                    idx -= _offset;
-                    last -= _offset;
+                    s = StringFactory.newStringFromString(this);
                     copied = true;
                 }
-                buffer[idx] = newChar;
+                s.setCharAt(i, newChar);
             }
-            idx++;
         }
 
-        return copied ? new String(0, count, buffer) : this;
+        return copied ? s : this;
     }
 
     /**
@@ -1241,9 +990,8 @@ outer:
             int resultLength = count + (count + 1) * replacementString.length();
             StringBuilder result = new StringBuilder(resultLength);
             result.append(replacementString);
-            int end = offset + count;
-            for (int i = offset; i != end; ++i) {
-                result.append(value[i]);
+            for (int i = 0; i != count; ++i) {
+                result.append(charAt(i));
                 result.append(replacementString);
             }
             return result.toString();
@@ -1252,15 +1000,21 @@ outer:
         StringBuilder result = new StringBuilder(count);
         int searchStart = 0;
         do {
-            // Copy chars before the match...
-            result.append(value, offset + searchStart, matchStart - searchStart);
+            // Copy characters before the match...
+            // TODO: Perform this faster than one char at a time?
+            for (int i = searchStart; i < matchStart; ++i) {
+                result.append(charAt(i));
+            }
             // Insert the replacement...
             result.append(replacementString);
             // And skip over the match...
             searchStart = matchStart + targetLength;
         } while ((matchStart = indexOf(targetString, searchStart)) != -1);
         // Copy any trailing chars...
-        result.append(value, offset + searchStart, count - searchStart);
+        // TODO: Perform this faster than one char at a time?
+        for (int i = searchStart; i < count; ++i) {
+            result.append(charAt(i));
+        }
         return result.toString();
     }
 
@@ -1308,7 +1062,7 @@ outer:
             return this;
         }
         if (start >= 0 && start <= count) {
-            return new String(offset + start, count - start, value);
+            return fastSubstring(start, count - start);
         }
         throw indexAndLength(start);
     }
@@ -1328,21 +1082,19 @@ outer:
         }
         // Fast range check.
         if (start >= 0 && start <= end && end <= count) {
-            return new String(offset + start, end - start, value);
+            return fastSubstring(start, end - start);
         }
         throw startEndAndLength(start, end);
     }
+
+    private native String fastSubstring(int start, int length);
 
     /**
      * Returns a new {@code char} array containing a copy of the {@code char}s in this string.
      * This is expensive and rarely useful. If you just want to iterate over the {@code char}s in
      * the string, use {@link #charAt} instead.
      */
-    public char[] toCharArray() {
-        char[] buffer = new char[count];
-        System.arraycopy(value, offset, buffer, 0, count);
-        return buffer;
-    }
+    public native char[] toCharArray();
 
     /**
      * Converts this string to lower case, using the rules of the user's default locale.
@@ -1351,7 +1103,7 @@ outer:
      * @return a new lower case string, or {@code this} if it's already all lower case.
      */
     public String toLowerCase() {
-        return CaseMapper.toLowerCase(Locale.getDefault(), this, value, offset, count);
+        return CaseMapper.toLowerCase(Locale.getDefault(), this);
     }
 
     /**
@@ -1368,7 +1120,7 @@ outer:
      * @return a new lower case string, or {@code this} if it's already all lower case.
      */
     public String toLowerCase(Locale locale) {
-        return CaseMapper.toLowerCase(locale, this, value, offset, count);
+        return CaseMapper.toLowerCase(locale, this);
     }
 
     /**
@@ -1386,7 +1138,7 @@ outer:
      * @return a new upper case string, or {@code this} if it's already all upper case.
      */
     public String toUpperCase() {
-        return CaseMapper.toUpperCase(Locale.getDefault(), this, value, offset, count);
+        return CaseMapper.toUpperCase(Locale.getDefault(), this, count);
     }
 
     /**
@@ -1403,7 +1155,7 @@ outer:
      * @return a new upper case string, or {@code this} if it's already all upper case.
      */
     public String toUpperCase(Locale locale) {
-        return CaseMapper.toUpperCase(locale, this, value, offset, count);
+        return CaseMapper.toUpperCase(locale, this, count);
     }
 
     /**
@@ -1411,18 +1163,18 @@ outer:
      * the beginning or end.
      */
     public String trim() {
-        int start = offset, last = offset + count - 1;
+        int start = 0, last = count - 1;
         int end = last;
-        while ((start <= end) && (value[start] <= ' ')) {
+        while ((start <= end) && (charAt(start) <= ' ')) {
             start++;
         }
-        while ((end >= start) && (value[end] <= ' ')) {
+        while ((end >= start) && (charAt(end) <= ' ')) {
             end--;
         }
-        if (start == offset && end == last) {
+        if (start == 0 && end == last) {
             return this;
         }
-        return new String(start, end - start + 1, value);
+        return fastSubstring(start, end - start + 1);
     }
 
     /**
@@ -1434,7 +1186,7 @@ outer:
      *             if {@code data} is {@code null}.
      */
     public static String valueOf(char[] data) {
-        return new String(data, 0, data.length);
+        return StringFactory.newStringFromChars(data, 0, data.length);
     }
 
     /**
@@ -1448,7 +1200,7 @@ outer:
      *             if {@code data} is {@code null}.
      */
     public static String valueOf(char[] data, int start, int length) {
-        return new String(data, start, length);
+        return StringFactory.newStringFromChars(data, start, length);
     }
 
     /**
@@ -1457,9 +1209,9 @@ outer:
     public static String valueOf(char value) {
         String s;
         if (value < 128) {
-            s = new String(value, 1, ASCII);
+            s = StringFactory.newStringFromChars(value, 1, ASCII);
         } else {
-            s = new String(0, 1, new char[] { value });
+            s = StringFactory.newStringFromChars(0, 1, new char[] { value });
         }
         s.hashCode = value;
         return s;
@@ -1533,7 +1285,8 @@ outer:
             if (count != size) {
                 return false;
             }
-            return regionMatches(0, new String(0, size, sb.getValue()), 0, size);
+            String s = StringFactory.newStringFromChars(0, size, sb.getValue());
+            return regionMatches(0, s, 0, size);
         }
     }
 
@@ -1682,7 +1435,7 @@ outer:
         if (index < 0 || index >= count) {
             throw indexAndLength(index);
         }
-        return Character.codePointAt(value, offset + index, offset + count);
+        return Character.codePointAt(this, index);
     }
 
     /**
@@ -1696,7 +1449,7 @@ outer:
         if (index < 1 || index > count) {
             throw indexAndLength(index);
         }
-        return Character.codePointBefore(value, offset + index, offset);
+        return Character.codePointBefore(this, index);
     }
 
     /**
@@ -1717,7 +1470,7 @@ outer:
         if (start < 0 || end > count || start > end) {
             throw startEndAndLength(start, end);
         }
-        return Character.codePointCount(value, offset + start, end - start);
+        return Character.codePointCount(this, start, end);
     }
 
     /**
@@ -1748,9 +1501,7 @@ outer:
      * @since 1.5
      */
     public int offsetByCodePoints(int index, int codePointOffset) {
-        int s = index + offset;
-        int r = Character.offsetByCodePoints(value, offset, count, s, codePointOffset);
-        return r - offset;
+        return Character.offsetByCodePoints(this, index, codePointOffset);
     }
 
     /**
@@ -1816,31 +1567,26 @@ outer:
     @SuppressWarnings("unused")
     private static int indexOf(String haystackString, String needleString,
             int cache, int md2, char lastChar) {
-        char[] haystack = haystackString.value;
-        int haystackOffset = haystackString.offset;
         int haystackLength = haystackString.count;
-        char[] needle = needleString.value;
-        int needleOffset = needleString.offset;
         int needleLength = needleString.count;
         int needleLengthMinus1 = needleLength - 1;
-        int haystackEnd = haystackOffset + haystackLength;
-        outer_loop: for (int i = haystackOffset + needleLengthMinus1; i < haystackEnd;) {
-            if (lastChar == haystack[i]) {
+        outer_loop: for (int i = needleLengthMinus1; i < haystackLength;) {
+            if (lastChar == haystackString.charAt(i)) {
                 for (int j = 0; j < needleLengthMinus1; ++j) {
-                    if (needle[j + needleOffset] != haystack[i + j
-                            - needleLengthMinus1]) {
+                    if (needleString.charAt(j) !=
+                            haystackString.charAt(i + j - needleLengthMinus1)) {
                         int skip = 1;
-                        if ((cache & (1 << haystack[i])) == 0) {
+                        if ((cache & (1 << haystackString.charAt(i))) == 0) {
                             skip += j;
                         }
                         i += Math.max(md2, skip);
                         continue outer_loop;
                     }
                 }
-                return i - needleLengthMinus1 - haystackOffset;
+                return i - needleLengthMinus1;
             }
 
-            if ((cache & (1 << haystack[i])) == 0) {
+            if ((cache & (1 << haystackString.charAt(i))) == 0) {
                 i += needleLengthMinus1;
             }
             i++;
