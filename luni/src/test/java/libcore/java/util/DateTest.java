@@ -31,12 +31,13 @@ public class DateTest extends TestCase {
         assertEquals("Wed Dec 31 18:00:00 CST 1969", new Date(0).toString());
     }
 
+    // https://code.google.com/p/android/issues/detail?id=81924
     public void test_toString_nonUs() {
         // The string for the timezone depends on what the default locale is. Not every locale
-        // has a short-name for America/Chicago -> PST.
-        Locale.setDefault(Locale.UK);
+        // has a short-name for America/Chicago -> CST.
+        Locale.setDefault(Locale.CHINA);
         TimeZone.setDefault(TimeZone.getTimeZone("America/Chicago"));
-        assertEquals("Wed Dec 31 18:00:00 GMT-06:00 1969", new Date(0).toString());
+        assertEquals("Wed Dec 31 18:00:00 CST 1969", new Date(0).toString());
     }
 
     public void test_toGMTString_us() throws Exception {
@@ -61,10 +62,10 @@ public class DateTest extends TestCase {
         Calendar c = Calendar.getInstance();
         c.clear();
         c.set(Calendar.YEAR, 21);
-        assertEquals("Wed Jan 01 00:00:00 GMT-08:00 21", c.getTime().toString());
+        assertEquals("Wed Jan 01 00:00:00 PST 21", c.getTime().toString());
         assertEquals("1 Jan 21 08:00:00 GMT", c.getTime().toGMTString());
         c.set(Calendar.YEAR, 321);
-        assertEquals("Sun Jan 01 00:00:00 GMT-08:00 321", c.getTime().toString());
+        assertEquals("Sun Jan 01 00:00:00 PST 321", c.getTime().toString());
         assertEquals("1 Jan 321 08:00:00 GMT", c.getTime().toGMTString());
     }
 }
