@@ -131,8 +131,24 @@ public abstract class PreHashedMap<V>
         return (V)x;
     }
 
+    // Android-added: Add a method to hash Strings.
+    //
+    // TODO: Why does this say hash(Object) instead of hash(String).
+    private static final int hash(Object o) {
+        String s = (String) o;
+        char[] val = s.toCharArray();
+        int h = 0;
+        if (val.length > 0) {
+            for (int i = 0; i < val.length; i++) {
+                h = 31 * h + val[i];
+            }
+        }
+        return h;
+    }
+
     public V get(Object k) {
-        int h = (k.hashCode() >> shift) & mask;
+        // Android-changed: Use hash(k) instead of k.hashCode().
+        int h = (hash(k) >> shift) & mask;
         Object[] a = (Object[])ht[h];
         if (a == null) return null;
         for (;;) {
@@ -149,7 +165,8 @@ public abstract class PreHashedMap<V>
      *         If the given key is not part of this map's initial key set
      */
     public V put(String k, V v) {
-        int h = (k.hashCode() >> shift) & mask;
+        // Android-changed: Use hash(k) instead of k.hashCode().
+        int h = (hash(k) >> shift) & mask;
         Object[] a = (Object[])ht[h];
         if (a == null)
             throw new UnsupportedOperationException(k);

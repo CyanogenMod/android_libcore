@@ -35,7 +35,6 @@ LOCAL_SRC_FILES := \
     libcore_icu_ICU.cpp \
     libcore_icu_NativeBreakIterator.cpp \
     libcore_icu_NativeCollation.cpp \
-    libcore_icu_NativeConverter.cpp \
     libcore_icu_NativeIDN.cpp \
     libcore_icu_NativeNormalizer.cpp \
     libcore_icu_NativePluralRules.cpp \

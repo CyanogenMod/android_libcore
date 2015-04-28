@@ -25,6 +25,7 @@
 
 package java.nio.charset;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.spi.CharsetProvider;
@@ -920,4 +921,21 @@ public abstract class Charset
         return name();
     }
 
+    /**
+     * Equivalent to {@code forName} but only throws {@code UnsupportedEncodingException},
+     * which is all pre-nio code claims to throw.
+     *
+     * Android-added.
+     *
+     * @hide internal use only
+     */
+    public static Charset forNameUEE(String charsetName) throws UnsupportedEncodingException {
+        try {
+            return Charset.forName(charsetName);
+        } catch (Exception cause) {
+            UnsupportedEncodingException ex = new UnsupportedEncodingException(charsetName);
+            ex.initCause(cause);
+            throw ex;
+        }
+    }
 }
