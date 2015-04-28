@@ -8,11 +8,22 @@
 
 package jsr166;
 
-import junit.framework.*;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLongArray;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 public class AtomicLongArrayTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     /**
      * constructor creates array of given size with all elements zero
@@ -29,7 +40,7 @@ public class AtomicLongArrayTest extends JSR166TestCase {
     public void testConstructor2NPE() {
         try {
             long[] a = null;
-            AtomicLongArray aa = new AtomicLongArray(a);
+            new AtomicLongArray(a);
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -157,10 +168,10 @@ public class AtomicLongArrayTest extends JSR166TestCase {
         AtomicLongArray aa = new AtomicLongArray(SIZE);
         for (int i = 0; i < SIZE; i++) {
             aa.set(i, 1);
-            while (!aa.weakCompareAndSet(i, 1, 2));
-            while (!aa.weakCompareAndSet(i, 2, -4));
+            do {} while (!aa.weakCompareAndSet(i, 1, 2));
+            do {} while (!aa.weakCompareAndSet(i, 2, -4));
             assertEquals(-4, aa.get(i));
-            while (!aa.weakCompareAndSet(i, -4, 7));
+            do {} while (!aa.weakCompareAndSet(i, -4, 7));
             assertEquals(7, aa.get(i));
         }
     }
@@ -267,8 +278,6 @@ public class AtomicLongArrayTest extends JSR166TestCase {
         }
     }
 
-    static final long COUNTDOWN = 100000;
-
     class Counter extends CheckedRunnable {
         final AtomicLongArray aa;
         volatile long counts;
@@ -297,8 +306,9 @@ public class AtomicLongArrayTest extends JSR166TestCase {
      */
     public void testCountingInMultipleThreads() throws InterruptedException {
         final AtomicLongArray aa = new AtomicLongArray(SIZE);
+        long countdown = 10000;
         for (int i = 0; i < SIZE; i++)
-            aa.set(i, COUNTDOWN);
+            aa.set(i, countdown);
         Counter c1 = new Counter(aa);
         Counter c2 = new Counter(aa);
         Thread t1 = new Thread(c1);
@@ -307,7 +317,7 @@ public class AtomicLongArrayTest extends JSR166TestCase {
         t2.start();
         t1.join();
         t2.join();
-        assertEquals(c1.counts+c2.counts, SIZE * COUNTDOWN);
+        assertEquals(c1.counts+c2.counts, SIZE * countdown);
     }
 
     /**

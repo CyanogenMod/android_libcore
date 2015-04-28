@@ -11,7 +11,7 @@ package jsr166;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-public class ArrayBlockingQueueNotFairTest extends BlockingQueueTest {
+public class ArrayBlockingQueueNonFairTest extends BlockingQueueTest {
 
     protected BlockingQueue emptyCollection() {
         return new ArrayBlockingQueue(SIZE, false);

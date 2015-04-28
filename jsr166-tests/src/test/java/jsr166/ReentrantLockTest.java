@@ -8,34 +8,48 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import java.util.*;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
+import junit.framework.AssertionFailedError;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class ReentrantLockTest extends JSR166TestCase {
-
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
     /**
-     * A runnable calling lockInterruptibly
+     * A checked runnable calling lockInterruptibly
      */
     class InterruptibleLockRunnable extends CheckedRunnable {
         final ReentrantLock lock;
-        InterruptibleLockRunnable(ReentrantLock l) { lock = l; }
+        InterruptibleLockRunnable(ReentrantLock lock) { this.lock = lock; }
         public void realRun() throws InterruptedException {
             lock.lockInterruptibly();
         }
     }
 
     /**
-     * A runnable calling lockInterruptibly that expects to be
+     * A checked runnable calling lockInterruptibly that expects to be
      * interrupted
      */
     class InterruptedLockRunnable extends CheckedInterruptedRunnable {
         final ReentrantLock lock;
-        InterruptedLockRunnable(ReentrantLock l) { lock = l; }
+        InterruptedLockRunnable(ReentrantLock lock) { this.lock = lock; }
         public void realRun() throws InterruptedException {
             lock.lockInterruptibly();
         }
@@ -133,7 +147,7 @@ public class ReentrantLockTest extends JSR166TestCase {
         lock.unlock();
     }
 
-    enum AwaitMethod { await, awaitTimed, awaitNanos, awaitUntil };
+    enum AwaitMethod { await, awaitTimed, awaitNanos, awaitUntil }
 
     /**
      * Awaits condition using the specified AwaitMethod.
@@ -156,6 +170,8 @@ public class ReentrantLockTest extends JSR166TestCase {
         case awaitUntil:
             assertTrue(c.awaitUntil(delayedDate(timeoutMillis)));
             break;
+        default:
+            throw new AssertionError();
         }
     }
 
@@ -448,9 +464,7 @@ public class ReentrantLockTest extends JSR166TestCase {
             barrier.await();
             awaitTermination(t);
             assertFalse(lock.isLocked());
-        } catch (Exception e) {
-            threadUnexpectedException(e);
-        }
+        } catch (Exception fail) { threadUnexpectedException(fail); }
     }
 
     /**
@@ -462,9 +476,7 @@ public class ReentrantLockTest extends JSR166TestCase {
         final PublicReentrantLock lock = new PublicReentrantLock(fair);
         try {
             lock.lockInterruptibly();
-        } catch (InterruptedException ie) {
-            threadUnexpectedException(ie);
-        }
+        } catch (InterruptedException fail) { threadUnexpectedException(fail); }
         assertLockedByMoi(lock);
         Thread t = newStartedThread(new InterruptedLockRunnable(lock));
         waitForQueuedThread(lock, t);
@@ -525,9 +537,7 @@ public class ReentrantLockTest extends JSR166TestCase {
             assertTrue(nanosRemaining <= 0);
             assertTrue(millisElapsedSince(startTime) >= timeoutMillis);
             lock.unlock();
-        } catch (InterruptedException e) {
-            threadUnexpectedException(e);
-        }
+        } catch (InterruptedException fail) { threadUnexpectedException(fail); }
     }
 
     /**
@@ -545,9 +555,7 @@ public class ReentrantLockTest extends JSR166TestCase {
             assertFalse(c.await(timeoutMillis, MILLISECONDS));
             assertTrue(millisElapsedSince(startTime) >= timeoutMillis);
             lock.unlock();
-        } catch (InterruptedException e) {
-            threadUnexpectedException(e);
-        }
+        } catch (InterruptedException fail) { threadUnexpectedException(fail); }
     }
 
     /**
@@ -566,9 +574,7 @@ public class ReentrantLockTest extends JSR166TestCase {
             assertFalse(c.awaitUntil(new java.util.Date(d.getTime() + timeoutMillis)));
             assertTrue(millisElapsedSince(startTime) >= timeoutMillis);
             lock.unlock();
-        } catch (InterruptedException e) {
-            threadUnexpectedException(e);
-        }
+        } catch (InterruptedException fail) { threadUnexpectedException(fail); }
     }
 
     /**

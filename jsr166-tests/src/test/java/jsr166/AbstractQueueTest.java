@@ -8,13 +8,24 @@
 
 package jsr166;
 
-import junit.framework.*;
 import java.util.AbstractQueue;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 public class AbstractQueueTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     static class Succeed extends AbstractQueue<Integer> {
         public boolean offer(Integer x) {
@@ -110,8 +121,8 @@ public class AbstractQueueTest extends JSR166TestCase {
      * addAll(null) throws NPE
      */
     public void testAddAll1() {
+        Succeed q = new Succeed();
         try {
-            Succeed q = new Succeed();
             q.addAll(null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -121,8 +132,8 @@ public class AbstractQueueTest extends JSR166TestCase {
      * addAll(this) throws IAE
      */
     public void testAddAllSelf() {
+        Succeed q = new Succeed();
         try {
-            Succeed q = new Succeed();
             q.addAll(q);
             shouldThrow();
         } catch (IllegalArgumentException success) {}
@@ -132,9 +143,9 @@ public class AbstractQueueTest extends JSR166TestCase {
      * addAll of a collection with null elements throws NPE
      */
     public void testAddAll2() {
+        Succeed q = new Succeed();
+        Integer[] ints = new Integer[SIZE];
         try {
-            Succeed q = new Succeed();
-            Integer[] ints = new Integer[SIZE];
             q.addAll(Arrays.asList(ints));
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -145,11 +156,11 @@ public class AbstractQueueTest extends JSR166TestCase {
      * possibly adding some elements
      */
     public void testAddAll3() {
+        Succeed q = new Succeed();
+        Integer[] ints = new Integer[SIZE];
+        for (int i = 0; i < SIZE-1; ++i)
+            ints[i] = new Integer(i);
         try {
-            Succeed q = new Succeed();
-            Integer[] ints = new Integer[SIZE];
-            for (int i = 0; i < SIZE-1; ++i)
-                ints[i] = new Integer(i);
             q.addAll(Arrays.asList(ints));
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -159,11 +170,11 @@ public class AbstractQueueTest extends JSR166TestCase {
      * addAll throws ISE if an add fails
      */
     public void testAddAll4() {
+        Fail q = new Fail();
+        Integer[] ints = new Integer[SIZE];
+        for (int i = 0; i < SIZE; ++i)
+            ints[i] = new Integer(i);
         try {
-            Fail q = new Fail();
-            Integer[] ints = new Integer[SIZE];
-            for (int i = 0; i < SIZE; ++i)
-                ints[i] = new Integer(i);
             q.addAll(Arrays.asList(ints));
             shouldThrow();
         } catch (IllegalStateException success) {}

@@ -8,12 +8,23 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import java.util.concurrent.CountDownLatch;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 public class CountDownLatchTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     /**
      * negative constructor argument throws IAE

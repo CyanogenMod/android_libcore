@@ -8,14 +8,26 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Semaphore;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class SemaphoreTest extends JSR166TestCase {
+import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
+import junit.framework.AssertionFailedError;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+public class SemaphoreTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
     /**
      * Subclass to expose protected methods
      */
@@ -608,7 +620,7 @@ public class SemaphoreTest extends JSR166TestCase {
         assertTrue(t2.isAlive());
         s.release();
         awaitTermination(t2);
-   }
+    }
 
     /**
      * toString indicates current number of permits

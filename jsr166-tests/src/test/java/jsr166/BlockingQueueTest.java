@@ -9,14 +9,17 @@
 
 package jsr166;
 
-import junit.framework.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Contains "contract" tests applicable to all BlockingQueue implementations.
@@ -31,6 +34,15 @@ public abstract class BlockingQueueTest extends JSR166TestCase {
      * implementation class, most importantly how to instantiate
      * instances.
      */
+
+    /** Like suite(), but non-static */
+    // android-note: Explicitly instantiated.
+    //
+    // public Test testSuite() {
+    //    // TODO: filter the returned tests using the configuration
+    //    // information provided by the subclass via protected methods.
+    //    return new TestSuite(this.getClass());
+    // }
 
     //----------------------------------------------------------------
     // Configuration methods
@@ -335,7 +347,7 @@ public abstract class BlockingQueueTest extends JSR166TestCase {
         checkEmpty(q);
         for (int i = 0; i < size; i++)
             q.add(elts[i] = makeElement(i));
-        for (int i = 1; i < size; i+=2) {
+        for (int i = 1; i < size; i += 2) {
             for (int pass = 0; pass < 2; pass++) {
                 assertEquals((pass == 0), q.contains(elts[i]));
                 assertEquals((pass == 0), q.remove(elts[i]));
@@ -347,7 +359,7 @@ public abstract class BlockingQueueTest extends JSR166TestCase {
         }
         if (size > 0)
             assertTrue(q.contains(elts[0]));
-        for (int i = size-2; i >= 0; i-=2) {
+        for (int i = size-2; i >= 0; i -= 2) {
             assertTrue(q.contains(elts[i]));
             assertFalse(q.contains(elts[i+1]));
             assertTrue(q.remove(elts[i]));

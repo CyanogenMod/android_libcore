@@ -8,13 +8,37 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.*;
-import java.util.concurrent.*;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 public class ScheduledExecutorTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     /**
      * execute successfully executes a runnable
@@ -137,17 +161,27 @@ public class ScheduledExecutorTest extends JSR166TestCase {
      */
     public void testFixedRateSequence() throws InterruptedException {
         ScheduledThreadPoolExecutor p = new ScheduledThreadPoolExecutor(1);
-        RunnableCounter counter = new RunnableCounter();
-        ScheduledFuture h =
-            p.scheduleAtFixedRate(counter, 0, 1, MILLISECONDS);
-        delay(SMALL_DELAY_MS);
-        h.cancel(true);
-        int c = counter.count.get();
-        // By time scaling conventions, we must have at least
-        // an execution per SHORT delay, but no more than one SHORT more
-        assertTrue(c >= SMALL_DELAY_MS / SHORT_DELAY_MS);
-        assertTrue(c <= SMALL_DELAY_MS + SHORT_DELAY_MS);
-        joinPool(p);
+        try {
+            for (int delay = 1; delay <= LONG_DELAY_MS; delay *= 3) {
+                long startTime = System.nanoTime();
+                int cycles = 10;
+                final CountDownLatch done = new CountDownLatch(cycles);
+                Runnable task = new CheckedRunnable() {
+                    public void realRun() { done.countDown(); }};
+                ScheduledFuture h =
+                    p.scheduleAtFixedRate(task, 0, delay, MILLISECONDS);
+                done.await();
+                h.cancel(true);
+                double normalizedTime =
+                    (double) millisElapsedSince(startTime) / delay;
+                if (normalizedTime >= cycles - 1 &&
+                    normalizedTime <= cycles)
+                    return;
+            }
+            throw new AssertionError("unexpected execution rate");
+        } finally {
+            joinPool(p);
+        }
     }
 
     /**
@@ -155,15 +189,27 @@ public class ScheduledExecutorTest extends JSR166TestCase {
      */
     public void testFixedDelaySequence() throws InterruptedException {
         ScheduledThreadPoolExecutor p = new ScheduledThreadPoolExecutor(1);
-        RunnableCounter counter = new RunnableCounter();
-        ScheduledFuture h =
-            p.scheduleWithFixedDelay(counter, 0, 1, MILLISECONDS);
-        delay(SMALL_DELAY_MS);
-        h.cancel(true);
-        int c = counter.count.get();
-        assertTrue(c >= SMALL_DELAY_MS / SHORT_DELAY_MS);
-        assertTrue(c <= SMALL_DELAY_MS + SHORT_DELAY_MS);
-        joinPool(p);
+        try {
+            for (int delay = 1; delay <= LONG_DELAY_MS; delay *= 3) {
+                long startTime = System.nanoTime();
+                int cycles = 10;
+                final CountDownLatch done = new CountDownLatch(cycles);
+                Runnable task = new CheckedRunnable() {
+                    public void realRun() { done.countDown(); }};
+                ScheduledFuture h =
+                    p.scheduleWithFixedDelay(task, 0, delay, MILLISECONDS);
+                done.await();
+                h.cancel(true);
+                double normalizedTime =
+                    (double) millisElapsedSince(startTime) / delay;
+                if (normalizedTime >= cycles - 1 &&
+                    normalizedTime <= cycles)
+                    return;
+            }
+            throw new AssertionError("unexpected execution rate");
+        } finally {
+            joinPool(p);
+        }
     }
 
     /**
