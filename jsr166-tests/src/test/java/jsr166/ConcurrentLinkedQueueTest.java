@@ -8,7 +8,6 @@
 
 package jsr166;
 
-import junit.framework.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -16,7 +15,20 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 public class ConcurrentLinkedQueueTest extends JSR166TestCase {
+
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     /**
      * Returns a new queue of given size containing consecutive
@@ -44,7 +56,7 @@ public class ConcurrentLinkedQueueTest extends JSR166TestCase {
      */
     public void testConstructor3() {
         try {
-            ConcurrentLinkedQueue q = new ConcurrentLinkedQueue((Collection)null);
+            new ConcurrentLinkedQueue((Collection)null);
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -55,7 +67,7 @@ public class ConcurrentLinkedQueueTest extends JSR166TestCase {
     public void testConstructor4() {
         try {
             Integer[] ints = new Integer[SIZE];
-            ConcurrentLinkedQueue q = new ConcurrentLinkedQueue(Arrays.asList(ints));
+            new ConcurrentLinkedQueue(Arrays.asList(ints));
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -68,7 +80,7 @@ public class ConcurrentLinkedQueueTest extends JSR166TestCase {
             Integer[] ints = new Integer[SIZE];
             for (int i = 0; i < SIZE-1; ++i)
                 ints[i] = new Integer(i);
-            ConcurrentLinkedQueue q = new ConcurrentLinkedQueue(Arrays.asList(ints));
+            new ConcurrentLinkedQueue(Arrays.asList(ints));
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -279,13 +291,13 @@ public class ConcurrentLinkedQueueTest extends JSR166TestCase {
      */
     public void testRemoveElement() {
         ConcurrentLinkedQueue q = populatedQueue(SIZE);
-        for (int i = 1; i < SIZE; i+=2) {
+        for (int i = 1; i < SIZE; i += 2) {
             assertTrue(q.contains(i));
             assertTrue(q.remove(i));
             assertFalse(q.contains(i));
             assertTrue(q.contains(i-1));
         }
-        for (int i = 0; i < SIZE; i+=2) {
+        for (int i = 0; i < SIZE; i += 2) {
             assertTrue(q.contains(i));
             assertTrue(q.remove(i));
             assertFalse(q.contains(i));
@@ -364,8 +376,8 @@ public class ConcurrentLinkedQueueTest extends JSR166TestCase {
             assertTrue(q.removeAll(p));
             assertEquals(SIZE-i, q.size());
             for (int j = 0; j < i; ++j) {
-                Integer I = (Integer)(p.remove());
-                assertFalse(q.contains(I));
+                Integer x = (Integer)(p.remove());
+                assertFalse(q.contains(x));
             }
         }
     }
@@ -419,13 +431,19 @@ public class ConcurrentLinkedQueueTest extends JSR166TestCase {
      */
     public void testIterator() {
         ConcurrentLinkedQueue q = populatedQueue(SIZE);
-        int i = 0;
         Iterator it = q.iterator();
-        while (it.hasNext()) {
+        int i;
+        for (i = 0; it.hasNext(); i++)
             assertTrue(q.contains(it.next()));
-            ++i;
-        }
         assertEquals(i, SIZE);
+        assertIteratorExhausted(it);
+    }
+
+    /**
+     * iterator of empty collection has no elements
+     */
+    public void testEmptyIterator() {
+        assertIteratorExhausted(new ConcurrentLinkedQueue().iterator());
     }
 
     /**
@@ -508,4 +526,18 @@ public class ConcurrentLinkedQueueTest extends JSR166TestCase {
         assertTrue(y.isEmpty());
     }
 
+    /**
+     * remove(null), contains(null) always return false
+     */
+    public void testNeverContainsNull() {
+        Collection<?>[] qs = {
+            new ConcurrentLinkedQueue<Object>(),
+            populatedQueue(2),
+        };
+
+        for (Collection<?> q : qs) {
+            assertFalse(q.contains(null));
+            assertFalse(q.remove(null));
+        }
+    }
 }

@@ -6,34 +6,42 @@
 
 package jsr166;
 
-import junit.framework.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
+import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.ForkJoinWorkerThread;
+import java.util.concurrent.Future;
 import java.util.concurrent.RecursiveTask;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import java.security.AccessControlException;
-import java.security.Policy;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
+
+import junit.framework.AssertionFailedError;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class ForkJoinPoolTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     /*
      * Testing coverage notes:
@@ -103,7 +111,7 @@ public class ForkJoinPoolTest extends JSR166TestCase {
     static final class FibTask extends RecursiveTask<Integer> {
         final int number;
         FibTask(int n) { number = n; }
-        public Integer compute() {
+        protected Integer compute() {
             int n = number;
             if (n <= 1)
                 return n;
@@ -131,7 +139,7 @@ public class ForkJoinPoolTest extends JSR166TestCase {
             this.locker = locker;
             this.lock = lock;
         }
-        public Integer compute() {
+        protected Integer compute() {
             int n;
             LockingFibTask f1 = null;
             LockingFibTask f2 = null;
@@ -414,11 +422,10 @@ public class ForkJoinPoolTest extends JSR166TestCase {
         ExecutorService e = new ForkJoinPool(1);
         try {
             final AtomicBoolean done = new AtomicBoolean(false);
-            CheckedRunnable task = new CheckedRunnable() {
+            Future<?> future = e.submit(new CheckedRunnable() {
                 public void realRun() {
                     done.set(true);
-                }};
-            Future<?> future = e.submit(task);
+                }});
             assertNull(future.get());
             assertNull(future.get(0, MILLISECONDS));
             assertTrue(done.get());

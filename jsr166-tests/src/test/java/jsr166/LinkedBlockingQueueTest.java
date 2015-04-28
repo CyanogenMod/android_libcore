@@ -8,21 +8,48 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.Arrays;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import junit.framework.Test;
 
 public class LinkedBlockingQueueTest extends JSR166TestCase {
+
+    // android-note: These tests have been moved into their own separate 
+    // classes to work around CTS issues.
+    //
+    // public static class Unbounded extends BlockingQueueTest {
+    //    protected BlockingQueue emptyCollection() {
+    //        return new LinkedBlockingQueue();
+    //     }
+    // }
+    //
+    // public static class Bounded extends BlockingQueueTest {
+    //    protected BlockingQueue emptyCollection() {
+    //         return new LinkedBlockingQueue(SIZE);
+    //     }
+    // }
+    //
+    // public static void main(String[] args) {
+    //    main(suite(), args);
+    // }
+    //
+    // public static Test suite() {
+    //     return newTestSuite(LinkedBlockingQueueTest.class,
+    //                         new Unbounded().testSuite(),
+    //                         new Bounded().testSuite());
+    // }
 
     /**
      * Returns a new queue of given size containing consecutive
@@ -126,16 +153,16 @@ public class LinkedBlockingQueueTest extends JSR166TestCase {
      * remainingCapacity decreases on add, increases on remove
      */
     public void testRemainingCapacity() {
-        LinkedBlockingQueue q = populatedQueue(SIZE);
+        BlockingQueue q = populatedQueue(SIZE);
         for (int i = 0; i < SIZE; ++i) {
             assertEquals(i, q.remainingCapacity());
-            assertEquals(SIZE-i, q.size());
-            q.remove();
+            assertEquals(SIZE, q.size() + q.remainingCapacity());
+            assertEquals(i, q.remove());
         }
         for (int i = 0; i < SIZE; ++i) {
             assertEquals(SIZE-i, q.remainingCapacity());
-            assertEquals(i, q.size());
-            q.add(new Integer(i));
+            assertEquals(SIZE, q.size() + q.remainingCapacity());
+            assertTrue(q.add(i));
         }
     }
 
@@ -225,9 +252,9 @@ public class LinkedBlockingQueueTest extends JSR166TestCase {
     public void testPut() throws InterruptedException {
         LinkedBlockingQueue q = new LinkedBlockingQueue(SIZE);
         for (int i = 0; i < SIZE; ++i) {
-            Integer I = new Integer(i);
-            q.put(I);
-            assertTrue(q.contains(I));
+            Integer x = new Integer(i);
+            q.put(x);
+            assertTrue(q.contains(x));
         }
         assertEquals(0, q.remainingCapacity());
     }
@@ -567,8 +594,8 @@ public class LinkedBlockingQueueTest extends JSR166TestCase {
             assertTrue(q.removeAll(p));
             assertEquals(SIZE-i, q.size());
             for (int j = 0; j < i; ++j) {
-                Integer I = (Integer)(p.remove());
-                assertFalse(q.contains(I));
+                Integer x = (Integer)(p.remove());
+                assertFalse(q.contains(x));
             }
         }
     }
@@ -612,9 +639,24 @@ public class LinkedBlockingQueueTest extends JSR166TestCase {
     public void testIterator() throws InterruptedException {
         LinkedBlockingQueue q = populatedQueue(SIZE);
         Iterator it = q.iterator();
-        while (it.hasNext()) {
+        int i;
+        for (i = 0; it.hasNext(); i++)
+            assertTrue(q.contains(it.next()));
+        assertEquals(i, SIZE);
+        assertIteratorExhausted(it);
+
+        it = q.iterator();
+        for (i = 0; it.hasNext(); i++)
             assertEquals(it.next(), q.take());
-        }
+        assertEquals(i, SIZE);
+        assertIteratorExhausted(it);
+    }
+
+    /**
+     * iterator of empty collection has no elements
+     */
+    public void testEmptyIterator() {
+        assertIteratorExhausted(new LinkedBlockingQueue().iterator());
     }
 
     /**
@@ -805,7 +847,22 @@ public class LinkedBlockingQueueTest extends JSR166TestCase {
             assertEquals(SIZE-k, q.size());
             for (int j = 0; j < k; ++j)
                 assertEquals(l.get(j), new Integer(j));
-            while (q.poll() != null) ;
+            do {} while (q.poll() != null);
+        }
+    }
+
+    /**
+     * remove(null), contains(null) always return false
+     */
+    public void testNeverContainsNull() {
+        Collection<?>[] qs = {
+            new LinkedBlockingQueue<Object>(),
+            populatedQueue(2),
+        };
+
+        for (Collection<?> q : qs) {
+            assertFalse(q.contains(null));
+            assertFalse(q.remove(null));
         }
     }
 

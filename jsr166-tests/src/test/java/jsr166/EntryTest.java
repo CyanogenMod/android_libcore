@@ -6,10 +6,22 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.Map;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class EntryTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     static final String k1 = "1";
     static final String v1 = "a";

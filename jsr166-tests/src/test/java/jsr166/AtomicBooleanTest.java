@@ -8,10 +8,21 @@
 
 package jsr166;
 
-import junit.framework.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 public class AtomicBooleanTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     /**
      * constructor initializes to given value
@@ -91,11 +102,11 @@ public class AtomicBooleanTest extends JSR166TestCase {
      */
     public void testWeakCompareAndSet() {
         AtomicBoolean ai = new AtomicBoolean(true);
-        while (!ai.weakCompareAndSet(true, false));
+        do {} while (!ai.weakCompareAndSet(true, false));
         assertFalse(ai.get());
-        while (!ai.weakCompareAndSet(false, false));
+        do {} while (!ai.weakCompareAndSet(false, false));
         assertFalse(ai.get());
-        while (!ai.weakCompareAndSet(false, true));
+        do {} while (!ai.weakCompareAndSet(false, true));
         assertTrue(ai.get());
     }
 

@@ -8,16 +8,27 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class CyclicBarrierTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     private volatile int countAction;
     private class MyAction implements Runnable {

@@ -8,14 +8,38 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import java.security.*;
+
+import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class AbstractExecutorServiceTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     /**
      * A no-frills implementation of AbstractExecutorService, designed
@@ -42,11 +66,10 @@ public class AbstractExecutorServiceTest extends JSR166TestCase {
     public void testExecuteRunnable() throws Exception {
         ExecutorService e = new DirectExecutorService();
         final AtomicBoolean done = new AtomicBoolean(false);
-        CheckedRunnable task = new CheckedRunnable() {
+        Future<?> future = e.submit(new CheckedRunnable() {
             public void realRun() {
                 done.set(true);
-            }};
-        Future<?> future = e.submit(task);
+            }});
         assertNull(future.get());
         assertNull(future.get(0, MILLISECONDS));
         assertTrue(done.get());
@@ -149,8 +172,8 @@ public class AbstractExecutorServiceTest extends JSR166TestCase {
      * execute(null runnable) throws NPE
      */
     public void testExecuteNullRunnable() {
+        ExecutorService e = new DirectExecutorService();
         try {
-            ExecutorService e = new DirectExecutorService();
             e.submit((Runnable) null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -160,8 +183,8 @@ public class AbstractExecutorServiceTest extends JSR166TestCase {
      * submit(null callable) throws NPE
      */
     public void testSubmitNullCallable() {
+        ExecutorService e = new DirectExecutorService();
         try {
-            ExecutorService e = new DirectExecutorService();
             e.submit((Callable) null);
             shouldThrow();
         } catch (NullPointerException success) {}

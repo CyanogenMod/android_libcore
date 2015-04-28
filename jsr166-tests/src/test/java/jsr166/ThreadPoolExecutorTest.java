@@ -8,13 +8,41 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.concurrent.*;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class ThreadPoolExecutorTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     static class ExtendedTPE extends ThreadPoolExecutor {
         final CountDownLatch beforeCalled = new CountDownLatch(1);
@@ -1371,11 +1399,10 @@ public class ThreadPoolExecutorTest extends JSR166TestCase {
         ExtendedTPE p = new ExtendedTPE();
         try {
             final CountDownLatch done = new CountDownLatch(1);
-            final CheckedRunnable task = new CheckedRunnable() {
+            p.execute(new CheckedRunnable() {
                 public void realRun() {
                     done.countDown();
-                }};
-            p.execute(task);
+                }});
             await(p.afterCalled);
             assertEquals(0, done.getCount());
             assertTrue(p.afterCalled());

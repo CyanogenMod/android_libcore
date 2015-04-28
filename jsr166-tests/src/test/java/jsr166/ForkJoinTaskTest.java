@@ -6,21 +6,32 @@
 
 package jsr166;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.ForkJoinWorkerThread;
-import java.util.concurrent.RecursiveAction;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.util.HashSet;
-import junit.framework.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class ForkJoinTaskTest extends JSR166TestCase {
+
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     // Runs with "mainPool" use > 1 thread. singletonPool tests use 1
     static final int mainPoolSize =
@@ -913,7 +924,7 @@ public class ForkJoinTaskTest extends JSR166TestCase {
     }
 
     /**
-     * invokeAll(collection)  throws exception if any task does
+     * invokeAll(collection) throws exception if any task does
      */
     public void testAbnormalInvokeAllCollection() {
         RecursiveAction a = new CheckedRecursiveAction() {
@@ -1580,7 +1591,7 @@ public class ForkJoinTaskTest extends JSR166TestCase {
     }
 
     /**
-     * invokeAll(collection)  throws exception if any task does
+     * invokeAll(collection) throws exception if any task does
      */
     public void testAbnormalInvokeAllCollectionSingleton() {
         RecursiveAction a = new CheckedRecursiveAction() {
@@ -1600,6 +1611,23 @@ public class ForkJoinTaskTest extends JSR166TestCase {
                 }
             }};
         testInvokeOnPool(singletonPool(), a);
+    }
+
+    /**
+     * ForkJoinTask.quietlyComplete returns when task completes
+     * normally without setting a value. The most recent value
+     * established by setRawResult(V) (or null by default) is returned
+     * from invoke.
+     */
+    public void testQuietlyComplete() {
+        RecursiveAction a = new CheckedRecursiveAction() {
+                protected void realCompute() {
+                    AsyncFib f = new AsyncFib(8);
+                    f.quietlyComplete();
+                    assertEquals(8, f.number);
+                    checkCompletedNormally(f);
+                }};
+        testInvokeOnPool(mainPool(), a);
     }
 
 }

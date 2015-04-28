@@ -6,7 +6,6 @@
 
 package jsr166;
 
-import junit.framework.*;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
@@ -19,7 +18,19 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 public class ConcurrentSkipListSetTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     static class MyReverseComparator implements Comparator {
         public int compare(Object x, Object y) {
@@ -35,9 +46,9 @@ public class ConcurrentSkipListSetTest extends JSR166TestCase {
         ConcurrentSkipListSet<Integer> q =
             new ConcurrentSkipListSet<Integer>();
         assertTrue(q.isEmpty());
-        for (int i = n-1; i >= 0; i-=2)
+        for (int i = n-1; i >= 0; i -= 2)
             assertTrue(q.add(new Integer(i)));
-        for (int i = (n & 1); i < n; i+=2)
+        for (int i = (n & 1); i < n; i += 2)
             assertTrue(q.add(new Integer(i)));
         assertFalse(q.isEmpty());
         assertEquals(n, q.size());
@@ -71,7 +82,7 @@ public class ConcurrentSkipListSetTest extends JSR166TestCase {
      */
     public void testConstructor3() {
         try {
-            ConcurrentSkipListSet q = new ConcurrentSkipListSet((Collection)null);
+            new ConcurrentSkipListSet((Collection)null);
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -82,7 +93,7 @@ public class ConcurrentSkipListSetTest extends JSR166TestCase {
     public void testConstructor4() {
         try {
             Integer[] ints = new Integer[SIZE];
-            ConcurrentSkipListSet q = new ConcurrentSkipListSet(Arrays.asList(ints));
+            new ConcurrentSkipListSet(Arrays.asList(ints));
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -95,7 +106,7 @@ public class ConcurrentSkipListSetTest extends JSR166TestCase {
             Integer[] ints = new Integer[SIZE];
             for (int i = 0; i < SIZE-1; ++i)
                 ints[i] = new Integer(i);
-            ConcurrentSkipListSet q = new ConcurrentSkipListSet(Arrays.asList(ints));
+            new ConcurrentSkipListSet(Arrays.asList(ints));
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -160,8 +171,8 @@ public class ConcurrentSkipListSetTest extends JSR166TestCase {
      * add(null) throws NPE
      */
     public void testAddNull() {
+        ConcurrentSkipListSet q = new ConcurrentSkipListSet();
         try {
-            ConcurrentSkipListSet q = new ConcurrentSkipListSet();
             q.add(null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -189,9 +200,8 @@ public class ConcurrentSkipListSetTest extends JSR166TestCase {
      * Add of non-Comparable throws CCE
      */
     public void testAddNonComparable() {
+        ConcurrentSkipListSet q = new ConcurrentSkipListSet();
         try {
-            ConcurrentSkipListSet q = new ConcurrentSkipListSet();
-            q.add(new Object());
             q.add(new Object());
             q.add(new Object());
             shouldThrow();
@@ -202,8 +212,8 @@ public class ConcurrentSkipListSetTest extends JSR166TestCase {
      * addAll(null) throws NPE
      */
     public void testAddAll1() {
+        ConcurrentSkipListSet q = new ConcurrentSkipListSet();
         try {
-            ConcurrentSkipListSet q = new ConcurrentSkipListSet();
             q.addAll(null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -213,9 +223,9 @@ public class ConcurrentSkipListSetTest extends JSR166TestCase {
      * addAll of a collection with null elements throws NPE
      */
     public void testAddAll2() {
+        ConcurrentSkipListSet q = new ConcurrentSkipListSet();
+        Integer[] ints = new Integer[SIZE];
         try {
-            ConcurrentSkipListSet q = new ConcurrentSkipListSet();
-            Integer[] ints = new Integer[SIZE];
             q.addAll(Arrays.asList(ints));
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -226,11 +236,11 @@ public class ConcurrentSkipListSetTest extends JSR166TestCase {
      * possibly adding some elements
      */
     public void testAddAll3() {
+        ConcurrentSkipListSet q = new ConcurrentSkipListSet();
+        Integer[] ints = new Integer[SIZE];
+        for (int i = 0; i < SIZE-1; ++i)
+            ints[i] = new Integer(i);
         try {
-            ConcurrentSkipListSet q = new ConcurrentSkipListSet();
-            Integer[] ints = new Integer[SIZE];
-            for (int i = 0; i < SIZE-1; ++i)
-                ints[i] = new Integer(i);
             q.addAll(Arrays.asList(ints));
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -278,13 +288,13 @@ public class ConcurrentSkipListSetTest extends JSR166TestCase {
      */
     public void testRemoveElement() {
         ConcurrentSkipListSet q = populatedSet(SIZE);
-        for (int i = 1; i < SIZE; i+=2) {
+        for (int i = 1; i < SIZE; i += 2) {
             assertTrue(q.contains(i));
             assertTrue(q.remove(i));
             assertFalse(q.contains(i));
             assertTrue(q.contains(i-1));
         }
-        for (int i = 0; i < SIZE; i+=2) {
+        for (int i = 0; i < SIZE; i += 2) {
             assertTrue(q.contains(i));
             assertTrue(q.remove(i));
             assertFalse(q.contains(i));
@@ -363,8 +373,8 @@ public class ConcurrentSkipListSetTest extends JSR166TestCase {
             assertTrue(q.removeAll(p));
             assertEquals(SIZE-i, q.size());
             for (int j = 0; j < i; ++j) {
-                Integer I = (Integer)(p.pollFirst());
-                assertFalse(q.contains(I));
+                Integer x = (Integer)(p.pollFirst());
+                assertFalse(q.contains(x));
             }
         }
     }
@@ -467,27 +477,21 @@ public class ConcurrentSkipListSetTest extends JSR166TestCase {
      */
     public void testIterator() {
         ConcurrentSkipListSet q = populatedSet(SIZE);
-        int i = 0;
         Iterator it = q.iterator();
-        while (it.hasNext()) {
+        int i;
+        for (i = 0; it.hasNext(); i++)
             assertTrue(q.contains(it.next()));
-            ++i;
-        }
         assertEquals(i, SIZE);
+        assertIteratorExhausted(it);
     }
 
     /**
      * iterator of empty set has no elements
      */
     public void testEmptyIterator() {
-        ConcurrentSkipListSet q = new ConcurrentSkipListSet();
-        int i = 0;
-        Iterator it = q.iterator();
-        while (it.hasNext()) {
-            assertTrue(q.contains(it.next()));
-            ++i;
-        }
-        assertEquals(0, i);
+        NavigableSet s = new ConcurrentSkipListSet();
+        assertIteratorExhausted(s.iterator());
+        assertIteratorExhausted(s.descendingSet().iterator());
     }
 
     /**
@@ -726,7 +730,7 @@ public class ConcurrentSkipListSetTest extends JSR166TestCase {
         // Add entries till we're back to original size
         while (set.size() < size) {
             int element = min + rnd.nextInt(rangeSize);
-            assertTrue(element >= min && element<= max);
+            assertTrue(element >= min && element <= max);
             put(set, element, bs);
         }
     }
@@ -752,7 +756,7 @@ public class ConcurrentSkipListSetTest extends JSR166TestCase {
         // Add entries till we're back to original size
         while (set.size() < size) {
             int element = min - 5 + rnd.nextInt(rangeSize + 10);
-            if (element >= min && element<= max) {
+            if (element >= min && element <= max) {
                 put(set, element, bs);
             } else {
                 try {

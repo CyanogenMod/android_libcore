@@ -7,9 +7,10 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.Arrays;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -20,11 +21,29 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedTransferQueue;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
+// android-changed: Extend BlockingQueueTest directly.
 public class LinkedTransferQueueTest extends BlockingQueueTest {
+
+    // android-changed: Extend BlockingQueueTest directly.
+    //
+    // public static class Generic extends BlockingQueueTest {
+    //     protected BlockingQueue emptyCollection() {
+    //         return new LinkedTransferQueue();
+    //     }
+    // }
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    //
+    // public static Test suite() {
+    //     return newTestSuite(LinkedTransferQueueTest.class,
+    //                         new Generic().testSuite());
+    // }
 
     protected BlockingQueue emptyCollection() {
         return new LinkedTransferQueue();
@@ -105,16 +124,16 @@ public class LinkedTransferQueueTest extends BlockingQueueTest {
      * remainingCapacity() always returns Integer.MAX_VALUE
      */
     public void testRemainingCapacity() {
-        LinkedTransferQueue<Integer> q = populatedQueue(SIZE);
+        BlockingQueue q = populatedQueue(SIZE);
         for (int i = 0; i < SIZE; ++i) {
             assertEquals(Integer.MAX_VALUE, q.remainingCapacity());
             assertEquals(SIZE - i, q.size());
-            q.remove();
+            assertEquals(i, q.remove());
         }
         for (int i = 0; i < SIZE; ++i) {
             assertEquals(Integer.MAX_VALUE, q.remainingCapacity());
             assertEquals(i, q.size());
-            q.add(i);
+            assertTrue(q.add(i));
         }
     }
 
@@ -490,11 +509,24 @@ public class LinkedTransferQueueTest extends BlockingQueueTest {
     public void testIterator() throws InterruptedException {
         LinkedTransferQueue q = populatedQueue(SIZE);
         Iterator it = q.iterator();
-        int i = 0;
-        while (it.hasNext()) {
-            assertEquals(it.next(), i++);
-        }
+        int i;
+        for (i = 0; it.hasNext(); i++)
+            assertTrue(q.contains(it.next()));
         assertEquals(i, SIZE);
+        assertIteratorExhausted(it);
+
+        it = q.iterator();
+        for (i = 0; it.hasNext(); i++)
+            assertEquals(it.next(), q.take());
+        assertEquals(i, SIZE);
+        assertIteratorExhausted(it);
+    }
+
+    /**
+     * iterator of empty collection has no elements
+     */
+    public void testEmptyIterator() {
+        assertIteratorExhausted(new LinkedTransferQueue().iterator());
     }
 
     /**
@@ -687,8 +719,7 @@ public class LinkedTransferQueueTest extends BlockingQueueTest {
             assertEquals(SIZE - k, q.size());
             for (int j = 0; j < k; ++j)
                 assertEquals(j, l.get(j));
-            while (q.poll() != null)
-                ;
+            do {} while (q.poll() != null);
         }
     }
 
@@ -1003,5 +1034,20 @@ public class LinkedTransferQueueTest extends BlockingQueueTest {
         }
         assertFalse(q.isEmpty());
         return q;
+    }
+
+    /**
+     * remove(null), contains(null) always return false
+     */
+    public void testNeverContainsNull() {
+        Collection<?>[] qs = {
+            new LinkedTransferQueue<Object>(),
+            populatedQueue(2),
+        };
+
+        for (Collection<?> q : qs) {
+            assertFalse(q.contains(null));
+            assertFalse(q.remove(null));
+        }
     }
 }
