@@ -82,7 +82,7 @@ LOCAL_CPPFLAGS += $(core_cppflags)
 LOCAL_SRC_FILES += $(core_src_files)
 LOCAL_C_INCLUDES += $(core_c_includes)
 LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libcrypto libdl libexpat libicuuc libicui18n libnativehelper libz libutils
-LOCAL_STATIC_LIBRARIES += $(core_static_libraries) libziparchive
+LOCAL_STATIC_LIBRARIES += $(core_static_libraries) libziparchive libbase
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacore
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
@@ -158,7 +158,7 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libjavacore
 LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/NativeCode.mk
 LOCAL_SHARED_LIBRARIES += $(core_shared_libraries) libexpat-host libicuuc-host libicui18n-host libcrypto-host libz-host
-LOCAL_STATIC_LIBRARIES += $(core_static_libraries) libziparchive-host libutils
+LOCAL_STATIC_LIBRARIES += $(core_static_libraries) libutils libziparchive-host libbase
 LOCAL_MULTILIB := both
 LOCAL_CXX_STL := libc++
 include $(BUILD_HOST_SHARED_LIBRARY)
