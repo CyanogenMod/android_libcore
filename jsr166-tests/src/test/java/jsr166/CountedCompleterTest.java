@@ -6,24 +6,33 @@
 
 package jsr166;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.CountedCompleter;
-import java.util.concurrent.ForkJoinWorkerThread;
-import java.util.concurrent.RecursiveAction;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
-import java.util.concurrent.atomic.AtomicReference;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.util.HashSet;
-import junit.framework.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CountedCompleter;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class CountedCompleterTest extends JSR166TestCase {
+
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     // Runs with "mainPool" use > 1 thread. singletonPool tests use 1
     static final int mainPoolSize =
@@ -193,8 +202,8 @@ public class CountedCompleterTest extends JSR166TestCase {
         try {
             a.invoke();
             shouldThrow();
-        } catch (Throwable ex) {
-            assertSame(t, ex);
+        } catch (Throwable success) {
+            assertSame(t, success);
         }
     }
 
@@ -494,8 +503,9 @@ public class CountedCompleterTest extends JSR166TestCase {
     // Invocation tests use some interdependent task classes
     // to better test propagation etc
 
-
-    // Version of Fibonacci with different classes for left vs right forks
+    /**
+     * Version of Fibonacci with different classes for left vs right forks
+     */
     abstract class CCF extends CheckedCC {
         int number;
         int rnumber;
@@ -1131,7 +1141,7 @@ public class CountedCompleterTest extends JSR166TestCase {
     }
 
     /**
-     * invokeAll(collection)  throws exception if any task does
+     * invokeAll(collection) throws exception if any task does
      */
     public void testAbnormalInvokeAllCollection() {
         ForkJoinTask a = new CheckedRecursiveAction() {
@@ -1796,7 +1806,7 @@ public class CountedCompleterTest extends JSR166TestCase {
     }
 
     /**
-     * invokeAll(collection)  throws exception if any task does
+     * invokeAll(collection) throws exception if any task does
      */
     public void testAbnormalInvokeAllCollectionSingleton() {
         ForkJoinTask a = new CheckedRecursiveAction() {

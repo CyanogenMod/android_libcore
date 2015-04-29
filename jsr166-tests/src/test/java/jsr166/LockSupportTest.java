@@ -9,13 +9,25 @@
 
 package jsr166;
 
-import junit.framework.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class LockSupportTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     /**
      * Returns the blocker object used by tests in this file.

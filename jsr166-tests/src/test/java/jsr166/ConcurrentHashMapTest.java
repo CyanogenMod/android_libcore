@@ -8,17 +8,36 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 public class ConcurrentHashMapTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     /**
      * Returns a new map from Integers 1-5 to Strings "A"-"E".
      */
-    private static ConcurrentHashMap map5() {
-        ConcurrentHashMap map = new ConcurrentHashMap(5);
+    private static ConcurrentHashMap<Integer, String> map5() {
+        ConcurrentHashMap map = new ConcurrentHashMap<Integer, String>(5);
         assertTrue(map.isEmpty());
         map.put(one, "A");
         map.put(two, "B");
@@ -30,12 +49,15 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
         return map;
     }
 
+    /** Re-implement Integer.compare for old java versions */
+    static int compare(int x, int y) { return x < y ? -1 : x > y ? 1 : 0; }
+
     // classes for testing Comparable fallbacks
     static class BI implements Comparable<BI> {
         private final int value;
         BI(int value) { this.value = value; }
         public int compareTo(BI other) {
-            return Integer.compare(value, other.value);
+            return compare(value, other.value);
         }
         public boolean equals(Object x) {
             return (x instanceof BI) && ((BI)x).value == value;
@@ -59,12 +81,9 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
 
     static class LexicographicList<E extends Comparable<E>> extends ArrayList<E>
         implements Comparable<LexicographicList<E>> {
-        static long total;
-        static long n;
         LexicographicList(Collection<E> c) { super(c); }
         LexicographicList(E e) { super(Collections.singleton(e)); }
         public int compareTo(LexicographicList<E> other) {
-            long start = System.currentTimeMillis();
             int common = Math.min(size(), other.size());
             int r = 0;
             for (int i = 0; i < common; i++) {
@@ -72,12 +91,26 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
                     break;
             }
             if (r == 0)
-                r = Integer.compare(size(), other.size());
-            total += System.currentTimeMillis() - start;
-            n++;
+                r = compare(size(), other.size());
             return r;
         }
         private static final long serialVersionUID = 0;
+    }
+
+    static class CollidingObject {
+        final String value;
+        CollidingObject(final String value) { this.value = value; }
+        public int hashCode() { return this.value.hashCode() & 1; }
+        public boolean equals(final Object obj) {
+            return (obj instanceof CollidingObject) && ((CollidingObject)obj).value.equals(value);
+        }
+    }
+
+    static class ComparableCollidingObject extends CollidingObject implements Comparable<ComparableCollidingObject> {
+        ComparableCollidingObject(final String value) { super(value); }
+        public int compareTo(final ComparableCollidingObject o) {
+            return value.compareTo(o.value);
+        }
     }
 
     /**
@@ -85,12 +118,13 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * class are found.
      */
     public void testComparableFamily() {
+        int size = 500;         // makes measured test run time -> 60ms
         ConcurrentHashMap<BI, Boolean> m =
             new ConcurrentHashMap<BI, Boolean>();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < size; i++) {
             assertTrue(m.put(new CI(i), true) == null);
         }
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < size; i++) {
             assertTrue(m.containsKey(new CI(i)));
             assertTrue(m.containsKey(new DI(i)));
         }
@@ -100,24 +134,25 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * Elements of classes with erased generic type parameters based
      * on Comparable can be inserted and found.
      */
-     public void testGenericComparable() {
-         ConcurrentHashMap<Object, Boolean> m =
-             new ConcurrentHashMap<Object, Boolean>();
-         for (int i = 0; i < 1000; i++) {
-             BI bi = new BI(i);
-             BS bs = new BS(String.valueOf(i));
-             LexicographicList<BI> bis = new LexicographicList<BI>(bi);
-             LexicographicList<BS> bss = new LexicographicList<BS>(bs);
-             assertTrue(m.putIfAbsent(bis, true) == null);
-             assertTrue(m.containsKey(bis));
-             if (m.putIfAbsent(bss, true) == null)
-                 assertTrue(m.containsKey(bss));
-             assertTrue(m.containsKey(bis));
-         }
-         for (int i = 0; i < 1000; i++) {
-             assertTrue(m.containsKey(new ArrayList(Collections.singleton(new BI(i)))));
-         }
-     }
+    public void testGenericComparable() {
+        int size = 120;         // makes measured test run time -> 60ms
+        ConcurrentHashMap<Object, Boolean> m =
+            new ConcurrentHashMap<Object, Boolean>();
+        for (int i = 0; i < size; i++) {
+            BI bi = new BI(i);
+            BS bs = new BS(String.valueOf(i));
+            LexicographicList<BI> bis = new LexicographicList<BI>(bi);
+            LexicographicList<BS> bss = new LexicographicList<BS>(bs);
+            assertTrue(m.putIfAbsent(bis, true) == null);
+            assertTrue(m.containsKey(bis));
+            if (m.putIfAbsent(bss, true) == null)
+                assertTrue(m.containsKey(bss));
+            assertTrue(m.containsKey(bis));
+        }
+        for (int i = 0; i < size; i++) {
+            assertTrue(m.containsKey(Collections.singletonList(new BI(i))));
+        }
+    }
 
     /**
      * Elements of non-comparable classes equal to those of classes
@@ -125,15 +160,51 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * inserted and found.
      */
     public void testGenericComparable2() {
+        int size = 500;         // makes measured test run time -> 60ms
         ConcurrentHashMap<Object, Boolean> m =
             new ConcurrentHashMap<Object, Boolean>();
-        for (int i = 0; i < 1000; i++) {
-            m.put(new ArrayList(Collections.singleton(new BI(i))), true);
+        for (int i = 0; i < size; i++) {
+            m.put(Collections.singletonList(new BI(i)), true);
         }
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < size; i++) {
             LexicographicList<BI> bis = new LexicographicList<BI>(new BI(i));
             assertTrue(m.containsKey(bis));
+        }
+    }
+
+    /**
+     * Mixtures of instances of comparable and non-comparable classes
+     * can be inserted and found.
+     */
+    public void testMixedComparable() {
+        int size = 1200;        // makes measured test run time -> 35ms
+        ConcurrentHashMap<Object, Object> map =
+            new ConcurrentHashMap<Object, Object>();
+        Random rng = new Random();
+        for (int i = 0; i < size; i++) {
+            Object x;
+            switch (rng.nextInt(4)) {
+            case 0:
+                x = new Object();
+                break;
+            case 1:
+                x = new CollidingObject(Integer.toString(i));
+                break;
+            default:
+                x = new ComparableCollidingObject(Integer.toString(i));
+            }
+            assertNull(map.put(x, x));
+        }
+        int count = 0;
+        for (Object k : map.keySet()) {
+            assertEquals(map.get(k), k);
+            ++count;
+        }
+        assertEquals(count, size);
+        assertEquals(map.size(), size);
+        for (Object k : map.keySet()) {
+            assertEquals(map.put(k, k), k);
         }
     }
 
@@ -157,6 +228,17 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
         map1.clear();
         assertFalse(map1.equals(map2));
         assertFalse(map2.equals(map1));
+    }
+
+    /**
+     * hashCode() equals sum of each key.hashCode ^ value.hashCode
+     */
+    public void testHashCode() {
+        ConcurrentHashMap<Integer,String> map = map5();
+        int sum = 0;
+        for (Map.Entry<Integer,String> e : map.entrySet())
+            sum += e.getKey().hashCode() ^ e.getValue().hashCode();
+        assertEquals(sum, map.hashCode());
     }
 
     /**
@@ -210,6 +292,7 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
         assertEquals("A", (String)map.get(one));
         ConcurrentHashMap empty = new ConcurrentHashMap();
         assertNull(map.get("anything"));
+        assertNull(empty.get("anything"));
     }
 
     /**
@@ -443,29 +526,9 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
     // Exception tests
 
     /**
-     * Cannot create with negative capacity
-     */
-    public void testConstructor1() {
-        try {
-            new ConcurrentHashMap(-1,0,1);
-            shouldThrow();
-        } catch (IllegalArgumentException success) {}
-    }
-
-    /**
-     * Cannot create with negative concurrency level
-     */
-    public void testConstructor2() {
-        try {
-            new ConcurrentHashMap(1,0,-1);
-            shouldThrow();
-        } catch (IllegalArgumentException success) {}
-    }
-
-    /**
      * Cannot create with only negative capacity
      */
-    public void testConstructor3() {
+    public void testConstructor1() {
         try {
             new ConcurrentHashMap(-1);
             shouldThrow();
@@ -473,11 +536,71 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
     }
 
     /**
+     * Constructor (initialCapacity, loadFactor) throws
+     * IllegalArgumentException if either argument is negative
+      */
+    public void testConstructor2() {
+        try {
+            new ConcurrentHashMap(-1, .75f);
+            shouldThrow();
+        } catch (IllegalArgumentException success) {}
+
+        try {
+            new ConcurrentHashMap(16, -1);
+            shouldThrow();
+        } catch (IllegalArgumentException success) {}
+    }
+
+    /**
+     * Constructor (initialCapacity, loadFactor, concurrencyLevel)
+     * throws IllegalArgumentException if any argument is negative
+     */
+    public void testConstructor3() {
+        try {
+            new ConcurrentHashMap(-1, .75f, 1);
+            shouldThrow();
+        } catch (IllegalArgumentException success) {}
+
+        try {
+            new ConcurrentHashMap(16, -1, 1);
+            shouldThrow();
+        } catch (IllegalArgumentException success) {}
+
+        try {
+            new ConcurrentHashMap(16, .75f, -1);
+            shouldThrow();
+        } catch (IllegalArgumentException success) {}
+    }
+
+    /**
+     * ConcurrentHashMap(map) throws NullPointerException if the given
+     * map is null
+     */
+    public void testConstructor4() {
+        try {
+            new ConcurrentHashMap(null);
+            shouldThrow();
+        } catch (NullPointerException success) {}
+    }
+
+    /**
+     * ConcurrentHashMap(map) creates a new map with the same mappings
+     * as the given map
+     */
+    public void testConstructor5() {
+        ConcurrentHashMap map1 = map5();
+        ConcurrentHashMap map2 = new ConcurrentHashMap(map5());
+        assertTrue(map2.equals(map1));
+        map2.put(one, "F");
+        assertFalse(map2.equals(map1));
+    }
+
+    /**
      * get(null) throws NPE
      */
     public void testGet_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
             c.get(null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -487,8 +610,8 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * containsKey(null) throws NPE
      */
     public void testContainsKey_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
             c.containsKey(null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -498,8 +621,8 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * containsValue(null) throws NPE
      */
     public void testContainsValue_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
             c.containsValue(null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -509,8 +632,8 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * contains(null) throws NPE
      */
     public void testContains_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
             c.contains(null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -520,8 +643,8 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * put(null,x) throws NPE
      */
     public void testPut1_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
             c.put(null, "whatever");
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -531,8 +654,8 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * put(x, null) throws NPE
      */
     public void testPut2_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
             c.put("whatever", null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -542,8 +665,8 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * putIfAbsent(null, x) throws NPE
      */
     public void testPutIfAbsent1_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
             c.putIfAbsent(null, "whatever");
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -553,8 +676,8 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * replace(null, x) throws NPE
      */
     public void testReplace_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
             c.replace(null, "whatever");
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -564,8 +687,8 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * replace(null, x, y) throws NPE
      */
     public void testReplaceValue_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
             c.replace(null, one, "whatever");
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -575,8 +698,8 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * putIfAbsent(x, null) throws NPE
      */
     public void testPutIfAbsent2_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
             c.putIfAbsent("whatever", null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -586,8 +709,8 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * replace(x, null) throws NPE
      */
     public void testReplace2_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
             c.replace("whatever", null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -597,8 +720,8 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * replace(x, null, y) throws NPE
      */
     public void testReplaceValue2_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
             c.replace("whatever", null, "A");
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -608,8 +731,8 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * replace(x, y, null) throws NPE
      */
     public void testReplaceValue3_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
             c.replace("whatever", one, null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -619,9 +742,9 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * remove(null) throws NPE
      */
     public void testRemove1_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
+        c.put("sadsdf", "asdads");
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
-            c.put("sadsdf", "asdads");
             c.remove(null);
             shouldThrow();
         } catch (NullPointerException success) {}
@@ -631,9 +754,9 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * remove(null, x) throws NPE
      */
     public void testRemove2_NullPointerException() {
+        ConcurrentHashMap c = new ConcurrentHashMap(5);
+        c.put("sadsdf", "asdads");
         try {
-            ConcurrentHashMap c = new ConcurrentHashMap(5);
-            c.put("sadsdf", "asdads");
             c.remove(null, "whatever");
             shouldThrow();
         } catch (NullPointerException success) {}

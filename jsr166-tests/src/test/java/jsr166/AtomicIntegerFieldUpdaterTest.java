@@ -8,13 +8,24 @@
 
 package jsr166;
 
-import junit.framework.*;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class AtomicIntegerFieldUpdaterTest extends JSR166TestCase {
     volatile int x = 0;
     int w;
     long z;
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     AtomicIntegerFieldUpdater<AtomicIntegerFieldUpdaterTest> updaterFor(String fieldName) {
         return AtomicIntegerFieldUpdater.newUpdater
@@ -127,10 +138,10 @@ public class AtomicIntegerFieldUpdaterTest extends JSR166TestCase {
         AtomicIntegerFieldUpdater<AtomicIntegerFieldUpdaterTest> a;
         a = updaterFor("x");
         x = 1;
-        while (!a.weakCompareAndSet(this, 1, 2));
-        while (!a.weakCompareAndSet(this, 2, -4));
+        do {} while (!a.weakCompareAndSet(this, 1, 2));
+        do {} while (!a.weakCompareAndSet(this, 2, -4));
         assertEquals(-4, a.get(this));
-        while (!a.weakCompareAndSet(this, -4, 7));
+        do {} while (!a.weakCompareAndSet(this, -4, 7));
         assertEquals(7, a.get(this));
     }
 

@@ -8,9 +8,19 @@
 
 package jsr166;
 
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class ThreadTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     static class MyHandler implements Thread.UncaughtExceptionHandler {
         public void uncaughtException(Thread t, Throwable e) {
@@ -28,11 +38,14 @@ public class ThreadTest extends JSR166TestCase {
         Thread current = Thread.currentThread();
         ThreadGroup tg = current.getThreadGroup();
         MyHandler eh = new MyHandler();
-        assertEquals(tg, current.getUncaughtExceptionHandler());
+        assertSame(tg, current.getUncaughtExceptionHandler());
         current.setUncaughtExceptionHandler(eh);
-        assertEquals(eh, current.getUncaughtExceptionHandler());
-        current.setUncaughtExceptionHandler(null);
-        assertEquals(tg, current.getUncaughtExceptionHandler());
+        try {
+            assertSame(eh, current.getUncaughtExceptionHandler());
+        } finally {
+            current.setUncaughtExceptionHandler(null);
+        }
+        assertSame(tg, current.getUncaughtExceptionHandler());
     }
 
     /**
@@ -40,24 +53,23 @@ public class ThreadTest extends JSR166TestCase {
      * setDefaultUncaughtExceptionHandler.
      */
     public void testGetAndSetDefaultUncaughtExceptionHandler() {
-        // BEGIN android-remove (when running as cts the RuntimeInit will 
-        // set a default handler)
-        // assertEquals(null, Thread.getDefaultUncaughtExceptionHandler());
-        // END android-remove
-
+        assertEquals(null, Thread.getDefaultUncaughtExceptionHandler());
         // failure due to securityException is OK.
         // Would be nice to explicitly test both ways, but cannot yet.
+        Thread.UncaughtExceptionHandler defaultHandler
+            = Thread.getDefaultUncaughtExceptionHandler();
+        MyHandler eh = new MyHandler();
         try {
-            Thread current = Thread.currentThread();
-            ThreadGroup tg = current.getThreadGroup();
-            MyHandler eh = new MyHandler();
             Thread.setDefaultUncaughtExceptionHandler(eh);
-            assertEquals(eh, Thread.getDefaultUncaughtExceptionHandler());
-            Thread.setDefaultUncaughtExceptionHandler(null);
+            try {
+                assertSame(eh, Thread.getDefaultUncaughtExceptionHandler());
+            } finally {
+                Thread.setDefaultUncaughtExceptionHandler(defaultHandler);
+            }
+        } catch (SecurityException ok) {
+            assertNotNull(System.getSecurityManager());
         }
-        catch (SecurityException ok) {
-        }
-        assertEquals(null, Thread.getDefaultUncaughtExceptionHandler());
+        assertSame(defaultHandler, Thread.getDefaultUncaughtExceptionHandler());
     }
 
     // How to test actually using UEH within junit?

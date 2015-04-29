@@ -8,21 +8,47 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.Arrays;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+import junit.framework.Test;
 
 public class SynchronousQueueTest extends JSR166TestCase {
+
+    // android-note: These tests have been moved into their own separate 
+    // classes to work around CTS issues.
+    //
+    // public static class Fair extends BlockingQueueTest {
+    //     protected BlockingQueue emptyCollection() {
+    //         return new SynchronousQueue(true);
+    //     }
+    // }
+    //
+    // public static class NonFair extends BlockingQueueTest {
+    //     protected BlockingQueue emptyCollection() {
+    //         return new SynchronousQueue(false);
+    //     }
+    // }
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    //
+    // public static Test suite() {
+    //     return newTestSuite(SynchronousQueueTest.class,
+    //                         new Fair().testSuite(),
+    //                         new NonFair().testSuite());
+    // }
 
     /**
      * Any SynchronousQueue is both empty and full
@@ -402,7 +428,7 @@ public class SynchronousQueueTest extends JSR166TestCase {
     public void testToArray_null(boolean fair) {
         final SynchronousQueue q = new SynchronousQueue(fair);
         try {
-            Object o[] = q.toArray(null);
+            Object[] o = q.toArray(null);
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -413,13 +439,7 @@ public class SynchronousQueueTest extends JSR166TestCase {
     public void testIterator()      { testIterator(false); }
     public void testIterator_fair() { testIterator(true); }
     public void testIterator(boolean fair) {
-        final SynchronousQueue q = new SynchronousQueue(fair);
-        Iterator it = q.iterator();
-        assertFalse(it.hasNext());
-        try {
-            Object x = it.next();
-            shouldThrow();
-        } catch (NoSuchElementException success) {}
+        assertIteratorExhausted(new SynchronousQueue(fair).iterator());
     }
 
     /**
@@ -584,6 +604,15 @@ public class SynchronousQueueTest extends JSR166TestCase {
         assertTrue(l.contains(two));
         awaitTermination(t1);
         awaitTermination(t2);
+    }
+
+    /**
+     * remove(null), contains(null) always return false
+     */
+    public void testNeverContainsNull() {
+        Collection<?> q = new SynchronousQueue();
+        assertFalse(q.contains(null));
+        assertFalse(q.remove(null));
     }
 
 }

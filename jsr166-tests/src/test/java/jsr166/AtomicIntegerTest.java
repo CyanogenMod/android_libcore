@@ -8,10 +8,21 @@
 
 package jsr166;
 
-import junit.framework.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 public class AtomicIntegerTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     final int[] VALUES = {
         Integer.MIN_VALUE, -1, 0, 1, 42, Integer.MAX_VALUE,
@@ -96,10 +107,10 @@ public class AtomicIntegerTest extends JSR166TestCase {
      */
     public void testWeakCompareAndSet() {
         AtomicInteger ai = new AtomicInteger(1);
-        while (!ai.weakCompareAndSet(1, 2));
-        while (!ai.weakCompareAndSet(2, -4));
+        do {} while (!ai.weakCompareAndSet(1, 2));
+        do {} while (!ai.weakCompareAndSet(2, -4));
         assertEquals(-4, ai.get());
-        while (!ai.weakCompareAndSet(-4, 7));
+        do {} while (!ai.weakCompareAndSet(-4, 7));
         assertEquals(7, ai.get());
     }
 

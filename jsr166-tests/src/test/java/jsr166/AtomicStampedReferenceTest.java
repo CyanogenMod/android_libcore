@@ -8,10 +8,21 @@
 
 package jsr166;
 
-import junit.framework.*;
 import java.util.concurrent.atomic.AtomicStampedReference;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 public class AtomicStampedReferenceTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     /**
      * constructor initializes to given reference and stamp
@@ -135,11 +146,11 @@ public class AtomicStampedReferenceTest extends JSR166TestCase {
         assertEquals(0, ai.getStamp());
         assertEquals(0, mark[0]);
 
-        while (!ai.weakCompareAndSet(one, two, 0, 0));
+        do {} while (!ai.weakCompareAndSet(one, two, 0, 0));
         assertSame(two, ai.get(mark));
         assertEquals(0, mark[0]);
 
-        while (!ai.weakCompareAndSet(two, m3, 0, 1));
+        do {} while (!ai.weakCompareAndSet(two, m3, 0, 1));
         assertSame(m3, ai.get(mark));
         assertEquals(1, mark[0]);
     }
