@@ -8,9 +8,11 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.Arrays;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
@@ -20,9 +22,32 @@ import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import junit.framework.Test;
+
+// android-changed: Extend BlockingQueueTest directly.
 public class DelayQueueTest extends BlockingQueueTest {
+
+    // android-changed: Extend BlockingQueueTest directly instead of creating
+    // an inner class and its associated suite.
+    //
+    // public static class Generic extends BlockingQueueTest {
+    //    protected BlockingQueue emptyCollection() {
+    //         return new DelayQueue();
+    //     }
+    //     protected PDelay makeElement(int i) {
+    //         return new PDelay(i);
+    //     }
+    // }
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    //
+    // public static Test suite() {
+    //     return newTestSuite(DelayQueueTest.class,
+    //                         new Generic().testSuite());
+    // }
 
     protected BlockingQueue emptyCollection() {
         return new DelayQueue();
@@ -31,8 +56,6 @@ public class DelayQueueTest extends BlockingQueueTest {
     protected PDelay makeElement(int i) {
         return new PDelay(i);
     }
-
-    private static final int NOCAP = Integer.MAX_VALUE;
 
     /**
      * A delayed implementation for testing.
@@ -115,12 +138,12 @@ public class DelayQueueTest extends BlockingQueueTest {
     private DelayQueue<PDelay> populatedQueue(int n) {
         DelayQueue<PDelay> q = new DelayQueue<PDelay>();
         assertTrue(q.isEmpty());
-        for (int i = n-1; i >= 0; i-=2)
+        for (int i = n-1; i >= 0; i -= 2)
             assertTrue(q.offer(new PDelay(i)));
-        for (int i = (n & 1); i < n; i+=2)
+        for (int i = (n & 1); i < n; i += 2)
             assertTrue(q.offer(new PDelay(i)));
         assertFalse(q.isEmpty());
-        assertEquals(NOCAP, q.remainingCapacity());
+        assertEquals(Integer.MAX_VALUE, q.remainingCapacity());
         assertEquals(n, q.size());
         return q;
     }
@@ -129,7 +152,7 @@ public class DelayQueueTest extends BlockingQueueTest {
      * A new queue has unbounded capacity
      */
     public void testConstructor1() {
-        assertEquals(NOCAP, new DelayQueue().remainingCapacity());
+        assertEquals(Integer.MAX_VALUE, new DelayQueue().remainingCapacity());
     }
 
     /**
@@ -137,7 +160,7 @@ public class DelayQueueTest extends BlockingQueueTest {
      */
     public void testConstructor3() {
         try {
-            DelayQueue q = new DelayQueue(null);
+            new DelayQueue(null);
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -148,7 +171,7 @@ public class DelayQueueTest extends BlockingQueueTest {
     public void testConstructor4() {
         try {
             PDelay[] ints = new PDelay[SIZE];
-            DelayQueue q = new DelayQueue(Arrays.asList(ints));
+            new DelayQueue(Arrays.asList(ints));
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -161,7 +184,7 @@ public class DelayQueueTest extends BlockingQueueTest {
             PDelay[] ints = new PDelay[SIZE];
             for (int i = 0; i < SIZE-1; ++i)
                 ints[i] = new PDelay(i);
-            DelayQueue q = new DelayQueue(Arrays.asList(ints));
+            new DelayQueue(Arrays.asList(ints));
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -184,7 +207,7 @@ public class DelayQueueTest extends BlockingQueueTest {
     public void testEmpty() {
         DelayQueue q = new DelayQueue();
         assertTrue(q.isEmpty());
-        assertEquals(NOCAP, q.remainingCapacity());
+        assertEquals(Integer.MAX_VALUE, q.remainingCapacity());
         q.add(new PDelay(1));
         assertFalse(q.isEmpty());
         q.add(new PDelay(2));
@@ -194,20 +217,19 @@ public class DelayQueueTest extends BlockingQueueTest {
     }
 
     /**
-     * remainingCapacity does not change when elements added or removed,
-     * but size does
+     * remainingCapacity() always returns Integer.MAX_VALUE
      */
     public void testRemainingCapacity() {
-        DelayQueue q = populatedQueue(SIZE);
+        BlockingQueue q = populatedQueue(SIZE);
         for (int i = 0; i < SIZE; ++i) {
-            assertEquals(NOCAP, q.remainingCapacity());
+            assertEquals(Integer.MAX_VALUE, q.remainingCapacity());
             assertEquals(SIZE-i, q.size());
-            q.remove();
+            assertTrue(q.remove() instanceof PDelay);
         }
         for (int i = 0; i < SIZE; ++i) {
-            assertEquals(NOCAP, q.remainingCapacity());
+            assertEquals(Integer.MAX_VALUE, q.remainingCapacity());
             assertEquals(i, q.size());
-            q.add(new PDelay(i));
+            assertTrue(q.add(new PDelay(i)));
         }
     }
 
@@ -278,9 +300,9 @@ public class DelayQueueTest extends BlockingQueueTest {
     public void testPut() {
         DelayQueue q = new DelayQueue();
         for (int i = 0; i < SIZE; ++i) {
-            PDelay I = new PDelay(i);
-            q.put(I);
-            assertTrue(q.contains(I));
+            PDelay x = new PDelay(i);
+            q.put(x);
+            assertTrue(q.contains(x));
         }
         assertEquals(SIZE, q.size());
     }
@@ -324,7 +346,7 @@ public class DelayQueueTest extends BlockingQueueTest {
     public void testTake() throws InterruptedException {
         DelayQueue q = populatedQueue(SIZE);
         for (int i = 0; i < SIZE; ++i) {
-            assertEquals(new PDelay(i), ((PDelay)q.take()));
+            assertEquals(new PDelay(i), q.take());
         }
     }
 
@@ -367,7 +389,7 @@ public class DelayQueueTest extends BlockingQueueTest {
     public void testPoll() {
         DelayQueue q = populatedQueue(SIZE);
         for (int i = 0; i < SIZE; ++i) {
-            assertEquals(new PDelay(i), ((PDelay)q.poll()));
+            assertEquals(new PDelay(i), q.poll());
         }
         assertNull(q.poll());
     }
@@ -378,7 +400,7 @@ public class DelayQueueTest extends BlockingQueueTest {
     public void testTimedPoll0() throws InterruptedException {
         DelayQueue q = populatedQueue(SIZE);
         for (int i = 0; i < SIZE; ++i) {
-            assertEquals(new PDelay(i), ((PDelay)q.poll(0, MILLISECONDS)));
+            assertEquals(new PDelay(i), q.poll(0, MILLISECONDS));
         }
         assertNull(q.poll(0, MILLISECONDS));
     }
@@ -390,7 +412,7 @@ public class DelayQueueTest extends BlockingQueueTest {
         DelayQueue q = populatedQueue(SIZE);
         for (int i = 0; i < SIZE; ++i) {
             long startTime = System.nanoTime();
-            assertEquals(new PDelay(i), ((PDelay)q.poll(LONG_DELAY_MS, MILLISECONDS)));
+            assertEquals(new PDelay(i), q.poll(LONG_DELAY_MS, MILLISECONDS));
             assertTrue(millisElapsedSince(startTime) < LONG_DELAY_MS);
         }
         long startTime = System.nanoTime();
@@ -439,8 +461,8 @@ public class DelayQueueTest extends BlockingQueueTest {
     public void testPeek() {
         DelayQueue q = populatedQueue(SIZE);
         for (int i = 0; i < SIZE; ++i) {
-            assertEquals(new PDelay(i), ((PDelay)q.peek()));
-            assertEquals(new PDelay(i), ((PDelay)q.poll()));
+            assertEquals(new PDelay(i), q.peek());
+            assertEquals(new PDelay(i), q.poll());
             if (q.isEmpty())
                 assertNull(q.peek());
             else
@@ -455,7 +477,7 @@ public class DelayQueueTest extends BlockingQueueTest {
     public void testElement() {
         DelayQueue q = populatedQueue(SIZE);
         for (int i = 0; i < SIZE; ++i) {
-            assertEquals(new PDelay(i), ((PDelay)q.element()));
+            assertEquals(new PDelay(i), q.element());
             q.poll();
         }
         try {
@@ -470,7 +492,7 @@ public class DelayQueueTest extends BlockingQueueTest {
     public void testRemove() {
         DelayQueue q = populatedQueue(SIZE);
         for (int i = 0; i < SIZE; ++i) {
-            assertEquals(new PDelay(i), ((PDelay)q.remove()));
+            assertEquals(new PDelay(i), q.remove());
         }
         try {
             q.remove();
@@ -498,7 +520,7 @@ public class DelayQueueTest extends BlockingQueueTest {
         q.clear();
         assertTrue(q.isEmpty());
         assertEquals(0, q.size());
-        assertEquals(NOCAP, q.remainingCapacity());
+        assertEquals(Integer.MAX_VALUE, q.remainingCapacity());
         PDelay x = new PDelay(1);
         q.add(x);
         assertFalse(q.isEmpty());
@@ -550,8 +572,8 @@ public class DelayQueueTest extends BlockingQueueTest {
             assertTrue(q.removeAll(p));
             assertEquals(SIZE-i, q.size());
             for (int j = 0; j < i; ++j) {
-                PDelay I = (PDelay)(p.remove());
-                assertFalse(q.contains(I));
+                PDelay x = (PDelay)(p.remove());
+                assertFalse(q.contains(x));
             }
         }
     }
@@ -603,6 +625,14 @@ public class DelayQueueTest extends BlockingQueueTest {
             ++i;
         }
         assertEquals(i, SIZE);
+        assertIteratorExhausted(it);
+    }
+
+    /**
+     * iterator of empty collection has no elements
+     */
+    public void testEmptyIterator() {
+        assertIteratorExhausted(new DelayQueue().iterator());
     }
 
     /**
@@ -763,4 +793,12 @@ public class DelayQueueTest extends BlockingQueueTest {
         }
     }
 
+    /**
+     * remove(null), contains(null) always return false
+     */
+    public void testNeverContainsNull() {
+        Collection<?> q = populatedQueue(SIZE);
+        assertFalse(q.contains(null));
+        assertFalse(q.remove(null));
+    }
 }

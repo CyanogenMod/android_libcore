@@ -8,14 +8,44 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.concurrent.*;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.*;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class ThreadPoolExecutorSubclassTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     static class CustomTask<V> implements RunnableFuture<V> {
         final Callable<V> callable;
@@ -33,7 +63,7 @@ public class ThreadPoolExecutorSubclassTest extends JSR166TestCase {
         CustomTask(final Runnable r, final V res) {
             if (r == null) throw new NullPointerException();
             callable = new Callable<V>() {
-            public V call() throws Exception { r.run(); return res; }};
+                public V call() throws Exception { r.run(); return res; }};
         }
         public boolean isDone() {
             lock.lock(); try { return done; } finally { lock.unlock() ; }
@@ -1244,11 +1274,10 @@ public class ThreadPoolExecutorSubclassTest extends JSR166TestCase {
         CustomTPE p = new CustomTPE();
         try {
             final CountDownLatch done = new CountDownLatch(1);
-            final CheckedRunnable task = new CheckedRunnable() {
+            p.execute(new CheckedRunnable() {
                 public void realRun() {
                     done.countDown();
-                }};
-            p.execute(task);
+                }});
             await(p.afterCalled);
             assertEquals(0, done.getCount());
             assertTrue(p.afterCalled());

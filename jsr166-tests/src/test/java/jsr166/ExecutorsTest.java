@@ -8,13 +8,36 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.*;
-import java.util.concurrent.*;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import java.security.*;
+
+import java.security.AccessControlContext;
+import java.security.AccessControlException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class ExecutorsTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     /**
      * A newCachedThreadPool can execute runnables
@@ -267,7 +290,6 @@ public class ExecutorsTest extends JSR166TestCase {
         for (final ExecutorService executor : executors) {
             threads.add(newStartedThread(new CheckedRunnable() {
                 public void realRun() {
-                    long startTime = System.nanoTime();
                     Future future = executor.submit(sleeper);
                     assertFutureTimesOut(future);
                 }}));
@@ -328,7 +350,7 @@ public class ExecutorsTest extends JSR166TestCase {
             public void realRun() throws Exception {
                 final ThreadGroup egroup = Thread.currentThread().getThreadGroup();
                 final ClassLoader thisccl = Thread.currentThread().getContextClassLoader();
-                // final AccessControlContext thisacc = AccessController.getContext(); // Android removed
+                final AccessControlContext thisacc = AccessController.getContext();
                 Runnable r = new CheckedRunnable() {
                     public void realRun() {
                         Thread current = Thread.currentThread();
@@ -343,7 +365,7 @@ public class ExecutorsTest extends JSR166TestCase {
                         String name = current.getName();
                         assertTrue(name.endsWith("thread-1"));
                         assertSame(thisccl, current.getContextClassLoader());
-                        // assertEquals(thisacc, AccessController.getContext()); // Android removed
+                        assertEquals(thisacc, AccessController.getContext());
                         done.countDown();
                     }};
                 ExecutorService e = Executors.newSingleThreadExecutor(Executors.privilegedThreadFactory());

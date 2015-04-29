@@ -8,13 +8,25 @@
 
 package jsr166;
 
-import junit.framework.*;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class AtomicLongFieldUpdaterTest extends JSR166TestCase {
     volatile long x = 0;
     int z;
     long w;
+
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     AtomicLongFieldUpdater<AtomicLongFieldUpdaterTest> updaterFor(String fieldName) {
         return AtomicLongFieldUpdater.newUpdater
@@ -127,10 +139,10 @@ public class AtomicLongFieldUpdaterTest extends JSR166TestCase {
         AtomicLongFieldUpdater<AtomicLongFieldUpdaterTest> a;
         a = updaterFor("x");
         x = 1;
-        while (!a.weakCompareAndSet(this, 1, 2));
-        while (!a.weakCompareAndSet(this, 2, -4));
+        do {} while (!a.weakCompareAndSet(this, 1, 2));
+        do {} while (!a.weakCompareAndSet(this, 2, -4));
         assertEquals(-4, a.get(this));
-        while (!a.weakCompareAndSet(this, -4, 7));
+        do {} while (!a.weakCompareAndSet(this, -4, 7));
         assertEquals(7, a.get(this));
     }
 

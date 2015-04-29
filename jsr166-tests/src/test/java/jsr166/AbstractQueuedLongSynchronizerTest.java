@@ -8,13 +8,29 @@
 
 package jsr166;
 
-import junit.framework.*;
-import java.util.*;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.locks.AbstractQueuedLongSynchronizer;
 import java.util.concurrent.locks.AbstractQueuedLongSynchronizer.ConditionObject;
 
+import junit.framework.AssertionFailedError;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 public class AbstractQueuedLongSynchronizerTest extends JSR166TestCase {
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     /**
      * A simple mutex class, adapted from the class javadoc.  Exclusive
@@ -83,7 +99,7 @@ public class AbstractQueuedLongSynchronizerTest extends JSR166TestCase {
         }
 
         public boolean tryReleaseShared(long ignore) {
-            setState(1 << 62);
+            setState(1L << 62);
             return true;
         }
     }
@@ -191,7 +207,7 @@ public class AbstractQueuedLongSynchronizerTest extends JSR166TestCase {
                      new HashSet<Thread>(Arrays.asList(threads)));
     }
 
-    enum AwaitMethod { await, awaitTimed, awaitNanos, awaitUntil };
+    enum AwaitMethod { await, awaitTimed, awaitNanos, awaitUntil }
 
     /**
      * Awaits condition using the specified AwaitMethod.
@@ -214,6 +230,8 @@ public class AbstractQueuedLongSynchronizerTest extends JSR166TestCase {
         case awaitUntil:
             assertTrue(c.awaitUntil(delayedDate(timeoutMillis)));
             break;
+        default:
+            throw new AssertionError();
         }
     }
 
@@ -1184,7 +1202,6 @@ public class AbstractQueuedLongSynchronizerTest extends JSR166TestCase {
     public void testTryAcquireSharedNanos_Timeout() {
         final BooleanLatch l = new BooleanLatch();
         final BooleanLatch observedQueued = new BooleanLatch();
-        final long timeoutMillis = timeoutMillis();
         Thread t = newStartedThread(new CheckedRunnable() {
             public void realRun() throws InterruptedException {
                 assertFalse(l.isSignalled());
@@ -1204,6 +1221,30 @@ public class AbstractQueuedLongSynchronizerTest extends JSR166TestCase {
         assertFalse(l.isSignalled());
         awaitTermination(t);
         assertFalse(l.isSignalled());
+    }
+
+    /**
+     * awaitNanos/timed await with 0 wait times out immediately
+     */
+    public void testAwait_Zero() throws InterruptedException {
+        final Mutex sync = new Mutex();
+        final ConditionObject c = sync.newCondition();
+        sync.acquire();
+        assertTrue(c.awaitNanos(0L) <= 0);
+        assertFalse(c.await(0L, NANOSECONDS));
+        sync.release();
+    }
+
+    /**
+     * awaitNanos/timed await with maximum negative wait times does not underflow
+     */
+    public void testAwait_NegativeInfinity() throws InterruptedException {
+        final Mutex sync = new Mutex();
+        final ConditionObject c = sync.newCondition();
+        sync.acquire();
+        assertTrue(c.awaitNanos(Long.MIN_VALUE) <= 0);
+        assertFalse(c.await(Long.MIN_VALUE, NANOSECONDS));
+        sync.release();
     }
 
 }

@@ -8,16 +8,29 @@
 
 package jsr166;
 
-import junit.framework.*;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 public class ConcurrentLinkedDequeTest extends JSR166TestCase {
+
+    // android-note: Removed because the CTS runner does a bad job of
+    // retrying tests that have suite() declarations.
+    //
+    // public static void main(String[] args) {
+    //     main(suite(), args);
+    // }
+    // public static Test suite() {
+    //     return new TestSuite(...);
+    // }
 
     /**
      * Returns a new deque of given size containing consecutive
@@ -46,7 +59,7 @@ public class ConcurrentLinkedDequeTest extends JSR166TestCase {
      */
     public void testConstructor3() {
         try {
-            ConcurrentLinkedDeque q = new ConcurrentLinkedDeque((Collection)null);
+            new ConcurrentLinkedDeque((Collection)null);
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -57,7 +70,7 @@ public class ConcurrentLinkedDequeTest extends JSR166TestCase {
     public void testConstructor4() {
         try {
             Integer[] ints = new Integer[SIZE];
-            ConcurrentLinkedDeque q = new ConcurrentLinkedDeque(Arrays.asList(ints));
+            new ConcurrentLinkedDeque(Arrays.asList(ints));
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -70,7 +83,7 @@ public class ConcurrentLinkedDequeTest extends JSR166TestCase {
             Integer[] ints = new Integer[SIZE];
             for (int i = 0; i < SIZE-1; ++i)
                 ints[i] = new Integer(i);
-            ConcurrentLinkedDeque q = new ConcurrentLinkedDeque(Arrays.asList(ints));
+            new ConcurrentLinkedDeque(Arrays.asList(ints));
             shouldThrow();
         } catch (NullPointerException success) {}
     }
@@ -428,13 +441,13 @@ public class ConcurrentLinkedDequeTest extends JSR166TestCase {
      */
     public void testRemoveElement() {
         ConcurrentLinkedDeque q = populatedDeque(SIZE);
-        for (int i = 1; i < SIZE; i+=2) {
+        for (int i = 1; i < SIZE; i += 2) {
             assertTrue(q.contains(i));
             assertTrue(q.remove(i));
             assertFalse(q.contains(i));
             assertTrue(q.contains(i-1));
         }
-        for (int i = 0; i < SIZE; i+=2) {
+        for (int i = 0; i < SIZE; i += 2) {
             assertTrue(q.contains(i));
             assertTrue(q.remove(i));
             assertFalse(q.contains(i));
@@ -538,10 +551,10 @@ public class ConcurrentLinkedDequeTest extends JSR166TestCase {
      */
     public void testRemoveFirstOccurrence() {
         ConcurrentLinkedDeque q = populatedDeque(SIZE);
-        for (int i = 1; i < SIZE; i+=2) {
+        for (int i = 1; i < SIZE; i += 2) {
             assertTrue(q.removeFirstOccurrence(new Integer(i)));
         }
-        for (int i = 0; i < SIZE; i+=2) {
+        for (int i = 0; i < SIZE; i += 2) {
             assertTrue(q.removeFirstOccurrence(new Integer(i)));
             assertFalse(q.removeFirstOccurrence(new Integer(i+1)));
         }
@@ -553,10 +566,10 @@ public class ConcurrentLinkedDequeTest extends JSR166TestCase {
      */
     public void testRemoveLastOccurrence() {
         ConcurrentLinkedDeque q = populatedDeque(SIZE);
-        for (int i = 1; i < SIZE; i+=2) {
+        for (int i = 1; i < SIZE; i += 2) {
             assertTrue(q.removeLastOccurrence(new Integer(i)));
         }
-        for (int i = 0; i < SIZE; i+=2) {
+        for (int i = 0; i < SIZE; i += 2) {
             assertTrue(q.removeLastOccurrence(new Integer(i)));
             assertFalse(q.removeLastOccurrence(new Integer(i+1)));
         }
@@ -632,8 +645,8 @@ public class ConcurrentLinkedDequeTest extends JSR166TestCase {
             assertTrue(q.removeAll(p));
             assertEquals(SIZE-i, q.size());
             for (int j = 0; j < i; ++j) {
-                Integer I = (Integer)(p.remove());
-                assertFalse(q.contains(I));
+                Integer x = (Integer)(p.remove());
+                assertFalse(q.contains(x));
             }
         }
     }
@@ -687,13 +700,21 @@ public class ConcurrentLinkedDequeTest extends JSR166TestCase {
      */
     public void testIterator() {
         ConcurrentLinkedDeque q = populatedDeque(SIZE);
-        int i = 0;
         Iterator it = q.iterator();
-        while (it.hasNext()) {
+        int i;
+        for (i = 0; it.hasNext(); i++)
             assertTrue(q.contains(it.next()));
-            ++i;
-        }
         assertEquals(i, SIZE);
+        assertIteratorExhausted(it);
+    }
+
+    /**
+     * iterator of empty collection has no elements
+     */
+    public void testEmptyIterator() {
+        Deque c = new ConcurrentLinkedDeque();
+        assertIteratorExhausted(c.iterator());
+        assertIteratorExhausted(c.descendingIterator());
     }
 
     /**
@@ -855,4 +876,30 @@ public class ConcurrentLinkedDequeTest extends JSR166TestCase {
         assertTrue(y.isEmpty());
     }
 
+    /**
+     * contains(null) always return false.
+     * remove(null) always throws NullPointerException.
+     */
+    public void testNeverContainsNull() {
+        Deque<?>[] qs = {
+            new ConcurrentLinkedDeque<Object>(),
+            populatedDeque(2),
+        };
+
+        for (Deque<?> q : qs) {
+            assertFalse(q.contains(null));
+            try {
+                assertFalse(q.remove(null));
+                shouldThrow();
+            } catch (NullPointerException success) {}
+            try {
+                assertFalse(q.removeFirstOccurrence(null));
+                shouldThrow();
+            } catch (NullPointerException success) {}
+            try {
+                assertFalse(q.removeLastOccurrence(null));
+                shouldThrow();
+            } catch (NullPointerException success) {}
+        }
+    }
 }
