@@ -5,6 +5,7 @@
  */
 
 package java.util.concurrent;
+
 import java.util.Collection;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 

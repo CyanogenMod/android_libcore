@@ -5,6 +5,7 @@
  */
 
 package java.util.concurrent.atomic;
+
 import dalvik.system.VMStack; // android-added
 import sun.misc.Unsafe;
 import java.lang.reflect.Field;
@@ -27,7 +28,7 @@ import java.lang.reflect.Modifier;
  *   private static AtomicReferenceFieldUpdater<Node, Node> rightUpdater =
  *     AtomicReferenceFieldUpdater.newUpdater(Node.class, Node.class, "right");
  *
- *   Node getLeft() { return left;  }
+ *   Node getLeft() { return left; }
  *   boolean compareAndSetLeft(Node expect, Node update) {
  *     return leftUpdater.compareAndSet(this, expect, update);
  *   }
@@ -63,10 +64,11 @@ public abstract class AtomicReferenceFieldUpdater<T,V> {
      * or the field is inaccessible to the caller according to Java language
      * access control
      */
-    public static <U, W> AtomicReferenceFieldUpdater<U,W> newUpdater(Class<U> tclass, Class<W> vclass, String fieldName) {
-        return new AtomicReferenceFieldUpdaterImpl<U,W>(tclass,
-                                                        vclass,
-                                                        fieldName);
+    public static <U,W> AtomicReferenceFieldUpdater<U,W> newUpdater(Class<U> tclass,
+                                                                    Class<W> vclass,
+                                                                    String fieldName) {
+        return new AtomicReferenceFieldUpdaterImpl<U,W>
+            (tclass, vclass, fieldName);
     }
 
     /**

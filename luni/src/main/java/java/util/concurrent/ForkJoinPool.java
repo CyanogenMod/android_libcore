@@ -12,14 +12,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 
 /**
  * An {@link ExecutorService} for running {@link ForkJoinTask}s.
@@ -498,6 +490,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      * (7) Exported methods
      * (8) Static block initializing statics in minimally dependent order
      */
+    // android-note: Removed references to CountedCompleters.
 
     // Static utilities
 
@@ -524,8 +517,8 @@ public class ForkJoinPool extends AbstractExecutorService {
          * Returns a new worker thread operating in the given pool.
          *
          * @param pool the pool this thread works in
-         * @throws NullPointerException if the pool is null
          * @return the new worker thread
+         * @throws NullPointerException if the pool is null
          */
         public ForkJoinWorkerThread newThread(ForkJoinPool pool);
     }
@@ -2090,7 +2083,7 @@ public class ForkJoinPool extends AbstractExecutorService {
                     w.currentSteal = ps;
                 }
             }
-            else if (active) {       // decrement active count without queuing
+            else if (active) {      // decrement active count without queuing
                 long nc = ((c = ctl) & ~AC_MASK) | ((c & AC_MASK) - AC_UNIT);
                 if ((int)(nc >> AC_SHIFT) + parallelism == 0)
                     break;          // bypass decrement-then-increment

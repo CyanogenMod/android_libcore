@@ -40,6 +40,9 @@ package java.util.concurrent;
  * @author Doug Lea
  */
 public enum TimeUnit {
+    /**
+     * Time unit representing one thousandth of a microsecond
+     */
     NANOSECONDS {
         public long toNanos(long d)   { return d; }
         public long toMicros(long d)  { return d/(C1/C0); }
@@ -51,6 +54,10 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toNanos(d); }
         int excessNanos(long d, long m) { return (int)(d - (m*C2)); }
     },
+
+    /**
+     * Time unit representing one thousandth of a millisecond
+     */
     MICROSECONDS {
         public long toNanos(long d)   { return x(d, C1/C0, MAX/(C1/C0)); }
         public long toMicros(long d)  { return d; }
@@ -62,6 +69,10 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toMicros(d); }
         int excessNanos(long d, long m) { return (int)((d*C1) - (m*C2)); }
     },
+
+    /**
+     * Time unit representing one thousandth of a second
+     */
     MILLISECONDS {
         public long toNanos(long d)   { return x(d, C2/C0, MAX/(C2/C0)); }
         public long toMicros(long d)  { return x(d, C2/C1, MAX/(C2/C1)); }
@@ -73,6 +84,10 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toMillis(d); }
         int excessNanos(long d, long m) { return 0; }
     },
+
+    /**
+     * Time unit representing one second
+     */
     SECONDS {
         public long toNanos(long d)   { return x(d, C3/C0, MAX/(C3/C0)); }
         public long toMicros(long d)  { return x(d, C3/C1, MAX/(C3/C1)); }
@@ -84,6 +99,11 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toSeconds(d); }
         int excessNanos(long d, long m) { return 0; }
     },
+
+    /**
+     * Time unit representing sixty seconds
+     * @since 1.6
+     */
     MINUTES {
         public long toNanos(long d)   { return x(d, C4/C0, MAX/(C4/C0)); }
         public long toMicros(long d)  { return x(d, C4/C1, MAX/(C4/C1)); }
@@ -95,6 +115,11 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toMinutes(d); }
         int excessNanos(long d, long m) { return 0; }
     },
+
+    /**
+     * Time unit representing sixty minutes
+     * @since 1.6
+     */
     HOURS {
         public long toNanos(long d)   { return x(d, C5/C0, MAX/(C5/C0)); }
         public long toMicros(long d)  { return x(d, C5/C1, MAX/(C5/C1)); }
@@ -106,6 +131,11 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toHours(d); }
         int excessNanos(long d, long m) { return 0; }
     },
+
+    /**
+     * Time unit representing twenty four hours
+     * @since 1.6
+     */
     DAYS {
         public long toNanos(long d)   { return x(d, C6/C0, MAX/(C6/C0)); }
         public long toMicros(long d)  { return x(d, C6/C1, MAX/(C6/C1)); }
@@ -145,14 +175,13 @@ public enum TimeUnit {
     // etc. are not declared abstract but otherwise act as abstract methods.
 
     /**
-     * Convert the given time duration in the given unit to this
-     * unit.  Conversions from finer to coarser granularities
-     * truncate, so lose precision. For example converting
-     * {@code 999} milliseconds to seconds results in
-     * {@code 0}. Conversions from coarser to finer granularities
-     * with arguments that would numerically overflow saturate to
-     * {@code Long.MIN_VALUE} if negative or {@code Long.MAX_VALUE}
-     * if positive.
+     * Converts the given time duration in the given unit to this unit.
+     * Conversions from finer to coarser granularities truncate, so
+     * lose precision. For example, converting {@code 999} milliseconds
+     * to seconds results in {@code 0}. Conversions from coarser to
+     * finer granularities with arguments that would numerically
+     * overflow saturate to {@code Long.MIN_VALUE} if negative or
+     * {@code Long.MAX_VALUE} if positive.
      *
      * <p>For example, to convert 10 minutes to milliseconds, use:
      * {@code TimeUnit.MILLISECONDS.convert(10L, TimeUnit.MINUTES)}
@@ -168,60 +197,60 @@ public enum TimeUnit {
     }
 
     /**
-     * Equivalent to {@code NANOSECONDS.convert(duration, this)}.
+     * Equivalent to
+     * {@link #convert(long, TimeUnit) NANOSECONDS.convert(duration, this)}.
      * @param duration the duration
      * @return the converted duration,
      * or {@code Long.MIN_VALUE} if conversion would negatively
      * overflow, or {@code Long.MAX_VALUE} if it would positively overflow.
-     * @see #convert
      */
     public long toNanos(long duration) {
         throw new AbstractMethodError();
     }
 
     /**
-     * Equivalent to {@code MICROSECONDS.convert(duration, this)}.
+     * Equivalent to
+     * {@link #convert(long, TimeUnit) MICROSECONDS.convert(duration, this)}.
      * @param duration the duration
      * @return the converted duration,
      * or {@code Long.MIN_VALUE} if conversion would negatively
      * overflow, or {@code Long.MAX_VALUE} if it would positively overflow.
-     * @see #convert
      */
     public long toMicros(long duration) {
         throw new AbstractMethodError();
     }
 
     /**
-     * Equivalent to {@code MILLISECONDS.convert(duration, this)}.
+     * Equivalent to
+     * {@link #convert(long, TimeUnit) MILLISECONDS.convert(duration, this)}.
      * @param duration the duration
      * @return the converted duration,
      * or {@code Long.MIN_VALUE} if conversion would negatively
      * overflow, or {@code Long.MAX_VALUE} if it would positively overflow.
-     * @see #convert
      */
     public long toMillis(long duration) {
         throw new AbstractMethodError();
     }
 
     /**
-     * Equivalent to {@code SECONDS.convert(duration, this)}.
+     * Equivalent to
+     * {@link #convert(long, TimeUnit) SECONDS.convert(duration, this)}.
      * @param duration the duration
      * @return the converted duration,
      * or {@code Long.MIN_VALUE} if conversion would negatively
      * overflow, or {@code Long.MAX_VALUE} if it would positively overflow.
-     * @see #convert
      */
     public long toSeconds(long duration) {
         throw new AbstractMethodError();
     }
 
     /**
-     * Equivalent to {@code MINUTES.convert(duration, this)}.
+     * Equivalent to
+     * {@link #convert(long, TimeUnit) MINUTES.convert(duration, this)}.
      * @param duration the duration
      * @return the converted duration,
      * or {@code Long.MIN_VALUE} if conversion would negatively
      * overflow, or {@code Long.MAX_VALUE} if it would positively overflow.
-     * @see #convert
      * @since 1.6
      */
     public long toMinutes(long duration) {
@@ -229,12 +258,12 @@ public enum TimeUnit {
     }
 
     /**
-     * Equivalent to {@code HOURS.convert(duration, this)}.
+     * Equivalent to
+     * {@link #convert(long, TimeUnit) HOURS.convert(duration, this)}.
      * @param duration the duration
      * @return the converted duration,
      * or {@code Long.MIN_VALUE} if conversion would negatively
      * overflow, or {@code Long.MAX_VALUE} if it would positively overflow.
-     * @see #convert
      * @since 1.6
      */
     public long toHours(long duration) {
@@ -242,10 +271,10 @@ public enum TimeUnit {
     }
 
     /**
-     * Equivalent to {@code DAYS.convert(duration, this)}.
+     * Equivalent to
+     * {@link #convert(long, TimeUnit) DAYS.convert(duration, this)}.
      * @param duration the duration
      * @return the converted duration
-     * @see #convert
      * @since 1.6
      */
     public long toDays(long duration) {
