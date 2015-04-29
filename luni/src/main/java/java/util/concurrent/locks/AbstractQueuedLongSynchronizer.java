@@ -5,6 +5,7 @@
  */
 
 package java.util.concurrent.locks;
+
 import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -227,7 +228,7 @@ public abstract class AbstractQueuedLongSynchronizer
         Node nextWaiter;
 
         /**
-         * @return true if node is waiting in shared mode
+         * Returns true if node is waiting in shared mode.
          */
         final boolean isShared() {
             return nextWaiter == SHARED;
@@ -403,9 +404,9 @@ public abstract class AbstractQueuedLongSynchronizer
         Node s = node.next;
         if (s == null || s.waitStatus > 0) {
             s = null;
-            for (Node t = tail; t != null && t != node; t = t.prev)
-                if (t.waitStatus <= 0)
-                    s = t;
+            for (Node p = tail; p != null && p != node; p = p.prev)
+                if (p.waitStatus <= 0)
+                    s = p;
         }
         if (s != null)
             LockSupport.unpark(s.thread);
@@ -1397,13 +1398,13 @@ public abstract class AbstractQueuedLongSynchronizer
      * @return true if present
      */
     private boolean findNodeFromTail(Node node) {
-        Node t = tail;
+        Node p = tail;
         for (;;) {
-            if (t == node)
+            if (p == node)
                 return true;
-            if (t == null)
+            if (p == null)
                 return false;
-            t = t.prev;
+            p = p.prev;
         }
     }
 
@@ -1814,6 +1815,7 @@ public abstract class AbstractQueuedLongSynchronizer
                 throws InterruptedException {
             if (Thread.interrupted())
                 throw new InterruptedException();
+            long initialNanos = nanosTimeout;
             Node node = addConditionWaiter();
             long savedState = fullyRelease(node);
             final long deadline = System.nanoTime() + nanosTimeout;
@@ -1835,7 +1837,8 @@ public abstract class AbstractQueuedLongSynchronizer
                 unlinkCancelledWaiters();
             if (interruptMode != 0)
                 reportInterruptAfterWait(interruptMode);
-            return deadline - System.nanoTime();
+            long remaining = deadline - System.nanoTime(); // avoid overflow
+            return (remaining < initialNanos) ? remaining : Long.MIN_VALUE;
         }
 
         /**
@@ -2027,6 +2030,10 @@ public abstract class AbstractQueuedLongSynchronizer
                 (Node.class.getDeclaredField("next"));
 
         } catch (Exception ex) { throw new Error(ex); }
+
+        // Reduce the risk of rare disastrous classloading in first call to
+        // LockSupport.park: https://bugs.openjdk.java.net/browse/JDK-8074773
+        Class<?> ensureLoaded = LockSupport.class;
     }
 
     /**

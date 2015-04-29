@@ -10,9 +10,9 @@ import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
@@ -99,7 +98,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  */
-public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
+// android-note: removed documentation about hidden newKeySet and newKeySet(int) APIs.
+// android-note: Added "extends AbstractMap<K, V>.
+public class ConcurrentHashMap<K,V> extends AbstractMap<K, V>
         implements ConcurrentMap<K,V>, Serializable {
     private static final long serialVersionUID = 7249069246763182397L;
 
@@ -208,14 +209,15 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
      * The table is resized when occupancy exceeds a percentage
      * threshold (nominally, 0.75, but see below).  Any thread
      * noticing an overfull bin may assist in resizing after the
-     * initiating thread allocates and sets up the replacement
-     * array. However, rather than stalling, these other threads may
-     * proceed with insertions etc.  The use of TreeBins shields us
-     * from the worst case effects of overfilling while resizes are in
+     * initiating thread allocates and sets up the replacement array.
+     * However, rather than stalling, these other threads may proceed
+     * with insertions etc.  The use of TreeBins shields us from the
+     * worst case effects of overfilling while resizes are in
      * progress.  Resizing proceeds by transferring bins, one by one,
-     * from the table to the next table. To enable concurrency, the
-     * next table must be (incrementally) prefilled with place-holders
-     * serving as reverse forwarders to the old table.  Because we are
+     * from the table to the next table. However, threads claim small
+     * blocks of indices to transfer (via field transferIndex) before
+     * doing so, reducing contention.  A generation stamp in field
+     * sizeCtl ensures that resizings do not overlap. Because we are
      * using power-of-two expansion, the elements from each bin must
      * either stay at same index, or move with a power of two
      * offset. We eliminate unnecessary node creation by catching
@@ -236,13 +238,19 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
      * locks, average aggregate waits become shorter as resizing
      * progresses.  The transfer operation must also ensure that all
      * accessible bins in both the old and new table are usable by any
-     * traversal.  This is arranged by proceeding from the last bin
-     * (table.length - 1) up towards the first.  Upon seeing a
-     * forwarding node, traversals (see class Traverser) arrange to
-     * move to the new table without revisiting nodes.  However, to
-     * ensure that no intervening nodes are skipped, bin splitting can
-     * only begin after the associated reverse-forwarders are in
-     * place.
+     * traversal.  This is arranged in part by proceeding from the
+     * last bin (table.length - 1) up towards the first.  Upon seeing
+     * a forwarding node, traversals (see class Traverser) arrange to
+     * move to the new table without revisiting nodes.  To ensure that
+     * no intervening nodes are skipped even when moved out of order,
+     * a stack (see class TableStack) is created on first encounter of
+     * a forwarding node during a traversal, to maintain its place if
+     * later processing the current table. The need for these
+     * save/restore mechanics is relatively rare, but when one
+     * forwarding node is encountered, typically many more will be.
+     * So Traversers use a simple caching scheme to avoid creating so
+     * many new TableStack nodes. (Thanks to Peter Levart for
+     * suggesting use of a stack here.)
      *
      * The traversal scheme also applies to partial traversals of
      * ranges of bins (via an alternate Traverser constructor)
@@ -274,16 +282,18 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
      * related operations (which is the main reason we cannot use
      * existing collections such as TreeMaps). TreeBins contain
      * Comparable elements, but may contain others, as well as
-     * elements that are Comparable but not necessarily Comparable
-     * for the same T, so we cannot invoke compareTo among them. To
-     * handle this, the tree is ordered primarily by hash value, then
-     * by Comparable.compareTo order if applicable.  On lookup at a
-     * node, if elements are not comparable or compare as 0 then both
-     * left and right children may need to be searched in the case of
-     * tied hash values. (This corresponds to the full list search
-     * that would be necessary if all elements were non-Comparable and
-     * had tied hashes.)  The red-black balancing code is updated from
-     * pre-jdk-collections
+     * elements that are Comparable but not necessarily Comparable for
+     * the same T, so we cannot invoke compareTo among them. To handle
+     * this, the tree is ordered primarily by hash value, then by
+     * Comparable.compareTo order if applicable.  On lookup at a node,
+     * if elements are not comparable or compare as 0 then both left
+     * and right children may need to be searched in the case of tied
+     * hash values. (This corresponds to the full list search that
+     * would be necessary if all elements were non-Comparable and had
+     * tied hashes.) On insertion, to keep a total ordering (or as
+     * close as is required here) across rebalancings, we compare
+     * classes and identityHashCodes as tie-breakers. The red-black
+     * balancing code is updated from pre-jdk-collections
      * (http://gee.cs.oswego.edu/dl/classes/collections/RBCell.java)
      * based in turn on Cormen, Leiserson, and Rivest "Introduction to
      * Algorithms" (CLR).
@@ -313,6 +323,10 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
      * unused "Segment" class that is instantiated in minimal form
      * only when serializing.
      *
+     * Also, solely for compatibility with previous versions of this
+     * class, it extends AbstractMap, even though all of its methods
+     * are overridden, so it is just useless baggage.
+     *
      * This file is organized to make things a little easier to follow
      * while reading than they might otherwise: First the main static
      * declarations and utilities, then fields, then main public
@@ -320,6 +334,7 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
      * internal ones), then sizing methods, trees, traversers, and
      * bulk operations.
      */
+
 
     /* ---------------- Constants -------------- */
 
@@ -392,6 +407,23 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
      * DEFAULT_CAPACITY.
      */
     private static final int MIN_TRANSFER_STRIDE = 16;
+
+    /**
+     * The number of bits used for generation stamp in sizeCtl.
+     * Must be at least 6 for 32bit arrays.
+     */
+    private static int RESIZE_STAMP_BITS = 16;
+
+    /**
+     * The maximum number of threads that can help resize.
+     * Must fit in 32 - RESIZE_STAMP_BITS bits.
+     */
+    private static final int MAX_RESIZERS = (1 << (32 - RESIZE_STAMP_BITS)) - 1;
+
+    /**
+     * The bit shift for recording size stamp in sizeCtl.
+     */
+    private static final int RESIZE_STAMP_SHIFT = 32 - RESIZE_STAMP_BITS;
 
     /*
      * Encodings for Node hash fields. See above for explanation.
@@ -504,7 +536,6 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
         return (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
     }
 
-
     /**
      * Returns x's Class if it is of the form "class C implements
      * Comparable<C>", else null.
@@ -603,11 +634,6 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
      * The next table index (plus one) to split while resizing.
      */
     private transient volatile int transferIndex;
-
-    /**
-     * The least available table index to split while resizing.
-     */
-    private transient volatile int transferOrigin;
 
     /**
      * Spinlock (locked via CAS) used when resizing and/or creating CounterCells.
@@ -1035,8 +1061,8 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
      * reflect any modifications subsequent to construction.
      *
      * @return the set view
-     *
      */
+    // android-note : changed KeySetView<K,V> to Set<K> to maintain API compatibility.
     public Set<K> keySet() {
         KeySetView<K,V> ks;
         return (ks = keySet) != null ? ks : (keySet = new KeySetView<K,V>(this, null));
@@ -1209,9 +1235,10 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
             new Segment<?,?>[DEFAULT_CONCURRENCY_LEVEL];
         for (int i = 0; i < segments.length; ++i)
             segments[i] = new Segment<K,V>(LOAD_FACTOR);
-        s.putFields().put("segments", segments);
-        s.putFields().put("segmentShift", segmentShift);
-        s.putFields().put("segmentMask", segmentMask);
+        java.io.ObjectOutputStream.PutField streamFields = s.putFields();
+        streamFields.put("segments", segments);
+        streamFields.put("segmentShift", segmentShift);
+        streamFields.put("segmentMask", segmentMask);
         s.writeFields();
 
         Node<K,V>[] t;
@@ -1264,8 +1291,8 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
                 int sz = (int)size;
                 n = tableSizeFor(sz + (sz >>> 1) + 1);
             }
-            @SuppressWarnings({"rawtypes","unchecked"})
-                Node<K,V>[] tab = (Node<K,V>[])new Node[n];
+            @SuppressWarnings("unchecked")
+                Node<K,V>[] tab = (Node<K,V>[])new Node<?,?>[n];
             int mask = n - 1;
             long added = 0L;
             while (p != null) {
@@ -1377,9 +1404,13 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
 
     /**
      * Legacy method testing if some key maps into the specified value
-     * in this table.  This method is identical in functionality to
+     * in this table.
+     *
+     * This method is identical in functionality to
      * {@link #containsValue(Object)}, and exists solely to ensure
-     * full compatibility with class {@link java.util.Hashtable}.
+     * full compatibility with class {@link java.util.Hashtable},
+     * which supported this method prior to introduction of the
+     * Java Collections framework.
      *
      * @param  value a value to search for
      * @return {@code true} if and only if some key maps to the
@@ -1388,6 +1419,7 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
      *         {@code false} otherwise
      * @throws NullPointerException if the specified value is null
      */
+    // android-note : removed @deprecated tag from javadoc.
     public boolean contains(Object value) {
         // BEGIN android-note
         // removed deprecation
@@ -1442,6 +1474,7 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
      * Creates a new {@link Set} backed by a ConcurrentHashMap
      * from the given type to {@code Boolean.TRUE}.
      *
+     * @param <K> the element type of the returned set
      * @return the new set
      * @since 1.8
      *
@@ -1458,9 +1491,10 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
      *
      * @param initialCapacity The implementation performs internal
      * sizing to accommodate this many elements.
+     * @param <K> the element type of the returned set
+     * @return the new set
      * @throws IllegalArgumentException if the initial capacity of
      * elements is negative
-     * @return the new set
      * @since 1.8
      *
      * @hide
@@ -1483,7 +1517,7 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
      *
      * @hide
      */
-    public Set<K> keySet(V mappedValue) {
+    public KeySetView<K,V> keySet(V mappedValue) {
         if (mappedValue == null)
             throw new NullPointerException();
         return new KeySetView<K,V>(this, mappedValue);
@@ -1535,6 +1569,14 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
     /* ---------------- Table Initialization and Resizing -------------- */
 
     /**
+     * Returns the stamp bits for resizing a table of size n.
+     * Must be negative when shifted left by RESIZE_STAMP_SHIFT.
+     */
+    static final int resizeStamp(int n) {
+        return Integer.numberOfLeadingZeros(n) | (1 << (RESIZE_STAMP_BITS - 1));
+    }
+
+    /**
      * Initializes table, using the size recorded in sizeCtl.
      */
     private final Node<K,V>[] initTable() {
@@ -1546,8 +1588,8 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
                 try {
                     if ((tab = table) == null || tab.length == 0) {
                         int n = (sc > 0) ? sc : DEFAULT_CAPACITY;
-                        @SuppressWarnings({"rawtypes","unchecked"})
-                            Node<K,V>[] nt = (Node<K,V>[])new Node[n];
+                        @SuppressWarnings("unchecked")
+                        Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n];
                         table = tab = nt;
                         sc = n - (n >>> 2);
                     }
@@ -1589,17 +1631,20 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
             s = sumCount();
         }
         if (check >= 0) {
-            Node<K,V>[] tab, nt; int sc;
+            Node<K,V>[] tab, nt; int n, sc;
             while (s >= (long)(sc = sizeCtl) && (tab = table) != null &&
-                   tab.length < MAXIMUM_CAPACITY) {
+                   (n = tab.length) < MAXIMUM_CAPACITY) {
+                int rs = resizeStamp(n);
                 if (sc < 0) {
-                    if (sc == -1 || transferIndex <= transferOrigin ||
-                        (nt = nextTable) == null)
+                    if ((sc >>> RESIZE_STAMP_SHIFT) != rs || sc == rs + 1 ||
+                        sc == rs + MAX_RESIZERS || (nt = nextTable) == null ||
+                        transferIndex <= 0)
                         break;
-                    if (U.compareAndSwapInt(this, SIZECTL, sc, sc - 1))
+                    if (U.compareAndSwapInt(this, SIZECTL, sc, sc + 1))
                         transfer(tab, nt);
                 }
-                else if (U.compareAndSwapInt(this, SIZECTL, sc, -2))
+                else if (U.compareAndSwapInt(this, SIZECTL, sc,
+                                             (rs << RESIZE_STAMP_SHIFT) + 2))
                     transfer(tab, null);
                 s = sumCount();
             }
@@ -1611,12 +1656,19 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
      */
     final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
         Node<K,V>[] nextTab; int sc;
-        if ((f instanceof ForwardingNode) &&
+        if (tab != null && (f instanceof ForwardingNode) &&
             (nextTab = ((ForwardingNode<K,V>)f).nextTable) != null) {
-            if (nextTab == nextTable && tab == table &&
-                transferIndex > transferOrigin && (sc = sizeCtl) < -1 &&
-                U.compareAndSwapInt(this, SIZECTL, sc, sc - 1))
-                transfer(tab, nextTab);
+            int rs = resizeStamp(tab.length);
+            while (nextTab == nextTable && table == tab &&
+                   (sc = sizeCtl) < 0) {
+                if ((sc >>> RESIZE_STAMP_SHIFT) != rs || sc == rs + 1 ||
+                    sc == rs + MAX_RESIZERS || transferIndex <= 0)
+                    break;
+                if (U.compareAndSwapInt(this, SIZECTL, sc, sc + 1)) {
+                    transfer(tab, nextTab);
+                    break;
+                }
+            }
             return nextTab;
         }
         return table;
@@ -1638,8 +1690,8 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
                 if (U.compareAndSwapInt(this, SIZECTL, sc, -1)) {
                     try {
                         if (table == tab) {
-                            @SuppressWarnings({"rawtypes","unchecked"})
-                                Node<K,V>[] nt = (Node<K,V>[])new Node[n];
+                            @SuppressWarnings("unchecked")
+                            Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n];
                             table = nt;
                             sc = n - (n >>> 2);
                         }
@@ -1650,9 +1702,21 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
             }
             else if (c <= sc || n >= MAXIMUM_CAPACITY)
                 break;
-            else if (tab == table &&
-                     U.compareAndSwapInt(this, SIZECTL, sc, -2))
-                transfer(tab, null);
+            else if (tab == table) {
+                int rs = resizeStamp(n);
+                if (sc < 0) {
+                    Node<K,V>[] nt;
+                    if ((sc >>> RESIZE_STAMP_SHIFT) != rs || sc == rs + 1 ||
+                        sc == rs + MAX_RESIZERS || (nt = nextTable) == null ||
+                        transferIndex <= 0)
+                        break;
+                    if (U.compareAndSwapInt(this, SIZECTL, sc, sc + 1))
+                        transfer(tab, nt);
+                }
+                else if (U.compareAndSwapInt(this, SIZECTL, sc,
+                                             (rs << RESIZE_STAMP_SHIFT) + 2))
+                    transfer(tab, null);
+            }
         }
     }
 
@@ -1666,35 +1730,27 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
             stride = MIN_TRANSFER_STRIDE; // subdivide range
         if (nextTab == null) {            // initiating
             try {
-                @SuppressWarnings({"rawtypes","unchecked"})
-                    Node<K,V>[] nt = (Node<K,V>[])new Node[n << 1];
+                @SuppressWarnings("unchecked")
+                Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n << 1];
                 nextTab = nt;
             } catch (Throwable ex) {      // try to cope with OOME
                 sizeCtl = Integer.MAX_VALUE;
                 return;
             }
             nextTable = nextTab;
-            transferOrigin = n;
             transferIndex = n;
-            ForwardingNode<K,V> rev = new ForwardingNode<K,V>(tab);
-            for (int k = n; k > 0;) {    // progressively reveal ready slots
-                int nextk = (k > stride) ? k - stride : 0;
-                for (int m = nextk; m < k; ++m)
-                    nextTab[m] = rev;
-                for (int m = n + nextk; m < n + k; ++m)
-                    nextTab[m] = rev;
-                U.putOrderedInt(this, TRANSFERORIGIN, k = nextk);
-            }
         }
         int nextn = nextTab.length;
         ForwardingNode<K,V> fwd = new ForwardingNode<K,V>(nextTab);
         boolean advance = true;
+        boolean finishing = false; // to ensure sweep before committing nextTab
         for (int i = 0, bound = 0;;) {
-            int nextIndex, nextBound, fh; Node<K,V> f;
+            Node<K,V> f; int fh;
             while (advance) {
-                if (--i >= bound)
+                int nextIndex, nextBound;
+                if (--i >= bound || finishing)
                     advance = false;
-                else if ((nextIndex = transferIndex) <= transferOrigin) {
+                else if ((nextIndex = transferIndex) <= 0) {
                     i = -1;
                     advance = false;
                 }
@@ -1708,24 +1764,22 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
                 }
             }
             if (i < 0 || i >= n || i + n >= nextn) {
-                for (int sc;;) {
-                    if (U.compareAndSwapInt(this, SIZECTL, sc = sizeCtl, ++sc)) {
-                        if (sc == -1) {
-                            nextTable = null;
-                            table = nextTab;
-                            sizeCtl = (n << 1) - (n >>> 1);
-                        }
+                int sc;
+                if (finishing) {
+                    nextTable = null;
+                    table = nextTab;
+                    sizeCtl = (n << 1) - (n >>> 1);
+                    return;
+                }
+                if (U.compareAndSwapInt(this, SIZECTL, sc = sizeCtl, sc - 1)) {
+                    if ((sc - 2) != resizeStamp(n) << RESIZE_STAMP_SHIFT)
                         return;
-                    }
+                    finishing = advance = true;
+                    i = n; // recheck before commit
                 }
             }
-            else if ((f = tabAt(tab, i)) == null) {
-                if (casTabAt(tab, i, null, fwd)) {
-                    setTabAt(nextTab, i, null);
-                    setTabAt(nextTab, i + n, null);
-                    advance = true;
-                }
-            }
+            else if ((f = tabAt(tab, i)) == null)
+                advance = casTabAt(tab, i, null, fwd);
             else if ((fh = f.hash) == MOVED)
                 advance = true; // already processed
             else {
@@ -1757,6 +1811,10 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
                                 else
                                     hn = new Node<K,V>(ph, pk, pv, hn);
                             }
+                            setTabAt(nextTab, i, ln);
+                            setTabAt(nextTab, i + n, hn);
+                            setTabAt(tab, i, fwd);
+                            advance = true;
                         }
                         else if (f instanceof TreeBin) {
                             TreeBin<K,V> t = (TreeBin<K,V>)f;
@@ -1788,13 +1846,11 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
                                 (hc != 0) ? new TreeBin<K,V>(lo) : t;
                             hn = (hc <= UNTREEIFY_THRESHOLD) ? untreeify(hi) :
                                 (lc != 0) ? new TreeBin<K,V>(hi) : t;
+                            setTabAt(nextTab, i, ln);
+                            setTabAt(nextTab, i + n, hn);
+                            setTabAt(tab, i, fwd);
+                            advance = true;
                         }
-                        else
-                            ln = hn = null;
-                        setTabAt(nextTab, i, ln);
-                        setTabAt(nextTab, i + n, hn);
-                        setTabAt(tab, i, fwd);
-                        advance = true;
                     }
                 }
             }
@@ -1810,12 +1866,9 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
     private final void treeifyBin(Node<K,V>[] tab, int index) {
         Node<K,V> b; int n, sc;
         if (tab != null) {
-            if ((n = tab.length) < MIN_TREEIFY_CAPACITY) {
-                if (tab == table && (sc = sizeCtl) >= 0 &&
-                    U.compareAndSwapInt(this, SIZECTL, sc, -2))
-                    transfer(tab, null);
-            }
-            else if ((b = tabAt(tab, index)) != null) {
+            if ((n = tab.length) < MIN_TREEIFY_CAPACITY)
+                tryPresize(n << 1);
+            else if ((b = tabAt(tab, index)) != null && b.hash >= 0) {
                 synchronized (b) {
                     if (tabAt(tab, index) == b) {
                         TreeNode<K,V> hd = null, tl = null;
@@ -1881,7 +1934,7 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
         final TreeNode<K,V> findTreeNode(int h, Object k, Class<?> kc) {
             if (k != null) {
                 TreeNode<K,V> p = this;
-                do  {
+                do {
                     int ph, dir; K pk; TreeNode<K,V> q;
                     TreeNode<K,V> pl = p.left, pr = p.right;
                     if ((ph = p.hash) > h)
@@ -1890,24 +1943,24 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
                         p = pr;
                     else if ((pk = p.key) == k || (pk != null && k.equals(pk)))
                         return p;
-                    else if (pl == null && pr == null)
-                        break;
+                    else if (pl == null)
+                        p = pr;
+                    else if (pr == null)
+                        p = pl;
                     else if ((kc != null ||
                               (kc = comparableClassFor(k)) != null) &&
                              (dir = compareComparables(kc, k, pk)) != 0)
                         p = (dir < 0) ? pl : pr;
-                    else if (pl == null)
-                        p = pr;
-                    else if (pr == null ||
-                             (q = pr.findTreeNode(h, k, kc)) == null)
-                        p = pl;
-                    else
+                    else if ((q = pr.findTreeNode(h, k, kc)) != null)
                         return q;
+                    else
+                        p = pl;
                 } while (p != null);
             }
             return null;
         }
     }
+
 
     /* ---------------- TreeBins -------------- */
 
@@ -1929,6 +1982,23 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
         static final int READER = 4; // increment value for setting read lock
 
         /**
+         * Tie-breaking utility for ordering insertions when equal
+         * hashCodes and non-comparable. We don't require a total
+         * order, just a consistent insertion rule to maintain
+         * equivalence across rebalancings. Tie-breaking further than
+         * necessary simplifies testing a bit.
+         */
+        static int tieBreakOrder(Object a, Object b) {
+            int d;
+            if (a == null || b == null ||
+                (d = a.getClass().getName().
+                 compareTo(b.getClass().getName())) == 0)
+                d = (System.identityHashCode(a) <= System.identityHashCode(b) ?
+                     -1 : 1);
+            return d;
+        }
+
+        /**
          * Creates bin with initial set of nodes headed by b.
          */
         TreeBin(TreeNode<K,V> b) {
@@ -1944,21 +2014,21 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
                     r = x;
                 }
                 else {
-                    Object key = x.key;
-                    int hash = x.hash;
+                    K k = x.key;
+                    int h = x.hash;
                     Class<?> kc = null;
                     for (TreeNode<K,V> p = r;;) {
                         int dir, ph;
-                        if ((ph = p.hash) > hash)
+                        K pk = p.key;
+                        if ((ph = p.hash) > h)
                             dir = -1;
-                        else if (ph < hash)
+                        else if (ph < h)
                             dir = 1;
-                        else if ((kc != null ||
-                                  (kc = comparableClassFor(key)) != null))
-                            dir = compareComparables(kc, key, p.key);
-                        else
-                            dir = 0;
-                        TreeNode<K,V> xp = p;
+                        else if ((kc == null &&
+                                  (kc = comparableClassFor(k)) == null) ||
+                                 (dir = compareComparables(kc, k, pk)) == 0)
+                            dir = tieBreakOrder(k, pk);
+                            TreeNode<K,V> xp = p;
                         if ((p = (dir <= 0) ? p.left : p.right) == null) {
                             x.parent = xp;
                             if (dir <= 0)
@@ -1972,6 +2042,7 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
                 }
             }
             this.root = r;
+            assert checkInvariants(root);
         }
 
         /**
@@ -1995,7 +2066,7 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
         private final void contendedLock() {
             boolean waiting = false;
             for (int s;;) {
-                if (((s = lockState) & WRITER) == 0) {
+                if (((s = lockState) & ~WAITER) == 0) {
                     if (U.compareAndSwapInt(this, LOCKSTATE, s, WRITER)) {
                         if (waiting)
                             waiter = null;
@@ -2020,12 +2091,13 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
          */
         final Node<K,V> find(int h, Object k) {
             if (k != null) {
-                for (Node<K,V> e = first; e != null; e = e.next) {
+                for (Node<K,V> e = first; e != null; ) {
                     int s; K ek;
                     if (((s = lockState) & (WAITER|WRITER)) != 0) {
                         if (e.hash == h &&
                             ((ek = e.key) == k || (ek != null && k.equals(ek))))
                             return e;
+                        e = e.next;
                     }
                     else if (U.compareAndSwapInt(this, LOCKSTATE, s,
                                                  s + READER)) {
@@ -2054,10 +2126,15 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
          * Finds or adds a node.
          * @return null if added
          */
+        /**
+         * Finds or adds a node.
+         * @return null if added
+         */
         final TreeNode<K,V> putTreeVal(int h, K k, V v) {
             Class<?> kc = null;
+            boolean searched = false;
             for (TreeNode<K,V> p = root;;) {
-                int dir, ph; K pk; TreeNode<K,V> q, pr;
+                int dir, ph; K pk;
                 if (p == null) {
                     first = root = new TreeNode<K,V>(h, k, v, null, null);
                     break;
@@ -2071,21 +2148,25 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
                 else if ((kc == null &&
                           (kc = comparableClassFor(k)) == null) ||
                          (dir = compareComparables(kc, k, pk)) == 0) {
-                    if (p.left == null)
-                        dir = 1;
-                    else if ((pr = p.right) == null ||
-                             (q = pr.findTreeNode(h, k, kc)) == null)
-                        dir = -1;
-                    else
-                        return q;
+                    if (!searched) {
+                        TreeNode<K,V> q, ch;
+                        searched = true;
+                        if (((ch = p.left) != null &&
+                             (q = ch.findTreeNode(h, k, kc)) != null) ||
+                            ((ch = p.right) != null &&
+                             (q = ch.findTreeNode(h, k, kc)) != null))
+                            return q;
+                    }
+                    dir = tieBreakOrder(k, pk);
                 }
+
                 TreeNode<K,V> xp = p;
-                if ((p = (dir < 0) ? p.left : p.right) == null) {
+                if ((p = (dir <= 0) ? p.left : p.right) == null) {
                     TreeNode<K,V> x, f = first;
                     first = x = new TreeNode<K,V>(h, k, v, f, xp);
                     if (f != null)
                         f.prev = x;
-                    if (dir < 0)
+                    if (dir <= 0)
                         xp.left = x;
                     else
                         xp.right = x;
@@ -2308,7 +2389,7 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
 
         static <K,V> TreeNode<K,V> balanceDeletion(TreeNode<K,V> root,
                                                    TreeNode<K,V> x) {
-            for (TreeNode<K,V> xp, xpl, xpr;;)  {
+            for (TreeNode<K,V> xp, xpl, xpr;;) {
                 if (x == null || x == root)
                     return root;
                 else if ((xp = x.parent) == null) {
@@ -2440,8 +2521,20 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
     /* ----------------Table Traversal -------------- */
 
     /**
+     * Records the table, its length, and current traversal index for a
+     * traverser that must process a region of a forwarded table before
+     * proceeding with current table.
+     */
+    static final class TableStack<K,V> {
+        int length;
+        int index;
+        Node<K,V>[] tab;
+        TableStack<K,V> next;
+    }
+
+    /**
      * Encapsulates traversal for methods such as containsValue; also
-     * serves as a base class for other iterators.
+     * serves as a base class for other iterators and spliterators.
      *
      * Method advance visits once each still-valid node that was
      * reachable upon iterator construction. It might miss some that
@@ -2463,6 +2556,7 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
     static class Traverser<K,V> {
         Node<K,V>[] tab;        // current table; updated if resized
         Node<K,V> next;         // the next entry to use
+        TableStack<K,V> stack, spare; // to save/restore on ForwardingNodes
         int index;              // index of bin to use next
         int baseIndex;          // current index of initial table
         int baseLimit;          // index bound for initial table
@@ -2484,16 +2578,17 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
             if ((e = next) != null)
                 e = e.next;
             for (;;) {
-                Node<K,V>[] t; int i, n; K ek;  // must use locals in checks
+                Node<K,V>[] t; int i, n;  // must use locals in checks
                 if (e != null)
                     return next = e;
                 if (baseIndex >= baseLimit || (t = tab) == null ||
                     (n = t.length) <= (i = index) || i < 0)
                     return next = null;
-                if ((e = tabAt(t, index)) != null && e.hash < 0) {
+                if ((e = tabAt(t, i)) != null && e.hash < 0) {
                     if (e instanceof ForwardingNode) {
                         tab = ((ForwardingNode<K,V>)e).nextTable;
                         e = null;
+                        pushState(t, i, n);
                         continue;
                     }
                     else if (e instanceof TreeBin)
@@ -2501,9 +2596,48 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
                     else
                         e = null;
                 }
-                if ((index += baseSize) >= n)
-                    index = ++baseIndex;    // visit upper slots if present
+                if (stack != null)
+                    recoverState(n);
+                else if ((index = i + baseSize) >= n)
+                    index = ++baseIndex; // visit upper slots if present
             }
+        }
+
+        /**
+         * Saves traversal state upon encountering a forwarding node.
+         */
+        private void pushState(Node<K,V>[] t, int i, int n) {
+            TableStack<K,V> s = spare;  // reuse if possible
+            if (s != null)
+                spare = s.next;
+            else
+                s = new TableStack<K,V>();
+            s.tab = t;
+            s.length = n;
+            s.index = i;
+            s.next = stack;
+            stack = s;
+        }
+
+        /**
+         * Possibly pops traversal state.
+         *
+         * @param n length of current table
+         */
+        private void recoverState(int n) {
+            TableStack<K,V> s; int len;
+            while ((s = stack) != null && (index += (len = s.length)) >= n) {
+                n = len;
+                index = s.index;
+                tab = s.tab;
+                s.tab = null;
+                TableStack<K,V> next = s.next;
+                s.next = spare; // save for reuse
+                stack = next;
+                spare = s;
+            }
+            if (s == null && (index += baseSize) >= n)
+                index = ++baseIndex;
         }
     }
 
@@ -2639,7 +2773,6 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
 
     /**
      * Base class for views.
-     *
      */
     abstract static class CollectionView<K,V,E>
         implements Collection<E>, java.io.Serializable {
@@ -2797,13 +2930,12 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
      * common value.  This class cannot be directly instantiated.
      * See {@link #keySet() keySet()},
      * {@link #keySet(Object) keySet(V)},
-     * {@link #newKeySet() newKeySet()},
-     * {@link #newKeySet(int) newKeySet(int)}.
      *
      * @since 1.8
      *
      * @hide
      */
+    // android-note: removed references to hidden APIs.
     public static class KeySetView<K,V> extends CollectionView<K,V,K>
         implements Set<K>, java.io.Serializable {
         private static final long serialVersionUID = 7249069246763182397L;
@@ -3162,7 +3294,6 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
     private static final sun.misc.Unsafe U;
     private static final long SIZECTL;
     private static final long TRANSFERINDEX;
-    private static final long TRANSFERORIGIN;
     private static final long BASECOUNT;
     private static final long CELLSBUSY;
     private static final long CELLVALUE;
@@ -3177,8 +3308,6 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
                 (k.getDeclaredField("sizeCtl"));
             TRANSFERINDEX = U.objectFieldOffset
                 (k.getDeclaredField("transferIndex"));
-            TRANSFERORIGIN = U.objectFieldOffset
-                (k.getDeclaredField("transferOrigin"));
             BASECOUNT = U.objectFieldOffset
                 (k.getDeclaredField("baseCount"));
             CELLSBUSY = U.objectFieldOffset
@@ -3195,6 +3324,10 @@ public class ConcurrentHashMap<K,V> extends java.util.AbstractMap<K,V>
         } catch (Exception e) {
             throw new Error(e);
         }
+
+        // Reduce the risk of rare disastrous classloading in first call to
+        // LockSupport.park: https://bugs.openjdk.java.net/browse/JDK-8074773
+        Class<?> ensureLoaded = LockSupport.class;
     }
 
 }

@@ -5,6 +5,7 @@
  */
 
 package java.util.concurrent;
+
 import java.util.*;
 
 // BEGIN android-note
@@ -215,7 +216,7 @@ public class ConcurrentSkipListMap<K,V> extends AbstractMap<K,V>
      * highly contended cases.
      *
      * Unlike most skip-list implementations, index insertion and
-     * deletion here require a separate traversal pass occuring after
+     * deletion here require a separate traversal pass occurring after
      * the base-level action, to add or remove index nodes.  This adds
      * to single-threaded overhead, but improves contended
      * multithreaded performance by narrowing interference windows,
@@ -2358,8 +2359,8 @@ public class ConcurrentSkipListMap<K,V> extends AbstractMap<K,V>
     }
 
     static final class Values<E> extends AbstractCollection<E> {
-        private final ConcurrentNavigableMap<?, E> m;
-        Values(ConcurrentNavigableMap<?, E> map) {
+        private final ConcurrentNavigableMap<?,E> m;
+        Values(ConcurrentNavigableMap<?,E> map) {
             m = map;
         }
         public Iterator<E> iterator() {
@@ -2566,7 +2567,7 @@ public class ConcurrentSkipListMap<K,V> extends AbstractMap<K,V>
         }
 
         /**
-         * Returns lowest absolute key (ignoring directonality).
+         * Returns lowest absolute key (ignoring directionality).
          */
         private K lowestKey() {
             ConcurrentSkipListMap.Node<K,V> n = loNode();
@@ -2577,7 +2578,7 @@ public class ConcurrentSkipListMap<K,V> extends AbstractMap<K,V>
         }
 
         /**
-         * Returns highest absolute key (ignoring directonality).
+         * Returns highest absolute key (ignoring directionality).
          */
         private K highestKey() {
             ConcurrentSkipListMap.Node<K,V> n = hiNode();

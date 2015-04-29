@@ -6,6 +6,7 @@
  */
 
 package java.util.concurrent;
+
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.*;
@@ -1057,7 +1058,7 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
     }
 
     /**
-     * Sets the zeroeth element of the specified array to {@code null}
+     * Sets the zeroth element of the specified array to {@code null}
      * (if the array has non-zero length) and returns it.
      *
      * @param a the array
@@ -1150,7 +1151,7 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
     /**
      * Reconstitutes this queue from a stream (that is, deserializes it).
      */
-    private void readObject(final java.io.ObjectInputStream s)
+    private void readObject(java.io.ObjectInputStream s)
         throws java.io.IOException, ClassNotFoundException {
         s.defaultReadObject();
         if (waitingProducers instanceof FifoWaitQueue)
@@ -1172,4 +1173,9 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
         }
     }
 
+    static {
+        // Reduce the risk of rare disastrous classloading in first call to
+        // LockSupport.park: https://bugs.openjdk.java.net/browse/JDK-8074773
+        Class<?> ensureLoaded = LockSupport.class;
+    }
 }

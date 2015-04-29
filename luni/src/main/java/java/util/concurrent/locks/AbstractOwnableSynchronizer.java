@@ -35,20 +35,20 @@ public abstract class AbstractOwnableSynchronizer
     private transient Thread exclusiveOwnerThread;
 
     /**
-     * Sets the thread that currently owns exclusive access. A
-     * {@code null} argument indicates that no thread owns access.
+     * Sets the thread that currently owns exclusive access.
+     * A {@code null} argument indicates that no thread owns access.
      * This method does not otherwise impose any synchronization or
      * {@code volatile} field accesses.
+     * @param thread the owner thread
      */
-    protected final void setExclusiveOwnerThread(Thread t) {
-        exclusiveOwnerThread = t;
+    protected final void setExclusiveOwnerThread(Thread thread) {
+        exclusiveOwnerThread = thread;
     }
 
     /**
-     * Returns the thread last set by
-     * {@code setExclusiveOwnerThread}, or {@code null} if never
-     * set.  This method does not otherwise impose any synchronization
-     * or {@code volatile} field accesses.
+     * Returns the thread last set by {@code setExclusiveOwnerThread},
+     * or {@code null} if never set.  This method does not otherwise
+     * impose any synchronization or {@code volatile} field accesses.
      * @return the owner thread
      */
     protected final Thread getExclusiveOwnerThread() {

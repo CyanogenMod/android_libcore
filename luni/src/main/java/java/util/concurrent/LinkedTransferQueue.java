@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Queue;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
 // BEGIN android-note
@@ -76,7 +75,7 @@ public class LinkedTransferQueue<E> extends AbstractQueue<E>
      *
      * A FIFO dual queue may be implemented using a variation of the
      * Michael & Scott (M&S) lock-free queue algorithm
-     * (http://www.cs.rochester.edu/u/scott/papers/1996_PODC_queues.pdf).
+     * (http://www.cs.rochester.edu/~scott/papers/1996_PODC_queues.pdf).
      * It maintains two pointer fields, "head", pointing to a
      * (matched) node that in turn points to the first actual
      * (unmatched) queue node (or null if empty); and "tail" that
@@ -1313,5 +1312,9 @@ public class LinkedTransferQueue<E> extends AbstractQueue<E>
         } catch (Exception e) {
             throw new Error(e);
         }
+
+        // Reduce the risk of rare disastrous classloading in first call to
+        // LockSupport.park: https://bugs.openjdk.java.net/browse/JDK-8074773
+        Class<?> ensureLoaded = LockSupport.class;
     }
 }

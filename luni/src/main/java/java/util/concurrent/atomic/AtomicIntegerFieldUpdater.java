@@ -10,6 +10,9 @@ import dalvik.system.VMStack; // android-added
 import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
+import java.security.PrivilegedActionException;
 
 /**
  * A reflection-based utility that enables atomic updates to
@@ -243,7 +246,7 @@ public abstract class AtomicIntegerFieldUpdater<T> {
         private final Class<T> tclass;
         private final Class<?> cclass;
 
-        AtomicIntegerFieldUpdaterImpl(Class<T> tclass, String fieldName) {
+        AtomicIntegerFieldUpdaterImpl(final Class<T> tclass, final String fieldName) {
             final Field field;
             final Class<?> caller;
             final int modifiers;

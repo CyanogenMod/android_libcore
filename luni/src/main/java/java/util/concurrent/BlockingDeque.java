@@ -5,6 +5,7 @@
  */
 
 package java.util.concurrent;
+
 import java.util.*;
 
 /**
@@ -23,6 +24,7 @@ import java.util.*;
  *
  * <p>
  * <table BORDER CELLPADDING=3 CELLSPACING=1>
+ * <caption>Summary of BlockingDeque methods</caption>
  *  <tr>
  *    <td ALIGN=CENTER COLSPAN = 5> <b>First Element (Head)</b></td>
  *  </tr>
@@ -98,6 +100,7 @@ import java.util.*;
  *
  * <p>
  * <table BORDER CELLPADDING=3 CELLSPACING=1>
+ * <caption>Comparison of BlockingQueue and BlockingDeque methods</caption>
  *  <tr>
  *    <td ALIGN=CENTER> <b>{@code BlockingQueue} Method</b></td>
  *    <td ALIGN=CENTER> <b>Equivalent {@code BlockingDeque} Method</b></td>
@@ -606,9 +609,10 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
     // *** Stack methods ***
 
     /**
-     * Pushes an element onto the stack represented by this deque.  In other
-     * words, inserts the element at the front of this deque unless it would
-     * violate capacity restrictions.
+     * Pushes an element onto the stack represented by this deque (in other
+     * words, at the head of this deque) if it is possible to do so
+     * immediately without violating capacity restrictions, throwing an
+     * {@code IllegalStateException} if no space is currently available.
      *
      * <p>This method is equivalent to {@link #addFirst(Object) addFirst}.
      *

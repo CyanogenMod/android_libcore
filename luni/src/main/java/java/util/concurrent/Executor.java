@@ -12,7 +12,7 @@ package java.util.concurrent;
  * mechanics of how each task will be run, including details of thread
  * use, scheduling, etc.  An {@code Executor} is normally used
  * instead of explicitly creating threads. For example, rather than
- * invoking {@code new Thread(new(RunnableTask())).start()} for each
+ * invoking {@code new Thread(new RunnableTask()).start()} for each
  * of a set of tasks, you might use:
  *
  * <pre>
@@ -52,7 +52,7 @@ package java.util.concurrent;
  *
  *  <pre> {@code
  * class SerialExecutor implements Executor {
- *   final Queue<Runnable> tasks = new ArrayDeque<Runnable>();
+ *   final Queue<Runnable> tasks = new ArrayDeque<>();
  *   final Executor executor;
  *   Runnable active;
  *
@@ -61,7 +61,7 @@ package java.util.concurrent;
  *   }
  *
  *   public synchronized void execute(final Runnable r) {
- *     tasks.offer(new Runnable() {
+ *     tasks.add(new Runnable() {
  *       public void run() {
  *         try {
  *           r.run();
