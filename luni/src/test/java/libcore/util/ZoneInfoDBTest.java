@@ -98,6 +98,13 @@ public class ZoneInfoDBTest extends junit.framework.TestCase {
   public void testMakeTimeZone_notFound() throws Exception {
     ZoneInfoDB.TzData data = new ZoneInfoDB.TzData(TZDATA_IN_ROOT);
     assertNull(data.makeTimeZone("THIS_TZ_DOES_NOT_EXIST"));
+    assertFalse(data.hasTimeZone("THIS_TZ_DOES_NOT_EXIST"));
+  }
+
+  public void testMakeTimeZone_found() throws Exception {
+    ZoneInfoDB.TzData data = new ZoneInfoDB.TzData(TZDATA_IN_ROOT);
+    assertNotNull(data.makeTimeZone("Europe/London"));
+    assertTrue(data.hasTimeZone("Europe/London"));
   }
 
   private static String makeCorruptFile() throws Exception {
