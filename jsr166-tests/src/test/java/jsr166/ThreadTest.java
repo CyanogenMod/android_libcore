@@ -53,7 +53,11 @@ public class ThreadTest extends JSR166TestCase {
      * setDefaultUncaughtExceptionHandler.
      */
     public void testGetAndSetDefaultUncaughtExceptionHandler() {
-        assertEquals(null, Thread.getDefaultUncaughtExceptionHandler());
+        // android-note: Removed assertion; all "normal" android apps (including CTS tests) have a
+        // default uncaught exception handler installed by the framework.
+        //
+        // assertEquals(null, Thread.getDefaultUncaughtExceptionHandler());
+
         // failure due to securityException is OK.
         // Would be nice to explicitly test both ways, but cannot yet.
         Thread.UncaughtExceptionHandler defaultHandler

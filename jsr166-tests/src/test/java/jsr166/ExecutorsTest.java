@@ -350,7 +350,8 @@ public class ExecutorsTest extends JSR166TestCase {
             public void realRun() throws Exception {
                 final ThreadGroup egroup = Thread.currentThread().getThreadGroup();
                 final ClassLoader thisccl = Thread.currentThread().getContextClassLoader();
-                final AccessControlContext thisacc = AccessController.getContext();
+                // android-note: Removed unsupported access controller check.
+                // final AccessControlContext thisacc = AccessController.getContext();
                 Runnable r = new CheckedRunnable() {
                     public void realRun() {
                         Thread current = Thread.currentThread();
@@ -365,7 +366,7 @@ public class ExecutorsTest extends JSR166TestCase {
                         String name = current.getName();
                         assertTrue(name.endsWith("thread-1"));
                         assertSame(thisccl, current.getContextClassLoader());
-                        assertEquals(thisacc, AccessController.getContext());
+                        // assertEquals(thisacc, AccessController.getContext());
                         done.countDown();
                     }};
                 ExecutorService e = Executors.newSingleThreadExecutor(Executors.privilegedThreadFactory());

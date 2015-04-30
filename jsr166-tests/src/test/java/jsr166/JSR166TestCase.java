@@ -532,11 +532,7 @@ public class JSR166TestCase extends TestCase {
      * getPolicy/setPolicy.
      */
     public void runWithPermissions(Runnable r, Permission... permissions) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm == null) {
-            r.run();
-        }
-        runWithSecurityManagerWithPermissions(r, permissions);
+        r.run();
     }
 
     /**
@@ -548,29 +544,7 @@ public class JSR166TestCase extends TestCase {
      */
     public void runWithSecurityManagerWithPermissions(Runnable r,
                                                       Permission... permissions) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm == null) {
-            Policy savedPolicy = Policy.getPolicy();
-            try {
-                Policy.setPolicy(permissivePolicy());
-                System.setSecurityManager(new SecurityManager());
-                runWithSecurityManagerWithPermissions(r, permissions);
-            } finally {
-                System.setSecurityManager(null);
-                Policy.setPolicy(savedPolicy);
-            }
-        } else {
-            Policy savedPolicy = Policy.getPolicy();
-            AdjustablePolicy policy = new AdjustablePolicy(permissions);
-            Policy.setPolicy(policy);
-
-            try {
-                r.run();
-            } finally {
-                policy.addPermission(new SecurityPermission("setPolicy"));
-                Policy.setPolicy(savedPolicy);
-            }
-        }
+        r.run();
     }
 
     /**
