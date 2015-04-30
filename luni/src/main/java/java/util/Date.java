@@ -691,21 +691,23 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
     }
 
     /**
-     * Returns a string representation of this {@code Date}.
-     * The formatting is equivalent to using a {@code SimpleDateFormat} with
-     * the format string "EEE MMM dd HH:mm:ss zzz yyyy", which looks something
-     * like "Tue Jun 22 13:07:00 PDT 1999". The current default time zone and
-     * locale are used. If you need control over the time zone or locale,
-     * use {@code SimpleDateFormat} instead.
+     * Returns a string representation of this {@code Date}. The formatting is equivalent to
+     * using a {@code SimpleDateFormat} with the format string "EEE MMM dd HH:mm:ss zzz yyyy",
+     * which looks something like "Tue Jun 22 13:07:00 PDT 1999". While the current default time
+     * zone is used, all formatting and timezone names follow {@code Locale.US}. If you need control
+     * over the time zone or locale, use {@code SimpleDateFormat} instead.
      */
     @Override
     public String toString() {
         // TODO: equivalent to the following one-liner, though that's slower on stingray
         // at 476us versus 69us...
-        //   return new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").format(d);
+        //   return new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").format(d, Locale.US);
         LocaleData localeData = LocaleData.get(Locale.US);
-        Calendar cal = new GregorianCalendar(milliseconds);
-        TimeZone tz = cal.getTimeZone();
+
+        TimeZone tz = TimeZone.getDefault();
+        Calendar cal = new GregorianCalendar(tz, Locale.US);
+        cal.setTimeInMillis(milliseconds);
+
         StringBuilder result = new StringBuilder();
         result.append(localeData.shortWeekdayNames[cal.get(Calendar.DAY_OF_WEEK)]);
         result.append(' ');
@@ -719,7 +721,7 @@ public class Date implements Serializable, Cloneable, Comparable<Date> {
         result.append(':');
         appendTwoDigits(result, cal.get(Calendar.SECOND));
         result.append(' ');
-        result.append(tz.getDisplayName(tz.inDaylightTime(this), TimeZone.SHORT));
+        result.append(tz.getDisplayName(tz.inDaylightTime(this), TimeZone.SHORT, Locale.US));
         result.append(' ');
         result.append(cal.get(Calendar.YEAR));
         return result.toString();

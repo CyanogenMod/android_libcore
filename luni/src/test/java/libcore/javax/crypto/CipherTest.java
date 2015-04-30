@@ -1361,11 +1361,22 @@ public final class CipherTest extends TestCase {
         Cipher encryptCipher = Cipher.getInstance("RSA/ECB/NoPadding", provider);
         encryptCipher.init(Cipher.ENCRYPT_MODE, encryptKey);
         byte[] cipherText = encryptCipher.doFinal(prePaddedPlainText);
+        encryptCipher.update(prePaddedPlainText);
+        encryptCipher.init(Cipher.ENCRYPT_MODE, encryptKey);
+        byte[] cipherText2 = encryptCipher.doFinal(prePaddedPlainText);
+        assertEquals(Arrays.toString(cipherText),
+                     Arrays.toString(cipherText2));
+
         Cipher decryptCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", provider);
         decryptCipher.init(Cipher.DECRYPT_MODE, decryptKey);
         byte[] plainText = decryptCipher.doFinal(cipherText);
         assertEquals(Arrays.toString(ORIGINAL_PLAIN_TEXT),
                      Arrays.toString(plainText));
+        decryptCipher.update(prePaddedPlainText);
+        decryptCipher.init(Cipher.DECRYPT_MODE, decryptKey);
+        byte[] plainText2 = decryptCipher.doFinal(cipherText);
+        assertEquals(Arrays.toString(plainText),
+                     Arrays.toString(plainText2));
     }
 
     public void testOutputPKCS1Padding() throws Exception {
