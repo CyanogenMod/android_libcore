@@ -76,8 +76,13 @@ public class MacTest extends TestCase {
 
     static {
         for (int i = 0; i < validAlgorithmsMac.length; i++) {
-            defaultProvider = SpiEngUtils.isSupport(validAlgorithmsMac[i],
-                    srvMac);
+            try {
+                Mac mac = Mac.getInstance(validAlgorithmsMac[i]);
+                mac.init(new SecretKeySpec(new byte[64], validAlgorithmsMac[i]));
+                defaultProvider = mac.getProvider();
+            } catch (NoSuchAlgorithmException ignored) {
+            } catch (InvalidKeyException ignored) {}
+
             DEFSupported = (defaultProvider != null);
             if (DEFSupported) {
                 defaultAlgorithm = validAlgorithmsMac[i];
@@ -103,7 +108,7 @@ public class MacTest extends TestCase {
             // Do not test AndroidKeyStore's Mac. It cannot be initialized without providing an
             // AndroidKeyStore-backed SecretKey instance. It's OKish not to test here because it's
             // tested by cts/tests/test/keystore.
-            if ("AndroidKeyStore".equals(p.getName())) {
+            if (p.getName().startsWith("AndroidKeyStore")) {
                 continue;
             }
             macList.add(Mac.getInstance(defaultAlgorithm, p));
@@ -854,7 +859,7 @@ public class MacTest extends TestCase {
             // Do not test AndroidKeyStore's Mac. It cannot be initialized without providing an
             // AndroidKeyStore-backed SecretKey instance. It's OKish not to test here because it's
             // tested by cts/tests/test/keystore.
-            if ("AndroidKeyStore".equals(providers[i].getName())) {
+            if (providers[i].getName().startsWith("AndroidKeyStore")) {
                 continue;
             }
 
