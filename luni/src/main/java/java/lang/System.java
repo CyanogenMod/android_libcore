@@ -82,7 +82,10 @@ public final class System {
      */
     public static final PrintStream err;
 
-    private static final String lineSeparator;
+    private static final String PATH_SEPARATOR = ":";
+    private static final String LINE_SEPARATOR = "\n";
+    private static final String FILE_SEPARATOR = "/";
+
     private static final Properties unchangeableSystemProperties;
     private static Properties systemProperties;
 
@@ -108,7 +111,6 @@ public final class System {
         in = new BufferedInputStream(new FileInputStream(FileDescriptor.in));
         unchangeableSystemProperties = initUnchangeableSystemProperties();
         systemProperties = createSystemProperties();
-        lineSeparator = System.getProperty("line.separator");
 
         addLegacyLocaleSystemProperties();
     }
@@ -770,10 +772,6 @@ public final class System {
         p.put("java.vm.vendor", projectName);
         p.put("java.vm.version", runtime.vmVersion());
 
-        p.put("file.separator", "/");
-        p.put("line.separator", "\n");
-        p.put("path.separator", ":");
-
         p.put("java.runtime.name", "Android Runtime");
         p.put("java.runtime.version", "0.9");
         p.put("java.vm.vendor.url", projectUrl);
@@ -808,6 +806,25 @@ public final class System {
 
         // Override built-in properties with settings from the command line.
         parsePropertyAssignments(p, runtime.properties());
+
+        if (p.containsKey("file.separator")) {
+            logE("Ignoring command line argument: -Dfile.separator");
+        }
+
+        if (p.containsKey("line.separator")) {
+            logE("Ignoring command line argument: -Dline.separator");
+        }
+
+        if (p.containsKey("path.separator")) {
+            logE("Ignoring command line argument: -Dpath.separator");
+        }
+
+        // We ignore values for "file.separator", "line.separator" and "path.separator" from
+        // the command line. They're fixed on the operating systems we support.
+        p.put("file.separator", FILE_SEPARATOR);
+        p.put("line.separator", LINE_SEPARATOR);
+        p.put("path.separator", PATH_SEPARATOR);
+
         return p;
     }
 
@@ -1038,10 +1055,11 @@ public final class System {
      * <p>On Android versions before Lollipop the {@code line.separator} system property can be
      * modified but this method continues to return the original value. The system property cannot
      * be modified on later versions of Android.
+     *
      * @since 1.7
      */
     public static String lineSeparator() {
-        return lineSeparator;
+        return LINE_SEPARATOR;
     }
 
     /**
