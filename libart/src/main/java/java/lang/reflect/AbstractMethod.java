@@ -51,10 +51,11 @@ public abstract class AbstractMethod extends AccessibleObject {
 
     /**
      * The ArtMethod associated with this Method, requried for dispatching due to entrypoints
+     * Classloader is held live by the declaring class.
      * Hidden to workaround b/16828157.
      * @hide
      */
-    protected ArtMethod artMethod;
+    protected long artMethod;
 
     /** Method's declaring class */
     protected Class<?> declaringClass;

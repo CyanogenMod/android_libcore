@@ -39,7 +39,6 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.ArtMethod;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericDeclaration;
@@ -141,9 +140,6 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /** Short-cut to dexCache.strings */
     private transient String[] dexCacheStrings;
 
-    /** static, private, and &lt;init&gt; methods. */
-    private transient ArtMethod[] directMethods;
-
     /**
      * The interface table (iftable_) contains pairs of a interface class and an array of the
      * interface methods. There is one pair per interface supported by this class.  That
@@ -169,19 +165,19 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /** If class verify fails, we must return same error on subsequent tries. */
     private transient Class<?> verifyErrorClass;
 
-    /** Virtual methods defined in this class; invoked through vtable. */
-    private transient ArtMethod[] virtualMethods;
-
     /**
      * Virtual method table (vtable), for use by "invoke-virtual". The vtable from the superclass
      * is copied in, and virtual methods from our class either replace those from the super or are
      * appended. For abstract classes, methods may be created in the vtable that aren't in
      * virtual_ methods_ for miranda methods.
      */
-    private transient ArtMethod[] vtable;
+    private transient Object vtable;
 
     /** access flags; low 16 bits are defined by VM spec */
     private transient int accessFlags;
+
+    /** static, private, and &lt;init&gt; methods. */
+    private transient long directMethods;
 
     /**
      * Instance fields. These describe the layout of the contents of an Object. Note that only the
@@ -196,6 +192,8 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
     /** Static fields */
     private transient long sFields;
 
+    /** Virtual methods defined in this class; invoked through vtable. */
+    private transient long virtualMethods;
 
     /**
      * Total size of the Class instance; used when allocating storage on GC heap.
@@ -222,6 +220,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
      */
     private transient volatile int dexTypeIndex;
 
+    /** Number of direct methods. */
+    private transient int numDirectMethods;
+
     /** Number of instance fields. */
     private transient int numInstanceFields;
 
@@ -233,6 +234,9 @@ public final class Class<T> implements Serializable, AnnotatedElement, GenericDe
 
     /** Number of static fields. */
     private transient int numStaticFields;
+
+    /** Number of virtual methods. */
+    private transient int numVirtualMethods;
 
     /**
      * Total object size; used when allocating storage on GC heap. For interfaces and abstract
