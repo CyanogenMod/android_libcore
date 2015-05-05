@@ -15,6 +15,16 @@ LOCAL_SRC_FILES := \
     io_util.c \
     canonicalize_md.c \
     FileDescriptor_md.c \
+    IOUtil.c \
+    FileChannelImpl.c \
+    FileDispatcherImpl.c \
+    FileOutputStream_md.c \
+    FileInputStream.c \
+    io_util_md.c \
+    NativeThread.c \
+    FileKey.c \
+    UnixFileSystem_md.c \
+    FileSystem_md.c \
     Register.cpp \
 
 LOCAL_C_INCLUDES += \

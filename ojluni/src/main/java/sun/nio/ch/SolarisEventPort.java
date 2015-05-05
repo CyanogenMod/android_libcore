@@ -171,7 +171,7 @@ class SolarisEventPort
                     }
 
                     // event source
-                    short source = unsafe.getShort(address + OFFSETOF_SOURCE);
+                    short source = unsafe.getShort$(address + OFFSETOF_SOURCE);
                     if (source != PORT_SOURCE_FD) {
                         // user event is trigger to invoke task or shutdown
                         if (source == PORT_SOURCE_USER) {
@@ -191,7 +191,7 @@ class SolarisEventPort
                     // pe->portev_object is file descriptor
                     int fd = (int)unsafe.getAddress(address + OFFSETOF_OBJECT);
                     // pe->portev_events
-                    int events = unsafe.getInt(address + OFFSETOF_EVENTS);
+                    int events = unsafe.getInt$(address + OFFSETOF_EVENTS);
 
                     // lookup channel
                     PollableChannel ch;

@@ -1163,13 +1163,6 @@ JNIEXPORT jint JNICALL
 JVM_Write(jint fd, char *buf, jint nbytes);
 
 /*
- * Returns the number of bytes available for reading from a given file
- * descriptor
- */
-JNIEXPORT jint JNICALL
-JVM_Available(jint fd, jlong *pbytes);
-
-/*
  * Move the file descriptor pointer from whence by offset.
  *
  * fd        the file descriptor to move.

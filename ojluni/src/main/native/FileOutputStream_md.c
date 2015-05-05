@@ -32,6 +32,10 @@
 #include "java_io_FileOutputStream.h"
 
 #include <fcntl.h>
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 /*******************************************************************/
 /*  BEGIN JNI ********* BEGIN JNI *********** BEGIN JNI ************/
@@ -44,7 +48,7 @@ jfieldID fos_fd; /* id for jobject 'fd' in java.io.FileOutputStream */
  */
 
 JNIEXPORT void JNICALL
-Java_java_io_FileOutputStream_initIDs(JNIEnv *env, jclass fdClass) {
+FileOutputStream_initIDs(JNIEnv *env, jclass fdClass) {
     fos_fd = (*env)->GetFieldID(env, fdClass, "fd", "Ljava/io/FileDescriptor;");
 }
 
@@ -53,24 +57,36 @@ Java_java_io_FileOutputStream_initIDs(JNIEnv *env, jclass fdClass) {
  */
 
 JNIEXPORT void JNICALL
-Java_java_io_FileOutputStream_open(JNIEnv *env, jobject this,
+FileOutputStream_open(JNIEnv *env, jobject this,
                                    jstring path, jboolean append) {
     fileOpen(env, this, path, fos_fd,
              O_WRONLY | O_CREAT | (append ? O_APPEND : O_TRUNC));
 }
 
 JNIEXPORT void JNICALL
-Java_java_io_FileOutputStream_write(JNIEnv *env, jobject this, jint byte, jboolean append) {
+FileOutputStream_write(JNIEnv *env, jobject this, jint byte, jboolean append) {
     writeSingle(env, this, byte, append, fos_fd);
 }
 
 JNIEXPORT void JNICALL
-Java_java_io_FileOutputStream_writeBytes(JNIEnv *env,
+FileOutputStream_writeBytes(JNIEnv *env,
     jobject this, jbyteArray bytes, jint off, jint len, jboolean append) {
     writeBytes(env, this, bytes, off, len, append, fos_fd);
 }
 
 JNIEXPORT void JNICALL
-Java_java_io_FileOutputStream_close0(JNIEnv *env, jobject this) {
+FileOutputStream_close0(JNIEnv *env, jobject this) {
     fileClose(env, this, fos_fd);
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(FileOutputStream, initIDs, "()V"),
+  NATIVE_METHOD(FileOutputStream, open, "(Ljava/lang/String;Z)V"),
+  NATIVE_METHOD(FileOutputStream, write, "(IZ)V"),
+  NATIVE_METHOD(FileOutputStream, writeBytes, "([BIIZ)V"),
+  NATIVE_METHOD(FileOutputStream, close0, "()V"),
+};
+
+void register_java_io_FileOutputStream(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/io/FileOutputStream", gMethods, NELEM(gMethods));
 }

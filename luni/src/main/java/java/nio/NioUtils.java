@@ -23,6 +23,9 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.util.Set;
 
+import static android.system.OsConstants.*;
+import sun.nio.ch.FileChannelImpl;
+
 /**
  * @hide internal use only
  */
@@ -41,14 +44,17 @@ public final class NioUtils {
      * Returns the int file descriptor from within the given FileChannel 'fc'.
      */
     public static FileDescriptor getFD(FileChannel fc) {
-        return ((FileChannelImpl) fc).getFD();
+        return ((FileChannelImpl) fc).fd;
     }
 
     /**
      * Helps bridge between io and nio.
      */
     public static FileChannel newFileChannel(Closeable ioObject, FileDescriptor fd, int mode) {
-        return new FileChannelImpl(ioObject, fd, mode);
+        boolean readable = (mode & (O_RDONLY | O_RDWR | O_SYNC)) != 0;
+        boolean writable = (mode & (O_WRONLY | O_RDWR | O_SYNC)) != 0;
+        boolean append = (mode & O_APPEND) != 0;
+        return FileChannelImpl.open(fd, null, readable, writable, append, ioObject);
     }
 
     /**

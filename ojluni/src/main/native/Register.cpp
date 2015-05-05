@@ -28,6 +28,15 @@ extern void register_java_util_zip_ZipFile(JNIEnv*);
 extern void register_java_util_zip_Inflater(JNIEnv*);
 extern void register_java_util_zip_Deflater(JNIEnv*);
 extern void register_java_util_zip_CRC32(JNIEnv*);
+extern void register_java_io_FileSystem(JNIEnv*);
+extern void register_sun_nio_ch_IOUtil(JNIEnv*);
+extern void register_sun_nio_ch_FileChannelImpl(JNIEnv*);
+extern void register_sun_nio_ch_FileDispatcherImpl(JNIEnv*);
+extern void register_java_io_FileOutputStream(JNIEnv*);
+extern void register_java_io_FileInputStream(JNIEnv*);
+extern void register_java_io_FileDescriptor(JNIEnv*);
+extern void register_sun_nio_ch_NativeThread(JNIEnv*);
+extern void register_sun_nio_ch_FileKey(JNIEnv*);
 
 }
 
@@ -44,5 +53,14 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
     register_java_util_zip_Inflater(env);
     register_java_util_zip_Deflater(env);
     register_java_util_zip_CRC32(env);
+    register_java_io_FileSystem(env);
+    register_sun_nio_ch_IOUtil(env);
+    register_sun_nio_ch_FileChannelImpl(env);
+    register_sun_nio_ch_FileDispatcherImpl(env);
+    register_java_io_FileOutputStream(env);
+    register_java_io_FileInputStream(env);
+    register_java_io_FileDescriptor(env);
+    register_sun_nio_ch_NativeThread(env);
+    register_sun_nio_ch_FileKey(env);
     return JNI_VERSION_1_6;
 }

@@ -31,9 +31,12 @@
 #include "jlong.h"
 #include "sun_nio_ch_NativeThread.h"
 #include "nio_util.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 
-#ifdef __linux__
 #include <pthread.h>
 #include <sys/signal.h>
 
@@ -45,13 +48,11 @@ nullHandler(int sig)
 {
 }
 
-#endif
 
 
 JNIEXPORT void JNICALL
-Java_sun_nio_ch_NativeThread_init(JNIEnv *env, jclass cl)
+NativeThread_init(JNIEnv *env, jclass cl)
 {
-#ifdef __linux__
 
     /* Install the null handler for INTERRUPT_SIGNAL.  This might overwrite the
      * handler previously installed by java/net/linux_close.c, but that's okay
@@ -68,24 +69,27 @@ Java_sun_nio_ch_NativeThread_init(JNIEnv *env, jclass cl)
     if (sigaction(INTERRUPT_SIGNAL, &sa, &osa) < 0)
         JNU_ThrowIOExceptionWithLastError(env, "sigaction");
 
-#endif
 }
 
 JNIEXPORT jlong JNICALL
-Java_sun_nio_ch_NativeThread_current(JNIEnv *env, jclass cl)
+NativeThread_current(JNIEnv *env, jclass cl)
 {
-#ifdef __linux__
     return (long)pthread_self();
-#else
-    return -1;
-#endif
 }
 
 JNIEXPORT void JNICALL
-Java_sun_nio_ch_NativeThread_signal(JNIEnv *env, jclass cl, jlong thread)
+NativeThread_signal(JNIEnv *env, jclass cl, jlong thread)
 {
-#ifdef __linux__
     if (pthread_kill((pthread_t)thread, INTERRUPT_SIGNAL))
         JNU_ThrowIOExceptionWithLastError(env, "Thread signal failed");
-#endif
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(NativeThread, init, "()V"),
+  NATIVE_METHOD(NativeThread, current, "()J"),
+  NATIVE_METHOD(NativeThread, signal, "(J)V"),
+};
+
+void register_sun_nio_ch_NativeThread(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "sun/nio/ch/NativeThread", gMethods, NELEM(gMethods));
 }

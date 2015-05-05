@@ -36,6 +36,10 @@
 #include "nio.h"
 #include "nio_util.h"
 #include <dlfcn.h>
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 #if defined(__linux__) || defined(__solaris__)
 #include <sys/sendfile.h>
@@ -51,7 +55,7 @@
 static jfieldID chan_fd;        /* jobject 'fd' in sun.io.FileChannelImpl */
 
 JNIEXPORT jlong JNICALL
-Java_sun_nio_ch_FileChannelImpl_initIDs(JNIEnv *env, jclass clazz)
+FileChannelImpl_initIDs(JNIEnv *env, jclass clazz)
 {
     jlong pageSize = sysconf(_SC_PAGESIZE);
     chan_fd = (*env)->GetFieldID(env, clazz, "fd", "Ljava/io/FileDescriptor;");
@@ -71,7 +75,7 @@ handle(JNIEnv *env, jlong rv, char *msg)
 
 
 JNIEXPORT jlong JNICALL
-Java_sun_nio_ch_FileChannelImpl_map0(JNIEnv *env, jobject this,
+FileChannelImpl_map0(JNIEnv *env, jobject this,
                                      jint prot, jlong off, jlong len)
 {
     void *mapAddress = 0;
@@ -112,7 +116,7 @@ Java_sun_nio_ch_FileChannelImpl_map0(JNIEnv *env, jobject this,
 
 
 JNIEXPORT jint JNICALL
-Java_sun_nio_ch_FileChannelImpl_unmap0(JNIEnv *env, jobject this,
+FileChannelImpl_unmap0(JNIEnv *env, jobject this,
                                        jlong address, jlong len)
 {
     void *a = (void *)jlong_to_ptr(address);
@@ -123,7 +127,7 @@ Java_sun_nio_ch_FileChannelImpl_unmap0(JNIEnv *env, jobject this,
 
 
 JNIEXPORT jlong JNICALL
-Java_sun_nio_ch_FileChannelImpl_position0(JNIEnv *env, jobject this,
+FileChannelImpl_position0(JNIEnv *env, jobject this,
                                           jobject fdo, jlong offset)
 {
     jint fd = fdval(env, fdo);
@@ -139,7 +143,7 @@ Java_sun_nio_ch_FileChannelImpl_position0(JNIEnv *env, jobject this,
 
 
 JNIEXPORT void JNICALL
-Java_sun_nio_ch_FileChannelImpl_close0(JNIEnv *env, jobject this, jobject fdo)
+FileChannelImpl_close0(JNIEnv *env, jobject this, jobject fdo)
 {
     jint fd = fdval(env, fdo);
     if (fd != -1) {
@@ -151,7 +155,7 @@ Java_sun_nio_ch_FileChannelImpl_close0(JNIEnv *env, jobject this, jobject fdo)
 }
 
 JNIEXPORT jlong JNICALL
-Java_sun_nio_ch_FileChannelImpl_transferTo0(JNIEnv *env, jobject this,
+FileChannelImpl_transferTo0(JNIEnv *env, jobject this,
                                             jint srcFD,
                                             jlong position, jlong count,
                                             jint dstFD)
@@ -231,4 +235,16 @@ Java_sun_nio_ch_FileChannelImpl_transferTo0(JNIEnv *env, jobject this,
 #else
     return IOS_UNSUPPORTED_CASE;
 #endif
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(FileChannelImpl, initIDs, "()J"),
+  NATIVE_METHOD(FileChannelImpl, map0, "(IJJ)J"),
+  NATIVE_METHOD(FileChannelImpl, unmap0, "(JJ)I"),
+  NATIVE_METHOD(FileChannelImpl, position0, "(Ljava/io/FileDescriptor;J)J"),
+  NATIVE_METHOD(FileChannelImpl, transferTo0, "(IJJI)J"),
+};
+
+void register_sun_nio_ch_FileChannelImpl(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "sun/nio/ch/FileChannelImpl", gMethods, NELEM(gMethods));
 }

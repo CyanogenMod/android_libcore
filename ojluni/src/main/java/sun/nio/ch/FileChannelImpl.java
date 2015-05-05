@@ -47,7 +47,8 @@ public class FileChannelImpl
     private final FileDispatcher nd;
 
     // File descriptor
-    private final FileDescriptor fd;
+    // Android-changed: make public.
+    public final FileDescriptor fd;
 
     // File access mode (immutable)
     private final boolean writable;
@@ -920,34 +921,7 @@ public class FileChannelImpl
         }
     }
 
-    /**
-     * Invoked by sun.management.ManagementFactoryHelper to create the management
-     * interface for mapped buffers.
-     */
-    public static sun.misc.JavaNioAccess.BufferPool getMappedBufferPool() {
-        return new sun.misc.JavaNioAccess.BufferPool() {
-            @Override
-            public String getName() {
-                return "mapped";
-            }
-            @Override
-            public long getCount() {
-                return Unmapper.count;
-            }
-            @Override
-            public long getTotalCapacity() {
-                return Unmapper.totalCapacity;
-            }
-            @Override
-            public long getMemoryUsed() {
-                return Unmapper.totalSize;
-            }
-        };
-    }
-
     // -- Locks --
-
-
 
     // keeps track of locks on this file
     private volatile FileLockTable fileLockTable;

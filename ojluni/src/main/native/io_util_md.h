@@ -60,7 +60,6 @@
 #define IO_Sync JVM_Sync
 #define IO_Read JVM_Read
 #define IO_Lseek JVM_Lseek
-#define IO_Available JVM_Available
 #define IO_SetLength JVM_SetLength
 
 /*

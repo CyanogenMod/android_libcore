@@ -22,12 +22,18 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+#include <sys/socket.h>
+#include <sys/types.h>
 
 #include "jni.h"
 #include "jni_util.h"
 #include "jvm.h"
 
 #include "java_io_FileDescriptor.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 /*******************************************************************/
 /*  BEGIN JNI ********* BEGIN JNI *********** BEGIN JNI ************/
@@ -41,7 +47,7 @@ jfieldID IO_fd_fdID;
  */
 
 JNIEXPORT void JNICALL
-Java_java_io_FileDescriptor_initIDs(JNIEnv *env, jclass fdClass) {
+FileDescriptor_initIDs(JNIEnv *env, jclass fdClass) {
     IO_fd_fdID = (*env)->GetFieldID(env, fdClass, "fd", "I");
 }
 
@@ -50,9 +56,25 @@ Java_java_io_FileDescriptor_initIDs(JNIEnv *env, jclass fdClass) {
  */
 
 JNIEXPORT void JNICALL
-Java_java_io_FileDescriptor_sync(JNIEnv *env, jobject this) {
+FileDescriptor_sync(JNIEnv *env, jobject this) {
     int fd = (*env)->GetIntField(env, this, IO_fd_fdID);
     if (JVM_Sync(fd) == -1) {
         JNU_ThrowByName(env, "java/io/SyncFailedException", "sync failed");
     }
+}
+
+JNIEXPORT jboolean JNICALL FileDescriptor_isSocket(JNIEnv *env, jclass ignored, jint fd) {
+    int error;
+    socklen_t error_length = sizeof(error);
+    return TEMP_FAILURE_RETRY(getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &error_length));
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(FileDescriptor, initIDs, "()V"),
+  NATIVE_METHOD(FileDescriptor, sync, "()V"),
+  NATIVE_METHOD(FileDescriptor, isSocket, "(I)Z"),
+};
+
+void register_java_io_FileDescriptor(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/io/FileDescriptor", gMethods, NELEM(gMethods));
 }

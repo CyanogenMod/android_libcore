@@ -36,14 +36,8 @@ import java.io.File;
 class DeleteOnExitHook {
     private static LinkedHashSet<String> files = new LinkedHashSet<>();
     static {
-        // DeleteOnExitHook must be the last shutdown hook to be invoked.
-        // Application shutdown hooks may add the first file to the
-        // delete on exit list and cause the DeleteOnExitHook to be
-        // registered during shutdown in progress. So set the
-        // registerShutdownInProgress parameter to true.
-        sun.misc.SharedSecrets.getJavaLangAccess()
-            .registerShutdownHook(2 /* Shutdown hook invocation order */,
-                true /* register even if shutdown in progress */,
+        // Android-changed: Access java.lang.Shutdown directly.
+        java.lang.Shutdown.add(2, true,
                 new Runnable() {
                     public void run() {
                        runHooks();

@@ -29,6 +29,10 @@
 #include "nio.h"
 #include "nio_util.h"
 #include "sun_nio_ch_FileKey.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 #ifdef _ALLBSD_SOURCE
 #define stat64 stat
@@ -41,7 +45,7 @@ static jfieldID key_st_ino;    /* id for FileKey.st_ino */
 
 
 JNIEXPORT void JNICALL
-Java_sun_nio_ch_FileKey_initIDs(JNIEnv *env, jclass clazz)
+FileKey_initIDs(JNIEnv *env, jclass clazz)
 {
     key_st_dev = (*env)->GetFieldID(env, clazz, "st_dev", "J");
     key_st_ino = (*env)->GetFieldID(env, clazz, "st_ino", "J");
@@ -49,7 +53,7 @@ Java_sun_nio_ch_FileKey_initIDs(JNIEnv *env, jclass clazz)
 
 
 JNIEXPORT void JNICALL
-Java_sun_nio_ch_FileKey_init(JNIEnv *env, jobject this, jobject fdo)
+FileKey_init(JNIEnv *env, jobject this, jobject fdo)
 {
     struct stat64 fbuf;
     int res;
@@ -61,4 +65,13 @@ Java_sun_nio_ch_FileKey_init(JNIEnv *env, jobject this, jobject fdo)
         (*env)->SetLongField(env, this, key_st_dev, (jlong)fbuf.st_dev);
         (*env)->SetLongField(env, this, key_st_ino, (jlong)fbuf.st_ino);
     }
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(FileKey, initIDs, "()V"),
+  NATIVE_METHOD(FileKey, init, "(Ljava/io/FileDescriptor;)V"),
+};
+
+void register_sun_nio_ch_FileKey(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "sun/nio/ch/FileKey", gMethods, NELEM(gMethods));
 }

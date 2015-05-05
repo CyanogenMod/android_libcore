@@ -14,8 +14,6 @@ LOCAL_SRC_FILES := \
     android_system_OsConstants.cpp \
     canonicalize_path.cpp \
     cbigint.cpp \
-    java_io_File.cpp \
-    java_io_FileDescriptor.cpp \
     java_io_ObjectStreamClass.cpp \
     java_lang_Character.cpp \
     java_lang_Double.cpp \

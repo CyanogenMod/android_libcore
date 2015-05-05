@@ -208,7 +208,7 @@ public abstract class AbstractInterruptibleChannel
 
     // -- sun.misc.SharedSecrets --
     static void blockedOn(Interruptible intr) {         // package-private
-        sun.misc.SharedSecrets.getJavaLangAccess().blockedOn(Thread.currentThread(),
-                                                             intr);
+        // Android-changed: Call Thread.currentThread().blockedOn() directly.
+        Thread.currentThread().blockedOn(intr);
     }
 }

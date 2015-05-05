@@ -121,11 +121,19 @@ class NativeBuffers {
      * Copies a byte array and zero terminator into a given native buffer.
      */
     static void copyCStringToNativeBuffer(byte[] cstr, NativeBuffer buffer) {
-        long offset = Unsafe.ARRAY_BYTE_BASE_OFFSET;
+        // long offset = Unsafe.ARRAY_BYTE_BASE_OFFSET;
+        // long len = cstr.length;
+        // assert buffer.size() >= (len + 1);
+        // unsafe.copyMemory(cstr, offset, null, buffer.address(), len);
+        // unsafe.putByte(buffer.address() + len, (byte)0);
+
+        // Android-changed: We don't have Unsafe.copyMemory yet, so we use putByte$.
         long len = cstr.length;
         assert buffer.size() >= (len + 1);
-        unsafe.copyMemory(cstr, offset, null, buffer.address(), len);
-        unsafe.putByte(buffer.address() + len, (byte)0);
+        for (int i = 0; i < len; ++i) {
+          unsafe.putByte$(buffer.address() + i, cstr[i]);
+        }
+        unsafe.putByte$(buffer.address() + len, (byte)0);
     }
 
     /**

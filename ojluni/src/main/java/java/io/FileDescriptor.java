@@ -141,28 +141,37 @@ public final class FileDescriptor {
         initIDs();
     }
 
-    // Set up JavaIOFileDescriptorAccess in SharedSecrets
-    static {
-        sun.misc.SharedSecrets.setJavaIOFileDescriptorAccess(
-            new sun.misc.JavaIOFileDescriptorAccess() {
-                public void set(FileDescriptor obj, int fd) {
-                    obj.fd = fd;
-                }
-
-                public int get(FileDescriptor obj) {
-                    return obj.fd;
-                }
-
-                public void setHandle(FileDescriptor obj, long handle) {
-                    throw new UnsupportedOperationException();
-                }
-
-                public long getHandle(FileDescriptor obj) {
-                    throw new UnsupportedOperationException();
-                }
-            }
-        );
+    /**
+     * Returns the int fd. It's highly unlikely you should be calling this. Please discuss
+     * your needs with a libcore maintainer before using this method.
+     * @hide internal use only
+     */
+    // Android-added.
+    public final int getInt$() {
+        return fd;
     }
+
+    /**
+     * Sets the int fd. It's highly unlikely you should be calling this. Please discuss
+     * your needs with a libcore maintainer before using this method.
+     * @hide internal use only
+     */
+    // Android-added.
+    public final void setInt$(int fd) {
+        this.fd = fd;
+    }
+
+    /**
+     * @hide internal use only
+     */
+    // Android-added.
+    public boolean isSocket() {
+        return isSocket(fd);
+    }
+
+    private static native boolean isSocket(int fd);
+
+    // ----- END android -----
 
     // package private methods used by FIS, FOS and RAF
 

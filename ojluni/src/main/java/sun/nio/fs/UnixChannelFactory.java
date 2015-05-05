@@ -33,8 +33,6 @@ import java.util.Set;
 import sun.nio.ch.FileChannelImpl;
 import sun.nio.ch.ThreadPool;
 import sun.nio.ch.SimpleAsynchronousFileChannelImpl;
-import sun.misc.SharedSecrets;
-import sun.misc.JavaIOFileDescriptorAccess;
 
 import static sun.nio.fs.UnixNativeDispatcher.*;
 import static sun.nio.fs.UnixConstants.*;
@@ -44,8 +42,6 @@ import static sun.nio.fs.UnixConstants.*;
  */
 
 class UnixChannelFactory {
-    private static final JavaIOFileDescriptorAccess fdAccess =
-        SharedSecrets.getJavaIOFileDescriptorAccess();
 
     protected UnixChannelFactory() {
     }
@@ -102,7 +98,8 @@ class UnixChannelFactory {
      */
     static FileChannel newFileChannel(int fd, String path, boolean reading, boolean writing) {
         FileDescriptor fdObj = new FileDescriptor();
-        fdAccess.set(fdObj, fd);
+        // Android-changed: Use setInt$.
+        fdObj.setInt$(fd);
         return FileChannelImpl.open(fdObj, path, reading, writing, null);
     }
 
@@ -288,7 +285,8 @@ class UnixChannelFactory {
 
         // create java.io.FileDescriptor
         FileDescriptor fdObj = new FileDescriptor();
-        fdAccess.set(fdObj, fd);
+        // Android-changed: Use setInt$.
+        fdObj.setInt$(fd);
         return fdObj;
     }
 }

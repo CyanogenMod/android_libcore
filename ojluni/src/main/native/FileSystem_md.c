@@ -26,10 +26,22 @@
 #include "jni.h"
 #include "jni_util.h"
 #include "java_io_FileSystem.h"
+#include "JNIHelp.h"
 
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 JNIEXPORT jobject JNICALL
-Java_java_io_FileSystem_getFileSystem(JNIEnv *env, jclass ignored)
+FileSystem_getFileSystem(JNIEnv *env, jclass ignored)
 {
     return JNU_NewObjectByName(env, "java/io/UnixFileSystem", "()V");
+}
+
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(FileSystem, getFileSystem, "()Ljava/io/FileSystem;"),
+};
+
+void register_java_io_FileSystem(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/io/FileSystem", gMethods, NELEM(gMethods));
 }
