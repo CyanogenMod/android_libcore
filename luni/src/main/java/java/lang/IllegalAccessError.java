@@ -18,8 +18,14 @@
 package java.lang;
 
 /**
- * Thrown when the VM notices that a program tries access a field
- * which is not accessible from where it is referenced.
+ * Thrown when the runtime notices that a program tries to access a class or member
+ * which is not accessible from where it is referenced. Some examples are:
+ * <ul>
+ * <li>The superclass or an implemented interface is not accessible in the subclass.
+ * <li>Reading or writing an inaccessible field, e.g., a private field in another class.
+ * <li>Invoking an inaccessible method, e.g., the constructor of an inaccessible class,
+ *     or a private method of another class.
+ * </ul>
  * <p>
  * Note that this can only occur when inconsistent class files have been loaded.
  */
