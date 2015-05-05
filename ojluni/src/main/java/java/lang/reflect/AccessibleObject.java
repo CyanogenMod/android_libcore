@@ -27,7 +27,6 @@ package java.lang.reflect;
 
 import java.security.AccessController;
 import sun.reflect.Reflection;
-import sun.reflect.ReflectionFactory;
 import java.lang.annotation.Annotation;
 
 /**
@@ -168,10 +167,6 @@ public class AccessibleObject implements AnnotatedElement {
     // Reflection factory used by subclasses for creating field,
     // method, and constructor accessors. Note that this is called
     // very early in the bootstrapping process.
-    static final ReflectionFactory reflectionFactory =
-        AccessController.doPrivileged(
-            new sun.reflect.ReflectionFactory.GetReflectionFactoryAction());
-
     /**
      * @throws NullPointerException {@inheritDoc}
      * @since 1.5

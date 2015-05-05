@@ -25,10 +25,6 @@
 
 package java.lang.reflect;
 
-import java.security.AccessController;
-import sun.reflect.LangReflectAccess;
-import sun.reflect.ReflectionFactory;
-
 /**
  * The Modifier class provides {@code static} methods and
  * constants to decode class and member access modifiers.  The sets of
@@ -45,17 +41,6 @@ import sun.reflect.ReflectionFactory;
  */
 public
 class Modifier {
-
-    /*
-     * Bootstrapping protocol between java.lang and java.lang.reflect
-     *  packages
-     */
-    static {
-        sun.reflect.ReflectionFactory factory =
-            AccessController.doPrivileged(
-                new ReflectionFactory.GetReflectionFactoryAction());
-        factory.setLangReflectAccess(new java.lang.reflect.ReflectAccess());
-    }
 
     /**
      * Return {@code true} if the integer argument includes the
@@ -139,6 +124,14 @@ class Modifier {
      */
     public static boolean isVolatile(int mod) {
         return (mod & VOLATILE) != 0;
+    }
+
+    /**
+     * Returns true if the given modifiers contain {@link Modifier#CONSTRUCTOR}.
+     * @hide
+     */
+    public static boolean isConstructor(int modifiers) {
+        return ((modifiers & Modifier.CONSTRUCTOR) != 0);
     }
 
     /**
@@ -339,12 +332,30 @@ class Modifier {
     // they are not Java programming language keywords
     static final int BRIDGE    = 0x00000040;
     static final int VARARGS   = 0x00000080;
-    static final int SYNTHETIC = 0x00001000;
+    /**
+     * @hide
+     */
+    public static final int SYNTHETIC = 0x00001000;
     static final int ANNOTATION= 0x00002000;
     static final int ENUM      = 0x00004000;
     static boolean isSynthetic(int mod) {
       return (mod & SYNTHETIC) != 0;
     }
+
+    /**
+     * Miranda methods are fabrications to reserve virtual method
+     * table slots in abstract classes that implement interfaces
+     * without declaring the abstract methods that the interface would
+     * require they implement.
+     * @hide
+     */
+    public static final int MIRANDA = 0x8000;
+    /**
+     * Dex addition to mark instance constructors and static class
+     * initializer methods.
+     * @hide
+     */
+    public static final int CONSTRUCTOR = 0x10000;
 
     /**
      * See JLSv3 section 8.1.1.

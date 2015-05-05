@@ -26,17 +26,11 @@
 package java.lang.reflect;
 
 import sun.reflect.CallerSensitive;
-import sun.reflect.ConstructorAccessor;
-import sun.reflect.Reflection;
-import sun.reflect.generics.repository.ConstructorRepository;
-import sun.reflect.generics.factory.CoreReflectionFactory;
-import sun.reflect.generics.factory.GenericsFactory;
-import sun.reflect.generics.scope.ConstructorScope;
+import java.util.Comparator;
+import java.util.List;
+import libcore.reflect.AnnotationAccess;
+import libcore.reflect.Types;
 import java.lang.annotation.Annotation;
-import java.util.Map;
-import sun.reflect.annotation.AnnotationParser;
-import java.lang.annotation.AnnotationFormatError;
-import java.lang.reflect.Modifier;
 
 /**
  * {@code Constructor} provides information about, and access to, a single
@@ -59,69 +53,16 @@ import java.lang.reflect.Modifier;
  * @author      Nakul Saraiya
  */
 public final
-    class Constructor<T> extends AccessibleObject implements
+    class Constructor<T> extends AbstractMethod implements
                                                     GenericDeclaration,
                                                     Member {
-
-    private Class<T>            clazz;
-    private int                 slot;
-    private Class<?>[]          parameterTypes;
-    private Class<?>[]          exceptionTypes;
-    private int                 modifiers;
-    // Generics and annotations support
-    private transient String    signature;
-    // generic info repository; lazily initialized
-    private transient ConstructorRepository genericInfo;
-    private byte[]              annotations;
-    private byte[]              parameterAnnotations;
-
-    // Generics infrastructure
-    // Accessor for factory
-    private GenericsFactory getFactory() {
-        // create scope and factory
-        return CoreReflectionFactory.make(this, ConstructorScope.make(this));
-    }
-
-    // Accessor for generic info repository
-    private ConstructorRepository getGenericInfo() {
-        // lazily initialize repository if necessary
-        if (genericInfo == null) {
-            // create and cache generic info repository
-            genericInfo =
-                ConstructorRepository.make(getSignature(),
-                                           getFactory());
-        }
-        return genericInfo; //return cached repository
-    }
-
-    private volatile ConstructorAccessor constructorAccessor;
-    // For sharing of ConstructorAccessors. This branching structure
-    // is currently only two levels deep (i.e., one root Constructor
-    // and potentially many Constructor objects pointing to it.)
-    private Constructor<T>      root;
+    private static final Comparator<Method> ORDER_BY_SIGNATURE = null; // Unused; must match Method.
 
     /**
-     * Package-private constructor used by ReflectAccess to enable
-     * instantiation of these objects in Java code from the java.lang
-     * package via sun.reflect.LangReflectAccess.
+     * @hide
      */
-    Constructor(Class<T> declaringClass,
-                Class<?>[] parameterTypes,
-                Class<?>[] checkedExceptions,
-                int modifiers,
-                int slot,
-                String signature,
-                byte[] annotations,
-                byte[] parameterAnnotations)
-    {
-        this.clazz = declaringClass;
-        this.parameterTypes = parameterTypes;
-        this.exceptionTypes = checkedExceptions;
-        this.modifiers = modifiers;
-        this.slot = slot;
-        this.signature = signature;
-        this.annotations = annotations;
-        this.parameterAnnotations = parameterAnnotations;
+    public Constructor(ArtMethod artMethod) {
+        super(artMethod);
     }
 
     /**
@@ -137,16 +78,7 @@ public final
         // which implicitly requires that new java.lang.reflect
         // objects be fabricated for each reflective call on Class
         // objects.)
-        Constructor<T> res = new Constructor<>(clazz,
-                                                parameterTypes,
-                                                exceptionTypes, modifiers, slot,
-                                                signature,
-                                                annotations,
-                                                parameterAnnotations);
-        res.root = this;
-        // Might as well eagerly propagate this if already present
-        res.constructorAccessor = constructorAccessor;
-        return res;
+        return new Constructor<T>(artMethod);
     }
 
     /**
@@ -154,7 +86,7 @@ public final
      * the constructor represented by this {@code Constructor} object.
      */
     public Class<T> getDeclaringClass() {
-        return clazz;
+        return (Class<T>) super.getDeclaringClass();
     }
 
     /**
@@ -173,7 +105,7 @@ public final
      * @see Modifier
      */
     public int getModifiers() {
-        return modifiers;
+        return super.getModifiers();
     }
 
     /**
@@ -192,10 +124,8 @@ public final
      * @since 1.5
      */
     public TypeVariable<Constructor<T>>[] getTypeParameters() {
-      if (getSignature() != null) {
-        return (TypeVariable<Constructor<T>>[])getGenericInfo().getTypeParameters();
-      } else
-          return (TypeVariable<Constructor<T>>[])new TypeVariable[0];
+      GenericInfo info = getMethodOrConstructorGenericInfo();
+      return (TypeVariable<Constructor<T>>[]) info.formalTypeParameters.clone();
     }
 
 
@@ -209,7 +139,7 @@ public final
      * represents
      */
     public Class<?>[] getParameterTypes() {
-        return (Class<?>[]) parameterTypes.clone();
+        return super.getParameterTypes();
     }
 
 
@@ -241,10 +171,7 @@ public final
      * @since 1.5
      */
     public Type[] getGenericParameterTypes() {
-        if (getSignature() != null)
-            return getGenericInfo().getParameterTypes();
-        else
-            return getParameterTypes();
+        return super.getGenericParameterTypes();
     }
 
 
@@ -258,7 +185,7 @@ public final
      * constructor this object represents
      */
     public Class<?>[] getExceptionTypes() {
-        return (Class<?>[])exceptionTypes.clone();
+        return AnnotationAccess.getExceptions(this);
     }
 
 
@@ -285,12 +212,7 @@ public final
      * @since 1.5
      */
       public Type[] getGenericExceptionTypes() {
-          Type[] result;
-          if (getSignature() != null &&
-              ( (result = getGenericInfo().getExceptionTypes()).length > 0  ))
-              return result;
-          else
-              return getExceptionTypes();
+          return super.getGenericExceptionTypes();
       }
 
     /**
@@ -304,8 +226,9 @@ public final
             Constructor<?> other = (Constructor<?>)obj;
             if (getDeclaringClass() == other.getDeclaringClass()) {
                 /* Avoid unnecessary cloning */
-                Class<?>[] params1 = parameterTypes;
-                Class<?>[] params2 = other.parameterTypes;
+                // Android changed: Use getParameterTypes.
+                Class<?>[] params1 = getParameterTypes();
+                Class<?>[] params2 = other.getParameterTypes();
                 if (params1.length == params2.length) {
                     for (int i = 0; i < params1.length; i++) {
                         if (params1[i] != params2[i])
@@ -351,14 +274,14 @@ public final
             }
             sb.append(Field.getTypeName(getDeclaringClass()));
             sb.append("(");
-            Class<?>[] params = parameterTypes; // avoid clone
+            Class<?>[] params = getParameterTypes();
             for (int j = 0; j < params.length; j++) {
                 sb.append(Field.getTypeName(params[j]));
                 if (j < (params.length - 1))
                     sb.append(",");
             }
             sb.append(")");
-            Class<?>[] exceptions = exceptionTypes; // avoid clone
+            Class<?>[] exceptions = getExceptionTypes();
             if (exceptions.length > 0) {
                 sb.append(" throws ");
                 for (int k = 0; k < exceptions.length; k++) {
@@ -506,25 +429,14 @@ public final
      * @exception ExceptionInInitializerError if the initialization provoked
      *              by this method fails.
      */
-    @CallerSensitive
-    public T newInstance(Object ... initargs)
-        throws InstantiationException, IllegalAccessException,
-               IllegalArgumentException, InvocationTargetException
-    {
-        if (!override) {
-            if (!Reflection.quickCheckMemberAccess(clazz, modifiers)) {
-                Class<?> caller = Reflection.getCallerClass();
-                checkAccess(caller, clazz, null, modifiers);
-            }
-        }
-        if ((clazz.getModifiers() & Modifier.ENUM) != 0)
-            throw new IllegalArgumentException("Cannot reflectively create enum objects");
-        ConstructorAccessor ca = constructorAccessor;   // read volatile
-        if (ca == null) {
-            ca = acquireConstructorAccessor();
-        }
-        return (T) ca.newInstance(initargs);
+    public T newInstance(Object... args) throws InstantiationException,
+            IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+      return newInstance(args, isAccessible());
     }
+
+    /** @hide */
+    public native T newInstance(Object[] args, boolean accessible) throws InstantiationException,
+            IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 
     /**
      * Returns {@code true} if this constructor was declared to take
@@ -552,87 +464,36 @@ public final
         return Modifier.isSynthetic(getModifiers());
     }
 
-    // NOTE that there is no synchronization used here. It is correct
-    // (though not efficient) to generate more than one
-    // ConstructorAccessor for a given Constructor. However, avoiding
-    // synchronization will probably make the implementation more
-    // scalable.
-    private ConstructorAccessor acquireConstructorAccessor() {
-        // First check to see if one has been created yet, and take it
-        // if so.
-        ConstructorAccessor tmp = null;
-        if (root != null) tmp = root.getConstructorAccessor();
-        if (tmp != null) {
-            constructorAccessor = tmp;
-        } else {
-            // Otherwise fabricate one and propagate it up to the root
-            tmp = reflectionFactory.newConstructorAccessor(this);
-            setConstructorAccessor(tmp);
+    String getSignature() {
+        StringBuilder result = new StringBuilder();
+
+        result.append('(');
+        Class<?>[] parameterTypes = getParameterTypes();
+        for (Class<?> parameterType : parameterTypes) {
+            result.append(Types.getSignature(parameterType));
         }
+        result.append(")V");
 
-        return tmp;
-    }
-
-    // Returns ConstructorAccessor for this Constructor object, not
-    // looking up the chain to the root
-    ConstructorAccessor getConstructorAccessor() {
-        return constructorAccessor;
-    }
-
-    // Sets the ConstructorAccessor for this Constructor object and
-    // (recursively) its root
-    void setConstructorAccessor(ConstructorAccessor accessor) {
-        constructorAccessor = accessor;
-        // Propagate up
-        if (root != null) {
-            root.setConstructorAccessor(accessor);
-        }
-    }
-
-    int getSlot() {
-        return slot;
-    }
-
-   String getSignature() {
-            return signature;
-   }
-
-    byte[] getRawAnnotations() {
-        return annotations;
-    }
-
-    byte[] getRawParameterAnnotations() {
-        return parameterAnnotations;
+        return result.toString();
     }
 
     /**
      * @throws NullPointerException {@inheritDoc}
      * @since 1.5
      */
-    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-        if (annotationClass == null)
-            throw new NullPointerException();
-
-        return (T) declaredAnnotations().get(annotationClass);
+    @Override public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
+        if (annotationType == null) {
+            throw new NullPointerException("annotationType == null");
+        }
+        return AnnotationAccess.getDeclaredAnnotation(this, annotationType);
     }
 
     /**
      * @since 1.5
      */
     public Annotation[] getDeclaredAnnotations()  {
-        return AnnotationParser.toArray(declaredAnnotations());
-    }
-
-    private transient Map<Class<? extends Annotation>, Annotation> declaredAnnotations;
-
-    private synchronized  Map<Class<? extends Annotation>, Annotation> declaredAnnotations() {
-        if (declaredAnnotations == null) {
-            declaredAnnotations = AnnotationParser.parseAnnotations(
-                annotations, sun.misc.SharedSecrets.getJavaLangAccess().
-                getConstantPool(getDeclaringClass()),
-                getDeclaringClass());
-        }
-        return declaredAnnotations;
+        List<Annotation> result = AnnotationAccess.getDeclaredAnnotations(this);
+        return result.toArray(new Annotation[result.size()]);
     }
 
     /**
@@ -652,33 +513,6 @@ public final
      * @since 1.5
      */
     public Annotation[][] getParameterAnnotations() {
-        int numParameters = parameterTypes.length;
-        if (parameterAnnotations == null)
-            return new Annotation[numParameters][0];
-
-        Annotation[][] result = AnnotationParser.parseParameterAnnotations(
-            parameterAnnotations,
-            sun.misc.SharedSecrets.getJavaLangAccess().
-                getConstantPool(getDeclaringClass()),
-            getDeclaringClass());
-        if (result.length != numParameters) {
-            Class<?> declaringClass = getDeclaringClass();
-            if (declaringClass.isEnum() ||
-                declaringClass.isAnonymousClass() ||
-                declaringClass.isLocalClass() )
-                ; // Can't do reliable parameter counting
-            else {
-                if (!declaringClass.isMemberClass() || // top-level
-                    // Check for the enclosing instance parameter for
-                    // non-static member classes
-                    (declaringClass.isMemberClass() &&
-                     ((declaringClass.getModifiers() & Modifier.STATIC) == 0)  &&
-                     result.length + 1 != numParameters) ) {
-                    throw new AnnotationFormatError(
-                              "Parameter annotations don't match number of parameters");
-                }
-            }
-        }
-        return result;
+        return artMethod.getParameterAnnotations();
     }
 }

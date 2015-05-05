@@ -30,19 +30,20 @@ import java.lang.ref.WeakReference;
 import java.security.AccessController;
 import java.security.Permission;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.List;
 import java.util.WeakHashMap;
-import sun.misc.ProxyGenerator;
 import sun.reflect.CallerSensitive;
-import sun.reflect.Reflection;
 import sun.reflect.misc.ReflectUtil;
 import sun.security.util.SecurityConstants;
+import libcore.util.EmptyArray;
 
 /**
  * {@code Proxy} provides static methods for creating dynamic proxy
@@ -259,6 +260,31 @@ public class Proxy implements java.io.Serializable {
     protected InvocationHandler h;
 
     /**
+     * Orders methods by their name, parameters, return type and inheritance relationship.
+     *
+     * @hide
+     */
+    private static final Comparator<Method> ORDER_BY_SIGNATURE_AND_SUBTYPE = new Comparator<Method>() {
+        @Override public int compare(Method a, Method b) {
+            int comparison = Method.ORDER_BY_SIGNATURE.compare(a, b);
+            if (comparison != 0) {
+                return comparison;
+            }
+            Class<?> aClass = a.getDeclaringClass();
+            Class<?> bClass = b.getDeclaringClass();
+            if (aClass == bClass) {
+                return 0;
+            } else if (aClass.isAssignableFrom(bClass)) {
+                return 1;
+            } else if (bClass.isAssignableFrom(aClass)) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    };
+
+    /**
      * Prohibits instantiation.
      */
     private Proxy() {
@@ -412,46 +438,7 @@ public class Proxy implements java.io.Serializable {
                                          Class<?>... interfaces)
         throws IllegalArgumentException
     {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            checkProxyAccess(Reflection.getCallerClass(), loader, interfaces);
-        }
-
         return getProxyClass0(loader, interfaces);
-    }
-
-    /*
-     * Check permissions required to create a Proxy class.
-     *
-     * To define a proxy class, it performs the access checks as in
-     * Class.forName (VM will invoke ClassLoader.checkPackageAccess):
-     * 1. "getClassLoader" permission check if loader == null
-     * 2. checkPackageAccess on the interfaces it implements
-     *
-     * To get a constructor and new instance of a proxy class, it performs
-     * the package access check on the interfaces it implements
-     * as in Class.getConstructor.
-     *
-     * If an interface is non-public, the proxy class must be defined by
-     * the defining loader of the interface.  If the caller's class loader
-     * is not the same as the defining loader of the interface, the VM
-     * will throw IllegalAccessError when the generated proxy class is
-     * being defined via the defineClass0 method.
-     */
-    private static void checkProxyAccess(Class<?> caller,
-                                         ClassLoader loader,
-                                         Class<?>... interfaces)
-    {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            ClassLoader ccl = caller.getClassLoader();
-            if (loader == null && ccl != null) {
-                if (!ProxyAccessHelper.allowNullLoader) {
-                    sm.checkPermission(SecurityConstants.GET_CLASSLOADER_PERMISSION);
-                }
-            }
-            ReflectUtil.checkProxyPackageAccess(ccl, interfaces);
-        }
     }
 
     /**
@@ -625,29 +612,20 @@ public class Proxy implements java.io.Serializable {
                     num = nextUniqueNumber++;
                 }
                 String proxyName = proxyPkg + proxyClassNamePrefix + num;
-                /*
-                 * Verify that the class loader hasn't already
-                 * defined a class with the chosen name.
-                 */
+                // Android-changed: Generate the proxy directly instead of calling
+                // through to ProxyGenerator.
+                List<Method> methods = getMethods(interfaces);
+                Collections.sort(methods, ORDER_BY_SIGNATURE_AND_SUBTYPE);
+                validateReturnTypes(methods);
+                List<Class<?>[]> exceptions = deduplicateAndGetExceptions(methods);
 
-                /*
-                 * Generate the specified proxy class.
-                 */
-                byte[] proxyClassFile = ProxyGenerator.generateProxyClass(
-                    proxyName, interfaces);
-                try {
-                    proxyClass = defineClass0(loader, proxyName,
-                        proxyClassFile, 0, proxyClassFile.length);
-                } catch (ClassFormatError e) {
-                    /*
-                     * A ClassFormatError here means that (barring bugs in the
-                     * proxy class generation code) there was some other
-                     * invalid aspect of the arguments supplied to the proxy
-                     * class creation (such as virtual machine limitations
-                     * exceeded).
-                     */
-                    throw new IllegalArgumentException(e.toString());
+                ArtMethod[] methodsArray = new ArtMethod[methods.size()];
+                for (int i = 0; i < methodsArray.length; i++) {
+                    methodsArray[i] = methods.get(i).getArtMethod();
                 }
+                Class<?>[][] exceptionsArray = exceptions.toArray(new Class<?>[exceptions.size()][]);
+                proxyClass = generateProxy(proxyName, interfaces, loader, methodsArray,
+                        exceptionsArray);
             }
             // add to set of all generated proxy classes, for isProxyClass
             proxyClasses.put(proxyClass, null);
@@ -670,6 +648,110 @@ public class Proxy implements java.io.Serializable {
             }
         }
         return proxyClass;
+    }
+
+    /**
+     * Remove methods that have the same name, parameters and return type. This
+     * computes the exceptions of each method; this is the intersection of the
+     * exceptions of equivalent methods.
+     *
+     * @param methods the methods to find exceptions for, ordered by name and
+     *     signature.
+     */
+    private static List<Class<?>[]> deduplicateAndGetExceptions(List<Method> methods) {
+        List<Class<?>[]> exceptions = new ArrayList<Class<?>[]>(methods.size());
+
+        for (int i = 0; i < methods.size(); ) {
+            Method method = methods.get(i);
+            Class<?>[] exceptionTypes = method.getExceptionTypes();
+
+            if (i > 0 && Method.ORDER_BY_SIGNATURE.compare(method, methods.get(i - 1)) == 0) {
+                exceptions.set(i - 1, intersectExceptions(exceptions.get(i - 1), exceptionTypes));
+                methods.remove(i);
+            } else {
+                exceptions.add(exceptionTypes);
+                i++;
+            }
+        }
+        return exceptions;
+    }
+
+    /**
+     * Returns the exceptions that are declared in both {@code aExceptions} and
+     * {@code bExceptions}. If an exception type in one array is a subtype of an
+     * exception from the other, the subtype is included in the intersection.
+     */
+    private static Class<?>[] intersectExceptions(Class<?>[] aExceptions, Class<?>[] bExceptions) {
+        if (aExceptions.length == 0 || bExceptions.length == 0) {
+            return EmptyArray.CLASS;
+        }
+        if (Arrays.equals(aExceptions, bExceptions)) {
+            return aExceptions;
+        }
+        Set<Class<?>> intersection = new HashSet<Class<?>>();
+        for (Class<?> a : aExceptions) {
+            for (Class<?> b : bExceptions) {
+                if (a.isAssignableFrom(b)) {
+                    intersection.add(b);
+                } else if (b.isAssignableFrom(a)) {
+                    intersection.add(a);
+                }
+            }
+        }
+        return intersection.toArray(new Class<?>[intersection.size()]);
+    }
+
+
+    /**
+     * Throws if any two methods in {@code methods} have the same name and
+     * parameters but incompatible return types.
+     *
+     * @param methods the methods to find exceptions for, ordered by name and
+     *     signature.
+     */
+    private static void validateReturnTypes(List<Method> methods) {
+        Method vs = null;
+        for (Method method : methods) {
+            if (vs == null || !vs.equalNameAndParameters(method)) {
+                vs = method; // this has a different name or parameters
+                continue;
+            }
+            Class<?> returnType = method.getReturnType();
+            Class<?> vsReturnType = vs.getReturnType();
+            if (returnType.isInterface() && vsReturnType.isInterface()) {
+                // all interfaces are mutually compatible
+            } else if (vsReturnType.isAssignableFrom(returnType)) {
+                vs = method; // the new return type is a subtype; use it instead
+            } else if (!returnType.isAssignableFrom(vsReturnType)) {
+                throw new IllegalArgumentException("proxied interface methods have incompatible "
+                        + "return types:\n  " + vs + "\n  " + method);
+            }
+        }
+    }
+
+    private static List<Method> getMethods(Class<?>[] interfaces) {
+        List<Method> result = new ArrayList<Method>();
+        try {
+            result.add(Object.class.getMethod("equals", Object.class));
+            result.add(Object.class.getMethod("hashCode", EmptyArray.CLASS));
+            result.add(Object.class.getMethod("toString", EmptyArray.CLASS));
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError();
+        }
+
+        getMethodsRecursive(interfaces, result);
+        return result;
+    }
+
+    /**
+     * Fills {@code proxiedMethods} with the methods of {@code interfaces} and
+     * the interfaces they extend. May contain duplicates.
+     */
+    private static void getMethodsRecursive(Class<?>[] interfaces, List<Method> methods) {
+        for (Class<?> i : interfaces) {
+            getMethodsRecursive(i.getInterfaces(), methods);
+            Collections.addAll(methods, i.getDeclaredMethods());
+        }
     }
 
     /**
@@ -711,11 +793,6 @@ public class Proxy implements java.io.Serializable {
             throw new NullPointerException();
         }
 
-        final SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            checkProxyAccess(Reflection.getCallerClass(), loader, interfaces);
-        }
-
         /*
          * Look up or generate the designated proxy class.
          */
@@ -726,18 +803,7 @@ public class Proxy implements java.io.Serializable {
          */
         try {
             final Constructor<?> cons = cl.getConstructor(constructorParams);
-            final InvocationHandler ih = h;
-            if (sm != null && ProxyAccessHelper.needsNewInstanceCheck(cl)) {
-                // create proxy instance with doPrivilege as the proxy class may
-                // implement non-public interfaces that requires a special permission
-                return AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                    public Object run() {
-                        return newInstance(cons, ih);
-                    }
-                });
-            } else {
-                return newInstance(cons, ih);
-            }
+            return newInstance(cons, h);
         } catch (NoSuchMethodException e) {
             throw new InternalError(e.toString());
         }
@@ -802,6 +868,16 @@ public class Proxy implements java.io.Serializable {
         return p.h;
     }
 
-    private static native Class defineClass0(ClassLoader loader, String name,
-                                             byte[] b, int off, int len);
+    static Object invoke(Proxy proxy, ArtMethod method, Object[] args) throws Throwable {
+        InvocationHandler h = proxy.h;
+        return h.invoke(proxy, new Method(method), args);
+    }
+
+    private static native Class<?> generateProxy(String name, Class<?>[] interfaces,
+                                                 ClassLoader loader, ArtMethod[] methods,
+                                                 Class<?>[][] exceptions);
+
+    // Temporary methods.
+    private static void reserved1() {};
+    private static void reserved2() {};
 }

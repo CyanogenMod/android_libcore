@@ -26,18 +26,12 @@
 package java.lang.reflect;
 
 import sun.reflect.CallerSensitive;
-import sun.reflect.MethodAccessor;
-import sun.reflect.Reflection;
-import sun.reflect.generics.repository.MethodRepository;
-import sun.reflect.generics.factory.CoreReflectionFactory;
-import sun.reflect.generics.factory.GenericsFactory;
-import sun.reflect.generics.scope.MethodScope;
-import sun.reflect.annotation.AnnotationType;
-import sun.reflect.annotation.AnnotationParser;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.AnnotationFormatError;
-import java.nio.ByteBuffer;
-import java.util.Map;
+import java.util.Comparator;
+import java.util.List;
+import libcore.reflect.AnnotationAccess;
+import libcore.reflect.Types;
 
 /**
  * A {@code Method} provides information about, and access to, a single method
@@ -60,79 +54,47 @@ import java.util.Map;
  * @author Nakul Saraiya
  */
 public final
-    class Method extends AccessibleObject implements GenericDeclaration,
+    class Method extends AbstractMethod implements GenericDeclaration,
                                                      Member {
-    private Class<?>            clazz;
-    private int                 slot;
-    // This is guaranteed to be interned by the VM in the 1.4
-    // reflection implementation
-    private String              name;
-    private Class<?>            returnType;
-    private Class<?>[]          parameterTypes;
-    private Class<?>[]          exceptionTypes;
-    private int                 modifiers;
-    // Generics and annotations support
-    private transient String              signature;
-    // generic info repository; lazily initialized
-    private transient MethodRepository genericInfo;
-    private byte[]              annotations;
-    private byte[]              parameterAnnotations;
-    private byte[]              annotationDefault;
-    private volatile MethodAccessor methodAccessor;
-    // For sharing of MethodAccessors. This branching structure is
-    // currently only two levels deep (i.e., one root Method and
-    // potentially many Method objects pointing to it.)
-    private Method              root;
-
-   // Generics infrastructure
-
-    private String getGenericSignature() {return signature;}
-
-    // Accessor for factory
-    private GenericsFactory getFactory() {
-        // create scope and factory
-        return CoreReflectionFactory.make(this, MethodScope.make(this));
-    }
-
-    // Accessor for generic info repository
-    private MethodRepository getGenericInfo() {
-        // lazily initialize repository if necessary
-        if (genericInfo == null) {
-            // create and cache generic info repository
-            genericInfo = MethodRepository.make(getGenericSignature(),
-                                                getFactory());
-        }
-        return genericInfo; //return cached repository
-    }
 
     /**
-     * Package-private constructor used by ReflectAccess to enable
-     * instantiation of these objects in Java code from the java.lang
-     * package via sun.reflect.LangReflectAccess.
+     * Orders methods by their name, parameters and return type.
+     *
+     * @hide
      */
-    Method(Class<?> declaringClass,
-           String name,
-           Class<?>[] parameterTypes,
-           Class<?> returnType,
-           Class<?>[] checkedExceptions,
-           int modifiers,
-           int slot,
-           String signature,
-           byte[] annotations,
-           byte[] parameterAnnotations,
-           byte[] annotationDefault)
-    {
-        this.clazz = declaringClass;
-        this.name = name;
-        this.parameterTypes = parameterTypes;
-        this.returnType = returnType;
-        this.exceptionTypes = checkedExceptions;
-        this.modifiers = modifiers;
-        this.slot = slot;
-        this.signature = signature;
-        this.annotations = annotations;
-        this.parameterAnnotations = parameterAnnotations;
-        this.annotationDefault = annotationDefault;
+    public static final Comparator<Method> ORDER_BY_SIGNATURE = new Comparator<Method>() {
+        @Override public int compare(Method a, Method b) {
+            if (a == b) {
+                return 0;
+            }
+            int comparison = a.getName().compareTo(b.getName());
+            if (comparison == 0) {
+                comparison = a.artMethod.findOverriddenMethodIfProxy().compareParameters(
+                        b.getParameterTypes());
+                if (comparison == 0) {
+                    // This is necessary for methods that have covariant return types.
+                    Class<?> aReturnType = a.getReturnType();
+                    Class<?> bReturnType = b.getReturnType();
+                    if (aReturnType == bReturnType) {
+                        comparison = 0;
+                    } else {
+                        comparison = aReturnType.getName().compareTo(bReturnType.getName());
+                    }
+                }
+            }
+            return comparison;
+        }
+    };
+
+    /**
+     * @hide
+     */
+    public Method(ArtMethod artMethod) {
+        super(artMethod);
+    }
+
+    ArtMethod getArtMethod() {
+        return artMethod;
     }
 
     /**
@@ -148,13 +110,7 @@ public final
         // which implicitly requires that new java.lang.reflect
         // objects be fabricated for each reflective call on Class
         // objects.)
-        Method res = new Method(clazz, name, parameterTypes, returnType,
-                                exceptionTypes, modifiers, slot, signature,
-                                annotations, parameterAnnotations, annotationDefault);
-        res.root = this;
-        // Might as well eagerly propagate this if already present
-        res.methodAccessor = methodAccessor;
-        return res;
+        return new Method(artMethod);
     }
 
     /**
@@ -162,7 +118,7 @@ public final
      * that declares the method represented by this {@code Method} object.
      */
     public Class<?> getDeclaringClass() {
-        return clazz;
+        return super.getDeclaringClass();
     }
 
     /**
@@ -170,7 +126,7 @@ public final
      * object, as a {@code String}.
      */
     public String getName() {
-        return name;
+        return ArtMethod.getMethodName(artMethod);
     }
 
     /**
@@ -181,7 +137,7 @@ public final
      * @see Modifier
      */
     public int getModifiers() {
-        return modifiers;
+        return super.getModifiers();
     }
 
     /**
@@ -200,10 +156,8 @@ public final
      * @since 1.5
      */
     public TypeVariable<Method>[] getTypeParameters() {
-        if (getGenericSignature() != null)
-            return (TypeVariable<Method>[])getGenericInfo().getTypeParameters();
-        else
-            return (TypeVariable<Method>[])new TypeVariable[0];
+        GenericInfo info = getMethodOrConstructorGenericInfo();
+        return (TypeVariable<Method>[]) info.formalTypeParameters.clone();
     }
 
     /**
@@ -213,7 +167,7 @@ public final
      * @return the return type for the method this object represents
      */
     public Class<?> getReturnType() {
-        return returnType;
+        return artMethod.findOverriddenMethodIfProxy().getReturnType();
     }
 
     /**
@@ -241,9 +195,7 @@ public final
      * @since 1.5
      */
     public Type getGenericReturnType() {
-      if (getGenericSignature() != null) {
-        return getGenericInfo().getReturnType();
-      } else { return getReturnType();}
+      return Types.getType(getMethodOrConstructorGenericInfo().genericReturnType);
     }
 
 
@@ -257,7 +209,7 @@ public final
      * represents
      */
     public Class<?>[] getParameterTypes() {
-        return (Class<?>[]) parameterTypes.clone();
+        return artMethod.findOverriddenMethodIfProxy().getParameterTypes();
     }
 
     /**
@@ -288,10 +240,7 @@ public final
      * @since 1.5
      */
     public Type[] getGenericParameterTypes() {
-        if (getGenericSignature() != null)
-            return getGenericInfo().getParameterTypes();
-        else
-            return getParameterTypes();
+        return Types.getTypeArray(getMethodOrConstructorGenericInfo().genericParameterTypes, false);
     }
 
 
@@ -306,8 +255,15 @@ public final
      * method this object represents
      */
     public Class<?>[] getExceptionTypes() {
-        return (Class<?>[]) exceptionTypes.clone();
+        if (getDeclaringClass().isProxy()) {
+            return getExceptionTypesNative();
+        } else {
+            // TODO: use dex cache to speed looking up class
+            return AnnotationAccess.getExceptions(this);
+        }
     }
+
+    private native Class<?>[] getExceptionTypesNative();
 
     /**
      * Returns an array of {@code Type} objects that represent the
@@ -331,14 +287,9 @@ public final
      *     parameterized type that cannot be instantiated for any reason
      * @since 1.5
      */
-      public Type[] getGenericExceptionTypes() {
-          Type[] result;
-          if (getGenericSignature() != null &&
-              ((result = getGenericInfo().getExceptionTypes()).length > 0))
-              return result;
-          else
-              return getExceptionTypes();
-      }
+    public Type[] getGenericExceptionTypes() {
+        return Types.getTypeArray(getMethodOrConstructorGenericInfo().genericExceptionTypes, false);
+    }
 
     /**
      * Compares this {@code Method} against the specified object.  Returns
@@ -351,11 +302,11 @@ public final
             Method other = (Method)obj;
             if ((getDeclaringClass() == other.getDeclaringClass())
                 && (getName() == other.getName())) {
-                if (!returnType.equals(other.getReturnType()))
+                if (!getReturnType().equals(other.getReturnType()))
                     return false;
                 /* Avoid unnecessary cloning */
-                Class<?>[] params1 = parameterTypes;
-                Class<?>[] params2 = other.parameterTypes;
+                Class<?>[] params1 = getParameterTypes();
+                Class<?>[] params2 = other.getParameterTypes();
                 if (params1.length == params2.length) {
                     for (int i = 0; i < params1.length; i++) {
                         if (params1[i] != params2[i])
@@ -409,14 +360,14 @@ public final
             sb.append(Field.getTypeName(getReturnType())).append(' ');
             sb.append(Field.getTypeName(getDeclaringClass())).append('.');
             sb.append(getName()).append('(');
-            Class<?>[] params = parameterTypes; // avoid clone
+            Class<?>[] params = getParameterTypes();
             for (int j = 0; j < params.length; j++) {
                 sb.append(Field.getTypeName(params[j]));
                 if (j < (params.length - 1))
                     sb.append(',');
             }
             sb.append(')');
-            Class<?>[] exceptions = exceptionTypes; // avoid clone
+            Class<?>[] exceptions = getExceptionTypes();
             if (exceptions.length > 0) {
                 sb.append(" throws ");
                 for (int k = 0; k < exceptions.length; k++) {
@@ -585,36 +536,13 @@ public final
      * provoked by this method fails.
      */
     @CallerSensitive
-    public Object invoke(Object obj, Object... args)
-        throws IllegalAccessException, IllegalArgumentException,
-           InvocationTargetException
-    {
-        if (!override) {
-            if (!Reflection.quickCheckMemberAccess(clazz, modifiers)) {
-                // Until there is hotspot @CallerSensitive support
-                // can't call Reflection.getCallerClass() here
-                // Workaround for now: add a frame getCallerClass to
-                // make the caller at stack depth 2
-                Class<?> caller = getCallerClass();
-                checkAccess(caller, clazz, obj, modifiers);
-            }
-        }
-        MethodAccessor ma = methodAccessor;             // read volatile
-        if (ma == null) {
-            ma = acquireMethodAccessor();
-        }
-        return ma.invoke(obj, args);
+    public Object invoke(Object receiver, Object... args)
+            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        return invoke(receiver, args, isAccessible());
     }
 
-    /*
-     * This method makes the frame count to be 2 to find the caller
-     */
-    @CallerSensitive
-    private Class<?> getCallerClass() {
-        // Reflection.getCallerClass() currently returns the frame at depth 2
-        // before the hotspot support is in.
-        return Reflection.getCallerClass();
-    }
+    private native Object invoke(Object receiver, Object[] args, boolean accessible)
+            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
 
     /**
      * Returns {@code true} if this method is a bridge
@@ -653,70 +581,23 @@ public final
         return Modifier.isSynthetic(getModifiers());
     }
 
-    // NOTE that there is no synchronization used here. It is correct
-    // (though not efficient) to generate more than one MethodAccessor
-    // for a given Method. However, avoiding synchronization will
-    // probably make the implementation more scalable.
-    private MethodAccessor acquireMethodAccessor() {
-        // First check to see if one has been created yet, and take it
-        // if so
-        MethodAccessor tmp = null;
-        if (root != null) tmp = root.getMethodAccessor();
-        if (tmp != null) {
-            methodAccessor = tmp;
-        } else {
-            // Otherwise fabricate one and propagate it up to the root
-            tmp = reflectionFactory.newMethodAccessor(this);
-            setMethodAccessor(tmp);
-        }
-
-        return tmp;
-    }
-
-    // Returns MethodAccessor for this Method object, not looking up
-    // the chain to the root
-    MethodAccessor getMethodAccessor() {
-        return methodAccessor;
-    }
-
-    // Sets the MethodAccessor for this Method object and
-    // (recursively) its root
-    void setMethodAccessor(MethodAccessor accessor) {
-        methodAccessor = accessor;
-        // Propagate up
-        if (root != null) {
-            root.setMethodAccessor(accessor);
-        }
-    }
-
     /**
      * @throws NullPointerException {@inheritDoc}
      * @since 1.5
      */
-    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-        if (annotationClass == null)
-            throw new NullPointerException();
-
-        return (T) declaredAnnotations().get(annotationClass);
+    public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
+        if (annotationType == null) {
+            throw new NullPointerException("annotationType == null");
+        }
+        return AnnotationAccess.getDeclaredAnnotation(this, annotationType);
     }
 
     /**
      * @since 1.5
      */
     public Annotation[] getDeclaredAnnotations()  {
-        return AnnotationParser.toArray(declaredAnnotations());
-    }
-
-    private transient Map<Class<? extends Annotation>, Annotation> declaredAnnotations;
-
-    private synchronized  Map<Class<? extends Annotation>, Annotation> declaredAnnotations() {
-        if (declaredAnnotations == null) {
-            declaredAnnotations = AnnotationParser.parseAnnotations(
-                annotations, sun.misc.SharedSecrets.getJavaLangAccess().
-                getConstantPool(getDeclaringClass()),
-                getDeclaringClass());
-        }
-        return declaredAnnotations;
+        List<Annotation> result = AnnotationAccess.getDeclaredAnnotations(this);
+        return result.toArray(new Annotation[result.size()]);
     }
 
     /**
@@ -734,18 +615,7 @@ public final
      * @since  1.5
      */
     public Object getDefaultValue() {
-        if  (annotationDefault == null)
-            return null;
-        Class<?> memberType = AnnotationType.invocationHandlerReturnType(
-            getReturnType());
-        Object result = AnnotationParser.parseMemberValue(
-            memberType, ByteBuffer.wrap(annotationDefault),
-            sun.misc.SharedSecrets.getJavaLangAccess().
-                getConstantPool(getDeclaringClass()),
-            getDeclaringClass());
-        if (result instanceof sun.reflect.annotation.ExceptionProxy)
-            throw new AnnotationFormatError("Invalid default: " + this);
-        return result;
+        return AnnotationAccess.getDefaultValue(this);
     }
 
     /**
@@ -765,18 +635,39 @@ public final
      * @since 1.5
      */
     public Annotation[][] getParameterAnnotations() {
-        int numParameters = parameterTypes.length;
-        if (parameterAnnotations == null)
-            return new Annotation[numParameters][0];
+        return artMethod.findOverriddenMethodIfProxy().getParameterAnnotations();
+    }
 
-        Annotation[][] result = AnnotationParser.parseParameterAnnotations(
-            parameterAnnotations,
-            sun.misc.SharedSecrets.getJavaLangAccess().
-                getConstantPool(getDeclaringClass()),
-            getDeclaringClass());
-        if (result.length != numParameters)
-            throw new java.lang.annotation.AnnotationFormatError(
-                "Parameter annotations don't match number of parameters");
-        return result;
+    /**
+     * Returns the constructor's signature in non-printable form. This is called
+     * (only) from IO native code and needed for deriving the serialVersionUID
+     * of the class
+     *
+     * @return The constructor's signature.
+     */
+    @SuppressWarnings("unused")
+    String getSignature() {
+        StringBuilder result = new StringBuilder();
+
+        result.append('(');
+        Class<?>[] parameterTypes = getParameterTypes();
+        for (Class<?> parameterType : parameterTypes) {
+            result.append(Types.getSignature(parameterType));
+        }
+        result.append(')');
+        result.append(Types.getSignature(getReturnType()));
+
+        return result.toString();
+    }
+    /**
+     * Returns true if this and {@code method} have the same name and the same
+     * parameters in the same order. Such methods can share implementation if
+     * one method's return types is assignable to the other.
+     *
+     * @hide needed by Proxy
+     */
+    boolean equalNameAndParameters(Method m) {
+        return getName().equals(m.getName()) &&
+                ArtMethod.equalMethodParameters(artMethod,m.getParameterTypes());
     }
 }

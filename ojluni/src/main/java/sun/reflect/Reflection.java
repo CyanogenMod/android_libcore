@@ -35,66 +35,6 @@ import java.util.Map;
 
 public class Reflection {
 
-    /** Used to filter out fields and methods from certain classes from public
-        view, where they are sensitive or they may contain VM-internal objects.
-        These Maps are updated very rarely. Rather than synchronize on
-        each access, we use copy-on-write */
-    private static volatile Map<Class,String[]> fieldFilterMap;
-    private static volatile Map<Class,String[]> methodFilterMap;
-
-    static {
-        Map<Class,String[]> map = new HashMap<Class,String[]>();
-        map.put(Reflection.class,
-            new String[] {"fieldFilterMap", "methodFilterMap"});
-        map.put(System.class, new String[] {"security"});
-        fieldFilterMap = map;
-
-        methodFilterMap = new HashMap<Class,String[]>();
-    }
-
-    /** Returns the class of the caller of the method calling this method,
-        ignoring frames associated with java.lang.reflect.Method.invoke()
-        and its implementation. */
-    @CallerSensitive
-    public static native Class getCallerClass();
-
-    /**
-     * @deprecated No replacement. This method will be removed in a future
-     *   release.
-     */
-    @Deprecated
-    @CallerSensitive
-    public static Class getCallerClass(int depth) {
-        if (sun.misc.VM.allowGetCallerClass()) {
-            return getCallerClass0(depth+1);
-        }
-        throw new UnsupportedOperationException("This method has been disabled by a " +
-            "system property");
-    }
-
-    // If the VM enforces getting caller class with @CallerSensitive,
-    // this will fail anyway.
-    @CallerSensitive
-    private static native Class getCallerClass0(int depth);
-
-    /** Retrieves the access flags written to the class file. For
-        inner classes these flags may differ from those returned by
-        Class.getModifiers(), which searches the InnerClasses
-        attribute to find the source-level access flags. This is used
-        instead of Class.getModifiers() for run-time access checks due
-        to compatibility reasons; see 4471811. Only the values of the
-        low 13 bits (i.e., a mask of 0x1FFF) are guaranteed to be
-        valid. */
-    private static native int getClassAccessFlags(Class c);
-
-    /** A quick "fast-path" check to try to avoid getCallerClass()
-        calls. */
-    public static boolean quickCheckMemberAccess(Class memberClass,
-                                                 int modifiers)
-    {
-        return Modifier.isPublic(getClassAccessFlags(memberClass) & modifiers);
-    }
-
     public static void ensureMemberAccess(Class currentClass,
                                           Class memberClass,
                                           Object target,
@@ -135,7 +75,10 @@ public class Reflection {
             return true;
         }
 
-        if (!Modifier.isPublic(getClassAccessFlags(memberClass))) {
+        /* ----- BEGIN android -----
+        if (!Modifier.isPublic(getClassAccessFlags(memberClass))) {*/
+        if (!Modifier.isPublic(memberClass.getAccessFlags())) {
+        // ----- END android -----
             isSameClassPackage = isSameClassPackage(currentClass, memberClass);
             gotIsSameClassPackage = true;
             if (!isSameClassPackage) {
@@ -256,106 +199,6 @@ public class Reflection {
                 return true;
             }
             queryClass = queryClass.getSuperclass();
-        }
-        return false;
-    }
-
-    // fieldNames must contain only interned Strings
-    public static synchronized void registerFieldsToFilter(Class containingClass,
-                                              String ... fieldNames) {
-        fieldFilterMap =
-            registerFilter(fieldFilterMap, containingClass, fieldNames);
-    }
-
-    // methodNames must contain only interned Strings
-    public static synchronized void registerMethodsToFilter(Class containingClass,
-                                              String ... methodNames) {
-        methodFilterMap =
-            registerFilter(methodFilterMap, containingClass, methodNames);
-    }
-
-    private static Map<Class,String[]> registerFilter(Map<Class,String[]> map,
-            Class containingClass, String ... names) {
-        if (map.get(containingClass) != null) {
-            throw new IllegalArgumentException
-                            ("Filter already registered: " + containingClass);
-        }
-        map = new HashMap<Class,String[]>(map);
-        map.put(containingClass, names);
-        return map;
-    }
-
-    public static Field[] filterFields(Class containingClass,
-                                       Field[] fields) {
-        if (fieldFilterMap == null) {
-            // Bootstrapping
-            return fields;
-        }
-        return (Field[])filter(fields, fieldFilterMap.get(containingClass));
-    }
-
-    public static Method[] filterMethods(Class containingClass, Method[] methods) {
-        if (methodFilterMap == null) {
-            // Bootstrapping
-            return methods;
-        }
-        return (Method[])filter(methods, methodFilterMap.get(containingClass));
-    }
-
-    private static Member[] filter(Member[] members, String[] filteredNames) {
-        if ((filteredNames == null) || (members.length == 0)) {
-            return members;
-        }
-        int numNewMembers = 0;
-        for (Member member : members) {
-            boolean shouldSkip = false;
-            for (String filteredName : filteredNames) {
-                if (member.getName() == filteredName) {
-                    shouldSkip = true;
-                    break;
-                }
-            }
-            if (!shouldSkip) {
-                ++numNewMembers;
-            }
-        }
-        Member[] newMembers =
-            (Member[])Array.newInstance(members[0].getClass(), numNewMembers);
-        int destIdx = 0;
-        for (Member member : members) {
-            boolean shouldSkip = false;
-            for (String filteredName : filteredNames) {
-                if (member.getName() == filteredName) {
-                    shouldSkip = true;
-                    break;
-                }
-            }
-            if (!shouldSkip) {
-                newMembers[destIdx++] = member;
-            }
-        }
-        return newMembers;
-    }
-
-    /**
-     * Tests if the given method is caller-sensitive and the declaring class
-     * is defined by either the bootstrap class loader or extension class loader.
-     */
-    public static boolean isCallerSensitive(Method m) {
-        final ClassLoader loader = m.getDeclaringClass().getClassLoader();
-        if (loader == null || isExtClassLoader(loader))  {
-            return m.isAnnotationPresent(CallerSensitive.class);
-        }
-        return false;
-    }
-
-    private static boolean isExtClassLoader(ClassLoader loader) {
-        ClassLoader cl = ClassLoader.getSystemClassLoader();
-        while (cl != null) {
-            if (cl.getParent() == null && cl == loader) {
-                return true;
-            }
-            cl = cl.getParent();
         }
         return false;
     }

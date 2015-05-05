@@ -243,7 +243,8 @@ public class WeakHashMap<K,V>
      * A randomizing value associated with this instance that is applied to
      * hash code of keys to make hash collisions harder to find.
      */
-    transient final int hashSeed = sun.misc.Hashing.randomHashSeed(this);
+    transient int hashSeed;
+    volatile boolean seedSet = false;
 
     @SuppressWarnings("unchecked")
     private Entry<K,V>[] newTable(int n) {
@@ -355,6 +356,14 @@ public class WeakHashMap<K,V>
 
         int h;
         if (useAltHashing) {
+            if (!seedSet) {
+                synchronized(this) {
+                    if (!seedSet) {
+                        hashSeed = sun.misc.Hashing.randomHashSeed(this);
+                        seedSet = true;
+                    }
+                }
+            }
             h = hashSeed;
             if (k instanceof String) {
                 return sun.misc.Hashing.stringHash32((String) k);
