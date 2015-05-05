@@ -548,11 +548,11 @@ class Bits {                            // package-private
     private static final Unsafe unsafe = Unsafe.getUnsafe();
 
     private static byte _get(long a) {
-        return unsafe.getByte(a);
+        return unsafe.getByte$(a);
     }
 
     private static void _put(long a, byte b) {
-        unsafe.putByte(a, b);
+        unsafe.putByte$(a, b);
     }
 
     static Unsafe unsafe() {
@@ -562,19 +562,39 @@ class Bits {                            // package-private
 
     // -- Processor and memory-system properties --
 
-    private static final ByteOrder byteOrder;
+    /* ----- BEGIN android -----
+    private static final ByteOrder byteOrder;*/
+    private static ByteOrder byteOrder;
+    // ----- END android -----
 
     static ByteOrder byteOrder() {
+        /* ----- BEGIN android -----
         if (byteOrder == null)
-            throw new Error("Unknown byte order");
+            throw new Error("Unknown byte order");*/
+        if (byteOrder == null) {
+            long a = unsafe.allocateMemory(8);
+            try {
+                unsafe.putLong$(a, 0x0102030405060708L);
+                byte b = unsafe.getByte$(a);
+                switch (b) {
+                    case 0x01: byteOrder = ByteOrder.BIG_ENDIAN;     break;
+                    case 0x08: byteOrder = ByteOrder.LITTLE_ENDIAN;  break;
+                    default: throw new Error("Unknown byte order");
+                }
+            } finally {
+                unsafe.freeMemory(a);
+            }
+        }
+        // ----- END android -----
         return byteOrder;
     }
 
+    /* ----- BEGIN android -----
     static {
         long a = unsafe.allocateMemory(8);
         try {
-            unsafe.putLong(a, 0x0102030405060708L);
-            byte b = unsafe.getByte(a);
+            unsafe.putLong$(a, 0x0102030405060708L);
+            byte b = unsafe.getByte$(a);
             switch (b) {
             case 0x01: byteOrder = ByteOrder.BIG_ENDIAN;     break;
             case 0x08: byteOrder = ByteOrder.LITTLE_ENDIAN;  break;
@@ -586,6 +606,7 @@ class Bits {                            // package-private
             unsafe.freeMemory(a);
         }
     }
+    ----- END android ----- */
 
 
     private static int pageSize = -1;
@@ -674,6 +695,7 @@ class Bits {                            // package-private
 
     // -- Monitoring of direct buffer usage --
 
+    /* ----- BEGIN android -----
     static {
         // setup access to this package in SharedSecrets
         sun.misc.SharedSecrets.setJavaNioAccess(
@@ -709,6 +731,7 @@ class Bits {                            // package-private
                 }
         });
     }
+    ----- END android ----- */
 
     // -- Bulk get/put acceleration --
 
@@ -747,7 +770,7 @@ class Bits {                            // package-private
         long offset = srcBaseOffset + srcPos;
         while (length > 0) {
             long size = (length > UNSAFE_COPY_THRESHOLD) ? UNSAFE_COPY_THRESHOLD : length;
-            unsafe.copyMemory(src, offset, null, dstAddr, size);
+            unsafe.copyMemoryFromPrimitiveArray(src, offset, dstAddr, size);
             length -= size;
             offset += size;
             dstAddr += size;
@@ -774,7 +797,7 @@ class Bits {                            // package-private
         long offset = dstBaseOffset + dstPos;
         while (length > 0) {
             long size = (length > UNSAFE_COPY_THRESHOLD) ? UNSAFE_COPY_THRESHOLD : length;
-            unsafe.copyMemory(null, srcAddr, dst, offset, size);
+            unsafe.copyMemoryToPrimitiveArray(srcAddr, dst, offset, size);
             length -= size;
             srcAddr += size;
             offset += size;

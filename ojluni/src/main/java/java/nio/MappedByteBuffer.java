@@ -169,7 +169,7 @@ public abstract class MappedByteBuffer
         long a = mappingAddress(offset);
         byte x = 0;
         for (int i=0; i<count; i++) {
-            x ^= unsafe.getByte(a);
+            x ^= unsafe.getByte$(a);
             a += ps;
         }
         if (unused != 0)

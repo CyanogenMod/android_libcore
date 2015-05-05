@@ -45,7 +45,6 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
     REGISTER(register_java_lang_StringToReal);
     REGISTER(register_java_lang_System);
     REGISTER(register_java_math_NativeBN);
-    REGISTER(register_java_nio_ByteOrder);
     REGISTER(register_java_nio_charset_Charsets);
     REGISTER(register_java_util_jar_StrictJarFile);
     REGISTER(register_libcore_icu_AlphabeticIndex);

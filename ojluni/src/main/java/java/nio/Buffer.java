@@ -175,7 +175,7 @@ public abstract class Buffer {
 
     // Invariants: mark <= position <= limit <= capacity
     private int mark = -1;
-    private int position = 0;
+    int position = 0;
     private int limit;
     private int capacity;
 
@@ -183,10 +183,18 @@ public abstract class Buffer {
     // NOTE: hoisted here for speed in JNI GetDirectBufferAddress
     long address;
 
+    /**
+     * The log base 2 of the element size of this buffer.  Each typed subclass
+     * (ByteBuffer, CharBuffer, etc.) is responsible for initializing this
+     * value.  The value is used by JNI code in frameworks/base/ to avoid the
+     * need for costly 'instanceof' tests.
+     */
+    final int _elementSizeShift;
+
     // Creates a new buffer with the given mark, position, limit, and capacity,
     // after checking invariants.
     //
-    Buffer(int mark, int pos, int lim, int cap) {       // package-private
+    Buffer(int mark, int pos, int lim, int cap, int elementSizeShift) {       // package-private
         if (cap < 0)
             throw new IllegalArgumentException("Negative capacity: " + cap);
         this.capacity = cap;
@@ -198,6 +206,7 @@ public abstract class Buffer {
                                                    + mark + " > " + pos + ")");
             this.mark = mark;
         }
+        _elementSizeShift = elementSizeShift;
     }
 
     /**

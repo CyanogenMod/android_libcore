@@ -361,4 +361,12 @@ public final class Unsafe {
     public native void putDouble$(long address, double x);
 
     public native long getAddress(long address);
+
+    public native void copyMemoryToPrimitiveArray(long srcAddr,
+            Object dst, long dstOffset, long bytes);
+
+    public native void copyMemoryFromPrimitiveArray(Object src, long srcOffset,
+            long dstAddr, long bytes);
+
+    public native void copyMemory(long srcAddr, long dstAddr, long bytes);
 }

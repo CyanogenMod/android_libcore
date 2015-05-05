@@ -27,7 +27,7 @@ final class NIOAccess {
      * Buffer is not backed by native heap storage.
      */
     static long getBasePointer(Buffer b) {
-        long address = b.effectiveDirectAddress;
+        long address = b.address;
         if (address == 0L) {
             return 0L;
         }

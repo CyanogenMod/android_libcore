@@ -273,7 +273,7 @@ public abstract class ByteBuffer
     ByteBuffer(int mark, int pos, int lim, int cap,   // package-private
                  byte[] hb, int offset)
     {
-        super(mark, pos, lim, cap);
+        super(mark, pos, lim, cap, 0);
         this.hb = hb;
         this.offset = offset;
     }
@@ -283,7 +283,6 @@ public abstract class ByteBuffer
     ByteBuffer(int mark, int pos, int lim, int cap) { // package-private
         this(mark, pos, lim, cap, null, 0);
     }
-
 
 
     /**
@@ -2034,5 +2033,20 @@ public abstract class ByteBuffer
      * @return  A new double buffer
      */
     public abstract DoubleBuffer asDoubleBuffer();
+
+    // ----- BEGIN android -----
+    /**
+     * @hide
+     */
+    public boolean isAccessible() {
+        return true;
+    }
+    /**
+     * @hide
+     */
+    public void setAccessible(boolean value) {
+        throw new UnsupportedOperationException();
+    }
+    // ----- END android -----
 
 }

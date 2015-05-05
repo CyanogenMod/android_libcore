@@ -24,6 +24,8 @@ import java.nio.channels.FileChannel;
 import java.util.Set;
 
 import static android.system.OsConstants.*;
+import sun.misc.Cleaner;
+import sun.nio.ch.DirectBuffer;
 import sun.nio.ch.FileChannelImpl;
 
 /**
@@ -37,7 +39,10 @@ public final class NioUtils {
         if (buffer == null) {
             return;
         }
-        ((DirectByteBuffer) buffer).free();
+        Cleaner cl = ((DirectBuffer) buffer).cleaner();
+        if (cl != null) {
+            cl.clean();
+        }
     }
 
     /**
@@ -62,7 +67,7 @@ public final class NioUtils {
      * Normally, attempting to access the array backing a read-only buffer throws.
      */
     public static byte[] unsafeArray(ByteBuffer b) {
-        return ((ByteArrayBuffer) b).backingArray;
+        return b.array();
     }
 
     /**
@@ -70,6 +75,6 @@ public final class NioUtils {
      * even if the ByteBuffer is read-only.
      */
     public static int unsafeArrayOffset(ByteBuffer b) {
-        return ((ByteArrayBuffer) b).arrayOffset;
+        return b.arrayOffset();
     }
 }
