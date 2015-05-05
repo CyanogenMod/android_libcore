@@ -423,4 +423,13 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
     assertEquals("11 AM – 1 PM", formatDateRange(l, utc, 11*HOUR, 13*HOUR, flags));
     assertEquals("2 – 3 PM", formatDateRange(l, utc, 14*HOUR, 15*HOUR, flags));
   }
+
+  // http://b/20708022
+  public void testEndOfDayOnLastDayOfMonth() throws Exception {
+    final ULocale locale = new ULocale("en");
+    final TimeZone timeZone = TimeZone.getTimeZone("UTC");
+
+    assertEquals("April 30, 11:00 PM – May 1, 12:00 AM", formatDateRange(locale, timeZone,
+            1430434800000L, 1430438400000L, FORMAT_SHOW_TIME));
+  }
 }
