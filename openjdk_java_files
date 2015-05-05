@@ -109,6 +109,16 @@ java/io/UnsupportedEncodingException.java
 java/io/UTFDataFormatException.java
 java/io/WriteAbortedException.java
 java/io/Writer.java
+java/lang/annotation/AnnotationFormatError.java
+java/lang/annotation/Annotation.java
+java/lang/annotation/AnnotationTypeMismatchException.java
+java/lang/annotation/Documented.java
+java/lang/annotation/ElementType.java
+java/lang/annotation/IncompleteAnnotationException.java
+java/lang/annotation/Inherited.java
+java/lang/annotation/Retention.java
+java/lang/annotation/RetentionPolicy.java
+java/lang/annotation/Target.java
 java/lang/JavaLangAccess.java
 java/lang/reflect/AccessibleObject.java
 java/lang/reflect/AnnotatedElement.java
