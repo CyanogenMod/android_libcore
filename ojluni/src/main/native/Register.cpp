@@ -55,6 +55,7 @@ extern void register_java_lang_Float(JNIEnv*);
 extern void register_java_lang_Double(JNIEnv*);
 extern void register_java_lang_String(JNIEnv*);
 extern void register_java_lang_StrictMath(JNIEnv*);
+//extern void register_java_lang_Throwable(JNIEnv*);
 
 extern jint net_JNI_OnLoad(JavaVM*, void*);
 
@@ -99,6 +100,7 @@ jint JNI_OnLoad(JavaVM* vm, void*) { JNIEnv* env;
     register_java_lang_Double(env);
     register_java_lang_String(env);
     register_java_lang_StrictMath(env);
+ //   register_java_lang_Throwable(env);
     net_JNI_OnLoad(vm, NULL);
     return JNI_VERSION_1_6;
 }

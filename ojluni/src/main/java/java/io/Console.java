@@ -515,7 +515,19 @@ public final class Console implements Flushable
     // hook that's a no-op (but causes trouble when it's turned on).
 
     private static Console cons;
+
+    /* @hide */
+    public static Console console() {
+        if (istty()) {
+            if (cons == null)
+                cons = new Console();
+            return cons;
+        }
+        return null;
+    }
+
     private native static boolean istty();
+
     private Console() {
         readLock = new Object();
         writeLock = new Object();

@@ -28,7 +28,16 @@ package java.lang;
 import java.io.*;
 import java.util.StringTokenizer;
 import sun.reflect.CallerSensitive;
-import sun.reflect.Reflection;
+import java.lang.ref.FinalizerReference;
+import java.util.ArrayList;
+import java.util.List;
+import dalvik.system.BaseDexClassLoader;
+import dalvik.system.VMDebug;
+import dalvik.system.VMStack;
+import libcore.io.IoUtils;
+import libcore.io.Libcore;
+import libcore.util.EmptyArray;
+import static android.system.OsConstants._SC_NPROCESSORS_CONF;
 
 /**
  * Every Java application has a single instance of class
@@ -45,6 +54,29 @@ import sun.reflect.Reflection;
 
 public class Runtime {
     private static Runtime currentRuntime = new Runtime();
+
+    /**
+     * Holds the list of threads to run when the VM terminates
+     */
+    private List<Thread> shutdownHooks = new ArrayList<Thread>();
+
+    /**
+     * Reflects whether finalization should be run for all objects
+     * when the VM terminates.
+     */
+    private static boolean finalizeOnExit;
+
+    /**
+     * Reflects whether we are already shutting down the VM.
+     */
+    private boolean shuttingDown;
+
+    /**
+     * Reflects whether we are tracing method calls.
+     */
+    private boolean tracingMethods;
+
+    private static native void nativeExit(int code);
 
     /**
      * Returns the runtime object associated with the current Java application.
@@ -102,11 +134,41 @@ public class Runtime {
      * @see #halt(int)
      */
     public void exit(int status) {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkExit(status);
+        // Make sure we don't try this several times
+        synchronized(this) {
+            if (!shuttingDown) {
+                shuttingDown = true;
+
+                Thread[] hooks;
+                synchronized (shutdownHooks) {
+                    // create a copy of the hooks
+                    hooks = new Thread[shutdownHooks.size()];
+                    shutdownHooks.toArray(hooks);
+                }
+
+                // Start all shutdown hooks concurrently
+                for (Thread hook : hooks) {
+                    hook.start();
+                }
+
+                // Wait for all shutdown hooks to finish
+                for (Thread hook : hooks) {
+                    try {
+                        hook.join();
+                    } catch (InterruptedException ex) {
+                        // Ignore, since we are at VM shutdown.
+                    }
+                }
+
+                // Ensure finalization on exit, if requested
+                if (finalizeOnExit) {
+                    runFinalization();
+                }
+
+                // Get out of here finally...
+                nativeExit(status);
+            }
         }
-        Shutdown.exit(status);
     }
 
     /**
@@ -204,11 +266,26 @@ public class Runtime {
      * @since 1.3
      */
     public void addShutdownHook(Thread hook) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new RuntimePermission("shutdownHooks"));
+        // Sanity checks
+        if (hook == null) {
+            throw new NullPointerException("hook == null");
         }
-        ApplicationShutdownHooks.add(hook);
+
+        if (shuttingDown) {
+            throw new IllegalStateException("VM already shutting down");
+        }
+
+        if (hook.started) {
+            throw new IllegalArgumentException("Hook has already been started");
+        }
+
+        synchronized (shutdownHooks) {
+            if (shutdownHooks.contains(hook)) {
+                throw new IllegalArgumentException("Hook already registered.");
+            }
+
+            shutdownHooks.add(hook);
+        }
     }
 
     /**
@@ -232,11 +309,18 @@ public class Runtime {
      * @since 1.3
      */
     public boolean removeShutdownHook(Thread hook) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new RuntimePermission("shutdownHooks"));
+        // Sanity checks
+        if (hook == null) {
+            throw new NullPointerException("hook == null");
         }
-        return ApplicationShutdownHooks.remove(hook);
+
+        if (shuttingDown) {
+            throw new IllegalStateException("VM already shutting down");
+        }
+
+        synchronized (shutdownHooks) {
+            return shutdownHooks.remove(hook);
+        }
     }
 
     /**
@@ -268,11 +352,7 @@ public class Runtime {
      * @since 1.3
      */
     public void halt(int status) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkExit(status);
-        }
-        Shutdown.halt(status);
+        nativeExit(status);
     }
 
     /**
@@ -303,15 +383,7 @@ public class Runtime {
      */
     @Deprecated
     public static void runFinalizersOnExit(boolean value) {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            try {
-                security.checkExit(0);
-            } catch (SecurityException e) {
-                throw new SecurityException("runFinalizersOnExit");
-            }
-        }
-        Shutdown.setRunFinalizersOnExit(value);
+        finalizeOnExit = value;
     }
 
     /**
@@ -632,7 +704,9 @@ public class Runtime {
      *          machine; never smaller than one
      * @since 1.4
      */
-    public native int availableProcessors();
+    public int availableProcessors() {
+        return (int) Libcore.os.sysconf(_SC_NPROCESSORS_CONF);
+    }
 
     /**
      * Returns the amount of free memory in the Java Virtual Machine.
@@ -709,7 +783,11 @@ public class Runtime {
      * @see     java.lang.Object#finalize()
      */
     public void runFinalization() {
-        runFinalization0();
+        try {
+            FinalizerReference.finalizeAllEnqueued();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
@@ -730,7 +808,8 @@ public class Runtime {
      * @param   on   <code>true</code> to enable instruction tracing;
      *               <code>false</code> to disable this feature.
      */
-    public native void traceInstructions(boolean on);
+    public void traceInstructions(boolean enable) {
+    }
 
     /**
      * Enables/Disables tracing of method calls.
@@ -748,7 +827,16 @@ public class Runtime {
      * @param   on   <code>true</code> to enable instruction tracing;
      *               <code>false</code> to disable this feature.
      */
-    public native void traceMethodCalls(boolean on);
+    public void traceMethodCalls(boolean enable) {
+        if (enable != tracingMethods) {
+            if (enable) {
+                VMDebug.startMethodTracing();
+            } else {
+                VMDebug.stopMethodTracing();
+            }
+            tracingMethods = enable;
+        }
+    }
 
     /**
      * Loads the specified filename as a dynamic library. The filename
@@ -780,19 +868,21 @@ public class Runtime {
      */
     @CallerSensitive
     public void load(String filename) {
-        load0(Reflection.getCallerClass(), filename);
+        load0(VMStack.getStackClass2(), filename);
     }
 
     synchronized void load0(Class fromClass, String filename) {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkLink(filename);
-        }
         if (!(new File(filename).isAbsolute())) {
             throw new UnsatisfiedLinkError(
                 "Expecting an absolute path of the library: " + filename);
         }
-        ClassLoader.loadLibrary(fromClass, filename, true);
+        if (filename == null) {
+            throw new NullPointerException("filename == null");
+        }
+        String error = doLoad(filename, fromClass.getClassLoader());
+        if (error != null) {
+            throw new UnsatisfiedLinkError(error);
+        }
     }
 
     /**
@@ -834,20 +924,115 @@ public class Runtime {
      */
     @CallerSensitive
     public void loadLibrary(String libname) {
-        loadLibrary0(Reflection.getCallerClass(), libname);
+        loadLibrary0(VMStack.getCallingClassLoader(), libname);
     }
 
-    synchronized void loadLibrary0(Class fromClass, String libname) {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkLink(libname);
-        }
+    synchronized void loadLibrary0(ClassLoader loader, String libname) {
         if (libname.indexOf((int)File.separatorChar) != -1) {
             throw new UnsatisfiedLinkError(
     "Directory separator should not appear in library name: " + libname);
         }
-        ClassLoader.loadLibrary(fromClass, libname, false);
+        String libraryName = libname;
+        if (loader != null) {
+            String filename = loader.findLibrary(libraryName);
+            if (filename == null) {
+                // It's not necessarily true that the ClassLoader used
+                // System.mapLibraryName, but the default setup does, and it's
+                // misleading to say we didn't find "libMyLibrary.so" when we
+                // actually searched for "liblibMyLibrary.so.so".
+                throw new UnsatisfiedLinkError(loader + " couldn't find \"" +
+                                               System.mapLibraryName(libraryName) + "\"");
+            }
+            String error = doLoad(filename, loader);
+            if (error != null) {
+                throw new UnsatisfiedLinkError(error);
+            }
+            return;
+        }
+
+        String filename = System.mapLibraryName(libraryName);
+        List<String> candidates = new ArrayList<String>();
+        String lastError = null;
+        for (String directory : getLibPaths()) {
+            String candidate = directory + filename;
+            candidates.add(candidate);
+
+            if (IoUtils.canOpenReadOnly(candidate)) {
+                String error = doLoad(candidate, loader);
+                if (error == null) {
+                    return; // We successfully loaded the library. Job done.
+                }
+                lastError = error;
+            }
+        }
+
+        if (lastError != null) {
+            throw new UnsatisfiedLinkError(lastError);
+        }
+        throw new UnsatisfiedLinkError("Library " + libraryName + " not found; tried " + candidates);
     }
+
+    private volatile String[] mLibPaths = null;
+
+    private String[] getLibPaths() {
+        if (mLibPaths == null) {
+            synchronized(this) {
+                if (mLibPaths == null) {
+                    mLibPaths = initLibPaths();
+                }
+            }
+        }
+        return mLibPaths;
+    }
+
+    private static String[] initLibPaths() {
+        String javaLibraryPath = System.getProperty("java.library.path");
+        if (javaLibraryPath == null) {
+            return EmptyArray.STRING;
+        }
+        String[] paths = javaLibraryPath.split(":");
+        // Add a '/' to the end of each directory so we don't have to do it every time.
+        for (int i = 0; i < paths.length; ++i) {
+            if (!paths[i].endsWith("/")) {
+                paths[i] += "/";
+            }
+        }
+        return paths;
+    }
+    private String doLoad(String name, ClassLoader loader) {
+        // Android apps are forked from the zygote, so they can't have a custom LD_LIBRARY_PATH,
+        // which means that by default an app's shared library directory isn't on LD_LIBRARY_PATH.
+
+        // The PathClassLoader set up by frameworks/base knows the appropriate path, so we can load
+        // libraries with no dependencies just fine, but an app that has multiple libraries that
+        // depend on each other needed to load them in most-dependent-first order.
+
+        // We added API to Android's dynamic linker so we can update the library path used for
+        // the currently-running process. We pull the desired path out of the ClassLoader here
+        // and pass it to nativeLoad so that it can call the private dynamic linker API.
+
+        // We didn't just change frameworks/base to update the LD_LIBRARY_PATH once at the
+        // beginning because multiple apks can run in the same process and third party code can
+        // use its own BaseDexClassLoader.
+
+        // We didn't just add a dlopen_with_custom_LD_LIBRARY_PATH call because we wanted any
+        // dlopen(3) calls made from a .so's JNI_OnLoad to work too.
+
+        // So, find out what the native library search path is for the ClassLoader in question...
+        String ldLibraryPath = null;
+        if (loader != null && loader instanceof BaseDexClassLoader) {
+            ldLibraryPath = ((BaseDexClassLoader) loader).getLdLibraryPath();
+        }
+        // nativeLoad should be synchronized so there's only one LD_LIBRARY_PATH in use regardless
+        // of how many ClassLoaders are in the system, but dalvik doesn't support synchronized
+        // internal natives.
+        synchronized (this) {
+            return nativeLoad(name, loader, ldLibraryPath);
+        }
+    }
+
+    // TODO: should be synchronized, but dalvik doesn't support synchronized internal natives.
+    private static native String nativeLoad(String filename, ClassLoader loader, String ldLibraryPath);
 
     /**
      * Creates a localized version of an input stream. This method takes

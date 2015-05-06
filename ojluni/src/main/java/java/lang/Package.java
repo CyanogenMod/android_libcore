@@ -50,7 +50,7 @@ import java.util.Iterator;
 import java.lang.annotation.Annotation;
 import sun.net.www.ParseUtil;
 import sun.reflect.CallerSensitive;
-import sun.reflect.Reflection;
+import dalvik.system.VMStack;
 
 /**
  * {@code Package} objects contain version information
@@ -275,7 +275,7 @@ public class Package implements java.lang.reflect.AnnotatedElement {
      */
     @CallerSensitive
     public static Package getPackage(String name) {
-        ClassLoader l = ClassLoader.getClassLoader(Reflection.getCallerClass());
+        ClassLoader l = VMStack.getCallingClassLoader();
         if (l != null) {
             return l.getPackage(name);
         } else {
@@ -297,7 +297,7 @@ public class Package implements java.lang.reflect.AnnotatedElement {
      */
     @CallerSensitive
     public static Package[] getPackages() {
-        ClassLoader l = ClassLoader.getClassLoader(Reflection.getCallerClass());
+        ClassLoader l = VMStack.getCallingClassLoader();
         if (l != null) {
             return l.getPackages();
         } else {

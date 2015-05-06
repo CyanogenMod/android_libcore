@@ -38,7 +38,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.LockSupport;
 import sun.nio.ch.Interruptible;
 import sun.reflect.CallerSensitive;
-import sun.reflect.Reflection;
+import dalvik.system.VMStack;
+import libcore.util.EmptyArray;
 import sun.security.util.SecurityConstants;
 
 
@@ -140,12 +141,18 @@ import sun.security.util.SecurityConstants;
 public
 class Thread implements Runnable {
     /* Make sure registerNatives is the first thing <clinit> does. */
-    private static native void registerNatives();
-    static {
-        registerNatives();
-    }
 
-    private char        name[];
+    /**
+     * The synchronization object responsible for this thread's join/sleep/park operations.
+     */
+    private final Object lock = new Object();
+
+    private volatile long nativePeer;
+
+    boolean started = false;
+
+    private String name;
+
     private int         priority;
     private Thread      threadQ;
     private long        eetop;
@@ -233,9 +240,12 @@ class Thread implements Runnable {
     private volatile Interruptible blocker;
     private final Object blockerLock = new Object();
 
-    /* Set the blocker field; invoked via sun.misc.SharedSecrets from java.nio code
+    /**
+     * Set the blocker field; invoked via sun.misc.SharedSecrets from java.nio code
+     *
+     * @hide
      */
-    void blockedOn(Interruptible b) {
+    public void blockedOn(Interruptible b) {
         synchronized (blockerLock) {
             blocker = b;
         }
@@ -298,7 +308,12 @@ class Thread implements Runnable {
      *          <i>interrupted status</i> of the current thread is
      *          cleared when this exception is thrown.
      */
-    public static native void sleep(long millis) throws InterruptedException;
+    public static void sleep(long millis) throws InterruptedException {
+        Thread.sleep(millis, 0);
+    }
+
+    private static native void sleep(Object lock, long millis, int nanos)
+        throws InterruptedException;
 
     /**
      * Causes the currently executing thread to sleep (temporarily cease
@@ -325,19 +340,48 @@ class Thread implements Runnable {
     public static void sleep(long millis, int nanos)
     throws InterruptedException {
         if (millis < 0) {
-            throw new IllegalArgumentException("timeout value is negative");
+            throw new IllegalArgumentException("millis < 0: " + millis);
+        }
+        if (nanos < 0) {
+            throw new IllegalArgumentException("nanos < 0: " + nanos);
+        }
+        if (nanos > 999999) {
+            throw new IllegalArgumentException("nanos > 999999: " + nanos);
         }
 
-        if (nanos < 0 || nanos > 999999) {
-            throw new IllegalArgumentException(
-                                "nanosecond timeout value out of range");
+        // The JLS 3rd edition, section 17.9 says: "...sleep for zero
+        // time...need not have observable effects."
+        if (millis == 0 && nanos == 0) {
+            // ...but we still have to handle being interrupted.
+            if (Thread.interrupted()) {
+              throw new InterruptedException();
+            }
+            return;
         }
 
-        if (nanos >= 500000 || (nanos != 0 && millis == 0)) {
-            millis++;
-        }
+        long start = System.nanoTime();
+        long duration = (millis * NANOS_PER_MILLI) + nanos;
 
-        sleep(millis);
+        Object lock = currentThread().lock;
+
+        // Wait may return early, so loop until sleep duration passes.
+        synchronized (lock) {
+            while (true) {
+                sleep(lock, millis, nanos);
+
+                long now = System.nanoTime();
+                long elapsed = now - start;
+
+                if (elapsed >= duration) {
+                    break;
+                }
+
+                duration -= elapsed;
+                start = now;
+                millis = duration / NANOS_PER_MILLI;
+                nanos = (int) (duration % NANOS_PER_MILLI);
+            }
+        }
     }
 
     /**
@@ -350,63 +394,35 @@ class Thread implements Runnable {
      *        zero to indicate that this parameter is to be ignored.
      */
     private void init(ThreadGroup g, Runnable target, String name,
-                      long stackSize) {
-        if (name == null) {
-            throw new NullPointerException("name cannot be null");
-        }
-
+                      long stackSize, Boolean daemon, Integer priority) {
         Thread parent = currentThread();
-        SecurityManager security = System.getSecurityManager();
         if (g == null) {
-            /* Determine if it's an applet or not */
-
-            /* If there is a security manager, ask the security manager
-               what to do. */
-            if (security != null) {
-                g = security.getThreadGroup();
-            }
-
-            /* If the security doesn't have a strong opinion of the matter
-               use the parent thread group. */
-            if (g == null) {
-                g = parent.getThreadGroup();
-            }
+          g = parent.getThreadGroup();
         }
-
-        /* checkAccess regardless of whether or not threadgroup is
-           explicitly passed in. */
         g.checkAccess();
-
-        /*
-         * Do we have the required permissions?
-         */
-        if (security != null) {
-            if (isCCLOverridden(getClass())) {
-                security.checkPermission(SUBCLASS_IMPLEMENTATION_PERMISSION);
-            }
-        }
-
         g.addUnstarted();
-
         this.group = g;
-        this.daemon = parent.isDaemon();
-        this.priority = parent.getPriority();
-        this.name = name.toCharArray();
-        if (security == null || isCCLOverridden(parent.getClass()))
-            this.contextClassLoader = parent.getContextClassLoader();
-        else
-            this.contextClassLoader = parent.contextClassLoader;
+
+        this.daemon = daemon != null ? daemon : parent.isDaemon();
+        this.priority = priority != null ? priority : parent.getPriority();
+        tid = nextThreadID();
+        if (name == null) {
+          name = "Thread-" + tid;
+        }
+        this.name = name;
+        this.contextClassLoader = parent.getContextClassLoader();
         this.inheritedAccessControlContext = AccessController.getContext();
         this.target = target;
-        setPriority(priority);
+
+        if (priority == null) {
+          priority = this.priority;
+          setPriority(priority);
+        }
         if (parent.inheritableThreadLocals != null)
             this.inheritableThreadLocals =
                 ThreadLocal.createInheritedMap(parent.inheritableThreadLocals);
         /* Stash the specified stack size in case the VM cares */
         this.stackSize = stackSize;
-
-        /* Set thread ID */
-        tid = nextThreadID();
     }
 
     /**
@@ -429,7 +445,7 @@ class Thread implements Runnable {
      * {@code "Thread-"+}<i>n</i>, where <i>n</i> is an integer.
      */
     public Thread() {
-        init(null, null, "Thread-" + nextThreadNum(), 0);
+        init(null, null, "Thread-" + nextThreadNum(), 0, null, null);
     }
 
     /**
@@ -445,7 +461,7 @@ class Thread implements Runnable {
      *         nothing.
      */
     public Thread(Runnable target) {
-        init(null, target, "Thread-" + nextThreadNum(), 0);
+        init(null, target, "Thread-" + nextThreadNum(), 0, null, null);
     }
 
     /**
@@ -472,7 +488,7 @@ class Thread implements Runnable {
      *          thread group
      */
     public Thread(ThreadGroup group, Runnable target) {
-        init(group, target, "Thread-" + nextThreadNum(), 0);
+        init(group, target, "Thread-" + nextThreadNum(), 0, null, null);
     }
 
     /**
@@ -484,7 +500,7 @@ class Thread implements Runnable {
      *          the name of the new thread
      */
     public Thread(String name) {
-        init(null, null, name, 0);
+        init(null, null, name, 0, null, null);
     }
 
     /**
@@ -508,7 +524,12 @@ class Thread implements Runnable {
      *          thread group
      */
     public Thread(ThreadGroup group, String name) {
-        init(group, null, name, 0);
+        init(group, null, name, 0, null, null);
+    }
+
+    /** @hide */
+    Thread(ThreadGroup group, String name, int priority, boolean daemon) {
+        init(group, null, name, 0, daemon, priority);
     }
 
     /**
@@ -524,7 +545,8 @@ class Thread implements Runnable {
      *         the name of the new thread
      */
     public Thread(Runnable target, String name) {
-        init(null, target, name, 0);
+        init(null, target, name, 0, null, null);
+
     }
 
     /**
@@ -572,7 +594,7 @@ class Thread implements Runnable {
      *          thread group or cannot override the context class loader methods.
      */
     public Thread(ThreadGroup group, Runnable target, String name) {
-        init(group, target, name, 0);
+        init(group, target, name, 0, null, null);
     }
 
     /**
@@ -651,7 +673,7 @@ class Thread implements Runnable {
      */
     public Thread(ThreadGroup group, Runnable target, String name,
                   long stackSize) {
-        init(group, target, name, stackSize);
+        init(group, target, name, stackSize, null, null);
     }
 
     /**
@@ -688,9 +710,9 @@ class Thread implements Runnable {
          * and the group's unstarted count can be decremented. */
         group.add(this);
 
-        boolean started = false;
+        started = false;
         try {
-            start0();
+            nativeCreate(this, stackSize, daemon);
             started = true;
         } finally {
             try {
@@ -704,7 +726,7 @@ class Thread implements Runnable {
         }
     }
 
-    private native void start0();
+    private native static void nativeCreate(Thread t, long stackSize, boolean daemon);
 
     /**
      * If this thread was constructed using a separate
@@ -865,26 +887,8 @@ class Thread implements Runnable {
      *        are Thread.stop, Thread.suspend and Thread.resume Deprecated?</a>.
      */
     @Deprecated
-    public final synchronized void stop(Throwable obj) {
-        if (obj == null)
-            throw new NullPointerException();
-
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            checkAccess();
-            if ((this != Thread.currentThread()) ||
-                (!(obj instanceof ThreadDeath))) {
-                security.checkPermission(SecurityConstants.STOP_THREAD_PERMISSION);
-            }
-        }
-        // A zero status value corresponds to "NEW", it can't change to
-        // not-NEW because we hold the lock.
-        if (threadStatus != 0) {
-            resume(); // Wake up thread if it was suspended; no-op otherwise
-        }
-
-        // The VM can handle all thread states
-        stop0(obj);
+    public final void stop(Throwable obj) {
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -933,12 +937,12 @@ class Thread implements Runnable {
         synchronized (blockerLock) {
             Interruptible b = blocker;
             if (b != null) {
-                interrupt0();           // Just to set the interrupt flag
+                nativeInterrupt();
                 b.interrupt(this);
                 return;
             }
         }
-        interrupt0();
+        nativeInterrupt();
     }
 
     /**
@@ -958,9 +962,7 @@ class Thread implements Runnable {
      * @see #isInterrupted()
      * @revised 6.0
      */
-    public static boolean interrupted() {
-        return currentThread().isInterrupted(true);
-    }
+    public static native boolean interrupted();
 
     /**
      * Tests whether this thread has been interrupted.  The <i>interrupted
@@ -975,16 +977,7 @@ class Thread implements Runnable {
      * @see     #interrupted()
      * @revised 6.0
      */
-    public boolean isInterrupted() {
-        return isInterrupted(false);
-    }
-
-    /**
-     * Tests if some Thread has been interrupted.  The interrupted state
-     * is reset or not based on the value of ClearInterrupted that is
-     * passed.
-     */
-    private native boolean isInterrupted(boolean ClearInterrupted);
+    public native boolean isInterrupted();
 
     /**
      * Throws {@link NoSuchMethodError}.
@@ -1015,7 +1008,9 @@ class Thread implements Runnable {
      * @return  <code>true</code> if this thread is alive;
      *          <code>false</code> otherwise.
      */
-    public final native boolean isAlive();
+    public final boolean isAlive() {
+        return nativePeer != 0;
+    }
 
     /**
      * Suspends this thread.
@@ -1043,8 +1038,7 @@ class Thread implements Runnable {
      */
     @Deprecated
     public final void suspend() {
-        checkAccess();
-        suspend0();
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -1069,8 +1063,7 @@ class Thread implements Runnable {
      */
     @Deprecated
     public final void resume() {
-        checkAccess();
-        resume0();
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -1107,7 +1100,12 @@ class Thread implements Runnable {
             if (newPriority > g.getMaxPriority()) {
                 newPriority = g.getMaxPriority();
             }
-            setPriority0(priority = newPriority);
+            synchronized(this) {
+                this.priority = newPriority;
+                if (isAlive()) {
+                    nativeSetPriority(newPriority);
+                }
+            }
         }
     }
 
@@ -1137,7 +1135,12 @@ class Thread implements Runnable {
      */
     public final void setName(String name) {
         checkAccess();
-        this.name = name.toCharArray();
+        synchronized (this) {
+            this.name = name;
+            if (isAlive()) {
+                nativeSetName(name);
+            }
+        }
     }
 
     /**
@@ -1147,7 +1150,7 @@ class Thread implements Runnable {
      * @see     #setName(String)
      */
     public final String getName() {
-        return String.valueOf(name);
+        return name;
     }
 
     /**
@@ -1223,7 +1226,9 @@ class Thread implements Runnable {
      *             were never well-defined.
      */
     @Deprecated
-    public native int countStackFrames();
+    public int countStackFrames() {
+        return getStackTrace().length;
+    }
 
     /**
      * Waits at most {@code millis} milliseconds for this thread to
@@ -1246,8 +1251,8 @@ class Thread implements Runnable {
      *          <i>interrupted status</i> of the current thread is
      *          cleared when this exception is thrown.
      */
-    public final synchronized void join(long millis)
-    throws InterruptedException {
+    public final void join(long millis) throws InterruptedException {
+        synchronized(lock) {
         long base = System.currentTimeMillis();
         long now = 0;
 
@@ -1257,7 +1262,7 @@ class Thread implements Runnable {
 
         if (millis == 0) {
             while (isAlive()) {
-                wait(0);
+                lock.wait(0);
             }
         } else {
             while (isAlive()) {
@@ -1265,9 +1270,10 @@ class Thread implements Runnable {
                 if (delay <= 0) {
                     break;
                 }
-                wait(delay);
+                lock.wait(delay);
                 now = System.currentTimeMillis() - base;
             }
+        }
         }
     }
 
@@ -1296,9 +1302,9 @@ class Thread implements Runnable {
      *          <i>interrupted status</i> of the current thread is
      *          cleared when this exception is thrown.
      */
-    public final synchronized void join(long millis, int nanos)
+    public final void join(long millis, int nanos)
     throws InterruptedException {
-
+        synchronized(lock) {
         if (millis < 0) {
             throw new IllegalArgumentException("timeout value is negative");
         }
@@ -1313,6 +1319,7 @@ class Thread implements Runnable {
         }
 
         join(millis);
+        }
     }
 
     /**
@@ -1393,10 +1400,6 @@ class Thread implements Runnable {
      * @see        SecurityManager#checkAccess(Thread)
      */
     public final void checkAccess() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkAccess(this);
-        }
     }
 
     /**
@@ -1444,14 +1447,6 @@ class Thread implements Runnable {
      */
     @CallerSensitive
     public ClassLoader getContextClassLoader() {
-        if (contextClassLoader == null)
-            return null;
-
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            ClassLoader.checkClassLoaderPermission(contextClassLoader,
-                                                   Reflection.getCallerClass());
-        }
         return contextClassLoader;
     }
 
@@ -1478,10 +1473,6 @@ class Thread implements Runnable {
      * @since 1.2
      */
     public void setContextClassLoader(ClassLoader cl) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new RuntimePermission("setContextClassLoader"));
-        }
         contextClassLoader = cl;
     }
 
@@ -1501,7 +1492,11 @@ class Thread implements Runnable {
      *         the specified object.
      * @since 1.4
      */
-    public static native boolean holdsLock(Object obj);
+    public static boolean holdsLock(Object object) {
+        return currentThread().nativeHoldsLock(object);
+    }
+
+    private native boolean nativeHoldsLock(Object object);
 
     private static final StackTraceElement[] EMPTY_STACK_TRACE
         = new StackTraceElement[0];
@@ -1543,30 +1538,8 @@ class Thread implements Runnable {
      * @since 1.5
      */
     public StackTraceElement[] getStackTrace() {
-        if (this != Thread.currentThread()) {
-            // check for getStackTrace permission
-            SecurityManager security = System.getSecurityManager();
-            if (security != null) {
-                security.checkPermission(
-                    SecurityConstants.GET_STACK_TRACE_PERMISSION);
-            }
-            // optimization so we do not call into the vm for threads that
-            // have not yet started or have terminated
-            if (!isAlive()) {
-                return EMPTY_STACK_TRACE;
-            }
-            StackTraceElement[][] stackTraceArray = dumpThreads(new Thread[] {this});
-            StackTraceElement[] stackTrace = stackTraceArray[0];
-            // a thread that was alive during the previous isAlive call may have
-            // since terminated, therefore not having a stacktrace.
-            if (stackTrace == null) {
-                stackTrace = EMPTY_STACK_TRACE;
-            }
-            return stackTrace;
-        } else {
-            // Don't need JVM help for current thread
-            return (new Exception()).getStackTrace();
-        }
+        StackTraceElement ste[] = VMStack.getThreadStackTrace(this);
+        return ste != null ? ste : EmptyArray.STACK_TRACE_ELEMENT;
     }
 
     /**
@@ -1605,27 +1578,20 @@ class Thread implements Runnable {
      * @since 1.5
      */
     public static Map<Thread, StackTraceElement[]> getAllStackTraces() {
-        // check for getStackTrace permission
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(
-                SecurityConstants.GET_STACK_TRACE_PERMISSION);
-            security.checkPermission(
-                SecurityConstants.MODIFY_THREADGROUP_PERMISSION);
+        Map<Thread, StackTraceElement[]> map = new HashMap<Thread, StackTraceElement[]>();
+
+        // Find out how many live threads we have. Allocate a bit more
+        // space than needed, in case new ones are just being created.
+        int count = ThreadGroup.systemThreadGroup.activeCount();
+        Thread[] threads = new Thread[count + count / 2];
+
+        // Enumerate the threads and collect the stacktraces.
+        count = ThreadGroup.systemThreadGroup.enumerate(threads);
+        for (int i = 0; i < count; i++) {
+            map.put(threads[i], threads[i].getStackTrace());
         }
 
-        // Get a snapshot of the list of all threads
-        Thread[] threads = getThreads();
-        StackTraceElement[][] traces = dumpThreads(threads);
-        Map<Thread, StackTraceElement[]> m = new HashMap<>(threads.length);
-        for (int i = 0; i < threads.length; i++) {
-            StackTraceElement[] stackTrace = traces[i];
-            if (stackTrace != null) {
-                m.put(threads[i], stackTrace);
-            }
-            // else terminated so we don't put it in the map
-        }
-        return m;
+        return map;
     }
 
 
@@ -1697,9 +1663,6 @@ class Thread implements Runnable {
         );
         return result.booleanValue();
     }
-
-    private native static StackTraceElement[][] dumpThreads(Thread[] threads);
-    private native static Thread[] getThreads();
 
     /**
      * Returns the identifier of this Thread.  The thread ID is a positive
@@ -1823,7 +1786,7 @@ class Thread implements Runnable {
      */
     public State getState() {
         // get current thread state
-        return sun.misc.VM.toThreadState(threadStatus);
+        return State.values()[nativeGetStatus(started)];
     }
 
     // Added in JSR-166
@@ -1903,13 +1866,6 @@ class Thread implements Runnable {
      * @since 1.5
      */
     public static void setDefaultUncaughtExceptionHandler(UncaughtExceptionHandler eh) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(
-                new RuntimePermission("setDefaultUncaughtExceptionHandler")
-                    );
-        }
-
          defaultUncaughtExceptionHandler = eh;
      }
 
@@ -2028,10 +1984,168 @@ class Thread implements Runnable {
     }
 
     /* Some private helper methods */
-    private native void setPriority0(int newPriority);
-    private native void stop0(Object o);
-    private native void suspend0();
-    private native void resume0();
-    private native void interrupt0();
-    private native void setNativeName(String name);
+    private native void nativeSetName(String newName);
+
+    private native void nativeSetPriority(int newPriority);
+
+    private native int nativeGetStatus(boolean hasBeenStarted);
+
+    private native void nativeInterrupt();
+
+    /** Park states */
+    private static class ParkState {
+        /** park state indicating unparked */
+        private static final int UNPARKED = 1;
+
+        /** park state indicating preemptively unparked */
+        private static final int PREEMPTIVELY_UNPARKED = 2;
+
+        /** park state indicating parked */
+        private static final int PARKED = 3;
+    }
+
+    private static final int NANOS_PER_MILLI = 1000000;
+
+    /** the park state of the thread */
+    private int parkState = ParkState.UNPARKED;
+
+    /**
+     * Unparks this thread. This unblocks the thread it if it was
+     * previously parked, or indicates that the thread is "preemptively
+     * unparked" if it wasn't already parked. The latter means that the
+     * next time the thread is told to park, it will merely clear its
+     * latent park bit and carry on without blocking.
+     *
+     * <p>See {@link java.util.concurrent.locks.LockSupport} for more
+     * in-depth information of the behavior of this method.</p>
+     *
+     * @hide for Unsafe
+     */
+    public void unpark() {
+        synchronized(lock) {
+        switch (parkState) {
+            case ParkState.PREEMPTIVELY_UNPARKED: {
+                /*
+                 * Nothing to do in this case: By definition, a
+                 * preemptively unparked thread is to remain in
+                 * the preemptively unparked state if it is told
+                 * to unpark.
+                 */
+                break;
+            }
+            case ParkState.UNPARKED: {
+                parkState = ParkState.PREEMPTIVELY_UNPARKED;
+                break;
+            }
+            default /*parked*/: {
+                parkState = ParkState.UNPARKED;
+                lock.notifyAll();
+                break;
+            }
+        }
+        }
+    }
+
+    /**
+     * Parks the current thread for a particular number of nanoseconds, or
+     * indefinitely. If not indefinitely, this method unparks the thread
+     * after the given number of nanoseconds if no other thread unparks it
+     * first. If the thread has been "preemptively unparked," this method
+     * cancels that unparking and returns immediately. This method may
+     * also return spuriously (that is, without the thread being told to
+     * unpark and without the indicated amount of time elapsing).
+     *
+     * <p>See {@link java.util.concurrent.locks.LockSupport} for more
+     * in-depth information of the behavior of this method.</p>
+     *
+     * <p>This method must only be called when <code>this</code> is the current
+     * thread.
+     *
+     * @param nanos number of nanoseconds to park for or <code>0</code>
+     * to park indefinitely
+     * @throws IllegalArgumentException thrown if <code>nanos &lt; 0</code>
+     *
+     * @hide for Unsafe
+     */
+    public void parkFor(long nanos) {
+        synchronized(lock) {
+        switch (parkState) {
+            case ParkState.PREEMPTIVELY_UNPARKED: {
+                parkState = ParkState.UNPARKED;
+                break;
+            }
+            case ParkState.UNPARKED: {
+                long millis = nanos / NANOS_PER_MILLI;
+                nanos %= NANOS_PER_MILLI;
+
+                parkState = ParkState.PARKED;
+                try {
+                    lock.wait(millis, (int) nanos);
+                } catch (InterruptedException ex) {
+                    interrupt();
+                } finally {
+                    /*
+                     * Note: If parkState manages to become
+                     * PREEMPTIVELY_UNPARKED before hitting this
+                     * code, it should left in that state.
+                     */
+                    if (parkState == ParkState.PARKED) {
+                        parkState = ParkState.UNPARKED;
+                    }
+                }
+                break;
+            }
+            default /*parked*/: {
+                throw new AssertionError("Attempt to repark");
+            }
+        }
+        }
+    }
+
+    /**
+     * Parks the current thread until the specified system time. This
+     * method attempts to unpark the current thread immediately after
+     * <code>System.currentTimeMillis()</code> reaches the specified
+     * value, if no other thread unparks it first. If the thread has
+     * been "preemptively unparked," this method cancels that
+     * unparking and returns immediately. This method may also return
+     * spuriously (that is, without the thread being told to unpark
+     * and without the indicated amount of time elapsing).
+     *
+     * <p>See {@link java.util.concurrent.locks.LockSupport} for more
+     * in-depth information of the behavior of this method.</p>
+     *
+     * <p>This method must only be called when <code>this</code> is the
+     * current thread.
+     *
+     * @param time the time after which the thread should be unparked,
+     * in absolute milliseconds-since-the-epoch
+     *
+     * @hide for Unsafe
+     */
+    public void parkUntil(long time) {
+        synchronized(lock) {
+        /*
+         * Note: This conflates the two time bases of "wall clock"
+         * time and "monotonic uptime" time. However, given that
+         * the underlying system can only wait on monotonic time,
+         * it is unclear if there is any way to avoid the
+         * conflation. The downside here is that if, having
+         * calculated the delay, the wall clock gets moved ahead,
+         * this method may not return until well after the wall
+         * clock has reached the originally designated time. The
+         * reverse problem (the wall clock being turned back)
+         * isn't a big deal, since this method is allowed to
+         * spuriously return for any reason, and this situation
+         * can safely be construed as just such a spurious return.
+         */
+        long delayMillis = time - System.currentTimeMillis();
+
+        if (delayMillis <= 0) {
+            parkState = ParkState.UNPARKED;
+        } else {
+            parkFor(delayMillis * NANOS_PER_MILLI);
+        }
+        }
+    }
 }

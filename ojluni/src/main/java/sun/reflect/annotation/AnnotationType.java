@@ -78,8 +78,7 @@ public class AnnotationType {
     public static synchronized AnnotationType getInstance(
         Class<? extends Annotation> annotationClass)
     {
-        AnnotationType result = sun.misc.SharedSecrets.getJavaLangAccess().
-            getAnnotationType(annotationClass);
+        AnnotationType result = annotationClass.getAnnotationType();
         if (result == null)
             result = new AnnotationType((Class<? extends Annotation>) annotationClass);
 
@@ -121,8 +120,7 @@ public class AnnotationType {
             members.put(name, method);
         }
 
-        sun.misc.SharedSecrets.getJavaLangAccess().
-            setAnnotationType(annotationClass, this);
+        annotationClass.setAnnotationType(this);
 
         // Initialize retention, & inherited fields.  Special treatment
         // of the corresponding annotation types breaks infinite recursion.

@@ -55,6 +55,11 @@ import sun.misc.VM;
  */
 public
 class ThreadGroup implements Thread.UncaughtExceptionHandler {
+    /* the runtime uses these directly; do not rename */
+    static final ThreadGroup systemThreadGroup = new ThreadGroup();
+
+    static final ThreadGroup mainThreadGroup = new ThreadGroup(systemThreadGroup, "main");
+
     private final ThreadGroup parent;
     String name;
     int maxPriority;
@@ -310,10 +315,6 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
      * @since      JDK1.0
      */
     public final void checkAccess() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkAccess(this);
-        }
     }
 
     /**
