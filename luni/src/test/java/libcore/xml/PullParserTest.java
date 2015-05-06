@@ -766,6 +766,16 @@ public abstract class PullParserTest extends TestCase {
         assertRelaxedParseFailure("<!DOCTYPE foo [<!ELEMENT foo EMPTY"); // EOF in read('>')
     }
 
+    public void testWhitespacesAfterDOCTYPE() throws Exception {
+        XmlPullParser parser = newPullParser();
+        String test = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "<!DOCTYPE root [\n" +
+            "<!ENTITY dummy \"dummy\">\n" +
+            "]>  \n" +
+            "<root></root>";
+        assertParseSuccess(test, parser);
+    }
+
     private void assertParseFailure(String xml) throws Exception {
         XmlPullParser parser = newPullParser();
         assertParseFailure(xml, parser);
@@ -784,6 +794,12 @@ public abstract class PullParserTest extends TestCase {
             }
             fail();
         } catch (XmlPullParserException expected) {
+        }
+    }
+
+    private void assertParseSuccess(String xml, XmlPullParser parser) throws Exception {
+        parser.setInput(new StringReader(xml));
+        while (parser.next() != XmlPullParser.END_DOCUMENT) {
         }
     }
 
