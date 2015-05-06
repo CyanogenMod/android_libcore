@@ -58,11 +58,27 @@ public final
                                                     Member {
     private static final Comparator<Method> ORDER_BY_SIGNATURE = null; // Unused; must match Method.
 
+    private final Class<?> serializationClass;
+    private final Class<?> serializationCtor;
+
     /**
      * @hide
      */
     public Constructor(ArtMethod artMethod) {
+        this(artMethod, null, null);
+    }
+
+    private Constructor(ArtMethod artMethod, Class<?> serializationCtor, Class<?> serializationClass) {
         super(artMethod);
+        this. serializationCtor = serializationCtor;
+        this.serializationClass = serializationClass;
+    }
+
+    /**
+     * @hide
+     */
+    public Constructor<T> serializationCopy(Class<?> ctor, Class<?> cl) {
+        return new Constructor<T>(artMethod, ctor, cl);
     }
 
     /**
@@ -431,8 +447,16 @@ public final
      */
     public T newInstance(Object... args) throws InstantiationException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-      return newInstance(args, isAccessible());
+      if (serializationClass == null) {
+          return newInstance(args, isAccessible());
+      } else {
+          return (T) newInstance0(serializationCtor, serializationClass);
+      }
     }
+
+    /** @hide */
+    public static native Object newInstance0(Class<?> ctorClass, Class<?> allocClass)
+        throws InstantiationException, IllegalArgumentException, InvocationTargetException;
 
     /** @hide */
     public native T newInstance(Object[] args, boolean accessible) throws InstantiationException,

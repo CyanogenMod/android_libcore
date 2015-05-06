@@ -31,6 +31,7 @@ public final class Unsafe {
     private static final Unsafe THE_ONE = new Unsafe();
     /** Traditional RI name. */
     private static final Unsafe theUnsafe = THE_ONE;
+    public static final int INVALID_FIELD_OFFSET   = -1;
 
     /**
      * This class is only privately instantiable.
@@ -276,6 +277,20 @@ public final class Unsafe {
      */
     public native void putOrderedObject(Object obj, long offset,
             Object newValue);
+
+
+    public native boolean getBoolean(Object obj, long offset);
+    public native void putBoolean(Object obj, long offset, boolean newValue);
+    public native byte getByte(Object obj, long offset);
+    public native void putByte(Object obj, long offset, byte newValue);
+    public native char getChar(Object obj, long offset);
+    public native void putChar(Object obj, long offset, char newValue);
+    public native short getShort(Object obj, long offset);
+    public native void putShort(Object obj, long offset, short newValue);
+    public native float getFloat(Object obj, long offset);
+    public native void putFloat(Object obj, long offset, float newValue);
+    public native double getDouble(Object obj, long offset);
+    public native void putDouble(Object obj, long offset, double newValue);
 
     /**
      * Parks the calling thread for the specified amount of time,

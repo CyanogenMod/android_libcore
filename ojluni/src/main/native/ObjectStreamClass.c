@@ -27,6 +27,10 @@
 #include "jvm.h"
 
 #include "java_io_ObjectStreamClass.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 static jclass noSuchMethodErrCl;
 
@@ -38,7 +42,7 @@ static jclass noSuchMethodErrCl;
  * Native code initialization hook.
  */
 JNIEXPORT void JNICALL
-Java_java_io_ObjectStreamClass_initNative(JNIEnv *env, jclass this)
+ObjectStreamClass_initNative(JNIEnv *env, jclass this)
 {
     jclass cl = (*env)->FindClass(env, "java/lang/NoSuchMethodError");
     if (cl == NULL) {           /* exception thrown */
@@ -56,7 +60,7 @@ Java_java_io_ObjectStreamClass_initNative(JNIEnv *env, jclass this)
  * otherwise.
  */
 JNIEXPORT jboolean JNICALL
-Java_java_io_ObjectStreamClass_hasStaticInitializer(JNIEnv *env, jclass this,
+ObjectStreamClass_hasStaticInitializer(JNIEnv *env, jclass this,
                                                     jclass clazz)
 {
     jclass superCl = NULL;
@@ -95,4 +99,13 @@ Java_java_io_ObjectStreamClass_hasStaticInitializer(JNIEnv *env, jclass this,
     }
 
     return (clinitId != superClinitId);
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(ObjectStreamClass, initNative, "()V"),
+  NATIVE_METHOD(ObjectStreamClass, hasStaticInitializer, "(Ljava/lang/Class;)Z"),
+};
+
+void register_java_io_ObjectStreamClass(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/io/ObjectStreamClass", gMethods, NELEM(gMethods));
 }

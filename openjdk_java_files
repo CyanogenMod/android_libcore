@@ -33,6 +33,7 @@ java/beans/PropertyChangeEvent.java
 java/beans/PropertyChangeListener.java
 java/beans/PropertyChangeListenerProxy.java
 java/beans/PropertyChangeSupport.java
+java/io/Bits.java
 java/io/BufferedInputStream.java
 java/io/BufferedOutputStream.java
 java/io/BufferedReader.java
@@ -45,9 +46,13 @@ java/io/CharConversionException.java
 java/io/Closeable.java
 java/io/Console.java
 java/io/DataInput.java
+java/io/DataInputStream.java
 java/io/DataOutput.java
 java/io/DataOutputStream.java
 java/io/DeleteOnExitHook.java
+java/io/EmulatedFieldsForDumping.java
+java/io/EmulatedFieldsForLoading.java
+java/io/EmulatedFields.java
 java/io/EOFException.java
 java/io/ExpiringCache.java
 java/io/Externalizable.java
@@ -79,10 +84,14 @@ java/io/LineNumberReader.java
 java/io/NotActiveException.java
 java/io/NotSerializableException.java
 java/io/ObjectInput.java
+java/io/ObjectInputStream.java
 java/io/ObjectInputValidation.java
 java/io/ObjectOutput.java
+java/io/ObjectOutputStream.java
+java/io/ObjectStreamClass.java
 java/io/ObjectStreamConstants.java
 java/io/ObjectStreamException.java
+java/io/ObjectStreamField.java
 java/io/OptionalDataException.java
 java/io/OutputStream.java
 java/io/OutputStreamWriter.java
@@ -94,8 +103,10 @@ java/io/PrintStream.java
 java/io/PrintWriter.java
 java/io/PushbackInputStream.java
 java/io/PushbackReader.java
+java/io/RandomAccessFile.java
 java/io/Reader.java
 java/io/SequenceInputStream.java
+java/io/SerialCallbackContext.java
 java/io/Serializable.java
 java/io/SerializablePermission.java
 java/io/StreamCorruptedException.java
@@ -1153,6 +1164,7 @@ sun/nio/fs/UnixUriUtils.java
 sun/nio/fs/UnixUserPrincipals.java
 sun/nio/fs/Util.java
 sun/reflect/CallerSensitive.java
+sun/reflect/ConstructorAccessor.java
 sun/reflect/misc/ReflectUtil.java
 sun/reflect/Reflection.java
 sun/security/action/GetBooleanAction.java

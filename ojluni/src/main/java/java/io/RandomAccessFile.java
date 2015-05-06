@@ -28,6 +28,12 @@ package java.io;
 import java.nio.channels.FileChannel;
 import sun.nio.ch.FileChannelImpl;
 import sun.misc.IoTrace;
+import android.system.ErrnoException;
+import dalvik.system.CloseGuard;
+import java.nio.NioUtils;
+import libcore.io.IoBridge;
+import libcore.io.Libcore;
+import static android.system.OsConstants.*;
 
 
 /**
@@ -59,6 +65,11 @@ import sun.misc.IoTrace;
 
 public class RandomAccessFile implements DataOutput, DataInput, Closeable {
 
+    private final CloseGuard guard = CloseGuard.get();
+    private final byte[] scratch = new byte[8];
+    private boolean syncMetadata = false;
+    private int mode;
+
     private FileDescriptor fd;
     private FileChannel channel = null;
     private boolean rw;
@@ -68,11 +79,6 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
 
     private Object closeLock = new Object();
     private volatile boolean closed = false;
-
-    private static final int O_RDONLY = 1;
-    private static final int O_RDWR =   2;
-    private static final int O_SYNC =   4;
-    private static final int O_DSYNC =  8;
 
     /**
      * Creates a random access file stream to read from, and optionally
@@ -202,43 +208,51 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
         throws FileNotFoundException
     {
         String name = (file != null ? file.getPath() : null);
-        int imode = -1;
-        if (mode.equals("r"))
-            imode = O_RDONLY;
-        else if (mode.startsWith("rw")) {
-            imode = O_RDWR;
+        this.mode = -1;
+        if (mode.equals("r")) {
+            this.mode = O_RDONLY;
+        } else if (mode.startsWith("rw")) {
+            // Android changed: Added. O_CREAT
+            this.mode = O_RDWR | O_CREAT;
             rw = true;
             if (mode.length() > 2) {
-                if (mode.equals("rws"))
-                    imode |= O_SYNC;
-                else if (mode.equals("rwd"))
-                    imode |= O_DSYNC;
-                else
-                    imode = -1;
+                if (mode.equals("rws")) {
+                    syncMetadata = true;
+                } else if (mode.equals("rwd")) {
+                    // Android-changeD: Should this be O_DSYNC and the above O_SYNC ?
+                    this.mode |= O_SYNC;
+                } else {
+                    this.mode = -1;
+                }
             }
         }
-        if (imode < 0)
+
+        if (this.mode < 0) {
             throw new IllegalArgumentException("Illegal mode \"" + mode
                                                + "\" must be one of "
                                                + "\"r\", \"rw\", \"rws\","
                                                + " or \"rwd\"");
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(name);
-            if (rw) {
-                security.checkWrite(name);
-            }
         }
+
         if (name == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("file == null");
         }
+
         if (file.isInvalid()) {
             throw new FileNotFoundException("Invalid file path");
         }
-        fd = new FileDescriptor();
-        fd.incrementAndGetUseCount();
         this.path = name;
-        open(name, imode);
+
+        // Android-changed: Use IoBridge.open() instead of open.
+        fd = IoBridge.open(file.getPath(), this.mode);
+        if (syncMetadata) {
+            try {
+                fd.sync();
+            } catch (IOException e) {
+                // Ignored
+            }
+        }
+        guard.open("close");
     }
 
     /**
@@ -275,38 +289,11 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
     public final FileChannel getChannel() {
         synchronized (this) {
             if (channel == null) {
-                channel = FileChannelImpl.open(fd, path, true, rw, this);
-
-                /*
-                 * FileDescriptor could be shared by FileInputStream or
-                 * FileOutputStream.
-                 * Ensure that FD is GC'ed only when all the streams/channels
-                 * are done using it.
-                 * Increment fd's use count. Invoking the channel's close()
-                 * method will result in decrementing the use count set for
-                 * the channel.
-                 */
-                fd.incrementAndGetUseCount();
+                channel = NioUtils.newFileChannel(this, fd, mode);
             }
             return channel;
         }
     }
-
-    /**
-     * Opens a file and returns the file descriptor.  The file is
-     * opened in read-write mode if the O_RDWR bit in <code>mode</code>
-     * is true, else the file is opened as read-only.
-     * If the <code>name</code> refers to a directory, an IOException
-     * is thrown.
-     *
-     * @param name the name of the file
-     * @param mode the mode flags, a combination of the O_ constants
-     *             defined above
-     */
-    private native void open(String name, int mode)
-        throws FileNotFoundException;
-
-    // 'Read' primitives
 
     /**
      * Reads a byte of data from this file. The byte is returned as an
@@ -324,17 +311,8 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      *                          end-of-file has been reached.
      */
     public int read() throws IOException {
-        Object traceContext = IoTrace.fileReadBegin(path);
-        int b = 0;
-        try {
-            b = read0();
-        } finally {
-            IoTrace.fileReadEnd(traceContext, b == -1 ? 0 : 1);
-        }
-        return b;
+        return (read(scratch, 0, 1) != -1) ? scratch[0] & 0xff : -1;
     }
-
-    private native int read0() throws IOException;
 
     /**
      * Reads a sub array as a sequence of bytes.
@@ -344,17 +322,8 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * @exception IOException If an I/O error has occurred.
      */
     private int readBytes(byte b[], int off, int len) throws IOException {
-        Object traceContext = IoTrace.fileReadBegin(path);
-        int bytesRead = 0;
-        try {
-            bytesRead = readBytes0(b, off, len);
-        } finally {
-            IoTrace.fileReadEnd(traceContext, bytesRead == -1 ? 0 : bytesRead);
-        }
-        return bytesRead;
+        return IoBridge.read(fd, b, off, len);
     }
-
-    private native int readBytes0(byte b[], int off, int len) throws IOException;
 
     /**
      * Reads up to <code>len</code> bytes of data from this file into an
@@ -494,17 +463,9 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * @exception  IOException  if an I/O error occurs.
      */
     public void write(int b) throws IOException {
-        Object traceContext = IoTrace.fileWriteBegin(path);
-        int bytesWritten = 0;
-        try {
-            write0(b);
-            bytesWritten = 1;
-        } finally {
-            IoTrace.fileWriteEnd(traceContext, bytesWritten);
-        }
+        scratch[0] = (byte) (b & 0xff);
+        write(scratch, 0, 1);
     }
-
-    private native void write0(int b) throws IOException;
 
     /**
      * Writes a sub array as a sequence of bytes.
@@ -514,17 +475,12 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * @exception IOException If an I/O error has occurred.
      */
     private void writeBytes(byte b[], int off, int len) throws IOException {
-        Object traceContext = IoTrace.fileWriteBegin(path);
-        int bytesWritten = 0;
-        try {
-            writeBytes0(b, off, len);
-            bytesWritten = len;
-        } finally {
-            IoTrace.fileWriteEnd(traceContext, bytesWritten);
+        IoBridge.write(fd, b, off, len);
+        // if we are in "rws" mode, attempt to sync file+metadata
+        if (syncMetadata) {
+            fd.sync();
         }
     }
-
-    private native void writeBytes0(byte b[], int off, int len) throws IOException;
 
     /**
      * Writes <code>b.length</code> bytes from the specified byte array
@@ -559,7 +515,13 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      *             at which the next read or write occurs.
      * @exception  IOException  if an I/O error occurs.
      */
-    public native long getFilePointer() throws IOException;
+    public long getFilePointer() throws IOException {
+        try {
+            return Libcore.os.lseek(fd, 0L, SEEK_CUR);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
+    }
 
     /**
      * Sets the file-pointer offset, measured from the beginning of this
@@ -575,7 +537,16 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * @exception  IOException  if <code>pos</code> is less than
      *                          <code>0</code> or if an I/O error occurs.
      */
-    public native void seek(long pos) throws IOException;
+    public void seek(long offset) throws IOException {
+        if (offset < 0) {
+            throw new IOException("offset < 0: " + offset);
+        }
+        try {
+            Libcore.os.lseek(fd, offset, SEEK_SET);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
+    }
 
     /**
      * Returns the length of this file.
@@ -583,7 +554,13 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * @return     the length of this file, measured in bytes.
      * @exception  IOException  if an I/O error occurs.
      */
-    public native long length() throws IOException;
+    public long length() throws IOException {
+        try {
+            return Libcore.os.fstat(fd).st_size;
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
+    }
 
     /**
      * Sets the length of this file.
@@ -604,7 +581,26 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * @exception  IOException  If an I/O error occurs
      * @since      1.2
      */
-    public native void setLength(long newLength) throws IOException;
+    public void setLength(long newLength) throws IOException {
+        if (newLength < 0) {
+            throw new IllegalArgumentException("newLength < 0");
+        }
+        try {
+            Libcore.os.ftruncate(fd, newLength);
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsIOException();
+        }
+
+        long filePointer = getFilePointer();
+        if (filePointer > newLength) {
+            seek(newLength);
+        }
+        // if we are in "rws" mode, attempt to sync file+metadata
+        if (syncMetadata) {
+            fd.sync();
+        }
+    }
+
 
     /**
      * Closes this random access file stream and releases any system
@@ -621,28 +617,19 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
      * @spec JSR-51
      */
     public void close() throws IOException {
+        guard.close();
         synchronized (closeLock) {
             if (closed) {
                 return;
             }
             closed = true;
         }
-        if (channel != null) {
-            /*
-             * Decrement FD use count associated with the channel. The FD use
-             * count is incremented whenever a new channel is obtained from
-             * this stream.
-             */
-            fd.decrementAndGetUseCount();
-            channel.close();
-        }
 
-        /*
-         * Decrement FD use count associated with this stream.
-         * The count got incremented by FileDescriptor during its construction.
-         */
-        fd.decrementAndGetUseCount();
-        close0();
+        if (channel != null && channel.isOpen()) {
+            channel.close();
+            channel = null;
+        }
+        IoBridge.closeAndSignalBlockedThreads(fd);
     }
 
     //
@@ -1166,11 +1153,14 @@ public class RandomAccessFile implements DataOutput, DataInput, Closeable {
         DataOutputStream.writeUTF(str, this);
     }
 
-    private static native void initIDs();
-
-    private native void close0() throws IOException;
-
-    static {
-        initIDs();
+    @Override protected void finalize() throws Throwable {
+        try {
+            if (guard != null) {
+                guard.warnIfOpen();
+            }
+            close();
+        } finally {
+            super.finalize();
+        }
     }
 }

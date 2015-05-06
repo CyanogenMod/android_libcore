@@ -37,6 +37,7 @@ extern void register_java_io_FileInputStream(JNIEnv*);
 extern void register_java_io_FileDescriptor(JNIEnv*);
 extern void register_sun_nio_ch_NativeThread(JNIEnv*);
 extern void register_sun_nio_ch_FileKey(JNIEnv*);
+extern void register_java_io_ObjectStreamClass(JNIEnv*);
 
 }
 
@@ -62,5 +63,6 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
     register_java_io_FileDescriptor(env);
     register_sun_nio_ch_NativeThread(env);
     register_sun_nio_ch_FileKey(env);
+    register_java_io_ObjectStreamClass(env);
     return JNI_VERSION_1_6;
 }

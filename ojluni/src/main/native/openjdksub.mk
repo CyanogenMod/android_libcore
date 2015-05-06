@@ -25,6 +25,7 @@ LOCAL_SRC_FILES := \
     FileKey.c \
     UnixFileSystem_md.c \
     FileSystem_md.c \
+    ObjectStreamClass.c \
     Register.cpp \
 
 LOCAL_C_INCLUDES += \

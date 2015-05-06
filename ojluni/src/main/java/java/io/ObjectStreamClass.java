@@ -51,8 +51,8 @@ import java.util.concurrent.ConcurrentMap;
 import sun.misc.Unsafe;
 import sun.reflect.CallerSensitive;
 import sun.reflect.Reflection;
-import sun.reflect.ReflectionFactory;
 import sun.reflect.misc.ReflectUtil;
+import dalvik.system.VMStack;
 
 /**
  * Serialization's descriptor for classes.  It contains the name and
@@ -80,9 +80,6 @@ public class ObjectStreamClass implements Serializable {
         NO_FIELDS;
 
     /** reflection factory for obtaining serialization constructors */
-    private static final ReflectionFactory reflFactory =
-        AccessController.doPrivileged(
-            new ReflectionFactory.GetReflectionFactoryAction());
 
     private static class Caches {
         /** cache mapping local classes -> descriptors */
@@ -267,8 +264,8 @@ public class ObjectStreamClass implements Serializable {
             return null;
         }
         if (System.getSecurityManager() != null) {
-            Class<?> caller = Reflection.getCallerClass();
-            if (ReflectUtil.needsPackageAccessCheck(caller.getClassLoader(), cl.getClassLoader())) {
+            if (ReflectUtil.needsPackageAccessCheck(VMStack.getCallingClassLoader(),
+                  cl.getClassLoader())) {
                 ReflectUtil.checkPackageAccess(cl);
             }
         }
@@ -1373,7 +1370,9 @@ public class ObjectStreamClass implements Serializable {
             {
                 return null;
             }
-            cons = reflFactory.newConstructorForSerialization(cl, cons);
+            if (cons.getDeclaringClass() != cl) {
+                cons = cons.serializationCopy(cons.getDeclaringClass(), cl);
+            }
             cons.setAccessible(true);
             return cons;
         } catch (NoSuchMethodException ex) {

@@ -42,6 +42,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import static java.io.ObjectStreamClass.processQueue;
 import sun.reflect.misc.ReflectUtil;
+import dalvik.system.VMStack;
 
 /**
  * An ObjectInputStream deserializes primitive data and objects previously
@@ -206,6 +207,10 @@ import sun.reflect.misc.ReflectUtil;
 public class ObjectInputStream
     extends InputStream implements ObjectInput, ObjectStreamConstants
 {
+
+    private static final ClassLoader bootstrapLoader = Object.class.getClassLoader();
+    private static final ClassLoader systemLoader = ClassLoader.getSystemClassLoader();
+
     /** handle value representing null */
     private static final int NULL_HANDLE = -1;
 
@@ -2051,7 +2056,7 @@ public class ObjectInputStream
      * corresponding modifications to the above class.
      */
     private static ClassLoader latestUserDefinedLoader() {
-        return sun.misc.VM.latestUserDefinedLoader();
+        return VMStack.getClosestUserClassLoader(bootstrapLoader, systemLoader);
     }
 
     /**
