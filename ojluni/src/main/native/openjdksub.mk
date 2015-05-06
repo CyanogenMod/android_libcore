@@ -42,6 +42,10 @@ LOCAL_SRC_FILES := \
     SocketInputStream.c \
     SocketOutputStream.c \
     DefaultProxySelector.c \
+    Float.c \
+    Double.c \
+    String.c \
+    StrictMath.c \
     Register.cpp \
 
 LOCAL_C_INCLUDES += \

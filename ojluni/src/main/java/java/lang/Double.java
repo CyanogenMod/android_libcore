@@ -128,7 +128,7 @@ public final class Double extends Number implements Comparable<Double> {
      *
      * @since JDK1.1
      */
-    public static final Class<Double>   TYPE = (Class<Double>) Class.getPrimitiveClass("double");
+    public static final Class<Double>   TYPE = (Class<Double>) double[].class.getComponentType();
 
     /**
      * Returns a string representation of the {@code double}

@@ -58,7 +58,7 @@ public final class Short extends Number implements Comparable<Short> {
      * The {@code Class} instance representing the primitive type
      * {@code short}.
      */
-    public static final Class<Short>    TYPE = (Class<Short>) Class.getPrimitiveClass("short");
+    public static final Class<Short>    TYPE = (Class<Short>) short[].class.getComponentType();
 
     /**
      * Returns a new {@code String} object representing the

@@ -29,12 +29,17 @@
 #include "jvm.h"
 
 #include "java_lang_Double.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
+
 
 /*
  * Find the double float corresponding to a given bit pattern
  */
 JNIEXPORT jdouble JNICALL
-Java_java_lang_Double_longBitsToDouble(JNIEnv *env, jclass unused, jlong v)
+Double_longBitsToDouble(JNIEnv *env, jclass unused, jlong v)
 {
     union {
         jlong l;
@@ -49,7 +54,7 @@ Java_java_lang_Double_longBitsToDouble(JNIEnv *env, jclass unused, jlong v)
  * Find the bit pattern corresponding to a given double float, NOT collapsing NaNs
  */
 JNIEXPORT jlong JNICALL
-Java_java_lang_Double_doubleToRawLongBits(JNIEnv *env, jclass unused, jdouble v)
+Double_doubleToRawLongBits(JNIEnv *env, jclass unused, jdouble v)
 {
     union {
         jlong l;
@@ -58,4 +63,12 @@ Java_java_lang_Double_doubleToRawLongBits(JNIEnv *env, jclass unused, jdouble v)
     jdouble_to_jlong_bits(&v);
     u.d = (double)v;
     return u.l;
+}
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(Double, longBitsToDouble, "(J)D"),
+  NATIVE_METHOD(Double, doubleToRawLongBits, "(D)J"),
+};
+
+void register_java_lang_Double(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/lang/Double", gMethods, NELEM(gMethods));
 }

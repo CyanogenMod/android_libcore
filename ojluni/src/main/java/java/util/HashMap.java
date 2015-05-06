@@ -258,6 +258,9 @@ public class HashMap<K,V>
                                                loadFactor);
 
         this.loadFactor = loadFactor;
+        if (initialCapacity < 2) {
+            initialCapacity = 2;
+        }
         threshold = initialCapacity;
         init();
     }
@@ -313,10 +316,9 @@ public class HashMap<K,V>
      * Inflates the table.
      */
     private void inflateTable(int toSize) {
-        // Find a power of 2 >= toSize
-        int capacity = roundUpToPowerOf2(toSize);
+        int capacity = (int) (roundUpToPowerOf2(toSize) * loadFactor);
+        threshold = (capacity <= MAXIMUM_CAPACITY + 1) ? capacity : MAXIMUM_CAPACITY + 1;
 
-        threshold = (int) Math.min(capacity * loadFactor, MAXIMUM_CAPACITY + 1);
         table = new Entry[capacity];
         initHashSeedAsNeeded(capacity);
     }
@@ -785,14 +787,7 @@ public class HashMap<K,V>
         } catch (CloneNotSupportedException e) {
             // assert false;
         }
-        if (result.table != EMPTY_TABLE) {
-            result.inflateTable(Math.min(
-                (int) Math.min(
-                    size * Math.min(1 / loadFactor, 4.0f),
-                    // we have limits...
-                    HashMap.MAXIMUM_CAPACITY),
-               table.length));
-        }
+        result.table = new Entry[table.length];
         result.entrySet = null;
         result.modCount = 0;
         result.size = 0;

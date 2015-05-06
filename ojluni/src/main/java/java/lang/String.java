@@ -3029,9 +3029,9 @@ public final class String
     /**
      * Seed value used for each alternative hash calculated.
      */
-    private static final int HASHING_SEED;
+    private static int HASHING_SEED;
 
-    static {
+    private static int getHashingSeed() {
         long nanos = System.nanoTime();
         long now = System.currentTimeMillis();
         int SEED_MATERIAL[] = {
@@ -3073,6 +3073,7 @@ public final class String
         h1 ^= h1 >>> 16;
 
         HASHING_SEED = h1;
+        return HASHING_SEED;
     }
 
     /**
@@ -3089,7 +3090,7 @@ public final class String
         int h = hash32;
         if (0 == h) {
            // harmless data race on hash32 here.
-           h = sun.misc.Hashing.murmur3_32(HASHING_SEED, value, 0, value.length);
+           h = sun.misc.Hashing.murmur3_32(getHashingSeed(), value, 0, value.length);
 
            // ensure result is not zero to avoid recalcing
            h = (0 != h) ? h : 1;

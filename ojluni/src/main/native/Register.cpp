@@ -51,6 +51,10 @@ extern void register_java_net_Inet6AddressImpl(JNIEnv*);
 extern void register_java_net_SocketInputStream(JNIEnv*);
 extern void register_java_net_SocketOutputStream(JNIEnv*);
 extern void register_sun_net_spi_DefaultProxySelector(JNIEnv*);
+extern void register_java_lang_Float(JNIEnv*);
+extern void register_java_lang_Double(JNIEnv*);
+extern void register_java_lang_String(JNIEnv*);
+extern void register_java_lang_StrictMath(JNIEnv*);
 
 extern jint net_JNI_OnLoad(JavaVM*, void*);
 
@@ -91,6 +95,10 @@ jint JNI_OnLoad(JavaVM* vm, void*) { JNIEnv* env;
     register_java_net_SocketInputStream(env);
     register_java_net_SocketOutputStream(env);
     register_sun_net_spi_DefaultProxySelector(env);
+    register_java_lang_Float(env);
+    register_java_lang_Double(env);
+    register_java_lang_String(env);
+    register_java_lang_StrictMath(env);
     net_JNI_OnLoad(vm, NULL);
     return JNI_VERSION_1_6;
 }

@@ -66,7 +66,7 @@ public final class Long extends Number implements Comparable<Long> {
      *
      * @since   JDK1.1
      */
-    public static final Class<Long>     TYPE = (Class<Long>) Class.getPrimitiveClass("long");
+    public static final Class<Long>     TYPE = (Class<Long>) long[].class.getComponentType();
 
     /**
      * Returns a string representation of the first argument in the

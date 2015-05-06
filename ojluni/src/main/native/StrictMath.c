@@ -24,130 +24,162 @@
  */
 
 #include "jni.h"
-#include "fdlibm.h"
+#include "../../external/fdlibm/fdlibm.h"
 
 #include "java_lang_StrictMath.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
+
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_cos(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_cos(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jcos((double)d);
+    return (jdouble) ieee_cos((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_sin(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_sin(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jsin((double)d);
+    return (jdouble) ieee_sin((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_tan(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_tan(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jtan((double)d);
+    return (jdouble) ieee_tan((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_asin(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_asin(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jasin((double)d);
+    return (jdouble) ieee_asin((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_acos(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_acos(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jacos((double)d);
+    return (jdouble) ieee_acos((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_atan(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_atan(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jatan((double)d);
+    return (jdouble) ieee_atan((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_exp(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_exp(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jexp((double)d);
+    return (jdouble) ieee_exp((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_log(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_log(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jlog((double)d);
+    return (jdouble) ieee_log((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_log10(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_log10(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jlog10((double)d);
+    return (jdouble) ieee_log10((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_sqrt(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_sqrt(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jsqrt((double)d);
+    return (jdouble) ieee_sqrt((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_cbrt(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_cbrt(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jcbrt((double)d);
+    return (jdouble) ieee_cbrt((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_atan2(JNIEnv *env, jclass unused, jdouble d1, jdouble d2)
+StrictMath_atan2(JNIEnv *env, jclass unused, jdouble d1, jdouble d2)
 {
-    return (jdouble) jatan2((double)d1, (double)d2);
+    return (jdouble) ieee_atan2((double)d1, (double)d2);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_pow(JNIEnv *env, jclass unused, jdouble d1, jdouble d2)
+StrictMath_pow(JNIEnv *env, jclass unused, jdouble d1, jdouble d2)
 {
-    return (jdouble) jpow((double)d1, (double)d2);
+    return (jdouble) ieee_pow((double)d1, (double)d2);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_IEEEremainder(JNIEnv *env, jclass unused,
+StrictMath_IEEEremainder(JNIEnv *env, jclass unused,
                                   jdouble dividend,
                                   jdouble divisor)
 {
-    return (jdouble) jremainder(dividend, divisor);
+    return (jdouble) ieee_remainder(dividend, divisor);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_cosh(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_cosh(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jcosh((double)d);
+    return (jdouble) ieee_cosh((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_sinh(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_sinh(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jsinh((double)d);
+    return (jdouble) ieee_sinh((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_tanh(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_tanh(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jtanh((double)d);
+    return (jdouble) ieee_tanh((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_hypot(JNIEnv *env, jclass unused, jdouble x, jdouble y)
+StrictMath_hypot(JNIEnv *env, jclass unused, jdouble x, jdouble y)
 {
-    return (jdouble) jhypot((double)x, (double)y);
+    return (jdouble) ieee_hypot((double)x, (double)y);
 }
 
 
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_log1p(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_log1p(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jlog1p((double)d);
+    return (jdouble) ieee_log1p((double)d);
 }
 
 JNIEXPORT jdouble JNICALL
-Java_java_lang_StrictMath_expm1(JNIEnv *env, jclass unused, jdouble d)
+StrictMath_expm1(JNIEnv *env, jclass unused, jdouble d)
 {
-    return (jdouble) jexpm1((double)d);
+    return (jdouble) ieee_expm1((double)d);
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(StrictMath, cos, "(D)D"),
+  NATIVE_METHOD(StrictMath, sin, "(D)D"),
+  NATIVE_METHOD(StrictMath, tan, "(D)D"),
+  NATIVE_METHOD(StrictMath, asin, "(D)D"),
+  NATIVE_METHOD(StrictMath, acos, "(D)D"),
+  NATIVE_METHOD(StrictMath, atan, "(D)D"),
+  NATIVE_METHOD(StrictMath, exp, "(D)D"),
+  NATIVE_METHOD(StrictMath, log, "(D)D"),
+  NATIVE_METHOD(StrictMath, log10, "(D)D"),
+  NATIVE_METHOD(StrictMath, sqrt, "(D)D"),
+  NATIVE_METHOD(StrictMath, cbrt, "(D)D"),
+  NATIVE_METHOD(StrictMath, atan2, "(DD)D"),
+  NATIVE_METHOD(StrictMath, pow, "(DD)D"),
+  NATIVE_METHOD(StrictMath, IEEEremainder, "(DD)D"),
+  NATIVE_METHOD(StrictMath, cosh, "(D)D"),
+  NATIVE_METHOD(StrictMath, sinh, "(D)D"),
+  NATIVE_METHOD(StrictMath, tanh, "(D)D"),
+  NATIVE_METHOD(StrictMath, hypot, "(DD)D"),
+  NATIVE_METHOD(StrictMath, log1p, "(D)D"),
+  NATIVE_METHOD(StrictMath, expm1, "(D)D"),
+};
+
+void register_java_lang_StrictMath(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/lang/StrictMath", gMethods, NELEM(gMethods));
 }

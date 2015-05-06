@@ -25,6 +25,9 @@
 
 package java.lang;
 
+import java.lang.reflect.Method;
+import libcore.util.EmptyArray;
+
 /**
  * The {@code Void} class is an uninstantiable placeholder class to hold a
  * reference to the {@code Class} object representing the Java keyword
@@ -40,7 +43,17 @@ class Void {
      * The {@code Class} object representing the pseudo-type corresponding to
      * the keyword {@code void}.
      */
-    public static final Class<Void> TYPE = Class.getPrimitiveClass("void");
+    public static final Class<Void> TYPE = lookupType();
+
+    @SuppressWarnings("unchecked")
+    private static Class<Void> lookupType() {
+        try {
+            Method method = Runnable.class.getMethod("run", EmptyArray.CLASS);
+            return (Class<Void>) method.getReturnType();
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
 
     /*
      * The Void class cannot be instantiated.

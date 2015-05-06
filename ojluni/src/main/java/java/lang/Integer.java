@@ -68,7 +68,7 @@ public final class Integer extends Number implements Comparable<Integer> {
      *
      * @since   JDK1.1
      */
-    public static final Class<Integer>  TYPE = (Class<Integer>) Class.getPrimitiveClass("int");
+    public static final Class<Integer>  TYPE = (Class<Integer>) int[].class.getComponentType();
 
     /**
      * All possible chars for representing a number as a String

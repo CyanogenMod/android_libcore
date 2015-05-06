@@ -236,8 +236,9 @@ public class VM {
      *
      */
     public static String getSavedProperty(String key) {
-        if (savedProps.isEmpty())
-            throw new IllegalStateException("Should be non-empty if initialized");
+        // TODO(narayan): Why is this commented out ?
+        // if (savedProps.isEmpty())
+        //     throw new IllegalStateException("Should be non-empty if initialized");
 
         return savedProps.getProperty(key);
     }
@@ -311,11 +312,6 @@ public class VM {
     // set for the class libraries.
     //
     public static void initializeOSEnvironment() {
-        if (!booted) {
-            /* ----- BEGIN android -----
-            OSEnvironment.initialize();
-            ----- END android ----- */
-        }
     }
 
     /* Current count of objects pending for finalization */

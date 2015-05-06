@@ -25,9 +25,21 @@
 
 #include "jvm.h"
 #include "java_lang_String.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
+
 
 JNIEXPORT jobject JNICALL
-Java_java_lang_String_intern(JNIEnv *env, jobject this)
+String_intern(JNIEnv *env, jobject this)
 {
     return JVM_InternString(env, this);
+}
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(String, intern, "()Ljava/lang/String;"),
+};
+
+void register_java_lang_String(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/lang/String", gMethods, NELEM(gMethods));
 }

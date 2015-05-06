@@ -34,13 +34,7 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
 
 #define REGISTER(FN) extern void FN(JNIEnv*); FN(env)
     REGISTER(register_android_system_OsConstants);
-    REGISTER(register_java_lang_Character);
-    REGISTER(register_java_lang_Double);
-    REGISTER(register_java_lang_Float);
-    REGISTER(register_java_lang_Math);
     REGISTER(register_java_lang_ProcessManager);
-    REGISTER(register_java_lang_RealToString);
-    REGISTER(register_java_lang_StrictMath);
     REGISTER(register_java_lang_StringToReal);
     REGISTER(register_java_lang_System);
     REGISTER(register_java_math_NativeBN);

@@ -131,7 +131,7 @@ class StringCoding {
             this.cd = cs.newDecoder()
                 .onMalformedInput(CodingErrorAction.REPLACE)
                 .onUnmappableCharacter(CodingErrorAction.REPLACE);
-            this.isTrusted = (cs.getClass().getClassLoader0() == null);
+            this.isTrusted = (cs.getClass().getClassLoader() == null);
         }
 
         String charsetName() {
@@ -217,7 +217,7 @@ class StringCoding {
             return ca;
         boolean isTrusted = false;
         if (System.getSecurityManager() != null) {
-            if (!(isTrusted = (cs.getClass().getClassLoader0() == null))) {
+            if (!(isTrusted = (cs.getClass().getClassLoader() == null))) {
                 ba =  Arrays.copyOfRange(ba, off, off + len);
                 off = 0;
             }
@@ -282,7 +282,7 @@ class StringCoding {
             this.ce = cs.newEncoder()
                 .onMalformedInput(CodingErrorAction.REPLACE)
                 .onUnmappableCharacter(CodingErrorAction.REPLACE);
-            this.isTrusted = (cs.getClass().getClassLoader0() == null);
+            this.isTrusted = (cs.getClass().getClassLoader() == null);
         }
 
         String charsetName() {
@@ -352,7 +352,7 @@ class StringCoding {
             return ba;
         boolean isTrusted = false;
         if (System.getSecurityManager() != null) {
-            if (!(isTrusted = (cs.getClass().getClassLoader0() == null))) {
+            if (!(isTrusted = (cs.getClass().getClassLoader() == null))) {
                 ca =  Arrays.copyOfRange(ca, off, off + len);
                 off = 0;
             }

@@ -59,7 +59,7 @@ public final class Byte extends Number implements Comparable<Byte> {
      * The {@code Class} instance representing the primitive type
      * {@code byte}.
      */
-    public static final Class<Byte>     TYPE = (Class<Byte>) Class.getPrimitiveClass("byte");
+    public static final Class<Byte>     TYPE = (Class<Byte>) byte[].class.getComponentType();
 
     /**
      * Returns a new {@code String} object representing the
@@ -449,4 +449,29 @@ public final class Byte extends Number implements Comparable<Byte> {
 
     /** use serialVersionUID from JDK 1.1. for interoperability */
     private static final long serialVersionUID = -7183698231559129828L;
+
+    /* ----- BEGIN android -----
+     * @hide
+     */
+    public static String toHexString(byte b, boolean upperCase) {
+        char[] digits = upperCase ? UPPER_CASE_DIGITS : DIGITS;
+        char[] buf = new char[2]; // We always want two digits.
+        buf[0] = digits[(b >> 4) & 0xf];
+        buf[1] = digits[b & 0xf];
+        return new String(0, 2, buf);
+    }
+    private static final char[] DIGITS = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+        'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+        'u', 'v', 'w', 'x', 'y', 'z'
+    };
+
+    private static final char[] UPPER_CASE_DIGITS = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+        'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+        'U', 'V', 'W', 'X', 'Y', 'Z'
+    };
+    // ----- END android -----
 }

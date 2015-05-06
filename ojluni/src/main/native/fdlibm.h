@@ -30,7 +30,7 @@
 #define __USE_BSD 1
 #include <endian.h>
 #endif
-#include "jfdlibm.h"
+//#include "jfdlibm.h"
 
 #ifdef __NEWVALID       /* special setup for Sun test regime */
 #if defined(i386) || defined(i486) || \

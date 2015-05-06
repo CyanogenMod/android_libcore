@@ -127,7 +127,7 @@ public final class Float extends Number implements Comparable<Float> {
      *
      * @since JDK1.1
      */
-    public static final Class<Float> TYPE = Class.getPrimitiveClass("float");
+    public static final Class<Float> TYPE = (Class<Float>) float[].class.getComponentType();
 
     /**
      * Returns a string representation of the {@code float}

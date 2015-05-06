@@ -14,13 +14,7 @@ LOCAL_SRC_FILES := \
     android_system_OsConstants.cpp \
     canonicalize_path.cpp \
     cbigint.cpp \
-    java_lang_Character.cpp \
-    java_lang_Double.cpp \
-    java_lang_Float.cpp \
-    java_lang_Math.cpp \
     java_lang_ProcessManager.cpp \
-    java_lang_RealToString.cpp \
-    java_lang_StrictMath.cpp \
     java_lang_StringToReal.cpp \
     java_lang_System.cpp \
     java_math_NativeBN.cpp \

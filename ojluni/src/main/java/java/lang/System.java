@@ -35,7 +35,16 @@ import java.nio.channels.Channel;
 import java.nio.channels.spi.SelectorProvider;
 import sun.nio.ch.Interruptible;
 import sun.reflect.CallerSensitive;
-import sun.reflect.Reflection;
+/* ----- BEGIN android -----
+import sun.reflect.Reflection;*/
+import android.system.ErrnoException;
+import android.system.StructPasswd;
+import android.system.StructUtsname;
+import dalvik.system.VMRuntime;
+import dalvik.system.VMStack;
+import libcore.icu.ICU;
+import libcore.io.Libcore;
+// ----- END android -----
 import sun.security.util.SecurityConstants;
 import sun.reflect.annotation.AnnotationType;
 
@@ -54,18 +63,6 @@ import sun.reflect.annotation.AnnotationType;
  */
 public final class System {
 
-    /* register the natives via the static initializer.
-     *
-     * VM will invoke the initializeSystemClass method to complete
-     * the initialization for this class separated from clinit.
-     * Note that to use properties set by the VM, see the constraints
-     * described in the initializeSystemClass method.
-     */
-    private static native void registerNatives();
-    static {
-        registerNatives();
-    }
-
     /** Don't let anyone instantiate this class */
     private System() {
     }
@@ -76,7 +73,7 @@ public final class System {
      * corresponds to keyboard input or another input source specified by
      * the host environment or user.
      */
-    public final static InputStream in = null;
+    public final static InputStream in;
 
     /**
      * The "standard" output stream. This stream is already
@@ -103,7 +100,7 @@ public final class System {
      * @see     java.io.PrintStream#println(java.lang.Object)
      * @see     java.io.PrintStream#println(java.lang.String)
      */
-    public final static PrintStream out = null;
+    public final static PrintStream out;
 
     /**
      * The "standard" error output stream. This stream is already
@@ -117,7 +114,7 @@ public final class System {
      * variable <code>out</code>, has been redirected to a file or other
      * destination that is typically not continuously monitored.
      */
-    public final static PrintStream err = null;
+    public final static PrintStream err;
 
     /* The security manager for the system.
      */
@@ -208,7 +205,7 @@ public final class System {
      public static Console console() {
          if (cons == null) {
              synchronized (System.class) {
-                 cons = sun.misc.SharedSecrets.getJavaIOAccess().console();
+                 cons = Console.console();
              }
          }
          return cons;
@@ -244,10 +241,6 @@ public final class System {
     }
 
     private static void checkIO() {
-        SecurityManager sm = getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new RuntimePermission("setIO"));
-        }
     }
 
     private static native void setIn0(InputStream in);
@@ -279,43 +272,6 @@ public final class System {
      */
     public static
     void setSecurityManager(final SecurityManager s) {
-        try {
-            s.checkPackageAccess("java.lang");
-        } catch (Exception e) {
-            // no-op
-        }
-        setSecurityManager0(s);
-    }
-
-    private static synchronized
-    void setSecurityManager0(final SecurityManager s) {
-        SecurityManager sm = getSecurityManager();
-        if (sm != null) {
-            // ask the currently installed security manager if we
-            // can replace it.
-            sm.checkPermission(new RuntimePermission
-                                     ("setSecurityManager"));
-        }
-
-        if ((s != null) && (s.getClass().getClassLoader() != null)) {
-            // New security manager class is not on bootstrap classpath.
-            // Cause policy to get initialized before we install the new
-            // security manager, in order to prevent infinite loops when
-            // trying to initialize the policy (which usually involves
-            // accessing some security and/or system properties, which in turn
-            // calls the installed security manager's checkPermission method
-            // which will loop infinitely if there is a non-system class
-            // (in this case: the new security manager class) on the stack).
-            AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                public Object run() {
-                    s.getClass().getProtectionDomain().implies
-                        (SecurityConstants.ALL_PERMISSION);
-                    return null;
-                }
-            });
-        }
-
-        security = s;
     }
 
     /**
@@ -327,7 +283,7 @@ public final class System {
      * @see     #setSecurityManager
      */
     public static SecurityManager getSecurityManager() {
-        return security;
+        return null;
     }
 
     /**
@@ -525,7 +481,123 @@ public final class System {
      */
 
     private static Properties props;
-    private static native Properties initProperties(Properties props);
+
+    private static native String[] specialProperties();
+
+    static final class PropertiesWithNonOverrideableDefaults extends Properties {
+        PropertiesWithNonOverrideableDefaults(Properties defaults) {
+            super(defaults);
+        }
+
+        @Override
+        public Object put(Object key, Object value) {
+            if (defaults.containsKey(key)) {
+                logE("Ignoring attempt to set property \"" + key +
+                        "\" to value \"" + value + "\".");
+                return defaults.get(key);
+            }
+
+            return super.put(key, value);
+        }
+
+        @Override
+        public Object remove(Object key) {
+            if (defaults.containsKey(key)) {
+                logE("Ignoring attempt to remove property \"" + key + "\".");
+                return null;
+            }
+
+            return super.remove(key);
+        }
+    }
+    private static void parsePropertyAssignments(Properties p, String[] assignments) {
+        for (String assignment : assignments) {
+            int split = assignment.indexOf('=');
+            String key = assignment.substring(0, split);
+            String value = assignment.substring(split + 1);
+            p.put(key, value);
+        }
+    }
+    private static Properties initProperties() {
+        VMRuntime runtime = VMRuntime.getRuntime();
+        Properties p = new Properties();
+
+        String projectUrl = "http://www.android.com/";
+        String projectName = "The Android Project";
+
+        p.put("java.boot.class.path", runtime.bootClassPath());
+        p.put("java.class.path", runtime.classPath());
+
+        // None of these four are meaningful on Android, but these keys are guaranteed
+        // to be present for System.getProperty. For java.class.version, we use the maximum
+        // class file version that dx currently supports.
+        p.put("java.class.version", "50.0");
+        p.put("java.compiler", "");
+        p.put("java.ext.dirs", "");
+        p.put("java.version", "0");
+
+        // TODO: does this make any sense? Should we just leave java.home unset?
+        String javaHome = getenv("JAVA_HOME");
+        if (javaHome == null) {
+            javaHome = "/system";
+        }
+        p.put("java.home", javaHome);
+
+        p.put("java.specification.name", "Dalvik Core Library");
+        p.put("java.specification.vendor", projectName);
+        p.put("java.specification.version", "0.9");
+
+        p.put("java.vendor", projectName);
+        p.put("java.vendor.url", projectUrl);
+        p.put("java.vm.name", "Dalvik");
+        p.put("java.vm.specification.name", "Dalvik Virtual Machine Specification");
+        p.put("java.vm.specification.vendor", projectName);
+        p.put("java.vm.specification.version", "0.9");
+        p.put("java.vm.vendor", projectName);
+        p.put("java.vm.version", runtime.vmVersion());
+
+        p.put("file.separator", "/");
+        p.put("line.separator", "\n");
+        p.put("path.separator", ":");
+
+        p.put("java.runtime.name", "Android Runtime");
+        p.put("java.runtime.version", "0.9");
+        p.put("java.vm.vendor.url", projectUrl);
+
+        p.put("file.encoding", "UTF-8");
+        p.put("user.language", "en");
+        p.put("user.region", "US");
+
+        try {
+            StructPasswd passwd = Libcore.os.getpwuid(Libcore.os.getuid());
+            p.put("user.home", passwd.pw_dir);
+            p.put("user.name", passwd.pw_name);
+        } catch (ErrnoException exception) {
+            throw new AssertionError(exception);
+        }
+
+        StructUtsname info = Libcore.os.uname();
+        p.put("os.arch", info.machine);
+        p.put("os.name", info.sysname);
+        p.put("os.version", info.release);
+
+        // Undocumented Android-only properties.
+        p.put("android.icu.library.version", ICU.getIcuVersion());
+        p.put("android.icu.unicode.version", ICU.getUnicodeVersion());
+        p.put("android.icu.cldr.version", ICU.getCldrVersion());
+
+        parsePropertyAssignments(p, specialProperties());
+
+        // Override built-in properties with settings from the command line.
+        parsePropertyAssignments(p, runtime.properties());
+
+        Properties result = new PropertiesWithNonOverrideableDefaults(p);
+        // On Android, each app gets its own temporary directory.
+        // (See android.app.ActivityThread.) This is just a fallback default,
+        // useful only on the host.
+        result.put("java.io.tmpdir", "/tmp");
+        return result;
+    }
 
     /**
      * Determines the current system properties.
@@ -618,11 +690,6 @@ public final class System {
      * @see        java.util.Properties
      */
     public static Properties getProperties() {
-        SecurityManager sm = getSecurityManager();
-        if (sm != null) {
-            sm.checkPropertiesAccess();
-        }
-
         return props;
     }
 
@@ -663,15 +730,13 @@ public final class System {
      * @see        java.lang.SecurityManager#checkPropertiesAccess()
      */
     public static void setProperties(Properties props) {
-        SecurityManager sm = getSecurityManager();
-        if (sm != null) {
-            sm.checkPropertiesAccess();
+        // TODO: cache initProperties on init?
+        // TODO: update comments in other related property methods
+        Properties baseProperties = initProperties();
+        if (props != null) {
+            baseProperties.putAll(props);
         }
-        if (props == null) {
-            props = new Properties();
-            initProperties(props);
-        }
-        System.props = props;
+        System.props = baseProperties;
     }
 
     /**
@@ -702,11 +767,6 @@ public final class System {
      */
     public static String getProperty(String key) {
         checkKey(key);
-        SecurityManager sm = getSecurityManager();
-        if (sm != null) {
-            sm.checkPropertyAccess(key);
-        }
-
         return props.getProperty(key);
     }
 
@@ -738,11 +798,6 @@ public final class System {
      */
     public static String getProperty(String key, String def) {
         checkKey(key);
-        SecurityManager sm = getSecurityManager();
-        if (sm != null) {
-            sm.checkPropertyAccess(key);
-        }
-
         return props.getProperty(key, def);
     }
 
@@ -777,12 +832,6 @@ public final class System {
      */
     public static String setProperty(String key, String value) {
         checkKey(key);
-        SecurityManager sm = getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new PropertyPermission(key,
-                SecurityConstants.PROPERTY_WRITE_ACTION));
-        }
-
         return (String) props.setProperty(key, value);
     }
 
@@ -815,11 +864,6 @@ public final class System {
      */
     public static String clearProperty(String key) {
         checkKey(key);
-        SecurityManager sm = getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new PropertyPermission(key, "write"));
-        }
-
         return (String) props.remove(key);
     }
 
@@ -879,12 +923,10 @@ public final class System {
      * @see    ProcessBuilder#environment()
      */
     public static String getenv(String name) {
-        SecurityManager sm = getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new RuntimePermission("getenv."+name));
+        if (name == null) {
+            throw new NullPointerException("name == null");
         }
-
-        return ProcessEnvironment.getenv(name);
+        return Libcore.os.getenv(name);
     }
 
 
@@ -929,11 +971,6 @@ public final class System {
      * @since  1.5
      */
     public static java.util.Map<String,String> getenv() {
-        SecurityManager sm = getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(new RuntimePermission("getenv.*"));
-        }
-
         return ProcessEnvironment.getenv();
     }
 
@@ -1058,7 +1095,7 @@ public final class System {
      */
     @CallerSensitive
     public static void load(String filename) {
-        Runtime.getRuntime().load0(Reflection.getCallerClass(), filename);
+        Runtime.getRuntime().load0(VMStack.getStackClass2(), filename);
     }
 
     /**
@@ -1084,7 +1121,7 @@ public final class System {
      */
     @CallerSensitive
     public static void loadLibrary(String libname) {
-        Runtime.getRuntime().loadLibrary0(Reflection.getCallerClass(), libname);
+        Runtime.getRuntime().loadLibrary0(VMStack.getCallingClassLoader(), libname);
     }
 
     /**
@@ -1104,7 +1141,7 @@ public final class System {
     /**
      * Initialize the system class.  Called after thread initialization.
      */
-    private static void initializeSystemClass() {
+    static {
 
         // VM might invoke JNU_NewStringPlatform() to set those encoding
         // sensitive properties (user.home, user.name, boot.class.path, etc.)
@@ -1114,8 +1151,11 @@ public final class System {
         // initialization. So make sure the "props" is available at the
         // very beginning of the initialization and all system properties to
         // be put into it directly.
+        /* ----- BEGIN android -----
         props = new Properties();
-        initProperties(props);  // initialized by the VM
+        initProperties(props);  // initialized by the VM*/
+        props = initProperties();
+        // ----- END android -----
 
         // There are certain system configurations that may be controlled by
         // VM options such as the maximum amount of direct memory and
@@ -1140,12 +1180,19 @@ public final class System {
         FileInputStream fdIn = new FileInputStream(FileDescriptor.in);
         FileOutputStream fdOut = new FileOutputStream(FileDescriptor.out);
         FileOutputStream fdErr = new FileOutputStream(FileDescriptor.err);
+        /* ----- BEGIN android -----
         setIn0(new BufferedInputStream(fdIn));
         setOut0(new PrintStream(new BufferedOutputStream(fdOut, 128), true));
-        setErr0(new PrintStream(new BufferedOutputStream(fdErr, 128), true));
+        setErr0(new PrintStream(new BufferedOutputStream(fdErr, 128), true));*/
+        in = new BufferedInputStream(fdIn);
+        out = new PrintStream(fdOut);
+        err = new PrintStream(fdErr);
+        // ----- END android -----
         // Load the zip library now in order to keep java.util.zip.ZipFile
         // from trying to use itself to load this library later.
+        /* ----- BEGIN android -----
         loadLibrary("zip");
+        ----- END android ----- */
 
         // Setup Java signal handlers for HUP, TERM, and INT (where available).
         Terminator.setup();
@@ -1159,10 +1206,10 @@ public final class System {
         // The main thread is not added to its thread group in the same
         // way as other threads; we must do it ourselves here.
         Thread current = Thread.currentThread();
-        current.getThreadGroup().add(current);
+        //current.getThreadGroup().add(current);
 
         // register shared secrets
-        setJavaLangAccess();
+        //setJavaLangAccess();
 
         // Subsystems that are invoked during initialization can invoke
         // sun.misc.VM.isBooted() in order to avoid doing things that should
@@ -1171,37 +1218,47 @@ public final class System {
         sun.misc.VM.booted();
     }
 
-    private static void setJavaLangAccess() {
-        // Allow privileged classes outside of java.lang
-        sun.misc.SharedSecrets.setJavaLangAccess(new sun.misc.JavaLangAccess(){
-            public sun.reflect.ConstantPool getConstantPool(Class klass) {
-                return klass.getConstantPool();
-            }
-            public void setAnnotationType(Class klass, AnnotationType type) {
-                klass.setAnnotationType(type);
-            }
-            public AnnotationType getAnnotationType(Class klass) {
-                return klass.getAnnotationType();
-            }
-            public <E extends Enum<E>>
-                    E[] getEnumConstantsShared(Class<E> klass) {
-                return klass.getEnumConstantsShared();
-            }
-            public void blockedOn(Thread t, Interruptible b) {
-                t.blockedOn(b);
-            }
-            public void registerShutdownHook(int slot, boolean registerShutdownInProgress, Runnable hook) {
-                Shutdown.add(slot, registerShutdownInProgress, hook);
-            }
-            public int getStackTraceDepth(Throwable t) {
-                return t.getStackTraceDepth();
-            }
-            public StackTraceElement getStackTraceElement(Throwable t, int i) {
-                return t.getStackTraceElement(i);
-            }
-            public int getStringHash32(String string) {
-                return string.hash32();
-            }
-        });
+    /**
+     * @hide internal use only
+     */
+    public static void logE(String message) {
+        log('E', message, null);
     }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logE(String message, Throwable th) {
+        log('E', message, th);
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logI(String message) {
+        log('I', message, null);
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logI(String message, Throwable th) {
+        log('I', message, th);
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logW(String message) {
+        log('W', message, null);
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public static void logW(String message, Throwable th) {
+        log('W', message, th);
+    }
+
+    private static native void log(char type, String message, Throwable th);
 }

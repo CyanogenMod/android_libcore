@@ -23,7 +23,14 @@
 template <typename T>
 static jobject valueOf(JNIEnv* env, jclass c, const char* signature, const T& value) {
     static jmethodID valueOfMethod = env->GetStaticMethodID(c, "valueOf", signature);
-    return env->CallStaticObjectMethod(c, valueOfMethod, value);
+    if (env->ExceptionCheck()) {
+        return NULL;
+    }
+    jobject result = env->CallStaticObjectMethod(c, valueOfMethod, value);
+    if (env->ExceptionCheck()) {
+        return NULL;
+    }
+    return result;
 }
 
 jobject booleanValueOf(JNIEnv* env, jboolean value) {
