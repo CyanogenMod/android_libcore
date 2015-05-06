@@ -156,7 +156,7 @@ public final class Daemons {
                     list.pendingNext = reference.pendingNext;
                     reference.pendingNext = null;
                 }
-                reference.enqueueInternal();
+                reference.enqueue();
             }
         }
     }

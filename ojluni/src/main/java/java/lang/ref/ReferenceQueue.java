@@ -59,12 +59,9 @@ public class ReferenceQueue<T> {
             if (r.queue == ENQUEUED) return false;
             synchronized (lock) {
                 r.queue = ENQUEUED;
-                r.next = (head == null) ? r : head;
+                r.queueNext = (head == null) ? r : head;
                 head = r;
                 queueLength++;
-                if (r instanceof FinalReference) {
-                    sun.misc.VM.addFinalRefCount(1);
-                }
                 lock.notifyAll();
                 return true;
             }
@@ -74,13 +71,10 @@ public class ReferenceQueue<T> {
     private Reference<? extends T> reallyPoll() {       /* Must hold lock */
         if (head != null) {
             Reference<? extends T> r = head;
-            head = (r.next == r) ? null : r.next;
-            r.queue = NULL;
-            r.next = r;
+            head = (r.queueNext == r) ? null : r.queueNext;
+            r.queue = null;
+            r.queueNext = r;
             queueLength--;
-            if (r instanceof FinalReference) {
-                sun.misc.VM.addFinalRefCount(-1);
-            }
             return r;
         }
         return null;
@@ -151,4 +145,28 @@ public class ReferenceQueue<T> {
         return remove(0);
     }
 
+    /** @hide */
+    public static Reference<?> unenqueued = null;
+
+    static void add(Reference<?> list) {
+        synchronized (ReferenceQueue.class) {
+            if (unenqueued == null) {
+                unenqueued = list;
+            } else {
+                // Find the last element in unenqueued.
+                Reference<?> last = unenqueued;
+                while (last.pendingNext != unenqueued) {
+                  last = last.pendingNext;
+                }
+                // Add our list to the end. Update the pendingNext to point back to enqueued.
+                last.pendingNext = list;
+                last = list;
+                while (last.pendingNext != list) {
+                    last = last.pendingNext;
+                }
+                last.pendingNext = unenqueued;
+            }
+            ReferenceQueue.class.notifyAll();
+        }
+    }
 }

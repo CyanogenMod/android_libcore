@@ -141,6 +141,11 @@ java/lang/reflect/Type.java
 java/lang/reflect/TypeVariable.java
 java/lang/reflect/UndeclaredThrowableException.java
 java/lang/reflect/WildcardType.java
+java/lang/ref/PhantomReference.java
+java/lang/ref/Reference.java
+java/lang/ref/ReferenceQueue.java
+java/lang/ref/SoftReference.java
+java/lang/ref/WeakReference.java
 java/lang/RuntimePermission.java
 java/lang/Shutdown.java
 java/net/ProtocolFamily.java
