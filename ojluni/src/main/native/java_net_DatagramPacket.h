@@ -12,7 +12,7 @@ extern "C" {
  * Method:    init
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_java_net_DatagramPacket_init
+JNIEXPORT void JNICALL DatagramPacket_init
   (JNIEnv *, jclass);
 
 #ifdef __cplusplus

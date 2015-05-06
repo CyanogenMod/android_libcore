@@ -25,6 +25,7 @@
 
 package java.net;
 
+import java.io.FileDescriptor;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
@@ -1667,5 +1668,12 @@ class Socket implements java.io.Closeable {
                                           int bandwidth)
     {
         /* Not implemented yet */
+    }
+
+    /**
+     * @hide internal use only
+     */
+    public FileDescriptor getFileDescriptor$() {
+        return impl.getFileDescriptor();
     }
 }

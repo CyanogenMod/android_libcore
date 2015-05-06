@@ -151,6 +151,14 @@ public class InetSocketAddress
     }
 
     /**
+     * @hide internal use only
+     */
+    public InetSocketAddress() {
+        // These will be filled in the native implementation of recvfrom.
+        holder = null;
+    }
+
+    /**
      * Creates a socket address where the IP address is the wildcard address
      * and the port number a specified value.
      * <p>

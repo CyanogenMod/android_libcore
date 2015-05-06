@@ -43,7 +43,7 @@
 #endif
 #ifdef __linux__
 #include <unistd.h>
-#include <sys/sysctl.h>
+//#include <sys/sysctl.h>
 #endif
 
 #include "jvm.h"
@@ -52,6 +52,10 @@
 
 #include "java_net_SocketOptions.h"
 #include "java_net_PlainSocketImpl.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 /************************************************************************
  * PlainSocketImpl
@@ -136,7 +140,7 @@ static int getFD(JNIEnv *env, jobject this) {
  * Signature: ()V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainSocketImpl_initProto(JNIEnv *env, jclass cls) {
+PlainSocketImpl_initProto(JNIEnv *env, jclass cls) {
     psi_fdID = (*env)->GetFieldID(env, cls , "fd",
                                   "Ljava/io/FileDescriptor;");
     CHECK_NULL(psi_fdID);
@@ -178,7 +182,7 @@ static jclass socketExceptionCls;
  * Method:    socketCreate
  * Signature: (Z)V */
 JNIEXPORT void JNICALL
-Java_java_net_PlainSocketImpl_socketCreate(JNIEnv *env, jobject this,
+PlainSocketImpl_socketCreate(JNIEnv *env, jobject this,
                                            jboolean stream) {
     jobject fdObj, ssObj;
     int fd;
@@ -252,7 +256,7 @@ Java_java_net_PlainSocketImpl_socketCreate(JNIEnv *env, jobject this,
  * Signature: (Ljava/net/InetAddress;I)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainSocketImpl_socketConnect(JNIEnv *env, jobject this,
+PlainSocketImpl_socketConnect(JNIEnv *env, jobject this,
                                             jobject iaObj, jint port,
                                             jint timeout)
 {
@@ -546,7 +550,7 @@ Java_java_net_PlainSocketImpl_socketConnect(JNIEnv *env, jobject this,
  * Signature: (Ljava/net/InetAddress;I)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainSocketImpl_socketBind(JNIEnv *env, jobject this,
+PlainSocketImpl_socketBind(JNIEnv *env, jobject this,
                                          jobject iaObj, jint localport) {
 
     /* fdObj is the FileDescriptor field on this */
@@ -612,7 +616,7 @@ Java_java_net_PlainSocketImpl_socketBind(JNIEnv *env, jobject this,
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainSocketImpl_socketListen (JNIEnv *env, jobject this,
+PlainSocketImpl_socketListen (JNIEnv *env, jobject this,
                                             jint count)
 {
     /* this FileDescriptor fd field */
@@ -647,7 +651,7 @@ Java_java_net_PlainSocketImpl_socketListen (JNIEnv *env, jobject this,
  * Signature: (Ljava/net/SocketImpl;)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainSocketImpl_socketAccept(JNIEnv *env, jobject this,
+PlainSocketImpl_socketAccept(JNIEnv *env, jobject this,
                                            jobject socket)
 {
     /* fields on this */
@@ -800,7 +804,7 @@ Java_java_net_PlainSocketImpl_socketAccept(JNIEnv *env, jobject this,
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL
-Java_java_net_PlainSocketImpl_socketAvailable(JNIEnv *env, jobject this) {
+PlainSocketImpl_socketAvailable(JNIEnv *env, jobject this) {
 
     jint ret = -1;
     jobject fdObj = (*env)->GetObjectField(env, this, psi_fdID);
@@ -831,7 +835,7 @@ Java_java_net_PlainSocketImpl_socketAvailable(JNIEnv *env, jobject this) {
  * Signature: (Z)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainSocketImpl_socketClose0(JNIEnv *env, jobject this,
+PlainSocketImpl_socketClose0(JNIEnv *env, jobject this,
                                           jboolean useDeferredClose) {
 
     jobject fdObj = (*env)->GetObjectField(env, this, psi_fdID);
@@ -860,7 +864,7 @@ Java_java_net_PlainSocketImpl_socketClose0(JNIEnv *env, jobject this,
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainSocketImpl_socketShutdown(JNIEnv *env, jobject this,
+PlainSocketImpl_socketShutdown(JNIEnv *env, jobject this,
                                              jint howto)
 {
 
@@ -888,7 +892,7 @@ Java_java_net_PlainSocketImpl_socketShutdown(JNIEnv *env, jobject this,
  * Signature: (IZLjava/lang/Object;)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainSocketImpl_socketSetOption(JNIEnv *env, jobject this,
+PlainSocketImpl_socketSetOption(JNIEnv *env, jobject this,
                                               jint cmd, jboolean on,
                                               jobject value) {
     int fd;
@@ -984,7 +988,7 @@ Java_java_net_PlainSocketImpl_socketSetOption(JNIEnv *env, jobject this,
  * Signature: (I)I
  */
 JNIEXPORT jint JNICALL
-Java_java_net_PlainSocketImpl_socketGetOption(JNIEnv *env, jobject this,
+PlainSocketImpl_socketGetOption(JNIEnv *env, jobject this,
                                               jint cmd, jobject iaContainerObj) {
 
     int fd;
@@ -1077,7 +1081,7 @@ Java_java_net_PlainSocketImpl_socketGetOption(JNIEnv *env, jobject this,
  * Signature: (B)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainSocketImpl_socketSendUrgentData(JNIEnv *env, jobject this,
+PlainSocketImpl_socketSendUrgentData(JNIEnv *env, jobject this,
                                              jint data) {
     /* The fd field */
     jobject fdObj = (*env)->GetObjectField(env, this, psi_fdID);
@@ -1107,4 +1111,22 @@ Java_java_net_PlainSocketImpl_socketSendUrgentData(JNIEnv *env, jobject this,
         JNU_ThrowByName(env, "java/io/InterruptedIOException", 0);
         return;
     }
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(PlainSocketImpl, socketSendUrgentData, "(I)V"),
+  NATIVE_METHOD(PlainSocketImpl, socketGetOption, "(ILjava/lang/Object;)I"),
+  NATIVE_METHOD(PlainSocketImpl, socketSetOption, "(IZLjava/lang/Object;)V"),
+  NATIVE_METHOD(PlainSocketImpl, socketShutdown, "(I)V"),
+  NATIVE_METHOD(PlainSocketImpl, socketClose0, "(Z)V"),
+  NATIVE_METHOD(PlainSocketImpl, socketAvailable, "()I"),
+  NATIVE_METHOD(PlainSocketImpl, socketListen, "(I)V"),
+  NATIVE_METHOD(PlainSocketImpl, socketBind, "(Ljava/net/InetAddress;I)V"),
+  NATIVE_METHOD(PlainSocketImpl, socketConnect, "(Ljava/net/InetAddress;II)V"),
+  NATIVE_METHOD(PlainSocketImpl, socketCreate, "(Z)V"),
+  NATIVE_METHOD(PlainSocketImpl, initProto, "()V"),
+};
+
+void register_java_net_PlainSocketImpl(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/net/PlainSocketImpl", gMethods, NELEM(gMethods));
 }

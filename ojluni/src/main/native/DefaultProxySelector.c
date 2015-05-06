@@ -36,6 +36,10 @@
 #else
 #include <strings.h>
 #endif
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 /**
  * These functions are used by the sun.net.spi.DefaultProxySelector class
@@ -94,7 +98,7 @@ static void* gconf_client = NULL;
  * Signature: ()Z
  */
 JNIEXPORT jboolean JNICALL
-Java_sun_net_spi_DefaultProxySelector_init(JNIEnv *env, jclass clazz) {
+DefaultProxySelector_init(JNIEnv *env, jclass clazz) {
   jclass cls = NULL;
   CHECK_NULL(cls = (*env)->FindClass(env,"java/net/Proxy"));
   proxy_class = (*env)->NewGlobalRef(env, cls);
@@ -152,7 +156,7 @@ Java_sun_net_spi_DefaultProxySelector_init(JNIEnv *env, jclass clazz) {
  * Signature: ([Ljava/lang/String;Ljava/lang/String;)Ljava/net/Proxy;
  */
 JNIEXPORT jobject JNICALL
-Java_sun_net_spi_DefaultProxySelector_getSystemProxy(JNIEnv *env,
+DefaultProxySelector_getSystemProxy(JNIEnv *env,
                                                      jobject this,
                                                      jstring proto,
                                                      jstring host)
@@ -332,4 +336,13 @@ Java_sun_net_spi_DefaultProxySelector_getSystemProxy(JNIEnv *env,
 
   CHECK_NULL(no_proxy = (*env)->GetStaticObjectField(env, proxy_class, pr_no_proxyID));
   return no_proxy;
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(DefaultProxySelector, getSystemProxy, "(Ljava/lang/String;Ljava/lang/String;)Ljava/net/Proxy;"),
+  NATIVE_METHOD(DefaultProxySelector, init, "()Z"),
+};
+
+void register_sun_net_spi_DefaultProxySelector(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "sun/net/spi/DefaultProxySelector", gMethods, NELEM(gMethods));
 }

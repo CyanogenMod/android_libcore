@@ -596,8 +596,6 @@ public class URLClassPath {
         private URLStreamHandler handler;
         private HashMap<String, Loader> lmap;
         private boolean closed = false;
-        private static final sun.misc.JavaUtilZipFileAccess zipAccess =
-                sun.misc.SharedSecrets.getJavaUtilZipFileAccess();
 
         /*
          * Creates a new JarLoader for the specified URL referring to
@@ -705,7 +703,7 @@ public class URLClassPath {
         /* Throws if the given jar file is does not start with the correct LOC */
         static JarFile checkJar(JarFile jar) throws IOException {
             if (System.getSecurityManager() != null && !DISABLE_JAR_CHECKING
-                && !zipAccess.startsWithLocHeader(jar)) {
+                && !jar.startsWithLocHeader()) {
                 IOException x = new IOException("Invalid Jar file");
                 try {
                     jar.close();
@@ -981,7 +979,7 @@ public class URLClassPath {
 
             ensureOpen();
             parseExtensionsDependencies();
-            if (SharedSecrets.javaUtilJarAccess().jarFileHasClassPathAttribute(jar)) { // Only get manifest when necessary
+            if (jar.hasClassPathAttribute()) { // Only get manifest when necessary
                 Manifest man = jar.getManifest();
                 if (man != null) {
                     Attributes attr = man.getMainAttributes();
@@ -1000,7 +998,6 @@ public class URLClassPath {
          * parse the standard extension dependencies
          */
         private void  parseExtensionsDependencies() throws IOException {
-            ExtensionDependency.checkExtensionsDependencies(jar);
         }
 
         /*

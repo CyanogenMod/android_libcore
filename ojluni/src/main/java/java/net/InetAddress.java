@@ -45,6 +45,12 @@ import sun.net.InetAddressCachePolicy;
 import sun.net.util.IPAddressUtil;
 import sun.misc.Service;
 import sun.net.spi.nameservice.*;
+import android.system.ErrnoException;
+import android.system.GaiException;
+import android.system.StructAddrinfo;
+import dalvik.system.BlockGuard;
+import libcore.io.Libcore;
+import static android.system.OsConstants.*;
 
 /**
  * This class represents an Internet Protocol (IP) address.
@@ -260,7 +266,6 @@ class InetAddress implements java.io.Serializable {
     static {
         preferIPv6Address = java.security.AccessController.doPrivileged(
             new GetBooleanAction("java.net.preferIPv6Addresses")).booleanValue();
-        AccessController.doPrivileged(new LoadLibraryAction("net"));
         init();
     }
 
@@ -637,6 +642,11 @@ class InetAddress implements java.io.Serializable {
         return null;
     }
 
+    /* @hide */
+    public byte[] getAddressInternal() {
+        return null;
+    }
+
     /**
      * Returns the IP address string in textual presentation.
      *
@@ -1001,6 +1011,29 @@ class InetAddress implements java.io.Serializable {
                     return new Inet4Address(host, newAddr);
                 } else {
                     return new Inet6Address(host, addr);
+                }
+            }
+        }
+        throw new UnknownHostException("addr is of illegal length");
+    }
+
+    private static InetAddress getByAddress(String host, byte[] addr, int scopeId)
+        throws UnknownHostException {
+        if (host != null && host.length() > 0 && host.charAt(0) == '[') {
+            if (host.charAt(host.length()-1) == ']') {
+                host = host.substring(1, host.length() -1);
+            }
+        }
+        if (addr != null) {
+            if (addr.length == Inet4Address.INADDRSZ) {
+                return new Inet4Address(host, addr);
+            } else if (addr.length == Inet6Address.INADDRSZ) {
+                byte[] newAddr
+                    = IPAddressUtil.convertFromIPv4MappedAddress(addr);
+                if (newAddr != null) {
+                    return new Inet4Address(host, newAddr);
+                } else {
+                    return new Inet6Address(host, addr, scopeId);
                 }
             }
         }
@@ -1595,6 +1628,166 @@ class InetAddress implements java.io.Serializable {
         pf.put("family", holder().family);
         s.writeFields();
         s.flush();
+    }
+
+    private static final int NETID_UNSET = 0;
+
+    /**
+     * Returns true if the string is a valid numeric IPv4 or IPv6 address (such as "192.168.0.1").
+     * This copes with all forms of address that Java supports, detailed in the {@link InetAddress}
+     * class documentation.
+     *
+     * @hide used by frameworks/base to ensure that a getAllByName won't cause a DNS lookup.
+     */
+    public static boolean isNumeric(String address) {
+        InetAddress inetAddress = parseNumericAddressNoThrow(address);
+        return inetAddress != null && disallowDeprecatedFormats(address, inetAddress) != null;
+    }
+
+    private static InetAddress parseNumericAddressNoThrow(String address) {
+        // Accept IPv6 addresses (only) in square brackets for compatibility.
+        if (address.startsWith("[") && address.endsWith("]") && address.indexOf(':') != -1) {
+            address = address.substring(1, address.length() - 1);
+        }
+        StructAddrinfo hints = new StructAddrinfo();
+        hints.ai_flags = AI_NUMERICHOST;
+        InetAddress[] addresses = null;
+        try {
+            addresses = Libcore.os.android_getaddrinfo(address, hints, NETID_UNSET);
+        } catch (GaiException ignored) {
+        }
+        return (addresses != null) ? addresses[0] : null;
+    }
+
+    private static InetAddress disallowDeprecatedFormats(String address, InetAddress inetAddress) {
+        // Only IPv4 addresses are problematic.
+        if (!(inetAddress instanceof Inet4Address) || address.indexOf(':') != -1) {
+            return inetAddress;
+        }
+        // If inet_pton(3) can't parse it, it must have been a deprecated format.
+        // We need to return inet_pton(3)'s result to ensure that numbers assumed to be octal
+        // by getaddrinfo(3) are reinterpreted by inet_pton(3) as decimal.
+        return Libcore.os.inet_pton(AF_INET, address);
+    }
+
+    /**
+     * Returns an InetAddress corresponding to the given numeric address (such
+     * as {@code "192.168.0.1"} or {@code "2001:4860:800d::68"}).
+     * This method will never do a DNS lookup. Non-numeric addresses are errors.
+     *
+     * @hide used by frameworks/base's NetworkUtils.numericToInetAddress
+     * @throws IllegalArgumentException if {@code numericAddress} is not a numeric address
+     */
+    public static InetAddress parseNumericAddress(String numericAddress) {
+        if (numericAddress == null || numericAddress.isEmpty()) {
+            return Inet6Address.LOOPBACK;
+        }
+        InetAddress result = parseNumericAddressNoThrow(numericAddress);
+        result = disallowDeprecatedFormats(numericAddress, result);
+        if (result == null) {
+            throw new IllegalArgumentException("Not a numeric address: " + numericAddress);
+        }
+        return result;
+    }
+
+    /* @hide */
+    public static void clearDnsCache() {
+        System.logW("OJ: DNS cache clear requested, not implemented");
+    }
+
+    /**
+     * Operates identically to {@code getByName} except host resolution is
+     * performed on the network designated by {@code netId}.
+     *
+     * @param host
+     *            the hostName to be resolved to an address or {@code null}.
+     * @param netId the network to use for host resolution.
+     * @return the {@code InetAddress} instance representing the host.
+     * @throws UnknownHostException if the address lookup fails.
+     * @hide internal use only
+     */
+    public static InetAddress getByNameOnNet(String host, int netId) throws UnknownHostException {
+        return getAllByNameImpl(host, netId)[0];
+    }
+
+    /**
+     * Operates identically to {@code getAllByName} except host resolution is
+     * performed on the network designated by {@code netId}.
+     *
+     * @param host the hostname or literal IP string to be resolved.
+     * @param netId the network to use for host resolution.
+     * @return the array of addresses associated with the specified host.
+     * @throws UnknownHostException if the address lookup fails.
+     * @hide internal use only
+     */
+    public static InetAddress[] getAllByNameOnNet(String host, int netId) throws UnknownHostException {
+        return getAllByNameImpl(host, netId).clone();
+    }
+
+    /**
+     * Returns the InetAddresses for {@code host} on network {@code netId}. The
+     * returned array is shared and must be cloned before it is returned to
+     * application code.
+     */
+    private static InetAddress[] getAllByNameImpl(String host, int netId) throws UnknownHostException {
+        if (host == null || host.isEmpty()) {
+            return loopbackAddresses();
+        }
+
+        // Is it a numeric address?
+        InetAddress result = parseNumericAddressNoThrow(host);
+        if (result != null) {
+            result = disallowDeprecatedFormats(host, result);
+            if (result == null) {
+                throw new UnknownHostException("Deprecated IPv4 address format: " + host);
+            }
+            return new InetAddress[] { result };
+        }
+
+        return lookupHostByName(host, netId).clone();
+    }
+
+    /**
+     * Resolves a hostname to its IP addresses using a cache.
+     *
+     * @param host the hostname to resolve.
+     * @param netId the network to perform resolution upon.
+     * @return the IP addresses of the host.
+     */
+    private static InetAddress[] lookupHostByName(String host, int netId)
+            throws UnknownHostException {
+        BlockGuard.getThreadPolicy().onNetwork();
+        try {
+            StructAddrinfo hints = new StructAddrinfo();
+            hints.ai_flags = AI_ADDRCONFIG;
+            hints.ai_family = AF_UNSPEC;
+            // If we don't specify a socket type, every address will appear twice, once
+            // for SOCK_STREAM and one for SOCK_DGRAM. Since we do not return the family
+            // anyway, just pick one.
+            hints.ai_socktype = SOCK_STREAM;
+            InetAddress[] addresses = Libcore.os.android_getaddrinfo(host, hints, netId);
+            // TODO: should getaddrinfo set the hostname of the InetAddresses it returns?
+            for (InetAddress address : addresses) {
+                address.holder().hostName = host;
+            }
+            return addresses;
+        } catch (GaiException gaiException) {
+            // If the failure appears to have been a lack of INTERNET permission, throw a clear
+            // SecurityException to aid in debugging this common mistake.
+            // http://code.google.com/p/android/issues/detail?id=15722
+            if (gaiException.getCause() instanceof ErrnoException) {
+                if (((ErrnoException) gaiException.getCause()).errno == EACCES) {
+                    throw new SecurityException("Permission denied (missing INTERNET permission?)", gaiException);
+                }
+            }
+            // Otherwise, throw an UnknownHostException.
+            String detailMessage = "Unable to resolve host \"" + host + "\": " + Libcore.os.gai_strerror(gaiException.error);
+            throw gaiException.rethrowAsUnknownHostException(detailMessage);
+        }
+    }
+
+    private static InetAddress[] loopbackAddresses() {
+        return new InetAddress[] { Inet6Address.LOOPBACK, Inet4Address.LOOPBACK };
     }
 }
 

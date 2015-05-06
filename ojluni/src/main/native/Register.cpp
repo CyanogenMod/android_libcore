@@ -38,12 +38,26 @@ extern void register_java_io_FileDescriptor(JNIEnv*);
 extern void register_sun_nio_ch_NativeThread(JNIEnv*);
 extern void register_sun_nio_ch_FileKey(JNIEnv*);
 extern void register_java_io_ObjectStreamClass(JNIEnv*);
+extern void register_java_net_InetAddress(JNIEnv*);
+extern void register_java_net_Inet4Address(JNIEnv*);
+extern void register_java_net_Inet6Address(JNIEnv*);
+extern void register_java_net_InetAddressImplFactory(JNIEnv*);
+extern void register_java_net_PlainSocketImpl(JNIEnv*);
+extern void register_java_net_PlainDatagramSocketImpl(JNIEnv*);
+extern void register_java_net_NetworkInterface(JNIEnv*);
+extern void register_java_net_DatagramPacket(JNIEnv*);
+extern void register_java_net_Inet4AddressImpl(JNIEnv*);
+extern void register_java_net_Inet6AddressImpl(JNIEnv*);
+extern void register_java_net_SocketInputStream(JNIEnv*);
+extern void register_java_net_SocketOutputStream(JNIEnv*);
+extern void register_sun_net_spi_DefaultProxySelector(JNIEnv*);
+
+extern jint net_JNI_OnLoad(JavaVM*, void*);
 
 }
 
 // DalvikVM calls this on startup, so we can statically register all our native methods.
-jint JNI_OnLoad(JavaVM* vm, void*) {
-    JNIEnv* env;
+jint JNI_OnLoad(JavaVM* vm, void*) { JNIEnv* env;
     if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
         ALOGE("JavaVM::GetEnv() failed");
         abort();
@@ -64,5 +78,19 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
     register_sun_nio_ch_NativeThread(env);
     register_sun_nio_ch_FileKey(env);
     register_java_io_ObjectStreamClass(env);
+    register_java_net_InetAddress(env);
+    register_java_net_Inet4Address(env);
+    register_java_net_Inet6Address(env);
+    register_java_net_InetAddressImplFactory(env);
+    register_java_net_PlainSocketImpl(env);
+    register_java_net_PlainDatagramSocketImpl(env);
+    register_java_net_NetworkInterface(env);
+    register_java_net_DatagramPacket(env);
+    register_java_net_Inet4AddressImpl(env);
+    register_java_net_Inet6AddressImpl(env);
+    register_java_net_SocketInputStream(env);
+    register_java_net_SocketOutputStream(env);
+    register_sun_net_spi_DefaultProxySelector(env);
+    net_JNI_OnLoad(vm, NULL);
     return JNI_VERSION_1_6;
 }

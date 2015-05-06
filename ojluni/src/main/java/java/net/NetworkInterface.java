@@ -53,7 +53,6 @@ public final class NetworkInterface {
     private static final int defaultIndex; /* index of defaultInterface */
 
     static {
-        AccessController.doPrivileged(new LoadLibraryAction("net"));
         init();
         defaultInterface = DefaultInterface.getDefault();
         if (defaultInterface != null) {

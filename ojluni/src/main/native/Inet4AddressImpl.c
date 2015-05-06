@@ -46,10 +46,14 @@
 #include "net_util.h"
 
 #include "java_net_Inet4AddressImpl.h"
+#include "JNIHelp.h"
 
-#if defined(__GLIBC__) || (defined(__FreeBSD__) && (__FreeBSD_version >= 601104))
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
+
+//#if defined(__GLIBC__) || (defined(__FreeBSD__) && (__FreeBSD_version >= 601104))
 #define HAS_GLIBC_GETHOSTBY_R   1
-#endif
+//#endif
 
 #if defined(_ALLBSD_SOURCE) && !defined(HAS_GLIBC_GETHOSTBY_R)
 /* Use getaddrinfo(3), which is thread safe */
@@ -63,7 +67,7 @@
  * Signature: ()Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL
-Java_java_net_Jnet4AddressImpl_getLocalHostName(JNIEnv *env, jobject this) {
+Inet4AddressImpl_getLocalHostName(JNIEnv *env, jobject this) {
     char hostname[NI_MAXHOST+1];
 
     hostname[0] = '\0';
@@ -116,7 +120,7 @@ static int initialized = 0;
  */
 
 JNIEXPORT jobjectArray JNICALL
-Java_java_net_Jnet4AddressImpl_lookupAllHostAddr(JNIEnv *env, jobject this,
+Inet4AddressImpl_lookupAllHostAddr(JNIEnv *env, jobject this,
                                                 jstring host) {
     const char *hostname;
     jobject name;
@@ -264,7 +268,7 @@ cleanupAndReturn:
  * Signature: (I)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL
-Java_java_net_Jnet4AddressImpl_getHostByAddr(JNIEnv *env, jobject this,
+Inet4AddressImpl_getHostByAddr(JNIEnv *env, jobject this,
                                             jbyteArray addrArray) {
     jstring ret = NULL;
 
@@ -325,7 +329,7 @@ Java_java_net_Jnet4AddressImpl_getHostByAddr(JNIEnv *env, jobject this,
  * Signature: ()Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL
-Java_java_net_Jnet4AddressImpl_getLocalHostName(JNIEnv *env, jobject this) {
+Inet4AddressImpl_getLocalHostName(JNIEnv *env, jobject this) {
     char hostname[MAXHOSTNAMELEN+1];
 
     hostname[0] = '\0';
@@ -402,7 +406,7 @@ static int initialized = 0;
  */
 
 JNIEXPORT jobjectArray JNICALL
-Java_java_net_Jnet4AddressImpl_lookupAllHostAddr(JNIEnv *env, jobject this,
+Inet4AddressImpl_lookupAllHostAddr(JNIEnv *env, jobject this,
                                                 jstring host) {
     const char *hostname;
     jobjectArray ret = 0;
@@ -515,7 +519,7 @@ cleanupAndReturn:
  * Signature: (I)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL
-Java_java_net_Jnet4AddressImpl_getHostByAddr(JNIEnv *env, jobject this,
+Inet4AddressImpl_getHostByAddr(JNIEnv *env, jobject this,
                                             jbyteArray addrArray) {
     jstring ret = NULL;
     jint addr;
@@ -708,7 +712,7 @@ ping4(JNIEnv *env, jint fd, struct sockaddr_in* him, jint timeout,
  * Signature: ([bI[bI)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_java_net_Jnet4AddressImpl_isReachable0(JNIEnv *env, jobject this,
+Inet4AddressImpl_isReachable0(JNIEnv *env, jobject this,
                                            jbyteArray addrArray,
                                            jint timeout,
                                            jbyteArray ifArray,
@@ -855,4 +859,16 @@ Java_java_net_Jnet4AddressImpl_isReachable0(JNIEnv *env, jobject this,
         close(fd);
         return JNI_FALSE;
     }
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(Inet4AddressImpl, isReachable0, "([BI[BI)Z"),
+  NATIVE_METHOD(Inet4AddressImpl, getHostByAddr, "([B)Ljava/lang/String;"),
+  NATIVE_METHOD(Inet4AddressImpl, lookupAllHostAddr, "(Ljava/lang/String;)[Ljava/net/InetAddress;"),
+  NATIVE_METHOD(Inet4AddressImpl, getLocalHostName, "()Ljava/lang/String;"),
+
+};
+
+void register_java_net_Inet4AddressImpl(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/net/Inet4AddressImpl", gMethods, NELEM(gMethods));
 }

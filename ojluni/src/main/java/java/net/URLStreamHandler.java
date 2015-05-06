@@ -473,7 +473,10 @@ public abstract class URLStreamHandler {
      * @return  a string representation of the <code>URL</code> argument.
      */
     protected String toExternalForm(URL u) {
+      return toExternalForm(u, false);
+    }
 
+    String toExternalForm(URL u, boolean escapeIllegalCharacters) {
         // pre-compute length of StringBuffer
         int len = u.getProtocol().length() + 1;
         if (u.getAuthority() != null && u.getAuthority().length() > 0)
@@ -487,23 +490,32 @@ public abstract class URLStreamHandler {
         if (u.getRef() != null)
             len += 1 + u.getRef().length();
 
-        StringBuffer result = new StringBuffer(len);
+        StringBuilder result = new StringBuilder(len);
         result.append(u.getProtocol());
         result.append(":");
         if (u.getAuthority() != null && u.getAuthority().length() > 0) {
             result.append("//");
-            result.append(u.getAuthority());
+            if (escapeIllegalCharacters) {
+              URI.AUTHORITY_ENCODER.appendPartiallyEncoded(result, u.getAuthority());
+            } else {
+              result.append(u.getAuthority());
+            }
         }
-        if (u.getPath() != null) {
-            result.append(u.getPath());
-        }
-        if (u.getQuery() != null) {
-            result.append('?');
-            result.append(u.getQuery());
+        String fileAndQuery = u.getFile();
+        if (fileAndQuery != null) {
+            if (escapeIllegalCharacters) {
+                URI.FILE_AND_QUERY_ENCODER.appendPartiallyEncoded(result, fileAndQuery);
+            } else {
+                result.append(fileAndQuery);
+            }
         }
         if (u.getRef() != null) {
             result.append("#");
-            result.append(u.getRef());
+            if (escapeIllegalCharacters) {
+              URI.ALL_LEGAL_ENCODER.appendPartiallyEncoded(result, u.getRef());
+            } else {
+              result.append(u.getRef());
+            }
         }
         return result.toString();
     }

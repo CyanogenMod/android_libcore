@@ -27,6 +27,10 @@
 
 #include "java_net_InetAddress.h"
 #include "net_util.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 /************************************************************************
  * InetAddress
@@ -46,7 +50,7 @@ jfieldID ia_preferIPv6AddressID;
  * Signature: ()V
  */
 JNIEXPORT void JNICALL
-Java_java_net_InetAddress_init(JNIEnv *env, jclass cls) {
+InetAddress_init(JNIEnv *env, jclass cls) {
     jclass c = (*env)->FindClass(env,"java/net/InetAddress");
     CHECK_NULL(c);
     ia_class = (*env)->NewGlobalRef(env, c);
@@ -65,4 +69,12 @@ Java_java_net_InetAddress_init(JNIEnv *env, jclass cls) {
     CHECK_NULL(iac_familyID);
     iac_hostNameID = (*env)->GetFieldID(env, iac_class, "hostName", "Ljava/lang/String;");
     CHECK_NULL(iac_hostNameID);
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(InetAddress, init, "()V"),
+};
+
+void register_java_net_InetAddress(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/net/InetAddress", gMethods, NELEM(gMethods));
 }

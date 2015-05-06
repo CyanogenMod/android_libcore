@@ -31,6 +31,9 @@ import java.io.InterruptedIOException;
 import java.nio.channels.DatagramChannel;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
+import android.system.ErrnoException;
+import libcore.io.Libcore;
+import static android.system.OsConstants.*;
 
 /**
  * This class represents a socket for sending and receiving datagram packets.
@@ -1264,5 +1267,30 @@ class DatagramSocket implements java.io.Closeable {
             security.checkSetFactory();
         }
         factory = fac;
+    }
+
+    /* @hide */
+    public final FileDescriptor getFileDescriptor$() {
+        return impl.fd;
+    }
+
+    /**
+     * Sets the network interface used by this socket.  Any packets sent
+     * via this socket are transmitted via the specified interface.  Any
+     * packets received by this socket will come from the specified
+     * interface.  Broadcast datagrams received on this interface will
+     * be processed by this socket. This corresponds to Linux's SO_BINDTODEVICE.
+     *
+     * @hide used by GoogleTV for DHCP
+     */
+    public void setNetworkInterface(NetworkInterface netInterface) throws SocketException {
+        if (netInterface == null) {
+            throw new NullPointerException("netInterface == null");
+        }
+        try {
+            Libcore.os.setsockoptIfreq(impl.fd, SOL_SOCKET, SO_BINDTODEVICE, netInterface.getName());
+        } catch (ErrnoException errnoException) {
+            throw errnoException.rethrowAsSocketException();
+        }
     }
 }

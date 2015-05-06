@@ -27,6 +27,10 @@
 
 #include "java_net_Inet6Address.h"
 #include "net_util.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 /************************************************************************
  * Inet6Address
@@ -47,7 +51,7 @@ jmethodID ia6_ctrID;
  * Signature: ()V
  */
 JNIEXPORT void JNICALL
-Java_java_net_Inet6Address_init(JNIEnv *env, jclass cls) {
+Inet6Address_init(JNIEnv *env, jclass cls) {
     jclass c = (*env)->FindClass(env, "java/net/Inet6Address");
     CHECK_NULL(c);
     ia6_class = (*env)->NewGlobalRef(env, c);
@@ -66,4 +70,12 @@ Java_java_net_Inet6Address_init(JNIEnv *env, jclass cls) {
     CHECK_NULL(ia6_scopeifnamesetID);
     ia6_ctrID = (*env)->GetMethodID(env, ia6_class, "<init>", "()V");
     CHECK_NULL(ia6_ctrID);
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(Inet6Address, init, "()V"),
+};
+
+void register_java_net_Inet6Address(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/net/Inet6Address", gMethods, NELEM(gMethods));
 }

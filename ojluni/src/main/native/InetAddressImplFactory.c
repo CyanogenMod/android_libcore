@@ -26,6 +26,10 @@
 #include "java_net_InetAddressImplFactory.h"
 
 #include "net_util.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 /************************************************************************
  * InetAddressImplFactory
@@ -37,7 +41,7 @@
  * Signature: ()I
  */
 JNIEXPORT jboolean JNICALL
-Java_java_net_InetAddressImplFactory_isIPv6Supported(JNIEnv *env, jclass cls)
+InetAddressImplFactory_isIPv6Supported(JNIEnv *env, jclass cls)
 {
 #ifdef AF_INET6
     if (ipv6_available()) {
@@ -47,4 +51,12 @@ Java_java_net_InetAddressImplFactory_isIPv6Supported(JNIEnv *env, jclass cls)
         {
             return JNI_FALSE;
         }
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(InetAddressImplFactory, isIPv6Supported, "()Z"),
+};
+
+void register_java_net_InetAddressImplFactory(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/net/InetAddressImplFactory", gMethods, NELEM(gMethods));
 }

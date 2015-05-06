@@ -74,14 +74,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
     protected boolean stream;
 
     /**
-     * Load net library into runtime.
-     */
-    static {
-        java.security.AccessController.doPrivileged(
-                  new sun.security.action.LoadLibraryAction("net"));
-    }
-
-    /**
      * Creates a socket with a boolean that specifies whether this
      * is a stream socket (true) or an unconnected UDP socket (false).
      */

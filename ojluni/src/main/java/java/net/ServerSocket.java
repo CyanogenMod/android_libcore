@@ -251,8 +251,9 @@ class ServerSocket implements java.io.Closeable {
      * @return  the <code>SocketImpl</code> attached to that ServerSocket.
      * @throws SocketException if creation fails.
      * @since 1.4
+     * @hide
      */
-    SocketImpl getImpl() throws SocketException {
+    public SocketImpl getImpl() throws SocketException {
         if (!created)
             createImpl();
         return impl;

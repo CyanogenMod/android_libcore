@@ -34,15 +34,13 @@
 #include <stdlib.h>
 #include <dlfcn.h>
 
-#ifndef _ALLBSD_SOURCE
-#include <values.h>
-#else
 #include <limits.h>
 #include <sys/param.h>
-#include <sys/sysctl.h>
 #ifndef MAXINT
 #define MAXINT INT_MAX
 #endif
+#ifdef __BIONIC__
+#include <linux/ipv6_route.h>
 #endif
 
 #ifdef __solaris__
@@ -114,9 +112,9 @@ int getDefaultScopeID(JNIEnv *env) {
     static jfieldID ni_defaultIndexID;
     if (ni_class == NULL) {
         jclass c = (*env)->FindClass(env, "java/net/NetworkInterface");
-        CHECK_NULL(c);
+        if (c == NULL) return 0;
         c = (*env)->NewGlobalRef(env, c);
-        CHECK_NULL(c);
+        if (c == NULL) return 0;
         ni_defaultIndexID = (*env)->GetStaticFieldID(
             env, c, "defaultIndex", "I");
         ni_class = c;

@@ -82,9 +82,13 @@ public final class HttpCookie implements Cloneable {
     private boolean httpOnly;   // HttpOnly ... i.e. not accessible to scripts
     private int version = 1;    // Version=1 ... RFC 2965 style
 
-    // The original header this cookie was consructed from, if it was
-    // constructed by parsing a header, otherwise null.
-    private final String header;
+    /**
+     * The original header this cookie was consructed from, if it was
+     * constructed by parsing a header, otherwise null.
+     *
+     * @hide
+     */
+    public final String header;
 
     //
     // Hold the creation time (in seconds) of the http cookie for later
@@ -199,8 +203,10 @@ public final class HttpCookie implements Cloneable {
     // create the cookie, in the cookie itself. This can be useful for filtering
     // Set-Cookie[2] headers, using the internal parsing logic defined in this
     // class.
-    private static List<HttpCookie> parse(String header, boolean retainHeader) {
-
+    /*
+     * @hide
+     */
+    public static List<HttpCookie> parse(String header, boolean retainHeader) {
         int version = guessCookieVersion(header);
 
         // if header start with set-cookie or set-cookie2, strip it off
@@ -1066,20 +1072,6 @@ public final class HttpCookie implements Cloneable {
         } else {
             // Ignore the attribute as per RFC 2965
         }
-    }
-
-    static {
-        sun.misc.SharedSecrets.setJavaNetHttpCookieAccess(
-            new sun.misc.JavaNetHttpCookieAccess() {
-                public List<HttpCookie> parse(String header) {
-                    return HttpCookie.parse(header, true);
-                }
-
-                public String header(HttpCookie cookie) {
-                    return cookie.header;
-                }
-            }
-        );
     }
 
     /*

@@ -12,7 +12,7 @@ extern "C" {
  * Method:    getLocalHostName
  * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_java_net_Inet6AddressImpl_getLocalHostName
+JNIEXPORT jstring JNICALL Inet6AddressImpl_getLocalHostName
   (JNIEnv *, jobject);
 
 /*
@@ -20,7 +20,7 @@ JNIEXPORT jstring JNICALL Java_java_net_Inet6AddressImpl_getLocalHostName
  * Method:    lookupAllHostAddr
  * Signature: (Ljava/lang/String;)[Ljava/net/InetAddress;
  */
-JNIEXPORT jobjectArray JNICALL Java_java_net_Inet6AddressImpl_lookupAllHostAddr
+JNIEXPORT jobjectArray JNICALL Inet6AddressImpl_lookupAllHostAddr
   (JNIEnv *, jobject, jstring);
 
 /*
@@ -28,7 +28,7 @@ JNIEXPORT jobjectArray JNICALL Java_java_net_Inet6AddressImpl_lookupAllHostAddr
  * Method:    getHostByAddr
  * Signature: ([B)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_java_net_Inet6AddressImpl_getHostByAddr
+JNIEXPORT jstring JNICALL Inet6AddressImpl_getHostByAddr
   (JNIEnv *, jobject, jbyteArray);
 
 /*
@@ -36,7 +36,7 @@ JNIEXPORT jstring JNICALL Java_java_net_Inet6AddressImpl_getHostByAddr
  * Method:    isReachable0
  * Signature: ([BII[BII)Z
  */
-JNIEXPORT jboolean JNICALL Java_java_net_Inet6AddressImpl_isReachable0
+JNIEXPORT jboolean JNICALL Inet6AddressImpl_isReachable0
   (JNIEnv *, jobject, jbyteArray, jint, jint, jbyteArray, jint, jint);
 
 #ifdef __cplusplus

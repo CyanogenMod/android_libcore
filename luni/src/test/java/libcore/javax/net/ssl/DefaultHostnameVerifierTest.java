@@ -30,12 +30,12 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import javax.net.ssl.DefaultHostnameVerifier;
+//import javax.net.ssl.DefaultHostnameVerifier;
 import javax.security.auth.x500.X500Principal;
 import junit.framework.TestCase;
 
 public final class DefaultHostnameVerifierTest extends TestCase {
-    private static final int ALT_UNKNOWN = 0;
+/*    private static final int ALT_UNKNOWN = 0;
     private static final int ALT_DNS_NAME = 2;
     private static final int ALT_IPA_NAME = 7;
 
@@ -45,13 +45,13 @@ public final class DefaultHostnameVerifierTest extends TestCase {
         assertTrue(verifier.verify("imap.g.com", new StubX509Certificate("cn=imap.g.com")));
         assertFalse(verifier.verify("imap.g.com", new StubX509Certificate("cn=imap2.g.com")));
         assertFalse(verifier.verify("imap.g.com", new StubX509Certificate("cn=sub.imap.g.com")));
-    }
+    }*/
 
     /**
      * If a subjectAltName extension of type ALT_DNS_NAME is present, that MUST
      * be used as the identity and the CN should be ignored.
      */
-    public void testSubjectAltNameAndCn() {
+/*    public void testSubjectAltNameAndCn() {
         assertFalse(verifier.verify("imap.g.com", new StubX509Certificate("")
                 .addSubjectAlternativeName(ALT_DNS_NAME, "a.y.com")));
         assertFalse(verifier.verify("imap.g.com", new StubX509Certificate("cn=imap.g.com")
@@ -439,5 +439,5 @@ public final class DefaultHostnameVerifierTest extends TestCase {
         @Override public boolean hasUnsupportedCriticalExtension() {
             throw new UnsupportedOperationException();
         }
-    }
+    }*/
 }

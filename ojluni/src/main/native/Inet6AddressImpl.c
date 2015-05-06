@@ -46,6 +46,10 @@
 
 #include "java_net_Inet4AddressImpl.h"
 #include "java_net_Inet6AddressImpl.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 /* the initial size of our hostent buffers */
 #ifndef NI_MAXHOST
@@ -63,7 +67,7 @@
  * Signature: ()Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL
-Java_java_net_Inet6AddressImpl_getLocalHostName(JNIEnv *env, jobject this) {
+Inet6AddressImpl_getLocalHostName(JNIEnv *env, jobject this) {
     char hostname[NI_MAXHOST+1];
 
     hostname[0] = '\0';
@@ -137,7 +141,7 @@ static int initialized = 0;
  */
 
 JNIEXPORT jobjectArray JNICALL
-Java_java_net_Inet6AddressImpl_lookupAllHostAddr(JNIEnv *env, jobject this,
+Inet6AddressImpl_lookupAllHostAddr(JNIEnv *env, jobject this,
                                                 jstring host) {
     const char *hostname;
     jobjectArray ret = 0;
@@ -378,7 +382,7 @@ cleanupAndReturn:
  * Signature: (I)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL
-Java_java_net_Inet6AddressImpl_getHostByAddr(JNIEnv *env, jobject this,
+Inet6AddressImpl_getHostByAddr(JNIEnv *env, jobject this,
                                             jbyteArray addrArray) {
 
     jstring ret = NULL;
@@ -557,7 +561,7 @@ ping6(JNIEnv *env, jint fd, struct sockaddr_in6* him, jint timeout,
  * Signature: ([bII[bI)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_java_net_Inet6AddressImpl_isReachable0(JNIEnv *env, jobject this,
+Inet6AddressImpl_isReachable0(JNIEnv *env, jobject this,
                                            jbyteArray addrArray,
                                            jint scope,
                                            jint timeout,
@@ -584,7 +588,7 @@ Java_java_net_Inet6AddressImpl_isReachable0(JNIEnv *env, jobject this,
      */
     sz = (*env)->GetArrayLength(env, addrArray);
     if (sz == 4) {
-      return Java_java_net_Inet4AddressImpl_isReachable0(env, this,
+      return Inet4AddressImpl_isReachable0(env, this,
                                                          addrArray,
                                                          timeout,
                                                          ifArray, ttl);
@@ -716,4 +720,14 @@ Java_java_net_Inet6AddressImpl_isReachable0(JNIEnv *env, jobject this,
 #else /* AF_INET6 */
     return JNI_FALSE;
 #endif /* AF_INET6 */
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(Inet6AddressImpl, isReachable0, "([BII[BII)Z"),
+  NATIVE_METHOD(Inet6AddressImpl, getHostByAddr, "([B)Ljava/lang/String;"),
+  NATIVE_METHOD(Inet6AddressImpl, lookupAllHostAddr, "(Ljava/lang/String;)[Ljava/net/InetAddress;"),
+};
+
+void register_java_net_Inet6AddressImpl(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/net/Inet6AddressImpl", gMethods, NELEM(gMethods));
 }

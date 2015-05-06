@@ -65,14 +65,6 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
     private final static boolean connectDisabled = os.contains("OS X");
 
     /**
-     * Load net library into runtime.
-     */
-    static {
-        java.security.AccessController.doPrivileged(
-                  new sun.security.action.LoadLibraryAction("net"));
-    }
-
-    /**
      * Creates a datagram socket
      */
     protected synchronized void create() throws SocketException {

@@ -46,8 +46,6 @@ class DatagramPacket {
      * Perform class initialization
      */
     static {
-        java.security.AccessController.doPrivileged(
-                  new sun.security.action.LoadLibraryAction("net"));
         init();
     }
 
@@ -279,6 +277,16 @@ class DatagramPacket {
     public synchronized void setAddress(InetAddress iaddr) {
         address = iaddr;
     }
+
+    // ----- BEGIN android -----
+    /**
+     * Sets 'length' without changing 'userSuppliedLength', after receiving a packet.
+     * @hide for IoBridge
+     */
+    public void setReceivedLength(int length) {
+        this.length = length;
+    }
+    // ----- END android -----
 
     /**
      * Sets the port number on the remote host to which this datagram

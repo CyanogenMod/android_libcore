@@ -768,8 +768,10 @@ class ZipFile implements ZipConstants, Closeable {
     /**
      * Returns {@code true} if, and only if, the zip file begins with {@code
      * LOCSIG}.
+     *
+     * @hide
      */
-    private boolean startsWithLocHeader() {
+    public boolean startsWithLocHeader() {
         return locsig;
     }
 

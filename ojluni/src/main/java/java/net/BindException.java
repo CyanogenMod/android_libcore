@@ -51,4 +51,9 @@ public class BindException extends SocketException {
      * Construct a new BindException with no detailed message.
      */
     public BindException() {}
+
+    /* @hide */
+    public BindException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

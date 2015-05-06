@@ -93,6 +93,17 @@ class Inet4Address extends InetAddress {
      *  serialized */
     private static final long serialVersionUID = 3286316764910316507L;
 
+    /* @hide */
+    public static final InetAddress ANY = new Inet4Address(null, new byte[] { 0, 0, 0, 0 });
+
+    /* @hide */
+    public static final InetAddress ALL =
+            new Inet4Address(null, new byte[] { (byte) 255, (byte) 255,
+                  (byte) 255, (byte) 255 });
+    /* @hide */
+    public static final InetAddress LOOPBACK =
+            new Inet4Address("localhost", new byte[] { 127, 0, 0, 1 });
+
     /*
      * Perform initializations.
      */
@@ -317,6 +328,10 @@ class Inet4Address extends InetAddress {
         addr[2] = (byte) ((address >>> 8) & 0xFF);
         addr[3] = (byte) (address & 0xFF);
         return addr;
+    }
+
+    public byte[] getAddressInternal() {
+        return getAddress();
     }
 
     /**

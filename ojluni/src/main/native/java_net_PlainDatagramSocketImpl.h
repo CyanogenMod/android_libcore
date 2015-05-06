@@ -12,7 +12,7 @@ extern "C" {
  * Method:    bind0
  * Signature: (ILjava/net/InetAddress;)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_bind0
+JNIEXPORT void JNICALL PlainDatagramSocketImpl_bind0
   (JNIEnv *, jobject, jint, jobject);
 
 /*
@@ -20,7 +20,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_bind0
  * Method:    send
  * Signature: (Ljava/net/DatagramPacket;)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_send
+JNIEXPORT void JNICALL PlainDatagramSocketImpl_send
   (JNIEnv *, jobject, jobject);
 
 /*
@@ -28,7 +28,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_send
  * Method:    peek
  * Signature: (Ljava/net/InetAddress;)I
  */
-JNIEXPORT jint JNICALL Java_java_net_PlainDatagramSocketImpl_peek
+JNIEXPORT jint JNICALL PlainDatagramSocketImpl_peek
   (JNIEnv *, jobject, jobject);
 
 /*
@@ -36,7 +36,7 @@ JNIEXPORT jint JNICALL Java_java_net_PlainDatagramSocketImpl_peek
  * Method:    peekData
  * Signature: (Ljava/net/DatagramPacket;)I
  */
-JNIEXPORT jint JNICALL Java_java_net_PlainDatagramSocketImpl_peekData
+JNIEXPORT jint JNICALL PlainDatagramSocketImpl_peekData
   (JNIEnv *, jobject, jobject);
 
 /*
@@ -44,7 +44,7 @@ JNIEXPORT jint JNICALL Java_java_net_PlainDatagramSocketImpl_peekData
  * Method:    receive0
  * Signature: (Ljava/net/DatagramPacket;)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_receive0
+JNIEXPORT void JNICALL PlainDatagramSocketImpl_receive0
   (JNIEnv *, jobject, jobject);
 
 /*
@@ -52,7 +52,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_receive0
  * Method:    setTimeToLive
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_setTimeToLive
+JNIEXPORT void JNICALL PlainDatagramSocketImpl_setTimeToLive
   (JNIEnv *, jobject, jint);
 
 /*
@@ -60,7 +60,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_setTimeToLive
  * Method:    getTimeToLive
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_java_net_PlainDatagramSocketImpl_getTimeToLive
+JNIEXPORT jint JNICALL PlainDatagramSocketImpl_getTimeToLive
   (JNIEnv *, jobject);
 
 /*
@@ -68,7 +68,7 @@ JNIEXPORT jint JNICALL Java_java_net_PlainDatagramSocketImpl_getTimeToLive
  * Method:    setTTL
  * Signature: (B)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_setTTL
+JNIEXPORT void JNICALL PlainDatagramSocketImpl_setTTL
   (JNIEnv *, jobject, jbyte);
 
 /*
@@ -76,7 +76,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_setTTL
  * Method:    getTTL
  * Signature: ()B
  */
-JNIEXPORT jbyte JNICALL Java_java_net_PlainDatagramSocketImpl_getTTL
+JNIEXPORT jbyte JNICALL PlainDatagramSocketImpl_getTTL
   (JNIEnv *, jobject);
 
 /*
@@ -84,7 +84,7 @@ JNIEXPORT jbyte JNICALL Java_java_net_PlainDatagramSocketImpl_getTTL
  * Method:    join
  * Signature: (Ljava/net/InetAddress;Ljava/net/NetworkInterface;)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_join
+JNIEXPORT void JNICALL PlainDatagramSocketImpl_join
   (JNIEnv *, jobject, jobject, jobject);
 
 /*
@@ -92,7 +92,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_join
  * Method:    leave
  * Signature: (Ljava/net/InetAddress;Ljava/net/NetworkInterface;)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_leave
+JNIEXPORT void JNICALL PlainDatagramSocketImpl_leave
   (JNIEnv *, jobject, jobject, jobject);
 
 /*
@@ -100,7 +100,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_leave
  * Method:    datagramSocketCreate
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_datagramSocketCreate
+JNIEXPORT void JNICALL PlainDatagramSocketImpl_datagramSocketCreate
   (JNIEnv *, jobject);
 
 /*
@@ -108,7 +108,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_datagramSocketCreat
  * Method:    datagramSocketClose
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_datagramSocketClose
+JNIEXPORT void JNICALL PlainDatagramSocketImpl_datagramSocketClose
   (JNIEnv *, jobject);
 
 /*
@@ -116,7 +116,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_datagramSocketClose
  * Method:    socketSetOption
  * Signature: (ILjava/lang/Object;)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_socketSetOption
+JNIEXPORT void JNICALL PlainDatagramSocketImpl_socketSetOption
   (JNIEnv *, jobject, jint, jobject);
 
 /*
@@ -124,7 +124,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_socketSetOption
  * Method:    socketGetOption
  * Signature: (I)Ljava/lang/Object;
  */
-JNIEXPORT jobject JNICALL Java_java_net_PlainDatagramSocketImpl_socketGetOption
+JNIEXPORT jobject JNICALL PlainDatagramSocketImpl_socketGetOption
   (JNIEnv *, jobject, jint);
 
 /*
@@ -132,7 +132,7 @@ JNIEXPORT jobject JNICALL Java_java_net_PlainDatagramSocketImpl_socketGetOption
  * Method:    connect0
  * Signature: (Ljava/net/InetAddress;I)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_connect0
+JNIEXPORT void JNICALL PlainDatagramSocketImpl_connect0
   (JNIEnv *, jobject, jobject, jint);
 
 /*
@@ -140,7 +140,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_connect0
  * Method:    disconnect0
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_disconnect0
+JNIEXPORT void JNICALL PlainDatagramSocketImpl_disconnect0
   (JNIEnv *, jobject, jint);
 
 /*
@@ -148,7 +148,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_disconnect0
  * Method:    init
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_init
+JNIEXPORT void JNICALL PlainDatagramSocketImpl_init
   (JNIEnv *, jclass);
 
 #ifdef __cplusplus

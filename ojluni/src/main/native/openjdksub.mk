@@ -26,6 +26,22 @@ LOCAL_SRC_FILES := \
     UnixFileSystem_md.c \
     FileSystem_md.c \
     ObjectStreamClass.c \
+    InetAddress.c \
+    InetAddressImplFactory.c \
+    net_util.c \
+    net_util_md.c \
+    Inet6Address.c \
+    Inet4Address.c \
+    linux_close.c \
+    PlainSocketImpl.c \
+    PlainDatagramSocketImpl.c \
+    NetworkInterface.c \
+    DatagramPacket.c \
+    Inet4AddressImpl.c \
+    Inet6AddressImpl.c \
+    SocketInputStream.c \
+    SocketOutputStream.c \
+    DefaultProxySelector.c \
     Register.cpp \
 
 LOCAL_C_INCLUDES += \

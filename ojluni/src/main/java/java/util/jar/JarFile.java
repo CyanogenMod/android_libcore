@@ -499,7 +499,10 @@ class JarFile extends ZipFile {
     // attribute. Returns false if there is no manifest or the manifest
     // does not contain a "Class-Path" attribute. Currently exported to
     // core libraries via sun.misc.SharedSecrets.
-    boolean hasClassPathAttribute() throws IOException {
+    /*
+     * @hide
+     */
+    public boolean hasClassPathAttribute() throws IOException {
         if (computedHasClassPathAttribute) {
             return hasClassPathAttribute;
         }

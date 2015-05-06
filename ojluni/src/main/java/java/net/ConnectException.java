@@ -51,4 +51,9 @@ public class ConnectException extends SocketException {
      * Construct a new ConnectException with no detailed message.
      */
     public ConnectException() {}
+
+    /* @hide */
+    public ConnectException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

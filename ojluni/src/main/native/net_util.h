@@ -104,10 +104,10 @@ extern jmethodID ia6_ctrID;
 /************************************************************************
  *  Utilities
  */
-JNIEXPORT void JNICALL Java_java_net_InetAddress_init(JNIEnv *env, jclass cls);
-JNIEXPORT void JNICALL Java_java_net_Inet4Address_init(JNIEnv *env, jclass cls);
-JNIEXPORT void JNICALL Java_java_net_Inet6Address_init(JNIEnv *env, jclass cls);
-JNIEXPORT void JNICALL Java_java_net_NetworkInterface_init(JNIEnv *env, jclass cls);
+JNIEXPORT void JNICALL InetAddress_init(JNIEnv *env, jclass cls);
+JNIEXPORT void JNICALL Inet4Address_init(JNIEnv *env, jclass cls);
+JNIEXPORT void JNICALL Inet6Address_init(JNIEnv *env, jclass cls);
+JNIEXPORT void JNICALL NetworkInterface_init(JNIEnv *env, jclass cls);
 
 JNIEXPORT void JNICALL NET_ThrowNew(JNIEnv *env, int errorNum, char *msg);
 int NET_GetError();

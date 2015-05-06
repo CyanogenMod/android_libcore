@@ -1304,6 +1304,14 @@ public final class URL implements java.io.Serializable {
                 path = file;
         }
     }
+
+    public URI toURILenient() throws URISyntaxException {
+        URLStreamHandler handler = getURLStreamHandler(protocol);
+        if (handler == null) {
+          throw new IllegalStateException(protocol);
+        }
+        return new URI(handler.toExternalForm(this, true));
+    }
 }
 
 class Parts {

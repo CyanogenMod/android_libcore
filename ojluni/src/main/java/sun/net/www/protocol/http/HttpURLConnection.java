@@ -2617,10 +2617,8 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
             if (cookieHandler == null)
                 return value;
 
-            sun.misc.JavaNetHttpCookieAccess access =
-                    sun.misc.SharedSecrets.getJavaNetHttpCookieAccess();
             StringBuilder retValue = new StringBuilder();
-            List<HttpCookie> cookies = access.parse(value);
+            List<HttpCookie> cookies = HttpCookie.parse(value, true);
             boolean multipleCookies = false;
             for (HttpCookie cookie : cookies) {
                 // skip HttpOnly cookies
@@ -2628,7 +2626,7 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
                     continue;
                 if (multipleCookies)
                     retValue.append(',');  // RFC 2965, comma separated
-                retValue.append(access.header(cookie));
+                retValue.append(cookie.header);
                 multipleCookies = true;
             }
 

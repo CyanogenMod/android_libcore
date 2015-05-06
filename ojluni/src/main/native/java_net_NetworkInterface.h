@@ -12,7 +12,7 @@ extern "C" {
  * Method:    getAll
  * Signature: ()[Ljava/net/NetworkInterface;
  */
-JNIEXPORT jobjectArray JNICALL Java_java_net_NetworkInterface_getAll
+JNIEXPORT jobjectArray JNICALL NetworkInterface_getAll
   (JNIEnv *, jclass);
 
 /*
@@ -20,7 +20,7 @@ JNIEXPORT jobjectArray JNICALL Java_java_net_NetworkInterface_getAll
  * Method:    getByName0
  * Signature: (Ljava/lang/String;)Ljava/net/NetworkInterface;
  */
-JNIEXPORT jobject JNICALL Java_java_net_NetworkInterface_getByName0
+JNIEXPORT jobject JNICALL NetworkInterface_getByName0
   (JNIEnv *, jclass, jstring);
 
 /*
@@ -28,7 +28,7 @@ JNIEXPORT jobject JNICALL Java_java_net_NetworkInterface_getByName0
  * Method:    getByIndex0
  * Signature: (I)Ljava/net/NetworkInterface;
  */
-JNIEXPORT jobject JNICALL Java_java_net_NetworkInterface_getByIndex0
+JNIEXPORT jobject JNICALL NetworkInterface_getByIndex0
   (JNIEnv *, jclass, jint);
 
 /*
@@ -36,7 +36,7 @@ JNIEXPORT jobject JNICALL Java_java_net_NetworkInterface_getByIndex0
  * Method:    getByInetAddress0
  * Signature: (Ljava/net/InetAddress;)Ljava/net/NetworkInterface;
  */
-JNIEXPORT jobject JNICALL Java_java_net_NetworkInterface_getByInetAddress0
+JNIEXPORT jobject JNICALL NetworkInterface_getByInetAddress0
   (JNIEnv *, jclass, jobject);
 
 /*
@@ -44,7 +44,7 @@ JNIEXPORT jobject JNICALL Java_java_net_NetworkInterface_getByInetAddress0
  * Method:    isUp0
  * Signature: (Ljava/lang/String;I)Z
  */
-JNIEXPORT jboolean JNICALL Java_java_net_NetworkInterface_isUp0
+JNIEXPORT jboolean JNICALL NetworkInterface_isUp0
   (JNIEnv *, jclass, jstring, jint);
 
 /*
@@ -52,7 +52,7 @@ JNIEXPORT jboolean JNICALL Java_java_net_NetworkInterface_isUp0
  * Method:    isLoopback0
  * Signature: (Ljava/lang/String;I)Z
  */
-JNIEXPORT jboolean JNICALL Java_java_net_NetworkInterface_isLoopback0
+JNIEXPORT jboolean JNICALL NetworkInterface_isLoopback0
   (JNIEnv *, jclass, jstring, jint);
 
 /*
@@ -60,7 +60,7 @@ JNIEXPORT jboolean JNICALL Java_java_net_NetworkInterface_isLoopback0
  * Method:    supportsMulticast0
  * Signature: (Ljava/lang/String;I)Z
  */
-JNIEXPORT jboolean JNICALL Java_java_net_NetworkInterface_supportsMulticast0
+JNIEXPORT jboolean JNICALL NetworkInterface_supportsMulticast0
   (JNIEnv *, jclass, jstring, jint);
 
 /*
@@ -68,7 +68,7 @@ JNIEXPORT jboolean JNICALL Java_java_net_NetworkInterface_supportsMulticast0
  * Method:    isP2P0
  * Signature: (Ljava/lang/String;I)Z
  */
-JNIEXPORT jboolean JNICALL Java_java_net_NetworkInterface_isP2P0
+JNIEXPORT jboolean JNICALL NetworkInterface_isP2P0
   (JNIEnv *, jclass, jstring, jint);
 
 /*
@@ -76,7 +76,7 @@ JNIEXPORT jboolean JNICALL Java_java_net_NetworkInterface_isP2P0
  * Method:    getMacAddr0
  * Signature: ([BLjava/lang/String;I)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_java_net_NetworkInterface_getMacAddr0
+JNIEXPORT jbyteArray JNICALL NetworkInterface_getMacAddr0
   (JNIEnv *, jclass, jbyteArray, jstring, jint);
 
 /*
@@ -84,7 +84,7 @@ JNIEXPORT jbyteArray JNICALL Java_java_net_NetworkInterface_getMacAddr0
  * Method:    getMTU0
  * Signature: (Ljava/lang/String;I)I
  */
-JNIEXPORT jint JNICALL Java_java_net_NetworkInterface_getMTU0
+JNIEXPORT jint JNICALL NetworkInterface_getMTU0
   (JNIEnv *, jclass, jstring, jint);
 
 /*
@@ -92,7 +92,7 @@ JNIEXPORT jint JNICALL Java_java_net_NetworkInterface_getMTU0
  * Method:    init
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_java_net_NetworkInterface_init
+JNIEXPORT void JNICALL NetworkInterface_init
   (JNIEnv *, jclass);
 
 #ifdef __cplusplus

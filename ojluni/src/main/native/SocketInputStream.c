@@ -34,6 +34,10 @@
 #include "net_util.h"
 
 #include "java_net_SocketInputStream.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 
 /************************************************************************
@@ -48,7 +52,7 @@ static jfieldID IO_fd_fdID;
  * Signature: ()V
  */
 JNIEXPORT void JNICALL
-Java_java_net_SocketInputStream_init(JNIEnv *env, jclass cls) {
+SocketInputStream_init(JNIEnv *env, jclass cls) {
     IO_fd_fdID = NET_GetFileDescriptorID(env);
 }
 
@@ -58,7 +62,7 @@ Java_java_net_SocketInputStream_init(JNIEnv *env, jclass cls) {
  * Signature: (Ljava/io/FileDescriptor;[BIII)I
  */
 JNIEXPORT jint JNICALL
-Java_java_net_SocketInputStream_socketRead0(JNIEnv *env, jobject this,
+SocketInputStream_socketRead0(JNIEnv *env, jobject this,
                                             jobject fdObj, jbyteArray data,
                                             jint off, jint len, jint timeout)
 {
@@ -158,4 +162,13 @@ Java_java_net_SocketInputStream_socketRead0(JNIEnv *env, jobject this,
         free(bufP);
     }
     return nread;
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(SocketInputStream, socketRead0, "(Ljava/io/FileDescriptor;[BIII)I"),
+  NATIVE_METHOD(SocketInputStream, init, "()V"),
+};
+
+void register_java_net_SocketInputStream(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/net/SocketInputStream", gMethods, NELEM(gMethods));
 }

@@ -38,7 +38,7 @@ JNIEXPORT jint JNICALL ipv6_available()
 }
 
 JNIEXPORT jint JNICALL
-JNI_OnLoad(JavaVM *vm, void *reserved)
+net_JNI_OnLoad(JavaVM *vm, void* ignored)
 {
     JNIEnv *env;
     jclass iCls;
@@ -77,9 +77,9 @@ static int initialized = 0;
 
 static void initInetAddrs(JNIEnv *env) {
     if (!initialized) {
-        Java_java_net_InetAddress_init(env, 0);
-        Java_java_net_Inet4Address_init(env, 0);
-        Java_java_net_Inet6Address_init(env, 0);
+        InetAddress_init(env, 0);
+        Inet4Address_init(env, 0);
+        Inet6Address_init(env, 0);
         initialized = 1;
     }
 }

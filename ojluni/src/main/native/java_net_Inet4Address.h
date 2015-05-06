@@ -26,7 +26,7 @@ extern "C" {
  * Method:    init
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_java_net_Inet4Address_init
+JNIEXPORT void JNICALL Inet4Address_init
   (JNIEnv *, jclass);
 
 #ifdef __cplusplus

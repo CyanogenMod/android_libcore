@@ -40,7 +40,7 @@ public class OsTest extends TestCase {
     fis.close();
 
     ServerSocket s = new ServerSocket();
-    assertTrue(S_ISSOCK(Libcore.os.fstat(s.getImpl$().getFD$()).st_mode));
+    assertTrue(S_ISSOCK(Libcore.os.fstat(s.getImpl().getFileDescriptor()).st_mode));
     s.close();
   }
 

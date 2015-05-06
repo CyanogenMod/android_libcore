@@ -25,6 +25,10 @@
 
 #include "java_net_DatagramPacket.h"
 #include "net_util.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 /************************************************************************
  * DatagramPacket
@@ -43,7 +47,7 @@ jfieldID dp_bufLengthID;
  * Signature: ()V
  */
 JNIEXPORT void JNICALL
-Java_java_net_DatagramPacket_init (JNIEnv *env, jclass cls) {
+DatagramPacket_init (JNIEnv *env, jclass cls) {
     dp_addressID = (*env)->GetFieldID(env, cls, "address",
                                       "Ljava/net/InetAddress;");
     CHECK_NULL(dp_addressID);
@@ -57,4 +61,12 @@ Java_java_net_DatagramPacket_init (JNIEnv *env, jclass cls) {
     CHECK_NULL(dp_lengthID);
     dp_bufLengthID = (*env)->GetFieldID(env, cls, "bufLength", "I");
     CHECK_NULL(dp_bufLengthID);
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(DatagramPacket, init, "()V"),
+};
+
+void register_java_net_DatagramPacket(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/net/DatagramPacket", gMethods, NELEM(gMethods));
 }

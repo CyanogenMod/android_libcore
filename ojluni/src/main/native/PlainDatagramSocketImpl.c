@@ -35,7 +35,7 @@
 #endif
 #ifdef __linux__
 #include <unistd.h>
-#include <sys/sysctl.h>
+//#include <sys/sysctl.h>
 #include <sys/utsname.h>
 #include <netinet/ip.h>
 
@@ -59,6 +59,10 @@
 #include "java_net_SocketOptions.h"
 #include "java_net_PlainDatagramSocketImpl.h"
 #include "java_net_NetworkInterface.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 /************************************************************************
  * PlainDatagramSocketImpl
  */
@@ -144,7 +148,7 @@ static int getFD(JNIEnv *env, jobject this) {
  * Signature: ()V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainDatagramSocketImpl_init(JNIEnv *env, jclass cls) {
+PlainDatagramSocketImpl_init(JNIEnv *env, jclass cls) {
 
 #ifdef __linux__
     struct utsname sysinfo;
@@ -169,10 +173,10 @@ Java_java_net_PlainDatagramSocketImpl_init(JNIEnv *env, jclass cls) {
     IO_fd_fdID = NET_GetFileDescriptorID(env);
     CHECK_NULL(IO_fd_fdID);
 
-    Java_java_net_InetAddress_init(env, 0);
-    Java_java_net_Inet4Address_init(env, 0);
-    Java_java_net_Inet6Address_init(env, 0);
-    Java_java_net_NetworkInterface_init(env, 0);
+    InetAddress_init(env, 0);
+    Inet4Address_init(env, 0);
+    Inet6Address_init(env, 0);
+    NetworkInterface_init(env, 0);
 
 #ifdef __linux__
     /*
@@ -217,7 +221,7 @@ Java_java_net_PlainDatagramSocketImpl_init(JNIEnv *env, jclass cls) {
  * Signature: (ILjava/net/InetAddress;)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainDatagramSocketImpl_bind0(JNIEnv *env, jobject this,
+PlainDatagramSocketImpl_bind0(JNIEnv *env, jobject this,
                                            jint localport, jobject iaObj) {
     /* fdObj is the FileDescriptor field on this */
     jobject fdObj = (*env)->GetObjectField(env, this, pdsi_fdID);
@@ -282,7 +286,7 @@ Java_java_net_PlainDatagramSocketImpl_bind0(JNIEnv *env, jobject this,
  * Signature: (Ljava/net/InetAddress;I)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainDatagramSocketImpl_connect0(JNIEnv *env, jobject this,
+PlainDatagramSocketImpl_connect0(JNIEnv *env, jobject this,
                                                jobject address, jint port) {
     /* The object's field */
     jobject fdObj = (*env)->GetObjectField(env, this, pdsi_fdID);
@@ -330,7 +334,7 @@ Java_java_net_PlainDatagramSocketImpl_connect0(JNIEnv *env, jobject this,
  * Signature: ()V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainDatagramSocketImpl_disconnect0(JNIEnv *env, jobject this, jint family) {
+PlainDatagramSocketImpl_disconnect0(JNIEnv *env, jobject this, jint family) {
     /* The object's field */
     jobject fdObj = (*env)->GetObjectField(env, this, pdsi_fdID);
     /* The fdObj'fd */
@@ -403,7 +407,7 @@ Java_java_net_PlainDatagramSocketImpl_disconnect0(JNIEnv *env, jobject this, jin
  * Signature: (Ljava/net/DatagramPacket;)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainDatagramSocketImpl_send(JNIEnv *env, jobject this,
+PlainDatagramSocketImpl_send(JNIEnv *env, jobject this,
                                            jobject packet) {
 
     char BUF[MAX_BUFFER_LEN];
@@ -543,7 +547,7 @@ Java_java_net_PlainDatagramSocketImpl_send(JNIEnv *env, jobject this,
  * Signature: (Ljava/net/InetAddress;)I
  */
 JNIEXPORT jint JNICALL
-Java_java_net_PlainDatagramSocketImpl_peek(JNIEnv *env, jobject this,
+PlainDatagramSocketImpl_peek(JNIEnv *env, jobject this,
                                            jobject addressObj) {
 
     jobject fdObj = (*env)->GetObjectField(env, this, pdsi_fdID);
@@ -628,7 +632,7 @@ Java_java_net_PlainDatagramSocketImpl_peek(JNIEnv *env, jobject this,
 }
 
 JNIEXPORT jint JNICALL
-Java_java_net_PlainDatagramSocketImpl_peekData(JNIEnv *env, jobject this,
+PlainDatagramSocketImpl_peekData(JNIEnv *env, jobject this,
                                            jobject packet) {
 
     char BUF[MAX_BUFFER_LEN];
@@ -805,7 +809,7 @@ Java_java_net_PlainDatagramSocketImpl_peekData(JNIEnv *env, jobject this,
  * Signature: (Ljava/net/DatagramPacket;)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainDatagramSocketImpl_receive0(JNIEnv *env, jobject this,
+PlainDatagramSocketImpl_receive0(JNIEnv *env, jobject this,
                                               jobject packet) {
 
     char BUF[MAX_BUFFER_LEN];
@@ -1058,7 +1062,7 @@ Java_java_net_PlainDatagramSocketImpl_receive0(JNIEnv *env, jobject this,
  * Signature: ()V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainDatagramSocketImpl_datagramSocketCreate(JNIEnv *env,
+PlainDatagramSocketImpl_datagramSocketCreate(JNIEnv *env,
                                                            jobject this) {
     jobject fdObj = (*env)->GetObjectField(env, this, pdsi_fdID);
     int arg, fd, t = 1;
@@ -1143,7 +1147,7 @@ Java_java_net_PlainDatagramSocketImpl_datagramSocketCreate(JNIEnv *env,
  * Signature: ()V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainDatagramSocketImpl_datagramSocketClose(JNIEnv *env,
+PlainDatagramSocketImpl_datagramSocketClose(JNIEnv *env,
                                                           jobject this) {
     /*
      * REMIND: PUT A LOCK AROUND THIS CODE
@@ -1287,7 +1291,7 @@ static void mcast_set_if_by_addr_v6(JNIEnv *env, jobject this, int fd, jobject v
         CHECK_NULL(ni_class);
     }
 
-    value = Java_java_net_NetworkInterface_getByInetAddress0(env, ni_class, value);
+    value = NetworkInterface_getByInetAddress0(env, ni_class, value);
     if (value == NULL) {
         if (!(*env)->ExceptionOccurred(env)) {
             JNU_ThrowByName(env, JNU_JAVANETPKG "SocketException",
@@ -1463,7 +1467,7 @@ static void setMulticastLoopbackMode(JNIEnv *env, jobject this, int fd,
  * Signature: (ILjava/lang/Object;)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainDatagramSocketImpl_socketSetOption(JNIEnv *env,
+PlainDatagramSocketImpl_socketSetOption(JNIEnv *env,
                                                       jobject this,
                                                       jint opt,
                                                       jobject value) {
@@ -1686,7 +1690,7 @@ jobject getMulticastInterface(JNIEnv *env, jobject this, int fd, jint opt) {
             ni_class = (*env)->NewGlobalRef(env, c);
             CHECK_NULL_RETURN(ni_class, NULL);
         }
-        ni = Java_java_net_NetworkInterface_getByInetAddress0(env, ni_class, addr);
+        ni = NetworkInterface_getByInetAddress0(env, ni_class, addr);
         if (ni) {
             return ni;
         }
@@ -1777,7 +1781,7 @@ jobject getMulticastInterface(JNIEnv *env, jobject this, int fd, jint opt) {
          * (for IF).
          */
         if (index > 0) {
-            ni = Java_java_net_NetworkInterface_getByIndex0(env, ni_class,
+            ni = NetworkInterface_getByIndex0(env, ni_class,
                                                                    index);
             if (ni == NULL) {
                 char errmsg[255];
@@ -1843,7 +1847,7 @@ jobject getMulticastInterface(JNIEnv *env, jobject this, int fd, jint opt) {
  * Signature: (I)Ljava/lang/Object;
  */
 JNIEXPORT jobject JNICALL
-Java_java_net_PlainDatagramSocketImpl_socketGetOption(JNIEnv *env, jobject this,
+PlainDatagramSocketImpl_socketGetOption(JNIEnv *env, jobject this,
                                                       jint opt) {
     int fd;
     int level, optname, optlen;
@@ -1953,13 +1957,13 @@ Java_java_net_PlainDatagramSocketImpl_socketGetOption(JNIEnv *env, jobject this,
  */
 
 JNIEXPORT void JNICALL
-Java_java_net_PlainDatagramSocketImpl_setTTL(JNIEnv *env, jobject this,
+PlainDatagramSocketImpl_setTTL(JNIEnv *env, jobject this,
                                              jbyte ttl) {
     jint ittl = ttl;
     if (ittl < 0) {
         ittl += 0x100;
     }
-    Java_java_net_PlainDatagramSocketImpl_setTimeToLive(env, this, ittl);
+    PlainDatagramSocketImpl_setTimeToLive(env, this, ittl);
 }
 
 /*
@@ -1994,7 +1998,7 @@ static void setHopLimit(JNIEnv *env, int fd, jint ttl) {
  * Signature: (B)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainDatagramSocketImpl_setTimeToLive(JNIEnv *env, jobject this,
+PlainDatagramSocketImpl_setTimeToLive(JNIEnv *env, jobject this,
                                                     jint ttl) {
 
     jobject fdObj = (*env)->GetObjectField(env, this, pdsi_fdID);
@@ -2036,8 +2040,8 @@ Java_java_net_PlainDatagramSocketImpl_setTimeToLive(JNIEnv *env, jobject this,
  * Signature: ()B
  */
 JNIEXPORT jbyte JNICALL
-Java_java_net_PlainDatagramSocketImpl_getTTL(JNIEnv *env, jobject this) {
-    return (jbyte)Java_java_net_PlainDatagramSocketImpl_getTimeToLive(env, this);
+PlainDatagramSocketImpl_getTTL(JNIEnv *env, jobject this) {
+    return (jbyte)PlainDatagramSocketImpl_getTimeToLive(env, this);
 }
 
 
@@ -2047,7 +2051,7 @@ Java_java_net_PlainDatagramSocketImpl_getTTL(JNIEnv *env, jobject this) {
  * Signature: ()B
  */
 JNIEXPORT jint JNICALL
-Java_java_net_PlainDatagramSocketImpl_getTimeToLive(JNIEnv *env, jobject this) {
+PlainDatagramSocketImpl_getTimeToLive(JNIEnv *env, jobject this) {
 
     jobject fdObj = (*env)->GetObjectField(env, this, pdsi_fdID);
     jint fd = -1;
@@ -2446,7 +2450,7 @@ static void mcast_join_leave(JNIEnv *env, jobject this,
  * Signature: (Ljava/net/InetAddress;)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainDatagramSocketImpl_join(JNIEnv *env, jobject this,
+PlainDatagramSocketImpl_join(JNIEnv *env, jobject this,
                                            jobject iaObj, jobject niObj)
 {
     mcast_join_leave(env, this, iaObj, niObj, JNI_TRUE);
@@ -2458,8 +2462,33 @@ Java_java_net_PlainDatagramSocketImpl_join(JNIEnv *env, jobject this,
  * Signature: (Ljava/net/InetAddress;)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_PlainDatagramSocketImpl_leave(JNIEnv *env, jobject this,
+PlainDatagramSocketImpl_leave(JNIEnv *env, jobject this,
                                             jobject iaObj, jobject niObj)
 {
     mcast_join_leave(env, this, iaObj, niObj, JNI_FALSE);
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(PlainDatagramSocketImpl, leave, "(Ljava/net/InetAddress;Ljava/net/NetworkInterface;)V"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, join, "(Ljava/net/InetAddress;Ljava/net/NetworkInterface;)V"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, getTimeToLive, "()I"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, getTTL, "()B"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, setTimeToLive, "(I)V"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, setTTL, "(B)V"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, socketGetOption, "(I)Ljava/lang/Object;"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, socketSetOption, "(ILjava/lang/Object;)V"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, datagramSocketClose, "()V"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, datagramSocketCreate, "()V"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, receive0, "(Ljava/net/DatagramPacket;)V"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, peekData, "(Ljava/net/DatagramPacket;)I"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, peek, "(Ljava/net/InetAddress;)I"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, send, "(Ljava/net/DatagramPacket;)V"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, disconnect0, "(I)V"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, connect0, "(Ljava/net/InetAddress;I)V"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, bind0, "(ILjava/net/InetAddress;)V"),
+  NATIVE_METHOD(PlainDatagramSocketImpl, init, "()V"),
+};
+
+void register_java_net_PlainDatagramSocketImpl(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/net/PlainDatagramSocketImpl", gMethods, NELEM(gMethods));
 }

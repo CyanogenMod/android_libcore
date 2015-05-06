@@ -16,7 +16,7 @@ extern "C" {
  * Method:    socketCreate
  * Signature: (Z)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketCreate
+JNIEXPORT void JNICALL PlainSocketImpl_socketCreate
   (JNIEnv *, jobject, jboolean);
 
 /*
@@ -24,7 +24,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketCreate
  * Method:    socketConnect
  * Signature: (Ljava/net/InetAddress;II)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketConnect
+JNIEXPORT void JNICALL PlainSocketImpl_socketConnect
   (JNIEnv *, jobject, jobject, jint, jint);
 
 /*
@@ -32,7 +32,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketConnect
  * Method:    socketBind
  * Signature: (Ljava/net/InetAddress;I)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketBind
+JNIEXPORT void JNICALL PlainSocketImpl_socketBind
   (JNIEnv *, jobject, jobject, jint);
 
 /*
@@ -40,7 +40,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketBind
  * Method:    socketListen
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketListen
+JNIEXPORT void JNICALL PlainSocketImpl_socketListen
   (JNIEnv *, jobject, jint);
 
 /*
@@ -48,7 +48,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketListen
  * Method:    socketAccept
  * Signature: (Ljava/net/SocketImpl;)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketAccept
+JNIEXPORT void JNICALL PlainSocketImpl_socketAccept
   (JNIEnv *, jobject, jobject);
 
 /*
@@ -56,7 +56,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketAccept
  * Method:    socketAvailable
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_java_net_PlainSocketImpl_socketAvailable
+JNIEXPORT jint JNICALL PlainSocketImpl_socketAvailable
   (JNIEnv *, jobject);
 
 /*
@@ -64,7 +64,7 @@ JNIEXPORT jint JNICALL Java_java_net_PlainSocketImpl_socketAvailable
  * Method:    socketClose0
  * Signature: (Z)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketClose0
+JNIEXPORT void JNICALL PlainSocketImpl_socketClose0
   (JNIEnv *, jobject, jboolean);
 
 /*
@@ -72,7 +72,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketClose0
  * Method:    socketShutdown
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketShutdown
+JNIEXPORT void JNICALL PlainSocketImpl_socketShutdown
   (JNIEnv *, jobject, jint);
 
 /*
@@ -80,7 +80,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketShutdown
  * Method:    initProto
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_initProto
+JNIEXPORT void JNICALL PlainSocketImpl_initProto
   (JNIEnv *, jclass);
 
 /*
@@ -88,7 +88,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_initProto
  * Method:    socketSetOption
  * Signature: (IZLjava/lang/Object;)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketSetOption
+JNIEXPORT void JNICALL PlainSocketImpl_socketSetOption
   (JNIEnv *, jobject, jint, jboolean, jobject);
 
 /*
@@ -96,7 +96,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketSetOption
  * Method:    socketGetOption
  * Signature: (ILjava/lang/Object;)I
  */
-JNIEXPORT jint JNICALL Java_java_net_PlainSocketImpl_socketGetOption
+JNIEXPORT jint JNICALL PlainSocketImpl_socketGetOption
   (JNIEnv *, jobject, jint, jobject);
 
 /*
@@ -104,7 +104,7 @@ JNIEXPORT jint JNICALL Java_java_net_PlainSocketImpl_socketGetOption
  * Method:    socketSendUrgentData
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketSendUrgentData
+JNIEXPORT void JNICALL PlainSocketImpl_socketSendUrgentData
   (JNIEnv *, jobject, jint);
 
 #ifdef __cplusplus

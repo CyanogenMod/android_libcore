@@ -34,6 +34,10 @@
 #include "net_util.h"
 
 #include "java_net_SocketOutputStream.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 #define min(a, b)       ((a) < (b) ? (a) : (b))
 
@@ -49,7 +53,7 @@ static jfieldID IO_fd_fdID;
  * Signature: ()V
  */
 JNIEXPORT void JNICALL
-Java_java_net_SocketOutputStream_init(JNIEnv *env, jclass cls) {
+SocketOutputStream_init(JNIEnv *env, jclass cls) {
     IO_fd_fdID = NET_GetFileDescriptorID(env);
 }
 
@@ -59,7 +63,7 @@ Java_java_net_SocketOutputStream_init(JNIEnv *env, jclass cls) {
  * Signature: (Ljava/io/FileDescriptor;[BII)V
  */
 JNIEXPORT void JNICALL
-Java_java_net_SocketOutputStream_socketWrite0(JNIEnv *env, jobject this,
+SocketOutputStream_socketWrite0(JNIEnv *env, jobject this,
                                               jobject fdObj,
                                               jbyteArray data,
                                               jint off, jint len) {
@@ -133,4 +137,13 @@ Java_java_net_SocketOutputStream_socketWrite0(JNIEnv *env, jobject this,
     if (bufP != BUF) {
         free(bufP);
     }
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(SocketOutputStream, socketWrite0, "(Ljava/io/FileDescriptor;[BII)V"),
+  NATIVE_METHOD(SocketOutputStream, init, "()V"),
+};
+
+void register_java_net_SocketOutputStream(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/net/SocketOutputStream", gMethods, NELEM(gMethods));
 }

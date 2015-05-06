@@ -25,6 +25,7 @@ import static android.system.OsConstants.*;
  * @hide
  */
 public final class InetUnixAddress extends InetAddress {
+  private byte[] address;
   /**
    * Constructs an AF_UNIX InetAddress for the given path.
    */
@@ -36,13 +37,30 @@ public final class InetUnixAddress extends InetAddress {
    * Constructs an AF_UNIX InetAddress for the given path.
    */
   public InetUnixAddress(byte[] path) {
-    super(AF_UNIX, path, null);
+    super();
+    holder().hostName = null;
+    holder().family = AF_UNIX;
+    address = path.clone();
   }
 
   /**
    * Returns a string form of this InetAddress.
    */
   @Override public String toString() {
-    return "InetUnixAddress[" + new String(ipaddress, StandardCharsets.UTF_8) + "]";
+    return "InetUnixAddress[" + new String(address, StandardCharsets.UTF_8) + "]";
+  }
+
+  @Override
+  public byte[] getAddress() {
+      return address.clone();
+  }
+
+  public byte[] getAddressInternal() {
+      return address;
+  }
+
+  @Override
+  public String getHostAddress() {
+      return new String(address, StandardCharsets.UTF_8);
   }
 }
