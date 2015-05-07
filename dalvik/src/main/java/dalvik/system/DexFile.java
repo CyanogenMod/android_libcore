@@ -318,8 +318,6 @@ public final class DexFile {
      * @throws java.io.IOException if fileName is not a valid apk/jar file or
      *         if problems occur while parsing it.
      * @throws java.lang.NullPointerException if fileName is null.
-     * @throws dalvik.system.StaleDexCacheError if the optimized dex file
-     *         is stale but exists on a read-only partition.
      */
     public static native boolean isDexOptNeeded(String fileName)
             throws FileNotFoundException, IOException;
@@ -368,8 +366,6 @@ public final class DexFile {
      * @throws java.io.IOException if fileName is not a valid apk/jar file or
      *         if problems occur while parsing it.
      * @throws java.lang.NullPointerException if fileName is null.
-     * @throws dalvik.system.StaleDexCacheError if the optimized dex file
-     *         is stale but exists on a read-only partition.
      *
      * @hide
      */
