@@ -374,6 +374,22 @@ public class Cipher {
     }
 
     /**
+     * Returns the {@code CipherSpi} backing this {@code Cipher} or {@code null} if no
+     * {@code CipherSpi} is backing this {@code Cipher}.
+     *
+     * @hide
+     */
+    public CipherSpi getCurrentSpi() {
+        if (specifiedSpi != null) {
+            return specifiedSpi;
+        }
+
+        synchronized (initLock) {
+            return spiImpl;
+        }
+    }
+
+    /**
      * Try all combinations of mode strings:
      *
      * <pre>
