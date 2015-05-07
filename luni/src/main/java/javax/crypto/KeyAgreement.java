@@ -260,6 +260,18 @@ public class KeyAgreement {
     }
 
     /**
+     * Returns the {@code KeyAgreementSpi} backing this {@code KeyAgreement} or {@code null} if no
+     * {@code KeyAgreementSpi} is backing this {@code KeyAgreement}.
+     *
+     * @hide
+     */
+    public KeyAgreementSpi getCurrentSpi() {
+        synchronized (initLock) {
+            return spiImpl;
+        }
+    }
+
+    /**
      * Initializes this {@code KeyAgreement} with the specified key.
      *
      * @param key the key to initialize this key agreement.

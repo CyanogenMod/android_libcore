@@ -254,6 +254,16 @@ public abstract class Signature extends SignatureSpi {
     }
 
     /**
+     * Returns the {@code SignatureSpi} backing this {@code Signature} or {@code null} if no
+     * {@code SignatureSpi} is backing this {@code Signature}.
+     *
+     * @hide
+     */
+    public SignatureSpi getCurrentSpi() {
+        return null;
+    }
+
+    /**
      * Returns the name of the algorithm of this {@code Signature}.
      *
      * @return the name of the algorithm of this {@code Signature}.
@@ -745,6 +755,13 @@ public abstract class Signature extends SignatureSpi {
         @Override
         public SignatureSpi getSpi() {
             return getSpi(null);
+        }
+
+        @Override
+        public SignatureSpi getCurrentSpi() {
+            synchronized (initLock) {
+                return spiImpl;
+            }
         }
     }
 }
