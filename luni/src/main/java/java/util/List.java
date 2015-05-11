@@ -84,7 +84,8 @@ public interface List<E> extends Collection<E> {
      * @throws IllegalArgumentException
      *                if an object cannot be added to this {@code List}.
      * @throws IndexOutOfBoundsException
-     *                if {@code location < 0 || location > size()}
+     *                if {@code location < 0 || location > size()}.
+     * @throws NullPointerException if {@code collection} is {@code null}.
      */
     public boolean addAll(int location, Collection<? extends E> collection);
 
@@ -104,6 +105,7 @@ public interface List<E> extends Collection<E> {
      *                {@code List}.
      * @throws IllegalArgumentException
      *                if an object cannot be added to this {@code List}.
+     * @throws NullPointerException if {@code collection} is {@code null}.
      */
     public boolean addAll(Collection<? extends E> collection);
 
@@ -135,6 +137,7 @@ public interface List<E> extends Collection<E> {
      *            the collection of objects
      * @return {@code true} if all objects in the specified collection are
      *         elements of this {@code List}, {@code false} otherwise.
+     * @throws NullPointerException if {@code collection} is {@code null}.
      */
     public boolean containsAll(Collection<?> collection);
 
@@ -269,6 +272,7 @@ public interface List<E> extends Collection<E> {
      * @return {@code true} if this {@code List} is modified, {@code false} otherwise.
      * @throws UnsupportedOperationException
      *                if removing from this {@code List} is not supported.
+     * @throws NullPointerException if {@code collection} is {@code null}.
      */
     public boolean removeAll(Collection<?> collection);
 
@@ -281,6 +285,7 @@ public interface List<E> extends Collection<E> {
      * @return {@code true} if this {@code List} is modified, {@code false} otherwise.
      * @throws UnsupportedOperationException
      *                if removing from this {@code List} is not supported.
+     * @throws NullPointerException if {@code collection} is {@code null}.
      */
     public boolean retainAll(Collection<?> collection);
 
