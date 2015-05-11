@@ -429,7 +429,7 @@ public class DateIntervalFormatTest extends junit.framework.TestCase {
     final ULocale locale = new ULocale("en");
     final TimeZone timeZone = TimeZone.getTimeZone("UTC");
 
-    assertEquals("April 30, 11:00 PM – May 1, 12:00 AM", formatDateRange(locale, timeZone,
+    assertEquals("11:00 PM – 12:00 AM", formatDateRange(locale, timeZone,
             1430434800000L, 1430438400000L, FORMAT_SHOW_TIME));
   }
 }
