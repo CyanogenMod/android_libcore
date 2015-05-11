@@ -60,6 +60,7 @@ static jlong StrictJarFile_nativeOpenJarFile(JNIEnv* env, jobject, jstring fileN
   ZipArchiveHandle handle;
   int32_t error = OpenArchive(fileChars.c_str(), &handle);
   if (error) {
+    CloseArchive(handle);
     throwIoException(env, error);
     return static_cast<jlong>(-1);
   }
