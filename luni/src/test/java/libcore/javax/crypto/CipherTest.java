@@ -993,9 +993,20 @@ public final class CipherTest extends TestCase {
 
         Security.addProvider(mockProviderInvalid);
         try {
-            Cipher.getInstance("FOO");
-            fail("Should not find any matching providers");
-        } catch (NoSuchAlgorithmException expected) {
+            Cipher c = Cipher.getInstance("FOO");
+            if (StandardNames.IS_RI) {
+                c.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(new byte[16], "FOO"));
+            } else {
+                fail("Should not find any matching providers; found: " + c);
+            }
+        } catch (NoSuchAlgorithmException maybe) {
+            if (StandardNames.IS_RI) {
+                throw maybe;
+            }
+        } catch (ClassCastException maybe) {
+            if (!StandardNames.IS_RI) {
+                throw maybe;
+            }
         } finally {
             Security.removeProvider(mockProviderInvalid.getName());
         }
