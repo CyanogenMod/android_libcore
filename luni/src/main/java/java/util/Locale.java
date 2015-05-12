@@ -744,12 +744,13 @@ public final class Locale implements Cloneable, Serializable {
 
             final String normalizedValue = value.toLowerCase(Locale.ROOT).replace('_', '-');
             final String[] subtags = normalizedValue.split("-");
+            final char normalizedKey = Character.toLowerCase(key);
 
             // Lengths for subtags in the private use extension should be [1, 8] chars.
             // For all other extensions, they should be [2, 8] chars.
             //
             // http://www.rfc-editor.org/rfc/bcp/bcp47.txt
-            final int minimumLength = (key == PRIVATE_USE_EXTENSION) ? 1 : 2;
+            final int minimumLength = (normalizedKey == PRIVATE_USE_EXTENSION) ? 1 : 2;
             for (String subtag : subtags) {
                 if (!isValidBcp47Alphanum(subtag, minimumLength, 8)) {
                     throw new IllformedLocaleException(
@@ -759,14 +760,14 @@ public final class Locale implements Cloneable, Serializable {
 
             // We need to take special action in the case of unicode extensions,
             // since we claim to understand their keywords and attributes.
-            if (key == UNICODE_LOCALE_EXTENSION) {
+            if (normalizedKey == UNICODE_LOCALE_EXTENSION) {
                 // First clear existing attributes and keywords.
                 extensions.clear();
                 attributes.clear();
 
                 parseUnicodeExtension(subtags, keywords, attributes);
             } else {
-                extensions.put(key, normalizedValue);
+                extensions.put(normalizedKey, normalizedValue);
             }
 
             return this;
@@ -986,6 +987,27 @@ public final class Locale implements Cloneable, Serializable {
             this.unicodeKeywords = Collections.unmodifiableMap(keywordsCopy);
             this.extensions = Collections.unmodifiableMap(extensionsCopy);
         } else {
+
+            // The locales ja_JP_JP and th_TH_TH are ill formed since their variant is too
+            // short, however they have been used to represent a locale with the japanese imperial
+            // calendar and thai numbering respectively. We add an extension in their constructor
+            // to modernize them.
+            if ("ja".equals(language) && "JP".equals(country) && "JP".equals(variant)) {
+                Map<String, String> keywordsCopy = new TreeMap<>(unicodeKeywords);
+                keywordsCopy.put("ca", "japanese");
+                unicodeKeywords = keywordsCopy;
+            } else if ("th".equals(language) && "TH".equals(country) && "TH".equals(variant)) {
+                Map<String, String> keywordsCopy = new TreeMap<>(unicodeKeywords);
+                keywordsCopy.put("nu", "thai");
+                unicodeKeywords = keywordsCopy;
+            }
+
+            if (!unicodeKeywords.isEmpty() || !unicodeAttributes.isEmpty()) {
+                Map<Character, String> extensionsCopy = new TreeMap<>(extensions);
+                addUnicodeExtensionToExtensionsMap(unicodeAttributes, unicodeKeywords, extensionsCopy);
+                extensions = extensionsCopy;
+            }
+
             this.unicodeAttributes = unicodeAttributes;
             this.unicodeKeywords = unicodeKeywords;
             this.extensions = extensions;
@@ -2134,7 +2156,7 @@ public final class Locale implements Cloneable, Serializable {
                         return extensionKeyIndex;
                     }
 
-                    final String key = subtags[extensionKeyIndex];
+                    final String key = subtags[extensionKeyIndex].toLowerCase(Locale.ROOT);
                     if (extensions.containsKey(key.charAt(0))) {
                         return extensionKeyIndex;
                     }
@@ -2146,7 +2168,7 @@ public final class Locale implements Cloneable, Serializable {
                 // Mark the start of the next extension. Also keep track of whether this
                 // is a private use extension, and throw an error if it doesn't come last.
                 extensionKeyIndex = i;
-                if ("x".equals(subtag)) {
+                if ("x".equals(subtag.toLowerCase(Locale.ROOT))) {
                     privateUseExtensionIndex = i;
                 } else if (privateUseExtensionIndex != -1) {
                     // The private use extension must come last.
@@ -2169,7 +2191,7 @@ public final class Locale implements Cloneable, Serializable {
                 return extensionKeyIndex;
             }
 
-            final String key = subtags[extensionKeyIndex];
+            final String key = subtags[extensionKeyIndex].toLowerCase(Locale.ROOT);
             if (extensions.containsKey(key.charAt(0))) {
                 return extensionKeyIndex;
             }

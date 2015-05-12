@@ -1203,4 +1203,38 @@ public class LocaleTest extends junit.framework.TestCase {
             System.setUnchangeableSystemProperty("user.locale", userLocale);
         }
     }
+
+    // http://b/20252611
+    public void testLegacyLocalesWithExtensions() {
+        Locale ja_JP_JP = new Locale("ja", "JP", "JP");
+        assertEquals("ca-japanese", ja_JP_JP.getExtension(Locale.UNICODE_LOCALE_EXTENSION));
+        assertEquals("japanese", ja_JP_JP.getUnicodeLocaleType("ca"));
+
+        Locale th_TH_TH = new Locale("th", "TH", "TH");
+        assertEquals("nu-thai", th_TH_TH.getExtension(Locale.UNICODE_LOCALE_EXTENSION));
+        assertEquals("thai", th_TH_TH.getUnicodeLocaleType("nu"));
+    }
+
+    // http://b/20252611
+    public void testLowerCaseExtensionKeys() {
+        // We must lowercase extension keys in forLanguageTag..
+        Locale ar_EG = Locale.forLanguageTag("ar-EG-U-nu-arab");
+        assertEquals("nu-arab", ar_EG.getExtension(Locale.UNICODE_LOCALE_EXTENSION));
+        assertEquals("ar-EG-u-nu-arab", ar_EG.toLanguageTag());
+
+        // ... and in builders.
+        Locale.Builder b = new Locale.Builder();
+        b.setLanguage("ar");
+        b.setRegion("EG");
+        b.setExtension('U', "nu-arab");
+        assertEquals("ar-EG-u-nu-arab", b.build().toLanguageTag());
+
+        // Corollary : extension keys are case insensitive.
+        b = new Locale.Builder();
+        b.setLanguage("ar");
+        b.setRegion("EG");
+        b.setExtension('U', "nu-arab");
+        b.setExtension('u', "nu-thai");
+        assertEquals("ar-EG-u-nu-thai", b.build().toLanguageTag());
+    }
 }
