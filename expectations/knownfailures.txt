@@ -1509,13 +1509,5 @@
     "libcore.java.util.zip.Zip64FileTest#testZip64Support_totalLargerThan4G",
     "libcore.java.util.zip.Zip64FileTest#testZip64Support_hugeEntry"
   ]
-},
-{
-  description: "ICU bug in formatting of dates that span month boundaries",
-  result: EXEC_FAILED,
-  bug: 20708022,
-  names: [
-    "libcore.icu.DateIntervalFormatTest#testEndOfDayOnLastDayOfMonth"
-  ]
 }
 ]

@@ -75,7 +75,7 @@ public final class DateIntervalFormat {
     if (startMs != endMs && endsAtMidnight &&
         ((flags & DateUtilsBridge.FORMAT_SHOW_TIME) == 0
             || DateUtilsBridge.dayDistance(startCalendar, endCalendar) <= 1)) {
-      endCalendar.roll(Calendar.DAY_OF_MONTH, false);
+      endCalendar.add(Calendar.DAY_OF_MONTH, -1);
     }
 
     String skeleton = DateUtilsBridge.toSkeleton(startCalendar, endCalendar, flags);
