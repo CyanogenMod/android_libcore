@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.crypto.interfaces.DHPrivateKey;
@@ -198,7 +199,6 @@ public class KeyPairGeneratorTest extends TestCase {
         putKeySize("DiffieHellman", 512);
         putKeySize("DiffieHellman", 512+64);
         putKeySize("DiffieHellman", 1024);
-        putKeySize("EC", 192);
         putKeySize("EC", 224);
         putKeySize("EC", 256);
         putKeySize("EC", 384);
@@ -207,10 +207,10 @@ public class KeyPairGeneratorTest extends TestCase {
 
     /** Elliptic Curve Crypto named curves that should be supported. */
     private static final String[] EC_NAMED_CURVES = {
-        // NIST P-192 aka SECG secp192r1 aka ANSI X9.62 prime192v1
-        "secp192r1", "prime192v1",
         // NIST P-256 aka SECG secp256r1 aka ANSI X9.62 prime256v1
         "secp256r1", "prime256v1",
+        // NIST P-521 aka SECG secp521r1
+        "secp521r1",
     };
 
     private void test_KeyPairGenerator(KeyPairGenerator kpg) throws Exception {
@@ -267,7 +267,7 @@ public class KeyPairGeneratorTest extends TestCase {
     }
 
     private void test_Key(KeyPairGenerator kpg, Key k) throws Exception {
-        String expectedAlgorithm = kpg.getAlgorithm().toUpperCase();
+        String expectedAlgorithm = kpg.getAlgorithm().toUpperCase(Locale.ROOT);
         if (StandardNames.IS_RI && expectedAlgorithm.equals("DIFFIEHELLMAN")) {
             expectedAlgorithm = "DH";
         }
