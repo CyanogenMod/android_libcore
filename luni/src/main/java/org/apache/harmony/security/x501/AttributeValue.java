@@ -51,16 +51,16 @@ public final class AttributeValue {
 
     public byte[] bytes; //FIXME remove??? bytes to be encoded
 
-    public boolean hasQE; // raw string contains '"' or '\'
+    public boolean hasQEN; // raw string contains '"', '\' or '\n'
 
     public final String rawString;
 
-    public AttributeValue(String parsedString, boolean hasQorE, ObjectIdentifier oid) {
+    public AttributeValue(String parsedString, boolean mustBeOutputWithQuotes, ObjectIdentifier oid) {
         wasEncoded = false;
 
-        this.hasQE = hasQorE;
+        this.hasQEN = mustBeOutputWithQuotes;
         this.rawString = parsedString;
-        this.escapedString = makeEscaped(rawString); // overwrites hasQE
+        this.escapedString = makeEscaped(rawString); // overwrites hasQEN
 
         int tag;
         if (oid == AttributeTypeAndValue.EMAILADDRESS || oid == AttributeTypeAndValue.DC) {
@@ -180,9 +180,9 @@ public final class AttributeValue {
         return (Collection<?>) new ASN1SetOf(type).decode(encoded);
     }
 
-    public void appendQEString(StringBuilder sb) {
+    public void appendQuotedString(StringBuilder sb) {
         sb.append('"');
-        if (hasQE) {
+        if (hasQEN) {
             char c;
             for (int i = 0; i < rawString.length(); i++) {
                 c = rawString.charAt(i);
@@ -247,11 +247,16 @@ public final class AttributeValue {
 
             case '"':
             case '\\':
-                hasQE = true;
                 buf.append('\\');
                 buf.append(ch);
+                hasQEN = true;
                 break;
-
+            case '\n':
+                // New line is treated specially in other contexts (that's we need to set hasQEN)
+                // but shouldn't be escaped (see rfc2253, rfc 1779 and RI).
+                buf.append(ch);
+                hasQEN = true;
+                break;
             case ',':
             case '+':
             case '<':
