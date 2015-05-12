@@ -791,7 +791,7 @@ public class LocaleTest extends junit.framework.TestCase {
 
     public void test_setLanguageTag_malformedTags() {
         Locale l = fromLanguageTag("a", false);
-        assertEquals("und", l.getLanguage());
+        assertEquals("", l.getLanguage());
         assertEquals("", l.getCountry());
         assertEquals("", l.getVariant());
         assertEquals("", l.getScript());
@@ -994,8 +994,7 @@ public class LocaleTest extends junit.framework.TestCase {
 
         // Empty builder.
         Locale l = b.build();
-        // TODO: Fix this. We should return "und" and not NULL.
-        // assertEquals("und", l.toLanguageTag());
+        assertEquals("und", l.toLanguageTag());
 
         // Only language.
         b = new Locale.Builder();
@@ -1134,7 +1133,7 @@ public class LocaleTest extends junit.framework.TestCase {
 
         // Irregular grandfathered locale.
         Locale enochian = Locale.forLanguageTag("i-enochian");
-        assertEquals("und", enochian.getLanguage());
+        assertEquals("", enochian.getLanguage());
         assertEquals("i-enochian", enochian.getExtension(Locale.PRIVATE_USE_EXTENSION));
         assertEquals("", enochian.getCountry());
         assertEquals("", enochian.getScript());
@@ -1195,7 +1194,7 @@ public class LocaleTest extends junit.framework.TestCase {
             System.setUnchangeableSystemProperty("user.locale", "dexx-Latn-DE");
 
             l = Locale.getDefaultLocaleFromSystemProperties();
-            assertEquals("und", l.getLanguage());
+            assertEquals("", l.getLanguage());
             assertEquals("DE", l.getCountry());
         } finally {
             System.setUnchangeableSystemProperty("user.language", userLanguage);
