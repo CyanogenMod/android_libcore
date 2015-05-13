@@ -31,6 +31,11 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.DSAPrivateKeySpec;
 import java.security.spec.DSAPublicKeySpec;
+import java.security.spec.ECFieldFp;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPoint;
+import java.security.spec.ECPublicKeySpec;
+import java.security.spec.EllipticCurve;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
@@ -1663,5 +1668,44 @@ public class SignatureTest extends TestCase {
         }
         es.shutdown();
         assertTrue("Test should not timeout", es.awaitTermination(1, TimeUnit.MINUTES));
+    }
+
+    public void testArbitraryCurve() throws Exception {
+        // These are the parameters for the BitCoin curve (secp256k1). See
+        // https://en.bitcoin.it/wiki/Secp256k1.
+        final BigInteger p = new BigInteger("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F", 16);
+        final BigInteger a = BigInteger.valueOf(0);
+        final BigInteger b = BigInteger.valueOf(7);
+        final BigInteger x = new BigInteger("79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798", 16);
+        final BigInteger y = new BigInteger("483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8", 16);
+        final BigInteger order = new BigInteger("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141", 16);
+        final int cofactor = 1;
+
+        final ECParameterSpec spec = new ECParameterSpec(new EllipticCurve(new ECFieldFp(p), a, b), new ECPoint(x, y), order, cofactor);
+        final KeyFactory factory = KeyFactory.getInstance("EC");
+
+        // $ openssl ecparam -name secp256k1 -genkey > key.pem
+        // $ openssl ec -text -noout < key.pem
+        final BigInteger Px = new BigInteger("2d45572747a625db5fd23b30f97044a682f2d42d31959295043c1fa0034c8ed3", 16);
+        final BigInteger Py = new BigInteger("4d330f52e4bba00145a331041c8bbcf300c4fbfdf3d63d8de7608155b2793808", 16);
+
+        final ECPublicKeySpec keySpec = new ECPublicKeySpec(new ECPoint(Px, Py), spec);
+        final PublicKey pub = factory.generatePublic(keySpec);
+
+        // $ echo -n "Satoshi Nakamoto" > signed
+        // $ openssl dgst -ecdsa-with-SHA1 -sign key.pem -out sig signed
+        final byte[] SIGNATURE = hexToBytes("304402205b41ece6dcc1c5bfcfdae74658d99c08c5e783f3926c11ecc1a8bea5d95cdf27022061a7d5fc687287e2e02dd7c6723e2e27fe0555f789590a37e96b1bb0355b4df0");
+
+        Signature ecdsaVerify = Signature.getInstance("SHA1withECDSA");
+        ecdsaVerify.initVerify(pub);
+        ecdsaVerify.update("Satoshi Nakamoto".getBytes("UTF-8"));
+        boolean result = ecdsaVerify.verify(SIGNATURE);
+        assertEquals(true, result);
+
+        ecdsaVerify = Signature.getInstance("SHA1withECDSA");
+        ecdsaVerify.initVerify(pub);
+        ecdsaVerify.update("Not Satoshi Nakamoto".getBytes("UTF-8"));
+        result = ecdsaVerify.verify(SIGNATURE);
+        assertEquals(false, result);
     }
 }
