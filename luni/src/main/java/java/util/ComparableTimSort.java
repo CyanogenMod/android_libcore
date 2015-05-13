@@ -94,7 +94,7 @@ class ComparableTimSort {
     private final int[] runLen;
 
     /**
-     * Asserts have been placed in if-statements for performace. To enable them,
+     * Asserts have been placed in if-statements for performance. To enable them,
      * set this field to true and enable them in VM with a command line flag.
      * If you modify this class, please do test the asserts!
      */
@@ -363,11 +363,28 @@ class ComparableTimSort {
      */
     private void mergeCollapse() {
         while (stackSize > 1) {
-            int n = stackSize - 2;
+            final int n = stackSize - 2;
             if (n > 0 && runLen[n-1] <= runLen[n] + runLen[n+1]) {
-                if (runLen[n - 1] < runLen[n + 1])
-                    n--;
-                mergeAt(n);
+                // Merge the smaller of runLen[n-1] or runLen[n + 1] with runLen[n].
+                if (runLen[n - 1] < runLen[n + 1]) {
+                    // runLen[n-1] is smallest. Merge runLen[n] into runLen[n - 1], leaving
+                    // runLen[n+1] as the new runLen[n].
+                    mergeAt(n - 1);
+                    // n is now stackSize - 1, the top of the stack.
+                    // Fix for http://b/19493779
+                    // Because we modified runLen[n - 1] we might have affected invariant 1 as far
+                    // back as runLen[n - 3]. Check we did not violate it.
+                    if (n > 2 && runLen[n-3] <= runLen[n-2] + runLen[n-1]) {
+                        // Avoid leaving invariant 1 still violated on the next loop by also merging
+                        // runLen[n] into runLen[n - 1].
+                        mergeAt(n - 1);
+                        // Now the last three elements in the stack will again be the only elements
+                        // that might break the invariant and we can loop again safely.
+                    }
+                } else {
+                    // runLen[n+1] is smallest. Merge runLen[n + 1] into runLen[n].
+                    mergeAt(n);
+                }
             } else if (runLen[n] <= runLen[n + 1]) {
                 mergeAt(n);
             } else {
