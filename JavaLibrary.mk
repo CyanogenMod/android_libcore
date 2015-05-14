@@ -116,16 +116,6 @@ LOCAL_REQUIRED_MODULES := tzdata
 LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
 include $(BUILD_JAVA_LIBRARY)
 
-# Path to the ICU4C data files in the Android device file system:
-icu4c_data := /system/usr/icu
-# TODO: It's quite hideous that this double-slash between icu4j and main is required.
-# It's because we provide a variable substition of the make-rule generated jar command
-# to substitute a processed ICUProperties.config file in place of the original.
-#
-# We can avoid this by filtering out ICUConfig.properties from our list of resources.
-icu4j_config_root := $(LOCAL_PATH)/../external/icu/icu4j//main/classes/core/src
-include external/icu/icu4j/adjust_icudt_path.mk
-
 ifeq ($(LIBCORE_SKIP_TESTS),)
 # Make the core-tests library.
 include $(CLEAR_VARS)
