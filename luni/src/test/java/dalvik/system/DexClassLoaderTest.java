@@ -16,6 +16,7 @@
 
 package dalvik.system;
 
+import java.io.FilenameFilter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.io.File;
@@ -135,12 +136,17 @@ public class DexClassLoaderTest extends TestCase {
             return;
         }
 
-        InputStream in =
-            loader.getResourceAsStream(PACKAGE_PATH + resourceName);
-        FileOutputStream out = new FileOutputStream(destination);
-        Streams.copy(in, out);
-        in.close();
-        out.close();
+        InputStream in = loader.getResourceAsStream(PACKAGE_PATH + resourceName);
+        if (in == null) {
+            throw new IllegalStateException("Unable to find resource: " + PACKAGE_PATH + resourceName);
+        }
+
+
+        try (FileOutputStream out = new FileOutputStream(destination)) {
+            Streams.copy(in, out);
+        } finally {
+            in.close();
+        }
     }
 
     /**
@@ -176,6 +182,13 @@ public class DexClassLoaderTest extends TestCase {
      * file or a dex file as the source of the code
      */
 
+    static final FilenameFilter DEX_FILE_NAME_FILTER = new FilenameFilter() {
+        @Override
+        public boolean accept(File file, String s) {
+            return s.endsWith(".dex");
+        }
+    };
+
     /**
      * Just a trivial test of construction. This one merely makes
      * sure that a valid construction doesn't fail. It doesn't try
@@ -186,7 +199,7 @@ public class DexClassLoaderTest extends TestCase {
         createInstance(config);
 
         int expectedFiles = config.expectedFiles;
-        int actualFiles = config.optimizedDir.listFiles().length;
+        int actualFiles = config.optimizedDir.listFiles(DEX_FILE_NAME_FILTER).length;
 
         assertEquals(expectedFiles, actualFiles);
     }
