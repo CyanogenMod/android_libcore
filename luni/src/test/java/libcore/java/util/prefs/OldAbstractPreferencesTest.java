@@ -37,6 +37,12 @@ public final class OldAbstractPreferencesTest extends TestCase {
 
     static final String nodeName = "mock";
 
+    /** Timeout used for Object.wait when no action is expected. */
+    static final long NO_ACTION_EXPECTED_TIMEOUT = 200;
+
+    /** Timeout used for Object.wait when an action is expected. */
+    static final long ACTION_EXPECTED_TIMEOUT = 0; // Wait indefinitely
+
     private PreferencesFactory defaultFactory;
 
     AbstractPreferences pref;
@@ -885,7 +891,9 @@ public final class OldAbstractPreferencesTest extends TestCase {
         }
 
         public synchronized void assertChanged(boolean expected) throws InterruptedException {
-            wait(100);
+            if (!flagChange) {
+              wait(expected ? ACTION_EXPECTED_TIMEOUT : NO_ACTION_EXPECTED_TIMEOUT);
+            }
             assertEquals(expected, flagChange);
             flagChange = false;
         }
@@ -933,12 +941,16 @@ public final class OldAbstractPreferencesTest extends TestCase {
         }
 
         public synchronized void assertAdded(boolean expected) throws InterruptedException {
-            wait(100);
+            if (!flagAdded) {
+              wait(expected ? ACTION_EXPECTED_TIMEOUT : NO_ACTION_EXPECTED_TIMEOUT);
+            }
             assertEquals(expected, flagAdded);
         }
 
         public synchronized void assertRemoved(boolean expected) throws InterruptedException {
-            wait(100);
+            if (!flagRemoved) {
+              wait(expected ? ACTION_EXPECTED_TIMEOUT : NO_ACTION_EXPECTED_TIMEOUT);
+            }
             assertEquals(expected, flagRemoved);
         }
     }
