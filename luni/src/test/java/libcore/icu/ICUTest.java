@@ -260,5 +260,8 @@ public class ICUTest extends junit.framework.TestCase {
     String icu4cTzVersion = ICU.getTZDataVersion();
     String zoneInfoTzVersion = ZoneInfoDB.getInstance().getVersion();
     assertEquals(icu4cTzVersion, zoneInfoTzVersion);
+
+    String icu4jTzVersion = android.icu.util.TimeZone.getTZDataVersion();
+    assertEquals(icu4jTzVersion, zoneInfoTzVersion);
   }
 }
