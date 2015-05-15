@@ -152,7 +152,8 @@ public final class Engine {
     }
 
     /**
-     * Returns a list of all possible matches for a given algorithm.
+     * Returns a list of all possible matches for a given algorithm. Returns
+     * {@code null} if no matches were found.
      */
     public ArrayList<Provider.Service> getServices(String algorithm) {
         int newCacheVersion = Services.getCacheVersion();
@@ -163,8 +164,7 @@ public final class Engine {
                 && newCacheVersion == cacheEntry.cacheVersion) {
             return cacheEntry.services;
         }
-        String name = this.serviceName + "." + algoUC;
-        ArrayList<Provider.Service> services = Services.getServices(name);
+        ArrayList<Provider.Service> services = Services.getServices(serviceName, algoUC);
         this.serviceCache = new ServiceCacheEntry(algoUC, newCacheVersion, services);
         return services;
     }
