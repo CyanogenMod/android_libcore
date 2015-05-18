@@ -311,25 +311,29 @@ public final class StandardNames extends Assert {
         // Only available with the SunPKCS11-NSS provider,
         // which seems to be enabled in OpenJDK 6 but not Oracle Java 6
         if (Security.getProvider("SunPKCS11-NSS") != null) {
-            provide("AlgorithmParameters", "EC");
             provide("Cipher", "AES/CBC/NOPADDING");
             provide("Cipher", "DES/CBC/NOPADDING");
             provide("Cipher", "DESEDE/CBC/NOPADDING");
             provide("Cipher", "RSA/ECB/PKCS1PADDING");
             provide("KeyAgreement", "DH");
-            provide("KeyAgreement", "ECDH");
             provide("KeyFactory", "DH");
-            provide("KeyFactory", "EC");
             provide("KeyPairGenerator", "DH");
-            provide("KeyPairGenerator", "EC");
             provide("KeyStore", "PKCS11");
             provide("MessageDigest", "SHA1");
             provide("SecretKeyFactory", "AES");
             provide("SecretKeyFactory", "ARCFOUR");
             provide("SecureRandom", "PKCS11");
             provide("Signature", "DSA");
-            provide("Signature", "NONEWITHECDSA");
             provide("Signature", "RAWDSA");
+        }
+
+        if (Security.getProvider("SunPKCS11-NSS") != null ||
+                Security.getProvider("SunEC") != null) {
+            provide("AlgorithmParameters", "EC");
+            provide("KeyAgreement", "ECDH");
+            provide("KeyFactory", "EC");
+            provide("KeyPairGenerator", "EC");
+            provide("Signature", "NONEWITHECDSA");
             provide("Signature", "SHA1WITHECDSA");
             provide("Signature", "SHA224WITHECDSA");
             provide("Signature", "SHA256WITHECDSA");
