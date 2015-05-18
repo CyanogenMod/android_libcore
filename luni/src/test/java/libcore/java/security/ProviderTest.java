@@ -549,7 +549,7 @@ public class ProviderTest extends TestCase {
 
     public void testProvider_removeProvider_Success() throws Exception {
         MockProvider provider = new MockProvider("MockProvider");
-        assertNotNull(Security.getProvider(provider.getName()));
+        assertNull(Security.getProvider(provider.getName()));
         Security.addProvider(provider);
         assertNotNull(Security.getProvider(provider.getName()));
         Security.removeProvider(provider.getName());
