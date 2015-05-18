@@ -1509,5 +1509,13 @@
     "libcore.java.util.zip.Zip64FileTest#testZip64Support_totalLargerThan4G",
     "libcore.java.util.zip.Zip64FileTest#testZip64Support_hugeEntry"
   ]
+},
+{
+  description: "OsTest.test_PacketSocketAddress needs CAP_NET_RAW",
+  bug: 19764047,
+  result: EXEC_FAILED,
+  names: [
+    "libcore.io.OsTest#test_PacketSocketAddress"
+  ]
 }
 ]
