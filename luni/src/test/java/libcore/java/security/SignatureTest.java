@@ -393,9 +393,14 @@ public class SignatureTest extends TestCase {
         return data;
     }
 
-    // http://code.google.com/p/android/issues/detail?id=18566
-    // http://b/5038554
-    public void test18566() throws Exception {
+    /**
+     * This should actually fail because the ASN.1 encoding is incorrect. It is
+     * missing the NULL in the AlgorithmIdentifier field.
+     * <p>
+     * http://code.google.com/p/android/issues/detail?id=18566 <br/>
+     * http://b/5038554
+     */
+    public void test18566_AlgorithmOid_MissingNull_Failure() throws Exception {
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(PK_BYTES);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PublicKey pk = keyFactory.generatePublic(keySpec);
@@ -403,7 +408,7 @@ public class SignatureTest extends TestCase {
         Signature sig = Signature.getInstance("SHA256withRSA");
         sig.initVerify(pk);
         sig.update(CONTENT);
-        assertTrue(sig.verify(SIGNATURE));
+        assertFalse(sig.verify(SIGNATURE));
     }
 
     /*
