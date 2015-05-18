@@ -2217,7 +2217,7 @@ public class ArraysTest extends junit.framework.TestCase {
                 long[] b = new long[a.length];
 
                 for (int i = 0; i < a.length; i++) {
-                    b[i] = (int) a[i];
+                    b[i] = (long) a[i];
                 }
                 return b;
             }
