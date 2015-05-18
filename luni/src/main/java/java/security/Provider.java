@@ -368,8 +368,8 @@ public abstract class Provider extends Properties {
     }
 
     /**
-     * Get the service of the specified type
-     *
+     * Get the service of the specified {@code type} (e.g. "SecureRandom",
+     * "Signature").
      */
     synchronized Provider.Service getService(String type) {
         updatePropertyServiceTable();
