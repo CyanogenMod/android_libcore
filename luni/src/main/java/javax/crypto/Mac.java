@@ -274,6 +274,18 @@ public class Mac implements Cloneable {
     }
 
     /**
+     * Returns the {@code MacSpi} backing this {@code Mac} or {@code null} if no {@code MacSpi} is
+     * backing this {@code Mac}.
+     *
+     * @hide
+     */
+    public MacSpi getCurrentSpi() {
+        synchronized (initLock) {
+            return spiImpl;
+        }
+    }
+
+    /**
      * Returns the length of this MAC (in bytes).
      *
      * @return the length of this MAC (in bytes).
