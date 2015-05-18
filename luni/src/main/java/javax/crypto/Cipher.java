@@ -366,10 +366,8 @@ public class Cipher {
 
     /**
      * Convenience call when the Key is not available.
-     *
-     * @hide
      */
-    public CipherSpi getSpi() {
+    private CipherSpi getSpi() {
         return getSpi(null);
     }
 
