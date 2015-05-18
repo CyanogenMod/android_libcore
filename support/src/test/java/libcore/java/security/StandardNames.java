@@ -172,7 +172,7 @@ public final class StandardNames extends Assert {
         provide("CertificateFactory", "X.509");
         // TODO: provideCipherModes and provideCipherPaddings for other Ciphers
         provide("Cipher", "AES");
-        provideCipherModes("AES", new String[] { "CBC", "CFB", "CTR", "CTS", "ECB", "OFB" });
+        provideCipherModes("AES", new String[] { "CBC", "CFB", "CTR", "CTS", "ECB", "GCM", "OFB" });
         provideCipherPaddings("AES", new String[] { "NoPadding", "PKCS5Padding" });
         provide("Cipher", "AESWrap");
         provide("Cipher", "ARCFOUR");
@@ -180,7 +180,6 @@ public final class StandardNames extends Assert {
         provide("Cipher", "DES");
         provide("Cipher", "DESede");
         provide("Cipher", "DESedeWrap");
-        provide("Cipher", "GCM");
         provide("Cipher", "PBEWithMD5AndDES");
         provide("Cipher", "PBEWithMD5AndTripleDES");
         provide("Cipher", "PBEWithSHA1AndDESede");
@@ -479,6 +478,7 @@ public final class StandardNames extends Assert {
             provide("Cipher", "AES/ECB/NOPADDING");
             provide("Cipher", "AES/ECB/PKCS5PADDING");
             provide("Cipher", "AES/ECB/PKCS7PADDING");
+            provide("Cipher", "AES/GCM/NOPADDING");
             provide("Cipher", "AES/OFB/NOPADDING");
             provide("Cipher", "AES/OFB/PKCS5PADDING");
             provide("Cipher", "AES/OFB/PKCS7PADDING");
