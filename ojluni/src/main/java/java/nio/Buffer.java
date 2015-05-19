@@ -242,7 +242,7 @@ public abstract class Buffer {
      */
     public final Buffer position(int newPosition) {
         if ((newPosition > limit) || (newPosition < 0))
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Bad position " + newPosition + "/" + limit);
         position = newPosition;
         if (mark > position) mark = -1;
         return this;
