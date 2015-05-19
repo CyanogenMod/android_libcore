@@ -196,12 +196,14 @@ class HttpsURLConnection extends HttpURLConnection
      * updated for another other type of <code>HostnameVerifier</code>
      * that are created.
      */
+    /* ----- BEGIN android -----
     private static class DefaultHostnameVerifier
             implements HostnameVerifier {
         public boolean verify(String hostname, SSLSession session) {
             return false;
         }
     }
+    ----- END android ----- */
 
     /**
      * The <code>hostnameVerifier</code> for this object.

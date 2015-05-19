@@ -44,7 +44,7 @@ import java.security.*;
  */
 public abstract class SSLServerSocketFactory extends ServerSocketFactory
 {
-    private static SSLServerSocketFactory theFactory;
+    private static SSLServerSocketFactory defaultServerSocketFactory;
 
     private static boolean propertyChecked;
 
@@ -76,8 +76,8 @@ public abstract class SSLServerSocketFactory extends ServerSocketFactory
      * @see SSLContext#getDefault
      */
     public static synchronized ServerSocketFactory getDefault() {
-        if (theFactory != null) {
-            return theFactory;
+        if (defaultServerSocketFactory != null) {
+            return defaultServerSocketFactory;
         }
 
         if (propertyChecked == false) {
@@ -99,7 +99,7 @@ public abstract class SSLServerSocketFactory extends ServerSocketFactory
                     log("class " + clsName + " is loaded");
                     SSLServerSocketFactory fac = (SSLServerSocketFactory)cls.newInstance();
                     log("instantiated an instance of class " + clsName);
-                    theFactory = fac;
+                    defaultServerSocketFactory = fac;
                     return fac;
                 } catch (Exception e) {
                     log("SSLServerSocketFactory instantiation failed: " + e);
@@ -108,7 +108,7 @@ public abstract class SSLServerSocketFactory extends ServerSocketFactory
                     // is thrown during the initialization of ss.ServerSocketFactory.provider.
                     //
                     // theFactory = new DefaultSSLServerSocketFactory(e);
-                    // return theFactory;
+                    // return defaultServerSocketFactory;
                 }
             }
         }

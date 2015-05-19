@@ -43,7 +43,7 @@ import sun.security.action.GetPropertyAction;
  */
 public abstract class SSLSocketFactory extends SocketFactory
 {
-    private static SSLSocketFactory theFactory;
+    private static SSLSocketFactory defaultSocketFactory;
 
     private static int lastVersion = -1;
 
@@ -86,12 +86,12 @@ public abstract class SSLSocketFactory extends SocketFactory
      */
     public static synchronized SocketFactory getDefault() {
         // Android-changed: Use security version instead of propertyChecked.
-        if (theFactory != null && lastVersion == Security.getVersion()) {
-            return theFactory;
+        if (defaultSocketFactory != null && lastVersion == Security.getVersion()) {
+            return defaultSocketFactory;
         }
 
         lastVersion = Security.getVersion();
-        theFactory = null;
+        defaultSocketFactory = null;
 
         String clsName = getSecurityProperty("ssl.SocketFactory.provider");
         if (clsName != null) {
@@ -112,31 +112,30 @@ public abstract class SSLSocketFactory extends SocketFactory
                     }
                 }
                 log("class " + clsName + " is loaded");
-                theFactory = (SSLSocketFactory)cls.newInstance();
+                defaultSocketFactory = (SSLSocketFactory)cls.newInstance();
                 log("instantiated an instance of class " + clsName);
-                if (theFactory != null) {
-                    return theFactory;
+                if (defaultSocketFactory != null) {
+                    return defaultSocketFactory;
                 }
             } catch (Exception e) {
                 log("SSLSocketFactory instantiation failed: " + e.toString());
             }
         }
 
-
         // Android-changed: Allow for {@code null} SSLContext.getDefault.
         try {
             SSLContext context = SSLContext.getDefault();
             if (context != null) {
-                theFactory = context.getSocketFactory();
+                defaultSocketFactory = context.getSocketFactory();
             }
         } catch (NoSuchAlgorithmException e) {
         }
 
-        if (theFactory == null) {
-            theFactory = new DefaultSSLSocketFactory(new IllegalStateException("No factory found."));
+        if (defaultSocketFactory == null) {
+            defaultSocketFactory = new DefaultSSLSocketFactory(new IllegalStateException("No factory found."));
         }
 
-        return theFactory;
+        return defaultSocketFactory;
     }
 
     static String getSecurityProperty(final String name) {
