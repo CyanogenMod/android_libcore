@@ -266,10 +266,8 @@ public class Mac implements Cloneable {
 
     /**
      * Convenience call when the Key is not available.
-     *
-     * @hide
      */
-    public MacSpi getSpi() {
+    private MacSpi getSpi() {
         return getSpi(null);
     }
 
