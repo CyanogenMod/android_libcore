@@ -165,6 +165,9 @@ JVM_MaxMemory(void);
 JNIEXPORT jint JNICALL
 JVM_ActiveProcessorCount(void);
 
+JNIEXPORT jstring JVM_NativeLoad(JNIEnv* env, jstring javaFilename, jobject javaLoader,
+                                 jstring javaLdLibraryPath);
+
 JNIEXPORT void * JNICALL
 JVM_LoadLibrary(const char *name);
 
@@ -226,7 +229,7 @@ JVM_DisableCompiler(JNIEnv *env, jclass compCls);
  * java.lang.Thread
  */
 JNIEXPORT void JNICALL
-JVM_StartThread(JNIEnv *env, jobject thread);
+JVM_StartThread(JNIEnv *env, jobject thread, jlong stack_size, jboolean daemon);
 
 JNIEXPORT void JNICALL
 JVM_StopThread(JNIEnv *env, jobject thread, jobject exception);
@@ -247,7 +250,7 @@ JNIEXPORT void JNICALL
 JVM_Yield(JNIEnv *env, jclass threadClass);
 
 JNIEXPORT void JNICALL
-JVM_Sleep(JNIEnv *env, jclass threadClass, jlong millis);
+JVM_Sleep(JNIEnv *env, jclass threadClass, jobject java_object, jlong millis);
 
 JNIEXPORT jobject JNICALL
 JVM_CurrentThread(JNIEnv *env, jclass threadClass);

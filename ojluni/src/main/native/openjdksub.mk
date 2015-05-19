@@ -46,6 +46,13 @@ LOCAL_SRC_FILES := \
     Double.c \
     String.c \
     StrictMath.c \
+    ProcessEnvironment_md.c \
+    Signal.c \
+    System.c \
+    Runtime.c \
+    NativeSignalHandler.c \
+    Shutdown.c \
+    UNIXProcess_md.c \
     Register.cpp \
 
 LOCAL_C_INCLUDES += \

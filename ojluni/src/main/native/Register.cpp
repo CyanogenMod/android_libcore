@@ -55,7 +55,14 @@ extern void register_java_lang_Float(JNIEnv*);
 extern void register_java_lang_Double(JNIEnv*);
 extern void register_java_lang_String(JNIEnv*);
 extern void register_java_lang_StrictMath(JNIEnv*);
-//extern void register_java_lang_Throwable(JNIEnv*);
+extern void register_java_lang_Runtime(JNIEnv*);
+extern void register_java_lang_System(JNIEnv*);
+extern void register_java_lang_Thread(JNIEnv*);
+extern void register_java_lang_ProcessEnvironment(JNIEnv*);
+extern void register_sun_misc_Signal(JNIEnv*);
+extern void register_sun_misc_NativeSignalHandler(JNIEnv*);
+extern void register_java_lang_Shutdown(JNIEnv*);
+extern void register_java_lang_UNIXProcess(JNIEnv*);
 
 extern jint net_JNI_OnLoad(JavaVM*, void*);
 
@@ -100,7 +107,13 @@ jint JNI_OnLoad(JavaVM* vm, void*) { JNIEnv* env;
     register_java_lang_Double(env);
     register_java_lang_String(env);
     register_java_lang_StrictMath(env);
- //   register_java_lang_Throwable(env);
+    register_java_lang_ProcessEnvironment(env);
+    register_sun_misc_Signal(env);
+    register_java_lang_Runtime(env);
+    register_java_lang_System(env);
+    register_sun_misc_NativeSignalHandler(env);
+    register_java_lang_Shutdown(env);
+    register_java_lang_UNIXProcess(env);
     net_JNI_OnLoad(vm, NULL);
     return JNI_VERSION_1_6;
 }

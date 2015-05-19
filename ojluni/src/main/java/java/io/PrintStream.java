@@ -69,6 +69,8 @@ public class PrintStream extends FilterOutputStream
     private BufferedWriter textOut;
     private OutputStreamWriter charOut;
 
+    private Charset charset;
+
     /**
      * requireNonNull is explicitly declared here so as not to create an extra
      * dependency on java.util.Objects.requireNonNull. PrintStream is loaded
@@ -101,15 +103,11 @@ public class PrintStream extends FilterOutputStream
     private PrintStream(boolean autoFlush, OutputStream out) {
         super(out);
         this.autoFlush = autoFlush;
-        this.charOut = new OutputStreamWriter(this);
-        this.textOut = new BufferedWriter(charOut);
     }
 
     private PrintStream(boolean autoFlush, OutputStream out, Charset charset) {
         super(out);
         this.autoFlush = autoFlush;
-        this.charOut = new OutputStreamWriter(this, charset);
-        this.textOut = new BufferedWriter(charOut);
     }
 
     /* Variant of the private constructor so that the given charset name
@@ -345,6 +343,16 @@ public class PrintStream extends FilterOutputStream
 
     private boolean closing = false; /* To avoid recursive closing */
 
+    // Android-changed: Lazily initialize textOut.
+    private BufferedWriter getTextOut() {
+        if (textOut == null) {
+            charOut = charset != null ? new OutputStreamWriter(this, charset) :
+                    new OutputStreamWriter(this);
+            textOut = new BufferedWriter(charOut);
+        }
+        return textOut;
+    }
+
     /**
      * Closes the stream.  This is done by flushing the stream and then closing
      * the underlying output stream.
@@ -356,7 +364,10 @@ public class PrintStream extends FilterOutputStream
             if (! closing) {
                 closing = true;
                 try {
-                    textOut.close();
+                    // Android-changed: Lazily initialized.
+                    if (textOut != null) {
+                        textOut.close();
+                    }
                     out.close();
                 }
                 catch (IOException x) {
@@ -500,6 +511,8 @@ public class PrintStream extends FilterOutputStream
         try {
             synchronized (this) {
                 ensureOpen();
+                // Android-changed: Lazily initialized.
+                BufferedWriter textOut = getTextOut();
                 textOut.write(buf);
                 textOut.flushBuffer();
                 charOut.flushBuffer();
@@ -522,6 +535,8 @@ public class PrintStream extends FilterOutputStream
         try {
             synchronized (this) {
                 ensureOpen();
+                // Android-changed: Lazily initialized.
+                BufferedWriter textOut = getTextOut();
                 textOut.write(s);
                 textOut.flushBuffer();
                 charOut.flushBuffer();
@@ -541,6 +556,8 @@ public class PrintStream extends FilterOutputStream
         try {
             synchronized (this) {
                 ensureOpen();
+                // Android-changed: Lazily initialized.
+                BufferedWriter textOut = getTextOut();
                 textOut.newLine();
                 textOut.flushBuffer();
                 charOut.flushBuffer();

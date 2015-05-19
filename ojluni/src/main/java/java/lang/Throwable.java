@@ -118,7 +118,7 @@ public class Throwable implements Serializable {
     /**
      * Native code saves some indication of the stack backtrace in this slot.
      */
-    private transient Object backtrace;
+    private transient volatile Object backtrace;
 
     /**
      * Specific details about the Throwable.  For example, for
@@ -152,11 +152,6 @@ public class Throwable implements Serializable {
         public static final StackTraceElement[] STACK_TRACE_SENTINEL =
             new StackTraceElement[] {STACK_TRACE_ELEMENT_SENTINEL};
     }
-
-    /**
-     * A shared value for an empty stack.
-     */
-    private static final StackTraceElement[] UNASSIGNED_STACK = new StackTraceElement[0];
 
     /*
      * To allow Throwable objects to be made immutable and safely
@@ -207,12 +202,7 @@ public class Throwable implements Serializable {
      * @serial
      * @since 1.4
      */
-    private StackTraceElement[] stackTrace = UNASSIGNED_STACK;
-
-    // Setting this static field introduces an acceptable
-    // initialization dependency on a few java.util classes.
-    private static final List<Throwable> SUPPRESSED_SENTINEL =
-        Collections.unmodifiableList(new ArrayList<Throwable>(0));
+    private StackTraceElement[] stackTrace = new StackTraceElement[0];
 
     /**
      * The list of suppressed exceptions, as returned by {@link
@@ -224,7 +214,7 @@ public class Throwable implements Serializable {
      * @serial
      * @since 1.7
      */
-    private List<Throwable> suppressedExceptions = SUPPRESSED_SENTINEL;
+    private List<Throwable> suppressedExceptions = Collections.emptyList();
 
     /** Message for trying to suppress a null exception. */
     private static final String NULL_CAUSE_MESSAGE = "Cannot suppress a null exception.";
@@ -677,7 +667,6 @@ public class Throwable implements Serializable {
                                          String caption,
                                          String prefix,
                                          Set<Throwable> dejaVu) {
-        assert Thread.holdsLock(s.lock());
         if (dejaVu.contains(this)) {
             s.println("\t[CIRCULAR REFERENCE:" + this + "]");
         } else {
@@ -780,13 +769,13 @@ public class Throwable implements Serializable {
     public synchronized Throwable fillInStackTrace() {
         if (stackTrace != null ||
             backtrace != null /* Out of protocol state */ ) {
-            fillInStackTrace(0);
-            stackTrace = UNASSIGNED_STACK;
+            backtrace = nativeFillInStackTrace();
+            stackTrace = new StackTraceElement[0];
         }
         return this;
     }
 
-    private native Throwable fillInStackTrace(int dummy);
+    private static native Object nativeFillInStackTrace();
 
     /**
      * Provides programmatic access to the stack trace information printed by
@@ -819,14 +808,12 @@ public class Throwable implements Serializable {
     private synchronized StackTraceElement[] getOurStackTrace() {
         // Initialize stack trace field with information from
         // backtrace if this is the first call to this method
-        if (stackTrace == UNASSIGNED_STACK ||
+        if (stackTrace.length == 0 ||
             (stackTrace == null && backtrace != null) /* Out of protocol state */) {
-            int depth = getStackTraceDepth();
-            stackTrace = new StackTraceElement[depth];
-            for (int i=0; i < depth; i++)
-                stackTrace[i] = getStackTraceElement(i);
+             stackTrace = nativeGetStackTrace(backtrace);
+             backtrace = null;
         } else if (stackTrace == null) {
-            return UNASSIGNED_STACK;
+            return new StackTraceElement[0];
         }
         return stackTrace;
     }
@@ -876,14 +863,6 @@ public class Throwable implements Serializable {
     }
 
     /**
-     * Returns the number of elements in the stack trace (or 0 if the stack
-     * trace is unavailable).
-     *
-     * package-protection for use by SharedSecrets.
-     */
-    native int getStackTraceDepth();
-
-    /**
      * Returns the specified element of the stack trace.
      *
      * package-protection for use by SharedSecrets.
@@ -892,7 +871,8 @@ public class Throwable implements Serializable {
      * @throws IndexOutOfBoundsException if {@code index < 0 ||
      *         index >= getStackTraceDepth() }
      */
-    native StackTraceElement getStackTraceElement(int index);
+    private static native StackTraceElement[] nativeGetStackTrace(Object stackState);
+
 
     /**
      * Reads a {@code Throwable} from a stream, enforcing
@@ -916,7 +896,7 @@ public class Throwable implements Serializable {
             List<Throwable> suppressed = null;
             if (suppressedExceptions.isEmpty()) {
                 // Use the sentinel for a zero-length list
-                suppressed = SUPPRESSED_SENTINEL;
+                suppressed = Collections.emptyList();
             } else { // Copy Throwables to new list
                 suppressed = new ArrayList<>(1);
                 for (Throwable t : suppressedExceptions) {
@@ -943,7 +923,6 @@ public class Throwable implements Serializable {
          */
         if (stackTrace != null) {
             if (stackTrace.length == 0) {
-                stackTrace = UNASSIGNED_STACK.clone();
             }  else if (stackTrace.length == 1 &&
                         // Check for the marker of an immutable stack trace
                         SentinelHolder.STACK_TRACE_ELEMENT_SENTINEL.equals(stackTrace[0])) {
@@ -959,7 +938,7 @@ public class Throwable implements Serializable {
             // from an exception serialized without that field in
             // older JDK releases; treat such exceptions as having
             // empty stack traces.
-            stackTrace = UNASSIGNED_STACK.clone();
+            stackTrace = new StackTraceElement[0];
         }
     }
 
@@ -1048,13 +1027,13 @@ public class Throwable implements Serializable {
         if (suppressedExceptions == null) // Suppressed exceptions not recorded
             return;
 
-        if (suppressedExceptions == SUPPRESSED_SENTINEL)
+        if (suppressedExceptions.isEmpty())
             suppressedExceptions = new ArrayList<>(1);
 
         suppressedExceptions.add(exception);
     }
 
-    private static final Throwable[] EMPTY_THROWABLE_ARRAY = new Throwable[0];
+    private static Throwable[] EMPTY_THROWABLE_ARRAY;
 
     /**
      * Returns an array containing all of the exceptions that were
@@ -1072,8 +1051,11 @@ public class Throwable implements Serializable {
      * @since 1.7
      */
     public final synchronized Throwable[] getSuppressed() {
-        if (suppressedExceptions == SUPPRESSED_SENTINEL ||
-            suppressedExceptions == null)
+        if (EMPTY_THROWABLE_ARRAY == null) {
+            EMPTY_THROWABLE_ARRAY = new Throwable[0];
+        }
+
+        if (suppressedExceptions == null || suppressedExceptions.isEmpty())
             return EMPTY_THROWABLE_ARRAY;
         else
             return suppressedExceptions.toArray(EMPTY_THROWABLE_ARRAY);

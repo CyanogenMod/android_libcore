@@ -75,7 +75,6 @@ java/io/FilterReader.java
 java/io/FilterWriter.java
 java/io/Flushable.java
 java/io/InputStream.java
-java/io/InputStreamReader.java
 java/io/InterruptedIOException.java
 java/io/InvalidClassException.java
 java/io/InvalidObjectException.java
@@ -157,6 +156,8 @@ java/lang/CharSequence.java
 java/lang/ClassCastException.java
 java/lang/ClassCircularityError.java
 java/lang/ClassFormatError.java
+java/lang/Class.java
+java/lang/ClassLoader.java
 java/lang/ClassNotFoundException.java
 java/lang/Cloneable.java
 java/lang/CloneNotSupportedException.java
@@ -165,6 +166,7 @@ java/lang/ConditionalSpecialCasing.java
 java/lang/Deprecated.java
 java/lang/Double.java
 java/lang/EnumConstantNotPresentException.java
+java/lang/Enum.java
 java/lang/Error.java
 java/lang/ExceptionInInitializerError.java
 java/lang/Exception.java
@@ -197,6 +199,7 @@ java/lang/NoSuchMethodException.java
 java/lang/NullPointerException.java
 java/lang/NumberFormatException.java
 java/lang/Number.java
+java/lang/Object.java
 java/lang/OutOfMemoryError.java
 java/lang/Override.java
 java/lang/Package.java
@@ -256,6 +259,7 @@ java/lang/ThreadDeath.java
 java/lang/ThreadGroup.java
 java/lang/Thread.java
 java/lang/ThreadLocal.java
+java/lang/Throwable.java
 java/lang/TypeNotPresentException.java
 java/lang/UNIXProcess.java
 java/lang/UnknownError.java
@@ -1074,7 +1078,6 @@ javax/net/DefaultSocketFactory.java
 javax/net/ServerSocketFactory.java
 javax/net/SocketFactory.java
 javax/net/ssl/CertPathTrustManagerParameters.java
-javax/net/ssl/DefaultHostnameVerifier.java
 javax/net/ssl/DefaultSSLServerSocketFactory.java
 javax/net/ssl/DefaultSSLSocketFactory.java
 javax/net/ssl/ExtendedSSLSession.java
@@ -1171,6 +1174,7 @@ sun/misc/CEStreamExhausted.java
 sun/misc/CharacterDecoder.java
 sun/misc/CharacterEncoder.java
 sun/misc/Cleaner.java
+sun/misc/CompoundEnumeration.java
 sun/misc/DoubleConsts.java
 sun/misc/FileURLMapper.java
 sun/misc/FloatConsts.java

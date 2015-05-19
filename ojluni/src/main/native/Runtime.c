@@ -40,58 +40,57 @@
 #include "jvm.h"
 
 #include "java_lang_Runtime.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 JNIEXPORT jlong JNICALL
-Java_java_lang_Runtime_freeMemory(JNIEnv *env, jobject this)
+Runtime_freeMemory(JNIEnv *env, jobject this)
 {
     return JVM_FreeMemory();
 }
 
 JNIEXPORT jlong JNICALL
-Java_java_lang_Runtime_totalMemory(JNIEnv *env, jobject this)
+Runtime_totalMemory(JNIEnv *env, jobject this)
 {
     return JVM_TotalMemory();
 }
 
 JNIEXPORT jlong JNICALL
-Java_java_lang_Runtime_maxMemory(JNIEnv *env, jobject this)
+Runtime_maxMemory(JNIEnv *env, jobject this)
 {
     return JVM_MaxMemory();
 }
 
 JNIEXPORT void JNICALL
-Java_java_lang_Runtime_gc(JNIEnv *env, jobject this)
+Runtime_gc(JNIEnv *env, jobject this)
 {
     JVM_GC();
 }
 
 JNIEXPORT void JNICALL
-Java_java_lang_Runtime_traceInstructions(JNIEnv *env, jobject this, jboolean on)
+Runtime_nativeExit(JNIEnv *env, jclass this, jint status)
 {
-    JVM_TraceInstructions(on);
+    JVM_Exit(status);
 }
 
-JNIEXPORT void JNICALL
-Java_java_lang_Runtime_traceMethodCalls(JNIEnv *env, jobject this, jboolean on)
+JNIEXPORT jstring JNICALL
+Runtime_nativeLoad(JNIEnv* env, jclass ignored, jstring javaFilename, jobject javaLoader,
+                   jstring javaLdLibraryPath)
 {
-    JVM_TraceMethodCalls(on);
+    return JVM_NativeLoad(env, javaFilename, javaLoader, javaLdLibraryPath);
 }
 
-JNIEXPORT void JNICALL
-Java_java_lang_Runtime_runFinalization0(JNIEnv *env, jobject this)
-{
-    jclass cl;
-    jmethodID mid;
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(Runtime, freeMemory, "()J"),
+  NATIVE_METHOD(Runtime, totalMemory, "()J"),
+  NATIVE_METHOD(Runtime, maxMemory, "()J"),
+  NATIVE_METHOD(Runtime, gc, "()V"),
+  NATIVE_METHOD(Runtime, nativeExit, "(I)V"),
+  NATIVE_METHOD(Runtime, nativeLoad, "(Ljava/lang/String;Ljava/lang/ClassLoader;Ljava/lang/String;)Ljava/lang/String;"),
+};
 
-    if ((cl = (*env)->FindClass(env, "java/lang/ref/Finalizer"))
-        && (mid = (*env)->GetStaticMethodID(env, cl,
-                                            "runFinalization", "()V"))) {
-        (*env)->CallStaticVoidMethod(env, cl, mid);
-    }
-}
-
-JNIEXPORT jint JNICALL
-Java_java_lang_Runtime_availableProcessors(JNIEnv *env, jobject this)
-{
-    return JVM_ActiveProcessorCount();
+void register_java_lang_Runtime(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/lang/Runtime", gMethods, NELEM(gMethods));
 }

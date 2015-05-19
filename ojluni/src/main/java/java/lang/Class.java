@@ -1301,7 +1301,7 @@ public final
         List<Field> fields = new ArrayList<Field>();
         // search superclasses
         for (Class<?> c = this; c != null; c = c.superClass) {
-            c.getDeclaredFields(true, fields);
+            c.getDeclaredFieldsUnchecked(true, fields);
         }
 
         // search iftable which has a flattened and uniqued list of interfaces
@@ -1309,7 +1309,7 @@ public final
         if (iftable != null) {
             for (int i = 0; i < iftable.length; i += 2) {
                 Class<?> ifc = (Class<?>) iftable[i];
-                ifc.getDeclaredFields(true, fields);
+                ifc.getDeclaredFieldsUnchecked(true, fields);
             }
         }
         Field[] result = fields.toArray(new Field[fields.size()]);
@@ -1364,11 +1364,11 @@ public final
     @CallerSensitive
     public Method[] getMethods() throws SecurityException {
         List<Method> methods = new ArrayList<Method>();
-        getDeclaredMethods(true, methods);
+        getDeclaredMethodsUnchecked(true, methods);
         if (!isInterface()) {
             // Search superclasses, for interfaces don't search java.lang.Object.
             for (Class<?> c = superClass; c != null; c = c.superClass) {
-                c.getDeclaredMethods(true, methods);
+                c.getDeclaredMethodsUnchecked(true, methods);
             }
         }
         // Search iftable which has a flattened and uniqued list of interfaces.
@@ -1376,7 +1376,7 @@ public final
         if (iftable != null) {
             for (int i = 0; i < iftable.length; i += 2) {
                 Class<?> ifc = (Class<?>) iftable[i];
-                ifc.getDeclaredMethods(true, methods);
+                ifc.getDeclaredMethodsUnchecked(true, methods);
             }
         }
         /*
@@ -1725,7 +1725,7 @@ public final
         int initial_size = sFields == null ? 0 : sFields.length;
         initial_size += iFields == null ? 0 : iFields.length;
         ArrayList<Field> fields = new ArrayList(initial_size);
-        getDeclaredFields(false, fields);
+        getDeclaredFieldsUnchecked(false, fields);
         Field[] result = fields.toArray(new Field[fields.size()]);
         for (Field f : result) {
             f.getType();  // Throw NoClassDefFoundError if type cannot be resolved.
@@ -1733,7 +1733,8 @@ public final
         return result;
     }
 
-    private void getDeclaredFields(boolean publicOnly, List<Field> fields) {
+    /** @hide */
+    public void getDeclaredFieldsUnchecked(boolean publicOnly, List<Field> fields) {
         if (iFields != null) {
             for (ArtField f : iFields) {
                 if (!publicOnly || Modifier.isPublic(f.getAccessFlags())) {
@@ -1795,7 +1796,7 @@ public final
         int initial_size = virtualMethods == null ? 0 : virtualMethods.length;
         initial_size += directMethods == null ? 0 : directMethods.length;
         ArrayList<Method> methods = new ArrayList<Method>(initial_size);
-        getDeclaredMethods(false, methods);
+        getDeclaredMethodsUnchecked(false, methods);
         Method[] result = methods.toArray(new Method[methods.size()]);
         for (Method m : result) {
             // Throw NoClassDefFoundError if types cannot be resolved.
@@ -1805,7 +1806,8 @@ public final
         return result;
     }
 
-    private void getDeclaredMethods(boolean publicOnly, List<Method> methods) {
+    /** @hide */
+    public void getDeclaredMethodsUnchecked(boolean publicOnly, List<Method> methods) {
         if (virtualMethods != null) {
             for (ArtMethod m : virtualMethods) {
                 int modifiers = m.getAccessFlags();
@@ -2471,7 +2473,6 @@ public final
      * @hide
      */
     public String getDexCacheString(Dex dex, int dexStringIndex) {
-        String[] dexCacheStrings = dexCache.strings;
         String s = dexCacheStrings[dexStringIndex];
         if (s == null) {
             s = dex.strings().get(dexStringIndex).intern();
@@ -2685,6 +2686,9 @@ public final
      */
     private transient DexCache dexCache;
 
+    /** Short-cut to dexCache.strings */
+    private transient String[] dexCacheStrings;
+
     /** The superclass, or NULL if this is java.lang.Object, an interface or primitive type. */
     private transient Class<? super T> superClass;
 
@@ -2719,9 +2723,6 @@ public final
      * methods for the methods in the interface.
      */
     private transient Object[] ifTable;
-
-    /** Interface method table (imt), for quick "invoke-interface". */
-    private transient ArtMethod[] imTable;
 
     /**
      * Virtual method table (vtable), for use by "invoke-virtual". The vtable from the superclass

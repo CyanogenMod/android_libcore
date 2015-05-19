@@ -28,17 +28,21 @@
 #include "jvm.h"
 
 #include "java_lang_Shutdown.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 
 JNIEXPORT void JNICALL
-Java_java_lang_Shutdown_halt0(JNIEnv *env, jclass ignored, jint code)
+Shutdown_halt0(JNIEnv *env, jclass ignored, jint code)
 {
     JVM_Halt(code);
 }
 
 
 JNIEXPORT void JNICALL
-Java_java_lang_Shutdown_runAllFinalizers(JNIEnv *env, jclass ignored)
+Shutdown_runAllFinalizers(JNIEnv *env, jclass ignored)
 {
     jclass cl;
     jmethodID mid;
@@ -48,4 +52,13 @@ Java_java_lang_Shutdown_runAllFinalizers(JNIEnv *env, jclass ignored)
                                             "runAllFinalizers", "()V"))) {
         (*env)->CallStaticVoidMethod(env, cl, mid);
     }
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(Shutdown, halt0, "(I)V"),
+  NATIVE_METHOD(Shutdown, runAllFinalizers, "()V"),
+};
+
+void register_java_lang_Shutdown(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/lang/Shutdown", gMethods, NELEM(gMethods));
 }

@@ -51,7 +51,8 @@ import java.util.Vector;
 import java.util.Hashtable;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import sun.misc.ClassFileTransformer;
+import dalvik.system.PathClassLoader;
+import java.util.List;
 import sun.misc.CompoundEnumeration;
 import sun.misc.Resource;
 import sun.misc.URLClassPath;
@@ -177,10 +178,21 @@ import sun.security.util.SecurityConstants;
  */
 public abstract class ClassLoader {
 
-    private static native void registerNatives();
-    static {
-        registerNatives();
+    static private class SystemClassLoader {
+        public static ClassLoader loader = ClassLoader.createSystemClassLoader();
     }
+
+    /**
+     * To avoid unloading individual classes, {@link java.lang.reflect.Proxy}
+     * only generates one class for each set of interfaces. This maps sets of
+     * interfaces to the proxy class that implements all of them. It is declared
+     * here so that these generated classes can be unloaded with their class
+     * loader.
+     *
+     * @hide
+     */
+    public final Map<List<Class<?>>, Class<?>> proxyCache =
+            new HashMap<List<Class<?>>, Class<?>>();
 
     // The parent class loader for delegation
     // Note: VM hardcoded the offset of this field, thus all new fields
@@ -190,77 +202,24 @@ public abstract class ClassLoader {
     /**
      * Encapsulates the set of parallel capable loader types.
      */
-    private static class ParallelLoaders {
-        private ParallelLoaders() {}
+    private static ClassLoader createSystemClassLoader() {
+        String classPath = System.getProperty("java.class.path", ".");
 
-        // the set of parallel capable loader types
-        private static final Set<Class<? extends ClassLoader>> loaderTypes =
-            Collections.newSetFromMap(
-                new WeakHashMap<Class<? extends ClassLoader>, Boolean>());
-        static {
-            synchronized (loaderTypes) { loaderTypes.add(ClassLoader.class); }
-        }
+        // String[] paths = classPath.split(":");
+        // URL[] urls = new URL[paths.length];
+        // for (int i = 0; i < paths.length; i++) {
+        // try {
+        // urls[i] = new URL("file://" + paths[i]);
+        // }
+        // catch (Exception ex) {
+        // ex.printStackTrace();
+        // }
+        // }
+        //
+        // return new java.net.URLClassLoader(urls, null);
 
-        /**
-         * Registers the given class loader type as parallel capabale.
-         * Returns {@code true} is successfully registered; {@code false} if
-         * loader's super class is not registered.
-         */
-        static boolean register(Class<? extends ClassLoader> c) {
-            synchronized (loaderTypes) {
-                if (loaderTypes.contains(c.getSuperclass())) {
-                    // register the class loader as parallel capable
-                    // if and only if all of its super classes are.
-                    // Note: given current classloading sequence, if
-                    // the immediate super class is parallel capable,
-                    // all the super classes higher up must be too.
-                    loaderTypes.add(c);
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        /**
-         * Returns {@code true} if the given class loader type is
-         * registered as parallel capable.
-         */
-        static boolean isRegistered(Class<? extends ClassLoader> c) {
-            synchronized (loaderTypes) {
-                return loaderTypes.contains(c);
-            }
-        }
-    }
-
-    // Maps class name to the corresponding lock object when the current
-    // class loader is parallel capable.
-    // Note: VM also uses this field to decide if the current class loader
-    // is parallel capable and the appropriate lock object for class loading.
-    private final ConcurrentHashMap<String, Object> parallelLockMap;
-
-    // Hashtable that maps packages to certs
-    private final Map <String, Certificate[]> package2certs;
-
-    // Shared among all packages with unsigned classes
-    private static final Certificate[] nocerts = new Certificate[0];
-
-    // The classes loaded by this class loader. The only purpose of this table
-    // is to keep the classes from being GC'ed until the loader is GC'ed.
-    private final Vector<Class<?>> classes = new Vector<>();
-
-    // The "default" domain. Set as the default ProtectionDomain on newly
-    // created classes.
-    private final ProtectionDomain defaultDomain =
-        new ProtectionDomain(new CodeSource(null, (Certificate[]) null),
-                             null, this, null);
-
-    // The initiating protection domains for all classes loaded by this loader
-    private final Set<ProtectionDomain> domains;
-
-    // Invoked by the VM to record every loaded class with this loader.
-    void addClass(Class c) {
-        classes.addElement(c);
+        // TODO Make this a java.net.URLClassLoader once we have those?
+        return new PathClassLoader(classPath, BootClassLoader.getInstance());
     }
 
     // The packages defined in this class loader.  Each package name is mapped
@@ -269,28 +228,11 @@ public abstract class ClassLoader {
     private final HashMap<String, Package> packages = new HashMap<>();
 
     private static Void checkCreateClassLoader() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkCreateClassLoader();
-        }
         return null;
     }
 
     private ClassLoader(Void unused, ClassLoader parent) {
         this.parent = parent;
-        if (ParallelLoaders.isRegistered(this.getClass())) {
-            parallelLockMap = new ConcurrentHashMap<>();
-            package2certs = new ConcurrentHashMap<>();
-            domains =
-                Collections.synchronizedSet(new HashSet<ProtectionDomain>());
-            assertionLock = new Object();
-        } else {
-            // no finer-grained lock; lock on the classloader instance
-            parallelLockMap = null;
-            package2certs = new Hashtable<>();
-            domains = new HashSet<>();
-            assertionLock = this;
-        }
     }
 
     /**
@@ -401,7 +343,6 @@ public abstract class ClassLoader {
     protected Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException
     {
-        synchronized (getClassLoadingLock(name)) {
             // First, check if the class has already been loaded
             Class c = findLoadedClass(name);
             if (c == null) {
@@ -424,82 +365,11 @@ public abstract class ClassLoader {
                     c = findClass(name);
 
                     // this is the defining class loader; record the stats
-                    sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);
-                    sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);
-                    sun.misc.PerfCounter.getFindClasses().increment();
                 }
             }
-            if (resolve) {
-                resolveClass(c);
-            }
             return c;
-        }
     }
 
-    /**
-     * Returns the lock object for class loading operations.
-     * For backward compatibility, the default implementation of this method
-     * behaves as follows. If this ClassLoader object is registered as
-     * parallel capable, the method returns a dedicated object associated
-     * with the specified class name. Otherwise, the method returns this
-     * ClassLoader object. </p>
-     *
-     * @param  className
-     *         The name of the to-be-loaded class
-     *
-     * @return the lock for class loading operations
-     *
-     * @throws NullPointerException
-     *         If registered as parallel capable and <tt>className</tt> is null
-     *
-     * @see #loadClass(String, boolean)
-     *
-     * @since  1.7
-     */
-    protected Object getClassLoadingLock(String className) {
-        Object lock = this;
-        if (parallelLockMap != null) {
-            Object newLock = new Object();
-            lock = parallelLockMap.putIfAbsent(className, newLock);
-            if (lock == null) {
-                lock = newLock;
-            }
-        }
-        return lock;
-    }
-
-    // This method is invoked by the virtual machine to load a class.
-    private Class loadClassInternal(String name)
-        throws ClassNotFoundException
-    {
-        // For backward compatibility, explicitly lock on 'this' when
-        // the current class loader is not parallel capable.
-        if (parallelLockMap == null) {
-            synchronized (this) {
-                 return loadClass(name);
-            }
-        } else {
-            return loadClass(name);
-        }
-    }
-
-    // Invoked by the VM after loading class with this loader.
-    private void checkPackageAccess(Class cls, ProtectionDomain pd) {
-        final SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            final String name = cls.getName();
-            final int i = name.lastIndexOf('.');
-            if (i != -1) {
-                AccessController.doPrivileged(new PrivilegedAction<Void>() {
-                    public Void run() {
-                        sm.checkPackageAccess(name.substring(0, i));
-                        return null;
-                    }
-                }, new AccessControlContext(new ProtectionDomain[] {pd}));
-            }
-        }
-        domains.add(pd);
-    }
 
     /**
      * Finds the class with the specified <a href="#name">binary name</a>.
@@ -568,7 +438,7 @@ public abstract class ClassLoader {
     protected final Class<?> defineClass(byte[] b, int off, int len)
         throws ClassFormatError
     {
-        return defineClass(null, b, off, len, null);
+        throw new UnsupportedOperationException("can't load this type of class file");
     }
 
     /**
@@ -632,87 +502,9 @@ public abstract class ClassLoader {
     protected final Class<?> defineClass(String name, byte[] b, int off, int len)
         throws ClassFormatError
     {
-        return defineClass(name, b, off, len, null);
+        throw new UnsupportedOperationException("can't load this type of class file");
     }
 
-    /* Determine protection domain, and check that:
-        - not define java.* class,
-        - signer of this class matches signers for the rest of the classes in
-          package.
-    */
-    private ProtectionDomain preDefineClass(String name,
-                                            ProtectionDomain pd)
-    {
-        if (!checkName(name))
-            throw new NoClassDefFoundError("IllegalName: " + name);
-
-        if ((name != null) && name.startsWith("java.")) {
-            throw new SecurityException
-                ("Prohibited package name: " +
-                 name.substring(0, name.lastIndexOf('.')));
-        }
-        if (pd == null) {
-            pd = defaultDomain;
-        }
-
-        if (name != null) checkCerts(name, pd.getCodeSource());
-
-        return pd;
-    }
-
-    private String defineClassSourceLocation(ProtectionDomain pd)
-    {
-        CodeSource cs = pd.getCodeSource();
-        String source = null;
-        if (cs != null && cs.getLocation() != null) {
-            source = cs.getLocation().toString();
-        }
-        return source;
-    }
-
-    private Class defineTransformedClass(String name, byte[] b, int off, int len,
-                                         ProtectionDomain pd,
-                                         ClassFormatError cfe, String source)
-      throws ClassFormatError
-    {
-        // Class format error - try to transform the bytecode and
-        // define the class again
-        //
-        ClassFileTransformer[] transformers =
-            ClassFileTransformer.getTransformers();
-        Class c = null;
-
-        if (transformers != null) {
-            for (ClassFileTransformer transformer : transformers) {
-                try {
-                    // Transform byte code using transformer
-                    byte[] tb = transformer.transform(b, off, len);
-                    c = defineClass1(name, tb, 0, tb.length,
-                                     pd, source);
-                    break;
-                } catch (ClassFormatError cfe2)     {
-                    // If ClassFormatError occurs, try next transformer
-                }
-            }
-        }
-
-        // Rethrow original ClassFormatError if unable to transform
-        // bytecode to well-formed
-        //
-        if (c == null)
-            throw cfe;
-
-        return c;
-    }
-
-    private void postDefineClass(Class c, ProtectionDomain pd)
-    {
-        if (pd.getCodeSource() != null) {
-            Certificate certs[] = pd.getCodeSource().getCertificates();
-            if (certs != null)
-                setSigners(c, certs);
-        }
-    }
 
     /**
      * Converts an array of bytes into an instance of class <tt>Class</tt>,
@@ -783,20 +575,7 @@ public abstract class ClassLoader {
                                          ProtectionDomain protectionDomain)
         throws ClassFormatError
     {
-        protectionDomain = preDefineClass(name, protectionDomain);
-
-        Class c = null;
-        String source = defineClassSourceLocation(protectionDomain);
-
-        try {
-            c = defineClass1(name, b, off, len, protectionDomain, source);
-        } catch (ClassFormatError cfe) {
-            c = defineTransformedClass(name, b, off, len, protectionDomain, cfe,
-                                       source);
-        }
-
-        postDefineClass(c, protectionDomain);
-        return c;
+        throw new UnsupportedOperationException("can't load this type of class file");
     }
 
     /**
@@ -865,130 +644,7 @@ public abstract class ClassLoader {
                                          ProtectionDomain protectionDomain)
         throws ClassFormatError
     {
-        int len = b.remaining();
-
-        // Use byte[] if not a direct ByteBufer:
-        if (!b.isDirect()) {
-            if (b.hasArray()) {
-                return defineClass(name, b.array(),
-                                   b.position() + b.arrayOffset(), len,
-                                   protectionDomain);
-            } else {
-                // no array, or read-only array
-                byte[] tb = new byte[len];
-                b.get(tb);  // get bytes out of byte buffer.
-                return defineClass(name, tb, 0, len, protectionDomain);
-            }
-        }
-
-        protectionDomain = preDefineClass(name, protectionDomain);
-
-        Class c = null;
-        String source = defineClassSourceLocation(protectionDomain);
-
-        try {
-            c = defineClass2(name, b, b.position(), len, protectionDomain,
-                             source);
-        } catch (ClassFormatError cfe) {
-            byte[] tb = new byte[len];
-            b.get(tb);  // get bytes out of byte buffer.
-            c = defineTransformedClass(name, tb, 0, len, protectionDomain, cfe,
-                                       source);
-        }
-
-        postDefineClass(c, protectionDomain);
-        return c;
-    }
-
-    private native Class defineClass0(String name, byte[] b, int off, int len,
-                                      ProtectionDomain pd);
-
-    private native Class defineClass1(String name, byte[] b, int off, int len,
-                                      ProtectionDomain pd, String source);
-
-    private native Class defineClass2(String name, java.nio.ByteBuffer b,
-                                      int off, int len, ProtectionDomain pd,
-                                      String source);
-
-    // true if the name is null or has the potential to be a valid binary name
-    private boolean checkName(String name) {
-        if ((name == null) || (name.length() == 0))
-            return true;
-        if ((name.indexOf('/') != -1)
-            || (!VM.allowArraySyntax() && (name.charAt(0) == '[')))
-            return false;
-        return true;
-    }
-
-    private void checkCerts(String name, CodeSource cs) {
-        int i = name.lastIndexOf('.');
-        String pname = (i == -1) ? "" : name.substring(0, i);
-
-        Certificate[] certs = null;
-        if (cs != null) {
-            certs = cs.getCertificates();
-        }
-        Certificate[] pcerts = null;
-        if (parallelLockMap == null) {
-            synchronized (this) {
-                pcerts = package2certs.get(pname);
-                if (pcerts == null) {
-                    package2certs.put(pname, (certs == null? nocerts:certs));
-                }
-            }
-        } else {
-            pcerts = ((ConcurrentHashMap<String, Certificate[]>)package2certs).
-                putIfAbsent(pname, (certs == null? nocerts:certs));
-        }
-        if (pcerts != null && !compareCerts(pcerts, certs)) {
-            throw new SecurityException("class \""+ name +
-                 "\"'s signer information does not match signer information of other classes in the same package");
-        }
-    }
-
-    /**
-     * check to make sure the certs for the new class (certs) are the same as
-     * the certs for the first class inserted in the package (pcerts)
-     */
-    private boolean compareCerts(Certificate[] pcerts,
-                                 Certificate[] certs)
-    {
-        // certs can be null, indicating no certs.
-        if ((certs == null) || (certs.length == 0)) {
-            return pcerts.length == 0;
-        }
-
-        // the length must be the same at this point
-        if (certs.length != pcerts.length)
-            return false;
-
-        // go through and make sure all the certs in one array
-        // are in the other and vice-versa.
-        boolean match;
-        for (int i = 0; i < certs.length; i++) {
-            match = false;
-            for (int j = 0; j < pcerts.length; j++) {
-                if (certs[i].equals(pcerts[j])) {
-                    match = true;
-                    break;
-                }
-            }
-            if (!match) return false;
-        }
-
-        // now do the same for pcerts
-        for (int i = 0; i < pcerts.length; i++) {
-            match = false;
-            for (int j = 0; j < certs.length; j++) {
-                if (pcerts[i].equals(certs[j])) {
-                    match = true;
-                    break;
-                }
-            }
-            if (!match) return false;
-        }
-
-        return true;
+        throw new UnsupportedOperationException("can't load this type of class file");
     }
 
     /**
@@ -1008,10 +664,7 @@ public abstract class ClassLoader {
      * @see  #defineClass(String, byte[], int, int)
      */
     protected final void resolveClass(Class<?> c) {
-        resolveClass0(c);
     }
-
-    private native void resolveClass0(Class c);
 
     /**
      * Finds a class with the specified <a href="#name">binary name</a>,
@@ -1038,17 +691,7 @@ public abstract class ClassLoader {
     protected final Class<?> findSystemClass(String name)
         throws ClassNotFoundException
     {
-        ClassLoader system = getSystemClassLoader();
-        if (system == null) {
-            if (!checkName(name))
-                throw new ClassNotFoundException(name);
-            Class cls = findBootstrapClass(name);
-            if (cls == null) {
-                throw new ClassNotFoundException(name);
-            }
-            return cls;
-        }
-        return system.loadClass(name);
+        return Class.forName(name, false, getSystemClassLoader());
     }
 
     /**
@@ -1057,13 +700,8 @@ public abstract class ClassLoader {
      */
     private Class findBootstrapClassOrNull(String name)
     {
-        if (!checkName(name)) return null;
-
-        return findBootstrapClass(name);
+        return null;
     }
-
-    // return null if not found
-    private native Class findBootstrapClass(String name);
 
     /**
      * Returns the class with the given <a href="#name">binary name</a> if this
@@ -1080,12 +718,13 @@ public abstract class ClassLoader {
      * @since  1.1
      */
     protected final Class<?> findLoadedClass(String name) {
-        if (!checkName(name))
-            return null;
-        return findLoadedClass0(name);
+        ClassLoader loader;
+        if (this == BootClassLoader.getInstance())
+            loader = null;
+        else
+            loader = this;
+        return VMClassLoader.findLoadedClass(loader, name);
     }
-
-    private native final Class findLoadedClass0(String name);
 
     /**
      * Sets the signers of a class.  This should be invoked after defining a
@@ -1100,7 +739,6 @@ public abstract class ClassLoader {
      * @since  1.1
      */
     protected final void setSigners(Class<?> c, Object[] signers) {
-        c.setSigners(signers);
     }
 
 
@@ -1233,9 +871,7 @@ public abstract class ClassLoader {
      */
     @CallerSensitive
     protected static boolean registerAsParallelCapable() {
-        Class<? extends ClassLoader> callerClass =
-            Reflection.getCallerClass().asSubclass(ClassLoader.class);
-        return ParallelLoaders.register(callerClass);
+        return true;
     }
 
     /**
@@ -1293,9 +929,7 @@ public abstract class ClassLoader {
      * Find resources from the VM's built-in classloader.
      */
     private static URL getBootstrapResource(String name) {
-        URLClassPath ucp = getBootstrapClassPath();
-        Resource res = ucp.getResource(name);
-        return res != null ? res.getURL() : null;
+        return null;
     }
 
     /**
@@ -1304,22 +938,9 @@ public abstract class ClassLoader {
     private static Enumeration<URL> getBootstrapResources(String name)
         throws IOException
     {
-        final Enumeration<Resource> e =
-            getBootstrapClassPath().getResources(name);
-        return new Enumeration<URL> () {
-            public URL nextElement() {
-                return e.nextElement().getURL();
-            }
-            public boolean hasMoreElements() {
-                return e.hasMoreElements();
-            }
-        };
+        return null;
     }
 
-    // Returns the URLClassPath that is used for finding system resources.
-    static URLClassPath getBootstrapClassPath() {
-        return sun.misc.Launcher.getBootstrapClassPath();
-    }
 
 
     /**
@@ -1397,12 +1018,6 @@ public abstract class ClassLoader {
      */
     @CallerSensitive
     public final ClassLoader getParent() {
-        if (parent == null)
-            return null;
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            checkClassLoaderPermission(parent, Reflection.getCallerClass());
-        }
         return parent;
     }
 
@@ -1463,106 +1078,8 @@ public abstract class ClassLoader {
      */
     @CallerSensitive
     public static ClassLoader getSystemClassLoader() {
-        initSystemClassLoader();
-        if (scl == null) {
-            return null;
-        }
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            checkClassLoaderPermission(scl, Reflection.getCallerClass());
-        }
-        return scl;
+        return SystemClassLoader.loader;
     }
-
-    private static synchronized void initSystemClassLoader() {
-        if (!sclSet) {
-            if (scl != null)
-                throw new IllegalStateException("recursive invocation");
-            sun.misc.Launcher l = sun.misc.Launcher.getLauncher();
-            if (l != null) {
-                Throwable oops = null;
-                scl = l.getClassLoader();
-                try {
-                    scl = AccessController.doPrivileged(
-                        new SystemClassLoaderAction(scl));
-                } catch (PrivilegedActionException pae) {
-                    oops = pae.getCause();
-                    if (oops instanceof InvocationTargetException) {
-                        oops = oops.getCause();
-                    }
-                }
-                if (oops != null) {
-                    if (oops instanceof Error) {
-                        throw (Error) oops;
-                    } else {
-                        // wrap the exception
-                        throw new Error(oops);
-                    }
-                }
-            }
-            sclSet = true;
-        }
-    }
-
-    // Returns true if the specified class loader can be found in this class
-    // loader's delegation chain.
-    boolean isAncestor(ClassLoader cl) {
-        ClassLoader acl = this;
-        do {
-            acl = acl.parent;
-            if (cl == acl) {
-                return true;
-            }
-        } while (acl != null);
-        return false;
-    }
-
-    // Tests if class loader access requires "getClassLoader" permission
-    // check.  A class loader 'from' can access class loader 'to' if
-    // class loader 'from' is same as class loader 'to' or an ancestor
-    // of 'to'.  The class loader in a system domain can access
-    // any class loader.
-    private static boolean needsClassLoaderPermissionCheck(ClassLoader from,
-                                                           ClassLoader to)
-    {
-        if (from == to)
-            return false;
-
-        if (from == null)
-            return false;
-
-        return !to.isAncestor(from);
-    }
-
-    // Returns the class's class loader, or null if none.
-    static ClassLoader getClassLoader(Class<?> caller) {
-        // This can be null if the VM is requesting it
-        if (caller == null) {
-            return null;
-        }
-        // Circumvent security check since this is package-private
-        return caller.getClassLoader0();
-    }
-
-    static void checkClassLoaderPermission(ClassLoader cl, Class<?> caller) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            // caller can be null if the VM is requesting it
-            ClassLoader ccl = getClassLoader(caller);
-            if (needsClassLoaderPermissionCheck(ccl, cl)) {
-                sm.checkPermission(SecurityConstants.GET_CLASSLOADER_PERMISSION);
-            }
-        }
-    }
-
-    // The class loader for the system
-    // @GuardedBy("ClassLoader.class")
-    private static ClassLoader scl;
-
-    // Set to true once the system class loader has been set
-    // @GuardedBy("ClassLoader.class")
-    private static boolean sclSet;
-
 
     // -- Package --
 
@@ -1614,7 +1131,7 @@ public abstract class ClassLoader {
         throws IllegalArgumentException
     {
         synchronized (packages) {
-            Package pkg = getPackage(name);
+            Package pkg = packages.get(name);
             if (pkg != null) {
                 throw new IllegalArgumentException(name);
             }
@@ -1643,23 +1160,6 @@ public abstract class ClassLoader {
         synchronized (packages) {
             pkg = packages.get(name);
         }
-        if (pkg == null) {
-            if (parent != null) {
-                pkg = parent.getPackage(name);
-            } else {
-                pkg = Package.getSystemPackage(name);
-            }
-            if (pkg != null) {
-                synchronized (packages) {
-                    Package pkg2 = packages.get(name);
-                    if (pkg2 == null) {
-                        packages.put(name, pkg);
-                    } else {
-                        pkg = pkg2;
-                    }
-                }
-            }
-        }
         return pkg;
     }
 
@@ -1678,19 +1178,6 @@ public abstract class ClassLoader {
             map = new HashMap<>(packages);
         }
         Package[] pkgs;
-        if (parent != null) {
-            pkgs = parent.getPackages();
-        } else {
-            pkgs = Package.getSystemPackages();
-        }
-        if (pkgs != null) {
-            for (int i = 0; i < pkgs.length; i++) {
-                String pkgName = pkgs[i].getName();
-                if (map.get(pkgName) == null) {
-                    map.put(pkgName, pkgs[i]);
-                }
-            }
-        }
         return map.values().toArray(new Package[map.size()]);
     }
 
@@ -1719,296 +1206,6 @@ public abstract class ClassLoader {
     }
 
     /**
-     * The inner class NativeLibrary denotes a loaded native library instance.
-     * Every classloader contains a vector of loaded native libraries in the
-     * private field <tt>nativeLibraries</tt>.  The native libraries loaded
-     * into the system are entered into the <tt>systemNativeLibraries</tt>
-     * vector.
-     *
-     * <p> Every native library requires a particular version of JNI. This is
-     * denoted by the private <tt>jniVersion</tt> field.  This field is set by
-     * the VM when it loads the library, and used by the VM to pass the correct
-     * version of JNI to the native methods.  </p>
-     *
-     * @see      ClassLoader
-     * @since    1.2
-     */
-    static class NativeLibrary {
-        // opaque handle to native library, used in native code.
-        long handle;
-        // the version of JNI environment the native library requires.
-        private int jniVersion;
-        // the class from which the library is loaded, also indicates
-        // the loader this native library belongs.
-        private Class fromClass;
-        // the canonicalized name of the native library.
-        String name;
-
-        native void load(String name);
-        native long find(String name);
-        native void unload();
-
-        public NativeLibrary(Class fromClass, String name) {
-            this.name = name;
-            this.fromClass = fromClass;
-        }
-
-        protected void finalize() {
-            synchronized (loadedLibraryNames) {
-                if (fromClass.getClassLoader() != null && handle != 0) {
-                    /* remove the native library name */
-                    int size = loadedLibraryNames.size();
-                    for (int i = 0; i < size; i++) {
-                        if (name.equals(loadedLibraryNames.elementAt(i))) {
-                            loadedLibraryNames.removeElementAt(i);
-                            break;
-                        }
-                    }
-                    /* unload the library. */
-                    ClassLoader.nativeLibraryContext.push(this);
-                    try {
-                        unload();
-                    } finally {
-                        ClassLoader.nativeLibraryContext.pop();
-                    }
-                }
-            }
-        }
-        // Invoked in the VM to determine the context class in
-        // JNI_Load/JNI_Unload
-        static Class getFromClass() {
-            return ClassLoader.nativeLibraryContext.peek().fromClass;
-        }
-    }
-
-    // All native library names we've loaded.
-    private static Vector<String> loadedLibraryNames = new Vector<>();
-
-    // Native libraries belonging to system classes.
-    private static Vector<NativeLibrary> systemNativeLibraries
-        = new Vector<>();
-
-    // Native libraries associated with the class loader.
-    private Vector<NativeLibrary> nativeLibraries = new Vector<>();
-
-    // native libraries being loaded/unloaded.
-    private static Stack<NativeLibrary> nativeLibraryContext = new Stack<>();
-
-    // The paths searched for libraries
-    private static String usr_paths[];
-    private static String sys_paths[];
-
-    private static String[] initializePath(String propname) {
-        String ldpath = System.getProperty(propname, "");
-        String ps = File.pathSeparator;
-        int ldlen = ldpath.length();
-        int i, j, n;
-        // Count the separators in the path
-        i = ldpath.indexOf(ps);
-        n = 0;
-        while (i >= 0) {
-            n++;
-            i = ldpath.indexOf(ps, i + 1);
-        }
-
-        // allocate the array of paths - n :'s = n + 1 path elements
-        String[] paths = new String[n + 1];
-
-        // Fill the array with paths from the ldpath
-        n = i = 0;
-        j = ldpath.indexOf(ps);
-        while (j >= 0) {
-            if (j - i > 0) {
-                paths[n++] = ldpath.substring(i, j);
-            } else if (j - i == 0) {
-                paths[n++] = ".";
-            }
-            i = j + 1;
-            j = ldpath.indexOf(ps, i);
-        }
-        paths[n] = ldpath.substring(i, ldlen);
-        return paths;
-    }
-
-    // Invoked in the java.lang.Runtime class to implement load and loadLibrary.
-    static void loadLibrary(Class fromClass, String name,
-                            boolean isAbsolute) {
-        ClassLoader loader =
-            (fromClass == null) ? null : fromClass.getClassLoader();
-        if (sys_paths == null) {
-            usr_paths = initializePath("java.library.path");
-            sys_paths = initializePath("sun.boot.library.path");
-        }
-        if (isAbsolute) {
-            if (loadLibrary0(fromClass, new File(name))) {
-                return;
-            }
-            throw new UnsatisfiedLinkError("Can't load library: " + name);
-        }
-        if (loader != null) {
-            String libfilename = loader.findLibrary(name);
-            if (libfilename != null) {
-                File libfile = new File(libfilename);
-                if (!libfile.isAbsolute()) {
-                    throw new UnsatisfiedLinkError(
-    "ClassLoader.findLibrary failed to return an absolute path: " + libfilename);
-                }
-                if (loadLibrary0(fromClass, libfile)) {
-                    return;
-                }
-                throw new UnsatisfiedLinkError("Can't load " + libfilename);
-            }
-        }
-        for (int i = 0 ; i < sys_paths.length ; i++) {
-            File libfile = new File(sys_paths[i], System.mapLibraryName(name));
-            if (loadLibrary0(fromClass, libfile)) {
-                return;
-            }
-        }
-        if (loader != null) {
-            for (int i = 0 ; i < usr_paths.length ; i++) {
-                File libfile = new File(usr_paths[i],
-                                        System.mapLibraryName(name));
-                if (loadLibrary0(fromClass, libfile)) {
-                    return;
-                }
-            }
-        }
-        // Oops, it failed
-        throw new UnsatisfiedLinkError("no " + name + " in java.library.path");
-    }
-
-    private static boolean loadLibrary0(Class fromClass, final File file) {
-        if (loadLibrary1(fromClass, file)) {
-            return true;
-        }
-        final File libfile = ClassLoaderHelper.mapAlternativeName(file);
-        if (libfile != null && loadLibrary1(fromClass, libfile)) {
-            return true;
-        }
-        return false;
-    }
-
-    private static boolean loadLibrary1(Class fromClass, final File file) {
-        boolean exists = AccessController.doPrivileged(
-            new PrivilegedAction<Object>() {
-                public Object run() {
-                    return file.exists() ? Boolean.TRUE : null;
-                }})
-            != null;
-        if (!exists) {
-            return false;
-        }
-        String name;
-        try {
-            name = file.getCanonicalPath();
-        } catch (IOException e) {
-            return false;
-        }
-        ClassLoader loader =
-            (fromClass == null) ? null : fromClass.getClassLoader();
-        Vector<NativeLibrary> libs =
-            loader != null ? loader.nativeLibraries : systemNativeLibraries;
-        synchronized (libs) {
-            int size = libs.size();
-            for (int i = 0; i < size; i++) {
-                NativeLibrary lib = libs.elementAt(i);
-                if (name.equals(lib.name)) {
-                    return true;
-                }
-            }
-
-            synchronized (loadedLibraryNames) {
-                if (loadedLibraryNames.contains(name)) {
-                    throw new UnsatisfiedLinkError
-                        ("Native Library " +
-                         name +
-                         " already loaded in another classloader");
-                }
-                /* If the library is being loaded (must be by the same thread,
-                 * because Runtime.load and Runtime.loadLibrary are
-                 * synchronous). The reason is can occur is that the JNI_OnLoad
-                 * function can cause another loadLibrary invocation.
-                 *
-                 * Thus we can use a static stack to hold the list of libraries
-                 * we are loading.
-                 *
-                 * If there is a pending load operation for the library, we
-                 * immediately return success; otherwise, we raise
-                 * UnsatisfiedLinkError.
-                 */
-                int n = nativeLibraryContext.size();
-                for (int i = 0; i < n; i++) {
-                    NativeLibrary lib = nativeLibraryContext.elementAt(i);
-                    if (name.equals(lib.name)) {
-                        if (loader == lib.fromClass.getClassLoader()) {
-                            return true;
-                        } else {
-                            throw new UnsatisfiedLinkError
-                                ("Native Library " +
-                                 name +
-                                 " is being loaded in another classloader");
-                        }
-                    }
-                }
-                NativeLibrary lib = new NativeLibrary(fromClass, name);
-                nativeLibraryContext.push(lib);
-                try {
-                    lib.load(name);
-                } finally {
-                    nativeLibraryContext.pop();
-                }
-                if (lib.handle != 0) {
-                    loadedLibraryNames.addElement(name);
-                    libs.addElement(lib);
-                    return true;
-                }
-                return false;
-            }
-        }
-    }
-
-    // Invoked in the VM class linking code.
-    static long findNative(ClassLoader loader, String name) {
-        Vector<NativeLibrary> libs =
-            loader != null ? loader.nativeLibraries : systemNativeLibraries;
-        synchronized (libs) {
-            int size = libs.size();
-            for (int i = 0; i < size; i++) {
-                NativeLibrary lib = libs.elementAt(i);
-                long entry = lib.find(name);
-                if (entry != 0)
-                    return entry;
-            }
-        }
-        return 0;
-    }
-
-
-    // -- Assertion management --
-
-    final Object assertionLock;
-
-    // The default toggle for assertion checking.
-    // @GuardedBy("assertionLock")
-    private boolean defaultAssertionStatus = false;
-
-    // Maps String packageName to Boolean package default assertion status Note
-    // that the default package is placed under a null map key.  If this field
-    // is null then we are delegating assertion status queries to the VM, i.e.,
-    // none of this ClassLoader's assertion status modification methods have
-    // been invoked.
-    // @GuardedBy("assertionLock")
-    private Map<String, Boolean> packageAssertionStatus = null;
-
-    // Maps String fullyQualifiedClassName to Boolean assertionStatus If this
-    // field is null then we are delegating assertion status queries to the VM,
-    // i.e., none of this ClassLoader's assertion status modification methods
-    // have been invoked.
-    // @GuardedBy("assertionLock")
-    Map<String, Boolean> classAssertionStatus = null;
-
-    /**
      * Sets the default assertion status for this class loader.  This setting
      * determines whether classes loaded by this class loader and initialized
      * in the future will have assertions enabled or disabled by default.
@@ -2024,12 +1221,6 @@ public abstract class ClassLoader {
      * @since  1.4
      */
     public void setDefaultAssertionStatus(boolean enabled) {
-        synchronized (assertionLock) {
-            if (classAssertionStatus == null)
-                initializeJavaAssertionMaps();
-
-            defaultAssertionStatus = enabled;
-        }
     }
 
     /**
@@ -2071,12 +1262,6 @@ public abstract class ClassLoader {
      */
     public void setPackageAssertionStatus(String packageName,
                                           boolean enabled) {
-        synchronized (assertionLock) {
-            if (packageAssertionStatus == null)
-                initializeJavaAssertionMaps();
-
-            packageAssertionStatus.put(packageName, enabled);
-        }
     }
 
     /**
@@ -2102,12 +1287,6 @@ public abstract class ClassLoader {
      * @since  1.4
      */
     public void setClassAssertionStatus(String className, boolean enabled) {
-        synchronized (assertionLock) {
-            if (classAssertionStatus == null)
-                initializeJavaAssertionMaps();
-
-            classAssertionStatus.put(className, enabled);
-        }
     }
 
     /**
@@ -2125,109 +1304,97 @@ public abstract class ClassLoader {
          * Whether or not "Java assertion maps" are initialized, set
          * them to empty maps, effectively ignoring any present settings.
          */
-        synchronized (assertionLock) {
-            classAssertionStatus = new HashMap<>();
-            packageAssertionStatus = new HashMap<>();
-            defaultAssertionStatus = false;
-        }
     }
-
-    /**
-     * Returns the assertion status that would be assigned to the specified
-     * class if it were to be initialized at the time this method is invoked.
-     * If the named class has had its assertion status set, the most recent
-     * setting will be returned; otherwise, if any package default assertion
-     * status pertains to this class, the most recent setting for the most
-     * specific pertinent package default assertion status is returned;
-     * otherwise, this class loader's default assertion status is returned.
-     * </p>
-     *
-     * @param  className
-     *         The fully qualified class name of the class whose desired
-     *         assertion status is being queried.
-     *
-     * @return  The desired assertion status of the specified class.
-     *
-     * @see  #setClassAssertionStatus(String, boolean)
-     * @see  #setPackageAssertionStatus(String, boolean)
-     * @see  #setDefaultAssertionStatus(boolean)
-     *
-     * @since  1.4
-     */
-    boolean desiredAssertionStatus(String className) {
-        synchronized (assertionLock) {
-            // assert classAssertionStatus   != null;
-            // assert packageAssertionStatus != null;
-
-            // Check for a class entry
-            Boolean result = classAssertionStatus.get(className);
-            if (result != null)
-                return result.booleanValue();
-
-            // Check for most specific package entry
-            int dotIndex = className.lastIndexOf(".");
-            if (dotIndex < 0) { // default package
-                result = packageAssertionStatus.get(null);
-                if (result != null)
-                    return result.booleanValue();
-            }
-            while(dotIndex > 0) {
-                className = className.substring(0, dotIndex);
-                result = packageAssertionStatus.get(className);
-                if (result != null)
-                    return result.booleanValue();
-                dotIndex = className.lastIndexOf(".", dotIndex-1);
-            }
-
-            // Return the classloader default
-            return defaultAssertionStatus;
-        }
-    }
-
-    // Set up the assertions with information provided by the VM.
-    // Note: Should only be called inside a synchronized block
-    private void initializeJavaAssertionMaps() {
-        // assert Thread.holdsLock(assertionLock);
-
-        classAssertionStatus = new HashMap<>();
-        packageAssertionStatus = new HashMap<>();
-        AssertionStatusDirectives directives = retrieveDirectives();
-
-        for(int i = 0; i < directives.classes.length; i++)
-            classAssertionStatus.put(directives.classes[i],
-                                     directives.classEnabled[i]);
-
-        for(int i = 0; i < directives.packages.length; i++)
-            packageAssertionStatus.put(directives.packages[i],
-                                       directives.packageEnabled[i]);
-
-        defaultAssertionStatus = directives.deflt;
-    }
-
-    // Retrieves the assertion directives from the VM.
-    private static native AssertionStatusDirectives retrieveDirectives();
 }
 
 
-class SystemClassLoaderAction
-    implements PrivilegedExceptionAction<ClassLoader> {
-    private ClassLoader parent;
+class BootClassLoader extends ClassLoader {
 
-    SystemClassLoaderAction(ClassLoader parent) {
-        this.parent = parent;
-    }
+    private static BootClassLoader instance;
 
-    public ClassLoader run() throws Exception {
-        String cls = System.getProperty("java.system.class.loader");
-        if (cls == null) {
-            return parent;
+    @FindBugsSuppressWarnings("DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED")
+    public static synchronized BootClassLoader getInstance() {
+        if (instance == null) {
+            instance = new BootClassLoader();
         }
 
-        Constructor ctor = Class.forName(cls, true, parent)
-            .getDeclaredConstructor(new Class[] { ClassLoader.class });
-        ClassLoader sys = (ClassLoader) ctor.newInstance(
-            new Object[] { parent });
-        Thread.currentThread().setContextClassLoader(sys);
-        return sys;
+        return instance;
+    }
+
+    public BootClassLoader() {
+        super(null);
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        return Class.classForName(name, false, null);
+    }
+
+    @Override
+    protected URL findResource(String name) {
+        return VMClassLoader.getResource(name);
+    }
+
+    @SuppressWarnings("unused")
+    @Override
+    protected Enumeration<URL> findResources(String resName) throws IOException {
+        return Collections.enumeration(VMClassLoader.getResources(resName));
+    }
+
+    /**
+     * Returns package information for the given package. Unfortunately, the
+     * Android BootClassLoader doesn't really have this information, and as a
+     * non-secure ClassLoader, it isn't even required to, according to the spec.
+     * Yet, we want to provide it, in order to make all those hopeful callers of
+     * {@code myClass.getPackage().getName()} happy. Thus we construct a Package
+     * object the first time it is being requested and fill most of the fields
+     * with dummy values. The Package object is then put into the ClassLoader's
+     * Package cache, so we see the same one next time. We don't create Package
+     * objects for null arguments or for the default package.
+     * <p>
+     * There a limited chance that we end up with multiple Package objects
+     * representing the same package: It can happen when when a package is
+     * scattered across different JAR files being loaded by different
+     * ClassLoaders. Rather unlikely, and given that this whole thing is more or
+     * less a workaround, probably not worth the effort.
+     */
+    @Override
+    protected Package getPackage(String name) {
+        if (name != null && !name.isEmpty()) {
+            synchronized (this) {
+                Package pack = super.getPackage(name);
+
+                if (pack == null) {
+                    pack = definePackage(name, "Unknown", "0.0", "Unknown", "Unknown", "0.0",
+                            "Unknown", null);
+                }
+
+                return pack;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public URL getResource(String resName) {
+        return findResource(resName);
+    }
+
+    @Override
+    protected Class<?> loadClass(String className, boolean resolve)
+           throws ClassNotFoundException {
+        Class<?> clazz = findLoadedClass(className);
+
+        if (clazz == null) {
+            clazz = findClass(className);
+        }
+
+        return clazz;
+    }
+
+    @Override
+    public Enumeration<URL> getResources(String resName) throws IOException {
+        return findResources(resName);
     }
 }

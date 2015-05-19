@@ -36,6 +36,10 @@
 #include "jvm.h"
 
 #include "java_lang_Throwable.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 /*
  * Fill in the current stack trace in this exception.  This is
@@ -44,21 +48,30 @@
  * `this' so you can write 'throw e.fillInStackTrace();'
  */
 JNIEXPORT jobject JNICALL
-Java_java_lang_Throwable_fillInStackTrace(JNIEnv *env, jobject throwable, int dummy)
+Throwable_fillInStackTrace(JNIEnv *env, jobject throwable, int dummy)
 {
     JVM_FillInStackTrace(env, throwable);
     return throwable;
 }
 
 JNIEXPORT jint JNICALL
-Java_java_lang_Throwable_getStackTraceDepth(JNIEnv *env, jobject throwable)
+Throwable_getStackTraceDepth(JNIEnv *env, jobject throwable)
 {
     return JVM_GetStackTraceDepth(env, throwable);
 }
 
 JNIEXPORT jobject JNICALL
-Java_java_lang_Throwable_getStackTraceElement(JNIEnv *env,
+Throwable_getStackTraceElement(JNIEnv *env,
                                               jobject throwable, jint index)
 {
     return JVM_GetStackTraceElement(env, throwable, index);
+}
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(Throwable, fillInStackTrace, "(I)Ljava/lang/Throwable;"),
+  NATIVE_METHOD(Throwable, getStackTraceDepth, "()I"),
+  NATIVE_METHOD(Throwable, getStackTraceElement, "(I)Ljava/lang/StackTraceElement;"),
+};
+
+void register_java_lang_Throwable(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/lang/Throwable", gMethods, NELEM(gMethods));
 }

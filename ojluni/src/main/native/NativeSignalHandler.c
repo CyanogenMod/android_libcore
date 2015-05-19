@@ -29,12 +29,24 @@
 #include <jni.h>
 #include <jlong.h>
 #include "sun_misc_NativeSignalHandler.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 typedef void (*sig_handler_t)(jint, void *, void *);
 
 JNIEXPORT void JNICALL
-Java_sun_misc_NativeSignalHandler_handle0(JNIEnv *env, jclass cls, jint sig, jlong f)
+NativeSignalHandler_handle0(JNIEnv *env, jclass cls, jint sig, jlong f)
 {
     /* We've lost the siginfo and context */
     (*(sig_handler_t)jlong_to_ptr(f))(sig, NULL, NULL);
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(NativeSignalHandler, handle0, "(IJ)V"),
+};
+
+void register_sun_misc_NativeSignalHandler(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "sun/misc/NativeSignalHandler", gMethods, NELEM(gMethods));
 }

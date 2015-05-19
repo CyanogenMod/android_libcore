@@ -36,10 +36,8 @@ package java.lang;
  */
 public class Object {
 
-    private static native void registerNatives();
-    static {
-        registerNatives();
-    }
+    private transient Class<?> shadow$_klass_;
+    private transient int shadow$_monitor_;
 
     /**
      * Returns the runtime class of this {@code Object}. The returned
@@ -61,7 +59,9 @@ public class Object {
      * @see    Class Literals, section 15.8.2 of
      *         <cite>The Java&trade; Language Specification</cite>.
      */
-    public final native Class<?> getClass();
+    public final Class<?> getClass() {
+      return shadow$_klass_;
+    }
 
     /**
      * Returns a hash code value for the object. This method is
@@ -98,7 +98,15 @@ public class Object {
      * @see     java.lang.Object#equals(java.lang.Object)
      * @see     java.lang.System#identityHashCode
      */
-    public native int hashCode();
+    public int hashCode() {
+        int lockWord = shadow$_monitor_;
+        final int lockWordMask = 0xC0000000;  // Top 2 bits.
+        final int lockWordStateHash = 0x80000000;  // Top 2 bits are value 2 (kStateHash).
+        if ((lockWord & lockWordMask) == lockWordStateHash) {
+            return lockWord & ~lockWordMask;
+        }
+        return System.identityHashCode(this);
+    }
 
     /**
      * Indicates whether some other object is "equal to" this one.
@@ -210,7 +218,20 @@ public class Object {
      *               be cloned.
      * @see java.lang.Cloneable
      */
-    protected native Object clone() throws CloneNotSupportedException;
+    protected Object clone() throws CloneNotSupportedException {
+        if (!(this instanceof Cloneable)) {
+            throw new CloneNotSupportedException("Class " + getClass().getName() +
+                                                 " doesn't implement Cloneable");
+        }
+
+        return internalClone();
+    }
+
+    /*
+     * Native helper method for cloning.
+     */
+    private native Object internalClone();
+
 
     /**
      * Returns a string representation of the object. In general, the
@@ -380,7 +401,9 @@ public class Object {
      * @see        java.lang.Object#notify()
      * @see        java.lang.Object#notifyAll()
      */
-    public final native void wait(long timeout) throws InterruptedException;
+    public final void wait(long millis) throws InterruptedException {
+        wait(millis, 0);
+    }
 
     /**
      * Causes the current thread to wait until another thread invokes the
@@ -444,22 +467,7 @@ public class Object {
      *             status</i> of the current thread is cleared when
      *             this exception is thrown.
      */
-    public final void wait(long timeout, int nanos) throws InterruptedException {
-        if (timeout < 0) {
-            throw new IllegalArgumentException("timeout value is negative");
-        }
-
-        if (nanos < 0 || nanos > 999999) {
-            throw new IllegalArgumentException(
-                                "nanosecond timeout value out of range");
-        }
-
-        if (nanos >= 500000 || (nanos != 0 && timeout == 0)) {
-            timeout++;
-        }
-
-        wait(timeout);
-    }
+    public final native void wait(long millis, int nanos) throws InterruptedException;
 
     /**
      * Causes the current thread to wait until another thread invokes the
@@ -499,9 +507,7 @@ public class Object {
      * @see        java.lang.Object#notify()
      * @see        java.lang.Object#notifyAll()
      */
-    public final void wait() throws InterruptedException {
-        wait(0);
-    }
+    public final native void wait() throws InterruptedException;
 
     /**
      * Called by the garbage collector on an object when garbage collection

@@ -30,6 +30,10 @@ import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import libcore.util.BasicLruCache;
+import libcore.util.EmptyArray;
 
 /**
  * This is the common base class of all Java language enumeration types.
@@ -228,13 +232,55 @@ public abstract class Enum<E extends Enum<E>>
      */
     public static <T extends Enum<T>> T valueOf(Class<T> enumType,
                                                 String name) {
-        T result = enumType.enumConstantDirectory().get(name);
+        if (enumType == null)
+            throw new NullPointerException("enumType == null");
+        T[] values = getSharedConstants(enumType);
+        T result = null;
+        if (values != null) {
+            for (T value : values) {
+                if (name.equals(value.name())) {
+                    result = value;
+                }
+            }
+        }
+
         if (result != null)
             return result;
         if (name == null)
             throw new NullPointerException("Name is null");
         throw new IllegalArgumentException(
             "No enum constant " + enumType.getCanonicalName() + "." + name);
+    }
+
+    private static final BasicLruCache<Class<? extends Enum>, Object[]> sharedConstantsCache
+            = new BasicLruCache<Class<? extends Enum>, Object[]>(64) {
+        @Override protected Object[] create(Class<? extends Enum> enumType) {
+            if (!enumType.isEnum()) {
+                return null;
+            }
+            try {
+                Method method = enumType.getDeclaredMethod("values", EmptyArray.CLASS);
+                method.setAccessible(true);
+                return (Object[]) method.invoke((Object[]) null);
+            } catch (NoSuchMethodException impossible) {
+                throw new AssertionError("impossible", impossible);
+            } catch (IllegalAccessException impossible) {
+                throw new AssertionError("impossible", impossible);
+            } catch (InvocationTargetException impossible) {
+                throw new AssertionError("impossible", impossible);
+            }
+        }
+    };
+
+    /**
+     * Returns a shared, mutable array containing the constants of this enum. It
+     * is an error to modify the returned array.
+     *
+     * @hide
+     */
+    @SuppressWarnings("unchecked") // the cache always returns the type matching enumType
+    public static <T extends Enum<T>> T[] getSharedConstants(Class<T> enumType) {
+        return (T[]) sharedConstantsCache.get(enumType);
     }
 
     /**

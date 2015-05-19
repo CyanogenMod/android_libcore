@@ -31,6 +31,10 @@
 #include "jvm_md.h"
 #include "jni_util.h"
 #include "io_util.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 /*
  * Platform-specific support for java.lang.Process
@@ -41,9 +45,9 @@
 #include <sys/types.h>
 #include <ctype.h>
 #ifdef _ALLBSD_SOURCE
-#include <sys/wait.h>
-#else
 #include <wait.h>
+#else
+#include <sys/wait.h>
 #endif
 #include <signal.h>
 #include <string.h>
@@ -285,7 +289,7 @@ static const char * const *parentPathv;
 static jfieldID field_exitcode;
 
 JNIEXPORT void JNICALL
-Java_java_lang_UNIXProcess_initIDs(JNIEnv *env, jclass clazz)
+UNIXProcess_initIDs(JNIEnv *env, jclass clazz)
 {
     field_exitcode = (*env)->GetFieldID(env, clazz, "exitcode", "I");
 
@@ -315,7 +319,7 @@ Java_java_lang_UNIXProcess_initIDs(JNIEnv *env, jclass clazz)
 /* Block until a child process exits and return its exit code.
    Note, can only be called once for any given pid. */
 JNIEXPORT jint JNICALL
-Java_java_lang_UNIXProcess_waitForProcessExit(JNIEnv* env,
+UNIXProcess_waitForProcessExit(JNIEnv* env,
                                               jobject junk,
                                               jint pid)
 {
@@ -825,7 +829,7 @@ startChild(ChildStuff *c) {
 }
 
 JNIEXPORT jint JNICALL
-Java_java_lang_UNIXProcess_forkAndExec(JNIEnv *env,
+UNIXProcess_forkAndExec(JNIEnv *env,
                                        jobject process,
                                        jbyteArray prog,
                                        jbyteArray argBlock, jint argc,
@@ -959,7 +963,18 @@ Java_java_lang_UNIXProcess_forkAndExec(JNIEnv *env,
 }
 
 JNIEXPORT void JNICALL
-Java_java_lang_UNIXProcess_destroyProcess(JNIEnv *env, jobject junk, jint pid)
+UNIXProcess_destroyProcess(JNIEnv *env, jobject junk, jint pid)
 {
     kill(pid, SIGTERM);
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(UNIXProcess, destroyProcess, "(I)V"),
+  NATIVE_METHOD(UNIXProcess, forkAndExec, "([B[BI[BI[B[IZ)I"),
+  NATIVE_METHOD(UNIXProcess, waitForProcessExit, "(I)I"),
+  NATIVE_METHOD(UNIXProcess, initIDs, "()V"),
+};
+
+void register_java_lang_UNIXProcess(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "java/lang/UNIXProcess", gMethods, NELEM(gMethods));
 }

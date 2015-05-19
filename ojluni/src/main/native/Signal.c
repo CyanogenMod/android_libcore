@@ -31,9 +31,13 @@
 #include <jni_util.h>
 #include <jlong.h>
 #include "sun_misc_Signal.h"
+#include "JNIHelp.h"
+
+#define NATIVE_METHOD(className, functionName, signature) \
+{ #functionName, signature, (void*)(className ## _ ## functionName) }
 
 JNIEXPORT jint JNICALL
-Java_sun_misc_Signal_findSignal(JNIEnv *env, jclass cls, jstring name)
+Signal_findSignal(JNIEnv *env, jclass cls, jstring name)
 {
     jint res;
     const char *cname = (*env)->GetStringUTFChars(env, name, 0);
@@ -47,13 +51,23 @@ Java_sun_misc_Signal_findSignal(JNIEnv *env, jclass cls, jstring name)
 }
 
 JNIEXPORT jlong JNICALL
-Java_sun_misc_Signal_handle0(JNIEnv *env, jclass cls, jint sig, jlong handler)
+Signal_handle0(JNIEnv *env, jclass cls, jint sig, jlong handler)
 {
     return ptr_to_jlong(JVM_RegisterSignal(sig, jlong_to_ptr(handler)));
 }
 
 JNIEXPORT void JNICALL
-Java_sun_misc_Signal_raise0(JNIEnv *env, jclass cls, jint sig)
+Signal_raise0(JNIEnv *env, jclass cls, jint sig)
 {
     JVM_RaiseSignal(sig);
+}
+
+static JNINativeMethod gMethods[] = {
+  NATIVE_METHOD(Signal, findSignal, "(Ljava/lang/String;)I"),
+  NATIVE_METHOD(Signal, handle0, "(IJ)J"),
+  NATIVE_METHOD(Signal, raise0, "(I)V"),
+};
+
+void register_sun_misc_Signal(JNIEnv* env) {
+  jniRegisterNativeMethods(env, "sun/misc/Signal", gMethods, NELEM(gMethods));
 }

@@ -37,25 +37,19 @@
 #define OBJ "Ljava/lang/Object;"
 #define STE "Ljava/lang/StackTraceElement;"
 #define STR "Ljava/lang/String;"
+#include "JNIHelp.h"
 
 #define ARRAY_LENGTH(a) (sizeof(a)/sizeof(a[0]))
 
 static JNINativeMethod methods[] = {
-    {"start0",           "()V",        (void *)&JVM_StartThread},
-    {"stop0",            "(" OBJ ")V", (void *)&JVM_StopThread},
-    {"isAlive",          "()Z",        (void *)&JVM_IsThreadAlive},
-    {"suspend0",         "()V",        (void *)&JVM_SuspendThread},
-    {"resume0",          "()V",        (void *)&JVM_ResumeThread},
+    {"start0",           "(JZ)V",        (void *)&JVM_StartThread},
     {"setPriority0",     "(I)V",       (void *)&JVM_SetThreadPriority},
     {"yield",            "()V",        (void *)&JVM_Yield},
-    {"sleep",            "(J)V",       (void *)&JVM_Sleep},
+    {"sleep",            "(Ljava/lang/Object;J)V",       (void *)&JVM_Sleep},
     {"currentThread",    "()" THD,     (void *)&JVM_CurrentThread},
-    {"countStackFrames", "()I",        (void *)&JVM_CountStackFrames},
     {"interrupt0",       "()V",        (void *)&JVM_Interrupt},
     {"isInterrupted",    "(Z)Z",       (void *)&JVM_IsInterrupted},
     {"holdsLock",        "(" OBJ ")Z", (void *)&JVM_HoldsLock},
-    {"getThreads",        "()[" THD,   (void *)&JVM_GetAllThreads},
-    {"dumpThreads",      "([" THD ")[[" STE, (void *)&JVM_DumpThreads},
     {"setNativeName",    "(" STR ")V", (void *)&JVM_SetNativeThreadName},
 };
 
@@ -64,8 +58,7 @@ static JNINativeMethod methods[] = {
 #undef STE
 #undef STR
 
-JNIEXPORT void JNICALL
-Java_java_lang_Thread_registerNatives(JNIEnv *env, jclass cls)
-{
-    (*env)->RegisterNatives(env, cls, methods, ARRAY_LENGTH(methods));
+void register_java_lang_Thread(JNIEnv* env) {
+  jclass cls = (*env)->FindClass(env, "java/lang/Thread");
+  (*env)->RegisterNatives(env, cls, methods, ARRAY_LENGTH(methods));
 }
