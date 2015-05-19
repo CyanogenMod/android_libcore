@@ -48,7 +48,7 @@ jfieldID IO_fd_fdID;
 
 JNIEXPORT void JNICALL
 FileDescriptor_initIDs(JNIEnv *env, jclass fdClass) {
-    IO_fd_fdID = (*env)->GetFieldID(env, fdClass, "fd", "I");
+    IO_fd_fdID = (*env)->GetFieldID(env, fdClass, "descriptor", "I");
 }
 
 /**************************************************************

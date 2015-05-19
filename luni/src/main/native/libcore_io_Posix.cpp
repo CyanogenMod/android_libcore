@@ -1057,7 +1057,7 @@ static jobjectArray Posix_pipe(JNIEnv* env, jobject) {
 }
 
 static jint Posix_poll(JNIEnv* env, jobject, jobjectArray javaStructs, jint timeoutMs) {
-    static jfieldID fdFid = env->GetFieldID(JniConstants::structPollfdClass, "fd", "Ljava/io/FileDescriptor;");
+    static jfieldID fdFid = env->GetFieldID(JniConstants::structPollfdClass, "descriptor", "Ljava/io/FileDescriptor;");
     static jfieldID eventsFid = env->GetFieldID(JniConstants::structPollfdClass, "events", "S");
     static jfieldID reventsFid = env->GetFieldID(JniConstants::structPollfdClass, "revents", "S");
 

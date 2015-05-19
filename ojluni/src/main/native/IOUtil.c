@@ -47,7 +47,7 @@ JNIEXPORT void JNICALL
 IOUtil_initIDs(JNIEnv *env, jclass clazz)
 {
     clazz = (*env)->FindClass(env, "java/io/FileDescriptor");
-    fd_fdID = (*env)->GetFieldID(env, clazz, "fd", "I");
+    fd_fdID = (*env)->GetFieldID(env, clazz, "descriptor", "I");
 }
 
 JNIEXPORT jboolean JNICALL

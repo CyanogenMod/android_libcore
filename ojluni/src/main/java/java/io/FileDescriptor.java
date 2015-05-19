@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class FileDescriptor {
 
-    private int fd;
+    private int descriptor;
 
     /**
      * A counter for tracking the FIS/FOS/RAF instances that
@@ -58,12 +58,12 @@ public final class FileDescriptor {
      * object.
      */
     public /**/ FileDescriptor() {
-        fd = -1;
+        descriptor = -1;
         useCount = new AtomicInteger();
     }
 
-    private /* */ FileDescriptor(int fd) {
-        this.fd = fd;
+    private /* */ FileDescriptor(int descriptor) {
+        this.descriptor = descriptor;
         useCount = new AtomicInteger();
     }
 
@@ -101,7 +101,7 @@ public final class FileDescriptor {
      *          <code>false</code> otherwise.
      */
     public boolean valid() {
-        return fd != -1;
+        return descriptor != -1;
     }
 
     /**
@@ -142,23 +142,23 @@ public final class FileDescriptor {
     }
 
     /**
-     * Returns the int fd. It's highly unlikely you should be calling this. Please discuss
+     * Returns the int descriptor. It's highly unlikely you should be calling this. Please discuss
      * your needs with a libcore maintainer before using this method.
      * @hide internal use only
      */
     // Android-added.
     public final int getInt$() {
-        return fd;
+        return descriptor;
     }
 
     /**
-     * Sets the int fd. It's highly unlikely you should be calling this. Please discuss
+     * Sets the int descriptor. It's highly unlikely you should be calling this. Please discuss
      * your needs with a libcore maintainer before using this method.
      * @hide internal use only
      */
     // Android-added.
     public final void setInt$(int fd) {
-        this.fd = fd;
+        this.descriptor = fd;
     }
 
     /**
@@ -166,12 +166,10 @@ public final class FileDescriptor {
      */
     // Android-added.
     public boolean isSocket() {
-        return isSocket(fd);
+        return isSocket(descriptor);
     }
 
-    private static native boolean isSocket(int fd);
-
-    // ----- END android -----
+    private static native boolean isSocket(int descriptor);
 
     // package private methods used by FIS, FOS and RAF
 

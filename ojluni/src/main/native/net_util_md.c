@@ -320,7 +320,7 @@ NET_GetFileDescriptorID(JNIEnv *env)
 {
     jclass cls = (*env)->FindClass(env, "java/io/FileDescriptor");
     CHECK_NULL_RETURN(cls, NULL);
-    return (*env)->GetFieldID(env, cls, "fd", "I");
+    return (*env)->GetFieldID(env, cls, "descriptor", "I");
 }
 
 #if defined(DONT_ENABLE_IPV6)
