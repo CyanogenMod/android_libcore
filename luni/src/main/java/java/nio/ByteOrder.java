@@ -32,13 +32,10 @@ public final class ByteOrder {
      */
     public static final ByteOrder LITTLE_ENDIAN;
 
-    private static native boolean isLittleEndian();
-
     static {
-        boolean isLittleEndian = isLittleEndian();
-        BIG_ENDIAN = new ByteOrder("BIG_ENDIAN", isLittleEndian);
-        LITTLE_ENDIAN = new ByteOrder("LITTLE_ENDIAN", !isLittleEndian);
-        NATIVE_ORDER = isLittleEndian ? LITTLE_ENDIAN : BIG_ENDIAN;
+        BIG_ENDIAN = new ByteOrder("BIG_ENDIAN", true /* needs swap */);
+        LITTLE_ENDIAN = new ByteOrder("LITTLE_ENDIAN", false /* needs swap */);
+        NATIVE_ORDER = LITTLE_ENDIAN;
     }
 
     private final String name;
