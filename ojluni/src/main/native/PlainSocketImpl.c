@@ -1119,6 +1119,7 @@ static JNINativeMethod gMethods[] = {
   NATIVE_METHOD(PlainSocketImpl, socketSetOption, "(IZLjava/lang/Object;)V"),
   NATIVE_METHOD(PlainSocketImpl, socketShutdown, "(I)V"),
   NATIVE_METHOD(PlainSocketImpl, socketClose0, "(Z)V"),
+  NATIVE_METHOD(PlainSocketImpl, socketAccept, "(Ljava/net/SocketImpl;)V"),
   NATIVE_METHOD(PlainSocketImpl, socketAvailable, "()I"),
   NATIVE_METHOD(PlainSocketImpl, socketListen, "(I)V"),
   NATIVE_METHOD(PlainSocketImpl, socketBind, "(Ljava/net/InetAddress;I)V"),
