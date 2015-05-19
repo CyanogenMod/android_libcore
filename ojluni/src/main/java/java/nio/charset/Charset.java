@@ -26,6 +26,7 @@
 package java.nio.charset;
 
 import java.io.UnsupportedEncodingException;
+import libcore.icu.NativeConverter;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.spi.CharsetProvider;
@@ -485,7 +486,8 @@ public abstract class Charset
         }
 
         Charset cs;
-        if ((cs = standardProvider.charsetForName(charsetName)) != null ||
+        if ((cs = NativeConverter.charsetForName(charsetName))  != null ||
+            (cs = standardProvider.charsetForName(charsetName)) != null ||
             (cs = lookupExtendedCharset(charsetName))           != null ||
             (cs = lookupViaProviders(charsetName))              != null)
         {
@@ -588,6 +590,10 @@ public abstract class Charset
                     TreeMap<String,Charset> m =
                         new TreeMap<String,Charset>(
                             ASCIICaseInsensitiveComparator.CASE_INSENSITIVE_ORDER);
+                    for (String charsetName : NativeConverter.getAvailableCharsetNames()) {
+                        Charset charset = NativeConverter.charsetForName(charsetName);
+                        m.put(charset.name(), charset);
+                    }
                     put(standardProvider.charsets(), m);
                     for (Iterator i = providers(); i.hasNext();) {
                         CharsetProvider cp = (CharsetProvider)i.next();
@@ -614,13 +620,7 @@ public abstract class Charset
     public static Charset defaultCharset() {
         if (defaultCharset == null) {
             synchronized (Charset.class) {
-                String csn = AccessController.doPrivileged(
-                    new GetPropertyAction("file.encoding"));
-                Charset cs = lookup(csn);
-                if (cs != null)
-                    defaultCharset = cs;
-                else
-                    defaultCharset = forName("UTF-8");
+                defaultCharset = forName("UTF-8");
             }
         }
         return defaultCharset;

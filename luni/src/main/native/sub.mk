@@ -14,9 +14,7 @@ LOCAL_SRC_FILES := \
     android_system_OsConstants.cpp \
     canonicalize_path.cpp \
     cbigint.cpp \
-    java_lang_ProcessManager.cpp \
     java_lang_StringToReal.cpp \
-    java_lang_System.cpp \
     java_math_NativeBN.cpp \
     java_nio_ByteOrder.cpp \
     java_nio_charset_Charsets.cpp \
@@ -26,6 +24,7 @@ LOCAL_SRC_FILES := \
     libcore_icu_ICU.cpp \
     libcore_icu_NativeBreakIterator.cpp \
     libcore_icu_NativeCollation.cpp \
+    libcore_icu_NativeConverter.cpp \
     libcore_icu_NativeIDN.cpp \
     libcore_icu_NativeNormalizer.cpp \
     libcore_icu_NativePluralRules.cpp \
