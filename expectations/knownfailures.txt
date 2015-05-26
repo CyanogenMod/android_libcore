@@ -1501,6 +1501,14 @@
   ]
 },
 {
+  description: "OkHttp tests that fail on Wear devices due to a lack of memory",
+  bug: 20055487,
+  names: [
+    "com.squareup.okhttp.internal.spdy.Http20Draft09Test#tooLargeDataFrame",
+    "com.squareup.okhttp.internal.spdy.Spdy3Test#tooLargeDataFrame"
+  ]
+},
+{
   description: "libcore.java.text.DecimalFormatSymbolsTest#test_getInstance_unknown_or_invalid_locale assumes fallback to locale other than en_US_POSIX.",
   bug: 17374604,
   names: [
