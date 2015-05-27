@@ -18,17 +18,11 @@ package libcore.util;
 
 import android.system.ErrnoException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.TimeZone;
 import libcore.io.BufferIterator;
-import libcore.io.IoUtils;
 import libcore.io.MemoryMappedFile;
 
 /**
@@ -252,6 +246,13 @@ public final class ZoneInfoDB {
 
     public boolean hasTimeZone(String id) throws IOException {
       return cache.get(id) != null;
+    }
+
+    @Override protected void finalize() throws Throwable {
+      if (mappedFile != null) {
+        mappedFile.close();
+      }
+      super.finalize();
     }
   }
 
