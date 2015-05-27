@@ -86,4 +86,24 @@ public class DecimalFormatSymbolsTest extends junit.framework.TestCase {
         assertEquals("$", dfs.getCurrencySymbol());
         assertEquals(null, dfs.getInternationalCurrencySymbol());
     }
+
+    // https://code.google.com/p/android/issues/detail?id=170718
+    public void testSerializationOfMultiCharNegativeAndPercentage() throws Exception {
+        DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.forLanguageTag("ar-AR"));
+        assertTrue(dfs.getMinusSignString().length() > 1);
+        assertTrue(dfs.getPercentString().length() > 1);
+
+        // Serialize...
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        new ObjectOutputStream(out).writeObject(dfs);
+        byte[] bytes = out.toByteArray();
+
+        // Deserialize...
+        ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes));
+        DecimalFormatSymbols deserializedDfs = (DecimalFormatSymbols) in.readObject();
+        assertEquals(-1, in.read());
+
+        assertEquals(dfs.getMinusSignString(), deserializedDfs.getMinusSignString());
+        assertEquals(dfs.getPercentString(), deserializedDfs.getPercentString());
+    }
 }
