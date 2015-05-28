@@ -65,7 +65,7 @@ public final class RelativeDateTimeFormatter {
    * This is the internal API that implements the functionality of
    * DateUtils.getRelativeTimeSpanString(long, long, long, int), which is to
    * return a string describing 'time' as a time relative to 'now' such as
-   * '5 minutes ago', or 'in 2 days'. More examples can be found in DateUtils'
+   * '5 minutes ago', or 'In 2 days'. More examples can be found in DateUtils'
    * doc.
    *
    * In the implementation below, it selects the appropriate time unit based on
