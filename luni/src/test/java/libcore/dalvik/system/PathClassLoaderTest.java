@@ -17,9 +17,12 @@
 package libcore.dalvik.system;
 
 import dalvik.system.PathClassLoader;
+import java.lang.reflect.Method;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import libcore.io.Streams;
 import junit.framework.TestCase;
 
 public final class PathClassLoaderTest extends TestCase {
@@ -50,6 +53,26 @@ public final class PathClassLoaderTest extends TestCase {
         stream.close();
         assertTrue(result.exists());
         return result;
+    }
+
+    public void testAppUseOfPathClassLoader() throws Exception {
+        // Extract loading-test.jar from the resource.
+        ClassLoader pcl = PathClassLoaderTest.class.getClassLoader();
+        File jar = File.createTempFile("loading-test", ".jar");
+        try (InputStream in = pcl.getResourceAsStream("dalvik/system/loading-test.jar");
+             FileOutputStream out = new FileOutputStream(jar)) {
+          Streams.copy(in, out);
+        }
+
+        // Execute code from the jar file using a PathClassLoader.
+        PathClassLoader cl = new PathClassLoader(jar.getPath(), pcl);
+        Class c = cl.loadClass("test.Test1");
+        Method m = c.getMethod("test", (Class[]) null);
+        String result = (String) m.invoke(null, (Object[]) null);
+        assertSame("blort", result);
+
+        // Clean up the extracted jar file.
+        assertTrue(jar.delete());
     }
 
     @Override protected void setUp() throws Exception {
