@@ -297,8 +297,14 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
             return minusSign.charAt(0);
         }
 
-        throw new UnsupportedOperationException(
-                "Minus sign spans multiple characters: " + minusSign);
+        // Return the minus sign from Locale.ROOT instead of crashing. None of libcore the parsers
+        // or formatters actually call this function, they use {@code getMinusSignString()} instead
+        // and that function always returns the correct (possibly multi-char) symbol.
+        //
+        // Callers of this method that format strings and expect them to be parseable by
+        // the "standard" parsers (or vice-versa) are hosed, but there's not much we can do to
+        // save them.
+        return '-';
     }
 
     /** @hide */
@@ -349,7 +355,15 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         if (percent.length() == 1) {
             return percent.charAt(0);
         }
-        throw new UnsupportedOperationException("Percent spans multiple characters: " + percent);
+
+        // Return the percent sign from Locale.ROOT instead of crashing. None of the libcore parsers
+        // or formatters actually call this function, they use {@code getPercentString()} instead
+        // and that function always returns the correct (possibly multi-char) symbol.
+        //
+        // Callers of this method that format strings and expect them to be parseable by
+        // the "standard" parsers (or vice-versa) are hosed, but there's not much we can do to
+        // save them.
+        return '%';
     }
 
     /**
