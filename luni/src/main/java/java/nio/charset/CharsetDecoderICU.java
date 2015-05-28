@@ -202,7 +202,7 @@ final class CharsetDecoderICU extends CharsetDecoder {
 
     private void setPosition(CharBuffer out) {
         if (out.hasArray()) {
-            out.position(out.position() + data[OUTPUT_OFFSET] - out.arrayOffset());
+            out.position(out.position() + data[OUTPUT_OFFSET]);
         } else {
             out.put(output, 0, data[OUTPUT_OFFSET]);
         }
