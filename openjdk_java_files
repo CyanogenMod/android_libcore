@@ -75,6 +75,7 @@ java/io/FilterReader.java
 java/io/FilterWriter.java
 java/io/Flushable.java
 java/io/InputStream.java
+java/io/InputStreamReader.java
 java/io/InterruptedIOException.java
 java/io/InvalidClassException.java
 java/io/InvalidObjectException.java
