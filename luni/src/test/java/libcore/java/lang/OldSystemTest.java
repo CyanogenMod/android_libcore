@@ -267,7 +267,7 @@ public class OldSystemTest extends junit.framework.TestCase {
         long afterGC = rt.totalMemory() - rt.freeMemory();
         assertTrue("memory was not released after calling System.gc()." +
                 "before gc: " + beforeGC + "; after gc: " + afterGC,
-                beforeGC >= afterGC);
+                beforeGC > afterGC);
     }
 
     public void test_getenv() {
