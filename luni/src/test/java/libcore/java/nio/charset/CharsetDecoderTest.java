@@ -105,4 +105,15 @@ public class CharsetDecoderTest extends junit.framework.TestCase {
         assertEquals(1, cb.position());
         assertEquals('\u2603', cb.get(0));
     }
+
+    public void testBufferWithNonZeroOffset() {
+        CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
+        CharBuffer cb = CharBuffer.allocate(128);
+        cb.position(42);
+        CharBuffer out = cb.slice();
+        CoderResult cr = decoder.decode(
+                ByteBuffer.wrap(new byte[] { 'h', 'e', 'l', 'l', 'o'}), out, false);
+        assertTrue(cr.isUnderflow());
+        assertEquals(5, out.position());
+    }
 }
