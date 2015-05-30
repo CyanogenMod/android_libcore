@@ -33,7 +33,6 @@
 package java.lang;
 
 import com.android.dex.Dex;
-import java.lang.reflect.ArtMethod;
 
 /**
  * A dex cache holds resolved copies of strings, fields, methods, and classes from the dexfile.
@@ -49,7 +48,7 @@ final class DexCache {
      * References to methods as they become resolved following interpreter semantics. May refer to
      * methods defined in other dex files.
      */
-    ArtMethod[] resolvedMethods;
+    Object resolvedMethods;
 
     /**
      * References to fields as they become resolved following interpreter semantics. May refer to
