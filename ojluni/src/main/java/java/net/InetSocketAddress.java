@@ -155,7 +155,7 @@ public class InetSocketAddress
      */
     public InetSocketAddress() {
         // These will be filled in the native implementation of recvfrom.
-        holder = null;
+        holder = new InetSocketAddressHolder(null, null, 0);
     }
 
     /**

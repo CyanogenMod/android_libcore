@@ -1156,10 +1156,6 @@ javax/sql/StatementEvent.java
 javax/sql/StatementEventListener.java
 libcore/icu/NativeDecimalFormat.java
 libcore/io/HeapBufferIterator.java
-libcore/net/url/FileHandler.java
-libcore/net/url/FileURLConnection.java
-libcore/net/url/JarHandler.java
-libcore/net/url/JarURLConnectionImpl.java
 org/apache/harmony/security/fortress/Engine.java
 org/apache/harmony/security/fortress/SecurityAccess.java
 org/apache/harmony/security/fortress/Services.java

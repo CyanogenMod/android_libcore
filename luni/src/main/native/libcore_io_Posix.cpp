@@ -379,10 +379,13 @@ static bool fillInetSocketAddress(JNIEnv* env, jint rc, jobject javaInetSocketAd
     if (sender == NULL) {
         return false;
     }
-    static jfieldID addressFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "addr", "Ljava/net/InetAddress;");
-    static jfieldID portFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "port", "I");
-    env->SetObjectField(javaInetSocketAddress, addressFid, sender);
-    env->SetIntField(javaInetSocketAddress, portFid, port);
+    static jfieldID holderFid = env->GetFieldID(JniConstants::inetSocketAddressClass, "holder", "Ljava/net/InetSocketAddress$InetSocketAddressHolder;");
+    jobject holder = env->GetObjectField(javaInetSocketAddress, holderFid);
+
+    static jfieldID addressFid = env->GetFieldID(JniConstants::inetSocketAddressHolderClass, "addr", "Ljava/net/InetAddress;");
+    static jfieldID portFid = env->GetFieldID(JniConstants::inetSocketAddressHolderClass, "port", "I");
+    env->SetObjectField(holder, addressFid, sender);
+    env->SetIntField(holder, portFid, port);
     return true;
 }
 
