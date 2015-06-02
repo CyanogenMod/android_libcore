@@ -16,6 +16,7 @@
 
 package libcore.javax.crypto;
 
+import java.security.InvalidKeyException;
 import java.security.Provider;
 import java.security.Security;
 
@@ -54,7 +55,6 @@ public class KeyAgreementTest extends TestCase {
             public void setup() {
                 put("KeyAgreement.FOO", MockKeyAgreementSpi.AllKeyTypes.class.getName());
                 put("KeyAgreement.FOO SupportedKeyClasses", "none");
-
             }
         };
 
@@ -63,6 +63,31 @@ public class KeyAgreementTest extends TestCase {
             KeyAgreement c = KeyAgreement.getInstance("FOO", mockProvider);
             c.init(new MockKey());
             assertEquals(mockProvider, c.getProvider());
+        } finally {
+            Security.removeProvider(mockProvider.getName());
+        }
+    }
+
+    /**
+     * Several exceptions can be thrown by init. Check that in this case we throw the right one,
+     * as the error could fall under the umbrella of other exceptions.
+     * http://b/18987633
+     */
+    public void testKeyAgreement_init_DoesNotSupportKeyClass_throwsInvalidKeyException()
+            throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("KeyAgreement.FOO", MockKeyAgreementSpi.AllKeyTypes.class.getName());
+                put("KeyAgreement.FOO SupportedKeyClasses", "none");
+            }
+        };
+
+        Security.addProvider(mockProvider);
+        try {
+            KeyAgreement c = KeyAgreement.getInstance("FOO");
+            c.init(new MockKey());
+            fail("Expected InvalidKeyException");
+        } catch (InvalidKeyException expected) {
         } finally {
             Security.removeProvider(mockProvider.getName());
         }

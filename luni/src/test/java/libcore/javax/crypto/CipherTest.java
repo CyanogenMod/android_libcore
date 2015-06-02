@@ -3274,4 +3274,29 @@ public final class CipherTest extends TestCase {
             }
         }
     }
+
+    /**
+     * Several exceptions can be thrown by init. Check that in this case we throw the right one,
+     * as the error could fall under the umbrella of other exceptions.
+     * http://b/18987633
+     */
+    public void testCipher_init_DoesNotSupportKeyClass_throwsInvalidKeyException()
+            throws Exception {
+        Provider mockProvider = new MockProvider("MockProvider") {
+            public void setup() {
+                put("Cipher.FOO", MockCipherSpi.AllKeyTypes.class.getName());
+                put("Cipher.FOO SupportedKeyClasses", "none");
+            }
+        };
+
+        Security.addProvider(mockProvider);
+        try {
+            Cipher c = Cipher.getInstance("FOO");
+            c.init(Cipher.DECRYPT_MODE, new MockKey());
+            fail("Expected InvalidKeyException");
+        } catch (InvalidKeyException expected) {
+        } finally {
+            Security.removeProvider(mockProvider.getName());
+        }
+    }
 }

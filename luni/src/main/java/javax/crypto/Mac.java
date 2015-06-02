@@ -182,7 +182,13 @@ public class Mac implements Cloneable {
             throw new NullPointerException("algorithm == null");
         }
 
-        if (tryAlgorithm(null, provider, algorithm) == null) {
+        boolean providerSupportsAlgorithm;
+        try {
+            providerSupportsAlgorithm = tryAlgorithm(null /* key */, provider, algorithm) != null;
+        } catch (InvalidKeyException e) {
+            throw new IllegalStateException("InvalidKeyException thrown when key == null", e);
+        }
+        if (!providerSupportsAlgorithm) {
             if (provider == null) {
                 throw new NoSuchAlgorithmException("No provider found for " + algorithm);
             } else {
@@ -192,34 +198,41 @@ public class Mac implements Cloneable {
         }
         return new Mac(null, provider, algorithm);
     }
-
-    private static Engine.SpiAndProvider tryAlgorithm(Key key, Provider provider, String algorithm) {
+    /**
+      * @throws InvalidKeyException if the specified key cannot be used to
+      *             initialize this mac.
+      */
+    private static Engine.SpiAndProvider tryAlgorithm(
+            Key key, Provider provider, String algorithm) throws InvalidKeyException {
         if (provider != null) {
             Provider.Service service = provider.getService(SERVICE, algorithm);
             if (service == null) {
                 return null;
             }
-            return tryAlgorithmWithProvider(null, service);
+            return tryAlgorithmWithProvider(service);
         }
         ArrayList<Provider.Service> services = ENGINE.getServices(algorithm);
-        if (services == null) {
+        if (services == null || services.isEmpty()) {
             return null;
         }
+        boolean keySupported = false;
         for (Provider.Service service : services) {
-            Engine.SpiAndProvider sap = tryAlgorithmWithProvider(key, service);
-            if (sap != null) {
-                return sap;
+            if (key == null || service.supportsParameter(key)) {
+                keySupported = true;
+                Engine.SpiAndProvider sap = tryAlgorithmWithProvider(service);
+                if (sap != null) {
+                    return sap;
+                }
             }
+        }
+        if (!keySupported) {
+            throw new InvalidKeyException("No provider supports the provided key");
         }
         return null;
     }
 
-    private static Engine.SpiAndProvider tryAlgorithmWithProvider(Key key, Provider.Service service) {
+    private static Engine.SpiAndProvider tryAlgorithmWithProvider(Provider.Service service) {
         try {
-            if (key != null && !service.supportsParameter(key)) {
-                return null;
-            }
-
             Engine.SpiAndProvider sap = ENGINE.getInstance(service, null);
             if (sap.spi == null || sap.provider == null) {
                 return null;
@@ -235,8 +248,11 @@ public class Mac implements Cloneable {
 
     /**
      * Makes sure a MacSpi that matches this type is selected.
+     *
+     * @throws InvalidKeyException if the specified key cannot be used to
+     *             initialize this mac.
      */
-    private MacSpi getSpi(Key key) {
+    private MacSpi getSpi(Key key) throws InvalidKeyException {
         synchronized (initLock) {
             if (spiImpl != null && provider != null && key == null) {
                 return spiImpl;
@@ -268,7 +284,11 @@ public class Mac implements Cloneable {
      * Convenience call when the Key is not available.
      */
     private MacSpi getSpi() {
-        return getSpi(null);
+        try {
+            return getSpi(null);
+        } catch (InvalidKeyException e) {
+            throw new IllegalStateException("InvalidKeyException thrown when key == null", e);
+        }
     }
 
     /**
