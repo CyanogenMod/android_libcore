@@ -30,6 +30,36 @@ public class StrictMathBenchmark extends SimpleBenchmark {
     private final int i = 1;
     private final long l = 1L;
 
+    /* Values for full line coverage of ceiling function */
+    private static final double[] CEIL_DOUBLES = new double[] {
+            3245817.2018463886,
+            1418139.083668501,
+            3.572936802189103E15,
+            -4.7828929737254625E249,
+            213596.58636369856,
+            6.891928421440976E-96,
+            -7.9318566885477E-36,
+            -1.9610339084804148E15,
+            -4.696725715628246E10,
+            3742491.296880909,
+            7.140274745333553E11
+    };
+
+    /* Values for full line coverage of floor function */
+    private static final double[] FLOOR_DOUBLES = new double[] {
+            7.140274745333553E11,
+            3742491.296880909,
+            -4.696725715628246E10,
+            -1.9610339084804148E15,
+            7.049948629370372E-56,
+            -7.702933170334643E-16,
+            -1.99657681810579,
+            -1.1659287182288336E236,
+            4.085518816513057E15,
+            -1500948.440658056,
+            -2.2316479921415575E7
+    };
+
     public void timeAbsD(int reps) {
         for (int rep = 0; rep < reps; ++rep) {
             StrictMath.abs(d);
@@ -84,9 +114,11 @@ public class StrictMathBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeCeil(int reps) {
+    public void timeCeilOverInterestingValues(int reps) {
         for (int rep = 0; rep < reps; ++rep) {
-            StrictMath.ceil(d);
+            for (int i = 0; i < CEIL_DOUBLES.length; ++i) {
+                StrictMath.ceil(CEIL_DOUBLES[i]);
+            }
         }
     }
 
@@ -126,9 +158,11 @@ public class StrictMathBenchmark extends SimpleBenchmark {
         }
     }
 
-    public void timeFloor(int reps) {
+    public void timeFloorOverInterestingValues(int reps) {
         for (int rep = 0; rep < reps; ++rep) {
-            StrictMath.floor(d);
+            for (int i = 0; i < FLOOR_DOUBLES.length; ++i) {
+                StrictMath.floor(FLOOR_DOUBLES[i]);
+            }
         }
     }
 
